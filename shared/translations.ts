@@ -20,6 +20,9 @@ export const PROJECT_STATUS = {
   cancelado: "Cancelado",
 } as const;
 
+// Alias para compatibilidade
+export const STATUS_LABELS = PROJECT_STATUS;
+
 export const TAX_REGIME = {
   simples_nacional: "Simples Nacional",
   lucro_presumido: "Lucro Presumido",

@@ -52,3 +52,11 @@
 - [x] Adicionar salvamento automático (draft)
 - [x] Criar botão de finalizar fase 1
 - [x] Implementar navegação para fase 2
+
+
+## Página de Detalhes do Projeto (EM ANDAMENTO)
+- [x] Criar ProjetoDetalhes.tsx
+- [x] Implementar stepper de progresso visual
+- [x] Adicionar resumo de status atual
+- [x] Criar botões de ação contextuais
+- [x] Implementar navegação entre fases

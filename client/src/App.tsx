@@ -9,6 +9,7 @@ import NovoProjeto from "./pages/NovoProjeto";
 import Clientes from "./pages/Clientes";
 import NovoCliente from "./pages/NovoCliente";
 import AssessmentFase1 from "./pages/AssessmentFase1";
+import ProjetoDetalhes from "./pages/ProjetoDetalhes";
 import NotFound from "./pages/NotFound";
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/" component={Painel} />
       <Route path="/projetos" component={Projetos} />
       <Route path="/projetos/novo" component={NovoProjeto} />
+      <Route path="/projetos/:id" component={ProjetoDetalhes} />
       <Route path="/clientes" component={Clientes} />
       <Route path="/clientes/novo" component={NovoCliente} />
       <Route path="/projetos/:id/assessment/fase1" component={AssessmentFase1} />
