@@ -232,3 +232,12 @@
 - [ ] Testar edição de template
 - [ ] Testar quadro Kanban (criação, movimentação, exclusão de tarefas)
 - [ ] Validar todos os fluxos principais
+
+## Teste Assessment Completo (EM ANDAMENTO)
+- [ ] Testar preenchimento Assessment Fase 1
+- [ ] Validar salvamento de dados Fase 1
+- [ ] Testar transição automática Fase 1 → Fase 2
+- [ ] Testar preenchimento Assessment Fase 2
+- [ ] Validar salvamento de dados Fase 2
+- [ ] Testar transição Fase 2 → Briefing
+- [ ] Corrigir bugs identificados

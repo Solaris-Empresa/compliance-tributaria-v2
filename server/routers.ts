@@ -160,12 +160,15 @@ export const appRouter = router({
       .input(z.object({
         projectId: z.number(),
         taxRegime: z.enum(["simples_nacional", "lucro_presumido", "lucro_real", "mei"]),
-        businessType: z.string(),
         companySize: z.enum(["mei", "pequena", "media", "grande"]),
-        annualRevenue: z.string().optional(),
-        employeeCount: z.number().optional(),
-        hasAccountingDept: z.boolean().optional(),
+        annualRevenue: z.number(),
+        businessSector: z.string().optional(),
         mainActivity: z.string().optional(),
+        employeeCount: z.number().optional(),
+        hasAccountingDept: z.string().optional(),
+        currentERPSystem: z.string().optional(),
+        mainChallenges: z.string().optional(),
+        complianceGoals: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         await db.saveAssessmentPhase1({

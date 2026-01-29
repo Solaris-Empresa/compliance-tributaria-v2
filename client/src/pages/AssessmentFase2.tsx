@@ -35,10 +35,10 @@ export default function AssessmentFase2() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const { data: project } = trpc.projects.getById.useQuery({ id: projectId });
-  const { data: phase1 } = trpc.assessment.getPhase1.useQuery({ projectId });
-  const { data: existingPhase2 } = trpc.assessment.getPhase2.useQuery({ projectId });
+  const { data: phase1 } = trpc.assessmentPhase1.get.useQuery({ projectId });
+  const { data: existingPhase2 } = trpc.assessmentPhase2.get.useQuery({ projectId });
 
-  const generateQuestions = trpc.assessment.generatePhase2Questions.useMutation({
+  const generateQuestions = trpc.assessmentPhase2.generateQuestions.useMutation({
     onSuccess: (data) => {
       setQuestions(data.questions);
       setIsGenerating(false);
@@ -50,7 +50,7 @@ export default function AssessmentFase2() {
     },
   });
 
-  const savePhase2 = trpc.assessment.savePhase2.useMutation({
+  const savePhase2 = trpc.assessmentPhase2.save.useMutation({
     onSuccess: () => {
       toast.success("Respostas salvas!");
     },
@@ -59,7 +59,7 @@ export default function AssessmentFase2() {
     },
   });
 
-  const completePhase2 = trpc.assessment.completePhase2.useMutation({
+  const completePhase2 = trpc.assessmentPhase2.complete.useMutation({
     onSuccess: () => {
       toast.success("Assessment concluído! Gerando briefing...");
       setLocation(`/projetos/${projectId}/briefing`);

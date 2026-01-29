@@ -36,9 +36,9 @@ export default function AssessmentFase1() {
   });
 
   const { data: project } = trpc.projects.getById.useQuery({ id: projectId });
-  const { data: existingAssessment } = trpc.assessment.getPhase1.useQuery({ projectId });
+  const { data: existingAssessment } = trpc.assessmentPhase1.get.useQuery({ projectId });
 
-  const savePhase1 = trpc.assessment.savePhase1.useMutation({
+  const savePhase1 = trpc.assessmentPhase1.save.useMutation({
     onSuccess: () => {
       toast.success("Assessment Fase 1 salvo com sucesso!");
     },
@@ -47,7 +47,7 @@ export default function AssessmentFase1() {
     },
   });
 
-  const completePhase1 = trpc.assessment.completePhase1.useMutation({
+  const completePhase1 = trpc.assessmentPhase1.complete.useMutation({
     onSuccess: () => {
       toast.success("Fase 1 concluída! Avançando para Fase 2...");
       setLocation(`/projetos/${projectId}/assessment/fase2`);
@@ -95,7 +95,7 @@ export default function AssessmentFase1() {
     });
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     // Validar campos obrigatórios
     const requiredFields = [
       "taxRegime",
@@ -112,12 +112,16 @@ export default function AssessmentFase1() {
       return;
     }
 
-    completePhase1.mutate({
+    // Primeiro salvar os dados
+    await savePhase1.mutateAsync({
       projectId,
       ...formData,
       annualRevenue: parseFloat(formData.annualRevenue),
       employeeCount: formData.employeeCount ? parseInt(formData.employeeCount) : undefined,
     });
+
+    // Depois completar a fase
+    await completePhase1.mutateAsync({ projectId });
   };
 
   if (!project) {

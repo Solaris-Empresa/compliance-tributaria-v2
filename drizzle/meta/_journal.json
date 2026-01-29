@@ -8,6 +8,13 @@
       "when": 1769706069647,
       "tag": "0000_first_zarda",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1769712501721,
+      "tag": "0001_mixed_tiger_shark",
+      "breakpoints": true
     }
   ]
 }
