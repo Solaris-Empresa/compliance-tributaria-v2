@@ -44,3 +44,11 @@
 - [ ] MatrizRiscos.tsx - Com campo Prompt
 - [ ] PlanoAcao.tsx - Com aprovação
 - [ ] QuadroTarefas.tsx - Gestão de tarefas e fases
+
+
+## Assessment Fase 1 (EM ANDAMENTO)
+- [x] Criar página AssessmentFase1.tsx
+- [x] Implementar formulário com campos estruturados
+- [x] Adicionar salvamento automático (draft)
+- [x] Criar botão de finalizar fase 1
+- [x] Implementar navegação para fase 2
