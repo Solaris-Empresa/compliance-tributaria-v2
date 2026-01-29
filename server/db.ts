@@ -35,7 +35,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     };
     const updateSet: Record<string, unknown> = {};
 
-    const textFields = ["name", "email", "loginMethod"] as const;
+    const textFields = ["name", "email", "loginMethod", "companyName", "phone"] as const;
     type TextField = (typeof textFields)[number];
 
     const assignNullable = (field: TextField) => {
@@ -89,4 +89,36 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function getUserById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateUser(id: number, data: Partial<InsertUser>) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update user: database not available");
+    return false;
+  }
+
+  try {
+    await db.update(users).set(data).where(eq(users.id, id));
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to update user:", error);
+    return false;
+  }
+}
+
+export async function listUsers(role?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (role) {
+    return await db.select().from(users).where(eq(users.role, role as any));
+  }
+  return await db.select().from(users);
+}

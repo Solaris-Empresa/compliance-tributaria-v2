@@ -43,15 +43,18 @@
 }
 
 :root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
+  /* Primary - Deep Blue (trust, professionalism) */
+  --primary: oklch(0.45 0.15 250);
+  --primary-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.45 0.15 250);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  
+  /* Chart colors for dashboards */
+  --chart-1: oklch(0.55 0.20 250);
+  --chart-2: oklch(0.60 0.18 160);
+  --chart-3: oklch(0.65 0.20 40);
+  --chart-4: oklch(0.55 0.15 280);
+  --chart-5: oklch(0.60 0.18 200);
   --radius: 0.65rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.235 0.015 65);
@@ -59,13 +62,16 @@
   --card-foreground: oklch(0.235 0.015 65);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.235 0.015 65);
-  --secondary: oklch(0.98 0.001 286.375);
-  --secondary-foreground: oklch(0.4 0.015 65);
+  /* Secondary - Green (compliance, success) */
+  --secondary: oklch(0.55 0.15 160);
+  --secondary-foreground: oklch(0.98 0 0);
   --muted: oklch(0.967 0.001 286.375);
   --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.141 0.005 285.823);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* Accent - Orange (alerts, priorities) */
+  --accent: oklch(0.65 0.20 40);
+  --accent-foreground: oklch(0.98 0 0);
+  /* Destructive - Red (critical risks) */
+  --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
@@ -119,6 +125,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
