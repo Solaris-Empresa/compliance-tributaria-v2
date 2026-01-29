@@ -1,0 +1,19 @@
+{
+  "query": "SHOW TABLES LIKE 'assessment%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SHOW TABLES LIKE 'assessment%';",
+  "rows": [
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (assessment%)": "assessmentPhase1"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (assessment%)": "assessmentPhase2"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (assessment%)": "assessmentTemplates"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (assessment%)\nassessmentPhase1\nassessmentPhase2\nassessmentTemplates\n",
+  "stderr": "",
+  "execution_time_ms": 132
+}

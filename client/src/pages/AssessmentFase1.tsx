@@ -96,6 +96,7 @@ export default function AssessmentFase1() {
   };
 
   const handleComplete = async () => {
+    console.log('[handleComplete] Iniciando com projectId:', projectId);
     // Validar campos obrigatórios
     const requiredFields = [
       "taxRegime",
@@ -113,6 +114,7 @@ export default function AssessmentFase1() {
     }
 
     // Primeiro salvar os dados
+    console.log('[handleComplete] Salvando dados...', formData);
     await savePhase1.mutateAsync({
       projectId,
       ...formData,
@@ -121,6 +123,7 @@ export default function AssessmentFase1() {
     });
 
     // Depois completar a fase
+    console.log('[handleComplete] Completando fase com projectId:', projectId);
     await completePhase1.mutateAsync({ projectId });
   };
 

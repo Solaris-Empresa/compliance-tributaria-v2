@@ -234,8 +234,11 @@
 - [ ] Validar todos os fluxos principais
 
 ## Teste Assessment Completo (EM ANDAMENTO)
-- [ ] Testar preenchimento Assessment Fase 1
-- [ ] Validar salvamento de dados Fase 1
+- [x] Testar preenchimento Assessment Fase 1 (formulário funciona)
+- [x] Corrigir schema do banco (campos businessSector, mainChallenges, complianceGoals adicionados)
+- [x] Corrigir endpoints tRPC (assessmentPhase1.* em vez de assessment.*)
+- [ ] BUG CRÍTICO: Endpoint save não salva dados no banco (INVESTIGAR)
+- [x] Inserir dados via SQL para desbloquear testes (TEMPORÁRIO)
 - [ ] Testar transição automática Fase 1 → Fase 2
 - [ ] Testar preenchimento Assessment Fase 2
 - [ ] Validar salvamento de dados Fase 2
