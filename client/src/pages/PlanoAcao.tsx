@@ -2,9 +2,18 @@ import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Edit2, History, Loader2, Sparkles, XCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Edit2, History, Loader2, Sparkles, XCircle, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { toast } from "sonner";
@@ -24,6 +33,14 @@ export default function PlanoAcao() {
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
   const [approvalComment, setApprovalComment] = useState("");
   const [approvalAction, setApprovalAction] = useState<"aprovar" | "rejeitar">("aprovar");
+  const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
+  const [templateData, setTemplateData] = useState({
+    name: "",
+    description: "",
+    taxRegime: "" as "simples_nacional" | "lucro_presumido" | "lucro_real" | "mei" | "",
+    businessType: "",
+    companySize: "" as "mei" | "pequena" | "media" | "grande" | "",
+  });
 
   const { data: project } = trpc.projects.getById.useQuery({ id: projectId });
   const { data: actionPlan, refetch } = trpc.actionPlan.getByProjectId.useQuery({ projectId });
@@ -80,6 +97,23 @@ export default function PlanoAcao() {
     },
   });
 
+  const saveAsTemplate = trpc.templates.create.useMutation({
+    onSuccess: () => {
+      setShowSaveTemplateDialog(false);
+      toast.success("Template criado com sucesso!");
+      setTemplateData({
+        name: "",
+        description: "",
+        taxRegime: "",
+        businessType: "",
+        companySize: "",
+      });
+    },
+    onError: (error) => {
+      toast.error(`Erro ao criar template: ${error.message}`);
+    },
+  });
+
   useEffect(() => {
     if (project && !actionPlan && !isGenerating) {
       setIsGenerating(true);
@@ -115,6 +149,40 @@ export default function PlanoAcao() {
         comment: approvalComment,
       });
     }
+  };
+
+  const handleOpenSaveTemplate = () => {
+    if (project) {
+      setTemplateData({
+        name: `Template - ${project.name}`,
+        description: `Template baseado no projeto ${project.name}`,
+        taxRegime: project.taxRegime || "",
+        businessType: project.businessType || "",
+        companySize: project.companySize || "",
+      });
+    }
+    setShowSaveTemplateDialog(true);
+  };
+
+  const handleSaveTemplate = () => {
+    if (!templateData.name.trim()) {
+      toast.error("Nome do template é obrigatório");
+      return;
+    }
+
+    if (!actionPlan?.planData) {
+      toast.error("Nenhum plano disponível para salvar");
+      return;
+    }
+
+    saveAsTemplate.mutate({
+      name: templateData.name,
+      description: templateData.description || undefined,
+      taxRegime: templateData.taxRegime || undefined,
+      businessType: templateData.businessType || undefined,
+      companySize: templateData.companySize || undefined,
+      templateData: actionPlan.planData,
+    });
   };
 
   const isAdvogado = user?.role === "advogado_senior";
@@ -207,6 +275,17 @@ export default function PlanoAcao() {
                             </p>
                           )}
                         </div>
+                        {(user?.role === "equipe_solaris" || user?.role === "advogado_senior") && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleOpenSaveTemplate}
+                            className="bg-white hover:bg-green-50"
+                          >
+                            <Save className="h-4 w-4 mr-2" />
+                            Salvar como Template
+                          </Button>
+                        )}
                       </>
                     )}
                     {actionPlan.approvalStatus === "rejeitado" && (
@@ -473,6 +552,113 @@ export default function PlanoAcao() {
                 </Card>
               ))}
             </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showSaveTemplateDialog} onOpenChange={setShowSaveTemplateDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Salvar como Template</DialogTitle>
+              <DialogDescription>
+                Salve este plano aprovado como template para reutilizar em projetos futuros
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="template-name">Nome do Template *</Label>
+                <Input
+                  id="template-name"
+                  value={templateData.name}
+                  onChange={(e) => setTemplateData({ ...templateData, name: e.target.value })}
+                  placeholder="Ex: Template Reforma Tributária - Comércio Varejista"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="template-description">Descrição</Label>
+                <Textarea
+                  id="template-description"
+                  value={templateData.description}
+                  onChange={(e) => setTemplateData({ ...templateData, description: e.target.value })}
+                  placeholder="Descreva quando este template deve ser usado..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Regime Tributário</Label>
+                  <Select
+                    value={templateData.taxRegime || "none"}
+                    onValueChange={(value) => setTemplateData({ ...templateData, taxRegime: value === "none" ? "" : value as any })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Nenhum</SelectItem>
+                      <SelectItem value="simples_nacional">Simples Nacional</SelectItem>
+                      <SelectItem value="lucro_presumido">Lucro Presumido</SelectItem>
+                      <SelectItem value="lucro_real">Lucro Real</SelectItem>
+                      <SelectItem value="mei">MEI</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Porte da Empresa</Label>
+                  <Select
+                    value={templateData.companySize || "none"}
+                    onValueChange={(value) => setTemplateData({ ...templateData, companySize: value === "none" ? "" : value as any })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Nenhum</SelectItem>
+                      <SelectItem value="mei">MEI</SelectItem>
+                      <SelectItem value="pequena">Pequena</SelectItem>
+                      <SelectItem value="media">Média</SelectItem>
+                      <SelectItem value="grande">Grande</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="template-business-type">Tipo de Negócio</Label>
+                <Input
+                  id="template-business-type"
+                  value={templateData.businessType}
+                  onChange={(e) => setTemplateData({ ...templateData, businessType: e.target.value })}
+                  placeholder="Ex: Comércio Varejista, Indústria, Serviços..."
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowSaveTemplateDialog(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleSaveTemplate}
+                disabled={saveAsTemplate.isPending}
+              >
+                {saveAsTemplate.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Salvar Template
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

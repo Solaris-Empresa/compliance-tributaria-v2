@@ -147,3 +147,13 @@
 - [x] Implementar contador de uso de template automático
 - [x] Criar navegação para biblioteca de templates no menu
 - [x] Adicionar rota no App.tsx
+
+
+## Salvar Plano como Template (CONCLUÍDO)
+- [x] Adicionar botão "Salvar como Template" na página PlanoAcao (visível apenas para equipe SOLARIS e advogados sênior)
+- [x] Criar modal SaveAsTemplateDialog com campos de metadados completos
+- [x] Implementar validação de campos obrigatórios (nome)
+- [x] Adicionar auto-preenchimento de metadados do projeto
+- [x] Implementar chamada ao endpoint templates.create
+- [x] Adicionar feedback visual de sucesso com toast
+- [x] Implementar estados de loading durante salvamento
