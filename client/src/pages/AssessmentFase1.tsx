@@ -63,6 +63,17 @@ export default function AssessmentFase1() {
     },
   });
 
+  // Workaround: Forçar transição manual
+  const forceTransition = trpc.assessmentPhase1.forceTransitionToPhase2.useMutation({
+    onSuccess: () => {
+      toast.success("Transição manual realizada! Redirecionando para Fase 2...");
+      setLocation(`/projetos/${projectId}/assessment/fase2`);
+    },
+    onError: (error) => {
+      toast.error(`Erro na transição: ${error.message}`);
+    },
+  });
+
   // Carregar dados existentes
   useEffect(() => {
     if (existingAssessment) {
@@ -383,6 +394,26 @@ export default function AssessmentFase1() {
             ) : (
               <>
                 Finalizar Fase 1 e Continuar
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </>
+            )}
+          </Button>
+          
+          {/* Workaround: Botão de transição manual */}
+          <Button
+            onClick={() => forceTransition.mutate({ projectId })}
+            disabled={forceTransition.isPending}
+            variant="outline"
+            className="flex-1"
+          >
+            {forceTransition.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Pulando...
+              </>
+            ) : (
+              <>
+                Pular para Fase 2
                 <ArrowRight className="h-4 w-4 ml-2" />
               </>
             )}

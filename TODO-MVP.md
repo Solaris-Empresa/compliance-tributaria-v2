@@ -267,3 +267,10 @@
 - [ ] Testar transição completa via browser
 - [ ] Validar salvamento de dados e atualização de status
 - [ ] Confirmar navegação automática para Fase 2
+
+
+## Workaround Transição Manual Fase 1→2 (CONCLUÍDO ✅)
+- [x] Criar endpoint forceTransitionToPhase2 no backend
+- [x] Adicionar botão "Pular para Fase 2" no AssessmentFase1
+- [x] Testar transição manual via browser - FUNCIONANDO!
+- [x] Status do projeto atualizado para assessment_fase2 confirmado no banco

@@ -214,6 +214,18 @@ export const appRouter = router({
 
         return { success: true };
       }),
+
+    // Workaround para transição manual (sem validações complexas)
+    forceTransitionToPhase2: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        console.log('[forceTransitionToPhase2] Forçando transição para projectId:', input.projectId);
+        
+        // Apenas atualizar status do projeto
+        await db.updateProject(input.projectId, { status: "assessment_fase2" });
+        
+        return { success: true };
+      }),
   }),
 
   // ==========================================================================
