@@ -444,3 +444,89 @@ export async function getPhasesByProject(projectId: number) {
 
   return result;
 }
+
+// ============================================================================
+// ACTION PLAN TEMPLATES
+// ============================================================================
+
+export async function createActionPlanTemplate(data: InsertActionPlanTemplate) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(actionPlanTemplates).values(data);
+  return Number(result.insertId);
+}
+
+export async function getAllActionPlanTemplates() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db
+    .select()
+    .from(actionPlanTemplates)
+    .orderBy(desc(actionPlanTemplates.usageCount), desc(actionPlanTemplates.createdAt));
+
+  return result;
+}
+
+export async function getActionPlanTemplateById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(actionPlanTemplates)
+    .where(eq(actionPlanTemplates.id, id))
+    .limit(1);
+
+  return result[0];
+}
+
+export async function deleteActionPlanTemplate(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(actionPlanTemplates).where(eq(actionPlanTemplates.id, id));
+}
+
+export async function incrementTemplateUsage(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const template = await getActionPlanTemplateById(id);
+  if (!template) return;
+
+  await db
+    .update(actionPlanTemplates)
+    .set({ usageCount: (template.usageCount || 0) + 1 })
+    .where(eq(actionPlanTemplates.id, id));
+}
+
+export async function searchActionPlanTemplates(filters: {
+  taxRegime?: string;
+  businessType?: string;
+  companySize?: string;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  let query = db.select().from(actionPlanTemplates);
+
+  const conditions = [];
+  if (filters.taxRegime) {
+    conditions.push(eq(actionPlanTemplates.taxRegime, filters.taxRegime as any));
+  }
+  if (filters.businessType) {
+    conditions.push(eq(actionPlanTemplates.businessType, filters.businessType));
+  }
+  if (filters.companySize) {
+    conditions.push(eq(actionPlanTemplates.companySize, filters.companySize as any));
+  }
+
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions)) as any;
+  }
+
+  const result = await query.orderBy(desc(actionPlanTemplates.usageCount));
+  return result;
+}

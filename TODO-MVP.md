@@ -133,3 +133,17 @@
 - [x] Adicionar traduções de status e prioridade no translations.ts
 - [x] Adicionar rota no App.tsx
 - [x] Adicionar atalho rápido na página ProjetoDetalhes
+
+
+## Templates de Planos de Ação (CONCLUÍDO)
+- [x] Revisar schema da tabela actionPlanTemplates
+- [x] Criar funções no db.ts para templates (create, list, getById, delete, incrementUsage, search)
+- [x] Criar endpoints tRPC para templates (list, search, getById, create, delete, applyTemplate)
+- [x] Implementar página BibliotecaTemplates.tsx
+- [x] Adicionar listagem de templates com filtros (regime tributário, porte)
+- [x] Criar modal de visualização de template com metadados
+- [x] Implementar exclusão de template com confirmação
+- [x] Adicionar estatísticas de templates (total, mais usado, uso total)
+- [x] Implementar contador de uso de template automático
+- [x] Criar navegação para biblioteca de templates no menu
+- [x] Adicionar rota no App.tsx

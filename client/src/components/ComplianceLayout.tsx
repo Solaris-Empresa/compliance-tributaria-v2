@@ -9,7 +9,8 @@ import {
   LogOut, 
   Menu,
   Users,
-  X
+  X,
+  Library
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -55,6 +56,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     { href: "/", icon: LayoutDashboard, label: "Painel" },
     { href: "/projetos", icon: FolderKanban, label: "Projetos" },
     { href: "/clientes", icon: Users, label: "Clientes" },
+    { href: "/templates", icon: Library, label: "Templates" },
     { href: "/dashboard-executivo", icon: BarChart3, label: "Dashboard Executivo" },
   ];
 

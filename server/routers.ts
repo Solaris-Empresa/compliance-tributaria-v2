@@ -880,6 +880,108 @@ Retorne APENAS JSON válido no formato:
   }),
 
   // ==========================================================================
+  // ACTION PLAN TEMPLATES
+  // ==========================================================================
+
+  templates: router({
+    list: protectedProcedure.query(async () => {
+      return await db.getAllActionPlanTemplates();
+    }),
+
+    search: protectedProcedure
+      .input(z.object({
+        taxRegime: z.enum(["simples_nacional", "lucro_presumido", "lucro_real", "mei"]).optional(),
+        businessType: z.string().optional(),
+        companySize: z.enum(["mei", "pequena", "media", "grande"]).optional(),
+      }))
+      .query(async ({ input }) => {
+        return await db.searchActionPlanTemplates(input);
+      }),
+
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const template = await db.getActionPlanTemplateById(input.id);
+        if (!template) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Template not found" });
+        }
+        return template;
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string(),
+        description: z.string().optional(),
+        taxRegime: z.enum(["simples_nacional", "lucro_presumido", "lucro_real", "mei"]).optional(),
+        businessType: z.string().optional(),
+        companySize: z.enum(["mei", "pequena", "media", "grande"]).optional(),
+        templateData: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Apenas equipe SOLARIS pode criar templates
+        if (ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+
+        const templateId = await db.createActionPlanTemplate({
+          ...input,
+          createdBy: ctx.user.id,
+          createdAt: new Date(),
+          usageCount: 0,
+        });
+
+        return { templateId };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        // Apenas equipe SOLARIS pode excluir templates
+        if (ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+
+        await db.deleteActionPlanTemplate(input.id);
+        return { success: true };
+      }),
+
+    applyTemplate: projectAccessMiddleware
+      .input(z.object({
+        projectId: z.number(),
+        templateId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const template = await db.getActionPlanTemplateById(input.templateId);
+        if (!template) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Template not found" });
+        }
+
+        // Criar novo plano baseado no template
+        const planId = await db.saveActionPlan({
+          projectId: input.projectId,
+          planData: template.templateData,
+          version: 1,
+          templateId: template.id,
+          generatedAt: new Date(),
+          generatedBy: ctx.user.id,
+          generatedByAI: false,
+          status: "em_avaliacao",
+          approvedAt: undefined,
+          approvedBy: undefined,
+          rejectionReason: undefined,
+        });
+
+        // Incrementar contador de uso
+        await db.incrementTemplateUsage(input.templateId);
+
+        // Atualizar status do projeto
+        await db.updateProject(input.projectId, { status: "plano_acao" });
+
+        return { planId, plan: JSON.parse(template.templateData) };
+      }),
+  }),
+
+  // ==========================================================================
   // USERS (Admin)
   // ==========================================================================
 
