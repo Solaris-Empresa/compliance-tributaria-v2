@@ -160,8 +160,9 @@ export async function generateTemplatePDF(template: Template): Promise<Buffer> {
               }
 
               if (detalhes.length > 0) {
-                doc.fontSize(8).font('Helvetica')
-                  .text(detalhes.join(' | '), { indent: 50, color: '#666666' });
+                doc.fontSize(8).font('Helvetica').fillColor('#666666')
+                  .text(detalhes.join(' | '), { indent: 50 })
+                  .fillColor('#000000');
               }
 
               doc.moveDown(0.3);

@@ -54,44 +54,9 @@ export const appRouter = router({
   system: systemRouter,
   
   // ==========================================================================
-  // USERS / CLIENTS
+  // AUTH
   // ==========================================================================
   
-  users: router({    listClients: protectedProcedure.query(async ({ ctx }) => {
-      // Apenas Equipe SOLARIS pode listar clientes
-      if (ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
-      }
-      return await db.getUsersByRole("cliente");
-    }),
-
-    createClient: protectedProcedure
-      .input(z.object({
-        name: z.string().min(1),
-        email: z.string().email(),
-        companyName: z.string().optional(),
-        cnpj: z.string().optional(),
-        cpf: z.string().optional(),
-        segment: z.string().optional(),
-        phone: z.string().optional(),
-        observations: z.string().optional(),
-      }))
-      .mutation(async ({ input, ctx }) => {
-        // Apenas Equipe SOLARIS pode criar clientes
-        if (ctx.user.role !== "equipe_solaris") {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
-        }
-        
-        const userId = await db.createUser({
-          ...input,
-          role: "cliente",
-          openId: `manual-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        });
-
-        return { userId };
-      }),
-  }),
-
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -274,7 +239,7 @@ export const appRouter = router({
         // Verificar se existe template compatível
         const template = await db.findCompatibleTemplate(
           phase1.taxRegime,
-          phase1.businessType,
+          phase1.businessSector || null,
           phase1.companySize
         );
 
@@ -291,7 +256,7 @@ export const appRouter = router({
 
 Com base nas informações da Fase 1 do assessment:
 - Regime tributário: ${phase1.taxRegime}
-- Tipo de negócio: ${phase1.businessType}
+- Tipo de negócio: ${phase1.businessSector}
 - Porte da empresa: ${phase1.companySize}
 - Faturamento anual: ${phase1.annualRevenue || "Não informado"}
 - Número de funcionários: ${phase1.employeeCount || "Não informado"}
@@ -330,7 +295,8 @@ IMPORTANTE: Todas as perguntas devem ter "required": true.`;
             ],
           });
 
-          let content = response.choices[0]?.message?.content || "{}";
+          const rawContent = response.choices[0]?.message?.content;
+          let content = typeof rawContent === 'string' ? rawContent : "{}";
           
           // Remover markdown code blocks se existirem (```json ... ``` ou ``` ... ```)
           content = content.trim();
@@ -434,7 +400,7 @@ Com base nas respostas completas do assessment:
 
 Fase 1:
 - Regime: ${phase1.taxRegime}
-- Tipo de negócio: ${phase1.businessType}
+- Tipo de negócio: ${phase1.businessSector}
 - Porte: ${phase1.companySize}
 - Faturamento: ${phase1.annualRevenue || "N/A"}
 - Funcionários: ${phase1.employeeCount || "N/A"}
@@ -468,7 +434,8 @@ Retorne APENAS JSON válido no formato:
           ],
         });
 
-        const content = response.choices[0]?.message?.content || "{}";
+        const rawContent = response.choices[0]?.message?.content;
+        const content = typeof rawContent === 'string' ? rawContent : "{}";
         const parsed = JSON.parse(content);
 
         await db.saveBriefing({
@@ -545,7 +512,8 @@ Retorne APENAS JSON válido no formato:
           ],
         });
 
-        const content = response.choices[0]?.message?.content || "{}";
+        const rawContent = response.choices[0]?.message?.content;
+        const content = typeof rawContent === 'string' ? rawContent : "{}";
         const parsed = JSON.parse(content);
 
         const risks = parsed.risks.map((r: any) => ({
@@ -616,7 +584,8 @@ Retorne APENAS JSON válido no formato:
           ],
         });
 
-        const content = response.choices[0]?.message?.content || "{}";
+        const rawContent = response.choices[0]?.message?.content;
+        const content = typeof rawContent === 'string' ? rawContent : "{}";
         const parsed = JSON.parse(content);
 
         const newRisks = parsed.risks.map((r: any) => ({
@@ -727,7 +696,8 @@ Retorne APENAS JSON válido no formato:
           ],
         });
 
-        const content = response.choices[0]?.message?.content || "{}";
+        const rawContent = response.choices[0]?.message?.content;
+        const content = typeof rawContent === 'string' ? rawContent : "{}";
         const parsed = JSON.parse(content);
 
         const planId = await db.saveActionPlan({
@@ -823,7 +793,8 @@ Retorne APENAS JSON válido no formato:
           ],
         });
 
-        const content = response.choices[0]?.message?.content || "{}";
+        const rawContent = response.choices[0]?.message?.content;
+        const content = typeof rawContent === 'string' ? rawContent : "{}";
 
         const newPlanId = await db.saveActionPlan({
           projectId: input.projectId,
@@ -1121,6 +1092,32 @@ Retorne APENAS JSON válido no formato:
 
       return await db.getUsersByRole("cliente");
     }),
+
+    createClient: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        email: z.string().email(),
+        companyName: z.string().optional(),
+        cnpj: z.string().optional(),
+        cpf: z.string().optional(),
+        segment: z.string().optional(),
+        phone: z.string().optional(),
+        observations: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Apenas Equipe SOLARIS pode criar clientes
+        if (ctx.user.role !== "equipe_solaris") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
+        
+        const userId = await db.createUser({
+          ...input,
+          role: "cliente",
+          openId: `manual-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        });
+
+        return { userId };
+      }),
   }),
 });
 

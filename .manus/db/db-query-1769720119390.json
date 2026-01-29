@@ -1,0 +1,67 @@
+{
+  "query": "SHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SHOW TABLES;",
+  "rows": [
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "actionPlanPromptHistory"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "actionPlanTemplates"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "actionPlans"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "assessmentPhase1"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "assessmentPhase2"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "assessmentTemplates"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "briefings"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "cosoControls"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "milestones"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "notifications"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "phases"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "projectParticipants"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "projects"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "riskMatrix"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "riskMatrixPromptHistory"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "taskComments"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "tasks"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_A6U3GSLMGWuR2P4b85Hiyy\n__drizzle_migrations\nactionPlanPromptHistory\nactionPlanTemplates\nactionPlans\nassessmentPhase1\nassessmentPhase2\nassessmentTemplates\nbriefings\ncosoControls\nmilestones\nnotifications\nphases\nprojectParticipants\nprojects\nriskMatrix\nriskMatrixPromptHistory\ntaskComments\ntasks\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 49
+}

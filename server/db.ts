@@ -124,8 +124,14 @@ export async function createProject(data: InsertProject) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  console.log('[createProject] Input data:', data);
   const result = await db.insert(projects).values(data);
-  return Number(result.insertId);
+  console.log('[createProject] Insert result:', result);
+  const insertId = Array.isArray(result) ? result[0]?.insertId : result.insertId;
+  console.log('[createProject] insertId:', insertId);
+  const projectId = Number(insertId);
+  console.log('[createProject] Final projectId:', projectId);
+  return projectId;
 }
 
 export async function getProjectById(id: number) {
@@ -255,7 +261,7 @@ export async function getAssessmentPhase2(projectId: number) {
   return result[0];
 }
 
-export async function findCompatibleTemplate(taxRegime: string, businessType: string, companySize: string) {
+export async function findCompatibleTemplate(taxRegime: string, businessType: string | null, companySize: string) {
   const db = await getDb();
   if (!db) return undefined;
 
