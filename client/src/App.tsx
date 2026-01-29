@@ -9,6 +9,7 @@ import NovoProjeto from "./pages/NovoProjeto";
 import Clientes from "./pages/Clientes";
 import NovoCliente from "./pages/NovoCliente";
 import AssessmentFase1 from "./pages/AssessmentFase1";
+import AssessmentFase2 from "./pages/AssessmentFase2";
 import ProjetoDetalhes from "./pages/ProjetoDetalhes";
 import NotFound from "./pages/NotFound";
 
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/clientes" component={Clientes} />
       <Route path="/clientes/novo" component={NovoCliente} />
       <Route path="/projetos/:id/assessment/fase1" component={AssessmentFase1} />
+      <Route path="/projetos/:id/assessment/fase2" component={AssessmentFase2} />
       {/* Outras rotas serão adicionadas conforme implementação */}
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
