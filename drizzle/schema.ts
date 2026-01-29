@@ -59,6 +59,20 @@ export const projects = mysqlTable("projects", {
     "personalizada"
   ]).default("semanal").notNull(),
   notificationEmail: varchar("notificationEmail", { length: 320 }),
+  // Campos do Assessment
+  taxRegime: mysqlEnum("taxRegime", [
+    "simples_nacional",
+    "lucro_presumido",
+    "lucro_real"
+  ]),
+  businessType: varchar("businessType", { length: 255 }),
+  companySize: mysqlEnum("companySize", [
+    "mei",
+    "micro",
+    "pequena",
+    "media",
+    "grande"
+  ]),
 });
 
 export type Project = typeof projects.$inferSelect;

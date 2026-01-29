@@ -210,3 +210,9 @@
   - [x] Criado arquivo storage.ts com funções storagePut e storageGet
   - [x] Corrigido verificação de admin em trpc.ts
   - [x] 0 erros TypeScript restantes!
+
+- [x] Adicionar campos taxRegime, businessType e companySize ao schema de projects (Bug #19)
+  - [x] Adicionados 3 novos campos ao schema: taxRegime (enum), businessType (varchar), companySize (enum)
+  - [x] Migração 0003_same_tarot.sql aplicada com sucesso
+  - [x] Testes 22/22 passando (100%)
+  - [x] 0 erros TypeScript

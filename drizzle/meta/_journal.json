@@ -22,6 +22,13 @@
       "when": 1769728191734,
       "tag": "0002_oval_synch",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1769729195814,
+      "tag": "0003_same_tarot",
+      "breakpoints": true
     }
   ]
 }
