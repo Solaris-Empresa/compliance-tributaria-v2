@@ -60,6 +60,14 @@ export const IMPACT = {
   muito_alto: "Muito Alto",
 } as const;
 
+export const COSO_COMPONENTS = {
+  ambiente_controle: "Ambiente de Controle",
+  avaliacao_riscos: "Avaliação de Riscos",
+  atividades_controle: "Atividades de Controle",
+  informacao_comunicacao: "Informação e Comunicação",
+  monitoramento: "Monitoramento",
+} as const;
+
 export const NOTIFICATION_FREQUENCY = {
   diaria: "Diária",
   semanal: "Semanal",

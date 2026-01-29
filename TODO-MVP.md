@@ -90,3 +90,15 @@
 - [x] Implementar comentários e solicitação de ajustes
 - [x] Criar botão de aprovar/rejeitar
 - [x] Implementar transição para fase de execução
+
+
+## Matriz de Riscos (CONCLUÍDO)
+- [x] Criar MatrizRiscos.tsx
+- [x] Implementar listagem de riscos
+- [x] Criar formulário de novo risco
+- [x] Implementar campo Prompt editável
+- [x] Adicionar categorização pelos 5 componentes COSO
+- [x] Criar matriz visual de probabilidade vs impacto (4x4)
+- [x] Implementar histórico de versões do Prompt
+- [x] Adicionar filtros por componente COSO e nível de risco
+- [x] Criar indicadores visuais de risco (cores)
