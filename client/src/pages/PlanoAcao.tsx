@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Edit2, Eye, FileText, History, Loader2, Sparkles, XCircle, Save } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Download, Edit2, Eye, FileText, History, Loader2, Sparkles, XCircle, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { toast } from "sonner";
@@ -218,6 +218,35 @@ export default function PlanoAcao() {
     setShowTemplateSelectionDialog(false);
     setIsGenerating(true);
     generatePlan.mutate({ projectId });
+  };
+
+  const exportPdfMutation = trpc.templates.exportToPdf.useMutation({
+    onSuccess: (data) => {
+      const byteCharacters = atob(data.data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = data.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success('PDF exportado com sucesso!');
+    },
+    onError: (error) => {
+      toast.error(`Erro ao exportar PDF: ${error.message}`);
+    },
+  });
+
+  const handleExportPreviewPdf = (templateId: number) => {
+    toast.info('Gerando PDF...');
+    exportPdfMutation.mutate({ id: templateId });
   };
 
   const handleApplyTemplate = () => {
@@ -1057,15 +1086,24 @@ export default function PlanoAcao() {
                 Fechar
               </Button>
               {previewTemplateId && (
-                <Button
-                  onClick={() => {
-                    setSelectedTemplateId(previewTemplateId);
-                    setShowTemplatePreview(false);
-                  }}
-                >
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Selecionar este Template
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleExportPreviewPdf(previewTemplateId)}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Exportar PDF
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setSelectedTemplateId(previewTemplateId);
+                      setShowTemplatePreview(false);
+                    }}
+                  >
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Selecionar este Template
+                  </Button>
+                </>
               )}
             </DialogFooter>
           </DialogContent>

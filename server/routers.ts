@@ -6,6 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import * as db from "./db";
+import { generateTemplatePDF } from "./templatePdf";
 
 // ============================================================================
 // HELPERS
@@ -999,6 +1000,24 @@ Retorne APENAS JSON válido no formato:
         await db.updateProject(input.projectId, { status: "plano_acao" });
 
         return { planId, plan: JSON.parse(template.templateData) };
+      }),
+
+    exportToPdf: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const template = await db.getActionPlanTemplateById(input.id);
+        if (!template) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Template not found" });
+        }
+
+        // Gerar PDF do template
+        const pdfBuffer = await generateTemplatePDF(template);
+        
+        // Retornar PDF como base64 para download no frontend
+        return {
+          filename: `template-${template.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`,
+          data: pdfBuffer.toString('base64'),
+        };
       }),
   }),
 

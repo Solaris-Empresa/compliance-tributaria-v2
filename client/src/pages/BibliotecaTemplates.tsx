@@ -28,6 +28,7 @@ import {
   TrendingUp,
   Filter,
   X,
+  Download,
 } from "lucide-react";
 import { Link } from "wouter";
 import { TAX_REGIME, COMPANY_SIZE } from "@shared/translations";
@@ -72,6 +73,36 @@ export default function BibliotecaTemplates() {
   const handleViewTemplate = (template: Template) => {
     setSelectedTemplate(template);
     setIsViewDialogOpen(true);
+  };
+
+  const exportPdfMutation = trpc.templates.exportToPdf.useMutation({
+    onSuccess: (data) => {
+      // Converter base64 para blob e fazer download
+      const byteCharacters = atob(data.data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = data.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success('PDF exportado com sucesso!');
+    },
+    onError: (error) => {
+      toast.error(`Erro ao exportar PDF: ${error.message}`);
+    },
+  });
+
+  const handleExportPdf = (templateId: number, templateName: string) => {
+    toast.info('Gerando PDF...');
+    exportPdfMutation.mutate({ id: templateId });
   };
 
   const handleDeleteTemplate = (templateId: number, templateName: string) => {
@@ -273,6 +304,13 @@ export default function BibliotecaTemplates() {
                             <Edit2 className="h-4 w-4" />
                           </a>
                         </Link>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleExportPdf(template.id, template.name)}
+                      >
+                        <Download className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"

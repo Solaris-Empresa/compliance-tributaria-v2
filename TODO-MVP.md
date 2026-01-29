@@ -196,3 +196,20 @@
 - [x] Exibir tarefas com badges de prioridade e detalhes (👤 responsável, 📅 prazo, ⏱️ horas)
 - [x] Adicionar botão "Selecionar este Template" no footer do preview
 - [x] Tratamento de erro para JSON inválido
+
+
+## Exportação de Template para PDF (CONCLUÍDO)
+- [x] Criar endpoint templates.exportToPdf no routers.ts
+- [x] Instalar pdfkit e @types/pdfkit
+- [x] Criar módulo server/templatePdf.ts com função generateTemplatePDF
+- [x] Formatar documento com cabeçalho (nome, descrição em justify)
+- [x] Adicionar seção de metadados (regime, porte, tipo, uso)
+- [x] Adicionar estatísticas (contadores de fases, ações, tarefas)
+- [x] Renderizar estrutura hierárquica com indentação (fases → ações → tarefas)
+- [x] Aplicar formatação visual (bold para títulos, tamanhos de fonte, cores)
+- [x] Adicionar detalhes de tarefas (prioridade, responsável, prazo, horas)
+- [x] Implementar paginação automática e rodapé com número de páginas
+- [x] Adicionar botão "Exportar PDF" (Download icon) na biblioteca de templates
+- [x] Adicionar botão "Exportar PDF" no modal de preview do PlanoAcao
+- [x] Implementar download automático via base64 → blob → link temporário
+- [x] Adicionar toasts de feedback (info ao gerar, success ao concluir, error em falhas)
