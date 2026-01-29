@@ -50,7 +50,7 @@ export default function AssessmentFase2() {
       setIsGenerating(false);
       toast.success("Perguntas geradas com sucesso!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       setIsGenerating(false);
       toast.error(`Erro ao gerar perguntas: ${error.message}`);
     },
@@ -60,7 +60,7 @@ export default function AssessmentFase2() {
     onSuccess: () => {
       toast.success("Respostas salvas!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`Erro ao salvar: ${error.message}`);
     },
   });
@@ -70,7 +70,7 @@ export default function AssessmentFase2() {
       toast.success("Assessment concluído! Gerando briefing...");
       setLocation(`/projetos/${projectId}/briefing`);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`Erro ao finalizar: ${error.message}`);
     },
   });

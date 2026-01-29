@@ -23,7 +23,7 @@ export default function Briefing() {
       refetch();
       toast.success("Briefing gerado com sucesso!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       setIsGenerating(false);
       toast.error(`Erro ao gerar briefing: ${error.message}`);
     },
@@ -34,7 +34,7 @@ export default function Briefing() {
       toast.success("Avançando para Matriz de Riscos...");
       setLocation(`/projetos/${projectId}/matriz-riscos`);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`Erro: ${error.message}`);
     },
   });

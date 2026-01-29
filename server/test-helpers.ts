@@ -20,9 +20,11 @@ export function createMockContext(
       companyName: null,
       cnpj: null,
       segment: null,
-      notes: null,
+      observations: null,
+      loginMethod: null,
       createdAt: new Date(),
       updatedAt: new Date(),
+      lastSignedIn: new Date(),
     },
   };
 }
@@ -57,7 +59,7 @@ export function generateFakeAssessmentPhase1(projectId: number, overrides: any =
     projectId,
     taxRegime: "lucro_presumido" as const,
     companySize: "media" as const,
-    annualRevenue: 5000000,
+    annualRevenue: "5000000",
     businessSector: "Tecnologia",
     employeeCount: 50,
     hasInternationalOperations: false,

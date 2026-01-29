@@ -2,7 +2,7 @@ import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal 
 
 /**
  * Tabela de usuários - IA SOLARIS
- * Perfis: cliente, equipe_solaris, advogado_senior
+ * Perfis: cliente, equipe_solaris, advogado_senior, advogado_junior
  */
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -10,7 +10,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["cliente", "equipe_solaris", "advogado_senior"]).default("cliente").notNull(),
+  role: mysqlEnum("role", ["cliente", "equipe_solaris", "advogado_senior", "advogado_junior"]).default("cliente").notNull(),
   companyName: varchar("companyName", { length: 255 }),
   cnpj: varchar("cnpj", { length: 18 }),
   cpf: varchar("cpf", { length: 14 }),

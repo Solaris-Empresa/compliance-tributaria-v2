@@ -71,7 +71,7 @@ export default function PlanoAcao() {
       refetch();
       toast.success("Plano de ação gerado com sucesso!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       setIsGenerating(false);
       toast.error(`Erro ao gerar plano: ${error.message}`);
     },
@@ -83,7 +83,7 @@ export default function PlanoAcao() {
       refetch();
       toast.success("Prompt atualizado e plano regenerado!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`Erro ao atualizar prompt: ${error.message}`);
     },
   });
@@ -97,7 +97,7 @@ export default function PlanoAcao() {
         setLocation(`/projetos/${projectId}`);
       }, 1500);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`Erro ao aprovar plano: ${error.message}`);
     },
   });
@@ -108,7 +108,7 @@ export default function PlanoAcao() {
       refetch();
       toast.success("Plano rejeitado. Solicitação de ajustes enviada.");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`Erro ao rejeitar plano: ${error.message}`);
     },
   });
@@ -125,7 +125,7 @@ export default function PlanoAcao() {
         companySize: "",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`Erro ao criar template: ${error.message}`);
     },
   });
@@ -137,7 +137,7 @@ export default function PlanoAcao() {
       refetch();
       toast.success("Template aplicado com sucesso!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       setIsGenerating(false);
       toast.error(`Erro ao aplicar template: ${error.message}`);
     },
@@ -239,7 +239,7 @@ export default function PlanoAcao() {
       window.URL.revokeObjectURL(url);
       toast.success('PDF exportado com sucesso!');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`Erro ao exportar PDF: ${error.message}`);
     },
   });

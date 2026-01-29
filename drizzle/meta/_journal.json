@@ -15,6 +15,13 @@
       "when": 1769712501721,
       "tag": "0001_mixed_tiger_shark",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1769728191734,
+      "tag": "0002_oval_synch",
+      "breakpoints": true
     }
   ]
 }

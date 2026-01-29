@@ -158,7 +158,7 @@ export const appRouter = router({
         projectId: z.number(),
         taxRegime: z.enum(["simples_nacional", "lucro_presumido", "lucro_real", "mei"]),
         companySize: z.enum(["mei", "pequena", "media", "grande"]),
-        annualRevenue: z.number(),
+        annualRevenue: z.string(),
         businessSector: z.string().optional(),
         mainActivity: z.string().optional(),
         employeeCount: z.number().optional(),
@@ -347,7 +347,7 @@ IMPORTANTE: Todas as perguntas devem ter "required": true.`;
     saveAnswers: protectedProcedure
       .input(z.object({
         projectId: z.number(),
-        answers: z.record(z.any()),
+        answers: z.record(z.string(), z.any()),
       }))
       .mutation(async ({ input, ctx }) => {
         // Validar acesso ao projeto
@@ -1154,7 +1154,7 @@ Retorne APENAS JSON válido no formato:
         if (!project) throw new TRPCError({ code: "NOT_FOUND" });
         
         // Validar acesso
-        if (project.userId !== ctx.user.id && ctx.user.role === "cliente") {
+        if (project.clientId !== ctx.user.id && ctx.user.role === "cliente") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         
@@ -1167,7 +1167,7 @@ Retorne APENAS JSON válido no formato:
         const project = await db.getProjectById(input.projectId);
         if (!project) throw new TRPCError({ code: "NOT_FOUND" });
         
-        if (project.userId !== ctx.user.id && ctx.user.role === "cliente") {
+        if (project.clientId !== ctx.user.id && ctx.user.role === "cliente") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         
@@ -1180,7 +1180,7 @@ Retorne APENAS JSON válido no formato:
         const project = await db.getProjectById(input.projectId);
         if (!project) throw new TRPCError({ code: "NOT_FOUND" });
         
-        if (project.userId !== ctx.user.id && ctx.user.role === "cliente") {
+        if (project.clientId !== ctx.user.id && ctx.user.role === "cliente") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         
@@ -1193,7 +1193,7 @@ Retorne APENAS JSON válido no formato:
         const project = await db.getProjectById(input.projectId);
         if (!project) throw new TRPCError({ code: "NOT_FOUND" });
         
-        if (project.userId !== ctx.user.id && ctx.user.role === "cliente") {
+        if (project.clientId !== ctx.user.id && ctx.user.role === "cliente") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         

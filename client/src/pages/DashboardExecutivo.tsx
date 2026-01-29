@@ -53,23 +53,23 @@ export default function DashboardExecutivo() {
 
   // Calcular KPIs
   const totalProjects = projects?.length || 0;
-  const projectsInExecution = projects?.filter((p) => p.status === "em_execucao").length || 0;
-  const projectsApproved = projects?.filter((p) => p.status === "aprovado").length || 0;
-  const projectsCompleted = projects?.filter((p) => p.status === "concluido").length || 0;
+  const projectsInExecution = projects?.filter((p: any) => p.status === "em_execucao").length || 0;
+  const projectsApproved = projects?.filter((p: any) => p.status === "aprovado").length || 0;
+  const projectsCompleted = projects?.filter((p: any) => p.status === "concluido").length || 0;
 
   const totalRisks = allRisks?.length || 0;
   const risksByCriticality = {
-    critico: allRisks?.filter((r) => r.riskLevel === "critico").length || 0,
-    alto: allRisks?.filter((r) => r.riskLevel === "alto").length || 0,
-    medio: allRisks?.filter((r) => r.riskLevel === "medio").length || 0,
-    baixo: allRisks?.filter((r) => r.riskLevel === "baixo").length || 0,
+    critico: allRisks?.filter((r: any) => r.riskLevel === "critico").length || 0,
+    alto: allRisks?.filter((r: any) => r.riskLevel === "alto").length || 0,
+    medio: allRisks?.filter((r: any) => r.riskLevel === "medio").length || 0,
+    baixo: allRisks?.filter((r: any) => r.riskLevel === "baixo").length || 0,
   };
 
   const totalTasks = allTasks?.length || 0;
-  const tasksCompleted = allTasks?.filter((t) => t.status === "concluida").length || 0;
-  const tasksInProgress = allTasks?.filter((t) => t.status === "em_andamento").length || 0;
-  const tasksPending = allTasks?.filter((t) => t.status === "pendente").length || 0;
-  const tasksOverdue = allTasks?.filter((t) => {
+  const tasksCompleted = allTasks?.filter((t: any) => t.status === "concluida").length || 0;
+  const tasksInProgress = allTasks?.filter((t: any) => t.status === "em_andamento").length || 0;
+  const tasksPending = allTasks?.filter((t: any) => t.status === "pendente").length || 0;
+  const tasksOverdue = allTasks?.filter((t: any) => {
     if (!t.dueDate || t.status === "concluida") return false;
     return new Date(t.dueDate) < new Date();
   }).length || 0;
@@ -79,7 +79,7 @@ export default function DashboardExecutivo() {
   // Dados para gráfico de distribuição de riscos por COSO
   const risksByComponent = Object.keys(COSO_COMPONENTS).map((key) => ({
     name: COSO_COMPONENTS[key as keyof typeof COSO_COMPONENTS],
-    value: allRisks?.filter((r) => r.component === key).length || 0,
+    value: allRisks?.filter((r: any) => r.component === key).length || 0,
   }));
 
   // Dados para gráfico de riscos por nível
@@ -287,7 +287,7 @@ export default function DashboardExecutivo() {
           <CardContent>
             {projects && projects.length > 0 ? (
               <div className="space-y-4">
-                {projects.slice(0, 5).map((project) => (
+                {projects.slice(0, 5).map((project: any) => (
                   <Link key={project.id} href={`/projetos/${project.id}`}>
                     <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent cursor-pointer">
                       <div>

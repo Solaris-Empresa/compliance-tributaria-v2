@@ -73,7 +73,7 @@ export default function MatrizRiscos() {
       toast.success("Risco cadastrado com sucesso!");
       resetForm();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`Erro ao cadastrar risco: ${error.message}`);
     },
   });
@@ -84,7 +84,7 @@ export default function MatrizRiscos() {
       refetch();
       toast.success("Prompt atualizado e descrição regenerada!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`Erro ao atualizar prompt: ${error.message}`);
     },
   });
@@ -131,7 +131,7 @@ export default function MatrizRiscos() {
     return "baixo";
   };
 
-  const filteredRisks = risks?.filter((risk) => {
+  const filteredRisks = risks?.filter((risk: any) => {
     if (filterComponent !== "todos" && risk.component !== filterComponent) return false;
     if (filterRiskLevel !== "todos" && risk.riskLevel !== filterRiskLevel) return false;
     return true;
@@ -245,7 +245,7 @@ export default function MatrizRiscos() {
         {/* Statistics */}
         <div className="grid grid-cols-4 gap-4 mb-6">
           {Object.entries(RISK_LEVELS).map(([level, { label, color }]) => {
-            const count = risks?.filter((r) => r.riskLevel === level).length || 0;
+            const count = risks?.filter((r: any) => r.riskLevel === level).length || 0;
             return (
               <Card key={level}>
                 <CardContent className="pt-6">
@@ -277,7 +277,7 @@ export default function MatrizRiscos() {
               <CardContent>
                 <div className="space-y-4">
                   {componentRisks
-                    .filter((risk) => filterRiskLevel === "todos" || risk.riskLevel === filterRiskLevel)
+                    .filter((risk: any) => filterRiskLevel === "todos" || risk.riskLevel === filterRiskLevel)
                     .map((risk: any) => (
                       <Card key={risk.id} className="border-l-4" style={{
                         borderLeftColor: risk.riskLevel === "critico" ? "#dc2626" :
