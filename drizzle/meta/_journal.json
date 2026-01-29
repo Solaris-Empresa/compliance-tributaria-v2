@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1769697323942,
-      "tag": "0000_graceful_william_stryker",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1769697895037,
-      "tag": "0001_material_supreme_intelligence",
+      "when": 1769706069647,
+      "tag": "0000_first_zarda",
       "breakpoints": true
     }
   ]

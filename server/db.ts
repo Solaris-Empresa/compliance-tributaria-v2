@@ -66,7 +66,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.role = 'equipe_solaris';
     }
 
-    values.lastSignedIn = new Date();
+    // lastSignedIn apenas no update, no insert usa defaultNow() do schema
     updateSet.lastSignedIn = new Date();
 
     await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
