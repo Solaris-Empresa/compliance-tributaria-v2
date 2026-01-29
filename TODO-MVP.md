@@ -169,3 +169,16 @@
 - [x] Implementar aplicação de template selecionado via endpoint
 - [x] Adicionar feedback visual durante aplicação (loading states)
 - [x] Seleção visual de template com destaque
+
+
+## Edição de Templates (CONCLUÍDO)
+- [x] Criar função updateActionPlanTemplate no db.ts
+- [x] Adicionar endpoint templates.update no routers.ts
+- [x] Criar página EditarTemplate.tsx com formulário completo
+- [x] Implementar formulário de edição com todos os campos (nome, descrição, metadados)
+- [x] Adicionar editor JSON (Textarea) para conteúdo do template
+- [x] Implementar validações de campos obrigatórios e JSON válido
+- [x] Adicionar controle de permissões (apenas equipe SOLARIS e advogado sênior)
+- [x] Integrar botão "Editar" na biblioteca de templates
+- [x] Adicionar rota /templates/:id/editar no App.tsx
+- [x] Estados de loading e feedback com toast

@@ -502,6 +502,16 @@ export async function incrementTemplateUsage(id: number) {
     .where(eq(actionPlanTemplates.id, id));
 }
 
+export async function updateActionPlanTemplate(id: number, data: Partial<InsertActionPlanTemplate>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(actionPlanTemplates)
+    .set(data)
+    .where(eq(actionPlanTemplates.id, id));
+}
+
 export async function searchActionPlanTemplates(filters: {
   taxRegime?: string;
   businessType?: string;

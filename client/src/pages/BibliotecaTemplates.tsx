@@ -23,11 +23,13 @@ import {
 import { 
   FileText, 
   Eye, 
+  Edit2,
   Trash2, 
   TrendingUp,
   Filter,
   X,
 } from "lucide-react";
+import { Link } from "wouter";
 import { TAX_REGIME, COMPANY_SIZE } from "@shared/translations";
 import { toast } from "sonner";
 
@@ -260,6 +262,17 @@ export default function BibliotecaTemplates() {
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         Visualizar
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                      >
+                        <Link href={`/templates/${template.id}/editar`}>
+                          <a className="flex items-center gap-2">
+                            <Edit2 className="h-4 w-4" />
+                          </a>
+                        </Link>
                       </Button>
                       <Button
                         variant="ghost"

@@ -933,6 +933,27 @@ Retorne APENAS JSON válido no formato:
         return { templateId };
       }),
 
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        taxRegime: z.enum(["simples_nacional", "lucro_presumido", "lucro_real", "mei"]).optional(),
+        businessType: z.string().optional(),
+        companySize: z.enum(["mei", "pequena", "media", "grande"]).optional(),
+        templateData: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Apenas equipe SOLARIS pode editar templates
+        if (ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+
+        const { id, ...updateData } = input;
+        await db.updateActionPlanTemplate(id, updateData);
+        return { success: true };
+      }),
+
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input, ctx }) => {
