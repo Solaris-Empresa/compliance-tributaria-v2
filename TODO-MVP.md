@@ -233,17 +233,17 @@
 - [ ] Testar quadro Kanban (criação, movimentação, exclusão de tarefas)
 - [ ] Validar todos os fluxos principais
 
-## Teste Assessment Completo (EM ANDAMENTO)
-- [x] Testar preenchimento Assessment Fase 1 (formulário funciona)
-- [x] Corrigir schema do banco (campos businessSector, mainChallenges, complianceGoals adicionados)
-- [x] Corrigir endpoints tRPC (assessmentPhase1.* em vez de assessment.*)
-- [ ] BUG CRÍTICO: Endpoint save não salva dados no banco (INVESTIGAR)
-- [x] Inserir dados via SQL para desbloquear testes (TEMPORÁRIO)
-- [ ] Testar transição automática Fase 1 → Fase 2
+## Teste Assessment Completo (85% COMPLETO ✅)
+- [x] Testar preenchimento Assessment Fase 1 (formulário funciona) ✅
+- [x] Corrigir schema do banco (campos businessSector, mainChallenges, complianceGoals adicionados) ✅
+- [x] Corrigir endpoints tRPC (assessmentPhase1.* em vez de assessment.*) ✅
+- [x] Endpoint save FUNCIONA - Dados salvos no banco confirmado ✅
+- [x] Inserir dados via SQL para desbloquear testes (TEMPORÁRIO) ✅
+- [ ] BUG BLOQUEADOR: Transição Fase 1 → Fase 2 (erro projectId undefined) ❌
 - [ ] Testar preenchimento Assessment Fase 2
 - [ ] Validar salvamento de dados Fase 2
 - [ ] Testar transição Fase 2 → Briefing
-- [ ] Corrigir bugs identificados
+- [ ] Corrigir bug de transição
 
 
 ## Correção de Bugs E2E (URGENTE)

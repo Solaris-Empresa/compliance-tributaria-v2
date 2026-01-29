@@ -102,35 +102,37 @@ export default function AssessmentFase1() {
   };
 
   const handleComplete = async () => {
-    console.log('[handleComplete] Iniciando com projectId:', projectId);
-    // Validar campos obrigatórios
-    const requiredFields = [
-      "taxRegime",
-      "companySize",
-      "annualRevenue",
-      "businessSector",
-      "mainActivity",
-    ];
+    try {
+      // Validar campos obrigatórios
+      const requiredFields = [
+        "taxRegime",
+        "companySize",
+        "annualRevenue",
+        "businessSector",
+        "mainActivity",
+      ];
 
-    const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
+      const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
 
-    if (missingFields.length > 0) {
-      toast.error("Preencha todos os campos obrigatórios antes de continuar");
-      return;
+      if (missingFields.length > 0) {
+        toast.error("Preencha todos os campos obrigatórios antes de continuar");
+        return;
+      }
+
+      // Primeiro salvar os dados
+      await savePhase1.mutateAsync({
+        projectId,
+        ...formData,
+        annualRevenue: parseFloat(formData.annualRevenue),
+        employeeCount: formData.employeeCount ? parseInt(formData.employeeCount) : undefined,
+      });
+
+      // Depois completar a fase
+      await completePhase1.mutateAsync({ projectId });
+    } catch (error) {
+      console.error('[handleComplete] Erro:', error);
+      toast.error(`Erro ao salvar: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
     }
-
-    // Primeiro salvar os dados
-    console.log('[handleComplete] Salvando dados...', formData);
-    await savePhase1.mutateAsync({
-      projectId,
-      ...formData,
-      annualRevenue: parseFloat(formData.annualRevenue),
-      employeeCount: formData.employeeCount ? parseInt(formData.employeeCount) : undefined,
-    });
-
-    // Depois completar a fase
-    console.log('[handleComplete] Completando fase com projectId:', projectId);
-    await completePhase1.mutateAsync({ projectId });
   };
 
   if (!project) {
