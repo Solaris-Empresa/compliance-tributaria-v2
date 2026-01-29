@@ -110,3 +110,47 @@
 - [ ] Criar guia de uso para administradores
 - [ ] Adicionar documentação de APIs tRPC
 - [ ] Documentar prompts LLM utilizados
+
+
+## Fluxo End-to-End - Criação de Projeto
+- [x] Criar página de novo projeto (/projetos/novo)
+- [x] Implementar formulário de dados do projeto
+- [ ] Adicionar seleção de cliente/empresa
+- [ ] Implementar adição de participantes com papéis
+- [x] Criar confirmação e redirecionamento
+
+## Fluxo End-to-End - Assessment
+- [x] Criar página de detalhes do projeto (/projetos/:id)
+- [x] Implementar formulário de Assessment Fase 1
+- [x] Adicionar validação e salvamento automático
+- [x] Criar botão de avançar para Fase 2
+- [x] Implementar geração de perguntas dinâmicas (Fase 2)
+- [x] Criar renderizador de formulário dinâmico
+- [x] Adicionar indicador de progresso
+- [x] Implementar finalização do assessment
+
+## Fluxo End-to-End - Briefing e Plano
+- [x] Criar página de visualização de briefing
+- [x] Implementar renderização de análise de gaps
+- [x] Adicionar indicadores de risco
+- [x] Criar página de visualização de plano de ação
+- [x] Implementar botão de aprovação
+- [x] Adicionar indicação de uso de templateo plano de ação
+- [ ] Adicionar botão de aprovar plano
+- [ ] Implementar transição para execução
+
+## Fluxo End-to-End - Execução
+- [ ] Criar Kanban Board de tarefas
+- [ ] Implementar drag-and-drop
+- [ ] Adicionar filtros por sprint/responsável
+- [ ] Criar modal de detalhes da tarefa
+- [ ] Implementar sistema de comentários
+- [ ] Criar página de gestão de sprints
+- [ ] Adicionar burndown chart
+- [ ] Implementar dashboard COSO
+
+## Fluxo End-to-End - Navegação
+- [ ] Adicionar breadcrumbs em todas as páginas
+- [ ] Implementar navegação contextual no projeto
+- [ ] Criar stepper visual do fluxo
+- [ ] Adicionar botões de ação contextual

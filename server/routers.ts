@@ -95,7 +95,7 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({
         name: z.string().min(1),
-        clientId: z.number(),
+        clientId: z.number().optional(),
         notificationFrequency: z.enum(["daily", "weekly", "on_delay", "milestones", "custom"]).default("weekly"),
         customNotificationDays: z.string().optional(),
       }))
@@ -106,21 +106,26 @@ export const appRouter = router({
         }
         
         const projectId = await createProject({
-          ...input,
+          name: input.name,
+          clientId: input.clientId || ctx.user.id,
           createdById: ctx.user.id,
           status: "draft",
+          notificationFrequency: input.notificationFrequency,
+          customNotificationDays: input.customNotificationDays,
         });
         
         if (!projectId) {
           throw new Error("Failed to create project");
         }
         
-        // Add client as Product Owner
-        await addProjectParticipant({
-          projectId,
-          userId: input.clientId,
-          role: "product_owner",
-        });
+        // Add client as Product Owner if specified
+        if (input.clientId) {
+          await addProjectParticipant({
+            projectId,
+            userId: input.clientId,
+            role: "product_owner",
+          });
+        }
         
         return { projectId };
       }),
