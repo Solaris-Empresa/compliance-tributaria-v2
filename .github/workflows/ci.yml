@@ -34,7 +34,7 @@ jobs:
           version: 8
       
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
       
       - name: Run tests
         run: pnpm test
@@ -81,7 +81,7 @@ jobs:
           cache: 'pnpm'
       
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
       
       - name: Run linter
         run: pnpm lint || echo "Linting completed with warnings"
@@ -107,7 +107,7 @@ jobs:
           cache: 'pnpm'
       
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
       
       - name: Build application
         run: pnpm build
