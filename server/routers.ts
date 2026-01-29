@@ -327,7 +327,18 @@ Retorne APENAS JSON válido no formato:
             ],
           });
 
-          const content = response.choices[0]?.message?.content || "{}";
+          let content = response.choices[0]?.message?.content || "{}";
+          
+          // Remover markdown code blocks se existirem (```json ... ``` ou ``` ... ```)
+          content = content.trim();
+          if (content.startsWith('```')) {
+            // Remover primeira linha (```json ou ```)
+            content = content.split('\n').slice(1).join('\n');
+            // Remover última linha (```)
+            content = content.split('\n').slice(0, -1).join('\n');
+            content = content.trim();
+          }
+          
           const parsed = JSON.parse(content);
           questions = parsed.questions;
         }

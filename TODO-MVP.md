@@ -301,8 +301,12 @@
 **RESULTADO:** Transição automática Fase 1→2 funcionando 100%! Botão "Finalizar Fase 1 e Continuar" agora salva dados, atualiza status do projeto e redireciona para Fase 2 sem erros.
 
 
-## Correção Bug Geração de Perguntas Fase 2 (IDENTIFICADO)
-- [ ] Corrigir parsing de resposta LLM que retorna JSON com markdown code blocks (```json...```)
-- [ ] Adicionar lógica para remover code blocks antes de JSON.parse()
-- [ ] Testar geração de perguntas via IA
-- [ ] Validar exibição do formulário dinâmico
+## Correção Bug Geração de Perguntas Fase 2 (CONCLUÍDO ✅)
+- [x] Corrigir parsing de resposta LLM que retorna JSON com markdown code blocks (```json...```)
+- [x] Adicionar lógica para remover code blocks antes de JSON.parse()
+- [x] Testar geração de perguntas via IA
+- [x] Validar exibição do formulário dinâmico
+
+**SOLUÇÃO:** Adicionada lógica para detectar e remover markdown code blocks (```json...```) antes de JSON.parse() no endpoint generateQuestions (linhas 332-340).
+
+**RESULTADO:** Geração de 20 perguntas personalizadas via IA funcionando 100%! Formulário dinâmico exibido corretamente com campos de input, botões de salvamento e finalização.
