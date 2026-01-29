@@ -396,7 +396,7 @@ export async function createTask(data: InsertTask) {
   if (!db) throw new Error("Database not available");
 
   const result = await db.insert(tasks).values(data);
-  return Number(result.insertId);
+  return Number(result[0].insertId);
 }
 
 export async function getTasksByProject(projectId: number) {

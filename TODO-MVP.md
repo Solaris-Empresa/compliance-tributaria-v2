@@ -357,3 +357,11 @@
 - [x] Configurar secrets e variáveis de ambiente no GitHub
 - [x] Documentar processo de CI/CD (.github/SETUP_SECRETS.md)
 - [ ] Testar pipeline CI/CD após configurar secrets no GitHub (requer acesso ao repositório)
+
+
+## Expansão de Cobertura de Testes (EM ANDAMENTO)
+- [ ] Criar testes para Kanban (tasks router - create, list, update, delete, updateStatus)
+- [ ] Criar testes para Dashboard (KPIs, métricas, gráficos)
+- [ ] Criar testes para Notificações (notifyOwner)
+- [ ] Executar suite completa e validar cobertura expandida
+- [ ] Atualizar documentação de testes com nova cobertura

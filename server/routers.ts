@@ -46,6 +46,23 @@ const createProjectAccessMiddleware = () => {
 // Helper para criar procedure com validação de acesso ao projeto
 const projectAccessMiddleware = createProjectAccessMiddleware();
 
+// Helper function para validar acesso ao projeto dentro de mutations/queries
+const validateProjectAccess = async (ctx: any, projectId: number) => {
+  const project = await db.getProjectById(projectId);
+  if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
+
+  // Equipe SOLARIS e Advogado Sênior têm acesso total
+  if (ctx.user.role === "equipe_solaris" || ctx.user.role === "advogado_senior") {
+    return project;
+  }
+
+  // Cliente precisa estar vinculado ao projeto
+  const hasAccess = await db.isUserInProject(ctx.user.id, projectId);
+  if (!hasAccess) throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+
+  return project;
+};
+
 // ============================================================================
 // MAIN ROUTER
 // ============================================================================
@@ -829,13 +846,14 @@ Retorne APENAS JSON válido no formato:
   // ==========================================================================
 
   tasks: router({
-    list: projectAccessMiddleware
+    list: protectedProcedure
       .input(z.object({ projectId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         return await db.getTasksByProject(input.projectId);
       }),
 
-    create: projectAccessMiddleware
+    create: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         title: z.string(),
@@ -849,16 +867,17 @@ Retorne APENAS JSON válido no formato:
         dueDate: z.date().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         const taskId = await db.createTask({
           ...input,
           createdBy: ctx.user.id,
           createdAt: new Date(),
         });
 
-        return { taskId };
+        return taskId;
       }),
 
-    update: projectAccessMiddleware
+    update: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         taskId: z.number(),
@@ -872,29 +891,32 @@ Retorne APENAS JSON válido no formato:
         actualHours: z.number().optional(),
         dueDate: z.date().optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         const { taskId, projectId, ...updateData } = input;
         await db.updateTask(taskId, updateData);
         return { success: true };
       }),
 
-    updateStatus: projectAccessMiddleware
+    updateStatus: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         taskId: z.number(),
         status: z.enum(["pendencias", "a_fazer", "em_andamento", "concluido"]),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         await db.updateTaskStatus(input.taskId, input.status);
         return { success: true };
       }),
 
-    delete: projectAccessMiddleware
+    delete: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         taskId: z.number(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         await db.deleteTask(input.taskId);
         return { success: true };
       }),
