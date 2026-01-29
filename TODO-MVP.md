@@ -244,3 +244,16 @@
 - [ ] Validar salvamento de dados Fase 2
 - [ ] Testar transição Fase 2 → Briefing
 - [ ] Corrigir bugs identificados
+
+
+## Correção de Bugs E2E (URGENTE)
+- [x] Corrigir erro TypeScript linha 909 (propriedade 'status' inválida) - FALSO POSITIVO
+- [x] Investigar endpoint assessmentPhase1.save - Logs adicionados
+- [x] Corrigir bug projectId undefined nas queries - Adicionado enabled condicional
+- [ ] Testar salvamento de dados Assessment Fase 1 via browser
+- [ ] Testar transição automática Fase 1 → Fase 2
+- [ ] Testar preenchimento Assessment Fase 2
+- [ ] Testar geração de Plano de Ação via IA
+- [ ] Testar aplicação de template em projeto
+- [ ] Testar Quadro Kanban (drag-and-drop)
+- [ ] Validar 100% de funcionalidade

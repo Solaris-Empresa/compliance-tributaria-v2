@@ -195,6 +195,7 @@ export async function isUserInProject(userId: number, projectId: number): Promis
 // ============================================================================
 
 export async function saveAssessmentPhase1(data: InsertAssessmentPhase1) {
+  console.log('[saveAssessmentPhase1] Iniciando salvamento:', JSON.stringify(data, null, 2));
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -204,10 +205,16 @@ export async function saveAssessmentPhase1(data: InsertAssessmentPhase1) {
     .where(eq(assessmentPhase1.projectId, data.projectId))
     .limit(1);
 
+  console.log('[saveAssessmentPhase1] Registro existente:', existing.length > 0 ? 'SIM' : 'NÃO');
+
   if (existing.length > 0) {
+    console.log('[saveAssessmentPhase1] Atualizando registro existente...');
     await db.update(assessmentPhase1).set(data).where(eq(assessmentPhase1.projectId, data.projectId));
+    console.log('[saveAssessmentPhase1] Atualização concluída');
   } else {
+    console.log('[saveAssessmentPhase1] Inserindo novo registro...');
     await db.insert(assessmentPhase1).values(data);
+    console.log('[saveAssessmentPhase1] Inserção concluída');
   }
 }
 

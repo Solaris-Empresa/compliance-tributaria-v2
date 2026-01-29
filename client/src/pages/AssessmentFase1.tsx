@@ -35,8 +35,14 @@ export default function AssessmentFase1() {
     complianceGoals: "",
   });
 
-  const { data: project } = trpc.projects.getById.useQuery({ id: projectId });
-  const { data: existingAssessment } = trpc.assessmentPhase1.get.useQuery({ projectId });
+  const { data: project } = trpc.projects.getById.useQuery(
+    { id: projectId },
+    { enabled: projectId > 0 }
+  );
+  const { data: existingAssessment } = trpc.assessmentPhase1.get.useQuery(
+    { projectId },
+    { enabled: projectId > 0 }
+  );
 
   const savePhase1 = trpc.assessmentPhase1.save.useMutation({
     onSuccess: () => {

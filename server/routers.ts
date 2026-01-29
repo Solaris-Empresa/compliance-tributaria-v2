@@ -171,14 +171,22 @@ export const appRouter = router({
         complianceGoals: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        await db.saveAssessmentPhase1({
-          ...input,
-          completedBy: undefined,
-          completedByRole: undefined,
-          completedAt: undefined,
-        });
-
-        return { success: true };
+        console.log('[assessmentPhase1.save] Recebido input:', JSON.stringify(input, null, 2));
+        console.log('[assessmentPhase1.save] Usuário:', ctx.user.id, ctx.user.name);
+        
+        try {
+          await db.saveAssessmentPhase1({
+            ...input,
+            completedBy: undefined,
+            completedByRole: undefined,
+            completedAt: undefined,
+          });
+          console.log('[assessmentPhase1.save] Salvamento concluído com sucesso');
+          return { success: true };
+        } catch (error) {
+          console.error('[assessmentPhase1.save] Erro ao salvar:', error);
+          throw error;
+        }
       }),
 
     complete: projectAccessMiddleware
