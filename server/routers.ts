@@ -37,6 +37,45 @@ const projectAccessMiddleware = protectedProcedure.use(async ({ ctx, next, rawIn
 export const appRouter = router({
   system: systemRouter,
   
+  // ==========================================================================
+  // USERS / CLIENTS
+  // ==========================================================================
+  
+  users: router({    listClients: protectedProcedure.query(async ({ ctx }) => {
+      // Apenas Equipe SOLARIS pode listar clientes
+      if (ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+      }
+      return await db.getUsersByRole("cliente");
+    }),
+
+    createClient: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        email: z.string().email(),
+        companyName: z.string().optional(),
+        cnpj: z.string().optional(),
+        cpf: z.string().optional(),
+        segment: z.string().optional(),
+        phone: z.string().optional(),
+        observations: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Apenas Equipe SOLARIS pode criar clientes
+        if (ctx.user.role !== "equipe_solaris") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
+        
+        const userId = await db.createUser({
+          ...input,
+          role: "cliente",
+          openId: `manual-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        });
+
+        return { userId };
+      }),
+  }),
+
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

@@ -99,11 +99,19 @@ export async function getAllUsers() {
   return await db.select().from(users).orderBy(desc(users.createdAt));
 }
 
-export async function getUsersByRole(role: "cliente" | "equipe_solaris" | "advogado_senior") {
+export async function getUsersByRole(role: string) {
   const db = await getDb();
   if (!db) return [];
 
-  return await db.select().from(users).where(eq(users.role, role));
+  return await db.select().from(users).where(eq(users.role, role)).orderBy(desc(users.createdAt));
+}
+
+export async function createUser(userData: Omit<InsertUser, 'id'>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(users).values(userData);
+  return result[0].insertId;
 }
 
 // ============================================================================

@@ -6,6 +6,8 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Painel from "./pages/Painel";
 import Projetos from "./pages/Projetos";
 import NovoProjeto from "./pages/NovoProjeto";
+import Clientes from "./pages/Clientes";
+import NovoCliente from "./pages/NovoCliente";
 import NotFound from "./pages/NotFound";
 
 function Router() {
@@ -14,6 +16,8 @@ function Router() {
       <Route path="/" component={Painel} />
       <Route path="/projetos" component={Projetos} />
       <Route path="/projetos/novo" component={NovoProjeto} />
+      <Route path="/clientes" component={Clientes} />
+      <Route path="/clientes/novo" component={NovoCliente} />
       {/* Outras rotas serão adicionadas conforme implementação */}
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

@@ -53,6 +53,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
   const navItems = [
     { href: "/", icon: LayoutDashboard, label: "Painel" },
     { href: "/projetos", icon: FolderKanban, label: "Projetos" },
+    { href: "/clientes", icon: Users, label: "Clientes" },
   ];
 
   // Adicionar item de usuários apenas para equipe SOLARIS
