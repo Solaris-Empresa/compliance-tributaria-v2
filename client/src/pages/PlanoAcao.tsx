@@ -1,0 +1,481 @@
+import ComplianceLayout from "@/components/ComplianceLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { trpc } from "@/lib/trpc";
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Edit2, History, Loader2, Sparkles, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useParams } from "wouter";
+import { toast } from "sonner";
+import { Streamdown } from "streamdown";
+import { useAuth } from "@/_core/hooks/useAuth";
+
+export default function PlanoAcao() {
+  const params = useParams();
+  const [, setLocation] = useLocation();
+  const projectId = parseInt(params.id || "0");
+  const { user } = useAuth();
+  
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isEditingPrompt, setIsEditingPrompt] = useState(false);
+  const [editedPrompt, setEditedPrompt] = useState("");
+  const [showHistory, setShowHistory] = useState(false);
+  const [showApprovalDialog, setShowApprovalDialog] = useState(false);
+  const [approvalComment, setApprovalComment] = useState("");
+  const [approvalAction, setApprovalAction] = useState<"aprovar" | "rejeitar">("aprovar");
+
+  const { data: project } = trpc.projects.getById.useQuery({ id: projectId });
+  const { data: actionPlan, refetch } = trpc.actionPlan.getByProjectId.useQuery({ projectId });
+  const { data: promptHistory } = trpc.actionPlan.getPromptHistory.useQuery(
+    { actionPlanId: actionPlan?.id || 0 },
+    { enabled: !!actionPlan?.id }
+  );
+
+  const generatePlan = trpc.actionPlan.generate.useMutation({
+    onSuccess: () => {
+      setIsGenerating(false);
+      refetch();
+      toast.success("Plano de ação gerado com sucesso!");
+    },
+    onError: (error) => {
+      setIsGenerating(false);
+      toast.error(`Erro ao gerar plano: ${error.message}`);
+    },
+  });
+
+  const updatePrompt = trpc.actionPlan.updatePrompt.useMutation({
+    onSuccess: () => {
+      setIsEditingPrompt(false);
+      refetch();
+      toast.success("Prompt atualizado e plano regenerado!");
+    },
+    onError: (error) => {
+      toast.error(`Erro ao atualizar prompt: ${error.message}`);
+    },
+  });
+
+  const approvePlan = trpc.actionPlan.approve.useMutation({
+    onSuccess: () => {
+      setShowApprovalDialog(false);
+      refetch();
+      toast.success("Plano aprovado com sucesso!");
+      setTimeout(() => {
+        setLocation(`/projetos/${projectId}`);
+      }, 1500);
+    },
+    onError: (error) => {
+      toast.error(`Erro ao aprovar plano: ${error.message}`);
+    },
+  });
+
+  const rejectPlan = trpc.actionPlan.reject.useMutation({
+    onSuccess: () => {
+      setShowApprovalDialog(false);
+      refetch();
+      toast.success("Plano rejeitado. Solicitação de ajustes enviada.");
+    },
+    onError: (error) => {
+      toast.error(`Erro ao rejeitar plano: ${error.message}`);
+    },
+  });
+
+  useEffect(() => {
+    if (project && !actionPlan && !isGenerating) {
+      setIsGenerating(true);
+      generatePlan.mutate({ projectId });
+    }
+  }, [project, actionPlan, projectId, isGenerating]);
+
+  useEffect(() => {
+    if (actionPlan && !editedPrompt) {
+      setEditedPrompt(actionPlan.prompt || "");
+    }
+  }, [actionPlan, editedPrompt]);
+
+  const handleSavePrompt = () => {
+    if (!actionPlan) return;
+    updatePrompt.mutate({
+      actionPlanId: actionPlan.id,
+      newPrompt: editedPrompt,
+    });
+  };
+
+  const handleApprovalSubmit = () => {
+    if (!actionPlan) return;
+    
+    if (approvalAction === "aprovar") {
+      approvePlan.mutate({
+        actionPlanId: actionPlan.id,
+        comment: approvalComment,
+      });
+    } else {
+      rejectPlan.mutate({
+        actionPlanId: actionPlan.id,
+        comment: approvalComment,
+      });
+    }
+  };
+
+  const isAdvogado = user?.role === "advogado_senior";
+  const canApprove = isAdvogado && actionPlan?.approvalStatus === "pendente";
+
+  if (!project) {
+    return (
+      <ComplianceLayout>
+        <div className="p-8">
+          <p>Carregando projeto...</p>
+        </div>
+      </ComplianceLayout>
+    );
+  }
+
+  return (
+    <ComplianceLayout>
+      <div className="p-8 max-w-5xl mx-auto">
+        <div className="mb-8">
+          <Button variant="ghost" asChild className="mb-4">
+            <Link href={`/projetos/${projectId}`}>
+              <a className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Voltar para Projeto
+              </a>
+            </Link>
+          </Button>
+          <h1 className="text-3xl font-bold">Plano de Ação</h1>
+          <p className="text-muted-foreground mt-1">{project.name}</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Plano detalhado de ações para adequação à reforma tributária
+          </p>
+        </div>
+
+        <div className="mb-8">
+          <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
+            <div className="flex items-center gap-2">
+              <span>Assessment</span>
+              <span>→</span>
+              <span>Briefing</span>
+              <span>→</span>
+              <span>Matriz de Riscos</span>
+              <span>→</span>
+              <span className="font-medium text-primary">Plano de Ação</span>
+              <span>→</span>
+              <span>Execução</span>
+            </div>
+          </div>
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-primary transition-all duration-300" style={{ width: "80%" }}></div>
+          </div>
+        </div>
+
+        {isGenerating && (
+          <Card className="mb-8">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3 text-center justify-center">
+                <Sparkles className="h-5 w-5 text-primary animate-pulse" />
+                <p className="text-muted-foreground">
+                  Gerando plano de ação detalhado com base na análise de riscos...
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {actionPlan && (
+          <>
+            {actionPlan.approvalStatus && (
+              <Card className={`mb-6 ${
+                actionPlan.approvalStatus === "aprovado" 
+                  ? "bg-green-50 border-green-200" 
+                  : actionPlan.approvalStatus === "rejeitado"
+                  ? "bg-red-50 border-red-200"
+                  : "bg-yellow-50 border-yellow-200"
+              }`}>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-3">
+                    {actionPlan.approvalStatus === "aprovado" && (
+                      <>
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <div className="flex-1">
+                          <p className="font-medium text-green-900">Plano Aprovado</p>
+                          <p className="text-sm text-green-700">
+                            Aprovado em {actionPlan.approvedAt ? new Date(actionPlan.approvedAt).toLocaleDateString() : "N/A"}
+                          </p>
+                          {actionPlan.approvalComment && (
+                            <p className="text-sm text-green-700 mt-1">
+                              <strong>Comentário:</strong> {actionPlan.approvalComment}
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    )}
+                    {actionPlan.approvalStatus === "rejeitado" && (
+                      <>
+                        <XCircle className="h-5 w-5 text-red-600" />
+                        <div className="flex-1">
+                          <p className="font-medium text-red-900">Plano Rejeitado</p>
+                          <p className="text-sm text-red-700">
+                            Rejeitado em {actionPlan.approvedAt ? new Date(actionPlan.approvedAt).toLocaleDateString() : "N/A"}
+                          </p>
+                          {actionPlan.approvalComment && (
+                            <p className="text-sm text-red-700 mt-1">
+                              <strong>Motivo:</strong> {actionPlan.approvalComment}
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    )}
+                    {actionPlan.approvalStatus === "pendente" && (
+                      <>
+                        <Clock className="h-5 w-5 text-yellow-600" />
+                        <div className="flex-1">
+                          <p className="font-medium text-yellow-900">Aguardando Aprovação Jurídica</p>
+                          <p className="text-sm text-yellow-700">
+                            Este plano precisa ser aprovado por um Advogado Sênior antes de prosseguir para execução.
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <Card className="mb-6">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Prompt do Plano</CardTitle>
+                    <CardDescription>
+                      Instruções base para geração do plano de ação
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    {promptHistory && promptHistory.length > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowHistory(true)}
+                      >
+                        <History className="h-4 w-4 mr-2" />
+                        Histórico ({promptHistory.length})
+                      </Button>
+                    )}
+                    {!isEditingPrompt && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsEditingPrompt(true)}
+                      >
+                        <Edit2 className="h-4 w-4 mr-2" />
+                        Editar
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {isEditingPrompt ? (
+                  <div className="space-y-4">
+                    <Textarea
+                      value={editedPrompt}
+                      onChange={(e) => setEditedPrompt(e.target.value)}
+                      rows={8}
+                      className="font-mono text-sm"
+                      placeholder="Digite as instruções para o plano de ação..."
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleSavePrompt}
+                        disabled={updatePrompt.isPending}
+                      >
+                        {updatePrompt.isPending ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Salvando e Regenerando...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4 mr-2" />
+                            Salvar e Regenerar Plano
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setIsEditingPrompt(false);
+                          setEditedPrompt(actionPlan.prompt || "");
+                        }}
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Ao salvar, o plano será regenerado automaticamente com base no novo prompt.
+                      O histórico de versões será mantido.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-muted p-4 rounded-lg font-mono text-sm whitespace-pre-wrap">
+                    {actionPlan.prompt || "Nenhum prompt definido"}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Plano Detalhado</CardTitle>
+                <CardDescription>
+                  Ações, cronograma e responsabilidades
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="prose prose-sm max-w-none">
+                  <Streamdown>{actionPlan.content}</Streamdown>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex gap-3">
+              {canApprove && (
+                <>
+                  <Button
+                    variant="outline"
+                    className="flex-1 border-red-200 text-red-700 hover:bg-red-50"
+                    onClick={() => {
+                      setApprovalAction("rejeitar");
+                      setShowApprovalDialog(true);
+                    }}
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Rejeitar Plano
+                  </Button>
+                  <Button
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    onClick={() => {
+                      setApprovalAction("aprovar");
+                      setShowApprovalDialog(true);
+                    }}
+                  >
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Aprovar Plano
+                  </Button>
+                </>
+              )}
+              {!canApprove && actionPlan.approvalStatus === "aprovado" && (
+                <Button
+                  className="flex-1"
+                  onClick={() => setLocation(`/projetos/${projectId}`)}
+                >
+                  Ir para Execução
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              )}
+              {!canApprove && actionPlan.approvalStatus === "pendente" && !isAdvogado && (
+                <div className="flex-1 text-center text-sm text-muted-foreground">
+                  Aguardando aprovação do Advogado Sênior
+                </div>
+              )}
+            </div>
+
+            {actionPlan.approvalStatus === "aprovado" && (
+              <Card className="mt-6 bg-blue-50 border-blue-200">
+                <CardContent className="pt-6">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Próximo passo:</strong> Com o plano aprovado, você pode iniciar a execução
+                    criando tarefas, atribuindo responsáveis e acompanhando o progresso.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </>
+        )}
+
+        <Dialog open={showApprovalDialog} onOpenChange={setShowApprovalDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {approvalAction === "aprovar" ? "Aprovar Plano de Ação" : "Rejeitar Plano de Ação"}
+              </DialogTitle>
+              <DialogDescription>
+                {approvalAction === "aprovar"
+                  ? "Confirme a aprovação do plano de ação. Você pode adicionar comentários opcionais."
+                  : "Informe o motivo da rejeição e as alterações necessárias."}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <Textarea
+                value={approvalComment}
+                onChange={(e) => setApprovalComment(e.target.value)}
+                rows={4}
+                placeholder={
+                  approvalAction === "aprovar"
+                    ? "Comentários opcionais..."
+                    : "Descreva as alterações necessárias..."
+                }
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowApprovalDialog(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleApprovalSubmit}
+                disabled={approvePlan.isPending || rejectPlan.isPending}
+                className={approvalAction === "rejeitar" ? "bg-red-600 hover:bg-red-700" : ""}
+              >
+                {(approvePlan.isPending || rejectPlan.isPending) ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Processando...
+                  </>
+                ) : (
+                  <>
+                    {approvalAction === "aprovar" ? "Confirmar Aprovação" : "Confirmar Rejeição"}
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showHistory} onOpenChange={setShowHistory}>
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Histórico de Versões do Prompt</DialogTitle>
+              <DialogDescription>
+                Todas as versões anteriores do prompt
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {promptHistory?.map((history, index) => (
+                <Card key={history.id}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm">
+                        Versão {promptHistory.length - index}
+                      </CardTitle>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(history.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-muted p-3 rounded text-xs font-mono whitespace-pre-wrap">
+                      {history.promptText}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </ComplianceLayout>
+  );
+}

@@ -78,3 +78,15 @@
 - [x] Adicionar categorização por áreas de risco
 - [x] Implementar indicadores visuais de prioridade
 - [x] Criar botão para avançar para Matriz de Riscos
+
+
+## Plano de Ação (CONCLUÍDO)
+- [x] Criar PlanoAcao.tsx
+- [x] Implementar geração de plano via LLM
+- [x] Criar visualização do plano gerado
+- [x] Implementar campo Prompt editável
+- [x] Adicionar histórico de versões do Prompt
+- [x] Criar workflow de aprovação (Advogado Sênior)
+- [x] Implementar comentários e solicitação de ajustes
+- [x] Criar botão de aprovar/rejeitar
+- [x] Implementar transição para fase de execução
