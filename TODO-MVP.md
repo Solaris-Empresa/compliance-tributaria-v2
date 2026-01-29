@@ -114,3 +114,22 @@
 - [x] Implementar filtros por projeto e período
 - [x] Adicionar indicadores visuais de progresso
 - [x] Criar cards de resumo executivo
+
+## Quadro de Tarefas (Kanban) (CONCLUÍDO)
+- [x] Criar tabela tasks no schema do banco
+- [x] Adicionar funções de gestão de tarefas no db.ts
+- [x] Criar endpoints tRPC para tarefas (list, create, update, updateStatus, delete)
+- [x] Criar endpoints tRPC para fases (list, create)
+- [x] Implementar página QuadroKanban.tsx com drag-and-drop
+- [x] Adicionar 4 colunas (Pendências, A Fazer, Em Andamento, Concluído)
+- [x] Implementar drag-and-drop entre colunas
+- [x] Criar modal de criação de tarefa
+- [x] Adicionar filtro por prioridade
+- [x] Implementar badges de prioridade com cores
+- [x] Adicionar indicadores de data de vencimento
+- [x] Mostrar tarefas atrasadas em vermelho
+- [x] Adicionar estatísticas por coluna
+- [x] Implementar exclusão de tarefa
+- [x] Adicionar traduções de status e prioridade no translations.ts
+- [x] Adicionar rota no App.tsx
+- [x] Adicionar atalho rápido na página ProjetoDetalhes

@@ -13,6 +13,8 @@ import {
   actionPlans, InsertActionPlan,
   actionPlanPromptHistory, InsertActionPlanPromptHistory,
   actionPlanTemplates, InsertActionPlanTemplate,
+  tasks, InsertTask,
+  phases, InsertPhase,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -364,4 +366,81 @@ export async function saveActionPlanPromptHistory(data: InsertActionPlanPromptHi
   if (!db) throw new Error("Database not available");
 
   await db.insert(actionPlanPromptHistory).values(data);
+}
+
+// ============================================================================
+// TASKS
+// ============================================================================
+
+export async function createTask(data: InsertTask) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(tasks).values(data);
+  return Number(result.insertId);
+}
+
+export async function getTasksByProject(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId))
+    .orderBy(tasks.createdAt);
+
+  return result;
+}
+
+export async function updateTaskStatus(taskId: number, status: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: any = { status };
+  
+  if (status === "concluido") {
+    updateData.completedAt = new Date();
+  }
+
+  await db.update(tasks).set(updateData).where(eq(tasks.id, taskId));
+}
+
+export async function updateTask(taskId: number, data: Partial<InsertTask>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(tasks).set(data).where(eq(tasks.id, taskId));
+}
+
+export async function deleteTask(taskId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(tasks).where(eq(tasks.id, taskId));
+}
+
+// ============================================================================
+// PHASES
+// ============================================================================
+
+export async function createPhase(data: InsertPhase) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(phases).values(data);
+  return Number(result.insertId);
+}
+
+export async function getPhasesByProject(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db
+    .select()
+    .from(phases)
+    .where(eq(phases.projectId, projectId))
+    .orderBy(phases.createdAt);
+
+  return result;
 }

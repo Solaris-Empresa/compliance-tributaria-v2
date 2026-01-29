@@ -774,6 +774,112 @@ Retorne APENAS JSON válido no formato:
   }),
 
   // ==========================================================================
+  // TASKS
+  // ==========================================================================
+
+  tasks: router({
+    list: projectAccessMiddleware
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getTasksByProject(input.projectId);
+      }),
+
+    create: projectAccessMiddleware
+      .input(z.object({
+        projectId: z.number(),
+        title: z.string(),
+        description: z.string().optional(),
+        status: z.enum(["pendencias", "a_fazer", "em_andamento", "concluido"]).default("a_fazer"),
+        priority: z.enum(["baixa", "media", "alta", "critica"]).default("media"),
+        assignedTo: z.number().optional(),
+        phaseId: z.number().optional(),
+        riskId: z.number().optional(),
+        estimatedHours: z.number().optional(),
+        dueDate: z.date().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const taskId = await db.createTask({
+          ...input,
+          createdBy: ctx.user.id,
+          createdAt: new Date(),
+        });
+
+        return { taskId };
+      }),
+
+    update: projectAccessMiddleware
+      .input(z.object({
+        projectId: z.number(),
+        taskId: z.number(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        status: z.enum(["pendencias", "a_fazer", "em_andamento", "concluido"]).optional(),
+        priority: z.enum(["baixa", "media", "alta", "critica"]).optional(),
+        assignedTo: z.number().optional(),
+        phaseId: z.number().optional(),
+        estimatedHours: z.number().optional(),
+        actualHours: z.number().optional(),
+        dueDate: z.date().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { taskId, projectId, ...updateData } = input;
+        await db.updateTask(taskId, updateData);
+        return { success: true };
+      }),
+
+    updateStatus: projectAccessMiddleware
+      .input(z.object({
+        projectId: z.number(),
+        taskId: z.number(),
+        status: z.enum(["pendencias", "a_fazer", "em_andamento", "concluido"]),
+      }))
+      .mutation(async ({ input }) => {
+        await db.updateTaskStatus(input.taskId, input.status);
+        return { success: true };
+      }),
+
+    delete: projectAccessMiddleware
+      .input(z.object({
+        projectId: z.number(),
+        taskId: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.deleteTask(input.taskId);
+        return { success: true };
+      }),
+  }),
+
+  // ==========================================================================
+  // PHASES
+  // ==========================================================================
+
+  phases: router({
+    list: projectAccessMiddleware
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getPhasesByProject(input.projectId);
+      }),
+
+    create: projectAccessMiddleware
+      .input(z.object({
+        projectId: z.number(),
+        name: z.string(),
+        description: z.string().optional(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const phaseId = await db.createPhase({
+          ...input,
+          status: "planejada",
+          createdAt: new Date(),
+        });
+
+        return { phaseId };
+      }),
+  }),
+
+  // ==========================================================================
   // USERS (Admin)
   // ==========================================================================
 

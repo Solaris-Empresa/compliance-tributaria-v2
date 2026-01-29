@@ -324,6 +324,45 @@ export default function ProjetoDetalhes() {
           </Card>
         </div>
 
+        {/* Atalhos Rápidos */}
+        {(project.status === "em_execucao" || project.status === "concluido") && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Atalhos Rápidos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                <Button
+                  variant="outline"
+                  className="h-auto py-4 flex flex-col items-start"
+                  onClick={() => setLocation(`/projetos/${projectId}/quadro-kanban`)}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <ListTodo className="h-5 w-5" />
+                    <span className="font-semibold">Quadro de Tarefas</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-left">
+                    Visualize e gerencie tarefas no formato Kanban
+                  </p>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-auto py-4 flex flex-col items-start"
+                  onClick={() => setLocation(`/dashboard-executivo`)}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="h-5 w-5" />
+                    <span className="font-semibold">Dashboard Executivo</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-left">
+                    Visualize KPIs e gráficos de progresso
+                  </p>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Informações do Projeto */}
         <Card className="mt-6">
           <CardHeader>

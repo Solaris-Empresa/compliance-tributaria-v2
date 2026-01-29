@@ -83,6 +83,20 @@ export const ACTION_PLAN_STATUS = {
   em_revisao: "Em Revisão",
 } as const;
 
+export const TASK_STATUS = {
+  pendencias: "Pendências",
+  a_fazer: "A Fazer",
+  em_andamento: "Em Andamento",
+  concluido: "Concluído",
+} as const;
+
+export const TASK_PRIORITY = {
+  baixa: "Baixa",
+  media: "Média",
+  alta: "Alta",
+  critica: "Crítica",
+} as const;
+
 // Função helper para obter tradução
 export function translate<T extends Record<string, string>>(
   map: T,
@@ -111,4 +125,20 @@ export const STATUS_COLORS = {
   em_execucao: "text-cyan-600 bg-cyan-50",
   concluido: "text-emerald-600 bg-emerald-50",
   cancelado: "text-red-600 bg-red-50",
+} as const;
+
+// Cores por prioridade de tarefa
+export const PRIORITY_COLORS = {
+  baixa: "text-gray-600 bg-gray-50 border-gray-200",
+  media: "text-blue-600 bg-blue-50 border-blue-200",
+  alta: "text-orange-600 bg-orange-50 border-orange-200",
+  critica: "text-red-600 bg-red-50 border-red-200",
+} as const;
+
+// Cores por status de tarefa
+export const TASK_STATUS_COLORS = {
+  pendencias: "bg-gray-100 border-gray-300",
+  a_fazer: "bg-blue-50 border-blue-300",
+  em_andamento: "bg-yellow-50 border-yellow-300",
+  concluido: "bg-green-50 border-green-300",
 } as const;

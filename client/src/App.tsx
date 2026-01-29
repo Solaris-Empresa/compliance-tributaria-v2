@@ -14,6 +14,7 @@ import Briefing from "@/pages/Briefing";
 import PlanoAcao from "@/pages/PlanoAcao";
 import MatrizRiscos from "@/pages/MatrizRiscos";
 import DashboardExecutivo from "@/pages/DashboardExecutivo";
+import QuadroKanban from "@/pages/QuadroKanban";
 import ProjetoDetalhes from "./pages/ProjetoDetalhes";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/projetos/:id/briefing" component={Briefing} />
       <Route path="/projetos/:id/plano-acao" component={PlanoAcao} />
       <Route path="/projetos/:id/matriz-riscos" component={MatrizRiscos} />
+      <Route path="/projetos/:id/quadro-kanban" component={QuadroKanban} />
       <Route path="/dashboard-executivo" component={DashboardExecutivo} />
       {/* Outras rotas serão adicionadas conforme implementação */}
       <Route path="/404" component={NotFound} />
