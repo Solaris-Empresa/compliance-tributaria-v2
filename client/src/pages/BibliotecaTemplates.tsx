@@ -141,7 +141,7 @@ export default function BibliotecaTemplates() {
       <div className="p-8 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Biblioteca de Templates</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Biblioteca de Modelos Padrões</h1>
           <p className="text-gray-600 mt-2">
             Gerencie templates de planos de ação reutilizáveis para acelerar novos projetos
           </p>
@@ -300,7 +300,7 @@ export default function BibliotecaTemplates() {
                         size="sm"
                         asChild
                       >
-                        <Link href={`/templates/${template.id}/editar`} className="flex items-center gap-2">
+                        <Link href={`/modelos-padroes/${template.id}/editar`} className="flex items-center gap-2">
                           <Edit2 className="h-4 w-4" />
                         </Link>
                       </Button>

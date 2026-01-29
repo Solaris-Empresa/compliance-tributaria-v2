@@ -53,12 +53,12 @@ export default function ProjetoDetalhes() {
   const phases = [
     {
       id: "assessment_fase1",
-      label: "Assessment Fase 1",
+      label: "Avaliação Fase 1",
       description: "Perguntas básicas",
       icon: FileText,
       status: project.status,
       requiredStatus: ["assessment_fase1", "assessment_fase2", "briefing", "matriz_riscos", "plano_acao", "aprovacao_juridica", "em_andamento", "concluido"],
-      route: `/projetos/${projectId}/assessment/fase1`,
+      route: `/projetos/${projectId}/avaliacao/fase1`,
     },
     {
       id: "assessment_fase2",
@@ -67,16 +67,16 @@ export default function ProjetoDetalhes() {
       icon: FileText,
       status: project.status,
       requiredStatus: ["assessment_fase2", "briefing", "matriz_riscos", "plano_acao", "aprovacao_juridica", "em_andamento", "concluido"],
-      route: `/projetos/${projectId}/assessment/fase2`,
+      route: `/projetos/${projectId}/avaliacao/fase2`,
     },
     {
       id: "briefing",
-      label: "Briefing",
+      label: "Levantamento Inicial",
       description: "Análise de gaps",
       icon: AlertTriangle,
       status: project.status,
       requiredStatus: ["briefing", "matriz_riscos", "plano_acao", "aprovacao_juridica", "em_andamento", "concluido"],
-      route: `/projetos/${projectId}/briefing`,
+      route: `/projetos/${projectId}/levantamento-inicial`,
     },
     {
       id: "matriz_riscos",
@@ -348,11 +348,11 @@ export default function ProjetoDetalhes() {
                 <Button
                   variant="outline"
                   className="h-auto py-4 flex flex-col items-start"
-                  onClick={() => setLocation(`/dashboard-executivo`)}
+                  onClick={() => setLocation(`/painel-indicadores`)}
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <FileText className="h-5 w-5" />
-                    <span className="font-semibold">Dashboard Executivo</span>
+                    <span className="font-semibold">Painel de Indicadores Executivo</span>
                   </div>
                   <p className="text-xs text-muted-foreground text-left">
                     Visualize KPIs e gráficos de progresso

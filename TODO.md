@@ -216,3 +216,12 @@
   - [x] Migração 0003_same_tarot.sql aplicada com sucesso
   - [x] Testes 22/22 passando (100%)
   - [x] 0 erros TypeScript
+
+- [x] Traduzir termos em inglês para português (Bug #20)
+  - [x] Dashboard → Painel de Indicadores
+  - [x] Templates → Modelos Padrões
+  - [x] Briefing → Levantamento Inicial
+  - [x] Assessment → Avaliação
+  - [x] Rotas traduzidas: /dashboard-executivo → /painel-indicadores, /templates → /modelos-padroes, etc.
+  - [x] Links de navegação atualizados em todos os arquivos
+  - [x] Testes 22/22 passando (100%)

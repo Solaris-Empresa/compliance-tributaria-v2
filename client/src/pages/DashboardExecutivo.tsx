@@ -105,7 +105,7 @@ export default function DashboardExecutivo() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold">Dashboard Executivo</h1>
+          <h1 className="text-3xl font-bold">Painel de Indicadores Executivo</h1>
           <p className="text-muted-foreground">Visão consolidada de todos os projetos de compliance tributário</p>
         </div>
 

@@ -56,8 +56,8 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     { href: "/", icon: LayoutDashboard, label: "Painel" },
     { href: "/projetos", icon: FolderKanban, label: "Projetos" },
     { href: "/clientes", icon: Users, label: "Clientes" },
-    { href: "/templates", icon: Library, label: "Templates" },
-    { href: "/dashboard-executivo", icon: BarChart3, label: "Dashboard Executivo" },
+    { href: "/modelos-padroes", icon: Library, label: "Modelos Padrões" },
+    { href: "/painel-indicadores", icon: BarChart3, label: "Painel de Indicadores Executivo" },
   ];
 
   // Adicionar item de usuários apenas para equipe SOLARIS

@@ -48,7 +48,7 @@ export default function AssessmentFase1() {
 
   const savePhase1 = trpc.assessmentPhase1.save.useMutation({
     onSuccess: () => {
-      toast.success("Assessment Fase 1 salvo com sucesso!");
+      toast.success("Avaliação Fase 1 salvo com sucesso!");
     },
     onError: (error) => {
       toast.error(`Erro ao salvar: ${error.message}`);
@@ -58,7 +58,7 @@ export default function AssessmentFase1() {
   const completePhase1 = trpc.assessmentPhase1.complete.useMutation({
     onSuccess: () => {
       toast.success("Fase 1 concluída! Avançando para Fase 2...");
-      setLocation(`/projetos/${projectId}/assessment/fase2`);
+      setLocation(`/projetos/${projectId}/avaliacao/fase2`);
     },
     onError: (error) => {
       toast.error(`Erro ao finalizar: ${error.message}`);
@@ -69,7 +69,7 @@ export default function AssessmentFase1() {
   const forceTransition = trpc.assessmentPhase1.forceTransitionToPhase2.useMutation({
     onSuccess: () => {
       toast.success("Transição manual realizada! Redirecionando para Fase 2...");
-      setLocation(`/projetos/${projectId}/assessment/fase2`);
+      setLocation(`/projetos/${projectId}/avaliacao/fase2`);
     },
     onError: (error) => {
       toast.error(`Erro na transição: ${error.message}`);
@@ -175,7 +175,7 @@ export default function AssessmentFase1() {
                 Voltar para Projeto
               </Link>
           </Button>
-          <h1 className="text-3xl font-bold">Assessment - Fase 1</h1>
+          <h1 className="text-3xl font-bold">Avaliação - Fase 1</h1>
           <p className="text-muted-foreground mt-1">
             {project.name}
           </p>
@@ -191,7 +191,7 @@ export default function AssessmentFase1() {
             <span>→</span>
             <span>Fase 2</span>
             <span>→</span>
-            <span>Briefing</span>
+            <span>Levantamento Inicial</span>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div className="h-full bg-primary w-1/3 transition-all"></div>

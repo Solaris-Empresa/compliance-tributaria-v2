@@ -118,7 +118,7 @@ export default function Briefing() {
             <div className="flex items-center gap-2">
               <span>Assessment</span>
               <span>→</span>
-              <span className="font-medium text-primary">Briefing</span>
+              <span className="font-medium text-primary">Levantamento Inicial</span>
               <span>→</span>
               <span>Matriz de Riscos</span>
               <span>→</span>

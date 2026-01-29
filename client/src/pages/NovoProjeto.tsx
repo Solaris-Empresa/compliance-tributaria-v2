@@ -174,7 +174,7 @@ export default function NovoProjeto() {
           <CardContent className="pt-6">
             <h3 className="font-medium mb-2">Próximos Passos</h3>
             <p className="text-sm text-muted-foreground">
-              Após criar o projeto, você será direcionado para o Assessment Fase 1, onde coletaremos
+              Após criar o projeto, você será direcionado para o Avaliação Fase 1, onde coletaremos
               informações básicas sobre o regime tributário e características da empresa.
             </p>
           </CardContent>

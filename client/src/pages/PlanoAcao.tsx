@@ -298,7 +298,7 @@ export default function PlanoAcao() {
             <div className="flex items-center gap-2">
               <span>Assessment</span>
               <span>→</span>
-              <span>Briefing</span>
+              <span>Levantamento Inicial</span>
               <span>→</span>
               <span>Matriz de Riscos</span>
               <span>→</span>

@@ -39,7 +39,7 @@ export default function EditarTemplate() {
   const updateTemplate = trpc.templates.update.useMutation({
     onSuccess: () => {
       toast.success("Template atualizado com sucesso!");
-      setLocation("/templates");
+      setLocation("/modelos-padroes");
     },
     onError: (error) => {
       toast.error(`Erro ao atualizar template: ${error.message}`);
@@ -127,7 +127,7 @@ export default function EditarTemplate() {
       <div className="p-8 max-w-4xl mx-auto">
         <div className="mb-8">
           <Button variant="ghost" asChild className="mb-4">
-            <Link href="/templates">
+            <Link href="/modelos-padroes">
                 <ArrowLeft className="h-4 w-4" />
                 Voltar para Biblioteca
               </Link>
@@ -259,7 +259,7 @@ export default function EditarTemplate() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setLocation("/templates")}
+              onClick={() => setLocation("/modelos-padroes")}
             >
               Cancelar
             </Button>

@@ -69,8 +69,8 @@ export default function AssessmentFase2() {
 
   const completePhase2 = trpc.assessmentPhase2.complete.useMutation({
     onSuccess: () => {
-      toast.success("Assessment concluído! Gerando briefing...");
-      setLocation(`/projetos/${projectId}/briefing`);
+      toast.success("Avaliação concluída! Gerando briefing...");
+      setLocation(`/projetos/${projectId}/levantamento-inicial`);
     },
     onError: (error: any) => {
       toast.error(`Erro ao finalizar: ${error.message}`);
@@ -228,11 +228,11 @@ export default function AssessmentFase2() {
           <Card>
             <CardContent className="pt-6">
               <p className="text-center text-muted-foreground">
-                Complete a Fase 1 do Assessment antes de continuar
+                Complete a Fase 1 da Avaliação antes de continuar
               </p>
               <div className="flex justify-center mt-4">
                 <Button asChild>
-                  <Link href={`/projetos/${projectId}/assessment/fase1`}>Ir para Fase 1</Link>
+                  <Link href={`/projetos/${projectId}/avaliacao/fase1`}>Ir para Fase 1</Link>
                 </Button>
               </div>
             </CardContent>
@@ -255,7 +255,7 @@ export default function AssessmentFase2() {
                 Voltar para Projeto
               </Link>
           </Button>
-          <h1 className="text-3xl font-bold">Assessment - Fase 2</h1>
+          <h1 className="text-3xl font-bold">Avaliação - Fase 2</h1>
           <p className="text-muted-foreground mt-1">
             {project.name}
           </p>
@@ -274,7 +274,7 @@ export default function AssessmentFase2() {
                 <span>→</span>
                 <span className="font-medium text-primary">Fase 2</span>
                 <span>→</span>
-                <span>Briefing</span>
+                <span>Levantamento Inicial</span>
               </div>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -406,7 +406,7 @@ export default function AssessmentFase2() {
                           </>
                         ) : (
                           <>
-                            Finalizar Assessment e Gerar Briefing
+                            Finalizar Avaliação e Gerar Levantamento Inicial
                             <ArrowRight className="h-4 w-4 ml-2" />
                           </>
                         )}
