@@ -257,3 +257,13 @@
 - [ ] Testar aplicação de template em projeto
 - [ ] Testar Quadro Kanban (drag-and-drop)
 - [ ] Validar 100% de funcionalidade
+
+
+## Correção Bug Transição Fase 1→2 (URGENTE - EM ANDAMENTO)
+- [ ] Investigar endpoint assessmentPhase1.complete no backend
+- [ ] Adicionar logs detalhados para rastrear projectId
+- [ ] Identificar causa raiz do erro "Cannot read properties of undefined (reading 'projectId')"
+- [ ] Implementar correção definitiva no backend
+- [ ] Testar transição completa via browser
+- [ ] Validar salvamento de dados e atualização de status
+- [ ] Confirmar navegação automática para Fase 2

@@ -103,6 +103,8 @@ export default function AssessmentFase1() {
 
   const handleComplete = async () => {
     try {
+      console.log('[handleComplete] Iniciando... projectId:', projectId);
+      
       // Validar campos obrigatórios
       const requiredFields = [
         "taxRegime",
@@ -119,18 +121,22 @@ export default function AssessmentFase1() {
         return;
       }
 
+      console.log('[handleComplete] Campos validados, salvando dados...');
       // Primeiro salvar os dados
-      await savePhase1.mutateAsync({
+      const saveResult = await savePhase1.mutateAsync({
         projectId,
         ...formData,
         annualRevenue: parseFloat(formData.annualRevenue),
         employeeCount: formData.employeeCount ? parseInt(formData.employeeCount) : undefined,
       });
+      console.log('[handleComplete] Dados salvos com sucesso:', saveResult);
 
+      console.log('[handleComplete] Completando fase com projectId:', projectId);
       // Depois completar a fase
-      await completePhase1.mutateAsync({ projectId });
+      const completeResult = await completePhase1.mutateAsync({ projectId });
+      console.log('[handleComplete] Fase completada com sucesso:', completeResult);
     } catch (error) {
-      console.error('[handleComplete] Erro:', error);
+      console.error('[handleComplete] Erro capturado:', error);
       toast.error(`Erro ao salvar: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
     }
   };
