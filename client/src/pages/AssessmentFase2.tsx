@@ -4,6 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -197,11 +203,10 @@ export default function AssessmentFase2() {
   };
 
   const calculateProgress = () => {
-    const requiredQuestions = questions.filter(q => q.required);
-    if (requiredQuestions.length === 0) return 0;
+    if (questions.length === 0) return 0;
 
-    const answered = requiredQuestions.filter(q => answers[q.id]?.trim()).length;
-    return Math.round((answered / requiredQuestions.length) * 100);
+    const answered = questions.filter(q => answers[q.id]?.trim()).length;
+    return Math.round((answered / questions.length) * 100);
   };
 
   if (!project) {
@@ -333,32 +338,67 @@ export default function AssessmentFase2() {
                   </>
                 )}
               </Button>
-              <Button
-                onClick={handleComplete}
-                disabled={completePhase2.isPending || progress < 70}
-                className="flex-1"
-              >
-                {completePhase2.isPending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Finalizando...
-                  </>
-                ) : (
-                  <>
-                    Finalizar Assessment e Gerar Briefing
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </>
-                )}
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex-1">
+                      <Button
+                        onClick={handleComplete}
+                        disabled={completePhase2.isPending || progress < 70}
+                        className="w-full"
+                      >
+                        {completePhase2.isPending ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Finalizando...
+                          </>
+                        ) : (
+                          <>
+                            Finalizar Assessment e Gerar Briefing
+                            <ArrowRight className="h-4 w-4 ml-2" />
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {progress < 70 && (
+                    <TooltipContent>
+                      <p>Complete pelo menos 70% das perguntas para finalizar</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Progresso atual: {progress}% ({Math.ceil(questions.length * 0.7)} de {questions.length} perguntas necessárias)
+                      </p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
             </div>
 
             {/* Info */}
-            <Card className="mt-6 bg-blue-50 border-blue-200">
+            <Card className={`mt-6 ${
+              progress < 70 
+                ? "bg-amber-50 border-amber-200" 
+                : "bg-green-50 border-green-200"
+            }`}>
               <CardContent className="pt-6">
-                <p className="text-sm text-muted-foreground">
-                  <strong>Salvamento automático:</strong> Suas respostas são salvas automaticamente a cada 30 segundos.
-                  Complete pelo menos 70% das perguntas obrigatórias para finalizar esta fase.
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Salvamento automático:</strong> Suas respostas são salvas automaticamente a cada 30 segundos.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">
+                      Progresso: {progress}%
+                    </p>
+                    {progress < 70 ? (
+                      <p className="text-sm text-amber-600">
+                        Responda mais {Math.ceil(questions.length * 0.7) - questions.filter(q => answers[q.id]?.trim()).length} perguntas para finalizar
+                      </p>
+                    ) : (
+                      <p className="text-sm text-green-600 font-medium">
+                        ✓ Pronto para finalizar!
+                      </p>
+                    )}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </>

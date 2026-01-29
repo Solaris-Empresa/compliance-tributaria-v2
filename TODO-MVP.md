@@ -310,3 +310,22 @@
 **SOLUÇÃO:** Adicionada lógica para detectar e remover markdown code blocks (```json...```) antes de JSON.parse() no endpoint generateQuestions (linhas 332-340).
 
 **RESULTADO:** Geração de 20 perguntas personalizadas via IA funcionando 100%! Formulário dinâmico exibido corretamente com campos de input, botões de salvamento e finalização.
+
+
+## Validação de 70% de Completude Assessment Fase 2 (CONCLUÍDO)
+- [x] Implementar cálculo de completude no frontend (contar respostas preenchidas)
+- [x] Adicionar validação antes de permitir finalização
+- [x] Desabilitar botão "Finalizar Assessment" quando completude < 70%
+- [x] Adicionar tooltip explicativo no botão desabilitado
+- [x] Adicionar feedback visual dinâmico (card âmbar < 70%, verde ≥ 70%)
+- [x] Exibir contador de perguntas faltantes
+- [x] Testar validação com diferentes níveis de preenchimento
+
+**SOLUÇÃO:** 
+1. Modificado cálculo de progresso para considerar todas as perguntas (não apenas obrigatórias)
+2. Adicionado Tooltip com mensagem explicativa e progresso detalhado
+3. Implementado feedback visual dinâmico no card de informações (cores âmbar/verde)
+4. Adicionado contador de perguntas faltantes em tempo real
+5. Atualizado prompt de geração para incluir campo "required": true
+
+**RESULTADO:** Validação de 70% funcionando perfeitamente! Botão "Finalizar Assessment" desabilitado quando progresso < 70%, com tooltip explicativo e feedback visual claro.

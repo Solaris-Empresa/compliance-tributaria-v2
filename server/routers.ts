@@ -313,12 +313,15 @@ Retorne APENAS JSON válido no formato:
   "questions": [
     {
       "id": "q1",
-      "text": "Pergunta aqui",
-      "type": "text|multiple_choice|yes_no",
-      "options": ["opção 1", "opção 2"]
+      "question": "Pergunta aqui",
+      "type": "text|number|select|textarea",
+      "options": ["opção 1", "opção 2"],
+      "required": true
     }
   ]
-}`;
+}
+
+IMPORTANTE: Todas as perguntas devem ter "required": true.`;
 
           const response = await invokeLLM({
             messages: [
