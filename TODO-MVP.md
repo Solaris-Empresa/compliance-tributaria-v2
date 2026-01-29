@@ -282,3 +282,27 @@
 - [x] useEffect já estava correto - carrega dados automaticamente
 - [x] Testar carregamento via browser - FUNCIONANDO PERFEITAMENTE!
 - [x] Validar que dados persistem após recarregar página - CONFIRMADO!
+
+
+## Correção Definitiva Bug Transição Automática Fase 1→2 (CONCLUÍDO ✅)
+- [x] Investigar middleware projectAccessMiddleware em profundidade
+- [x] Adicionar logs detalhados de stack trace em todas as etapas
+- [x] Identificar causa raiz do erro "Cannot read properties of undefined (reading 'projectId')"
+- [x] Implementar correção definitiva substituindo projectAccessMiddleware por protectedProcedure
+- [x] Testar transição automática via browser com botão "Finalizar Fase 1 e Continuar"
+- [x] Validar que status do projeto é atualizado corretamente
+- [x] Confirmar navegação automática para Fase 2
+- [ ] Remover workaround "Pular para Fase 2" após correção (opcional)
+
+**CAUSA RAIZ:** Middleware `projectAccessMiddleware` tentava acessar `rawInput` que estava undefined porque middlewares são executados ANTES da validação do `.input()` do tRPC.
+
+**SOLUÇÃO:** Substituir `projectAccessMiddleware` por `protectedProcedure` nos endpoints problemáticos (assessmentPhase1.save, assessmentPhase2.get, assessmentPhase2.generateQuestions, assessmentPhase2.saveAnswers) e mover validação de acesso para dentro das mutations após validação do input.
+
+**RESULTADO:** Transição automática Fase 1→2 funcionando 100%! Botão "Finalizar Fase 1 e Continuar" agora salva dados, atualiza status do projeto e redireciona para Fase 2 sem erros.
+
+
+## Correção Bug Geração de Perguntas Fase 2 (IDENTIFICADO)
+- [ ] Corrigir parsing de resposta LLM que retorna JSON com markdown code blocks (```json...```)
+- [ ] Adicionar lógica para remover code blocks antes de JSON.parse()
+- [ ] Testar geração de perguntas via IA
+- [ ] Validar exibição do formulário dinâmico

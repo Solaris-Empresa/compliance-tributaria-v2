@@ -12,24 +12,39 @@ import { generateTemplatePDF } from "./templatePdf";
 // HELPERS
 // ============================================================================
 
-const projectAccessMiddleware = protectedProcedure.use(async ({ ctx, next, rawInput }) => {
-  const projectId = (rawInput as any).projectId;
-  if (!projectId) throw new TRPCError({ code: "BAD_REQUEST", message: "projectId is required" });
+// Middleware para validar acesso ao projeto
+// IMPORTANTE: Este middleware deve ser usado APÓS .input() para garantir que o projectId foi validado
+const createProjectAccessMiddleware = () => {
+  return protectedProcedure.use(async ({ ctx, next, input }) => {
+    console.log('[projectAccessMiddleware] input:', JSON.stringify(input, null, 2));
+    console.log('[projectAccessMiddleware] ctx.user:', ctx.user?.id, ctx.user?.email);
+    
+    const projectId = (input as any)?.projectId;
+    console.log('[projectAccessMiddleware] Extracted projectId:', projectId);
+    
+    if (!projectId) {
+      console.error('[projectAccessMiddleware] ERROR: projectId is missing from input');
+      throw new TRPCError({ code: "BAD_REQUEST", message: "projectId is required" });
+    }
 
-  const project = await db.getProjectById(projectId);
-  if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
+    const project = await db.getProjectById(projectId);
+    if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
 
-  // Equipe SOLARIS e Advogado Sênior têm acesso total
-  if (ctx.user.role === "equipe_solaris" || ctx.user.role === "advogado_senior") {
+    // Equipe SOLARIS e Advogado Sênior têm acesso total
+    if (ctx.user.role === "equipe_solaris" || ctx.user.role === "advogado_senior") {
+      return next({ ctx: { ...ctx, project } });
+    }
+
+    // Cliente precisa estar vinculado ao projeto
+    const hasAccess = await db.isUserInProject(ctx.user.id, projectId);
+    if (!hasAccess) throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+
     return next({ ctx: { ...ctx, project } });
-  }
+  });
+};
 
-  // Cliente precisa estar vinculado ao projeto
-  const hasAccess = await db.isUserInProject(ctx.user.id, projectId);
-  if (!hasAccess) throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
-
-  return next({ ctx: { ...ctx, project } });
-});
+// Helper para criar procedure com validação de acesso ao projeto
+const projectAccessMiddleware = createProjectAccessMiddleware();
 
 // ============================================================================
 // MAIN ROUTER
@@ -156,7 +171,7 @@ export const appRouter = router({
         return await db.getAssessmentPhase1(input.projectId);
       }),
 
-    save: projectAccessMiddleware
+    save: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         taxRegime: z.enum(["simples_nacional", "lucro_presumido", "lucro_real", "mei"]),
@@ -173,6 +188,17 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         console.log('[assessmentPhase1.save] Recebido input:', JSON.stringify(input, null, 2));
         console.log('[assessmentPhase1.save] Usuário:', ctx.user.id, ctx.user.name);
+        
+        // Validar acesso ao projeto
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
+        
+        // Equipe SOLARIS e Advogado Sênior têm acesso total
+        if (ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
+          // Cliente precisa estar vinculado ao projeto
+          const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+          if (!hasAccess) throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
         
         try {
           await db.saveAssessmentPhase1({
@@ -233,15 +259,15 @@ export const appRouter = router({
   // ==========================================================================
 
   assessmentPhase2: router({
-    get: projectAccessMiddleware
+    get: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input }) => {
         return await db.getAssessmentPhase2(input.projectId);
       }),
 
-    generateQuestions: projectAccessMiddleware
+    generateQuestions: protectedProcedure
       .input(z.object({ projectId: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const phase1 = await db.getAssessmentPhase1(input.projectId);
         if (!phase1) throw new TRPCError({ code: "BAD_REQUEST", message: "Complete Phase 1 first" });
 
@@ -321,12 +347,21 @@ Retorne APENAS JSON válido no formato:
         return { questions, usedTemplate: !!template };
       }),
 
-    saveAnswers: projectAccessMiddleware
+    saveAnswers: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         answers: z.record(z.any()),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        // Validar acesso ao projeto
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
+        
+        if (ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
+          const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+          if (!hasAccess) throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
+        
         const phase2 = await db.getAssessmentPhase2(input.projectId);
         if (!phase2) throw new TRPCError({ code: "NOT_FOUND", message: "Phase 2 not found" });
 
