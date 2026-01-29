@@ -182,3 +182,17 @@
 - [x] Integrar botão "Editar" na biblioteca de templates
 - [x] Adicionar rota /templates/:id/editar no App.tsx
 - [x] Estados de loading e feedback com toast
+
+
+## Preview de Template antes de Aplicar (CONCLUÍDO)
+- [x] Adicionar botão "Visualizar Aplicação" em cada card de template
+- [x] Criar estados showTemplatePreview e previewTemplateId
+- [x] Adicionar query templates.getById para buscar template de preview
+- [x] Implementar modal de preview com largura max-w-5xl
+- [x] Parsear JSON do template e extrair fases, ações e tarefas
+- [x] Exibir estatísticas (contadores de fases, ações, tarefas)
+- [x] Exibir fases em cards com título, descrição e contadores
+- [x] Exibir ações agrupadas por fase com indentação
+- [x] Exibir tarefas com badges de prioridade e detalhes (👤 responsável, 📅 prazo, ⏱️ horas)
+- [x] Adicionar botão "Selecionar este Template" no footer do preview
+- [x] Tratamento de erro para JSON inválido

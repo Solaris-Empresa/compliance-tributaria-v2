@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Edit2, FileText, History, Loader2, Sparkles, XCircle, Save } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Edit2, Eye, FileText, History, Loader2, Sparkles, XCircle, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { toast } from "sonner";
@@ -36,6 +36,8 @@ export default function PlanoAcao() {
   const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
   const [showTemplateSelectionDialog, setShowTemplateSelectionDialog] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
+  const [showTemplatePreview, setShowTemplatePreview] = useState(false);
+  const [previewTemplateId, setPreviewTemplateId] = useState<number | null>(null);
   const [templateData, setTemplateData] = useState({
     name: "",
     description: "",
@@ -56,6 +58,11 @@ export default function PlanoAcao() {
       companySize: project?.companySize || undefined,
     },
     { enabled: !!project && showTemplateSelectionDialog }
+  );
+
+  const { data: previewTemplate } = trpc.templates.getById.useQuery(
+    { id: previewTemplateId || 0 },
+    { enabled: !!previewTemplateId && showTemplatePreview }
   );
 
   const generatePlan = trpc.actionPlan.generate.useMutation({
@@ -686,9 +693,24 @@ export default function PlanoAcao() {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-xs text-muted-foreground mt-2">
-                                Usado {template.usageCount} vez(es)
-                              </p>
+                              <div className="flex items-center gap-3 mt-2">
+                                <p className="text-xs text-muted-foreground">
+                                  Usado {template.usageCount} vez(es)
+                                </p>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 text-xs"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setPreviewTemplateId(template.id);
+                                    setShowTemplatePreview(true);
+                                  }}
+                                >
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  Visualizar Aplicação
+                                </Button>
+                              </div>
                             </div>
                             {selectedTemplateId === template.id && (
                               <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
@@ -843,6 +865,208 @@ export default function PlanoAcao() {
                   </>
                 )}
               </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de Preview do Template */}
+        <Dialog open={showTemplatePreview} onOpenChange={setShowTemplatePreview}>
+          <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Visualização do Template</DialogTitle>
+              <DialogDescription>
+                Estrutura do plano de ação que será criado ao aplicar este template
+              </DialogDescription>
+            </DialogHeader>
+            {previewTemplate && (() => {
+              try {
+                const planData = JSON.parse(previewTemplate.templateData);
+                const fases = planData.fases || [];
+                const acoes = planData.acoes || [];
+                const tarefas = planData.tarefas || [];
+
+                return (
+                  <div className="space-y-6 py-4">
+                    {/* Informações do Template */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">{previewTemplate.name}</CardTitle>
+                        {previewTemplate.description && (
+                          <CardDescription>{previewTemplate.description}</CardDescription>
+                        )}
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex flex-wrap gap-2">
+                          {previewTemplate.taxRegime && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                              {previewTemplate.taxRegime === "simples_nacional" && "Simples Nacional"}
+                              {previewTemplate.taxRegime === "lucro_presumido" && "Lucro Presumido"}
+                              {previewTemplate.taxRegime === "lucro_real" && "Lucro Real"}
+                              {previewTemplate.taxRegime === "mei" && "MEI"}
+                            </span>
+                          )}
+                          {previewTemplate.companySize && (
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                              {previewTemplate.companySize === "mei" && "MEI"}
+                              {previewTemplate.companySize === "pequena" && "Pequena"}
+                              {previewTemplate.companySize === "media" && "Média"}
+                              {previewTemplate.companySize === "grande" && "Grande"}
+                            </span>
+                          )}
+                          {previewTemplate.businessType && (
+                            <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                              {previewTemplate.businessType}
+                            </span>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Estatísticas */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center">
+                            <p className="text-3xl font-bold text-blue-600">{fases.length}</p>
+                            <p className="text-sm text-muted-foreground mt-1">Fases</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center">
+                            <p className="text-3xl font-bold text-green-600">{acoes.length}</p>
+                            <p className="text-sm text-muted-foreground mt-1">Ações</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center">
+                            <p className="text-3xl font-bold text-purple-600">{tarefas.length}</p>
+                            <p className="text-sm text-muted-foreground mt-1">Tarefas</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Estrutura do Plano */}
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-lg">Estrutura do Plano</h3>
+                      {fases.map((fase: any, faseIdx: number) => {
+                        const faseTarefas = tarefas.filter((t: any) => t.faseId === fase.id);
+                        const faseAcoes = acoes.filter((a: any) => a.faseId === fase.id);
+                        
+                        return (
+                          <Card key={faseIdx}>
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center justify-between">
+                                <CardTitle className="text-base">
+                                  Fase {faseIdx + 1}: {fase.nome}
+                                </CardTitle>
+                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                  <span>{faseAcoes.length} ações</span>
+                                  <span>•</span>
+                                  <span>{faseTarefas.length} tarefas</span>
+                                </div>
+                              </div>
+                              {fase.descricao && (
+                                <CardDescription className="mt-2">{fase.descricao}</CardDescription>
+                              )}
+                            </CardHeader>
+                            <CardContent>
+                              {faseAcoes.length > 0 && (
+                                <div className="space-y-3">
+                                  {faseAcoes.map((acao: any, acaoIdx: number) => {
+                                    const acaoTarefas = tarefas.filter((t: any) => t.acaoId === acao.id);
+                                    
+                                    return (
+                                      <div key={acaoIdx} className="pl-4 border-l-2 border-gray-200">
+                                        <div className="flex items-start justify-between mb-2">
+                                          <p className="font-medium text-sm">
+                                            {acaoIdx + 1}. {acao.titulo}
+                                          </p>
+                                          <span className="text-xs text-muted-foreground">
+                                            {acaoTarefas.length} tarefa(s)
+                                          </span>
+                                        </div>
+                                        {acao.descricao && (
+                                          <p className="text-sm text-muted-foreground mb-2">{acao.descricao}</p>
+                                        )}
+                                        {acaoTarefas.length > 0 && (
+                                          <div className="space-y-2 mt-2">
+                                            {acaoTarefas.map((tarefa: any, tarefaIdx: number) => (
+                                              <div key={tarefaIdx} className="pl-4 py-2 bg-gray-50 rounded text-sm">
+                                                <div className="flex items-start justify-between">
+                                                  <p className="font-medium">{tarefa.titulo}</p>
+                                                  {tarefa.prioridade && (
+                                                    <span className={`text-xs px-2 py-0.5 rounded ${
+                                                      tarefa.prioridade === "alta" ? "bg-red-100 text-red-700" :
+                                                      tarefa.prioridade === "media" ? "bg-yellow-100 text-yellow-700" :
+                                                      "bg-green-100 text-green-700"
+                                                    }`}>
+                                                      {tarefa.prioridade === "alta" && "Alta"}
+                                                      {tarefa.prioridade === "media" && "Média"}
+                                                      {tarefa.prioridade === "baixa" && "Baixa"}
+                                                    </span>
+                                                  )}
+                                                </div>
+                                                {tarefa.descricao && (
+                                                  <p className="text-muted-foreground mt-1">{tarefa.descricao}</p>
+                                                )}
+                                                <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                                                  {tarefa.responsavel && (
+                                                    <span>👤 {tarefa.responsavel}</span>
+                                                  )}
+                                                  {tarefa.prazo && (
+                                                    <span>📅 {tarefa.prazo}</span>
+                                                  )}
+                                                  {tarefa.horasEstimadas && (
+                                                    <span>⏱️ {tarefa.horasEstimadas}h</span>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              } catch (error) {
+                return (
+                  <div className="py-8 text-center text-red-600">
+                    <p>Erro ao processar template. Formato inválido.</p>
+                  </div>
+                );
+              }
+            })()}
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowTemplatePreview(false)}
+              >
+                Fechar
+              </Button>
+              {previewTemplateId && (
+                <Button
+                  onClick={() => {
+                    setSelectedTemplateId(previewTemplateId);
+                    setShowTemplatePreview(false);
+                  }}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Selecionar este Template
+                </Button>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>
