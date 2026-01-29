@@ -150,7 +150,7 @@ export const appRouter = router({
   // ==========================================================================
 
   assessmentPhase1: router({
-    get: projectAccessMiddleware
+    get: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input }) => {
         return await db.getAssessmentPhase1(input.projectId);
