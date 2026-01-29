@@ -329,3 +329,24 @@
 5. Atualizado prompt de geração para incluir campo "required": true
 
 **RESULTADO:** Validação de 70% funcionando perfeitamente! Botão "Finalizar Assessment" desabilitado quando progresso < 70%, com tooltip explicativo e feedback visual claro.
+
+
+## Barra de Progresso Visual Animada no Assessment Fase 2 (CONCLUÍDO)
+- [x] Adicionar card dedicado para progresso do questionário
+- [x] Implementar barra de progresso animada no topo do formulário
+- [x] Adicionar animação suave na transição de progresso (500ms)
+- [x] Exibir porcentagem de completude em destaque (2xl font)
+- [x] Adicionar gradiente dinâmico (âmbar < 70%, verde ≥ 70%)
+- [x] Implementar efeito pulse na barra para dar vida
+- [x] Exibir contador de perguntas respondidas vs total
+- [x] Adicionar feedback contextual (faltam X / pronto para finalizar)
+- [x] Testar animação ao preencher perguntas
+
+**SOLUÇÃO:**
+1. Criado card dedicado com borda dinâmica (âmbar/verde)
+2. Barra de progresso com gradiente animado e efeito pulse
+3. Transição suave de 500ms com ease-out
+4. Porcentagem grande em destaque com cores contextuais
+5. Contador de perguntas e feedback dinâmico
+
+**RESULTADO:** Barra de progresso visual e animada funcionando perfeitamente! Feedback instantâneo ao preencher perguntas, com transição suave e cores contextuais.

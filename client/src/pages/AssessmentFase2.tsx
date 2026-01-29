@@ -263,23 +263,73 @@ export default function AssessmentFase2() {
         </div>
 
         {/* Progress Indicator */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
-            <div className="flex items-center gap-2">
-              <span>Fase 1</span>
-              <span>→</span>
-              <span className="font-medium text-primary">Fase 2</span>
-              <span>→</span>
-              <span>Briefing</span>
+        <div className="mb-8 space-y-6">
+          {/* Workflow Progress */}
+          <div>
+            <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
+              <div className="flex items-center gap-2">
+                <span>Fase 1</span>
+                <span>→</span>
+                <span className="font-medium text-primary">Fase 2</span>
+                <span>→</span>
+                <span>Briefing</span>
+              </div>
             </div>
-            <span className="font-medium text-primary">{progress}% completo</span>
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-primary transition-all duration-300" 
+                style={{ width: `${(progress / 100) * 66.6}%` }}
+              ></div>
+            </div>
           </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-primary transition-all duration-300" 
-              style={{ width: `${(progress / 100) * 66.6}%` }}
-            ></div>
-          </div>
+
+          {/* Form Completion Progress */}
+          <Card className={`border-2 ${
+            progress < 70 
+              ? "border-amber-300 bg-amber-50/50" 
+              : "border-green-300 bg-green-50/50"
+          }`}>
+            <CardContent className="pt-6 pb-6">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">
+                    Progresso do Questionário
+                  </h3>
+                  <span className={`text-2xl font-bold ${
+                    progress < 70 ? "text-amber-600" : "text-green-600"
+                  }`}>
+                    {progress}%
+                  </span>
+                </div>
+                <div className="relative h-4 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-out ${
+                      progress < 70 
+                        ? "bg-gradient-to-r from-amber-400 to-amber-500" 
+                        : "bg-gradient-to-r from-green-400 to-green-500"
+                    }`}
+                    style={{ width: `${progress}%` }}
+                  >
+                    <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>
+                    {questions.filter(q => answers[q.id]?.trim()).length} de {questions.length} perguntas respondidas
+                  </span>
+                  {progress < 70 ? (
+                    <span className="text-amber-600 font-medium">
+                      Faltam {Math.ceil(questions.length * 0.7) - questions.filter(q => answers[q.id]?.trim()).length} para finalizar
+                    </span>
+                  ) : (
+                    <span className="text-green-600 font-medium">
+                      ✓ Pronto para finalizar!
+                    </span>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Generating State */}
