@@ -189,9 +189,16 @@ export const appRouter = router({
         }
       }),
 
-    complete: projectAccessMiddleware
+    complete: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .mutation(async ({ input, ctx }) => {
+        console.log('[assessmentPhase1.complete] Input recebido:', input);
+        console.log('[assessmentPhase1.complete] User context:', ctx.user);
+        
+        if (!input.projectId) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "projectId é obrigatório" });
+        }
+        
         const phase1 = await db.getAssessmentPhase1(input.projectId);
         if (!phase1) throw new TRPCError({ code: "NOT_FOUND", message: "Phase 1 not found" });
 
@@ -319,7 +326,7 @@ Retorne APENAS JSON válido no formato:
         return { success: true };
       }),
 
-    complete: projectAccessMiddleware
+    complete: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .mutation(async ({ input, ctx }) => {
         const phase2 = await db.getAssessmentPhase2(input.projectId);
