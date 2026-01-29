@@ -1,11 +1,23 @@
-import { eq } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { 
+  users, InsertUser,
+  projects, InsertProject,
+  projectParticipants, InsertProjectParticipant,
+  assessmentPhase1, InsertAssessmentPhase1,
+  assessmentPhase2, InsertAssessmentPhase2,
+  assessmentTemplates, InsertAssessmentTemplate,
+  briefings, InsertBriefing,
+  riskMatrix, InsertRiskMatrix,
+  riskMatrixPromptHistory, InsertRiskMatrixPromptHistory,
+  actionPlans, InsertActionPlan,
+  actionPlanPromptHistory, InsertActionPlanPromptHistory,
+  actionPlanTemplates, InsertActionPlanTemplate,
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -18,59 +30,46 @@ export async function getDb() {
   return _db;
 }
 
+// ============================================================================
+// USERS
+// ============================================================================
+
 export async function upsertUser(user: InsertUser): Promise<void> {
-  if (!user.openId) {
-    throw new Error("User openId is required for upsert");
-  }
+  if (!user.openId) throw new Error("User openId is required");
 
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot upsert user: database not available");
+    console.warn("[Database] Cannot upsert user");
     return;
   }
 
   try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
+    const values: InsertUser = { openId: user.openId };
     const updateSet: Record<string, unknown> = {};
 
-    const textFields = ["name", "email", "loginMethod", "companyName", "phone"] as const;
-    type TextField = (typeof textFields)[number];
-
-    const assignNullable = (field: TextField) => {
+    const fields = ["name", "email", "loginMethod", "companyName", "cnpj", "cpf", "segment", "phone", "observations"] as const;
+    
+    fields.forEach(field => {
       const value = user[field];
-      if (value === undefined) return;
-      const normalized = value ?? null;
-      values[field] = normalized;
-      updateSet[field] = normalized;
-    };
+      if (value !== undefined) {
+        const normalized = value ?? null;
+        values[field] = normalized;
+        updateSet[field] = normalized;
+      }
+    });
 
-    textFields.forEach(assignNullable);
-
-    if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
-    }
     if (user.role !== undefined) {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = 'equipe_solaris';
+      updateSet.role = 'equipe_solaris';
     }
 
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
+    values.lastSignedIn = new Date();
+    updateSet.lastSignedIn = new Date();
 
-    if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
-    }
-
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
-      set: updateSet,
-    });
+    await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -79,46 +78,282 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
-    return undefined;
-  }
+  if (!db) return undefined;
 
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-
-  return result.length > 0 ? result[0] : undefined;
+  return result[0];
 }
 
 export async function getUserById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  
+
   const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return result[0];
 }
 
-export async function updateUser(id: number, data: Partial<InsertUser>) {
-  const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot update user: database not available");
-    return false;
-  }
-
-  try {
-    await db.update(users).set(data).where(eq(users.id, id));
-    return true;
-  } catch (error) {
-    console.error("[Database] Failed to update user:", error);
-    return false;
-  }
-}
-
-export async function listUsers(role?: string) {
+export async function getAllUsers() {
   const db = await getDb();
   if (!db) return [];
-  
-  if (role) {
-    return await db.select().from(users).where(eq(users.role, role as any));
+
+  return await db.select().from(users).orderBy(desc(users.createdAt));
+}
+
+export async function getUsersByRole(role: "cliente" | "equipe_solaris" | "advogado_senior") {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(users).where(eq(users.role, role));
+}
+
+// ============================================================================
+// PROJECTS
+// ============================================================================
+
+export async function createProject(data: InsertProject) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(projects).values(data);
+  return Number(result.insertId);
+}
+
+export async function getProjectById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
+  return result[0];
+}
+
+export async function getProjectsByUser(userId: number, userRole: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  if (userRole === "equipe_solaris" || userRole === "advogado_senior") {
+    return await db.select().from(projects).orderBy(desc(projects.createdAt));
   }
-  return await db.select().from(users);
+
+  const participantProjects = await db
+    .select({ projectId: projectParticipants.projectId })
+    .from(projectParticipants)
+    .where(eq(projectParticipants.userId, userId));
+
+  const projectIds = participantProjects.map(p => p.projectId);
+
+  if (projectIds.length === 0) {
+    return await db.select().from(projects).where(eq(projects.clientId, userId)).orderBy(desc(projects.createdAt));
+  }
+
+  return await db
+    .select()
+    .from(projects)
+    .where(
+      sql`${projects.clientId} = ${userId} OR ${projects.id} IN (${projectIds.join(',')})`
+    )
+    .orderBy(desc(projects.createdAt));
+}
+
+export async function updateProject(projectId: number, data: Partial<InsertProject>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(projects).set(data).where(eq(projects.id, projectId));
+}
+
+export async function isUserInProject(userId: number, projectId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const project = await getProjectById(projectId);
+  if (project && project.clientId === userId) return true;
+
+  const result = await db
+    .select()
+    .from(projectParticipants)
+    .where(and(
+      eq(projectParticipants.projectId, projectId),
+      eq(projectParticipants.userId, userId)
+    ))
+    .limit(1);
+
+  return result.length > 0;
+}
+
+// ============================================================================
+// ASSESSMENT PHASE 1
+// ============================================================================
+
+export async function saveAssessmentPhase1(data: InsertAssessmentPhase1) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const existing = await db
+    .select()
+    .from(assessmentPhase1)
+    .where(eq(assessmentPhase1.projectId, data.projectId))
+    .limit(1);
+
+  if (existing.length > 0) {
+    await db.update(assessmentPhase1).set(data).where(eq(assessmentPhase1.projectId, data.projectId));
+  } else {
+    await db.insert(assessmentPhase1).values(data);
+  }
+}
+
+export async function getAssessmentPhase1(projectId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(assessmentPhase1).where(eq(assessmentPhase1.projectId, projectId)).limit(1);
+  return result[0];
+}
+
+// ============================================================================
+// ASSESSMENT PHASE 2
+// ============================================================================
+
+export async function saveAssessmentPhase2(data: InsertAssessmentPhase2) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const existing = await db
+    .select()
+    .from(assessmentPhase2)
+    .where(eq(assessmentPhase2.projectId, data.projectId))
+    .limit(1);
+
+  if (existing.length > 0) {
+    await db.update(assessmentPhase2).set(data).where(eq(assessmentPhase2.projectId, data.projectId));
+  } else {
+    await db.insert(assessmentPhase2).values(data);
+  }
+}
+
+export async function getAssessmentPhase2(projectId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(assessmentPhase2).where(eq(assessmentPhase2.projectId, projectId)).limit(1);
+  return result[0];
+}
+
+export async function findCompatibleTemplate(taxRegime: string, businessType: string, companySize: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(assessmentTemplates)
+    .where(eq(assessmentTemplates.taxRegime, taxRegime as any))
+    .limit(10);
+
+  const filtered = result.filter(t => {
+    if (t.businessType && t.businessType !== businessType) return false;
+    if (t.companySize && t.companySize !== companySize) return false;
+    return true;
+  });
+
+  return filtered[0];
+}
+
+// ============================================================================
+// BRIEFING
+// ============================================================================
+
+export async function saveBriefing(data: InsertBriefing) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const existing = await db.select().from(briefings).where(eq(briefings.projectId, data.projectId)).limit(1);
+
+  if (existing.length > 0) {
+    await db.update(briefings).set(data).where(eq(briefings.projectId, data.projectId));
+  } else {
+    await db.insert(briefings).values(data);
+  }
+}
+
+export async function getBriefing(projectId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(briefings).where(eq(briefings.projectId, projectId)).limit(1);
+  return result[0];
+}
+
+// ============================================================================
+// RISK MATRIX
+// ============================================================================
+
+export async function saveRiskMatrix(risks: InsertRiskMatrix[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  if (risks.length === 0) return;
+
+  await db.insert(riskMatrix).values(risks);
+}
+
+export async function getRiskMatrix(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(riskMatrix).where(eq(riskMatrix.projectId, projectId));
+}
+
+export async function saveRiskPromptHistory(data: InsertRiskMatrixPromptHistory) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(riskMatrixPromptHistory).values(data);
+}
+
+// ============================================================================
+// ACTION PLAN
+// ============================================================================
+
+export async function saveActionPlan(data: InsertActionPlan) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(actionPlans).values(data);
+  return Number(result.insertId);
+}
+
+export async function getActionPlan(projectId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(actionPlans)
+    .where(eq(actionPlans.projectId, projectId))
+    .orderBy(desc(actionPlans.version))
+    .limit(1);
+
+  return result[0];
+}
+
+export async function updateActionPlanStatus(planId: number, status: string, approvedBy?: number, rejectionReason?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: any = { status };
+  
+  if (status === "aprovado") {
+    updateData.approvedAt = new Date();
+    updateData.approvedBy = approvedBy;
+  } else if (status === "reprovado") {
+    updateData.rejectionReason = rejectionReason;
+  }
+
+  await db.update(actionPlans).set(updateData).where(eq(actionPlans.id, planId));
+}
+
+export async function saveActionPlanPromptHistory(data: InsertActionPlanPromptHistory) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(actionPlanPromptHistory).values(data);
 }

@@ -1,143 +1,187 @@
-import { useState } from "react";
-import { useLocation } from "wouter";
 import ComplianceLayout from "@/components/ComplianceLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
-import { ArrowLeft, Save } from "lucide-react";
-import { Link } from "wouter";
 
 export default function NovoProjeto() {
   const [, setLocation] = useLocation();
-  const [projectName, setProjectName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [name, setName] = useState("");
+  const [clientId, setClientId] = useState("");
+  const [planPeriodMonths, setPlanPeriodMonths] = useState("12");
 
-  const createProjectMutation = trpc.projects.create.useMutation({
+  const { data: clients } = trpc.users.listClients.useQuery();
+  const createProject = trpc.projects.create.useMutation({
     onSuccess: (data) => {
       toast.success("Projeto criado com sucesso!");
       setLocation(`/projetos/${data.projectId}`);
     },
     onError: (error) => {
       toast.error(`Erro ao criar projeto: ${error.message}`);
-      setIsSubmitting(false);
     },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!projectName.trim()) {
-      toast.error("Por favor, informe o nome do projeto");
+
+    if (!name.trim()) {
+      toast.error("Nome do projeto é obrigatório");
       return;
     }
 
-    setIsSubmitting(true);
-    createProjectMutation.mutate({ name: projectName.trim() });
+    if (!clientId) {
+      toast.error("Selecione um cliente");
+      return;
+    }
+
+    if (!planPeriodMonths) {
+      toast.error("Período do plano é obrigatório");
+      return;
+    }
+
+    createProject.mutate({
+      name: name.trim(),
+      clientId: parseInt(clientId),
+      planPeriodMonths: parseInt(planPeriodMonths),
+    });
   };
 
   return (
     <ComplianceLayout>
-      <div className="p-8">
-        {/* Breadcrumb */}
-        <div className="mb-6">
-          <Link href="/projetos">
-            <a className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="w-4 h-4" />
-              Voltar para Projetos
-            </a>
-          </Link>
-        </div>
-
+      <div className="p-8 max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Novo Projeto</h1>
-          <p className="text-muted-foreground">
-            Crie um novo projeto de adequação à reforma tributária
+          <Button variant="ghost" asChild className="mb-4">
+            <Link href="/projetos">
+              <a className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Voltar para Projetos
+              </a>
+            </Link>
+          </Button>
+          <h1 className="text-3xl font-bold">Novo Projeto</h1>
+          <p className="text-muted-foreground mt-1">
+            Crie um novo projeto de compliance tributário
           </p>
         </div>
 
         {/* Form */}
-        <div className="max-w-2xl">
-          <form onSubmit={handleSubmit}>
-            <Card>
-              <CardHeader>
-                <CardTitle>Informações do Projeto</CardTitle>
-                <CardDescription>
-                  Informe os dados básicos do projeto. Você poderá adicionar mais detalhes depois.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="projectName">
-                    Nome do Projeto <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="projectName"
-                    type="text"
-                    placeholder="Ex: Adequação Reforma Tributária - Empresa XYZ"
-                    value={projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
-                    disabled={isSubmitting}
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Escolha um nome descritivo que identifique claramente o projeto
-                  </p>
-                </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Informações do Projeto</CardTitle>
+            <CardDescription>
+              Preencha os dados básicos para iniciar o assessment
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Nome do Projeto */}
+              <div className="space-y-2">
+                <Label htmlFor="name">Nome do Projeto *</Label>
+                <Input
+                  id="name"
+                  placeholder="Ex: Adequação Reforma Tributária - Transportadora XYZ"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
 
-                <div className="pt-4 border-t">
-                  <div className="flex gap-3">
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting || !projectName.trim()}
-                      className="flex items-center gap-2"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                          Criando...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="w-4 h-4" />
-                          Criar Projeto
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={isSubmitting}
-                      asChild
-                    >
-                      <Link href="/projetos">
-                        <a>Cancelar</a>
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </form>
+              {/* Cliente */}
+              <div className="space-y-2">
+                <Label htmlFor="client">Cliente *</Label>
+                <Select value={clientId} onValueChange={setClientId} required>
+                  <SelectTrigger id="client">
+                    <SelectValue placeholder="Selecione o cliente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clients?.map((client) => (
+                      <SelectItem key={client.id} value={client.id.toString()}>
+                        {client.name || client.email}
+                        {client.companyName && ` - ${client.companyName}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Selecione o cliente responsável por este projeto
+                </p>
+              </div>
 
-          {/* Info Card */}
-          <Card className="mt-6 bg-muted/50">
-            <CardContent className="pt-6">
-              <h3 className="font-semibold mb-2">Próximos Passos</h3>
-              <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                <li>Adicionar participantes ao projeto</li>
-                <li>Responder o assessment inicial (Fase 1)</li>
-                <li>Completar o assessment detalhado (Fase 2)</li>
-                <li>Revisar o briefing gerado automaticamente</li>
-                <li>Aprovar o plano de ação</li>
-                <li>Iniciar a execução do projeto</li>
-              </ol>
-            </CardContent>
-          </Card>
-        </div>
+              {/* Período do Plano */}
+              <div className="space-y-2">
+                <Label htmlFor="period">Período do Plano de Ação *</Label>
+                <Select
+                  value={planPeriodMonths}
+                  onValueChange={setPlanPeriodMonths}
+                  required
+                >
+                  <SelectTrigger id="period">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="12">12 meses</SelectItem>
+                    <SelectItem value="24">24 meses</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  O período define o prazo total para execução do plano de ação
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4">
+                <Button
+                  type="submit"
+                  disabled={createProject.isPending}
+                  className="flex-1"
+                >
+                  {createProject.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Criando...
+                    </>
+                  ) : (
+                    "Criar Projeto"
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  asChild
+                  disabled={createProject.isPending}
+                >
+                  <Link href="/projetos">
+                    <a>Cancelar</a>
+                  </Link>
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Info Card */}
+        <Card className="mt-6 bg-blue-50 border-blue-200">
+          <CardContent className="pt-6">
+            <h3 className="font-medium mb-2">Próximos Passos</h3>
+            <p className="text-sm text-muted-foreground">
+              Após criar o projeto, você será direcionado para o Assessment Fase 1, onde coletaremos
+              informações básicas sobre o regime tributário e características da empresa.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </ComplianceLayout>
   );

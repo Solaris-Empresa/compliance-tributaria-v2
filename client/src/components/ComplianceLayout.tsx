@@ -1,185 +1,143 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { trpc } from "@/lib/trpc";
-import {
-  LayoutDashboard,
-  FolderKanban,
-  ClipboardList,
-  FileText,
-  Target,
-  BarChart3,
+import { getLoginUrl } from "@/const";
+import { 
+  FileText, 
+  FolderKanban, 
+  LayoutDashboard, 
+  LogOut, 
+  Menu,
   Users,
-  Settings,
-  LogOut,
-  ChevronRight,
-  CheckCircle2,
+  X
 } from "lucide-react";
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { ReactNode } from "react";
+import { ROLES } from "@shared/translations";
 
 interface ComplianceLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
-  const { user, logout } = useAuth();
+  const { user, loading, isAuthenticated, logout } = useAuth();
   const [location] = useLocation();
-  const logoutMutation = trpc.auth.logout.useMutation();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const handleLogout = async () => {
-    await logoutMutation.mutateAsync();
-    logout();
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const navigation = [
-    { name: "Dashboard", href: "/", icon: LayoutDashboard },
-    { name: "Projetos", href: "/projetos", icon: FolderKanban },
-    { name: "Tarefas", href: "/tarefas", icon: CheckCircle2 },
-    { name: "Sprints", href: "/sprints", icon: Target },
-    { name: "COSO", href: "/coso", icon: BarChart3 },
-    { name: "Relatórios", href: "/relatorios", icon: FileText },
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center max-w-md">
+          <h1 className="text-3xl font-bold mb-4">IA SOLARIS</h1>
+          <p className="text-muted-foreground mb-6">
+            Plataforma de Assessment, Matriz de Riscos e Plano de Ação para Compliance Tributário
+          </p>
+          <Button asChild size="lg">
+            <a href={getLoginUrl()}>Entrar</a>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const navItems = [
+    { href: "/", icon: LayoutDashboard, label: "Painel" },
+    { href: "/projetos", icon: FolderKanban, label: "Projetos" },
   ];
 
-  const adminNavigation = [
-    { name: "Usuários", href: "/usuarios", icon: Users },
-    { name: "Templates", href: "/templates", icon: ClipboardList },
-    { name: "Configurações", href: "/configuracoes", icon: Settings },
-  ];
+  // Adicionar item de usuários apenas para equipe SOLARIS
+  if (user?.role === "equipe_solaris") {
+    navItems.push({ href: "/usuarios", icon: Users, label: "Usuários" });
+  }
 
-  const isActive = (href: string) => {
-    if (href === "/") return location === "/";
-    return location.startsWith(href);
-  };
-
-  const getInitials = (name?: string | null) => {
-    if (!name) return "U";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+  const isActive = (path: string) => {
+    if (path === "/") return location === "/";
+    return location.startsWith(path);
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
-      <aside className="w-64 border-r bg-card flex flex-col">
-        {/* Logo */}
-        <div className="p-6 border-b">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
-            </div>
+      <aside
+        className={`${
+          sidebarOpen ? "w-64" : "w-20"
+        } bg-card border-r border-border flex flex-col transition-all duration-300`}
+      >
+        {/* Header */}
+        <div className="p-4 border-b border-border flex items-center justify-between">
+          {sidebarOpen && (
             <div>
-              <h1 className="text-lg font-bold text-foreground">Compliance</h1>
-              <p className="text-xs text-muted-foreground">Reforma Tributária</p>
+              <h1 className="text-xl font-bold">IA SOLARIS</h1>
+              <p className="text-xs text-muted-foreground">Compliance Tributário</p>
             </div>
-          </div>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
         </div>
 
         {/* Navigation */}
-        <ScrollArea className="flex-1 px-3 py-4">
-          <nav className="space-y-1">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
-              return (
-                <Link key={item.name} href={item.href}>
-                  <a
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      active
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {item.name}
-                    {active && <ChevronRight className="w-4 h-4 ml-auto" />}
-                  </a>
-                </Link>
-              );
-            })}
-          </nav>
+        <nav className="flex-1 p-4 space-y-2">
+          {navItems.map((item) => (
+            <Link key={item.href} href={item.href}>
+              <a
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                  isActive(item.href)
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-accent text-foreground"
+                }`}
+              >
+                <item.icon className="h-5 w-5 flex-shrink-0" />
+                {sidebarOpen && <span>{item.label}</span>}
+              </a>
+            </Link>
+          ))}
+        </nav>
 
-          {user?.role === "admin" && (
-            <>
-              <Separator className="my-4" />
-              <div className="px-3 mb-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Administração
+        {/* User Info */}
+        <div className="p-4 border-t border-border">
+          {sidebarOpen ? (
+            <div className="space-y-2">
+              <div className="text-sm">
+                <p className="font-medium">{user?.name || "Usuário"}</p>
+                <p className="text-xs text-muted-foreground">
+                  {ROLES[user?.role as keyof typeof ROLES] || user?.role}
                 </p>
               </div>
-              <nav className="space-y-1">
-                {adminNavigation.map((item) => {
-                  const Icon = item.icon;
-                  const active = isActive(item.href);
-                  return (
-                    <Link key={item.name} href={item.href}>
-                      <a
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          active
-                            ? "bg-primary text-primary-foreground"
-                            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                        {item.name}
-                        {active && <ChevronRight className="w-4 h-4 ml-auto" />}
-                      </a>
-                    </Link>
-                  );
-                })}
-              </nav>
-            </>
-          )}
-        </ScrollArea>
-
-        {/* User Menu */}
-        <div className="p-4 border-t">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start gap-3 h-auto p-2">
-                <Avatar className="w-8 h-8">
-                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                    {getInitials(user?.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 text-left overflow-hidden">
-                  <p className="text-sm font-medium truncate">{user?.name || "Usuário"}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/perfil">
-                  <a className="flex items-center w-full">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Perfil
-                  </a>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                <LogOut className="w-4 h-4 mr-2" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => logout()}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
                 Sair
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => logout()}
+              title="Sair"
+            >
+              <LogOut className="h-5 w-5" />
+            </Button>
+          )}
         </div>
       </aside>
 
