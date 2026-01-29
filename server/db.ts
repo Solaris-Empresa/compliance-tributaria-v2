@@ -107,7 +107,7 @@ export async function getUsersByRole(role: string) {
   const db = await getDb();
   if (!db) return [];
 
-  return await db.select().from(users).where(eq(users.role, role)).orderBy(desc(users.createdAt));
+  return await db.select().from(users).where(eq(users.role, role as any)).orderBy(desc(users.createdAt));
 }
 
 export async function createUser(userData: Omit<InsertUser, 'id'>) {

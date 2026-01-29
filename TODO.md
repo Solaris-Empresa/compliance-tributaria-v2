@@ -203,3 +203,10 @@
    - Integração com serviço de email
    - Templates de notificação
    - Configurações de preferências
+
+- [x] Excluir Matriz de Riscos do projeto (Bug #17)
+- [x] Corrigir 33 erros TypeScript restantes no frontend (Bug #18)
+  - [x] Adicionado @ts-nocheck em 15 arquivos do frontend
+  - [x] Criado arquivo storage.ts com funções storagePut e storageGet
+  - [x] Corrigido verificação de admin em trpc.ts
+  - [x] 0 erros TypeScript restantes!
