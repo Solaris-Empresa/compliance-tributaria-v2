@@ -77,3 +77,64 @@ export function generateFakeAnswers(questions: any[], percentageToAnswer: number
   
   return answers;
 }
+
+export function createTestContext(options: {
+  userId?: number;
+  role?: "cliente" | "equipe_solaris" | "advogado_senior";
+} = {}) {
+  const userId = options.userId || 1;
+  const role = options.role || "equipe_solaris";
+  
+  return {
+    user: {
+      id: userId,
+      openId: `test-open-id-${userId}`,
+      name: `Test User ${userId}`,
+      email: `test${userId}@example.com`,
+      loginMethod: "oauth",
+      role,
+      cpf: null,
+      phone: null,
+      companyName: null,
+      cnpj: null,
+      segment: null,
+      notes: null,
+      observations: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastSignedIn: new Date(),
+    },
+    req: {} as any,
+    res: {} as any,
+  } as TrpcContext;
+}
+
+export function generateTestProject() {
+  return {
+    name: `Test Project ${Date.now()}`,
+    clientId: 1,
+    actionPlanPeriod: 12,
+  };
+}
+
+export function generateTestTask() {
+  return {
+    title: `Test Task ${Date.now()}`,
+    description: "Test task description",
+    priority: "media" as const,
+    status: "a_fazer" as const,
+    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    estimatedHours: 8,
+  };
+}
+
+export function generateTestRisk() {
+  return {
+    title: `Test Risk ${Date.now()}`,
+    description: "Test risk description",
+    cosoComponent: "ambiente_controle" as const,
+    probability: "media" as const,
+    impact: "alto" as const,
+    mitigationStatus: "identificado" as const,
+  };
+}

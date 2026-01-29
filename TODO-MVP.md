@@ -365,3 +365,16 @@
 - [ ] Criar testes para Notificações (notifyOwner)
 - [ ] Executar suite completa e validar cobertura expandida
 - [ ] Atualizar documentação de testes com nova cobertura
+
+
+## Implementação de Endpoints Dashboard e Notificações (EM ANDAMENTO)
+- [ ] Analisar requisitos de endpoints de Dashboard (KPIs, distribuição, tarefas atrasadas)
+- [ ] Analisar requisitos de endpoints de Notificações (list, create, markAsRead)
+- [ ] Implementar funções no db.ts para Dashboard
+- [ ] Implementar funções no db.ts para Notificações
+- [ ] Criar router dashboard no routers.ts com 5 endpoints
+- [ ] Criar router notifications no routers.ts com 3 endpoints
+- [ ] Criar testes dashboard.test.ts (5 testes)
+- [ ] Criar testes notifications.test.ts (4 testes)
+- [ ] Executar suite completa e validar 100% de cobertura
+- [ ] Salvar checkpoint com endpoints e testes completos

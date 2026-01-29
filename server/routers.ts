@@ -1141,6 +1141,102 @@ Retorne APENAS JSON válido no formato:
         return { userId };
       }),
   }),
+
+  // ==========================================================================
+  // DASHBOARD
+  // ==========================================================================
+  
+  dashboard: router({
+    getKPIs: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+        
+        // Validar acesso
+        if (project.userId !== ctx.user.id && ctx.user.role === "cliente") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        
+        return await db.getDashboardKPIs(input.projectId);
+      }),
+
+    getTaskDistribution: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+        
+        if (project.userId !== ctx.user.id && ctx.user.role === "cliente") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        
+        return await db.getTaskDistribution(input.projectId);
+      }),
+
+    getRiskDistribution: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+        
+        if (project.userId !== ctx.user.id && ctx.user.role === "cliente") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        
+        return await db.getRiskDistribution(input.projectId);
+      }),
+
+    getOverdueTasks: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+        
+        if (project.userId !== ctx.user.id && ctx.user.role === "cliente") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        
+        return await db.getOverdueTasks(input.projectId);
+      }),
+  }),
+
+  // ==========================================================================
+  // NOTIFICATIONS
+  // ==========================================================================
+  
+  notifications: router({
+    list: protectedProcedure
+      .input(z.object({ projectId: z.number().optional() }))
+      .query(async ({ input, ctx }) => {
+        return await db.getNotificationsByUser(ctx.user.id, input.projectId);
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        recipientId: z.number(),
+        type: z.string(),
+        title: z.string(),
+        message: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Apenas equipe SOLARIS pode criar notificações
+        if (ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        
+        const notificationId = await db.createNotification(input);
+        return { notificationId };
+      }),
+
+    markAsRead: protectedProcedure
+      .input(z.object({ notificationId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.markNotificationAsRead(input.notificationId);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

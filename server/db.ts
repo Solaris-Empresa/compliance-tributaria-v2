@@ -1,4 +1,4 @@
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, and, sql, ne, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   users, InsertUser,
@@ -15,6 +15,8 @@ import {
   actionPlanTemplates, InsertActionPlanTemplate,
   tasks, InsertTask,
   phases, InsertPhase,
+  notifications, InsertNotification,
+
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -558,4 +560,169 @@ export async function searchActionPlanTemplates(filters: {
 
   const result = await query.orderBy(desc(actionPlanTemplates.usageCount));
   return result;
+}
+
+
+// ============================================================================
+// DASHBOARD
+// ============================================================================
+
+export async function getDashboardKPIs(projectId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  // Total de tarefas
+  const allTasks = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId));
+
+  const totalTasks = allTasks.length;
+  const completedTasks = allTasks.filter(t => t.status === "concluido").length;
+  const overdueTasks = allTasks.filter(t => 
+    t.dueDate && new Date(t.dueDate) < new Date() && t.status !== "concluido"
+  ).length;
+
+  // Taxa de conclusão
+  const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+  // Riscos
+  const allRisks = await db
+    .select()
+    .from(riskMatrix)
+    .where(eq(riskMatrix.projectId, projectId));
+
+  const totalRisks = allRisks.length;
+  const mitigatedRisks = allRisks.filter(r => r.mitigationStatus === "mitigado").length;
+
+  return {
+    totalTasks,
+    completedTasks,
+    overdueTasks,
+    completionRate: Math.round(completionRate * 10) / 10,
+    totalRisks,
+    mitigatedRisks,
+  };
+}
+
+export async function getTaskDistribution(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const allTasks = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId));
+
+  const distribution = {
+    pendencias: 0,
+    a_fazer: 0,
+    em_andamento: 0,
+    concluido: 0,
+  };
+
+  allTasks.forEach(task => {
+    distribution[task.status]++;
+  });
+
+  return Object.entries(distribution).map(([status, count]) => ({
+    status,
+    count,
+  }));
+}
+
+export async function getRiskDistribution(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const allRisks = await db
+    .select()
+    .from(riskMatrix)
+    .where(eq(riskMatrix.projectId, projectId));
+
+  const distribution: Record<string, number> = {};
+
+  allRisks.forEach(risk => {
+    const component = risk.cosoComponent || "outros";
+    distribution[component] = (distribution[component] || 0) + 1;
+  });
+
+  return Object.entries(distribution).map(([component, count]) => ({
+    component,
+    count,
+  }));
+}
+
+export async function getOverdueTasks(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const now = new Date();
+  
+  const overdue = await db
+    .select()
+    .from(tasks)
+    .where(
+      and(
+        eq(tasks.projectId, projectId),
+        ne(tasks.status, "concluido")
+      )
+    );
+
+  return overdue.filter(task => task.dueDate && new Date(task.dueDate) < now);
+}
+
+
+// ============================================================================
+// NOTIFICATIONS
+// ============================================================================
+
+export async function getNotificationsByUser(userId: number, projectId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  let query = db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.recipientId, userId));
+
+  if (projectId) {
+    query = query.where(eq(notifications.projectId, projectId));
+  }
+
+  const result = await query.orderBy(desc(notifications.sentAt));
+  return result;
+}
+
+export async function createNotification(data: {
+  projectId: number;
+  recipientId: number;
+  type: string;
+  title: string;
+  message: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(notifications).values({
+    projectId: data.projectId,
+    recipientId: data.recipientId,
+    type: data.type as any,
+    subject: data.title,
+    message: data.message,
+  });
+
+  return Number(result[0].insertId);
+}
+
+export async function markNotificationAsRead(notificationId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(notifications)
+    .set({ read: true })
+    .where(eq(notifications.id, notificationId));
+
+  return true;
 }
