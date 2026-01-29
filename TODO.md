@@ -225,3 +225,5 @@
   - [x] Rotas traduzidas: /dashboard-executivo → /painel-indicadores, /templates → /modelos-padroes, etc.
   - [x] Links de navegação atualizados em todos os arquivos
   - [x] Testes 22/22 passando (100%)
+
+- [ ] Criar documento BACKLOG.md com normalização 1:N e sistema de permissões
