@@ -102,3 +102,15 @@
 - [x] Implementar histórico de versões do Prompt
 - [x] Adicionar filtros por componente COSO e nível de risco
 - [x] Criar indicadores visuais de risco (cores)
+
+
+## Dashboard Executivo (CONCLUÍDO)
+- [x] Criar página DashboardExecutivo.tsx
+- [x] Implementar KPIs de compliance (% tarefas concluídas, riscos mitigados, prazos cumpridos)
+- [x] Criar gráfico de burndown por fase
+- [x] Implementar gráfico de distribuição de riscos por componente COSO
+- [x] Adicionar gráfico de status de tarefas (pizza/donut)
+- [x] Criar lista de alertas para tarefas atrasadas
+- [x] Implementar filtros por projeto e período
+- [x] Adicionar indicadores visuais de progresso
+- [x] Criar cards de resumo executivo

@@ -2,6 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { 
+  BarChart3,
   FileText, 
   FolderKanban, 
   LayoutDashboard, 
@@ -54,6 +55,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     { href: "/", icon: LayoutDashboard, label: "Painel" },
     { href: "/projetos", icon: FolderKanban, label: "Projetos" },
     { href: "/clientes", icon: Users, label: "Clientes" },
+    { href: "/dashboard-executivo", icon: BarChart3, label: "Dashboard Executivo" },
   ];
 
   // Adicionar item de usuários apenas para equipe SOLARIS
