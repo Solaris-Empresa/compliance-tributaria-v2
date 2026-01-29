@@ -157,3 +157,15 @@
 - [x] Implementar chamada ao endpoint templates.create
 - [x] Adicionar feedback visual de sucesso com toast
 - [x] Implementar estados de loading durante salvamento
+
+
+## Seleção de Template na Geração de Plano (CONCLUÍDO)
+- [x] Modificar fluxo inicial de geração para mostrar opções
+- [x] Criar modal de seleção de template com busca filtrada
+- [x] Implementar filtro automático por regime tributário do projeto
+- [x] Implementar filtro automático por porte do projeto
+- [x] Adicionar opção "Gerar com IA" e "Usar Template"
+- [x] Mostrar lista de templates compatíveis com metadados
+- [x] Implementar aplicação de template selecionado via endpoint
+- [x] Adicionar feedback visual durante aplicação (loading states)
+- [x] Seleção visual de template com destaque

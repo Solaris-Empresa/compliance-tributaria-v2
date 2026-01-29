@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Edit2, History, Loader2, Sparkles, XCircle, Save } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Edit2, FileText, History, Loader2, Sparkles, XCircle, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { toast } from "sonner";
@@ -34,6 +34,8 @@ export default function PlanoAcao() {
   const [approvalComment, setApprovalComment] = useState("");
   const [approvalAction, setApprovalAction] = useState<"aprovar" | "rejeitar">("aprovar");
   const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
+  const [showTemplateSelectionDialog, setShowTemplateSelectionDialog] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const [templateData, setTemplateData] = useState({
     name: "",
     description: "",
@@ -47,6 +49,13 @@ export default function PlanoAcao() {
   const { data: promptHistory } = trpc.actionPlan.getPromptHistory.useQuery(
     { actionPlanId: actionPlan?.id || 0 },
     { enabled: !!actionPlan?.id }
+  );
+  const { data: compatibleTemplates = [] } = trpc.templates.search.useQuery(
+    {
+      taxRegime: project?.taxRegime || undefined,
+      companySize: project?.companySize || undefined,
+    },
+    { enabled: !!project && showTemplateSelectionDialog }
   );
 
   const generatePlan = trpc.actionPlan.generate.useMutation({
@@ -114,12 +123,25 @@ export default function PlanoAcao() {
     },
   });
 
+  const applyTemplate = trpc.templates.applyTemplate.useMutation({
+    onSuccess: () => {
+      setShowTemplateSelectionDialog(false);
+      setIsGenerating(false);
+      refetch();
+      toast.success("Template aplicado com sucesso!");
+    },
+    onError: (error) => {
+      setIsGenerating(false);
+      toast.error(`Erro ao aplicar template: ${error.message}`);
+    },
+  });
+
   useEffect(() => {
-    if (project && !actionPlan && !isGenerating) {
-      setIsGenerating(true);
-      generatePlan.mutate({ projectId });
+    if (project && !actionPlan && !isGenerating && !showTemplateSelectionDialog) {
+      // Mostrar dialog de seleção de template ao invés de gerar automaticamente
+      setShowTemplateSelectionDialog(true);
     }
-  }, [project, actionPlan, projectId, isGenerating]);
+  }, [project, actionPlan, projectId, isGenerating, showTemplateSelectionDialog]);
 
   useEffect(() => {
     if (actionPlan && !editedPrompt) {
@@ -182,6 +204,24 @@ export default function PlanoAcao() {
       businessType: templateData.businessType || undefined,
       companySize: templateData.companySize || undefined,
       templateData: actionPlan.planData,
+    });
+  };
+
+  const handleGenerateWithAI = () => {
+    setShowTemplateSelectionDialog(false);
+    setIsGenerating(true);
+    generatePlan.mutate({ projectId });
+  };
+
+  const handleApplyTemplate = () => {
+    if (!selectedTemplateId) {
+      toast.error("Selecione um template");
+      return;
+    }
+    setIsGenerating(true);
+    applyTemplate.mutate({
+      templateId: selectedTemplateId,
+      projectId,
     });
   };
 
@@ -552,6 +592,151 @@ export default function PlanoAcao() {
                 </Card>
               ))}
             </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showTemplateSelectionDialog} onOpenChange={setShowTemplateSelectionDialog}>
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Como deseja criar o Plano de Ação?</DialogTitle>
+              <DialogDescription>
+                Escolha entre gerar um novo plano com IA ou aplicar um template existente
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <Button
+                  variant="outline"
+                  className="h-auto flex-col gap-3 p-6"
+                  onClick={handleGenerateWithAI}
+                  disabled={isGenerating}
+                >
+                  <Sparkles className="h-8 w-8 text-primary" />
+                  <div className="text-center">
+                    <p className="font-semibold">Gerar com IA</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Criar plano personalizado usando inteligência artificial
+                    </p>
+                  </div>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-auto flex-col gap-3 p-6"
+                  onClick={() => {}}
+                  disabled
+                >
+                  <FileText className="h-8 w-8 text-muted-foreground" />
+                  <div className="text-center">
+                    <p className="font-semibold">Usar Template</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Aplicar template pré-configurado
+                    </p>
+                  </div>
+                </Button>
+              </div>
+
+              {compatibleTemplates.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base">Templates Compatíveis</Label>
+                    <span className="text-sm text-muted-foreground">
+                      {compatibleTemplates.length} template(s) encontrado(s)
+                    </span>
+                  </div>
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {compatibleTemplates.map((template) => (
+                      <Card
+                        key={template.id}
+                        className={`cursor-pointer transition-all ${
+                          selectedTemplateId === template.id
+                            ? "border-primary bg-primary/5"
+                            : "hover:border-primary/50"
+                        }`}
+                        onClick={() => setSelectedTemplateId(template.id)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                              <h4 className="font-semibold">{template.name}</h4>
+                              {template.description && (
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  {template.description}
+                                </p>
+                              )}
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {template.taxRegime && (
+                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                                    {template.taxRegime === "simples_nacional" && "Simples Nacional"}
+                                    {template.taxRegime === "lucro_presumido" && "Lucro Presumido"}
+                                    {template.taxRegime === "lucro_real" && "Lucro Real"}
+                                    {template.taxRegime === "mei" && "MEI"}
+                                  </span>
+                                )}
+                                {template.companySize && (
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                                    {template.companySize === "mei" && "MEI"}
+                                    {template.companySize === "pequena" && "Pequena"}
+                                    {template.companySize === "media" && "Média"}
+                                    {template.companySize === "grande" && "Grande"}
+                                  </span>
+                                )}
+                                {template.businessType && (
+                                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                                    {template.businessType}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                Usado {template.usageCount} vez(es)
+                              </p>
+                            </div>
+                            {selectedTemplateId === template.id && (
+                              <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {compatibleTemplates.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p>Nenhum template compatível encontrado</p>
+                  <p className="text-sm mt-1">
+                    Gere um plano com IA e salve-o como template para uso futuro
+                  </p>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowTemplateSelectionDialog(false)}
+              >
+                Cancelar
+              </Button>
+              {selectedTemplateId && (
+                <Button
+                  onClick={handleApplyTemplate}
+                  disabled={isGenerating}
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Aplicando...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="h-4 w-4 mr-2" />
+                      Aplicar Template
+                    </>
+                  )}
+                </Button>
+              )}
+            </DialogFooter>
           </DialogContent>
         </Dialog>
 
