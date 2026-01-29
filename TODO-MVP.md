@@ -213,3 +213,22 @@
 - [x] Adicionar botão "Exportar PDF" no modal de preview do PlanoAcao
 - [x] Implementar download automático via base64 → blob → link temporário
 - [x] Adicionar toasts de feedback (info ao gerar, success ao concluir, error em falhas)
+
+
+## Teste End-to-End e Correções (EM ANDAMENTO)
+- [x] Corrigir erro de <a> aninhado em ComplianceLayout
+- [x] Corrigir todos os Button asChild com Link e <a> aninhado
+- [x] Verificar e corrigir erros de console do browser
+- [x] Testar criação de cliente via banco (dados de teste criados)
+- [x] Testar criação de projeto via banco (dados de teste criados)
+- [x] Verificar visualização de projeto na página inicial
+- [x] Verificar página de detalhes do projeto
+- [ ] Testar geração de plano de ação via IA
+- [ ] Testar aprovação/rejeição de plano
+- [ ] Testar salvamento de plano como template
+- [ ] Testar seleção e aplicação de template
+- [ ] Testar preview de template
+- [ ] Testar exportação de template para PDF
+- [ ] Testar edição de template
+- [ ] Testar quadro Kanban (criação, movimentação, exclusão de tarefas)
+- [ ] Validar todos os fluxos principais

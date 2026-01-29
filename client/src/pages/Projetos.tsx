@@ -29,11 +29,9 @@ export default function Projetos() {
           </div>
           <Button asChild>
             <Link href="/projetos/novo">
-              <a className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
                 Novo Projeto
-              </a>
-            </Link>
+              </Link>
           </Button>
         </div>
 
@@ -101,9 +99,7 @@ export default function Projetos() {
               </p>
               {!searchTerm && (
                 <Button asChild>
-                  <Link href="/projetos/novo">
-                    <a>Criar Primeiro Projeto</a>
-                  </Link>
+                  <Link href="/projetos/novo">Criar Primeiro Projeto</Link>
                 </Button>
               )}
             </CardContent>

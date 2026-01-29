@@ -127,11 +127,9 @@ export default function EditarTemplate() {
         <div className="mb-8">
           <Button variant="ghost" asChild className="mb-4">
             <Link href="/templates">
-              <a className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 Voltar para Biblioteca
-              </a>
-            </Link>
+              </Link>
           </Button>
           <h1 className="text-3xl font-bold">Editar Template</h1>
           <p className="text-muted-foreground mt-1">

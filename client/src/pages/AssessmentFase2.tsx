@@ -225,9 +225,7 @@ export default function AssessmentFase2() {
               </p>
               <div className="flex justify-center mt-4">
                 <Button asChild>
-                  <Link href={`/projetos/${projectId}/assessment/fase1`}>
-                    <a>Ir para Fase 1</a>
-                  </Link>
+                  <Link href={`/projetos/${projectId}/assessment/fase1`}>Ir para Fase 1</Link>
                 </Button>
               </div>
             </CardContent>
@@ -246,11 +244,9 @@ export default function AssessmentFase2() {
         <div className="mb-8">
           <Button variant="ghost" asChild className="mb-4">
             <Link href={`/projetos/${projectId}`}>
-              <a className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 Voltar para Projeto
-              </a>
-            </Link>
+              </Link>
           </Button>
           <h1 className="text-3xl font-bold">Assessment - Fase 2</h1>
           <p className="text-muted-foreground mt-1">

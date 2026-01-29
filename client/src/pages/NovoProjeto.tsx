@@ -65,11 +65,9 @@ export default function NovoProjeto() {
         <div className="mb-8">
           <Button variant="ghost" asChild className="mb-4">
             <Link href="/projetos">
-              <a className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 Voltar para Projetos
-              </a>
-            </Link>
+              </Link>
           </Button>
           <h1 className="text-3xl font-bold">Novo Projeto</h1>
           <p className="text-muted-foreground mt-1">
@@ -163,9 +161,7 @@ export default function NovoProjeto() {
                   asChild
                   disabled={createProject.isPending}
                 >
-                  <Link href="/projetos">
-                    <a>Cancelar</a>
-                  </Link>
+                  <Link href="/projetos">Cancelar</Link>
                 </Button>
               </div>
             </form>

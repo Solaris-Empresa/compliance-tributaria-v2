@@ -56,10 +56,8 @@ export default function NovoCliente() {
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/clientes">
-              <a>
                 <ArrowLeft className="h-5 w-5" />
-              </a>
-            </Link>
+              </Link>
           </Button>
           <div>
             <h1 className="text-3xl font-bold">Novo Cliente</h1>

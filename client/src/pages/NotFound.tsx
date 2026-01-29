@@ -11,9 +11,7 @@ export default function NotFound() {
           A página que você está procurando não existe ou foi removida.
         </p>
         <Button asChild>
-          <Link href="/">
-            <a>Voltar para o Painel</a>
-          </Link>
+          <Link href="/">Voltar para o Painel</Link>
         </Button>
       </div>
     </div>

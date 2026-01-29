@@ -97,11 +97,9 @@ export default function Briefing() {
         <div className="mb-8">
           <Button variant="ghost" asChild className="mb-4">
             <Link href={`/projetos/${projectId}`}>
-              <a className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 Voltar para Projeto
-              </a>
-            </Link>
+              </Link>
           </Button>
           <h1 className="text-3xl font-bold">Briefing - Análise de Gaps</h1>
           <p className="text-muted-foreground mt-1">

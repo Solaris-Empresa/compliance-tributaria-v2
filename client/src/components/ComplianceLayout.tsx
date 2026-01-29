@@ -99,8 +99,8 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
         <nav className="flex-1 p-4 space-y-2">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href}>
-              <a
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+              <div
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                   isActive(item.href)
                     ? "bg-primary text-primary-foreground"
                     : "hover:bg-accent text-foreground"
@@ -108,7 +108,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
               >
                 <item.icon className="h-5 w-5 flex-shrink-0" />
                 {sidebarOpen && <span>{item.label}</span>}
-              </a>
+              </div>
             </Link>
           ))}
         </nav>

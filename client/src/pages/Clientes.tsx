@@ -31,11 +31,9 @@ export default function Clientes() {
           </div>
           <Button asChild>
             <Link href="/clientes/novo">
-              <a className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
                 Novo Cliente
-              </a>
-            </Link>
+              </Link>
           </Button>
         </div>
 
@@ -117,11 +115,9 @@ export default function Clientes() {
               </p>
               <Button asChild>
                 <Link href="/clientes/novo">
-                  <a className="flex items-center gap-2">
                     <Plus className="h-4 w-4" />
                     Cadastrar Primeiro Cliente
-                  </a>
-                </Link>
+                  </Link>
               </Button>
             </CardContent>
           </Card>

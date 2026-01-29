@@ -299,10 +299,8 @@ export default function BibliotecaTemplates() {
                         size="sm"
                         asChild
                       >
-                        <Link href={`/templates/${template.id}/editar`}>
-                          <a className="flex items-center gap-2">
-                            <Edit2 className="h-4 w-4" />
-                          </a>
+                        <Link href={`/templates/${template.id}/editar`} className="flex items-center gap-2">
+                          <Edit2 className="h-4 w-4" />
                         </Link>
                       </Button>
                       <Button

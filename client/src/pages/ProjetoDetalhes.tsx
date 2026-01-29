@@ -157,11 +157,9 @@ export default function ProjetoDetalhes() {
         <div className="mb-8">
           <Button variant="ghost" asChild className="mb-4">
             <Link href="/projetos">
-              <a className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 Voltar para Projetos
-              </a>
-            </Link>
+              </Link>
           </Button>
           <div className="flex items-start justify-between">
             <div>
