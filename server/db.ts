@@ -240,6 +240,12 @@ export async function saveAssessmentPhase2(data: InsertAssessmentPhase2) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  // Garantir que generatedQuestions nunca seja null/undefined
+  const safeData = {
+    ...data,
+    generatedQuestions: data.generatedQuestions || "[]"
+  };
+
   const existing = await db
     .select()
     .from(assessmentPhase2)
@@ -247,9 +253,9 @@ export async function saveAssessmentPhase2(data: InsertAssessmentPhase2) {
     .limit(1);
 
   if (existing.length > 0) {
-    await db.update(assessmentPhase2).set(data).where(eq(assessmentPhase2.projectId, data.projectId));
+    await db.update(assessmentPhase2).set(safeData).where(eq(assessmentPhase2.projectId, data.projectId));
   } else {
-    await db.insert(assessmentPhase2).values(data);
+    await db.insert(assessmentPhase2).values(safeData);
   }
 }
 
