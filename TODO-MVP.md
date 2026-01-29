@@ -350,3 +350,10 @@
 5. Contador de perguntas e feedback dinâmico
 
 **RESULTADO:** Barra de progresso visual e animada funcionando perfeitamente! Feedback instantâneo ao preencher perguntas, com transição suave e cores contextuais.
+
+
+## CI/CD e Automação (CONCLUÍDO ✅)
+- [x] Criar workflow GitHub Actions para testes automatizados
+- [x] Configurar secrets e variáveis de ambiente no GitHub
+- [x] Documentar processo de CI/CD (.github/SETUP_SECRETS.md)
+- [ ] Testar pipeline CI/CD após configurar secrets no GitHub (requer acesso ao repositório)
