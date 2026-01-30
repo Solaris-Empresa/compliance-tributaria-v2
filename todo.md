@@ -810,3 +810,10 @@
 
 **Fonte:** Reunião entre Uires Tapajós e José Swami Rodrigues em 30/01/2026 às 11:00 AM
 **Documento de análise completo:** `/home/ubuntu/analise-transcricao-funcionalidades.md`
+
+## Bug em Produção #5 - Loop Infinito na Geração de Riscos
+- [x] Identificar causa do loop infinito (useEffect com dependências incorretas)
+- [x] Corrigir useEffect removendo `isGenerating` das dependências
+- [x] Usar `generateRisks.isLoading` do tRPC ao invés de estado local
+- [x] Reiniciar servidor e validar correção localmente
+- [ ] Testar correção em produção após republicação

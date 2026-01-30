@@ -110,12 +110,12 @@ export default function MatrizRiscos() {
 
   // Gerar riscos automaticamente se não existirem
   useEffect(() => {
-    if (project && riscos && riscos.length === 0 && !isGenerating && projectId > 0) {
+    if (project && riscos && riscos.length === 0 && !generateRisks.isLoading && projectId > 0) {
       console.log('[MatrizRiscos] Iniciando geração automática de riscos. projectId:', projectId);
       setIsGenerating(true);
       generateRisks.mutate({ projectId });
     }
-  }, [project, riscos, projectId, isGenerating]);
+  }, [project, riscos, projectId]);
 
   const handleAdicionarRisco = () => {
     if (!novoRisco.titulo.trim()) {
