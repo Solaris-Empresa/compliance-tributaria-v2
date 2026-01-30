@@ -155,10 +155,20 @@ export default function PlanoAcao() {
   );
 
   useEffect(() => {
+    console.log('[PlanoAcao useEffect] Verificando condições:', {
+      hasProject: !!project,
+      hasActionPlan: !!actionPlan,
+      isGenerating,
+      hasBriefing: !!briefing,
+      projectId,
+    });
+    
     if (project && !actionPlan && !isGenerating && briefing) {
-      // Gerar automaticamente se briefing existir
+      console.log('[PlanoAcao] Iniciando geração automática do plano...');
       setIsGenerating(true);
       generatePlan.mutate({ projectId });
+    } else {
+      console.log('[PlanoAcao] Condições não atendidas para geração automática');
     }
   }, [project, actionPlan, projectId, isGenerating, briefing]);
 

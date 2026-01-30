@@ -154,3 +154,17 @@
 - [ ] Implementar navegação contextual no projeto
 - [ ] Criar stepper visual do fluxo
 - [ ] Adicionar botões de ação contextual
+
+## Bugs Corrigidos - 29/01/2026
+- [x] BUG #1: Salvamento automático da Fase 2 (assessmentPhase2.save não existia)
+- [x] BUG #2: Geração do Briefing (projectAccessMiddleware usado incorretamente)
+- [x] BUG #3: Erros na geração do Plano de Ação (projectAccessMiddleware usado incorretamente)
+
+## Bugs Pendentes
+- [ ] BUG #4: Geração automática do Plano de Ação não está sendo acionada (useEffect não dispara)
+- [ ] BUG #5: Verificar e corrigir todos os outros usos de projectAccessMiddleware no routers.ts
+
+## Melhorias de Arquitetura Recomendadas
+- [ ] Remover completamente projectAccessMiddleware como procedure base
+- [ ] Padronizar uso de protectedProcedure + validateProjectAccess em todos os endpoints
+- [ ] Adicionar testes unitários para validação de acesso a projetos

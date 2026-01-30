@@ -344,6 +344,34 @@ IMPORTANTE: Todas as perguntas devem ter "required": true.`;
         return { questions, usedTemplate: !!template };
       }),
 
+    save: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        generatedQuestions: z.string().optional(),
+        answers: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Validar acesso ao projeto
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
+        
+        if (ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
+          const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+          if (!hasAccess) throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
+        
+        const phase2 = await db.getAssessmentPhase2(input.projectId);
+        if (!phase2) throw new TRPCError({ code: "NOT_FOUND", message: "Phase 2 not found" });
+
+        await db.saveAssessmentPhase2({
+          ...phase2,
+          generatedQuestions: input.generatedQuestions || phase2.generatedQuestions,
+          answers: input.answers || phase2.answers,
+        });
+
+        return { success: true };
+      }),
+
     saveAnswers: protectedProcedure
       .input(z.object({
         projectId: z.number(),
@@ -395,15 +423,20 @@ IMPORTANTE: Todas as perguntas devem ter "required": true.`;
   // ==========================================================================
 
   briefing: router({
-    get: projectAccessMiddleware
+    get: protectedProcedure
       .input(z.object({ projectId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        // Validar acesso ao projeto
+        await validateProjectAccess(ctx, input.projectId);
         return await db.getBriefing(input.projectId);
       }),
 
-    generate: projectAccessMiddleware
+    generate: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .mutation(async ({ input, ctx }) => {
+        // Validar acesso ao projeto
+        await validateProjectAccess(ctx, input.projectId);
+        
         const phase1 = await db.getAssessmentPhase1(input.projectId);
         const phase2 = await db.getAssessmentPhase2(input.projectId);
 
@@ -765,15 +798,19 @@ Retorne APENAS JSON válido no formato:
   // ==========================================================================
 
   actionPlan: router({
-    get: projectAccessMiddleware
+    get: protectedProcedure
       .input(z.object({ projectId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        // Validar acesso ao projeto
+        await validateProjectAccess(ctx, input.projectId);
         return await db.getActionPlan(input.projectId);
       }),
 
-    generate: projectAccessMiddleware
+    generate: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .mutation(async ({ input, ctx }) => {
+        // Validar acesso ao projeto
+        await validateProjectAccess(ctx, input.projectId);
         const project = await db.getProjectById(input.projectId);
         if (!project?.planPeriodMonths) {
           throw new TRPCError({ code: "BAD_REQUEST", message: "Define plan period first" });

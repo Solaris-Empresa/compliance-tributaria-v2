@@ -15,17 +15,23 @@ export default function Briefing() {
   const [, setLocation] = useLocation();
   const projectId = parseInt(params.id || "0");
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  console.log('[Briefing] Componente montado. params:', params);
+  console.log('[Briefing] projectId extraído:', projectId);
 
   const { data: project } = trpc.projects.getById.useQuery({ id: projectId });
   const { data: briefing, refetch } = trpc.briefing.get.useQuery({ projectId });
 
   const generateBriefing = trpc.briefing.generate.useMutation({
     onSuccess: () => {
+      console.log('[Briefing] Briefing gerado com sucesso');
       setIsGenerating(false);
       refetch();
       toast.success("Briefing gerado com sucesso!");
     },
     onError: (error: any) => {
+      console.error('[Briefing] Erro ao gerar briefing:', error);
+      console.error('[Briefing] projectId:', projectId);
       setIsGenerating(false);
       toast.error(`Erro ao gerar briefing: ${error.message}`);
     },
@@ -43,11 +49,39 @@ export default function Briefing() {
 
   // Gerar briefing automaticamente se não existir
   useEffect(() => {
-    if (project && !briefing && !isGenerating) {
+    if (project && !briefing && !isGenerating && projectId > 0) {
+      console.log('[Briefing] Iniciando geração automática. projectId:', projectId);
       setIsGenerating(true);
       generateBriefing.mutate({ projectId });
     }
   }, [project, briefing, projectId, isGenerating]);
+
+  // Validar projectId
+  if (!projectId || projectId === 0) {
+    return (
+      <ComplianceLayout>
+        <div className="container mx-auto py-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <XCircle className="h-6 w-6 text-red-500" />
+                Projeto Inválido
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">ID do projeto não encontrado na URL.</p>
+              <Button asChild className="mt-4">
+                <Link href="/projetos">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Voltar para Projetos
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </ComplianceLayout>
+    );
+  }
 
   const handleAdvance = () => {
     advanceToRiskMatrix.mutate({

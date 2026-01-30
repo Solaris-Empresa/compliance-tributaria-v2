@@ -294,3 +294,7 @@ teste
 - [x] Bug CRÍTICO: Erro ao finalizar Fase 1 - campo companySize com valor inválido (enum mismatch)
 
 - [x] Bug CRÍTICO: Campo employeeCount sendo enviado como string mas banco espera number (erro SQL)
+
+- [ ] Bug CRÍTICO: Erro ao gerar briefing - "projectId is required" não está sendo passado corretamente
+
+- [ ] Bug CRÍTICO: Erro 400 ao gerar briefing - testar fluxo completo para identificar causa raiz
