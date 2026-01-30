@@ -292,3 +292,5 @@ teste
 - [x] Adicionar feedback visual (bordas vermelhas + mensagens de erro) para campos inválidos
 
 - [x] Bug CRÍTICO: Erro ao finalizar Fase 1 - campo companySize com valor inválido (enum mismatch)
+
+- [x] Bug CRÍTICO: Campo employeeCount sendo enviado como string mas banco espera number (erro SQL)

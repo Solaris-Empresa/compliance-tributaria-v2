@@ -120,12 +120,17 @@ export default function AssessmentFase1() {
   };
 
   const handleSaveDraft = () => {
-    savePhase1.mutate({
+    const dataToSave = {
       projectId,
       ...formData,
       annualRevenue: formData.annualRevenue || "",
-      employeeCount: formData.employeeCount ? parseInt(formData.employeeCount) : undefined,
-    });
+      employeeCount: formData.employeeCount ? parseInt(formData.employeeCount, 10) : undefined,
+    };
+    // Garantir que employeeCount seja number ou undefined
+    if (dataToSave.employeeCount !== undefined && isNaN(dataToSave.employeeCount)) {
+      delete dataToSave.employeeCount;
+    }
+    savePhase1.mutate(dataToSave);
   };
 
   const handleComplete = async () => {
@@ -161,12 +166,17 @@ export default function AssessmentFase1() {
 
       console.log('[handleComplete] Campos validados, salvando dados...');
       // Primeiro salvar os dados
-      const saveResult = await savePhase1.mutateAsync({
+      const dataToSave = {
         projectId,
         ...formData,
         annualRevenue: formData.annualRevenue || "",
-        employeeCount: formData.employeeCount ? parseInt(formData.employeeCount) : undefined,
-      });
+        employeeCount: formData.employeeCount ? parseInt(formData.employeeCount, 10) : undefined,
+      };
+      // Garantir que employeeCount seja number ou undefined
+      if (dataToSave.employeeCount !== undefined && isNaN(dataToSave.employeeCount)) {
+        delete dataToSave.employeeCount;
+      }
+      const saveResult = await savePhase1.mutateAsync(dataToSave);
       console.log('[handleComplete] Dados salvos com sucesso:', saveResult);
 
       console.log('[handleComplete] Completando fase com projectId:', projectId);
