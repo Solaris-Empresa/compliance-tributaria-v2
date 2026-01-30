@@ -280,3 +280,7 @@ teste
 - [x] Adicionar "Matriz de Riscos" no menu lateral do ComplianceLayout
 - [x] Bug: Erro ao salvar Fase 1 - campo annualRevenue enviado como number mas backend espera string
 - [ ] Bug: Formulário da Fase 1 não aparece ao clicar em "Avaliação Fase 1" após criar projeto
+
+- [x] Implementar visualização consolidada de riscos na página global Matriz de Riscos
+- [x] Criar endpoint riskMatrix.listAll para buscar todos os riscos
+- [x] Adicionar filtros por projeto, status e busca por texto

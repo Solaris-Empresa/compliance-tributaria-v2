@@ -371,6 +371,45 @@ export async function deleteRisk(id: number) {
   await db.delete(riskMatrix).where(eq(riskMatrix.id, id));
 }
 
+export async function getAllRisks(userId: number, userRole: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Equipe SOLARIS e Advogado Sênior vêem todos os riscos
+  if (userRole === "equipe_solaris" || userRole === "advogado_senior") {
+    return await db
+      .select({
+        id: riskMatrix.id,
+        projectId: riskMatrix.projectId,
+        projectName: projects.name,
+        title: riskMatrix.title,
+        description: riskMatrix.description,
+        generatedByAI: riskMatrix.generatedByAI,
+        createdAt: riskMatrix.createdAt,
+      })
+      .from(riskMatrix)
+      .leftJoin(projects, eq(riskMatrix.projectId, projects.id))
+      .orderBy(desc(riskMatrix.createdAt));
+  }
+
+  // Clientes veem apenas riscos dos projetos que participam
+  return await db
+    .select({
+      id: riskMatrix.id,
+      projectId: riskMatrix.projectId,
+      projectName: projects.name,
+      title: riskMatrix.title,
+      description: riskMatrix.description,
+      generatedByAI: riskMatrix.generatedByAI,
+      createdAt: riskMatrix.createdAt,
+    })
+    .from(riskMatrix)
+    .leftJoin(projects, eq(riskMatrix.projectId, projects.id))
+    .leftJoin(projectParticipants, eq(projects.id, projectParticipants.projectId))
+    .where(eq(projectParticipants.userId, userId))
+    .orderBy(desc(riskMatrix.createdAt));
+}
+
 // ============================================================================
 // ACTION PLAN
 // ============================================================================

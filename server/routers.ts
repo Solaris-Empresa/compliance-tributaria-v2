@@ -542,6 +542,12 @@ Retorne APENAS JSON válido no formato:
   // ==========================================================================
 
   riskMatrix: router({
+    // Listar TODOS os riscos de TODOS os projetos (visão consolidada)
+    listAll: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await db.getAllRisks(ctx.user.id, ctx.user.role);
+      }),
+
     // Listar todos os riscos de um projeto
     list: protectedProcedure
       .input(z.object({ projectId: z.number() }))
