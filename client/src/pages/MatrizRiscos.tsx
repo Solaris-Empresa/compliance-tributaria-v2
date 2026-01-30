@@ -3,7 +3,7 @@ import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, AlertTriangle, Plus, Trash2, Loader2, ArrowRight, Sparkles } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, Trash2, Loader2, ArrowRight, Sparkles, RefreshCw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
@@ -101,6 +101,16 @@ export default function MatrizRiscos() {
     }
   };
 
+  const handleRegenerarRiscos = () => {
+    if (!confirm("Tem certeza que deseja regenerar os riscos? Todos os riscos atuais serão substituídos por uma nova análise da IA.")) {
+      return;
+    }
+    
+    console.log('[MatrizRiscos] Iniciando regeneração de riscos. projectId:', projectId);
+    setIsGenerating(true);
+    generateRisks.mutate({ projectId });
+  };
+
   if (!project) {
     return (
       <ComplianceLayout>
@@ -122,9 +132,31 @@ export default function MatrizRiscos() {
               Voltar para Projeto
             </Link>
           </Button>
-          <div className="flex items-center gap-3 mb-2">
-            <AlertTriangle className="h-8 w-8 text-amber-500" />
-            <h1 className="text-3xl font-bold">Matriz de Riscos</h1>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="h-8 w-8 text-amber-500" />
+              <h1 className="text-3xl font-bold">Matriz de Riscos</h1>
+            </div>
+            {riscos && riscos.length > 0 && (
+              <Button
+                onClick={handleRegenerarRiscos}
+                disabled={isGenerating}
+                variant="outline"
+                className="gap-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Regenerando...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="h-4 w-4" />
+                    Regenerar Riscos
+                  </>
+                )}
+              </Button>
+            )}
           </div>
           <p className="text-muted-foreground">
             {project.name}

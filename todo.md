@@ -442,3 +442,13 @@
 - [x] Implementar navegação para página de plano de ação
 - [x] Adicionar indicador visual de geração (loading com mensagem)
 - [ ] Testar fluxo completo: briefing → matriz de riscos → plano de ação
+
+## Feature: Botão Regenerar Riscos
+- [x] Adicionar botão "Regenerar Riscos" na página Matriz de Riscos (header, ao lado do título)
+- [x] Implementar confirmação antes de regenerar (confirm dialog nativo)
+- [x] Reutilizar procedimento riskMatrix.generate existente (limpa e regenera automaticamente)
+- [x] Mostrar loading durante regeneração (botão desabilitado + spinner)
+- [x] Atualizar lista de riscos após regeneração (refetch automático)
+- [x] Adicionar feedback visual de sucesso/erro (toast notifications)
+- [x] Botão só aparece quando há riscos existentes
+- [ ] Testar regeneração em produção
