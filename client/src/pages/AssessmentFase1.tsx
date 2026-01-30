@@ -266,7 +266,6 @@ export default function AssessmentFase1() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="mei">MEI</SelectItem>
-                  <SelectItem value="microempresa">Microempresa</SelectItem>
                   <SelectItem value="pequena">Pequena Empresa</SelectItem>
                   <SelectItem value="media">Média Empresa</SelectItem>
                   <SelectItem value="grande">Grande Empresa</SelectItem>

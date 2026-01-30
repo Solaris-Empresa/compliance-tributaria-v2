@@ -290,3 +290,5 @@ teste
 - [x] Implementar validação em tempo real para campos obrigatórios na Fase 1
 - [x] Implementar validação em tempo real para campos obrigatórios na Fase 2
 - [x] Adicionar feedback visual (bordas vermelhas + mensagens de erro) para campos inválidos
+
+- [x] Bug CRÍTICO: Erro ao finalizar Fase 1 - campo companySize com valor inválido (enum mismatch)
