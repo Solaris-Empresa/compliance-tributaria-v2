@@ -250,3 +250,21 @@
 - [x] Implementar teste: verificar salvamento e recuperação de dados
 - [x] Implementar teste: verificar transições de status sequenciais (5 status)
 - [x] Executar testes E2E e validar 100% de sucesso (5/5 testes passando)
+
+## Mocks para LLM em Testes E2E
+- [ ] Criar módulo de mocks para invokeLLM (llm.mock.ts)
+- [ ] Implementar mock para geração de perguntas dinâmicas (Fase 2)
+- [ ] Implementar mock para geração de briefing
+- [ ] Implementar mock para geração de plano de ação
+- [ ] Adicionar teste E2E: fluxo completo com briefing mockado
+- [ ] Adicionar teste E2E: fluxo completo com plano de ação mockado
+- [ ] Adicionar teste E2E: regeneração de briefing cria versão no histórico
+- [ ] Executar todos os testes E2E e validar 100% de sucesso
+
+## Bug Crítico em Produção #3 - Botão Avançar para Matriz de Riscos
+- [x] Investigar erro de validação: projectId undefined e status inválido
+- [x] Identificar página/componente com o botão "Avançar para Matriz de Riscos" (Briefing.tsx linha 103-108)
+- [x] Corrigir envio de parâmetros para projects.updateStatus (id → projectId, "matriz_riscos" → "em_andamento")
+- [x] Validar enum de status correto (status válido: "em_andamento")
+- [x] Testar correção localmente (servidor reiniciado com sucesso)
+- [ ] Criar checkpoint e republicar

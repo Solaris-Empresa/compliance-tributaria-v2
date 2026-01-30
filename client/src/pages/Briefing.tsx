@@ -102,8 +102,8 @@ export default function Briefing() {
 
   const handleAdvance = () => {
     advanceToRiskMatrix.mutate({
-      id: projectId,
-      status: "matriz_riscos",
+      projectId: projectId,
+      status: "em_andamento",
     });
   };
 
