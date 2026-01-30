@@ -10,7 +10,8 @@ import {
   Menu,
   Users,
   X,
-  Library
+  Library,
+  AlertTriangle
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -59,6 +60,8 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     { href: "/modelos-padroes", icon: Library, label: "Modelos Padrões" },
     { href: "/painel-indicadores", icon: BarChart3, label: "Painel de Indicadores Executivo" },
   ];
+
+  // Nota: Matriz de Riscos é acessível dentro de cada projeto individual
 
   // Adicionar item de usuários apenas para equipe SOLARIS
   if (user?.role === "equipe_solaris") {

@@ -270,3 +270,6 @@ teste
 - [x] Criar endpoint actionPlan.generateFromBriefing que extrai recomendações
 - [x] Atualizar página PlanoAcao.tsx com botão de geração automática
 - [x] Integrar com Kanban para criar tarefas automaticamente
+
+- [x] Adicionar "Matriz de Riscos" no menu lateral do ComplianceLayout
+- [x] Remover gráficos de riscos COSO do Painel de Indicadores Executivo

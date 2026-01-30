@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, TrendingUp, AlertTriangle, CheckCircle2, Clock, BarChart3 } from "lucide-react";
 import ComplianceLayout from "@/components/ComplianceLayout";
 import { Link } from "wouter";
-import { COSO_COMPONENTS, RISK_COLORS } from "@shared/translations";
+import { RISK_COLORS } from "@shared/translations";
 import {
   BarChart,
   Bar,
@@ -78,13 +78,7 @@ export default function DashboardExecutivo() {
 
   const completionRate = totalTasks > 0 ? Math.round((tasksCompleted / totalTasks) * 100) : 0;
 
-  // Dados para gráfico de distribuição de riscos por COSO
-  const risksByComponent = Object.keys(COSO_COMPONENTS).map((key) => ({
-    name: COSO_COMPONENTS[key as keyof typeof COSO_COMPONENTS],
-    value: allRisks?.filter((r: any) => r.component === key).length || 0,
-  }));
-
-  // Dados para gráfico de riscos por nível
+  // Dados para gráfico de riscos por nível (removidos - não utilizado)
   const risksDataChart = [
     { name: "Crítico", value: risksByCriticality.critico, color: COLORS.critico },
     { name: "Alto", value: risksByCriticality.alto, color: COLORS.alto },
@@ -174,53 +168,6 @@ export default function DashboardExecutivo() {
 
         {/* Gráficos */}
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Distribuição de Riscos por Nível */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Distribuição de Riscos por Nível</CardTitle>
-              <CardDescription>Classificação de riscos por criticidade</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={risksDataChart}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {risksDataChart.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          {/* Distribuição de Riscos por Componente COSO */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Riscos por Componente COSO</CardTitle>
-              <CardDescription>Distribuição pelos 5 componentes do framework COSO</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={risksByComponent}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} fontSize={12} />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#3b82f6" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
 
           {/* Status de Tarefas */}
           <Card>
