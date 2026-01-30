@@ -31,6 +31,7 @@ export default function PlanoAcao() {
   const { user } = useAuth();
   
   const [isGenerating, setIsGenerating] = useState(false);
+  const [hasAttemptedGeneration, setHasAttemptedGeneration] = useState(false);
   const [isEditingPrompt, setIsEditingPrompt] = useState(false);
   const [editedPrompt, setEditedPrompt] = useState("");
   const [showHistory, setShowHistory] = useState(false);
@@ -167,19 +168,21 @@ export default function PlanoAcao() {
     console.log('[PlanoAcao useEffect] Verificando condições:', {
       hasProject: !!project,
       hasActionPlan: !!actionPlan,
+      hasAttemptedGeneration,
       isGenerating,
       hasBriefing: !!briefing,
       projectId,
     });
     
-    if (project && !actionPlan && !isGenerating && briefing) {
+    if (project && !actionPlan && !hasAttemptedGeneration && !generatePlan.isLoading && briefing) {
       console.log('[PlanoAcao] Iniciando geração automática do plano...');
+      setHasAttemptedGeneration(true);
       setIsGenerating(true);
       generatePlan.mutate({ projectId });
     } else {
       console.log('[PlanoAcao] Condições não atendidas para geração automática');
     }
-  }, [project, actionPlan, projectId, isGenerating, briefing]);
+  }, [project, actionPlan, projectId, hasAttemptedGeneration, briefing]);
 
   useEffect(() => {
     if (actionPlan && !editedPrompt) {
@@ -247,6 +250,7 @@ export default function PlanoAcao() {
 
   const handleGenerateWithAI = () => {
     setShowTemplateSelectionDialog(false);
+    setHasAttemptedGeneration(false); // Resetar flag para permitir nova geração
     setIsGenerating(true);
     generatePlan.mutate({ projectId });
   };

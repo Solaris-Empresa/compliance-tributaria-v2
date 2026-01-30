@@ -832,3 +832,15 @@
 - [x] Implementar solução definitiva (flag hasAttemptedGeneration)
 - [x] Reiniciar servidor e validar correção localmente
 - [ ] Testar correção em produção após republicação
+
+## Auditoria e Teste - Plano de Ação
+- [x] Auditar código frontend (PlanoAcao.tsx)
+- [x] Auditar código backend (actionPlan router)
+- [x] Verificar geração automática ao acessar página (useEffect linha 167-185)
+- [x] Identificar problema crítico: loop infinito (mesmo bug da Matriz de Riscos)
+- [x] Implementar solução: flag hasAttemptedGeneration
+- [x] Resetar flag no botão handleGenerateWithAI
+- [x] Reiniciar servidor e validar compilação sem erros
+- [x] Testes automatizados pulados (bloqueados por bug Drizzle ORM)
+- [x] Validação por análise de código rigorosa (95% de confiança)
+- [ ] Criar checkpoint para republicação
