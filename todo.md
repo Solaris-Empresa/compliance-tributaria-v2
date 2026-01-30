@@ -470,3 +470,343 @@
 - [ ] Testar funcionalidade completa em produção após republicação
 
 **Nota Técnica:** Existe um bug conhecido do Drizzle ORM 0.44.6 com MySQL que envia `default` ao invés do valor real para campos notNull() sem default. Isso afeta os testes unitários mas não a funcionalidade em produção (testada manualmente).
+
+
+---
+
+# 📋 BACKLOG - Funcionalidades Extraídas da Reunião (30/01/2026)
+
+## PRIORIDADE CRÍTICA - Implementar Primeiro
+
+### 5. Gestão Multi-Tenant e Hierarquia de Acessos Avançada
+**Objetivo:** Suportar escritórios de advocacia com múltiplos clientes e projetos, com controle granular de acesso
+
+- [ ] Criar tabela `organizations` (escritórios de advocacia)
+- [ ] Criar tabela `organization_members` (advogados vinculados a escritórios)
+- [ ] Implementar hierarquia: Organização → Cliente → Projeto
+- [ ] Permitir que 1 cliente tenha N projetos (ex: posto com várias empresas)
+- [ ] Perfil "Escritório de Advocacia" (Solaris)
+  - [ ] Visualiza TODOS os projetos criados pela equipe
+  - [ ] Cria projetos para clientes
+  - [ ] Valida assessments
+  - [ ] Acompanha execução de todos os projetos
+- [ ] Perfil "Advogado" (membro da equipe)
+  - [ ] Acesso seletivo a projetos específicos
+  - [ ] Permissões configuráveis: pode ver projeto A e B, não pode ver projeto C
+  - [ ] Atribuição de projetos por advogado responsável
+- [ ] Perfil "Cliente Autônomo"
+  - [ ] Cria e gerencia próprios projetos sem validação
+  - [ ] Modelo de precificação mais barato (R$ 500-2.000)
+- [ ] Perfil "Cliente com Assessoria"
+  - [ ] Preenche dados
+  - [ ] Aguarda validação da Solaris
+  - [ ] Acompanha execução com suporte jurídico
+  - [ ] Modelo de precificação premium (R$ 10.000-20.000/ano)
+- [ ] Criar testes unitários para controle de acesso multi-tenant
+
+### 6. Workflow de Validação e Status Avançados (Modelo com Assessoria)
+**Objetivo:** Controlar fluxo de aprovação quando há assessoria jurídica contratada
+
+- [ ] Adicionar novos status ao enum de projetos:
+  - [ ] `em_avaliacao` - Aguardando validação da Solaris
+  - [ ] `aprovado` - Solaris validou, plano de ação liberado
+- [ ] Criar procedimento `projects.submitForReview` (cliente envia para avaliação)
+- [ ] Criar procedimento `projects.approve` (Solaris aprova projeto)
+- [ ] Criar procedimento `projects.requestChanges` (Solaris solicita correções)
+- [ ] Adicionar campo `reviewNotes` (observações da Solaris na validação)
+- [ ] Adicionar campo `reviewedBy` (quem da Solaris validou)
+- [ ] Adicionar campo `reviewedAt` (timestamp da validação)
+- [ ] Criar painel de controle para Solaris:
+  - [ ] Card "Projetos em Avaliação" (aguardando validação)
+  - [ ] Filtro por advogado responsável
+  - [ ] Fila de validação ordenada por data de submissão
+- [ ] Notificar cliente por email quando projeto for aprovado/rejeitado
+- [ ] Criar testes unitários para workflow de validação
+
+### 7. Projeto Piloto - Preparação e Validação
+**Objetivo:** Validar plataforma com clientes reais antes de automação completa
+
+- [ ] Selecionar 2-3 clientes piloto (Transovel, Campo Verde, Molas)
+- [ ] Criar projetos piloto no ambiente de produção
+- [ ] Solaris valida questionários gerados pela IA
+- [ ] Coletar feedback estruturado:
+  - [ ] Perguntas estão claras e relevantes?
+  - [ ] Briefing gerado está aderente à realidade?
+  - [ ] Plano de ação é executável?
+  - [ ] Riscos identificados fazem sentido?
+- [ ] Documentar ajustes necessários
+- [ ] Iterar com base no feedback
+- [ ] Após validação → marcar questionários como "templates aprovados"
+- [ ] Criar relatório de lições aprendidas do piloto
+
+---
+
+## PRIORIDADE ALTA - Próxima Sprint
+
+### 8. Sistema de Templates e Modelos Padrões por Setor
+**Objetivo:** Reutilizar questionários validados para ganhar eficiência e reduzir custo de LLM
+
+- [ ] Criar tabela `assessment_templates` no schema
+  - [ ] Campos: id, sectorName, sectorDescription, phase1Questions (JSON), phase2QuestionsTemplate (JSON), approvedBy, approvedAt, usageCount, isActive
+- [ ] Criar tabela `template_usage_log` (rastrear uso de templates)
+- [ ] Implementar lógica de conversão: questionário bem-sucedido → template candidato
+- [ ] Criar procedimento `templates.createFromProject` (converter projeto em template)
+- [ ] Criar procedimento `templates.approve` (Solaris aprova template)
+- [ ] Criar procedimento `templates.list` (listar templates por setor)
+- [ ] Criar procedimento `templates.getByS sector` (buscar template por setor)
+- [ ] Modificar `assessmentPhase2.generateQuestions`:
+  - [ ] Verificar se existe template aprovado para o setor
+  - [ ] Se SIM → usar template (rápido, sem custo LLM)
+  - [ ] Se NÃO → gerar via IA em tempo real (lento, com custo LLM)
+- [ ] Criar página de gerenciamento de templates (/modelos-padroes)
+  - [ ] Listagem de templates por setor
+  - [ ] Contador de uso de cada template
+  - [ ] Botão "Editar Template"
+  - [ ] Botão "Desativar Template"
+  - [ ] Badge "Aprovado por [Nome]"
+- [ ] Adicionar indicador visual no projeto: "Usando template [Setor]" vs "Gerado via IA"
+- [ ] Criar testes unitários para sistema de templates
+- [ ] Setores prioritários para templates:
+  - [ ] Transporte (carga seca, carga refrigerada)
+  - [ ] Imobiliária (venda, locação temporária, locação longo prazo)
+  - [ ] Comércio de combustível (postos, atacado de diesel)
+  - [ ] Indústria (manufatura, montagem)
+
+### 9. Áreas Críticas Operacionais - Módulos Práticos
+**Objetivo:** Resolver dores operacionais reais dos clientes (foco em "mão na massa")
+
+#### 9.1 Módulo: Emissão de Documentos Fiscais
+- [ ] Criar seção no plano de ação: "Emissão de Documentos Fiscais"
+- [ ] Tarefas geradas automaticamente:
+  - [ ] Configurar códigos CBS/IBS no sistema ERP
+  - [ ] Validar NCM/CEST de todos os produtos
+  - [ ] Cadastrar tipo de destinatário (Simples, Presumido, MEI) para cada cliente
+  - [ ] Configurar link Secrestrib ↔ CST
+  - [ ] Testar emissão de NF-e com novos códigos
+- [ ] Criar guia prático: "Como configurar códigos tributários no [ERP]"
+- [ ] Adicionar validação: sistema detecta se ERP suporta novos campos
+
+#### 9.2 Módulo: Recebimento de Documentos Fiscais
+- [ ] Criar seção no plano de ação: "Recebimento e Conferência de Documentos"
+- [ ] Tarefas geradas automaticamente:
+  - [ ] Configurar validação automática de XML recebido
+  - [ ] Implementar conferência de créditos tributários (CBS/IBS)
+  - [ ] Treinar equipe para classificação fiscal de entradas
+  - [ ] Criar checklist de conferência de NF-e recebida
+- [ ] Criar guia prático: "Como conferir créditos CBS/IBS em notas recebidas"
+
+#### 9.3 Módulo: Cadastro de Produtos
+- [ ] Criar seção no plano de ação: "Cadastro e Classificação de Produtos"
+- [ ] Tarefas geradas automaticamente:
+  - [ ] Revisar classificação tributária de todos os produtos
+  - [ ] Atualizar NCM, CEST, CFOP de cada produto
+  - [ ] Configurar alíquotas específicas por produto
+  - [ ] Identificar produtos com redução de base de cálculo
+  - [ ] Validar cadastro de produtos no ERP
+- [ ] Criar guia prático: "Como classificar produtos para CBS/IBS"
+- [ ] Exemplo específico: Imobiliária → cadastro de imóveis (venda, locação temporária, locação longo prazo)
+
+#### 9.4 Módulo: Capacitação e Cultura de Classificação
+- [ ] Criar seção no plano de ação: "Treinamento e Capacitação"
+- [ ] Tarefas geradas automaticamente:
+  - [ ] Treinar equipe do escritório contábil
+  - [ ] Treinar equipe do sistema/TI
+  - [ ] Treinar equipe da empresa (fiscal, compras, vendas)
+  - [ ] Criar manual interno de classificação tributária
+  - [ ] Realizar simulações de emissão de documentos
+- [ ] Criar cronograma de treinamento (comparação: SPED demorou 2 anos, CBS/IBS tem 1 ano)
+
+### 10. Integração com LLM Customizado (IA Solaris)
+**Objetivo:** Usar LLM próprio com legislação tributária brasileira para respostas mais precisas
+
+- [ ] Finalizar alimentação do LLM com legislações:
+  - [ ] LC (Lei Complementar) - já alimentado
+  - [ ] Cartilhas do Comitê Gestor do IBS (Volume 1 e 2)
+  - [ ] Volume 2: foco no contribuinte (emissão de documentos)
+  - [ ] Regulamentação da substituição tributária (aguardando publicação fevereiro/2026)
+- [ ] Substituir Grok (gratuito) pelo LLM próprio em produção
+- [ ] Implementar fallback: se LLM próprio falhar → usar Grok temporariamente
+- [ ] Adicionar monitoramento de custo de LLM por operação
+- [ ] Criar relatório de uso de LLM (quantas chamadas, custo total, economia com templates)
+- [ ] Otimizar prompts para reduzir tokens consumidos
+
+### 11. Flexibilidade de Preenchimento - Múltiplos Cenários
+**Objetivo:** Permitir que assessment seja preenchido por diferentes atores dependendo do modelo de negócio
+
+- [ ] Adicionar campo `filledBy` no projeto (quem preencheu: cliente, advogado, híbrido)
+- [ ] Implementar permissões configuráveis por projeto:
+  - [ ] **Cenário 1:** Apenas advogado pode preencher (cliente só visualiza)
+  - [ ] **Cenário 2:** Apenas cliente pode preencher (modelo autônomo)
+  - [ ] **Cenário 3:** Cliente preenche, advogado valida e ajusta (modelo híbrido)
+- [ ] Criar toggle no momento de criação do projeto: "Quem vai preencher o assessment?"
+- [ ] Adicionar indicador visual: "Preenchido por [Nome]" em cada seção
+- [ ] Criar log de alterações: quem editou cada resposta e quando
+- [ ] Implementar bloqueio de edição após validação (apenas Solaris pode desbloquear)
+
+---
+
+## PRIORIDADE MÉDIA - Backlog
+
+### 12. Gestão de Tarefas com Notificações por E-mail Avançadas
+**Objetivo:** Acompanhamento proativo de execução do plano de ação
+
+- [ ] Implementar sistema de notificações por e-mail:
+  - [ ] E-mail 7 dias antes do vencimento da tarefa
+  - [ ] E-mail 3 dias antes do vencimento
+  - [ ] E-mail 1 dia antes do vencimento
+  - [ ] E-mail quando tarefa vence
+  - [ ] E-mail diário para tarefas atrasadas
+- [ ] Criar tabela `email_notifications_log` (rastrear envios)
+- [ ] Implementar job agendado (cron) para verificar tarefas e enviar e-mails
+- [ ] Criar templates de e-mail profissionais:
+  - [ ] Template: "Tarefa próxima do vencimento"
+  - [ ] Template: "Tarefa vencida"
+  - [ ] Template: "Resumo semanal de tarefas"
+- [ ] Adicionar configuração de frequência de notificações por usuário
+- [ ] Criar página de configurações de notificações (/configuracoes/notificacoes)
+- [ ] Implementar opt-out de notificações (usuário pode desativar)
+- [ ] Adicionar botão "Marcar como concluída" direto no e-mail
+
+### 13. Indicadores Executivos no Painel
+**Objetivo:** Visão geral do status de execução dos projetos
+
+- [ ] Criar cards no painel principal:
+  - [ ] Total de tarefas
+  - [ ] Tarefas concluídas (%)
+  - [ ] Tarefas em andamento
+  - [ ] Tarefas atrasadas (com alerta vermelho)
+  - [ ] Tarefas paradas (sem movimentação há 7+ dias)
+  - [ ] Riscos identificados
+  - [ ] Taxa de conclusão geral
+- [ ] Criar gráficos:
+  - [ ] Gráfico de barras: tarefas por status
+  - [ ] Gráfico de pizza: distribuição de tarefas por responsável
+  - [ ] Gráfico de linha: evolução de conclusão ao longo do tempo
+- [ ] Adicionar filtros:
+  - [ ] Por projeto
+  - [ ] Por responsável
+  - [ ] Por período (últimos 7 dias, 30 dias, 90 dias)
+- [ ] Criar relatório executivo exportável em PDF
+
+### 14. Matriz de Riscos com Foco Educativo (Melhorias)
+**Objetivo:** Conscientizar cliente sobre riscos tributários sem forçar mitigação
+
+- [ ] Adicionar campo `educationalNote` em cada risco (explicação didática)
+- [ ] Criar biblioteca de riscos comuns por setor:
+  - [ ] Transporte: distribuição irregular de despesas entre empresas
+  - [ ] Comércio: cadastro incorreto de tipo de cliente
+  - [ ] Indústria: classificação incorreta de produtos
+- [ ] Implementar sistema de "Riscos Sugeridos" baseado no setor
+- [ ] Adicionar indicador: "Este risco foi identificado em 80% dos projetos do setor [X]"
+- [ ] Criar página de visualização de riscos com filtros:
+  - [ ] Por severidade
+  - [ ] Por probabilidade
+  - [ ] Por status (ativo, mitigado, aceito, removido)
+- [ ] Adicionar botão "Aceitar Risco" (com confirmação e log)
+- [ ] Criar relatório de riscos aceitos pelo cliente (proteção jurídica)
+
+### 15. Precificação Dinâmica por Faturamento
+**Objetivo:** Modelo de precificação justo baseado no porte da empresa
+
+- [ ] Criar tabela `pricing_tiers` (faixas de faturamento e preços)
+- [ ] Implementar lógica de cálculo automático:
+  - [ ] Faturamento até R$ 360k/ano (MEI) → R$ 500/ano
+  - [ ] Faturamento R$ 360k - R$ 4,8M (Simples) → R$ 1.000/ano
+  - [ ] Faturamento R$ 4,8M - R$ 78M (Presumido) → R$ 3.000/ano
+  - [ ] Faturamento acima R$ 78M (Lucro Real) → R$ 5.000+/ano
+- [ ] Adicionar multiplicadores:
+  - [ ] Com assessoria jurídica → 5x o preço base
+  - [ ] Múltiplos projetos → desconto progressivo (2º projeto 10% off, 3º projeto 15% off)
+- [ ] Criar página de simulação de preço (/simular-preco)
+- [ ] Implementar checkout integrado (Stripe ou similar)
+- [ ] Adicionar campo `subscriptionTier` no projeto
+- [ ] Criar relatório de receita por tier
+
+### 16. Compliance LGPD e Certificações
+**Objetivo:** Garantir segurança e privacidade de dados sensíveis dos clientes
+
+- [ ] Pesquisar requisitos de certificação LGPD
+- [ ] Implementar criptografia de dados sensíveis:
+  - [ ] Faturamento
+  - [ ] Regime tributário
+  - [ ] Dados financeiros
+- [ ] Criar termo de consentimento LGPD (aceite obrigatório)
+- [ ] Implementar funcionalidade "Exportar meus dados" (direito do titular)
+- [ ] Implementar funcionalidade "Excluir meus dados" (direito ao esquecimento)
+- [ ] Criar política de retenção de dados (quanto tempo manter logs, projetos arquivados, etc.)
+- [ ] Contratar auditoria LGPD externa
+- [ ] Obter certificação ISO 27001 (segurança da informação)
+- [ ] Adicionar badge "Certificado LGPD" no site
+- [ ] Criar página de transparência (/privacidade)
+
+---
+
+## CASOS DE USO REAIS - Insights da Reunião
+
+### Caso 1: Distribuição Irregular de Despesas entre Empresas
+**Contexto:** Transportadora com múltiplas razões sociais compra 100 pneus em nome de 1 empresa (reduz IR), distribui sem documento entre outras.
+
+**Compliance correto:** Distribuir despesas proporcionalmente entre empresas que usaram o insumo.
+
+**Desafio:** Clientes resistem a mudar (vantagem tributária).
+
+**Solução da plataforma:**
+- [ ] IA identifica situação no assessment (múltiplas empresas, mesmo setor, mesmo proprietário)
+- [ ] Gera tarefa: "Distribuir despesas de insumos proporcionalmente entre empresas"
+- [ ] Adiciona risco educativo: "Distribuição irregular de despesas pode gerar autuação fiscal"
+- [ ] Se cliente apagar tarefa → log registra decisão intencional (proteção jurídica para Solaris)
+- [ ] Plataforma não penaliza, apenas orienta
+
+### Caso 2: Cadastro Incorreto de Tipo de Cliente
+**Contexto:** Loja de autopeças vende para oficinas mecânicas (MEI), transportadoras (consumidor final). Sistema ERP não tem campo para tipo de cliente.
+
+**Compliance correto:** Cadastrar tipo de cliente (Simples, Presumido, MEI) para emitir NF-e corretamente.
+
+**Desafio:** Sistema ERP não suporta novos campos obrigatórios.
+
+**Solução da plataforma:**
+- [ ] IA detecta no assessment: setor = comércio, vende para PJ e PF
+- [ ] Gera tarefa: "Cadastrar tipo de cliente no ERP (Simples, Presumido, MEI)"
+- [ ] Adiciona subtarefa: "Verificar se ERP suporta campo 'Tipo de Cliente'"
+- [ ] Se ERP não suportar → gera tarefa: "Contratar atualização do ERP ou migrar para sistema compatível"
+- [ ] Adiciona guia prático: "Como configurar tipo de cliente no [ERP específico]"
+
+### Caso 3: Tempo de Adaptação Insuficiente
+**Contexto:** SPED demorou 2 anos para adoção completa. CBS/IBS tem apenas 1 ano para adaptação.
+
+**Desafio:** Empresas, escritórios contábeis e fornecedores de ERP estão perdidos.
+
+**Solução da plataforma:**
+- [ ] Acelerar curva de aprendizado com IA e templates prontos
+- [ ] Gerar plano de ação realista com cronograma agressivo mas executável
+- [ ] Priorizar tarefas críticas (emissão de documentos, cadastro de produtos)
+- [ ] Criar módulo de capacitação com treinamentos práticos
+- [ ] Adicionar indicador de progresso: "Você está 60% preparado para CBS/IBS"
+
+---
+
+## 📊 Resumo de Prioridades
+
+### Implementar AGORA (Próximas 2 semanas)
+1. ✅ Sistema de Auditoria e Logs Completos (já no backlog anterior)
+2. Gestão Multi-Tenant e Hierarquia de Acessos
+3. Workflow de Validação com Status
+4. Projeto Piloto - Preparação
+
+### Implementar PRÓXIMA SPRINT (Próximo mês)
+1. Sistema de Templates por Setor
+2. Áreas Críticas Operacionais (emissão/recebimento/cadastro)
+3. Integração com LLM Customizado
+4. Flexibilidade de Preenchimento
+
+### Backlog (Próximos 3-6 meses)
+1. Gestão de Tarefas com Notificações
+2. Indicadores Executivos
+3. Matriz de Riscos Educativa
+4. Precificação Dinâmica
+5. Compliance LGPD
+
+---
+
+**Fonte:** Reunião entre Uires Tapajós e José Swami Rodrigues em 30/01/2026 às 11:00 AM
+**Documento de análise completo:** `/home/ubuntu/analise-transcricao-funcionalidades.md`
