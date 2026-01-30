@@ -265,3 +265,8 @@ teste
 - [x] Criar endpoint briefing.generate que processa dados do assessment
 - [x] Implementar página de visualização do Levantamento Inicial
 - [x] Adicionar botão "Gerar Levantamento Inicial" na página Assessment Fase 2
+
+- [x] Implementar geração automática do Plano de Ação a partir do Levantamento Inicial
+- [x] Criar endpoint actionPlan.generateFromBriefing que extrai recomendações
+- [x] Atualizar página PlanoAcao.tsx com botão de geração automática
+- [x] Integrar com Kanban para criar tarefas automaticamente

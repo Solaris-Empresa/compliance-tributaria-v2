@@ -773,52 +773,82 @@ Retorne APENAS JSON válido no formato:
           throw new TRPCError({ code: "BAD_REQUEST", message: "Define plan period first" });
         }
 
-        const risks = await db.getRiskMatrix(input.projectId);
-        if (risks.length === 0) {
-          throw new TRPCError({ code: "BAD_REQUEST", message: "Generate risk matrix first" });
+        // Buscar Levantamento Inicial (Briefing)
+        const briefing = await db.getBriefing(input.projectId);
+        if (!briefing) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Generate briefing first" });
         }
+
+        // Buscar Matriz de Riscos (opcional)
+        const risks = await db.getRiskMatrix(input.projectId);
 
         const prompt = `Você é um gerente de projetos especializado em compliance tributário.
 
-Com base na matriz de riscos:
-${JSON.stringify(risks, null, 2)}
+Com base no Levantamento Inicial (Briefing) gerado:
 
-Período do plano: ${project.planPeriodMonths} meses
+## RESUMO EXECUTIVO
+${briefing.summaryText}
 
-Gere um plano de ação detalhado e executável.
+## ANÁLISE DETALHADA
+${briefing.gapsAnalysis}
 
-Para cada ação:
-- Título claro e objetivo
-- Descrição detalhada (o que fazer, como fazer)
-- Risco vinculado (usar ID do risco)
-- Responsável sugerido (função, não nome)
-- Prazo realista (dentro do período total)
-- Dependências de outras ações (se houver)
-- Indicadores de sucesso
-- Estimativa de horas de trabalho
+## RECOMENDAÇÕES ESTRATÉGICAS
+${briefing.priorityAreas || "Nenhuma recomendação específica"}
 
-Organize as ações em fases lógicas (Fase 1, Fase 2, Fase 3...).
-Cada fase deve ter duração proporcional ao período total.
-Priorize ações críticas nas primeiras fases.
+## NÍVEL DE RISCO GERAL
+${briefing.riskLevel}
+
+${risks.length > 0 ? `## MATRIZ DE RISCOS IDENTIFICADOS
+${risks.map(r => `- ${r.title}: ${r.description || r.riskDescription || 'Sem descrição'}`).join('\n')}` : ''}
+
+## PARÂMETROS DO PROJETO
+- Período do plano: ${project.planPeriodMonths} meses
+- Data de início: ${new Date().toISOString().split('T')[0]}
+
+## INSTRUÇÕES
+Gere um Plano de Ação detalhado e executável que transforme as recomendações estratégicas do briefing em tarefas concretas.
+
+**Estrutura do Plano:**
+- Organize em fases lógicas (Fase 1: Diagnóstico, Fase 2: Planejamento, Fase 3: Implementação, Fase 4: Monitoramento)
+- Cada fase deve ter duração proporcional ao período total
+- Priorize ações críticas nas primeiras fases
+- Considere o nível de risco geral para definir urgência
+
+**Para cada ação:**
+- **Título:** Claro, objetivo e acionável (ex: "Mapear processos de faturamento")
+- **Descrição:** Detalhada (o que fazer, como fazer, entregáveis esperados)
+- **Responsável:** Função/área responsável (ex: "Contador", "Gestor Tributário", "Equipe de TI")
+- **Prazo:** Data realista no formato YYYY-MM-DD (dentro do período total)
+- **Prioridade:** "alta", "media" ou "baixa"
+- **Dependências:** IDs de outras ações que devem ser concluídas antes (array vazio se não houver)
+- **Indicadores de sucesso:** Métricas mensuráveis para validar conclusão
+- **Estimativa de horas:** Número realista de horas de trabalho necessárias
+
+**Diretrizes de Qualidade:**
+- Extraia ações diretamente das recomendações do briefing
+- Seja específico e prático (evite generalizações)
+- Considere a realidade de empresas brasileiras
+- Inclua ações de curto, médio e longo prazo
+- Garanta que todas as recomendações estratégicas tenham ações correspondentes
 
 Retorne APENAS JSON válido no formato:
 {
   "phases": [
     {
-      "name": "Fase 1",
-      "description": "string",
-      "durationMonths": number,
+      "name": "Fase 1: Diagnóstico e Mapeamento",
+      "description": "Descrição da fase",
+      "durationMonths": 2,
       "actions": [
         {
           "id": "action_1",
-          "title": "string",
-          "description": "string",
-          "riskId": "string",
-          "responsible": "string",
-          "dueDate": "YYYY-MM-DD",
-          "dependencies": ["action_id"],
-          "indicators": "string",
-          "estimatedHours": number
+          "title": "Título da ação",
+          "description": "Descrição detalhada",
+          "responsible": "Função responsável",
+          "dueDate": "2026-03-15",
+          "priority": "alta",
+          "dependencies": [],
+          "indicators": "Indicadores de sucesso",
+          "estimatedHours": 40
         }
       ]
     }
@@ -874,7 +904,51 @@ Retorne APENAS JSON válido no formato:
         await db.updateActionPlanStatus(input.planId, "aprovado", ctx.user.id);
         await db.updateProject(input.projectId, { status: "aprovado" });
 
-        return { success: true };
+        // Buscar plano aprovado
+        const actionPlan = await db.getActionPlan(input.projectId);
+        if (!actionPlan?.planData) {
+          return { success: true, tasksCreated: 0 };
+        }
+
+        // Parsear dados do plano
+        let planData;
+        try {
+          planData = typeof actionPlan.planData === 'string' 
+            ? JSON.parse(actionPlan.planData) 
+            : actionPlan.planData;
+        } catch (e) {
+          return { success: true, tasksCreated: 0 };
+        }
+
+        // Criar tarefas no Kanban a partir das ações do plano
+        let tasksCreated = 0;
+        if (planData.phases && Array.isArray(planData.phases)) {
+          for (const phase of planData.phases) {
+            if (phase.actions && Array.isArray(phase.actions)) {
+              for (const action of phase.actions) {
+                try {
+                  await db.createTask({
+                    projectId: input.projectId,
+                    title: action.title || 'Ação sem título',
+                    description: action.description || null,
+                    status: 'a_fazer',
+                    priority: action.priority || 'media',
+                    dueDate: action.dueDate ? new Date(action.dueDate) : null,
+                    assignedTo: null, // Será atribuído manualmente
+                    estimatedHours: action.estimatedHours || null,
+                    createdBy: ctx.user.id,
+                  });
+                  tasksCreated++;
+                } catch (e) {
+                  // Continuar mesmo se uma tarefa falhar
+                  console.error(`Erro ao criar tarefa: ${action.title}`, e);
+                }
+              }
+            }
+          }
+        }
+
+        return { success: true, tasksCreated };
       }),
 
     reject: projectAccessMiddleware

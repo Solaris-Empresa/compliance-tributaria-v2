@@ -91,13 +91,16 @@ export default function PlanoAcao() {
   });
 
   const approvePlan = trpc.actionPlan.approve.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       setShowApprovalDialog(false);
       refetch();
-      toast.success("Plano aprovado com sucesso!");
+      const tasksMsg = data.tasksCreated > 0 
+        ? ` ${data.tasksCreated} tarefa(s) criada(s) no Kanban.`
+        : '';
+      toast.success(`Plano aprovado com sucesso!${tasksMsg}`);
       setTimeout(() => {
-        setLocation(`/projetos/${projectId}`);
-      }, 1500);
+        setLocation(`/projetos/${projectId}/kanban`);
+      }, 2000);
     },
     onError: (error: any) => {
       toast.error(`Erro ao aprovar plano: ${error.message}`);
@@ -145,12 +148,19 @@ export default function PlanoAcao() {
     },
   });
 
+  // Buscar briefing para verificar se está disponível
+  const { data: briefing } = trpc.briefing.get.useQuery(
+    { projectId },
+    { enabled: projectId > 0 }
+  );
+
   useEffect(() => {
-    if (project && !actionPlan && !isGenerating && !showTemplateSelectionDialog) {
-      // Mostrar dialog de seleção de template ao invés de gerar automaticamente
-      setShowTemplateSelectionDialog(true);
+    if (project && !actionPlan && !isGenerating && briefing) {
+      // Gerar automaticamente se briefing existir
+      setIsGenerating(true);
+      generatePlan.mutate({ projectId });
     }
-  }, [project, actionPlan, projectId, isGenerating, showTemplateSelectionDialog]);
+  }, [project, actionPlan, projectId, isGenerating, briefing]);
 
   useEffect(() => {
     if (actionPlan && !editedPrompt) {
@@ -318,7 +328,7 @@ export default function PlanoAcao() {
               <div className="flex items-center gap-3 text-center justify-center">
                 <Sparkles className="h-5 w-5 text-primary animate-pulse" />
                 <p className="text-muted-foreground">
-                  Gerando plano de ação detalhado com base na análise de riscos...
+                  Gerando plano de ação detalhado com base no Levantamento Inicial e Matriz de Riscos...
                 </p>
               </div>
             </CardContent>
