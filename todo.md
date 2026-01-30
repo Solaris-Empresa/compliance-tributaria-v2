@@ -268,3 +268,177 @@
 - [x] Validar enum de status correto (status válido: "em_andamento")
 - [x] Testar correção localmente (servidor reiniciado com sucesso)
 - [ ] Criar checkpoint e republicar
+
+---
+
+# 📋 BACKLOG - Melhorias Futuras
+
+## 1. Sistema de Auditoria e Logs (Non-Repudiation)
+**Objetivo:** Garantir rastreabilidade completa de todas as operações para fins de auditoria e não-repúdio
+
+### Requisitos:
+- [ ] Criar tabela `audit_logs` no schema do banco de dados
+  - [ ] Campos: id, entity_type (projeto/tarefa/risco), entity_id, action (create/update/delete), old_value (JSON), new_value (JSON), user_id, user_ip, timestamp, user_agent
+  - [ ] Índices: entity_type + entity_id, user_id, timestamp
+- [ ] Implementar middleware de auditoria no backend
+  - [ ] Capturar IP do usuário (X-Forwarded-For, X-Real-IP)
+  - [ ] Capturar User-Agent
+  - [ ] Registrar estado anterior e novo estado (diff)
+- [ ] Auditar operações em Tarefas:
+  - [ ] Criação de tarefa
+  - [ ] Atualização de status
+  - [ ] Atualização de campos (título, descrição, responsável, prazo)
+  - [ ] Exclusão de tarefa
+- [ ] Auditar operações em Riscos:
+  - [ ] Criação de risco
+  - [ ] Atualização de severidade/probabilidade
+  - [ ] Atualização de campos (descrição, mitigação)
+  - [ ] Exclusão de risco
+- [ ] Criar tela de visualização de logs de auditoria
+  - [ ] Filtros: entidade, ação, usuário, período
+  - [ ] Exibir diff visual (antes/depois)
+  - [ ] Exportar logs em CSV/PDF
+- [ ] Implementar retenção de logs (mínimo 5 anos para compliance)
+- [ ] Adicionar testes unitários para middleware de auditoria
+
+---
+
+## 2. Plano de Ação com Foco Operacional
+**Objetivo:** Tornar o plano de ação mais prático e executável, com foco em tarefas operacionais concretas
+
+### Requisitos:
+- [ ] Revisar prompt de geração do plano de ação via LLM
+  - [ ] Adicionar instrução: "Foco em tarefas operacionais concretas e executáveis"
+  - [ ] Adicionar instrução: "Cada tarefa deve ter: ação específica, responsável sugerido, prazo estimado, recursos necessários"
+  - [ ] Adicionar instrução: "Evitar tarefas genéricas ou abstratas"
+- [ ] Adicionar campos operacionais nas tarefas:
+  - [ ] Campo: recursos_necessarios (texto)
+  - [ ] Campo: dependencias (relação com outras tarefas)
+  - [ ] Campo: criterios_aceitacao (checklist de conclusão)
+- [ ] Criar template de plano de ação operacional
+  - [ ] Seções: Preparação, Execução, Validação, Documentação
+  - [ ] Cada fase com tarefas concretas e mensuráveis
+- [ ] Adicionar exemplos de tarefas operacionais no prompt
+  - [ ] Exemplo: "Contratar consultor tributário especializado em CBS (prazo: 15 dias, responsável: RH)"
+  - [ ] Exemplo: "Mapear todos os produtos tributados por IPI no ERP (prazo: 7 dias, responsável: TI)"
+- [ ] Validar com usuários reais e iterar
+
+---
+
+## 3. Navegação e UX para Plano de Ação
+**Objetivo:** Facilitar acesso ao plano de ação em contexto multi-projeto
+
+### Requisitos:
+- [ ] Adicionar item "Plano de Ação" na barra lateral (DashboardLayout)
+  - [ ] Ícone: ClipboardList ou FileCheck
+  - [ ] Link: /planos-acao
+- [ ] Criar página `/planos-acao` (lista de projetos com planos)
+  - [ ] Exibir apenas projetos com plano de ação aprovado
+  - [ ] Card por projeto: nome, cliente, data de aprovação, status geral
+  - [ ] Botão "Ver Plano" → redireciona para `/projetos/{id}/plano-acao`
+- [ ] Adicionar filtros na página de listagem:
+  - [ ] Filtro por cliente
+  - [ ] Filtro por status (em andamento, concluído)
+  - [ ] Busca por nome do projeto
+- [ ] Adicionar breadcrumb na página do plano:
+  - [ ] Planos de Ação > [Nome do Cliente] > [Nome do Projeto]
+- [ ] Adicionar indicador visual de progresso:
+  - [ ] Barra de progresso: tarefas concluídas / total
+  - [ ] Badge de status: "Em Andamento", "Atrasado", "Concluído"
+- [ ] Criar onboarding/tutorial para primeira visita:
+  - [ ] Tooltip: "Aqui você encontra todos os planos de ação dos seus projetos"
+  - [ ] Highlight: "Clique em um projeto para ver as tarefas"
+
+---
+
+## 4. Sistema de Controle de Acesso Hierárquico (RBAC Avançado)
+**Objetivo:** Implementar hierarquia de acessos com UX intuitiva para evitar confusão
+
+### 4.1 Modelagem de Dados
+- [ ] Criar tabela `organizations` (empresas/grupos empresariais)
+  - [ ] Campos: id, name, cnpj_principal, created_at
+- [ ] Criar tabela `organization_units` (CNPJs/filiais)
+  - [ ] Campos: id, organization_id, name, cnpj, created_at
+- [ ] Atualizar tabela `users`:
+  - [ ] Adicionar campo: user_type (enum: "cliente", "escritorio")
+  - [ ] Adicionar campo: organization_id (nullable, para clientes)
+- [ ] Criar tabela `user_project_access` (acesso granular)
+  - [ ] Campos: id, user_id, project_id, access_level (enum: "viewer", "editor", "admin"), granted_by, granted_at
+- [ ] Criar tabela `user_organization_access` (acesso por organização)
+  - [ ] Campos: id, user_id, organization_id, access_level, granted_by, granted_at
+
+### 4.2 Perfis de Acesso
+- [ ] Definir perfis de usuário:
+  - [ ] **Escritório - Admin**: acesso total a todos os projetos
+  - [ ] **Escritório - Advogado Sênior**: acesso a projetos atribuídos + leitura geral
+  - [ ] **Escritório - Advogado Júnior**: acesso somente a projetos atribuídos
+  - [ ] **Cliente - Admin Organização**: acesso a todos os projetos da organização
+  - [ ] **Cliente - Gestor Unidade**: acesso a projetos de CNPJs específicos
+  - [ ] **Cliente - Visualizador**: acesso somente leitura a projetos específicos
+- [ ] Implementar validação de acesso no backend:
+  - [ ] Criar função `validateUserAccess(userId, projectId, requiredLevel)`
+  - [ ] Aplicar em todos os procedimentos tRPC relevantes
+- [ ] Criar testes unitários para cada perfil de acesso
+
+### 4.3 UX de Gerenciamento de Acessos
+- [ ] Criar página `/admin/acessos` (somente Admin Escritório)
+  - [ ] Tab 1: Usuários do Escritório
+  - [ ] Tab 2: Usuários Clientes
+  - [ ] Tab 3: Organizações
+- [ ] **Tab Organizações:**
+  - [ ] Listar organizações com expansão para ver CNPJs
+  - [ ] Botão "Adicionar Organização" → modal com campos (nome, CNPJ principal)
+  - [ ] Botão "Adicionar CNPJ" (dentro da organização) → modal com campos (nome, CNPJ)
+  - [ ] Visual hierárquico: Organização > CNPJs (tree view)
+- [ ] **Tab Usuários Clientes:**
+  - [ ] Listar usuários com badge de tipo (Admin Org / Gestor / Visualizador)
+  - [ ] Botão "Convidar Usuário Cliente" → wizard em 3 etapas:
+    - [ ] **Etapa 1:** Dados do usuário (nome, email, tipo)
+    - [ ] **Etapa 2:** Selecionar organização (se Admin Org) OU CNPJs específicos (se Gestor)
+    - [ ] **Etapa 3:** Selecionar projetos específicos (se Visualizador) com preview de acesso
+  - [ ] Coluna "Acesso": mostrar resumo visual (ex: "3 projetos", "Toda organização XYZ")
+  - [ ] Botão "Editar Acesso" → reabrir wizard com dados preenchidos
+- [ ] **Tab Usuários Escritório:**
+  - [ ] Listar usuários com badge de perfil (Admin / Sênior / Júnior)
+  - [ ] Botão "Convidar Advogado" → modal simples (nome, email, perfil)
+  - [ ] Atribuição de projetos: drag-and-drop de projetos para advogados
+- [ ] **Componente: Seletor de Acesso Visual**
+  - [ ] Modo 1: "Acesso Total à Organização" (toggle + seletor de organização)
+  - [ ] Modo 2: "Acesso por CNPJ" (multi-select com busca)
+  - [ ] Modo 3: "Acesso por Projeto" (multi-select com busca + filtro por cliente)
+  - [ ] Preview em tempo real: "Este usuário terá acesso a X projetos"
+- [ ] Adicionar confirmação ao conceder acesso:
+  - [ ] Modal: "Você está concedendo acesso a [X projetos]. Confirmar?"
+  - [ ] Listar projetos afetados
+- [ ] Adicionar logs de auditoria para concessão/revogação de acesso
+
+### 4.4 UX para Usuário Final (Cliente)
+- [ ] Adicionar filtro de projetos por organização/CNPJ na página de listagem
+- [ ] Exibir badge de acesso no card do projeto: "Você é Admin" / "Somente Leitura"
+- [ ] Desabilitar botões de ação (editar, excluir) para usuários com acesso "viewer"
+- [ ] Adicionar tooltip explicativo ao passar o mouse em botões desabilitados
+
+### 4.5 Segurança e Validação
+- [ ] Implementar rate limiting para tentativas de acesso não autorizado
+- [ ] Adicionar logs de tentativas de acesso negado
+- [ ] Criar alerta para Admin quando houver múltiplas tentativas de acesso não autorizado
+- [ ] Validar CNPJ no backend (formato e dígitos verificadores)
+- [ ] Impedir exclusão de organização com projetos ativos
+
+---
+
+## Priorização Sugerida
+1. **Sistema de Auditoria** (crítico para compliance e não-repúdio)
+2. **Controle de Acesso Hierárquico** (crítico para segurança e escalabilidade)
+3. **Navegação para Plano de Ação** (melhoria de UX, impacto médio)
+4. **Plano de Ação Operacional** (melhoria de qualidade, impacto médio)
+
+## Bug em Produção #4 - Matriz de Riscos sem Geração Automática
+- [x] Implementar geração automática de riscos via IA (similar ao briefing)
+- [x] Procedimento riskMatrix.generate já existia no backend
+- [x] Adicionar lógica de geração automática ao montar a página (useEffect)
+- [x] Gerar riscos baseados no briefing e assessment do projeto
+- [x] Adicionar botão "Avançar para Plano de Ação" após riscos identificados
+- [x] Implementar navegação para página de plano de ação
+- [x] Adicionar indicador visual de geração (loading com mensagem)
+- [ ] Testar fluxo completo: briefing → matriz de riscos → plano de ação

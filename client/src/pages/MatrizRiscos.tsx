@@ -3,8 +3,8 @@ import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, AlertTriangle, Plus, Trash2, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, AlertTriangle, Plus, Trash2, Loader2, ArrowRight, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ export default function MatrizRiscos() {
   const projectId = parseInt(params.id || "0");
   const [novoRisco, setNovoRisco] = useState({ titulo: "", descricao: "" });
   const [editando, setEditando] = useState<number | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const { data: project } = trpc.projects.getById.useQuery(
     { id: projectId },
@@ -47,6 +48,39 @@ export default function MatrizRiscos() {
       toast.error(`Erro ao remover risco: ${error.message}`);
     },
   });
+
+  const generateRisks = trpc.riskMatrix.generate.useMutation({
+    onSuccess: () => {
+      console.log('[MatrizRiscos] Riscos gerados com sucesso');
+      setIsGenerating(false);
+      refetch();
+      toast.success("Riscos identificados com sucesso!");
+    },
+    onError: (error: any) => {
+      console.error('[MatrizRiscos] Erro ao gerar riscos:', error);
+      setIsGenerating(false);
+      toast.error(`Erro ao gerar riscos: ${error.message}`);
+    },
+  });
+
+  const advanceToActionPlan = trpc.projects.updateStatus.useMutation({
+    onSuccess: () => {
+      toast.success("Avançando para Plano de Ação...");
+      window.location.href = `/projetos/${projectId}/plano-acao`;
+    },
+    onError: (error: any) => {
+      toast.error(`Erro: ${error.message}`);
+    },
+  });
+
+  // Gerar riscos automaticamente se não existirem
+  useEffect(() => {
+    if (project && riscos && riscos.length === 0 && !isGenerating && projectId > 0) {
+      console.log('[MatrizRiscos] Iniciando geração automática de riscos. projectId:', projectId);
+      setIsGenerating(true);
+      generateRisks.mutate({ projectId });
+    }
+  }, [project, riscos, projectId, isGenerating]);
 
   const handleAdicionarRisco = () => {
     if (!novoRisco.titulo.trim()) {
@@ -153,6 +187,21 @@ export default function MatrizRiscos() {
           </CardContent>
         </Card>
 
+        {/* Indicador de Geração */}
+        {isGenerating && (
+          <Card className="mb-6 bg-blue-50 border-blue-200">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-5 w-5 text-blue-600 animate-spin" />
+                <div>
+                  <p className="font-medium text-blue-900">Gerando Riscos com IA...</p>
+                  <p className="text-sm text-blue-700">Analisando o briefing e identificando riscos de conformidade. Isso pode levar alguns segundos.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Lista de Riscos */}
         <Card>
           <CardHeader>
@@ -216,6 +265,30 @@ export default function MatrizRiscos() {
             )}
           </CardContent>
         </Card>
+
+        {/* Botão Avançar para Plano de Ação */}
+        {riscos && riscos.length > 0 && (
+          <div className="mt-6 flex justify-end">
+            <Button
+              onClick={() => advanceToActionPlan.mutate({ projectId, status: "em_andamento" })}
+              disabled={advanceToActionPlan.isPending}
+              size="lg"
+              className="gap-2"
+            >
+              {advanceToActionPlan.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Avançando...
+                </>
+              ) : (
+                <>
+                  Avançar para Plano de Ação
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
+        )}
 
         {/* Informações Adicionais */}
         <Card className="mt-6 bg-blue-50 border-blue-200">
