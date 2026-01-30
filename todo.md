@@ -239,3 +239,14 @@
 - [x] Validar erro para projeto inexistente
 - [x] Validar todos os status válidos (rascunho, em_andamento, concluido, arquivado)
 - [ ] Testar navegação completa após republicação
+
+## Testes End-to-End - Fluxo Completo
+- [x] Criar arquivo e2e.test.ts com suite de testes E2E
+- [x] Implementar teste: criar projeto
+- [x] Implementar teste: preencher Assessment Fase 1
+- [x] Implementar teste: completar Fase 1 e verificar transição de status
+- [x] Implementar teste: atualizar status manualmente (updateStatus)
+- [x] Implementar teste: verificar controle de acesso (cliente vs equipe_solaris)
+- [x] Implementar teste: verificar salvamento e recuperação de dados
+- [x] Implementar teste: verificar transições de status sequenciais (5 status)
+- [x] Executar testes E2E e validar 100% de sucesso (5/5 testes passando)
