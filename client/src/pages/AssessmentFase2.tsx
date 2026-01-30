@@ -41,6 +41,8 @@ export default function AssessmentFase2() {
   const [questions, setQuestions] = useState<DynamicQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isGenerating, setIsGenerating] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const { data: project } = trpc.projects.getById.useQuery({ id: projectId });
   const { data: phase1 } = trpc.assessmentPhase1.get.useQuery({ projectId });
@@ -127,6 +129,17 @@ export default function AssessmentFase2() {
     });
   };
 
+  // Helper para atualizar resposta com validação
+  const updateAnswer = (questionId: string, value: string, isRequired: boolean) => {
+    setAnswers({ ...answers, [questionId]: value });
+    setTouched({ ...touched, [questionId]: true });
+    if (value.trim()) {
+      setErrors({ ...errors, [questionId]: "" });
+    } else if (isRequired) {
+      setErrors({ ...errors, [questionId]: "Este campo é obrigatório" });
+    }
+  };
+
   const handleComplete = () => {
     // Calcular completude
     const requiredQuestions = questions.filter(q => q.required);
@@ -136,6 +149,17 @@ export default function AssessmentFase2() {
       : 0;
 
     if (completionRate < 70) {
+      // Marcar perguntas obrigatórias não respondidas
+      const newTouched = { ...touched };
+      const newErrors = { ...errors };
+      requiredQuestions.forEach(q => {
+        if (!answers[q.id]?.trim()) {
+          newTouched[q.id] = true;
+          newErrors[q.id] = "Este campo é obrigatório";
+        }
+      });
+      setTouched(newTouched);
+      setErrors(newErrors);
       toast.error(`Complete pelo menos 70% das perguntas obrigatórias (${Math.round(completionRate)}% concluído)`);
       return;
     }
@@ -153,50 +177,73 @@ export default function AssessmentFase2() {
     switch (question.type) {
       case "text":
         return (
-          <Input
-            value={value}
-            onChange={(e) => setAnswers({ ...answers, [question.id]: e.target.value })}
-            placeholder="Digite sua resposta"
-          />
+          <>
+            <Input
+              value={value}
+              onChange={(e) => updateAnswer(question.id, e.target.value, question.required)}
+              placeholder="Digite sua resposta"
+              className={touched[question.id] && errors[question.id] ? "border-red-500" : ""}
+            />
+            {touched[question.id] && errors[question.id] && (
+              <p className="text-sm text-red-500 mt-1">{errors[question.id]}</p>
+            )}
+          </>
         );
 
       case "number":
         return (
-          <Input
-            type="number"
-            value={value}
-            onChange={(e) => setAnswers({ ...answers, [question.id]: e.target.value })}
-            placeholder="Digite um número"
-          />
+          <>
+            <Input
+              type="number"
+              value={value}
+              onChange={(e) => updateAnswer(question.id, e.target.value, question.required)}
+              placeholder="Digite um número"
+              className={touched[question.id] && errors[question.id] ? "border-red-500" : ""}
+            />
+            {touched[question.id] && errors[question.id] && (
+              <p className="text-sm text-red-500 mt-1">{errors[question.id]}</p>
+            )}
+          </>
         );
 
       case "select":
         return (
-          <Select
-            value={value}
-            onValueChange={(val) => setAnswers({ ...answers, [question.id]: val })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione uma opção" />
-            </SelectTrigger>
-            <SelectContent>
-              {question.options?.map((opt) => (
-                <SelectItem key={opt} value={opt}>
-                  {opt}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <>
+            <Select
+              value={value}
+              onValueChange={(val) => updateAnswer(question.id, val, question.required)}
+            >
+              <SelectTrigger className={touched[question.id] && errors[question.id] ? "border-red-500" : ""}>
+                <SelectValue placeholder="Selecione uma opção" />
+              </SelectTrigger>
+              <SelectContent>
+                {question.options?.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {touched[question.id] && errors[question.id] && (
+              <p className="text-sm text-red-500 mt-1">{errors[question.id]}</p>
+            )}
+          </>
         );
 
       case "textarea":
         return (
-          <Textarea
-            value={value}
-            onChange={(e) => setAnswers({ ...answers, [question.id]: e.target.value })}
-            placeholder="Digite sua resposta detalhada"
-            rows={4}
-          />
+          <>
+            <Textarea
+              value={value}
+              onChange={(e) => updateAnswer(question.id, e.target.value, question.required)}
+              placeholder="Digite sua resposta detalhada"
+              rows={4}
+              className={touched[question.id] && errors[question.id] ? "border-red-500" : ""}
+            />
+            {touched[question.id] && errors[question.id] && (
+              <p className="text-sm text-red-500 mt-1">{errors[question.id]}</p>
+            )}
+          </>
         );
 
       default:

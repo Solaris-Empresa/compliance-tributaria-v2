@@ -286,3 +286,7 @@ teste
 - [x] Adicionar filtros por projeto, status e busca por texto
 
 - [x] Bug CRÍTICO: Formulário da Fase 1 não aparece - fases mostram status "pending" sem botão de acesso
+
+- [x] Implementar validação em tempo real para campos obrigatórios na Fase 1
+- [x] Implementar validação em tempo real para campos obrigatórios na Fase 2
+- [x] Adicionar feedback visual (bordas vermelhas + mensagens de erro) para campos inválidos

@@ -37,6 +37,9 @@ export default function AssessmentFase1() {
     complianceGoals: "",
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
   const { data: project } = trpc.projects.getById.useQuery(
     { id: projectId },
     { enabled: projectId > 0 }
@@ -105,6 +108,17 @@ export default function AssessmentFase1() {
     return () => clearInterval(interval);
   }, [formData]);
 
+  // Helper para atualizar campo com validação
+  const updateField = (field: string, value: string) => {
+    setFormData({ ...formData, [field]: value });
+    setTouched({ ...touched, [field]: true });
+    if (value) {
+      setErrors({ ...errors, [field]: "" });
+    } else if (["taxRegime", "companySize", "annualRevenue", "businessSector", "mainActivity"].includes(field)) {
+      setErrors({ ...errors, [field]: "Este campo é obrigatório" });
+    }
+  };
+
   const handleSaveDraft = () => {
     savePhase1.mutate({
       projectId,
@@ -130,6 +144,17 @@ export default function AssessmentFase1() {
       const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
 
       if (missingFields.length > 0) {
+        // Marcar todos os campos obrigatórios como "touched" para mostrar erros
+        const newTouched = { ...touched };
+        const newErrors = { ...errors };
+        requiredFields.forEach(field => {
+          newTouched[field] = true;
+          if (!formData[field as keyof typeof formData]) {
+            newErrors[field] = "Este campo é obrigatório";
+          }
+        });
+        setTouched(newTouched);
+        setErrors(newErrors);
         toast.error("Preencha todos os campos obrigatórios antes de continuar");
         return;
       }
@@ -212,9 +237,9 @@ export default function AssessmentFase1() {
               <Label htmlFor="taxRegime">Regime Tributário *</Label>
               <Select
                 value={formData.taxRegime}
-                onValueChange={(value) => setFormData({ ...formData, taxRegime: value })}
+                onValueChange={(value) => updateField("taxRegime", value)}
               >
-                <SelectTrigger id="taxRegime">
+                <SelectTrigger id="taxRegime" className={touched.taxRegime && errors.taxRegime ? "border-red-500" : ""}>
                   <SelectValue placeholder="Selecione o regime tributário" />
                 </SelectTrigger>
                 <SelectContent>
@@ -224,6 +249,9 @@ export default function AssessmentFase1() {
                   <SelectItem value="mei">MEI</SelectItem>
                 </SelectContent>
               </Select>
+              {touched.taxRegime && errors.taxRegime && (
+                <p className="text-sm text-red-500">{errors.taxRegime}</p>
+              )}
             </div>
 
             {/* Porte da Empresa */}
@@ -231,9 +259,9 @@ export default function AssessmentFase1() {
               <Label htmlFor="companySize">Porte da Empresa *</Label>
               <Select
                 value={formData.companySize}
-                onValueChange={(value) => setFormData({ ...formData, companySize: value })}
+                onValueChange={(value) => updateField("companySize", value)}
               >
-                <SelectTrigger id="companySize">
+                <SelectTrigger id="companySize" className={touched.companySize && errors.companySize ? "border-red-500" : ""}>
                   <SelectValue placeholder="Selecione o porte" />
                 </SelectTrigger>
                 <SelectContent>
@@ -244,6 +272,9 @@ export default function AssessmentFase1() {
                   <SelectItem value="grande">Grande Empresa</SelectItem>
                 </SelectContent>
               </Select>
+              {touched.companySize && errors.companySize && (
+                <p className="text-sm text-red-500">{errors.companySize}</p>
+              )}
             </div>
 
             {/* Faturamento Anual */}
@@ -254,11 +285,17 @@ export default function AssessmentFase1() {
                 type="number"
                 placeholder="Ex: 5000000"
                 value={formData.annualRevenue}
-                onChange={(e) => setFormData({ ...formData, annualRevenue: e.target.value })}
+                onChange={(e) => updateField("annualRevenue", e.target.value)}
+                className={touched.annualRevenue && errors.annualRevenue ? "border-red-500" : ""}
               />
-              <p className="text-xs text-muted-foreground">
-                Informe o faturamento anual aproximado em reais
-              </p>
+              {touched.annualRevenue && errors.annualRevenue && (
+                <p className="text-sm text-red-500">{errors.annualRevenue}</p>
+              )}
+              {!errors.annualRevenue && (
+                <p className="text-xs text-muted-foreground">
+                  Informe o faturamento anual aproximado em reais
+                </p>
+              )}
             </div>
 
             {/* Setor de Atuação */}
@@ -266,9 +303,9 @@ export default function AssessmentFase1() {
               <Label htmlFor="businessSector">Setor de Atuação *</Label>
               <Select
                 value={formData.businessSector}
-                onValueChange={(value) => setFormData({ ...formData, businessSector: value })}
+                onValueChange={(value) => updateField("businessSector", value)}
               >
-                <SelectTrigger id="businessSector">
+                <SelectTrigger id="businessSector" className={touched.businessSector && errors.businessSector ? "border-red-500" : ""}>
                   <SelectValue placeholder="Selecione o setor" />
                 </SelectTrigger>
                 <SelectContent>
@@ -284,6 +321,9 @@ export default function AssessmentFase1() {
                   <SelectItem value="outro">Outro</SelectItem>
                 </SelectContent>
               </Select>
+              {touched.businessSector && errors.businessSector && (
+                <p className="text-sm text-red-500">{errors.businessSector}</p>
+              )}
             </div>
 
             {/* Atividade Principal */}
@@ -293,8 +333,12 @@ export default function AssessmentFase1() {
                 id="mainActivity"
                 placeholder="Ex: Transporte rodoviário de cargas"
                 value={formData.mainActivity}
-                onChange={(e) => setFormData({ ...formData, mainActivity: e.target.value })}
+                onChange={(e) => updateField("mainActivity", e.target.value)}
+                className={touched.mainActivity && errors.mainActivity ? "border-red-500" : ""}
               />
+              {touched.mainActivity && errors.mainActivity && (
+                <p className="text-sm text-red-500">{errors.mainActivity}</p>
+              )}
             </div>
 
             {/* Número de Funcionários */}
