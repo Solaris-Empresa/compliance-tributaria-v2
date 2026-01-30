@@ -229,3 +229,13 @@
 - [x] Integrar modal na página de Briefing
 - [x] Integrar modal na página de Plano de Ação
 - [x] Testar funcionalidade em desenvolvimento (modal implementado e funcionando)
+
+## Bug em Produção #2 - Navegação para Matriz de Riscos
+- [x] Corrigir erro "No procedure found on path 'projects.updateStatus'" ao clicar em "Avançar para Matriz de Riscos"
+- [x] Implementar procedimento projects.updateStatus no router
+- [x] Criar testes unitários completos para projects.updateStatus (6/6 testes passando)
+- [x] Validar acesso por role (equipe_solaris, advogado_senior, cliente)
+- [x] Validar negação de acesso para cliente não vinculado
+- [x] Validar erro para projeto inexistente
+- [x] Validar todos os status válidos (rascunho, em_andamento, concluido, arquivado)
+- [ ] Testar navegação completa após republicação

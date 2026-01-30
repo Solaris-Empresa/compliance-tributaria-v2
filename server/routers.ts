@@ -107,6 +107,17 @@ export const appRouter = router({
         await db.updateProject(projectId, data);
         return { success: true };
       }),
+
+    updateStatus: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        status: z.enum(["rascunho", "em_andamento", "concluido", "arquivado"]),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
+        await db.updateProject(input.projectId, { status: input.status });
+        return { success: true };
+      }),
   }),
 
   // ==========================================================================
