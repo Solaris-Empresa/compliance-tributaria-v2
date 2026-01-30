@@ -8,9 +8,11 @@ import {
   assessmentPhase2, InsertAssessmentPhase2,
   assessmentTemplates, InsertAssessmentTemplate,
   briefings, InsertBriefing,
+  briefingVersions, InsertBriefingVersion,
   riskMatrix, InsertRiskMatrix,
   riskMatrixPromptHistory, InsertRiskMatrixPromptHistory,
   actionPlans, InsertActionPlan,
+  actionPlanVersions, InsertActionPlanVersion,
   actionPlanPromptHistory, InsertActionPlanPromptHistory,
   actionPlanTemplates, InsertActionPlanTemplate,
   tasks, InsertTask,
@@ -299,10 +301,51 @@ export async function saveBriefing(data: InsertBriefing) {
   const existing = await db.select().from(briefings).where(eq(briefings.projectId, data.projectId)).limit(1);
 
   if (existing.length > 0) {
-    await db.update(briefings).set(data).where(eq(briefings.projectId, data.projectId));
+    // Arquivar versão anterior antes de atualizar
+    const oldBriefing = existing[0];
+    await db.insert(briefingVersions).values({
+      projectId: oldBriefing.projectId,
+      briefingId: oldBriefing.id,
+      summaryText: oldBriefing.summaryText,
+      gapsAnalysis: oldBriefing.gapsAnalysis,
+      riskLevel: oldBriefing.riskLevel,
+      priorityAreas: oldBriefing.priorityAreas,
+      version: oldBriefing.version,
+      generatedAt: oldBriefing.generatedAt,
+      generatedBy: oldBriefing.generatedBy,
+    });
+
+    // Incrementar versão e atualizar
+    await db.update(briefings).set({
+      ...data,
+      version: oldBriefing.version + 1,
+    }).where(eq(briefings.projectId, data.projectId));
   } else {
     await db.insert(briefings).values(data);
   }
+}
+
+export async function getBriefingVersions(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select().from(briefingVersions)
+    .where(eq(briefingVersions.projectId, projectId))
+    .orderBy(desc(briefingVersions.version));
+  return result;
+}
+
+export async function getBriefingVersion(projectId: number, version: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(briefingVersions)
+    .where(and(
+      eq(briefingVersions.projectId, projectId),
+      eq(briefingVersions.version, version)
+    ))
+    .limit(1);
+  return result[0];
 }
 
 export async function getBriefing(projectId: number) {
@@ -418,8 +461,64 @@ export async function saveActionPlan(data: InsertActionPlan) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(actionPlans).values(data) as any;
-  return Number(result.insertId);
+  // Verificar se já existe um plano para este projeto
+  const existing = await db.select().from(actionPlans)
+    .where(eq(actionPlans.projectId, data.projectId))
+    .orderBy(desc(actionPlans.version))
+    .limit(1);
+
+  if (existing.length > 0) {
+    // Arquivar versão anterior antes de criar nova
+    const oldPlan = existing[0];
+    await db.insert(actionPlanVersions).values({
+      projectId: oldPlan.projectId,
+      actionPlanId: oldPlan.id,
+      planData: oldPlan.planData,
+      version: oldPlan.version,
+      templateId: oldPlan.templateId,
+      generatedAt: oldPlan.generatedAt,
+      generatedBy: oldPlan.generatedBy,
+      generatedByAI: oldPlan.generatedByAI,
+      status: oldPlan.status,
+      approvedAt: oldPlan.approvedAt,
+      approvedBy: oldPlan.approvedBy,
+      rejectionReason: oldPlan.rejectionReason,
+    });
+
+    // Criar nova versão com número incrementado
+    const result = await db.insert(actionPlans).values({
+      ...data,
+      version: oldPlan.version + 1,
+    }) as any;
+    return Number(result.insertId);
+  } else {
+    // Primeira versão
+    const result = await db.insert(actionPlans).values(data) as any;
+    return Number(result.insertId);
+  }
+}
+
+export async function getActionPlanVersions(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select().from(actionPlanVersions)
+    .where(eq(actionPlanVersions.projectId, projectId))
+    .orderBy(desc(actionPlanVersions.version));
+  return result;
+}
+
+export async function getActionPlanVersion(projectId: number, version: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(actionPlanVersions)
+    .where(and(
+      eq(actionPlanVersions.projectId, projectId),
+      eq(actionPlanVersions.version, version)
+    ))
+    .limit(1);
+  return result[0];
 }
 
 export async function getActionPlan(projectId: number) {

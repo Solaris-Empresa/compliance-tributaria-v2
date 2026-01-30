@@ -4,23 +4,40 @@ import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, Loader2, Sparkles, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, History, Loader2, Sparkles, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
+import { VersionHistory } from "@/components/VersionHistory";
+import { GenerationProgressModal } from "@/components/GenerationProgressModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function Briefing() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const projectId = parseInt(params.id || "0");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [selectedVersion, setSelectedVersion] = useState<number | null>(null);
   
   console.log('[Briefing] Componente montado. params:', params);
   console.log('[Briefing] projectId extraído:', projectId);
 
   const { data: project } = trpc.projects.getById.useQuery({ id: projectId });
   const { data: briefing, refetch } = trpc.briefing.get.useQuery({ projectId });
+  const { data: versions } = trpc.briefing.listVersions.useQuery({ projectId });
+  const { data: versionData } = trpc.briefing.getVersion.useQuery(
+    { projectId, version: selectedVersion! },
+    { enabled: selectedVersion !== null }
+  );
 
   const generateBriefing = trpc.briefing.generate.useMutation({
     onSuccess: () => {
@@ -320,6 +337,61 @@ export default function Briefing() {
 
             {/* Actions */}
             <div className="flex gap-3">
+              <Dialog open={showHistory} onOpenChange={setShowHistory}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <History className="h-4 w-4 mr-2" />
+                    Ver Histórico ({versions?.length || 0})
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Histórico de Versões do Briefing</DialogTitle>
+                    <DialogDescription>
+                      Visualize e compare versões anteriores do briefing gerado
+                    </DialogDescription>
+                  </DialogHeader>
+                  <VersionHistory
+                    versions={versions || []}
+                    currentVersion={briefing?.version || 1}
+                    type="briefing"
+                    onViewVersion={(version) => {
+                      setSelectedVersion(version);
+                      // Abrir modal de visualização da versão
+                      toast.info(`Visualizando versão ${version}`);
+                    }}
+                  />
+                  
+                  {/* Visualização da versão selecionada */}
+                  {selectedVersion && versionData && (
+                    <div className="mt-6 border-t pt-6">
+                      <h3 className="text-lg font-semibold mb-4">Versão {selectedVersion}</h3>
+                      <div className="space-y-4">
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Resumo Executivo</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="prose prose-sm max-w-none">
+                              <Streamdown>{versionData.summaryText}</Streamdown>
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Análise Detalhada</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="prose prose-sm max-w-none">
+                              <Streamdown>{versionData.gapsAnalysis}</Streamdown>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+                  )}
+                </DialogContent>
+              </Dialog>
               <Button
                 variant="outline"
                 onClick={() => {
@@ -371,6 +443,14 @@ export default function Briefing() {
           </>
         )}
       </div>
+
+      {/* Modal de Progresso de Geração */}
+      <GenerationProgressModal
+        isOpen={isGenerating}
+        title="Gerando Briefing com IA"
+        description="Analisando as respostas do assessment e gerando análise detalhada de compliance..."
+        estimatedSeconds={45}
+      />
     </ComplianceLayout>
   );
 }

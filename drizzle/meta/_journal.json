@@ -36,6 +36,13 @@
       "when": 1769731963927,
       "tag": "0004_tough_captain_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1769774577161,
+      "tag": "0005_bumpy_christian_walker",
+      "breakpoints": true
     }
   ]
 }

@@ -24,6 +24,7 @@ import { ArrowLeft, ArrowRight, Loader2, Save, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { toast } from "sonner";
+import { GenerationProgressModal } from "@/components/GenerationProgressModal";
 
 type DynamicQuestion = {
   id: string;
@@ -503,6 +504,14 @@ export default function AssessmentFase2() {
           </>
         )}
       </div>
+
+      {/* Modal de Progresso de Geração */}
+      <GenerationProgressModal
+        isOpen={isGenerating}
+        title="Gerando Perguntas Personalizadas com IA"
+        description="Analisando o perfil da sua empresa para criar questionário personalizado..."
+        estimatedSeconds={30}
+      />
     </ComplianceLayout>
   );
 }

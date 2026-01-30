@@ -173,6 +173,26 @@ export type Briefing = typeof briefings.$inferSelect;
 export type InsertBriefing = typeof briefings.$inferInsert;
 
 /**
+ * Histórico de Versões do Briefing
+ */
+export const briefingVersions = mysqlTable("briefingVersions", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  briefingId: int("briefingId").notNull(),
+  summaryText: text("summaryText").notNull(),
+  gapsAnalysis: text("gapsAnalysis").notNull(),
+  riskLevel: mysqlEnum("riskLevel", ["baixo", "medio", "alto", "critico"]).notNull(),
+  priorityAreas: text("priorityAreas"),
+  version: int("version").notNull(),
+  generatedAt: timestamp("generatedAt").notNull(),
+  generatedBy: int("generatedBy").notNull(),
+  archivedAt: timestamp("archivedAt").defaultNow().notNull(),
+});
+
+export type BriefingVersion = typeof briefingVersions.$inferSelect;
+export type InsertBriefingVersion = typeof briefingVersions.$inferInsert;
+
+/**
  * Matriz de Riscos - gerada por IA, editável diretamente ou via prompt
  */
 export const riskMatrix = mysqlTable("riskMatrix", {
@@ -239,6 +259,34 @@ export const actionPlans = mysqlTable("actionPlans", {
 
 export type ActionPlan = typeof actionPlans.$inferSelect;
 export type InsertActionPlan = typeof actionPlans.$inferInsert;
+
+/**
+ * Histórico de Versões do Plano de Ação
+ */
+export const actionPlanVersions = mysqlTable("actionPlanVersions", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  actionPlanId: int("actionPlanId").notNull(),
+  planData: text("planData").notNull(),
+  version: int("version").notNull(),
+  templateId: int("templateId"),
+  generatedAt: timestamp("generatedAt").notNull(),
+  generatedBy: int("generatedBy").notNull(),
+  generatedByAI: boolean("generatedByAI").notNull(),
+  status: mysqlEnum("status", [
+    "em_avaliacao",
+    "aprovado",
+    "reprovado",
+    "em_ajuste"
+  ]).notNull(),
+  approvedAt: timestamp("approvedAt"),
+  approvedBy: int("approvedBy"),
+  rejectionReason: text("rejectionReason"),
+  archivedAt: timestamp("archivedAt").defaultNow().notNull(),
+});
+
+export type ActionPlanVersion = typeof actionPlanVersions.$inferSelect;
+export type InsertActionPlanVersion = typeof actionPlanVersions.$inferInsert;
 
 /**
  * Histórico de edições via Prompt - Plano de Ação

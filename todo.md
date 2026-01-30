@@ -201,3 +201,31 @@
 - [x] Verificar que procedimento projects.getById já existe no router (linha 61-71)
 - [x] Identificar que o problema é versão publicada desatualizada (checkpoint antigo)
 - [ ] Republicar versão mais recente com todas as correções
+
+## Feature: Histórico de Versões (Briefing e Plano de Ação)
+- [x] Criar tabela briefingVersions no schema do banco de dados
+- [x] Criar tabela actionPlanVersions no schema do banco de dados
+- [x] Aplicar migração no banco de dados (pnpm db:push)
+- [x] Implementar lógica para salvar versão anterior ao regenerar (saveBriefing e saveActionPlan)
+- [x] Criar procedimento tRPC briefing.listVersions
+- [x] Criar procedimento tRPC actionPlan.listVersions
+- [x] Criar procedimento tRPC briefing.getVersion
+- [x] Criar procedimento tRPC actionPlan.getVersion
+- [x] Criar componente VersionHistory.tsx para exibir timeline
+- [x] Adicionar botão "Ver Histórico" nas páginas de Briefing e Plano de Ação
+- [x] Implementar modal/página de histórico com lista de versões
+- [x] Adicionar timestamps e informações de quem gerou cada versão
+- [x] Implementar visualização de versões antigas dentro do modal
+- [ ] Testar funcionalidade completa em desenvolvimento
+- [ ] Testar em produção após publicação
+- [ ] Testar criação e visualização de múltiplas versões
+- [ ] Executar testes unitários
+
+## Feature: Feedback Visual para Operações LLM Longas
+- [x] Criar componente GenerationProgressModal com timer e barra de progresso
+- [x] Adicionar estimativa de tempo baseada em operações anteriores
+- [x] Mostrar mensagens informativas sobre o que está acontecendo
+- [x] Adicionar possibilidade de cancelar operação (opcional)
+- [x] Integrar modal na página de Briefing
+- [x] Integrar modal na página de Plano de Ação
+- [x] Testar funcionalidade em desenvolvimento (modal implementado e funcionando)

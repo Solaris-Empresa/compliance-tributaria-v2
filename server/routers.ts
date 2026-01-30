@@ -537,6 +537,25 @@ Retorne APENAS JSON válido no formato:
 
         return parsed;
       }),
+
+    listVersions: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        // Validar acesso ao projeto
+        await validateProjectAccess(ctx, input.projectId);
+        return await db.getBriefingVersions(input.projectId);
+      }),
+
+    getVersion: protectedProcedure
+      .input(z.object({ 
+        projectId: z.number(),
+        version: z.number()
+      }))
+      .query(async ({ input, ctx }) => {
+        // Validar acesso ao projeto
+        await validateProjectAccess(ctx, input.projectId);
+        return await db.getBriefingVersion(input.projectId, input.version);
+      }),
   }),
 
   // ==========================================================================
@@ -1052,6 +1071,25 @@ Retorne APENAS JSON válido no formato:
         });
 
         return { plan: JSON.parse(content), version: currentVersion + 1, planId: newPlanId };
+      }),
+
+    listVersions: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        // Validar acesso ao projeto
+        await validateProjectAccess(ctx, input.projectId);
+        return await db.getActionPlanVersions(input.projectId);
+      }),
+
+    getVersion: protectedProcedure
+      .input(z.object({ 
+        projectId: z.number(),
+        version: z.number()
+      }))
+      .query(async ({ input, ctx }) => {
+        // Validar acesso ao projeto
+        await validateProjectAccess(ctx, input.projectId);
+        return await db.getActionPlanVersion(input.projectId, input.version);
       }),
   }),
 

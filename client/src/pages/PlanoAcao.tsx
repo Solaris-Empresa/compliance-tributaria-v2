@@ -20,6 +20,8 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
+import { VersionHistory } from "@/components/VersionHistory";
+import { GenerationProgressModal } from "@/components/GenerationProgressModal";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function PlanoAcao() {
@@ -32,6 +34,8 @@ export default function PlanoAcao() {
   const [isEditingPrompt, setIsEditingPrompt] = useState(false);
   const [editedPrompt, setEditedPrompt] = useState("");
   const [showHistory, setShowHistory] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [selectedVersion, setSelectedVersion] = useState<number | null>(null);
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
   const [approvalComment, setApprovalComment] = useState("");
   const [approvalAction, setApprovalAction] = useState<"aprovar" | "rejeitar">("aprovar");
@@ -50,6 +54,11 @@ export default function PlanoAcao() {
 
   const { data: project } = trpc.projects.getById.useQuery({ id: projectId });
   const { data: actionPlan, refetch } = trpc.actionPlan.get.useQuery({ projectId });
+  const { data: versions } = trpc.actionPlan.listVersions.useQuery({ projectId });
+  const { data: versionData } = trpc.actionPlan.getVersion.useQuery(
+    { projectId, version: selectedVersion! },
+    { enabled: selectedVersion !== null }
+  );
   const { data: promptHistory } = trpc.actionPlan.get.useQuery(
     { planId: actionPlan?.id || 0 },
     { enabled: !!actionPlan?.id }
@@ -426,14 +435,22 @@ export default function PlanoAcao() {
                     </CardDescription>
                   </div>
                   <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowVersionHistory(true)}
+                    >
+                      <History className="h-4 w-4 mr-2" />
+                      Versões ({versions?.length || 0})
+                    </Button>
                     {promptHistory && promptHistory.length > 0 && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setShowHistory(true)}
                       >
-                        <History className="h-4 w-4 mr-2" />
-                        Histórico ({promptHistory.length})
+                        <FileText className="h-4 w-4 mr-2" />
+                        Histórico de Prompts ({promptHistory.length})
                       </Button>
                     )}
                     {!isEditingPrompt && (
@@ -1128,7 +1145,92 @@ export default function PlanoAcao() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Modal de Histórico de Versões */}
+        <Dialog open={showVersionHistory} onOpenChange={setShowVersionHistory}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Histórico de Versões do Plano de Ação</DialogTitle>
+              <DialogDescription>
+                Visualize e compare versões anteriores do plano de ação gerado
+              </DialogDescription>
+            </DialogHeader>
+            <VersionHistory
+              versions={versions || []}
+              currentVersion={actionPlan?.version || 1}
+              type="actionPlan"
+              onViewVersion={(version) => {
+                setSelectedVersion(version);
+                toast.info(`Visualizando versão ${version}`);
+              }}
+            />
+            
+            {/* Visualização da versão selecionada */}
+            {selectedVersion && versionData && (() => {
+              try {
+                const planData = JSON.parse(versionData.planData);
+                const phases = planData.phases || [];
+                
+                return (
+                  <div className="mt-6 border-t pt-6">
+                    <h3 className="text-lg font-semibold mb-4">Versão {selectedVersion}</h3>
+                    <div className="space-y-4">
+                      {phases.map((phase: any, phaseIdx: number) => (
+                        <Card key={phaseIdx}>
+                          <CardHeader>
+                            <CardTitle className="text-base">
+                              {phase.name}
+                            </CardTitle>
+                            {phase.description && (
+                              <CardDescription>{phase.description}</CardDescription>
+                            )}
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {phase.actions?.length || 0} ações • Duração: {phase.durationMonths} meses
+                            </p>
+                            {phase.actions && phase.actions.length > 0 && (
+                              <div className="space-y-2">
+                                {phase.actions.slice(0, 3).map((action: any, actionIdx: number) => (
+                                  <div key={actionIdx} className="text-sm border-l-2 border-primary pl-3">
+                                    <p className="font-medium">{action.title}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {action.responsible} • {action.dueDate}
+                                    </p>
+                                  </div>
+                                ))}
+                                {phase.actions.length > 3 && (
+                                  <p className="text-xs text-muted-foreground">
+                                    + {phase.actions.length - 3} ações adicionais
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                );
+              } catch (error) {
+                return (
+                  <div className="mt-6 border-t pt-6 text-center text-red-600">
+                    <p>Erro ao processar dados da versão</p>
+                  </div>
+                );
+              }
+            })()}
+          </DialogContent>
+        </Dialog>
       </div>
+
+      {/* Modal de Progresso de Geração */}
+      <GenerationProgressModal
+        isOpen={isGenerating}
+        title="Gerando Plano de Ação com IA"
+        description="Analisando briefing e matriz de riscos para gerar plano de ação detalhado..."
+        estimatedSeconds={60}
+      />
     </ComplianceLayout>
   );
 }
