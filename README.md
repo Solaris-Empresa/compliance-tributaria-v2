@@ -11,6 +11,7 @@ Sistema completo de gestão de compliance tributário desenvolvido para auxiliar
 - [Controle de Acesso](#controle-de-acesso)
 - [Desenvolvimento](#desenvolvimento)
 - [Testes](#testes)
+- [Troubleshooting](#troubleshooting)
 - [Deploy](#deploy)
 
 ---
@@ -279,6 +280,218 @@ describe("validateProjectAccess - Cliente", () => {
   });
 });
 ```
+
+---
+
+## 🔧 Troubleshooting
+
+Esta seção documenta erros comuns encontrados durante o desenvolvimento e suas soluções práticas. Os problemas estão organizados por categoria para facilitar a identificação e resolução rápida.
+
+### Erros de Validação de Acesso
+
+**Erro: "projectId is required"**
+
+Este erro ocorre quando um procedimento tRPC tenta acessar `input.projectId` antes da validação Zod. O problema era comum em procedimentos que usavam `projectAccessMiddleware` como procedure base.
+
+**Causa raiz**: O middleware `projectAccessMiddleware` tentava extrair `projectId` do input antes do Zod fazer o parse, resultando em `undefined`.
+
+**Solução**: Substitua `projectAccessMiddleware` por `protectedProcedure` e adicione `validateProjectAccess` manualmente dentro da mutation/query.
+
+```typescript
+// ❌ Errado (causa "projectId is required")
+get: projectAccessMiddleware
+  .input(z.object({ projectId: z.number() }))
+  .query(async ({ input }) => {
+    return await db.getProjectById(input.projectId);
+  }),
+
+// ✅ Correto
+get: protectedProcedure
+  .input(z.object({ projectId: z.number() }))
+  .query(async ({ input, ctx }) => {
+    await validateProjectAccess(ctx, input.projectId);
+    return await db.getProjectById(input.projectId);
+  }),
+```
+
+**Erro: "Access denied"**
+
+Este erro indica que um usuário autenticado tentou acessar um projeto sem permissão. O sistema valida acesso baseado em roles e vinculação ao projeto.
+
+**Causas comuns**: Cliente tentando acessar projeto no qual não está vinculado. Usuário com role incorreto tentando executar operação privilegiada. Token de autenticação expirado ou inválido.
+
+**Solução**: Verifique que o usuário tem o role adequado (`equipe_solaris`, `advogado_senior` ou `cliente`). Para clientes, confirme que estão vinculados ao projeto através da tabela `project_participants`. Valide que o token JWT não expirou verificando o cookie de sessão.
+
+**Erro: "Project not found"**
+
+Este erro ocorre quando um procedimento tenta acessar um projeto que não existe no banco de dados.
+
+**Causas comuns**: ID de projeto inválido ou inexistente passado na requisição. Projeto foi deletado mas o frontend ainda mantém referência. Erro de tipo (string ao invés de number) no projectId.
+
+**Solução**: Verifique que o projectId existe no banco de dados usando Drizzle Studio (`pnpm db:studio`). Confirme que o tipo do parâmetro é `number` e não `string`. Adicione validação no frontend para prevenir requisições com IDs inválidos.
+
+### Erros de Geração via IA
+
+**Erro: "LLM invoke failed: 412 Precondition Failed – usage exhausted"**
+
+Este erro indica que a conta atingiu o limite de uso da API de LLM. É comum durante desenvolvimento intensivo ou execução de testes automatizados.
+
+**Solução temporária**: Aguarde alguns minutos para o limite ser resetado. Marque testes que envolvem LLM como `skip` durante desenvolvimento.
+
+**Solução permanente**: Implemente mocks para `invokeLLM` usando `vi.mock()` do Vitest. Configure rate limiting no frontend para prevenir chamadas excessivas. Adicione cache de respostas LLM para perguntas frequentes.
+
+**Erro: Geração de briefing/plano de ação trava no loading**
+
+Este problema ocorre quando a geração via LLM demora mais que o esperado ou falha silenciosamente.
+
+**Diagnóstico**: Verifique logs do navegador em `.manus-logs/browserConsole.log` procurando por erros de timeout. Verifique logs do servidor em `.manus-logs/devserver.log` para erros de API LLM. Confirme que o procedimento `generate` está sendo chamado verificando network requests.
+
+**Solução**: Aumente o timeout do procedimento se a geração é legítima mas lenta. Adicione retry logic com backoff exponencial para falhas temporárias. Implemente feedback visual de progresso (ex: "Analisando respostas...", "Gerando recomendações...").
+
+**Erro: Perguntas da Fase 2 não são geradas**
+
+Este problema ocorre quando o procedimento `assessmentPhase2.generateQuestions` não é chamado ou falha.
+
+**Causas comuns**: Fase 1 não foi completada antes de tentar gerar perguntas. Validação de acesso ao projeto falhando. Erro na serialização de dados da Fase 1.
+
+**Solução**: Confirme que `assessmentPhase1` foi salvo com sucesso verificando o banco de dados. Verifique que o usuário tem permissão para acessar o projeto. Valide que os dados da Fase 1 estão no formato esperado (JSON válido).
+
+### Erros de Salvamento de Dados
+
+**Erro: "Erro ao salvar" (Assessment Fase 2)**
+
+Este erro ocorria quando o frontend tentava salvar respostas da Fase 2 mas o procedimento `assessmentPhase2.save` não existia.
+
+**Status**: Corrigido na versão 8766acff. O procedimento `save` foi adicionado como alias para `saveAnswers`.
+
+**Prevenção**: Sempre verifique que procedimentos chamados pelo frontend existem no backend. Adicione testes de integração que validam contratos entre cliente e servidor.
+
+**Erro: Progresso do assessment é perdido ao navegar entre páginas**
+
+Este problema ocorre quando o salvamento automático não está funcionando ou as respostas não são persistidas corretamente.
+
+**Diagnóstico**: Verifique console do navegador procurando por erros de salvamento. Confirme que o `useEffect` de salvamento automático está sendo acionado (adicione `console.log` temporário). Verifique que as respostas estão sendo salvas no banco de dados.
+
+**Solução**: Confirme que o procedimento `save` existe e está funcionando corretamente. Aumente a frequência de salvamento automático se necessário (padrão: 30 segundos). Adicione indicação visual de "salvando..." para feedback ao usuário.
+
+**Erro: "Invalid JSON" ao salvar respostas**
+
+Este erro ocorre quando o frontend envia dados em formato incorreto para procedimentos que esperam JSON stringificado.
+
+**Causa raiz**: Alguns procedimentos esperam `answers` como string JSON, mas o frontend pode estar enviando objeto JavaScript.
+
+**Solução**: Use `JSON.stringify(answers)` antes de enviar para procedimentos que esperam string. Valide o schema Zod do procedimento para confirmar o tipo esperado. Considere padronizar para sempre aceitar objetos e fazer stringify no backend.
+
+### Erros de Testes
+
+**Erro: Testes excedem timeout de 5 segundos**
+
+Este problema ocorre em testes que envolvem geração via LLM ou operações demoradas no banco de dados.
+
+**Solução**: Configure timeout global no `vitest.config.ts` com `testTimeout: 60000` (60 segundos). Marque testes lentos como `skip` durante desenvolvimento rápido. Implemente mocks para LLM para acelerar testes.
+
+**Erro: "No procedure found on path"**
+
+Este erro indica que o teste está tentando chamar um procedimento tRPC que não existe.
+
+**Causas comuns**: Nome do procedimento incorreto no teste. Procedimento foi renomeado mas teste não foi atualizado. Procedimento existe mas não foi exportado no router.
+
+**Solução**: Verifique que o nome do procedimento no teste corresponde exatamente ao definido em `routers.ts`. Confirme que o procedimento está dentro do router correto. Use autocomplete do TypeScript para evitar erros de digitação.
+
+**Erro: Testes falhando com "data is undefined"**
+
+Este erro ocorre quando um teste espera que uma query retorne dados mas recebe `undefined`.
+
+**Causas comuns**: Dados de teste não foram criados antes da query. Validação de acesso negando a query. Campo esperado não existe no schema do banco de dados.
+
+**Solução**: Adicione setup adequado no `beforeEach` para criar dados de teste. Verifique que o caller do teste tem permissões adequadas. Confirme que o campo existe no schema Drizzle e foi migrado para o banco.
+
+### Erros de Banco de Dados
+
+**Erro: "Column not found"**
+
+Este erro ocorre quando o código tenta acessar uma coluna que não existe no banco de dados.
+
+**Causa raiz**: Schema Drizzle foi modificado mas migração não foi aplicada ao banco de dados.
+
+**Solução**: Execute `pnpm db:push` para aplicar mudanças de schema ao banco. Verifique que a coluna foi criada usando Drizzle Studio (`pnpm db:studio`). Se o problema persistir, delete o banco de dados de desenvolvimento e recrie com `pnpm db:push`.
+
+**Erro: "Foreign key constraint fails"**
+
+Este erro ocorre ao tentar inserir ou deletar registros que violam constraints de chave estrangeira.
+
+**Causas comuns**: Tentando criar registro que referencia ID inexistente. Tentando deletar registro que é referenciado por outros registros. Ordem incorreta de inserção (filho antes do pai).
+
+**Solução**: Verifique que IDs referenciados existem antes de inserir. Implemente cascade delete no schema Drizzle se apropriado. Insira registros pai antes dos filhos.
+
+**Erro: Conexão com banco de dados falha**
+
+Este problema ocorre quando o servidor não consegue conectar ao banco de dados.
+
+**Diagnóstico**: Verifique que `DATABASE_URL` está configurado corretamente no `.env`. Confirme que o banco de dados está rodando e acessível. Teste conexão manualmente usando cliente MySQL.
+
+**Solução**: Valide formato da connection string (deve incluir host, porta, usuário, senha, database). Verifique firewall e regras de segurança se usando banco remoto. Confirme que credenciais estão corretas.
+
+### Erros de Frontend
+
+**Erro: "Cannot read property 'X' of undefined"**
+
+Este erro comum ocorre quando o código tenta acessar propriedade de objeto que é `undefined`.
+
+**Causas comuns**: Query tRPC ainda está carregando (`data` é `undefined`). Backend retornou `null` mas frontend não trata esse caso. Destructuring de objeto opcional sem validação.
+
+**Solução**: Sempre verifique `isLoading` antes de acessar `data` de queries. Use optional chaining (`data?.field`) para acessar propriedades opcionais. Adicione estados de loading e empty no componente.
+
+```typescript
+// ❌ Errado
+const { data } = trpc.projects.getById.useQuery({ id });
+return <div>{data.name}</div>;
+
+// ✅ Correto
+const { data, isLoading } = trpc.projects.getById.useQuery({ id });
+if (isLoading) return <Spinner />;
+if (!data) return <div>Projeto não encontrado</div>;
+return <div>{data.name}</div>;
+```
+
+**Erro: Infinite loop de re-renders**
+
+Este problema ocorre quando um componente React entra em loop infinito de renderização.
+
+**Causas comuns**: Criar novo objeto/array em render que é usado como dependência de `useEffect`. Atualizar estado dentro de render sem condição. Query tRPC com input instável (novo objeto a cada render).
+
+**Solução**: Use `useState` ou `useMemo` para estabilizar referências de objetos/arrays. Mova atualizações de estado para `useEffect` ou event handlers. Estabilize inputs de queries tRPC com `useMemo`.
+
+```typescript
+// ❌ Errado (infinite loop)
+const { data } = trpc.items.getByDate.useQuery({
+  date: new Date(), // Novo objeto a cada render!
+});
+
+// ✅ Correto
+const [date] = useState(() => new Date());
+const { data } = trpc.items.getByDate.useQuery({ date });
+```
+
+**Erro: Toast de erro aparece múltiplas vezes**
+
+Este problema ocorre quando o mesmo erro é capturado e exibido múltiplas vezes.
+
+**Causas comuns**: Query tRPC com retry automático mostrando toast a cada tentativa. Múltiplos componentes ouvindo o mesmo erro. Error boundary e handler local ambos mostrando toast.
+
+**Solução**: Configure `retry: false` em queries que não devem retentar automaticamente. Centralize tratamento de erros em um único local (error boundary ou mutation handler). Use debounce para prevenir toasts duplicados.
+
+### Dicas Gerais de Debug
+
+**Logs estruturados**: O sistema mantém logs estruturados em `.manus-logs/` que facilitam debugging. Use `tail -f .manus-logs/devserver.log` para acompanhar logs do servidor em tempo real. Verifique `browserConsole.log` para erros do frontend. Analise `networkRequests.log` para debugar chamadas tRPC.
+
+**Drizzle Studio**: Use `pnpm db:studio` para visualizar e editar dados do banco durante desenvolvimento. É especialmente útil para verificar se dados foram salvos corretamente ou para criar dados de teste manualmente.
+
+**TypeScript errors**: Sempre resolva erros de TypeScript antes de executar testes. Erros de tipo frequentemente indicam problemas reais de lógica que falhariam em runtime.
+
+**Testes incrementais**: Ao adicionar novos procedimentos, escreva testes imediatamente. Testes incrementais são mais fáceis de debugar que suites grandes.
+
+**Hot reload**: O servidor de desenvolvimento suporta hot reload tanto para cliente quanto servidor. Se mudanças não aparecem, tente reiniciar o servidor com `pnpm dev`.
 
 ---
 

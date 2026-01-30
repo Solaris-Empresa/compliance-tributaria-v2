@@ -192,3 +192,6 @@
 - [x] Remover completamente a definição de projectAccessMiddleware
 - [x] Executar todos os testes para validar refatoração (10 passed, 5 skipped)
 - [x] Documentar padrão de validação de acesso no README
+
+## Documentação - Troubleshooting
+- [x] Adicionar seção de troubleshooting ao README com erros comuns e soluções
