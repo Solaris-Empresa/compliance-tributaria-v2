@@ -284,3 +284,5 @@ teste
 - [x] Implementar visualização consolidada de riscos na página global Matriz de Riscos
 - [x] Criar endpoint riskMatrix.listAll para buscar todos os riscos
 - [x] Adicionar filtros por projeto, status e busca por texto
+
+- [x] Bug CRÍTICO: Formulário da Fase 1 não aparece - fases mostram status "pending" sem botão de acesso

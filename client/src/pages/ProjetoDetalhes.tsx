@@ -117,6 +117,17 @@ export default function ProjetoDetalhes() {
   ];
 
   const getPhaseStatus = (phase: typeof phases[0]) => {
+    // Fase 1 (assessment_fase1) SEMPRE deve estar acessível
+    if (phase.id === "assessment_fase1") {
+      // Se o projeto está em rascunho ou assessment_fase1, é a fase atual
+      if (project.status === "rascunho" || project.status === "assessment_fase1") {
+        return "current";
+      }
+      // Se já passou da Fase 1, está completa
+      return "completed";
+    }
+
+    // Para as demais fases, usar lógica original
     if (phase.requiredStatus.includes(project.status)) {
       if (phase.id === project.status) {
         return "current";
