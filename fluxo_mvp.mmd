@@ -1,0 +1,54 @@
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#4472C4','primaryTextColor':'#fff','primaryBorderColor':'#2E5C9A','lineColor':'#5B9BD5','secondaryColor':'#70AD47','tertiaryColor':'#FFC000'}}}%%
+
+graph TB
+    Start([👤 Início: Usuário Acessa Plataforma])
+    
+    Start --> Auth{🔐 Autenticação<br/>OAuth Manus}
+    
+    Auth -->|Sucesso| Dashboard[📊 Painel Principal<br/>Visão Geral de Projetos]
+    Auth -->|Falha| Start
+    
+    Dashboard --> Menu{📋 Menu de Navegação}
+    
+    Menu --> Clientes[👥 Gestão de Clientes<br/>Cadastro e Listagem]
+    Menu --> Projetos[📁 Gestão de Projetos<br/>Criar/Editar/Visualizar]
+    Menu --> Indicadores[📈 Painel de Indicadores<br/>KPIs e Métricas]
+    Menu --> Modelos[📄 Modelos Padrões<br/>Templates e Documentos]
+    
+    Clientes --> CadCliente[➕ Cadastrar Cliente<br/>Razão Social, CNPJ, Contato]
+    CadCliente --> ListaClientes[📋 Lista de Clientes]
+    ListaClientes --> Projetos
+    
+    Projetos --> CriarProjeto[➕ Criar Projeto<br/>Vincular Cliente]
+    CriarProjeto --> Avaliacao1[📝 Avaliação Fase 1<br/>Regime, Porte, Receita]
+    
+    Avaliacao1 --> Avaliacao2[📝 Avaliação Fase 2<br/>Perguntas Complementares]
+    
+    Avaliacao2 --> GerarBriefing[🤖 Gerar Levantamento Inicial<br/>IA Analisa Dados]
+    
+    GerarBriefing --> Briefing[📄 Levantamento Inicial Gerado<br/>Documento Completo]
+    
+    Briefing --> PlanoAcao[✅ Plano de Ação<br/>Tarefas e Responsáveis]
+    
+    PlanoAcao --> CriarTarefa[➕ Criar Tarefas<br/>Título, Responsável, Prazo]
+    
+    CriarTarefa --> Kanban[📊 Quadro Kanban<br/>A Fazer → Em Andamento → Concluído]
+    
+    Kanban --> Acompanhamento[👁️ Acompanhamento<br/>Status e Progresso]
+    
+    Acompanhamento --> Indicadores
+    
+    Indicadores --> Relatorios[📊 Relatórios e Gráficos<br/>Distribuição por Status/Regime]
+    
+    Relatorios --> Fim([✅ Fim: Projeto Gerenciado])
+    
+    Modelos --> ConsultaModelo[📖 Consultar Modelos<br/>Checklist, Formulários]
+    ConsultaModelo --> Projetos
+    
+    style Start fill:#4472C4,stroke:#2E5C9A,stroke-width:3px,color:#fff
+    style Auth fill:#FFC000,stroke:#D99000,stroke-width:2px
+    style Dashboard fill:#70AD47,stroke:#548235,stroke-width:2px,color:#fff
+    style GerarBriefing fill:#FF6B6B,stroke:#C92A2A,stroke-width:2px,color:#fff
+    style Briefing fill:#4ECDC4,stroke:#2C7873,stroke-width:2px,color:#fff
+    style Kanban fill:#9B59B6,stroke:#7D3C98,stroke-width:2px,color:#fff
+    style Fim fill:#27AE60,stroke:#1E8449,stroke-width:3px,color:#fff

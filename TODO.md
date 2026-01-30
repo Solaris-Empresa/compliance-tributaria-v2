@@ -226,4 +226,33 @@ teste
   - [x] Links de navegação atualizados em todos os arquivos
   - [x] Testes 22/22 passando (100%)
 
-- [ ] Criar documento BACKLOG.md com normalização 1:N e sistema de permissões
+- [x] Criar documento BACKLOG.md com normalização 1:N e sistema de permissões
+  - [x] Documentado relacionamento 1:N entre clients e projects
+  - [x] Detalhado sistema RBAC com 6 perfis de usuário (admin_solaris, gestor_solaris, equipe_solaris, gestor_cliente, usuario_cliente, auditor)
+  - [x] Especificadas tabelas de controle de acesso (user_client_assignments, project_permissions)
+  - [x] Incluídos 4 casos de uso detalhados e matriz de permissões completa
+  - [x] Definida ordem de implementação em 5 fases e métricas de sucesso
+  - [x] Documento enviado para GitHub
+
+- [x] Criar planilha Excel com 10 casos de teste para validação
+  - [x] 10 casos de teste cobrindo: Autenticação, Projetos, Avaliação (Fase 1 e 2), Plano de Ação, Kanban, Painel de Indicadores, Modelos Padrões, Clientes e Navegação
+  - [x] Planilha com 2 abas: 'Casos de Teste' e 'Instruções'
+  - [x] Campos: ID, Módulo, Caso de Teste, Pré-condições, Passos, Resultado Esperado, Status, Observações
+  - [x] Formatação profissional com cores, bordas e alinhamento
+  - [x] Instruções de uso e priorização de testes
+
+- [x] Adicionar aba com 10 dados de empresas fictícias na planilha de testes
+  - [x] 10 empresas de setores variados: TI, Comércio, Indústria, Consultoria, Transporte, Saúde, Construção, Educação, Marketing, Atacado
+  - [x] Campos: ID, Razão Social, Nome Fantasia, CNPJ, Regime Tributário, Porte, Receita Anual, Setor, Telefone, Email, Responsável
+  - [x] Dados realistas com CNPJs formatados, telefones e emails válidos
+  - [x] Cobertura de todos os regimes: Simples Nacional, Lucro Presumido, Lucro Real
+  - [x] Cobertura de todos os portes: MEI, Micro, Pequena, Média, Grande
+
+- [x] Criar infográfico visual com o fluxo macro do MVP
+  - [x] Diagrama Mermaid criado com 20+ etapas do fluxo
+  - [x] Cores temáticas para diferenciar módulos (Autenticação, Gestão, IA, Kanban)
+  - [x] Ícones visuais para facilitar compreensão
+  - [x] Fluxo end-to-end: Autenticação → Clientes → Projetos → Avaliação → Levantamento Inicial → Plano de Ação → Kanban → Indicadores
+  - [x] Imagem PNG gerada em alta resolução
+
+- [x] Documentar detalhes da análise da IA na Geração de Levantamento Inicial
