@@ -191,4 +191,4 @@
 - [x] Refatorar cada procedimento para usar protectedProcedure + validateProjectAccess (10 procedimentos)
 - [x] Remover completamente a definição de projectAccessMiddleware
 - [x] Executar todos os testes para validar refatoração (10 passed, 5 skipped)
-- [ ] Documentar padrão de validação de acesso no README
+- [x] Documentar padrão de validação de acesso no README
