@@ -12,40 +12,6 @@ import { generateTemplatePDF } from "./templatePdf";
 // HELPERS
 // ============================================================================
 
-// Middleware para validar acesso ao projeto
-// IMPORTANTE: Este middleware deve ser usado APÓS .input() para garantir que o projectId foi validado
-const createProjectAccessMiddleware = () => {
-  return protectedProcedure.use(async ({ ctx, next, input }) => {
-    console.log('[projectAccessMiddleware] input:', JSON.stringify(input, null, 2));
-    console.log('[projectAccessMiddleware] ctx.user:', ctx.user?.id, ctx.user?.email);
-    
-    const projectId = (input as any)?.projectId;
-    console.log('[projectAccessMiddleware] Extracted projectId:', projectId);
-    
-    if (!projectId) {
-      console.error('[projectAccessMiddleware] ERROR: projectId is missing from input');
-      throw new TRPCError({ code: "BAD_REQUEST", message: "projectId is required" });
-    }
-
-    const project = await db.getProjectById(projectId);
-    if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
-
-    // Equipe SOLARIS e Advogado Sênior têm acesso total
-    if (ctx.user.role === "equipe_solaris" || ctx.user.role === "advogado_senior") {
-      return next({ ctx: { ...ctx, project } });
-    }
-
-    // Cliente precisa estar vinculado ao projeto
-    const hasAccess = await db.isUserInProject(ctx.user.id, projectId);
-    if (!hasAccess) throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
-
-    return next({ ctx: { ...ctx, project } });
-  });
-};
-
-// Helper para criar procedure com validação de acesso ao projeto
-const projectAccessMiddleware = createProjectAccessMiddleware();
-
 // Helper function para validar acesso ao projeto dentro de mutations/queries
 const validateProjectAccess = async (ctx: any, projectId: number) => {
   const project = await db.getProjectById(projectId);
@@ -127,7 +93,7 @@ export const appRouter = router({
         return { projectId };
       }),
 
-    update: projectAccessMiddleware
+    update: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         name: z.string().optional(),
@@ -135,8 +101,9 @@ export const appRouter = router({
         notificationFrequency: z.enum(["diaria", "semanal", "apenas_atrasos", "marcos_importantes", "personalizada"]).optional(),
         notificationEmail: z.string().email().optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const { projectId, ...data } = input;
+        await validateProjectAccess(ctx, projectId);
         await db.updateProject(projectId, data);
         return { success: true };
       }),
@@ -627,15 +594,17 @@ Retorne APENAS JSON válido no formato:
         return { success: true };
       }),
 
-    get: projectAccessMiddleware
+    get: protectedProcedure
       .input(z.object({ projectId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         return await db.getRiskMatrix(input.projectId);
       }),
 
-    generate: projectAccessMiddleware
+    generate: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .mutation(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         const briefing = await db.getBriefing(input.projectId);
         if (!briefing) {
           throw new TRPCError({ code: "BAD_REQUEST", message: "Generate briefing first" });
@@ -711,12 +680,13 @@ Retorne APENAS JSON válido no formato:
         return { risks: parsed.risks };
       }),
 
-    editViaPrompt: projectAccessMiddleware
+    editViaPrompt: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         promptText: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         const currentRisks = await db.getRiskMatrix(input.projectId);
         if (currentRisks.length === 0) {
           throw new TRPCError({ code: "BAD_REQUEST", message: "Generate matrix first" });
@@ -935,7 +905,7 @@ Retorne APENAS JSON válido no formato:
         return { plan: parsed, planId };
       }),
 
-    approve: projectAccessMiddleware
+    approve: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         planId: z.number(),
@@ -996,13 +966,14 @@ Retorne APENAS JSON válido no formato:
         return { success: true, tasksCreated };
       }),
 
-    reject: projectAccessMiddleware
+    reject: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         planId: z.number(),
         reason: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         // Apenas advogado sênior pode reprovar
         if (ctx.user.role !== "advogado_senior") {
           throw new TRPCError({ code: "FORBIDDEN", message: "Only senior lawyer can reject" });
@@ -1014,12 +985,13 @@ Retorne APENAS JSON válido no formato:
         return { success: true };
       }),
 
-    editViaPrompt: projectAccessMiddleware
+    editViaPrompt: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         promptText: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         const currentPlan = await db.getActionPlan(input.projectId);
         if (!currentPlan) {
           throw new TRPCError({ code: "BAD_REQUEST", message: "Generate plan first" });
@@ -1169,13 +1141,14 @@ Retorne APENAS JSON válido no formato:
   // ==========================================================================
 
   phases: router({
-    list: projectAccessMiddleware
+    list: protectedProcedure
       .input(z.object({ projectId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         return await db.getPhasesByProject(input.projectId);
       }),
 
-    create: projectAccessMiddleware
+    create: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         name: z.string(),
@@ -1183,7 +1156,8 @@ Retorne APENAS JSON válido no formato:
         startDate: z.date().optional(),
         endDate: z.date().optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         const phaseId = await db.createPhase({
           ...input,
           status: "planejada",
@@ -1281,12 +1255,13 @@ Retorne APENAS JSON válido no formato:
         return { success: true };
       }),
 
-    applyTemplate: projectAccessMiddleware
+    applyTemplate: protectedProcedure
       .input(z.object({
         projectId: z.number(),
         templateId: z.number(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         const template = await db.getActionPlanTemplateById(input.templateId);
         if (!template) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Template not found" });

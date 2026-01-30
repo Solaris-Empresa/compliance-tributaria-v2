@@ -185,3 +185,10 @@
 - [x] Aumentar timeout global no vitest.config.ts para 60 segundos
 - [x] Reativar testes skipped que envolvem geração LLM (parcial - 4 testes permanecem skipped)
 - [x] Executar todos os testes e validar sucesso (11 passed, 4 skipped em 13.8s)
+
+## Refatoração de Segurança - projectAccessMiddleware
+- [x] Identificar todos os usos restantes de projectAccessMiddleware no routers.ts (15 usos encontrados)
+- [x] Refatorar cada procedimento para usar protectedProcedure + validateProjectAccess (10 procedimentos)
+- [x] Remover completamente a definição de projectAccessMiddleware
+- [x] Executar todos os testes para validar refatoração (10 passed, 5 skipped)
+- [ ] Documentar padrão de validação de acesso no README
