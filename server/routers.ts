@@ -640,6 +640,24 @@ Retorne APENAS JSON válido no formato:
           throw new TRPCError({ code: "BAD_REQUEST", message: "Generate briefing first" });
         }
 
+        // Salvar versão atual antes de regenerar (se existir)
+        const currentRisks = await db.getRiskMatrix(input.projectId);
+        if (currentRisks.length > 0) {
+          const latestVersion = await db.getLatestVersionNumber(input.projectId);
+          await db.saveRiskMatrixVersion({
+            projectId: input.projectId,
+            versionNumber: latestVersion + 1,
+            snapshotData: JSON.stringify(currentRisks),
+            riskCount: currentRisks.length,
+            createdBy: ctx.user.id,
+            createdByName: ctx.user.name || "Usuário",
+            triggerType: latestVersion === 0 ? "auto_generation" : "manual_regeneration",
+          });
+
+          // Limpar riscos antigos
+          await db.deleteRisksByProject(input.projectId);
+        }
+
         const prompt = `Você é um especialista em gestão de riscos tributários.
 
 Com base no briefing gerado:
@@ -792,6 +810,85 @@ Retorne APENAS JSON válido no formato:
         });
 
         return { risks: parsed.risks, version: currentVersion + 1 };
+      }),
+
+    // Listar versões da matriz de riscos
+    listVersions: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
+        return await db.getRiskMatrixVersions(input.projectId);
+      }),
+
+    // Obter versão específica
+    getVersion: protectedProcedure
+      .input(z.object({ 
+        projectId: z.number(),
+        versionNumber: z.number()
+      }))
+      .query(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
+        const version = await db.getRiskMatrixVersion(input.projectId, input.versionNumber);
+        if (!version) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Version not found" });
+        }
+        return {
+          ...version,
+          risks: JSON.parse(version.snapshotData)
+        };
+      }),
+
+    // Comparar duas versões
+    compareVersions: protectedProcedure
+      .input(z.object({ 
+        projectId: z.number(),
+        version1: z.number(),
+        version2: z.number()
+      }))
+      .query(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
+        
+        const v1 = await db.getRiskMatrixVersion(input.projectId, input.version1);
+        const v2 = await db.getRiskMatrixVersion(input.projectId, input.version2);
+        
+        if (!v1 || !v2) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Version not found" });
+        }
+        
+        const risks1 = JSON.parse(v1.snapshotData);
+        const risks2 = JSON.parse(v2.snapshotData);
+        
+        // Comparar riscos
+        const added = risks2.filter((r2: any) => 
+          !risks1.some((r1: any) => r1.riskDescription === r2.riskDescription)
+        );
+        
+        const removed = risks1.filter((r1: any) => 
+          !risks2.some((r2: any) => r2.riskDescription === r1.riskDescription)
+        );
+        
+        const modified = risks2.filter((r2: any) => {
+          const r1 = risks1.find((r: any) => r.riskDescription === r2.riskDescription);
+          if (!r1) return false;
+          return JSON.stringify(r1) !== JSON.stringify(r2);
+        });
+        
+        const unchanged = risks2.filter((r2: any) => {
+          const r1 = risks1.find((r: any) => r.riskDescription === r2.riskDescription);
+          if (!r1) return false;
+          return JSON.stringify(r1) === JSON.stringify(r2);
+        });
+        
+        return {
+          version1: v1,
+          version2: v2,
+          comparison: {
+            added,
+            removed,
+            modified,
+            unchanged
+          }
+        };
       }),
   }),
 

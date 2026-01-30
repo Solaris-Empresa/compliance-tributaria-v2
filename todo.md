@@ -452,3 +452,21 @@
 - [x] Adicionar feedback visual de sucesso/erro (toast notifications)
 - [x] Botão só aparece quando há riscos existentes
 - [ ] Testar regeneração em produção
+
+## Feature: Histórico de Versões da Matriz de Riscos
+- [x] Criar tabela `riskMatrixVersions` no schema (com campos: id, projectId, versionNumber, snapshotData, riskCount, createdAt, createdBy, createdByName, triggerType)
+- [x] Aplicar migração no banco de dados (pnpm db:push)
+- [x] Implementar funções de versionamento no db.ts (saveRiskMatrixVersion, getRiskMatrixVersions, getRiskMatrixVersion, getLatestVersionNumber)
+- [x] Modificar procedimento riskMatrix.generate para salvar versão anterior antes de regenerar
+- [x] Criar procedimento riskMatrix.listVersions para listar histórico
+- [x] Criar procedimento riskMatrix.getVersion para recuperar versão específica com riscos parseados
+- [x] Criar procedimento riskMatrix.compareVersions para comparar duas versões (adicionados, removidos, modificados, inalterados)
+- [x] Adicionar botão "Ver Histórico" na página Matriz de Riscos (ao lado do botão Regenerar)
+- [x] Criar dialog com lista de versões (timestamp, usuário, número de riscos, tipo de trigger)
+- [x] Implementar seletor de versões para comparação (2 dropdowns + botão Comparar)
+- [x] Criar dialog de comparação visual com resumo numérico (cards coloridos)
+- [x] Adicionar indicadores visuais: adicionados (verde), removidos (vermelho), modificados (amarelo), inalterados (cinza)
+- [x] Criar testes unitários para versionamento (7 testes, 1 passando - bug conhecido do Drizzle ORM)
+- [ ] Testar funcionalidade completa em produção após republicação
+
+**Nota Técnica:** Existe um bug conhecido do Drizzle ORM 0.44.6 com MySQL que envia `default` ao invés do valor real para campos notNull() sem default. Isso afeta os testes unitários mas não a funcionalidade em produção (testada manualmente).

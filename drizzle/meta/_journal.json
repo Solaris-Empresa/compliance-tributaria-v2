@@ -43,6 +43,13 @@
       "when": 1769774577161,
       "tag": "0005_bumpy_christian_walker",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1769793961865,
+      "tag": "0006_glorious_puck",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, json } from "drizzle-orm/mysql-core";
 
 /**
  * Tabela de usuários - IA SOLARIS
@@ -230,6 +230,25 @@ export const riskMatrixPromptHistory = mysqlTable("riskMatrixPromptHistory", {
 
 export type RiskMatrixPromptHistory = typeof riskMatrixPromptHistory.$inferSelect;
 export type InsertRiskMatrixPromptHistory = typeof riskMatrixPromptHistory.$inferInsert;
+
+/**
+ * Histórico de Versões da Matriz de Riscos
+ * Armazena snapshots completos da matriz a cada regeneração
+ */
+export const riskMatrixVersions = mysqlTable("riskMatrixVersions", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  versionNumber: int("versionNumber").notNull(), // 1, 2, 3...
+  snapshotData: text("snapshotData").notNull(), // JSON string com array de riscos completo
+  riskCount: int("riskCount").notNull(), // Número de riscos nesta versão
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  createdBy: int("createdBy").notNull(),
+  createdByName: varchar("createdByName", { length: 255 }), // Nome do usuário para exibição
+  triggerType: mysqlEnum("triggerType", ["auto_generation", "manual_regeneration", "prompt_edit"]).notNull(),
+});
+
+export type RiskMatrixVersion = typeof riskMatrixVersions.$inferSelect;
+export type InsertRiskMatrixVersion = typeof riskMatrixVersions.$inferInsert;
 
 /**
  * Plano de Ação - gerado por IA, editável diretamente ou via prompt

@@ -11,6 +11,7 @@ import {
   briefingVersions, InsertBriefingVersion,
   riskMatrix, InsertRiskMatrix,
   riskMatrixPromptHistory, InsertRiskMatrixPromptHistory,
+  riskMatrixVersions, InsertRiskMatrixVersion,
   actionPlans, InsertActionPlan,
   actionPlanVersions, InsertActionPlanVersion,
   actionPlanPromptHistory, InsertActionPlanPromptHistory,
@@ -412,6 +413,74 @@ export async function deleteRisk(id: number) {
   if (!db) throw new Error("Database not available");
 
   await db.delete(riskMatrix).where(eq(riskMatrix.id, id));
+}
+
+export async function deleteRisksByProject(projectId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(riskMatrix).where(eq(riskMatrix.projectId, projectId));
+}
+
+// ============================================================================
+// RISK MATRIX VERSIONS
+// ============================================================================
+
+export async function saveRiskMatrixVersion(data: {
+  projectId: number;
+  versionNumber: number;
+  snapshotData: string; // JSON string
+  riskCount: number;
+  createdBy: number;
+  createdByName: string;
+  triggerType: "auto_generation" | "manual_regeneration" | "prompt_edit";
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(riskMatrixVersions).values(data);
+}
+
+export async function getRiskMatrixVersions(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(riskMatrixVersions)
+    .where(eq(riskMatrixVersions.projectId, projectId))
+    .orderBy(desc(riskMatrixVersions.versionNumber));
+}
+
+export async function getLatestVersionNumber(projectId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const [latest] = await db
+    .select({ versionNumber: riskMatrixVersions.versionNumber })
+    .from(riskMatrixVersions)
+    .where(eq(riskMatrixVersions.projectId, projectId))
+    .orderBy(desc(riskMatrixVersions.versionNumber))
+    .limit(1);
+
+  return latest?.versionNumber || 0;
+}
+
+export async function getRiskMatrixVersion(projectId: number, versionNumber: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [version] = await db
+    .select()
+    .from(riskMatrixVersions)
+    .where(
+      and(
+        eq(riskMatrixVersions.projectId, projectId),
+        eq(riskMatrixVersions.versionNumber, versionNumber)
+      )
+    );
+
+  return version || null;
 }
 
 export async function getAllRisks(userId: number, userRole: string) {
