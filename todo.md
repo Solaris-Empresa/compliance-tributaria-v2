@@ -817,3 +817,18 @@
 - [x] Usar `generateRisks.isLoading` do tRPC ao invés de estado local
 - [x] Reiniciar servidor e validar correção localmente
 - [ ] Testar correção em produção após republicação
+
+## Feature: Timeout de 120s para Geração de Matriz de Riscos
+- [ ] Implementar timeout de 120 segundos no backend (procedimento riskMatrix.generate)
+- [ ] Adicionar tratamento de erro no frontend quando timeout ocorrer
+- [ ] Exibir mensagem clara ao usuário: "A geração de riscos demorou mais que o esperado. Tente novamente."
+- [ ] Adicionar botão "Tentar Novamente" no estado de erro
+- [ ] Testar timeout forçando delay no backend
+
+## Bug Crítico em Produção #6 - Loop Infinito Voltou na Geração de Riscos
+- [x] Analisar logs do servidor e browser para identificar causa
+- [x] Verificar se correção anterior (generateRisks.isLoading) estava funcionando
+- [x] Identificar por que riscos não são exibidos após geração (refetch é assíncrono, useEffect dispara novamente)
+- [x] Implementar solução definitiva (flag hasAttemptedGeneration)
+- [x] Reiniciar servidor e validar correção localmente
+- [ ] Testar correção em produção após republicação

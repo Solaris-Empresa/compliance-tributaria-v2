@@ -31,6 +31,7 @@ export default function MatrizRiscos() {
   const [novoRisco, setNovoRisco] = useState({ titulo: "", descricao: "" });
   const [editando, setEditando] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [hasAttemptedGeneration, setHasAttemptedGeneration] = useState(false);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
   const [showCompareDialog, setShowCompareDialog] = useState(false);
   const [selectedVersion1, setSelectedVersion1] = useState<string>("");
@@ -108,14 +109,15 @@ export default function MatrizRiscos() {
     },
   });
 
-  // Gerar riscos automaticamente se não existirem
+  // Gerar riscos automaticamente se não existirem (apenas uma vez)
   useEffect(() => {
-    if (project && riscos && riscos.length === 0 && !generateRisks.isLoading && projectId > 0) {
+    if (project && riscos && riscos.length === 0 && !hasAttemptedGeneration && !generateRisks.isLoading && projectId > 0) {
       console.log('[MatrizRiscos] Iniciando geração automática de riscos. projectId:', projectId);
+      setHasAttemptedGeneration(true);
       setIsGenerating(true);
       generateRisks.mutate({ projectId });
     }
-  }, [project, riscos, projectId]);
+  }, [project, riscos, projectId, hasAttemptedGeneration]);
 
   const handleAdicionarRisco = () => {
     if (!novoRisco.titulo.trim()) {
@@ -140,8 +142,8 @@ export default function MatrizRiscos() {
     if (!confirm("Tem certeza que deseja regenerar os riscos? Todos os riscos atuais serão substituídos por uma nova análise da IA.")) {
       return;
     }
-    
-    console.log('[MatrizRiscos] Iniciando regeneração de riscos. projectId:', projectId);
+
+    setHasAttemptedGeneration(false); // Resetar flag para permitir nova geração
     setIsGenerating(true);
     generateRisks.mutate({ projectId });
   };
