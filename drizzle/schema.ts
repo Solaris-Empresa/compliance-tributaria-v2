@@ -178,14 +178,16 @@ export type InsertBriefing = typeof briefings.$inferInsert;
 export const riskMatrix = mysqlTable("riskMatrix", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
-  riskDescription: text("riskDescription").notNull(),
-  probability: mysqlEnum("probability", ["muito_baixa", "baixa", "media", "alta", "muito_alta"]).notNull(),
-  impact: mysqlEnum("impact", ["muito_baixo", "baixo", "medio", "alto", "muito_alto"]).notNull(),
+  title: varchar("title", { length: 500 }).notNull(), // Título do risco (simplificado)
+  description: text("description"), // Descrição detalhada (opcional)
+  riskDescription: text("riskDescription"), // Mantido para compatibilidade com IA
+  probability: mysqlEnum("probability", ["muito_baixa", "baixa", "media", "alta", "muito_alta"]), // Opcional agora
+  impact: mysqlEnum("impact", ["muito_baixo", "baixo", "medio", "alto", "muito_alto"]), // Opcional agora
   treatmentStrategy: text("treatmentStrategy"),
   suggestedControls: text("suggestedControls"),
   expectedEvidence: text("expectedEvidence"),
   version: int("version").default(1).notNull(),
-  generatedByAI: boolean("generatedByAI").default(true).notNull(),
+  generatedByAI: boolean("generatedByAI").default(false).notNull(), // Default false para riscos manuais
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   createdBy: int("createdBy").notNull(),
 });

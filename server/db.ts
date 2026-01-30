@@ -340,6 +340,37 @@ export async function saveRiskPromptHistory(data: InsertRiskMatrixPromptHistory)
   await db.insert(riskMatrixPromptHistory).values(data);
 }
 
+// Funções simplificadas para Matriz de Riscos
+export async function createRisk(data: { projectId: number; title: string; description: string; createdBy: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [result] = await db.insert(riskMatrix).values({
+    projectId: data.projectId,
+    title: data.title,
+    description: data.description,
+    createdBy: data.createdBy,
+    generatedByAI: false,
+  });
+
+  return Number(result.insertId);
+}
+
+export async function getRiskById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [risk] = await db.select().from(riskMatrix).where(eq(riskMatrix.id, id));
+  return risk || null;
+}
+
+export async function deleteRisk(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(riskMatrix).where(eq(riskMatrix.id, id));
+}
+
 // ============================================================================
 // ACTION PLAN
 // ============================================================================

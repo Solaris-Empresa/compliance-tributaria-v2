@@ -256,3 +256,7 @@ teste
   - [x] Imagem PNG gerada em alta resolução
 
 - [x] Documentar detalhes da análise da IA na Geração de Levantamento Inicial
+
+- [x] Corrigir formulários de Assessment Fase 1 não exibidos
+- [x] Corrigir formulários de Assessment Fase 2 não exibidos
+- [x] Reativar Matriz de Riscos simplificada (sem classificação, probabilidade ou impacto)

@@ -475,6 +475,50 @@ Retorne APENAS JSON válido no formato:
   // ==========================================================================
 
   riskMatrix: router({
+    // Listar todos os riscos de um projeto
+    list: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        // Validar acesso ao projeto
+        await validateProjectAccess(ctx, input.projectId);
+        return await db.getRiskMatrix(input.projectId);
+      }),
+
+    // Criar novo risco manualmente (simplificado - apenas título e descrição)
+    create: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        title: z.string(),
+        description: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Validar acesso ao projeto
+        await validateProjectAccess(ctx, input.projectId);
+        
+        const riskId = await db.createRisk({
+          projectId: input.projectId,
+          title: input.title,
+          description: input.description || "",
+          createdBy: ctx.user.id,
+        });
+        
+        return { id: riskId };
+      }),
+
+    // Deletar risco
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        // Buscar risco para validar acesso ao projeto
+        const risk = await db.getRiskById(input.id);
+        if (!risk) throw new TRPCError({ code: "NOT_FOUND", message: "Risk not found" });
+        
+        await validateProjectAccess(ctx, risk.projectId);
+        await db.deleteRisk(input.id);
+        
+        return { success: true };
+      }),
+
     get: projectAccessMiddleware
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input }) => {
