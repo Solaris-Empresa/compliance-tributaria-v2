@@ -243,13 +243,15 @@ export const appRouter = router({
   assessmentPhase2: router({
     get: protectedProcedure
       .input(z.object({ projectId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         return await db.getAssessmentPhase2(input.projectId);
       }),
 
     generateQuestions: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .mutation(async ({ input, ctx }) => {
+        await validateProjectAccess(ctx, input.projectId);
         const phase1 = await db.getAssessmentPhase1(input.projectId);
         if (!phase1) throw new TRPCError({ code: "BAD_REQUEST", message: "Complete Phase 1 first" });
 

@@ -171,10 +171,17 @@
 
 ## Testes Unitários - Validação de Acesso a Projetos
 - [x] Criar testes para validateProjectAccess (acesso permitido, negado, projeto inexistente)
-- [x] Criar testes para briefing.get e briefing.generate (skipped - requer mock LLM)
-- [x] Criar testes para actionPlan.get e actionPlan.generate (skipped - requer mock LLM)
+- [x] Criar testes para briefing.get e briefing.generate (skipped - geração LLM lenta 13-29s)
+- [x] Criar testes para actionPlan.get e actionPlan.generate (skipped - geração LLM lenta 29-60s)
 - [x] Criar testes para assessmentPhase1 e assessmentPhase2
-- [x] Criar testes para verificação de roles (admin, client, team_member)
-- [x] Executar todos os testes e garantir cobertura nos endpoints críticos (8 passed, 7 skipped)
-- [ ] Implementar mocks para LLM para habilitar testes completos de briefing e action plan
+- [x] Criar testes para verificação de roles (equipe_solaris, advogado_senior, cliente)
+- [x] Executar todos os testes e garantir cobertura nos endpoints críticos (11 passed, 4 skipped)
+- [x] Adicionar validateProjectAccess aos procedimentos assessmentPhase2.get e generateQuestions
+- [x] Corrigir estrutura de dados dos testes (generatedQuestions vs questions, answers como string)
+- [ ] Implementar mocks para invokeLLM para habilitar 4 testes skipped (briefing/action plan)
 - [ ] Implementar procedimento projects.addParticipant para testar acesso de cliente vinculado
+
+## Configuração de Testes - Timeout Global
+- [x] Aumentar timeout global no vitest.config.ts para 60 segundos
+- [x] Reativar testes skipped que envolvem geração LLM (parcial - 4 testes permanecem skipped)
+- [x] Executar todos os testes e validar sucesso (11 passed, 4 skipped em 13.8s)

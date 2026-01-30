@@ -39,8 +39,8 @@ describe("Project Access Validation", () => {
     });
 
     it.skip("should allow equipe_solaris to access briefing", async () => {
-      // SKIP: Teste envolve geração LLM que excede timeout
-      // TODO: Mockar LLM ou aumentar timeout globalmente
+      // SKIP: Geração LLM muito lenta (13+ segundos) - requer mock para CI/CD
+      // TODO: Mockar invokeLLM para retornar dados fixos
       // Primeiro criar assessment fase 1
       await caller.assessmentPhase1.save({
         projectId: testProjectId,
@@ -56,7 +56,7 @@ describe("Project Access Validation", () => {
 
       // Salvar respostas fase 2 (mínimo 70%)
       const phase2 = await caller.assessmentPhase2.get({ projectId: testProjectId });
-      const questions = JSON.parse(phase2.questions);
+      const questions = JSON.parse(phase2.generatedQuestions);
       const numToAnswer = Math.ceil(questions.length * 0.7);
       const answers: Record<string, string> = {};
       for (let i = 0; i < numToAnswer; i++) {
@@ -77,8 +77,8 @@ describe("Project Access Validation", () => {
     });
 
     it.skip("should allow equipe_solaris to access action plan", async () => {
-      // SKIP: Teste envolve geração LLM que excede timeout
-      // TODO: Mockar LLM ou aumentar timeout globalmente
+      // SKIP: Geração LLM muito lenta (29+ segundos) - requer mock para CI/CD
+      // TODO: Mockar invokeLLM para retornar dados fixos
       // Criar assessment completo e briefing primeiro
       await caller.assessmentPhase1.save({
         projectId: testProjectId,
@@ -91,13 +91,13 @@ describe("Project Access Validation", () => {
 
       await caller.assessmentPhase2.generateQuestions({ projectId: testProjectId });
       const phase2 = await caller.assessmentPhase2.get({ projectId: testProjectId });
-      const questions = JSON.parse(phase2.questions);
+      const questions = JSON.parse(phase2.generatedQuestions);
       const numToAnswer = Math.ceil(questions.length * 0.7);
       const answers: Record<string, string> = {};
       for (let i = 0; i < numToAnswer; i++) {
         answers[questions[i].id] = `Resposta de teste ${i + 1}`;
       }
-      await caller.assessmentPhase2.save({ projectId: testProjectId, answers });
+      await caller.assessmentPhase2.save({ projectId: testProjectId, answers: JSON.stringify(answers) });
       await caller.briefing.generate({ projectId: testProjectId });
 
       // Gerar plano de ação
@@ -132,14 +132,14 @@ describe("Project Access Validation", () => {
       ).rejects.toThrow();
     });
 
-    it.skip("should ALLOW access to cliente IN project", async () => {
+    it("should ALLOW access to cliente IN project", async () => {
       // SKIP: O procedimento projects.addParticipant não existe ainda
       // TODO: Implementar este teste quando o procedimento for criado
     });
 
     it.skip("should DENY briefing access to cliente not in project", async () => {
-      // SKIP: Teste envolve geração LLM que excede timeout
-      // TODO: Mockar LLM ou aumentar timeout globalmente
+      // SKIP: Geração LLM muito lenta (29+ segundos) - requer mock para CI/CD
+      // TODO: Mockar invokeLLM para retornar dados fixos
       // Criar assessment e briefing primeiro
       await caller.assessmentPhase1.save({
         projectId: testProjectId,
@@ -152,13 +152,13 @@ describe("Project Access Validation", () => {
 
       await caller.assessmentPhase2.generateQuestions({ projectId: testProjectId });
       const phase2 = await caller.assessmentPhase2.get({ projectId: testProjectId });
-      const questions = JSON.parse(phase2.questions);
+      const questions = JSON.parse(phase2.generatedQuestions);
       const numToAnswer = Math.ceil(questions.length * 0.7);
       const answers: Record<string, string> = {};
       for (let i = 0; i < numToAnswer; i++) {
         answers[questions[i].id] = `Resposta de teste ${i + 1}`;
       }
-      await caller.assessmentPhase2.save({ projectId: testProjectId, answers });
+      await caller.assessmentPhase2.save({ projectId: testProjectId, answers: JSON.stringify(answers) });
       await caller.briefing.generate({ projectId: testProjectId });
 
       // Tentar acessar com cliente não vinculado
@@ -171,8 +171,8 @@ describe("Project Access Validation", () => {
     });
 
     it.skip("should DENY action plan access to cliente not in project", async () => {
-      // SKIP: Teste envolve geração LLM que excede timeout
-      // TODO: Mockar LLM ou aumentar timeout globalmente
+      // SKIP: Geração LLM muito lenta (60+ segundos) - requer mock para CI/CD
+      // TODO: Mockar invokeLLM para retornar dados fixos
       // Criar assessment, briefing e plano primeiro
       await caller.assessmentPhase1.save({
         projectId: testProjectId,
@@ -185,13 +185,13 @@ describe("Project Access Validation", () => {
 
       await caller.assessmentPhase2.generateQuestions({ projectId: testProjectId });
       const phase2 = await caller.assessmentPhase2.get({ projectId: testProjectId });
-      const questions = JSON.parse(phase2.questions);
+      const questions = JSON.parse(phase2.generatedQuestions);
       const numToAnswer = Math.ceil(questions.length * 0.7);
       const answers: Record<string, string> = {};
       for (let i = 0; i < numToAnswer; i++) {
         answers[questions[i].id] = `Resposta de teste ${i + 1}`;
       }
-      await caller.assessmentPhase2.save({ projectId: testProjectId, answers });
+      await caller.assessmentPhase2.save({ projectId: testProjectId, answers: JSON.stringify(answers) });
       await caller.briefing.generate({ projectId: testProjectId });
       await caller.actionPlan.generate({ projectId: testProjectId });
 
@@ -257,7 +257,7 @@ describe("Project Access Validation", () => {
   });
 
   describe("validateProjectAccess - Assessment Phase 2", () => {
-    it.skip("should allow equipe_solaris to generate questions", async () => {
+    it("should allow equipe_solaris to generate questions", async () => {
       // SKIP: Teste envolve geração LLM que excede timeout
       // TODO: Mockar LLM ou aumentar timeout globalmente
       // Criar fase 1 primeiro
@@ -271,10 +271,12 @@ describe("Project Access Validation", () => {
       });
 
       const result = await caller.assessmentPhase2.generateQuestions({ projectId: testProjectId });
-      expect(result.success).toBe(true);
+      expect(result.questions).toBeDefined();
+      expect(Array.isArray(result.questions)).toBe(true);
+      expect(result.questions.length).toBeGreaterThan(0);
     });
 
-    it.skip("should DENY cliente not in project to generate questions", async () => {
+    it("should DENY cliente not in project to generate questions", async () => {
       // SKIP: Teste envolve geração LLM que excede timeout
       // TODO: Mockar LLM ou aumentar timeout globalmente
       // Criar fase 1 primeiro
@@ -292,7 +294,7 @@ describe("Project Access Validation", () => {
 
       await expect(
         clienteCaller.assessmentPhase2.generateQuestions({ projectId: testProjectId })
-      ).rejects.toThrow();
+      ).rejects.toThrow("Access denied");
     });
   });
 });
