@@ -157,7 +157,7 @@ export default function Briefing() {
               </CardHeader>
               <CardContent>
                 <div className="prose prose-sm max-w-none">
-                  <Streamdown>{briefing.executiveSummary}</Streamdown>
+                  <Streamdown>{briefing.summaryText}</Streamdown>
                 </div>
               </CardContent>
             </Card>
@@ -172,12 +172,59 @@ export default function Briefing() {
               </CardHeader>
               <CardContent>
                 <div className="prose prose-sm max-w-none">
-                  <Streamdown>{briefing.gapAnalysis}</Streamdown>
+                  <Streamdown>{briefing.gapsAnalysis}</Streamdown>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Risk Areas */}
+            {/* Risk Level Badge */}
+            <Card className="mb-6">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Nível de Risco Geral</CardTitle>
+                    <CardDescription>
+                      Avaliação do risco de conformidade do projeto
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {getRiskLevelIcon(briefing.riskLevel)}
+                    <span
+                      className={`text-sm font-medium px-3 py-1 rounded ${
+                        briefing.riskLevel === "critico" || briefing.riskLevel === "alto"
+                          ? "bg-red-100 text-red-700"
+                          : briefing.riskLevel === "medio"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-green-100 text-green-700"
+                      }`}
+                    >
+                      {briefing.riskLevel === "critico" ? "Crítico" :
+                       briefing.riskLevel === "alto" ? "Alto" :
+                       briefing.riskLevel === "medio" ? "Médio" : "Baixo"}
+                    </span>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {/* Priority Areas (Recommendations) */}
+            {briefing.priorityAreas && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Recomendações Estratégicas</CardTitle>
+                  <CardDescription>
+                    Ações prioritárias, cronograma e próximos passos
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="prose prose-sm max-w-none">
+                    <Streamdown>{briefing.priorityAreas}</Streamdown>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Risk Areas - Legacy support */}
             {briefing.riskAreas && (() => {
               try {
                 const riskAreas = JSON.parse(briefing.riskAreas);
@@ -235,20 +282,7 @@ export default function Briefing() {
               }
             })()}
 
-            {/* Recommendations */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle>Recomendações Gerais</CardTitle>
-                <CardDescription>
-                  Próximos passos sugeridos pela análise
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="prose prose-sm max-w-none">
-                  <Streamdown>{briefing.recommendations}</Streamdown>
-                </div>
-              </CardContent>
-            </Card>
+
 
             {/* Actions */}
             <div className="flex gap-3">

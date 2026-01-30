@@ -411,37 +411,100 @@ IMPORTANTE: Todas as perguntas devem ter "required": true.`;
           throw new TRPCError({ code: "BAD_REQUEST", message: "Complete assessment first" });
         }
 
-        const prompt = `Você é um consultor sênior de compliance tributário.
+        // Buscar dados do projeto e cliente
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
+        
+        const client = await db.getUserById(project.clientId);
+        
+        // Processar respostas da Fase 2
+        let answersText = "Nenhuma resposta registrada";
+        if (phase2.answers) {
+          try {
+            const answersObj = typeof phase2.answers === 'string' ? JSON.parse(phase2.answers) : phase2.answers;
+            const questions = phase2.generatedQuestions ? 
+              (typeof phase2.generatedQuestions === 'string' ? JSON.parse(phase2.generatedQuestions) : phase2.generatedQuestions) : 
+              { questions: [] };
+            
+            answersText = Object.entries(answersObj).map(([questionId, answer], index) => {
+              const question = questions.questions?.find((q: any) => q.id === questionId);
+              return `**Pergunta ${index + 1}:** ${question?.question || questionId}\n**Resposta:** ${answer}`;
+            }).join('\n\n');
+          } catch (e) {
+            answersText = phase2.answers.toString();
+          }
+        }
 
-Com base nas respostas completas do assessment:
+        const prompt = `Você é um consultor tributário especializado em Reforma Tributária brasileira (LC 214/2025, EC 132/2023).
 
-Fase 1:
-- Regime: ${phase1.taxRegime}
-- Tipo de negócio: ${phase1.businessSector}
-- Porte: ${phase1.companySize}
-- Faturamento: ${phase1.annualRevenue || "N/A"}
-- Funcionários: ${phase1.employeeCount || "N/A"}
-- Tem contabilidade: ${phase1.hasAccountingDept ? "Sim" : "Não"}
-- Atividade: ${phase1.mainActivity || "N/A"}
+Analise os dados abaixo e gere um Levantamento Inicial completo para adequação à reforma tributária:
 
-Fase 2:
-${phase2.answers || "{}"}
+## DADOS DO CLIENTE
+- Razão Social: ${client?.companyName || "Não informado"}
+- CNPJ: ${client?.cnpj || "Não informado"}
+- Email: ${client?.email || "Não informado"}
+- Telefone: ${client?.phone || "Não informado"}
+- Segmento: ${client?.segment || "Não informado"}
 
-Gere um briefing executivo com:
-1. Resumo Executivo (2-3 parágrafos)
-2. Análise de Gaps (identificar lacunas de conformidade)
-3. Nível de Risco Geral (baixo, médio, alto, crítico)
-4. Áreas Prioritárias para Ação
+## DADOS DO PROJETO
+- Nome: ${project.name}
+- Regime Tributário Atual: ${project.taxRegime || phase1.taxRegime}
+- Tipo de Negócio: ${project.businessType || phase1.businessSector}
+- Porte: ${project.companySize || phase1.companySize}
+- Período do Plano: ${project.planPeriodMonths || 12} meses
 
-Use linguagem profissional mas acessível.
-Seja específico e cite exemplos das respostas.
+## AVALIAÇÃO FASE 1 (Dados Básicos)
+- Regime Tributário: ${phase1.taxRegime}
+- Porte da Empresa: ${phase1.companySize}
+- Faturamento Anual: R$ ${phase1.annualRevenue || "Não informado"}
+- Setor de Atuação: ${phase1.businessSector}
+- Atividade Principal: ${phase1.mainActivity || "Não informado"}
+- Número de Funcionários: ${phase1.employeeCount || "Não informado"}
+- Possui Departamento Contábil: ${phase1.hasAccountingDept || "Não informado"}
+- Sistema ERP Atual: ${phase1.currentERPSystem || "Não informado"}
+- Principais Desafios: ${phase1.mainChallenges || "Não informado"}
+- Objetivos de Compliance: ${phase1.complianceGoals || "Não informado"}
+
+## AVALIAÇÃO FASE 2 (Questionário Detalhado)
+${answersText}
+
+## INSTRUÇÕES
+Gere um documento de Levantamento Inicial estruturado em formato Markdown com as seguintes seções:
+
+1. **Resumo Executivo** (200-300 palavras): Síntese dos principais achados e recomendações para gestores
+
+2. **Perfil da Empresa**: Descrição detalhada do cliente com atividades, estrutura operacional e regime tributário atual
+
+3. **Análise do Regime Tributário Atual**: Avaliação técnica dos tributos recolhidos, alíquotas efetivas e obrigações acessórias
+
+4. **Impactos da Reforma Tributária**: 
+   - Mudanças estruturais (extinção de PIS/COFINS/ISS/ICMS, criação de IBS/CBS)
+   - Impactos quantitativos (estimativa de carga tributária no novo modelo)
+   - Impactos operacionais (mudanças em sistemas e processos)
+
+5. **Recomendações Estratégicas**: Lista priorizada de ações com:
+   - Título da recomendação
+   - Descrição e justificativa
+   - Prazo sugerido
+   - Complexidade (Baixa/Média/Alta)
+   - Impacto (Baixo/Médio/Alto)
+
+6. **Cronograma de Ações**: Linha do tempo com marcos importantes (2026-2033)
+
+7. **Riscos e Oportunidades**: Cenários positivos e negativos identificados
+
+8. **Próximos Passos**: Ações imediatas recomendadas
+
+Use linguagem técnica mas acessível para contadores brasileiros.
+Cite legislação quando relevante (LC 214/2025, EC 132/2023).
+Seja específico e baseie-se nos dados fornecidos.
 
 Retorne APENAS JSON válido no formato:
 {
-  "summaryText": "string (markdown)",
-  "gapsAnalysis": "string (markdown)",
+  "summaryText": "string (markdown com resumo executivo)",
+  "gapsAnalysis": "string (markdown com análise completa do regime atual e impactos da reforma)",
   "riskLevel": "baixo|medio|alto|critico",
-  "priorityAreas": "string (markdown)"
+  "priorityAreas": "string (markdown com recomendações, cronograma, riscos e próximos passos)"
 }`;
 
         const response = await invokeLLM({
@@ -452,7 +515,11 @@ Retorne APENAS JSON válido no formato:
         });
 
         const rawContent = response.choices[0]?.message?.content;
-        const content = typeof rawContent === 'string' ? rawContent : "{}";
+        let content = typeof rawContent === 'string' ? rawContent : "{}";
+        
+        // Remover markdown code blocks se existirem
+        content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        
         const parsed = JSON.parse(content);
 
         await db.saveBriefing({
@@ -574,7 +641,11 @@ Retorne APENAS JSON válido no formato:
         });
 
         const rawContent = response.choices[0]?.message?.content;
-        const content = typeof rawContent === 'string' ? rawContent : "{}";
+        let content = typeof rawContent === 'string' ? rawContent : "{}";
+        
+        // Remover markdown code blocks se existirem
+        content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        
         const parsed = JSON.parse(content);
 
         const risks = parsed.risks.map((r: any) => ({
@@ -646,7 +717,11 @@ Retorne APENAS JSON válido no formato:
         });
 
         const rawContent = response.choices[0]?.message?.content;
-        const content = typeof rawContent === 'string' ? rawContent : "{}";
+        let content = typeof rawContent === 'string' ? rawContent : "{}";
+        
+        // Remover markdown code blocks se existirem
+        content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        
         const parsed = JSON.parse(content);
 
         const newRisks = parsed.risks.map((r: any) => ({
@@ -758,7 +833,11 @@ Retorne APENAS JSON válido no formato:
         });
 
         const rawContent = response.choices[0]?.message?.content;
-        const content = typeof rawContent === 'string' ? rawContent : "{}";
+        let content = typeof rawContent === 'string' ? rawContent : "{}";
+        
+        // Remover markdown code blocks se existirem
+        content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        
         const parsed = JSON.parse(content);
 
         const planId = await db.saveActionPlan({

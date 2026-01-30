@@ -260,3 +260,8 @@ teste
 - [x] Corrigir formulários de Assessment Fase 1 não exibidos
 - [x] Corrigir formulários de Assessment Fase 2 não exibidos
 - [x] Reativar Matriz de Riscos simplificada (sem classificação, probabilidade ou impacto)
+
+- [x] Implementar geração automática do Levantamento Inicial via IA
+- [x] Criar endpoint briefing.generate que processa dados do assessment
+- [x] Implementar página de visualização do Levantamento Inicial
+- [x] Adicionar botão "Gerar Levantamento Inicial" na página Assessment Fase 2
