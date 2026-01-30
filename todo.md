@@ -195,3 +195,9 @@
 
 ## Documentação - Troubleshooting
 - [x] Adicionar seção de troubleshooting ao README com erros comuns e soluções
+
+## Bug em Produção - Navegação para Matriz de Riscos
+- [x] Investigar erro "No procedure found on path 'projects.getById'" ao clicar em "Avançar para Matriz de Riscos"
+- [x] Verificar que procedimento projects.getById já existe no router (linha 61-71)
+- [x] Identificar que o problema é versão publicada desatualizada (checkpoint antigo)
+- [ ] Republicar versão mais recente com todas as correções
