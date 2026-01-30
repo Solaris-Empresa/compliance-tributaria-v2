@@ -17,6 +17,7 @@ import QuadroKanban from "@/pages/QuadroKanban";
 import BibliotecaModelos from "@/pages/BibliotecaTemplates";
 import EditarTemplate from "@/pages/EditarTemplate";
 import MatrizRiscos from "@/pages/MatrizRiscos";
+import MatrizRiscosGlobal from "@/pages/MatrizRiscosGlobal";
 import ProjetoDetalhes from "./pages/ProjetoDetalhes";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/projetos/:id/avaliacao/fase1" component={AvaliacaoFase1} />
       <Route path="/projetos/:id/avaliacao/fase2" component={AvaliacaoFase2} />
       <Route path="/projetos/:id/levantamento-inicial" component={LevantamentoInicial} />
+      <Route path="/matriz-riscos" component={MatrizRiscosGlobal} />
       <Route path="/projetos/:id/matriz-riscos" component={MatrizRiscos} />
       <Route path="/projetos/:id/plano-acao" component={PlanoAcao} />
       <Route path="/projetos/:id/quadro-kanban" component={QuadroKanban} />

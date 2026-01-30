@@ -109,7 +109,7 @@ export default function AssessmentFase1() {
     savePhase1.mutate({
       projectId,
       ...formData,
-      annualRevenue: formData.annualRevenue ? parseFloat(formData.annualRevenue) : undefined,
+      annualRevenue: formData.annualRevenue || "",
       employeeCount: formData.employeeCount ? parseInt(formData.employeeCount) : undefined,
     });
   };
@@ -139,7 +139,7 @@ export default function AssessmentFase1() {
       const saveResult = await savePhase1.mutateAsync({
         projectId,
         ...formData,
-        annualRevenue: parseFloat(formData.annualRevenue),
+        annualRevenue: formData.annualRevenue || "",
         employeeCount: formData.employeeCount ? parseInt(formData.employeeCount) : undefined,
       });
       console.log('[handleComplete] Dados salvos com sucesso:', saveResult);

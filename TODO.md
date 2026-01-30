@@ -273,3 +273,10 @@ teste
 
 - [x] Adicionar "Matriz de Riscos" no menu lateral do ComplianceLayout
 - [x] Remover gráficos de riscos COSO do Painel de Indicadores Executivo
+
+- [x] Bug: Erro ao salvar Fase 1 - campo annualRevenue enviado como number mas backend espera string
+- [ ] Bug: Formulário da Fase 1 não aparece ao clicar em "Avaliação Fase 1" após criar projeto
+
+- [x] Adicionar "Matriz de Riscos" no menu lateral do ComplianceLayout
+- [x] Bug: Erro ao salvar Fase 1 - campo annualRevenue enviado como number mas backend espera string
+- [ ] Bug: Formulário da Fase 1 não aparece ao clicar em "Avaliação Fase 1" após criar projeto

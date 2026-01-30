@@ -57,11 +57,10 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     { href: "/", icon: LayoutDashboard, label: "Painel" },
     { href: "/projetos", icon: FolderKanban, label: "Projetos" },
     { href: "/clientes", icon: Users, label: "Clientes" },
+    { href: "/matriz-riscos", icon: AlertTriangle, label: "Matriz de Riscos" },
     { href: "/modelos-padroes", icon: Library, label: "Modelos Padrões" },
     { href: "/painel-indicadores", icon: BarChart3, label: "Painel de Indicadores Executivo" },
   ];
-
-  // Nota: Matriz de Riscos é acessível dentro de cada projeto individual
 
   // Adicionar item de usuários apenas para equipe SOLARIS
   if (user?.role === "equipe_solaris") {
