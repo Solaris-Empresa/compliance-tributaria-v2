@@ -54,7 +54,7 @@ export default function PlanoAcao() {
   });
 
   const { data: project } = trpc.projects.getById.useQuery({ id: projectId });
-  const { data: actionPlan, refetch } = trpc.actionPlan.get.useQuery({ projectId });
+  const { data: actionPlan, refetch, isLoading: isLoadingActionPlan } = trpc.actionPlan.get.useQuery({ projectId });
   const { data: versions } = trpc.actionPlan.listVersions.useQuery({ projectId });
   const { data: versionData } = trpc.actionPlan.getVersion.useQuery(
     { projectId, version: selectedVersion! },
@@ -77,10 +77,12 @@ export default function PlanoAcao() {
     { enabled: !!previewTemplateId && showTemplatePreview }
   );
 
+  const utils = trpc.useUtils();
+
   const generatePlan = trpc.actionPlan.generate.useMutation({
     onSuccess: () => {
       setIsGenerating(false);
-      refetch();
+      utils.actionPlan.get.invalidate();
       toast.success("Plano de ação gerado com sucesso!");
     },
     onError: (error: any) => {
@@ -168,11 +170,18 @@ export default function PlanoAcao() {
     console.log('[PlanoAcao useEffect] Verificando condições:', {
       hasProject: !!project,
       hasActionPlan: !!actionPlan,
+      isLoadingActionPlan,
       hasAttemptedGeneration,
       isGenerating,
       hasBriefing: !!briefing,
       projectId,
     });
+    
+    // Aguardar query actionPlan.get terminar de carregar antes de verificar
+    if (isLoadingActionPlan) {
+      console.log('[PlanoAcao] Aguardando query actionPlan.get terminar...');
+      return;
+    }
     
     if (project && !actionPlan && !hasAttemptedGeneration && !generatePlan.isLoading && briefing) {
       console.log('[PlanoAcao] Iniciando geração automática do plano...');
@@ -182,7 +191,7 @@ export default function PlanoAcao() {
     } else {
       console.log('[PlanoAcao] Condições não atendidas para geração automática');
     }
-  }, [project, actionPlan, projectId, hasAttemptedGeneration, briefing]);
+  }, [project, actionPlan, projectId, hasAttemptedGeneration, briefing, isLoadingActionPlan]);
 
   useEffect(() => {
     if (actionPlan && !editedPrompt) {

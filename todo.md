@@ -862,3 +862,14 @@
 - [x] DETALHES: Backend populava apenas `riskDescription`, mas frontend esperava `title` e `description`
 - [x] SOLUÇÃO: Corrigido mapeamento para popular `title`, `description` e `riskDescription` (compatibilidade)
 - [x] VALIDAÇÃO: Servidor reiniciado com sucesso, TypeScript sem erros
+
+## Bug #9 - Plano de Ação não está sendo gerado automaticamente (RESOLVIDO)
+- [x] PROBLEMA: Ao acessar página de Plano de Ação, nenhum plano é gerado automaticamente
+- [x] SINTOMA 1: Tela mostra "Nenhum prompt definido"
+- [x] SINTOMA 2: Seção "Plano Detalhado" está vazia
+- [x] SINTOMA 3: Não há indicador de loading ou geração em andamento
+- [x] CAUSA RAIZ: useEffect não aguardava query actionPlan.get terminar de carregar (isLoading não verificado)
+- [x] DETALHES: useEffect verificava `!actionPlan` mas não considerava se query ainda estava carregando
+- [x] SOLUÇÃO 1: Adicionado `isLoadingActionPlan` na query e verificação no useEffect para aguardar loading terminar
+- [x] SOLUÇÃO 2: Substituído refetch() por utils.actionPlan.get.invalidate() no onSuccess (mesmo padrão do Bug #7)
+- [x] VALIDAÇÃO: Servidor reiniciado com sucesso, TypeScript sem erros
