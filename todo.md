@@ -894,16 +894,21 @@
 - [ ] Investigar se tsx watch não recarregou o código corretamente
 - [ ] Testar solução com log detalhado antes e depois do cleanData
 
-## Bug #10 - CORREÇÃO DEFINITIVA APLICADA
+## Bug #10 - RESOLVIDO E VALIDADO ✅ - Assessment Fase 1 com erro de campos default
 - [x] DESCOBERTA: Erro persiste mesmo após republicação com checkpoint f3fd2804
 - [x] EVIDÊNCIA: Logs detalhados NÃO aparecem no console do browser (ambiente publicado)
 - [x] CONCLUSÃO: cleanData está funcionando em DEV mas NÃO em PRODUÇÃO
 - [x] HIPÓTESE PRINCIPAL: Problema de build/transpilação - código TypeScript não está sendo compilado corretamente
 - [x] SOLUÇÃO DEFINITIVA: NÃO enviar campos completedAt/completedBy/completedByRole desde o início
 - [x] IMPLEMENTAÇÃO: Usar destructuring no routers.ts para extrair apenas 11 campos necessários (linhas 164-180)
-- [x] VALIDAÇÃO: Servidor reiniciado, TypeScript sem erros, aguardando teste em produção
+- [x] VALIDAÇÃO: ✅ TESTADO E APROVADO
+  - Projeto de teste "TESTE BUG10" criado (ID: 420002)
+  - Formulário preenchido com todos os campos obrigatórios
+  - Salvamento funcionou SEM ERRO
+  - Página avançou para Fase 2 corretamente
+  - 18 perguntas personalizadas geradas com sucesso
 
-## Bug #9 - RESOLVIDO - Plano de Ação com erro "promptHistory is not defined"
+## Bug #9 - RESOLVIDO E VALIDADO ✅ - Plano de Ação com erro "promptHistory is not defined"
 - [x] CONFIRMADO: Erro "ReferenceError: promptHistory is not defined" ao acessar página de Plano de Ação
 - [x] SINTOMA 1: ErrorBoundary captura erro e exibe "Algo deu errado"
 - [x] SINTOMA 2: Console mostra erro em múltiplas linhas do bundle (index-DgOPrb--.js)
@@ -915,7 +920,11 @@
 - [x] SOLUÇÃO APLICADA: Removidas TODAS as referências a `promptHistory` no JSX
   - Linha 460-469: Botão "Histórico de Prompts" substituído por comentário
   - Linha 662-680: Loop de exibição substituído por mensagem "funcionalidade futura"
-- [x] VALIDAÇÃO: Servidor reiniciado, TypeScript sem erros, aguardando republicação
+- [x] VALIDAÇÃO: ✅ TESTADO E APROVADO
+  - Página de Plano de Ação carrega sem erro
+  - Não há mais referências a `promptHistory` no código
+  - ErrorBoundary não captura mais erro
+  - Navegação fluida entre todas as páginas
 
 ## Bug #9 - RESOLVIDO (DEFINITIVO) - Schema desatualizado causava plano vazio
 - [x] CAUSA RAIZ FINAL: Schema da tabela `actionPlans` não tinha campos `prompt` e `detailedPlan`
@@ -933,7 +942,7 @@
   5. Servidor reiniciado
 - [x] VALIDAÇÃO: Aguardando teste do usuário após republicação
 
-## Bug #11 - RESOLVIDO - Plano detalhado não era exibido (campo errado no frontend)
+## Bug #11 - RESOLVIDO E VALIDADO ✅ - Plano detalhado não era exibido (campo errado no frontend)
 - [x] SINTOMA: Prompt salvo corretamente mas "Plano Detalhado" vazio na tela
 - [x] INVESTIGAÇÃO: Banco de dados tem `detailedPlan` com 9.737 caracteres (JSON válido)
 - [x] CAUSA RAIZ: Frontend tentava acessar `actionPlan.content` mas campo correto é `actionPlan.detailedPlan`
@@ -943,4 +952,11 @@
   2. Linhas 532-609: Substituído Streamdown por renderização estruturada do JSON
   3. Criado componente inline que parseia JSON e exibe fases/ações com cards
   4. Adicionado tratamento de erro com console.error e fallback
-- [x] VALIDAÇÃO: Servidor reiniciado, aguardando teste do usuário
+  5. Schema atualizado: Campos `prompt` e `detailedPlan` adicionados à tabela `actionPlans`
+- [x] VALIDAÇÃO: ✅ TESTADO E APROVADO
+  - Projeto "TRANSPORTE 1" (ID: 390001) testado
+  - Prompt do Plano exibido corretamente (14.581 caracteres)
+  - Plano Detalhado renderizado com cards coloridos
+  - Fases estruturadas: Fase 1 (3 meses), Fase 2 (3 meses)
+  - Ações com responsável, prazo, prioridade e indicadores visíveis
+  - Exemplo: "Formalizar Contrato de Consultoria" - Prazo: 2026-03-31, Prioridade: alta
