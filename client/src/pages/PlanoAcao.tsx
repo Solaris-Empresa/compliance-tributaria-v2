@@ -457,16 +457,7 @@ export default function PlanoAcao() {
                       <History className="h-4 w-4 mr-2" />
                       Versões ({versions?.length || 0})
                     </Button>
-                    {promptHistory && promptHistory.length > 0 && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowHistory(true)}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Histórico de Prompts ({promptHistory.length})
-                      </Button>
-                    )}
+                    {/* Histórico de Prompts removido - funcionalidade não implementada no backend */}
                     {!isEditingPrompt && (
                       <Button
                         variant="outline"
@@ -659,25 +650,8 @@ export default function PlanoAcao() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              {promptHistory?.map((history: any, index: any) => (
-                <Card key={history.id}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm">
-                        Versão {promptHistory.length - index}
-                      </CardTitle>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(history.createdAt).toLocaleString()}
-                      </span>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="bg-muted p-3 rounded text-xs font-mono whitespace-pre-wrap">
-                      {history.promptText}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {/* Histórico de Prompts removido - funcionalidade não implementada no backend */}
+              <p className="text-sm text-muted-foreground">Funcionalidade de histórico de prompts será implementada em versão futura.</p>
             </div>
           </DialogContent>
         </Dialog>

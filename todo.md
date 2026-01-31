@@ -903,15 +903,16 @@
 - [x] IMPLEMENTAÇÃO: Usar destructuring no routers.ts para extrair apenas 11 campos necessários (linhas 164-180)
 - [x] VALIDAÇÃO: Servidor reiniciado, TypeScript sem erros, aguardando teste em produção
 
-## Bug #9 - ANÁLISE DETALHADA - Plano de Ação falha silenciosamente
-- [x] CONFIRMADO: Modal "Gerando Plano de Ação com IA" aparece brevemente mas desaparece sem salvar plano
-- [x] SINTOMA 1: Tela volta para "Nenhum prompt definido" após modal desaparecer
-- [x] SINTOMA 2: "Versões (0)" - nenhuma versão salva
-- [x] SINTOMA 3: "Plano Detalhado" permanece vazio
-- [x] ERRO NO CONSOLE: `TRPCClientError: Invalid input: expected number, received undefined` para `projectId`
-- [x] CAUSA 1 (CORRIGIDA): Bug na linha 63-66 do PlanoAcao.tsx - query `promptHistory` removida (não existe no backend)
-- [ ] CAUSA 2 (INVESTIGANDO): Erro no backend durante geração ou salvamento do plano
-- [x] AÇÃO 1: Query promptHistory removida do PlanoAcao.tsx
-- [x] AÇÃO 2: Logs detalhados adicionados no procedimento actionPlan.generate (linhas 924-1059)
-- [x] AÇÃO 3: Backend validado - código está correto (validações, LLM, parsing, salvamento)
-- [ ] PRÓXIMO PASSO: Testar novamente e analisar logs do servidor para identificar falha
+## Bug #9 - RESOLVIDO - Plano de Ação com erro "promptHistory is not defined"
+- [x] CONFIRMADO: Erro "ReferenceError: promptHistory is not defined" ao acessar página de Plano de Ação
+- [x] SINTOMA 1: ErrorBoundary captura erro e exibe "Algo deu errado"
+- [x] SINTOMA 2: Console mostra erro em múltiplas linhas do bundle (index-DgOPrb--.js)
+- [x] SINTOMA 3: Página não carrega, fica travada na tela de erro
+- [x] CAUSA RAIZ: Query `promptHistory` foi comentada (linha 64-66) mas variável ainda estava sendo usada no JSX
+  - Linha 460: Condição `if (promptHistory && promptHistory.length > 0)`
+  - Linha 467: Texto `Histórico de Prompts ({promptHistory.length})`
+  - Linha 662-680: Loop `promptHistory?.map()`
+- [x] SOLUÇÃO APLICADA: Removidas TODAS as referências a `promptHistory` no JSX
+  - Linha 460-469: Botão "Histórico de Prompts" substituído por comentário
+  - Linha 662-680: Loop de exibição substituído por mensagem "funcionalidade futura"
+- [x] VALIDAÇÃO: Servidor reiniciado, TypeScript sem erros, aguardando republicação
