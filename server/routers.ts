@@ -921,21 +921,27 @@ Retorne APENAS JSON válido no formato:
     generate: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .mutation(async ({ input, ctx }) => {
+        console.log('[actionPlan.generate] Iniciando geração para projeto:', input.projectId);
         // Validar acesso ao projeto
         await validateProjectAccess(ctx, input.projectId);
         const project = await db.getProjectById(input.projectId);
+        console.log('[actionPlan.generate] Projeto encontrado:', { id: project?.id, planPeriodMonths: project?.planPeriodMonths });
         if (!project?.planPeriodMonths) {
+          console.error('[actionPlan.generate] ERRO: planPeriodMonths não definido');
           throw new TRPCError({ code: "BAD_REQUEST", message: "Define plan period first" });
         }
 
         // Buscar Levantamento Inicial (Briefing)
         const briefing = await db.getBriefing(input.projectId);
+        console.log('[actionPlan.generate] Briefing encontrado:', !!briefing);
         if (!briefing) {
+          console.error('[actionPlan.generate] ERRO: Briefing não encontrado');
           throw new TRPCError({ code: "BAD_REQUEST", message: "Generate briefing first" });
         }
 
         // Buscar Matriz de Riscos (opcional)
         const risks = await db.getRiskMatrix(input.projectId);
+        console.log('[actionPlan.generate] Riscos encontrados:', risks.length);
 
         const prompt = `Você é um gerente de projetos especializado em compliance tributário.
 
@@ -1010,12 +1016,14 @@ Retorne APENAS JSON válido no formato:
   ]
 }`;
 
+        console.log('[actionPlan.generate] Chamando LLM...');
         const response = await invokeLLM({
           messages: [
             { role: "system", content: "Você é um gerente de projetos. Retorne apenas JSON válido." },
             { role: "user", content: prompt }
           ],
         });
+        console.log('[actionPlan.generate] LLM respondeu');
 
         const rawContent = response.choices[0]?.message?.content;
         let content = typeof rawContent === 'string' ? rawContent : "{}";
@@ -1023,8 +1031,11 @@ Retorne APENAS JSON válido no formato:
         // Remover markdown code blocks se existirem
         content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         
+        console.log('[actionPlan.generate] Parseando JSON...');
         const parsed = JSON.parse(content);
+        console.log('[actionPlan.generate] JSON parseado com sucesso');
 
+        console.log('[actionPlan.generate] Salvando no banco...');
         const planId = await db.saveActionPlan({
           projectId: input.projectId,
           planData: JSON.stringify(parsed),
@@ -1039,9 +1050,13 @@ Retorne APENAS JSON válido no formato:
           rejectionReason: undefined,
         });
 
+        console.log('[actionPlan.generate] Plano salvo com ID:', planId);
+
         // Avançar status
         await db.updateProject(input.projectId, { status: "em_avaliacao" });
+        console.log('[actionPlan.generate] Status do projeto atualizado para em_avaliacao');
 
+        console.log('[actionPlan.generate] Geração concluída com sucesso!');
         return { plan: parsed, planId };
       }),
 

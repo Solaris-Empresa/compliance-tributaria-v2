@@ -60,10 +60,11 @@ export default function PlanoAcao() {
     { projectId, version: selectedVersion! },
     { enabled: selectedVersion !== null }
   );
-  const { data: promptHistory } = trpc.actionPlan.get.useQuery(
-    { planId: actionPlan?.id || 0 },
-    { enabled: !!actionPlan?.id }
-  );
+  // Query removida - não há procedimento actionPlan.get que aceite planId
+  // const { data: promptHistory } = trpc.actionPlan.get.useQuery(
+  //   { planId: actionPlan?.id || 0 },
+  //   { enabled: !!actionPlan?.id }
+  // );
   const { data: compatibleTemplates = [] } = trpc.templates.search.useQuery(
     {
       taxRegime: project?.taxRegime || undefined,

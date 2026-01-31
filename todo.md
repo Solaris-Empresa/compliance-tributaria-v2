@@ -902,3 +902,16 @@
 - [x] SOLUÇÃO DEFINITIVA: NÃO enviar campos completedAt/completedBy/completedByRole desde o início
 - [x] IMPLEMENTAÇÃO: Usar destructuring no routers.ts para extrair apenas 11 campos necessários (linhas 164-180)
 - [x] VALIDAÇÃO: Servidor reiniciado, TypeScript sem erros, aguardando teste em produção
+
+## Bug #9 - ANÁLISE DETALHADA - Plano de Ação falha silenciosamente
+- [x] CONFIRMADO: Modal "Gerando Plano de Ação com IA" aparece brevemente mas desaparece sem salvar plano
+- [x] SINTOMA 1: Tela volta para "Nenhum prompt definido" após modal desaparecer
+- [x] SINTOMA 2: "Versões (0)" - nenhuma versão salva
+- [x] SINTOMA 3: "Plano Detalhado" permanece vazio
+- [x] ERRO NO CONSOLE: `TRPCClientError: Invalid input: expected number, received undefined` para `projectId`
+- [x] CAUSA 1 (CORRIGIDA): Bug na linha 63-66 do PlanoAcao.tsx - query `promptHistory` removida (não existe no backend)
+- [ ] CAUSA 2 (INVESTIGANDO): Erro no backend durante geração ou salvamento do plano
+- [x] AÇÃO 1: Query promptHistory removida do PlanoAcao.tsx
+- [x] AÇÃO 2: Logs detalhados adicionados no procedimento actionPlan.generate (linhas 924-1059)
+- [x] AÇÃO 3: Backend validado - código está correto (validações, LLM, parsing, salvamento)
+- [ ] PRÓXIMO PASSO: Testar novamente e analisar logs do servidor para identificar falha
