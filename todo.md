@@ -916,3 +916,19 @@
   - Linha 460-469: Botão "Histórico de Prompts" substituído por comentário
   - Linha 662-680: Loop de exibição substituído por mensagem "funcionalidade futura"
 - [x] VALIDAÇÃO: Servidor reiniciado, TypeScript sem erros, aguardando republicação
+
+## Bug #9 - RESOLVIDO (DEFINITIVO) - Schema desatualizado causava plano vazio
+- [x] CAUSA RAIZ FINAL: Schema da tabela `actionPlans` não tinha campos `prompt` e `detailedPlan`
+- [x] PROBLEMA: Frontend esperava `actionPlan.prompt` mas schema só tinha `planData` (JSON)
+- [x] SINTOMA: "Nenhum prompt definido" exibido na tela
+- [x] INVESTIGAÇÃO:
+  - Linha 518 PlanoAcao.tsx: `{actionPlan.prompt || "Nenhum prompt definido"}`
+  - Schema linha 257-279: Tabela `actionPlans` só tinha `planData`
+  - Plano existente no banco estava com estrutura antiga (sem prompt/detailedPlan)
+- [x] SOLUÇÃO APLICADA:
+  1. Adicionado campos `prompt` e `detailedPlan` ao schema (linha 261-262)
+  2. Aplicada migração: `pnpm db:push` (migração 0007_broken_chat.sql)
+  3. Atualizado routers.ts linha 1042-1043 para popular novos campos
+  4. Deletado plano corrupto do banco para forçar nova geração
+  5. Servidor reiniciado
+- [x] VALIDAÇÃO: Aguardando teste do usuário após republicação

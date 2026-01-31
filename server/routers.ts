@@ -1039,6 +1039,8 @@ Retorne APENAS JSON válido no formato:
         const planId = await db.saveActionPlan({
           projectId: input.projectId,
           planData: JSON.stringify(parsed),
+          prompt: prompt, // Salvar o prompt usado
+          detailedPlan: JSON.stringify(parsed, null, 2), // Salvar plano formatado
           version: 1,
           templateId: null,
           generatedAt: new Date(),

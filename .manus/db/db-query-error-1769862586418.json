@@ -1,0 +1,8 @@
+{
+  "query": "SELECT ap.id, ap.projectId, ap.promptText, ap.detailedPlan, ap.generatedByAI, ap.createdAt \nFROM actionPlans ap \nJOIN projects p ON ap.projectId = p.id \nWHERE p.name LIKE '%tesawte%' \nORDER BY ap.createdAt DESC \nLIMIT 3;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT ap.id, ap.projectId, ap.promptText, ap.detailedPlan, ap.generatedByAI, ap.createdAt \nFROM actionPlans ap \nJOIN projects p ON ap.projectId = p.id \nWHERE p.name LIKE '%tesawte%' \nORDER BY ap.createdAt DESC \nLIMIT 3;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'ap.createdAt' in 'order clause'"
+  ]
+}

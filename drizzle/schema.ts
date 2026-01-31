@@ -257,7 +257,9 @@ export type InsertRiskMatrixVersion = typeof riskMatrixVersions.$inferInsert;
 export const actionPlans = mysqlTable("actionPlans", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
-  planData: text("planData").notNull(), // JSON
+  planData: text("planData").notNull(), // JSON (deprecated - usar prompt + detailedPlan)
+  prompt: text("prompt"), // Prompt usado para gerar o plano
+  detailedPlan: text("detailedPlan"), // Plano detalhado em markdown
   version: int("version").default(1).notNull(),
   templateId: int("templateId"),
   generatedAt: timestamp("generatedAt").defaultNow().notNull(),
