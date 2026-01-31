@@ -68,11 +68,13 @@ export default function MatrizRiscos() {
     },
   });
 
+  const utils = trpc.useUtils();
+
   const generateRisks = trpc.riskMatrix.generate.useMutation({
     onSuccess: () => {
       console.log('[MatrizRiscos] Riscos gerados com sucesso');
       setIsGenerating(false);
-      refetch();
+      utils.riskMatrix.list.invalidate();
       toast.success("Riscos identificados com sucesso!");
     },
     onError: (error: any) => {

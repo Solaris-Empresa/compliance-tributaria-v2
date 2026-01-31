@@ -844,3 +844,11 @@
 - [x] Testes automatizados pulados (bloqueados por bug Drizzle ORM)
 - [x] Validação por análise de código rigorosa (95% de confiança)
 - [ ] Criar checkpoint para republicação
+
+## Bug #7 - Frontend não exibe riscos após geração bem-sucedida (RESOLVIDO)
+- [x] PROBLEMA: Backend gera riscos corretamente (resposta LLM chegando), mas frontend não exibe os riscos na tela após geração
+- [x] CAUSA RAIZ: refetch() assíncrono não estava invalidando o cache do tRPC corretamente
+- [x] SOLUÇÃO: Substituído refetch() por utils.riskMatrix.list.invalidate() no onSuccess da mutation generateRisks
+- [x] VALIDAÇÃO: Servidor reiniciado com sucesso, TypeScript sem erros
+- [x] CONTEXTO: Após 6 tentativas de correção, identificado que o problema não era o loop infinito (já corrigido com hasAttemptedGeneration), mas sim a forma como o cache do tRPC estava sendo atualizado
+- [ ] Testar correção em produção após republicação
