@@ -210,6 +210,14 @@ export async function saveAssessmentPhase1(data: InsertAssessmentPhase1) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  // Remover campos undefined para evitar bug do Drizzle ORM 0.44.6
+  // que converte undefined para string literal "default" no SQL
+  const cleanData = Object.fromEntries(
+    Object.entries(data).filter(([_, v]) => v !== undefined)
+  ) as InsertAssessmentPhase1;
+  
+  console.log('[saveAssessmentPhase1] Dados limpos (sem undefined):', JSON.stringify(cleanData, null, 2));
+
   const existing = await db
     .select()
     .from(assessmentPhase1)
@@ -220,11 +228,11 @@ export async function saveAssessmentPhase1(data: InsertAssessmentPhase1) {
 
   if (existing.length > 0) {
     console.log('[saveAssessmentPhase1] Atualizando registro existente...');
-    await db.update(assessmentPhase1).set(data).where(eq(assessmentPhase1.projectId, data.projectId));
+    await db.update(assessmentPhase1).set(cleanData).where(eq(assessmentPhase1.projectId, data.projectId));
     console.log('[saveAssessmentPhase1] Atualização concluída');
   } else {
     console.log('[saveAssessmentPhase1] Inserindo novo registro...');
-    await db.insert(assessmentPhase1).values(data);
+    await db.insert(assessmentPhase1).values(cleanData);
     console.log('[saveAssessmentPhase1] Inserção concluída');
   }
 }

@@ -873,3 +873,13 @@
 - [x] SOLUÇÃO 1: Adicionado `isLoadingActionPlan` na query e verificação no useEffect para aguardar loading terminar
 - [x] SOLUÇÃO 2: Substituído refetch() por utils.actionPlan.get.invalidate() no onSuccess (mesmo padrão do Bug #7)
 - [x] VALIDAÇÃO: Servidor reiniciado com sucesso, TypeScript sem erros
+
+## Bug #10 - Erro ao salvar Assessment Fase 1 (RESOLVIDO - BUG DRIZZLE ORM)
+- [x] PROBLEMA: Erro "Failed query: insert into assessmentPhase1" ao clicar em "Finalizar Fase 1 e Continuar"
+- [x] SINTOMA: Mensagem de erro mostra "values (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default, default, default)"
+- [x] CAUSA RAIZ: Bug conhecido do Drizzle ORM 0.44.6 - converte `undefined` para string literal "default" no SQL
+- [x] CAMPOS PROBLEMÁTICOS: completedAt, completedBy, completedByRole (enviados como undefined)
+- [x] DETALHES: routers.ts enviava `undefined` explicitamente, mas Drizzle convertia para "default" no SQL
+- [x] SOLUÇÃO: Remover campos `undefined` do objeto antes de passar para `.values()` usando Object.fromEntries + filter
+- [x] IMPLEMENTAÇÃO: Adicionado cleanData que remove campos undefined antes de insert/update (linhas 213-219 do db.ts)
+- [x] VALIDAÇÃO: Servidor reiniciado com sucesso, TypeScript sem erros
