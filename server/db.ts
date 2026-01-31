@@ -206,7 +206,10 @@ export async function isUserInProject(userId: number, projectId: number): Promis
 // ============================================================================
 
 export async function saveAssessmentPhase1(data: InsertAssessmentPhase1) {
-  console.log('[saveAssessmentPhase1] Iniciando salvamento:', JSON.stringify(data, null, 2));
+  console.log('\n========== [saveAssessmentPhase1] INICIANDO SALVAMENTO ==========');
+  console.log('[saveAssessmentPhase1] Dados recebidos (RAW):', JSON.stringify(data, null, 2));
+  console.log('[saveAssessmentPhase1] Campos com undefined:', Object.entries(data).filter(([_, v]) => v === undefined).map(([k]) => k));
+  
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -216,7 +219,10 @@ export async function saveAssessmentPhase1(data: InsertAssessmentPhase1) {
     Object.entries(data).filter(([_, v]) => v !== undefined)
   ) as InsertAssessmentPhase1;
   
-  console.log('[saveAssessmentPhase1] Dados limpos (sem undefined):', JSON.stringify(cleanData, null, 2));
+  console.log('[saveAssessmentPhase1] Dados LIMPOS (sem undefined):', JSON.stringify(cleanData, null, 2));
+  console.log('[saveAssessmentPhase1] Número de campos antes:', Object.keys(data).length);
+  console.log('[saveAssessmentPhase1] Número de campos depois:', Object.keys(cleanData).length);
+  console.log('[saveAssessmentPhase1] Campos removidos:', Object.keys(data).length - Object.keys(cleanData).length);
 
   const existing = await db
     .select()

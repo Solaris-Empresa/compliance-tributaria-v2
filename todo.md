@@ -883,3 +883,13 @@
 - [x] SOLUÇÃO: Remover campos `undefined` do objeto antes de passar para `.values()` usando Object.fromEntries + filter
 - [x] IMPLEMENTAÇÃO: Adicionado cleanData que remove campos undefined antes de insert/update (linhas 213-219 do db.ts)
 - [x] VALIDAÇÃO: Servidor reiniciado com sucesso, TypeScript sem erros
+
+## Bug #10 - REABERTURA - Correção anterior não funcionou
+- [ ] PROBLEMA PERSISTE: Erro "Failed query: insert into assessmentPhase1" ainda ocorre após correção
+- [ ] SINTOMA: Mensagem ainda mostra "values (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default, default, default)"
+- [ ] HIPÓTESE 1: Cache do servidor não foi limpo - código antigo ainda em memória
+- [ ] HIPÓTESE 2: cleanData não está funcionando corretamente - bug na lógica de filtragem
+- [ ] HIPÓTESE 3: Há outros campos com undefined além de completedAt/completedBy/completedByRole
+- [ ] Verificar logs do servidor para confirmar se cleanData está sendo executado
+- [ ] Investigar se tsx watch não recarregou o código corretamente
+- [ ] Testar solução com log detalhado antes e depois do cleanData
