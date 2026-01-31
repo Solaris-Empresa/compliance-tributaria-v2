@@ -1,0 +1,17 @@
+{
+  "query": "SELECT ap.id, ap.projectId, ap.prompt, ap.detailedPlan, p.name \nFROM actionPlans ap \nJOIN projects p ON ap.projectId = p.id \nWHERE p.name LIKE '%TRANSPORTE%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT ap.id, ap.projectId, ap.prompt, ap.detailedPlan, p.name \nFROM actionPlans ap \nJOIN projects p ON ap.projectId = p.id \nWHERE p.name LIKE '%TRANSPORTE%';",
+  "rows": [
+    {
+      "id": "120001",
+      "projectId": "390001",
+      "prompt": "NULL",
+      "detailedPlan": "NULL",
+      "name": "TRANSPORTE 1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tprojectId\tprompt\tdetailedPlan\tname\n120001\t390001\tNULL\tNULL\tTRANSPORTE 1\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

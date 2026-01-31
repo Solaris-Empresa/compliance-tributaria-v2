@@ -529,9 +529,83 @@ export default function PlanoAcao() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="prose prose-sm max-w-none">
-                  <Streamdown>{actionPlan.content}</Streamdown>
-                </div>
+                {(() => {
+                  if (!actionPlan.detailedPlan) {
+                    return <p className="text-muted-foreground">Plano detalhado não disponível</p>;
+                  }
+                  
+                  try {
+                    const planData = JSON.parse(actionPlan.detailedPlan);
+                    const phases = planData.phases || [];
+                    
+                    if (phases.length === 0) {
+                      return <p className="text-muted-foreground">Nenhuma fase definida no plano</p>;
+                    }
+                    
+                    return (
+                      <div className="space-y-6">
+                        {phases.map((phase: any, phaseIdx: number) => (
+                          <Card key={phaseIdx} className="border-l-4 border-l-blue-500">
+                            <CardHeader>
+                              <CardTitle className="text-base flex items-center gap-2">
+                                <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-semibold">
+                                  {phase.durationMonths || 0} meses
+                                </span>
+                                {phase.name}
+                              </CardTitle>
+                              {phase.description && (
+                                <CardDescription>{phase.description}</CardDescription>
+                              )}
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-3">
+                                {(phase.actions || []).map((action: any, actionIdx: number) => (
+                                  <div key={actionIdx} className="border-l-2 border-gray-200 pl-4 py-2">
+                                    <div className="flex items-start justify-between mb-2">
+                                      <h4 className="font-semibold text-sm">{action.title}</h4>
+                                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                        action.priority === 'alta' ? 'bg-red-100 text-red-700' :
+                                        action.priority === 'media' ? 'bg-yellow-100 text-yellow-700' :
+                                        'bg-gray-100 text-gray-700'
+                                      }`}>
+                                        {action.priority}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground mb-2">{action.description}</p>
+                                    <div className="grid grid-cols-2 gap-2 text-xs">
+                                      <div>
+                                        <span className="font-medium">Responsável:</span> {action.responsible}
+                                      </div>
+                                      <div>
+                                        <span className="font-medium">Prazo:</span> {action.dueDate}
+                                      </div>
+                                      <div>
+                                        <span className="font-medium">Estimativa:</span> {action.estimatedHours}h
+                                      </div>
+                                      <div>
+                                        <span className="font-medium">Indicadores:</span> {action.indicators}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    );
+                  } catch (error) {
+                    console.error('[PlanoAcao] Erro ao parsear detailedPlan:', error);
+                    return (
+                      <div className="text-sm">
+                        <p className="text-red-600 mb-2">Erro ao carregar plano detalhado</p>
+                        <pre className="bg-muted p-2 rounded text-xs overflow-auto max-h-40">
+                          {actionPlan.detailedPlan}
+                        </pre>
+                      </div>
+                    );
+                  }
+                })()}
               </CardContent>
             </Card>
 

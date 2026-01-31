@@ -1,0 +1,15 @@
+{
+  "query": "SELECT ap.id, ap.projectId, \n  LENGTH(ap.prompt) as prompt_length, \n  LENGTH(ap.detailedPlan) as detailedPlan_length,\n  SUBSTRING(ap.detailedPlan, 1, 200) as detailedPlan_preview,\n  p.name \nFROM actionPlans ap \nJOIN projects p ON ap.projectId = p.id \nWHERE p.name LIKE '%TRANSPORTE%' \nORDER BY ap.id DESC \nLIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT ap.id, ap.projectId, \n  LENGTH(ap.prompt) as prompt_length, \n  LENGTH(ap.detailedPlan) as detailedPlan_length,\n  SUBSTRING(ap.detailedPlan, 1, 200) as detailedPlan_preview,\n  p.name \nFROM actionPlans ap \nJOIN projects p ON ap.projectId = p.id \nWHERE p.name LIKE '%TRANSPORTE%' \nORDER BY ap.id DESC \nLIMIT 1;",
+  "rows": [],
+  "messages": [
+    "150001\t390001\t14581\t9737\t{",
+    "  \"phases\": [",
+    "    {",
+    "      \"name\": \"Fase 1: Diagnóstico e Modelagem Tributária (2026 Q1)\",",
+    "      \"description\": \"Fase inicial focada na coleta de dados, formalização da consultoria externa e simulaçã\tTRANSPORTE 1"
+  ],
+  "stdout": "id\tprojectId\tprompt_length\tdetailedPlan_length\tdetailedPlan_preview\tname\n150001\t390001\t14581\t9737\t{\n  \"phases\": [\n    {\n      \"name\": \"Fase 1: Diagnóstico e Modelagem Tributária (2026 Q1)\",\n      \"description\": \"Fase inicial focada na coleta de dados, formalização da consultoria externa e simulaçã\tTRANSPORTE 1\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

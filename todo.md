@@ -932,3 +932,15 @@
   4. Deletado plano corrupto do banco para forçar nova geração
   5. Servidor reiniciado
 - [x] VALIDAÇÃO: Aguardando teste do usuário após republicação
+
+## Bug #11 - RESOLVIDO - Plano detalhado não era exibido (campo errado no frontend)
+- [x] SINTOMA: Prompt salvo corretamente mas "Plano Detalhado" vazio na tela
+- [x] INVESTIGAÇÃO: Banco de dados tem `detailedPlan` com 9.737 caracteres (JSON válido)
+- [x] CAUSA RAIZ: Frontend tentava acessar `actionPlan.content` mas campo correto é `actionPlan.detailedPlan`
+- [x] PROBLEMA SECUNDÁRIO: Streamdown não renderiza JSON, precisa de parsing
+- [x] SOLUÇÃO APLICADA:
+  1. Linha 533: Alterado de `actionPlan.content` para `actionPlan.detailedPlan`
+  2. Linhas 532-609: Substituído Streamdown por renderização estruturada do JSON
+  3. Criado componente inline que parseia JSON e exibe fases/ações com cards
+  4. Adicionado tratamento de erro com console.error e fallback
+- [x] VALIDAÇÃO: Servidor reiniciado, aguardando teste do usuário
