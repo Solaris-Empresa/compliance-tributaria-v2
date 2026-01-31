@@ -893,3 +893,12 @@
 - [ ] Verificar logs do servidor para confirmar se cleanData está sendo executado
 - [ ] Investigar se tsx watch não recarregou o código corretamente
 - [ ] Testar solução com log detalhado antes e depois do cleanData
+
+## Bug #10 - CORREÇÃO DEFINITIVA APLICADA
+- [x] DESCOBERTA: Erro persiste mesmo após republicação com checkpoint f3fd2804
+- [x] EVIDÊNCIA: Logs detalhados NÃO aparecem no console do browser (ambiente publicado)
+- [x] CONCLUSÃO: cleanData está funcionando em DEV mas NÃO em PRODUÇÃO
+- [x] HIPÓTESE PRINCIPAL: Problema de build/transpilação - código TypeScript não está sendo compilado corretamente
+- [x] SOLUÇÃO DEFINITIVA: NÃO enviar campos completedAt/completedBy/completedByRole desde o início
+- [x] IMPLEMENTAÇÃO: Usar destructuring no routers.ts para extrair apenas 11 campos necessários (linhas 164-180)
+- [x] VALIDAÇÃO: Servidor reiniciado, TypeScript sem erros, aguardando teste em produção

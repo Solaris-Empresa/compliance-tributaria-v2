@@ -161,11 +161,22 @@ export const appRouter = router({
         }
         
         try {
+          // NÃO enviar campos completedAt, completedBy, completedByRole
+          // para evitar bug do Drizzle ORM que converte undefined para "default"
+          const { projectId, taxRegime, companySize, annualRevenue, businessSector, mainActivity, employeeCount, hasAccountingDept, currentERPSystem, mainChallenges, complianceGoals } = input;
+          
           await db.saveAssessmentPhase1({
-            ...input,
-            completedBy: undefined,
-            completedByRole: undefined,
-            completedAt: undefined,
+            projectId,
+            taxRegime,
+            companySize,
+            annualRevenue,
+            businessSector,
+            mainActivity,
+            employeeCount,
+            hasAccountingDept,
+            currentERPSystem,
+            mainChallenges,
+            complianceGoals,
           });
           console.log('[assessmentPhase1.save] Salvamento concluído com sucesso');
           return { success: true };
