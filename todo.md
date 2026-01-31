@@ -852,3 +852,13 @@
 - [x] VALIDAÇÃO: Servidor reiniciado com sucesso, TypeScript sem erros
 - [x] CONTEXTO: Após 6 tentativas de correção, identificado que o problema não era o loop infinito (já corrigido com hasAttemptedGeneration), mas sim a forma como o cache do tRPC estava sendo atualizado
 - [ ] Testar correção em produção após republicação
+
+## Bug #8 - Popup de geração de riscos fica travado e dados JSON aparecem na lateral (RESOLVIDO)
+- [x] PROBLEMA: Popup "Gerando Riscos com IA..." fica em loading infinito
+- [x] SINTOMA 1: Dados JSON não formatados aparecem na lateral direita da tela
+- [x] SINTOMA 2: Lista de riscos permanece vazia ("0 risco(s) identificado(s)")
+- [x] SINTOMA 3: Backend está gerando riscos (dados visíveis na lateral) mas não estão sendo salvos/parseados
+- [x] CAUSA RAIZ: Mapeamento incorreto de campos no procedimento riskMatrix.generate (linha 709-723)
+- [x] DETALHES: Backend populava apenas `riskDescription`, mas frontend esperava `title` e `description`
+- [x] SOLUÇÃO: Corrigido mapeamento para popular `title`, `description` e `riskDescription` (compatibilidade)
+- [x] VALIDAÇÃO: Servidor reiniciado com sucesso, TypeScript sem erros

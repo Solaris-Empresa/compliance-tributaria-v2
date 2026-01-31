@@ -708,7 +708,9 @@ Retorne APENAS JSON válido no formato:
 
         const risks = parsed.risks.map((r: any) => ({
           projectId: input.projectId,
-          riskDescription: r.description,
+          title: r.description.substring(0, 500), // Título: primeiros 500 chars da descrição
+          description: r.description, // Descrição completa
+          riskDescription: r.description, // Mantido para compatibilidade
           probability: r.probability,
           impact: r.impact,
           treatmentStrategy: r.treatmentStrategy,
