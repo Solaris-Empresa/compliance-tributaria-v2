@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE assessmentPhase1 \nMODIFY COLUMN completedAt timestamp NULL DEFAULT NULL,\nMODIFY COLUMN completedBy int NULL DEFAULT NULL,\nMODIFY COLUMN completedByRole varchar(50) NULL DEFAULT NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute ALTER TABLE assessmentPhase1 \nMODIFY COLUMN completedAt timestamp NULL DEFAULT NULL,\nMODIFY COLUMN completedBy int NULL DEFAULT NULL,\nMODIFY COLUMN completedByRole varchar(50) NULL DEFAULT NULL;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 939
+}
