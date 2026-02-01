@@ -1327,3 +1327,11 @@
 - [x] Identificar bug do Drizzle ORM 0.44.6 que converte undefined para "default"
 - [x] Corrigir função saveAssessmentPhase1 para remover campos completed* via destructuring
 - [ ] Testar manualmente salvamento da Fase 1 no ambiente
+
+## Sprint V24: QA Completo e Push para GitHub (01/02/2026)
+- [ ] Testar fluxo completo de criação de projeto
+- [ ] Testar salvamento da Fase 1 com todos os campos
+- [ ] Testar geração de questionário Fase 2
+- [ ] Testar fluxo até plano de ação corporativo
+- [ ] Fazer commit e push para GitHub
+- [ ] Investigar causa raiz de como o bug voltou (rollback anterior?)
