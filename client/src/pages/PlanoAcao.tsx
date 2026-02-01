@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Download, Edit2, Eye, FileText, History, Loader2, Sparkles, XCircle, Save } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Download, Edit2, Eye, FileText, History, Loader2, Sparkles, XCircle, Save, ListTree } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { toast } from "sonner";
@@ -45,6 +45,8 @@ export default function PlanoAcao() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const [showTemplatePreview, setShowTemplatePreview] = useState(false);
   const [previewTemplateId, setPreviewTemplateId] = useState<number | null>(null);
+  const [isGeneratingBranchPlans, setIsGeneratingBranchPlans] = useState(false);
+  const [branchGenerationProgress, setBranchGenerationProgress] = useState({ current: 0, total: 0 });
   const [templateData, setTemplateData] = useState({
     name: "",
     description: "",
@@ -54,6 +56,7 @@ export default function PlanoAcao() {
   });
 
   const { data: project } = trpc.projects.getById.useQuery({ id: projectId });
+  const { data: projectBranches } = trpc.branches.getProjectBranches.useQuery({ projectId }, { enabled: projectId > 0 });
   const { data: actionPlan, refetch, isLoading: isLoadingActionPlan } = trpc.actionPlan.get.useQuery({ projectId });
   const { data: versions } = trpc.actionPlan.listVersions.useQuery({ projectId });
   const { data: versionData } = trpc.actionPlan.getVersion.useQuery(
@@ -161,6 +164,15 @@ export default function PlanoAcao() {
     },
   });
 
+  const generateBranchPlan = trpc.actionPlans.branch.generate.useMutation({
+    onSuccess: () => {
+      toast.success("Plano por ramo gerado com sucesso!");
+    },
+    onError: (error: any) => {
+      toast.error(`Erro ao gerar plano: ${error.message}`);
+    },
+  });
+
   // Buscar briefing para verificar se está disponível
   const { data: briefing } = trpc.briefing.get.useQuery(
     { projectId },
@@ -263,6 +275,38 @@ export default function PlanoAcao() {
     setHasAttemptedGeneration(false); // Resetar flag para permitir nova geração
     setIsGenerating(true);
     generatePlan.mutate({ projectId });
+  };
+
+  const handleGenerateBranchPlans = async () => {
+    if (!projectBranches || projectBranches.length === 0) {
+      toast.error("Nenhum ramo de atividade selecionado para este projeto");
+      return;
+    }
+
+    setIsGeneratingBranchPlans(true);
+    setBranchGenerationProgress({ current: 0, total: projectBranches.length });
+
+    try {
+      for (let i = 0; i < projectBranches.length; i++) {
+        const branch = projectBranches[i];
+        setBranchGenerationProgress({ current: i + 1, total: projectBranches.length });
+        
+        await generateBranchPlan.mutateAsync({
+          projectId,
+          branchId: branch.id,
+        });
+      }
+
+      toast.success(`${projectBranches.length} plano(s) por ramo gerado(s) com sucesso!`);
+      setTimeout(() => {
+        setLocation(`/visualizar-planos-por-ramo?projectId=${projectId}`);
+      }, 1500);
+    } catch (error: any) {
+      toast.error(`Erro ao gerar planos por ramo: ${error.message}`);
+    } finally {
+      setIsGeneratingBranchPlans(false);
+      setBranchGenerationProgress({ current: 0, total: 0 });
+    }
   };
 
   const exportPdfMutation = trpc.templates.exportToPdf.useMutation({
@@ -609,7 +653,44 @@ export default function PlanoAcao() {
               </CardContent>
             </Card>
 
-            <div className="flex gap-3">
+            {/* Botão para gerar planos por ramo */}
+            {projectBranches && projectBranches.length > 0 && (
+              <Card className="mt-6 bg-blue-50 border-blue-200">
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                        <ListTree className="h-5 w-5 text-blue-600" />
+                        Planos de Ação por Ramo de Atividade
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Gere planos de ação específicos para cada ramo de atividade selecionado no projeto.
+                        {projectBranches.length} ramo(s) identificado(s): {projectBranches.map(b => b.name).join(", ")}
+                      </p>
+                    </div>
+                    <Button
+                      onClick={handleGenerateBranchPlans}
+                      disabled={isGeneratingBranchPlans}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {isGeneratingBranchPlans ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Gerando {branchGenerationProgress.current}/{branchGenerationProgress.total}...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Gerar Planos por Ramo
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <div className="flex gap-3 mt-6">
               {canApprove && (
                 <>
                   <Button

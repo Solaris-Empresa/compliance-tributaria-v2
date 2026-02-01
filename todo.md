@@ -1298,3 +1298,16 @@
 - [ ] Feature 3: Implementar gráficos (operações/dia, usuários ativos, tipos mudanças)
 - [ ] Feature 3: Criar testes para Dashboard
 - [ ] Feature 3: Checkpoint final e push para GitHub
+
+## Sprint V21: Correção de Fluxo - Planos por Ramo (29/01/2026)
+- [x] Adicionar botão "Gerar Planos por Ramo" na página PlanoAcao.tsx após plano corporativo
+- [x] Implementar função handleGenerateBranchPlans() que gera planos para todos os ramos
+- [x] Adicionar mutation generateBranchPlan usando trpc.actionPlans.branch.generate
+- [x] Mostrar progresso da geração (X/Y ramos)
+- [x] Redirecionar para /visualizar-planos-por-ramo após conclusão
+- [x] Remover fase "aprovacao_juridica" do array phases em ProjetoDetalhes.tsx
+- [x] Atualizar requiredStatus de todas as fases para remover referências a aprovacao_juridica
+- [x] Remover case aprovacao_juridica do getStatusColor()
+- [x] Criar teste branch-plans-flow.test.ts
+- [x] Validar busca de ramos do projeto
+- [ ] BUG CONHECIDO: Router actionPlans.branch.generate falha com parsing JSON (LLM retorna com ```json)
