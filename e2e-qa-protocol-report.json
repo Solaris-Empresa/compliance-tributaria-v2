@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-01T04:06:18.157Z",
+  "timestamp": "2026-02-01T04:38:46.395Z",
   "empresa": {
     "name": "ACME Testes LTDA",
     "id": "SIMULATED"
@@ -7,21 +7,21 @@
   "usuarios": [
     {
       "name": "Admin QA",
-      "email": "admin-qa-1769918778157@acme.test",
+      "email": "admin-qa-1769920726395@acme.test",
       "role": "equipe_solaris",
-      "id": 601309
+      "id": 601544
     },
     {
       "name": "Executor QA",
-      "email": "executor-qa-1769918778157@acme.test",
+      "email": "executor-qa-1769920726395@acme.test",
       "role": "equipe_solaris",
-      "id": 601310
+      "id": 601545
     },
     {
       "name": "Observador QA",
-      "email": "observador-qa-1769918778157@acme.test",
+      "email": "observador-qa-1769920726395@acme.test",
       "role": "cliente",
-      "id": 601311
+      "id": 601546
     }
   ],
   "ramos": [
@@ -49,62 +49,62 @@
   "projetos": [
     {
       "name": "Projeto P1 – Reforma 2026",
-      "id": 420085,
+      "id": 420250,
       "planos": [
         {
           "tipo": "CORPORATIVO",
-          "id": 3,
+          "id": 16,
           "ramo": null
         },
         {
           "tipo": "RAMO",
-          "id": 9,
+          "id": 17,
           "ramo": "COM"
         },
         {
           "tipo": "RAMO",
-          "id": 10,
+          "id": 18,
           "ramo": "IND"
         },
         {
           "tipo": "RAMO",
-          "id": 11,
+          "id": 19,
           "ramo": "SER"
         },
         {
           "tipo": "RAMO",
-          "id": 12,
+          "id": 20,
           "ramo": "AGR"
         }
       ]
     },
     {
       "name": "Projeto P2 – Reforma 2027",
-      "id": 420086,
+      "id": 420251,
       "planos": [
         {
           "tipo": "CORPORATIVO",
-          "id": 4,
+          "id": 17,
           "ramo": null
         },
         {
           "tipo": "RAMO",
-          "id": 13,
+          "id": 21,
           "ramo": "COM"
         },
         {
           "tipo": "RAMO",
-          "id": 14,
+          "id": 22,
           "ramo": "IND"
         },
         {
           "tipo": "RAMO",
-          "id": 15,
+          "id": 23,
           "ramo": "SER"
         },
         {
           "tipo": "RAMO",
-          "id": 16,
+          "id": 24,
           "ramo": "AGR"
         }
       ]
@@ -141,42 +141,42 @@
     ],
     "integridade": [
       {
-        "planoId": 9,
+        "planoId": 17,
         "status": "PASS",
         "ramo": "COM"
       },
       {
-        "planoId": 10,
+        "planoId": 18,
         "status": "PASS",
         "ramo": "IND"
       },
       {
-        "planoId": 11,
+        "planoId": 19,
         "status": "PASS",
         "ramo": "SER"
       },
       {
-        "planoId": 12,
+        "planoId": 20,
         "status": "PASS",
         "ramo": "AGR"
       },
       {
-        "planoId": 13,
+        "planoId": 21,
         "status": "PASS",
         "ramo": "COM"
       },
       {
-        "planoId": 14,
+        "planoId": 22,
         "status": "PASS",
         "ramo": "IND"
       },
       {
-        "planoId": 15,
+        "planoId": 23,
         "status": "PASS",
         "ramo": "SER"
       },
       {
-        "planoId": 16,
+        "planoId": 24,
         "status": "PASS",
         "ramo": "AGR"
       }
