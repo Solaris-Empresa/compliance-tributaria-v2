@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, FileText, Sparkles } from "lucide-react";
+import { Loader2, FileText, Sparkles, Filter } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function PlanosAcao() {
   const [, params] = useRoute("/projetos/:id/planos-acao");
@@ -26,6 +27,9 @@ export default function PlanosAcao() {
   });
 
   const [activeTab, setActiveTab] = useState("corporativo");
+  const [filterArea, setFilterArea] = useState<string>("all");
+  const [filterType, setFilterType] = useState<string>("all");
+  const [filterPriority, setFilterPriority] = useState<string>("all");
 
   if (loadingCorporate || loadingBranches) {
     return (
@@ -123,6 +127,66 @@ export default function PlanosAcao() {
             </Card>
           ) : (
             <div className="space-y-4">
+              {/* Filtros */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Filter className="h-4 w-4" />
+                    Filtros
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Área Responsável</label>
+                      <Select value={filterArea} onValueChange={setFilterArea}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todas</SelectItem>
+                          <SelectItem value="TI">TI</SelectItem>
+                          <SelectItem value="CONT">Contábil</SelectItem>
+                          <SelectItem value="FISC">Fiscal</SelectItem>
+                          <SelectItem value="JUR">Jurídico</SelectItem>
+                          <SelectItem value="OPS">Operações</SelectItem>
+                          <SelectItem value="COM">Comercial</SelectItem>
+                          <SelectItem value="ADM">ADM</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Tipo de Tarefa</label>
+                      <Select value={filterType} onValueChange={setFilterType}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todos</SelectItem>
+                          <SelectItem value="STRATEGIC">Estratégica</SelectItem>
+                          <SelectItem value="OPERATIONAL">Operacional</SelectItem>
+                          <SelectItem value="COMPLIANCE">Compliance</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Prioridade</label>
+                      <Select value={filterPriority} onValueChange={setFilterPriority}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todas</SelectItem>
+                          <SelectItem value="ALTA">Alta</SelectItem>
+                          <SelectItem value="MÉDIA">Média</SelectItem>
+                          <SelectItem value="BAIXA">Baixa</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold">
@@ -145,9 +209,15 @@ export default function PlanosAcao() {
                 </Button>
               </div>
 
-              {((corporatePlan as any).tasks || []).map((task: any, index: number) =>
-                renderTaskCard(task, index)
-              )}
+              {((corporatePlan as any).tasks || [])
+                .filter((task: any) => {
+                  if (filterArea !== "all" && task.responsibleArea !== filterArea) return false;
+                  if (filterType !== "all" && task.taskType !== filterType) return false;
+                  if (filterPriority !== "all" && task.priority !== filterPriority) return false;
+                  return true;
+                })
+                .map((task: any, index: number) => renderTaskCard(task, index))
+              }
             </div>
           )}
         </TabsContent>
