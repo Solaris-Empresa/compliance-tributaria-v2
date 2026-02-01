@@ -18,6 +18,7 @@ import {
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { ROLES } from "@shared/translations";
+import RealtimeNotifications from "./RealtimeNotifications";
 
 interface ComplianceLayoutProps {
   children: React.ReactNode;
@@ -156,6 +157,10 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
+        {/* Notificações em tempo real */}
+        <div className="fixed top-4 right-4 z-50">
+          <RealtimeNotifications />
+        </div>
         {children}
       </main>
     </div>
