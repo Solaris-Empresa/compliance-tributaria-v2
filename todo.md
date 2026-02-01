@@ -971,6 +971,7 @@
 - [x] Implementar frontend: Dashboard de tarefas com filtros
 - [ ] Implementar frontend: Sistema de comentários em tarefas
 - [ ] Implementar frontend: Sistema de notificações
+- [x] Criar testes unitários (7/7 passando)
 - [ ] Criar testes E2E do fluxo completo
 
 
@@ -982,4 +983,5 @@
 - [ ] Implementar sistema de Comentários em tarefas
 - [ ] Implementar sistema de Notificações
 - [x] Adicionar link "Dashboard de Tarefas" no menu lateral
+- [x] Criar testes unitários (7/7 passando)
 - [ ] Criar testes E2E do fluxo completo
