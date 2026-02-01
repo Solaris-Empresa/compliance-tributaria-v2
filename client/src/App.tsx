@@ -21,6 +21,7 @@ import VisualizarPlanoCorporativo from "./pages/VisualizarPlanoCorporativo";
 import VisualizarPlanosPorRamo from "./pages/VisualizarPlanosPorRamo";
 import AprovacaoPlanos from "./pages/AprovacaoPlanos";
 import ExportarRelatorios from "./pages/ExportarRelatorios";
+import GestaoPermissoes from "./pages/GestaoPermissoes";
 import QuadroKanban from "@/pages/QuadroKanban";
 import BibliotecaModelos from "@/pages/BibliotecaTemplates";
 import EditarTemplate from "@/pages/EditarTemplate";
@@ -54,6 +55,7 @@ function Router() {
       <Route path="/visualizar-planos-ramo" component={VisualizarPlanosPorRamo} />
       <Route path="/aprovacao-planos" component={AprovacaoPlanos} />
       <Route path="/exportar-relatorios" component={ExportarRelatorios} />
+      <Route path="/gestao-permissoes" component={GestaoPermissoes} />
       <Route path="/modelos-padroes" component={BibliotecaModelos} />
       <Route path="/modelos-padroes/:id/editar" component={EditarTemplate} />
       {/* Outras rotas serão adicionadas conforme implementação */}

@@ -1199,14 +1199,14 @@
 - [x] Implementar procedure exportDataExcel
 - [x] Criar página ExportarRelatorios.tsx
 - [x] Adicionar rota no App.tsx
-- [ ] Checkpoint Feature 1
+- [x] Checkpoint Feature 1 (e8e860d0)
 
 ### Feature 2: Interface de Gestão de Permissões
-- [ ] Criar página GestaoPermissoes.tsx
-- [ ] Implementar seletor de projeto
-- [ ] Implementar diálogo de concessão
-- [ ] Criar visualização de matriz de acesso
-- [ ] Adicionar rota no App.tsx
+- [x] Criar página GestaoPermissoes.tsx
+- [x] Implementar seletor de projeto
+- [x] Implementar diálogo de concessão de permissões
+- [x] Criar visualização de matriz de acesso
+- [x] Adicionar rota no App.tsx
 - [ ] Checkpoint Feature 2
 
 ### Feature 3: Integração GitHub Issues
