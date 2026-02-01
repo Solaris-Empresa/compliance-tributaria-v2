@@ -1320,3 +1320,10 @@
 - [x] Adicionar progresso visual (X/Y etapas)
 - [x] Adicionar toasts informativos para cada etapa
 - [ ] Testar manualmente no ambiente de produção
+
+## Sprint V23: Correção de Erro - Campos Obrigatórios na Fase 1 (01/02/2026)
+- [x] Investigar schema da tabela assessmentPhase1
+- [x] Verificar se campos completedAt, completedBy, completedByRole são obrigatórios (NÃO são)
+- [x] Identificar bug do Drizzle ORM 0.44.6 que converte undefined para "default"
+- [x] Corrigir função saveAssessmentPhase1 para remover campos completed* via destructuring
+- [ ] Testar manualmente salvamento da Fase 1 no ambiente

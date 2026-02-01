@@ -207,23 +207,24 @@ export async function isUserInProject(userId: number, projectId: number): Promis
 // ============================================================================
 
 export async function saveAssessmentPhase1(data: InsertAssessmentPhase1) {
-  console.log('\n========== [saveAssessmentPhase1] INICIANDO SALVAMENTO ==========');
+  console.log('\n========== [saveAssessmentPhase1] INICIANDO SALVAMENTO ==========')
   console.log('[saveAssessmentPhase1] Dados recebidos (RAW):', JSON.stringify(data, null, 2));
-  console.log('[saveAssessmentPhase1] Campos com undefined:', Object.entries(data).filter(([_, v]) => v === undefined).map(([k]) => k));
   
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Remover campos undefined para evitar bug do Drizzle ORM 0.44.6
-  // que converte undefined para string literal "default" no SQL
-  const cleanData = Object.fromEntries(
-    Object.entries(data).filter(([_, v]) => v !== undefined)
-  ) as InsertAssessmentPhase1;
+  // CRITICAL FIX: Remover campos completed* ANTES de qualquer processamento
+  // para evitar bug do Drizzle ORM 0.44.6 que converte undefined para "default"
+  const { completedAt, completedBy, completedByRole, ...safeData } = data;
   
-  console.log('[saveAssessmentPhase1] Dados LIMPOS (sem undefined):', JSON.stringify(cleanData, null, 2));
+  // Remover campos undefined restantes
+  const cleanData = Object.fromEntries(
+    Object.entries(safeData).filter(([_, v]) => v !== undefined)
+  ) as Partial<InsertAssessmentPhase1>;
+  
+  console.log('[saveAssessmentPhase1] Dados LIMPOS (sem completed* e undefined):', JSON.stringify(cleanData, null, 2));
   console.log('[saveAssessmentPhase1] Número de campos antes:', Object.keys(data).length);
   console.log('[saveAssessmentPhase1] Número de campos depois:', Object.keys(cleanData).length);
-  console.log('[saveAssessmentPhase1] Campos removidos:', Object.keys(data).length - Object.keys(cleanData).length);
 
   const existing = await db
     .select()
