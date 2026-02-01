@@ -61,6 +61,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     { href: "/dashboard-tarefas", icon: CheckSquare, label: "Dashboard de Tarefas" },
     { href: "/projetos/1/planos-acao", icon: FileText, label: "Planos de Ação" },
     { href: "/projetos/1/questionario-corporativo", icon: ClipboardList, label: "Questionário Corporativo" },
+    { href: "/projetos/1/questionarios-ramo", icon: ClipboardList, label: "Questionários por Ramo" },
     { href: "/clientes", icon: Users, label: "Clientes" },
     { href: "/matriz-riscos", icon: AlertTriangle, label: "Matriz de Riscos" },
     { href: "/modelos-padroes", icon: Library, label: "Modelos Padrões" },

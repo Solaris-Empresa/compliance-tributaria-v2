@@ -1039,3 +1039,16 @@
 - [x] Integrar geração automática de planos com questionários (JÁ INTEGRADO)
 - [ ] Criar testes unitários para novas procedures
 - [ ] Testar fluxo completo end-to-end
+
+
+## Sprint V10 - Features Avançadas
+- [x] Implementar página de Questionários por Ramo completa
+- [x] Adicionar rota e navegação para Questionários por Ramo
+- [x] Criar testes unitários para Questionários por Ramo
+- [ ] Implementar Dashboard Executivo com métricas consolidadas
+- [ ] Adicionar gráficos (Chart.js) no Dashboard Executivo
+- [ ] Criar testes para Dashboard Executivo
+- [ ] Implementar sistema de Notificações em tempo real com WebSockets
+- [ ] Criar testes para sistema de notificações
+- [ ] Criar checkpoint Sprint V10
+- [ ] Criar e fechar issues no GitHub
