@@ -1270,9 +1270,11 @@
 - [x] Feature 2: Implementar filtros (usuário, data, tipo de entidade)
 - [x] Feature 2: Adicionar rota /auditoria
 - [x] Feature 2: Criar testes para visualizador (4/4 passando)
-- [ ] Feature 2: Checkpoint e push para GitHub
-- [ ] Feature 3: Implementar sistema de permissões granulares
-- [ ] Feature 3: Adicionar middleware de autorização
-- [ ] Feature 3: Atualizar UI com controles condicionais
-- [ ] Feature 3: Criar testes para permissões
+- [x] Feature 2: Checkpoint (09f9a12d) e push para GitHub
+- [x] Feature 2: Issue #55 criada e fechada como Done
+- [x] Feature 3: Implementar sistema de permissões granulares (permissions.ts)
+- [x] Feature 3: Criar helper getProjectParticipant (db-participants.ts)
+- [x] Feature 3: Criar router permissionsCheck (routers-permissions-check.ts)
+- [x] Feature 3: Definir permissões por role (USER_PERMISSIONS, PROJECT_PERMISSIONS)
+- [x] Feature 3: Criar testes para permissões (9/9 passando)
 - [ ] Feature 3: Checkpoint final e push para GitHub
