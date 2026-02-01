@@ -1344,3 +1344,14 @@
 - [ ] Criar novo checkpoint para forçar sincronização
 - [ ] Republicar checkpoint em produção via UI
 - [ ] Testar salvamento da Fase 1 em produção após republicação
+
+## Sprint V26: Bug Crítico - Correção DEFINITIVA (01/02/2026)
+- [x] Investigar por que destructuring não está removendo campos do SQL - Drizzle ORM usa schema original
+- [x] Verificar se Drizzle ORM está ignorando a remoção de campos - CONFIRMADO
+- [x] Aplicar correção definitiva: ALTER TABLE para aceitar NULL DEFAULT NULL
+- [x] Executar migração em assessmentPhase1 (584ms)
+- [x] Executar migração em assessmentPhase2 (544ms)
+- [x] Construir objeto cleanData apenas com campos permitidos
+- [x] Forçar tipo 'any' no .values() para evitar inclusão automática
+- [ ] Criar checkpoint e republicar
+- [ ] Testar manualmente em produção

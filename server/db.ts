@@ -213,14 +213,29 @@ export async function saveAssessmentPhase1(data: InsertAssessmentPhase1) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // CRITICAL FIX: Remover campos completed* ANTES de qualquer processamento
-  // para evitar bug do Drizzle ORM 0.44.6 que converte undefined para "default"
-  const { completedAt, completedBy, completedByRole, ...safeData } = data;
+  // CRITICAL FIX V2: Construir objeto APENAS com campos permitidos
+  // Drizzle ORM ignora destructuring e usa schema original, então precisamos
+  // construir um novo objeto explicitamente SEM os campos completed*
+  const cleanData: any = {
+    projectId: data.projectId,
+    taxRegime: data.taxRegime,
+    companySize: data.companySize,
+    annualRevenue: data.annualRevenue,
+    businessSector: data.businessSector,
+    mainActivity: data.mainActivity,
+    employeeCount: data.employeeCount,
+    hasAccountingDept: data.hasAccountingDept,
+    currentERPSystem: data.currentERPSystem,
+    mainChallenges: data.mainChallenges,
+    complianceGoals: data.complianceGoals,
+  };
   
-  // Remover campos undefined restantes
-  const cleanData = Object.fromEntries(
-    Object.entries(safeData).filter(([_, v]) => v !== undefined)
-  ) as Partial<InsertAssessmentPhase1>;
+  // Remover campos undefined
+  Object.keys(cleanData).forEach(key => {
+    if (cleanData[key] === undefined) {
+      delete cleanData[key];
+    }
+  });
   
   console.log('[saveAssessmentPhase1] Dados LIMPOS (sem completed* e undefined):', JSON.stringify(cleanData, null, 2));
   console.log('[saveAssessmentPhase1] Número de campos antes:', Object.keys(data).length);
@@ -240,7 +255,10 @@ export async function saveAssessmentPhase1(data: InsertAssessmentPhase1) {
     console.log('[saveAssessmentPhase1] Atualização concluída');
   } else {
     console.log('[saveAssessmentPhase1] Inserindo novo registro...');
-    await db.insert(assessmentPhase1).values(cleanData);
+    
+    // CRITICAL FIX V3: Forçar tipo 'any' para evitar que Drizzle inclua campos do schema
+    // @ts-ignore - Ignorar erro de tipo para permitir INSERT apenas com campos selecionados
+    await db.insert(assessmentPhase1).values(cleanData as any);
     console.log('[saveAssessmentPhase1] Inserção concluída');
   }
 }
