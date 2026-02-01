@@ -972,3 +972,14 @@
 - [ ] Implementar frontend: Sistema de comentários em tarefas
 - [ ] Implementar frontend: Sistema de notificações
 - [ ] Criar testes E2E do fluxo completo
+
+
+## Sprint V3 - Frontend Completo (AUTÔNOMO)
+- [x] Implementar seleção de ramos no formulário NovoProjeto
+- [ ] Criar página de Questionário Corporativo
+- [ ] Criar página de Questionários por Ramo
+- [ ] Criar página de Visualização de Planos de Ação
+- [ ] Implementar sistema de Comentários em tarefas
+- [ ] Implementar sistema de Notificações
+- [x] Adicionar link "Dashboard de Tarefas" no menu lateral
+- [ ] Criar testes E2E do fluxo completo

@@ -11,7 +11,8 @@ import {
   Users,
   X,
   Library,
-  AlertTriangle
+  AlertTriangle,
+  CheckSquare
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -56,6 +57,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
   const navItems = [
     { href: "/", icon: LayoutDashboard, label: "Painel" },
     { href: "/projetos", icon: FolderKanban, label: "Projetos" },
+    { href: "/dashboard-tarefas", icon: CheckSquare, label: "Dashboard de Tarefas" },
     { href: "/clientes", icon: Users, label: "Clientes" },
     { href: "/matriz-riscos", icon: AlertTriangle, label: "Matriz de Riscos" },
     { href: "/modelos-padroes", icon: Library, label: "Modelos Padrões" },
