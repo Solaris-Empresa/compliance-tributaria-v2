@@ -1,0 +1,211 @@
+{
+  "summary": {
+    "passCount": 22,
+    "failCount": 0,
+    "successRate": "100.00%",
+    "duration": "0.54s"
+  },
+  "projects": [
+    {
+      "id": 420079,
+      "name": "P1"
+    },
+    {
+      "id": 420080,
+      "name": "P2"
+    }
+  ],
+  "plans": [
+    {
+      "projectId": 420079,
+      "type": "corp",
+      "id": 1
+    },
+    {
+      "projectId": 420079,
+      "type": "branch",
+      "branch": "COM",
+      "id": 1
+    },
+    {
+      "projectId": 420079,
+      "type": "branch",
+      "branch": "IND",
+      "id": 2
+    },
+    {
+      "projectId": 420079,
+      "type": "branch",
+      "branch": "SER",
+      "id": 3
+    },
+    {
+      "projectId": 420079,
+      "type": "branch",
+      "branch": "AGR",
+      "id": 4
+    },
+    {
+      "projectId": 420080,
+      "type": "corp",
+      "id": 2
+    },
+    {
+      "projectId": 420080,
+      "type": "branch",
+      "branch": "COM",
+      "id": 5
+    },
+    {
+      "projectId": 420080,
+      "type": "branch",
+      "branch": "IND",
+      "id": 6
+    },
+    {
+      "projectId": 420080,
+      "type": "branch",
+      "branch": "SER",
+      "id": 7
+    },
+    {
+      "projectId": 420080,
+      "type": "branch",
+      "branch": "AGR",
+      "id": 8
+    }
+  ],
+  "errors": [],
+  "steps": [
+    {
+      "step": "E2E-01.1: Validar catálogo de ramos",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:41.937Z",
+      "count": 4
+    },
+    {
+      "step": "E2E-01.2: Validar usuário de teste",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:41.947Z",
+      "userId": 1
+    },
+    {
+      "step": "E2E-02.1: Criar Projeto P1",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:41.964Z",
+      "id": 420079
+    },
+    {
+      "step": "E2E-02.2: Selecionar 4 ramos P1",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.011Z"
+    },
+    {
+      "step": "E2E-02.3: Questionário Corporativo P1",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.025Z",
+      "id": 2
+    },
+    {
+      "step": "E2E-02.4: Plano Corporativo P1",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.047Z",
+      "id": 1
+    },
+    {
+      "step": "E2E-02.5: Plano Ramo COM P1",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.087Z",
+      "id": 1
+    },
+    {
+      "step": "E2E-02.5: Plano Ramo IND P1",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.110Z",
+      "id": 2
+    },
+    {
+      "step": "E2E-02.5: Plano Ramo SER P1",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.132Z",
+      "id": 3
+    },
+    {
+      "step": "E2E-02.5: Plano Ramo AGR P1",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.151Z",
+      "id": 4
+    },
+    {
+      "step": "E2E-02.6: Cardinalidade P1 (5 planos)",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.173Z",
+      "total": 5
+    },
+    {
+      "step": "E2E-03.1: Criar Projeto P2",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.187Z",
+      "id": 420080
+    },
+    {
+      "step": "E2E-03.2: Selecionar 4 ramos P2",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.232Z"
+    },
+    {
+      "step": "E2E-03.3: Questionário Corporativo P2",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.242Z",
+      "id": 3
+    },
+    {
+      "step": "E2E-03.4: Plano Corporativo P2",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.252Z",
+      "id": 2
+    },
+    {
+      "step": "E2E-03.5: Plano Ramo COM P2",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.270Z",
+      "id": 5
+    },
+    {
+      "step": "E2E-03.5: Plano Ramo IND P2",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.289Z",
+      "id": 6
+    },
+    {
+      "step": "E2E-03.5: Plano Ramo SER P2",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.313Z",
+      "id": 7
+    },
+    {
+      "step": "E2E-03.5: Plano Ramo AGR P2",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.332Z",
+      "id": 8
+    },
+    {
+      "step": "E2E-03.6: Cardinalidade P2 (5 planos)",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.343Z",
+      "total": 5
+    },
+    {
+      "step": "E2E-04.1: Total de planos (10)",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.343Z",
+      "total": 10
+    },
+    {
+      "step": "E2E-04.2: Integridade vínculos (8 planos por ramo)",
+      "status": "PASS",
+      "timestamp": "2026-02-01T03:51:42.353Z",
+      "count": 8
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, name, email, role FROM users ORDER BY id LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT id, name, email, role FROM users ORDER BY id LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Uires Tapajós",
+      "email": "uires.tapajos@companyweb.com.br",
+      "role": "equipe_solaris"
+    },
+    {
+      "id": "104",
+      "name": "Cliente Teste E2E",
+      "email": "cliente.teste@example.com",
+      "role": "cliente"
+    },
+    {
+      "id": "60455",
+      "name": "Roberto Costa - Teste E2E Sucesso",
+      "email": "roberto.costa@testee2e.com.br",
+      "role": "cliente"
+    },
+    {
+      "id": "60500",
+      "name": "Cliente para Testes de Projeto",
+      "email": "projeto@teste.com",
+      "role": "cliente"
+    },
+    {
+      "id": "60501",
+      "name": "Cliente Assessment Test",
+      "email": "assessment@teste.com",
+      "role": "cliente"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\n1\tUires Tapajós\tuires.tapajos@companyweb.com.br\tequipe_solaris\n104\tCliente Teste E2E\tcliente.teste@example.com\tcliente\n60455\tRoberto Costa - Teste E2E Sucesso\troberto.costa@testee2e.com.br\tcliente\n60500\tCliente para Testes de Projeto\tprojeto@teste.com\tcliente\n60501\tCliente Assessment Test\tassessment@teste.com\tcliente\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}
