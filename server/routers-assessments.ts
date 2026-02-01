@@ -16,6 +16,32 @@ export const corporateAssessmentRouter = router({
       return await dbAssessments.getCorporateAssessment(input.projectId);
     }),
 
+  // Responder uma pergunta do questionário
+  answer: protectedProcedure
+    .input(z.object({
+      assessmentId: z.number(),
+      questionIndex: z.number(),
+      answer: z.string(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      return await dbAssessments.answerCorporateQuestion(
+        input.assessmentId,
+        input.questionIndex,
+        input.answer,
+        ctx.user.id
+      );
+    }),
+
+  // Marcar questionário como concluído
+  complete: protectedProcedure
+    .input(z.object({ assessmentId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      return await dbAssessments.completeCorporateAssessment(
+        input.assessmentId,
+        ctx.user.id
+      );
+    }),
+
   // Gerar questionário corporativo com IA
   generate: protectedProcedure
     .input(z.object({
@@ -131,22 +157,6 @@ Gere um questionário corporativo para avaliar a preparação de uma empresa par
       });
 
       return { id, questions };
-    }),
-
-  // Salvar respostas do questionário corporativo
-  saveAnswers: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      answers: z.any(), // JSON com respostas
-    }))
-    .mutation(async ({ input, ctx }) => {
-      await dbAssessments.completeCorporateAssessment(
-        input.projectId,
-        input.answers,
-        ctx.user.id
-      );
-
-      return { success: true };
     }),
 });
 

@@ -995,3 +995,13 @@
 - [ ] Implementar sistema de Notificações em tempo real
 - [ ] Adicionar rotas no App.tsx
 - [ ] Criar testes E2E do fluxo completo
+
+
+## Sprint V5 - Features Finais (AUTÔNOMO - Fase 3)
+- [x] Adicionar procedures backend: corporateAssessment.answer, corporateAssessment.complete
+- [ ] Adicionar procedures backend: branchAssessment.answer, branchAssessment.complete
+- [ ] Implementar sistema de comentários no Dashboard de Tarefas
+- [ ] Implementar página de Questionário Corporativo completa
+- [ ] Implementar página de Questionários por Ramo completa
+- [ ] Adicionar filtros avançados nos Planos de Ação
+- [ ] Criar testes E2E do fluxo completo

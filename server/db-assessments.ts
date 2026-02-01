@@ -47,10 +47,42 @@ export async function updateCorporateAssessment(
     .where(eq(corporateAssessments.projectId, projectId));
 }
 
+export async function answerCorporateQuestion(
+  assessmentId: number,
+  questionIndex: number,
+  answer: string,
+  userId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Buscar assessment atual
+  const assessment = await db
+    .select()
+    .from(corporateAssessments)
+    .where(eq(corporateAssessments.id, assessmentId))
+    .limit(1);
+  
+  if (!assessment[0]) throw new Error("Assessment not found");
+  
+  // Atualizar respostas
+  const currentAnswers = typeof assessment[0].answers === 'string' 
+    ? JSON.parse(assessment[0].answers || '{}') 
+    : (assessment[0].answers || {});
+  
+  currentAnswers[questionIndex] = answer;
+  
+  await db
+    .update(corporateAssessments)
+    .set({ answers: JSON.stringify(currentAnswers) })
+    .where(eq(corporateAssessments.id, assessmentId));
+  
+  return { success: true };
+}
+
 export async function completeCorporateAssessment(
-  projectId: number,
-  answers: any,
-  completedBy: number
+  assessmentId: number,
+  userId: number
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -58,11 +90,12 @@ export async function completeCorporateAssessment(
   await db
     .update(corporateAssessments)
     .set({
-      answers: JSON.stringify(answers),
       completedAt: new Date(),
-      completedBy,
+      completedBy: userId,
     })
-    .where(eq(corporateAssessments.projectId, projectId));
+    .where(eq(corporateAssessments.id, assessmentId));
+  
+  return { success: true };
 }
 
 // ============================================================================
