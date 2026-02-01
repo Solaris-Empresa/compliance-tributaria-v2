@@ -5,13 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle2, Clock, AlertCircle, ListTodo } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, ListTodo, MessageSquare, Send, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export default function DashboardTarefas() {
   const [selectedProject, setSelectedProject] = useState<number | null>(null);
   const [filterCategory, setFilterCategory] = useState<"all" | "corporate" | "branch">("all");
   const [filterStatus, setFilterStatus] = useState<"all" | "SUGGESTED" | "IN_PROGRESS" | "COMPLETED" | "OVERDUE">("all");
   const [filterArea, setFilterArea] = useState<"all" | "TI" | "CONT" | "FISC" | "JUR" | "OPS" | "COM" | "ADM">("all");
+  const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
+  const [newComment, setNewComment] = useState<string>("");
 
   // Buscar projetos
   const { data: projects, isLoading: loadingProjects } = trpc.projects.list.useQuery();
@@ -60,6 +63,74 @@ export default function DashboardTarefas() {
       ADM: "Administrativo",
     };
     return labels[area] || area;
+  };
+
+  // Componente de Comentários
+  const TaskComments = ({ taskId }: { taskId: number }) => {
+    const [comment, setComment] = useState("");
+    const { data: comments, refetch } = trpc.comments.list.useQuery({ taskId });
+    const createMutation = trpc.comments.create.useMutation({
+      onSuccess: () => {
+        refetch();
+        setComment("");
+      },
+    });
+    const deleteMutation = trpc.comments.delete.useMutation({
+      onSuccess: () => refetch(),
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (comment.trim()) {
+        createMutation.mutate({ taskId, comment });
+      }
+    };
+
+    return (
+      <div className="border-t pt-3 space-y-3">
+        <h4 className="text-sm font-semibold">Comentários</h4>
+        
+        {/* Lista de comentários */}
+        <div className="space-y-2 max-h-60 overflow-y-auto">
+          {comments && comments.length > 0 ? (
+            comments.map((c: any) => (
+              <div key={c.id} className="bg-muted/50 rounded p-2 text-sm">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground mb-1">
+                      {new Date(c.createdAt).toLocaleString("pt-BR")}
+                    </p>
+                    <p>{c.comment}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteMutation.mutate({ id: c.id })}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">Nenhum comentário ainda</p>
+          )}
+        </div>
+
+        {/* Formulário de novo comentário */}
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <Input
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Adicionar comentário..."
+            className="flex-1"
+          />
+          <Button type="submit" size="sm" disabled={!comment.trim() || createMutation.isPending}>
+            <Send className="h-4 w-4" />
+          </Button>
+        </form>
+      </div>
+    );
   };
 
   return (
@@ -232,27 +303,42 @@ export default function DashboardTarefas() {
                       key={task.id}
                       className="border rounded-lg p-4 hover:bg-accent/50 transition-colors"
                     >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 space-y-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold">{task.title}</h3>
-                            {getStatusBadge(task.status)}
-                            <Badge variant="outline">{task.category === "corporate" ? "Corporativo" : "Ramo"}</Badge>
-                          </div>
-                          {task.description && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">
-                              {task.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span>Área: {getAreaLabel(task.responsibleArea)}</span>
-                            <span>Tipo: {task.taskType}</span>
-                            <span>Prioridade: {task.priority}</span>
-                            {task.deadline && (
-                              <span>Prazo: {new Date(task.deadline).toLocaleDateString("pt-BR")}</span>
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 space-y-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold">{task.title}</h3>
+                              {getStatusBadge(task.status)}
+                              <Badge variant="outline">{task.category === "corporate" ? "Corporativo" : "Ramo"}</Badge>
+                            </div>
+                            {task.description && (
+                              <p className="text-sm text-muted-foreground line-clamp-2">
+                                {task.description}
+                              </p>
                             )}
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              <span>Área: {getAreaLabel(task.responsibleArea)}</span>
+                              <span>Tipo: {task.taskType}</span>
+                              <span>Prioridade: {task.priority}</span>
+                              {task.deadline && (
+                                <span>Prazo: {new Date(task.deadline).toLocaleDateString("pt-BR")}</span>
+                              )}
+                            </div>
                           </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setExpandedTaskId(expandedTaskId === task.id ? null : task.id)}
+                          >
+                            <MessageSquare className="h-4 w-4 mr-2" />
+                            Comentários
+                          </Button>
                         </div>
+
+                        {/* Seção de Comentários */}
+                        {expandedTaskId === task.id && (
+                          <TaskComments taskId={task.id} />
+                        )}
                       </div>
                     </div>
                   ))}

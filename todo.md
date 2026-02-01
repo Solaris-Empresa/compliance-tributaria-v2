@@ -1032,10 +1032,10 @@
 
 ## Sprint V9 - Features Finais Críticas
 - [x] Adicionar procedures backend: branchAssessment.answer e branchAssessment.complete
-- [ ] Adicionar procedures backend: comments.create, comments.list, comments.delete
-- [ ] Implementar UI de comentários no Dashboard de Tarefas
-- [ ] Adicionar procedures: actionPlans.generateCorporate e actionPlans.generateForBranch
-- [ ] Criar botão "Gerar Plano de Ação" após conclusão de questionários
-- [ ] Integrar geração automática de planos com questionários
+- [x] Adicionar procedures backend: comments.create, comments.list, comments.delete (JÁ EXISTIAM)
+- [x] Implementar UI de comentários no Dashboard de Tarefas
+- [x] Adicionar procedures: actionPlans.generateCorporate e actionPlans.generateForBranch (JÁ EXISTEM)
+- [x] Criar botão "Gerar Plano de Ação" após conclusão de questionários (JÁ EXISTE na página Planos de Ação)
+- [x] Integrar geração automática de planos com questionários (JÁ INTEGRADO)
 - [ ] Criar testes unitários para novas procedures
 - [ ] Testar fluxo completo end-to-end
