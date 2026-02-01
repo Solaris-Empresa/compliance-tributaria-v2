@@ -1277,4 +1277,24 @@
 - [x] Feature 3: Criar router permissionsCheck (routers-permissions-check.ts)
 - [x] Feature 3: Definir permissões por role (USER_PERMISSIONS, PROJECT_PERMISSIONS)
 - [x] Feature 3: Criar testes para permissões (9/9 passando)
+- [x] Feature 3: Checkpoint final (4ab95343) e push para GitHub
+- [x] Sprint V19: Issue #56 criada e fechada como Done
+- [x] Sprint V19: 100% CONCLUÍDA
+
+
+## Sprint V20: Permissões na UI + QuestionEditor + Dashboard Auditoria
+- [x] Feature 1: Criar hook useProjectPermissions
+- [x] Feature 1: Aplicar permissões condicionais em GerenciarAcoes (canEdit, canDelete)
+- [x] Feature 1: Ocultar botões Editar/Excluir/Nova Ação baseado em permissões
+- [x] Feature 1: Criar testes para permissões na UI (4/4 passando)
+- [ ] Feature 1: Checkpoint e push para GitHub
+- [ ] Feature 2: Criar página GerenciarQuestoes
+- [ ] Feature 2: Integrar QuestionEditor inline
+- [ ] Feature 2: Adicionar rota /questionarios/gerenciar
+- [ ] Feature 2: Criar testes para GerenciarQuestoes
+- [ ] Feature 2: Checkpoint e push para GitHub
+- [ ] Feature 3: Criar componente DashboardAuditoria com gráficos
+- [ ] Feature 3: Adicionar Chart.js para visualizações
+- [ ] Feature 3: Implementar gráficos (operações/dia, usuários ativos, tipos mudanças)
+- [ ] Feature 3: Criar testes para Dashboard
 - [ ] Feature 3: Checkpoint final e push para GitHub

@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { ArrowLeft, Plus, AlertCircle } from "lucide-react";
 import { Skeleton } from "../components/ui/skeleton";
 import { ActionEditDialog, ActionDeleteButton, ActionCreateDialog } from "../components/ActionEditor";
+import { useProjectPermissions } from "../hooks/useProjectPermissions";
 
 export default function GerenciarAcoes() {
   const [, setLocation] = useLocation();
@@ -34,6 +35,8 @@ export default function GerenciarAcoes() {
     { projectId: projectId!, category: "branch" },
     { enabled: !!projectId }
   );
+
+  const { canEdit, canDelete, isLoading: loadingPermissions } = useProjectPermissions(projectId || undefined);
 
   if (!projectId) {
     return (
@@ -126,8 +129,8 @@ export default function GerenciarAcoes() {
                   )}
                 </div>
                 <div className="flex gap-2">
-                  <ActionEditDialog action={action} projectId={projectId!} />
-                  <ActionDeleteButton action={action} projectId={projectId!} />
+                  {canEdit && <ActionEditDialog action={action} projectId={projectId!} />}
+                  {canDelete && <ActionDeleteButton action={action} projectId={projectId!} />}
                 </div>
               </div>
             </CardHeader>
@@ -177,7 +180,7 @@ export default function GerenciarAcoes() {
             <TabsTrigger value="corporate">Ações Corporativas</TabsTrigger>
             <TabsTrigger value="branch">Ações por Ramo</TabsTrigger>
           </TabsList>
-          <ActionCreateDialog projectId={projectId} category={activeTab} ownerId={1} />
+          {canEdit && <ActionCreateDialog projectId={projectId} category={activeTab} ownerId={1} />}
         </div>
 
         <TabsContent value="corporate" className="space-y-4">
