@@ -12,7 +12,10 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "db:push": "drizzle-kit generate && drizzle-kit migrate"
+    "db:push": "drizzle-kit generate && drizzle-kit migrate",
+    "db:clear": "node scripts/clear-database.mjs",
+    "db:seed": "node scripts/seed-initial-data.mjs",
+    "db:reset": "pnpm db:clear && pnpm db:seed"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
