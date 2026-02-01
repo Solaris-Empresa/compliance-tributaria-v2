@@ -1374,6 +1374,8 @@
 - [x] Investigar por que produção ainda tem erro após migração do banco - Site usa código antigo
 - [x] Verificar qual versão está publicada em iasolaris.manus.space - Versão antiga sem correção
 - [x] Identificar que botão Publish não aparece (site já publicado com versão antiga)
-- [ ] Criar novo checkpoint para forçar republicação
-- [ ] Validar em produção que erro foi resolvido
-- [ ] Atualizar issue #58 no GitHub com status final
+- [x] Criar novo checkpoint para forçar republicação (0349cfdf)
+- [x] Usuário clicar em Publish no Management UI - Deploy completo
+- [x] Validar em produção que erro foi resolvido - Checkpoint 0349cfdf confirmado
+- [x] Atualizar issue #58 no GitHub com validação final - Comentário adicionado
+- [x] Fechar Sprint V28 como concluído - Bug resolvido definitivamente
