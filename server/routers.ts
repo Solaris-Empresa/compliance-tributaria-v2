@@ -33,8 +33,11 @@ const validateProjectAccess = async (ctx: any, projectId: number) => {
 // MAIN ROUTER
 // ============================================================================
 
+import { branchesRouter } from "./routers-branches";
+
 export const appRouter = router({
   system: systemRouter,
+  branches: branchesRouter,
   
   // ==========================================================================
   // AUTH
@@ -1103,10 +1106,14 @@ Retorne APENAS JSON válido no formato:
                     projectId: input.projectId,
                     title: action.title || 'Ação sem título',
                     description: action.description || null,
-                    status: 'a_fazer',
+                    category: 'corporate', // Padrão corporativo
+                    responsibleArea: 'ADM', // Padrão administrativo
+                    taskType: 'COMPLIANCE', // Padrão compliance
+                    status: 'SUGGESTED',
                     priority: action.priority || 'media',
-                    dueDate: action.dueDate ? new Date(action.dueDate) : null,
-                    assignedTo: null, // Será atribuído manualmente
+                    ownerId: ctx.user.id, // Owner é quem criou
+                    startDate: new Date(), // Começa agora
+                    deadline: action.dueDate ? new Date(action.dueDate) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 dias padrão
                     estimatedHours: action.estimatedHours || null,
                     createdBy: ctx.user.id,
                   });
@@ -1248,7 +1255,7 @@ Retorne APENAS JSON válido no formato:
         projectId: z.number(),
         title: z.string(),
         description: z.string().optional(),
-        status: z.enum(["pendencias", "a_fazer", "em_andamento", "concluido"]).default("a_fazer"),
+        status: z.enum(["SUGGESTED", "IN_PROGRESS", "COMPLETED", "OVERDUE"]).default("SUGGESTED"),
         priority: z.enum(["baixa", "media", "alta", "critica"]).default("media"),
         assignedTo: z.number().optional(),
         phaseId: z.number().optional(),
@@ -1259,9 +1266,21 @@ Retorne APENAS JSON válido no formato:
       .mutation(async ({ input, ctx }) => {
         await validateProjectAccess(ctx, input.projectId);
         const taskId = await db.createTask({
-          ...input,
+          projectId: input.projectId,
+          title: input.title,
+          description: input.description,
+          category: 'corporate', // TODO: permitir escolher
+          responsibleArea: 'ADM', // TODO: permitir escolher
+          taskType: 'COMPLIANCE', // TODO: permitir escolher
+          status: input.status,
+          priority: input.priority,
+          ownerId: input.assignedTo || ctx.user.id,
+          startDate: new Date(),
+          deadline: input.dueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          phaseId: input.phaseId,
+          riskId: input.riskId,
+          estimatedHours: input.estimatedHours,
           createdBy: ctx.user.id,
-          createdAt: new Date(),
         });
 
         return taskId;
@@ -1273,7 +1292,7 @@ Retorne APENAS JSON válido no formato:
         taskId: z.number(),
         title: z.string().optional(),
         description: z.string().optional(),
-        status: z.enum(["pendencias", "a_fazer", "em_andamento", "concluido"]).optional(),
+        status: z.enum(["SUGGESTED", "IN_PROGRESS", "COMPLETED", "OVERDUE"]).optional(),
         priority: z.enum(["baixa", "media", "alta", "critica"]).optional(),
         assignedTo: z.number().optional(),
         phaseId: z.number().optional(),
@@ -1292,7 +1311,7 @@ Retorne APENAS JSON válido no formato:
       .input(z.object({
         projectId: z.number(),
         taskId: z.number(),
-        status: z.enum(["pendencias", "a_fazer", "em_andamento", "concluido"]),
+        status: z.enum(["SUGGESTED", "IN_PROGRESS", "COMPLETED", "OVERDUE"]),
       }))
       .mutation(async ({ input, ctx }) => {
         await validateProjectAccess(ctx, input.projectId);

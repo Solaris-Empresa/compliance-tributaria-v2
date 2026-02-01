@@ -1,0 +1,46 @@
+{
+  "sprint_name": "MVP IA SOLARIS - Questionários e Planos por Ramo",
+  "milestone": "MVP v2.0 - Reforma Tributária",
+  "issues": [
+    {
+      "number": 1,
+      "title": "[P0] Cadastro de Ramos de Atividade",
+      "body": "## 🎯 Objetivo\nCriar sistema de cadastro de ramos de atividade econômica (Comércio, Indústria, Serviços, etc.)\n\n## 📋 Tarefas\n- [ ] Criar tabela `activityBranches` (id, nome, descrição, ativo, criado_em, atualizado_em)\n- [ ] Criar seed com 8 ramos iniciais (Comércio, Indústria, Serviços, Agronegócio, Saúde, Imobiliário, Logística, Educação)\n- [ ] Criar CRUD admin (listar, criar, editar, desativar)\n- [ ] Criar página `/admin/ramos-atividade`\n\n## ✅ Critérios de Aceite\n- [ ] Tabela criada com migração\n- [ ] Seed executado com 8 ramos\n- [ ] Admin consegue criar/editar/desativar ramos\n- [ ] Validação: nome obrigatório, descrição obrigatória\n\n## 📊 Metadados\n- **Prioridade:** P0 (Crítica)\n- **Dependências:** Nenhuma\n- **Estimativa:** 2-3 dias\n- **Sprint:** Sprint 1",
+      "labels": ["P0", "fundação", "backend", "frontend"],
+      "assignees": [],
+      "milestone": "Sprint 1"
+    },
+    {
+      "number": 7,
+      "title": "[P0] Enum de Áreas Responsáveis",
+      "body": "## 🎯 Objetivo\nCriar enum de áreas responsáveis para categorização de tarefas\n\n## 📋 Tarefas\n- [ ] Criar enum `ResponsibleArea` no schema: TI, CONT, FISC, JUR, OPS, COM, ADM\n- [ ] Adicionar campo `responsibleArea` na tabela `actions`\n- [ ] Criar componente dropdown `<ResponsibleAreaSelect>` no frontend\n- [ ] Criar tradução de códigos para nomes (TI → Tecnologia da Informação)\n\n## ✅ Critérios de Aceite\n- [ ] Enum criado no schema\n- [ ] Componente dropdown funcional\n- [ ] Tradução de códigos implementada\n\n## 📊 Metadados\n- **Prioridade:** P0 (Crítica)\n- **Dependências:** Nenhuma\n- **Estimativa:** 1 dia\n- **Sprint:** Sprint 1",
+      "labels": ["P0", "fundação", "backend", "frontend"],
+      "assignees": [],
+      "milestone": "Sprint 1"
+    },
+    {
+      "number": 8,
+      "title": "[P1] Campo Tipo de Tarefa",
+      "body": "## 🎯 Objetivo\nAdicionar categorização de tarefas por tipo (Estratégica, Operacional, Compliance)\n\n## 📋 Tarefas\n- [ ] Criar enum `TaskType` no schema: STRATEGIC, OPERATIONAL, COMPLIANCE\n- [ ] Adicionar campo `taskType` na tabela `actions`\n- [ ] Criar componente dropdown `<TaskTypeSelect>` no frontend\n\n## ✅ Critérios de Aceite\n- [ ] Enum criado no schema\n- [ ] Campo adicionado na tabela\n- [ ] Componente dropdown funcional\n\n## 📊 Metadados\n- **Prioridade:** P1 (Alta)\n- **Dependências:** Nenhuma\n- **Estimativa:** 1 dia\n- **Sprint:** Sprint 1",
+      "labels": ["P1", "fundação", "backend", "frontend"],
+      "assignees": [],
+      "milestone": "Sprint 1"
+    },
+    {
+      "number": 2,
+      "title": "[P0] Seleção de Ramos no Projeto",
+      "body": "## 🎯 Objetivo\nPermitir que projetos tenham múltiplos ramos de atividade\n\n## 📋 Tarefas\n- [ ] Criar tabela pivot `projectBranches` (projectId, branchId, createdAt)\n- [ ] Adicionar step \"Seleção de Ramos\" no formulário de criação de projeto\n- [ ] Permitir selecionar múltiplos ramos (checkboxes)\n- [ ] Exibir ramos selecionados na página do projeto\n\n## ✅ Critérios de Aceite\n- [ ] Tabela pivot criada\n- [ ] Formulário permite selecionar 1 ou N ramos\n- [ ] Ramos salvos corretamente no banco\n- [ ] Página do projeto exibe ramos selecionados\n\n## 📊 Metadados\n- **Prioridade:** P0 (Crítica)\n- **Dependências:** #1\n- **Estimativa:** 2-3 dias\n- **Sprint:** Sprint 2",
+      "labels": ["P0", "projetos", "backend", "frontend"],
+      "assignees": [],
+      "milestone": "Sprint 2"
+    },
+    {
+      "number": 25,
+      "title": "[P1] Ajuste do Briefing",
+      "body": "## 🎯 Objetivo\nAjustar briefing para incluir ramos de atividade selecionados\n\n## 📋 Tarefas\n- [ ] Adicionar campo `selectedBranches` na tabela `briefings`\n- [ ] Exibir ramos selecionados no briefing\n- [ ] Ajustar geração do briefing para incluir contexto dos ramos\n\n## ✅ Critérios de Aceite\n- [ ] Campo adicionado na tabela\n- [ ] Briefing exibe ramos selecionados\n- [ ] Contexto de ramos enviado para IA\n\n## 📊 Metadados\n- **Prioridade:** P1 (Alta)\n- **Dependências:** #2\n- **Estimativa:** 1 dia\n- **Sprint:** Sprint 2",
+      "labels": ["P1", "briefing", "backend", "frontend"],
+      "assignees": [],
+      "milestone": "Sprint 2"
+    }
+  ]
+}

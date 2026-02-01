@@ -16,7 +16,8 @@ import {
   actionPlanVersions, InsertActionPlanVersion,
   actionPlanPromptHistory, InsertActionPlanPromptHistory,
   actionPlanTemplates, InsertActionPlanTemplate,
-  tasks, InsertTask,
+  actions,
+  InsertAction,
   phases, InsertPhase,
   notifications, InsertNotification,
 
@@ -645,11 +646,11 @@ export async function saveActionPlanPromptHistory(data: InsertActionPlanPromptHi
 // TASKS
 // ============================================================================
 
-export async function createTask(data: InsertTask) {
+export async function createTask(data: InsertAction) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(tasks).values(data);
+  const result = await db.insert(actions).values(data);
   return Number(result[0].insertId);
 }
 
@@ -659,9 +660,9 @@ export async function getTasksByProject(projectId: number) {
 
   const result = await db
     .select()
-    .from(tasks)
-    .where(eq(tasks.projectId, projectId))
-    .orderBy(tasks.createdAt);
+    .from(actions)
+    .where(eq(actions.projectId, projectId))
+    .orderBy(actions.createdAt);
 
   return result;
 }
@@ -676,21 +677,21 @@ export async function updateTaskStatus(taskId: number, status: string) {
     updateData.completedAt = new Date();
   }
 
-  await db.update(tasks).set(updateData).where(eq(tasks.id, taskId));
+  await db.update(actions).set(updateData).where(eq(actions.id, taskId));
 }
 
-export async function updateTask(taskId: number, data: Partial<InsertTask>) {
+export async function updateTask(taskId: number, data: Partial<InsertAction>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  await db.update(tasks).set(data).where(eq(tasks.id, taskId));
+  await db.update(actions).set(data).where(eq(actions.id, taskId));
 }
 
 export async function deleteTask(taskId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  await db.delete(tasks).where(eq(tasks.id, taskId));
+  await db.delete(actions).where(eq(actions.id, taskId));
 }
 
 // ============================================================================
@@ -826,13 +827,13 @@ export async function getDashboardKPIs(projectId: number) {
   // Total de tarefas
   const allTasks = await db
     .select()
-    .from(tasks)
-    .where(eq(tasks.projectId, projectId));
+    .from(actions)
+    .where(eq(actions.projectId, projectId));
 
   const totalTasks = allTasks.length;
-  const completedTasks = allTasks.filter(t => t.status === "concluido").length;
+  const completedTasks = allTasks.filter(t => t.status === "COMPLETED").length;
   const overdueTasks = allTasks.filter(t => 
-    t.dueDate && new Date(t.dueDate) < new Date() && t.status !== "concluido"
+    t.deadline && new Date(t.deadline) < new Date() && t.status !== "COMPLETED"
   ).length;
 
   // Taxa de conclusão
@@ -864,14 +865,14 @@ export async function getTaskDistribution(projectId: number) {
 
   const allTasks = await db
     .select()
-    .from(tasks)
-    .where(eq(tasks.projectId, projectId));
+    .from(actions)
+    .where(eq(actions.projectId, projectId));
 
   const distribution = {
-    pendencias: 0,
-    a_fazer: 0,
-    em_andamento: 0,
-    concluido: 0,
+    SUGGESTED: 0,
+    IN_PROGRESS: 0,
+    COMPLETED: 0,
+    OVERDUE: 0,
   };
 
   allTasks.forEach(task => {
@@ -915,15 +916,15 @@ export async function getOverdueTasks(projectId: number) {
   
   const overdue = await db
     .select()
-    .from(tasks)
+    .from(actions)
     .where(
       and(
-        eq(tasks.projectId, projectId),
-        ne(tasks.status, "concluido")
+        eq(actions.projectId, projectId),
+        ne(actions.status, "COMPLETED")
       )
     );
 
-  return overdue.filter(task => task.dueDate && new Date(task.dueDate) < now);
+  return overdue.filter(task => task.deadline && new Date(task.deadline) < now);
 }
 
 

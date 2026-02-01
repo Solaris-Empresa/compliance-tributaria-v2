@@ -94,6 +94,35 @@ export type ProjectParticipant = typeof projectParticipants.$inferSelect;
 export type InsertProjectParticipant = typeof projectParticipants.$inferInsert;
 
 /**
+ * CAMADA 1.1 - Ramos de Atividade (Catálogo)
+ */
+export const activityBranches = mysqlTable("activityBranches", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 10 }).notNull().unique(), // COM, IND, SER, etc.
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ActivityBranch = typeof activityBranches.$inferSelect;
+export type InsertActivityBranch = typeof activityBranches.$inferInsert;
+
+/**
+ * CAMADA 1.2 - Relacionamento N:N entre Projeto e Ramos
+ */
+export const projectBranches = mysqlTable("projectBranches", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  branchId: int("branchId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ProjectBranch = typeof projectBranches.$inferSelect;
+export type InsertProjectBranch = typeof projectBranches.$inferInsert;
+
+/**
  * Assessment Fase 1 - Perguntas básicas fixas
  */
 export const assessmentPhase1 = mysqlTable("assessmentPhase1", {
@@ -362,29 +391,88 @@ export type Phase = typeof phases.$inferSelect;
 export type InsertPhase = typeof phases.$inferInsert;
 
 /**
- * Tarefas do Plano de Ação
- * Colunas: Pendências, A Fazer, Em Andamento, Concluído
+ * CAMADA 4 - Tarefas do Plano de Ação (NOVA ESTRUTURA)
+ * Suporta tarefas corporativas e por ramo de atividade
  */
-export const tasks = mysqlTable("tasks", {
+export const actions = mysqlTable("actions", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
+  
+  // CAMADA 4.2-4.3: Origem da tarefa
+  category: mysqlEnum("category", ["corporate", "branch"]).notNull(), // Corporativo ou Ramo
+  branchId: int("branchId"), // Obrigatório se category = branch
+  
+  // Campos básicos
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  
+  // CAMADA 4.4: Área Responsável
+  responsibleArea: mysqlEnum("responsibleArea", [
+    "TI",           // Tecnologia da Informação
+    "CONT",         // Contabilidade
+    "FISC",         // Fiscal/Tributário
+    "JUR",          // Jurídico
+    "OPS",          // Operações
+    "COM",          // Comercial
+    "ADM"           // Administrativo/Governança
+  ]).notNull(),
+  
+  // CAMADA 4.5: Tipo de Tarefa
+  taskType: mysqlEnum("taskType", [
+    "STRATEGIC",    // Estratégica
+    "OPERATIONAL",  // Operacional
+    "COMPLIANCE"    // Compliance
+  ]).notNull(),
+  
+  // CAMADA 4.6: Prioridade
+  priority: mysqlEnum("priority", ["baixa", "media", "alta", "critica"]).default("media").notNull(),
+  
+  // CAMADA 4.7: Status
+  status: mysqlEnum("status", [
+    "SUGGESTED",     // Sugerido (gerado pela IA)
+    "IN_PROGRESS",   // Em execução
+    "COMPLETED",     // Concluído
+    "OVERDUE"        // Atrasado
+  ]).default("SUGGESTED").notNull(),
+  
+  // CAMADA 4.8: Owner (Dono da tarefa)
+  ownerId: int("ownerId").notNull(), // Usuário responsável
+  
+  // CAMADA 4.9: Datas
+  startDate: timestamp("startDate").notNull(),
+  deadline: timestamp("deadline").notNull(),
+  completedAt: timestamp("completedAt"),
+  
+  // CAMADA 4.11: Dependência (opcional)
+  dependsOn: int("dependsOn"), // FK para outra tarefa
+  
+  // Campos legados (manter compatibilidade)
   phaseId: int("phaseId"),
   riskId: int("riskId"),
-  title: varchar("title", { length: 255 }).notNull(),
-  description: text("description"),
-  status: mysqlEnum("status", ["pendencias", "a_fazer", "em_andamento", "concluido"]).default("pendencias").notNull(),
-  priority: mysqlEnum("priority", ["baixa", "media", "alta", "critica"]).default("media").notNull(),
-  assignedTo: int("assignedTo"),
   estimatedHours: int("estimatedHours"),
   actualHours: int("actualHours"),
-  dueDate: timestamp("dueDate"),
-  completedAt: timestamp("completedAt"),
+  
+  // Auditoria
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   createdBy: int("createdBy").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-export type Task = typeof tasks.$inferSelect;
-export type InsertTask = typeof tasks.$inferInsert;
+export type Action = typeof actions.$inferSelect;
+export type InsertAction = typeof actions.$inferInsert;
+
+/**
+ * CAMADA 5.1 - Observadores de Tarefas
+ */
+export const taskObservers = mysqlTable("taskObservers", {
+  id: int("id").autoincrement().primaryKey(),
+  taskId: int("taskId").notNull(),
+  userId: int("userId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TaskObserver = typeof taskObservers.$inferSelect;
+export type InsertTaskObserver = typeof taskObservers.$inferInsert;
 
 /**
  * Comentários em tarefas
