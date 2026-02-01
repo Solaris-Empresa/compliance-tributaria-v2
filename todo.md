@@ -1252,3 +1252,24 @@
 - [x] Fechar issue no GitHubHub
 - [ ] Criar issue no GitHub
 - [ ] Marcar issue como Done
+
+
+## Sprint V19: QA Sprint V18 + 3 Novas Features
+- [ ] QA: Testar ActionEditor e QuestionEditor manualmente
+- [ ] QA: Criar testes unitários para componentes
+- [ ] QA: Criar testes de integração tRPC
+- [ ] QA: Validar auditoria funcionando
+- [x] Feature 1: Criar página GerenciarAcoes com ActionEditor inline
+- [x] Feature 1: Adicionar rota /planos-acao/gerenciar-acoes
+- [x] Feature 1: Integração completa de edição, criação e exclusão inline
+- [x] Feature 1: Criar testes para integração inline (3/3 passando)
+- [ ] Feature 1: Checkpoint e push para GitHub
+- [ ] Feature 2: Criar página Visualizador de Auditoria
+- [ ] Feature 2: Implementar filtros (usuário, data, tipo)
+- [ ] Feature 2: Criar testes para visualizador
+- [ ] Feature 2: Checkpoint e push para GitHub
+- [ ] Feature 3: Implementar sistema de permissões granulares
+- [ ] Feature 3: Adicionar middleware de autorização
+- [ ] Feature 3: Atualizar UI com controles condicionais
+- [ ] Feature 3: Criar testes para permissões
+- [ ] Feature 3: Checkpoint final e push para GitHub

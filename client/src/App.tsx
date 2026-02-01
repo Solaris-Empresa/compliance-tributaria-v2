@@ -28,6 +28,7 @@ import EditarTemplate from "@/pages/EditarTemplate";
 import MatrizRiscos from "@/pages/MatrizRiscos";
 import MatrizRiscosGlobal from "@/pages/MatrizRiscosGlobal";
 import ProjetoDetalhes from "./pages/ProjetoDetalhes";
+import GerenciarAcoes from "./pages/GerenciarAcoes";
 import NotFound from "./pages/NotFound";
 
 function Router() {
@@ -51,8 +52,9 @@ function Router() {
           <Route path="/projetos/:id/planos-acao" component={PlanosAcao} />
       <Route path="/projetos/:id/questionario-corporativo" component={QuestionarioCorporativo} />
       <Route path="/projetos/:id/questionarios-ramo" component={QuestionariosPorRamo} />
-      <Route path="/visualizar-plano-corporativo" component={VisualizarPlanoCorporativo} />
-      <Route path="/visualizar-planos-ramo" component={VisualizarPlanosPorRamo} />
+      <Route path="/planos-acao/visualizar-plano-corporativo" component={VisualizarPlanoCorporativo} />
+      <Route path="/planos-acao/visualizar-planos-por-ramo" component={VisualizarPlanosPorRamo} />
+      <Route path="/planos-acao/gerenciar-acoes" component={GerenciarAcoes} />
       <Route path="/aprovacao-planos" component={AprovacaoPlanos} />
       <Route path="/exportar-relatorios" component={ExportarRelatorios} />
       <Route path="/gestao-permissoes" component={GestaoPermissoes} />
