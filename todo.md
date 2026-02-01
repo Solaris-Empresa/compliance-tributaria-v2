@@ -1329,9 +1329,9 @@
 - [ ] Testar manualmente salvamento da Fase 1 no ambiente
 
 ## Sprint V24: QA Completo e Push para GitHub (01/02/2026)
-- [ ] Testar fluxo completo de criação de projeto
-- [ ] Testar salvamento da Fase 1 com todos os campos
-- [ ] Testar geração de questionário Fase 2
-- [ ] Testar fluxo até plano de ação corporativo
-- [ ] Fazer commit e push para GitHub
-- [ ] Investigar causa raiz de como o bug voltou (rollback anterior?)
+- [x] Verificar status do código no GitHub (checkpoint 35298aec já sincronizado)
+- [x] Fazer commit do todo.md (commit 408b8a78)
+- [x] Investigar causa raiz de como o bug voltou
+- [x] Confirmar que bug foi resolvido originalmente em 30/01 (commit 08876c47)
+- [x] Identificar que rollback para dd19b6f5 restaurou código antigo SEM correção
+- [x] Validar que correção atual (35298aec) está segura no GitHub
