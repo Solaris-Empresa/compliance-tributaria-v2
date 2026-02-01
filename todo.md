@@ -1394,6 +1394,6 @@
 - [x] Investigar erro "Unexpected token '\`', "\`\`\`json..." na geração de planos por ramo - IA retorna ```json ... ```
 - [x] Corrigir parsing de JSON no backend (remover markdown code blocks da resposta da IA) - Linhas 58-63 e 193-198)
 - [x] Criar testes unitários validando parsing correto - 6 testes criados (100% passaram)
-- [ ] Criar checkpoint final
+- [x] Criar checkpoint final (a5662d1e)
 - [ ] Push para GitHub
 - [ ] Criar issue #60 e marcar como done no GitHub
