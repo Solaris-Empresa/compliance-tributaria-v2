@@ -4,6 +4,7 @@ import { protectedProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
 import { actions, taskObservers, InsertAction, InsertTaskObserver } from "../drizzle/schema";
 import { notifyProject, notifyUser } from "./_core/websocket";
+import { logAudit } from "./routers-audit";
 
 // ============================================================================
 // TASKS ROUTER - Gestão Completa de Tarefas
@@ -89,7 +90,24 @@ export const tasksRouter = router({
         createdBy: ctx.user.id,
       });
 
-      return { id: Number(result[0].insertId) };
+      const taskId = Number(result[0].insertId);
+
+      // Registrar auditoria
+      await logAudit({
+        userId: ctx.user.id,
+        userName: ctx.user.name || "Unknown",
+        projectId: input.projectId,
+        entityType: "task",
+        entityId: taskId,
+        action: "create",
+        metadata: {
+          title: input.title,
+          category: input.category,
+          responsibleArea: input.responsibleArea,
+        },
+      });
+
+      return { id: taskId };
     }),
 
   // Atualizar tarefa
@@ -162,6 +180,22 @@ export const tasksRouter = router({
             status: input.status,
           });
         }
+
+        // Registrar auditoria de mudança de status
+        await logAudit({
+          userId: ctx.user.id,
+          userName: ctx.user.name || "Unknown",
+          projectId: task.projectId,
+          entityType: "task",
+          entityId: task.id,
+          action: "status_change",
+          changes: {
+            status: { old: "previous", new: input.status },
+          },
+          metadata: {
+            title: task.title,
+          },
+        });
       }
 
       return { success: true };

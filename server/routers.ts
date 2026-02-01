@@ -41,6 +41,7 @@ import { commentsRouter } from "./routers-comments";
 import { notificationsRouter as notificationsRouterV2 } from "./routers-notifications";
 import { analyticsRouter } from "./routers-analytics";
 import { permissionsRouter } from "./routers-permissions";
+import { auditRouter } from "./routers-audit";
 
 export const appRouter = router({
   system: systemRouter,
@@ -53,6 +54,7 @@ export const appRouter = router({
   notificationsV2: notificationsRouterV2,
   analytics: analyticsRouter,
   permissions: permissionsRouter,
+  audit: auditRouter,
   
   // ==========================================================================
   // AUTH

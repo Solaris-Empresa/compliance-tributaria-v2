@@ -1109,3 +1109,14 @@
 - [x] Implementar controle por áreas (TI, CONT, FISC, JUR, OPS, COM, ADM)
 - [x] Integrar permissions router ao appRouter
 - [x] Criar testes unitários (6/6 passando)
+
+## Sprint V12 Fase 2 - Histórico de Auditoria (CONCLUÍDO)
+- [x] Criar tabela auditLog no schema
+- [x] Criar router de auditoria (list, getByEntity, getByUser)
+- [x] Implementar função logAudit para registrar ações
+- [x] Integrar auditoria ao router de tarefas (create, updateStatus)
+- [x] Integrar auditoria ao router de comentários (create)
+- [x] Registrar entityType, action, changes, metadata
+- [x] Adicionar timestamp e userName automáticos
+- [x] Integrar audit router ao appRouter
+- [x] Criar testes unitários (6/6 passando)

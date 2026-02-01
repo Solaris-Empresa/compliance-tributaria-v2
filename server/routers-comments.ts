@@ -4,6 +4,7 @@ import { protectedProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
 import { taskComments, InsertTaskComment, actions } from "../drizzle/schema";
 import { notifyProject, notifyUser } from "./_core/websocket";
+import { logAudit } from "./routers-audit";
 
 // ============================================================================
 // COMMENTS ROUTER - Sistema de Comentários em Tarefas
@@ -63,6 +64,21 @@ export const commentsRouter = router({
             comment: input.comment.substring(0, 100),
           });
         }
+        
+        // Registrar auditoria
+        await logAudit({
+          userId: ctx.user.id,
+          userName: ctx.user.name || "Unknown",
+          projectId: task.projectId,
+          entityType: "comment",
+          entityId: Number(result[0].insertId),
+          action: "create",
+          metadata: {
+            taskId: task.id,
+            taskTitle: task.title,
+            commentPreview: input.comment.substring(0, 100),
+          },
+        });
       }
 
       return { id: Number(result[0].insertId) };
