@@ -44,6 +44,8 @@ import { permissionsRouter } from "./routers-permissions";
 import { auditRouter } from "./routers-audit";
 import { approvalsRouter } from "./routers-approvals";
 import { reportsRouter } from "./routers-reports";
+import { actionsCrudRouter } from "./routers-actions-crud";
+import { questionsCrudRouter } from "./routers-questions-crud";
 
 export const appRouter = router({
   system: systemRouter,
@@ -59,6 +61,8 @@ export const appRouter = router({
   audit: auditRouter,
   approvals: approvalsRouter,
   reports: reportsRouter,
+  actionsCrud: actionsCrudRouter,
+  questionsCrud: questionsCrudRouter,
   
   // ==========================================================================
   // AUTH

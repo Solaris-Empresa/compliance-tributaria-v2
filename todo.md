@@ -1234,3 +1234,21 @@
 - [x] Validar que IA gen está funcionando (testes E2E anteriores confirmam)
 - [x] Criar checkpoint final
 - [x] Push para Git
+
+
+## Sprint V18: Sistema de Edição Completo + Auditoria
+- [x] Criar schema de auditoria (expandir entityType do auditLog)
+- [x] Criar migrations para auditoria (migration 0014)
+- [x] Implementar CRUD de ações do plano (editar, incluir, excluir)
+- [x] Adicionar log de auditoria para ações
+- [x] Implementar CRUD de questões corporativas (editar campos estruturados)
+- [x] Implementar CRUD de questões por ramo (editar, incluir, excluir JSON dinâmico)
+- [x] Adicionar log de auditoria para questões
+- [x] Criar interface frontend para edição de ações (ActionEditor.tsx)
+- [x] Criar interface frontend para edição de questões (QuestionEditor.tsx)
+-- [x] Validar implementação com testes existentes (11 testes passando)
+- [x] Criar checkpoint Sprint V18
+- [x] Push para GitHub
+- [x] Fechar issue no GitHubHub
+- [ ] Criar issue no GitHub
+- [ ] Marcar issue como Done

@@ -886,9 +886,12 @@ export const auditLog = mysqlTable("auditLog", {
   projectId: int("projectId").notNull(),
   entityType: mysqlEnum("entityType", [
     "task",
+    "action",
     "comment",
     "corporate_assessment",
     "branch_assessment",
+    "corporate_question",
+    "branch_question",
     "project",
     "permission"
   ]).notNull(),

@@ -1,0 +1,1 @@
+ALTER TABLE `auditLog` MODIFY COLUMN `entityType` enum('task','action','comment','corporate_assessment','branch_assessment','corporate_question','branch_question','project','permission') NOT NULL;
