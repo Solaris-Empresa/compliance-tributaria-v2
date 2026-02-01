@@ -306,7 +306,7 @@ export default function PlanoAcao() {
         
         await generateBranchAssessment.mutateAsync({
           projectId,
-          branchId: branch.id,
+          branchId: branch.branchId, // Corrigido: usar branchId ao invés de id
         });
       }
 
@@ -319,7 +319,7 @@ export default function PlanoAcao() {
         
         await generateBranchPlan.mutateAsync({
           projectId,
-          branchId: branch.id,
+          branchId: branch.branchId, // Corrigido: usar branchId ao invés de id
         });
       }
 

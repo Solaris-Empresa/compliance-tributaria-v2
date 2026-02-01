@@ -1379,3 +1379,13 @@
 - [x] Validar em produção que erro foi resolvido - Checkpoint 0349cfdf confirmado
 - [x] Atualizar issue #58 no GitHub com validação final - Comentário adicionado
 - [x] Fechar Sprint V28 como concluído - Bug resolvido definitivamente
+
+## Sprint V29: Documentação + Bug "Ramo não encontrado" (01/02/2026)
+- [x] Criar erros-conhecidos.md documentando resolução do bug da Fase 1
+- [x] Investigar erro "Ramo não encontrado" na geração de planos por ramo (branchAssessment.generate)
+- [x] Corrigir bug identificado no frontend - PlanoAcao.tsx linhas 309 e 322 (branch.id → branch.branchId)
+- [x] Criar testes unitários para branchAssessment.generate - 4 testes criados
+- [x] Executar e validar 100% dos testes - 4/4 passaram (42.49s)
+- [ ] Criar checkpoint final
+- [ ] Push para GitHub
+- [ ] Criar e marcar issue como done no GitHub
