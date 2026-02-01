@@ -29,6 +29,7 @@ import MatrizRiscos from "@/pages/MatrizRiscos";
 import MatrizRiscosGlobal from "@/pages/MatrizRiscosGlobal";
 import ProjetoDetalhes from "./pages/ProjetoDetalhes";
 import GerenciarAcoes from "./pages/GerenciarAcoes";
+import VisualizadorAuditoria from "./pages/VisualizadorAuditoria";
 import NotFound from "./pages/NotFound";
 
 function Router() {
@@ -55,6 +56,7 @@ function Router() {
       <Route path="/planos-acao/visualizar-plano-corporativo" component={VisualizarPlanoCorporativo} />
       <Route path="/planos-acao/visualizar-planos-por-ramo" component={VisualizarPlanosPorRamo} />
       <Route path="/planos-acao/gerenciar-acoes" component={GerenciarAcoes} />
+      <Route path="/auditoria" component={VisualizadorAuditoria} />
       <Route path="/aprovacao-planos" component={AprovacaoPlanos} />
       <Route path="/exportar-relatorios" component={ExportarRelatorios} />
       <Route path="/gestao-permissoes" component={GestaoPermissoes} />

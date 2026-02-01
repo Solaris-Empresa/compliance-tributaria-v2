@@ -1263,10 +1263,13 @@
 - [x] Feature 1: Adicionar rota /planos-acao/gerenciar-acoes
 - [x] Feature 1: Integração completa de edição, criação e exclusão inline
 - [x] Feature 1: Criar testes para integração inline (3/3 passando)
-- [ ] Feature 1: Checkpoint e push para GitHub
-- [ ] Feature 2: Criar página Visualizador de Auditoria
-- [ ] Feature 2: Implementar filtros (usuário, data, tipo)
-- [ ] Feature 2: Criar testes para visualizador
+- [x] Feature 1: Checkpoint (8437e0d3) e push para GitHub
+- [x] Feature 1: Issue #54 criada e fechada como Done
+- [x] Feature 2: Criar página VisualizadorAuditoria
+- [x] Feature 2: Implementar router tRPC auditLogs (list, get, stats)
+- [x] Feature 2: Implementar filtros (usuário, data, tipo de entidade)
+- [x] Feature 2: Adicionar rota /auditoria
+- [x] Feature 2: Criar testes para visualizador (4/4 passando)
 - [ ] Feature 2: Checkpoint e push para GitHub
 - [ ] Feature 3: Implementar sistema de permissões granulares
 - [ ] Feature 3: Adicionar middleware de autorização
