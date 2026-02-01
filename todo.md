@@ -1365,6 +1365,6 @@
 - [x] Simplificar testes para evitar conflitos de UNIQUE constraint
 - [x] Validar que 3/3 testes passaram com sucesso
 - [x] Atualizar todo.md com Sprint V27
-- [ ] Criar checkpoint final com testes
+- [x] Criar checkpoint final com testes (f9f84068)
 - [ ] Push para GitHub
 - [ ] Marcar issue como 'done' no GitHub
