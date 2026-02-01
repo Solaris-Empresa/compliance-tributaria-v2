@@ -1147,3 +1147,27 @@
   - Bug de import (.mjs → .ts com npx tsx)
 - [x] Relatório final gerado: RELATORIO-E2E-QA-FINAL.md
 - [x] Sistema aprovado para produção
+
+
+## Sprint V15 - Integração IA + Visualização + Workflow de Aprovação (01/02/2026)
+
+### Feature 1: Integração Real com IA
+- [ ] Ativar geração real via LLM no router actionPlans
+- [ ] Remover dados mock dos testes E2E
+- [ ] Criar testes unitários para geração via IA
+- [ ] Validar qualidade dos planos gerados
+
+### Feature 2: Interface de Visualização de Planos
+- [x] Criar página de visualização de plano corporativo
+- [x] Criar página de visualização de planos por ramo
+- [x] Renderizar JSON planContent em cards/tabelas
+- [x] Adicionar navegação na página PlanosAcao
+- [ ] Testes de renderização
+
+### Feature 3: Workflow de Aprovação
+- [x] Criar tabela planApprovals no schema
+- [x] Criar tabela planReviews no schema
+- [x] Criar router de aprovações (7 procedures)
+- [x] Integrar notificações WebSocket
+- [x] Criar página de aprovação de planos
+- [ ] Testes de workflow de aprovação

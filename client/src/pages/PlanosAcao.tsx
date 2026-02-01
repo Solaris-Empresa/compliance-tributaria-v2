@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, FileText, Sparkles, Filter } from "lucide-react";
+import { Loader2, FileText, Sparkles, Filter, Eye } from "lucide-react";
+import { useLocation } from "wouter";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function PlanosAcao() {
   const [, params] = useRoute("/projetos/:id/planos-acao");
   const projectId = Number(params?.id);
+  const [, setLocation] = useLocation();
 
   const { data: corporatePlan, isLoading: loadingCorporate, refetch: refetchCorporate } = 
     trpc.actionPlans.corporate.get.useQuery({ projectId }, { enabled: !!projectId });
@@ -127,6 +129,15 @@ export default function PlanosAcao() {
             </Card>
           ) : (
             <div className="space-y-4">
+              <div className="flex justify-end mb-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation(`/visualizar-plano-corporativo?projectId=${projectId}`)}
+                >
+                  <Eye className="mr-2 h-4 w-4" />
+                  Visualizar Plano Completo
+                </Button>
+              </div>
               {/* Filtros */}
               <Card>
                 <CardHeader>
@@ -224,7 +235,17 @@ export default function PlanosAcao() {
 
         <TabsContent value="ramos" className="space-y-6 mt-6">
           {branchPlans && branchPlans.length > 0 ? (
-            branchPlans.map((plan: any) => (
+            <>
+              <div className="flex justify-end mb-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation(`/visualizar-planos-ramo?projectId=${projectId}`)}
+                >
+                  <Eye className="mr-2 h-4 w-4" />
+                  Visualizar Todos os Planos
+                </Button>
+              </div>
+              {branchPlans.map((plan: any) => (
               <div key={plan.id} className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
@@ -257,7 +278,8 @@ export default function PlanosAcao() {
                   )}
                 </div>
               </div>
-            ))
+            ))}
+            </>
           ) : (
             <Card>
               <CardHeader>

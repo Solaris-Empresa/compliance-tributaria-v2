@@ -17,6 +17,9 @@ import DashboardTarefas from "./pages/DashboardTarefas";
 import PlanosAcao from "./pages/PlanosAcao";
 import QuestionarioCorporativo from "./pages/QuestionarioCorporativo";
 import QuestionariosPorRamo from "./pages/QuestionariosPorRamo";
+import VisualizarPlanoCorporativo from "./pages/VisualizarPlanoCorporativo";
+import VisualizarPlanosPorRamo from "./pages/VisualizarPlanosPorRamo";
+import AprovacaoPlanos from "./pages/AprovacaoPlanos";
 import QuadroKanban from "@/pages/QuadroKanban";
 import BibliotecaModelos from "@/pages/BibliotecaTemplates";
 import EditarTemplate from "@/pages/EditarTemplate";
@@ -46,6 +49,9 @@ function Router() {
           <Route path="/projetos/:id/planos-acao" component={PlanosAcao} />
       <Route path="/projetos/:id/questionario-corporativo" component={QuestionarioCorporativo} />
       <Route path="/projetos/:id/questionarios-ramo" component={QuestionariosPorRamo} />
+      <Route path="/visualizar-plano-corporativo" component={VisualizarPlanoCorporativo} />
+      <Route path="/visualizar-planos-ramo" component={VisualizarPlanosPorRamo} />
+      <Route path="/aprovacao-planos" component={AprovacaoPlanos} />
       <Route path="/modelos-padroes" component={BibliotecaModelos} />
       <Route path="/modelos-padroes/:id/editar" component={EditarTemplate} />
       {/* Outras rotas serão adicionadas conforme implementação */}

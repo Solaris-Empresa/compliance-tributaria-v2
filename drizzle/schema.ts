@@ -901,3 +901,42 @@ export const auditLog = mysqlTable("auditLog", {
 
 export type AuditLog = typeof auditLog.$inferSelect;
 export type InsertAuditLog = typeof auditLog.$inferInsert;
+
+
+/**
+ * Aprovações de Planos de Ação
+ * Workflow: pending → approved/rejected/needs_revision
+ */
+export const planApprovals = mysqlTable("planApprovals", {
+  id: int("id").autoincrement().primaryKey(),
+  planType: mysqlEnum("planType", ["corporate", "branch"]).notNull(),
+  planId: int("planId").notNull(), // ID do corporateActionPlans ou branchActionPlans
+  projectId: int("projectId").notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "needs_revision"]).default("pending").notNull(),
+  requestedBy: int("requestedBy").notNull(), // Quem solicitou aprovação
+  requestedAt: timestamp("requestedAt").defaultNow().notNull(),
+  reviewedBy: int("reviewedBy"), // Quem aprovou/rejeitou
+  reviewedAt: timestamp("reviewedAt"),
+  reviewComments: text("reviewComments"), // Comentários do revisor
+  version: int("version").default(1).notNull(), // Versão do plano sendo aprovada
+});
+
+export type PlanApproval = typeof planApprovals.$inferSelect;
+export type InsertPlanApproval = typeof planApprovals.$inferInsert;
+
+/**
+ * Revisões e Comentários em Planos
+ * Múltiplos stakeholders podem comentar antes da aprovação final
+ */
+export const planReviews = mysqlTable("planReviews", {
+  id: int("id").autoincrement().primaryKey(),
+  approvalId: int("approvalId").notNull(), // FK para planApprovals
+  reviewerId: int("reviewerId").notNull(), // Quem fez o comentário
+  comment: text("comment").notNull(),
+  reviewType: mysqlEnum("reviewType", ["comment", "suggestion", "concern", "approval"]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+
+export type PlanReview = typeof planReviews.$inferSelect;
+export type InsertPlanReview = typeof planReviews.$inferInsert;
