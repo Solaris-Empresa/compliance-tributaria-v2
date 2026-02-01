@@ -960,3 +960,15 @@
   - Fases estruturadas: Fase 1 (3 meses), Fase 2 (3 meses)
   - Ações com responsável, prazo, prioridade e indicadores visíveis
   - Exemplo: "Formalizar Contrato de Consultoria" - Prazo: 2026-03-31, Prioridade: alta
+
+## Sprint V2 - Finalização (Pós-Backend)
+- [x] Refatorar schema `actions` (remover placeholders, adicionar campos reais) - JÁ ESTAVA CORRETO
+- [x] Criar testes automatizados para Camadas 1-4 (branches, assessments, action plans, tasks)
+- [ ] Implementar frontend: Página de seleção de ramos
+- [ ] Implementar frontend: Página de questionário corporativo
+- [ ] Implementar frontend: Página de questionários por ramo
+- [ ] Implementar frontend: Página de planos de ação (corporativo + ramos)
+- [x] Implementar frontend: Dashboard de tarefas com filtros
+- [ ] Implementar frontend: Sistema de comentários em tarefas
+- [ ] Implementar frontend: Sistema de notificações
+- [ ] Criar testes E2E do fluxo completo

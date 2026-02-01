@@ -13,6 +13,7 @@ import AvaliacaoFase2 from "./pages/AssessmentFase2";
 import LevantamentoInicial from "@/pages/Briefing";
 import PlanoAcao from "@/pages/PlanoAcao";
 import PainelIndicadores from "@/pages/DashboardExecutivo";
+import DashboardTarefas from "@/pages/DashboardTarefas";
 import QuadroKanban from "@/pages/QuadroKanban";
 import BibliotecaModelos from "@/pages/BibliotecaTemplates";
 import EditarTemplate from "@/pages/EditarTemplate";
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/projetos/:id/plano-acao" component={PlanoAcao} />
       <Route path="/projetos/:id/quadro-kanban" component={QuadroKanban} />
       <Route path="/painel-indicadores" component={PainelIndicadores} />
+      <Route path="/dashboard-tarefas" component={DashboardTarefas} />
       <Route path="/modelos-padroes" component={BibliotecaModelos} />
       <Route path="/modelos-padroes/:id/editar" component={EditarTemplate} />
       {/* Outras rotas serão adicionadas conforme implementação */}
