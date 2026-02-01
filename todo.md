@@ -1078,3 +1078,13 @@
 - [x] Adicionar eventos task:updated, task:comment, task:due_soon, task:overdue
 - [x] Integrar componente ao ComplianceLayout
 - [x] Criar testes unitários para WebSocket (2/2 passando)
+
+## Sprint V11 Fase 1 - Testes E2E com Playwright (CONCLUÍDO)
+- [x] Instalar Playwright e dependências
+- [x] Criar configuração playwright.config.ts
+- [x] Criar diretório e2e para testes
+- [x] Implementar teste E2E do fluxo completo (criar projeto → questionários → planos)
+- [x] Implementar teste E2E do Dashboard Executivo
+- [x] Implementar teste E2E do sistema de notificações WebSocket
+- [x] Adicionar scripts test:e2e e test:e2e:ui ao package.json
+- [x] Documentar estrutura de testes E2E
