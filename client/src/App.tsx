@@ -12,7 +12,7 @@ import AvaliacaoFase1 from "./pages/AssessmentFase1";
 import AvaliacaoFase2 from "./pages/AssessmentFase2";
 import LevantamentoInicial from "@/pages/Briefing";
 import PlanoAcao from "@/pages/PlanoAcao";
-import PainelIndicadores from "@/pages/DashboardExecutivo";
+import DashboardExecutivo from "./pages/DashboardExecutivo";
 import DashboardTarefas from "./pages/DashboardTarefas";
 import PlanosAcao from "./pages/PlanosAcao";
 import QuestionarioCorporativo from "./pages/QuestionarioCorporativo";
@@ -41,7 +41,7 @@ function Router() {
       <Route path="/projetos/:id/matriz-riscos" component={MatrizRiscos} />
       <Route path="/projetos/:id/plano-acao" component={PlanoAcao} />
       <Route path="/projetos/:id/quadro-kanban" component={QuadroKanban} />
-      <Route path="/painel-indicadores" component={PainelIndicadores} />
+      <Route path="/painel-indicadores" component={DashboardExecutivo} />
           <Route path="/dashboard-tarefas" component={DashboardTarefas} />
           <Route path="/projetos/:id/planos-acao" component={PlanosAcao} />
       <Route path="/projetos/:id/questionario-corporativo" component={QuestionarioCorporativo} />

@@ -1052,3 +1052,15 @@
 - [ ] Criar testes para sistema de notificações
 - [ ] Criar checkpoint Sprint V10
 - [ ] Criar e fechar issues no GitHub
+
+## Sprint V10 Fase 2 - Dashboard Executivo (CONCLUÍDO)
+- [x] Criar router analytics com procedures getProjectMetrics e getGlobalMetrics
+- [x] Instalar Chart.js e react-chartjs-2
+- [x] Implementar página DashboardExecutivo.tsx com gráficos
+- [x] Adicionar métricas consolidadas (projetos, questionários, tarefas)
+- [x] Implementar gráfico de tarefas por status (Doughnut)
+- [x] Implementar gráfico de tarefas por área (Bar)
+- [x] Adicionar visualização de tarefas críticas (7 dias)
+- [x] Adicionar visualização de tarefas atrasadas
+- [x] Criar testes unitários para analytics router (6/6 passando)
+- [x] Adicionar rota /painel-indicadores no App.tsx

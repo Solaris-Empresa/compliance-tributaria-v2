@@ -39,6 +39,7 @@ import { actionPlansRouter } from "./action-plans-complete";
 import { tasksRouter as tasksRouterV2 } from "./routers-tasks";
 import { commentsRouter } from "./routers-comments";
 import { notificationsRouter as notificationsRouterV2 } from "./routers-notifications";
+import { analyticsRouter } from "./routers-analytics";
 
 export const appRouter = router({
   system: systemRouter,
@@ -49,6 +50,7 @@ export const appRouter = router({
   tasksV2: tasksRouterV2,
   comments: commentsRouter,
   notificationsV2: notificationsRouterV2,
+  analytics: analyticsRouter,
   
   // ==========================================================================
   // AUTH
