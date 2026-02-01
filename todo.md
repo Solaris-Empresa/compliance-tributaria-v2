@@ -1335,3 +1335,12 @@
 - [x] Confirmar que bug foi resolvido originalmente em 30/01 (commit 08876c47)
 - [x] Identificar que rollback para dd19b6f5 restaurou código antigo SEM correção
 - [x] Validar que correção atual (35298aec) está segura no GitHub
+
+## Sprint V25: Bug Crítico - Correção Não Aplicada em Produção (01/02/2026)
+- [x] Verificar se correção está no código atual do ambiente (server/db.ts) - CONFIRMADO linha 218
+- [x] Comparar código local vs código em produção - Logs mostram que produção tem código ANTIGO
+- [x] Identificar por que republicação não aplicou correção - Ambiente de produção não foi atualizado
+- [x] Reiniciar servidor local para garantir código atualizado
+- [ ] Criar novo checkpoint para forçar sincronização
+- [ ] Republicar checkpoint em produção via UI
+- [ ] Testar salvamento da Fase 1 em produção após republicação
