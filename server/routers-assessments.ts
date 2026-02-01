@@ -284,14 +284,40 @@ ${corporateAssessment ? `**Contexto corporativo:**
       return { id, questions, branch };
     }),
 
-  // Salvar respostas de um questionário por ramo
+  // Responder uma pergunta do questionário por ramo
+  answer: protectedProcedure
+    .input(z.object({
+      assessmentId: z.number(),
+      questionIndex: z.number(),
+      answer: z.string(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      return await dbAssessments.answerBranchQuestion(
+        input.assessmentId,
+        input.questionIndex,
+        input.answer,
+        ctx.user.id
+      );
+    }),
+
+  // Marcar questionário por ramo como concluído
+  complete: protectedProcedure
+    .input(z.object({ assessmentId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      return await dbAssessments.completeBranchAssessment(
+        input.assessmentId,
+        ctx.user.id
+      );
+    }),
+
+  // Salvar respostas de um questionário por ramo (legado)
   saveAnswers: protectedProcedure
     .input(z.object({
       assessmentId: z.number(),
       answers: z.any(), // JSON com respostas
     }))
     .mutation(async ({ input, ctx }) => {
-      await dbAssessments.completeBranchAssessment(
+      await dbAssessments.completeBranchAssessmentWithAnswers(
         input.assessmentId,
         input.answers,
         ctx.user.id

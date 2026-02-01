@@ -151,7 +151,58 @@ export async function updateBranchAssessment(
     .where(eq(branchAssessments.id, id));
 }
 
+export async function answerBranchQuestion(
+  assessmentId: number,
+  questionIndex: number,
+  answer: string,
+  userId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Buscar assessment atual
+  const assessment = await db
+    .select()
+    .from(branchAssessments)
+    .where(eq(branchAssessments.id, assessmentId))
+    .limit(1);
+  
+  if (!assessment[0]) throw new Error("Assessment not found");
+  
+  // Atualizar respostas
+  const currentAnswers = typeof assessment[0].answers === 'string' 
+    ? JSON.parse(assessment[0].answers || '{}') 
+    : (assessment[0].answers || {});
+  
+  currentAnswers[questionIndex] = answer;
+  
+  await db
+    .update(branchAssessments)
+    .set({ answers: JSON.stringify(currentAnswers) })
+    .where(eq(branchAssessments.id, assessmentId));
+  
+  return { success: true };
+}
+
 export async function completeBranchAssessment(
+  assessmentId: number,
+  userId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db
+    .update(branchAssessments)
+    .set({
+      completedAt: new Date(),
+      completedBy: userId,
+    })
+    .where(eq(branchAssessments.id, assessmentId));
+  
+  return { success: true };
+}
+
+export async function completeBranchAssessmentWithAnswers(
   id: number,
   answers: any,
   completedBy: number
