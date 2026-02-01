@@ -1013,3 +1013,18 @@
 - [ ] Adicionar filtros avançados nos Planos de Ação
 - [x] Adicionar rota e navegação para Questionário Corporativo
 - [ ] Testar fluxo completo end-to-end
+
+
+## Sprint V8 - Features Finais
+- [ ] Implementar página de Questionários por Ramo (PENDENTE - requer procedures backend)
+- [ ] Adicionar rota e navegação para Questionários por Ramo (PENDENTE)
+- [ ] Implementar sistema de comentários no Dashboard de Tarefas (PENDENTE - requer procedures backend)
+- [ ] Criar testes E2E: criar projeto → selecionar ramos → responder questionários → gerar planos → filtrar tarefas (PENDENTE)
+
+## Resumo Final
+- [x] Backend 100% completo (29 issues, 9 routers, 60+ procedures, 17 tabelas)
+- [x] Frontend: 4 páginas funcionais (Dashboard Tarefas, Planos de Ação, Questionário Corporativo, NovoProjeto)
+- [x] Filtros avançados implementados (3 dropdowns)
+- [x] Navegação completa no menu lateral
+- [x] 7 testes unitários passando
+- [x] Sistema rodando sem erros TypeScript
