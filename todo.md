@@ -1005,3 +1005,11 @@
 - [ ] Implementar página de Questionários por Ramo completa
 - [ ] Adicionar filtros avançados nos Planos de Ação
 - [ ] Criar testes E2E do fluxo completo
+
+
+## Sprint V6 - Features Finais (AUTÔNOMO - Fase 4)
+- [x] Implementar página de Questionário Corporativo completa com validação
+- [ ] Adicionar sistema de comentários no Dashboard de Tarefas
+- [ ] Adicionar filtros avançados nos Planos de Ação
+- [x] Adicionar rota e navegação para Questionário Corporativo
+- [ ] Testar fluxo completo end-to-end
