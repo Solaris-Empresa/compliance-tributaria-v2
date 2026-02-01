@@ -1120,3 +1120,14 @@
 - [x] Adicionar timestamp e userName automáticos
 - [x] Integrar audit router ao appRouter
 - [x] Criar testes unitários (6/6 passando)
+
+
+## Sprint V13 - Auditoria e Correções de Bugs (01/02/2026)
+
+- [x] BUG CRÍTICO: Router actionPlans faltando - Criado routers-action-plans.ts completo
+- [x] Integração com LLM real para geração de planos (substituiu dados mock)
+- [x] Procedures implementadas: corporate.get, corporate.generate, branch.list, branch.get, branch.generate
+- [x] Correção de imports e tipos TypeScript
+- [ ] Criar testes unitários para router actionPlans
+- [ ] Testar geração de planos via interface
+- [ ] Verificar outras páginas sem implementação completa

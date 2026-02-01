@@ -35,7 +35,7 @@ const validateProjectAccess = async (ctx: any, projectId: number) => {
 
 import { branchesRouter } from "./routers-branches";
 import { corporateAssessmentRouter, branchAssessmentRouter } from "./routers-assessments";
-import { actionPlansRouter } from "./action-plans-complete";
+import { actionPlansRouter } from "./routers-action-plans";
 import { tasksRouter as tasksRouterV2 } from "./routers-tasks";
 import { commentsRouter } from "./routers-comments";
 import { notificationsRouter as notificationsRouterV2 } from "./routers-notifications";
