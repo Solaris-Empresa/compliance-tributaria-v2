@@ -1369,3 +1369,11 @@
 - [x] Push para GitHub - 62 objetos enviados (dd19b6f5..52237567)
 - [x] Criar issue #58 documentando bugfix no GitHub
 - [x] Marcar issue #58 como 'done' (CLOSED)
+
+## Sprint V28: URGENTE - Bug Persiste em Produção (01/02/2026)
+- [x] Investigar por que produção ainda tem erro após migração do banco - Site usa código antigo
+- [x] Verificar qual versão está publicada em iasolaris.manus.space - Versão antiga sem correção
+- [x] Identificar que botão Publish não aparece (site já publicado com versão antiga)
+- [ ] Criar novo checkpoint para forçar republicação
+- [ ] Validar em produção que erro foi resolvido
+- [ ] Atualizar issue #58 no GitHub com status final
