@@ -1395,5 +1395,14 @@
 - [x] Corrigir parsing de JSON no backend (remover markdown code blocks da resposta da IA) - Linhas 58-63 e 193-198)
 - [x] Criar testes unitários validando parsing correto - 6 testes criados (100% passaram)
 - [x] Criar checkpoint final (a5662d1e)
+- [x] Push para GitHub (e539a79d)
+- [x] Criar issue #60 e marcar como done no GitHub - CLOSED
+
+## Sprint V31: Bug 404 Após Geração de Planos por Ramo (01/02/2026)
+- [x] Investigar erro 404 "Página não encontrada" após geração de planos por ramo - Linha 328
+- [x] Identificar URL incorreta no redirecionamento - /visualizar-planos-por-ramo (faltava /planos-acao/)
+- [x] Corrigir rota no frontend (PlanoAcao.tsx) - Linha 328
+- [x] Criar testes validando redirecionamento correto - 5 testes criados (100% passaram)
+- [ ] Criar checkpoint final
 - [ ] Push para GitHub
-- [ ] Criar issue #60 e marcar como done no GitHub
+- [ ] Criar issue #61 e marcar como done no GitHub

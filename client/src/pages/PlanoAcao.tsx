@@ -325,7 +325,7 @@ export default function PlanoAcao() {
 
       toast.success(`${projectBranches.length} plano(s) por ramo gerado(s) com sucesso!`);
       setTimeout(() => {
-        setLocation(`/visualizar-planos-por-ramo?projectId=${projectId}`);
+        setLocation(`/planos-acao/visualizar-planos-por-ramo?projectId=${projectId}`);
       }, 1500);
     } catch (error: any) {
       toast.error(`Erro ao gerar planos por ramo: ${error.message}`);
