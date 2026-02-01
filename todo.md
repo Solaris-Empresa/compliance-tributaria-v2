@@ -985,3 +985,13 @@
 - [x] Adicionar link "Dashboard de Tarefas" no menu lateral
 - [x] Criar testes unitários (7/7 passando)
 - [ ] Criar testes E2E do fluxo completo
+
+
+## Sprint V4 - Frontend Completo (AUTÔNOMO - Fase 2)
+- [ ] Implementar página de Questionário Corporativo
+- [ ] Implementar página de Questionários por Ramo
+- [x] Implementar página de Planos de Ação (corporativo + ramos)
+- [ ] Implementar sistema de Comentários em tarefas
+- [ ] Implementar sistema de Notificações em tempo real
+- [ ] Adicionar rotas no App.tsx
+- [ ] Criar testes E2E do fluxo completo

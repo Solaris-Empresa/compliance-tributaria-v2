@@ -58,6 +58,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     { href: "/", icon: LayoutDashboard, label: "Painel" },
     { href: "/projetos", icon: FolderKanban, label: "Projetos" },
     { href: "/dashboard-tarefas", icon: CheckSquare, label: "Dashboard de Tarefas" },
+    { href: "/projetos/1/planos-acao", icon: FileText, label: "Planos de Ação" },
     { href: "/clientes", icon: Users, label: "Clientes" },
     { href: "/matriz-riscos", icon: AlertTriangle, label: "Matriz de Riscos" },
     { href: "/modelos-padroes", icon: Library, label: "Modelos Padrões" },
