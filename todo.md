@@ -1366,5 +1366,6 @@
 - [x] Validar que 3/3 testes passaram com sucesso
 - [x] Atualizar todo.md com Sprint V27
 - [x] Criar checkpoint final com testes (f9f84068)
-- [ ] Push para GitHub
-- [ ] Marcar issue como 'done' no GitHub
+- [x] Push para GitHub - 62 objetos enviados (dd19b6f5..52237567)
+- [x] Criar issue #58 documentando bugfix no GitHub
+- [x] Marcar issue #58 como 'done' (CLOSED)
