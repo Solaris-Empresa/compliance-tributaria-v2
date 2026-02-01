@@ -2,7 +2,8 @@ import { z } from "zod";
 import { eq, desc } from "drizzle-orm";
 import { protectedProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
-import { taskComments, InsertTaskComment } from "../drizzle/schema";
+import { taskComments, InsertTaskComment, actions } from "../drizzle/schema";
+import { notifyProject, notifyUser } from "./_core/websocket";
 
 // ============================================================================
 // COMMENTS ROUTER - Sistema de Comentários em Tarefas
@@ -38,6 +39,31 @@ export const commentsRouter = router({
         userId: ctx.user.id,
         comment: input.comment,
       });
+
+      // Buscar tarefa para notificação
+      const taskResult = await db.select().from(actions).where(eq(actions.id, input.taskId)).limit(1);
+      const task = taskResult[0];
+
+      if (task) {
+        // Notificar projeto sobre novo comentário
+        notifyProject(task.projectId, "task:comment", {
+          taskId: task.id,
+          projectId: task.projectId,
+          message: `${ctx.user.name} comentou na tarefa "${task.title}"`,
+          comment: input.comment.substring(0, 100),
+          commentedBy: ctx.user.name,
+        });
+
+        // Notificar owner da tarefa se não for ele mesmo comentando
+        if (task.ownerId && task.ownerId !== ctx.user.id) {
+          notifyUser(task.ownerId, "task:comment", {
+            taskId: task.id,
+            projectId: task.projectId,
+            message: `${ctx.user.name} comentou na sua tarefa "${task.title}"`,
+            comment: input.comment.substring(0, 100),
+          });
+        }
+      }
 
       return { id: Number(result[0].insertId) };
     }),

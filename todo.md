@@ -1088,3 +1088,13 @@
 - [x] Implementar teste E2E do sistema de notificações WebSocket
 - [x] Adicionar scripts test:e2e e test:e2e:ui ao package.json
 - [x] Documentar estrutura de testes E2E
+
+## Sprint V11 Fase 2 - Integração WebSocket com Tarefas (CONCLUÍDO)
+- [x] Adicionar notificações WebSocket ao updateStatus de tarefas
+- [x] Adicionar notificações WebSocket ao criar comentários
+- [x] Criar job deadline-checker para verificar prazos
+- [x] Implementar notificações de tarefas com prazo próximo (7 dias)
+- [x] Implementar notificações de tarefas atrasadas
+- [x] Atualizar status automático para OVERDUE
+- [x] Integrar deadline-checker ao servidor
+- [x] Criar testes unitários para integração WebSocket (3/3 passando)

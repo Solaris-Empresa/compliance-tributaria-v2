@@ -3,6 +3,7 @@ import { eq, and, or, isNull } from "drizzle-orm";
 import { protectedProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
 import { actions, taskObservers, InsertAction, InsertTaskObserver } from "../drizzle/schema";
+import { notifyProject, notifyUser } from "./_core/websocket";
 
 // ============================================================================
 // TASKS ROUTER - Gestão Completa de Tarefas
@@ -137,6 +138,31 @@ export const tasksRouter = router({
       }
 
       await db.update(actions).set(updateData).where(eq(actions.id, input.id));
+
+      // Buscar tarefa atualizada para notificação
+      const taskResult = await db.select().from(actions).where(eq(actions.id, input.id)).limit(1);
+      const task = taskResult[0];
+
+      if (task) {
+        // Notificar projeto sobre mudança de status
+        notifyProject(task.projectId, "task:updated", {
+          taskId: task.id,
+          projectId: task.projectId,
+          message: `Tarefa "${task.title}" mudou para ${input.status}`,
+          status: input.status,
+          updatedBy: ctx.user.name,
+        });
+
+        // Notificar owner se existir
+        if (task.ownerId) {
+          notifyUser(task.ownerId, "task:updated", {
+            taskId: task.id,
+            projectId: task.projectId,
+            message: `Sua tarefa "${task.title}" mudou para ${input.status}`,
+            status: input.status,
+          });
+        }
+      }
 
       return { success: true };
     }),
