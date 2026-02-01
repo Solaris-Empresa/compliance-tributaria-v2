@@ -1311,3 +1311,12 @@
 - [x] Criar teste branch-plans-flow.test.ts
 - [x] Validar busca de ramos do projeto
 - [ ] BUG CONHECIDO: Router actionPlans.branch.generate falha com parsing JSON (LLM retorna com ```json)
+
+## Sprint V22: Correção de Erro - Questionários por Ramo (01/02/2026)
+- [x] Investigar erro "Questionário do ramo não encontrado" no router actionPlans.branch.generate
+- [x] Verificar se questionários por ramo estão sendo criados no fluxo
+- [x] Modificar botão "Gerar Planos por Ramo" para criar questionários automaticamente antes de gerar planos
+- [x] Implementar geração sequencial: questionários primeiro, depois planos
+- [x] Adicionar progresso visual (X/Y etapas)
+- [x] Adicionar toasts informativos para cada etapa
+- [ ] Testar manualmente no ambiente de produção

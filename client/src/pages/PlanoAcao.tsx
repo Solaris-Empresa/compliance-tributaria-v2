@@ -164,12 +164,21 @@ export default function PlanoAcao() {
     },
   });
 
-  const generateBranchPlan = trpc.actionPlans.branch.generate.useMutation({
+  const generateBranchAssessment = trpc.branchAssessment.generate.useMutation({
     onSuccess: () => {
-      toast.success("Plano por ramo gerado com sucesso!");
+      // Silencioso - progresso mostrado no loop
     },
     onError: (error: any) => {
-      toast.error(`Erro ao gerar plano: ${error.message}`);
+      throw new Error(`Erro ao gerar questionário: ${error.message}`);
+    },
+  });
+
+  const generateBranchPlan = trpc.actionPlans.branch.generate.useMutation({
+    onSuccess: () => {
+      // Silencioso - progresso mostrado no loop
+    },
+    onError: (error: any) => {
+      throw new Error(`Erro ao gerar plano: ${error.message}`);
     },
   });
 
@@ -284,12 +293,29 @@ export default function PlanoAcao() {
     }
 
     setIsGeneratingBranchPlans(true);
-    setBranchGenerationProgress({ current: 0, total: projectBranches.length });
+    const totalSteps = projectBranches.length * 2; // questionário + plano para cada ramo
+    let currentStep = 0;
 
     try {
+      // Etapa 1: Gerar questionários por ramo
+      toast.info("Gerando questionários por ramo...");
       for (let i = 0; i < projectBranches.length; i++) {
         const branch = projectBranches[i];
-        setBranchGenerationProgress({ current: i + 1, total: projectBranches.length });
+        currentStep++;
+        setBranchGenerationProgress({ current: currentStep, total: totalSteps });
+        
+        await generateBranchAssessment.mutateAsync({
+          projectId,
+          branchId: branch.id,
+        });
+      }
+
+      // Etapa 2: Gerar planos por ramo
+      toast.info("Gerando planos de ação por ramo...");
+      for (let i = 0; i < projectBranches.length; i++) {
+        const branch = projectBranches[i];
+        currentStep++;
+        setBranchGenerationProgress({ current: currentStep, total: totalSteps });
         
         await generateBranchPlan.mutateAsync({
           projectId,
