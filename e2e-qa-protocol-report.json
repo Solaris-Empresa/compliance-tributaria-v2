@@ -1,0 +1,187 @@
+{
+  "timestamp": "2026-02-01T04:06:18.157Z",
+  "empresa": {
+    "name": "ACME Testes LTDA",
+    "id": "SIMULATED"
+  },
+  "usuarios": [
+    {
+      "name": "Admin QA",
+      "email": "admin-qa-1769918778157@acme.test",
+      "role": "equipe_solaris",
+      "id": 601309
+    },
+    {
+      "name": "Executor QA",
+      "email": "executor-qa-1769918778157@acme.test",
+      "role": "equipe_solaris",
+      "id": 601310
+    },
+    {
+      "name": "Observador QA",
+      "email": "observador-qa-1769918778157@acme.test",
+      "role": "cliente",
+      "id": 601311
+    }
+  ],
+  "ramos": [
+    {
+      "id": 14,
+      "code": "COM",
+      "name": "Comércio"
+    },
+    {
+      "id": 15,
+      "code": "IND",
+      "name": "Indústria"
+    },
+    {
+      "id": 16,
+      "code": "SER",
+      "name": "Serviços"
+    },
+    {
+      "id": 17,
+      "code": "AGR",
+      "name": "Agronegócio"
+    }
+  ],
+  "projetos": [
+    {
+      "name": "Projeto P1 – Reforma 2026",
+      "id": 420085,
+      "planos": [
+        {
+          "tipo": "CORPORATIVO",
+          "id": 3,
+          "ramo": null
+        },
+        {
+          "tipo": "RAMO",
+          "id": 9,
+          "ramo": "COM"
+        },
+        {
+          "tipo": "RAMO",
+          "id": 10,
+          "ramo": "IND"
+        },
+        {
+          "tipo": "RAMO",
+          "id": 11,
+          "ramo": "SER"
+        },
+        {
+          "tipo": "RAMO",
+          "id": 12,
+          "ramo": "AGR"
+        }
+      ]
+    },
+    {
+      "name": "Projeto P2 – Reforma 2027",
+      "id": 420086,
+      "planos": [
+        {
+          "tipo": "CORPORATIVO",
+          "id": 4,
+          "ramo": null
+        },
+        {
+          "tipo": "RAMO",
+          "id": 13,
+          "ramo": "COM"
+        },
+        {
+          "tipo": "RAMO",
+          "id": 14,
+          "ramo": "IND"
+        },
+        {
+          "tipo": "RAMO",
+          "id": 15,
+          "ramo": "SER"
+        },
+        {
+          "tipo": "RAMO",
+          "id": 16,
+          "ramo": "AGR"
+        }
+      ]
+    }
+  ],
+  "planos": [],
+  "metricas": {
+    "totalProjetos": 2,
+    "totalPlanos": 10,
+    "totalPlanosCorporativos": 2,
+    "totalPlanosRamos": 8,
+    "esperadoPlanos": 10
+  },
+  "validacoes": {
+    "cardinalidade": [
+      {
+        "projeto": "P1",
+        "esperado": 5,
+        "obtido": 5,
+        "status": "PASS"
+      },
+      {
+        "projeto": "P2",
+        "esperado": 5,
+        "obtido": 5,
+        "status": "PASS"
+      }
+    ],
+    "persistencia": [
+      {
+        "etapa": "P1-06",
+        "status": "PASS"
+      }
+    ],
+    "integridade": [
+      {
+        "planoId": 9,
+        "status": "PASS",
+        "ramo": "COM"
+      },
+      {
+        "planoId": 10,
+        "status": "PASS",
+        "ramo": "IND"
+      },
+      {
+        "planoId": 11,
+        "status": "PASS",
+        "ramo": "SER"
+      },
+      {
+        "planoId": 12,
+        "status": "PASS",
+        "ramo": "AGR"
+      },
+      {
+        "planoId": 13,
+        "status": "PASS",
+        "ramo": "COM"
+      },
+      {
+        "planoId": 14,
+        "status": "PASS",
+        "ramo": "IND"
+      },
+      {
+        "planoId": 15,
+        "status": "PASS",
+        "ramo": "SER"
+      },
+      {
+        "planoId": 16,
+        "status": "PASS",
+        "ramo": "AGR"
+      }
+    ]
+  },
+  "bugs": [],
+  "sucesso": true
+}

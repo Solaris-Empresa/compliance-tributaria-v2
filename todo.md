@@ -1131,3 +1131,19 @@
 - [ ] Criar testes unitários para router actionPlans
 - [ ] Testar geração de planos via interface
 - [ ] Verificar outras páginas sem implementação completa
+
+
+## Sprint V14 - Testes E2E Completos (01/02/2026)
+
+- [x] Protocolo E2E QA executado com 100% de sucesso
+- [x] 2 projetos criados (P1 e P2)
+- [x] 10 planos gerados (5 por projeto: 1 corporativo + 4 ramos)
+- [x] Cardinalidade validada: 100% correta
+- [x] Integridade de vínculos: 8/8 validados
+- [x] Persistência de dados: 100% confirmada
+- [x] Bugs encontrados e corrigidos em tempo real: 3 bugs
+  - Bug de role inválido ("admin" → "equipe_solaris")
+  - Bug de sintaxe no script (vinculos P1 → vinculosP1)
+  - Bug de import (.mjs → .ts com npx tsx)
+- [x] Relatório final gerado: RELATORIO-E2E-QA-FINAL.md
+- [x] Sistema aprovado para produção
