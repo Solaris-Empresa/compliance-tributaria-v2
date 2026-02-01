@@ -43,6 +43,7 @@ import { analyticsRouter } from "./routers-analytics";
 import { permissionsRouter } from "./routers-permissions";
 import { auditRouter } from "./routers-audit";
 import { approvalsRouter } from "./routers-approvals";
+import { reportsRouter } from "./routers-reports";
 
 export const appRouter = router({
   system: systemRouter,
@@ -57,6 +58,7 @@ export const appRouter = router({
   permissions: permissionsRouter,
   audit: auditRouter,
   approvals: approvalsRouter,
+  reports: reportsRouter,
   
   // ==========================================================================
   // AUTH

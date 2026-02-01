@@ -1188,3 +1188,36 @@
 - [x] E2E-03 Projeto P2: Repetir processo completo gerando mais 5 planos
 - [x] Validações Finais: Cardinalidade (10 planos), persistência (4 checks), integridade (8 checks)
 - [x] Gerar relatório final com IDs, métricas e evidências (e2e-qa-protocol-report.json)
+
+
+## Sprint V16 - Reimplementação (Exportação, Permissões, GitHub)
+
+### Feature 1: Exportação de Relatórios PDF/Excel
+- [x] Instalar puppeteer e exceljs
+- [x] Criar router de exportação (reportsRouter)
+- [x] Implementar procedure exportDashboardPDF
+- [x] Implementar procedure exportDataExcel
+- [x] Criar página ExportarRelatorios.tsx
+- [x] Adicionar rota no App.tsx
+- [ ] Checkpoint Feature 1
+
+### Feature 2: Interface de Gestão de Permissões
+- [ ] Criar página GestaoPermissoes.tsx
+- [ ] Implementar seletor de projeto
+- [ ] Implementar diálogo de concessão
+- [ ] Criar visualização de matriz de acesso
+- [ ] Adicionar rota no App.tsx
+- [ ] Checkpoint Feature 2
+
+### Feature 3: Integração GitHub Issues
+- [ ] Instalar @octokit/rest
+- [ ] Criar router de integração (githubRouter)
+- [ ] Implementar 5 procedures (configure, syncTask, syncProject, webhook)
+- [ ] Criar página IntegracaoGitHub.tsx
+- [ ] Adicionar rota no App.tsx
+- [ ] Checkpoint Feature 3
+
+### Finalização Sprint V16
+- [ ] Executar testes E2E completos
+- [ ] Checkpoint final Sprint V16
+- [ ] Atualizar status no todo.md
