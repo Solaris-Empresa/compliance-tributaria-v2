@@ -40,6 +40,7 @@ import { tasksRouter as tasksRouterV2 } from "./routers-tasks";
 import { commentsRouter } from "./routers-comments";
 import { notificationsRouter as notificationsRouterV2 } from "./routers-notifications";
 import { analyticsRouter } from "./routers-analytics";
+import { permissionsRouter } from "./routers-permissions";
 
 export const appRouter = router({
   system: systemRouter,
@@ -51,6 +52,7 @@ export const appRouter = router({
   comments: commentsRouter,
   notificationsV2: notificationsRouterV2,
   analytics: analyticsRouter,
+  permissions: permissionsRouter,
   
   // ==========================================================================
   // AUTH

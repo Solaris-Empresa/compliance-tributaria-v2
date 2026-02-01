@@ -1098,3 +1098,14 @@
 - [x] Atualizar status automático para OVERDUE
 - [x] Integrar deadline-checker ao servidor
 - [x] Criar testes unitários para integração WebSocket (3/3 passando)
+
+## Sprint V12 Fase 1 - Sistema de Permissões (CONCLUÍDO)
+- [x] Criar tabela projectPermissions no schema
+- [x] Adicionar campo json para áreas específicas
+- [x] Executar db:push para aplicar schema
+- [x] Criar router de permissões (list, create, update, delete, check)
+- [x] Implementar função checkProjectAccess com hierarquia
+- [x] Adicionar níveis: view, edit, approve, admin
+- [x] Implementar controle por áreas (TI, CONT, FISC, JUR, OPS, COM, ADM)
+- [x] Integrar permissions router ao appRouter
+- [x] Criar testes unitários (6/6 passando)

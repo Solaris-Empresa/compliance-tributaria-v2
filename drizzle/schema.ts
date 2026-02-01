@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, text, boolean, timestamp, mysqlEnum, decimal } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, varchar, text, boolean, timestamp, mysqlEnum, decimal, json } from "drizzle-orm/mysql-core";
 
 /**
  * Tabela de usuários - IA SOLARIS
@@ -857,3 +857,47 @@ export const notificationPreferences = mysqlTable("notificationPreferences", {
 
 export type NotificationPreference = typeof notificationPreferences.$inferSelect;
 export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
+
+/**
+ * Permissões de usuários em projetos
+ * Controle granular de acesso por área/projeto
+ */
+export const projectPermissions = mysqlTable("projectPermissions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  projectId: int("projectId").notNull(),
+  permissionLevel: mysqlEnum("permissionLevel", ["view", "edit", "approve", "admin"]).notNull(),
+  areas: json("areas").$type<string[]>(), // ["TI", "CONT", "FISC"] ou null para todas
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  createdBy: int("createdBy").notNull(),
+});
+
+export type ProjectPermission = typeof projectPermissions.$inferSelect;
+export type InsertProjectPermission = typeof projectPermissions.$inferInsert;
+
+/**
+ * Histórico de auditoria
+ * Registra todas as mudanças em tarefas/questionários
+ */
+export const auditLog = mysqlTable("auditLog", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  userName: varchar("userName", { length: 255 }).notNull(),
+  projectId: int("projectId").notNull(),
+  entityType: mysqlEnum("entityType", [
+    "task",
+    "comment",
+    "corporate_assessment",
+    "branch_assessment",
+    "project",
+    "permission"
+  ]).notNull(),
+  entityId: int("entityId").notNull(),
+  action: mysqlEnum("action", ["create", "update", "delete", "status_change"]).notNull(),
+  changes: json("changes").$type<Record<string, { old: any; new: any }>>(), // { field: { old: value, new: value } }
+  metadata: json("metadata").$type<Record<string, any>>(), // Dados adicionais contextuais
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type AuditLog = typeof auditLog.$inferSelect;
+export type InsertAuditLog = typeof auditLog.$inferInsert;
