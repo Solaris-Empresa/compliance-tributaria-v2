@@ -37,6 +37,8 @@ import { branchesRouter } from "./routers-branches";
 import { corporateAssessmentRouter, branchAssessmentRouter } from "./routers-assessments";
 import { actionPlansRouter } from "./action-plans-complete";
 import { tasksRouter as tasksRouterV2 } from "./routers-tasks";
+import { commentsRouter } from "./routers-comments";
+import { notificationsRouter as notificationsRouterV2 } from "./routers-notifications";
 
 export const appRouter = router({
   system: systemRouter,
@@ -45,6 +47,8 @@ export const appRouter = router({
   branchAssessment: branchAssessmentRouter,
   actionPlans: actionPlansRouter,
   tasksV2: tasksRouterV2,
+  comments: commentsRouter,
+  notificationsV2: notificationsRouterV2,
   
   // ==========================================================================
   // AUTH
