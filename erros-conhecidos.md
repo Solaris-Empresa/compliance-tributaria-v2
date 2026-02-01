@@ -175,3 +175,119 @@ describe('assessmentPhase1.save', () => {
 ---
 
 *Última atualização: 01/02/2026*
+
+## 2. Erro 404 "Página não encontrada" Após Geração de Planos por Ramo
+
+**Data de Identificação:** 01/02/2026  
+**Data de Resolução:** 01/02/2026  
+**Sprint:** V31
+
+### 📋 Descrição do Problema
+
+Após gerar planos de ação por ramo com sucesso, o sistema exibia mensagem de sucesso ("2 plano(s) por ramo gerado(s) com sucesso!") mas redirecionava para uma página 404 "Página não encontrada".
+
+**Sintomas:**
+- Geração de planos por ramo completava sem erros
+- Toast de sucesso era exibido corretamente
+- Após 1.5 segundos, sistema redirecionava para página 404
+- Planos eram salvos corretamente no banco de dados
+- Problema estava apenas no redirecionamento
+
+### 🔍 Causa Raiz
+
+URL de redirecionamento incorreta em `client/src/pages/PlanoAcao.tsx` linha 328:
+
+```typescript
+// ❌ URL INCORRETA (faltava prefixo /planos-acao/)
+setLocation(`/visualizar-planos-por-ramo?projectId=${projectId}`);
+```
+
+**Problema:** A rota `/visualizar-planos-por-ramo` não existe no sistema. A rota correta definida em `client/src/App.tsx` linha 57 é:
+
+```typescript
+<Route path="/planos-acao/visualizar-planos-por-ramo" component={VisualizarPlanosPorRamo} />
+```
+
+**Análise:**
+- Rota esperada pelo código: `/visualizar-planos-por-ramo`
+- Rota real no sistema: `/planos-acao/visualizar-planos-por-ramo`
+- Diferença: Faltava o prefixo `/planos-acao/`
+
+### ✅ Solução Implementada
+
+Corrigimos a URL de redirecionamento em `PlanoAcao.tsx` linha 328:
+
+```typescript
+// ✅ URL CORRETA (com prefixo /planos-acao/)
+setLocation(`/planos-acao/visualizar-planos-por-ramo?projectId=${projectId}`);
+```
+
+**Código Completo (linhas 326-329):**
+
+```typescript
+toast.success(`${projectBranches.length} plano(s) por ramo gerado(s) com sucesso!`);
+setTimeout(() => {
+  setLocation(`/planos-acao/visualizar-planos-por-ramo?projectId=${projectId}`);
+}, 1500);
+```
+
+### 🧪 Validação
+
+Criamos **5 testes unitários** em `server/branch-plans-redirect.test.ts` para garantir que o redirecionamento funciona corretamente:
+
+```typescript
+describe('Redirecionamento após geração de planos por ramo', () => {
+  it('deve construir URL correta com projectId', () => {
+    // ✅ Valida formato completo da URL
+  });
+
+  it('deve incluir prefixo /planos-acao/ na rota', () => {
+    // ✅ Valida que URL começa com /planos-acao/
+  });
+
+  it('deve validar formato completo da URL', () => {
+    // ✅ Valida regex: /^\/planos-acao\/visualizar-planos-por-ramo\?projectId=\d+$/
+  });
+
+  it('deve aceitar diferentes valores de projectId', () => {
+    // ✅ Valida múltiplos projectIds (1, 100, 9999, 123456)
+  });
+
+  it('deve rejeitar URL incorreta (sem /planos-acao/)', () => {
+    // ✅ Valida que URL incorreta é diferente da correta
+  });
+});
+```
+
+**Resultado:** 5/5 testes passaram em 4ms ✅
+
+### 📦 Checkpoints e Deploy
+
+- **Sprint V31:** Correção do redirecionamento + testes unitários (93e36265)
+- **Commit:** 36334848
+- **Status Final:** Bug resolvido definitivamente
+
+### 📚 Lições Aprendidas
+
+1. **Consistência de Rotas:** Sempre verificar rotas definidas em `App.tsx` antes de implementar redirecionamentos no código.
+
+2. **Prefixos de Rota:** Rotas agrupadas por funcionalidade (e.g., `/planos-acao/*`) devem manter o prefixo consistente em todos os redirecionamentos.
+
+3. **Testes de Navegação:** Criar testes unitários validando URLs de redirecionamento previne erros 404 em produção.
+
+4. **Validação de Formato:** Usar regex para validar formato completo de URLs garante que todos os componentes (prefixo, path, query params) estão corretos.
+
+5. **Feedback Visual:** Mesmo com erro de redirecionamento, a funcionalidade principal (geração de planos) funcionava corretamente, indicando que o problema era isolado à navegação.
+
+### 🔗 Referências
+
+- **Issue GitHub:** #61 (https://github.com/Solaris-Empresa/reforma-tributaria-plano-compliance/issues/61)
+- **Commit:** 36334848
+- **Checkpoint:** 93e36265
+- **Testes:** `server/branch-plans-redirect.test.ts`
+- **Arquivo Corrigido:** `client/src/pages/PlanoAcao.tsx` (linha 328)
+- **Rota Definida:** `client/src/App.tsx` (linha 57)
+
+---
+
+*Última atualização: 01/02/2026*
