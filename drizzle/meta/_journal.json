@@ -71,6 +71,13 @@
       "when": 1769910082020,
       "tag": "0009_shallow_black_panther",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1769910351169,
+      "tag": "0010_nostalgic_george_stacy",
+      "breakpoints": true
     }
   ]
 }

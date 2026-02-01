@@ -35,12 +35,14 @@ const validateProjectAccess = async (ctx: any, projectId: number) => {
 
 import { branchesRouter } from "./routers-branches";
 import { corporateAssessmentRouter, branchAssessmentRouter } from "./routers-assessments";
+import { actionPlansRouter } from "./action-plans-complete";
 
 export const appRouter = router({
   system: systemRouter,
   branches: branchesRouter,
   corporateAssessment: corporateAssessmentRouter,
   branchAssessment: branchAssessmentRouter,
+  actionPlans: actionPlansRouter,
   
   // ==========================================================================
   // AUTH
