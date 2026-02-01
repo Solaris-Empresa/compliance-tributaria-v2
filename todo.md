@@ -1387,5 +1387,13 @@
 - [x] Criar testes unitários para branchAssessment.generate - 4 testes criados
 - [x] Executar e validar 100% dos testes - 4/4 passaram (42.49s)
 - [x] Criar checkpoint final (f0059f61)
+- [x] Push para GitHub (6fc69622)
+- [x] Criar issue #59 e marcar como done no GitHub - CLOSED
+
+## Sprint V30: Bug Parsing JSON - Geração de Planos por Ramo (01/02/2026)
+- [x] Investigar erro "Unexpected token '\`', "\`\`\`json..." na geração de planos por ramo - IA retorna ```json ... ```
+- [x] Corrigir parsing de JSON no backend (remover markdown code blocks da resposta da IA) - Linhas 58-63 e 193-198)
+- [x] Criar testes unitários validando parsing correto - 6 testes criados (100% passaram)
+- [ ] Criar checkpoint final
 - [ ] Push para GitHub
-- [ ] Criar e marcar issue como done no GitHub
+- [ ] Criar issue #60 e marcar como done no GitHub

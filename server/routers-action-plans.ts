@@ -56,7 +56,11 @@ export const actionPlansRouter = router({
         });
 
         const content = response.choices[0].message.content;
-        const planData = JSON.parse(typeof content === 'string' ? content : '{"tasks":[]}');
+        // Remover markdown code blocks se existirem (```json ... ```)
+        const cleanContent = typeof content === 'string' 
+          ? content.trim().replace(/^```json\s*/, '').replace(/\s*```$/, '').trim()
+          : '{"tasks":[]}';
+        const planData = JSON.parse(cleanContent);
 
         const [existingPlan] = await database
           .select()
@@ -187,7 +191,11 @@ export const actionPlansRouter = router({
         });
 
         const content = response.choices[0].message.content;
-        const planData = JSON.parse(typeof content === 'string' ? content : '{"tasks":[]}');
+        // Remover markdown code blocks se existirem (```json ... ```)
+        const cleanContent = typeof content === 'string' 
+          ? content.trim().replace(/^```json\s*/, '').replace(/\s*```$/, '').trim()
+          : '{"tasks":[]}';
+        const planData = JSON.parse(cleanContent);
 
         const [existingPlan] = await database
           .select()
