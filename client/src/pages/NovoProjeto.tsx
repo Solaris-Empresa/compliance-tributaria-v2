@@ -90,7 +90,7 @@ export default function NovoProjeto() {
       name: name.trim(),
       clientId: parseInt(clientId),
       planPeriodMonths: parseInt(planPeriodMonths),
-    });
+     });
   };
 
   return (
@@ -135,7 +135,10 @@ export default function NovoProjeto() {
               {/* Cliente */}
               <div className="space-y-2">
                 <Label htmlFor="client">Cliente *</Label>
-                <Select value={clientId} onValueChange={setClientId} required>
+                <Select value={clientId} onValueChange={(value) => {
+                  console.log('Select onChange:', value);
+                  setClientId(value);
+                }} required>
                   <SelectTrigger id="client">
                     <SelectValue placeholder="Selecione o cliente" />
                   </SelectTrigger>
@@ -222,20 +225,20 @@ export default function NovoProjeto() {
 
               {/* Actions */}
               <div className="flex gap-3 pt-4">
-                <Button
+                <button
                   type="submit"
                   disabled={createProject.isPending || addBranchesToProject.isPending}
-                  className="flex-1"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {(createProject.isPending || addBranchesToProject.isPending) ? (
-                    <>
+                    <span className="flex items-center justify-center">
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Criando...
-                    </>
+                    </span>
                   ) : (
                     "Criar Projeto"
                   )}
-                </Button>
+                </button>
                 <Button
                   type="button"
                   variant="outline"

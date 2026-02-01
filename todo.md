@@ -1221,3 +1221,16 @@
 - [ ] Executar testes E2E completos
 - [ ] Checkpoint final Sprint V16
 - [ ] Atualizar status no todo.md
+
+
+## Sprint V17: QA E2E Completo - Testes e Correções Autônomas
+- [x] Criar script de teste E2E automatizado
+- [x] Executar testes E2E e coletar evidências
+- [x] Analisar resultados e identificar bugs
+- [x] Investigar bug do botão "Criar Projeto"
+- [x] Documentar problema conhecido (browser automation em KNOWN-ISSUES.md)
+- [x] Remover logs de debug desnecessários do NovoProjeto.tsx
+- [x] Simplificar botão submit (type="submit" tradicional)
+- [x] Validar que IA gen está funcionando (testes E2E anteriores confirmam)
+- [x] Criar checkpoint final
+- [x] Push para Git
