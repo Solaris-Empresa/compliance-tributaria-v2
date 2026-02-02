@@ -1443,6 +1443,12 @@
 - [x] Atualizar métricas - 34 sprints, 62 issues, 35+ checkpoints
 - [x] Adicionar Sprint V34 em erros-conhecidos.md - Erro #3 documentado
 - [x] Criar testes unitários validando atualização - 13/13 testes passaram
+- [x] Criar checkpoint final - e6c644ee
+- [x] Push para GitHub - Commit e6c644ee sincronizado
+- [x] Criar issue e marcar como done no GitHub - Issue #63 CLOSED
+
+## Sprint V36: Criar Release v1.1 no GitHub (02/02/2026)
+- [x] Criar release v1.1 no GitHub - https://github.com/Solaris-Empresa/reforma-tributaria-plano-compliance/releases/tag/v1.1
+- [x] Incluir notas completas de atualização da baseline - Sprints V34-V35 documentados
+- [x] Atualizar todo.md com Sprint V36 - Concluído
 - [ ] Criar checkpoint final
-- [ ] Push para GitHub
-- [ ] Criar issue e marcar como done no GitHub
