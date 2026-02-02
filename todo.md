@@ -1454,7 +1454,8 @@
 - [x] Criar checkpoint final - a2e30411
 
 ## Sprint V37: Validação e Atualização de Lições Aprendidas (02/02/2026)
-- [ ] Verificar baseline.md no GitHub (double check)
-- [ ] Comparar baseline.md GitHub vs local
-- [ ] Atualizar arquivo de lições aprendidas com Sprints V34-V36
+- [x] Verificar baseline.md no GitHub (double check) - Divergência identificada
+- [x] Comparar baseline.md GitHub vs local - GitHub v1.0, Local v1.1
+- [x] Sincronizar baseline.md para GitHub - Commit bde38915 pushed
+- [x] Atualizar arquivo de lições aprendidas com Sprints V34-V37 - LICOES-APRENDIDAS.md criado
 - [ ] Criar checkpoint final
