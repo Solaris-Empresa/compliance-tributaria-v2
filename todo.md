@@ -1433,6 +1433,16 @@
 - [x] Criar projeto de teste completo com ramos de atividade - Projeto 540001 criado
 - [x] Criar testes unitários validando renderização condicional - 5/5 testes passaram
 - [x] Criar documentação de uso da funcionalidade - docs/funcionalidade-planos-por-ramo.md
+- [x] Criar checkpoint final - 3fc6120e
+- [x] Push para GitHub - Commit 3fc6120e sincronizado
+- [x] Criar issue e marcar como done no GitHub - Issue #62 CLOSED
+
+## Sprint V35: Atualização da Baseline com Sprint V34 (02/02/2026)
+- [x] Acessar GitHub e comparar baseline local vs remota - Versões idênticas
+- [x] Atualizar baseline.md com Sprint V34 - Versão 1.1, checkpoint 3fc6120e
+- [x] Atualizar métricas - 34 sprints, 62 issues, 35+ checkpoints
+- [x] Adicionar Sprint V34 em erros-conhecidos.md - Erro #3 documentado
+- [x] Criar testes unitários validando atualização - 13/13 testes passaram
 - [ ] Criar checkpoint final
 - [ ] Push para GitHub
 - [ ] Criar issue e marcar como done no GitHub

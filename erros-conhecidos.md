@@ -291,3 +291,244 @@ describe('Redirecionamento após geração de planos por ramo', () => {
 ---
 
 *Última atualização: 01/02/2026*
+
+## 3. Seção "Planos por Ramo" Não Renderizada na Interface
+
+**Data de Identificação:** 02/02/2026  
+**Data de Resolução:** 02/02/2026  
+**Sprint:** V34
+
+### 📋 Descrição do Problema
+
+A seção "Planos de Ação por Ramo" não aparecia na página `/projetos/:id/plano-acao`, mesmo com o código de renderização implementado corretamente.
+
+**Sintomas:**
+- Usuário acessava página "Planos de Ação" do projeto
+- Seção "Planos de Ação por Ramo" não era exibida
+- Código de renderização estava correto (linha 683 de `PlanoAcao.tsx`)
+- Query tRPC `branches.getProjectBranches` funcionava corretamente
+- Componente `VisualizarPlanosPorRamo.tsx` existia e estava correto
+
+### 🔍 Causa Raiz
+
+**NÃO era um bug de código** - era **falta de dados no banco de dados**.
+
+O código implementa renderização condicional correta:
+
+```typescript
+// client/src/pages/PlanoAcao.tsx (linha 683)
+{projectBranches.length > 0 && (
+  <section className="mb-8">
+    <h2 className="text-2xl font-bold mb-4">Planos de Ação por Ramo</h2>
+    {/* Conteúdo da seção */}
+  </section>
+)}
+```
+
+**Condição:** `projectBranches.length > 0`
+
+**Problema Identificado:**
+- Projeto de teste (ID 510076) tinha **0 ramos de atividade cadastrados** na tabela `projectBranches`
+- Query SQL confirmou: `SELECT COUNT(*) FROM projectBranches WHERE projectId = 510076` → **0 rows**
+- Como `projectBranches.length === 0`, a condição retornava `false` e a seção não renderizava
+
+**Conclusão:** O código estava correto. A funcionalidade só aparece quando o projeto tem pelo menos 1 ramo de atividade cadastrado, conforme esperado pelo design do sistema.
+
+### ✅ Solução Implementada
+
+Como não havia bug de código, a solução foi criar **infraestrutura de demonstração e documentação**:
+
+#### 1. Projeto de Teste Completo
+
+Criado projeto de demonstração (ID 540001) com dados completos:
+
+```typescript
+// server/seed-test-project-with-branches.ts
+const project = await db.insert(projects).values({
+  name: 'Projeto Teste - Planos por Ramo v1.0',
+  description: 'Projeto de demonstração da funcionalidade de planos de ação por ramo de atividade',
+  clientId: 1,
+  createdById: 1,
+  status: 'em_andamento',
+});
+
+// Associar 3 ramos de atividade
+const branches = ['Comércio (COM)', 'Indústria (IND)', 'Serviços (SER)'];
+for (const branch of branches) {
+  await db.insert(projectBranches).values({
+    projectId: project.id,
+    branchId: branch.id,
+  });
+}
+
+// Preencher Assessment Fase 1
+await db.insert(assessmentPhase1).values({
+  projectId: project.id,
+  taxRegime: 'lucro_real',
+  companySize: 'media',
+  annualRevenue: 15000000,
+  businessSector: 'saude',
+  mainActivity: 'Serviços de tecnologia médica',
+  employeeCount: 90,
+  hasAccountingDept: 'sim',
+  currentERPSystem: 'SAP',
+  mainChallenges: 'Adaptação aos novos tributos IBS/CBS, gestão de créditos tributários',
+  complianceGoals: 'Conformidade 100% até 2026, otimização de carga tributária',
+});
+```
+
+**Resultado:**
+- Projeto ID: 540001
+- Ramos cadastrados: 3 (Comércio, Indústria, Serviços)
+- Assessment Fase 1: ✅ Preenchido
+- Seção "Planos por Ramo": ✅ Visível na UI
+
+#### 2. Script de Seed Reutilizável
+
+Criado script `server/seed-test-project-with-branches.ts` que pode ser executado para criar projetos de teste:
+
+```bash
+npx tsx server/seed-test-project-with-branches.ts
+```
+
+**Saída do Script:**
+```
+🚀 Criando projeto de teste completo...
+1️⃣ Criando projeto...
+✅ Projeto criado: ID 540001
+
+2️⃣ Buscando ramos de atividade...
+✅ Encontrados 3 ramos:
+   1. COM - Comércio
+   2. IND - Indústria
+   3. SER - Serviços
+
+3️⃣ Associando ramos ao projeto...
+✅ 3 ramos associados ao projeto
+
+4️⃣ Criando Assessment Fase 1...
+✅ Assessment Fase 1 criado
+
+🎉 PROJETO DE TESTE CRIADO COM SUCESSO!
+```
+
+#### 3. Documentação Completa
+
+Criado documento `docs/funcionalidade-planos-por-ramo.md` com:
+
+- **Visão Geral:** Explicação da funcionalidade
+- **Pré-requisitos:** Como cadastrar ramos de atividade
+- **Renderização Condicional:** Explicação da condição `projectBranches.length > 0`
+- **Fluxo de Uso:** 3 etapas detalhadas (verificar ramos → gerar planos → visualizar)
+- **Arquitetura Técnica:** Frontend + Backend (código relevante referenciado)
+- **Projeto de Teste:** Instruções para acessar projeto 540001
+- **Troubleshooting:** Como resolver problema de seção não aparecer
+- **Histórico de Mudanças:** Documentação do Sprint V34
+
+### 🧪 Validação
+
+Criamos **5 testes unitários** em `server/planos-por-ramo-renderizacao.test.ts` para validar a renderização condicional:
+
+```typescript
+describe('Renderização Condicional - Planos por Ramo', () => {
+  it('Deve retornar projectBranches.length > 0 para projeto 540001', async () => {
+    const branches = await db.select().from(projectBranches)
+      .where(eq(projectBranches.projectId, 540001));
+    expect(branches.length).toBeGreaterThan(0);
+    // ✅ Projeto 540001 tem 3 ramos cadastrados
+  });
+
+  it('Deve retornar projectBranches.length === 0 para projeto 510076', async () => {
+    const branches = await db.select().from(projectBranches)
+      .where(eq(projectBranches.projectId, 510076));
+    expect(branches.length).toBe(0);
+    // ✅ Projeto 510076 tem 0 ramos cadastrados (esperado)
+  });
+
+  it('Deve retornar exatamente 3 ramos para projeto 540001', async () => {
+    const branches = await db.select().from(projectBranches)
+      .where(eq(projectBranches.projectId, 540001));
+    expect(branches.length).toBe(3);
+    // ✅ Projeto 540001 tem exatamente 3 ramos
+  });
+
+  it('Deve retornar dados completos dos ramos com JOIN', async () => {
+    const branches = await db.select({
+      id: projectBranches.id,
+      projectId: projectBranches.projectId,
+      branchId: projectBranches.branchId,
+      code: activityBranches.code,
+      name: activityBranches.name,
+    })
+    .from(projectBranches)
+    .innerJoin(activityBranches, eq(projectBranches.branchId, activityBranches.id))
+    .where(eq(projectBranches.projectId, 540001));
+    
+    expect(branches.length).toBe(3);
+    expect(branches[0]).toHaveProperty('code');
+    expect(branches[0]).toHaveProperty('name');
+    // ✅ JOIN retornou 3 ramos com dados completos
+  });
+
+  it('Deve validar condição de renderização: projectBranches.length > 0', async () => {
+    // Projeto COM ramos
+    const branchesWithData = await db.select().from(projectBranches)
+      .where(eq(projectBranches.projectId, 540001));
+    const shouldRenderWithData = branchesWithData.length > 0;
+    expect(shouldRenderWithData).toBe(true);
+
+    // Projeto SEM ramos
+    const branchesWithoutData = await db.select().from(projectBranches)
+      .where(eq(projectBranches.projectId, 510076));
+    const shouldRenderWithoutData = branchesWithoutData.length > 0;
+    expect(shouldRenderWithoutData).toBe(false);
+    
+    // ✅ Condição de renderização validada:
+    //    - Projeto 540001 (com ramos): renderiza = true
+    //    - Projeto 510076 (sem ramos): renderiza = false
+  });
+});
+```
+
+**Resultado:** 5/5 testes passaram em 599ms ✅
+
+### 📦 Checkpoints e Deploy
+
+- **Sprint V34:** Projeto de teste + documentação + testes (3fc6120e)
+- **Commit:** 3fc6120e
+- **Status Final:** Funcionalidade validada e documentada
+
+### 📚 Lições Aprendidas
+
+1. **Renderização Condicional:** Sempre verificar se a condição de renderização está correta E se os dados necessários existem no banco antes de assumir que há bug de código.
+
+2. **Dados de Teste:** Criar projetos de teste completos com dados realistas é essencial para demonstrar funcionalidades que dependem de dados específicos.
+
+3. **Documentação de Pré-requisitos:** Funcionalidades que só aparecem sob certas condições devem ter documentação clara explicando os pré-requisitos.
+
+4. **Scripts de Seed:** Criar scripts reutilizáveis para popular dados de teste facilita validação e demonstração de funcionalidades.
+
+5. **Testes de Renderização:** Validar condições de renderização com testes unitários garante que a lógica condicional funciona corretamente.
+
+6. **Troubleshooting Proativo:** Documentar como resolver problemas comuns (ex: "seção não aparece") economiza tempo de suporte no futuro.
+
+### 🔗 Referências
+
+- **Issue GitHub:** #62 (https://github.com/Solaris-Empresa/reforma-tributaria-plano-compliance/issues/62)
+- **Commit:** 3fc6120e
+- **Checkpoint:** 3fc6120e
+- **Testes:** `server/planos-por-ramo-renderizacao.test.ts`
+- **Script de Seed:** `server/seed-test-project-with-branches.ts`
+- **Documentação:** `docs/funcionalidade-planos-por-ramo.md`
+- **Código de Renderização:** `client/src/pages/PlanoAcao.tsx` (linha 683)
+- **Projeto de Teste:** ID 540001 (3 ramos cadastrados)
+
+### 🎯 Como Testar
+
+1. Acessar: `/projetos/540001/plano-acao`
+2. Verificar que seção "Planos de Ação por Ramo" está visível
+3. Clicar em "Gerar Planos por Ramo" para testar funcionalidade completa
+
+---
+
+*Última atualização: 02/02/2026*

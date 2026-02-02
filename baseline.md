@@ -1,8 +1,8 @@
 # Baseline - Plataforma de Compliance Tributária (Reforma Tributária)
 
-**Versão:** 1.0  
-**Data:** 01/02/2026  
-**Checkpoint:** 93e36265  
+**Versão:** 1.1  
+**Data:** 02/02/2026  
+**Checkpoint:** 3fc6120e  
 **Autor:** Manus AI
 
 ---
@@ -1875,9 +1875,15 @@ Ver arquivo `erros-conhecidos.md` para documentação completa de bugs resolvido
    - Solução: Correção em `PlanoAcao.tsx` linha 328
    - Testes: 5/5 unitários passaram
 
+3. **Seção "Planos por Ramo" Não Renderizada** (Sprint V34)
+   - Causa: Projeto não tinha ramos de atividade cadastrados (falta de dados, não bug de código)
+   - Solução: Criado projeto de teste (ID 540001) com 3 ramos + documentação completa
+   - Testes: 5/5 unitários passaram
+   - Documentação: `docs/funcionalidade-planos-por-ramo.md`
+
 ### 8.2 Backlog e Roadmap
 
-Ver arquivo `todo.md` para backlog completo e sprints concluídos (V1-V32).
+Ver arquivo `todo.md` para backlog completo e sprints concluídos (V1-V34).
 
 **Próximas Funcionalidades Planejadas:**
 - [ ] Matriz de Riscos Tributários (visualização interativa)
@@ -2008,9 +2014,9 @@ A **Plataforma de Compliance Tributária** é um sistema web completo e funciona
 - **Páginas Frontend:** 28 páginas
 - **Testes Unitários:** 50+ arquivos (100% aprovação)
 - **Migrações SQL:** 14 migrações aplicadas
-- **Sprints Concluídos:** 32 sprints (V1-V32)
-- **Checkpoints Criados:** 30+ checkpoints
-- **Issues Resolvidas:** 61 issues fechadas no GitHub
+- **Sprints Concluídos:** 34 sprints (V1-V34)
+- **Checkpoints Criados:** 35+ checkpoints
+- **Issues Resolvidas:** 62 issues fechadas no GitHub
 
 **Status Atual:**
 
@@ -2034,7 +2040,7 @@ A **Plataforma de Compliance Tributária** é um sistema web completo e funciona
 
 ---
 
-**Última Atualização:** 01/02/2026  
-**Versão do Documento:** 1.0  
-**Checkpoint Atual:** 93e36265  
+**Última Atualização:** 02/02/2026  
+**Versão do Documento:** 1.1  
+**Checkpoint Atual:** 3fc6120e  
 **Autor:** Manus AI
