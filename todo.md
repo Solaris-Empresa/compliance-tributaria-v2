@@ -1422,7 +1422,7 @@
 - [x] Criar tag Git v1.0.0 com anotação completa - Commit 8ac8a5ed
 - [x] Criar backup completo (tar.gz) do projeto - 5.0MB (sem node_modules)
 - [x] Push de código + tags para GitHub - Tag v1.0.0 publicada
-- [ ] Upload de backup para GitHub Release
-- [ ] Criar GitHub Release v1.0.0 com notas
-- [ ] Criar checkpoint Manus final v1.0.0
-- [ ] Criar issue de milestone v1.0 e marcar como done
+- [x] Upload de backup para GitHub Release - 5.0MB anexado
+- [x] Criar GitHub Release v1.0.0 com notas - https://github.com/Solaris-Empresa/reforma-tributaria-plano-compliance/releases/tag/v1.0.0
+- [x] Criar checkpoint Manus final v1.0.0 (3162b8ad)
+- [x] Criar issue de milestone v1.0 e marcar como done - Issue #48 CLOSED
