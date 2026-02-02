@@ -1451,4 +1451,10 @@
 - [x] Criar release v1.1 no GitHub - https://github.com/Solaris-Empresa/reforma-tributaria-plano-compliance/releases/tag/v1.1
 - [x] Incluir notas completas de atualização da baseline - Sprints V34-V35 documentados
 - [x] Atualizar todo.md com Sprint V36 - Concluído
+- [x] Criar checkpoint final - a2e30411
+
+## Sprint V37: Validação e Atualização de Lições Aprendidas (02/02/2026)
+- [ ] Verificar baseline.md no GitHub (double check)
+- [ ] Comparar baseline.md GitHub vs local
+- [ ] Atualizar arquivo de lições aprendidas com Sprints V34-V36
 - [ ] Criar checkpoint final
