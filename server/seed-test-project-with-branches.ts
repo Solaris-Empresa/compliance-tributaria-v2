@@ -26,9 +26,9 @@ async function seedTestProject() {
     console.log('1️⃣ Criando projeto...');
     const projectResult = await db.insert(projects).values({
       name: 'Projeto Teste - Planos por Ramo v1.0',
-      description: 'Projeto de demonstração da funcionalidade de planos de ação por ramo de atividade',
       clientId: 1, // Assumindo que cliente 1 existe
       createdById: 1, // Assumindo que usuário 1 existe
+      createdByRole: 'equipe_solaris',
       status: 'em_andamento',
     }) as any;
     
@@ -66,7 +66,7 @@ async function seedTestProject() {
       projectId: projectId,
       taxRegime: 'lucro_real',
       companySize: 'media',
-      annualRevenue: 15000000,
+      annualRevenue: '15000000',
       businessSector: 'saude',
       mainActivity: 'Serviços de tecnologia médica',
       employeeCount: 90,

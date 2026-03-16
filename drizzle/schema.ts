@@ -59,6 +59,9 @@ export const projects = mysqlTable("projects", {
     "personalizada"
   ]).default("semanal").notNull(),
   notificationEmail: varchar("notificationEmail", { length: 320 }),
+  // Novo Fluxo v2.0: Modo de uso e sessão
+  mode: mysqlEnum("mode", ["temporario", "historico"]).default("historico").notNull(),
+  sessionToken: varchar("sessionToken", { length: 128 }), // referência à sessão temporária de origem
   // Campos do Assessment
   taxRegime: mysqlEnum("taxRegime", [
     "simples_nacional",
@@ -116,7 +119,20 @@ export const projectBranches = mysqlTable("projectBranches", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
   branchId: int("branchId").notNull(),
+  // Novo Fluxo v2.0: controle de progresso por ramo
+  branchStatus: mysqlEnum("branchStatus", [
+    "pendente",
+    "questionario_em_andamento",
+    "questionario_concluido",
+    "plano_gerado",
+    "plano_aprovado",
+    "riscos_gerados",
+    "concluido"
+  ]).default("pendente").notNull(),
+  questionnaireDepth: mysqlEnum("questionnaireDepth", ["sintetico", "abrangente"]).default("sintetico"),
+  order: int("order").default(0), // ordem de processamento no loop
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
 });
 
 export type ProjectBranch = typeof projectBranches.$inferSelect;
@@ -943,3 +959,58 @@ export const planReviews = mysqlTable("planReviews", {
 
 export type PlanReview = typeof planReviews.$inferSelect;
 export type InsertPlanReview = typeof planReviews.$inferInsert;
+
+// ============================================================
+// NOVO FLUXO v2.0 — Fase 1: Modo de Uso + Briefing Inteligente
+// ============================================================
+
+/**
+ * Sessões temporárias — Modo sem login
+ * Permite usar o sistema sem criar conta (dados expiram em 24h)
+ */
+export const sessions = mysqlTable("sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionToken: varchar("sessionToken", { length: 128 }).notNull().unique(),
+  mode: mysqlEnum("mode", ["temporario", "historico"]).default("temporario").notNull(),
+  // Dados coletados no briefing inicial (modo temporário)
+  companyDescription: text("companyDescription"), // texto livre do usuário
+  suggestedBranches: json("suggestedBranches"), // JSON: [{code, name, justification}]
+  confirmedBranches: json("confirmedBranches"),  // JSON: [{code, name}] após confirmação
+  currentStep: mysqlEnum("currentStep", [
+    "modo_uso",
+    "briefing",
+    "confirmar_ramos",
+    "questionario",
+    "plano_acao",
+    "matriz_riscos",
+    "consolidacao",
+    "concluido"
+  ]).default("modo_uso").notNull(),
+  projectId: int("projectId"), // preenchido quando converte para modo histórico
+  expiresAt: timestamp("expiresAt").notNull(), // 24h após criação
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Session = typeof sessions.$inferSelect;
+export type InsertSession = typeof sessions.$inferInsert;
+
+/**
+ * Histórico de sugestões de ramos pela IA
+ * Registra cada interação de sugestão para auditoria e melhoria
+ */
+export const branchSuggestions = mysqlTable("branchSuggestions", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionToken: varchar("sessionToken", { length: 128 }), // null se modo histórico
+  projectId: int("projectId"),                             // null se modo temporário
+  companyDescription: text("companyDescription").notNull(),
+  suggestedBranches: json("suggestedBranches").notNull(),  // JSON: [{code, name, justification, confidence}]
+  confirmedBranches: json("confirmedBranches"),            // preenchido após confirmação
+  llmModel: varchar("llmModel", { length: 100 }),
+  promptTokens: int("promptTokens"),
+  completionTokens: int("completionTokens"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BranchSuggestion = typeof branchSuggestions.$inferSelect;
+export type InsertBranchSuggestion = typeof branchSuggestions.$inferInsert;

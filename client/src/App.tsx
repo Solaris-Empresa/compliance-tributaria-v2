@@ -31,6 +31,9 @@ import ProjetoDetalhes from "./pages/ProjetoDetalhes";
 import GerenciarAcoes from "./pages/GerenciarAcoes";
 import VisualizadorAuditoria from "./pages/VisualizadorAuditoria";
 import NotFound from "./pages/NotFound";
+// Novo Fluxo v2.0
+import ModoUso from "./pages/ModoUso";
+import BriefingInteligente from "./pages/BriefingInteligente";
 
 function Router() {
   return (
@@ -63,6 +66,9 @@ function Router() {
       <Route path="/modelos-padroes" component={BibliotecaModelos} />
       <Route path="/modelos-padroes/:id/editar" component={EditarTemplate} />
       {/* Outras rotas serão adicionadas conforme implementação */}
+      {/* Novo Fluxo v2.0 */}
+      <Route path="/modo-uso" component={ModoUso} />
+      <Route path="/briefing" component={BriefingInteligente} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

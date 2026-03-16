@@ -1464,4 +1464,19 @@
 - [x] Verificar LICOES-APRENDIDAS.md local - 415 linhas, 13.495 bytes
 - [x] Commit e push para GitHub - Commit 8859aad
 - [x] Validar sincronização no GitHub - 13.495 bytes confirmados
+- [x] Criar checkpoint final - bc16deaf
+
+## Sprint V39: Fase 1 - Novo Fluxo v2.0 (16/03/2026)
+- [x] Adicionar tabela sessions + branchSuggestions no schema
+- [x] Adicionar campo mode, sessionToken em projects; branchStatus, questionnaireDepth, order em projectBranches
+- [x] Executar pnpm db:push - 41 tabelas aplicadas
+- [x] Criar routers-sessions.ts com 6 procedures (create, get, updateStep, suggestBranches, saveConfirmedBranches, expire)
+- [x] Registrar sessionsRouter no appRouter
+- [x] Criar página ModoUso.tsx (escolha temporário/histórico)
+- [x] Criar página BriefingInteligente.tsx (texto livre + confirmação de ramos)
+- [x] Atualizar App.tsx com rotas /modo-uso e /briefing
+- [x] Corrigir erros TypeScript (0 erros)
+- [x] Criar testes unitários + funcionais - 22/22 passaram (100%)
 - [ ] Criar checkpoint final
+- [ ] Push para GitHub
+- [ ] Criar issue e marcar como done
