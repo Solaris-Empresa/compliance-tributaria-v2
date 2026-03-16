@@ -1512,6 +1512,21 @@
 - [x] Frontend: Consolidacao.tsx - score circular, sumário executivo, achados, recomendações, timeline, exportar CSV/JSON, salvar histórico
 - [x] Integração: App.tsx rota /consolidacao + TypeScript sem erros
 - [x] Testes unitários + funcionais: 31/31 passaram (100%)
+- [x] Criar checkpoint final - dad498bc
+- [x] Push para GitHub - Commit dad498b sincronizado
+- [x] Criar issue e marcar como done - Issue #67 CLOSED
+
+## Sprint V43: Navegação Guiada Fluxo v2.0 (16/03/2026)
+- [x] Criar componente FluxoStepper reutilizável - 6 passos visuais com estado ativo/concluído/pendente
+- [x] Criar hook useFluxoSession para centralizar sessionToken - sessionStorage unificado
+- [x] ModoUso.tsx: FluxoStepper + navega para /briefing com sessionToken
+- [x] BriefingInteligente.tsx: FluxoStepper + navega para /questionario-ramos com sessionToken
+- [x] QuestionarioRamos.tsx: FluxoStepper passo 'questionario' + navega para /plano-acao-session
+- [x] PlanoAcaoSession.tsx: FluxoStepper passo 'plano-acao' + botões Matriz e Consolidar
+- [x] MatrizRiscosSession.tsx: FluxoStepper passo 'matriz-riscos' + botões Voltar e Consolidar
+- [x] Consolidacao.tsx: FluxoStepper passo 'consolidacao' + exportar CSV/JSON + salvar histórico
+- [x] Corrigir inconsistência localStorage vs sessionStorage - unificado em sessionStorage
+- [x] Testes de navegação: 38/38 passaram (100%)
 - [ ] Criar checkpoint final
 - [ ] Push para GitHub
 - [ ] Criar issue e marcar como done

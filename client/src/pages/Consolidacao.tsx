@@ -25,6 +25,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { FluxoStepper } from "@/components/FluxoStepper";
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -284,7 +285,10 @@ export default function Consolidacao() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white">
       {/* Header */}
       <div className="border-b border-white/10 bg-black/20 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 py-3">
+          {/* Stepper do fluxo */}
+          <FluxoStepper current="consolidacao" className="mb-3" />
+          <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <Shield className="w-4 h-4" />
@@ -329,6 +333,7 @@ export default function Consolidacao() {
               </Button>
             )}
           </div>
+          </div>{/* end flex justify-between */}
         </div>
       </div>
 

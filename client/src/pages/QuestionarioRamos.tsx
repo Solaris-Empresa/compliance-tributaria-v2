@@ -19,6 +19,7 @@ import {
   Building2,
   ArrowRight,
 } from "lucide-react";
+import { FluxoStepper } from "@/components/FluxoStepper";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -50,10 +51,16 @@ const RISK_CONFIG = {
 export default function QuestionarioRamos() {
   const [, navigate] = useLocation();
 
-  // Recuperar dados da sessão do localStorage
-  const sessionToken = localStorage.getItem("sessionToken") ?? "";
-  const confirmedBranchesRaw = localStorage.getItem("confirmedBranches") ?? "[]";
-  const confirmedBranches: ConfirmedBranch[] = JSON.parse(confirmedBranchesRaw);
+  // Recuperar dados da sessão — sessionStorage (primário) ou localStorage (fallback)
+  const sessionToken =
+    sessionStorage.getItem("sessionToken") ??
+    localStorage.getItem("sessionToken") ?? "";
+  const confirmedBranchesRaw =
+    sessionStorage.getItem("confirmedBranches") ??
+    localStorage.getItem("confirmedBranches") ?? "[]";
+  const confirmedBranches: ConfirmedBranch[] = (() => {
+    try { return JSON.parse(confirmedBranchesRaw); } catch { return []; }
+  })();
 
   // Estado de navegação entre ramos
   const [currentBranchIndex, setCurrentBranchIndex] = useState(0);
@@ -198,10 +205,12 @@ export default function QuestionarioRamos() {
   };
 
   const handleConcluirTodos = () => {
-    // Salvar progresso no localStorage
-    localStorage.setItem("branchAnalyses", JSON.stringify(branchAnalyses));
-    // Atualizar step da sessão e navegar para plano de ação
-    navigate("/plano-acao-session");
+    // Salvar progresso em ambos os storages
+    const analysesJson = JSON.stringify(branchAnalyses);
+    sessionStorage.setItem("branchAnalyses", analysesJson);
+    localStorage.setItem("branchAnalyses", analysesJson);
+    // Navegar para plano de ação
+    navigate(`/plano-acao-session?session=${sessionToken}`);
   };
 
   // ── Renderização de perguntas ───────────────────────────────────────────────
@@ -224,7 +233,10 @@ export default function QuestionarioRamos() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900">
       {/* Header */}
       <div className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 py-3">
+          {/* Stepper do fluxo */}
+          <FluxoStepper current="questionario" className="mb-3" />
+          <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Building2 className="w-6 h-6 text-blue-400" />
             <span className="text-white font-semibold">Diagnóstico por Ramo</span>
@@ -251,6 +263,7 @@ export default function QuestionarioRamos() {
               </button>
             ))}
           </div>
+          </div>{/* end flex justify-between */}
         </div>
       </div>
 

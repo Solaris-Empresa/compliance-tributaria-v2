@@ -10,6 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Clock, History, Zap, Shield, ArrowRight, CheckCircle2 } from "lucide-react";
+import { FluxoStepper } from "@/components/FluxoStepper";
+import { saveSessionToken } from "@/hooks/useFluxoSession";
 
 export default function ModoUso() {
   const [, navigate] = useLocation();
@@ -17,9 +19,8 @@ export default function ModoUso() {
 
   const createSession = trpc.sessions.create.useMutation({
     onSuccess: (data) => {
-      // Salvar token no sessionStorage
-      sessionStorage.setItem("sessionToken", data.sessionToken);
-      sessionStorage.setItem("sessionMode", data.mode);
+      // Salvar token de forma centralizada (sessionStorage + localStorage)
+      saveSessionToken(data.sessionToken, data.mode);
       navigate("/briefing");
     },
     onError: (err) => {
@@ -62,6 +63,10 @@ export default function ModoUso() {
           <p className="text-slate-400 text-lg max-w-2xl mx-auto">
             Escolha o modo de uso que melhor atende sua necessidade. Você pode começar agora mesmo, sem criar conta.
           </p>
+          {/* Stepper do fluxo */}
+          <div className="flex justify-center mt-6">
+            <FluxoStepper current="modo-uso" />
+          </div>
         </div>
 
         {/* Cards de Modo */}

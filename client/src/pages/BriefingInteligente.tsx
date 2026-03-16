@@ -14,6 +14,8 @@ import {
   Building2, Sparkles, ArrowRight, ArrowLeft,
   CheckCircle2, AlertCircle, Loader2, ChevronRight
 } from "lucide-react";
+import { FluxoStepper } from "@/components/FluxoStepper";
+import { saveConfirmedBranchesToSession } from "@/hooks/useFluxoSession";
 
 interface SuggestedBranch {
   code: string;
@@ -57,7 +59,9 @@ export default function BriefingInteligente() {
   });
 
   const saveConfirmedMutation = trpc.sessions.saveConfirmedBranches.useMutation({
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      // Salvar ramos confirmados de forma centralizada
+      saveConfirmedBranchesToSession(variables.confirmedBranches);
       navigate("/questionario-ramos");
     },
     onError: (err) => {
@@ -129,25 +133,9 @@ export default function BriefingInteligente() {
             Voltar
           </button>
 
-          {/* Progress steps */}
-          <div className="flex items-center gap-2 mb-6">
-            {["Briefing", "Confirmar Ramos", "Questionário", "Plano de Ação"].map((s, i) => (
-              <div key={s} className="flex items-center gap-2">
-                <div className={`flex items-center gap-1.5 text-xs px-3 py-1 rounded-full ${
-                  i === 0 ? "bg-blue-500/20 text-blue-300 border border-blue-500/30" :
-                  i === 1 && step === "confirmar" ? "bg-blue-500/20 text-blue-300 border border-blue-500/30" :
-                  "text-slate-600 border border-slate-800"
-                }`}>
-                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold ${
-                    i === 0 ? "bg-blue-500 text-white" :
-                    i === 1 && step === "confirmar" ? "bg-blue-500 text-white" :
-                    "bg-slate-800 text-slate-600"
-                  }`}>{i + 1}</span>
-                  {s}
-                </div>
-                {i < 3 && <ChevronRight className="w-3 h-3 text-slate-700" />}
-              </div>
-            ))}
+          {/* Stepper unificado do fluxo */}
+          <div className="mb-6">
+            <FluxoStepper current="briefing" />
           </div>
 
           <div className="flex items-center gap-3 mb-2">
