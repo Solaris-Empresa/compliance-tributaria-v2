@@ -2,18 +2,12 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { 
-  BarChart3,
-  FileText, 
   FolderKanban, 
   LayoutDashboard, 
   LogOut, 
   Menu,
   Users,
   X,
-  Library,
-  AlertTriangle,
-  CheckSquare,
-  ClipboardList
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -59,14 +53,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
   const navItems = [
     { href: "/", icon: LayoutDashboard, label: "Painel" },
     { href: "/projetos", icon: FolderKanban, label: "Projetos" },
-    { href: "/dashboard-tarefas", icon: CheckSquare, label: "Dashboard de Tarefas" },
-    { href: "/projetos/1/planos-acao", icon: FileText, label: "Planos de Ação" },
-    { href: "/projetos/1/questionario-corporativo", icon: ClipboardList, label: "Questionário Corporativo" },
-    { href: "/projetos/1/questionarios-ramo", icon: ClipboardList, label: "Questionários por Ramo" },
     { href: "/clientes", icon: Users, label: "Clientes" },
-    { href: "/matriz-riscos", icon: AlertTriangle, label: "Matriz de Riscos" },
-    { href: "/modelos-padroes", icon: Library, label: "Modelos Padrões" },
-    { href: "/painel-indicadores", icon: BarChart3, label: "Painel de Indicadores Executivo" },
   ];
 
   // Adicionar item de usuários apenas para equipe SOLARIS

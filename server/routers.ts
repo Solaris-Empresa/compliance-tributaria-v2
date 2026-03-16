@@ -49,6 +49,7 @@ import { questionsCrudRouter } from "./routers-questions-crud";
 import { auditLogsRouter } from "./routers-audit-logs";
 import { permissionsCheckRouter } from "./routers-permissions-check";
 import { sessionsRouter } from "./routers-sessions";
+import { fluxoV3Router } from "./routers-fluxo-v3";
 import { sessionQuestionnaireRouter } from "./routers-session-questionnaire";
 import { sessionActionPlanRouter } from "./routers-session-action-plan";
 import { sessionConsolidationRouter } from "./routers-session-consolidation";
@@ -75,6 +76,7 @@ export const appRouter = router({
   sessionQuestionnaire: sessionQuestionnaireRouter,
   sessionActionPlan: sessionActionPlanRouter,
   sessionConsolidation: sessionConsolidationRouter,
+  fluxoV3: fluxoV3Router,
   
   // ==========================================================================
   // AUTH

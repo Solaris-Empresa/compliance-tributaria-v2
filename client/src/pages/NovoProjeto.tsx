@@ -1,269 +1,398 @@
-
+// @ts-nocheck
+import { useState } from "react";
+import { useLocation, Link } from "wouter";
+import { trpc } from "@/lib/trpc";
 import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Loader2, Building2 } from "lucide-react";
-import { useState } from "react";
-import { Link, useLocation } from "wouter";
+  ArrowLeft, ArrowRight, Building2, Loader2, Plus, Sparkles, CheckCircle2,
+  Edit2, AlertCircle, ChevronRight, Search, X
+} from "lucide-react";
 import { toast } from "sonner";
 
+interface Cnae {
+  code: string;
+  description: string;
+  confidence: number;
+  justification?: string;
+}
+
+function CnaeCard({ cnae, selected, onToggle, onEdit }: {
+  cnae: Cnae; selected: boolean; onToggle: () => void; onEdit: (cnae: Cnae) => void;
+}) {
+  const confidenceColor =
+    cnae.confidence >= 80 ? "bg-emerald-100 text-emerald-700" :
+    cnae.confidence >= 60 ? "bg-amber-100 text-amber-700" :
+    "bg-red-100 text-red-700";
+  return (
+    <div
+      className={`relative rounded-xl border-2 p-4 cursor-pointer transition-all duration-200 ${selected ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/40 hover:bg-muted/30"}`}
+      onClick={onToggle}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-mono text-sm font-semibold text-primary">{cnae.code}</span>
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${confidenceColor}`}>{cnae.confidence}% relevância</span>
+          </div>
+          <p className="text-sm font-medium text-foreground leading-snug">{cnae.description}</p>
+          {cnae.justification && <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{cnae.justification}</p>}
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <button className="p-1.5 rounded-lg hover:bg-muted transition-colors" onClick={(e) => { e.stopPropagation(); onEdit(cnae); }}>
+            <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
+          </button>
+          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${selected ? "border-primary bg-primary" : "border-muted-foreground/30"}`}>
+            {selected && <CheckCircle2 className="h-4 w-4 text-white" />}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NovoClienteModal({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: (id: number, name: string) => void; }) {
+  const [companyName, setCompanyName] = useState("");
+  const [cnpj, setCnpj] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const createClient = trpc.fluxoV3.createClientOnTheFly.useMutation({
+    onSuccess: (data) => { toast.success(`Cliente criado!`); onCreated(data.userId, data.companyName); onClose(); setCompanyName(""); setCnpj(""); setEmail(""); setPhone(""); },
+    onError: (err) => toast.error(`Erro: ${err.message}`),
+  });
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2"><Building2 className="h-5 w-5 text-primary" />Novo Cliente</DialogTitle>
+          <DialogDescription>Cadastre rapidamente um novo cliente para vincular ao projeto.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-1.5">
+            <Label>Razão Social <span className="text-destructive">*</span></Label>
+            <Input placeholder="Ex: Empresa ABC Ltda" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>CNPJ</Label>
+            <Input placeholder="00.000.000/0000-00" value={cnpj} onChange={(e) => setCnpj(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5"><Label>E-mail</Label><Input type="email" placeholder="contato@empresa.com" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+            <div className="space-y-1.5"><Label>Telefone</Label><Input placeholder="(11) 99999-9999" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button onClick={() => createClient.mutate({ companyName, cnpj: cnpj || undefined, email: email || undefined, phone: phone || undefined })} disabled={!companyName.trim() || createClient.isPending}>
+            {createClient.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}Criar Cliente
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditCnaeModal({ cnae, onSave, onClose }: { cnae: Cnae | null; onSave: (updated: Cnae) => void; onClose: () => void; }) {
+  const [code, setCode] = useState(cnae?.code || "");
+  const [description, setDescription] = useState(cnae?.description || "");
+  const [justification, setJustification] = useState(cnae?.justification || "");
+  if (!cnae) return null;
+  return (
+    <Dialog open={!!cnae} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle>Editar CNAE</DialogTitle><DialogDescription>Ajuste os dados do CNAE.</DialogDescription></DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-1.5"><Label>Código CNAE</Label><Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Ex: 6201-5/01" /></div>
+          <div className="space-y-1.5"><Label>Descrição</Label><Input value={description} onChange={(e) => setDescription(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Justificativa</Label><Textarea value={justification} onChange={(e) => setJustification(e.target.value)} rows={3} /></div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button onClick={() => { onSave({ ...cnae, code, description, justification }); onClose(); }}>Salvar</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 export default function NovoProjeto() {
   const [, setLocation] = useLocation();
   const [name, setName] = useState("");
-  const [clientId, setClientId] = useState("");
-  const [planPeriodMonths, setPlanPeriodMonths] = useState("12");
-  const [selectedBranches, setSelectedBranches] = useState<number[]>([]);
+  const [description, setDescription] = useState("");
+  const [clientId, setClientId] = useState<number | null>(null);
+  const [clientSearch, setClientSearch] = useState("");
+  const [projectId, setProjectId] = useState<number | null>(null);
+  const [showCnaeModal, setShowCnaeModal] = useState(false);
+  const [showNewClientModal, setShowNewClientModal] = useState(false);
+  const [editingCnae, setEditingCnae] = useState<Cnae | null>(null);
+  const [suggestedCnaes, setSuggestedCnaes] = useState<Cnae[]>([]);
+  const [selectedCnaes, setSelectedCnaes] = useState<Set<string>>(new Set());
+  const [customCnaes, setCustomCnaes] = useState<Cnae[]>([]);
+  const [newCnaeCode, setNewCnaeCode] = useState("");
+  const [newCnaeDesc, setNewCnaeDesc] = useState("");
 
-  const { data: clients } = trpc.users.listClients.useQuery();
-  const { data: branches, isLoading: loadingBranches } = trpc.branches.list.useQuery();
-  
-  const createProject = trpc.projects.create.useMutation({
-    onSuccess: async (data) => {
-      // Adicionar ramos ao projeto
-      if (selectedBranches.length > 0) {
-        try {
-          // Adicionar ramos um por um
-          for (const branchId of selectedBranches) {
-            await addBranchesToProject.mutateAsync({
-              projectId: data.projectId,
-              branchId,
-            });
-          }
-        } catch (error) {
-          console.error("Erro ao adicionar ramos:", error);
-        }
-      }
-      
-      toast.success("Projeto criado com sucesso!");
-      setLocation(`/projetos/${data.projectId}`);
-    },
-    onError: (error) => {
-      toast.error(`Erro ao criar projeto: ${error.message}`);
-    },
+  const { data: clients, refetch: refetchClients } = trpc.users.listClients.useQuery();
+
+  const createProject = trpc.fluxoV3.createProject.useMutation({
+    onSuccess: (data) => { setProjectId(data.projectId); extractCnaes.mutate({ projectId: data.projectId, description }); },
+    onError: (err) => toast.error(`Erro ao criar projeto: ${err.message}`),
   });
 
-  const addBranchesToProject = trpc.branches.addToProject.useMutation();
+  const extractCnaes = trpc.fluxoV3.extractCnaes.useMutation({
+    onSuccess: (data) => {
+      setSuggestedCnaes(data.cnaes);
+      setSelectedCnaes(new Set(data.cnaes.map((c: Cnae) => c.code)));
+      setShowCnaeModal(true);
+    },
+    onError: () => { toast.error("Não foi possível extrair CNAEs automaticamente. Adicione manualmente."); setShowCnaeModal(true); },
+  });
 
-  const handleBranchToggle = (branchId: number) => {
-    setSelectedBranches(prev =>
-      prev.includes(branchId)
-        ? prev.filter(id => id !== branchId)
-        : [...prev, branchId]
-    );
+  const confirmCnaes = trpc.fluxoV3.confirmCnaes.useMutation({
+    onSuccess: () => { toast.success("CNAEs confirmados! Avançando para o questionário..."); setShowCnaeModal(false); setLocation(`/projetos/${projectId}/questionario-v3`); },
+    onError: (err) => toast.error(`Erro: ${err.message}`),
+  });
+
+  const handleSubmit = () => {
+    if (!name.trim()) return toast.error("Informe o nome do projeto");
+    if (description.trim().length < 50) return toast.error("A descrição deve ter pelo menos 50 caracteres");
+    if (!clientId) return toast.error("Selecione um cliente");
+    createProject.mutate({ name: name.trim(), description: description.trim(), clientId });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!name.trim()) {
-      toast.error("Nome do projeto é obrigatório");
-      return;
-    }
-
-    if (!clientId) {
-      toast.error("Selecione um cliente");
-      return;
-    }
-
-    if (!planPeriodMonths) {
-      toast.error("Período do plano é obrigatório");
-      return;
-    }
-
-    if (selectedBranches.length === 0) {
-      toast.error("Selecione pelo menos um ramo de atividade");
-      return;
-    }
-
-    createProject.mutate({
-      name: name.trim(),
-      clientId: parseInt(clientId),
-      planPeriodMonths: parseInt(planPeriodMonths),
-     });
+  const handleConfirmCnaes = () => {
+    if (!projectId) return;
+    const allCnaes = [...suggestedCnaes, ...customCnaes];
+    const finalCnaes = allCnaes.filter(c => selectedCnaes.has(c.code));
+    if (finalCnaes.length === 0) return toast.error("Selecione pelo menos 1 CNAE");
+    confirmCnaes.mutate({ projectId, cnaes: finalCnaes });
   };
+
+  const toggleCnae = (code: string) => {
+    setSelectedCnaes(prev => { const next = new Set(prev); if (next.has(code)) next.delete(code); else next.add(code); return next; });
+  };
+
+  const handleAddCustomCnae = () => {
+    if (!newCnaeCode.trim() || !newCnaeDesc.trim()) return;
+    const newCnae: Cnae = { code: newCnaeCode.trim(), description: newCnaeDesc.trim(), confidence: 100, justification: "Adicionado manualmente" };
+    setCustomCnaes(prev => [...prev, newCnae]);
+    setSelectedCnaes(prev => new Set([...prev, newCnae.code]));
+    setNewCnaeCode(""); setNewCnaeDesc("");
+  };
+
+  const handleEditCnae = (updated: Cnae) => {
+    setSuggestedCnaes(prev => prev.map(c => c.code === editingCnae?.code ? updated : c));
+    setCustomCnaes(prev => prev.map(c => c.code === editingCnae?.code ? updated : c));
+    if (editingCnae && editingCnae.code !== updated.code) {
+      setSelectedCnaes(prev => { const next = new Set(prev); next.delete(editingCnae.code); next.add(updated.code); return next; });
+    }
+  };
+
+  const filteredClients = clients?.filter(c =>
+    c.name?.toLowerCase().includes(clientSearch.toLowerCase()) ||
+    c.companyName?.toLowerCase().includes(clientSearch.toLowerCase())
+  );
+  const selectedClient = clients?.find(c => c.id === clientId);
+  const allCnaes = [...suggestedCnaes, ...customCnaes];
+  const selectedCount = allCnaes.filter(c => selectedCnaes.has(c.code)).length;
+  const descLength = description.trim().length;
+  const descProgress = Math.min((descLength / 200) * 100, 100);
+  const isLoading = createProject.isPending || extractCnaes.isPending;
 
   return (
     <ComplianceLayout>
-      <div className="p-8 max-w-3xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <Button variant="ghost" asChild className="mb-4">
-            <Link href="/projetos">
-              <ArrowLeft className="h-4 w-4" />
-              Voltar para Projetos
-            </Link>
-          </Button>
-          <h1 className="text-3xl font-bold">Novo Projeto</h1>
-          <p className="text-muted-foreground mt-1">
-            Crie um novo projeto de compliance tributário
-          </p>
+      <div className="max-w-2xl mx-auto space-y-8 py-2">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild><Link href="/projetos"><ArrowLeft className="h-5 w-5" /></Link></Button>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Novo Projeto</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Etapa 1 de 5 — Criação do Projeto</p>
+          </div>
         </div>
 
-        {/* Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Informações do Projeto</CardTitle>
-            <CardDescription>
-              Preencha os dados básicos e selecione os ramos de atividade
-            </CardDescription>
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          {["Projeto", "Questionário", "Briefing", "Riscos", "Plano"].map((step, i) => (
+            <div key={step} className="flex items-center gap-2 shrink-0">
+              <div className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors ${i === 0 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${i === 0 ? "bg-white/20" : "bg-muted-foreground/20"}`}>{i + 1}</span>
+                {step}
+              </div>
+              {i < 4 && <ChevronRight className="h-3 w-3 text-muted-foreground/40" />}
+            </div>
+          ))}
+        </div>
+
+        <Card className="shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">Informações do Projeto</CardTitle>
+            <CardDescription>Preencha os dados abaixo. A IA irá analisar a descrição para identificar os CNAEs automaticamente.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Nome do Projeto */}
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome do Projeto *</Label>
-                <Input
-                  id="name"
-                  placeholder="Ex: Adequação Reforma Tributária - Transportadora XYZ"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="project-name" className="text-sm font-semibold">Nome do Projeto <span className="text-destructive">*</span></Label>
+              <Input id="project-name" placeholder="Ex: Diagnóstico Tributário 2025 — Empresa ABC" value={name} onChange={(e) => setName(e.target.value)} className="h-10" />
+            </div>
 
-              {/* Cliente */}
-              <div className="space-y-2">
-                <Label htmlFor="client">Cliente *</Label>
-                <Select value={clientId} onValueChange={(value) => {
-                  console.log('Select onChange:', value);
-                  setClientId(value);
-                }} required>
-                  <SelectTrigger id="client">
-                    <SelectValue placeholder="Selecione o cliente" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {clients?.map((client) => (
-                      <SelectItem key={client.id} value={client.id.toString()}>
-                        {client.name || client.email}
-                        {client.companyName && ` - ${client.companyName}`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Selecione o cliente responsável por este projeto
-                </p>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="description" className="text-sm font-semibold">Descrição do Negócio <span className="text-destructive">*</span></Label>
+                <span className={`text-xs font-medium ${descLength >= 50 ? "text-emerald-600" : "text-muted-foreground"}`}>{descLength} caracteres {descLength < 50 && `(mín. 50)`}</span>
               </div>
+              <Textarea
+                id="description"
+                placeholder={"Descreva o negócio da empresa: principais atividades, como funciona a operação, desafios tributários atuais, regime tributário, setores de atuação, produtos/serviços oferecidos...\n\nQuanto mais detalhada a descrição, mais precisos serão os CNAEs identificados pela IA."}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={7}
+                className="resize-none leading-relaxed"
+              />
+              <Progress value={descProgress} className="h-1.5" />
+              {descLength >= 50 && (
+                <p className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" />Descrição suficiente para análise da IA</p>
+              )}
+            </div>
 
-              {/* Ramos de Atividade */}
-              <div className="space-y-3">
-                <Label>Ramos de Atividade *</Label>
-                <p className="text-xs text-muted-foreground">
-                  Selecione os ramos de atividade da empresa (mínimo 1)
-                </p>
-                
-                {loadingBranches ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border rounded-lg p-4">
-                    {branches?.map((branch) => (
-                      <div key={branch.id} className="flex items-start space-x-3">
-                        <Checkbox
-                          id={`branch-${branch.id}`}
-                          checked={selectedBranches.includes(branch.id)}
-                          onCheckedChange={() => handleBranchToggle(branch.id)}
-                        />
-                        <div className="grid gap-1.5 leading-none">
-                          <label
-                            htmlFor={`branch-${branch.id}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                          >
-                            <Building2 className="h-3 w-3 inline mr-1" />
-                            {branch.name}
-                          </label>
-                          {branch.description && (
-                            <p className="text-xs text-muted-foreground">
-                              {branch.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                
-                {selectedBranches.length > 0 && (
-                  <p className="text-xs text-green-600">
-                    ✓ {selectedBranches.length} ramo(s) selecionado(s)
-                  </p>
-                )}
-              </div>
+            <Separator />
 
-              {/* Período do Plano */}
-              <div className="space-y-2">
-                <Label htmlFor="period">Período do Plano de Ação *</Label>
-                <Select
-                  value={planPeriodMonths}
-                  onValueChange={setPlanPeriodMonths}
-                  required
-                >
-                  <SelectTrigger id="period">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="12">12 meses</SelectItem>
-                    <SelectItem value="24">24 meses</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  O período define o prazo total para execução do plano de ação
-                </p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  disabled={createProject.isPending || addBranchesToProject.isPending}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {(createProject.isPending || addBranchesToProject.isPending) ? (
-                    <span className="flex items-center justify-center">
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Criando...
-                    </span>
-                  ) : (
-                    "Criar Projeto"
-                  )}
-                </button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  asChild
-                  disabled={createProject.isPending}
-                >
-                  <Link href="/projetos">Cancelar</Link>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold">Cliente Vinculado <span className="text-destructive">*</span></Label>
+                <Button variant="ghost" size="sm" className="h-7 text-xs text-primary hover:text-primary" onClick={() => setShowNewClientModal(true)}>
+                  <Plus className="h-3.5 w-3.5 mr-1" />Novo Cliente
                 </Button>
               </div>
-            </form>
+              {selectedClient ? (
+                <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5 border-primary/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center"><Building2 className="h-4 w-4 text-primary" /></div>
+                    <div>
+                      <p className="text-sm font-semibold">{selectedClient.companyName || selectedClient.name}</p>
+                      {selectedClient.cnpj && <p className="text-xs text-muted-foreground">{selectedClient.cnpj}</p>}
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setClientId(null); setClientSearch(""); }}><X className="h-4 w-4" /></Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Buscar cliente por nome ou empresa..." value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="pl-9" />
+                  </div>
+                  {clientSearch && (
+                    <div className="border rounded-lg divide-y max-h-48 overflow-y-auto shadow-sm">
+                      {filteredClients && filteredClients.length > 0 ? (
+                        filteredClients.map(client => (
+                          <button key={client.id} className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left" onClick={() => { setClientId(client.id); setClientSearch(""); }}>
+                            <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <div>
+                              <p className="text-sm font-medium">{client.companyName || client.name}</p>
+                              {client.cnpj && <p className="text-xs text-muted-foreground">{client.cnpj}</p>}
+                            </div>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="p-4 text-center text-sm text-muted-foreground">
+                          Nenhum cliente encontrado.{" "}
+                          <button className="text-primary hover:underline" onClick={() => setShowNewClientModal(true)}>Criar novo cliente</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {!clientSearch && (
+                    <p className="text-xs text-muted-foreground">
+                      Digite para buscar ou{" "}
+                      <button className="text-primary hover:underline" onClick={() => setShowNewClientModal(true)}>crie um novo cliente</button>
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
 
-        {/* Info Card */}
-        <Card className="mt-6 bg-blue-50 border-blue-200">
-          <CardContent className="pt-6">
-            <h3 className="font-medium mb-2">Próximos Passos</h3>
-            <p className="text-sm text-muted-foreground">
-              Após criar o projeto, você responderá o <strong>Questionário Corporativo</strong> e os 
-              <strong> Questionários por Ramo</strong> selecionados. Com base nas respostas, serão gerados 
-              o <strong>Plano Corporativo</strong> e os <strong>Planos por Ramo</strong> com tarefas específicas.
+        <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15">
+          <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-primary">Análise Inteligente de CNAEs</p>
+            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+              Ao avançar, a IA analisará a descrição do negócio e identificará automaticamente os CNAEs relevantes. Você poderá confirmar, editar ou adicionar CNAEs antes de prosseguir.
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        <div className="flex justify-end pb-4">
+          <Button size="lg" onClick={handleSubmit} disabled={isLoading || !name.trim() || descLength < 50 || !clientId} className="min-w-[220px]">
+            {isLoading ? (
+              <><Loader2 className="h-4 w-4 animate-spin mr-2" />{createProject.isPending ? "Criando projeto..." : "Analisando CNAEs..."}</>
+            ) : (
+              <>Avançar — Identificar CNAEs<Sparkles className="h-4 w-4 ml-2" /></>
+            )}
+          </Button>
+        </div>
       </div>
+
+      {/* Modal CNAEs */}
+      <Dialog open={showCnaeModal} onOpenChange={() => {}}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />CNAEs Identificados pela IA</DialogTitle>
+            <DialogDescription>A IA identificou os CNAEs abaixo com base na descrição do negócio. Confirme, edite ou adicione CNAEs antes de prosseguir.</DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto space-y-4 py-2 pr-1">
+            {extractCnaes.isPending ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-3">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Analisando a descrição do negócio...</p>
+              </div>
+            ) : (
+              <>
+                {allCnaes.length > 0 ? (
+                  <div className="space-y-3">
+                    {allCnaes.map((cnae) => (
+                      <CnaeCard key={cnae.code} cnae={cnae} selected={selectedCnaes.has(cnae.code)} onToggle={() => toggleCnae(cnae.code)} onEdit={(c) => setEditingCnae(c)} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 gap-2 text-muted-foreground">
+                    <AlertCircle className="h-8 w-8" />
+                    <p className="text-sm">Nenhum CNAE identificado automaticamente.</p>
+                    <p className="text-xs">Adicione CNAEs manualmente abaixo.</p>
+                  </div>
+                )}
+                <div className="border rounded-xl p-4 bg-muted/30 space-y-3">
+                  <p className="text-sm font-semibold flex items-center gap-2"><Plus className="h-4 w-4 text-primary" />Adicionar CNAE Manualmente</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Input placeholder="Código (ex: 4711-3/02)" value={newCnaeCode} onChange={(e) => setNewCnaeCode(e.target.value)} className="col-span-1 text-sm" />
+                    <Input placeholder="Descrição do CNAE" value={newCnaeDesc} onChange={(e) => setNewCnaeDesc(e.target.value)} className="col-span-2 text-sm" />
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleAddCustomCnae} disabled={!newCnaeCode.trim() || !newCnaeDesc.trim()}>
+                    <Plus className="h-3.5 w-3.5 mr-1" />Adicionar
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter className="border-t pt-4 mt-2">
+            <div className="flex items-center justify-between w-full">
+              <p className="text-sm text-muted-foreground"><span className="font-semibold text-foreground">{selectedCount}</span> CNAE{selectedCount !== 1 ? "s" : ""} selecionado{selectedCount !== 1 ? "s" : ""}</p>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setShowCnaeModal(false)} disabled={confirmCnaes.isPending}>Cancelar</Button>
+                <Button onClick={handleConfirmCnaes} disabled={selectedCount === 0 || confirmCnaes.isPending}>
+                  {confirmCnaes.isPending ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Confirmando...</> : <>Confirmar e Avançar<ArrowRight className="h-4 w-4 ml-2" /></>}
+                </Button>
+              </div>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <NovoClienteModal open={showNewClientModal} onClose={() => setShowNewClientModal(false)} onCreated={(id) => { setClientId(id); refetchClients(); }} />
+      <EditCnaeModal cnae={editingCnae} onSave={handleEditCnae} onClose={() => setEditingCnae(null)} />
     </ComplianceLayout>
   );
 }

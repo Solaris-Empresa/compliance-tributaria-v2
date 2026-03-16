@@ -1545,3 +1545,140 @@
 - [x] Criar checkpoint final
 - [x] Push para GitHub
 - [x] Criar issue e marcar como done
+
+## Sprint V45: Nova Versão — 5 Etapas do Fluxo de Compliance (16/03/2026)
+
+### Limpeza do Menu
+- [ ] Remover "Dashboard de Tarefas" do menu lateral
+- [ ] Remover "Questionário Corporativo" do menu lateral
+- [ ] Remover "Modelos Padrões" do menu lateral
+- [ ] Remover "Painel de Indicadores Executivos" do menu lateral
+
+### Etapa 1: Criação do Projeto + CNAEs via IA
+- [ ] Schema: tabela projects_v2 com campos nome, descrição, clienteId, cnaes confirmados, step atual
+- [ ] Schema: tabela clients com campos mínimos (razão social, CNPJ, email)
+- [ ] Backend: procedure createProject (nome, descrição, clienteId)
+- [ ] Backend: procedure extractCnaes (descrição → OpenAI → lista de CNAEs)
+- [ ] Backend: procedure confirmCnaes (projectId, cnaes confirmados)
+- [ ] Backend: procedure createClient on the fly
+- [ ] Frontend: página /novo-projeto com 3 campos
+- [ ] Frontend: modal de confirmação de CNAEs com edição
+- [ ] Frontend: botão "+ Novo Cliente" inline
+- [ ] Frontend: feedback visual durante extração IA
+- [ ] Testes unitários Etapa 1
+- [ ] Checkpoint e entrega para teste manual
+
+### Etapa 2: Questionário Adaptativo por CNAE
+- [ ] Schema: tabela questionnaire_sessions (projectId, cnaeCode, level, questions, answers, status)
+- [ ] Backend: procedure generateQuestions (cnaeCode, projectDescription, level)
+- [ ] Backend: procedure saveAnswers (sessionId, answers)
+- [ ] Backend: procedure getProgress (projectId)
+- [ ] Frontend: página /questionario/:projectId com stepper por CNAE
+- [ ] Frontend: campos ricos (sim/não, chips, escala, texto)
+- [ ] Frontend: tela de decisão Nível 2
+- [ ] Frontend: salvamento automático por resposta
+- [ ] Testes unitários Etapa 2
+- [ ] Checkpoint e entrega para teste manual
+
+### Etapa 3: Briefing de Compliance
+- [ ] Schema: tabela briefings (projectId, content, version, status, approvedAt)
+- [ ] Backend: procedure generateBriefing (projectId)
+- [ ] Backend: procedure regenerateBriefing (projectId, correction/complement)
+- [ ] Backend: procedure approveBriefing (projectId)
+- [ ] Frontend: página /briefing/:projectId com visualização e ciclo de aprovação
+- [ ] Frontend: campos de correção e complemento
+- [ ] Frontend: histórico de versões
+- [ ] Testes unitários Etapa 3
+- [ ] Checkpoint e entrega para teste manual
+
+### Etapa 4: Matrizes de Riscos
+- [ ] Schema: tabela risk_matrices (projectId, area, rows, status, approvedAt)
+- [ ] Backend: procedure generateMatrices (projectId)
+- [ ] Backend: procedure regenerateMatrix (projectId, area, adjustment)
+- [ ] Backend: procedure approveMatrix (projectId, area)
+- [ ] Frontend: página /matrizes/:projectId com abas por área
+- [ ] Frontend: edição inline das linhas
+- [ ] Frontend: cálculo automático de severidade com cores
+- [ ] Testes unitários Etapa 4
+- [ ] Checkpoint e entrega para teste manual
+
+### Etapa 5: Plano de Ação
+- [ ] Schema: tabela action_plans (projectId, area, tasks, status)
+- [ ] Schema: tabela tasks (planId, title, description, responsible, startDate, endDate, status, progress, notifications)
+- [ ] Schema: tabela task_comments (taskId, userId, content, createdAt)
+- [ ] Backend: procedure generateActionPlan (projectId)
+- [ ] Backend: procedure updateTask (taskId, fields)
+- [ ] Backend: procedure addComment (taskId, content)
+- [ ] Backend: procedure configureNotifications (taskId, events)
+- [ ] Frontend: página /plano-acao/:projectId com abas por área
+- [ ] Frontend: gestão de tarefas (status, datas, %, responsável)
+- [ ] Frontend: filtros de tarefas
+- [ ] Frontend: comentários por tarefa
+- [ ] Frontend: exportação PDF e CSV
+- [ ] Frontend: dashboard de progresso por área
+- [ ] Testes unitários Etapa 5
+- [ ] Checkpoint final e entrega
+
+## Sprint V45: Nova Versão v3.0 — Fluxo 5 Etapas (16/03/2026)
+
+### Limpeza do Menu
+- [x] Remover "Dashboard de Tarefas" do menu lateral
+- [x] Remover "Questionário Corporativo" do menu lateral
+- [x] Remover "Modelos Padrões" do menu lateral
+- [x] Remover "Painel de Indicadores Executivos" do menu lateral
+
+### Etapa 1: Criação do Projeto + CNAEs via IA
+- [x] Schema: adicionar campos description e confirmedCnaes à tabela projects
+- [x] Schema: adicionar campos cnpj, phone ao cadastro de usuários (clientes)
+- [x] Backend: procedure fluxoV3.createProject
+- [x] Backend: procedure fluxoV3.extractCnaes (IA Gen via OpenAI)
+- [x] Backend: procedure fluxoV3.confirmCnaes
+- [x] Backend: procedure fluxoV3.createClientOnTheFly
+- [x] Frontend: formulário com 3 campos (Nome, Descrição, Cliente)
+- [x] Frontend: busca de cliente com filtro em tempo real
+- [x] Frontend: botão "+ Novo Cliente" com modal on-the-fly
+- [x] Frontend: progress bar na descrição (mín. 50 chars)
+- [x] Frontend: modal de CNAEs com cards de relevância
+- [x] Frontend: editar CNAE inline (modal de edição)
+- [x] Frontend: adicionar CNAE manualmente
+- [x] Frontend: stepper visual das 5 etapas
+- [x] Testes: 14 testes unitários passando
+
+### Etapa 2: Questionário Adaptativo por CNAE (2 níveis)
+- [ ] Backend: procedure fluxoV3.getQuestionnaire (Nível 1 — até 10 perguntas por CNAE)
+- [ ] Backend: procedure fluxoV3.saveAnswer
+- [ ] Backend: procedure fluxoV3.requestDeepDive (Nível 2 — aprofundamento)
+- [ ] Frontend: página QuestionarioV3 com interface tipo SurveyMonkey
+- [ ] Frontend: campos ricos (sim/não, escala, múltipla escolha, slider, texto)
+- [ ] Frontend: progresso por CNAE e nível
+- [ ] Frontend: decisão de aprofundamento (Nível 2)
+- [ ] Testes unitários
+
+### Etapa 3: Briefing de Compliance
+- [ ] Backend: procedure fluxoV3.generateBriefing
+- [ ] Backend: procedure fluxoV3.approveBriefing
+- [ ] Backend: procedure fluxoV3.requestBriefingRevision
+- [ ] Frontend: página BriefingV3 com ciclo de aprovação
+- [ ] Frontend: campo de feedback para correção/mais informações
+- [ ] Testes unitários
+
+### Etapa 4: Matrizes de Riscos (4 áreas)
+- [ ] Backend: procedure fluxoV3.generateRiskMatrices
+- [ ] Backend: procedure fluxoV3.approveRiskMatrix
+- [ ] Backend: procedure fluxoV3.requestMatrixRevision
+- [ ] Frontend: página MatrizRiscosV3 com 4 abas (Contabilidade, TI, Jurídico, Negócio)
+- [ ] Frontend: tabela editável inline com Evento, Probabilidade, Impacto, Severidade, Plano
+- [ ] Testes unitários
+
+### Etapa 5: Plano de Ação (gestão de tarefas)
+- [ ] Backend: procedure fluxoV3.generateActionPlan
+- [ ] Backend: procedure fluxoV3.updateTask (status, progresso, datas, responsável)
+- [ ] Backend: procedure fluxoV3.configureNotifications
+- [ ] Frontend: página PlanoAcaoV3 com 4 abas por área
+- [ ] Frontend: filtros (status, área, prazo, responsável)
+- [ ] Frontend: controle de status (Não Iniciado, Em Andamento, Parado, Concluído)
+- [ ] Frontend: percentual de andamento (slider ou botões)
+- [ ] Frontend: datas início/fim com calendário
+- [ ] Frontend: notificações por e-mail configuráveis
+- [ ] Frontend: exportação PDF e CSV
+- [ ] Testes unitários

@@ -62,6 +62,10 @@ export const projects = mysqlTable("projects", {
   // Novo Fluxo v2.0: Modo de uso e sessão
   mode: mysqlEnum("mode", ["temporario", "historico"]).default("historico").notNull(),
   sessionToken: varchar("sessionToken", { length: 128 }), // referência à sessão temporária de origem
+  // Etapa 1 — Criação do Projeto (novo fluxo v3.0)
+  description: text("description"),                    // Campo descrição longo (negócio, desafios, operação)
+  confirmedCnaes: json("confirmedCnaes"),               // Array de CNAEs confirmados: [{code, description, confidence}]
+  currentStep: int("currentStep").default(1).notNull(), // Etapa atual do fluxo: 1-5
   // Campos do Assessment
   taxRegime: mysqlEnum("taxRegime", [
     "simples_nacional",
