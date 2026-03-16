@@ -1014,3 +1014,30 @@ export const branchSuggestions = mysqlTable("branchSuggestions", {
 
 export type BranchSuggestion = typeof branchSuggestions.$inferSelect;
 export type InsertBranchSuggestion = typeof branchSuggestions.$inferInsert;
+
+/**
+ * Respostas do questionário adaptativo por ramo (Fase 2 - Novo Fluxo v2.0)
+ * Armazena as respostas de cada ramo em uma sessão temporária ou projeto
+ */
+export const sessionBranchAnswers = mysqlTable("sessionBranchAnswers", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionToken: varchar("sessionToken", { length: 128 }), // null se modo histórico
+  projectId: int("projectId"),                             // null se modo temporário
+  branchCode: varchar("branchCode", { length: 20 }).notNull(), // ex: "COM", "IND", "SER"
+  branchName: varchar("branchName", { length: 100 }).notNull(),
+  // Perguntas geradas pela IA para este ramo (JSON)
+  generatedQuestions: json("generatedQuestions"), // [{id, question, type, options?}]
+  // Respostas do usuário (JSON)
+  answers: json("answers"),                        // [{questionId, answer}]
+  // Status do questionário deste ramo
+  status: mysqlEnum("status", ["pendente", "em_andamento", "concluido"]).default("pendente").notNull(),
+  // Análise da IA após respostas
+  aiAnalysis: text("aiAnalysis"),                  // texto de análise gerado pela IA
+  riskLevel: mysqlEnum("riskLevel", ["baixo", "medio", "alto", "critico"]),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SessionBranchAnswer = typeof sessionBranchAnswers.$inferSelect;
+export type InsertSessionBranchAnswer = typeof sessionBranchAnswers.$inferInsert;

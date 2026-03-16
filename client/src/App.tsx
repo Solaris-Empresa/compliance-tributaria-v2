@@ -34,6 +34,7 @@ import NotFound from "./pages/NotFound";
 // Novo Fluxo v2.0
 import ModoUso from "./pages/ModoUso";
 import BriefingInteligente from "./pages/BriefingInteligente";
+import QuestionarioRamos from "./pages/QuestionarioRamos";
 
 function Router() {
   return (
@@ -69,6 +70,7 @@ function Router() {
       {/* Novo Fluxo v2.0 */}
       <Route path="/modo-uso" component={ModoUso} />
       <Route path="/briefing" component={BriefingInteligente} />
+      <Route path="/questionario-ramos" component={QuestionarioRamos} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

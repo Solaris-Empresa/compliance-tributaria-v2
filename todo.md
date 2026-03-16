@@ -1477,6 +1477,17 @@
 - [x] Atualizar App.tsx com rotas /modo-uso e /briefing
 - [x] Corrigir erros TypeScript (0 erros)
 - [x] Criar testes unitários + funcionais - 22/22 passaram (100%)
+- [x] Criar checkpoint final - 3a20955b
+- [x] Push para GitHub - Commit 3a20955 sincronizado
+- [x] Criar issue e marcar como done - Issue #64 CLOSED
+
+## Sprint V40: Fase 2 - Questionário Adaptativo por Ramo (16/03/2026)
+- [x] Backend: tabela sessionBranchAnswers no schema + db:push - 42 tabelas aplicadas
+- [x] Backend: routers-session-questionnaire.ts com 5 procedures (generateQuestions, getQuestions, saveAnswers, analyzeAnswers, getProgress)
+- [x] Backend: IA gera perguntas adaptativas por ramo (7 perguntas personalizadas + fallback padrão)
+- [x] Frontend: QuestionarioRamos.tsx - navegação entre ramos, 4 tipos de pergunta, análise de risco visual
+- [x] Integração: App.tsx rota /questionario-ramos + TypeScript sem erros
+- [x] Testes unitários + funcionais: 20/20 passaram (100%)
 - [ ] Criar checkpoint final
 - [ ] Push para GitHub
 - [ ] Criar issue e marcar como done
