@@ -192,6 +192,13 @@ export default function QuestionarioV3() {
 
   const generateQuestions = trpc.fluxoV3.generateQuestions.useMutation();
   const saveProgress = trpc.fluxoV3.saveQuestionnaireProgress.useMutation();
+  const saveAnswer = trpc.fluxoV3.saveAnswer.useMutation();
+
+  // Buscar progresso salvo no banco (para retomada)
+  const { data: savedProgress } = trpc.fluxoV3.getProgress.useQuery(
+    { projectId },
+    { enabled: !!projectId }
+  );
 
   // Inicializar CNAEs do projeto
   useEffect(() => {
@@ -247,6 +254,20 @@ export default function QuestionarioV3() {
 
   const handleAnswer = (questionId: string, value: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
+    // Persistir resposta no banco automaticamente (fire-and-forget)
+    const question = questions.find(q => q.id === questionId);
+    if (question && currentCnae) {
+      saveAnswer.mutate({
+        projectId,
+        cnaeCode: currentCnae.code,
+        cnaeDescription: currentCnae.description,
+        level: currentLevel,
+        questionIndex: questions.indexOf(question),
+        questionText: question.text,
+        questionType: question.type,
+        answerValue: value,
+      });
+    }
   };
 
   const handleFinishLevel1 = () => {

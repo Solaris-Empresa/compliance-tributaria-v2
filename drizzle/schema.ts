@@ -1113,3 +1113,47 @@ export const sessionConsolidations = mysqlTable("sessionConsolidations", {
 
 export type SessionConsolidation = typeof sessionConsolidations.$inferSelect;
 export type InsertSessionConsolidation = typeof sessionConsolidations.$inferInsert;
+
+// =============================================================================
+// FLUXO V3 — QUESTIONÁRIO ADAPTATIVO (PERSISTÊNCIA DE RESPOSTAS)
+// =============================================================================
+/**
+ * questionnaireAnswersV3
+ * Persiste cada resposta individual do questionário adaptativo v3.0.
+ * Permite retomar o questionário de onde o usuário parou.
+ */
+export const questionnaireAnswersV3 = mysqlTable("questionnaireAnswersV3", {
+  id: int("id").primaryKey().autoincrement(),
+  projectId: int("projectId").notNull(),
+  cnaeCode: varchar("cnaeCode", { length: 20 }).notNull(),   // Código do CNAE (ex: "47.11-3")
+  cnaeDescription: varchar("cnaeDescription", { length: 255 }), // Descrição do CNAE
+  level: mysqlEnum("level", ["nivel1", "nivel2"]).notNull().default("nivel1"),
+  questionIndex: int("questionIndex").notNull(),              // Índice da pergunta (0-based)
+  questionText: text("questionText").notNull(),               // Texto da pergunta
+  questionType: varchar("questionType", { length: 50 }),      // "yesno", "scale", "multiple", "text", "slider"
+  answerValue: text("answerValue").notNull(),                 // Valor da resposta (serializado como string)
+  answeredAt: timestamp("answeredAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type QuestionnaireAnswerV3 = typeof questionnaireAnswersV3.$inferSelect;
+export type InsertQuestionnaireAnswerV3 = typeof questionnaireAnswersV3.$inferInsert;
+
+/**
+ * questionnaireProgressV3
+ * Rastreia o progresso geral do questionário por projeto.
+ * Indica qual CNAE e nível o usuário está atualmente.
+ */
+export const questionnaireProgressV3 = mysqlTable("questionnaireProgressV3", {
+  id: int("id").primaryKey().autoincrement(),
+  projectId: int("projectId").notNull().unique(),
+  currentCnaeIndex: int("currentCnaeIndex").notNull().default(0),
+  currentLevel: mysqlEnum("currentLevel", ["nivel1", "nivel2"]).notNull().default("nivel1"),
+  completedCnaes: json("completedCnaes"),                    // Array de códigos CNAE concluídos
+  level2Decisions: json("level2Decisions"),                  // { [cnaeCode]: boolean } — aceitou aprofundar?
+  status: mysqlEnum("status", ["em_andamento", "concluido"]).notNull().default("em_andamento"),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type QuestionnaireProgressV3 = typeof questionnaireProgressV3.$inferSelect;
+export type InsertQuestionnaireProgressV3 = typeof questionnaireProgressV3.$inferInsert;

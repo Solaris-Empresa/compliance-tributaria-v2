@@ -141,6 +141,13 @@
       "when": 1773694451534,
       "tag": "0019_wooden_purple_man",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1773698296926,
+      "tag": "0020_curved_galactus",
+      "breakpoints": true
     }
   ]
 }

@@ -6,8 +6,8 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import * as db from "./db";
-import { projects } from "../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { projects, questionnaireAnswersV3, questionnaireProgressV3 } from "../drizzle/schema";
+import { eq, and } from "drizzle-orm";
 
 const CnaeSchema = z.object({
   code: z.string(),
@@ -216,10 +216,82 @@ Gere as perguntas no formato:
       const parsed = JSON.parse(jsonMatch[0]);
       return { questions: parsed.questions || [] };
     }),
+  // ───────────────────────────────────────────────────────────────────────────
+  // ETAPA 2: Salvar resposta individual (persistência granular)
+  // ───────────────────────────────────────────────────────────────────────────
+  saveAnswer: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      cnaeCode: z.string(),
+      cnaeDescription: z.string().optional(),
+      level: z.enum(["nivel1", "nivel2"]),
+      questionIndex: z.number(),
+      questionText: z.string(),
+      questionType: z.string().optional(),
+      answerValue: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const database = await db.getDb();
+      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // ETAPA 2: Salvar progresso do questionário e avançar para Etapa 3
-  // ─────────────────────────────────────────────────────────────────────────
+      const existing = await database
+        .select()
+        .from(questionnaireAnswersV3)
+        .where(
+          and(
+            eq(questionnaireAnswersV3.projectId, input.projectId),
+            eq(questionnaireAnswersV3.cnaeCode, input.cnaeCode),
+            eq(questionnaireAnswersV3.level, input.level),
+            eq(questionnaireAnswersV3.questionIndex, input.questionIndex)
+          )
+        )
+        .limit(1);
+
+      if (existing.length > 0) {
+        await database
+          .update(questionnaireAnswersV3)
+          .set({ answerValue: input.answerValue })
+          .where(eq(questionnaireAnswersV3.id, existing[0].id));
+      } else {
+        await database.insert(questionnaireAnswersV3).values({
+          projectId: input.projectId,
+          cnaeCode: input.cnaeCode,
+          cnaeDescription: input.cnaeDescription,
+          level: input.level,
+          questionIndex: input.questionIndex,
+          questionText: input.questionText,
+          questionType: input.questionType,
+          answerValue: input.answerValue,
+        });
+      }
+      return { success: true };
+    }),
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // ETAPA 2: Recuperar progresso salvo do questionário
+  // ───────────────────────────────────────────────────────────────────────────
+  getProgress: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      const database = await db.getDb();
+      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const [progress] = await database
+        .select()
+        .from(questionnaireProgressV3)
+        .where(eq(questionnaireProgressV3.projectId, input.projectId))
+        .limit(1);
+
+      const answers = await database
+        .select()
+        .from(questionnaireAnswersV3)
+        .where(eq(questionnaireAnswersV3.projectId, input.projectId));
+
+      return { progress: progress || null, answers };
+    }),
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // ETAPA 2: Salvar progresso do questionário e avançar para Etapa 3  // ─────────────────────────────────────────────────────────────────────────
   saveQuestionnaireProgress: protectedProcedure
     .input(z.object({
       projectId: z.number(),

@@ -4,14 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
-import { FolderKanban, Plus, Search } from "lucide-react";
+import { FolderKanban, Plus, Search, Zap } from "lucide-react";
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { PROJECT_STATUS, STATUS_COLORS } from "@shared/translations";
 
 export default function Projetos() {
   const { data: projects, isLoading } = trpc.projects.list.useQuery();
   const [searchTerm, setSearchTerm] = useState("");
+  const [, setLocation] = useLocation();
 
   const filteredProjects = projects?.filter(p =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -57,8 +58,8 @@ export default function Projetos() {
         ) : filteredProjects && filteredProjects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
-              <Link key={project.id} href={`/projetos/${project.id}`}>
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <Card key={project.id} className="hover:shadow-lg transition-shadow h-full flex flex-col">
+                <Link href={`/projetos/${project.id}`} className="flex-1 block">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <FolderKanban className="h-8 w-8 text-primary" />
@@ -82,8 +83,18 @@ export default function Projetos() {
                       </p>
                     )}
                   </CardContent>
-                </Card>
-              </Link>
+                </Link>
+                <div className="px-6 pb-5 pt-2">
+                  <Button
+                    className="w-full gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-sm"
+                    size="sm"
+                    onClick={() => setLocation(`/projetos/${project.id}/questionario-v3`)}
+                  >
+                    <Zap className="h-4 w-4" />
+                    Iniciar Fluxo v3
+                  </Button>
+                </div>
+              </Card>
             ))}
           </div>
         ) : (

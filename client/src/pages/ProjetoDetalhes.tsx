@@ -14,7 +14,8 @@ import {
   FileText,
   AlertTriangle,
   ListTodo,
-  PlayCircle
+  PlayCircle,
+  Zap
 } from "lucide-react";
 import { Link, useLocation, useParams } from "wouter";
 import { STATUS_LABELS } from "@shared/translations";
@@ -324,6 +325,27 @@ export default function ProjetoDetalhes() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Iniciar Fluxo v3 — sempre visível */}
+        <Card className="mt-6 border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-indigo-50">
+          <CardContent className="pt-6 pb-5">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-violet-900">Fluxo de Compliance v3.0</h3>
+                <p className="text-sm text-violet-700 mt-1">
+                  Questionário adaptativo por CNAE, Briefing, Matrizes de Riscos e Plano de Ação com IA Gen
+                </p>
+              </div>
+              <Button
+                className="shrink-0 gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-md px-6"
+                onClick={() => setLocation(`/projetos/${projectId}/questionario-v3`)}
+              >
+                <Zap className="h-4 w-4" />
+                Iniciar Fluxo v3
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Atalhos Rápidos */}
         {(project.status === "em_andamento" || project.status === "concluido") && (

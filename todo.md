@@ -1696,3 +1696,14 @@
 - [x] Checkpoint Sprint V45 criado
 - [x] Push/commit no GitHub
 - [x] Documentação atualizada no GitHub
+
+## Sprint V46: Integração Fluxo v3 + Persistência do Questionário (16/03/2026)
+- [ ] Adicionar botão "Iniciar Fluxo v3" na listagem de projetos (card de cada projeto)
+- [ ] Adicionar botão "Iniciar Fluxo v3" na página de detalhes do projeto
+- [ ] Criar tabela questionnaireAnswersV3 no schema do banco
+- [ ] Criar procedure saveQuestionnaireAnswer no backend
+- [ ] Criar procedure getQuestionnaireProgress no backend
+- [ ] Atualizar QuestionarioV3.tsx para salvar cada resposta no banco automaticamente
+- [ ] Implementar retomada de progresso ao abrir questionário já iniciado
+- [ ] Testes unitários para as novas procedures
+- [ ] Checkpoint e push GitHub
