@@ -6,6 +6,60 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [3.0.0] - Sprint V45 - 2026-03-16
+
+### Adicionado
+
+**Etapa 1 — Criação de Projeto com Extração de CNAEs via IA**
+- Novo formulário de criação de projeto com 3 campos: Nome, Descrição (texto longo) e Cliente vinculado
+- Busca de cliente com filtro em tempo real e botão "+ Novo Cliente" on-the-fly
+- Extração automática de CNAEs via IA Gen (OpenAI) a partir da descrição da empresa
+- Modal de confirmação de CNAEs com cards de relevância percentual (adicionar/editar/remover)
+- Stepper visual das 5 etapas do fluxo
+
+**Etapa 2 — Questionário Adaptativo por CNAE (2 Níveis)**
+- Questionário gerado dinamicamente pela IA para cada CNAE confirmado
+- Nível 1: até 10 perguntas essenciais por CNAE; Nível 2: aprofundamento opcional
+- UX inspirada em SurveyMonkey: sim/não, escala Likert, múltipla escolha, texto livre, slider
+- Salvamento automático de respostas a cada avanço
+
+**Etapa 3 — Briefing de Compliance**
+- Geração automática do Briefing via IA com renderização em Markdown
+- Ciclo de aprovação: aprovar, solicitar correção ou fornecer mais informações
+- Regeneração incorporando feedback até aprovação
+
+**Etapa 4 — Matrizes de Riscos (4 Áreas)**
+- 4 matrizes independentes: Contabilidade, T.I., Advocacia Tributária, Áreas de Negócio
+- Colunas: Evento, Probabilidade, Impacto, Severidade (calculada), Plano de Ação
+- Edição inline com ciclo de aprovação e regeneração parcial ou total
+
+**Etapa 5 — Plano de Ação com Gestão de Tarefas**
+- Plano gerado por área (Contabilidade, TI, Jurídico, Negócio)
+- Gestão completa: status, % andamento, datas início/fim, responsável, notificações por e-mail
+- Filtros por status, área, prazo e responsável
+- Exportação CSV e PDF simples
+
+### Alterado
+- Menu lateral limpo: removidos 4 itens (Dashboard de Tarefas, Questionário Corporativo, Modelos Padrões, Painel de Indicadores Executivos)
+- Corrigido nested `<a>` no ComplianceLayout
+- Instalado `react-markdown` para renderização do briefing
+
+### Testes
+- 35 testes unitários passando: 14 (Etapa 1) + 21 (Etapas 2-5)
+- Checkpoint: `5d49b4ab`
+
+---
+
+## [2.0.0] - Sprint V44 - 2026-03-16
+
+### Adicionado
+- Teste E2E completo do fluxo v2.0: 20/20 testes passando
+- Fluxo validado: ModoUso → BriefingInteligente → QuestionarioRamos → PlanoAcaoSession → MatrizRiscosSession → Consolidacao
+- Exportação de dados (JSON + CSV) com integridade cruzada validada
+- Checkpoint: `b47e1af8`
+
+---
+
 ## [1.0.0] - 2026-02-01
 
 ### 🎉 Release Inicial - Baseline v1.0
