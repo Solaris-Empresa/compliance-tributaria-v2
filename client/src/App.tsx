@@ -35,6 +35,8 @@ import NotFound from "./pages/NotFound";
 import ModoUso from "./pages/ModoUso";
 import BriefingInteligente from "./pages/BriefingInteligente";
 import QuestionarioRamos from "./pages/QuestionarioRamos";
+import PlanoAcaoSession from "./pages/PlanoAcaoSession";
+import MatrizRiscosSession from "./pages/MatrizRiscosSession";
 
 function Router() {
   return (
@@ -71,6 +73,8 @@ function Router() {
       <Route path="/modo-uso" component={ModoUso} />
       <Route path="/briefing" component={BriefingInteligente} />
       <Route path="/questionario-ramos" component={QuestionarioRamos} />
+      <Route path="/plano-acao-session" component={PlanoAcaoSession} />
+      <Route path="/matriz-riscos-session" component={MatrizRiscosSession} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

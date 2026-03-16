@@ -1041,3 +1041,30 @@ export const sessionBranchAnswers = mysqlTable("sessionBranchAnswers", {
 
 export type SessionBranchAnswer = typeof sessionBranchAnswers.$inferSelect;
 export type InsertSessionBranchAnswer = typeof sessionBranchAnswers.$inferInsert;
+
+/**
+ * Plano de Ação Consolidado por Sessão (Fase 3 - Novo Fluxo v2.0)
+ * Armazena o plano gerado pela IA consolidando todos os ramos da sessão
+ */
+export const sessionActionPlans = mysqlTable("sessionActionPlans", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionToken: varchar("sessionToken", { length: 128 }).notNull(),
+  // Itens do plano de ação (JSON array)
+  planItems: json("planItems"), // [{id, branchCode, branchName, action, priority, deadline, responsible, status, riskLevel, category}]
+  // Resumo executivo gerado pela IA
+  executiveSummary: text("executiveSummary"),
+  // Nível de risco global da empresa
+  overallRiskLevel: mysqlEnum("overallRiskLevel", ["baixo", "medio", "alto", "critico"]),
+  // Pontuação de compliance (0-100)
+  complianceScore: int("complianceScore"),
+  // Status do plano
+  status: mysqlEnum("status", ["gerando", "gerado", "aprovado", "em_execucao"]).default("gerando").notNull(),
+  // Metadados
+  totalActions: int("totalActions").default(0),
+  criticalActions: int("criticalActions").default(0),
+  generatedAt: timestamp("generatedAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SessionActionPlan = typeof sessionActionPlans.$inferSelect;
+export type InsertSessionActionPlan = typeof sessionActionPlans.$inferInsert;

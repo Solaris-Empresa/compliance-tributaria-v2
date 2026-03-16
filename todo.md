@@ -1488,6 +1488,18 @@
 - [x] Frontend: QuestionarioRamos.tsx - navegação entre ramos, 4 tipos de pergunta, análise de risco visual
 - [x] Integração: App.tsx rota /questionario-ramos + TypeScript sem erros
 - [x] Testes unitários + funcionais: 20/20 passaram (100%)
+- [x] Criar checkpoint final - 7550aa77
+- [x] Push para GitHub - Commit 7550aa7 sincronizado
+- [x] Criar issue e marcar como done - Issue #65 CLOSED
+
+## Sprint V41: Fase 3 - Plano de Ação Consolidado (16/03/2026)
+- [x] Schema: tabela sessionActionPlans + db:push - 43 tabelas aplicadas
+- [x] Backend: routers-session-action-plan.ts com 4 procedures (generate, get, updateItem, getMatrix)
+- [x] Backend: IA consolida análises de todos os ramos em plano priorizado com score de compliance
+- [x] Frontend: PlanoAcaoSession.tsx - tabs Plano/Resumo Executivo/Por Ramo + filtros por prioridade/ramo/status
+- [x] Frontend: MatrizRiscosSession.tsx - matriz 4x4 Probabilidade x Impacto com legenda de cores
+- [x] Integração: App.tsx rotas /plano-acao-session e /matriz-riscos-session + TypeScript sem erros
+- [x] Testes unitários + funcionais: 25/25 passaram (100%)
 - [ ] Criar checkpoint final
 - [ ] Push para GitHub
 - [ ] Criar issue e marcar como done
