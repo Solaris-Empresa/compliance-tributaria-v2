@@ -94,17 +94,17 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-2">
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href}>
-              <div
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
-                  isActive(item.href)
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-accent text-foreground"
-                }`}
-              >
-                <item.icon className="h-5 w-5 flex-shrink-0" />
-                {sidebarOpen && <span>{item.label}</span>}
-              </div>
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                isActive(item.href)
+                  ? "bg-primary text-primary-foreground"
+                  : "hover:bg-accent text-foreground"
+              }`}
+            >
+              <item.icon className="h-5 w-5 flex-shrink-0" />
+              {sidebarOpen && <span>{item.label}</span>}
             </Link>
           ))}
         </nav>

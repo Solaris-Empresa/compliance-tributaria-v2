@@ -38,6 +38,10 @@ import QuestionarioRamos from "./pages/QuestionarioRamos";
 import PlanoAcaoSession from "./pages/PlanoAcaoSession";
 import MatrizRiscosSession from "./pages/MatrizRiscosSession";
 import Consolidacao from "./pages/Consolidacao";
+import QuestionarioV3 from "./pages/QuestionarioV3";
+import BriefingV3 from "./pages/BriefingV3";
+import MatrizesV3 from "./pages/MatrizesV3";
+import PlanoAcaoV3 from "./pages/PlanoAcaoV3";
 
 function Router() {
   return (
@@ -77,6 +81,11 @@ function Router() {
       <Route path="/plano-acao-session" component={PlanoAcaoSession} />
       <Route path="/matriz-riscos-session" component={MatrizRiscosSession} />
       <Route path="/consolidacao" component={Consolidacao} />
+      {/* Novo Fluxo v3.0 */}
+      <Route path="/projetos/:id/questionario-v3" component={QuestionarioV3} />
+      <Route path="/projetos/:id/briefing-v3" component={BriefingV3} />
+      <Route path="/projetos/:id/matrizes-v3" component={MatrizesV3} />
+      <Route path="/projetos/:id/plano-v3" component={PlanoAcaoV3} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

@@ -1682,3 +1682,17 @@
 - [ ] Frontend: notificações por e-mail configuráveis
 - [ ] Frontend: exportação PDF e CSV
 - [ ] Testes unitários
+
+## Sprint V45 — Implementação Etapas 2-5 Fluxo v3.0 (16/03/2026)
+- [x] Etapa 2: QuestionarioV3.tsx — questionário adaptativo por CNAE, 2 níveis, UX SurveyMonkey
+- [x] Etapa 3: BriefingV3.tsx — briefing com ciclo de aprovação e regeneração via IA
+- [x] Etapa 4: MatrizesV3.tsx — 4 matrizes de riscos com edição inline e ciclo de aprovação
+- [x] Etapa 5: PlanoAcaoV3.tsx — gestão de tarefas completa (status, progresso, datas, notificações, exportação CSV/PDF)
+- [x] Rotas registradas no App.tsx (/questionario-v3, /briefing-v3, /matrizes-v3, /plano-v3)
+- [x] Instalar react-markdown para renderização do briefing
+- [x] Corrigir nested anchor no ComplianceLayout
+- [x] Testes unitários Etapas 2-5: 21/21 passaram
+- [x] Testes unitários Etapa 1: 14/14 passaram (total: 35 testes fluxo v3)
+- [x] Checkpoint Sprint V45 criado
+- [x] Push/commit no GitHub
+- [x] Documentação atualizada no GitHub
