@@ -1068,3 +1068,44 @@ export const sessionActionPlans = mysqlTable("sessionActionPlans", {
 
 export type SessionActionPlan = typeof sessionActionPlans.$inferSelect;
 export type InsertSessionActionPlan = typeof sessionActionPlans.$inferInsert;
+
+// =============================================================================
+// FASE 4 — CONSOLIDAÇÃO FINAL E GESTÃO
+// =============================================================================
+
+/**
+ * sessionConsolidations
+ * Armazena o relatório consolidado final de uma sessão de diagnóstico.
+ * Gerado após o plano de ação, contém o resumo executivo completo,
+ * recomendações prioritárias e dados para exportação.
+ */
+export const sessionConsolidations = mysqlTable("sessionConsolidations", {
+  id: int("id").primaryKey().autoincrement(),
+  sessionToken: varchar("sessionToken", { length: 255 }).notNull(),
+
+  // Dados consolidados
+  executiveSummary: text("executiveSummary"),          // Resumo executivo final
+  keyFindings: json("keyFindings"),                    // Array de achados principais
+  topRecommendations: json("topRecommendations"),      // Top 5 recomendações
+  branchSummaries: json("branchSummaries"),            // Resumo por ramo
+  timeline: json("timeline"),                          // Cronograma sugerido (30/60/90 dias)
+  estimatedBudget: json("estimatedBudget"),            // Estimativa de custo por fase
+
+  // Métricas finais
+  complianceScore: int("complianceScore"),             // 0-100
+  overallRiskLevel: varchar("overallRiskLevel", { length: 50 }),
+  totalActions: int("totalActions").default(0),
+  criticalActions: int("criticalActions").default(0),
+  estimatedDays: int("estimatedDays"),                 // Prazo total estimado
+
+  // Controle
+  status: mysqlEnum("status", ["gerando", "gerado", "exportado", "salvo_historico"]).default("gerando").notNull(),
+  convertedToProjectId: int("convertedToProjectId"),  // ID do projeto criado ao salvar no histórico
+  exportedAt: timestamp("exportedAt"),
+  savedToHistoryAt: timestamp("savedToHistoryAt"),
+  generatedAt: timestamp("generatedAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SessionConsolidation = typeof sessionConsolidations.$inferSelect;
+export type InsertSessionConsolidation = typeof sessionConsolidations.$inferInsert;

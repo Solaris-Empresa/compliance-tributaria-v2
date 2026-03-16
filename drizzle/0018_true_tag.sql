@@ -1,0 +1,22 @@
+CREATE TABLE `sessionConsolidations` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`sessionToken` varchar(255) NOT NULL,
+	`executiveSummary` text,
+	`keyFindings` json,
+	`topRecommendations` json,
+	`branchSummaries` json,
+	`timeline` json,
+	`estimatedBudget` json,
+	`complianceScore` int,
+	`overallRiskLevel` varchar(50),
+	`totalActions` int DEFAULT 0,
+	`criticalActions` int DEFAULT 0,
+	`estimatedDays` int,
+	`status` enum('gerando','gerado','exportado','salvo_historico') NOT NULL DEFAULT 'gerando',
+	`convertedToProjectId` int,
+	`exportedAt` timestamp,
+	`savedToHistoryAt` timestamp,
+	`generatedAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `sessionConsolidations_id` PRIMARY KEY(`id`)
+);

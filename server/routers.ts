@@ -51,6 +51,7 @@ import { permissionsCheckRouter } from "./routers-permissions-check";
 import { sessionsRouter } from "./routers-sessions";
 import { sessionQuestionnaireRouter } from "./routers-session-questionnaire";
 import { sessionActionPlanRouter } from "./routers-session-action-plan";
+import { sessionConsolidationRouter } from "./routers-session-consolidation";
 
 export const appRouter = router({
   system: systemRouter,
@@ -73,6 +74,7 @@ export const appRouter = router({
   sessions: sessionsRouter,
   sessionQuestionnaire: sessionQuestionnaireRouter,
   sessionActionPlan: sessionActionPlanRouter,
+  sessionConsolidation: sessionConsolidationRouter,
   
   // ==========================================================================
   // AUTH
