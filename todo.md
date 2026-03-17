@@ -1763,3 +1763,24 @@
 - [x] RF-5.13: Remoção de tarefas com confirmação (soft delete + restauração)
 - [x] RF-5.16: Dashboard de progresso por área no topo de cada aba (total, % concluídas, vencidas, em andamento)
 - [x] RF-5.17: Gerenciamento de usuários por cliente (Admin/Colaborador/Visualizador)
+
+## Fluxo de Aprovação de CNAEs (RF-1.02 — Loop IA + Usuário)
+
+- [ ] Backend: criar procedure `refineCnaes` que recebe feedback do usuário e reanalisa com IA
+- [ ] NovoProjeto.tsx: substituir modal simples pelo loop de aprovação (sugestão → feedback → nova sugestão → aprovação)
+- [ ] Exibir estado "Aguardando aprovação" com botões "Aprovar todos" e "Sugerir correção"
+- [ ] Campo de texto livre para o usuário descrever a correção desejada
+- [ ] IA reanalisa considerando o feedback e apresenta nova lista de CNAEs
+- [ ] Contador de iterações visível ("Revisão 2 de 3")
+- [ ] Após aprovação, salvar CNAEs confirmados e avançar para Etapa 2
+- [ ] QuestionárioV3: tela de entrada por CNAE antes de gerar perguntas
+- [ ] QuestionárioV3: IA gera perguntas APENAS quando usuário clica "Iniciar diagnóstico deste CNAE"
+- [ ] QuestionárioV3: isolamento visual total — só o CNAE atual é exibido
+
+## Loop de Aprovação de CNAEs (RF-1.05 / PG-05)
+
+- [ ] Backend: procedure `refineCnaes` — recebe feedback texto livre + lista atual, IA reanalisa e retorna nova lista
+- [ ] NovoProjeto.tsx modal: botão "Pedir nova análise" com campo de texto livre para feedback
+- [ ] Contador de revisões visível no modal ("Análise 2 de N")
+- [ ] QuestionárioV3: tela de entrada por CNAE antes de gerar perguntas (card com código + descrição + botão "Iniciar diagnóstico")
+- [ ] QuestionárioV3: IA gera perguntas APENAS quando usuário clica "Iniciar" — não no mount automático
