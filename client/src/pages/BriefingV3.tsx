@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft, ArrowRight, ChevronRight, Loader2, Sparkles,
-  CheckCircle2, RefreshCw, MessageSquare, ThumbsUp, Edit3, Info
+  CheckCircle2, RefreshCw, MessageSquare, ThumbsUp, Edit3, Info, Download, FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -108,6 +108,57 @@ export default function BriefingV3() {
       toast.error("Erro ao aprovar o briefing. Tente novamente.");
     } finally {
       setIsApproving(false);
+    }
+  };
+
+  const handleExportPDF = () => {
+    if (!briefing) return;
+    const projectName = (project as any)?.name || "Briefing de Compliance";
+    const dateStr = new Date().toLocaleDateString("pt-BR");
+    // Converter markdown simples para HTML
+    const htmlContent = briefing
+      .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+      .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+      .replace(/^# (.+)$/gm, "<h1>$1</h1>")
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(/^- (.+)$/gm, "<li>$1</li>")
+      .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+      .replace(/\n\n/g, "</p><p>")
+      .replace(/^(?!<[hul])/gm, "")
+      .split("\n").map(line => line.startsWith("<") ? line : `<p>${line}</p>`).join("\n");
+
+    const win = window.open("", "_blank");
+    if (win) {
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+        <title>Briefing de Compliance \u2014 ${projectName}</title>
+        <style>
+          body{font-family:Arial,sans-serif;margin:40px;color:#111;line-height:1.7;max-width:800px}
+          .header{border-bottom:3px solid #1e40af;padding-bottom:16px;margin-bottom:28px}
+          .header h1{font-size:22px;margin:0 0 4px;color:#1e3a8a}
+          .header p{font-size:13px;color:#6b7280;margin:0}
+          .version-badge{display:inline-block;background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe;border-radius:12px;padding:2px 10px;font-size:11px;margin-left:8px}
+          .content h1{font-size:18px;color:#1e3a8a;margin-top:28px;margin-bottom:8px;border-bottom:1px solid #e5e7eb;padding-bottom:6px}
+          .content h2{font-size:16px;color:#1e40af;margin-top:24px;margin-bottom:6px}
+          .content h3{font-size:14px;color:#374151;margin-top:18px;margin-bottom:4px}
+          .content p{font-size:13px;color:#374151;margin:8px 0}
+          .content ul{margin:8px 0;padding-left:20px}
+          .content li{font-size:13px;color:#374151;margin:4px 0}
+          .content strong{color:#111}
+          .footer{margin-top:40px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:10px;color:#9ca3af;text-align:right}
+          @media print{@page{margin:20mm}body{margin:0;max-width:none}}
+        </style>
+        </head><body>
+        <div class="header">
+          <h1>Briefing de Compliance \u2014 ${projectName} <span class="version-badge">Vers\u00e3o ${generationCount}</span></h1>
+          <p>Reforma Tribut\u00e1ria 2024 \u00b7 Gerado em ${dateStr}</p>
+        </div>
+        <div class="content">${htmlContent}</div>
+        <div class="footer">IA SOLARIS \u2014 Plataforma de Compliance Tribut\u00e1rio \u00b7 Reforma Tribut\u00e1ria 2024</div>
+        <script>window.onload=function(){window.print();}<\/script>
+        </body></html>`);
+      win.document.close();
+      toast.success("PDF do Briefing gerado! Use Ctrl+P para salvar.");
     }
   };
 
@@ -221,9 +272,9 @@ export default function BriefingV3() {
                     <p className="text-xs text-amber-700 mt-0.5">Leia com atenção. Se estiver correto e completo, aprove para avançar. Se precisar de ajustes, use as opções abaixo.</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <Button size="lg" onClick={handleApprove} disabled={isApproving} className="col-span-1 sm:col-span-1">
-                    {isApproving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ThumbsUp className="h-4 w-4 mr-2" />}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <Button size="lg" onClick={handleApprove} disabled={isApproving} className="gap-2">
+                    {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsUp className="h-4 w-4" />}
                     Aprovar Briefing
                   </Button>
                   <Button variant="outline" size="lg" onClick={() => setFeedbackMode("correction")} className="gap-2">
@@ -233,6 +284,10 @@ export default function BriefingV3() {
                   <Button variant="outline" size="lg" onClick={() => setFeedbackMode("more_info")} className="gap-2">
                     <MessageSquare className="h-4 w-4" />
                     Mais Informações
+                  </Button>
+                  <Button variant="outline" size="lg" onClick={handleExportPDF} className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-50">
+                    <Download className="h-4 w-4" />
+                    Exportar PDF
                   </Button>
                 </div>
               </div>

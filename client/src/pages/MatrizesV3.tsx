@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ArrowLeft, ChevronRight, Loader2, Sparkles,
   CheckCircle2, RefreshCw, ThumbsUp, Edit3, AlertTriangle,
-  Building2, Cpu, Scale, BarChart3
+  Building2, Cpu, Scale, BarChart3, Download
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -206,6 +206,60 @@ export default function MatrizesV3() {
     }));
     setEditingRisk(null);
     toast.success("Risco atualizado!");
+  };
+
+  const handleExportPDF = () => {
+    const projectName = (project as any)?.name || "Matrizes de Riscos";
+    const dateStr = new Date().toLocaleDateString("pt-BR");
+    const sevColor: Record<string, string> = {
+      Cr\u00edtica: "#dc2626", Alta: "#ea580c", M\u00e9dia: "#d97706", Baixa: "#16a34a"
+    };
+    const areasHtml = AREAS.map(area => {
+      const risks = matrices[area.key] || [];
+      if (risks.length === 0) return "";
+      const rows = risks.map(r => `<tr>
+        <td style="padding:8px;border-bottom:1px solid #e5e7eb;font-size:12px">${r.evento}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:12px">${r.probabilidade}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:12px">${r.impacto}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center">
+          <span style="background:${sevColor[r.severidade] || '#6b7280'}22;color:${sevColor[r.severidade] || '#6b7280'};border:1px solid ${sevColor[r.severidade] || '#6b7280'}44;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:600">${r.severidade}</span>
+        </td>
+        <td style="padding:8px;border-bottom:1px solid #e5e7eb;font-size:11px;color:#6b7280">${r.plano_acao}</td>
+      </tr>`).join("");
+      return `<div style="margin-bottom:28px">
+        <h2 style="font-size:15px;color:#1e40af;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid #bfdbfe">${area.label}</h2>
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:#f8fafc">
+            <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e5e7eb">Evento de Risco</th>
+            <th style="padding:8px;text-align:center;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e5e7eb;width:100px">Probabilidade</th>
+            <th style="padding:8px;text-align:center;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e5e7eb;width:80px">Impacto</th>
+            <th style="padding:8px;text-align:center;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e5e7eb;width:90px">Severidade</th>
+            <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e5e7eb">Plano de A\u00e7\u00e3o</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    }).join("");
+
+    const win = window.open("", "_blank");
+    if (win) {
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+        <title>Matrizes de Riscos \u2014 ${projectName}</title>
+        <style>
+          body{font-family:Arial,sans-serif;margin:40px;color:#111;line-height:1.6;max-width:900px}
+          @media print{@page{margin:15mm;size:A4 landscape}body{margin:0;max-width:none}}
+        </style></head><body>
+        <div style="border-bottom:3px solid #1e40af;padding-bottom:16px;margin-bottom:28px">
+          <h1 style="font-size:22px;margin:0 0 4px;color:#1e3a8a">Matrizes de Riscos \u2014 ${projectName}</h1>
+          <p style="font-size:13px;color:#6b7280;margin:0">Reforma Tribut\u00e1ria 2024 \u00b7 Gerado em ${dateStr} \u00b7 ${totalRisks} riscos identificados, ${criticalRisks} cr\u00edticos</p>
+        </div>
+        ${areasHtml}
+        <div style="margin-top:40px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:10px;color:#9ca3af;text-align:right">IA SOLARIS \u2014 Plataforma de Compliance Tribut\u00e1rio \u00b7 Reforma Tribut\u00e1ria 2024</div>
+        <script>window.onload=function(){window.print();}<\/script>
+        </body></html>`);
+      win.document.close();
+      toast.success("PDF das Matrizes gerado! Use Ctrl+P para salvar.");
+    }
   };
 
   const allAreasGenerated = AREAS.every(a => matrices[a.key] && matrices[a.key].length > 0);
@@ -430,7 +484,7 @@ export default function MatrizesV3() {
 
             {/* Aprovação */}
             {allAreasGenerated && !editingRisk && (
-              <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                   <div>
@@ -438,10 +492,16 @@ export default function MatrizesV3() {
                     <p className="text-xs text-emerald-700">{totalRisks} riscos identificados, {criticalRisks} críticos</p>
                   </div>
                 </div>
-                <Button onClick={handleApprove} disabled={isApproving} className="gap-2">
-                  {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsUp className="h-4 w-4" />}
-                  Aprovar e Gerar Plano de Ação
-                </Button>
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <Button variant="outline" onClick={handleExportPDF} className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-50 flex-1 sm:flex-none">
+                    <Download className="h-4 w-4" />
+                    Exportar PDF
+                  </Button>
+                  <Button onClick={handleApprove} disabled={isApproving} className="gap-2 flex-1 sm:flex-none">
+                    {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsUp className="h-4 w-4" />}
+                    Aprovar e Gerar Plano de Ação
+                  </Button>
+                </div>
               </div>
             )}
           </>

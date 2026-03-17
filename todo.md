@@ -1725,3 +1725,10 @@
 - [x] PDF deve incluir todas as 4 áreas com todas as tarefas, status e progresso
 - [x] PDF formatado com cabeçalho do projeto, data de geração e sumário executivo
 - [x] Testes, checkpoint e push GitHub
+
+## Sprint V49: Exportação PDF no Briefing e Matrizes de Riscos (17/03/2026)
+- [x] Adicionar botão "Exportar para PDF" no BriefingV3 (Etapa 3)
+- [x] PDF do Briefing: cabeçalho do projeto, data, conteúdo completo do briefing em markdown convertido para HTML
+- [x] Adicionar botão "Exportar para PDF" no MatrizesV3 (Etapa 4)
+- [x] PDF das Matrizes: sumário executivo + tabela por área (Contabilidade, TI, Jurídico, Negócio) com colunas evento, probabilidade, impacto, severidade, plano de ação
+- [x] Verificar TypeScript, checkpoint, push GitHub
