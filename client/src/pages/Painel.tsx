@@ -112,8 +112,7 @@ export default function Painel() {
             ) : projects && projects.length > 0 ? (
               <div className="space-y-4">
                 {projects.slice(0, 5).map((project) => (
-                  <Link key={project.id} href={`/projetos/${project.id}`}>
-                    <a className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent transition-colors">
+                  <Link key={project.id} href={`/projetos/${project.id}`} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent transition-colors">
                       <div className="flex-1">
                         <h3 className="font-medium">{project.name}</h3>
                         <p className="text-sm text-muted-foreground mt-1">
@@ -129,7 +128,6 @@ export default function Painel() {
                           {PROJECT_STATUS[project.status as keyof typeof PROJECT_STATUS] || project.status}
                         </span>
                       </div>
-                    </a>
                   </Link>
                 ))}
               </div>
