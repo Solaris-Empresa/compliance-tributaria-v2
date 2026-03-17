@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import FlowStepper from "@/components/FlowStepper";
 import {
   ArrowLeft, ArrowRight, ChevronRight, Loader2, Sparkles,
   CheckCircle2, Clock, SkipForward, MessageSquare, BarChart2,
@@ -581,33 +582,18 @@ export default function QuestionarioV3() {
         <div className="max-w-3xl mx-auto space-y-6 py-2">
           {/* Header */}
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => setLocation(`/projetos/${projectId}`)}>  
-              <ArrowLeft className="h-5 w-5" />
+            <Button variant="ghost" className="gap-2 text-sm shrink-0" onClick={() => setLocation(`/projetos/${projectId}`)}>
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Voltar ao Projeto</span>
+              <span className="sm:hidden">Voltar</span>
             </Button>
             <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold truncate">{project?.name || "Questionário"}</h1>
               <p className="text-sm text-muted-foreground">Etapa 2 de 5 — Questionário Adaptativo</p>
             </div>
           </div>
-          {/* Stepper */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            {["Projeto", "Questionário", "Briefing", "Riscos", "Plano"].map((step, i) => (
-              <div key={step} className="flex items-center gap-2 shrink-0">
-                <div className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors ${
-                  i <= 1 ? "bg-emerald-100 text-emerald-700" :
-                  "bg-muted text-muted-foreground"
-                }`}>
-                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    i <= 1 ? "bg-emerald-500/20" : "bg-muted-foreground/20"
-                  }`}>
-                    {i <= 1 ? "✓" : i + 1}
-                  </span>
-                  {step}
-                </div>
-                {i < 4 && <ChevronRight className="h-3 w-3 text-muted-foreground/40" />}
-              </div>
-            ))}
-          </div>
+          {/* Stepper — clicável para etapas concluídas */}
+          <FlowStepper currentStep={2} projectId={projectId} />
           {/* Banner de conclusão */}
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3">
             <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
@@ -688,8 +674,10 @@ export default function QuestionarioV3() {
         )}
         {/* Header */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => setLocation(`/projetos/${projectId}`)}>
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" className="gap-2 text-sm shrink-0" onClick={() => setLocation(`/projetos/${projectId}`)}>
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Voltar ao Projeto</span>
+            <span className="sm:hidden">Voltar</span>
           </Button>
           <div className="flex-1 min-w-0">
             <h1 className="text-xl font-bold truncate">{project?.name || "Questionário"}</h1>
@@ -697,26 +685,8 @@ export default function QuestionarioV3() {
           </div>
         </div>
 
-        {/* Stepper */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
-          {["Projeto", "Questionário", "Briefing", "Riscos", "Plano"].map((step, i) => (
-            <div key={step} className="flex items-center gap-2 shrink-0">
-              <div className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors ${
-                i < 1 ? "bg-emerald-100 text-emerald-700" :
-                i === 1 ? "bg-primary text-primary-foreground" :
-                "bg-muted text-muted-foreground"
-              }`}>
-                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                  i < 1 ? "bg-emerald-500/20" : i === 1 ? "bg-white/20" : "bg-muted-foreground/20"
-                }`}>
-                  {i < 1 ? "✓" : i + 1}
-                </span>
-                {step}
-              </div>
-              {i < 4 && <ChevronRight className="h-3 w-3 text-muted-foreground/40" />}
-            </div>
-          ))}
-        </div>
+        {/* Stepper — clicável para etapas concluídas */}
+        <FlowStepper currentStep={2} projectId={projectId} />
 
         {/* Progresso geral dos CNAEs */}
         <div className="bg-card border rounded-xl p-4 space-y-3">

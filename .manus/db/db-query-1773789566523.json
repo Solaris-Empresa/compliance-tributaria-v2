@@ -1,0 +1,60 @@
+{
+  "query": "SELECT id, name, status FROM projects WHERE status IN ('concluido', 'plano_acao', 'em_andamento', 'assessment_fase2') LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT id, name, status FROM projects WHERE status IN ('concluido', 'plano_acao', 'em_andamento', 'assessment_fase2') LIMIT 10;",
+  "rows": [
+    {
+      "id": "665",
+      "name": "Projeto E2E 1773784013775",
+      "status": "concluido"
+    },
+    {
+      "id": "693",
+      "name": "Test Project Action Plans",
+      "status": "em_andamento"
+    },
+    {
+      "id": "694",
+      "name": "Projeto Teste - Planos por Ramo",
+      "status": "plano_acao"
+    },
+    {
+      "id": "695",
+      "name": "Teste E2E Completo 1773784018185",
+      "status": "assessment_fase2"
+    },
+    {
+      "id": "711",
+      "name": "Projeto Teste - Fluxo Completo",
+      "status": "plano_acao"
+    },
+    {
+      "id": "712",
+      "name": "Test Project Branch Gen",
+      "status": "plano_acao"
+    },
+    {
+      "id": "737",
+      "name": "Projeto Teste Update Status",
+      "status": "em_andamento"
+    },
+    {
+      "id": "740",
+      "name": "Projeto Teste Update Status",
+      "status": "em_andamento"
+    },
+    {
+      "id": "757",
+      "name": "Projeto Teste 1773784053961",
+      "status": "assessment_fase2"
+    },
+    {
+      "id": "789",
+      "name": "Projeto E2E 1773785472859",
+      "status": "concluido"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tstatus\n665\tProjeto E2E 1773784013775\tconcluido\n693\tTest Project Action Plans\tem_andamento\n694\tProjeto Teste - Planos por Ramo\tplano_acao\n695\tTeste E2E Completo 1773784018185\tassessment_fase2\n711\tProjeto Teste - Fluxo Completo\tplano_acao\n712\tTest Project Branch Gen\tplano_acao\n737\tProjeto Teste Update Status\tem_andamento\n740\tProjeto Teste Update Status\tem_andamento\n757\tProjeto Teste 1773784053961\tassessment_fase2\n789\tProjeto E2E 1773785472859\tconcluido\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

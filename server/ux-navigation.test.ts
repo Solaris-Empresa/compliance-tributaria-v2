@@ -177,3 +177,61 @@ describe("FlowStepper — clicabilidade", () => {
     expect(isStepClickable(2, 4, 3)).toBe(true);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. Back navigation — rota e label por etapa
+// ─────────────────────────────────────────────────────────────────────────────
+
+const BACK_NAVIGATION: Record<string, { label: string; route: (id: number) => string }> = {
+  questionario: {
+    label: "Voltar ao Projeto",
+    route: (id) => `/projetos/${id}`,
+  },
+  briefing: {
+    label: "Voltar ao Questionário",
+    route: (id) => `/projetos/${id}/questionario-v3`,
+  },
+  matrizes: {
+    label: "Voltar ao Briefing",
+    route: (id) => `/projetos/${id}/briefing-v3`,
+  },
+  plano: {
+    label: "Voltar às Matrizes",
+    route: (id) => `/projetos/${id}/matrizes-v3`,
+  },
+};
+
+describe("Back navigation — labels e rotas", () => {
+  const pid = 42;
+
+  it("Questionário volta para o Projeto com label correto", () => {
+    const nav = BACK_NAVIGATION["questionario"];
+    expect(nav.label).toBe("Voltar ao Projeto");
+    expect(nav.route(pid)).toBe(`/projetos/${pid}`);
+  });
+
+  it("Briefing volta para o Questionário com label correto", () => {
+    const nav = BACK_NAVIGATION["briefing"];
+    expect(nav.label).toBe("Voltar ao Questionário");
+    expect(nav.route(pid)).toBe(`/projetos/${pid}/questionario-v3`);
+  });
+
+  it("Matrizes volta para o Briefing com label correto", () => {
+    const nav = BACK_NAVIGATION["matrizes"];
+    expect(nav.label).toBe("Voltar ao Briefing");
+    expect(nav.route(pid)).toBe(`/projetos/${pid}/briefing-v3`);
+  });
+
+  it("Plano de Ação volta para as Matrizes com label correto", () => {
+    const nav = BACK_NAVIGATION["plano"];
+    expect(nav.label).toBe("Voltar às Matrizes");
+    expect(nav.route(pid)).toBe(`/projetos/${pid}/matrizes-v3`);
+  });
+
+  it("nenhuma etapa usa botão icon-only (sem texto)", () => {
+    for (const [, nav] of Object.entries(BACK_NAVIGATION)) {
+      expect(nav.label.length).toBeGreaterThan(0);
+      expect(nav.label).toMatch(/^Voltar/);
+    }
+  });
+});

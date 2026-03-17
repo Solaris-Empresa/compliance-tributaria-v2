@@ -2188,3 +2188,18 @@
 - [x] [P2] PlanoAcaoV3 usava setLocation("/painel") — corrigido para voltar ao projeto
 - [x] [P3] CTA dos cards adaptado por status (Rascunho/Em Andamento/Concluído)
 - [x] [P3] Sidebar com indicador visual de localização para sub-rotas de projeto
+
+## Melhoria UX Etapa 2: Integração FlowStepper em Todas as Páginas (17/03/2026)
+- [x] Integrar FlowStepper em BriefingV3 (substituiu stepper inline)
+- [x] Integrar FlowStepper em MatrizesV3 (substituiu stepper inline)
+- [x] Integrar FlowStepper em PlanoAcaoV3 (substituiu stepper inline)
+- [x] Integrar FlowStepper em QuestionarioV3 (ambos os modos: ativo e concluído)
+- [x] Substituir botões icon-only (ArrowLeft sem texto) por botões com label descritivo em todas as páginas
+  - QuestionarioV3: "← Voltar ao Projeto"
+  - BriefingV3: "← Voltar ao Questionário"
+  - MatrizesV3: "← Voltar ao Briefing"
+  - PlanoAcaoV3: "← Voltar às Matrizes"
+- [x] Adicionar 5 testes unitários de back navigation ao ux-navigation.test.ts (32/32 passando)
+- [x] Teste manual no browser: FlowStepper clicável funciona (Plano de Ação → Questionário)
+- [x] Teste manual no browser: back buttons com texto funcionam
+- [x] Teste manual no browser: sidebar persiste estado fechado entre navegações
