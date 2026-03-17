@@ -2159,3 +2159,11 @@
 - [x] Definir timeout global de 3 minutos (180s) para todas as operações LLM
 - [x] Melhorar mensagem de erro para distinguir timeout de outros erros (label em minutos)
 - [x] Escrever testes unitários para o mecanismo de timeout (9/9 passando)
+
+## Feature: Contador de Tempo na Geração de Perguntas
+
+- [x] Criar estado generationElapsed + ref do timer integrado ao loadQuestions
+- [x] Atualizar tela de loading do QuestionarioV3 com contador "Xs" ou "Xm Ys"
+- [x] Adicionar barra de progresso estimada (45s para nível 1, 60s para nível 2, cap em 95%)
+- [x] Mostrar mensagem contextual por faixa de tempo (0-15s, 15-45s, 45s+)
+- [x] Cleanup do timer no useEffect de desmontagem (sem memory leak)

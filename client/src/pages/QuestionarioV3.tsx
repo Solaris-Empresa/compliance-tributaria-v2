@@ -200,6 +200,9 @@ export default function QuestionarioV3() {
   const [confirmPrevCnae, setConfirmPrevCnae] = useState(false); // RF-2.07: confirmação ao retornar a CNAE concluído
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
   const [questionsError, setQuestionsError] = useState<string | null>(null);
+  // Contador de tempo da geração de perguntas
+  const [generationElapsed, setGenerationElapsed] = useState(0);
+  const generationTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
@@ -297,6 +300,12 @@ export default function QuestionarioV3() {
     setQuestionsError(null);
     setAnswers({});
     setQuestions([]);
+    // Iniciar contador de tempo
+    setGenerationElapsed(0);
+    if (generationTimerRef.current) clearInterval(generationTimerRef.current);
+    generationTimerRef.current = setInterval(() => {
+      setGenerationElapsed(prev => prev + 1);
+    }, 1000);
     try {
       const result = await generateQuestions.mutateAsync({
         projectId,
@@ -319,6 +328,11 @@ export default function QuestionarioV3() {
       toast.error("Erro ao gerar perguntas. Tente novamente.");
     } finally {
       setIsLoadingQuestions(false);
+      // Parar contador de tempo
+      if (generationTimerRef.current) {
+        clearInterval(generationTimerRef.current);
+        generationTimerRef.current = null;
+      }
     }
   }, [cnaes, projectId, generateQuestions]);
 
@@ -330,6 +344,16 @@ export default function QuestionarioV3() {
   // Cobre: (1) mudança de nível 1→2, (2) navegação entre CNAEs já iniciados
   // Não dispara no mount inicial — isso é tratado por handleStartCnae
   // Não dispara quando handleAcceptDeepDive já adicionou o cacheKey ao ref
+  // Cleanup do timer ao desmontar o componente
+  useEffect(() => {
+    return () => {
+      if (generationTimerRef.current) {
+        clearInterval(generationTimerRef.current);
+        generationTimerRef.current = null;
+      }
+    };
+  }, []);
+
   useEffect(() => {
     const currentCode = cnaes[currentCnaeIdx]?.code;
     if (!currentCode) return;
@@ -808,18 +832,47 @@ export default function QuestionarioV3() {
 
             {/* Loading e perguntas: apenas quando o CNAE foi iniciado pelo usuário */}
             {currentCnae && startedCnaes.has(currentCnae.code) && isLoadingQuestions ? (
-              <Card className="border-dashed">
-                <CardContent className="flex flex-col items-center justify-center py-16 gap-4">
-                  <div className="relative">
-                    <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                    <Sparkles className="h-4 w-4 text-primary absolute -top-1 -right-1" />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium">Gerando perguntas personalizadas...</p>
-                    <p className="text-xs text-muted-foreground mt-1">A IA está analisando o CNAE {currentCnae?.code}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              (() => {
+                // Tempo estimado por nível (em segundos)
+                const estimatedSeconds = currentLevel === "nivel2" ? 60 : 45;
+                // Progresso: sobe até 95% para não chegar a 100% antes de terminar
+                const progressPct = Math.min(95, Math.round((generationElapsed / estimatedSeconds) * 100));
+                // Formatação do tempo decorrido
+                const elapsedLabel = generationElapsed >= 60
+                  ? `${Math.floor(generationElapsed / 60)}m ${generationElapsed % 60}s`
+                  : `${generationElapsed}s`;
+                // Mensagem contextual por faixa de tempo
+                const contextMsg = generationElapsed < 15
+                  ? `Analisando o CNAE ${currentCnae?.code} e o contexto do negócio...`
+                  : generationElapsed < 45
+                  ? "Buscando artigos regulatórios da Reforma Tributária..."
+                  : "Finalizando perguntas personalizadas para o seu diagnóstico...";
+                return (
+                  <Card className="border-dashed">
+                    <CardContent className="flex flex-col items-center justify-center py-14 gap-5">
+                      <div className="relative">
+                        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                        <Sparkles className="h-4 w-4 text-primary absolute -top-1 -right-1" />
+                      </div>
+                      <div className="text-center space-y-1">
+                        <p className="text-sm font-semibold">Gerando perguntas personalizadas...</p>
+                        <p className="text-xs text-muted-foreground">{contextMsg}</p>
+                      </div>
+                      {/* Barra de progresso estimada */}
+                      <div className="w-full max-w-xs space-y-2">
+                        <Progress value={progressPct} className="h-1.5" />
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {elapsedLabel}
+                          </span>
+                          <span>~{Math.max(0, estimatedSeconds - generationElapsed)}s restantes</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })()
             ) : questionsError ? (
               <Card className="border-destructive/30 bg-destructive/5">
                 <CardContent className="flex flex-col items-center justify-center py-12 gap-4">
