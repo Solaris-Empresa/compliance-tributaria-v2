@@ -199,7 +199,7 @@ export default function NovoProjeto() {
 
   const handleSubmit = () => {
     if (!name.trim()) return toast.error("Informe o nome do projeto");
-    if (description.trim().length < 50) return toast.error("A descrição deve ter pelo menos 50 caracteres");
+    if (description.trim().length < 100) return toast.error("A descrição deve ter pelo menos 100 caracteres");
     if (!clientId) return toast.error("Selecione um cliente");
     createProject.mutate({ name: name.trim(), description: description.trim(), clientId });
   };
@@ -240,7 +240,7 @@ export default function NovoProjeto() {
   const allCnaes = [...suggestedCnaes, ...customCnaes];
   const selectedCount = allCnaes.filter(c => selectedCnaes.has(c.code)).length;
   const descLength = description.trim().length;
-  const descProgress = Math.min((descLength / 200) * 100, 100);
+  const descProgress = Math.min((descLength / 300) * 100, 100);
   const isLoading = createProject.isPending || extractCnaes.isPending;
 
   return (
@@ -289,7 +289,7 @@ export default function NovoProjeto() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="description" className="text-sm font-semibold">Descrição do Negócio <span className="text-destructive">*</span></Label>
-                <span className={`text-xs font-medium ${descLength >= 50 ? "text-emerald-600" : "text-muted-foreground"}`}>{descLength} caracteres {descLength < 50 && `(mín. 50)`}</span>
+                <span className={`text-xs font-medium ${descLength >= 100 ? "text-emerald-600" : "text-muted-foreground"}`}>{descLength} caracteres {descLength < 100 && `(mín. 100)`}</span>
               </div>
               <Textarea
                 id="description"
@@ -300,7 +300,7 @@ export default function NovoProjeto() {
                 className="resize-none leading-relaxed"
               />
               <Progress value={descProgress} className="h-1.5" />
-              {descLength >= 50 && (
+              {descLength >= 100 && (
                 <p className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" />Descrição suficiente para análise da IA</p>
               )}
             </div>
@@ -374,7 +374,7 @@ export default function NovoProjeto() {
         </div>
 
         <div className="flex justify-end pb-4">
-          <Button size="lg" onClick={handleSubmit} disabled={isLoading || !name.trim() || descLength < 50 || !clientId} className="min-w-[220px]">
+          <Button size="lg" onClick={handleSubmit} disabled={isLoading || !name.trim() || descLength < 100 || !clientId} className="min-w-[220px]">
             {isLoading ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />{createProject.isPending ? "Criando projeto..." : "Analisando CNAEs..."}</>
             ) : (

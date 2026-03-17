@@ -1681,13 +1681,64 @@ Retorne APENAS JSON válido no formato:
         return { notificationId };
       }),
 
-    markAsRead: protectedProcedure
+     markAsRead: protectedProcedure
       .input(z.object({ notificationId: z.number() }))
       .mutation(async ({ input }) => {
         await db.markNotificationAsRead(input.notificationId);
         return { success: true };
       }),
   }),
-});
 
+  // ==========================================================================
+  // CLIENT MEMBERS (RF-1.03 / RF-5.17)
+  // Gerenciamento de membros da equipe do cliente com papéis Admin/Colaborador/Visualizador
+  // ==========================================================================
+  clientMembers: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getClientMembers(ctx.user.id);
+    }),
+    add: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1, "Nome é obrigatório"),
+        email: z.string().email("E-mail inválido"),
+        memberRole: z.enum(["admin", "colaborador", "visualizador"]).default("colaborador"),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const id = await db.addClientMember({
+          clientId: ctx.user.id,
+          name: input.name,
+          email: input.email,
+          memberRole: input.memberRole,
+          active: true,
+        });
+        return { id };
+      }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        email: z.string().email().optional(),
+        memberRole: z.enum(["admin", "colaborador", "visualizador"]).optional(),
+        active: z.boolean().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Verificar que o membro pertence ao cliente
+        const members = await db.getClientMembers(ctx.user.id);
+        const member = members.find(m => m.id === input.id);
+        if (!member) throw new TRPCError({ code: "NOT_FOUND", message: "Membro não encontrado" });
+        const { id, ...data } = input;
+        await db.updateClientMember(id, data);
+        return { success: true };
+      }),
+    remove: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const members = await db.getClientMembers(ctx.user.id);
+        const member = members.find(m => m.id === input.id);
+        if (!member) throw new TRPCError({ code: "NOT_FOUND", message: "Membro não encontrado" });
+        await db.removeClientMember(input.id);
+        return { success: true };
+      }),
+  }),
+});
 export type AppRouter = typeof appRouter;

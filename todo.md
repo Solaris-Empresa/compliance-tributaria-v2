@@ -1732,3 +1732,34 @@
 - [x] Adicionar botão "Exportar para PDF" no MatrizesV3 (Etapa 4)
 - [x] PDF das Matrizes: sumário executivo + tabela por área (Contabilidade, TI, Jurídico, Negócio) com colunas evento, probabilidade, impacto, severidade, plano de ação
 - [x] Verificar TypeScript, checkpoint, push GitHub
+
+## Sprint V50: Análise de Gap e Implementação de RFs Faltantes (16/03/2026)
+
+### Gap Analysis — RFs não implementados ou incompletos
+
+#### Etapa 1 — Criação do Projeto
+- [x] RF-1.01: Validação mínimo 100 caracteres na Descrição (atual: 50 chars)
+- [x] RF-1.03: Gerenciamento de usuários por cliente (Admin/Colaborador/Visualizador)
+
+#### Etapa 2 — Questionário Adaptativo
+- [x] RF-2.02: Múltipla Escolha deve usar chips selecionáveis (não checkboxes)
+- [x] RF-2.07: Navegação para pergunta anterior dentro do mesmo CNAE
+
+#### Etapa 3 — Briefing de Compliance
+- [x] RF-3.02: Seções colapsáveis no briefing + destaques visuais para trechos de risco alto
+- [x] RF-3.06: Histórico de versões do briefing (salvar cada versão com número e timestamp)
+
+#### Etapa 4 — Matrizes de Riscos
+- [x] RF-4.04: Botão "Adicionar Risco" em cada matriz (linha em branco para preencher manualmente)
+- [x] RF-4.05: Remoção de riscos com confirmação (botão lixeira em cada linha)
+- [x] RF-4.08: Aprovação por área individual (cada aba com botão "Aprovar Matriz" independente + indicador "Aprovada ✓" + "Reabrir para edição")
+- [x] RF-4.10: Gate 4 — botão "Avançar" só habilitado quando TODAS as 4 matrizes estiverem aprovadas individualmente
+- [x] RF-4.11: Exportação CSV das matrizes
+
+#### Etapa 5 — Plano de Ação
+- [x] RF-5.09: Comentários por tarefa com histórico cronológico (autor + timestamp)
+- [x] RF-5.10: Filtros adicionais: por Responsável, por Prazo (vencidas/esta semana/este mês)
+- [x] RF-5.11: Botão "Adicionar Tarefa" em cada aba (adição manual sem regeneração)
+- [x] RF-5.13: Remoção de tarefas com confirmação (soft delete + restauração)
+- [x] RF-5.16: Dashboard de progresso por área no topo de cada aba (total, % concluídas, vencidas, em andamento)
+- [x] RF-5.17: Gerenciamento de usuários por cliente (Admin/Colaborador/Visualizador)

@@ -94,6 +94,7 @@ function EscalaLikertField({
   );
 }
 
+// RF-2.02: Chips selecionáveis para múltipla escolha
 function MultiplaEscolhaField({
   value, onChange, options, single
 }: { value: string; onChange: (v: string) => void; options: string[]; single?: boolean }) {
@@ -104,7 +105,7 @@ function MultiplaEscolhaField({
     onChange(next.join("|"));
   };
   return (
-    <div className="grid grid-cols-1 gap-2">
+    <div className="flex flex-wrap gap-2">
       {options.map((opt) => {
         const isSelected = selected.includes(opt);
         return (
@@ -112,21 +113,20 @@ function MultiplaEscolhaField({
             key={opt}
             onClick={() => toggle(opt)}
             className={cn(
-              "flex items-center gap-3 p-3.5 rounded-xl border-2 text-left text-sm transition-all duration-150",
-              isSelected ? "border-primary bg-primary/5 text-foreground font-medium" : "border-border hover:border-primary/30 text-muted-foreground hover:text-foreground"
+              "inline-flex items-center gap-1.5 px-4 py-2 rounded-full border-2 text-sm font-medium transition-all duration-150",
+              isSelected
+                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground bg-background"
             )}
           >
-            <div className={cn(
-              "w-5 h-5 rounded shrink-0 border-2 flex items-center justify-center transition-all",
-              single ? "rounded-full" : "rounded",
-              isSelected ? "border-primary bg-primary" : "border-muted-foreground/30"
-            )}>
-              {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-white" />}
-            </div>
+            {isSelected && <CheckCircle2 className="h-3.5 w-3.5" />}
             {opt}
           </button>
         );
       })}
+      {!single && selected.length > 0 && (
+        <p className="w-full text-xs text-muted-foreground mt-1">{selected.length} selecionado(s)</p>
+      )}
     </div>
   );
 }
@@ -187,6 +187,7 @@ export default function QuestionarioV3() {
   const [isSaving, setIsSaving] = useState(false);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
+  // RF-2.07: Navegação entre CNAEs e níveis implementada nos botões de ação
 
   // Verificar rascunho local ao montar
   useEffect(() => {
@@ -583,16 +584,55 @@ export default function QuestionarioV3() {
 
                 <Separator />
 
-                {/* Botões de ação */}
+                {/* RF-2.07: Botões de navegação e ação */}
                 <div className="flex items-center justify-between">
-                  <div className="text-xs text-muted-foreground">
-                    {!allRequiredAnswered ? (
-                      <span className="text-amber-600">Responda todas as perguntas obrigatórias (*) para avançar</span>
-                    ) : (
-                      <span className="text-emerald-600 flex items-center gap-1">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Todas as perguntas obrigatórias respondidas
-                      </span>
+                  <div className="flex items-center gap-3">
+                    {/* Botão Anterior — navega para o CNAE anterior se estiver no primeiro CNAE */}
+                    {currentCnaeIdx > 0 && currentLevel === "nivel1" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-1.5 text-muted-foreground"
+                        onClick={() => {
+                          setCurrentCnaeIdx(prev => prev - 1);
+                          setCurrentLevel("nivel1");
+                          setAnswers({});
+                          setQuestions([]);
+                          setShowDeepDivePrompt(false);
+                        }}
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        CNAE Anterior
+                      </Button>
+                    )}
+                    {currentLevel === "nivel2" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-1.5 text-muted-foreground"
+                        onClick={() => {
+                          setCurrentLevel("nivel1");
+                          setAnswers({});
+                          setQuestions([]);
+                          setShowDeepDivePrompt(false);
+                          loadQuestions(currentCnaeIdx, "nivel1");
+                        }}
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        Voltar ao Nível 1
+                      </Button>
+                    )}
+                    {currentCnaeIdx === 0 && currentLevel === "nivel1" && (
+                      <div className="text-xs text-muted-foreground">
+                        {!allRequiredAnswered ? (
+                          <span className="text-amber-600">Responda as obrigatórias (*) para avançar</span>
+                        ) : (
+                          <span className="text-emerald-600 flex items-center gap-1">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Todas respondidas
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                   <div className="flex gap-2">

@@ -42,6 +42,7 @@ import QuestionarioV3 from "./pages/QuestionarioV3";
 import BriefingV3 from "./pages/BriefingV3";
 import MatrizesV3 from "./pages/MatrizesV3";
 import PlanoAcaoV3 from "./pages/PlanoAcaoV3";
+import GerenciarEquipe from "./pages/GerenciarEquipe";
 
 function Router() {
   return (
@@ -86,6 +87,7 @@ function Router() {
       <Route path="/projetos/:id/briefing-v3" component={BriefingV3} />
       <Route path="/projetos/:id/matrizes-v3" component={MatrizesV3} />
       <Route path="/projetos/:id/plano-v3" component={PlanoAcaoV3} />
+      <Route path="/gerenciar-equipe" component={GerenciarEquipe} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

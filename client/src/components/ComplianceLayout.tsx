@@ -60,6 +60,10 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
   if (user?.role === "equipe_solaris") {
     navItems.push({ href: "/usuarios", icon: Users, label: "Usuários" });
   }
+  // RF-1.03 / RF-5.17: Gerenciar Equipe para clientes
+  if (user?.role === "cliente") {
+    navItems.push({ href: "/gerenciar-equipe", icon: Users, label: "Minha Equipe" });
+  }
 
   const isActive = (path: string) => {
     if (path === "/") return location === "/";

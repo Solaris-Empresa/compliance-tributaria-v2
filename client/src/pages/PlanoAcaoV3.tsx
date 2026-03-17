@@ -13,17 +13,27 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
   ArrowLeft, ChevronRight, Loader2, Sparkles, CheckCircle2,
   RefreshCw, ThumbsUp, Edit3, Building2, Cpu, Scale, BarChart3,
-  Calendar, User, Bell, Filter, Download, ChevronDown, ChevronUp,
-  Circle, PlayCircle, PauseCircle, CheckCircle, Sliders, FileText
+  Calendar, User, Bell, Download, ChevronDown, ChevronUp,
+  Circle, PlayCircle, PauseCircle, CheckCircle, Sliders, FileText,
+  MessageSquare, Plus, Trash2, RotateCcw, LayoutDashboard, Send
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 type TaskStatus = "nao_iniciado" | "em_andamento" | "parado" | "concluido";
+
+// RF-5.04: Tipo de comentário com histórico
+interface TaskComment {
+  id: string;
+  text: string;
+  author: string;
+  timestamp: number;
+}
 
 interface Task {
   id: string;
@@ -44,6 +54,9 @@ interface Task {
     onProgressUpdate: boolean;
     onComment: boolean;
   };
+  comments?: TaskComment[]; // RF-5.04
+  deleted?: boolean; // RF-5.09: soft delete
+  manual?: boolean; // RF-5.08: tarefa adicionada manualmente
 }
 
 const AREAS = [
@@ -67,10 +80,17 @@ const PRIORITY_COLORS: Record<string, string> = {
 };
 
 // ─── Componente de Tarefa ─────────────────────────────────────────────────────
-function TaskCard({ task, onUpdate }: { task: Task; onUpdate: (updates: Partial<Task>) => void }) {
+function TaskCard({ task, onUpdate, onDelete, onRestore }: {
+  task: Task;
+  onUpdate: (updates: Partial<Task>) => void;
+  onDelete: () => void;
+  onRestore: () => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   const [editingProgress, setEditingProgress] = useState(false);
   const [progressValue, setProgressValue] = useState(task.progress);
+  // RF-5.04: Estado para comentários
+  const [newComment, setNewComment] = useState("");
   const StatusIcon = STATUS_CONFIG[task.status]?.icon || Circle;
 
   const handleProgressSave = () => {
@@ -79,11 +99,42 @@ function TaskCard({ task, onUpdate }: { task: Task; onUpdate: (updates: Partial<
     if (progressValue === 100) onUpdate({ status: "concluido", progress: 100 });
   };
 
+  // RF-5.04: Adicionar comentário
+  const handleAddComment = () => {
+    if (!newComment.trim()) return;
+    const comment: TaskComment = {
+      id: `c-${Date.now()}`,
+      text: newComment.trim(),
+      author: "Você",
+      timestamp: Date.now(),
+    };
+    onUpdate({ comments: [...(task.comments || []), comment] });
+    setNewComment("");
+  };
+
+  // RF-5.09: Tarefa deletada — exibir como riscada com botão restaurar
+  if (task.deleted) {
+    return (
+      <Card className="opacity-50 border-dashed">
+        <CardContent className="p-3">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm line-through text-muted-foreground flex-1 truncate">{task.titulo}</p>
+            <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 shrink-0" onClick={onRestore}>
+              <RotateCcw className="h-3.5 w-3.5" />
+              Restaurar
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className={cn(
       "transition-all duration-200",
       task.status === "concluido" ? "opacity-70" : "",
-      task.status === "em_andamento" ? "border-blue-200 shadow-sm" : ""
+      task.status === "em_andamento" ? "border-blue-200 shadow-sm" : "",
+      task.manual ? "border-blue-200 bg-blue-50/20" : ""
     )}>
       <CardContent className="p-4">
         {/* Linha principal */}
@@ -105,11 +156,19 @@ function TaskCard({ task, onUpdate }: { task: Task; onUpdate: (updates: Partial<
             <div className="flex items-start justify-between gap-2">
               <p className={cn("text-sm font-medium leading-snug", task.status === "concluido" && "line-through text-muted-foreground")}>
                 {task.titulo}
+                {task.manual && <span className="ml-1.5 text-[10px] text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full">Manual</span>}
               </p>
               <div className="flex items-center gap-1.5 shrink-0">
                 <Badge variant="outline" className={cn("text-xs", PRIORITY_COLORS[task.prioridade])}>
                   {task.prioridade}
                 </Badge>
+                {/* RF-5.04: Ícone de comentários */}
+                {(task.comments?.length || 0) > 0 && (
+                  <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
+                    <MessageSquare className="h-3 w-3" />
+                    {task.comments!.length}
+                  </span>
+                )}
                 <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
                   {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
@@ -127,6 +186,13 @@ function TaskCard({ task, onUpdate }: { task: Task; onUpdate: (updates: Partial<
                       <span>·</span>
                       <Calendar className="h-3 w-3" />
                       <span>Prazo: {new Date(task.endDate).toLocaleDateString("pt-BR")}</span>
+                    </>
+                  )}
+                  {task.responsible && (
+                    <>
+                      <span>·</span>
+                      <User className="h-3 w-3" />
+                      <span>{task.responsible}</span>
                     </>
                   )}
                 </div>
@@ -254,6 +320,60 @@ function TaskCard({ task, onUpdate }: { task: Task; onUpdate: (updates: Partial<
                 </div>
               </div>
             </div>
+
+            {/* RF-5.04: Seção de comentários com histórico */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                <MessageSquare className="h-3.5 w-3.5" />Comentários ({task.comments?.length || 0})
+              </label>
+              {/* Histórico de comentários */}
+              {(task.comments || []).length > 0 && (
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {task.comments!.map(comment => (
+                    <div key={comment.id} className="flex gap-2 p-2.5 rounded-lg bg-muted/50 border">
+                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-[10px] font-bold text-primary">
+                        {comment.author.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="text-xs font-semibold">{comment.author}</span>
+                          <span className="text-[10px] text-muted-foreground">
+                            {new Date(comment.timestamp).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{comment.text}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* Input de novo comentário */}
+              <div className="flex gap-2">
+                <Input
+                  value={newComment}
+                  onChange={e => setNewComment(e.target.value)}
+                  placeholder="Adicionar comentário..."
+                  className="h-8 text-sm flex-1"
+                  onKeyDown={e => e.key === "Enter" && handleAddComment()}
+                />
+                <Button size="sm" className="h-8 px-3" onClick={handleAddComment} disabled={!newComment.trim()}>
+                  <Send className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+
+            {/* RF-5.09: Botão de soft delete */}
+            <div className="flex justify-end pt-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={onDelete}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Remover tarefa
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>
@@ -273,11 +393,20 @@ export default function PlanoAcaoV3() {
   const [isApproving, setIsApproving] = useState(false);
   const [adjustmentText, setAdjustmentText] = useState("");
   const [showAdjustment, setShowAdjustment] = useState(false);
-   const [filterStatus, setFilterStatus] = useState<TaskStatus | "all">("all");
+  const [filterStatus, setFilterStatus] = useState<TaskStatus | "all">("all");
   const [filterPriority, setFilterPriority] = useState<string>("all");
+  // RF-5.10: Filtro por responsável e prazo
+  const [filterResponsible, setFilterResponsible] = useState<string>("");
+  const [filterDeadline, setFilterDeadline] = useState<string>("");
+  const [showDeletedTasks, setShowDeletedTasks] = useState(false);
   const [generationCount, setGenerationCount] = useState(0);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
+  // RF-5.08: Modal de adição manual de tarefa
+  const [showAddTask, setShowAddTask] = useState<string | null>(null);
+  const [newTask, setNewTask] = useState<Partial<Task>>({ prioridade: "Média", status: "nao_iniciado" });
+  // RF-5.06: Dashboard de progresso
+  const [showDashboard, setShowDashboard] = useState(false);
 
   // Verificar rascunho local ao montar
   useEffect(() => {
@@ -350,6 +479,50 @@ export default function PlanoAcaoV3() {
     }));
   };
 
+  // RF-5.09: Soft delete
+  const handleDeleteTask = (area: string, taskId: string) => {
+    handleUpdateTask(area, taskId, { deleted: true });
+    toast.success("Tarefa removida. Você pode restaurá-la clicando em 'Mostrar removidas'.");
+  };
+
+  // RF-5.09: Restaurar tarefa
+  const handleRestoreTask = (area: string, taskId: string) => {
+    handleUpdateTask(area, taskId, { deleted: false });
+    toast.success("Tarefa restaurada!");
+  };
+
+  // RF-5.08: Adicionar tarefa manualmente
+  const handleAddManualTask = (areaKey: string) => {
+    if (!newTask.titulo?.trim()) {
+      toast.error("Informe o título da tarefa.");
+      return;
+    }
+    const task: Task = {
+      id: `manual-${Date.now()}`,
+      titulo: newTask.titulo!,
+      descricao: newTask.descricao || "",
+      area: areaKey,
+      prazo_sugerido: newTask.prazo_sugerido || "",
+      prioridade: newTask.prioridade as any || "Média",
+      responsavel_sugerido: newTask.responsible || "",
+      status: "nao_iniciado",
+      progress: 0,
+      startDate: null,
+      endDate: newTask.endDate || null,
+      responsible: newTask.responsible || null,
+      notifications: { beforeDays: 7, onStatusChange: false, onProgressUpdate: false, onComment: false },
+      comments: [],
+      manual: true,
+    };
+    setPlans(prev => ({
+      ...prev,
+      [areaKey]: [...(prev[areaKey] || []), task],
+    }));
+    setNewTask({ prioridade: "Média", status: "nao_iniciado" });
+    setShowAddTask(null);
+    toast.success("Tarefa adicionada manualmente!");
+  };
+
   const handleApprove = async () => {
     setIsApproving(true);
     try {
@@ -366,7 +539,7 @@ export default function PlanoAcaoV3() {
 
   const handleExport = (format: "pdf" | "csv") => {
     const area = activeTab;
-    const tasks = plans[area] || [];
+    const tasks = (plans[area] || []).filter(t => !t.deleted);
     if (format === "csv") {
       const headers = ["Título", "Descrição", "Área", "Prioridade", "Status", "Progresso (%)", "Responsável", "Início", "Fim", "Prazo Sugerido"];
       const rows = tasks.map(t => [
@@ -383,7 +556,6 @@ export default function PlanoAcaoV3() {
       a.click(); URL.revokeObjectURL(url);
       toast.success("CSV exportado!");
     } else {
-      // PDF simples via print
       const content = tasks.map(t =>
         `${t.titulo}\nÁrea: ${t.area} | Prioridade: ${t.prioridade} | Status: ${STATUS_CONFIG[t.status]?.label}\nResponsável: ${t.responsible || t.responsavel_sugerido}\nDescrição: ${t.descricao}\n`
       ).join("\n---\n");
@@ -398,38 +570,38 @@ export default function PlanoAcaoV3() {
   const handleExportAllPDF = () => {
     const projectName = project?.name || "Plano de Ação";
     const dateStr = new Date().toLocaleDateString("pt-BR");
-    const totalTasksAll = Object.values(plans).reduce((s, arr) => s + (arr?.length || 0), 0);
-    const doneTasksAll = Object.values(plans).flat().filter(t => t.status === "concluido").length;
+    const totalTasksAll = Object.values(plans).reduce((s, arr) => s + (arr?.filter(t => !t.deleted).length || 0), 0);
+    const doneTasksAll = Object.values(plans).flat().filter(t => t.status === "concluido" && !t.deleted).length;
     const progressAll = totalTasksAll > 0 ? Math.round((doneTasksAll / totalTasksAll) * 100) : 0;
 
     const areasHtml = AREAS.map(areaConfig => {
-      const tasks = plans[areaConfig.key] || [];
+      const tasks = (plans[areaConfig.key] || []).filter(t => !t.deleted);
       if (tasks.length === 0) return "";
       const rows = tasks.map(t => {
         const prioColor = t.prioridade === "Alta" ? "background:#fee2e2;color:#b91c1c" :
-          t.prioridade === "M\u00e9dia" ? "background:#fef3c7;color:#92400e" : "background:#d1fae5;color:#065f46";
+          t.prioridade === "Média" ? "background:#fef3c7;color:#92400e" : "background:#d1fae5;color:#065f46";
         return `<tr style="border-bottom:1px solid #e5e7eb">
-          <td style="padding:8px 6px;font-size:12px">${t.titulo}</td>
+          <td style="padding:8px 6px;font-size:12px">${t.titulo}${t.manual ? ' <span style="font-size:10px;color:#2563eb">[Manual]</span>' : ''}</td>
           <td style="padding:8px 6px;font-size:11px;color:#6b7280">${t.descricao}</td>
           <td style="padding:8px 6px;font-size:11px;text-align:center"><span style="padding:2px 6px;border-radius:4px;font-size:10px;${prioColor}">${t.prioridade}</span></td>
           <td style="padding:8px 6px;font-size:11px;text-align:center">${STATUS_CONFIG[t.status]?.label || t.status}</td>
           <td style="padding:8px 6px;font-size:11px;text-align:center">${t.progress}%</td>
-          <td style="padding:8px 6px;font-size:11px">${t.responsible || t.responsavel_sugerido || "\u2014"}</td>
-          <td style="padding:8px 6px;font-size:11px;text-align:center">${t.startDate || "\u2014"}</td>
-          <td style="padding:8px 6px;font-size:11px;text-align:center">${t.endDate || t.prazo_sugerido || "\u2014"}</td>
+          <td style="padding:8px 6px;font-size:11px">${t.responsible || t.responsavel_sugerido || "—"}</td>
+          <td style="padding:8px 6px;font-size:11px;text-align:center">${t.startDate || "—"}</td>
+          <td style="padding:8px 6px;font-size:11px;text-align:center">${t.endDate || t.prazo_sugerido || "—"}</td>
         </tr>`;
       }).join("");
       return `<div style="margin-bottom:32px">
         <h2 style="font-size:15px;color:#1e40af;border-bottom:2px solid #bfdbfe;padding-bottom:6px;margin-bottom:12px">${areaConfig.label} <span style="font-size:12px;color:#6b7280;font-weight:normal">(${tasks.length} tarefa${tasks.length !== 1 ? "s" : ""})</span></h2>
         <table style="width:100%;border-collapse:collapse">
           <thead><tr style="background:#eff6ff">
-            <th style="padding:8px 6px;font-size:11px;text-align:left;border-bottom:2px solid #bfdbfe">T\u00edtulo</th>
-            <th style="padding:8px 6px;font-size:11px;text-align:left;border-bottom:2px solid #bfdbfe">Descri\u00e7\u00e3o</th>
+            <th style="padding:8px 6px;font-size:11px;text-align:left;border-bottom:2px solid #bfdbfe">Título</th>
+            <th style="padding:8px 6px;font-size:11px;text-align:left;border-bottom:2px solid #bfdbfe">Descrição</th>
             <th style="padding:8px 6px;font-size:11px;text-align:center;border-bottom:2px solid #bfdbfe">Prioridade</th>
             <th style="padding:8px 6px;font-size:11px;text-align:center;border-bottom:2px solid #bfdbfe">Status</th>
             <th style="padding:8px 6px;font-size:11px;text-align:center;border-bottom:2px solid #bfdbfe">Progresso</th>
-            <th style="padding:8px 6px;font-size:11px;text-align:left;border-bottom:2px solid #bfdbfe">Respons\u00e1vel</th>
-            <th style="padding:8px 6px;font-size:11px;text-align:center;border-bottom:2px solid #bfdbfe">In\u00edcio</th>
+            <th style="padding:8px 6px;font-size:11px;text-align:left;border-bottom:2px solid #bfdbfe">Responsável</th>
+            <th style="padding:8px 6px;font-size:11px;text-align:center;border-bottom:2px solid #bfdbfe">Início</th>
             <th style="padding:8px 6px;font-size:11px;text-align:center;border-bottom:2px solid #bfdbfe">Prazo</th>
           </tr></thead>
           <tbody>${rows}</tbody>
@@ -440,7 +612,7 @@ export default function PlanoAcaoV3() {
     const win = window.open("", "_blank");
     if (win) {
       win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
-        <title>Plano de A\u00e7\u00e3o Completo \u2014 ${projectName}</title>
+        <title>Plano de Ação Completo — ${projectName}</title>
         <style>
           body{font-family:Arial,sans-serif;margin:32px;color:#111;line-height:1.4}
           .header{border-bottom:3px solid #1e40af;padding-bottom:16px;margin-bottom:24px}
@@ -455,18 +627,18 @@ export default function PlanoAcaoV3() {
         </style>
         </head><body>
         <div class="header">
-          <h1>Plano de A\u00e7\u00e3o \u2014 ${projectName}</h1>
-          <p>Compliance com a Reforma Tribut\u00e1ria \u00b7 Gerado em ${dateStr}</p>
+          <h1>Plano de Ação — ${projectName}</h1>
+          <p>Compliance com a Reforma Tributária · Gerado em ${dateStr}</p>
         </div>
         <div class="summary">
           <div class="summary-item"><div class="value">${totalTasksAll}</div><div class="label">Total de Tarefas</div></div>
-          <div class="summary-item"><div class="value">${doneTasksAll}</div><div class="label">Conclu\u00eddas</div></div>
+          <div class="summary-item"><div class="value">${doneTasksAll}</div><div class="label">Concluídas</div></div>
           <div class="summary-item"><div class="value">${totalTasksAll - doneTasksAll}</div><div class="label">Pendentes</div></div>
           <div class="summary-item"><div class="value">${progressAll}%</div><div class="label">Progresso Geral</div></div>
-          <div class="summary-item"><div class="value">${AREAS.length}</div><div class="label">\u00c1reas Cobertas</div></div>
+          <div class="summary-item"><div class="value">${AREAS.length}</div><div class="label">Áreas Cobertas</div></div>
         </div>
         ${areasHtml}
-        <div class="footer">IA SOLARIS \u2014 Plataforma de Compliance Tribut\u00e1rio \u00b7 Reforma Tribut\u00e1ria 2024</div>
+        <div class="footer">IA SOLARIS — Plataforma de Compliance Tributário · Reforma Tributária 2024</div>
         <script>window.onload=function(){window.print();}<\/script>
         </body></html>`);
       win.document.close();
@@ -475,16 +647,22 @@ export default function PlanoAcaoV3() {
   };
 
   const allAreasGenerated = AREAS.every(a => plans[a.key] && plans[a.key].length > 0);
-  const currentTasks = plans[activeTab] || [];
+  const currentTasks = (plans[activeTab] || []);
+  // RF-5.10: Filtro por responsável e prazo
   const filteredTasks = currentTasks.filter(t => {
+    if (!showDeletedTasks && t.deleted) return false;
+    if (showDeletedTasks && !t.deleted) return false;
     if (filterStatus !== "all" && t.status !== filterStatus) return false;
     if (filterPriority !== "all" && t.prioridade !== filterPriority) return false;
+    if (filterResponsible && !(t.responsible || t.responsavel_sugerido || "").toLowerCase().includes(filterResponsible.toLowerCase())) return false;
+    if (filterDeadline && t.endDate && t.endDate > filterDeadline) return false;
     return true;
   });
 
-  const totalTasks = Object.values(plans).reduce((s, arr) => s + (arr?.length || 0), 0);
-  const doneTasks = Object.values(plans).flat().filter(t => t.status === "concluido").length;
+  const totalTasks = Object.values(plans).reduce((s, arr) => s + (arr?.filter(t => !t.deleted).length || 0), 0);
+  const doneTasks = Object.values(plans).flat().filter(t => t.status === "concluido" && !t.deleted).length;
   const overallProgress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+  const deletedCount = Object.values(plans).flat().filter(t => t.deleted).length;
 
   if (loadingProject) {
     return (
@@ -523,6 +701,11 @@ export default function PlanoAcaoV3() {
                 <Progress value={overallProgress} className="h-2" />
               </div>
               <span className="text-xs font-bold text-primary">{overallProgress}%</span>
+              {/* RF-5.06: Botão de dashboard */}
+              <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => setShowDashboard(!showDashboard)}>
+                <LayoutDashboard className="h-3.5 w-3.5" />
+                Dashboard
+              </Button>
             </div>
           )}
         </div>
@@ -546,6 +729,53 @@ export default function PlanoAcaoV3() {
           ))}
         </div>
 
+        {/* RF-5.06: Dashboard de progresso por área */}
+        {showDashboard && allAreasGenerated && (
+          <Card className="border-primary/20">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <LayoutDashboard className="h-4 w-4 text-primary" />
+                Dashboard de Progresso por Área
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {AREAS.map(area => {
+                  const Icon = area.icon;
+                  const tasks = (plans[area.key] || []).filter(t => !t.deleted);
+                  const done = tasks.filter(t => t.status === "concluido").length;
+                  const inProgress = tasks.filter(t => t.status === "em_andamento").length;
+                  const progress = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0;
+                  return (
+                    <div key={area.key} className="space-y-2 p-3 rounded-xl border bg-muted/20">
+                      <div className="flex items-center gap-1.5">
+                        <Icon className="h-4 w-4 text-primary" />
+                        <span className="text-xs font-semibold">{area.label}</span>
+                      </div>
+                      <div className="text-2xl font-bold text-primary">{progress}%</div>
+                      <Progress value={progress} className="h-1.5" />
+                      <div className="text-xs text-muted-foreground space-y-0.5">
+                        <div className="flex justify-between">
+                          <span>Concluídas</span>
+                          <span className="font-medium text-emerald-600">{done}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Em andamento</span>
+                          <span className="font-medium text-blue-600">{inProgress}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Total</span>
+                          <span className="font-medium">{tasks.length}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Geração em andamento */}
         {isGenerating && Object.keys(plans).length === 0 ? (
           <Card className="border-dashed">
@@ -567,7 +797,7 @@ export default function PlanoAcaoV3() {
                 <TabsList className="grid grid-cols-4">
                   {AREAS.map(area => {
                     const Icon = area.icon;
-                    const tasks = plans[area.key] || [];
+                    const tasks = (plans[area.key] || []).filter(t => !t.deleted);
                     const done = tasks.filter(t => t.status === "concluido").length;
                     return (
                       <TabsTrigger key={area.key} value={area.key} className="gap-1.5">
@@ -584,7 +814,7 @@ export default function PlanoAcaoV3() {
                 </TabsList>
 
                 {/* Filtros e exportação */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <select
                     className="border rounded-md px-2 py-1 text-xs bg-background h-8"
                     value={filterStatus}
@@ -603,6 +833,21 @@ export default function PlanoAcaoV3() {
                     <option value="Média">Média</option>
                     <option value="Baixa">Baixa</option>
                   </select>
+                  {/* RF-5.10: Filtro por responsável */}
+                  <Input
+                    value={filterResponsible}
+                    onChange={e => setFilterResponsible(e.target.value)}
+                    placeholder="Filtrar por responsável..."
+                    className="h-8 text-xs w-40"
+                  />
+                  {/* RF-5.10: Filtro por prazo */}
+                  <Input
+                    type="date"
+                    value={filterDeadline}
+                    onChange={e => setFilterDeadline(e.target.value)}
+                    className="h-8 text-xs w-36"
+                    title="Mostrar tarefas com prazo até esta data"
+                  />
                   <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={() => handleExport("csv")}>
                     <Download className="h-3.5 w-3.5" />CSV
                   </Button>
@@ -616,10 +861,32 @@ export default function PlanoAcaoV3() {
                 <TabsContent key={area.key} value={area.key} className="mt-4 space-y-3">
                   {/* Toolbar da área */}
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-muted-foreground">
-                      {filteredTasks.length} tarefa(s) {filterStatus !== "all" || filterPriority !== "all" ? "(filtradas)" : ""}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-muted-foreground">
+                        {filteredTasks.length} tarefa(s) {filterStatus !== "all" || filterPriority !== "all" || filterResponsible || filterDeadline ? "(filtradas)" : ""}
+                      </p>
+                      {/* RF-5.09: Toggle de tarefas removidas */}
+                      {deletedCount > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 text-xs gap-1 text-muted-foreground"
+                          onClick={() => setShowDeletedTasks(!showDeletedTasks)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                          {showDeletedTasks ? "Ocultar removidas" : `Ver removidas (${deletedCount})`}
+                        </Button>
+                      )}
+                    </div>
                     <div className="flex gap-2">
+                      {/* RF-5.08: Botão de adicionar tarefa manualmente */}
+                      {!showDeletedTasks && (
+                        <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          onClick={() => { setShowAddTask(area.key); setNewTask({ prioridade: "Média", status: "nao_iniciado" }); }}>
+                          <Plus className="h-3.5 w-3.5" />
+                          Adicionar
+                        </Button>
+                      )}
                       <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-7"
                         onClick={() => setShowAdjustment(!showAdjustment)}>
                         <Edit3 className="h-3.5 w-3.5" />Ajustar
@@ -663,7 +930,7 @@ export default function PlanoAcaoV3() {
                     </div>
                   ) : filteredTasks.length === 0 ? (
                     <div className="text-center py-10 text-muted-foreground text-sm">
-                      Nenhuma tarefa encontrada com os filtros selecionados.
+                      {showDeletedTasks ? "Nenhuma tarefa removida nesta área." : "Nenhuma tarefa encontrada com os filtros selecionados."}
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -672,6 +939,8 @@ export default function PlanoAcaoV3() {
                           key={task.id}
                           task={task}
                           onUpdate={updates => handleUpdateTask(area.key, task.id, updates)}
+                          onDelete={() => handleDeleteTask(area.key, task.id)}
+                          onRestore={() => handleRestoreTask(area.key, task.id)}
                         />
                       ))}
                     </div>
@@ -679,6 +948,79 @@ export default function PlanoAcaoV3() {
                 </TabsContent>
               ))}
             </Tabs>
+
+            {/* RF-5.08: Modal de adição manual de tarefa */}
+            <Dialog open={!!showAddTask} onOpenChange={() => setShowAddTask(null)}>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Plus className="h-5 w-5 text-primary" />
+                    Adicionar Tarefa Manualmente
+                    {showAddTask && <span className="text-muted-foreground font-normal">— {AREAS.find(a => a.key === showAddTask)?.label}</span>}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Título <span className="text-destructive">*</span></label>
+                    <Input
+                      value={newTask.titulo || ""}
+                      onChange={e => setNewTask(r => ({ ...r, titulo: e.target.value }))}
+                      placeholder="Título da tarefa..."
+                      autoFocus
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Descrição</label>
+                    <Textarea
+                      value={newTask.descricao || ""}
+                      onChange={e => setNewTask(r => ({ ...r, descricao: e.target.value }))}
+                      placeholder="Descreva o que precisa ser feito..."
+                      rows={2}
+                      className="resize-none"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1 block">Prioridade</label>
+                      <select className="w-full border rounded-md px-2 py-1.5 text-sm bg-background" value={newTask.prioridade} onChange={e => setNewTask(r => ({ ...r, prioridade: e.target.value as any }))}>
+                        {["Alta", "Média", "Baixa"].map(v => <option key={v}>{v}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1 block">Responsável</label>
+                      <Input
+                        value={newTask.responsible || ""}
+                        onChange={e => setNewTask(r => ({ ...r, responsible: e.target.value }))}
+                        placeholder="Nome do responsável..."
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1 block">Data de Conclusão</label>
+                      <Input
+                        type="date"
+                        value={newTask.endDate || ""}
+                        onChange={e => setNewTask(r => ({ ...r, endDate: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1 block">Prazo Sugerido</label>
+                      <Input
+                        value={newTask.prazo_sugerido || ""}
+                        onChange={e => setNewTask(r => ({ ...r, prazo_sugerido: e.target.value }))}
+                        placeholder="Ex: 30 dias"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setShowAddTask(null)}>Cancelar</Button>
+                  <Button onClick={() => handleAddManualTask(showAddTask!)} disabled={!newTask.titulo?.trim()}>
+                    <Plus className="h-4 w-4 mr-1.5" />
+                    Adicionar Tarefa
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
             {/* Exportação e Aprovação */}
             {allAreasGenerated && (

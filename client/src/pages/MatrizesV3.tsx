@@ -8,12 +8,15 @@ import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
   ArrowLeft, ChevronRight, Loader2, Sparkles,
   CheckCircle2, RefreshCw, ThumbsUp, Edit3, AlertTriangle,
-  Building2, Cpu, Scale, BarChart3, Download
+  Building2, Cpu, Scale, BarChart3, Download, Plus, Trash2,
+  Lock, Unlock, FileSpreadsheet
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -26,6 +29,7 @@ interface Risk {
   impacto: "Baixo" | "Médio" | "Alto";
   severidade: "Baixa" | "Média" | "Alta" | "Crítica";
   plano_acao: string;
+  manual?: boolean; // RF-4.03: indica risco adicionado manualmente
 }
 
 const AREAS = [
@@ -54,7 +58,12 @@ const IMPACT_COLORS: Record<string, string> = {
   Baixo: "text-emerald-600",
 };
 
-function RiskTable({ risks, onEdit }: { risks: Risk[]; onEdit: (risk: Risk) => void }) {
+function RiskTable({ risks, onEdit, onDelete, locked }: {
+  risks: Risk[];
+  onEdit: (risk: Risk) => void;
+  onDelete: (id: string) => void;
+  locked: boolean;
+}) {
   if (!risks || risks.length === 0) {
     return <p className="text-sm text-muted-foreground text-center py-8">Nenhum risco identificado nesta área.</p>;
   }
@@ -68,13 +77,16 @@ function RiskTable({ risks, onEdit }: { risks: Risk[]; onEdit: (risk: Risk) => v
             <th className="text-center py-2.5 px-3 font-semibold text-muted-foreground text-xs uppercase tracking-wide w-20">Impacto</th>
             <th className="text-center py-2.5 px-3 font-semibold text-muted-foreground text-xs uppercase tracking-wide w-24">Severidade</th>
             <th className="text-left py-2.5 px-3 font-semibold text-muted-foreground text-xs uppercase tracking-wide">Plano de Ação</th>
-            <th className="w-10"></th>
+            {!locked && <th className="w-20"></th>}
           </tr>
         </thead>
         <tbody>
           {risks.map((risk, i) => (
-            <tr key={risk.id || i} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-              <td className="py-3 px-3 font-medium max-w-xs">{risk.evento}</td>
+            <tr key={risk.id || i} className={cn("border-b last:border-0 hover:bg-muted/30 transition-colors", risk.manual && "bg-blue-50/30")}>
+              <td className="py-3 px-3 font-medium max-w-xs">
+                {risk.evento}
+                {risk.manual && <span className="ml-1.5 text-[10px] text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full">Manual</span>}
+              </td>
               <td className="py-3 px-3 text-center">
                 <span className={PROB_COLORS[risk.probabilidade] || ""}>{risk.probabilidade}</span>
               </td>
@@ -87,11 +99,24 @@ function RiskTable({ risks, onEdit }: { risks: Risk[]; onEdit: (risk: Risk) => v
                 </Badge>
               </td>
               <td className="py-3 px-3 text-muted-foreground text-xs max-w-sm">{risk.plano_acao}</td>
-              <td className="py-3 px-2">
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(risk)}>
-                  <Edit3 className="h-3.5 w-3.5" />
-                </Button>
-              </td>
+              {!locked && (
+                <td className="py-3 px-2">
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(risk)}>
+                      <Edit3 className="h-3.5 w-3.5" />
+                    </Button>
+                    {/* RF-4.04: Botão de remoção de risco */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => onDelete(risk.id)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
@@ -109,12 +134,19 @@ export default function MatrizesV3() {
   const [activeTab, setActiveTab] = useState("contabilidade");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
-  const [adjustmentMode, setAdjustmentMode] = useState<string | null>(null); // area key
+  const [adjustmentMode, setAdjustmentMode] = useState<string | null>(null);
   const [adjustmentText, setAdjustmentText] = useState("");
   const [editingRisk, setEditingRisk] = useState<Risk | null>(null);
   const [generationCount, setGenerationCount] = useState(0);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
+  // RF-4.03: Modal de adição manual de risco
+  const [showAddRisk, setShowAddRisk] = useState<string | null>(null); // area key
+  const [newRisk, setNewRisk] = useState<Partial<Risk>>({ probabilidade: "Média", impacto: "Médio", severidade: "Média" });
+  // RF-4.05: Controle de bloqueio por área (aprovação individual)
+  const [lockedAreas, setLockedAreas] = useState<Set<string>>(new Set());
+  // RF-4.07: Aprovação individual por área
+  const [approvedAreas, setApprovedAreas] = useState<Set<string>>(new Set());
 
   // Verificar rascunho local ao montar
   useEffect(() => {
@@ -131,6 +163,8 @@ export default function MatrizesV3() {
     if (saved?.data?.matrices) {
       setMatrices(saved.data.matrices);
       setGenerationCount(1);
+      if (saved.data.lockedAreas) setLockedAreas(new Set(saved.data.lockedAreas));
+      if (saved.data.approvedAreas) setApprovedAreas(new Set(saved.data.approvedAreas));
     }
     setShowResumeBanner(false);
   };
@@ -141,7 +175,11 @@ export default function MatrizesV3() {
   };
 
   // Auto-save das matrizes no localStorage
-  useAutoSave(projectId, 'etapa4', { matrices }, 1000);
+  useAutoSave(projectId, 'etapa4', {
+    matrices,
+    lockedAreas: Array.from(lockedAreas),
+    approvedAreas: Array.from(approvedAreas),
+  }, 1000);
 
   const { data: project, isLoading: loadingProject } = trpc.fluxoV3.getProjectStep1.useQuery(
     { projectId },
@@ -159,6 +197,11 @@ export default function MatrizesV3() {
 
   const handleGenerate = async (area?: string, adjustment?: string) => {
     if (!project) return;
+    // RF-4.05: Não regenerar área bloqueada
+    if (area && lockedAreas.has(area)) {
+      toast.error("Esta área está bloqueada. Reabra-a para edição antes de regenerar.");
+      return;
+    }
     setIsGenerating(true);
     setAdjustmentMode(null);
     setAdjustmentText("");
@@ -208,17 +251,86 @@ export default function MatrizesV3() {
     toast.success("Risco atualizado!");
   };
 
+  // RF-4.04: Remover risco
+  const handleDeleteRisk = (areaKey: string, riskId: string) => {
+    setMatrices(prev => ({
+      ...prev,
+      [areaKey]: (prev[areaKey] || []).filter(r => r.id !== riskId),
+    }));
+    toast.success("Risco removido.");
+  };
+
+  // RF-4.03: Adicionar risco manualmente
+  const handleAddManualRisk = (areaKey: string) => {
+    if (!newRisk.evento?.trim() || !newRisk.plano_acao?.trim()) {
+      toast.error("Preencha o evento e o plano de ação.");
+      return;
+    }
+    const risk: Risk = {
+      id: `manual-${Date.now()}`,
+      evento: newRisk.evento!,
+      probabilidade: newRisk.probabilidade as any || "Média",
+      impacto: newRisk.impacto as any || "Médio",
+      severidade: newRisk.severidade as any || "Média",
+      plano_acao: newRisk.plano_acao!,
+      manual: true,
+    };
+    setMatrices(prev => ({
+      ...prev,
+      [areaKey]: [...(prev[areaKey] || []), risk],
+    }));
+    setNewRisk({ probabilidade: "Média", impacto: "Médio", severidade: "Média" });
+    setShowAddRisk(null);
+    toast.success("Risco adicionado manualmente!");
+  };
+
+  // RF-4.07: Aprovar área individualmente (bloqueia edição)
+  const handleApproveArea = (areaKey: string) => {
+    setLockedAreas(prev => new Set([...prev, areaKey]));
+    setApprovedAreas(prev => new Set([...prev, areaKey]));
+    toast.success(`Área ${AREAS.find(a => a.key === areaKey)?.label} aprovada!`);
+  };
+
+  // RF-4.05: Reabrir área para edição
+  const handleReopenArea = (areaKey: string) => {
+    setLockedAreas(prev => { const next = new Set(prev); next.delete(areaKey); return next; });
+    setApprovedAreas(prev => { const next = new Set(prev); next.delete(areaKey); return next; });
+    toast.info(`Área ${AREAS.find(a => a.key === areaKey)?.label} reaberta para edição.`);
+  };
+
+  // RF-4.06: Exportar CSV
+  const handleExportCSV = () => {
+    const headers = ["Área", "Evento de Risco", "Probabilidade", "Impacto", "Severidade", "Plano de Ação"];
+    const rows: string[][] = [];
+    AREAS.forEach(area => {
+      (matrices[area.key] || []).forEach(r => {
+        rows.push([area.label, r.evento, r.probabilidade, r.impacto, r.severidade, r.plano_acao]);
+      });
+    });
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `matrizes-riscos-${projectId}-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("CSV exportado com sucesso!");
+  };
+
   const handleExportPDF = () => {
     const projectName = (project as any)?.name || "Matrizes de Riscos";
     const dateStr = new Date().toLocaleDateString("pt-BR");
     const sevColor: Record<string, string> = {
-      Cr\u00edtica: "#dc2626", Alta: "#ea580c", M\u00e9dia: "#d97706", Baixa: "#16a34a"
+      Crítica: "#dc2626", Alta: "#ea580c", Média: "#d97706", Baixa: "#16a34a"
     };
     const areasHtml = AREAS.map(area => {
       const risks = matrices[area.key] || [];
       if (risks.length === 0) return "";
       const rows = risks.map(r => `<tr>
-        <td style="padding:8px;border-bottom:1px solid #e5e7eb;font-size:12px">${r.evento}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e7eb;font-size:12px">${r.evento}${r.manual ? ' <span style="font-size:10px;color:#2563eb">[Manual]</span>' : ''}</td>
         <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:12px">${r.probabilidade}</td>
         <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:12px">${r.impacto}</td>
         <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center">
@@ -234,7 +346,7 @@ export default function MatrizesV3() {
             <th style="padding:8px;text-align:center;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e5e7eb;width:100px">Probabilidade</th>
             <th style="padding:8px;text-align:center;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e5e7eb;width:80px">Impacto</th>
             <th style="padding:8px;text-align:center;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e5e7eb;width:90px">Severidade</th>
-            <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e5e7eb">Plano de A\u00e7\u00e3o</th>
+            <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e5e7eb">Plano de Ação</th>
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>
@@ -244,17 +356,17 @@ export default function MatrizesV3() {
     const win = window.open("", "_blank");
     if (win) {
       win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
-        <title>Matrizes de Riscos \u2014 ${projectName}</title>
+        <title>Matrizes de Riscos — ${projectName}</title>
         <style>
           body{font-family:Arial,sans-serif;margin:40px;color:#111;line-height:1.6;max-width:900px}
           @media print{@page{margin:15mm;size:A4 landscape}body{margin:0;max-width:none}}
         </style></head><body>
         <div style="border-bottom:3px solid #1e40af;padding-bottom:16px;margin-bottom:28px">
-          <h1 style="font-size:22px;margin:0 0 4px;color:#1e3a8a">Matrizes de Riscos \u2014 ${projectName}</h1>
-          <p style="font-size:13px;color:#6b7280;margin:0">Reforma Tribut\u00e1ria 2024 \u00b7 Gerado em ${dateStr} \u00b7 ${totalRisks} riscos identificados, ${criticalRisks} cr\u00edticos</p>
+          <h1 style="font-size:22px;margin:0 0 4px;color:#1e3a8a">Matrizes de Riscos — ${projectName}</h1>
+          <p style="font-size:13px;color:#6b7280;margin:0">Reforma Tributária 2024 · Gerado em ${dateStr} · ${totalRisks} riscos identificados, ${criticalRisks} críticos</p>
         </div>
         ${areasHtml}
-        <div style="margin-top:40px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:10px;color:#9ca3af;text-align:right">IA SOLARIS \u2014 Plataforma de Compliance Tribut\u00e1rio \u00b7 Reforma Tribut\u00e1ria 2024</div>
+        <div style="margin-top:40px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:10px;color:#9ca3af;text-align:right">IA SOLARIS — Plataforma de Compliance Tributário · Reforma Tributária 2024</div>
         <script>window.onload=function(){window.print();}<\/script>
         </body></html>`);
       win.document.close();
@@ -263,6 +375,7 @@ export default function MatrizesV3() {
   };
 
   const allAreasGenerated = AREAS.every(a => matrices[a.key] && matrices[a.key].length > 0);
+  const allAreasApproved = AREAS.every(a => approvedAreas.has(a.key));
   const totalRisks = Object.values(matrices).reduce((sum, arr) => sum + (arr?.length || 0), 0);
   const criticalRisks = Object.values(matrices).flat().filter(r => r.severidade === "Crítica").length;
 
@@ -303,6 +416,12 @@ export default function MatrizesV3() {
                 <Badge variant="destructive" className="gap-1">
                   <AlertTriangle className="h-3 w-3" />
                   {criticalRisks} críticos
+                </Badge>
+              )}
+              {approvedAreas.size > 0 && (
+                <Badge variant="secondary" className="gap-1 text-emerald-700 bg-emerald-100">
+                  <CheckCircle2 className="h-3 w-3" />
+                  {approvedAreas.size}/4 aprovadas
                 </Badge>
               )}
             </div>
@@ -352,11 +471,14 @@ export default function MatrizesV3() {
                   const Icon = area.icon;
                   const areaRisks = matrices[area.key] || [];
                   const critical = areaRisks.filter(r => r.severidade === "Crítica").length;
+                  const isApproved = approvedAreas.has(area.key);
                   return (
                     <TabsTrigger key={area.key} value={area.key} className="gap-1.5 relative">
                       <Icon className="h-3.5 w-3.5" />
                       <span className="hidden sm:inline">{area.label}</span>
-                      {critical > 0 && (
+                      {isApproved ? (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 text-white rounded-full text-[10px] flex items-center justify-center font-bold">✓</span>
+                      ) : critical > 0 && (
                         <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground rounded-full text-[10px] flex items-center justify-center font-bold">
                           {critical}
                         </span>
@@ -369,9 +491,11 @@ export default function MatrizesV3() {
               {AREAS.map(area => {
                 const Icon = area.icon;
                 const areaRisks = matrices[area.key] || [];
+                const isLocked = lockedAreas.has(area.key);
+                const isApproved = approvedAreas.has(area.key);
                 return (
                   <TabsContent key={area.key} value={area.key} className="mt-4">
-                    <Card>
+                    <Card className={cn(isApproved && "border-emerald-200 bg-emerald-50/20")}>
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
                           <CardTitle className="text-base flex items-center gap-2">
@@ -380,20 +504,53 @@ export default function MatrizesV3() {
                             {areaRisks.length > 0 && (
                               <Badge variant="secondary" className="text-xs">{areaRisks.length} riscos</Badge>
                             )}
+                            {/* RF-4.07: Badge de aprovação individual */}
+                            {isApproved && (
+                              <Badge className="text-xs bg-emerald-100 text-emerald-700 border-emerald-300 gap-1">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Aprovada
+                              </Badge>
+                            )}
                           </CardTitle>
-                          <div className="flex gap-2">
-                            <Button variant="ghost" size="sm" className="text-xs gap-1.5"
-                              onClick={() => setAdjustmentMode(area.key)}
-                              disabled={isGenerating}>
-                              <Edit3 className="h-3.5 w-3.5" />
-                              Ajustar
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-xs gap-1.5"
-                              onClick={() => handleGenerate(area.key)}
-                              disabled={isGenerating}>
-                              {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
-                              Regenerar
-                            </Button>
+                          <div className="flex gap-1.5">
+                            {!isLocked && (
+                              <>
+                                {/* RF-4.03: Botão de adicionar risco manualmente */}
+                                <Button variant="ghost" size="sm" className="text-xs gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                  onClick={() => { setShowAddRisk(area.key); setNewRisk({ probabilidade: "Média", impacto: "Médio", severidade: "Média" }); }}>
+                                  <Plus className="h-3.5 w-3.5" />
+                                  Adicionar
+                                </Button>
+                                <Button variant="ghost" size="sm" className="text-xs gap-1.5"
+                                  onClick={() => setAdjustmentMode(area.key)}
+                                  disabled={isGenerating}>
+                                  <Edit3 className="h-3.5 w-3.5" />
+                                  Ajustar
+                                </Button>
+                                <Button variant="ghost" size="sm" className="text-xs gap-1.5"
+                                  onClick={() => handleGenerate(area.key)}
+                                  disabled={isGenerating}>
+                                  {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                                  Regenerar
+                                </Button>
+                                {/* RF-4.07: Aprovar área individualmente */}
+                                {areaRisks.length > 0 && (
+                                  <Button variant="ghost" size="sm" className="text-xs gap-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                    onClick={() => handleApproveArea(area.key)}>
+                                    <Lock className="h-3.5 w-3.5" />
+                                    Aprovar Área
+                                  </Button>
+                                )}
+                              </>
+                            )}
+                            {/* RF-4.05: Reabrir área para edição */}
+                            {isLocked && (
+                              <Button variant="ghost" size="sm" className="text-xs gap-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                onClick={() => handleReopenArea(area.key)}>
+                                <Unlock className="h-3.5 w-3.5" />
+                                Reabrir para Edição
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </CardHeader>
@@ -404,13 +561,18 @@ export default function MatrizesV3() {
                             <span className="text-sm">Atualizando matriz...</span>
                           </div>
                         ) : (
-                          <RiskTable risks={areaRisks} onEdit={handleEditRisk} />
+                          <RiskTable
+                            risks={areaRisks}
+                            onEdit={handleEditRisk}
+                            onDelete={(id) => handleDeleteRisk(area.key, id)}
+                            locked={isLocked}
+                          />
                         )}
                       </CardContent>
                     </Card>
 
                     {/* Painel de ajuste */}
-                    {adjustmentMode === area.key && (
+                    {adjustmentMode === area.key && !isLocked && (
                       <Card className="mt-3 border-primary/20 bg-primary/3">
                         <CardContent className="p-4 space-y-3">
                           <p className="text-sm font-semibold flex items-center gap-2">
@@ -482,22 +644,95 @@ export default function MatrizesV3() {
               </Card>
             )}
 
-            {/* Aprovação */}
+            {/* RF-4.03: Modal de adição manual de risco */}
+            <Dialog open={!!showAddRisk} onOpenChange={() => setShowAddRisk(null)}>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Plus className="h-5 w-5 text-primary" />
+                    Adicionar Risco Manualmente
+                    {showAddRisk && <span className="text-muted-foreground font-normal">— {AREAS.find(a => a.key === showAddRisk)?.label}</span>}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Evento de Risco <span className="text-destructive">*</span></label>
+                    <Textarea
+                      value={newRisk.evento || ""}
+                      onChange={e => setNewRisk(r => ({ ...r, evento: e.target.value }))}
+                      placeholder="Descreva o evento de risco identificado..."
+                      rows={2}
+                      className="resize-none"
+                      autoFocus
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1 block">Probabilidade</label>
+                      <select className="w-full border rounded-md px-2 py-1.5 text-sm bg-background" value={newRisk.probabilidade} onChange={e => setNewRisk(r => ({ ...r, probabilidade: e.target.value as any }))}>
+                        {["Baixa", "Média", "Alta"].map(v => <option key={v}>{v}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1 block">Impacto</label>
+                      <select className="w-full border rounded-md px-2 py-1.5 text-sm bg-background" value={newRisk.impacto} onChange={e => setNewRisk(r => ({ ...r, impacto: e.target.value as any }))}>
+                        {["Baixo", "Médio", "Alto"].map(v => <option key={v}>{v}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1 block">Severidade</label>
+                      <select className="w-full border rounded-md px-2 py-1.5 text-sm bg-background" value={newRisk.severidade} onChange={e => setNewRisk(r => ({ ...r, severidade: e.target.value as any }))}>
+                        {["Baixa", "Média", "Alta", "Crítica"].map(v => <option key={v}>{v}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Plano de Ação <span className="text-destructive">*</span></label>
+                    <Textarea
+                      value={newRisk.plano_acao || ""}
+                      onChange={e => setNewRisk(r => ({ ...r, plano_acao: e.target.value }))}
+                      placeholder="Descreva as ações para mitigar este risco..."
+                      rows={2}
+                      className="resize-none"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setShowAddRisk(null)}>Cancelar</Button>
+                  <Button onClick={() => handleAddManualRisk(showAddRisk!)} disabled={!newRisk.evento?.trim() || !newRisk.plano_acao?.trim()}>
+                    <Plus className="h-4 w-4 mr-1.5" />
+                    Adicionar Risco
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            {/* Aprovação global */}
             {allAreasGenerated && !editingRisk && (
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                   <div>
-                    <p className="text-sm font-semibold text-emerald-800">Todas as 4 matrizes geradas</p>
-                    <p className="text-xs text-emerald-700">{totalRisks} riscos identificados, {criticalRisks} críticos</p>
+                    <p className="text-sm font-semibold text-emerald-800">
+                      {allAreasApproved ? "Todas as 4 áreas aprovadas!" : "Todas as 4 matrizes geradas"}
+                    </p>
+                    <p className="text-xs text-emerald-700">
+                      {totalRisks} riscos identificados, {criticalRisks} críticos
+                      {approvedAreas.size > 0 && ` · ${approvedAreas.size}/4 áreas aprovadas`}
+                    </p>
                   </div>
                 </div>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <Button variant="outline" onClick={handleExportPDF} className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-50 flex-1 sm:flex-none">
+                <div className="flex gap-2 w-full sm:w-auto flex-wrap">
+                  {/* RF-4.06: Exportar CSV */}
+                  <Button variant="outline" onClick={handleExportCSV} className="gap-2 border-green-300 text-green-700 hover:bg-green-50">
+                    <FileSpreadsheet className="h-4 w-4" />
+                    Exportar CSV
+                  </Button>
+                  <Button variant="outline" onClick={handleExportPDF} className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-50">
                     <Download className="h-4 w-4" />
                     Exportar PDF
                   </Button>
-                  <Button onClick={handleApprove} disabled={isApproving} className="gap-2 flex-1 sm:flex-none">
+                  <Button onClick={handleApprove} disabled={isApproving} className="gap-2">
                     {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsUp className="h-4 w-4" />}
                     Aprovar e Gerar Plano de Ação
                   </Button>

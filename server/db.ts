@@ -20,7 +20,7 @@ import {
   InsertAction,
   phases, InsertPhase,
   notifications, InsertNotification,
-
+  clientMembers, InsertClientMember,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -993,11 +993,37 @@ export async function createNotification(data: {
 export async function markNotificationAsRead(notificationId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-
   await db
     .update(notifications)
     .set({ read: true })
     .where(eq(notifications.id, notificationId));
+  return true;
+}
 
+// ─── Client Members (RF-1.03 / RF-5.17) ────────────────────────────────────
+export async function getClientMembers(clientId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.select().from(clientMembers).where(eq(clientMembers.clientId, clientId)).orderBy(desc(clientMembers.invitedAt));
+}
+
+export async function addClientMember(data: Omit<InsertClientMember, 'id' | 'invitedAt' | 'updatedAt'>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(clientMembers).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function updateClientMember(id: number, data: Partial<Pick<InsertClientMember, 'name' | 'email' | 'memberRole' | 'active'>>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(clientMembers).set(data).where(eq(clientMembers.id, id));
+  return true;
+}
+
+export async function removeClientMember(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(clientMembers).where(eq(clientMembers.id, id));
   return true;
 }

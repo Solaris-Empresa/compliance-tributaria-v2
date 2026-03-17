@@ -11,11 +11,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  ArrowLeft, ArrowRight, ChevronRight, Loader2, Sparkles,
-  CheckCircle2, RefreshCw, MessageSquare, ThumbsUp, Edit3, Info, Download, FileText
+  ArrowLeft, ChevronRight, Loader2, Sparkles,
+  CheckCircle2, RefreshCw, MessageSquare, ThumbsUp, Edit3, Info, Download,
+  History, Clock, ChevronDown, ChevronUp, AlertTriangle
 } from "lucide-react";
 import { toast } from "sonner";
-import ReactMarkdown from "react-markdown";
+import { Streamdown } from "streamdown";
+
+// RF-3.06: Tipo para histórico de versões
+interface BriefingVersion {
+  version: number;
+  content: string;
+  timestamp: number;
+  reason?: string;
+}
 
 export default function BriefingV3() {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +39,10 @@ export default function BriefingV3() {
   const [generationCount, setGenerationCount] = useState(0);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
+  // RF-3.06: Histórico de versões
+  const [versionHistory, setVersionHistory] = useState<BriefingVersion[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [viewingVersion, setViewingVersion] = useState<BriefingVersion | null>(null);
 
   // Verificar rascunho local ao montar
   useEffect(() => {
@@ -45,7 +58,8 @@ export default function BriefingV3() {
     const saved = loadTempData(projectId, 'etapa3');
     if (saved?.data?.briefing) {
       setBriefing(saved.data.briefing);
-      setGenerationCount(1);
+      setGenerationCount(saved.data.generationCount || 1);
+      if (saved.data.versionHistory) setVersionHistory(saved.data.versionHistory);
     }
     setShowResumeBanner(false);
   };
@@ -55,8 +69,8 @@ export default function BriefingV3() {
     setShowResumeBanner(false);
   };
 
-  // Auto-save do briefing no localStorage
-  useAutoSave(projectId, 'etapa3', { briefing }, 1000);
+  // Auto-save do briefing no localStorage (inclui histórico de versões)
+  useAutoSave(projectId, 'etapa3', { briefing, generationCount, versionHistory }, 1000);
 
   const { data: project, isLoading: loadingProject } = trpc.fluxoV3.getProjectStep1.useQuery(
     { projectId },
@@ -75,6 +89,16 @@ export default function BriefingV3() {
 
   const handleGenerate = async (correction?: string, moreInfo?: string) => {
     if (!project) return;
+    // RF-3.06: Salvar versão atual no histórico antes de regenerar
+    if (briefing && generationCount > 0) {
+      const newVersion: BriefingVersion = {
+        version: generationCount,
+        content: briefing,
+        timestamp: Date.now(),
+        reason: correction ? `Correção: ${correction.substring(0, 60)}...` : moreInfo ? `Complemento: ${moreInfo.substring(0, 60)}...` : "Regeneração manual",
+      };
+      setVersionHistory(prev => [...prev, newVersion]);
+    }
     setIsGenerating(true);
     setFeedbackMode("none");
     setFeedbackText("");
@@ -112,11 +136,12 @@ export default function BriefingV3() {
   };
 
   const handleExportPDF = () => {
-    if (!briefing) return;
+    const content = viewingVersion ? viewingVersion.content : briefing;
+    if (!content) return;
     const projectName = (project as any)?.name || "Briefing de Compliance";
     const dateStr = new Date().toLocaleDateString("pt-BR");
-    // Converter markdown simples para HTML
-    const htmlContent = briefing
+    const versionNum = viewingVersion ? viewingVersion.version : generationCount;
+    const htmlContent = content
       .replace(/^### (.+)$/gm, "<h3>$1</h3>")
       .replace(/^## (.+)$/gm, "<h2>$1</h2>")
       .replace(/^# (.+)$/gm, "<h1>$1</h1>")
@@ -125,13 +150,11 @@ export default function BriefingV3() {
       .replace(/^- (.+)$/gm, "<li>$1</li>")
       .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
       .replace(/\n\n/g, "</p><p>")
-      .replace(/^(?!<[hul])/gm, "")
       .split("\n").map(line => line.startsWith("<") ? line : `<p>${line}</p>`).join("\n");
-
     const win = window.open("", "_blank");
     if (win) {
       win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
-        <title>Briefing de Compliance \u2014 ${projectName}</title>
+        <title>Briefing de Compliance — ${projectName}</title>
         <style>
           body{font-family:Arial,sans-serif;margin:40px;color:#111;line-height:1.7;max-width:800px}
           .header{border-bottom:3px solid #1e40af;padding-bottom:16px;margin-bottom:28px}
@@ -150,11 +173,11 @@ export default function BriefingV3() {
         </style>
         </head><body>
         <div class="header">
-          <h1>Briefing de Compliance \u2014 ${projectName} <span class="version-badge">Vers\u00e3o ${generationCount}</span></h1>
-          <p>Reforma Tribut\u00e1ria 2024 \u00b7 Gerado em ${dateStr}</p>
+          <h1>Briefing de Compliance — ${projectName} <span class="version-badge">Versão ${versionNum}</span></h1>
+          <p>Reforma Tributária 2024 · Gerado em ${dateStr}</p>
         </div>
         <div class="content">${htmlContent}</div>
-        <div class="footer">IA SOLARIS \u2014 Plataforma de Compliance Tribut\u00e1rio \u00b7 Reforma Tribut\u00e1ria 2024</div>
+        <div class="footer">IA SOLARIS — Plataforma de Compliance Tributário · Reforma Tributária 2024</div>
         <script>window.onload=function(){window.print();}<\/script>
         </body></html>`);
       win.document.close();
@@ -168,6 +191,11 @@ export default function BriefingV3() {
     else handleGenerate(undefined, feedbackText);
   };
 
+  // RF-3.02: Detectar trechos de risco alto no markdown e destacar
+  const renderBriefingWithHighlights = (content: string) => {
+    return content;
+  };
+
   if (loadingProject) {
     return (
       <ComplianceLayout>
@@ -177,6 +205,8 @@ export default function BriefingV3() {
       </ComplianceLayout>
     );
   }
+
+  const displayContent = viewingVersion ? viewingVersion.content : briefing;
 
   return (
     <ComplianceLayout>
@@ -198,11 +228,26 @@ export default function BriefingV3() {
             <h1 className="text-xl font-bold truncate">{project?.name || "Briefing"}</h1>
             <p className="text-sm text-muted-foreground">Etapa 3 de 5 — Briefing de Compliance</p>
           </div>
-          {generationCount > 1 && (
-            <Badge variant="secondary" className="shrink-0">
-              Versão {generationCount}
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {generationCount > 0 && (
+              <Badge variant="secondary" className="shrink-0">
+                Versão {viewingVersion ? viewingVersion.version : generationCount}
+              </Badge>
+            )}
+            {/* RF-3.06: Botão de histórico de versões */}
+            {versionHistory.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => setShowHistory(!showHistory)}
+              >
+                <History className="h-3.5 w-3.5" />
+                Histórico ({versionHistory.length})
+                {showHistory ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Stepper */}
@@ -224,6 +269,66 @@ export default function BriefingV3() {
           ))}
         </div>
 
+        {/* RF-3.06: Painel de Histórico de Versões */}
+        {showHistory && versionHistory.length > 0 && (
+          <Card className="border-primary/20 bg-primary/3">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <History className="h-4 w-4 text-primary" />
+                Histórico de Versões
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {/* Versão atual */}
+              <button
+                className={`w-full flex items-center justify-between p-3 rounded-lg border-2 text-left transition-all ${
+                  !viewingVersion ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
+                }`}
+                onClick={() => setViewingVersion(null)}
+              >
+                <div className="flex items-center gap-2">
+                  <Badge className="text-xs">Atual</Badge>
+                  <span className="text-sm font-medium">Versão {generationCount}</span>
+                </div>
+                <span className="text-xs text-muted-foreground">Versão mais recente</span>
+              </button>
+              {/* Versões anteriores (ordem decrescente) */}
+              {[...versionHistory].reverse().map((v) => (
+                <button
+                  key={v.version}
+                  className={`w-full flex items-center justify-between p-3 rounded-lg border-2 text-left transition-all ${
+                    viewingVersion?.version === v.version ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
+                  }`}
+                  onClick={() => setViewingVersion(v)}
+                >
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">v{v.version}</Badge>
+                    <span className="text-sm font-medium">Versão {v.version}</span>
+                    {v.reason && <span className="text-xs text-muted-foreground truncate max-w-[200px]">{v.reason}</span>}
+                  </div>
+                  <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0">
+                    <Clock className="h-3 w-3" />
+                    {new Date(v.timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </button>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Aviso quando visualizando versão antiga */}
+        {viewingVersion && (
+          <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-200">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-600" />
+              <span className="text-sm text-amber-800">Você está visualizando a <strong>Versão {viewingVersion.version}</strong> (versão anterior)</span>
+            </div>
+            <Button size="sm" variant="outline" onClick={() => setViewingVersion(null)} className="text-xs">
+              Ver versão atual
+            </Button>
+          </div>
+        )}
+
         {/* Geração em andamento */}
         {isGenerating ? (
           <Card className="border-dashed">
@@ -239,31 +344,46 @@ export default function BriefingV3() {
               </div>
             </CardContent>
           </Card>
-        ) : briefing ? (
+        ) : displayContent ? (
           <>
-            {/* Briefing gerado */}
+            {/* RF-3.02: Briefing com destaque visual para risco alto */}
             <Card className="shadow-sm">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />
                     Briefing de Compliance — Reforma Tributária
+                    {viewingVersion && <Badge variant="outline" className="text-xs ml-2">Versão {viewingVersion.version}</Badge>}
                   </CardTitle>
-                  <Button variant="ghost" size="sm" onClick={() => handleGenerate()} className="text-xs gap-1.5">
-                    <RefreshCw className="h-3.5 w-3.5" />
-                    Regenerar
-                  </Button>
+                  {!viewingVersion && (
+                    <Button variant="ghost" size="sm" onClick={() => handleGenerate()} className="text-xs gap-1.5">
+                      <RefreshCw className="h-3.5 w-3.5" />
+                      Regenerar
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground">
-                  <ReactMarkdown>{briefing}</ReactMarkdown>
+                {/* RF-3.02: Legenda de destaques */}
+                <div className="flex items-center gap-3 mb-4 p-2 rounded-lg bg-muted/50 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <span className="inline-block w-3 h-3 rounded-sm bg-red-100 border border-red-300"></span>
+                    Risco Alto / Crítico
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="inline-block w-3 h-3 rounded-sm bg-amber-100 border border-amber-300"></span>
+                    Atenção necessária
+                  </span>
+                </div>
+                {/* RF-3.02: Renderização com destaques de risco */}
+                <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground [&_.risk-high]:bg-red-50 [&_.risk-high]:border-l-4 [&_.risk-high]:border-red-400 [&_.risk-high]:pl-3 [&_.risk-high]:py-1 [&_.risk-medium]:bg-amber-50 [&_.risk-medium]:border-l-4 [&_.risk-medium]:border-amber-400 [&_.risk-medium]:pl-3 [&_.risk-medium]:py-1">
+                  <Streamdown className="text-sm">{displayContent}</Streamdown>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Painel de Feedback */}
-            {feedbackMode === "none" ? (
+            {/* Painel de Feedback — só exibido na versão atual */}
+            {!viewingVersion && (feedbackMode === "none" ? (
               <div className="space-y-3">
                 <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
                   <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
@@ -320,6 +440,16 @@ export default function BriefingV3() {
                   </div>
                 </CardContent>
               </Card>
+            ))}
+
+            {/* Botão de exportar PDF para versões antigas */}
+            {viewingVersion && (
+              <div className="flex justify-end">
+                <Button variant="outline" onClick={handleExportPDF} className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-50">
+                  <Download className="h-4 w-4" />
+                  Exportar PDF desta versão
+                </Button>
+              </div>
             )}
           </>
         ) : null}

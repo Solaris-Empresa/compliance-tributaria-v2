@@ -1157,3 +1157,21 @@ export const questionnaireProgressV3 = mysqlTable("questionnaireProgressV3", {
 });
 export type QuestionnaireProgressV3 = typeof questionnaireProgressV3.$inferSelect;
 export type InsertQuestionnaireProgressV3 = typeof questionnaireProgressV3.$inferInsert;
+
+/**
+ * clientMembers — RF-1.03 / RF-5.17
+ * Membros da equipe do cliente com papéis Admin, Colaborador ou Visualizador.
+ * Permite que o cliente Admin gerencie quem tem acesso aos seus projetos.
+ */
+export const clientMembers = mysqlTable("clientMembers", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),          // ID do usuário-cliente dono da conta
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  memberRole: mysqlEnum("memberRole", ["admin", "colaborador", "visualizador"]).notNull().default("colaborador"),
+  active: boolean("active").notNull().default(true),
+  invitedAt: timestamp("invitedAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type ClientMember = typeof clientMembers.$inferSelect;
+export type InsertClientMember = typeof clientMembers.$inferInsert;
