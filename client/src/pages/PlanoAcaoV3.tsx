@@ -17,7 +17,7 @@ import {
   ArrowLeft, ChevronRight, Loader2, Sparkles, CheckCircle2,
   RefreshCw, ThumbsUp, Edit3, Building2, Cpu, Scale, BarChart3,
   Calendar, User, Bell, Filter, Download, ChevronDown, ChevronUp,
-  Circle, PlayCircle, PauseCircle, CheckCircle, Sliders
+  Circle, PlayCircle, PauseCircle, CheckCircle, Sliders, FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -395,6 +395,85 @@ export default function PlanoAcaoV3() {
     }
   };
 
+  const handleExportAllPDF = () => {
+    const projectName = project?.name || "Plano de Ação";
+    const dateStr = new Date().toLocaleDateString("pt-BR");
+    const totalTasksAll = Object.values(plans).reduce((s, arr) => s + (arr?.length || 0), 0);
+    const doneTasksAll = Object.values(plans).flat().filter(t => t.status === "concluido").length;
+    const progressAll = totalTasksAll > 0 ? Math.round((doneTasksAll / totalTasksAll) * 100) : 0;
+
+    const areasHtml = AREAS.map(areaConfig => {
+      const tasks = plans[areaConfig.key] || [];
+      if (tasks.length === 0) return "";
+      const rows = tasks.map(t => {
+        const prioColor = t.prioridade === "Alta" ? "background:#fee2e2;color:#b91c1c" :
+          t.prioridade === "M\u00e9dia" ? "background:#fef3c7;color:#92400e" : "background:#d1fae5;color:#065f46";
+        return `<tr style="border-bottom:1px solid #e5e7eb">
+          <td style="padding:8px 6px;font-size:12px">${t.titulo}</td>
+          <td style="padding:8px 6px;font-size:11px;color:#6b7280">${t.descricao}</td>
+          <td style="padding:8px 6px;font-size:11px;text-align:center"><span style="padding:2px 6px;border-radius:4px;font-size:10px;${prioColor}">${t.prioridade}</span></td>
+          <td style="padding:8px 6px;font-size:11px;text-align:center">${STATUS_CONFIG[t.status]?.label || t.status}</td>
+          <td style="padding:8px 6px;font-size:11px;text-align:center">${t.progress}%</td>
+          <td style="padding:8px 6px;font-size:11px">${t.responsible || t.responsavel_sugerido || "\u2014"}</td>
+          <td style="padding:8px 6px;font-size:11px;text-align:center">${t.startDate || "\u2014"}</td>
+          <td style="padding:8px 6px;font-size:11px;text-align:center">${t.endDate || t.prazo_sugerido || "\u2014"}</td>
+        </tr>`;
+      }).join("");
+      return `<div style="margin-bottom:32px">
+        <h2 style="font-size:15px;color:#1e40af;border-bottom:2px solid #bfdbfe;padding-bottom:6px;margin-bottom:12px">${areaConfig.label} <span style="font-size:12px;color:#6b7280;font-weight:normal">(${tasks.length} tarefa${tasks.length !== 1 ? "s" : ""})</span></h2>
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:#eff6ff">
+            <th style="padding:8px 6px;font-size:11px;text-align:left;border-bottom:2px solid #bfdbfe">T\u00edtulo</th>
+            <th style="padding:8px 6px;font-size:11px;text-align:left;border-bottom:2px solid #bfdbfe">Descri\u00e7\u00e3o</th>
+            <th style="padding:8px 6px;font-size:11px;text-align:center;border-bottom:2px solid #bfdbfe">Prioridade</th>
+            <th style="padding:8px 6px;font-size:11px;text-align:center;border-bottom:2px solid #bfdbfe">Status</th>
+            <th style="padding:8px 6px;font-size:11px;text-align:center;border-bottom:2px solid #bfdbfe">Progresso</th>
+            <th style="padding:8px 6px;font-size:11px;text-align:left;border-bottom:2px solid #bfdbfe">Respons\u00e1vel</th>
+            <th style="padding:8px 6px;font-size:11px;text-align:center;border-bottom:2px solid #bfdbfe">In\u00edcio</th>
+            <th style="padding:8px 6px;font-size:11px;text-align:center;border-bottom:2px solid #bfdbfe">Prazo</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    }).join("");
+
+    const win = window.open("", "_blank");
+    if (win) {
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+        <title>Plano de A\u00e7\u00e3o Completo \u2014 ${projectName}</title>
+        <style>
+          body{font-family:Arial,sans-serif;margin:32px;color:#111;line-height:1.4}
+          .header{border-bottom:3px solid #1e40af;padding-bottom:16px;margin-bottom:24px}
+          .header h1{font-size:22px;margin:0 0 4px;color:#1e3a8a}
+          .header p{font-size:13px;color:#6b7280;margin:0}
+          .summary{display:flex;gap:24px;margin-bottom:28px;padding:16px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0}
+          .summary-item{text-align:center;min-width:80px}
+          .summary-item .value{font-size:24px;font-weight:bold;color:#1e40af}
+          .summary-item .label{font-size:11px;color:#6b7280;margin-top:2px}
+          .footer{margin-top:32px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:10px;color:#9ca3af;text-align:right}
+          @media print{@page{margin:20mm}body{margin:0}}
+        </style>
+        </head><body>
+        <div class="header">
+          <h1>Plano de A\u00e7\u00e3o \u2014 ${projectName}</h1>
+          <p>Compliance com a Reforma Tribut\u00e1ria \u00b7 Gerado em ${dateStr}</p>
+        </div>
+        <div class="summary">
+          <div class="summary-item"><div class="value">${totalTasksAll}</div><div class="label">Total de Tarefas</div></div>
+          <div class="summary-item"><div class="value">${doneTasksAll}</div><div class="label">Conclu\u00eddas</div></div>
+          <div class="summary-item"><div class="value">${totalTasksAll - doneTasksAll}</div><div class="label">Pendentes</div></div>
+          <div class="summary-item"><div class="value">${progressAll}%</div><div class="label">Progresso Geral</div></div>
+          <div class="summary-item"><div class="value">${AREAS.length}</div><div class="label">\u00c1reas Cobertas</div></div>
+        </div>
+        ${areasHtml}
+        <div class="footer">IA SOLARIS \u2014 Plataforma de Compliance Tribut\u00e1rio \u00b7 Reforma Tribut\u00e1ria 2024</div>
+        <script>window.onload=function(){window.print();}<\/script>
+        </body></html>`);
+      win.document.close();
+      toast.success("PDF completo gerado! Use Ctrl+P para salvar.");
+    }
+  };
+
   const allAreasGenerated = AREAS.every(a => plans[a.key] && plans[a.key].length > 0);
   const currentTasks = plans[activeTab] || [];
   const filteredTasks = currentTasks.filter(t => {
@@ -601,20 +680,37 @@ export default function PlanoAcaoV3() {
               ))}
             </Tabs>
 
-            {/* Aprovação */}
+            {/* Exportação e Aprovação */}
             {allAreasGenerated && (
-              <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-50 border border-emerald-200">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-800">Plano de Ação gerado para todas as 4 áreas</p>
-                    <p className="text-xs text-emerald-700">{totalTasks} tarefas criadas · {overallProgress}% concluído</p>
+              <div className="space-y-3">
+                {/* Botão Exportar PDF Completo */}
+                <div className="flex items-center justify-between p-4 rounded-xl bg-blue-50 border border-blue-200">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <p className="text-sm font-semibold text-blue-800">Exportar Plano de Ação Completo</p>
+                      <p className="text-xs text-blue-700">PDF com todas as 4 áreas, sumário executivo e progresso geral</p>
+                    </div>
                   </div>
+                  <Button variant="outline" onClick={handleExportAllPDF} className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-100">
+                    <Download className="h-4 w-4" />
+                    Exportar para PDF
+                  </Button>
                 </div>
-                <Button onClick={handleApprove} disabled={isApproving} className="gap-2">
-                  {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsUp className="h-4 w-4" />}
-                  Aprovar Plano de Ação
-                </Button>
+                {/* Aprovação */}
+                <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                    <div>
+                      <p className="text-sm font-semibold text-emerald-800">Plano de Ação gerado para todas as 4 áreas</p>
+                      <p className="text-xs text-emerald-700">{totalTasks} tarefas criadas · {overallProgress}% concluído</p>
+                    </div>
+                  </div>
+                  <Button onClick={handleApprove} disabled={isApproving} className="gap-2">
+                    {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsUp className="h-4 w-4" />}
+                    Aprovar Plano de Ação
+                  </Button>
+                </div>
               </div>
             )}
           </>

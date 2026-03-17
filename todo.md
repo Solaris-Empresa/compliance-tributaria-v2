@@ -1719,3 +1719,9 @@
 - [ ] Procedure getProjectProgress: retornar etapa atual + dados salvos por etapa
 - [ ] Testes unitários da persistência (localStorage mock + banco mock)
 - [ ] Checkpoint, push GitHub e entrega ao usuário
+
+## Sprint V48: Exportação PDF do Plano de Ação (17/03/2026)
+- [x] Adicionar botão "Exportar para PDF" na tela de resumo do Plano de Ação
+- [x] PDF deve incluir todas as 4 áreas com todas as tarefas, status e progresso
+- [x] PDF formatado com cabeçalho do projeto, data de geração e sumário executivo
+- [x] Testes, checkpoint e push GitHub
