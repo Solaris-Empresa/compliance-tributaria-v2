@@ -27,11 +27,32 @@ import {
   Layers,
   Users,
   Edit3,
+  ChevronDown,
+  Tag,
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
+
+// Todos os status disponíveis para seleção no dropdown
+const ALL_STATUS_OPTIONS = [
+  { value: "rascunho",         label: "Rascunho" },
+  { value: "assessment_fase1", label: "Questionário (Fase 1)" },
+  { value: "assessment_fase2", label: "Questionário (Fase 2)" },
+  { value: "matriz_riscos",    label: "Matrizes de Riscos" },
+  { value: "plano_acao",       label: "Plano de Ação" },
+  { value: "em_avaliacao",     label: "Em Avaliação" },
+  { value: "aprovado",         label: "Aprovado" },
+  { value: "em_andamento",     label: "Em Andamento" },
+  { value: "parado",           label: "Pausado" },
+  { value: "concluido",        label: "Concluído" },
+  { value: "arquivado",        label: "Arquivado" },
+] as const;
+
+// Status que clientes podem solicitar (apenas 'em_avaliacao')
+const CLIENT_ALLOWED_TARGETS = ["em_avaliacao"] as const;
 
 const STATUS_LABELS: Record<string, string> = {
   rascunho: "Rascunho",
@@ -218,6 +239,14 @@ export default function ProjetoDetalhesV2() {
 
   const isEquipe = user?.role === "equipe_solaris" || user?.role === "advogado_senior";
 
+  // Opções de status disponíveis para o usuário atual
+  const statusOptions = isEquipe
+    ? ALL_STATUS_OPTIONS
+    : ALL_STATUS_OPTIONS.filter(opt =>
+        opt.value === summary.status ||
+        (CLIENT_ALLOWED_TARGETS as readonly string[]).includes(opt.value)
+      );
+
   // Determinar qual etapa está ativa para o botão principal
   const activeStep = FLOW_STEPS.find(s =>
     s.activeStatuses.includes(summary.status)
@@ -242,9 +271,53 @@ export default function ProjetoDetalhesV2() {
               <div>
                 <div className="flex items-center gap-3 flex-wrap">
                   <h1 className="text-2xl font-bold text-foreground">{summary.name}</h1>
-                  <Badge className={`text-xs border ${STATUS_COLORS[summary.status] ?? "bg-gray-100 text-gray-700"}`}>
-                    {STATUS_LABELS[summary.status] ?? summary.status}
-                  </Badge>
+                  {/* Dropdown de Situação do Projeto */}
+                  <div className="flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5 text-muted-foreground" />
+                    <Select
+                      value={summary.status}
+                      onValueChange={(newStatus) => {
+                        if (newStatus === summary.status) return;
+                        updateStatus.mutate({
+                          projectId,
+                          status: newStatus as any,
+                        });
+                      }}
+                      disabled={updateStatus.isPending}
+                    >
+                      <SelectTrigger
+                        className={`h-7 text-xs border font-medium gap-1.5 px-2.5 min-w-[140px] ${
+                          STATUS_COLORS[summary.status] ?? "bg-gray-100 text-gray-700 border-gray-200"
+                        }`}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statusOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                            <span className="flex items-center gap-1.5">
+                              <span className={`w-2 h-2 rounded-full inline-block ${
+                                opt.value === "rascunho" ? "bg-gray-400" :
+                                opt.value === "assessment_fase1" || opt.value === "assessment_fase2" ? "bg-blue-500" :
+                                opt.value === "matriz_riscos" ? "bg-orange-500" :
+                                opt.value === "plano_acao" ? "bg-purple-500" :
+                                opt.value === "em_avaliacao" ? "bg-yellow-500" :
+                                opt.value === "aprovado" ? "bg-green-500" :
+                                opt.value === "em_andamento" ? "bg-emerald-500" :
+                                opt.value === "parado" ? "bg-red-500" :
+                                opt.value === "concluido" ? "bg-teal-500" :
+                                "bg-gray-300"
+                              }`} />
+                              {opt.label}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {updateStatus.isPending && (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground flex-wrap">
               {clientName && (

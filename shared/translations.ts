@@ -13,10 +13,13 @@ export const PROJECT_STATUS = {
   assessment_fase2: "Assessment - Fase 2",
   matriz_riscos: "Matriz de Riscos",
   plano_acao: "Plano de Ação",
-  em_avaliacao: "Em Avaliação Jurídica",
+  em_avaliacao: "Aguardando Aprovação",
   aprovado: "Aprovado",
-  em_execucao: "Em Execução",
+  em_andamento: "Em Andamento",
+  parado: "Parado",
   concluido: "Concluído",
+  arquivado: "Arquivado",
+  em_execucao: "Em Execução",
   cancelado: "Cancelado",
 } as const;
 
@@ -120,11 +123,14 @@ export const STATUS_COLORS = {
   assessment_fase2: "text-blue-600 bg-blue-50",
   matriz_riscos: "text-purple-600 bg-purple-50",
   plano_acao: "text-indigo-600 bg-indigo-50",
-  em_avaliacao: "text-yellow-600 bg-yellow-50",
-  aprovado: "text-green-600 bg-green-50",
-  em_execucao: "text-cyan-600 bg-cyan-50",
-  concluido: "text-emerald-600 bg-emerald-50",
-  cancelado: "text-red-600 bg-red-50",
+  em_avaliacao: "text-amber-700 bg-amber-50",
+  aprovado: "text-green-700 bg-green-50",
+  em_andamento: "text-blue-700 bg-blue-50",
+  parado: "text-orange-700 bg-orange-50",
+  concluido: "text-emerald-700 bg-emerald-50",
+  arquivado: "text-gray-500 bg-gray-100",
+  em_execucao: "text-cyan-700 bg-cyan-50",
+  cancelado: "text-red-700 bg-red-50",
 } as const;
 
 // Cores por prioridade de tarefa

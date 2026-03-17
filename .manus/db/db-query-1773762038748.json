@@ -1,0 +1,19 @@
+{
+  "query": "\nSELECT \n  (SELECT COUNT(*) FROM projects) AS projetos,\n  (SELECT COUNT(*) FROM users WHERE loginMethod = 'manual') AS clientes_manuais,\n  (SELECT COUNT(*) FROM actions) AS tarefas,\n  (SELECT COUNT(*) FROM briefings) AS briefings,\n  (SELECT COUNT(*) FROM riskMatrix) AS matrizes_risco,\n  (SELECT COUNT(*) FROM actionPlans) AS planos_acao,\n  (SELECT COUNT(*) FROM users) AS total_usuarios;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT \n  (SELECT COUNT(*) FROM projects) AS projetos,\n  (SELECT COUNT(*) FROM users WHERE loginMethod = 'manual') AS clientes_manuais,\n  (SELECT COUNT(*) FROM actions) AS tarefas,\n  (SELECT COUNT(*) FROM briefings) AS briefings,\n  (SELECT COUNT(*) FROM riskMatrix) AS matrizes_risco,\n  (SELECT COUNT(*) FROM actionPlans) AS planos_acao,\n  (SELECT COUNT(*) FROM users) AS total_usuarios;\n",
+  "rows": [
+    {
+      "projetos": "0",
+      "clientes_manuais": "0",
+      "tarefas": "0",
+      "briefings": "0",
+      "matrizes_risco": "0",
+      "planos_acao": "0",
+      "total_usuarios": "1208"
+    }
+  ],
+  "messages": [],
+  "stdout": "projetos\tclientes_manuais\ttarefas\tbriefings\tmatrizes_risco\tplanos_acao\ttotal_usuarios\n0\t0\t0\t0\t0\t0\t1208\n",
+  "stderr": "",
+  "execution_time_ms": 72
+}

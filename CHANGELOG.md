@@ -6,6 +6,43 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [3.5.0] - Sprint V55 - 2026-03-17
+
+### Adicionado
+
+**Dropdown de "Situação do Projeto" na ProjetoDetalhesV2**
+- Substituiu o badge estático de status por um `Select` interativo do shadcn/ui no header da página de detalhes
+- Ícone `Tag` ao lado do dropdown para sinalizar visualmente o campo de situação
+- Indicador circular colorido em cada opção do dropdown (ponto colorido por status)
+- Spinner de carregamento (`RefreshCw` animado) durante a mutação de atualização
+- Controle de permissões: equipe SOLARIS vê todos os 11 status; clientes vêem apenas o status atual + "Em Avaliação"
+- Persistência via mutação tRPC `projects.updateStatus` com feedback de toast
+
+**Filtros de Status na Lista de Projetos (Projetos.tsx)**
+- Dropdown de filtro por status com todas as 11 opções + "Todos os status"
+- Indicador colorido (ponto) em cada opção do filtro
+- Botão de limpar filtros (X) quando há filtros ativos
+- Contador de resultados com informação sobre filtros ativos
+- Skeleton de carregamento nos cards de projetos
+- Estado vazio melhorado com botão "Limpar Filtros" quando há filtros ativos
+
+**Testes Unitários — Sprint V55 (36 testes)**
+- `sprint-v55-status-transitions.test.ts`: 36 testes cobrindo:
+  - Permissões por papel (equipe_solaris, advogado_senior, cliente, advogado_junior)
+  - Transições permitidas e bloqueadas por papel
+  - Opções do dropdown filtradas por papel
+  - Traduções de status em português
+  - Filtros de status na lista de projetos
+  - Lógica de auto-avanço de status no servidor
+
+### Alterado
+
+**Procedure `projects.updateStatus` (routers.ts)**
+- Adicionado log de auditoria no console com papel do usuário e IDs
+- Retorno enriquecido com `changedBy` (papel do usuário que realizou a mudança)
+
+---
+
 ## [3.3.0] - Sprint V53 - 2026-03-17
 
 ### Adicionado

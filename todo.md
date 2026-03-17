@@ -1880,3 +1880,27 @@
 - [x] Botões de ações administrativas (equipe SOLARIS) para mudar status
 - [x] Rota `/projetos/:id` atualizada para ProjetoDetalhesV2 no App.tsx
 - [x] 23 testes unitários passando (projeto-detalhes-v2.test.ts)
+
+## RF-STATUS: Situação do Projeto com Transição de Status (17/03/2026)
+- [ ] Verificar enum de status atual no schema (`projects.status`)
+- [ ] Definir regras de transição: rascunho → em_andamento → aguardando_aprovacao → aprovado
+- [ ] Procedure `updateProjectStatus` com validação de transição permitida
+- [ ] Lógica automática: avançar para `em_andamento` ao confirmar CNAEs
+- [ ] Lógica automática: avançar para `aguardando_aprovacao` ao aprovar plano de ação
+- [ ] Lógica automática: avançar para `aprovado` ao aprovar juridicamente
+- [ ] Badge de situação na ProjetoDetalhesV2 com dropdown de mudança manual
+- [ ] Badge de situação na lista de projetos (Projetos.tsx)
+- [ ] Filtros por situação na lista de projetos já existem — garantir que funcionam com novos status
+- [ ] Testes unitários para regras de transição
+## Sprint V55 — Campo "Situação do Projeto" (17/03/2026)
+- [x] Dropdown de Situação do Projeto na ProjetoDetalhesV2 (Select shadcn/ui com badge colorido)
+- [x] Controle de permissões: equipe SOLARIS vê todos os 11 status; clientes vêem apenas status atual + "Em Avaliação"
+- [x] Indicador colorido (ponto) por status no dropdown e na lista de projetos
+- [x] Spinner de carregamento durante mutação de atualização de status
+- [x] Filtros de status na lista de projetos (Projetos.tsx) com Select e botão "Limpar Filtros"
+- [x] Contador de resultados com informação sobre filtros ativos
+- [x] Skeleton de carregamento nos cards de projetos
+- [x] Log de auditoria na procedure updateStatus (papel + IDs)
+- [x] Retorno enriquecido com changedBy na procedure updateStatus
+- [x] 36 testes unitários passando (sprint-v55-status-transitions.test.ts)
+- [x] CHANGELOG.md atualizado com entrada [3.5.0] Sprint V55

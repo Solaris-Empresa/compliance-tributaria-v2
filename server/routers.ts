@@ -153,12 +153,60 @@ export const appRouter = router({
     updateStatus: protectedProcedure
       .input(z.object({
         projectId: z.number(),
-        status: z.enum(["rascunho", "em_andamento", "concluido", "arquivado"]),
+        status: z.enum([
+          "rascunho",
+          "assessment_fase1",
+          "assessment_fase2",
+          "matriz_riscos",
+          "plano_acao",
+          "em_avaliacao",
+          "aprovado",
+          "em_andamento",
+          "parado",
+          "concluido",
+          "arquivado"
+        ]),
       }))
       .mutation(async ({ input, ctx }) => {
         await validateProjectAccess(ctx, input.projectId);
-        await db.updateProject(input.projectId, { status: input.status });
-        return { success: true };
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+
+        // Regras de transição por papel
+        const isEquipe = ctx.user.role === "equipe_solaris" || ctx.user.role === "advogado_senior";
+        const currentStatus = project.status;
+        const newStatus = input.status;
+
+        // Transições permitidas para clientes (apenas solicitar aprovação)
+        const clientAllowedTransitions: Record<string, string[]> = {
+          rascunho: ["em_avaliacao"],
+          assessment_fase1: ["em_avaliacao"],
+          assessment_fase2: ["em_avaliacao"],
+          matriz_riscos: ["em_avaliacao"],
+          plano_acao: ["em_avaliacao"],
+        };
+
+        if (!isEquipe) {
+          const allowed = clientAllowedTransitions[currentStatus] ?? [];
+          if (!allowed.includes(newStatus)) {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: `Transição de '${currentStatus}' para '${newStatus}' não permitida para clientes. Apenas a equipe SOLARIS pode realizar esta mudança.`,
+            });
+          }
+        }
+
+        await db.updateProject(input.projectId, { status: newStatus });
+
+        // Log da transição para auditoria
+        console.log(`[updateStatus] Projeto ${input.projectId}: ${currentStatus} → ${newStatus} (por ${ctx.user.role} #${ctx.user.id})`);
+
+        return {
+          success: true,
+          previousStatus: currentStatus,
+          newStatus,
+          changedBy: ctx.user.role,
+        };
       }),
   }),
 
