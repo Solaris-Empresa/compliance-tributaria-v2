@@ -303,7 +303,8 @@ export default function QuestionarioV3() {
   // DEVE ser declarado ANTES dos useEffects que o utilizam
   const loadedQuestionsRef = useRef<Set<string>>(new Set());
 
-  // Carregar perguntas quando o nível muda (ex: nível 1 → nível 2)
+  // Carregar perguntas quando o nível OU o CNAE atual muda
+  // Cobre: (1) mudança de nível 1→2, (2) navegação entre CNAEs já iniciados
   // Não dispara no mount inicial — isso é tratado por handleStartCnae
   // Não dispara quando handleAcceptDeepDive já adicionou o cacheKey ao ref
   useEffect(() => {
@@ -311,11 +312,13 @@ export default function QuestionarioV3() {
     if (!currentCode) return;
     const cacheKey = `${currentCode}-${currentLevel}`;
     // Só carrega se: CNAE foi iniciado E ainda não foi carregado para este nível
+    // Isso garante que ao navegar para um CNAE já concluído (clicar no chip do topo
+    // ou "Retornar ao CNAE anterior"), as perguntas sejam recarregadas
     if (startedCnaes.has(currentCode) && !loadedQuestionsRef.current.has(cacheKey)) {
       loadedQuestionsRef.current.add(cacheKey);
       loadQuestions(currentCnaeIdx, currentLevel);
     }
-  }, [currentLevel]); // Só reage a mudança de nível
+  }, [currentLevel, currentCnaeIdx]); // Reage a mudança de nível E de CNAE
 
   const currentCnae = cnaes[currentCnaeIdx];
   const answeredCount = Object.values(answers).filter(v => v.trim()).length;
@@ -459,6 +462,120 @@ export default function QuestionarioV3() {
     );
   }
 
+  // Modo visualização: projeto já passou da etapa 2 (questionario concluído)
+  // Exibe as respostas salvas no banco sem precisar regenerar perguntas pela IA
+  const isViewMode = (project?.currentStep ?? 1) >= 3 || 
+    ["aprovado", "em_andamento", "concluido", "arquivado", "em_avaliacao", "parado", "plano_acao", "matriz_riscos"].includes(project?.status ?? "");
+  
+  if (isViewMode && savedProgress && !loadingProject) {
+    const allAnswers = savedProgress.answers || [];
+    const cnaeList = (project?.confirmedCnaes as any[]) || [];
+    // Agrupar respostas por CNAE
+    const answersByCnae = cnaeList.map((cnae: any) => ({
+      code: cnae.code,
+      description: cnae.description,
+      nivel1: allAnswers.filter((a: any) => a.cnaeCode === cnae.code && a.level === "nivel1"),
+      nivel2: allAnswers.filter((a: any) => a.cnaeCode === cnae.code && a.level === "nivel2"),
+    }));
+    const totalAnswers = allAnswers.length;
+    return (
+      <ComplianceLayout>
+        <div className="max-w-3xl mx-auto space-y-6 py-2">
+          {/* Header */}
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => setLocation(`/projetos/${projectId}`)}>  
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl font-bold truncate">{project?.name || "Questionário"}</h1>
+              <p className="text-sm text-muted-foreground">Etapa 2 de 5 — Questionário Adaptativo</p>
+            </div>
+          </div>
+          {/* Stepper */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            {["Projeto", "Questionário", "Briefing", "Riscos", "Plano"].map((step, i) => (
+              <div key={step} className="flex items-center gap-2 shrink-0">
+                <div className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors ${
+                  i <= 1 ? "bg-emerald-100 text-emerald-700" :
+                  "bg-muted text-muted-foreground"
+                }`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                    i <= 1 ? "bg-emerald-500/20" : "bg-muted-foreground/20"
+                  }`}>
+                    {i <= 1 ? "✓" : i + 1}
+                  </span>
+                  {step}
+                </div>
+                {i < 4 && <ChevronRight className="h-3 w-3 text-muted-foreground/40" />}
+              </div>
+            ))}
+          </div>
+          {/* Banner de conclusão */}
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3">
+            <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-emerald-800">Questionário concluído</p>
+              <p className="text-xs text-emerald-700 mt-0.5">{totalAnswers} respostas registradas em {cnaeList.length} CNAE(s). Você pode visualizar as respostas abaixo.</p>
+            </div>
+            <Button size="sm" variant="outline" className="shrink-0 border-emerald-300 text-emerald-700 hover:bg-emerald-100" onClick={() => setLocation(`/projetos/${projectId}/briefing-v3`)}>
+              Ver Briefing
+            </Button>
+          </div>
+          {/* Respostas por CNAE */}
+          {answersByCnae.map((cnae) => (
+            <div key={cnae.code} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-sm font-bold text-primary">{cnae.code}</span>
+                <Badge variant="secondary" className="text-xs">{cnae.description}</Badge>
+                <Badge variant="outline" className="text-xs text-emerald-700 border-emerald-300">
+                  {cnae.nivel1.length + cnae.nivel2.length} respostas
+                </Badge>
+              </div>
+              {cnae.nivel1.length > 0 && (
+                <Card>
+                  <CardContent className="p-4 space-y-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Nível 1 — Essencial</p>
+                    {cnae.nivel1.map((a: any, idx: number) => (
+                      <div key={idx} className="space-y-1 border-b last:border-0 pb-3 last:pb-0">
+                        <p className="text-sm font-medium">{idx + 1}. {a.questionText}</p>
+                        <p className="text-sm text-primary font-semibold pl-4">→ {a.answerValue}</p>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+              {cnae.nivel2.length > 0 && (
+                <Card>
+                  <CardContent className="p-4 space-y-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Nível 2 — Aprofundamento</p>
+                    {cnae.nivel2.map((a: any, idx: number) => (
+                      <div key={idx} className="space-y-1 border-b last:border-0 pb-3 last:pb-0">
+                        <p className="text-sm font-medium">{idx + 1}. {a.questionText}</p>
+                        <p className="text-sm text-primary font-semibold pl-4">→ {a.answerValue}</p>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+              {cnae.nivel1.length === 0 && cnae.nivel2.length === 0 && (
+                <Card className="border-dashed">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-sm text-muted-foreground">Nenhuma resposta registrada para este CNAE.</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          ))}
+          {/* Ações */}
+          <div className="flex gap-3 pt-2">
+            <Button variant="outline" onClick={() => setLocation(`/projetos/${projectId}`)}>Ver Projeto</Button>
+            <Button variant="outline" onClick={() => setLocation(`/projetos/${projectId}/briefing-v3`)}>Ver Briefing</Button>
+          </div>
+        </div>
+      </ComplianceLayout>
+    );
+  }
+
   return (
     <>
     <ComplianceLayout>
@@ -514,7 +631,18 @@ export default function QuestionarioV3() {
             {cnaeProgress.map((c, i) => (
               <button
                 key={c.code}
-                onClick={() => { if (c.nivel1Done) { setCurrentCnaeIdx(i); setCurrentLevel("nivel1"); setAnswers({}); setQuestions([]); } }}
+                onClick={() => {
+                  if (c.nivel1Done) {
+                    // Limpar o cacheKey do ref para forçar recarga das perguntas
+                    loadedQuestionsRef.current.delete(`${c.code}-nivel1`);
+                    loadedQuestionsRef.current.delete(`${c.code}-nivel2`);
+                    setCurrentCnaeIdx(i);
+                    setCurrentLevel("nivel1");
+                    setAnswers({});
+                    setQuestions([]);
+                    setShowDeepDivePrompt(false);
+                  }
+                }}
                 className={cn(
                   "flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border font-medium transition-all",
                   i === currentCnaeIdx ? "border-primary bg-primary/10 text-primary" :
@@ -747,11 +875,15 @@ export default function QuestionarioV3() {
                         size="sm"
                         className="gap-1.5 text-muted-foreground"
                         onClick={() => {
+                          const currentCode = cnaes[currentCnaeIdx]?.code;
+                          if (currentCode) {
+                            // Limpar cacheKey para forçar recarga das perguntas do nível 1
+                            loadedQuestionsRef.current.delete(`${currentCode}-nivel1`);
+                          }
                           setCurrentLevel("nivel1");
                           setAnswers({});
                           setQuestions([]);
                           setShowDeepDivePrompt(false);
-                          loadQuestions(currentCnaeIdx, "nivel1");
                         }}
                       >
                         <ArrowLeft className="h-4 w-4" />
@@ -821,6 +953,12 @@ export default function QuestionarioV3() {
           <AlertDialogAction
             onClick={() => {
               const targetIdx = currentCnaeIdx - 1;
+              const targetCode = cnaeProgress[targetIdx]?.code;
+              // Limpar cacheKey do ref para forçar recarga das perguntas
+              if (targetCode) {
+                loadedQuestionsRef.current.delete(`${targetCode}-nivel1`);
+                loadedQuestionsRef.current.delete(`${targetCode}-nivel2`);
+              }
               // RF-2.07 UX: marcar o CNAE alvo como 'revisado' ao retornar
               setCnaeProgress(prev => prev.map((c, i) =>
                 i === targetIdx && c.nivel1Done ? { ...c, revisado: true } : c

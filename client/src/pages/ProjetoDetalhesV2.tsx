@@ -128,8 +128,8 @@ const FLOW_STEPS: FlowStep[] = [
     description: "Diagnóstico adaptativo por CNAE",
     icon: <ClipboardList className="w-4 h-4" />,
     route: (id) => `/projetos/${id}/questionario-v3`,
-    completedStatuses: ["matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "parado", "concluido", "arquivado"],
-    activeStatuses: ["assessment_fase1", "assessment_fase2"],
+    completedStatuses: ["assessment_fase2", "matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "parado", "concluido", "arquivado"],
+    activeStatuses: ["assessment_fase1"],
   },
   {
     number: 3,
@@ -137,8 +137,8 @@ const FLOW_STEPS: FlowStep[] = [
     description: "Análise de compliance gerada por IA",
     icon: <FileText className="w-4 h-4" />,
     route: (id) => `/projetos/${id}/briefing-v3`,
-    completedStatuses: ["plano_acao", "em_avaliacao", "aprovado", "em_andamento", "parado", "concluido", "arquivado"],
-    activeStatuses: ["matriz_riscos"],
+    completedStatuses: ["matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "parado", "concluido", "arquivado"],
+    activeStatuses: ["assessment_fase2"],
   },
   {
     number: 4,

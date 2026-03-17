@@ -2099,3 +2099,25 @@
 - [x] Corrigir: normalização robusta com z.preprocess() + .catch() em todos os enums críticos
 - [x] 160/160 testes passando (86 V60-V63 + 23 V64-V65 + 32 V66 + 19 V69)
 - [x] Checkpoint e entrega
+
+## Ajuste Visual — Rodapé (17/03/2026)
+- [ ] Substituir "desenvolvido por Manus" por "desenvolvido por IA SOLARIS" em todos os arquivos
+
+## Bugfix Crítico — Questionário 0/0 Persiste em Produção (17/03/2026)
+- [ ] Investigar por que 0/0 perguntas persiste mesmo após bugfix de enums Zod
+- [ ] Verificar se generateQuestions está sendo chamado corretamente para CNAEs
+- [ ] Verificar se as perguntas geradas estão sendo salvas/recuperadas do banco
+- [ ] Verificar renderização no QuestionarioV3 (cnaeProgress, questions array)
+- [ ] Corrigir e testar
+- [ ] Checkpoint, push e commit
+
+## Bugfix Crítico — Visualização/Edição Pós-Conclusão (17/03/2026)
+- [x] Bug #1: coluna questionnaireAnswers não existia na tabela projects → adicionada ao schema + db:push
+- [x] Bug #1: getProjectStep1 não retornava questionnaireAnswers → campo adicionado ao retorno
+- [x] Bug #4: buildBriefingMarkdown falhava com principais_gaps/oportunidades/recomendacoes_prioritarias undefined → fallbacks ?? [] adicionados
+- [x] Bug #5: PlanoAcaoV3 entrava em loop de conclusão ao editar → editMode com sessionStorage
+- [x] Bug #6: FLOW_STEPS com completedStatuses incorretos → corrigidos em ProjetoDetalhesV2
+- [x] Bug #7: QuestionarioV3 não recarregava perguntas ao navegar entre CNAEs → useEffect + limpeza de cacheKey
+- [x] 18/18 testes de bugs-pos-conclusao passando
+- [x] 21/21 testes de routers-fluxo-v3-etapas2-5 passando
+- [ ] Checkpoint, push GitHub e republicar

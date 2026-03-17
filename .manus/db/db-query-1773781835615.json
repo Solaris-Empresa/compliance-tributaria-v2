@@ -1,0 +1,28 @@
+{
+  "query": "\nSELECT id, name, status, currentStep, \n  LENGTH(briefingContent) as briefingLen,\n  (riskMatricesData IS NOT NULL) as hasRisks,\n  (actionPlansData IS NOT NULL) as hasPlans,\n  (scoringData IS NOT NULL) as hasScoring,\n  (decisaoData IS NOT NULL) as hasDecisao\nFROM projects WHERE id = 267;\n\nSELECT id, name, status, currentStep FROM projects \nWHERE status IN ('aprovado','em_andamento','concluido') \nORDER BY id DESC LIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT id, name, status, currentStep, \n  LENGTH(briefingContent) as briefingLen,\n  (riskMatricesData IS NOT NULL) as hasRisks,\n  (actionPlansData IS NOT NULL) as hasPlans,\n  (scoringData IS NOT NULL) as hasScoring,\n  (decisaoData IS NOT NULL) as hasDecisao\nFROM projects WHERE id = 267;\n\nSELECT id, name, status, currentStep FROM projects \nWHERE status IN ('aprovado','em_andamento','concluido') \nORDER BY id DESC LIMIT 5;\n",
+  "rows": [
+    {
+      "id": "267",
+      "name": "teste again 17h48",
+      "status": "aprovado",
+      "currentStep": "5",
+      "briefingLen": "6785",
+      "hasRisks": "1",
+      "hasPlans": "1",
+      "hasScoring": "1",
+      "hasDecisao": "1"
+    }
+  ],
+  "messages": [
+    "id\tname\tstatus\tcurrentStep",
+    "492\tProjeto Teste Update Status\tem_andamento\t1",
+    "489\tProjeto Teste Update Status\tem_andamento\t1",
+    "446\tTest Project Action Plans\tem_andamento\t1",
+    "415\tProjeto E2E 1773781550448\tconcluido\t1",
+    "368\tProjeto Teste Update Status\tem_andamento\t1"
+  ],
+  "stdout": "id\tname\tstatus\tcurrentStep\tbriefingLen\thasRisks\thasPlans\thasScoring\thasDecisao\n267\tteste again 17h48\taprovado\t5\t6785\t1\t1\t1\t1\nid\tname\tstatus\tcurrentStep\n492\tProjeto Teste Update Status\tem_andamento\t1\n489\tProjeto Teste Update Status\tem_andamento\t1\n446\tTest Project Action Plans\tem_andamento\t1\n415\tProjeto E2E 1773781550448\tconcluido\t1\n368\tProjeto Teste Update Status\tem_andamento\t1\n",
+  "stderr": "",
+  "execution_time_ms": 74
+}

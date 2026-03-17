@@ -648,6 +648,10 @@ export default function PlanoAcaoV3() {
   const [showDashboard, setShowDashboard] = useState(false);
   // Ref para garantir que a geração do plano ocorra apenas uma vez (evita loop)
   const generationTriggeredRef = useRef(false);
+  // Bug #5: editMode persistido em sessionStorage para evitar loop de conclusão
+  const [editMode, setEditMode] = useState(() => {
+    return sessionStorage.getItem(`plano-editmode-${projectId}`) === 'true';
+  });
 
   // Verificar rascunho local ao montar
   useEffect(() => {
@@ -696,8 +700,9 @@ export default function PlanoAcaoV3() {
     if (!project) return;
 
     // Se projeto já está aprovado/concluído, mostrar tela de conclusão com dados do banco
+    // Bug #5: não ativar conclusão se o usuário escolheu editar
     const isApproved = project.status === "aprovado" || project.status === "concluido";
-    if (isApproved && !showConclusion && !conclusionData) {
+    if (isApproved && !showConclusion && !conclusionData && !editMode) {
       const savedPlans = (project as any).actionPlansData || {};
       const savedMatrices = (project as any).riskMatricesData || {};
       const cnaes = (project as any).confirmedCnaes || [];
@@ -1346,7 +1351,10 @@ export default function PlanoAcaoV3() {
               </Button>
               <Button
                 size="lg"
-                onClick={() => setLocation("/painel")}
+                onClick={() => {
+                  sessionStorage.removeItem(`plano-editmode-${projectId}`);
+                  setLocation("/painel");
+                }}
                 className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8"
               >
                 <LayoutDashboard className="h-5 w-5" />
@@ -1355,7 +1363,10 @@ export default function PlanoAcaoV3() {
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => setLocation(`/projetos/${projectId}`)}
+                onClick={() => {
+                  sessionStorage.removeItem(`plano-editmode-${projectId}`);
+                  setLocation(`/projetos/${projectId}`);
+                }}
                 className="gap-2 px-8"
               >
                 Ver Projeto
@@ -1363,7 +1374,11 @@ export default function PlanoAcaoV3() {
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => { setShowConclusion(false); }}
+                onClick={() => {
+                  setShowConclusion(false);
+                  setEditMode(true);
+                  sessionStorage.setItem(`plano-editmode-${projectId}`, 'true');
+                }}
                 className="gap-2 px-8 border-amber-300 text-amber-700 hover:bg-amber-50"
               >
                 <Edit3 className="h-4 w-4" />

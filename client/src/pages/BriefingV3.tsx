@@ -83,6 +83,11 @@ export default function BriefingV3() {
 
   const generateBriefing = trpc.fluxoV3.generateBriefing.useMutation();
   const approveBriefing = trpc.fluxoV3.approveBriefing.useMutation();
+  // Bug #4: Buscar respostas do questionário como fallback (tabela questionnaireAnswersV3)
+  const { data: savedProgress } = trpc.fluxoV3.getProgress.useQuery(
+    { projectId },
+    { enabled: !!projectId }
+  );
 
   // V64: Buscar inconsistências do briefing estruturado
   const { data: inconsistenciasData, refetch: refetchInconsistencias } = trpc.fluxoV3.getBriefingInconsistencias.useQuery(
@@ -126,7 +131,19 @@ export default function BriefingV3() {
     setFeedbackMode("none");
     setFeedbackText("");
     try {
-      const allAnswers = (project as any).questionnaireAnswers || [];
+      // Bug #4: Usar questionnaireAnswers do projeto (coluna JSON) ou fallback da tabela questionnaireAnswersV3
+      const rawAnswers = (project as any).questionnaireAnswers;
+      const answersFromTable = savedProgress?.answers || [];
+      // Converter respostas da tabela para o formato esperado pelo generateBriefing
+      const answersFromTableFormatted = answersFromTable.length > 0 ? (() => {
+        const byCnae: Record<string, any> = {};
+        for (const a of answersFromTable) {
+          if (!byCnae[a.cnaeCode]) byCnae[a.cnaeCode] = { cnaeCode: a.cnaeCode, cnaeDescription: a.cnaeDescription || a.cnaeCode, level: a.level, questions: [] };
+          byCnae[a.cnaeCode].questions.push({ question: a.questionText, answer: a.answerValue });
+        }
+        return Object.values(byCnae);
+      })() : [];
+      const allAnswers = rawAnswers || answersFromTableFormatted;
       const result = await generateBriefing.mutateAsync({
         projectId,
         allAnswers,

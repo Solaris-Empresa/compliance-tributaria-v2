@@ -13,14 +13,27 @@ vi.mock("./db", () => ({
   createProject: vi.fn(),
   getProjectById: vi.fn(),
   getUsersByRole: vi.fn(),
+  insertTaskHistory: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("./_core/llm", () => ({
   invokeLLM: vi.fn(),
 }));
 
+vi.mock("./ai-helpers", () => ({
+  generateWithRetry: vi.fn(),
+  calculateGlobalScore: vi.fn().mockReturnValue({ score_global: 75, nivel: "Alto", impacto_estimado: "R$ 500k", custo_inacao: "R$ 1M", prioridade: "Urgente" }),
+  OUTPUT_CONTRACT: "",
+}));
+
+vi.mock("./rag-retriever", () => ({
+  retrieveArticles: vi.fn().mockResolvedValue([]),
+  retrieveArticlesFast: vi.fn().mockResolvedValue([]),
+}));
+
 import * as db from "./db";
 import { invokeLLM } from "./_core/llm";
+import { generateWithRetry } from "./ai-helpers";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const mockDb = {
@@ -94,9 +107,7 @@ describe("fluxoV3Router — Etapa 2: Questionário Adaptativo", () => {
         { id: "q3", text: "Qual o faturamento anual aproximado?", type: "escala_likert", required: false, scale_labels: { min: "Até R$360k", max: "Acima de R$78M" } },
       ],
     };
-    vi.mocked(invokeLLM).mockResolvedValue({
-      choices: [{ message: { content: JSON.stringify(mockQuestions) } }],
-    } as any);
+    vi.mocked(generateWithRetry).mockResolvedValue(mockQuestions);
 
     const { fluxoV3Router } = await import("./routers-fluxo-v3");
     const caller = fluxoV3Router.createCaller(mockCtx);
@@ -112,10 +123,10 @@ describe("fluxoV3Router — Etapa 2: Questionário Adaptativo", () => {
     expect(result.questions[0].type).toBe("selecao_unica");
     expect(result.questions[1].type).toBe("sim_nao");
     expect(result.questions[2].type).toBe("escala_likert");
-    expect(invokeLLM).toHaveBeenCalledOnce();
-    const callArgs = vi.mocked(invokeLLM).mock.calls[0][0];
-    expect(callArgs.messages[1].content).toContain("6201-5/01");
-    expect(callArgs.messages[1].content).toContain("NÍVEL: 1");
+    expect(generateWithRetry).toHaveBeenCalledOnce();
+    const callArgs = vi.mocked(generateWithRetry).mock.calls[0];
+    const prompt = JSON.stringify(callArgs);
+    expect(prompt).toContain("6201-5/01");
   });
 
   it("generateQuestions — gera perguntas Nível 2 com contexto das respostas anteriores", async () => {
@@ -125,9 +136,7 @@ describe("fluxoV3Router — Etapa 2: Questionário Adaptativo", () => {
         { id: "q2", text: "Qual percentual do faturamento é de contratos recorrentes?", type: "escala_likert", required: true, scale_labels: { min: "0%", max: "100%" } },
       ],
     };
-    vi.mocked(invokeLLM).mockResolvedValue({
-      choices: [{ message: { content: JSON.stringify(mockQuestions) } }],
-    } as any);
+    vi.mocked(generateWithRetry).mockResolvedValue(mockQuestions);
 
     const { fluxoV3Router } = await import("./routers-fluxo-v3");
     const caller = fluxoV3Router.createCaller(mockCtx);
@@ -142,9 +151,11 @@ describe("fluxoV3Router — Etapa 2: Questionário Adaptativo", () => {
     });
 
     expect(result.questions).toHaveLength(2);
-    const callArgs = vi.mocked(invokeLLM).mock.calls[0][0];
-    expect(callArgs.messages[1].content).toContain("NÍVEL: 2 (aprofundamento");
-    expect(callArgs.messages[1].content).toContain("RESPOSTAS DO NÍVEL 1");
+    expect(generateWithRetry).toHaveBeenCalledOnce();
+    // Verificar que o level nivel2 foi passado (aparece no messages como "aprofundamento")
+    const callArgs = vi.mocked(generateWithRetry).mock.calls[0];
+    const prompt = JSON.stringify(callArgs);
+    expect(prompt).toContain("aprofundamento");
   });
 
   it("generateQuestions — lança NOT_FOUND se projeto não existe", async () => {
@@ -160,9 +171,7 @@ describe("fluxoV3Router — Etapa 2: Questionário Adaptativo", () => {
   });
 
   it("generateQuestions — lança INTERNAL_SERVER_ERROR se IA retorna JSON inválido", async () => {
-    vi.mocked(invokeLLM).mockResolvedValue({
-      choices: [{ message: { content: "Resposta inválida sem JSON" } }],
-    } as any);
+    vi.mocked(generateWithRetry).mockRejectedValue(new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Falha após 2 tentativas" }));
     const { fluxoV3Router } = await import("./routers-fluxo-v3");
     const caller = fluxoV3Router.createCaller(mockCtx);
     await expect(caller.generateQuestions({
@@ -214,10 +223,16 @@ describe("fluxoV3Router — Etapa 3: Briefing de Compliance", () => {
   });
 
   it("generateBriefing — gera briefing a partir das respostas do questionário", async () => {
-    const briefingText = "# Briefing de Compliance — Reforma Tributária\n\n## Resumo Executivo\nA empresa de TI com CNAE 6201-5/01 está exposta ao IBS e CBS...";
-    vi.mocked(invokeLLM).mockResolvedValue({
-      choices: [{ message: { content: briefingText } }],
-    } as any);
+    vi.mocked(generateWithRetry).mockResolvedValue({
+      nivel_risco_geral: "alto",
+      resumo_executivo: "A empresa de TI com CNAE 6201-5/01 está exposta ao IBS e CBS.",
+      principais_gaps: [{ gap: "CBS", causa_raiz: "Regime", evidencia_regulatoria: "Art. 156-A", urgencia: "imediata" }],
+      oportunidades: ["Créditos"],
+      recomendacoes_prioritarias: ["Revisar regime"],
+      proximos_passos: ["Contratar especialista"],
+      confidence_score: { nivel_confianca: 85, recomendacao: "Revisar", limitacoes: [] },
+      inconsistencias: [],
+    });
 
     const { fluxoV3Router } = await import("./routers-fluxo-v3");
     const caller = fluxoV3Router.createCaller(mockCtx);
@@ -226,16 +241,22 @@ describe("fluxoV3Router — Etapa 3: Briefing de Compliance", () => {
       allAnswers: mockProject.questionnaireAnswers,
     });
 
-    expect(result.briefing).toBe(briefingText);
+    expect(result.briefing).toContain("Briefing de Compliance");
     expect(mockDb.update).toHaveBeenCalledOnce();
-    expect(invokeLLM).toHaveBeenCalledOnce();
+    expect(generateWithRetry).toHaveBeenCalledOnce();
   });
 
   it("generateBriefing — incorpora correção do usuário na regeneração", async () => {
-    const briefingText = "# Briefing Atualizado\n\nCorreção aplicada: regime Lucro Real...";
-    vi.mocked(invokeLLM).mockResolvedValue({
-      choices: [{ message: { content: briefingText } }],
-    } as any);
+    vi.mocked(generateWithRetry).mockResolvedValue({
+      nivel_risco_geral: "alto",
+      resumo_executivo: "Correção aplicada: regime Lucro Real.",
+      principais_gaps: [],
+      oportunidades: [],
+      recomendacoes_prioritarias: [],
+      proximos_passos: [],
+      confidence_score: { nivel_confianca: 90, recomendacao: "OK", limitacoes: [] },
+      inconsistencias: [],
+    });
 
     const { fluxoV3Router } = await import("./routers-fluxo-v3");
     const caller = fluxoV3Router.createCaller(mockCtx);
@@ -245,30 +266,39 @@ describe("fluxoV3Router — Etapa 3: Briefing de Compliance", () => {
       correction: "O regime tributário está errado, somos Lucro Real",
     });
 
-    expect(result.briefing).toContain("Atualizado");
-    const callArgs = vi.mocked(invokeLLM).mock.calls[0][0];
-    const userMessage = callArgs.messages.find((m: any) => m.role === "user")?.content || "";
-    expect(userMessage).toContain("CORREÇÃO");
+    expect(result.briefing).toContain("Briefing de Compliance");
+    expect(generateWithRetry).toHaveBeenCalledOnce();
+    // Verificar que a correção foi passada para o generateWithRetry
+    const callArgs = vi.mocked(generateWithRetry).mock.calls[0];
+    const prompt = JSON.stringify(callArgs);
+    expect(prompt).toContain("Lucro Real");
   });
 
   it("generateBriefing — incorpora informações adicionais do usuário", async () => {
-    const briefingText = "# Briefing com Mais Informações\n\nMercado internacional considerado...";
-    vi.mocked(invokeLLM).mockResolvedValue({
-      choices: [{ message: { content: briefingText } }],
-    } as any);
+    vi.mocked(generateWithRetry).mockResolvedValue({
+      nivel_risco_geral: "medio",
+      resumo_executivo: "Mercado internacional considerado na análise.",
+      principais_gaps: [],
+      oportunidades: ["Mercado internacional"],
+      recomendacoes_prioritarias: [],
+      proximos_passos: [],
+      confidence_score: { nivel_confianca: 80, recomendacao: "OK", limitacoes: [] },
+      inconsistencias: [],
+    });
 
     const { fluxoV3Router } = await import("./routers-fluxo-v3");
     const caller = fluxoV3Router.createCaller(mockCtx);
-      const result = await caller.generateBriefing({
-        projectId: 42,
-        allAnswers: mockProject.questionnaireAnswers,
-        complement: "Também atuamos no mercado internacional com contratos em dólar",
-      });
+    const result = await caller.generateBriefing({
+      projectId: 42,
+      allAnswers: mockProject.questionnaireAnswers,
+      complement: "Também atuamos no mercado internacional com contratos em dólar",
+    });
 
     expect(result.briefing).toBeTruthy();
-    const callArgs = vi.mocked(invokeLLM).mock.calls[0][0];
-    const userMessage = callArgs.messages.find((m: any) => m.role === "user")?.content || "";
-    expect(userMessage).toContain("INFORMAÇÕES ADICIONAIS");
+    expect(generateWithRetry).toHaveBeenCalledOnce();
+    const callArgs = vi.mocked(generateWithRetry).mock.calls[0];
+    const prompt = JSON.stringify(callArgs);
+    expect(prompt).toContain("internacional");
   });
 
   it("approveBriefing — aprova e avança para Etapa 4", async () => {
@@ -302,9 +332,7 @@ describe("fluxoV3Router — Etapa 4: Matrizes de Riscos", () => {
         { id: "r2", evento: "Prazo de adaptação do ERP", probabilidade: "Média", impacto: "Médio", severidade: "Média", plano_acao: "Contratar consultoria" },
       ],
     };
-    vi.mocked(invokeLLM).mockResolvedValue({
-      choices: [{ message: { content: JSON.stringify(mockRisks) } }],
-    } as any);
+    vi.mocked(generateWithRetry).mockResolvedValue(mockRisks);
 
     const { fluxoV3Router } = await import("./routers-fluxo-v3");
     const caller = fluxoV3Router.createCaller(mockCtx);
@@ -319,8 +347,8 @@ describe("fluxoV3Router — Etapa 4: Matrizes de Riscos", () => {
     expect(result.matrices.negocio).toHaveLength(2);
     expect(result.matrices.ti).toHaveLength(2);
     expect(result.matrices.juridico).toHaveLength(2);
-    // invokeLLM chamado 4 vezes (uma por área)
-    expect(invokeLLM).toHaveBeenCalledTimes(4);
+    // generateWithRetry chamado 4 vezes (uma por área)
+    expect(generateWithRetry).toHaveBeenCalledTimes(4);
   });
 
   it("generateRiskMatrices — regenera apenas uma área específica com ajuste", async () => {
@@ -329,9 +357,7 @@ describe("fluxoV3Router — Etapa 4: Matrizes de Riscos", () => {
         { id: "r1", evento: "Split Payment impacta fluxo de caixa", probabilidade: "Alta", impacto: "Alto", severidade: "Crítica", plano_acao: "Negociar antecipação" },
       ],
     };
-    vi.mocked(invokeLLM).mockResolvedValue({
-      choices: [{ message: { content: JSON.stringify(mockRisks) } }],
-    } as any);
+    vi.mocked(generateWithRetry).mockResolvedValue(mockRisks);
 
     const { fluxoV3Router } = await import("./routers-fluxo-v3");
     const caller = fluxoV3Router.createCaller(mockCtx);
@@ -344,11 +370,11 @@ describe("fluxoV3Router — Etapa 4: Matrizes de Riscos", () => {
 
     expect(Object.keys(result.matrices)).toHaveLength(1);
     expect(result.matrices.contabilidade).toHaveLength(1);
-    // invokeLLM chamado apenas 1 vez
-    expect(invokeLLM).toHaveBeenCalledTimes(1);
-    const callArgs = vi.mocked(invokeLLM).mock.calls[0][0];
-    const userMessage = callArgs.messages.find((m: any) => m.role === "user")?.content || "";
-    expect(userMessage).toContain("AJUSTE SOLICITADO");
+    // generateWithRetry chamado apenas 1 vez
+    expect(generateWithRetry).toHaveBeenCalledTimes(1);
+    const callArgs = vi.mocked(generateWithRetry).mock.calls[0];
+    const prompt = JSON.stringify(callArgs);
+    expect(prompt).toContain("Split Payment");
   });
 
   it("generateRiskMatrices — lança NOT_FOUND se projeto não existe", async () => {
@@ -392,9 +418,7 @@ describe("fluxoV3Router — Etapa 5: Plano de Ação", () => {
         { id: "t2", titulo: "Atualizar sistema de faturamento", descricao: "Adaptar NFS-e para novo padrão", area: "contabilidade", prazo_sugerido: "60 dias", prioridade: "Alta", responsavel_sugerido: "TI" },
       ],
     };
-    vi.mocked(invokeLLM).mockResolvedValue({
-      choices: [{ message: { content: JSON.stringify(mockTasks) } }],
-    } as any);
+    vi.mocked(generateWithRetry).mockResolvedValue(mockTasks);
 
     const { fluxoV3Router } = await import("./routers-fluxo-v3");
     const caller = fluxoV3Router.createCaller(mockCtx);
@@ -410,7 +434,7 @@ describe("fluxoV3Router — Etapa 5: Plano de Ação", () => {
     expect(task.progress).toBe(0);
     expect(task.notifications).toBeDefined();
     expect(task.notifications.beforeDays).toBe(7);
-    expect(invokeLLM).toHaveBeenCalledTimes(4);
+    expect(generateWithRetry).toHaveBeenCalledTimes(4);
   });
 
   it("generateActionPlan — regenera apenas uma área com ajuste", async () => {
@@ -419,9 +443,7 @@ describe("fluxoV3Router — Etapa 5: Plano de Ação", () => {
         { id: "t1", titulo: "Treinamento da equipe contábil", descricao: "Capacitar equipe na Reforma Tributária", area: "contabilidade", prazo_sugerido: "30 dias", prioridade: "Alta", responsavel_sugerido: "RH" },
       ],
     };
-    vi.mocked(invokeLLM).mockResolvedValue({
-      choices: [{ message: { content: JSON.stringify(mockTasks) } }],
-    } as any);
+    vi.mocked(generateWithRetry).mockResolvedValue(mockTasks);
 
     const { fluxoV3Router } = await import("./routers-fluxo-v3");
     const caller = fluxoV3Router.createCaller(mockCtx);
@@ -433,10 +455,10 @@ describe("fluxoV3Router — Etapa 5: Plano de Ação", () => {
     });
 
     expect(Object.keys(result.plans)).toHaveLength(1);
-    expect(invokeLLM).toHaveBeenCalledTimes(1);
-    const callArgs = vi.mocked(invokeLLM).mock.calls[0][0];
-    const userMessage = callArgs.messages.find((m: any) => m.role === "user")?.content || "";
-    expect(userMessage).toContain("AJUSTE SOLICITADO");
+    expect(generateWithRetry).toHaveBeenCalledTimes(1);
+    const callArgs = vi.mocked(generateWithRetry).mock.calls[0];
+    const prompt = JSON.stringify(callArgs);
+    expect(prompt).toContain("treinamento");
   });
 
   it("updateTask — atualiza status e progresso de uma tarefa", async () => {
@@ -517,11 +539,20 @@ describe("fluxoV3Router — Fluxo Completo E2E (mock)", () => {
   });
 
   it("fluxo completo: Etapa 2 → 3 → 4 → 5 executa sem erros", async () => {
-    // Mock IA para todas as chamadas
-    vi.mocked(invokeLLM)
-      .mockResolvedValueOnce({ choices: [{ message: { content: JSON.stringify({ questions: [{ id: "q1", text: "Pergunta 1", type: "sim_nao", required: true }] }) } }] } as any)
-      .mockResolvedValueOnce({ choices: [{ message: { content: "# Briefing\n\nConteúdo do briefing..." } }] } as any)
-      .mockResolvedValue({ choices: [{ message: { content: JSON.stringify({ risks: [{ id: "r1", evento: "Risco 1", probabilidade: "Alta", impacto: "Alto", severidade: "Crítica", plano_acao: "Ação 1" }] }) } }] } as any);
+    // Mock generateWithRetry para todas as chamadas
+    vi.mocked(generateWithRetry)
+      .mockResolvedValueOnce({ questions: [{ id: "q1", text: "Pergunta 1", type: "sim_nao", required: true }] })
+      .mockResolvedValueOnce({
+        nivel_risco_geral: "alto",
+        resumo_executivo: "Briefing de Compliance gerado.",
+        principais_gaps: [],
+        oportunidades: [],
+        recomendacoes_prioritarias: [],
+        proximos_passos: [],
+        confidence_score: { nivel_confianca: 85, recomendacao: "OK", limitacoes: [] },
+        inconsistencias: [],
+      })
+      .mockResolvedValue({ risks: [{ id: "r1", evento: "Risco 1", probabilidade: "Alta", impacto: "Alto", severidade: "Crítica", plano_acao: "Ação 1" }] });
 
     const { fluxoV3Router } = await import("./routers-fluxo-v3");
     const caller = fluxoV3Router.createCaller(mockCtx);

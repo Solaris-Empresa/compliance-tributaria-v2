@@ -81,6 +81,7 @@ export const projects = mysqlTable("projects", {
     "grande"
   ]),
   // Fluxo V3 — conteúdo gerado por IA (armazenado como JSON/texto no projeto)
+  questionnaireAnswers: json("questionnaireAnswers"),     // Respostas do questionário V3: [{cnaeCode, cnaeDescription, level, questions:[{question,answer}]}]
   briefingContent: text("briefingContent"),              // Briefing gerado pela IA (markdown)
   briefingStructured: json("briefingStructured"),        // V61: Briefing estruturado com confidence_score e inconsistencias
   riskMatricesData: json("riskMatricesData"),            // Matrizes de riscos: { [cnaeCode]: Risk[] }

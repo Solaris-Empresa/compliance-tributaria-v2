@@ -228,6 +228,7 @@ Retorne entre 2 e 6 CNAEs revisados.
         confirmedCnaes: (project as any).confirmedCnaes,
         currentStep: (project as any).currentStep ?? 1,
         status: project.status,
+        questionnaireAnswers: (project as any).questionnaireAnswers ?? null,
         briefingContent: (project as any).briefingContent ?? null,
         riskMatricesData: (project as any).riskMatricesData ?? null,
         actionPlansData: (project as any).actionPlansData ?? null,
@@ -1071,7 +1072,7 @@ function buildBriefingMarkdown(structured: any): string {
     ``,
   ];
 
-  for (const gap of structured.principais_gaps) {
+  for (const gap of (structured.principais_gaps ?? [])) {
     lines.push(`### ${gap.gap}`);
     lines.push(`- **Causa Raiz:** ${gap.causa_raiz}`);
     lines.push(`- **Base Legal:** ${gap.evidencia_regulatoria}`);
@@ -1081,14 +1082,14 @@ function buildBriefingMarkdown(structured: any): string {
 
   lines.push(`## 3. Oportunidades`);
   lines.push(``);
-  for (const op of structured.oportunidades) {
+  for (const op of (structured.oportunidades ?? [])) {
     lines.push(`- ${op}`);
   }
   lines.push(``);
 
   lines.push(`## 4. Recomendações Prioritárias`);
   lines.push(``);
-  structured.recomendacoes_prioritarias.forEach((rec: string, i: number) => {
+  (structured.recomendacoes_prioritarias ?? []).forEach((rec: string, i: number) => {
     lines.push(`${i + 1}. ${rec}`);
   });
   lines.push(``);
