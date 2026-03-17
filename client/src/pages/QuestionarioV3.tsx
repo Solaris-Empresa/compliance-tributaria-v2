@@ -250,18 +250,32 @@ export default function QuestionarioV3() {
     if (project?.confirmedCnaes && Array.isArray(project.confirmedCnaes)) {
       const cnaeList = project.confirmedCnaes as { code: string; description: string }[];
       setCnaes(cnaeList);
+      // Restaurar progresso a partir das respostas salvas no banco
+      const savedAnswers = savedProgress?.answers || [];
+      const answeredCnaes = new Set(savedAnswers.map((a: any) => a.cnaeCode));
+      const nivel2Cnaes = new Set(
+        savedAnswers.filter((a: any) => a.level === "nivel2").map((a: any) => a.cnaeCode)
+      );
       setCnaeProgress(cnaeList.map(c => ({
         code: c.code,
         description: c.description,
-        nivel1Done: false,
-        nivel2Done: false,
-        skippedNivel2: false,
+        nivel1Done: answeredCnaes.has(c.code),
+        nivel2Done: nivel2Cnaes.has(c.code),
+        skippedNivel2: answeredCnaes.has(c.code) && !nivel2Cnaes.has(c.code),
         revisado: false,
-        answers: [],
-        nivel2Answers: [],
+        answers: savedAnswers
+          .filter((a: any) => a.cnaeCode === c.code && a.level === "nivel1")
+          .map((a: any) => ({ question: a.questionText, answer: a.answerValue })),
+        nivel2Answers: savedAnswers
+          .filter((a: any) => a.cnaeCode === c.code && a.level === "nivel2")
+          .map((a: any) => ({ question: a.questionText, answer: a.answerValue })),
       })));
+      // Restaurar CNAEs já iniciados
+      if (answeredCnaes.size > 0) {
+        setStartedCnaes(answeredCnaes);
+      }
     }
-  }, [project]);
+  }, [project, savedProgress]);
 
   // Carregar perguntas do CNAE atual
   const loadQuestions = useCallback(async (cnaeIdx: number, level: "nivel1" | "nivel2", prevAnswers?: { question: string; answer: string }[]) => {

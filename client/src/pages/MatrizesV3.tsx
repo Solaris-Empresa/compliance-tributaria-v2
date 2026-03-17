@@ -189,8 +189,20 @@ export default function MatrizesV3() {
   const generateMatrices = trpc.fluxoV3.generateRiskMatrices.useMutation();
   const approveMatrices = trpc.fluxoV3.approveMatrices.useMutation();
 
+  // Carregar matrizes salvas do banco (se existirem) ou gerar novas
   useEffect(() => {
-    if (project && generationCount === 0) {
+    if (!project) return;
+    // Se já há matrizes no estado (rascunho local), não sobrescrever
+    if (Object.keys(matrices).length > 0) return;
+    // Prioridade: matrizes salvas no banco (re-edição)
+    const savedMatrices = (project as any).riskMatricesData;
+    if (savedMatrices && Object.keys(savedMatrices).length > 0 && generationCount === 0) {
+      setMatrices(savedMatrices);
+      setGenerationCount(1);
+      return;
+    }
+    // Gerar novas matrizes apenas se não há conteúdo salvo
+    if (generationCount === 0) {
       handleGenerate();
     }
   }, [project]);

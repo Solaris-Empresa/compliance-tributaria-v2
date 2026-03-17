@@ -80,9 +80,20 @@ export default function BriefingV3() {
   const generateBriefing = trpc.fluxoV3.generateBriefing.useMutation();
   const approveBriefing = trpc.fluxoV3.approveBriefing.useMutation();
 
-  // Gerar briefing inicial ao carregar
+  // Carregar briefing salvo do banco (se existir) ou gerar novo
   useEffect(() => {
-    if (project && !briefing && generationCount === 0) {
+    if (!project) return;
+    // Se já há briefing no estado (rascunho local), não sobrescrever
+    if (briefing) return;
+    // Prioridade: briefing salvo no banco (re-edição)
+    const savedBriefing = (project as any).briefingContent;
+    if (savedBriefing && generationCount === 0) {
+      setBriefing(savedBriefing);
+      setGenerationCount(1);
+      return;
+    }
+    // Gerar novo briefing apenas se não há conteúdo salvo
+    if (!savedBriefing && generationCount === 0) {
       handleGenerate();
     }
   }, [project]);

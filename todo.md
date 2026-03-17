@@ -1904,3 +1904,9 @@
 - [x] Retorno enriquecido com changedBy na procedure updateStatus
 - [x] 36 testes unitários passando (sprint-v55-status-transitions.test.ts)
 - [x] CHANGELOG.md atualizado com entrada [3.5.0] Sprint V55
+## Bugs Reportados (17/03/2026)
+- [x] BUG-04: 404 em /usuarios — rota não registrada no App.tsx (criação de Usuarios.tsx + rota)
+- [x] BUG-05: 0 riscos mapeados — campos briefingContent/riskMatricesData/actionPlansData não existiam no banco (migração + schema corrigido)
+- [x] BUG-06: 0 tarefas criadas — mesma causa do BUG-05 (campos ausentes no banco)
+- [x] BUG-07: Questionário bloqueado — cnaeProgress não restaurava progresso do banco; corrigido para ler savedProgress.answers
+- [x] BUG-08: Re-edição — BriefingV3/MatrizesV3/PlanoAcaoV3 agora carregam conteúdo salvo do banco; PlanoAcaoV3 mostra tela de conclusão com dados reais ao reabrir projeto aprovado; botão "Editar Plano de Ação" adicionado

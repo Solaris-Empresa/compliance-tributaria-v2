@@ -169,6 +169,13 @@
       "when": 1773755763087,
       "tag": "0023_striped_nitro",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1773763597527,
+      "tag": "0024_brainy_brother_voodoo",
+      "breakpoints": true
     }
   ]
 }

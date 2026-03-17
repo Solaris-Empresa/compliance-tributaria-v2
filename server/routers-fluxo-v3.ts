@@ -224,6 +224,10 @@ Responda em JSON:
         confirmedCnaes: (project as any).confirmedCnaes,
         currentStep: (project as any).currentStep ?? 1,
         status: project.status,
+        // Conteúdo persistido das etapas anteriores (permite re-edição)
+        briefingContent: (project as any).briefingContent ?? null,
+        riskMatricesData: (project as any).riskMatricesData ?? null,
+        actionPlansData: (project as any).actionPlansData ?? null,
       };
     }),
 

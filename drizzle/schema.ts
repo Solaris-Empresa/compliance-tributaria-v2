@@ -80,6 +80,10 @@ export const projects = mysqlTable("projects", {
     "media",
     "grande"
   ]),
+  // Fluxo V3 — conteúdo gerado por IA (armazenado como JSON/texto no projeto)
+  briefingContent: text("briefingContent"),              // Briefing gerado pela IA (markdown)
+  riskMatricesData: json("riskMatricesData"),            // Matrizes de riscos: { [cnaeCode]: Risk[] }
+  actionPlansData: json("actionPlansData"),              // Plano de ação: { [area]: Task[] }
 });
 
 export type Project = typeof projects.$inferSelect;

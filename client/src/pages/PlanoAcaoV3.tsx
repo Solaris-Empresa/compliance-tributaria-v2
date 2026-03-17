@@ -688,8 +688,60 @@ export default function PlanoAcaoV3() {
     { enabled: !!projectId }
   );
 
+  // Carregar plano salvo do banco (se existir) ou gerar novo
   useEffect(() => {
-    if (project && generationCount === 0 && !generationTriggeredRef.current) {
+    if (!project) return;
+
+    // Se projeto já está aprovado/concluído, mostrar tela de conclusão com dados do banco
+    const isApproved = project.status === "aprovado" || project.status === "concluido";
+    if (isApproved && !showConclusion && !conclusionData) {
+      const savedPlans = (project as any).actionPlansData || {};
+      const savedMatrices = (project as any).riskMatricesData || {};
+      const cnaes = (project as any).confirmedCnaes || [];
+      const allRisksRaw = Object.entries(savedMatrices).flatMap(([area, risks]) =>
+        (risks as any[]).map((r: any) => ({ area, ...r }))
+      );
+      const totalRisks = allRisksRaw.length;
+      const criticalRisks = allRisksRaw.filter((r: any) => r?.severidade === "Crítico" || r?.severidade === "Critico").length;
+      const highRisks = allRisksRaw.filter((r: any) => r?.severidade === "Alta").length;
+      const allTasks = Object.values(savedPlans).flat().filter((t: any) => !t.deleted) as Task[];
+      const totalTasks = allTasks.length;
+      const tasksByArea = Object.entries(savedPlans).map(([area, tasks]) => ({
+        area,
+        count: (tasks as any[]).filter((t: any) => !t.deleted).length,
+      })).filter(a => a.count > 0);
+      if (Object.keys(savedPlans).length > 0) {
+        setPlans(savedPlans);
+        setGenerationCount(1);
+        generationTriggeredRef.current = true;
+      }
+      setConclusionData({
+        projectName: project.name || "Projeto",
+        cnaes,
+        totalRisks,
+        criticalRisks,
+        highRisks,
+        totalTasks,
+        tasksByArea,
+        allTasks,
+        allRisks: allRisksRaw,
+      });
+      setShowConclusion(true);
+      return;
+    }
+
+    // Se já há planos no estado (rascunho local), não sobrescrever
+    if (Object.keys(plans).length > 0) return;
+    // Prioridade: plano salvo no banco (re-edição)
+    const savedPlans = (project as any).actionPlansData;
+    if (savedPlans && Object.keys(savedPlans).length > 0 && generationCount === 0) {
+      setPlans(savedPlans);
+      setGenerationCount(1);
+      generationTriggeredRef.current = true;
+      return;
+    }
+    // Gerar novo plano apenas se não há conteúdo salvo
+    if (generationCount === 0 && !generationTriggeredRef.current) {
       generationTriggeredRef.current = true;
       handleGenerate();
     }
@@ -1193,6 +1245,15 @@ export default function PlanoAcaoV3() {
                 className="gap-2 px-8"
               >
                 Ver Projeto
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => { setShowConclusion(false); }}
+                className="gap-2 px-8 border-amber-300 text-amber-700 hover:bg-amber-50"
+              >
+                <Edit3 className="h-4 w-4" />
+                Editar Plano de Ação
               </Button>
             </div>
           </div>
