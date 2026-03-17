@@ -28,6 +28,7 @@ import EditarTemplate from "@/pages/EditarTemplate";
 import MatrizRiscos from "@/pages/MatrizRiscos";
 import MatrizRiscosGlobal from "@/pages/MatrizRiscosGlobal";
 import ProjetoDetalhes from "./pages/ProjetoDetalhes";
+import ProjetoDetalhesV2 from "./pages/ProjetoDetalhesV2";
 import GerenciarAcoes from "./pages/GerenciarAcoes";
 import VisualizadorAuditoria from "./pages/VisualizadorAuditoria";
 import NotFound from "./pages/NotFound";
@@ -50,7 +51,7 @@ function Router() {
       <Route path="/" component={Painel} />
       <Route path="/projetos" component={Projetos} />
       <Route path="/projetos/novo" component={NovoProjeto} />
-      <Route path="/projetos/:id" component={ProjetoDetalhes} />
+      <Route path="/projetos/:id" component={ProjetoDetalhesV2} />
       <Route path="/clientes" component={Clientes} />
       <Route path="/clientes/novo" component={NovoCliente} />
       <Route path="/projetos/:id/avaliacao/fase1" component={AvaliacaoFase1} />

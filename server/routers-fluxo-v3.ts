@@ -721,6 +721,71 @@ Formato: {"tasks": [{"id": "t1", "titulo": "...", "descricao": "...", "area": "$
       return db.getTaskHistory(input.taskId, input.projectId);
     }),
   // ───────────────────────────────────────────────────────────────────────────
+  // PÁGINA DE DETALHES: Resumo completo do projeto
+  // ─────────────────────────────────────────────────────────────────────────
+  getProjectSummary: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      const database = await db.getDb();
+      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Contar respostas do questionário
+      const answers = await database
+        .select()
+        .from(questionnaireAnswersV3)
+        .where(eq(questionnaireAnswersV3.projectId, input.projectId));
+
+      // Contar tarefas do plano de ação
+      const actionPlansData = (project as any).actionPlansData as Record<string, any[]> | null;
+      let totalTasks = 0;
+      let completedTasks = 0;
+      let tasksByArea: { area: string; count: number; completed: number }[] = [];
+      if (actionPlansData) {
+        for (const [area, tasks] of Object.entries(actionPlansData)) {
+          const activeTasks = (tasks as any[]).filter(t => !t.deleted);
+          const done = activeTasks.filter(t => t.status === "concluido").length;
+          totalTasks += activeTasks.length;
+          completedTasks += done;
+          if (activeTasks.length > 0) tasksByArea.push({ area, count: activeTasks.length, completed: done });
+        }
+      }
+
+      // Contar riscos
+      const riskMatricesData = (project as any).riskMatricesData as Record<string, any[]> | null;
+      let totalRisks = 0;
+      if (riskMatricesData) {
+        for (const risks of Object.values(riskMatricesData)) {
+          totalRisks += (risks as any[]).length;
+        }
+      }
+
+      const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
+
+      return {
+        id: project.id,
+        name: project.name,
+        description: (project as any).description,
+        status: project.status,
+        currentStep: (project as any).currentStep ?? 1,
+        clientId: project.clientId,
+        planPeriodMonths: project.planPeriodMonths,
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt,
+        confirmedCnaes,
+        totalAnswers: answers.length,
+        totalTasks,
+        completedTasks,
+        totalRisks,
+        tasksByArea,
+        hasBriefing: !!(project as any).briefingContent,
+        hasRiskMatrices: !!riskMatricesData && Object.keys(riskMatricesData).length > 0,
+        hasActionPlan: !!actionPlansData && Object.keys(actionPlansData).length > 0,
+      };
+    }),
+
+  // ───────────────────────────────────────────────────────────────────────────
   // ETAPA 5: Aprovar plano de ação
   // ─────────────────────────────────────────────────────────────────────────
   approveActionPlan: protectedProcedure

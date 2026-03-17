@@ -1858,3 +1858,25 @@
 - [x] Ícones e cores por tipo de evento (9 tipos: criação, status, responsável, prazo, progresso, título, prioridade, notificação, comentário)
 - [x] Exibir diff de valores (De: X → Para: Y) na timeline com formatação inteligente
 - [x] 21 testes unitários passando (rf-hist-task-history.test.ts)
+
+## Nova Página de Detalhes do Projeto (Sprint V54)
+- [ ] Substituir página antiga /projetos/:id pelo ProjetoDetalhesV2
+- [ ] Header com nome, status, cliente, período e ações rápidas
+- [ ] Cards de métricas: CNAEs, riscos, tarefas, progresso geral
+- [ ] Seção de acesso rápido a todas as etapas (Questionário, Briefing, Riscos, Plano, Execução)
+- [ ] Indicadores visuais de conclusão por etapa
+- [ ] Botões de ação contextual por etapa (Ver, Editar, Continuar)
+- [ ] Seção de membros do projeto
+- [ ] Testes unitários para a lógica da nova página
+
+## Nova Página de Detalhes do Projeto — ProjetoDetalhesV2 (17/03/2026)
+- [x] Procedure `getProjectSummary` no servidor (CNAEs, tarefas por área, riscos, status das etapas)
+- [x] Nova página `ProjetoDetalhesV2.tsx` com layout moderno (ComplianceLayout)
+- [x] Stepper visual de 5 etapas com estado (concluído/ativo/bloqueado) e tooltips
+- [x] Cards de métricas rápidas (CNAEs, Riscos, Tarefas, Progresso) com navegação direta
+- [x] Barra de progresso do plano de ação com breakdown por área
+- [x] Lista de CNAEs confirmados com badge de código e confiança
+- [x] Acesso rápido a todas as seções (Questionário, Briefing, Riscos, Plano)
+- [x] Botões de ações administrativas (equipe SOLARIS) para mudar status
+- [x] Rota `/projetos/:id` atualizada para ProjetoDetalhesV2 no App.tsx
+- [x] 23 testes unitários passando (projeto-detalhes-v2.test.ts)
