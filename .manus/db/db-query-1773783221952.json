@@ -1,0 +1,1025 @@
+{
+  "query": "\nSELECT id, name, email, role, createdAt FROM users ORDER BY id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT id, name, email, role, createdAt FROM users ORDER BY id;\n",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Uires Tapajós",
+      "email": "uires.tapajos@companyweb.com.br",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 19:45:35"
+    },
+    {
+      "id": "13",
+      "name": "Queijo Itamonte - MG",
+      "email": "CONTATO@UAISO.COM",
+      "role": "cliente",
+      "createdAt": "2026-03-17 19:48:17"
+    },
+    {
+      "id": "153",
+      "name": "Cliente Teste 1773778872817",
+      "email": "cliente1773778872817@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:12"
+    },
+    {
+      "id": "154",
+      "name": "Cliente Teste 1773778872958",
+      "email": "cliente1773778872958@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:12"
+    },
+    {
+      "id": "155",
+      "name": "Cliente Teste 1773778872989",
+      "email": "cliente1773778872989@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:12"
+    },
+    {
+      "id": "156",
+      "name": "Cliente Teste 1773778873031",
+      "email": "cliente1773778873031@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:13"
+    },
+    {
+      "id": "157",
+      "name": "Cliente Teste 1773778873053",
+      "email": "cliente1773778873053@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:13"
+    },
+    {
+      "id": "158",
+      "name": "Cliente Teste 1773778873079",
+      "email": "cliente1773778873079@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:13"
+    },
+    {
+      "id": "159",
+      "name": "Cliente Teste 1773778873104",
+      "email": "cliente1773778873104@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:13"
+    },
+    {
+      "id": "160",
+      "name": "Cliente Teste 1773778873131",
+      "email": "cliente1773778873131@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:13"
+    },
+    {
+      "id": "161",
+      "name": "Cliente Teste 1773778873179",
+      "email": "cliente1773778873179@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:13"
+    },
+    {
+      "id": "162",
+      "name": "Cliente Teste 1773778873220",
+      "email": "cliente1773778873220@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:13"
+    },
+    {
+      "id": "173",
+      "name": "Test User Action Plans",
+      "email": "test-action-plans-1773778875121@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:21:15"
+    },
+    {
+      "id": "178",
+      "name": "Test Solaris User",
+      "email": "solaris-1773778875628@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:21:15"
+    },
+    {
+      "id": "179",
+      "name": "Test Client Company",
+      "email": "client-1773778875628@example.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:15"
+    },
+    {
+      "id": "180",
+      "name": "Test Branch Plans User",
+      "email": "branch-plans-1773778876496@test.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:21:16"
+    },
+    {
+      "id": "191",
+      "name": "Test User Versions DB",
+      "email": "test.versions.db@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:21:17"
+    },
+    {
+      "id": "200",
+      "name": "Test User - Branch Flow",
+      "email": "test-branch-flow-1773778879326@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:21:19"
+    },
+    {
+      "id": "203",
+      "name": "Test User Branch Gen",
+      "email": "test-branch-gen-1773778879464@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:21:19"
+    },
+    {
+      "id": "240",
+      "name": "Test User Branches",
+      "email": "branches@test.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:21:37"
+    },
+    {
+      "id": "241",
+      "name": "Test User Phase1 Fix",
+      "email": "NULL",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:21:46"
+    },
+    {
+      "id": "242",
+      "name": "Test User - Risk Generation",
+      "email": "test-risk-1773778908945@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:21:49"
+    },
+    {
+      "id": "243",
+      "name": "Test Client - Risk Generation",
+      "email": "test-client-1773778909064@example.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:49"
+    },
+    {
+      "id": "244",
+      "name": "Test User tRPC",
+      "email": "NULL",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:21:50"
+    },
+    {
+      "id": "245",
+      "name": "Cliente Teste 1773778910277",
+      "email": "cliente1773778910277@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:50"
+    },
+    {
+      "id": "246",
+      "name": "Cliente Teste 1773778913377",
+      "email": "cliente1773778913377@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:53"
+    },
+    {
+      "id": "247",
+      "name": "Cliente Teste 1773778913540",
+      "email": "cliente1773778913540@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:53"
+    },
+    {
+      "id": "248",
+      "name": "Cliente Teste 1773778913597",
+      "email": "cliente1773778913597@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:53"
+    },
+    {
+      "id": "249",
+      "name": "Cliente Teste 1773778916086",
+      "email": "cliente1773778916086@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:56"
+    },
+    {
+      "id": "250",
+      "name": "Cliente Teste 1773778916218",
+      "email": "cliente1773778916218@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:56"
+    },
+    {
+      "id": "251",
+      "name": "Cliente Teste 1773778916256",
+      "email": "cliente1773778916256@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:56"
+    },
+    {
+      "id": "252",
+      "name": "Cliente Teste 1773778917776",
+      "email": "cliente1773778917776@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:21:57"
+    },
+    {
+      "id": "275",
+      "name": "Uires Tapajós",
+      "email": "uires.tapajos@iasolaris.com.br",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:34:25"
+    },
+    {
+      "id": "343",
+      "name": "Cliente Teste 1773779768541",
+      "email": "cliente1773779768541@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:08"
+    },
+    {
+      "id": "344",
+      "name": "Cliente Teste 1773779768737",
+      "email": "cliente1773779768737@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:08"
+    },
+    {
+      "id": "345",
+      "name": "Cliente Teste 1773779768771",
+      "email": "cliente1773779768771@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:08"
+    },
+    {
+      "id": "346",
+      "name": "Cliente Teste 1773779768818",
+      "email": "cliente1773779768818@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:08"
+    },
+    {
+      "id": "347",
+      "name": "Cliente Teste 1773779768837",
+      "email": "cliente1773779768837@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:08"
+    },
+    {
+      "id": "348",
+      "name": "Cliente Teste 1773779768870",
+      "email": "cliente1773779768870@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:08"
+    },
+    {
+      "id": "349",
+      "name": "Cliente Teste 1773779768898",
+      "email": "cliente1773779768898@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:08"
+    },
+    {
+      "id": "350",
+      "name": "Cliente Teste 1773779768956",
+      "email": "cliente1773779768956@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:08"
+    },
+    {
+      "id": "351",
+      "name": "Cliente Teste 1773779768997",
+      "email": "cliente1773779768997@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:09"
+    },
+    {
+      "id": "352",
+      "name": "Cliente Teste 1773779769035",
+      "email": "cliente1773779769035@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:09"
+    },
+    {
+      "id": "365",
+      "name": "Test User Action Plans",
+      "email": "test-action-plans-1773779770804@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:36:10"
+    },
+    {
+      "id": "366",
+      "name": "Test Solaris User",
+      "email": "solaris-1773779770993@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:36:11"
+    },
+    {
+      "id": "367",
+      "name": "Test Client Company",
+      "email": "client-1773779770993@example.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:11"
+    },
+    {
+      "id": "370",
+      "name": "Test Branch Plans User",
+      "email": "branch-plans-1773779771179@test.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:36:11"
+    },
+    {
+      "id": "392",
+      "name": "Test User - Branch Flow",
+      "email": "test-branch-flow-1773779774652@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:36:14"
+    },
+    {
+      "id": "393",
+      "name": "Test User Branch Gen",
+      "email": "test-branch-gen-1773779774728@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:36:14"
+    },
+    {
+      "id": "439",
+      "name": "Test User Phase1 Fix",
+      "email": "NULL",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:36:38"
+    },
+    {
+      "id": "440",
+      "name": "Test User - Risk Generation",
+      "email": "test-risk-1773779800558@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:36:40"
+    },
+    {
+      "id": "441",
+      "name": "Test Client - Risk Generation",
+      "email": "test-client-1773779800681@example.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:40"
+    },
+    {
+      "id": "444",
+      "name": "Test User tRPC",
+      "email": "NULL",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 20:36:41"
+    },
+    {
+      "id": "445",
+      "name": "Cliente Teste 1773779801569",
+      "email": "cliente1773779801569@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:41"
+    },
+    {
+      "id": "446",
+      "name": "Cliente Teste 1773779803406",
+      "email": "cliente1773779803406@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:43"
+    },
+    {
+      "id": "447",
+      "name": "Cliente Teste 1773779803567",
+      "email": "cliente1773779803567@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:43"
+    },
+    {
+      "id": "448",
+      "name": "Cliente Teste 1773779803617",
+      "email": "cliente1773779803617@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:43"
+    },
+    {
+      "id": "449",
+      "name": "Cliente Teste 1773779804775",
+      "email": "cliente1773779804775@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:44"
+    },
+    {
+      "id": "450",
+      "name": "Cliente Teste 1773779804896",
+      "email": "cliente1773779804896@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:44"
+    },
+    {
+      "id": "451",
+      "name": "Cliente Teste 1773779804934",
+      "email": "cliente1773779804934@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:44"
+    },
+    {
+      "id": "452",
+      "name": "Cliente Teste 1773779806548",
+      "email": "cliente1773779806548@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 20:36:46"
+    },
+    {
+      "id": "583",
+      "name": "Cliente Teste 1773781332508",
+      "email": "cliente1773781332508@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:12"
+    },
+    {
+      "id": "584",
+      "name": "Cliente Teste 1773781332642",
+      "email": "cliente1773781332642@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:12"
+    },
+    {
+      "id": "585",
+      "name": "Cliente Teste 1773781332671",
+      "email": "cliente1773781332671@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:12"
+    },
+    {
+      "id": "586",
+      "name": "Cliente Teste 1773781332713",
+      "email": "cliente1773781332713@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:12"
+    },
+    {
+      "id": "587",
+      "name": "Cliente Teste 1773781332734",
+      "email": "cliente1773781332734@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:12"
+    },
+    {
+      "id": "588",
+      "name": "Cliente Teste 1773781332761",
+      "email": "cliente1773781332761@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:12"
+    },
+    {
+      "id": "589",
+      "name": "Cliente Teste 1773781332787",
+      "email": "cliente1773781332787@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:12"
+    },
+    {
+      "id": "590",
+      "name": "Cliente Teste 1773781332813",
+      "email": "cliente1773781332813@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:12"
+    },
+    {
+      "id": "591",
+      "name": "Cliente Teste 1773781332873",
+      "email": "cliente1773781332873@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:12"
+    },
+    {
+      "id": "592",
+      "name": "Cliente Teste 1773781332913",
+      "email": "cliente1773781332913@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:12"
+    },
+    {
+      "id": "607",
+      "name": "Test User Action Plans",
+      "email": "test-action-plans-1773781335001@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:02:15"
+    },
+    {
+      "id": "608",
+      "name": "Test Solaris User",
+      "email": "solaris-1773781335336@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:02:15"
+    },
+    {
+      "id": "609",
+      "name": "Test Client Company",
+      "email": "client-1773781335336@example.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:15"
+    },
+    {
+      "id": "610",
+      "name": "Test Branch Plans User",
+      "email": "branch-plans-1773781335421@test.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:02:15"
+    },
+    {
+      "id": "632",
+      "name": "Test User - Branch Flow",
+      "email": "test-branch-flow-1773781339723@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:02:19"
+    },
+    {
+      "id": "635",
+      "name": "Test User Branch Gen",
+      "email": "test-branch-gen-1773781339931@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:02:20"
+    },
+    {
+      "id": "671",
+      "name": "Test User Phase1 Fix",
+      "email": "NULL",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:02:42"
+    },
+    {
+      "id": "672",
+      "name": "Test User - Risk Generation",
+      "email": "test-risk-1773781365169@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:02:45"
+    },
+    {
+      "id": "673",
+      "name": "Test Client - Risk Generation",
+      "email": "test-client-1773781365277@example.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:45"
+    },
+    {
+      "id": "674",
+      "name": "Test User tRPC",
+      "email": "NULL",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:02:45"
+    },
+    {
+      "id": "675",
+      "name": "Cliente Teste 1773781365743",
+      "email": "cliente1773781365743@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:45"
+    },
+    {
+      "id": "676",
+      "name": "Cliente Teste 1773781368180",
+      "email": "cliente1773781368180@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:48"
+    },
+    {
+      "id": "677",
+      "name": "Cliente Teste 1773781368340",
+      "email": "cliente1773781368340@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:48"
+    },
+    {
+      "id": "678",
+      "name": "Cliente Teste 1773781368397",
+      "email": "cliente1773781368397@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:48"
+    },
+    {
+      "id": "679",
+      "name": "Cliente Teste 1773781369761",
+      "email": "cliente1773781369761@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:49"
+    },
+    {
+      "id": "680",
+      "name": "Cliente Teste 1773781369909",
+      "email": "cliente1773781369909@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:49"
+    },
+    {
+      "id": "681",
+      "name": "Cliente Teste 1773781369945",
+      "email": "cliente1773781369945@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:49"
+    },
+    {
+      "id": "682",
+      "name": "Cliente Teste 1773781371740",
+      "email": "cliente1773781371740@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:02:51"
+    },
+    {
+      "id": "730",
+      "name": "Cliente Teste 1773781553557",
+      "email": "cliente1773781553557@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:05:53"
+    },
+    {
+      "id": "731",
+      "name": "Cliente Teste 1773781553704",
+      "email": "cliente1773781553704@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:05:53"
+    },
+    {
+      "id": "732",
+      "name": "Cliente Teste 1773781553740",
+      "email": "cliente1773781553740@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:05:53"
+    },
+    {
+      "id": "733",
+      "name": "Cliente Teste 1773781553783",
+      "email": "cliente1773781553783@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:05:53"
+    },
+    {
+      "id": "734",
+      "name": "Cliente Teste 1773781553806",
+      "email": "cliente1773781553806@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:05:53"
+    },
+    {
+      "id": "735",
+      "name": "Cliente Teste 1773781553849",
+      "email": "cliente1773781553849@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:05:53"
+    },
+    {
+      "id": "736",
+      "name": "Cliente Teste 1773781553876",
+      "email": "cliente1773781553876@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:05:53"
+    },
+    {
+      "id": "737",
+      "name": "Cliente Teste 1773781553904",
+      "email": "cliente1773781553904@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:05:53"
+    },
+    {
+      "id": "738",
+      "name": "Cliente Teste 1773781553965",
+      "email": "cliente1773781553965@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:05:53"
+    },
+    {
+      "id": "739",
+      "name": "Cliente Teste 1773781554010",
+      "email": "cliente1773781554010@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:05:54"
+    },
+    {
+      "id": "750",
+      "name": "Test User Action Plans",
+      "email": "test-action-plans-1773781555683@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:05:55"
+    },
+    {
+      "id": "751",
+      "name": "Test Solaris User",
+      "email": "solaris-1773781555963@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:05:56"
+    },
+    {
+      "id": "752",
+      "name": "Test Client Company",
+      "email": "client-1773781555963@example.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:05:56"
+    },
+    {
+      "id": "753",
+      "name": "Test Branch Plans User",
+      "email": "branch-plans-1773781556084@test.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:05:56"
+    },
+    {
+      "id": "777",
+      "name": "Test User - Branch Flow",
+      "email": "test-branch-flow-1773781559704@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:05:59"
+    },
+    {
+      "id": "778",
+      "name": "Test User Branch Gen",
+      "email": "test-branch-gen-1773781559866@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:05:59"
+    },
+    {
+      "id": "818",
+      "name": "Test User Phase1 Fix",
+      "email": "NULL",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:06:24"
+    },
+    {
+      "id": "819",
+      "name": "Test User - Risk Generation",
+      "email": "test-risk-1773781586410@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:06:26"
+    },
+    {
+      "id": "820",
+      "name": "Test Client - Risk Generation",
+      "email": "test-client-1773781586525@example.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:06:26"
+    },
+    {
+      "id": "821",
+      "name": "Test User tRPC",
+      "email": "NULL",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:06:27"
+    },
+    {
+      "id": "822",
+      "name": "Cliente Teste 1773781587664",
+      "email": "cliente1773781587664@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:06:27"
+    },
+    {
+      "id": "823",
+      "name": "Cliente Teste 1773781589434",
+      "email": "cliente1773781589434@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:06:29"
+    },
+    {
+      "id": "824",
+      "name": "Cliente Teste 1773781589606",
+      "email": "cliente1773781589606@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:06:29"
+    },
+    {
+      "id": "825",
+      "name": "Cliente Teste 1773781589671",
+      "email": "cliente1773781589671@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:06:29"
+    },
+    {
+      "id": "826",
+      "name": "Cliente Teste 1773781591058",
+      "email": "cliente1773781591058@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:06:31"
+    },
+    {
+      "id": "827",
+      "name": "Cliente Teste 1773781591223",
+      "email": "cliente1773781591223@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:06:31"
+    },
+    {
+      "id": "828",
+      "name": "Cliente Teste 1773781591271",
+      "email": "cliente1773781591271@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:06:31"
+    },
+    {
+      "id": "829",
+      "name": "Cliente Teste 1773781593464",
+      "email": "cliente1773781593464@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:06:33"
+    },
+    {
+      "id": "903",
+      "name": "Cliente Teste 1773782690328",
+      "email": "cliente1773782690328@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:24:50"
+    },
+    {
+      "id": "906",
+      "name": "Cliente Teste 1773782690487",
+      "email": "cliente1773782690487@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:24:50"
+    },
+    {
+      "id": "907",
+      "name": "Cliente Teste 1773782690520",
+      "email": "cliente1773782690520@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:24:50"
+    },
+    {
+      "id": "908",
+      "name": "Cliente Teste 1773782690567",
+      "email": "cliente1773782690567@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:24:50"
+    },
+    {
+      "id": "909",
+      "name": "Cliente Teste 1773782690592",
+      "email": "cliente1773782690592@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:24:50"
+    },
+    {
+      "id": "910",
+      "name": "Cliente Teste 1773782690619",
+      "email": "cliente1773782690619@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:24:50"
+    },
+    {
+      "id": "911",
+      "name": "Cliente Teste 1773782690645",
+      "email": "cliente1773782690645@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:24:50"
+    },
+    {
+      "id": "912",
+      "name": "Cliente Teste 1773782690674",
+      "email": "cliente1773782690674@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:24:50"
+    },
+    {
+      "id": "913",
+      "name": "Cliente Teste 1773782690728",
+      "email": "cliente1773782690728@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:24:50"
+    },
+    {
+      "id": "914",
+      "name": "Cliente Teste 1773782690775",
+      "email": "cliente1773782690775@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:24:50"
+    },
+    {
+      "id": "925",
+      "name": "Test User Action Plans",
+      "email": "test-action-plans-1773782692258@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:24:52"
+    },
+    {
+      "id": "926",
+      "name": "Test Solaris User",
+      "email": "solaris-1773782692373@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:24:52"
+    },
+    {
+      "id": "927",
+      "name": "Test Client Company",
+      "email": "client-1773782692373@example.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:24:52"
+    },
+    {
+      "id": "928",
+      "name": "Test Branch Plans User",
+      "email": "branch-plans-1773782692601@test.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:24:52"
+    },
+    {
+      "id": "952",
+      "name": "Test User - Branch Flow",
+      "email": "test-branch-flow-1773782696482@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:24:56"
+    },
+    {
+      "id": "953",
+      "name": "Test User Branch Gen",
+      "email": "test-branch-gen-1773782696537@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:24:56"
+    },
+    {
+      "id": "993",
+      "name": "Test User Phase1 Fix",
+      "email": "NULL",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:25:21"
+    },
+    {
+      "id": "994",
+      "name": "Test User - Risk Generation",
+      "email": "test-risk-1773782722823@example.com",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:25:22"
+    },
+    {
+      "id": "995",
+      "name": "Test Client - Risk Generation",
+      "email": "test-client-1773782722979@example.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:25:22"
+    },
+    {
+      "id": "996",
+      "name": "Test User tRPC",
+      "email": "NULL",
+      "role": "equipe_solaris",
+      "createdAt": "2026-03-17 21:25:23"
+    },
+    {
+      "id": "997",
+      "name": "Cliente Teste 1773782724183",
+      "email": "cliente1773782724183@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:25:24"
+    },
+    {
+      "id": "998",
+      "name": "Cliente Teste 1773782726069",
+      "email": "cliente1773782726069@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:25:26"
+    },
+    {
+      "id": "999",
+      "name": "Cliente Teste 1773782726252",
+      "email": "cliente1773782726252@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:25:26"
+    },
+    {
+      "id": "1000",
+      "name": "Cliente Teste 1773782726303",
+      "email": "cliente1773782726303@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:25:26"
+    },
+    {
+      "id": "1001",
+      "name": "Cliente Teste 1773782727665",
+      "email": "cliente1773782727665@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:25:27"
+    },
+    {
+      "id": "1002",
+      "name": "Cliente Teste 1773782727800",
+      "email": "cliente1773782727800@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:25:27"
+    },
+    {
+      "id": "1003",
+      "name": "Cliente Teste 1773782727835",
+      "email": "cliente1773782727835@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:25:27"
+    },
+    {
+      "id": "1004",
+      "name": "Cliente Teste 1773782729949",
+      "email": "cliente1773782729949@teste.com",
+      "role": "cliente",
+      "createdAt": "2026-03-17 21:25:30"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\tcreatedAt\n1\tUires Tapajós\tuires.tapajos@companyweb.com.br\tequipe_solaris\t2026-03-17 19:45:35\n13\tQueijo Itamonte - MG\tCONTATO@UAISO.COM\tcliente\t2026-03-17 19:48:17\n153\tCliente Teste 1773778872817\tcliente1773778872817@teste.com\tcliente\t2026-03-17 20:21:12\n154\tCliente Teste 1773778872958\tcliente1773778872958@teste.com\tcliente\t2026-03-17 20:21:12\n155\tCliente Teste 1773778872989\tcliente1773778872989@teste.com\tcliente\t2026-03-17 20:21:12\n156\tCliente Teste 1773778873031\tcliente1773778873031@teste.com\tcliente\t2026-03-17 20:21:13\n157\tCliente Teste 1773778873053\tcliente1773778873053@teste.com\tcliente\t2026-03-17 20:21:13\n158\tCliente Teste 1773778873079\tcliente1773778873079@teste.com\tcliente\t2026-03-17 20:21:13\n159\tCliente Teste 1773778873104\tcliente1773778873104@teste.com\tcliente\t2026-03-17 20:21:13\n160\tCliente Teste 1773778873131\tcliente1773778873131@teste.com\tcliente\t2026-03-17 20:21:13\n161\tCliente Teste 1773778873179\tcliente1773778873179@teste.com\tcliente\t2026-03-17 20:21:13\n162\tCliente Teste 1773778873220\tcliente1773778873220@teste.com\tcliente\t2026-03-17 20:21:13\n173\tTest User Action Plans\ttest-action-plans-1773778875121@example.com\tequipe_solaris\t2026-03-17 20:21:15\n178\tTest Solaris User\tsolaris-1773778875628@example.com\tequipe_solaris\t2026-03-17 20:21:15\n179\tTest Client Company\tclient-1773778875628@example.com\tcliente\t2026-03-17 20:21:15\n180\tTest Branch Plans User\tbranch-plans-1773778876496@test.com\tequipe_solaris\t2026-03-17 20:21:16\n191\tTest User Versions DB\ttest.versions.db@example.com\tequipe_solaris\t2026-03-17 20:21:17\n200\tTest User - Branch Flow\ttest-branch-flow-1773778879326@example.com\tequipe_solaris\t2026-03-17 20:21:19\n203\tTest User Branch Gen\ttest-branch-gen-1773778879464@example.com\tequipe_solaris\t2026-03-17 20:21:19\n240\tTest User Branches\tbranches@test.com\tequipe_solaris\t2026-03-17 20:21:37\n241\tTest User Phase1 Fix\tNULL\tequipe_solaris\t2026-03-17 20:21:46\n242\tTest User - Risk Generation\ttest-risk-1773778908945@example.com\tequipe_solaris\t2026-03-17 20:21:49\n243\tTest Client - Risk Generation\ttest-client-1773778909064@example.com\tcliente\t2026-03-17 20:21:49\n244\tTest User tRPC\tNULL\tequipe_solaris\t2026-03-17 20:21:50\n245\tCliente Teste 1773778910277\tcliente1773778910277@teste.com\tcliente\t2026-03-17 20:21:50\n246\tCliente Teste 1773778913377\tcliente1773778913377@teste.com\tcliente\t2026-03-17 20:21:53\n247\tCliente Teste 1773778913540\tcliente1773778913540@teste.com\tcliente\t2026-03-17 20:21:53\n248\tCliente Teste 1773778913597\tcliente1773778913597@teste.com\tcliente\t2026-03-17 20:21:53\n249\tCliente Teste 1773778916086\tcliente1773778916086@teste.com\tcliente\t2026-03-17 20:21:56\n250\tCliente Teste 1773778916218\tcliente1773778916218@teste.com\tcliente\t2026-03-17 20:21:56\n251\tCliente Teste 1773778916256\tcliente1773778916256@teste.com\tcliente\t2026-03-17 20:21:56\n252\tCliente Teste 1773778917776\tcliente1773778917776@teste.com\tcliente\t2026-03-17 20:21:57\n275\tUires Tapajós\tuires.tapajos@iasolaris.com.br\tcliente\t2026-03-17 20:34:25\n343\tCliente Teste 1773779768541\tcliente1773779768541@teste.com\tcliente\t2026-03-17 20:36:08\n344\tCliente Teste 1773779768737\tcliente1773779768737@teste.com\tcliente\t2026-03-17 20:36:08\n345\tCliente Teste 1773779768771\tcliente1773779768771@teste.com\tcliente\t2026-03-17 20:36:08\n346\tCliente Teste 1773779768818\tcliente1773779768818@teste.com\tcliente\t2026-03-17 20:36:08\n347\tCliente Teste 1773779768837\tcliente1773779768837@teste.com\tcliente\t2026-03-17 20:36:08\n348\tCliente Teste 1773779768870\tcliente1773779768870@teste.com\tcliente\t2026-03-17 20:36:08\n349\tCliente Teste 1773779768898\tcliente1773779768898@teste.com\tcliente\t2026-03-17 20:36:08\n350\tCliente Teste 1773779768956\tcliente1773779768956@teste.com\tcliente\t2026-03-17 20:36:08\n351\tCliente Teste 1773779768997\tcliente1773779768997@teste.com\tcliente\t2026-03-17 20:36:09\n352\tCliente Teste 1773779769035\tcliente1773779769035@teste.com\tcliente\t2026-03-17 20:36:09\n365\tTest User Action Plans\ttest-action-plans-1773779770804@example.com\tequipe_solaris\t2026-03-17 20:36:10\n366\tTest Solaris User\tsolaris-1773779770993@example.com\tequipe_solaris\t2026-03-17 20:36:11\n367\tTest Client Company\tclient-1773779770993@example.com\tcliente\t2026-03-17 20:36:11\n370\tTest Branch Plans User\tbranch-plans-1773779771179@test.com\tequipe_solaris\t2026-03-17 20:36:11\n392\tTest User - Branch Flow\ttest-branch-flow-1773779774652@example.com\tequipe_solaris\t2026-03-17 20:36:14\n393\tTest User Branch Gen\ttest-branch-gen-1773779774728@example.com\tequipe_solaris\t2026-03-17 20:36:14\n439\tTest User Phase1 Fix\tNULL\tequipe_solaris\t2026-03-17 20:36:38\n440\tTest User - Risk Generation\ttest-risk-1773779800558@example.com\tequipe_solaris\t2026-03-17 20:36:40\n441\tTest Client - Risk Generation\ttest-client-1773779800681@example.com\tcliente\t2026-03-17 20:36:40\n444\tTest User tRPC\tNULL\tequipe_solaris\t2026-03-17 20:36:41\n445\tCliente Teste 1773779801569\tcliente1773779801569@teste.com\tcliente\t2026-03-17 20:36:41\n446\tCliente Teste 1773779803406\tcliente1773779803406@teste.com\tcliente\t2026-03-17 20:36:43\n447\tCliente Teste 1773779803567\tcliente1773779803567@teste.com\tcliente\t2026-03-17 20:36:43\n448\tCliente Teste 1773779803617\tcliente1773779803617@teste.com\tcliente\t2026-03-17 20:36:43\n449\tCliente Teste 1773779804775\tcliente1773779804775@teste.com\tcliente\t2026-03-17 20:36:44\n450\tCliente Teste 1773779804896\tcliente1773779804896@teste.com\tcliente\t2026-03-17 20:36:44\n451\tCliente Teste 1773779804934\tcliente1773779804934@teste.com\tcliente\t2026-03-17 20:36:44\n452\tCliente Teste 1773779806548\tcliente1773779806548@teste.com\tcliente\t2026-03-17 20:36:46\n583\tCliente Teste 1773781332508\tcliente1773781332508@teste.com\tcliente\t2026-03-17 21:02:12\n584\tCliente Teste 1773781332642\tcliente1773781332642@teste.com\tcliente\t2026-03-17 21:02:12\n585\tCliente Teste 1773781332671\tcliente1773781332671@teste.com\tcliente\t2026-03-17 21:02:12\n586\tCliente Teste 1773781332713\tcliente1773781332713@teste.com\tcliente\t2026-03-17 21:02:12\n587\tCliente Teste 1773781332734\tcliente1773781332734@teste.com\tcliente\t2026-03-17 21:02:12\n588\tCliente Teste 1773781332761\tcliente1773781332761@teste.com\tcliente\t2026-03-17 21:02:12\n589\tCliente Teste 1773781332787\tcliente1773781332787@teste.com\tcliente\t2026-03-17 21:02:12\n590\tCliente Teste 1773781332813\tcliente1773781332813@teste.com\tcliente\t2026-03-17 21:02:12\n591\tCliente Teste 1773781332873\tcliente1773781332873@teste.com\tcliente\t2026-03-17 21:02:12\n592\tCliente Teste 1773781332913\tcliente1773781332913@teste.com\tcliente\t2026-03-17 21:02:12\n607\tTest User Action Plans\ttest-action-plans-1773781335001@example.com\tequipe_solaris\t2026-03-17 21:02:15\n608\tTest Solaris User\tsolaris-1773781335336@example.com\tequipe_solaris\t2026-03-17 21:02:15\n609\tTest Client Company\tclient-1773781335336@example.com\tcliente\t2026-03-17 21:02:15\n610\tTest Branch Plans User\tbranch-plans-1773781335421@test.com\tequipe_solaris\t2026-03-17 21:02:15\n632\tTest User - Branch Flow\ttest-branch-flow-1773781339723@example.com\tequipe_solaris\t2026-03-17 21:02:19\n635\tTest User Branch Gen\ttest-branch-gen-1773781339931@example.com\tequipe_solaris\t2026-03-17 21:02:20\n671\tTest User Phase1 Fix\tNULL\tequipe_solaris\t2026-03-17 21:02:42\n672\tTest User - Risk Generation\ttest-risk-1773781365169@example.com\tequipe_solaris\t2026-03-17 21:02:45\n673\tTest Client - Risk Generation\ttest-client-1773781365277@example.com\tcliente\t2026-03-17 21:02:45\n674\tTest User tRPC\tNULL\tequipe_solaris\t2026-03-17 21:02:45\n675\tCliente Teste 1773781365743\tcliente1773781365743@teste.com\tcliente\t2026-03-17 21:02:45\n676\tCliente Teste 1773781368180\tcliente1773781368180@teste.com\tcliente\t2026-03-17 21:02:48\n677\tCliente Teste 1773781368340\tcliente1773781368340@teste.com\tcliente\t2026-03-17 21:02:48\n678\tCliente Teste 1773781368397\tcliente1773781368397@teste.com\tcliente\t2026-03-17 21:02:48\n679\tCliente Teste 1773781369761\tcliente1773781369761@teste.com\tcliente\t2026-03-17 21:02:49\n680\tCliente Teste 1773781369909\tcliente1773781369909@teste.com\tcliente\t2026-03-17 21:02:49\n681\tCliente Teste 1773781369945\tcliente1773781369945@teste.com\tcliente\t2026-03-17 21:02:49\n682\tCliente Teste 1773781371740\tcliente1773781371740@teste.com\tcliente\t2026-03-17 21:02:51\n730\tCliente Teste 1773781553557\tcliente1773781553557@teste.com\tcliente\t2026-03-17 21:05:53\n731\tCliente Teste 1773781553704\tcliente1773781553704@teste.com\tcliente\t2026-03-17 21:05:53\n732\tCliente Teste 1773781553740\tcliente1773781553740@teste.com\tcliente\t2026-03-17 21:05:53\n733\tCliente Teste 1773781553783\tcliente1773781553783@teste.com\tcliente\t2026-03-17 21:05:53\n734\tCliente Teste 1773781553806\tcliente1773781553806@teste.com\tcliente\t2026-03-17 21:05:53\n735\tCliente Teste 1773781553849\tcliente1773781553849@teste.com\tcliente\t2026-03-17 21:05:53\n736\tCliente Teste 1773781553876\tcliente1773781553876@teste.com\tcliente\t2026-03-17 21:05:53\n737\tCliente Teste 1773781553904\tcliente1773781553904@teste.com\tcliente\t2026-03-17 21:05:53\n738\tCliente Teste 1773781553965\tcliente1773781553965@teste.com\tcliente\t2026-03-17 21:05:53\n739\tCliente Teste 1773781554010\tcliente1773781554010@teste.com\tcliente\t2026-03-17 21:05:54\n750\tTest User Action Plans\ttest-action-plans-1773781555683@example.com\tequipe_solaris\t2026-03-17 21:05:55\n751\tTest Solaris User\tsolaris-1773781555963@example.com\tequipe_solaris\t2026-03-17 21:05:56\n752\tTest Client Company\tclient-1773781555963@example.com\tcliente\t2026-03-17 21:05:56\n753\tTest Branch Plans User\tbranch-plans-1773781556084@test.com\tequipe_solaris\t2026-03-17 21:05:56\n777\tTest User - Branch Flow\ttest-branch-flow-1773781559704@example.com\tequipe_solaris\t2026-03-17 21:05:59\n778\tTest User Branch Gen\ttest-branch-gen-1773781559866@example.com\tequipe_solaris\t2026-03-17 21:05:59\n818\tTest User Phase1 Fix\tNULL\tequipe_solaris\t2026-03-17 21:06:24\n819\tTest User - Risk Generation\ttest-risk-1773781586410@example.com\tequipe_solaris\t2026-03-17 21:06:26\n820\tTest Client - Risk Generation\ttest-client-1773781586525@example.com\tcliente\t2026-03-17 21:06:26\n821\tTest User tRPC\tNULL\tequipe_solaris\t2026-03-17 21:06:27\n822\tCliente Teste 1773781587664\tcliente1773781587664@teste.com\tcliente\t2026-03-17 21:06:27\n823\tCliente Teste 1773781589434\tcliente1773781589434@teste.com\tcliente\t2026-03-17 21:06:29\n824\tCliente Teste 1773781589606\tcliente1773781589606@teste.com\tcliente\t2026-03-17 21:06:29\n825\tCliente Teste 1773781589671\tcliente1773781589671@teste.com\tcliente\t2026-03-17 21:06:29\n826\tCliente Teste 1773781591058\tcliente1773781591058@teste.com\tcliente\t2026-03-17 21:06:31\n827\tCliente Teste 1773781591223\tcliente1773781591223@teste.com\tcliente\t2026-03-17 21:06:31\n828\tCliente Teste 1773781591271\tcliente1773781591271@teste.com\tcliente\t2026-03-17 21:06:31\n829\tCliente Teste 1773781593464\tcliente1773781593464@teste.com\tcliente\t2026-03-17 21:06:33\n903\tCliente Teste 1773782690328\tcliente1773782690328@teste.com\tcliente\t2026-03-17 21:24:50\n906\tCliente Teste 1773782690487\tcliente1773782690487@teste.com\tcliente\t2026-03-17 21:24:50\n907\tCliente Teste 1773782690520\tcliente1773782690520@teste.com\tcliente\t2026-03-17 21:24:50\n908\tCliente Teste 1773782690567\tcliente1773782690567@teste.com\tcliente\t2026-03-17 21:24:50\n909\tCliente Teste 1773782690592\tcliente1773782690592@teste.com\tcliente\t2026-03-17 21:24:50\n910\tCliente Teste 1773782690619\tcliente1773782690619@teste.com\tcliente\t2026-03-17 21:24:50\n911\tCliente Teste 1773782690645\tcliente1773782690645@teste.com\tcliente\t2026-03-17 21:24:50\n912\tCliente Teste 1773782690674\tcliente1773782690674@teste.com\tcliente\t2026-03-17 21:24:50\n913\tCliente Teste 1773782690728\tcliente1773782690728@teste.com\tcliente\t2026-03-17 21:24:50\n914\tCliente Teste 1773782690775\tcliente1773782690775@teste.com\tcliente\t2026-03-17 21:24:50\n925\tTest User Action Plans\ttest-action-plans-1773782692258@example.com\tequipe_solaris\t2026-03-17 21:24:52\n926\tTest Solaris User\tsolaris-1773782692373@example.com\tequipe_solaris\t2026-03-17 21:24:52\n927\tTest Client Company\tclient-1773782692373@example.com\tcliente\t2026-03-17 21:24:52\n928\tTest Branch Plans User\tbranch-plans-1773782692601@test.com\tequipe_solaris\t2026-03-17 21:24:52\n952\tTest User - Branch Flow\ttest-branch-flow-1773782696482@example.com\tequipe_solaris\t2026-03-17 21:24:56\n953\tTest User Branch Gen\ttest-branch-gen-1773782696537@example.com\tequipe_solaris\t2026-03-17 21:24:56\n993\tTest User Phase1 Fix\tNULL\tequipe_solaris\t2026-03-17 21:25:21\n994\tTest User - Risk Generation\ttest-risk-1773782722823@example.com\tequipe_solaris\t2026-03-17 21:25:22\n995\tTest Client - Risk Generation\ttest-client-1773782722979@example.com\tcliente\t2026-03-17 21:25:22\n996\tTest User tRPC\tNULL\tequipe_solaris\t2026-03-17 21:25:23\n997\tCliente Teste 1773782724183\tcliente1773782724183@teste.com\tcliente\t2026-03-17 21:25:24\n998\tCliente Teste 1773782726069\tcliente1773782726069@teste.com\tcliente\t2026-03-17 21:25:26\n999\tCliente Teste 1773782726252\tcliente1773782726252@teste.com\tcliente\t2026-03-17 21:25:26\n1000\tCliente Teste 1773782726303\tcliente1773782726303@teste.com\tcliente\t2026-03-17 21:25:26\n1001\tCliente Teste 1773782727665\tcliente1773782727665@teste.com\tcliente\t2026-03-17 21:25:27\n1002\tCliente Teste 1773782727800\tcliente1773782727800@teste.com\tcliente\t2026-03-17 21:25:27\n1003\tCliente Teste 1773782727835\tcliente1773782727835@teste.com\tcliente\t2026-03-17 21:25:27\n1004\tCliente Teste 1773782729949\tcliente1773782729949@teste.com\tcliente\t2026-03-17 21:25:30\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

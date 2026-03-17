@@ -2121,3 +2121,11 @@
 - [x] 18/18 testes de bugs-pos-conclusao passando
 - [x] 21/21 testes de routers-fluxo-v3-etapas2-5 passando
 - [ ] Checkpoint, push GitHub e republicar
+
+## Limpeza do Banco para Testes da Equipe (17/03/2026)
+- [x] Auditar banco: 269 projetos, 145 usuários de teste, dados em 40+ tabelas
+- [x] Limpar todos os projetos e dados transacionais (questionários, briefings, riscos, planos, tarefas)
+- [x] Remover 143 usuários de teste (preservados: id=1 Uires Tapajós + id=13 Queijo Itamonte)
+- [x] Banco limpo: 2 usuários, 0 projetos, 0 respostas, 0 briefings
+- [x] ragDocuments preservados (corpus RAG com 63 artigos tributários)
+- [ ] Checkpoint e publicar para testes da equipe de advogados

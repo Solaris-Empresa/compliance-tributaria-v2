@@ -1,0 +1,106 @@
+{
+  "query": "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME > 'briefings' ORDER BY TABLE_NAME;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME > 'briefings' ORDER BY TABLE_NAME;",
+  "rows": [
+    {
+      "TABLE_NAME": "clientMembers"
+    },
+    {
+      "TABLE_NAME": "corporateActionPlanVersions"
+    },
+    {
+      "TABLE_NAME": "corporateActionPlans"
+    },
+    {
+      "TABLE_NAME": "corporateAssessmentVersions"
+    },
+    {
+      "TABLE_NAME": "corporateAssessments"
+    },
+    {
+      "TABLE_NAME": "cosoControls"
+    },
+    {
+      "TABLE_NAME": "milestones"
+    },
+    {
+      "TABLE_NAME": "notificationPreferences"
+    },
+    {
+      "TABLE_NAME": "notifications"
+    },
+    {
+      "TABLE_NAME": "onboardingProgress"
+    },
+    {
+      "TABLE_NAME": "phases"
+    },
+    {
+      "TABLE_NAME": "planApprovals"
+    },
+    {
+      "TABLE_NAME": "planReviews"
+    },
+    {
+      "TABLE_NAME": "projectBranches"
+    },
+    {
+      "TABLE_NAME": "projectParticipants"
+    },
+    {
+      "TABLE_NAME": "projectPermissions"
+    },
+    {
+      "TABLE_NAME": "projects"
+    },
+    {
+      "TABLE_NAME": "questionnaireAnswersV3"
+    },
+    {
+      "TABLE_NAME": "questionnaireProgressV3"
+    },
+    {
+      "TABLE_NAME": "ragDocuments"
+    },
+    {
+      "TABLE_NAME": "riskMatrix"
+    },
+    {
+      "TABLE_NAME": "riskMatrixPromptHistory"
+    },
+    {
+      "TABLE_NAME": "riskMatrixVersions"
+    },
+    {
+      "TABLE_NAME": "sessionActionPlans"
+    },
+    {
+      "TABLE_NAME": "sessionBranchAnswers"
+    },
+    {
+      "TABLE_NAME": "sessionConsolidations"
+    },
+    {
+      "TABLE_NAME": "sessions"
+    },
+    {
+      "TABLE_NAME": "stepComments"
+    },
+    {
+      "TABLE_NAME": "taskComments"
+    },
+    {
+      "TABLE_NAME": "taskHistory"
+    },
+    {
+      "TABLE_NAME": "taskObservers"
+    },
+    {
+      "TABLE_NAME": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "TABLE_NAME\nclientMembers\ncorporateActionPlanVersions\ncorporateActionPlans\ncorporateAssessmentVersions\ncorporateAssessments\ncosoControls\nmilestones\nnotificationPreferences\nnotifications\nonboardingProgress\nphases\nplanApprovals\nplanReviews\nprojectBranches\nprojectParticipants\nprojectPermissions\nprojects\nquestionnaireAnswersV3\nquestionnaireProgressV3\nragDocuments\nriskMatrix\nriskMatrixPromptHistory\nriskMatrixVersions\nsessionActionPlans\nsessionBranchAnswers\nsessionConsolidations\nsessions\nstepComments\ntaskComments\ntaskHistory\ntaskObservers\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 62
+}

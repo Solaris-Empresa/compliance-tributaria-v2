@@ -1,0 +1,22 @@
+{
+  "query": "SELECT id, name, email, role FROM users ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT id, name, email, role FROM users ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Uires Tapajós",
+      "email": "uires.tapajos@companyweb.com.br",
+      "role": "equipe_solaris"
+    },
+    {
+      "id": "13",
+      "name": "Queijo Itamonte - MG",
+      "email": "CONTATO@UAISO.COM",
+      "role": "cliente"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\n1\tUires Tapajós\tuires.tapajos@companyweb.com.br\tequipe_solaris\n13\tQueijo Itamonte - MG\tCONTATO@UAISO.COM\tcliente\n",
+  "stderr": "",
+  "execution_time_ms": 65
+}
