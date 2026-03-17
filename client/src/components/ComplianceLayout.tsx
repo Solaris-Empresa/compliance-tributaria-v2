@@ -24,7 +24,22 @@ interface ComplianceLayoutProps {
 export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
   const { user, loading, isAuthenticated, logout } = useAuth();
   const [location] = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    try {
+      const saved = localStorage.getItem("sidebar_open");
+      return saved !== null ? saved === "true" : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => {
+      const next = !prev;
+      try { localStorage.setItem("sidebar_open", String(next)); } catch {}
+      return next;
+    });
+  };
   const [showTour, setShowTour] = useState(false);
 
   const { shouldShowTour, canResumeTour, isLoading: tourLoading, refetch } =
@@ -115,7 +130,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
+            onClick={toggleSidebar}
           >
             {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>

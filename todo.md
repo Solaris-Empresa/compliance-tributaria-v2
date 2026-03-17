@@ -2179,12 +2179,12 @@
 
 ## Melhoria UX: Navegação (Diagnóstico Profundo)
 
-### Problemas identificados:
-- [ ] [P1] Card de projeto: botão "Iniciar Fluxo v3" viola hierarquia — leva direto ao fluxo sem passar pela página de detalhes
-- [ ] [P1] Stepper do fluxo v3 não é clicável — usuário não consegue navegar entre etapas concluídas
-- [ ] [P1] Sidebar colapsa sem persistência — estado não é salvo, reabre toda vez que navega
-- [ ] [P2] Breadcrumb inconsistente — NovoProjeto usa "← Projetos" mas BriefingV3/MatrizesV3 usam ícone sem label
-- [ ] [P2] Stepper não mostra etapa atual com label visível em mobile (só mostra número)
-- [ ] [P2] PlanoAcaoV3 usa setLocation("/painel") em vez de voltar ao projeto
-- [ ] [P3] Cards de projeto mostram "Iniciar Fluxo v3" mesmo para projetos concluídos (deveriam mostrar "Ver Resultados")
-- [ ] [P3] Sidebar não tem indicador visual de "você está aqui" para sub-rotas de projeto
+### Problemas identificados e corrigidos:
+- [x] [P1] Card de projeto: botão "Iniciar Fluxo v3" leva direto ao fluxo — corrigido para CTA inteligente por status
+- [x] [P1] Stepper do fluxo v3 não é clicável — corrigido para navegar entre etapas concluídas
+- [x] [P1] Sidebar sem persistência de estado — corrigido com localStorage
+- [x] [P2] Back button sem label de texto — corrigido para "← Voltar ao Projeto" em todas as etapas
+- [x] [P2] Stepper inline duplicado em cada página — extraído para componente FlowStepper reutilizável
+- [x] [P2] PlanoAcaoV3 usava setLocation("/painel") — corrigido para voltar ao projeto
+- [x] [P3] CTA dos cards adaptado por status (Rascunho/Em Andamento/Concluído)
+- [x] [P3] Sidebar com indicador visual de localização para sub-rotas de projeto

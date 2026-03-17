@@ -2,10 +2,9 @@ import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { FolderKanban, Plus, Search, Zap, Filter, X } from "lucide-react";
+import { FolderKanban, Plus, Search, Zap, Filter, X, Eye, Play } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { PROJECT_STATUS, STATUS_COLORS } from "@shared/translations";
@@ -41,11 +40,59 @@ const STATUS_DOT: Record<string, string> = {
   arquivado:        "bg-gray-300",
 };
 
+/** Retorna o CTA correto para o card de projeto conforme o status */
+function ProjectCTA({ projectId, status }: { projectId: number; status: string }) {
+  const [, setLocation] = useLocation();
+  const isDone = ["aprovado", "concluido", "arquivado"].includes(status);
+  const isInProgress = [
+    "assessment_fase1", "assessment_fase2", "matriz_riscos",
+    "plano_acao", "em_avaliacao", "em_andamento", "parado",
+  ].includes(status);
+
+  if (isDone) {
+    return (
+      <Button
+        className="w-full gap-2"
+        variant="outline"
+        size="sm"
+        onClick={() => setLocation(`/projetos/${projectId}`)}
+      >
+        <Eye className="h-4 w-4" />
+        Ver Resultados
+      </Button>
+    );
+  }
+
+  if (isInProgress) {
+    return (
+      <Button
+        className="w-full gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-sm"
+        size="sm"
+        onClick={() => setLocation(`/projetos/${projectId}`)}
+      >
+        <Play className="h-4 w-4" />
+        Continuar Fluxo
+      </Button>
+    );
+  }
+
+  // rascunho — ainda não iniciado
+  return (
+    <Button
+      className="w-full gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-sm"
+      size="sm"
+      onClick={() => setLocation(`/projetos/${projectId}`)}
+    >
+      <Zap className="h-4 w-4" />
+      Ver o fluxo
+    </Button>
+  );
+}
+
 export default function Projetos() {
   const { data: projects, isLoading } = trpc.projects.list.useQuery();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("todos");
-  const [, setLocation] = useLocation();
 
   const filteredProjects = projects?.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -175,14 +222,7 @@ export default function Projetos() {
                   </CardContent>
                 </Link>
                 <div className="px-6 pb-5 pt-2">
-                  <Button
-                    className="w-full gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-sm"
-                    size="sm"
-                    onClick={() => setLocation(`/projetos/${project.id}/questionario-v3`)}
-                  >
-                    <Zap className="h-4 w-4" />
-                    Iniciar Fluxo v3
-                  </Button>
+                  <ProjectCTA projectId={project.id} status={project.status} />
                 </div>
               </Card>
             ))}
