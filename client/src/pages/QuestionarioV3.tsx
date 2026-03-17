@@ -15,7 +15,8 @@ import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft, ArrowRight, ChevronRight, Loader2, Sparkles,
   CheckCircle2, Clock, SkipForward, MessageSquare, BarChart2,
-  AlignLeft, List, ToggleLeft, Layers, Play, FileQuestion
+  AlignLeft, List, ToggleLeft, Layers, Play, FileQuestion,
+  AlertCircle, RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -198,6 +199,7 @@ export default function QuestionarioV3() {
   const [showDeepDivePrompt, setShowDeepDivePrompt] = useState(false);
   const [confirmPrevCnae, setConfirmPrevCnae] = useState(false); // RF-2.07: confirmação ao retornar a CNAE concluído
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
+  const [questionsError, setQuestionsError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
@@ -292,6 +294,7 @@ export default function QuestionarioV3() {
   const loadQuestions = useCallback(async (cnaeIdx: number, level: "nivel1" | "nivel2", prevAnswers?: { question: string; answer: string }[]) => {
     if (!cnaes[cnaeIdx]) return;
     setIsLoadingQuestions(true);
+    setQuestionsError(null);
     setAnswers({});
     setQuestions([]);
     try {
@@ -302,8 +305,17 @@ export default function QuestionarioV3() {
         level,
         previousAnswers: prevAnswers,
       });
-      setQuestions(result.questions || []);
-    } catch {
+      const qs = result.questions || [];
+      if (qs.length === 0) {
+        setQuestionsError("A IA não retornou perguntas. Tente novamente.");
+        toast.error("Erro ao gerar perguntas. Tente novamente.");
+      } else {
+        setQuestions(qs);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[loadQuestions] error:", msg);
+      setQuestionsError("Erro ao gerar perguntas. Tente novamente.");
       toast.error("Erro ao gerar perguntas. Tente novamente.");
     } finally {
       setIsLoadingQuestions(false);
@@ -394,7 +406,9 @@ export default function QuestionarioV3() {
     // dispare uma segunda chamada sem previousAnswers (Bug 3)
     const cacheKey = `${currentCode}-nivel2`;
     loadedQuestionsRef.current.add(cacheKey);
-    const level1Answers = cnaeProgress[currentCnaeIdx]?.answers || [];
+    // CORREÇÃO: usar questions/answers atuais (estado síncrono) em vez de cnaeProgress
+    // que ainda não foi atualizado pelo React após setCnaeProgress no handleFinishLevel1
+    const level1Answers = questions.map(q => ({ question: q.text, answer: answers[q.id] || "" }));
     setCurrentLevel("nivel2");
     loadQuestions(currentCnaeIdx, "nivel2", level1Answers);
   };
@@ -804,6 +818,32 @@ export default function QuestionarioV3() {
                     <p className="text-sm font-medium">Gerando perguntas personalizadas...</p>
                     <p className="text-xs text-muted-foreground mt-1">A IA está analisando o CNAE {currentCnae?.code}</p>
                   </div>
+                </CardContent>
+              </Card>
+            ) : questionsError ? (
+              <Card className="border-destructive/30 bg-destructive/5">
+                <CardContent className="flex flex-col items-center justify-center py-12 gap-4">
+                  <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                    <AlertCircle className="h-6 w-6 text-destructive" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-destructive">Falha ao gerar perguntas</p>
+                    <p className="text-xs text-muted-foreground mt-1 max-w-xs">{questionsError}</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const cacheKey = `${currentCnae?.code}-${currentLevel}`;
+                      loadedQuestionsRef.current.delete(cacheKey);
+                      setQuestionsError(null);
+                      const prevAnswers = currentLevel === "nivel2" ? (cnaeProgress[currentCnaeIdx]?.answers || []) : undefined;
+                      loadQuestions(currentCnaeIdx, currentLevel, prevAnswers);
+                    }}
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Tentar novamente
+                  </Button>
                 </CardContent>
               </Card>
             ) : (

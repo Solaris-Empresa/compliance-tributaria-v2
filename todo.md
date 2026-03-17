@@ -2142,4 +2142,12 @@
 - [x] Adicionar logging detalhado no generateQuestions (console.log START, RAG ok, LLM error)
 - [x] Tornar RAG mais robusto com try/catch (fallback silencioso em caso de erro)
 - [x] Tornar resultado do LLM mais robusto com try/catch explícito
-- [ ] Aguardar teste do usuário para capturar erro exato nos logs
+- [x] Aguardar teste do usuário para capturar erro exato nos logs
+
+## Correções de Bug - Nível 2 Aprofundamento
+
+- [x] Adicionar estado questionsError para mostrar erro explícito na tela (em vez de tela vazia)
+- [x] Melhorar catch no loadQuestions para capturar erros com parâmetro tipado
+- [x] Adicionar UI de erro com botão "Tentar novamente" no questionário
+- [x] Corrigir handleAcceptDeepDive: usar questions/answers atuais em vez de cnaeProgress desatualizado (causa raiz do erro nível 2)
+- [x] Adicionar logging detalhado no generateQuestions do servidor (RAG, LLM)
