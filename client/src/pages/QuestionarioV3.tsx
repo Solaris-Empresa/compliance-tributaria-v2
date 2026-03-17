@@ -19,6 +19,16 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 interface Question {
@@ -183,6 +193,7 @@ export default function QuestionarioV3() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [cnaeProgress, setCnaeProgress] = useState<CnaeProgress[]>([]);
   const [showDeepDivePrompt, setShowDeepDivePrompt] = useState(false);
+  const [confirmPrevCnae, setConfirmPrevCnae] = useState(false); // RF-2.07: confirmação ao retornar a CNAE concluído
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
@@ -424,6 +435,7 @@ export default function QuestionarioV3() {
   }
 
   return (
+    <>
     <ComplianceLayout>
       <div className="max-w-3xl mx-auto space-y-6 py-2">
         {showResumeBanner && (
@@ -551,11 +563,16 @@ export default function QuestionarioV3() {
                           variant="outline"
                           className="flex-1"
                           onClick={() => {
-                            setCurrentCnaeIdx(prev => prev - 1);
-                            setCurrentLevel("nivel1");
-                            setAnswers({});
-                            setQuestions([]);
-                            setShowDeepDivePrompt(false);
+                            const prevProgress = cnaeProgress[currentCnaeIdx - 1];
+                            if (prevProgress?.nivel1Done) {
+                              setConfirmPrevCnae(true);
+                            } else {
+                              setCurrentCnaeIdx(prev => prev - 1);
+                              setCurrentLevel("nivel1");
+                              setAnswers({});
+                              setQuestions([]);
+                              setShowDeepDivePrompt(false);
+                            }
                           }}
                         >
                           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -678,11 +695,16 @@ export default function QuestionarioV3() {
                         size="sm"
                         className="gap-1.5 text-muted-foreground"
                         onClick={() => {
-                          setCurrentCnaeIdx(prev => prev - 1);
-                          setCurrentLevel("nivel1");
-                          setAnswers({});
-                          setQuestions([]);
-                          setShowDeepDivePrompt(false);
+                          const prevProgress = cnaeProgress[currentCnaeIdx - 1];
+                          if (prevProgress?.nivel1Done) {
+                            setConfirmPrevCnae(true);
+                          } else {
+                            setCurrentCnaeIdx(prev => prev - 1);
+                            setCurrentLevel("nivel1");
+                            setAnswers({});
+                            setQuestions([]);
+                            setShowDeepDivePrompt(false);
+                          }
                         }}
                       >
                         <ArrowLeft className="h-4 w-4" />
@@ -752,5 +774,35 @@ export default function QuestionarioV3() {
         )}
       </div>
     </ComplianceLayout>
+
+    {/* RF-2.07: Diálogo de confirmação ao retornar a CNAE já concluído */}
+    <AlertDialog open={confirmPrevCnae} onOpenChange={setConfirmPrevCnae}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Retornar ao CNAE anterior?</AlertDialogTitle>
+          <AlertDialogDescription>
+            O CNAE <strong>{cnaeProgress[currentCnaeIdx - 1]?.code}</strong> já foi concluído.
+            Ao retornar, você poderá revisar as respostas, mas o progresso atual deste CNAE será preservado.
+            Deseja continuar?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              setCurrentCnaeIdx(prev => prev - 1);
+              setCurrentLevel("nivel1");
+              setAnswers({});
+              setQuestions([]);
+              setShowDeepDivePrompt(false);
+              setConfirmPrevCnae(false);
+            }}
+          >
+            Sim, retornar
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
