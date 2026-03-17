@@ -19,7 +19,8 @@ import {
   RefreshCw, ThumbsUp, Edit3, Building2, Cpu, Scale, BarChart3,
   Calendar, User, Bell, Download, ChevronDown, ChevronUp,
   Circle, PlayCircle, PauseCircle, CheckCircle, Sliders, FileText,
-  MessageSquare, Plus, Trash2, RotateCcw, LayoutDashboard, Send
+  MessageSquare, Plus, Trash2, RotateCcw, LayoutDashboard, Send,
+  PartyPopper, Trophy, ClipboardList, AlertTriangle, ShieldCheck, LayoutDashboard as Dashboard
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -418,6 +419,16 @@ export default function PlanoAcaoV3() {
   const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
   // RF-5.08: Modal de adição manual de tarefa
   const [showAddTask, setShowAddTask] = useState<string | null>(null);
+  // Tela de conclusão do projeto
+  const [showConclusion, setShowConclusion] = useState(false);
+  const [conclusionData, setConclusionData] = useState<{
+    cnaes: { code: string; description: string }[];
+    totalRisks: number;
+    criticalRisks: number;
+    highRisks: number;
+    totalTasks: number;
+    tasksByArea: { area: string; count: number }[];
+  } | null>(null);
   const [newTask, setNewTask] = useState<Partial<Task>>({ prioridade: "Média", status: "nao_iniciado" });
   // RF-5.06: Dashboard de progresso
   const [showDashboard, setShowDashboard] = useState(false);
@@ -551,8 +562,21 @@ export default function PlanoAcaoV3() {
     try {
       await approvePlan.mutateAsync({ projectId, plans });
       clearTempData(projectId, 'etapa5');
-      toast.success("Plano de Ação aprovado! Projeto concluído.");
-      setLocation(`/projetos/${projectId}`);
+      // Calcular dados de resumo para a tela de conclusão
+      const cnaes = (project as any)?.confirmedCnaes || [];
+      const matrices = (project as any)?.riskMatricesData || {};
+      const allRisks = Object.values(matrices).flat() as any[];
+      const totalRisks = allRisks.length;
+      const criticalRisks = allRisks.filter((r: any) => r?.severidade === "Crítico" || r?.severidade === "Critico").length;
+      const highRisks = allRisks.filter((r: any) => r?.severidade === "Alta").length;
+      const allTasks = Object.values(plans).flat().filter((t: Task) => !t.deleted);
+      const totalTasks = allTasks.length;
+      const tasksByArea = Object.entries(plans).map(([area, tasks]) => ({
+        area,
+        count: (tasks || []).filter((t: Task) => !t.deleted).length,
+      })).filter(a => a.count > 0);
+      setConclusionData({ cnaes, totalRisks, criticalRisks, highRisks, totalTasks, tasksByArea });
+      setShowConclusion(true);
     } catch {
       toast.error("Erro ao aprovar o plano. Tente novamente.");
     } finally {
@@ -699,6 +723,119 @@ export default function PlanoAcaoV3() {
 
   return (
     <ComplianceLayout>
+      {/* ─── Tela de Conclusão do Projeto ─────────────────────────────────── */}
+      {showConclusion && conclusionData && (
+        <div className="min-h-screen flex items-center justify-center p-6">
+          <div className="max-w-2xl w-full space-y-6 text-center">
+            {/* Animação de parabéns */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-full bg-emerald-100 flex items-center justify-center animate-bounce">
+                  <Trophy className="h-12 w-12 text-emerald-600" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center">
+                  <PartyPopper className="h-4 w-4 text-white" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Projeto Concluído!</h1>
+                <p className="text-muted-foreground mt-1">O plano de ação foi aprovado e o projeto está pronto para execução.</p>
+              </div>
+            </div>
+
+            {/* Resumo do projeto */}
+            <div className="grid grid-cols-3 gap-4">
+              <Card className="border-blue-200 bg-blue-50">
+                <CardContent className="pt-4 pb-4 text-center">
+                  <div className="text-3xl font-bold text-blue-700">{conclusionData.cnaes.length}</div>
+                  <div className="text-xs text-blue-600 font-medium mt-1">CNAEs Analisados</div>
+                </CardContent>
+              </Card>
+              <Card className="border-orange-200 bg-orange-50">
+                <CardContent className="pt-4 pb-4 text-center">
+                  <div className="text-3xl font-bold text-orange-700">{conclusionData.totalRisks}</div>
+                  <div className="text-xs text-orange-600 font-medium mt-1">Riscos Mapeados</div>
+                  {conclusionData.criticalRisks > 0 && (
+                    <div className="text-xs text-red-500 mt-1">{conclusionData.criticalRisks} crítico{conclusionData.criticalRisks > 1 ? 's' : ''}</div>
+                  )}
+                </CardContent>
+              </Card>
+              <Card className="border-emerald-200 bg-emerald-50">
+                <CardContent className="pt-4 pb-4 text-center">
+                  <div className="text-3xl font-bold text-emerald-700">{conclusionData.totalTasks}</div>
+                  <div className="text-xs text-emerald-600 font-medium mt-1">Tarefas Criadas</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* CNAEs analisados */}
+            {conclusionData.cnaes.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-blue-500" />
+                    CNAEs Analisados
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-1">
+                    {conclusionData.cnaes.map((c: any) => (
+                      <div key={c.code} className="flex items-center gap-2 text-sm py-1 border-b last:border-0">
+                        <Badge variant="outline" className="text-xs font-mono shrink-0">{c.code}</Badge>
+                        <span className="text-muted-foreground truncate">{c.description}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Tarefas por área */}
+            {conclusionData.tasksByArea.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <ClipboardList className="h-4 w-4 text-emerald-500" />
+                    Tarefas por Área
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="grid grid-cols-2 gap-2">
+                    {conclusionData.tasksByArea.map(({ area, count }) => (
+                      <div key={area} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 text-sm">
+                        <span className="font-medium capitalize">{area}</span>
+                        <Badge variant="secondary">{count} tarefa{count > 1 ? 's' : ''}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Botões de ação */}
+            <div className="flex gap-3 justify-center pt-2">
+              <Button
+                size="lg"
+                onClick={() => setLocation("/painel")}
+                className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8"
+              >
+                <LayoutDashboard className="h-5 w-5" />
+                Ir para o Painel
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => setLocation(`/projetos/${projectId}`)}
+                className="gap-2 px-8"
+              >
+                Ver Projeto
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!showConclusion && (
       <div className="max-w-5xl mx-auto space-y-6 py-2">
         {showResumeBanner && (
           <ResumeBanner
@@ -1093,9 +1230,10 @@ export default function PlanoAcaoV3() {
                 </div>
               </div>
             )}
-          </>
+           </>
         )}
       </div>
+      )}
     </ComplianceLayout>
   );
 }
