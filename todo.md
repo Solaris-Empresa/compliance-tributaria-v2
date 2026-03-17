@@ -2176,3 +2176,15 @@
 - [x] Disparar nova tentativa automaticamente ao fim do countdown (10s)
 - [x] Cancelar retry se usuário clicar "Cancelar retry automático"
 - [x] Cleanup de todos os timers (countdown + pending) no useEffect de desmontagem
+
+## Melhoria UX: Navegação (Diagnóstico Profundo)
+
+### Problemas identificados:
+- [ ] [P1] Card de projeto: botão "Iniciar Fluxo v3" viola hierarquia — leva direto ao fluxo sem passar pela página de detalhes
+- [ ] [P1] Stepper do fluxo v3 não é clicável — usuário não consegue navegar entre etapas concluídas
+- [ ] [P1] Sidebar colapsa sem persistência — estado não é salvo, reabre toda vez que navega
+- [ ] [P2] Breadcrumb inconsistente — NovoProjeto usa "← Projetos" mas BriefingV3/MatrizesV3 usam ícone sem label
+- [ ] [P2] Stepper não mostra etapa atual com label visível em mobile (só mostra número)
+- [ ] [P2] PlanoAcaoV3 usa setLocation("/painel") em vez de voltar ao projeto
+- [ ] [P3] Cards de projeto mostram "Iniciar Fluxo v3" mesmo para projetos concluídos (deveriam mostrar "Ver Resultados")
+- [ ] [P3] Sidebar não tem indicador visual de "você está aqui" para sub-rotas de projeto
