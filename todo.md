@@ -2137,3 +2137,9 @@
 - [x] Botão "Concluir Nível 1" aparece na tela do Nível 2 (resolvido junto com o closure stale)
 - [x] 18/18 testes de bugs-pos-conclusao passando
 - [x] 21/21 testes de routers-fluxo-v3-etapas2-5 passando
+
+## Diagnóstico Erro generateQuestions CNAE 2 (17/03/2026)
+- [x] Adicionar logging detalhado no generateQuestions (console.log START, RAG ok, LLM error)
+- [x] Tornar RAG mais robusto com try/catch (fallback silencioso em caso de erro)
+- [x] Tornar resultado do LLM mais robusto com try/catch explícito
+- [ ] Aguardar teste do usuário para capturar erro exato nos logs

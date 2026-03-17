@@ -1,0 +1,150 @@
+{
+  "query": "SELECT cnaeCode, level, questionIndex, LEFT(questionText, 50) as q, LEFT(answerValue, 30) as a FROM questionnaireAnswersV3 WHERE projectId = 762 ORDER BY cnaeCode, level, questionIndex LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT cnaeCode, level, questionIndex, LEFT(questionText, 50) as q, LEFT(answerValue, 30) as a FROM questionnaireAnswersV3 WHERE projectId = 762 ORDER BY cnaeCode, level, questionIndex LIMIT 20;",
+  "rows": [
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel1",
+      "questionIndex": "0",
+      "q": "Sua empresa já iniciou o mapeamento detalhado de t",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel1",
+      "questionIndex": "1",
+      "q": "Considerando que a empresa compra soja de diversos",
+      "a": "Não"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel1",
+      "questionIndex": "2",
+      "q": "Sua empresa, que vende óleo de soja FOB, já realiz",
+      "a": "Não"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel1",
+      "questionIndex": "3",
+      "q": "A empresa já iniciou o planejamento ou a implement",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel1",
+      "questionIndex": "4",
+      "q": "Considerando que a empresa não utiliza atualmente ",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel1",
+      "questionIndex": "5",
+      "q": "Sua empresa já está revisando contratos de compra ",
+      "a": "Não"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel1",
+      "questionIndex": "6",
+      "q": "A empresa já modelou o impacto do creditamento int",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel1",
+      "questionIndex": "7",
+      "q": "A equipe responsável pelas áreas fiscal, contábil ",
+      "a": "Parcialmente"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel1",
+      "questionIndex": "8",
+      "q": "Considerando que a empresa fabrica óleo de soja, j",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel1",
+      "questionIndex": "9",
+      "q": "A empresa já analisou a possibilidade de aplicação",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel2",
+      "questionIndex": "0",
+      "q": "Considerando que a empresa compra soja de diversos",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel2",
+      "questionIndex": "1",
+      "q": "Dado que a empresa vende óleo de soja FOB e ainda ",
+      "a": "Não"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel2",
+      "questionIndex": "2",
+      "q": "Considerando que a empresa ainda não revisou contr",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel2",
+      "questionIndex": "3",
+      "q": "A equipe responsável pelas áreas fiscal, contábil ",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel2",
+      "questionIndex": "4",
+      "q": "Dado que a empresa já iniciou o mapeamento detalha",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel2",
+      "questionIndex": "5",
+      "q": "Considerando que a empresa já avaliou que a elimin",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel2",
+      "questionIndex": "6",
+      "q": "A empresa já modelou o impacto do creditamento int",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel2",
+      "questionIndex": "7",
+      "q": "Considerando que a empresa já analisou a possibili",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel2",
+      "questionIndex": "8",
+      "q": "A empresa já iniciou o planejamento ou a implement",
+      "a": "Sim"
+    },
+    {
+      "cnaeCode": "1041-4/00",
+      "level": "nivel2",
+      "questionIndex": "9",
+      "q": "Considerando que a empresa já realizou uma análise",
+      "a": "Sim"
+    }
+  ],
+  "messages": [],
+  "stdout": "cnaeCode\tlevel\tquestionIndex\tq\ta\n1041-4/00\tnivel1\t0\tSua empresa já iniciou o mapeamento detalhado de t\tSim\n1041-4/00\tnivel1\t1\tConsiderando que a empresa compra soja de diversos\tNão\n1041-4/00\tnivel1\t2\tSua empresa, que vende óleo de soja FOB, já realiz\tNão\n1041-4/00\tnivel1\t3\tA empresa já iniciou o planejamento ou a implement\tSim\n1041-4/00\tnivel1\t4\tConsiderando que a empresa não utiliza atualmente \tSim\n1041-4/00\tnivel1\t5\tSua empresa já está revisando contratos de compra \tNão\n1041-4/00\tnivel1\t6\tA empresa já modelou o impacto do creditamento int\tSim\n1041-4/00\tnivel1\t7\tA equipe responsável pelas áreas fiscal, contábil \tParcialmente\n1041-4/00\tnivel1\t8\tConsiderando que a empresa fabrica óleo de soja, j\tSim\n1041-4/00\tnivel1\t9\tA empresa já analisou a possibilidade de aplicação\tSim\n1041-4/00\tnivel2\t0\tConsiderando que a empresa compra soja de diversos\tSim\n1041-4/00\tnivel2\t1\tDado que a empresa vende óleo de soja FOB e ainda \tNão\n1041-4/00\tnivel2\t2\tConsiderando que a empresa ainda não revisou contr\tSim\n1041-4/00\tnivel2\t3\tA equipe responsável pelas áreas fiscal, contábil \tSim\n1041-4/00\tnivel2\t4\tDado que a empresa já iniciou o mapeamento detalha\tSim\n1041-4/00\tnivel2\t5\tConsiderando que a empresa já avaliou que a elimin\tSim\n1041-4/00\tnivel2\t6\tA empresa já modelou o impacto do creditamento int\tSim\n1041-4/00\tnivel2\t7\tConsiderando que a empresa já analisou a possibili\tSim\n1041-4/00\tnivel2\t8\tA empresa já iniciou o planejamento ou a implement\tSim\n1041-4/00\tnivel2\t9\tConsiderando que a empresa já realizou uma análise\tSim\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}

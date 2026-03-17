@@ -253,6 +253,7 @@ Retorne entre 2 e 6 CNAEs revisados.
       })).optional(),
     }))
     .mutation(async ({ input }) => {
+      console.log(`[generateQuestions] START projectId=${input.projectId} cnae=${input.cnaeCode} level=${input.level}`);
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
@@ -262,14 +263,23 @@ Retorne entre 2 e 6 CNAEs revisados.
         : "";
 
       // V65: RAG híbrido — busca artigos relevantes para o CNAE (versão rápida sem re-ranking para perguntas)
-      const ragCtx = await retrieveArticlesFast(
-        [input.cnaeCode],
-        `${input.cnaeCode} ${input.cnaeDescription} ${projectDescription}`,
-        5
-      );
-      const regulatoryContext = ragCtx.contextText;
+      let ragCtx;
+      try {
+        ragCtx = await retrieveArticlesFast(
+          [input.cnaeCode],
+          `${input.cnaeCode} ${input.cnaeDescription} ${projectDescription}`,
+          5
+        );
+      } catch (ragErr) {
+        console.error(`[generateQuestions] RAG error (non-fatal):`, ragErr);
+        ragCtx = { articles: [], contextText: "", totalCandidates: 0 };
+      }
+      const regulatoryContext = ragCtx?.contextText ?? "";
+      console.log(`[generateQuestions] RAG ok, articles=${ragCtx?.articles?.length ?? 0}`);
 
-      const result = await generateWithRetry(
+      let result;
+      try {
+        result = await generateWithRetry(
         [
           {
             role: "system",
@@ -299,10 +309,14 @@ Gere as perguntas no formato:
 {"questions": [{"id": "q1", "text": "...", "objetivo_diagnostico": "...", "impacto_reforma": "...", "type": "sim_nao", "peso_risco": "alto", "required": true, "options": [], "scale_labels": {"min": "Nunca", "max": "Sempre"}, "placeholder": "..."}]}`,
           },
         ],
-        QuestionsResponseSchema,
-        { temperature: 0.2, context: "generateQuestions" }
-      );
-
+          QuestionsResponseSchema,
+          { temperature: 0.2, context: "generateQuestions" }
+        );
+      } catch (llmErr) {
+        console.error(`[generateQuestions] LLM error for cnae=${input.cnaeCode}:`, llmErr);
+        throw llmErr;
+      }
+      console.log(`[generateQuestions] OK questions=${result.questions.length}`);
       return { questions: result.questions };
     }),
 

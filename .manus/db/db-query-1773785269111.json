@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, name, status, confirmedCnaes, LEFT(questionnaireAnswers, 200) as qa_preview FROM projects WHERE id = 762;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT id, name, status, confirmedCnaes, LEFT(questionnaireAnswers, 200) as qa_preview FROM projects WHERE id = 762;",
+  "rows": [
+    {
+      "id": "762",
+      "name": "again - 18h59",
+      "status": "assessment_fase1",
+      "confirmedCnaes": "[{\"code\": \"1041-4/00\", \"confidence\": 100, \"description\": \"Fabricação de óleos vegetais em bruto, exceto azeite de oliva\", \"justification\": \"Este CNAE descreve diretamente a atividade principal de produção de óleo de soja. É o core business da empresa e será diretamente impactado pelo IBS/CBS na cadeia de valor.\"}, {\"code\": \"4622-2/00\", \"confidence\": 90, \"description\": \"Comércio atacadista de soja\", \"justification\": \"A empresa compra soja de vários produtores, o que configura uma atividade de comércio atacadista de insumos para sua produção. Este CNAE reflete a etapa de aquisição da matéria-prima.\"}, {\"code\": \"4637-8/01\", \"confidence\": 85, \"description\": \"Comércio atacadista de produtos alimentícios em geral\", \"justification\": \"Embora o foco seja óleo de soja, este CNAE pode abranger a venda do produto final (óleo) para outros atacadistas ou indústrias, especialmente considerando a venda FOB e o porte da empresa. É um CNAE de venda do produto fabricado.\"}]",
+      "qa_preview": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tstatus\tconfirmedCnaes\tqa_preview\n762\tagain - 18h59\tassessment_fase1\t[{\"code\": \"1041-4/00\", \"confidence\": 100, \"description\": \"Fabricação de óleos vegetais em bruto, exceto azeite de oliva\", \"justification\": \"Este CNAE descreve diretamente a atividade principal de produção de óleo de soja. É o core business da empresa e será diretamente impactado pelo IBS/CBS na cadeia de valor.\"}, {\"code\": \"4622-2/00\", \"confidence\": 90, \"description\": \"Comércio atacadista de soja\", \"justification\": \"A empresa compra soja de vários produtores, o que configura uma atividade de comércio atacadista de insumos para sua produção. Este CNAE reflete a etapa de aquisição da matéria-prima.\"}, {\"code\": \"4637-8/01\", \"confidence\": 85, \"description\": \"Comércio atacadista de produtos alimentícios em geral\", \"justification\": \"Embora o foco seja óleo de soja, este CNAE pode abranger a venda do produto final (óleo) para outros atacadistas ou indústrias, especialmente considerando a venda FOB e o porte da empresa. É um CNAE de venda do produto fabricado.\"}]\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 92
+}

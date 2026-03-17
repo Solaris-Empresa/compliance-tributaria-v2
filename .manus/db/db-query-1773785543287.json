@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, name, description FROM projects WHERE id = 762;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT id, name, description FROM projects WHERE id = 762;",
+  "rows": [
+    {
+      "id": "762",
+      "name": "again - 18h59",
+      "description": "produção de oleo de soja; fabrica, compra soja de varios produtores; fabrica em uberaba - mg; veja fob; lucro real; 50 milhoes de reais por ano; não está usando nenhum um politica de redução de tributos."
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tdescription\n762\tagain - 18h59\tprodução de oleo de soja; fabrica, compra soja de varios produtores; fabrica em uberaba - mg; veja fob; lucro real; 50 milhoes de reais por ano; não está usando nenhum um politica de redução de tributos.\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}
