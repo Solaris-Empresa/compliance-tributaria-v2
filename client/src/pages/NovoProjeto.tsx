@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import {
   ArrowLeft, ArrowRight, Building2, Loader2, Plus, Sparkles, CheckCircle2,
-  Edit2, AlertCircle, ChevronRight, Search, X
+  Edit2, AlertCircle, ChevronRight, Search, X, RefreshCw, MessageSquare
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -167,6 +167,10 @@ export default function NovoProjeto() {
   const [customCnaes, setCustomCnaes] = useState<Cnae[]>([]);
   const [newCnaeCode, setNewCnaeCode] = useState("");
   const [newCnaeDesc, setNewCnaeDesc] = useState("");
+  // RF-1.05: loop de refinamento de CNAEs
+  const [showFeedbackPanel, setShowFeedbackPanel] = useState(false);
+  const [feedbackText, setFeedbackText] = useState("");
+  const [refinementIteration, setRefinementIteration] = useState(1);
 
   const { data: clients, refetch: refetchClients } = trpc.users.listClients.useQuery();
 
@@ -183,6 +187,31 @@ export default function NovoProjeto() {
     },
     onError: () => { toast.error("Não foi possível extrair CNAEs automaticamente. Adicione manualmente."); setShowCnaeModal(true); },
   });
+
+  const refineCnaes = trpc.fluxoV3.refineCnaes.useMutation({
+    onSuccess: (data) => {
+      setSuggestedCnaes(data.cnaes);
+      setSelectedCnaes(new Set(data.cnaes.map((c: Cnae) => c.code)));
+      setCustomCnaes([]);
+      setRefinementIteration(prev => prev + 1);
+      setFeedbackText("");
+      setShowFeedbackPanel(false);
+      toast.success(`Nova análise concluída (iteração ${refinementIteration + 1}). Revise os CNAEs atualizados.`);
+    },
+    onError: (err) => toast.error(`Erro ao refinar CNAEs: ${err.message}`),
+  });
+
+  const handleRefineCnaes = () => {
+    if (!projectId || feedbackText.trim().length < 5) return toast.error("Descreva o que precisa ser ajustado (mínimo 5 caracteres)");
+    const allCurrent = [...suggestedCnaes, ...customCnaes];
+    refineCnaes.mutate({
+      projectId,
+      description,
+      feedback: feedbackText.trim(),
+      currentCnaes: allCurrent,
+      iteration: refinementIteration,
+    });
+  };
 
   const confirmCnaes = trpc.fluxoV3.confirmCnaes.useMutation({
     onSuccess: () => {
@@ -425,12 +454,63 @@ export default function NovoProjeto() {
               </>
             )}
           </div>
+          {/* RF-1.05: Painel de feedback para nova análise */}
+          {showFeedbackPanel && (
+            <div className="border rounded-xl p-4 bg-amber-50 border-amber-200 space-y-3 mx-1 mb-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-amber-800 flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  O que precisa ser ajustado? {refinementIteration > 1 && <span className="text-xs font-normal text-amber-600">(iteração {refinementIteration})</span>}
+                </p>
+                <button className="text-amber-600 hover:text-amber-800" onClick={() => { setShowFeedbackPanel(false); setFeedbackText(""); }}>
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <Textarea
+                placeholder="Ex: Falta o CNAE de transporte de cargas. O CNAE 4711-3/02 não se aplica pois a empresa não tem loja física. Inclua atividades de e-commerce..."
+                value={feedbackText}
+                onChange={(e) => setFeedbackText(e.target.value)}
+                rows={3}
+                className="text-sm resize-none bg-white border-amber-200 focus:border-amber-400"
+              />
+              <div className="flex items-center justify-between">
+                <span className={`text-xs ${feedbackText.trim().length >= 5 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                  {feedbackText.trim().length} caracteres {feedbackText.trim().length < 5 && '(mín. 5)'}
+                </span>
+                <Button
+                  size="sm"
+                  onClick={handleRefineCnaes}
+                  disabled={feedbackText.trim().length < 5 || refineCnaes.isPending}
+                  className="bg-amber-600 hover:bg-amber-700 text-white"
+                >
+                  {refineCnaes.isPending
+                    ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />Analisando...</>
+                    : <><RefreshCw className="h-3.5 w-3.5 mr-1.5" />Gerar nova análise</>
+                  }
+                </Button>
+              </div>
+            </div>
+          )}
+
           <DialogFooter className="border-t pt-4 mt-2">
             <div className="flex items-center justify-between w-full">
-              <p className="text-sm text-muted-foreground"><span className="font-semibold text-foreground">{selectedCount}</span> CNAE{selectedCount !== 1 ? "s" : ""} selecionado{selectedCount !== 1 ? "s" : ""}</p>
+              <div className="flex items-center gap-3">
+                <p className="text-sm text-muted-foreground"><span className="font-semibold text-foreground">{selectedCount}</span> CNAE{selectedCount !== 1 ? "s" : ""} selecionado{selectedCount !== 1 ? "s" : ""}</p>
+                {!showFeedbackPanel && !extractCnaes.isPending && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs text-amber-700 border-amber-300 hover:bg-amber-50"
+                    onClick={() => setShowFeedbackPanel(true)}
+                    disabled={refineCnaes.isPending || confirmCnaes.isPending}
+                  >
+                    <RefreshCw className="h-3 w-3 mr-1" />Pedir nova análise
+                  </Button>
+                )}
+              </div>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setShowCnaeModal(false)} disabled={confirmCnaes.isPending}>Cancelar</Button>
-                <Button onClick={handleConfirmCnaes} disabled={selectedCount === 0 || confirmCnaes.isPending}>
+                <Button variant="outline" onClick={() => setShowCnaeModal(false)} disabled={confirmCnaes.isPending || refineCnaes.isPending}>Cancelar</Button>
+                <Button onClick={handleConfirmCnaes} disabled={selectedCount === 0 || confirmCnaes.isPending || refineCnaes.isPending}>
                   {confirmCnaes.isPending ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Confirmando...</> : <>Confirmar e Avançar<ArrowRight className="h-4 w-4 ml-2" /></>}
                 </Button>
               </div>

@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft, ArrowRight, ChevronRight, Loader2, Sparkles,
   CheckCircle2, Clock, SkipForward, MessageSquare, BarChart2,
-  AlignLeft, List, ToggleLeft, Layers
+  AlignLeft, List, ToggleLeft, Layers, Play, FileQuestion
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -187,7 +187,9 @@ export default function QuestionarioV3() {
   const [isSaving, setIsSaving] = useState(false);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
-  // RF-2.07: Navegação entre CNAEs e níveis implementada nos botões de ação
+  // Tela de entrada por CNAE: Set de códigos CNAE que o usuário já iniciou
+  // Persistido no localStorage junto com o progresso do questionário
+  const [startedCnaes, setStartedCnaes] = useState<Set<string>>(new Set());
 
   // Verificar rascunho local ao montar
   useEffect(() => {
@@ -204,6 +206,8 @@ export default function QuestionarioV3() {
     if (saved?.data) {
       if (saved.data.cnaeProgress?.length > 0) setCnaeProgress(saved.data.cnaeProgress);
       if (saved.data.currentCnaeIdx !== undefined) setCurrentCnaeIdx(saved.data.currentCnaeIdx);
+      // Restaurar CNAEs já iniciados — o usuário não precisa clicar "Iniciar" novamente
+      if (saved.data.startedCnaes?.length > 0) setStartedCnaes(new Set(saved.data.startedCnaes));
     }
     setShowResumeBanner(false);
   };
@@ -268,12 +272,14 @@ export default function QuestionarioV3() {
     }
   }, [cnaes, projectId, generateQuestions]);
 
-  // Carregar perguntas quando CNAE ou nível muda
+  // Carregar perguntas APENAS quando o usuário iniciou o CNAE atual
+  // Evita chamadas automáticas à IA sem interação do usuário
   useEffect(() => {
-    if (cnaes.length > 0 && currentCnaeIdx < cnaes.length) {
+    const currentCode = cnaes[currentCnaeIdx]?.code;
+    if (cnaes.length > 0 && currentCnaeIdx < cnaes.length && currentCode && startedCnaes.has(currentCode)) {
       loadQuestions(currentCnaeIdx, currentLevel);
     }
-  }, [currentCnaeIdx, currentLevel, cnaes.length]);
+  }, [currentCnaeIdx, currentLevel, cnaes.length, startedCnaes.size]);
 
   const currentCnae = cnaes[currentCnaeIdx];
   const answeredCount = Object.values(answers).filter(v => v.trim()).length;
@@ -282,7 +288,15 @@ export default function QuestionarioV3() {
   const totalProgress = cnaeProgress.filter(c => c.nivel1Done).length;
 
   // Auto-save no localStorage a cada 800ms de inatividade
-  useAutoSave(projectId, 'etapa2', { cnaeProgress, currentCnaeIdx }, 800);
+  // Inclui startedCnaes para persistir o estado de "iniciado" por CNAE
+  useAutoSave(projectId, 'etapa2', { cnaeProgress, currentCnaeIdx, startedCnaes: [...startedCnaes] }, 800);
+
+  // Handler: usuário clica em "Iniciar diagnóstico" — marca o CNAE como iniciado
+  // e dispara a geração de perguntas pela IA
+  const handleStartCnae = (cnaeCode: string) => {
+    setStartedCnaes(prev => new Set([...prev, cnaeCode]));
+    // O useEffect acima detectará a mudança em startedCnaes.size e chamará loadQuestions
+  };
 
   const handleAnswer = (questionId: string, value: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
@@ -498,8 +512,65 @@ export default function QuestionarioV3() {
         {/* Área do Questionário */}
         {!showDeepDivePrompt && (
           <div className="space-y-4">
-            {/* Cabeçalho do CNAE atual */}
-            {currentCnae && (
+
+            {/* Tela de entrada por CNAE: exibida quando o CNAE ainda não foi iniciado */}
+            {currentCnae && !startedCnaes.has(currentCnae.code) && (
+              <Card className="border-2 border-primary/20 shadow-sm overflow-hidden">
+                <div className="bg-gradient-to-br from-primary/8 to-primary/3 p-8">
+                  <div className="flex flex-col items-center text-center gap-6">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                      <FileQuestion className="h-8 w-8 text-primary" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="font-mono text-lg font-bold text-primary">{currentCnae.code}</span>
+                        <Badge variant="secondary" className="text-xs">CNAE {currentCnaeIdx + 1} de {cnaes.length}</Badge>
+                      </div>
+                      <h3 className="text-base font-semibold">{currentCnae.description}</h3>
+                      <p className="text-sm text-muted-foreground max-w-md leading-relaxed">
+                        A IA irá gerar perguntas personalizadas para este CNAE com base na descrição do negócio.
+                        Responda com atenção — suas respostas guiarão o diagnóstico de compliance.
+                      </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
+                      {currentCnaeIdx > 0 && (
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => {
+                            setCurrentCnaeIdx(prev => prev - 1);
+                            setCurrentLevel("nivel1");
+                            setAnswers({});
+                            setQuestions([]);
+                            setShowDeepDivePrompt(false);
+                          }}
+                        >
+                          <ArrowLeft className="h-4 w-4 mr-2" />
+                          CNAE Anterior
+                        </Button>
+                      )}
+                      <Button
+                        className="flex-1"
+                        size="lg"
+                        onClick={() => handleStartCnae(currentCnae.code)}
+                      >
+                        <Play className="h-4 w-4 mr-2" />
+                        Iniciar diagnóstico
+                      </Button>
+                    </div>
+                    {cnaeProgress.find(c => c.code === currentCnae.code)?.nivel1Done && (
+                      <p className="text-xs text-emerald-600 flex items-center gap-1">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Este CNAE já foi respondido anteriormente. Clique para revisar.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* Cabeçalho do CNAE atual (apenas quando iniciado) */}
+            {currentCnae && startedCnaes.has(currentCnae.code) && (
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
@@ -517,8 +588,8 @@ export default function QuestionarioV3() {
               </div>
             )}
 
-            {/* Loading de perguntas */}
-            {isLoadingQuestions ? (
+            {/* Loading e perguntas: apenas quando o CNAE foi iniciado pelo usuário */}
+            {currentCnae && startedCnaes.has(currentCnae.code) && isLoadingQuestions ? (
               <Card className="border-dashed">
                 <CardContent className="flex flex-col items-center justify-center py-16 gap-4">
                   <div className="relative">

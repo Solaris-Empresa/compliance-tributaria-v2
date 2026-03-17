@@ -1784,3 +1784,7 @@
 - [ ] Contador de revisões visível no modal ("Análise 2 de N")
 - [ ] QuestionárioV3: tela de entrada por CNAE antes de gerar perguntas (card com código + descrição + botão "Iniciar diagnóstico")
 - [ ] QuestionárioV3: IA gera perguntas APENAS quando usuário clica "Iniciar" — não no mount automático
+
+## Sprint RF-1.05 + QuestionárioV3 UX
+- [ ] RF-1.05 frontend: botão "Pedir nova análise" + campo de feedback no modal de CNAEs (NovoProjeto.tsx)
+- [ ] QuestionárioV3: tela de entrada por CNAE (card isolado + botão "Iniciar diagnóstico")

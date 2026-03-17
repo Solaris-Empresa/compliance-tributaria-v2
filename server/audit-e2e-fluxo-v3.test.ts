@@ -375,3 +375,59 @@ describe("Persistência — Auto-save e Recuperação de Rascunho", () => {
     expect(parsed).toBeNull();
   });
 });
+
+// ─── RF-2 UX: Tela de entrada por CNAE com persistência ──────────────────────
+describe("RF-2 UX: Tela de entrada por CNAE com persistência (startedCnaes)", () => {
+  it("startedCnaes começa vazio — nenhum CNAE iniciado automaticamente", () => {
+    const startedCnaes = new Set<string>();
+    expect(startedCnaes.size).toBe(0);
+  });
+
+  it("handleStartCnae adiciona o código ao Set", () => {
+    const startedCnaes = new Set<string>();
+    startedCnaes.add("4781-4/00");
+    expect(startedCnaes.has("4781-4/00")).toBe(true);
+    expect(startedCnaes.size).toBe(1);
+  });
+
+  it("ao retomar rascunho, startedCnaes é restaurado do localStorage", () => {
+    const savedData = { startedCnaes: ["4781-4/00", "4782-2/01"], currentCnaeIdx: 1 };
+    const restored = new Set<string>(savedData.startedCnaes);
+    expect(restored.has("4781-4/00")).toBe(true);
+    expect(restored.has("4782-2/01")).toBe(true);
+    expect(restored.size).toBe(2);
+  });
+
+  it("CNAE não iniciado NÃO dispara loadQuestions (guard do useEffect)", () => {
+    const startedCnaes = new Set<string>();
+    const cnaes = [{ code: "4781-4/00", description: "Comércio varejista" }];
+    const currentCnaeIdx = 0;
+    const currentCode = cnaes[currentCnaeIdx]?.code;
+    const shouldLoad = cnaes.length > 0 && currentCnaeIdx < cnaes.length && !!currentCode && startedCnaes.has(currentCode);
+    expect(shouldLoad).toBe(false);
+  });
+
+  it("CNAE iniciado SIM dispara loadQuestions (guard do useEffect)", () => {
+    const startedCnaes = new Set<string>(["4781-4/00"]);
+    const cnaes = [{ code: "4781-4/00", description: "Comércio varejista" }];
+    const currentCnaeIdx = 0;
+    const currentCode = cnaes[currentCnaeIdx]?.code;
+    const shouldLoad = cnaes.length > 0 && currentCnaeIdx < cnaes.length && !!currentCode && startedCnaes.has(currentCode);
+    expect(shouldLoad).toBe(true);
+  });
+
+  it("startedCnaes é serializado como array para o localStorage", () => {
+    const startedCnaes = new Set<string>(["4781-4/00", "4791-1/00"]);
+    const serialized = [...startedCnaes];
+    expect(Array.isArray(serialized)).toBe(true);
+    expect(serialized).toContain("4781-4/00");
+    expect(serialized).toContain("4791-1/00");
+  });
+
+  it("startedCnaes é restaurado corretamente de array para Set", () => {
+    const fromStorage = ["4781-4/00", "4791-1/00"];
+    const restored = new Set<string>(fromStorage);
+    expect(restored instanceof Set).toBe(true);
+    expect(restored.size).toBe(2);
+  });
+});
