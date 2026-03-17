@@ -1707,3 +1707,15 @@
 - [ ] Implementar retomada de progresso ao abrir questionário já iniciado
 - [ ] Testes unitários para as novas procedures
 - [ ] Checkpoint e push GitHub
+
+## Sprint V47: Persistência Temporária e Definitiva — Todas as Etapas (16/03/2026)
+- [ ] Criar hook usePersistenceV3 com localStorage (temporária) e banco (definitiva)
+- [ ] Etapa 1 (NovoProjeto): salvar rascunho no localStorage a cada keystroke; restaurar ao reabrir
+- [ ] Etapa 2 (QuestionarioV3): salvar resposta no localStorage imediatamente + banco ao avançar CNAE
+- [ ] Etapa 3 (BriefingV3): salvar rascunho de correção no localStorage + briefing aprovado no banco
+- [ ] Etapa 4 (MatrizesV3): salvar edições inline no localStorage + matrizes aprovadas no banco
+- [ ] Etapa 5 (PlanoAcaoV3): salvar alterações de tarefa no localStorage + plano aprovado no banco
+- [ ] Banner de retomada em todas as etapas: "Você tem progresso salvo — deseja continuar?"
+- [ ] Procedure getProjectProgress: retornar etapa atual + dados salvos por etapa
+- [ ] Testes unitários da persistência (localStorage mock + banco mock)
+- [ ] Checkpoint, push GitHub e entrega ao usuário

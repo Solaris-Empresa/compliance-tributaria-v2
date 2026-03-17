@@ -1,5 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect } from "react";
+import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
+import { ResumeBanner } from "@/components/ResumeBanner";
 import { useParams, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import ComplianceLayout from "@/components/ComplianceLayout";
@@ -271,9 +273,38 @@ export default function PlanoAcaoV3() {
   const [isApproving, setIsApproving] = useState(false);
   const [adjustmentText, setAdjustmentText] = useState("");
   const [showAdjustment, setShowAdjustment] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<TaskStatus | "all">("all");
+   const [filterStatus, setFilterStatus] = useState<TaskStatus | "all">("all");
   const [filterPriority, setFilterPriority] = useState<string>("all");
   const [generationCount, setGenerationCount] = useState(0);
+  const [showResumeBanner, setShowResumeBanner] = useState(false);
+  const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
+
+  // Verificar rascunho local ao montar
+  useEffect(() => {
+    if (!projectId) return;
+    const saved = loadTempData(projectId, 'etapa5');
+    if (saved?.data?.plans && Object.keys(saved.data.plans).length > 0) {
+      setDraftSavedAt(saved.savedAt);
+      setShowResumeBanner(true);
+    }
+  }, [projectId]);
+
+  const handleResumeDraft = () => {
+    const saved = loadTempData(projectId, 'etapa5');
+    if (saved?.data?.plans) {
+      setPlans(saved.data.plans);
+      setGenerationCount(1);
+    }
+    setShowResumeBanner(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearTempData(projectId, 'etapa5');
+    setShowResumeBanner(false);
+  };
+
+  // Auto-save do plano de ação no localStorage
+  useAutoSave(projectId, 'etapa5', { plans }, 1000);
 
   const { data: project, isLoading: loadingProject } = trpc.fluxoV3.getProjectStep1.useQuery(
     { projectId },
@@ -323,6 +354,7 @@ export default function PlanoAcaoV3() {
     setIsApproving(true);
     try {
       await approvePlan.mutateAsync({ projectId, plans });
+      clearTempData(projectId, 'etapa5');
       toast.success("Plano de Ação aprovado! Projeto concluído.");
       setLocation(`/projetos/${projectId}`);
     } catch {
@@ -388,6 +420,14 @@ export default function PlanoAcaoV3() {
   return (
     <ComplianceLayout>
       <div className="max-w-5xl mx-auto space-y-6 py-2">
+        {showResumeBanner && (
+          <ResumeBanner
+            savedAt={draftSavedAt}
+            onResume={handleResumeDraft}
+            onDiscard={handleDiscardDraft}
+            label="rascunho do plano de ação"
+          />
+        )}
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => setLocation(`/projetos/${projectId}/matrizes-v3`)}>

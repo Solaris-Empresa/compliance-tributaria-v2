@@ -1,5 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect, useCallback } from "react";
+import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
+import { ResumeBanner } from "@/components/ResumeBanner";
 import { useParams, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import ComplianceLayout from "@/components/ComplianceLayout";
@@ -183,6 +185,32 @@ export default function QuestionarioV3() {
   const [showDeepDivePrompt, setShowDeepDivePrompt] = useState(false);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showResumeBanner, setShowResumeBanner] = useState(false);
+  const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
+
+  // Verificar rascunho local ao montar
+  useEffect(() => {
+    if (!projectId) return;
+    const saved = loadTempData(projectId, 'etapa2');
+    if (saved?.data?.cnaeProgress?.length > 0) {
+      setDraftSavedAt(saved.savedAt);
+      setShowResumeBanner(true);
+    }
+  }, [projectId]);
+
+  const handleResumeDraft = () => {
+    const saved = loadTempData(projectId, 'etapa2');
+    if (saved?.data) {
+      if (saved.data.cnaeProgress?.length > 0) setCnaeProgress(saved.data.cnaeProgress);
+      if (saved.data.currentCnaeIdx !== undefined) setCurrentCnaeIdx(saved.data.currentCnaeIdx);
+    }
+    setShowResumeBanner(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearTempData(projectId, 'etapa2');
+    setShowResumeBanner(false);
+  };
 
   // Buscar projeto e CNAEs
   const { data: project, isLoading: loadingProject } = trpc.fluxoV3.getProjectStep1.useQuery(
@@ -251,6 +279,9 @@ export default function QuestionarioV3() {
   const requiredQuestions = questions.filter(q => q.required !== false);
   const allRequiredAnswered = requiredQuestions.every(q => answers[q.id]?.trim());
   const totalProgress = cnaeProgress.filter(c => c.nivel1Done).length;
+
+  // Auto-save no localStorage a cada 800ms de inatividade
+  useAutoSave(projectId, 'etapa2', { cnaeProgress, currentCnaeIdx }, 800);
 
   const handleAnswer = (questionId: string, value: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
@@ -367,6 +398,14 @@ export default function QuestionarioV3() {
   return (
     <ComplianceLayout>
       <div className="max-w-3xl mx-auto space-y-6 py-2">
+        {showResumeBanner && (
+          <ResumeBanner
+            savedAt={draftSavedAt}
+            onResume={handleResumeDraft}
+            onDiscard={handleDiscardDraft}
+            label="progresso do questionário"
+          />
+        )}
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => setLocation(`/projetos/${projectId}`)}>

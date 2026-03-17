@@ -1,5 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect } from "react";
+import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
+import { ResumeBanner } from "@/components/ResumeBanner";
 import { useParams, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import ComplianceLayout from "@/components/ComplianceLayout";
@@ -26,6 +28,35 @@ export default function BriefingV3() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [generationCount, setGenerationCount] = useState(0);
+  const [showResumeBanner, setShowResumeBanner] = useState(false);
+  const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
+
+  // Verificar rascunho local ao montar
+  useEffect(() => {
+    if (!projectId) return;
+    const saved = loadTempData(projectId, 'etapa3');
+    if (saved?.data?.briefing) {
+      setDraftSavedAt(saved.savedAt);
+      setShowResumeBanner(true);
+    }
+  }, [projectId]);
+
+  const handleResumeDraft = () => {
+    const saved = loadTempData(projectId, 'etapa3');
+    if (saved?.data?.briefing) {
+      setBriefing(saved.data.briefing);
+      setGenerationCount(1);
+    }
+    setShowResumeBanner(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearTempData(projectId, 'etapa3');
+    setShowResumeBanner(false);
+  };
+
+  // Auto-save do briefing no localStorage
+  useAutoSave(projectId, 'etapa3', { briefing }, 1000);
 
   const { data: project, isLoading: loadingProject } = trpc.fluxoV3.getProjectStep1.useQuery(
     { projectId },
@@ -70,6 +101,7 @@ export default function BriefingV3() {
     setIsApproving(true);
     try {
       await approveBriefing.mutateAsync({ projectId, briefingContent: briefing });
+      clearTempData(projectId, 'etapa3');
       toast.success("Briefing aprovado! Avançando para Matrizes de Riscos...");
       setLocation(`/projetos/${projectId}/matrizes-v3`);
     } catch {
@@ -98,6 +130,14 @@ export default function BriefingV3() {
   return (
     <ComplianceLayout>
       <div className="max-w-4xl mx-auto space-y-6 py-2">
+        {showResumeBanner && (
+          <ResumeBanner
+            savedAt={draftSavedAt}
+            onResume={handleResumeDraft}
+            onDiscard={handleDiscardDraft}
+            label="rascunho do briefing"
+          />
+        )}
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => setLocation(`/projetos/${projectId}/questionario-v3`)}>

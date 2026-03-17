@@ -1,5 +1,7 @@
 // @ts-nocheck
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
+import { ResumeBanner } from "@/components/ResumeBanner";
 import { useLocation, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import ComplianceLayout from "@/components/ComplianceLayout";
@@ -121,6 +123,9 @@ function EditCnaeModal({ cnae, onSave, onClose }: { cnae: Cnae | null; onSave: (
     </Dialog>
   );
 }
+// ID fixo para rascunho antes de criar o projeto no banco
+const DRAFT_PROJECT_ID = 0;
+
 export default function NovoProjeto() {
   const [, setLocation] = useLocation();
   const [name, setName] = useState("");
@@ -128,6 +133,32 @@ export default function NovoProjeto() {
   const [clientId, setClientId] = useState<number | null>(null);
   const [clientSearch, setClientSearch] = useState("");
   const [projectId, setProjectId] = useState<number | null>(null);
+  const [showResumeBanner, setShowResumeBanner] = useState(false);
+  const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
+
+  // Verificar rascunho salvo ao montar
+  useEffect(() => {
+    const saved = loadTempData(DRAFT_PROJECT_ID, 'etapa1');
+    if (saved && (saved.data?.name || saved.data?.description)) {
+      setDraftSavedAt(saved.savedAt);
+      setShowResumeBanner(true);
+    }
+  }, []);
+
+  const handleResumeDraft = () => {
+    const saved = loadTempData(DRAFT_PROJECT_ID, 'etapa1');
+    if (saved?.data) {
+      setName(saved.data.name || '');
+      setDescription(saved.data.description || '');
+      if (saved.data.clientId) setClientId(saved.data.clientId);
+    }
+    setShowResumeBanner(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearTempData(DRAFT_PROJECT_ID, 'etapa1');
+    setShowResumeBanner(false);
+  };
   const [showCnaeModal, setShowCnaeModal] = useState(false);
   const [showNewClientModal, setShowNewClientModal] = useState(false);
   const [editingCnae, setEditingCnae] = useState<Cnae | null>(null);
@@ -154,9 +185,17 @@ export default function NovoProjeto() {
   });
 
   const confirmCnaes = trpc.fluxoV3.confirmCnaes.useMutation({
-    onSuccess: () => { toast.success("CNAEs confirmados! Avançando para o questionário..."); setShowCnaeModal(false); setLocation(`/projetos/${projectId}/questionario-v3`); },
+    onSuccess: () => {
+      clearTempData(DRAFT_PROJECT_ID, 'etapa1');
+      toast.success("CNAEs confirmados! Avançando para o questionário...");
+      setShowCnaeModal(false);
+      setLocation(`/projetos/${projectId}/questionario-v3`);
+    },
     onError: (err) => toast.error(`Erro: ${err.message}`),
   });
+
+  // Auto-save no localStorage a cada 500ms de inatividade
+  useAutoSave(DRAFT_PROJECT_ID, 'etapa1', { name, description, clientId }, 500);
 
   const handleSubmit = () => {
     if (!name.trim()) return toast.error("Informe o nome do projeto");
@@ -214,6 +253,15 @@ export default function NovoProjeto() {
             <p className="text-sm text-muted-foreground mt-0.5">Etapa 1 de 5 — Criação do Projeto</p>
           </div>
         </div>
+
+        {showResumeBanner && (
+          <ResumeBanner
+            savedAt={draftSavedAt}
+            onResume={handleResumeDraft}
+            onDiscard={handleDiscardDraft}
+            label="rascunho do projeto"
+          />
+        )}
 
         <div className="flex items-center gap-2 overflow-x-auto pb-1">
           {["Projeto", "Questionário", "Briefing", "Riscos", "Plano"].map((step, i) => (

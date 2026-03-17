@@ -1,5 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect } from "react";
+import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
+import { ResumeBanner } from "@/components/ResumeBanner";
 import { useParams, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import ComplianceLayout from "@/components/ComplianceLayout";
@@ -111,6 +113,35 @@ export default function MatrizesV3() {
   const [adjustmentText, setAdjustmentText] = useState("");
   const [editingRisk, setEditingRisk] = useState<Risk | null>(null);
   const [generationCount, setGenerationCount] = useState(0);
+  const [showResumeBanner, setShowResumeBanner] = useState(false);
+  const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
+
+  // Verificar rascunho local ao montar
+  useEffect(() => {
+    if (!projectId) return;
+    const saved = loadTempData(projectId, 'etapa4');
+    if (saved?.data?.matrices && Object.keys(saved.data.matrices).length > 0) {
+      setDraftSavedAt(saved.savedAt);
+      setShowResumeBanner(true);
+    }
+  }, [projectId]);
+
+  const handleResumeDraft = () => {
+    const saved = loadTempData(projectId, 'etapa4');
+    if (saved?.data?.matrices) {
+      setMatrices(saved.data.matrices);
+      setGenerationCount(1);
+    }
+    setShowResumeBanner(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearTempData(projectId, 'etapa4');
+    setShowResumeBanner(false);
+  };
+
+  // Auto-save das matrizes no localStorage
+  useAutoSave(projectId, 'etapa4', { matrices }, 1000);
 
   const { data: project, isLoading: loadingProject } = trpc.fluxoV3.getProjectStep1.useQuery(
     { projectId },
@@ -153,6 +184,7 @@ export default function MatrizesV3() {
     setIsApproving(true);
     try {
       await approveMatrices.mutateAsync({ projectId, matrices });
+      clearTempData(projectId, 'etapa4');
       toast.success("Matrizes aprovadas! Avançando para o Plano de Ação...");
       setLocation(`/projetos/${projectId}/plano-v3`);
     } catch {
@@ -193,6 +225,14 @@ export default function MatrizesV3() {
   return (
     <ComplianceLayout>
       <div className="max-w-5xl mx-auto space-y-6 py-2">
+        {showResumeBanner && (
+          <ResumeBanner
+            savedAt={draftSavedAt}
+            onResume={handleResumeDraft}
+            onDiscard={handleDiscardDraft}
+            label="rascunho das matrizes de riscos"
+          />
+        )}
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => setLocation(`/projetos/${projectId}/briefing-v3`)}>
