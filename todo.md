@@ -1830,7 +1830,8 @@
 - [x] Badge desaparece quando usuário re-conclui o CNAE (handleFinishLevel1 limpa revisado=false)
 - [x] 9 testes unitários passando (initCnaeProgress, markRevisado, finishLevel1, shouldShowBadge)
 
-## Bugs Reportados (17/03/2026)
-- [ ] BUG-01: Erro ao cadastrar novo cliente via modal "Novo Cliente" no form de projeto — INSERT falha (campo cnpj excede varchar ou constraint violada)
-- [ ] BUG-02: Botão "Avançar — Identificar CNAEs" às vezes não habilita no form de projeto (validação de campos não dispara corretamente)
-- [ ] BUG-03: Erro "Algo deu errado" ao solicitar aprofundamento após responder 10 questões no QuestionarioV3 (geração de perguntas de nível 2 falha)
+## Bugs Corrigidos (17/03/2026)
+- [x] BUG-01: Sanitizar CNPJ no servidor (extrair dígitos, formatar XX.XXX.XXX/XXXX-XX, truncar para 18 chars); migração schema cnpj varchar(20)
+- [x] BUG-02: Adicionar estado pendingClientName no NovoProjeto.tsx — selectedClient usa fallback imediato enquanto refetch não retorna
+- [x] BUG-03: Mover loadedQuestionsRef antes dos useEffects; handleAcceptDeepDive pré-registra cacheKey para evitar chamada dupla sem previousAnswers
+- [x] 14 testes unitários passando (bugfix-sprint-v53.test.ts)
