@@ -1808,3 +1808,17 @@
 - [x] Implementar função generateFinalReportPDF no frontend com CNAEs, riscos por severidade e tarefas por responsável
 - [x] Adicionar botão "Baixar Relatório Final" na tela de conclusão do projeto
 - [x] TypeScript 0 erros, HMR aplicado, servidor rodando
+
+## RF-2.07: Confirmação ao Retornar a CNAE Concluído
+- [x] Estado `confirmPrevCnae` (boolean) para controlar AlertDialog
+- [x] Botão "CNAE Anterior" verifica se CNAE destino tem `nivel1Done: true`
+- [x] AlertDialog com nome do CNAE alvo e opções Cancelar / Sim, retornar
+- [x] Ao confirmar: reseta answers, questions, level para nivel1 e navega
+- [x] Fragment `<>...</>` wrapping para AlertDialog fora do ComplianceLayout
+- [x] 9 testes unitários passando (shouldConfirmPrevCnae + navigateToPrevCnae)
+
+## RF-5.08: Painel de Configuração de Notificações por Tarefa
+- [x] Lógica de configuração: beforeDays (1-30), onStatusChange, onProgressUpdate, onComment
+- [x] Validação de beforeDays entre 1 e 30
+- [x] Função hasActiveNotifications para detectar notificações ativas
+- [x] 10 testes unitários passando (getDefaultNotifications, updateTaskNotifications, validateBeforeDays)
