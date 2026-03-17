@@ -200,6 +200,10 @@ export default function QuestionarioV3() {
   const [confirmPrevCnae, setConfirmPrevCnae] = useState(false); // RF-2.07: confirmação ao retornar a CNAE concluído
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
   const [questionsError, setQuestionsError] = useState<string | null>(null);
+  const [isTimeoutError, setIsTimeoutError] = useState(false); // true quando o erro é LLM_TIMEOUT
+  const [retryCountdown, setRetryCountdown] = useState<number | null>(null); // countdown 10→0 ou null
+  const retryCountdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const retryPendingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Contador de tempo da geração de perguntas
   const [generationElapsed, setGenerationElapsed] = useState(0);
   const generationTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -324,8 +328,40 @@ export default function QuestionarioV3() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("[loadQuestions] error:", msg);
-      setQuestionsError("Erro ao gerar perguntas. Tente novamente.");
-      toast.error("Erro ao gerar perguntas. Tente novamente.");
+      const isTimeout = msg.includes("LLM_TIMEOUT");
+      setIsTimeoutError(isTimeout);
+      setQuestionsError(
+        isTimeout
+          ? "A IA demorou mais de 3 minutos para responder."
+          : "Erro ao gerar perguntas. Tente novamente."
+      );
+      if (isTimeout) {
+        // Iniciar countdown de 10s para retry automático
+        setRetryCountdown(10);
+        if (retryCountdownRef.current) clearInterval(retryCountdownRef.current);
+        retryCountdownRef.current = setInterval(() => {
+          setRetryCountdown(prev => {
+            if (prev === null || prev <= 1) {
+              clearInterval(retryCountdownRef.current!);
+              retryCountdownRef.current = null;
+              return null;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        // Disparar retry ao fim do countdown (10s)
+        if (retryPendingRef.current) clearTimeout(retryPendingRef.current);
+        retryPendingRef.current = setTimeout(() => {
+          const cacheKey = `${cnaes[cnaeIdx]?.code}-${level}`;
+          loadedQuestionsRef.current.delete(cacheKey);
+          setQuestionsError(null);
+          setIsTimeoutError(false);
+          setRetryCountdown(null);
+          loadQuestions(cnaeIdx, level, prevAnswers);
+        }, 10_000);
+      } else {
+        toast.error("Erro ao gerar perguntas. Tente novamente.");
+      }
     } finally {
       setIsLoadingQuestions(false);
       // Parar contador de tempo
@@ -334,7 +370,7 @@ export default function QuestionarioV3() {
         generationTimerRef.current = null;
       }
     }
-  }, [cnaes, projectId, generateQuestions]);
+  }, [cnaes, projectId, generateQuestions]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   // Ref para rastrear quais CNAE+nível já tiveram perguntas carregadas (evita recargas em loop)
   // DEVE ser declarado ANTES dos useEffects que o utilizam
@@ -344,12 +380,20 @@ export default function QuestionarioV3() {
   // Cobre: (1) mudança de nível 1→2, (2) navegação entre CNAEs já iniciados
   // Não dispara no mount inicial — isso é tratado por handleStartCnae
   // Não dispara quando handleAcceptDeepDive já adicionou o cacheKey ao ref
-  // Cleanup do timer ao desmontar o componente
+  // Cleanup de todos os timers ao desmontar o componente
   useEffect(() => {
     return () => {
       if (generationTimerRef.current) {
         clearInterval(generationTimerRef.current);
         generationTimerRef.current = null;
+      }
+      if (retryCountdownRef.current) {
+        clearInterval(retryCountdownRef.current);
+        retryCountdownRef.current = null;
+      }
+      if (retryPendingRef.current) {
+        clearTimeout(retryPendingRef.current);
+        retryPendingRef.current = null;
       }
     };
   }, []);
@@ -874,29 +918,74 @@ export default function QuestionarioV3() {
                 );
               })()
             ) : questionsError ? (
-              <Card className="border-destructive/30 bg-destructive/5">
+              <Card className={isTimeoutError ? "border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20" : "border-destructive/30 bg-destructive/5"}>
                 <CardContent className="flex flex-col items-center justify-center py-12 gap-4">
-                  <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
-                    <AlertCircle className="h-6 w-6 text-destructive" />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-destructive">Falha ao gerar perguntas</p>
-                    <p className="text-xs text-muted-foreground mt-1 max-w-xs">{questionsError}</p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const cacheKey = `${currentCnae?.code}-${currentLevel}`;
-                      loadedQuestionsRef.current.delete(cacheKey);
-                      setQuestionsError(null);
-                      const prevAnswers = currentLevel === "nivel2" ? (cnaeProgress[currentCnaeIdx]?.answers || []) : undefined;
-                      loadQuestions(currentCnaeIdx, currentLevel, prevAnswers);
-                    }}
-                  >
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Tentar novamente
-                  </Button>
+                  {isTimeoutError && retryCountdown !== null ? (
+                    // Modo countdown: anel animado com número
+                    <>
+                      <div className="relative flex items-center justify-center">
+                        {/* Anel SVG animado */}
+                        <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+                          <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor"
+                            className="text-amber-200 dark:text-amber-900" strokeWidth="4" />
+                          <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor"
+                            className="text-amber-500" strokeWidth="4"
+                            strokeDasharray={`${2 * Math.PI * 28}`}
+                            strokeDashoffset={`${2 * Math.PI * 28 * (1 - retryCountdown / 10)}`}
+                            strokeLinecap="round"
+                            style={{ transition: "stroke-dashoffset 0.9s linear" }}
+                          />
+                        </svg>
+                        <span className="absolute text-xl font-bold text-amber-600 dark:text-amber-400">
+                          {retryCountdown}
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">Tempo limite atingido</p>
+                        <p className="text-xs text-muted-foreground mt-1 max-w-xs">
+                          Nova tentativa automática em <strong>{retryCountdown}s</strong>...
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          // Cancelar retry automático
+                          if (retryCountdownRef.current) { clearInterval(retryCountdownRef.current); retryCountdownRef.current = null; }
+                          if (retryPendingRef.current) { clearTimeout(retryPendingRef.current); retryPendingRef.current = null; }
+                          setRetryCountdown(null);
+                        }}
+                      >
+                        Cancelar retry automático
+                      </Button>
+                    </>
+                  ) : (
+                    // Modo erro normal (timeout cancelado ou erro genérico)
+                    <>
+                      <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                        <AlertCircle className="h-6 w-6 text-destructive" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-destructive">Falha ao gerar perguntas</p>
+                        <p className="text-xs text-muted-foreground mt-1 max-w-xs">{questionsError}</p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const cacheKey = `${currentCnae?.code}-${currentLevel}`;
+                          loadedQuestionsRef.current.delete(cacheKey);
+                          setQuestionsError(null);
+                          setIsTimeoutError(false);
+                          const prevAnswers = currentLevel === "nivel2" ? (cnaeProgress[currentCnaeIdx]?.answers || []) : undefined;
+                          loadQuestions(currentCnaeIdx, currentLevel, prevAnswers);
+                        }}
+                      >
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Tentar novamente
+                      </Button>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             ) : (

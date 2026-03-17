@@ -2167,3 +2167,12 @@
 - [x] Adicionar barra de progresso estimada (45s para nível 1, 60s para nível 2, cap em 95%)
 - [x] Mostrar mensagem contextual por faixa de tempo (0-15s, 15-45s, 45s+)
 - [x] Cleanup do timer no useEffect de desmontagem (sem memory leak)
+
+## Feature: Retry Automático com Countdown no LLM_TIMEOUT
+
+- [x] Adicionar estados retryCountdown, isTimeoutError e refs no QuestionarioV3
+- [x] Detectar LLM_TIMEOUT no catch do loadQuestions e iniciar countdown de 10s
+- [x] Atualizar bloco de erro para mostrar anel SVG animado com número e botão "Cancelar retry"
+- [x] Disparar nova tentativa automaticamente ao fim do countdown (10s)
+- [x] Cancelar retry se usuário clicar "Cancelar retry automático"
+- [x] Cleanup de todos os timers (countdown + pending) no useEffect de desmontagem
