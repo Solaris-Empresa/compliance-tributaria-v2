@@ -1948,3 +1948,28 @@
 - [x] PlanoAcaoV3: StepComments integrado (step='plano_acao')
 - [x] 28 testes unitários passando (sprint-v57-step-comments.test.ts)
 - [x] Checkpoint e push no GitHub
+
+## Sprint V59 — Testes do Fluxo V3 com Mocks de IA (17/03/2026)
+- [ ] Mapear procedures do fluxo V3 e pontos de falha de IA
+- [ ] Testes: generateQuestions, saveAnswer, getProgress (questionário)
+- [ ] Testes: generateBriefing, approveBriefing (briefing)
+- [ ] Testes: generateMatrices, approveMatrices (matrizes de riscos)
+- [ ] Testes: generateActionPlan, approveActionPlan (plano de ação)
+- [ ] Testes de falha: timeout de IA, JSON inválido, resposta vazia, erro de rede
+- [ ] Checkpoint e push no GitHub
+
+## Sprint V59 — Testes Fluxo V3 com Mocks de IA (17/03/2026)
+- [x] Mapeamento de 19 procedures do fluxo V3 e 7 pontos de chamada ao invokeLLM
+- [x] Testes A: extractCnaes (8 casos — sucesso, JSON malformado, null, texto sem JSON, NOT_FOUND, timeout, markdown code block, array vazio)
+- [x] Testes B: refineCnaes (4 casos — sucesso, null, NOT_FOUND, verificação de feedback no prompt)
+- [x] Testes C: generateQuestions (5 casos — sucesso nível 1, nível 2 com contexto, JSON malformado, NOT_FOUND, RateLimitError)
+- [x] Testes G: saveAnswer/getProgress (4 casos — salvar, upsert, listar, vazio)
+- [x] Testes D: generateBriefing (4 casos — sucesso, correção no prompt, null, timeout sem salvar)
+- [x] Testes H: approveBriefing (1 caso — avança para matriz_riscos)
+- [x] Testes E: generateRiskMatrices (4 casos — 4 áreas, área específica, falha parcial, NOT_FOUND)
+- [x] Testes H2: approveMatrices (1 caso — avança para plano_acao)
+- [x] Testes F: generateActionPlan (5 casos — 4 áreas, área específica, JSON sem tasks, NOT_FOUND, ajuste no prompt)
+- [x] Testes H3: approveActionPlan (2 casos — aprovação, fluxo E2E completo rascunho→aprovado)
+- [x] Testes I: cenários de infraestrutura (4 casos — choices vazio, array vazio, RateLimitError, message undefined)
+- [x] 42/42 testes passando (sprint-v59-fluxo-v3-ai.test.ts)
+- [x] Checkpoint e push no GitHub
