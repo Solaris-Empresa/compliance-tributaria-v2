@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-
+import StepComments from "@/components/StepComments";
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 type TaskStatus = "nao_iniciado" | "em_andamento" | "parado" | "concluido";
 
@@ -1660,6 +1660,15 @@ export default function PlanoAcaoV3() {
         )}
       </div>
       )}
+
+      {/* Anotações colaborativas da equipe */}
+      <div className="max-w-6xl mx-auto px-4 pb-8">
+        <StepComments
+          projectId={Number(id)}
+          step="plano_acao"
+          title="Anotações da Equipe — Plano de Ação"
+        />
+      </div>
     </ComplianceLayout>
   );
 }

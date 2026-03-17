@@ -1938,3 +1938,13 @@
 ## Bugs Urgentes (17/03/2026 — pós-publicação)
 - [x] BUG-09: Tabela `clientes` limpa — 1.020 usuários de teste (openId manual-*) removidos; restam 244 usuários reais
 - [x] BUG-10: 404 em /usuarios — rota e arquivo Usuarios.tsx já existem no código; novo checkpoint criado para republicar
+
+## Sprint V57 — Sistema de Comentários por Etapa (17/03/2026)
+- [x] Schema: tabela stepComments criada e migrada (projectId, step, userId, userName, userRole, content, isEdited, createdAt)
+- [x] Procedures tRPC: stepComments.list, stepComments.add, stepComments.edit, stepComments.delete
+- [x] Componente StepComments.tsx reutilizável (avatar, tempo relativo, edição inline, exclusão com confirmação)
+- [x] BriefingV3: StepComments integrado (step='briefing')
+- [x] MatrizesV3: StepComments integrado (step='matrizes')
+- [x] PlanoAcaoV3: StepComments integrado (step='plano_acao')
+- [x] 28 testes unitários passando (sprint-v57-step-comments.test.ts)
+- [x] Checkpoint e push no GitHub

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import StepComments from "@/components/StepComments";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 interface Risk {
@@ -768,6 +769,13 @@ export default function MatrizesV3() {
             )}
           </>
         )}
+
+        {/* Anotações colaborativas da equipe */}
+        <StepComments
+          projectId={projectId}
+          step="matrizes"
+          title="Anotações da Equipe — Matrizes de Riscos"
+        />
       </div>
     </ComplianceLayout>
   );

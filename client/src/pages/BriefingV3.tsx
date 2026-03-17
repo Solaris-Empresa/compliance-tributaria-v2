@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
+import StepComments from "@/components/StepComments";
 
 // RF-3.06: Tipo para histórico de versões
 interface BriefingVersion {
@@ -479,6 +480,13 @@ export default function BriefingV3() {
             )}
           </>
         ) : null}
+
+        {/* Anotações colaborativas da equipe */}
+        <StepComments
+          projectId={projectId}
+          step="briefing"
+          title="Anotações da Equipe — Briefing"
+        />
       </div>
     </ComplianceLayout>
   );

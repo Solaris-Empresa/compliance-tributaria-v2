@@ -1840,5 +1840,115 @@ Retorne APENAS JSON válido no formato:
         return { success: true };
       }),
   }),
+
+  // ==========================================================================
+  // STEP COMMENTS — Anotações colaborativas por etapa
+  // ==========================================================================
+  stepComments: router({
+    /**
+     * Listar comentários de uma etapa de um projeto
+     */
+    list: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        step: z.enum(["briefing", "matrizes", "plano_acao"]),
+      }))
+      .query(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+        // Clientes só podem ver comentários dos seus próprios projetos
+        if (ctx.user.role === "cliente" && project.clientId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        const dbConn = await (await import("./db")).getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        const { stepComments } = await import("../drizzle/schema");
+        const { eq, and, desc } = await import("drizzle-orm");
+        const comments = await dbConn
+          .select()
+          .from(stepComments)
+          .where(and(
+            eq(stepComments.projectId, input.projectId),
+            eq(stepComments.step, input.step)
+          ))
+          .orderBy(desc(stepComments.createdAt));
+        return comments;
+      }),
+
+    /**
+     * Adicionar um novo comentário
+     */
+    add: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        step: z.enum(["briefing", "matrizes", "plano_acao"]),
+        content: z.string().min(1).max(2000),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+        if (ctx.user.role === "cliente" && project.clientId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        const dbConn = await (await import("./db")).getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        const { stepComments } = await import("../drizzle/schema");
+        const result = await dbConn.insert(stepComments).values({
+          projectId: input.projectId,
+          step: input.step,
+          userId: ctx.user.id,
+          userName: ctx.user.name || ctx.user.email || "Usuário",
+          userRole: ctx.user.role as any,
+          content: input.content,
+          isEdited: false,
+        });
+        return { id: Number((result as any).insertId), success: true };
+      }),
+
+    /**
+     * Editar um comentário existente (apenas o autor)
+     */
+    edit: protectedProcedure
+      .input(z.object({
+        commentId: z.number(),
+        content: z.string().min(1).max(2000),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const dbConn = await (await import("./db")).getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        const { stepComments } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        // Buscar o comentário
+        const [comment] = await dbConn.select().from(stepComments).where(eq(stepComments.id, input.commentId));
+        if (!comment) throw new TRPCError({ code: "NOT_FOUND", message: "Comentário não encontrado" });
+        // Apenas o autor ou equipe SOLARIS pode editar
+        if (comment.userId !== ctx.user.id && ctx.user.role !== "equipe_solaris") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Apenas o autor pode editar este comentário" });
+        }
+        await dbConn.update(stepComments)
+          .set({ content: input.content, isEdited: true })
+          .where(eq(stepComments.id, input.commentId));
+        return { success: true };
+      }),
+
+    /**
+     * Excluir um comentário (apenas o autor ou equipe SOLARIS)
+     */
+    delete: protectedProcedure
+      .input(z.object({ commentId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const dbConn = await (await import("./db")).getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        const { stepComments } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const [comment] = await dbConn.select().from(stepComments).where(eq(stepComments.id, input.commentId));
+        if (!comment) throw new TRPCError({ code: "NOT_FOUND", message: "Comentário não encontrado" });
+        if (comment.userId !== ctx.user.id && ctx.user.role !== "equipe_solaris") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Apenas o autor pode excluir este comentário" });
+        }
+        await dbConn.delete(stepComments).where(eq(stepComments.id, input.commentId));
+        return { success: true };
+      }),
+  }),
 });
 export type AppRouter = typeof appRouter;
