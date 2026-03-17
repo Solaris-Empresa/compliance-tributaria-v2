@@ -80,11 +80,12 @@ const PRIORITY_COLORS: Record<string, string> = {
 };
 
 // ─── Componente de Tarefa ─────────────────────────────────────────────────────
-function TaskCard({ task, onUpdate, onDelete, onRestore }: {
+function TaskCard({ task, onUpdate, onDelete, onRestore, projectMembers = [] }: {
   task: Task;
   onUpdate: (updates: Partial<Task>) => void;
   onDelete: () => void;
   onRestore: () => void;
+  projectMembers?: Array<{ id: number; name: string; email: string; memberRole: string }>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [editingProgress, setEditingProgress] = useState(false);
@@ -231,17 +232,30 @@ function TaskCard({ task, onUpdate, onDelete, onRestore }: {
             <p className="text-sm text-muted-foreground">{task.descricao}</p>
             <Separator />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Responsável */}
+              {/* RF-5.07: Responsável — dropdown com membros do cliente ou input livre */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
                   <User className="h-3.5 w-3.5" />Responsável
                 </label>
-                <Input
-                  value={task.responsible || task.responsavel_sugerido || ""}
-                  onChange={e => onUpdate({ responsible: e.target.value })}
-                  placeholder={task.responsavel_sugerido || "Nome do responsável..."}
-                  className="h-8 text-sm"
-                />
+                {projectMembers.length > 0 ? (
+                  <select
+                    className="w-full border rounded-md px-2 py-1.5 text-sm bg-background h-8"
+                    value={task.responsible || task.responsavel_sugerido || ""}
+                    onChange={e => onUpdate({ responsible: e.target.value })}
+                  >
+                    <option value="">Selecionar membro...</option>
+                    {projectMembers.map(m => (
+                      <option key={m.id} value={m.name}>{m.name} ({m.memberRole})</option>
+                    ))}
+                  </select>
+                ) : (
+                  <Input
+                    value={task.responsible || task.responsavel_sugerido || ""}
+                    onChange={e => onUpdate({ responsible: e.target.value })}
+                    placeholder={task.responsavel_sugerido || "Nome do responsável..."}
+                    className="h-8 text-sm"
+                  />
+                )}
               </div>
               {/* Status */}
               <div className="space-y-1.5">
@@ -442,6 +456,12 @@ export default function PlanoAcaoV3() {
 
   const generatePlan = trpc.fluxoV3.generateActionPlan.useMutation();
   const approvePlan = trpc.fluxoV3.approveActionPlan.useMutation();
+
+  // RF-5.07: Busca membros do cliente vinculado ao projeto para o dropdown de responsável
+  const { data: projectMembers = [] } = trpc.clientMembers.listByProject.useQuery(
+    { projectId },
+    { enabled: !!projectId }
+  );
 
   useEffect(() => {
     if (project && generationCount === 0) {
@@ -938,6 +958,7 @@ export default function PlanoAcaoV3() {
                         <TaskCard
                           key={task.id}
                           task={task}
+                          projectMembers={projectMembers}
                           onUpdate={updates => handleUpdateTask(area.key, task.id, updates)}
                           onDelete={() => handleDeleteTask(area.key, task.id)}
                           onRestore={() => handleRestoreTask(area.key, task.id)}
@@ -988,11 +1009,25 @@ export default function PlanoAcaoV3() {
                     </div>
                     <div>
                       <label className="text-xs font-medium text-muted-foreground mb-1 block">Responsável</label>
-                      <Input
-                        value={newTask.responsible || ""}
-                        onChange={e => setNewTask(r => ({ ...r, responsible: e.target.value }))}
-                        placeholder="Nome do responsável..."
-                      />
+                      {/* RF-5.07: dropdown com membros do cliente ou input livre */}
+                      {projectMembers.length > 0 ? (
+                        <select
+                          className="w-full border rounded-md px-2 py-1.5 text-sm bg-background"
+                          value={newTask.responsible || ""}
+                          onChange={e => setNewTask(r => ({ ...r, responsible: e.target.value }))}
+                        >
+                          <option value="">Selecionar membro...</option>
+                          {projectMembers.map(m => (
+                            <option key={m.id} value={m.name}>{m.name} ({m.memberRole})</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <Input
+                          value={newTask.responsible || ""}
+                          onChange={e => setNewTask(r => ({ ...r, responsible: e.target.value }))}
+                          placeholder="Nome do responsável..."
+                        />
+                      )}
                     </div>
                     <div>
                       <label className="text-xs font-medium text-muted-foreground mb-1 block">Data de Conclusão</label>

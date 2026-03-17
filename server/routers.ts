@@ -1697,6 +1697,20 @@ Retorne APENAS JSON válido no formato:
     list: protectedProcedure.query(async ({ ctx }) => {
       return await db.getClientMembers(ctx.user.id);
     }),
+    // RF-5.07: Busca membros do cliente vinculado a um projeto específico
+    // Permite filtrar o dropdown de responsável no Plano de Ação pelos membros do cliente
+    listByProject: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+        const members = await db.getClientMembers(project.clientId);
+        // Retorna apenas membros ativos, ordenados por nome
+        return members
+          .filter(m => m.active !== false)
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map(m => ({ id: m.id, name: m.name, email: m.email, memberRole: m.memberRole }));
+      }),
     add: protectedProcedure
       .input(z.object({
         name: z.string().min(1, "Nome é obrigatório"),

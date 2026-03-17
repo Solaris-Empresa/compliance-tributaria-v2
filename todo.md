@@ -1788,3 +1788,10 @@
 ## Sprint RF-1.05 + QuestionárioV3 UX
 - [ ] RF-1.05 frontend: botão "Pedir nova análise" + campo de feedback no modal de CNAEs (NovoProjeto.tsx)
 - [ ] QuestionárioV3: tela de entrada por CNAE (card isolado + botão "Iniciar diagnóstico")
+
+## RF-5.07: Filtrar Responsáveis por Membros do Cliente
+
+- [x] Adicionar procedure `listByProject` no backend (busca clientMembers pelo clientId do projeto)
+- [x] Conectar dropdown de responsável no PlanoAcaoV3 ao `clientMembers.listByProject`
+- [x] Fallback: se não houver membros cadastrados, mostrar campo de texto livre
+- [x] Teste unitário para RF-5.07 (8/8 passando)
