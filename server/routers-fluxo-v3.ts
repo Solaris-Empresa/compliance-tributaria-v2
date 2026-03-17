@@ -652,23 +652,73 @@ Formato: {"tasks": [{"id": "t1", "titulo": "...", "descricao": "...", "area": "$
         }).optional(),
       }),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
-      const currentPlans = (project as any).actionPlansData || {};;
+      const currentPlans = (project as any).actionPlansData || {};
       const areaTasks = currentPlans[input.area] || [];
+      // Snapshot da tarefa atual para diff de histórico
+      const currentTask = areaTasks.find((t: any) => t.id === input.taskId);
       const updatedTasks = areaTasks.map((task: any) =>
         task.id === input.taskId ? { ...task, ...input.updates } : task
       );
       currentPlans[input.area] = updatedTasks;
-
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await database
         .update(projects)
         .set({ actionPlansData: currentPlans as any } as any)
         .where(eq(projects.id, input.projectId));
+      // RF-HIST: Registrar alterações no histórico (fire-and-forget)
+      if (currentTask) {
+        const histBase = {
+          projectId: input.projectId,
+          taskId: input.taskId,
+          userId: ctx.user.id,
+          userName: ctx.user.name || ctx.user.email || "Usuário",
+        };
+        const fieldMap: Array<{ key: string; eventType: any; label: string }> = [
+          { key: "status",      eventType: "status",      label: "status" },
+          { key: "responsible", eventType: "responsavel", label: "responsável" },
+          { key: "endDate",     eventType: "prazo",        label: "prazo" },
+          { key: "progress",    eventType: "progresso",    label: "progresso" },
+          { key: "titulo",      eventType: "titulo",       label: "título" },
+        ];
+        const ups = input.updates as Record<string, any>;
+        const promises: Promise<any>[] = [];
+        for (const { key, eventType, label } of fieldMap) {
+          if (ups[key] !== undefined && ups[key] !== currentTask[key]) {
+            promises.push(db.insertTaskHistory({
+              ...histBase,
+              eventType,
+              field: label,
+              oldValue: currentTask[key] != null ? String(currentTask[key]) : null,
+              newValue: ups[key] != null ? String(ups[key]) : null,
+            }));
+          }
+        }
+        if (ups.notifications !== undefined) {
+          promises.push(db.insertTaskHistory({
+            ...histBase,
+            eventType: "notificacao",
+            field: "notificações",
+            oldValue: currentTask.notifications ? JSON.stringify(currentTask.notifications) : null,
+            newValue: JSON.stringify({ ...currentTask.notifications, ...ups.notifications }),
+          }));
+        }
+        Promise.allSettled(promises).catch(() => {});
+      }
       return { success: true };
+    }),
+
+  // RF-HIST: Consultar histórico de alterações de uma tarefa
+  getTaskHistory: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      taskId: z.string(),
+    }))
+    .query(async ({ input }) => {
+      return db.getTaskHistory(input.taskId, input.projectId);
     }),
   // ───────────────────────────────────────────────────────────────────────────
   // ETAPA 5: Aprovar plano de ação

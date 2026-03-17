@@ -1845,3 +1845,16 @@
 - [x] RF-5.08 UI: badge "Ativas" no cabeçalho do painel de notificações
 - [x] Atualizar CHANGELOG.md com entrada [3.3.0] Sprint V53
 - [x] 27 testes unitários passando (sprint-v53-features.test.ts): 17 máscara CNPJ + 10 RF-5.08 UI
+
+## RF-HIST: Histórico de Alterações por Tarefa (Sprint V54)
+- [x] Criar tabela `taskHistory` no schema Drizzle (id, projectId, taskId, userId, userName, eventType, field, oldValue, newValue, createdAt)
+- [x] Executar migração `pnpm db:push` (migração 0023 aplicada)
+- [x] Helper `insertTaskHistory()` no db.ts
+- [x] Helper `getTaskHistory(taskId, projectId)` no db.ts
+- [x] Procedure tRPC `fluxoV3.getTaskHistory` (protectedProcedure)
+- [x] Registro automático no `updateTask` para campos: status, responsavel, progresso, prazo, titulo, notificações
+- [x] Componente `TaskHistoryDrawer` com timeline cronológica (Sheet do shadcn/ui)
+- [x] Ícone de relógio (Clock) no header do card para abrir o drawer
+- [x] Ícones e cores por tipo de evento (9 tipos: criação, status, responsável, prazo, progresso, título, prioridade, notificação, comentário)
+- [x] Exibir diff de valores (De: X → Para: Y) na timeline com formatação inteligente
+- [x] 21 testes unitários passando (rf-hist-task-history.test.ts)

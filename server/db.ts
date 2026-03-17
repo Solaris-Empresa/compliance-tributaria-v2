@@ -21,6 +21,7 @@ import {
   phases, InsertPhase,
   notifications, InsertNotification,
   clientMembers, InsertClientMember,
+  taskHistory, InsertTaskHistory, TaskHistory,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1026,4 +1027,33 @@ export async function removeClientMember(id: number) {
   if (!db) throw new Error("Database not available");
   await db.delete(clientMembers).where(eq(clientMembers.id, id));
   return true;
+}
+
+// ─── Task History (RF-HIST) ──────────────────────────────────────────────────
+export async function insertTaskHistory(data: Omit<InsertTaskHistory, 'id' | 'createdAt'>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(taskHistory).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function getTaskHistory(taskId: string, projectId: number): Promise<TaskHistory[]> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db
+    .select()
+    .from(taskHistory)
+    .where(and(eq(taskHistory.taskId, taskId), eq(taskHistory.projectId, projectId)))
+    .orderBy(desc(taskHistory.createdAt));
+}
+
+export async function getProjectTaskHistory(projectId: number, limit = 50): Promise<TaskHistory[]> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db
+    .select()
+    .from(taskHistory)
+    .where(eq(taskHistory.projectId, projectId))
+    .orderBy(desc(taskHistory.createdAt))
+    .limit(limit);
 }

@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
@@ -24,7 +25,8 @@ import {
   Calendar, User, Bell, Download, ChevronDown, ChevronUp,
   Circle, PlayCircle, PauseCircle, CheckCircle, Sliders, FileText,
   MessageSquare, Plus, Trash2, RotateCcw, LayoutDashboard, Send,
-  PartyPopper, Trophy, ClipboardList, AlertTriangle, ShieldCheck, LayoutDashboard as Dashboard
+  PartyPopper, Trophy, ClipboardList, AlertTriangle, ShieldCheck, LayoutDashboard as Dashboard,
+  Clock, History, TrendingUp, Tag, UserCheck, Settings2, MessageCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -85,18 +87,21 @@ const PRIORITY_COLORS: Record<string, string> = {
 };
 
 // ─── Componente de Tarefa ─────────────────────────────────────────────────────
-function TaskCard({ task, onUpdate, onDelete, onRestore, projectMembers = [] }: {
+function TaskCard({ task, onUpdate, onDelete, onRestore, projectMembers = [], projectId }: {
   task: Task;
   onUpdate: (updates: Partial<Task>) => void;
   onDelete: () => void;
   onRestore: () => void;
   projectMembers?: Array<{ id: number; name: string; email: string; memberRole: string }>;
+  projectId?: number;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [editingProgress, setEditingProgress] = useState(false);
   const [progressValue, setProgressValue] = useState(task.progress);
   // RF-5.04: Estado para comentários
   const [newComment, setNewComment] = useState("");
+  // RF-HIST: Estado do drawer de histórico
+  const [historyOpen, setHistoryOpen] = useState(false);
   const StatusIcon = STATUS_CONFIG[task.status]?.icon || Circle;
 
   const handleProgressSave = () => {
@@ -136,6 +141,7 @@ function TaskCard({ task, onUpdate, onDelete, onRestore, projectMembers = [] }: 
   }
 
   return (
+    <>
     <Card className={cn(
       "transition-all duration-200",
       task.status === "concluido" ? "opacity-70" : "",
@@ -180,6 +186,16 @@ function TaskCard({ task, onUpdate, onDelete, onRestore, projectMembers = [] }: 
                   <span title="Notificações ativas" className="flex items-center text-amber-500">
                     <Bell className="h-3.5 w-3.5 fill-amber-500" />
                   </span>
+                )}
+                {/* RF-HIST: Botão de histórico */}
+                {projectId && (
+                  <button
+                    onClick={() => setHistoryOpen(true)}
+                    title="Ver histórico de alterações"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <Clock className="h-3.5 w-3.5" />
+                  </button>
                 )}
                 <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
                   {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -432,6 +448,160 @@ function TaskCard({ task, onUpdate, onDelete, onRestore, projectMembers = [] }: 
         )}
       </CardContent>
     </Card>
+
+    {/* RF-HIST: Drawer de histórico de alterações */}
+    {projectId && (
+      <TaskHistoryDrawer
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        taskId={task.id}
+        taskTitle={task.titulo}
+        projectId={projectId}
+      />
+    )}
+    </>
+  );
+}
+
+// ─── Drawer de Histórico (RF-HIST) ───────────────────────────────────────────
+const EVENT_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string; bg: string }> = {
+  criacao:     { label: "Criado",                 icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-100" },
+  status:      { label: "Status alterado",         icon: TrendingUp,   color: "text-blue-600",   bg: "bg-blue-100" },
+  responsavel: { label: "Responsável alterado",    icon: UserCheck,    color: "text-purple-600", bg: "bg-purple-100" },
+  prazo:       { label: "Prazo alterado",           icon: Calendar,     color: "text-orange-600", bg: "bg-orange-100" },
+  progresso:   { label: "Progresso atualizado",     icon: TrendingUp,   color: "text-cyan-600",   bg: "bg-cyan-100" },
+  titulo:      { label: "Título alterado",          icon: Tag,          color: "text-slate-600",  bg: "bg-slate-100" },
+  prioridade:  { label: "Prioridade alterada",      icon: AlertTriangle,color: "text-amber-600",  bg: "bg-amber-100" },
+  notificacao: { label: "Notificações alteradas",   icon: Settings2,    color: "text-indigo-600", bg: "bg-indigo-100" },
+  comentario:  { label: "Comentário adicionado",   icon: MessageCircle,color: "text-teal-600",   bg: "bg-teal-100" },
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  nao_iniciado: "Não iniciado",
+  em_andamento: "Em andamento",
+  parado: "Parado",
+  concluido: "Concluído",
+};
+
+function formatHistoryValue(field: string, value: string | null): string {
+  if (!value) return "—";
+  if (field === "status") return STATUS_LABELS[value] || value;
+  if (field === "progresso") return `${value}%`;
+  if (field === "prazo") {
+    try { return new Date(value).toLocaleDateString("pt-BR"); } catch { return value; }
+  }
+  if (field === "notificações") {
+    try {
+      const n = JSON.parse(value);
+      const parts: string[] = [];
+      if (n.onStatusChange) parts.push("Status");
+      if (n.onProgressUpdate) parts.push("Progresso");
+      if (n.onComment) parts.push("Comentários");
+      if (n.beforeDays) parts.push(`${n.beforeDays}d antes`);
+      return parts.length ? parts.join(", ") : "Desativadas";
+    } catch { return value; }
+  }
+  return value;
+}
+
+function TaskHistoryDrawer({
+  open, onClose, taskId, taskTitle, projectId
+}: {
+  open: boolean;
+  onClose: () => void;
+  taskId: string;
+  taskTitle: string;
+  projectId: number;
+}) {
+  const { data: history, isLoading } = trpc.fluxoV3.getTaskHistory.useQuery(
+    { projectId, taskId },
+    { enabled: open }
+  );
+
+  return (
+    <Sheet open={open} onOpenChange={v => !v && onClose()}>
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetHeader className="mb-4">
+          <SheetTitle className="flex items-center gap-2">
+            <History className="h-5 w-5 text-primary" />
+            Histórico de Alterações
+          </SheetTitle>
+          <p className="text-sm text-muted-foreground line-clamp-2">{taskTitle}</p>
+        </SheetHeader>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : !history || history.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+            <Clock className="h-10 w-10 text-muted-foreground/40" />
+            <p className="text-sm text-muted-foreground">Nenhuma alteração registrada.</p>
+            <p className="text-xs text-muted-foreground/70">As próximas mudanças nesta tarefa aparecerão aqui.</p>
+          </div>
+        ) : (
+          <div className="relative">
+            {/* Linha vertical da timeline */}
+            <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
+            <div className="space-y-0">
+              {history.map((entry: any, idx: number) => {
+                const cfg = EVENT_CONFIG[entry.eventType] || EVENT_CONFIG.status;
+                const Icon = cfg.icon;
+                const isLast = idx === history.length - 1;
+                return (
+                  <div key={entry.id} className="relative flex gap-4 pb-6">
+                    {/* Ícone na timeline */}
+                    <div className={cn(
+                      "relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-background",
+                      cfg.bg
+                    )}>
+                      <Icon className={cn("h-3.5 w-3.5", cfg.color)} />
+                    </div>
+                    {/* Conteúdo */}
+                    <div className="flex-1 min-w-0 pt-0.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className={cn("text-sm font-medium", cfg.color)}>{cfg.label}</p>
+                        <time className="text-[11px] text-muted-foreground shrink-0">
+                          {new Date(entry.createdAt).toLocaleString("pt-BR", {
+                            day: "2-digit", month: "2-digit", year: "2-digit",
+                            hour: "2-digit", minute: "2-digit"
+                          })}
+                        </time>
+                      </div>
+                      {entry.userName && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          por <span className="font-medium">{entry.userName}</span>
+                        </p>
+                      )}
+                      {entry.field && (entry.oldValue !== null || entry.newValue !== null) && (
+                        <div className="mt-1.5 rounded-md bg-muted/50 px-2.5 py-1.5 text-xs space-y-0.5">
+                          {entry.oldValue !== null && (
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-muted-foreground">De:</span>
+                              <span className="line-through text-muted-foreground">
+                                {formatHistoryValue(entry.field, entry.oldValue)}
+                              </span>
+                            </div>
+                          )}
+                          {entry.newValue !== null && (
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-muted-foreground">Para:</span>
+                              <span className="font-medium text-foreground">
+                                {formatHistoryValue(entry.field, entry.newValue)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -1293,6 +1463,7 @@ export default function PlanoAcaoV3() {
                           key={task.id}
                           task={task}
                           projectMembers={projectMembers}
+                          projectId={projectId}
                           onUpdate={updates => handleUpdateTask(area.key, task.id, updates)}
                           onDelete={() => handleDeleteTask(area.key, task.id)}
                           onRestore={() => handleRestoreTask(area.key, task.id)}

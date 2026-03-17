@@ -1175,3 +1175,36 @@ export const clientMembers = mysqlTable("clientMembers", {
 });
 export type ClientMember = typeof clientMembers.$inferSelect;
 export type InsertClientMember = typeof clientMembers.$inferInsert;
+
+// =============================================================================
+// RF-HIST — HISTÓRICO DE ALTERAÇÕES POR TAREFA
+// =============================================================================
+/**
+ * taskHistory
+ * Registra cada alteração realizada em uma tarefa do Plano de Ação V3.
+ * Imutável por design: nunca deletar ou atualizar registros.
+ */
+export const taskHistory = mysqlTable("taskHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),           // ID do projeto
+  taskId: varchar("taskId", { length: 100 }).notNull(), // ID da tarefa (string UUID do PlanoAcaoV3)
+  userId: int("userId"),                            // ID do usuário que fez a alteração (null = sistema)
+  userName: varchar("userName", { length: 255 }),  // Nome do usuário (snapshot)
+  eventType: mysqlEnum("eventType", [
+    "criacao",        // Tarefa criada
+    "status",         // Mudança de status
+    "responsavel",    // Mudança de responsável
+    "prazo",          // Mudança de prazo
+    "progresso",      // Mudança de progresso (%)
+    "titulo",         // Mudança de título
+    "prioridade",     // Mudança de prioridade
+    "notificacao",    // Mudança de configuração de notificação
+    "comentario",     // Novo comentário adicionado
+  ]).notNull(),
+  field: varchar("field", { length: 100 }),        // Campo alterado (ex: "status", "responsavel")
+  oldValue: text("oldValue"),                      // Valor anterior (serializado)
+  newValue: text("newValue"),                      // Novo valor (serializado)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type TaskHistory = typeof taskHistory.$inferSelect;
+export type InsertTaskHistory = typeof taskHistory.$inferInsert;

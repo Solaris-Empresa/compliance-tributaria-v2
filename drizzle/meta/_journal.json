@@ -162,6 +162,13 @@
       "when": 1773754420933,
       "tag": "0022_open_living_tribunal",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1773755763087,
+      "tag": "0023_striped_nitro",
+      "breakpoints": true
     }
   ]
 }
