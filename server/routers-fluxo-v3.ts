@@ -89,6 +89,64 @@ Responda em JSON:
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
+  // ETAPA 1: Refinar CNAEs via feedback do usuário (loop de aprovação PG-05)
+  // ─────────────────────────────────────────────────────────────────────────
+  refineCnaes: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      description: z.string().min(50),
+      feedback: z.string().min(5, "Descreva o que precisa ser ajustado"),
+      currentCnaes: z.array(CnaeSchema),
+      iteration: z.number().default(1),
+    }))
+    .mutation(async ({ input }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+
+      const currentList = input.currentCnaes.map(c =>
+        `- ${c.code}: ${c.description} (confiança: ${c.confidence}%)`
+      ).join("\n");
+
+      const response = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: "Você é um especialista em tributação brasileira e classificação CNAE. Responda sempre em JSON válido.",
+          },
+          {
+            role: "user",
+            content: `Você já sugeriu os seguintes CNAEs para este negócio (iteração ${input.iteration}):
+
+${currentList}
+
+O usuário fez o seguinte feedback:
+"${input.feedback}"
+
+Descrição original do negócio:
+${input.description}
+
+Com base no feedback, revise a lista de CNAEs. Mantenha os que estão corretos, ajuste os que precisam de correção e adicione os que estão faltando.
+Retorne entre 2 e 6 CNAEs.
+
+Responda em JSON:
+{"cnaes": [{"code": "XXXX-X/XX", "description": "...", "confidence": 95, "justification": "..."}]}`,
+          },
+        ],
+      });
+
+      const content = response.choices[0]?.message?.content;
+      if (!content || typeof content !== "string") {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "IA não retornou resposta" });
+      }
+
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Resposta da IA inválida" });
+
+      const parsed = JSON.parse(jsonMatch[0]);
+      return { cnaes: parsed.cnaes || [], iteration: input.iteration + 1 };
+    }),
+
+  // ─────────────────────────────────────────────────────────────────────────
   // ETAPA 1: Confirmar CNAEs e avançar para Etapa 2
   // ─────────────────────────────────────────────────────────────────────────
   confirmCnaes: protectedProcedure
