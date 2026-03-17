@@ -1922,3 +1922,19 @@
 - [x] Testes unitários: sprint-v56-regression.test.ts (33 testes)
 - [x] CHANGELOG.md atualizado com entrada [3.6.0] Sprint V56
 - [x] Checkpoint, commit e push no GitHub
+
+## Sprint V57 — Sistema de Comentários/Anotações por Etapa (17/03/2026)
+- [ ] Criar tabela `stepComments` no schema Drizzle (projectId, step, userId, content, createdAt, updatedAt)
+- [ ] Executar migração `pnpm db:push`
+- [ ] Criar helper `getStepComments` e `addStepComment` no `server/db.ts`
+- [ ] Criar router `comments` no `server/routers.ts` com procedures: list, add, edit, delete
+- [ ] Criar componente `StepComments.tsx` reutilizável com lista, input, edição e exclusão
+- [ ] Integrar `StepComments` no `BriefingV3.tsx` (seção "Anotações da Equipe")
+- [ ] Integrar `StepComments` no `MatrizesV3.tsx` (seção "Anotações da Equipe")
+- [ ] Integrar `StepComments` no `PlanoAcaoV3.tsx` (seção "Anotações da Equipe")
+- [ ] Escrever testes unitários para as procedures de comentários
+- [ ] Checkpoint, commit e push no GitHub
+
+## Bugs Urgentes (17/03/2026 — pós-publicação)
+- [x] BUG-09: Tabela `clientes` limpa — 1.020 usuários de teste (openId manual-*) removidos; restam 244 usuários reais
+- [x] BUG-10: 404 em /usuarios — rota e arquivo Usuarios.tsx já existem no código; novo checkpoint criado para republicar

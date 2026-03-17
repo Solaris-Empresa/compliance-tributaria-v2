@@ -1,0 +1,170 @@
+{
+  "query": "\nSELECT id, name, email, role, openId, createdAt \nFROM users \nWHERE openId LIKE 'manual-%' \nORDER BY createdAt DESC \nLIMIT 20;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT id, name, email, role, openId, createdAt \nFROM users \nWHERE openId LIKE 'manual-%' \nORDER BY createdAt DESC \nLIMIT 20;\n",
+  "rows": [
+    {
+      "id": "1230289",
+      "name": "Cliente Teste 1773763122801",
+      "email": "cliente1773763122801@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763122803-z93n64dqq",
+      "createdAt": "2026-03-17 15:58:42"
+    },
+    {
+      "id": "1230286",
+      "name": "Cliente Teste 1773763120668",
+      "email": "cliente1773763120668@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763120671-70i2obrgl",
+      "createdAt": "2026-03-17 15:58:40"
+    },
+    {
+      "id": "1230288",
+      "name": "Cliente Teste 1773763120883",
+      "email": "cliente1773763120883@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763120883-kxrntg4yf",
+      "createdAt": "2026-03-17 15:58:40"
+    },
+    {
+      "id": "1230287",
+      "name": "Cliente Teste 1773763120834",
+      "email": "cliente1773763120834@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763120835-uumipd4tl",
+      "createdAt": "2026-03-17 15:58:40"
+    },
+    {
+      "id": "1230283",
+      "name": "Cliente Teste 1773763119170",
+      "email": "cliente1773763119170@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763119172-p8p1ud59w",
+      "createdAt": "2026-03-17 15:58:39"
+    },
+    {
+      "id": "1230285",
+      "name": "Cliente Teste 1773763119403",
+      "email": "cliente1773763119403@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763119404-2eu2jhcgo",
+      "createdAt": "2026-03-17 15:58:39"
+    },
+    {
+      "id": "1230284",
+      "name": "Cliente Teste 1773763119343",
+      "email": "cliente1773763119343@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763119344-rcbyvqgkf",
+      "createdAt": "2026-03-17 15:58:39"
+    },
+    {
+      "id": "1230282",
+      "name": "Cliente Teste 1773763117247",
+      "email": "cliente1773763117247@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763117250-gjwnd5d7b",
+      "createdAt": "2026-03-17 15:58:37"
+    },
+    {
+      "id": "1230255",
+      "name": "Cliente Teste 1773763078117",
+      "email": "cliente1773763078117@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763078117-ppb4tbqhd",
+      "createdAt": "2026-03-17 15:57:58"
+    },
+    {
+      "id": "1230254",
+      "name": "Cliente Teste 1773763078091",
+      "email": "cliente1773763078091@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763078091-qglh6orx4",
+      "createdAt": "2026-03-17 15:57:58"
+    },
+    {
+      "id": "1230258",
+      "name": "Cliente Teste 1773763078223",
+      "email": "cliente1773763078223@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763078223-v6wkbub08",
+      "createdAt": "2026-03-17 15:57:58"
+    },
+    {
+      "id": "1230257",
+      "name": "Cliente Teste 1773763078193",
+      "email": "cliente1773763078193@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763078193-53k6xz478",
+      "createdAt": "2026-03-17 15:57:58"
+    },
+    {
+      "id": "1230256",
+      "name": "Cliente Teste 1773763078169",
+      "email": "cliente1773763078169@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763078170-jh7e8hiz1",
+      "createdAt": "2026-03-17 15:57:58"
+    },
+    {
+      "id": "1230260",
+      "name": "Cliente Teste 1773763078279",
+      "email": "cliente1773763078279@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763078279-0roz9n5iy",
+      "createdAt": "2026-03-17 15:57:58"
+    },
+    {
+      "id": "1230253",
+      "name": "Cliente Teste 1773763077934",
+      "email": "cliente1773763077934@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763077936-8stjtb27q",
+      "createdAt": "2026-03-17 15:57:58"
+    },
+    {
+      "id": "1230259",
+      "name": "Cliente Teste 1773763078250",
+      "email": "cliente1773763078250@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763078251-0vcfv70pk",
+      "createdAt": "2026-03-17 15:57:58"
+    },
+    {
+      "id": "1230262",
+      "name": "Cliente Teste 1773763078365",
+      "email": "cliente1773763078365@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763078365-wmow3er3h",
+      "createdAt": "2026-03-17 15:57:58"
+    },
+    {
+      "id": "1230261",
+      "name": "Cliente Teste 1773763078325",
+      "email": "cliente1773763078325@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763078325-z1479fw2z",
+      "createdAt": "2026-03-17 15:57:58"
+    },
+    {
+      "id": "1230252",
+      "name": "Cliente Teste 1773763075349",
+      "email": "cliente1773763075349@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763075351-twqx57y49",
+      "createdAt": "2026-03-17 15:57:55"
+    },
+    {
+      "id": "1230251",
+      "name": "Cliente Teste 1773763073445",
+      "email": "cliente1773763073445@teste.com",
+      "role": "cliente",
+      "openId": "manual-1773763073445-mr0sl17un",
+      "createdAt": "2026-03-17 15:57:53"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\topenId\tcreatedAt\n1230289\tCliente Teste 1773763122801\tcliente1773763122801@teste.com\tcliente\tmanual-1773763122803-z93n64dqq\t2026-03-17 15:58:42\n1230286\tCliente Teste 1773763120668\tcliente1773763120668@teste.com\tcliente\tmanual-1773763120671-70i2obrgl\t2026-03-17 15:58:40\n1230288\tCliente Teste 1773763120883\tcliente1773763120883@teste.com\tcliente\tmanual-1773763120883-kxrntg4yf\t2026-03-17 15:58:40\n1230287\tCliente Teste 1773763120834\tcliente1773763120834@teste.com\tcliente\tmanual-1773763120835-uumipd4tl\t2026-03-17 15:58:40\n1230283\tCliente Teste 1773763119170\tcliente1773763119170@teste.com\tcliente\tmanual-1773763119172-p8p1ud59w\t2026-03-17 15:58:39\n1230285\tCliente Teste 1773763119403\tcliente1773763119403@teste.com\tcliente\tmanual-1773763119404-2eu2jhcgo\t2026-03-17 15:58:39\n1230284\tCliente Teste 1773763119343\tcliente1773763119343@teste.com\tcliente\tmanual-1773763119344-rcbyvqgkf\t2026-03-17 15:58:39\n1230282\tCliente Teste 1773763117247\tcliente1773763117247@teste.com\tcliente\tmanual-1773763117250-gjwnd5d7b\t2026-03-17 15:58:37\n1230255\tCliente Teste 1773763078117\tcliente1773763078117@teste.com\tcliente\tmanual-1773763078117-ppb4tbqhd\t2026-03-17 15:57:58\n1230254\tCliente Teste 1773763078091\tcliente1773763078091@teste.com\tcliente\tmanual-1773763078091-qglh6orx4\t2026-03-17 15:57:58\n1230258\tCliente Teste 1773763078223\tcliente1773763078223@teste.com\tcliente\tmanual-1773763078223-v6wkbub08\t2026-03-17 15:57:58\n1230257\tCliente Teste 1773763078193\tcliente1773763078193@teste.com\tcliente\tmanual-1773763078193-53k6xz478\t2026-03-17 15:57:58\n1230256\tCliente Teste 1773763078169\tcliente1773763078169@teste.com\tcliente\tmanual-1773763078170-jh7e8hiz1\t2026-03-17 15:57:58\n1230260\tCliente Teste 1773763078279\tcliente1773763078279@teste.com\tcliente\tmanual-1773763078279-0roz9n5iy\t2026-03-17 15:57:58\n1230253\tCliente Teste 1773763077934\tcliente1773763077934@teste.com\tcliente\tmanual-1773763077936-8stjtb27q\t2026-03-17 15:57:58\n1230259\tCliente Teste 1773763078250\tcliente1773763078250@teste.com\tcliente\tmanual-1773763078251-0vcfv70pk\t2026-03-17 15:57:58\n1230262\tCliente Teste 1773763078365\tcliente1773763078365@teste.com\tcliente\tmanual-1773763078365-wmow3er3h\t2026-03-17 15:57:58\n1230261\tCliente Teste 1773763078325\tcliente1773763078325@teste.com\tcliente\tmanual-1773763078325-z1479fw2z\t2026-03-17 15:57:58\n1230252\tCliente Teste 1773763075349\tcliente1773763075349@teste.com\tcliente\tmanual-1773763075351-twqx57y49\t2026-03-17 15:57:55\n1230251\tCliente Teste 1773763073445\tcliente1773763073445@teste.com\tcliente\tmanual-1773763073445-mr0sl17un\t2026-03-17 15:57:53\n",
+  "stderr": "",
+  "execution_time_ms": 68
+}

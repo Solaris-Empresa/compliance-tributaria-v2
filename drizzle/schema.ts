@@ -1212,3 +1212,26 @@ export const taskHistory = mysqlTable("taskHistory", {
 });
 export type TaskHistory = typeof taskHistory.$inferSelect;
 export type InsertTaskHistory = typeof taskHistory.$inferInsert;
+
+// =============================================================================
+// STEP COMMENTS — Anotações colaborativas por etapa do projeto
+// =============================================================================
+/**
+ * stepComments
+ * Comentários/anotações da equipe em cada etapa do fluxo do projeto.
+ * step: "briefing" | "matrizes" | "plano_acao"
+ */
+export const stepComments = mysqlTable("stepComments", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  step: mysqlEnum("step", ["briefing", "matrizes", "plano_acao"]).notNull(),
+  userId: int("userId").notNull(),
+  userName: varchar("userName", { length: 255 }).notNull(),
+  userRole: mysqlEnum("userRole", ["cliente", "equipe_solaris", "advogado_senior", "advogado_junior"]).notNull(),
+  content: text("content").notNull(),
+  isEdited: boolean("isEdited").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type StepComment = typeof stepComments.$inferSelect;
+export type InsertStepComment = typeof stepComments.$inferInsert;
