@@ -1795,3 +1795,10 @@
 - [x] Conectar dropdown de responsável no PlanoAcaoV3 ao `clientMembers.listByProject`
 - [x] Fallback: se não houver membros cadastrados, mostrar campo de texto livre
 - [x] Teste unitário para RF-5.07 (8/8 passando)
+
+## BUG: Loop infinito após conclusão da última etapa
+- [x] Identificar o componente/etapa que causa o loop após conclusão final
+  - PlanoAcaoV3: useEffect([project]) re-disparava handleGenerate após cada mutação
+  - QuestionarioV3: useEffect([startedCnaes.size]) re-disparava loadQuestions em loop
+- [x] Corrigir com useRef (generationTriggeredRef + loadedQuestionsRef) — 94/94 testes passando
+- [x] Testar: TypeScript 0 erros, HMR aplicado, servidor rodando

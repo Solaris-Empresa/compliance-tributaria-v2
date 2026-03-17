@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
 import { ResumeBanner } from "@/components/ResumeBanner";
 import { useParams, useLocation } from "wouter";
@@ -272,14 +272,18 @@ export default function QuestionarioV3() {
     }
   }, [cnaes, projectId, generateQuestions]);
 
-  // Carregar perguntas APENAS quando o usuário iniciou o CNAE atual
-  // Evita chamadas automáticas à IA sem interação do usuário
+  // Carregar perguntas quando o nível muda (ex: nível 1 → nível 2)
+  // Não dispara no mount inicial — isso é tratado por handleStartCnae
   useEffect(() => {
     const currentCode = cnaes[currentCnaeIdx]?.code;
-    if (cnaes.length > 0 && currentCnaeIdx < cnaes.length && currentCode && startedCnaes.has(currentCode)) {
+    if (!currentCode) return;
+    const cacheKey = `${currentCode}-${currentLevel}`;
+    // Só carrega se: CNAE foi iniciado E ainda não foi carregado para este nível
+    if (startedCnaes.has(currentCode) && !loadedQuestionsRef.current.has(cacheKey)) {
+      loadedQuestionsRef.current.add(cacheKey);
       loadQuestions(currentCnaeIdx, currentLevel);
     }
-  }, [currentCnaeIdx, currentLevel, cnaes.length, startedCnaes.size]);
+  }, [currentLevel]); // Só reage a mudança de nível
 
   const currentCnae = cnaes[currentCnaeIdx];
   const answeredCount = Object.values(answers).filter(v => v.trim()).length;
@@ -291,11 +295,20 @@ export default function QuestionarioV3() {
   // Inclui startedCnaes para persistir o estado de "iniciado" por CNAE
   useAutoSave(projectId, 'etapa2', { cnaeProgress, currentCnaeIdx, startedCnaes: [...startedCnaes] }, 800);
 
+  // Ref para rastrear quais CNAE+nível já tiveram perguntas carregadas (evita recargas em loop)
+  const loadedQuestionsRef = useRef<Set<string>>(new Set());
+
   // Handler: usuário clica em "Iniciar diagnóstico" — marca o CNAE como iniciado
-  // e dispara a geração de perguntas pela IA
+  // e dispara a geração de perguntas pela IA diretamente (sem depender do useEffect)
   const handleStartCnae = (cnaeCode: string) => {
+    const idx = cnaes.findIndex(c => c.code === cnaeCode);
+    const cacheKey = `${cnaeCode}-nivel1`;
     setStartedCnaes(prev => new Set([...prev, cnaeCode]));
-    // O useEffect acima detectará a mudança em startedCnaes.size e chamará loadQuestions
+    // Carregar perguntas diretamente ao iniciar, sem depender do useEffect
+    if (idx >= 0 && !loadedQuestionsRef.current.has(cacheKey)) {
+      loadedQuestionsRef.current.add(cacheKey);
+      loadQuestions(idx, "nivel1");
+    }
   };
 
   const handleAnswer = (questionId: string, value: string) => {

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
 import { ResumeBanner } from "@/components/ResumeBanner";
 import { useParams, useLocation } from "wouter";
@@ -421,6 +421,8 @@ export default function PlanoAcaoV3() {
   const [newTask, setNewTask] = useState<Partial<Task>>({ prioridade: "Média", status: "nao_iniciado" });
   // RF-5.06: Dashboard de progresso
   const [showDashboard, setShowDashboard] = useState(false);
+  // Ref para garantir que a geração do plano ocorra apenas uma vez (evita loop)
+  const generationTriggeredRef = useRef(false);
 
   // Verificar rascunho local ao montar
   useEffect(() => {
@@ -464,7 +466,8 @@ export default function PlanoAcaoV3() {
   );
 
   useEffect(() => {
-    if (project && generationCount === 0) {
+    if (project && generationCount === 0 && !generationTriggeredRef.current) {
+      generationTriggeredRef.current = true;
       handleGenerate();
     }
   }, [project]);
