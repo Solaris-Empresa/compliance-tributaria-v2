@@ -1973,3 +1973,47 @@
 - [x] Testes I: cenários de infraestrutura (4 casos — choices vazio, array vazio, RateLimitError, message undefined)
 - [x] 42/42 testes passando (sprint-v59-fluxo-v3-ai.test.ts)
 - [x] Checkpoint e push no GitHub
+
+## Sprint V60 — Production Pack: Schemas Zod + Retry + Temperatura 0.2
+- [x] Criar arquivo server/ai-schemas.ts com todos os schemas Zod enriquecidos
+- [x] Criar arquivo server/ai-helpers.ts com generateWithRetry e invokeLLMStructured
+- [x] Reescrever system prompts com papéis definidos (Auditor, Consultor Sênior, etc.)
+- [x] Aplicar temperatura 0.2 em todos os 7 pontos de invokeLLM
+- [x] Adicionar contrato de saída (auto-crítica) nos prompts de briefing e matrizes
+- [x] Atualizar testes ai-flow-v3.test.ts para cobrir retry e validação de schema
+
+## Sprint V61 — Scoring Financeiro + Confidence Score
+- [x] Criar função calculateGlobalScore com tradução financeira (impacto_estimado, custo_inacao)
+- [x] Adicionar campo faturamento_estimado no questionário (pergunta de contexto)
+- [x] Implementar ConfidenceSchema com nivel_confianca, limitacoes e recomendacao enum
+- [x] Integrar confidence score na geração de briefing, matrizes e plano de ação
+- [x] Adicionar campo inconsistencias[] opcional no schema do briefing (preparado para V63)
+- [x] Salvar score_global e confidence no banco (campo scoringData no projeto)
+- [x] Exibir score financeiro e confidence na UI (BriefingV3, MatrizesV3, PlanoAcaoV3)
+
+## Sprint V62 — Pré-RAG Inteligente: CNAE → Artigos
+- [x] Criar arquivo server/cnae-articles-map.ts com mapeamento CNAE → tópicos → artigos
+- [x] Cobrir os 20 grupos CNAE mais comuns (2 primeiros dígitos)
+- [x] Criar função getArticlesForCnaes(cnaes) que retorna contexto regulatório
+- [x] Injetar contexto regulatório no prompt de generateBriefing
+- [x] Injetar contexto regulatório no prompt de generateRiskMatrices
+- [x] Injetar contexto regulatório no prompt de generateActionPlan
+- [x] Adicionar instrução anti-alucinação: "cite apenas artigos fornecidos no contexto"
+
+## Sprint V63 — Motor de Decisão Explícito + Momento Wow
+- [x] Criar DecisaoRecomendadaSchema com acao_principal, prazo_dias, risco_se_nao_fazer, momento_wow
+- [x] Implementar procedure generateDecision que consolida briefing + matrizes + scoring
+- [x] Integrar geração de decisão ao final do approveActionPlan
+- [x] Ativar alertas de inconsistencias[] na UI (seção condicional no BriefingV3)
+- [x] Exibir DecisaoRecomendada na tela de conclusão do PlanoAcaoV3
+- [x] Atualizar testes para cobrir generateDecision e momento_wow
+
+## Testes E2E V60-V63 (17/03/2026)
+- [x] Suite de 86 testes: 5 projetos × 3 CNAEs cada (P1 Alimentícia, P2 TI, P3 Construção, P4 Saúde/Educação, P5 Agronegócio)
+- [x] Cobertura: extractCnaes, generateQuestions, saveAnswer, generateBriefing, generateRiskMatrices, generateActionPlan, generateDecision
+- [x] Cobertura V60: generateWithRetry (retry, temperatura 0.2, schemas Zod)
+- [x] Cobertura V61: calculateGlobalScore (scoring financeiro, confidence score)
+- [x] Cobertura V62: getArticlesForCnaes (pré-RAG, injeção de contexto regulatório)
+- [x] Cobertura V63: generateDecision (motor de decisão, momento_wow)
+- [x] Edge cases: falha total do retry, briefing sem inconsistencias, fallback de severidade_score
+- [x] 86/86 testes passando (sprint-v60-v63-e2e.test.ts)

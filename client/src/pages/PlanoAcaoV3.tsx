@@ -640,6 +640,8 @@ export default function PlanoAcaoV3() {
     tasksByArea: { area: string; count: number }[];
     allTasks: Task[];
     allRisks: { area: string; descricao: string; severidade: string; probabilidade: string; impacto: string }[];
+    scoringData?: any;
+    decisaoData?: any;
   } | null>(null);
   const [newTask, setNewTask] = useState<Partial<Task>>({ prioridade: "Média", status: "nao_iniciado" });
   // RF-5.06: Dashboard de progresso
@@ -681,6 +683,7 @@ export default function PlanoAcaoV3() {
 
   const generatePlan = trpc.fluxoV3.generateActionPlan.useMutation();
   const approvePlan = trpc.fluxoV3.approveActionPlan.useMutation();
+  const generateDecision = trpc.fluxoV3.generateDecision.useMutation();
 
   // RF-5.07: Busca membros do cliente vinculado ao projeto para o dropdown de responsável
   const { data: projectMembers = [] } = trpc.clientMembers.listByProject.useQuery(
@@ -833,7 +836,7 @@ export default function PlanoAcaoV3() {
         (risks as any[]).map((r: any) => ({ area, ...r }))
       );
       const totalRisks = allRisksRaw.length;
-      const criticalRisks = allRisksRaw.filter((r: any) => r?.severidade === "Crítico" || r?.severidade === "Critico").length;
+      const criticalRisks = allRisksRaw.filter((r: any) => r?.severidade === "Crítico" || r?.severidade === "Critico" || r?.severidade === "Crítica").length;
       const highRisks = allRisksRaw.filter((r: any) => r?.severidade === "Alta").length;
       const allTasks = Object.values(plans).flat().filter((t: Task) => !t.deleted);
       const totalTasks = allTasks.length;
@@ -841,6 +844,18 @@ export default function PlanoAcaoV3() {
         area,
         count: (tasks || []).filter((t: Task) => !t.deleted).length,
       })).filter(a => a.count > 0);
+      // V61: Scoring do banco
+      const scoringData = (project as any)?.scoringData || null;
+      // V63: Gerar decisão final
+      let decisaoData: any = (project as any)?.decisaoData || null;
+      if (!decisaoData) {
+        try {
+          const decResult = await generateDecision.mutateAsync({ projectId });
+          decisaoData = decResult.decisao;
+        } catch {
+          // Decisão é opcional — não bloqueia a conclusão
+        }
+      }
       setConclusionData({
         projectName: project?.name || "Projeto",
         cnaes,
@@ -851,6 +866,8 @@ export default function PlanoAcaoV3() {
         tasksByArea,
         allTasks,
         allRisks: allRisksRaw,
+        scoringData,
+        decisaoData,
       });
       setShowConclusion(true);
     } catch {
@@ -1194,6 +1211,103 @@ export default function PlanoAcaoV3() {
                       </div>
                     ))}
                   </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* V61: Scoring Financeiro Global */}
+            {conclusionData.scoringData && (
+              <Card className={`border-2 ${
+                conclusionData.scoringData.nivel === 'critico' ? 'border-red-400 bg-red-50' :
+                conclusionData.scoringData.nivel === 'alto' ? 'border-orange-400 bg-orange-50' :
+                conclusionData.scoringData.nivel === 'medio' ? 'border-amber-400 bg-amber-50' :
+                'border-emerald-400 bg-emerald-50'
+              }`}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4" />
+                    Score de Risco Global
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-4xl font-bold">{conclusionData.scoringData.score_global}<span className="text-lg text-muted-foreground">/100</span></span>
+                    <Badge className={`text-sm px-3 py-1 ${
+                      conclusionData.scoringData.nivel === 'critico' ? 'bg-red-600' :
+                      conclusionData.scoringData.nivel === 'alto' ? 'bg-orange-500' :
+                      conclusionData.scoringData.nivel === 'medio' ? 'bg-amber-500' : 'bg-emerald-600'
+                    } text-white capitalize`}>{conclusionData.scoringData.nivel}</Badge>
+                  </div>
+                  <Progress value={conclusionData.scoringData.score_global} className="h-3" />
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="p-2 rounded bg-white/60">
+                      <div className="text-xs text-muted-foreground">Impacto Estimado</div>
+                      <div className="font-semibold">{conclusionData.scoringData.impacto_estimado}</div>
+                    </div>
+                    <div className="p-2 rounded bg-white/60">
+                      <div className="text-xs text-muted-foreground">Custo da Inação</div>
+                      <div className="font-semibold">{conclusionData.scoringData.custo_inacao}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* V63: Decisão Recomendada */}
+            {conclusionData.decisaoData && (
+              <Card className="border-2 border-blue-400 bg-blue-50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-blue-600" />
+                    Veredito Final — Decisão Recomendada
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0 space-y-3 text-left">
+                  <div className="p-3 rounded-lg bg-white/70 border border-blue-200">
+                    <div className="text-xs text-muted-foreground mb-1">Ação Principal</div>
+                    <div className="font-semibold text-blue-900">{conclusionData.decisaoData.acao_principal}</div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="p-2 rounded bg-white/60">
+                      <div className="text-xs text-muted-foreground">Prazo</div>
+                      <div className="font-semibold">{conclusionData.decisaoData.prazo_dias} dias</div>
+                    </div>
+                    <div className="p-2 rounded bg-white/60">
+                      <div className="text-xs text-muted-foreground">Prioridade</div>
+                      <Badge className={`capitalize ${
+                        conclusionData.decisaoData.prioridade === 'critica' ? 'bg-red-600' :
+                        conclusionData.decisaoData.prioridade === 'alta' ? 'bg-orange-500' : 'bg-amber-500'
+                      } text-white`}>{conclusionData.decisaoData.prioridade}</Badge>
+                    </div>
+                  </div>
+                  <div className="p-2 rounded bg-red-50 border border-red-200 text-sm">
+                    <div className="text-xs text-red-600 font-medium mb-1">⚠️ Risco se não agir</div>
+                    <div className="text-red-800">{conclusionData.decisaoData.risco_se_nao_fazer}</div>
+                  </div>
+                  {conclusionData.decisaoData.momento_wow && (
+                    <div className="p-2 rounded bg-amber-50 border border-amber-200 text-sm">
+                      <div className="text-xs text-amber-700 font-medium mb-1">✨ Insight Estratégico</div>
+                      <div className="text-amber-900">{conclusionData.decisaoData.momento_wow}</div>
+                    </div>
+                  )}
+                  {conclusionData.decisaoData.proximos_passos?.length > 0 && (
+                    <div>
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Próximos Passos</div>
+                      <ol className="space-y-1">
+                        {conclusionData.decisaoData.proximos_passos.map((p: string, i: number) => (
+                          <li key={i} className="text-sm flex gap-2">
+                            <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center shrink-0">{i+1}</span>
+                            <span>{p}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+                  {conclusionData.decisaoData.fundamentacao_legal && (
+                    <div className="text-xs text-muted-foreground border-t pt-2">
+                      📋 Base legal: {conclusionData.decisaoData.fundamentacao_legal}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}

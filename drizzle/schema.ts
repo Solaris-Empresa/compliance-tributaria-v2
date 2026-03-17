@@ -82,8 +82,14 @@ export const projects = mysqlTable("projects", {
   ]),
   // Fluxo V3 — conteúdo gerado por IA (armazenado como JSON/texto no projeto)
   briefingContent: text("briefingContent"),              // Briefing gerado pela IA (markdown)
+  briefingStructured: json("briefingStructured"),        // V61: Briefing estruturado com confidence_score e inconsistencias
   riskMatricesData: json("riskMatricesData"),            // Matrizes de riscos: { [cnaeCode]: Risk[] }
   actionPlansData: json("actionPlansData"),              // Plano de ação: { [area]: Task[] }
+  // V61: Scoring financeiro global (calculado no servidor)
+  scoringData: json("scoringData"),                      // { score_global, nivel, impacto_estimado, custo_inacao, prioridade }
+  faturamentoAnual: int("faturamentoAnual"),             // V61: Faturamento anual para tradução financeira do risco
+  // V63: Motor de decisão explícito
+  decisaoData: json("decisaoData"),                      // { acao_principal, prazo_dias, risco_se_nao_fazer, momento_wow }
 });
 
 export type Project = typeof projects.$inferSelect;

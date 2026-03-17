@@ -1,5 +1,10 @@
 /**
  * Router do Novo Fluxo v3.0 — 5 Etapas de Compliance Tributário
+ *
+ * V60: Schemas Zod enriquecidos + generateWithRetry + temperatura 0.2 + system prompts com papéis
+ * V61: Scoring financeiro + confidence score + campo inconsistencias preparado
+ * V62: Pré-RAG inteligente — injeção de contexto regulatório CNAE→artigos
+ * V63: Motor de decisão explícito (decisao_recomendada + momento_wow)
  */
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -8,6 +13,18 @@ import { invokeLLM } from "./_core/llm";
 import * as db from "./db";
 import { projects, questionnaireAnswersV3, questionnaireProgressV3 } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
+
+// Importações dos novos módulos V60-V63
+import {
+  CnaesResponseSchema,
+  QuestionsResponseSchema,
+  BriefingStructuredSchema,
+  RisksResponseSchema,
+  TasksResponseSchema,
+  DecisaoResponseSchema,
+} from "./ai-schemas";
+import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
+import { getArticlesForCnaes } from "./cnae-articles-map";
 
 const CnaeSchema = z.object({
   code: z.string(),
@@ -26,6 +43,7 @@ export const fluxoV3Router = router({
       name: z.string().min(1, "Nome é obrigatório"),
       description: z.string().min(50, "Descrição deve ter pelo menos 50 caracteres"),
       clientId: z.number({ message: "Cliente é obrigatório" }),
+      faturamentoAnual: z.number().optional(), // V61: para tradução financeira do risco
     }))
     .mutation(async ({ input, ctx }) => {
       const projectId = await db.createProject({
@@ -37,12 +55,13 @@ export const fluxoV3Router = router({
         createdByRole: ctx.user.role as any,
         notificationFrequency: "semanal",
         currentStep: 1,
+        faturamentoAnual: input.faturamentoAnual,
       } as any);
       return { projectId };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
-  // ETAPA 1: Extrair CNAEs via IA
+  // ETAPA 1: Extrair CNAEs via IA (V60: retry + temperatura 0.2)
   // ─────────────────────────────────────────────────────────────────────────
   extractCnaes: protectedProcedure
     .input(z.object({
@@ -53,11 +72,14 @@ export const fluxoV3Router = router({
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
 
-      const response = await invokeLLM({
-        messages: [
+      const result = await generateWithRetry(
+        [
           {
             role: "system",
-            content: "Você é um especialista em tributação brasileira e classificação CNAE. Responda sempre em JSON válido.",
+            content: `Você é um Classificador Tributário Especialista em CNAE e Reforma Tributária brasileira (LC 214/2025, IBS, CBS, IS).
+Sua função é identificar com precisão os CNAEs que mais impactam o negócio descrito.
+Seja específico: prefira CNAEs de 7 dígitos (ex: 6201-5/01) a grupos genéricos.
+Responda APENAS com JSON válido no formato especificado.`,
           },
           {
             role: "user",
@@ -67,29 +89,21 @@ DESCRIÇÃO DO NEGÓCIO:
 ${input.description}
 
 Para cada CNAE forneça: código (ex: 6201-5/01), descrição oficial, confidence (0-100) e justificativa breve.
-Considere a Reforma Tributária brasileira (IBS, CBS, IS) ao identificar os CNAEs mais impactados.
+Considere especialmente os CNAEs mais impactados pela Reforma Tributária (IBS, CBS, IS).
 
 Responda em JSON:
 {"cnaes": [{"code": "XXXX-X/XX", "description": "...", "confidence": 95, "justification": "..."}]}`,
           },
         ],
-      });
+        CnaesResponseSchema,
+        { temperature: 0.2, context: "extractCnaes" }
+      );
 
-      const content = response.choices[0]?.message?.content;
-      if (!content || typeof content !== "string") {
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "IA não retornou resposta" });
-      }
-
-      // Extrair JSON da resposta (pode vir com markdown)
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Resposta da IA inválida" });
-
-      const parsed = JSON.parse(jsonMatch[0]);
-      return { cnaes: parsed.cnaes || [] };
+      return { cnaes: result.cnaes };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
-  // ETAPA 1: Refinar CNAEs via feedback do usuário (loop de aprovação PG-05)
+  // ETAPA 1: Refinar CNAEs via feedback (V60: retry + temperatura 0.2)
   // ─────────────────────────────────────────────────────────────────────────
   refineCnaes: protectedProcedure
     .input(z.object({
@@ -107,43 +121,33 @@ Responda em JSON:
         `- ${c.code}: ${c.description} (confiança: ${c.confidence}%)`
       ).join("\n");
 
-      const response = await invokeLLM({
-        messages: [
+      const result = await generateWithRetry(
+        [
           {
             role: "system",
-            content: "Você é um especialista em tributação brasileira e classificação CNAE. Responda sempre em JSON válido.",
+            content: `Você é um Classificador Tributário Especialista em CNAE e Reforma Tributária brasileira.
+Revise a lista de CNAEs com base no feedback do usuário.
+Mantenha os corretos, ajuste os que precisam de correção, adicione os que estão faltando.
+Responda APENAS com JSON válido.`,
           },
           {
             role: "user",
-            content: `Você já sugeriu os seguintes CNAEs para este negócio (iteração ${input.iteration}):
-
+            content: `CNAEs sugeridos (iteração ${input.iteration}):
 ${currentList}
 
-O usuário fez o seguinte feedback:
-"${input.feedback}"
+Feedback do usuário: "${input.feedback}"
 
-Descrição original do negócio:
-${input.description}
+Descrição original: ${input.description}
 
-Com base no feedback, revise a lista de CNAEs. Mantenha os que estão corretos, ajuste os que precisam de correção e adicione os que estão faltando.
-Retorne entre 2 e 6 CNAEs.
-
-Responda em JSON:
+Retorne entre 2 e 6 CNAEs revisados.
 {"cnaes": [{"code": "XXXX-X/XX", "description": "...", "confidence": 95, "justification": "..."}]}`,
           },
         ],
-      });
+        CnaesResponseSchema,
+        { temperature: 0.2, context: "refineCnaes" }
+      );
 
-      const content = response.choices[0]?.message?.content;
-      if (!content || typeof content !== "string") {
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "IA não retornou resposta" });
-      }
-
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Resposta da IA inválida" });
-
-      const parsed = JSON.parse(jsonMatch[0]);
-      return { cnaes: parsed.cnaes || [], iteration: input.iteration + 1 };
+      return { cnaes: result.cnaes, iteration: input.iteration + 1 };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -154,7 +158,6 @@ Responda em JSON:
       projectId: z.number(),
       cnaes: z.array(CnaeSchema).min(1, "Selecione pelo menos 1 CNAE"),
     }))
-
     .mutation(async ({ input }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
@@ -188,13 +191,13 @@ Responda em JSON:
         throw new TRPCError({ code: "FORBIDDEN", message: "Apenas a equipe SOLARIS pode criar clientes" });
       }
 
-      // Sanitizar CNPJ: extrair dígitos e formatar XX.XXX.XXX/XXXX-XX (18 chars) ou truncar
       const rawCnpjDigits = (input.cnpj || "").replace(/\D/g, "");
       const formattedCnpj = rawCnpjDigits.length === 14
         ? rawCnpjDigits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5")
         : rawCnpjDigits.length > 0
           ? rawCnpjDigits.slice(0, 18)
           : undefined;
+
       const userId = await db.createUser({
         name: input.companyName,
         email: input.email || `cliente-${Date.now()}@solaris.temp`,
@@ -224,15 +227,17 @@ Responda em JSON:
         confirmedCnaes: (project as any).confirmedCnaes,
         currentStep: (project as any).currentStep ?? 1,
         status: project.status,
-        // Conteúdo persistido das etapas anteriores (permite re-edição)
         briefingContent: (project as any).briefingContent ?? null,
         riskMatricesData: (project as any).riskMatricesData ?? null,
         actionPlansData: (project as any).actionPlansData ?? null,
+        scoringData: (project as any).scoringData ?? null,      // V61
+        decisaoData: (project as any).decisaoData ?? null,      // V63
+        faturamentoAnual: (project as any).faturamentoAnual ?? null, // V61
       };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
-  // ETAPA 2: Gerar perguntas do questionário para um CNAE
+  // ETAPA 2: Gerar perguntas do questionário (V60: retry + temperatura 0.2 + metadata)
   // ─────────────────────────────────────────────────────────────────────────
   generateQuestions: protectedProcedure
     .input(z.object({
@@ -254,40 +259,49 @@ Responda em JSON:
         ? `\nRESPOSTAS DO NÍVEL 1:\n${input.previousAnswers.map(a => `P: ${a.question}\nR: ${a.answer}`).join("\n\n")}\n\nGere perguntas de APROFUNDAMENTO baseadas nessas respostas.`
         : "";
 
-      const response = await invokeLLM({
-        messages: [
+      // V62: Injetar contexto regulatório do CNAE
+      const regulatoryContext = getArticlesForCnaes([{ code: input.cnaeCode, description: input.cnaeDescription }]);
+
+      const result = await generateWithRetry(
+        [
           {
             role: "system",
-            content: `Você é um especialista em compliance tributário brasileiro (Reforma Tributária — LC 214/2025, IBS, CBS, IS).
-Gere perguntas de diagnóstico para identificar impactos da Reforma Tributária.
-Tipos de campo disponíveis: sim_nao, multipla_escolha, escala_likert, texto_curto, texto_longo, selecao_unica.
-Responda APENAS com JSON válido.`,
+            content: `Você é um Auditor de Diagnóstico Tributário especializado na Reforma Tributária brasileira (LC 214/2025, IBS, CBS, IS).
+Sua função é gerar perguntas de diagnóstico precisas e acionáveis para identificar gaps de compliance.
+
+REGRAS OBRIGATÓRIAS:
+1. Cada pergunta deve ter objetivo_diagnostico claro (o que ela diagnostica)
+2. Cada pergunta deve ter impacto_reforma específico (como a resposta impacta o compliance)
+3. Cada pergunta deve ter peso_risco definido (baixo/medio/alto/critico)
+4. Perguntas de nível 1: diagnóstico essencial (máximo 10 perguntas)
+5. Perguntas de nível 2: aprofundamento baseado nas respostas anteriores (máximo 10 perguntas)
+6. Nunca seja genérico — cada pergunta deve ser específica para o CNAE informado
+
+${regulatoryContext}
+
+${OUTPUT_CONTRACT}`,
           },
           {
             role: "user",
             content: `CNAE: ${input.cnaeCode} — ${input.cnaeDescription}
 DESCRIÇÃO DA EMPRESA: ${projectDescription}
-NÍVEL: ${input.level === "nivel1" ? "1 (perguntas essenciais, máximo 10)" : "2 (aprofundamento, máximo 10)"}
+NÍVEL: ${input.level === "nivel1" ? "1 (perguntas essenciais)" : "2 (aprofundamento)"}
 ${nivel2Context}
 
 Gere as perguntas no formato:
-{"questions": [{"id": "q1", "text": "...", "type": "sim_nao", "required": true, "options": [], "scale_labels": {"min": "Nunca", "max": "Sempre"}, "placeholder": "..."}]}`,
+{"questions": [{"id": "q1", "text": "...", "objetivo_diagnostico": "...", "impacto_reforma": "...", "type": "sim_nao", "peso_risco": "alto", "required": true, "options": [], "scale_labels": {"min": "Nunca", "max": "Sempre"}, "placeholder": "..."}]}`,
           },
         ],
-      });
+        QuestionsResponseSchema,
+        { temperature: 0.2, context: "generateQuestions" }
+      );
 
-      const content = response.choices[0]?.message?.content;
-      if (!content || typeof content !== "string") throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Resposta da IA inválida" });
-
-      const parsed = JSON.parse(jsonMatch[0]);
-      return { questions: parsed.questions || [] };
+      return { questions: result.questions };
     }),
-  // ───────────────────────────────────────────────────────────────────────────
-  // ETAPA 2: Salvar resposta individual (persistência granular)
-  // ───────────────────────────────────────────────────────────────────────────
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ETAPA 2: Salvar resposta individual
+  // ─────────────────────────────────────────────────────────────────────────
   saveAnswer: protectedProcedure
     .input(z.object({
       projectId: z.number(),
@@ -336,9 +350,9 @@ Gere as perguntas no formato:
       return { success: true };
     }),
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // ETAPA 2: Recuperar progresso salvo do questionário
-  // ───────────────────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // ETAPA 2: Recuperar progresso salvo
+  // ─────────────────────────────────────────────────────────────────────────
   getProgress: protectedProcedure
     .input(z.object({ projectId: z.number() }))
     .query(async ({ input }) => {
@@ -359,8 +373,9 @@ Gere as perguntas no formato:
       return { progress: progress || null, answers };
     }),
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // ETAPA 2: Salvar progresso do questionário e avançar para Etapa 3  // ─────────────────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // ETAPA 2: Salvar progresso e avançar para Etapa 3
+  // ─────────────────────────────────────────────────────────────────────────
   saveQuestionnaireProgress: protectedProcedure
     .input(z.object({
       projectId: z.number(),
@@ -394,6 +409,9 @@ Gere as perguntas no formato:
 
   // ─────────────────────────────────────────────────────────────────────────
   // ETAPA 3: Gerar Briefing de Compliance
+  // V60: sistema prompt com papel + temperatura 0.2 + contrato de saída
+  // V61: confidence score + inconsistencias
+  // V62: injeção de contexto regulatório CNAE→artigos
   // ─────────────────────────────────────────────────────────────────────────
   generateBriefing: protectedProcedure
     .input(z.object({
@@ -422,18 +440,32 @@ Gere as perguntas no formato:
       const correctionContext = input.correction ? `\n\nCORREÇÃO SOLICITADA:\n${input.correction}` : "";
       const complementContext = input.complement ? `\n\nINFORMAÇÕES ADICIONAIS:\n${input.complement}` : "";
 
-      const response = await invokeLLM({
-        messages: [
+      // V62: Contexto regulatório baseado nos CNAEs confirmados
+      const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
+      const regulatoryContext = getArticlesForCnaes(
+        confirmedCnaes.length > 0
+          ? confirmedCnaes
+          : input.allAnswers.map(a => ({ code: a.cnaeCode, description: a.cnaeDescription }))
+      );
+
+      // V60: Geração com retry + temperatura 0.2 + schema estruturado
+      const structured = await generateWithRetry(
+        [
           {
             role: "system",
-            content: `Você é um especialista sênior em compliance tributário brasileiro (Reforma Tributária — LC 214/2025).
-Gere um Briefing de Compliance completo e profissional em Markdown com as seções:
-1. **Resumo Executivo** (nível de risco: Baixo/Médio/Alto/Crítico)
-2. **Análise por CNAE** (impactos específicos da Reforma)
-3. **Principais Gaps de Compliance**
-4. **Oportunidades**
-5. **Recomendações Prioritárias** (top 5 ações imediatas)
-Use linguagem técnica mas acessível. Seja específico e objetivo.`,
+            content: `Você é um Consultor Sênior de Compliance Tributário com 15 anos de experiência na Reforma Tributária brasileira.
+Sua função é gerar um Briefing de Compliance preciso, baseado em evidências regulatórias reais.
+
+RESPONSABILIDADES:
+1. Identificar gaps de compliance com base nas respostas do questionário
+2. Citar APENAS artigos dos documentos regulatórios fornecidos no contexto
+3. Calcular nível de risco geral (baixo/medio/alto/critico)
+4. Identificar inconsistências nas respostas quando existirem
+5. Gerar confidence score honesto com limitações declaradas
+
+${regulatoryContext}
+
+${OUTPUT_CONTRACT}`,
           },
           {
             role: "user",
@@ -445,25 +477,38 @@ ${answersText}
 ${correctionContext}
 ${complementContext}
 
-Gere o Briefing de Compliance completo.`,
+Gere o Briefing estruturado em JSON:
+{
+  "nivel_risco_geral": "alto",
+  "resumo_executivo": "...",
+  "principais_gaps": [{"gap": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "urgencia": "imediata"}],
+  "oportunidades": ["..."],
+  "recomendacoes_prioritarias": ["..."],
+  "inconsistencias": [{"pergunta_origem": "...", "resposta_declarada": "...", "contradicao_detectada": "...", "impacto": "alto"}],
+  "confidence_score": {"nivel_confianca": 85, "limitacoes": ["..."], "recomendacao": "Revisão por advogado tributarista recomendada"}
+}`,
           },
         ],
-      });
+        BriefingStructuredSchema,
+        { temperature: 0.2, context: "generateBriefing" }
+      );
 
-      const briefingContent = response.choices[0]?.message?.content;
-      if (!briefingContent || typeof briefingContent !== "string") {
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-      }
+      // Converter estruturado para Markdown (compatibilidade com UI existente)
+      const briefingMarkdown = buildBriefingMarkdown(structured);
 
-      // Salvar briefing no banco
+      // Salvar briefing no banco (markdown + estruturado)
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await database
         .update(projects)
-        .set({ briefingContent: briefingContent as any, currentStep: 3 } as any)
+        .set({
+          briefingContent: briefingMarkdown as any,
+          briefingStructured: JSON.stringify(structured) as any,
+          currentStep: 3,
+        } as any)
         .where(eq(projects.id, input.projectId));
 
-      return { briefing: briefingContent };
+      return { briefing: briefingMarkdown, structured };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -486,6 +531,9 @@ Gere o Briefing de Compliance completo.`,
 
   // ─────────────────────────────────────────────────────────────────────────
   // ETAPA 4: Gerar Matrizes de Riscos
+  // V60: papel definido + temperatura 0.2 + retry
+  // V61: severidade_score numérico + scoring global calculado no servidor
+  // V62: injeção de contexto regulatório
   // ─────────────────────────────────────────────────────────────────────────
   generateRiskMatrices: protectedProcedure
     .input(z.object({
@@ -507,17 +555,30 @@ Gere o Briefing de Compliance completo.`,
         juridico: "Advocacia Tributária e Jurídico",
       };
 
+      // V62: Contexto regulatório
+      const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
+      const regulatoryContext = getArticlesForCnaes(confirmedCnaes);
+
       for (const area of areas) {
         const adjustmentContext = input.adjustment ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}` : "";
 
-        const response = await invokeLLM({
-          messages: [
+        const result = await generateWithRetry(
+          [
             {
               role: "system",
-              content: `Você é um especialista em gestão de riscos tributários (Reforma Tributária — LC 214/2025).
-Gere uma Matriz de Riscos para a área de ${areaNames[area]}.
-Para cada risco: evento, probabilidade (Baixa/Média/Alta), impacto (Baixo/Médio/Alto), severidade (Baixa/Média/Alta/Crítica), plano_acao.
-Gere entre 5 e 10 riscos. Responda APENAS com JSON válido.`,
+              content: `Você é um Auditor de Riscos Regulatórios especializado na Reforma Tributária brasileira (LC 214/2025).
+Sua função é identificar e quantificar riscos de compliance para a área de ${areaNames[area]}.
+
+REGRAS OBRIGATÓRIAS:
+1. Cada risco deve ter causa_raiz identificada
+2. Cada risco deve ter evidencia_regulatoria (artigo específico do contexto fornecido)
+3. severidade_score deve ser numérico: Baixa=1-3, Média=4-6, Alta=7-8, Crítica=9
+4. Gere entre 5 e 10 riscos específicos para a área
+5. Nunca invente artigos — use apenas os fornecidos no contexto
+
+${regulatoryContext}
+
+${OUTPUT_CONTRACT}`,
             },
             {
               role: "user",
@@ -527,22 +588,31 @@ ${input.briefingContent}
 ÁREA: ${areaNames[area]}
 ${adjustmentContext}
 
-Formato: {"risks": [{"id": "r1", "evento": "...", "probabilidade": "Alta", "impacto": "Alto", "severidade": "Crítica", "plano_acao": "..."}]}`,
+Formato:
+{"risks": [{"id": "r1", "evento": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "probabilidade": "Alta", "impacto": "Alto", "severidade": "Crítica", "severidade_score": 9, "plano_acao": "..."}]}`,
             },
           ],
-        });
+          RisksResponseSchema,
+          { temperature: 0.2, context: `generateRiskMatrices:${area}` }
+        );
 
-        const content = response.choices[0]?.message?.content;
-        if (!content || typeof content !== "string") continue;
-
-        const jsonMatch = content.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) continue;
-
-        const parsed = JSON.parse(jsonMatch[0]);
-        matrices[area] = parsed.risks || [];
+        matrices[area] = result.risks;
       }
 
-      return { matrices };
+      // V61: Calcular scoring global no servidor (determinístico)
+      const allRisks = Object.values(matrices).flat();
+      const faturamentoAnual = (project as any).faturamentoAnual as number | undefined;
+      const scoringData = calculateGlobalScore(allRisks, faturamentoAnual);
+
+      // Salvar scoring no banco
+      const database = await db.getDb();
+      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      await database
+        .update(projects)
+        .set({ scoringData: scoringData as any } as any)
+        .where(eq(projects.id, input.projectId));
+
+      return { matrices, scoringData };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -565,6 +635,8 @@ Formato: {"risks": [{"id": "r1", "evento": "...", "probabilidade": "Alta", "impa
 
   // ─────────────────────────────────────────────────────────────────────────
   // ETAPA 5: Gerar Plano de Ação
+  // V60: papel definido + temperatura 0.2 + retry
+  // V62: injeção de contexto regulatório
   // ─────────────────────────────────────────────────────────────────────────
   generateActionPlan: protectedProcedure
     .input(z.object({
@@ -586,38 +658,47 @@ Formato: {"risks": [{"id": "r1", "evento": "...", "probabilidade": "Alta", "impa
         juridico: "Advocacia Tributária",
       };
 
+      // V62: Contexto regulatório
+      const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
+      const regulatoryContext = getArticlesForCnaes(confirmedCnaes);
+
       for (const area of areas) {
         const areaRisks = input.matrices[area] || [];
         const adjustmentContext = input.adjustment ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}` : "";
 
-        const response = await invokeLLM({
-          messages: [
+        const result = await generateWithRetry(
+          [
             {
               role: "system",
-              content: `Você é um especialista em planejamento de compliance tributário.
-Gere um Plano de Ação para a área de ${areaNames[area]} baseado nos riscos identificados.
-Para cada tarefa: titulo, descricao, area, prazo_sugerido (30/60/90 dias), prioridade (Alta/Média/Baixa), responsavel_sugerido.
-Gere entre 3 e 8 tarefas. Responda APENAS com JSON válido.`,
+              content: `Você é um Gestor de Projetos de Compliance Tributário especializado na Reforma Tributária brasileira.
+Sua função é criar planos de ação práticos e executáveis para endereçar os riscos identificados.
+
+REGRAS OBRIGATÓRIAS:
+1. Cada tarefa deve ter objetivo_diagnostico (qual gap/risco ela endereça)
+2. Cada tarefa deve ter evidencia_regulatoria (base legal que justifica a tarefa)
+3. Prazos realistas: 30/60/90 dias baseados na urgência do risco
+4. Responsável sugerido deve ser específico (ex: "Contador responsável pelo SPED")
+5. Gere entre 3 e 8 tarefas por área
+
+${regulatoryContext}
+
+${OUTPUT_CONTRACT}`,
             },
             {
               role: "user",
               content: `ÁREA: ${areaNames[area]}
-RISCOS: ${JSON.stringify(areaRisks, null, 2)}
+RISCOS IDENTIFICADOS: ${JSON.stringify(areaRisks, null, 2)}
 ${adjustmentContext}
 
-Formato: {"tasks": [{"id": "t1", "titulo": "...", "descricao": "...", "area": "${area}", "prazo_sugerido": "30 dias", "prioridade": "Alta", "responsavel_sugerido": "..."}]}`,
+Formato:
+{"tasks": [{"id": "t1", "titulo": "...", "descricao": "...", "area": "${area}", "prazo_sugerido": "30 dias", "prioridade": "Alta", "responsavel_sugerido": "...", "objetivo_diagnostico": "...", "evidencia_regulatoria": "Art. X LC 214/2025"}]}`,
             },
           ],
-        });
+          TasksResponseSchema,
+          { temperature: 0.2, context: `generateActionPlan:${area}` }
+        );
 
-        const content = response.choices[0]?.message?.content;
-        if (!content || typeof content !== "string") continue;
-
-        const jsonMatch = content.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) continue;
-
-        const parsed = JSON.parse(jsonMatch[0]);
-        plans[area] = (parsed.tasks || []).map((t: any) => ({
+        plans[area] = result.tasks.map((t: any) => ({
           ...t,
           status: "nao_iniciado",
           progress: 0,
@@ -661,7 +742,6 @@ Formato: {"tasks": [{"id": "t1", "titulo": "...", "descricao": "...", "area": "$
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       const currentPlans = (project as any).actionPlansData || {};
       const areaTasks = currentPlans[input.area] || [];
-      // Snapshot da tarefa atual para diff de histórico
       const currentTask = areaTasks.find((t: any) => t.id === input.taskId);
       const updatedTasks = areaTasks.map((task: any) =>
         task.id === input.taskId ? { ...task, ...input.updates } : task
@@ -673,7 +753,7 @@ Formato: {"tasks": [{"id": "t1", "titulo": "...", "descricao": "...", "area": "$
         .update(projects)
         .set({ actionPlansData: currentPlans as any } as any)
         .where(eq(projects.id, input.projectId));
-      // RF-HIST: Registrar alterações no histórico (fire-and-forget)
+
       if (currentTask) {
         const histBase = {
           projectId: input.projectId,
@@ -724,7 +804,125 @@ Formato: {"tasks": [{"id": "t1", "titulo": "...", "descricao": "...", "area": "$
     .query(async ({ input }) => {
       return db.getTaskHistory(input.taskId, input.projectId);
     }),
-  // ───────────────────────────────────────────────────────────────────────────
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ETAPA 5: Aprovar plano de ação + gerar decisão (V63)
+  // ─────────────────────────────────────────────────────────────────────────
+  approveActionPlan: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      plans: z.record(z.string(), z.array(z.any())),
+    }))
+    .mutation(async ({ input }) => {
+      const database = await db.getDb();
+      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Salvar plano aprovado
+      await database
+        .update(projects)
+        .set({ currentStep: 5, status: "aprovado", actionPlansData: input.plans as any } as any)
+        .where(eq(projects.id, input.projectId));
+
+      return { success: true };
+    }),
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // V63: Gerar Motor de Decisão Explícito
+  // Consolida briefing + matrizes + scoring → veredito final
+  // ─────────────────────────────────────────────────────────────────────────
+  generateDecision: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+    }))
+    .mutation(async ({ input }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const briefingContent = (project as any).briefingContent as string | null;
+      const riskMatricesData = (project as any).riskMatricesData as Record<string, any[]> | null;
+      const scoringData = (project as any).scoringData as any | null;
+      const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
+
+      if (!briefingContent || !riskMatricesData) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Briefing e matrizes de risco devem estar gerados antes da decisão",
+        });
+      }
+
+      // Resumo dos riscos críticos
+      const allRisks = Object.values(riskMatricesData).flat();
+      const riscoCriticos = allRisks.filter((r: any) => r.severidade === "Crítica");
+      const riscoAltos = allRisks.filter((r: any) => r.severidade === "Alta");
+
+      const riscosSummary = [
+        ...riscoCriticos.slice(0, 3).map((r: any) => `[CRÍTICO] ${r.evento}`),
+        ...riscoAltos.slice(0, 2).map((r: any) => `[ALTO] ${r.evento}`),
+      ].join("\n");
+
+      // V62: Contexto regulatório
+      const regulatoryContext = getArticlesForCnaes(confirmedCnaes);
+
+      const result = await generateWithRetry(
+        [
+          {
+            role: "system",
+            content: `Você é um Sócio Sênior de Tributação com 20 anos de experiência em Reforma Tributária brasileira.
+Sua função é emitir o VEREDITO FINAL do diagnóstico: uma decisão clara, executável e fundamentada.
+
+RESPONSABILIDADES:
+1. Consolidar todos os dados do diagnóstico em UMA decisão principal
+2. Definir prazo realista baseado na urgência dos riscos
+3. Quantificar o risco de inação de forma concreta
+4. Gerar o "momento wow" — um insight que o cliente não esperava
+5. Fundamentar a decisão em artigos reais (use apenas os do contexto)
+
+${regulatoryContext}
+
+${OUTPUT_CONTRACT}`,
+          },
+          {
+            role: "user",
+            content: `PROJETO: ${project.name}
+SCORE GLOBAL: ${scoringData?.score_global ?? "N/A"}/100 (${scoringData?.nivel ?? "N/A"})
+IMPACTO ESTIMADO: ${scoringData?.impacto_estimado ?? "N/A"}
+
+PRINCIPAIS RISCOS:
+${riscosSummary || "Nenhum risco crítico identificado"}
+
+BRIEFING (resumo):
+${briefingContent.substring(0, 800)}...
+
+Gere o veredito final em JSON:
+{
+  "decisao_recomendada": {
+    "acao_principal": "Ação clara e específica que deve ser tomada imediatamente",
+    "prazo_dias": 60,
+    "risco_se_nao_fazer": "Consequência concreta e quantificada de não agir",
+    "prioridade": "critica",
+    "proximos_passos": ["Passo 1 específico", "Passo 2 específico", "Passo 3 específico"],
+    "momento_wow": "Insight inesperado que surpreende o cliente — ex: oportunidade de redução de carga ou risco oculto",
+    "fundamentacao_legal": "Art. X LC 214/2025 — base legal da decisão"
+  }
+}`,
+          },
+        ],
+        DecisaoResponseSchema,
+        { temperature: 0.35, context: "generateDecision" } // Temperatura ligeiramente maior para insight criativo
+      );
+
+      // Salvar decisão no banco
+      const database = await db.getDb();
+      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      await database
+        .update(projects)
+        .set({ decisaoData: result.decisao_recomendada as any } as any)
+        .where(eq(projects.id, input.projectId));
+
+      return { decisao: result.decisao_recomendada };
+    }),
+
+  // ─────────────────────────────────────────────────────────────────────────
   // PÁGINA DE DETALHES: Resumo completo do projeto
   // ─────────────────────────────────────────────────────────────────────────
   getProjectSummary: protectedProcedure
@@ -735,13 +933,11 @@ Formato: {"tasks": [{"id": "t1", "titulo": "...", "descricao": "...", "area": "$
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
-      // Contar respostas do questionário
       const answers = await database
         .select()
         .from(questionnaireAnswersV3)
         .where(eq(questionnaireAnswersV3.projectId, input.projectId));
 
-      // Contar tarefas do plano de ação
       const actionPlansData = (project as any).actionPlansData as Record<string, any[]> | null;
       let totalTasks = 0;
       let completedTasks = 0;
@@ -756,7 +952,6 @@ Formato: {"tasks": [{"id": "t1", "titulo": "...", "descricao": "...", "area": "$
         }
       }
 
-      // Contar riscos
       const riskMatricesData = (project as any).riskMatricesData as Record<string, any[]> | null;
       let totalRisks = 0;
       if (riskMatricesData) {
@@ -786,24 +981,87 @@ Formato: {"tasks": [{"id": "t1", "titulo": "...", "descricao": "...", "area": "$
         hasBriefing: !!(project as any).briefingContent,
         hasRiskMatrices: !!riskMatricesData && Object.keys(riskMatricesData).length > 0,
         hasActionPlan: !!actionPlansData && Object.keys(actionPlansData).length > 0,
+        scoringData: (project as any).scoringData ?? null,   // V61
+        decisaoData: (project as any).decisaoData ?? null,   // V63
       };
     }),
-
-  // ───────────────────────────────────────────────────────────────────────────
-  // ETAPA 5: Aprovar plano de ação
-  // ─────────────────────────────────────────────────────────────────────────
-  approveActionPlan: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      plans: z.record(z.string(), z.array(z.any())),
-    }))
-    .mutation(async ({ input }) => {
-      const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      await database
-        .update(projects)
-        .set({ currentStep: 5, status: "aprovado", actionPlansData: input.plans as any } as any)
-        .where(eq(projects.id, input.projectId));
-      return { success: true };
-    }),
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPER: Converter BriefingStructured → Markdown (compatibilidade com UI)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function buildBriefingMarkdown(structured: any): string {
+  const nivelLabel: Record<string, string> = {
+    baixo: "🟢 Baixo",
+    medio: "🟡 Médio",
+    alto: "🟠 Alto",
+    critico: "🔴 Crítico",
+  };
+
+  const lines: string[] = [
+    `# Briefing de Compliance — Reforma Tributária`,
+    ``,
+    `## Nível de Risco Geral: ${nivelLabel[structured.nivel_risco_geral] ?? structured.nivel_risco_geral}`,
+    ``,
+    `## 1. Resumo Executivo`,
+    ``,
+    structured.resumo_executivo,
+    ``,
+    `## 2. Principais Gaps de Compliance`,
+    ``,
+  ];
+
+  for (const gap of structured.principais_gaps) {
+    lines.push(`### ${gap.gap}`);
+    lines.push(`- **Causa Raiz:** ${gap.causa_raiz}`);
+    lines.push(`- **Base Legal:** ${gap.evidencia_regulatoria}`);
+    lines.push(`- **Urgência:** ${gap.urgencia}`);
+    lines.push(``);
+  }
+
+  lines.push(`## 3. Oportunidades`);
+  lines.push(``);
+  for (const op of structured.oportunidades) {
+    lines.push(`- ${op}`);
+  }
+  lines.push(``);
+
+  lines.push(`## 4. Recomendações Prioritárias`);
+  lines.push(``);
+  structured.recomendacoes_prioritarias.forEach((rec: string, i: number) => {
+    lines.push(`${i + 1}. ${rec}`);
+  });
+  lines.push(``);
+
+  // V61: Alertas de inconsistência (condicional)
+  if (structured.inconsistencias && structured.inconsistencias.length > 0) {
+    lines.push(`## 5. Alertas de Inconsistência`);
+    lines.push(``);
+    lines.push(`> ⚠️ As inconsistências abaixo foram detectadas nas respostas do questionário e requerem verificação.`);
+    lines.push(``);
+    for (const inc of structured.inconsistencias) {
+      lines.push(`### ${inc.contradicao_detectada}`);
+      lines.push(`- **Resposta declarada:** ${inc.resposta_declarada}`);
+      lines.push(`- **Impacto:** ${inc.impacto}`);
+      lines.push(``);
+    }
+  }
+
+  // V61: Confidence score / Limites do diagnóstico
+  const cs = structured.confidence_score;
+  if (cs) {
+    lines.push(`## ${structured.inconsistencias?.length > 0 ? "6" : "5"}. Limites do Diagnóstico Automatizado`);
+    lines.push(``);
+    lines.push(`> **Nível de Confiança:** ${cs.nivel_confianca}% — ${cs.recomendacao}`);
+    lines.push(``);
+    if (cs.limitacoes?.length > 0) {
+      lines.push(`**Limitações identificadas:**`);
+      for (const lim of cs.limitacoes) {
+        lines.push(`- ${lim}`);
+      }
+    }
+  }
+
+  return lines.join("\n");
+}
