@@ -1,5 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect, useRef } from "react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
 import { ResumeBanner } from "@/components/ResumeBanner";
 import { useParams, useLocation } from "wouter";
@@ -422,12 +424,15 @@ export default function PlanoAcaoV3() {
   // Tela de conclusão do projeto
   const [showConclusion, setShowConclusion] = useState(false);
   const [conclusionData, setConclusionData] = useState<{
+    projectName: string;
     cnaes: { code: string; description: string }[];
     totalRisks: number;
     criticalRisks: number;
     highRisks: number;
     totalTasks: number;
     tasksByArea: { area: string; count: number }[];
+    allTasks: Task[];
+    allRisks: { area: string; descricao: string; severidade: string; probabilidade: string; impacto: string }[];
   } | null>(null);
   const [newTask, setNewTask] = useState<Partial<Task>>({ prioridade: "Média", status: "nao_iniciado" });
   // RF-5.06: Dashboard de progresso
@@ -565,17 +570,29 @@ export default function PlanoAcaoV3() {
       // Calcular dados de resumo para a tela de conclusão
       const cnaes = (project as any)?.confirmedCnaes || [];
       const matrices = (project as any)?.riskMatricesData || {};
-      const allRisks = Object.values(matrices).flat() as any[];
-      const totalRisks = allRisks.length;
-      const criticalRisks = allRisks.filter((r: any) => r?.severidade === "Crítico" || r?.severidade === "Critico").length;
-      const highRisks = allRisks.filter((r: any) => r?.severidade === "Alta").length;
+      const allRisksRaw = Object.entries(matrices).flatMap(([area, risks]) =>
+        (risks as any[]).map((r: any) => ({ area, ...r }))
+      );
+      const totalRisks = allRisksRaw.length;
+      const criticalRisks = allRisksRaw.filter((r: any) => r?.severidade === "Crítico" || r?.severidade === "Critico").length;
+      const highRisks = allRisksRaw.filter((r: any) => r?.severidade === "Alta").length;
       const allTasks = Object.values(plans).flat().filter((t: Task) => !t.deleted);
       const totalTasks = allTasks.length;
       const tasksByArea = Object.entries(plans).map(([area, tasks]) => ({
         area,
         count: (tasks || []).filter((t: Task) => !t.deleted).length,
       })).filter(a => a.count > 0);
-      setConclusionData({ cnaes, totalRisks, criticalRisks, highRisks, totalTasks, tasksByArea });
+      setConclusionData({
+        projectName: project?.name || "Projeto",
+        cnaes,
+        totalRisks,
+        criticalRisks,
+        highRisks,
+        totalTasks,
+        tasksByArea,
+        allTasks,
+        allRisks: allRisksRaw,
+      });
       setShowConclusion(true);
     } catch {
       toast.error("Erro ao aprovar o plano. Tente novamente.");
@@ -691,6 +708,138 @@ export default function PlanoAcaoV3() {
       win.document.close();
       toast.success("PDF completo gerado! Use Ctrl+P para salvar.");
     }
+  };
+
+  // Geração do Relatório Final em PDF
+  const generateFinalReportPDF = () => {
+    if (!conclusionData) return;
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const pageW = doc.internal.pageSize.getWidth();
+    const margin = 14;
+    let y = 20;
+
+    // Cabeçalho
+    doc.setFillColor(15, 118, 110); // emerald-700
+    doc.rect(0, 0, pageW, 28, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Relatório Final de Compliance Tributário", margin, 12);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Projeto: ${conclusionData.projectName}`, margin, 20);
+    doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, pageW - margin, 20, { align: "right" });
+    y = 36;
+
+    // Resumo executivo
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Resumo Executivo", margin, y);
+    y += 6;
+    autoTable(doc, {
+      startY: y,
+      head: [["Indicador", "Valor"]],
+      body: [
+        ["CNAEs Analisados", String(conclusionData.cnaes.length)],
+        ["Total de Riscos Mapeados", String(conclusionData.totalRisks)],
+        ["Riscos Críticos", String(conclusionData.criticalRisks)],
+        ["Riscos de Alta Severidade", String(conclusionData.highRisks)],
+        ["Total de Tarefas Criadas", String(conclusionData.totalTasks)],
+      ],
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [15, 118, 110] },
+      margin: { left: margin, right: margin },
+    });
+    y = (doc as any).lastAutoTable.finalY + 10;
+
+    // CNAEs analisados
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("CNAEs Analisados", margin, y);
+    y += 4;
+    autoTable(doc, {
+      startY: y,
+      head: [["Código", "Descrição"]],
+      body: conclusionData.cnaes.map((c: any) => [c.code || c.cnae || "", c.description || c.descricao || ""]),
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [37, 99, 235] },
+      margin: { left: margin, right: margin },
+    });
+    y = (doc as any).lastAutoTable.finalY + 10;
+
+    // Riscos por severidade
+    if (conclusionData.allRisks.length > 0) {
+      if (y > 220) { doc.addPage(); y = 20; }
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Matriz de Riscos", margin, y);
+      y += 4;
+      autoTable(doc, {
+        startY: y,
+        head: [["Área", "Descrição do Risco", "Probabilidade", "Impacto", "Severidade"]],
+        body: conclusionData.allRisks.map((r: any) => [
+          r.area || "",
+          r.descricao || r.description || "",
+          r.probabilidade || "",
+          r.impacto || "",
+          r.severidade || "",
+        ]),
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [234, 88, 12] },
+        margin: { left: margin, right: margin },
+        didParseCell: (data: any) => {
+          if (data.column.index === 4 && data.section === "body") {
+            const sev = data.cell.raw as string;
+            if (sev === "Crítico" || sev === "Critico") data.cell.styles.textColor = [185, 28, 28];
+            else if (sev === "Alta") data.cell.styles.textColor = [194, 65, 12];
+            else if (sev === "Média") data.cell.styles.textColor = [161, 98, 7];
+          }
+        },
+      });
+      y = (doc as any).lastAutoTable.finalY + 10;
+    }
+
+    // Tarefas por responsável
+    if (conclusionData.allTasks.length > 0) {
+      if (y > 220) { doc.addPage(); y = 20; }
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Plano de Ação — Tarefas por Responsável", margin, y);
+      y += 4;
+      const sortedTasks = [...conclusionData.allTasks].sort((a, b) =>
+        (a.responsible || a.responsavel_sugerido || "").localeCompare(b.responsible || b.responsavel_sugerido || "")
+      );
+      autoTable(doc, {
+        startY: y,
+        head: [["Área", "Tarefa", "Responsável", "Prazo", "Prioridade", "Status"]],
+        body: sortedTasks.map((t: Task) => [
+          t.area || "",
+          t.titulo || "",
+          t.responsible || t.responsavel_sugerido || "—",
+          t.endDate || t.prazo_sugerido || "—",
+          t.prioridade || "",
+          t.status === "concluido" ? "Concluído" : t.status === "em_andamento" ? "Em andamento" : t.status === "parado" ? "Parado" : "Não iniciado",
+        ]),
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [5, 150, 105] },
+        margin: { left: margin, right: margin },
+        columnStyles: { 1: { cellWidth: 50 } },
+      });
+    }
+
+    // Rodapé
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(7);
+      doc.setTextColor(150);
+      doc.text(`IA SOLARIS — Plataforma de Compliance Tributário · Página ${i} de ${pageCount}`, pageW / 2, 290, { align: "center" });
+    }
+
+    const filename = `relatorio-final-${conclusionData.projectName.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(filename);
+    toast.success("Relatório Final baixado com sucesso!");
   };
 
   const allAreasGenerated = AREAS.every(a => plans[a.key] && plans[a.key].length > 0);
@@ -813,7 +962,15 @@ export default function PlanoAcaoV3() {
             )}
 
             {/* Botões de ação */}
-            <div className="flex gap-3 justify-center pt-2">
+            <div className="flex flex-wrap gap-3 justify-center pt-2">
+              <Button
+                size="lg"
+                onClick={generateFinalReportPDF}
+                className="gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8"
+              >
+                <Download className="h-5 w-5" />
+                Baixar Relatório Final (PDF)
+              </Button>
               <Button
                 size="lg"
                 onClick={() => setLocation("/painel")}

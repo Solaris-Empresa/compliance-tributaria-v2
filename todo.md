@@ -1802,3 +1802,9 @@
   - QuestionarioV3: useEffect([startedCnaes.size]) re-disparava loadQuestions em loop
 - [x] Corrigir com useRef (generationTriggeredRef + loadedQuestionsRef) — 94/94 testes passando
 - [x] Testar: TypeScript 0 erros, HMR aplicado, servidor rodando
+
+## Exportação PDF do Relatório Final
+- [x] Instalar jsPDF + jspdf-autotable no frontend
+- [x] Implementar função generateFinalReportPDF no frontend com CNAEs, riscos por severidade e tarefas por responsável
+- [x] Adicionar botão "Baixar Relatório Final" na tela de conclusão do projeto
+- [x] TypeScript 0 erros, HMR aplicado, servidor rodando
