@@ -1,0 +1,157 @@
+{
+  "query": "SHOW TABLES LIKE '%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SHOW TABLES LIKE '%';",
+  "rows": [
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "actionPlanPromptHistory"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "actionPlanPrompts"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "actionPlanTemplates"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "actionPlanVersions"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "actionPlans"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "actions"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "activityBranches"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "assessmentPhase1"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "assessmentPhase2"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "assessmentTemplates"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "auditLog"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "branchActionPlanVersions"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "branchActionPlans"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "branchAssessmentTemplates"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "branchAssessmentVersions"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "branchAssessments"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "branchSuggestions"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "briefingVersions"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "briefings"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "clientMembers"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "corporateActionPlanVersions"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "corporateActionPlans"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "corporateAssessmentVersions"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "corporateAssessments"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "cosoControls"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "milestones"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "notificationPreferences"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "notifications"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "phases"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "planApprovals"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "planReviews"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "projectBranches"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "projectParticipants"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "projectPermissions"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "projects"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "questionnaireAnswersV3"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "questionnaireProgressV3"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "riskMatrix"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "riskMatrixPromptHistory"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "riskMatrixVersions"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "sessionActionPlans"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "sessionBranchAnswers"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "sessionConsolidations"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "sessions"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "taskComments"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "taskHistory"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "taskObservers"
+    },
+    {
+      "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_A6U3GSLMGWuR2P4b85Hiyy (%)\n__drizzle_migrations\nactionPlanPromptHistory\nactionPlanPrompts\nactionPlanTemplates\nactionPlanVersions\nactionPlans\nactions\nactivityBranches\nassessmentPhase1\nassessmentPhase2\nassessmentTemplates\nauditLog\nbranchActionPlanVersions\nbranchActionPlans\nbranchAssessmentTemplates\nbranchAssessmentVersions\nbranchAssessments\nbranchSuggestions\nbriefingVersions\nbriefings\nclientMembers\ncorporateActionPlanVersions\ncorporateActionPlans\ncorporateAssessmentVersions\ncorporateAssessments\ncosoControls\nmilestones\nnotificationPreferences\nnotifications\nphases\nplanApprovals\nplanReviews\nprojectBranches\nprojectParticipants\nprojectPermissions\nprojects\nquestionnaireAnswersV3\nquestionnaireProgressV3\nriskMatrix\nriskMatrixPromptHistory\nriskMatrixVersions\nsessionActionPlans\nsessionBranchAnswers\nsessionConsolidations\nsessions\ntaskComments\ntaskHistory\ntaskObservers\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 49
+}

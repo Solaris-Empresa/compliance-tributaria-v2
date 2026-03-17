@@ -1636,9 +1636,47 @@ Retorne APENAS JSON válido no formato:
           role: "cliente",
           openId: `manual-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         });
-
         return { userId };
       }),
+    updateRole: protectedProcedure
+      .input(z.object({
+        userId: z.number(),
+        role: z.enum(["cliente", "equipe_solaris", "advogado_senior", "advogado_junior"]),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Apenas equipe SOLARIS pode alterar roles
+        if (ctx.user.role !== "equipe_solaris") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Apenas a equipe SOLARIS pode alterar papéis" });
+        }
+        // Não pode alterar o próprio role
+        if (ctx.user.id === input.userId) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Você não pode alterar o seu próprio papel" });
+        }
+        const dbConn = await (await import("./db")).getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        const { users: usersTable } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        await dbConn.update(usersTable).set({ role: input.role }).where(eq(usersTable.id, input.userId));
+        return { success: true };
+      }),
+    getStats: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      const allUsers = await db.getAllUsers();
+      const byRole = allUsers.reduce((acc: Record<string, number>, u) => {
+        acc[u.role || "cliente"] = (acc[u.role || "cliente"] || 0) + 1;
+        return acc;
+      }, {});
+      return {
+        total: allUsers.length,
+        byRole,
+        recentSignups: allUsers.filter(u => {
+          const d = u.lastSignedIn ? new Date(u.lastSignedIn) : null;
+          return d && (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
+        }).length,
+      };
+    }),
   }),
 
   // ==========================================================================

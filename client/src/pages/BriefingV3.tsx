@@ -39,6 +39,7 @@ export default function BriefingV3() {
   const [generationCount, setGenerationCount] = useState(0);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
+  const [wasAlreadyApproved, setWasAlreadyApproved] = useState(false);
   // RF-3.06: Histórico de versões
   const [versionHistory, setVersionHistory] = useState<BriefingVersion[]>([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -90,6 +91,7 @@ export default function BriefingV3() {
     if (savedBriefing && generationCount === 0) {
       setBriefing(savedBriefing);
       setGenerationCount(1);
+      setWasAlreadyApproved(true); // Sinaliza que este briefing já foi aprovado
       return;
     }
     // Gerar novo briefing apenas se não há conteúdo salvo
@@ -229,6 +231,19 @@ export default function BriefingV3() {
             onDiscard={handleDiscardDraft}
             label="rascunho do briefing"
           />
+        )}
+        {/* Aviso de re-geração: briefing já aprovado anteriormente */}
+        {wasAlreadyApproved && !showResumeBanner && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50 border border-blue-200">
+            <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-blue-800">Briefing aprovado anteriormente</p>
+              <p className="text-xs text-blue-700 mt-0.5">
+                Este briefing já foi aprovado e salvo. Você pode visualizá-lo, exportar em PDF ou regenerar uma nova versão.
+                Regenerar irá criar uma nova versão — a versão atual ficará salva no histórico.
+              </p>
+            </div>
+          </div>
         )}
         {/* Header */}
         <div className="flex items-center gap-4">

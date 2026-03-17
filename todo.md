@@ -1910,3 +1910,15 @@
 - [x] BUG-06: 0 tarefas criadas — mesma causa do BUG-05 (campos ausentes no banco)
 - [x] BUG-07: Questionário bloqueado — cnaeProgress não restaurava progresso do banco; corrigido para ler savedProgress.answers
 - [x] BUG-08: Re-edição — BriefingV3/MatrizesV3/PlanoAcaoV3 agora carregam conteúdo salvo do banco; PlanoAcaoV3 mostra tela de conclusão com dados reais ao reabrir projeto aprovado; botão "Editar Plano de Ação" adicionado
+
+## Sprint V56 — Limpeza, Testes E2E, Login/Cadastro, Melhorias (17/03/2026)
+- [x] Limpeza completa do banco: projetos, clientes, questionnaireAnswersV3, questionnaireProgressV3, projectParticipants, riskMatrices, actionPlans
+- [x] Double-check: confirmar que limpeza foi executada com sucesso (contagem de registros = 0)
+- [x] Verificar e testar login/cadastro para novos usuários (OAuth Manus) — fluxo upsertUser OK
+- [x] Melhorar página /usuarios: filtros por papel, busca por nome/email, ação de promover papel via modal
+- [x] Notificação de re-geração no BriefingV3 (aviso azul "Briefing aprovado anteriormente")
+- [x] Notificação de re-geração no MatrizesV3 (aviso azul "Matrizes aprovadas anteriormente")
+- [x] Testes E2E: regressão completa (questionário → briefing → riscos → plano) — 33/33 passando
+- [x] Testes unitários: sprint-v56-regression.test.ts (33 testes)
+- [x] CHANGELOG.md atualizado com entrada [3.6.0] Sprint V56
+- [x] Checkpoint, commit e push no GitHub

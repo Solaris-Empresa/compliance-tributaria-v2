@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
   ArrowLeft, ChevronRight, Loader2, Sparkles,
-  CheckCircle2, RefreshCw, ThumbsUp, Edit3, AlertTriangle,
+  CheckCircle2, RefreshCw, ThumbsUp, Edit3, AlertTriangle, Info,
   Building2, Cpu, Scale, BarChart3, Download, Plus, Trash2,
   Lock, Unlock, FileSpreadsheet
 } from "lucide-react";
@@ -140,6 +140,7 @@ export default function MatrizesV3() {
   const [generationCount, setGenerationCount] = useState(0);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
+  const [wasAlreadyApproved, setWasAlreadyApproved] = useState(false);
   // RF-4.03: Modal de adição manual de risco
   const [showAddRisk, setShowAddRisk] = useState<string | null>(null); // area key
   const [newRisk, setNewRisk] = useState<Partial<Risk>>({ probabilidade: "Média", impacto: "Médio", severidade: "Média" });
@@ -199,6 +200,7 @@ export default function MatrizesV3() {
     if (savedMatrices && Object.keys(savedMatrices).length > 0 && generationCount === 0) {
       setMatrices(savedMatrices);
       setGenerationCount(1);
+      setWasAlreadyApproved(true); // Sinaliza que estas matrizes já foram aprovadas
       return;
     }
     // Gerar novas matrizes apenas se não há conteúdo salvo
@@ -411,6 +413,19 @@ export default function MatrizesV3() {
             onDiscard={handleDiscardDraft}
             label="rascunho das matrizes de riscos"
           />
+        )}
+        {/* Aviso de re-geração: matrizes já aprovadas anteriormente */}
+        {wasAlreadyApproved && !showResumeBanner && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50 border border-blue-200">
+            <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-blue-800">Matrizes de riscos aprovadas anteriormente</p>
+              <p className="text-xs text-blue-700 mt-0.5">
+                Estas matrizes já foram aprovadas e salvas. Você pode editar riscos individualmente ou regenerar uma nova versão.
+                Regenerar irá substituir as matrizes atuais — certifique-se de que deseja criar uma nova versão.
+              </p>
+            </div>
+          </div>
         )}
         {/* Header */}
         <div className="flex items-center gap-4">

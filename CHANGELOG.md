@@ -6,6 +6,62 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [3.6.0] - Sprint V56 - 2026-03-17
+
+### Corrigido
+
+**Bug BUG-04: 404 em /usuarios**
+- Criada página `Usuarios.tsx` completa com listagem, filtros, busca e gerenciamento de papéis
+- Rota `/usuarios` registrada no `App.tsx`
+- Procedures `users.updateRole` e `users.deleteUser` adicionadas ao servidor com controle de acesso por papel
+
+**Bug BUG-05 / BUG-06: 0 Riscos Mapeados e 0 Tarefas Criadas**
+- Causa raiz: campos `briefingContent`, `riskMatricesData` e `actionPlansData` não existiam na tabela `projects`
+- Adicionados os 3 campos ao schema Drizzle (`drizzle/schema.ts`) como `text` nullable
+- Migração executada via `pnpm db:push`
+- `getProjectStep1` atualizado para retornar os 3 novos campos
+- `getProjectSummary` agora lê corretamente `riskMatricesData` e `actionPlansData` do banco
+
+**Bug BUG-07: Questionário bloqueado para edição**
+- `cnaeProgress` agora restaura o estado de progresso a partir das respostas salvas no banco (`savedProgress.answers`)
+- CNAEs já respondidos aparecem como concluídos ao reabrir o questionário
+
+**Bug BUG-08: Re-edição de Briefing, Matrizes e Plano de Ação**
+- `BriefingV3`: carrega conteúdo salvo do banco ao invés de sempre regenerar; aviso azul "Briefing aprovado anteriormente" exibido
+- `MatrizesV3`: carrega matrizes salvas do banco; aviso azul "Matrizes de riscos aprovadas anteriormente" exibido
+- `PlanoAcaoV3`: carrega plano salvo do banco; tela de conclusão exibida automaticamente quando projeto está aprovado; botão "Editar Plano de Ação" adicionado
+
+### Adicionado
+
+**Página de Usuários (`/usuarios`) — Completa**
+- Listagem de todos os usuários com avatar, nome, email e data de último login
+- Filtro por papel (equipe_solaris, advogado_senior, advogado_junior, cliente)
+- Busca por nome ou email em tempo real
+- Seleção de papel via `Select` com confirmação por modal de diálogo
+- Estatínticas no topo: total de usuários, ativos nos últimos 7 dias, por papel
+- Controle de acesso: apenas `equipe_solaris` pode alterar papéis
+
+**Notificações de Re-geração**
+- Banner azul no `BriefingV3` quando o briefing já foi aprovado anteriormente
+- Banner azul no `MatrizesV3` quando as matrizes já foram aprovadas anteriormente
+
+**Limpeza Completa do Banco**
+- Todas as tabelas de dados de teste truncadas (projetos, clientes, questionários, briefings, matrizes, planos, tarefas)
+- Tabela `users` preservada (1.264 registros)
+
+**Testes de Regressão — Sprint V56 (33 testes)**
+- `sprint-v56-regression.test.ts`: 33 testes cobrindo:
+  - Verificação de limpeza do banco
+  - Fluxo de upsertUser (criação de novos usuários via OAuth)
+  - Controle de acesso para `users.updateRole`
+  - Estatísticas de usuários (`getStats`)
+  - Schema dos novos campos (`briefingContent`, `riskMatricesData`, `actionPlansData`)
+  - Contagem de riscos e tarefas no `getProjectSummary`
+  - Retorno de campos de conteúdo no `getProjectStep1`
+  - Fluxo completo de re-edição (regressão end-to-end)
+
+---
+
 ## [3.5.0] - Sprint V55 - 2026-03-17
 
 ### Adicionado
