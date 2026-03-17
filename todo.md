@@ -2085,3 +2085,10 @@
 - [x] Testes E2E V69: 19 testes (fluxo completo, skip, reset, idempotência, validação Zod, edge cases)
 - [x] 160/160 testes passando (141 anteriores + 19 V69)
 - [x] Checkpoint, CHANGELOG, push GitHub
+
+## Bugfix — Geração de Questionários por CNAE (17/03/2026)
+- [x] Corrigir generateWithRetry: extrator JSON robusto para Gemini thinking blocks
+- [x] Tornar QuestionSchema mais permissivo (options nullable, scale_labels opcional)
+- [x] Adicionar fallback de parsing: extrair maior JSON válido com busca gulosa
+- [x] Testes de regressão: 160/160 passando (86 V60-V63 + 23 V64-V65 + 32 V66 + 19 V69)
+- [x] Checkpoint e push GitHub

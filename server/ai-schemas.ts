@@ -28,18 +28,21 @@ export const CnaesResponseSchema = z.object({
 export const QuestionSchema = z.object({
   id: z.string(),
   text: z.string(),
-  objetivo_diagnostico: z.string().describe("O que esta pergunta diagnostica"),
-  impacto_reforma: z.string().describe("Como a resposta impacta o compliance com a Reforma Tributária"),
-  type: z.enum(["sim_nao", "multipla_escolha", "escala_likert", "texto_curto", "texto_longo", "selecao_unica"]),
-  peso_risco: z.enum(["baixo", "medio", "alto", "critico"]),
-  required: z.boolean(),
-  options: z.array(z.string()).optional(),
-  scale_labels: z.object({ min: z.string(), max: z.string() }).optional(),
-  placeholder: z.string().optional(),
+  // Campos enriquecidos V60 — com fallback para compatibilidade com respostas parciais do Gemini
+  objetivo_diagnostico: z.string().optional().default(""),
+  impacto_reforma: z.string().optional().default(""),
+  type: z.enum(["sim_nao", "multipla_escolha", "escala_likert", "texto_curto", "texto_longo", "selecao_unica"]).optional().default("sim_nao"),
+  peso_risco: z.enum(["baixo", "medio", "alto", "critico"]).optional().default("medio"),
+  required: z.boolean().optional().default(true),
+  // options pode ser null (Gemini retorna null em vez de []) — normalizar para []
+  options: z.union([z.array(z.string()), z.null()]).optional().transform(v => v ?? []),
+  scale_labels: z.object({ min: z.string(), max: z.string() }).optional().nullable().transform(v => v ?? undefined),
+  placeholder: z.string().optional().nullable().transform(v => v ?? undefined),
 });
 
 export const QuestionsResponseSchema = z.object({
-  questions: z.array(QuestionSchema).min(3).max(12),
+  // min(1) em vez de min(3) para aceitar respostas parciais e não falhar no retry
+  questions: z.array(QuestionSchema).min(1).max(15),
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

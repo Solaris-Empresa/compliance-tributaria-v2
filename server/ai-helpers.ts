@@ -16,6 +16,58 @@ import type { ScoringDataSchema } from "./ai-schemas";
  * Chama o LLM com retry automático (2 tentativas) e valida o output com schema Zod.
  * Temperatura padrão: 0.2 (determinístico para diagnóstico tributário).
  */
+/**
+ * Extrai o maior JSON válido de uma string de resposta do LLM.
+ * Suporta: markdown code blocks, Gemini thinking blocks, JSON inline.
+ */
+function extractJsonFromLLMResponse(raw: string): string | null {
+  if (!raw || typeof raw !== "string") return null;
+
+  // 1. Remover blocos de thinking do Gemini (```thinking ... ```)
+  const withoutThinking = raw.replace(/```thinking[\s\S]*?```/gi, "").trim();
+
+  // 2. Tentar extrair de markdown code blocks (```json ... ``` ou ``` ... ```)
+  const codeBlockMatch = withoutThinking.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (codeBlockMatch) {
+    const candidate = codeBlockMatch[1].trim();
+    if (candidate.startsWith("{") || candidate.startsWith("[")) {
+      return candidate;
+    }
+  }
+
+  // 3. Tentar extrair o maior bloco JSON { ... } da resposta
+  // Usa busca gulosa para pegar o JSON mais externo
+  let depth = 0;
+  let start = -1;
+  let bestStart = -1;
+  let bestEnd = -1;
+  let bestLength = 0;
+
+  for (let i = 0; i < withoutThinking.length; i++) {
+    const ch = withoutThinking[i];
+    if (ch === "{") {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (ch === "}") {
+      depth--;
+      if (depth === 0 && start !== -1) {
+        const len = i - start + 1;
+        if (len > bestLength) {
+          bestLength = len;
+          bestStart = start;
+          bestEnd = i;
+        }
+      }
+    }
+  }
+
+  if (bestStart !== -1) {
+    return withoutThinking.substring(bestStart, bestEnd + 1);
+  }
+
+  return null;
+}
+
 export async function generateWithRetry<T extends z.ZodTypeAny>(
   messages: Array<{ role: "system" | "user" | "assistant"; content: string }>,
   schema: T,
@@ -25,7 +77,7 @@ export async function generateWithRetry<T extends z.ZodTypeAny>(
     context?: string; // Para mensagens de erro mais descritivas
   } = {}
 ): Promise<z.infer<T>> {
-  const { temperature = 0.2, maxRetries = 2, context = "LLM" } = options;
+  const { maxRetries = 2, context = "LLM" } = options;
 
   let lastError: Error | null = null;
 
@@ -33,21 +85,40 @@ export async function generateWithRetry<T extends z.ZodTypeAny>(
     try {
       const response = await invokeLLM({
         messages,
-        temperature,
       } as any);
 
-      const content = response.choices[0]?.message?.content;
-      if (!content || typeof content !== "string") {
+      // Gemini pode retornar content como array de TextContent
+      const rawContent = response.choices[0]?.message?.content;
+      let content: string;
+      if (typeof rawContent === "string") {
+        content = rawContent;
+      } else if (Array.isArray(rawContent)) {
+        // Concatenar todos os blocos de texto
+        content = rawContent
+          .filter((c: any) => c?.type === "text")
+          .map((c: any) => c.text ?? "")
+          .join("\n");
+      } else {
         throw new Error(`${context}: IA não retornou conteúdo (tentativa ${attempt + 1})`);
       }
 
-      // Extrair JSON da resposta (pode vir com markdown code blocks)
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error(`${context}: Resposta não contém JSON válido (tentativa ${attempt + 1})`);
+      if (!content) {
+        throw new Error(`${context}: IA retornou conteúdo vazio (tentativa ${attempt + 1})`);
       }
 
-      const parsed = JSON.parse(jsonMatch[0]);
+      // Extrair JSON robusto (suporta Gemini thinking blocks e markdown)
+      const jsonStr = extractJsonFromLLMResponse(content);
+      if (!jsonStr) {
+        throw new Error(`${context}: Resposta não contém JSON válido (tentativa ${attempt + 1}). Preview: ${content.substring(0, 200)}`);
+      }
+
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(jsonStr);
+      } catch (parseErr) {
+        throw new Error(`${context}: JSON malformado (tentativa ${attempt + 1}): ${String(parseErr)}`);
+      }
+
       const validated = schema.parse(parsed);
       return validated;
     } catch (err) {
