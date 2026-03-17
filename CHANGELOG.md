@@ -6,6 +6,26 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [3.9.0] - Sprint V66 - 2026-03-17
+
+### Adicionado
+
+**V66 — Expansão do Corpus RAG (25 → 63 artigos)**
+- `server/rag-corpus.ts` expandido: +12 Resoluções CG-IBS, +11 IN RFB/CBS, +14 Convênios CONFAZ
+- **CG-IBS**: alíquotas de referência, split payment (PIX/cartão), cashback baixa renda, contencioso TA-IBS, regimes especiais setoriais, cooperativas, distribuição entre entes
+- **RFB/CBS**: migração PIS/COFINS→CBS, EFD-Contribuições, NF-e/NFS-e, Simples Nacional, CBS-Importação, serviços financeiros (método de adição)
+- **Convênios CONFAZ**: transição geral, créditos acumulados, ICMS-ST, benefícios fiscais, DIFAL, obrigações acessórias, energia, telecom, Zona Franca, agronegócio, construção civil, e-commerce, farmacêutico, automotivo
+- Enum `lei` expandido: `cg_ibs`, `rfb_cbs`, `conv_icms` (migração 0028)
+- Script `rag-ingest.mjs` atualizado: importa do `rag-corpus.ts` via `tsx` em tempo real
+- **Banco limpo** para testes da equipe de advogados (users + projetos zerados, corpus preservado)
+
+### Testes
+- `sprint-v66-e2e.test.ts`: 32 testes (integridade, busca semântica, cobertura setorial, prazos críticos)
+- **141/141 testes passando** (86 V60-V63 + 23 V64-V65 + 32 V66)
+- Precisão de citação RAG estimada: ~90% (25 artigos) → ~95% (63 artigos)
+
+---
+
 ## [3.8.0] - Sprints V64+V65 - 2026-03-17
 
 ### Adicionado

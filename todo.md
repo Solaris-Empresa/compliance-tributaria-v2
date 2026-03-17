@@ -2044,3 +2044,15 @@
 - [x] Testes E2E V65: retrieveArticlesFast, retrieveArticles, re-ranking, fallback, integração com prompts
 - [x] 109/109 testes passando (86 V60-V63 + 23 V64-V65)
 - [x] Checkpoint, documentação (README + CHANGELOG), push e commit no GitHub
+
+## Sprint V66 — Expansão do Corpus RAG (17/03/2026)
+- [x] Expandir rag-corpus.ts de 25 para 63 artigos
+- [x] Cobrir 12 resoluções do Comitê Gestor do IBS (CG-IBS): alíquotas, split payment, cashback, contencioso, regimes especiais
+- [x] Cobrir 11 instruções normativas RFB/CBS: obrigações acessórias, migração PIS/COFINS, Simples Nacional, importação
+- [x] Cobrir 14 convênios CONFAZ: ICMS-ST, DIFAL, Zona Franca, agronegócio, automotivo, telecom, e-commerce
+- [x] Atualizar enum lei no schema (cg_ibs, rfb_cbs, conv_icms) + migração 0028
+- [x] Atualizar script rag-ingest.mjs para importar do rag-corpus.ts via tsx
+- [x] Verificar contagem: 63 artigos no banco (via node rag-ingest.mjs --force)
+- [x] Testes E2E V66: 32 testes (integridade, busca, cobertura setorial, prazos)
+- [x] 141/141 testes passando (86 V60-V63 + 23 V64-V65 + 32 V66)
+- [x] Checkpoint, CHANGELOG, push GitHub

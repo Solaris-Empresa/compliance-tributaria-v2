@@ -1,0 +1,2 @@
+ALTER TABLE `ragDocuments` MODIFY COLUMN `lei` enum('lc214','ec132','lc227','lc116','lc87','cg_ibs','rfb_cbs','conv_icms') NOT NULL;--> statement-breakpoint
+ALTER TABLE `ragDocuments` MODIFY COLUMN `artigo` varchar(100) NOT NULL;
