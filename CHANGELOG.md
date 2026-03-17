@@ -6,6 +6,61 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [3.8.0] - Sprints V64+V65 - 2026-03-17
+
+### Adicionado
+
+**V65 — RAG Híbrido (LIKE + Re-ranking LLM)**
+- `server/rag-corpus.ts` — Corpus de 25 artigos reais: EC 132/2023, LC 214/2025, LC 227/2024
+- `server/rag-retriever.ts` — Motor de busca híbrido: `retrieveArticlesFast` (LIKE) + `retrieveArticles` (re-ranking LLM temperatura 0.0)
+- `server/rag-ingest.mjs` — Script de ingerão do corpus no banco (25 chunks)
+- Tabela `ragDocuments` no schema + migração 0027
+- Substituição completa do `cnae-articles-map.ts` nos 5 pontos de injeção de contexto
+- Instrução anti-alucinação: "cite apenas artigos fornecidos no contexto"
+- Fallback silencioso quando banco indisponível ou corpus vazio
+
+**V64 — Alertas Visuais de Inconsistência**
+- `client/src/components/AlertasInconsistencia.tsx` — Badge + painel expansível + modal de detalhes
+- Codificação por cor: alto=vermelho, medio=laranja, baixo=amarelo
+- Procedure `getBriefingInconsistencias` no router
+- `getProjectSummary` agora expõe `inconsistencias[]` e `briefingStructured`
+- `BriefingV3` integrado com refetch automático após gerar novo briefing
+
+### Testes
+- `sprint-v64-v65-e2e.test.ts`: 23 testes — V64 (4 testes) + V65 (10 testes) + Edge Cases (6) + Integração (3)
+- `sprint-v60-v63-e2e.test.ts`: 86 testes — atualizados para compatibilidade com RAG V65
+- **Total acumulado: 109/109 testes passando**
+
+---
+
+## [3.7.0] - Sprints V60-V63 - 2026-03-17
+
+### Adicionado
+
+**V60 — Production Pack**
+- `server/ai-schemas.ts` — Schemas Zod enriquecidos para todos os outputs de IA
+- `server/ai-helpers.ts` — `generateWithRetry`, `invokeLLMStructured`, `calculateGlobalScore`
+- Temperatura 0.2 em todos os 7 pontos de diagnóstico; 0.4 no `momento_wow`; 0.0 no re-ranking
+- System prompts com papéis definidos: Auditor de Riscos, Consultor Sênior, Sócio de Tributação
+
+**V61 — Scoring Financeiro + Confidence Score**
+- `calculateGlobalScore` com `impacto_estimado`, `custo_inacao`, `prioridade`
+- `ConfidenceSchema` com `nivel_confianca` + `recomendacao` enum
+- Campos `scoringData`, `briefingStructured`, `faturamentoAnual` no banco
+
+**V62 — Pré-RAG Estático** (substituído pelo RAG dinâmico na V65)
+- `server/cnae-articles-map.ts` — 20 grupos CNAE mapeados para artigos regulatórios
+
+**V63 — Motor de Decisão Explícito**
+- `DecisaoResponseSchema` com `acao_principal`, `prazo_dias`, `risco_se_nao_fazer`, `momento_wow`
+- Procedure `generateDecision` integrada ao `approveActionPlan`
+- Tela de conclusão do `PlanoAcaoV3` exibe a decisão executiva
+
+### Testes
+- `sprint-v60-v63-e2e.test.ts`: 86 testes — 5 projetos × 3 CNAEs cada, cobertura completa V60-V63
+
+---
+
 ## [3.6.0] - Sprint V56 - 2026-03-17
 
 ### Corrigido

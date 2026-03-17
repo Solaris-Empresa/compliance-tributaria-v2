@@ -24,7 +24,8 @@ import {
   DecisaoResponseSchema,
 } from "./ai-schemas";
 import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
-import { getArticlesForCnaes } from "./cnae-articles-map";
+// V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
+import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
 
 const CnaeSchema = z.object({
   code: z.string(),
@@ -259,8 +260,13 @@ Retorne entre 2 e 6 CNAEs revisados.
         ? `\nRESPOSTAS DO NÍVEL 1:\n${input.previousAnswers.map(a => `P: ${a.question}\nR: ${a.answer}`).join("\n\n")}\n\nGere perguntas de APROFUNDAMENTO baseadas nessas respostas.`
         : "";
 
-      // V62: Injetar contexto regulatório do CNAE
-      const regulatoryContext = getArticlesForCnaes([{ code: input.cnaeCode, description: input.cnaeDescription }]);
+      // V65: RAG híbrido — busca artigos relevantes para o CNAE (versão rápida sem re-ranking para perguntas)
+      const ragCtx = await retrieveArticlesFast(
+        [input.cnaeCode],
+        `${input.cnaeCode} ${input.cnaeDescription} ${projectDescription}`,
+        5
+      );
+      const regulatoryContext = ragCtx.contextText;
 
       const result = await generateWithRetry(
         [
@@ -440,13 +446,14 @@ Gere as perguntas no formato:
       const correctionContext = input.correction ? `\n\nCORREÇÃO SOLICITADA:\n${input.correction}` : "";
       const complementContext = input.complement ? `\n\nINFORMAÇÕES ADICIONAIS:\n${input.complement}` : "";
 
-      // V62: Contexto regulatório baseado nos CNAEs confirmados
+      // V65: RAG híbrido — busca artigos relevantes para o briefing (com re-ranking LLM)
       const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
-      const regulatoryContext = getArticlesForCnaes(
-        confirmedCnaes.length > 0
-          ? confirmedCnaes
-          : input.allAnswers.map(a => ({ code: a.cnaeCode, description: a.cnaeDescription }))
-      );
+      const cnaeCodesForRag = confirmedCnaes.length > 0
+        ? confirmedCnaes.map((c: any) => c.code)
+        : input.allAnswers.map(a => a.cnaeCode);
+      const briefingQueryCtx = `${(project as any).description || ""} ${answersText.substring(0, 500)}`;
+      const ragCtxBriefing = await retrieveArticles(cnaeCodesForRag, briefingQueryCtx, 7);
+      const regulatoryContext = ragCtxBriefing.contextText;
 
       // V60: Geração com retry + temperatura 0.2 + schema estruturado
       const structured = await generateWithRetry(
@@ -555,9 +562,11 @@ Gere o Briefing estruturado em JSON:
         juridico: "Advocacia Tributária e Jurídico",
       };
 
-      // V62: Contexto regulatório
+      // V65: RAG híbrido — busca artigos para matrizes de risco (versão rápida, 1 chamada para todas as áreas)
       const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
-      const regulatoryContext = getArticlesForCnaes(confirmedCnaes);
+      const cnaeCodesMatrix = confirmedCnaes.map((c: any) => c.code);
+      const ragCtxMatrix = await retrieveArticlesFast(cnaeCodesMatrix, input.briefingContent?.substring(0, 500) ?? "", 7);
+      const regulatoryContext = ragCtxMatrix.contextText;
 
       for (const area of areas) {
         const adjustmentContext = input.adjustment ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}` : "";
@@ -658,9 +667,11 @@ Formato:
         juridico: "Advocacia Tributária",
       };
 
-      // V62: Contexto regulatório
+      // V65: RAG híbrido — busca artigos para plano de ação
       const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
-      const regulatoryContext = getArticlesForCnaes(confirmedCnaes);
+      const cnaeCodesAction = confirmedCnaes.map((c: any) => c.code);
+      const ragCtxAction = await retrieveArticlesFast(cnaeCodesAction, JSON.stringify(input.matrices).substring(0, 500), 7);
+      const regulatoryContext = ragCtxAction.contextText;
 
       for (const area of areas) {
         const areaRisks = input.matrices[area] || [];
@@ -860,8 +871,10 @@ Formato:
         ...riscoAltos.slice(0, 2).map((r: any) => `[ALTO] ${r.evento}`),
       ].join("\n");
 
-      // V62: Contexto regulatório
-      const regulatoryContext = getArticlesForCnaes(confirmedCnaes);
+      // V65: RAG híbrido — busca artigos para decisão final (com re-ranking LLM para máxima precisão)
+      const cnaeCodesDecisao = confirmedCnaes.map((c: any) => c.code);
+      const ragCtxDecisao = await retrieveArticles(cnaeCodesDecisao, `${project.name} ${riscosSummary}`, 5);
+      const regulatoryContext = ragCtxDecisao.contextText;
 
       const result = await generateWithRetry(
         [
@@ -983,7 +996,53 @@ Gere o veredito final em JSON:
         hasActionPlan: !!actionPlansData && Object.keys(actionPlansData).length > 0,
         scoringData: (project as any).scoringData ?? null,   // V61
         decisaoData: (project as any).decisaoData ?? null,   // V63
+        // V64: inconsistencias do briefing estruturado
+        inconsistencias: (() => {
+          const bs = (project as any).briefingStructured;
+          if (!bs) return [];
+          try {
+            const parsed = typeof bs === "string" ? JSON.parse(bs) : bs;
+            return Array.isArray(parsed?.inconsistencias) ? parsed.inconsistencias : [];
+          } catch { return []; }
+        })(),
       };
+    }),
+
+  // V64: Buscar inconsistencias do briefing de um projeto
+  getBriefingInconsistencias: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const database = await db.getDb();
+      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Verificar acesso: dono, criador ou membro da equipe Solaris/advogado
+      const userId = ctx.user.id;
+      const isOwner = project.clientId === userId || (project as any).createdById === userId;
+      const isTeam = ctx.user.role === "equipe_solaris" || ctx.user.role === "advogado_senior" || ctx.user.role === "advogado_junior";
+      if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
+
+      const bs = (project as any).briefingStructured;
+      if (!bs) return { inconsistencias: [], totalCount: 0, hasAlerts: false };
+
+      try {
+        const parsed = typeof bs === "string" ? JSON.parse(bs) : bs;
+        const inconsistencias = Array.isArray(parsed?.inconsistencias) ? parsed.inconsistencias : [];
+        return {
+          inconsistencias,
+          totalCount: inconsistencias.length,
+          hasAlerts: inconsistencias.length > 0,
+          // Contagem por impacto
+          countByImpact: {
+            alto: inconsistencias.filter((i: any) => i.impacto === "alto").length,
+            medio: inconsistencias.filter((i: any) => i.impacto === "medio").length,
+            baixo: inconsistencias.filter((i: any) => i.impacto === "baixo").length,
+          },
+        };
+      } catch {
+        return { inconsistencias: [], totalCount: 0, hasAlerts: false };
+      }
     }),
 });
 

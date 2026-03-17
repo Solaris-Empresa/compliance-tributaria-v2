@@ -1241,3 +1241,33 @@ export const stepComments = mysqlTable("stepComments", {
 });
 export type StepComment = typeof stepComments.$inferSelect;
 export type InsertStepComment = typeof stepComments.$inferInsert;
+
+// =============================================================================
+/**
+ * V65 — RAG Completo: Corpus de Documentos Regulatórios
+ *
+ * Armazena chunks dos textos das leis (LC 214/2025, EC 132/2023, LC 227/2024)
+ * para busca FULLTEXT + re-ranking via LLM.
+ *
+ * Campos:
+ *   - lei: identificador da lei (lc214, ec132, lc227)
+ *   - artigo: número do artigo (ex: "Art. 12")
+ *   - titulo: título/ementa do artigo
+ *   - conteudo: texto completo do chunk
+ *   - topicos: palavras-chave separadas por vírgula (para FULLTEXT)
+ *   - cnaeGroups: grupos CNAE relevantes separados por vírgula
+ *   - chunkIndex: índice do chunk dentro do artigo (para artigos longos)
+ */
+export const ragDocuments = mysqlTable("ragDocuments", {
+  id: int("id").autoincrement().primaryKey(),
+  lei: mysqlEnum("lei", ["lc214", "ec132", "lc227", "lc116", "lc87"]).notNull(),
+  artigo: varchar("artigo", { length: 20 }).notNull(),
+  titulo: varchar("titulo", { length: 500 }).notNull(),
+  conteudo: text("conteudo").notNull(),
+  topicos: text("topicos").notNull(),          // palavras-chave para FULLTEXT
+  cnaeGroups: varchar("cnaeGroups", { length: 500 }).notNull().default(""),
+  chunkIndex: int("chunkIndex").notNull().default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type RagDocument = typeof ragDocuments.$inferSelect;
+export type InsertRagDocument = typeof ragDocuments.$inferInsert;

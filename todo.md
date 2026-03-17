@@ -2017,3 +2017,30 @@
 - [x] Cobertura V63: generateDecision (motor de decisão, momento_wow)
 - [x] Edge cases: falha total do retry, briefing sem inconsistencias, fallback de severidade_score
 - [x] 86/86 testes passando (sprint-v60-v63-e2e.test.ts)
+
+## Sprint V64 — Alertas Visuais de Inconsistência (17/03/2026)
+- [x] Verificar que inconsistencias[] é salvo corretamente no banco (campo briefingStructured)
+- [x] Garantir que getProjectSummary retorna inconsistencias[] no response
+- [x] Criar procedure getBriefingInconsistencias para buscar inconsistências do projeto
+- [x] Criar componente AlertasInconsistencia.tsx com badge de contagem e painel expansível
+- [x] Integrar AlertasInconsistencia no BriefingV3 (abaixo do resumo executivo)
+- [x] Adicionar badge de alerta no header do projeto quando há inconsistências
+- [x] Implementar modal de detalhes com pergunta_origem, resposta_declarada, contradicao_detectada, impacto
+- [x] Codificar impacto por cor: alto=vermelho, medio=laranja, baixo=amarelo
+- [x] Exibir seção condicional apenas quando inconsistencias.length > 0
+- [x] Escrever testes V64: geração com inconsistências, exibição condicional, edge cases
+- [x] 23 testes V64+V65 passando (sprint-v64-v65-e2e.test.ts)
+- [x] Checkpoint e push no GitHub
+
+## Sprint V65 — RAG Híbrido (LIKE + Re-ranking LLM) (17/03/2026)
+- [x] Criar tabela rag_documents no schema (id, lei, artigo, titulo, texto, cnaeGroups, keywords)
+- [x] Criar corpus de 25 artigos reais: EC 132/2023 (IBS, CBS, IS), LC 214/2025 (regimes, créditos, transição), LC 227/2024 (split payment)
+- [x] Criar script de ingerão rag-ingest.mjs: 25 chunks inseridos no banco
+- [x] Criar rag-retriever.ts com busca LIKE + re-ranking via LLM (temperatura 0.0)
+- [x] Substituir getArticlesForCnaes() por retrieveArticles/retrieveArticlesFast nos 5 pontos de injeção
+- [x] Manter cnae-articles-map.ts como referência (não mais usado em produção)
+- [x] Fallback silencioso quando banco está indisponível ou corpus vazio
+- [x] Instrução anti-alucinação: "cite apenas artigos fornecidos no contexto"
+- [x] Testes E2E V65: retrieveArticlesFast, retrieveArticles, re-ranking, fallback, integração com prompts
+- [x] 109/109 testes passando (86 V60-V63 + 23 V64-V65)
+- [x] Checkpoint, documentação (README + CHANGELOG), push e commit no GitHub

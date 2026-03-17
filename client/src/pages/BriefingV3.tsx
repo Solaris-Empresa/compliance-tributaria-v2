@@ -18,6 +18,8 @@ import {
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import StepComments from "@/components/StepComments";
+// V64: Alertas de inconsistência
+import AlertasInconsistencia, { InconsistenciaBadge } from "@/components/AlertasInconsistencia";
 
 // RF-3.06: Tipo para histórico de versões
 interface BriefingVersion {
@@ -82,6 +84,13 @@ export default function BriefingV3() {
   const generateBriefing = trpc.fluxoV3.generateBriefing.useMutation();
   const approveBriefing = trpc.fluxoV3.approveBriefing.useMutation();
 
+  // V64: Buscar inconsistências do briefing estruturado
+  const { data: inconsistenciasData, refetch: refetchInconsistencias } = trpc.fluxoV3.getBriefingInconsistencias.useQuery(
+    { projectId },
+    { enabled: !!projectId }
+  );
+  const inconsistencias = inconsistenciasData?.inconsistencias ?? [];
+
   // Carregar briefing salvo do banco (se existir) ou gerar novo
   useEffect(() => {
     if (!project) return;
@@ -127,6 +136,8 @@ export default function BriefingV3() {
       setBriefing(result.briefing);
       setGenerationCount(prev => prev + 1);
       if (generationCount > 0) toast.success("Briefing atualizado com suas correções!");
+      // V64: Atualizar inconsistências após nova geração
+      setTimeout(() => refetchInconsistencias(), 500);
     } catch {
       toast.error("Erro ao gerar o briefing. Tente novamente.");
     } finally {
@@ -256,6 +267,10 @@ export default function BriefingV3() {
             <p className="text-sm text-muted-foreground">Etapa 3 de 5 — Briefing de Compliance</p>
           </div>
           <div className="flex items-center gap-2">
+            {/* V64: Badge de inconsistências */}
+            {inconsistencias.length > 0 && (
+              <InconsistenciaBadge count={inconsistencias.length} />
+            )}
             {generationCount > 0 && (
               <Badge variant="secondary" className="shrink-0">
                 Versão {viewingVersion ? viewingVersion.version : generationCount}
@@ -295,6 +310,11 @@ export default function BriefingV3() {
             </div>
           ))}
         </div>
+
+        {/* V64: Alertas de Inconsistência — exibido apenas quando há inconsistências */}
+        {inconsistencias.length > 0 && !isGenerating && (
+          <AlertasInconsistencia inconsistencias={inconsistencias} />
+        )}
 
         {/* RF-3.06: Painel de Histórico de Versões */}
         {showHistory && versionHistory.length > 0 && (
