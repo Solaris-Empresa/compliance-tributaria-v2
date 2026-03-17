@@ -12,7 +12,7 @@ export const users = mysqlTable("users", {
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["cliente", "equipe_solaris", "advogado_senior", "advogado_junior"]).default("cliente").notNull(),
   companyName: varchar("companyName", { length: 255 }),
-  cnpj: varchar("cnpj", { length: 18 }),
+  cnpj: varchar("cnpj", { length: 20 }),
   cpf: varchar("cpf", { length: 14 }),
   segment: varchar("segment", { length: 100 }),
   phone: varchar("phone", { length: 20 }),

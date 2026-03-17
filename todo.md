@@ -1829,3 +1829,8 @@
 - [x] Exibir badge "Revisado" (cor âmbar) no stepper ao lado do código CNAE
 - [x] Badge desaparece quando usuário re-conclui o CNAE (handleFinishLevel1 limpa revisado=false)
 - [x] 9 testes unitários passando (initCnaeProgress, markRevisado, finishLevel1, shouldShowBadge)
+
+## Bugs Reportados (17/03/2026)
+- [ ] BUG-01: Erro ao cadastrar novo cliente via modal "Novo Cliente" no form de projeto — INSERT falha (campo cnpj excede varchar ou constraint violada)
+- [ ] BUG-02: Botão "Avançar — Identificar CNAEs" às vezes não habilita no form de projeto (validação de campos não dispara corretamente)
+- [ ] BUG-03: Erro "Algo deu errado" ao solicitar aprofundamento após responder 10 questões no QuestionarioV3 (geração de perguntas de nível 2 falha)

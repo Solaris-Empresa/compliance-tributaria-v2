@@ -188,12 +188,19 @@ Responda em JSON:
         throw new TRPCError({ code: "FORBIDDEN", message: "Apenas a equipe SOLARIS pode criar clientes" });
       }
 
+      // Sanitizar CNPJ: extrair dígitos e formatar XX.XXX.XXX/XXXX-XX (18 chars) ou truncar
+      const rawCnpjDigits = (input.cnpj || "").replace(/\D/g, "");
+      const formattedCnpj = rawCnpjDigits.length === 14
+        ? rawCnpjDigits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5")
+        : rawCnpjDigits.length > 0
+          ? rawCnpjDigits.slice(0, 18)
+          : undefined;
       const userId = await db.createUser({
         name: input.companyName,
         email: input.email || `cliente-${Date.now()}@solaris.temp`,
         companyName: input.companyName,
-        cnpj: input.cnpj,
-        phone: input.phone,
+        cnpj: formattedCnpj,
+        phone: (input.phone || "").slice(0, 20) || undefined,
         role: "cliente",
         openId: `manual-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       });

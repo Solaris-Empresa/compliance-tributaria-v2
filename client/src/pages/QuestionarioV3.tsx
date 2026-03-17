@@ -285,8 +285,13 @@ export default function QuestionarioV3() {
     }
   }, [cnaes, projectId, generateQuestions]);
 
+  // Ref para rastrear quais CNAE+nível já tiveram perguntas carregadas (evita recargas em loop)
+  // DEVE ser declarado ANTES dos useEffects que o utilizam
+  const loadedQuestionsRef = useRef<Set<string>>(new Set());
+
   // Carregar perguntas quando o nível muda (ex: nível 1 → nível 2)
   // Não dispara no mount inicial — isso é tratado por handleStartCnae
+  // Não dispara quando handleAcceptDeepDive já adicionou o cacheKey ao ref
   useEffect(() => {
     const currentCode = cnaes[currentCnaeIdx]?.code;
     if (!currentCode) return;
@@ -307,9 +312,6 @@ export default function QuestionarioV3() {
   // Auto-save no localStorage a cada 800ms de inatividade
   // Inclui startedCnaes para persistir o estado de "iniciado" por CNAE
   useAutoSave(projectId, 'etapa2', { cnaeProgress, currentCnaeIdx, startedCnaes: [...startedCnaes] }, 800);
-
-  // Ref para rastrear quais CNAE+nível já tiveram perguntas carregadas (evita recargas em loop)
-  const loadedQuestionsRef = useRef<Set<string>>(new Set());
 
   // Handler: usuário clica em "Iniciar diagnóstico" — marca o CNAE como iniciado
   // e dispara a geração de perguntas pela IA diretamente (sem depender do useEffect)
@@ -358,8 +360,14 @@ export default function QuestionarioV3() {
 
   const handleAcceptDeepDive = () => {
     setShowDeepDivePrompt(false);
-    setCurrentLevel("nivel2");
+    const currentCode = cnaes[currentCnaeIdx]?.code;
+    if (!currentCode) return;
+    // Pré-registrar o cacheKey ANTES de mudar o nível para evitar que o useEffect
+    // dispare uma segunda chamada sem previousAnswers (Bug 3)
+    const cacheKey = `${currentCode}-nivel2`;
+    loadedQuestionsRef.current.add(cacheKey);
     const level1Answers = cnaeProgress[currentCnaeIdx]?.answers || [];
+    setCurrentLevel("nivel2");
     loadQuestions(currentCnaeIdx, "nivel2", level1Answers);
   };
 

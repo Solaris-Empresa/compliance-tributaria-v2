@@ -132,6 +132,8 @@ export default function NovoProjeto() {
   const [description, setDescription] = useState("");
   const [clientId, setClientId] = useState<number | null>(null);
   const [clientSearch, setClientSearch] = useState("");
+  // Estado local para exibir card do cliente recém-criado antes do refetch completar
+  const [pendingClientName, setPendingClientName] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<number | null>(null);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
@@ -265,7 +267,9 @@ export default function NovoProjeto() {
     c.name?.toLowerCase().includes(clientSearch.toLowerCase()) ||
     c.companyName?.toLowerCase().includes(clientSearch.toLowerCase())
   );
-  const selectedClient = clients?.find(c => c.id === clientId);
+  // Usar pendingClientName como fallback enquanto o refetch não retorna o novo cliente
+  const selectedClient = clients?.find(c => c.id === clientId) ||
+    (clientId && pendingClientName ? { id: clientId, name: pendingClientName, companyName: pendingClientName, cnpj: undefined } : undefined);
   const allCnaes = [...suggestedCnaes, ...customCnaes];
   const selectedCount = allCnaes.filter(c => selectedCnaes.has(c.code)).length;
   const descLength = description.trim().length;
@@ -519,7 +523,7 @@ export default function NovoProjeto() {
         </DialogContent>
       </Dialog>
 
-      <NovoClienteModal open={showNewClientModal} onClose={() => setShowNewClientModal(false)} onCreated={(id) => { setClientId(id); refetchClients(); }} />
+      <NovoClienteModal open={showNewClientModal} onClose={() => setShowNewClientModal(false)} onCreated={(id, name) => { setClientId(id); setPendingClientName(name); refetchClients(); }} />
       <EditCnaeModal cnae={editingCnae} onSave={handleEditCnae} onClose={() => setEditingCnae(null)} />
     </ComplianceLayout>
   );
