@@ -6,6 +6,26 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [4.0.0] - Sprint V69 - 2026-03-17
+
+### Adicionado
+
+**V69 — Onboarding Guiado para Advogados**
+- **Tour interativo step-by-step** (6 passos) com overlay escuro, spotlight no elemento alvo e tooltip posicionado dinamicamente
+- **Disparo automático no primeiro login**: `getStatus` detecta `isNew = true` e abre o tour sem ação do usuário
+- **Botão "Retomar Tour"** no sidebar com badge "Novo" quando o usuário tem progresso parcial
+- **Persistência por usuário**: tabela `onboardingProgress` no banco (migração 0029), procedures `getStatus`, `markStep`, `skip`, `reset`
+- **Barra de progresso** (X/6 etapas) e botões Próximo / Pular / Concluir Tour
+- `server/routers-onboarding.ts`: router tRPC com 4 procedures protegidas
+- `client/src/components/OnboardingTour.tsx`: componente com `createPortal`, spotlight via `box-shadow`, posicionamento dinâmico
+- `client/src/components/ComplianceLayout.tsx`: integração do tour e botão de retomada no sidebar
+
+### Testes
+- `sprint-v69-e2e.test.ts`: 19 testes (fluxo completo, skip, reset, idempotência, validação Zod, edge cases)
+- **160/160 testes passando** (141 anteriores + 19 V69)
+
+---
+
 ## [3.9.0] - Sprint V66 - 2026-03-17
 
 ### Adicionado

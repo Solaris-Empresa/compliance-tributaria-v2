@@ -2056,3 +2056,32 @@
 - [x] Testes E2E V66: 32 testes (integridade, busca, cobertura setorial, prazos)
 - [x] 141/141 testes passando (86 V60-V63 + 23 V64-V65 + 32 V66)
 - [x] Checkpoint, CHANGELOG, push GitHub
+
+## Sprint V69 — Onboarding Guiado para Advogados (17/03/2026)
+- [ ] Criar tabela onboardingProgress no schema (userId, currentStep, completedSteps, skipped, completedAt)
+- [ ] Executar migração do banco (pnpm db:push)
+- [ ] Criar procedures tRPC: onboarding.getStatus, onboarding.markStep, onboarding.skip, onboarding.reset
+- [ ] Criar componente OnboardingTour.tsx com overlay, spotlight e tooltips step-by-step
+- [ ] Definir 6 passos do tour: Painel → Novo Projeto → Questionário → Briefing → Matrizes → Plano de Ação
+- [ ] Implementar barra de progresso (X/6 etapas concluídas)
+- [ ] Adicionar botões Próximo / Pular / Encerrar Tour em cada tooltip
+- [ ] Disparar tour automaticamente no primeiro login (onboarding.getStatus retorna step 0)
+- [ ] Adicionar botão "Retomar Tour" no sidebar do DashboardLayout
+- [ ] Persistir progresso por usuário no banco (markStep após cada avanço)
+- [ ] Exibir badge "Novo" no sidebar até o tour ser concluído
+- [ ] Testes E2E V69: primeiro login, avanço de steps, skip, reset, retomar
+- [ ] Checkpoint, CHANGELOG, push GitHub
+
+## Sprint V69 — Onboarding Guiado (17/03/2026)
+- [x] Criar tabela onboardingProgress no schema (userId, currentStep, completedSteps, skipped, completedAt)
+- [x] Migração 0029 aplicada (varchar compatível com TiDB, sem DEFAULT JSON)
+- [x] Criar routers-onboarding.ts: procedures getStatus, markStep, skip, reset
+- [x] Registrar onboardingRouter no appRouter (server/routers.ts)
+- [x] Criar componente OnboardingTour.tsx: overlay, spotlight, tooltips, barra de progresso, 6 passos
+- [x] Hook useOnboardingTour: shouldShowTour (isNew=true), canResumeTour, resetTour
+- [x] Integrar OnboardingTour no ComplianceLayout: disparo automático no primeiro login
+- [x] Botão "Retomar Tour" no sidebar com badge "Novo" quando há progresso parcial
+- [x] Tour persiste progresso por usuário via tRPC (markStep, skip)
+- [x] Testes E2E V69: 19 testes (fluxo completo, skip, reset, idempotência, validação Zod, edge cases)
+- [x] 160/160 testes passando (141 anteriores + 19 V69)
+- [x] Checkpoint, CHANGELOG, push GitHub

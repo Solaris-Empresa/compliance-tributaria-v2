@@ -1,18 +1,21 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { getLoginUrl } from "@/const";
-import { 
-  FolderKanban, 
-  LayoutDashboard, 
-  LogOut, 
+import {
+  FolderKanban,
+  LayoutDashboard,
+  LogOut,
   Menu,
   Users,
   X,
+  BookOpen,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { ROLES } from "@shared/translations";
 import RealtimeNotifications from "./RealtimeNotifications";
+import OnboardingTour, { useOnboardingTour } from "./OnboardingTour";
 
 interface ComplianceLayoutProps {
   children: React.ReactNode;
@@ -22,6 +25,16 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
   const { user, loading, isAuthenticated, logout } = useAuth();
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showTour, setShowTour] = useState(false);
+
+  const { shouldShowTour, canResumeTour, isLoading: tourLoading, refetch } =
+    useOnboardingTour();
+
+  // Disparar tour automaticamente no primeiro login
+  // (shouldShowTour só é true quando isNew === true)
+  if (!tourLoading && shouldShowTour && !showTour) {
+    setShowTour(true);
+  }
 
   if (loading) {
     return (
@@ -56,11 +69,10 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     { href: "/clientes", icon: Users, label: "Clientes" },
   ];
 
-  // Adicionar item de usuários apenas para equipe SOLARIS
   if (user?.role === "equipe_solaris") {
     navItems.push({ href: "/usuarios", icon: Users, label: "Usuários" });
   }
-  // RF-1.03 / RF-5.17: Gerenciar Equipe para clientes
+
   if (user?.role === "cliente") {
     navItems.push({ href: "/gerenciar-equipe", icon: Users, label: "Minha Equipe" });
   }
@@ -72,6 +84,20 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
 
   return (
     <div className="min-h-screen flex bg-background">
+      {/* Tour de onboarding */}
+      {showTour && (
+        <OnboardingTour
+          onComplete={() => {
+            setShowTour(false);
+            refetch();
+          }}
+          onSkip={() => {
+            setShowTour(false);
+            refetch();
+          }}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
         className={`${
@@ -111,6 +137,26 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
               {sidebarOpen && <span>{item.label}</span>}
             </Link>
           ))}
+
+          {/* Botão Retomar Tour — visível apenas quando há progresso parcial */}
+          {canResumeTour && !showTour && (
+            <button
+              onClick={() => setShowTour(true)}
+              className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer w-full text-left hover:bg-accent text-foreground border border-dashed border-border mt-2"
+              title="Retomar tour de onboarding"
+            >
+              <div className="relative flex-shrink-0">
+                <BookOpen className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
+              </div>
+              {sidebarOpen && (
+                <span className="flex items-center gap-2 text-sm">
+                  Retomar Tour
+                  <Badge variant="secondary" className="text-xs py-0 px-1.5">Novo</Badge>
+                </span>
+              )}
+            </button>
+          )}
         </nav>
 
         {/* User Info */}

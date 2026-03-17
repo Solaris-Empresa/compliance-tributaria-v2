@@ -1271,3 +1271,26 @@ export const ragDocuments = mysqlTable("ragDocuments", {
 });
 export type RagDocument = typeof ragDocuments.$inferSelect;
 export type InsertRagDocument = typeof ragDocuments.$inferInsert;
+
+// =============================================================================
+// V69 — Onboarding Guiado para Advogados
+// =============================================================================
+/**
+ * Persiste o progresso do tour interativo por usuário.
+ * - currentStep: índice do passo atual (0-5)
+ * - completedSteps: JSON array com índices dos passos concluídos
+ * - skipped: true se o usuário clicou em "Pular Tour"
+ * - completedAt: timestamp de quando o tour foi concluído
+ */
+export const onboardingProgress = mysqlTable("onboardingProgress", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  currentStep: int("currentStep").notNull().default(0),
+  completedSteps: varchar("completedSteps", { length: 500 }).notNull().default(""), // JSON array serializado
+  skipped: boolean("skipped").notNull().default(false),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type OnboardingProgress = typeof onboardingProgress.$inferSelect;
+export type InsertOnboardingProgress = typeof onboardingProgress.$inferInsert;

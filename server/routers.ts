@@ -53,6 +53,7 @@ import { fluxoV3Router } from "./routers-fluxo-v3";
 import { sessionQuestionnaireRouter } from "./routers-session-questionnaire";
 import { sessionActionPlanRouter } from "./routers-session-action-plan";
 import { sessionConsolidationRouter } from "./routers-session-consolidation";
+import { onboardingRouter } from "./routers-onboarding";
 
 export const appRouter = router({
   system: systemRouter,
@@ -76,6 +77,7 @@ export const appRouter = router({
   sessionQuestionnaire: sessionQuestionnaireRouter,
   sessionActionPlan: sessionActionPlanRouter,
   sessionConsolidation: sessionConsolidationRouter,
+  onboarding: onboardingRouter,
   fluxoV3: fluxoV3Router,
   
   // ==========================================================================
@@ -1952,3 +1954,4 @@ Retorne APENAS JSON válido no formato:
   }),
 });
 export type AppRouter = typeof appRouter;
+
