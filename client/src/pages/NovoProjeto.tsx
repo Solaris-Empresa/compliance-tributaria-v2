@@ -60,11 +60,23 @@ function CnaeCard({ cnae, selected, onToggle, onEdit }: {
   );
 }
 
+// Máscara de CNPJ: formata enquanto o usuário digita (XX.XXX.XXX/XXXX-XX)
+function maskCnpj(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 14);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+  if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+  if (digits.length <= 12) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+  return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
+}
+
 function NovoClienteModal({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: (id: number, name: string) => void; }) {
   const [companyName, setCompanyName] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const cnpjDigits = cnpj.replace(/\D/g, "");
+  const cnpjValid = cnpjDigits.length === 0 || cnpjDigits.length === 14;
   const createClient = trpc.fluxoV3.createClientOnTheFly.useMutation({
     onSuccess: (data) => { toast.success(`Cliente criado!`); onCreated(data.userId, data.companyName); onClose(); setCompanyName(""); setCnpj(""); setEmail(""); setPhone(""); },
     onError: (err) => toast.error(`Erro: ${err.message}`),
@@ -83,7 +95,16 @@ function NovoClienteModal({ open, onClose, onCreated }: { open: boolean; onClose
           </div>
           <div className="space-y-1.5">
             <Label>CNPJ</Label>
-            <Input placeholder="00.000.000/0000-00" value={cnpj} onChange={(e) => setCnpj(e.target.value)} />
+            <Input
+              placeholder="00.000.000/0000-00"
+              value={cnpj}
+              onChange={(e) => setCnpj(maskCnpj(e.target.value))}
+              maxLength={18}
+              className={!cnpjValid ? "border-destructive focus-visible:ring-destructive" : ""}
+            />
+            {!cnpjValid && (
+              <p className="text-xs text-destructive">CNPJ deve ter 14 dígitos (ex: 11.222.333/0001-81)</p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5"><Label>E-mail</Label><Input type="email" placeholder="contato@empresa.com" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
@@ -92,7 +113,7 @@ function NovoClienteModal({ open, onClose, onCreated }: { open: boolean; onClose
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={() => createClient.mutate({ companyName, cnpj: cnpj || undefined, email: email || undefined, phone: phone || undefined })} disabled={!companyName.trim() || createClient.isPending}>
+          <Button onClick={() => createClient.mutate({ companyName, cnpj: cnpj || undefined, email: email || undefined, phone: phone || undefined })} disabled={!companyName.trim() || createClient.isPending || !cnpjValid}>
             {createClient.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}Criar Cliente
           </Button>
         </DialogFooter>

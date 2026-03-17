@@ -6,6 +6,49 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [3.3.0] - Sprint V53 - 2026-03-17
+
+### Adicionado
+
+**Máscara de CNPJ no Modal "Novo Cliente" (NovoProjeto.tsx)**
+- Função `maskCnpj()` aplicada ao input em tempo real: formata como `XX.XXX.XXX/XXXX-XX` enquanto o usuário digita
+- Validação inline: borda vermelha e mensagem de erro quando CNPJ tem número de dígitos inválido (diferente de 0 ou 14)
+- Botão "Criar Cliente" desabilitado enquanto CNPJ está incompleto (exceto campo vazio)
+- Limite `maxLength={18}` no input para impedir entrada excessiva
+
+**RF-5.08 UI — Painel de Notificações por Tarefa (PlanoAcaoV3)**
+- Substituiu checkboxes HTML nativos por `Switch` do shadcn/ui com `Label` acessível por ID único por tarefa
+- Painel com borda e fundo sutil (`bg-muted/30`) para delimitar visualmente a seção de notificações
+- Badge "Âmbar — Ativas" exibido no cabeçalho do painel quando ao menos uma opção está ativa
+- Ícone de sino preenchido (`fill-amber-500`) no header do card quando há notificações ativas
+- Campo `beforeDays` com clamping automático (1–30) e mensagem de erro se fora do intervalo
+- Três toggles independentes: Mudança de status, Atualização de progresso, Novo comentário
+
+**Badge "Revisado" no Stepper de CNAEs (RF-2.07 UX)**
+- Badge âmbar exibido ao lado do código CNAE quando o usuário retorna a um CNAE concluído e confirma navegação
+- Badge desaparece automaticamente ao re-concluir o CNAE via `handleFinishLevel1`
+
+### Corrigido
+
+**Bug 1 — CNPJ overflow no INSERT de novo cliente**
+- Sanitização server-side no `routers-fluxo-v3.ts`: extrai dígitos, formata `XX.XXX.XXX/XXXX-XX` se 14 dígitos, trunca para 18 chars
+- Migração de schema: `cnpj varchar(18)` → `varchar(20)` para margem de segurança
+
+**Bug 2 — Botão "Avançar" não habilitava após criar cliente via modal**
+- Estado `pendingClientName` adicionado ao `NovoProjeto.tsx`
+- `selectedClient` usa `pendingClientName` como fallback imediato enquanto o refetch não retorna o novo cliente
+
+**Bug 3 — Tela branca ao solicitar aprofundamento no QuestionarioV3**
+- `loadedQuestionsRef` movido para antes dos `useEffect`s que o utilizam (ordem de declaração corrigida)
+- `handleAcceptDeepDive` pré-registra `cacheKey` no ref antes de `setCurrentLevel` para evitar chamada dupla sem `previousAnswers`
+
+### Testes
+- 14 novos testes unitários passando (`bugfix-sprint-v53.test.ts`): Bug 1 (6), Bug 2 (4), Bug 3 (4)
+- 9 testes para badge "Revisado" (`audit-rf207-badge-revisado.test.ts`)
+- Checkpoints: `4f6f0b7e` (bugfix), `747892b3` (badge Revisado)
+
+---
+
 ## [3.0.0] - Sprint V45 - 2026-03-16
 
 ### Adicionado

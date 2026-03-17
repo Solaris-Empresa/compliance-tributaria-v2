@@ -1835,3 +1835,13 @@
 - [x] BUG-02: Adicionar estado pendingClientName no NovoProjeto.tsx — selectedClient usa fallback imediato enquanto refetch não retorna
 - [x] BUG-03: Mover loadedQuestionsRef antes dos useEffects; handleAcceptDeepDive pré-registra cacheKey para evitar chamada dupla sem previousAnswers
 - [x] 14 testes unitários passando (bugfix-sprint-v53.test.ts)
+
+## Sprint V53 — Melhorias (17/03/2026)
+- [x] Máscara de CNPJ no modal "Novo Cliente" (formato 00.000.000/0000-00) com validação inline
+- [x] RF-5.08 UI: painel de notificações com Switch shadcn/ui no PlanoAcaoV3
+- [x] RF-5.08 UI: toggles onStatusChange, onProgressUpdate, onComment
+- [x] RF-5.08 UI: campo beforeDays (1-30) com clamping e validação inline
+- [x] RF-5.08 UI: ícone de sino âmbar no header do card quando há notificações ativas
+- [x] RF-5.08 UI: badge "Ativas" no cabeçalho do painel de notificações
+- [x] Atualizar CHANGELOG.md com entrada [3.3.0] Sprint V53
+- [x] 27 testes unitários passando (sprint-v53-features.test.ts): 17 máscara CNPJ + 10 RF-5.08 UI

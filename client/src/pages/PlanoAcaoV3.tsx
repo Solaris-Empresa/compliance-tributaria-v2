@@ -16,6 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   ArrowLeft, ChevronRight, Loader2, Sparkles, CheckCircle2,
   RefreshCw, ThumbsUp, Edit3, Building2, Cpu, Scale, BarChart3,
@@ -173,6 +175,12 @@ function TaskCard({ task, onUpdate, onDelete, onRestore, projectMembers = [] }: 
                     {task.comments!.length}
                   </span>
                 )}
+                {/* RF-5.08: Ícone de sino quando há notificações ativas */}
+                {(task.notifications?.onStatusChange || task.notifications?.onProgressUpdate || task.notifications?.onComment) && (
+                  <span title="Notificações ativas" className="flex items-center text-amber-500">
+                    <Bell className="h-3.5 w-3.5 fill-amber-500" />
+                  </span>
+                )}
                 <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
                   {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
@@ -301,40 +309,69 @@ function TaskCard({ task, onUpdate, onDelete, onRestore, projectMembers = [] }: 
               </div>
             </div>
 
-            {/* Notificações */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-                <Bell className="h-3.5 w-3.5" />Notificações por E-mail
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <label className="flex items-center gap-2 text-xs cursor-pointer">
-                  <input type="checkbox" checked={task.notifications?.onStatusChange || false}
-                    onChange={e => onUpdate({ notifications: { ...task.notifications, onStatusChange: e.target.checked } })}
-                    className="accent-primary" />
-                  Mudança de status
+            {/* RF-5.08: Painel de Notificações por Tarefa */}
+            <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                  <Bell className="h-3.5 w-3.5 text-amber-500" />Notificações por E-mail
                 </label>
-                <label className="flex items-center gap-2 text-xs cursor-pointer">
-                  <input type="checkbox" checked={task.notifications?.onProgressUpdate || false}
-                    onChange={e => onUpdate({ notifications: { ...task.notifications, onProgressUpdate: e.target.checked } })}
-                    className="accent-primary" />
-                  Atualização de progresso
-                </label>
-                <label className="flex items-center gap-2 text-xs cursor-pointer">
-                  <input type="checkbox" checked={task.notifications?.onComment || false}
-                    onChange={e => onUpdate({ notifications: { ...task.notifications, onComment: e.target.checked } })}
-                    className="accent-primary" />
-                  Novo comentário
-                </label>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-muted-foreground">Alertar</span>
-                  <Input
-                    type="number" min={1} max={30}
-                    value={task.notifications?.beforeDays || 7}
-                    onChange={e => onUpdate({ notifications: { ...task.notifications, beforeDays: Number(e.target.value) } })}
-                    className="h-6 w-14 text-xs px-1"
+                {(task.notifications?.onStatusChange || task.notifications?.onProgressUpdate || task.notifications?.onComment) && (
+                  <span className="text-[10px] text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full font-medium">Ativas</span>
+                )}
+              </div>
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor={`notif-status-${task.id}`} className="text-xs text-muted-foreground cursor-pointer">
+                    Mudança de status
+                  </Label>
+                  <Switch
+                    id={`notif-status-${task.id}`}
+                    checked={task.notifications?.onStatusChange || false}
+                    onCheckedChange={checked => onUpdate({ notifications: { ...task.notifications, onStatusChange: checked } })}
+                    className="scale-75"
                   />
-                  <span className="text-muted-foreground">dias antes</span>
                 </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor={`notif-progress-${task.id}`} className="text-xs text-muted-foreground cursor-pointer">
+                    Atualização de progresso
+                  </Label>
+                  <Switch
+                    id={`notif-progress-${task.id}`}
+                    checked={task.notifications?.onProgressUpdate || false}
+                    onCheckedChange={checked => onUpdate({ notifications: { ...task.notifications, onProgressUpdate: checked } })}
+                    className="scale-75"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor={`notif-comment-${task.id}`} className="text-xs text-muted-foreground cursor-pointer">
+                    Novo comentário
+                  </Label>
+                  <Switch
+                    id={`notif-comment-${task.id}`}
+                    checked={task.notifications?.onComment || false}
+                    onCheckedChange={checked => onUpdate({ notifications: { ...task.notifications, onComment: checked } })}
+                    className="scale-75"
+                  />
+                </div>
+                <Separator className="my-1" />
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="text-xs text-muted-foreground">Alertar antes do prazo</Label>
+                  <div className="flex items-center gap-1.5">
+                    <Input
+                      type="number" min={1} max={30}
+                      value={task.notifications?.beforeDays ?? 7}
+                      onChange={e => {
+                        const val = Math.min(30, Math.max(1, Number(e.target.value) || 1));
+                        onUpdate({ notifications: { ...task.notifications, beforeDays: val } });
+                      }}
+                      className="h-7 w-14 text-xs px-2"
+                    />
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">dias</span>
+                  </div>
+                </div>
+                {((task.notifications?.beforeDays ?? 7) < 1 || (task.notifications?.beforeDays ?? 7) > 30) && (
+                  <p className="text-[10px] text-destructive">Valor deve ser entre 1 e 30 dias</p>
+                )}
               </div>
             </div>
 
