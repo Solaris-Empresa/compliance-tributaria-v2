@@ -1822,3 +1822,10 @@
 - [x] Validação de beforeDays entre 1 e 30
 - [x] Função hasActiveNotifications para detectar notificações ativas
 - [x] 10 testes unitários passando (getDefaultNotifications, updateTaskNotifications, validateBeforeDays)
+
+## RF-2.07 UX: Badge "Revisado" no Stepper de CNAEs
+- [x] Adicionar campo `revisado` (boolean) ao estado `cnaeProgress` por CNAE
+- [x] Marcar `revisado: true` quando usuário confirma retorno a CNAE concluído (AlertDialog)
+- [x] Exibir badge "Revisado" (cor âmbar) no stepper ao lado do código CNAE
+- [x] Badge desaparece quando usuário re-conclui o CNAE (handleFinishLevel1 limpa revisado=false)
+- [x] 9 testes unitários passando (initCnaeProgress, markRevisado, finishLevel1, shouldShowBadge)

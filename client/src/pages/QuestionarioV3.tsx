@@ -47,6 +47,7 @@ interface CnaeProgress {
   nivel1Done: boolean;
   nivel2Done: boolean;
   skippedNivel2: boolean;
+  revisado: boolean; // RF-2.07 UX: true quando usuário retorna e altera respostas
   answers: { question: string; answer: string }[];
   nivel2Answers: { question: string; answer: string }[];
 }
@@ -255,6 +256,7 @@ export default function QuestionarioV3() {
         nivel1Done: false,
         nivel2Done: false,
         skippedNivel2: false,
+        revisado: false,
         answers: [],
         nivel2Answers: [],
       })));
@@ -346,9 +348,10 @@ export default function QuestionarioV3() {
       return;
     }
     // Salvar respostas do Nível 1
+    // RF-2.07 UX: ao re-concluir um CNAE revisado, limpar a flag 'revisado'
     const level1Answers = questions.map(q => ({ question: q.text, answer: answers[q.id] || "" }));
     setCnaeProgress(prev => prev.map((c, i) =>
-      i === currentCnaeIdx ? { ...c, nivel1Done: true, answers: level1Answers } : c
+      i === currentCnaeIdx ? { ...c, nivel1Done: true, revisado: false, answers: level1Answers } : c
     ));
     setShowDeepDivePrompt(true);
   };
@@ -499,6 +502,11 @@ export default function QuestionarioV3() {
               >
                 {c.nivel1Done ? <CheckCircle2 className="h-3 w-3" /> : <Layers className="h-3 w-3" />}
                 {c.code}
+                {c.revisado && (
+                  <span className="inline-flex items-center text-[9px] font-bold px-1.5 py-0 rounded-full bg-amber-100 text-amber-700 border border-amber-300 leading-4">
+                    Revisado
+                  </span>
+                )}
                 {c.nivel2Done && <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4">+2</Badge>}
               </button>
             ))}
@@ -790,7 +798,12 @@ export default function QuestionarioV3() {
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              setCurrentCnaeIdx(prev => prev - 1);
+              const targetIdx = currentCnaeIdx - 1;
+              // RF-2.07 UX: marcar o CNAE alvo como 'revisado' ao retornar
+              setCnaeProgress(prev => prev.map((c, i) =>
+                i === targetIdx && c.nivel1Done ? { ...c, revisado: true } : c
+              ));
+              setCurrentCnaeIdx(targetIdx);
               setCurrentLevel("nivel1");
               setAnswers({});
               setQuestions([]);
