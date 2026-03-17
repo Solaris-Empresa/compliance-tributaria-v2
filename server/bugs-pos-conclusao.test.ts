@@ -332,16 +332,25 @@ describe("Bug #1 — getProgress retorna respostas da tabela questionnaireAnswer
         createdAt: new Date(),
       },
     ];
-    const mockProgress = null;
-    // Mock do select encadeado para questionnaireProgressV3 e questionnaireAnswersV3
-    let callCount = 0;
-    mockDb.where.mockImplementation(() => {
-      callCount++;
-      if (callCount === 1) return Promise.resolve([mockProgress]);
-      return Promise.resolve(mockAnswersFromTable);
+    // Mock com .limit() encadeado: primeira chamada a where() retorna this (para .limit())
+    // segunda chamada retorna as respostas
+    const mockDbForGetProgress = {
+      insert: vi.fn().mockReturnThis(),
+      values: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      set: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn(),
+      limit: vi.fn().mockResolvedValue([null]), // progresso null
+    };
+    let whereCallCount = 0;
+    mockDbForGetProgress.where.mockImplementation(() => {
+      whereCallCount++;
+      if (whereCallCount === 1) return mockDbForGetProgress; // encadeia .limit()
+      return Promise.resolve(mockAnswersFromTable); // segunda chamada retorna answers
     });
-    mockDb.limit.mockResolvedValue([mockProgress]);
-    (db.getDb as any).mockResolvedValue(mockDb);
+    (db.getDb as any).mockResolvedValue(mockDbForGetProgress);
   });
 
   it("deve retornar answers com cnaeCode e questionText", async () => {

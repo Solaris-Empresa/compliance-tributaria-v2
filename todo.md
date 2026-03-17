@@ -2129,3 +2129,11 @@
 - [x] Banco limpo: 2 usuários, 0 projetos, 0 respostas, 0 briefings
 - [x] ragDocuments preservados (corpus RAG com 63 artigos tributários)
 - [ ] Checkpoint e publicar para testes da equipe de advogados
+
+## Bug Crítico — Fluxo Multi-CNAE (17/03/2026)
+- [x] Após concluir Nível 2 do CNAE 1, sistema pula para Briefing em vez de avançar para CNAE 2
+  - Causa raiz: closure stale em advanceToNextCnae + reset de cnaes pelo useEffect
+  - Correção: initializedRef + cnaeProgressInitializedRef + totalCnaes como parâmetro explícito
+- [x] Botão "Concluir Nível 1" aparece na tela do Nível 2 (resolvido junto com o closure stale)
+- [x] 18/18 testes de bugs-pos-conclusao passando
+- [x] 21/21 testes de routers-fluxo-v3-etapas2-5 passando

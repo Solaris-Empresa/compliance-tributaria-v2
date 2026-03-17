@@ -188,6 +188,8 @@ export default function QuestionarioV3() {
   const projectId = Number(id);
 
   const [cnaes, setCnaes] = useState<{ code: string; description: string }[]>([]);
+  const initializedRef = useRef(false); // Evita reset de cnaes após primeira carga (bug closure stale)
+  const cnaeProgressInitializedRef = useRef(false); // Evita reset de cnaeProgress durante sessão ativa
   const [currentCnaeIdx, setCurrentCnaeIdx] = useState(0);
   const [currentLevel, setCurrentLevel] = useState<"nivel1" | "nivel2">("nivel1");
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -245,18 +247,26 @@ export default function QuestionarioV3() {
     { enabled: !!projectId }
   );
 
-  // Inicializar CNAEs do projeto
+  // Inicializar CNAEs do projeto (apenas uma vez — não resetar ao invalidar savedProgress)
   useEffect(() => {
     if (project?.confirmedCnaes && Array.isArray(project.confirmedCnaes)) {
       const cnaeList = project.confirmedCnaes as { code: string; description: string }[];
-      setCnaes(cnaeList);
+      // Só define cnaes uma vez: evita reset quando savedProgress é invalidado pelo saveAnswer
+      if (!initializedRef.current) {
+        setCnaes(cnaeList);
+        initializedRef.current = true;
+      }
       // Restaurar progresso a partir das respostas salvas no banco
       const savedAnswers = savedProgress?.answers || [];
       const answeredCnaes = new Set(savedAnswers.map((a: any) => a.cnaeCode));
       const nivel2Cnaes = new Set(
         savedAnswers.filter((a: any) => a.level === "nivel2").map((a: any) => a.cnaeCode)
       );
-      setCnaeProgress(cnaeList.map(c => ({
+      // Só restaura cnaeProgress na primeira vez — após isso, o estado em memória é fonte de verdade
+      // Isso evita que o saveAnswer (que invalida savedProgress) resete o progresso do usuário
+      if (!cnaeProgressInitializedRef.current) {
+        cnaeProgressInitializedRef.current = true;
+        setCnaeProgress(cnaeList.map(c => ({
         code: c.code,
         description: c.description,
         nivel1Done: answeredCnaes.has(c.code),
@@ -270,9 +280,10 @@ export default function QuestionarioV3() {
           .filter((a: any) => a.cnaeCode === c.code && a.level === "nivel2")
           .map((a: any) => ({ question: a.questionText, answer: a.answerValue })),
       })));
-      // Restaurar CNAEs já iniciados
-      if (answeredCnaes.size > 0) {
-        setStartedCnaes(answeredCnaes);
+        // Restaurar CNAEs já iniciados
+        if (answeredCnaes.size > 0) {
+          setStartedCnaes(answeredCnaes);
+        }
       }
     }
   }, [project, savedProgress]);
@@ -389,11 +400,12 @@ export default function QuestionarioV3() {
   };
 
   const handleSkipDeepDive = () => {
+    const total = cnaeProgress.length || cnaes.length;
     setCnaeProgress(prev => prev.map((c, i) =>
       i === currentCnaeIdx ? { ...c, skippedNivel2: true } : c
     ));
     setShowDeepDivePrompt(false);
-    advanceToNextCnae();
+    advanceToNextCnae(total);
   };
 
   const handleFinishLevel2 = () => {
@@ -405,11 +417,15 @@ export default function QuestionarioV3() {
     setCnaeProgress(prev => prev.map((c, i) =>
       i === currentCnaeIdx ? { ...c, nivel2Done: true, nivel2Answers: level2Answers } : c
     ));
-    advanceToNextCnae();
+    // Passa o total explícito para evitar closure stale (cnaeProgress ainda não foi atualizado)
+    advanceToNextCnae(cnaeProgress.length || cnaes.length);
   };
 
-  const advanceToNextCnae = () => {
-    if (currentCnaeIdx < cnaes.length - 1) {
+  // Recebe totalCnaes como parâmetro para evitar closure stale
+  // Chamadores devem passar o valor correto (não depender do estado do closure)
+  const advanceToNextCnae = (totalCnaes?: number) => {
+    const total = totalCnaes ?? (cnaeProgress.length || cnaes.length);
+    if (currentCnaeIdx < total - 1) {
       setCurrentCnaeIdx(prev => prev + 1);
       setCurrentLevel("nivel1");
       setAnswers({});
