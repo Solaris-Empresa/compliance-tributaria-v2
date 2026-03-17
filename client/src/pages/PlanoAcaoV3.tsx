@@ -25,7 +25,7 @@ import {
   Calendar, User, Bell, Download, ChevronDown, ChevronUp,
   Circle, PlayCircle, PauseCircle, CheckCircle, Sliders, FileText,
   MessageSquare, Plus, Trash2, RotateCcw, LayoutDashboard, Send,
-  PartyPopper, Trophy, ClipboardList, AlertTriangle, ShieldCheck, LayoutDashboard as Dashboard,
+  PartyPopper, Trophy, ClipboardList, AlertTriangle, ShieldCheck,
   Clock, History, TrendingUp, Tag, UserCheck, Settings2, MessageCircle
 } from "lucide-react";
 import { toast } from "sonner";
