@@ -2092,3 +2092,10 @@
 - [x] Adicionar fallback de parsing: extrair maior JSON válido com busca gulosa
 - [x] Testes de regressão: 160/160 passando (86 V60-V63 + 23 V64-V65 + 32 V66 + 19 V69)
 - [x] Checkpoint e push GitHub
+
+## Bugfix — Questionário Vazio (0/0 perguntas) em Produção (17/03/2026)
+- [x] Investigar logs de produção: causa raiz = 3 erros Zod de enum no BriefingStructuredSchema
+- [x] Identificar: problema na geração (LLM Gemini retorna variantes de enum com/sem acento)
+- [x] Corrigir: normalização robusta com z.preprocess() + .catch() em todos os enums críticos
+- [x] 160/160 testes passando (86 V60-V63 + 23 V64-V65 + 32 V66 + 19 V69)
+- [x] Checkpoint e entrega
