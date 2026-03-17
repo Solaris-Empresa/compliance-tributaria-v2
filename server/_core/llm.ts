@@ -66,6 +66,8 @@ export type InvokeParams = {
   output_schema?: OutputSchema;
   responseFormat?: ResponseFormat;
   response_format?: ResponseFormat;
+  /** Timeout em milissegundos para a chamada HTTP. Padrão: 90000ms (90s). */
+  timeoutMs?: number;
 };
 
 export type ToolCall = {
@@ -265,6 +267,9 @@ const normalizeResponseFormat = ({
   };
 };
 
+/** Timeout padrão para chamadas LLM: 3 minutos (180 segundos) */
+export const DEFAULT_LLM_TIMEOUT_MS = 180_000;
+
 export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   assertApiKey();
 
@@ -277,6 +282,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     output_schema,
     responseFormat,
     response_format,
+    timeoutMs = DEFAULT_LLM_TIMEOUT_MS,
   } = params;
 
   const payload: Record<string, unknown> = {
@@ -312,21 +318,39 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.response_format = normalizedResponseFormat;
   }
 
-  const response = await fetch(resolveApiUrl(), {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
-    },
-    body: JSON.stringify(payload),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    controller.abort(new Error(`LLM request timed out after ${timeoutMs}ms`));
+  }, timeoutMs);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`
-    );
+  try {
+    const response = await fetch(resolveApiUrl(), {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${ENV.forgeApiKey}`,
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`
+      );
+    }
+
+    return (await response.json()) as InvokeResult;
+  } catch (err) {
+    if (err instanceof Error && (err.name === "AbortError" || err.message.includes("timed out"))) {
+      const seconds = Math.round(timeoutMs / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const label = minutes >= 1 ? `${minutes} minuto${minutes > 1 ? "s" : ""}` : `${seconds}s`;
+      throw new Error(`LLM_TIMEOUT: A IA demorou mais de ${label} para responder. Tente novamente.`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  return (await response.json()) as InvokeResult;
 }

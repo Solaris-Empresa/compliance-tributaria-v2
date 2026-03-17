@@ -2151,3 +2151,11 @@
 - [x] Adicionar UI de erro com botão "Tentar novamente" no questionário
 - [x] Corrigir handleAcceptDeepDive: usar questions/answers atuais em vez de cnaeProgress desatualizado (causa raiz do erro nível 2)
 - [x] Adicionar logging detalhado no generateQuestions do servidor (RAG, LLM)
+
+## Feature: Timeout Explícito para Chamadas LLM
+
+- [x] Implementar AbortController com timeout configurável no invokeLLM
+- [x] Adicionar parâmetro timeoutMs no generateWithRetry
+- [x] Definir timeout global de 3 minutos (180s) para todas as operações LLM
+- [x] Melhorar mensagem de erro para distinguir timeout de outros erros (label em minutos)
+- [x] Escrever testes unitários para o mecanismo de timeout (9/9 passando)

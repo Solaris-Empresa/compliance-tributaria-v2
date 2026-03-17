@@ -75,9 +75,11 @@ export async function generateWithRetry<T extends z.ZodTypeAny>(
     temperature?: number;
     maxRetries?: number;
     context?: string; // Para mensagens de erro mais descritivas
+    /** Timeout em ms para cada tentativa individual. Padrão: 90s */
+    timeoutMs?: number;
   } = {}
 ): Promise<z.infer<T>> {
-  const { maxRetries = 2, context = "LLM" } = options;
+  const { maxRetries = 2, context = "LLM", timeoutMs } = options;
 
   let lastError: Error | null = null;
 
@@ -85,6 +87,7 @@ export async function generateWithRetry<T extends z.ZodTypeAny>(
     try {
       const response = await invokeLLM({
         messages,
+        ...(timeoutMs !== undefined ? { timeoutMs } : {}),
       } as any);
 
       // Gemini pode retornar content como array de TextContent
