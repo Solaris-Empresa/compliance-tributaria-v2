@@ -6,7 +6,7 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
-## [4.5.0] - Sprint V74 - 2026-03-18
+## [4.5.0] - Sprint V74 - 2026-03-18 (build recompilado)
 
 ### Corrigido
 
