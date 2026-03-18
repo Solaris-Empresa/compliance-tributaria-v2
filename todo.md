@@ -2320,3 +2320,10 @@
 ## Bug UX - Chip Plano de Ação navega errado (18/03/2026)
 - [x] BUG: Chip "Plano de Ação" navega para tela "Projeto Concluído!" mesmo sem plano gerado
   FIX: PlanoAcaoV3 agora só exibe tela de conclusão se actionPlansData não está vazio no banco
+
+## Bug Crítico - PlanoAcaoV3 tela conclusão persiste (18/03/2026)
+- [x] BUG: PlanoAcaoV3 exibia "Projeto Concluído!" para projetos aprovados com plano salvo
+  CAUSA: actionPlansData do projeto 90003 tem 4 áreas e 43KB de dados
+  FIX Bug #7: projetos aprovados com plano salvo abrem direto no modo edição (editMode=true)
+  A tela de conclusão só aparece após nova aprovação via approvePlan
+  TESTADO manualmente: projeto 90003 abre com 29 tarefas editáveis

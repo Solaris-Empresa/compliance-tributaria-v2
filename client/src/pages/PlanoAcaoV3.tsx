@@ -701,45 +701,18 @@ export default function PlanoAcaoV3() {
   useEffect(() => {
     if (!project) return;
 
-    // Se projeto já está aprovado/concluído E tem plano salvo, mostrar tela de conclusão
-    // Bug #5: não ativar conclusão se o usuário escolheu editar
-    // Bug #6: só ativar conclusão se há plano salvo no banco (actionPlansData não vazio)
+    // Bug #7: projetos aprovados/concluídos com plano salvo abrem direto no modo edição
+    // A tela de conclusão só aparece após uma nova aprovação (via approvePlan)
     const isApproved = project.status === "aprovado" || project.status === "concluido";
     const savedPlansCheck = (project as any).actionPlansData;
     const hasSavedPlan = savedPlansCheck && Object.keys(savedPlansCheck).length > 0;
-    if (isApproved && hasSavedPlan && !showConclusion && !conclusionData && !editMode) {
-      const savedPlans = savedPlansCheck || {};
-      const savedMatrices = (project as any).riskMatricesData || {};
-      const cnaes = (project as any).confirmedCnaes || [];
-      const allRisksRaw = Object.entries(savedMatrices).flatMap(([area, risks]) =>
-        (risks as any[]).map((r: any) => ({ area, ...r }))
-      );
-      const totalRisks = allRisksRaw.length;
-      const criticalRisks = allRisksRaw.filter((r: any) => r?.severidade === "Crítico" || r?.severidade === "Critico").length;
-      const highRisks = allRisksRaw.filter((r: any) => r?.severidade === "Alta").length;
-      const allTasks = Object.values(savedPlans).flat().filter((t: any) => !t.deleted) as Task[];
-      const totalTasks = allTasks.length;
-      const tasksByArea = Object.entries(savedPlans).map(([area, tasks]) => ({
-        area,
-        count: (tasks as any[]).filter((t: any) => !t.deleted).length,
-      })).filter(a => a.count > 0);
-      if (Object.keys(savedPlans).length > 0) {
-        setPlans(savedPlans);
-        setGenerationCount(1);
-        generationTriggeredRef.current = true;
-      }
-      setConclusionData({
-        projectName: project.name || "Projeto",
-        cnaes,
-        totalRisks,
-        criticalRisks,
-        highRisks,
-        totalTasks,
-        tasksByArea,
-        allTasks,
-        allRisks: allRisksRaw,
-      });
-      setShowConclusion(true);
+    if (isApproved && hasSavedPlan && !editMode && Object.keys(plans).length === 0 && generationCount === 0) {
+      // Carregar plano salvo e abrir no modo edição diretamente
+      setPlans(savedPlansCheck);
+      setGenerationCount(1);
+      generationTriggeredRef.current = true;
+      setEditMode(true);
+      sessionStorage.setItem(`plano-editmode-${projectId}`, 'true');
       return;
     }
 
