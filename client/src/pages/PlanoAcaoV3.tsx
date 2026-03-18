@@ -651,6 +651,7 @@ export default function PlanoAcaoV3() {
   // Ref para garantir que a geração do plano ocorra apenas uma vez (evita loop)
   const generationTriggeredRef = useRef(false);
   // Bug #5: editMode persistido em sessionStorage para evitar loop de conclusão
+  // Bug #8: limpar editMode do sessionStorage quando status é plano_acao (novo ciclo)
   const [editMode, setEditMode] = useState(() => {
     return sessionStorage.getItem(`plano-editmode-${projectId}`) === 'true';
   });
@@ -701,53 +702,90 @@ export default function PlanoAcaoV3() {
   );
 
   // Carregar plano salvo do banco (se existir) ou gerar novo
+  // Bug #8: Refatorado para passar project diretamente e evitar closure stale
   useEffect(() => {
     if (!project) return;
+    if (generationTriggeredRef.current) return; // já disparou — não repetir
 
-    // Bug #7: projetos aprovados/concluídos com plano salvo abrem direto no modo edição
-    // A tela de conclusão só aparece após uma nova aprovação (via approvePlan)
-    const isApproved = project.status === "aprovado" || project.status === "concluido" || project.status === "em_andamento";
-    const savedPlansCheck = (project as any).actionPlansData;
+    const status = project.status;
+    const savedPlansCheck = (project as any).actionPlansData as Record<string, any[]> | null | undefined;
     const hasSavedPlan = savedPlansCheck && Object.keys(savedPlansCheck).length > 0;
-    if (isApproved && hasSavedPlan && !editMode && Object.keys(plans).length === 0 && generationCount === 0) {
-      // Carregar plano salvo e abrir no modo edição diretamente
-      setPlans(savedPlansCheck);
+
+    // Bug #8: Status "plano_acao" = recém aprovado da matriz — SEMPRE gerar novo plano
+    // Limpar sessionStorage de editMode para evitar estado stale de sessões anteriores
+    if (status === "plano_acao") {
+      sessionStorage.removeItem(`plano-editmode-${projectId}`);
+      setEditMode(false);
+      // Se já há planos no estado local (rascunho), não sobrescrever
+      if (Object.keys(plans).length > 0) return;
+      generationTriggeredRef.current = true;
+      // Passar project diretamente para evitar closure stale
+      void handleGenerateWithProject(project);
+      return;
+    }
+
+    // Bug #7: projetos aprovados/concluídos/em andamento com plano salvo abrem no modo edição
+    const isApproved = status === "aprovado" || status === "concluido" || status === "em_andamento";
+    if (isApproved && hasSavedPlan && Object.keys(plans).length === 0 && generationCount === 0) {
+      setPlans(savedPlansCheck!);
       setGenerationCount(1);
       generationTriggeredRef.current = true;
       setEditMode(true);
       sessionStorage.setItem(`plano-editmode-${projectId}`, 'true');
+      setShowResumeBanner(false);
+      clearTempData(projectId, 'etapa5');
       return;
     }
 
     // Se já há planos no estado (rascunho local), não sobrescrever
     if (Object.keys(plans).length > 0) return;
 
-    // Status "plano_acao": projeto recém aprovado da matriz de riscos — SEMPRE gerar novo plano
-    // Não carregar actionPlansData antigo pois as matrizes podem ter mudado
-    const isNewlyFromMatrix = project.status === "plano_acao";
-    if (isNewlyFromMatrix && generationCount === 0 && !generationTriggeredRef.current) {
-      generationTriggeredRef.current = true;
-      handleGenerate();
-      return;
-    }
-
     // Prioridade: plano salvo no banco (re-edição de outros status)
-    const savedPlans = (project as any).actionPlansData;
-    if (savedPlans && Object.keys(savedPlans).length > 0 && generationCount === 0) {
-      setPlans(savedPlans);
+    if (hasSavedPlan && generationCount === 0) {
+      setPlans(savedPlansCheck!);
       setGenerationCount(1);
       generationTriggeredRef.current = true;
-      // Suprimir banner de rascunho local — o banco já tem o plano
       setShowResumeBanner(false);
       clearTempData(projectId, 'etapa5');
       return;
     }
-    // Gerar novo plano apenas se não há conteúdo salvo
-    if (generationCount === 0 && !generationTriggeredRef.current) {
+    // Gerar novo plano se não há conteúdo salvo
+    if (generationCount === 0) {
       generationTriggeredRef.current = true;
-      handleGenerate();
+      void handleGenerateWithProject(project);
     }
   }, [project]);
+
+  // Bug #8: versão que recebe project diretamente para evitar closure stale no useEffect
+  const handleGenerateWithProject = async (proj: typeof project, area?: string, adjustment?: string) => {
+    if (!proj) return;
+    setIsGenerating(true);
+    setShowAdjustment(false);
+    setAdjustmentText("");
+    try {
+      const matrices = (proj as any).riskMatricesData || {};
+      const briefingContent = (proj as any).briefingContent || "";
+      const result = await generatePlan.mutateAsync({
+        projectId,
+        matrices,
+        area: area as any,
+        adjustment,
+        briefingContent,
+      });
+      const updatedPlans = { ...plans, ...result.plans };
+      setPlans(updatedPlans);
+      setGenerationCount(prev => prev + 1);
+      try {
+        await saveDraftPlan.mutateAsync({ projectId, plans: updatedPlans });
+        setShowResumeBanner(false);
+        clearTempData(projectId, 'etapa5');
+      } catch { /* auto-save falhou silenciosamente */ }
+    } catch {
+      toast.error("Erro ao gerar o plano. Tente novamente.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleGenerate = async (area?: string, adjustment?: string) => {
     if (!project) return;
