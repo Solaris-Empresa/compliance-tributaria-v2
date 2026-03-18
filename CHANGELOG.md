@@ -6,6 +6,40 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [4.2.0] - Sprint V71 - 2026-03-18
+
+### Adicionado
+
+**V71 — Busca Semântica de CNAEs via Embeddings Vetoriais (OpenAI text-embedding-3-small)**
+
+Substituição completa do RAG baseado em tokens e dicionário de sinônimos hard-coded por busca vetorial semântica, garantindo precisão na identificação de múltiplas atividades distintas em uma mesma descrição de negócio.
+
+- **`drizzle/schema.ts`**: Nova tabela `cnaeEmbeddings` com campos `cnaeCode`, `cnaeDescription`, `embeddingJson` (TEXT, 1536 dimensões) e `createdAt`. Migração `0036_cnae_embeddings`
+- **`scripts/generate-cnae-embeddings.mjs`**: Script de geração em batch (14 batches de ~95 CNAEs) que chama `text-embedding-3-small` para todos os 1.332 CNAEs e persiste no banco. Idempotente (upsert por código)
+- **`server/cnae-embeddings.ts`**: Módulo principal com:
+  - `findSimilarCnaes(description, topN)` — gera embedding da query via OpenAI API e calcula similaridade de cosseno contra cache em memória (TTL 1h)
+  - `buildSemanticCnaeContext(description, topNPerQuery=20)` — estratégia **multi-query**: divide a descrição em cláusulas por atividade (vírgula, ponto-e-vírgula, "e", "além de"), busca em paralelo para cada cláusula
+  - **Estratégia de merge em 2 camadas**: top-5 de cada cláusula individual são "garantidos" (sempre entram no contexto), completado com pool geral até 50 candidatos
+  - `invalidateEmbeddingCache()` para re-geração sob demanda
+  - `getFallbackCandidates()` para fallback síncrono quando a API OpenAI falha
+- **`server/routers-fluxo-v3.ts`**: `extractCnaes` e `refineCnaes` substituem `buildCnaeRagContext` / `findCandidateCnaes` por `buildSemanticCnaeContext`
+
+### Melhorado
+
+**V71 — Prompt de Identificação de CNAEs (extractCnaes)**
+- Instrução explícita de 2 passos: (1) decompor a descrição em atividades distintas, (2) selecionar CNAE para cada atividade
+- Contexto rotulado como "candidatos selecionados por similaridade semântica" para orientar o modelo
+
+### Técnico
+- **Teste validado** (`scripts/test-ze-final.mjs`): descrição com 3 atividades distintas → todos os 3 CNAEs garantidos no contexto:
+  - `4632-0/01` Comércio Atacadista De Cereais E Leguminosas (posição 1, 73.2% — GARANTIDO)
+  - `4930-2/01` Transporte Rodoviário De Carga (posição 8, 60.6% — GARANTIDO)
+  - `4683-4/00` Corretivos Do Solo / Insumos Agrícolas (posição 14, 56.0% — GARANTIDO)
+- O módulo `cnae-rag.ts` (RAG por tokens) é mantido como referência histórica mas não é mais chamado pelo fluxo principal
+- TypeScript: zero erros após todas as mudanças
+
+---
+
 ## [4.1.0] - Sprint V70.3 - 2026-03-18
 
 ### Corrigido
