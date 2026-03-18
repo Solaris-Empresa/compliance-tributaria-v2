@@ -5338,14 +5338,77 @@ export const CNAE_TABLE: CnaeEntry[] = [
   }
 ];
 
+// Dicionário de sinônimos para termos populares que não aparecem nas descrições oficiais
+const SEARCH_SYNONYMS: Record<string, string[]> = {
+  pizzaria: ["restaurante", "similar", "lanchonete"],
+  pizza: ["restaurante", "similar"],
+  hamburger: ["lanchonete", "restaurante"],
+  hamburguer: ["lanchonete", "restaurante"],
+  padaria: ["panificacao", "confeitaria"],
+  pastelaria: ["lanchonete", "restaurante"],
+  churrascaria: ["restaurante", "similar"],
+  sorveteria: ["sorvete", "lanchonete"],
+  cafeteria: ["cafe", "lanchonete"],
+  barbearia: ["cabeleireiro", "beleza"],
+  salao: ["cabeleireiro", "beleza"],
+  clinica: ["clinica", "medico", "saude"],
+  consultorio: ["consultorio", "medico"],
+  farmacia: ["farmacia", "drogaria"],
+  startup: ["software", "desenvolvimento", "computador"],
+  app: ["software", "aplicativo", "desenvolvimento"],
+  aplicativo: ["software", "desenvolvimento"],
+  ecommerce: ["comercio", "varejista", "internet"],
+  construtora: ["construcao", "edificios"],
+  empreiteira: ["construcao", "obras"],
+  escola: ["ensino", "educacao"],
+  faculdade: ["ensino", "superior"],
+  uber: ["transporte", "passageiros"],
+  taxi: ["transporte", "passageiros"],
+  frete: ["transporte", "cargas"],
+  logistica: ["transporte", "logistica"],
+  mercado: ["supermercado", "mercadorias"],
+  supermercado: ["supermercado", "mercadorias"],
+  advogado: ["advocacia", "juridico"],
+  contador: ["contabilidade", "contabil"],
+  imobiliaria: ["imobiliaria", "imoveis"],
+  moldura: ["madeira", "artefatos"],
+  quadro: ["madeira", "artefatos"],
+  artesanato: ["artesanato", "artefatos"],
+  fabrica: ["fabricacao", "industria"],
+  fazenda: ["agricultura", "pecuaria"],
+};
+
+function normalizeStr(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+}
+
 export function searchCnaes(query: string, limit = 10): CnaeEntry[] {
   if (!query || query.trim().length < 2) return [];
-  const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  return CNAE_TABLE.filter(c => {
+  const q = normalizeStr(query);
+  
+  // Expandir com sinônimos
+  const synonyms = SEARCH_SYNONYMS[q] || [];
+  const allTerms = [q, ...synonyms];
+  
+  // Score: match exato tem prioridade sobre parcial
+  const scored = CNAE_TABLE.map(c => {
     const code = c.code.replace(/[^0-9]/g, "");
-    const desc = c.description.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    return code.includes(q.replace(/[^0-9]/g, "")) || desc.includes(q);
-  }).slice(0, limit);
+    const desc = normalizeStr(c.description);
+    let score = 0;
+    
+    for (const term of allTerms) {
+      const termDigits = term.replace(/[^0-9]/g, "");
+      if (termDigits.length >= 2 && code.includes(termDigits)) score += 10;
+      if (desc.includes(term)) score += term === q ? 8 : 4; // termo original > sinônimo
+    }
+    return { entry: c, score };
+  });
+  
+  return scored
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(s => s.entry);
 }
 
 export function getCnaeByCode(code: string): CnaeEntry | undefined {

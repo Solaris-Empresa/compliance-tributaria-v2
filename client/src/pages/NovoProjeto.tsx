@@ -231,7 +231,8 @@ export default function NovoProjeto() {
   });
 
   const handleRefineCnaes = () => {
-    if (!projectId || feedbackText.trim().length < 5) return toast.error("Descreva o que precisa ser ajustado (mínimo 5 caracteres)");
+    if (!projectId) return toast.error("Projeto não encontrado. Recarregue a página e tente novamente.");
+    if (feedbackText.trim().length < 5) return toast.error("Descreva o que precisa ser ajustado (mínimo 5 caracteres)");
     const allCurrent = [...suggestedCnaes, ...customCnaes];
     refineCnaes.mutate({
       projectId,

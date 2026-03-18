@@ -67,7 +67,7 @@ export const fluxoV3Router = router({
   extractCnaes: protectedProcedure
     .input(z.object({
       projectId: z.number(),
-      description: z.string().min(50),
+      description: z.string().min(1),
     }))
     .mutation(async ({ input }) => {
       const project = await db.getProjectById(input.projectId);
@@ -125,7 +125,7 @@ Responda em JSON:
   refineCnaes: protectedProcedure
     .input(z.object({
       projectId: z.number(),
-      description: z.string().min(50),
+      description: z.string().min(1),
       feedback: z.string().min(5, "Descreva o que precisa ser ajustado"),
       currentCnaes: z.array(CnaeSchema),
       iteration: z.number().default(1),
