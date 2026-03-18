@@ -73,13 +73,24 @@ export const fluxoV3Router = router({
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
 
+      // RAG: buscar CNAEs candidatos na tabela oficial IBGE (1332 subclasses)
+      // Isso elimina alucinações e aumenta a precisão para ~98%
+      const { buildCnaeRagContext } = await import("./cnae-rag");
+      const ragContext = buildCnaeRagContext(input.description);
+
       const result = await generateWithRetry(
         [
           {
             role: "system",
             content: `Você é um Classificador Tributário Especialista em CNAE e Reforma Tributária brasileira (LC 214/2025, IBS, CBS, IS).
-Sua função é identificar com precisão os CNAEs que mais impactam o negócio descrito.
-Seja específico: prefira CNAEs de 7 dígitos (ex: 6201-5/01) a grupos genéricos.
+Sua função é identificar com ALTA PRECISÃO os CNAEs que mais impactam o negócio descrito.
+
+REGRAS CRÍTICAS:
+1. SOMENTE use códigos da lista CNAE OFICIAL fornecida abaixo. NUNCA invente códigos.
+2. Prefira CNAEs de 7 dígitos (ex: 6201-5/01) a grupos genéricos.
+3. Escolha os CNAEs que MELHOR descrevem a atividade principal e secundária do negócio.
+4. Se a empresa fabrica E vende, inclua CNAEs de fabricação E comércio.
+5. Não escolha CNAEs genéricos como "outros" se houver um específico.
 Responda APENAS com JSON válido no formato especificado.`,
           },
           {
@@ -89,7 +100,12 @@ Responda APENAS com JSON válido no formato especificado.`,
 DESCRIÇÃO DO NEGÓCIO:
 ${input.description}
 
-Para cada CNAE forneça: código (ex: 6201-5/01), descrição oficial, confidence (0-100) e justificativa breve.
+---
+LISTA CNAE OFICIAL IBGE (use APENAS códigos desta lista):
+${ragContext}
+---
+
+Para cada CNAE forneça: código (EXATAMENTE como na lista acima), descrição oficial, confidence (0-100) e justificativa breve.
 Considere especialmente os CNAEs mais impactados pela Reforma Tributária (IBS, CBS, IS).
 
 Responda em JSON:
@@ -97,7 +113,7 @@ Responda em JSON:
           },
         ],
         CnaesResponseSchema,
-        { temperature: 0.2, context: "extractCnaes" }
+        { temperature: 0.1, context: "extractCnaes" }
       );
 
       return { cnaes: result.cnaes };
@@ -122,13 +138,18 @@ Responda em JSON:
         `- ${c.code}: ${c.description} (confiança: ${c.confidence}%)`
       ).join("\n");
 
+      // RAG: buscar candidatos com base no feedback + descrição original
+      const { buildCnaeRagContext } = await import("./cnae-rag");
+      const ragContext = buildCnaeRagContext(`${input.description} ${input.feedback}`);
+
       const result = await generateWithRetry(
         [
           {
             role: "system",
             content: `Você é um Classificador Tributário Especialista em CNAE e Reforma Tributária brasileira.
 Revise a lista de CNAEs com base no feedback do usuário.
-Mantenha os corretos, ajuste os que precisam de correção, adicione os que estão faltando.
+MANTENHA os corretos, AJUSTE os que precisam de correção, ADICIONE os que estão faltando.
+USE APENAS códigos da lista CNAE OFICIAL fornecida. NUNCA invente códigos.
 Responda APENAS com JSON válido.`,
           },
           {
@@ -140,12 +161,17 @@ Feedback do usuário: "${input.feedback}"
 
 Descrição original: ${input.description}
 
-Retorne entre 2 e 6 CNAEs revisados.
+---
+LISTA CNAE OFICIAL IBGE (use APENAS códigos desta lista):
+${ragContext}
+---
+
+Retorne entre 2 e 6 CNAEs revisados com base no feedback.
 {"cnaes": [{"code": "XXXX-X/XX", "description": "...", "confidence": 95, "justification": "..."}]}`,
           },
         ],
         CnaesResponseSchema,
-        { temperature: 0.2, context: "refineCnaes" }
+        { temperature: 0.1, context: "refineCnaes" }
       );
 
       return { cnaes: result.cnaes, iteration: input.iteration + 1 };

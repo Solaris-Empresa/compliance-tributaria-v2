@@ -1,5 +1,6 @@
 // @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { searchCnaes, getCnaeByCode, type CnaeEntry } from "@/../../shared/cnae-table";
 import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
 import { ResumeBanner } from "@/components/ResumeBanner";
 import { useLocation, Link } from "wouter";
@@ -190,6 +191,11 @@ export default function NovoProjeto() {
   const [customCnaes, setCustomCnaes] = useState<Cnae[]>([]);
   const [newCnaeCode, setNewCnaeCode] = useState("");
   const [newCnaeDesc, setNewCnaeDesc] = useState("");
+  // Autocomplete CNAE manual
+  const [cnaeSearchQuery, setCnaeSearchQuery] = useState("");
+  const [cnaeSearchResults, setCnaeSearchResults] = useState<CnaeEntry[]>([]);
+  const [showCnaeDropdown, setShowCnaeDropdown] = useState(false);
+  const cnaeSearchRef = useRef<HTMLDivElement>(null);
   // RF-1.05: loop de refinamento de CNAEs
   const [showFeedbackPanel, setShowFeedbackPanel] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
@@ -275,6 +281,37 @@ export default function NovoProjeto() {
     setSelectedCnaes(prev => new Set([...prev, newCnae.code]));
     setNewCnaeCode(""); setNewCnaeDesc("");
   };
+
+  // Autocomplete: buscar CNAEs enquanto o usuário digita
+  const handleCnaeSearch = (query: string) => {
+    setCnaeSearchQuery(query);
+    if (query.trim().length >= 2) {
+      const results = searchCnaes(query, 8);
+      setCnaeSearchResults(results);
+      setShowCnaeDropdown(results.length > 0);
+    } else {
+      setCnaeSearchResults([]);
+      setShowCnaeDropdown(false);
+    }
+  };
+
+  const handleSelectCnaeFromDropdown = (entry: CnaeEntry) => {
+    setNewCnaeCode(entry.code);
+    setNewCnaeDesc(entry.description);
+    setCnaeSearchQuery(`${entry.code} — ${entry.description}`);
+    setShowCnaeDropdown(false);
+  };
+
+  // Fechar dropdown ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (cnaeSearchRef.current && !cnaeSearchRef.current.contains(e.target as Node)) {
+        setShowCnaeDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleEditCnae = (updated: Cnae) => {
     setSuggestedCnaes(prev => prev.map(c => c.code === editingCnae?.code ? updated : c));
@@ -466,15 +503,52 @@ export default function NovoProjeto() {
                     <p className="text-xs">Adicione CNAEs manualmente abaixo.</p>
                   </div>
                 )}
-                <div className="border rounded-xl p-4 bg-muted/30 space-y-3">
-                  <p className="text-sm font-semibold flex items-center gap-2"><Plus className="h-4 w-4 text-primary" />Adicionar CNAE Manualmente</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    <Input placeholder="Código (ex: 4711-3/02)" value={newCnaeCode} onChange={(e) => setNewCnaeCode(e.target.value)} className="col-span-1 text-sm" />
-                    <Input placeholder="Descrição do CNAE" value={newCnaeDesc} onChange={(e) => setNewCnaeDesc(e.target.value)} className="col-span-2 text-sm" />
+                <div className="border rounded-xl p-4 bg-muted/30 space-y-3" ref={cnaeSearchRef}>
+                  <p className="text-sm font-semibold flex items-center gap-2"><Search className="h-4 w-4 text-primary" />Buscar e Adicionar CNAE</p>
+                  <p className="text-xs text-muted-foreground">Digite o código (ex: 4744) ou palavras-chave (ex: moldura, software, transporte)</p>
+                  <div className="relative">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                      <Input
+                        placeholder="Buscar por código ou descrição..."
+                        value={cnaeSearchQuery}
+                        onChange={(e) => handleCnaeSearch(e.target.value)}
+                        onFocus={() => cnaeSearchQuery.length >= 2 && setShowCnaeDropdown(cnaeSearchResults.length > 0)}
+                        className="pl-9 text-sm"
+                      />
+                      {cnaeSearchQuery && (
+                        <button className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" onClick={() => { setCnaeSearchQuery(""); setNewCnaeCode(""); setNewCnaeDesc(""); setShowCnaeDropdown(false); }}>
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                    {showCnaeDropdown && cnaeSearchResults.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-background border rounded-lg shadow-lg max-h-56 overflow-y-auto">
+                        {cnaeSearchResults.map((entry) => (
+                          <button
+                            key={entry.code}
+                            className="w-full text-left px-3 py-2.5 hover:bg-muted/60 transition-colors border-b last:border-b-0 flex items-start gap-2"
+                            onMouseDown={(e) => { e.preventDefault(); handleSelectCnaeFromDropdown(entry); }}
+                          >
+                            <span className="font-mono text-xs font-semibold text-primary shrink-0 mt-0.5">{entry.code}</span>
+                            <span className="text-xs text-foreground leading-snug">{entry.description}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {cnaeSearchQuery.length >= 2 && cnaeSearchResults.length === 0 && (
+                      <p className="text-xs text-muted-foreground mt-1.5 pl-1">Nenhum CNAE encontrado. Tente outras palavras-chave.</p>
+                    )}
                   </div>
-                  <Button variant="outline" size="sm" onClick={handleAddCustomCnae} disabled={!newCnaeCode.trim() || !newCnaeDesc.trim()}>
-                    <Plus className="h-3.5 w-3.5 mr-1" />Adicionar
-                  </Button>
+                  {newCnaeCode && newCnaeDesc && (
+                    <div className="flex items-center gap-2 p-2 bg-primary/5 border border-primary/20 rounded-lg">
+                      <span className="font-mono text-xs font-semibold text-primary">{newCnaeCode}</span>
+                      <span className="text-xs text-foreground flex-1 truncate">{newCnaeDesc}</span>
+                      <Button size="sm" className="h-7 text-xs" onClick={handleAddCustomCnae}>
+                        <Plus className="h-3 w-3 mr-1" />Adicionar
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </>
             )}
