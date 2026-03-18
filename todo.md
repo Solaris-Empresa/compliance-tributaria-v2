@@ -2228,4 +2228,10 @@
 ## UX: Botão Novo Projeto — mover para sidebar esquerda em destaque
 - [x] Remover botão "+ Novo Projeto" do header (canto superior direito) — Painel.tsx e Projetos.tsx
 - [x] Adicionar botão "+ Novo Projeto" na sidebar, abaixo do logo, em destaque (ComplianceLayout.tsx)
+- [x] Checkpoint e publicação (versão f5f87c30)
+
+## UX: Badge contador de projetos ativos na sidebar
+- [x] Criar procedure tRPC getActiveCount para contar projetos ativos (server/routers.ts)
+- [x] Exibir badge com contagem ao lado de "Projetos" na sidebar (ComplianceLayout.tsx)
+- [x] 8 novos testes (65/65 testes de UX passando)
 - [ ] Checkpoint e publicação

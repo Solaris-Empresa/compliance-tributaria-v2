@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
 import { ROLES } from "@shared/translations";
 import RealtimeNotifications from "./RealtimeNotifications";
 import OnboardingTour, { useOnboardingTour } from "./OnboardingTour";
@@ -25,6 +26,10 @@ interface ComplianceLayoutProps {
 export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
   const { user, loading, isAuthenticated, logout } = useAuth();
   const [location] = useLocation();
+  const { data: activeCountData } = trpc.projects.getActiveCount.useQuery(undefined, {
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+  });
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     try {
       const saved = localStorage.getItem("sidebar_open");
@@ -154,20 +159,38 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-2">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
-                isActive(item.href)
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-accent text-foreground"
-              }`}
-            >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
-              {sidebarOpen && <span>{item.label}</span>}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isProjects = item.href === "/projetos";
+            const activeCount = activeCountData?.count ?? 0;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                  isActive(item.href)
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-accent text-foreground"
+                }`}
+              >
+                <item.icon className="h-5 w-5 flex-shrink-0" />
+                {sidebarOpen && (
+                  <span className="flex-1">{item.label}</span>
+                )}
+                {isProjects && activeCount > 0 && (
+                  <span
+                    className={`text-xs font-semibold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${
+                      isActive(item.href)
+                        ? "bg-primary-foreground/20 text-primary-foreground"
+                        : "bg-primary/10 text-primary"
+                    }`}
+                    title={`${activeCount} projeto${activeCount !== 1 ? "s" : ""} ativo${activeCount !== 1 ? "s" : ""}`}
+                  >
+                    {activeCount}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
 
           {/* Botão Retomar Tour — visível apenas quando há progresso parcial */}
           {canResumeTour && !showTour && (

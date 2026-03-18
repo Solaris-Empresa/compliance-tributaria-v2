@@ -101,6 +101,11 @@ export const appRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
       return await db.getProjectsByUser(ctx.user.id, ctx.user.role);
     }),
+    getActiveCount: protectedProcedure.query(async ({ ctx }) => {
+      const all = await db.getProjectsByUser(ctx.user.id, ctx.user.role);
+      const inactive = ["rascunho", "arquivado", "concluido"];
+      return { count: all.filter(p => !inactive.includes(p.status)).length };
+    }),
 
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))

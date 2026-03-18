@@ -404,3 +404,62 @@ describe("FlowStepper com completedUpTo — projeto Aprovado (regressão bug eta
     expect(getStepState(5, currentStep, oldCompletedUpTo)).toBe("locked");
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. Badge contador de projetos ativos na sidebar
+//    Lógica: todos os status exceto rascunho, arquivado e concluido são "ativos"
+// ─────────────────────────────────────────────────────────────────────────────
+
+const INACTIVE_STATUSES = ["rascunho", "arquivado", "concluido"];
+const ACTIVE_STATUSES = [
+  "assessment_fase1", "assessment_fase2", "matriz_riscos",
+  "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "parado",
+];
+
+function countActiveProjects(projects: { status: string }[]): number {
+  return projects.filter((p) => !INACTIVE_STATUSES.includes(p.status)).length;
+}
+
+describe("Badge contador — projetos ativos na sidebar", () => {
+  const make = (status: string) => ({ status });
+
+  it("retorna 0 para lista vazia", () => {
+    expect(countActiveProjects([])).toBe(0);
+  });
+
+  it("rascunho NÃO conta como ativo", () => {
+    expect(countActiveProjects([make("rascunho")])).toBe(0);
+  });
+
+  it("arquivado NÃO conta como ativo", () => {
+    expect(countActiveProjects([make("arquivado")])).toBe(0);
+  });
+
+  it("concluido NÃO conta como ativo", () => {
+    expect(countActiveProjects([make("concluido")])).toBe(0);
+  });
+
+  it("todos os 8 status ativos são contados corretamente", () => {
+    const projects = ACTIVE_STATUSES.map(make);
+    expect(countActiveProjects(projects)).toBe(ACTIVE_STATUSES.length);
+  });
+
+  it("mix de ativos e inativos conta apenas os ativos", () => {
+    const projects = [
+      make("rascunho"), make("aprovado"), make("arquivado"),
+      make("em_andamento"), make("concluido"), make("plano_acao"),
+    ];
+    expect(countActiveProjects(projects)).toBe(3); // aprovado, em_andamento, plano_acao
+  });
+
+  it("cada status ativo individualmente retorna 1", () => {
+    for (const status of ACTIVE_STATUSES) {
+      expect(countActiveProjects([make(status)])).toBe(1);
+    }
+  });
+
+  it("retorna 0 quando todos são inativos", () => {
+    const projects = INACTIVE_STATUSES.map(make);
+    expect(countActiveProjects(projects)).toBe(0);
+  });
+});
