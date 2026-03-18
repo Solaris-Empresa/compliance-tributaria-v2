@@ -2306,3 +2306,7 @@
 - [x] FIX: Criada página FormularioProjeto.tsx (/projetos/:id/formulario) com dados do projeto em modo leitura
 - [x] FIX: FlowStepper atualizado para apontar chip "Projeto" para /formulario
 - [x] FIX: getProjectStep1 enriquecido com clientName e clientCnpj do cliente vinculado
+
+## Bug UX - Botão "Ir para o Painel" no PlanoAcaoV3 (18/03/2026)
+- [x] BUG: Botão "Ir para o Painel" na tela de conclusão do PlanoAcaoV3 leva a rota 404
+- [x] FIX: Substituído por "Ver Projetos" navegando para /projetos

@@ -1357,12 +1357,12 @@ export default function PlanoAcaoV3() {
                 size="lg"
                 onClick={() => {
                   sessionStorage.removeItem(`plano-editmode-${projectId}`);
-                  setLocation("/painel");
+                  setLocation("/projetos");
                 }}
                 className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8"
               >
                 <LayoutDashboard className="h-5 w-5" />
-                Ir para o Painel
+                Ver Projetos
               </Button>
               <Button
                 size="lg"
