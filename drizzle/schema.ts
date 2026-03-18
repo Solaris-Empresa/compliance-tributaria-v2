@@ -1312,6 +1312,7 @@ export const questionnaireQuestionsCache = mysqlTable("questionnaireQuestionsCac
   level: mysqlEnum("level", ["nivel1", "nivel2"]).notNull().default("nivel1"),
   roundIndex: int("roundIndex").notNull().default(0),
   questionsJson: text("questionsJson").notNull(), // JSON array de Question[]
+  contextNote: text("contextNote"), // Contexto adicional usado na geração deste round (null = sem contexto)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

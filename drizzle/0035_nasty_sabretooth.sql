@@ -1,0 +1,1 @@
+ALTER TABLE `questionnaireQuestionsCache` ADD `contextNote` text;

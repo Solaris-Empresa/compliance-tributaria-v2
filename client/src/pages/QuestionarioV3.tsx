@@ -19,7 +19,7 @@ import {
   ArrowLeft, ArrowRight, ChevronRight, Loader2, Sparkles,
   CheckCircle2, Clock, SkipForward, MessageSquare, BarChart2,
   AlignLeft, List, ToggleLeft, Layers, Play, FileQuestion,
-  AlertCircle, RefreshCw
+  AlertCircle, RefreshCw, StickyNote
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -56,7 +56,7 @@ interface CnaeProgress {
   nivel1Questions?: Question[]; // Cache das perguntas geradas para o nível 1 (evita rechamada à IA ao voltar)
   nivel1AnswersMap?: Record<string, string>; // Cache do mapa de respostas do nível 1 (id→valor)
   nivel2Answers: { question: string; answer: string }[];
-  deepDiveRounds?: { roundIndex: number; answers: { question: string; answer: string }[] }[];
+  deepDiveRounds?: { roundIndex: number; answers: { question: string; answer: string }[]; contextNote?: string }[];
   currentRound?: number;
 }
 
@@ -361,6 +361,7 @@ export default function QuestionarioV3() {
           level,
           roundIndex: roundIndex ?? 0,
           questionsJson: JSON.stringify(qs),
+          contextNote: contextNoteParam || undefined, // Persistir contexto usado na geração
         });
       }
     } catch (err: unknown) {
@@ -560,7 +561,7 @@ export default function QuestionarioV3() {
       const isFirstRound = currentRound <= 1;
       const newDeepDiveRounds = [
         ...(c.deepDiveRounds || []),
-        { roundIndex: currentRound, answers: roundAnswers },
+        { roundIndex: currentRound, answers: roundAnswers, contextNote: contextNote.trim() || undefined },
       ];
       return {
         ...c,
@@ -837,6 +838,15 @@ export default function QuestionarioV3() {
                       ? `+${c.deepDiveRounds.length + 1}`
                       : "+2"}
                   </Badge>
+                )}
+                {/* Indicador de contexto adicional: aparece quando algum round foi gerado com nota */}
+                {c.deepDiveRounds && c.deepDiveRounds.some(r => r.contextNote) && (
+                  <span
+                    title={`Contexto adicional usado em ${c.deepDiveRounds.filter(r => r.contextNote).length} round(s)`}
+                    className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-violet-100 border border-violet-300"
+                  >
+                    <StickyNote className="h-2.5 w-2.5 text-violet-600" />
+                  </span>
                 )}
               </button>
             ))}

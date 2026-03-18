@@ -472,6 +472,7 @@ Gere as perguntas no formato:
       level: z.enum(["nivel1", "nivel2"]),
       roundIndex: z.number().default(0),
       questionsJson: z.string(),
+      contextNote: z.string().optional(), // Contexto adicional usado na geração deste round
     }))
     .mutation(async ({ input }) => {
       const database = await db.getDb();
@@ -491,7 +492,7 @@ Gere as perguntas no formato:
       if (existing.length > 0) {
         await database
           .update(questionnaireQuestionsCache)
-          .set({ questionsJson: input.questionsJson })
+          .set({ questionsJson: input.questionsJson, contextNote: input.contextNote ?? null })
           .where(eq(questionnaireQuestionsCache.id, existing[0].id));
       } else {
         await database.insert(questionnaireQuestionsCache).values({
@@ -500,6 +501,7 @@ Gere as perguntas no formato:
           level: input.level,
           roundIndex: input.roundIndex,
           questionsJson: input.questionsJson,
+          contextNote: input.contextNote ?? null,
         });
       }
       return { ok: true };
@@ -552,10 +554,33 @@ Gere as perguntas no formato:
         }
       }
 
+       // Buscar contextNotes por CNAE/round da tabela de cache de perguntas
+      const cacheRows = await database
+        .select({
+          cnaeCode: questionnaireQuestionsCache.cnaeCode,
+          roundIndex: questionnaireQuestionsCache.roundIndex,
+          contextNote: questionnaireQuestionsCache.contextNote,
+        })
+        .from(questionnaireQuestionsCache)
+        .where(
+          and(
+            eq(questionnaireQuestionsCache.projectId, input.projectId),
+            eq(questionnaireQuestionsCache.level, "nivel2")
+          )
+        );
+      // Montar mapa cnaeCode -> roundIndex -> contextNote
+      const contextMap: Record<string, Record<number, string | null>> = {};
+      for (const row of cacheRows) {
+        if (!contextMap[row.cnaeCode]) contextMap[row.cnaeCode] = {};
+        contextMap[row.cnaeCode][row.roundIndex] = row.contextNote ?? null;
+      }
       const summary = Object.values(byCnae)
         .filter(c => c.nivel1Done)
-        .sort((a, b) => b.roundsCompleted - a.roundsCompleted);
-
+        .sort((a, b) => b.roundsCompleted - a.roundsCompleted)
+        .map(c => ({
+          ...c,
+          roundContextNotes: contextMap[c.cnaeCode] ?? {}, // { roundIndex: contextNote | null }
+        }));
       return { summary };
     }),
 
@@ -581,8 +606,8 @@ Gere as perguntas no formato:
           )
         )
         .limit(1);
-      if (rows.length === 0) return { questionsJson: null };
-      return { questionsJson: rows[0].questionsJson };
+      if (rows.length === 0) return { questionsJson: null, contextNote: null };
+      return { questionsJson: rows[0].questionsJson, contextNote: rows[0].contextNote ?? null };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────

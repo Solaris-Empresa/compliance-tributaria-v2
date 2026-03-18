@@ -2384,3 +2384,17 @@
 - [x] FIX: botão renomeado para "Concluir Nível 2" com ícone CheckCircle2
 - [x] FIX: botão "Pular Nível 2" renomeado para "Pular e avançar" (mais claro sobre a consequência)
 - [x] TypeScript: 0 erros após a correção
+
+## Feature - Indicador Visual de Contexto nos Rounds (18/03/2026)
+- [ ] Persistir contextNote usado por round no campo deepDiveRounds do cnaeProgress
+- [x] Salvar contextNote na tabela questionnaireQuestionsCache (migracao 0035 aplicada) (campo contextNote)
+- [ ] Badge do CNAE: ícone de contexto ativo quando round foi gerado com nota
+- [x] Painel de rounds no Briefing: exibir texto do contexto por round (fundo violeta)
+- [x] TypeScript: 0 erros | Testes: 14/14 passando | Checkpoint salvo
+
+## Feature - Indicador Visual de Contexto nos Rounds (18/03/2026)
+- [x] Persistir contextNote por round no deepDiveRounds do cnaeProgress
+- [x] Salvar contextNote na tabela questionnaireQuestionsCache (migracao 0035 aplicada)
+- [x] Badge do CNAE: icone StickyNote violeta quando algum round tem contextNote
+- [x] Painel de rounds no Briefing: exibir texto do contexto por round (fundo violeta)
+- [x] TypeScript: 0 erros | Testes: 14/14 passando | Checkpoint salvo

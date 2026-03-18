@@ -16,7 +16,7 @@ import {
   ArrowLeft, ChevronRight, Loader2, Sparkles,
   CheckCircle2, RefreshCw, MessageSquare, ThumbsUp, Edit3, Info, Download,
   History, Clock, ChevronDown, ChevronUp, AlertTriangle,
-  Layers, TrendingUp, BarChart3, Flame
+  Layers, TrendingUp, BarChart3, Flame, StickyNote
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -498,6 +498,22 @@ export default function BriefingV3() {
                               style={{ width: `${barWidth}%` }}
                             />
                           </div>
+                          {/* Contextos por round: exibir quando houver notas salvas */}
+                          {cnae.roundContextNotes && Object.entries(cnae.roundContextNotes).some(([, v]) => v) && (
+                            <div className="mt-1.5 space-y-1">
+                              {Object.entries(cnae.roundContextNotes)
+                                .filter(([, note]) => note)
+                                .map(([roundIdx, note]) => (
+                                  <div key={roundIdx} className="flex items-start gap-1.5 text-[11px] text-violet-700 bg-violet-50 border border-violet-200 rounded-md px-2 py-1">
+                                    <StickyNote className="h-3 w-3 shrink-0 mt-0.5 text-violet-500" />
+                                    <span>
+                                      <span className="font-semibold">Round {Number(roundIdx) + 1}:</span>{" "}
+                                      <span className="italic">{note}</span>
+                                    </span>
+                                  </div>
+                                ))}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
