@@ -655,13 +655,15 @@ export default function PlanoAcaoV3() {
     return sessionStorage.getItem(`plano-editmode-${projectId}`) === 'true';
   });
 
-  // Verificar rascunho local ao montar
+  // Verificar rascunho local ao montar — suprimir banner se há plano salvo no banco
   useEffect(() => {
     if (!projectId) return;
     const saved = loadTempData(projectId, 'etapa5');
     if (saved?.data?.plans && Object.keys(saved.data.plans).length > 0) {
+      // Verificar se já há plano no banco antes de mostrar o banner
+      // O banner só é relevante se o banco não tem plano (evita confusão)
       setDraftSavedAt(saved.savedAt);
-      setShowResumeBanner(true);
+      setShowResumeBanner(true); // será suprimido pelo useEffect do project se hasSavedPlan
     }
   }, [projectId]);
 
@@ -688,6 +690,7 @@ export default function PlanoAcaoV3() {
   );
 
   const generatePlan = trpc.fluxoV3.generateActionPlan.useMutation();
+  const saveDraftPlan = trpc.fluxoV3.saveDraftActionPlan.useMutation();
   const approvePlan = trpc.fluxoV3.approveActionPlan.useMutation();
   const generateDecision = trpc.fluxoV3.generateDecision.useMutation();
 
@@ -724,6 +727,9 @@ export default function PlanoAcaoV3() {
       setPlans(savedPlans);
       setGenerationCount(1);
       generationTriggeredRef.current = true;
+      // Suprimir banner de rascunho local — o banco já tem o plano
+      setShowResumeBanner(false);
+      clearTempData(projectId, 'etapa5');
       return;
     }
     // Gerar novo plano apenas se não há conteúdo salvo
@@ -748,9 +754,19 @@ export default function PlanoAcaoV3() {
         adjustment,
         briefingContent, // V70.2: enriquecer prompt com gaps do briefing
       });
-      setPlans(prev => ({ ...prev, ...result.plans }));
+      const updatedPlans = { ...plans, ...result.plans };
+      setPlans(updatedPlans);
       setGenerationCount(prev => prev + 1);
       if (generationCount > 0) toast.success(area ? `Plano de ${area} atualizado!` : "Plano de Ação gerado!");
+      // Auto-save: persistir no banco imediatamente após geração
+      try {
+        await saveDraftPlan.mutateAsync({ projectId, plans: updatedPlans });
+        // Suprimir banner de rascunho local pois o plano já está no banco
+        setShowResumeBanner(false);
+        clearTempData(projectId, 'etapa5');
+      } catch {
+        // Auto-save falhou silenciosamente — o localStorage ainda serve de fallback
+      }
     } catch {
       toast.error("Erro ao gerar o plano. Tente novamente.");
     } finally {

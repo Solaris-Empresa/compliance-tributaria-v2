@@ -919,6 +919,26 @@ Gere o plano de ação em JSON:
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
+  // ETAPA 5: Auto-save — salva rascunho do plano sem alterar status/currentStep
+  // Chamado automaticamente após geração pela IA para garantir persistência
+  // ─────────────────────────────────────────────────────────────────────────
+  saveDraftActionPlan: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      plans: z.record(z.string(), z.array(z.any())),
+    }))
+    .mutation(async ({ input }) => {
+      const database = await db.getDb();
+      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      // Apenas persiste actionPlansData — não altera status nem currentStep
+      await database
+        .update(projects)
+        .set({ actionPlansData: input.plans as any } as any)
+        .where(eq(projects.id, input.projectId));
+      return { success: true };
+    }),
+
+  // ─────────────────────────────────────────────────────────────────────────
   // ETAPA 5: Aprovar plano de ação + gerar decisão (V63)
   // ─────────────────────────────────────────────────────────────────────────
   approveActionPlan: protectedProcedure

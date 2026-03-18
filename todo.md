@@ -2327,3 +2327,9 @@
   FIX Bug #7: projetos aprovados com plano salvo abrem direto no modo edição (editMode=true)
   A tela de conclusão só aparece após nova aprovação via approvePlan
   TESTADO manualmente: projeto 90003 abre com 29 tarefas editáveis
+
+## Feature - Auto-save do Plano de Ação no Banco (18/03/2026)
+- [x] Criar procedure `saveDraftActionPlan` no servidor (routers-fluxo-v3.ts)
+- [x] Chamar saveDraftActionPlan no frontend após geração bem-sucedida (PlanoAcaoV3.tsx)
+- [x] Suprimir banner de rascunho local quando há plano salvo no banco
+- [x] TESTADO: projeto 90004 gerou 28 tarefas e auto-save persistiu 42.449 bytes no banco
