@@ -745,7 +745,7 @@ export default function QuestionarioV3() {
                   "border-border text-muted-foreground cursor-default"
                 )}
               >
-                {c.nivel1Done ? <CheckCircle2 className="h-3 w-3" /> : <Layers className="h-3 w-3" />}
+                {c.nivel1Done ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> : <Layers className="h-3 w-3" />}
                 {c.code}
                 {c.revisado && (
                   <span className="inline-flex items-center text-[9px] font-bold px-1.5 py-0 rounded-full bg-amber-100 text-amber-700 border border-amber-300 leading-4">

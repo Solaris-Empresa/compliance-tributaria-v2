@@ -1,0 +1,17 @@
+{
+  "query": "\nSELECT id, name, \n  JSON_KEYS(JSON_EXTRACT(briefingStructured, '$')) as json_keys,\n  JSON_EXTRACT(briefingStructured, '$.inconsistencias') as inconsistencias,\n  JSON_EXTRACT(briefingStructured, '$.confidence_score') as confidence_score\nFROM projects \nWHERE id = 60128;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT id, name, \n  JSON_KEYS(JSON_EXTRACT(briefingStructured, '$')) as json_keys,\n  JSON_EXTRACT(briefingStructured, '$.inconsistencias') as inconsistencias,\n  JSON_EXTRACT(briefingStructured, '$.confidence_score') as confidence_score\nFROM projects \nWHERE id = 60128;\n",
+  "rows": [
+    {
+      "id": "60128",
+      "name": "Teste - Uires - 18mar--9h04",
+      "json_keys": "NULL",
+      "inconsistencias": "NULL",
+      "confidence_score": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tjson_keys\tinconsistencias\tconfidence_score\n60128\tTeste - Uires - 18mar--9h04\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 61
+}

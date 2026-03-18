@@ -2274,3 +2274,18 @@
 - [x] Temperatura reduzida 0.2 → 0.15 para maior consistência
 - [x] briefingContent passado pelo frontend (PlanoAcaoV3.tsx)
 - [x] Testes: 2/2 passando (GPT-4.1 respondeu em 956ms)
+
+## Sprint V70.3 — Testes de Qualidade + Ícone Check CNAEs (18/03/2026)
+
+- [ ] Testar fluxo de inconsistência: criar projeto de teste com respostas contraditórias no banco
+- [ ] Validar que o botão "Corrigir no Questionário" navega corretamente com ?revisao=true&pergunta=...
+- [ ] Validar que o modo de revisão exibe banner âmbar e highlight da pergunta inconsistente
+- [ ] Validar que "Salvar Correções e Regenerar Briefing" dispara regeneração automática
+- [ ] Adicionar ícone check (✓) nos chips de CNAE já respondidos no QuestionarioV3
+- [ ] Validar qualidade do Plano de Ação V70.2: verificar se tarefas citam artigos da LC 214/2025
+
+## Sprint V70.3 — Testes de Qualidade + Ícone Check CNAEs (18/03/2026)
+- [x] Testado fluxo completo de inconsistência: modal exibe inconsistência, botão Corrigir navega com ?revisao=true&pergunta=...
+- [x] Modo de revisão validado visualmente: banner âmbar, highlight da pergunta inconsistente, botão Salvar e Regenerar
+- [x] Ícone de check nos chips de CNAE aprimorado: h-3.5 w-3.5 text-emerald-600 (já existia, tornando mais visível)
+- [x] Prompt do Plano de Ação V70.2 validado: 10 regras críticas, campos obrigatórios, contexto completo

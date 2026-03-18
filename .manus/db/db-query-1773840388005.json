@@ -1,0 +1,31 @@
+{
+  "query": "\nSELECT id, name, status, currentStep,\n  LEFT(briefingStructured, 300) as briefing_preview\nFROM projects \nWHERE briefingStructured IS NOT NULL \nORDER BY updatedAt DESC\nLIMIT 3;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT id, name, status, currentStep,\n  LEFT(briefingStructured, 300) as briefing_preview\nFROM projects \nWHERE briefingStructured IS NOT NULL \nORDER BY updatedAt DESC\nLIMIT 3;\n",
+  "rows": [
+    {
+      "id": "60128",
+      "name": "Teste - Uires - 18mar--9h04",
+      "status": "aprovado",
+      "currentStep": "5",
+      "briefing_preview": "\"{\\\"nivel_risco_geral\\\":\\\"alto\\\",\\\"resumo_executivo\\\":\\\"A estrutura do grupo empresarial contemplando fabricação, revenda e atacado de produtos de padaria apresenta exposição relevante a riscos fiscais diante de respostas que revelam gaps de compliance em operações de bonificações, brindes e vendas "
+    },
+    {
+      "id": "9999",
+      "name": "Diagnóstico Tributário 2026 — Reforma IBS/CBS",
+      "status": "aprovado",
+      "currentStep": "3",
+      "briefing_preview": "\"{\\\"nivel_risco_geral\\\":\\\"critico\\\",\\\"resumo_executivo\\\":\\\"A empresa do setor de bebidas, operando em 3 estados com distribuição de cervejas artesanais e importadas sob o regime de Lucro Real, enfrenta um cenário de risco crítico na transição para o IBS/CBS. A ausência de respostas detalhadas no que"
+    },
+    {
+      "id": "1",
+      "name": "Beer + Cerveja",
+      "status": "aprovado",
+      "currentStep": "5",
+      "briefing_preview": "\"{\\\"nivel_risco_geral\\\":\\\"alto\\\",\\\"resumo_executivo\\\":\\\"A empresa 'Beer + Cerveja', produtora de cerveja viva com faturamento de R$10 milhões/ano, operando exclusivamente via e-commerce para mercado doméstico e exportação (Bélgica) e enquadrada no Lucro Presumido, apresenta gaps significativos de co"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tstatus\tcurrentStep\tbriefing_preview\n60128\tTeste - Uires - 18mar--9h04\taprovado\t5\t\"{\\\"nivel_risco_geral\\\":\\\"alto\\\",\\\"resumo_executivo\\\":\\\"A estrutura do grupo empresarial contemplando fabricação, revenda e atacado de produtos de padaria apresenta exposição relevante a riscos fiscais diante de respostas que revelam gaps de compliance em operações de bonificações, brindes e vendas \n9999\tDiagnóstico Tributário 2026 — Reforma IBS/CBS\taprovado\t3\t\"{\\\"nivel_risco_geral\\\":\\\"critico\\\",\\\"resumo_executivo\\\":\\\"A empresa do setor de bebidas, operando em 3 estados com distribuição de cervejas artesanais e importadas sob o regime de Lucro Real, enfrenta um cenário de risco crítico na transição para o IBS/CBS. A ausência de respostas detalhadas no que\n1\tBeer + Cerveja\taprovado\t5\t\"{\\\"nivel_risco_geral\\\":\\\"alto\\\",\\\"resumo_executivo\\\":\\\"A empresa 'Beer + Cerveja', produtora de cerveja viva com faturamento de R$10 milhões/ano, operando exclusivamente via e-commerce para mercado doméstico e exportação (Bélgica) e enquadrada no Lucro Presumido, apresenta gaps significativos de co\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}
