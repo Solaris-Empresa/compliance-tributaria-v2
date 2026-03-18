@@ -701,11 +701,14 @@ export default function PlanoAcaoV3() {
   useEffect(() => {
     if (!project) return;
 
-    // Se projeto já está aprovado/concluído, mostrar tela de conclusão com dados do banco
+    // Se projeto já está aprovado/concluído E tem plano salvo, mostrar tela de conclusão
     // Bug #5: não ativar conclusão se o usuário escolheu editar
+    // Bug #6: só ativar conclusão se há plano salvo no banco (actionPlansData não vazio)
     const isApproved = project.status === "aprovado" || project.status === "concluido";
-    if (isApproved && !showConclusion && !conclusionData && !editMode) {
-      const savedPlans = (project as any).actionPlansData || {};
+    const savedPlansCheck = (project as any).actionPlansData;
+    const hasSavedPlan = savedPlansCheck && Object.keys(savedPlansCheck).length > 0;
+    if (isApproved && hasSavedPlan && !showConclusion && !conclusionData && !editMode) {
+      const savedPlans = savedPlansCheck || {};
       const savedMatrices = (project as any).riskMatricesData || {};
       const cnaes = (project as any).confirmedCnaes || [];
       const allRisksRaw = Object.entries(savedMatrices).flatMap(([area, risks]) =>

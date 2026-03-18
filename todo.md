@@ -2316,3 +2316,7 @@
   FIX: FLOW_STEPS[0].route corrigida para /projetos/:id/formulario
 - [x] BUG: Botão "Continuar — Plano de Ação" não aparecia para projetos com status aprovado/em_andamento/concluído
   FIX: activeStatuses do step 5 ampliado para incluir aprovado, em_andamento, concluido
+
+## Bug UX - Chip Plano de Ação navega errado (18/03/2026)
+- [x] BUG: Chip "Plano de Ação" navega para tela "Projeto Concluído!" mesmo sem plano gerado
+  FIX: PlanoAcaoV3 agora só exibe tela de conclusão se actionPlansData não está vazio no banco
