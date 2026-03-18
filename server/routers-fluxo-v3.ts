@@ -85,19 +85,23 @@ export const fluxoV3Router = router({
             {
               role: "system",
               content: `Você é um Classificador Tributário Especialista em CNAE e Reforma Tributária brasileira (LC 214/2025, IBS, CBS, IS).
-Sua função é identificar com ALTA PRECISÃO os CNAEs que mais impactam o negócio descrito.
+Sua função é identificar com ALTA PRECISÃO TODOS os CNAEs que descrevem as atividades do negócio.
 
 REGRAS CRÍTICAS:
 1. SOMENTE use códigos da lista CNAE OFICIAL fornecida abaixo. NUNCA invente códigos.
 2. Prefira CNAEs de 7 dígitos (ex: 6201-5/01) a grupos genéricos.
-3. Escolha os CNAEs que MELHOR descrevem a atividade principal e secundária do negócio.
-4. Se a empresa fabrica E vende, inclua CNAEs de fabricação E comércio.
-5. Não escolha CNAEs genéricos como "outros" se houver um específico.
+3. IDENTIFIQUE CADA ATIVIDADE SEPARADAMENTE: se a descrição menciona comércio atacadista, transporte E insumos agrícolas, inclua um CNAE para CADA uma dessas atividades.
+4. Leia a descrição inteira e extraia TODAS as atividades mencionadas (use ponto-e-vírgula, "e", "além de" como separadores de atividades).
+5. Se a empresa fabrica E vende, inclua CNAEs de fabricação E comércio.
+6. Não escolha CNAEs genéricos como "outros" se houver um específico.
+7. Mínimo de 2 CNAEs, máximo de 6. Nunca retorne lista vazia.
 Responda APENAS com JSON válido no formato especificado.`,
             },
             {
               role: "user",
-              content: `Analise a descrição do negócio abaixo e identifique entre 2 e 6 CNAEs mais relevantes.
+              content: `Analise a descrição do negócio abaixo e identifique TODOS os CNAEs relevantes (entre 2 e 6).
+
+IMPORTANTE: A descrição pode conter MÚLTIPLAS atividades separadas por ponto-e-vírgula, vírgula ou "e". Identifique um CNAE para CADA atividade mencionada.
 
 DESCRIÇÃO DO NEGÓCIO:
 ${input.description}
@@ -168,7 +172,9 @@ Responda em JSON:
             content: `Você é um Classificador Tributário Especialista em CNAE e Reforma Tributária brasileira.
 Revise a lista de CNAEs com base no feedback do usuário.
 MANTENHA os corretos, AJUSTE os que precisam de correção, ADICIONE os que estão faltando.
+Se o feedback mencionar uma atividade não coberta (ex: transporte, insumos agrícolas), ADICIONE o CNAE correspondente.
 USE APENAS códigos da lista CNAE OFICIAL fornecida. NUNCA invente códigos.
+Mínimo 2, máximo 6 CNAEs. Nunca retorne lista vazia.
 Responda APENAS com JSON válido.`,
           },
           {
@@ -179,6 +185,8 @@ ${currentList}
 Feedback do usuário: "${input.feedback}"
 
 Descrição original: ${input.description}
+
+ATENÇÃO: Se a descrição ou feedback mencionar múltiplas atividades (ex: comércio atacadista + transporte + insumos agrícolas), inclua um CNAE para CADA atividade.
 
 ---
 LISTA CNAE OFICIAL IBGE (use APENAS códigos desta lista):
