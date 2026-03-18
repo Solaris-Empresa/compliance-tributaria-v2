@@ -2378,3 +2378,9 @@
 - [x] Componente: barra de rounds por CNAE, badge de "Alta Complexidade" para CNAEs com 2+ rounds
 - [x] Testes: TypeScript 0 erros, routers-fluxo-v3.test.ts 14/14, openai-key-validation 2/2
 - [x] Validação no browser: painel exibido corretamente no projeto Teste - La Biera (3 CNAEs, 1 round cada)
+
+## Bug - Botão "Concluir Nível 2" não aparece com 5/5 respondidas (18/03/2026)
+- [x] CAUSA: botão existia mas com texto "Próximo CNAE" — usuário não identificava como ação de processar respostas
+- [x] FIX: botão renomeado para "Concluir Nível 2" com ícone CheckCircle2
+- [x] FIX: botão "Pular Nível 2" renomeado para "Pular e avançar" (mais claro sobre a consequência)
+- [x] TypeScript: 0 erros após a correção

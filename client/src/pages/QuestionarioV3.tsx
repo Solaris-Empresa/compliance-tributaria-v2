@@ -1387,15 +1387,11 @@ export default function QuestionarioV3() {
                       <div className="flex gap-2">
                         <Button variant="outline" onClick={handleSkipDeepDive}>
                           <SkipForward className="h-4 w-4 mr-2" />
-                          Pular Nível 2
+                          Pular e avançar
                         </Button>
                         <Button onClick={handleFinishLevel2} disabled={!allRequiredAnswered || isSaving} size="lg">
-                          {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                          {currentCnaeIdx === cnaes.length - 1 ? (
-                            <>Finalizar Questionário<CheckCircle2 className="h-4 w-4 ml-2" /></>
-                          ) : (
-                            <>Próximo CNAE<ArrowRight className="h-4 w-4 ml-2" /></>
-                          )}
+                          {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
+                          Concluir Nível 2
                         </Button>
                       </div>
                     )}
