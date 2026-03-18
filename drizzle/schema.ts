@@ -1318,3 +1318,23 @@ export const questionnaireQuestionsCache = mysqlTable("questionnaireQuestionsCac
 });
 export type QuestionnaireQuestionsCache = typeof questionnaireQuestionsCache.$inferSelect;
 export type InsertQuestionnaireQuestionsCache = typeof questionnaireQuestionsCache.$inferInsert;
+
+// =============================================================================
+// V71 — Embeddings Vetoriais de CNAEs (OpenAI text-embedding-3-small)
+// =============================================================================
+/**
+ * cnaeEmbeddings
+ * Armazena os vetores semânticos (1536 dimensões) de cada subclasse CNAE 2.3.
+ * Gerados via OpenAI text-embedding-3-small a partir da descrição oficial IBGE.
+ * Usados para busca por similaridade de cosseno em substituição ao RAG por tokens.
+ */
+export const cnaeEmbeddings = mysqlTable("cnaeEmbeddings", {
+  id: int("id").autoincrement().primaryKey(),
+  cnaeCode: varchar("cnaeCode", { length: 20 }).notNull().unique(),
+  cnaeDescription: text("cnaeDescription").notNull(),
+  embeddingJson: text("embeddingJson").notNull(), // JSON array de 1536 floats (text-embedding-3-small)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CnaeEmbedding = typeof cnaeEmbeddings.$inferSelect;
+export type InsertCnaeEmbedding = typeof cnaeEmbeddings.$inferInsert;
+

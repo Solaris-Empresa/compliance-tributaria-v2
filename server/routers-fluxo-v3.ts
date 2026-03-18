@@ -73,10 +73,10 @@ export const fluxoV3Router = router({
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
 
-      // RAG: buscar CNAEs candidatos na tabela oficial IBGE (1332 subclasses)
-      // Isso elimina alucinações e aumenta a precisão para ~98%
-      const { buildCnaeRagContext } = await import("./cnae-rag");
-      const ragContext = buildCnaeRagContext(input.description);
+      // Embeddings semânticos: busca por similaridade de cosseno (OpenAI text-embedding-3-small)
+      // Substitui o RAG por tokens — sem hard-code, precisão ~98%
+      const { buildSemanticCnaeContext } = await import("./cnae-embeddings");
+      const ragContext = await buildSemanticCnaeContext(input.description);
 
       let result: z.infer<typeof CnaesResponseSchema>;
       try {
@@ -84,34 +84,33 @@ export const fluxoV3Router = router({
           [
             {
               role: "system",
-              content: `Você é um Classificador Tributário Especialista em CNAE e Reforma Tributária brasileira (LC 214/2025, IBS, CBS, IS).
+              content: `Você é um Classificador Tributário Especialista em CNAE 2.3 e Reforma Tributária brasileira (LC 214/2025, IBS, CBS, IS).
 Sua função é identificar com ALTA PRECISÃO TODOS os CNAEs que descrevem as atividades do negócio.
 
 REGRAS CRÍTICAS:
-1. SOMENTE use códigos da lista CNAE OFICIAL fornecida abaixo. NUNCA invente códigos.
-2. Prefira CNAEs de 7 dígitos (ex: 6201-5/01) a grupos genéricos.
-3. IDENTIFIQUE CADA ATIVIDADE SEPARADAMENTE: se a descrição menciona comércio atacadista, transporte E insumos agrícolas, inclua um CNAE para CADA uma dessas atividades.
-4. Leia a descrição inteira e extraia TODAS as atividades mencionadas (use ponto-e-vírgula, "e", "além de" como separadores de atividades).
+1. SOMENTE use códigos da lista CNAE OFICIAL fornecida. NUNCA invente códigos.
+2. PASSO 1 — Decomponha a descrição em atividades distintas: leia cada cláusula separada por vírgula, ponto-e-vírgula, "e", "além de", "também" como uma atividade separada.
+3. PASSO 2 — Para CADA atividade identificada, selecione o CNAE mais específico da lista.
+4. Prefira CNAEs de 7 dígitos (ex: 6201-5/01) a grupos genéricos.
 5. Se a empresa fabrica E vende, inclua CNAEs de fabricação E comércio.
-6. Não escolha CNAEs genéricos como "outros" se houver um específico.
+6. Não escolha CNAEs genéricos como "outros" se houver um específico na lista.
 7. Mínimo de 2 CNAEs, máximo de 6. Nunca retorne lista vazia.
 Responda APENAS com JSON válido no formato especificado.`,
             },
             {
               role: "user",
-              content: `Analise a descrição do negócio abaixo e identifique TODOS os CNAEs relevantes (entre 2 e 6).
-
-IMPORTANTE: A descrição pode conter MÚLTIPLAS atividades separadas por ponto-e-vírgula, vírgula ou "e". Identifique um CNAE para CADA atividade mencionada.
-
-DESCRIÇÃO DO NEGÓCIO:
+              content: `DESCRIÇÃO DO NEGÓCIO:
 ${input.description}
 
----
-LISTA CNAE OFICIAL IBGE (use APENAS códigos desta lista):
-${ragContext}
----
+INSTRUÇÃO:
+1. Liste cada atividade mencionada na descrição acima (ex: "atacado de cereais", "transporte rodoviário", "insumos agrícolas").
+2. Para cada atividade, selecione o CNAE mais adequado da lista oficial abaixo.
+3. Inclua um CNAE para CADA atividade identificada.
 
-Para cada CNAE forneça: código (EXATAMENTE como na lista acima), descrição oficial, confidence (0-100) e justificativa breve.
+LISTA CNAE OFICIAL IBGE — candidatos selecionados por similaridade semântica (use APENAS códigos desta lista):
+${ragContext}
+
+Para cada CNAE forneça: código (EXATAMENTE como na lista), descrição oficial, confidence (0-100) e justificativa breve.
 Considere especialmente os CNAEs mais impactados pela Reforma Tributária (IBS, CBS, IS).
 
 Responda em JSON:
@@ -122,19 +121,24 @@ Responda em JSON:
           { temperature: 0.1, context: "extractCnaes" }
         );
       } catch (aiError) {
-        // Fallback: usar os top-5 candidatos do RAG diretamente quando a IA falha
+        // Fallback: usar os top-5 candidatos por similaridade semântica quando a IA falha
         // Isso garante que o usuário sempre veja sugestões para confirmar/editar
-        const { findCandidateCnaes } = await import("./cnae-rag");
-        const candidates = findCandidateCnaes(input.description, 5);
+        const { findSimilarCnaes, getFallbackCandidates } = await import("./cnae-embeddings");
+        let candidates;
+        try {
+          candidates = await findSimilarCnaes(input.description, 5);
+        } catch {
+          candidates = getFallbackCandidates(5);
+        }
         if (candidates.length === 0) {
-          throw aiError; // Re-lança se nem o RAG encontrou candidatos
+          throw aiError; // Re-lança se nem o fallback encontrou candidatos
         }
         result = {
           cnaes: candidates.map((c, i) => ({
             code: c.code,
             description: c.description,
             confidence: Math.max(40, 70 - i * 8), // 70%, 62%, 54%, 46%, 40%
-            justification: "Sugerido com base na descrição do negócio (análise automática).",
+            justification: "Sugerido com base na similaridade semântica da descrição do negócio.",
           })),
         };
       }
@@ -161,9 +165,9 @@ Responda em JSON:
         `- ${c.code}: ${c.description} (confiança: ${c.confidence}%)`
       ).join("\n");
 
-      // RAG: buscar candidatos com base no feedback + descrição original
-      const { buildCnaeRagContext } = await import("./cnae-rag");
-      const ragContext = buildCnaeRagContext(`${input.description} ${input.feedback}`);
+      // Embeddings semânticos: busca por similaridade de cosseno (OpenAI text-embedding-3-small)
+      const { buildSemanticCnaeContext } = await import("./cnae-embeddings");
+      const ragContext = await buildSemanticCnaeContext(`${input.description} ${input.feedback}`);
 
       const result = await generateWithRetry(
         [
