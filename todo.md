@@ -2234,4 +2234,4 @@
 - [x] Criar procedure tRPC getActiveCount para contar projetos ativos (server/routers.ts)
 - [x] Exibir badge com contagem ao lado de "Projetos" na sidebar (ComplianceLayout.tsx)
 - [x] 8 novos testes (65/65 testes de UX passando)
-- [ ] Checkpoint e publicação
+- [x] Checkpoint e publicação (versão 7b07ca1a)

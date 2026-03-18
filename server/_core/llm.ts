@@ -66,7 +66,7 @@ export type InvokeParams = {
   output_schema?: OutputSchema;
   responseFormat?: ResponseFormat;
   response_format?: ResponseFormat;
-  /** Timeout em milissegundos para a chamada HTTP. Padrão: 90000ms (90s). */
+  /** Timeout em milissegundos para a chamada HTTP. Padrão: 180000ms (3min). */
   timeoutMs?: number;
 };
 
@@ -211,13 +211,13 @@ const normalizeToolChoice = (
   return toolChoice;
 };
 
-const resolveApiUrl = () =>
-  ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0
-    ? `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`
-    : "https://forge.manus.im/v1/chat/completions";
+/** URL direta da API OpenAI — modelo GPT-4.1 para máxima confiabilidade em compliance tributário */
+const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+
+const resolveApiUrl = () => OPENAI_API_URL;
 
 const assertApiKey = () => {
-  if (!ENV.forgeApiKey) {
+  if (!ENV.openAiApiKey) {
     throw new Error("OPENAI_API_KEY is not configured");
   }
 };
@@ -286,7 +286,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   } = params;
 
   const payload: Record<string, unknown> = {
-    model: "gemini-2.5-flash",
+    model: "gpt-4.1",
     messages: messages.map(normalizeMessage),
   };
 
@@ -302,10 +302,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.tool_choice = normalizedToolChoice;
   }
 
-  payload.max_tokens = 32768
-  payload.thinking = {
-    "budget_tokens": 128
-  }
+  payload.max_tokens = 32768;
 
   const normalizedResponseFormat = normalizeResponseFormat({
     responseFormat,
@@ -328,7 +325,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        authorization: `Bearer ${ENV.forgeApiKey}`,
+        authorization: `Bearer ${ENV.openAiApiKey}`,
       },
       body: JSON.stringify(payload),
       signal: controller.signal,
