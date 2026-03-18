@@ -2300,3 +2300,9 @@
 - [x] FIX: generateRiskMatrices - paralelizar 4 áreas com Promise.all (routers-fluxo-v3.ts)
 - [x] FIX: generateAll (assessments) - paralelizar N ramos com Promise.allSettled (routers-assessments.ts)
 - [x] FIX: notifyNewComment - paralelizar N destinatários com Promise.allSettled (routers-notifications.ts)
+
+## Bug UX - Chip "Projeto" na barra de progresso (18/03/2026)
+- [x] BUG: Chip "Projeto" na barra de etapas (BriefingV3, MatrizesV3, PlanoAcaoV3, QuestionarioV3) não navega ao clicar
+- [x] FIX: Criada página FormularioProjeto.tsx (/projetos/:id/formulario) com dados do projeto em modo leitura
+- [x] FIX: FlowStepper atualizado para apontar chip "Projeto" para /formulario
+- [x] FIX: getProjectStep1 enriquecido com clientName e clientCnpj do cliente vinculado

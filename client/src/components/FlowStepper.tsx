@@ -21,7 +21,7 @@ interface FlowStepperProps {
 }
 
 const STEPS: { label: string; shortLabel: string; route: (id: number) => string }[] = [
-  { label: "Projeto",       shortLabel: "Projeto",     route: (id) => `/projetos/${id}` },
+  { label: "Projeto",       shortLabel: "Projeto",     route: (id) => `/projetos/${id}/formulario` },
   { label: "Questionário",  shortLabel: "Quest.",      route: (id) => `/projetos/${id}/questionario-v3` },
   { label: "Briefing",      shortLabel: "Briefing",    route: (id) => `/projetos/${id}/briefing-v3` },
   { label: "Riscos",        shortLabel: "Riscos",      route: (id) => `/projetos/${id}/matrizes-v3` },

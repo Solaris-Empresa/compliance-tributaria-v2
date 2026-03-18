@@ -45,6 +45,7 @@ import MatrizesV3 from "./pages/MatrizesV3";
 import PlanoAcaoV3 from "./pages/PlanoAcaoV3";
 import GerenciarEquipe from "./pages/GerenciarEquipe";
 import Usuarios from "./pages/Usuarios";
+import FormularioProjeto from "./pages/FormularioProjeto";
 
 function Router() {
   return (
@@ -85,6 +86,7 @@ function Router() {
       <Route path="/matriz-riscos-session" component={MatrizRiscosSession} />
       <Route path="/consolidacao" component={Consolidacao} />
       {/* Novo Fluxo v3.0 */}
+      <Route path="/projetos/:id/formulario" component={FormularioProjeto} />
       <Route path="/projetos/:id/questionario-v3" component={QuestionarioV3} />
       <Route path="/projetos/:id/briefing-v3" component={BriefingV3} />
       <Route path="/projetos/:id/matrizes-v3" component={MatrizesV3} />

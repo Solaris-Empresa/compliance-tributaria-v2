@@ -220,11 +220,15 @@ Retorne entre 2 e 6 CNAEs revisados.
     .query(async ({ input }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+      // Buscar dados do cliente para exibir no formulário
+      const client = project.clientId ? await db.getUserById(project.clientId) : null;
       return {
         id: project.id,
         name: project.name,
         description: (project as any).description,
         clientId: project.clientId,
+        clientName: client?.companyName || client?.name || null,
+        clientCnpj: (client as any)?.cnpj || null,
         confirmedCnaes: (project as any).confirmedCnaes,
         currentStep: (project as any).currentStep ?? 1,
         status: project.status,
