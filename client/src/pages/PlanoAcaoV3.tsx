@@ -20,6 +20,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import FlowStepper from "@/components/FlowStepper";
+import { statusToCompletedStep } from "@/lib/flowStepperUtils";
 import {
   ArrowLeft, ChevronRight, Loader2, Sparkles, CheckCircle2,
   RefreshCw, ThumbsUp, Edit3, Building2, Cpu, Scale, BarChart3,
@@ -1428,7 +1429,7 @@ export default function PlanoAcaoV3() {
         </div>
 
         {/* Stepper — clicável para etapas concluídas */}
-        <FlowStepper currentStep={5} projectId={projectId} />
+        <FlowStepper currentStep={5} projectId={projectId} completedUpTo={statusToCompletedStep(project?.status)} />
 
         {/* RF-5.06: Dashboard de progresso por área */}
         {showDashboard && allAreasGenerated && (

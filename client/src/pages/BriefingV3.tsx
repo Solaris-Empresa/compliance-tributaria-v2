@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import FlowStepper from "@/components/FlowStepper";
+import { statusToCompletedStep } from "@/lib/flowStepperUtils";
 import {
   ArrowLeft, ChevronRight, Loader2, Sparkles,
   CheckCircle2, RefreshCw, MessageSquare, ThumbsUp, Edit3, Info, Download,
@@ -313,7 +314,7 @@ export default function BriefingV3() {
         </div>
 
         {/* Stepper — clicável para etapas concluídas */}
-        <FlowStepper currentStep={3} projectId={projectId} />
+        <FlowStepper currentStep={3} projectId={projectId} completedUpTo={statusToCompletedStep(project?.status)} />
 
         {/* V64: Alertas de Inconsistência — exibido apenas quando há inconsistências */}
         {inconsistencias.length > 0 && !isGenerating && (

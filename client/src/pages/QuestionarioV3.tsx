@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import FlowStepper from "@/components/FlowStepper";
+import { statusToCompletedStep } from "@/lib/flowStepperUtils";
 import {
   ArrowLeft, ArrowRight, ChevronRight, Loader2, Sparkles,
   CheckCircle2, Clock, SkipForward, MessageSquare, BarChart2,
@@ -593,7 +594,7 @@ export default function QuestionarioV3() {
             </div>
           </div>
           {/* Stepper — clicável para etapas concluídas */}
-          <FlowStepper currentStep={2} projectId={projectId} />
+          <FlowStepper currentStep={2} projectId={projectId} completedUpTo={statusToCompletedStep(project?.status)} />
           {/* Banner de conclusão */}
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3">
             <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
@@ -686,7 +687,7 @@ export default function QuestionarioV3() {
         </div>
 
         {/* Stepper — clicável para etapas concluídas */}
-        <FlowStepper currentStep={2} projectId={projectId} />
+        <FlowStepper currentStep={2} projectId={projectId} completedUpTo={statusToCompletedStep(project?.status)} />
 
         {/* Progresso geral dos CNAEs */}
         <div className="bg-card border rounded-xl p-4 space-y-3">

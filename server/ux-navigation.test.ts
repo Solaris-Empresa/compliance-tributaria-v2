@@ -285,3 +285,122 @@ describe("ProjetoDetalhesV2 — rotas do stepper interno (regressão bug 404)", 
     }
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. Regressão: statusToCompletedStep — FlowStepper mostra etapas cinzas
+//    Bug: completedUpTo não era passado → padrão era currentStep-1 → etapas
+//         concluídas ficavam cinzas em projetos com status avançado
+//    Fix: statusToCompletedStep mapeia o status do projeto para a etapa correta
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Replica a lógica de client/src/lib/flowStepperUtils.ts para testes server-side
+function statusToCompletedStep(status: string | undefined | null): number {
+  if (!status) return 1;
+  const map: Record<string, number> = {
+    rascunho:         1,
+    assessment_fase1: 1,
+    assessment_fase2: 2,
+    matriz_riscos:    3,
+    plano_acao:       4,
+    em_avaliacao:     4,
+    aprovado:         5,
+    em_andamento:     5,
+    parado:           5,
+    concluido:        5,
+    arquivado:        5,
+  };
+  return map[status] ?? 1;
+}
+
+describe("statusToCompletedStep — mapeamento status → etapa concluída", () => {
+  it("status undefined/null retorna etapa 1 (seguro)", () => {
+    expect(statusToCompletedStep(undefined)).toBe(1);
+    expect(statusToCompletedStep(null)).toBe(1);
+  });
+
+  it("rascunho → etapa 1 (nenhuma etapa do fluxo concluída)", () => {
+    expect(statusToCompletedStep("rascunho")).toBe(1);
+  });
+
+  it("assessment_fase1 → etapa 1 (questionário em andamento)", () => {
+    expect(statusToCompletedStep("assessment_fase1")).toBe(1);
+  });
+
+  it("assessment_fase2 → etapa 2 (questionário concluído)", () => {
+    expect(statusToCompletedStep("assessment_fase2")).toBe(2);
+  });
+
+  it("matriz_riscos → etapa 3 (briefing concluído)", () => {
+    expect(statusToCompletedStep("matriz_riscos")).toBe(3);
+  });
+
+  it("plano_acao → etapa 4 (riscos concluídos)", () => {
+    expect(statusToCompletedStep("plano_acao")).toBe(4);
+  });
+
+  it("em_avaliacao → etapa 4 (aguardando aprovação)", () => {
+    expect(statusToCompletedStep("em_avaliacao")).toBe(4);
+  });
+
+  it("aprovado → etapa 5 (todas as etapas concluídas)", () => {
+    expect(statusToCompletedStep("aprovado")).toBe(5);
+  });
+
+  it("em_andamento → etapa 5", () => {
+    expect(statusToCompletedStep("em_andamento")).toBe(5);
+  });
+
+  it("concluido → etapa 5", () => {
+    expect(statusToCompletedStep("concluido")).toBe(5);
+  });
+
+  it("arquivado → etapa 5", () => {
+    expect(statusToCompletedStep("arquivado")).toBe(5);
+  });
+
+  it("status desconhecido → etapa 1 (fallback seguro)", () => {
+    expect(statusToCompletedStep("status_inexistente")).toBe(1);
+  });
+});
+
+describe("FlowStepper com completedUpTo — projeto Aprovado (regressão bug etapas cinzas)", () => {
+  const currentStep = 2; // usuário está no Questionário
+  const completedUpTo = statusToCompletedStep("aprovado"); // = 5
+
+  it("projeto Aprovado: completedUpTo deve ser 5", () => {
+    expect(completedUpTo).toBe(5);
+  });
+
+  it("etapa 1 (Projeto) é clicável pois completedUpTo=5 > currentStep=2", () => {
+    // step 1 < currentStep 2 → done → clicável
+    expect(getStepState(1, currentStep, completedUpTo)).toBe("done");
+    expect(isStepClickable(1, currentStep, completedUpTo)).toBe(true);
+  });
+
+  it("etapa 2 (Questionário) é active (não clicável — já está nela)", () => {
+    expect(getStepState(2, currentStep, completedUpTo)).toBe("active");
+    expect(isStepClickable(2, currentStep, completedUpTo)).toBe(false);
+  });
+
+  it("etapa 3 (Briefing) é clicável pois completedUpTo=5 >= 3", () => {
+    expect(getStepState(3, currentStep, completedUpTo)).toBe("done");
+    expect(isStepClickable(3, currentStep, completedUpTo)).toBe(true);
+  });
+
+  it("etapa 4 (Riscos) é clicável pois completedUpTo=5 >= 4", () => {
+    expect(getStepState(4, currentStep, completedUpTo)).toBe("done");
+    expect(isStepClickable(4, currentStep, completedUpTo)).toBe(true);
+  });
+
+  it("etapa 5 (Plano de Ação) é clicável pois completedUpTo=5 >= 5", () => {
+    expect(getStepState(5, currentStep, completedUpTo)).toBe("done");
+    expect(isStepClickable(5, currentStep, completedUpTo)).toBe(true);
+  });
+
+  it("sem completedUpTo (fallback antigo): etapas 3,4,5 ficavam locked (BUG)", () => {
+    const oldCompletedUpTo = currentStep - 1; // = 1 (comportamento antigo)
+    expect(getStepState(3, currentStep, oldCompletedUpTo)).toBe("locked");
+    expect(getStepState(4, currentStep, oldCompletedUpTo)).toBe("locked");
+    expect(getStepState(5, currentStep, oldCompletedUpTo)).toBe("locked");
+  });
+});

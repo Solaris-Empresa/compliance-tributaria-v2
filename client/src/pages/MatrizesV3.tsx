@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import FlowStepper from "@/components/FlowStepper";
+import { statusToCompletedStep } from "@/lib/flowStepperUtils";
 import {
   ArrowLeft, ChevronRight, Loader2, Sparkles,
   CheckCircle2, RefreshCw, ThumbsUp, Edit3, AlertTriangle, Info,
@@ -460,7 +461,7 @@ export default function MatrizesV3() {
         </div>
 
         {/* Stepper — clicável para etapas concluídas */}
-        <FlowStepper currentStep={4} projectId={projectId} />
+        <FlowStepper currentStep={4} projectId={projectId} completedUpTo={statusToCompletedStep(project?.status)} />
 
         {/* Geração em andamento */}
         {isGenerating && Object.keys(matrices).length === 0 ? (

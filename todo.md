@@ -2215,3 +2215,12 @@
 - [x] Corrigir: ícone "Projeto" no FlowStepper navega para /novo-projeto-v3?edit=ID em vez de /projetos/ID
 - [x] Escrever teste unitário para a rota correta (6 novos testes, 38/38 passando)
 - [x] Checkpoint e publicação da correção (versão 8c33f4c8)
+
+## Bug: FlowStepper mostra etapas cinzas nas páginas internas (18/03/2026)
+- [x] Corrigir QuestionarioV3: completedUpTo passado com statusToCompletedStep
+- [x] Corrigir BriefingV3: completedUpTo passado com statusToCompletedStep
+- [x] Corrigir MatrizesV3: completedUpTo passado com statusToCompletedStep
+- [x] Corrigir PlanoAcaoV3: completedUpTo passado com statusToCompletedStep
+- [x] Criar helper statusToCompletedStep em client/src/lib/flowStepperUtils.ts
+- [x] 19 novos testes de regressão (57/57 testes de UX passando)
+- [ ] Checkpoint e republicação
