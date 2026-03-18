@@ -2310,3 +2310,9 @@
 ## Bug UX - Botão "Ir para o Painel" no PlanoAcaoV3 (18/03/2026)
 - [x] BUG: Botão "Ir para o Painel" na tela de conclusão do PlanoAcaoV3 leva a rota 404
 - [x] FIX: Substituído por "Ver Projetos" navegando para /projetos
+
+## Bug UX - ProjetoDetalhesV2 - Links quebrados (18/03/2026)
+- [x] BUG: Chip "Projeto" no ProjetoDetalhesV2 não navega para /formulario
+  FIX: FLOW_STEPS[0].route corrigida para /projetos/:id/formulario
+- [x] BUG: Botão "Continuar — Plano de Ação" não aparecia para projetos com status aprovado/em_andamento/concluído
+  FIX: activeStatuses do step 5 ampliado para incluir aprovado, em_andamento, concluido

@@ -118,7 +118,7 @@ const FLOW_STEPS: FlowStep[] = [
     label: "Projeto",
     description: "Informações gerais e CNAEs identificados",
     icon: <Building2 className="w-4 h-4" />,
-    route: (id) => `/projetos/${id}`,
+    route: (id) => `/projetos/${id}/formulario`,
     completedStatuses: ["assessment_fase1", "assessment_fase2", "matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "parado", "concluido", "arquivado"],
     activeStatuses: ["rascunho"],
   },
@@ -155,8 +155,8 @@ const FLOW_STEPS: FlowStep[] = [
     description: "Tarefas e responsáveis por área",
     icon: <ListTodo className="w-4 h-4" />,
     route: (id) => `/projetos/${id}/plano-v3`,
-    completedStatuses: ["aprovado", "em_andamento", "concluido", "arquivado"],
-    activeStatuses: ["plano_acao", "em_avaliacao", "parado"],
+    completedStatuses: ["arquivado"],
+    activeStatuses: ["plano_acao", "em_avaliacao", "parado", "aprovado", "em_andamento", "concluido"],
   },
 ];
 
