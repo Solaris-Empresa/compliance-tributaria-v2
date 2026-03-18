@@ -6,6 +6,31 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [4.1.0] - Sprint V70.3 - 2026-03-18
+
+### Corrigido
+
+**V70.3 — Bug Fix Crítico: Plano de Ação não gerava após Matriz de Riscos**
+
+- **Causa raiz**: `generateActionPlan` fazia 4 chamadas LLM sequenciais (~3 min total), causando timeout HTTP antes da resposta chegar ao browser
+- **Fix 1** (`server/routers-fluxo-v3.ts`): Loop `for...of` substituído por `Promise.all` paralelo — as 4 áreas (Contabilidade, Negócio, TI, Jurídico) são geradas simultaneamente. Redução: ~3 min → ~45 s
+- **Fix 2** (`server/_core/index.ts`): `server.timeout = 300s` e `keepAliveTimeout = 310s` configurados no HTTP server Express para suportar chamadas LLM longas sem cortar a conexão
+- **Fix 3** (`client/src/pages/PlanoAcaoV3.tsx`): Tela de loading atualizada para informar geração paralela das 4 áreas e tempo esperado (~1 min)
+
+### Melhorado
+
+**V70.3 — Otimização: Paralelização de todas as procedures LLM sequenciais**
+
+- **`generateRiskMatrices`** (`server/routers-fluxo-v3.ts`): Loop `for...of areas` → `Promise.all` paralelo. RAG compartilhado (1 busca para 4 áreas). Redução: ~3 min → ~45 s
+- **`generateAll`** (`server/routers-assessments.ts`): Loop `for...of projectBranches` → `Promise.allSettled` paralelo. Não falha tudo se 1 ramo falhar. Retorna contador de falhas (`failed`)
+- **`notifyNewComment`** (`server/routers-notifications.ts`): Loop `for...of recipientIds` → `Promise.allSettled` paralelo. Melhora latência em grupos com muitos destinatários
+
+### Técnico
+- Padrão adotado: `Promise.all` para operações críticas que devem falhar juntas (LLM), `Promise.allSettled` para operações independentes (notificações, ramos opcionais)
+- TypeScript: zero erros após todas as mudanças
+
+---
+
 ## [4.0.0] - Sprint V69 - 2026-03-17
 
 ### Adicionado
