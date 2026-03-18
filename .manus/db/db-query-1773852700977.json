@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO projects (name, clientId, status, currentStep, confirmedCnaes, description, createdById, createdByRole, faturamentoAnual)\nVALUES (\n  'Teste Aprofundamento Ilimitado',\n  1,\n  'rascunho',\n  2,\n  '[{\"code\":\"62.01-5-01\",\"description\":\"Desenvolvimento de programas de computador sob encomenda\"},{\"code\":\"62.04-0-00\",\"description\":\"Consultoria em tecnologia da informação\"}]',\n  'Empresa de tecnologia que desenvolve software para gestão de estoque e logística, com operações em todo o Brasil. Possui contratos com empresas públicas e privadas, faturamento mensal de R$ 500.000 e equipe de 50 funcionários.',\n  1,\n  'equipe_solaris',\n  6000000\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute INSERT INTO projects (name, clientId, status, currentStep, confirmedCnaes, description, createdById, createdByRole, faturamentoAnual)\nVALUES (\n  'Teste Aprofundamento Ilimitado',\n  1,\n  'rascunho',\n  2,\n  '[{\"code\":\"62.01-5-01\",\"description\":\"Desenvolvimento de programas de computador sob encomenda\"},{\"code\":\"62.04-0-00\",\"description\":\"Consultoria em tecnologia da informação\"}]',\n  'Empresa de tecnologia que desenvolve software para gestão de estoque e logística, com operações em todo o Brasil. Possui contratos com empresas públicas e privadas, faturamento mensal de R$ 500.000 e equipe de 50 funcionários.',\n  1,\n  'equipe_solaris',\n  6000000\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 59
+}

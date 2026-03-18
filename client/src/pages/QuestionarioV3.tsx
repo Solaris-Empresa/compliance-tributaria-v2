@@ -53,7 +53,11 @@ interface CnaeProgress {
   skippedNivel2: boolean;
   revisado: boolean; // RF-2.07 UX: true quando usuário retorna e altera respostas
   answers: { question: string; answer: string }[];
+  nivel1Questions?: Question[]; // Cache das perguntas geradas para o nível 1 (evita rechamada à IA ao voltar)
+  nivel1AnswersMap?: Record<string, string>; // Cache do mapa de respostas do nível 1 (id→valor)
   nivel2Answers: { question: string; answer: string }[];
+  deepDiveRounds?: { roundIndex: number; answers: { question: string; answer: string }[] }[];
+  currentRound?: number;
 }
 
 // ─── Componentes de Campo ─────────────────────────────────────────────────────
@@ -221,6 +225,12 @@ export default function QuestionarioV3() {
   // Tela de entrada por CNAE: Set de códigos CNAE que o usuário já iniciou
   // Persistido no localStorage junto com o progresso do questionário
   const [startedCnaes, setStartedCnaes] = useState<Set<string>>(new Set());
+  // Feature: aprofundamento ilimitado
+  const [currentRound, setCurrentRound] = useState(0); // 0 = nivel1, 1 = primeiro nivel2, 2 = segundo nivel2...
+  const [showNextRoundPrompt, setShowNextRoundPrompt] = useState(false); // prompt após concluir nivel2
+  const [contextNote, setContextNote] = useState(""); // campo livre de contexto adicional
+  const [isValidatingContext, setIsValidatingContext] = useState(false); // loading da validação LLM
+  const [contextValidationResult, setContextValidationResult] = useState<{ relevant: boolean; reason: string } | null>(null);
 
   // Verificar rascunho local ao montar
   useEffect(() => {
@@ -257,6 +267,7 @@ export default function QuestionarioV3() {
   const generateQuestions = trpc.fluxoV3.generateQuestions.useMutation();
   const saveProgress = trpc.fluxoV3.saveQuestionnaireProgress.useMutation();
   const saveAnswer = trpc.fluxoV3.saveAnswer.useMutation();
+  const validateContextNoteMutation = trpc.fluxoV3.validateContextNote.useMutation();
 
   // Buscar progresso salvo no banco (para retomada)
   const { data: savedProgress } = trpc.fluxoV3.getProgress.useQuery(
@@ -306,7 +317,13 @@ export default function QuestionarioV3() {
   }, [project, savedProgress]);
 
   // Carregar perguntas do CNAE atual
-  const loadQuestions = useCallback(async (cnaeIdx: number, level: "nivel1" | "nivel2", prevAnswers?: { question: string; answer: string }[]) => {
+  const loadQuestions = useCallback(async (
+    cnaeIdx: number,
+    level: "nivel1" | "nivel2",
+    prevAnswers?: { question: string; answer: string }[],
+    roundIndex?: number,
+    contextNoteParam?: string,
+  ) => {
     if (!cnaes[cnaeIdx]) return;
     setIsLoadingQuestions(true);
     setQuestionsError(null);
@@ -325,6 +342,8 @@ export default function QuestionarioV3() {
         cnaeDescription: cnaes[cnaeIdx].description,
         level,
         previousAnswers: prevAnswers,
+        roundIndex: roundIndex ?? 0,
+        contextNote: contextNoteParam,
       });
       const qs = result.questions || [];
       if (qs.length === 0) {
@@ -456,6 +475,7 @@ export default function QuestionarioV3() {
         questionText: question.text,
         questionType: question.type,
         answerValue: value,
+        roundIndex: currentRound,
       });
     }
   };
@@ -468,25 +488,44 @@ export default function QuestionarioV3() {
     // Salvar respostas do Nível 1
     // RF-2.07 UX: ao re-concluir um CNAE revisado, limpar a flag 'revisado'
     const level1Answers = questions.map(q => ({ question: q.text, answer: answers[q.id] || "" }));
+    // Salvar também as perguntas geradas e o mapa de respostas para restauração sem rechamada à IA
     setCnaeProgress(prev => prev.map((c, i) =>
-      i === currentCnaeIdx ? { ...c, nivel1Done: true, revisado: false, answers: level1Answers } : c
+      i === currentCnaeIdx ? {
+        ...c,
+        nivel1Done: true,
+        revisado: false,
+        answers: level1Answers,
+        nivel1Questions: [...questions], // cache das perguntas geradas
+        nivel1AnswersMap: { ...answers }, // cache do mapa id→valor
+      } : c
     ));
     setShowDeepDivePrompt(true);
   };
 
-  const handleAcceptDeepDive = () => {
+  const handleAcceptDeepDive = (withContextNote?: string) => {
     setShowDeepDivePrompt(false);
+    setShowNextRoundPrompt(false);
     const currentCode = cnaes[currentCnaeIdx]?.code;
     if (!currentCode) return;
+    const nextRound = currentRound + 1;
     // Pré-registrar o cacheKey ANTES de mudar o nível para evitar que o useEffect
     // dispare uma segunda chamada sem previousAnswers (Bug 3)
-    const cacheKey = `${currentCode}-nivel2`;
+    const cacheKey = `${currentCode}-nivel2-round${nextRound}`;
     loadedQuestionsRef.current.add(cacheKey);
-    // CORREÇÃO: usar questions/answers atuais (estado síncrono) em vez de cnaeProgress
-    // que ainda não foi atualizado pelo React após setCnaeProgress no handleFinishLevel1
+    // Também registrar o cacheKey genérico nivel2 para compatibilidade com o useEffect
+    loadedQuestionsRef.current.add(`${currentCode}-nivel2`);
+    // Coletar todas as respostas anteriores (nivel1 + todos os rounds anteriores)
     const level1Answers = questions.map(q => ({ question: q.text, answer: answers[q.id] || "" }));
+    const allPrevAnswers = [
+      ...cnaeProgress[currentCnaeIdx]?.answers || [],
+      ...cnaeProgress[currentCnaeIdx]?.nivel2Answers || [],
+      ...(cnaeProgress[currentCnaeIdx]?.deepDiveRounds || []).flatMap(r => r.answers),
+    ];
+    setCurrentRound(nextRound);
     setCurrentLevel("nivel2");
-    loadQuestions(currentCnaeIdx, "nivel2", level1Answers);
+    setContextNote("");
+    setContextValidationResult(null);
+    loadQuestions(currentCnaeIdx, "nivel2", allPrevAnswers.length > 0 ? allPrevAnswers : level1Answers, nextRound, withContextNote);
   };
 
   const handleSkipDeepDive = () => {
@@ -503,11 +542,36 @@ export default function QuestionarioV3() {
       toast.error("Responda todas as perguntas obrigatórias antes de avançar.");
       return;
     }
-    const level2Answers = questions.map(q => ({ question: q.text, answer: answers[q.id] || "" }));
-    setCnaeProgress(prev => prev.map((c, i) =>
-      i === currentCnaeIdx ? { ...c, nivel2Done: true, nivel2Answers: level2Answers } : c
-    ));
-    // Passa o total explícito para evitar closure stale (cnaeProgress ainda não foi atualizado)
+    const roundAnswers = questions.map(q => ({ question: q.text, answer: answers[q.id] || "" }));
+    // Salvar o round atual no progresso
+    setCnaeProgress(prev => prev.map((c, i) => {
+      if (i !== currentCnaeIdx) return c;
+      const isFirstRound = currentRound <= 1;
+      const newDeepDiveRounds = [
+        ...(c.deepDiveRounds || []),
+        { roundIndex: currentRound, answers: roundAnswers },
+      ];
+      return {
+        ...c,
+        nivel2Done: true,
+        nivel2Answers: isFirstRound ? roundAnswers : c.nivel2Answers, // manter nivel2Answers do primeiro round
+        deepDiveRounds: newDeepDiveRounds,
+        currentRound,
+      };
+    }));
+    // Mostrar prompt de novo round em vez de avançar imediatamente
+    setShowNextRoundPrompt(true);
+  };
+
+  const handleConfirmNextRound = () => {
+    // Usuário quer mais um round de aprofundamento
+    handleAcceptDeepDive();
+  };
+
+  const handleSkipNextRound = () => {
+    // Usuário não quer mais rounds — avançar para próximo CNAE
+    setShowNextRoundPrompt(false);
+    setCurrentRound(0);
     advanceToNextCnae(cnaeProgress.length || cnaes.length);
   };
 
@@ -520,6 +584,10 @@ export default function QuestionarioV3() {
     // o próximo CNAE exibia o prompt imediatamente sem mostrar as perguntas,
     // e ao clicar "Pular" no último CNAE, ia direto para o Briefing.
     setShowDeepDivePrompt(false);
+    setShowNextRoundPrompt(false);
+    setCurrentRound(0);
+    setContextNote("");
+    setContextValidationResult(null);
     if (currentCnaeIdx < total - 1) {
       setCurrentCnaeIdx(prev => prev + 1);
       setCurrentLevel("nivel1");
@@ -761,7 +829,7 @@ export default function QuestionarioV3() {
         {/* Prompt de Aprofundamento (Nível 2) */}
         {showDeepDivePrompt && (
           <Card className="border-2 border-primary/20 bg-primary/3 shadow-sm">
-            <CardContent className="p-6 space-y-4">
+            <CardContent className="p-6 space-y-5">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                   <Sparkles className="h-5 w-5 text-primary" />
@@ -773,14 +841,169 @@ export default function QuestionarioV3() {
                   </p>
                 </div>
               </div>
+              {/* Campo livre de contexto adicional */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                  Contexto adicional <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
+                </label>
+                <Textarea
+                  value={contextNote}
+                  onChange={e => { setContextNote(e.target.value); setContextValidationResult(null); }}
+                  placeholder={`Descreva desafios, exceções ou pontos de atenção específicos do CNAE ${currentCnae?.code}...`}
+                  rows={3}
+                  className="resize-none text-sm"
+                />
+                {contextNote.trim().length > 0 && (
+                  <div className="space-y-2">
+                    {contextValidationResult === null ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        disabled={isValidatingContext}
+                        onClick={async () => {
+                          setIsValidatingContext(true);
+                          try {
+                            const result = await validateContextNoteMutation.mutateAsync({
+                              projectId,
+                              cnaeCode: currentCnae?.code || "",
+                              cnaeDescription: currentCnae?.description || "",
+                              contextNote: contextNote.trim(),
+                            });
+                            setContextValidationResult(result);
+                          } catch {
+                            toast.error("Erro ao validar contexto. Tente novamente.");
+                          } finally {
+                            setIsValidatingContext(false);
+                          }
+                        }}
+                      >
+                        {isValidatingContext ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                        {isValidatingContext ? "Validando..." : "Validar e usar no aprofundamento"}
+                      </Button>
+                    ) : contextValidationResult.relevant ? (
+                      <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                        <span>Contexto relevante! Será usado para personalizar as perguntas.</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                          <span>{contextValidationResult.reason}</span>
+                        </div>
+                        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => { setContextNote(""); setContextValidationResult(null); }}>
+                          Limpar e tentar novamente
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
               <div className="flex gap-3">
-                <Button onClick={handleAcceptDeepDive} className="flex-1">
+                <Button
+                  onClick={() => handleAcceptDeepDive(contextValidationResult?.relevant ? contextNote.trim() : undefined)}
+                  className="flex-1"
+                >
                   <Sparkles className="h-4 w-4 mr-2" />
                   Sim, quero me aprofundar
                 </Button>
                 <Button variant="outline" onClick={handleSkipDeepDive} className="flex-1">
                   <SkipForward className="h-4 w-4 mr-2" />
                   Avançar para próximo CNAE
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Prompt de Novo Round de Aprofundamento */}
+        {showNextRoundPrompt && !showDeepDivePrompt && (
+          <Card className="border-2 border-blue-200 bg-blue-50/50 shadow-sm">
+            <CardContent className="p-6 space-y-5">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+                  <Sparkles className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-base">Deseja um novo round de aprofundamento?</h3>
+                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                    Round {currentRound} concluído para <strong>{currentCnae?.code}</strong>. Você pode continuar se aprofundando quantas vezes precisar, ou avançar para o próximo CNAE.
+                  </p>
+                </div>
+              </div>
+              {/* Campo livre de contexto para novo round */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                  Contexto para este round <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
+                </label>
+                <Textarea
+                  value={contextNote}
+                  onChange={e => { setContextNote(e.target.value); setContextValidationResult(null); }}
+                  placeholder={`Algum ponto específico que ainda não foi abordado no CNAE ${currentCnae?.code}?`}
+                  rows={3}
+                  className="resize-none text-sm"
+                />
+                {contextNote.trim().length > 0 && (
+                  <div className="space-y-2">
+                    {contextValidationResult === null ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        disabled={isValidatingContext}
+                        onClick={async () => {
+                          setIsValidatingContext(true);
+                          try {
+                            const result = await validateContextNoteMutation.mutateAsync({
+                              projectId,
+                              cnaeCode: currentCnae?.code || "",
+                              cnaeDescription: currentCnae?.description || "",
+                              contextNote: contextNote.trim(),
+                            });
+                            setContextValidationResult(result);
+                          } catch {
+                            toast.error("Erro ao validar contexto. Tente novamente.");
+                          } finally {
+                            setIsValidatingContext(false);
+                          }
+                        }}
+                      >
+                        {isValidatingContext ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                        {isValidatingContext ? "Validando..." : "Validar contexto"}
+                      </Button>
+                    ) : contextValidationResult.relevant ? (
+                      <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                        <span>Contexto relevante! Será usado para personalizar as perguntas.</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                          <span>{contextValidationResult.reason}</span>
+                        </div>
+                        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => { setContextNote(""); setContextValidationResult(null); }}>
+                          Limpar e tentar novamente
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => handleConfirmNextRound()}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Sim, mais um round
+                </Button>
+                <Button variant="outline" onClick={handleSkipNextRound} className="flex-1">
+                  <SkipForward className="h-4 w-4 mr-2" />
+                  {currentCnaeIdx === cnaes.length - 1 ? "Finalizar Questionário" : "Próximo CNAE"}
                 </Button>
               </div>
             </CardContent>
@@ -1070,15 +1293,24 @@ export default function QuestionarioV3() {
                         size="sm"
                         className="gap-1.5 text-muted-foreground"
                         onClick={() => {
-                          const currentCode = cnaes[currentCnaeIdx]?.code;
-                          if (currentCode) {
-                            // Limpar cacheKey para forçar recarga das perguntas do nível 1
-                            loadedQuestionsRef.current.delete(`${currentCode}-nivel1`);
+                          // Restaurar perguntas e respostas do Nível 1 do cache (sem rechamar a IA)
+                          const cachedProgress = cnaeProgress[currentCnaeIdx];
+                          if (cachedProgress?.nivel1Questions?.length) {
+                            setQuestions(cachedProgress.nivel1Questions);
+                            setAnswers(cachedProgress.nivel1AnswersMap || {});
+                          } else {
+                            // Fallback: se não há cache (sessão antiga), recarregar da IA
+                            const currentCode = cnaes[currentCnaeIdx]?.code;
+                            if (currentCode) {
+                              loadedQuestionsRef.current.delete(`${currentCode}-nivel1`);
+                            }
+                            setAnswers({});
+                            setQuestions([]);
                           }
                           setCurrentLevel("nivel1");
-                          setAnswers({});
-                          setQuestions([]);
-                          setShowDeepDivePrompt(false);
+                          setCurrentRound(0);
+                          setShowDeepDivePrompt(true); // Mostrar o prompt de aprofundamento (nível 1 já concluído)
+                          setShowNextRoundPrompt(false);
                         }}
                       >
                         <ArrowLeft className="h-4 w-4" />

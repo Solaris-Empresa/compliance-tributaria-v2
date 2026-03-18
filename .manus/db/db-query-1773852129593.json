@@ -1,0 +1,9 @@
+{
+  "query": "\nSELECT p.id, p.name, p.status, \n  (SELECT COUNT(*) FROM questionnaireAnswersV3 WHERE projectId = p.id) as answers,\n  (SELECT COUNT(*) FROM questionnaireProgressV3 WHERE projectId = p.id) as progress_rows\nFROM projects p\nWHERE p.status = 'questionario'\nORDER BY p.id DESC LIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT p.id, p.name, p.status, \n  (SELECT COUNT(*) FROM questionnaireAnswersV3 WHERE projectId = p.id) as answers,\n  (SELECT COUNT(*) FROM questionnaireProgressV3 WHERE projectId = p.id) as progress_rows\nFROM projects p\nWHERE p.status = 'questionario'\nORDER BY p.id DESC LIMIT 5;\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 67
+}

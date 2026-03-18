@@ -251,20 +251,26 @@ Retorne entre 2 e 6 CNAEs revisados.
       cnaeCode: z.string(),
       cnaeDescription: z.string(),
       level: z.enum(["nivel1", "nivel2"]),
+      roundIndex: z.number().optional().default(0), // 0=primeiro aprofundamento, 1=segundo, etc.
       previousAnswers: z.array(z.object({
         question: z.string(),
         answer: z.string(),
       })).optional(),
+      contextNote: z.string().optional(), // Campo livre de contexto adicional do usuário
     }))
     .mutation(async ({ input }) => {
-      console.log(`[generateQuestions] START projectId=${input.projectId} cnae=${input.cnaeCode} level=${input.level}`);
+      console.log(`[generateQuestions] START projectId=${input.projectId} cnae=${input.cnaeCode} level=${input.level} round=${input.roundIndex}`);
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
       const projectDescription = (project as any).description || "";
-      const nivel2Context = input.level === "nivel2" && input.previousAnswers?.length
-        ? `\nRESPOSTAS DO NÍVEL 1:\n${input.previousAnswers.map(a => `P: ${a.question}\nR: ${a.answer}`).join("\n\n")}\n\nGere perguntas de APROFUNDAMENTO baseadas nessas respostas.`
+      const roundLabel = (input.roundIndex ?? 0) > 0 ? ` (Round ${(input.roundIndex ?? 0) + 1})` : "";
+      const contextNoteSection = input.contextNote?.trim()
+        ? `\nCONTEXTO ADICIONAL FORNECIDO PELO USUÁRIO:\n${input.contextNote.trim()}\n`
         : "";
+      const nivel2Context = input.level === "nivel2" && input.previousAnswers?.length
+        ? `\nRESPOSTAS ANTERIORES:\n${input.previousAnswers.map(a => `P: ${a.question}\nR: ${a.answer}`).join("\n\n")}\n${contextNoteSection}\nGere perguntas de APROFUNDAMENTO${roundLabel} baseadas nessas respostas e no contexto adicional.`
+        : contextNoteSection ? `\n${contextNoteSection}\nGere perguntas considerando este contexto adicional.` : "";
 
       // V65: RAG híbrido — busca artigos relevantes para o CNAE (versão rápida sem re-ranking para perguntas)
       let ragCtx;
@@ -306,7 +312,7 @@ ${OUTPUT_CONTRACT}`,
             role: "user",
             content: `CNAE: ${input.cnaeCode} — ${input.cnaeDescription}
 DESCRIÇÃO DA EMPRESA: ${projectDescription}
-NÍVEL: ${input.level === "nivel1" ? "1 (perguntas essenciais)" : "2 (aprofundamento)"}
+NÍVEL: ${input.level === "nivel1" ? "1 (perguntas essenciais)" : `2 (aprofundamento${roundLabel})`}
 ${nivel2Context}
 
 Gere as perguntas no formato:
@@ -333,6 +339,7 @@ Gere as perguntas no formato:
       cnaeCode: z.string(),
       cnaeDescription: z.string().optional(),
       level: z.enum(["nivel1", "nivel2"]),
+      roundIndex: z.number().optional().default(0),
       questionIndex: z.number(),
       questionText: z.string(),
       questionType: z.string().optional(),
@@ -342,6 +349,7 @@ Gere as perguntas no formato:
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
+      const roundIdx = input.roundIndex ?? 0;
       const existing = await database
         .select()
         .from(questionnaireAnswersV3)
@@ -350,6 +358,7 @@ Gere as perguntas no formato:
             eq(questionnaireAnswersV3.projectId, input.projectId),
             eq(questionnaireAnswersV3.cnaeCode, input.cnaeCode),
             eq(questionnaireAnswersV3.level, input.level),
+            eq(questionnaireAnswersV3.roundIndex, roundIdx),
             eq(questionnaireAnswersV3.questionIndex, input.questionIndex)
           )
         )
@@ -366,6 +375,7 @@ Gere as perguntas no formato:
           cnaeCode: input.cnaeCode,
           cnaeDescription: input.cnaeDescription,
           level: input.level,
+          roundIndex: roundIdx,
           questionIndex: input.questionIndex,
           questionText: input.questionText,
           questionType: input.questionType,
@@ -396,6 +406,60 @@ Gere as perguntas no formato:
         .where(eq(questionnaireAnswersV3.projectId, input.projectId));
 
       return { progress: progress || null, answers };
+    }),
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ETAPA 2: Validar nota de contexto adicional (Feature 2: campo livre)
+  // ─────────────────────────────────────────────────────────────────────────
+  validateContextNote: protectedProcedure
+    .input(z.object({
+      cnaeCode: z.string(),
+      cnaeDescription: z.string(),
+      contextNote: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const text = input.contextNote.trim();
+      if (!text || text.length < 10) {
+        return { relevant: false, reason: "Texto muito curto para avaliar." };
+      }
+      try {
+        const response = await invokeLLM({
+          messages: [
+            {
+              role: "system",
+              content: "Você é um especialista em compliance tributário. Avalie se o texto fornecido tem relevância para o CNAE informado. Responda APENAS com JSON válido.",
+            },
+            {
+              role: "user",
+              content: `CNAE: ${input.cnaeCode} — ${input.cnaeDescription}\n\nTexto do usuário:\n"${text}"\n\nEste texto descreve desafios, cenários, exceções ou pontos de atenção relevantes para este CNAE específico? Retorne: {"relevant": true/false, "reason": "explicação breve em português"}`,
+            },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "context_validation",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  relevant: { type: "boolean" },
+                  reason: { type: "string" },
+                },
+                required: ["relevant", "reason"],
+                additionalProperties: false,
+              },
+            },
+          } as any,
+        });
+        const content = response.choices?.[0]?.message?.content;
+        if (!content) return { relevant: true, reason: "Não foi possível validar, prosseguindo." };
+        const parsed = typeof content === "string" ? JSON.parse(content) : content;
+        return { relevant: parsed.relevant as boolean, reason: parsed.reason as string };
+      } catch (err) {
+        console.error("[validateContextNote] erro:", err);
+        // Em caso de erro, deixar passar (não bloquear o usuário)
+        return { relevant: true, reason: "Validação indisponível, prosseguindo." };
+      }
     }),
 
   // ─────────────────────────────────────────────────────────────────────────

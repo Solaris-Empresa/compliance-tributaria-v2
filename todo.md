@@ -2333,3 +2333,23 @@
 - [x] Chamar saveDraftActionPlan no frontend após geração bem-sucedida (PlanoAcaoV3.tsx)
 - [x] Suprimir banner de rascunho local quando há plano salvo no banco
 - [x] TESTADO: projeto 90004 gerou 28 tarefas e auto-save persistiu 42.449 bytes no banco
+
+## Feature - Questionário: Aprofundamento Ilimitado + Campo Livre (18/03/2026)
+- [x] ANÁLISE: mapear fluxo atual do questionário (QuestionarioV3, procedures, banco)
+- [x] DIAGNÓSTICO: proposta de arquitetura aprovada pelo usuário
+- [x] Feature 1: schema.ts - adicionar coluna roundIndex em questionnaireAnswersV3
+- [x] Feature 1: routers-fluxo-v3.ts - saveAnswer aceita roundIndex; generateQuestions aceita roundIndex
+- [x] Feature 1: QuestionarioV3.tsx - após Nível 2, mostrar prompt de novo round (sem alterar botões existentes)
+- [x] Feature 2: routers-fluxo-v3.ts - nova procedure validateContextNote (LLM valida relevância)
+- [x] Feature 2: routers-fluxo-v3.ts - generateQuestions aceita contextNote no input
+- [x] Feature 2: QuestionarioV3.tsx - campo livre no prompt de aprofundamento com validação inline
+- [x] Testes manuais e automatizados
+- [x] Checkpoint, commit e atualização do CHANGELOG.md
+
+## Bug Fix - Voltar ao Nível 1 regenerava perguntas (18/03/2026)
+- [x] BUG: botão "Voltar ao Nível 1" chamava a IA novamente em vez de restaurar cache
+  CAUSA: handler deletava o cacheKey do nível 1 e limpava questions/answers
+  FIX: handleFinishLevel1 salva nivel1Questions e nivel1AnswersMap no cnaeProgress
+  FIX: handler "Voltar ao Nível 1" restaura do cache sem rechamar a IA
+  FIX: ao voltar, exibe o prompt de aprofundamento (nível 1 já concluído)
+  TESTADO: retorno instantâneo sem loading, respostas preservadas

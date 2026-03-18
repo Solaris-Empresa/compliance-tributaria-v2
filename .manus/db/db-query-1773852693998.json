@@ -1,0 +1,25 @@
+{
+  "query": "SELECT id, name, role FROM users LIMIT 3;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT id, name, role FROM users LIMIT 3;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Uires Tapajós",
+      "role": "equipe_solaris"
+    },
+    {
+      "id": "9999",
+      "name": "Advocacia & Contabilidade Ltda",
+      "role": "cliente"
+    },
+    {
+      "id": "30133",
+      "name": "La Biera",
+      "role": "cliente"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\trole\n1\tUires Tapajós\tequipe_solaris\n9999\tAdvocacia & Contabilidade Ltda\tcliente\n30133\tLa Biera\tcliente\n",
+  "stderr": "",
+  "execution_time_ms": 61
+}

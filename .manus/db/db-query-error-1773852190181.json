@@ -1,0 +1,8 @@
+{
+  "query": "\nINSERT INTO projects (name, description, status, clientId, createdById, createdByRole, confirmedCnaes, annualRevenue, currentStep, createdAt, updatedAt)\nSELECT \n  'TESTE - Aprofundamento Questionário',\n  'Projeto de teste para validar features de aprofundamento ilimitado',\n  'assessment_fase1',\n  clientId,\n  createdById,\n  createdByRole,\n  '[{\"code\":\"4637-1/01\",\"description\":\"Comércio atacadista de cereais e leguminosas\",\"relevance\":\"alta\"}]',\n  5000000,\n  2,\n  NOW(),\n  NOW()\nFROM projects WHERE id = 90003 LIMIT 1;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nINSERT INTO projects (name, description, status, clientId, createdById, createdByRole, confirmedCnaes, annualRevenue, currentStep, createdAt, updatedAt)\nSELECT \n  'TESTE - Aprofundamento Questionário',\n  'Projeto de teste para validar features de aprofundamento ilimitado',\n  'assessment_fase1',\n  clientId,\n  createdById,\n  createdByRole,\n  '[{\"code\":\"4637-1/01\",\"description\":\"Comércio atacadista de cereais e leguminosas\",\"relevance\":\"alta\"}]',\n  5000000,\n  2,\n  NOW(),\n  NOW()\nFROM projects WHERE id = 90003 LIMIT 1;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'annualRevenue' in 'field list'"
+  ]
+}

@@ -1139,6 +1139,7 @@ export const questionnaireAnswersV3 = mysqlTable("questionnaireAnswersV3", {
   cnaeCode: varchar("cnaeCode", { length: 20 }).notNull(),   // Código do CNAE (ex: "47.11-3")
   cnaeDescription: varchar("cnaeDescription", { length: 255 }), // Descrição do CNAE
   level: mysqlEnum("level", ["nivel1", "nivel2"]).notNull().default("nivel1"),
+  roundIndex: int("roundIndex").notNull().default(0),         // Round de aprofundamento: 0=primeiro nivel2, 1=segundo, etc.
   questionIndex: int("questionIndex").notNull(),              // Índice da pergunta (0-based)
   questionText: text("questionText").notNull(),               // Texto da pergunta
   questionType: varchar("questionType", { length: 50 }),      // "yesno", "scale", "multiple", "text", "slider"

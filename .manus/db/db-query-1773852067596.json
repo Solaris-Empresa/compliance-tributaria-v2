@@ -1,0 +1,20 @@
+{
+  "query": "\nSELECT cnaeCode, level, COUNT(*) as total \nFROM questionnaireAnswersV3 \nWHERE projectId = 90004\nGROUP BY cnaeCode, level;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT cnaeCode, level, COUNT(*) as total \nFROM questionnaireAnswersV3 \nWHERE projectId = 90004\nGROUP BY cnaeCode, level;\n",
+  "rows": [
+    {
+      "cnaeCode": "1113-2/00",
+      "level": "nivel1",
+      "total": "10"
+    },
+    {
+      "cnaeCode": "1113-2/00",
+      "level": "nivel2",
+      "total": "10"
+    }
+  ],
+  "messages": [],
+  "stdout": "cnaeCode\tlevel\ttotal\n1113-2/00\tnivel1\t10\n1113-2/00\tnivel2\t10\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

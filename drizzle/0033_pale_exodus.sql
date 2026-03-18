@@ -1,0 +1,1 @@
+ALTER TABLE `questionnaireAnswersV3` ADD `roundIndex` int DEFAULT 0 NOT NULL;

@@ -1,0 +1,8 @@
+{
+  "query": "\n-- Verificar respostas do projeto 90004\nSELECT cnae_code, level, COUNT(*) as total \nFROM questionnaireAnswersV3 \nWHERE project_id = 90004\nGROUP BY cnae_code, level;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \n-- Verificar respostas do projeto 90004\nSELECT cnae_code, level, COUNT(*) as total \nFROM questionnaireAnswersV3 \nWHERE project_id = 90004\nGROUP BY cnae_code, level;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 3: Unknown column 'cnae_code' in 'group statement'"
+  ]
+}

@@ -232,6 +232,13 @@
       "when": 1773835738548,
       "tag": "0032_powerful_lady_ursula",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1773851517079,
+      "tag": "0033_pale_exodus",
+      "breakpoints": true
     }
   ]
 }

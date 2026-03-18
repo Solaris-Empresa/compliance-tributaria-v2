@@ -1,0 +1,13 @@
+{
+  "query": "\nINSERT INTO projects (name, description, status, clientId, createdById, createdByRole, confirmedCnaes, currentStep, createdAt, updatedAt)\nSELECT \n  'TESTE - Aprofundamento Questionário',\n  'Projeto de teste para validar features de aprofundamento ilimitado',\n  'assessment_fase1',\n  clientId,\n  createdById,\n  createdByRole,\n  '[{\"code\":\"4637-1/01\",\"description\":\"Comércio atacadista de cereais e leguminosas\",\"relevance\":\"alta\"}]',\n  2,\n  NOW(),\n  NOW()\nFROM projects WHERE id = 90003 LIMIT 1;\n\nSELECT LAST_INSERT_ID() as new_project_id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nINSERT INTO projects (name, description, status, clientId, createdById, createdByRole, confirmedCnaes, currentStep, createdAt, updatedAt)\nSELECT \n  'TESTE - Aprofundamento Questionário',\n  'Projeto de teste para validar features de aprofundamento ilimitado',\n  'assessment_fase1',\n  clientId,\n  createdById,\n  createdByRole,\n  '[{\"code\":\"4637-1/01\",\"description\":\"Comércio atacadista de cereais e leguminosas\",\"relevance\":\"alta\"}]',\n  2,\n  NOW(),\n  NOW()\nFROM projects WHERE id = 90003 LIMIT 1;\n\nSELECT LAST_INSERT_ID() as new_project_id;\n",
+  "rows": [
+    {
+      "new_project_id": "120001"
+    }
+  ],
+  "messages": [],
+  "stdout": "new_project_id\n120001\n",
+  "stderr": "",
+  "execution_time_ms": 69
+}

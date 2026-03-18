@@ -1,0 +1,8 @@
+{
+  "query": "\n-- Criar projeto de teste para validar o fluxo de aprofundamento\nINSERT INTO projects (name, description, status, clientId, userId, confirmedCnaes, annualRevenue, createdAt, updatedAt)\nSELECT \n  'TESTE - Aprofundamento Questionário',\n  'Projeto de teste para validar features de aprofundamento ilimitado',\n  'questionario',\n  clientId,\n  userId,\n  '[{\"code\":\"4637-1/01\",\"description\":\"Comércio atacadista de cereais\",\"relevance\":\"alta\"}]',\n  5000000,\n  NOW(),\n  NOW()\nFROM projects WHERE id = 90003 LIMIT 1;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \n-- Criar projeto de teste para validar o fluxo de aprofundamento\nINSERT INTO projects (name, description, status, clientId, userId, confirmedCnaes, annualRevenue, createdAt, updatedAt)\nSELECT \n  'TESTE - Aprofundamento Questionário',\n  'Projeto de teste para validar features de aprofundamento ilimitado',\n  'questionario',\n  clientId,\n  userId,\n  '[{\"code\":\"4637-1/01\",\"description\":\"Comércio atacadista de cereais\",\"relevance\":\"alta\"}]',\n  5000000,\n  NOW(),\n  NOW()\nFROM projects WHERE id = 90003 LIMIT 1;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 3: Unknown column 'userId' in 'field list'"
+  ]
+}

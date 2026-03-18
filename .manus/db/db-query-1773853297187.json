@@ -1,0 +1,13 @@
+{
+  "query": "SELECT id FROM projects WHERE name = 'Teste Fix Voltar Nivel1' ORDER BY id DESC LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT id FROM projects WHERE name = 'Teste Fix Voltar Nivel1' ORDER BY id DESC LIMIT 1;",
+  "rows": [
+    {
+      "id": "120232"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\n120232\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}
