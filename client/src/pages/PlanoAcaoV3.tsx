@@ -706,7 +706,7 @@ export default function PlanoAcaoV3() {
 
     // Bug #7: projetos aprovados/concluídos com plano salvo abrem direto no modo edição
     // A tela de conclusão só aparece após uma nova aprovação (via approvePlan)
-    const isApproved = project.status === "aprovado" || project.status === "concluido";
+    const isApproved = project.status === "aprovado" || project.status === "concluido" || project.status === "em_andamento";
     const savedPlansCheck = (project as any).actionPlansData;
     const hasSavedPlan = savedPlansCheck && Object.keys(savedPlansCheck).length > 0;
     if (isApproved && hasSavedPlan && !editMode && Object.keys(plans).length === 0 && generationCount === 0) {
@@ -721,7 +721,17 @@ export default function PlanoAcaoV3() {
 
     // Se já há planos no estado (rascunho local), não sobrescrever
     if (Object.keys(plans).length > 0) return;
-    // Prioridade: plano salvo no banco (re-edição)
+
+    // Status "plano_acao": projeto recém aprovado da matriz de riscos — SEMPRE gerar novo plano
+    // Não carregar actionPlansData antigo pois as matrizes podem ter mudado
+    const isNewlyFromMatrix = project.status === "plano_acao";
+    if (isNewlyFromMatrix && generationCount === 0 && !generationTriggeredRef.current) {
+      generationTriggeredRef.current = true;
+      handleGenerate();
+      return;
+    }
+
+    // Prioridade: plano salvo no banco (re-edição de outros status)
     const savedPlans = (project as any).actionPlansData;
     if (savedPlans && Object.keys(savedPlans).length > 0 && generationCount === 0) {
       setPlans(savedPlans);
