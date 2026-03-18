@@ -1,0 +1,1 @@
+ALTER TABLE `ragDocuments` MODIFY COLUMN `lei` enum('lc214','ec132','lc227','lc224','lc116','lc87','cg_ibs','rfb_cbs','conv_icms') NOT NULL;

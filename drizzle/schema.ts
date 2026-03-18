@@ -1261,7 +1261,7 @@ export type InsertStepComment = typeof stepComments.$inferInsert;
  */
 export const ragDocuments = mysqlTable("ragDocuments", {
   id: int("id").autoincrement().primaryKey(),
-  lei: mysqlEnum("lei", ["lc214", "ec132", "lc227", "lc116", "lc87", "cg_ibs", "rfb_cbs", "conv_icms"]).notNull(),
+  lei: mysqlEnum("lei", ["lc214", "ec132", "lc227", "lc224", "lc116", "lc87", "cg_ibs", "rfb_cbs", "conv_icms"]).notNull(),
   artigo: varchar("artigo", { length: 100 }).notNull(),
   titulo: varchar("titulo", { length: 500 }).notNull(),
   conteudo: text("conteudo").notNull(),

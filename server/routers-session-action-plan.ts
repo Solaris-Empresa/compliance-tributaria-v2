@@ -121,6 +121,7 @@ Regras:
 
   try {
     const response = await invokeLLM({
+          enableCache: true,
       messages: [
         {
           role: "system",

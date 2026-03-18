@@ -225,6 +225,13 @@
       "when": 1773781994051,
       "tag": "0031_nebulous_photon",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1773835738548,
+      "tag": "0032_powerful_lady_ursula",
+      "breakpoints": true
     }
   ]
 }

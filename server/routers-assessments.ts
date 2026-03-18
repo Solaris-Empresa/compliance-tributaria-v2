@@ -101,6 +101,7 @@ Gere um questionário corporativo para avaliar a preparação de uma empresa par
 }`;
 
       const response = await invokeLLM({
+          enableCache: true,
         messages: [
           { role: "system", content: "Você é um especialista em compliance tributário. Responda sempre em JSON válido." },
           { role: "user", content: prompt }
@@ -236,6 +237,7 @@ ${corporateAssessment ? `**Contexto corporativo:**
 }`;
 
       const response = await invokeLLM({
+          enableCache: true,
         messages: [
           { role: "system", content: "Você é um especialista em compliance tributário. Responda sempre em JSON válido." },
           { role: "user", content: prompt }

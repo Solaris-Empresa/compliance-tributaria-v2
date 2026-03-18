@@ -185,6 +185,7 @@ export const actionPlansRouter = router({
           .replace("{{answers}}", assessment.answers || "{}");
 
         const response = await invokeLLM({
+          enableCache: true,
           messages: [
             { role: "system", content: "Você é um especialista em compliance. Responda em JSON válido." },
             { role: "user", content: finalPrompt }
@@ -237,6 +238,7 @@ export const actionPlansRouter = router({
         // Simplificado: usar prompt sem substituições complexas
 
         const response = await invokeLLM({
+          enableCache: true,
           messages: [
             { role: "system", content: "Você é um especialista em compliance. Responda em JSON válido." },
             { role: "user", content: prompt }

@@ -77,9 +77,14 @@ export async function generateWithRetry<T extends z.ZodTypeAny>(
     context?: string; // Para mensagens de erro mais descritivas
     /** Timeout em ms para cada tentativa individual. Padrão: 90s */
     timeoutMs?: number;
+    /**
+     * Habilita Prompt Caching do GPT-4.1 (reduz custo em até 75% em prompts repetidos).
+     * Padrão: true — todos os prompts de compliance tributário são longos e repetidos.
+     */
+    enableCache?: boolean;
   } = {}
 ): Promise<z.infer<T>> {
-  const { maxRetries = 2, context = "LLM", timeoutMs } = options;
+  const { maxRetries = 2, context = "LLM", timeoutMs, enableCache = true } = options;
 
   let lastError: Error | null = null;
 
@@ -87,6 +92,7 @@ export async function generateWithRetry<T extends z.ZodTypeAny>(
     try {
       const response = await invokeLLM({
         messages,
+        enableCache,
         ...(timeoutMs !== undefined ? { timeoutMs } : {}),
       } as any);
 

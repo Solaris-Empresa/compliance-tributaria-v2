@@ -394,6 +394,7 @@ Retorne APENAS JSON válido no formato:
 IMPORTANTE: Todas as perguntas devem ter "required": true.`;
 
           const response = await invokeLLM({
+          enableCache: true,
             messages: [
               { role: "system", content: "Você é um especialista em compliance tributário. Retorne apenas JSON válido." },
               { role: "user", content: prompt }
@@ -629,6 +630,7 @@ Retorne APENAS JSON válido no formato:
 }`;
 
         const response = await invokeLLM({
+          enableCache: true,
           messages: [
             { role: "system", content: "Você é um consultor de compliance. Retorne apenas JSON válido." },
             { role: "user", content: prompt }
@@ -800,6 +802,7 @@ Retorne APENAS JSON válido no formato:
 }`;
 
         const response = await invokeLLM({
+          enableCache: true,
           messages: [
             { role: "system", content: "Você é um especialista em riscos. Retorne apenas JSON válido." },
             { role: "user", content: prompt }
@@ -879,6 +882,7 @@ Retorne APENAS JSON válido no formato:
 }`;
 
         const response = await invokeLLM({
+          enableCache: true,
           messages: [
             { role: "system", content: "Você é um especialista em riscos. Retorne apenas JSON válido." },
             { role: "user", content: prompt }
@@ -1115,6 +1119,7 @@ Retorne APENAS JSON válido no formato:
 
         console.log('[actionPlan.generate] Chamando LLM...');
         const response = await invokeLLM({
+          enableCache: true,
           messages: [
             { role: "system", content: "Você é um gerente de projetos. Retorne apenas JSON válido." },
             { role: "user", content: prompt }
@@ -1276,6 +1281,7 @@ Retorne APENAS JSON válido no formato:
 }`;
 
         const response = await invokeLLM({
+          enableCache: true,
           messages: [
             { role: "system", content: "Você é um gerente de projetos. Retorne apenas JSON válido." },
             { role: "user", content: prompt }

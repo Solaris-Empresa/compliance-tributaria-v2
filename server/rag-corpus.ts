@@ -1,11 +1,12 @@
 /**
- * V65 — Corpus de Documentos Regulatórios da Reforma Tributária
+ * V70 — Corpus de Documentos Regulatórios da Reforma Tributária (Expandido)
  *
  * Fonte: textos oficiais das leis publicadas no Diário Oficial da União.
  * Cobertura:
  *   - EC 132/2023 (Emenda Constitucional — reforma do sistema tributário)
- *   - LC 214/2025 (Lei Complementar — IBS, CBS, IS — implementação)
- *   - LC 227/2024 (Lei Complementar — regras de transição e ajustes)
+ *   - LC 214/2025 (Lei Complementar — IBS, CBS, IS — implementação) [779 artigos]
+ *   - LC 224/2025 (Lei Complementar — incentivos fiscais e LRF) [28 artigos]
+ *   - LC 227/2025 (Lei Complementar — Comitê Gestor IBS) [434 artigos]
  *   - LC 116/2003 (ISS — referência para transição)
  *   - LC 87/1996  (ICMS — referência para transição)
  *
@@ -16,9 +17,10 @@
  *   - topicos: palavras-chave para FULLTEXT search
  *   - cnaeGroups: grupos CNAE relevantes (2 dígitos, separados por vírgula)
  */
+import { RAG_CORPUS_LCS_NOVAS } from './rag-corpus-lcs-novas';
 
 export interface CorpusEntry {
-  lei: "lc214" | "ec132" | "lc227" | "lc116" | "lc87" | "cg_ibs" | "rfb_cbs" | "conv_icms";
+  lei: "lc214" | "ec132" | "lc227" | "lc224" | "lc116" | "lc87" | "cg_ibs" | "rfb_cbs" | "conv_icms";
   artigo: string;
   titulo: string;
   conteudo: string;
@@ -626,4 +628,5 @@ export const RAG_CORPUS: CorpusEntry[] = [
     cnaeGroups: "29,30,45",
     chunkIndex: 0,
   },
+  ...RAG_CORPUS_LCS_NOVAS,
 ];

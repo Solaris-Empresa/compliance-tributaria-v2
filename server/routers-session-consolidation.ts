@@ -206,6 +206,7 @@ Responda APENAS com JSON válido.`;
 
       try {
         const llmResponse = await invokeLLM({
+          enableCache: true,
           messages: [
             { role: "system", content: "Você é um especialista em compliance tributário. Responda sempre com JSON válido." },
             { role: "user", content: prompt },

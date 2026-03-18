@@ -2235,3 +2235,13 @@
 - [x] Exibir badge com contagem ao lado de "Projetos" na sidebar (ComplianceLayout.tsx)
 - [x] 8 novos testes (65/65 testes de UX passando)
 - [x] Checkpoint e publicação (versão 7b07ca1a)
+
+## Sprint RAG-v2 + Prompt Caching (18/03/2026)
+- [x] Baixar e processar LC 214/2025 (779 artigos extraídos do PDF)
+- [x] Baixar e processar LC 224/2025 (28 artigos extraídos do PDF)
+- [x] Baixar e processar LC 227/2025 (434 artigos extraídos do PDF)
+- [x] Gerar chunks semânticos das 3 leis e inserir no corpus RAG (rag-corpus-lcs-novas.ts)
+- [x] Reprocessar rag-ingest: 1.241 artigos no banco ragDocuments (ingestão incremental)
+- [x] Configurar Prompt Caching GPT-4.1 (cache_control ephemeral) no llm.ts
+- [x] Aplicar enableCache: true em 17 chamadas invokeLLM + generateWithRetry (padrão true)
+- [x] Testes passando: 2/2 (GPT-4.1 respondeu em 917ms)

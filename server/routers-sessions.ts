@@ -211,6 +211,7 @@ Retorne APENAS o JSON, sem texto adicional. Formato:
 {"branches": [{"code": "...", "name": "...", "justification": "...", "confidence": 0.9}]}`;
 
   const response = await invokeLLM({
+          enableCache: true,
     messages: [
       { role: "system", content: "Você é um especialista em compliance tributário. Responda apenas com JSON válido." },
       { role: "user", content: prompt },

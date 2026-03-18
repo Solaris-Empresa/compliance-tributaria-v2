@@ -72,6 +72,7 @@ Foque em: sistemas fiscais, obrigações acessórias, alíquotas por ramo, regim
 
   try {
     const response = await invokeLLM({
+          enableCache: true,
       messages: [
         {
           role: "system",
@@ -213,6 +214,7 @@ Retorne APENAS JSON válido.`;
 
   try {
     const response = await invokeLLM({
+          enableCache: true,
       messages: [
         { role: "system", content: "Especialista em compliance tributário. Responda APENAS com JSON." },
         { role: "user", content: prompt },

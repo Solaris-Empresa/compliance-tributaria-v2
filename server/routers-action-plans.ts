@@ -49,6 +49,7 @@ export const actionPlansRouter = router({
         const prompt = `Gere um plano de ação com 8-15 tarefas baseado nestas respostas: ${JSON.stringify(answers)}. Retorne JSON: {"tasks":[{"title":"...","description":"...","responsibleArea":"TI|CONT|FISC|JUR|OPS|COM|ADM","taskType":"STRATEGIC|OPERATIONAL|COMPLIANCE","priority":"ALTA|MÉDIA|BAIXA","estimatedDays":30}]}`;
 
         const response = await invokeLLM({
+          enableCache: true,
           messages: [
             { role: "system", content: "Retorne apenas JSON válido." },
             { role: "user", content: prompt },
@@ -184,6 +185,7 @@ export const actionPlansRouter = router({
         const prompt = `Gere plano de ação para o ramo ${branch?.name || 'desconhecido'} com 5-10 tarefas baseado nestas respostas: ${JSON.stringify(answers)}. Retorne JSON: {"tasks":[{"title":"...","description":"...","responsibleArea":"TI|CONT|FISC|JUR|OPS|COM|ADM","taskType":"STRATEGIC|OPERATIONAL|COMPLIANCE","priority":"ALTA|MÉDIA|BAIXA","estimatedDays":30}]}`;
 
         const response = await invokeLLM({
+          enableCache: true,
           messages: [
             { role: "system", content: "Retorne apenas JSON válido." },
             { role: "user", content: prompt },

@@ -68,6 +68,13 @@ export type InvokeParams = {
   response_format?: ResponseFormat;
   /** Timeout em milissegundos para a chamada HTTP. Padrão: 180000ms (3min). */
   timeoutMs?: number;
+  /**
+   * Habilita Prompt Caching do GPT-4.1.
+   * Quando true, insere cache_control: {type: "ephemeral"} no último system message
+   * para ativar o cache de prefixo (reduz custo em até 75% em chamadas repetidas).
+   * O cache é mantido por ~5-10 minutos na OpenAI. Use em prompts longos e repetidos.
+   */
+  enableCache?: boolean;
 };
 
 export type ToolCall = {
@@ -96,6 +103,11 @@ export type InvokeResult = {
     prompt_tokens: number;
     completion_tokens: number;
     total_tokens: number;
+    /** Tokens servidos do cache de prefixo (GPT-4.1 Prompt Caching — reduz custo em até 75%) */
+    prompt_tokens_details?: {
+      cached_tokens?: number;
+      audio_tokens?: number;
+    };
   };
 };
 
@@ -283,11 +295,39 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     responseFormat,
     response_format,
     timeoutMs = DEFAULT_LLM_TIMEOUT_MS,
+    enableCache = false,
   } = params;
+
+  // Prompt Caching: injetar cache_control no último system message quando enableCache=true
+  // O GPT-4.1 armazena o prefixo em cache por ~5-10 min, reduzindo custo em até 75%
+  const processedMessages = enableCache
+    ? messages.map((msg, idx) => {
+        // Encontrar o último system message para marcar como cachável
+        const lastSystemIdx = messages.reduce(
+          (last, m, i) => (m.role === "system" ? i : last),
+          -1
+        );
+        if (idx !== lastSystemIdx || msg.role !== "system") return msg;
+        // Converter conteúdo para array de partes com cache_control
+        const textContent = typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content);
+        return {
+          ...msg,
+          content: [
+            {
+              type: "text" as const,
+              text: textContent,
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore — cache_control é extensão da OpenAI não tipada no tipo TextContent
+              cache_control: { type: "ephemeral" },
+            },
+          ],
+        };
+      })
+    : messages;
 
   const payload: Record<string, unknown> = {
     model: "gpt-4.1",
-    messages: messages.map(normalizeMessage),
+    messages: processedMessages.map(normalizeMessage),
   };
 
   if (tools && tools.length > 0) {
