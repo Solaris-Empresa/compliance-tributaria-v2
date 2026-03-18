@@ -2353,3 +2353,21 @@
   FIX: handler "Voltar ao Nível 1" restaura do cache sem rechamar a IA
   FIX: ao voltar, exibe o prompt de aprofundamento (nível 1 já concluído)
   TESTADO: retorno instantâneo sem loading, respostas preservadas
+
+## Feature - Persistir Cache de Perguntas Nível 1 no Banco (18/03/2026)
+- [x] schema.ts: nova tabela questionnaireQuestionsCache (projectId, cnaeCode, level, roundIndex, questionsJson)
+- [x] pnpm db:push: migração 0034 aplicada com sucesso
+- [x] routers-fluxo-v3.ts: procedure saveQuestionsCache (upsert por projectId+cnaeCode+level+roundIndex)
+- [x] routers-fluxo-v3.ts: procedure getQuestionsCache (query por projectId+cnaeCode+level+roundIndex)
+- [x] QuestionarioV3.tsx: após gerar perguntas, salva no banco via saveQuestionsCache.mutate()
+- [x] QuestionarioV3.tsx: fallback no "Voltar ao Nível 1" já implementado (cache local primeiro, banco como fallback)
+
+## Feature - Indicador Visual do Round Atual no Badge CNAE (18/03/2026)
+- [x] QuestionarioV3.tsx: badge do CNAE na lista de progresso exibe "+2", "+3", "+4" conforme rounds
+- [x] QuestionarioV3.tsx: badge no header do questionário exibe "Nível 2 — Aprofundamento" (round 1) ou "Nível X — Round Y" (rounds 2+)
+
+## Feature - Limite Configurável de Rounds com Aviso (18/03/2026)
+- [x] Constante MAX_DEEP_DIVE_ROUNDS = 5 definida no componente
+- [x] Barra de progresso "Rounds usados: X / 5" no prompt de novo round
+- [x] Aviso vermelho ao atingir o limite + botão "Limite atingido" desabilitado
+- [x] Texto dinâmico: "X de 5 rounds usados" ou "Limite de rounds atingido"

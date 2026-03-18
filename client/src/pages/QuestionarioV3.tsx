@@ -268,6 +268,9 @@ export default function QuestionarioV3() {
   const saveProgress = trpc.fluxoV3.saveQuestionnaireProgress.useMutation();
   const saveAnswer = trpc.fluxoV3.saveAnswer.useMutation();
   const validateContextNoteMutation = trpc.fluxoV3.validateContextNote.useMutation();
+  const saveQuestionsCacheMutation = trpc.fluxoV3.saveQuestionsCache.useMutation();
+  // MAX_DEEP_DIVE_ROUNDS: limite máximo de rounds de aprofundamento por CNAE
+  const MAX_DEEP_DIVE_ROUNDS = 5;
 
   // Buscar progresso salvo no banco (para retomada)
   const { data: savedProgress } = trpc.fluxoV3.getProgress.useQuery(
@@ -351,6 +354,14 @@ export default function QuestionarioV3() {
         toast.error("Erro ao gerar perguntas. Tente novamente.");
       } else {
         setQuestions(qs);
+        // Salvar perguntas geradas no banco (persistência cross-device)
+        saveQuestionsCacheMutation.mutate({
+          projectId,
+          cnaeCode: cnaes[cnaeIdx].code,
+          level,
+          roundIndex: roundIndex ?? 0,
+          questionsJson: JSON.stringify(qs),
+        });
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -820,7 +831,13 @@ export default function QuestionarioV3() {
                     Revisado
                   </span>
                 )}
-                {c.nivel2Done && <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4">+2</Badge>}
+                {c.nivel2Done && (
+                  <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4">
+                    {c.deepDiveRounds && c.deepDiveRounds.length > 0
+                      ? `+${c.deepDiveRounds.length + 1}`
+                      : "+2"}
+                  </Badge>
+                )}
               </button>
             ))}
           </div>
@@ -929,8 +946,24 @@ export default function QuestionarioV3() {
                 <div>
                   <h3 className="font-semibold text-base">Deseja um novo round de aprofundamento?</h3>
                   <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                    Round {currentRound} concluído para <strong>{currentCnae?.code}</strong>. Você pode continuar se aprofundando quantas vezes precisar, ou avançar para o próximo CNAE.
+                    Round {currentRound} concluído para <strong>{currentCnae?.code}</strong>.
+                    {currentRound >= MAX_DEEP_DIVE_ROUNDS
+                      ? " Limite de rounds atingido."
+                      : ` Você pode continuar se aprofundando (${currentRound} de ${MAX_DEEP_DIVE_ROUNDS} rounds usados), ou avançar para o próximo CNAE.`}
                   </p>
+                  {/* Barra de progresso dos rounds */}
+                  <div className="mt-2">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                      <span>Rounds usados</span>
+                      <span className={currentRound >= MAX_DEEP_DIVE_ROUNDS ? "text-red-600 font-semibold" : "text-primary font-medium"}>{currentRound} / {MAX_DEEP_DIVE_ROUNDS}</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${currentRound >= MAX_DEEP_DIVE_ROUNDS ? "bg-red-500" : "bg-primary"}`}
+                        style={{ width: `${Math.min((currentRound / MAX_DEEP_DIVE_ROUNDS) * 100, 100)}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
               {/* Campo livre de contexto para novo round */}
@@ -994,12 +1027,19 @@ export default function QuestionarioV3() {
                 )}
               </div>
               <div className="flex gap-3">
+                {currentRound >= MAX_DEEP_DIVE_ROUNDS && (
+                  <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                    <span>Limite de {MAX_DEEP_DIVE_ROUNDS} rounds de aprofundamento atingido para este CNAE. Avance para o próximo CNAE.</span>
+                  </div>
+                )}
                 <Button
                   onClick={() => handleConfirmNextRound()}
                   className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  disabled={currentRound >= MAX_DEEP_DIVE_ROUNDS}
                 >
                   <Sparkles className="h-4 w-4 mr-2" />
-                  Sim, mais um round
+                  {currentRound >= MAX_DEEP_DIVE_ROUNDS ? "Limite atingido" : "Sim, mais um round"}
                 </Button>
                 <Button variant="outline" onClick={handleSkipNextRound} className="flex-1">
                   <SkipForward className="h-4 w-4 mr-2" />
@@ -1082,7 +1122,11 @@ export default function QuestionarioV3() {
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-mono text-sm font-bold text-primary">{currentCnae.code}</span>
                     <Badge variant={currentLevel === "nivel2" ? "default" : "secondary"} className="text-xs">
-                      {currentLevel === "nivel1" ? "Nível 1 — Essencial" : "Nível 2 — Aprofundamento"}
+                      {currentLevel === "nivel1"
+                        ? "Nível 1 — Essencial"
+                        : currentRound <= 1
+                          ? "Nível 2 — Aprofundamento"
+                          : `Nível ${currentRound + 1} — Round ${currentRound}`}
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">{currentCnae.description}</p>

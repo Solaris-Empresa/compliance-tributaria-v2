@@ -11,7 +11,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import * as db from "./db";
-import { projects, questionnaireAnswersV3, questionnaireProgressV3 } from "../drizzle/schema";
+import { projects, questionnaireAnswersV3, questionnaireProgressV3, questionnaireQuestionsCache } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
 // Importações dos novos módulos V60-V63
@@ -460,6 +460,75 @@ Gere as perguntas no formato:
         // Em caso de erro, deixar passar (não bloquear o usuário)
         return { relevant: true, reason: "Validação indisponível, prosseguindo." };
       }
+    }),
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ETAPA 2: Cache de perguntas geradas (persistência cross-device)
+  // ─────────────────────────────────────────────────────────────────────────
+  saveQuestionsCache: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      cnaeCode: z.string(),
+      level: z.enum(["nivel1", "nivel2"]),
+      roundIndex: z.number().default(0),
+      questionsJson: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const database = await db.getDb();
+      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      const existing = await database
+        .select({ id: questionnaireQuestionsCache.id })
+        .from(questionnaireQuestionsCache)
+        .where(
+          and(
+            eq(questionnaireQuestionsCache.projectId, input.projectId),
+            eq(questionnaireQuestionsCache.cnaeCode, input.cnaeCode),
+            eq(questionnaireQuestionsCache.level, input.level),
+            eq(questionnaireQuestionsCache.roundIndex, input.roundIndex)
+          )
+        )
+        .limit(1);
+      if (existing.length > 0) {
+        await database
+          .update(questionnaireQuestionsCache)
+          .set({ questionsJson: input.questionsJson })
+          .where(eq(questionnaireQuestionsCache.id, existing[0].id));
+      } else {
+        await database.insert(questionnaireQuestionsCache).values({
+          projectId: input.projectId,
+          cnaeCode: input.cnaeCode,
+          level: input.level,
+          roundIndex: input.roundIndex,
+          questionsJson: input.questionsJson,
+        });
+      }
+      return { ok: true };
+    }),
+
+  getQuestionsCache: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      cnaeCode: z.string(),
+      level: z.enum(["nivel1", "nivel2"]),
+      roundIndex: z.number().default(0),
+    }))
+    .query(async ({ input }) => {
+      const database = await db.getDb();
+      if (!database) return { questionsJson: null };
+      const rows = await database
+        .select()
+        .from(questionnaireQuestionsCache)
+        .where(
+          and(
+            eq(questionnaireQuestionsCache.projectId, input.projectId),
+            eq(questionnaireQuestionsCache.cnaeCode, input.cnaeCode),
+            eq(questionnaireQuestionsCache.level, input.level),
+            eq(questionnaireQuestionsCache.roundIndex, input.roundIndex)
+          )
+        )
+        .limit(1);
+      if (rows.length === 0) return { questionsJson: null };
+      return { questionsJson: rows[0].questionsJson };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────

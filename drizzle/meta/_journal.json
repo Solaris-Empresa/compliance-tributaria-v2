@@ -239,6 +239,13 @@
       "when": 1773851517079,
       "tag": "0033_pale_exodus",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "5",
+      "when": 1773854080925,
+      "tag": "0034_sour_the_twelve",
+      "breakpoints": true
     }
   ]
 }

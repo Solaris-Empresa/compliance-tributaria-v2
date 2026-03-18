@@ -1296,3 +1296,24 @@ export const onboardingProgress = mysqlTable("onboardingProgress", {
 });
 export type OnboardingProgress = typeof onboardingProgress.$inferSelect;
 export type InsertOnboardingProgress = typeof onboardingProgress.$inferInsert;
+
+// =============================================================================
+// V70 — Cache de Perguntas Geradas (Persistência Cross-Device)
+// =============================================================================
+/**
+ * questionnaireQuestionsCache
+ * Persiste as perguntas geradas pela IA por projeto/CNAE/nível/round.
+ * Permite restaurar o Nível 1 sem rechamar a IA mesmo em sessões diferentes ou outros dispositivos.
+ */
+export const questionnaireQuestionsCache = mysqlTable("questionnaireQuestionsCache", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  cnaeCode: varchar("cnaeCode", { length: 20 }).notNull(),
+  level: mysqlEnum("level", ["nivel1", "nivel2"]).notNull().default("nivel1"),
+  roundIndex: int("roundIndex").notNull().default(0),
+  questionsJson: text("questionsJson").notNull(), // JSON array de Question[]
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type QuestionnaireQuestionsCache = typeof questionnaireQuestionsCache.$inferSelect;
+export type InsertQuestionnaireQuestionsCache = typeof questionnaireQuestionsCache.$inferInsert;
