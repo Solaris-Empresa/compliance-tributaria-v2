@@ -1,0 +1,13 @@
+{
+  "query": "\nSELECT COUNT(*) as total_teste FROM projects \nWHERE name LIKE 'Projeto Teste%' OR name LIKE '%Update Status%' OR name LIKE '%794rx-%';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT COUNT(*) as total_teste FROM projects \nWHERE name LIKE 'Projeto Teste%' OR name LIKE '%Update Status%' OR name LIKE '%794rx-%';\n",
+  "rows": [
+    {
+      "total_teste": "333"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_teste\n333\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

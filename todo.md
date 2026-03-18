@@ -2223,4 +2223,9 @@
 - [x] Corrigir PlanoAcaoV3: completedUpTo passado com statusToCompletedStep
 - [x] Criar helper statusToCompletedStep em client/src/lib/flowStepperUtils.ts
 - [x] 19 novos testes de regressão (57/57 testes de UX passando)
-- [ ] Checkpoint e republicação
+- [x] Checkpoint e republicação (versão 151120e0)
+
+## UX: Botão Novo Projeto — mover para sidebar esquerda em destaque
+- [x] Remover botão "+ Novo Projeto" do header (canto superior direito) — Painel.tsx e Projetos.tsx
+- [x] Adicionar botão "+ Novo Projeto" na sidebar, abaixo do logo, em destaque (ComplianceLayout.tsx)
+- [ ] Checkpoint e publicação

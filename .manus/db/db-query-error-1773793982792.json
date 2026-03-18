@@ -1,0 +1,10 @@
+{
+  "query": "\n-- Projetos que SERIAM REMOVIDOS (teste)\nSELECT COUNT(*) as total_teste FROM projects \nWHERE name LIKE 'Projeto Teste%' OR name LIKE '%Update Status%' OR name LIKE '%794rx-%';\n\n-- Projetos que SERIAM MANTIDOS (reais)\nSELECT id, name, status, created_at FROM projects \nWHERE name NOT LIKE 'Projeto Teste%' \n  AND name NOT LIKE '%Update Status%' \n  AND name NOT LIKE '%794rx-%'\nORDER BY created_at DESC\nLIMIT 30;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \n-- Projetos que SERIAM REMOVIDOS (teste)\nSELECT COUNT(*) as total_teste FROM projects \nWHERE name LIKE 'Projeto Teste%' OR name LIKE '%Update Status%' OR name LIKE '%794rx-%';\n\n-- Projetos que SERIAM MANTIDOS (reais)\nSELECT id, name, status, created_at FROM projects \nWHERE name NOT LIKE 'Projeto Teste%' \n  AND name NOT LIKE '%Update Status%' \n  AND name NOT LIKE '%794rx-%'\nORDER BY created_at DESC\nLIMIT 30;\n",
+  "returncode": 1,
+  "logs": [
+    "total_teste",
+    "333",
+    "ERROR 1054 (42S22) at line 7: Unknown column 'created_at' in 'field list'"
+  ]
+}

@@ -10,6 +10,7 @@ import {
   Users,
   X,
   BookOpen,
+  Plus,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -134,6 +135,21 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
           >
             {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
+        </div>
+
+        {/* Botão Novo Projeto — destaque principal da sidebar */}
+        <div className="px-4 py-3 border-b border-border">
+          <Link href="/projetos/novo">
+            <button
+              className={`flex items-center gap-2 w-full px-3 py-2.5 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 active:scale-[0.98] transition-all ${
+                sidebarOpen ? "justify-start" : "justify-center"
+              }`}
+              title="Novo Projeto"
+            >
+              <Plus className="h-5 w-5 flex-shrink-0" />
+              {sidebarOpen && <span>Novo Projeto</span>}
+            </button>
+          </Link>
         </div>
 
         {/* Navigation */}

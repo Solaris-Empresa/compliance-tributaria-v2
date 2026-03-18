@@ -60,19 +60,11 @@ export default function Painel() {
     <ComplianceLayout>
       <div className="p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Painel</h1>
-            <p className="text-muted-foreground mt-1">
-              Visão geral dos projetos de compliance tributário
-            </p>
-          </div>
-          <Button asChild>
-            <Link href="/projetos/novo">
-              <Plus className="h-4 w-4" />
-              Novo Projeto
-            </Link>
-          </Button>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">Painel</h1>
+          <p className="text-muted-foreground mt-1">
+            Visão geral dos projetos de compliance tributário
+          </p>
         </div>
 
         {/* Stats Cards */}

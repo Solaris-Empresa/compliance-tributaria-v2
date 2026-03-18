@@ -1,0 +1,850 @@
+{
+  "query": "\nSELECT id, name, status, createdAt FROM projects \nWHERE name NOT LIKE 'Projeto Teste%' \n  AND name NOT LIKE '%Update Status%' \n  AND name NOT LIKE '%794rx-%'\nORDER BY createdAt DESC;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT id, name, status, createdAt FROM projects \nWHERE name NOT LIKE 'Projeto Teste%' \n  AND name NOT LIKE '%Update Status%' \n  AND name NOT LIKE '%794rx-%'\nORDER BY createdAt DESC;\n",
+  "rows": [
+    {
+      "id": "1633",
+      "name": "Test Project Filter",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:35:29"
+    },
+    {
+      "id": "1632",
+      "name": "Test Project Read",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:35:29"
+    },
+    {
+      "id": "1631",
+      "name": "Test Project Notification",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:35:29"
+    },
+    {
+      "id": "1630",
+      "name": "Test Project Overdue",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:35:29"
+    },
+    {
+      "id": "1629",
+      "name": "Test Project Risks",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:35:29"
+    },
+    {
+      "id": "1628",
+      "name": "Test Project Distribution",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:35:29"
+    },
+    {
+      "id": "1627",
+      "name": "Test Project KPIs",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:35:29"
+    },
+    {
+      "id": "1625",
+      "name": "Test Project tRPC",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:35:27"
+    },
+    {
+      "id": "1623",
+      "name": "Test Project Phase1 Fix",
+      "status": "assessment_fase1",
+      "createdAt": "2026-03-17 23:35:24"
+    },
+    {
+      "id": "1593",
+      "name": "Test Project Branch Gen",
+      "status": "plano_acao",
+      "createdAt": "2026-03-17 23:35:00"
+    },
+    {
+      "id": "1573",
+      "name": "Teste E2E Completo 1773790496145",
+      "status": "assessment_fase2",
+      "createdAt": "2026-03-17 23:34:56"
+    },
+    {
+      "id": "1572",
+      "name": "Test Project Action Plans",
+      "status": "em_andamento",
+      "createdAt": "2026-03-17 23:34:56"
+    },
+    {
+      "id": "1546",
+      "name": "Projeto Transições 1773790491382",
+      "status": "arquivado",
+      "createdAt": "2026-03-17 23:34:51"
+    },
+    {
+      "id": "1545",
+      "name": "Projeto Persistência 1773790491339",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:34:51"
+    },
+    {
+      "id": "1544",
+      "name": "Projeto Acesso 1773790491321",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:34:51"
+    },
+    {
+      "id": "1542",
+      "name": "Projeto Segurança 1773790491288",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:34:51"
+    },
+    {
+      "id": "1541",
+      "name": "Projeto E2E 1773790490996",
+      "status": "concluido",
+      "createdAt": "2026-03-17 23:34:51"
+    },
+    {
+      "id": "1505",
+      "name": "Test Project Filter",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:32:48"
+    },
+    {
+      "id": "1504",
+      "name": "Test Project Read",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:32:48"
+    },
+    {
+      "id": "1503",
+      "name": "Test Project Notification",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:32:48"
+    },
+    {
+      "id": "1502",
+      "name": "Test Project Overdue",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:32:47"
+    },
+    {
+      "id": "1501",
+      "name": "Test Project Risks",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:32:47"
+    },
+    {
+      "id": "1500",
+      "name": "Test Project Distribution",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:32:47"
+    },
+    {
+      "id": "1499",
+      "name": "Test Project KPIs",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:32:47"
+    },
+    {
+      "id": "1497",
+      "name": "Test Project tRPC",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:32:45"
+    },
+    {
+      "id": "1495",
+      "name": "Test Project Phase1 Fix",
+      "status": "assessment_fase1",
+      "createdAt": "2026-03-17 23:32:42"
+    },
+    {
+      "id": "1464",
+      "name": "Test Project Branch Gen",
+      "status": "plano_acao",
+      "createdAt": "2026-03-17 23:32:18"
+    },
+    {
+      "id": "1445",
+      "name": "Teste E2E Completo 1773790334183",
+      "status": "assessment_fase2",
+      "createdAt": "2026-03-17 23:32:14"
+    },
+    {
+      "id": "1444",
+      "name": "Test Project Action Plans",
+      "status": "em_andamento",
+      "createdAt": "2026-03-17 23:32:14"
+    },
+    {
+      "id": "1418",
+      "name": "Projeto Transições 1773790329635",
+      "status": "arquivado",
+      "createdAt": "2026-03-17 23:32:09"
+    },
+    {
+      "id": "1416",
+      "name": "Projeto Persistência 1773790329588",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:32:09"
+    },
+    {
+      "id": "1415",
+      "name": "Projeto Acesso 1773790329572",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:32:09"
+    },
+    {
+      "id": "1414",
+      "name": "Projeto Segurança 1773790329542",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:32:09"
+    },
+    {
+      "id": "1413",
+      "name": "Projeto E2E 1773790329277",
+      "status": "concluido",
+      "createdAt": "2026-03-17 23:32:09"
+    },
+    {
+      "id": "1382",
+      "name": "Test Project Filter",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:30:36"
+    },
+    {
+      "id": "1381",
+      "name": "Test Project Read",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:30:36"
+    },
+    {
+      "id": "1380",
+      "name": "Test Project Notification",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:30:35"
+    },
+    {
+      "id": "1379",
+      "name": "Test Project Overdue",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:30:35"
+    },
+    {
+      "id": "1378",
+      "name": "Test Project Risks",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:30:35"
+    },
+    {
+      "id": "1377",
+      "name": "Test Project Distribution",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:30:35"
+    },
+    {
+      "id": "1376",
+      "name": "Test Project KPIs",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:30:35"
+    },
+    {
+      "id": "1374",
+      "name": "Test Project tRPC",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:30:33"
+    },
+    {
+      "id": "1372",
+      "name": "Test Project Phase1 Fix",
+      "status": "assessment_fase1",
+      "createdAt": "2026-03-17 23:30:31"
+    },
+    {
+      "id": "1343",
+      "name": "Test Project Branch Gen",
+      "status": "plano_acao",
+      "createdAt": "2026-03-17 23:30:06"
+    },
+    {
+      "id": "1323",
+      "name": "Teste E2E Completo 1773790202103",
+      "status": "assessment_fase2",
+      "createdAt": "2026-03-17 23:30:02"
+    },
+    {
+      "id": "1322",
+      "name": "Test Project Action Plans",
+      "status": "em_andamento",
+      "createdAt": "2026-03-17 23:30:01"
+    },
+    {
+      "id": "1300",
+      "name": "Projeto Transições 1773790197922",
+      "status": "arquivado",
+      "createdAt": "2026-03-17 23:29:57"
+    },
+    {
+      "id": "1299",
+      "name": "Projeto Persistência 1773790197882",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:29:57"
+    },
+    {
+      "id": "1298",
+      "name": "Projeto Acesso 1773790197860",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:29:57"
+    },
+    {
+      "id": "1297",
+      "name": "Projeto Segurança 1773790197829",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:29:57"
+    },
+    {
+      "id": "1294",
+      "name": "Projeto E2E 1773790197552",
+      "status": "concluido",
+      "createdAt": "2026-03-17 23:29:57"
+    },
+    {
+      "id": "1256",
+      "name": "Test Project Filter",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:16:41"
+    },
+    {
+      "id": "1255",
+      "name": "Test Project Read",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:16:41"
+    },
+    {
+      "id": "1254",
+      "name": "Test Project Notification",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:16:41"
+    },
+    {
+      "id": "1253",
+      "name": "Test Project Overdue",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:16:41"
+    },
+    {
+      "id": "1252",
+      "name": "Test Project Risks",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:16:41"
+    },
+    {
+      "id": "1251",
+      "name": "Test Project Distribution",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:16:41"
+    },
+    {
+      "id": "1250",
+      "name": "Test Project KPIs",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:16:41"
+    },
+    {
+      "id": "1248",
+      "name": "Test Project tRPC",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:16:39"
+    },
+    {
+      "id": "1246",
+      "name": "Test Project Phase1 Fix",
+      "status": "assessment_fase1",
+      "createdAt": "2026-03-17 23:16:36"
+    },
+    {
+      "id": "1216",
+      "name": "Test Project Branch Gen",
+      "status": "plano_acao",
+      "createdAt": "2026-03-17 23:16:13"
+    },
+    {
+      "id": "1197",
+      "name": "Teste E2E Completo 1773789369137",
+      "status": "assessment_fase2",
+      "createdAt": "2026-03-17 23:16:09"
+    },
+    {
+      "id": "1195",
+      "name": "Test Project Action Plans",
+      "status": "em_andamento",
+      "createdAt": "2026-03-17 23:16:08"
+    },
+    {
+      "id": "1174",
+      "name": "Projeto Transições 1773789365151",
+      "status": "arquivado",
+      "createdAt": "2026-03-17 23:16:05"
+    },
+    {
+      "id": "1173",
+      "name": "Projeto Persistência 1773789365110",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:16:05"
+    },
+    {
+      "id": "1172",
+      "name": "Projeto Acesso 1773789365092",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:16:05"
+    },
+    {
+      "id": "1171",
+      "name": "Projeto Segurança 1773789365053",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 23:16:05"
+    },
+    {
+      "id": "1168",
+      "name": "Projeto E2E 1773789364781",
+      "status": "concluido",
+      "createdAt": "2026-03-17 23:16:04"
+    },
+    {
+      "id": "1141",
+      "name": "teste - again - produto de peixe",
+      "status": "aprovado",
+      "createdAt": "2026-03-17 22:28:34"
+    },
+    {
+      "id": "1124",
+      "name": "Test Project Read",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:20:50"
+    },
+    {
+      "id": "1123",
+      "name": "Test Project Notification",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:20:50"
+    },
+    {
+      "id": "1125",
+      "name": "Test Project Filter",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:20:50"
+    },
+    {
+      "id": "1119",
+      "name": "Test Project KPIs",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:20:49"
+    },
+    {
+      "id": "1122",
+      "name": "Test Project Overdue",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:20:49"
+    },
+    {
+      "id": "1121",
+      "name": "Test Project Risks",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:20:49"
+    },
+    {
+      "id": "1120",
+      "name": "Test Project Distribution",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:20:49"
+    },
+    {
+      "id": "1117",
+      "name": "Test Project tRPC",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:20:48"
+    },
+    {
+      "id": "1115",
+      "name": "Test Project Phase1 Fix",
+      "status": "assessment_fase1",
+      "createdAt": "2026-03-17 22:20:45"
+    },
+    {
+      "id": "1084",
+      "name": "Test Project Branch Gen",
+      "status": "plano_acao",
+      "createdAt": "2026-03-17 22:20:19"
+    },
+    {
+      "id": "1063",
+      "name": "Teste E2E Completo 1773786015500",
+      "status": "assessment_fase2",
+      "createdAt": "2026-03-17 22:20:15"
+    },
+    {
+      "id": "1062",
+      "name": "Test Project Action Plans",
+      "status": "em_andamento",
+      "createdAt": "2026-03-17 22:20:15"
+    },
+    {
+      "id": "1034",
+      "name": "Projeto Segurança 1773786011150",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:20:11"
+    },
+    {
+      "id": "1038",
+      "name": "Projeto Transições 1773786011251",
+      "status": "arquivado",
+      "createdAt": "2026-03-17 22:20:11"
+    },
+    {
+      "id": "1037",
+      "name": "Projeto Persistência 1773786011201",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:20:11"
+    },
+    {
+      "id": "1036",
+      "name": "Projeto Acesso 1773786011181",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:20:11"
+    },
+    {
+      "id": "1033",
+      "name": "Projeto E2E 1773786010876",
+      "status": "concluido",
+      "createdAt": "2026-03-17 22:20:10"
+    },
+    {
+      "id": "1003",
+      "name": "Test Project Filter",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:18:42"
+    },
+    {
+      "id": "1002",
+      "name": "Test Project Read",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:18:42"
+    },
+    {
+      "id": "1001",
+      "name": "Test Project Notification",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:18:42"
+    },
+    {
+      "id": "1000",
+      "name": "Test Project Overdue",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:18:42"
+    },
+    {
+      "id": "999",
+      "name": "Test Project Risks",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:18:42"
+    },
+    {
+      "id": "997",
+      "name": "Test Project KPIs",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:18:41"
+    },
+    {
+      "id": "998",
+      "name": "Test Project Distribution",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:18:41"
+    },
+    {
+      "id": "995",
+      "name": "Test Project tRPC",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:18:40"
+    },
+    {
+      "id": "993",
+      "name": "Test Project Phase1 Fix",
+      "status": "assessment_fase1",
+      "createdAt": "2026-03-17 22:18:37"
+    },
+    {
+      "id": "962",
+      "name": "Test Project Branch Gen",
+      "status": "plano_acao",
+      "createdAt": "2026-03-17 22:18:13"
+    },
+    {
+      "id": "940",
+      "name": "Teste E2E Completo 1773785889076",
+      "status": "assessment_fase2",
+      "createdAt": "2026-03-17 22:18:09"
+    },
+    {
+      "id": "938",
+      "name": "Test Project Action Plans",
+      "status": "em_andamento",
+      "createdAt": "2026-03-17 22:18:09"
+    },
+    {
+      "id": "911",
+      "name": "Projeto E2E 1773785884368",
+      "status": "concluido",
+      "createdAt": "2026-03-17 22:18:04"
+    },
+    {
+      "id": "916",
+      "name": "Projeto Transições 1773785884770",
+      "status": "arquivado",
+      "createdAt": "2026-03-17 22:18:04"
+    },
+    {
+      "id": "915",
+      "name": "Projeto Persistência 1773785884725",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:18:04"
+    },
+    {
+      "id": "914",
+      "name": "Projeto Acesso 1773785884704",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:18:04"
+    },
+    {
+      "id": "913",
+      "name": "Projeto Segurança 1773785884670",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:18:04"
+    },
+    {
+      "id": "877",
+      "name": "Test Project Filter",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:11:50"
+    },
+    {
+      "id": "876",
+      "name": "Test Project Read",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:11:50"
+    },
+    {
+      "id": "875",
+      "name": "Test Project Notification",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:11:50"
+    },
+    {
+      "id": "874",
+      "name": "Test Project Overdue",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:11:50"
+    },
+    {
+      "id": "873",
+      "name": "Test Project Risks",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:11:50"
+    },
+    {
+      "id": "872",
+      "name": "Test Project Distribution",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:11:50"
+    },
+    {
+      "id": "871",
+      "name": "Test Project KPIs",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:11:50"
+    },
+    {
+      "id": "869",
+      "name": "Test Project tRPC",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:11:48"
+    },
+    {
+      "id": "867",
+      "name": "Test Project Phase1 Fix",
+      "status": "assessment_fase1",
+      "createdAt": "2026-03-17 22:11:45"
+    },
+    {
+      "id": "837",
+      "name": "Test Project Branch Gen",
+      "status": "plano_acao",
+      "createdAt": "2026-03-17 22:11:21"
+    },
+    {
+      "id": "818",
+      "name": "Teste E2E Completo 1773785477120",
+      "status": "assessment_fase2",
+      "createdAt": "2026-03-17 22:11:17"
+    },
+    {
+      "id": "817",
+      "name": "Test Project Action Plans",
+      "status": "em_andamento",
+      "createdAt": "2026-03-17 22:11:17"
+    },
+    {
+      "id": "795",
+      "name": "Projeto Transições 1773785473267",
+      "status": "arquivado",
+      "createdAt": "2026-03-17 22:11:13"
+    },
+    {
+      "id": "794",
+      "name": "Projeto Persistência 1773785473212",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:11:13"
+    },
+    {
+      "id": "793",
+      "name": "Projeto Acesso 1773785473194",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:11:13"
+    },
+    {
+      "id": "792",
+      "name": "Projeto Segurança 1773785473159",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 22:11:13"
+    },
+    {
+      "id": "789",
+      "name": "Projeto E2E 1773785472859",
+      "status": "concluido",
+      "createdAt": "2026-03-17 22:11:12"
+    },
+    {
+      "id": "762",
+      "name": "again - 18h59",
+      "status": "assessment_fase1",
+      "createdAt": "2026-03-17 22:01:18"
+    },
+    {
+      "id": "754",
+      "name": "Test Project Filter",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 21:47:32"
+    },
+    {
+      "id": "753",
+      "name": "Test Project Read",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 21:47:32"
+    },
+    {
+      "id": "752",
+      "name": "Test Project Notification",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 21:47:32"
+    },
+    {
+      "id": "751",
+      "name": "Test Project Overdue",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 21:47:32"
+    },
+    {
+      "id": "750",
+      "name": "Test Project Risks",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 21:47:32"
+    },
+    {
+      "id": "749",
+      "name": "Test Project Distribution",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 21:47:32"
+    },
+    {
+      "id": "748",
+      "name": "Test Project KPIs",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 21:47:32"
+    },
+    {
+      "id": "746",
+      "name": "Test Project tRPC",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 21:47:29"
+    },
+    {
+      "id": "744",
+      "name": "Test Project Phase1 Fix",
+      "status": "assessment_fase1",
+      "createdAt": "2026-03-17 21:47:26"
+    },
+    {
+      "id": "734",
+      "name": "Test Project Branches",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 21:47:18"
+    },
+    {
+      "id": "712",
+      "name": "Test Project Branch Gen",
+      "status": "plano_acao",
+      "createdAt": "2026-03-17 21:47:01"
+    },
+    {
+      "id": "695",
+      "name": "Teste E2E Completo 1773784018185",
+      "status": "assessment_fase2",
+      "createdAt": "2026-03-17 21:46:58"
+    },
+    {
+      "id": "693",
+      "name": "Test Project Action Plans",
+      "status": "em_andamento",
+      "createdAt": "2026-03-17 21:46:57"
+    },
+    {
+      "id": "669",
+      "name": "Projeto Transições 1773784014145",
+      "status": "arquivado",
+      "createdAt": "2026-03-17 21:46:54"
+    },
+    {
+      "id": "668",
+      "name": "Projeto Persistência 1773784014106",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 21:46:54"
+    },
+    {
+      "id": "667",
+      "name": "Projeto Acesso 1773784014082",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 21:46:54"
+    },
+    {
+      "id": "666",
+      "name": "Projeto Segurança 1773784014050",
+      "status": "rascunho",
+      "createdAt": "2026-03-17 21:46:54"
+    },
+    {
+      "id": "665",
+      "name": "Projeto E2E 1773784013775",
+      "status": "concluido",
+      "createdAt": "2026-03-17 21:46:53"
+    },
+    {
+      "id": "638",
+      "name": "Teste again - 18h36 min",
+      "status": "arquivado",
+      "createdAt": "2026-03-17 21:37:43"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tstatus\tcreatedAt\n1633\tTest Project Filter\trascunho\t2026-03-17 23:35:29\n1632\tTest Project Read\trascunho\t2026-03-17 23:35:29\n1631\tTest Project Notification\trascunho\t2026-03-17 23:35:29\n1630\tTest Project Overdue\trascunho\t2026-03-17 23:35:29\n1629\tTest Project Risks\trascunho\t2026-03-17 23:35:29\n1628\tTest Project Distribution\trascunho\t2026-03-17 23:35:29\n1627\tTest Project KPIs\trascunho\t2026-03-17 23:35:29\n1625\tTest Project tRPC\trascunho\t2026-03-17 23:35:27\n1623\tTest Project Phase1 Fix\tassessment_fase1\t2026-03-17 23:35:24\n1593\tTest Project Branch Gen\tplano_acao\t2026-03-17 23:35:00\n1573\tTeste E2E Completo 1773790496145\tassessment_fase2\t2026-03-17 23:34:56\n1572\tTest Project Action Plans\tem_andamento\t2026-03-17 23:34:56\n1546\tProjeto Transições 1773790491382\tarquivado\t2026-03-17 23:34:51\n1545\tProjeto Persistência 1773790491339\trascunho\t2026-03-17 23:34:51\n1544\tProjeto Acesso 1773790491321\trascunho\t2026-03-17 23:34:51\n1542\tProjeto Segurança 1773790491288\trascunho\t2026-03-17 23:34:51\n1541\tProjeto E2E 1773790490996\tconcluido\t2026-03-17 23:34:51\n1505\tTest Project Filter\trascunho\t2026-03-17 23:32:48\n1504\tTest Project Read\trascunho\t2026-03-17 23:32:48\n1503\tTest Project Notification\trascunho\t2026-03-17 23:32:48\n1502\tTest Project Overdue\trascunho\t2026-03-17 23:32:47\n1501\tTest Project Risks\trascunho\t2026-03-17 23:32:47\n1500\tTest Project Distribution\trascunho\t2026-03-17 23:32:47\n1499\tTest Project KPIs\trascunho\t2026-03-17 23:32:47\n1497\tTest Project tRPC\trascunho\t2026-03-17 23:32:45\n1495\tTest Project Phase1 Fix\tassessment_fase1\t2026-03-17 23:32:42\n1464\tTest Project Branch Gen\tplano_acao\t2026-03-17 23:32:18\n1445\tTeste E2E Completo 1773790334183\tassessment_fase2\t2026-03-17 23:32:14\n1444\tTest Project Action Plans\tem_andamento\t2026-03-17 23:32:14\n1418\tProjeto Transições 1773790329635\tarquivado\t2026-03-17 23:32:09\n1416\tProjeto Persistência 1773790329588\trascunho\t2026-03-17 23:32:09\n1415\tProjeto Acesso 1773790329572\trascunho\t2026-03-17 23:32:09\n1414\tProjeto Segurança 1773790329542\trascunho\t2026-03-17 23:32:09\n1413\tProjeto E2E 1773790329277\tconcluido\t2026-03-17 23:32:09\n1382\tTest Project Filter\trascunho\t2026-03-17 23:30:36\n1381\tTest Project Read\trascunho\t2026-03-17 23:30:36\n1380\tTest Project Notification\trascunho\t2026-03-17 23:30:35\n1379\tTest Project Overdue\trascunho\t2026-03-17 23:30:35\n1378\tTest Project Risks\trascunho\t2026-03-17 23:30:35\n1377\tTest Project Distribution\trascunho\t2026-03-17 23:30:35\n1376\tTest Project KPIs\trascunho\t2026-03-17 23:30:35\n1374\tTest Project tRPC\trascunho\t2026-03-17 23:30:33\n1372\tTest Project Phase1 Fix\tassessment_fase1\t2026-03-17 23:30:31\n1343\tTest Project Branch Gen\tplano_acao\t2026-03-17 23:30:06\n1323\tTeste E2E Completo 1773790202103\tassessment_fase2\t2026-03-17 23:30:02\n1322\tTest Project Action Plans\tem_andamento\t2026-03-17 23:30:01\n1300\tProjeto Transições 1773790197922\tarquivado\t2026-03-17 23:29:57\n1299\tProjeto Persistência 1773790197882\trascunho\t2026-03-17 23:29:57\n1298\tProjeto Acesso 1773790197860\trascunho\t2026-03-17 23:29:57\n1297\tProjeto Segurança 1773790197829\trascunho\t2026-03-17 23:29:57\n1294\tProjeto E2E 1773790197552\tconcluido\t2026-03-17 23:29:57\n1256\tTest Project Filter\trascunho\t2026-03-17 23:16:41\n1255\tTest Project Read\trascunho\t2026-03-17 23:16:41\n1254\tTest Project Notification\trascunho\t2026-03-17 23:16:41\n1253\tTest Project Overdue\trascunho\t2026-03-17 23:16:41\n1252\tTest Project Risks\trascunho\t2026-03-17 23:16:41\n1251\tTest Project Distribution\trascunho\t2026-03-17 23:16:41\n1250\tTest Project KPIs\trascunho\t2026-03-17 23:16:41\n1248\tTest Project tRPC\trascunho\t2026-03-17 23:16:39\n1246\tTest Project Phase1 Fix\tassessment_fase1\t2026-03-17 23:16:36\n1216\tTest Project Branch Gen\tplano_acao\t2026-03-17 23:16:13\n1197\tTeste E2E Completo 1773789369137\tassessment_fase2\t2026-03-17 23:16:09\n1195\tTest Project Action Plans\tem_andamento\t2026-03-17 23:16:08\n1174\tProjeto Transições 1773789365151\tarquivado\t2026-03-17 23:16:05\n1173\tProjeto Persistência 1773789365110\trascunho\t2026-03-17 23:16:05\n1172\tProjeto Acesso 1773789365092\trascunho\t2026-03-17 23:16:05\n1171\tProjeto Segurança 1773789365053\trascunho\t2026-03-17 23:16:05\n1168\tProjeto E2E 1773789364781\tconcluido\t2026-03-17 23:16:04\n1141\tteste - again - produto de peixe\taprovado\t2026-03-17 22:28:34\n1124\tTest Project Read\trascunho\t2026-03-17 22:20:50\n1123\tTest Project Notification\trascunho\t2026-03-17 22:20:50\n1125\tTest Project Filter\trascunho\t2026-03-17 22:20:50\n1119\tTest Project KPIs\trascunho\t2026-03-17 22:20:49\n1122\tTest Project Overdue\trascunho\t2026-03-17 22:20:49\n1121\tTest Project Risks\trascunho\t2026-03-17 22:20:49\n1120\tTest Project Distribution\trascunho\t2026-03-17 22:20:49\n1117\tTest Project tRPC\trascunho\t2026-03-17 22:20:48\n1115\tTest Project Phase1 Fix\tassessment_fase1\t2026-03-17 22:20:45\n1084\tTest Project Branch Gen\tplano_acao\t2026-03-17 22:20:19\n1063\tTeste E2E Completo 1773786015500\tassessment_fase2\t2026-03-17 22:20:15\n1062\tTest Project Action Plans\tem_andamento\t2026-03-17 22:20:15\n1034\tProjeto Segurança 1773786011150\trascunho\t2026-03-17 22:20:11\n1038\tProjeto Transições 1773786011251\tarquivado\t2026-03-17 22:20:11\n1037\tProjeto Persistência 1773786011201\trascunho\t2026-03-17 22:20:11\n1036\tProjeto Acesso 1773786011181\trascunho\t2026-03-17 22:20:11\n1033\tProjeto E2E 1773786010876\tconcluido\t2026-03-17 22:20:10\n1003\tTest Project Filter\trascunho\t2026-03-17 22:18:42\n1002\tTest Project Read\trascunho\t2026-03-17 22:18:42\n1001\tTest Project Notification\trascunho\t2026-03-17 22:18:42\n1000\tTest Project Overdue\trascunho\t2026-03-17 22:18:42\n999\tTest Project Risks\trascunho\t2026-03-17 22:18:42\n997\tTest Project KPIs\trascunho\t2026-03-17 22:18:41\n998\tTest Project Distribution\trascunho\t2026-03-17 22:18:41\n995\tTest Project tRPC\trascunho\t2026-03-17 22:18:40\n993\tTest Project Phase1 Fix\tassessment_fase1\t2026-03-17 22:18:37\n962\tTest Project Branch Gen\tplano_acao\t2026-03-17 22:18:13\n940\tTeste E2E Completo 1773785889076\tassessment_fase2\t2026-03-17 22:18:09\n938\tTest Project Action Plans\tem_andamento\t2026-03-17 22:18:09\n911\tProjeto E2E 1773785884368\tconcluido\t2026-03-17 22:18:04\n916\tProjeto Transições 1773785884770\tarquivado\t2026-03-17 22:18:04\n915\tProjeto Persistência 1773785884725\trascunho\t2026-03-17 22:18:04\n914\tProjeto Acesso 1773785884704\trascunho\t2026-03-17 22:18:04\n913\tProjeto Segurança 1773785884670\trascunho\t2026-03-17 22:18:04\n877\tTest Project Filter\trascunho\t2026-03-17 22:11:50\n876\tTest Project Read\trascunho\t2026-03-17 22:11:50\n875\tTest Project Notification\trascunho\t2026-03-17 22:11:50\n874\tTest Project Overdue\trascunho\t2026-03-17 22:11:50\n873\tTest Project Risks\trascunho\t2026-03-17 22:11:50\n872\tTest Project Distribution\trascunho\t2026-03-17 22:11:50\n871\tTest Project KPIs\trascunho\t2026-03-17 22:11:50\n869\tTest Project tRPC\trascunho\t2026-03-17 22:11:48\n867\tTest Project Phase1 Fix\tassessment_fase1\t2026-03-17 22:11:45\n837\tTest Project Branch Gen\tplano_acao\t2026-03-17 22:11:21\n818\tTeste E2E Completo 1773785477120\tassessment_fase2\t2026-03-17 22:11:17\n817\tTest Project Action Plans\tem_andamento\t2026-03-17 22:11:17\n795\tProjeto Transições 1773785473267\tarquivado\t2026-03-17 22:11:13\n794\tProjeto Persistência 1773785473212\trascunho\t2026-03-17 22:11:13\n793\tProjeto Acesso 1773785473194\trascunho\t2026-03-17 22:11:13\n792\tProjeto Segurança 1773785473159\trascunho\t2026-03-17 22:11:13\n789\tProjeto E2E 1773785472859\tconcluido\t2026-03-17 22:11:12\n762\tagain - 18h59\tassessment_fase1\t2026-03-17 22:01:18\n754\tTest Project Filter\trascunho\t2026-03-17 21:47:32\n753\tTest Project Read\trascunho\t2026-03-17 21:47:32\n752\tTest Project Notification\trascunho\t2026-03-17 21:47:32\n751\tTest Project Overdue\trascunho\t2026-03-17 21:47:32\n750\tTest Project Risks\trascunho\t2026-03-17 21:47:32\n749\tTest Project Distribution\trascunho\t2026-03-17 21:47:32\n748\tTest Project KPIs\trascunho\t2026-03-17 21:47:32\n746\tTest Project tRPC\trascunho\t2026-03-17 21:47:29\n744\tTest Project Phase1 Fix\tassessment_fase1\t2026-03-17 21:47:26\n734\tTest Project Branches\trascunho\t2026-03-17 21:47:18\n712\tTest Project Branch Gen\tplano_acao\t2026-03-17 21:47:01\n695\tTeste E2E Completo 1773784018185\tassessment_fase2\t2026-03-17 21:46:58\n693\tTest Project Action Plans\tem_andamento\t2026-03-17 21:46:57\n669\tProjeto Transições 1773784014145\tarquivado\t2026-03-17 21:46:54\n668\tProjeto Persistência 1773784014106\trascunho\t2026-03-17 21:46:54\n667\tProjeto Acesso 1773784014082\trascunho\t2026-03-17 21:46:54\n666\tProjeto Segurança 1773784014050\trascunho\t2026-03-17 21:46:54\n665\tProjeto E2E 1773784013775\tconcluido\t2026-03-17 21:46:53\n638\tTeste again - 18h36 min\tarquivado\t2026-03-17 21:37:43\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}
