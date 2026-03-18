@@ -2398,3 +2398,13 @@
 - [x] Badge do CNAE: icone StickyNote violeta quando algum round tem contextNote
 - [x] Painel de rounds no Briefing: exibir texto do contexto por round (fundo violeta)
 - [x] TypeScript: 0 erros | Testes: 14/14 passando | Checkpoint salvo
+
+## Bug Fix - Prompt e Questionário exibidos simultaneamente (18/03/2026)
+- [x] CAUSA: condição `{!showDeepDivePrompt && ...}` no bloco do questionário não verificava `showNextRoundPrompt`
+- [x] FIX: condição alterada para `{!showDeepDivePrompt && !showNextRoundPrompt && ...}`
+- [x] FIX: `setShowNextRoundPrompt(false)` adicionado em todos os handlers de navegação:
+  - Badge de CNAE (clicar em outro CNAE)
+  - Botão "CNAE Anterior" (rodapé do questionário inicial)
+  - Botão "CNAE Anterior" (rodapé do Nível 2)
+  - Dialog "Sim, retornar" (confirmação de retorno ao CNAE anterior)
+- [x] TypeScript: 0 erros

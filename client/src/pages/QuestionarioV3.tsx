@@ -816,6 +816,7 @@ export default function QuestionarioV3() {
                     setAnswers({});
                     setQuestions([]);
                     setShowDeepDivePrompt(false);
+                    setShowNextRoundPrompt(false);
                   }
                 }}
                 className={cn(
@@ -1060,8 +1061,8 @@ export default function QuestionarioV3() {
           </Card>
         )}
 
-        {/* Área do Questionário */}
-        {!showDeepDivePrompt && (
+        {/* Área do Questionário: ocultado quando prompt de aprofundamento ou prompt de novo round estão visíveis */}
+        {!showDeepDivePrompt && !showNextRoundPrompt && (
           <div className="space-y-4">
 
             {/* Tela de entrada por CNAE: exibida quando o CNAE ainda não foi iniciado */}
@@ -1098,6 +1099,7 @@ export default function QuestionarioV3() {
                               setAnswers({});
                               setQuestions([]);
                               setShowDeepDivePrompt(false);
+                              setShowNextRoundPrompt(false);
                             }
                           }}
                         >
@@ -1334,6 +1336,7 @@ export default function QuestionarioV3() {
                             setAnswers({});
                             setQuestions([]);
                             setShowDeepDivePrompt(false);
+                            setShowNextRoundPrompt(false);
                           }
                         }}
                       >
@@ -1445,6 +1448,7 @@ export default function QuestionarioV3() {
               setAnswers({});
               setQuestions([]);
               setShowDeepDivePrompt(false);
+              setShowNextRoundPrompt(false);
               setConfirmPrevCnae(false);
             }}
           >
