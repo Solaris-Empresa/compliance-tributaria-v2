@@ -190,6 +190,7 @@ export default function MatrizesV3() {
     { enabled: !!projectId }
   );
 
+  const utils = trpc.useUtils();
   const generateMatrices = trpc.fluxoV3.generateRiskMatrices.useMutation();
   const approveMatrices = trpc.fluxoV3.approveMatrices.useMutation();
 
@@ -245,6 +246,9 @@ export default function MatrizesV3() {
     try {
       await approveMatrices.mutateAsync({ projectId, matrices });
       clearTempData(projectId, 'etapa4');
+      // Invalidar o cache do projeto para garantir que o PlanoAcaoV3
+      // receba o status atualizado "plano_acao" e dispare a geração automática
+      await utils.fluxoV3.getProjectStep1.invalidate({ projectId });
       toast.success("Matrizes aprovadas! Avançando para o Plano de Ação...");
       setLocation(`/projetos/${projectId}/plano-v3`);
     } catch {

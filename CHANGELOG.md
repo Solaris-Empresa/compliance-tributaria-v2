@@ -6,6 +6,19 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [4.5.0] - Sprint V74 - 2026-03-18
+
+### Corrigido
+
+**V74 — Bug Fix: Geração Automática do Plano de Ação após Aprovação da Matriz de Riscos**
+
+- **Causa raiz**: `MatrizesV3.handleApprove` não invalidava o cache tRPC antes de navegar para `/plano-v3`. O `PlanoAcaoV3` recebia o projeto com status antigo (`"matriz_riscos"`) do cache, não reconhecia `"plano_acao"` e não disparava a geração automática.
+- **Fix 1** (`client/src/pages/MatrizesV3.tsx`): Adicionado `await utils.fluxoV3.getProjectStep1.invalidate({ projectId })` antes de `setLocation(...)` no `handleApprove`, garantindo que o cache seja limpo antes da navegação
+- **Fix 2** (`client/src/pages/PlanoAcaoV3.tsx`): Adicionado `refetchOnMount: "always"` e `staleTime: 0` na query `getProjectStep1`, garantindo que a página sempre busque dados frescos do servidor ao montar
+- TypeScript: zero erros após todas as mudanças
+
+---
+
 ## [4.4.0] - Sprint V73 - 2026-03-18
 
 ### Adicionado

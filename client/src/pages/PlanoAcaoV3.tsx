@@ -687,7 +687,14 @@ export default function PlanoAcaoV3() {
 
   const { data: project, isLoading: loadingProject } = trpc.fluxoV3.getProjectStep1.useQuery(
     { projectId },
-    { enabled: !!projectId }
+    {
+      enabled: !!projectId,
+      // Sempre buscar dados frescos ao montar a página
+      // para garantir que o status "plano_acao" seja recebido corretamente
+      // após navegação da tela de Matriz de Riscos
+      refetchOnMount: "always",
+      staleTime: 0,
+    }
   );
 
   const generatePlan = trpc.fluxoV3.generateActionPlan.useMutation();
