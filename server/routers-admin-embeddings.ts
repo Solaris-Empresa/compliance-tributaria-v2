@@ -19,7 +19,8 @@ import { ENV } from "./_core/env";
 import { invalidateEmbeddingCache } from "./cnae-embeddings";
 import { notifyUser } from "./_core/websocket";
 import { CNAE_TABLE } from "../shared/cnae-table";
-import { count, max } from "drizzle-orm";
+import { count, max, desc } from "drizzle-orm";
+import { embeddingRebuildLogs } from "../drizzle/schema";
 
 // ─── Estado global do rebuild (singleton por processo) ────────────────────────
 interface RebuildState {
@@ -33,7 +34,7 @@ interface RebuildState {
   triggeredBy: number | null; // userId
 }
 
-let rebuildState: RebuildState = {
+export let rebuildState: RebuildState = {
   running: false,
   startedAt: null,
   finishedAt: null,
@@ -45,7 +46,7 @@ let rebuildState: RebuildState = {
 };
 
 // ─── Função de rebuild (executa em background) ────────────────────────────────
-async function runRebuild(triggeredByUserId: number): Promise<void> {
+export async function runRebuild(triggeredByUserId: number): Promise<void> {
   if (rebuildState.running) return; // evitar execução dupla
 
   rebuildState = {
@@ -277,5 +278,23 @@ export const adminEmbeddingsRouter = router({
   invalidateCache: solarisOnly.mutation(() => {
     invalidateEmbeddingCache();
     return { success: true, message: "Cache de embeddings invalidado com sucesso." };
+  }),
+
+  /**
+   * Retorna o histórico das últimas 20 execuções de rebuild (manual + cron).
+   */
+  getHistory: solarisOnly.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    try {
+      return await db
+        .select()
+        .from(embeddingRebuildLogs)
+        .orderBy(desc(embeddingRebuildLogs.startedAt))
+        .limit(20);
+    } catch (err) {
+      console.error("[admin-embeddings] Erro ao buscar histórico:", err);
+      return [];
+    }
   }),
 });

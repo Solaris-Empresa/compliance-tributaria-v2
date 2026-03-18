@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { initializeWebSocket } from "./websocket";
 import "./deadline-checker"; // Inicializar verificador de prazos
+import { initEmbeddingsScheduler } from "../embeddings-scheduler"; // Cron de rebuild de embeddings CNAE
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -62,6 +63,9 @@ async function startServer() {
   // Inicializar WebSocket
   initializeWebSocket(server);
   console.log("[WebSocket] Servidor WebSocket inicializado");
+
+  // Inicializar cron de rebuild automático de embeddings CNAE (toda segunda-feira às 03:00)
+  initEmbeddingsScheduler();
 
   // Timeout de 5 minutos para suportar chamadas LLM longas (ex: generateActionPlan com 4 áreas paralelas)
   server.timeout = 300_000; // 300s = 5 min

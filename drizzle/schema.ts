@@ -1338,3 +1338,27 @@ export const cnaeEmbeddings = mysqlTable("cnaeEmbeddings", {
 export type CnaeEmbedding = typeof cnaeEmbeddings.$inferSelect;
 export type InsertCnaeEmbedding = typeof cnaeEmbeddings.$inferInsert;
 
+
+// =============================================================================
+// V73 — Histórico de Rebuilds de Embeddings (Cron + Manual)
+// =============================================================================
+/**
+ * embeddingRebuildLogs
+ * Registra cada execução de rebuild de embeddings CNAE (manual ou automática via cron).
+ * Permite auditoria, diagnóstico de falhas e visualização do histórico na UI admin.
+ */
+export const embeddingRebuildLogs = mysqlTable("embeddingRebuildLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  triggeredBy: mysqlEnum("triggeredBy", ["manual", "cron"]).notNull().default("manual"),
+  triggeredByUserId: int("triggeredByUserId"), // null = cron automático
+  status: mysqlEnum("status", ["running", "completed", "failed"]).notNull().default("running"),
+  totalCnaes: int("totalCnaes").notNull().default(0),
+  processedCnaes: int("processedCnaes").notNull().default(0),
+  errorCount: int("errorCount").notNull().default(0),
+  lastError: text("lastError"),
+  durationSeconds: int("durationSeconds"), // null enquanto running
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  finishedAt: timestamp("finishedAt"),
+});
+export type EmbeddingRebuildLog = typeof embeddingRebuildLogs.$inferSelect;
+export type InsertEmbeddingRebuildLog = typeof embeddingRebuildLogs.$inferInsert;

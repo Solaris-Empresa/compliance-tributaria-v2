@@ -6,6 +6,32 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [4.4.0] - Sprint V73 - 2026-03-18
+
+### Adicionado
+
+**V73 — Agendamento Automático de Rebuild de Embeddings CNAE**
+
+- **`server/embeddings-scheduler.ts`** — Módulo `node-cron` com cron job `0 3 * * 1` (toda segunda-feira às 03:00 BRT)
+  - Executa rebuild completo dos 1.332 CNAEs via OpenAI `text-embedding-3-small` em batches de 95
+  - Registra cada execução na tabela `embeddingRebuildLogs` com status, CNAEs processados, erros e duração
+  - Envia notificação ao owner via `notifyOwner()` ao concluir (✅) ou falhar (❌)
+  - Proteção contra execução dupla via `rebuildState.running`
+  - Graceful shutdown: `task.stop()` no evento `SIGTERM`
+- **`drizzle/schema.ts`**: Nova tabela `embeddingRebuildLogs` com campos `triggeredBy`, `triggeredByUserId`, `status`, `totalCnaes`, `processedCnaes`, `errorCount`, `lastError`, `durationSeconds`, `startedAt`, `finishedAt`. Migração `0037_aberrant_songbird`
+- **`server/routers-admin-embeddings.ts`**: Procedure `adminEmbeddings.getHistory` — retorna as últimas 20 execuções ordenadas por data
+- **`client/src/pages/AdminEmbeddings.tsx`**: Duas novas seções:
+  - **Rebuild Automático Agendado** — exibe frequência, horário e tipo de notificação
+  - **Histórico de Rebuilds** — tabela com data, disparador (cron/manual), status, CNAEs, erros e duração
+- **`server/_core/index.ts`**: `initEmbeddingsScheduler()` chamado após WebSocket na inicialização do servidor
+
+### Técnico
+- Expressão cron: `0 3 * * 1` com timezone `America/São_Paulo`
+- `runRebuild` e `rebuildState` exportados de `routers-admin-embeddings.ts` para reutilização no scheduler
+- TypeScript: zero erros após todas as mudanças
+
+---
+
 ## [4.3.0] - Sprint V72 - 2026-03-18
 
 ### Adicionado

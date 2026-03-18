@@ -28,6 +28,8 @@ import {
   Zap,
   Trash2,
   Activity,
+  CalendarClock,
+  History,
 } from "lucide-react";
 
 interface RebuildProgress {
@@ -349,6 +351,35 @@ export default function AdminEmbeddings() {
           </div>
         </div>
 
+        {/* Cron agendamento */}
+        <div className="border rounded-lg p-5 space-y-3 bg-blue-50/40 dark:bg-blue-950/20">
+          <h2 className="font-semibold text-base flex items-center gap-2">
+            <CalendarClock className="h-4 w-4 text-blue-500" />
+            Rebuild Automático Agendado
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Frequência</p>
+              <p className="font-medium mt-1">Toda segunda-feira</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Horário</p>
+              <p className="font-medium mt-1">03:00 (America/São_Paulo)</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Notificação</p>
+              <p className="font-medium mt-1">Owner via sistema ao concluir</p>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground border-t pt-2">
+            O cron job executa <code className="bg-muted px-1 rounded">node-cron</code> no servidor com expressão{" "}
+            <code className="bg-muted px-1 rounded">0 3 * * 1</code> (seg, 03:00 BRT). O resultado é registrado no histórico abaixo e uma notificação é enviada ao owner.
+          </p>
+        </div>
+
+        {/* Histórico de rebuilds */}
+        <HistorySection />
+
         {/* Info técnica */}
         <div className="border rounded-lg p-5 space-y-2 bg-muted/20">
           <h2 className="font-semibold text-sm">Informações técnicas</h2>
@@ -373,5 +404,82 @@ export default function AdminEmbeddings() {
         </div>
       </div>
     </ComplianceLayout>
+  );
+}
+
+// ─── Sub-componente: histórico de rebuilds ────────────────────────────────────
+function HistorySection() {
+  const { data: history, isLoading } = trpc.adminEmbeddings.getHistory.useQuery();
+
+  return (
+    <div className="border rounded-lg p-5 space-y-3">
+      <h2 className="font-semibold text-base flex items-center gap-2">
+        <History className="h-4 w-4" />
+        Histórico de Rebuilds
+      </h2>
+
+      {isLoading ? (
+        <p className="text-sm text-muted-foreground">Carregando histórico...</p>
+      ) : !history || history.length === 0 ? (
+        <p className="text-sm text-muted-foreground italic">Nenhum rebuild registrado ainda.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b text-muted-foreground">
+                <th className="text-left py-2 pr-4">Data/Hora</th>
+                <th className="text-left py-2 pr-4">Disparado por</th>
+                <th className="text-left py-2 pr-4">Status</th>
+                <th className="text-right py-2 pr-4">CNAEs</th>
+                <th className="text-right py-2 pr-4">Erros</th>
+                <th className="text-right py-2">Duração</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.map((row) => (
+                <tr key={row.id} className="border-b last:border-0 hover:bg-muted/30">
+                  <td className="py-2 pr-4 whitespace-nowrap">
+                    {row.startedAt ? new Date(row.startedAt).toLocaleString("pt-BR") : "—"}
+                  </td>
+                  <td className="py-2 pr-4">
+                    <Badge variant={row.triggeredBy === "cron" ? "secondary" : "outline"} className="text-xs">
+                      {row.triggeredBy === "cron" ? "Cron auto" : "Manual"}
+                    </Badge>
+                  </td>
+                  <td className="py-2 pr-4">
+                    {row.status === "completed" ? (
+                      <span className="text-green-600 flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" /> Concluído
+                      </span>
+                    ) : row.status === "failed" ? (
+                      <span className="text-red-500 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> Falhou
+                      </span>
+                    ) : (
+                      <span className="text-blue-500 flex items-center gap-1">
+                        <Activity className="h-3 w-3 animate-pulse" /> Em andamento
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-2 pr-4 text-right">
+                    {row.processedCnaes ?? 0}/{row.totalCnaes ?? 1332}
+                  </td>
+                  <td className="py-2 pr-4 text-right">
+                    {row.errorCount > 0 ? (
+                      <span className="text-red-500">{row.errorCount}</span>
+                    ) : (
+                      <span className="text-green-600">0</span>
+                    )}
+                  </td>
+                  <td className="py-2 text-right">
+                    {row.durationSeconds ? `${row.durationSeconds}s` : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }
