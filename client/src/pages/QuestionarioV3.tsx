@@ -509,6 +509,11 @@ export default function QuestionarioV3() {
   // Chamadores devem passar o valor correto (não depender do estado do closure)
   const advanceToNextCnae = (totalCnaes?: number) => {
     const total = totalCnaes ?? (cnaeProgress.length || cnaes.length);
+    // BUGFIX V70.1: sempre resetar o DeepDivePrompt ao avançar de CNAE.
+    // Sem isso, se showDeepDivePrompt estava true no CNAE anterior,
+    // o próximo CNAE exibia o prompt imediatamente sem mostrar as perguntas,
+    // e ao clicar "Pular" no último CNAE, ia direto para o Briefing.
+    setShowDeepDivePrompt(false);
     if (currentCnaeIdx < total - 1) {
       setCurrentCnaeIdx(prev => prev + 1);
       setCurrentLevel("nivel1");

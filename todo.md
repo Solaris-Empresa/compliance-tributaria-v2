@@ -2236,6 +2236,10 @@
 - [x] 8 novos testes (65/65 testes de UX passando)
 - [x] Checkpoint e publicação (versão 7b07ca1a)
 
+## Bug Fix V70.1 (18/03/2026)
+- [x] BUG CORRIGIDO: Com 3 CNAEs, o 3º questionário era pulado — fix: setShowDeepDivePrompt(false) no advanceToNextCnae (QuestionarioV3.tsx linha 516)
+- [ ] BUG: Modal de inconsistência no Briefing não permite retornar ao questionário para corrigir as respostas — redesign completo de UX necessário
+
 ## Sprint RAG-v2 + Prompt Caching (18/03/2026)
 - [x] Baixar e processar LC 214/2025 (779 artigos extraídos do PDF)
 - [x] Baixar e processar LC 224/2025 (28 artigos extraídos do PDF)
