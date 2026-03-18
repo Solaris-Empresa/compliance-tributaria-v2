@@ -2295,3 +2295,8 @@
 - [x] FIX: Paralelizar as 4 áreas com Promise.all para reduzir tempo de ~3min para ~45s
 - [x] FIX: Configurar server.timeout no Express HTTP server para 300s (5 min)
 - [x] FIX: Melhorar feedback visual de loading com nomes das 4 áreas no PlanoAcaoV3
+
+## Otimização de Procedures LLM Sequenciais (18/03/2026)
+- [x] FIX: generateRiskMatrices - paralelizar 4 áreas com Promise.all (routers-fluxo-v3.ts)
+- [x] FIX: generateAll (assessments) - paralelizar N ramos com Promise.allSettled (routers-assessments.ts)
+- [x] FIX: notifyNewComment - paralelizar N destinatários com Promise.allSettled (routers-notifications.ts)

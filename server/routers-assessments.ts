@@ -335,23 +335,29 @@ ${corporateAssessment ? `**Contexto corporativo:**
       // Buscar ramos do projeto
       const projectBranches = await dbBranches.getProjectBranches(input.projectId);
 
-      const generated = [];
+      // V70.3: Paralelizar N ramos com Promise.allSettled (usa allSettled para não falhar tudo se 1 ramo falhar)
+      const results: PromiseSettledResult<unknown>[] = await Promise.allSettled(
+        projectBranches.map(async (pb): Promise<unknown> => {
+          // Verificar se já existe questionário para este ramo
+          const existing = await dbAssessments.getBranchAssessment(input.projectId, pb.branchId);
+          if (existing) return null; // Já existe, pular
 
-      for (const pb of projectBranches) {
-        // Verificar se já existe questionário para este ramo
-        const existing = await dbAssessments.getBranchAssessment(input.projectId, pb.branchId);
-        
-        if (!existing) {
           // Gerar novo questionário
-          const result: any = await branchAssessmentRouter.createCaller(ctx).generate({
+          return branchAssessmentRouter.createCaller(ctx).generate({
             projectId: input.projectId,
             branchId: pb.branchId,
           });
-          
-          generated.push(result);
-        }
+        })
+      );
+
+      const generated = results.filter(
+        (r): r is PromiseFulfilledResult<unknown> => r.status === "fulfilled" && (r as PromiseFulfilledResult<unknown>).value !== null
+      );
+      const failed = results.filter((r) => r.status === "rejected").length;
+      if (failed > 0) {
+        console.warn(`[generateAll] ${failed} ramo(s) falharam na geração de questionários`);
       }
 
-      return { generated: generated.length, total: projectBranches.length };
+      return { generated: generated.length, total: projectBranches.length, failed };
     }),
 });

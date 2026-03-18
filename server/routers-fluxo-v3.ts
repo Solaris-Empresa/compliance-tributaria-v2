@@ -583,7 +583,9 @@ Gere o Briefing estruturado em JSON:
       const ragCtxMatrix = await retrieveArticlesFast(cnaeCodesMatrix, input.briefingContent?.substring(0, 500) ?? "", 7);
       const regulatoryContext = ragCtxMatrix.contextText;
 
-      for (const area of areas) {
+      // V70.3: Paralelizar as 4 áreas com Promise.all (reduz ~3min sequencial para ~45s paralelo)
+      // Nota: regulatoryContext é compartilhado (1 busca RAG para todas as áreas)
+      const matrixResults = await Promise.all(areas.map(async (area) => {
         const adjustmentContext = input.adjustment ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}` : "";
 
         const result = await generateWithRetry(
@@ -620,7 +622,12 @@ Formato:
           { temperature: 0.2, context: `generateRiskMatrices:${area}` }
         );
 
-        matrices[area] = result.risks;
+        return { area, risks: result.risks };
+      }));
+
+      // Montar o objeto matrices a partir dos resultados paralelos
+      for (const { area, risks } of matrixResults) {
+        matrices[area] = risks;
       }
 
       // V61: Calcular scoring global no servidor (determinístico)

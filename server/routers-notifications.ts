@@ -261,27 +261,29 @@ export const notificationsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      for (const recipientId of input.recipientIds) {
-        // Não notificar o autor do comentário
-        if (recipientId === ctx.user.id) continue;
+      // V70.3: Paralelizar notificações com Promise.allSettled
+      await Promise.allSettled(
+        input.recipientIds
+          .filter((id) => id !== ctx.user.id) // Não notificar o autor do comentário
+          .map(async (recipientId) => {
+            // Verificar preferências
+            const prefs = await db
+              .select()
+              .from(notificationPreferences)
+              .where(eq(notificationPreferences.userId, recipientId))
+              .limit(1);
 
-        // Verificar preferências
-        const prefs = await db
-          .select()
-          .from(notificationPreferences)
-          .where(eq(notificationPreferences.userId, recipientId))
-          .limit(1);
+            if (prefs[0] && !prefs[0].taskCommented) return; // Preferência desativada
 
-        if (prefs[0] && !prefs[0].taskCommented) continue;
-
-        await db.insert(notifications).values({
-          projectId: input.projectId,
-          recipientId,
-          type: "lembrete",
-          subject: `Novo comentário em: ${input.taskTitle}`,
-          message: `${input.commentAuthor} comentou na tarefa "${input.taskTitle}".`,
-        });
-      }
+            await db.insert(notifications).values({
+              projectId: input.projectId,
+              recipientId,
+              type: "lembrete",
+              subject: `Novo comentário em: ${input.taskTitle}`,
+              message: `${input.commentAuthor} comentou na tarefa "${input.taskTitle}".`,
+            });
+          })
+      );
 
       return { success: true, notified: input.recipientIds.length };
     }),
