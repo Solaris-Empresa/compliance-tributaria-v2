@@ -6,6 +6,33 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [4.3.0] - Sprint V72 - 2026-03-18
+
+### Adicionado
+
+**V72 — Endpoint de Administração de Embeddings CNAE**
+
+- **`server/routers-admin-embeddings.ts`** — Router tRPC exclusivo para `equipe_solaris` com 3 procedures:
+  - `adminEmbeddings.getStatus` — retorna cobertura, total no banco e estado do rebuild em andamento
+  - `adminEmbeddings.rebuild` — dispara rebuild completo em background (batches de 95 CNAEs via OpenAI `text-embedding-3-small`)
+  - `adminEmbeddings.invalidateCache` — invalida o cache em memória do servidor sem chamar a API
+- **`client/src/pages/AdminEmbeddings.tsx`** — Página de administração com:
+  - Cards de status: CNAEs no banco, cobertura % com barra de progresso, data da última atualização
+  - Barra de progresso em tempo real via WebSocket (`embeddings:rebuild:started/progress/completed/error`)
+  - Log de eventos com scroll automático e código de cores (info/success/error/progress)
+  - Informações técnicas: modelo, dimensões, batch size, métrica de similaridade
+- **Sidebar**: Link "Embeddings" com ícone `Cpu` visível apenas para `equipe_solaris`
+- **Rota `/admin/embeddings`** registrada no `App.tsx`
+
+### Técnico
+- Controle de acesso via middleware `solarisOnly` (lança `FORBIDDEN` para outros papéis)
+- Estado singleton `rebuildState` previne execuções paralelas (retorna `CONFLICT` se já rodando)
+- Após rebuild: `invalidateEmbeddingCache()` é chamado automaticamente para forçar recarga
+- Progresso emitido via `notifyUser()` do WebSocket existente (sem dependências novas)
+- TypeScript: zero erros após todas as mudanças
+
+---
+
 ## [4.2.0] - Sprint V71 - 2026-03-18
 
 ### Adicionado

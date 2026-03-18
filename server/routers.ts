@@ -54,6 +54,7 @@ import { sessionQuestionnaireRouter } from "./routers-session-questionnaire";
 import { sessionActionPlanRouter } from "./routers-session-action-plan";
 import { sessionConsolidationRouter } from "./routers-session-consolidation";
 import { onboardingRouter } from "./routers-onboarding";
+import { adminEmbeddingsRouter } from "./routers-admin-embeddings";
 
 export const appRouter = router({
   system: systemRouter,
@@ -79,6 +80,7 @@ export const appRouter = router({
   sessionConsolidation: sessionConsolidationRouter,
   onboarding: onboardingRouter,
   fluxoV3: fluxoV3Router,
+  adminEmbeddings: adminEmbeddingsRouter,
   
   // ==========================================================================
   // AUTH

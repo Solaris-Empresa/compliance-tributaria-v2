@@ -45,6 +45,7 @@ import MatrizesV3 from "./pages/MatrizesV3";
 import PlanoAcaoV3 from "./pages/PlanoAcaoV3";
 import GerenciarEquipe from "./pages/GerenciarEquipe";
 import Usuarios from "./pages/Usuarios";
+import AdminEmbeddings from "./pages/AdminEmbeddings";
 import FormularioProjeto from "./pages/FormularioProjeto";
 
 function Router() {
@@ -93,6 +94,7 @@ function Router() {
       <Route path="/projetos/:id/plano-v3" component={PlanoAcaoV3} />
       <Route path="/gerenciar-equipe" component={GerenciarEquipe} />
       <Route path="/usuarios" component={Usuarios} />
+      <Route path="/admin/embeddings" component={AdminEmbeddings} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
