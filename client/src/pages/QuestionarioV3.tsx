@@ -231,6 +231,7 @@ export default function QuestionarioV3() {
   const [contextNote, setContextNote] = useState(""); // campo livre de contexto adicional
   const [isValidatingContext, setIsValidatingContext] = useState(false); // loading da validação LLM
   const [contextValidationResult, setContextValidationResult] = useState<{ relevant: boolean; reason: string } | null>(null);
+  const [contextRejected, setContextRejected] = useState(false); // true quando IA rejeitou o contexto e aguarda decisão do usuário
 
   // Verificar rascunho local ao montar
   useEffect(() => {
@@ -575,9 +576,37 @@ export default function QuestionarioV3() {
     setShowNextRoundPrompt(true);
   };
 
-  const handleConfirmNextRound = () => {
-    // Usuário quer mais um round de aprofundamento
-    handleAcceptDeepDive();
+  const handleConfirmNextRound = async () => {
+    // Se há contexto digitado, validar automaticamente antes de avançar
+    if (contextNote.trim().length > 0) {
+      setIsValidatingContext(true);
+      setContextRejected(false);
+      try {
+        const result = await validateContextNoteMutation.mutateAsync({
+          projectId,
+          cnaeCode: currentCnae?.code || "",
+          cnaeDescription: currentCnae?.description || "",
+          contextNote: contextNote.trim(),
+        });
+        setContextValidationResult(result);
+        if (result.relevant) {
+          // Contexto válido — avançar com o contexto incorporado
+          handleAcceptDeepDive(contextNote.trim());
+        } else {
+          // Contexto inválido — exibir alerta e aguardar decisão do usuário
+          setContextRejected(true);
+        }
+      } catch {
+        // Erro na validação — avançar sem contexto (não bloqueia o usuário)
+        toast.error("Não foi possível validar o contexto. Avançando sem contexto adicional.");
+        handleAcceptDeepDive();
+      } finally {
+        setIsValidatingContext(false);
+      }
+    } else {
+      // Campo vazio — avançar diretamente sem validação
+      handleAcceptDeepDive();
+    }
   };
 
   const handleSkipNextRound = () => {
@@ -985,55 +1014,40 @@ export default function QuestionarioV3() {
                 </label>
                 <Textarea
                   value={contextNote}
-                  onChange={e => { setContextNote(e.target.value); setContextValidationResult(null); }}
+                  onChange={e => { setContextNote(e.target.value); setContextValidationResult(null); setContextRejected(false); }}
                   placeholder={`Algum ponto específico que ainda não foi abordado no CNAE ${currentCnae?.code}?`}
                   rows={3}
-                  className="resize-none text-sm"
+                  className={`resize-none text-sm ${contextRejected ? "border-amber-400 focus-visible:ring-amber-400" : ""}`}
+                  disabled={isValidatingContext}
                 />
-                {contextNote.trim().length > 0 && (
-                  <div className="space-y-2">
-                    {contextValidationResult === null ? (
+                {/* Alerta: contexto rejeitado pela IA — aguarda decisão do usuário */}
+                {contextRejected && contextValidationResult && !contextValidationResult.relevant && (
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
+                      <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium mb-0.5">Contexto não relacionado ao CNAE</p>
+                        <p className="text-xs text-amber-600">{contextValidationResult.reason}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="gap-2"
-                        disabled={isValidatingContext}
-                        onClick={async () => {
-                          setIsValidatingContext(true);
-                          try {
-                            const result = await validateContextNoteMutation.mutateAsync({
-                              projectId,
-                              cnaeCode: currentCnae?.code || "",
-                              cnaeDescription: currentCnae?.description || "",
-                              contextNote: contextNote.trim(),
-                            });
-                            setContextValidationResult(result);
-                          } catch {
-                            toast.error("Erro ao validar contexto. Tente novamente.");
-                          } finally {
-                            setIsValidatingContext(false);
-                          }
-                        }}
+                        className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-50"
+                        onClick={() => { setContextRejected(false); setContextValidationResult(null); }}
                       >
-                        {isValidatingContext ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                        {isValidatingContext ? "Validando..." : "Validar contexto"}
+                        Revisar contexto
                       </Button>
-                    ) : contextValidationResult.relevant ? (
-                      <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
-                        <CheckCircle2 className="h-4 w-4 shrink-0" />
-                        <span>Contexto relevante! Será usado para personalizar as perguntas.</span>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <div className="flex items-start gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                          <span>{contextValidationResult.reason}</span>
-                        </div>
-                        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => { setContextNote(""); setContextValidationResult(null); }}>
-                          Limpar e tentar novamente
-                        </Button>
-                      </div>
-                    )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => { setContextNote(""); setContextRejected(false); setContextValidationResult(null); handleAcceptDeepDive(); }}
+                      >
+                        Avançar sem contexto
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1044,15 +1058,19 @@ export default function QuestionarioV3() {
                     <span>Limite de {MAX_DEEP_DIVE_ROUNDS} rounds de aprofundamento atingido para este CNAE. Avance para o próximo CNAE.</span>
                   </div>
                 )}
-                <Button
-                  onClick={() => handleConfirmNextRound()}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
-                  disabled={currentRound >= MAX_DEEP_DIVE_ROUNDS}
-                >
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  {currentRound >= MAX_DEEP_DIVE_ROUNDS ? "Limite atingido" : "Sim, mais um round"}
-                </Button>
-                <Button variant="outline" onClick={handleSkipNextRound} className="flex-1">
+                {!contextRejected && (
+                  <Button
+                    onClick={() => handleConfirmNextRound()}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    disabled={currentRound >= MAX_DEEP_DIVE_ROUNDS || isValidatingContext}
+                  >
+                    {isValidatingContext
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Validando contexto...</>
+                      : <><Sparkles className="h-4 w-4 mr-2" />{currentRound >= MAX_DEEP_DIVE_ROUNDS ? "Limite atingido" : "Sim, mais um round"}</>
+                    }
+                  </Button>
+                )}
+                <Button variant="outline" onClick={handleSkipNextRound} className="flex-1" disabled={isValidatingContext}>
                   <SkipForward className="h-4 w-4 mr-2" />
                   {currentCnaeIdx === cnaes.length - 1 ? "Finalizar Questionário" : "Próximo CNAE"}
                 </Button>
