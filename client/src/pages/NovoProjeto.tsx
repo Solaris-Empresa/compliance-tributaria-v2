@@ -297,9 +297,23 @@ export default function NovoProjeto() {
   };
 
   const handleSelectCnaeFromDropdown = (entry: CnaeEntry) => {
-    setNewCnaeCode(entry.code);
-    setNewCnaeDesc(entry.description);
-    setCnaeSearchQuery(`${entry.code} — ${entry.description}`);
+    // Adicionar diretamente à lista sem precisar de segundo clique
+    const newCnae: Cnae = {
+      code: entry.code,
+      description: entry.description,
+      confidence: 100,
+      justification: "Adicionado manualmente via busca",
+    };
+    if (!customCnaes.find(c => c.code === entry.code) && !suggestedCnaes.find(c => c.code === entry.code)) {
+      setCustomCnaes(prev => [...prev, newCnae]);
+      setSelectedCnaes(prev => new Set([...prev, newCnae.code]));
+      toast.success(`CNAE ${entry.code} adicionado!`);
+    } else {
+      toast.info(`CNAE ${entry.code} já está na lista.`);
+    }
+    setCnaeSearchQuery("");
+    setNewCnaeCode("");
+    setNewCnaeDesc("");
     setShowCnaeDropdown(false);
   };
 

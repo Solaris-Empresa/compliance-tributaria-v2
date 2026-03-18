@@ -78,11 +78,13 @@ export const fluxoV3Router = router({
       const { buildCnaeRagContext } = await import("./cnae-rag");
       const ragContext = buildCnaeRagContext(input.description);
 
-      const result = await generateWithRetry(
-        [
-          {
-            role: "system",
-            content: `Você é um Classificador Tributário Especialista em CNAE e Reforma Tributária brasileira (LC 214/2025, IBS, CBS, IS).
+      let result: z.infer<typeof CnaesResponseSchema>;
+      try {
+        result = await generateWithRetry(
+          [
+            {
+              role: "system",
+              content: `Você é um Classificador Tributário Especialista em CNAE e Reforma Tributária brasileira (LC 214/2025, IBS, CBS, IS).
 Sua função é identificar com ALTA PRECISÃO os CNAEs que mais impactam o negócio descrito.
 
 REGRAS CRÍTICAS:
@@ -92,10 +94,10 @@ REGRAS CRÍTICAS:
 4. Se a empresa fabrica E vende, inclua CNAEs de fabricação E comércio.
 5. Não escolha CNAEs genéricos como "outros" se houver um específico.
 Responda APENAS com JSON válido no formato especificado.`,
-          },
-          {
-            role: "user",
-            content: `Analise a descrição do negócio abaixo e identifique entre 2 e 6 CNAEs mais relevantes.
+            },
+            {
+              role: "user",
+              content: `Analise a descrição do negócio abaixo e identifique entre 2 e 6 CNAEs mais relevantes.
 
 DESCRIÇÃO DO NEGÓCIO:
 ${input.description}
@@ -110,11 +112,28 @@ Considere especialmente os CNAEs mais impactados pela Reforma Tributária (IBS, 
 
 Responda em JSON:
 {"cnaes": [{"code": "XXXX-X/XX", "description": "...", "confidence": 95, "justification": "..."}]}`,
-          },
-        ],
-        CnaesResponseSchema,
-        { temperature: 0.1, context: "extractCnaes" }
-      );
+            },
+          ],
+          CnaesResponseSchema,
+          { temperature: 0.1, context: "extractCnaes" }
+        );
+      } catch (aiError) {
+        // Fallback: usar os top-5 candidatos do RAG diretamente quando a IA falha
+        // Isso garante que o usuário sempre veja sugestões para confirmar/editar
+        const { findCandidateCnaes } = await import("./cnae-rag");
+        const candidates = findCandidateCnaes(input.description, 5);
+        if (candidates.length === 0) {
+          throw aiError; // Re-lança se nem o RAG encontrou candidatos
+        }
+        result = {
+          cnaes: candidates.map((c, i) => ({
+            code: c.code,
+            description: c.description,
+            confidence: Math.max(40, 70 - i * 8), // 70%, 62%, 54%, 46%, 40%
+            justification: "Sugerido com base na descrição do negócio (análise automática).",
+          })),
+        };
+      }
 
       return { cnaes: result.cnaes };
     }),
