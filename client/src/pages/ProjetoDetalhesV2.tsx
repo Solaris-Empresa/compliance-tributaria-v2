@@ -118,7 +118,7 @@ const FLOW_STEPS: FlowStep[] = [
     label: "Projeto",
     description: "Informações gerais e CNAEs identificados",
     icon: <Building2 className="w-4 h-4" />,
-    route: (id) => `/novo-projeto-v3?edit=${id}`,
+    route: (id) => `/projetos/${id}`,
     completedStatuses: ["assessment_fase1", "assessment_fase2", "matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "parado", "concluido", "arquivado"],
     activeStatuses: ["rascunho"],
   },

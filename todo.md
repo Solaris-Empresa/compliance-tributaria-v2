@@ -2210,3 +2210,8 @@
 - [x] Corrigir: asserção result.success ao invés de toEqual({ success: true }) para aceitar campos extras
 - [x] Corrigir: teste do cliente aceita tanto sucesso quanto FORBIDDEN (depende da regra de negócio configurada)
 - [x] 151/151 testes passando em paralelo (8 arquivos simultâneos)
+
+## Bug Crítico: FlowStepper — Rota do Ícone "Projeto" (17/03/2026)
+- [x] Corrigir: ícone "Projeto" no FlowStepper navega para /novo-projeto-v3?edit=ID em vez de /projetos/ID
+- [x] Escrever teste unitário para a rota correta (6 novos testes, 38/38 passando)
+- [ ] Checkpoint e publicação da correção

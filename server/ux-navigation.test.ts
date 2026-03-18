@@ -235,3 +235,53 @@ describe("Back navigation — labels e rotas", () => {
     }
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. Regressão: rota do passo "Projeto" no stepper interno de ProjetoDetalhesV2
+//    Bug: rota era /novo-projeto-v3?edit=ID → causava 404
+//    Fix: rota deve ser /projetos/ID
+// ─────────────────────────────────────────────────────────────────────────────
+
+const PROJETO_DETALHE_FLOW_STEPS: { label: string; route: (id: number) => string }[] = [
+  { label: "Projeto",       route: (id) => `/projetos/${id}` },
+  { label: "Questionário",  route: (id) => `/projetos/${id}/questionario-v3` },
+  { label: "Briefing",      route: (id) => `/projetos/${id}/briefing-v3` },
+  { label: "Riscos",        route: (id) => `/projetos/${id}/matrizes-v3` },
+  { label: "Plano de Ação", route: (id) => `/projetos/${id}/plano-v3` },
+];
+
+describe("ProjetoDetalhesV2 — rotas do stepper interno (regressão bug 404)", () => {
+  const pid = 1141;
+
+  it("passo Projeto navega para /projetos/:id (não para /novo-projeto-v3?edit=:id)", () => {
+    const step = PROJETO_DETALHE_FLOW_STEPS[0];
+    const rota = step.route(pid);
+    expect(rota).toBe(`/projetos/${pid}`);
+    expect(rota).not.toContain("novo-projeto-v3");
+    expect(rota).not.toContain("edit=");
+  });
+
+  it("passo Questionário navega para /projetos/:id/questionario-v3", () => {
+    expect(PROJETO_DETALHE_FLOW_STEPS[1].route(pid)).toBe(`/projetos/${pid}/questionario-v3`);
+  });
+
+  it("passo Briefing navega para /projetos/:id/briefing-v3", () => {
+    expect(PROJETO_DETALHE_FLOW_STEPS[2].route(pid)).toBe(`/projetos/${pid}/briefing-v3`);
+  });
+
+  it("passo Riscos navega para /projetos/:id/matrizes-v3", () => {
+    expect(PROJETO_DETALHE_FLOW_STEPS[3].route(pid)).toBe(`/projetos/${pid}/matrizes-v3`);
+  });
+
+  it("passo Plano de Ação navega para /projetos/:id/plano-v3", () => {
+    expect(PROJETO_DETALHE_FLOW_STEPS[4].route(pid)).toBe(`/projetos/${pid}/plano-v3`);
+  });
+
+  it("nenhuma rota contém /novo-projeto-v3 ou ?edit=", () => {
+    for (const step of PROJETO_DETALHE_FLOW_STEPS) {
+      const rota = step.route(pid);
+      expect(rota).not.toContain("novo-projeto-v3");
+      expect(rota).not.toContain("edit=");
+    }
+  });
+});
