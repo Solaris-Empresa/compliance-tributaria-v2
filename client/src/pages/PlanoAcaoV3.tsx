@@ -1488,9 +1488,18 @@ export default function PlanoAcaoV3() {
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 <Sparkles className="h-5 w-5 text-primary absolute -top-1 -right-1 animate-pulse" />
               </div>
-              <div className="text-center space-y-1">
+              <div className="text-center space-y-2">
                 <p className="font-semibold">Gerando Plano de Ação...</p>
-                <p className="text-sm text-muted-foreground">A IA está criando tarefas personalizadas para as 4 áreas com base nas matrizes de riscos.</p>
+                <p className="text-sm text-muted-foreground">A IA está criando tarefas para as 4 áreas em paralelo. Isso pode levar até 1 minuto.</p>
+                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><BarChart3 className="h-3 w-3" />Contabilidade</span>
+                  <span>·</span>
+                  <span className="flex items-center gap-1"><Building2 className="h-3 w-3" />Negócio</span>
+                  <span>·</span>
+                  <span className="flex items-center gap-1"><Cpu className="h-3 w-3" />TI</span>
+                  <span>·</span>
+                  <span className="flex items-center gap-1"><Scale className="h-3 w-3" />Jurídico</span>
+                </div>
               </div>
             </CardContent>
           </Card>

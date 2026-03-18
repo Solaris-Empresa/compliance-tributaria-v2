@@ -710,11 +710,11 @@ Formato:
       const cnaeCodesAction = confirmedCnaes.map((c: any) => c.code);
       const cnaeDescriptions = confirmedCnaes.map((c: any) => `${c.code} — ${c.description || c.code}`).join(", ");
 
-      for (const area of areas) {
+      // V70.3: Paralelizar as 4 áreas com Promise.all (reduz ~3min sequencial para ~45s paralelo)
+      const areaResults = await Promise.all(areas.map(async (area) => {
         const areaRisks = input.matrices[area] || [];
         if (areaRisks.length === 0) {
-          plans[area] = [];
-          continue;
+          return { area, tasks: [] as any[] };
         }
         const adjustmentContext = input.adjustment ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}` : "";
 
@@ -792,16 +792,24 @@ Gere o plano de ação em JSON:
           { temperature: 0.15, context: `generateActionPlan:${area}` }
         );
 
-        plans[area] = result.tasks.map((t: any) => ({
-          ...t,
-          status: "nao_iniciado",
-          progress: 0,
-          startDate: null,
-          endDate: null,
-          responsible: null,
-          comments: [],
-          notifications: { beforeDays: 7, onStatusChange: true, onProgressUpdate: false, onComment: false },
-        }));
+        return {
+          area,
+          tasks: result.tasks.map((t: any) => ({
+            ...t,
+            status: "nao_iniciado",
+            progress: 0,
+            startDate: null,
+            endDate: null,
+            responsible: null,
+            comments: [],
+            notifications: { beforeDays: 7, onStatusChange: true, onProgressUpdate: false, onComment: false },
+          })),
+        };
+      }));
+
+      // Montar o objeto plans a partir dos resultados paralelos
+      for (const { area, tasks } of areaResults) {
+        plans[area] = tasks;
       }
 
       return { plans };

@@ -63,6 +63,10 @@ async function startServer() {
   initializeWebSocket(server);
   console.log("[WebSocket] Servidor WebSocket inicializado");
 
+  // Timeout de 5 minutos para suportar chamadas LLM longas (ex: generateActionPlan com 4 áreas paralelas)
+  server.timeout = 300_000; // 300s = 5 min
+  server.keepAliveTimeout = 310_000; // ligeiramente maior que timeout
+
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });

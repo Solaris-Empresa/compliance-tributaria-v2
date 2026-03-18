@@ -2289,3 +2289,9 @@
 - [x] Modo de revisão validado visualmente: banner âmbar, highlight da pergunta inconsistente, botão Salvar e Regenerar
 - [x] Ícone de check nos chips de CNAE aprimorado: h-3.5 w-3.5 text-emerald-600 (já existia, tornando mais visível)
 - [x] Prompt do Plano de Ação V70.2 validado: 10 regras críticas, campos obrigatórios, contexto completo
+
+## Bug Crítico - Plano de Ação não gera (18/03/2026)
+- [x] BUG CRÍTICO: generateActionPlan faz 4 chamadas LLM sequenciais (~3min total) causando timeout HTTP
+- [x] FIX: Paralelizar as 4 áreas com Promise.all para reduzir tempo de ~3min para ~45s
+- [x] FIX: Configurar server.timeout no Express HTTP server para 300s (5 min)
+- [x] FIX: Melhorar feedback visual de loading com nomes das 4 áreas no PlanoAcaoV3
