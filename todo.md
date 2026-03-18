@@ -2238,7 +2238,13 @@
 
 ## Bug Fix V70.1 (18/03/2026)
 - [x] BUG CORRIGIDO: Com 3 CNAEs, o 3º questionário era pulado — fix: setShowDeepDivePrompt(false) no advanceToNextCnae (QuestionarioV3.tsx linha 516)
-- [ ] BUG: Modal de inconsistência no Briefing não permite retornar ao questionário para corrigir as respostas — redesign completo de UX necessário
+- [x] BUG/UX CORRIGIDO: Modal de inconsistência no Briefing agora permite editar o questionário
+  - [x] Botão "Corrigir no Questionário" no InconsistenciaModal com navegação via URL param ?revisao=true&pergunta=...
+  - [x] Componente RevisaoQuestionario: banner âmbar contextual + edição livre sem resetar status
+  - [x] Botão "Salvar Correções e Regenerar Briefing" no modo revisão
+  - [x] Highlight visual da pergunta inconsistente no questionário
+  - [x] AlertasInconsistencia.tsx: prop onCorrigir para navegar com contexto
+  - [x] Status do projeto não regride — apenas respostas são atualizadas via updateAnswersOnly
 
 ## Sprint RAG-v2 + Prompt Caching (18/03/2026)
 - [x] Baixar e processar LC 214/2025 (779 artigos extraídos do PDF)
@@ -2249,3 +2255,22 @@
 - [x] Configurar Prompt Caching GPT-4.1 (cache_control ephemeral) no llm.ts
 - [x] Aplicar enableCache: true em 17 chamadas invokeLLM + generateWithRetry (padrão true)
 - [x] Testes passando: 2/2 (GPT-4.1 respondeu em 917ms)
+
+## Sprint V70.2 — Revisão de Inconsistências + Melhoria Plano de Ação (18/03/2026)
+
+### Bug Fix: Modo Revisão de Inconsistências no Briefing
+- [x] Criar componente RevisaoQuestionario com banner âmbar contextual e edição inline
+- [x] Adicionar botão "Corrigir no Questionário" no InconsistenciaModal (AlertasInconsistencia.tsx)
+- [x] Atualizar BriefingV3.tsx: onCorrigir callback + detectar ?regenerar=true
+- [x] Adicionar procedure updateAnswersOnly no backend (sem regredir status)
+- [x] Implementar modo ?revisao=true no QuestionarioV3 com highlight da pergunta inconsistente
+- [x] Botão "Salvar Correções e Regenerar Briefing" → navega para /briefing-v3?regenerar=true
+
+### Melhoria Crítica: Plano de Ação V70.2
+- [x] Diagnóstico profundo do prompt atual (5 causas raiz identificadas)
+- [x] Reescrever prompt com: contexto CNAE específico + respostas do questionário + artigos RAG por área
+- [x] Schema TaskItemSchema fortalecido: cnae_origem, gap_especifico, acao_concreta obrigatórios
+- [x] RAG específico por área (10 artigos por área, query inclui nome da área + top riscos)
+- [x] Temperatura reduzida 0.2 → 0.15 para maior consistência
+- [x] briefingContent passado pelo frontend (PlanoAcaoV3.tsx)
+- [x] Testes: 2/2 passando (GPT-4.1 respondeu em 956ms)

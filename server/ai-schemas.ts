@@ -217,30 +217,34 @@ export const RiskItemSchema = z.object({
 export const RisksResponseSchema = z.object({
   risks: z.array(RiskItemSchema).min(1).max(12), // Reduzido min de 3 para 1
 });
-
-// ─────────────────────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────────────────────────
 // ETAPA 5: Plano de Ação
-// ─────────────────────────────────────────────────────────────────────────────
+// V70.2: Schema fortalecido — campos obrigatórios para rastreabilidade CNAE-tarefa
+// ────────────────────────────────────────────────────────────────────────────────
 
 export const TaskItemSchema = z.object({
   id: z.string(),
-  titulo: z.string(),
-  descricao: z.string(),
+  titulo: z.string().min(10, "Título deve ser descritivo"),
+  descricao: z.string().min(30, "Descrição deve ser detalhada").catch("Implementar adequação ao novo regime tributário conforme LC 214/2025"),
   area: z.enum(["contabilidade", "negocio", "ti", "juridico"])
     .catch("juridico"),
   prazo_sugerido: z.enum(["30 dias", "60 dias", "90 dias"])
     .catch("60 dias"),
   prioridade: z.enum(["Alta", "Média", "Baixa"])
     .catch("Média"),
-  responsavel_sugerido: z.string().optional().default("Equipe Tributária"),
-  objetivo_diagnostico: z.string().optional().default(""),
-  evidencia_regulatoria: z.string().optional().default("Reforma Tributária — EC 132/2023"),
+  responsavel_sugerido: z.string().min(5).catch("Equipe Tributária"),
+  // V70.2: Campos obrigatórios com fallback robusto
+  objetivo_diagnostico: z.string().min(15).catch("Adequar processo ao novo regime tributário IBS/CBS"),
+  evidencia_regulatoria: z.string().min(5).catch("LC 214/2025"),
+  // V70.2: Novos campos de rastreabilidade CNAE-tarefa
+  cnae_origem: z.string().optional().default(""),
+  gap_especifico: z.string().optional().default(""),
+  acao_concreta: z.string().optional().default(""),
 });
 
 export const TasksResponseSchema = z.object({
-  tasks: z.array(TaskItemSchema).min(1).max(10), // Reduzido min de 3 para 1
+  tasks: z.array(TaskItemSchema).min(3).max(12),
 });
-
 // ─────────────────────────────────────────────────────────────────────────────
 // SCORING GLOBAL (Sprint V61)
 // ─────────────────────────────────────────────────────────────────────────────

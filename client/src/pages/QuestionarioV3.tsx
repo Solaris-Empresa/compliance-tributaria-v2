@@ -2,7 +2,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
 import { ResumeBanner } from "@/components/ResumeBanner";
-import { useParams, useLocation } from "wouter";
+import { useParams, useLocation, useSearch } from "wouter";
+import { RevisaoQuestionario } from "@/components/RevisaoQuestionario";
 import { trpc } from "@/lib/trpc";
 import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
@@ -188,7 +189,12 @@ function QuestionTypeIcon({ type }: { type: string }) {
 export default function QuestionarioV3() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
+  const search = useSearch();
   const projectId = Number(id);
+
+  // V70.2: Modo Revisão — ativado quando o usuário vem do Briefing para corrigir inconsistência
+  const isRevisaoMode = new URLSearchParams(search).get("revisao") === "true";
+  const perguntaInconsistente = new URLSearchParams(search).get("pergunta") ?? "";
 
   const [cnaes, setCnaes] = useState<{ code: string; description: string }[]>([]);
   const initializedRef = useRef(false); // Evita reset de cnaes após primeira carga (bug closure stale)
@@ -571,7 +577,22 @@ export default function QuestionarioV3() {
   // Exibe as respostas salvas no banco sem precisar regenerar perguntas pela IA
   const isViewMode = (project?.currentStep ?? 1) >= 3 || 
     ["aprovado", "em_andamento", "concluido", "arquivado", "em_avaliacao", "parado", "plano_acao", "matriz_riscos"].includes(project?.status ?? "");
-  
+
+  // V70.2: Modo Revisão substitui o isViewMode quando ?revisao=true
+  // O usuário pode editar respostas sem regredir o status do projeto
+  if (isViewMode && isRevisaoMode && savedProgress && !loadingProject) {
+    return (
+      <RevisaoQuestionario
+        projectId={projectId}
+        project={project}
+        savedProgress={savedProgress}
+        perguntaInconsistente={perguntaInconsistente}
+        onSalvar={() => setLocation(`/projetos/${projectId}/briefing-v3?regenerar=true`)}
+        onCancelar={() => setLocation(`/projetos/${projectId}/briefing-v3`)}
+      />
+    );
+  }
+
   if (isViewMode && savedProgress && !loadingProject) {
     const allAnswers = savedProgress.answers || [];
     const cnaeList = (project?.confirmedCnaes as any[]) || [];

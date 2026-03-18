@@ -1,8 +1,8 @@
 // @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
 import { ResumeBanner } from "@/components/ResumeBanner";
-import { useParams, useLocation } from "wouter";
+import { useParams, useLocation, useSearch } from "wouter";
 import { trpc } from "@/lib/trpc";
 import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,11 @@ interface BriefingVersion {
 export default function BriefingV3() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
+  const search = useSearch();
   const projectId = Number(id);
+
+  // V70.2: Detectar ?regenerar=true — disparado quando o usuário volta do questionário após corrigir inconsistência
+  const shouldAutoRegenerate = new URLSearchParams(search).get("regenerar") === "true";
 
   const [briefing, setBriefing] = useState<string>("");
   const [feedbackMode, setFeedbackMode] = useState<"none" | "correction" | "more_info">("none");
@@ -101,6 +105,13 @@ export default function BriefingV3() {
   // Carregar briefing salvo do banco (se existir) ou gerar novo
   useEffect(() => {
     if (!project) return;
+    // V70.2: Se veio com ?regenerar=true, forçar regeneração (usuário corrigiu inconsistência)
+    if (shouldAutoRegenerate && generationCount === 0) {
+      // Limpar o param da URL para não regenerar em reloads futuros
+      setLocation(`/projetos/${projectId}/briefing-v3`, { replace: true });
+      handleGenerate();
+      return;
+    }
     // Se já há briefing no estado (rascunho local), não sobrescrever
     if (briefing) return;
     // Prioridade: briefing salvo no banco (re-edição)
@@ -240,6 +251,16 @@ export default function BriefingV3() {
     return content;
   };
 
+  // V70.2: Callback passado ao AlertasInconsistencia — navega para o questionário em modo revisão
+  // O query param ?revisao=true&pergunta=<encoded> é lido pelo QuestionarioV3 para ativar o modo de edição
+  const handleCorrigirInconsistencia = useCallback((pergunta: string) => {
+    const params = new URLSearchParams({
+      revisao: "true",
+      pergunta: pergunta,
+    });
+    setLocation(`/projetos/${projectId}/questionario-v3?${params.toString()}`);
+  }, [projectId, setLocation]);
+
   if (loadingProject) {
     return (
       <ComplianceLayout>
@@ -317,8 +338,12 @@ export default function BriefingV3() {
         <FlowStepper currentStep={3} projectId={projectId} completedUpTo={statusToCompletedStep(project?.status)} />
 
         {/* V64: Alertas de Inconsistência — exibido apenas quando há inconsistências */}
+        {/* V70.2: onCorrigir habilita o botão "Corrigir no Questionário" em cada inconsistência */}
         {inconsistencias.length > 0 && !isGenerating && (
-          <AlertasInconsistencia inconsistencias={inconsistencias} />
+          <AlertasInconsistencia
+            inconsistencias={inconsistencias}
+            onCorrigir={handleCorrigirInconsistencia}
+          />
         )}
 
         {/* RF-3.06: Painel de Histórico de Versões */}

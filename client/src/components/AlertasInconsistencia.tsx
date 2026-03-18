@@ -1,6 +1,7 @@
 // @ts-nocheck
 /**
  * V64 — Alertas Visuais de Inconsistência
+ * V70.2 — Adicionado botão "Corrigir no Questionário" no modal e na lista
  *
  * Exibe alertas quando a IA detecta contradições nas respostas do questionário.
  * Aparece condicionalmente no BriefingV3 apenas quando inconsistencias.length > 0.
@@ -10,10 +11,15 @@
  *   - resposta_declarada: string
  *   - contradicao_detectada: string
  *   - impacto: "alto" | "medio" | "baixo"
+ *
+ * Props adicionadas em V70.2:
+ *   - onCorrigir?: (pergunta: string) => void
+ *     Callback chamado quando o usuário clica em "Corrigir no Questionário".
+ *     O BriefingV3 passa uma função que navega para o questionário em modo revisão.
  */
 
 import { useState } from "react";
-import { AlertTriangle, AlertCircle, Info, ChevronDown, ChevronUp, X, Eye } from "lucide-react";
+import { AlertTriangle, AlertCircle, Info, ChevronDown, ChevronUp, X, Eye, PencilLine } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,6 +44,11 @@ interface AlertasInconsistenciaProps {
   inconsistencias: Inconsistencia[];
   /** Se true, exibe em modo compacto (apenas badge + botão expandir) */
   compact?: boolean;
+  /**
+   * V70.2: Callback chamado quando o usuário clica em "Corrigir no Questionário".
+   * Recebe o texto da pergunta de origem para highlight no questionário.
+   */
+  onCorrigir?: (pergunta: string) => void;
 }
 
 // ─── Helpers de estilo por impacto ────────────────────────────────────────────
@@ -86,9 +97,11 @@ export function InconsistenciaBadge({ count }: { count: number }) {
 function InconsistenciaModal({
   item,
   onClose,
+  onCorrigir,
 }: {
   item: Inconsistencia | null;
   onClose: () => void;
+  onCorrigir?: (pergunta: string) => void;
 }) {
   if (!item) return null;
   const cfg = impactoConfig[item.impacto] ?? impactoConfig.baixo;
@@ -139,21 +152,50 @@ function InconsistenciaModal({
             </p>
           </div>
 
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200">
-            <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-800">
-              <strong>Recomendação:</strong> Revise as respostas do questionário e regenere o
-              briefing para corrigir esta inconsistência, ou use o botão "Corrigir" para fornecer
-              informações adicionais à IA.
-            </p>
-          </div>
+          {/* V70.2: Caixa de ação — substituiu o aviso passivo por CTA ativo */}
+          {onCorrigir ? (
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200">
+              <PencilLine className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-amber-900 mb-1">
+                  Corrija a resposta diretamente no questionário
+                </p>
+                <p className="text-xs text-amber-800">
+                  Você será direcionado ao questionário em modo de revisão. A pergunta inconsistente
+                  ficará destacada. Após salvar, o briefing será regenerado automaticamente.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200">
+              <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+              <p className="text-xs text-blue-800">
+                <strong>Recomendação:</strong> Revise as respostas do questionário e regenere o
+                briefing para corrigir esta inconsistência.
+              </p>
+            </div>
+          )}
         </div>
 
-        <div className="flex justify-end mt-2">
+        {/* V70.2: Dois botões — Fechar (secundário) + Corrigir (primário) */}
+        <div className="flex justify-end gap-2 mt-2">
           <Button size="sm" variant="outline" onClick={onClose}>
             <X className="h-3.5 w-3.5 mr-1.5" />
             Fechar
           </Button>
+          {onCorrigir && (
+            <Button
+              size="sm"
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+              onClick={() => {
+                onClose();
+                onCorrigir(item.pergunta_origem);
+              }}
+            >
+              <PencilLine className="h-3.5 w-3.5 mr-1.5" />
+              Corrigir no Questionário
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
@@ -165,6 +207,7 @@ function InconsistenciaModal({
 export default function AlertasInconsistencia({
   inconsistencias,
   compact = false,
+  onCorrigir,
 }: AlertasInconsistenciaProps) {
   const [expanded, setExpanded] = useState(!compact);
   const [selectedItem, setSelectedItem] = useState<Inconsistencia | null>(null);
@@ -234,12 +277,14 @@ export default function AlertasInconsistencia({
             </div>
           </div>
 
-          {/* Aviso contextual */}
-          <p className="text-xs text-red-700/80 mt-1">
-            A IA detectou {inconsistencias.length}{" "}
-            {inconsistencias.length === 1 ? "contradição" : "contradições"} nas respostas do
-            questionário. Revise e corrija para aumentar a precisão do diagnóstico.
-          </p>
+          {/* V70.2: Aviso contextual com CTA quando onCorrigir disponível */}
+          <div className="flex items-center justify-between gap-3 mt-1">
+            <p className="text-xs text-red-700/80">
+              A IA detectou {inconsistencias.length}{" "}
+              {inconsistencias.length === 1 ? "contradição" : "contradições"} nas respostas do
+              questionário. Clique em uma inconsistência para ver os detalhes e corrigi-la.
+            </p>
+          </div>
         </CardHeader>
 
         {/* Lista de inconsistências */}
@@ -274,18 +319,36 @@ export default function AlertasInconsistencia({
                         {item.contradicao_detectada}
                       </p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 px-2 text-[10px] shrink-0 text-muted-foreground hover:text-foreground"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedItem(item);
-                      }}
-                    >
-                      <Eye className="h-3 w-3 mr-1" />
-                      Ver
-                    </Button>
+
+                    {/* V70.2: Botões de ação na linha */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-[10px] text-muted-foreground hover:text-foreground"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedItem(item);
+                        }}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Ver
+                      </Button>
+                      {onCorrigir && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 text-[10px] text-amber-700 hover:text-amber-900 hover:bg-amber-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onCorrigir(item.pergunta_origem);
+                          }}
+                        >
+                          <PencilLine className="h-3 w-3 mr-1" />
+                          Corrigir
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -295,7 +358,11 @@ export default function AlertasInconsistencia({
       </Card>
 
       {/* Modal de detalhe */}
-      <InconsistenciaModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+      <InconsistenciaModal
+        item={selectedItem}
+        onClose={() => setSelectedItem(null)}
+        onCorrigir={onCorrigir}
+      />
     </>
   );
 }

@@ -764,11 +764,13 @@ export default function PlanoAcaoV3() {
     setAdjustmentText("");
     try {
       const matrices = (project as any).riskMatricesData || {};
+      const briefingContent = (project as any).briefingContent || "";
       const result = await generatePlan.mutateAsync({
         projectId,
         matrices,
         area: area as any,
         adjustment,
+        briefingContent, // V70.2: enriquecer prompt com gaps do briefing
       });
       setPlans(prev => ({ ...prev, ...result.plans }));
       setGenerationCount(prev => prev + 1);

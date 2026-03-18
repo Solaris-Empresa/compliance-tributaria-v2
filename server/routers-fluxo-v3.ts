@@ -668,6 +668,8 @@ Formato:
       matrices: z.record(z.string(), z.array(z.any())),
       area: z.enum(["contabilidade", "negocio", "ti", "juridico"]).optional(),
       adjustment: z.string().optional(),
+      // V70.2: Briefing context para enriquecer o plano de ação
+      briefingContent: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
       const project = await db.getProjectById(input.projectId);
@@ -677,51 +679,117 @@ Formato:
       const plans: Record<string, any[]> = {};
       const areaNames: Record<string, string> = {
         contabilidade: "Contabilidade e Fiscal",
-        negocio: "Áreas de Negócio",
-        ti: "Tecnologia da Informação",
-        juridico: "Advocacia Tributária",
+        negocio: "Áreas de Negócio e Operações",
+        ti: "Tecnologia da Informação e Sistemas",
+        juridico: "Advocacia Tributária e Jurídico",
       };
 
-      // V65: RAG híbrido — busca artigos para plano de ação
+      // V70.2: Buscar respostas do questionário do banco para enriquecer o prompt
+      const database = await db.getDb();
+      let questionnaireContext = "";
+      if (database) {
+        const answers = await database
+          .select()
+          .from(questionnaireAnswersV3)
+          .where(eq(questionnaireAnswersV3.projectId, input.projectId));
+        if (answers.length > 0) {
+          // Agrupar por CNAE e formatar como texto legível
+          const byCnae: Record<string, typeof answers> = {};
+          for (const a of answers) {
+            if (!byCnae[a.cnaeCode]) byCnae[a.cnaeCode] = [];
+            byCnae[a.cnaeCode].push(a);
+          }
+          questionnaireContext = Object.entries(byCnae).map(([cnae, ans]) =>
+            `CNAE ${cnae}:\n` + (ans as any[]).map((a: any) => `  P: ${a.questionText}\n  R: ${a.answer}`).join("\n")
+          ).join("\n\n");
+        }
+      }
+
+      // V70.2: CNAEs confirmados com descrições
       const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
       const cnaeCodesAction = confirmedCnaes.map((c: any) => c.code);
-      const ragCtxAction = await retrieveArticlesFast(cnaeCodesAction, JSON.stringify(input.matrices).substring(0, 500), 7);
-      const regulatoryContext = ragCtxAction.contextText;
+      const cnaeDescriptions = confirmedCnaes.map((c: any) => `${c.code} — ${c.description || c.code}`).join(", ");
 
       for (const area of areas) {
         const areaRisks = input.matrices[area] || [];
+        if (areaRisks.length === 0) {
+          plans[area] = [];
+          continue;
+        }
         const adjustmentContext = input.adjustment ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}` : "";
+
+        // V70.2: RAG específico por área (query inclui nome da área + top riscos)
+        const areaQuery = `${areaNames[area]} ${cnaeDescriptions} ${areaRisks.slice(0, 3).map((r: any) => r.evento || "").join(" ")}`;
+        const ragCtxArea = await retrieveArticlesFast(cnaeCodesAction, areaQuery, 10);
+        const regulatoryContext = ragCtxArea.contextText;
+
+        // V70.2: Briefing context (resumo dos gaps identificados)
+        const briefingCtx = input.briefingContent
+          ? `\n\nBRIEFING DO PROJETO (gaps identificados):\n${input.briefingContent.substring(0, 1500)}`
+          : "";
 
         const result = await generateWithRetry(
           [
             {
               role: "system",
-              content: `Você é um Gestor de Projetos de Compliance Tributário especializado na Reforma Tributária brasileira.
-Sua função é criar planos de ação práticos e executáveis para endereçar os riscos identificados.
+              content: `Você é um Gestor Sênior de Compliance Tributário especializado na Reforma Tributária brasileira (LC 214/2025, LC 224/2025, LC 227/2025).
 
-REGRAS OBRIGATÓRIAS:
-1. Cada tarefa deve ter objetivo_diagnostico (qual gap/risco ela endereça)
-2. Cada tarefa deve ter evidencia_regulatoria (base legal que justifica a tarefa)
-3. Prazos realistas: 30/60/90 dias baseados na urgência do risco
-4. Responsável sugerido deve ser específico (ex: "Contador responsável pelo SPED")
-5. Gere entre 3 e 8 tarefas por área
+Sua missão é criar um Plano de Ação CONCRETO, ESPECÍFICO e EXECUTÁVEL para a área de ${areaNames[area]}.
 
+CONTEXTO DO PROJETO:
+- Empresa: ${project.name}
+- CNAEs analisados: ${cnaeDescriptions}
+- Faturamento anual: ${(project as any).faturamentoAnual ? `R$ ${((project as any).faturamentoAnual / 1000000).toFixed(1)}M` : "não informado"}
+
+RESPOSTAS DO QUESTIONÁRIO (o que o cliente declarou):
+${questionnaireContext || "Não disponível"}
+${briefingCtx}
+
+LEGISLAÇÃO APLICÁVEL (use APENAS estes artigos como evidência):
 ${regulatoryContext}
 
+REGRAS CRÍTICAS — NUNCA VIOLE:
+1. PROIBIDO gerar tarefas genéricas como "Revisar processos" ou "Avaliar impactos" sem especificar O QUE revisar e QUAL impacto
+2. OBRIGATÓRIO: cada tarefa deve citar a RESPOSTA ESPECÍFICA do questionário que originou o gap (campo objetivo_diagnostico)
+3. OBRIGATÓRIO: cada tarefa deve citar o ARTIGO ESPECÍFICO da legislação fornecida (campo evidencia_regulatoria)
+4. OBRIGATÓRIO: o campo descricao deve ter NO MÍNIMO 3 ações concretas numeradas (ex: "1. Mapear... 2. Contratar... 3. Implementar...")
+5. OBRIGATÓRIO: responsavel_sugerido deve ser um cargo específico (ex: "Controller Fiscal", "Gerente de TI", "Advogado Tributário")
+6. OBRIGATÓRIO: prazo_sugerido deve refletir a severidade do risco (riscos críticos = 30 dias, altos = 60 dias, médios = 90 dias)
+7. Gere entre 4 e 10 tarefas por área, priorizando por severidade
+8. campo cnae_origem: informe o CNAE específico que originou a tarefa
+9. campo gap_especifico: descreva o gap de compliance em uma frase objetiva
+10. campo acao_concreta: descreva a ação imediata (primeira coisa a fazer)
 ${OUTPUT_CONTRACT}`,
             },
             {
               role: "user",
               content: `ÁREA: ${areaNames[area]}
-RISCOS IDENTIFICADOS: ${JSON.stringify(areaRisks, null, 2)}
+
+RISCOS IDENTIFICADOS NA MATRIZ (ordenados por severidade):
+${JSON.stringify(areaRisks.sort((a: any, b: any) => (b.severidade_score || 0) - (a.severidade_score || 0)), null, 2)}
 ${adjustmentContext}
 
-Formato:
-{"tasks": [{"id": "t1", "titulo": "...", "descricao": "...", "area": "${area}", "prazo_sugerido": "30 dias", "prioridade": "Alta", "responsavel_sugerido": "...", "objetivo_diagnostico": "...", "evidencia_regulatoria": "Art. X LC 214/2025"}]}`,
+Gere o plano de ação em JSON:
+{"tasks": [
+  {
+    "id": "t1",
+    "titulo": "[Verbo de ação] + [objeto específico] + [contexto CNAE]",
+    "descricao": "1. [Ação concreta 1]\\n2. [Ação concreta 2]\\n3. [Ação concreta 3]",
+    "area": "${area}",
+    "prazo_sugerido": "30 dias",
+    "prioridade": "Alta",
+    "responsavel_sugerido": "[Cargo específico]",
+    "objetivo_diagnostico": "Gap identificado: [resposta do questionário que revelou o problema]",
+    "evidencia_regulatoria": "Art. X, \u00a7 Y da LC 214/2025",
+    "cnae_origem": "${cnaeCodesAction[0] || ""}",
+    "gap_especifico": "[Descrição objetiva do gap de compliance]",
+    "acao_concreta": "[Primeira ação imediata a executar]"
+  }
+]}`,
             },
           ],
           TasksResponseSchema,
-          { temperature: 0.2, context: `generateActionPlan:${area}` }
+          { temperature: 0.15, context: `generateActionPlan:${area}` }
         );
 
         plans[area] = result.tasks.map((t: any) => ({
@@ -1058,6 +1126,29 @@ Gere o veredito final em JSON:
       } catch {
         return { inconsistencias: [], totalCount: 0, hasAlerts: false };
       }
+    }),
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // MODO REVISÃO: Validar acesso ao projeto para edição de respostas
+  // Usado quando o usuário retorna do Briefing para corrigir inconsistências.
+  // As respostas individuais são atualizadas via saveAnswer (já existente).
+  // O status/currentStep do projeto NÃO é alterado.
+  // ─────────────────────────────────────────────────────────────────────────
+  checkRevisionAccess: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+      const userId = ctx.user.id;
+      const isOwner = project.clientId === userId || (project as any).createdById === userId;
+      const isTeam = ctx.user.role === "equipe_solaris" || ctx.user.role === "advogado_senior" || ctx.user.role === "advogado_junior";
+      if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
+      return {
+        canEdit: true,
+        projectId: input.projectId,
+        status: (project as any).status,
+        currentStep: (project as any).currentStep,
+      };
     }),
 });
 
