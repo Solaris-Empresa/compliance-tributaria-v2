@@ -232,6 +232,7 @@ export default function QuestionarioV3() {
   const [isValidatingContext, setIsValidatingContext] = useState(false); // loading da validação LLM
   const [contextValidationResult, setContextValidationResult] = useState<{ relevant: boolean; reason: string } | null>(null);
   const [contextRejected, setContextRejected] = useState(false); // true quando IA rejeitou o contexto e aguarda decisão do usuário
+  const [contextAccepted, setContextAccepted] = useState(false); // true quando IA aceitou o contexto — exibe feedback verde brevemente
 
   // Verificar rascunho local ao montar
   useEffect(() => {
@@ -590,8 +591,12 @@ export default function QuestionarioV3() {
         });
         setContextValidationResult(result);
         if (result.relevant) {
-          // Contexto válido — avançar com o contexto incorporado
-          handleAcceptDeepDive(contextNote.trim());
+          // Contexto válido — exibir feedback verde por 1.5s antes de avançar
+          setContextAccepted(true);
+          setTimeout(() => {
+            setContextAccepted(false);
+            handleAcceptDeepDive(contextNote.trim());
+          }, 1500);
         } else {
           // Contexto inválido — exibir alerta e aguardar decisão do usuário
           setContextRejected(true);
@@ -912,6 +917,16 @@ export default function QuestionarioV3() {
                   className={`resize-none text-sm ${contextRejected ? "border-amber-400 focus-visible:ring-amber-400" : ""}`}
                   disabled={isValidatingContext}
                 />
+                {/* Feedback: contexto aceito pela IA — exibe brevemente antes de avançar */}
+                {contextAccepted && (
+                  <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5">
+                    <CheckCircle2 className="h-4 w-4 shrink-0" />
+                    <div>
+                      <p className="font-medium">Contexto aceito!</p>
+                      <p className="text-xs text-emerald-600">Será considerado para o desenvolvimento do questionário.</p>
+                    </div>
+                  </div>
+                )}
                 {/* Alerta: contexto rejeitado pela IA — aguarda decisão do usuário */}
                 {contextRejected && contextValidationResult && !contextValidationResult.relevant && (
                   <div className="space-y-3">
@@ -944,7 +959,7 @@ export default function QuestionarioV3() {
                 )}
               </div>
               <div className="flex gap-3">
-                {!contextRejected && (
+                {!contextRejected && !contextAccepted && (
                   <Button
                     onClick={async () => {
                       if (contextNote.trim().length > 0) {
@@ -959,7 +974,12 @@ export default function QuestionarioV3() {
                           });
                           setContextValidationResult(result);
                           if (result.relevant) {
-                            handleAcceptDeepDive(contextNote.trim());
+                            // Exibir feedback verde por 1.5s antes de avançar
+                            setContextAccepted(true);
+                            setTimeout(() => {
+                              setContextAccepted(false);
+                              handleAcceptDeepDive(contextNote.trim());
+                            }, 1500);
                           } else {
                             setContextRejected(true);
                           }
@@ -1036,6 +1056,16 @@ export default function QuestionarioV3() {
                   className={`resize-none text-sm ${contextRejected ? "border-amber-400 focus-visible:ring-amber-400" : ""}`}
                   disabled={isValidatingContext}
                 />
+                {/* Feedback: contexto aceito pela IA — exibe brevemente antes de avançar */}
+                {contextAccepted && (
+                  <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5">
+                    <CheckCircle2 className="h-4 w-4 shrink-0" />
+                    <div>
+                      <p className="font-medium">Contexto aceito!</p>
+                      <p className="text-xs text-emerald-600">Será considerado para o desenvolvimento do questionário.</p>
+                    </div>
+                  </div>
+                )}
                 {/* Alerta: contexto rejeitado pela IA — aguarda decisão do usuário */}
                 {contextRejected && contextValidationResult && !contextValidationResult.relevant && (
                   <div className="space-y-3">
@@ -1074,7 +1104,7 @@ export default function QuestionarioV3() {
                     <span>Limite de {MAX_DEEP_DIVE_ROUNDS} rounds de aprofundamento atingido para este CNAE. Avance para o próximo CNAE.</span>
                   </div>
                 )}
-                {!contextRejected && (
+                {!contextRejected && !contextAccepted && (
                   <Button
                     onClick={() => handleConfirmNextRound()}
                     className="flex-1 bg-blue-600 hover:bg-blue-700"
@@ -1086,7 +1116,7 @@ export default function QuestionarioV3() {
                     }
                   </Button>
                 )}
-                <Button variant="outline" onClick={handleSkipNextRound} className="flex-1" disabled={isValidatingContext}>
+                <Button variant="outline" onClick={handleSkipNextRound} className="flex-1" disabled={isValidatingContext || contextAccepted}>
                   <SkipForward className="h-4 w-4 mr-2" />
                   {currentCnaeIdx === cnaes.length - 1 ? "Finalizar Questionário" : "Próximo CNAE"}
                 </Button>
