@@ -209,27 +209,67 @@ export async function buildSemanticCnaeContext(
     )
   )
 
-  // Mesclar resultados: manter o maior score por CNAE
-  const merged = new Map<string, CnaeCandidate>();
-  for (const results of resultsPerClause) {
-    for (const c of results) {
-      const existing = merged.get(c.code);
-      if (!existing || c.similarity > existing.similarity) {
-        merged.set(c.code, c);
-      }
-    }
-  }
+  // Estratégia de merge em 2 camadas:
+  // 1. "Garantidos": top-5 de cada cláusula não-completa são sempre incluídos
+  //    (garante que cada atividade tenha ao menos 5 candidatos no contexto)
+  // 2. "Pool geral": todos os resultados mesclados por score máximo
+  // Resultado final: garantidos primeiro, depois pool geral sem duplicatas
 
-  if (merged.size === 0) {
+  const guaranteed = new Map<string, CnaeCandidate>();
+  const pool = new Map<string, CnaeCandidate>();
+
+  resultsPerClause.forEach((results, clauseIdx) => {
+    const isFullQuery = clauseIdx === 0; // primeira é a descrição completa
+    results.forEach((c, rank) => {
+      // Adicionar ao pool geral (maior score vence)
+      const existing = pool.get(c.code);
+      if (!existing || c.similarity > existing.similarity) {
+        pool.set(c.code, c);
+      }
+      // Top-5 de cada cláusula individual são "garantidos"
+      if (!isFullQuery && rank < 5) {
+        const existingG = guaranteed.get(c.code);
+        if (!existingG || c.similarity > existingG.similarity) {
+          guaranteed.set(c.code, c);
+        }
+      }
+    });
+  });
+
+  if (pool.size === 0) {
     return "(base de embeddings não disponível — use a lista completa CNAE 2.3)";
   }
 
-  // Ordenar por similaridade e retornar
-  const sorted = Array.from(merged.values()).sort(
+  // Ordenar pool geral por similaridade
+  const poolSorted = Array.from(pool.values()).sort(
     (a, b) => b.similarity - a.similarity
   );
 
-  return formatCandidatesForPrompt(sorted);
+  // Construir lista final: garantidos + pool sem duplicatas
+  const finalCodes = new Set<string>();
+  const finalList: CnaeCandidate[] = [];
+
+  // 1. Inserir garantidos (ordenados por score)
+  const guaranteedSorted = Array.from(guaranteed.values()).sort(
+    (a, b) => b.similarity - a.similarity
+  );
+  for (const c of guaranteedSorted) {
+    if (!finalCodes.has(c.code)) {
+      finalCodes.add(c.code);
+      finalList.push(c);
+    }
+  }
+
+  // 2. Completar com pool geral até 50 candidatos no total
+  for (const c of poolSorted) {
+    if (finalList.length >= 50) break;
+    if (!finalCodes.has(c.code)) {
+      finalCodes.add(c.code);
+      finalList.push(c);
+    }
+  }
+
+  return formatCandidatesForPrompt(finalList);
 }
 
 /**
