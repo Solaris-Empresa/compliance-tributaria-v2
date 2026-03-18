@@ -15,7 +15,8 @@ import { statusToCompletedStep } from "@/lib/flowStepperUtils";
 import {
   ArrowLeft, ChevronRight, Loader2, Sparkles,
   CheckCircle2, RefreshCw, MessageSquare, ThumbsUp, Edit3, Info, Download,
-  History, Clock, ChevronDown, ChevronUp, AlertTriangle
+  History, Clock, ChevronDown, ChevronUp, AlertTriangle,
+  Layers, TrendingUp, BarChart3, Flame
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -94,6 +95,15 @@ export default function BriefingV3() {
     { projectId },
     { enabled: !!projectId }
   );
+
+  // Resumo de rounds de aprofundamento por CNAE
+  const { data: roundsSummaryData } = trpc.fluxoV3.getRoundsSummary.useQuery(
+    { projectId },
+    { enabled: !!projectId }
+  );
+  const roundsSummary = roundsSummaryData?.summary ?? [];
+  // CNAEs com 2+ rounds são considerados de alta complexidade
+  const highComplexityCnaes = roundsSummary.filter(c => c.roundsCompleted >= 2);
 
   // V64: Buscar inconsistências do briefing estruturado
   const { data: inconsistenciasData, refetch: refetchInconsistencias } = trpc.fluxoV3.getBriefingInconsistencias.useQuery(
@@ -423,6 +433,96 @@ export default function BriefingV3() {
           </Card>
         ) : displayContent ? (
           <>
+            {/* Resumo Visual de Rounds de Aprofundamento por CNAE */}
+            {roundsSummary.length > 0 && (
+              <Card className="border-primary/20 bg-gradient-to-br from-primary/3 to-transparent">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4 text-primary" />
+                    Intensidade de Aprofundamento por CNAE
+                    {highComplexityCnaes.length > 0 && (
+                      <Badge className="text-xs bg-orange-100 text-orange-700 border border-orange-300 ml-1">
+                        <Flame className="h-3 w-3 mr-1" />
+                        {highComplexityCnaes.length} de alta complexidade
+                      </Badge>
+                    )}
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    CNAEs com mais rounds de aprofundamento indicam áreas de maior complexidade tributária e maior atenção do diagnóstico.
+                  </p>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-3">
+                    {roundsSummary.map((cnae) => {
+                      const isHighComplexity = cnae.roundsCompleted >= 2;
+                      const maxRounds = Math.max(...roundsSummary.map(c => c.roundsCompleted), 1);
+                      const barWidth = cnae.roundsCompleted === 0
+                        ? 15 // apenas nivel1
+                        : Math.max(15, (cnae.roundsCompleted / maxRounds) * 100);
+                      return (
+                        <div key={cnae.cnaeCode} className="space-y-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="font-mono text-xs font-bold text-primary shrink-0">{cnae.cnaeCode}</span>
+                              <span className="text-xs text-muted-foreground truncate">{cnae.cnaeDescription}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {isHighComplexity && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 border border-orange-200">
+                                  <Flame className="h-2.5 w-2.5" />
+                                  Alta complexidade
+                                </span>
+                              )}
+                              <span className={`text-xs font-semibold ${
+                                cnae.roundsCompleted === 0 ? "text-muted-foreground"
+                                : cnae.roundsCompleted === 1 ? "text-blue-600"
+                                : cnae.roundsCompleted >= 3 ? "text-orange-600"
+                                : "text-indigo-600"
+                              }`}>
+                                {cnae.roundsCompleted === 0
+                                  ? "Nível 1 apenas"
+                                  : cnae.roundsCompleted === 1
+                                    ? "1 round"
+                                    : `${cnae.roundsCompleted} rounds`}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all ${
+                                cnae.roundsCompleted === 0 ? "bg-muted-foreground/30"
+                                : cnae.roundsCompleted === 1 ? "bg-blue-400"
+                                : cnae.roundsCompleted >= 3 ? "bg-orange-500"
+                                : "bg-indigo-500"
+                              }`}
+                              style={{ width: `${barWidth}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {highComplexityCnaes.length > 0 && (
+                    <div className="mt-4 p-3 rounded-lg bg-orange-50 border border-orange-200">
+                      <div className="flex items-start gap-2">
+                        <TrendingUp className="h-4 w-4 text-orange-600 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-semibold text-orange-800">
+                            {highComplexityCnaes.length === 1
+                              ? `O CNAE ${highComplexityCnaes[0].cnaeCode} requereu ${highComplexityCnaes[0].roundsCompleted} rounds de aprofundamento`
+                              : `${highComplexityCnaes.length} CNAEs requereram 2 ou mais rounds de aprofundamento`}
+                          </p>
+                          <p className="text-xs text-orange-700 mt-0.5">
+                            O briefing abaixo reflete essa profundidade de análise. Revise com atenção as seções referentes a {highComplexityCnaes.map(c => c.cnaeCode).join(", ")}.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
             {/* RF-3.02: Briefing com destaque visual para risco alto */}
             <Card className="shadow-sm">
               <CardHeader className="pb-3">

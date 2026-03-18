@@ -2371,3 +2371,10 @@
 - [x] Barra de progresso "Rounds usados: X / 5" no prompt de novo round
 - [x] Aviso vermelho ao atingir o limite + botão "Limite atingido" desabilitado
 - [x] Texto dinâmico: "X de 5 rounds usados" ou "Limite de rounds atingido"
+
+## Feature - Resumo Visual de Rounds no Briefing (18/03/2026)
+- [x] routers-fluxo-v3.ts: procedure getRoundsSummary — agrega rounds por CNAE a partir de questionnaireAnswersV3
+- [x] BriefingV3.tsx: buscar getRoundsSummary e exibir painel visual acima do card do Briefing
+- [x] Componente: barra de rounds por CNAE, badge de "Alta Complexidade" para CNAEs com 2+ rounds
+- [x] Testes: TypeScript 0 erros, routers-fluxo-v3.test.ts 14/14, openai-key-validation 2/2
+- [x] Validação no browser: painel exibido corretamente no projeto Teste - La Biera (3 CNAEs, 1 round cada)

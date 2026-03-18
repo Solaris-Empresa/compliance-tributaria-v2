@@ -505,6 +505,60 @@ Gere as perguntas no formato:
       return { ok: true };
     }),
 
+  getRoundsSummary: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      const database = await db.getDb();
+      if (!database) return { summary: [] };
+      // Buscar todas as respostas do projeto
+      const answers = await database
+        .select({
+          cnaeCode: questionnaireAnswersV3.cnaeCode,
+          cnaeDescription: questionnaireAnswersV3.cnaeDescription,
+          level: questionnaireAnswersV3.level,
+          roundIndex: questionnaireAnswersV3.roundIndex,
+        })
+        .from(questionnaireAnswersV3)
+        .where(eq(questionnaireAnswersV3.projectId, input.projectId));
+
+      // Agregar por CNAE: contar rounds de aprofundamento (nivel2)
+      const byCnae: Record<string, {
+        cnaeCode: string;
+        cnaeDescription: string;
+        nivel1Done: boolean;
+        roundsCompleted: number; // quantos rounds de nivel2 foram feitos
+        maxRoundIndex: number;   // índice do round mais alto (0-based)
+      }> = {};
+
+      for (const a of answers) {
+        if (!byCnae[a.cnaeCode]) {
+          byCnae[a.cnaeCode] = {
+            cnaeCode: a.cnaeCode,
+            cnaeDescription: a.cnaeDescription || a.cnaeCode,
+            nivel1Done: false,
+            roundsCompleted: 0,
+            maxRoundIndex: -1,
+          };
+        }
+        if (a.level === "nivel1") {
+          byCnae[a.cnaeCode].nivel1Done = true;
+        }
+        if (a.level === "nivel2") {
+          const ri = a.roundIndex ?? 0;
+          if (ri > byCnae[a.cnaeCode].maxRoundIndex) {
+            byCnae[a.cnaeCode].maxRoundIndex = ri;
+            byCnae[a.cnaeCode].roundsCompleted = ri + 1; // roundIndex 0 = 1 round, 1 = 2 rounds, etc.
+          }
+        }
+      }
+
+      const summary = Object.values(byCnae)
+        .filter(c => c.nivel1Done)
+        .sort((a, b) => b.roundsCompleted - a.roundsCompleted);
+
+      return { summary };
+    }),
+
   getQuestionsCache: protectedProcedure
     .input(z.object({
       projectId: z.number(),
