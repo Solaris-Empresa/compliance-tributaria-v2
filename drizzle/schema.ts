@@ -97,6 +97,10 @@ export const projects = mysqlTable("projects", {
   taxComplexity: json("taxComplexity"),                 // { hasInternationalOps, usesTaxIncentives, usesMarketplace }
   financialProfile: json("financialProfile"),           // { paymentMethods: string[], hasIntermediaries }
   governanceProfile: json("governanceProfile"),         // { hasTaxTeam, hasAudit, hasTaxIssues }
+  // v2.1 Diagnostic Flow — respostas das 3 camadas de diagnóstico
+  corporateAnswers: json("corporateAnswers"),   // Respostas do Questionário Corporativo (QC-01..QC-10)
+  operationalAnswers: json("operationalAnswers"), // Respostas do Questionário Operacional (QO-01..QO-10)
+  cnaeAnswers: json("cnaeAnswers"),              // Respostas do Questionário Especializado por CNAE (QCNAE-01..QCNAE-05)
   // v2.1 Diagnostic Flow — rastreamento das 3 camadas de diagnóstico
   diagnosticStatus: json("diagnosticStatus").$type<{
     corporate: "not_started" | "in_progress" | "completed";

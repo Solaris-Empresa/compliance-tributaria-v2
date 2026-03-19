@@ -302,6 +302,13 @@
       "when": 1773952382938,
       "tag": "0042_zippy_starjammers",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "5",
+      "when": 1773961424942,
+      "tag": "0043_steep_nomad",
+      "breakpoints": true
     }
   ]
 }
