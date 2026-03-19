@@ -2492,3 +2492,33 @@
 - [x] Bloquear submit se multiState não respondido
 - [x] Banner de validação listando campos faltantes em tempo real
 - [x] Backend: Zod schema obrigatório para companyProfile + operationProfile
+
+## Bug: Campos do Company Profile não estão sendo persistidos no banco
+
+- [x] Diagnosticar por que companyProfile/operationProfile chegavam NULL (projetos antigos, pré-v2.1)
+- [x] Confirmar que db.createProject grava os campos JSON corretamente (Drizzle serializa automaticamente)
+- [x] Confirmar que as 5 colunas JSON existem no banco (SHOW COLUMNS confirmado)
+- [x] Testar persistência com INSERT SQL direto — todos os campos gravados corretamente
+- [x] Banco limpo: 0 projetos (todos eram testes antigos pré-v2.1)
+
+## v2.1.1 — Perfil da Empresa como GATE do sistema
+
+- [x] Auditar NovoProjeto.tsx: verificar título, texto explicativo e banner atual
+- [x] Atualizar texto explicativo para: "Este cadastro é obrigatório para gerar o diagnóstico e o questionário personalizado."
+- [x] Banner de erro exibe: "Preencha o Perfil da Empresa para continuar"
+- [x] Botão "Avançar" desabilitado até todos os 7 campos obrigatórios preenchidos
+- [x] UX sem ambiguidade: ícone Lock (vermelho) quando incompleto, CheckCircle (verde) quando ok, borda do card muda de cor, badge dinâmico "Obrigatório" / "Preenchido"
+
+## v2.1.2 — Prova ponta a ponta (frontend → backend → banco → reload → evidência)
+
+- [ ] Auditar Zod schema no router: confirmar que todos os 7 campos são .required()
+- [ ] Ajustar texto do bloco para mensagem exata do PO
+- [ ] Ajustar mensagem de erro para: "Preencha os dados obrigatórios do Perfil da Empresa para continuar."
+- [ ] Criar script de teste E2E: payload completo → banco grava, payload incompleto → backend rejeita
+- [ ] Evidência 1: screenshot do bloco com indicação de obrigatório
+- [ ] Evidência 2: screenshot do botão desabilitado
+- [ ] Evidência 3: evidência de CNPJ inválido bloqueado
+- [ ] Evidência 4: payload rejeitado pelo backend (Zod error log)
+- [ ] Evidência 5: SQL mostrando dados gravados no banco após submit completo
+- [ ] Evidência 6: reload mantém dados (getProjectById retorna campos JSON)
+- [ ] Commit na branch fix/v2.1-company-profile-required
