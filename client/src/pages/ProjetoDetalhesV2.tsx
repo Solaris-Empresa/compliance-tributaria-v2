@@ -180,12 +180,12 @@ export default function ProjetoDetalhesV2() {
   const clientName = (projectData as any)?.clientName ?? (projectData as any)?.client?.companyName ?? null;
 
   // v2.1: buscar diagnosticStatus do backend
-  const { data: diagnosticData, refetch: refetchDiagnostic } = trpc.fluxoV3.getDiagnosticStatus.useQuery(
+  const { data: diagnosticData, refetch: refetchDiagnostic } = trpc.diagnostic.getDiagnosticStatus.useQuery(
     { projectId },
     { enabled: !!projectId && !isNaN(projectId) }
   );
 
-  const completeDiagnosticLayer = trpc.fluxoV3.completeDiagnosticLayer.useMutation({
+  const completeDiagnosticLayer = trpc.diagnostic.completeDiagnosticLayer.useMutation({
     onSuccess: () => {
       toast.success("Camada do diagnóstico atualizada!");
       refetch();

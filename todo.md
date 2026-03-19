@@ -2542,3 +2542,18 @@
 - [ ] Evidência de bloqueio ao tentar pular camada
 - [ ] Evidência de progresso visual atualizado
 - [ ] Evidência de que briefing só libera após 3 camadas completas
+
+## FASE 4 — T7/T8/T9 (Questionários — Estrutura + Placeholders)
+
+- [ ] T7: Criar QuestionarioCorporativoV2.tsx com 8 seções (placeholders)
+- [ ] T7: Backend: procedure saveCorporateAnswers + getCorporateAnswers
+- [ ] T8: Criar QuestionarioOperacional.tsx com 6 seções (placeholders)
+- [ ] T8: Backend: procedure saveOperationalAnswers + getOperationalAnswers
+- [ ] T9: Adaptar QuestionarioV3.tsx — CNAE como contexto (não pergunta)
+- [ ] T9: Backend: procedure saveCnaeAnswers + getCnaeAnswers
+- [ ] Registrar rotas no App.tsx
+- [ ] Integrar DiagnosticoStepper com links para os 3 questionários
+- [ ] Prova: navegação funcionando
+- [ ] Prova: persistência validada (banco)
+- [ ] Prova: dados visíveis após reload
+- [ ] Prova: stepper integrado
