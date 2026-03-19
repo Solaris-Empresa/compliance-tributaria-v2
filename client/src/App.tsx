@@ -47,6 +47,13 @@ import GerenciarEquipe from "./pages/GerenciarEquipe";
 import Usuarios from "./pages/Usuarios";
 import AdminEmbeddings from "./pages/AdminEmbeddings";
 import FormularioProjeto from "./pages/FormularioProjeto";
+// Compliance Engine v3
+import ComplianceDashboardV3 from "./pages/compliance-v3/ComplianceDashboardV3";
+import GapsV3 from "./pages/compliance-v3/GapsV3";
+import RisksV3 from "./pages/compliance-v3/RisksV3";
+import ActionsV3 from "./pages/compliance-v3/ActionsV3";
+import TasksV3 from "./pages/compliance-v3/TasksV3";
+import ExportsV3 from "./pages/compliance-v3/ExportsV3";
 
 function Router() {
   return (
@@ -95,6 +102,13 @@ function Router() {
       <Route path="/gerenciar-equipe" component={GerenciarEquipe} />
       <Route path="/usuarios" component={Usuarios} />
       <Route path="/admin/embeddings" component={AdminEmbeddings} />
+      {/* Compliance Engine v3 */}
+      <Route path="/projetos/:id/compliance-v3" component={ComplianceDashboardV3} />
+      <Route path="/projetos/:id/compliance-v3/gaps" component={GapsV3} />
+      <Route path="/projetos/:id/compliance-v3/risks" component={RisksV3} />
+      <Route path="/projetos/:id/compliance-v3/actions" component={ActionsV3} />
+      <Route path="/projetos/:id/compliance-v3/tasks" component={TasksV3} />
+      <Route path="/projetos/:id/compliance-v3/exports" component={ExportsV3} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

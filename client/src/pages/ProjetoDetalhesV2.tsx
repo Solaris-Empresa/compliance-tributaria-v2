@@ -568,6 +568,14 @@ export default function ProjetoDetalhesV2() {
                 available={summary.hasActionPlan || statusToStep(summary.status) >= 5}
                 onClick={() => setLocation(`/projetos/${projectId}/plano-v3`)}
               />
+              <Separator />
+              <SectionLink
+                icon={<ExternalLink className="w-4 h-4" />}
+                label="Compliance Engine v3 ✨"
+                description="Dashboard de score, gaps, riscos, ações e tarefas atômicas"
+                available={true}
+                onClick={() => setLocation(`/projetos/${projectId}/compliance-v3`)}
+              />
             </CardContent>
           </Card>
 
