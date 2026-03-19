@@ -16,8 +16,11 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import {
   ArrowLeft, ArrowRight, Building2, Loader2, Plus, Sparkles, CheckCircle2,
-  Edit2, AlertCircle, ChevronRight, Search, X, RefreshCw, MessageSquare
+  Edit2, AlertCircle, ChevronRight, Search, X, RefreshCw, MessageSquare,
+  ChevronDown, ChevronUp, Info
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
 interface Cnae {
@@ -201,6 +204,32 @@ export default function NovoProjeto() {
   const [feedbackText, setFeedbackText] = useState("");
   const [refinementIteration, setRefinementIteration] = useState(1);
 
+  // v2.1: Company Profile Layer
+  const [showCompanyProfile, setShowCompanyProfile] = useState(false);
+  // Bloco 1: Identificação
+  const [cnpj, setCnpj] = useState("");
+  const [cnpjError, setCnpjError] = useState("");
+  const [foundingYear, setFoundingYear] = useState("");
+  const [stateUF, setStateUF] = useState("");
+  const [employeeCount, setEmployeeCount] = useState("");
+  const [annualRevenueRange, setAnnualRevenueRange] = useState("");
+  const [taxRegime, setTaxRegime] = useState("");
+  // Bloco 2: Operação
+  const [operationType, setOperationType] = useState("");
+  const [clientType, setClientType] = useState<string[]>([]);
+  const [geographicScope, setGeographicScope] = useState("");
+  // Bloco 3: Complexidade Tributária
+  const [hasMultipleEstablishments, setHasMultipleEstablishments] = useState<boolean | null>(null);
+  const [hasImportExport, setHasImportExport] = useState<boolean | null>(null);
+  const [hasSpecialRegimes, setHasSpecialRegimes] = useState<boolean | null>(null);
+  // Bloco 4: Financeiro
+  const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
+  const [hasIntermediaries, setHasIntermediaries] = useState<boolean | null>(null);
+  // Bloco 5: Governança
+  const [hasTaxTeam, setHasTaxTeam] = useState<boolean | null>(null);
+  const [hasAudit, setHasAudit] = useState<boolean | null>(null);
+  const [hasTaxIssues, setHasTaxIssues] = useState<boolean | null>(null);
+
   const { data: clients, refetch: refetchClients } = trpc.users.listClients.useQuery();
 
   const createProject = trpc.fluxoV3.createProject.useMutation({
@@ -256,11 +285,80 @@ export default function NovoProjeto() {
   // Auto-save no localStorage a cada 500ms de inatividade
   useAutoSave(DRAFT_PROJECT_ID, 'etapa1', { name, description, clientId }, 500);
 
+  // v2.1: Validação CNPJ com dígito verificador (módulo 11)
+  const validateCnpjDV = (digits: string): boolean => {
+    if (digits.length !== 14) return false;
+    if (/^(\d)\1{13}$/.test(digits)) return false; // todos iguais
+    const calc = (d: string, weights: number[]) =>
+      d.split("").slice(0, weights.length).reduce((acc, n, i) => acc + parseInt(n) * weights[i], 0);
+    const w1 = [5,4,3,2,9,8,7,6,5,4,3,2];
+    const w2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
+    const r1 = calc(digits, w1) % 11;
+    const d1 = r1 < 2 ? 0 : 11 - r1;
+    const r2 = calc(digits, w2) % 11;
+    const d2 = r2 < 2 ? 0 : 11 - r2;
+    return parseInt(digits[12]) === d1 && parseInt(digits[13]) === d2;
+  };
+
+  const handleCnpjChange = (value: string) => {
+    const masked = maskCnpj(value);
+    setCnpj(masked);
+    const digits = masked.replace(/\D/g, "");
+    if (digits.length === 0) { setCnpjError(""); return; }
+    if (digits.length < 14) { setCnpjError(""); return; }
+    if (!validateCnpjDV(digits)) setCnpjError("CNPJ inválido — verifique os dígitos verificadores");
+    else setCnpjError("");
+  };
+
+  const toggleClientType = (val: string) =>
+    setClientType(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]);
+
+  const togglePaymentMethod = (val: string) =>
+    setPaymentMethods(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]);
+
   const handleSubmit = () => {
     if (!name.trim()) return toast.error("Informe o nome do projeto");
     if (description.trim().length < 100) return toast.error("A descrição deve ter pelo menos 100 caracteres");
     if (!clientId) return toast.error("Selecione um cliente");
-    createProject.mutate({ name: name.trim(), description: description.trim(), clientId });
+    if (cnpj && cnpjError) return toast.error("Corrija o CNPJ antes de avançar");
+    // v2.1: Montar os blocos do Company Profile (somente se preenchidos)
+    const companyProfile = (annualRevenueRange || taxRegime || cnpj || foundingYear || stateUF || employeeCount) ? {
+      cnpj: cnpj || undefined,
+      foundingYear: foundingYear ? parseInt(foundingYear) : undefined,
+      stateUF: stateUF || undefined,
+      employeeCount: employeeCount || undefined,
+      annualRevenueRange: annualRevenueRange || undefined,
+      taxRegime: taxRegime || undefined,
+    } : undefined;
+    const operationProfile = (operationType || clientType.length > 0 || geographicScope) ? {
+      operationType: operationType || undefined,
+      clientType: clientType.length > 0 ? clientType : undefined,
+      geographicScope: geographicScope || undefined,
+    } : undefined;
+    const taxComplexity = (hasMultipleEstablishments !== null || hasImportExport !== null || hasSpecialRegimes !== null) ? {
+      hasMultipleEstablishments: hasMultipleEstablishments ?? undefined,
+      hasImportExport: hasImportExport ?? undefined,
+      hasSpecialRegimes: hasSpecialRegimes ?? undefined,
+    } : undefined;
+    const financialProfile = (paymentMethods.length > 0 || hasIntermediaries !== null) ? {
+      paymentMethods: paymentMethods.length > 0 ? paymentMethods : undefined,
+      hasIntermediaries: hasIntermediaries ?? undefined,
+    } : undefined;
+    const governanceProfile = (hasTaxTeam !== null || hasAudit !== null || hasTaxIssues !== null) ? {
+      hasTaxTeam: hasTaxTeam ?? undefined,
+      hasAudit: hasAudit ?? undefined,
+      hasTaxIssues: hasTaxIssues ?? undefined,
+    } : undefined;
+    createProject.mutate({
+      name: name.trim(),
+      description: description.trim(),
+      clientId,
+      companyProfile,
+      operationProfile,
+      taxComplexity,
+      financialProfile,
+      governanceProfile,
+    } as any);
   };
 
   const handleConfirmCnaes = () => {
@@ -467,6 +565,230 @@ export default function NovoProjeto() {
               )}
             </div>
           </CardContent>
+        </Card>
+
+        {/* v2.1: Company Profile Layer — accordion opcional */}
+        <Card className="shadow-sm">
+          <button
+            type="button"
+            className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-muted/30 transition-colors rounded-xl"
+            onClick={() => setShowCompanyProfile(p => !p)}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Info className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Perfil da Empresa <span className="text-xs font-normal text-muted-foreground ml-1">(opcional — melhora a precisão dos CNAEs)</span></p>
+                <p className="text-xs text-muted-foreground">Regime tributário, porte, operação, governança</p>
+              </div>
+            </div>
+            {showCompanyProfile ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+          </button>
+
+          {showCompanyProfile && (
+            <CardContent className="pt-0 pb-6 space-y-6">
+              <Separator />
+
+              {/* Bloco 1: Identificação */}
+              <div className="space-y-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">1. Identificação</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">CNPJ</Label>
+                    <Input
+                      placeholder="00.000.000/0000-00"
+                      value={cnpj}
+                      onChange={(e) => handleCnpjChange(e.target.value)}
+                      maxLength={18}
+                      className={cnpjError ? "border-destructive" : ""}
+                    />
+                    {cnpjError && <p className="text-xs text-destructive">{cnpjError}</p>}
+                    {cnpj && !cnpjError && cnpj.replace(/\D/g, "").length === 14 && (
+                      <p className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" />CNPJ válido</p>
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Ano de Fundação</Label>
+                    <Input placeholder="Ex: 2010" value={foundingYear} onChange={(e) => setFoundingYear(e.target.value.replace(/\D/g, "").slice(0, 4))} maxLength={4} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Estado (UF)</Label>
+                    <Select value={stateUF} onValueChange={setStateUF}>
+                      <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectContent>
+                        {["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"].map(uf => (
+                          <SelectItem key={uf} value={uf}>{uf}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Número de Funcionários</Label>
+                    <Select value={employeeCount} onValueChange={setEmployeeCount}>
+                      <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1-9">1 a 9 (MEI/ME)</SelectItem>
+                        <SelectItem value="10-49">10 a 49 (Pequena)</SelectItem>
+                        <SelectItem value="50-249">50 a 249 (Média)</SelectItem>
+                        <SelectItem value="250+">250+ (Grande)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Faturamento Anual</Label>
+                    <Select value={annualRevenueRange} onValueChange={setAnnualRevenueRange}>
+                      <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ate_360k">Até R$ 360 mil (Simples)</SelectItem>
+                        <SelectItem value="360k_4_8m">R$ 360 mil a R$ 4,8 mi</SelectItem>
+                        <SelectItem value="4_8m_78m">R$ 4,8 mi a R$ 78 mi</SelectItem>
+                        <SelectItem value="acima_78m">Acima de R$ 78 mi</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Regime Tributário</Label>
+                    <Select value={taxRegime} onValueChange={setTaxRegime}>
+                      <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="simples_nacional">Simples Nacional</SelectItem>
+                        <SelectItem value="lucro_presumido">Lucro Presumido</SelectItem>
+                        <SelectItem value="lucro_real">Lucro Real</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Bloco 2: Operação */}
+              <div className="space-y-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">2. Operação</p>
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Tipo de Operação</Label>
+                  <div className="flex gap-2 flex-wrap">
+                    {[["produto","Venda de Produtos"],["servico","Prestação de Serviços"],["misto","Misto (Produto + Serviço)"]].map(([val, label]) => (
+                      <button key={val} type="button"
+                        className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
+                          operationType === val ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/50"
+                        }`}
+                        onClick={() => setOperationType(operationType === val ? "" : val)}
+                      >{label}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Tipo de Cliente <span className="text-xs text-muted-foreground">(múltipla seleção)</span></Label>
+                  <div className="flex gap-4 flex-wrap">
+                    {[["B2B","B2B (Empresas)"],["B2C","B2C (Consumidores)"],["Governo","Governo"]].map(([val, label]) => (
+                      <label key={val} className="flex items-center gap-2 cursor-pointer">
+                        <Checkbox checked={clientType.includes(val)} onCheckedChange={() => toggleClientType(val)} />
+                        <span className="text-sm">{label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Abrangência Geográfica</Label>
+                  <Select value={geographicScope} onValueChange={setGeographicScope}>
+                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="local">Local (1 município)</SelectItem>
+                      <SelectItem value="regional">Regional (vários municípios)</SelectItem>
+                      <SelectItem value="estadual">Estadual</SelectItem>
+                      <SelectItem value="nacional">Nacional</SelectItem>
+                      <SelectItem value="internacional">Internacional</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Bloco 3: Complexidade Tributária */}
+              <div className="space-y-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">3. Complexidade Tributária</p>
+                {[
+                  ["hasMultipleEstablishments", hasMultipleEstablishments, setHasMultipleEstablishments, "Possui múltiplos estabelecimentos/filiais?"],
+                  ["hasImportExport", hasImportExport, setHasImportExport, "Realiza operações de importação ou exportação?"],
+                  ["hasSpecialRegimes", hasSpecialRegimes, setHasSpecialRegimes, "Possui regimes tributários especiais (RECOF, Drawback, ZFM, etc.)?"],
+                ].map(([key, val, setter, label]) => (
+                  <div key={key as string} className="flex items-center justify-between">
+                    <span className="text-sm">{label as string}</span>
+                    <div className="flex gap-2">
+                      {[[true,"Sim"],[false,"Não"]].map(([bval, blabel]) => (
+                        <button key={blabel as string} type="button"
+                          className={`px-3 py-1 rounded-lg border text-xs font-medium transition-colors ${
+                            val === bval ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/50"
+                          }`}
+                          onClick={() => (setter as any)(val === bval ? null : bval)}
+                        >{blabel as string}</button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Separator />
+
+              {/* Bloco 4: Financeiro */}
+              <div className="space-y-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">4. Financeiro</p>
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Meios de Pagamento <span className="text-xs text-muted-foreground">(múltipla seleção)</span></Label>
+                  <div className="flex gap-4 flex-wrap">
+                    {[["Pix","Pix"],["Cartao","Cartão"],["Boleto","Boleto"],["Outros","Outros"]].map(([val, label]) => (
+                      <label key={val} className="flex items-center gap-2 cursor-pointer">
+                        <Checkbox checked={paymentMethods.includes(val)} onCheckedChange={() => togglePaymentMethod(val)} />
+                        <span className="text-sm">{label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Utiliza intermediários financeiros (marketplace, plataformas)?</span>
+                  <div className="flex gap-2">
+                    {[[true,"Sim"],[false,"Não"]].map(([bval, blabel]) => (
+                      <button key={blabel as string} type="button"
+                        className={`px-3 py-1 rounded-lg border text-xs font-medium transition-colors ${
+                          hasIntermediaries === bval ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/50"
+                        }`}
+                        onClick={() => setHasIntermediaries(hasIntermediaries === bval ? null : bval as boolean)}
+                      >{blabel as string}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Bloco 5: Governança */}
+              <div className="space-y-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">5. Governança</p>
+                {[
+                  ["hasTaxTeam", hasTaxTeam, setHasTaxTeam, "Possui equipe tributária interna (contador, advogado fiscal)?"],
+                  ["hasAudit", hasAudit, setHasAudit, "Realiza auditoria fiscal periódica?"],
+                  ["hasTaxIssues", hasTaxIssues, setHasTaxIssues, "Possui passivo tributário ou pendências com a Receita Federal?"],
+                ].map(([key, val, setter, label]) => (
+                  <div key={key as string} className="flex items-center justify-between">
+                    <span className="text-sm">{label as string}</span>
+                    <div className="flex gap-2">
+                      {[[true,"Sim"],[false,"Não"]].map(([bval, blabel]) => (
+                        <button key={blabel as string} type="button"
+                          className={`px-3 py-1 rounded-lg border text-xs font-medium transition-colors ${
+                            val === bval ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/50"
+                          }`}
+                          onClick={() => (setter as any)(val === bval ? null : bval)}
+                        >{blabel as string}</button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          )}
         </Card>
 
         <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15">

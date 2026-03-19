@@ -91,6 +91,12 @@ export const projects = mysqlTable("projects", {
   faturamentoAnual: int("faturamentoAnual"),             // V61: Faturamento anual para tradução financeira do risco
   // V63: Motor de decisão explícito
   decisaoData: json("decisaoData"),                      // { acao_principal, prazo_dias, risco_se_nao_fazer, momento_wow }
+  // v2.1: Company Profile Layer — dados corporativos estruturados para IA
+  companyProfile: json("companyProfile"),               // { cnpj, companyType, companySize, taxRegime, annualRevenueRange }
+  operationProfile: json("operationProfile"),           // { operationType, clientType: string[], multiState }
+  taxComplexity: json("taxComplexity"),                 // { hasInternationalOps, usesTaxIncentives, usesMarketplace }
+  financialProfile: json("financialProfile"),           // { paymentMethods: string[], hasIntermediaries }
+  governanceProfile: json("governanceProfile"),         // { hasTaxTeam, hasAudit, hasTaxIssues }
 });
 
 export type Project = typeof projects.$inferSelect;

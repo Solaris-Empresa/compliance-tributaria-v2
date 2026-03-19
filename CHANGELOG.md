@@ -6,6 +6,29 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [5.0.0] - v2.1 Company Profile Layer - 2026-03-19
+
+### Adicionado
+
+**v2.1 — Company Profile Layer (Tarefa 1 do Roadmap v2.1)**
+
+- **5 colunas JSON** na tabela `projects`: `companyProfile`, `operationProfile`, `taxComplexity`, `financialProfile`, `governanceProfile` (migração `0040_faithful_sunfire.sql`)
+- **Accordion "Perfil da Empresa"** no `NovoProjeto.tsx` — opcional, colapsa por padrão
+- **Bloco 1 — Identificação:** CNPJ com validação de dígito verificador (módulo 11), Ano de Fundação, Estado (UF), Número de Funcionários, Faturamento Anual, Regime Tributário
+- **Bloco 2 — Operação:** Tipo de Operação (toggle), Tipo de Cliente (checkboxes: B2B/B2C/Governo), Abrangência Geográfica
+- **Bloco 3 — Complexidade Tributária:** 3 perguntas Sim/Não (filiais, importação/exportação, regimes especiais)
+- **Bloco 4 — Financeiro:** Meios de Pagamento (checkboxes: Pix/Cartão/Boleto/Outros), Intermediários financeiros
+- **Bloco 5 — Governança:** 3 perguntas Sim/Não (equipe tributária, auditoria, passivo tributário)
+- **`CompanyContext`** no `cnae-embeddings.ts`: `buildSemanticCnaeContext` enriquece a busca semântica com regime tributário, porte e tipo de operação
+- **`extractCnaes`** passa `companyProfile` + `operationProfile` do projeto ao `buildSemanticCnaeContext`
+- **`createProject`** aceita e persiste os 5 blocos de Company Profile
+
+### Compatibilidade
+- Todos os campos são opcionais — projetos existentes não são afetados
+- Branch: `feature/v2.1-company-profile`
+
+---
+
 ## [4.5.0] - Sprint V74 - 2026-03-18 (build recompilado)
 
 ### Corrigido
