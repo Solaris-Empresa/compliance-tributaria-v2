@@ -2522,3 +2522,23 @@
 - [x] Evidência 5: banco grava todos os campos JSON (test: createProject ID=2 ✔)
 - [x] Evidência 6: getProjectById retorna todos os campos (reload mantém ✔)
 - [x] Commit na branch fix/v2.1-company-profile-required (71451b5) + merge main (d4f1321)
+
+## FASE 3 — T4 (Máquina de Estados) + T5 (DiagnosticoStepper)
+
+### T4 — Máquina de Estados Backend
+- [ ] Consolidar transições: corporativo → operacional → cnae → briefing
+- [ ] Impedir avanço fora de ordem (bloqueio sequencial)
+- [ ] Briefing só libera após as 3 camadas completas
+- [ ] Testes de bloqueio: tentar pular camada retorna erro
+- [ ] Evidência: transições documentadas
+
+### T5 — DiagnosticoStepper Frontend
+- [ ] Substituir percepção de "Questionário" por "Diagnóstico"
+- [ ] Criar componente DiagnosticoStepper com 3 painéis (Corporativo / Operacional / CNAE)
+- [ ] Barra de progresso funcional (0-100%)
+- [ ] Status visual coerente com backend (not_started / in_progress / completed)
+- [ ] Sem stepper duplicado ou conflitante com o existente
+- [ ] Screenshot do DiagnosticoStepper como evidência
+- [ ] Evidência de bloqueio ao tentar pular camada
+- [ ] Evidência de progresso visual atualizado
+- [ ] Evidência de que briefing só libera após 3 camadas completas

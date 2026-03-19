@@ -27,28 +27,28 @@ import {
   Layers,
   Users,
   Edit3,
-  ChevronDown,
   Tag,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
+import { DiagnosticoStepper, type DiagnosticLayerState } from "@/components/DiagnosticoStepper";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-// Todos os status disponíveis para seleção no dropdown
+// Todos os status disponíveis para seleção no dropdown — v2.1 (ENUM limpo)
 const ALL_STATUS_OPTIONS = [
-  { value: "rascunho",         label: "Rascunho" },
-  { value: "assessment_fase1", label: "Questionário (Fase 1)" },
-  { value: "assessment_fase2", label: "Questionário (Fase 2)" },
-  { value: "matriz_riscos",    label: "Matrizes de Riscos" },
-  { value: "plano_acao",       label: "Plano de Ação" },
-  { value: "em_avaliacao",     label: "Em Avaliação" },
-  { value: "aprovado",         label: "Aprovado" },
-  { value: "em_andamento",     label: "Em Andamento" },
-  { value: "parado",           label: "Pausado" },
-  { value: "concluido",        label: "Concluído" },
-  { value: "arquivado",        label: "Arquivado" },
+  { value: "rascunho",                label: "Rascunho" },
+  { value: "diagnostico_corporativo", label: "Diagnóstico Corporativo" },
+  { value: "diagnostico_operacional", label: "Diagnóstico Operacional" },
+  { value: "diagnostico_cnae",        label: "Diagnóstico CNAE" },
+  { value: "matriz_riscos",           label: "Matrizes de Riscos" },
+  { value: "plano_acao",              label: "Plano de Ação" },
+  { value: "em_avaliacao",            label: "Em Avaliação" },
+  { value: "aprovado",                label: "Aprovado" },
+  { value: "em_andamento",            label: "Em Andamento" },
+  { value: "concluido",               label: "Concluído" },
+  { value: "arquivado",               label: "Arquivado" },
 ] as const;
 
 // Status que clientes podem solicitar (apenas 'em_avaliacao')
@@ -56,44 +56,44 @@ const CLIENT_ALLOWED_TARGETS = ["em_avaliacao"] as const;
 
 const STATUS_LABELS: Record<string, string> = {
   rascunho: "Rascunho",
-  assessment_fase1: "Questionário",
-  assessment_fase2: "Questionário",
+  diagnostico_corporativo: "Diag. Corporativo",
+  diagnostico_operacional: "Diag. Operacional",
+  diagnostico_cnae: "Diag. CNAE",
   matriz_riscos: "Matrizes de Riscos",
   plano_acao: "Plano de Ação",
   em_avaliacao: "Em Avaliação",
   aprovado: "Aprovado",
   em_andamento: "Em Andamento",
-  parado: "Pausado",
   concluido: "Concluído",
   arquivado: "Arquivado",
 };
 
 const STATUS_COLORS: Record<string, string> = {
   rascunho: "bg-gray-100 text-gray-700 border-gray-200",
-  assessment_fase1: "bg-blue-100 text-blue-700 border-blue-200",
-  assessment_fase2: "bg-blue-100 text-blue-700 border-blue-200",
+  diagnostico_corporativo: "bg-blue-100 text-blue-700 border-blue-200",
+  diagnostico_operacional: "bg-blue-100 text-blue-700 border-blue-200",
+  diagnostico_cnae: "bg-indigo-100 text-indigo-700 border-indigo-200",
   matriz_riscos: "bg-orange-100 text-orange-700 border-orange-200",
   plano_acao: "bg-purple-100 text-purple-700 border-purple-200",
   em_avaliacao: "bg-yellow-100 text-yellow-700 border-yellow-200",
   aprovado: "bg-green-100 text-green-700 border-green-200",
   em_andamento: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  parado: "bg-red-100 text-red-700 border-red-200",
   concluido: "bg-teal-100 text-teal-700 border-teal-200",
   arquivado: "bg-gray-100 text-gray-500 border-gray-200",
 };
 
-// Mapeia status para etapa numérica (1-5)
+// Mapeia status para etapa numérica (1-5) — v2.1
 function statusToStep(status: string): number {
   const map: Record<string, number> = {
     rascunho: 1,
-    assessment_fase1: 2,
-    assessment_fase2: 2,
+    diagnostico_corporativo: 2,
+    diagnostico_operacional: 2,
+    diagnostico_cnae: 2,
     matriz_riscos: 3,
     plano_acao: 4,
     em_avaliacao: 4,
     aprovado: 5,
     em_andamento: 5,
-    parado: 5,
     concluido: 5,
     arquivado: 5,
   };
@@ -119,17 +119,17 @@ const FLOW_STEPS: FlowStep[] = [
     description: "Informações gerais e CNAEs identificados",
     icon: <Building2 className="w-4 h-4" />,
     route: (id) => `/projetos/${id}/formulario`,
-    completedStatuses: ["assessment_fase1", "assessment_fase2", "matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "parado", "concluido", "arquivado"],
+    completedStatuses: ["diagnostico_corporativo", "diagnostico_operacional", "diagnostico_cnae", "matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "concluido", "arquivado"],
     activeStatuses: ["rascunho"],
   },
   {
     number: 2,
-    label: "Questionário",
-    description: "Diagnóstico adaptativo por CNAE",
+    label: "Diagnóstico",
+    description: "3 camadas: Corporativo, Operacional e CNAE",
     icon: <ClipboardList className="w-4 h-4" />,
     route: (id) => `/projetos/${id}/questionario-v3`,
-    completedStatuses: ["assessment_fase2", "matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "parado", "concluido", "arquivado"],
-    activeStatuses: ["assessment_fase1"],
+    completedStatuses: ["matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "concluido", "arquivado"],
+    activeStatuses: ["diagnostico_corporativo", "diagnostico_operacional", "diagnostico_cnae"],
   },
   {
     number: 3,
@@ -137,8 +137,8 @@ const FLOW_STEPS: FlowStep[] = [
     description: "Análise de compliance gerada por IA",
     icon: <FileText className="w-4 h-4" />,
     route: (id) => `/projetos/${id}/briefing-v3`,
-    completedStatuses: ["matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "parado", "concluido", "arquivado"],
-    activeStatuses: ["assessment_fase2"],
+    completedStatuses: ["matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "concluido", "arquivado"],
+    activeStatuses: [],
   },
   {
     number: 4,
@@ -146,7 +146,7 @@ const FLOW_STEPS: FlowStep[] = [
     description: "Matrizes de risco tributário",
     icon: <AlertTriangle className="w-4 h-4" />,
     route: (id) => `/projetos/${id}/matrizes-v3`,
-    completedStatuses: ["plano_acao", "em_avaliacao", "aprovado", "em_andamento", "parado", "concluido", "arquivado"],
+    completedStatuses: ["plano_acao", "em_avaliacao", "aprovado", "em_andamento", "concluido", "arquivado"],
     activeStatuses: ["matriz_riscos"],
   },
   {
@@ -156,7 +156,7 @@ const FLOW_STEPS: FlowStep[] = [
     icon: <ListTodo className="w-4 h-4" />,
     route: (id) => `/projetos/${id}/plano-v3`,
     completedStatuses: ["arquivado"],
-    activeStatuses: ["plano_acao", "em_avaliacao", "parado", "aprovado", "em_andamento", "concluido"],
+    activeStatuses: ["plano_acao", "em_avaliacao", "aprovado", "em_andamento", "concluido"],
   },
 ];
 
@@ -178,6 +178,21 @@ export default function ProjetoDetalhesV2() {
     { enabled: !!projectId && !isNaN(projectId) }
   );
   const clientName = (projectData as any)?.clientName ?? (projectData as any)?.client?.companyName ?? null;
+
+  // v2.1: buscar diagnosticStatus do backend
+  const { data: diagnosticData, refetch: refetchDiagnostic } = trpc.fluxoV3.getDiagnosticStatus.useQuery(
+    { projectId },
+    { enabled: !!projectId && !isNaN(projectId) }
+  );
+
+  const completeDiagnosticLayer = trpc.fluxoV3.completeDiagnosticLayer.useMutation({
+    onSuccess: () => {
+      toast.success("Camada do diagnóstico atualizada!");
+      refetch();
+      refetchDiagnostic();
+    },
+    onError: (err) => toast.error(err.message || "Erro ao atualizar diagnóstico"),
+  });
 
   const updateStatus = trpc.projects.updateStatus.useMutation({
     onSuccess: () => {
@@ -252,6 +267,15 @@ export default function ProjetoDetalhesV2() {
     s.activeStatuses.includes(summary.status)
   ) ?? FLOW_STEPS.find(s => s.completedStatuses.includes(summary.status) && s.number === currentStep);
 
+  // v2.1: estado do diagnóstico
+  const diagnosticStatus: DiagnosticLayerState = (diagnosticData as any)?.diagnosticStatus ?? {
+    corporate: "not_started",
+    operational: "not_started",
+    cnae: "not_started",
+  };
+  const diagnosticProgress = (diagnosticData as any)?.progress ?? 0;
+  const readyForBriefing = (diagnosticData as any)?.isComplete ?? false;
+
   return (
     <ComplianceLayout>
       <TooltipProvider>
@@ -286,7 +310,7 @@ export default function ProjetoDetalhesV2() {
                       disabled={updateStatus.isPending}
                     >
                       <SelectTrigger
-                        className={`h-7 text-xs border font-medium gap-1.5 px-2.5 min-w-[140px] ${
+                        className={`h-7 text-xs border font-medium gap-1.5 px-2.5 min-w-[160px] ${
                           STATUS_COLORS[summary.status] ?? "bg-gray-100 text-gray-700 border-gray-200"
                         }`}
                       >
@@ -298,13 +322,13 @@ export default function ProjetoDetalhesV2() {
                             <span className="flex items-center gap-1.5">
                               <span className={`w-2 h-2 rounded-full inline-block ${
                                 opt.value === "rascunho" ? "bg-gray-400" :
-                                opt.value === "assessment_fase1" || opt.value === "assessment_fase2" ? "bg-blue-500" :
+                                opt.value === "diagnostico_corporativo" || opt.value === "diagnostico_operacional" ? "bg-blue-500" :
+                                opt.value === "diagnostico_cnae" ? "bg-indigo-500" :
                                 opt.value === "matriz_riscos" ? "bg-orange-500" :
                                 opt.value === "plano_acao" ? "bg-purple-500" :
                                 opt.value === "em_avaliacao" ? "bg-yellow-500" :
                                 opt.value === "aprovado" ? "bg-green-500" :
                                 opt.value === "em_andamento" ? "bg-emerald-500" :
-                                opt.value === "parado" ? "bg-red-500" :
                                 opt.value === "concluido" ? "bg-teal-500" :
                                 "bg-gray-300"
                               }`} />
@@ -320,12 +344,12 @@ export default function ProjetoDetalhesV2() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground flex-wrap">
-              {clientName && (
-                <span className="flex items-center gap-1">
-                  <Building2 className="w-3.5 h-3.5" />
-                  {clientName}
-                </span>
-              )}
+                  {clientName && (
+                    <span className="flex items-center gap-1">
+                      <Building2 className="w-3.5 h-3.5" />
+                      {clientName}
+                    </span>
+                  )}
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" />
                     Criado em {new Date(summary.createdAt).toLocaleDateString("pt-BR")}
@@ -343,61 +367,41 @@ export default function ProjetoDetalhesV2() {
                 </div>
               </div>
             </div>
-
-            {/* Ações rápidas */}
-            <div className="flex items-center gap-2 shrink-0">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" onClick={() => refetch()}>
-                    <RefreshCw className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Atualizar dados</TooltipContent>
-              </Tooltip>
-              {activeStep && (
-                <Button
-                  onClick={() => setLocation(activeStep.route(projectId))}
-                  className="gap-2"
-                >
-                  <Play className="w-4 h-4" />
-                  Continuar — {activeStep.label}
-                </Button>
-              )}
-            </div>
           </div>
 
-          {/* ── Stepper de etapas ── */}
+          {/* ── Stepper do Fluxo Principal ── */}
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-0">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-primary" />
+                Etapas do Projeto
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-1 flex-wrap">
                 {FLOW_STEPS.map((step, idx) => {
                   const isCompleted = step.completedStatuses.includes(summary.status);
                   const isActive = step.activeStatuses.includes(summary.status);
-                  const isLocked = !isCompleted && !isActive;
-
+                  const isLocked = !isCompleted && !isActive && step.number > currentStep;
                   return (
-                    <div key={step.number} className="flex items-center flex-1 min-w-0">
+                    <div key={step.number} className="flex items-center gap-1">
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
-                            onClick={() => {
-                              if (!isLocked) setLocation(step.route(projectId));
-                              else toast.info("Esta etapa ainda não foi desbloqueada.");
-                            }}
-                            className={`flex flex-col items-center gap-1.5 flex-1 p-3 rounded-xl transition-all group ${
-                              isActive
-                                ? "bg-primary/10 border-2 border-primary cursor-pointer"
-                                : isCompleted
-                                ? "hover:bg-muted/50 cursor-pointer"
-                                : "opacity-40 cursor-not-allowed"
+                            onClick={() => !isLocked && setLocation(step.route(projectId))}
+                            disabled={isLocked}
+                            className={`flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all min-w-[60px] ${
+                              isLocked
+                                ? "opacity-40 cursor-not-allowed"
+                                : "hover:bg-muted/50 cursor-pointer"
                             }`}
                           >
-                            <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all ${
                               isCompleted
-                                ? "bg-green-500 text-white"
+                                ? "border-green-400 bg-green-500/10 text-green-600"
                                 : isActive
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted text-muted-foreground"
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "border-muted bg-muted text-muted-foreground"
                             }`}>
                               {isCompleted ? (
                                 <CheckCircle2 className="w-5 h-5" />
@@ -418,7 +422,6 @@ export default function ProjetoDetalhesV2() {
                           {isLocked && <p className="text-xs text-orange-500 mt-1">Etapa bloqueada</p>}
                         </TooltipContent>
                       </Tooltip>
-
                       {idx < FLOW_STEPS.length - 1 && (
                         <div className={`h-0.5 w-6 mx-1 shrink-0 rounded-full ${
                           currentStep > step.number ? "bg-green-400" : "bg-muted"
@@ -428,6 +431,30 @@ export default function ProjetoDetalhesV2() {
                   );
                 })}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* ── DiagnosticoStepper v2.1 ── */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <ClipboardList className="w-4 h-4 text-primary" />
+                Diagnóstico Tributário
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DiagnosticoStepper
+                diagnosticStatus={diagnosticStatus}
+                progress={diagnosticProgress}
+                readyForBriefing={readyForBriefing}
+                isLoading={completeDiagnosticLayer.isPending}
+                onStartLayer={(layer) => {
+                  setLocation(`/projetos/${projectId}/questionario-v3`);
+                }}
+                onGenerateBriefing={() => {
+                  setLocation(`/projetos/${projectId}/briefing-v3`);
+                }}
+              />
             </CardContent>
           </Card>
 
@@ -539,7 +566,7 @@ export default function ProjetoDetalhesV2() {
             <CardContent className="space-y-2">
               <SectionLink
                 icon={<ClipboardList className="w-4 h-4" />}
-                label="Questionário Adaptativo"
+                label="Diagnóstico Adaptativo"
                 description={`${summary.totalAnswers} respostas registradas`}
                 available={statusToStep(summary.status) >= 2}
                 onClick={() => setLocation(`/projetos/${projectId}/questionario-v3`)}
