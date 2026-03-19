@@ -56,6 +56,7 @@ import TasksV3 from "./pages/compliance-v3/TasksV3";
 import ExportsV3 from "./pages/compliance-v3/ExportsV3";
 // Demo standalone
 import DemoLanding from "./pages/demo/DemoLanding";
+import DemoAssessment from "./pages/demo/DemoAssessment";
 import DemoDashboard from "./pages/demo/DemoDashboard";
 import DemoGaps from "./pages/demo/DemoGaps";
 import DemoRiscos from "./pages/demo/DemoRiscos";
@@ -118,6 +119,7 @@ function Router() {
       <Route path="/projetos/:id/compliance-v3/exports" component={ExportsV3} />
       {/* Demo standalone — sem login */}
       <Route path="/demo" component={DemoLanding} />
+      <Route path="/demo/assessment" component={DemoAssessment} />
       <Route path="/demo/dashboard" component={DemoDashboard} />
       <Route path="/demo/gaps" component={DemoGaps} />
       <Route path="/demo/riscos" component={DemoRiscos} />

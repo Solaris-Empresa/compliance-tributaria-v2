@@ -2408,3 +2408,33 @@
   - Botão "CNAE Anterior" (rodapé do Nível 2)
   - Dialog "Sim, retornar" (confirmação de retorno ao CNAE anterior)
 - [x] TypeScript: 0 erros
+
+---
+
+## Sprint 8.5 — Fluxo E2E Compliance Engine v3 (Demo Standalone)
+
+### Backend
+- [ ] Criar router demo em server/routers/demo.ts com procedure runScenario
+- [ ] Registrar router demo em server/routers.ts
+- [ ] Endpoint recebe scenarioType (simples/medio/complexo) → retorna dataset completo
+
+### Frontend — Onboarding (Etapa 1 mock)
+- [x] Criar página /demo/assessment com formulário 3 passos
+- [x] Passo 1: Nome da empresa + setor
+- [x] Passo 2: CNAE simulado (seleção de 5 opções)
+- [x] Passo 3: Confirmação + botão "Iniciar Diagnóstico"
+- [x] Adicionar botão "Iniciar Diagnóstico" na landing /demo
+- [x] Corrigir/remover link "Sistema completo →"
+
+### Frontend — Questionário (Etapa 2 mock)
+- [x] Criar página /demo/assessment com 8 perguntas adaptativas por domínio (integrado no mesmo componente)
+- [x] Respostas: Sim (100%) / Parcial (50%) / Não (0%)
+- [x] Ao finalizar: determinar cenário via lógica frontend (sem backend necessário)
+
+### Frontend — Resultado
+- [x] Redirecionar para /demo/dashboard?scenario=X&company=Y após processar
+- [x] DemoLayout: suporta scenario via query param
+- [x] Todas as páginas (gaps, riscos, ações, tarefas) usam scenario query param
+
+### Rotas
+- [x] Registrar /demo/assessment em App.tsx

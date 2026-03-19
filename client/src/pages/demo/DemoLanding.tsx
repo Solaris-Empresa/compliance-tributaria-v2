@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useLocation } from "wouter";
 import { SCENARIO_META, SCENARIOS, type ScenarioKey } from "@/lib/demo-engine";
-import { Zap, ArrowRight } from "lucide-react";
+import { Zap, ArrowRight, PlayCircle } from "lucide-react";
 
 export default function DemoLanding() {
   const [, navigate] = useLocation();
@@ -9,6 +10,10 @@ export default function DemoLanding() {
 
   function handleSelect(key: ScenarioKey) {
     navigate(`/demo/dashboard?scenario=${key}`);
+  }
+
+  function handleStartDiagnosis() {
+    navigate("/demo/assessment");
   }
 
   return (
@@ -26,9 +31,6 @@ export default function DemoLanding() {
           <span className="text-xs bg-blue-900/50 text-blue-300 border border-blue-800 rounded-full px-3 py-1">
             DEMO · Motor v3 real · 205 testes
           </span>
-          <a href="/" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
-            Sistema completo →
-          </a>
         </div>
       </header>
 
@@ -46,10 +48,28 @@ export default function DemoLanding() {
           <p className="text-xl text-slate-300 mb-3">
             Diagnóstico de conformidade tributária com IA
           </p>
-          <p className="text-slate-400 mb-12 max-w-xl mx-auto text-sm leading-relaxed">
+          <p className="text-slate-400 mb-8 max-w-xl mx-auto text-sm leading-relaxed">
             Escolha um perfil de empresa para explorar o diagnóstico completo gerado pelo motor v3:
             radar de compliance, matriz de riscos 4×4, plano de ação e tarefas atômicas.
           </p>
+
+          {/* CTA principal — Iniciar Diagnóstico */}
+          <div className="mb-10">
+            <button
+              onClick={handleStartDiagnosis}
+              className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-4 rounded-xl transition-all text-base shadow-lg shadow-blue-900/40 hover:shadow-blue-900/60"
+            >
+              <PlayCircle className="w-5 h-5" />
+              Iniciar Diagnóstico Completo
+            </button>
+            <p className="text-xs text-slate-500 mt-3">Responda 8 perguntas e receba o diagnóstico personalizado da sua empresa</p>
+          </div>
+
+          <div className="flex items-center gap-4 mb-8">
+            <div className="flex-1 h-px bg-slate-800" />
+            <span className="text-xs text-slate-600">ou explore um cenário de exemplo</span>
+            <div className="flex-1 h-px bg-slate-800" />
+          </div>
 
           {/* Scenario cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
@@ -116,9 +136,9 @@ export default function DemoLanding() {
 
           {/* Navigation guide */}
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-left max-w-lg mx-auto">
-            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Fluxo de navegação</h4>
+            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Fluxo de navegação completo</h4>
             <div className="flex items-center gap-2 flex-wrap text-xs text-slate-400">
-              {["Dashboard", "Gaps", "Riscos", "Plano de Ação", "Tarefas"].map((step, i, arr) => (
+              {["Diagnóstico", "Dashboard", "Gaps", "Riscos", "Plano de Ação", "Tarefas"].map((step, i, arr) => (
                 <span key={step} className="flex items-center gap-2">
                   <span className="bg-slate-800 border border-slate-700 px-2.5 py-1 rounded text-slate-300">{step}</span>
                   {i < arr.length - 1 && <span className="text-slate-600">→</span>}
