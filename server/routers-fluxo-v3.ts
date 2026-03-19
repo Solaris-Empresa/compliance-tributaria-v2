@@ -26,6 +26,8 @@ import {
 import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
+// v2.1 T3: Adaptador de consolidação do diagnóstico em 3 camadas
+import { consolidateDiagnosticLayers, isDiagnosticComplete, getNextDiagnosticLayer, getDiagnosticProgress } from "./diagnostic-consolidator";
 
 const CnaeSchema = z.object({
   code: z.string(),
@@ -741,7 +743,8 @@ Gere as perguntas no formato:
       };
       if (input.completed) {
         updateData.currentStep = 3;
-        updateData.status = "assessment_fase2";
+        // v2.1: assessment_fase2 → diagnostico_cnae (CNAE é a 3ª camada do diagnóstico)
+        updateData.status = "diagnostico_cnae";
       }
       await database
         .update(projects)
@@ -1508,9 +1511,325 @@ Gere o veredito final em JSON:
       };
     }),
 
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
+  // v2.1 T3: Consolidar diagnóstico das 3 camadas em payload para briefing
+  // ───────────────────────────────────────────────────────────────────────────
+  getAggregatedDiagnostic: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+      const userId = ctx.user.id;
+      const isOwner = (project as any).clientId === userId || (project as any).createdById === userId;
+      const isTeam = ["equipe_solaris", "advogado_senior", "advogado_junior"].includes(ctx.user.role);
+      if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
+
+      const p = project as any;
+      const diagnosticStatus = p.diagnosticStatus ?? {
+        corporate: "not_started",
+        operational: "not_started",
+        cnae: "not_started",
+      };
+
+      // Buscar respostas do questionário CNAE (camada 3)
+      const database = await db.getDb();
+      let cnaeAnswers: any[] = [];
+      if (database) {
+        const rawAnswers = await database
+          .select()
+          .from(questionnaireAnswersV3)
+          .where(eq(questionnaireAnswersV3.projectId, input.projectId));
+
+        // Agrupar por CNAE
+        const byCnae: Record<string, { cnaeCode: string; cnaeDescription: string; level: string; questions: { question: string; answer: string }[] }> = {};
+        for (const a of rawAnswers) {
+          const key = `${a.cnaeCode}-${a.level}`;
+          if (!byCnae[key]) {
+            byCnae[key] = {
+              cnaeCode: a.cnaeCode,
+              cnaeDescription: a.cnaeDescription ?? a.cnaeCode,
+              level: a.level,
+              questions: [],
+            };
+          }
+          byCnae[key].questions.push({
+            question: a.questionText,
+            answer: a.answerValue,
+          });
+        }
+        cnaeAnswers = Object.values(byCnae);
+      }
+
+      // Consolidar as 3 camadas
+      const aggregatedDiagnosticAnswers = consolidateDiagnosticLayers({
+        companyProfile: p.companyProfile,
+        operationProfile: p.operationProfile,
+        taxComplexity: p.taxComplexity,
+        financialProfile: p.financialProfile,
+        governanceProfile: p.governanceProfile,
+        cnaeAnswers,
+      });
+
+      const progress = getDiagnosticProgress(diagnosticStatus);
+      const nextLayer = getNextDiagnosticLayer(diagnosticStatus);
+      const isComplete = isDiagnosticComplete(diagnosticStatus);
+
+      return {
+        projectId: input.projectId,
+        diagnosticStatus,
+        aggregatedDiagnosticAnswers,
+        progress,
+        nextLayer,
+        isComplete,
+        // Metadados para o frontend
+        meta: {
+          totalLayers: 3,
+          completedLayers: Object.values(diagnosticStatus).filter(s => s === "completed").length,
+          corporateAnswersCount: aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "CORPORATIVO")?.questions.length ?? 0,
+          operationalAnswersCount: aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "OPERACIONAL")?.questions.length ?? 0,
+          cnaeLayersCount: cnaeAnswers.length,
+        },
+      };
+    }),
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // v2.1 T3: Completar camada do diagnóstico e avançar status do projeto
+  // ───────────────────────────────────────────────────────────────────────────
+  completeDiagnosticLayer: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      layer: z.enum(["corporate", "operational", "cnae"]),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+      const userId = ctx.user.id;
+      const isOwner = (project as any).clientId === userId || (project as any).createdById === userId;
+      const isTeam = ["equipe_solaris", "advogado_senior", "advogado_junior"].includes(ctx.user.role);
+      if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
+
+      const current = (project as any).diagnosticStatus ?? {
+        corporate: "not_started",
+        operational: "not_started",
+        cnae: "not_started",
+      };
+
+      // Validar gates de progressão
+      if (input.layer === "operational" && current.corporate !== "completed") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "O Diagnóstico Corporativo deve ser concluído antes do Operacional.",
+        });
+      }
+      if (input.layer === "cnae" && current.operational !== "completed") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "O Diagnóstico Operacional deve ser concluído antes do CNAE.",
+        });
+      }
+
+      const updated = { ...current, [input.layer]: "completed" };
+
+      // Mapear camada para status do projeto
+      const layerToStatus: Record<string, string> = {
+        corporate: "diagnostico_corporativo",
+        operational: "diagnostico_operacional",
+        cnae: "diagnostico_cnae",
+      };
+
+      await db.updateProject(input.projectId, {
+        diagnosticStatus: updated,
+        status: layerToStatus[input.layer],
+      } as any);
+
+      const isComplete = isDiagnosticComplete(updated as any);
+      const nextLayer = getNextDiagnosticLayer(updated as any);
+      const progress = getDiagnosticProgress(updated as any);
+
+      return {
+        projectId: input.projectId,
+        diagnosticStatus: updated,
+        completedLayer: input.layer,
+        isComplete,
+        nextLayer,
+        progress,
+        // Se todas as camadas estão completas, o briefing pode ser gerado
+        readyForBriefing: isComplete,
+      };
+    }),
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // v2.1 T3: Gerar Briefing a partir do diagnóstico consolidado (3 camadas)
+  // Wrapper que agrega as 3 camadas e chama o generateBriefing existente
+  // ───────────────────────────────────────────────────────────────────────────
+  generateBriefingFromDiagnostic: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      correction: z.string().optional(),
+      complement: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+      const userId = ctx.user.id;
+      const isOwner = (project as any).clientId === userId || (project as any).createdById === userId;
+      const isTeam = ["equipe_solaris", "advogado_senior", "advogado_junior"].includes(ctx.user.role);
+      if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
+
+      const p = project as any;
+      const diagnosticStatus = p.diagnosticStatus ?? {
+        corporate: "not_started",
+        operational: "not_started",
+        cnae: "not_started",
+      };
+
+      // GATE: só gera briefing se todas as 3 camadas estiverem completas
+      if (!isDiagnosticComplete(diagnosticStatus)) {
+        const nextLayer = getNextDiagnosticLayer(diagnosticStatus);
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Diagnóstico incompleto. Próxima camada pendente: ${nextLayer}. Conclua todas as 3 camadas antes de gerar o briefing.`,
+        });
+      }
+
+      // Buscar respostas do questionário CNAE (camada 3)
+      const database = await db.getDb();
+      let cnaeAnswers: any[] = [];
+      if (database) {
+        const rawAnswers = await database
+          .select()
+          .from(questionnaireAnswersV3)
+          .where(eq(questionnaireAnswersV3.projectId, input.projectId));
+
+        const byCnae: Record<string, any> = {};
+        for (const a of rawAnswers) {
+          const key = `${a.cnaeCode}-${a.level}`;
+          if (!byCnae[key]) {
+            byCnae[key] = {
+              cnaeCode: a.cnaeCode,
+              cnaeDescription: a.cnaeDescription ?? a.cnaeCode,
+              level: a.level,
+              questions: [],
+            };
+          }
+          byCnae[key].questions.push({ question: a.questionText, answer: a.answerValue });
+        }
+        cnaeAnswers = Object.values(byCnae);
+      }
+
+      // Consolidar as 3 camadas
+      const aggregatedDiagnosticAnswers = consolidateDiagnosticLayers({
+        companyProfile: p.companyProfile,
+        operationProfile: p.operationProfile,
+        taxComplexity: p.taxComplexity,
+        financialProfile: p.financialProfile,
+        governanceProfile: p.governanceProfile,
+        cnaeAnswers,
+      });
+
+      // Usar o generateBriefing existente com o payload consolidado
+      // (sem alterar a lógica interna do generateBriefing)
+      const answersText = aggregatedDiagnosticAnswers.map(layer =>
+        `## ${layer.cnaeCode} — ${layer.cnaeDescription} (${layer.level})\n` +
+        layer.questions.map(q => `**P:** ${q.question}\n**R:** ${q.answer}`).join("\n\n")
+      ).join("\n\n---\n\n");
+
+      const correctionContext = input.correction ? `\n\nCORREÇÃO SOLICITADA:\n${input.correction}` : "";
+      const complementContext = input.complement ? `\n\nINFORMAÇÕES ADICIONAIS:\n${input.complement}` : "";
+
+      // RAG para o briefing
+      const confirmedCnaes = (p.confirmedCnaes as any[]) || [];
+      const cnaeCodesForRag = confirmedCnaes.length > 0
+        ? confirmedCnaes.map((c: any) => c.code)
+        : cnaeAnswers.map((a: any) => a.cnaeCode).filter((c: string) => c !== "CORPORATIVO" && c !== "OPERACIONAL");
+      const briefingQueryCtx = `${p.description || ""} ${answersText.substring(0, 500)}`;
+      const ragCtxBriefing = await retrieveArticles(cnaeCodesForRag, briefingQueryCtx, 7);
+      const regulatoryContext = ragCtxBriefing.contextText;
+
+      const { BriefingStructuredSchema } = await import("./ai-schemas");
+      const { generateWithRetry: genRetry, OUTPUT_CONTRACT: OC } = await import("./ai-helpers");
+
+      const structured = await genRetry(
+        [
+          {
+            role: "system",
+            content: `Você é um Consultor Sênior de Compliance Tributário com 15 anos de experiência na Reforma Tributária brasileira.
+
+RESPONSABILIDADES:
+1. Identificar gaps de compliance com base nas respostas do questionário
+2. Citar APENAS artigos dos documentos regulatórios fornecidos no contexto
+3. Calcular nível de risco geral (baixo/medio/alto/critico)
+4. Identificar inconsistências nas respostas quando existirem
+5. Gerar confidence score honesto com limitações declaradas
+
+${regulatoryContext}
+
+${OC}`,
+          },
+          {
+            role: "user",
+            content: `PROJETO: ${project.name}
+DESCRIÇÃO: ${p.description || ""}
+
+DIAGNÓSTICO CONSOLIDADO (3 CAMADAS):
+${answersText}
+${correctionContext}
+${complementContext}
+
+Gere o Briefing estruturado em JSON:
+{
+  "nivel_risco_geral": "alto",
+  "resumo_executivo": "...",
+  "principais_gaps": [{"gap": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "urgencia": "imediata"}],
+  "oportunidades": ["..."],
+  "recomendacoes_prioritarias": ["..."],
+  "inconsistencias": [{"pergunta_origem": "...", "resposta_declarada": "...", "contradicao_detectada": "...", "impacto": "alto"}],
+  "confidence_score": {"nivel_confianca": 85, "limitacoes": ["..."], "recomendacao": "Revisão por advogado tributária recomendada"}
+}`,
+          },
+        ],
+        BriefingStructuredSchema,
+        { temperature: 0.2, context: "generateBriefingFromDiagnostic" }
+      );
+
+      const { buildBriefingMarkdown } = await import("./routers-fluxo-v3").then(m => ({
+        buildBriefingMarkdown: (m as any).buildBriefingMarkdown,
+      })).catch(() => ({ buildBriefingMarkdown: null }));
+
+      // Converter para markdown (fallback se não conseguir importar)
+      let briefingMarkdown: string;
+      if (buildBriefingMarkdown) {
+        briefingMarkdown = buildBriefingMarkdown(structured);
+      } else {
+        briefingMarkdown = `# Briefing de Compliance\n\n**Nível de Risco:** ${structured.nivel_risco_geral}\n\n## Resumo Executivo\n${structured.resumo_executivo}`;
+      }
+
+      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      await database
+        .update(projects)
+        .set({
+          briefingContent: briefingMarkdown as any,
+          briefingStructured: JSON.stringify(structured) as any,
+          currentStep: 3,
+          status: "matriz_riscos",
+        } as any)
+        .where(eq(projects.id, input.projectId));
+
+      return {
+        briefing: briefingMarkdown,
+        structured,
+        aggregatedPayloadSummary: {
+          totalLayers: aggregatedDiagnosticAnswers.length,
+          corporateQuestions: aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "CORPORATIVO")?.questions.length ?? 0,
+          operationalQuestions: aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "OPERACIONAL")?.questions.length ?? 0,
+          cnaeQuestions: cnaeAnswers.reduce((acc: number, l: any) => acc + (l.questions?.length ?? 0), 0),
+        },
+      };
+    }),
+
+  // ───────────────────────────────────────────────────────────────────────────
   // v2.1 — T1: Diagnostic Status (3 camadas: corporate, operational, cnae)
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   getDiagnosticStatus: protectedProcedure
     .input(z.object({ projectId: z.number() }))
     .query(async ({ input, ctx }) => {
