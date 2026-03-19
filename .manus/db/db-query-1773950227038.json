@@ -1,0 +1,330 @@
+{
+  "query": "SELECT table_name, table_rows, ROUND((data_length + index_length) / 1024, 2) AS size_kb FROM information_schema.tables WHERE table_schema = DATABASE() ORDER BY table_name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT table_name, table_rows, ROUND((data_length + index_length) / 1024, 2) AS size_kb FROM information_schema.tables WHERE table_schema = DATABASE() ORDER BY table_name;",
+  "rows": [
+    {
+      "table_name": "__drizzle_migrations",
+      "table_rows": "43",
+      "size_kb": "2.10"
+    },
+    {
+      "table_name": "actionPlanPromptHistory",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "actionPlanPrompts",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "actionPlanTemplates",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "actionPlanVersions",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "actionPlans",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "actions",
+      "table_rows": "36",
+      "size_kb": "5.63"
+    },
+    {
+      "table_name": "activityBranches",
+      "table_rows": "24",
+      "size_kb": "0.75"
+    },
+    {
+      "table_name": "assessmentPhase1",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "assessmentPhase2",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "assessmentTemplates",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "auditLog",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "branchActionPlanVersions",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "branchActionPlans",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "branchAssessmentTemplates",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "branchAssessmentVersions",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "branchAssessments",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "branchSuggestions",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "briefingVersions",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "briefings",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "clientMembers",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "cnaeEmbeddings",
+      "table_rows": "1332",
+      "size_kb": "30151.26"
+    },
+    {
+      "table_name": "compliance_usage_logs_v3",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "corporateActionPlanVersions",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "corporateActionPlans",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "corporateAssessmentVersions",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "corporateAssessments",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "cosoControls",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "embeddingRebuildLogs",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "milestones",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "notificationPreferences",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "notifications",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "onboardingProgress",
+      "table_rows": "1",
+      "size_kb": "0.06"
+    },
+    {
+      "table_name": "phases",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "planApprovals",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "planReviews",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "projectBranches",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "projectParticipants",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "projectPermissions",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "project_actions_v3",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "project_assessments_v3",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "project_gaps_v3",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "project_risks_v3",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "project_scores_v3",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "project_snapshots_v3",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "project_tasks_v3",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "projects",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "questionnaireAnswersV3",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "questionnaireProgressV3",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "questionnaireQuestionsCache",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "ragDocuments",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "regulatory_requirements_v3",
+      "table_rows": "138",
+      "size_kb": "8.63"
+    },
+    {
+      "table_name": "riskMatrix",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "riskMatrixPromptHistory",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "riskMatrixVersions",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "sessionActionPlans",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "sessionBranchAnswers",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "sessionConsolidations",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "sessions",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "stepComments",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "taskComments",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "taskHistory",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "taskObservers",
+      "table_rows": "0",
+      "size_kb": "0.00"
+    },
+    {
+      "table_name": "users",
+      "table_rows": "339",
+      "size_kb": "13.24"
+    }
+  ],
+  "messages": [],
+  "stdout": "table_name\ttable_rows\tsize_kb\n__drizzle_migrations\t43\t2.10\nactionPlanPromptHistory\t0\t0.00\nactionPlanPrompts\t0\t0.00\nactionPlanTemplates\t0\t0.00\nactionPlanVersions\t0\t0.00\nactionPlans\t0\t0.00\nactions\t36\t5.63\nactivityBranches\t24\t0.75\nassessmentPhase1\t0\t0.00\nassessmentPhase2\t0\t0.00\nassessmentTemplates\t0\t0.00\nauditLog\t0\t0.00\nbranchActionPlanVersions\t0\t0.00\nbranchActionPlans\t0\t0.00\nbranchAssessmentTemplates\t0\t0.00\nbranchAssessmentVersions\t0\t0.00\nbranchAssessments\t0\t0.00\nbranchSuggestions\t0\t0.00\nbriefingVersions\t0\t0.00\nbriefings\t0\t0.00\nclientMembers\t0\t0.00\ncnaeEmbeddings\t1332\t30151.26\ncompliance_usage_logs_v3\t0\t0.00\ncorporateActionPlanVersions\t0\t0.00\ncorporateActionPlans\t0\t0.00\ncorporateAssessmentVersions\t0\t0.00\ncorporateAssessments\t0\t0.00\ncosoControls\t0\t0.00\nembeddingRebuildLogs\t0\t0.00\nmilestones\t0\t0.00\nnotificationPreferences\t0\t0.00\nnotifications\t0\t0.00\nonboardingProgress\t1\t0.06\nphases\t0\t0.00\nplanApprovals\t0\t0.00\nplanReviews\t0\t0.00\nprojectBranches\t0\t0.00\nprojectParticipants\t0\t0.00\nprojectPermissions\t0\t0.00\nproject_actions_v3\t0\t0.00\nproject_assessments_v3\t0\t0.00\nproject_gaps_v3\t0\t0.00\nproject_risks_v3\t0\t0.00\nproject_scores_v3\t0\t0.00\nproject_snapshots_v3\t0\t0.00\nproject_tasks_v3\t0\t0.00\nprojects\t0\t0.00\nquestionnaireAnswersV3\t0\t0.00\nquestionnaireProgressV3\t0\t0.00\nquestionnaireQuestionsCache\t0\t0.00\nragDocuments\t0\t0.00\nregulatory_requirements_v3\t138\t8.63\nriskMatrix\t0\t0.00\nriskMatrixPromptHistory\t0\t0.00\nriskMatrixVersions\t0\t0.00\nsessionActionPlans\t0\t0.00\nsessionBranchAnswers\t0\t0.00\nsessionConsolidations\t0\t0.00\nsessions\t0\t0.00\nstepComments\t0\t0.00\ntaskComments\t0\t0.00\ntaskHistory\t0\t0.00\ntaskObservers\t0\t0.00\nusers\t339\t13.24\n",
+  "stderr": "",
+  "execution_time_ms": 6688
+}
