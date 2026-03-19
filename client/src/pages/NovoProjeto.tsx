@@ -17,7 +17,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   ArrowLeft, ArrowRight, Building2, Loader2, Plus, Sparkles, CheckCircle2,
   Edit2, AlertCircle, ChevronRight, Search, X, RefreshCw, MessageSquare,
-  ChevronDown, ChevronUp, Info
+  ChevronDown, ChevronUp, Info, Lock
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -592,17 +592,25 @@ export default function NovoProjeto() {
           </CardContent>
         </Card>
 
-        {/* v2.1: Company Profile Layer — OBRIGATÓRIO */}
-        <Card className="shadow-sm border-primary/30">
+        {/* v2.1.1: Company Profile Layer — GATE DO SISTEMA */}
+        <Card className={`shadow-sm transition-colors ${profileValid ? "border-emerald-500/40" : "border-destructive/40"}`}>
           <div className="px-6 pt-5 pb-2">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                <Info className="h-4 w-4 text-primary" />
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${profileValid ? "bg-emerald-500/10" : "bg-destructive/10"}`}>
+                {profileValid
+                  ? <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  : <Lock className="h-4 w-4 text-destructive" />
+                }
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold">Perfil da Empresa <span className="text-xs font-semibold text-destructive ml-1">(Obrigatório)</span></p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold">Perfil da Empresa</p>
+                  <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-md ${profileValid ? "bg-emerald-500/10 text-emerald-700" : "bg-destructive/10 text-destructive"}`}>
+                    {profileValid ? "Preenchido" : "Obrigatório"}
+                  </span>
+                </div>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Essas informações são necessárias para iniciar o diagnóstico tributário e gerar uma análise personalizada conforme a Reforma Tributária.
+                  Este cadastro é obrigatório para gerar o diagnóstico e o questionário personalizado.
                 </p>
               </div>
             </div>
@@ -880,20 +888,21 @@ export default function NovoProjeto() {
           </div>
         </div>
 
-        {/* Banner de validação do Perfil da Empresa */}
+        {/* v2.1.1: Banner GATE — bloqueia avanço */}
         {!profileValid && (
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/5 border border-destructive/20">
-            <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-destructive">Preencha os campos obrigatórios do Perfil da Empresa</p>
-              <ul className="text-xs text-muted-foreground mt-1.5 space-y-0.5">
-                {!cnpjValid && <li>• CNPJ válido com dígito verificador</li>}
-                {!companyType && <li>• Tipo Jurídico</li>}
-                {!companySize && <li>• Porte da empresa</li>}
-                {!taxRegime && <li>• Regime Tributário</li>}
-                {!operationType && <li>• Tipo de Operação</li>}
-                {clientType.length === 0 && <li>• Tipo de Cliente (mínimo 1)</li>}
-                {multiState === null && <li>• Opera em múltiplos estados (Sim/Não)</li>}
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/8 border-2 border-destructive/30">
+            <Lock className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-destructive">Preencha o Perfil da Empresa para continuar</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Campos faltantes:</p>
+              <ul className="text-xs text-destructive/80 mt-1 space-y-0.5">
+                {!cnpjValid && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />CNPJ válido com dígito verificador</li>}
+                {!companyType && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />Tipo Jurídico</li>}
+                {!companySize && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />Porte da empresa</li>}
+                {!taxRegime && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />Regime Tributário</li>}
+                {!operationType && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />Tipo de Operação</li>}
+                {clientType.length === 0 && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />Tipo de Cliente (mínimo 1)</li>}
+                {multiState === null && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />Opera em múltiplos estados (Sim/Não)</li>}
               </ul>
             </div>
           </div>

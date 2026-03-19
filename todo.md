@@ -2500,3 +2500,11 @@
 - [x] Confirmar que as 5 colunas JSON existem no banco (SHOW COLUMNS confirmado)
 - [x] Testar persistência com INSERT SQL direto — todos os campos gravados corretamente
 - [x] Banco limpo: 0 projetos (todos eram testes antigos pré-v2.1)
+
+## v2.1.1 — Perfil da Empresa como GATE do sistema
+
+- [x] Auditar NovoProjeto.tsx: verificar título, texto explicativo e banner atual
+- [x] Atualizar texto explicativo para: "Este cadastro é obrigatório para gerar o diagnóstico e o questionário personalizado."
+- [x] Banner de erro exibe: "Preencha o Perfil da Empresa para continuar"
+- [x] Botão "Avançar" desabilitado até todos os 7 campos obrigatórios preenchidos
+- [x] UX sem ambiguidade: ícone Lock (vermelho) quando incompleto, CheckCircle (verde) quando ok, borda do card muda de cor, badge dinâmico "Obrigatório" / "Preenchido"
