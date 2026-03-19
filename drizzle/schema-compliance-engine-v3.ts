@@ -395,3 +395,39 @@ export const projectSnapshotsV3 = mysqlTable("project_snapshots_v3", {
 
 export type ProjectSnapshotV3 = typeof projectSnapshotsV3.$inferSelect;
 export type InsertProjectSnapshotV3 = typeof projectSnapshotsV3.$inferInsert;
+
+// ---------------------------------------------------------------------------
+// compliance_usage_logs_v3 — Logging de uso de assessments (Sprint 8)
+// ---------------------------------------------------------------------------
+
+export const complianceUsageLogsV3 = mysqlTable("compliance_usage_logs_v3", {
+  id: int("id").primaryKey().autoincrement(),
+  clientId: int("client_id").notNull(),
+  projectId: int("project_id").notNull(),
+  // Tipo de evento
+  eventType: mysqlEnum("event_type", [
+    "assessment_started",
+    "assessment_completed",
+    "score_calculated",
+    "gap_identified",
+    "risk_generated",
+    "action_generated",
+    "task_generated",
+    "executive_summary_generated",
+    "export_pdf",
+    "export_csv",
+    "dashboard_viewed",
+  ]).notNull(),
+  // Metadados do evento
+  requirementCode: varchar("requirement_code", { length: 50 }),
+  domain: varchar("domain", { length: 100 }),
+  // Indicador de origem da IA (Sprint 8 — campo source)
+  aiSource: mysqlEnum("ai_source", ["llm", "fallback"]),
+  // Dados adicionais (JSON)
+  metadata: text("metadata"), // JSON: { score, riskLevel, gapType, etc. }
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ComplianceUsageLogV3 = typeof complianceUsageLogsV3.$inferSelect;
+export type InsertComplianceUsageLogV3 = typeof complianceUsageLogsV3.$inferInsert;

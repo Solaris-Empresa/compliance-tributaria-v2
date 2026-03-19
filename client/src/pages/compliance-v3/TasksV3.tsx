@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { StatusBadge } from "@/components/compliance-v3/shared/Badges";
 import { useTasksBoard } from "@/hooks/compliance-v3/useTasksBoard";
+import { useState, useEffect } from "react";
 
 const STATUS_ICON: Record<string, React.ReactNode> = {
   nao_iniciado: <Circle className="w-3.5 h-3.5 text-muted-foreground" />,
@@ -20,6 +21,19 @@ export default function TasksV3() {
   const { id } = useParams<{ id: string }>();
   const projectId = Number(id);
   const { tasks, summary, isLoading, updateStatus: updateTaskStatus } = useTasksBoard(projectId);
+  const [filterDomain, setFilterDomain] = useState<string | null>(null);
+
+  // Ler query param ?domain= da URL e pré-selecionar filtro
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const domain = url.searchParams.get("domain");
+    if (domain) setFilterDomain(domain);
+  }, []);
+
+  // Filtrar tarefas por domínio se selecionado
+  const filteredTasks = filterDomain
+    ? tasks.filter(t => (t as { domain?: string }).domain === filterDomain)
+    : tasks;
 
   const progressPercent = summary?.progressPercent ?? 0;
   const total = summary?.totalTasks ?? 0;

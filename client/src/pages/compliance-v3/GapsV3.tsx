@@ -1,4 +1,5 @@
 import { useParams, Link } from "wouter";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,17 @@ export default function GapsV3() {
   const { id } = useParams<{ id: string }>();
   const projectId = Number(id);
   const { filteredGaps, filters, setFilter, clearFilters, isLoading } = useGapFilters(projectId);
+
+  // Ler query param ?domain= da URL e pré-selecionar filtro
+  const [domainInitialized, setDomainInitialized] = useState(false);
+  useEffect(() => {
+    if (!domainInitialized) {
+      const url = new URL(window.location.href);
+      const domain = url.searchParams.get("domain");
+      if (domain) setFilter("domain", domain);
+      setDomainInitialized(true);
+    }
+  }, [domainInitialized, setFilter]);
 
   return (
     <div className="min-h-screen bg-background">

@@ -464,6 +464,9 @@ Responda com JSON: {"executiveSummary":"...","topRisksNarrative":"...","actionPl
         };
       }
 
+      // Determinar source: se aiResult foi definido pelo bloco try (LLM), source=llm; caso contrário fallback
+      const source: "llm" | "fallback" = (aiResult && typeof (aiResult as Record<string, unknown>).executiveSummary === "string" && !String((aiResult as Record<string, unknown>).executiveSummary).startsWith("O projeto apresenta score geral")) ? "llm" : "fallback";
+
       return {
         overallScore,
         totalGaps: gaps.length,
@@ -471,7 +474,8 @@ Responda com JSON: {"executiveSummary":"...","topRisksNarrative":"...","actionPl
         totalRisks: risks.length,
         criticalRisks: criticalRisks.length,
         immediateActions: immediateActions.length,
-        ...aiResult,
+        ...(aiResult as Record<string, unknown>),
+        source,
         generatedAt: new Date(),
       };
     }),

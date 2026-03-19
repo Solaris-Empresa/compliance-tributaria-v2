@@ -8,7 +8,7 @@ import { RiskLevelBadge, CriticalityBadge } from "@/components/compliance-v3/sha
 import { RiskMatrix4x4 } from "@/components/compliance-v3/dashboard/RiskMatrix4x4";
 import { useRiskMatrix } from "@/hooks/compliance-v3/useRiskMatrix";
 import { DOMAIN_LABELS } from "@/types/compliance-v3";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function RisksV3() {
   const { id } = useParams<{ id: string }>();
@@ -16,8 +16,22 @@ export default function RisksV3() {
   const { risks, matrix: matrixCells, summary, isLoading, selectedLevel, setSelectedLevel } = useRiskMatrix(projectId);
   const [selectedCell, setSelectedCell] = useState<{ probability: number; impact: number } | undefined>();
   const [filterLevel, setFilterLevel] = useState("all");
+  const [filterDomain, setFilterDomain] = useState<string>("all");
 
-  const filtered = filterLevel === "all" ? risks : risks.filter(r => r.riskLevel === filterLevel);
+  // Ler query param ?domain= da URL e pré-selecionar filtro
+  const [domainInitialized, setDomainInitialized] = useState(false);
+  useEffect(() => {
+    if (!domainInitialized) {
+      const url = new URL(window.location.href);
+      const domain = url.searchParams.get("domain");
+      if (domain) setFilterDomain(domain);
+      setDomainInitialized(true);
+    }
+  }, [domainInitialized]);
+
+  const filtered = risks
+    .filter(r => filterLevel === "all" || r.riskLevel === filterLevel)
+    .filter(r => filterDomain === "all" || r.domain === filterDomain);
 
   return (
     <div className="min-h-screen bg-background">

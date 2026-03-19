@@ -1,5 +1,8 @@
-import { useParams, Link } from "wouter";
-import { ArrowLeft, RefreshCw, Download, FileText } from "lucide-react";
+import { useParams, Link, useLocation } from "wouter";
+import { useState, useEffect } from "react";
+import { ArrowLeft, RefreshCw, Download, FileText, Filter, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,9 +16,45 @@ import { useDashboardData } from "@/hooks/compliance-v3/useDashboardData";
 import { useExportActions } from "@/hooks/compliance-v3/useExportActions";
 import { trpc } from "@/lib/trpc";
 
+const DOMAINS = [
+  { value: "governanca_transicao", label: "Governança da Transição" },
+  { value: "sistemas_erp_dados", label: "Sistemas ERP e Dados" },
+  { value: "obrigacoes_acessorias", label: "Obrigações Acessórias" },
+  { value: "gestao_creditos", label: "Gestão de Créditos" },
+  { value: "contratos_comerciais", label: "Contratos Comerciais" },
+  { value: "precificacao_margem", label: "Precificação e Margem" },
+  { value: "cadastro_fiscal", label: "Cadastro Fiscal" },
+  { value: "split_payment", label: "Split Payment" },
+  { value: "cashflow_financeiro", label: "Cashflow e Financeiro" },
+  { value: "rh_folha", label: "RH e Folha" },
+  { value: "juridico_regulatorio", label: "Jurídico e Regulatório" },
+  { value: "comunicacao_stakeholders", label: "Comunicação e Stakeholders" },
+];
+
 export default function ComplianceDashboardV3() {
   const { id } = useParams<{ id: string }>();
   const projectId = Number(id);
+  const [, setLocation] = useLocation();
+
+  // Filtro por domínio — persistido na URL como query param
+  const [selectedDomain, setSelectedDomain] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      return url.searchParams.get("domain") || null;
+    }
+    return null;
+  });
+
+  // Sincronizar selectedDomain com a URL
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (selectedDomain) {
+      url.searchParams.set("domain", selectedDomain);
+    } else {
+      url.searchParams.delete("domain");
+    }
+    window.history.replaceState({}, "", url.toString());
+  }, [selectedDomain]);
 
   const { data, isLoading, refetch, selectedCell, setSelectedCell } = useDashboardData(projectId);
   const { exportCsv, exportPdf, isExporting } = useExportActions(projectId);
@@ -69,6 +108,10 @@ export default function ComplianceDashboardV3() {
     .filter(([, score]) => score < 60)
     .map(([domain]) => domain);
 
+  // Score e label do domínio selecionado
+  const domainScore = selectedDomain ? (radar as Record<string, number>)[selectedDomain] ?? null : null;
+  const domainLabel = selectedDomain ? DOMAINS.find((d) => d.value === selectedDomain)?.label ?? selectedDomain : null;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -107,6 +150,40 @@ export default function ComplianceDashboardV3() {
       </div>
 
       <div className="p-6 space-y-6 max-w-7xl mx-auto">
+        {/* Filtro por Domínio */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Filtrar por domínio:</span>
+          </div>
+          <Select
+            value={selectedDomain ?? "all"}
+            onValueChange={(v) => setSelectedDomain(v === "all" ? null : v)}
+          >
+            <SelectTrigger className="w-56">
+              <SelectValue placeholder="Todos os domínios" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os domínios</SelectItem>
+              {DOMAINS.map((d) => (
+                <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {selectedDomain && (
+            <>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedDomain(null)}>
+                <X className="w-4 h-4" />
+              </Button>
+              {domainScore !== null && (
+                <Badge variant="outline" className="text-sm">
+                  {domainLabel}: {domainScore}/100
+                </Badge>
+              )}
+            </>
+          )}
+        </div>
+
         {/* KPIs */}
         <ComplianceKPICards
           complianceScore={overallScore}

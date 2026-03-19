@@ -8,6 +8,7 @@ import { PriorityBadge, StatusBadge, RiskLevelBadge } from "@/components/complia
 import { useActionPlan } from "@/hooks/compliance-v3/useActionPlan";
 import { DOMAIN_LABELS } from "@/types/compliance-v3";
 import type { ActionPlanItem } from "@/types/compliance-v3";
+import { useState, useEffect } from "react";
 
 const PRIORITY_COLUMNS = [
   { key: "imediata", label: "⚡ Imediata", color: "border-red-400 bg-red-50/50" },
@@ -62,6 +63,24 @@ export default function ActionsV3() {
   const { id } = useParams<{ id: string }>();
   const projectId = Number(id);
   const { actions, groupedByPriority: grouped, isLoading, updateStatus } = useActionPlan(projectId);
+  const [filterDomain, setFilterDomain] = useState<string | null>(null);
+
+  // Ler query param ?domain= da URL e pré-selecionar filtro
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const domain = url.searchParams.get("domain");
+    if (domain) setFilterDomain(domain);
+  }, []);
+
+  // Filtrar ações por domínio se selecionado
+  const filteredGrouped = filterDomain
+    ? Object.fromEntries(
+        Object.entries(grouped).map(([k, v]) => [
+          k,
+          (v as ActionPlanItem[]).filter(a => a.domain === filterDomain),
+        ])
+      )
+    : grouped;
 
   return (
     <div className="min-h-screen bg-background">
@@ -86,7 +105,7 @@ export default function ActionsV3() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             {PRIORITY_COLUMNS.map(({ key, label, color }) => {
-              const colActions = (grouped[key] ?? []) as ActionPlanItem[];
+              const colActions = (filteredGrouped[key] ?? []) as ActionPlanItem[];
               return (
                 <div key={key} className={`rounded-xl border-2 ${color} p-3 min-h-64`}>
                   <div className="flex items-center justify-between mb-3">

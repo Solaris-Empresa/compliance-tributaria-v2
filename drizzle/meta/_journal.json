@@ -274,6 +274,13 @@
       "when": 1773882110718,
       "tag": "0038_illegal_wolfpack",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "5",
+      "when": 1773922677135,
+      "tag": "0039_hesitant_kingpin",
+      "breakpoints": true
     }
   ]
 }
