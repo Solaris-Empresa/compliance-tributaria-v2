@@ -124,7 +124,7 @@ export default function ComplianceDashboardV3() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-lg font-bold">Dashboard de Compliance v3</h1>
+            <h1 className="text-lg font-bold">Dashboard de Compliance <span className="text-xs font-normal bg-primary/10 text-primary px-1.5 py-0.5 rounded ml-1">v3 · S8</span></h1>
             <p className="text-xs text-muted-foreground">Reforma Tributária — IBS/CBS/IS</p>
           </div>
         </div>
