@@ -34,14 +34,14 @@ export const projects = mysqlTable("projects", {
   clientId: int("clientId").notNull(),
   status: mysqlEnum("status", [
     "rascunho",
-    "assessment_fase1",
-    "assessment_fase2",
+    "diagnostico_corporativo",
+    "diagnostico_operacional",
+    "diagnostico_cnae",
     "matriz_riscos",
     "plano_acao",
     "em_avaliacao",
     "aprovado",
     "em_andamento",
-    "parado",
     "concluido",
     "arquivado"
   ]).default("rascunho").notNull(),
@@ -97,6 +97,12 @@ export const projects = mysqlTable("projects", {
   taxComplexity: json("taxComplexity"),                 // { hasInternationalOps, usesTaxIncentives, usesMarketplace }
   financialProfile: json("financialProfile"),           // { paymentMethods: string[], hasIntermediaries }
   governanceProfile: json("governanceProfile"),         // { hasTaxTeam, hasAudit, hasTaxIssues }
+  // v2.1 Diagnostic Flow — rastreamento das 3 camadas de diagnóstico
+  diagnosticStatus: json("diagnosticStatus").$type<{
+    corporate: "not_started" | "in_progress" | "completed";
+    operational: "not_started" | "in_progress" | "completed";
+    cnae: "not_started" | "in_progress" | "completed";
+  }>(), // { corporate, operational, cnae } — cada um: not_started | in_progress | completed
 });
 
 export type Project = typeof projects.$inferSelect;

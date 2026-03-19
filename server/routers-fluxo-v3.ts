@@ -1507,6 +1507,81 @@ Gere o veredito final em JSON:
         currentStep: (project as any).currentStep,
       };
     }),
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // v2.1 — T1: Diagnostic Status (3 camadas: corporate, operational, cnae)
+  // ─────────────────────────────────────────────────────────────────────────
+  getDiagnosticStatus: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+      const userId = ctx.user.id;
+      const isOwner = (project as any).clientId === userId || (project as any).createdById === userId;
+      const isTeam = ["equipe_solaris", "advogado_senior", "advogado_junior"].includes(ctx.user.role);
+      if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
+      // Retorna diagnosticStatus ou default (tudo not_started)
+      const diagnosticStatus = (project as any).diagnosticStatus ?? {
+        corporate: "not_started",
+        operational: "not_started",
+        cnae: "not_started",
+      };
+      return {
+        projectId: input.projectId,
+        diagnosticStatus: diagnosticStatus as {
+          corporate: "not_started" | "in_progress" | "completed";
+          operational: "not_started" | "in_progress" | "completed";
+          cnae: "not_started" | "in_progress" | "completed";
+        },
+      };
+    }),
+
+  updateDiagnosticStatus: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      layer: z.enum(["corporate", "operational", "cnae"]),
+      status: z.enum(["not_started", "in_progress", "completed"]),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+      const userId = ctx.user.id;
+      const isOwner = (project as any).clientId === userId || (project as any).createdById === userId;
+      const isTeam = ["equipe_solaris", "advogado_senior", "advogado_junior"].includes(ctx.user.role);
+      if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
+      // Merge com estado atual
+      const current = (project as any).diagnosticStatus ?? {
+        corporate: "not_started",
+        operational: "not_started",
+        cnae: "not_started",
+      };
+      const updated = { ...current, [input.layer]: input.status };
+      // Validar regra de progressao: operational só pode avançar se corporate estiver completed
+      if (input.layer === "operational" && input.status !== "not_started" && updated.corporate !== "completed") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "O Diagnóstico Corporativo deve ser concluído antes de iniciar o Operacional.",
+        });
+      }
+      // Validar regra de progressao: cnae só pode avançar se operational estiver completed
+      if (input.layer === "cnae" && input.status !== "not_started" && updated.operational !== "completed") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "O Diagnóstico Operacional deve ser concluído antes de iniciar o CNAE.",
+        });
+      }
+      await db.updateProject(input.projectId, { diagnosticStatus: updated } as any);
+      return {
+        projectId: input.projectId,
+        diagnosticStatus: updated as {
+          corporate: "not_started" | "in_progress" | "completed";
+          operational: "not_started" | "in_progress" | "completed";
+          cnae: "not_started" | "in_progress" | "completed";
+        },
+        updatedLayer: input.layer,
+        updatedStatus: input.status,
+      };
+    }),
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

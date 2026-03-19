@@ -1,0 +1,18 @@
+{
+  "query": "SHOW COLUMNS FROM projects WHERE Field = 'status';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SHOW COLUMNS FROM projects WHERE Field = 'status';",
+  "rows": [
+    {
+      "Field": "status",
+      "Type": "enum('rascunho','diagnostico_corporativo','diagnostico_operacional','diagnostico_cnae','matriz_riscos','plano_acao','em_avaliacao','aprovado','em_andamento','concluido','arquivado')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "rascunho",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nstatus\tenum('rascunho','diagnostico_corporativo','diagnostico_operacional','diagnostico_cnae','matriz_riscos','plano_acao','em_avaliacao','aprovado','em_andamento','concluido','arquivado')\tNO\t\trascunho\t\n",
+  "stderr": "",
+  "execution_time_ms": 81
+}

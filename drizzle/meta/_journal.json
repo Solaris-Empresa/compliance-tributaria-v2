@@ -288,6 +288,20 @@
       "when": 1773943994006,
       "tag": "0040_faithful_sunfire",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "5",
+      "when": 1773952114493,
+      "tag": "0041_volatile_excalibur",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "5",
+      "when": 1773952382938,
+      "tag": "0042_zippy_starjammers",
+      "breakpoints": true
     }
   ]
 }

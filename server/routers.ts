@@ -166,14 +166,14 @@ export const appRouter = router({
         projectId: z.number(),
         status: z.enum([
           "rascunho",
-          "assessment_fase1",
-          "assessment_fase2",
+          "diagnostico_corporativo",
+          "diagnostico_operacional",
+          "diagnostico_cnae",
           "matriz_riscos",
           "plano_acao",
           "em_avaliacao",
           "aprovado",
           "em_andamento",
-          "parado",
           "concluido",
           "arquivado"
         ]),
@@ -191,8 +191,9 @@ export const appRouter = router({
         // Transições permitidas para clientes (apenas solicitar aprovação)
         const clientAllowedTransitions: Record<string, string[]> = {
           rascunho: ["em_avaliacao"],
-          assessment_fase1: ["em_avaliacao"],
-          assessment_fase2: ["em_avaliacao"],
+          diagnostico_corporativo: ["em_avaliacao"],
+          diagnostico_operacional: ["em_avaliacao"],
+          diagnostico_cnae: ["em_avaliacao"],
           matriz_riscos: ["em_avaliacao"],
           plano_acao: ["em_avaliacao"],
         };
@@ -307,8 +308,8 @@ export const appRouter = router({
           completedByRole: ctx.user.role as any,
         });
 
-        // Avançar status do projeto
-        await db.updateProject(input.projectId, { status: "assessment_fase2" });
+        // Avançar status do projeto (v2.1: assessment_fase1 → diagnostico_corporativo)
+        await db.updateProject(input.projectId, { status: "diagnostico_corporativo" });
 
         return { success: true };
       }),
@@ -319,8 +320,8 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         console.log('[forceTransitionToPhase2] Forçando transição para projectId:', input.projectId);
         
-        // Apenas atualizar status do projeto
-        await db.updateProject(input.projectId, { status: "assessment_fase2" });
+        // v2.1: assessment_fase2 removido → diagnostico_corporativo
+        await db.updateProject(input.projectId, { status: "diagnostico_corporativo" });
         
         return { success: true };
       }),

@@ -1,0 +1,1 @@
+ALTER TABLE `projects` MODIFY COLUMN `status` enum('rascunho','diagnostico_corporativo','diagnostico_operacional','diagnostico_cnae','matriz_riscos','plano_acao','em_avaliacao','aprovado','em_andamento','concluido','arquivado') NOT NULL DEFAULT 'rascunho';
