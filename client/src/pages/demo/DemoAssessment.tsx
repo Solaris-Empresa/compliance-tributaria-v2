@@ -1,111 +1,97 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { ArrowRight, ArrowLeft, Building2, FileText, CheckCircle2, Zap, ChevronRight } from "lucide-react";
+import { Building2, CheckCircle2, ChevronRight, ArrowLeft, Zap, FileText, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import type { ScenarioKey } from "@/lib/demo-engine";
 
-// ─── Dados do formulário ────────────────────────────────────────────────────
-
-const SETORES = [
-  { value: "comercio", label: "Comércio / Varejo" },
-  { value: "industria", label: "Indústria / Manufatura" },
-  { value: "servicos", label: "Serviços / Consultoria" },
-  { value: "tecnologia", label: "Tecnologia / Software" },
-  { value: "saude", label: "Saúde / Farmácia" },
-  { value: "agro", label: "Agronegócio" },
-  { value: "financeiro", label: "Financeiro / Seguros" },
-  { value: "outro", label: "Outro" },
-];
-
-const PORTES = [
-  { value: "mei", label: "MEI" },
-  { value: "me", label: "ME (Microempresa)" },
-  { value: "epp", label: "EPP (Pequeno Porte)" },
-  { value: "medio", label: "Médio Porte" },
-  { value: "grande", label: "Grande Empresa" },
-];
-
-const CNAES = [
-  { code: "47.11-3", desc: "Comércio varejista de mercadorias em geral", setor: "comercio" },
-  { code: "62.01-5", desc: "Desenvolvimento de programas de computador", setor: "tecnologia" },
-  { code: "86.30-5", desc: "Atividades de atenção ambulatorial executadas por médicos", setor: "saude" },
-  { code: "25.99-3", desc: "Fabricação de outros produtos de metal", setor: "industria" },
-  { code: "69.20-6", desc: "Atividades de contabilidade, consultoria e auditoria", setor: "servicos" },
-  { code: "01.11-3", desc: "Cultivo de trigo e de outros cereais", setor: "agro" },
-  { code: "64.22-1", desc: "Bancos múltiplos com carteira comercial", setor: "financeiro" },
-  { code: "43.30-4", desc: "Obras de acabamento em construções", setor: "outro" },
-];
-
-// ─── Perguntas do questionário (1 por domínio) ───────────────────────────────
+// ─── Tipos ───────────────────────────────────────────────────────────────────
 
 type Answer = "sim" | "parcial" | "nao";
+type Step = 1 | 2 | 3 | 4;
+
+interface CnaeItem {
+  code: string;
+  description: string;
+}
+
+// ─── Geração simulada de CNAEs a partir da descrição ─────────────────────────
+// Regra simples: palavras-chave na descrição mapeiam para CNAEs reais IBGE
+
+const KEYWORD_CNAE_MAP: { keywords: string[]; code: string; description: string }[] = [
+  { keywords: ["software", "sistema", "tecnologia", "ti ", "saas", "aplicativo", "app", "desenvolvimento", "programação", "digital"], code: "6201-5/01", description: "Desenvolvimento de programas de computador sob encomenda" },
+  { keywords: ["comércio", "varejo", "loja", "venda", "produto", "mercadoria", "atacado", "distribui"], code: "4711-3/02", description: "Comércio varejista de mercadorias em geral" },
+  { keywords: ["indústria", "fabricação", "manufatura", "produção", "fábrica", "industrial", "metal", "plástico"], code: "2599-3/99", description: "Fabricação de outros produtos de metal não especificados" },
+  { keywords: ["serviço", "consultoria", "assessoria", "gestão", "administração", "terceirização", "outsourcing"], code: "6920-6/01", description: "Atividades de contabilidade, consultoria e auditoria contábil" },
+  { keywords: ["saúde", "médico", "clínica", "hospital", "farmácia", "medicamento", "laborat", "odonto"], code: "8630-5/04", description: "Atividade odontológica" },
+  { keywords: ["agro", "agrícola", "fazenda", "rural", "cultivo", "plantio", "pecuária", "gado", "soja", "milho"], code: "0111-3/01", description: "Cultivo de arroz" },
+  { keywords: ["financeiro", "banco", "crédito", "seguro", "investimento", "fintech", "pagamento", "cobrança"], code: "6422-1/00", description: "Bancos múltiplos com carteira comercial" },
+  { keywords: ["construção", "obra", "engenharia", "imóvel", "imobiliária", "incorporação", "reforma", "predial"], code: "4120-4/00", description: "Construção de edifícios" },
+  { keywords: ["transporte", "logística", "frete", "entrega", "carga", "frota", "caminhão", "motorista"], code: "4930-2/01", description: "Transporte rodoviário de carga, exceto produtos perigosos e mudanças" },
+  { keywords: ["educação", "escola", "ensino", "curso", "treinamento", "capacitação", "universidade", "faculdade"], code: "8599-6/04", description: "Treinamento em desenvolvimento profissional e gerencial" },
+  { keywords: ["alimento", "restaurante", "alimentação", "bebida", "bar", "café", "padaria", "gastronomia"], code: "5611-2/01", description: "Restaurantes e similares" },
+  { keywords: ["telecom", "comunicação", "internet", "provedor", "rede", "telecomunicação", "fibra"], code: "6110-8/01", description: "Serviços telefônicos" },
+];
+
+function generateCnaesFromDescription(description: string): CnaeItem[] {
+  const lower = description.toLowerCase();
+  const matched: CnaeItem[] = [];
+  const usedCodes = new Set<string>();
+
+  for (const entry of KEYWORD_CNAE_MAP) {
+    if (matched.length >= 4) break;
+    if (usedCodes.has(entry.code)) continue;
+    if (entry.keywords.some(kw => lower.includes(kw))) {
+      matched.push({ code: entry.code, description: entry.description });
+      usedCodes.add(entry.code);
+    }
+  }
+
+  // Fallback: se não encontrou nada, retorna 2 CNAEs genéricos de serviços
+  if (matched.length === 0) {
+    matched.push(
+      { code: "6920-6/01", description: "Atividades de contabilidade, consultoria e auditoria contábil" },
+      { code: "7490-1/04", description: "Atividades de intermediação e agenciamento de serviços" }
+    );
+  }
+
+  // Garante mínimo de 2
+  if (matched.length === 1) {
+    matched.push({ code: "7490-1/04", description: "Atividades de intermediação e agenciamento de serviços" });
+  }
+
+  return matched;
+}
+
+// ─── 5 perguntas fixas sobre Reforma Tributária ──────────────────────────────
 
 const QUESTIONS = [
   {
     id: "q1",
-    domain: "Governança da Transição",
-    question: "Sua empresa já formou um Comitê de Transição Tributária com responsáveis definidos para a Reforma?",
-    sim: "Comitê formado, reuniões regulares, responsáveis definidos",
-    parcial: "Discussões iniciadas mas sem estrutura formal",
-    nao: "Ainda não foi discutido internamente",
+    domain: "Governança",
+    question: "Sua empresa já formou um grupo de trabalho ou comitê responsável pela adequação à Reforma Tributária (LC 214/2023)?",
   },
   {
     id: "q2",
-    domain: "Sistemas ERP e Dados",
-    question: "Seu ERP já está sendo atualizado para emitir NF-e com CBS/IBS e calcular os novos tributos?",
-    sim: "ERP atualizado ou em processo formal com fornecedor",
-    parcial: "Contato iniciado com fornecedor, sem prazo definido",
-    nao: "ERP não foi avaliado para a Reforma",
+    domain: "Sistemas",
+    question: "O ERP ou sistema fiscal da empresa já foi avaliado para suportar a emissão de notas com CBS/IBS e os novos cálculos tributários?",
   },
   {
     id: "q3",
-    domain: "Gestão Fiscal Operacional",
-    question: "Sua equipe fiscal já foi treinada nos novos regimes do IBS, CBS e Imposto Seletivo?",
-    sim: "Treinamento concluído ou em andamento com cronograma",
-    parcial: "Alguns colaboradores treinados, sem cobertura total",
-    nao: "Nenhum treinamento realizado ainda",
+    domain: "Financeiro",
+    question: "Foi feita alguma estimativa financeira dos custos de adequação e do impacto da transição tributária no fluxo de caixa (2026–2033)?",
   },
   {
     id: "q4",
-    domain: "Planejamento Financeiro",
-    question: "Já foi feita uma provisão financeira para cobrir os custos da transição tributária (2026–2033)?",
-    sim: "Provisão calculada e aprovada pela diretoria",
-    parcial: "Estimativas informais, sem aprovação formal",
-    nao: "Nenhuma provisão foi calculada",
+    domain: "Jurídico",
+    question: "Os contratos com clientes e fornecedores foram revisados para incluir cláusulas de reajuste tributário relacionadas à Reforma?",
   },
   {
     id: "q5",
-    domain: "Contratos e Fornecedores",
-    question: "Os contratos com fornecedores e clientes já foram revisados para incluir cláusulas de reajuste tributário?",
-    sim: "Revisão jurídica concluída ou em andamento",
-    parcial: "Revisão iniciada para contratos principais",
-    nao: "Contratos não foram revisados",
-  },
-  {
-    id: "q6",
-    domain: "Cadastros e Tabelas Fiscais",
-    question: "O cadastro de produtos/serviços já foi revisado para classificação correta no novo regime (NCM, CEST)?",
-    sim: "Revisão completa com nova classificação aplicada",
-    parcial: "Revisão parcial dos itens mais relevantes",
-    nao: "Cadastro não foi revisado",
-  },
-  {
-    id: "q7",
-    domain: "Jurídico e Regulatório",
-    question: "Foi feita uma análise jurídica formal da LC 214/2023 e seus impactos no modelo de negócio?",
-    sim: "Análise jurídica completa com parecer formal",
-    parcial: "Leitura interna da lei, sem parecer formal",
-    nao: "Nenhuma análise jurídica realizada",
-  },
-  {
-    id: "q8",
-    domain: "Gestão de Pessoas e Cultura",
-    question: "Os colaboradores de áreas afetadas (financeiro, fiscal, jurídico, TI) foram comunicados sobre as mudanças?",
-    sim: "Comunicação formal realizada com treinamento específico",
-    parcial: "Comunicação informal ou parcial",
-    nao: "Nenhuma comunicação realizada",
+    domain: "Pessoas",
+    question: "A equipe financeira, fiscal e jurídica foi comunicada e treinada sobre as mudanças trazidas pela LC 214/2023?",
   },
 ];
 
@@ -116,10 +102,9 @@ function determineScenario(answers: Record<string, Answer>): ScenarioKey {
   for (const ans of Object.values(answers)) {
     if (ans === "sim") score += 2;
     else if (ans === "parcial") score += 1;
-    // nao = 0
   }
-  const maxScore = QUESTIONS.length * 2; // 16
-  const pct = score / maxScore;
+  const max = QUESTIONS.length * 2; // 10
+  const pct = score / max;
   if (pct >= 0.65) return "simples";
   if (pct >= 0.35) return "medio";
   return "complexo";
@@ -129,71 +114,121 @@ function determineScenario(answers: Record<string, Answer>): ScenarioKey {
 
 export default function DemoAssessment() {
   const [, navigate] = useLocation();
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<Step>(1);
+
+  // Passo 1
   const [companyName, setCompanyName] = useState("");
-  const [setor, setSetor] = useState("");
-  const [porte, setPorte] = useState("");
-  const [cnae, setCnae] = useState("");
+  const [description, setDescription] = useState("");
+
+  // Passo 2
+  const [cnaes, setCnaes] = useState<CnaeItem[]>([]);
+  const [confirmedCnaes, setConfirmedCnaes] = useState<CnaeItem[]>([]);
+
+  // Passo 3
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [currentQ, setCurrentQ] = useState(0);
+
+  // Passo 4
   const [processing, setProcessing] = useState(false);
 
-  const totalQ = QUESTIONS.length;
-  const answeredCount = Object.keys(answers).length;
-  const allAnswered = answeredCount === totalQ;
+  // ── Handlers ──
+
+  function handleStep1Next() {
+    const generated = generateCnaesFromDescription(description);
+    setCnaes(generated);
+    setConfirmedCnaes(generated);
+    setStep(2);
+  }
+
+  function toggleCnae(cnae: CnaeItem) {
+    setConfirmedCnaes(prev =>
+      prev.some(c => c.code === cnae.code)
+        ? prev.filter(c => c.code !== cnae.code)
+        : [...prev, cnae]
+    );
+  }
+
+  function handleStep2Next() {
+    setStep(3);
+  }
 
   function handleAnswer(qId: string, ans: Answer) {
-    setAnswers(prev => ({ ...prev, [qId]: ans }));
-    if (currentQ < totalQ - 1) {
-      setTimeout(() => setCurrentQ(q => q + 1), 300);
+    const updated = { ...answers, [qId]: ans };
+    setAnswers(updated);
+    if (currentQ < QUESTIONS.length - 1) {
+      setTimeout(() => setCurrentQ(q => q + 1), 250);
     }
   }
 
-  function handleStartDiagnosis() {
+  function handleStep3Next() {
+    setStep(4);
     setProcessing(true);
     const scenario = determineScenario(answers);
-    // Simular processamento do motor
     setTimeout(() => {
       navigate(`/demo/dashboard?scenario=${scenario}&company=${encodeURIComponent(companyName || "Empresa Demo")}`);
-    }, 2000);
+    }, 2200);
   }
 
-  const canAdvanceStep1 = companyName.trim().length >= 2 && setor && porte;
+  const descOk = description.trim().length >= 80;
+  const nameOk = companyName.trim().length >= 2;
+  const canAdvance1 = nameOk && descOk;
+  const canAdvance2 = confirmedCnaes.length >= 1;
+  const allAnswered = Object.keys(answers).length === QUESTIONS.length;
+
+  const progressPct = step === 1 ? 25 : step === 2 ? 50 : step === 3 ? 75 : 100;
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       {/* Header */}
       <header className="border-b border-slate-800 px-6 py-4 flex items-center gap-3">
-        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-sm select-none">
-          CE
-        </div>
+        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-sm select-none">CE</div>
         <div>
           <div className="font-semibold text-sm leading-tight">Compliance Engine</div>
           <div className="text-xs text-slate-400">v3 · Diagnóstico</div>
         </div>
-        <button
-          onClick={() => navigate("/demo")}
-          className="ml-auto text-xs text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1"
-        >
-          ← Voltar
-        </button>
+        {step < 4 && (
+          <button
+            onClick={() => step === 1 ? navigate("/demo") : setStep(s => (s - 1) as Step)}
+            className="ml-auto text-xs text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1"
+          >
+            <ArrowLeft className="w-3 h-3" /> Voltar
+          </button>
+        )}
       </header>
 
       {/* Progress bar */}
       <div className="h-1 bg-slate-800">
-        <div
-          className="h-1 bg-blue-500 transition-all duration-500"
-          style={{ width: step === 1 ? "33%" : step === 2 ? "66%" : "100%" }}
-        />
+        <div className="h-1 bg-blue-500 transition-all duration-500" style={{ width: `${progressPct}%` }} />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
-        <div className="w-full max-w-xl">
+      {/* Steps indicator */}
+      {step < 4 && (
+        <div className="flex items-center justify-center gap-2 py-4 border-b border-slate-800/50">
+          {[
+            { n: 1, label: "Empresa", icon: Building2 },
+            { n: 2, label: "CNAEs", icon: FileText },
+            { n: 3, label: "Perguntas", icon: ClipboardList },
+          ].map(({ n, label, icon: Icon }) => (
+            <div key={n} className="flex items-center gap-1.5">
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                step > n ? "bg-green-600 text-white" : step === n ? "bg-blue-600 text-white" : "bg-slate-800 text-slate-500"
+              }`}>
+                {step > n ? "✓" : n}
+              </div>
+              <span className={`text-xs hidden sm:block ${step === n ? "text-white" : "text-slate-500"}`}>{label}</span>
+              {n < 3 && <ChevronRight className="w-3 h-3 text-slate-700" />}
+            </div>
+          ))}
+        </div>
+      )}
 
-          {/* ── PASSO 1: Dados da empresa ── */}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-10">
+        <div className="w-full max-w-lg">
+
+          {/* ── PASSO 1: Nome + Descrição ── */}
           {step === 1 && (
-            <div>
-              <div className="flex items-center gap-3 mb-8">
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
                   <Building2 className="w-5 h-5" />
                 </div>
@@ -203,297 +238,224 @@ export default function DemoAssessment() {
                 </div>
               </div>
 
-              <div className="space-y-5">
-                <div>
-                  <Label className="text-sm text-slate-300 mb-2 block">Nome da empresa *</Label>
-                  <Input
-                    value={companyName}
-                    onChange={e => setCompanyName(e.target.value)}
-                    placeholder="Ex: Comércio Digital Ltda."
-                    className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500"
-                  />
-                </div>
+              <div>
+                <Label className="text-sm text-slate-300 mb-1.5 block">Nome da empresa *</Label>
+                <Input
+                  value={companyName}
+                  onChange={e => setCompanyName(e.target.value)}
+                  placeholder="Ex: Comércio Digital Ltda."
+                  className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500"
+                />
+              </div>
 
-                <div>
-                  <Label className="text-sm text-slate-300 mb-2 block">Setor de atuação *</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {SETORES.map(s => (
-                      <button
-                        key={s.value}
-                        onClick={() => setSetor(s.value)}
-                        className={`text-left px-3 py-2.5 rounded-lg border text-sm transition-all ${
-                          setor === s.value
-                            ? "border-blue-500 bg-blue-900/30 text-blue-300"
-                            : "border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-500"
-                        }`}
-                      >
-                        {s.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-sm text-slate-300 mb-2 block">Porte da empresa *</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {PORTES.map(p => (
-                      <button
-                        key={p.value}
-                        onClick={() => setPorte(p.value)}
-                        className={`px-4 py-2 rounded-lg border text-sm transition-all ${
-                          porte === p.value
-                            ? "border-blue-500 bg-blue-900/30 text-blue-300"
-                            : "border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-500"
-                        }`}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-sm text-slate-300 mb-2 block">CNAE principal (opcional)</Label>
-                  <div className="space-y-1.5">
-                    {CNAES.map(c => (
-                      <button
-                        key={c.code}
-                        onClick={() => setCnae(cnae === c.code ? "" : c.code)}
-                        className={`w-full text-left px-3 py-2 rounded-lg border text-xs transition-all flex items-center gap-2 ${
-                          cnae === c.code
-                            ? "border-blue-500 bg-blue-900/30 text-blue-300"
-                            : "border-slate-800 bg-slate-900/50 text-slate-500 hover:border-slate-600"
-                        }`}
-                      >
-                        <span className="font-mono font-bold shrink-0">{c.code}</span>
-                        <span>{c.desc}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              <div>
+                <Label className="text-sm text-slate-300 mb-1.5 block">
+                  Descrição do negócio *
+                  <span className={`ml-2 text-xs font-normal ${descOk ? "text-green-400" : "text-slate-500"}`}>
+                    {description.trim().length}/80 caracteres mínimos
+                  </span>
+                </Label>
+                <Textarea
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder="Descreva as atividades da empresa: o que vende, como opera, quais setores atua, principais clientes e fornecedores..."
+                  rows={5}
+                  className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500 resize-none"
+                />
+                {!descOk && description.length > 0 && (
+                  <p className="text-xs text-amber-400 mt-1">
+                    Adicione mais {80 - description.trim().length} caracteres para uma análise precisa.
+                  </p>
+                )}
               </div>
 
               <Button
-                onClick={() => setStep(2)}
-                disabled={!canAdvanceStep1}
-                className="w-full mt-8 bg-blue-600 hover:bg-blue-500 text-white gap-2"
+                onClick={handleStep1Next}
+                disabled={!canAdvance1}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Avançar para o Questionário <ArrowRight className="w-4 h-4" />
+                Identificar CNAEs <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
           )}
 
-          {/* ── PASSO 2: Questionário ── */}
+          {/* ── PASSO 2: CNAEs gerados ── */}
           {step === 2 && (
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center">
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
                   <FileText className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs text-purple-400 font-medium uppercase tracking-wider">Passo 2 de 3</p>
-                  <h2 className="text-xl font-bold">Questionário de Diagnóstico</h2>
-                </div>
-                <div className="ml-auto text-xs text-slate-400">
-                  {answeredCount}/{totalQ} respondidas
+                  <p className="text-xs text-blue-400 font-medium uppercase tracking-wider">Passo 2 de 3</p>
+                  <h2 className="text-xl font-bold">CNAEs Identificados</h2>
                 </div>
               </div>
 
-              {/* Progress dots */}
-              <div className="flex gap-1.5 mb-6">
+              <p className="text-sm text-slate-400">
+                Com base na descrição da empresa, identificamos os seguintes códigos de atividade econômica. Confirme os que se aplicam:
+              </p>
+
+              <div className="space-y-3">
+                {cnaes.map(cnae => {
+                  const isSelected = confirmedCnaes.some(c => c.code === cnae.code);
+                  return (
+                    <button
+                      key={cnae.code}
+                      onClick={() => toggleCnae(cnae)}
+                      className={`w-full text-left p-4 rounded-xl border transition-all ${
+                        isSelected
+                          ? "border-blue-500 bg-blue-900/20"
+                          : "border-slate-700 bg-slate-900 hover:border-slate-500"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                          isSelected ? "border-blue-500 bg-blue-500" : "border-slate-600"
+                        }`}>
+                          {isSelected && <CheckCircle2 className="w-3 h-3 text-white" />}
+                        </div>
+                        <div>
+                          <div className="text-xs font-mono text-blue-400 mb-0.5">{cnae.code}</div>
+                          <div className="text-sm text-white">{cnae.description}</div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="bg-slate-900 rounded-lg p-3 border border-slate-800">
+                <p className="text-xs text-slate-500">
+                  <span className="text-slate-400 font-medium">Como funciona:</span> Os CNAEs determinam quais artigos da LC 214/2023 (IBS/CBS/IS) se aplicam à sua empresa e quais requisitos serão avaliados no diagnóstico.
+                </p>
+              </div>
+
+              <Button
+                onClick={handleStep2Next}
+                disabled={!canAdvance2}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Confirmar CNAEs e Avançar <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+          )}
+
+          {/* ── PASSO 3: 5 Perguntas ── */}
+          {step === 3 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                  <ClipboardList className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs text-blue-400 font-medium uppercase tracking-wider">Passo 3 de 3</p>
+                  <h2 className="text-xl font-bold">Questionário de Diagnóstico</h2>
+                </div>
+              </div>
+
+              {/* Progresso das perguntas */}
+              <div className="flex gap-1.5">
                 {QUESTIONS.map((q, i) => (
-                  <button
+                  <div
                     key={q.id}
-                    onClick={() => setCurrentQ(i)}
-                    className={`h-2 rounded-full transition-all ${
-                      answers[q.id]
-                        ? answers[q.id] === "sim" ? "bg-emerald-500" :
-                          answers[q.id] === "parcial" ? "bg-amber-500" : "bg-red-500"
-                        : i === currentQ ? "bg-blue-500 w-6" : "bg-slate-700"
-                    } ${i === currentQ ? "w-6" : "w-2"}`}
+                    className={`h-1.5 flex-1 rounded-full transition-colors ${
+                      answers[q.id] ? "bg-blue-500" : i === currentQ ? "bg-blue-800" : "bg-slate-800"
+                    }`}
                   />
                 ))}
               </div>
 
-              {/* Current question */}
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {QUESTIONS[currentQ].domain}
-                  </span>
-                  <span className="text-xs text-slate-600">· {currentQ + 1}/{totalQ}</span>
+              {/* Pergunta atual */}
+              <div className="bg-slate-900 rounded-xl border border-slate-800 p-5">
+                <div className="text-xs text-blue-400 font-medium mb-2 uppercase tracking-wider">
+                  {currentQ + 1} / {QUESTIONS.length} · {QUESTIONS[currentQ].domain}
                 </div>
-                <p className="text-base font-medium text-white leading-relaxed mb-5">
+                <p className="text-base text-white leading-relaxed">
                   {QUESTIONS[currentQ].question}
                 </p>
-
-                <div className="space-y-2">
-                  {(["sim", "parcial", "nao"] as Answer[]).map(ans => {
-                    const label = ans === "sim" ? "Sim" : ans === "parcial" ? "Parcialmente" : "Não";
-                    const desc = ans === "sim" ? QUESTIONS[currentQ].sim :
-                                 ans === "parcial" ? QUESTIONS[currentQ].parcial :
-                                 QUESTIONS[currentQ].nao;
-                    const color = ans === "sim"
-                      ? answers[QUESTIONS[currentQ].id] === "sim"
-                        ? "border-emerald-500 bg-emerald-900/30 text-emerald-300"
-                        : "border-slate-700 hover:border-emerald-700 hover:bg-emerald-900/10"
-                      : ans === "parcial"
-                      ? answers[QUESTIONS[currentQ].id] === "parcial"
-                        ? "border-amber-500 bg-amber-900/30 text-amber-300"
-                        : "border-slate-700 hover:border-amber-700 hover:bg-amber-900/10"
-                      : answers[QUESTIONS[currentQ].id] === "nao"
-                        ? "border-red-500 bg-red-900/30 text-red-300"
-                        : "border-slate-700 hover:border-red-700 hover:bg-red-900/10";
-
-                    return (
-                      <button
-                        key={ans}
-                        onClick={() => handleAnswer(QUESTIONS[currentQ].id, ans)}
-                        className={`w-full text-left px-4 py-3 rounded-lg border transition-all ${color}`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <span className={`text-sm font-bold shrink-0 mt-0.5 ${
-                            ans === "sim" ? "text-emerald-400" :
-                            ans === "parcial" ? "text-amber-400" : "text-red-400"
-                          }`}>{label}</span>
-                          <span className="text-xs text-slate-400 leading-relaxed">{desc}</span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
 
-              {/* Navigation */}
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  onClick={() => currentQ > 0 ? setCurrentQ(q => q - 1) : setStep(1)}
-                  className="text-slate-400 hover:text-white gap-1"
-                >
-                  <ArrowLeft className="w-4 h-4" /> Anterior
-                </Button>
-                {currentQ < totalQ - 1 ? (
+              {/* Opções de resposta */}
+              <div className="grid grid-cols-3 gap-3">
+                {(["sim", "parcial", "nao"] as Answer[]).map(ans => {
+                  const current = answers[QUESTIONS[currentQ].id];
+                  const isSelected = current === ans;
+                  const colors = {
+                    sim: isSelected ? "border-green-500 bg-green-900/20 text-green-300" : "border-slate-700 bg-slate-900 text-slate-400 hover:border-green-600",
+                    parcial: isSelected ? "border-amber-500 bg-amber-900/20 text-amber-300" : "border-slate-700 bg-slate-900 text-slate-400 hover:border-amber-600",
+                    nao: isSelected ? "border-red-500 bg-red-900/20 text-red-300" : "border-slate-700 bg-slate-900 text-slate-400 hover:border-red-600",
+                  };
+                  const labels = { sim: "✅ Sim", parcial: "⚠️ Parcial", nao: "❌ Não" };
+                  return (
+                    <button
+                      key={ans}
+                      onClick={() => handleAnswer(QUESTIONS[currentQ].id, ans)}
+                      className={`py-3 px-2 rounded-xl border text-sm font-medium transition-all ${colors[ans]}`}
+                    >
+                      {labels[ans]}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Navegação entre perguntas */}
+              <div className="flex gap-2">
+                {currentQ > 0 && (
                   <Button
-                    onClick={() => setCurrentQ(q => q + 1)}
-                    disabled={!answers[QUESTIONS[currentQ].id]}
-                    className="ml-auto bg-slate-700 hover:bg-slate-600 gap-1"
+                    variant="outline"
+                    onClick={() => setCurrentQ(q => q - 1)}
+                    className="flex-1 border-slate-700 text-slate-400 hover:text-white"
                   >
-                    Próxima <ChevronRight className="w-4 h-4" />
+                    <ArrowLeft className="w-4 h-4 mr-1" /> Anterior
                   </Button>
-                ) : (
+                )}
+                {currentQ < QUESTIONS.length - 1 && answers[QUESTIONS[currentQ].id] && (
                   <Button
-                    onClick={() => allAnswered && setStep(3)}
-                    disabled={!allAnswered}
-                    className="ml-auto bg-purple-600 hover:bg-purple-500 gap-2"
+                    variant="outline"
+                    onClick={() => setCurrentQ(q => q + 1)}
+                    className="flex-1 border-slate-700 text-slate-400 hover:text-white"
                   >
-                    Ver Resultado <ArrowRight className="w-4 h-4" />
+                    Próxima <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 )}
               </div>
 
-              {/* Skip all button */}
-              <button
-                onClick={() => setStep(3)}
-                className="w-full mt-4 text-xs text-slate-600 hover:text-slate-400 transition-colors"
-              >
-                Pular questionário e usar cenário padrão →
-              </button>
+              {allAnswered && (
+                <Button
+                  onClick={handleStep3Next}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
+                  <Zap className="w-4 h-4 mr-2" /> Gerar Diagnóstico Completo
+                </Button>
+              )}
             </div>
           )}
 
-          {/* ── PASSO 3: Confirmação ── */}
-          {step === 3 && !processing && (
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-blue-600/20 border border-blue-600/30 flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-8 h-8 text-blue-400" />
+          {/* ── PASSO 4: Processando ── */}
+          {step === 4 && (
+            <div className="text-center space-y-6">
+              <div className="w-16 h-16 rounded-full bg-blue-600/20 border-2 border-blue-500 flex items-center justify-center mx-auto animate-pulse">
+                <Zap className="w-8 h-8 text-blue-400" />
               </div>
-
-              <h2 className="text-2xl font-bold mb-2">Pronto para o Diagnóstico</h2>
-              <p className="text-slate-400 text-sm mb-8 max-w-sm mx-auto">
-                O motor v3 vai processar as respostas e gerar o diagnóstico completo de compliance para{" "}
-                <span className="text-white font-medium">{companyName || "sua empresa"}</span>.
-              </p>
-
-              {/* Summary */}
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-8 text-left">
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">Resumo do Assessment</h3>
-                <div className="space-y-2">
-                  {QUESTIONS.map(q => {
-                    const ans = answers[q.id];
-                    if (!ans) return null;
-                    return (
-                      <div key={q.id} className="flex items-center gap-3 text-xs">
-                        <span className={`shrink-0 w-16 text-center font-semibold px-2 py-0.5 rounded-full ${
-                          ans === "sim" ? "bg-emerald-900/50 text-emerald-400" :
-                          ans === "parcial" ? "bg-amber-900/50 text-amber-400" :
-                          "bg-red-900/50 text-red-400"
-                        }`}>
-                          {ans === "sim" ? "Sim" : ans === "parcial" ? "Parcial" : "Não"}
-                        </span>
-                        <span className="text-slate-400 truncate">{q.domain}</span>
-                      </div>
-                    );
-                  })}
-                  {answeredCount === 0 && (
-                    <p className="text-slate-500 text-xs">Nenhuma pergunta respondida — será usado o cenário padrão (Empresa Complexa).</p>
-                  )}
-                </div>
+              <div>
+                <h2 className="text-2xl font-bold mb-2">Gerando Diagnóstico</h2>
+                <p className="text-slate-400 text-sm">
+                  O motor v3 está processando as respostas e calculando o score de compliance para <strong className="text-white">{companyName}</strong>...
+                </p>
               </div>
-
-              {/* Predicted scenario */}
-              {answeredCount > 0 && (() => {
-                const predicted = determineScenario(answers);
-                const labels: Record<ScenarioKey, { label: string; color: string; desc: string }> = {
-                  simples: { label: "✅ Bem Preparada", color: "text-emerald-400", desc: "Score estimado: 55–75/100" },
-                  medio: { label: "⚠️ Em Transição", color: "text-amber-400", desc: "Score estimado: 40–60/100" },
-                  complexo: { label: "🚨 Situação Crítica", color: "text-red-400", desc: "Score estimado: 25–45/100" },
-                };
-                const meta = labels[predicted];
-                return (
-                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-6 text-left">
-                    <p className="text-xs text-slate-500 mb-1">Perfil estimado pelo motor</p>
-                    <p className={`font-bold text-lg ${meta.color}`}>{meta.label}</p>
-                    <p className="text-xs text-slate-500">{meta.desc}</p>
-                  </div>
-                );
-              })()}
-
-              <Button
-                onClick={handleStartDiagnosis}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white gap-2 py-6 text-base font-semibold"
-              >
-                <Zap className="w-5 h-5" />
-                Iniciar Diagnóstico
-              </Button>
-
-              <button
-                onClick={() => setStep(2)}
-                className="mt-4 text-xs text-slate-600 hover:text-slate-400 transition-colors"
-              >
-                ← Revisar respostas
-              </button>
-            </div>
-          )}
-
-          {/* ── PROCESSANDO ── */}
-          {processing && (
-            <div className="text-center">
-              <div className="w-20 h-20 rounded-full border-4 border-blue-600/30 border-t-blue-500 animate-spin mx-auto mb-8" />
-              <h2 className="text-xl font-bold mb-3">Processando Diagnóstico</h2>
-              <p className="text-slate-400 text-sm mb-6">
-                O motor v3 está calculando score, gaps, riscos, plano de ação e tarefas atômicas...
-              </p>
-              <div className="space-y-2 text-xs text-slate-500 max-w-xs mx-auto">
+              <div className="space-y-2 text-left bg-slate-900 rounded-xl p-4 border border-slate-800">
                 {[
-                  "✓ Avaliando 8 domínios de compliance",
-                  "✓ Calculando score por requisito",
-                  "✓ Identificando gaps e evidências",
-                  "✓ Gerando matriz de riscos 4×4",
-                  "✓ Criando plano de ação priorizado",
-                  "⟳ Gerando tarefas atômicas...",
+                  "Analisando CNAEs confirmados...",
+                  "Calculando score por domínio...",
+                  "Identificando gaps de compliance...",
+                  "Gerando matriz de riscos 4×4...",
+                  "Montando plano de ação...",
                 ].map((msg, i) => (
-                  <p key={i} className={i < 5 ? "text-slate-400" : "text-blue-400 animate-pulse"}>{msg}</p>
+                  <div key={i} className="flex items-center gap-2 text-xs text-slate-400">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" style={{ animationDelay: `${i * 0.3}s` }} />
+                    {msg}
+                  </div>
                 ))}
               </div>
             </div>
@@ -501,11 +463,6 @@ export default function DemoAssessment() {
 
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-slate-800 px-6 py-3 text-center text-xs text-slate-600">
-        IA Solaris · Compliance Engine v3 · Diagnóstico baseado em LC 214/2023
-      </footer>
     </div>
   );
 }

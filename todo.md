@@ -2438,3 +2438,19 @@
 
 ### Rotas
 - [x] Registrar /demo/assessment em App.tsx
+
+## Fluxo Mínimo Funcional (Sprint 8.5 v2)
+- [ ] Reescrever DemoAssessment: Passo 1 = nome + descrição (mín 80 chars)
+- [ ] Passo 2 = CNAEs simulados gerados a partir da descrição (regra simples, sem IA)
+- [ ] Passo 3 = 5 perguntas fixas com Sim/Parcial/Não
+- [ ] Passo 4 = processamento + redirect para /demo/dashboard
+- [ ] Backend: publicProcedure demo.runScenario que usa respostas para determinar cenário
+- [ ] Garantir que funciona 100% sem erro em todos os casos
+
+## Fluxo Mínimo Funcional (Sprint 8.5 - Revisado)
+- [x] Passo 1: Nome da empresa + descrição (mín 80 chars)
+- [x] Passo 2: CNAEs simulados gerados a partir da descrição (regra por palavras-chave)
+- [x] Passo 3: 5 perguntas fixas com Sim/Parcial/Não
+- [x] Redirecionar para /demo/dashboard com nome da empresa
+- [x] DemoLayout: exibir nome real da empresa do query param
+- [x] Propagar company param em todos os links de navegação

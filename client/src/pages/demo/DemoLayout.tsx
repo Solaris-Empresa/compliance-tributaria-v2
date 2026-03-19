@@ -22,8 +22,10 @@ function useScenario(): ScenarioKey {
   return "complexo";
 }
 
-function navHref(base: string, scenario: ScenarioKey) {
-  return `${base}?scenario=${scenario}`;
+function navHref(base: string, scenario: ScenarioKey, company?: string) {
+  const params = new URLSearchParams({ scenario });
+  if (company) params.set("company", company);
+  return `${base}?${params.toString()}`;
 }
 
 const NAV_ITEMS = [
@@ -45,6 +47,7 @@ export default function DemoLayout({ children, title, subtitle }: Props) {
   const scenario = useScenario();
   const meta = SCENARIO_META[scenario];
   const data = SCENARIOS[scenario];
+  const companyName = (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("company") : null) || meta.subtitle;
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -85,7 +88,7 @@ export default function DemoLayout({ children, title, subtitle }: Props) {
                 scenario === "simples" ? "text-emerald-600" :
                 scenario === "medio" ? "text-amber-600" : "text-red-600"
               }`}>
-                {meta.subtitle} · Score {data.overallScore}/100
+                {companyName} · Score {data.overallScore}/100
               </p>
             </div>
           </div>
@@ -94,7 +97,7 @@ export default function DemoLayout({ children, title, subtitle }: Props) {
         {/* Navigation */}
         <nav className="flex-1 p-3 space-y-0.5 mt-2">
           {NAV_ITEMS.map(({ base, label, icon: Icon }) => {
-            const href = navHref(base, scenario);
+            const href = navHref(base, scenario, companyName !== meta.subtitle ? companyName : undefined);
             const isActive = location === base || location.startsWith(base);
             return (
               <Link key={base} href={href}>
@@ -143,7 +146,7 @@ export default function DemoLayout({ children, title, subtitle }: Props) {
                 <Badge variant="outline" className="text-xs text-blue-600 border-blue-200 bg-blue-50">
                   DEMO
                 </Badge>
-                <span className="text-xs text-slate-400">{meta.subtitle} · Reforma Tributária 2026</span>
+                <span className="text-xs text-slate-400">{companyName} · Reforma Tributária 2026</span>
               </div>
               <h1 className="text-xl font-bold text-slate-900">{title}</h1>
               {subtitle && <p className="text-sm text-slate-500 mt-0.5">{subtitle}</p>}
