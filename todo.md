@@ -2454,3 +2454,26 @@
 - [x] Redirecionar para /demo/dashboard com nome da empresa
 - [x] DemoLayout: exibir nome real da empresa do query param
 - [x] Propagar company param em todos os links de navegação
+
+## v2.1 — Company Profile Layer (Tarefa 1)
+
+- [ ] Criar branch feature/v2.1-company-profile
+- [ ] Schema Drizzle: 5 colunas JSON na tabela projects
+- [ ] Rodar migração pnpm db:push
+- [ ] Backend: Zod schema expandido no createProject (backward compatible)
+- [ ] Backend: validação CNPJ com dígito verificador (frontend + backend)
+- [ ] Backend: clientType como string[] obrigatório (mín. 1 item)
+- [ ] Backend: paymentMethods como string[] opcional com checkboxes
+- [ ] Backend: buildSemanticCnaeContext recebe companyProfile + operationProfile
+- [ ] Backend: helpers/tipos preparados para Tarefas 2/3 (sem alterar lógica efetiva)
+- [ ] Frontend: NovoProjeto.tsx com 6 blocos (Identificação + 5 novos)
+- [ ] Frontend: validação CNPJ com DV em tempo real
+- [ ] Frontend: clientType como checkboxes múltiplos obrigatórios
+- [ ] Frontend: paymentMethods como checkboxes múltiplos opcionais
+- [ ] Frontend: campo Outros em paymentMethods abre input de texto
+- [ ] Documentação: CHANGELOG.md v2.1
+- [ ] Documentação: BASELINE-TECNICA atualizada com bloco Company Profile
+- [ ] Documentação: REQUISITOS-FUNCIONAIS-v5.md criado com seção v2.1
+- [ ] Git: commit feat(v2.1): add company profile structure to project creation
+- [ ] Git: PR aberto feature/v2.1-company-profile para main
+- [ ] Checkpoint salvo

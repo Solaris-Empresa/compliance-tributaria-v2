@@ -191,12 +191,50 @@ export function formatCandidatesForPrompt(candidates: CnaeCandidate[]): string {
  * @param topNPerQuery - CNAEs por cláusula (padrão: 20)
  * @returns String formatada com os CNAEs candidatos para inserir no prompt
  */
+/**
+ * v2.1: Contexto do perfil da empresa para enriquecer a busca semântica de CNAEs
+ */
+export interface CompanyContext {
+  taxRegime?: "simples_nacional" | "lucro_presumido" | "lucro_real";
+  operationType?: "produto" | "servico" | "misto";
+  clientType?: string[];
+  annualRevenueRange?: "ate_360k" | "360k_4_8m" | "4_8m_78m" | "acima_78m";
+}
+
 export async function buildSemanticCnaeContext(
   description: string,
-  topNPerQuery = 20
+  topNPerQuery = 20,
+  companyContext?: CompanyContext // v2.1: enriquece a busca com dados do perfil
 ): Promise<string> {
+  // v2.1: Enriquecer a descrição com contexto do perfil para maior precisão semântica
+  let enrichedDescription = description;
+  if (companyContext) {
+    const contextParts: string[] = [];
+    if (companyContext.taxRegime) {
+      const regimeLabel: Record<string, string> = {
+        simples_nacional: "Simples Nacional",
+        lucro_presumido: "Lucro Presumido",
+        lucro_real: "Lucro Real",
+      };
+      contextParts.push(`regime tributário ${regimeLabel[companyContext.taxRegime] ?? companyContext.taxRegime}`);
+    }
+    if (companyContext.operationType) {
+      const opLabel: Record<string, string> = {
+        produto: "venda de produtos",
+        servico: "prestação de serviços",
+        misto: "venda de produtos e serviços",
+      };
+      contextParts.push(opLabel[companyContext.operationType] ?? companyContext.operationType);
+    }
+    if (companyContext.clientType && companyContext.clientType.length > 0) {
+      contextParts.push(`clientes ${companyContext.clientType.join(" e ")}`);
+    }
+    if (contextParts.length > 0) {
+      enrichedDescription = `${description}. Contexto adicional: ${contextParts.join(", ")}.`;
+    }
+  }
   // Dividir descrição em cláusulas de atividades
-  const clauses = splitIntoClauses(description);
+  const clauses = splitIntoClauses(enrichedDescription);
 
   if (clauses.length === 0) {
     return "(descrição vazia)";

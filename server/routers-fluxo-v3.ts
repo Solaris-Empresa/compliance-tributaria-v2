@@ -45,6 +45,33 @@ export const fluxoV3Router = router({
       description: z.string().min(50, "Descrição deve ter pelo menos 50 caracteres"),
       clientId: z.number({ message: "Cliente é obrigatório" }),
       faturamentoAnual: z.number().optional(), // V61: para tradução financeira do risco
+      // v2.1: Company Profile Layer (todos opcionais para backward compatibility)
+      companyProfile: z.object({
+        cnpj: z.string().optional(),
+        companyType: z.enum(["ltda", "sa", "mei", "eireli", "scp", "cooperativa", "outro"]).optional(),
+        taxRegime: z.enum(["simples_nacional", "lucro_presumido", "lucro_real"]).optional(),
+        annualRevenueRange: z.enum(["ate_360k", "360k_4_8m", "4_8m_78m", "acima_78m"]).optional(),
+      }).optional(),
+      operationProfile: z.object({
+        operationType: z.enum(["produto", "servico", "misto"]).optional(),
+        clientType: z.array(z.string()).optional(),
+        multiState: z.boolean().optional(),
+      }).optional(),
+      taxComplexity: z.object({
+        hasInternationalOps: z.boolean().optional(),
+        usesTaxIncentives: z.boolean().optional(),
+        usesMarketplace: z.boolean().optional(),
+      }).optional(),
+      financialProfile: z.object({
+        paymentMethods: z.array(z.string()).optional(),
+        paymentMethodsOther: z.string().optional(),
+        hasIntermediaries: z.boolean().optional(),
+      }).optional(),
+      governanceProfile: z.object({
+        hasTaxTeam: z.boolean().optional(),
+        hasAudit: z.boolean().optional(),
+        hasTaxIssues: z.boolean().optional(),
+      }).optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       const projectId = await db.createProject({
@@ -57,6 +84,12 @@ export const fluxoV3Router = router({
         notificationFrequency: "semanal",
         currentStep: 1,
         faturamentoAnual: input.faturamentoAnual,
+        // v2.1: Company Profile Layer
+        companyProfile: input.companyProfile ?? null,
+        operationProfile: input.operationProfile ?? null,
+        taxComplexity: input.taxComplexity ?? null,
+        financialProfile: input.financialProfile ?? null,
+        governanceProfile: input.governanceProfile ?? null,
       } as any);
       return { projectId };
     }),
@@ -76,7 +109,15 @@ export const fluxoV3Router = router({
       // Embeddings semânticos: busca por similaridade de cosseno (OpenAI text-embedding-3-small)
       // Substitui o RAG por tokens — sem hard-code, precisão ~98%
       const { buildSemanticCnaeContext } = await import("./cnae-embeddings");
-      const ragContext = await buildSemanticCnaeContext(input.description);
+      // v2.1: Enriquecer busca semântica com dados do Company Profile (se disponível)
+      const projectAny = project as any;
+      const companyContext = (projectAny.companyProfile || projectAny.operationProfile) ? {
+        taxRegime: projectAny.companyProfile?.taxRegime,
+        operationType: projectAny.operationProfile?.operationType,
+        clientType: projectAny.operationProfile?.clientType,
+        annualRevenueRange: projectAny.companyProfile?.annualRevenueRange,
+      } : undefined;
+      const ragContext = await buildSemanticCnaeContext(input.description, 20, companyContext);
 
       let result: z.infer<typeof CnaesResponseSchema>;
       try {

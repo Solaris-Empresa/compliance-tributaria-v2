@@ -281,6 +281,13 @@
       "when": 1773922677135,
       "tag": "0039_hesitant_kingpin",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "5",
+      "when": 1773943994006,
+      "tag": "0040_faithful_sunfire",
+      "breakpoints": true
     }
   ]
 }
