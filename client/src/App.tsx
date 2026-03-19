@@ -54,6 +54,13 @@ import RisksV3 from "./pages/compliance-v3/RisksV3";
 import ActionsV3 from "./pages/compliance-v3/ActionsV3";
 import TasksV3 from "./pages/compliance-v3/TasksV3";
 import ExportsV3 from "./pages/compliance-v3/ExportsV3";
+// Demo standalone
+import DemoLanding from "./pages/demo/DemoLanding";
+import DemoDashboard from "./pages/demo/DemoDashboard";
+import DemoGaps from "./pages/demo/DemoGaps";
+import DemoRiscos from "./pages/demo/DemoRiscos";
+import DemoAcoes from "./pages/demo/DemoAcoes";
+import DemoTarefas from "./pages/demo/DemoTarefas";
 
 function Router() {
   return (
@@ -109,6 +116,13 @@ function Router() {
       <Route path="/projetos/:id/compliance-v3/actions" component={ActionsV3} />
       <Route path="/projetos/:id/compliance-v3/tasks" component={TasksV3} />
       <Route path="/projetos/:id/compliance-v3/exports" component={ExportsV3} />
+      {/* Demo standalone — sem login */}
+      <Route path="/demo/intro" component={DemoLanding} />
+      <Route path="/demo" component={DemoDashboard} />
+      <Route path="/demo/gaps" component={DemoGaps} />
+      <Route path="/demo/riscos" component={DemoRiscos} />
+      <Route path="/demo/acoes" component={DemoAcoes} />
+      <Route path="/demo/tarefas" component={DemoTarefas} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

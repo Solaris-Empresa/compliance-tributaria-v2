@@ -1,0 +1,566 @@
+{
+  "generatedAt": "2026-03-19T13:09:49.421Z",
+  "overallScore": 36,
+  "totalRequirements": 8,
+  "criticalRisks": 4,
+  "highRisks": 1,
+  "immediateActions": 4,
+  "radar": [
+    {
+      "domain": "sistemas_erp_dados",
+      "score": 10
+    },
+    {
+      "domain": "planejamento_financeiro_tributario",
+      "score": 10
+    },
+    {
+      "domain": "governanca_transicao",
+      "score": 26
+    },
+    {
+      "domain": "contratos_fornecedores",
+      "score": 35
+    },
+    {
+      "domain": "juridico_regulatorio",
+      "score": 36
+    },
+    {
+      "domain": "gestao_pessoas_cultura",
+      "score": 47
+    },
+    {
+      "domain": "gestao_fiscal_operacional",
+      "score": 50
+    },
+    {
+      "domain": "cadastros_tabelas_fiscais",
+      "score": 77
+    }
+  ],
+  "requirements": [
+    {
+      "code": "GOV-001",
+      "name": "Governança do Comitê IBS/CBS",
+      "domain": "governanca_transicao",
+      "score": {
+        "finalScore": 26,
+        "weightedScore": 26,
+        "status": "nao_atendido",
+        "criticalEvidenceFlag": false,
+        "effectiveCriticality": "critica"
+      },
+      "gap": {
+        "gapType": "processo",
+        "gapLevel": "nao_atendido",
+        "evidenceStatus": "parcial",
+        "priorityScore": 92,
+        "unmetCriteria": [
+          "responsavel_designado",
+          "reunioes_regulares",
+          "atas_documentadas"
+        ],
+        "recommendedActions": [
+          "Mapear e redesenhar o processo interno afetado com o responsável da área",
+          null
+        ]
+      },
+      "risk": {
+        "riskLevel": "critico",
+        "riskDimension": "operacional",
+        "probability": 4,
+        "impact": 4,
+        "estimatedFinancialImpact": {
+          "revenuePercent": 0.22,
+          "description": "Risco crítico: potencial de impacto de até 22% da receita anual por multas, autuações e retrabalho operacional.",
+          "formula": "revenue × 0.22"
+        }
+      },
+      "action": {
+        "actionCode": "ACT-PROC-GOV001",
+        "priority": "imediata",
+        "estimatedDays": 15,
+        "description": "Ação treinamento para mitigar risco critico (score 16/16) no requisito GOV-001. Ações preferenciais: Redesenhar fluxo operacional afetado pela Reforma Tributária; Formalizar SOP (Procedimento Operacional Padrão); Treinar equipe responsável."
+      },
+      "tasks": [
+        {
+          "taskCode": "ACT-PROC-GOV001-T01",
+          "title": "Mapeamento do processo atual (AS-IS)",
+          "responsible": "compliance",
+          "estimatedDays": 5,
+          "executionOrder": 2
+        },
+        {
+          "taskCode": "ACT-PROC-GOV001-T02",
+          "title": "Redesenho do processo (TO-BE)",
+          "responsible": "compliance",
+          "estimatedDays": 10,
+          "executionOrder": 3
+        },
+        {
+          "taskCode": "ACT-PROC-GOV001-T03",
+          "title": "Treinamento da equipe no novo processo",
+          "responsible": "rh",
+          "estimatedDays": 5,
+          "executionOrder": 4
+        }
+      ]
+    },
+    {
+      "code": "SIS-001",
+      "name": "Adequação do ERP para NF-e CBS",
+      "domain": "sistemas_erp_dados",
+      "score": {
+        "finalScore": 10,
+        "weightedScore": 10,
+        "status": "nao_atendido",
+        "criticalEvidenceFlag": true,
+        "effectiveCriticality": "critica"
+      },
+      "gap": {
+        "gapType": "sistema",
+        "gapLevel": "nao_atendido",
+        "evidenceStatus": "ausente",
+        "priorityScore": 97,
+        "unmetCriteria": [
+          "modulo_cbs_ativo",
+          "calculo_automatico",
+          "integracao_sped",
+          "testes_homologacao"
+        ],
+        "recommendedActions": [
+          "Acionar equipe de TI/ERP para levantamento de impacto e cronograma de adaptação",
+          null
+        ]
+      },
+      "risk": {
+        "riskLevel": "critico",
+        "riskDimension": "operacional",
+        "probability": 4,
+        "impact": 4,
+        "estimatedFinancialImpact": {
+          "revenuePercent": 0.22,
+          "description": "Risco crítico: potencial de impacto de até 22% da receita anual por multas, autuações e retrabalho operacional.",
+          "formula": "revenue × 0.22"
+        }
+      },
+      "action": {
+        "actionCode": "ACT-SIST-SIS001",
+        "priority": "imediata",
+        "estimatedDays": 15,
+        "description": "Ação configuracao_erp para mitigar risco critico (score 16/16) no requisito SIS-001. Ações preferenciais: Parametrizar ERP para CBS/IBS e split payment; Revisar integração com sistemas fiscais; Ajustar leiaute e documentos fiscais; Criar trilha de auditoria fiscal."
+      },
+      "tasks": [
+        {
+          "taskCode": "ACT-SIST-SIS001-T01",
+          "title": "Diagnóstico de aderência do ERP ao CBS/IBS",
+          "responsible": "ti",
+          "estimatedDays": 5,
+          "executionOrder": 12
+        },
+        {
+          "taskCode": "ACT-SIST-SIS001-T02",
+          "title": "Configuração de alíquotas CBS/IBS no ERP",
+          "responsible": "ti",
+          "estimatedDays": 10,
+          "executionOrder": 13
+        },
+        {
+          "taskCode": "ACT-SIST-SIS001-T03",
+          "title": "Validação de integração com SPED e NF-e",
+          "responsible": "ti",
+          "estimatedDays": 15,
+          "executionOrder": 14
+        }
+      ]
+    },
+    {
+      "code": "FIS-001",
+      "name": "Cálculo de Alíquota IBS Municipal",
+      "domain": "gestao_fiscal_operacional",
+      "score": {
+        "finalScore": 50,
+        "weightedScore": 50,
+        "status": "nao_atendido",
+        "criticalEvidenceFlag": false,
+        "effectiveCriticality": "alta"
+      },
+      "gap": {
+        "gapType": "normativo",
+        "gapLevel": "parcial",
+        "evidenceStatus": "completa",
+        "priorityScore": 63,
+        "unmetCriteria": [
+          "simulacao_impacto"
+        ],
+        "recommendedActions": [
+          "Consultar assessoria jurídica tributária para análise da obrigação normativa",
+          null
+        ]
+      },
+      "risk": {
+        "riskLevel": "medio",
+        "riskDimension": "regulatorio",
+        "probability": 2,
+        "impact": 3,
+        "estimatedFinancialImpact": {
+          "revenuePercent": 0.06,
+          "description": "Risco médio: potencial de impacto de até 6% da receita anual por custos de correção e ajustes.",
+          "formula": "revenue × 0.06"
+        }
+      },
+      "action": {
+        "actionCode": "ACT-NORM-FIS001",
+        "priority": "medio_prazo",
+        "estimatedDays": 90,
+        "description": "Ação documentacao para mitigar risco medio (score 6/16) no requisito FIS-001. Ações preferenciais: Consolidar interpretação jurídica da LC 214/2025 e LC 227/2025; Validar aplicabilidade ao negócio; Registrar entendimento interno com assessoria tributária."
+      },
+      "tasks": [
+        {
+          "taskCode": "ACT-NORM-FIS001-T01",
+          "title": "Análise jurídica da LC 214/2025 e LC 227/2025",
+          "responsible": "juridico",
+          "estimatedDays": 10,
+          "executionOrder": 22
+        },
+        {
+          "taskCode": "ACT-NORM-FIS001-T02",
+          "title": "Validação de aplicabilidade e registro de entendimento interno",
+          "responsible": "compliance",
+          "estimatedDays": 5,
+          "executionOrder": 23
+        },
+        {
+          "taskCode": "ACT-NORM-FIS001-T03",
+          "title": "Comunicação interna e treinamento sobre nova obrigação",
+          "responsible": "compliance",
+          "estimatedDays": 5,
+          "executionOrder": 24
+        }
+      ]
+    },
+    {
+      "code": "CAD-001",
+      "name": "Cadastro de Produtos com NCM Atualizado",
+      "domain": "cadastros_tabelas_fiscais",
+      "score": {
+        "finalScore": 77,
+        "weightedScore": 77,
+        "status": "parcial",
+        "criticalEvidenceFlag": false,
+        "effectiveCriticality": "media"
+      },
+      "gap": {
+        "gapType": "cadastro",
+        "gapLevel": "atendido",
+        "evidenceStatus": "completa",
+        "priorityScore": 37,
+        "unmetCriteria": [],
+        "recommendedActions": [
+          "Atualizar dados cadastrais nos sistemas fiscais e validar com a Receita Federal",
+          null
+        ]
+      },
+      "risk": {
+        "riskLevel": "baixo",
+        "riskDimension": "operacional",
+        "probability": 1,
+        "impact": 2,
+        "estimatedFinancialImpact": {
+          "revenuePercent": 0.02,
+          "description": "Risco baixo: potencial de impacto de até 2% da receita anual por custos administrativos.",
+          "formula": "revenue × 0.02"
+        }
+      },
+      "action": {
+        "actionCode": "ACT-CADA-CAD001",
+        "priority": "planejamento",
+        "estimatedDays": 180,
+        "description": "Ação ajuste_cadastro para mitigar risco baixo (score 2/16) no requisito CAD-001. Ações preferenciais: Higienizar cadastro fiscal; Padronizar atributos de identificação tributária; Revisar chaves de identificação junto à Receita Federal e SEFAZ."
+      },
+      "tasks": [
+        {
+          "taskCode": "ACT-CADA-CAD001-T01",
+          "title": "Levantamento e higienização do cadastro fiscal",
+          "responsible": "fiscal",
+          "estimatedDays": 15,
+          "executionOrder": 32
+        },
+        {
+          "taskCode": "ACT-CADA-CAD001-T02",
+          "title": "Padronização de atributos tributários no cadastro",
+          "responsible": "fiscal",
+          "estimatedDays": 10,
+          "executionOrder": 33
+        }
+      ]
+    },
+    {
+      "code": "RH-001",
+      "name": "Treinamento Equipe Fiscal para Reforma",
+      "domain": "gestao_pessoas_cultura",
+      "score": {
+        "finalScore": 47,
+        "weightedScore": 47,
+        "status": "nao_atendido",
+        "criticalEvidenceFlag": false,
+        "effectiveCriticality": "media"
+      },
+      "gap": {
+        "gapType": "processo",
+        "gapLevel": "parcial",
+        "evidenceStatus": "parcial",
+        "priorityScore": 51,
+        "unmetCriteria": [
+          "execucao_treinamento",
+          "avaliacao_aprendizado"
+        ],
+        "recommendedActions": [
+          "Mapear e redesenhar o processo interno afetado com o responsável da área",
+          null
+        ]
+      },
+      "risk": {
+        "riskLevel": "medio",
+        "riskDimension": "operacional",
+        "probability": 2,
+        "impact": 2,
+        "estimatedFinancialImpact": {
+          "revenuePercent": 0.06,
+          "description": "Risco médio: potencial de impacto de até 6% da receita anual por custos de correção e ajustes.",
+          "formula": "revenue × 0.06"
+        }
+      },
+      "action": {
+        "actionCode": "ACT-PROC-RH001",
+        "priority": "medio_prazo",
+        "estimatedDays": 90,
+        "description": "Ação treinamento para mitigar risco medio (score 4/16) no requisito RH-001. Ações preferenciais: Redesenhar fluxo operacional afetado pela Reforma Tributária; Formalizar SOP (Procedimento Operacional Padrão); Treinar equipe responsável."
+      },
+      "tasks": [
+        {
+          "taskCode": "ACT-PROC-RH001-T01",
+          "title": "Mapeamento do processo atual (AS-IS)",
+          "responsible": "compliance",
+          "estimatedDays": 5,
+          "executionOrder": 42
+        },
+        {
+          "taskCode": "ACT-PROC-RH001-T02",
+          "title": "Redesenho do processo (TO-BE)",
+          "responsible": "compliance",
+          "estimatedDays": 10,
+          "executionOrder": 43
+        },
+        {
+          "taskCode": "ACT-PROC-RH001-T03",
+          "title": "Treinamento da equipe no novo processo",
+          "responsible": "rh",
+          "estimatedDays": 5,
+          "executionOrder": 44
+        }
+      ]
+    },
+    {
+      "code": "CTR-001",
+      "name": "Revisão de Contratos com Cláusulas IBS",
+      "domain": "contratos_fornecedores",
+      "score": {
+        "finalScore": 35,
+        "weightedScore": 35,
+        "status": "nao_atendido",
+        "criticalEvidenceFlag": false,
+        "effectiveCriticality": "alta"
+      },
+      "gap": {
+        "gapType": "contrato",
+        "gapLevel": "nao_atendido",
+        "evidenceStatus": "parcial",
+        "priorityScore": 67,
+        "unmetCriteria": [
+          "revisao_clausulas",
+          "aditivos_assinados",
+          "comunicacao_fornecedores"
+        ],
+        "recommendedActions": [
+          "Revisar contratos comerciais afetados com assessoria jurídica e área comercial",
+          null
+        ]
+      },
+      "risk": {
+        "riskLevel": "alto",
+        "riskDimension": "reputacional",
+        "probability": 3,
+        "impact": 3,
+        "estimatedFinancialImpact": {
+          "revenuePercent": 0.12,
+          "description": "Risco alto: potencial de impacto de até 12% da receita anual por penalidades e custos de adequação.",
+          "formula": "revenue × 0.12"
+        }
+      },
+      "action": {
+        "actionCode": "ACT-CONT-CTR001",
+        "priority": "curto_prazo",
+        "estimatedDays": 45,
+        "description": "Ação revisao_contrato para mitigar risco alto (score 9/16) no requisito CTR-001. Ações preferenciais: Revisar cláusulas de repasse tributário; Aditivar contratos críticos; Validar repasse e reequilíbrio econômico-financeiro."
+      },
+      "tasks": [
+        {
+          "taskCode": "ACT-CONT-CTR001-T01",
+          "title": "Mapeamento de contratos impactados pela Reforma",
+          "responsible": "juridico",
+          "estimatedDays": 10,
+          "executionOrder": 52
+        },
+        {
+          "taskCode": "ACT-CONT-CTR001-T02",
+          "title": "Revisão e aditamento de contratos críticos",
+          "responsible": "juridico",
+          "estimatedDays": 30,
+          "executionOrder": 53
+        },
+        {
+          "taskCode": "ACT-CONT-CTR001-T03",
+          "title": "Comunicação de reequilíbrio econômico-financeiro",
+          "responsible": "comercial",
+          "estimatedDays": 15,
+          "executionOrder": 54
+        }
+      ]
+    },
+    {
+      "code": "FIN-001",
+      "name": "Provisão Financeira para Transição Tributária",
+      "domain": "planejamento_financeiro_tributario",
+      "score": {
+        "finalScore": 10,
+        "weightedScore": 10,
+        "status": "nao_atendido",
+        "criticalEvidenceFlag": true,
+        "effectiveCriticality": "critica"
+      },
+      "gap": {
+        "gapType": "financeiro",
+        "gapLevel": "nao_atendido",
+        "evidenceStatus": "ausente",
+        "priorityScore": 97,
+        "unmetCriteria": [
+          "calculo_impacto",
+          "provisao_contabil",
+          "precificacao_revisada"
+        ],
+        "recommendedActions": [
+          "Provisionar impacto financeiro e incluir no planejamento tributário do período",
+          null
+        ]
+      },
+      "risk": {
+        "riskLevel": "critico",
+        "riskDimension": "financeiro",
+        "probability": 4,
+        "impact": 4,
+        "estimatedFinancialImpact": {
+          "revenuePercent": 0.22,
+          "description": "Risco crítico: potencial de impacto de até 22% da receita anual por multas, autuações e retrabalho operacional.",
+          "formula": "revenue × 0.22"
+        }
+      },
+      "action": {
+        "actionCode": "ACT-FINA-FIN001",
+        "priority": "imediata",
+        "estimatedDays": 15,
+        "description": "Ação conciliacao para mitigar risco critico (score 16/16) no requisito FIN-001. Ações preferenciais: Revisar fluxo de caixa considerando o novo regime tributário; Adaptar conciliação contábil-fiscal; Revisar política de precificação."
+      },
+      "tasks": [
+        {
+          "taskCode": "ACT-FINA-FIN001-T01",
+          "title": "Revisão do fluxo de caixa com impacto CBS/IBS",
+          "responsible": "financeiro",
+          "estimatedDays": 10,
+          "executionOrder": 62
+        },
+        {
+          "taskCode": "ACT-FINA-FIN001-T02",
+          "title": "Adaptação da conciliação contábil-fiscal",
+          "responsible": "financeiro",
+          "estimatedDays": 15,
+          "executionOrder": 63
+        },
+        {
+          "taskCode": "ACT-FINA-FIN001-T03",
+          "title": "Revisão da política de precificação",
+          "responsible": "comercial",
+          "estimatedDays": 20,
+          "executionOrder": 64
+        }
+      ]
+    },
+    {
+      "code": "JUR-001",
+      "name": "Análise Jurídica da LC 214/2023",
+      "domain": "juridico_regulatorio",
+      "score": {
+        "finalScore": 36,
+        "weightedScore": 36,
+        "status": "nao_atendido",
+        "criticalEvidenceFlag": false,
+        "effectiveCriticality": "critica"
+      },
+      "gap": {
+        "gapType": "normativo",
+        "gapLevel": "parcial",
+        "evidenceStatus": "completa",
+        "priorityScore": 79,
+        "unmetCriteria": [
+          "plano_adequacao",
+          "aprovacao_diretoria"
+        ],
+        "recommendedActions": [
+          "Consultar assessoria jurídica tributária para análise da obrigação normativa",
+          null
+        ]
+      },
+      "risk": {
+        "riskLevel": "critico",
+        "riskDimension": "regulatorio",
+        "probability": 3,
+        "impact": 4,
+        "estimatedFinancialImpact": {
+          "revenuePercent": 0.22,
+          "description": "Risco crítico: potencial de impacto de até 22% da receita anual por multas, autuações e retrabalho operacional.",
+          "formula": "revenue × 0.22"
+        }
+      },
+      "action": {
+        "actionCode": "ACT-NORM-JUR001",
+        "priority": "imediata",
+        "estimatedDays": 15,
+        "description": "Ação documentacao para mitigar risco critico (score 12/16) no requisito JUR-001. Ações preferenciais: Consolidar interpretação jurídica da LC 214/2025 e LC 227/2025; Validar aplicabilidade ao negócio; Registrar entendimento interno com assessoria tributária."
+      },
+      "tasks": [
+        {
+          "taskCode": "ACT-NORM-JUR001-T01",
+          "title": "Análise jurídica da LC 214/2025 e LC 227/2025",
+          "responsible": "juridico",
+          "estimatedDays": 10,
+          "executionOrder": 72
+        },
+        {
+          "taskCode": "ACT-NORM-JUR001-T02",
+          "title": "Validação de aplicabilidade e registro de entendimento interno",
+          "responsible": "compliance",
+          "estimatedDays": 5,
+          "executionOrder": 73
+        },
+        {
+          "taskCode": "ACT-NORM-JUR001-T03",
+          "title": "Comunicação interna e treinamento sobre nova obrigação",
+          "responsible": "compliance",
+          "estimatedDays": 5,
+          "executionOrder": 74
+        }
+      ]
+    }
+  ]
+}

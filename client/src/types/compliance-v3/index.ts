@@ -279,6 +279,13 @@ export const DOMAIN_LABELS: Record<string, string> = {
   imunidades_isencoes: "Imunidades e Isenções",
   contencioso_riscos: "Contencioso e Riscos",
   setor_especifico: "Setor Específico",
+  // Domínios do demo v3
+  gestao_fiscal_operacional: "Gestão Fiscal Operacional",
+  cadastros_tabelas_fiscais: "Cadastros e Tabelas Fiscais",
+  gestao_pessoas_cultura: "Gestão de Pessoas e Cultura",
+  contratos_fornecedores: "Contratos e Fornecedores",
+  planejamento_financeiro_tributario: "Planejamento Financeiro",
+  juridico_regulatorio: "Jurídico e Regulatório",
 };
 
 export const CRITICALITY_COLORS: Record<string, string> = {
