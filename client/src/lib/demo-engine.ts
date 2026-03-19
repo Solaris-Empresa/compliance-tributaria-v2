@@ -1,8 +1,10 @@
 /**
  * Demo Engine — carrega dados gerados pelo motor v3 real (sem backend)
- * Usado pelo site de demonstração público (sem login)
+ * Suporta 3 cenários: simples, medio, complexo
  */
-import demoData from "./demo-data.json";
+import scenariosData from "./scenarios.json";
+
+export type ScenarioKey = "simples" | "medio" | "complexo";
 
 export type DemoRequirement = {
   code: string;
@@ -50,6 +52,8 @@ export type DemoRequirement = {
 };
 
 export type DemoData = {
+  scenario: string;
+  companyName: string;
   generatedAt: string;
   overallScore: number;
   totalRequirements: number;
@@ -60,23 +64,38 @@ export type DemoData = {
   requirements: DemoRequirement[];
 };
 
-export const DEMO: DemoData = demoData as DemoData;
+export type ScenariosData = {
+  simples: DemoData;
+  medio: DemoData;
+  complexo: DemoData;
+};
 
-export const DEMO_RADAR: Record<string, number> = Object.fromEntries(
-  DEMO.radar.map(r => [r.domain, r.score])
-);
+export const SCENARIOS: ScenariosData = scenariosData as ScenariosData;
 
-export const DEMO_MATRIX_CELLS = (() => {
+export function getScenario(key: ScenarioKey): DemoData {
+  return SCENARIOS[key];
+}
+
+export function getScenarioRadar(key: ScenarioKey): Record<string, number> {
+  return Object.fromEntries(SCENARIOS[key].radar.map(r => [r.domain, r.score]));
+}
+
+export function getScenarioMatrixCells(key: ScenarioKey) {
   const map = new Map<string, number>();
-  for (const r of DEMO.requirements) {
-    const key = `${r.risk.probability}-${r.risk.impact}`;
-    map.set(key, (map.get(key) ?? 0) + 1);
+  for (const r of SCENARIOS[key].requirements) {
+    const k = `${r.risk.probability}-${r.risk.impact}`;
+    map.set(k, (map.get(k) ?? 0) + 1);
   }
-  return Array.from(map.entries()).map(([key, count]) => {
-    const [probability, impact] = key.split("-").map(Number);
+  return Array.from(map.entries()).map(([k, count]) => {
+    const [probability, impact] = k.split("-").map(Number);
     return { probability, impact, count };
   });
-})();
+}
+
+// Backward compat — default para complexo (cenário original)
+export const DEMO: DemoData = SCENARIOS.complexo;
+export const DEMO_RADAR = getScenarioRadar("complexo");
+export const DEMO_MATRIX_CELLS = getScenarioMatrixCells("complexo");
 
 export const DOMAIN_LABELS_DEMO: Record<string, string> = {
   governanca_transicao: "Governança da Transição",
@@ -91,7 +110,6 @@ export const DOMAIN_LABELS_DEMO: Record<string, string> = {
   creditos_compensacoes: "Créditos e Compensações",
   contratos_comerciais: "Contratos Comerciais",
   precificacao_repasse: "Precificação e Repasse",
-  // aliases
   planejamento_financeiro: "Planejamento Financeiro",
   juridico: "Jurídico e Regulatório",
 };
@@ -131,4 +149,50 @@ export const GAP_LEVEL_LABELS: Record<string, string> = {
   nao_atendido: "Não Atendido",
   parcial: "Parcial",
   atendido: "Atendido",
+};
+
+export const SCENARIO_META: Record<ScenarioKey, {
+  label: string;
+  subtitle: string;
+  description: string;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+  icon: string;
+  badge: string;
+  badgeColor: string;
+}> = {
+  simples: {
+    label: "Empresa Simples",
+    subtitle: "Comércio Digital ME",
+    description: "Empresa de comércio com equipe fiscal estruturada. Já realizou treinamentos e revisou contratos. Poucos gaps residuais a resolver.",
+    color: "text-emerald-600",
+    bgColor: "bg-emerald-50",
+    borderColor: "border-emerald-200",
+    icon: "✅",
+    badge: "Bem Preparada",
+    badgeColor: "bg-emerald-100 text-emerald-700",
+  },
+  medio: {
+    label: "Empresa Média",
+    subtitle: "Serviços Integrados Ltda.",
+    description: "Empresa de serviços em transição. Iniciou a adequação mas ainda tem gaps críticos no ERP e provisão financeira.",
+    color: "text-amber-600",
+    bgColor: "bg-amber-50",
+    borderColor: "border-amber-200",
+    icon: "⚠️",
+    badge: "Em Transição",
+    badgeColor: "bg-amber-100 text-amber-700",
+  },
+  complexo: {
+    label: "Empresa Complexa",
+    subtitle: "Indústria Nacional S.A.",
+    description: "Indústria de médio porte sem estrutura fiscal para a reforma. Múltiplos riscos críticos e ações imediatas necessárias.",
+    color: "text-red-600",
+    bgColor: "bg-red-50",
+    borderColor: "border-red-200",
+    icon: "🚨",
+    badge: "Situação Crítica",
+    badgeColor: "bg-red-100 text-red-700",
+  },
 };

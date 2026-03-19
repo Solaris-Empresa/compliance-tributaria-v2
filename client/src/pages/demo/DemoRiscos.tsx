@@ -3,11 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RiskMatrix4x4 } from "@/components/compliance-v3/dashboard/RiskMatrix4x4";
 import DemoLayout from "./DemoLayout";
 import {
-  DEMO,
-  DEMO_MATRIX_CELLS,
+  getScenario,
+  getScenarioMatrixCells,
   DOMAIN_LABELS_DEMO,
   RISK_LEVEL_LABELS,
+  type ScenarioKey,
 } from "@/lib/demo-engine";
+
+function useScenario(): ScenarioKey {
+  const search = typeof window !== "undefined" ? window.location.search : "";
+  const params = new URLSearchParams(search);
+  const s = params.get("scenario");
+  if (s === "simples" || s === "medio" || s === "complexo") return s;
+  return "complexo";
+}
 import type { RiskMatrixCell } from "@/types/compliance-v3";
 
 const RISK_COLORS: Record<string, string> = {
@@ -25,6 +34,9 @@ const DIMENSION_LABELS: Record<string, string> = {
 };
 
 export default function DemoRiscos() {
+  const scenario = useScenario();
+  const DEMO = getScenario(scenario);
+  const matrixCells = getScenarioMatrixCells(scenario);
   const [selectedCell, setSelectedCell] = useState<{ probability: number; impact: number } | null>(null);
 
   const sortedRisks = [...DEMO.requirements].sort(
@@ -70,7 +82,7 @@ export default function DemoRiscos() {
           </CardHeader>
           <CardContent>
             <RiskMatrix4x4
-              matrix={DEMO_MATRIX_CELLS}
+              matrix={matrixCells}
               selectedCell={selectedCell ?? undefined}
               onCellClick={(cell: RiskMatrixCell) => {
                 if (selectedCell?.probability === cell.probability && selectedCell?.impact === cell.impact) {

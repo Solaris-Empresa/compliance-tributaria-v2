@@ -1,19 +1,18 @@
 import { Link } from "wouter";
 import { ArrowRight, AlertTriangle, CheckCircle, Clock, TrendingDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ComplianceKPICards } from "@/components/compliance-v3/dashboard/ComplianceKPICards";
 import { ComplianceRadarChart } from "@/components/compliance-v3/dashboard/ComplianceRadarChart";
 import { RiskMatrix4x4 } from "@/components/compliance-v3/dashboard/RiskMatrix4x4";
 import DemoLayout from "./DemoLayout";
 import {
-  DEMO,
-  DEMO_RADAR,
-  DEMO_MATRIX_CELLS,
+  getScenario,
+  getScenarioRadar,
+  getScenarioMatrixCells,
   DOMAIN_LABELS_DEMO,
   RISK_LEVEL_LABELS,
-  PRIORITY_LABELS,
+  type ScenarioKey,
 } from "@/lib/demo-engine";
 
 const CRITICALITY_COLORS: Record<string, string> = {
@@ -30,26 +29,31 @@ const RISK_COLORS: Record<string, string> = {
   baixo: "text-green-600 bg-green-50",
 };
 
+function useScenario(): ScenarioKey {
+  const search = typeof window !== "undefined" ? window.location.search : "";
+  const params = new URLSearchParams(search);
+  const s = params.get("scenario");
+  if (s === "simples" || s === "medio" || s === "complexo") return s;
+  return "complexo";
+}
+
 export default function DemoDashboard() {
+  const scenario = useScenario();
+  const DEMO = getScenario(scenario);
+  const matrixCells = getScenarioMatrixCells(scenario);
+  const qs = `?scenario=${scenario}`;
+
   const criticalItems = DEMO.requirements
     .filter(r => r.risk.riskLevel === "critico" || r.risk.riskLevel === "alto")
     .sort((a, b) => b.risk.probability * b.risk.impact - a.risk.probability * a.risk.impact);
 
-  const radarForChart: Record<string, number> = {};
-  for (const item of DEMO.radar) {
-    radarForChart[item.domain] = item.score;
-  }
-
-  const criticalDomains = DEMO.radar
-    .filter(r => r.score < 40)
-    .map(r => r.domain);
-
-  // Build radar with human-readable labels for the chart
   const radarWithLabels: Record<string, number> = {};
   for (const item of DEMO.radar) {
     const label = DOMAIN_LABELS_DEMO[item.domain] ?? item.domain.replace(/_/g, " ");
     radarWithLabels[label] = item.score;
   }
+
+  const criticalDomains = DEMO.radar.filter(r => r.score < 40).map(r => r.domain);
 
   return (
     <DemoLayout
@@ -86,7 +90,7 @@ export default function DemoDashboard() {
             <p className="text-xs text-muted-foreground">Probabilidade × Impacto</p>
           </CardHeader>
           <CardContent>
-            <RiskMatrix4x4 matrix={DEMO_MATRIX_CELLS} />
+            <RiskMatrix4x4 matrix={matrixCells} />
           </CardContent>
         </Card>
       </div>
@@ -96,7 +100,7 @@ export default function DemoDashboard() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base font-semibold">Score por Domínio</CardTitle>
-            <Link href="/demo/gaps">
+            <Link href={`/demo/gaps${qs}`}>
               <Button variant="ghost" size="sm" className="text-xs gap-1">
                 Ver Gaps <ArrowRight className="w-3.5 h-3.5" />
               </Button>
@@ -117,10 +121,7 @@ export default function DemoDashboard() {
                     {DOMAIN_LABELS_DEMO[item.domain] ?? item.domain}
                   </span>
                   <div className="flex-1 bg-slate-100 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full ${color} transition-all`}
-                      style={{ width: `${pct}%` }}
-                    />
+                    <div className={`h-2 rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
                   </div>
                   <span className={`text-xs font-bold w-10 text-right ${
                     pct >= 80 ? "text-green-600" :
@@ -142,7 +143,7 @@ export default function DemoDashboard() {
               <AlertTriangle className="w-4 h-4 text-red-500" />
               Requisitos Críticos e de Alto Risco
             </CardTitle>
-            <Link href="/demo/riscos">
+            <Link href={`/demo/riscos${qs}`}>
               <Button variant="ghost" size="sm" className="text-xs gap-1">
                 Ver Matriz <ArrowRight className="w-3.5 h-3.5" />
               </Button>
@@ -152,10 +153,7 @@ export default function DemoDashboard() {
         <CardContent>
           <div className="space-y-2">
             {criticalItems.map(req => (
-              <div
-                key={req.code}
-                className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 bg-slate-50"
-              >
+              <div key={req.code} className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 bg-slate-50">
                 <div className="shrink-0">
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
                     CRITICALITY_COLORS[req.score.effectiveCriticality] ?? "text-slate-600 bg-slate-50 border-slate-200"
@@ -175,9 +173,7 @@ export default function DemoDashboard() {
                   }`}>
                     {RISK_LEVEL_LABELS[req.risk.riskLevel] ?? req.risk.riskLevel}
                   </span>
-                  <span className="text-xs text-slate-400">
-                    {req.action.estimatedDays}d
-                  </span>
+                  <span className="text-xs text-slate-400">{req.action.estimatedDays}d</span>
                 </div>
               </div>
             ))}
@@ -187,7 +183,7 @@ export default function DemoDashboard() {
 
       {/* Quick actions */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-        <Link href="/demo/gaps">
+        <Link href={`/demo/gaps${qs}`}>
           <a className="block p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm transition-all group">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center">
@@ -201,7 +197,7 @@ export default function DemoDashboard() {
             </div>
           </a>
         </Link>
-        <Link href="/demo/acoes">
+        <Link href={`/demo/acoes${qs}`}>
           <a className="block p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm transition-all group">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
@@ -215,7 +211,7 @@ export default function DemoDashboard() {
             </div>
           </a>
         </Link>
-        <Link href="/demo/tarefas">
+        <Link href={`/demo/tarefas${qs}`}>
           <a className="block p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm transition-all group">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center">

@@ -6,12 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DemoLayout from "./DemoLayout";
 import {
-  DEMO,
+  getScenario,
   DOMAIN_LABELS_DEMO,
   GAP_TYPE_LABELS,
   GAP_LEVEL_LABELS,
   CRITICALITY_LABELS,
+  type ScenarioKey,
 } from "@/lib/demo-engine";
+
+function useScenario(): ScenarioKey {
+  const search = typeof window !== "undefined" ? window.location.search : "";
+  const params = new URLSearchParams(search);
+  const s = params.get("scenario");
+  if (s === "simples" || s === "medio" || s === "complexo") return s;
+  return "complexo";
+}
 
 const GAP_LEVEL_COLORS: Record<string, string> = {
   nao_atendido: "text-red-600 bg-red-50 border-red-200",
@@ -39,6 +48,8 @@ const EVIDENCE_STATUS_LABELS: Record<string, string> = {
 };
 
 export default function DemoGaps() {
+  const scenario = useScenario();
+  const DEMO = getScenario(scenario);
   const [filterDomain, setFilterDomain] = useState<string>("all");
   const [filterLevel, setFilterLevel] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);

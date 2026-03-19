@@ -9,15 +9,29 @@ import {
   ChevronRight,
   Beaker,
   Info,
+  ArrowLeft,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { SCENARIO_META, SCENARIOS, type ScenarioKey } from "@/lib/demo-engine";
+
+function useScenario(): ScenarioKey {
+  const search = typeof window !== "undefined" ? window.location.search : "";
+  const params = new URLSearchParams(search);
+  const s = params.get("scenario");
+  if (s === "simples" || s === "medio" || s === "complexo") return s;
+  return "complexo";
+}
+
+function navHref(base: string, scenario: ScenarioKey) {
+  return `${base}?scenario=${scenario}`;
+}
 
 const NAV_ITEMS = [
-  { href: "/demo", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/demo/gaps", label: "Gaps de Compliance", icon: AlertCircle },
-  { href: "/demo/riscos", label: "Matriz de Riscos", icon: ShieldAlert },
-  { href: "/demo/acoes", label: "Plano de Ação", icon: ClipboardList },
-  { href: "/demo/tarefas", label: "Tarefas Atômicas", icon: CheckSquare },
+  { base: "/demo/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { base: "/demo/gaps", label: "Gaps de Compliance", icon: AlertCircle },
+  { base: "/demo/riscos", label: "Matriz de Riscos", icon: ShieldAlert },
+  { base: "/demo/acoes", label: "Plano de Ação", icon: ClipboardList },
+  { base: "/demo/tarefas", label: "Tarefas Atômicas", icon: CheckSquare },
 ];
 
 type Props = {
@@ -28,6 +42,9 @@ type Props = {
 
 export default function DemoLayout({ children, title, subtitle }: Props) {
   const [location] = useLocation();
+  const scenario = useScenario();
+  const meta = SCENARIO_META[scenario];
+  const data = SCENARIOS[scenario];
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -46,22 +63,41 @@ export default function DemoLayout({ children, title, subtitle }: Props) {
           </div>
         </div>
 
-        {/* Demo banner */}
-        <div className="mx-3 mt-3 p-2.5 rounded-lg bg-amber-50 border border-amber-200">
+        {/* Scenario badge */}
+        <div className={`mx-3 mt-3 p-2.5 rounded-lg border ${
+          scenario === "simples" ? "bg-emerald-50 border-emerald-200" :
+          scenario === "medio" ? "bg-amber-50 border-amber-200" :
+          "bg-red-50 border-red-200"
+        }`}>
           <div className="flex items-start gap-1.5">
-            <Info className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-700 leading-snug">
-              Dados de exemplo gerados pelo motor v3 real. Empresa fictícia em situação crítica de compliance.
-            </p>
+            <Info className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
+              scenario === "simples" ? "text-emerald-600" :
+              scenario === "medio" ? "text-amber-600" : "text-red-600"
+            }`} />
+            <div>
+              <p className={`text-xs font-semibold leading-tight ${
+                scenario === "simples" ? "text-emerald-700" :
+                scenario === "medio" ? "text-amber-700" : "text-red-700"
+              }`}>
+                {meta.icon} {meta.badge}
+              </p>
+              <p className={`text-xs mt-0.5 leading-snug ${
+                scenario === "simples" ? "text-emerald-600" :
+                scenario === "medio" ? "text-amber-600" : "text-red-600"
+              }`}>
+                {meta.subtitle} · Score {data.overallScore}/100
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 p-3 space-y-0.5 mt-2">
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-            const isActive = location === href || (href !== "/demo" && location.startsWith(href));
+          {NAV_ITEMS.map(({ base, label, icon: Icon }) => {
+            const href = navHref(base, scenario);
+            const isActive = location === base || location.startsWith(base);
             return (
-              <Link key={href} href={href}>
+              <Link key={base} href={href}>
                 <a
                   className={[
                     "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
@@ -80,7 +116,13 @@ export default function DemoLayout({ children, title, subtitle }: Props) {
         </nav>
 
         {/* Footer */}
-        <div className="p-3 border-t border-slate-100">
+        <div className="p-3 border-t border-slate-100 space-y-1">
+          <Link href="/demo">
+            <a className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-blue-600 hover:bg-blue-50 transition-colors font-medium">
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Trocar cenário
+            </a>
+          </Link>
           <a
             href="/"
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors"
@@ -101,7 +143,7 @@ export default function DemoLayout({ children, title, subtitle }: Props) {
                 <Badge variant="outline" className="text-xs text-blue-600 border-blue-200 bg-blue-50">
                   DEMO
                 </Badge>
-                <span className="text-xs text-slate-400">Empresa Fictícia Ltda. · Reforma Tributária 2026</span>
+                <span className="text-xs text-slate-400">{meta.subtitle} · Reforma Tributária 2026</span>
               </div>
               <h1 className="text-xl font-bold text-slate-900">{title}</h1>
               {subtitle && <p className="text-sm text-slate-500 mt-0.5">{subtitle}</p>}

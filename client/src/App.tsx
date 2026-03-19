@@ -117,8 +117,8 @@ function Router() {
       <Route path="/projetos/:id/compliance-v3/tasks" component={TasksV3} />
       <Route path="/projetos/:id/compliance-v3/exports" component={ExportsV3} />
       {/* Demo standalone — sem login */}
-      <Route path="/demo/intro" component={DemoLanding} />
-      <Route path="/demo" component={DemoDashboard} />
+      <Route path="/demo" component={DemoLanding} />
+      <Route path="/demo/dashboard" component={DemoDashboard} />
       <Route path="/demo/gaps" component={DemoGaps} />
       <Route path="/demo/riscos" component={DemoRiscos} />
       <Route path="/demo/acoes" component={DemoAcoes} />

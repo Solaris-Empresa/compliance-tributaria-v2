@@ -1,175 +1,138 @@
-import { Link } from "wouter";
-import {
-  LayoutDashboard,
-  AlertCircle,
-  ShieldAlert,
-  ClipboardList,
-  CheckSquare,
-  ArrowRight,
-  Beaker,
-  Zap,
-  Database,
-  GitBranch,
-  TrendingDown,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { DEMO } from "@/lib/demo-engine";
-
-const FEATURES = [
-  {
-    href: "/demo",
-    icon: LayoutDashboard,
-    title: "Dashboard Executivo",
-    desc: "Radar de compliance por domínio, KPIs, matriz de risco 4×4 e score geral.",
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-  },
-  {
-    href: "/demo/gaps",
-    icon: AlertCircle,
-    title: "Gaps de Compliance",
-    desc: "Requisitos não atendidos, critérios faltantes, evidências e ações recomendadas.",
-    color: "text-orange-600",
-    bg: "bg-orange-50",
-  },
-  {
-    href: "/demo/riscos",
-    icon: ShieldAlert,
-    title: "Matriz de Riscos",
-    desc: "Análise probabilidade × impacto com impacto financeiro estimado por requisito.",
-    color: "text-red-600",
-    bg: "bg-red-50",
-  },
-  {
-    href: "/demo/acoes",
-    icon: ClipboardList,
-    title: "Plano de Ação",
-    desc: "Ações estruturadas por prioridade (imediata → planejamento) com cronograma.",
-    color: "text-purple-600",
-    bg: "bg-purple-50",
-  },
-  {
-    href: "/demo/tarefas",
-    icon: CheckSquare,
-    title: "Tarefas Atômicas",
-    desc: "Tarefas granulares por tipo de gap com responsável, prazo e ordem de execução.",
-    color: "text-green-600",
-    bg: "bg-green-50",
-  },
-];
-
-const ENGINE_FEATURES = [
-  { icon: Database, text: "138 requisitos regulatórios em 12 domínios" },
-  { icon: GitBranch, text: "Motor determinístico com blend IA 85/15" },
-  { icon: TrendingDown, text: "Gap engine com priorityScore composto" },
-  { icon: ShieldAlert, text: "Matriz de risco 4×4 com 5 regras determinísticas" },
-  { icon: ClipboardList, text: "Plano de ação atômico por tipo de gap" },
-  { icon: Zap, text: "Tarefas com ordem de execução global" },
-];
+import { useLocation } from "wouter";
+import { SCENARIO_META, SCENARIOS, type ScenarioKey } from "@/lib/demo-engine";
+import { Zap, ArrowRight } from "lucide-react";
 
 export default function DemoLanding() {
+  const [, navigate] = useLocation();
+
+  const scenarios: ScenarioKey[] = ["simples", "medio", "complexo"];
+
+  function handleSelect(key: ScenarioKey) {
+    navigate(`/demo/dashboard?scenario=${key}`);
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       {/* Header */}
-      <header className="border-b border-white/10 px-8 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-500 flex items-center justify-center">
-              <Beaker className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="text-white font-bold text-sm leading-tight">Compliance Engine v3</p>
-              <p className="text-slate-400 text-xs">Reforma Tributária · LC 214/2023</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs">
-              DEMONSTRAÇÃO
-            </Badge>
-            <a href="/" className="text-xs text-slate-400 hover:text-white transition-colors">
-              Sistema completo →
-            </a>
-          </div>
+      <header className="border-b border-slate-800 px-6 py-4 flex items-center gap-3">
+        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-sm select-none">
+          CE
+        </div>
+        <div>
+          <div className="font-semibold text-sm leading-tight">Compliance Engine</div>
+          <div className="text-xs text-slate-400">v3 · Demonstração</div>
+        </div>
+        <div className="ml-auto flex items-center gap-3">
+          <span className="text-xs bg-blue-900/50 text-blue-300 border border-blue-800 rounded-full px-3 py-1">
+            DEMO · Motor v3 real · 205 testes
+          </span>
+          <a href="/" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
+            Sistema completo →
+          </a>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="max-w-5xl mx-auto px-8 py-16">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-full px-4 py-1.5 text-xs font-medium mb-6">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
+        <div className="max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-blue-900/30 border border-blue-800 rounded-full px-4 py-2 text-sm text-blue-300 mb-8">
             <Zap className="w-3.5 h-3.5" />
-            Motor v3 · 205/205 testes passando · Dados gerados em tempo real
+            Reforma Tributária 2026 · LC 214/2023 · IBS/CBS/IS
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4 leading-tight">
-            Compliance Engine v3<br />
-            <span className="text-blue-400">para a Reforma Tributária</span>
+
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+            Compliance Engine v3
           </h1>
-          <p className="text-slate-300 text-lg max-w-2xl mx-auto">
-            Demonstração com dados de exemplo realistas gerados pelo motor determinístico real.
-            Empresa fictícia em situação crítica de adequação à LC 214/2023.
+          <p className="text-xl text-slate-300 mb-3">
+            Diagnóstico de conformidade tributária com IA
           </p>
-        </div>
+          <p className="text-slate-400 mb-12 max-w-xl mx-auto text-sm leading-relaxed">
+            Escolha um perfil de empresa para explorar o diagnóstico completo gerado pelo motor v3:
+            radar de compliance, matriz de riscos 4×4, plano de ação e tarefas atômicas.
+          </p>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-          {[
-            { label: "Score Geral", value: `${DEMO.overallScore}/100`, color: "text-red-400", sub: "Crítico" },
-            { label: "Riscos Críticos", value: DEMO.criticalRisks, color: "text-red-400", sub: "Ação imediata" },
-            { label: "Ações Imediatas", value: DEMO.immediateActions, color: "text-orange-400", sub: "≤ 15 dias" },
-            { label: "Requisitos", value: DEMO.totalRequirements, color: "text-blue-400", sub: "Avaliados" },
-          ].map(stat => (
-            <div key={stat.label} className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-              <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
-              <p className="text-white text-sm font-medium mt-1">{stat.label}</p>
-              <p className="text-slate-400 text-xs mt-0.5">{stat.sub}</p>
+          {/* Scenario cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+            {scenarios.map((key) => {
+              const meta = SCENARIO_META[key];
+              const data = SCENARIOS[key];
+              const borderClass =
+                key === "simples" ? "border-emerald-800 hover:border-emerald-500" :
+                key === "medio" ? "border-amber-800 hover:border-amber-500" :
+                "border-red-900 hover:border-red-600";
+              const badgeClass =
+                key === "simples" ? "bg-emerald-900/50 text-emerald-300" :
+                key === "medio" ? "bg-amber-900/50 text-amber-300" :
+                "bg-red-900/50 text-red-300";
+              const scoreClass =
+                key === "simples" ? "text-emerald-400" :
+                key === "medio" ? "text-amber-400" : "text-red-400";
+              const btnClass =
+                key === "simples" ? "bg-emerald-700 hover:bg-emerald-600" :
+                key === "medio" ? "bg-amber-700 hover:bg-amber-600" :
+                "bg-red-800 hover:bg-red-700";
+
+              return (
+                <button
+                  key={key}
+                  onClick={() => handleSelect(key)}
+                  className={`group text-left rounded-xl border-2 p-6 transition-all duration-200 bg-slate-900 hover:bg-slate-800 ${borderClass}`}
+                >
+                  {/* Badge */}
+                  <div className={`inline-flex items-center gap-1.5 text-xs font-medium rounded-full px-2.5 py-1 mb-4 ${badgeClass}`}>
+                    <span>{meta.icon}</span>
+                    {meta.badge}
+                  </div>
+
+                  <h3 className="font-bold text-lg mb-1 text-white">{meta.label}</h3>
+                  <p className="text-sm text-slate-400 mb-3">{meta.subtitle}</p>
+                  <p className="text-xs text-slate-500 mb-5 leading-relaxed text-left">{meta.description}</p>
+
+                  {/* Score + stats */}
+                  <div className="flex items-end gap-3 mb-5">
+                    <div>
+                      <div className={`text-3xl font-bold ${scoreClass}`}>{data.overallScore}</div>
+                      <div className="text-xs text-slate-500">score /100</div>
+                    </div>
+                    <div className="flex-1 grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-slate-800 rounded-lg p-2 text-center">
+                        <div className="font-bold text-red-400">{data.criticalRisks}</div>
+                        <div className="text-slate-500">críticos</div>
+                      </div>
+                      <div className="bg-slate-800 rounded-lg p-2 text-center">
+                        <div className="font-bold text-orange-400">{data.immediateActions}</div>
+                        <div className="text-slate-500">imediatas</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`w-full py-2.5 rounded-lg text-sm font-semibold text-center transition-all text-white flex items-center justify-center gap-2 ${btnClass}`}>
+                    Explorar cenário <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Navigation guide */}
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-left max-w-lg mx-auto">
+            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Fluxo de navegação</h4>
+            <div className="flex items-center gap-2 flex-wrap text-xs text-slate-400">
+              {["Dashboard", "Gaps", "Riscos", "Plano de Ação", "Tarefas"].map((step, i, arr) => (
+                <span key={step} className="flex items-center gap-2">
+                  <span className="bg-slate-800 border border-slate-700 px-2.5 py-1 rounded text-slate-300">{step}</span>
+                  {i < arr.length - 1 && <span className="text-slate-600">→</span>}
+                </span>
+              ))}
             </div>
-          ))}
-        </div>
-
-        {/* Feature cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
-          {FEATURES.map(feature => (
-            <Link key={feature.href} href={feature.href}>
-              <a className="block bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 hover:border-white/20 transition-all group">
-                <div className={`w-10 h-10 rounded-lg ${feature.bg} flex items-center justify-center mb-3`}>
-                  <feature.icon className={`w-5 h-5 ${feature.color}`} />
-                </div>
-                <h3 className="text-white font-semibold text-sm mb-1.5">{feature.title}</h3>
-                <p className="text-slate-400 text-xs leading-relaxed">{feature.desc}</p>
-                <div className="flex items-center gap-1 mt-3 text-blue-400 text-xs font-medium">
-                  Explorar <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                </div>
-              </a>
-            </Link>
-          ))}
-        </div>
-
-        {/* Engine features */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h2 className="text-white font-bold text-base mb-4">Sobre o Motor v3</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {ENGINE_FEATURES.map(f => (
-              <div key={f.text} className="flex items-center gap-2.5">
-                <div className="w-6 h-6 rounded-md bg-blue-500/20 flex items-center justify-center shrink-0">
-                  <f.icon className="w-3.5 h-3.5 text-blue-400" />
-                </div>
-                <span className="text-slate-300 text-sm">{f.text}</span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
-            <p className="text-slate-400 text-xs">
-              Fórmula: <code className="text-blue-300 font-mono">baseScore = criteria×0.50 + evidence×0.30 + operational×0.20</code>
-            </p>
-            <Link href="/demo">
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5">
-                Iniciar Demo <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
-            </Link>
           </div>
         </div>
-      </section>
+      </div>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-800 px-6 py-4 text-center text-xs text-slate-600">
+        IA Solaris · Compliance Engine v3 · Dados fictícios gerados pelo motor real para fins de demonstração
+      </footer>
     </div>
   );
 }

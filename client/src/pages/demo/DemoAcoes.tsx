@@ -5,12 +5,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import DemoLayout from "./DemoLayout";
 import {
-  DEMO,
+  getScenario,
   DOMAIN_LABELS_DEMO,
   GAP_TYPE_LABELS,
   PRIORITY_LABELS,
   RISK_LEVEL_LABELS,
+  type ScenarioKey,
 } from "@/lib/demo-engine";
+
+function useScenario(): ScenarioKey {
+  const search = typeof window !== "undefined" ? window.location.search : "";
+  const params = new URLSearchParams(search);
+  const s = params.get("scenario");
+  if (s === "simples" || s === "medio" || s === "complexo") return s;
+  return "complexo";
+}
 
 const PRIORITY_COLORS: Record<string, string> = {
   imediata: "text-red-600 bg-red-50 border-red-200",
@@ -34,6 +43,8 @@ const RISK_COLORS: Record<string, string> = {
 };
 
 export default function DemoAcoes() {
+  const scenario = useScenario();
+  const DEMO = getScenario(scenario);
   const [filterPriority, setFilterPriority] = useState<string>("all");
   const [filterDomain, setFilterDomain] = useState<string>("all");
 
