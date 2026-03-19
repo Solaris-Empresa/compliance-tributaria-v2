@@ -1845,13 +1845,19 @@ Gere o Briefing estruturado em JSON:
         operational: "not_started",
         cnae: "not_started",
       };
+      const ds = diagnosticStatus as { corporate: string; operational: string; cnae: string };
+      const completedCount = [ds.corporate, ds.operational, ds.cnae].filter(s => s === "completed").length;
+      const progress = Math.round((completedCount / 3) * 100);
+      const isComplete = completedCount === 3;
       return {
         projectId: input.projectId,
-        diagnosticStatus: diagnosticStatus as {
+        diagnosticStatus: ds as {
           corporate: "not_started" | "in_progress" | "completed";
           operational: "not_started" | "in_progress" | "completed";
           cnae: "not_started" | "in_progress" | "completed";
         },
+        progress,
+        isComplete,
       };
     }),
 
