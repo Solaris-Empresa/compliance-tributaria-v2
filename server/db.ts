@@ -131,7 +131,7 @@ export async function createProject(data: InsertProject) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  console.log('[createProject] Input data:', data);
+  console.log('[createProject] Input data (JSON):', JSON.stringify(data, null, 2));
   const result = await db.insert(projects).values(data) as any;
   console.log('[createProject] Insert result:', result);
   const insertId = Array.isArray(result) ? result[0]?.insertId : (result as any).insertId;

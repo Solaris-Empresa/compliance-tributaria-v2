@@ -1,0 +1,24 @@
+{
+  "query": "INSERT INTO projects (name, description, clientId, status, createdById, createdByRole, notificationFrequency, currentStep, companyProfile, operationProfile, taxComplexity, financialProfile, governanceProfile)\nVALUES (\n  'Projeto Teste v2.1 Persistência',\n  'Empresa de tecnologia SaaS para testar persistência dos campos do Company Profile na v2.1 da plataforma de compliance tributário.',\n  1,\n  'rascunho',\n  1,\n  'equipe_solaris',\n  'semanal',\n  1,\n  '{\"cnpj\":\"12.345.678/0001-95\",\"companyType\":\"ltda\",\"companySize\":\"media\",\"taxRegime\":\"lucro_presumido\",\"foundingYear\":2015,\"stateUF\":\"SP\",\"employeeCount\":\"51-200\"}',\n  '{\"operationType\":\"servico\",\"clientType\":[\"B2B\",\"B2C\"],\"multiState\":true,\"geographicScope\":\"nacional\"}',\n  '{\"hasMultipleEstablishments\":false,\"hasImportExport\":false,\"hasSpecialRegimes\":false}',\n  '{\"paymentMethods\":[\"cartao_credito\",\"pix\"],\"hasIntermediaries\":false}',\n  '{\"hasTaxTeam\":true,\"hasAudit\":false,\"hasTaxIssues\":false}'\n);\n\nSELECT id, name,\n  JSON_EXTRACT(companyProfile, '$.cnpj') as cnpj,\n  JSON_EXTRACT(companyProfile, '$.taxRegime') as taxRegime,\n  JSON_EXTRACT(companyProfile, '$.companyType') as companyType,\n  JSON_EXTRACT(companyProfile, '$.companySize') as companySize,\n  JSON_EXTRACT(operationProfile, '$.operationType') as operationType,\n  JSON_EXTRACT(operationProfile, '$.clientType') as clientType,\n  JSON_EXTRACT(operationProfile, '$.multiState') as multiState,\n  JSON_EXTRACT(taxComplexity, '$.hasMultipleEstablishments') as hasMultipleEstablishments,\n  JSON_EXTRACT(financialProfile, '$.paymentMethods') as paymentMethods,\n  JSON_EXTRACT(governanceProfile, '$.hasTaxTeam') as hasTaxTeam\nFROM projects\nWHERE name = 'Projeto Teste v2.1 Persistência';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute INSERT INTO projects (name, description, clientId, status, createdById, createdByRole, notificationFrequency, currentStep, companyProfile, operationProfile, taxComplexity, financialProfile, governanceProfile)\nVALUES (\n  'Projeto Teste v2.1 Persistência',\n  'Empresa de tecnologia SaaS para testar persistência dos campos do Company Profile na v2.1 da plataforma de compliance tributário.',\n  1,\n  'rascunho',\n  1,\n  'equipe_solaris',\n  'semanal',\n  1,\n  '{\"cnpj\":\"12.345.678/0001-95\",\"companyType\":\"ltda\",\"companySize\":\"media\",\"taxRegime\":\"lucro_presumido\",\"foundingYear\":2015,\"stateUF\":\"SP\",\"employeeCount\":\"51-200\"}',\n  '{\"operationType\":\"servico\",\"clientType\":[\"B2B\",\"B2C\"],\"multiState\":true,\"geographicScope\":\"nacional\"}',\n  '{\"hasMultipleEstablishments\":false,\"hasImportExport\":false,\"hasSpecialRegimes\":false}',\n  '{\"paymentMethods\":[\"cartao_credito\",\"pix\"],\"hasIntermediaries\":false}',\n  '{\"hasTaxTeam\":true,\"hasAudit\":false,\"hasTaxIssues\":false}'\n);\n\nSELECT id, name,\n  JSON_EXTRACT(companyProfile, '$.cnpj') as cnpj,\n  JSON_EXTRACT(companyProfile, '$.taxRegime') as taxRegime,\n  JSON_EXTRACT(companyProfile, '$.companyType') as companyType,\n  JSON_EXTRACT(companyProfile, '$.companySize') as companySize,\n  JSON_EXTRACT(operationProfile, '$.operationType') as operationType,\n  JSON_EXTRACT(operationProfile, '$.clientType') as clientType,\n  JSON_EXTRACT(operationProfile, '$.multiState') as multiState,\n  JSON_EXTRACT(taxComplexity, '$.hasMultipleEstablishments') as hasMultipleEstablishments,\n  JSON_EXTRACT(financialProfile, '$.paymentMethods') as paymentMethods,\n  JSON_EXTRACT(governanceProfile, '$.hasTaxTeam') as hasTaxTeam\nFROM projects\nWHERE name = 'Projeto Teste v2.1 Persistência';",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Projeto Teste v2.1 Persistência",
+      "cnpj": "\"12.345.678/0001-95\"",
+      "taxRegime": "\"lucro_presumido\"",
+      "companyType": "\"ltda\"",
+      "companySize": "\"media\"",
+      "operationType": "\"servico\"",
+      "clientType": "[\"B2B\", \"B2C\"]",
+      "multiState": "true",
+      "hasMultipleEstablishments": "false",
+      "paymentMethods": "[\"cartao_credito\", \"pix\"]",
+      "hasTaxTeam": "true"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcnpj\ttaxRegime\tcompanyType\tcompanySize\toperationType\tclientType\tmultiState\thasMultipleEstablishments\tpaymentMethods\thasTaxTeam\n1\tProjeto Teste v2.1 Persistência\t\"12.345.678/0001-95\"\t\"lucro_presumido\"\t\"ltda\"\t\"media\"\t\"servico\"\t[\"B2B\", \"B2C\"]\ttrue\tfalse\t[\"cartao_credito\", \"pix\"]\ttrue\n",
+  "stderr": "",
+  "execution_time_ms": 104
+}

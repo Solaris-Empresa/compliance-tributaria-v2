@@ -1,0 +1,202 @@
+{
+  "query": "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() ORDER BY TABLE_NAME;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() ORDER BY TABLE_NAME;",
+  "rows": [
+    {
+      "TABLE_NAME": "__drizzle_migrations"
+    },
+    {
+      "TABLE_NAME": "actionPlanPromptHistory"
+    },
+    {
+      "TABLE_NAME": "actionPlanPrompts"
+    },
+    {
+      "TABLE_NAME": "actionPlanTemplates"
+    },
+    {
+      "TABLE_NAME": "actionPlanVersions"
+    },
+    {
+      "TABLE_NAME": "actionPlans"
+    },
+    {
+      "TABLE_NAME": "actions"
+    },
+    {
+      "TABLE_NAME": "activityBranches"
+    },
+    {
+      "TABLE_NAME": "assessmentPhase1"
+    },
+    {
+      "TABLE_NAME": "assessmentPhase2"
+    },
+    {
+      "TABLE_NAME": "assessmentTemplates"
+    },
+    {
+      "TABLE_NAME": "auditLog"
+    },
+    {
+      "TABLE_NAME": "branchActionPlanVersions"
+    },
+    {
+      "TABLE_NAME": "branchActionPlans"
+    },
+    {
+      "TABLE_NAME": "branchAssessmentTemplates"
+    },
+    {
+      "TABLE_NAME": "branchAssessmentVersions"
+    },
+    {
+      "TABLE_NAME": "branchAssessments"
+    },
+    {
+      "TABLE_NAME": "branchSuggestions"
+    },
+    {
+      "TABLE_NAME": "briefingVersions"
+    },
+    {
+      "TABLE_NAME": "briefings"
+    },
+    {
+      "TABLE_NAME": "clientMembers"
+    },
+    {
+      "TABLE_NAME": "cnaeEmbeddings"
+    },
+    {
+      "TABLE_NAME": "compliance_usage_logs_v3"
+    },
+    {
+      "TABLE_NAME": "corporateActionPlanVersions"
+    },
+    {
+      "TABLE_NAME": "corporateActionPlans"
+    },
+    {
+      "TABLE_NAME": "corporateAssessmentVersions"
+    },
+    {
+      "TABLE_NAME": "corporateAssessments"
+    },
+    {
+      "TABLE_NAME": "cosoControls"
+    },
+    {
+      "TABLE_NAME": "embeddingRebuildLogs"
+    },
+    {
+      "TABLE_NAME": "milestones"
+    },
+    {
+      "TABLE_NAME": "notificationPreferences"
+    },
+    {
+      "TABLE_NAME": "notifications"
+    },
+    {
+      "TABLE_NAME": "onboardingProgress"
+    },
+    {
+      "TABLE_NAME": "phases"
+    },
+    {
+      "TABLE_NAME": "planApprovals"
+    },
+    {
+      "TABLE_NAME": "planReviews"
+    },
+    {
+      "TABLE_NAME": "projectBranches"
+    },
+    {
+      "TABLE_NAME": "projectParticipants"
+    },
+    {
+      "TABLE_NAME": "projectPermissions"
+    },
+    {
+      "TABLE_NAME": "project_actions_v3"
+    },
+    {
+      "TABLE_NAME": "project_assessments_v3"
+    },
+    {
+      "TABLE_NAME": "project_gaps_v3"
+    },
+    {
+      "TABLE_NAME": "project_risks_v3"
+    },
+    {
+      "TABLE_NAME": "project_scores_v3"
+    },
+    {
+      "TABLE_NAME": "project_snapshots_v3"
+    },
+    {
+      "TABLE_NAME": "project_tasks_v3"
+    },
+    {
+      "TABLE_NAME": "projects"
+    },
+    {
+      "TABLE_NAME": "questionnaireAnswersV3"
+    },
+    {
+      "TABLE_NAME": "questionnaireProgressV3"
+    },
+    {
+      "TABLE_NAME": "questionnaireQuestionsCache"
+    },
+    {
+      "TABLE_NAME": "ragDocuments"
+    },
+    {
+      "TABLE_NAME": "regulatory_requirements_v3"
+    },
+    {
+      "TABLE_NAME": "riskMatrix"
+    },
+    {
+      "TABLE_NAME": "riskMatrixPromptHistory"
+    },
+    {
+      "TABLE_NAME": "riskMatrixVersions"
+    },
+    {
+      "TABLE_NAME": "sessionActionPlans"
+    },
+    {
+      "TABLE_NAME": "sessionBranchAnswers"
+    },
+    {
+      "TABLE_NAME": "sessionConsolidations"
+    },
+    {
+      "TABLE_NAME": "sessions"
+    },
+    {
+      "TABLE_NAME": "stepComments"
+    },
+    {
+      "TABLE_NAME": "taskComments"
+    },
+    {
+      "TABLE_NAME": "taskHistory"
+    },
+    {
+      "TABLE_NAME": "taskObservers"
+    },
+    {
+      "TABLE_NAME": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "TABLE_NAME\n__drizzle_migrations\nactionPlanPromptHistory\nactionPlanPrompts\nactionPlanTemplates\nactionPlanVersions\nactionPlans\nactions\nactivityBranches\nassessmentPhase1\nassessmentPhase2\nassessmentTemplates\nauditLog\nbranchActionPlanVersions\nbranchActionPlans\nbranchAssessmentTemplates\nbranchAssessmentVersions\nbranchAssessments\nbranchSuggestions\nbriefingVersions\nbriefings\nclientMembers\ncnaeEmbeddings\ncompliance_usage_logs_v3\ncorporateActionPlanVersions\ncorporateActionPlans\ncorporateAssessmentVersions\ncorporateAssessments\ncosoControls\nembeddingRebuildLogs\nmilestones\nnotificationPreferences\nnotifications\nonboardingProgress\nphases\nplanApprovals\nplanReviews\nprojectBranches\nprojectParticipants\nprojectPermissions\nproject_actions_v3\nproject_assessments_v3\nproject_gaps_v3\nproject_risks_v3\nproject_scores_v3\nproject_snapshots_v3\nproject_tasks_v3\nprojects\nquestionnaireAnswersV3\nquestionnaireProgressV3\nquestionnaireQuestionsCache\nragDocuments\nregulatory_requirements_v3\nriskMatrix\nriskMatrixPromptHistory\nriskMatrixVersions\nsessionActionPlans\nsessionBranchAnswers\nsessionConsolidations\nsessions\nstepComments\ntaskComments\ntaskHistory\ntaskObservers\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

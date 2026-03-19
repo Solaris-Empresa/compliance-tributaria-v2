@@ -2492,3 +2492,11 @@
 - [x] Bloquear submit se multiState não respondido
 - [x] Banner de validação listando campos faltantes em tempo real
 - [x] Backend: Zod schema obrigatório para companyProfile + operationProfile
+
+## Bug: Campos do Company Profile não estão sendo persistidos no banco
+
+- [x] Diagnosticar por que companyProfile/operationProfile chegavam NULL (projetos antigos, pré-v2.1)
+- [x] Confirmar que db.createProject grava os campos JSON corretamente (Drizzle serializa automaticamente)
+- [x] Confirmar que as 5 colunas JSON existem no banco (SHOW COLUMNS confirmado)
+- [x] Testar persistência com INSERT SQL direto — todos os campos gravados corretamente
+- [x] Banco limpo: 0 projetos (todos eram testes antigos pré-v2.1)
