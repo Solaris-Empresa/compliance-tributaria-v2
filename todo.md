@@ -2477,3 +2477,18 @@
 - [ ] Git: commit feat(v2.1): add company profile structure to project creation
 - [ ] Git: PR aberto feature/v2.1-company-profile para main
 - [ ] Checkpoint salvo
+
+## Ajuste v2.1 — Perfil da Empresa Obrigatório (fix/v2.1-company-profile-required)
+
+- [x] Remover accordion e tornar Perfil da Empresa sempre visível no NovoProjeto.tsx
+- [x] Alterar título: "Perfil da Empresa (Obrigatório)" com badge vermelho
+- [x] Adicionar texto explicativo obrigatório
+- [x] Bloquear submit se CNPJ inválido (CNPJ agora é obrigatório + valida DV)
+- [x] Bloquear submit se regime tributário não preenchido
+- [x] Bloquear submit se porte (companySize) não definido
+- [x] Bloquear submit se tipo de operação não definido
+- [x] Bloquear submit se tipo jurídico (companyType) não definido
+- [x] Bloquear submit se tipo de cliente (clientType) vazio
+- [x] Bloquear submit se multiState não respondido
+- [x] Banner de validação listando campos faltantes em tempo real
+- [x] Backend: Zod schema obrigatório para companyProfile + operationProfile

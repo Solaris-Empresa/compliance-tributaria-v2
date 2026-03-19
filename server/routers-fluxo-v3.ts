@@ -45,22 +45,30 @@ export const fluxoV3Router = router({
       description: z.string().min(50, "Descrição deve ter pelo menos 50 caracteres"),
       clientId: z.number({ message: "Cliente é obrigatório" }),
       faturamentoAnual: z.number().optional(), // V61: para tradução financeira do risco
-      // v2.1: Company Profile Layer (todos opcionais para backward compatibility)
+      // v2.1: Company Profile Layer — OBRIGATÓRIO (fix/v2.1-company-profile-required)
       companyProfile: z.object({
-        cnpj: z.string().optional(),
-        companyType: z.enum(["ltda", "sa", "mei", "eireli", "scp", "cooperativa", "outro"]).optional(),
-        taxRegime: z.enum(["simples_nacional", "lucro_presumido", "lucro_real"]).optional(),
+        cnpj: z.string().min(14, "CNPJ é obrigatório"),
+        companyType: z.enum(["ltda", "sa", "mei", "eireli", "scp", "cooperativa", "outro"]),
+        companySize: z.enum(["mei", "micro", "pequena", "media", "grande"]),
+        taxRegime: z.enum(["simples_nacional", "lucro_presumido", "lucro_real"]),
+        foundingYear: z.number().optional(),
+        stateUF: z.string().optional(),
+        employeeCount: z.string().optional(),
         annualRevenueRange: z.enum(["ate_360k", "360k_4_8m", "4_8m_78m", "acima_78m"]).optional(),
-      }).optional(),
+      }),
       operationProfile: z.object({
-        operationType: z.enum(["produto", "servico", "misto"]).optional(),
-        clientType: z.array(z.string()).optional(),
-        multiState: z.boolean().optional(),
-      }).optional(),
+        operationType: z.enum(["produto", "servico", "misto"]),
+        clientType: z.array(z.string()).min(1, "Selecione pelo menos 1 tipo de cliente"),
+        multiState: z.boolean(),
+        geographicScope: z.string().optional(),
+      }),
       taxComplexity: z.object({
         hasInternationalOps: z.boolean().optional(),
         usesTaxIncentives: z.boolean().optional(),
         usesMarketplace: z.boolean().optional(),
+        hasMultipleEstablishments: z.boolean().optional(),
+        hasImportExport: z.boolean().optional(),
+        hasSpecialRegimes: z.boolean().optional(),
       }).optional(),
       financialProfile: z.object({
         paymentMethods: z.array(z.string()).optional(),

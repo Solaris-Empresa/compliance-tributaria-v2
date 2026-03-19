@@ -204,8 +204,7 @@ export default function NovoProjeto() {
   const [feedbackText, setFeedbackText] = useState("");
   const [refinementIteration, setRefinementIteration] = useState(1);
 
-  // v2.1: Company Profile Layer
-  const [showCompanyProfile, setShowCompanyProfile] = useState(false);
+  // v2.1: Company Profile Layer (OBRIGATÓRIO)
   // Bloco 1: Identificação
   const [cnpj, setCnpj] = useState("");
   const [cnpjError, setCnpjError] = useState("");
@@ -214,9 +213,12 @@ export default function NovoProjeto() {
   const [employeeCount, setEmployeeCount] = useState("");
   const [annualRevenueRange, setAnnualRevenueRange] = useState("");
   const [taxRegime, setTaxRegime] = useState("");
+  const [companyType, setCompanyType] = useState("");
+  const [companySize, setCompanySize] = useState("");
   // Bloco 2: Operação
   const [operationType, setOperationType] = useState("");
   const [clientType, setClientType] = useState<string[]>([]);
+  const [multiState, setMultiState] = useState<boolean | null>(null);
   const [geographicScope, setGeographicScope] = useState("");
   // Bloco 3: Complexidade Tributária
   const [hasMultipleEstablishments, setHasMultipleEstablishments] = useState<boolean | null>(null);
@@ -316,25 +318,48 @@ export default function NovoProjeto() {
   const togglePaymentMethod = (val: string) =>
     setPaymentMethods(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]);
 
+  // v2.1: Computed validation flags
+  const cnpjDigits = cnpj.replace(/\D/g, "");
+  const cnpjFilled = cnpjDigits.length === 14;
+  const cnpjValid = cnpjFilled && !cnpjError;
+  const profileValid =
+    cnpjValid &&
+    !!companyType &&
+    !!companySize &&
+    !!taxRegime &&
+    !!operationType &&
+    clientType.length > 0 &&
+    multiState !== null;
+
   const handleSubmit = () => {
     if (!name.trim()) return toast.error("Informe o nome do projeto");
     if (description.trim().length < 100) return toast.error("A descrição deve ter pelo menos 100 caracteres");
     if (!clientId) return toast.error("Selecione um cliente");
-    if (cnpj && cnpjError) return toast.error("Corrija o CNPJ antes de avançar");
-    // v2.1: Montar os blocos do Company Profile (somente se preenchidos)
-    const companyProfile = (annualRevenueRange || taxRegime || cnpj || foundingYear || stateUF || employeeCount) ? {
-      cnpj: cnpj || undefined,
+    // v2.1: Validar campos obrigatórios do Company Profile
+    if (!cnpjFilled || cnpjError) return toast.error("CNPJ é obrigatório e deve ser válido (com dígito verificador)");
+    if (!companyType) return toast.error("Selecione o Tipo Jurídico da empresa");
+    if (!companySize) return toast.error("Selecione o Porte da empresa");
+    if (!taxRegime) return toast.error("Selecione o Regime Tributário");
+    if (!operationType) return toast.error("Selecione o Tipo de Operação");
+    if (clientType.length === 0) return toast.error("Selecione pelo menos 1 Tipo de Cliente");
+    if (multiState === null) return toast.error("Informe se a empresa opera em múltiplos estados");
+    // v2.1: Montar os blocos do Company Profile (obrigatórios)
+    const companyProfile = {
+      cnpj,
+      companyType,
+      companySize,
       foundingYear: foundingYear ? parseInt(foundingYear) : undefined,
       stateUF: stateUF || undefined,
       employeeCount: employeeCount || undefined,
       annualRevenueRange: annualRevenueRange || undefined,
-      taxRegime: taxRegime || undefined,
-    } : undefined;
-    const operationProfile = (operationType || clientType.length > 0 || geographicScope) ? {
-      operationType: operationType || undefined,
-      clientType: clientType.length > 0 ? clientType : undefined,
+      taxRegime,
+    };
+    const operationProfile = {
+      operationType,
+      clientType,
+      multiState,
       geographicScope: geographicScope || undefined,
-    } : undefined;
+    };
     const taxComplexity = (hasMultipleEstablishments !== null || hasImportExport !== null || hasSpecialRegimes !== null) ? {
       hasMultipleEstablishments: hasMultipleEstablishments ?? undefined,
       hasImportExport: hasImportExport ?? undefined,
@@ -567,51 +592,95 @@ export default function NovoProjeto() {
           </CardContent>
         </Card>
 
-        {/* v2.1: Company Profile Layer — accordion opcional */}
-        <Card className="shadow-sm">
-          <button
-            type="button"
-            className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-muted/30 transition-colors rounded-xl"
-            onClick={() => setShowCompanyProfile(p => !p)}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+        {/* v2.1: Company Profile Layer — OBRIGATÓRIO */}
+        <Card className="shadow-sm border-primary/30">
+          <div className="px-6 pt-5 pb-2">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                 <Info className="h-4 w-4 text-primary" />
               </div>
-              <div>
-                <p className="text-sm font-semibold">Perfil da Empresa <span className="text-xs font-normal text-muted-foreground ml-1">(opcional — melhora a precisão dos CNAEs)</span></p>
-                <p className="text-xs text-muted-foreground">Regime tributário, porte, operação, governança</p>
+              <div className="flex-1">
+                <p className="text-sm font-semibold">Perfil da Empresa <span className="text-xs font-semibold text-destructive ml-1">(Obrigatório)</span></p>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  Essas informações são necessárias para iniciar o diagnóstico tributário e gerar uma análise personalizada conforme a Reforma Tributária.
+                </p>
               </div>
             </div>
-            {showCompanyProfile ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-          </button>
+          </div>
 
-          {showCompanyProfile && (
-            <CardContent className="pt-0 pb-6 space-y-6">
+          <CardContent className="pt-2 pb-6 space-y-6">
               <Separator />
 
               {/* Bloco 1: Identificação */}
               <div className="space-y-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">1. Identificação</p>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-sm">CNPJ</Label>
+                  {/* CNPJ — obrigatório */}
+                  <div className="space-y-1.5 col-span-2">
+                    <Label className="text-sm">CNPJ <span className="text-destructive">*</span></Label>
                     <Input
                       placeholder="00.000.000/0000-00"
                       value={cnpj}
                       onChange={(e) => handleCnpjChange(e.target.value)}
                       maxLength={18}
-                      className={cnpjError ? "border-destructive" : ""}
+                      className={cnpjError ? "border-destructive" : cnpjValid ? "border-emerald-500" : ""}
                     />
-                    {cnpjError && <p className="text-xs text-destructive">{cnpjError}</p>}
-                    {cnpj && !cnpjError && cnpj.replace(/\D/g, "").length === 14 && (
+                    {cnpjError && <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{cnpjError}</p>}
+                    {cnpjValid && (
                       <p className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" />CNPJ válido</p>
                     )}
+                    {!cnpjFilled && cnpjDigits.length > 0 && (
+                      <p className="text-xs text-muted-foreground">{14 - cnpjDigits.length} dígito(s) restante(s)</p>
+                    )}
                   </div>
+                  {/* Tipo Jurídico — obrigatório */}
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Tipo Jurídico <span className="text-destructive">*</span></Label>
+                    <Select value={companyType} onValueChange={setCompanyType}>
+                      <SelectTrigger className={!companyType ? "border-amber-400/60" : ""}><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ltda">Ltda</SelectItem>
+                        <SelectItem value="sa">S.A.</SelectItem>
+                        <SelectItem value="mei">MEI</SelectItem>
+                        <SelectItem value="eireli">Eireli</SelectItem>
+                        <SelectItem value="scp">SCP</SelectItem>
+                        <SelectItem value="cooperativa">Cooperativa</SelectItem>
+                        <SelectItem value="outro">Outro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {/* Porte — obrigatório */}
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Porte <span className="text-destructive">*</span></Label>
+                    <Select value={companySize} onValueChange={setCompanySize}>
+                      <SelectTrigger className={!companySize ? "border-amber-400/60" : ""}><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="mei">MEI</SelectItem>
+                        <SelectItem value="micro">Microempresa</SelectItem>
+                        <SelectItem value="pequena">Pequena Empresa</SelectItem>
+                        <SelectItem value="media">Média Empresa</SelectItem>
+                        <SelectItem value="grande">Grande Empresa</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {/* Regime Tributário — obrigatório */}
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Regime Tributário <span className="text-destructive">*</span></Label>
+                    <Select value={taxRegime} onValueChange={setTaxRegime}>
+                      <SelectTrigger className={!taxRegime ? "border-amber-400/60" : ""}><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="simples_nacional">Simples Nacional</SelectItem>
+                        <SelectItem value="lucro_presumido">Lucro Presumido</SelectItem>
+                        <SelectItem value="lucro_real">Lucro Real</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {/* Ano de Fundação — opcional */}
                   <div className="space-y-1.5">
                     <Label className="text-sm">Ano de Fundação</Label>
                     <Input placeholder="Ex: 2010" value={foundingYear} onChange={(e) => setFoundingYear(e.target.value.replace(/\D/g, "").slice(0, 4))} maxLength={4} />
                   </div>
+                  {/* Estado (UF) — opcional */}
                   <div className="space-y-1.5">
                     <Label className="text-sm">Estado (UF)</Label>
                     <Select value={stateUF} onValueChange={setStateUF}>
@@ -623,6 +692,7 @@ export default function NovoProjeto() {
                       </SelectContent>
                     </Select>
                   </div>
+                  {/* Número de Funcionários — opcional */}
                   <div className="space-y-1.5">
                     <Label className="text-sm">Número de Funcionários</Label>
                     <Select value={employeeCount} onValueChange={setEmployeeCount}>
@@ -635,6 +705,7 @@ export default function NovoProjeto() {
                       </SelectContent>
                     </Select>
                   </div>
+                  {/* Faturamento Anual — opcional */}
                   <div className="space-y-1.5">
                     <Label className="text-sm">Faturamento Anual</Label>
                     <Select value={annualRevenueRange} onValueChange={setAnnualRevenueRange}>
@@ -647,17 +718,6 @@ export default function NovoProjeto() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-sm">Regime Tributário</Label>
-                    <Select value={taxRegime} onValueChange={setTaxRegime}>
-                      <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="simples_nacional">Simples Nacional</SelectItem>
-                        <SelectItem value="lucro_presumido">Lucro Presumido</SelectItem>
-                        <SelectItem value="lucro_real">Lucro Real</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
               </div>
 
@@ -666,8 +726,9 @@ export default function NovoProjeto() {
               {/* Bloco 2: Operação */}
               <div className="space-y-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">2. Operação</p>
+                {/* Tipo de Operação — obrigatório */}
                 <div className="space-y-1.5">
-                  <Label className="text-sm">Tipo de Operação</Label>
+                  <Label className="text-sm">Tipo de Operação <span className="text-destructive">*</span></Label>
                   <div className="flex gap-2 flex-wrap">
                     {[["produto","Venda de Produtos"],["servico","Prestação de Serviços"],["misto","Misto (Produto + Serviço)"]].map(([val, label]) => (
                       <button key={val} type="button"
@@ -678,9 +739,11 @@ export default function NovoProjeto() {
                       >{label}</button>
                     ))}
                   </div>
+                  {!operationType && <p className="text-xs text-amber-600">Selecione o tipo de operação</p>}
                 </div>
+                {/* Tipo de Cliente — obrigatório (mínimo 1) */}
                 <div className="space-y-1.5">
-                  <Label className="text-sm">Tipo de Cliente <span className="text-xs text-muted-foreground">(múltipla seleção)</span></Label>
+                  <Label className="text-sm">Tipo de Cliente <span className="text-destructive">*</span> <span className="text-xs text-muted-foreground">(mínimo 1)</span></Label>
                   <div className="flex gap-4 flex-wrap">
                     {[["B2B","B2B (Empresas)"],["B2C","B2C (Consumidores)"],["Governo","Governo"]].map(([val, label]) => (
                       <label key={val} className="flex items-center gap-2 cursor-pointer">
@@ -689,7 +752,24 @@ export default function NovoProjeto() {
                       </label>
                     ))}
                   </div>
+                  {clientType.length === 0 && <p className="text-xs text-amber-600">Selecione pelo menos 1 tipo de cliente</p>}
                 </div>
+                {/* Opera em múltiplos estados — obrigatório */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Opera em múltiplos estados? <span className="text-destructive">*</span></span>
+                  <div className="flex gap-2">
+                    {([[true,"Sim"],[false,"Não"]] as [boolean, string][]).map(([bval, blabel]) => (
+                      <button key={blabel} type="button"
+                        className={`px-3 py-1 rounded-lg border text-xs font-medium transition-colors ${
+                          multiState === bval ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/50"
+                        }`}
+                        onClick={() => setMultiState(multiState === bval ? null : bval)}
+                      >{blabel}</button>
+                    ))}
+                  </div>
+                </div>
+                {multiState === null && <p className="text-xs text-amber-600">Informe se opera em múltiplos estados</p>}
+                {/* Abrangência Geográfica — opcional */}
                 <div className="space-y-1.5">
                   <Label className="text-sm">Abrangência Geográfica</Label>
                   <Select value={geographicScope} onValueChange={setGeographicScope}>
@@ -788,7 +868,6 @@ export default function NovoProjeto() {
                 ))}
               </div>
             </CardContent>
-          )}
         </Card>
 
         <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15">
@@ -801,8 +880,27 @@ export default function NovoProjeto() {
           </div>
         </div>
 
+        {/* Banner de validação do Perfil da Empresa */}
+        {!profileValid && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/5 border border-destructive/20">
+            <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-destructive">Preencha os campos obrigatórios do Perfil da Empresa</p>
+              <ul className="text-xs text-muted-foreground mt-1.5 space-y-0.5">
+                {!cnpjValid && <li>• CNPJ válido com dígito verificador</li>}
+                {!companyType && <li>• Tipo Jurídico</li>}
+                {!companySize && <li>• Porte da empresa</li>}
+                {!taxRegime && <li>• Regime Tributário</li>}
+                {!operationType && <li>• Tipo de Operação</li>}
+                {clientType.length === 0 && <li>• Tipo de Cliente (mínimo 1)</li>}
+                {multiState === null && <li>• Opera em múltiplos estados (Sim/Não)</li>}
+              </ul>
+            </div>
+          </div>
+        )}
+
         <div className="flex justify-end pb-4">
-          <Button size="lg" onClick={handleSubmit} disabled={isLoading || !name.trim() || descLength < 100 || !clientId} className="min-w-[220px]">
+          <Button size="lg" onClick={handleSubmit} disabled={isLoading || !name.trim() || descLength < 100 || !clientId || !profileValid} className="min-w-[220px]">
             {isLoading ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />{createProject.isPending ? "Criando projeto..." : "Analisando CNAEs..."}</>
             ) : (
