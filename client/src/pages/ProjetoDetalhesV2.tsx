@@ -449,7 +449,13 @@ export default function ProjetoDetalhesV2() {
                 readyForBriefing={readyForBriefing}
                 isLoading={completeDiagnosticLayer.isPending}
                 onStartLayer={(layer) => {
-                  setLocation(`/projetos/${projectId}/questionario-v3`);
+                  if (layer === "corporate") {
+                    setLocation(`/projetos/${projectId}/questionario-corporativo-v2`);
+                  } else if (layer === "operational") {
+                    setLocation(`/projetos/${projectId}/questionario-operacional`);
+                  } else if (layer === "cnae") {
+                    setLocation(`/projetos/${projectId}/questionario-cnae`);
+                  }
                 }}
                 onGenerateBriefing={() => {
                   setLocation(`/projetos/${projectId}/briefing-v3`);

@@ -2557,3 +2557,30 @@
 - [ ] Prova: persistência validada (banco)
 - [ ] Prova: dados visíveis após reload
 - [ ] Prova: stepper integrado
+
+## FASE 4 — T7/T8/T9 (Questionários Estruturais) — GATE 3 APROVADO
+
+- [ ] T7 — QuestionarioCorporativoV2.tsx: 10 seções QC-01..QC-10 com placeholders
+- [ ] T7 — Persistência corporateAnswers no banco via procedure saveDiagnosticLayer
+- [ ] T8 — QuestionarioOperacional.tsx: 10 seções QO-01..QO-10 com placeholders
+- [ ] T8 — Persistência operationalAnswers no banco via procedure saveDiagnosticLayer
+- [ ] T9 — Adaptar QuestionarioV3.tsx: 5 seções QCNAE-01..QCNAE-05
+- [ ] T9 — Persistência cnaeAnswers no banco via procedure saveDiagnosticLayer
+- [ ] Registrar 3 rotas no App.tsx (/projetos/:id/corporativo, /operacional, /cnae)
+- [ ] Integrar DiagnosticoStepper com links para os 3 questionários
+- [ ] TypeScript: 0 erros (tsc --noEmit --incremental false)
+- [ ] Prova de reload com dados mantidos (getProjectById retorna as 3 camadas)
+- [ ] Testes E2E de persistência das 3 camadas
+- [ ] Checkpoint FASE 4
+
+## FASE 4 — Sprint v2.1 — Questionários Oficiais (19/03/2026)
+- [x] T7: Reescrever QuestionarioCorporativoV2.tsx com 10 seções oficiais (QC-01..QC-10) e imports corretos
+- [x] T8: Reescrever QuestionarioOperacional.tsx com 10 seções oficiais (QO-01..QO-10) e imports corretos
+- [x] T9: Reescrever QuestionarioCNAE.tsx com 5 seções oficiais (QCNAE-01..QCNAE-05) e imports corretos
+- [x] Registrar rotas /questionario-corporativo-v2, /questionario-operacional, /questionario-cnae no App.tsx
+- [x] Corrigir todos os imports incorretos (useAuth, use-toast → sonner; fluxoV3.updateProject → diagnostic.updateDiagnosticStatus)
+- [x] Atualizar DiagnosticoStepper com nomes oficiais das 3 camadas (QC, QO, QCNAE)
+- [x] Integrar onStartLayer no ProjetoDetalhesV2 com rotas corretas para cada questionário
+- [x] Validar bloqueio sequencial: QO bloqueado até QC=completed, QCNAE bloqueado até QO=completed
+- [x] TypeScript: 0 erros confirmado (Found 0 errors)
+- [x] E2E: QC renderiza seção QC-01 corretamente; QO mostra tela de bloqueio; QCNAE mostra tela de bloqueio

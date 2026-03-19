@@ -40,6 +40,9 @@ import PlanoAcaoSession from "./pages/PlanoAcaoSession";
 import MatrizRiscosSession from "./pages/MatrizRiscosSession";
 import Consolidacao from "./pages/Consolidacao";
 import QuestionarioV3 from "./pages/QuestionarioV3";
+import QuestionarioCorporativoV2 from "./pages/QuestionarioCorporativoV2";
+import QuestionarioOperacional from "./pages/QuestionarioOperacional";
+import QuestionarioCNAE from "./pages/QuestionarioCNAE";
 import BriefingV3 from "./pages/BriefingV3";
 import MatrizesV3 from "./pages/MatrizesV3";
 import PlanoAcaoV3 from "./pages/PlanoAcaoV3";
@@ -101,6 +104,10 @@ function Router() {
       <Route path="/plano-acao-session" component={PlanoAcaoSession} />
       <Route path="/matriz-riscos-session" component={MatrizRiscosSession} />
       <Route path="/consolidacao" component={Consolidacao} />
+      {/* Diagnóstico v2.1 — 3 camadas sequenciais */}
+      <Route path="/projetos/:id/questionario-corporativo-v2" component={QuestionarioCorporativoV2} />
+      <Route path="/projetos/:id/questionario-operacional" component={QuestionarioOperacional} />
+      <Route path="/projetos/:id/questionario-cnae" component={QuestionarioCNAE} />
       {/* Novo Fluxo v3.0 */}
       <Route path="/projetos/:id/formulario" component={FormularioProjeto} />
       <Route path="/projetos/:id/questionario-v3" component={QuestionarioV3} />
