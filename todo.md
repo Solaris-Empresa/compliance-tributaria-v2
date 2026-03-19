@@ -2508,3 +2508,17 @@
 - [x] Banner de erro exibe: "Preencha o Perfil da Empresa para continuar"
 - [x] Botão "Avançar" desabilitado até todos os 7 campos obrigatórios preenchidos
 - [x] UX sem ambiguidade: ícone Lock (vermelho) quando incompleto, CheckCircle (verde) quando ok, borda do card muda de cor, badge dinâmico "Obrigatório" / "Preenchido"
+
+## v2.1.2 — Prova ponta a ponta (frontend → backend → banco → reload → evidência)
+
+- [ ] Auditar Zod schema no router: confirmar que todos os 7 campos são .required()
+- [ ] Ajustar texto do bloco para mensagem exata do PO
+- [ ] Ajustar mensagem de erro para: "Preencha os dados obrigatórios do Perfil da Empresa para continuar."
+- [ ] Criar script de teste E2E: payload completo → banco grava, payload incompleto → backend rejeita
+- [ ] Evidência 1: screenshot do bloco com indicação de obrigatório
+- [ ] Evidência 2: screenshot do botão desabilitado
+- [ ] Evidência 3: evidência de CNPJ inválido bloqueado
+- [ ] Evidência 4: payload rejeitado pelo backend (Zod error log)
+- [ ] Evidência 5: SQL mostrando dados gravados no banco após submit completo
+- [ ] Evidência 6: reload mantém dados (getProjectById retorna campos JSON)
+- [ ] Commit na branch fix/v2.1-company-profile-required

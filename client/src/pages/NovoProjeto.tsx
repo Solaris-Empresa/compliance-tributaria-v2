@@ -610,7 +610,7 @@ export default function NovoProjeto() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Este cadastro é obrigatório para gerar o diagnóstico e o questionário personalizado.
+                  Essas informações são necessárias para iniciar o diagnóstico tributário e gerar o questionário personalizado.
                 </p>
               </div>
             </div>
@@ -893,7 +893,7 @@ export default function NovoProjeto() {
           <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/8 border-2 border-destructive/30">
             <Lock className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-destructive">Preencha o Perfil da Empresa para continuar</p>
+              <p className="text-sm font-semibold text-destructive">Preencha os dados obrigatórios do Perfil da Empresa para continuar.</p>
               <p className="text-xs text-muted-foreground mt-0.5">Campos faltantes:</p>
               <ul className="text-xs text-destructive/80 mt-1 space-y-0.5">
                 {!cnpjValid && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />CNPJ válido com dígito verificador</li>}
