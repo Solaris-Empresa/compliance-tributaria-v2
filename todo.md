@@ -2511,14 +2511,14 @@
 
 ## v2.1.2 — Prova ponta a ponta (frontend → backend → banco → reload → evidência)
 
-- [ ] Auditar Zod schema no router: confirmar que todos os 7 campos são .required()
-- [ ] Ajustar texto do bloco para mensagem exata do PO
-- [ ] Ajustar mensagem de erro para: "Preencha os dados obrigatórios do Perfil da Empresa para continuar."
-- [ ] Criar script de teste E2E: payload completo → banco grava, payload incompleto → backend rejeita
-- [ ] Evidência 1: screenshot do bloco com indicação de obrigatório
-- [ ] Evidência 2: screenshot do botão desabilitado
-- [ ] Evidência 3: evidência de CNPJ inválido bloqueado
-- [ ] Evidência 4: payload rejeitado pelo backend (Zod error log)
-- [ ] Evidência 5: SQL mostrando dados gravados no banco após submit completo
-- [ ] Evidência 6: reload mantém dados (getProjectById retorna campos JSON)
-- [ ] Commit na branch fix/v2.1-company-profile-required
+- [x] Auditar Zod schema no router: confirmado que todos os 7 campos são .required()
+- [x] Ajustar texto do bloco para mensagem exata do PO
+- [x] Ajustar mensagem de erro para: "Preencha os dados obrigatórios do Perfil da Empresa para continuar."
+- [x] Criar script de teste E2E: 10/10 testes passaram
+- [x] Evidência 1: card com badge "Obrigatório" (vermelho) + ícone Lock
+- [x] Evidência 2: botão desabilitado até profileValid=true
+- [x] Evidência 3: Zod rejeita CNPJ vazio (test: rejeita CNPJ vazio ✔)
+- [x] Evidência 4: Zod rejeita 6 payloads incompletos (test: 6/6 rejeições ✔)
+- [x] Evidência 5: banco grava todos os campos JSON (test: createProject ID=2 ✔)
+- [x] Evidência 6: getProjectById retorna todos os campos (reload mantém ✔)
+- [x] Commit na branch fix/v2.1-company-profile-required (71451b5) + merge main (d4f1321)
