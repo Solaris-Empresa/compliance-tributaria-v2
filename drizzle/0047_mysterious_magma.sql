@@ -1,0 +1,4 @@
+ALTER TABLE `projects` MODIFY COLUMN `status` enum('rascunho','consistencia_pendente','cnaes_confirmados','diagnostico_corporativo','diagnostico_operacional','diagnostico_cnae','briefing','riscos','plano','dashboard','matriz_riscos','plano_acao','em_avaliacao','aprovado','em_andamento','concluido','arquivado') NOT NULL DEFAULT 'rascunho';--> statement-breakpoint
+ALTER TABLE `projects` ADD `currentStepName` varchar(64) DEFAULT 'perfil_empresa';--> statement-breakpoint
+ALTER TABLE `projects` ADD `stepUpdatedAt` timestamp DEFAULT (now());--> statement-breakpoint
+ALTER TABLE `projects` ADD `stepHistory` json;

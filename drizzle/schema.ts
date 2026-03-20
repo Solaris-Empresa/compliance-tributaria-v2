@@ -34,9 +34,15 @@ export const projects = mysqlTable("projects", {
   clientId: int("clientId").notNull(),
   status: mysqlEnum("status", [
     "rascunho",
+    "consistencia_pendente",
+    "cnaes_confirmados",
     "diagnostico_corporativo",
     "diagnostico_operacional",
     "diagnostico_cnae",
+    "briefing",
+    "riscos",
+    "plano",
+    "dashboard",
     "matriz_riscos",
     "plano_acao",
     "em_avaliacao",
@@ -65,7 +71,10 @@ export const projects = mysqlTable("projects", {
   // Etapa 1 — Criação do Projeto (novo fluxo v3.0)
   description: text("description"),                    // Campo descrição longo (negócio, desafios, operação)
   confirmedCnaes: json("confirmedCnaes"),               // Array de CNAEs confirmados: [{code, description, confidence}]
-  currentStep: int("currentStep").default(1).notNull(), // Etapa atual do fluxo: 1-5
+  currentStep: int("currentStep").default(1).notNull(), // Etapa atual do fluxo: 1-9 (v2.3)
+  currentStepName: varchar("currentStepName", { length: 64 }).default("perfil_empresa"), // Nome semântico da etapa atual v2.3
+  stepUpdatedAt: timestamp("stepUpdatedAt").defaultNow(), // Quando a etapa foi atualizada pela última vez
+  stepHistory: json("stepHistory").$type<Array<{ step: number; stepName: string; timestamp: string; userId?: number }>>(), // Histórico de transições
   // Campos do Assessment
   taxRegime: mysqlEnum("taxRegime", [
     "simples_nacional",

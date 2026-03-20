@@ -2584,3 +2584,22 @@
 - [x] Validar bloqueio sequencial: QO bloqueado até QC=completed, QCNAE bloqueado até QO=completed
 - [x] TypeScript: 0 erros confirmado (Found 0 errors)
 - [x] E2E: QC renderiza seção QC-01 corretamente; QO mostra tela de bloqueio; QCNAE mostra tela de bloqueio
+
+## TASK v2.3 — Flow State + Persistence + QA Validation
+- [ ] Adicionar campo `current_step` (varchar) na tabela `projects`
+- [ ] Atualizar enum `project_status` com novos estados v2.2 (consistencia_pendente, cnaes_confirmados, diagnostico_corporativo, diagnostico_operacional, diagnostico_cnae, briefing, riscos, plano, dashboard)
+- [ ] Executar `pnpm db:push`
+- [ ] Criar `server/flowStateMachine.ts` com transições válidas e bloqueios
+- [ ] Criar procedure `flow.saveStep` (salva current_step)
+- [ ] Criar procedure `flow.getResumePoint` (retorna current_step + dados para retomada)
+- [ ] Criar procedure `flow.validateTransition` (valida se transição é permitida)
+- [ ] Integrar `saveStep` em todas as transições existentes
+- [ ] Verificar que discoverCnaes/refineCnaes/confirmCnaes estão conectados ao novo estado
+- [ ] Garantir que confirmação de CNAE salva `current_step = cnaes_confirmados`
+- [ ] Testes unitários da máquina de estados
+- [ ] Testes de regressão (não quebrar fluxo existente)
+- [ ] Testes funcionais de retomada
+- [ ] Criar guia de QA humano (passo a passo para Uires)
+- [ ] Gerar evidências: dados do banco, logs de transição, prova de retomada
+- [ ] Commit: "fix(flow): persist state + enable QA validation"
+- [ ] Checkpoint

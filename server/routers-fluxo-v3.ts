@@ -277,12 +277,13 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         .update(projects)
         .set({
           confirmedCnaes: input.cnaes as any,
-          currentStep: 2,
-          status: "assessment_fase1",
+          currentStep: 4,
+          currentStepName: "confirmacao_cnaes",
+          status: "cnaes_confirmados",
+          stepUpdatedAt: new Date(),
         } as any)
         .where(eq(projects.id, input.projectId));
-
-      return { success: true, nextStep: 2 };
+      return { success: true, nextStep: 4, stepName: "confirmacao_cnaes" };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
