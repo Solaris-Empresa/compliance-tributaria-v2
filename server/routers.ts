@@ -552,21 +552,67 @@ IMPORTANTE: Todas as perguntas devem ter "required": true.`;
         
         const client = await db.getUserById(project.clientId);
         
-        // Processar respostas da Fase 2
-        let answersText = "Nenhuma resposta registrada";
+        // ── CAMADA CORPORATIVA (QC-01..QC-10) ──────────────────────────────────
+        let corporateText = "Não respondido";
+        if (project.corporateAnswers) {
+          try {
+            const ca = typeof project.corporateAnswers === 'string'
+              ? JSON.parse(project.corporateAnswers as string)
+              : project.corporateAnswers as Record<string, unknown>;
+            corporateText = Object.entries(ca)
+              .map(([k, v], i) => `**${i + 1}. ${k}:** ${v}`)
+              .join('\n');
+          } catch { corporateText = String(project.corporateAnswers); }
+        }
+
+        // ── CAMADA OPERACIONAL (QO-01..QO-10) ───────────────────────────────────
+        let operationalText = "Não respondido";
+        if (project.operationalAnswers) {
+          try {
+            const oa = typeof project.operationalAnswers === 'string'
+              ? JSON.parse(project.operationalAnswers as string)
+              : project.operationalAnswers as Record<string, unknown>;
+            operationalText = Object.entries(oa)
+              .map(([k, v], i) => `**${i + 1}. ${k}:** ${v}`)
+              .join('\n');
+          } catch { operationalText = String(project.operationalAnswers); }
+        }
+
+        // ── CAMADA CNAE (QCNAE-01..QCNAE-05) ───────────────────────────────────
+        let cnaeText = "Não respondido";
+        if (project.cnaeAnswers) {
+          try {
+            const cnaeRaw = typeof project.cnaeAnswers === 'string'
+              ? JSON.parse(project.cnaeAnswers as string)
+              : project.cnaeAnswers;
+            if (Array.isArray(cnaeRaw)) {
+              cnaeText = cnaeRaw.map((item: any, i: number) => {
+                const answers = item.answers
+                  ? Object.entries(item.answers as Record<string, unknown>)
+                      .map(([k, v]) => `  - ${k}: ${v}`).join('\n')
+                  : '';
+                return `**CNAE ${i + 1}: ${item.cnaeCode || ''} — ${item.cnaeName || ''}**\n${answers}`;
+              }).join('\n\n');
+            } else {
+              cnaeText = JSON.stringify(cnaeRaw);
+            }
+          } catch { cnaeText = String(project.cnaeAnswers); }
+        }
+
+        // ── FASE 2 legacy (questionário antigo) ─────────────────────────────────
+        let answersText = "Não respondido";
         if (phase2.answers) {
           try {
             const answersObj = typeof phase2.answers === 'string' ? JSON.parse(phase2.answers) : phase2.answers;
-            const questions = phase2.generatedQuestions ? 
-              (typeof phase2.generatedQuestions === 'string' ? JSON.parse(phase2.generatedQuestions) : phase2.generatedQuestions) : 
-              { questions: [] };
-            
+            const questions = phase2.generatedQuestions
+              ? (typeof phase2.generatedQuestions === 'string' ? JSON.parse(phase2.generatedQuestions) : phase2.generatedQuestions)
+              : { questions: [] };
             answersText = Object.entries(answersObj).map(([questionId, answer], index) => {
-              const question = questions.questions?.find((q: any) => q.id === questionId);
+              const question = (questions as any).questions?.find((q: any) => q.id === questionId);
               return `**Pergunta ${index + 1}:** ${question?.question || questionId}\n**Resposta:** ${answer}`;
             }).join('\n\n');
           } catch (e) {
-            answersText = phase2.answers.toString();
+            answersText = String(phase2.answers);
           }
         }
 
@@ -600,7 +646,16 @@ Analise os dados abaixo e gere um Levantamento Inicial completo para adequação
 - Principais Desafios: ${phase1.mainChallenges || "Não informado"}
 - Objetivos de Compliance: ${phase1.complianceGoals || "Não informado"}
 
-## AVALIAÇÃO FASE 2 (Questionário Detalhado)
+## DIAGNÓSTICO CORPORATIVO (Questionário Corporativo — QC)
+${corporateText}
+
+## DIAGNÓSTICO OPERACIONAL (Questionário Operacional — QO)
+${operationalText}
+
+## DIAGNÓSTICO ESPECIALIZADO POR CNAE (Questionário CNAE — QCNAE)
+${cnaeText}
+
+## QUESTIONÁRIO DETALHADO FASE 2 (Legacy)
 ${answersText}
 
 ## INSTRUÇÕES
@@ -781,14 +836,26 @@ Retorne APENAS JSON válido no formato:
           await db.deleteRisksByProject(input.projectId);
         }
 
+        // ── Buscar as 3 camadas de diagnóstico ──────────────────────────────────
+        const projectForRisk = await db.getProjectById(input.projectId);
+        const corpRisk = projectForRisk?.corporateAnswers
+          ? `\n### Diagnóstico Corporativo\n${JSON.stringify(projectForRisk.corporateAnswers, null, 2)}`
+          : '';
+        const opRisk = projectForRisk?.operationalAnswers
+          ? `\n### Diagnóstico Operacional\n${JSON.stringify(projectForRisk.operationalAnswers, null, 2)}`
+          : '';
+        const cnaeRisk = projectForRisk?.cnaeAnswers
+          ? `\n### Diagnóstico CNAE\n${JSON.stringify(projectForRisk.cnaeAnswers, null, 2)}`
+          : '';
+
         const prompt = `Você é um especialista em gestão de riscos tributários.
 
-Com base no briefing gerado:
+Com base no briefing gerado e nos diagnósticos das 3 camadas:
 - Resumo: ${briefing.summaryText}
 - Gaps: ${briefing.gapsAnalysis}
-- Risco Geral: ${briefing.riskLevel}
+- Risco Geral: ${briefing.riskLevel}${corpRisk}${opRisk}${cnaeRisk}
 
-Identifique e classifique os riscos de conformidade com a reforma tributária.
+Identifique e classifique os riscos de conformidade com a reforma tributária, considerando especificamente os dados corporativos, operacionais e por CNAE acima.
 
 Para cada risco, forneça:
 - Descrição clara e específica
@@ -1057,9 +1124,20 @@ Retorne APENAS JSON válido no formato:
         const risks = await db.getRiskMatrix(input.projectId);
         console.log('[actionPlan.generate] Riscos encontrados:', risks.length);
 
+        // ── Extrair as 3 camadas de diagnóstico ──────────────────────────────────
+        const corpPlan = project.corporateAnswers
+          ? `\n## DIAGNÓSTICO CORPORATIVO (QC)\n${JSON.stringify(project.corporateAnswers, null, 2)}`
+          : '';
+        const opPlan = project.operationalAnswers
+          ? `\n## DIAGNÓSTICO OPERACIONAL (QO)\n${JSON.stringify(project.operationalAnswers, null, 2)}`
+          : '';
+        const cnaePlan = project.cnaeAnswers
+          ? `\n## DIAGNÓSTICO ESPECIALIZADO POR CNAE (QCNAE)\n${JSON.stringify(project.cnaeAnswers, null, 2)}`
+          : '';
+
         const prompt = `Você é um gerente de projetos especializado em compliance tributário.
 
-Com base no Levantamento Inicial (Briefing) gerado:
+Com base no Levantamento Inicial (Briefing) e nos diagnósticos das 3 camadas:
 
 ## RESUMO EXECUTIVO
 ${briefing.summaryText}
@@ -1071,10 +1149,9 @@ ${briefing.gapsAnalysis}
 ${briefing.priorityAreas || "Nenhuma recomendação específica"}
 
 ## NÍVEL DE RISCO GERAL
-${briefing.riskLevel}
+${briefing.riskLevel}${corpPlan}${opPlan}${cnaePlan}
 
-${risks.length > 0 ? `## MATRIZ DE RISCOS IDENTIFICADOS
-${risks.map(r => `- ${r.title}: ${r.description || r.riskDescription || 'Sem descrição'}`).join('\n')}` : ''}
+${risks.length > 0 ? `## MATRIZ DE RISCOS IDENTIFICADOS\n${risks.map(r => `- ${r.title}: ${r.description || r.riskDescription || 'Sem descrição'}`).join('\n')}` : ''}
 
 ## PARÂMETROS DO PROJETO
 - Período do plano: ${project.planPeriodMonths} meses

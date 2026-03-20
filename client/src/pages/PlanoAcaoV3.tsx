@@ -28,11 +28,37 @@ import {
   Circle, PlayCircle, PauseCircle, CheckCircle, Sliders, FileText,
   MessageSquare, Plus, Trash2, RotateCcw, LayoutDashboard, Send,
   PartyPopper, Trophy, ClipboardList, AlertTriangle, ShieldCheck,
-  Clock, History, TrendingUp, Tag, UserCheck, Settings2, MessageCircle
+  Clock, History, TrendingUp, Tag, UserCheck, Settings2, MessageCircle, Layers
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import StepComments from "@/components/StepComments";
+
+// ── Componente: Painel de Diagnóstico de Entrada (3 Camadas) ─────────────────────────────────
+function DiagnosticoEntradaPanel({ corporateAnswers, operationalAnswers, cnaeAnswers }: { corporateAnswers?: any; operationalAnswers?: any; cnaeAnswers?: any }) {
+  const [open, setOpen] = useState(false);
+  const parseAnswers = (raw: any): Record<string, string> => { if (!raw) return {}; try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return {}; } };
+  const parseCnae = (raw: any): any[] => { if (!raw) return []; try { const p = typeof raw === 'string' ? JSON.parse(raw) : raw; return Array.isArray(p) ? p : []; } catch { return []; } };
+  const corp = parseAnswers(corporateAnswers); const op = parseAnswers(operationalAnswers); const cnae = parseCnae(cnaeAnswers);
+  const total = Object.keys(corp).length + Object.keys(op).length + cnae.reduce((a: number, c: any) => a + Object.keys(c.answers || {}).length, 0);
+  return (
+    <Card className="border-blue-200 bg-blue-50/40">
+      <CardHeader className="pb-2 cursor-pointer" onClick={() => setOpen(v => !v)}>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm flex items-center gap-2"><Layers className="h-4 w-4 text-blue-600" />Diagnóstico de Entrada — 3 Camadas<Badge variant="outline" className="text-xs bg-blue-100 text-blue-700 border-blue-300">{total} respostas</Badge></CardTitle>
+          {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">Dados que alimentaram a geração deste plano de ação</p>
+      </CardHeader>
+      {open && <CardContent className="space-y-4 pt-0">
+        {Object.keys(corp).length > 0 && <div><p className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">Corporativo (QC)</p><div className="space-y-1">{Object.entries(corp).map(([k, v]) => <div key={k} className="text-xs"><span className="font-medium">{k}:</span> <span className="text-muted-foreground">{String(v)}</span></div>)}</div></div>}
+        {Object.keys(op).length > 0 && <div><p className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">Operacional (QO)</p><div className="space-y-1">{Object.entries(op).map(([k, v]) => <div key={k} className="text-xs"><span className="font-medium">{k}:</span> <span className="text-muted-foreground">{String(v)}</span></div>)}</div></div>}
+        {cnae.length > 0 && <div><p className="text-xs font-semibold text-purple-700 uppercase tracking-wide mb-2">CNAE Especializado (QCNAE)</p><div className="space-y-3">{cnae.map((item: any, i: number) => <div key={i} className="border-l-2 border-purple-300 pl-3"><p className="text-xs font-semibold">{item.cnaeCode} — {item.cnaeName || item.cnaeDescription || ''}</p><div className="space-y-1 mt-1">{Object.entries((item.answers || {}) as Record<string, unknown>).map(([k, v]) => <div key={k} className="text-xs"><span className="font-medium">{k}:</span> <span className="text-muted-foreground">{String(v)}</span></div>)}</div></div>)}</div></div>}
+      </CardContent>}
+    </Card>
+  );
+}
+
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 type TaskStatus = "nao_iniciado" | "em_andamento" | "parado" | "concluido";
 
@@ -1479,6 +1505,15 @@ export default function PlanoAcaoV3() {
 
         {/* Stepper — clicável para etapas concluídas */}
         <FlowStepper currentStep={5} projectId={projectId} completedUpTo={statusToCompletedStep(project?.status)} />
+
+        {/* ── Diagnóstico de Entrada (3 Camadas) ────────────────────────────────── */}
+        {(project?.corporateAnswers || project?.operationalAnswers || project?.cnaeAnswers) && (
+          <DiagnosticoEntradaPanel
+            corporateAnswers={project?.corporateAnswers}
+            operationalAnswers={project?.operationalAnswers}
+            cnaeAnswers={project?.cnaeAnswers}
+          />
+        )}
 
         {/* RF-5.06: Dashboard de progresso por área */}
         {showDashboard && allAreasGenerated && (

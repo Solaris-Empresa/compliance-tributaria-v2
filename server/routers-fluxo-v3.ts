@@ -347,6 +347,10 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         scoringData: (project as any).scoringData ?? null,      // V61
         decisaoData: (project as any).decisaoData ?? null,      // V63
         faturamentoAnual: (project as any).faturamentoAnual ?? null, // V61
+        // ── 3 camadas de diagnóstico (v2.2) ──────────────────────────────────
+        corporateAnswers: (project as any).corporateAnswers ?? null,
+        operationalAnswers: (project as any).operationalAnswers ?? null,
+        cnaeAnswers: (project as any).cnaeAnswers ?? null,
       };
     }),
 
