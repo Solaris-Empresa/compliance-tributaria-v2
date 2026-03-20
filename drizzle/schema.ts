@@ -1460,3 +1460,53 @@ export const gapAuditTrail = mysqlTable("gap_audit_trail", {
 });
 export type GapAuditTrail = typeof gapAuditTrail.$inferSelect;
 export type InsertGapAuditTrail = typeof gapAuditTrail.$inferInsert;
+
+/**
+ * risk_analysis
+ * Motor de risco — TASK 5
+ * Classifica, prioriza e quantifica o impacto dos gaps de compliance
+ * risk_score = base_score × gap_multiplier (0–100)
+ */
+export const riskAnalysis = mysqlTable("risk_analysis", {
+  riskId: int("risk_id").autoincrement().primaryKey(),
+  sessionId: int("session_id").notNull(),
+  canonicalId: varchar("canonical_id", { length: 50 }).notNull(),
+  mappingId: varchar("mapping_id", { length: 50 }).notNull(),
+  gapStatus: mysqlEnum("gap_status", ["compliant", "nao_compliant", "parcial", "nao_aplicavel"]).notNull(),
+  riskLevel: mysqlEnum("risk_level", ["baixo", "medio", "alto", "critico"]).notNull(),
+  riskScore: int("risk_score").notNull().default(0),
+  impactType: mysqlEnum("impact_type", ["financeiro", "operacional", "legal", "reputacional"]).notNull(),
+  severityBase: mysqlEnum("severity_base", ["critica", "alta", "media", "baixa"]).notNull(),
+  normativeType: mysqlEnum("normative_type", ["obrigacao", "vedacao", "direito", "opcao"]).notNull(),
+  gapMultiplier: varchar("gap_multiplier", { length: 10 }).notNull().default("0"),
+  baseScore: int("base_score").notNull().default(0),
+  domain: varchar("domain", { length: 100 }),
+  requirementName: varchar("requirement_name", { length: 255 }),
+  mitigationPriority: mysqlEnum("mitigation_priority", ["imediata", "curto_prazo", "medio_prazo", "monitoramento"]).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type RiskAnalysis = typeof riskAnalysis.$inferSelect;
+export type InsertRiskAnalysis = typeof riskAnalysis.$inferInsert;
+
+/**
+ * risk_session_summary
+ * Resumo agregado de risco por sessão de diagnóstico
+ */
+export const riskSessionSummary = mysqlTable("risk_session_summary", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: int("session_id").notNull().unique(),
+  totalRiskScore: int("total_risk_score").notNull().default(0),
+  avgRiskScore: int("avg_risk_score").notNull().default(0),
+  maxRiskScore: int("max_risk_score").notNull().default(0),
+  criticalCount: int("critical_count").notNull().default(0),
+  altoCount: int("alto_count").notNull().default(0),
+  medioCount: int("medio_count").notNull().default(0),
+  baixoCount: int("baixo_count").notNull().default(0),
+  financialRisk: int("financial_risk").notNull().default(0),
+  operationalRisk: int("operational_risk").notNull().default(0),
+  legalRisk: int("legal_risk").notNull().default(0),
+  overallRiskLevel: mysqlEnum("overall_risk_level", ["baixo", "medio", "alto", "critico"]).notNull(),
+  calculatedAt: timestamp("calculated_at").defaultNow().notNull(),
+});
+export type RiskSessionSummary = typeof riskSessionSummary.$inferSelect;
+export type InsertRiskSessionSummary = typeof riskSessionSummary.$inferInsert;

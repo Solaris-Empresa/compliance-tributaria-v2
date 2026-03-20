@@ -58,6 +58,7 @@ import { adminEmbeddingsRouter } from "./routers-admin-embeddings";
 import { complianceV3Router } from "./routers-compliance-v3";
 import { diagnosticRouter } from "./routers/diagnostic";
 import { gapRouter } from "./routers/gapRouter";
+import { riskRouter } from "./routers/riskRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -87,6 +88,7 @@ export const appRouter = router({
   complianceV3: complianceV3Router,
   diagnostic: diagnosticRouter,
   gap: gapRouter,
+  risk: riskRouter,
 
   // ==========================================================================
   // AUTH

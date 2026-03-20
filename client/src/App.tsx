@@ -66,6 +66,7 @@ import DemoRiscos from "./pages/demo/DemoRiscos";
 import DemoAcoes from "./pages/demo/DemoAcoes";
 import DemoTarefas from "./pages/demo/DemoTarefas";
 import GapDiagnostic from "./pages/GapDiagnostic";
+import RiskDashboard from "./pages/RiskDashboard";
 
 function Router() {
   return (
@@ -135,6 +136,8 @@ function Router() {
       <Route path="/demo/tarefas" component={DemoTarefas} />
       <Route path="/diagnostico" component={GapDiagnostic} />
       <Route path="/projetos/:projectId/diagnostico" component={GapDiagnostic} />
+      <Route path="/risk-engine" component={RiskDashboard} />
+      <Route path="/projetos/:projectId/risk-engine" component={RiskDashboard} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
