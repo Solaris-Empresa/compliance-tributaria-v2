@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, text, boolean, timestamp, mysqlEnum, decimal, json } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, varchar, text, boolean, timestamp, mysqlEnum, decimal, json, bigint, tinyint } from "drizzle-orm/mysql-core";
 
 /**
  * Tabela de usuários - IA SOLARIS
@@ -1510,3 +1510,28 @@ export const riskSessionSummary = mysqlTable("risk_session_summary", {
 });
 export type RiskSessionSummary = typeof riskSessionSummary.$inferSelect;
 export type InsertRiskSessionSummary = typeof riskSessionSummary.$inferInsert;
+
+// ─── v2.2: Consistency Engine ──────────────────────────────────────────────────
+
+export const consistencyChecks = mysqlTable("consistency_checks", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  projectId: int("project_id").notNull(),
+  status: mysqlEnum("status", ["pending", "running", "completed", "failed"]).notNull().default("pending"),
+  overallLevel: mysqlEnum("overall_level", ["none", "low", "medium", "high", "critical"]).notNull().default("none"),
+  findings: text("findings"), // JSON: ConsistencyFinding[]
+  acceptedRisk: tinyint("accepted_risk").notNull().default(0), // 0=false, 1=true
+  acceptedRiskAt: bigint("accepted_risk_at", { mode: "number" }),
+  acceptedRiskBy: varchar("accepted_risk_by", { length: 255 }),
+  acceptedRiskReason: text("accepted_risk_reason"),
+  deterministicScore: int("deterministic_score").notNull().default(0),
+  aiScore: int("ai_score").notNull().default(0),
+  totalIssues: int("total_issues").notNull().default(0),
+  criticalCount: int("critical_count2").notNull().default(0),
+  highCount: int("high_count").notNull().default(0),
+  mediumCount: int("medium_count").notNull().default(0),
+  lowCount: int("low_count").notNull().default(0),
+  createdAt: bigint("created_at", { mode: "number" }).notNull(),
+  updatedAt: bigint("updated_at", { mode: "number" }),
+});
+export type ConsistencyCheck = typeof consistencyChecks.$inferSelect;
+export type InsertConsistencyCheck = typeof consistencyChecks.$inferInsert;

@@ -1,0 +1,21 @@
+CREATE TABLE `consistency_checks` (
+	`id` varchar(36) NOT NULL,
+	`project_id` int NOT NULL,
+	`status` enum('pending','running','completed','failed') NOT NULL DEFAULT 'pending',
+	`overall_level` enum('none','low','medium','high','critical') NOT NULL DEFAULT 'none',
+	`findings` text,
+	`accepted_risk` tinyint NOT NULL DEFAULT 0,
+	`accepted_risk_at` bigint,
+	`accepted_risk_by` varchar(255),
+	`accepted_risk_reason` text,
+	`deterministic_score` int NOT NULL DEFAULT 0,
+	`ai_score` int NOT NULL DEFAULT 0,
+	`total_issues` int NOT NULL DEFAULT 0,
+	`critical_count2` int NOT NULL DEFAULT 0,
+	`high_count` int NOT NULL DEFAULT 0,
+	`medium_count` int NOT NULL DEFAULT 0,
+	`low_count` int NOT NULL DEFAULT 0,
+	`created_at` bigint NOT NULL,
+	`updated_at` bigint,
+	CONSTRAINT `consistency_checks_id` PRIMARY KEY(`id`)
+);

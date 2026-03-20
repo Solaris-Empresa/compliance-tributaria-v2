@@ -59,6 +59,7 @@ import { complianceV3Router } from "./routers-compliance-v3";
 import { diagnosticRouter } from "./routers/diagnostic";
 import { gapRouter } from "./routers/gapRouter";
 import { riskRouter } from "./routers/riskRouter";
+import { consistencyRouter } from "./routers/consistencyRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -89,6 +90,7 @@ export const appRouter = router({
   diagnostic: diagnosticRouter,
   gap: gapRouter,
   risk: riskRouter,
+  consistency: consistencyRouter,
 
   // ==========================================================================
   // AUTH
