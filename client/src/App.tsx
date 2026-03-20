@@ -65,6 +65,7 @@ import DemoGaps from "./pages/demo/DemoGaps";
 import DemoRiscos from "./pages/demo/DemoRiscos";
 import DemoAcoes from "./pages/demo/DemoAcoes";
 import DemoTarefas from "./pages/demo/DemoTarefas";
+import GapDiagnostic from "./pages/GapDiagnostic";
 
 function Router() {
   return (
@@ -132,6 +133,8 @@ function Router() {
       <Route path="/demo/riscos" component={DemoRiscos} />
       <Route path="/demo/acoes" component={DemoAcoes} />
       <Route path="/demo/tarefas" component={DemoTarefas} />
+      <Route path="/diagnostico" component={GapDiagnostic} />
+      <Route path="/projetos/:projectId/diagnostico" component={GapDiagnostic} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

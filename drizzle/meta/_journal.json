@@ -309,6 +309,13 @@
       "when": 1773961424942,
       "tag": "0043_steep_nomad",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "5",
+      "when": 1774021088275,
+      "tag": "0044_natural_thor_girl",
+      "breakpoints": true
     }
   ]
 }

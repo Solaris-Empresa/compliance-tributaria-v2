@@ -1378,3 +1378,85 @@ export const embeddingRebuildLogs = mysqlTable("embeddingRebuildLogs", {
 });
 export type EmbeddingRebuildLog = typeof embeddingRebuildLogs.$inferSelect;
 export type InsertEmbeddingRebuildLog = typeof embeddingRebuildLogs.$inferInsert;
+
+// ============================================================================
+// GAP ENGINE — TASK 4
+// Motor de diagnóstico de compliance: compara respostas com requisitos canônicos
+// ============================================================================
+
+/**
+ * compliance_sessions
+ * Sessão de diagnóstico de compliance por projeto
+ */
+export const complianceSessions = mysqlTable("compliance_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionUuid: varchar("session_uuid", { length: 36 }).notNull().unique(),
+  projectId: int("project_id").notNull(),
+  userId: int("user_id").notNull(),
+  status: mysqlEnum("status", ["in_progress", "completed", "cancelled"]).notNull().default("in_progress"),
+  totalQuestions: int("total_questions").notNull().default(0),
+  answeredQuestions: int("answered_questions").notNull().default(0),
+  complianceScore: decimal("compliance_score", { precision: 5, scale: 2 }),
+  riskLevel: mysqlEnum("risk_level", ["baixo", "medio", "alto", "critico"]),
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+  metadata: json("metadata"),
+});
+export type ComplianceSession = typeof complianceSessions.$inferSelect;
+export type InsertComplianceSession = typeof complianceSessions.$inferInsert;
+
+/**
+ * questionnaire_responses
+ * Respostas individuais do questionário por sessão
+ */
+export const questionnaireResponses = mysqlTable("questionnaire_responses", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: int("session_id").notNull(),
+  mappingId: varchar("mapping_id", { length: 20 }).notNull(),
+  canonicalId: varchar("canonical_id", { length: 20 }).notNull(),
+  answerValue: mysqlEnum("answer_value", ["sim", "nao", "parcial", "nao_aplicavel"]).notNull(),
+  answerNote: text("answer_note"),
+  answeredAt: timestamp("answered_at").defaultNow().notNull(),
+});
+export type QuestionnaireResponse = typeof questionnaireResponses.$inferSelect;
+export type InsertQuestionnaireResponse = typeof questionnaireResponses.$inferInsert;
+
+/**
+ * gap_analysis
+ * Resultado da análise de gap por requisito canônico
+ */
+export const gapAnalysis = mysqlTable("gap_analysis", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: int("session_id").notNull(),
+  mappingId: varchar("mapping_id", { length: 20 }).notNull(),
+  canonicalId: varchar("canonical_id", { length: 20 }).notNull(),
+  gapStatus: mysqlEnum("gap_status", ["compliant", "nao_compliant", "parcial", "nao_aplicavel"]).notNull(),
+  gapSeverity: mysqlEnum("gap_severity", ["critica", "alta", "media", "baixa"]),
+  gapType: varchar("gap_type", { length: 100 }),
+  answerValue: mysqlEnum("answer_value", ["sim", "nao", "parcial", "nao_aplicavel"]).notNull(),
+  answerNote: text("answer_note"),
+  recommendation: text("recommendation"),
+  evidenceRef: varchar("evidence_ref", { length: 255 }),
+  analyzedAt: timestamp("analyzed_at").defaultNow().notNull(),
+});
+export type GapAnalysis = typeof gapAnalysis.$inferSelect;
+export type InsertGapAnalysis = typeof gapAnalysis.$inferInsert;
+
+/**
+ * gap_audit_trail
+ * Trilha de auditoria obrigatória para todas as operações do Gap Engine
+ */
+export const gapAuditTrail = mysqlTable("gap_audit_trail", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: int("session_id"),
+  userId: int("user_id").notNull(),
+  userName: varchar("user_name", { length: 255 }),
+  eventType: varchar("event_type", { length: 50 }).notNull(),
+  entityType: varchar("entity_type", { length: 50 }),
+  entityId: varchar("entity_id", { length: 50 }),
+  payload: json("payload"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  occurredAt: timestamp("occurred_at").defaultNow().notNull(),
+});
+export type GapAuditTrail = typeof gapAuditTrail.$inferSelect;
+export type InsertGapAuditTrail = typeof gapAuditTrail.$inferInsert;
