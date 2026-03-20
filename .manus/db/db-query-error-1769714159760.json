@@ -1,8 +1,0 @@
-{
-  "query": "INSERT INTO assessmentPhase1 (projectId, taxRegime, companySize, annualRevenue, businessSector, mainActivity, employeeCount, hasAccountingDept, currentERPSystem, mainChallenges, complianceGoals, isCompleted, createdAt, updatedAt) VALUES (1, 'lucro_presumido', 'media', 8500000, 'comercio', 'Comércio varejista de eletrônicos', 75, 'sim', 'TOTVS Protheus', 'Dificuldade em acompanhar mudanças frequentes na legislação tributária, complexidade no cálculo de impostos e necessidade de otimização da carga tributária', 'Garantir conformidade total com a reforma tributária, reduzir riscos fiscais, otimizar processos internos e preparar a empresa para as mudanças do IBS e CBS', 1, NOW(), NOW());",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute INSERT INTO assessmentPhase1 (projectId, taxRegime, companySize, annualRevenue, businessSector, mainActivity, employeeCount, hasAccountingDept, currentERPSystem, mainChallenges, complianceGoals, isCompleted, createdAt, updatedAt) VALUES (1, 'lucro_presumido', 'media', 8500000, 'comercio', 'Comércio varejista de eletrônicos', 75, 'sim', 'TOTVS Protheus', 'Dificuldade em acompanhar mudanças frequentes na legislação tributária, complexidade no cálculo de impostos e necessidade de otimização da carga tributária', 'Garantir conformidade total com a reforma tributária, reduzir riscos fiscais, otimizar processos internos e preparar a empresa para as mudanças do IBS e CBS', 1, NOW(), NOW());",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1054 (42S22) at line 1: Unknown column 'isCompleted' in 'field list'"
-  ]
-}

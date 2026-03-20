@@ -1,8 +1,0 @@
-{
-  "query": "\n-- Buscar o ID do assessment phase 2 do projeto 1\nSELECT id, answers FROM assessment_phase2 WHERE project_id = 1 LIMIT 1;\n",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \n-- Buscar o ID do assessment phase 2 do projeto 1\nSELECT id, answers FROM assessment_phase2 WHERE project_id = 1 LIMIT 1;\n",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1146 (42S02) at line 3: Table 'a6u3gslmgwur2p4b85hiyy.assessment_phase2' doesn't exist"
-  ]
-}

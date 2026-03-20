@@ -1,9 +1,0 @@
-{
-  "query": "\n-- Limpar sessões e branches\nDELETE FROM sessionActionPlans;\nDELETE FROM sessionBranchAnswers;\nDELETE FROM sessionConsolidations;\nDELETE FROM sessions;\nDELETE FROM branchActionPlanVersions;\nDELETE FROM branchActionPlans;\nDELETE FROM branchAssessmentTemplates;\nDELETE FROM branchAssessmentVersions;\nDELETE FROM branchAssessments;\nDELETE FROM branchSuggestions;\nDELETE FROM projectBranches;\nDELETE FROM clientMembers;\nDELETE FROM corporateActionPlanVersions;\nDELETE FROM corporateActionPlans;\nDELETE FROM corporateAssessmentVersions;\nDELETE FROM corporateAssessments;\nDELETE FROM activityBranches;\nDELETE FROM assessmentPhase1;\nDELETE FROM assessmentPhase2;\n-- Limpar projetos\nDELETE FROM projects;\n",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \n-- Limpar sessões e branches\nDELETE FROM sessionActionPlans;\nDELETE FROM sessionBranchAnswers;\nDELETE FROM sessionConsolidations;\nDELETE FROM sessions;\nDELETE FROM branchActionPlanVersions;\nDELETE FROM branchActionPlans;\nDELETE FROM branchAssessmentTemplates;\nDELETE FROM branchAssessmentVersions;\nDELETE FROM branchAssessments;\nDELETE FROM branchSuggestions;\nDELETE FROM projectBranches;\nDELETE FROM clientMembers;\nDELETE FROM corporateActionPlanVersions;\nDELETE FROM corporateActionPlans;\nDELETE FROM corporateAssessmentVersions;\nDELETE FROM corporateAssessments;\nDELETE FROM activityBranches;\nDELETE FROM assessmentPhase1;\nDELETE FROM assessmentPhase2;\n-- Limpar projetos\nDELETE FROM projects;\n",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 230
-}

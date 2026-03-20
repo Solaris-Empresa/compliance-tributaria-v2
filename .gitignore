@@ -105,3 +105,13 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+
+# Manus internal files (nao incluir no deploy)
+.manus/db/
+.manus-logs/
+
+# Imagens e arquivos binarios grandes na raiz
+Fluxo_MVP_Compliance_Tributaria.png
+
+# Drizzle meta snapshots antigos (apenas os mais recentes sao necessarios)
+drizzle/meta/*_snapshot.json

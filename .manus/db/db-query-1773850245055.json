@@ -1,9 +1,0 @@
-{
-  "query": "SELECT id, name, status, \n  CASE WHEN actionPlansData IS NULL THEN 'sem_plano' ELSE 'tem_plano' END as plano_status,\n  CASE WHEN riskMatricesData IS NULL THEN 'sem_matriz' ELSE 'tem_matriz' END as matriz_status\nFROM projects \nWHERE status = 'matriz_riscos' AND actionPlansData IS NULL\nLIMIT 5;",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT id, name, status, \n  CASE WHEN actionPlansData IS NULL THEN 'sem_plano' ELSE 'tem_plano' END as plano_status,\n  CASE WHEN riskMatricesData IS NULL THEN 'sem_matriz' ELSE 'tem_matriz' END as matriz_status\nFROM projects \nWHERE status = 'matriz_riscos' AND actionPlansData IS NULL\nLIMIT 5;",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 110
-}

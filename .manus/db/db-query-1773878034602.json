@@ -1,9 +1,0 @@
-{
-  "query": "DELETE FROM projects WHERE name LIKE '%Teste%' OR name LIKE '%teste%' OR name LIKE '%Test%' OR name LIKE '%E2E%' OR name LIKE '%Segurança%' OR name LIKE '%Acesso%' OR name LIKE '%Persistência%' OR name LIKE '%Transições%' OR name LIKE '%Histórico%' OR name LIKE '%Action Plans%';",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute DELETE FROM projects WHERE name LIKE '%Teste%' OR name LIKE '%teste%' OR name LIKE '%Test%' OR name LIKE '%E2E%' OR name LIKE '%Segurança%' OR name LIKE '%Acesso%' OR name LIKE '%Persistência%' OR name LIKE '%Transições%' OR name LIKE '%Histórico%' OR name LIKE '%Action Plans%';",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 73
-}

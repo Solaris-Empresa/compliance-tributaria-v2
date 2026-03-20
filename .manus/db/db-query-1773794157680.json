@@ -1,9 +1,0 @@
-{
-  "query": "\nSET FOREIGN_KEY_CHECKS = 0;\n\n-- Tabelas de dados de projetos (todas)\nTRUNCATE TABLE actionPlanPromptHistory;\nTRUNCATE TABLE actionPlanPrompts;\nTRUNCATE TABLE actionPlanVersions;\nTRUNCATE TABLE actionPlans;\nTRUNCATE TABLE actions;\nTRUNCATE TABLE activityBranches;\nTRUNCATE TABLE assessmentPhase1;\nTRUNCATE TABLE assessmentPhase2;\nTRUNCATE TABLE auditLog;\nTRUNCATE TABLE branchActionPlanVersions;\nTRUNCATE TABLE branchActionPlans;\nTRUNCATE TABLE branchAssessmentVersions;\nTRUNCATE TABLE branchAssessments;\nTRUNCATE TABLE branchSuggestions;\nTRUNCATE TABLE briefingVersions;\nTRUNCATE TABLE briefings;\n\nSET FOREIGN_KEY_CHECKS = 1;\n",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSET FOREIGN_KEY_CHECKS = 0;\n\n-- Tabelas de dados de projetos (todas)\nTRUNCATE TABLE actionPlanPromptHistory;\nTRUNCATE TABLE actionPlanPrompts;\nTRUNCATE TABLE actionPlanVersions;\nTRUNCATE TABLE actionPlans;\nTRUNCATE TABLE actions;\nTRUNCATE TABLE activityBranches;\nTRUNCATE TABLE assessmentPhase1;\nTRUNCATE TABLE assessmentPhase2;\nTRUNCATE TABLE auditLog;\nTRUNCATE TABLE branchActionPlanVersions;\nTRUNCATE TABLE branchActionPlans;\nTRUNCATE TABLE branchAssessmentVersions;\nTRUNCATE TABLE branchAssessments;\nTRUNCATE TABLE branchSuggestions;\nTRUNCATE TABLE briefingVersions;\nTRUNCATE TABLE briefings;\n\nSET FOREIGN_KEY_CHECKS = 1;\n",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 1309
-}

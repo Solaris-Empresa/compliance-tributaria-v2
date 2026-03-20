@@ -1,8 +1,0 @@
-{
-  "query": "INSERT INTO assessmentPhase1 (projectId, taxRegime, companySize, annualRevenue, businessSector, mainActivity, employeeCount, hasAccountingDept, currentERPSystem, mainChallenges, complianceGoals, createdAt, updatedAt) VALUES (1, 'lucro_presumido', 'media', 8500000, 'comercio', 'Comércio varejista de eletrônicos', 75, 'sim', 'TOTVS Protheus', 'Dificuldade em acompanhar mudanças frequentes na legislação tributária', 'Garantir conformidade total com a reforma tributária', NOW(), NOW());",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute INSERT INTO assessmentPhase1 (projectId, taxRegime, companySize, annualRevenue, businessSector, mainActivity, employeeCount, hasAccountingDept, currentERPSystem, mainChallenges, complianceGoals, createdAt, updatedAt) VALUES (1, 'lucro_presumido', 'media', 8500000, 'comercio', 'Comércio varejista de eletrônicos', 75, 'sim', 'TOTVS Protheus', 'Dificuldade em acompanhar mudanças frequentes na legislação tributária', 'Garantir conformidade total com a reforma tributária', NOW(), NOW());",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1054 (42S22) at line 1: Unknown column 'createdAt' in 'field list'"
-  ]
-}

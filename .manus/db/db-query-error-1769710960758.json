@@ -1,8 +1,0 @@
-{
-  "query": "INSERT INTO projects (name, clientId, status, createdBy, planPeriodMonths, notificationFrequency)\nSELECT \n  'Projeto Teste E2E - Adequação Reforma Tributária',\n  id,\n  'assessment_fase1',\n  id,\n  12,\n  'semanal'\nFROM users WHERE email = 'cliente.teste@example.com' LIMIT 1;",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute INSERT INTO projects (name, clientId, status, createdBy, planPeriodMonths, notificationFrequency)\nSELECT \n  'Projeto Teste E2E - Adequação Reforma Tributária',\n  id,\n  'assessment_fase1',\n  id,\n  12,\n  'semanal'\nFROM users WHERE email = 'cliente.teste@example.com' LIMIT 1;",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1054 (42S22) at line 1: Unknown column 'createdBy' in 'field list'"
-  ]
-}

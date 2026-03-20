@@ -1,9 +1,0 @@
-{
-  "query": "UPDATE requirement_question_mapping\nSET question_text_clean = REGEXP_REPLACE(\n    question_text_clean,\n    '(A empresa (?:cumpre o seguinte requisito|observa a seguinte vedação|exerce, quando aplicável, o seguinte direito|adotou, quando aplicável, a seguinte opção): )([IVXivx]+\\\\s*[-–]\\\\s*)',\n    '\\\\1'\n)\nWHERE question_text_clean REGEXP '[IVXivx]+ [-–]';",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute UPDATE requirement_question_mapping\nSET question_text_clean = REGEXP_REPLACE(\n    question_text_clean,\n    '(A empresa (?:cumpre o seguinte requisito|observa a seguinte vedação|exerce, quando aplicável, o seguinte direito|adotou, quando aplicável, a seguinte opção): )([IVXivx]+\\\\s*[-–]\\\\s*)',\n    '\\\\1'\n)\nWHERE question_text_clean REGEXP '[IVXivx]+ [-–]';",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 75
-}
