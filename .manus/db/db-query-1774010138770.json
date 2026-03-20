@@ -1,0 +1,13 @@
+{
+  "query": "SELECT question_text_clean FROM requirement_question_mapping WHERE mapping_id = 'MAP-06581AC3';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT question_text_clean FROM requirement_question_mapping WHERE mapping_id = 'MAP-06581AC3';",
+  "rows": [
+    {
+      "question_text_clean": "A empresa cumpre o seguinte requisito: o local constante do cadastro com identificação única de que trata o desta Lei Complementar, que deve considerar:?"
+    }
+  ],
+  "messages": [],
+  "stdout": "question_text_clean\nA empresa cumpre o seguinte requisito: o local constante do cadastro com identificação única de que trata o desta Lei Complementar, que deve considerar:?\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

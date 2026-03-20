@@ -1,0 +1,30 @@
+{
+  "query": "SELECT mapping_id, question_text_clean FROM requirement_question_mapping \nWHERE question_text_clean REGEXP '[IVXivx]+ [-–]'\nLIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT mapping_id, question_text_clean FROM requirement_question_mapping \nWHERE question_text_clean REGEXP '[IVXivx]+ [-–]'\nLIMIT 5;",
+  "rows": [
+    {
+      "mapping_id": "MAP-14F70B02",
+      "question_text_clean": "A empresa cumpre o seguinte requisito: O originador da transação de pagamento deve transmitir ao prestador de serviço de pagamento informações que permitam: a vinculação das operações com a transação de pagamento; e II - a identificação dos valores do IBS e da CBS incidentes sobre as operações?"
+    },
+    {
+      "mapping_id": "MAP-2904C8EE",
+      "question_text_clean": "A empresa cumpre o seguinte requisito: . O CGIBS elaborará anualmente os seguintes demonstrativos, adaptados às suas especificidades: balanço patrimonial; demonstração das variações patrimoniais; demonstração dos fluxos de caixa; balanço orçamentário; e V - balanço financeiro. Parágrafo único. A prestação de contas anual referente ao exercício financeiro anterior deve ser apresentada até o dia 30 de abril e d?"
+    },
+    {
+      "mapping_id": "MAP-4BE778DC",
+      "question_text_clean": "A empresa observa a seguinte vedação: Ao contribuinte . O Decreto nº 70.235, de 6 de março de 1972, passa a vigorar com as seguintes alterações: “ Na contagem dos prazos previstos neste Decreto: serão considerados os dias corridos, salvo se houver disposição em contrário; e II - será excluído da contagem o dia do início e incluído o dia do vencimento.?"
+    },
+    {
+      "mapping_id": "MAP-4CB12EE3",
+      "question_text_clean": "A empresa cumpre o seguinte requisito: As informações previstas no deste artigo devem ser transmitidas aos prestadores de serviço de pagamento: pelo fornecedor ou pelo adquirente, nos casos em que iniciarem a transação de pagamento; ............................................................................................................................................................. III - por outra pessoa ou entidade?"
+    },
+    {
+      "mapping_id": "MAP-6585184E",
+      "question_text_clean": "A empresa cumpre o seguinte requisito: ........................................................................................................................................... I - a alíquota aplicável na retenção na fonte deve ser informada no documento fiscal e corresponderá à alíquota efetiva de ISS a que a microempresa ou a empresa de pequeno porte estiver sujeita no mês da prestação;?"
+    }
+  ],
+  "messages": [],
+  "stdout": "mapping_id\tquestion_text_clean\nMAP-14F70B02\tA empresa cumpre o seguinte requisito: O originador da transação de pagamento deve transmitir ao prestador de serviço de pagamento informações que permitam: a vinculação das operações com a transação de pagamento; e II - a identificação dos valores do IBS e da CBS incidentes sobre as operações?\nMAP-2904C8EE\tA empresa cumpre o seguinte requisito: . O CGIBS elaborará anualmente os seguintes demonstrativos, adaptados às suas especificidades: balanço patrimonial; demonstração das variações patrimoniais; demonstração dos fluxos de caixa; balanço orçamentário; e V - balanço financeiro. Parágrafo único. A prestação de contas anual referente ao exercício financeiro anterior deve ser apresentada até o dia 30 de abril e d?\nMAP-4BE778DC\tA empresa observa a seguinte vedação: Ao contribuinte . O Decreto nº 70.235, de 6 de março de 1972, passa a vigorar com as seguintes alterações: “ Na contagem dos prazos previstos neste Decreto: serão considerados os dias corridos, salvo se houver disposição em contrário; e II - será excluído da contagem o dia do início e incluído o dia do vencimento.?\nMAP-4CB12EE3\tA empresa cumpre o seguinte requisito: As informações previstas no deste artigo devem ser transmitidas aos prestadores de serviço de pagamento: pelo fornecedor ou pelo adquirente, nos casos em que iniciarem a transação de pagamento; ............................................................................................................................................................. III - por outra pessoa ou entidade?\nMAP-6585184E\tA empresa cumpre o seguinte requisito: ........................................................................................................................................... I - a alíquota aplicável na retenção na fonte deve ser informada no documento fiscal e corresponderá à alíquota efetiva de ISS a que a microempresa ou a empresa de pequeno porte estiver sujeita no mês da prestação;?\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

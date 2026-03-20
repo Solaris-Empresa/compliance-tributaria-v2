@@ -1,0 +1,82 @@
+{
+  "query": "SHOW COLUMNS FROM coverage_reports;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SHOW COLUMNS FROM coverage_reports;",
+  "rows": [
+    {
+      "Field": "report_id",
+      "Type": "varchar(128)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "source_id",
+      "Type": "varchar(64)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "articles_total",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "articles_processed",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "requirements_total",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "coverage_percent",
+      "Type": "decimal(5,2)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "gaps_json",
+      "Type": "json",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "generated_at",
+      "Type": "datetime",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "version",
+      "Type": "varchar(32)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "1.0",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nreport_id\tvarchar(128)\tNO\tPRI\tNULL\t\nsource_id\tvarchar(64)\tNO\tMUL\tNULL\t\narticles_total\tint\tNO\t\tNULL\t\narticles_processed\tint\tNO\t\tNULL\t\nrequirements_total\tint\tNO\t\tNULL\t\ncoverage_percent\tdecimal(5,2)\tNO\t\tNULL\t\ngaps_json\tjson\tYES\t\tNULL\t\ngenerated_at\tdatetime\tNO\t\tNULL\t\nversion\tvarchar(32)\tNO\t\t1.0\t\n",
+  "stderr": "",
+  "execution_time_ms": 196
+}

@@ -1,0 +1,22 @@
+{
+  "query": "SELECT mapping_id, question_text_clean FROM requirement_question_mapping \nWHERE question_text_clean REGEXP '[IVXivx]+ [-–]';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SELECT mapping_id, question_text_clean FROM requirement_question_mapping \nWHERE question_text_clean REGEXP '[IVXivx]+ [-–]';",
+  "rows": [
+    {
+      "mapping_id": "MAP-965650F1",
+      "question_text_clean": "A empresa exerce, quando aplicável, o seguinte direito: Podem apresentar o pedido de retificação: a representação da Fazenda Pública; ou II - o sujeito passivo?"
+    },
+    {
+      "mapping_id": "MAP-C2F348DC",
+      "question_text_clean": "A empresa cumpre o seguinte requisito: As provas devem ser apresentadas juntamente com a impugnação, sob pena de preclusão, ressalvados os casos devidamente demonstrados: de impossibilidade de sua apresentação oportuna por justa causa, força maior, fato ou direito superveniente; ou II - que se destinem a contrapor alegações posteriormente trazidas aos autos?"
+    },
+    {
+      "mapping_id": "MAP-D27D55FF",
+      "question_text_clean": "A empresa exerce, quando aplicável, o seguinte direito: Podem interpor o recurso de uniformização: a representação da Fazenda Pública; ou II - o sujeito passivo?"
+    }
+  ],
+  "messages": [],
+  "stdout": "mapping_id\tquestion_text_clean\nMAP-965650F1\tA empresa exerce, quando aplicável, o seguinte direito: Podem apresentar o pedido de retificação: a representação da Fazenda Pública; ou II - o sujeito passivo?\nMAP-C2F348DC\tA empresa cumpre o seguinte requisito: As provas devem ser apresentadas juntamente com a impugnação, sob pena de preclusão, ressalvados os casos devidamente demonstrados: de impossibilidade de sua apresentação oportuna por justa causa, força maior, fato ou direito superveniente; ou II - que se destinem a contrapor alegações posteriormente trazidas aos autos?\nMAP-D27D55FF\tA empresa exerce, quando aplicável, o seguinte direito: Podem interpor o recurso de uniformização: a representação da Fazenda Pública; ou II - o sujeito passivo?\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}
