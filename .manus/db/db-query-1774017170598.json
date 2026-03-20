@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE requirement_question_mapping ADD COLUMN question_quality_status VARCHAR(16) NOT NULL DEFAULT 'pending' COMMENT 'approved | improve | rejected | pending';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute ALTER TABLE requirement_question_mapping ADD COLUMN question_quality_status VARCHAR(16) NOT NULL DEFAULT 'pending' COMMENT 'approved | improve | rejected | pending';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 331
+}
