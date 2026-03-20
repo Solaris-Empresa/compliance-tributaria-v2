@@ -1,0 +1,46 @@
+{
+  "query": "\nSELECT source_id,\n  COUNT(*) as total,\n  SUM(CASE WHEN is_operational=1 THEN 1 ELSE 0 END) as operacionais,\n  SUM(CASE WHEN normative_scope='contribuinte' THEN 1 ELSE 0 END) as contribuinte,\n  SUM(CASE WHEN normative_type='obrigacao' THEN 1 ELSE 0 END) as obrigacoes,\n  SUM(CASE WHEN normative_type='direito' THEN 1 ELSE 0 END) as direitos,\n  SUM(CASE WHEN normative_type='vedacao' THEN 1 ELSE 0 END) as vedacoes\nFROM regulatory_requirements\nGROUP BY source_id\nORDER BY source_id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT source_id,\n  COUNT(*) as total,\n  SUM(CASE WHEN is_operational=1 THEN 1 ELSE 0 END) as operacionais,\n  SUM(CASE WHEN normative_scope='contribuinte' THEN 1 ELSE 0 END) as contribuinte,\n  SUM(CASE WHEN normative_type='obrigacao' THEN 1 ELSE 0 END) as obrigacoes,\n  SUM(CASE WHEN normative_type='direito' THEN 1 ELSE 0 END) as direitos,\n  SUM(CASE WHEN normative_type='vedacao' THEN 1 ELSE 0 END) as vedacoes\nFROM regulatory_requirements\nGROUP BY source_id\nORDER BY source_id;\n",
+  "rows": [
+    {
+      "source_id": "EC132-2023",
+      "total": "71",
+      "operacionais": "0",
+      "contribuinte": "0",
+      "obrigacoes": "13",
+      "direitos": "39",
+      "vedacoes": "15"
+    },
+    {
+      "source_id": "LC214-2025",
+      "total": "482",
+      "operacionais": "349",
+      "contribuinte": "380",
+      "obrigacoes": "200",
+      "direitos": "193",
+      "vedacoes": "49"
+    },
+    {
+      "source_id": "LC224-2025",
+      "total": "9",
+      "operacionais": "9",
+      "contribuinte": "9",
+      "obrigacoes": "3",
+      "direitos": "1",
+      "vedacoes": "5"
+    },
+    {
+      "source_id": "LC227-2026",
+      "total": "255",
+      "operacionais": "156",
+      "contribuinte": "167",
+      "obrigacoes": "111",
+      "direitos": "87",
+      "vedacoes": "39"
+    }
+  ],
+  "messages": [],
+  "stdout": "source_id\ttotal\toperacionais\tcontribuinte\tobrigacoes\tdireitos\tvedacoes\nEC132-2023\t71\t0\t0\t13\t39\t15\nLC214-2025\t482\t349\t380\t200\t193\t49\nLC224-2025\t9\t9\t9\t3\t1\t5\nLC227-2026\t255\t156\t167\t111\t87\t39\n",
+  "stderr": "",
+  "execution_time_ms": 66
+}

@@ -1,0 +1,42 @@
+{
+  "query": "\nSELECT source_id, COUNT(*) as total_artigos,\n       SUM(CASE WHEN hierarchy_level='artigo' THEN 1 ELSE 0 END) as artigos_raiz,\n       SUM(CASE WHEN hierarchy_level='paragrafo' THEN 1 ELSE 0 END) as paragrafos,\n       SUM(CASE WHEN hierarchy_level='inciso' THEN 1 ELSE 0 END) as incisos,\n       SUM(CASE WHEN hierarchy_level='alinea' THEN 1 ELSE 0 END) as alineas\nFROM regulatory_articles\nGROUP BY source_id\nORDER BY source_id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT source_id, COUNT(*) as total_artigos,\n       SUM(CASE WHEN hierarchy_level='artigo' THEN 1 ELSE 0 END) as artigos_raiz,\n       SUM(CASE WHEN hierarchy_level='paragrafo' THEN 1 ELSE 0 END) as paragrafos,\n       SUM(CASE WHEN hierarchy_level='inciso' THEN 1 ELSE 0 END) as incisos,\n       SUM(CASE WHEN hierarchy_level='alinea' THEN 1 ELSE 0 END) as alineas\nFROM regulatory_articles\nGROUP BY source_id\nORDER BY source_id;\n",
+  "rows": [
+    {
+      "source_id": "EC132-2023",
+      "total_artigos": "384",
+      "artigos_raiz": "25",
+      "paragrafos": "141",
+      "incisos": "218",
+      "alineas": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "total_artigos": "3676",
+      "artigos_raiz": "544",
+      "paragrafos": "1126",
+      "incisos": "1634",
+      "alineas": "372"
+    },
+    {
+      "source_id": "LC224-2025",
+      "total_artigos": "96",
+      "artigos_raiz": "14",
+      "paragrafos": "23",
+      "incisos": "59",
+      "alineas": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "total_artigos": "1622",
+      "artigos_raiz": "210",
+      "paragrafos": "612",
+      "incisos": "800",
+      "alineas": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "source_id\ttotal_artigos\tartigos_raiz\tparagrafos\tincisos\talineas\nEC132-2023\t384\t25\t141\t218\t0\nLC214-2025\t3676\t544\t1126\t1634\t372\nLC224-2025\t96\t14\t23\t59\t0\nLC227-2026\t1622\t210\t612\t800\t0\n",
+  "stderr": "",
+  "execution_time_ms": 63
+}

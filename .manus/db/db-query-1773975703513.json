@@ -1,0 +1,367 @@
+{
+  "query": "\nSELECT source_id, normative_type, normative_scope, \n       COUNT(*) as total,\n       SUM(CASE WHEN is_operational=1 THEN 1 ELSE 0 END) as operacionais\nFROM regulatory_requirements\nGROUP BY source_id, normative_type, normative_scope\nORDER BY source_id, normative_type;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT source_id, normative_type, normative_scope, \n       COUNT(*) as total,\n       SUM(CASE WHEN is_operational=1 THEN 1 ELSE 0 END) as operacionais\nFROM regulatory_requirements\nGROUP BY source_id, normative_type, normative_scope\nORDER BY source_id, normative_type;\n",
+  "rows": [
+    {
+      "source_id": "EC132-2023",
+      "normative_type": "definicao",
+      "normative_scope": "meta_norma",
+      "total": "1",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "EC132-2023",
+      "normative_type": "direito",
+      "normative_scope": "meta_norma",
+      "total": "39",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "EC132-2023",
+      "normative_type": "obrigacao",
+      "normative_scope": "meta_norma",
+      "total": "13",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "EC132-2023",
+      "normative_type": "opcao",
+      "normative_scope": "meta_norma",
+      "total": "2",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "EC132-2023",
+      "normative_type": "principio",
+      "normative_scope": "meta_norma",
+      "total": "1",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "EC132-2023",
+      "normative_type": "vedacao",
+      "normative_scope": "meta_norma",
+      "total": "15",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "definicao",
+      "normative_scope": "ente_federativo",
+      "total": "3",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "definicao",
+      "normative_scope": "administrativo",
+      "total": "1",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "definicao",
+      "normative_scope": "contribuinte",
+      "total": "15",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "direito",
+      "normative_scope": "administrativo",
+      "total": "15",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "direito",
+      "normative_scope": "ente_federativo",
+      "total": "25",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "direito",
+      "normative_scope": "sistemico",
+      "total": "4",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "direito",
+      "normative_scope": "meta_norma",
+      "total": "2",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "direito",
+      "normative_scope": "contribuinte",
+      "total": "147",
+      "operacionais": "147"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "obrigacao",
+      "normative_scope": "administrativo",
+      "total": "6",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "obrigacao",
+      "normative_scope": "ente_federativo",
+      "total": "25",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "obrigacao",
+      "normative_scope": "meta_norma",
+      "total": "5",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "obrigacao",
+      "normative_scope": "sistemico",
+      "total": "2",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "obrigacao",
+      "normative_scope": "contribuinte",
+      "total": "162",
+      "operacionais": "162"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "opcao",
+      "normative_scope": "ente_federativo",
+      "total": "1",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "opcao",
+      "normative_scope": "contribuinte",
+      "total": "15",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "opcao",
+      "normative_scope": "sistemico",
+      "total": "1",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "opcao",
+      "normative_scope": "administrativo",
+      "total": "1",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "principio",
+      "normative_scope": "ente_federativo",
+      "total": "1",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "principio",
+      "normative_scope": "contribuinte",
+      "total": "1",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "principio",
+      "normative_scope": "meta_norma",
+      "total": "1",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "vedacao",
+      "normative_scope": "ente_federativo",
+      "total": "1",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "vedacao",
+      "normative_scope": "meta_norma",
+      "total": "3",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "vedacao",
+      "normative_scope": "administrativo",
+      "total": "5",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC214-2025",
+      "normative_type": "vedacao",
+      "normative_scope": "contribuinte",
+      "total": "40",
+      "operacionais": "40"
+    },
+    {
+      "source_id": "LC224-2025",
+      "normative_type": "direito",
+      "normative_scope": "contribuinte",
+      "total": "1",
+      "operacionais": "1"
+    },
+    {
+      "source_id": "LC224-2025",
+      "normative_type": "obrigacao",
+      "normative_scope": "contribuinte",
+      "total": "3",
+      "operacionais": "3"
+    },
+    {
+      "source_id": "LC224-2025",
+      "normative_type": "vedacao",
+      "normative_scope": "contribuinte",
+      "total": "5",
+      "operacionais": "5"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "definicao",
+      "normative_scope": "contribuinte",
+      "total": "6",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "definicao",
+      "normative_scope": "ente_federativo",
+      "total": "5",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "direito",
+      "normative_scope": "administrativo",
+      "total": "7",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "direito",
+      "normative_scope": "sistemico",
+      "total": "2",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "direito",
+      "normative_scope": "ente_federativo",
+      "total": "21",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "direito",
+      "normative_scope": "meta_norma",
+      "total": "3",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "direito",
+      "normative_scope": "contribuinte",
+      "total": "54",
+      "operacionais": "54"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "obrigacao",
+      "normative_scope": "sistemico",
+      "total": "2",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "obrigacao",
+      "normative_scope": "administrativo",
+      "total": "8",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "obrigacao",
+      "normative_scope": "contribuinte",
+      "total": "74",
+      "operacionais": "74"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "obrigacao",
+      "normative_scope": "ente_federativo",
+      "total": "25",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "obrigacao",
+      "normative_scope": "meta_norma",
+      "total": "2",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "opcao",
+      "normative_scope": "contribuinte",
+      "total": "5",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "opcao",
+      "normative_scope": "ente_federativo",
+      "total": "1",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "opcao",
+      "normative_scope": "administrativo",
+      "total": "1",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "vedacao",
+      "normative_scope": "ente_federativo",
+      "total": "6",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "vedacao",
+      "normative_scope": "administrativo",
+      "total": "5",
+      "operacionais": "0"
+    },
+    {
+      "source_id": "LC227-2026",
+      "normative_type": "vedacao",
+      "normative_scope": "contribuinte",
+      "total": "28",
+      "operacionais": "28"
+    }
+  ],
+  "messages": [],
+  "stdout": "source_id\tnormative_type\tnormative_scope\ttotal\toperacionais\nEC132-2023\tdefinicao\tmeta_norma\t1\t0\nEC132-2023\tdireito\tmeta_norma\t39\t0\nEC132-2023\tobrigacao\tmeta_norma\t13\t0\nEC132-2023\topcao\tmeta_norma\t2\t0\nEC132-2023\tprincipio\tmeta_norma\t1\t0\nEC132-2023\tvedacao\tmeta_norma\t15\t0\nLC214-2025\tdefinicao\tente_federativo\t3\t0\nLC214-2025\tdefinicao\tadministrativo\t1\t0\nLC214-2025\tdefinicao\tcontribuinte\t15\t0\nLC214-2025\tdireito\tadministrativo\t15\t0\nLC214-2025\tdireito\tente_federativo\t25\t0\nLC214-2025\tdireito\tsistemico\t4\t0\nLC214-2025\tdireito\tmeta_norma\t2\t0\nLC214-2025\tdireito\tcontribuinte\t147\t147\nLC214-2025\tobrigacao\tadministrativo\t6\t0\nLC214-2025\tobrigacao\tente_federativo\t25\t0\nLC214-2025\tobrigacao\tmeta_norma\t5\t0\nLC214-2025\tobrigacao\tsistemico\t2\t0\nLC214-2025\tobrigacao\tcontribuinte\t162\t162\nLC214-2025\topcao\tente_federativo\t1\t0\nLC214-2025\topcao\tcontribuinte\t15\t0\nLC214-2025\topcao\tsistemico\t1\t0\nLC214-2025\topcao\tadministrativo\t1\t0\nLC214-2025\tprincipio\tente_federativo\t1\t0\nLC214-2025\tprincipio\tcontribuinte\t1\t0\nLC214-2025\tprincipio\tmeta_norma\t1\t0\nLC214-2025\tvedacao\tente_federativo\t1\t0\nLC214-2025\tvedacao\tmeta_norma\t3\t0\nLC214-2025\tvedacao\tadministrativo\t5\t0\nLC214-2025\tvedacao\tcontribuinte\t40\t40\nLC224-2025\tdireito\tcontribuinte\t1\t1\nLC224-2025\tobrigacao\tcontribuinte\t3\t3\nLC224-2025\tvedacao\tcontribuinte\t5\t5\nLC227-2026\tdefinicao\tcontribuinte\t6\t0\nLC227-2026\tdefinicao\tente_federativo\t5\t0\nLC227-2026\tdireito\tadministrativo\t7\t0\nLC227-2026\tdireito\tsistemico\t2\t0\nLC227-2026\tdireito\tente_federativo\t21\t0\nLC227-2026\tdireito\tmeta_norma\t3\t0\nLC227-2026\tdireito\tcontribuinte\t54\t54\nLC227-2026\tobrigacao\tsistemico\t2\t0\nLC227-2026\tobrigacao\tadministrativo\t8\t0\nLC227-2026\tobrigacao\tcontribuinte\t74\t74\nLC227-2026\tobrigacao\tente_federativo\t25\t0\nLC227-2026\tobrigacao\tmeta_norma\t2\t0\nLC227-2026\topcao\tcontribuinte\t5\t0\nLC227-2026\topcao\tente_federativo\t1\t0\nLC227-2026\topcao\tadministrativo\t1\t0\nLC227-2026\tvedacao\tente_federativo\t6\t0\nLC227-2026\tvedacao\tadministrativo\t5\t0\nLC227-2026\tvedacao\tcontribuinte\t28\t28\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

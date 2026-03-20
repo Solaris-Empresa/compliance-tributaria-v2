@@ -1,0 +1,154 @@
+{
+  "query": "SHOW COLUMNS FROM regulatory_requirements;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute SHOW COLUMNS FROM regulatory_requirements;",
+  "rows": [
+    {
+      "Field": "requirement_id",
+      "Type": "varchar(128)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "source_id",
+      "Type": "varchar(64)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "article_id",
+      "Type": "varchar(128)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "legal_basis_text",
+      "Type": "mediumtext",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "requirement_type",
+      "Type": "varchar(32)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "description",
+      "Type": "text",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "trigger_condition",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "risk_if_not_met",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "version",
+      "Type": "varchar(32)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "1.0",
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "varchar(32)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "draft",
+      "Extra": ""
+    },
+    {
+      "Field": "normalized_group",
+      "Type": "varchar(128)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "duplicate_of",
+      "Type": "varchar(128)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "created_at",
+      "Type": "datetime",
+      "Null": "YES",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "normative_type",
+      "Type": "varchar(32)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "normative_scope",
+      "Type": "varchar(32)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "is_operational",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "operational_description",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "canonical_group_id",
+      "Type": "varchar(32)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nrequirement_id\tvarchar(128)\tNO\tPRI\tNULL\t\nsource_id\tvarchar(64)\tNO\tMUL\tNULL\t\narticle_id\tvarchar(128)\tNO\tMUL\tNULL\t\nlegal_basis_text\tmediumtext\tNO\t\tNULL\t\nrequirement_type\tvarchar(32)\tNO\tMUL\tNULL\t\ndescription\ttext\tNO\t\tNULL\t\ntrigger_condition\ttext\tYES\t\tNULL\t\nrisk_if_not_met\ttext\tYES\t\tNULL\t\nversion\tvarchar(32)\tNO\t\t1.0\t\nstatus\tvarchar(32)\tNO\tMUL\tdraft\t\nnormalized_group\tvarchar(128)\tYES\t\tNULL\t\nduplicate_of\tvarchar(128)\tYES\t\tNULL\t\ncreated_at\tdatetime\tYES\t\tCURRENT_TIMESTAMP\t\nnormative_type\tvarchar(32)\tYES\t\tNULL\t\nnormative_scope\tvarchar(32)\tYES\t\tNULL\t\nis_operational\ttinyint(1)\tYES\t\tNULL\t\noperational_description\ttext\tYES\t\tNULL\t\ncanonical_group_id\tvarchar(32)\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

@@ -231,7 +231,38 @@ Nenhum requisito original foi excluído. A coluna `canonical_group_id` em `regul
 
 ---
 
-## 7. Próximos Passos
+## 7. Classificação de Relação Canônica (`canonical_relation_type`)
+
+**Adicionado na TASK 2.2 SAFE MODE** — classifica a relação jurídica entre os requisitos originais agrupados no mesmo canônico.
+
+### 7.1 Valores e Critérios Objetivos
+
+| Valor | Critério Objetivo | Threshold |
+|---|---|---|
+| `equivalente` | Jaccard ≥ 0.70 **e** mesmo `normative_type` | Textos semanticamente idênticos ou quase idênticos entre fontes |
+| `complementar` | Jaccard 0.30–0.70 **e** mesmo `normative_type` | Mesma matéria, mas com condição ou especificação adicional |
+| `independente` | Jaccard < 0.30 **ou** tipos distintos | Sem relação direta identificável pelo texto legal |
+
+### 7.2 Proibições Absolutas (SAFE MODE)
+
+- **NÃO** alterar `canonical_description`
+- **NÃO** alterar `legal_basis_text`
+- **NÃO** gerar novo texto interpretado
+- **NÃO** criar inferência jurídica nova
+
+### 7.3 Resultado TASK 2.2
+
+| Relação | Quantidade | % | Interpretação |
+|---|---|---|---|
+| `equivalente` | 499 | 100% | Todos os grupos agrupados com Jaccard ≥ 0.72 são equivalentes por construção |
+| `complementar` | 0 | 0% | Emergirá quando threshold de agrupamento for relaxado |
+| `independente` | 0 | 0% | Emergirá quando threshold de agrupamento for relaxado |
+
+> **Nota:** O resultado `equivalente: 499` é correto e esperado. A TASK 2.1 agrupou apenas requisitos com Jaccard ≥ 0.72, portanto todos os grupos já eram semanticamente equivalentes por construção. Grupos `complementar` e `independente` emergirão na TASK 2.3 quando o threshold for relaxado para capturar relações mais fracas.
+
+---
+
+## 8. Próximos Passos
 
 | Task | Objetivo |
 |---|---|
@@ -243,4 +274,5 @@ Nenhum requisito original foi excluído. A coluna `canonical_group_id` em `regul
 ---
 
 *Documento gerado pelo IA SOLARIS — 2026-03-19*  
+*Última atualização: TASK 2.2 SAFE MODE — 2026-03-20*  
 *Autoridade: Product Owner Uires Tapajós*

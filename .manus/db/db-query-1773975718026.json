@@ -1,0 +1,23 @@
+{
+  "query": "\nSELECT \n  COUNT(*) as total_canonico,\n  SUM(CASE WHEN is_multi_source=1 THEN 1 ELSE 0 END) as multi_source,\n  SUM(CASE WHEN source_count=1 THEN 1 ELSE 0 END) as fonte_unica,\n  SUM(CASE WHEN source_count=2 THEN 1 ELSE 0 END) as duas_fontes,\n  SUM(CASE WHEN risk_base='high' THEN 1 ELSE 0 END) as risk_high,\n  SUM(CASE WHEN risk_base='medium' THEN 1 ELSE 0 END) as risk_medium,\n  SUM(CASE WHEN risk_base='low' THEN 1 ELSE 0 END) as risk_low,\n  SUM(CASE WHEN requirement_type='obrigacao' THEN 1 ELSE 0 END) as obrigacoes,\n  SUM(CASE WHEN requirement_type='direito' THEN 1 ELSE 0 END) as direitos,\n  SUM(CASE WHEN requirement_type='vedacao' THEN 1 ELSE 0 END) as vedacoes,\n  SUM(CASE WHEN requirement_type='opcao' THEN 1 ELSE 0 END) as opcoes\nFROM canonical_requirements;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 7QDB1rdZo1Phrn3.bcf291fc06f4 --database A6U3GSLMGWuR2P4b85Hiyy --execute \nSELECT \n  COUNT(*) as total_canonico,\n  SUM(CASE WHEN is_multi_source=1 THEN 1 ELSE 0 END) as multi_source,\n  SUM(CASE WHEN source_count=1 THEN 1 ELSE 0 END) as fonte_unica,\n  SUM(CASE WHEN source_count=2 THEN 1 ELSE 0 END) as duas_fontes,\n  SUM(CASE WHEN risk_base='high' THEN 1 ELSE 0 END) as risk_high,\n  SUM(CASE WHEN risk_base='medium' THEN 1 ELSE 0 END) as risk_medium,\n  SUM(CASE WHEN risk_base='low' THEN 1 ELSE 0 END) as risk_low,\n  SUM(CASE WHEN requirement_type='obrigacao' THEN 1 ELSE 0 END) as obrigacoes,\n  SUM(CASE WHEN requirement_type='direito' THEN 1 ELSE 0 END) as direitos,\n  SUM(CASE WHEN requirement_type='vedacao' THEN 1 ELSE 0 END) as vedacoes,\n  SUM(CASE WHEN requirement_type='opcao' THEN 1 ELSE 0 END) as opcoes\nFROM canonical_requirements;\n",
+  "rows": [
+    {
+      "total_canonico": "499",
+      "multi_source": "7",
+      "fonte_unica": "492",
+      "duas_fontes": "7",
+      "risk_high": "306",
+      "risk_medium": "193",
+      "risk_low": "0",
+      "obrigacoes": "235",
+      "direitos": "193",
+      "vedacoes": "71",
+      "opcoes": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_canonico\tmulti_source\tfonte_unica\tduas_fontes\trisk_high\trisk_medium\trisk_low\tobrigacoes\tdireitos\tvedacoes\topcoes\n499\t7\t492\t7\t306\t193\t0\t235\t193\t71\t0\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}
