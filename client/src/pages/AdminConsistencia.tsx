@@ -24,6 +24,7 @@ import {
   ChevronRight, Info, User, Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CpieReportExport } from "@/components/CpieReportExport";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -409,6 +410,17 @@ export default function AdminConsistencia() {
                       {new Date(selectedProject.consistencyAcceptedRiskAt).toLocaleString("pt-BR")}
                     </p>
                   )}
+                </div>
+              )}
+              {/* Botão Exportar PDF */}
+              {selectedProject.profileIntelligenceData && (
+                <div className="pt-2">
+                  <CpieReportExport
+                    projectId={selectedProject.id}
+                    projectName={selectedProject.name}
+                    variant="outline"
+                    size="sm"
+                  />
                 </div>
               )}
             </div>

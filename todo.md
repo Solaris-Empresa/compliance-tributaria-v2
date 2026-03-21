@@ -2737,3 +2737,19 @@
 - [x] 19 testes unitários para cpie.ts (calcDimensionScores, calcOverallScore, invariantes)
 - [x] 20 testes unitários para consistencyEngine.ts (regras determinísticas, gate, classificação)
 - [x] 39/39 testes passando
+
+## Sprint H — Retomada, Notificação e Exportação
+
+### H1 — Retomada exata de sessão CPIE
+- [x] Criar procedure `cpie.getProjectAnalysis` para buscar análise salva do banco
+- [x] Atualizar `PerfilEmpresaIntelligente.tsx` para carregar análise salva ao abrir projeto existente
+- [x] Exibir badge "Sessão retomada" quando dados vierem do banco
+
+### H2 — Notificação ao owner ao aceitar risco
+- [x] Chamar `notifyOwner` no `cpieRouter.acceptConsistencyRisk` com título e detalhes do risco
+- [x] Incluir nome do projeto, usuário e justificativa na notificação
+
+### H3 — Exportação PDF do relatório CPIE
+- [x] Criar procedure `cpie.generateReport` que retorna HTML formatado do relatório
+- [x] Criar componente `CpieReportExport.tsx` com botão "Exportar PDF"
+- [x] Integrar no painel CPIE do PerfilEmpresaIntelligente e no modal do AdminConsistencia

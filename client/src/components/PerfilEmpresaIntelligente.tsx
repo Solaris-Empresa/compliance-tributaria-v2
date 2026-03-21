@@ -23,6 +23,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { CpieReportExport } from "@/components/CpieReportExport";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -244,11 +245,12 @@ function SimNaoToggle({ value, onChange, label, tooltip }: {
 
 function ScorePanel({
   completeness, confidence, missingRequired, missingOptional,
-  cpieResult, isAnalyzing, onAnalyze, profileData,
+  cpieResult, isAnalyzing, onAnalyze, profileData, restoredFromDb, projectId, projectName,
 }: {
   completeness: number; confidence: number; missingRequired: string[]; missingOptional: string[];
   cpieResult: CpieResult | null; isAnalyzing: boolean; onAnalyze: () => void;
-  profileData: PerfilEmpresaData;
+  profileData: PerfilEmpresaData; restoredFromDb?: boolean;
+  projectId?: number; projectName?: string;
 }) {
   const scoreColor = completeness >= 80 ? "text-emerald-600" : completeness >= 50 ? "text-amber-600" : "text-red-500";
   const confidenceColor = confidence >= 80 ? "text-emerald-600" : confidence >= 50 ? "text-amber-600" : "text-red-500";
@@ -256,6 +258,7 @@ function ScorePanel({
   const confBarColor = confidence >= 80 ? "bg-emerald-500" : confidence >= 50 ? "bg-amber-500" : "bg-red-500";
 
   const hasMinimumData = !!profileData.companyType && !!profileData.taxRegime;
+  const canExport = !!projectId && !!cpieResult;
 
   return (
     <div className="sticky top-4 space-y-4">
@@ -264,6 +267,11 @@ function ScorePanel({
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />
           <span className="text-sm font-semibold">Qualidade do Perfil</span>
+          {restoredFromDb && (
+            <Badge variant="secondary" className="text-xs ml-auto gap-1">
+              <CheckCircle2 className="h-3 w-3" />Sessão retomada
+            </Badge>
+          )}
         </div>
 
         {/* Completude */}
@@ -313,6 +321,16 @@ function ScorePanel({
         </Button>
         {!hasMinimumData && (
           <p className="text-xs text-muted-foreground text-center -mt-1">Preencha tipo jurídico e regime tributário para ativar</p>
+        )}
+        {/* Botão Exportar PDF (H3) */}
+        {canExport && (
+          <CpieReportExport
+            projectId={projectId!}
+            projectName={projectName || "Projeto"}
+            variant="outline"
+            size="sm"
+            className="w-full gap-2"
+          />
         )}
       </div>
 
@@ -516,12 +534,49 @@ interface PerfilEmpresaIntelligenteProps {
   showScorePanel?: boolean;
   /** Descrição do negócio (passada pelo NovoProjeto para enriquecer a análise) */
   description?: string;
+  /** ID do projeto existente para retomada de sessão (H1) */
+  projectId?: number;
+  /** Nome do projeto para o relatório CPIE (H3) */
+  projectName?: string;
 }
 
-export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description }: PerfilEmpresaIntelligenteProps) {
+export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description, projectId, projectName }: PerfilEmpresaIntelligenteProps) {
   const [cnpjError, setCnpjError] = useState("");
   const [cpieResult, setCpieResult] = useState<CpieResult | null>(null);
+  const [restoredFromDb, setRestoredFromDb] = useState(false);
   const score = calcProfileScore(value);
+
+  // H1: Carregar análise salva do banco ao abrir projeto existente
+  const savedAnalysis = trpc.cpie.getProjectAnalysis.useQuery(
+    { projectId: projectId! },
+    {
+      enabled: !!projectId,
+      staleTime: 5 * 60 * 1000, // 5 min
+    }
+  );
+
+  // Reagir aos dados salvos via useEffect
+  useEffect(() => {
+    const data = savedAnalysis.data;
+    if (data?.profileIntelligenceData && !cpieResult && !restoredFromDb) {
+      const intel = data.profileIntelligenceData as Record<string, unknown>;
+      if (intel?.dimensions || intel?.dynamicQuestions || intel?.suggestions) {
+        setCpieResult({
+          overallScore: (data.profileCompleteness as number) ?? 0,
+          confidenceScore: (data.profileConfidence as number) ?? 0,
+          dimensions: (intel.dimensions as ScoreDimension[]) ?? [],
+          dynamicQuestions: (intel.dynamicQuestions as DynamicQuestion[]) ?? [],
+          suggestions: (intel.suggestions as ProfileSuggestion[]) ?? [],
+          insights: (intel.insights as ProfileInsight[]) ?? [],
+          readinessLevel: (intel.readinessLevel as CpieResult["readinessLevel"]) ?? "basic",
+          readinessMessage: (intel.readinessMessage as string) ?? "",
+        });
+        setRestoredFromDb(true);
+        toast.info("ℹ️ Análise IA carregada da sessão anterior.");
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedAnalysis.data]);
 
   const analyzeProfile = trpc.cpie.analyze.useMutation({
     onSuccess: (data) => {
@@ -863,6 +918,9 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         isAnalyzing={analyzeProfile.isPending}
         onAnalyze={handleAnalyze}
         profileData={value}
+        restoredFromDb={restoredFromDb}
+        projectId={projectId}
+        projectName={projectName}
       />
     </div>
   );
