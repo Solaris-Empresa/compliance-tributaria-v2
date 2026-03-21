@@ -172,18 +172,44 @@ Responda em JSON:
           { temperature: 0.1, context: "extractCnaes" }
         );
       } catch (aiError) {
+        // ── Monitoramento: log estruturado do erro LLM ──────────────────────
+        const errMsg = aiError instanceof Error ? aiError.message : String(aiError);
+        const descPreview = input.description.substring(0, 120).replace(/\n/g, " ");
+        console.error(
+          `[extractCnaes][ERROR] projectId=${input.projectId} | descPreview="${descPreview}" | erro=${errMsg}`
+        );
+        // Notificar owner em produção para alertas imediatos
+        try {
+          const { notifyOwner } = await import("./_core/notification");
+          await notifyOwner({
+            title: "⚠️ extractCnaes falhou — fallback ativado",
+            content: `Projeto #${input.projectId}\nDescrição: "${descPreview}"\nErro: ${errMsg}`,
+          });
+        } catch { /* notificação é best-effort */ }
+        // ────────────────────────────────────────────────────────────────────
+
         // Fallback: usar os top-5 candidatos por similaridade semântica quando a IA falha
         // Isso garante que o usuário sempre veja sugestões para confirmar/editar
         const { findSimilarCnaes, getFallbackCandidates } = await import("./cnae-embeddings");
         let candidates;
         try {
           candidates = await findSimilarCnaes(input.description, 5);
-        } catch {
+        } catch (embeddingError) {
+          const embErrMsg = embeddingError instanceof Error ? embeddingError.message : String(embeddingError);
+          console.error(
+            `[extractCnaes][FALLBACK_ERROR] projectId=${input.projectId} | embedding também falhou: ${embErrMsg}`
+          );
           candidates = getFallbackCandidates(5);
         }
         if (candidates.length === 0) {
+          console.error(
+            `[extractCnaes][FATAL] projectId=${input.projectId} | nenhum candidato disponível — re-lançando erro original`
+          );
           throw aiError; // Re-lança se nem o fallback encontrou candidatos
         }
+        console.warn(
+          `[extractCnaes][FALLBACK_OK] projectId=${input.projectId} | usando ${candidates.length} candidatos semânticos`
+        );
         result = {
           cnaes: candidates.map((c, i) => ({
             code: c.code,
@@ -220,7 +246,9 @@ Responda em JSON:
       const { buildSemanticCnaeContext } = await import("./cnae-embeddings");
       const ragContext = await buildSemanticCnaeContext(`${input.description} ${input.feedback}`);
 
-      const result = await generateWithRetry(
+      let result: z.infer<typeof CnaesResponseSchema>;
+      try {
+       result = await generateWithRetry(
         [
           {
             role: "system",
@@ -255,6 +283,23 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         CnaesResponseSchema,
         { temperature: 0.1, context: "refineCnaes" }
       );
+      } catch (refineError) {
+        // ── Monitoramento: log estruturado do erro LLM no refineCnaes ───────
+        const errMsg = refineError instanceof Error ? refineError.message : String(refineError);
+        const descPreview = input.description.substring(0, 80).replace(/\n/g, " ");
+        console.error(
+          `[refineCnaes][ERROR] projectId=${input.projectId} | iter=${input.iteration} | descPreview="${descPreview}" | erro=${errMsg}`
+        );
+        try {
+          const { notifyOwner } = await import("./_core/notification");
+          await notifyOwner({
+            title: "⚠️ refineCnaes falhou",
+            content: `Projeto #${input.projectId} | Iteração ${input.iteration}\nFeedback: "${input.feedback.substring(0, 100)}"\nErro: ${errMsg}`,
+          });
+        } catch { /* best-effort */ }
+        // ────────────────────────────────────────────────────────────────────
+        throw refineError;
+      }
 
       return { cnaes: result.cnaes, iteration: input.iteration + 1 };
     }),

@@ -6,6 +6,38 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [5.1.0] - Fix CNAE Discovery + Monitoramento LLM - 2026-03-21
+
+### Corrigido
+
+**Bug Crítico: CNAE Discovery retornava "Nenhum CNAE identificado" em produção**
+
+- **Causa raiz**: O commit `ff024f5` (Sprint V71) migrou o `llm.ts` de Gemini 2.5 Flash (via `BUILT_IN_FORGE_API_KEY`) para **GPT-4.1 via `api.openai.com` diretamente**, mas a `OPENAI_API_KEY` não havia sido configurada como secret no ambiente de produção (`iasolaris.manus.space`). Toda chamada ao `extractCnaes` falhava com `"OPENAI_API_KEY is not configured"`, ativando o `onError` no frontend e abrindo o modal de CNAE vazio.
+- **Fix**: `OPENAI_API_KEY` configurada como secret no ambiente de produção. Validada: GPT-4.1 acessível + `text-embedding-3-small` gerando embeddings de 1.536 dimensões.
+- **Impacto**: Todos os fluxos dependentes de LLM (questionário, briefing, riscos, plano de ação) também estavam afetados em produção.
+
+### Adicionado
+
+**Monitoramento de Erros LLM — `extractCnaes` e `refineCnaes`** (`server/routers-fluxo-v3.ts`)
+
+- **Logging estruturado** no `catch` do `extractCnaes`: emite `console.error` com `projectId`, preview da descrição (120 chars) e mensagem de erro exata — facilita diagnóstico via logs do servidor sem necessidade de vasculhar o histórico Git.
+- **Logging em cascata** no fallback de embeddings: se o LLM falha E o embedding também falha, loga `[FALLBACK_ERROR]` com o erro do embedding; se nenhum candidato é encontrado, loga `[FATAL]` antes de re-lançar.
+- **Log de sucesso do fallback**: `[FALLBACK_OK]` registra quantos candidatos semânticos foram usados quando o LLM falhou mas o embedding funcionou.
+- **Notificação ao owner** via `notifyOwner()` quando `extractCnaes` ou `refineCnaes` falham — alerta imediato em produção sem depender de monitoramento externo.
+- **Logging estruturado** no `catch` do `refineCnaes`: emite `console.error` com `projectId`, iteração, preview da descrição e mensagem de erro.
+
+### Formato dos logs
+
+```
+[extractCnaes][ERROR]          projectId=123 | descPreview="..." | erro=...
+[extractCnaes][FALLBACK_ERROR] projectId=123 | embedding também falhou: ...
+[extractCnaes][FALLBACK_OK]    projectId=123 | usando 5 candidatos semânticos
+[extractCnaes][FATAL]          projectId=123 | nenhum candidato disponível — re-lançando erro original
+[refineCnaes][ERROR]           projectId=123 | iter=2 | descPreview="..." | erro=...
+```
+
+---
+
 ## [5.0.0] - v2.1 Company Profile Layer - 2026-03-19
 
 ### Adicionado

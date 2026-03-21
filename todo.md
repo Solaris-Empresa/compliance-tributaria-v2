@@ -2603,3 +2603,16 @@
 - [ ] Gerar evidências: dados do banco, logs de transição, prova de retomada
 - [ ] Commit: "fix(flow): persist state + enable QA validation"
 - [ ] Checkpoint
+
+## Fix: OPENAI_API_KEY em Produção — 21/03/2026
+- [x] Identificar causa raiz: llm.ts migrado para GPT-4.1 direto sem OPENAI_API_KEY em produção
+- [x] Configurar OPENAI_API_KEY como secret no ambiente de produção
+- [x] Validar GPT-4.1 e text-embedding-3-small acessíveis
+
+## Monitoramento de Erros LLM — extractCnaes
+- [x] Adicionar logging estruturado no catch do extractCnaes (projectId, description preview, erro)
+- [x] Adicionar logging estruturado no catch do refineCnaes
+- [x] Adicionar logging no fallback de embeddings (quando LLM falha mas embeddings funcionam)
+- [x] Notificar owner via notifyOwner quando extractCnaes falha (para alertas em produção)
+- [x] Atualizar CHANGELOG.md com entrada de monitoramento LLM
+- [ ] Atualizar documentação técnica (DOCUMENTACAO-IA-GENERATIVA)
