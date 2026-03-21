@@ -75,6 +75,22 @@ async function loadEmbeddingCache(): Promise<CachedEmbedding[]> {
   }
 }
 
+/**
+ * Pré-carrega o cache de embeddings no startup do servidor.
+ * Elimina o cold start na primeira requisição do usuário após cada deploy.
+ * Seguro para chamar múltiplas vezes — ignora se já carregado e dentro do TTL.
+ */
+export async function warmUpEmbeddingCache(): Promise<{ loaded: boolean; size: number; durationMs: number }> {
+  const start = Date.now();
+  const before = getCacheStatus();
+  if (before.loaded) {
+    return { loaded: true, size: before.size, durationMs: 0 };
+  }
+  const cache = await loadEmbeddingCache();
+  const durationMs = Date.now() - start;
+  return { loaded: cache.length > 0, size: cache.length, durationMs };
+}
+
 /** Invalida o cache (útil após re-geração de embeddings) */
 export function invalidateEmbeddingCache(): void {
   embeddingCache = null;

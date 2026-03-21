@@ -303,19 +303,26 @@ Responda em JSON:
       iteration: z.number().default(1),
     }))
     .mutation(async ({ input }) => {
+      const trace = createTrace("refineCnaes");
+      trace.step("start", { projectId: input.projectId, iteration: input.iteration, feedbackLen: input.feedback.length, currentCnaesCount: input.currentCnaes.length });
+
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+      trace.step("project_loaded", { projectName: project.name });
 
       const currentList = input.currentCnaes.map(c =>
         `- ${c.code}: ${c.description} (confiança: ${c.confidence}%)`
       ).join("\n");
 
       // Embeddings semânticos: busca por similaridade de cosseno (OpenAI text-embedding-3-small)
+      trace.step("embedding_context_start", { query: `${input.description.substring(0, 60)} ${input.feedback.substring(0, 40)}` });
       const { buildSemanticCnaeContext } = await import("./cnae-embeddings");
       const ragContext = await buildSemanticCnaeContext(`${input.description} ${input.feedback}`);
+      trace.step("embedding_context_done", { contextLen: ragContext.length });
 
       let result: z.infer<typeof CnaesResponseSchema>;
       try {
+        trace.step("llm_call_start", { temperature: 0.1, iteration: input.iteration });
        result = await generateWithRetry(
         [
           {
@@ -351,10 +358,13 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         CnaesResponseSchema,
         { temperature: 0.1, context: "refineCnaes" }
       );
+        trace.step("llm_call_done", { cnaesReturned: result.cnaes.length });
       } catch (refineError) {
-        // ── Monitoramento: log estruturado do erro LLM no refineCnaes ───────
+        // ── Trace + Monitoramento: log estruturado do erro LLM no refineCnaes ───
         const errMsg = refineError instanceof Error ? refineError.message : String(refineError);
         const descPreview = input.description.substring(0, 80).replace(/\n/g, " ");
+        trace.step("llm_call_error", { error: errMsg });
+        trace.finish("error");
         console.error(
           `[refineCnaes][ERROR] projectId=${input.projectId} | iter=${input.iteration} | descPreview="${descPreview}" | erro=${errMsg}`
         );
@@ -365,17 +375,20 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
             content: `Projeto #${input.projectId} | Iteração ${input.iteration}\nFeedback: "${input.feedback.substring(0, 100)}"\nErro: ${errMsg}`,
           });
         } catch { /* best-effort */ }
-        // ────────────────────────────────────────────────────────────────────
+        // ─────────────────────────────────────────────────────────────────────────
         throw refineError;
       }
 
       // Serialização explícita: garante objetos planos para evitar [Max Depth] no Superjson/tRPC
+      trace.step("serialize_start");
       const safeRefinedCnaes = result.cnaes.map((c) => ({
         code: String(c.code ?? ""),
         description: String(c.description ?? ""),
         confidence: Number(c.confidence ?? 0),
         ...(c.justification ? { justification: String(c.justification) } : {}),
       }));
+      trace.step("serialize_done", { safeCount: safeRefinedCnaes.length });
+      trace.finish("ok");
       return { cnaes: safeRefinedCnaes, iteration: input.iteration + 1 };
     }),
 

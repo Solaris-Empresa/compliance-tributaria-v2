@@ -6,6 +6,34 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [5.6.0] — Cache Warm-up + Tracer refineCnaes + Alerta de Deploy - 2026-03-21
+
+### Adicionado
+
+**Warm-up do Cache de Embeddings no Startup** (`server/cnae-embeddings.ts`, `server/_core/index.ts`)
+
+- Nova função exportada `warmUpEmbeddingCache()`: idempotente, retorna `{ loaded, size, durationMs }`, segura para chamar múltiplas vezes.
+- Chamada via `setImmediate` durante o startup do servidor, sem bloquear o `server.listen`.
+- Elimina o cold start: os 1.332 embeddings são carregados em memória antes da primeira requisição do usuário após cada deploy.
+- Log no startup: `[startup] ✅ Cache de embeddings pré-carregado: 1332 CNAEs em Xms`.
+
+**Tracer Estruturado no `refineCnaes`** (`server/routers-fluxo-v3.ts`)
+
+- 9 etapas instrumentadas: `start`, `project_loaded`, `embedding_context_start`, `embedding_context_done`, `llm_call_start`, `llm_call_done`, `llm_call_error`, `serialize_start`, `serialize_done`, `finish`.
+- Cada etapa registra `requestId` único e latência individual em ms.
+- Agora é possível diagnosticar falhas no botão "Pedir nova análise" com precisão, identificando em qual etapa o pipeline parou.
+
+**Alerta Automático de Versão Pós-Deploy** (`server/_core/index.ts`)
+
+- Em `NODE_ENV=production`, o servidor envia notificação ao owner via `notifyOwner()` a cada restart/deploy.
+- Inclui: versão semântica, git hash, commit message, ambiente, versão do Node e timestamp ISO.
+- Facilita controle de deploy sem acesso a logs: o owner recebe confirmação imediata de qual versão está rodando.
+
+### Testes
+- 37 testes unitários passando em 914ms (tracer-version.test.ts + cnae-health-validator.test.ts).
+
+---
+
 ## [5.5.0] - Tracing Estruturado + Controle de Versão do Deploy - 2026-03-21
 
 ### Adicionado

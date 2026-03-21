@@ -2640,7 +2640,7 @@
 
 - [x] Módulo server/tracer.ts: requestId único por chamada, etapas com latência, nível de log configurável
 - [x] Integrar tracer no extractCnaes: trace de cada etapa (embedding, LLM, fallback, serialização)
-- [ ] Integrar tracer no refineCnaes: trace de cada etapa (próxima sprint)
+- [x] Integrar tracer no refineCnaes: trace de cada etapa (sprint v5.6.0)
 - [x] Endpoint GET /api/version: git hash, timestamp do build, versão semântica, ambiente
 - [x] Injetar BUILD_VERSION no processo via package.json scripts (git rev-parse --short HEAD)
 - [x] 21 testes unitários passando (tracer-version.test.ts)
@@ -2650,3 +2650,12 @@
 
 - [x] Endpoint GET /api/health/cnae/validate: executa validação on-demand sem esperar cron semanal
 - [x] Testado em dev: 4/4 casos passaram, 1332 embeddings (100%), 5.5s
+
+## Sprint v5.6.0 — Cache Warm-up, Tracer refineCnaes e Alerta de Versão
+
+- [x] Warm-up do cache de embeddings no startup do servidor (warmUpEmbeddingCache via setImmediate)
+- [x] Instrumentar refineCnaes com o tracer estruturado (9 etapas: start, project_loaded, embedding_context_start/done, llm_call_start/done/error, serialize_start/done, finish)
+- [x] Alerta automático de versão pós-deploy via notifyOwner() no startup (somente NODE_ENV=production)
+- [x] 37 testes unitários passando (tracer-version.test.ts + cnae-health-validator.test.ts)
+- [x] Health check: status=ok, cacheLoaded=true após warm-up no startup
+- [x] Atualizar CHANGELOG.md com entrada [5.6.0]

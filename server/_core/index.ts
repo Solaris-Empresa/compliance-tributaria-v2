@@ -13,6 +13,8 @@ import { initEmbeddingsScheduler } from "../embeddings-scheduler"; // Cron de re
 import { checkCnaeHealth } from "../cnae-health"; // Health check do pipeline CNAE
 import { getBuildVersionInfo } from "../build-version"; // Informações de versão do build
 import { validateCnaePipeline } from "../cnae-pipeline-validator"; // Validação on-demand do pipeline
+import { warmUpEmbeddingCache } from "../cnae-embeddings"; // Warm-up do cache de embeddings
+import { notifyOwner } from "./notification"; // Notificações ao owner
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -128,6 +130,52 @@ async function startServer() {
 
   // Inicializar cron de rebuild automático de embeddings CNAE (toda segunda-feira às 03:00)
   initEmbeddingsScheduler();
+
+  // ── Warm-up do cache de embeddings CNAE ───────────────────────────────────
+  // Elimina o cold start: carrega os 1.332 embeddings em memória durante o startup
+  // para que a primeira requisição do usuário não precise esperar o carregamento
+  setImmediate(async () => {
+    try {
+      const warmup = await warmUpEmbeddingCache();
+      if (warmup.loaded) {
+        console.log(`[startup] ✅ Cache de embeddings pré-carregado: ${warmup.size} CNAEs em ${warmup.durationMs}ms`);
+      } else {
+        console.warn("[startup] ⚠️ Cache de embeddings não carregado (banco indisponível?)");
+      }
+    } catch (err) {
+      console.error("[startup] Erro no warm-up do cache de embeddings:", err);
+    }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // ── Alerta automático de versão pós-deploy ────────────────────────────────
+  // Notifica o owner sempre que o servidor reinicia em produção,
+  // confirmando qual versão está rodando e facilitando controle de deploy
+  if (process.env.NODE_ENV === "production") {
+    setImmediate(async () => {
+      try {
+        const { getBuildVersionInfo } = await import("../build-version");
+        const info = getBuildVersionInfo();
+        await notifyOwner({
+          title: `🚀 Deploy detectado — IA Solaris v${info.version}`,
+          content: [
+            `**Versão:** ${info.version}`,
+            `**Git Hash:** ${info.gitHash}`,
+            `**Commit:** ${info.commitMessage}`,
+            `**Ambiente:** ${info.env}`,
+            `**Node:** ${info.nodeVersion}`,
+            `**Uptime:** ${new Date().toISOString()}`,
+            ``,
+            `Para verificar: \`curl https://iasolaris.manus.space/api/version\``,
+          ].join("\n"),
+        });
+        console.log(`[startup] ✅ Alerta de deploy enviado ao owner (v${info.version})`);
+      } catch (err) {
+        console.warn("[startup] Não foi possível enviar alerta de deploy:", err);
+      }
+    });
+  }
+  // ─────────────────────────────────────────────────────────────────────────
 
   // Timeout de 5 minutos para suportar chamadas LLM longas (ex: generateActionPlan com 4 áreas paralelas)
   server.timeout = 300_000; // 300s = 5 min
