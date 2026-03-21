@@ -17,7 +17,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   ArrowLeft, ArrowRight, Building2, Loader2, Plus, Sparkles, CheckCircle2,
   Edit2, AlertCircle, ChevronRight, Search, X, RefreshCw, MessageSquare,
-  Lock, ShieldAlert, ShieldCheck, ShieldX
+  Lock, ShieldAlert, ShieldCheck, ShieldX, Brain
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -204,6 +204,9 @@ export default function NovoProjeto() {
 
   // v6.0: Company Profile Intelligence — estado unificado
   const [perfilData, setPerfilData] = useState<PerfilEmpresaData>(PERFIL_VAZIO);
+  // K2: Score CPIE para gate mínimo (0 = não analisado, null = sem restrição)
+  const [cpieScore, setCpieScore] = useState<number | null>(null);
+  const CPIE_MIN_SCORE = 30; // Score mínimo para avançar
 
   // D1+D2: Consistency Gate
   const [showConsistencyGate, setShowConsistencyGate] = useState(false);
@@ -588,6 +591,7 @@ export default function NovoProjeto() {
           description={description}
           projectId={projectId ?? undefined}
           projectName={name || undefined}
+          onCpieScore={setCpieScore}
         />
 
         {/* Banner de análise IA */}
@@ -600,6 +604,22 @@ export default function NovoProjeto() {
             </p>
           </div>
         </div>
+
+        {/* K2: Gate de score CPIE mínimo */}
+        {cpieScore !== null && cpieScore < CPIE_MIN_SCORE && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700">
+            <Brain className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
+                Score CPIE insuficiente ({cpieScore}% de {CPIE_MIN_SCORE}% mínimo)
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-500 mt-1">
+                Complete mais campos do perfil da empresa para obter uma análise de compliance mais precisa.
+                O score mínimo de {CPIE_MIN_SCORE}% garante que a IA tenha dados suficientes para identificar os riscos corretamente.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Gate de validação do perfil */}
         {!profileValid && (
@@ -625,7 +645,7 @@ export default function NovoProjeto() {
 
         {/* CTA principal */}
         <div className="flex justify-end pb-4">
-          <Button size="lg" onClick={handleSubmit} disabled={isLoading || !name.trim() || descLength < 100 || !clientId || !profileValid} className="min-w-[220px]">
+          <Button size="lg" onClick={handleSubmit} disabled={isLoading || !name.trim() || descLength < 100 || !clientId || !profileValid || (cpieScore !== null && cpieScore < CPIE_MIN_SCORE)} className="min-w-[220px]">
             {isLoading ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />{createProject.isPending ? "Criando projeto..." : "Analisando CNAEs..."}</>
             ) : (

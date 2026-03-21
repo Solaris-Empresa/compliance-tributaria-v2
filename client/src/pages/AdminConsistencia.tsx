@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CpieReportExport } from "@/components/CpieReportExport";
+import { CpieBatchPanel } from "@/components/CpieBatchPanel";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -88,6 +89,22 @@ export default function AdminConsistencia() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<ConsistencyStatus | "all">("all");
   const [selectedProject, setSelectedProject] = useState<ProjectWithConsistency | null>(null);
+  const [showBatchPanel, setShowBatchPanel] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+
+  const generateMonthlyReport = trpc.cpie.generateMonthlyReport.useMutation({
+    onSuccess: (data) => {
+      setIsGeneratingReport(false);
+      // Abrir relatório em nova aba
+      const win = window.open("", "_blank");
+      if (win) {
+        win.document.write(data.html);
+        win.document.close();
+        setTimeout(() => win.print(), 500);
+      }
+    },
+    onError: () => setIsGeneratingReport(false),
+  });
 
   // Buscar projetos com dados de consistência
   const { data: projects, isLoading, refetch } = trpc.projects.list.useQuery();
@@ -156,7 +173,30 @@ export default function AdminConsistencia() {
               Monitore o status de consistência e o score CPIE de todos os projetos.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* K1: Análise em lote */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => setShowBatchPanel(!showBatchPanel)}
+            >
+              <Brain className="h-4 w-4" />{showBatchPanel ? 'Ocultar Lote' : 'Analisar em Lote'}
+            </Button>
+            {/* K3: Relatório mensal */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              disabled={isGeneratingReport || generateMonthlyReport.isPending}
+              onClick={() => {
+                setIsGeneratingReport(true);
+                generateMonthlyReport.mutate({});
+              }}
+            >
+              <TrendingUp className="h-4 w-4" />
+              {generateMonthlyReport.isPending ? 'Gerando...' : 'Relatório Mensal'}
+            </Button>
             {/* J3: Exportar CSV consolidado */}
             <Button
               variant="outline"
@@ -210,6 +250,14 @@ export default function AdminConsistencia() {
             </Card>
           ))}
         </div>
+
+        {/* K1: Painel de análise em lote (colapsável) */}
+        {showBatchPanel && (
+          <CpieBatchPanel
+            pendingCount={stats.pending}
+            onComplete={() => refetch()}
+          />
+        )}
 
         {/* Filtros */}
         <div className="flex flex-col sm:flex-row gap-3">

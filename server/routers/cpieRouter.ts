@@ -431,6 +431,206 @@ export const cpieRouter = router({
     }),
 
   /**
+   * K1: Análise CPIE em lote — processa projetos sem análise ou com score 0.
+   * Retorna um stream de progresso via polling (limite de 20 por vez).
+   */
+  batchAnalyze: protectedProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(50).default(20),
+      onlyZeroScore: z.boolean().default(true),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      // Buscar projetos do usuário sem análise CPIE ou com score 0
+      const allProjects = await db.getProjectsByUser(ctx.user.id, ctx.user.role);
+      const pending = allProjects
+        .filter((p: any) => {
+          if (input.onlyZeroScore) {
+            return !p.profileCompleteness || p.profileCompleteness === 0;
+          }
+          return !p.profileIntelligenceData;
+        })
+        .slice(0, input.limit);
+
+      if (pending.length === 0) {
+        return { processed: 0, skipped: 0, errors: 0, results: [] };
+      }
+
+      const results: Array<{ projectId: number; name: string; score: number; status: "ok" | "error" }> = [];
+      let errors = 0;
+
+      for (const project of pending) {
+        try {
+          const p = project as any;
+          // Montar perfil a partir dos dados salvos
+          const profileInput: CpieProfileInput = {
+            cnpj: p.cnpj ?? undefined,
+            companyType: p.companyType ?? undefined,
+            companySize: p.companySize ?? undefined,
+            annualRevenueRange: p.annualRevenueRange ?? undefined,
+            taxRegime: p.taxRegime ?? undefined,
+            operationType: p.operationType ?? undefined,
+            clientType: Array.isArray(p.clientType) ? p.clientType : [],
+            multiState: p.multiState ?? null,
+            hasMultipleEstablishments: p.hasMultipleEstablishments ?? null,
+            hasImportExport: p.hasImportExport ?? null,
+            hasSpecialRegimes: p.hasSpecialRegimes ?? null,
+            paymentMethods: Array.isArray(p.paymentMethods) ? p.paymentMethods : [],
+            hasIntermediaries: p.hasIntermediaries ?? null,
+            hasTaxTeam: p.hasTaxTeam ?? null,
+            hasAudit: p.hasAudit ?? null,
+            hasTaxIssues: p.hasTaxIssues ?? null,
+            description: p.description ?? undefined,
+          };
+
+          // Score determinístico (sem IA, rápido)
+          const dimensions = calcDimensionScores(profileInput);
+          const overallScore = calcOverallScore(dimensions);
+
+          // Salvar no projeto
+          const drizzle = await getDb();
+          if (drizzle) {
+            const { projects } = await import("../../drizzle/schema");
+            await drizzle
+              .update(projects)
+              .set({
+                profileCompleteness: overallScore,
+                profileLastAnalyzedAt: new Date(),
+              })
+              .where(eq(projects.id, p.id));
+          }
+
+          results.push({ projectId: p.id, name: p.name, score: overallScore, status: "ok" });
+        } catch (err) {
+          errors++;
+          results.push({ projectId: (project as any).id, name: (project as any).name, score: 0, status: "error" });
+        }
+      }
+
+      return {
+        processed: results.filter(r => r.status === "ok").length,
+        skipped: allProjects.length - pending.length,
+        errors,
+        results,
+      };
+    }),
+
+  /**
+   * K3: Gera relatório executivo mensal com dados agregados de consistência e CPIE.
+   */
+  generateMonthlyReport: protectedProcedure
+    .input(z.object({
+      month: z.number().min(1).max(12).optional(), // default: mês atual
+      year: z.number().min(2024).max(2030).optional(), // default: ano atual
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const now = new Date();
+      const month = input.month ?? (now.getMonth() + 1);
+      const year = input.year ?? now.getFullYear();
+      const monthName = new Date(year, month - 1, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+
+      const allProjects = await db.getProjectsByUser(ctx.user.id, ctx.user.role);
+      const total = allProjects.length;
+      const withScore = allProjects.filter((p: any) => p.profileCompleteness && p.profileCompleteness > 0);
+      const avgScore = withScore.length > 0
+        ? Math.round(withScore.reduce((sum: number, p: any) => sum + (p.profileCompleteness || 0), 0) / withScore.length)
+        : 0;
+      const highRisk = allProjects.filter((p: any) => p.consistencyStatus === "warning" || p.consistencyStatus === "blocked");
+      const lowScore = allProjects.filter((p: any) => (p.profileCompleteness ?? 0) < 50);
+      const excellent = allProjects.filter((p: any) => (p.profileCompleteness ?? 0) >= 80);
+
+      const reportDate = now.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+
+      const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Relatório Executivo Mensal — ${monthName}</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; margin: 0; padding: 32px; background: #fff; max-width: 900px; }
+    h1 { color: #0f3460; font-size: 24px; border-bottom: 3px solid #0f3460; padding-bottom: 10px; }
+    h2 { color: #16213e; font-size: 17px; margin-top: 28px; border-left: 4px solid #0f3460; padding-left: 10px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 20px 0; }
+    .kpi { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+    .kpi .value { font-size: 32px; font-weight: 700; color: #0f3460; }
+    .kpi .label { font-size: 12px; color: #64748b; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+    th { background: #0f3460; color: #fff; padding: 8px 12px; text-align: left; }
+    td { padding: 8px 12px; border-bottom: 1px solid #e2e8f0; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .badge-ok { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+    .badge-risk { background: #fef9c3; color: #854d0e; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+    .badge-low { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+    .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <h1>📊 Relatório Executivo de Compliance Tributário</h1>
+  <p style="color:#64748b;font-size:14px;">Período: <strong>${monthName}</strong> &nbsp;|&nbsp; Gerado em: ${reportDate} &nbsp;|&nbsp; Plataforma IA SOLARIS</p>
+
+  <h2>Indicadores Gerais</h2>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="value">${total}</div><div class="label">Total de Projetos</div></div>
+    <div class="kpi"><div class="value">${avgScore}%</div><div class="label">Score Médio CPIE</div></div>
+    <div class="kpi"><div class="value">${highRisk.length}</div><div class="label">Projetos com Risco</div></div>
+    <div class="kpi"><div class="value">${excellent.length}</div><div class="label">Score Excelente (≥80%)</div></div>
+  </div>
+
+  <h2>Projetos com Risco de Consistência</h2>
+  ${highRisk.length === 0 ? '<p style="color:#16a34a;">Nenhum projeto com risco de consistência no período.</p>' : `
+  <table>
+    <thead><tr><th>Projeto</th><th>Status</th><th>Score CPIE</th><th>Justificativa</th></tr></thead>
+    <tbody>
+      ${highRisk.map((p: any) => `
+        <tr>
+          <td>${p.name}</td>
+          <td><span class="badge-risk">${p.consistencyStatus === 'warning' ? 'Risco Aceito' : 'Bloqueado'}</span></td>
+          <td>${p.profileCompleteness ?? 0}%</td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.consistencyAcceptedRiskReason ?? '—'}</td>
+        </tr>`).join('')}
+    </tbody>
+  </table>`}
+
+  <h2>Projetos com Score Baixo (&lt; 50%)</h2>
+  ${lowScore.length === 0 ? '<p style="color:#16a34a;">Todos os projetos com score adequado.</p>' : `
+  <table>
+    <thead><tr><th>Projeto</th><th>Score CPIE</th><th>Status</th></tr></thead>
+    <tbody>
+      ${lowScore.slice(0, 10).map((p: any) => `
+        <tr>
+          <td>${p.name}</td>
+          <td><span class="badge-low">${p.profileCompleteness ?? 0}%</span></td>
+          <td>${p.status ?? 'rascunho'}</td>
+        </tr>`).join('')}
+      ${lowScore.length > 10 ? `<tr><td colspan="3" style="color:#64748b;font-style:italic;">... e mais ${lowScore.length - 10} projetos</td></tr>` : ''}
+    </tbody>
+  </table>`}
+
+  <div class="footer">
+    Relatório gerado automaticamente pela Plataforma IA SOLARIS &mdash; Compliance Tributário &mdash; Reforma Tributária 2024-2033
+  </div>
+</body>
+</html>`;
+
+      // Notificar owner
+      try {
+        const { notifyOwner } = await import("../_core/notification");
+        await notifyOwner({
+          title: `📊 Relatório Executivo Mensal Gerado — ${monthName}`,
+          content: [
+            `**Período:** ${monthName}`,
+            `**Total de projetos:** ${total}`,
+            `**Score médio CPIE:** ${avgScore}%`,
+            `**Projetos com risco:** ${highRisk.length}`,
+            `**Projetos com score baixo:** ${lowScore.length}`,
+            `**Gerado por:** ${ctx.user.name || ctx.user.email}`,
+          ].join("\n"),
+        });
+      } catch { /* não bloquear */ }
+
+      return { html, month, year, monthName, stats: { total, avgScore, highRisk: highRisk.length, lowScore: lowScore.length, excellent: excellent.length } };
+    }),
+
+  /**
    * Score determinístico por dimensão — sem IA, instantâneo.
    * Usado para atualizar o painel de score em tempo real sem chamar a IA.
    */

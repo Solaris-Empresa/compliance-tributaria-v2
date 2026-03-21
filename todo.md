@@ -2792,3 +2792,22 @@
 - [x] Transferir repositório de utapajos para Solaris-Empresa via API GitHub
 - [x] Atualizar remote github no projeto local
 - [x] Push dos commits Sprint I para Solaris-Empresa/compliance-tributaria-v2
+
+## Sprint K — Análise em Lote, Score Mínimo e Relatório Executivo
+
+### K1 — Análise CPIE em lote
+- [x] Criar procedure `cpie.batchAnalyze` (score determinístico para até 50 projetos por vez)
+- [x] Criar componente `CpieBatchPanel.tsx` com KPIs, controle de limite e detalhes colapsáveis
+- [x] Botão "Analisar em Lote" no header do AdminConsistência (toggle colapsável)
+
+### K2 — Score mínimo obrigatório no NovoProjeto
+- [x] Adicionar prop `onCpieScore` ao PerfilEmpresaIntelligente
+- [x] Estado `cpieScore` no NovoProjeto com gate de 30% mínimo
+- [x] Banner amber explicativo quando score < 30% após análise
+- [x] Botão "Avançar" bloqueado quando score CPIE < 30%
+
+### K3 — Relatório executivo mensal
+- [x] Criar procedure `cpie.generateMonthlyReport` com dados agregados (total, score médio, riscos, críticos)
+- [x] HTML formatado com KPIs, tabelas de risco e projetos com score baixo
+- [x] Botão "Relatório Mensal" no AdminConsistência (abre em nova aba + print dialog)
+- [x] Notifica owner via notifyOwner ao gerar o relatório
