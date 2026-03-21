@@ -2669,3 +2669,33 @@
 - [ ] Criar docs/API-HEALTH.md com documentação dos endpoints de saúde
 - [ ] Criar docs/TRACING.md com guia de uso do tracer estruturado
 - [ ] Criar docs/DEPLOY-GUIDE.md com checklist de deploy e controle de versão
+
+## Sprint v6.0 — Company Profile Intelligence + UX Redesign (APROVADA 21/03/2026)
+
+### Checkpoint 1 — Baseline (A1 + A2)
+- [ ] A1: Fechar issue #29 no GitHub (governança concluída)
+- [ ] A2: Criar docs/sprints/v6.0-baseline.md com estado atual do código
+
+### Checkpoint 2 — Schema + UX Redesign (E1 + B1 + B2 + B3)
+- [ ] E1: Atualizar drizzle/schema.ts com 16 novos campos de profile intelligence + pnpm db:push
+- [ ] B1: Redesenhar arquitetura visual da etapa Perfil da Empresa (cabeçalho inteligente, cards, score)
+- [ ] B2: Substituir campos puros por componentes inteligentes (cards, sliders, chips, toggles)
+- [ ] B3: Criar microcopy inteligente (tabela antes/depois, CTA = Avançar)
+
+### Checkpoint 3 — IA Ativa (C1 + C2 + C3 + C4)
+- [ ] C1: Implementar CPIE em server/cpie.ts (4 submotores: determinístico, semântico, perguntas, score)
+- [ ] C2: Implementar perguntas dinâmicas geradas por IA
+- [ ] C3: Implementar sugestões de correção assistida por IA
+- [ ] C4: Implementar score explicável do perfil (completude + confiança, 4 faixas)
+
+### Checkpoint 4 — Gate + Persistência (D1 + D2 + E2)
+- [ ] D1: Integrar Consistency Gate ao fluxo principal (NovoProjeto.tsx, antes do extractCnaes)
+- [ ] D2: Implementar política de bloqueio e ressalva (critical/high/medium/low)
+- [ ] E2: Persistir interação IA e retomada exata (reidratação de estado)
+
+### Checkpoint 5 — QA + Docs (F1 + G1 + G2 + G4 + G3)
+- [ ] F1: Criar aba "Consistência e Inteligência do Perfil" no ProjetoDetalhesV2
+- [ ] G1: 25+ testes unitários do CPIE
+- [ ] G2: Teste funcional end-to-end do fluxo completo
+- [ ] G4: Atualizar documentação oficial (architecture, ux, qa, changelog, super-prompt)
+- [ ] G3: QA humano do Uires (decisão final do P.O.)
