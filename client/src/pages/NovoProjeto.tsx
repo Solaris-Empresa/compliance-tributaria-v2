@@ -9,6 +9,7 @@ import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -17,7 +18,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   ArrowLeft, ArrowRight, Building2, Loader2, Plus, Sparkles, CheckCircle2,
   Edit2, AlertCircle, ChevronRight, Search, X, RefreshCw, MessageSquare,
-  Lock, ShieldAlert, ShieldCheck, ShieldX, Brain
+  Lock, ShieldAlert, ShieldCheck, ShieldX, Brain, Info, AlertTriangle
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -206,7 +207,10 @@ export default function NovoProjeto() {
   const [perfilData, setPerfilData] = useState<PerfilEmpresaData>(PERFIL_VAZIO);
   // K2: Score CPIE para gate mínimo (0 = não analisado, null = sem restrição)
   const [cpieScore, setCpieScore] = useState<number | null>(null);
-  const CPIE_MIN_SCORE = 30; // Score mínimo para avançar
+  const [cpieDimensions, setCpieDimensions] = useState<Array<{ name: string; score: number; weight: number; explanation: string; fieldsEvaluated: string[] }>>([]);
+  const [cpieOverrideMode, setCpieOverrideMode] = useState(false);
+  const [cpieOverrideReason, setCpieOverrideReason] = useState("");
+  const CPIE_MIN_SCORE = 30; // Score mínimo para avançar (configurável via AdminConsistência)
 
   // D1+D2: Consistency Gate
   const [showConsistencyGate, setShowConsistencyGate] = useState(false);
@@ -591,7 +595,13 @@ export default function NovoProjeto() {
           description={description}
           projectId={projectId ?? undefined}
           projectName={name || undefined}
-          onCpieScore={setCpieScore}
+          onCpieScore={({ score, dimensions }) => {
+            setCpieScore(score);
+            setCpieDimensions(dimensions);
+            // Resetar override ao receber nova análise
+            setCpieOverrideMode(false);
+            setCpieOverrideReason("");
+          }}
         />
 
         {/* Banner de análise IA */}
@@ -605,18 +615,100 @@ export default function NovoProjeto() {
           </div>
         </div>
 
-        {/* K2: Gate de score CPIE mínimo */}
-        {cpieScore !== null && cpieScore < CPIE_MIN_SCORE && (
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700">
-            <Brain className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
-                Score CPIE insuficiente ({cpieScore}% de {CPIE_MIN_SCORE}% mínimo)
-              </p>
-              <p className="text-xs text-amber-700 dark:text-amber-500 mt-1">
-                Complete mais campos do perfil da empresa para obter uma análise de compliance mais precisa.
-                O score mínimo de {CPIE_MIN_SCORE}% garante que a IA tenha dados suficientes para identificar os riscos corretamente.
-              </p>
+        {/* K2: Gate de score CPIE mínimo — M2: tooltip de dimensões + override com justificativa */}
+        {cpieScore !== null && cpieScore < CPIE_MIN_SCORE && !cpieOverrideMode && (
+          <div className="space-y-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700">
+            <div className="flex items-start gap-3">
+              <Brain className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
+                  Score CPIE insuficiente ({cpieScore}% de {CPIE_MIN_SCORE}% mínimo)
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-500 mt-1">
+                  Complete mais campos do perfil da empresa para obter uma análise de compliance mais precisa.
+                  O score mínimo de {CPIE_MIN_SCORE}% garante que a IA tenha dados suficientes para identificar os riscos corretamente.
+                </p>
+              </div>
+            </div>
+            {/* Dimensões abaixo do threshold */}
+            {cpieDimensions.filter(d => d.score < CPIE_MIN_SCORE).length > 0 && (
+              <div className="pl-8 space-y-1.5">
+                <p className="text-xs font-medium text-amber-700 dark:text-amber-400">Dimensões que precisam de atenção:</p>
+                {cpieDimensions.filter(d => d.score < CPIE_MIN_SCORE).map(dim => (
+                  <div key={dim.name} className="flex items-center gap-2">
+                    <div className="w-24 h-1.5 rounded-full bg-amber-200 dark:bg-amber-800 overflow-hidden">
+                      <div className="h-full bg-amber-500" style={{ width: `${dim.score}%` }} />
+                    </div>
+                    <span className="text-xs text-amber-700 dark:text-amber-400">{dim.name} — {dim.score}%</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3 w-3 text-amber-500 cursor-help shrink-0" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          <p className="font-medium mb-1">{dim.explanation}</p>
+                          {dim.fieldsEvaluated.length > 0 && (
+                            <p className="text-muted-foreground">Campos: {dim.fieldsEvaluated.join(", ")}</p>
+                          )}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Override com justificativa */}
+            <div className="pl-8">
+              <button
+                type="button"
+                onClick={() => setCpieOverrideMode(true)}
+                className="text-xs text-amber-600 dark:text-amber-400 underline underline-offset-2 hover:text-amber-800"
+              >
+                Avançar mesmo assim com justificativa
+              </button>
+            </div>
+          </div>
+        )}
+        {/* K2 Override: justificativa para avançar com score baixo */}
+        {cpieScore !== null && cpieScore < CPIE_MIN_SCORE && cpieOverrideMode && (
+          <div className="space-y-3 p-4 rounded-xl bg-orange-50 dark:bg-orange-900/10 border-2 border-orange-400 dark:border-orange-600">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-orange-600 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-orange-800 dark:text-orange-400">
+                  Avançando com score CPIE baixo ({cpieScore}%)
+                </p>
+                <p className="text-xs text-orange-700 dark:text-orange-500 mt-1">
+                  Informe a justificativa para prosseguir sem atingir o score mínimo de {CPIE_MIN_SCORE}%.
+                  Esta decisão será registrada no histórico do projeto.
+                </p>
+              </div>
+            </div>
+            <div className="pl-8 space-y-2">
+              <textarea
+                value={cpieOverrideReason}
+                onChange={e => setCpieOverrideReason(e.target.value)}
+                placeholder="Ex: Cliente urgente, perfil será complementado após onboarding..."
+                className="w-full text-xs rounded-lg border border-orange-300 dark:border-orange-600 bg-white dark:bg-orange-950/20 p-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-orange-400"
+                rows={2}
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setCpieOverrideMode(false); setCpieOverrideReason(""); }}
+                  className="text-xs px-3 py-1.5 rounded-lg border border-orange-300 text-orange-700 hover:bg-orange-100"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { if (!cpieOverrideReason.trim()) { toast.warning("Informe a justificativa para continuar."); return; } }}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50"
+                  disabled={!cpieOverrideReason.trim()}
+                >
+                  Confirmar justificativa
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -645,7 +737,7 @@ export default function NovoProjeto() {
 
         {/* CTA principal */}
         <div className="flex justify-end pb-4">
-          <Button size="lg" onClick={handleSubmit} disabled={isLoading || !name.trim() || descLength < 100 || !clientId || !profileValid || (cpieScore !== null && cpieScore < CPIE_MIN_SCORE)} className="min-w-[220px]">
+          <Button size="lg" onClick={handleSubmit} disabled={isLoading || !name.trim() || descLength < 100 || !clientId || !profileValid || (cpieScore !== null && cpieScore < CPIE_MIN_SCORE && !(cpieOverrideMode && cpieOverrideReason.trim().length >= 10))} className="min-w-[220px]">
             {isLoading ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />{createProject.isPending ? "Criando projeto..." : "Analisando CNAEs..."}</>
             ) : (

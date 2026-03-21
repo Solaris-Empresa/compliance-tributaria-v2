@@ -539,7 +539,7 @@ interface PerfilEmpresaIntelligenteProps {
   /** Nome do projeto para o relatório CPIE (H3) */
   projectName?: string;
   /** K2: Callback chamado quando o score CPIE é calculado/atualizado */
-  onCpieScore?: (score: number) => void;
+  onCpieScore?: (data: { score: number; dimensions: ScoreDimension[] }) => void;
 }
 
 export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description, projectId, projectName, onCpieScore }: PerfilEmpresaIntelligenteProps) {
@@ -588,8 +588,8 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       setCpieResult(result);
       setRestoredFromDb(false);
       toast.success("Análise IA concluída! Veja as sugestões no painel.");
-      // K2: Notificar o pai do score CPIE
-      onCpieScore?.(result.overallScore);
+      // K2: Notificar o pai do score CPIE com score e dimensões
+      onCpieScore?.({ score: result.overallScore, dimensions: result.dimensions ?? [] });
 
       // I1: Salvar no histórico se houver projectId
       if (projectId) {

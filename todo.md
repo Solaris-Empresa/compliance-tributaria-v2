@@ -2834,3 +2834,24 @@
 - [x] Emitir `cpie:batch:progress` e `cpie:batch:done` via `notifyUser` no batchAnalyze
 - [x] `CpieBatchPanel.tsx` reescrito com Socket.IO client e barra de progresso animada
 - [x] Indicador de conexão WebSocket (Wifi/WifiOff) no header do painel
+
+## Sprint M — GitHub Project, UX CPIE, Testes E2E
+
+### M1 — GitHub Project vinculado ao compliance-tributaria-v2
+- [x] Criar GitHub Project v2 "Compliance Tributária — Sprint Board" na organização Solaris-Empresa via GraphQL API
+- [x] Criar Issues para cada sprint (v6.0 → L) com labels e status
+- [x] Vincular o repositório compliance-tributaria-v2 ao novo Project
+
+### M2 — Melhorias de UX no fluxo CPIE
+- [x] Tooltip de dimensões no banner K2 com barra de progresso mini e explicação por dimensão
+- [x] Override com justificativa no gate K2 (mínimo 10 chars) — botão Avançar desbloqueado
+- [x] Prop `onCpieScore` atualizada para passar objeto `{ score, dimensions }` ao NovoProjeto
+
+### M3 — Testes de integração end-to-end
+- [x] Criar `server/e2e-flow.test.ts` com 5 suites e 23 testes
+- [x] Suite 1: Fluxo CPIE completo (7 testes) — calcDimensionScores, calcOverallScore, gate K2
+- [x] Suite 2: Gate K2 (5 testes) — threshold dinâmico, override, dimensões críticas
+- [x] Suite 3: Consistency Gate (3 testes) — aggregateFindings, overallLevel, canProceed
+- [x] Suite 4: Relatório mensal (4 testes) — generateMonthlyReportHtml, stats, HTML
+- [x] Suite 5: Batch analyze (4 testes) — múltiplos perfis, scores válidos
+- [x] 62/62 testes passando (19 CPIE + 20 Consistency + 23 E2E)
