@@ -232,7 +232,15 @@ Responda em JSON:
         };
       }
 
-      return { cnaes: result.cnaes };
+      // Serialização explícita: garante objetos planos para evitar [Max Depth] no Superjson/tRPC
+      // O objeto retornado pelo Zod .parse() pode ter propriedades não-enumeráveis
+      const safeCnaes = result.cnaes.map((c) => ({
+        code: String(c.code ?? ""),
+        description: String(c.description ?? ""),
+        confidence: Number(c.confidence ?? 0),
+        ...(c.justification ? { justification: String(c.justification) } : {}),
+      }));
+      return { cnaes: safeCnaes };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -313,7 +321,14 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         throw refineError;
       }
 
-      return { cnaes: result.cnaes, iteration: input.iteration + 1 };
+      // Serialização explícita: garante objetos planos para evitar [Max Depth] no Superjson/tRPC
+      const safeRefinedCnaes = result.cnaes.map((c) => ({
+        code: String(c.code ?? ""),
+        description: String(c.description ?? ""),
+        confidence: Number(c.confidence ?? 0),
+        ...(c.justification ? { justification: String(c.justification) } : {}),
+      }));
+      return { cnaes: safeRefinedCnaes, iteration: input.iteration + 1 };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
