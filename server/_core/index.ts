@@ -11,6 +11,7 @@ import { initializeWebSocket } from "./websocket";
 import "./deadline-checker"; // Inicializar verificador de prazos
 import { initEmbeddingsScheduler } from "../embeddings-scheduler"; // Cron de rebuild de embeddings CNAE
 import { checkCnaeHealth } from "../cnae-health"; // Health check do pipeline CNAE
+import { getBuildVersionInfo } from "../build-version"; // Informações de versão do build
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -53,6 +54,21 @@ async function startServer() {
         checkedAt: new Date().toISOString(),
         status: "down",
         summary: `Erro interno no health check: ${err instanceof Error ? err.message : String(err)}`,
+      });
+    }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // ── Versão do build e controle de deploy ───────────────────────────────
+  // GET /api/version — retorna git hash, timestamp do build e versão semântica
+  // Permite confirmar que o deploy em produção está rodando o código correto
+  app.get("/api/version", (_req, res) => {
+    try {
+      const info = getBuildVersionInfo();
+      res.status(200).json(info);
+    } catch (err) {
+      res.status(500).json({
+        error: `Erro ao obter versão: ${err instanceof Error ? err.message : String(err)}`,
       });
     }
   });

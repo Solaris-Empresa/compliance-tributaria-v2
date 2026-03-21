@@ -2635,3 +2635,13 @@
 - [x] notifyOwner com resultado do teste semanal (sucesso/falha + CNAEs encontrados)
 - [x] 16 testes unitários passando (cnae-health-validator.test.ts)
 - [x] Atualizar CHANGELOG.md com entrada [5.4.0]
+
+## Sprint v5.5.0 — Tracing Detalhado + Controle de Versão do Deploy
+
+- [x] Módulo server/tracer.ts: requestId único por chamada, etapas com latência, nível de log configurável
+- [x] Integrar tracer no extractCnaes: trace de cada etapa (embedding, LLM, fallback, serialização)
+- [ ] Integrar tracer no refineCnaes: trace de cada etapa (próxima sprint)
+- [x] Endpoint GET /api/version: git hash, timestamp do build, versão semântica, ambiente
+- [x] Injetar BUILD_VERSION no processo via package.json scripts (git rev-parse --short HEAD)
+- [x] 21 testes unitários passando (tracer-version.test.ts)
+- [x] Atualizar CHANGELOG.md com entrada [5.5.0]

@@ -11,6 +11,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import * as db from "./db";
+import { createTrace } from "./tracer";
 import { projects, questionnaireAnswersV3, questionnaireProgressV3, questionnaireQuestionsCache } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
@@ -112,12 +113,23 @@ export const fluxoV3Router = router({
       projectId: z.number(),
       description: z.string().min(1),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      // ── TRACE: inicializa rastreamento detalhado por requisição ─────────────────────────
+      const trace = createTrace("extractCnaes", {
+        projectId: input.projectId,
+        userId: ctx.user?.id,
+        descLen: input.description.length,
+        descPreview: input.description.substring(0, 80).replace(/\n/g, " "),
+      });
+
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+      if (!project) {
+        trace.error("Projeto não encontrado", { projectId: input.projectId });
+        throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+      }
+      trace.step("project_loaded", { projectName: (project as any).name });
 
       // Embeddings semânticos: busca por similaridade de cosseno (OpenAI text-embedding-3-small)
-      // Substitui o RAG por tokens — sem hard-code, precisão ~98%
       const { buildSemanticCnaeContext } = await import("./cnae-embeddings");
       // v2.1: Enriquecer busca semântica com dados do Company Profile (se disponível)
       const projectAny = project as any;
@@ -127,10 +139,26 @@ export const fluxoV3Router = router({
         clientType: projectAny.operationProfile?.clientType,
         annualRevenueRange: projectAny.companyProfile?.annualRevenueRange,
       } : undefined;
-      const ragContext = await buildSemanticCnaeContext(input.description, 20, companyContext);
+
+      trace.step("embedding_context_start", { hasCompanyProfile: !!companyContext });
+      let ragContext: string;
+      try {
+        ragContext = await buildSemanticCnaeContext(input.description, 20, companyContext);
+        trace.step("embedding_context_done", {
+          ragContextLen: ragContext.length,
+          ragContextLines: ragContext.split("\n").length,
+        });
+      } catch (embCtxErr) {
+        const embCtxMsg = embCtxErr instanceof Error ? embCtxErr.message : String(embCtxErr);
+        trace.error(`buildSemanticCnaeContext falhou: ${embCtxMsg}`);
+        // Se o contexto RAG falhar completamente, usa string vazia (LLM terá menos contexto)
+        ragContext = "";
+        trace.step("embedding_context_failed_using_empty", { error: embCtxMsg });
+      }
 
       let result: z.infer<typeof CnaesResponseSchema>;
       try {
+        trace.step("llm_call_start", { model: "gpt-4.1", temperature: 0.1, timeoutMs: 25000 });
         result = await generateWithRetry(
           [
             {
@@ -172,75 +200,95 @@ Responda em JSON:
           {
             temperature: 0.1,
             context: "extractCnaes",
-            // Timeout de 25s: GPT-4.1 responde em <5s normalmente;
-            // acima disso o fallback semântico garante sugestões ao usuário
             timeoutMs: 25_000,
-            maxRetries: 1, // Uma única tentativa — se falhar, fallback semântico imediato
+            maxRetries: 1,
           }
         );
+        trace.step("llm_call_done", { cnaesCount: result.cnaes.length });
       } catch (aiError) {
-        // ── Monitoramento: log estruturado do erro LLM ──────────────────
         const errMsg = aiError instanceof Error ? aiError.message : String(aiError);
         const isTimeout = errMsg.toLowerCase().includes("timed out") ||
           errMsg.toLowerCase().includes("timeout") ||
           errMsg.toLowerCase().includes("abort");
         const descPreview = input.description.substring(0, 120).replace(/\n/g, " ");
-        console.error(
-          `[extractCnaes][${isTimeout ? "TIMEOUT" : "ERROR"}] projectId=${input.projectId} | descPreview="${descPreview}" | erro=${errMsg}`
+
+        // Trace detalhado do erro LLM
+        trace.step(isTimeout ? "llm_timeout" : "llm_error", {
+          error: errMsg,
+          isTimeout,
+          ragContextEmpty: ragContext.length === 0,
+        });
+        trace.error(
+          `[${isTimeout ? "TIMEOUT" : "ERROR"}] ${errMsg}`,
+          { descPreview, ragContextLen: ragContext.length }
         );
-        // Notificar owner em produção para alertas imediatos
+
+        // Log legado mantido para compatibilidade com grep existente
+        console.error(
+          `[extractCnaes][${isTimeout ? "TIMEOUT" : "ERROR"}] projectId=${input.projectId} | requestId=${trace.requestId} | descPreview="${descPreview}" | ragContextLen=${ragContext.length} | erro=${errMsg}`
+        );
+
+        // Notificar owner em produção
         try {
           const { notifyOwner } = await import("./_core/notification");
           await notifyOwner({
             title: isTimeout
               ? "⏱️ extractCnaes — Timeout (>25s) — fallback ativado"
               : "⚠️ extractCnaes falhou — fallback ativado",
-            content: `Projeto #${input.projectId}\nDescrição: "${descPreview}"\nErro: ${errMsg}`,
+            content: `Projeto #${input.projectId} | requestId=${trace.requestId}\nDescrição: "${descPreview}"\nRAG context len: ${ragContext.length}\nErro: ${errMsg}`,
           });
         } catch { /* notificação é best-effort */ }
-        // ────────────────────────────────────────────────────────────────────
 
-        // Fallback: usar os top-5 candidatos por similaridade semântica quando a IA falha
-        // Isso garante que o usuário sempre veja sugestões para confirmar/editar
+        // Fallback: usar os top-5 candidatos por similaridade semântica
+        trace.step("fallback_start");
         const { findSimilarCnaes, getFallbackCandidates } = await import("./cnae-embeddings");
         let candidates;
         try {
           candidates = await findSimilarCnaes(input.description, 5);
+          trace.step("fallback_embedding_done", { candidatesCount: candidates.length });
         } catch (embeddingError) {
           const embErrMsg = embeddingError instanceof Error ? embeddingError.message : String(embeddingError);
+          trace.step("fallback_embedding_error", { error: embErrMsg });
           console.error(
-            `[extractCnaes][FALLBACK_ERROR] projectId=${input.projectId} | embedding também falhou: ${embErrMsg}`
+            `[extractCnaes][FALLBACK_ERROR] projectId=${input.projectId} | requestId=${trace.requestId} | embedding também falhou: ${embErrMsg}`
           );
           candidates = getFallbackCandidates(5);
+          trace.step("fallback_hardcoded", { candidatesCount: candidates.length });
         }
         if (candidates.length === 0) {
+          trace.error("FATAL: nenhum candidato disponível");
           console.error(
-            `[extractCnaes][FATAL] projectId=${input.projectId} | nenhum candidato disponível — re-lançando erro original`
+            `[extractCnaes][FATAL] projectId=${input.projectId} | requestId=${trace.requestId} | nenhum candidato disponível — re-lançando erro original`
           );
-          throw aiError; // Re-lança se nem o fallback encontrou candidatos
+          throw aiError;
         }
         console.warn(
-          `[extractCnaes][FALLBACK_OK] projectId=${input.projectId} | usando ${candidates.length} candidatos semânticos`
+          `[extractCnaes][FALLBACK_OK] projectId=${input.projectId} | requestId=${trace.requestId} | usando ${candidates.length} candidatos semânticos`
         );
         result = {
           cnaes: candidates.map((c, i) => ({
             code: c.code,
             description: c.description,
-            confidence: Math.max(40, 70 - i * 8), // 70%, 62%, 54%, 46%, 40%
+            confidence: Math.max(40, 70 - i * 8),
             justification: "Sugerido com base na similaridade semântica da descrição do negócio.",
           })),
         };
       }
 
-      // Serialização explícita: garante objetos planos para evitar [Max Depth] no Superjson/tRPC
-      // O objeto retornado pelo Zod .parse() pode ter propriedades não-enumeráveis
+      // Serialização explícita
       const safeCnaes = result.cnaes.map((c) => ({
         code: String(c.code ?? ""),
         description: String(c.description ?? ""),
         confidence: Number(c.confidence ?? 0),
         ...(c.justification ? { justification: String(c.justification) } : {}),
       }));
-      return { cnaes: safeCnaes };
+
+      trace.finish("ok", {
+        cnaesReturned: safeCnaes.length,
+        isFallback: safeCnaes[0]?.justification?.includes("similaridade semântica") ?? false,
+      });
+
+      return { cnaes: safeCnaes, requestId: trace.requestId };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────

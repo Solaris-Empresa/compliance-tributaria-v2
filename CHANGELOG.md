@@ -6,6 +6,36 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [5.5.0] - Tracing Estruturado + Controle de Versão do Deploy - 2026-03-21
+
+### Adicionado
+
+**Tracing Estruturado por Requisição** (`server/tracer.ts`, `server/routers-fluxo-v3.ts`)
+
+- Novo módulo `tracer.ts` com `createTrace(operation, context)` que gera um `requestId` único de 8 chars por chamada.
+- Cada etapa do pipeline é registrada com latência individual em ms: `project_loaded`, `embedding_context_start`, `embedding_context_done`, `llm_call_start`, `llm_call_done`, `fallback_start`, `fallback_embedding_done`, `fallback_embedding_error`, `fallback_hardcoded`.
+- Saída JSON estruturada: `{"trace":"step","requestId":"A1B2C3D4","operation":"extractCnaes","step":"llm_call_done","t":1823,...}` — facilita grep/parsing em logs de produção.
+- Nível de log configurável via `TRACE_LEVEL`: `"debug"` (todos os steps), `"info"` (apenas start/finish), `"off"` (desabilitado). Padrão: `"debug"` em dev, `"info"` em produção.
+- `requestId` incluído nas notificações `notifyOwner` e nos logs de erro para correlação entre alertas e logs.
+- `requestId` retornado na resposta do `extractCnaes` para correlação no frontend.
+
+**Endpoint `GET /api/version`** (`server/build-version.ts`, `server/_core/index.ts`)
+
+- Rota REST pública que retorna metadados do build: `version` (semântica), `gitHash` (7 chars do commit), `commitTime`, `commitMessage`, `serverTime`, `env`, `uptimeSeconds`, `nodeVersion`.
+- Campo `howToVerify` explica como comparar o `gitHash` com o ID do checkpoint Manus para confirmar que o deploy está atualizado.
+- **Como usar:** `curl https://iasolaris.manus.space/api/version` → compare `gitHash` com os primeiros 7 chars do ID do checkpoint publicado.
+
+**Diagnóstico Confirmado**
+
+- O endpoint `/api/health/cnae` em produção retornava HTML (SPA React) ao invés de JSON, confirmando que a versão publicada era anterior à Sprint v5.4.0. O deploy precisava ser atualizado.
+
+**Testes Unitários** (`server/tracer-version.test.ts`)
+
+- 21 novos testes cobrindo: `createTrace` (10 cenários), `getBuildVersionInfo` (9 cenários), `GET /api/version` (1 integração).
+- Total acumulado: 72 testes passando em 853ms.
+
+---
+
 ## [5.4.0] - Observabilidade e Teste Automatizado CNAE - 2026-03-21
 
 ### Adicionado
