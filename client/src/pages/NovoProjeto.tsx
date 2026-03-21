@@ -1,5 +1,5 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from "react";
+import { PerfilEmpresaIntelligente, PERFIL_VAZIO, calcProfileScore, type PerfilEmpresaData } from "@/components/PerfilEmpresaIntelligente";
 import { searchCnaes, getCnaeByCode, type CnaeEntry } from "@/../../shared/cnae-table";
 import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
 import { ResumeBanner } from "@/components/ResumeBanner";
@@ -17,10 +17,8 @@ import { Progress } from "@/components/ui/progress";
 import {
   ArrowLeft, ArrowRight, Building2, Loader2, Plus, Sparkles, CheckCircle2,
   Edit2, AlertCircle, ChevronRight, Search, X, RefreshCw, MessageSquare,
-  ChevronDown, ChevronUp, Info, Lock
+  Lock
 } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
 interface Cnae {
@@ -64,7 +62,6 @@ function CnaeCard({ cnae, selected, onToggle, onEdit }: {
   );
 }
 
-// Máscara de CNPJ: formata enquanto o usuário digita (XX.XXX.XXX/XXXX-XX)
 function maskCnpj(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 14);
   if (digits.length <= 2) return digits;
@@ -148,6 +145,7 @@ function EditCnaeModal({ cnae, onSave, onClose }: { cnae: Cnae | null; onSave: (
     </Dialog>
   );
 }
+
 // ID fixo para rascunho antes de criar o projeto no banco
 const DRAFT_PROJECT_ID = 0;
 
@@ -157,7 +155,6 @@ export default function NovoProjeto() {
   const [description, setDescription] = useState("");
   const [clientId, setClientId] = useState<number | null>(null);
   const [clientSearch, setClientSearch] = useState("");
-  // Estado local para exibir card do cliente recém-criado antes do refetch completar
   const [pendingClientName, setPendingClientName] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<number | null>(null);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
@@ -165,7 +162,7 @@ export default function NovoProjeto() {
 
   // Verificar rascunho salvo ao montar
   useEffect(() => {
-    const saved = loadTempData(DRAFT_PROJECT_ID, 'etapa1');
+    const saved = loadTempData<{ name?: string; description?: string; clientId?: number }>(DRAFT_PROJECT_ID, 'etapa1');
     if (saved && (saved.data?.name || saved.data?.description)) {
       setDraftSavedAt(saved.savedAt);
       setShowResumeBanner(true);
@@ -173,7 +170,7 @@ export default function NovoProjeto() {
   }, []);
 
   const handleResumeDraft = () => {
-    const saved = loadTempData(DRAFT_PROJECT_ID, 'etapa1');
+    const saved = loadTempData<{ name?: string; description?: string; clientId?: number }>(DRAFT_PROJECT_ID, 'etapa1');
     if (saved?.data) {
       setName(saved.data.name || '');
       setDescription(saved.data.description || '');
@@ -186,17 +183,16 @@ export default function NovoProjeto() {
     clearTempData(DRAFT_PROJECT_ID, 'etapa1');
     setShowResumeBanner(false);
   };
+
   const [showCnaeModal, setShowCnaeModal] = useState(false);
   const [showNewClientModal, setShowNewClientModal] = useState(false);
   const [editingCnae, setEditingCnae] = useState<Cnae | null>(null);
   const [suggestedCnaes, setSuggestedCnaes] = useState<Cnae[]>([]);
-  // true quando os CNAEs vêm do fallback semântico (IA falhou ou timeout >25s)
   const [isCnaeFallback, setIsCnaeFallback] = useState(false);
   const [selectedCnaes, setSelectedCnaes] = useState<Set<string>>(new Set());
   const [customCnaes, setCustomCnaes] = useState<Cnae[]>([]);
   const [newCnaeCode, setNewCnaeCode] = useState("");
   const [newCnaeDesc, setNewCnaeDesc] = useState("");
-  // Autocomplete CNAE manual
   const [cnaeSearchQuery, setCnaeSearchQuery] = useState("");
   const [cnaeSearchResults, setCnaeSearchResults] = useState<CnaeEntry[]>([]);
   const [showCnaeDropdown, setShowCnaeDropdown] = useState(false);
@@ -206,33 +202,8 @@ export default function NovoProjeto() {
   const [feedbackText, setFeedbackText] = useState("");
   const [refinementIteration, setRefinementIteration] = useState(1);
 
-  // v2.1: Company Profile Layer (OBRIGATÓRIO)
-  // Bloco 1: Identificação
-  const [cnpj, setCnpj] = useState("");
-  const [cnpjError, setCnpjError] = useState("");
-  const [foundingYear, setFoundingYear] = useState("");
-  const [stateUF, setStateUF] = useState("");
-  const [employeeCount, setEmployeeCount] = useState("");
-  const [annualRevenueRange, setAnnualRevenueRange] = useState("");
-  const [taxRegime, setTaxRegime] = useState("");
-  const [companyType, setCompanyType] = useState("");
-  const [companySize, setCompanySize] = useState("");
-  // Bloco 2: Operação
-  const [operationType, setOperationType] = useState("");
-  const [clientType, setClientType] = useState<string[]>([]);
-  const [multiState, setMultiState] = useState<boolean | null>(null);
-  const [geographicScope, setGeographicScope] = useState("");
-  // Bloco 3: Complexidade Tributária
-  const [hasMultipleEstablishments, setHasMultipleEstablishments] = useState<boolean | null>(null);
-  const [hasImportExport, setHasImportExport] = useState<boolean | null>(null);
-  const [hasSpecialRegimes, setHasSpecialRegimes] = useState<boolean | null>(null);
-  // Bloco 4: Financeiro
-  const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
-  const [hasIntermediaries, setHasIntermediaries] = useState<boolean | null>(null);
-  // Bloco 5: Governança
-  const [hasTaxTeam, setHasTaxTeam] = useState<boolean | null>(null);
-  const [hasAudit, setHasAudit] = useState<boolean | null>(null);
-  const [hasTaxIssues, setHasTaxIssues] = useState<boolean | null>(null);
+  // v6.0: Company Profile Intelligence — estado unificado
+  const [perfilData, setPerfilData] = useState<PerfilEmpresaData>(PERFIL_VAZIO);
 
   const { data: clients, refetch: refetchClients } = trpc.users.listClients.useQuery();
 
@@ -244,8 +215,7 @@ export default function NovoProjeto() {
   const extractCnaes = trpc.fluxoV3.extractCnaes.useMutation({
     onSuccess: (data) => {
       setSuggestedCnaes(data.cnaes);
-      setSelectedCnaes(new Set(data.cnaes.map((c: Cnae) => c.code)));
-      // Detecta fallback semântico: todos os CNAEs com confidence ≤70 e justificativa padrão
+      setSelectedCnaes(new Set<string>(data.cnaes.map((c: Cnae) => c.code)));
       const fallback = data.cnaes.length > 0 &&
         data.cnaes.every((c: Cnae) => c.confidence <= 70) &&
         data.cnaes.some((c: Cnae) => c.justification?.includes("similaridade semântica"));
@@ -258,7 +228,7 @@ export default function NovoProjeto() {
   const refineCnaes = trpc.fluxoV3.refineCnaes.useMutation({
     onSuccess: (data) => {
       setSuggestedCnaes(data.cnaes);
-      setSelectedCnaes(new Set(data.cnaes.map((c: Cnae) => c.code)));
+      setSelectedCnaes(new Set<string>(data.cnaes.map((c: Cnae) => c.code)));
       setCustomCnaes([]);
       setRefinementIteration(prev => prev + 1);
       setFeedbackText("");
@@ -294,92 +264,43 @@ export default function NovoProjeto() {
   // Auto-save no localStorage a cada 500ms de inatividade
   useAutoSave(DRAFT_PROJECT_ID, 'etapa1', { name, description, clientId }, 500);
 
-  // v2.1: Validação CNPJ com dígito verificador (módulo 11)
-  const validateCnpjDV = (digits: string): boolean => {
-    if (digits.length !== 14) return false;
-    if (/^(\d)\1{13}$/.test(digits)) return false; // todos iguais
-    const calc = (d: string, weights: number[]) =>
-      d.split("").slice(0, weights.length).reduce((acc, n, i) => acc + parseInt(n) * weights[i], 0);
-    const w1 = [5,4,3,2,9,8,7,6,5,4,3,2];
-    const w2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
-    const r1 = calc(digits, w1) % 11;
-    const d1 = r1 < 2 ? 0 : 11 - r1;
-    const r2 = calc(digits, w2) % 11;
-    const d2 = r2 < 2 ? 0 : 11 - r2;
-    return parseInt(digits[12]) === d1 && parseInt(digits[13]) === d2;
-  };
-
-  const handleCnpjChange = (value: string) => {
-    const masked = maskCnpj(value);
-    setCnpj(masked);
-    const digits = masked.replace(/\D/g, "");
-    if (digits.length === 0) { setCnpjError(""); return; }
-    if (digits.length < 14) { setCnpjError(""); return; }
-    if (!validateCnpjDV(digits)) setCnpjError("CNPJ inválido — verifique os dígitos verificadores");
-    else setCnpjError("");
-  };
-
-  const toggleClientType = (val: string) =>
-    setClientType(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]);
-
-  const togglePaymentMethod = (val: string) =>
-    setPaymentMethods(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]);
-
-  // v2.1: Computed validation flags
-  const cnpjDigits = cnpj.replace(/\D/g, "");
-  const cnpjFilled = cnpjDigits.length === 14;
-  const cnpjValid = cnpjFilled && !cnpjError;
-  const profileValid =
-    cnpjValid &&
-    !!companyType &&
-    !!companySize &&
-    !!taxRegime &&
-    !!operationType &&
-    clientType.length > 0 &&
-    multiState !== null;
+  // v6.0: Computed validation via calcProfileScore
+  const profileScore = calcProfileScore(perfilData);
+  const profileValid = profileScore.missingRequired.length === 0;
 
   const handleSubmit = () => {
     if (!name.trim()) return toast.error("Informe o nome do projeto");
     if (description.trim().length < 100) return toast.error("A descrição deve ter pelo menos 100 caracteres");
     if (!clientId) return toast.error("Selecione um cliente");
-    // v2.1: Validar campos obrigatórios do Company Profile
-    if (!cnpjFilled || cnpjError) return toast.error("CNPJ é obrigatório e deve ser válido (com dígito verificador)");
-    if (!companyType) return toast.error("Selecione o Tipo Jurídico da empresa");
-    if (!companySize) return toast.error("Selecione o Porte da empresa");
-    if (!taxRegime) return toast.error("Selecione o Regime Tributário");
-    if (!operationType) return toast.error("Selecione o Tipo de Operação");
-    if (clientType.length === 0) return toast.error("Selecione pelo menos 1 Tipo de Cliente");
-    if (multiState === null) return toast.error("Informe se a empresa opera em múltiplos estados");
-    // v2.1: Montar os blocos do Company Profile (obrigatórios)
+    if (!profileValid) {
+      const missing = profileScore.missingRequired.join(", ");
+      return toast.error(`Preencha os campos obrigatórios: ${missing}`);
+    }
     const companyProfile = {
-      cnpj,
-      companyType,
-      companySize,
-      foundingYear: foundingYear ? parseInt(foundingYear) : undefined,
-      stateUF: stateUF || undefined,
-      employeeCount: employeeCount || undefined,
-      annualRevenueRange: annualRevenueRange || undefined,
-      taxRegime,
+      cnpj: perfilData.cnpj,
+      companyType: perfilData.companyType,
+      companySize: perfilData.companySize,
+      annualRevenueRange: perfilData.annualRevenueRange || undefined,
+      taxRegime: perfilData.taxRegime,
     };
     const operationProfile = {
-      operationType,
-      clientType,
-      multiState,
-      geographicScope: geographicScope || undefined,
+      operationType: perfilData.operationType,
+      clientType: perfilData.clientType,
+      multiState: perfilData.multiState,
     };
-    const taxComplexity = (hasMultipleEstablishments !== null || hasImportExport !== null || hasSpecialRegimes !== null) ? {
-      hasMultipleEstablishments: hasMultipleEstablishments ?? undefined,
-      hasImportExport: hasImportExport ?? undefined,
-      hasSpecialRegimes: hasSpecialRegimes ?? undefined,
+    const taxComplexity = (perfilData.hasMultipleEstablishments !== null || perfilData.hasImportExport !== null || perfilData.hasSpecialRegimes !== null) ? {
+      hasMultipleEstablishments: perfilData.hasMultipleEstablishments ?? undefined,
+      hasImportExport: perfilData.hasImportExport ?? undefined,
+      hasSpecialRegimes: perfilData.hasSpecialRegimes ?? undefined,
     } : undefined;
-    const financialProfile = (paymentMethods.length > 0 || hasIntermediaries !== null) ? {
-      paymentMethods: paymentMethods.length > 0 ? paymentMethods : undefined,
-      hasIntermediaries: hasIntermediaries ?? undefined,
+    const financialProfile = (perfilData.paymentMethods.length > 0 || perfilData.hasIntermediaries !== null) ? {
+      paymentMethods: perfilData.paymentMethods.length > 0 ? perfilData.paymentMethods : undefined,
+      hasIntermediaries: perfilData.hasIntermediaries ?? undefined,
     } : undefined;
-    const governanceProfile = (hasTaxTeam !== null || hasAudit !== null || hasTaxIssues !== null) ? {
-      hasTaxTeam: hasTaxTeam ?? undefined,
-      hasAudit: hasAudit ?? undefined,
-      hasTaxIssues: hasTaxIssues ?? undefined,
+    const governanceProfile = (perfilData.hasTaxTeam !== null || perfilData.hasAudit !== null || perfilData.hasTaxIssues !== null) ? {
+      hasTaxTeam: perfilData.hasTaxTeam ?? undefined,
+      hasAudit: perfilData.hasAudit ?? undefined,
+      hasTaxIssues: perfilData.hasTaxIssues ?? undefined,
     } : undefined;
     createProject.mutate({
       name: name.trim(),
@@ -402,18 +323,17 @@ export default function NovoProjeto() {
   };
 
   const toggleCnae = (code: string) => {
-    setSelectedCnaes(prev => { const next = new Set(prev); if (next.has(code)) next.delete(code); else next.add(code); return next; });
+    setSelectedCnaes(prev => { const next = new Set<string>(prev); if (next.has(code)) next.delete(code); else next.add(code); return next; });
   };
 
   const handleAddCustomCnae = () => {
     if (!newCnaeCode.trim() || !newCnaeDesc.trim()) return;
     const newCnae: Cnae = { code: newCnaeCode.trim(), description: newCnaeDesc.trim(), confidence: 100, justification: "Adicionado manualmente" };
     setCustomCnaes(prev => [...prev, newCnae]);
-    setSelectedCnaes(prev => new Set([...prev, newCnae.code]));
+    setSelectedCnaes(prev => new Set<string>([...Array.from(prev), newCnae.code]));
     setNewCnaeCode(""); setNewCnaeDesc("");
   };
 
-  // Autocomplete: buscar CNAEs enquanto o usuário digita
   const handleCnaeSearch = (query: string) => {
     setCnaeSearchQuery(query);
     if (query.trim().length >= 2) {
@@ -427,7 +347,6 @@ export default function NovoProjeto() {
   };
 
   const handleSelectCnaeFromDropdown = (entry: CnaeEntry) => {
-    // Adicionar diretamente à lista sem precisar de segundo clique
     const newCnae: Cnae = {
       code: entry.code,
       description: entry.description,
@@ -436,7 +355,7 @@ export default function NovoProjeto() {
     };
     if (!customCnaes.find(c => c.code === entry.code) && !suggestedCnaes.find(c => c.code === entry.code)) {
       setCustomCnaes(prev => [...prev, newCnae]);
-      setSelectedCnaes(prev => new Set([...prev, newCnae.code]));
+      setSelectedCnaes(prev => new Set<string>([...Array.from(prev), newCnae.code]));
       toast.success(`CNAE ${entry.code} adicionado!`);
     } else {
       toast.info(`CNAE ${entry.code} já está na lista.`);
@@ -447,7 +366,6 @@ export default function NovoProjeto() {
     setShowCnaeDropdown(false);
   };
 
-  // Fechar dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (cnaeSearchRef.current && !cnaeSearchRef.current.contains(e.target as Node)) {
@@ -462,7 +380,7 @@ export default function NovoProjeto() {
     setSuggestedCnaes(prev => prev.map(c => c.code === editingCnae?.code ? updated : c));
     setCustomCnaes(prev => prev.map(c => c.code === editingCnae?.code ? updated : c));
     if (editingCnae && editingCnae.code !== updated.code) {
-      setSelectedCnaes(prev => { const next = new Set(prev); next.delete(editingCnae.code); next.add(updated.code); return next; });
+      setSelectedCnaes(prev => { const next = new Set<string>(prev); next.delete(editingCnae.code); next.add(updated.code); return next; });
     }
   };
 
@@ -470,7 +388,6 @@ export default function NovoProjeto() {
     c.name?.toLowerCase().includes(clientSearch.toLowerCase()) ||
     c.companyName?.toLowerCase().includes(clientSearch.toLowerCase())
   );
-  // Usar pendingClientName como fallback enquanto o refetch não retorna o novo cliente
   const selectedClient = clients?.find(c => c.id === clientId) ||
     (clientId && pendingClientName ? { id: clientId, name: pendingClientName, companyName: pendingClientName, cnpj: undefined } : undefined);
   const allCnaes = [...suggestedCnaes, ...customCnaes];
@@ -511,6 +428,7 @@ export default function NovoProjeto() {
           ))}
         </div>
 
+        {/* Informações do Projeto */}
         <Card className="shadow-sm">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg">Informações do Projeto</CardTitle>
@@ -599,292 +517,13 @@ export default function NovoProjeto() {
           </CardContent>
         </Card>
 
-        {/* v2.1.1: Company Profile Layer — GATE DO SISTEMA */}
-        <Card className={`shadow-sm transition-colors ${profileValid ? "border-emerald-500/40" : "border-destructive/40"}`}>
-          <div className="px-6 pt-5 pb-2">
-            <div className="flex items-start gap-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${profileValid ? "bg-emerald-500/10" : "bg-destructive/10"}`}>
-                {profileValid
-                  ? <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  : <Lock className="h-4 w-4 text-destructive" />
-                }
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold">Perfil da Empresa</p>
-                  <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-md ${profileValid ? "bg-emerald-500/10 text-emerald-700" : "bg-destructive/10 text-destructive"}`}>
-                    {profileValid ? "Preenchido" : "Obrigatório"}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Essas informações são necessárias para iniciar o diagnóstico tributário e gerar o questionário personalizado.
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* v6.0: Company Profile Intelligence — componente redesenhado */}
+        <PerfilEmpresaIntelligente
+          value={perfilData}
+          onChange={setPerfilData}
+        />
 
-          <CardContent className="pt-2 pb-6 space-y-6">
-              <Separator />
-
-              {/* Bloco 1: Identificação */}
-              <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">1. Identificação</p>
-                <div className="grid grid-cols-2 gap-4">
-                  {/* CNPJ — obrigatório */}
-                  <div className="space-y-1.5 col-span-2">
-                    <Label className="text-sm">CNPJ <span className="text-destructive">*</span></Label>
-                    <Input
-                      placeholder="00.000.000/0000-00"
-                      value={cnpj}
-                      onChange={(e) => handleCnpjChange(e.target.value)}
-                      maxLength={18}
-                      className={cnpjError ? "border-destructive" : cnpjValid ? "border-emerald-500" : ""}
-                    />
-                    {cnpjError && <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{cnpjError}</p>}
-                    {cnpjValid && (
-                      <p className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" />CNPJ válido</p>
-                    )}
-                    {!cnpjFilled && cnpjDigits.length > 0 && (
-                      <p className="text-xs text-muted-foreground">{14 - cnpjDigits.length} dígito(s) restante(s)</p>
-                    )}
-                  </div>
-                  {/* Tipo Jurídico — obrigatório */}
-                  <div className="space-y-1.5">
-                    <Label className="text-sm">Tipo Jurídico <span className="text-destructive">*</span></Label>
-                    <Select value={companyType} onValueChange={setCompanyType}>
-                      <SelectTrigger className={!companyType ? "border-amber-400/60" : ""}><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ltda">Ltda</SelectItem>
-                        <SelectItem value="sa">S.A.</SelectItem>
-                        <SelectItem value="mei">MEI</SelectItem>
-                        <SelectItem value="eireli">Eireli</SelectItem>
-                        <SelectItem value="scp">SCP</SelectItem>
-                        <SelectItem value="cooperativa">Cooperativa</SelectItem>
-                        <SelectItem value="outro">Outro</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {/* Porte — obrigatório */}
-                  <div className="space-y-1.5">
-                    <Label className="text-sm">Porte <span className="text-destructive">*</span></Label>
-                    <Select value={companySize} onValueChange={setCompanySize}>
-                      <SelectTrigger className={!companySize ? "border-amber-400/60" : ""}><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="mei">MEI</SelectItem>
-                        <SelectItem value="micro">Microempresa</SelectItem>
-                        <SelectItem value="pequena">Pequena Empresa</SelectItem>
-                        <SelectItem value="media">Média Empresa</SelectItem>
-                        <SelectItem value="grande">Grande Empresa</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {/* Regime Tributário — obrigatório */}
-                  <div className="space-y-1.5">
-                    <Label className="text-sm">Regime Tributário <span className="text-destructive">*</span></Label>
-                    <Select value={taxRegime} onValueChange={setTaxRegime}>
-                      <SelectTrigger className={!taxRegime ? "border-amber-400/60" : ""}><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="simples_nacional">Simples Nacional</SelectItem>
-                        <SelectItem value="lucro_presumido">Lucro Presumido</SelectItem>
-                        <SelectItem value="lucro_real">Lucro Real</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {/* Ano de Fundação — opcional */}
-                  <div className="space-y-1.5">
-                    <Label className="text-sm">Ano de Fundação</Label>
-                    <Input placeholder="Ex: 2010" value={foundingYear} onChange={(e) => setFoundingYear(e.target.value.replace(/\D/g, "").slice(0, 4))} maxLength={4} />
-                  </div>
-                  {/* Estado (UF) — opcional */}
-                  <div className="space-y-1.5">
-                    <Label className="text-sm">Estado (UF)</Label>
-                    <Select value={stateUF} onValueChange={setStateUF}>
-                      <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>
-                        {["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"].map(uf => (
-                          <SelectItem key={uf} value={uf}>{uf}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {/* Número de Funcionários — opcional */}
-                  <div className="space-y-1.5">
-                    <Label className="text-sm">Número de Funcionários</Label>
-                    <Select value={employeeCount} onValueChange={setEmployeeCount}>
-                      <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1-9">1 a 9 (MEI/ME)</SelectItem>
-                        <SelectItem value="10-49">10 a 49 (Pequena)</SelectItem>
-                        <SelectItem value="50-249">50 a 249 (Média)</SelectItem>
-                        <SelectItem value="250+">250+ (Grande)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {/* Faturamento Anual — opcional */}
-                  <div className="space-y-1.5">
-                    <Label className="text-sm">Faturamento Anual</Label>
-                    <Select value={annualRevenueRange} onValueChange={setAnnualRevenueRange}>
-                      <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ate_360k">Até R$ 360 mil (Simples)</SelectItem>
-                        <SelectItem value="360k_4_8m">R$ 360 mil a R$ 4,8 mi</SelectItem>
-                        <SelectItem value="4_8m_78m">R$ 4,8 mi a R$ 78 mi</SelectItem>
-                        <SelectItem value="acima_78m">Acima de R$ 78 mi</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Bloco 2: Operação */}
-              <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">2. Operação</p>
-                {/* Tipo de Operação — obrigatório */}
-                <div className="space-y-1.5">
-                  <Label className="text-sm">Tipo de Operação <span className="text-destructive">*</span></Label>
-                  <div className="flex gap-2 flex-wrap">
-                    {[["produto","Venda de Produtos"],["servico","Prestação de Serviços"],["misto","Misto (Produto + Serviço)"]].map(([val, label]) => (
-                      <button key={val} type="button"
-                        className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
-                          operationType === val ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/50"
-                        }`}
-                        onClick={() => setOperationType(operationType === val ? "" : val)}
-                      >{label}</button>
-                    ))}
-                  </div>
-                  {!operationType && <p className="text-xs text-amber-600">Selecione o tipo de operação</p>}
-                </div>
-                {/* Tipo de Cliente — obrigatório (mínimo 1) */}
-                <div className="space-y-1.5">
-                  <Label className="text-sm">Tipo de Cliente <span className="text-destructive">*</span> <span className="text-xs text-muted-foreground">(mínimo 1)</span></Label>
-                  <div className="flex gap-4 flex-wrap">
-                    {[["B2B","B2B (Empresas)"],["B2C","B2C (Consumidores)"],["Governo","Governo"]].map(([val, label]) => (
-                      <label key={val} className="flex items-center gap-2 cursor-pointer">
-                        <Checkbox checked={clientType.includes(val)} onCheckedChange={() => toggleClientType(val)} />
-                        <span className="text-sm">{label}</span>
-                      </label>
-                    ))}
-                  </div>
-                  {clientType.length === 0 && <p className="text-xs text-amber-600">Selecione pelo menos 1 tipo de cliente</p>}
-                </div>
-                {/* Opera em múltiplos estados — obrigatório */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Opera em múltiplos estados? <span className="text-destructive">*</span></span>
-                  <div className="flex gap-2">
-                    {([[true,"Sim"],[false,"Não"]] as [boolean, string][]).map(([bval, blabel]) => (
-                      <button key={blabel} type="button"
-                        className={`px-3 py-1 rounded-lg border text-xs font-medium transition-colors ${
-                          multiState === bval ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/50"
-                        }`}
-                        onClick={() => setMultiState(multiState === bval ? null : bval)}
-                      >{blabel}</button>
-                    ))}
-                  </div>
-                </div>
-                {multiState === null && <p className="text-xs text-amber-600">Informe se opera em múltiplos estados</p>}
-                {/* Abrangência Geográfica — opcional */}
-                <div className="space-y-1.5">
-                  <Label className="text-sm">Abrangência Geográfica</Label>
-                  <Select value={geographicScope} onValueChange={setGeographicScope}>
-                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="local">Local (1 município)</SelectItem>
-                      <SelectItem value="regional">Regional (vários municípios)</SelectItem>
-                      <SelectItem value="estadual">Estadual</SelectItem>
-                      <SelectItem value="nacional">Nacional</SelectItem>
-                      <SelectItem value="internacional">Internacional</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Bloco 3: Complexidade Tributária */}
-              <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">3. Complexidade Tributária</p>
-                {[
-                  ["hasMultipleEstablishments", hasMultipleEstablishments, setHasMultipleEstablishments, "Possui múltiplos estabelecimentos/filiais?"],
-                  ["hasImportExport", hasImportExport, setHasImportExport, "Realiza operações de importação ou exportação?"],
-                  ["hasSpecialRegimes", hasSpecialRegimes, setHasSpecialRegimes, "Possui regimes tributários especiais (RECOF, Drawback, ZFM, etc.)?"],
-                ].map(([key, val, setter, label]) => (
-                  <div key={key as string} className="flex items-center justify-between">
-                    <span className="text-sm">{label as string}</span>
-                    <div className="flex gap-2">
-                      {[[true,"Sim"],[false,"Não"]].map(([bval, blabel]) => (
-                        <button key={blabel as string} type="button"
-                          className={`px-3 py-1 rounded-lg border text-xs font-medium transition-colors ${
-                            val === bval ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/50"
-                          }`}
-                          onClick={() => (setter as any)(val === bval ? null : bval)}
-                        >{blabel as string}</button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <Separator />
-
-              {/* Bloco 4: Financeiro */}
-              <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">4. Financeiro</p>
-                <div className="space-y-1.5">
-                  <Label className="text-sm">Meios de Pagamento <span className="text-xs text-muted-foreground">(múltipla seleção)</span></Label>
-                  <div className="flex gap-4 flex-wrap">
-                    {[["Pix","Pix"],["Cartao","Cartão"],["Boleto","Boleto"],["Outros","Outros"]].map(([val, label]) => (
-                      <label key={val} className="flex items-center gap-2 cursor-pointer">
-                        <Checkbox checked={paymentMethods.includes(val)} onCheckedChange={() => togglePaymentMethod(val)} />
-                        <span className="text-sm">{label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Utiliza intermediários financeiros (marketplace, plataformas)?</span>
-                  <div className="flex gap-2">
-                    {[[true,"Sim"],[false,"Não"]].map(([bval, blabel]) => (
-                      <button key={blabel as string} type="button"
-                        className={`px-3 py-1 rounded-lg border text-xs font-medium transition-colors ${
-                          hasIntermediaries === bval ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/50"
-                        }`}
-                        onClick={() => setHasIntermediaries(hasIntermediaries === bval ? null : bval as boolean)}
-                      >{blabel as string}</button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Bloco 5: Governança */}
-              <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">5. Governança</p>
-                {[
-                  ["hasTaxTeam", hasTaxTeam, setHasTaxTeam, "Possui equipe tributária interna (contador, advogado fiscal)?"],
-                  ["hasAudit", hasAudit, setHasAudit, "Realiza auditoria fiscal periódica?"],
-                  ["hasTaxIssues", hasTaxIssues, setHasTaxIssues, "Possui passivo tributário ou pendências com a Receita Federal?"],
-                ].map(([key, val, setter, label]) => (
-                  <div key={key as string} className="flex items-center justify-between">
-                    <span className="text-sm">{label as string}</span>
-                    <div className="flex gap-2">
-                      {[[true,"Sim"],[false,"Não"]].map(([bval, blabel]) => (
-                        <button key={blabel as string} type="button"
-                          className={`px-3 py-1 rounded-lg border text-xs font-medium transition-colors ${
-                            val === bval ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/50"
-                          }`}
-                          onClick={() => (setter as any)(val === bval ? null : bval)}
-                        >{blabel as string}</button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-        </Card>
-
+        {/* Banner de análise IA */}
         <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15">
           <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
           <div>
@@ -895,32 +534,35 @@ export default function NovoProjeto() {
           </div>
         </div>
 
-        {/* v2.1.1: Banner GATE — bloqueia avanço */}
+        {/* Gate de validação do perfil */}
         {!profileValid && (
           <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/8 border-2 border-destructive/30">
             <Lock className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-semibold text-destructive">Preencha os dados obrigatórios do Perfil da Empresa para continuar.</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Campos faltantes:</p>
-              <ul className="text-xs text-destructive/80 mt-1 space-y-0.5">
-                {!cnpjValid && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />CNPJ válido com dígito verificador</li>}
-                {!companyType && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />Tipo Jurídico</li>}
-                {!companySize && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />Porte da empresa</li>}
-                {!taxRegime && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />Regime Tributário</li>}
-                {!operationType && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />Tipo de Operação</li>}
-                {clientType.length === 0 && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />Tipo de Cliente (mínimo 1)</li>}
-                {multiState === null && <li className="flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />Opera em múltiplos estados (Sim/Não)</li>}
-              </ul>
+              {profileScore.missingRequired.length > 0 && (
+                <>
+                  <p className="text-xs text-muted-foreground mt-0.5">Campos faltantes:</p>
+                  <ul className="text-xs text-destructive/80 mt-1 space-y-0.5">
+                    {profileScore.missingRequired.map(field => (
+                      <li key={field} className="flex items-center gap-1">
+                        <span className="w-1 h-1 rounded-full bg-destructive/60 shrink-0" />{field}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
           </div>
         )}
 
+        {/* CTA principal */}
         <div className="flex justify-end pb-4">
           <Button size="lg" onClick={handleSubmit} disabled={isLoading || !name.trim() || descLength < 100 || !clientId || !profileValid} className="min-w-[220px]">
             {isLoading ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />{createProject.isPending ? "Criando projeto..." : "Analisando CNAEs..."}</>
             ) : (
-              <>Avançar — Identificar CNAEs<Sparkles className="h-4 w-4 ml-2" /></>
+              <>Avançar<ArrowRight className="h-4 w-4 ml-2" /></>
             )}
           </Button>
         </div>
@@ -1010,6 +652,7 @@ export default function NovoProjeto() {
               </>
             )}
           </div>
+
           {/* RF-1.05: Painel de feedback para nova análise */}
           {showFeedbackPanel && (
             <div className="border rounded-xl p-4 bg-amber-50 border-amber-200 space-y-3 mx-1 mb-2">
