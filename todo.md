@@ -2659,3 +2659,13 @@
 - [x] 37 testes unitários passando (tracer-version.test.ts + cnae-health-validator.test.ts)
 - [x] Health check: status=ok, cacheLoaded=true após warm-up no startup
 - [x] Atualizar CHANGELOG.md com entrada [5.6.0]
+
+## Documentação Técnica v5.6.0 — 2026-03-21
+
+- [ ] Checkpoint final v5.6.0
+- [ ] Commit e push para GitHub
+- [ ] Atualizar README.md com seção de Observabilidade e Diagnóstico
+- [ ] Criar/atualizar ARCHITECTURE.md com diagrama do pipeline CNAE
+- [ ] Criar docs/API-HEALTH.md com documentação dos endpoints de saúde
+- [ ] Criar docs/TRACING.md com guia de uso do tracer estruturado
+- [ ] Criar docs/DEPLOY-GUIDE.md com checklist de deploy e controle de versão
