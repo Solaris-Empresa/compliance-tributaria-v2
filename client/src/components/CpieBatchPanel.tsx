@@ -1,17 +1,20 @@
 /**
- * CpieBatchPanel — K1
+ * CpieBatchPanel — K1 + L4
  * Painel para análise CPIE em lote de projetos sem score.
- * Exibe progresso, resultados e permite re-executar.
+ * Exibe progresso em tempo real via WebSocket (Sprint L4).
  */
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, CheckCircle2, XCircle, Loader2, ChevronDown, ChevronUp, Play } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Brain, CheckCircle2, XCircle, Loader2, ChevronDown, ChevronUp, Play, Wifi, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { io, Socket } from "socket.io-client";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 interface BatchResult {
   projectId: number;
@@ -27,23 +30,73 @@ interface BatchSummary {
   results: BatchResult[];
 }
 
+interface ProgressEvent {
+  current: number;
+  total: number;
+  projectId: number;
+  projectName: string;
+  score: number;
+  status: "ok" | "error";
+}
+
 interface CpieBatchPanelProps {
-  /** Callback chamado após análise concluída para atualizar a lista de projetos */
   onComplete?: () => void;
-  /** Número de projetos pendentes (para exibir no botão) */
   pendingCount?: number;
 }
 
 export function CpieBatchPanel({ onComplete, pendingCount }: CpieBatchPanelProps) {
+  const { user } = useAuth();
   const [summary, setSummary] = useState<BatchSummary | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [limit, setLimit] = useState(20);
+  const [wsConnected, setWsConnected] = useState(false);
+  const [realtimeProgress, setRealtimeProgress] = useState<ProgressEvent | null>(null);
+  const [realtimeResults, setRealtimeResults] = useState<BatchResult[]>([]);
+  const socketRef = useRef<Socket | null>(null);
 
   const utils = trpc.useUtils();
+
+  // ── WebSocket para progresso em tempo real ────────────────────────────────
+  useEffect(() => {
+    if (!user) return;
+
+    const socket = io(window.location.origin, {
+      path: "/socket.io/",
+      transports: ["websocket", "polling"],
+    });
+
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      setWsConnected(true);
+      socket.emit("authenticate", user.id);
+    });
+
+    socket.on("disconnect", () => setWsConnected(false));
+
+    socket.on("cpie:batch:progress", (data: ProgressEvent) => {
+      setRealtimeProgress(data);
+      setRealtimeResults(prev => [...prev, {
+        projectId: data.projectId,
+        name: data.projectName,
+        score: data.score,
+        status: data.status,
+      }]);
+    });
+
+    socket.on("cpie:batch:done", () => {
+      // O onSuccess do mutation vai atualizar o summary final
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user]);
 
   const batchAnalyze = trpc.cpie.batchAnalyze.useMutation({
     onSuccess: (data) => {
       setSummary(data);
+      setRealtimeProgress(null);
       if (data.processed > 0) {
         toast.success(`${data.processed} projeto(s) analisados com sucesso!`);
         utils.projects.list.invalidate();
@@ -53,12 +106,15 @@ export function CpieBatchPanel({ onComplete, pendingCount }: CpieBatchPanelProps
       }
     },
     onError: (err) => {
+      setRealtimeProgress(null);
       toast.error(`Erro na análise em lote: ${err.message}`);
     },
   });
 
   const handleRun = () => {
     setSummary(null);
+    setRealtimeProgress(null);
+    setRealtimeResults([]);
     batchAnalyze.mutate({ limit, onlyZeroScore: true });
   };
 
@@ -68,6 +124,11 @@ export function CpieBatchPanel({ onComplete, pendingCount }: CpieBatchPanelProps
     return "text-red-500";
   };
 
+  const isRunning = batchAnalyze.isPending;
+  const progressPct = realtimeProgress
+    ? Math.round((realtimeProgress.current / realtimeProgress.total) * 100)
+    : 0;
+
   return (
     <Card className="border-dashed border-primary/30">
       <CardHeader className="pb-3">
@@ -75,10 +136,17 @@ export function CpieBatchPanel({ onComplete, pendingCount }: CpieBatchPanelProps
           <Brain className="h-4 w-4 text-primary" />
           Análise CPIE em Lote
           {pendingCount !== undefined && pendingCount > 0 && (
-            <Badge variant="secondary" className="ml-auto text-xs">
+            <Badge variant="secondary" className="ml-1 text-xs">
               {pendingCount} pendentes
             </Badge>
           )}
+          <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
+            {wsConnected ? (
+              <><Wifi className="h-3 w-3 text-emerald-500" />Tempo real</>
+            ) : (
+              <><WifiOff className="h-3 w-3 text-muted-foreground" />Offline</>
+            )}
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -95,11 +163,13 @@ export function CpieBatchPanel({ onComplete, pendingCount }: CpieBatchPanelProps
               <button
                 key={n}
                 onClick={() => setLimit(n)}
+                disabled={isRunning}
                 className={cn(
                   "px-3 py-1 text-xs rounded-md border transition-colors",
                   limit === n
                     ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border hover:bg-accent"
+                    : "border-border hover:bg-accent",
+                  isRunning && "opacity-50 cursor-not-allowed"
                 )}
               >
                 {n} projetos
@@ -111,11 +181,11 @@ export function CpieBatchPanel({ onComplete, pendingCount }: CpieBatchPanelProps
         {/* Botão principal */}
         <Button
           onClick={handleRun}
-          disabled={batchAnalyze.isPending}
+          disabled={isRunning}
           className="w-full gap-2"
           variant="outline"
         >
-          {batchAnalyze.isPending ? (
+          {isRunning ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
               Analisando projetos...
@@ -128,8 +198,32 @@ export function CpieBatchPanel({ onComplete, pendingCount }: CpieBatchPanelProps
           )}
         </Button>
 
-        {/* Resultado */}
-        {summary && (
+        {/* Progresso em tempo real (L4) */}
+        {isRunning && realtimeProgress && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span className="truncate max-w-[70%]">
+                Processando: <span className="font-medium text-foreground">{realtimeProgress.projectName}</span>
+              </span>
+              <span className="shrink-0 font-mono">
+                {realtimeProgress.current}/{realtimeProgress.total}
+              </span>
+            </div>
+            <Progress value={progressPct} className="h-2" />
+            <p className="text-xs text-center text-muted-foreground">{progressPct}% concluído</p>
+          </div>
+        )}
+
+        {/* Progresso sem WebSocket (fallback) */}
+        {isRunning && !realtimeProgress && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Aguardando início do processamento...
+          </div>
+        )}
+
+        {/* Resultado final */}
+        {summary && !isRunning && (
           <div className="space-y-3">
             {/* KPIs */}
             <div className="grid grid-cols-3 gap-2">

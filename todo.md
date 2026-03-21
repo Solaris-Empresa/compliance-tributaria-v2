@@ -2811,3 +2811,26 @@
 - [x] HTML formatado com KPIs, tabelas de risco e projetos com score baixo
 - [x] Botão "Relatório Mensal" no AdminConsistência (abre em nova aba + print dialog)
 - [x] Notifica owner via notifyOwner ao gerar o relatório
+
+## Sprint L — Threshold Configurável, Cron, Dashboard CPIE, WebSocket
+
+### L1 — Threshold K2 configurável + painel de configurações CPIE
+- [x] Criar tabela `cpie_settings` no banco (migração 0050)
+- [x] Procedures `cpie.getSettings` e `cpie.updateSettings` (admin only)
+- [x] Componente `CpieSettingsPanel.tsx` no AdminConsistência (toggle colapsável)
+- [x] NovoProjeto usa threshold dinâmico do banco via `cpie.getSettings`
+
+### L2 — Job agendado de relatório mensal (cron server-side)
+- [x] Criar `server/jobs/monthlyReportJob.ts` com cron (1º dia do mês, 8h)
+- [x] Registrar no `server/_core/index.ts`
+- [x] Extrair `generateMonthlyReportHtml()` para `cpie.ts`
+
+### L3 — Dashboard de métricas CPIE com gráficos
+- [x] Criar página `AdminCpieDashboard.tsx` com gráficos Chart.js
+- [x] Rota `/admin/cpie-dashboard` registrada no App.tsx
+- [x] Link "Dashboard CPIE" no menu de navegação (admin)
+
+### L4 — Progresso em tempo real do batchAnalyze via WebSocket
+- [x] Emitir `cpie:batch:progress` e `cpie:batch:done` via `notifyUser` no batchAnalyze
+- [x] `CpieBatchPanel.tsx` reescrito com Socket.IO client e barra de progresso animada
+- [x] Indicador de conexão WebSocket (Wifi/WifiOff) no header do painel

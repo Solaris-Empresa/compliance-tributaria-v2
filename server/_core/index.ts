@@ -10,6 +10,7 @@ import { serveStatic, setupVite } from "./vite";
 import { initializeWebSocket } from "./websocket";
 import "./deadline-checker"; // Inicializar verificador de prazos
 import { initEmbeddingsScheduler } from "../embeddings-scheduler"; // Cron de rebuild de embeddings CNAE
+import { initMonthlyReportJob } from "../jobs/monthlyReportJob"; // Sprint L2: Cron de relatório mensal CPIE
 import { checkCnaeHealth } from "../cnae-health"; // Health check do pipeline CNAE
 import { getBuildVersionInfo } from "../build-version"; // Informações de versão do build
 import { validateCnaePipeline } from "../cnae-pipeline-validator"; // Validação on-demand do pipeline
@@ -130,6 +131,8 @@ async function startServer() {
 
   // Inicializar cron de rebuild automático de embeddings CNAE (toda segunda-feira às 03:00)
   initEmbeddingsScheduler();
+  // Sprint L2: Cron de relatório mensal CPIE (todo dia às 08:00, verifica se é o dia configurado)
+  initMonthlyReportJob();
 
   // ── Warm-up do cache de embeddings CNAE ───────────────────────────────────
   // Elimina o cold start: carrega os 1.332 embeddings em memória durante o startup

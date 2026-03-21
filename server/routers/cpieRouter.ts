@@ -12,7 +12,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import * as db from "../db";
 import { getDb } from "../db";
-import { cpieAnalysisHistory } from "../../drizzle/schema";
+import { cpieAnalysisHistory, cpieSettings } from "../../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 import {
   runCpieAnalysis,
@@ -22,6 +22,7 @@ import {
   calcOverallScore,
   type CpieProfileInput,
 } from "../cpie";
+import { notifyUser } from "../_core/websocket"; // Sprint L4: progresso em tempo real
 
 // ─── Schema de input ──────────────────────────────────────────────────────────
 
@@ -500,11 +501,35 @@ export const cpieRouter = router({
           }
 
           results.push({ projectId: p.id, name: p.name, score: overallScore, status: "ok" });
+          // Sprint L4: emitir progresso em tempo real via WebSocket
+          notifyUser(ctx.user.id, "cpie:batch:progress", {
+            current: results.length,
+            total: pending.length,
+            projectId: p.id,
+            projectName: p.name,
+            score: overallScore,
+            status: "ok",
+          });
         } catch (err) {
           errors++;
           results.push({ projectId: (project as any).id, name: (project as any).name, score: 0, status: "error" });
+          notifyUser(ctx.user.id, "cpie:batch:progress", {
+            current: results.length,
+            total: pending.length,
+            projectId: (project as any).id,
+            projectName: (project as any).name,
+            score: 0,
+            status: "error",
+          });
         }
       }
+
+      // Sprint L4: emitir evento de conclusão
+      notifyUser(ctx.user.id, "cpie:batch:done", {
+        processed: results.filter(r => r.status === "ok").length,
+        errors,
+        total: pending.length,
+      });
 
       return {
         processed: results.filter(r => r.status === "ok").length,
@@ -628,6 +653,46 @@ export const cpieRouter = router({
       } catch { /* não bloquear */ }
 
       return { html, month, year, monthName, stats: { total, avgScore, highRisk: highRisk.length, lowScore: lowScore.length, excellent: excellent.length } };
+    }),
+
+  /**
+   * L1: Buscar configurações globais do CPIE (singleton id=1)
+   */
+  getSettings: protectedProcedure
+    .query(async () => {
+      const drizzle = await getDb();
+      const rows = await drizzle!.select().from(cpieSettings).limit(1);
+      if (rows.length === 0) {
+        // Criar linha singleton com defaults
+        await drizzle!.insert(cpieSettings).values({ id: 1 });
+        return { id: 1, minScoreToAdvance: 30, batchSizeLimit: 50, gateEnabled: 1, monthlyReportDay: 1, lastMonthlyReportAt: null, lastJobLog: null, updatedAt: null, updatedById: null };
+      }
+      return rows[0];
+    }),
+
+  /**
+   * L1: Atualizar configurações globais do CPIE (admin only)
+   */
+  updateSettings: protectedProcedure
+    .input(z.object({
+      minScoreToAdvance: z.number().int().min(0).max(100).optional(),
+      batchSizeLimit: z.number().int().min(1).max(200).optional(),
+      gateEnabled: z.number().int().min(0).max(1).optional(),
+      monthlyReportDay: z.number().int().min(1).max(28).optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const drizzle = await getDb();
+      const now = Date.now();
+      // Upsert singleton
+      const existing = await drizzle!.select().from(cpieSettings).limit(1);
+      if (existing.length === 0) {
+        await drizzle!.insert(cpieSettings).values({ id: 1, ...input, updatedAt: now, updatedById: ctx.user.id });
+      } else {
+        await drizzle!.update(cpieSettings)
+          .set({ ...input, updatedAt: now, updatedById: ctx.user.id })
+          .where(eq(cpieSettings.id, 1));
+      }
+      return { success: true };
     }),
 
   /**

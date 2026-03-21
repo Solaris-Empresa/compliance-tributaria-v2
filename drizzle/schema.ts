@@ -1586,3 +1586,28 @@ export const cpieAnalysisHistory = mysqlTable("cpie_analysis_history", {
 });
 export type CpieAnalysisHistory = typeof cpieAnalysisHistory.$inferSelect;
 export type InsertCpieAnalysisHistory = typeof cpieAnalysisHistory.$inferInsert;
+
+// ─── Sprint L: CPIE Settings ───────────────────────────────────────────────────
+/**
+ * Configurações globais do CPIE — threshold mínimo, limites de lote, etc.
+ * Tabela singleton: sempre haverá exatamente 1 linha (id=1).
+ */
+export const cpieSettings = mysqlTable("cpie_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Score mínimo (0-100) exigido para avançar no NovoProjeto */
+  minScoreToAdvance: int("min_score_to_advance").notNull().default(30),
+  /** Máximo de projetos por execução de batchAnalyze */
+  batchSizeLimit: int("batch_size_limit").notNull().default(50),
+  /** Habilitar/desabilitar o gate de score mínimo globalmente */
+  gateEnabled: tinyint("gate_enabled").notNull().default(1),
+  /** Dia do mês para envio automático do relatório mensal (1-28) */
+  monthlyReportDay: int("monthly_report_day").notNull().default(1),
+  /** Última execução do job de relatório mensal (timestamp ms) */
+  lastMonthlyReportAt: bigint("last_monthly_report_at", { mode: "number" }),
+  /** Log da última execução do job */
+  lastJobLog: text("last_job_log"),
+  updatedAt: bigint("updated_at", { mode: "number" }),
+  updatedById: int("updated_by_id"),
+});
+export type CpieSettings = typeof cpieSettings.$inferSelect;
+export type InsertCpieSettings = typeof cpieSettings.$inferInsert;

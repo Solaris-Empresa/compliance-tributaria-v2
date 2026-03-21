@@ -13,6 +13,7 @@ import {
   Plus,
   Cpu,
   Shield,
+  BarChart3,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -96,6 +97,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     navItems.push({ href: "/usuarios", icon: Users, label: "Usuários" });
     navItems.push({ href: "/admin/embeddings", icon: Cpu, label: "Embeddings" });
     navItems.push({ href: "/admin/consistencia", icon: Shield, label: "Consistência" });
+    navItems.push({ href: "/admin/cpie-dashboard", icon: BarChart3, label: "Dashboard CPIE" });
   }
 
   if (user?.role === "cliente") {

@@ -516,3 +516,116 @@ function buildProfileContext(input: CpieProfileInput): string {
 
   return lines.join("\n") || "Perfil ainda não preenchido.";
 }
+
+// ─── Sprint L2: Função de geração de relatório mensal (usada pelo job cron) ───
+
+/**
+ * Gera o HTML do relatório executivo mensal CPIE buscando todos os projetos
+ * diretamente do banco (sem filtro de usuário — para uso pelo job cron).
+ */
+export async function generateMonthlyReportHtml(month?: number, year?: number): Promise<{
+  html: string;
+  month: number;
+  year: number;
+  monthName: string;
+  stats: { total: number; avgScore: number; highRisk: number; lowScore: number; excellent: number };
+}> {
+  const { getDb } = await import("./db");
+  const { projects: projectsTable } = await import("../drizzle/schema");
+
+  const drizzle = await getDb();
+  if (!drizzle) throw new Error("DB indisponível");
+
+  const now = new Date();
+  const m = month ?? (now.getMonth() + 1);
+  const y = year ?? now.getFullYear();
+  const monthName = new Date(y, m - 1, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+
+  const allProjects = await drizzle.select({
+    id: projectsTable.id,
+    name: projectsTable.name,
+    status: projectsTable.status,
+    profileCompleteness: projectsTable.profileCompleteness,
+    consistencyStatus: projectsTable.consistencyStatus,
+    consistencyAcceptedRiskReason: projectsTable.consistencyAcceptedRiskReason,
+  }).from(projectsTable);
+
+  const total = allProjects.length;
+  const withScore = allProjects.filter(p => p.profileCompleteness && p.profileCompleteness > 0);
+  const avgScore = withScore.length > 0
+    ? Math.round(withScore.reduce((sum, p) => sum + (p.profileCompleteness || 0), 0) / withScore.length)
+    : 0;
+  const highRisk = allProjects.filter(p => p.consistencyStatus === "warning" || p.consistencyStatus === "blocked");
+  const lowScore = allProjects.filter(p => (p.profileCompleteness ?? 0) < 50);
+  const excellent = allProjects.filter(p => (p.profileCompleteness ?? 0) >= 80);
+
+  const reportDate = now.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Relatório Executivo Mensal — ${monthName}</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; margin: 0; padding: 32px; background: #fff; max-width: 900px; }
+    h1 { color: #0f3460; font-size: 24px; border-bottom: 3px solid #0f3460; padding-bottom: 10px; }
+    h2 { color: #16213e; font-size: 17px; margin-top: 28px; border-left: 4px solid #0f3460; padding-left: 10px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 20px 0; }
+    .kpi { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+    .kpi .value { font-size: 32px; font-weight: 700; color: #0f3460; }
+    .kpi .label { font-size: 12px; color: #64748b; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+    th { background: #0f3460; color: #fff; padding: 8px 12px; text-align: left; }
+    td { padding: 8px 12px; border-bottom: 1px solid #e2e8f0; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .badge-risk { background: #fef9c3; color: #854d0e; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+    .badge-low { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+    .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <h1>📊 Relatório Executivo de Compliance Tributário</h1>
+  <p style="color:#64748b;font-size:14px;">Período: <strong>${monthName}</strong> &nbsp;|&nbsp; Gerado em: ${reportDate} &nbsp;|&nbsp; Plataforma IA SOLARIS</p>
+  <h2>Indicadores Gerais</h2>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="value">${total}</div><div class="label">Total de Projetos</div></div>
+    <div class="kpi"><div class="value">${avgScore}%</div><div class="label">Score Médio CPIE</div></div>
+    <div class="kpi"><div class="value">${highRisk.length}</div><div class="label">Projetos com Risco</div></div>
+    <div class="kpi"><div class="value">${excellent.length}</div><div class="label">Score Excelente (≥80%)</div></div>
+  </div>
+  <h2>Projetos com Risco de Consistência</h2>
+  ${highRisk.length === 0 ? '<p style="color:#16a34a;">Nenhum projeto com risco de consistência no período.</p>' : `
+  <table>
+    <thead><tr><th>Projeto</th><th>Status</th><th>Score CPIE</th><th>Justificativa</th></tr></thead>
+    <tbody>
+      ${highRisk.map(p => `
+        <tr>
+          <td>${p.name}</td>
+          <td><span class="badge-risk">${p.consistencyStatus === 'warning' ? 'Risco Aceito' : 'Bloqueado'}</span></td>
+          <td>${p.profileCompleteness ?? 0}%</td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.consistencyAcceptedRiskReason ?? '—'}</td>
+        </tr>`).join('')}
+    </tbody>
+  </table>`}
+  <h2>Projetos com Score Baixo (&lt; 50%)</h2>
+  ${lowScore.length === 0 ? '<p style="color:#16a34a;">Todos os projetos com score adequado.</p>' : `
+  <table>
+    <thead><tr><th>Projeto</th><th>Score CPIE</th><th>Status</th></tr></thead>
+    <tbody>
+      ${lowScore.slice(0, 10).map(p => `
+        <tr>
+          <td>${p.name}</td>
+          <td><span class="badge-low">${p.profileCompleteness ?? 0}%</span></td>
+          <td>${p.status ?? 'rascunho'}</td>
+        </tr>`).join('')}
+      ${lowScore.length > 10 ? `<tr><td colspan="3" style="color:#64748b;font-style:italic;">... e mais ${lowScore.length - 10} projetos</td></tr>` : ''}
+    </tbody>
+  </table>`}
+  <div class="footer">
+    Relatório gerado automaticamente pela Plataforma IA SOLARIS &mdash; Compliance Tributário &mdash; Reforma Tributária 2024-2033
+  </div>
+</body>
+</html>`;
+
+  return { html, month: m, year: y, monthName, stats: { total, avgScore, highRisk: highRisk.length, lowScore: lowScore.length, excellent: excellent.length } };
+}

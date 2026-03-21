@@ -21,11 +21,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import {
   ShieldCheck, ShieldAlert, ShieldX, Shield, Search, ExternalLink,
   AlertTriangle, CheckCircle2, Clock, Brain, TrendingUp, RefreshCw,
-  ChevronRight, Info, User, Calendar, Download
+  ChevronRight, Info, User, Calendar, Download, Settings
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CpieReportExport } from "@/components/CpieReportExport";
 import { CpieBatchPanel } from "@/components/CpieBatchPanel";
+import { CpieSettingsPanel } from "@/components/CpieSettingsPanel";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -90,6 +91,7 @@ export default function AdminConsistencia() {
   const [filterStatus, setFilterStatus] = useState<ConsistencyStatus | "all">("all");
   const [selectedProject, setSelectedProject] = useState<ProjectWithConsistency | null>(null);
   const [showBatchPanel, setShowBatchPanel] = useState(false);
+  const [showSettingsPanel, setShowSettingsPanel] = useState(false);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const generateMonthlyReport = trpc.cpie.generateMonthlyReport.useMutation({
@@ -225,6 +227,15 @@ export default function AdminConsistencia() {
             >
               <Download className="h-4 w-4" />Exportar CSV
             </Button>
+            {/* L1: Configurações CPIE */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => setShowSettingsPanel(!showSettingsPanel)}
+            >
+              <Settings className="h-4 w-4" />{showSettingsPanel ? 'Ocultar Config.' : 'Configurações'}
+            </Button>
             <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
               <RefreshCw className="h-4 w-4" />Atualizar
             </Button>
@@ -257,6 +268,15 @@ export default function AdminConsistencia() {
             pendingCount={stats.pending}
             onComplete={() => refetch()}
           />
+        )}
+
+        {/* L1: Painel de configurações CPIE (colapsável) */}
+        {showSettingsPanel && (
+          <Card>
+            <CardContent className="pt-5">
+              <CpieSettingsPanel />
+            </CardContent>
+          </Card>
         )}
 
         {/* Filtros */}
