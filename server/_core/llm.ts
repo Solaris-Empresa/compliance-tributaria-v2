@@ -66,6 +66,8 @@ export type InvokeParams = {
   output_schema?: OutputSchema;
   responseFormat?: ResponseFormat;
   response_format?: ResponseFormat;
+  /** Temperatura de geração (0.0–2.0). Padrão: 0.2 para consistência em compliance tributário. */
+  temperature?: number;
   /** Timeout em milissegundos para a chamada HTTP. Padrão: 180000ms (3min). */
   timeoutMs?: number;
   /**
@@ -294,6 +296,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     output_schema,
     responseFormat,
     response_format,
+    temperature = 0.2,
     timeoutMs = DEFAULT_LLM_TIMEOUT_MS,
     enableCache = false,
   } = params;
@@ -343,6 +346,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   }
 
   payload.max_tokens = 32768;
+  payload.temperature = temperature;
 
   const normalizedResponseFormat = normalizeResponseFormat({
     responseFormat,

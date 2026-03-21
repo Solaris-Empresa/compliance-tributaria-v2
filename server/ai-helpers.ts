@@ -84,7 +84,7 @@ export async function generateWithRetry<T extends z.ZodTypeAny>(
     enableCache?: boolean;
   } = {}
 ): Promise<z.infer<T>> {
-  const { maxRetries = 2, context = "LLM", timeoutMs, enableCache = true } = options;
+  const { maxRetries = 2, context = "LLM", temperature, timeoutMs, enableCache = true } = options;
 
   let lastError: Error | null = null;
 
@@ -93,6 +93,7 @@ export async function generateWithRetry<T extends z.ZodTypeAny>(
       const response = await invokeLLM({
         messages,
         enableCache,
+        ...(temperature !== undefined ? { temperature } : {}),
         ...(timeoutMs !== undefined ? { timeoutMs } : {}),
       } as any);
 
