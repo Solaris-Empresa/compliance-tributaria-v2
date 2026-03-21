@@ -2699,3 +2699,41 @@
 - [ ] G2: Teste funcional end-to-end do fluxo completo
 - [ ] G4: Atualizar documentação oficial (architecture, ux, qa, changelog, super-prompt)
 - [ ] G3: QA humano do Uires (decisão final do P.O.)
+
+## Sprint v6.0 — CPIE + Consistency Gate + Admin
+
+### C1 — CPIE (Company Profile Intelligence Engine)
+- [x] Criar `server/cpie.ts` com calcDimensionScores, calcOverallScore, generateDynamicQuestions, generateSuggestions, runCpieAnalysis
+- [x] Criar `server/routers/cpieRouter.ts` com procedures: analyze, getDynamicQuestions, getSuggestions, saveAnalysis, acceptConsistencyRisk, scoreSync
+- [x] Registrar cpieRouter no appRouter
+
+### C2+C3+C4 — Perguntas dinâmicas, sugestões e score explicável
+- [x] Reescrever `PerfilEmpresaIntelligente.tsx` com painel CPIE integrado
+- [x] Painel de score por dimensão (5 dimensões com pesos)
+- [x] Botão "Analisar com IA" que chama cpie.analyze
+- [x] Painel de perguntas dinâmicas geradas pela IA
+- [x] Painel de sugestões de correção com severidade e justificativa
+- [x] Score em tempo real (scoreSync determinístico)
+
+### D1+D2 — Consistency Gate integrado ao fluxo
+- [x] Adicionar estado consistencyGateResult e modal de bloqueio no NovoProjeto.tsx
+- [x] Chamar consistency.run antes de avançar para extractCnaes
+- [x] Modal de aceitação de risco com justificativa obrigatória (mín. 10 chars)
+- [x] Passar description para PerfilEmpresaIntelligente
+
+### E2 — Persistência de interação IA
+- [x] Procedure cpie.saveAnalysis persiste profileIntelligenceData, profileCompleteness, profileConfidence no banco
+- [x] Procedure cpie.acceptConsistencyRisk persiste consistencyStatus, acceptedRiskBy, acceptedRiskAt, acceptedRiskReason
+
+### F1 — Aba Consistência no painel admin
+- [x] Criar `AdminConsistencia.tsx` com listagem de projetos por status de consistência
+- [x] Cards de resumo (total, ok, warning, blocked, pending, score médio)
+- [x] Filtros por status e busca por nome/cliente
+- [x] Modal de detalhes CPIE (score por dimensão, sugestões, perguntas, risco aceito)
+- [x] Adicionar rota `/admin/consistencia` no App.tsx
+- [x] Adicionar link "Consistência" no menu de navegação (equipe_solaris)
+
+### G1+G2 — Testes automatizados
+- [x] 19 testes unitários para cpie.ts (calcDimensionScores, calcOverallScore, invariantes)
+- [x] 20 testes unitários para consistencyEngine.ts (regras determinísticas, gate, classificação)
+- [x] 39/39 testes passando

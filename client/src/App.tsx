@@ -69,6 +69,7 @@ import GapDiagnostic from "./pages/GapDiagnostic";
 import RiskDashboard from "./pages/RiskDashboard";
 import ConsistencyGate from "./pages/ConsistencyGate";
 import DiagnosticoStepper from "./pages/DiagnosticoStepper";
+import AdminConsistencia from "./pages/AdminConsistencia";
 
 function Router() {
   return (
@@ -121,6 +122,7 @@ function Router() {
       <Route path="/gerenciar-equipe" component={GerenciarEquipe} />
       <Route path="/usuarios" component={Usuarios} />
       <Route path="/admin/embeddings" component={AdminEmbeddings} />
+      <Route path="/admin/consistencia" component={AdminConsistencia} />
       {/* Compliance Engine v3 */}
       <Route path="/projetos/:id/compliance-v3" component={ComplianceDashboardV3} />
       <Route path="/projetos/:id/compliance-v3/gaps" component={GapsV3} />

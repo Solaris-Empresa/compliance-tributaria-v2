@@ -1,21 +1,28 @@
 /**
  * PerfilEmpresaIntelligente.tsx
- * Sprint v6.0 — Issues B1 (redesign visual), B2 (componentes inteligentes), B3 (microcopy)
+ * Sprint v6.0 — Issues B1, B2, B3 (UX redesign) + C1, C2, C3, C4 (CPIE integration)
  *
- * Substitui o formulário frio de 5 blocos por uma experiência assistida por IA:
+ * Experiência assistida por IA:
  * - Layout em 2 colunas: formulário (esq) + painel de score em tempo real (dir)
- * - Componentes de seleção por card visual (sem dropdowns frios)
+ * - Botão "Analisar com IA" → chama CPIE e exibe score por dimensão, perguntas dinâmicas e sugestões
  * - Score de completude e confiança animado
  * - Microcopy contextual e inteligente
  * - CTA principal "Avançar" (não "Salvar" ou botão técnico)
  */
 import { useState, useEffect, useCallback } from "react";
-import { CheckCircle2, Lock, AlertCircle, Sparkles, Building2, TrendingUp, Users, Globe, CreditCard, Shield, ChevronRight, Info } from "lucide-react";
+import {
+  CheckCircle2, Lock, AlertCircle, Sparkles, Building2, TrendingUp,
+  Globe, CreditCard, Shield, ChevronRight, Info, Loader2, Brain,
+  Lightbulb, AlertTriangle, ArrowRight, RefreshCw, MessageSquare
+} from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -56,6 +63,53 @@ export const PERFIL_VAZIO: PerfilEmpresaData = {
   hasAudit: null,
   hasTaxIssues: null,
 };
+
+// Tipos do CPIE (espelham server/cpie.ts)
+interface ScoreDimension {
+  name: string;
+  score: number;
+  weight: number;
+  explanation: string;
+  fieldsEvaluated: string[];
+}
+
+interface DynamicQuestion {
+  id: string;
+  question: string;
+  rationale: string;
+  field?: string;
+  priority: "high" | "medium" | "low";
+  category: string;
+}
+
+interface ProfileSuggestion {
+  id: string;
+  field: string;
+  currentValue?: string;
+  suggestedValue?: string;
+  explanation: string;
+  confidence: number;
+  severity: "info" | "warning" | "critical";
+}
+
+interface ProfileInsight {
+  id: string;
+  title: string;
+  description: string;
+  category: "risk" | "opportunity" | "compliance" | "transition";
+  relevance: "high" | "medium" | "low";
+}
+
+interface CpieResult {
+  overallScore: number;
+  confidenceScore: number;
+  dimensions: ScoreDimension[];
+  dynamicQuestions: DynamicQuestion[];
+  suggestions: ProfileSuggestion[];
+  insights: ProfileInsight[];
+  readinessLevel: "insufficient" | "basic" | "good" | "excellent";
+  readinessMessage: string;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -109,7 +163,6 @@ export function calcProfileScore(p: PerfilEmpresaData): { completeness: number; 
   const reqDone = required.filter(([ok]) => ok).length;
   const optDone = optional.filter(([ok]) => ok).length;
   const completeness = Math.round((reqDone / required.length) * 70 + (optDone / optional.length) * 30);
-  // Confiança: penaliza inconsistências conhecidas
   let confidence = completeness;
   if (p.taxRegime === "simples_nacional" && (p.annualRevenueRange === "acima_50m" || p.annualRevenueRange === "10m_50m")) confidence = Math.max(0, confidence - 20);
   if (p.companySize === "mei" && p.taxRegime !== "simples_nacional") confidence = Math.max(0, confidence - 15);
@@ -187,14 +240,22 @@ function SimNaoToggle({ value, onChange, label, tooltip }: {
   );
 }
 
-/** Painel lateral de score em tempo real */
-function ScorePanel({ completeness, confidence, missingRequired, missingOptional }: {
+// ─── Painel de Score com CPIE ─────────────────────────────────────────────────
+
+function ScorePanel({
+  completeness, confidence, missingRequired, missingOptional,
+  cpieResult, isAnalyzing, onAnalyze, profileData,
+}: {
   completeness: number; confidence: number; missingRequired: string[]; missingOptional: string[];
+  cpieResult: CpieResult | null; isAnalyzing: boolean; onAnalyze: () => void;
+  profileData: PerfilEmpresaData;
 }) {
   const scoreColor = completeness >= 80 ? "text-emerald-600" : completeness >= 50 ? "text-amber-600" : "text-red-500";
   const confidenceColor = confidence >= 80 ? "text-emerald-600" : confidence >= 50 ? "text-amber-600" : "text-red-500";
   const barColor = completeness >= 80 ? "bg-emerald-500" : completeness >= 50 ? "bg-amber-500" : "bg-red-500";
   const confBarColor = confidence >= 80 ? "bg-emerald-500" : confidence >= 50 ? "bg-amber-500" : "bg-red-500";
+
+  const hasMinimumData = !!profileData.companyType && !!profileData.taxRegime;
 
   return (
     <div className="sticky top-4 space-y-4">
@@ -212,10 +273,7 @@ function ScorePanel({ completeness, confidence, missingRequired, missingOptional
             <span className={cn("text-lg font-bold tabular-nums", scoreColor)}>{completeness}%</span>
           </div>
           <div className="h-2 rounded-full bg-muted overflow-hidden">
-            <div
-              className={cn("h-full rounded-full transition-all duration-500", barColor)}
-              style={{ width: `${completeness}%` }}
-            />
+            <div className={cn("h-full rounded-full transition-all duration-500", barColor)} style={{ width: `${completeness}%` }} />
           </div>
         </div>
 
@@ -226,10 +284,7 @@ function ScorePanel({ completeness, confidence, missingRequired, missingOptional
             <span className={cn("text-lg font-bold tabular-nums", confidenceColor)}>{confidence}%</span>
           </div>
           <div className="h-2 rounded-full bg-muted overflow-hidden">
-            <div
-              className={cn("h-full rounded-full transition-all duration-500", confBarColor)}
-              style={{ width: `${confidence}%` }}
-            />
+            <div className={cn("h-full rounded-full transition-all duration-500", confBarColor)} style={{ width: `${confidence}%` }} />
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed">
             {confidence >= 80
@@ -239,10 +294,170 @@ function ScorePanel({ completeness, confidence, missingRequired, missingOptional
               : "Perfil insuficiente. Preencha os campos obrigatórios."}
           </p>
         </div>
+
+        {/* Botão Analisar com IA */}
+        <Button
+          size="sm"
+          variant={cpieResult ? "outline" : "default"}
+          className="w-full gap-2"
+          onClick={onAnalyze}
+          disabled={isAnalyzing || !hasMinimumData}
+        >
+          {isAnalyzing ? (
+            <><Loader2 className="h-3.5 w-3.5 animate-spin" />Analisando...</>
+          ) : cpieResult ? (
+            <><RefreshCw className="h-3.5 w-3.5" />Reanalisar com IA</>
+          ) : (
+            <><Brain className="h-3.5 w-3.5" />Analisar com IA</>
+          )}
+        </Button>
+        {!hasMinimumData && (
+          <p className="text-xs text-muted-foreground text-center -mt-1">Preencha tipo jurídico e regime tributário para ativar</p>
+        )}
       </div>
 
-      {/* Campos obrigatórios faltantes */}
-      {missingRequired.length > 0 && (
+      {/* Resultado CPIE */}
+      {cpieResult && (
+        <>
+          {/* Score por dimensão */}
+          <div className="rounded-2xl border bg-card p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Brain className="h-4 w-4 text-primary" />
+              <span className="text-sm font-semibold">Score por Dimensão</span>
+            </div>
+            <div className="space-y-2.5">
+              {cpieResult.dimensions.map((dim) => {
+                const dimColor = dim.score >= 80 ? "bg-emerald-500" : dim.score >= 50 ? "bg-amber-500" : "bg-red-500";
+                const dimTextColor = dim.score >= 80 ? "text-emerald-600" : dim.score >= 50 ? "text-amber-600" : "text-red-500";
+                return (
+                  <TooltipProvider key={dim.name}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="space-y-1 cursor-help">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">{dim.name}</span>
+                            <span className={cn("text-xs font-bold tabular-nums", dimTextColor)}>{dim.score}%</span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                            <div className={cn("h-full rounded-full transition-all duration-500", dimColor)} style={{ width: `${dim.score}%` }} />
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-xs text-xs">
+                        <p className="font-medium mb-1">{dim.explanation}</p>
+                        <p className="text-muted-foreground">Peso: {dim.weight}%</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              })}
+            </div>
+            <div className={cn(
+              "text-xs px-3 py-2 rounded-lg font-medium mt-1",
+              cpieResult.readinessLevel === "excellent" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400" :
+              cpieResult.readinessLevel === "good" ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400" :
+              cpieResult.readinessLevel === "basic" ? "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400" :
+              "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
+            )}>
+              {cpieResult.readinessMessage}
+            </div>
+          </div>
+
+          {/* Sugestões de correção */}
+          {cpieResult.suggestions.length > 0 && (
+            <div className="rounded-2xl border bg-card p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-500" />
+                <span className="text-sm font-semibold">Sugestões da IA</span>
+                <Badge variant="outline" className="text-xs ml-auto">{cpieResult.suggestions.length}</Badge>
+              </div>
+              <div className="space-y-2.5">
+                {cpieResult.suggestions.map((sug) => (
+                  <div
+                    key={sug.id}
+                    className={cn(
+                      "rounded-xl p-3 space-y-1.5 border",
+                      sug.severity === "critical" ? "bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-800" :
+                      sug.severity === "warning" ? "bg-amber-50 border-amber-200 dark:bg-amber-900/10 dark:border-amber-800" :
+                      "bg-blue-50 border-blue-200 dark:bg-blue-900/10 dark:border-blue-800"
+                    )}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span className={cn(
+                        "text-xs font-semibold",
+                        sug.severity === "critical" ? "text-red-700 dark:text-red-400" :
+                        sug.severity === "warning" ? "text-amber-700 dark:text-amber-400" :
+                        "text-blue-700 dark:text-blue-400"
+                      )}>{sug.field}</span>
+                      <span className="text-xs text-muted-foreground ml-auto">{sug.confidence}% confiança</span>
+                    </div>
+                    <p className="text-xs leading-relaxed text-foreground/80">{sug.explanation}</p>
+                    {sug.suggestedValue && (
+                      <div className="flex items-center gap-1 text-xs">
+                        <span className="text-muted-foreground line-through">{sug.currentValue}</span>
+                        <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                        <span className="font-medium text-foreground">{sug.suggestedValue}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Perguntas dinâmicas */}
+          {cpieResult.dynamicQuestions.length > 0 && (
+            <div className="rounded-2xl border bg-card p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold">Perguntas da IA</span>
+                <Badge variant="outline" className="text-xs ml-auto">{cpieResult.dynamicQuestions.length}</Badge>
+              </div>
+              <div className="space-y-2.5">
+                {cpieResult.dynamicQuestions.map((q) => (
+                  <div key={q.id} className="rounded-xl border border-border bg-muted/20 p-3 space-y-1">
+                    <div className="flex items-start gap-2">
+                      <span className={cn(
+                        "shrink-0 mt-0.5 w-1.5 h-1.5 rounded-full",
+                        q.priority === "high" ? "bg-red-500" : q.priority === "medium" ? "bg-amber-500" : "bg-blue-400"
+                      )} />
+                      <p className="text-xs font-medium leading-snug">{q.question}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed pl-3.5">{q.rationale}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Insights */}
+          {cpieResult.insights.length > 0 && (
+            <div className="rounded-2xl border bg-card p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Lightbulb className="h-4 w-4 text-yellow-500" />
+                <span className="text-sm font-semibold">Insights Tributários</span>
+              </div>
+              <div className="space-y-2.5">
+                {cpieResult.insights.map((ins) => (
+                  <div key={ins.id} className={cn(
+                    "rounded-xl p-3 space-y-1 border",
+                    ins.category === "risk" ? "bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-800" :
+                    ins.category === "opportunity" ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-900/10 dark:border-emerald-800" :
+                    ins.category === "transition" ? "bg-purple-50 border-purple-200 dark:bg-purple-900/10 dark:border-purple-800" :
+                    "bg-blue-50 border-blue-200 dark:bg-blue-900/10 dark:border-blue-800"
+                  )}>
+                    <p className="text-xs font-semibold">{ins.title}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{ins.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Campos obrigatórios faltantes (quando não há CPIE result) */}
+      {!cpieResult && missingRequired.length > 0 && (
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 space-y-2">
           <div className="flex items-center gap-1.5">
             <Lock className="h-3.5 w-3.5 text-destructive" />
@@ -258,8 +473,8 @@ function ScorePanel({ completeness, confidence, missingRequired, missingOptional
         </div>
       )}
 
-      {/* Campos opcionais faltantes (top 3) */}
-      {missingRequired.length === 0 && missingOptional.length > 0 && (
+      {/* Campos opcionais faltantes */}
+      {!cpieResult && missingRequired.length === 0 && missingOptional.length > 0 && (
         <div className="rounded-xl border border-amber-300/40 bg-amber-50/50 dark:bg-amber-900/10 p-4 space-y-2">
           <div className="flex items-center gap-1.5">
             <TrendingUp className="h-3.5 w-3.5 text-amber-600" />
@@ -279,7 +494,7 @@ function ScorePanel({ completeness, confidence, missingRequired, missingOptional
       )}
 
       {/* Perfil completo */}
-      {missingRequired.length === 0 && missingOptional.length === 0 && (
+      {!cpieResult && missingRequired.length === 0 && missingOptional.length === 0 && (
         <div className="rounded-xl border border-emerald-300/40 bg-emerald-50/50 dark:bg-emerald-900/10 p-4">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
@@ -299,11 +514,46 @@ interface PerfilEmpresaIntelligenteProps {
   onChange: (data: PerfilEmpresaData) => void;
   /** Se true, exibe o painel lateral de score */
   showScorePanel?: boolean;
+  /** Descrição do negócio (passada pelo NovoProjeto para enriquecer a análise) */
+  description?: string;
 }
 
-export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true }: PerfilEmpresaIntelligenteProps) {
+export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description }: PerfilEmpresaIntelligenteProps) {
   const [cnpjError, setCnpjError] = useState("");
+  const [cpieResult, setCpieResult] = useState<CpieResult | null>(null);
   const score = calcProfileScore(value);
+
+  const analyzeProfile = trpc.cpie.analyze.useMutation({
+    onSuccess: (data) => {
+      setCpieResult(data as CpieResult);
+      toast.success("Análise IA concluída! Veja as sugestões no painel.");
+    },
+    onError: () => {
+      toast.error("Erro ao analisar perfil. Tente novamente.");
+    },
+  });
+
+  const handleAnalyze = () => {
+    analyzeProfile.mutate({
+      cnpj: value.cnpj || undefined,
+      companyType: value.companyType || undefined,
+      companySize: value.companySize || undefined,
+      annualRevenueRange: value.annualRevenueRange || undefined,
+      taxRegime: value.taxRegime || undefined,
+      operationType: value.operationType || undefined,
+      clientType: value.clientType.length > 0 ? value.clientType : undefined,
+      multiState: value.multiState,
+      hasMultipleEstablishments: value.hasMultipleEstablishments,
+      hasImportExport: value.hasImportExport,
+      hasSpecialRegimes: value.hasSpecialRegimes,
+      paymentMethods: value.paymentMethods.length > 0 ? value.paymentMethods : undefined,
+      hasIntermediaries: value.hasIntermediaries,
+      hasTaxTeam: value.hasTaxTeam,
+      hasAudit: value.hasAudit,
+      hasTaxIssues: value.hasTaxIssues,
+      description: description || undefined,
+    });
+  };
 
   const set = useCallback(<K extends keyof PerfilEmpresaData>(key: K, val: PerfilEmpresaData[K]) => {
     onChange({ ...value, [key]: val });
@@ -361,21 +611,20 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         {/* Tipo Jurídico */}
         <div className="space-y-2">
           <Label className="text-sm">Tipo Jurídico <span className="text-destructive">*</span></Label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {[
-              { value: "ltda", label: "Ltda", sublabel: "Limitada" },
+              { value: "ltda", label: "LTDA", sublabel: "Sociedade Limitada" },
               { value: "sa", label: "S.A.", sublabel: "Sociedade Anônima" },
-              { value: "mei", label: "MEI", sublabel: "Microempreendedor" },
-              { value: "eireli", label: "Eireli", sublabel: "Empresa Individual" },
-              { value: "scp", label: "SCP", sublabel: "Sociedade em Conta de Participação" },
-              { value: "cooperativa", label: "Cooperativa", sublabel: "" },
-              { value: "outro", label: "Outro", sublabel: "" },
+              { value: "mei", label: "MEI", sublabel: "Microempreendedor Individual" },
+              { value: "eireli", label: "EIRELI", sublabel: "Empresa Individual de Resp. Limitada" },
+              { value: "slu", label: "SLU", sublabel: "Sociedade Limitada Unipessoal" },
+              { value: "outros", label: "Outros", sublabel: "Cooperativa, Associação, etc." },
             ].map((opt) => (
               <SelectCard
                 key={opt.value}
                 value={opt.value}
                 selected={value.companyType === opt.value}
-                onClick={() => set("companyType", value.companyType === opt.value ? "" : opt.value)}
+                onClick={() => set("companyType", opt.value)}
                 label={opt.label}
                 sublabel={opt.sublabel}
               />
@@ -386,10 +635,10 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         {/* Porte */}
         <div className="space-y-2">
           <Label className="text-sm">Porte da Empresa <span className="text-destructive">*</span></Label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {[
               { value: "mei", label: "MEI", sublabel: "Até R$ 81 mil/ano" },
-              { value: "micro", label: "Micro", sublabel: "Até R$ 360 mil/ano" },
+              { value: "micro", label: "Microempresa", sublabel: "Até R$ 360 mil/ano" },
               { value: "pequena", label: "Pequena", sublabel: "Até R$ 4,8 mi/ano" },
               { value: "media", label: "Média", sublabel: "Até R$ 300 mi/ano" },
               { value: "grande", label: "Grande", sublabel: "Acima de R$ 300 mi/ano" },
@@ -398,7 +647,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                 key={opt.value}
                 value={opt.value}
                 selected={value.companySize === opt.value}
-                onClick={() => set("companySize", value.companySize === opt.value ? "" : opt.value)}
+                onClick={() => set("companySize", opt.value)}
                 label={opt.label}
                 sublabel={opt.sublabel}
               />
@@ -407,64 +656,50 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         </div>
       </section>
 
-      {/* ── Seção 2: Regime e Faturamento ───────────────────────────────── */}
+      {/* ── Seção 2: Regime Tributário ──────────────────────────────────── */}
       <section className="space-y-4">
         <div className="flex items-center gap-2 pb-1 border-b">
-          <TrendingUp className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold">Regime Tributário e Faturamento</h3>
+          <CreditCard className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold">Regime Tributário</h3>
           <Badge variant="secondary" className="text-xs">Obrigatório</Badge>
         </div>
 
-        {/* Regime Tributário */}
+        {/* Regime */}
         <div className="space-y-2">
-          <Label className="text-sm">Regime Tributário <span className="text-destructive">*</span></Label>
-          <p className="text-xs text-muted-foreground">O regime define as obrigações acessórias e o impacto da Reforma Tributária.</p>
+          <Label className="text-sm">Regime Atual <span className="text-destructive">*</span></Label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {[
-              { value: "simples_nacional", label: "Simples Nacional", sublabel: "Faturamento até R$ 4,8 mi/ano" },
-              { value: "lucro_presumido", label: "Lucro Presumido", sublabel: "Faturamento até R$ 78 mi/ano" },
+              { value: "simples_nacional", label: "Simples Nacional", sublabel: "Receita até R$ 4,8 mi/ano" },
+              { value: "lucro_presumido", label: "Lucro Presumido", sublabel: "Receita até R$ 78 mi/ano" },
               { value: "lucro_real", label: "Lucro Real", sublabel: "Obrigatório acima de R$ 78 mi/ano" },
-              { value: "lucro_arbitrado", label: "Lucro Arbitrado", sublabel: "Determinado pelo Fisco" },
-              { value: "imune_isento", label: "Imune/Isento", sublabel: "Entidades sem fins lucrativos" },
             ].map((opt) => (
               <SelectCard
                 key={opt.value}
                 value={opt.value}
                 selected={value.taxRegime === opt.value}
-                onClick={() => set("taxRegime", value.taxRegime === opt.value ? "" : opt.value)}
+                onClick={() => set("taxRegime", opt.value)}
                 label={opt.label}
                 sublabel={opt.sublabel}
               />
             ))}
           </div>
-          {/* Alerta de inconsistência */}
-          {value.taxRegime === "simples_nacional" && (value.annualRevenueRange === "acima_50m" || value.annualRevenueRange === "10m_50m") && (
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-300/50">
-              <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-              <p className="text-xs text-amber-700 dark:text-amber-400">
-                <strong>Atenção:</strong> Simples Nacional tem limite de R$ 4,8 mi/ano. O faturamento informado excede esse limite. Verifique o regime tributário correto.
-              </p>
-            </div>
-          )}
         </div>
 
-        {/* Faturamento Anual */}
+        {/* Faturamento */}
         <div className="space-y-2">
-          <Label className="text-sm">Faturamento Anual <span className="text-muted-foreground text-xs">(opcional)</span></Label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <Label className="text-sm">Faturamento Anual Estimado</Label>
+          <div className="grid grid-cols-2 gap-2">
             {[
-              { value: "ate_81k", label: "Até R$ 81 mil" },
-              { value: "ate_360k", label: "R$ 81 mil – R$ 360 mil" },
-              { value: "ate_4_8m", label: "R$ 360 mil – R$ 4,8 mi" },
-              { value: "ate_10m", label: "R$ 4,8 mi – R$ 10 mi" },
-              { value: "10m_50m", label: "R$ 10 mi – R$ 50 mi" },
-              { value: "acima_50m", label: "Acima de R$ 50 mi" },
+              { value: "0-360000", label: "Até R$ 360 mil" },
+              { value: "360000-4800000", label: "R$ 360 mil – R$ 4,8 mi" },
+              { value: "4800000-78000000", label: "R$ 4,8 mi – R$ 78 mi" },
+              { value: "78000000+", label: "Acima de R$ 78 mi" },
             ].map((opt) => (
               <SelectCard
                 key={opt.value}
                 value={opt.value}
                 selected={value.annualRevenueRange === opt.value}
-                onClick={() => set("annualRevenueRange", value.annualRevenueRange === opt.value ? "" : opt.value)}
+                onClick={() => set("annualRevenueRange", opt.value)}
                 label={opt.label}
               />
             ))}
@@ -472,31 +707,31 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         </div>
       </section>
 
-      {/* ── Seção 3: Operação ────────────────────────────────────────────── */}
+      {/* ── Seção 3: Operações ───────────────────────────────────────────── */}
       <section className="space-y-4">
         <div className="flex items-center gap-2 pb-1 border-b">
           <Globe className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold">Perfil Operacional</h3>
+          <h3 className="text-sm font-semibold">Operações</h3>
           <Badge variant="secondary" className="text-xs">Obrigatório</Badge>
         </div>
 
         {/* Tipo de Operação */}
         <div className="space-y-2">
-          <Label className="text-sm">Tipo de Operação <span className="text-destructive">*</span></Label>
+          <Label className="text-sm">Tipo de Operação Principal <span className="text-destructive">*</span></Label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {[
-              { value: "industria", label: "Indústria", sublabel: "Produção e manufatura" },
-              { value: "comercio", label: "Comércio", sublabel: "Compra e revenda" },
+              { value: "industria", label: "Indústria", sublabel: "Fabricação e transformação" },
+              { value: "comercio", label: "Comércio", sublabel: "Compra e venda de mercadorias" },
               { value: "servicos", label: "Serviços", sublabel: "Prestação de serviços" },
-              { value: "misto", label: "Misto", sublabel: "Indústria + Comércio + Serviços" },
-              { value: "financeiro", label: "Financeiro", sublabel: "Banco, seguradora, fintech" },
-              { value: "agro", label: "Agronegócio", sublabel: "Produção rural e agropecuária" },
+              { value: "misto", label: "Misto", sublabel: "Comércio + Serviços" },
+              { value: "agronegocio", label: "Agronegócio", sublabel: "Atividade rural" },
+              { value: "financeiro", label: "Financeiro", sublabel: "Bancos, seguros, fintechs" },
             ].map((opt) => (
               <SelectCard
                 key={opt.value}
                 value={opt.value}
                 selected={value.operationType === opt.value}
-                onClick={() => set("operationType", value.operationType === opt.value ? "" : opt.value)}
+                onClick={() => set("operationType", opt.value)}
                 label={opt.label}
                 sublabel={opt.sublabel}
               />
@@ -620,9 +855,15 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
   if (!showScorePanel) return formContent;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
       <div>{formContent}</div>
-      <ScorePanel {...score} />
+      <ScorePanel
+        {...score}
+        cpieResult={cpieResult}
+        isAnalyzing={analyzeProfile.isPending}
+        onAnalyze={handleAnalyze}
+        profileData={value}
+      />
     </div>
   );
 }

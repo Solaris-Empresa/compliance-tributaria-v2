@@ -12,6 +12,7 @@ import {
   BookOpen,
   Plus,
   Cpu,
+  Shield,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -94,6 +95,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
   if (user?.role === "equipe_solaris") {
     navItems.push({ href: "/usuarios", icon: Users, label: "Usuários" });
     navItems.push({ href: "/admin/embeddings", icon: Cpu, label: "Embeddings" });
+    navItems.push({ href: "/admin/consistencia", icon: Shield, label: "Consistência" });
   }
 
   if (user?.role === "cliente") {

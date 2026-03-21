@@ -61,6 +61,7 @@ import { gapRouter } from "./routers/gapRouter";
 import { riskRouter } from "./routers/riskRouter";
 import { consistencyRouter } from "./routers/consistencyRouter";
 import { flowRouter } from "./routers/flowRouter";
+import { cpieRouter } from "./routers/cpieRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -93,6 +94,7 @@ export const appRouter = router({
   risk: riskRouter,
   consistency: consistencyRouter,
   flow: flowRouter,
+  cpie: cpieRouter,
 
   // ==========================================================================
   // AUTH
