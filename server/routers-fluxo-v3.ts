@@ -169,20 +169,32 @@ Responda em JSON:
             },
           ],
           CnaesResponseSchema,
-          { temperature: 0.1, context: "extractCnaes" }
+          {
+            temperature: 0.1,
+            context: "extractCnaes",
+            // Timeout de 25s: GPT-4.1 responde em <5s normalmente;
+            // acima disso o fallback semântico garante sugestões ao usuário
+            timeoutMs: 25_000,
+            maxRetries: 1, // Uma única tentativa — se falhar, fallback semântico imediato
+          }
         );
       } catch (aiError) {
-        // ── Monitoramento: log estruturado do erro LLM ──────────────────────
+        // ── Monitoramento: log estruturado do erro LLM ──────────────────
         const errMsg = aiError instanceof Error ? aiError.message : String(aiError);
+        const isTimeout = errMsg.toLowerCase().includes("timed out") ||
+          errMsg.toLowerCase().includes("timeout") ||
+          errMsg.toLowerCase().includes("abort");
         const descPreview = input.description.substring(0, 120).replace(/\n/g, " ");
         console.error(
-          `[extractCnaes][ERROR] projectId=${input.projectId} | descPreview="${descPreview}" | erro=${errMsg}`
+          `[extractCnaes][${isTimeout ? "TIMEOUT" : "ERROR"}] projectId=${input.projectId} | descPreview="${descPreview}" | erro=${errMsg}`
         );
         // Notificar owner em produção para alertas imediatos
         try {
           const { notifyOwner } = await import("./_core/notification");
           await notifyOwner({
-            title: "⚠️ extractCnaes falhou — fallback ativado",
+            title: isTimeout
+              ? "⏱️ extractCnaes — Timeout (>25s) — fallback ativado"
+              : "⚠️ extractCnaes falhou — fallback ativado",
             content: `Projeto #${input.projectId}\nDescrição: "${descPreview}"\nErro: ${errMsg}`,
           });
         } catch { /* notificação é best-effort */ }

@@ -6,6 +6,18 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [5.2.0] - Resiliência CNAE Discovery — Timeout + Alertas Granulares - 2026-03-21
+
+### Adicionado
+- **Timeout explícito de 25s** no `extractCnaes`: `timeoutMs: 25_000` + `maxRetries: 1`. GPT-4.1 responde em <5s normalmente; acima disso o fallback semântico garante sugestões ao usuário imediatamente.
+- **Detecção de fallback semântico no frontend**: estado `isCnaeFallback` detecta quando os CNAEs vêm do fallback (confidence ≤70 + justificativa padrão).
+- **Banner de aviso no modal de CNAEs**: quando o fallback semântico é ativado, exibe alerta amber orientando o usuário a revisar as sugestões ou pedir nova análise.
+- **Alerta imediato de chave expirada** no job de rebuild de embeddings: HTTP 401/403 da OpenAI aborta o rebuild e envia `notifyOwner` com instruções de ação.
+- **Alerta de falha parcial** no rebuild: se >10% dos batches falharem, envia `notifyOwner` com taxa de erro e último erro.
+- **Log diferenciado TIMEOUT vs ERROR** no `extractCnaes`: facilita diagnóstico nos logs do servidor.
+
+---
+
 ## [5.1.0] - Fix CNAE Discovery + Monitoramento LLM - 2026-03-21
 
 ### Corrigido

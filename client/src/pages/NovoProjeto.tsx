@@ -190,6 +190,8 @@ export default function NovoProjeto() {
   const [showNewClientModal, setShowNewClientModal] = useState(false);
   const [editingCnae, setEditingCnae] = useState<Cnae | null>(null);
   const [suggestedCnaes, setSuggestedCnaes] = useState<Cnae[]>([]);
+  // true quando os CNAEs vêm do fallback semântico (IA falhou ou timeout >25s)
+  const [isCnaeFallback, setIsCnaeFallback] = useState(false);
   const [selectedCnaes, setSelectedCnaes] = useState<Set<string>>(new Set());
   const [customCnaes, setCustomCnaes] = useState<Cnae[]>([]);
   const [newCnaeCode, setNewCnaeCode] = useState("");
@@ -243,9 +245,14 @@ export default function NovoProjeto() {
     onSuccess: (data) => {
       setSuggestedCnaes(data.cnaes);
       setSelectedCnaes(new Set(data.cnaes.map((c: Cnae) => c.code)));
+      // Detecta fallback semântico: todos os CNAEs com confidence ≤70 e justificativa padrão
+      const fallback = data.cnaes.length > 0 &&
+        data.cnaes.every((c: Cnae) => c.confidence <= 70) &&
+        data.cnaes.some((c: Cnae) => c.justification?.includes("similaridade semântica"));
+      setIsCnaeFallback(fallback);
       setShowCnaeModal(true);
     },
-    onError: () => { toast.error("Não foi possível extrair CNAEs automaticamente. Adicione manualmente."); setShowCnaeModal(true); },
+    onError: () => { toast.error("Não foi possível extrair CNAEs automaticamente. Adicione manualmente."); setIsCnaeFallback(false); setShowCnaeModal(true); },
   });
 
   const refineCnaes = trpc.fluxoV3.refineCnaes.useMutation({
@@ -934,6 +941,12 @@ export default function NovoProjeto() {
               </div>
             ) : (
               <>
+                {isCnaeFallback && allCnaes.length > 0 && (
+                  <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-800 text-xs mb-1">
+                    <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                    <span>A IA demorou mais que o esperado e usou <strong>busca semântica</strong> como alternativa. Revise as sugestões com atenção ou clique em <strong>Pedir nova análise</strong> para tentar novamente.</span>
+                  </div>
+                )}
                 {allCnaes.length > 0 ? (
                   <div className="space-y-3">
                     {allCnaes.map((cnae) => (

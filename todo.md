@@ -2616,3 +2616,13 @@
 - [x] Notificar owner via notifyOwner quando extractCnaes falha (para alertas em produção)
 - [x] Atualizar CHANGELOG.md com entrada de monitoramento LLM
 - [ ] Atualizar documentação técnica (DOCUMENTACAO-IA-GENERATIVA)
+
+## Sprint v5.2.0 — Resiliência CNAE Discovery — 21/03/2026
+- [x] Alerta notifyOwner no job de rebuild de embeddings (falha de banco, API)
+- [x] Alerta imediato HTTP 401/403 (chave expirada) com abort do rebuild
+- [x] Alerta de falha parcial se >10% dos batches falharem
+- [x] Timeout explícito de 25s no extractCnaes (timeoutMs: 25_000, maxRetries: 1)
+- [x] Detecção de fallback semântico no frontend (isCnaeFallback)
+- [x] Banner de aviso no modal de CNAEs quando fallback semântico é ativado
+- [x] Log diferenciado TIMEOUT vs ERROR no extractCnaes
+- [x] Atualizar CHANGELOG.md com entrada [5.2.0]

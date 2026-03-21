@@ -12,7 +12,12 @@
  * - Registro de cada execução na tabela embeddingRebuildLogs
  * - Notificação ao owner via notifyOwner() ao concluir ou falhar
  * - Proteção contra execução dupla (verifica rebuildState.running)
+ * - Alerta imediato se OPENAI_API_KEY expirar no meio do rebuild (HTTP 401)
+ * - Alerta de falha parcial se >10% dos batches falharem
  */
+
+/** Threshold de erros de batch acima do qual emite alerta de falha parcial (10%) */
+const ERROR_RATE_THRESHOLD = 0.10;
 
 import cron from "node-cron";
 import { getDb } from "./db";
@@ -107,6 +112,19 @@ export async function runScheduledRebuild(): Promise<void> {
 
       if (!response.ok) {
         const errText = await response.text();
+        // ── Alerta imediato para chave expirada/inválida (HTTP 401/403) ──────
+        if (response.status === 401 || response.status === 403) {
+          console.error(
+            `[embeddings-scheduler] 🔑 OPENAI_API_KEY inválida ou expirada (HTTP ${response.status}) no batch ${batchIdx + 1} — abortando rebuild`
+          );
+          await notifyOwner({
+            title: "🔑 Rebuild Embeddings CNAE — Chave OpenAI Inválida",
+            content: `O rebuild automático foi **abortado** porque a OPENAI_API_KEY retornou HTTP ${response.status} (não autorizado).\n\n**Batch:** ${batchIdx + 1}/${Math.ceil(CNAE_TABLE.length / BATCH_SIZE)}\n**Processados até o momento:** ${processed}/${CNAE_TABLE.length} CNAEs\n\n**Ação necessária:** Verifique e atualize a OPENAI_API_KEY nos secrets do projeto.`,
+          }).catch(() => {});
+          // Abortar o rebuild imediatamente — não faz sentido continuar
+          break;
+        }
+        // ─────────────────────────────────────────────────────────────────────
         throw new Error(`OpenAI API error ${response.status}: ${errText}`);
       }
 
@@ -160,7 +178,21 @@ export async function runScheduledRebuild(): Promise<void> {
 
   const finishedAt = new Date();
   const durationSeconds = Math.round((finishedAt.getTime() - startedAt.getTime()) / 1000);
+  const totalBatches = Math.ceil(CNAE_TABLE.length / BATCH_SIZE);
+  const errorRate = totalBatches > 0 ? errors / totalBatches : 0;
   const status = errors > 0 && processed === 0 ? "failed" : "completed";
+
+  // ── Alerta de falha parcial se taxa de erros superar threshold ────────────
+  if (status === "completed" && errorRate > ERROR_RATE_THRESHOLD) {
+    console.warn(
+      `[embeddings-scheduler] ⚠️ Alta taxa de erros: ${errors}/${totalBatches} batches falharam (${(errorRate * 100).toFixed(1)}%)`
+    );
+    await notifyOwner({
+      title: "⚠️ Rebuild Embeddings CNAE — Falha Parcial",
+      content: `O rebuild foi concluído mas com **alta taxa de erros**.\n\n**Processados:** ${processed}/${CNAE_TABLE.length} CNAEs\n**Batches com erro:** ${errors}/${totalBatches} (${(errorRate * 100).toFixed(1)}%)\n**Último erro:** ${lastError ?? "desconhecido"}\n**Duração:** ${durationSeconds}s\n\nVerifique os logs do servidor para mais detalhes.`,
+    }).catch(() => {});
+  }
+  // ─────────────────────────────────────────────────────────────────────────
 
   // Atualizar log final no banco
   if (logId) {
