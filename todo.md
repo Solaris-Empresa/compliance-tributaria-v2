@@ -2645,3 +2645,8 @@
 - [x] Injetar BUILD_VERSION no processo via package.json scripts (git rev-parse --short HEAD)
 - [x] 21 testes unitários passando (tracer-version.test.ts)
 - [x] Atualizar CHANGELOG.md com entrada [5.5.0]
+
+## Sprint v5.5.1 — Endpoint de Validação On-Demand
+
+- [x] Endpoint GET /api/health/cnae/validate: executa validação on-demand sem esperar cron semanal
+- [x] Testado em dev: 4/4 casos passaram, 1332 embeddings (100%), 5.5s

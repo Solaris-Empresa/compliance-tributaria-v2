@@ -12,6 +12,7 @@ import "./deadline-checker"; // Inicializar verificador de prazos
 import { initEmbeddingsScheduler } from "../embeddings-scheduler"; // Cron de rebuild de embeddings CNAE
 import { checkCnaeHealth } from "../cnae-health"; // Health check do pipeline CNAE
 import { getBuildVersionInfo } from "../build-version"; // Informações de versão do build
+import { validateCnaePipeline } from "../cnae-pipeline-validator"; // Validação on-demand do pipeline
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -54,6 +55,31 @@ async function startServer() {
         checkedAt: new Date().toISOString(),
         status: "down",
         summary: `Erro interno no health check: ${err instanceof Error ? err.message : String(err)}`,
+      });
+    }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // ── Validação on-demand do pipeline CNAE ──────────────────────────────
+  // GET /api/health/cnae/validate — executa os 4 casos canônicos de busca semântica
+  // Permite verificar o pipeline imediatamente após deploy ou rebuild manual
+  // ATENÇÃO: consome tokens da OpenAI (4 embeddings + 0 LLM calls) — use com parcimônia
+  app.get("/api/health/cnae/validate", async (_req, res) => {
+    const startedAt = new Date().toISOString();
+    try {
+      const result = await validateCnaePipeline();
+      const httpStatus = result.success ? 200 : 503;
+      res.status(httpStatus).json({
+        startedAt,
+        finishedAt: new Date().toISOString(),
+        ...result,
+      });
+    } catch (err) {
+      res.status(500).json({
+        startedAt,
+        finishedAt: new Date().toISOString(),
+        passed: false,
+        error: `Erro interno na validação: ${err instanceof Error ? err.message : String(err)}`,
       });
     }
   });
