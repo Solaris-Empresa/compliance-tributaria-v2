@@ -116,6 +116,24 @@ export const projects = mysqlTable("projects", {
     operational: "not_started" | "in_progress" | "completed";
     cnae: "not_started" | "in_progress" | "completed";
   }>(), // { corporate, operational, cnae } — cada um: not_started | in_progress | completed
+  // v6.0 Profile Intelligence — scores, análise IA e persistência
+  profileCompleteness: int("profileCompleteness").default(0),  // 0-100: % de campos preenchidos
+  profileConfidence: int("profileConfidence").default(0),      // 0-100: score de confiança da IA
+  profileIntelligenceData: json("profileIntelligenceData").$type<{
+    dynamicQuestions: Array<{ id: string; question: string; field: string; priority: number; answered: boolean }>;
+    suggestions: Array<{ field: string; currentValue: string; suggestedValue: string; reason: string; accepted: boolean }>;
+    scoreBreakdown: Array<{ category: string; score: number; maxScore: number; issues: string[] }>;
+    analysisVersion: string;
+  }>(),  // Perguntas dinâmicas, sugestões e breakdown do score
+  profileLastAnalyzedAt: timestamp("profileLastAnalyzedAt"),   // Timestamp da última análise IA
+  profileVersion: varchar("profileVersion", { length: 20 }).default("1.0"), // Versão do schema de perfil
+  // v6.0 Consistency Gate — status e aceitação de risco
+  consistencyStatus: mysqlEnum("consistencyStatus", [
+    "pending", "analyzing", "ok", "warning", "blocked"
+  ]).default("pending"),  // Estado do gate de consistência
+  consistencyAcceptedRiskBy: int("consistencyAcceptedRiskBy"),  // userId que aceitou o risco
+  consistencyAcceptedRiskAt: timestamp("consistencyAcceptedRiskAt"),  // Timestamp da aceitação
+  consistencyAcceptedRiskReason: varchar("consistencyAcceptedRiskReason", { length: 500 }), // Justificativa (mín. 20 chars)
 });
 
 export type Project = typeof projects.$inferSelect;
