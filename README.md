@@ -14,6 +14,11 @@ Sistema completo de gestão de compliance tributário desenvolvido para auxiliar
 - [Troubleshooting](#troubleshooting)
 - [Deploy](#deploy)
 
+**Documentação Técnica Detalhada:**
+- [`docs/OBSERVABILITY.md`](docs/OBSERVABILITY.md) — Health checks, tracing estruturado, endpoints de diagnóstico
+- [`docs/DEPLOY-GUIDE.md`](docs/DEPLOY-GUIDE.md) — Fluxo de deploy, controle de versão, checklist, rollback
+- [`docs/architecture/cnae-pipeline.md`](docs/architecture/cnae-pipeline.md) — Arquitetura do pipeline CNAE Discovery
+
 ---
 
 ## 🎯 Visão Geral
@@ -497,23 +502,41 @@ Este problema ocorre quando o mesmo erro é capturado e exibido múltiplas vezes
 
 ## 🚀 Deploy
 
-O sistema está configurado para deploy na plataforma Manus que oferece hosting integrado, domínios customizados e SSL automático.
+O sistema está configurado para deploy na plataforma Manus que oferece hosting integrado, domínios customizados e SSL automático. Consulte o guia completo em [`docs/DEPLOY-GUIDE.md`](docs/DEPLOY-GUIDE.md).
 
 ### Preparação para Deploy
 
-Crie um checkpoint através do comando `pnpm checkpoint` ou via interface Manus. Verifique que todos os testes estão passando com `pnpm test`. Confirme que variáveis de ambiente estão configuradas corretamente. Teste a build de produção localmente com `pnpm build`.
+Antes de publicar, confirme: (1) TypeScript sem erros (`npx tsc --noEmit`), (2) todos os testes passando (`pnpm test`), (3) CHANGELOG.md atualizado com a versão semântica, (4) variáveis de ambiente configuradas no painel Secrets (`OPENAI_API_KEY`, `TRACE_LEVEL`).
 
 ### Deploy via Manus
 
-Acesse o painel de gerenciamento do projeto na interface Manus. Clique no botão "Publish" no header superior direito. O sistema automaticamente faz build, deploy e configura SSL. Após deploy bem-sucedido, o sistema estará disponível no domínio configurado.
+Acesse o painel de gerenciamento do projeto na interface Manus. Clique no botão **Publish** no header superior direito. O sistema automaticamente faz build, deploy e configura SSL. Após deploy bem-sucedido (~60s), verifique a versão publicada:
+
+```bash
+curl https://iasolaris.manus.space/api/version | jq '{version, gitHash, env}'
+curl https://iasolaris.manus.space/api/health/cnae | jq '{status}'
+curl https://iasolaris.manus.space/api/health/cnae/validate | jq '.summary'
+```
+
+### Controle de Versão
+
+O campo `gitHash` em `/api/version` corresponde aos primeiros 7 caracteres do ID do checkpoint Manus. Compare com o checkpoint publicado para confirmar que o deploy está atualizado. O servidor envia uma notificação automática ao owner a cada restart em produção confirmando versão e ambiente.
 
 ### Configuração de Domínio
 
 A plataforma Manus oferece três opções de domínio. Domínio automático (xxx.manus.space) é gerado automaticamente e pode ter o prefixo customizado. Domínios Manus podem ser comprados diretamente na plataforma através do painel Settings → Domains. Domínios customizados externos podem ser vinculados configurando registros DNS conforme instruções no painel.
 
-### Monitoramento
+### Monitoramento e Observabilidade
 
-O painel Dashboard oferece métricas de uso incluindo UV (unique visitors) e PV (page views). Logs de servidor são acessíveis através do diretório `.manus-logs/` que contém `devserver.log`, `browserConsole.log`, `networkRequests.log` e `sessionReplay.log`. Alertas de erro podem ser configurados através do sistema de notificações integrado.
+Consulte o guia completo em [`docs/OBSERVABILITY.md`](docs/OBSERVABILITY.md). Resumo dos endpoints de diagnóstico:
+
+| Endpoint | Descrição | HTTP |
+|---|---|---|
+| `GET /api/health/cnae` | Status do pipeline (chave, cache, embeddings, LLM) | 200/503 |
+| `GET /api/health/cnae/validate` | Validação on-demand com 4 casos canônicos (~3s) | 200/503 |
+| `GET /api/version` | Versão semântica, git hash, ambiente | 200 |
+
+O tracer estruturado (`server/tracer.ts`) registra cada chamada `extractCnaes` e `refineCnaes` com `requestId` único e latência por etapa. Configure `TRACE_LEVEL=info` em produção para visibilidade sem verbosidade excessiva.
 
 ---
 
@@ -523,4 +546,4 @@ Este projeto é proprietário e confidencial. Todos os direitos reservados.
 
 ---
 
-**Documentação gerada por Manus AI** • Última atualização: 30/01/2026
+**Documentação gerada por Manus AI** • Última atualização: 21/03/2026 (v5.6.0)
