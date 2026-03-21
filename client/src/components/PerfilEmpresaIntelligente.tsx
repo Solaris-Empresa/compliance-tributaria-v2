@@ -578,10 +578,28 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedAnalysis.data]);
 
+  const saveHistory = trpc.cpie.saveAnalysisToHistory.useMutation();
+
   const analyzeProfile = trpc.cpie.analyze.useMutation({
     onSuccess: (data) => {
-      setCpieResult(data as CpieResult);
+      const result = data as CpieResult;
+      setCpieResult(result);
+      setRestoredFromDb(false);
       toast.success("Análise IA concluída! Veja as sugestões no painel.");
+      // I1: Salvar no histórico se houver projectId
+      if (projectId) {
+        saveHistory.mutate({
+          projectId,
+          overallScore: result.overallScore,
+          confidenceScore: result.confidenceScore,
+          readinessLevel: result.readinessLevel,
+          readinessMessage: result.readinessMessage,
+          dimensionsJson: result.dimensions,
+          suggestionsJson: result.suggestions,
+          dynamicQuestionsJson: result.dynamicQuestions,
+          insightsJson: result.insights,
+        });
+      }
     },
     onError: () => {
       toast.error("Erro ao analisar perfil. Tente novamente.");

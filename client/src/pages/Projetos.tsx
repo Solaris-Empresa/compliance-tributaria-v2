@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { FolderKanban, Plus, Search, Zap, Filter, X, Eye, Play } from "lucide-react";
+import { FolderKanban, Plus, Search, Zap, Filter, X, Eye, Play, Brain } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { PROJECT_STATUS, STATUS_COLORS } from "@shared/translations";
@@ -89,22 +90,65 @@ function ProjectCTA({ projectId, status }: { projectId: number; status: string }
   );
 }
 
+// Faixas de score IA para filtro
+const SCORE_FILTER_OPTIONS = [
+  { value: "todos",  label: "Todos os scores" },
+  { value: "alto",   label: "Score Alto (> 80%)" },
+  { value: "medio",  label: "Score Médio (50–80%)" },
+  { value: "baixo",  label: "Score Baixo (< 50%)" },
+  { value: "sem",    label: "Sem análise IA" },
+];
+
+function matchesScoreFilter(score: number | null | undefined, filter: string) {
+  if (filter === "todos") return true;
+  if (filter === "sem") return !score;
+  if (!score) return false;
+  if (filter === "alto") return score > 80;
+  if (filter === "medio") return score >= 50 && score <= 80;
+  if (filter === "baixo") return score < 50;
+  return true;
+}
+
+function ScoreIaBadge({ score }: { score: number | null | undefined }) {
+  if (!score) return null;
+  const color = score > 80 ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20"
+    : score >= 50 ? "text-amber-600 bg-amber-50 dark:bg-amber-900/20"
+    : "text-red-500 bg-red-50 dark:bg-red-900/20";
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${color}`}>
+      <Brain className="h-3 w-3" />{score}%
+    </span>
+  );
+}
+
 export default function Projetos() {
   const { data: projects, isLoading } = trpc.projects.list.useQuery();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("todos");
+  const [scoreFilter, setScoreFilter] = useState("todos");
 
   const filteredProjects = projects?.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "todos" || p.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesScore = matchesScoreFilter((p as any).profileCompleteness, scoreFilter);
+    return matchesSearch && matchesStatus && matchesScore;
   });
 
-  const hasActiveFilter = searchTerm || statusFilter !== "todos";
+  // Ordenar por score decrescente quando filtro de score ativo
+  const sortedProjects = scoreFilter !== "todos" && filteredProjects
+    ? [...filteredProjects].sort((a, b) => {
+        const sa = (a as any).profileCompleteness ?? 0;
+        const sb = (b as any).profileCompleteness ?? 0;
+        return sb - sa;
+      })
+    : filteredProjects;
+
+  const hasActiveFilter = searchTerm || statusFilter !== "todos" || scoreFilter !== "todos";
 
   const clearFilters = () => {
     setSearchTerm("");
     setStatusFilter("todos");
+    setScoreFilter("todos");
   };
 
   return (
@@ -148,6 +192,18 @@ export default function Projetos() {
                 ))}
               </SelectContent>
             </Select>
+            {/* I3: Filtro por Score IA */}
+            <Select value={scoreFilter} onValueChange={setScoreFilter}>
+              <SelectTrigger className="w-[190px]">
+                <Brain className="h-3.5 w-3.5 mr-1.5 text-primary" />
+                <SelectValue placeholder="Filtrar por Score IA" />
+              </SelectTrigger>
+              <SelectContent>
+                {SCORE_FILTER_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {hasActiveFilter && (
               <Button variant="ghost" size="icon" onClick={clearFilters} title="Limpar filtros">
                 <X className="h-4 w-4" />
@@ -157,11 +213,11 @@ export default function Projetos() {
         </div>
 
         {/* Contador de resultados */}
-        {!isLoading && filteredProjects && (
+        {!isLoading && sortedProjects && (
           <p className="text-sm text-muted-foreground mb-4">
-            {filteredProjects.length === 0
+            {sortedProjects.length === 0
               ? "Nenhum projeto encontrado"
-              : `${filteredProjects.length} projeto${filteredProjects.length !== 1 ? "s" : ""} encontrado${filteredProjects.length !== 1 ? "s" : ""}`}
+              : `${sortedProjects.length} projeto${sortedProjects.length !== 1 ? "s" : ""} encontrado${sortedProjects.length !== 1 ? "s" : ""}`}
             {hasActiveFilter && " (com filtros ativos)"}
           </p>
         )}
@@ -182,9 +238,9 @@ export default function Projetos() {
               </Card>
             ))}
           </div>
-        ) : filteredProjects && filteredProjects.length > 0 ? (
+        ) : sortedProjects && sortedProjects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProjects.map((project) => (
+            {(sortedProjects ?? filteredProjects ?? []).map((project) => (
               <Card key={project.id} className="hover:shadow-lg transition-shadow h-full flex flex-col">
                 <Link href={`/projetos/${project.id}`} className="flex-1 block">
                   <CardHeader>
@@ -201,8 +257,10 @@ export default function Projetos() {
                       </span>
                     </div>
                     <CardTitle className="mt-4">{project.name}</CardTitle>
-                    <CardDescription>
-                      Criado em {new Date(project.createdAt).toLocaleDateString('pt-BR')}
+                    <CardDescription className="flex items-center gap-2 flex-wrap">
+                      <span>Criado em {new Date(project.createdAt).toLocaleDateString('pt-BR')}</span>
+                      {/* I3: Badge de Score IA */}
+                      <ScoreIaBadge score={(project as any).profileCompleteness} />
                     </CardDescription>
                   </CardHeader>
                   <CardContent>

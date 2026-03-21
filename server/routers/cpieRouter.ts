@@ -11,6 +11,9 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import * as db from "../db";
+import { getDb } from "../db";
+import { cpieAnalysisHistory } from "../../drizzle/schema";
+import { eq, desc } from "drizzle-orm";
 import {
   runCpieAnalysis,
   generateDynamicQuestions,
@@ -355,6 +358,76 @@ export const cpieRouter = router({
 </html>`;
 
       return { html, projectName: input.projectName, generatedAt: new Date().toISOString() };
+    }),
+
+  /**
+   * I1: Busca o histórico de análises CPIE de um projeto.
+   * Retorna as últimas 10 análises em ordem decrescente de data.
+   */
+  getAnalysisHistory: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) return [];
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && (project as any).clientId !== ctx.user.id) return [];
+
+      const drizzle = await getDb();
+      if (!drizzle) return [];
+      const rows = await drizzle
+        .select()
+        .from(cpieAnalysisHistory)
+        .where(eq(cpieAnalysisHistory.projectId, input.projectId))
+        .orderBy(desc(cpieAnalysisHistory.createdAt))
+        .limit(10);
+
+      return rows.map((r) => ({
+        id: r.id,
+        overallScore: r.overallScore,
+        confidenceScore: r.confidenceScore,
+        readinessLevel: r.readinessLevel,
+        readinessMessage: r.readinessMessage,
+        analysisVersion: r.analysisVersion,
+        createdAt: r.createdAt.toISOString(),
+        dimensionsJson: r.dimensionsJson,
+        suggestionsCount: Array.isArray(r.suggestionsJson) ? (r.suggestionsJson as unknown[]).length : 0,
+        questionsCount: Array.isArray(r.dynamicQuestionsJson) ? (r.dynamicQuestionsJson as unknown[]).length : 0,
+      }));
+    }),
+
+  /**
+   * I1: Salva uma entrada no histórico de análises CPIE.
+   * Chamado automaticamente após cada análise bem-sucedida.
+   */
+  saveAnalysisToHistory: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      overallScore: z.number(),
+      confidenceScore: z.number(),
+      readinessLevel: z.enum(["insufficient", "basic", "good", "excellent"]),
+      readinessMessage: z.string(),
+      dimensionsJson: z.any().optional(),
+      suggestionsJson: z.any().optional(),
+      dynamicQuestionsJson: z.any().optional(),
+      insightsJson: z.any().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const drizzle = await getDb();
+      if (!drizzle) throw new Error("Database not available");
+      await drizzle.insert(cpieAnalysisHistory).values({
+        projectId: input.projectId,
+        analyzedById: ctx.user.id,
+        overallScore: input.overallScore,
+        confidenceScore: input.confidenceScore,
+        readinessLevel: input.readinessLevel,
+        readinessMessage: input.readinessMessage,
+        dimensionsJson: input.dimensionsJson ?? null,
+        suggestionsJson: input.suggestionsJson ?? null,
+        dynamicQuestionsJson: input.dynamicQuestionsJson ?? null,
+        insightsJson: input.insightsJson ?? null,
+        analysisVersion: "cpie-v1.0",
+      });
+      return { saved: true };
     }),
 
   /**

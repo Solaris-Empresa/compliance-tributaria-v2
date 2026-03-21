@@ -586,6 +586,8 @@ export default function NovoProjeto() {
           value={perfilData}
           onChange={setPerfilData}
           description={description}
+          projectId={projectId ?? undefined}
+          projectName={name || undefined}
         />
 
         {/* Banner de análise IA */}

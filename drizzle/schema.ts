@@ -1562,3 +1562,27 @@ export const consistencyChecks = mysqlTable("consistency_checks", {
 });
 export type ConsistencyCheck = typeof consistencyChecks.$inferSelect;
 export type InsertConsistencyCheck = typeof consistencyChecks.$inferInsert;
+
+// ─── Sprint I: CPIE Analysis History ──────────────────────────────────────────
+/**
+ * Histórico de análises CPIE por projeto.
+ * Cada vez que o usuário clica em "Analisar com IA" ou "Reanalisar",
+ * o resultado é salvo aqui para comparação temporal.
+ */
+export const cpieAnalysisHistory = mysqlTable("cpie_analysis_history", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("project_id").notNull(),
+  analyzedById: int("analyzed_by_id").notNull(),
+  overallScore: int("overall_score").notNull().default(0),
+  confidenceScore: int("confidence_score").notNull().default(0),
+  readinessLevel: mysqlEnum("readiness_level", ["insufficient", "basic", "good", "excellent"]).notNull().default("basic"),
+  dimensionsJson: json("dimensions_json"), // ScoreDimension[]
+  suggestionsJson: json("suggestions_json"), // ProfileSuggestion[]
+  dynamicQuestionsJson: json("dynamic_questions_json"), // DynamicQuestion[]
+  insightsJson: json("insights_json"), // ProfileInsight[]
+  readinessMessage: text("readiness_message"),
+  analysisVersion: varchar("analysis_version", { length: 32 }).default("cpie-v1.0"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type CpieAnalysisHistory = typeof cpieAnalysisHistory.$inferSelect;
+export type InsertCpieAnalysisHistory = typeof cpieAnalysisHistory.$inferInsert;

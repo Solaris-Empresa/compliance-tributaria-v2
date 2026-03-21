@@ -2753,3 +2753,20 @@
 - [x] Criar procedure `cpie.generateReport` que retorna HTML formatado do relatório
 - [x] Criar componente `CpieReportExport.tsx` com botão "Exportar PDF"
 - [x] Integrar no painel CPIE do PerfilEmpresaIntelligente e no modal do AdminConsistencia
+
+## Sprint I — Histórico CPIE, Edição e Filtros
+
+### I1 — Histórico de análises CPIE
+- [x] Criar tabela `cpie_analysis_history` no schema Drizzle (migração 0049)
+- [x] Criar procedures `cpie.getAnalysisHistory` e `cpie.saveAnalysisToHistory`
+- [x] Criar componente `CpieHistoryPanel.tsx` com timeline, badges de score e modal de detalhes
+- [x] Integrar `saveAnalysisToHistory` no `onSuccess` do `analyzeProfile`
+
+### I2 — projectId no fluxo de edição de projeto
+- [x] Passar `projectId` e `projectName` ao `PerfilEmpresaIntelligente` no `NovoProjeto.tsx`
+- [x] H1 (retomada de sessão) e H3 (exportação PDF) ativados automaticamente quando projectId é fornecido
+
+### I3 — Filtro e coluna Score IA na listagem
+- [x] Badge de Score IA nos cards de projeto (`ScoreIaBadge`)
+- [x] Filtro por faixa de score (Alto/Médio/Baixo/Sem análise) na listagem
+- [x] Ordenação automática por score decrescente quando filtro de score ativo
