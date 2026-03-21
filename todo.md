@@ -2770,3 +2770,25 @@
 - [x] Badge de Score IA nos cards de projeto (`ScoreIaBadge`)
 - [x] Filtro por faixa de score (Alto/Médio/Baixo/Sem análise) na listagem
 - [x] Ordenação automática por score decrescente quando filtro de score ativo
+
+## Sprint J — CpieHistory em Detalhes, Alertas e Exportação Admin
+
+### J1 — CpieHistoryPanel na página de detalhes do projeto
+- [x] Importar CpieHistoryPanel no ProjetoDetalhesV2.tsx
+- [x] Integrar com projectId e projectName do projeto atual
+- [x] Seção "Histórico de Análises IA" exibida antes das ações administrativas
+
+### J2 — Alertas proativos de score baixo
+- [x] Banner amber no Painel.tsx listando projetos com profileCompleteness < 50
+- [x] Links diretos para cada projeto afetado (máx. 3 + contador)
+- [x] Oculto automaticamente quando não há projetos com score baixo
+
+### J3 — Exportação consolidada no AdminConsistencia
+- [x] Botão "Exportar CSV" no header do AdminConsistencia
+- [x] CSV inclui: nome, status, score CPIE, data aceite, justificativa
+- [x] Download direto no browser via Blob URL
+
+### Migração GitHub
+- [x] Transferir repositório de utapajos para Solaris-Empresa via API GitHub
+- [x] Atualizar remote github no projeto local
+- [x] Push dos commits Sprint I para Solaris-Empresa/compliance-tributaria-v2

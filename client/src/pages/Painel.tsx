@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { AlertCircle, CheckCircle2, Clock, FolderKanban, Plus, Search } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, FolderKanban, Plus, Search, Brain, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import { PROJECT_STATUS, STATUS_COLORS } from "@shared/translations";
 import { Input } from "@/components/ui/input";
@@ -125,6 +125,42 @@ export default function Painel() {
             </CardContent>
           </Card>
         </div>
+
+        {/* J2: Alerta proativo de score baixo */}
+        {(() => {
+          const lowScoreProjects = (projects || []).filter((p: any) => {
+            const score = p.profileCompleteness;
+            return score !== null && score !== undefined && score < 50;
+          });
+          if (lowScoreProjects.length === 0) return null;
+          return (
+            <div className="mb-6 p-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/10 dark:border-amber-800 flex items-start gap-3">
+              <Brain className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
+                  {lowScoreProjects.length} projeto{lowScoreProjects.length !== 1 ? 's' : ''} com Score IA baixo (&lt; 50%)
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-500 mt-0.5">
+                  Perfis incompletos reduzem a qualidade da análise CPIE. Complete o perfil para obter recomendações mais precisas.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {lowScoreProjects.slice(0, 3).map((p: any) => (
+                    <Link key={p.id} href={`/projetos/${p.id}`}>
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700 dark:text-amber-400 hover:underline">
+                        <ArrowRight className="h-3 w-3" />{p.name} ({p.profileCompleteness}%)
+                      </span>
+                    </Link>
+                  ))}
+                  {lowScoreProjects.length > 3 && (
+                    <Link href="/projetos">
+                      <span className="text-xs text-amber-600 hover:underline">+{lowScoreProjects.length - 3} mais</span>
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Recent Projects */}
         <Card>

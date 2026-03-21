@@ -33,6 +33,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 import { DiagnosticoStepper, type DiagnosticLayerState } from "@/components/DiagnosticoStepper";
+import { CpieHistoryPanel } from "@/components/CpieHistoryPanel";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -611,6 +612,9 @@ export default function ProjetoDetalhesV2() {
               />
             </CardContent>
           </Card>
+
+          {/* ── J1: Histórico de Análises IA (CPIE) ── */}
+          <CpieHistoryPanel projectId={projectId} projectName={summary.name} />
 
           {/* ── Ações administrativas (equipe SOLARIS) ── */}
           {isEquipe && (

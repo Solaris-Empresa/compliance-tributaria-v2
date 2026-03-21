@@ -21,7 +21,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import {
   ShieldCheck, ShieldAlert, ShieldX, Shield, Search, ExternalLink,
   AlertTriangle, CheckCircle2, Clock, Brain, TrendingUp, RefreshCw,
-  ChevronRight, Info, User, Calendar
+  ChevronRight, Info, User, Calendar, Download
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CpieReportExport } from "@/components/CpieReportExport";
@@ -156,9 +156,39 @@ export default function AdminConsistencia() {
               Monitore o status de consistência e o score CPIE de todos os projetos.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
-            <RefreshCw className="h-4 w-4" />Atualizar
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* J3: Exportar CSV consolidado */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => {
+                const riskProjects = enrichedProjects.filter(p => p.consistencyStatus === 'warning' || p.consistencyStatus === 'blocked');
+                if (riskProjects.length === 0) { return; }
+                const header = ['Nome do Projeto', 'Status Consistência', 'Score CPIE (%)', 'Data Aceite', 'Justificativa'];
+                const rows = riskProjects.map(p => [
+                  `"${p.name}"`,
+                  p.consistencyStatus ?? '',
+                  p.profileCompleteness ?? '',
+                  p.consistencyAcceptedRiskAt ? new Date(p.consistencyAcceptedRiskAt).toLocaleDateString('pt-BR') : '',
+                  `"${String(p.consistencyAcceptedRiskReason ?? '').replace(/"/g, "'")}"`,
+                ]);
+                const csv = [header.join(','), ...rows.map(r => r.join(','))].join('\n');
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `consistencia-riscos-${new Date().toISOString().slice(0,10)}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              <Download className="h-4 w-4" />Exportar CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
+              <RefreshCw className="h-4 w-4" />Atualizar
+            </Button>
+          </div>
         </div>
 
         {/* Cards de resumo */}
