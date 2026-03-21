@@ -10,6 +10,7 @@ import { serveStatic, setupVite } from "./vite";
 import { initializeWebSocket } from "./websocket";
 import "./deadline-checker"; // Inicializar verificador de prazos
 import { initEmbeddingsScheduler } from "../embeddings-scheduler"; // Cron de rebuild de embeddings CNAE
+import { checkCnaeHealth } from "../cnae-health"; // Health check do pipeline CNAE
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -38,6 +39,25 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+
+  // ── Health check do pipeline CNAE Discovery ─────────────────────────────
+  // GET /api/health/cnae — retorna status do pipeline sem autenticação
+  // Útil para diagnósticos rápidos sem acesso a logs de produção
+  app.get("/api/health/cnae", async (_req, res) => {
+    try {
+      const health = await checkCnaeHealth();
+      const httpStatus = health.status === "ok" ? 200 : health.status === "degraded" ? 200 : 503;
+      res.status(httpStatus).json(health);
+    } catch (err) {
+      res.status(500).json({
+        checkedAt: new Date().toISOString(),
+        status: "down",
+        summary: `Erro interno no health check: ${err instanceof Error ? err.message : String(err)}`,
+      });
+    }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
   // tRPC API
   app.use(
     "/api/trpc",

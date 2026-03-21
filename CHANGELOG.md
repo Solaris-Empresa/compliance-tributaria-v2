@@ -6,6 +6,43 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [5.4.0] - Observabilidade e Teste Automatizado CNAE - 2026-03-21
+
+### Adicionado
+
+**Endpoint de Diagnóstico `GET /api/health/cnae`** (`server/cnae-health.ts`, `server/_core/index.ts`)
+
+- Rota REST pública que retorna o status completo do pipeline CNAE Discovery em JSON.
+- Não requer autenticação — permite diagnósticos rápidos sem acesso a logs de produção.
+- Resposta inclui 4 componentes: `openaiKey` (chave presente + prefixo), `embeddingsDb` (contagem + cobertura + última atualização), `embeddingsCache` (estado do cache em memória + tamanho + idade), `lastRebuild` (status + CNAEs processados + duração + timestamp).
+- Status geral: `"ok"` (todos os componentes OK), `"degraded"` (cache não carregado ou rebuild pendente), `"down"` (chave ausente ou embeddings insuficientes).
+- HTTP 200 para `ok`/`degraded`, HTTP 503 para `down`.
+- Versão do pipeline incluída na resposta (`"version": "5.4.0"`).
+
+**Função `getCacheStatus()`** (`server/cnae-embeddings.ts`)
+
+- Nova função exportada que retorna o estado atual do cache em memória sem disparar carregamento.
+- Retorna `{ loaded: boolean, size: number, ageMinutes: number }` para uso pelo health check.
+
+**Validação Automática Pós-Rebuild** (`server/cnae-pipeline-validator.ts`, `server/embeddings-scheduler.ts`)
+
+- Novo módulo `cnae-pipeline-validator.ts` com 4 casos de teste canônicos:
+  - Cervejaria artesanal → CNAE `1113-5/02` (Fabricação de cervejas e chopes)
+  - Desenvolvimento de software → CNAE `6201-5/01` (Desenvolvimento de programas sob encomenda)
+  - Restaurante/lanchonete → CNAE `5611-2/01` (Restaurantes e similares)
+  - Farmácia/drogaria → CNAE `4771-7/01` (Comércio varejista de produtos farmacêuticos)
+- Verifica cobertura mínima de 95% dos 1.332 CNAEs no banco.
+- Verifica dimensionalidade dos embeddings (1.536 dims = `text-embedding-3-small`).
+- Resultado enviado via `notifyOwner()` com detalhes de cada caso (rank encontrado, erros).
+- Integrado ao `embeddings-scheduler.ts`: executa automaticamente após cada rebuild semanal bem-sucedido.
+
+**Testes Unitários** (`server/cnae-health-validator.test.ts`)
+
+- 16 novos testes cobrindo: `getCacheStatus`, `checkCnaeHealth` (5 cenários), `validateCnaePipeline` (5 cenários), `runAndNotifyValidation` (2 cenários).
+- Todos os 16 testes passando em <500ms.
+
+---
+
 ## [5.2.0] - Resiliência CNAE Discovery — Timeout + Alertas Granulares - 2026-03-21
 
 ### Adicionado

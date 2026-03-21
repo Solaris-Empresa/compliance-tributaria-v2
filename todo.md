@@ -2626,3 +2626,12 @@
 - [x] Banner de aviso no modal de CNAEs quando fallback semântico é ativado
 - [x] Log diferenciado TIMEOUT vs ERROR no extractCnaes
 - [x] Atualizar CHANGELOG.md com entrada [5.2.0]
+
+## Sprint v5.4.0 — Observabilidade e Teste Automatizado CNAE
+
+- [x] Endpoint GET /api/health/cnae com status do pipeline (chave, cache, embeddings, LLM)
+- [x] Função getCacheStatus() exportada em cnae-embeddings.ts
+- [x] Teste automatizado semanal pós-rebuild no embeddings-scheduler (cnae-pipeline-validator.ts)
+- [x] notifyOwner com resultado do teste semanal (sucesso/falha + CNAEs encontrados)
+- [x] 16 testes unitários passando (cnae-health-validator.test.ts)
+- [x] Atualizar CHANGELOG.md com entrada [5.4.0]

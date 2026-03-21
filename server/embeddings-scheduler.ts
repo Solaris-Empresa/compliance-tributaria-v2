@@ -14,6 +14,8 @@
  * - Proteção contra execução dupla (verifica rebuildState.running)
  * - Alerta imediato se OPENAI_API_KEY expirar no meio do rebuild (HTTP 401)
  * - Alerta de falha parcial se >10% dos batches falharem
+ * - Validação automática pós-rebuild: testa busca semântica com casos canônicos
+ *   e notifica o owner com o resultado (Sprint v5.4.0)
  */
 
 /** Threshold de erros de batch acima do qual emite alerta de falha parcial (10%) */
@@ -218,8 +220,20 @@ export async function runScheduledRebuild(): Promise<void> {
   if (status === "completed") {
     await notifyOwner({
       title: "✅ Rebuild Embeddings CNAE — Concluído",
-      content: `Rebuild automático concluído com sucesso.\n\n**Resultado:** ${processed}/${CNAE_TABLE.length} CNAEs atualizados em ${durationSeconds}s${errors > 0 ? ` (${errors} erros de batch)` : ""}.\n\n**Modelo:** text-embedding-3-small (1536 dimensões)\n**Disparado por:** Cron automático (toda segunda-feira às 03:00)`,
+      content: `Rebuild automático concluído com sucesso.\n\n**Resultado:** ${processed}/${CNAE_TABLE.length} CNAEs atualizados em ${durationSeconds}s${errors > 0 ? ` (${errors} erros de batch)` : ""}.\n\n**Modelo:** text-embedding-3-small (1536 dimensões)\n**Disparado por:** Cron automático (toda segunda-feira às 03:00)\n\n_Iniciando validação automática do pipeline..._`,
     }).catch(() => {});
+
+    // ── Validação automática pós-rebuild (Sprint v5.4.0) ──────────────────────
+    // Executa busca semântica com casos canônicos para garantir que o pipeline
+    // continua funcional após o rebuild. Resultado enviado via notifyOwner().
+    console.log("[embeddings-scheduler] Iniciando validação automática pós-rebuild...");
+    try {
+      const { runAndNotifyValidation } = await import("./cnae-pipeline-validator");
+      await runAndNotifyValidation();
+    } catch (validationErr) {
+      console.error("[embeddings-scheduler] Erro na validação pós-rebuild:", validationErr);
+    }
+    // ─────────────────────────────────────────────────────────────────────────
   } else {
     await notifyOwner({
       title: "❌ Rebuild Embeddings CNAE — Falha",

@@ -81,6 +81,19 @@ export function invalidateEmbeddingCache(): void {
   cacheLoadedAt = 0;
 }
 
+/**
+ * Retorna o estado atual do cache em memória para fins de diagnóstico.
+ * Não dispara carregamento — apenas lê o estado atual.
+ */
+export function getCacheStatus(): { loaded: boolean; size: number; ageMinutes: number } {
+  const loaded = embeddingCache !== null && embeddingCache.length > 0;
+  const size = embeddingCache?.length ?? 0;
+  const ageMinutes = loaded
+    ? Math.round((Date.now() - cacheLoadedAt) / 60_000)
+    : 0;
+  return { loaded, size, ageMinutes };
+}
+
 // ─── Similaridade de Cosseno ─────────────────────────────────────────────────
 
 function cosineSimilarity(a: number[], b: number[]): number {
