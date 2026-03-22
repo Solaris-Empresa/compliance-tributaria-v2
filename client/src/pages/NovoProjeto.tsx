@@ -261,7 +261,7 @@ export default function NovoProjeto() {
   });
 
   // Ref para o payload pendente (necessário para o callback do analyzePreviewInline)
-  const pendingProjectPayloadRef = { current: null as any };
+  const pendingProjectPayloadRef = useRef<any>(null);
 
   const { data: clients, refetch: refetchClients } = trpc.users.listClients.useQuery();
 
