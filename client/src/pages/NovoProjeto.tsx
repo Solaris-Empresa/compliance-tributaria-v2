@@ -710,7 +710,15 @@ export default function NovoProjeto() {
         {/* v6.0: Company Profile Intelligence — componente redesenhado */}
         <PerfilEmpresaIntelligente
           value={perfilData}
-          onChange={setPerfilData}
+          onChange={(newPerfil) => {
+            setPerfilData(newPerfil);
+            // Resetar gate ao editar formulário após análise — permite reanálise
+            if (cpieV2Gate !== null) {
+              setCpieV2Gate(null);
+              setCpieOverrideMode(false);
+              setCpieOverrideReason("");
+            }
+          }}
           description={description}
           projectId={projectId ?? undefined}
           projectName={name || undefined}
