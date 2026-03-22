@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { PerfilEmpresaIntelligente, PERFIL_VAZIO, calcProfileScore, type PerfilEmpresaData } from "@/components/PerfilEmpresaIntelligente";
+import { PerfilEmpresaIntelligente, PERFIL_VAZIO, calcProfileScore, type PerfilEmpresaData, type CpieV2GateResult } from "@/components/PerfilEmpresaIntelligente";
 import { searchCnaes, getCnaeByCode, type CnaeEntry } from "@/../../shared/cnae-table";
 import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
 import { ResumeBanner } from "@/components/ResumeBanner";
@@ -208,15 +208,7 @@ export default function NovoProjeto() {
   // K2 v2: Gate CPIE v2 — substitui o score v1 local
   const [cpieScore, setCpieScore] = useState<number | null>(null); // compat v1
   const [cpieDimensions, setCpieDimensions] = useState<Array<{ name: string; score: number; weight: number; explanation: string; fieldsEvaluated: string[] }>>([]);
-  const [cpieV2Gate, setCpieV2Gate] = useState<{
-    canProceed: boolean;
-    blockType?: "hard_block" | "soft_block_with_override";
-    blockReason?: string;
-    diagnosticConfidence: number;
-    consistencyScore: number;
-    completenessScore: number;
-    conflicts: Array<{ id: string; description: string; severity: string }>;
-  } | null>(null);
+  const [cpieV2Gate, setCpieV2Gate] = useState<CpieV2GateResult | null>(null);
   const [isAnalyzingV2, setIsAnalyzingV2] = useState(false);
   const [cpieOverrideMode, setCpieOverrideMode] = useState(false);
   const [cpieOverrideReason, setCpieOverrideReason] = useState("");
@@ -237,14 +229,17 @@ export default function NovoProjeto() {
         blockType: data.blockType,
         conflictsCount: data.conflicts?.length ?? 0,
       }));
-      const gate = {
+      const gate: CpieV2GateResult = {
         canProceed: data.canProceed,
         blockType: data.blockType as "hard_block" | "soft_block_with_override" | undefined,
         blockReason: data.blockReason,
         diagnosticConfidence: data.diagnosticConfidence,
         consistencyScore: data.consistencyScore,
         completenessScore: data.completenessScore,
-        conflicts: (data.conflicts ?? []) as Array<{ id: string; description: string; severity: string }>,
+        conflicts: (data.conflicts ?? []) as CpieV2GateResult["conflicts"],
+        reconciliationQuestions: (data.reconciliationQuestions ?? []) as CpieV2GateResult["reconciliationQuestions"],
+        analysisVersion: (data as any).analysisVersion ?? "v2",
+        persisted: (data as any).persisted ?? false,
       };
       setCpieV2Gate(gate);
       setIsAnalyzingV2(false);
@@ -719,20 +714,13 @@ export default function NovoProjeto() {
           description={description}
           projectId={projectId ?? undefined}
           projectName={name || undefined}
+          externalCpieV2Gate={cpieV2Gate}
           onCpieScore={({ score, dimensions, v2Gate }) => {
             setCpieScore(score); // compat v1
             setCpieDimensions(dimensions);
-            // Capturar gate v2 quando disponível
+            // Capturar gate v2 quando disponível (via botão Reexecutar análise)
             if (v2Gate) {
-              setCpieV2Gate({
-                canProceed: v2Gate.canProceed,
-                blockType: v2Gate.blockType,
-                blockReason: v2Gate.blockReason,
-                diagnosticConfidence: v2Gate.diagnosticConfidence,
-                consistencyScore: v2Gate.consistencyScore,
-                completenessScore: v2Gate.completenessScore ?? 0,
-                conflicts: v2Gate.conflicts,
-              });
+              setCpieV2Gate(v2Gate);
             }
             // Resetar override ao receber nova análise
             setCpieOverrideMode(false);

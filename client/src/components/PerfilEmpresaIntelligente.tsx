@@ -113,7 +113,7 @@ interface CpieResult {
 }
 
 /** Resultado do CPIE v2 analyzePreview — os 3 scores reais + gate */
-interface CpieV2GateResult {
+export interface CpieV2GateResult {
   completenessScore: number;
   consistencyScore: number;
   diagnosticConfidence: number;
@@ -718,9 +718,15 @@ interface PerfilEmpresaIntelligenteProps {
     // Novo: gate v2 completo
     v2Gate?: CpieV2GateResult;
   }) => void;
+  /**
+   * SINGLE SOURCE OF TRUTH — gate v2 calculado externamente (e.g., pelo NovoProjeto via analyzePreviewInline).
+   * Quando presente, tem PRIORIDADE sobre o state interno cpieV2Gate do componente.
+   * Garante que o ScorePanel reflita o resultado da análise disparada pelo botão Avançar.
+   */
+  externalCpieV2Gate?: CpieV2GateResult | null;
 }
 
-export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description, projectId, projectName, onCpieScore }: PerfilEmpresaIntelligenteProps) {
+export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description, projectId, projectName, onCpieScore, externalCpieV2Gate }: PerfilEmpresaIntelligenteProps) {
   const [cnpjError, setCnpjError] = useState("");
   const [cpieResult, setCpieResult] = useState<CpieResult | null>(null);
   const [cpieV2Gate, setCpieV2Gate] = useState<CpieV2GateResult | null>(null);
@@ -1142,7 +1148,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       <ScorePanel
         {...score}
         cpieResult={cpieResult}
-        cpieV2Gate={cpieV2Gate}
+        cpieV2Gate={externalCpieV2Gate !== undefined ? externalCpieV2Gate : cpieV2Gate}
         isAnalyzing={analyzeProfile.isPending || analyzePreviewV2.isPending}
         onAnalyze={handleAnalyze}
         profileData={value}
