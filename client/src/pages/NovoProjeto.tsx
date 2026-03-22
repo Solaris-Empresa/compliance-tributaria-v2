@@ -255,8 +255,46 @@ export default function NovoProjeto() {
   const { data: clients, refetch: refetchClients } = trpc.users.listClients.useQuery();
 
   const createProject = trpc.fluxoV3.createProject.useMutation({
-    onSuccess: (data) => { setProjectId(data.projectId); extractCnaes.mutate({ projectId: data.projectId, description }); },
+    onSuccess: (data) => {
+      setProjectId(data.projectId);
+      extractCnaes.mutate({ projectId: data.projectId, description });
+      // Persistir análise CPIE v2 no banco após criar o projeto
+      if (cpieV2Gate) {
+        persistCpieV2.mutate({
+          projectId: data.projectId,
+          cnpj: perfilData.cnpj || undefined,
+          companyType: perfilData.companyType || undefined,
+          companySize: perfilData.companySize || undefined,
+          annualRevenueRange: perfilData.annualRevenueRange || undefined,
+          taxRegime: perfilData.taxRegime || undefined,
+          operationType: perfilData.operationType || undefined,
+          clientType: perfilData.clientType.length > 0 ? perfilData.clientType : undefined,
+          multiState: perfilData.multiState,
+          hasMultipleEstablishments: perfilData.hasMultipleEstablishments,
+          hasImportExport: perfilData.hasImportExport,
+          hasSpecialRegimes: perfilData.hasSpecialRegimes,
+          paymentMethods: perfilData.paymentMethods.length > 0 ? perfilData.paymentMethods : undefined,
+          hasIntermediaries: perfilData.hasIntermediaries,
+          hasTaxTeam: perfilData.hasTaxTeam,
+          hasAudit: perfilData.hasAudit,
+          hasTaxIssues: perfilData.hasTaxIssues,
+          description: description || undefined,
+        });
+        // Registrar justificativa de override no console para auditoria (será salva no banco via overrideSoftBlock)
+        if (cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideReason.trim().length >= 50) {
+          console.info("[CPIE v2] Override justificativa registrada:", cpieOverrideReason.trim());
+        }
+      }
+    },
     onError: (err) => toast.error(`Erro ao criar projeto: ${err.message}`),
+  });
+
+  // Persistência pós-criação: salvar análise CPIE v2 no banco com projectId real
+  const persistCpieV2 = trpc.cpieV2.analyze.useMutation({
+    onError: () => {
+      // Silencioso: não bloquear o fluxo se a persistência falhar
+      console.warn("[CPIE v2] Falha ao persistir análise no banco. Análise preview já foi realizada.");
+    },
   });
 
   const extractCnaes = trpc.fluxoV3.extractCnaes.useMutation({
