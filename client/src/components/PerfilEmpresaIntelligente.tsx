@@ -260,11 +260,14 @@ function SimNaoToggle({ value, onChange, label, tooltip }: {
 function ScorePanel({
   completeness, confidence, missingRequired, missingOptional,
   cpieResult, cpieV2Gate, isAnalyzing, onAnalyze, profileData, restoredFromDb, projectId, projectName,
+  descLength,
 }: {
   completeness: number; confidence: number; missingRequired: string[]; missingOptional: string[];
   cpieResult: CpieResult | null; cpieV2Gate: CpieV2GateResult | null; isAnalyzing: boolean; onAnalyze: () => void;
   profileData: PerfilEmpresaData; restoredFromDb?: boolean;
   projectId?: number; projectName?: string;
+  /** Comprimento da descrição do projeto (passado pelo NovoProjeto) — usado para exibir aviso quando < 100 */
+  descLength?: number;
 }) {
   const [showAllConflicts, setShowAllConflicts] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -670,13 +673,25 @@ function ScorePanel({
 
       {/* Perfil completo — estado neutro */}
       {!hasAnalysis && missingRequired.length === 0 && missingOptional.length === 0 && (
-        <div className="rounded-xl border border-emerald-300/40 bg-emerald-50/50 dark:bg-emerald-900/10 p-4">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Perfil completo.</span>
+        descLength !== undefined && descLength < 100 ? (
+          <div className="rounded-xl border border-amber-300/60 bg-amber-50/60 dark:bg-amber-900/10 p-4">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Perfil completo — descrição incompleta.</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              A descrição do negócio precisa de pelo menos <strong>100 caracteres</strong> ({descLength} preenchidos). Complete a descrição para habilitar o botão Avançar.
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">Clique em Avançar para executar a análise de consistência do perfil.</p>
-        </div>
+        ) : (
+          <div className="rounded-xl border border-emerald-300/40 bg-emerald-50/50 dark:bg-emerald-900/10 p-4">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Perfil completo.</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Clique em Avançar para executar a análise de consistência do perfil.</p>
+          </div>
+        )
       )}
     </div>
   );
@@ -1134,6 +1149,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         restoredFromDb={restoredFromDb}
         projectId={projectId}
         projectName={projectName}
+        descLength={description ? description.trim().length : undefined}
       />
     </div>
   );
