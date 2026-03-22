@@ -226,28 +226,6 @@ export default function NovoProjeto() {
   const CPIE_MIN_SCORE = 30; // mantido para compat v1 (fallback sem análise v2)
 
   // D1+D2: Consistency Gate
-  const [showConsistencyGate, setShowConsistencyGate] = useState(false);
-  const [consistencyResult, setConsistencyResult] = useState<any>(null);
-  const [riskReason, setRiskReason] = useState("");
-  const [pendingProjectPayload, setPendingProjectPayload] = useState<any>(null);
-
-  const runConsistency = trpc.consistency.analyzeDeterministic.useMutation({
-    onSuccess: (data) => {
-      if (data.criticalCount > 0) {
-        setConsistencyResult(data);
-        setShowConsistencyGate(true);
-      } else {
-        // Sem críticos: prosseguir diretamente
-        createProject.mutate(pendingProjectPayload);
-      }
-    },
-    onError: () => {
-      // Falha no gate: prosseguir sem bloquear
-      toast.warning("Verificação de consistência indisponível. Prosseguindo...");
-      createProject.mutate(pendingProjectPayload);
-    },
-  });
-
   // CPIE v2: analyzePreview inline no NovoProjeto — dispara automaticamente no Avançar
   const analyzePreviewInline = trpc.cpieV2.analyzePreview.useMutation({
     onSuccess: (data) => {
@@ -272,9 +250,9 @@ export default function NovoProjeto() {
       setIsAnalyzingV2(false);
       console.log("[CPIE v2] Estado final aplicado no frontend:", gate);
       if (data.canProceed) {
-        // Sem bloqueio: prosseguir para o Consistency Gate v1 e criar projeto
+        // Sem bloqueio: prosseguir diretamente para criar projeto
         console.log("[CPIE v2] canProceed=true, prosseguindo para createProject");
-        runConsistency.mutate(pendingProjectPayloadRef.current);
+        createProject.mutate(pendingProjectPayloadRef.current);
       } else {
         console.log("[CPIE v2] Bloqueado:", data.blockType, data.blockReason);
         // Não prosseguir — exibir banner de bloqueio
@@ -289,15 +267,6 @@ export default function NovoProjeto() {
 
   // Ref para o payload pendente (necessário para o callback do analyzePreviewInline)
   const pendingProjectPayloadRef = { current: null as any };
-
-  const acceptRiskAndProceed = () => {
-    if (riskReason.trim().length < 10) {
-      toast.error("Justificativa deve ter pelo menos 10 caracteres");
-      return;
-    }
-    setShowConsistencyGate(false);
-    createProject.mutate(pendingProjectPayload);
-  };
 
   const { data: clients, refetch: refetchClients } = trpc.users.listClients.useQuery();
 
@@ -500,7 +469,6 @@ export default function NovoProjeto() {
       financialProfile,
       governanceProfile,
     } as any;
-    setPendingProjectPayload(payload);
     pendingProjectPayloadRef.current = payload;
 
     // CPIE v2: se já temos gate válido e canProceed=true (ou soft_block com justificativa), pular re-análise
@@ -510,8 +478,8 @@ export default function NovoProjeto() {
     );
 
     if (alreadyApproved) {
-      console.log("[CPIE v2] Gate já aprovado, prosseguindo diretamente");
-      runConsistency.mutate(buildConsistencyPayload());
+      console.log("[CPIE v2] Gate já aprovado, prosseguindo diretamente para createProject");
+      createProject.mutate(payload);
       return;
     }
 
@@ -539,38 +507,6 @@ export default function NovoProjeto() {
       description: description.trim() || undefined,
     });
   };
-
-  // Helper: monta o payload do Consistency Gate v1
-  const buildConsistencyPayload = () => ({
-    projectId: 0 as number,
-    companyProfile: {
-      cnpj: perfilData.cnpj || undefined,
-      companyType: perfilData.companyType || undefined,
-      companySize: (perfilData.companySize as any) || undefined,
-      annualRevenueRange: perfilData.annualRevenueRange || undefined,
-      taxRegime: (perfilData.taxRegime as any) || undefined,
-    },
-    operationProfile: {
-      operationType: perfilData.operationType || undefined,
-      clientType: perfilData.clientType.length > 0 ? perfilData.clientType : undefined,
-      multiState: perfilData.multiState ?? undefined,
-    },
-    taxComplexity: {
-      hasInternationalOps: perfilData.hasImportExport ?? undefined,
-      usesTaxIncentives: undefined as boolean | undefined,
-      usesMarketplace: perfilData.paymentMethods.includes('marketplace'),
-    },
-    financialProfile: {
-      paymentMethods: perfilData.paymentMethods.length > 0 ? perfilData.paymentMethods : undefined,
-      hasIntermediaries: perfilData.hasIntermediaries ?? undefined,
-    },
-    governanceProfile: {
-      hasTaxTeam: perfilData.hasTaxTeam ?? undefined,
-      hasAudit: perfilData.hasAudit ?? undefined,
-      hasTaxIssues: perfilData.hasTaxIssues ?? undefined,
-    },
-    description: description.trim(),
-  });
 
   const handleConfirmCnaes = () => {
     if (!projectId) return;
@@ -934,7 +870,7 @@ export default function NovoProjeto() {
             <div className="flex items-start gap-3">
               <Brain className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
               <p className="text-xs text-amber-700 dark:text-amber-400">
-                Score CPIE insuficiente ({cpieScore}%). Clique em <strong>Analisar com IA</strong> no painel de score para obter a análise completa.
+                Score CPIE v1 insuficiente ({cpieScore}%). Clique em <strong>Avançar</strong> para executar a análise de consistência v2 completa.
               </p>
             </div>
           </div>
@@ -1147,59 +1083,6 @@ export default function NovoProjeto() {
       <NovoClienteModal open={showNewClientModal} onClose={() => setShowNewClientModal(false)} onCreated={(id, name) => { setClientId(id); setPendingClientName(name); refetchClients(); }} />
       <EditCnaeModal cnae={editingCnae} onSave={handleEditCnae} onClose={() => setEditingCnae(null)} />
 
-      {/* D2: Modal do Consistency Gate */}
-      <Dialog open={showConsistencyGate} onOpenChange={() => {}}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-destructive">
-              <ShieldAlert className="h-5 w-5" />Inconsistências Críticas Detectadas
-            </DialogTitle>
-            <DialogDescription>
-              A verificação automática identificou inconsistências críticas no perfil da empresa. Corrija os dados ou justifique para prosseguir.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 py-2 max-h-64 overflow-y-auto">
-            {consistencyResult?.findings?.filter((f: any) => f.level === 'critical').map((f: any) => (
-              <div key={f.id} className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 space-y-1">
-                <p className="text-sm font-semibold text-destructive">{f.title}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{f.description}</p>
-                {f.recommendation && (
-                  <p className="text-xs text-foreground/70 flex items-start gap-1">
-                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />{f.recommendation}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Justificativa para prosseguir mesmo assim</Label>
-            <Textarea
-              placeholder="Ex: Os dados foram confirmados com o contador da empresa. O regime está em processo de migração..."
-              value={riskReason}
-              onChange={(e) => setRiskReason(e.target.value)}
-              rows={3}
-              className="resize-none text-sm"
-            />
-            <p className={`text-xs ${riskReason.trim().length >= 10 ? 'text-emerald-600' : 'text-muted-foreground'}`}>
-              {riskReason.trim().length} / 10 caracteres mínimos
-            </p>
-          </div>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => { setShowConsistencyGate(false); setPendingProjectPayload(null); }}>
-              <ShieldX className="h-4 w-4 mr-2" />Corrigir dados
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={acceptRiskAndProceed}
-              disabled={riskReason.trim().length < 10 || createProject.isPending}
-            >
-              {createProject.isPending
-                ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Criando...</>
-                : <>Prosseguir com ressalva<ArrowRight className="h-4 w-4 ml-2" /></>}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </ComplianceLayout>
   );
 }

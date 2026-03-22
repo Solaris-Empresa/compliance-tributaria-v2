@@ -789,12 +789,22 @@ export async function runCpieAnalysisV2(input: CpieProfileInputV2): Promise<Cpie
     ...aiResult.aiFindings,
   ];
 
+  // Fallback conservador: se a IA retornou aiVeto=null E aiFindings=[] (IA silenciosa)
+  // mas há conflitos determinísticos high/critical, o deterministicVeto já governa.
+  // Adicionalmente: se a IA retornou aiVeto=null mas há conflitos high determinísticos,
+  // garantir que o consistencyScore não ultrapasse o deterministicVeto (já garantido pelo calcFinalScores).
+  // Caso extremo: IA silenciosa + sem deterministicVeto + conflitos high → aplicar veto conservador de 40
+  const hasHighOrCriticalDet = deterministicConflicts.some(c => c.severity === "critical" || c.severity === "high");
+  const effectiveAiVeto = (aiResult.aiVeto === null && aiResult.aiFindings.length === 0 && hasHighOrCriticalDet && deterministicVeto === null)
+    ? 40  // IA silenciosa sem deterministicVeto: aplicar veto conservador de 40
+    : aiResult.aiVeto;
+
   // E5: Scores finais
   const { consistencyScore, diagnosticConfidence } = calcFinalScores(
     completenessScore,
     allConflicts,
     deterministicVeto,
-    aiResult.aiVeto
+    effectiveAiVeto
   );
 
   // Decisão de bloqueio
