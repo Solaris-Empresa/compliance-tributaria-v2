@@ -428,9 +428,10 @@ export default function NovoProjeto() {
       toast.error("⛔ Bloqueio crítico: corrija as contradições antes de prosseguir.");
       return;
     }
-    // CPIE v2: se soft_block sem justificativa suficiente, impedir
+    // CPIE v2: se soft_block sem justificativa suficiente, abrir modo override
     if (cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && !(cpieOverrideMode && cpieOverrideReason.trim().length >= 50)) {
-      toast.error("⚠️ Informe a justificativa (mínimo 50 caracteres) para prosseguir.");
+      setCpieOverrideMode(true);
+      toast.info("⚠️ Informe a justificativa para prosseguir com inconsistências.");
       return;
     }
     const companyProfile = {
@@ -891,13 +892,9 @@ export default function NovoProjeto() {
             descLength < 100 ||
             !clientId ||
             !profileValid ||
-            // Gate v2: hard_block bloqueia sem override; soft_block exige justificativa >= 50 chars
-            (cpieV2Gate !== null && !cpieV2Gate.canProceed && (
-              cpieV2Gate.blockType === "hard_block" ||
-              (cpieV2Gate.blockType === "soft_block_with_override" && !(cpieOverrideMode && cpieOverrideReason.trim().length >= 50))
-            )) ||
-            // Fallback v1 (sem análise v2)
-            (!cpieV2Gate && cpieScore !== null && cpieScore < CPIE_MIN_SCORE && !(cpieOverrideMode && cpieOverrideReason.trim().length >= 10))
+            // Gate v2: APENAS hard_block bloqueia o botão sem possibilidade de override
+            // soft_block: botão habilitado quando justificativa >= 50 chars; caso contrário também habilitado (usuário abre o modo override ao clicar)
+            (cpieV2Gate !== null && cpieV2Gate.blockType === "hard_block" && !cpieV2Gate.canProceed)
           } className="min-w-[220px]">
             {overrideSubmitting ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />Registrando justificativa...</>
