@@ -639,7 +639,15 @@ export default function NovoProjeto() {
                 id="description"
                 placeholder={"Descreva o negócio da empresa: principais atividades, como funciona a operação, desafios tributários atuais, regime tributário, setores de atuação, produtos/serviços oferecidos...\n\nQuanto mais detalhada a descrição, mais precisos serão os CNAEs identificados pela IA."}
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  // Resetar gate ao editar descrição — permite reanálise
+                  if (cpieV2Gate !== null) {
+                    setCpieV2Gate(null);
+                    setCpieOverrideMode(false);
+                    setCpieOverrideReason("");
+                  }
+                }}
                 rows={7}
                 className="resize-none leading-relaxed"
               />
