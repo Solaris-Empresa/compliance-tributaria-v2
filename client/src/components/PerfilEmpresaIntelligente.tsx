@@ -266,41 +266,45 @@ function ScorePanel({
   profileData: PerfilEmpresaData; restoredFromDb?: boolean;
   projectId?: number; projectName?: string;
 }) {
-  const scoreColor = completeness >= 80 ? "text-emerald-600" : completeness >= 50 ? "text-amber-600" : "text-red-500";
-  const barColor = completeness >= 80 ? "bg-emerald-500" : completeness >= 50 ? "bg-amber-500" : "bg-red-500";
-  // Compat: manter confidenceColor e confBarColor para evitar erros em JSX legado
-  const confidenceColor = scoreColor;
-  const confBarColor = barColor;
+  const [showAllConflicts, setShowAllConflicts] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Scores v2 reais (quando disponíveis) substituem os locais
   const displayCompleteness = cpieV2Gate ? cpieV2Gate.completenessScore : completeness;
   const displayConsistency = cpieV2Gate ? cpieV2Gate.consistencyScore : null;
   const displayDiagnostic = cpieV2Gate ? cpieV2Gate.diagnosticConfidence : null;
 
-  // Cores do semáforo v2
-  const consistencyColor = displayConsistency !== null
-    ? (displayConsistency >= 60 ? "text-emerald-600" : displayConsistency >= 40 ? "text-amber-600" : "text-red-500")
-    : "text-muted-foreground";
+  // Cores do semáforo
+  const completenessBarColor = displayCompleteness >= 80 ? "bg-emerald-500" : displayCompleteness >= 50 ? "bg-amber-500" : "bg-red-500";
   const consistencyBarColor = displayConsistency !== null
     ? (displayConsistency >= 60 ? "bg-emerald-500" : displayConsistency >= 40 ? "bg-amber-500" : "bg-red-500")
     : "bg-muted";
-  const diagnosticColor = displayDiagnostic !== null
-    ? (displayDiagnostic >= 60 ? "text-emerald-600" : displayDiagnostic >= 15 ? "text-amber-600" : "text-red-600 font-extrabold")
-    : "text-muted-foreground";
   const diagnosticBarColor = displayDiagnostic !== null
-    ? (displayDiagnostic >= 60 ? "bg-emerald-500" : displayDiagnostic >= 15 ? "bg-amber-500" : "bg-red-600")
+    ? (displayDiagnostic >= 40 ? "bg-emerald-500" : displayDiagnostic >= 15 ? "bg-amber-500" : "bg-red-600")
     : "bg-muted";
+
+  // Veredito
+  const isHardBlock = cpieV2Gate?.blockType === "hard_block";
+  const isSoftBlock = cpieV2Gate?.blockType === "soft_block_with_override";
+  const isApproved = cpieV2Gate?.canProceed === true;
+  const hasAnalysis = !!cpieV2Gate;
 
   const hasMinimumData = !!profileData.companyType && !!profileData.taxRegime;
   const canExport = !!projectId && !!cpieResult;
 
+  // Conflitos para o acordeão
+  const allConflicts = cpieV2Gate?.conflicts ?? [];
+  const criticalConflicts = allConflicts.filter(c => c.severity === "critical" || c.severity === "high");
+  const visibleConflicts = showAllConflicts ? allConflicts : allConflicts.slice(0, 3);
+
   return (
-    <div className="sticky top-4 space-y-4">
-      {/* Score principal */}
+    <div className="sticky top-4 space-y-3">
+
+      {/* ── BLOCO 1: Status do Perfil (3 scores) ── */}
       <div className="rounded-2xl border bg-card p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />
-          <span className="text-sm font-semibold">Qualidade do Perfil</span>
+          <span className="text-sm font-semibold">Status do Perfil</span>
           {restoredFromDb && (
             <Badge variant="secondary" className="text-xs ml-auto gap-1">
               <CheckCircle2 className="h-3 w-3" />Sessão retomada
@@ -308,247 +312,327 @@ function ScorePanel({
           )}
         </div>
 
-        {/* Completude */}
+        {/* Score 1: Completude */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Completude</span>
-            <span className={cn("text-lg font-bold tabular-nums", scoreColor)}>{displayCompleteness}%</span>
+            <span className="text-xs text-muted-foreground">Completude do formulário</span>
+            <span className={cn("text-base font-bold tabular-nums",
+              displayCompleteness >= 80 ? "text-emerald-600" : displayCompleteness >= 50 ? "text-amber-600" : "text-red-500"
+            )}>{displayCompleteness}%</span>
           </div>
           <div className="h-2 rounded-full bg-muted overflow-hidden">
-            <div className={cn("h-full rounded-full transition-all duration-500", barColor)} style={{ width: `${displayCompleteness}%` }} />
+            <div className={cn("h-full rounded-full transition-all duration-500", completenessBarColor)} style={{ width: `${displayCompleteness}%` }} />
           </div>
-          {!cpieV2Gate && <p className="text-xs text-muted-foreground">Será calculado ao clicar em Avançar</p>}
         </div>
 
-        {/* Consistência — exibida apenas após análise v2 */}
-        {cpieV2Gate ? (
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground font-medium">Consistência</span>
-              <span className={cn("text-lg font-bold tabular-nums", consistencyColor)}>{displayConsistency}%</span>
-            </div>
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div className={cn("h-full rounded-full transition-all duration-500", consistencyBarColor)} style={{ width: `${displayConsistency ?? 0}%` }} />
-            </div>
-            {displayConsistency !== null && displayConsistency < 40 && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 leading-relaxed font-medium">
-                ⚠️ Consistência baixa. Contradições detectadas no perfil.
-              </p>
+        {/* Score 2: Consistência */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Consistência interna</span>
+            {displayConsistency !== null ? (
+              <span className={cn("text-base font-bold tabular-nums",
+                displayConsistency >= 60 ? "text-emerald-600" : displayConsistency >= 40 ? "text-amber-600" : "text-red-500"
+              )}>{displayConsistency}%</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">— aguardando análise</span>
             )}
           </div>
-        ) : (
-          <div className="space-y-1.5 opacity-40">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Consistência</span>
-              <span className="text-sm text-muted-foreground">—</span>
-            </div>
-            <div className="h-2 rounded-full bg-muted" />
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div className={cn("h-full rounded-full transition-all duration-500", consistencyBarColor)} style={{ width: `${displayConsistency ?? 0}%` }} />
           </div>
-        )}
+        </div>
 
-        {/* Confiança Diagnóstica — score principal do CPIE v2 */}
-        {cpieV2Gate ? (
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground font-medium">Confiança Diagnóstica</span>
-              <span className={cn("text-lg tabular-nums", diagnosticColor)}>{displayDiagnostic}%</span>
-            </div>
-            <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-              <div className={cn("h-full rounded-full transition-all duration-500", diagnosticBarColor)} style={{ width: `${displayDiagnostic ?? 0}%` }} />
-            </div>
-            <p className="text-xs leading-relaxed">
-              {displayDiagnostic !== null && displayDiagnostic < 15 ? (
-                <span className="text-red-600 dark:text-red-400 font-semibold">⛔ Bloqueio crítico. Corrija as contradições antes de prosseguir.</span>
-              ) : displayDiagnostic !== null && displayDiagnostic < 40 ? (
-                <span className="text-amber-600 dark:text-amber-400">⚠️ Confiança baixa. Justifique para prosseguir.</span>
-              ) : (
-                <span className="text-emerald-600 dark:text-emerald-400">✅ Perfil consistente. Pronto para diagnóstico.</span>
-              )}
-            </p>
+        {/* Score 3: Confiança Diagnóstica */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground font-medium">Confiança diagnóstica</span>
+            {displayDiagnostic !== null ? (
+              <span className={cn("text-base font-bold tabular-nums",
+                displayDiagnostic >= 40 ? "text-emerald-600" : displayDiagnostic >= 15 ? "text-amber-600" : "text-red-600"
+              )}>{displayDiagnostic}%</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">— aguardando análise</span>
+            )}
           </div>
-        ) : (
-          <div className="space-y-1.5 opacity-40">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Confiança Diagnóstica</span>
-              <span className="text-sm text-muted-foreground">—</span>
-            </div>
-            <div className="h-2.5 rounded-full bg-muted" />
+          <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+            <div className={cn("h-full rounded-full transition-all duration-500", diagnosticBarColor)} style={{ width: `${displayDiagnostic ?? 0}%` }} />
           </div>
-        )}
+        </div>
 
-        {/* Botão Analisar com IA */}
-        <Button
-          size="sm"
-          variant={cpieResult ? "outline" : "default"}
-          className="w-full gap-2"
-          onClick={onAnalyze}
-          disabled={isAnalyzing || !hasMinimumData}
-        >
-          {isAnalyzing ? (
-            <><Loader2 className="h-3.5 w-3.5 animate-spin" />Analisando...</>
-          ) : cpieResult ? (
-            <><RefreshCw className="h-3.5 w-3.5" />Reanalisar com IA</>
-          ) : (
-            <><Brain className="h-3.5 w-3.5" />Analisar com IA</>
+        {/* Link discreto de reexecução */}
+        <div className="pt-1 border-t border-border/50">
+          <button
+            type="button"
+            onClick={onAnalyze}
+            disabled={isAnalyzing || !hasMinimumData}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
+          >
+            {isAnalyzing ? (
+              <><Loader2 className="h-3 w-3 animate-spin" />Analisando...</>
+            ) : (
+              <><RefreshCw className="h-3 w-3" />Reexecutar análise</>
+            )}
+          </button>
+          {!hasMinimumData && (
+            <p className="text-xs text-muted-foreground mt-1">Preencha tipo jurídico e regime tributário para ativar</p>
           )}
-        </Button>
-        {!hasMinimumData && (
-          <p className="text-xs text-muted-foreground text-center -mt-1">Preencha tipo jurídico e regime tributário para ativar</p>
-        )}
-        {/* Botão Exportar PDF (H3) */}
-        {canExport && (
-          <CpieReportExport
-            projectId={projectId!}
-            projectName={projectName || "Projeto"}
-            variant="outline"
-            size="sm"
-            className="w-full gap-2"
-          />
-        )}
+        </div>
       </div>
 
-      {/* Resultado CPIE */}
-      {cpieResult && (
-        <>
-          {/* Score por dimensão */}
-          <div className="rounded-2xl border bg-card p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <Brain className="h-4 w-4 text-primary" />
-              <span className="text-sm font-semibold">Score por Dimensão</span>
-            </div>
-            <div className="space-y-2.5">
-              {cpieResult.dimensions.map((dim) => {
-                const dimColor = dim.score >= 80 ? "bg-emerald-500" : dim.score >= 50 ? "bg-amber-500" : "bg-red-500";
-                const dimTextColor = dim.score >= 80 ? "text-emerald-600" : dim.score >= 50 ? "text-amber-600" : "text-red-500";
-                return (
-                  <TooltipProvider key={dim.name}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="space-y-1 cursor-help">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">{dim.name}</span>
-                            <span className={cn("text-xs font-bold tabular-nums", dimTextColor)}>{dim.score}%</span>
-                          </div>
-                          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                            <div className={cn("h-full rounded-full transition-all duration-500", dimColor)} style={{ width: `${dim.score}%` }} />
-                          </div>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-xs text-xs">
-                        <p className="font-medium mb-1">{dim.explanation}</p>
-                        <p className="text-muted-foreground">Peso: {dim.weight}%</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                );
-              })}
-            </div>
-            <div className={cn(
-              "text-xs px-3 py-2 rounded-lg font-medium mt-1",
-              cpieResult.readinessLevel === "excellent" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400" :
-              cpieResult.readinessLevel === "good" ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400" :
-              cpieResult.readinessLevel === "basic" ? "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400" :
-              "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
+      {/* ── BLOCO 2: Veredito (só após análise) ── */}
+      {hasAnalysis && (
+        <div className={cn(
+          "rounded-2xl border p-4 space-y-1",
+          isHardBlock
+            ? "border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/30"
+            : isSoftBlock
+            ? "border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30"
+            : "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30"
+        )}>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">{isHardBlock ? "⛔" : isSoftBlock ? "⚠️" : "✅"}</span>
+            <span className={cn(
+              "text-sm font-bold",
+              isHardBlock ? "text-red-700 dark:text-red-400" :
+              isSoftBlock ? "text-amber-700 dark:text-amber-400" :
+              "text-emerald-700 dark:text-emerald-400"
             )}>
-              {cpieResult.readinessMessage}
-            </div>
+              {isHardBlock ? "BLOQUEIO" : isSoftBlock ? "ATENÇÃO" : "APROVADO"}
+            </span>
           </div>
-
-          {/* Sugestões de correção */}
-          {cpieResult.suggestions.length > 0 && (
-            <div className="rounded-2xl border bg-card p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-500" />
-                <span className="text-sm font-semibold">Sugestões da IA</span>
-                <Badge variant="outline" className="text-xs ml-auto">{cpieResult.suggestions.length}</Badge>
-              </div>
-              <div className="space-y-2.5">
-                {cpieResult.suggestions.map((sug) => (
-                  <div
-                    key={sug.id}
-                    className={cn(
-                      "rounded-xl p-3 space-y-1.5 border",
-                      sug.severity === "critical" ? "bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-800" :
-                      sug.severity === "warning" ? "bg-amber-50 border-amber-200 dark:bg-amber-900/10 dark:border-amber-800" :
-                      "bg-blue-50 border-blue-200 dark:bg-blue-900/10 dark:border-blue-800"
-                    )}
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span className={cn(
-                        "text-xs font-semibold",
-                        sug.severity === "critical" ? "text-red-700 dark:text-red-400" :
-                        sug.severity === "warning" ? "text-amber-700 dark:text-amber-400" :
-                        "text-blue-700 dark:text-blue-400"
-                      )}>{sug.field}</span>
-                      <span className="text-xs text-muted-foreground ml-auto">{sug.confidence}% confiança</span>
-                    </div>
-                    <p className="text-xs leading-relaxed text-foreground/80">{sug.explanation}</p>
-                    {sug.suggestedValue && (
-                      <div className="flex items-center gap-1 text-xs">
-                        <span className="text-muted-foreground line-through">{sug.currentValue}</span>
-                        <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                        <span className="font-medium text-foreground">{sug.suggestedValue}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+          {cpieV2Gate?.blockReason && (
+            <p className={cn(
+              "text-xs leading-relaxed",
+              isHardBlock ? "text-red-700/80 dark:text-red-300/80" :
+              isSoftBlock ? "text-amber-700/80 dark:text-amber-300/80" :
+              "text-emerald-700/80 dark:text-emerald-300/80"
+            )}>
+              {cpieV2Gate.blockReason}
+            </p>
           )}
-
-          {/* Perguntas dinâmicas */}
-          {cpieResult.dynamicQuestions.length > 0 && (
-            <div className="rounded-2xl border bg-card p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold">Perguntas da IA</span>
-                <Badge variant="outline" className="text-xs ml-auto">{cpieResult.dynamicQuestions.length}</Badge>
-              </div>
-              <div className="space-y-2.5">
-                {cpieResult.dynamicQuestions.map((q) => (
-                  <div key={q.id} className="rounded-xl border border-border bg-muted/20 p-3 space-y-1">
-                    <div className="flex items-start gap-2">
-                      <span className={cn(
-                        "shrink-0 mt-0.5 w-1.5 h-1.5 rounded-full",
-                        q.priority === "high" ? "bg-red-500" : q.priority === "medium" ? "bg-amber-500" : "bg-blue-400"
-                      )} />
-                      <p className="text-xs font-medium leading-snug">{q.question}</p>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed pl-3.5">{q.rationale}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {isApproved && !cpieV2Gate?.blockReason && (
+            <p className="text-xs text-emerald-700/80 dark:text-emerald-300/80">
+              Perfil consistente. Prossiga para a próxima etapa.
+            </p>
           )}
-
-          {/* Insights */}
-          {cpieResult.insights.length > 0 && (
-            <div className="rounded-2xl border bg-card p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <Lightbulb className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm font-semibold">Insights Tributários</span>
-              </div>
-              <div className="space-y-2.5">
-                {cpieResult.insights.map((ins) => (
-                  <div key={ins.id} className={cn(
-                    "rounded-xl p-3 space-y-1 border",
-                    ins.category === "risk" ? "bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-800" :
-                    ins.category === "opportunity" ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-900/10 dark:border-emerald-800" :
-                    ins.category === "transition" ? "bg-purple-50 border-purple-200 dark:bg-purple-900/10 dark:border-purple-800" :
-                    "bg-blue-50 border-blue-200 dark:bg-blue-900/10 dark:border-blue-800"
-                  )}>
-                    <p className="text-xs font-semibold">{ins.title}</p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{ins.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
+        </div>
       )}
 
-      {/* Campos obrigatórios faltantes (quando não há CPIE result) */}
-      {!cpieResult && missingRequired.length > 0 && (
+      {/* ── BLOCO 3: O que fazer agora ── */}
+      {hasAnalysis && (
+        <div className="rounded-2xl border bg-card p-4 space-y-2">
+          <div className="flex items-center gap-2">
+            <ChevronRight className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold">O que fazer agora</span>
+          </div>
+          {isHardBlock && (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                O perfil contém contradições críticas que impedem o diagnóstico. Corrija os campos em conflito antes de prosseguir.
+              </p>
+              <ul className="space-y-1">
+                {criticalConflicts.slice(0, 3).map(c => (
+                  <li key={c.id} className="flex items-start gap-1.5 text-xs text-red-700 dark:text-red-400">
+                    <AlertCircle className="h-3 w-3 shrink-0 mt-0.5" />
+                    <span>{c.description}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-muted-foreground">
+                Após corrigir, clique em <strong>Avançar</strong> para reanalisar automaticamente.
+              </p>
+            </div>
+          )}
+          {isSoftBlock && (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Há inconsistências moderadas. Você pode prosseguir fornecendo uma justificativa formal (mínimo 50 caracteres).
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Clique em <strong>Justificar e continuar</strong> para registrar a justificativa e avançar.
+              </p>
+            </div>
+          )}
+          {isApproved && (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                O perfil passou na análise de consistência. Clique em <strong>Avançar para CNAEs</strong> para continuar.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── BLOCO 4: Acordeão de conflitos ── */}
+      {hasAnalysis && allConflicts.length > 0 && (
+        <div className="rounded-2xl border bg-card p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-amber-500" />
+            <span className="text-sm font-semibold">Conflitos detectados</span>
+            <Badge
+              variant="outline"
+              className={cn(
+                "text-xs ml-auto",
+                criticalConflicts.length > 0 ? "border-red-300 text-red-600 dark:text-red-400" : "border-amber-300 text-amber-600"
+              )}
+            >
+              {allConflicts.length}
+            </Badge>
+          </div>
+          <div className="space-y-2">
+            {visibleConflicts.map((c) => (
+              <div
+                key={c.id}
+                className={cn(
+                  "rounded-lg p-2.5 border text-xs space-y-0.5",
+                  c.severity === "critical"
+                    ? "bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800"
+                    : c.severity === "high"
+                    ? "bg-orange-50 border-orange-200 dark:bg-orange-950/30 dark:border-orange-800"
+                    : "bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-800"
+                )}
+              >
+                <div className="flex items-center gap-1.5">
+                  <span className={cn(
+                    "font-semibold uppercase tracking-wide",
+                    c.severity === "critical" ? "text-red-700 dark:text-red-400" :
+                    c.severity === "high" ? "text-orange-700 dark:text-orange-400" :
+                    "text-amber-700 dark:text-amber-400"
+                  )}>{c.severity}</span>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="text-muted-foreground">{c.type}</span>
+                </div>
+                <p className="text-foreground/80 leading-relaxed">{c.description}</p>
+              </div>
+            ))}
+          </div>
+          {allConflicts.length > 3 && (
+            <button
+              type="button"
+              onClick={() => setShowAllConflicts(!showAllConflicts)}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", showAllConflicts && "rotate-90")} />
+              {showAllConflicts ? "Recolher" : `Ver todos (${allConflicts.length - 3} ocultos)`}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* ── BLOCO 5: Conteúdo avançado (recolhido por padrão) ── */}
+      {cpieResult && (
+        <div className="rounded-2xl border bg-card overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Brain className="h-4 w-4 text-primary" />
+              <span>Análise detalhada da IA</span>
+            </div>
+            <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform", showAdvanced && "rotate-90")} />
+          </button>
+
+          {showAdvanced && (
+            <div className="px-4 pb-4 space-y-4 border-t border-border/50 pt-3">
+
+              {/* Score por dimensão */}
+              {cpieResult.dimensions.length > 0 && (
+                <div className="space-y-2.5">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Score por dimensão</p>
+                  {cpieResult.dimensions.map((dim) => {
+                    const dimColor = dim.score >= 80 ? "bg-emerald-500" : dim.score >= 50 ? "bg-amber-500" : "bg-red-500";
+                    const dimTextColor = dim.score >= 80 ? "text-emerald-600" : dim.score >= 50 ? "text-amber-600" : "text-red-500";
+                    return (
+                      <TooltipProvider key={dim.name}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="space-y-1 cursor-help">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">{dim.name}</span>
+                                <span className={cn("text-xs font-bold tabular-nums", dimTextColor)}>{dim.score}%</span>
+                              </div>
+                              <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                                <div className={cn("h-full rounded-full transition-all duration-500", dimColor)} style={{ width: `${dim.score}%` }} />
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="max-w-xs text-xs">
+                            <p className="font-medium mb-1">{dim.explanation}</p>
+                            <p className="text-muted-foreground">Peso: {dim.weight}%</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  })}
+                  <div className={cn(
+                    "text-xs px-3 py-2 rounded-lg font-medium",
+                    cpieResult.readinessLevel === "excellent" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400" :
+                    cpieResult.readinessLevel === "good" ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400" :
+                    cpieResult.readinessLevel === "basic" ? "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400" :
+                    "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
+                  )}>
+                    {cpieResult.readinessMessage}
+                  </div>
+                </div>
+              )}
+
+              {/* Perguntas dinâmicas */}
+              {cpieResult.dynamicQuestions.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Perguntas da IA</p>
+                  {cpieResult.dynamicQuestions.map((q) => (
+                    <div key={q.id} className="rounded-lg border border-border bg-muted/20 p-2.5 space-y-1">
+                      <div className="flex items-start gap-2">
+                        <span className={cn(
+                          "shrink-0 mt-0.5 w-1.5 h-1.5 rounded-full",
+                          q.priority === "high" ? "bg-red-500" : q.priority === "medium" ? "bg-amber-500" : "bg-blue-400"
+                        )} />
+                        <p className="text-xs font-medium leading-snug">{q.question}</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed pl-3.5">{q.rationale}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Insights */}
+              {cpieResult.insights.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Insights tributários</p>
+                  {cpieResult.insights.map((ins) => (
+                    <div key={ins.id} className={cn(
+                      "rounded-lg p-2.5 space-y-1 border text-xs",
+                      ins.category === "risk" ? "bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-800" :
+                      ins.category === "opportunity" ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-900/10 dark:border-emerald-800" :
+                      ins.category === "transition" ? "bg-purple-50 border-purple-200 dark:bg-purple-900/10 dark:border-purple-800" :
+                      "bg-blue-50 border-blue-200 dark:bg-blue-900/10 dark:border-blue-800"
+                    )}>
+                      <p className="font-semibold">{ins.title}</p>
+                      <p className="text-muted-foreground leading-relaxed">{ins.description}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Exportar PDF */}
+              {canExport && (
+                <CpieReportExport
+                  projectId={projectId!}
+                  projectName={projectName || "Projeto"}
+                  variant="outline"
+                  size="sm"
+                  className="w-full gap-2"
+                />
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Campos obrigatórios faltantes (estado neutro — sem análise) */}
+      {!hasAnalysis && missingRequired.length > 0 && (
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 space-y-2">
           <div className="flex items-center gap-1.5">
             <Lock className="h-3.5 w-3.5 text-destructive" />
@@ -565,7 +649,7 @@ function ScorePanel({
       )}
 
       {/* Campos opcionais faltantes */}
-      {!cpieResult && missingRequired.length === 0 && missingOptional.length > 0 && (
+      {!hasAnalysis && missingRequired.length === 0 && missingOptional.length > 0 && (
         <div className="rounded-xl border border-amber-300/40 bg-amber-50/50 dark:bg-amber-900/10 p-4 space-y-2">
           <div className="flex items-center gap-1.5">
             <TrendingUp className="h-3.5 w-3.5 text-amber-600" />
@@ -584,8 +668,8 @@ function ScorePanel({
         </div>
       )}
 
-      {/* Perfil completo */}
-      {!cpieResult && missingRequired.length === 0 && missingOptional.length === 0 && (
+      {/* Perfil completo — estado neutro */}
+      {!hasAnalysis && missingRequired.length === 0 && missingOptional.length === 0 && (
         <div className="rounded-xl border border-emerald-300/40 bg-emerald-50/50 dark:bg-emerald-900/10 p-4">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />

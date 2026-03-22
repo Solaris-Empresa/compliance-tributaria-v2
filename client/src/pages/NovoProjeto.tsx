@@ -750,39 +750,27 @@ export default function NovoProjeto() {
           </div>
         </div>
 
-        {/* K2 v2: Gate CPIE v2 — hard_block (vermelho) e soft_block (amber) */}
+        {/* ── Gate CPIE v2: banners e CTA contextual ── */}
 
         {/* HARD BLOCK: bloqueio crítico sem override possível */}
         {cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "hard_block" && (
-          <div className="space-y-3 p-4 rounded-xl bg-red-50 dark:bg-red-900/10 border-2 border-red-400 dark:border-red-700">
+          <div className="rounded-xl bg-red-50 dark:bg-red-900/10 border-2 border-red-400 dark:border-red-700 p-4 space-y-3">
             <div className="flex items-start gap-3">
               <ShieldX className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-red-800 dark:text-red-400">
-                  ⛔ Bloqueio crítico — Contradições incompatíveis detectadas
-                </p>
-                <p className="text-xs text-red-700 dark:text-red-500 mt-1">
-                  {cpieV2Gate.blockReason || "O perfil da empresa contém contradições que tornam impossível uma análise de compliance confiável. Corrija os conflitos antes de prosseguir."}
+                <p className="text-sm font-bold text-red-800 dark:text-red-400">⛔ BLOQUEIO — Contradições incompatíveis detectadas</p>
+                <p className="text-xs text-red-700 dark:text-red-500 mt-1 leading-relaxed">
+                  {cpieV2Gate.blockReason || "O perfil contém contradições que tornam impossível uma análise de compliance confiável."}
                 </p>
               </div>
             </div>
-            {cpieV2Gate.conflicts.length > 0 && (
-              <div className="pl-8 space-y-1.5">
-                <p className="text-xs font-medium text-red-700 dark:text-red-400">Conflitos detectados ({cpieV2Gate.conflicts.length}):</p>
-                {cpieV2Gate.conflicts.slice(0, 5).map(c => (
-                  <div key={c.id} className="flex items-start gap-2">
-                    <AlertCircle className="h-3.5 w-3.5 text-red-500 shrink-0 mt-0.5" />
-                    <span className="text-xs text-red-700 dark:text-red-400">{c.description}</span>
-                  </div>
-                ))}
-                {cpieV2Gate.conflicts.length > 5 && (
-                  <p className="text-xs text-red-500 pl-5">+{cpieV2Gate.conflicts.length - 5} conflito(s) adicionais no painel de score</p>
-                )}
-              </div>
-            )}
-            <div className="pl-8">
-              <p className="text-xs text-red-600 dark:text-red-400 font-medium">
-                Confiança diagnóstica: {cpieV2Gate.diagnosticConfidence}% | Consistência: {cpieV2Gate.consistencyScore}%
+            <div className="pl-8 space-y-1.5">
+              <p className="text-xs font-medium text-red-700 dark:text-red-400">O que fazer agora:</p>
+              <p className="text-xs text-red-600 dark:text-red-400 leading-relaxed">
+                Corrija as inconsistências no formulário de perfil acima (painel direito). Após corrigir, clique em <strong>Avançar</strong> para reanalisar automaticamente.
+              </p>
+              <p className="text-xs text-red-500 dark:text-red-500">
+                Confiança diagnóstica: <strong>{cpieV2Gate.diagnosticConfidence}%</strong> | Consistência: <strong>{cpieV2Gate.consistencyScore}%</strong>
               </p>
             </div>
           </div>
@@ -790,35 +778,23 @@ export default function NovoProjeto() {
 
         {/* SOFT BLOCK: conflitos com possibilidade de override com justificativa */}
         {cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && !cpieOverrideMode && (
-          <div className="space-y-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700">
+          <div className="rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700 p-4 space-y-3">
             <div className="flex items-start gap-3">
               <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
-                  ⚠️ Conflitos detectados — Justificativa necessária
-                </p>
-                <p className="text-xs text-amber-700 dark:text-amber-500 mt-1">
-                  {cpieV2Gate.blockReason || "Foram encontradas inconsistências no perfil. Você pode prosseguir com uma justificativa que será registrada no projeto."}
+                <p className="text-sm font-bold text-amber-800 dark:text-amber-400">⚠️ ATENÇÃO — Inconsistências moderadas detectadas</p>
+                <p className="text-xs text-amber-700 dark:text-amber-500 mt-1 leading-relaxed">
+                  {cpieV2Gate.blockReason || "Foram encontradas inconsistências no perfil. Você pode prosseguir fornecendo uma justificativa formal."}
                 </p>
               </div>
             </div>
-            {cpieV2Gate.conflicts.length > 0 && (
-              <div className="pl-8 space-y-1.5">
-                {cpieV2Gate.conflicts.slice(0, 3).map(c => (
-                  <div key={c.id} className="flex items-start gap-2">
-                    <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
-                    <span className="text-xs text-amber-700 dark:text-amber-400">{c.description}</span>
-                  </div>
-                ))}
-              </div>
-            )}
             <div className="pl-8">
               <button
                 type="button"
                 onClick={() => setCpieOverrideMode(true)}
-                className="text-xs text-amber-600 dark:text-amber-400 underline underline-offset-2 hover:text-amber-800"
+                className="text-xs font-medium text-amber-700 dark:text-amber-400 underline underline-offset-2 hover:text-amber-900"
               >
-                Avançar com justificativa
+                Justificar e continuar →
               </button>
             </div>
           </div>
@@ -826,15 +802,13 @@ export default function NovoProjeto() {
 
         {/* SOFT BLOCK override: campo de justificativa */}
         {cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideMode && (
-          <div className="space-y-3 p-4 rounded-xl bg-orange-50 dark:bg-orange-900/10 border-2 border-orange-400 dark:border-orange-600">
+          <div className="rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-400 dark:border-amber-600 p-4 space-y-3">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-orange-600 shrink-0 mt-0.5" />
+              <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-orange-800 dark:text-orange-400">
-                  Justificativa para prosseguir com conflitos
-                </p>
-                <p className="text-xs text-orange-700 dark:text-orange-500 mt-1">
-                  Descreva por que está prosseguindo mesmo com inconsistências. Mínimo 50 caracteres. Esta decisão será registrada.
+                <p className="text-sm font-bold text-amber-800 dark:text-amber-400">Justificativa formal para prosseguir</p>
+                <p className="text-xs text-amber-700 dark:text-amber-500 mt-1">
+                  Descreva por que está prosseguindo mesmo com inconsistências. Esta decisão será registrada na trilha de auditoria.
                 </p>
               </div>
             </div>
@@ -843,30 +817,38 @@ export default function NovoProjeto() {
                 value={cpieOverrideReason}
                 onChange={e => setCpieOverrideReason(e.target.value)}
                 placeholder="Ex: Empresa em transição de regime, perfil será atualizado após regularização..."
-                className="w-full text-xs rounded-lg border border-orange-300 dark:border-orange-600 bg-white dark:bg-orange-950/20 p-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full text-xs rounded-lg border border-amber-300 dark:border-amber-600 bg-white dark:bg-amber-950/20 p-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-amber-400"
                 rows={3}
               />
               <div className="flex items-center justify-between">
-                <span className={`text-xs ${cpieOverrideReason.trim().length >= 50 ? "text-emerald-600" : "text-orange-500"}`}>
+                <span className={`text-xs ${cpieOverrideReason.trim().length >= 50 ? "text-emerald-600" : "text-amber-600"}`}>
                   {cpieOverrideReason.trim().length}/50 caracteres mínimos
                 </span>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => { setCpieOverrideMode(false); setCpieOverrideReason(""); }}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-orange-300 text-orange-700 hover:bg-orange-100"
-                  >
-                    Cancelar
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => { setCpieOverrideMode(false); setCpieOverrideReason(""); }}
+                  className="text-xs px-3 py-1.5 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-100"
+                >
+                  Cancelar
+                </button>
               </div>
             </div>
           </div>
         )}
 
+        {/* APROVADO: confirmação visual quando canProceed=true */}
+        {cpieV2Gate && cpieV2Gate.canProceed && (
+          <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-300 dark:border-emerald-700 p-3 flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+            <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
+              ✅ Perfil aprovado — Clique em <strong>Avançar para CNAEs</strong> para continuar.
+            </p>
+          </div>
+        )}
+
         {/* Fallback v1: gate legado (quando não há análise v2) */}
         {!cpieV2Gate && cpieScore !== null && cpieScore < CPIE_MIN_SCORE && (
-          <div className="space-y-2 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-300 dark:border-amber-700">
+          <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-300 dark:border-amber-700">
             <div className="flex items-start gap-3">
               <Brain className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
               <p className="text-xs text-amber-700 dark:text-amber-400">
@@ -898,7 +880,7 @@ export default function NovoProjeto() {
           </div>
         )}
 
-        {/* CTA principal */}
+        {/* CTA principal — contextual por estado */}
         <div className="flex justify-end pb-4">
           <Button size="lg" onClick={handleSubmit} disabled={
             isLoading ||
@@ -923,11 +905,18 @@ export default function NovoProjeto() {
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />Analisando consistência...</>
             ) : isLoading ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />{createProject.isPending ? "Criando projeto..." : "Analisando CNAEs..."}</>
+            ) : cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "hard_block" ? (
+              <>Corrigir inconsistências</>
+            ) : cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideMode && cpieOverrideReason.trim().length >= 50 ? (
+              <>Justificar e continuar<ArrowRight className="h-4 w-4 ml-2" /></>
+            ) : cpieV2Gate && cpieV2Gate.canProceed ? (
+              <>Avançar para CNAEs<ArrowRight className="h-4 w-4 ml-2" /></>
             ) : (
               <>Avançar<ArrowRight className="h-4 w-4 ml-2" /></>
             )}
           </Button>
         </div>
+
       </div>
 
       {/* Modal CNAEs */}
