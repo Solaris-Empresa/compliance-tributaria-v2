@@ -28,8 +28,11 @@ import { notifyUser } from "../_core/websocket";
 
 // ─── Schema de input ──────────────────────────────────────────────────────────
 
-const CpieV2InputSchema = z.object({
-  projectId: z.number(),
+/**
+ * Schema compartilhado para os campos do perfil (sem projectId).
+ * Usado pelo analyzePreview (sem persistência) e pelo analyze (com persistência).
+ */
+const CpieV2ProfileFieldsSchema = z.object({
   cnpj: z.string().optional(),
   companyType: z.string().optional(),
   companySize: z.string().optional(),
@@ -48,6 +51,10 @@ const CpieV2InputSchema = z.object({
   hasTaxIssues: z.boolean().nullable().optional(),
   description: z.string().optional(),
 });
+
+const CpieV2InputSchema = z.object({
+  projectId: z.number(),
+}).merge(CpieV2ProfileFieldsSchema);
 
 // ─── Router ───────────────────────────────────────────────────────────────────
 
@@ -351,6 +358,84 @@ export const cpieV2Router = router({
         acceptedRisk: row.acceptedRisk === 1,
         acceptedRiskReason: row.acceptedRiskReason,
       };
+    }),
+
+  /**
+   * analyzePreview — Pipeline CPIE v2 completo SEM persistência no banco.
+   *
+   * Usado no fluxo de NOVO PROJETO (antes de createProject), onde o projectId
+   * ainda não existe. Executa E1→E5 completo (extração semântica, conflict matrix,
+   * veto rules, IA arbitragem, scores finais) e retorna o resultado ao frontend.
+   *
+   * Após createProject.onSuccess, o frontend deve chamar analyze() com o projectId
+   * real para persistir o resultado na tabela consistency_checks.
+   *
+   * PROIBIDO: usar como substituto permanente do analyze() em projetos existentes.
+   */
+  analyzePreview: protectedProcedure
+    .input(CpieV2ProfileFieldsSchema)
+    .mutation(async ({ input }) => {
+      const profileInput: CpieProfileInputV2 = {
+        cnpj: input.cnpj,
+        companyType: input.companyType,
+        companySize: input.companySize,
+        annualRevenueRange: input.annualRevenueRange,
+        taxRegime: input.taxRegime,
+        operationType: input.operationType,
+        clientType: input.clientType,
+        multiState: input.multiState ?? null,
+        hasMultipleEstablishments: input.hasMultipleEstablishments ?? null,
+        hasImportExport: input.hasImportExport ?? null,
+        hasSpecialRegimes: input.hasSpecialRegimes ?? null,
+        paymentMethods: input.paymentMethods,
+        hasIntermediaries: input.hasIntermediaries ?? null,
+        hasTaxTeam: input.hasTaxTeam ?? null,
+        hasAudit: input.hasAudit ?? null,
+        hasTaxIssues: input.hasTaxIssues ?? null,
+        description: input.description,
+      };
+
+      try {
+        const result = await runCpieAnalysisV2(profileInput);
+
+        // Calcular overallLevel (mesmo cálculo do analyze, sem persistir)
+        const criticalCount = result.conflicts.filter(c => c.severity === "critical").length;
+        const highCount = result.conflicts.filter(c => c.severity === "high").length;
+        const mediumCount = result.conflicts.filter(c => c.severity === "medium").length;
+        const lowCount = result.conflicts.filter(c => c.severity === "low").length;
+
+        let overallLevel: "none" | "low" | "medium" | "high" | "critical" = "none";
+        if (criticalCount > 0 || result.diagnosticConfidence < 15) overallLevel = "critical";
+        else if (highCount > 0 || result.diagnosticConfidence < 40) overallLevel = "high";
+        else if (mediumCount > 0 || result.diagnosticConfidence < 60) overallLevel = "medium";
+        else if (lowCount > 0 || result.diagnosticConfidence < 80) overallLevel = "low";
+
+        return {
+          // Os 3 scores separados (NUNCA misturar)
+          completenessScore: result.completenessScore,
+          consistencyScore: result.consistencyScore,
+          diagnosticConfidence: result.diagnosticConfidence,
+          // Vetos aplicados
+          deterministicVeto: result.deterministicVeto,
+          aiVeto: result.aiVeto,
+          // Conflitos detectados
+          conflicts: result.conflicts,
+          reconciliationQuestions: result.reconciliationQuestions,
+          // Perfil inferido pela IA
+          inferredProfile: result.inferredProfile,
+          // Decisão de bloqueio
+          canProceed: result.canProceed,
+          blockType: result.blockType,
+          blockReason: result.blockReason,
+          // Metadados
+          overallLevel,
+          analysisVersion: "cpie-v2.0",
+          // Indicador de que este resultado NÃO foi persistido
+          persisted: false,
+        };
+      } catch (err) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "CPIE v2 preview analysis failed" });
+      }
     }),
 
   /**

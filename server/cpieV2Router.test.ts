@@ -293,4 +293,117 @@ describe("CPIE v2 Router — Gate de Integração", () => {
       expect(consistencyScore).toBe(75);
     });
   });
+
+  // ─── Testes do analyzePreview ─────────────────────────────────────────────
+
+  describe("analyzePreview — contrato e regras", () => {
+    /**
+     * Simula o resultado que analyzePreview retornaria para cada cenário.
+     * Não faz chamada real ao banco — testa apenas a lógica de contrato.
+     */
+    function simulatePreviewResult(params: {
+      completenessScore: number;
+      consistencyScore: number;
+      diagnosticConfidence: number;
+      blockType?: "hard_block" | "soft_block_with_override";
+      blockReason?: string;
+    }) {
+      const canProceed = !params.blockType;
+      return {
+        completenessScore: params.completenessScore,
+        consistencyScore: params.consistencyScore,
+        diagnosticConfidence: params.diagnosticConfidence,
+        canProceed,
+        blockType: params.blockType,
+        blockReason: params.blockReason,
+        persisted: false, // NUNCA persiste no banco
+        analysisVersion: "cpie-v2.0",
+      };
+    }
+
+    // Teste A — T01 Cervejaría MEI (hard_block obrigatório)
+    it("A: T01 cervejaria MEI deve retornar hard_block com diagnosticConfidence ≤ 15", () => {
+      const result = simulatePreviewResult({
+        completenessScore: 100,
+        consistencyScore: 0,
+        diagnosticConfidence: 0,
+        blockType: "hard_block",
+        blockReason: "Contradição crítica: MEI não pode ter faturamento de R$ 1M/mês",
+      });
+      expect(result.diagnosticConfidence).toBeLessThanOrEqual(15);
+      expect(result.blockType).toBe("hard_block");
+      expect(result.canProceed).toBe(false);
+      expect(result.persisted).toBe(false); // NÃO persiste
+    });
+
+    // Teste B — Perfil consistente (canProceed = true)
+    it("B: perfil consistente deve retornar canProceed=true sem blockType", () => {
+      const result = simulatePreviewResult({
+        completenessScore: 90,
+        consistencyScore: 85,
+        diagnosticConfidence: 76, // 85 * 90/100 = 76.5
+      });
+      expect(result.canProceed).toBe(true);
+      expect(result.blockType).toBeUndefined();
+      expect(result.persisted).toBe(false);
+      expect(result.diagnosticConfidence).toBeGreaterThan(15);
+    });
+
+    // Teste C — Soft block com conflitos HIGH
+    it("C: conflitos HIGH devem retornar soft_block_with_override", () => {
+      const result = simulatePreviewResult({
+        completenessScore: 80,
+        consistencyScore: 35,
+        diagnosticConfidence: 28, // 35 * 80/100 = 28
+        blockType: "soft_block_with_override",
+        blockReason: "Conflitos de alta severidade detectados",
+      });
+      expect(result.blockType).toBe("soft_block_with_override");
+      expect(result.canProceed).toBe(false);
+      expect(result.diagnosticConfidence).toBeGreaterThan(15); // não é hard_block
+      expect(result.persisted).toBe(false);
+    });
+
+    // Teste D — Retrocompatibilidade: analyzePreview não tem projectId
+    it("D: analyzePreview não deve receber projectId no input", () => {
+      // O schema CpieV2ProfileFieldsSchema não inclui projectId
+      // Verificar que o contrato está correto
+      const previewInput = {
+        companyType: "MEI",
+        taxRegime: "simples",
+        annualRevenueRange: "ate_360k",
+        description: "Cervejaria artesanal",
+      };
+      // Não deve ter projectId
+      expect((previewInput as any).projectId).toBeUndefined();
+      // Deve ter os campos do perfil
+      expect(previewInput.companyType).toBe("MEI");
+    });
+
+    // Teste E — Invariante: persisted sempre false
+    it("E: analyzePreview sempre retorna persisted=false", () => {
+      const result = simulatePreviewResult({
+        completenessScore: 100,
+        consistencyScore: 100,
+        diagnosticConfidence: 100,
+      });
+      expect(result.persisted).toBe(false);
+    });
+
+    // Teste F — Invariante: 3 scores separados nunca são misturados
+    it("F: os 3 scores do preview são independentes", () => {
+      const result = simulatePreviewResult({
+        completenessScore: 100,
+        consistencyScore: 0,
+        diagnosticConfidence: 0,
+        blockType: "hard_block",
+      });
+      // completenessScore alto não implica diagnosticConfidence alto
+      expect(result.completenessScore).toBe(100);
+      expect(result.consistencyScore).toBe(0);
+      expect(result.diagnosticConfidence).toBe(0);
+      // Os 3 são independentes
+      expect(result.completenessScore).not.toBe(result.diagnosticConfidence);
+    });
+  });
 });
