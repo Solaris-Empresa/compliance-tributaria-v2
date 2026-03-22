@@ -831,7 +831,7 @@ export default function NovoProjeto() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => { setCpieOverrideMode(false); setCpieOverrideReason(""); }}
+                  onClick={() => { setCpieOverrideMode(false); setCpieOverrideReason(""); setCpieV2Gate(null); }}
                   className="text-xs px-3 py-1.5 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-100"
                 >
                   Cancelar
