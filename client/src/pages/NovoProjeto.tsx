@@ -217,6 +217,8 @@ export default function NovoProjeto() {
   const [overrideSubmitting, setOverrideSubmitting] = useState(false);
   // MEDIUM conflicts: painel de revisão antes de prosseguir para CNAEs
   const [showConflictReview, setShowConflictReview] = useState(false);
+  // Flag: usuário confirmou ciência dos conflitos MEDIUM no painel de revisão
+  const [mediumAcknowledgedByUser, setMediumAcknowledgedByUser] = useState(false);
   const CPIE_MIN_SCORE = 30; // mantido para compat v1 (fallback sem análise v2)
 
   // D1+D2: Consistency Gate
@@ -336,6 +338,17 @@ export default function NovoProjeto() {
     },
   });
 
+  // Aceite explícito de conflitos MEDIUM no banco (chamado após persistCpieV2.onSuccess)
+  const acknowledgeMediumMutation = trpc.cpieV2.acknowledgeMediumConflicts.useMutation({
+    onSuccess: (data) => {
+      console.info("[CPIE v2] Conflitos MEDIUM reconhecidos formalmente no banco. checkId:", data.checkId);
+    },
+    onError: (err) => {
+      // Silencioso: não bloquear o fluxo se o aceite falhar
+      console.warn("[CPIE v2] Falha ao registrar aceite de conflitos MEDIUM:", err.message);
+    },
+  });
+
   // Persistência pós-criação: salvar análise CPIE v2 no banco com projectId real
   const persistCpieV2 = trpc.cpieV2.analyze.useMutation({
     onSuccess: (data) => {
@@ -357,6 +370,11 @@ export default function NovoProjeto() {
           justification: cpieOverrideReason.trim(),
         });
         // NÃO chamar extractCnaes aqui — será chamado no overrideSoftBlockMutation.onSuccess
+      }
+      // Caso canProceed=true com conflitos MEDIUM: registrar aceite explícito se usuário confirmou
+      if (mediumAcknowledgedByUser && cpieV2Gate?.canProceed && projectId) {
+        console.info("[CPIE v2] Registrando aceite explícito de conflitos MEDIUM. checkId:", checkId);
+        acknowledgeMediumMutation.mutate({ checkId, projectId });
       }
       // Caso canProceed=true: extractCnaes já foi chamado no createProject.onSuccess
     },
@@ -505,6 +523,7 @@ export default function NovoProjeto() {
     setIsAnalyzingV2(true);
     setCpieV2Gate(null); // resetar gate anterior
     setShowConflictReview(false); // resetar painel de revisão
+    setMediumAcknowledgedByUser(false); // resetar aceite de conflitos MEDIUM
     analyzePreviewInline.mutate({
       cnpj: perfilData.cnpj || undefined,
       companyType: perfilData.companyType || undefined,
@@ -669,6 +688,7 @@ export default function NovoProjeto() {
                     setCpieOverrideMode(false);
                     setCpieOverrideReason("");
                     setShowConflictReview(false);
+                    setMediumAcknowledgedByUser(false);
                   }
                 }}
                 rows={7}
@@ -749,6 +769,7 @@ export default function NovoProjeto() {
               setCpieOverrideMode(false);
               setCpieOverrideReason("");
               setShowConflictReview(false);
+              setMediumAcknowledgedByUser(false);
             }
           }}
           description={description}
@@ -856,7 +877,7 @@ export default function NovoProjeto() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => { setCpieOverrideMode(false); setCpieOverrideReason(""); setCpieV2Gate(null); setShowConflictReview(false); }}
+                  onClick={() => { setCpieOverrideMode(false); setCpieOverrideReason(""); setCpieV2Gate(null); setShowConflictReview(false); setMediumAcknowledgedByUser(false); }}
                   className="text-xs px-3 py-1.5 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-100"
                 >
                   Cancelar
@@ -902,6 +923,7 @@ export default function NovoProjeto() {
                 onClick={() => {
                   setShowConflictReview(false);
                   setCpieV2Gate(null);
+                  setMediumAcknowledgedByUser(false);
                 }}
                 className="text-xs px-3 py-1.5 rounded-lg border border-amber-300 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 font-medium"
               >
@@ -910,6 +932,8 @@ export default function NovoProjeto() {
               <button
                 type="button"
                 onClick={() => {
+                  // Registrar que o usuário confirmou ciência dos conflitos MEDIUM
+                  setMediumAcknowledgedByUser(true);
                   setShowConflictReview(false);
                   createProject.mutate(pendingProjectPayloadRef.current);
                 }}

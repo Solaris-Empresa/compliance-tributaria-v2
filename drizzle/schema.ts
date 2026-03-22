@@ -1550,6 +1550,10 @@ export const consistencyChecks = mysqlTable("consistency_checks", {
   acceptedRiskAt: bigint("accepted_risk_at", { mode: "number" }),
   acceptedRiskBy: varchar("accepted_risk_by", { length: 255 }),
   acceptedRiskReason: text("accepted_risk_reason"),
+  // Aceite explícito de conflitos MEDIUM (painel de revisão)
+  mediumAcknowledged: tinyint("medium_acknowledged").notNull().default(0), // 0=não revisado, 1=usuário confirmou ciência
+  mediumAcknowledgedAt: bigint("medium_acknowledged_at", { mode: "number" }),
+  mediumAcknowledgedBy: varchar("medium_acknowledged_by", { length: 255 }),
   deterministicScore: int("deterministic_score").notNull().default(0),
   aiScore: int("ai_score").notNull().default(0),
   totalIssues: int("total_issues").notNull().default(0),

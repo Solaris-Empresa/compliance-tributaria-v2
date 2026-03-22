@@ -309,6 +309,74 @@ export const cpieV2Router = router({
     }),
 
   /**
+   * Registra o aceite explícito de conflitos MEDIUM pelo usuário.
+   * Chamado após o usuário confirmar ciência no painel de revisão.
+   *
+   * REGRA: Só pode ser usado quando overallLevel="medium" e canProceed=true.
+   */
+  acknowledgeMediumConflicts: protectedProcedure
+    .input(z.object({
+      checkId: z.string(),
+      projectId: z.number(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+
+      // Buscar o check
+      const rows = await db
+        .select()
+        .from(consistencyChecks)
+        .where(eq(consistencyChecks.id, input.checkId))
+        .limit(1);
+
+      if (!rows.length) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Análise não encontrada" });
+      }
+
+      const check = rows[0];
+      const findingsData = check.findings ? JSON.parse(check.findings) : {};
+      const v2Data = findingsData.v2 || {};
+
+      // Verificar se é realmente um caso de canProceed=true com conflitos MEDIUM
+      if (!v2Data.canProceed && v2Data.blockType !== undefined) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Esta análise não permite aceite de conflitos MEDIUM (está bloqueada).",
+        });
+      }
+
+      // Registrar o aceite explícito
+      await db.update(consistencyChecks)
+        .set({
+          mediumAcknowledged: 1,
+          mediumAcknowledgedAt: Date.now(),
+          mediumAcknowledgedBy: String(ctx.user.id),
+          updatedAt: Date.now(),
+        })
+        .where(eq(consistencyChecks.id, input.checkId));
+
+      // Notificar owner sobre aceite de conflitos MEDIUM
+      try {
+        const { notifyOwner } = await import("../_core/notification");
+        await notifyOwner({
+          title: `⚠️ CPIE v2 Conflitos MEDIUM Reconhecidos — Projeto #${input.projectId}`,
+          content: [
+            `**Usuário:** ${ctx.user.name || ctx.user.email} (ID: ${ctx.user.id})`,
+            `**Projeto:** #${input.projectId}`,
+            `**Check ID:** ${input.checkId}`,
+            `**Conflitos MEDIUM:** ${check.mediumCount}`,
+            `**Data:** ${new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`,
+            ``,
+            `O usuário reconheceu explicitamente as inconsistências de severidade média e optou por prosseguir.`,
+          ].join("\n"),
+        });
+      } catch { /* não bloquear */ }
+
+      return { acknowledged: true, checkId: input.checkId };
+    }),
+
+  /**
    * Busca o último resultado CPIE v2 de um projeto.
    */
   getByProject: protectedProcedure
