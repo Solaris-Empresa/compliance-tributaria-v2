@@ -317,7 +317,7 @@ function ScorePanel({
           <div className="h-2 rounded-full bg-muted overflow-hidden">
             <div className={cn("h-full rounded-full transition-all duration-500", barColor)} style={{ width: `${displayCompleteness}%` }} />
           </div>
-          {!cpieV2Gate && <p className="text-xs text-muted-foreground">Apoio visual — clique em Analisar para score real</p>}
+          {!cpieV2Gate && <p className="text-xs text-muted-foreground">Será calculado ao clicar em Avançar</p>}
         </div>
 
         {/* Consistência — exibida apenas após análise v2 */}
@@ -589,9 +589,9 @@ function ScorePanel({
         <div className="rounded-xl border border-emerald-300/40 bg-emerald-50/50 dark:bg-emerald-900/10 p-4">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Perfil 100% completo!</span>
+            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Perfil completo.</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">A IA terá máxima precisão na identificação de CNAEs e no diagnóstico tributário.</p>
+          <p className="text-xs text-muted-foreground mt-1">Clique em Avançar para executar a análise de consistência do perfil.</p>
         </div>
       )}
     </div>

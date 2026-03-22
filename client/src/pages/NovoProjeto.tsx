@@ -214,8 +214,10 @@ export default function NovoProjeto() {
     blockReason?: string;
     diagnosticConfidence: number;
     consistencyScore: number;
+    completenessScore: number;
     conflicts: Array<{ id: string; description: string; severity: string }>;
   } | null>(null);
+  const [isAnalyzingV2, setIsAnalyzingV2] = useState(false);
   const [cpieOverrideMode, setCpieOverrideMode] = useState(false);
   const [cpieOverrideReason, setCpieOverrideReason] = useState("");
   const CPIE_MIN_SCORE = 30; // mantido para compat v1 (fallback sem análise v2)
@@ -242,6 +244,48 @@ export default function NovoProjeto() {
       createProject.mutate(pendingProjectPayload);
     },
   });
+
+  // CPIE v2: analyzePreview inline no NovoProjeto — dispara automaticamente no Avançar
+  const analyzePreviewInline = trpc.cpieV2.analyzePreview.useMutation({
+    onSuccess: (data) => {
+      console.log("[CPIE v2] analyzePreview resposta recebida:", JSON.stringify({
+        completenessScore: data.completenessScore,
+        consistencyScore: data.consistencyScore,
+        diagnosticConfidence: data.diagnosticConfidence,
+        canProceed: data.canProceed,
+        blockType: data.blockType,
+        conflictsCount: data.conflicts?.length ?? 0,
+      }));
+      const gate = {
+        canProceed: data.canProceed,
+        blockType: data.blockType as "hard_block" | "soft_block_with_override" | undefined,
+        blockReason: data.blockReason,
+        diagnosticConfidence: data.diagnosticConfidence,
+        consistencyScore: data.consistencyScore,
+        completenessScore: data.completenessScore,
+        conflicts: (data.conflicts ?? []) as Array<{ id: string; description: string; severity: string }>,
+      };
+      setCpieV2Gate(gate);
+      setIsAnalyzingV2(false);
+      console.log("[CPIE v2] Estado final aplicado no frontend:", gate);
+      if (data.canProceed) {
+        // Sem bloqueio: prosseguir para o Consistency Gate v1 e criar projeto
+        console.log("[CPIE v2] canProceed=true, prosseguindo para createProject");
+        runConsistency.mutate(pendingProjectPayloadRef.current);
+      } else {
+        console.log("[CPIE v2] Bloqueado:", data.blockType, data.blockReason);
+        // Não prosseguir — exibir banner de bloqueio
+      }
+    },
+    onError: (err) => {
+      console.error("[CPIE v2] Erro no analyzePreview:", err.message);
+      setIsAnalyzingV2(false);
+      toast.error("Erro na análise de consistência. Tente novamente.");
+    },
+  });
+
+  // Ref para o payload pendente (necessário para o callback do analyzePreviewInline)
+  const pendingProjectPayloadRef = { current: null as any };
 
   const acceptRiskAndProceed = () => {
     if (riskReason.trim().length < 10) {
@@ -361,6 +405,16 @@ export default function NovoProjeto() {
       const missing = profileScore.missingRequired.join(", ");
       return toast.error(`Preencha os campos obrigatórios: ${missing}`);
     }
+    // CPIE v2: se já há gate e está bloqueado por hard_block, impedir
+    if (cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "hard_block") {
+      toast.error("⛔ Bloqueio crítico: corrija as contradições antes de prosseguir.");
+      return;
+    }
+    // CPIE v2: se soft_block sem justificativa suficiente, impedir
+    if (cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && !(cpieOverrideMode && cpieOverrideReason.trim().length >= 50)) {
+      toast.error("⚠️ Informe a justificativa (mínimo 50 caracteres) para prosseguir.");
+      return;
+    }
     const companyProfile = {
       cnpj: perfilData.cnpj,
       companyType: perfilData.companyType,
@@ -398,38 +452,76 @@ export default function NovoProjeto() {
       governanceProfile,
     } as any;
     setPendingProjectPayload(payload);
-    // D1: Rodar Consistency Gate antes de criar o projeto
-    runConsistency.mutate({
-      projectId: 0, // placeholder antes de criar
-      companyProfile: {
-        cnpj: perfilData.cnpj || undefined,
-        companyType: perfilData.companyType || undefined,
-        companySize: (perfilData.companySize as any) || undefined,
-        annualRevenueRange: perfilData.annualRevenueRange || undefined,
-        taxRegime: (perfilData.taxRegime as any) || undefined,
-      },
-      operationProfile: {
-        operationType: perfilData.operationType || undefined,
-        clientType: perfilData.clientType.length > 0 ? perfilData.clientType : undefined,
-        multiState: perfilData.multiState ?? undefined,
-      },
-      taxComplexity: {
-        hasInternationalOps: perfilData.hasImportExport ?? undefined,
-        usesTaxIncentives: undefined,
-        usesMarketplace: perfilData.paymentMethods.includes('marketplace'),
-      },
-      financialProfile: {
-        paymentMethods: perfilData.paymentMethods.length > 0 ? perfilData.paymentMethods : undefined,
-        hasIntermediaries: perfilData.hasIntermediaries ?? undefined,
-      },
-      governanceProfile: {
-        hasTaxTeam: perfilData.hasTaxTeam ?? undefined,
-        hasAudit: perfilData.hasAudit ?? undefined,
-        hasTaxIssues: perfilData.hasTaxIssues ?? undefined,
-      },
-      description: description.trim(),
+    pendingProjectPayloadRef.current = payload;
+
+    // CPIE v2: se já temos gate válido e canProceed=true (ou soft_block com justificativa), pular re-análise
+    const alreadyApproved = cpieV2Gate && (
+      cpieV2Gate.canProceed ||
+      (cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideMode && cpieOverrideReason.trim().length >= 50)
+    );
+
+    if (alreadyApproved) {
+      console.log("[CPIE v2] Gate já aprovado, prosseguindo diretamente");
+      runConsistency.mutate(buildConsistencyPayload());
+      return;
+    }
+
+    // CPIE v2: disparar analyzePreview automaticamente no Avançar
+    console.log("[CPIE v2] Clique em Avançar — disparando analyzePreview automaticamente");
+    setIsAnalyzingV2(true);
+    setCpieV2Gate(null); // resetar gate anterior
+    analyzePreviewInline.mutate({
+      cnpj: perfilData.cnpj || undefined,
+      companyType: perfilData.companyType || undefined,
+      companySize: perfilData.companySize || undefined,
+      annualRevenueRange: perfilData.annualRevenueRange || undefined,
+      taxRegime: perfilData.taxRegime || undefined,
+      operationType: perfilData.operationType || undefined,
+      clientType: perfilData.clientType.length > 0 ? perfilData.clientType : undefined,
+      multiState: perfilData.multiState ?? undefined,
+      hasMultipleEstablishments: perfilData.hasMultipleEstablishments ?? undefined,
+      hasImportExport: perfilData.hasImportExport ?? undefined,
+      hasSpecialRegimes: perfilData.hasSpecialRegimes ?? undefined,
+      paymentMethods: perfilData.paymentMethods.length > 0 ? perfilData.paymentMethods : undefined,
+      hasIntermediaries: perfilData.hasIntermediaries ?? undefined,
+      hasTaxTeam: perfilData.hasTaxTeam ?? undefined,
+      hasAudit: perfilData.hasAudit ?? undefined,
+      hasTaxIssues: perfilData.hasTaxIssues ?? undefined,
+      description: description.trim() || undefined,
     });
   };
+
+  // Helper: monta o payload do Consistency Gate v1
+  const buildConsistencyPayload = () => ({
+    projectId: 0 as number,
+    companyProfile: {
+      cnpj: perfilData.cnpj || undefined,
+      companyType: perfilData.companyType || undefined,
+      companySize: (perfilData.companySize as any) || undefined,
+      annualRevenueRange: perfilData.annualRevenueRange || undefined,
+      taxRegime: (perfilData.taxRegime as any) || undefined,
+    },
+    operationProfile: {
+      operationType: perfilData.operationType || undefined,
+      clientType: perfilData.clientType.length > 0 ? perfilData.clientType : undefined,
+      multiState: perfilData.multiState ?? undefined,
+    },
+    taxComplexity: {
+      hasInternationalOps: perfilData.hasImportExport ?? undefined,
+      usesTaxIncentives: undefined as boolean | undefined,
+      usesMarketplace: perfilData.paymentMethods.includes('marketplace'),
+    },
+    financialProfile: {
+      paymentMethods: perfilData.paymentMethods.length > 0 ? perfilData.paymentMethods : undefined,
+      hasIntermediaries: perfilData.hasIntermediaries ?? undefined,
+    },
+    governanceProfile: {
+      hasTaxTeam: perfilData.hasTaxTeam ?? undefined,
+      hasAudit: perfilData.hasAudit ?? undefined,
+      hasTaxIssues: perfilData.hasTaxIssues ?? undefined,
+    },
+    description: description.trim(),
+  });
 
   const handleConfirmCnaes = () => {
     if (!projectId) return;
@@ -652,6 +744,7 @@ export default function NovoProjeto() {
                 blockReason: v2Gate.blockReason,
                 diagnosticConfidence: v2Gate.diagnosticConfidence,
                 consistencyScore: v2Gate.consistencyScore,
+                completenessScore: v2Gate.completenessScore ?? 0,
                 conflicts: v2Gate.conflicts,
               });
             }
@@ -824,6 +917,8 @@ export default function NovoProjeto() {
         <div className="flex justify-end pb-4">
           <Button size="lg" onClick={handleSubmit} disabled={
             isLoading ||
+            isAnalyzingV2 ||
+            analyzePreviewInline.isPending ||
             !name.trim() ||
             descLength < 100 ||
             !clientId ||
@@ -836,7 +931,9 @@ export default function NovoProjeto() {
             // Fallback v1 (sem análise v2)
             (!cpieV2Gate && cpieScore !== null && cpieScore < CPIE_MIN_SCORE && !(cpieOverrideMode && cpieOverrideReason.trim().length >= 10))
           } className="min-w-[220px]">
-            {isLoading ? (
+            {isAnalyzingV2 || analyzePreviewInline.isPending ? (
+              <><Loader2 className="h-4 w-4 animate-spin mr-2" />Analisando consistência...</>
+            ) : isLoading ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />{createProject.isPending ? "Criando projeto..." : "Analisando CNAEs..."}</>
             ) : (
               <>Avançar<ArrowRight className="h-4 w-4 ml-2" /></>
