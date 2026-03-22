@@ -51,16 +51,16 @@ export const fluxoV3Router = router({
       // v2.1: Company Profile Layer — OBRIGATÓRIO (fix/v2.1-company-profile-required)
       companyProfile: z.object({
         cnpj: z.string().min(14, "CNPJ é obrigatório"),
-        companyType: z.enum(["ltda", "sa", "mei", "eireli", "scp", "cooperativa", "outro"]),
+        companyType: z.enum(["ltda", "sa", "mei", "eireli", "scp", "cooperativa", "outro", "slu", "outros"]),
         companySize: z.enum(["mei", "micro", "pequena", "media", "grande"]),
         taxRegime: z.enum(["simples_nacional", "lucro_presumido", "lucro_real"]),
         foundingYear: z.number().optional(),
         stateUF: z.string().optional(),
         employeeCount: z.string().optional(),
-        annualRevenueRange: z.enum(["ate_360k", "360k_4_8m", "4_8m_78m", "acima_78m"]).optional(),
+        annualRevenueRange: z.enum(["ate_360k", "360k_4_8m", "4_8m_78m", "acima_78m", "0-360000", "360000-4800000", "4800000-78000000", "78000000+"]).optional(),
       }),
       operationProfile: z.object({
-        operationType: z.enum(["produto", "servico", "misto"]),
+        operationType: z.enum(["produto", "servico", "misto", "industria", "comercio", "servicos", "agronegocio", "financeiro"]),
         clientType: z.array(z.string()).min(1, "Selecione pelo menos 1 tipo de cliente"),
         multiState: z.boolean(),
         geographicScope: z.string().optional(),

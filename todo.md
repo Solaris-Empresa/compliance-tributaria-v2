@@ -2855,3 +2855,10 @@
 - [x] Suite 4: Relatório mensal (4 testes) — generateMonthlyReportHtml, stats, HTML
 - [x] Suite 5: Batch analyze (4 testes) — múltiplos perfis, scores válidos
 - [x] 62/62 testes passando (19 CPIE + 20 Consistency + 23 E2E)
+
+## Bug Fix — Validação Zod NovoProjeto
+
+- [x] Corrigir `annualRevenueRange` enum mismatch — servidor agora aceita `"0-360000"`, `"360000-4800000"`, `"4800000-78000000"`, `"78000000+"`
+- [x] Corrigir `operationType` enum mismatch — servidor agora aceita `"industria"`, `"comercio"`, `"servicos"`, `"agronegocio"`, `"financeiro"`
+- [x] Corrigir `companyType` enum mismatch — servidor agora aceita `"slu"` e `"outros"`
+- [x] 39/39 testes passando após os fixes
