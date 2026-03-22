@@ -172,6 +172,16 @@ Sua tarefa é extrair o PERFIL REAL da empresa a partir da descrição livre for
 
 IMPORTANTE: A descrição é a FONTE PRIMÁRIA DE VERDADE. Extraia apenas o que está explícito ou fortemente implícito.
 
+TABELA OFICIAL DE PORTE (BNDES/Sebrae/Receita Federal) — USE PARA INFERIR inferredCompanySize:
+- MEI:          faturamento até R$ 81 mil/ano
+- Microempresa: faturamento até R$ 360 mil/ano
+- Pequena:      faturamento até R$ 4,8 milhões/ano
+- Média:        faturamento até R$ 300 milhões/ano
+- Grande:       faturamento acima de R$ 300 milhões/ano
+
+Exemplo: empresa com R$ 1M/mês (R$ 12M/ano) → inferredCompanySize = "media" (R$ 12M < R$ 300M).
+Exemplo: empresa com R$ 3M/mês (R$ 36M/ano) → inferredCompanySize = "media" (R$ 36M < R$ 300M).
+
 Retorne APENAS JSON válido:
 {
   "sector": "setor principal da empresa (ex: manufatura/bebidas, serviços/TI, comércio/varejo)",
@@ -591,6 +601,18 @@ TABELA DE VETO OBRIGATÓRIO:
 REGRA INVIOLÁVEL: Se você identificar contradição composta crítica, aiVeto DEVE ser ≤ 15.
 Não há exceção. Completude de formulário NÃO cancela o veto.
 
+TABELA OFICIAL DE PORTE (BNDES/Sebrae/Receita Federal) — USE COMO REFERÊNCIA INVIOLÁVEL:
+- MEI:          faturamento até R$ 81 mil/ano
+- Microempresa: faturamento até R$ 360 mil/ano
+- Pequena:      faturamento até R$ 4,8 milhões/ano
+- Média:        faturamento até R$ 300 milhões/ano  ← ATENÇÃO: limite É R$ 300M, não R$ 36M
+- Grande:       faturamento acima de R$ 300 milhões/ano
+
+REGRA ANTI-FALSO-POSITIVO: NÃO gere conflito de porte quando o faturamento declarado está DENTRO do limite oficial.
+Exemplo correto: empresa média com R$ 12M/ano → SEM conflito (R$ 12M < R$ 300M).
+Exemplo correto: empresa média com R$ 36M/ano → SEM conflito (R$ 36M < R$ 300M).
+Exemplo com conflito real: empresa pequena com R$ 36M/ano → conflito (R$ 36M > R$ 4,8M).
+
 IMPORTANTE: Não repita conflitos já detectados (listados em conflitos_ja_detectados).
 Foque em contradições COMPOSTAS que só emergem da combinação de múltiplos campos.
 
@@ -783,10 +805,33 @@ export async function runCpieAnalysisV2(input: CpieProfileInputV2): Promise<Cpie
   // E4: Arbitragem IA
   const aiResult = await runAiArbitration(input, inferredProfile, deterministicConflicts);
 
+  // Filtrar findings da IA que contradizem os limites oficiais de porte
+  // (a IA pode gerar falsos positivos sobre porte médio/grande quando o faturamento
+  //  está dentro dos limites do BNDES/Sebrae)
+  const filteredAiFindings = aiResult.aiFindings.filter(f => {
+    // Remover conflitos de porte quando companySize e annualRevenueRange são compatíveis
+    const isPorteConflict = f.conflictingFields.includes("companySize") &&
+      (f.conflictingFields.includes("annualRevenueRange") || f.conflictingFields.includes("description"));
+    if (isPorteConflict && input.companySize && input.annualRevenueRange) {
+      const maxRevenue = SIZE_MAX_REVENUE[input.companySize];
+      const revenueRange = REVENUE_LIMITS[input.annualRevenueRange];
+      if (maxRevenue !== undefined && revenueRange) {
+        // Se o faturamento declarado está dentro do limite oficial do porte declarado,
+        // o conflito da IA é um falso positivo — remover
+        const isWithinOfficialLimit = revenueRange.min <= maxRevenue;
+        if (isWithinOfficialLimit) {
+          console.log(`[CPIE v2] Removendo falso positivo da IA sobre porte: ${f.id} (${f.title}) — faturamento dentro do limite oficial`);
+          return false;
+        }
+      }
+    }
+    return true;
+  });
+
   // Merge de todos os conflitos
   const allConflicts: ConflictFinding[] = [
     ...deterministicConflicts,
-    ...aiResult.aiFindings,
+    ...filteredAiFindings,
   ];
 
   // Fallback conservador: se a IA retornou aiVeto=null E aiFindings=[] (IA silenciosa)
@@ -795,9 +840,13 @@ export async function runCpieAnalysisV2(input: CpieProfileInputV2): Promise<Cpie
   // garantir que o consistencyScore não ultrapasse o deterministicVeto (já garantido pelo calcFinalScores).
   // Caso extremo: IA silenciosa + sem deterministicVeto + conflitos high → aplicar veto conservador de 40
   const hasHighOrCriticalDet = deterministicConflicts.some(c => c.severity === "critical" || c.severity === "high");
-  const effectiveAiVeto = (aiResult.aiVeto === null && aiResult.aiFindings.length === 0 && hasHighOrCriticalDet && deterministicVeto === null)
+  // Se todos os findings da IA foram filtrados (falsos positivos), tratar como IA silenciosa
+  const effectiveAiVeto = (aiResult.aiVeto === null && filteredAiFindings.length === 0 && hasHighOrCriticalDet && deterministicVeto === null)
     ? 40  // IA silenciosa sem deterministicVeto: aplicar veto conservador de 40
-    : aiResult.aiVeto;
+    // Se a IA gerou veto mas todos os seus findings foram filtrados, anular o veto da IA
+    : (filteredAiFindings.length === 0 && aiResult.aiFindings.length > 0 && aiResult.aiVeto !== null)
+      ? null  // Todos os findings da IA eram falsos positivos — anular veto
+      : aiResult.aiVeto;
 
   // E5: Scores finais
   const { consistencyScore, diagnosticConfidence } = calcFinalScores(
