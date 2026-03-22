@@ -112,6 +112,20 @@ interface CpieResult {
   readinessMessage: string;
 }
 
+/** Resultado do CPIE v2 analyzePreview — os 3 scores reais + gate */
+interface CpieV2GateResult {
+  completenessScore: number;
+  consistencyScore: number;
+  diagnosticConfidence: number;
+  canProceed: boolean;
+  blockType?: "hard_block" | "soft_block_with_override";
+  blockReason?: string;
+  conflicts: Array<{ id: string; type: string; severity: string; description: string; field1?: string; field2?: string }>;
+  reconciliationQuestions: Array<{ id: string; conflictId: string; question: string; purpose: string; isBlocking: boolean }>;
+  analysisVersion: string;
+  persisted: boolean;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function maskCnpj(value: string): string {
@@ -245,17 +259,37 @@ function SimNaoToggle({ value, onChange, label, tooltip }: {
 
 function ScorePanel({
   completeness, confidence, missingRequired, missingOptional,
-  cpieResult, isAnalyzing, onAnalyze, profileData, restoredFromDb, projectId, projectName,
+  cpieResult, cpieV2Gate, isAnalyzing, onAnalyze, profileData, restoredFromDb, projectId, projectName,
 }: {
   completeness: number; confidence: number; missingRequired: string[]; missingOptional: string[];
-  cpieResult: CpieResult | null; isAnalyzing: boolean; onAnalyze: () => void;
+  cpieResult: CpieResult | null; cpieV2Gate: CpieV2GateResult | null; isAnalyzing: boolean; onAnalyze: () => void;
   profileData: PerfilEmpresaData; restoredFromDb?: boolean;
   projectId?: number; projectName?: string;
 }) {
   const scoreColor = completeness >= 80 ? "text-emerald-600" : completeness >= 50 ? "text-amber-600" : "text-red-500";
-  const confidenceColor = confidence >= 80 ? "text-emerald-600" : confidence >= 50 ? "text-amber-600" : "text-red-500";
   const barColor = completeness >= 80 ? "bg-emerald-500" : completeness >= 50 ? "bg-amber-500" : "bg-red-500";
-  const confBarColor = confidence >= 80 ? "bg-emerald-500" : confidence >= 50 ? "bg-amber-500" : "bg-red-500";
+  // Compat: manter confidenceColor e confBarColor para evitar erros em JSX legado
+  const confidenceColor = scoreColor;
+  const confBarColor = barColor;
+
+  // Scores v2 reais (quando disponíveis) substituem os locais
+  const displayCompleteness = cpieV2Gate ? cpieV2Gate.completenessScore : completeness;
+  const displayConsistency = cpieV2Gate ? cpieV2Gate.consistencyScore : null;
+  const displayDiagnostic = cpieV2Gate ? cpieV2Gate.diagnosticConfidence : null;
+
+  // Cores do semáforo v2
+  const consistencyColor = displayConsistency !== null
+    ? (displayConsistency >= 60 ? "text-emerald-600" : displayConsistency >= 40 ? "text-amber-600" : "text-red-500")
+    : "text-muted-foreground";
+  const consistencyBarColor = displayConsistency !== null
+    ? (displayConsistency >= 60 ? "bg-emerald-500" : displayConsistency >= 40 ? "bg-amber-500" : "bg-red-500")
+    : "bg-muted";
+  const diagnosticColor = displayDiagnostic !== null
+    ? (displayDiagnostic >= 60 ? "text-emerald-600" : displayDiagnostic >= 15 ? "text-amber-600" : "text-red-600 font-extrabold")
+    : "text-muted-foreground";
+  const diagnosticBarColor = displayDiagnostic !== null
+    ? (displayDiagnostic >= 60 ? "bg-emerald-500" : displayDiagnostic >= 15 ? "bg-amber-500" : "bg-red-600")
+    : "bg-muted";
 
   const hasMinimumData = !!profileData.companyType && !!profileData.taxRegime;
   const canExport = !!projectId && !!cpieResult;
@@ -278,30 +312,69 @@ function ScorePanel({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">Completude</span>
-            <span className={cn("text-lg font-bold tabular-nums", scoreColor)}>{completeness}%</span>
+            <span className={cn("text-lg font-bold tabular-nums", scoreColor)}>{displayCompleteness}%</span>
           </div>
           <div className="h-2 rounded-full bg-muted overflow-hidden">
-            <div className={cn("h-full rounded-full transition-all duration-500", barColor)} style={{ width: `${completeness}%` }} />
+            <div className={cn("h-full rounded-full transition-all duration-500", barColor)} style={{ width: `${displayCompleteness}%` }} />
           </div>
+          {!cpieV2Gate && <p className="text-xs text-muted-foreground">Apoio visual — clique em Analisar para score real</p>}
         </div>
 
-        {/* Confiança */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Confiança da IA</span>
-            <span className={cn("text-lg font-bold tabular-nums", confidenceColor)}>{confidence}%</span>
+        {/* Consistência — exibida apenas após análise v2 */}
+        {cpieV2Gate ? (
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground font-medium">Consistência</span>
+              <span className={cn("text-lg font-bold tabular-nums", consistencyColor)}>{displayConsistency}%</span>
+            </div>
+            <div className="h-2 rounded-full bg-muted overflow-hidden">
+              <div className={cn("h-full rounded-full transition-all duration-500", consistencyBarColor)} style={{ width: `${displayConsistency ?? 0}%` }} />
+            </div>
+            {displayConsistency !== null && displayConsistency < 40 && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 leading-relaxed font-medium">
+                ⚠️ Consistência baixa. Contradições detectadas no perfil.
+              </p>
+            )}
           </div>
-          <div className="h-2 rounded-full bg-muted overflow-hidden">
-            <div className={cn("h-full rounded-full transition-all duration-500", confBarColor)} style={{ width: `${confidence}%` }} />
+        ) : (
+          <div className="space-y-1.5 opacity-40">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Consistência</span>
+              <span className="text-sm text-muted-foreground">—</span>
+            </div>
+            <div className="h-2 rounded-full bg-muted" />
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            {confidence >= 80
-              ? "Perfil consistente. A IA identificará CNAEs com alta precisão."
-              : confidence >= 50
-              ? "Perfil parcial. Adicione mais dados para melhorar a análise."
-              : "Perfil insuficiente. Preencha os campos obrigatórios."}
-          </p>
-        </div>
+        )}
+
+        {/* Confiança Diagnóstica — score principal do CPIE v2 */}
+        {cpieV2Gate ? (
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground font-medium">Confiança Diagnóstica</span>
+              <span className={cn("text-lg tabular-nums", diagnosticColor)}>{displayDiagnostic}%</span>
+            </div>
+            <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+              <div className={cn("h-full rounded-full transition-all duration-500", diagnosticBarColor)} style={{ width: `${displayDiagnostic ?? 0}%` }} />
+            </div>
+            <p className="text-xs leading-relaxed">
+              {displayDiagnostic !== null && displayDiagnostic < 15 ? (
+                <span className="text-red-600 dark:text-red-400 font-semibold">⛔ Bloqueio crítico. Corrija as contradições antes de prosseguir.</span>
+              ) : displayDiagnostic !== null && displayDiagnostic < 40 ? (
+                <span className="text-amber-600 dark:text-amber-400">⚠️ Confiança baixa. Justifique para prosseguir.</span>
+              ) : (
+                <span className="text-emerald-600 dark:text-emerald-400">✅ Perfil consistente. Pronto para diagnóstico.</span>
+              )}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-1.5 opacity-40">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Confiança Diagnóstica</span>
+              <span className="text-sm text-muted-foreground">—</span>
+            </div>
+            <div className="h-2.5 rounded-full bg-muted" />
+          </div>
+        )}
 
         {/* Botão Analisar com IA */}
         <Button
@@ -538,13 +611,20 @@ interface PerfilEmpresaIntelligenteProps {
   projectId?: number;
   /** Nome do projeto para o relatório CPIE (H3) */
   projectName?: string;
-  /** K2: Callback chamado quando o score CPIE é calculado/atualizado */
-  onCpieScore?: (data: { score: number; dimensions: ScoreDimension[] }) => void;
+  /** K2: Callback chamado quando o score CPIE v2 é calculado/atualizado */
+  onCpieScore?: (data: {
+    // Compat v1 (mantido para não quebrar usos legados)
+    score: number;
+    dimensions: ScoreDimension[];
+    // Novo: gate v2 completo
+    v2Gate?: CpieV2GateResult;
+  }) => void;
 }
 
 export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description, projectId, projectName, onCpieScore }: PerfilEmpresaIntelligenteProps) {
   const [cnpjError, setCnpjError] = useState("");
   const [cpieResult, setCpieResult] = useState<CpieResult | null>(null);
+  const [cpieV2Gate, setCpieV2Gate] = useState<CpieV2GateResult | null>(null);
   const [restoredFromDb, setRestoredFromDb] = useState(false);
   const score = calcProfileScore(value);
 
@@ -587,10 +667,6 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       const result = data as CpieResult;
       setCpieResult(result);
       setRestoredFromDb(false);
-      toast.success("Análise IA concluída! Veja as sugestões no painel.");
-      // K2: Notificar o pai do score CPIE com score e dimensões
-      onCpieScore?.({ score: result.overallScore, dimensions: result.dimensions ?? [] });
-
       // I1: Salvar no histórico se houver projectId
       if (projectId) {
         saveHistory.mutate({
@@ -611,8 +687,34 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
     },
   });
 
+  // CPIE v2 analyzePreview — pipeline completo sem persistência
+  const analyzePreviewV2 = trpc.cpieV2.analyzePreview.useMutation({
+    onSuccess: (data) => {
+      const gate = data as unknown as CpieV2GateResult;
+      setCpieV2Gate(gate);
+      // K2: Notificar o pai com score compat v1 + gate v2 completo
+      onCpieScore?.({
+        score: gate.diagnosticConfidence, // usa diagnosticConfidence como score principal
+        dimensions: cpieResult?.dimensions ?? [],
+        v2Gate: gate,
+      });
+      if (!gate.canProceed) {
+        if (gate.blockType === "hard_block") {
+          toast.error("⛔ Perfil bloqueado: contradições críticas detectadas. Corrija antes de prosseguir.");
+        } else {
+          toast.warning("⚠️ Conflitos detectados. Justifique para prosseguir.");
+        }
+      } else {
+        toast.success("✅ Análise CPIE v2 concluída. Perfil consistente.");
+      }
+    },
+    onError: () => {
+      toast.error("Erro na análise CPIE v2. Tente novamente.");
+    },
+  });
+
   const handleAnalyze = () => {
-    analyzeProfile.mutate({
+    const profileInput = {
       cnpj: value.cnpj || undefined,
       companyType: value.companyType || undefined,
       companySize: value.companySize || undefined,
@@ -630,7 +732,10 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       hasAudit: value.hasAudit,
       hasTaxIssues: value.hasTaxIssues,
       description: description || undefined,
-    });
+    };
+    // Chamar v1 (para sugestões, dimensões, insights) e v2 preview (para gate real)
+    analyzeProfile.mutate(profileInput);
+    analyzePreviewV2.mutate(profileInput);
   };
 
   const set = useCallback(<K extends keyof PerfilEmpresaData>(key: K, val: PerfilEmpresaData[K]) => {
@@ -938,7 +1043,8 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       <ScorePanel
         {...score}
         cpieResult={cpieResult}
-        isAnalyzing={analyzeProfile.isPending}
+        cpieV2Gate={cpieV2Gate}
+        isAnalyzing={analyzeProfile.isPending || analyzePreviewV2.isPending}
         onAnalyze={handleAnalyze}
         profileData={value}
         restoredFromDb={restoredFromDb}

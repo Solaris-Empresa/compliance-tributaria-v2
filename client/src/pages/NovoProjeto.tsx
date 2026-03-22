@@ -205,12 +205,20 @@ export default function NovoProjeto() {
 
   // v6.0: Company Profile Intelligence — estado unificado
   const [perfilData, setPerfilData] = useState<PerfilEmpresaData>(PERFIL_VAZIO);
-  // K2: Score CPIE para gate mínimo (0 = não analisado, null = sem restrição)
-  const [cpieScore, setCpieScore] = useState<number | null>(null);
+  // K2 v2: Gate CPIE v2 — substitui o score v1 local
+  const [cpieScore, setCpieScore] = useState<number | null>(null); // compat v1
   const [cpieDimensions, setCpieDimensions] = useState<Array<{ name: string; score: number; weight: number; explanation: string; fieldsEvaluated: string[] }>>([]);
+  const [cpieV2Gate, setCpieV2Gate] = useState<{
+    canProceed: boolean;
+    blockType?: "hard_block" | "soft_block_with_override";
+    blockReason?: string;
+    diagnosticConfidence: number;
+    consistencyScore: number;
+    conflicts: Array<{ id: string; description: string; severity: string }>;
+  } | null>(null);
   const [cpieOverrideMode, setCpieOverrideMode] = useState(false);
   const [cpieOverrideReason, setCpieOverrideReason] = useState("");
-  const CPIE_MIN_SCORE = 30; // Score mínimo para avançar (configurável via AdminConsistência)
+  const CPIE_MIN_SCORE = 30; // mantido para compat v1 (fallback sem análise v2)
 
   // D1+D2: Consistency Gate
   const [showConsistencyGate, setShowConsistencyGate] = useState(false);
@@ -595,9 +603,20 @@ export default function NovoProjeto() {
           description={description}
           projectId={projectId ?? undefined}
           projectName={name || undefined}
-          onCpieScore={({ score, dimensions }) => {
-            setCpieScore(score);
+          onCpieScore={({ score, dimensions, v2Gate }) => {
+            setCpieScore(score); // compat v1
             setCpieDimensions(dimensions);
+            // Capturar gate v2 quando disponível
+            if (v2Gate) {
+              setCpieV2Gate({
+                canProceed: v2Gate.canProceed,
+                blockType: v2Gate.blockType,
+                blockReason: v2Gate.blockReason,
+                diagnosticConfidence: v2Gate.diagnosticConfidence,
+                consistencyScore: v2Gate.consistencyScore,
+                conflicts: v2Gate.conflicts,
+              });
+            }
             // Resetar override ao receber nova análise
             setCpieOverrideMode(false);
             setCpieOverrideReason("");
@@ -615,72 +634,91 @@ export default function NovoProjeto() {
           </div>
         </div>
 
-        {/* K2: Gate de score CPIE mínimo — M2: tooltip de dimensões + override com justificativa */}
-        {cpieScore !== null && cpieScore < CPIE_MIN_SCORE && !cpieOverrideMode && (
-          <div className="space-y-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700">
+        {/* K2 v2: Gate CPIE v2 — hard_block (vermelho) e soft_block (amber) */}
+
+        {/* HARD BLOCK: bloqueio crítico sem override possível */}
+        {cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "hard_block" && (
+          <div className="space-y-3 p-4 rounded-xl bg-red-50 dark:bg-red-900/10 border-2 border-red-400 dark:border-red-700">
             <div className="flex items-start gap-3">
-              <Brain className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <ShieldX className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
-                  Score CPIE insuficiente ({cpieScore}% de {CPIE_MIN_SCORE}% mínimo)
+                <p className="text-sm font-semibold text-red-800 dark:text-red-400">
+                  ⛔ Bloqueio crítico — Contradições incompatíveis detectadas
                 </p>
-                <p className="text-xs text-amber-700 dark:text-amber-500 mt-1">
-                  Complete mais campos do perfil da empresa para obter uma análise de compliance mais precisa.
-                  O score mínimo de {CPIE_MIN_SCORE}% garante que a IA tenha dados suficientes para identificar os riscos corretamente.
+                <p className="text-xs text-red-700 dark:text-red-500 mt-1">
+                  {cpieV2Gate.blockReason || "O perfil da empresa contém contradições que tornam impossível uma análise de compliance confiável. Corrija os conflitos antes de prosseguir."}
                 </p>
               </div>
             </div>
-            {/* Dimensões abaixo do threshold */}
-            {cpieDimensions.filter(d => d.score < CPIE_MIN_SCORE).length > 0 && (
+            {cpieV2Gate.conflicts.length > 0 && (
               <div className="pl-8 space-y-1.5">
-                <p className="text-xs font-medium text-amber-700 dark:text-amber-400">Dimensões que precisam de atenção:</p>
-                {cpieDimensions.filter(d => d.score < CPIE_MIN_SCORE).map(dim => (
-                  <div key={dim.name} className="flex items-center gap-2">
-                    <div className="w-24 h-1.5 rounded-full bg-amber-200 dark:bg-amber-800 overflow-hidden">
-                      <div className="h-full bg-amber-500" style={{ width: `${dim.score}%` }} />
-                    </div>
-                    <span className="text-xs text-amber-700 dark:text-amber-400">{dim.name} — {dim.score}%</span>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3 w-3 text-amber-500 cursor-help shrink-0" />
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-xs text-xs">
-                          <p className="font-medium mb-1">{dim.explanation}</p>
-                          {dim.fieldsEvaluated.length > 0 && (
-                            <p className="text-muted-foreground">Campos: {dim.fieldsEvaluated.join(", ")}</p>
-                          )}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                <p className="text-xs font-medium text-red-700 dark:text-red-400">Conflitos detectados ({cpieV2Gate.conflicts.length}):</p>
+                {cpieV2Gate.conflicts.slice(0, 5).map(c => (
+                  <div key={c.id} className="flex items-start gap-2">
+                    <AlertCircle className="h-3.5 w-3.5 text-red-500 shrink-0 mt-0.5" />
+                    <span className="text-xs text-red-700 dark:text-red-400">{c.description}</span>
+                  </div>
+                ))}
+                {cpieV2Gate.conflicts.length > 5 && (
+                  <p className="text-xs text-red-500 pl-5">+{cpieV2Gate.conflicts.length - 5} conflito(s) adicionais no painel de score</p>
+                )}
+              </div>
+            )}
+            <div className="pl-8">
+              <p className="text-xs text-red-600 dark:text-red-400 font-medium">
+                Confiança diagnóstica: {cpieV2Gate.diagnosticConfidence}% | Consistência: {cpieV2Gate.consistencyScore}%
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* SOFT BLOCK: conflitos com possibilidade de override com justificativa */}
+        {cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && !cpieOverrideMode && (
+          <div className="space-y-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700">
+            <div className="flex items-start gap-3">
+              <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
+                  ⚠️ Conflitos detectados — Justificativa necessária
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-500 mt-1">
+                  {cpieV2Gate.blockReason || "Foram encontradas inconsistências no perfil. Você pode prosseguir com uma justificativa que será registrada no projeto."}
+                </p>
+              </div>
+            </div>
+            {cpieV2Gate.conflicts.length > 0 && (
+              <div className="pl-8 space-y-1.5">
+                {cpieV2Gate.conflicts.slice(0, 3).map(c => (
+                  <div key={c.id} className="flex items-start gap-2">
+                    <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
+                    <span className="text-xs text-amber-700 dark:text-amber-400">{c.description}</span>
                   </div>
                 ))}
               </div>
             )}
-            {/* Override com justificativa */}
             <div className="pl-8">
               <button
                 type="button"
                 onClick={() => setCpieOverrideMode(true)}
                 className="text-xs text-amber-600 dark:text-amber-400 underline underline-offset-2 hover:text-amber-800"
               >
-                Avançar mesmo assim com justificativa
+                Avançar com justificativa
               </button>
             </div>
           </div>
         )}
-        {/* K2 Override: justificativa para avançar com score baixo */}
-        {cpieScore !== null && cpieScore < CPIE_MIN_SCORE && cpieOverrideMode && (
+
+        {/* SOFT BLOCK override: campo de justificativa */}
+        {cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideMode && (
           <div className="space-y-3 p-4 rounded-xl bg-orange-50 dark:bg-orange-900/10 border-2 border-orange-400 dark:border-orange-600">
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-orange-600 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-semibold text-orange-800 dark:text-orange-400">
-                  Avançando com score CPIE baixo ({cpieScore}%)
+                  Justificativa para prosseguir com conflitos
                 </p>
                 <p className="text-xs text-orange-700 dark:text-orange-500 mt-1">
-                  Informe a justificativa para prosseguir sem atingir o score mínimo de {CPIE_MIN_SCORE}%.
-                  Esta decisão será registrada no histórico do projeto.
+                  Descreva por que está prosseguindo mesmo com inconsistências. Mínimo 50 caracteres. Esta decisão será registrada.
                 </p>
               </div>
             </div>
@@ -688,27 +726,36 @@ export default function NovoProjeto() {
               <textarea
                 value={cpieOverrideReason}
                 onChange={e => setCpieOverrideReason(e.target.value)}
-                placeholder="Ex: Cliente urgente, perfil será complementado após onboarding..."
+                placeholder="Ex: Empresa em transição de regime, perfil será atualizado após regularização..."
                 className="w-full text-xs rounded-lg border border-orange-300 dark:border-orange-600 bg-white dark:bg-orange-950/20 p-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-orange-400"
-                rows={2}
+                rows={3}
               />
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => { setCpieOverrideMode(false); setCpieOverrideReason(""); }}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-orange-300 text-orange-700 hover:bg-orange-100"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { if (!cpieOverrideReason.trim()) { toast.warning("Informe a justificativa para continuar."); return; } }}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50"
-                  disabled={!cpieOverrideReason.trim()}
-                >
-                  Confirmar justificativa
-                </button>
+              <div className="flex items-center justify-between">
+                <span className={`text-xs ${cpieOverrideReason.trim().length >= 50 ? "text-emerald-600" : "text-orange-500"}`}>
+                  {cpieOverrideReason.trim().length}/50 caracteres mínimos
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setCpieOverrideMode(false); setCpieOverrideReason(""); }}
+                    className="text-xs px-3 py-1.5 rounded-lg border border-orange-300 text-orange-700 hover:bg-orange-100"
+                  >
+                    Cancelar
+                  </button>
+                </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Fallback v1: gate legado (quando não há análise v2) */}
+        {!cpieV2Gate && cpieScore !== null && cpieScore < CPIE_MIN_SCORE && (
+          <div className="space-y-2 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-300 dark:border-amber-700">
+            <div className="flex items-start gap-3">
+              <Brain className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-700 dark:text-amber-400">
+                Score CPIE insuficiente ({cpieScore}%). Clique em <strong>Analisar com IA</strong> no painel de score para obter a análise completa.
+              </p>
             </div>
           </div>
         )}
@@ -737,7 +784,20 @@ export default function NovoProjeto() {
 
         {/* CTA principal */}
         <div className="flex justify-end pb-4">
-          <Button size="lg" onClick={handleSubmit} disabled={isLoading || !name.trim() || descLength < 100 || !clientId || !profileValid || (cpieScore !== null && cpieScore < CPIE_MIN_SCORE && !(cpieOverrideMode && cpieOverrideReason.trim().length >= 10))} className="min-w-[220px]">
+          <Button size="lg" onClick={handleSubmit} disabled={
+            isLoading ||
+            !name.trim() ||
+            descLength < 100 ||
+            !clientId ||
+            !profileValid ||
+            // Gate v2: hard_block bloqueia sem override; soft_block exige justificativa >= 50 chars
+            (cpieV2Gate !== null && !cpieV2Gate.canProceed && (
+              cpieV2Gate.blockType === "hard_block" ||
+              (cpieV2Gate.blockType === "soft_block_with_override" && !(cpieOverrideMode && cpieOverrideReason.trim().length >= 50))
+            )) ||
+            // Fallback v1 (sem análise v2)
+            (!cpieV2Gate && cpieScore !== null && cpieScore < CPIE_MIN_SCORE && !(cpieOverrideMode && cpieOverrideReason.trim().length >= 10))
+          } className="min-w-[220px]">
             {isLoading ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />{createProject.isPending ? "Criando projeto..." : "Analisando CNAEs..."}</>
             ) : (
