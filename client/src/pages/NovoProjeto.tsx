@@ -220,6 +220,9 @@ export default function NovoProjeto() {
   const [isAnalyzingV2, setIsAnalyzingV2] = useState(false);
   const [cpieOverrideMode, setCpieOverrideMode] = useState(false);
   const [cpieOverrideReason, setCpieOverrideReason] = useState("");
+  // P2: checkId da análise v2 persistida — necessário para overrideSoftBlock formal
+  const [persistedCheckId, setPersistedCheckId] = useState<string | null>(null);
+  const [overrideSubmitting, setOverrideSubmitting] = useState(false);
   const CPIE_MIN_SCORE = 30; // mantido para compat v1 (fallback sem análise v2)
 
   // D1+D2: Consistency Gate
@@ -301,7 +304,13 @@ export default function NovoProjeto() {
   const createProject = trpc.fluxoV3.createProject.useMutation({
     onSuccess: (data) => {
       setProjectId(data.projectId);
-      extractCnaes.mutate({ projectId: data.projectId, description });
+      // P2: para soft_block_with_override, NÃO chamar extractCnaes aqui —
+      // será chamado após overrideSoftBlock.onSuccess (garantia de persistência da justificativa)
+      const isSoftBlockOverride = cpieV2Gate?.blockType === "soft_block_with_override" &&
+        cpieOverrideMode && cpieOverrideReason.trim().length >= 50;
+      if (!isSoftBlockOverride) {
+        extractCnaes.mutate({ projectId: data.projectId, description });
+      }
       // Persistir análise CPIE v2 no banco após criar o projeto
       if (cpieV2Gate) {
         persistCpieV2.mutate({
@@ -333,8 +342,48 @@ export default function NovoProjeto() {
     onError: (err) => toast.error(`Erro ao criar projeto: ${err.message}`),
   });
 
+  // P2: mutation para registrar override formal no banco com checkId real
+  const overrideSoftBlockMutation = trpc.cpieV2.overrideSoftBlock.useMutation({
+    onSuccess: (data) => {
+      setOverrideSubmitting(false);
+      console.info("[CPIE v2] Override persistido formalmente no banco. checkId:", data.checkId);
+      toast.success("Justificativa registrada com sucesso. Prosseguindo...");
+      // Fluxo liberado: extrair CNAEs (projeto já foi criado antes do override)
+      if (projectId) {
+        extractCnaes.mutate({ projectId, description });
+      }
+    },
+    onError: (err) => {
+      setOverrideSubmitting(false);
+      console.error("[CPIE v2] Falha ao persistir override:", err.message);
+      toast.error(`Erro ao registrar justificativa: ${err.message}`);
+    },
+  });
+
   // Persistência pós-criação: salvar análise CPIE v2 no banco com projectId real
   const persistCpieV2 = trpc.cpieV2.analyze.useMutation({
+    onSuccess: (data) => {
+      const checkId = data.checkId;
+      setPersistedCheckId(checkId);
+      console.info("[CPIE v2] Análise persistida no banco. checkId:", checkId);
+      // P2: se era soft_block_with_override com justificativa válida, chamar override formal
+      if (
+        cpieV2Gate?.blockType === "soft_block_with_override" &&
+        cpieOverrideMode &&
+        cpieOverrideReason.trim().length >= 50 &&
+        projectId
+      ) {
+        setOverrideSubmitting(true);
+        console.info("[CPIE v2] Disparando overrideSoftBlock com checkId real:", checkId);
+        overrideSoftBlockMutation.mutate({
+          checkId,
+          projectId,
+          justification: cpieOverrideReason.trim(),
+        });
+        // NÃO chamar extractCnaes aqui — será chamado no overrideSoftBlockMutation.onSuccess
+      }
+      // Caso canProceed=true: extractCnaes já foi chamado no createProject.onSuccess
+    },
     onError: () => {
       // Silencioso: não bloquear o fluxo se a persistência falhar
       console.warn("[CPIE v2] Falha ao persistir análise no banco. Análise preview já foi realizada.");
@@ -919,6 +968,7 @@ export default function NovoProjeto() {
             isLoading ||
             isAnalyzingV2 ||
             analyzePreviewInline.isPending ||
+            overrideSubmitting ||
             !name.trim() ||
             descLength < 100 ||
             !clientId ||
@@ -931,7 +981,9 @@ export default function NovoProjeto() {
             // Fallback v1 (sem análise v2)
             (!cpieV2Gate && cpieScore !== null && cpieScore < CPIE_MIN_SCORE && !(cpieOverrideMode && cpieOverrideReason.trim().length >= 10))
           } className="min-w-[220px]">
-            {isAnalyzingV2 || analyzePreviewInline.isPending ? (
+            {overrideSubmitting ? (
+              <><Loader2 className="h-4 w-4 animate-spin mr-2" />Registrando justificativa...</>
+            ) : isAnalyzingV2 || analyzePreviewInline.isPending ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />Analisando consistência...</>
             ) : isLoading ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />{createProject.isPending ? "Criando projeto..." : "Analisando CNAEs..."}</>
