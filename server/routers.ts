@@ -7,6 +7,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import * as db from "./db";
 import { generateTemplatePDF } from "./templatePdf";
+import { getDiagnosticSource } from "./diagnostic-source";
 
 // ============================================================================
 // HELPERS
@@ -557,40 +558,43 @@ IMPORTANTE: Todas as perguntas devem ter "required": true.`;
         if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
         
         const client = await db.getUserById(project.clientId);
+
+        // ── LEITURA CENTRALIZADA VIA ADAPTADOR (ADR-005 F-02B) ─────────────────
+        const diagSource = await getDiagnosticSource(input.projectId);
         
         // ── CAMADA CORPORATIVA (QC-01..QC-10) ──────────────────────────────────
         let corporateText = "Não respondido";
-        if (project.corporateAnswers) {
+        if (diagSource.corporateAnswers) {
           try {
-            const ca = typeof project.corporateAnswers === 'string'
-              ? JSON.parse(project.corporateAnswers as string)
-              : project.corporateAnswers as Record<string, unknown>;
+            const ca = typeof diagSource.corporateAnswers === 'string'
+              ? JSON.parse(diagSource.corporateAnswers as string)
+              : diagSource.corporateAnswers as Record<string, unknown>;
             corporateText = Object.entries(ca)
               .map(([k, v], i) => `**${i + 1}. ${k}:** ${v}`)
               .join('\n');
-          } catch { corporateText = String(project.corporateAnswers); }
+          } catch { corporateText = String(diagSource.corporateAnswers); }
         }
 
         // ── CAMADA OPERACIONAL (QO-01..QO-10) ───────────────────────────────────
         let operationalText = "Não respondido";
-        if (project.operationalAnswers) {
+        if (diagSource.operationalAnswers) {
           try {
-            const oa = typeof project.operationalAnswers === 'string'
-              ? JSON.parse(project.operationalAnswers as string)
-              : project.operationalAnswers as Record<string, unknown>;
+            const oa = typeof diagSource.operationalAnswers === 'string'
+              ? JSON.parse(diagSource.operationalAnswers as string)
+              : diagSource.operationalAnswers as Record<string, unknown>;
             operationalText = Object.entries(oa)
               .map(([k, v], i) => `**${i + 1}. ${k}:** ${v}`)
               .join('\n');
-          } catch { operationalText = String(project.operationalAnswers); }
+          } catch { operationalText = String(diagSource.operationalAnswers); }
         }
 
         // ── CAMADA CNAE (QCNAE-01..QCNAE-05) ───────────────────────────────────
         let cnaeText = "Não respondido";
-        if (project.cnaeAnswers) {
+        if (diagSource.cnaeAnswers) {
           try {
-            const cnaeRaw = typeof project.cnaeAnswers === 'string'
-              ? JSON.parse(project.cnaeAnswers as string)
-              : project.cnaeAnswers;
+            const cnaeRaw = typeof diagSource.cnaeAnswers === 'string'
+              ? JSON.parse(diagSource.cnaeAnswers as string)
+              : diagSource.cnaeAnswers;
             if (Array.isArray(cnaeRaw)) {
               cnaeText = cnaeRaw.map((item: any, i: number) => {
                 const answers = item.answers
@@ -602,7 +606,7 @@ IMPORTANTE: Todas as perguntas devem ter "required": true.`;
             } else {
               cnaeText = JSON.stringify(cnaeRaw);
             }
-          } catch { cnaeText = String(project.cnaeAnswers); }
+          } catch { cnaeText = String(diagSource.cnaeAnswers); }
         }
 
         // ── FASE 2 legacy (questionário antigo) ─────────────────────────────────
@@ -842,16 +846,16 @@ Retorne APENAS JSON válido no formato:
           await db.deleteRisksByProject(input.projectId);
         }
 
-        // ── Buscar as 3 camadas de diagnóstico ──────────────────────────────────
-        const projectForRisk = await db.getProjectById(input.projectId);
-        const corpRisk = projectForRisk?.corporateAnswers
-          ? `\n### Diagnóstico Corporativo\n${JSON.stringify(projectForRisk.corporateAnswers, null, 2)}`
+        // ── Buscar as 3 camadas de diagnóstico via adaptador (ADR-005 F-02B) ────
+        const diagSourceRisk = await getDiagnosticSource(input.projectId);
+        const corpRisk = diagSourceRisk.corporateAnswers
+          ? `\n### Diagnóstico Corporativo\n${JSON.stringify(diagSourceRisk.corporateAnswers, null, 2)}`
           : '';
-        const opRisk = projectForRisk?.operationalAnswers
-          ? `\n### Diagnóstico Operacional\n${JSON.stringify(projectForRisk.operationalAnswers, null, 2)}`
+        const opRisk = diagSourceRisk.operationalAnswers
+          ? `\n### Diagnóstico Operacional\n${JSON.stringify(diagSourceRisk.operationalAnswers, null, 2)}`
           : '';
-        const cnaeRisk = projectForRisk?.cnaeAnswers
-          ? `\n### Diagnóstico CNAE\n${JSON.stringify(projectForRisk.cnaeAnswers, null, 2)}`
+        const cnaeRisk = diagSourceRisk.cnaeAnswers
+          ? `\n### Diagnóstico CNAE\n${JSON.stringify(diagSourceRisk.cnaeAnswers, null, 2)}`
           : '';
 
         const prompt = `Você é um especialista em gestão de riscos tributários.
@@ -1130,15 +1134,16 @@ Retorne APENAS JSON válido no formato:
         const risks = await db.getRiskMatrix(input.projectId);
         console.log('[actionPlan.generate] Riscos encontrados:', risks.length);
 
-        // ── Extrair as 3 camadas de diagnóstico ──────────────────────────────────
-        const corpPlan = project.corporateAnswers
-          ? `\n## DIAGNÓSTICO CORPORATIVO (QC)\n${JSON.stringify(project.corporateAnswers, null, 2)}`
+        // ── Extrair as 3 camadas de diagnóstico via adaptador (ADR-005 F-02B) ────
+        const diagSourcePlan = await getDiagnosticSource(input.projectId);
+        const corpPlan = diagSourcePlan.corporateAnswers
+          ? `\n## DIAGNÓSTICO CORPORATIVO (QC)\n${JSON.stringify(diagSourcePlan.corporateAnswers, null, 2)}`
           : '';
-        const opPlan = project.operationalAnswers
-          ? `\n## DIAGNÓSTICO OPERACIONAL (QO)\n${JSON.stringify(project.operationalAnswers, null, 2)}`
+        const opPlan = diagSourcePlan.operationalAnswers
+          ? `\n## DIAGNÓSTICO OPERACIONAL (QO)\n${JSON.stringify(diagSourcePlan.operationalAnswers, null, 2)}`
           : '';
-        const cnaePlan = project.cnaeAnswers
-          ? `\n## DIAGNÓSTICO ESPECIALIZADO POR CNAE (QCNAE)\n${JSON.stringify(project.cnaeAnswers, null, 2)}`
+        const cnaePlan = diagSourcePlan.cnaeAnswers
+          ? `\n## DIAGNÓSTICO ESPECIALIZADO POR CNAE (QCNAE)\n${JSON.stringify(diagSourcePlan.cnaeAnswers, null, 2)}`
           : '';
 
         const prompt = `Você é um gerente de projetos especializado em compliance tributário.

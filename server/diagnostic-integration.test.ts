@@ -36,6 +36,7 @@ import { TRPCError } from "@trpc/server";
 
 vi.mock("./db", () => ({
   getDb: vi.fn(),
+  getProjectById: vi.fn(),
 }));
 
 vi.mock("drizzle-orm", () => ({
@@ -129,7 +130,7 @@ describe("Bloco 3 — Leitura centralizada: getDiagnosticSource", () => {
   // 3.1 — Projeto V1
   describe("3.1 Projeto V1 — leitura correta", () => {
     it("retorna todos os campos V1 e nenhum campo V3", async () => {
-      const { getDb } = await import("./db");
+      const { getDb, getProjectById } = await import("./db");
       const mockProject = {
         id: 1,
         questionnaireAnswers: null,
@@ -140,12 +141,8 @@ describe("Bloco 3 — Leitura centralizada: getDiagnosticSource", () => {
         operationalAnswers: OPERATIONAL_ANSWERS_V1,
         cnaeAnswers: null,
       };
-      vi.mocked(getDb).mockResolvedValue({
-        select: vi.fn().mockReturnThis(),
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([mockProject]),
-      } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getDb).mockResolvedValue({ select: vi.fn().mockReturnThis(), from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis() } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getProjectById).mockResolvedValue(mockProject as unknown as Awaited<ReturnType<typeof import("./db").getProjectById>>);
 
       const { getDiagnosticSource } = await import("./diagnostic-source");
       const source = await getDiagnosticSource(1);
@@ -192,7 +189,7 @@ describe("Bloco 3 — Leitura centralizada: getDiagnosticSource", () => {
   // 3.2 — Projeto V3
   describe("3.2 Projeto V3 — leitura correta", () => {
     it("retorna todos os campos V3 e nenhum campo V1", async () => {
-      const { getDb } = await import("./db");
+      const { getDb, getProjectById } = await import("./db");
       const mockProject = {
         id: 2,
         questionnaireAnswers: QUESTIONNAIRE_ANSWERS_V3,
@@ -203,12 +200,8 @@ describe("Bloco 3 — Leitura centralizada: getDiagnosticSource", () => {
         operationalAnswers: null,
         cnaeAnswers: null,
       };
-      vi.mocked(getDb).mockResolvedValue({
-        select: vi.fn().mockReturnThis(),
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([mockProject]),
-      } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getDb).mockResolvedValue({ select: vi.fn().mockReturnThis(), from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis() } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getProjectById).mockResolvedValue(mockProject as unknown as Awaited<ReturnType<typeof import("./db").getProjectById>>);
 
       const { getDiagnosticSource } = await import("./diagnostic-source");
       const source = await getDiagnosticSource(2);
@@ -254,7 +247,7 @@ describe("Bloco 3 — Leitura centralizada: getDiagnosticSource", () => {
   // 3.3 — Projeto híbrido
   describe("3.3 Projeto híbrido — comportamento definido", () => {
     it("retorna flowVersion='hybrid' com ambos os campos disponíveis", async () => {
-      const { getDb } = await import("./db");
+      const { getDb, getProjectById } = await import("./db");
       const mockProject = {
         id: 3,
         questionnaireAnswers: QUESTIONNAIRE_ANSWERS_V3,
@@ -265,12 +258,8 @@ describe("Bloco 3 — Leitura centralizada: getDiagnosticSource", () => {
         operationalAnswers: null,
         cnaeAnswers: null,
       };
-      vi.mocked(getDb).mockResolvedValue({
-        select: vi.fn().mockReturnThis(),
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([mockProject]),
-      } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getDb).mockResolvedValue({ select: vi.fn().mockReturnThis(), from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis() } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getProjectById).mockResolvedValue(mockProject as unknown as Awaited<ReturnType<typeof import("./db").getProjectById>>);
 
       const { getDiagnosticSource } = await import("./diagnostic-source");
       const source = await getDiagnosticSource(3);
@@ -294,7 +283,7 @@ describe("Bloco 3 — Leitura centralizada: getDiagnosticSource", () => {
   // 3.4 — Nenhuma leitura ambígua
   describe("3.4 Sem leitura ambígua — isolamento garantido pelo adaptador", () => {
     it("V3 puro: nenhum campo V1 é exposto mesmo que existam no banco", async () => {
-      const { getDb } = await import("./db");
+      const { getDb, getProjectById } = await import("./db");
       // Simula banco com dados V1 residuais em projeto V3
       const mockProject = {
         id: 10,
@@ -306,12 +295,8 @@ describe("Bloco 3 — Leitura centralizada: getDiagnosticSource", () => {
         operationalAnswers: null,
         cnaeAnswers: null,
       };
-      vi.mocked(getDb).mockResolvedValue({
-        select: vi.fn().mockReturnThis(),
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([mockProject]),
-      } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getDb).mockResolvedValue({ select: vi.fn().mockReturnThis(), from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis() } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getProjectById).mockResolvedValue(mockProject as unknown as Awaited<ReturnType<typeof import("./db").getProjectById>>);
 
       const { getDiagnosticSource } = await import("./diagnostic-source");
       const source = await getDiagnosticSource(10);
@@ -322,7 +307,7 @@ describe("Bloco 3 — Leitura centralizada: getDiagnosticSource", () => {
     });
 
     it("V1 puro: nenhum campo V3 é exposto mesmo que existam no banco", async () => {
-      const { getDb } = await import("./db");
+      const { getDb, getProjectById } = await import("./db");
       const mockProject = {
         id: 11,
         questionnaireAnswers: null, // V3 ausente
@@ -333,12 +318,8 @@ describe("Bloco 3 — Leitura centralizada: getDiagnosticSource", () => {
         operationalAnswers: OPERATIONAL_ANSWERS_V1,
         cnaeAnswers: null,
       };
-      vi.mocked(getDb).mockResolvedValue({
-        select: vi.fn().mockReturnThis(),
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([mockProject]),
-      } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getDb).mockResolvedValue({ select: vi.fn().mockReturnThis(), from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis() } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getProjectById).mockResolvedValue(mockProject as unknown as Awaited<ReturnType<typeof import("./db").getProjectById>>);
 
       const { getDiagnosticSource } = await import("./diagnostic-source");
       const source = await getDiagnosticSource(11);
@@ -580,27 +561,23 @@ describe("Bloco 6 — Integridade de dados", () => {
   // 6.1 — Projeto V1 puro
   describe("6.1 Projeto V1 puro — sem sobrescrita V3", () => {
     it("dados V1 retornados são idênticos ao que está no banco", async () => {
-      const { getDb } = await import("./db");
+      const { getDb, getProjectById } = await import("./db");
       const originalData = {
         companyType: "ltda",
         taxRegime: "lucro_presumido",
         annualRevenueRange: "4800000-12000000",
       };
-      vi.mocked(getDb).mockResolvedValue({
-        select: vi.fn().mockReturnThis(),
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([{
-          id: 1,
-          questionnaireAnswers: null,
-          briefingContent: null,
-          riskMatricesData: null,
-          actionPlansData: null,
-          corporateAnswers: originalData,
-          operationalAnswers: null,
-          cnaeAnswers: null,
-        }]),
-      } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getDb).mockResolvedValue({ select: vi.fn().mockReturnThis(), from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis() } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getProjectById).mockResolvedValue({
+        id: 1,
+        questionnaireAnswers: null,
+        briefingContent: null,
+        riskMatricesData: null,
+        actionPlansData: null,
+        corporateAnswers: originalData,
+        operationalAnswers: null,
+        cnaeAnswers: null,
+      } as unknown as Awaited<ReturnType<typeof import("./db").getProjectById>>);
 
       const { getDiagnosticSource } = await import("./diagnostic-source");
       const source = await getDiagnosticSource(1);
@@ -612,23 +589,19 @@ describe("Bloco 6 — Integridade de dados", () => {
     });
 
     it("leitura V1 não modifica os dados originais", async () => {
-      const { getDb } = await import("./db");
+      const { getDb, getProjectById } = await import("./db");
       const originalData = { companyType: "ltda" };
-      vi.mocked(getDb).mockResolvedValue({
-        select: vi.fn().mockReturnThis(),
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([{
-          id: 1,
-          questionnaireAnswers: null,
-          briefingContent: null,
-          riskMatricesData: null,
-          actionPlansData: null,
-          corporateAnswers: originalData,
-          operationalAnswers: null,
-          cnaeAnswers: null,
-        }]),
-      } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getDb).mockResolvedValue({ select: vi.fn().mockReturnThis(), from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis() } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getProjectById).mockResolvedValue({
+        id: 1,
+        questionnaireAnswers: null,
+        briefingContent: null,
+        riskMatricesData: null,
+        actionPlansData: null,
+        corporateAnswers: originalData,
+        operationalAnswers: null,
+        cnaeAnswers: null,
+      } as unknown as Awaited<ReturnType<typeof import("./db").getProjectById>>);
 
       const { getDiagnosticSource } = await import("./diagnostic-source");
       const source1 = await getDiagnosticSource(1);
@@ -642,25 +615,21 @@ describe("Bloco 6 — Integridade de dados", () => {
   // 6.2 — Projeto V3 puro
   describe("6.2 Projeto V3 puro — sem sobrescrita V1", () => {
     it("dados V3 retornados são idênticos ao que está no banco", async () => {
-      const { getDb } = await import("./db");
+      const { getDb, getProjectById } = await import("./db");
       const originalAnswers = [
         { cnaeCode: "47.11-3", cnaeDescription: "Varejo", level: "nivel1", questions: [] },
       ];
-      vi.mocked(getDb).mockResolvedValue({
-        select: vi.fn().mockReturnThis(),
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([{
-          id: 2,
-          questionnaireAnswers: originalAnswers,
-          briefingContent: BRIEFING_CONTENT_V3,
-          riskMatricesData: RISK_MATRICES_V3,
-          actionPlansData: ACTION_PLANS_V3,
-          corporateAnswers: null,
-          operationalAnswers: null,
-          cnaeAnswers: null,
-        }]),
-      } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getDb).mockResolvedValue({ select: vi.fn().mockReturnThis(), from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis() } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getProjectById).mockResolvedValue({
+        id: 2,
+        questionnaireAnswers: originalAnswers,
+        briefingContent: BRIEFING_CONTENT_V3,
+        riskMatricesData: RISK_MATRICES_V3,
+        actionPlansData: ACTION_PLANS_V3,
+        corporateAnswers: null,
+        operationalAnswers: null,
+        cnaeAnswers: null,
+      } as unknown as Awaited<ReturnType<typeof import("./db").getProjectById>>);
 
       const { getDiagnosticSource } = await import("./diagnostic-source");
       const source = await getDiagnosticSource(2);
@@ -675,22 +644,18 @@ describe("Bloco 6 — Integridade de dados", () => {
   // 6.3 — Projeto híbrido (forçado)
   describe("6.3 Projeto híbrido — ambos os dados disponíveis sem perda", () => {
     it("dados V1 e V3 coexistem sem perda no estado híbrido", async () => {
-      const { getDb } = await import("./db");
-      vi.mocked(getDb).mockResolvedValue({
-        select: vi.fn().mockReturnThis(),
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([{
-          id: 3,
-          questionnaireAnswers: QUESTIONNAIRE_ANSWERS_V3,
-          briefingContent: BRIEFING_CONTENT_V3,
-          riskMatricesData: null,
-          actionPlansData: null,
-          corporateAnswers: CORPORATE_ANSWERS_V1,
-          operationalAnswers: OPERATIONAL_ANSWERS_V1,
-          cnaeAnswers: null,
-        }]),
-      } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      const { getDb, getProjectById } = await import("./db");
+      vi.mocked(getDb).mockResolvedValue({ select: vi.fn().mockReturnThis(), from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis() } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getProjectById).mockResolvedValue({
+        id: 3,
+        questionnaireAnswers: QUESTIONNAIRE_ANSWERS_V3,
+        briefingContent: BRIEFING_CONTENT_V3,
+        riskMatricesData: null,
+        actionPlansData: null,
+        corporateAnswers: CORPORATE_ANSWERS_V1,
+        operationalAnswers: OPERATIONAL_ANSWERS_V1,
+        cnaeAnswers: null,
+      } as unknown as Awaited<ReturnType<typeof import("./db").getProjectById>>);
 
       const { getDiagnosticSource } = await import("./diagnostic-source");
       const source = await getDiagnosticSource(3);
@@ -706,9 +671,9 @@ describe("Bloco 6 — Integridade de dados", () => {
   });
 
   // 6.4 — Rollback após V3 (dados V1 preservados)
-  describe("6.4 Rollback após V3 — dados V1 não corrompidos", () => {
+  describe("6.4 Rollback após V3 — dados V1 preservados", () => {
     it("após rollback para V1, dados V1 originais são preservados", async () => {
-      const { getDb } = await import("./db");
+      const { getDb, getProjectById } = await import("./db");
       // Simula estado pós-rollback: questionnaireAnswers limpo, V1 intacto
       const postRollbackProject = {
         id: 4,
@@ -720,12 +685,8 @@ describe("Bloco 6 — Integridade de dados", () => {
         operationalAnswers: OPERATIONAL_ANSWERS_V1,
         cnaeAnswers: null,
       };
-      vi.mocked(getDb).mockResolvedValue({
-        select: vi.fn().mockReturnThis(),
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([postRollbackProject]),
-      } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getDb).mockResolvedValue({ select: vi.fn().mockReturnThis(), from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis() } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getProjectById).mockResolvedValue(postRollbackProject as unknown as Awaited<ReturnType<typeof import("./db").getProjectById>>);
 
       const { getDiagnosticSource } = await import("./diagnostic-source");
       const source = await getDiagnosticSource(4);
@@ -768,7 +729,7 @@ describe("Bloco 6 — Integridade de dados", () => {
     });
 
     it("leitura múltipla do mesmo projeto retorna dados idênticos (sem efeito colateral)", async () => {
-      const { getDb } = await import("./db");
+      const { getDb, getProjectById } = await import("./db");
       const mockProject = {
         id: 5,
         questionnaireAnswers: QUESTIONNAIRE_ANSWERS_V3,
@@ -779,12 +740,8 @@ describe("Bloco 6 — Integridade de dados", () => {
         operationalAnswers: null,
         cnaeAnswers: null,
       };
-      vi.mocked(getDb).mockResolvedValue({
-        select: vi.fn().mockReturnThis(),
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([mockProject]),
-      } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getDb).mockResolvedValue({ select: vi.fn().mockReturnThis(), from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis() } as unknown as ReturnType<typeof import("drizzle-orm/mysql2").drizzle>);
+      vi.mocked(getProjectById).mockResolvedValue(mockProject as unknown as Awaited<ReturnType<typeof import("./db").getProjectById>>);
 
       const { getDiagnosticSource } = await import("./diagnostic-source");
       const source1 = await getDiagnosticSource(5);
