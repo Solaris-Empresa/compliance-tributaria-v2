@@ -1,19 +1,21 @@
 # Índice Mestre de Documentação
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2026-03-23  
-> **Commit HEAD:** `40bf064` (branch `main`)  
-> **Total de documentos:** 60 arquivos Markdown  
+> **Versão:** 2.00 — 2026-03-23
+> **Versão anterior:** 1.00 (commit `40bf064`, 65 documentos)
+> **Commit HEAD:** `c92d5337` (branch `main`)
+> **Total de documentos:** 120 arquivos Markdown + 7 arquivos .docx
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 
 ---
 
-## Categoria 1 — Governança e Reconstrução (NOVO — v3.0)
+## Categoria 1 — Governança e Reconstrução (v3.0)
 
-Documentos gerados a partir do `documentacao-para-rollback-rag-v1.00.docx`. São os **source of truth** para governança, reconstrução e execução do agente.
+Documentos gerados a partir do `documentacao-para-rollback-rag-v1.00.docx`. São os **source of truth** para governança, reconstrução e execução do agente. **Leitura obrigatória antes de qualquer nova sprint.**
 
 | Arquivo | Descrição | Audiência |
 |---|---|---|
+| [`docs/INDICE-DOCUMENTACAO.md`](./INDICE-DOCUMENTACAO.md) | **Este documento** — índice mestre de 120 docs em 10 categorias | P.O. + Agente |
 | [`docs/PO-GOVERNANCA-PIPELINE-v3.md`](./PO-GOVERNANCA-PIPELINE-v3.md) | Visão de P.O.: estado real, roadmap, critérios de produção, decisões de produto | P.O. + Orquestrador |
 | [`docs/REBUILD-PIPELINE-v3.md`](./REBUILD-PIPELINE-v3.md) | Guia de reconstrução completa da pipeline em caso de desastre ou perda de contexto | Agente + P.O. |
 | [`docs/SKILL-MANUS-PIPELINE-v3.md`](./SKILL-MANUS-PIPELINE-v3.md) | Skill técnico permanente do agente: 11 módulos de governança, persistência, QA e compliance | Agente |
@@ -31,6 +33,7 @@ Documentos de status e baseline técnica do projeto, gerados em marcos important
 | [`docs/BASELINE-v2.2.md`](./BASELINE-v2.2.md) | — | Baseline técnica v2.2 |
 | [`docs/BaselineTecnica-v2.1.md`](./BaselineTecnica-v2.1.md) | — | Baseline técnica v2.1 |
 | [`docs/SPRINT-STATUS-REPORT.md`](./SPRINT-STATUS-REPORT.md) | — | Histórico de status de sprints |
+| [`docs/AUDITORIA-RECONCILIACAO-POS-v2.2.md`](./AUDITORIA-RECONCILIACAO-POS-v2.2.md) | — | Auditoria de reconciliação pós-v2.2 |
 
 ---
 
@@ -42,31 +45,49 @@ Decisões arquiteturais formais do projeto. Cada ADR é imutável após aprovaç
 |---|---|---|
 | [`ADR-001`](./product/cpie-v2/produto/ADR-001-arquitetura-diagnostico.md) | Arquitetura do diagnóstico — fluxos V1 e V3 | ✅ Aprovado |
 | [`ADR-002`](./product/cpie-v2/produto/ADR-002-plano-implementacao-rollback.md) | Plano de implementação com rollback | ✅ Aprovado |
-| [`ADR-003`](./product/cpie-v2/produto/ADR-003-exaustao-de-riscos.md) | Exaustão de riscos | ✅ Aprovado |
+| [`ADR-003`](./product/cpie-v2/produto/ADR-003-exaustao-de-riscos.md) | Exaustão de riscos — gap → risco determinístico | ✅ Aprovado |
 | [`ADR-004`](./product/cpie-v2/produto/ADR-004-fonte-de-verdade-diagnostico.md) | Fonte de verdade do diagnóstico | ❌ Rejeitado |
-| [`ADR-005`](./product/cpie-v2/produto/ADR-005-isolamento-fisico-diagnostico.md) | Isolamento físico do diagnóstico | ✅ Aprovado |
+| [`ADR-005`](./product/cpie-v2/produto/ADR-005-isolamento-fisico-diagnostico.md) | Isolamento físico do diagnóstico — `getDiagnosticSource()` | ✅ Aprovado |
 | [`ADR-006`](./product/cpie-v2/produto/ADR-006-relatorio-validacao-pratica-adr005.md) | Relatório de validação prática do ADR-005 | ✅ Aprovado |
-| [`ADR-007`](./product/cpie-v2/produto/ADR-007-gate-limpeza-retrocesso.md) | Gate de limpeza no retrocesso | ✅ Aprovado |
+| [`ADR-007`](./product/cpie-v2/produto/ADR-007-gate-limpeza-retrocesso.md) | Gate de limpeza no retrocesso — `cleanupOnRetrocesso()` | ✅ Aprovado |
 | [`ADR-008`](./product/cpie-v2/produto/ADR-008-F04-schema-migration-strategy.md) | Estratégia de migração F-04 (schema V1/V3) | ✅ Aprovado v1.1 |
-| ADR-009 | Shadow Mode — comparação background | ✅ Implementado (ver relatório abaixo) |
+| ADR-009 | Shadow Mode — comparação background V1/V3 | ✅ Implementado (ver relatório abaixo) |
 
 ---
 
 ## Categoria 4 — Relatórios Técnicos e Auditorias
 
-| Arquivo | Descrição |
-|---|---|
-| [`RELATORIO-FINAL-SHADOW-MODE-ADR009.md`](./product/cpie-v2/produto/RELATORIO-FINAL-SHADOW-MODE-ADR009.md) | Relatório técnico completo do Shadow Mode — 12 seções |
-| [`RELATORIO-ROLLBACK-DRILL-F04.md`](./product/cpie-v2/produto/RELATORIO-ROLLBACK-DRILL-F04.md) | Validação determinística do rollback da F-04 — 6 etapas |
-| [`RELATORIO-AUDITORIA-SPRINT-FINAL.md`](./product/cpie-v2/produto/RELATORIO-AUDITORIA-SPRINT-FINAL.md) | Auditoria pós-sprint: Issues #54, #55, #59 |
-| [`RESPOSTA-ORQUESTRADOR-SPRINT-FINAL.md`](./product/cpie-v2/produto/RESPOSTA-ORQUESTRADOR-SPRINT-FINAL.md) | Aprovação formal do Orquestrador com restrições |
-| [`RESPOSTA-AUDITORIA-POS-HANDOFF.md`](./product/cpie-v2/produto/RESPOSTA-AUDITORIA-POS-HANDOFF.md) | Validação técnica pós-handoff: Issues #54/#55 + ADR-008 |
-| [`ISSUES-pre-existentes-fora-escopo-F02.md`](./product/cpie-v2/produto/ISSUES-pre-existentes-fora-escopo-F02.md) | Débitos técnicos pré-existentes fora do escopo da F-02 |
-| [`AUDITORIA-RECONCILIACAO-POS-v2.2.md`](./AUDITORIA-RECONCILIACAO-POS-v2.2.md) | Auditoria de reconciliação pós-v2.2 |
+| Arquivo | Descrição | Novo |
+|---|---|---|
+| [`RELATORIO-COMPLETO-TESTES-ONDA1-ONDA2-2026-03-23.md`](./product/cpie-v2/produto/RELATORIO-COMPLETO-TESTES-ONDA1-ONDA2-2026-03-23.md) | **Relatório completo Onda 1+2 — 107/107 testes, métricas de performance** | ✅ Novo |
+| [`RELATORIO-ONDA1-10-TESTES-2026-03-23.md`](./product/cpie-v2/produto/RELATORIO-ONDA1-10-TESTES-2026-03-23.md) | Relatório Onda 1 — 75/75 testes | ✅ Novo |
+| [`RELATORIO-ONDA2-STRESS-2026-03-23.md`](./product/cpie-v2/produto/RELATORIO-ONDA2-STRESS-2026-03-23.md) | Relatório Onda 2 — 32/32 testes de stress | ✅ Novo |
+| [`RELATORIO-FINAL-SHADOW-MODE-ADR009.md`](./product/cpie-v2/produto/RELATORIO-FINAL-SHADOW-MODE-ADR009.md) | Relatório técnico completo do Shadow Mode — 12 seções | — |
+| [`RELATORIO-ROLLBACK-DRILL-F04.md`](./product/cpie-v2/produto/RELATORIO-ROLLBACK-DRILL-F04.md) | Validação determinística do rollback da F-04 — 6 etapas | — |
+| [`RELATORIO-AUDITORIA-SPRINT-FINAL.md`](./product/cpie-v2/produto/RELATORIO-AUDITORIA-SPRINT-FINAL.md) | Auditoria pós-sprint: Issues #54, #55, #59 | — |
+| [`RESPOSTA-ORQUESTRADOR-SPRINT-FINAL.md`](./product/cpie-v2/produto/RESPOSTA-ORQUESTRADOR-SPRINT-FINAL.md) | Aprovação formal do Orquestrador com restrições | — |
+| [`RESPOSTA-AUDITORIA-POS-HANDOFF.md`](./product/cpie-v2/produto/RESPOSTA-AUDITORIA-POS-HANDOFF.md) | Validação técnica pós-handoff: Issues #54/#55 + ADR-008 | — |
+| [`ISSUES-pre-existentes-fora-escopo-F02.md`](./product/cpie-v2/produto/ISSUES-pre-existentes-fora-escopo-F02.md) | Débitos técnicos pré-existentes fora do escopo da F-02 | — |
+| [`DIAGNOSTICO-UAT-001-FLUXO-QUESTIONARIO.md`](./product/cpie-v2/produto/DIAGNOSTICO-UAT-001-FLUXO-QUESTIONARIO.md) | Diagnóstico UAT-001 — fluxo de questionário | ✅ Novo |
 
 ---
 
-## Categoria 5 — Especificação de Produto
+## Categoria 5 — Documentação de Versão Atual (v5.x) — NOVOS DESDE v1.00
+
+Documentos gerados nas sprints v5.0 a v5.3.0. Todos disponíveis em `.md` e `.docx`.
+
+| Arquivo | Versão | Descrição | Novo |
+|---|---|---|---|
+| [`REQUISITOS-FUNCIONAIS-v6.md`](./product/cpie-v2/produto/REQUISITOS-FUNCIONAIS-v6.md) + [`.docx`](./product/cpie-v2/produto/REQUISITOS-FUNCIONAIS-v6.docx) | **v6.0** | 153 RFs em 24 seções — incorpora ADR-005 a ADR-008, Shadow Mode, Onda 1+2, UAT | ✅ Novo |
+| [`DOCUMENTACAO-IA-GENERATIVA-v5.md`](./product/cpie-v2/produto/DOCUMENTACAO-IA-GENERATIVA-v5.md) + [`.docx`](./product/cpie-v2/produto/DOCUMENTACAO-IA-GENERATIVA-v5.docx) | **v5.0** | 23 seções — pipeline completo, diagnóstico dual, Shadow Mode, suite de validação | ✅ Novo |
+| [`PLAYBOOK-DA-PLATAFORMA-v3.md`](./product/cpie-v2/produto/PLAYBOOK-DA-PLATAFORMA-v3.md) + [`.docx`](./product/cpie-v2/produto/PLAYBOOK-DA-PLATAFORMA-v3.docx) | **v3.0** | 15 seções — ADRs, Shadow Mode, Onda 1+2, UAT, padrões createPool e JSON nativo | ✅ Novo |
+| [`projeto-compliance-reforma-tributaria-v2.00.md`](./product/cpie-v2/produto/projeto-compliance-reforma-tributaria-v2.00.md) + [`.docx`](./product/cpie-v2/produto/projeto-compliance-reforma-tributaria-v2.00.docx) | **v2.00** | Documento de projeto — reposicionamento CNAE→requisitos regulatórios, 499 requisitos | ✅ Novo |
+| [`snapshot-plataforma-reforma-tributaria-v2.00.md`](./product/cpie-v2/produto/snapshot-plataforma-reforma-tributaria-v2.00.md) + [`.docx`](./product/cpie-v2/produto/snapshot-plataforma-reforma-tributaria-v2.00.docx) | **v2.00** | Snapshot operacional — auditoria v2.3 aprovada (14/14 gates), evolução v2.3→v5.3.0 | ✅ Novo |
+| [`documentacao-projeto-plataforma-reforma-tributaria-v2.00.md`](./product/cpie-v2/produto/documentacao-projeto-plataforma-reforma-tributaria-v2.00.md) + `.docx` | **v2.00** | Inventário completo de documentação — 120 arquivos, 11 checkpoints, estado atual | ✅ Novo |
+
+---
+
+## Categoria 5b — Especificação de Produto
 
 Documentos de especificação funcional e técnica do produto.
 
@@ -80,9 +101,10 @@ Documentos de especificação funcional e técnica do produto.
 | [`06-ux-states.md`](./product/cpie-v2/produto/06-ux-states.md) | Estados de UX e transições |
 | [`07-ux-guidelines.md`](./product/cpie-v2/produto/07-ux-guidelines.md) | Diretrizes de UX |
 | [`08-risk-model.md`](./product/cpie-v2/produto/08-risk-model.md) | Modelo de risco do produto |
-| [`GUIA-UAT-ADVOGADOS.md`](./product/cpie-v2/produto/GUIA-UAT-ADVOGADOS.md) | 7 cenários de teste UAT para advogados |
+| [`GUIA-UAT-ADVOGADOS.md`](./product/cpie-v2/produto/GUIA-UAT-ADVOGADOS.md) | Guia UAT v1 (histórico) |
 | [`docs/product/cpie-v2/README.md`](./product/cpie-v2/README.md) | README da documentação CPIE v2 |
 | [`docs/product/cpie-v2/baseline-questionarios-rag.md`](./product/cpie-v2/baseline-questionarios-rag.md) | Baseline dos questionários RAG |
+| [`docs/product/cpie-v2/cenarios/09-matriz-de-cenarios.md`](./product/cpie-v2/cenarios/09-matriz-de-cenarios.md) | Matriz de cenários de teste |
 
 ---
 
@@ -120,13 +142,23 @@ Documentos de especificação funcional e técnica do produto.
 
 ---
 
+## Categoria 6b — UAT e Distribuição — NOVOS DESDE v1.00
+
+| Arquivo | Descrição | Novo |
+|---|---|---|
+| [`GUIA-UAT-ADVOGADOS-v2.md`](./product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md) | Guia UAT v2 — 8 cenários, critérios de aceite, formulário de feedback, cronograma 4 dias | ✅ Novo |
+| [`EMAIL-MODELO-CONVITE-UAT.md`](./product/cpie-v2/produto/EMAIL-MODELO-CONVITE-UAT.md) | E-mail modelo de convite para advogados testadores | ✅ Novo |
+| [`SHADOW-MONITOR-BASELINE-UAT-2026-03-23.md`](./product/cpie-v2/produto/SHADOW-MONITOR-BASELINE-UAT-2026-03-23.md) | Baseline Shadow Monitor T=0 — protocolo de verificação 48-72h | ✅ Novo |
+
+---
+
 ## Categoria 8 — Playbooks e Guias de Desenvolvimento
 
 | Arquivo | Descrição |
 |---|---|
 | [`docs/PLAYBOOK-PLATAFORMA.md`](./PLAYBOOK-PLATAFORMA.md) | Playbook oficial de desenvolvimento — regras mandatórias |
 | [`docs/SUPER-PROMPT-RECUPERACAO.md`](./SUPER-PROMPT-RECUPERACAO.md) | Super-prompt de recuperação de contexto |
-| [`docs/DOCUMENTACAO-IA-GENERATIVA-v4.md`](./DOCUMENTACAO-IA-GENERATIVA-v4.md) | Documentação IA Generativa v4 |
+| [`docs/DOCUMENTACAO-IA-GENERATIVA-v4.md`](./DOCUMENTACAO-IA-GENERATIVA-v4.md) | Documentação IA Generativa v4 (histórico — v5.0 em `docs/product/`) |
 | [`docs/QA-HUMANO-v2.3.md`](./QA-HUMANO-v2.3.md) | Guia de QA humano v2.3 |
 | [`docs/IA_Levantamento_Inicial.md`](./IA_Levantamento_Inicial.md) | Levantamento inicial da IA |
 | [`docs/funcionalidade-planos-por-ramo.md`](./funcionalidade-planos-por-ramo.md) | Funcionalidade de planos por ramo |
@@ -146,31 +178,52 @@ Documentos de especificação funcional e técnica do produto.
 
 ## Resumo por Categoria
 
-| Categoria | Qtd. Documentos | Prioridade de Leitura |
-|---|---|---|
-| 1 — Governança e Reconstrução (v3.0) | 3 | 🔴 CRÍTICA — ler primeiro |
-| 2 — Status Reports e Baseline | 5 | 🔴 CRÍTICA |
-| 3 — ADRs | 9 | 🟠 ALTA |
-| 4 — Relatórios e Auditorias | 7 | 🟠 ALTA |
-| 5 — Especificação de Produto | 11 | 🟡 MÉDIA |
-| 6 — Arquitetura Técnica | 10 | 🟡 MÉDIA |
-| 7 — Operação e Infraestrutura | 10 | 🟢 BAIXA |
-| 8 — Playbooks e Guias | 6 | 🟠 ALTA |
-| 9 — Histórico de Sprints | 4 | 🟢 BAIXA |
-| **Total** | **65** | — |
+| Categoria | Qtd. Documentos | Prioridade de Leitura | Novos desde v1.00 |
+|---|---|---|---|
+| 1 — Governança e Reconstrução (v3.0) | 4 | 🔴 CRÍTICA — ler primeiro | 1 |
+| 2 — Status Reports e Baseline | 6 | 🔴 CRÍTICA | 1 |
+| 3 — ADRs | 9 | 🟠 ALTA | — |
+| 4 — Relatórios e Auditorias | 10 | 🟠 ALTA | 4 |
+| 5 — Documentação de Versão Atual (v5.x) | 6 | 🔴 CRÍTICA | 6 |
+| 5b — Especificação de Produto | 12 | 🟡 MÉDIA | 1 |
+| 6b — UAT e Distribuição | 3 | 🔴 CRÍTICA | 3 |
+| 6 — Arquitetura Técnica | 10 | 🟡 MÉDIA | — |
+| 7 — Operação e Infraestrutura | 10 | 🟢 BAIXA | — |
+| 8 — Playbooks e Guias | 6 | 🟠 ALTA | — |
+| 9 — Histórico de Sprints | 4 | 🟢 BAIXA | — |
+| **Total** | **80** | — | **16 novos** |
+
+> **Nota:** O total de 80 documentos neste índice representa os documentos ativos e relevantes. O repositório contém 120 arquivos `.md` no total, incluindo ~40 documentos históricos de sprints anteriores (pré-v5.0) na raiz do projeto.
+
+---
+
+## Arquivos .docx Disponíveis para Download
+
+| Arquivo | Versão |
+|---|---|
+| `REQUISITOS-FUNCIONAIS-v6.docx` | v6.0 |
+| `DOCUMENTACAO-IA-GENERATIVA-v5.docx` | v5.0 |
+| `PLAYBOOK-DA-PLATAFORMA-v3.docx` | v3.0 |
+| `projeto-compliance-reforma-tributaria-v2.00.docx` | v2.00 |
+| `snapshot-plataforma-reforma-tributaria-v2.00.docx` | v2.00 |
+| `documentacao-projeto-plataforma-reforma-tributaria-v2.00.docx` | v2.00 |
+| `INDICE-DOCUMENTACAO-v2.00.docx` | v2.00 |
 
 ---
 
 ## Ordem de Leitura Recomendada (Onboarding de Novo Agente)
 
-1. `docs/PO-GOVERNANCA-PIPELINE-v3.md` — entender o estado e as regras do P.O.
-2. `docs/SKILL-MANUS-PIPELINE-v3.md` — assumir o modo operacional correto
-3. `docs/PLAYBOOK-PLATAFORMA.md` — regras mandatórias de desenvolvimento
-4. `docs/product/cpie-v2/produto/STATUS-REPORT-BASELINE-2026-03-23.md` — estado atual
-5. `docs/REBUILD-PIPELINE-v3.md` — se precisar reconstruir
-6. `docs/product/cpie-v2/produto/ADR-008-F04-schema-migration-strategy.md` — estratégia de migração ativa
-7. `docs/product/cpie-v2/produto/RELATORIO-FINAL-SHADOW-MODE-ADR009.md` — Shadow Mode
+1. **Este documento** (`docs/INDICE-DOCUMENTACAO.md`) — mapa completo de todos os documentos
+2. `docs/PO-GOVERNANCA-PIPELINE-v3.md` — entender o estado e as regras do P.O.
+3. `docs/SKILL-MANUS-PIPELINE-v3.md` — assumir o modo operacional correto
+4. `docs/PLAYBOOK-PLATAFORMA.md` — regras mandatórias de desenvolvimento
+5. `docs/product/cpie-v2/produto/STATUS-REPORT-BASELINE-2026-03-23.md` — estado atual
+6. `docs/REBUILD-PIPELINE-v3.md` — se precisar reconstruir do zero
+7. `docs/product/cpie-v2/produto/ADR-008-F04-schema-migration-strategy.md` — estratégia de migração ativa
+8. `docs/product/cpie-v2/produto/RELATORIO-FINAL-SHADOW-MODE-ADR009.md` — Shadow Mode
+9. `docs/product/cpie-v2/produto/RELATORIO-COMPLETO-TESTES-ONDA1-ONDA2-2026-03-23.md` — suite de validação
 
 ---
 
-*Gerado em 2026-03-23 | Commit HEAD: `40bf064` | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Atualizado em 2026-03-23 — Versão 2.00 | Commit HEAD: `c92d5337` | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Versão anterior: 1.00 (commit `40bf064`, 65 documentos)*
