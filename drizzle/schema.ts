@@ -91,10 +91,17 @@ export const projects = mysqlTable("projects", {
   ]),
   // Fluxo V3 — conteúdo gerado por IA (armazenado como JSON/texto no projeto)
   questionnaireAnswers: json("questionnaireAnswers"),     // Respostas do questionário V3: [{cnaeCode, cnaeDescription, level, questions:[{question,answer}]}]
-  briefingContent: text("briefingContent"),              // Briefing gerado pela IA (markdown)
+  briefingContent: text("briefingContent"),              // Briefing gerado pela IA (markdown) — coluna legada (lida por getDiagnosticSource)
   briefingStructured: json("briefingStructured"),        // V61: Briefing estruturado com confidence_score e inconsistencias
-  riskMatricesData: json("riskMatricesData"),            // Matrizes de riscos: { [cnaeCode]: Risk[] }
-  actionPlansData: json("actionPlansData"),              // Plano de ação: { [area]: Task[] }
+  riskMatricesData: json("riskMatricesData"),            // Matrizes de riscos: { [cnaeCode]: Risk[] } — coluna legada
+  actionPlansData: json("actionPlansData"),              // Plano de ação: { [area]: Task[] } — coluna legada
+  // F-04: Separação física V1/V3 — Fase 1 (ADD COLUMN) — Fase 2 (cópia) em execução
+  briefingContentV1: text("briefingContentV1"),          // F-04: Briefing V1 (fluxo corporativo/operacional)
+  briefingContentV3: text("briefingContentV3"),          // F-04: Briefing V3 (fluxo questionnaireAnswers)
+  riskMatricesDataV1: json("riskMatricesDataV1"),        // F-04: Matrizes V1
+  riskMatricesDataV3: json("riskMatricesDataV3"),        // F-04: Matrizes V3
+  actionPlansDataV1: json("actionPlansDataV1"),          // F-04: Plano de ação V1
+  actionPlansDataV3: json("actionPlansDataV3"),          // F-04: Plano de ação V3
   // V61: Scoring financeiro global (calculado no servidor)
   scoringData: json("scoringData"),                      // { score_global, nivel, impacto_estimado, custo_inacao, prioridade }
   faturamentoAnual: int("faturamentoAnual"),             // V61: Faturamento anual para tradução financeira do risco
