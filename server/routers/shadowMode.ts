@@ -173,10 +173,10 @@ export const shadowModeRouter = router({
           message: "Banco de dados não disponível",
         });
       }
-      const cutoff = Date.now() - input.olderThanDays * 24 * 60 * 60 * 1000;
+      const cutoff = new Date(Date.now() - input.olderThanDays * 24 * 60 * 60 * 1000);
       const result = await database
         .delete(diagnosticShadowDivergences)
-        .where(sql`${diagnosticShadowDivergences.detectedAt} < ${cutoff}`);
+        .where(sql`${diagnosticShadowDivergences.createdAt} < ${cutoff}`);
       return { deleted: (result as { rowsAffected?: number }).rowsAffected ?? 0 };
     }),
 });
