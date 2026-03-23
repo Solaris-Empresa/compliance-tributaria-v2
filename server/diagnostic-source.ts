@@ -33,7 +33,7 @@
 import { TRPCError } from "@trpc/server";
 import * as db from "./db";
 import { getDb } from "./db";
-import { briefings, riskMatrix, actionPlans, projects } from "../drizzle/schema";
+import { briefings, riskMatrix, actionPlans } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -207,21 +207,15 @@ export async function getDiagnosticSource(
     });
   }
 
-  // Buscar projeto completo
-  const projectRows = await database
-    .select()
-    .from(projects)
-    .where(eq(projects.id, projectId))
-    .limit(1);
+  // Buscar projeto via helper centralizado (compatível com mocks de teste)
+  const project = await db.getProjectById(projectId);
 
-  if (!projectRows.length) {
+  if (!project) {
     throw new TRPCError({
       code: "NOT_FOUND",
       message: `[getDiagnosticSource] Projeto ${projectId} não encontrado`,
     });
   }
-
-  const project = projectRows[0];
   const flowVersion = determineFlowVersion({
     questionnaireAnswers: project.questionnaireAnswers,
     corporateAnswers: project.corporateAnswers,

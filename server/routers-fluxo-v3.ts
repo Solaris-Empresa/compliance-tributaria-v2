@@ -29,6 +29,8 @@ import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-h
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
 // v2.1 T3: Adaptador de consolidação do diagnóstico em 3 camadas
 import { consolidateDiagnosticLayers, isDiagnosticComplete, getNextDiagnosticLayer, getDiagnosticProgress } from "./diagnostic-consolidator";
+// ADR-005 F-02A: Adaptador centralizado de leitura de diagnóstico (leitura via getDiagnosticSource)
+import { getDiagnosticSource, assertFlowVersion } from "./diagnostic-source";
 
 const CnaeSchema = z.object({
   code: z.string(),
@@ -460,6 +462,8 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
   getProjectStep1: protectedProcedure
     .input(z.object({ projectId: z.number() }))
     .query(async ({ input }) => {
+      // ADR-005 F-02A: leitura via adaptador centralizado
+      const diagSource = await getDiagnosticSource(input.projectId);
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       // Buscar dados do cliente para exibir no formulário
@@ -474,17 +478,18 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         confirmedCnaes: (project as any).confirmedCnaes,
         currentStep: (project as any).currentStep ?? 1,
         status: project.status,
-        questionnaireAnswers: (project as any).questionnaireAnswers ?? null,
-        briefingContent: (project as any).briefingContent ?? null,
-        riskMatricesData: (project as any).riskMatricesData ?? null,
-        actionPlansData: (project as any).actionPlansData ?? null,
+        // ADR-005: leitura via adaptador (não leitura direta do banco)
+        questionnaireAnswers: diagSource.questionnaireAnswersV3 ?? null,
+        briefingContent: diagSource.briefingContentV3 ?? null,
+        riskMatricesData: diagSource.riskMatricesDataV3 ?? null,
+        actionPlansData: diagSource.actionPlansDataV3 ?? null,
         scoringData: (project as any).scoringData ?? null,      // V61
         decisaoData: (project as any).decisaoData ?? null,      // V63
         faturamentoAnual: (project as any).faturamentoAnual ?? null, // V61
-        // ── 3 camadas de diagnóstico (v2.2) ──────────────────────────────────
-        corporateAnswers: (project as any).corporateAnswers ?? null,
-        operationalAnswers: (project as any).operationalAnswers ?? null,
-        cnaeAnswers: (project as any).cnaeAnswers ?? null,
+        // ── 3 camadas de diagnóstico (v2.2) ────────────────────────────────────
+        corporateAnswers: diagSource.corporateAnswers ?? null,
+        operationalAnswers: diagSource.operationalAnswers ?? null,
+        cnaeAnswers: diagSource.cnaeAnswers ?? null,
       };
     }),
 
@@ -1310,9 +1315,10 @@ Gere o plano de ação em JSON:
       }),
     }))
     .mutation(async ({ input, ctx }) => {
-      const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
-      const currentPlans = (project as any).actionPlansData || {};
+      // ADR-005 F-02A: leitura via adaptador centralizado
+      const diagSource = await getDiagnosticSource(input.projectId);
+      assertFlowVersion(diagSource, "v3", "fluxoV3.updateTask");
+      const currentPlans = (diagSource.actionPlansDataV3 as Record<string, any[]>) || {};
       const areaTasks = currentPlans[input.area] || [];
       const currentTask = areaTasks.find((t: any) => t.id === input.taskId);
       const updatedTasks = areaTasks.map((task: any) =>
@@ -1430,8 +1436,11 @@ Gere o plano de ação em JSON:
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
-      const briefingContent = (project as any).briefingContent as string | null;
-      const riskMatricesData = (project as any).riskMatricesData as Record<string, any[]> | null;
+      // ADR-005 F-02A: leitura via adaptador centralizado
+      const diagSource = await getDiagnosticSource(input.projectId);
+      assertFlowVersion(diagSource, "v3", "fluxoV3.generateDecision");
+      const briefingContent = diagSource.briefingContentV3;
+      const riskMatricesData = diagSource.riskMatricesDataV3 as Record<string, any[]> | null;
       const scoringData = (project as any).scoringData as any | null;
       const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
 
@@ -1527,12 +1536,12 @@ Gere o veredito final em JSON:
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
-      const answers = await database
-        .select()
-        .from(questionnaireAnswersV3)
-        .where(eq(questionnaireAnswersV3.projectId, input.projectId));
+      // ADR-005 F-02A: leitura via adaptador centralizado
+      const diagSource = await getDiagnosticSource(input.projectId);
 
-      const actionPlansData = (project as any).actionPlansData as Record<string, any[]> | null;
+      const answers = diagSource.questionnaireAnswersV3 ?? [];
+
+      const actionPlansData = diagSource.actionPlansDataV3 as Record<string, any[]> | null;
       let totalTasks = 0;
       let completedTasks = 0;
       let tasksByArea: { area: string; count: number; completed: number }[] = [];
@@ -1546,7 +1555,7 @@ Gere o veredito final em JSON:
         }
       }
 
-      const riskMatricesData = (project as any).riskMatricesData as Record<string, any[]> | null;
+      const riskMatricesData = diagSource.riskMatricesDataV3 as Record<string, any[]> | null;
       let totalRisks = 0;
       if (riskMatricesData) {
         for (const risks of Object.values(riskMatricesData)) {
@@ -1572,7 +1581,7 @@ Gere o veredito final em JSON:
         completedTasks,
         totalRisks,
         tasksByArea,
-        hasBriefing: !!(project as any).briefingContent,
+        hasBriefing: !!diagSource.briefingContentV3,
         hasRiskMatrices: !!riskMatricesData && Object.keys(riskMatricesData).length > 0,
         hasActionPlan: !!actionPlansData && Object.keys(actionPlansData).length > 0,
         scoringData: (project as any).scoringData ?? null,   // V61
