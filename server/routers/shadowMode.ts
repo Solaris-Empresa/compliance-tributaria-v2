@@ -158,4 +158,25 @@ export const shadowModeRouter = router({
 
       return compareDiagnosticSources(projectRow);
     }),
+
+  /**
+   * Remove registros de divergência mais antigos que N dias.
+   * Útil para manter a tabela enxuta durante o período de observação.
+   */
+  clearOld: solarisProcedure
+    .input(z.object({ olderThanDays: z.number().min(1).max(365).default(7) }))
+    .mutation(async ({ input }) => {
+      const database = await getDb();
+      if (!database) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Banco de dados não disponível",
+        });
+      }
+      const cutoff = Date.now() - input.olderThanDays * 24 * 60 * 60 * 1000;
+      const result = await database
+        .delete(diagnosticShadowDivergences)
+        .where(sql`${diagnosticShadowDivergences.detectedAt} < ${cutoff}`);
+      return { deleted: (result as { rowsAffected?: number }).rowsAffected ?? 0 };
+    }),
 });

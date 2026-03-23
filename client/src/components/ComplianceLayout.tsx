@@ -14,6 +14,7 @@ import {
   Cpu,
   Shield,
   BarChart3,
+  Activity,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -98,6 +99,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     navItems.push({ href: "/admin/embeddings", icon: Cpu, label: "Embeddings" });
     navItems.push({ href: "/admin/consistencia", icon: Shield, label: "Consistência" });
     navItems.push({ href: "/admin/cpie-dashboard", icon: BarChart3, label: "Dashboard CPIE" });
+    navItems.push({ href: "/admin/shadow-monitor", icon: Activity, label: "Shadow Monitor" });
   }
 
   if (user?.role === "cliente") {

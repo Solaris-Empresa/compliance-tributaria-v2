@@ -71,6 +71,7 @@ import ConsistencyGate from "./pages/ConsistencyGate";
 import DiagnosticoStepper from "./pages/DiagnosticoStepper";
 import AdminConsistencia from "./pages/AdminConsistencia";
 import AdminCpieDashboard from "./pages/AdminCpieDashboard";
+import ShadowMonitor from "./pages/ShadowMonitor";
 
 function Router() {
   return (
@@ -125,6 +126,7 @@ function Router() {
       <Route path="/admin/embeddings" component={AdminEmbeddings} />
       <Route path="/admin/consistencia" component={AdminConsistencia} />
       <Route path="/admin/cpie-dashboard" component={AdminCpieDashboard} />
+      <Route path="/admin/shadow-monitor" component={ShadowMonitor} />
       {/* Compliance Engine v3 */}
       <Route path="/projetos/:id/compliance-v3" component={ComplianceDashboardV3} />
       <Route path="/projetos/:id/compliance-v3/gaps" component={GapsV3} />
