@@ -249,17 +249,23 @@ export async function getDiagnosticSource(
     ? (project.questionnaireAnswers as QuestionnaireAnswerV3[] | null) ?? null
     : null;
 
-  const briefingContentV3 = flowVersion === "v3" || flowVersion === "hybrid"
-    ? ((project as Record<string, unknown>).briefingContent as string | null) ?? null
-    : null;
+  // UAT-002 fix: ler colunas V3 reais (briefingContentV3/riskMatricesDataV3/actionPlansDataV3)
+  // Projetos do novo fluxo v2.1 persistem nessas colunas V3 reais independente do flowVersion.
+  // Fallback para colunas V1 (briefingContent/riskMatricesData/actionPlansData) para todos os fluxos.
+  const briefingContentV3 =
+    ((project as Record<string, unknown>).briefingContentV3 as string | null) ??
+    ((project as Record<string, unknown>).briefingContent as string | null) ??
+    null;
 
-  const riskMatricesDataV3 = flowVersion === "v3" || flowVersion === "hybrid"
-    ? ((project as Record<string, unknown>).riskMatricesData as Record<string, unknown[]> | null) ?? null
-    : null;
+  const riskMatricesDataV3 =
+    ((project as Record<string, unknown>).riskMatricesDataV3 as Record<string, unknown[]> | null) ??
+    ((project as Record<string, unknown>).riskMatricesData as Record<string, unknown[]> | null) ??
+    null;
 
-  const actionPlansDataV3 = flowVersion === "v3" || flowVersion === "hybrid"
-    ? ((project as Record<string, unknown>).actionPlansData as Record<string, unknown[]> | null) ?? null
-    : null;
+  const actionPlansDataV3 =
+    ((project as Record<string, unknown>).actionPlansDataV3 as Record<string, unknown[]> | null) ??
+    ((project as Record<string, unknown>).actionPlansData as Record<string, unknown[]> | null) ??
+    null;
 
   // ── Dados V1 (colunas em projects) ────────────────────────────────────────
   const corporateAnswers = flowVersion === "v1" || flowVersion === "hybrid"

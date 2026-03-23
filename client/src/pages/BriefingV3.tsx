@@ -200,7 +200,7 @@ export default function BriefingV3() {
     // Se já há briefing no estado (rascunho local), não sobrescrever
     if (briefing) return;
     // Prioridade: briefing salvo no banco (re-edição)
-    const savedBriefing = (project as any).briefingContent;
+    const savedBriefing = (project as any).briefingContentV3 || (project as any).briefingContent;
     if (savedBriefing && generationCount === 0) {
       setBriefing(savedBriefing);
       setGenerationCount(1);

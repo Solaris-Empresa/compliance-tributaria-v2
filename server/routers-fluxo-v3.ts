@@ -992,6 +992,7 @@ Gere o Briefing estruturado em JSON:
       await database
         .update(projects)
         .set({
+          briefingContentV3: briefingMarkdown as any,
           briefingContent: briefingMarkdown as any,
           briefingStructured: JSON.stringify(structured) as any,
           currentStep: 3,
@@ -1014,7 +1015,7 @@ Gere o Briefing estruturado em JSON:
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await database
         .update(projects)
-        .set({ currentStep: 4, status: "matriz_riscos", briefingContent: input.briefingContent as any } as any)
+        .set({ currentStep: 4, status: "matriz_riscos", briefingContentV3: input.briefingContent as any, briefingContent: input.briefingContent as any } as any)
         .where(eq(projects.id, input.projectId));
       return { success: true, nextStep: 4 };
     }),
@@ -1127,7 +1128,7 @@ Formato:
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await database
         .update(projects)
-        .set({ currentStep: 5, status: "plano_acao", riskMatricesData: input.matrices as any } as any)
+        .set({ currentStep: 5, status: "plano_acao", riskMatricesDataV3: input.matrices as any, riskMatricesData: input.matrices as any } as any)
         .where(eq(projects.id, input.projectId));
       return { success: true, nextStep: 5 };
     }),
@@ -1398,12 +1399,12 @@ Gere o plano de ação em JSON:
       // Apenas persiste actionPlansData — não altera status nem currentStep
       await database
         .update(projects)
-        .set({ actionPlansData: input.plans as any } as any)
+        .set({ actionPlansDataV3: input.plans as any, actionPlansData: input.plans as any } as any)
         .where(eq(projects.id, input.projectId));
       return { success: true };
     }),
 
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   // ETAPA 5: Aprovar plano de ação + gerar decisão (V63)
   // ─────────────────────────────────────────────────────────────────────────
   approveActionPlan: protectedProcedure
@@ -1418,7 +1419,7 @@ Gere o plano de ação em JSON:
       // Salvar plano aprovado
       await database
         .update(projects)
-        .set({ currentStep: 5, status: "aprovado", actionPlansData: input.plans as any } as any)
+        .set({ currentStep: 5, status: "aprovado", actionPlansDataV3: input.plans as any, actionPlansData: input.plans as any } as any)
         .where(eq(projects.id, input.projectId));
 
       return { success: true };
@@ -1955,6 +1956,7 @@ Gere o Briefing estruturado em JSON:
       await database
         .update(projects)
         .set({
+          briefingContentV3: briefingMarkdown as any,
           briefingContent: briefingMarkdown as any,
           briefingStructured: JSON.stringify(structured) as any,
           currentStep: 3,

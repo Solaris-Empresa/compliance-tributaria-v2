@@ -233,7 +233,7 @@ export default function MatrizesV3() {
     // Se já há matrizes no estado (rascunho local), não sobrescrever
     if (Object.keys(matrices).length > 0) return;
     // Prioridade: matrizes salvas no banco (re-edição)
-    const savedMatrices = (project as any).riskMatricesData;
+    const savedMatrices = (project as any).riskMatricesDataV3 || (project as any).riskMatricesData;
     if (savedMatrices && Object.keys(savedMatrices).length > 0 && generationCount === 0) {
       setMatrices(savedMatrices);
       setGenerationCount(1);
@@ -257,7 +257,7 @@ export default function MatrizesV3() {
     setAdjustmentMode(null);
     setAdjustmentText("");
     try {
-      const briefingContent = (project as any).briefingContent || "";
+      const briefingContent = (project as any).briefingContentV3 || (project as any).briefingContent || "";
       const result = await generateMatrices.mutateAsync({
         projectId,
         briefingContent,

@@ -749,7 +749,7 @@ export default function PlanoAcaoV3() {
     if (generationTriggeredRef.current) return; // já disparou — não repetir
 
     const status = project.status;
-    const savedPlansCheck = (project as any).actionPlansData as Record<string, any[]> | null | undefined;
+    const savedPlansCheck = ((project as any).actionPlansDataV3 || (project as any).actionPlansData) as Record<string, any[]> | null | undefined;
     const hasSavedPlan = savedPlansCheck && Object.keys(savedPlansCheck).length > 0;
 
     // Bug #8: Status "plano_acao" = recém aprovado da matriz — SEMPRE gerar novo plano
@@ -804,8 +804,8 @@ export default function PlanoAcaoV3() {
     setShowAdjustment(false);
     setAdjustmentText("");
     try {
-      const matrices = (proj as any).riskMatricesData || {};
-      const briefingContent = (proj as any).briefingContent || "";
+      const matrices = (proj as any).riskMatricesDataV3 || (proj as any).riskMatricesData || {};
+      const briefingContent = (proj as any).briefingContentV3 || (proj as any).briefingContent || "";
       const result = await generatePlan.mutateAsync({
         projectId,
         matrices,
@@ -834,8 +834,8 @@ export default function PlanoAcaoV3() {
     setShowAdjustment(false);
     setAdjustmentText("");
     try {
-      const matrices = (project as any).riskMatricesData || {};
-      const briefingContent = (project as any).briefingContent || "";
+      const matrices = (project as any).riskMatricesDataV3 || (project as any).riskMatricesData || {};
+      const briefingContent = (project as any).briefingContentV3 || (project as any).briefingContent || "";
       const result = await generatePlan.mutateAsync({
         projectId,
         matrices,
@@ -921,7 +921,7 @@ export default function PlanoAcaoV3() {
       clearTempData(projectId, 'etapa5');
       // Calcular dados de resumo para a tela de conclusão
       const cnaes = (project as any)?.confirmedCnaes || [];
-      const matrices = (project as any)?.riskMatricesData || {};
+      const matrices = (project as any)?.riskMatricesDataV3 || (project as any)?.riskMatricesData || {};
       const allRisksRaw = Object.entries(matrices).flatMap(([area, risks]) =>
         (risks as any[]).map((r: any) => ({ area, ...r }))
       );
