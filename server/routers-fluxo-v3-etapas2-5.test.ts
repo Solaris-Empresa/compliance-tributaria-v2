@@ -41,9 +41,12 @@ const mockDb = {
   values: vi.fn().mockReturnThis(),
   update: vi.fn().mockReturnThis(),
   set: vi.fn().mockReturnThis(),
-  where: vi.fn().mockResolvedValue(undefined),
+  // ISSUE-002/003 fix: where() deve retornar [] quando chamado após select().from()
+  // (queries de leitura como questionnaireAnswersV3 esperam um array, não undefined)
+  where: vi.fn().mockResolvedValue([]),
   select: vi.fn().mockReturnThis(),
   from: vi.fn().mockReturnThis(),
+  limit: vi.fn().mockResolvedValue([]),
 };
 
 const mockUser = {
@@ -77,12 +80,20 @@ const mockProject = {
   ],
   briefingContent: "# Briefing de Compliance\n\nEmpresa de TI com exposição ao IBS e CBS...",
   riskMatricesData: {
+    // ISSUE-002 fix: todas as 4 áreas precisam ter dados para que generateActionPlan
+    // chame generateWithRetry 4 vezes (1 por área com riscos)
     contabilidade: [
       { id: "r1", evento: "Mudança de alíquota ISS para CBS", probabilidade: "Alta", impacto: "Alto", severidade: "Crítica", plano_acao: "Revisar contratos" },
     ],
-    negocio: [],
-    ti: [],
-    juridico: [],
+    negocio: [
+      { id: "r2", evento: "Impacto do Split Payment no fluxo de caixa", probabilidade: "Alta", impacto: "Alto", severidade: "Alta", plano_acao: "Renegociar prazos" },
+    ],
+    ti: [
+      { id: "r3", evento: "Adaptação do sistema de NFS-e ao novo padrão", probabilidade: "Média", impacto: "Alto", severidade: "Alta", plano_acao: "Atualizar sistema" },
+    ],
+    juridico: [
+      { id: "r4", evento: "Revisão de contratos para cláusulas de reajuste", probabilidade: "Média", impacto: "Médio", severidade: "Média", plano_acao: "Revisar contratos" },
+    ],
   },
   actionPlansData: {
     contabilidade: [
@@ -210,7 +221,7 @@ describe("fluxoV3Router — Etapa 2: Questionário Adaptativo", () => {
     expect(result.success).toBe(true);
     const setCall = mockDb.set.mock.calls[0][0];
     expect(setCall.currentStep).toBe(3);
-    expect(setCall.status).toBe("assessment_fase2");
+    expect(setCall.status).toBe("diagnostico_cnae"); // ISSUE-001 fix: status renomeado de assessment_fase2 → diagnostico_cnae (v2.1)
   });
 });
 
