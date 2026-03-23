@@ -11,8 +11,8 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { diagnosticShadowDivergences } from "../../drizzle/schema";
-import { desc, eq, sql } from "drizzle-orm";
+import { diagnosticShadowDivergences, projects, users } from "../../drizzle/schema";
+import { desc, eq, sql, like } from "drizzle-orm";
 import { getDiagnosticReadMode } from "../diagnostic-source";
 import { compareDiagnosticSources, type ProjectRowForShadow } from "../diagnostic-shadow";
 import * as db from "../db";
@@ -179,4 +179,99 @@ export const shadowModeRouter = router({
         .where(sql`${diagnosticShadowDivergences.createdAt} < ${cutoff}`);
       return { deleted: (result as { rowsAffected?: number }).rowsAffected ?? 0 };
     }),
+
+  /**
+   * Retorna o progresso UAT: lista projetos com prefixo [UAT] e seus metadados.
+   * Inclui: etapa atual, nome da etapa, quantidade de retrocessos (via stepHistory),
+   * flowVersion, e timestamp da última atividade.
+   *
+   * Usado pelo dashboard UAT no Shadow Monitor para acompanhar os testes dos advogados.
+   */
+  getUatProgress: solarisProcedure.query(async () => {
+    const database = await getDb();
+    if (!database) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Banco de dados não disponível",
+      });
+    }
+
+    // Busca projetos com prefixo [UAT] no nome
+    const uatProjects = await database
+      .select({
+        id: projects.id,
+        name: projects.name,
+        status: projects.status,
+        currentStep: projects.currentStep,
+        currentStepName: projects.currentStepName,
+        stepHistory: projects.stepHistory,
+        createdAt: projects.createdAt,
+        updatedAt: projects.updatedAt,
+        clientId: projects.clientId,
+        createdById: projects.createdById,
+      })
+      .from(projects)
+      .where(like(projects.name, "[UAT]%"))
+      .orderBy(desc(projects.updatedAt));
+
+    // Para cada projeto UAT, calcula métricas de retrocesso a partir do stepHistory
+    const uatProgressList = await Promise.all(
+      uatProjects.map(async (project) => {
+        const history = (project.stepHistory as Array<{
+          step: number;
+          stepName: string;
+          timestamp: string;
+          userId?: number;
+        }> | null) ?? [];
+
+        // Conta retrocessos: transições onde step diminuiu
+        let retrocedeCount = 0;
+        for (let i = 1; i < history.length; i++) {
+          if (history[i].step < history[i - 1].step) {
+            retrocedeCount++;
+          }
+        }
+
+        // Busca o criador do projeto para exibir nome
+        let creatorName: string | null = null;
+        try {
+          const creator = await db.getUserById(project.createdById);
+          creatorName = creator?.name ?? null;
+        } catch {
+          // silencioso
+        }
+
+        return {
+          projectId: project.id,
+          projectName: project.name,
+          status: project.status,
+          currentStep: project.currentStep,
+          currentStepName: project.currentStepName ?? "desconhecida",
+          retrocedeCount,
+          stepHistoryLength: history.length,
+          lastActivityAt: project.updatedAt,
+          createdAt: project.createdAt,
+          creatorName,
+        };
+      })
+    );
+
+    // Resumo agregado
+    const totalProjects = uatProgressList.length;
+    const totalRetrocessos = uatProgressList.reduce((sum, p) => sum + p.retrocedeCount, 0);
+    const avgStep = totalProjects > 0
+      ? uatProgressList.reduce((sum, p) => sum + p.currentStep, 0) / totalProjects
+      : 0;
+
+    return {
+      projects: uatProgressList,
+      summary: {
+        totalProjects,
+        totalRetrocessos,
+        avgStep: Math.round(avgStep * 10) / 10,
+        readMode: getDiagnosticReadMode(),
+        generatedAt: new Date().toISOString(),
+      },
+    };
+  }),
 });
