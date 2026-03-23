@@ -186,10 +186,11 @@ export default function QuestionarioCorporativoV2() {
 
   const completarCamada = trpc.diagnostic.completeDiagnosticLayer.useMutation({
     onSuccess: () => {
-      toast.success("Questionário Corporativo concluído!", { description: "Respostas salvas com sucesso." });
+      toast.success("Questionário Corporativo concluído!", { description: "Avançando para o Diagnóstico Operacional..." });
       refetchStatus();
       setConcluido(true);
-      setTimeout(() => navigate(`/projetos/${projectId}`), 1500);
+      // v2.1: avançar automaticamente para a próxima camada do diagnóstico
+      setTimeout(() => navigate(`/projetos/${projectId}/questionario-operacional`), 1500);
     },
     onError: (err) => {
       toast.error("Erro ao concluir", { description: err.message });

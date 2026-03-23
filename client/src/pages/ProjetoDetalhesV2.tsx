@@ -86,17 +86,28 @@ const STATUS_COLORS: Record<string, string> = {
 // Mapeia status para etapa numérica (1-5) — v2.1
 function statusToStep(status: string): number {
   const map: Record<string, number> = {
-    rascunho: 1,
+    // v2.1 — novos status
+    rascunho:                1,
+    consistencia_pendente:   1,
+    cnaes_confirmados:       1,
     diagnostico_corporativo: 2,
     diagnostico_operacional: 2,
-    diagnostico_cnae: 2,
-    matriz_riscos: 3,
-    plano_acao: 4,
-    em_avaliacao: 4,
-    aprovado: 5,
-    em_andamento: 5,
-    concluido: 5,
-    arquivado: 5,
+    diagnostico_cnae:        2,
+    briefing:                3,
+    riscos:                  4,
+    plano:                   5,
+    dashboard:               5,
+    // legados v2.0
+    assessment_fase1:        2,
+    assessment_fase2:        2,
+    matriz_riscos:           3,
+    plano_acao:              4,
+    em_avaliacao:            4,
+    aprovado:                5,
+    em_andamento:            5,
+    parado:                  5,
+    concluido:               5,
+    arquivado:               5,
   };
   return map[status] ?? 1;
 }
@@ -128,9 +139,10 @@ const FLOW_STEPS: FlowStep[] = [
     label: "Diagnóstico",
     description: "3 camadas: Corporativo, Operacional e CNAE",
     icon: <ClipboardList className="w-4 h-4" />,
-    route: (id) => `/projetos/${id}/questionario-v3`,
-    completedStatuses: ["matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "concluido", "arquivado"],
-    activeStatuses: ["diagnostico_corporativo", "diagnostico_operacional", "diagnostico_cnae"],
+    // v2.1: rota aponta para o DiagnosticoStepper (hub das 3 camadas)
+    route: (id) => `/projetos/${id}/diagnostico-stepper`,
+    completedStatuses: ["briefing", "riscos", "plano", "dashboard", "matriz_riscos", "plano_acao", "em_avaliacao", "aprovado", "em_andamento", "parado", "concluido", "arquivado"],
+    activeStatuses: ["cnaes_confirmados", "diagnostico_corporativo", "diagnostico_operacional", "diagnostico_cnae"],
   },
   {
     number: 3,

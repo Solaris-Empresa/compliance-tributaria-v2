@@ -189,10 +189,11 @@ export default function QuestionarioOperacional() {
 
   const completarCamada = trpc.diagnostic.completeDiagnosticLayer.useMutation({
     onSuccess: () => {
-      toast.success("Questionário Operacional concluído!", { description: "Respostas salvas com sucesso." });
+      toast.success("Questionário Operacional concluído!", { description: "Avançando para o Diagnóstico CNAE..." });
       refetchStatus();
       setConcluido(true);
-      setTimeout(() => navigate(`/projetos/${projectId}`), 1500);
+      // v2.1: avançar automaticamente para a próxima camada do diagnóstico
+      setTimeout(() => navigate(`/projetos/${projectId}/questionario-cnae`), 1500);
     },
     onError: (err) => {
       toast.error("Erro ao concluir", { description: err.message });

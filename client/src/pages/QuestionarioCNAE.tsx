@@ -137,10 +137,11 @@ export default function QuestionarioCNAE() {
   // Mutation para completar a camada CNAE
   const completarCamada = trpc.diagnostic.completeDiagnosticLayer.useMutation({
     onSuccess: () => {
-      toast.success("Questionário Especializado por CNAE concluído!", { description: "Respostas salvas com sucesso." });
+      toast.success("Diagnóstico CNAE concluído!", { description: "Todas as 3 camadas concluídas. Gerando Briefing..." });
       refetchStatus();
       setConcluido(true);
-      setTimeout(() => navigate(`/projetos/${projectId}`), 1500);
+      // v2.1: todas as 3 camadas concluídas — avançar para o Briefing
+      setTimeout(() => navigate(`/projetos/${projectId}/briefing-v3`), 1500);
     },
     onError: (err) => {
       toast.error("Erro ao concluir", { description: err.message });

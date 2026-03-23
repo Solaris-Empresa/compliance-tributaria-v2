@@ -426,9 +426,10 @@ export default function NovoProjeto() {
   const confirmCnaes = trpc.fluxoV3.confirmCnaes.useMutation({
     onSuccess: () => {
       clearTempData(DRAFT_PROJECT_ID, 'etapa1');
-      toast.success("CNAEs confirmados! Avançando para o questionário...");
+      toast.success("CNAEs confirmados! Iniciando Diagnóstico Corporativo...");
       setShowCnaeModal(false);
-      setLocation(`/projetos/${projectId}/questionario-v3`);
+      // v2.1: navegar para o novo fluxo de diagnóstico em 3 camadas
+      setLocation(`/projetos/${projectId}/questionario-corporativo-v2`);
     },
     onError: (err) => toast.error(`Erro: ${err.message}`),
   });
