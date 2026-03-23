@@ -165,12 +165,24 @@ export interface ProjectStateSnapshot {
   consistencyCheckStatus?: string | null;
   consistencyAcceptedRisk?: boolean | null;
   confirmedCnaes?: unknown;
+  // ── Fluxo V1 ────────────────────────────────────────────────────────────
   corporateAnswers?: unknown;
   operationalAnswers?: unknown;
   cnaeAnswers?: unknown;
+  /** Briefing gerado pelo Fluxo V1 (coluna briefingContent). @deprecated para V3 use briefingContentV3 */
   briefingContent?: string | null;
+  /** Matrizes de risco do Fluxo V1 (coluna riskMatricesData). @deprecated para V3 use riskMatricesDataV3 */
   riskMatricesData?: unknown;
+  /** Plano de ação do Fluxo V1 (coluna actionPlansData). @deprecated para V3 use actionPlansDataV3 */
   actionPlansData?: unknown;
+  // ── Fluxo V3 ────────────────────────────────────────────────────────────
+  questionnaireAnswersV3?: unknown;
+  briefingContentV3?: string | null;
+  riskMatricesDataV3?: unknown;
+  actionPlansDataV3?: unknown;
+  // ── Compartilhado ────────────────────────────────────────────────────────────
+  /** Versão do fluxo detectada pelo adaptador getDiagnosticSource: 'v1' | 'v3' | 'hybrid' | 'none' */
+  flowVersion?: string;
   diagnosticStatus?: unknown;
 }
 
@@ -290,21 +302,30 @@ function checkGate(gate: string, project: ProjectStateSnapshot): GateResult {
     }
 
     case "briefing_gerado": {
-      if (!project.briefingContent) {
+      // V3: verifica briefingContentV3; V1 (ou sem flowVersion): verifica briefingContent
+      const isV3 = project.flowVersion === "v3" || project.flowVersion === "hybrid";
+      const hasBriefing = isV3 ? !!project.briefingContentV3 : !!project.briefingContent;
+      if (!hasBriefing) {
         return { passed: false, reason: "Briefing ainda não foi gerado." };
       }
       return { passed: true };
     }
 
     case "riscos_gerados": {
-      if (!project.riskMatricesData) {
+      // V3: verifica riskMatricesDataV3; V1 (ou sem flowVersion): verifica riskMatricesData
+      const isV3 = project.flowVersion === "v3" || project.flowVersion === "hybrid";
+      const hasRisks = isV3 ? !!project.riskMatricesDataV3 : !!project.riskMatricesData;
+      if (!hasRisks) {
         return { passed: false, reason: "Matrizes de risco ainda não foram geradas." };
       }
       return { passed: true };
     }
 
     case "plano_gerado": {
-      if (!project.actionPlansData) {
+      // V3: verifica actionPlansDataV3; V1 (ou sem flowVersion): verifica actionPlansData
+      const isV3 = project.flowVersion === "v3" || project.flowVersion === "hybrid";
+      const hasPlan = isV3 ? !!project.actionPlansDataV3 : !!project.actionPlansData;
+      if (!hasPlan) {
         return { passed: false, reason: "Plano de ação ainda não foi gerado." };
       }
       return { passed: true };
@@ -342,9 +363,20 @@ export function getResumePoint(project: ProjectStateSnapshot): {
       hasCorporateAnswers: !!project.corporateAnswers,
       hasOperationalAnswers: !!project.operationalAnswers,
       hasCnaeAnswers: !!project.cnaeAnswers,
-      hasBriefing: !!project.briefingContent,
-      hasRisks: !!project.riskMatricesData,
-      hasPlan: !!project.actionPlansData,
+      // Briefing: V3 usa briefingContentV3, V1 usa briefingContent
+      hasBriefing: project.flowVersion === "v3" || project.flowVersion === "hybrid"
+        ? !!project.briefingContentV3
+        : !!project.briefingContent,
+      // Riscos: V3 usa riskMatricesDataV3, V1 usa riskMatricesData
+      hasRisks: project.flowVersion === "v3" || project.flowVersion === "hybrid"
+        ? !!project.riskMatricesDataV3
+        : !!project.riskMatricesData,
+      // Plano: V3 usa actionPlansDataV3, V1 usa actionPlansData
+      hasPlan: project.flowVersion === "v3" || project.flowVersion === "hybrid"
+        ? !!project.actionPlansDataV3
+        : !!project.actionPlansData,
+      // Metadados do adaptador
+      flowVersion: project.flowVersion || "v1",
     },
   };
 }

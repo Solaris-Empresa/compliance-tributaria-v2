@@ -6,6 +6,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
+import { getDiagnosticSource } from "../diagnostic-source";
 import { projects } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import {
@@ -64,18 +65,28 @@ export const flowRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // F-02C: Leitura centralizada via adaptador (ADR-005)
+      const diagSource = await getDiagnosticSource(project.id);
       const snapshot: ProjectStateSnapshot = {
         id: project.id,
         currentStep: project.currentStep,
         currentStepName: project.currentStepName,
         status: project.status,
         confirmedCnaes: project.confirmedCnaes,
-        corporateAnswers: project.corporateAnswers,
-        operationalAnswers: project.operationalAnswers,
-        cnaeAnswers: project.cnaeAnswers,
-        briefingContent: project.briefingContent,
-        riskMatricesData: project.riskMatricesData,
-        actionPlansData: project.actionPlansData,
+        // V1
+        corporateAnswers: diagSource.corporateAnswers,
+        operationalAnswers: diagSource.operationalAnswers,
+        cnaeAnswers: diagSource.cnaeAnswers,
+        briefingContent: diagSource.briefingContentV3 ?? project.briefingContent,
+        riskMatricesData: diagSource.riskMatricesDataV3 ?? project.riskMatricesData,
+        actionPlansData: diagSource.actionPlansDataV3 ?? project.actionPlansData,
+        // V3
+        questionnaireAnswersV3: diagSource.questionnaireAnswersV3,
+        briefingContentV3: diagSource.briefingContentV3,
+        riskMatricesDataV3: diagSource.riskMatricesDataV3,
+        actionPlansDataV3: diagSource.actionPlansDataV3,
+        // Compartilhado
+        flowVersion: diagSource.flowVersion,
         diagnosticStatus: project.diagnosticStatus,
       };
 
@@ -147,18 +158,28 @@ export const flowRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // F-02C: Leitura centralizada via adaptador (ADR-005)
+      const diagSource = await getDiagnosticSource(project.id);
       const snapshot: ProjectStateSnapshot = {
         id: project.id,
         currentStep: project.currentStep,
         currentStepName: project.currentStepName,
         status: project.status,
         confirmedCnaes: project.confirmedCnaes,
-        corporateAnswers: project.corporateAnswers,
-        operationalAnswers: project.operationalAnswers,
-        cnaeAnswers: project.cnaeAnswers,
-        briefingContent: project.briefingContent,
-        riskMatricesData: project.riskMatricesData,
-        actionPlansData: project.actionPlansData,
+        // V1
+        corporateAnswers: diagSource.corporateAnswers,
+        operationalAnswers: diagSource.operationalAnswers,
+        cnaeAnswers: diagSource.cnaeAnswers,
+        briefingContent: diagSource.briefingContentV3 ?? project.briefingContent,
+        riskMatricesData: diagSource.riskMatricesDataV3 ?? project.riskMatricesData,
+        actionPlansData: diagSource.actionPlansDataV3 ?? project.actionPlansData,
+        // V3
+        questionnaireAnswersV3: diagSource.questionnaireAnswersV3,
+        briefingContentV3: diagSource.briefingContentV3,
+        riskMatricesDataV3: diagSource.riskMatricesDataV3,
+        actionPlansDataV3: diagSource.actionPlansDataV3,
+        // Compartilhado
+        flowVersion: diagSource.flowVersion,
         diagnosticStatus: project.diagnosticStatus,
       };
 
@@ -200,18 +221,28 @@ export const flowRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
       }
 
+      // F-02C: Leitura centralizada via adaptador (ADR-005)
+      const diagSource = await getDiagnosticSource(project.id);
       const snapshot: ProjectStateSnapshot = {
         id: project.id,
         currentStep: project.currentStep,
         currentStepName: project.currentStepName,
         status: project.status,
         confirmedCnaes: project.confirmedCnaes,
-        corporateAnswers: project.corporateAnswers,
-        operationalAnswers: project.operationalAnswers,
-        cnaeAnswers: project.cnaeAnswers,
-        briefingContent: project.briefingContent,
-        riskMatricesData: project.riskMatricesData,
-        actionPlansData: project.actionPlansData,
+        // V1
+        corporateAnswers: diagSource.corporateAnswers,
+        operationalAnswers: diagSource.operationalAnswers,
+        cnaeAnswers: diagSource.cnaeAnswers,
+        briefingContent: diagSource.briefingContentV3 ?? project.briefingContent,
+        riskMatricesData: diagSource.riskMatricesDataV3 ?? project.riskMatricesData,
+        actionPlansData: diagSource.actionPlansDataV3 ?? project.actionPlansData,
+        // V3
+        questionnaireAnswersV3: diagSource.questionnaireAnswersV3,
+        briefingContentV3: diagSource.briefingContentV3,
+        riskMatricesDataV3: diagSource.riskMatricesDataV3,
+        actionPlansDataV3: diagSource.actionPlansDataV3,
+        // Compartilhado
+        flowVersion: diagSource.flowVersion,
         diagnosticStatus: project.diagnosticStatus,
       };
 
