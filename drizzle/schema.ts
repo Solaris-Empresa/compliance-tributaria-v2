@@ -1622,3 +1622,30 @@ export const cpieSettings = mysqlTable("cpie_settings", {
 });
 export type CpieSettings = typeof cpieSettings.$inferSelect;
 export type InsertCpieSettings = typeof cpieSettings.$inferInsert;
+
+// ─── Shadow Mode F-04: Tabela de divergências ─────────────────────────────────
+/**
+ * Registra divergências detectadas pelo Shadow Mode do getDiagnosticSource.
+ * Populada apenas quando DIAGNOSTIC_READ_MODE=shadow.
+ * Usada para validar que as novas colunas V1/V3 estão corretas antes da Fase 3.
+ * ADR-009 (Shadow Mode).
+ */
+export const diagnosticShadowDivergences = mysqlTable(
+  "diagnostic_shadow_divergences",
+  {
+    id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
+    projectId: bigint("project_id", { mode: "number" }).notNull(),
+    flowVersion: varchar("flow_version", { length: 20 }).notNull(),
+    fieldName: varchar("field_name", { length: 50 }).notNull(),
+    legacySourceColumn: varchar("legacy_source_column", { length: 100 }),
+    newSourceColumn: varchar("new_source_column", { length: 100 }),
+    legacyValueJson: json("legacy_value_json"),
+    newValueJson: json("new_value_json"),
+    reason: text("reason").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  }
+);
+export type DiagnosticShadowDivergence =
+  typeof diagnosticShadowDivergences.$inferSelect;
+export type InsertDiagnosticShadowDivergence =
+  typeof diagnosticShadowDivergences.$inferInsert;

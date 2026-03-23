@@ -1,0 +1,160 @@
+/**
+ * IA SOLARIS — Shadow Mode Router
+ * ─────────────────────────────────────────────────────────────────────────────
+ * ADR-009: Endpoints de consulta e controle do Shadow Mode.
+ *
+ * Acesso restrito a perfil equipe_solaris.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+import { z } from "zod";
+import { TRPCError } from "@trpc/server";
+import { router, protectedProcedure } from "../_core/trpc";
+import { getDb } from "../db";
+import { diagnosticShadowDivergences } from "../../drizzle/schema";
+import { desc, eq, sql } from "drizzle-orm";
+import { getDiagnosticReadMode } from "../diagnostic-source";
+import { compareDiagnosticSources, type ProjectRowForShadow } from "../diagnostic-shadow";
+import * as db from "../db";
+
+/** Guard: apenas equipe_solaris pode acessar endpoints de Shadow Mode */
+const solarisProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.role !== "equipe_solaris") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "[shadowMode] Acesso restrito à equipe Solaris.",
+    });
+  }
+  return next({ ctx });
+});
+
+export const shadowModeRouter = router({
+  /**
+   * Retorna o modo de leitura atual do adaptador.
+   */
+  getReadMode: solarisProcedure.query(() => {
+    return {
+      mode: getDiagnosticReadMode(),
+      description: {
+        legacy: "Lê apenas colunas legadas (padrão de produção)",
+        shadow: "Lê legadas + novas, compara, loga divergências, retorna legadas",
+        new: "Lê apenas novas colunas V1/V3 (ativar somente após divergência = 0%)",
+      },
+    };
+  }),
+
+  /**
+   * Lista as últimas divergências registradas (paginado).
+   */
+  listDivergences: solarisProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+        projectId: z.number().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const database = await getDb();
+      if (!database) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Banco de dados não disponível",
+        });
+      }
+
+      const query = database
+        .select()
+        .from(diagnosticShadowDivergences)
+        .orderBy(desc(diagnosticShadowDivergences.createdAt))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      const rows = await query;
+
+      const countResult = await database
+        .select({ count: sql<number>`count(*)` })
+        .from(diagnosticShadowDivergences);
+
+      return {
+        divergences: rows,
+        total: countResult[0]?.count ?? 0,
+        limit: input.limit,
+        offset: input.offset,
+      };
+    }),
+
+  /**
+   * Retorna o resumo de divergências agrupado por campo.
+   */
+  getDivergenceSummary: solarisProcedure.query(async () => {
+    const database = await getDb();
+    if (!database) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Banco de dados não disponível",
+      });
+    }
+
+    const byField = await database
+      .select({
+        fieldName: diagnosticShadowDivergences.fieldName,
+        count: sql<number>`count(*)`,
+      })
+      .from(diagnosticShadowDivergences)
+      .groupBy(diagnosticShadowDivergences.fieldName);
+
+    const byFlowVersion = await database
+      .select({
+        flowVersion: diagnosticShadowDivergences.flowVersion,
+        count: sql<number>`count(*)`,
+      })
+      .from(diagnosticShadowDivergences)
+      .groupBy(diagnosticShadowDivergences.flowVersion);
+
+    const totalResult = await database
+      .select({ count: sql<number>`count(*)` })
+      .from(diagnosticShadowDivergences);
+
+    return {
+      total: totalResult[0]?.count ?? 0,
+      byField,
+      byFlowVersion,
+      readMode: getDiagnosticReadMode(),
+    };
+  }),
+
+  /**
+   * Executa uma comparação on-demand para um projeto específico (sem persistir).
+   * Útil para diagnóstico manual antes de ativar o Shadow Mode.
+   */
+  compareProject: solarisProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Projeto ${input.projectId} não encontrado`,
+        });
+      }
+
+      const projectRow: ProjectRowForShadow = {
+        id: project.id,
+        questionnaireAnswers: project.questionnaireAnswers,
+        corporateAnswers: project.corporateAnswers,
+        operationalAnswers: project.operationalAnswers,
+        briefingContent: (project as Record<string, unknown>).briefingContent as string | null ?? null,
+        riskMatricesData: (project as Record<string, unknown>).riskMatricesData ?? null,
+        actionPlansData: (project as Record<string, unknown>).actionPlansData ?? null,
+        briefingContentV1: (project as Record<string, unknown>).briefingContentV1 as string | null ?? null,
+        briefingContentV3: (project as Record<string, unknown>).briefingContentV3 as string | null ?? null,
+        riskMatricesDataV1: (project as Record<string, unknown>).riskMatricesDataV1 ?? null,
+        riskMatricesDataV3: (project as Record<string, unknown>).riskMatricesDataV3 ?? null,
+        actionPlansDataV1: (project as Record<string, unknown>).actionPlansDataV1 ?? null,
+        actionPlansDataV3: (project as Record<string, unknown>).actionPlansDataV3 ?? null,
+      };
+
+      return compareDiagnosticSources(projectRow);
+    }),
+});

@@ -1,7 +1,8 @@
 /**
- * IA SOLARIS — Diagnostic Source Adapter v1.0
+ * IA SOLARIS — Diagnostic Source Adapter v2.0
  * ─────────────────────────────────────────────────────────────────────────────
  * ADR-005: Adaptador centralizado de leitura de fontes de diagnóstico.
+ * ADR-009: Shadow Mode integrado — controlado por DIAGNOSTIC_READ_MODE.
  *
  * REGRA ABSOLUTA:
  * Nenhum endpoint pode ler colunas de diagnóstico diretamente do banco.
@@ -35,6 +36,27 @@ import * as db from "./db";
 import { getDb } from "./db";
 import { briefings, riskMatrix, actionPlans } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import {
+  runShadowComparison,
+  readNewDiagnosticSource,
+  createDivergenceLogger,
+  type ProjectRowForShadow,
+} from "./diagnostic-shadow";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SHADOW MODE — Modo de leitura controlado por variável de ambiente
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Retorna o modo de leitura atual do adaptador.
+ * Controlado pela variável de ambiente DIAGNOSTIC_READ_MODE.
+ * Default: 'legacy' (seguro para produção).
+ */
+export function getDiagnosticReadMode(): "legacy" | "shadow" | "new" {
+  const mode = process.env.DIAGNOSTIC_READ_MODE;
+  if (mode === "shadow" || mode === "new") return mode;
+  return "legacy";
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TIPOS
@@ -278,6 +300,68 @@ export async function getDiagnosticSource(
     actionPlansV1 = planRows as ActionPlanRecordV1[];
   }
 
+  // ── Shadow Mode / New Mode (ADR-009) ──────────────────────────────────────
+  const readMode = getDiagnosticReadMode();
+
+  if (readMode === "shadow") {
+    // Shadow: lê legadas + novas, compara, loga divergências, retorna legadas
+    const projectRow: ProjectRowForShadow = {
+      id: project.id,
+      questionnaireAnswers: project.questionnaireAnswers,
+      corporateAnswers: project.corporateAnswers,
+      operationalAnswers: project.operationalAnswers,
+      briefingContent: (project as Record<string, unknown>).briefingContent as string | null ?? null,
+      riskMatricesData: (project as Record<string, unknown>).riskMatricesData ?? null,
+      actionPlansData: (project as Record<string, unknown>).actionPlansData ?? null,
+      briefingContentV1: (project as Record<string, unknown>).briefingContentV1 as string | null ?? null,
+      briefingContentV3: (project as Record<string, unknown>).briefingContentV3 as string | null ?? null,
+      riskMatricesDataV1: (project as Record<string, unknown>).riskMatricesDataV1 ?? null,
+      riskMatricesDataV3: (project as Record<string, unknown>).riskMatricesDataV3 ?? null,
+      actionPlansDataV1: (project as Record<string, unknown>).actionPlansDataV1 ?? null,
+      actionPlansDataV3: (project as Record<string, unknown>).actionPlansDataV3 ?? null,
+    };
+    const logger = createDivergenceLogger();
+    // Fire-and-forget: não bloqueia o fluxo principal
+    runShadowComparison(projectRow, logger).catch((err) =>
+      console.error("[getDiagnosticSource] Shadow comparison error:", err)
+    );
+    // Retorna dados legados (invariante de produção)
+  } else if (readMode === "new") {
+    // New: lê apenas novas colunas V1/V3 (ativar somente após divergência = 0%)
+    const projectRow: ProjectRowForShadow = {
+      id: project.id,
+      questionnaireAnswers: project.questionnaireAnswers,
+      corporateAnswers: project.corporateAnswers,
+      operationalAnswers: project.operationalAnswers,
+      briefingContent: (project as Record<string, unknown>).briefingContent as string | null ?? null,
+      riskMatricesData: (project as Record<string, unknown>).riskMatricesData ?? null,
+      actionPlansData: (project as Record<string, unknown>).actionPlansData ?? null,
+      briefingContentV1: (project as Record<string, unknown>).briefingContentV1 as string | null ?? null,
+      briefingContentV3: (project as Record<string, unknown>).briefingContentV3 as string | null ?? null,
+      riskMatricesDataV1: (project as Record<string, unknown>).riskMatricesDataV1 ?? null,
+      riskMatricesDataV3: (project as Record<string, unknown>).riskMatricesDataV3 ?? null,
+      actionPlansDataV1: (project as Record<string, unknown>).actionPlansDataV1 ?? null,
+      actionPlansDataV3: (project as Record<string, unknown>).actionPlansDataV3 ?? null,
+    };
+    const newResult = readNewDiagnosticSource(projectRow);
+    // Override os campos de conteúdo com os novos
+    return {
+      flowVersion,
+      projectId,
+      corporateAnswers,
+      operationalAnswers,
+      cnaeAnswers,
+      briefingV1,
+      risksV1,
+      actionPlansV1,
+      questionnaireAnswersV3,
+      briefingContentV3: newResult.briefingContent,
+      riskMatricesDataV3: newResult.riskMatricesData as Record<string, unknown[]> | null,
+      actionPlansDataV3: newResult.actionPlansData as Record<string, unknown[]> | null,
+    };
+  }
+
+  // Legacy (default): retorna dados das colunas legadas
   return {
     flowVersion,
     projectId,

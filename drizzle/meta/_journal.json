@@ -372,6 +372,13 @@
       "when": 1774268182271,
       "tag": "0052_stormy_phalanx",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "5",
+      "when": 1774271434421,
+      "tag": "0053_slow_maggott",
+      "breakpoints": true
     }
   ]
 }
