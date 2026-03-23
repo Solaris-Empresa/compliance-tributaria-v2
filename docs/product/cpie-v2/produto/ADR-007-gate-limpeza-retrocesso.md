@@ -2,7 +2,7 @@
 
 **Número:** ADR-007  
 **Título:** Gate de Limpeza de Dados no Retrocesso do Fluxo  
-**Status:** `AGUARDANDO APROVAÇÃO DO P.O.`  
+**Status:** `APROVADO — F-03 AUTORIZADA`  
 **Data:** 2026-03-22  
 **Autor:** Manus AI  
 **Referências:** ADR-005 (Isolamento Físico), ADR-006 (Validação Prática), F-02 (Migração Concluída)  
@@ -71,15 +71,9 @@ A limpeza é **em cascata a partir do ponto de retrocesso**. Os dados limpos dep
 
 ### 3.3 — Como preservar auditabilidade
 
-A limpeza **não apaga dados permanentemente**. O mecanismo de auditabilidade é:
+**Decisão do P.O. (2026-03-23):** Sem audit log. Os dados de diagnóstico são regeneráveis a qualquer momento — não há necessidade de preservar snapshots históricos. A auditabilidade é garantida pelo histórico de commits no GitHub e pelos logs de atividade do servidor.
 
-1. **Tabela `projectAuditLog`** (nova, criada na F-03): antes de limpar qualquer coluna, o sistema registra um snapshot dos dados que serão limpos, com `projectId`, `userId`, `timestamp`, `stepFrom`, `stepTo`, `dataSnapshot` (JSON comprimido).
-
-2. **Coluna `lastRetrocedeAt`** (nova, na tabela `projects`): timestamp da última vez que o projeto retrocedeu, para rastreabilidade rápida.
-
-3. **Os dados limpos são `null`**, não deletados da tabela — o histórico de versões do banco (via backups e WAL) preserva o estado anterior.
-
-> **Decisão de compliance:** Para produto de compliance tributário, o log de auditoria é obrigatório. Qualquer limpeza de dados deve ser rastreável com identificação do usuário, timestamp e conteúdo anterior.
+Os dados limpos são definidos como `null` na tabela — a limpeza é definitiva e imediata.
 
 ### 3.4 — Como evitar perda indevida ao usuário
 
@@ -135,28 +129,9 @@ O checkpoint `1cbe8f76` (F-02D concluída) é o ponto de restauração seguro an
 
 ## 4. Modelo de Dados da F-03
 
-### 4.1 Nova tabela: `projectAuditLog`
+### 4.1 Sem novas tabelas
 
-```typescript
-// drizzle/schema.ts — adição F-03
-export const projectAuditLog = mysqlTable("project_audit_log", {
-  id: int("id").autoincrement().primaryKey(),
-  projectId: int("project_id").notNull(),
-  userId: int("user_id").notNull(),
-  action: varchar("action", { length: 50 }).notNull(), // "retrocesso_com_limpeza"
-  stepFrom: int("step_from").notNull(),
-  stepTo: int("step_to").notNull(),
-  dataSnapshot: json("data_snapshot"), // snapshot dos dados limpos (comprimido)
-  createdAt: bigint("created_at", { mode: "number" }).notNull(),
-});
-```
-
-### 4.2 Nova coluna: `lastRetrocedeAt`
-
-```typescript
-// drizzle/schema.ts — adição F-03 na tabela projects
-lastRetrocedeAt: bigint("last_retrocede_at", { mode: "number" }),
-```
+**Decisão do P.O. (2026-03-23):** Sem tabela `projectAuditLog` e sem coluna `lastRetrocedeAt`. A F-03 não altera o schema do banco — apenas adiciona lógica de limpeza no endpoint de salvamento. Isso elimina a necessidade de migration e simplifica o rollback.
 
 ---
 
@@ -171,13 +146,11 @@ lastRetrocedeAt: bigint("last_retrocede_at", { mode: "number" }),
     ↓
 [determineCleanupScope(stepTo, flowVersion) → lista de colunas a limpar]
     ↓
-[db.createAuditLog(snapshot dos dados antes da limpeza)]
-    ↓
 [db.cleanDiagnosticData(projectId, colunas) → SET col = NULL]
     ↓
-[db.updateProject(projectId, { currentStep: stepTo, lastRetrocedeAt: now() })]
+[db.updateProject(projectId, { currentStep: stepTo })]
     ↓
-[retorna { success: true, cleanedColumns: [...], auditLogId: N }]
+[retorna { success: true, cleanedColumns: [...] }]
 ```
 
 ---
@@ -214,13 +187,18 @@ Para que a F-03 seja aprovada, todos os critérios abaixo devem ser atendidos:
 ## 8. Aprovação
 
 ```
-Status:    AGUARDANDO APROVAÇÃO DO P.O.
-Aprovado:  ________________________________
-Data:      ________________________________
-Observações: ______________________________
+Status:      APROVADO
+Aprovado:    P.O. — Solaris Empresa
+Data:        2026-03-23
+Observações: Decisões do P.O. incorporadas:
+             1. Limpeza total ao salvar em etapa anterior (sem limpeza parcial)
+             2. Sem tabela de audit log — simplicidade operacional
+             3. Sem backup antes da limpeza — dados de diagnóstico são regeneráveis
+             4. Sem retenção de dados limpos — limpeza definitiva
+             5. F-03 autorizada para início imediato
 ```
 
-**Sem aprovação deste ADR, a F-03 não pode ser iniciada.**
+**F-03 AUTORIZADA. Implementação pode iniciar.**
 
 ---
 

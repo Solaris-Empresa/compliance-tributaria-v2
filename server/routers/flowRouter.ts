@@ -17,6 +17,11 @@ import {
   type FlowStep,
   type ProjectStateSnapshot,
 } from "../flowStateMachine";
+import {
+  executeRetrocessoCleanup,
+  retrocessoRequiresCleanup,
+  getRetrocessoWarningMessage,
+} from "../retrocesso-cleanup";
 
 const flowStepSchema = z.enum([
   "perfil_empresa",
@@ -99,6 +104,18 @@ export const flowRouter = router({
             message: validation.reason || "Transição não permitida",
           });
         }
+      }
+
+      // F-03: Gate de limpeza ao retroceder (ADR-007)
+      // Se targetStep < currentStep, limpar dados das etapas posteriores ao destino
+      const targetStepConfig = FLOW_STEPS.find((s) => s.stepName === input.stepName);
+      if (targetStepConfig && targetStepConfig.stepNumber < (project.currentStep ?? 1)) {
+        await executeRetrocessoCleanup(
+          project.id,
+          project.currentStep ?? 1,
+          targetStepConfig.stepNumber,
+          diagSource.flowVersion
+        );
       }
 
       // Determinar novo número de etapa e status
@@ -280,6 +297,58 @@ export const flowRouter = router({
         currentStepName: project.currentStepName,
         stepUpdatedAt: project.stepUpdatedAt,
         history: project.stepHistory || [],
+      };
+    }),
+
+  /**
+   * F-03: Verifica se um retrocesso de etapa requer limpeza de dados.
+   * Chamado pelo frontend antes de executar o retrocesso para exibir modal de confirmação.
+   */
+  checkRetrocesso: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        targetStep: flowStepSchema,
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB indisponível" });
+
+      const [project] = await db
+        .select()
+        .from(projects)
+        .where(eq(projects.id, input.projectId))
+        .limit(1);
+
+      if (!project) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+      }
+
+      if (project.clientId !== ctx.user.id && ctx.user.role === "cliente") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      const targetStepConfig = FLOW_STEPS.find((s) => s.stepName === input.targetStep);
+      if (!targetStepConfig) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Etapa inválida" });
+      }
+
+      const diagSource = await getDiagnosticSource(project.id);
+      const fromStep = project.currentStep ?? 1;
+      const toStep = targetStepConfig.stepNumber;
+
+      const requiresCleanup = retrocessoRequiresCleanup(fromStep, toStep, diagSource.flowVersion);
+      const warningMessage = requiresCleanup
+        ? getRetrocessoWarningMessage(fromStep, toStep, diagSource.flowVersion)
+        : "";
+
+      return {
+        requiresCleanup,
+        warningMessage,
+        fromStep,
+        toStep,
+        flowVersion: diagSource.flowVersion,
       };
     }),
 
