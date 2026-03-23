@@ -11,6 +11,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import * as db from "../db";
+import { getDiagnosticSource } from "../diagnostic-source";
 import {
   consolidateDiagnosticLayers,
   isDiagnosticComplete,
@@ -117,9 +118,11 @@ export const diagnosticRouter = router({
         operational: "not_started",
         cnae: "not_started",
       };
-      const corporateAnswers = p.corporateAnswers ?? null;
-      const operationalAnswers = p.operationalAnswers ?? null;
-      const cnaeAnswers = p.cnaeAnswers ?? null;
+      // F-02D: Leitura centralizada via adaptador (ADR-005)
+      const diagSource = await getDiagnosticSource(input.projectId);
+      const corporateAnswers = diagSource.corporateAnswers ?? null;
+      const operationalAnswers = diagSource.operationalAnswers ?? null;
+      const cnaeAnswers = diagSource.cnaeAnswers ?? null;
       const aggregatedDiagnosticAnswers = consolidateDiagnosticLayers({
         companyProfile: p.companyProfile ?? null,
         operationProfile: p.operationProfile ?? null,
@@ -138,9 +141,10 @@ export const diagnosticRouter = router({
         isComplete: complete,
         nextLayer,
         progress,
+        flowVersion: diagSource.flowVersion,
         layerCount: {
-          corporate: corporateAnswers ? Object.keys(corporateAnswers).length : 0,
-          operational: operationalAnswers ? Object.keys(operationalAnswers).length : 0,
+          corporate: corporateAnswers ? Object.keys(corporateAnswers as Record<string, unknown>).length : 0,
+          operational: operationalAnswers ? Object.keys(operationalAnswers as Record<string, unknown>).length : 0,
           cnae: Array.isArray(cnaeAnswers) ? cnaeAnswers.length : 0,
         },
       };
@@ -233,13 +237,15 @@ export const diagnosticRouter = router({
         });
       }
       const p = project as any;
+      // F-02D: Leitura centralizada via adaptador (ADR-005)
+      const diagSourceBriefing = await getDiagnosticSource(input.projectId);
       const aggregatedDiagnosticAnswers = consolidateDiagnosticLayers({
         companyProfile: p.companyProfile ?? null,
         operationProfile: p.operationProfile ?? null,
         taxComplexity: p.taxComplexity ?? null,
         financialProfile: p.financialProfile ?? null,
         governanceProfile: p.governanceProfile ?? null,
-        cnaeAnswers: Array.isArray(p.cnaeAnswers) ? p.cnaeAnswers : [],
+        cnaeAnswers: Array.isArray(diagSourceBriefing.cnaeAnswers) ? diagSourceBriefing.cnaeAnswers : [],
       });
       // Usar o generateBriefing existente com o payload consolidado
       const briefingContext = JSON.stringify(aggregatedDiagnosticAnswers, null, 2);
