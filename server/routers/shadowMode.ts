@@ -85,9 +85,10 @@ export const shadowModeRouter = router({
     }),
 
   /**
-   * Retorna o resumo de divergências agrupado por campo.
+   * Retorna o resumo de divergências agrupado por campo e flowVersion.
+   * Nomenclatura: summarizeDivergences (conforme ADR-009 spec).
    */
-  getDivergenceSummary: solarisProcedure.query(async () => {
+  summarizeDivergences: solarisProcedure.query(async () => {
     const database = await getDb();
     if (!database) {
       throw new TRPCError({
