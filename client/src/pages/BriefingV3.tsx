@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import FlowStepper from "@/components/FlowStepper";
+import RetrocessoConfirmModal from "@/components/RetrocessoConfirmModal";
 import { statusToCompletedStep } from "@/lib/flowStepperUtils";
 import {
   ArrowLeft, ChevronRight, Loader2, Sparkles,
@@ -110,6 +111,13 @@ export default function BriefingV3() {
 
   const [briefing, setBriefing] = useState<string>("");
   const [feedbackMode, setFeedbackMode] = useState<"none" | "correction" | "more_info">("none");
+  // Issue #59 — gate de retrocesso no botão Voltar
+  const [retrocessoModal, setRetrocessoModal] = useState<{ open: boolean; targetUrl: string; toStep: number; toStepLabel: string }>({
+    open: false, targetUrl: "", toStep: 0, toStepLabel: ""
+  });
+  const handleVoltarClick = (targetUrl: string, toStep: number, toStepLabel: string) => {
+    setRetrocessoModal({ open: true, targetUrl, toStep, toStepLabel });
+  };
   const [feedbackText, setFeedbackText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
@@ -376,7 +384,7 @@ export default function BriefingV3() {
         )}
         {/* Header */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" className="gap-2 text-sm shrink-0" onClick={() => setLocation(`/projetos/${projectId}/questionario-v3`)}>
+          <Button variant="ghost" className="gap-2 text-sm shrink-0" onClick={() => handleVoltarClick(`/projetos/${projectId}/questionario-v3`, 2, "Questionário")}>
             <ArrowLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Voltar ao Questionário</span>
             <span className="sm:hidden">Voltar</span>
@@ -413,6 +421,16 @@ export default function BriefingV3() {
 
         {/* Stepper — clicável para etapas concluídas */}
         <FlowStepper currentStep={3} projectId={projectId} completedUpTo={statusToCompletedStep(project?.status)} />
+        {/* Issue #59 — modal de confirmação de retrocesso */}
+        <RetrocessoConfirmModal
+          open={retrocessoModal.open}
+          projectId={projectId}
+          fromStep={3}
+          toStep={retrocessoModal.toStep}
+          toStepLabel={retrocessoModal.toStepLabel}
+          onConfirm={() => { setRetrocessoModal(m => ({ ...m, open: false })); setLocation(retrocessoModal.targetUrl); }}
+          onCancel={() => setRetrocessoModal(m => ({ ...m, open: false }))}
+        />
 
         {/* V64: Alertas de Inconsistência — exibido apenas quando há inconsistências */}
         {/* V70.2: onCorrigir habilita o botão "Corrigir no Questionário" em cada inconsistência */}

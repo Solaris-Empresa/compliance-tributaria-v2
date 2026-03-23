@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import FlowStepper from "@/components/FlowStepper";
+import RetrocessoConfirmModal from "@/components/RetrocessoConfirmModal";
 import { statusToCompletedStep } from "@/lib/flowStepperUtils";
 import {
   ArrowLeft, ChevronRight, Loader2, Sparkles,
@@ -159,6 +160,13 @@ export default function MatrizesV3() {
   const projectId = Number(id);
 
   const [matrices, setMatrices] = useState<Record<string, Risk[]>>({});
+  // Issue #59 — gate de retrocesso no botão Voltar
+  const [retrocessoModal, setRetrocessoModal] = useState<{ open: boolean; targetUrl: string; toStep: number; toStepLabel: string }>({
+    open: false, targetUrl: "", toStep: 0, toStepLabel: ""
+  });
+  const handleVoltarClick = (targetUrl: string, toStep: number, toStepLabel: string) => {
+    setRetrocessoModal({ open: true, targetUrl, toStep, toStepLabel });
+  };
   const [activeTab, setActiveTab] = useState("contabilidade");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
@@ -461,7 +469,7 @@ export default function MatrizesV3() {
         )}
         {/* Header */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" className="gap-2 text-sm shrink-0" onClick={() => setLocation(`/projetos/${projectId}/briefing-v3`)}>
+          <Button variant="ghost" className="gap-2 text-sm shrink-0" onClick={() => handleVoltarClick(`/projetos/${projectId}/briefing-v3`, 3, "Briefing")}>
             <ArrowLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Voltar ao Briefing</span>
             <span className="sm:hidden">Voltar</span>
@@ -491,6 +499,16 @@ export default function MatrizesV3() {
 
         {/* Stepper — clicável para etapas concluídas */}
         <FlowStepper currentStep={4} projectId={projectId} completedUpTo={statusToCompletedStep(project?.status)} />
+        {/* Issue #59 — modal de confirmação de retrocesso */}
+        <RetrocessoConfirmModal
+          open={retrocessoModal.open}
+          projectId={projectId}
+          fromStep={4}
+          toStep={retrocessoModal.toStep}
+          toStepLabel={retrocessoModal.toStepLabel}
+          onConfirm={() => { setRetrocessoModal(m => ({ ...m, open: false })); setLocation(retrocessoModal.targetUrl); }}
+          onCancel={() => setRetrocessoModal(m => ({ ...m, open: false }))}
+        />
 
         {/* ── Diagnóstico de Entrada (3 Camadas) ────────────────────────────────── */}
         {(project?.corporateAnswers || project?.operationalAnswers || project?.cnaeAnswers) && (
