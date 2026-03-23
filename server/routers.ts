@@ -2064,6 +2064,37 @@ Retorne APENAS JSON válido no formato:
         return { success: true };
       }),
   }),
+
+  // ==========================================================================
+  // RETROCESSO — Issue #54 (Sprint Final)
+  // Endpoint para verificar se um retrocesso de etapa requer limpeza de dados.
+  // Usado pelo FlowStepper para exibir o modal de confirmação antes de navegar.
+  // ==========================================================================
+  retrocesso: router({
+    check: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        fromStep: z.number(),
+        toStep: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const { retrocessoRequiresCleanup, getRetrocessoWarningMessage, determineCleanupScope } = await import("./retrocesso-cleanup");
+        const { getDiagnosticSource } = await import("./diagnostic-source");
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+        const diagSource = await getDiagnosticSource(input.projectId);
+        const flowVersion = diagSource.flowVersion;
+        const requiresCleanup = retrocessoRequiresCleanup(input.fromStep, input.toStep, flowVersion);
+        const warningMessage = getRetrocessoWarningMessage(input.fromStep, input.toStep, flowVersion);
+        const scope = determineCleanupScope(input.fromStep, input.toStep, flowVersion);
+        return {
+          requiresCleanup,
+          warningMessage,
+          affectedColumns: scope.columns,
+          flowVersion,
+        };
+      }),
+  }),
 });
 export type AppRouter = typeof appRouter;
 

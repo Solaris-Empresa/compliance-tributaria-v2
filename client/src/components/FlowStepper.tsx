@@ -5,10 +5,15 @@
  * para etapas já concluídas. Projetado para advogados e contadores
  * sênior: labels sempre visíveis, estado atual destacado, etapas
  * futuras claramente bloqueadas.
+ *
+ * Issue #54 (Sprint Final): integra o RetrocessoConfirmModal para
+ * exibir aviso de perda de dados antes de navegar para etapa anterior.
  */
+import { useState } from "react";
 import { useLocation } from "wouter";
 import { CheckCircle2, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import RetrocessoConfirmModal from "./RetrocessoConfirmModal";
 
 export type FlowStep = 1 | 2 | 3 | 4 | 5;
 
@@ -37,67 +42,110 @@ export default function FlowStepper({
   const [, setLocation] = useLocation();
   const completed = completedUpTo ?? ((currentStep - 1) as FlowStep);
 
-  return (
-    <nav
-      aria-label="Progresso do fluxo"
-      className={cn(
-        "flex items-center gap-1 overflow-x-auto pb-1 select-none",
-        className
-      )}
-    >
-      {STEPS.map((step, i) => {
-        const stepNum = (i + 1) as FlowStep;
-        const isDone = stepNum < currentStep || stepNum <= completed;
-        const isActive = stepNum === currentStep;
-        const isLocked = stepNum > currentStep && stepNum > completed + 1;
-        const isClickable = isDone && stepNum !== currentStep;
+  // Estado do modal de confirmação de retrocesso
+  const [pendingNav, setPendingNav] = useState<{
+    toStep: FlowStep;
+    toStepLabel: string;
+    route: string;
+  } | null>(null);
 
-        return (
-          <div key={step.label} className="flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              disabled={isLocked}
-              onClick={() => isClickable && setLocation(step.route(projectId))}
-              title={
-                isLocked
-                  ? `${step.label} — ainda não disponível`
-                  : isClickable
-                  ? `Ir para ${step.label}`
-                  : step.label
-              }
-              className={cn(
-                "flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-all",
-                isActive && "bg-primary text-primary-foreground shadow-sm",
-                isDone && !isActive &&
-                  "bg-emerald-100 text-emerald-800 hover:bg-emerald-200 cursor-pointer",
-                isLocked && "bg-muted text-muted-foreground cursor-not-allowed opacity-60"
-              )}
-            >
-              {/* Indicador de estado */}
-              <span
+  const handleStepClick = (stepNum: FlowStep, step: typeof STEPS[0]) => {
+    const isRetrocesso = stepNum < currentStep;
+    if (isRetrocesso) {
+      // Exibir modal de confirmação antes de navegar
+      setPendingNav({
+        toStep: stepNum,
+        toStepLabel: step.label,
+        route: step.route(projectId),
+      });
+    } else {
+      // Avanço ou mesma etapa — navegar diretamente
+      setLocation(step.route(projectId));
+    }
+  };
+
+  return (
+    <>
+      <nav
+        aria-label="Progresso do fluxo"
+        className={cn(
+          "flex items-center gap-1 overflow-x-auto pb-1 select-none",
+          className
+        )}
+      >
+        {STEPS.map((step, i) => {
+          const stepNum = (i + 1) as FlowStep;
+          const isDone = stepNum < currentStep || stepNum <= completed;
+          const isActive = stepNum === currentStep;
+          const isLocked = stepNum > currentStep && stepNum > completed + 1;
+          const isClickable = isDone && stepNum !== currentStep;
+
+          return (
+            <div key={step.label} className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                disabled={isLocked}
+                onClick={() => isClickable && handleStepClick(stepNum, step)}
+                title={
+                  isLocked
+                    ? `${step.label} — ainda não disponível`
+                    : isClickable
+                    ? stepNum < currentStep
+                      ? `Retroceder para ${step.label}`
+                      : `Ir para ${step.label}`
+                    : step.label
+                }
                 className={cn(
-                  "w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0",
-                  isActive && "bg-white/20",
-                  isDone && !isActive && "bg-emerald-500/20",
-                  isLocked && "bg-muted-foreground/20"
+                  "flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-all",
+                  isActive && "bg-primary text-primary-foreground shadow-sm",
+                  isDone && !isActive &&
+                    "bg-emerald-100 text-emerald-800 hover:bg-emerald-200 cursor-pointer",
+                  isLocked && "bg-muted text-muted-foreground cursor-not-allowed opacity-60"
                 )}
               >
-                {isDone && !isActive ? (
-                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                ) : (
-                  <span>{stepNum}</span>
-                )}
-              </span>
-              {/* Label — sempre visível em desktop, abreviado em mobile */}
-              <span className="hidden sm:inline">{step.label}</span>
-              <span className="sm:hidden">{step.shortLabel}</span>
-            </button>
-            {i < 4 && (
-              <ChevronRight className="h-3 w-3 text-muted-foreground/40 shrink-0" />
-            )}
-          </div>
-        );
-      })}
-    </nav>
+                {/* Indicador de estado */}
+                <span
+                  className={cn(
+                    "w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0",
+                    isActive && "bg-white/20",
+                    isDone && !isActive && "bg-emerald-500/20",
+                    isLocked && "bg-muted-foreground/20"
+                  )}
+                >
+                  {isDone && !isActive ? (
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  ) : (
+                    <span>{stepNum}</span>
+                  )}
+                </span>
+                {/* Label — sempre visível em desktop, abreviado em mobile */}
+                <span className="hidden sm:inline">{step.label}</span>
+                <span className="sm:hidden">{step.shortLabel}</span>
+              </button>
+              {i < 4 && (
+                <ChevronRight className="h-3 w-3 text-muted-foreground/40 shrink-0" />
+              )}
+            </div>
+          );
+        })}
+      </nav>
+
+      {/* Modal de confirmação de retrocesso — Issue #54 */}
+      {pendingNav && (
+        <RetrocessoConfirmModal
+          open={!!pendingNav}
+          projectId={projectId}
+          fromStep={currentStep}
+          toStep={pendingNav.toStep}
+          toStepLabel={pendingNav.toStepLabel}
+          onConfirm={() => {
+            const route = pendingNav.route;
+            setPendingNav(null);
+            setLocation(route);
+          }}
+          onCancel={() => setPendingNav(null)}
+        />
+      )}
+    </>
   );
 }
