@@ -1,11 +1,13 @@
-# ADR-005 — Relatório de Validação Prática
+# ADR-006 — Relatório de Validação Prática do ADR-005
 ## Evidências para Aprovação do P.O.
 
 **Status:** AGUARDANDO APROVAÇÃO DO P.O.
+**Número:** ADR-006
 **Data de execução:** 2026-03-23
 **Executor:** IA Solaris — Agente de Governança
 **Referência:** ADR-005 — Isolamento Físico das Fontes de Verdade do Diagnóstico
 **Solicitado por:** ADR-005, Seção "ENTREGÁVEL" — item de validação prática
+**Sequência:** ADR-001 → ADR-002 → ADR-003 → ADR-004 (rejeitado) → ADR-005 → **ADR-006**
 
 ---
 
@@ -358,6 +360,7 @@ A Fase F-01 foi executada com sucesso. A Fase F-02 (migração dos 121 consumido
 
 ---
 
-*Documento gerado automaticamente pelo Agente de Governança — IA Solaris*
+*ADR-006 — Relatório de Validação Prática do ADR-005*
+*Gerado automaticamente pelo Agente de Governança — IA Solaris*
 *Todos os dados são evidências reais coletadas do ambiente de produção*
 *Nenhum dado foi fabricado ou estimado*
