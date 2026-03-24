@@ -60,6 +60,9 @@ export const fluxoV3Router = router({
         stateUF: z.string().optional(),
         employeeCount: z.string().optional(),
         annualRevenueRange: z.enum(["ate_360k", "360k_4_8m", "4_8m_78m", "acima_78m", "0-360000", "360000-4800000", "4800000-78000000", "78000000+"]).optional(),
+        // ISSUE-001: QC-02 — Estrutura Societária (Prefill Contract Fase 1 Final)
+        isEconomicGroup: z.boolean().optional().nullable(),
+        taxCentralization: z.enum(["centralized", "decentralized", "partial"]).optional().nullable(),
       }),
       operationProfile: z.object({
         operationType: z.enum(["produto", "servico", "misto", "industria", "comercio", "servicos", "agronegocio", "financeiro"]),

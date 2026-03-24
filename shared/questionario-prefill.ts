@@ -77,6 +77,9 @@ export interface NormalizedProjectForPrefill {
     companyType?: string;
     cnpj?: string;
     annualRevenueRange?: string;
+    // ISSUE-001: QC-02 — Estrutura Societária
+    isEconomicGroup?: boolean | null;
+    taxCentralization?: string | null;
   } | null;
   operationProfile?: {
     operationType?: string;
@@ -165,14 +168,36 @@ export function buildCorporatePrefill(
     trace.prefill_fields_missing.push("qc02_filiais");
   }
 
-  // ── QC-02-P1: Grupo econômico — SEM PREFILL LEGÍTIMO ────────────────────
-  // DA-4: dado não coletado no formulário inicial. Campo permanece em aberto.
-  // (não adicionar a prefill_fields_expected — ausência intencional)
+  // ── QC-02-P1: Grupo econômico (direto) ───────────────────────────────────────
+  // ISSUE-001: campo agora coletado em companyProfile.isEconomicGroup
+  trace.prefill_fields_expected.push("qc02_grupo");
+  const isEconomicGroup = projeto.companyProfile?.isEconomicGroup;
+  if (isEconomicGroup !== null && isEconomicGroup !== undefined) {
+    trace.prefill_source_paths_used.push("companyProfile.isEconomicGroup");
+    prefill["qc02_grupo"] = isEconomicGroup ? "Sim" : "Não";
+    trace.prefill_fields_resolved.push("qc02_grupo");
+  } else {
+    trace.prefill_fields_missing.push("qc02_grupo");
+  }
 
-  // ── QC-02-P3: Centralização fiscal — SEM PREFILL LEGÍTIMO ───────────────
-  // DA-4: dado não coletado no formulário inicial. Campo permanece em aberto.
-  // (não adicionar a prefill_fields_expected — ausência intencional)
+  // ── QC-02-P3: Centralização fiscal (direto) ─────────────────────────────────
+  // ISSUE-001: campo agora coletado em companyProfile.taxCentralization
+  const TAX_CENTRALIZATION_MAP: Record<string, string> = {
+    centralized: "Sim — centralizadas na matriz",
+    decentralized: "Não — cada unidade apura separadamente",
+    partial: "Parcialmente centralizado",
+  };
+  trace.prefill_fields_expected.push("qc02_centralizacao");
+  const taxCentralization = projeto.companyProfile?.taxCentralization;
+  if (taxCentralization && TAX_CENTRALIZATION_MAP[taxCentralization]) {
+    trace.prefill_source_paths_used.push("companyProfile.taxCentralization");
+    prefill["qc02_centralizacao"] = TAX_CENTRALIZATION_MAP[taxCentralization];
+    trace.prefill_fields_resolved.push("qc02_centralizacao");
+  } else {
+    trace.prefill_fields_missing.push("qc02_centralizacao");
+  }
 
+  // ── Retorno com trace opcional ───────────────────────────────────────────────────────
   if (options?.trace) {
     return { ...prefill, _trace: trace } as Record<string, string> & { _trace?: PrefillTrace };
   }

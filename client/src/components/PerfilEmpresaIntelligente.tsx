@@ -13,7 +13,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   CheckCircle2, Lock, AlertCircle, Sparkles, Building2, TrendingUp,
   Globe, CreditCard, Shield, ChevronRight, Info, Loader2, Brain,
-  Lightbulb, AlertTriangle, ArrowRight, RefreshCw, MessageSquare
+  Lightbulb, AlertTriangle, ArrowRight, RefreshCw, MessageSquare, Network
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -44,6 +44,9 @@ export interface PerfilEmpresaData {
   hasTaxTeam: boolean | null;
   hasAudit: boolean | null;
   hasTaxIssues: boolean | null;
+  // QC-02: Estrutura Societária (ISSUE-001 — Prefill Contract Fase 1 Final)
+  isEconomicGroup: boolean | null;
+  taxCentralization: string | null;
 }
 
 export const PERFIL_VAZIO: PerfilEmpresaData = {
@@ -63,6 +66,8 @@ export const PERFIL_VAZIO: PerfilEmpresaData = {
   hasTaxTeam: null,
   hasAudit: null,
   hasTaxIssues: null,
+  isEconomicGroup: null,
+  taxCentralization: null,
 };
 
 // Tipos do CPIE (espelham server/cpie.ts)
@@ -174,6 +179,8 @@ export function calcProfileScore(p: PerfilEmpresaData): { completeness: number; 
     [p.hasTaxTeam !== null, "Equipe tributária"],
     [p.hasAudit !== null, "Auditoria fiscal"],
     [p.hasTaxIssues !== null, "Passivo tributário"],
+    [p.isEconomicGroup !== null, "Grupo econômico"],
+    [p.taxCentralization !== null, "Centralização fiscal"],
   ];
   const reqDone = required.filter(([ok]) => ok).length;
   const optDone = optional.filter(([ok]) => ok).length;
@@ -1115,6 +1122,43 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         <SimNaoToggle value={value.hasIntermediaries} onChange={(v) => set("hasIntermediaries", v)}
           label="Utiliza intermediários financeiros (factoring, FIDC, antecipação de recebíveis)?"
           tooltip="Pode gerar obrigações adicionais de IOF e retenção na fonte." />
+      </section>
+
+      {/* ── Seção 6.5: Estrutura Societária (QC-02) — ISSUE-001 Prefill Contract Fase 1 ── */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 pb-1 border-b">
+          <Network className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold">Estrutura Societária</h3>
+          <Badge variant="outline" className="text-xs">QC-02 — Prefill</Badge>
+        </div>
+        <div className="space-y-3">
+          <SimNaoToggle
+            value={value.isEconomicGroup}
+            onChange={(v) => set("isEconomicGroup", v)}
+            label="A empresa integra grupo econômico?"
+            tooltip="Empresas em grupo econômico têm obrigações de consolidação e podem ter regimes diferenciados de apuração do IBS/CBS."
+          />
+          <div className="space-y-2">
+            <Label className="text-sm">Centralização das operações fiscais</Label>
+            <p className="text-xs text-muted-foreground">Como as operações fiscais são geridas entre matriz e filiais?</p>
+            <div className="grid grid-cols-1 gap-2">
+              {[
+                { value: "centralized", label: "Centralizadas na matriz", sublabel: "Matriz apura e recolhe por todas as unidades" },
+                { value: "decentralized", label: "Descentralizadas por unidade", sublabel: "Cada estabelecimento apura separadamente" },
+                { value: "partial", label: "Parcialmente centralizado", sublabel: "Algumas obrigações centralizadas, outras não" },
+              ].map((opt) => (
+                <SelectCard
+                  key={opt.value}
+                  value={opt.value}
+                  selected={value.taxCentralization === opt.value}
+                  onClick={() => set("taxCentralization", value.taxCentralization === opt.value ? null : opt.value)}
+                  label={opt.label}
+                  sublabel={opt.sublabel}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ── Seção 6: Governança ──────────────────────────────────────────── */}
