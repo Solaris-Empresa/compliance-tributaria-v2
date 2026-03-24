@@ -703,9 +703,9 @@ export default function NovoProjeto() {
 
             <Separator />
 
-            <div className="space-y-2">
+            <div className={`space-y-2 rounded-lg p-3 -mx-3 transition-colors ${profileValid && !clientId ? 'bg-amber-500/5 ring-1 ring-amber-500/30' : ''}`}>
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-semibold">Cliente Vinculado <span className="text-destructive">*</span></Label>
+                <Label className="text-sm font-semibold">Cliente Vinculado <span className="text-destructive">*</span>{profileValid && !clientId && <span className="ml-2 text-xs font-normal text-amber-600 dark:text-amber-400">(obrigatório)</span>}</Label>
                 <Button variant="ghost" size="sm" className="h-7 text-xs text-primary hover:text-primary" onClick={() => setShowNewClientModal(true)}>
                   <Plus className="h-3.5 w-3.5 mr-1" />Novo Cliente
                 </Button>
@@ -781,8 +781,19 @@ export default function NovoProjeto() {
             setCpieScore(score); // compat v1
             setCpieDimensions(dimensions);
             // Capturar gate v2 quando disponível (via botão Reexecutar análise)
+            // BUGFIX: só aplicar hard_block se o perfil estiver completo (profileValid=true)
+            // Caso contrário, o gate de bloqueio seria aplicado com dados incompletos,
+            // e ao completar os campos faltantes o botão continuaria bloqueado
             if (v2Gate) {
-              setCpieV2Gate(v2Gate);
+              const currentScore = calcProfileScore(perfilData);
+              const isProfileComplete = currentScore.missingRequired.length === 0;
+              if (isProfileComplete || v2Gate.canProceed) {
+                setCpieV2Gate(v2Gate);
+              } else {
+                // Perfil incompleto: ignorar gate de bloqueio para não travar o botão
+                // após o usuário completar os campos obrigatórios
+                setCpieV2Gate(null);
+              }
             }
             // Resetar override ao receber nova análise
             setCpieOverrideMode(false);
@@ -805,7 +816,8 @@ export default function NovoProjeto() {
         {/* ── Gate CPIE v2: banners e CTA contextual ── */}
 
         {/* HARD BLOCK: bloqueio crítico sem override possível */}
-        {cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "hard_block" && (
+        {/* BUGFIX: só mostrar bloqueio quando o perfil está completo — evita confundir o usuário */}
+        {profileValid && cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "hard_block" && (
           <div className="rounded-xl bg-red-50 dark:bg-red-900/10 border-2 border-red-400 dark:border-red-700 p-4 space-y-3">
             <div className="flex items-start gap-3">
               <ShieldX className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
@@ -829,7 +841,7 @@ export default function NovoProjeto() {
         )}
 
         {/* SOFT BLOCK: conflitos com possibilidade de override com justificativa */}
-        {cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && !cpieOverrideMode && (
+        {profileValid && cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && !cpieOverrideMode && (
           <div className="rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700 p-4 space-y-3">
             <div className="flex items-start gap-3">
               <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
@@ -853,7 +865,7 @@ export default function NovoProjeto() {
         )}
 
         {/* SOFT BLOCK override: campo de justificativa */}
-        {cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideMode && (
+        {profileValid && cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideMode && (
           <div className="rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-400 dark:border-amber-600 p-4 space-y-3">
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
@@ -971,6 +983,17 @@ export default function NovoProjeto() {
           </div>
         )}
 
+        {/* Gate de validação do cliente — aparece quando perfil está ok mas cliente não foi selecionado */}
+        {profileValid && !clientId && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/40">
+            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">Selecione um cliente para continuar.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Busque um cliente existente ou <button className="text-primary hover:underline font-medium" onClick={() => setShowNewClientModal(true)}>crie um novo cliente</button> antes de avançar.</p>
+            </div>
+          </div>
+        )}
+
         {/* Gate de validação do perfil */}
         {!profileValid && (
           <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/8 border-2 border-destructive/30">
@@ -1006,7 +1029,10 @@ export default function NovoProjeto() {
             !profileValid ||
             // Gate v2: APENAS hard_block bloqueia o botão sem possibilidade de override
             // soft_block: botão habilitado quando justificativa >= 50 chars; caso contrário também habilitado (usuário abre o modo override ao clicar)
-            (cpieV2Gate !== null && cpieV2Gate.blockType === "hard_block" && !cpieV2Gate.canProceed)
+            // BUGFIX: só aplicar gate quando profileValid=true — se o perfil está incompleto,
+            // o hard_block pode ter sido gerado com dados incompletos e não deve bloquear
+            // o botão após o usuário completar os campos obrigatórios
+            (profileValid && cpieV2Gate !== null && cpieV2Gate.blockType === "hard_block" && !cpieV2Gate.canProceed)
           } className="min-w-[220px]">
             {overrideSubmitting ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />Registrando justificativa...</>
@@ -1014,9 +1040,9 @@ export default function NovoProjeto() {
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />Analisando consistência...</>
             ) : isLoading ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />{createProject.isPending ? "Criando projeto..." : "Analisando CNAEs..."}</>
-            ) : cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "hard_block" ? (
+            ) : profileValid && cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "hard_block" ? (
               <>Corrigir inconsistências</>
-            ) : cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideMode && cpieOverrideReason.trim().length >= 50 ? (
+            ) : profileValid && cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideMode && cpieOverrideReason.trim().length >= 50 ? (
               <>Justificar e continuar<ArrowRight className="h-4 w-4 ml-2" /></>
             ) : showConflictReview && cpieV2Gate && cpieV2Gate.canProceed ? (
               <>Revisar conflitos antes de continuar</>
