@@ -40,6 +40,57 @@ export async function getDb() {
 }
 
 // ============================================================================
+// PREFILL CONTRACT — normalização canônica (Fase 2 da Sub-Sprint Estrutural)
+// DA-2: A API nunca entrega string JSON ao frontend. O parsing é feito aqui.
+// ============================================================================
+
+/**
+ * Parseia com segurança um campo JSON que pode chegar como:
+ * - objeto JavaScript (já parseado pelo Drizzle) → retorna como está
+ * - string JSON serializada (MySQL2 sem typeCast) → parseia
+ * - null/undefined → retorna fallback
+ */
+export function safeParseJson<T>(value: unknown, fallback: T): T {
+  if (value === null || value === undefined) return fallback;
+  if (typeof value === "object") return value as T;
+  if (typeof value === "string") {
+    try { return JSON.parse(value) as T; }
+    catch { return fallback; }
+  }
+  return fallback;
+}
+
+/**
+ * Normaliza o objeto projeto retornado pelo banco.
+ * Garante que todos os campos JSON chegam ao frontend como objetos tipados.
+ * Deve ser aplicado em TODOS os pontos de retorno de projeto ao frontend.
+ */
+export function normalizeProject<T extends Record<string, any>>(raw: T): T {
+  if (!raw) return raw;
+  return {
+    ...raw,
+    companyProfile:     safeParseJson(raw.companyProfile, null),
+    operationProfile:   safeParseJson(raw.operationProfile, null),
+    financialProfile:   safeParseJson(raw.financialProfile, null),
+    governanceProfile:  safeParseJson(raw.governanceProfile, null),
+    taxComplexity:      safeParseJson(raw.taxComplexity, null),
+    confirmedCnaes:     safeParseJson(raw.confirmedCnaes, []),
+    corporateAnswers:   safeParseJson(raw.corporateAnswers, null),
+    operationalAnswers: safeParseJson(raw.operationalAnswers, null),
+    cnaeAnswers:        safeParseJson(raw.cnaeAnswers, null),
+    stepHistory:        safeParseJson(raw.stepHistory, []),
+    diagnosticStatus:   safeParseJson(raw.diagnosticStatus, null),
+    profileIntelligenceData: safeParseJson(raw.profileIntelligenceData, null),
+    briefingStructured: safeParseJson(raw.briefingStructured, null),
+    scoringData:        safeParseJson(raw.scoringData, null),
+    decisaoData:        safeParseJson(raw.decisaoData, null),
+    riskMatricesData:   safeParseJson(raw.riskMatricesData, null),
+    actionPlansData:    safeParseJson(raw.actionPlansData, null),
+    questionnaireAnswers: safeParseJson(raw.questionnaireAnswers, null),
+  } as T;
+}
+
+// ============================================================================
 // USERS
 // ============================================================================
 
@@ -138,43 +189,43 @@ export async function createProject(data: InsertProject) {
   console.log('[createProject] insertId:', insertId);
   const projectId = Number(insertId);
   console.log('[createProject] Final projectId:', projectId);
-  return projectId;
+   return projectId;
 }
 
 export async function getProjectById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-
   const result = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
-  return result[0];
+  // DA-2: normalização canônica — garante que todos os campos JSON chegam como objetos
+  return result[0] ? normalizeProject(result[0]) : undefined;
 }
 
 export async function getProjectsByUser(userId: number, userRole: string) {
   const db = await getDb();
   if (!db) return [];
-
+  let rows;
   if (userRole === "equipe_solaris" || userRole === "advogado_senior") {
-    return await db.select().from(projects).orderBy(desc(projects.createdAt));
+    rows = await db.select().from(projects).orderBy(desc(projects.createdAt));
+  } else {
+    const participantProjects = await db
+      .select({ projectId: projectParticipants.projectId })
+      .from(projectParticipants)
+      .where(eq(projectParticipants.userId, userId));
+    const projectIds = participantProjects.map(p => p.projectId);
+    if (projectIds.length === 0) {
+      rows = await db.select().from(projects).where(eq(projects.clientId, userId)).orderBy(desc(projects.createdAt));
+    } else {
+      rows = await db
+        .select()
+        .from(projects)
+        .where(
+          sql`${projects.clientId} = ${userId} OR ${projects.id} IN (${projectIds.join(',')})`
+        )
+        .orderBy(desc(projects.createdAt));
+    }
   }
-
-  const participantProjects = await db
-    .select({ projectId: projectParticipants.projectId })
-    .from(projectParticipants)
-    .where(eq(projectParticipants.userId, userId));
-
-  const projectIds = participantProjects.map(p => p.projectId);
-
-  if (projectIds.length === 0) {
-    return await db.select().from(projects).where(eq(projects.clientId, userId)).orderBy(desc(projects.createdAt));
-  }
-
-  return await db
-    .select()
-    .from(projects)
-    .where(
-      sql`${projects.clientId} = ${userId} OR ${projects.id} IN (${projectIds.join(',')})`
-    )
-    .orderBy(desc(projects.createdAt));
+  // DA-2: normalização canônica em todas as listagens
+  return rows.map(normalizeProject);
 }
 
 export async function updateProject(projectId: number, data: Partial<InsertProject>) {

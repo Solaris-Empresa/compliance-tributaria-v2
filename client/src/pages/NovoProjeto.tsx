@@ -276,6 +276,8 @@ export default function NovoProjeto() {
 
   // Ref para o payload pendente (necessário para o callback do analyzePreviewInline)
   const pendingProjectPayloadRef = useRef<any>(null);
+  // Ref para capturar description no momento do submit — evita closure stale no onSuccess
+  const descriptionRef = useRef<string>("");
 
   const { data: clients, refetch: refetchClients } = trpc.users.listClients.useQuery();
 
@@ -287,7 +289,9 @@ export default function NovoProjeto() {
       const isSoftBlockOverride = cpieV2Gate?.blockType === "soft_block_with_override" &&
         cpieOverrideMode && cpieOverrideReason.trim().length >= 50;
       if (!isSoftBlockOverride) {
-        extractCnaes.mutate({ projectId: data.projectId, description });
+        const descForExtract = descriptionRef.current || description;
+        console.log('[extractCnaes] sending', { projectId: data.projectId, descLen: descForExtract?.length, preview: descForExtract?.slice(0, 80) });
+        extractCnaes.mutate({ projectId: data.projectId, description: descForExtract });
       }
       // Persistir análise CPIE v2 no banco após criar o projeto
       if (cpieV2Gate) {
@@ -328,7 +332,8 @@ export default function NovoProjeto() {
       toast.success("Justificativa registrada com sucesso. Prosseguindo...");
       // Fluxo liberado: extrair CNAEs (projeto já foi criado antes do override)
       if (projectId) {
-        extractCnaes.mutate({ projectId, description });
+        const descForExtract = descriptionRef.current || description;
+        extractCnaes.mutate({ projectId, description: descForExtract });
       }
     },
     onError: (err) => {
@@ -497,6 +502,8 @@ export default function NovoProjeto() {
       governanceProfile,
     } as any;
     pendingProjectPayloadRef.current = payload;
+    // Capturar description no momento do submit para evitar closure stale no onSuccess
+    descriptionRef.current = description.trim();
 
     // CPIE v2: se já temos gate válido e canProceed=true (ou soft_block com justificativa), pular re-análise
     const alreadyApproved = cpieV2Gate && (

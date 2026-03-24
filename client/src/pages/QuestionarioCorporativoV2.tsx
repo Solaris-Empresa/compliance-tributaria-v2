@@ -29,6 +29,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
+import { buildCorporatePrefill } from "@shared/questionario-prefill";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Seções oficiais do Questionário Corporativo (definidas pelo PO)
@@ -172,35 +173,16 @@ export default function QuestionarioCorporativoV2() {
     { enabled: !!projectId }
   );
 
-  // Mapeamento de valores do banco → opções do questionário
-  const TAX_REGIME_MAP: Record<string, string> = {
-    simples_nacional: "Simples Nacional",
-    lucro_presumido: "Lucro Presumido",
-    lucro_real: "Lucro Real",
-  };
-  const COMPANY_SIZE_MAP: Record<string, string> = {
-    mei: "MEI / Microempresa (até R$ 360 mil)",
-    micro: "MEI / Microempresa (até R$ 360 mil)",
-    pequena: "Empresa de Pequeno Porte (até R$ 4,8 mi)",
-    media: "Médio porte (até R$ 78 mi)",
-    grande: "Grande porte (acima de R$ 78 mi)",
-  };
-
+  // DA-3: Nenhuma lógica local de prefill — tudo via buildCorporatePrefill() do shared
   useEffect(() => {
     if (projeto) {
       const p = projeto as any;
-      // Pré-preencher com respostas salvas anteriormente (prioridade máxima)
-      if (p.corporateAnswers && typeof p.corporateAnswers === "object") {
+      // Respostas salvas anteriormente têm prioridade máxima
+      if (p.corporateAnswers && typeof p.corporateAnswers === "object" && Object.keys(p.corporateAnswers).length > 0) {
         setRespostas(p.corporateAnswers as Record<string, string | string[]>);
       } else {
-        // Pré-preencher automaticamente a partir do perfil do projeto
-        const prefill: Record<string, string> = {};
-        if (p.taxRegime && TAX_REGIME_MAP[p.taxRegime]) {
-          prefill["qc01_regime"] = TAX_REGIME_MAP[p.taxRegime];
-        }
-        if (p.companySize && COMPANY_SIZE_MAP[p.companySize]) {
-          prefill["qc01_porte"] = COMPANY_SIZE_MAP[p.companySize];
-        }
+        // DA-3: builder canônico do shared — cobre QC-01 (regime, porte) e QC-02 (filiais)
+        const prefill = buildCorporatePrefill(p);
         if (Object.keys(prefill).length > 0) {
           setRespostas(prev => ({ ...prefill, ...prev }));
         }
