@@ -541,4 +541,83 @@ export const scoringEngineRouter = router({
         await conn.end();
       }
     }),
+
+  /**
+   * getLowScoreProjects — retorna projetos com Score CPIE < threshold (default 50)
+   * Usado pelo alerta do Painel para exibir projetos com baixa maturidade CPIE.
+   * Calcula o score on-the-fly para os projetos que têm dados v3.
+   */
+  getLowScoreProjects: protectedProcedure
+    .input(z.object({
+      threshold: z.number().min(0).max(100).default(50),
+      limit: z.number().min(1).max(100).default(20),
+    }))
+    .query(async ({ ctx, input }) => {
+      const conn = await getConn();
+      try {
+        const clientId = ctx.user.id;
+        // Busca projetos que têm dados v3 (gaps, riscos ou ações)
+        const [projectsWithData] = await conn.execute(
+          `SELECT DISTINCT p.id, p.name
+           FROM projects p
+           WHERE p.clientId = ?
+             AND (
+               EXISTS (SELECT 1 FROM project_gaps_v3 g WHERE g.project_id = p.id AND g.client_id = ?)
+               OR EXISTS (SELECT 1 FROM project_risks_v3 r WHERE r.project_id = p.id AND r.client_id = ?)
+               OR EXISTS (SELECT 1 FROM project_actions_v3 a WHERE a.project_id = p.id AND a.client_id = ?)
+             )
+           ORDER BY p.updatedAt DESC
+           LIMIT 200`,
+          [clientId, clientId, clientId, clientId]
+        ) as [Array<{ id: number; name: string }>, unknown];
+
+        const lowScoreResults: Array<{
+          projectId: number;
+          projectName: string;
+          cpieScore: number;
+          maturityLevel: string;
+          maturityLabel: string;
+          maturityColor: string;
+        }> = [];
+
+        for (const project of projectsWithData) {
+          const [gaps] = await conn.execute(
+            "SELECT criticality, score FROM project_gaps_v3 WHERE project_id = ? AND client_id = ?",
+            [project.id, clientId]
+          ) as [Array<{ criticality: string; score: string }>, unknown];
+          const [risks] = await conn.execute(
+            "SELECT risk_level, risk_score FROM project_risks_v3 WHERE project_id = ? AND client_id = ?",
+            [project.id, clientId]
+          ) as [Array<{ risk_level: string; risk_score: number }>, unknown];
+          const [actions] = await conn.execute(
+            "SELECT action_priority, status FROM project_actions_v3 WHERE project_id = ? AND client_id = ?",
+            [project.id, clientId]
+          ) as [Array<{ action_priority: string; status: string }>, unknown];
+
+          const result = computeCpieScore(project.id, gaps, risks, actions);
+          if (result.meta.hasData && result.cpieScore < input.threshold) {
+            lowScoreResults.push({
+              projectId: project.id,
+              projectName: project.name,
+              cpieScore: result.cpieScore,
+              maturityLevel: result.maturityLevel,
+              maturityLabel: result.maturityLabel,
+              maturityColor: result.maturityColor,
+            });
+          }
+          if (lowScoreResults.length >= input.limit) break;
+        }
+
+        // Ordena por score crescente (pior primeiro)
+        lowScoreResults.sort((a, b) => a.cpieScore - b.cpieScore);
+
+        return {
+          projects: lowScoreResults,
+          total: lowScoreResults.length,
+          threshold: input.threshold,
+        };
+      } finally {
+        await conn.end();
+      }
+    }),
 });
