@@ -39,7 +39,7 @@ export const requirementEngineRouter = router({
 
       // Verificar acesso ao projeto
       const hasAccess = await isUserInProject(userId, input.projectId);
-      if (!hasAccess && ctx.user.role !== "admin") {
+      if (!hasAccess && ctx.user.role !== "equipe_solaris") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado ao projeto" });
       }
 
@@ -78,7 +78,7 @@ export const requirementEngineRouter = router({
       const userId = ctx.user.id;
 
       const hasAccess = await isUserInProject(userId, input.projectId);
-      if (!hasAccess && ctx.user.role !== "admin") {
+      if (!hasAccess && ctx.user.role !== "equipe_solaris") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado ao projeto" });
       }
 
@@ -108,7 +108,7 @@ export const requirementEngineRouter = router({
       const userId = ctx.user.id;
 
       const hasAccess = await isUserInProject(userId, input.projectId);
-      if (!hasAccess && ctx.user.role !== "admin") {
+      if (!hasAccess && ctx.user.role !== "equipe_solaris") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado ao projeto" });
       }
 

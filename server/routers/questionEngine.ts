@@ -244,8 +244,8 @@ JSON esperado:
 function jaccardSimilarity(a: string, b: string): number {
   const setA = new Set(a.toLowerCase().split(/\s+/));
   const setB = new Set(b.toLowerCase().split(/\s+/));
-  const intersection = new Set([...setA].filter(x => setB.has(x)));
-  const union = new Set([...setA, ...setB]);
+  const intersection = new Set(Array.from(setA).filter(x => setB.has(x)));
+  const union = new Set([...Array.from(setA), ...Array.from(setB)]);
   return intersection.size / union.size;
 }
 

@@ -474,11 +474,11 @@ export async function generateBriefing(
   );
 
   // 5. Buscar requisitos únicos cobertos
-  const requirementIds = [...new Set([
+  const requirementIds = Array.from(new Set([
     ...gaps.map((g: any) => g.requirement_id),
     ...risks.map((r: any) => r.requirement_id),
     ...actions.map((a: any) => a.requirement_id),
-  ].filter(Boolean))];
+  ].filter(Boolean)));
 
   const [requirements] = requirementIds.length > 0
     ? await pool.query<mysql.RowDataPacket[]>(
@@ -828,7 +828,7 @@ export const briefingEngineRouter = router({
       projectId: z.number(),
     }))
     .mutation(async ({ input }) => {
-      const pool = mysql.createPool(ENV.DATABASE_URL);
+      const pool = mysql.createPool(ENV.databaseUrl);
       try {
         // 1. Gerar briefing
         const briefing = await generateBriefing(input.projectId, pool);
@@ -889,7 +889,7 @@ export const briefingEngineRouter = router({
   getByProject: protectedProcedure
     .input(z.object({ projectId: z.number() }))
     .query(async ({ input }) => {
-      const pool = mysql.createPool(ENV.DATABASE_URL);
+      const pool = mysql.createPool(ENV.databaseUrl);
       try {
         const [rows] = await pool.query<mysql.RowDataPacket[]>(
           "SELECT * FROM project_briefings_v3 WHERE project_id = ? ORDER BY briefing_version DESC LIMIT 1",

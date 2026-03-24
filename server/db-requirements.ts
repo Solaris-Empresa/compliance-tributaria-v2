@@ -199,7 +199,7 @@ export async function getCoverageReport(projectId: number, userId: number): Prom
   const applicableCodes = applicable.map(r => r.code);
   const [mappingRows] = await db.execute(
     sql`SELECT canonical_id, question_quality_status FROM requirement_question_mapping WHERE canonical_id IN (${sql.join(applicableCodes.map(c => sql`${c}`), sql`, `)})`
-  ) as [Array<{ canonical_id: string; question_quality_status: string | null }>];
+  ) as unknown as [Array<{ canonical_id: string; question_quality_status: string | null }>];
 
   const questionStatusByCode = new Map<string, string | null>();
   for (const row of mappingRows) {
@@ -306,7 +306,7 @@ export async function getRequirementsWithCoverageStatus(
   const applicableCodes = applicable.map(r => r.code);
   const [mappingRows] = await db.execute(
     sql`SELECT canonical_id, question_quality_status FROM requirement_question_mapping WHERE canonical_id IN (${sql.join(applicableCodes.map(c => sql`${c}`), sql`, `)})`
-  ) as [Array<{ canonical_id: string; question_quality_status: string | null }>];
+  ) as unknown as [Array<{ canonical_id: string; question_quality_status: string | null }>];
 
   const questionStatusByCode = new Map<string, string | null>();
   for (const row of mappingRows) {
