@@ -172,11 +172,38 @@ export default function QuestionarioCorporativoV2() {
     { enabled: !!projectId }
   );
 
+  // Mapeamento de valores do banco → opções do questionário
+  const TAX_REGIME_MAP: Record<string, string> = {
+    simples_nacional: "Simples Nacional",
+    lucro_presumido: "Lucro Presumido",
+    lucro_real: "Lucro Real",
+  };
+  const COMPANY_SIZE_MAP: Record<string, string> = {
+    mei: "MEI / Microempresa (até R$ 360 mil)",
+    micro: "MEI / Microempresa (até R$ 360 mil)",
+    pequena: "Empresa de Pequeno Porte (até R$ 4,8 mi)",
+    media: "Médio porte (até R$ 78 mi)",
+    grande: "Grande porte (acima de R$ 78 mi)",
+  };
+
   useEffect(() => {
-    if (projeto && (projeto as any).corporateAnswers) {
-      const saved = (projeto as any).corporateAnswers;
-      if (typeof saved === "object" && saved !== null) {
-        setRespostas(saved as Record<string, string | string[]>);
+    if (projeto) {
+      const p = projeto as any;
+      // Pré-preencher com respostas salvas anteriormente (prioridade máxima)
+      if (p.corporateAnswers && typeof p.corporateAnswers === "object") {
+        setRespostas(p.corporateAnswers as Record<string, string | string[]>);
+      } else {
+        // Pré-preencher automaticamente a partir do perfil do projeto
+        const prefill: Record<string, string> = {};
+        if (p.taxRegime && TAX_REGIME_MAP[p.taxRegime]) {
+          prefill["qc01_regime"] = TAX_REGIME_MAP[p.taxRegime];
+        }
+        if (p.companySize && COMPANY_SIZE_MAP[p.companySize]) {
+          prefill["qc01_porte"] = COMPANY_SIZE_MAP[p.companySize];
+        }
+        if (Object.keys(prefill).length > 0) {
+          setRespostas(prev => ({ ...prefill, ...prev }));
+        }
       }
     }
     if (diagnosticStatus?.diagnosticStatus?.corporate === "completed") {
@@ -304,6 +331,20 @@ export default function QuestionarioCorporativoV2() {
             <CardDescription className="mt-1">{secao.descricao}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {secao.codigo === "QC-01" && ((projeto as any)?.taxRegime || (projeto as any)?.companySize) && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-blue-800">Dados pré-preenchidos do perfil do projeto</p>
+                    <p className="text-xs text-blue-700 mt-1">
+                      Regime tributário e porte foram preenchidos automaticamente com base no cadastro do projeto.
+                      Confirme ou ajuste se necessário antes de prosseguir.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
               <div className="flex items-start gap-2">
                 <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
