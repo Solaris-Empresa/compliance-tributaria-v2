@@ -313,7 +313,7 @@ export default function QuestionarioCorporativoV2() {
             <CardDescription className="mt-1">{secao.descricao}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {secao.codigo === "QC-01" && ((projeto as any)?.taxRegime || (projeto as any)?.companySize) && (
+            {secao.codigo === "QC-01" && ((projeto as any)?.companyProfile?.taxRegime || (projeto as any)?.companyProfile?.companySize) && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />

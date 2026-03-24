@@ -471,6 +471,9 @@ export default function NovoProjeto() {
       companySize: perfilData.companySize,
       annualRevenueRange: perfilData.annualRevenueRange || undefined,
       taxRegime: perfilData.taxRegime,
+      // BUG-001 fix (ISSUE-001): campos QC-02 agora persistidos corretamente
+      isEconomicGroup: perfilData.isEconomicGroup,
+      taxCentralization: perfilData.taxCentralization,
     };
     const operationProfile = {
       operationType: perfilData.operationType,
