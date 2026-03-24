@@ -116,7 +116,8 @@ export function buildCorporatePrefill(
   projeto: NormalizedProjectForPrefill,
   options?: { trace?: boolean }
 ): Record<string, string> & { _trace?: PrefillTrace } {
-  const prefill: Record<string, string> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const prefill: Record<string, any> = {};
   const trace = emptyTrace();
 
   // ── QC-01-P1: Regime tributário (direto) ────────────────────────────────
@@ -173,9 +174,9 @@ export function buildCorporatePrefill(
   // (não adicionar a prefill_fields_expected — ausência intencional)
 
   if (options?.trace) {
-    return { ...prefill, _trace: trace };
+    return { ...prefill, _trace: trace } as Record<string, string> & { _trace?: PrefillTrace };
   }
-  return prefill;
+  return prefill as Record<string, string> & { _trace?: PrefillTrace };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -230,7 +231,8 @@ export function buildOperationalPrefill(
   projeto: NormalizedProjectForPrefill,
   options?: { trace?: boolean }
 ): Record<string, string | string[]> & { _trace?: PrefillTrace } {
-  const prefill: Record<string, string | string[]> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const prefill: Record<string, any> = {};
   const trace = emptyTrace();
 
   const op = projeto.operationProfile;
@@ -295,9 +297,9 @@ export function buildOperationalPrefill(
   }
 
   if (options?.trace) {
-    return { ...prefill, _trace: trace };
+    return { ...prefill, _trace: trace } as Record<string, string | string[]> & { _trace?: PrefillTrace };
   }
-  return prefill;
+  return prefill as Record<string, string | string[]> & { _trace?: PrefillTrace };
 }
 
 /** Detecta quais seções do Operacional têm campos pré-preenchidos */
@@ -345,11 +347,11 @@ export function buildCnaePrefill(
   projeto: NormalizedProjectForPrefill,
   options?: { trace?: boolean }
 ): Record<string, string> & { _trace?: PrefillTrace } {
-  const prefill: Record<string, string> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const prefill: Record<string, any> = {};
   const trace = emptyTrace();
-
   const op = projeto.operationProfile;
-  // DA-2: confirmedCnaes chega como array após normalizeProject()
+
   // Defesa extra: se ainda for string (projeto legado sem normalização), tratar graciosamente
   let cnaes: Array<{ code: string; description?: string }> = [];
   if (Array.isArray(projeto.confirmedCnaes)) {
@@ -385,9 +387,9 @@ export function buildCnaePrefill(
   }
 
   if (options?.trace) {
-    return { ...prefill, _trace: trace };
+    return { ...prefill, _trace: trace } as Record<string, string> & { _trace?: PrefillTrace };
   }
-  return prefill;
+  return prefill as Record<string, string> & { _trace?: PrefillTrace };
 }
 
 /** Detecta quais seções do CNAE têm campos pré-preenchidos */
