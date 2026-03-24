@@ -1,8 +1,9 @@
 # Matriz Canônica de Inputs/Outputs por Etapa do Fluxo de Compliance
 
-**Versão:** 1.0  
-**Data:** 2026-03-23  
-**Status:** Proposta — aguardando aprovação do Orquestrador (gate B1)  
+**Versão:** 1.1  
+**Data:** 2026-03-24  
+**Status:** Aprovada com ajustes — gate B1 liberado para B2  
+**Ajustes incorporados:** Coverage Engine (fórmula corrigida), Question Quality Gate, evaluation_confidence no Gap  
 **Issue:** [#64](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/64)  
 **ADR:** [ADR-010](../../adr/ADR-010-content-architecture-98.md)
 
@@ -98,14 +99,13 @@ Risk Engine → Action Engine → Outputs
 - `confirmedCnaes` (Etapa 2)
 - Requisitos da camada `corporativo` do Requirement Engine
 
-**Processo (Requirement Engine + Question Engine):**
+**Processo (Requirement Engin**Processo (Question Engine com Quality Gate):**
 1. Requirement Engine filtra requisitos aplicáveis da camada `corporativo`
 2. Question Engine gera perguntas com `requirement_id` e `source_reference` obrigatórios
 3. Deduplicação semântica (threshold: 0.92)
 4. LLM-as-judge: score mínimo 3.5/5.0 para incluir
-5. Protocolo NO_QUESTION: pergunta sem base RAG é bloqueada
-
-**Saída:**
+5. **Question Quality Gate:** pergunta com `score < 3.5` → descartada; requisito permanece `pending_valid_question`; sistema tenta reformular (até 2 tentativas); após 2 falhas → `no_valid_question_generated`
+6. Protocolo NO_QUESTION: pergunta sem base RAG é bloqueadaa:**
 ```json
 {
   "questions": [
@@ -145,13 +145,12 @@ Risk Engine → Action Engine → Outputs
 - `ProjectProfile` (Etapa 1)
 - `confirmedCnaes` (Etapa 2)
 - `answers` do Questionário Corporativo (Etapa 3)
-- Requisitos da camada `operacional` do Requirement Engine
-
-**Processo:**
+- Requisitos da camada `operacional` do Re**Processo (Question Engine com Quality Gate):**
 1. Requirement Engine filtra requisitos da camada `operacional`
 2. Question Engine aplica filtros condicionais baseados nas respostas corporativas
 3. Perguntas condicionais: se Etapa 3 revelou operação interestadual → gerar perguntas sobre ICMS-ST
 4. Deduplicação cross-stage: eliminar perguntas já respondidas na Etapa 3
+5. **Question Quality Gate:** mesmo comportamento da Etapa 3 — requisito permanece `pending_valid_question` até pergunta válida
 
 **Saída:** mesmo schema da Etapa 3, com `stage: "operacional"`.
 
@@ -171,11 +170,12 @@ Risk Engine → Action Engine → Outputs
 - `answers` das Etapas 3 e 4 (para filtros condicionais e deduplicação)
 - Requisitos da camada `cnae` filtrados pelo CNAE atual
 
-**Processo (por CNAE):**
+**Processo (por CNAE com Quality Gate):**
 1. Requirement Engine filtra requisitos aplicáveis ao CNAE específico
 2. Question Engine gera perguntas setoriais com `cnae_scope` obrigatório
 3. Deduplicação cross-stage: eliminar perguntas já respondidas nas Etapas 3 e 4
-4. Protocolo NO_QUESTION: CNAE sem requisitos → `skipped`
+4. **Question Quality Gate:** mesmo comportamento das Etapas 3 e 4
+5. Protocolo NO_QUESTION: CNAE sem requisitos → `skipped`
 
 **Saída (por CNAE):** mesmo schema das Etapas 3 e 4, com `stage: "cnae"` e `cnae_code`.
 
@@ -197,6 +197,7 @@ Risk Engine → Action Engine → Outputs
 1. Para cada resposta, derivar o `gap_status` por regras determinísticas (não LLM)
 2. LLM usado apenas para interpretar respostas ambíguas, com log
 3. Calcular `confidence` de cada classificação
+4. Calcular `evaluation_confidence` por regras determinísticas (ajuste do Orquestrador)
 
 **Saída:**
 ```json
@@ -208,7 +209,9 @@ Risk Engine → Action Engine → Outputs
       "requirement_id": "RF-001",
       "gap_status": "nao_atende",
       "confidence": "high",
-      "evidence": "resposta do usuário"
+      "evidence": "resposta do usuário",
+      "evaluation_confidence": "high",
+      "evaluation_confidence_reason": null
     }
   ]
 }
@@ -236,10 +239,28 @@ Risk Engine → Action Engine → Outputs
 - `requirements` do Requirement Engine (lista de todos os requisitos aplicáveis)
 - `gaps` do Gap Engine (lista de todos os gaps classificados)
 
-**Processo:**
+**Processo (fórmula corrigida pelo Orquestrador):**
+
+Um requisito só conta como coberto quando **todos os 4 critérios** são satisfeitos simultaneamente:
+
 ```
-coverage = gaps_classificados / requirements_aplicáveis
+coverage =
+  (requisitos com pergunta válida
+   + resposta válida
+   + gap classificado
+   + evidência suficiente)
+  /
+  (requisitos aplicáveis)
 ```
+
+| Critério | Definição |
+|----------|-----------|
+| Pergunta válida | `question.score >= threshold` (padrão: 3.5/5.0) |
+| Resposta válida | `answer.answer_value` não nulo e não vazio |
+| Gap classificado | `gap.gap_status` ∈ {atende, nao_atende, parcial, evidencia_insuficiente, nao_aplicavel} |
+| Evidência suficiente | `gap.gap_status ≠ evidencia_insuficiente` OU `gap.evidence` não vazio |
+
+> *"Cobertura sem qualidade não é cobertura. 100% coverage só é válido quando a avaliação é confiável."* — Orquestrador
 
 **Saída:**
 ```json
@@ -251,11 +272,13 @@ coverage = gaps_classificados / requirements_aplicáveis
     "cnae_4711-3/01": 0.98
   },
   "uncovered_requirements": ["RF-045", "RF-067"],
+  "pending_valid_question": ["RF-089"],
+  "no_valid_question_generated": [],
   "gate_passed": false
 }
 ```
 
-**Gate:** `coverage < 1.0` → bloqueia geração do briefing. O sistema retorna a lista de requisitos não cobertos para que o usuário possa responder as perguntas faltantes.
+**Gate:** `coverage < 1.0` → bloqueia geração do briefing. O sistema retorna a lista de requisitos não cobertos (sem resposta) e de requisitos sem pergunta válida gerada (`pending_valid_question`). Ambas as categorias bloqueiam o gate.
 
 ---
 

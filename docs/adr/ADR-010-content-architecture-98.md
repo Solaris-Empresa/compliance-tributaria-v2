@@ -1,6 +1,6 @@
 # ADR-010 — Arquitetura Canônica de Conteúdo Diagnóstico para Confiabilidade 98%
 
-**Status:** Proposto — aguardando aprovação do Orquestrador (gate B1)  
+**Status:** Aprovado com ajustes obrigatórios — gate B1 liberado para B2 após incorporação dos ajustes  
 **Data:** 2026-03-23  
 **Autores:** Manus AI / Equipe IA SOLARIS  
 **Issue:** [#63](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/63)  
@@ -78,6 +78,76 @@ Perfil + CNAE
 **Regra 4 — Anti-alucinação:** o LLM não cria conhecimento novo. Ele apenas transforma conhecimento validado via RAG. Toda afirmação deve ter base normativa verificável no corpus.
 
 **Regra 5 — CNAE condicionado:** CNAE sem requisito aplicável no corpus RAG não gera questionário. O sistema registra o CNAE como `skipped` com motivo `no_applicable_requirements`.
+
+---
+
+## Ajustes obrigatórios do Orquestrador (incorporados em 2026-03-24)
+
+O Orquestrador aprovou o B1 com 3 ajustes obrigatórios que devem ser incorporados antes do início de B2. Os ajustes foram incorporados neste ADR e refletidos nas Matrizes Canônica e de Rastreabilidade.
+
+### Ajuste 1 — Coverage Engine: fórmula corrigida
+
+A fórmula original `coverage = gaps_classificados / requisitos_aplicáveis` foi considerada insuficiente porque contabilizava gaps classificados mesmo quando a pergunta era de baixa qualidade ou a evidência era insuficiente.
+
+A fórmula corrigida é:
+
+```
+coverage =
+  (requisitos com pergunta válida
+   + resposta válida
+   + gap classificado
+   + evidência suficiente)
+  /
+  (requisitos aplicáveis)
+```
+
+Um requisito só conta como coberto quando **todos os 4 critérios** são satisfeitos simultaneamente:
+
+| Critério | Definição |
+|----------|-----------|
+| Pergunta válida | `question.score >= threshold` (padrão: 3.5/5.0) |
+| Resposta válida | `answer.answer_value` não nulo e não vazio |
+| Gap classificado | `gap.gap_status` ∈ {atende, nao_atende, parcial, evidencia_insuficiente, nao_aplicavel} |
+| Evidência suficiente | `gap.gap_status ≠ evidencia_insuficiente` OU `gap.evidence` não vazio com justificativa |
+
+**Diretriz do Orquestrador:** *"Cobertura sem qualidade não é cobertura. 100% coverage só é válido quando a avaliação é confiável."*
+
+### Ajuste 2 — Question Quality Gate: requisito permanece pendente
+
+O comportamento original descartava perguntas com `score < threshold` sem mecanismo de recuperação, deixando o requisito associado sem cobertura silenciosamente.
+
+O comportamento corrigido é:
+
+1. Pergunta com `score < threshold` → descartada (não incluída no questionário)
+2. O requisito associado permanece com status `pending_valid_question`
+3. O sistema tenta reformular a pergunta com prompt alternativo (até 2 tentativas)
+4. Se após 2 tentativas nenhuma pergunta válida for gerada → requisito marcado como `no_valid_question_generated`, registrado no coverage report como lacuna
+5. O coverage report alerta o usuário sobre os requisitos sem pergunta válida antes de prosseguir
+
+**Implicação:** o coverage gate bloqueia o briefing não apenas quando há requisitos sem resposta, mas também quando há requisitos sem pergunta válida gerada.
+
+### Ajuste 3 — evaluation_confidence no Gap (recomendado)
+
+Adicionar o campo `evaluation_confidence` ao schema do Gap para registrar a confiança da classificação de conformidade, não apenas a confiança da pergunta:
+
+```typescript
+interface Gap {
+  // ... campos existentes ...
+  evaluation_confidence: "high" | "medium" | "low";
+  evaluation_confidence_reason?: string; // obrigatório quando "low"
+}
+```
+
+Regras de derivação do `evaluation_confidence`:
+
+| Condição | evaluation_confidence |
+|----------|-----------------------|
+| `classification_method === "deterministic"` + `evidence` não vazio | `"high"` |
+| `classification_method === "llm_assisted"` + `evidence` não vazio | `"medium"` |
+| `gap_status === "evidencia_insuficiente"` | `"low"` (sempre) |
+| `evidence` vazio ou muito curto (< 20 chars) | `"low"` |
+
+O campo `evaluation_confidence` é usado pelo Coverage Engine para calcular o coverage ponderado por confiança e pelo Risk Engine para ajustar o `ia_adjustment` dos riscos derivados de gaps de baixa confiança.
 
 ---
 

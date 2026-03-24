@@ -58,11 +58,15 @@ interface Question {
   cnae_code?: string;            // Preenchido apenas para stage "cnae"
   deduplication_hash: string;    // Hash semântico para deduplicação
   blocked_by_no_question: boolean; // true = bloqueada por falta de grounding RAG
+  // Ajuste obrigatório do Orquestrador (gate B1 — 2026-03-24)
+  quality_gate_status: "approved" | "pending_valid_question" | "no_valid_question_generated";
+  quality_gate_attempts: number; // 1 ou 2; após 2 tentativas → no_valid_question_generated
 }
 ```
 
 **Regra:** `source_type === "ai"` → `confidence: "low"`, requer revisão humana.  
-**Regra:** `blocked_by_no_question === true` → pergunta não incluída no questionário.
+**Regra:** `blocked_by_no_question === true` → pergunta não incluída no questionário.  
+**Regra (Orquestrador):** `score < 3.5` → pergunta descartada; requisito permanece `pending_valid_question`; sistema tenta reformular (até 2 tentativas); após 2 falhas → `no_valid_question_generated`.
 
 ### Nó 3 — Gap
 
@@ -76,11 +80,15 @@ interface Gap {
   evidence: string;              // Resposta do usuário que fundamenta a classificação
   classification_method: "deterministic" | "llm_assisted";
   llm_justification?: string;    // Preenchido quando classification_method = "llm_assisted"
+  // Ajuste obrigatório do Orquestrador (gate B1 — 2026-03-24)
+  evaluation_confidence: "high" | "medium" | "low";
+  evaluation_confidence_reason?: string; // obrigatório quando "low"
 }
 ```
 
 **Regra:** `gap_status === "nao_aplicavel"` → excluído do cálculo de coverage.  
-**Regra:** `gap_status === "evidencia_insuficiente"` → tratado como risco oculto de alta severidade.
+**Regra:** `gap_status === "evidencia_insuficiente"` → tratado como risco oculto de alta severidade.  
+**Regra (Orquestrador):** `evaluation_confidence` derivado por regras determinísticas: `deterministic + evidence` → `high`; `llm_assisted + evidence` → `medium`; `evidencia_insuficiente` ou `evidence` vazio → `low` (sempre).
 
 ### Nó 4 — Risco (Risk)
 
@@ -408,14 +416,17 @@ As seguintes validações devem ser executadas pelo sistema antes de gerar os ou
 |-----------|-------|-------------|
 | Pergunta sem requirement_id | `question.requirement_id` obrigatório | ✅ Sim |
 | Pergunta sem source_reference | `question.source_reference` obrigatório | ✅ Sim |
-| Pergunta com score < 3.5 | Descartar ou reformular | ✅ Sim |
+| Pergunta com score < 3.5 | Descartar; requisito → `pending_valid_question`; reformular até 2x | ✅ Sim |
+| Pergunta após 2 tentativas sem score ≥ 3.5 | Requisito → `no_valid_question_generated`; bloquear gate | ✅ Sim |
 | Gap sem question_id | `gap.question_id` obrigatório | ✅ Sim |
 | Gap sem requirement_id | `gap.requirement_id` obrigatório | ✅ Sim |
+| Gap sem evaluation_confidence | `gap.evaluation_confidence` obrigatório (ajuste Orquestrador) | ✅ Sim |
 | Risco sem gap_id | `risk.gap_id` obrigatório | ✅ Sim |
 | Risco sem impact_financial | `risk.impact_financial` obrigatório | ✅ Sim |
 | Ação sem risk_id | `action.risk_id` obrigatório | ✅ Sim |
 | Ação sem evidence_required | `action.evidence_required` obrigatório | ✅ Sim |
-| Coverage < 100% | Bloquear geração do briefing | ✅ Sim |
+| Coverage < 100% (fórmula corrigida: 4 critérios) | Bloquear geração do briefing | ✅ Sim |
+| `pending_valid_question_ids.length > 0` | Bloquear gate (sem pergunta válida = sem cobertura) | ✅ Sim |
 | Conflito crítico de consistência | Bloquear geração do briefing | ✅ Sim |
 | ia_adjustment fora de [-1.0, +1.0] | Rejeitar ajuste | ✅ Sim |
 
