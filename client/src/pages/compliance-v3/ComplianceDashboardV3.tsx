@@ -15,6 +15,7 @@ import { RiskLevelBadge, PriorityBadge } from "@/components/compliance-v3/shared
 import { useDashboardData } from "@/hooks/compliance-v3/useDashboardData";
 import { useExportActions } from "@/hooks/compliance-v3/useExportActions";
 import { trpc } from "@/lib/trpc";
+import { CpieScoreCard } from "@/components/CpieScoreBadge";
 
 const DOMAINS = [
   { value: "governanca_transicao", label: "Governança da Transição" },
@@ -192,6 +193,9 @@ export default function ComplianceDashboardV3() {
           progressPercent={taskSummary?.progressPercent ?? 0}
         />
 
+        {/* Score CPIE B8 */}
+        <CpieScoreCard projectId={projectId} />
+
         {/* Executive Narrative */}
         {executiveData && (
           <ExecutiveNarrative
@@ -308,6 +312,7 @@ export default function ComplianceDashboardV3() {
             { label: "Plano de Ação", href: `/projetos/${projectId}/compliance-v3/actions`, icon: "📋" },
             { label: "Tarefas", href: `/projetos/${projectId}/compliance-v3/tasks`, icon: "✅" },
             { label: "Briefing B7", href: `/projetos/${projectId}/compliance-v3/briefing`, icon: "📄" },
+            { label: "Score B8", href: `/projetos/${projectId}/compliance-v3/score`, icon: "📊" },
           ].map(({ label, href, icon }) => (
             <Link key={href} href={href}>
               <Button variant="outline" className="w-full h-12 text-sm">

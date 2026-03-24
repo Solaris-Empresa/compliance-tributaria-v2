@@ -58,6 +58,7 @@ import ActionsV3 from "./pages/compliance-v3/ActionsV3";
 import TasksV3 from "./pages/compliance-v3/TasksV3";
 import ExportsV3 from "./pages/compliance-v3/ExportsV3";
 import BriefingEngineView from "./pages/compliance-v3/BriefingEngineView";
+import ScoreView from "./pages/compliance-v3/ScoreView";
 // Demo standalone
 import DemoLanding from "./pages/demo/DemoLanding";
 import DemoAssessment from "./pages/demo/DemoAssessment";
@@ -137,6 +138,8 @@ function Router() {
       <Route path="/projetos/:id/compliance-v3/exports" component={ExportsV3} />
       {/* Briefing Engine B7 */}
       <Route path="/projetos/:id/compliance-v3/briefing" component={BriefingEngineView} />
+      {/* Scoring Engine B8 */}
+      <Route path="/projetos/:id/compliance-v3/score" component={ScoreView} />
       {/* Demo standalone — sem login */}
       <Route path="/demo" component={DemoLanding} />
       <Route path="/demo/assessment" component={DemoAssessment} />

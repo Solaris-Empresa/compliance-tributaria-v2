@@ -1,5 +1,6 @@
 import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
+import { CpieScoreBadge } from "@/components/CpieScoreBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -259,8 +260,8 @@ export default function Projetos() {
                     <CardTitle className="mt-4">{project.name}</CardTitle>
                     <CardDescription className="flex items-center gap-2 flex-wrap">
                       <span>Criado em {new Date(project.createdAt).toLocaleDateString('pt-BR')}</span>
-                      {/* I3: Badge de Score IA */}
-                      <ScoreIaBadge score={(project as any).profileCompleteness} />
+                      {/* I3: Badge de Score CPIE B8 */}
+                      <CpieScoreBadge projectId={project.id} size="sm" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent>

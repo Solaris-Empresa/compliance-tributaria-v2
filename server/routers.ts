@@ -71,6 +71,7 @@ import { gapEngineRouter } from "./routers/gapEngine";
 import { riskEngineRouter } from "./routers/riskEngine";
 import { actionEngineRouter } from "./routers/actionEngine";
 import { briefingEngineRouter } from "./routers/briefingEngine";
+import { scoringEngineRouter } from "./routers/scoringEngine";
 
 export const appRouter = router({
   system: systemRouter,
@@ -112,6 +113,7 @@ export const appRouter = router({
   riskEngine: riskEngineRouter, // ADR-010 — Risk Engine B5 (Sprint 98%)
   actionEngine: actionEngineRouter, // ADR-010 — Action Engine B6 (Sprint 98%)
   briefingEngine: briefingEngineRouter, // ADR-010 — Briefing Engine B7 (Sprint 98%)
+  scoringEngine: scoringEngineRouter, // ADR-010 — Scoring Engine B8 (Sprint 98%)
 
   // ==========================================================================
   // AUTH
