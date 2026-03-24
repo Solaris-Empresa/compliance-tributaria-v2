@@ -6,6 +6,11 @@
  * REGRA: Esta página contém APENAS estrutura, seções e placeholders.
  * Perguntas jurídicas finais serão inseridas na Fase 5 (pré-sprint RAG).
  * BLOQUEIO: Só acessível após Diagnóstico Operacional (operational) = completed.
+ *
+ * v2.2: Auto-prefill de campos redundantes com dados do perfil do projeto:
+ *   QCNAE-01 (setor econômico) ← operationProfile.operationType
+ *   QCNAE-01 (múltiplos CNAEs) ← confirmedCnaes[].length
+ *   QCNAE-01 (CNAEs principais) ← confirmedCnaes[].code + description
  */
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
@@ -30,6 +35,10 @@ import {
   Lock,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  buildCnaePrefill,
+  getPrefilledSectionsCnae as getPrefilledSectionsCnaeShared,
+} from "@shared/questionario-prefill";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Estrutura oficial das 5 seções do Questionário Setorial CNAE
@@ -95,6 +104,14 @@ const SECOES_CNAE = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Mapeamentos: valores do banco → opções do questionário
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** operationProfile.operationType → setor econômico principal (radio) */
+// Mapeamentos e funções de prefill re-exportados do módulo shared (para compatibilidade)
+export { OPERATION_TYPE_TO_SETOR, cnaeCountToAtividades, cnaesToObservacoes, getPrefilledSectionsCnae } from "@shared/questionario-prefill";
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Componente principal
 // ─────────────────────────────────────────────────────────────────────────────
 export default function QuestionarioCNAE() {
@@ -121,12 +138,19 @@ export default function QuestionarioCNAE() {
   // Verificar bloqueio: operational deve estar completed
   const operationalCompleted = diagnosticStatus?.diagnosticStatus?.operational === "completed";
 
-  // Carregar respostas salvas ao montar
+  // Carregar respostas salvas ao montar — com auto-prefill do perfil
   useEffect(() => {
-    if (projeto && (projeto as any).cnaeAnswers) {
-      const saved = (projeto as any).cnaeAnswers;
-      if (typeof saved === "object" && saved !== null) {
-        setRespostas(saved);
+    if (projeto) {
+      const p = projeto as any;
+      // Respostas salvas anteriormente têm prioridade máxima
+      if (p.cnaeAnswers && typeof p.cnaeAnswers === "object" && Object.keys(p.cnaeAnswers).length > 0) {
+        setRespostas(p.cnaeAnswers);
+      } else {
+        // Auto-prefill a partir do perfil do projeto (via módulo shared)
+        const prefill = buildCnaePrefill(p);
+        if (Object.keys(prefill).length > 0) {
+          setRespostas(prev => ({ ...prefill, ...prev }));
+        }
       }
     }
     if (diagnosticStatus?.diagnosticStatus?.cnae === "completed") {
@@ -150,13 +174,16 @@ export default function QuestionarioCNAE() {
 
   // Mutation para salvar rascunho
   const salvarRascunho = trpc.diagnostic.updateDiagnosticStatus.useMutation({
-    onSuccess: () => toast.success("Rascunho salvo"),
-    onError: () => toast.error("Erro ao salvar rascunho"),
+    onSuccess: () => { setSalvando(false); toast.success("Rascunho salvo"); },
+    onError: () => { setSalvando(false); toast.error("Erro ao salvar rascunho"); },
   });
 
   const secao = SECOES_CNAE[secaoAtual];
   const totalSecoes = SECOES_CNAE.length;
   const progresso = Math.round(((secaoAtual + 1) / totalSecoes) * 100);
+
+  // Seções com dados pré-preenchidos do perfil
+  const prefilledSections = getPrefilledSectionsCnaeShared(projeto as any);
 
   function handleResposta(campoId: string, valor: any) {
     setRespostas(prev => ({ ...prev, [campoId]: valor }));
@@ -171,6 +198,7 @@ export default function QuestionarioCNAE() {
   }
 
   function handleSalvarRascunho() {
+    setSalvando(true);
     salvarRascunho.mutate({ projectId, layer: "cnae", status: "in_progress" });
   }
 
@@ -276,6 +304,9 @@ export default function QuestionarioCNAE() {
                 }`}
               >
                 {s.codigo}
+                {prefilledSections.has(s.codigo) && (
+                  <span className="ml-1 text-blue-500">●</span>
+                )}
               </button>
             ))}
           </div>
@@ -301,6 +332,23 @@ export default function QuestionarioCNAE() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Banner de pré-preenchimento — exibido na seção QCNAE-01 */}
+            {prefilledSections.has(secao.codigo) && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-blue-800">Dados pré-preenchidos do perfil do projeto</p>
+                    <p className="text-xs text-blue-700 mt-1">
+                      Setor econômico, quantidade de CNAEs e lista de CNAEs foram preenchidos automaticamente
+                      com base no tipo de operação e nos CNAEs confirmados no cadastro do projeto.
+                      Confirme ou ajuste se necessário antes de prosseguir.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Nota de placeholder */}
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
               <div className="flex items-start gap-2">

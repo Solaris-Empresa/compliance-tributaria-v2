@@ -7,6 +7,12 @@
  * Perguntas jurídicas finais serão inseridas na Fase 5 (pré-sprint RAG).
  * Nomes oficiais definidos pelo PO em 19/03/2026.
  * BLOQUEIO: Só acessível após Questionário Corporativo (corporate) = completed.
+ *
+ * v2.2: Auto-prefill de campos redundantes com dados do perfil do projeto:
+ *   QO-01-P1 (canais de venda) ← operationProfile.operationType
+ *   QO-01-P2 (perfil de clientes) ← operationProfile.clientType[]
+ *   QO-03-P1 (meios de pagamento) ← financialProfile.paymentMethods[]
+ *   QO-08-P2 (gestão fiscal) ← governanceProfile.hasTaxTeam
  */
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
@@ -31,6 +37,10 @@ import {
   Lock,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  buildOperationalPrefill,
+  getPrefilledSectionsOperacional,
+} from "@shared/questionario-prefill";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Seções oficiais do Questionário Operacional (definidas pelo PO)
@@ -154,6 +164,13 @@ const SECOES: Array<{
   },
 ];
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper local
+// ─────────────────────────────────────────────────────────────────────────────
+function getPrefilledSections(projeto: any): Set<string> {
+  return getPrefilledSectionsOperacional(projeto);
+}
+
 export default function QuestionarioOperacional() {
   const params = useParams<{ id: string }>();
   const projectId = parseInt(params.id ?? "0");
@@ -176,10 +193,17 @@ export default function QuestionarioOperacional() {
   const corporateCompleted = diagnosticStatus?.diagnosticStatus?.corporate === "completed";
 
   useEffect(() => {
-    if (projeto && (projeto as any).operationalAnswers) {
-      const saved = (projeto as any).operationalAnswers;
-      if (typeof saved === "object" && saved !== null) {
-        setRespostas(saved as Record<string, string | string[]>);
+    if (projeto) {
+      const p = projeto as any;
+      // Respostas salvas anteriormente têm prioridade máxima
+      if (p.operationalAnswers && typeof p.operationalAnswers === "object" && Object.keys(p.operationalAnswers).length > 0) {
+        setRespostas(p.operationalAnswers as Record<string, string | string[]>);
+      } else {
+        // Auto-prefill a partir do perfil do projeto (via módulo shared)
+        const prefill = buildOperationalPrefill(p);
+        if (Object.keys(prefill).length > 0) {
+          setRespostas(prev => ({ ...prefill, ...prev }));
+        }
       }
     }
     if (diagnosticStatus?.diagnosticStatus?.operational === "completed") {
@@ -189,7 +213,9 @@ export default function QuestionarioOperacional() {
 
   const completarCamada = trpc.diagnostic.completeDiagnosticLayer.useMutation({
     onSuccess: () => {
-      toast.success("Questionário Operacional concluído!", { description: "Avançando para o Diagnóstico CNAE..." });
+      toast.success("Questionário Operacional concluído!", {
+        description: "Avançando para o Diagnóstico Setorial CNAE...",
+      });
       refetchStatus();
       setConcluido(true);
       // v2.1: avançar automaticamente para a próxima camada do diagnóstico
@@ -208,6 +234,9 @@ export default function QuestionarioOperacional() {
   const secao = SECOES[secaoAtual];
   const totalSecoes = SECOES.length;
   const progresso = Math.round(((secaoAtual + 1) / totalSecoes) * 100);
+
+  // Seções com dados pré-preenchidos do perfil
+  const prefilledSections = getPrefilledSections(projeto as any);
 
   function handleResposta(campoId: string, valor: string) {
     setRespostas(prev => ({ ...prev, [campoId]: valor }));
@@ -314,6 +343,9 @@ export default function QuestionarioOperacional() {
                 }`}
               >
                 {s.codigo}
+                {prefilledSections.has(s.codigo) && (
+                  <span className="ml-1 text-blue-500">●</span>
+                )}
               </button>
             ))}
           </div>
@@ -333,6 +365,24 @@ export default function QuestionarioOperacional() {
             <CardDescription className="mt-1">{secao.descricao}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Banner de pré-preenchimento — exibido nas seções QO-01, QO-03 e QO-08 */}
+            {prefilledSections.has(secao.codigo) && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-blue-800">Dados pré-preenchidos do perfil do projeto</p>
+                    <p className="text-xs text-blue-700 mt-1">
+                      {secao.codigo === "QO-01" && "Canais de venda e perfil de clientes foram preenchidos automaticamente com base no tipo de operação e tipo de cliente informados no cadastro do projeto."}
+                      {secao.codigo === "QO-03" && "Meios de pagamento foram preenchidos automaticamente com base no perfil financeiro informado no cadastro do projeto."}
+                      {secao.codigo === "QO-08" && "Gestão da área fiscal foi preenchida automaticamente com base na governança tributária informada no cadastro do projeto."}
+                      {" "}Confirme ou ajuste se necessário antes de prosseguir.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
               <div className="flex items-start gap-2">
                 <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
