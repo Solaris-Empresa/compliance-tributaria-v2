@@ -301,12 +301,13 @@ export default function ComplianceDashboardV3() {
         </div>
 
         {/* Quick Navigation */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
             { label: "Ver Gaps", href: `/projetos/${projectId}/compliance-v3/gaps`, icon: "🔍" },
             { label: "Ver Riscos", href: `/projetos/${projectId}/compliance-v3/risks`, icon: "⚠️" },
             { label: "Plano de Ação", href: `/projetos/${projectId}/compliance-v3/actions`, icon: "📋" },
             { label: "Tarefas", href: `/projetos/${projectId}/compliance-v3/tasks`, icon: "✅" },
+            { label: "Briefing B7", href: `/projetos/${projectId}/compliance-v3/briefing`, icon: "📄" },
           ].map(({ label, href, icon }) => (
             <Link key={href} href={href}>
               <Button variant="outline" className="w-full h-12 text-sm">
