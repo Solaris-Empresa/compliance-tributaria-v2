@@ -126,7 +126,7 @@ O comportamento corrigido é:
 
 **Implicação:** o coverage gate bloqueia o briefing não apenas quando há requisitos sem resposta, mas também quando há requisitos sem pergunta válida gerada.
 
-### Ajuste 3 — evaluation_confidence no Gap (recomendado)
+### Ajuste 3 — evaluation_confidence no Gap (obrigatório)
 
 Adicionar o campo `evaluation_confidence` ao schema do Gap para registrar a confiança da classificação de conformidade, não apenas a confiança da pergunta:
 
@@ -148,6 +148,30 @@ Regras de derivação do `evaluation_confidence`:
 | `evidence` vazio ou muito curto (< 20 chars) | `"low"` |
 
 O campo `evaluation_confidence` é usado pelo Coverage Engine para calcular o coverage ponderado por confiança e pelo Risk Engine para ajustar o `ia_adjustment` dos riscos derivados de gaps de baixa confiança.
+
+### Recomendação não bloqueadora — Contextual Risk Layer (caminho para 98%)
+
+O Orquestrador identificou o último gap real do modelo: **riscos sistêmicos que não nascem de um único requisito isolado, mas da combinação de fatores do perfil da empresa**.
+
+Exemplo: empresa com 5 CNAEs + 4 UFs + ERP legado + operação interestadual. Mesmo com 100% de coverage nos requisitos individuais, existe um risco sistêmico de implementação que não nasce de nenhum requisito isolado.
+
+A solução é adicionar o campo `origin` ao schema do Risk:
+
+```typescript
+interface Risk {
+  // ... campos existentes ...
+  origin: "gap" | "contextual" | "gap+context";
+  // Regras:
+  // "gap"        → obrigatório (deriva de gap_id)
+  // "contextual" → permitido (deriva de combinação de fatores do perfil)
+  // "gap+context" → permitido (gap amplificado por contexto)
+  // sem origem   → proibido (bloqueador)
+}
+```
+
+**Impacto:** cobre o "não óbvio" — riscos que só aparecem quando o sistema analisa o perfil completo da empresa, não apenas os requisitos isolados. Isso leva o sistema de 95% para 98%.
+
+**Status:** recomendado (não bloqueador para B2/B3). Deve ser implementado no bloco B4 (Risk Engine).
 
 ---
 

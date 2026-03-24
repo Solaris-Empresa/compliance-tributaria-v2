@@ -113,11 +113,18 @@ interface Risk {
   impact_legal: string;          // "Autuação fiscal + juros SELIC"
   cluster_id?: string;           // ID do cluster semântico (quando agrupado)
   is_hidden_risk: boolean;       // true quando origem é evidencia_insuficiente
+  // Recomendação do Orquestrador (Contextual Risk Layer — caminho para 98%)
+  origin: "gap" | "contextual" | "gap+context";
+  // "gap"         → obrigatório (deriva de gap_id)
+  // "contextual"  → permitido (deriva de combinação de fatores do perfil)
+  // "gap+context" → permitido (gap amplificado por contexto sistêmico)
+  // sem origem    → proibido (bloqueador)
 }
 ```
 
-**Regra:** risco sem `gap_id` → **não existe** (bloqueador de implementação).  
-**Regra:** `is_hidden_risk === true` → severidade padrão "alta", mesmo sem evidência direta.
+**Regra:** risco sem `gap_id` → **não existe** (bloqueador de implementação), exceto quando `origin === "contextual"`.  
+**Regra:** `is_hidden_risk === true` → severidade padrão "alta", mesmo sem evidência direta.  
+**Regra (Contextual Risk Layer):** `origin === "contextual"` → risco sistêmico derivado da combinação de fatores do perfil (multi-CNAE, multi-UF, ERP legado, operação interestadual). Não requer `gap_id`, mas requer `contextual_factors` documentados.
 
 ### Nó 5 — Ação (Action)
 

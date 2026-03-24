@@ -65,6 +65,8 @@ import { flowRouter } from "./routers/flowRouter";
 import { cpieRouter } from "./routers/cpieRouter";
 import { cpieV2Router } from "./routers/cpieV2Router";
 import { shadowModeRouter } from "./routers/shadowMode";
+import { requirementEngineRouter } from "./routers/requirementEngine";
+import { questionEngineRouter } from "./routers/questionEngine";
 
 export const appRouter = router({
   system: systemRouter,
@@ -100,6 +102,8 @@ export const appRouter = router({
   cpie: cpieRouter,
   cpieV2: cpieV2Router, // CPIE v2.0 — Conflict Intelligence Gate (Issue v6.0.R1)
   shadowMode: shadowModeRouter, // ADR-009 — Shadow Mode para F-04
+  requirements: requirementEngineRouter, // ADR-010 — Requirement Engine B2 (Sprint 98%)
+  questionEngine: questionEngineRouter, // ADR-010 — Question Engine B3 (Sprint 98%)
 
   // ==========================================================================
   // AUTH
