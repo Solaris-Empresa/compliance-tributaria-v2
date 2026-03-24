@@ -67,6 +67,8 @@ import { cpieV2Router } from "./routers/cpieV2Router";
 import { shadowModeRouter } from "./routers/shadowMode";
 import { requirementEngineRouter } from "./routers/requirementEngine";
 import { questionEngineRouter } from "./routers/questionEngine";
+import { gapEngineRouter } from "./routers/gapEngine";
+import { riskEngineRouter } from "./routers/riskEngine";
 
 export const appRouter = router({
   system: systemRouter,
@@ -104,6 +106,8 @@ export const appRouter = router({
   shadowMode: shadowModeRouter, // ADR-009 — Shadow Mode para F-04
   requirements: requirementEngineRouter, // ADR-010 — Requirement Engine B2 (Sprint 98%)
   questionEngine: questionEngineRouter, // ADR-010 — Question Engine B3 (Sprint 98%)
+  gapEngine: gapEngineRouter, // ADR-010 — Gap Engine B4 (Sprint 98%)
+  riskEngine: riskEngineRouter, // ADR-010 — Risk Engine B5 (Sprint 98%)
 
   // ==========================================================================
   // AUTH
