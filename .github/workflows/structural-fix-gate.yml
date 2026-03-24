@@ -1,0 +1,194 @@
+name: Structural Fix Gate
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CI BLOQUEANTE — Governança de Issues Estruturais
+#
+# Este workflow bloqueia o merge de qualquer PR que referencie uma issue
+# com label `structural-fix` se qualquer um dos requisitos obrigatórios
+# estiver ausente.
+#
+# Requisitos verificados:
+#   1. Referência de issue no título ou corpo do PR
+#   2. Referência de contrato/ADR afetado
+#   3. Testes novos adicionados (arquivo .test.ts modificado)
+#   4. Arquivo de evidência criado em docs/evidence-packs/
+#   5. Checklist do PR preenchido (nenhum item desmarcado)
+#   6. Suíte PCT passando (server/prefill-contract.test.ts)
+#   7. Suite completa passando (pnpm test)
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches: [main, develop]
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 1: Verificação de Metadados do PR
+  # ─────────────────────────────────────────────────────────────────────────
+  pr-metadata-check:
+    name: "🔍 PR Metadata Check"
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'structural-fix')
+    steps:
+      - name: Check issue reference
+        run: |
+          PR_BODY="${{ github.event.pull_request.body }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          
+          # Verifica referência de issue (Closes #N, Fixes #N, Refs #N)
+          if ! echo "$PR_BODY$PR_TITLE" | grep -qiE "(closes|fixes|refs|resolves)\s*#[0-9]+"; then
+            echo "❌ BLOQUEADO: PR não referencia nenhuma issue."
+            echo "   Adicione 'Closes #N' no corpo do PR."
+            exit 1
+          fi
+          echo "✅ Referência de issue encontrada"
+
+      - name: Check contract/ADR reference
+        run: |
+          PR_BODY="${{ github.event.pull_request.body }}"
+          
+          # Verifica referência de contrato ou ADR
+          if ! echo "$PR_BODY" | grep -qiE "(contrato|contract|ADR|invariant|prefill-contract|docs/adr|docs/governance)"; then
+            echo "❌ BLOQUEADO: PR não referencia nenhum contrato ou ADR."
+            echo "   Preencha a seção '3. Contrato / ADR Afetado' do PR template."
+            exit 1
+          fi
+          echo "✅ Referência de contrato/ADR encontrada"
+
+      - name: Check checklist completion
+        run: |
+          PR_BODY="${{ github.event.pull_request.body }}"
+          
+          # Verifica se há itens desmarcados no checklist (- [ ] )
+          UNCHECKED=$(echo "$PR_BODY" | grep -c "- \[ \]" || true)
+          if [ "$UNCHECKED" -gt "0" ]; then
+            echo "❌ BLOQUEADO: Checklist do PR tem $UNCHECKED item(ns) não marcado(s)."
+            echo "   Complete todos os itens do checklist antes de solicitar merge."
+            exit 1
+          fi
+          echo "✅ Checklist completamente preenchido"
+
+      - name: Check evidence pack reference
+        run: |
+          PR_BODY="${{ github.event.pull_request.body }}"
+          
+          # Verifica referência ao evidence pack
+          if ! echo "$PR_BODY" | grep -qiE "docs/evidence-packs/"; then
+            echo "❌ BLOQUEADO: PR não referencia nenhum Evidence Pack."
+            echo "   Crie o arquivo em docs/evidence-packs/YYYY-MM-DD-<slug>.md"
+            echo "   e referencie-o na seção '8. Evidências Anexadas'."
+            exit 1
+          fi
+          echo "✅ Referência ao Evidence Pack encontrada"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 2: Verificação de Arquivos Obrigatórios
+  # ─────────────────────────────────────────────────────────────────────────
+  required-files-check:
+    name: "📁 Required Files Check"
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'structural-fix')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for new test files
+        run: |
+          # Verifica se algum arquivo .test.ts foi adicionado ou modificado
+          CHANGED_TESTS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E "\.test\.ts$" || true)
+          if [ -z "$CHANGED_TESTS" ]; then
+            echo "❌ BLOQUEADO: Nenhum arquivo de teste (.test.ts) foi adicionado ou modificado."
+            echo "   Issues estruturais EXIGEM testes novos."
+            exit 1
+          fi
+          echo "✅ Arquivos de teste encontrados:"
+          echo "$CHANGED_TESTS"
+
+      - name: Check for evidence pack file
+        run: |
+          # Verifica se um arquivo de evidence pack foi adicionado
+          EVIDENCE_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E "^docs/evidence-packs/" || true)
+          if [ -z "$EVIDENCE_FILES" ]; then
+            echo "❌ BLOQUEADO: Nenhum arquivo de Evidence Pack foi adicionado em docs/evidence-packs/."
+            echo "   Crie o arquivo: docs/evidence-packs/YYYY-MM-DD-<slug>.md"
+            exit 1
+          fi
+          echo "✅ Evidence Pack encontrado:"
+          echo "$EVIDENCE_FILES"
+
+      - name: Check invariant registry not deleted
+        run: |
+          # Verifica se o invariant registry não foi deletado
+          if [ ! -f "docs/governance/invariant-registry.md" ]; then
+            echo "❌ BLOQUEADO: docs/governance/invariant-registry.md foi deletado ou não existe."
+            echo "   O Invariant Registry é um artefato permanente e não pode ser removido."
+            exit 1
+          fi
+          echo "✅ Invariant Registry presente"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 3: Suíte PCT Obrigatória
+  # ─────────────────────────────────────────────────────────────────────────
+  pct-suite:
+    name: "🧪 Prefill Contract Tests (PCT)"
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'structural-fix')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run PCT Suite (Prefill Contract Tests)
+        run: |
+          echo "Executando suíte PCT obrigatória..."
+          pnpm vitest run server/prefill-contract.test.ts --reporter=verbose
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run full test suite
+        run: |
+          echo "Executando suite completa..."
+          pnpm test
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 4: Gate Summary
+  # ─────────────────────────────────────────────────────────────────────────
+  structural-gate-summary:
+    name: "🔐 Structural Gate — Summary"
+    runs-on: ubuntu-latest
+    needs: [pr-metadata-check, required-files-check, pct-suite]
+    if: always() && contains(github.event.pull_request.labels.*.name, 'structural-fix')
+    steps:
+      - name: Gate result
+        run: |
+          if [ "${{ needs.pr-metadata-check.result }}" != "success" ] || \
+             [ "${{ needs.required-files-check.result }}" != "success" ] || \
+             [ "${{ needs.pct-suite.result }}" != "success" ]; then
+            echo "❌ STRUCTURAL GATE: BLOQUEADO"
+            echo ""
+            echo "Resultados:"
+            echo "  PR Metadata:     ${{ needs.pr-metadata-check.result }}"
+            echo "  Required Files:  ${{ needs.required-files-check.result }}"
+            echo "  PCT Suite:       ${{ needs.pct-suite.result }}"
+            echo ""
+            echo "Corrija todos os itens bloqueados antes de solicitar merge."
+            exit 1
+          fi
+          echo "✅ STRUCTURAL GATE: APROVADO"
+          echo ""
+          echo "Todos os requisitos de governança estrutural foram atendidos."
+          echo "  PR Metadata:     ✅"
+          echo "  Required Files:  ✅"
+          echo "  PCT Suite:       ✅"
