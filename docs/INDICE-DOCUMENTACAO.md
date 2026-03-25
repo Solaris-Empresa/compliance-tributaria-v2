@@ -1,12 +1,12 @@
 # Índice Mestre de Documentação
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.04 — 2026-03-24
-> **Versão anterior:** 2.03 (commit `a086ee3`, 2026-03-24)
-> **Commit HEAD:** `a086ee3` (branch `main`)
-> **Total de documentos:** 126 arquivos Markdown (sem .docx — GitHub é o repositório oficial)
+> **Versão:** 2.05 — 2026-03-24
+> **Versão anterior:** 2.04 (commit `52c677b`, 2026-03-24)
+> **Commit HEAD:** `52c677b` (branch `main`)
+> **Total de documentos:** 129 arquivos Markdown (sem .docx — GitHub é o repositório oficial)
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
-> **Novos nesta versão:** Categoria 10 — Playruns criada com PLAYRUN-TEMPLATE.md e PLAYRUN-001 (Sub-Sprint Prefill Contract)
+> **Novos nesta versão:** Categoria 11 — Suporte ao Usuário (FAQ, MANUAL-USUARIO, ESCALACAO) + PRODUCT-LIFECYCLE.md v1.0
 >
 > **📌 Acesso rápido para o P.O.:**
 > - 🔴 [ERROS CONHECIDOS v2.1](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md) — incidentes, runbooks, sprints
@@ -225,7 +225,8 @@ Documentos de especificação funcional e técnica do produto.
 | 8 — Playbooks e Guias | 6 | 🟠 ALTA | — |
 | 9 — Histórico de Sprints | 4 | 🟢 BAIXA | — |
 | **10 — Playruns** | **2** | 🟠 ALTA | **2 (todos novos)** |
-| **Total** | **95** | — | **15 novos** |
+| **11 — Suporte ao Usuário** | **3** | 🔴 CRÍTICA | **3 (todos novos)** |
+| **Total** | **98** | — | **18 novos** |
 
 > **Nota:** O total de 80 documentos neste índice representa os documentos ativos e relevantes. O repositório contém 120 arquivos `.md` no total, incluindo ~40 documentos históricos de sprints anteriores (pré-v5.0) na raiz do projeto.
 
@@ -241,6 +242,18 @@ Registros de execuções reais de playbooks. Cada Playrun documenta o que **acon
 |---|---|---|---|
 | ⭐ [**PLAYRUN-TEMPLATE.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/playruns/PLAYRUN-TEMPLATE.md) | — | Template padrão | Use este template para criar novos playruns |
 | [**PLAYRUN-001-SUB-SPRINT-PREFILL-CONTRACT.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/playruns/PLAYRUN-001-SUB-SPRINT-PREFILL-CONTRACT.md) | 2026-03-24 | Sub-Sprint Prefill Contract | ✅ CONCLUÍDO — 410/410 testes · 4 DAs · 8 invariants · BUG-001 corrigido |
+
+---
+
+## Categoria 11 — Suporte ao Usuário
+
+Documentos voltados ao usuário final da plataforma (advogados tributaristas). Cobrem acesso, uso do fluxo completo, dúvidas frequentes e escalação de problemas. São documentos vivos — atualizados a cada sprint ou quando novos padrões de uso forem identificados.
+
+| Arquivo | Descrição | Audiência |
+|---|---|---|
+| ⭐ [**MANUAL-USUARIO.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/suporte/MANUAL-USUARIO.md) | Manual completo: acesso, fluxo das 5 etapas, limites e comportamentos esperados | Advogados |
+| [**FAQ.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/suporte/FAQ.md) | Perguntas frequentes: acesso, criação de projetos, geração de conteúdo, UAT | Advogados |
+| [**ESCALACAO.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/suporte/ESCALACAO.md) | Fluxo de escalação P0→P3: autoconsulta, suporte interno, escalação urgente | Advogados + P.O. |
 
 ---
 
@@ -275,7 +288,8 @@ Registros de execuções reais de playbooks. Cada Playrun documenta o que **acon
 
 ---
 
-*Atualizado em 2026-03-24 — Versão 2.04 | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Atualizado em 2026-03-24 — Versão 2.05 | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Versão anterior: 2.04 (commit `52c677b`, 2026-03-24) — PRODUCT-LIFECYCLE.md v1.0 + Playruns + limpeza de token*
 *Versão anterior: 2.03 (commit `a086ee3`, 2026-03-24) — link quebrado removido*
 *Versão anterior: 2.02 (commit `9e25ead`, 93 documentos, 2026-03-24) — BASELINE-PRODUTO.md criado*
 *Versão anterior: 2.01 (commit `c3b39da`, 93 documentos, 2026-03-24)*

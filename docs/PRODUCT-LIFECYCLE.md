@@ -369,11 +369,10 @@ Execute nesta ordem sem pular etapas:
 - [ ] Causa-raiz identificada e registrada
 - [ ] Invariants re-verificados após correção (`npx vitest run server/prefill-contract.test.ts server/invariants-606-607-608.test.ts`)
 
-> ⚠️ **Lacuna crítica:** Não existe nenhum documento de suporte voltado ao usuário final.
-> Criar urgentemente:
-> - `docs/suporte/FAQ.md` — perguntas frequentes do usuário
-> - `docs/suporte/MANUAL-USUARIO.md` — guia de uso da plataforma
-> - `docs/suporte/ESCALACAO.md` — fluxo de escalação de problemas
+**Documentos de suporte ao usuário final** (criados em 2026-03-24):
+- [`docs/suporte/FAQ.md`](./suporte/FAQ.md) — perguntas frequentes
+- [`docs/suporte/MANUAL-USUARIO.md`](./suporte/MANUAL-USUARIO.md) — guia de uso
+- [`docs/suporte/ESCALACAO.md`](./suporte/ESCALACAO.md) — fluxo de escalação P0→P3
 
 ---
 
@@ -451,9 +450,9 @@ Estes documentos atravessam todas as fases. Devem estar acessíveis a qualquer m
 
 | Prioridade | Arquivo a criar | Fase | Motivo |
 |---|---|---|---|
-| 🔴 Alta | `docs/suporte/FAQ.md` | Exceção: Incidentes | Nenhum suporte ao usuário final existe |
-| 🔴 Alta | `docs/suporte/MANUAL-USUARIO.md` | Exceção: Incidentes | Nenhum suporte ao usuário final existe |
-| 🔴 Alta | `docs/suporte/ESCALACAO.md` | Exceção: Incidentes | Sem fluxo de escalação de problemas |
+| ✅ Resolvido | `docs/suporte/FAQ.md` | Exceção: Incidentes | Criado em 2026-03-24 |
+| ✅ Resolvido | `docs/suporte/MANUAL-USUARIO.md` | Exceção: Incidentes | Criado em 2026-03-24 |
+| ✅ Resolvido | `docs/suporte/ESCALACAO.md` | Exceção: Incidentes | Criado em 2026-03-24 |
 | 🟠 Média | `CHANGELOG.md` | 6 — Release | Sem histórico estruturado por versão |
 | 🟠 Média | `docs/templates/RELEASE-NOTES-TEMPLATE.md` | 6 — Release | Sem padrão de comunicação de release |
 | 🟡 Baixa | `docs/DEFINITION-OF-DONE.md` | 4 — Implementação | Sem DoD formal por tipo de entrega |
