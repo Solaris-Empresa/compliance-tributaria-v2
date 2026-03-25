@@ -1,12 +1,12 @@
 # Índice Mestre de Documentação
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.03 — 2026-03-24
-> **Versão anterior:** 2.02 (commit `9e25ead`, 93 docs, 2026-03-24)
-> **Commit HEAD:** `9e25ead` (branch `main`)
-> **Total de documentos:** 124 arquivos Markdown (sem .docx — GitHub é o repositório oficial)
+> **Versão:** 2.04 — 2026-03-24
+> **Versão anterior:** 2.03 (commit `a086ee3`, 2026-03-24)
+> **Commit HEAD:** `a086ee3` (branch `main`)
+> **Total de documentos:** 126 arquivos Markdown (sem .docx — GitHub é o repositório oficial)
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
-> **Novos nesta versão:** BASELINE-PRODUTO.md v1.0 — documento vivo unificado substitui STATUS-REPORT-BASELINE e STATUS-BASELINE-PROPOSTA-TESTES
+> **Novos nesta versão:** Categoria 10 — Playruns criada com PLAYRUN-TEMPLATE.md e PLAYRUN-001 (Sub-Sprint Prefill Contract)
 >
 > **📌 Acesso rápido para o P.O.:**
 > - 🔴 [ERROS CONHECIDOS v2.1](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md) — incidentes, runbooks, sprints
@@ -224,9 +224,23 @@ Documentos de especificação funcional e técnica do produto.
 | 7 — Operação e Infraestrutura | 10 | 🟢 BAIXA | — |
 | 8 — Playbooks e Guias | 6 | 🟠 ALTA | — |
 | 9 — Histórico de Sprints | 4 | 🟢 BAIXA | — |
-| **Total** | **93** | — | **13 novos** |
+| **10 — Playruns** | **2** | 🟠 ALTA | **2 (todos novos)** |
+| **Total** | **95** | — | **15 novos** |
 
 > **Nota:** O total de 80 documentos neste índice representa os documentos ativos e relevantes. O repositório contém 120 arquivos `.md` no total, incluindo ~40 documentos históricos de sprints anteriores (pré-v5.0) na raiz do projeto.
+
+---
+
+## Categoria 10 — Playruns
+
+Registros de execuções reais de playbooks. Cada Playrun documenta o que **aconteceu** durante uma sprint ou execução — etapas executadas, resultados mensurados, erros encontrados, desvios do playbook e lições aprendidas. São imutáveis após a sprint ser encerrada.
+
+> **Diferença fundamental:** O Playbook diz *o que fazer*. O Playrun registra *o que aconteceu*.
+
+| Arquivo | Data | Sprint | Status |
+|---|---|---|---|
+| ⭐ [**PLAYRUN-TEMPLATE.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/playruns/PLAYRUN-TEMPLATE.md) | — | Template padrão | Use este template para criar novos playruns |
+| [**PLAYRUN-001-SUB-SPRINT-PREFILL-CONTRACT.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/playruns/PLAYRUN-001-SUB-SPRINT-PREFILL-CONTRACT.md) | 2026-03-24 | Sub-Sprint Prefill Contract | ✅ CONCLUÍDO — 410/410 testes · 4 DAs · 8 invariants · BUG-001 corrigido |
 
 ---
 
@@ -252,7 +266,8 @@ Documentos de especificação funcional e técnica do produto.
 2. `docs/PO-GOVERNANCA-PIPELINE-v3.md` — entender o estado e as regras do P.O.
 3. `docs/SKILL-MANUS-PIPELINE-v3.md` — assumir o modo operacional correto
 4. `docs/PLAYBOOK-PLATAFORMA.md` — regras mandatórias de desenvolvimento
-5. `docs/product/cpie-v2/produto/STATUS-REPORT-BASELINE-2026-03-23.md` — estado atual
+5. `docs/BASELINE-PRODUTO.md` — estado atual do produto (documento vivo)
+5b. `docs/playruns/PLAYRUN-001-SUB-SPRINT-PREFILL-CONTRACT.md` — última sprint executada
 6. `docs/REBUILD-PIPELINE-v3.md` — se precisar reconstruir do zero
 7. `docs/product/cpie-v2/produto/ADR-008-F04-schema-migration-strategy.md` — estratégia de migração ativa
 8. `docs/product/cpie-v2/produto/RELATORIO-FINAL-SHADOW-MODE-ADR009.md` — Shadow Mode
@@ -260,7 +275,9 @@ Documentos de especificação funcional e técnica do produto.
 
 ---
 
-*Atualizado em 2026-03-24 — Versão 2.02 | Commit HEAD: `c3b39da` | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Atualizado em 2026-03-24 — Versão 2.04 | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Versão anterior: 2.03 (commit `a086ee3`, 2026-03-24) — link quebrado removido*
+*Versão anterior: 2.02 (commit `9e25ead`, 93 documentos, 2026-03-24) — BASELINE-PRODUTO.md criado*
 *Versão anterior: 2.01 (commit `c3b39da`, 93 documentos, 2026-03-24)*
 *Versão anterior: 2.00 (commit `c92d5337`, 80 documentos, 2026-03-23)*
 *Versão anterior: 1.00 (commit `40bf064`, 65 documentos, 2026-03-21)*
