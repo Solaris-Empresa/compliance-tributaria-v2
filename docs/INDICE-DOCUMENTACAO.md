@@ -1,12 +1,20 @@
 # Índice Mestre de Documentação
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.01 — 2026-03-24
-> **Versão anterior:** 2.00 (commit `c92d5337`, 120 docs, 2026-03-23)
-> **Commit HEAD:** `92e5d88` (branch `main`)
+> **Versão:** 2.02 — 2026-03-24
+> **Versão anterior:** 2.01 (commit `c3b39da`, 93 docs, 2026-03-24)
+> **Commit HEAD:** `c3b39da` (branch `main`)
 > **Total de documentos:** 124 arquivos Markdown + 11 arquivos .docx
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
-> **Novos nesta versão:** 4 documentos do PO (v2.00) + 8 documentos da Sub-Sprint Prefill Contract
+> **Novos nesta versão:** Links GitHub diretos em todos os documentos + ERROS-CONHECIDOS v2.1 atualizado
+>
+> **📌 Acesso rápido para o P.O.:**
+> - 🔴 [ERROS CONHECIDOS v2.1](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md) — incidentes, runbooks, sprints
+> - 🔴 [AUTOAUDITORIA v1.1](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/AUTOAUDITORIA-QUESTIONARIOS-v1.1.md) — aprovado para UAT
+> - 🔴 [ARQUITETURA P.O. v1.1](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/QUESTIONARIOS-ARQUITETURA-PO-v1.1.md) — visão executiva
+> - 🔴 [RELATÓRIO GO/NO-GO](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/POS-AUTOAUDITORIA-RELATORIO-FINAL.md) — decisão UAT
+> - 🔴 [GUIA UAT ADVOGADOS v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md) — sessão com advogados
+> - 🔴 [SNAPSHOT DA PLATAFORMA v2.00](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/snapshot-plataforma-reforma-tributaria-v2.00.md) — estado atual completo
 
 ---
 
@@ -16,10 +24,10 @@ Documentos gerados a partir do `documentacao-para-rollback-rag-v1.00.docx`. São
 
 | Arquivo | Descrição | Audiência |
 |---|---|---|
-| [`docs/INDICE-DOCUMENTACAO.md`](./INDICE-DOCUMENTACAO.md) | **Este documento** — índice mestre de 120 docs em 10 categorias | P.O. + Agente |
-| [`docs/PO-GOVERNANCA-PIPELINE-v3.md`](./PO-GOVERNANCA-PIPELINE-v3.md) | Visão de P.O.: estado real, roadmap, critérios de produção, decisões de produto | P.O. + Orquestrador |
-| [`docs/REBUILD-PIPELINE-v3.md`](./REBUILD-PIPELINE-v3.md) | Guia de reconstrução completa da pipeline em caso de desastre ou perda de contexto | Agente + P.O. |
-| [`docs/SKILL-MANUS-PIPELINE-v3.md`](./SKILL-MANUS-PIPELINE-v3.md) | Skill técnico permanente do agente: 11 módulos de governança, persistência, QA e compliance | Agente |
+| [**Índice Mestre** (este doc)](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/INDICE-DOCUMENTACAO.md) | **Este documento** — índice mestre de 93 docs em 10 categorias | P.O. + Agente |
+| [PO-GOVERNANCA-PIPELINE-v3.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/PO-GOVERNANCA-PIPELINE-v3.md) | Visão de P.O.: estado real, roadmap, critérios de produção, decisões de produto | P.O. + Orquestrador |
+| [REBUILD-PIPELINE-v3.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/REBUILD-PIPELINE-v3.md) | Guia de reconstrução completa da pipeline em caso de desastre ou perda de contexto | Agente + P.O. |
+| [SKILL-MANUS-PIPELINE-v3.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/SKILL-MANUS-PIPELINE-v3.md) | Skill técnico permanente do agente: 11 módulos de governança, persistência, QA e compliance | Agente |
 
 ---
 
@@ -29,12 +37,12 @@ Documentos de status e baseline técnica do projeto, gerados em marcos important
 
 | Arquivo | Data | Descrição |
 |---|---|---|
-| [`docs/product/cpie-v2/produto/STATUS-REPORT-BASELINE-2026-03-23.md`](./product/cpie-v2/produto/STATUS-REPORT-BASELINE-2026-03-23.md) | 2026-03-23 | Status report completo + baseline técnica (commit `40bf064`) |
-| [`docs/product/cpie-v2/produto/STATUS-BASELINE-PROPOSTA-TESTES.md`](./product/cpie-v2/produto/STATUS-BASELINE-PROPOSTA-TESTES.md) | 2026-03-23 | Status report pré-Shadow Mode + proposta UAT |
-| [`docs/BASELINE-v2.2.md`](./BASELINE-v2.2.md) | — | Baseline técnica v2.2 |
-| [`docs/BaselineTecnica-v2.1.md`](./BaselineTecnica-v2.1.md) | — | Baseline técnica v2.1 |
-| [`docs/SPRINT-STATUS-REPORT.md`](./SPRINT-STATUS-REPORT.md) | — | Histórico de status de sprints |
-| [`docs/AUDITORIA-RECONCILIACAO-POS-v2.2.md`](./AUDITORIA-RECONCILIACAO-POS-v2.2.md) | — | Auditoria de reconciliação pós-v2.2 |
+| [STATUS-REPORT-BASELINE-2026-03-23.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/STATUS-REPORT-BASELINE-2026-03-23.md) | 2026-03-23 | Status report completo + baseline técnica (commit `40bf064`) |
+| [STATUS-BASELINE-PROPOSTA-TESTES.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/STATUS-BASELINE-PROPOSTA-TESTES.md) | 2026-03-23 | Status report pré-Shadow Mode + proposta UAT |
+| [BASELINE-v2.2.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-v2.2.md) | — | Baseline técnica v2.2 |
+| [BaselineTecnica-v2.1.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BaselineTecnica-v2.1.md) | — | Baseline técnica v2.1 |
+| [SPRINT-STATUS-REPORT.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/SPRINT-STATUS-REPORT.md) | — | Histórico de status de sprints |
+| [AUDITORIA-RECONCILIACAO-POS-v2.2.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/AUDITORIA-RECONCILIACAO-POS-v2.2.md) | — | Auditoria de reconciliação pós-v2.2 |
 
 ---
 
@@ -96,17 +104,17 @@ Documentos gerados durante a Sub-Sprint Estrutural de Prefill Contract. Cobrem d
 
 | Arquivo | Tipo | Descrição | Novo |
 |---|---|---|---|
-| [`docs/issues/ISSUE-001-prefill-contract-fase1-final.md`](./issues/ISSUE-001-prefill-contract-fase1-final.md) | Issue Formal | ISSUE-001 — Fase 1 Final do Prefill Contract: matriz, decisões, 10 blocos de checklist, critérios de aceite | ✅ Novo |
-| [`docs/issues/AUTOAUDITORIA-QUESTIONARIOS.md`](./issues/AUTOAUDITORIA-QUESTIONARIOS.md) | Auditoria | Autoauditoria v1.0 dos 3 questionários — 8 seções técnicas (DA-1..DA-5, gaps, decisões) | ✅ Novo |
-| [`docs/issues/AUTOAUDITORIA-QUESTIONARIOS-v1.1.md`](./issues/AUTOAUDITORIA-QUESTIONARIOS-v1.1.md) | Auditoria | Autoauditoria v1.1 — status atualizado pós-correções BUG-001 e OBS-002, GO para UAT | ✅ Novo |
-| [`docs/issues/QUESTIONARIOS-ARQUITETURA-PO.md`](./issues/QUESTIONARIOS-ARQUITETURA-PO.md) | Produto | Arquitetura dos questionários para o PO — 10 seções executivas, 82 campos mapeados | ✅ Novo |
-| [`docs/issues/QUESTIONARIOS-ARQUITETURA-PO-v1.1.md`](./issues/QUESTIONARIOS-ARQUITETURA-PO-v1.1.md) | Produto | Arquitetura dos questionários v1.1 — checklist 100% aprovado, roadmap atualizado | ✅ Novo |
-| [`docs/issues/FASE2-E2E-VALIDATION-REPORT.md`](./issues/FASE2-E2E-VALIDATION-REPORT.md) | Validação | Relatório E2E Fase 2 — 10 cenários × 8 blocos, 132 testes, decisão GO/NO-GO | ✅ Novo |
-| [`docs/issues/POS-AUTOAUDITORIA-RELATORIO-FINAL.md`](./issues/POS-AUTOAUDITORIA-RELATORIO-FINAL.md) | Relatório | Relatório final pós-autoauditoria — BUG-001 + OBS-002 corrigidos, DECISÃO-001 documentada | ✅ Novo |
-| [`docs/ERROS-CONHECIDOS.md`](./ERROS-CONHECIDOS.md) | Operacional | Registro de erros conhecidos v2.0 — 10 erros, runbooks, invariants, URLs GitHub | ✅ Novo |
-| [`docs/prefill-contract-sprint.md`](./prefill-contract-sprint.md) | Sprint | Documento formal da Sub-Sprint: Prefill Contract Matrix v1, Plano de Correção, Test Plan | ✅ Novo |
-| [`docs/governance/invariant-registry.md`](./governance/invariant-registry.md) | Governança | Invariant Registry — 8 invariants (INV-001..INV-008) com comandos de verificação | ✅ Novo |
-| [`docs/evidence-packs/2026-03-24-prefill-contract-sprint.md`](./evidence-packs/2026-03-24-prefill-contract-sprint.md) | Evidência | Evidence Pack canônico da sprint de Prefill Contract | ✅ Novo |
+| [ISSUE-001-prefill-contract-fase1-final.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/ISSUE-001-prefill-contract-fase1-final.md) | Issue Formal | ISSUE-001 — Fase 1 Final do Prefill Contract: matriz, decisões, 10 blocos de checklist, critérios de aceite | ✅ Novo |
+| [AUTOAUDITORIA-QUESTIONARIOS.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/AUTOAUDITORIA-QUESTIONARIOS.md) | Auditoria | Autoauditoria v1.0 dos 3 questionários — 8 seções técnicas (DA-1..DA-5, gaps, decisões) | ✅ Novo |
+| [**AUTOAUDITORIA-QUESTIONARIOS-v1.1.md** ⭐](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/AUTOAUDITORIA-QUESTIONARIOS-v1.1.md) | Auditoria | **Última versão** — status atualizado pós-correções BUG-001 e OBS-002, GO para UAT | ✅ Novo |
+| [QUESTIONARIOS-ARQUITETURA-PO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/QUESTIONARIOS-ARQUITETURA-PO.md) | Produto | Arquitetura dos questionários para o PO — 10 seções executivas, 82 campos mapeados | ✅ Novo |
+| [**QUESTIONARIOS-ARQUITETURA-PO-v1.1.md** ⭐](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/QUESTIONARIOS-ARQUITETURA-PO-v1.1.md) | Produto | **Última versão** — checklist 100% aprovado, roadmap atualizado | ✅ Novo |
+| [FASE2-E2E-VALIDATION-REPORT.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/FASE2-E2E-VALIDATION-REPORT.md) | Validação | Relatório E2E Fase 2 — 10 cenários × 8 blocos, 132 testes, decisão GO/NO-GO | ✅ Novo |
+| [POS-AUTOAUDITORIA-RELATORIO-FINAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/POS-AUTOAUDITORIA-RELATORIO-FINAL.md) | Relatório | Relatório final pós-autoauditoria — BUG-001 + OBS-002 corrigidos, DECISÃO-001 documentada | ✅ Novo |
+| [**ERROS-CONHECIDOS.md v2.1** ⭐](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md) | Operacional | **Última versão** — 10 erros catalogados, runbooks, 8 invariants, Seção 4b com docs do P.O., URLs GitHub | ✅ Novo |
+| [prefill-contract-sprint.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/prefill-contract-sprint.md) | Sprint | Documento formal da Sub-Sprint: Prefill Contract Matrix v1, Plano de Correção, Test Plan | ✅ Novo |
+| [invariant-registry.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/invariant-registry.md) | Governança | Invariant Registry — 8 invariants (INV-001..INV-008) com comandos de verificação | ✅ Novo |
+| [2026-03-24-prefill-contract-sprint.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/evidence-packs/2026-03-24-prefill-contract-sprint.md) | Evidência | Evidence Pack canônico da sprint de Prefill Contract | ✅ Novo |
 
 ---
 
@@ -232,7 +240,6 @@ Documentos de especificação funcional e técnica do produto.
 | `snapshot-plataforma-reforma-tributaria-v2.00.docx` | v2.00 |
 | `documentacao-projeto-plataforma-reforma-tributaria-v2.00.docx` | v2.00 |
 | `AUTOAUDITORIA-QUESTIONARIOS-v1.1.docx` | v1.1 — Sprint Prefill Contract |
-| `QUESTIONARIOS-ARQUITETURA-PO-v1.1.docx` | v1.1 — Sprint Prefill Contract |
 | `ERROS-CONHECIDOS-v2.0.docx` | v2.0 — Sprint Prefill Contract |
 | `INDICE-DOCUMENTACAO-v2.00.docx` | v2.00 — entregue pelo PO |
 
@@ -252,6 +259,7 @@ Documentos de especificação funcional e técnica do produto.
 
 ---
 
-*Atualizado em 2026-03-24 — Versão 2.01 | Commit HEAD: `92e5d88` | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Atualizado em 2026-03-24 — Versão 2.02 | Commit HEAD: `c3b39da` | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Versão anterior: 2.01 (commit `c3b39da`, 93 documentos, 2026-03-24)*
 *Versão anterior: 2.00 (commit `c92d5337`, 80 documentos, 2026-03-23)*
 *Versão anterior: 1.00 (commit `40bf064`, 65 documentos, 2026-03-21)*
