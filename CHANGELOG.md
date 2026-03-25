@@ -1,8 +1,55 @@
-# Changelog - Sistema de Compliance Tributária
+# Changelog — IA Solaris / Plataforma de Compliance Tributária
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
+
+---
+
+## [Sprint de Governança CI/CD] — 2026-03-25
+
+### Adicionado
+- PR template unificado com evidência JSON obrigatória (`.github/pull_request_template.md`)
+- Workflow `pr-governance.yml` — validação automática de PR body e file guard em todos os PRs
+- Workflow `test-suite.yml` — TypeScript + Vitest em todo PR (pnpm)
+- Workflow `migration-guard.yml` — disciplina obrigatória em migrations
+- Scripts `validate-pr-body.js` e `changed-files-guard.js` (Node.js puro, sem dependências)
+- 9 labels de governança: `db:migration`, `critical-path`, `rag:review`, `risk:low`, `risk:medium`, `risk:high`, `needs-orchestrator`, `blocked`, `observability`
+- `docs/DEFINITION-OF-DONE.md` — DoD formal por tipo de entrega
+
+### Expandido
+- `structural-fix-gate.yml` — 5º job `governance-check` adicionado (roda em todos os PRs, sem if de label)
+- `structural-gate-summary` — `needs` atualizado para incluir `governance-check`
+
+### Backup
+- `.github/PULL_REQUEST_TEMPLATE/backup-original-pr-template.md` — template anterior preservado
+
+---
+
+## [Governança v2 — Modelo Operacional] — 2026-03-25 · `1e0664c`
+
+### Adicionado
+- `docs/MODELO-OPERACIONAL.md` v1.0 — papéis (P.O., Orquestrador, Implementador, Consultor)
+- Sprint de Governança registrada como P0 no BASELINE e PRODUCT-LIFECYCLE
+
+### Atualizado
+- `docs/INDICE-DOCUMENTACAO.md` v2.06 — 130 documentos, Categoria 1 com MODELO-OPERACIONAL
+- `docs/PRODUCT-LIFECYCLE.md` v1.2 — Orquestrador como persona, Gate Fase 4 com verificação independente
+- `docs/BASELINE-PRODUTO.md` v1.2 — novo modelo operacional, Sprint Governança P0
+
+---
+
+## [Baseline Unificado + Playruns + Suporte] — 2026-03-25 · `bc83f9b`
+
+### Adicionado
+- `docs/BASELINE-PRODUTO.md` v1.0 — documento vivo unificado
+- `docs/PRODUCT-LIFECYCLE.md` v1.0 — ciclo de vida do produto com 8 fases e gates
+- `docs/playruns/PLAYRUN-TEMPLATE.md` + `PLAYRUN-001-SUB-SPRINT-PREFILL-CONTRACT.md`
+- `docs/suporte/FAQ.md`, `MANUAL-USUARIO.md`, `ESCALACAO.md`
+- `docs/MODELO-OPERACIONAL.md` — modelo operacional de papéis
+
+### Removido
+- `docs/STATUS-BASELINE-PROPOSTA-TESTES.md` — conteúdo migrado para BASELINE-PRODUTO.md
 
 ---
 

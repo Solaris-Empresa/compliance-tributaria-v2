@@ -2,7 +2,7 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 1.2 — 2026-03-24
+> **Versão:** 1.3 — 2026-03-25
 > **Commit HEAD:** `9853111` (branch `main`)
 > **Checkpoint Manus:** `bc83f9b6`
 > **Servidor de produção:** https://iasolaris.manus.space
@@ -130,10 +130,14 @@ Toda transição de retrocesso de etapa passa pelo gate `server/retrocesso-clean
 |---|---|---|
 | Issue Template estrutural | `.github/ISSUE_TEMPLATE/structural-fix.md` | Obrigatório para issues de correção estrutural |
 | PR Template estrutural | `.github/PULL_REQUEST_TEMPLATE/structural-pr.md` | Obrigatório para PRs de correção estrutural |
-| CI Bloqueante | `.github/workflows/structural-fix-gate.yml` | 4 jobs: TypeScript, testes, invariants, prefill-contract |
+| CI Bloqueante | `.github/workflows/structural-fix-gate.yml` | 5 jobs: TypeScript, testes, invariants, prefill-contract, governance-check |
 | Labels GitHub | 5 labels obrigatórias | `structural-fix`, `bug`, `governance`, `prefill`, `uat` |
 | Invariant Registry | `docs/invariants/` | INV-001 a INV-008 com testes de regressão |
 | Modelo Operacional | `docs/MODELO-OPERACIONAL.md` | Papéis e protocolo: P.O., Orquestrador, Implementador, Consultor |
+| Definition of Done | `docs/DEFINITION-OF-DONE.md` | DoD formal por tipo de entrega (feature, bugfix, migration, docs, CI) |
+| PR Governance CI | `.github/workflows/pr-governance.yml` | Validação automática de PR body + file guard em todos os PRs |
+| Test Suite CI | `.github/workflows/test-suite.yml` | TypeScript + Vitest em todo PR (pnpm) |
+| Migration Guard CI | `.github/workflows/migration-guard.yml` | Disciplina obrigatória em migrations |
 
 ---
 
@@ -240,7 +244,7 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 
 ### P0 — Prioridade Imediata
 
-0. **Sprint de Governança** — implementar automação CI/CD no GitHub antes de qualquer sprint de produto. Escopo: PR governance + changed-files-guard + migration-guard + test-suite. Fecha o ciclo de verificação automática que foi identificado como lacuna crítica no modelo operacional anterior.
+0. ~~**Sprint de Governança**~~ — ✅ **Concluída 2026-03-25.** PR template unificado, 3 workflows CI, 2 scripts Node.js, 9 labels de governança, `DEFINITION-OF-DONE.md` e `CHANGELOG.md` atualizados.
 1. **Iniciar UAT com advogados** — Sistema aprovado e pronto. Criar 2-3 projetos piloto com perfis reais (Simples Nacional, Lucro Real com grupo econômico) e registrar feedback usando o [`GUIA-UAT-ADVOGADOS-v2.md`](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md).2. ~~**Tomar DECISÃO-001**~~ — ✅ **Decidido 2026-03-24:** Opção A (prefill cruzado QC-07 → QO-03), executar na sprint pós-UAT.
 
 ### P1 — Próximas Sprints
@@ -293,6 +297,7 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 | 1.0 | 2026-03-24 | `9e25ead` | Criação — unificação de STATUS-REPORT-BASELINE-2026-03-23.md e STATUS-BASELINE-PROPOSTA-TESTES.md. Estado pós-Sub-Sprint Prefill Contract. Banco limpo para UAT. |
 | 1.1 | 2026-03-24 | `9853111` | DECISÃO-001 tomada: Opção A (prefill cruzado QC-07→QO-03), executar pós-UAT. Opção B descartada (acionaria Fase 0). Aprovado pelo P.O. |
 | 1.2 | 2026-03-24 | — | Novo modelo operacional registrado (Seções 3.8 + 9) · Sprint de Governança como P0 item 0 (Seção 10) · MODELO-OPERACIONAL.md adicionado como artefato de governança |
+| 1.3 | 2026-03-25 | — | Sprint de Governança CI/CD concluída · Seção 3.8 atualizada com 4 novos artefatos (DoD, pr-governance, test-suite, migration-guard) · P0 item 0 marcado como concluído |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
