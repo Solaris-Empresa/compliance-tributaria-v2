@@ -1,7 +1,7 @@
 # PRODUCT-LIFECYCLE.md
 **IA SOLARIS — Navegação por Ciclo de Vida do Produto**
 
-> **Versão:** 1.0 — 2026-03-24
+> **Versão:** 1.1 — 2026-03-24
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Depende de:** [INDICE-DOCUMENTACAO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/INDICE-DOCUMENTACAO.md) · [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md)
 > **Aprovador:** Product Owner Uires Tapajós
@@ -189,7 +189,7 @@ Execute nesta ordem sem pular etapas:
 |---|---|
 | [PLAYBOOK-PLATAFORMA.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/PLAYBOOK-PLATAFORMA.md) | Regras mandatórias de desenvolvimento (leitura completa) |
 | [SKILL-MANUS-PIPELINE-v3.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/SKILL-MANUS-PIPELINE-v3.md) | Skill técnico do agente: 11 módulos |
-| [DOCUMENTACAO-IA-GENERATIVA-v5.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/DOCUMENTACAO-IA-GENERATIVA-v4.md) | Pipeline completa, diagnóstico dual |
+| [DOCUMENTACAO-IA-GENERATIVA-v5.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/DOCUMENTACAO-IA-GENERATIVA-v5.md) | Pipeline completa, diagnóstico dual |
 
 **Governança da sprint:**
 
@@ -482,9 +482,10 @@ Este documento deve ser atualizado quando:
 | Versão | Data | Autor | Mudanças |
 |---|---|---|---|
 | **1.0** | 2026-03-24 | Manus AI | Criação — 8 fases + 2 fluxos de exceção · Gates com aprovador e critério de bloqueio · Fase 0 Regulatória · Janela de observação pós-release · Backlog de lacunas priorizado |
+| **1.1** | 2026-03-24 | Manus AI | 3 inconsistências corrigidas (Orquestrador): (1) lacunas de suporte já marcadas como Resolvido no backlog e no Fluxo de Exceção; (2) link quebrado DOCUMENTACAO-IA-GENERATIVA-v5.md corrigido para path real; (3) versão atualizada para 1.1 com histórico. DECISÃO-001 registrada no BASELINE-PRODUTO.md v1.1 (commit `612d140`). |
 
 ---
 
-*PRODUCT-LIFECYCLE.md — IA Solaris v1.0 · 2026-03-24*
+*PRODUCT-LIFECYCLE.md — IA Solaris v1.1 · 2026-03-24*
 *Próxima revisão: ao final da próxima sprint ou release*
 *Aprovador: P.O. Uires Tapajós*
