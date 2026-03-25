@@ -43,7 +43,7 @@ O **BASELINE-PRODUTO.md** é o único documento vivo de estado do produto. Subst
 | [BaselineTecnica-v2.1.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BaselineTecnica-v2.1.md) | — | Baseline técnica v2.1 (histórico) |
 | [SPRINT-STATUS-REPORT.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/SPRINT-STATUS-REPORT.md) | — | Histórico de status de sprints |
 | [AUDITORIA-RECONCILIACAO-POS-v2.2.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/AUDITORIA-RECONCILIACAO-POS-v2.2.md) | — | Auditoria de reconciliação pós-v2.2 (histórico) |
-| [STATUS-REPORT-BASELINE-2026-03-23.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/STATUS-REPORT-BASELINE-2026-03-23.md) | 2026-03-23 | ~~Substituído pelo BASELINE-PRODUTO.md~~ — arquivo histórico |
+| [STATUS-REPORT-BASELINE-2026-03-23.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/STATUS-REPORT-BASELINE-2026-03-23.md) | 2026-03-23 | Histórico imutável — estado pré-Sub-Sprint Prefill (commit `0e1046c`) |
 
 ---
 
