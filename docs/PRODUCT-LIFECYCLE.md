@@ -1,7 +1,7 @@
 # PRODUCT-LIFECYCLE.md
 **IA SOLARIS — Navegação por Ciclo de Vida do Produto**
 
-> **Versão:** 1.1 — 2026-03-24
+> **Versão:** 1.2 — 2026-03-24
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Depende de:** [INDICE-DOCUMENTACAO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/INDICE-DOCUMENTACAO.md) · [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md)
 > **Aprovador:** Product Owner Uires Tapajós
@@ -23,6 +23,7 @@ Este não é um índice alfabético. É um **mapa de execução com autoridade d
 |---|---|
 | **P.O.** | Fase 6 (Release) → Fase 7 (Operação) → Fase 0 (Regulatório) → Fase 1 (próximo ciclo) |
 | **Agente / Dev novo** | **Onboarding obrigatório abaixo** → Fase 4 (Implementação) → Fase 3 (Arquitetura) |
+| **Orquestrador** | Fase 0 (Regulatório) → Fase 1 (Planejamento) → Fase 4 (Gate de saída) → Fase 6 (Release) |
 | **QA / Auditor** | Fase 5 (Validação) → Fase 2 (ADRs) |
 | **Advogado (UAT)** | Fase 5 — apenas documentos marcados `[UAT]` |
 | **Incidente em produção** | Fluxo de Exceção — Incidentes (após Fase 7) |
@@ -201,9 +202,11 @@ Execute nesta ordem sem pular etapas:
 
 **Gate de saída — Fase 4**
 
-> **Aprovador:** Agente (técnico) + P.O. (QA humano de frontend — Regra 4 do Playbook)
+> **Aprovador:** Agente (técnico) + P.O. (QA humano de frontend — Regra 4 do Playbook) + Orquestrador (verificação independente via repositório real)
 > **Critério de bloqueio:** Qualquer item do DoD não satisfeito. Testes abaixo de 100%. TypeScript com erros.
 > **Escalação:** Nenhum item pode ser marcado como DONE sem satisfazer todos os critérios abaixo.
+
+> **Verificação independente (Orquestrador):** Antes de aprovar o gate, o Orquestrador lê o repositório real e verifica: (1) commit existe com o conteúdo reportado; (2) testes passando no CI; (3) nenhum invariant violado. Report do Manus não substitui leitura direta do código.
 
 - [ ] Código funcionando e TypeScript sem erros (`npx tsc --noEmit`)
 - [ ] Testes vitest escritos e passando (100%)
@@ -453,6 +456,7 @@ Estes documentos atravessam todas as fases. Devem estar acessíveis a qualquer m
 | ✅ Resolvido | `docs/suporte/FAQ.md` | Exceção: Incidentes | Criado em 2026-03-24 |
 | ✅ Resolvido | `docs/suporte/MANUAL-USUARIO.md` | Exceção: Incidentes | Criado em 2026-03-24 |
 | ✅ Resolvido | `docs/suporte/ESCALACAO.md` | Exceção: Incidentes | Criado em 2026-03-24 |
+| 🔴 Alta | Sprint de Governança (CI/CD) | 0 — Pré-sprint | **P0 obrigatório antes de qualquer sprint de produto** — PR governance + changed-files-guard + migration-guard + test-suite. Fecha o ciclo de verificação automática identificado como lacuna crítica. |
 | 🟠 Média | `CHANGELOG.md` | 6 — Release | Sem histórico estruturado por versão |
 | 🟠 Média | `docs/templates/RELEASE-NOTES-TEMPLATE.md` | 6 — Release | Sem padrão de comunicação de release |
 | 🟡 Baixa | `docs/DEFINITION-OF-DONE.md` | 4 — Implementação | Sem DoD formal por tipo de entrega |
@@ -483,9 +487,10 @@ Este documento deve ser atualizado quando:
 |---|---|---|---|
 | **1.0** | 2026-03-24 | Manus AI | Criação — 8 fases + 2 fluxos de exceção · Gates com aprovador e critério de bloqueio · Fase 0 Regulatória · Janela de observação pós-release · Backlog de lacunas priorizado |
 | **1.1** | 2026-03-24 | Manus AI | 3 inconsistências corrigidas (Orquestrador): (1) lacunas de suporte já marcadas como Resolvido no backlog e no Fluxo de Exceção; (2) link quebrado DOCUMENTACAO-IA-GENERATIVA-v5.md corrigido para path real; (3) versão atualizada para 1.1 com histórico. DECISÃO-001 registrada no BASELINE-PRODUTO.md v1.1 (commit `612d140`). |
+| **1.2** | 2026-03-24 | Manus AI (prompt Orquestrador) | Orquestrador adicionado como persona na tabela de leitura rápida · Gate Fase 4 com verificação independente obrigatória · Sprint de Governança adicionada como P0 no backlog · MODELO-OPERACIONAL.md criado como artefato de governança |
 
 ---
 
-*PRODUCT-LIFECYCLE.md — IA Solaris v1.1 · 2026-03-24*
+*PRODUCT-LIFECYCLE.md — IA Solaris v1.2 · 2026-03-24*
 *Próxima revisão: ao final da próxima sprint ou release*
 *Aprovador: P.O. Uires Tapajós*

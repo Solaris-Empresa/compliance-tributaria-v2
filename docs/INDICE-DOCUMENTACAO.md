@@ -1,12 +1,12 @@
 # Índice Mestre de Documentação
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.05 — 2026-03-24
-> **Versão anterior:** 2.04 (commit `52c677b`, 2026-03-24)
-> **Commit HEAD:** `52c677b` (branch `main`)
-> **Total de documentos:** 129 arquivos Markdown (sem .docx — GitHub é o repositório oficial)
+> **Versão:** 2.06 — 2026-03-24
+> **Versão anterior:** 2.05 (commit `bc83f9b`, 2026-03-24)
+> **Commit HEAD:** `bc83f9b` (branch `main`)
+> **Total de documentos:** 130 arquivos Markdown (sem .docx — GitHub é o repositório oficial)
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
-> **Novos nesta versão:** Categoria 11 — Suporte ao Usuário (FAQ, MANUAL-USUARIO, ESCALACAO) + PRODUCT-LIFECYCLE.md v1.0
+> **Novos nesta versão:** MODELO-OPERACIONAL.md v1.0 (Categoria 1) — modelo operacional da equipe: papéis, fluxos e protocolo
 >
 > **📌 Acesso rápido para o P.O.:**
 > - 🔴 [ERROS CONHECIDOS v2.1](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md) — incidentes, runbooks, sprints
@@ -15,7 +15,8 @@
 > - 🔴 [RELATÓRIO GO/NO-GO](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/POS-AUTOAUDITORIA-RELATORIO-FINAL.md) — decisão UAT
 > - 🔴 [GUIA UAT ADVOGADOS v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md) — sessão com advogados
 > - 🔴 [SNAPSHOT DA PLATAFORMA v2.00](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/snapshot-plataforma-reforma-tributaria-v2.00.md) — estado atual completo
-> - ⭐ [BASELINE DO PRODUTO v1.0](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md) — **documento vivo** — estado técnico e de produto, atualizado a cada sprint
+> - ⭐ [BASELINE DO PRODUTO v1.1](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md) — **documento vivo** — estado técnico e de produto, atualizado a cada sprint
+> - 🔴 [PRODUCT-LIFECYCLE.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/PRODUCT-LIFECYCLE.md) — navegação por ciclo de vida do produto
 
 ---
 
@@ -28,6 +29,7 @@ Documentos gerados a partir do `documentacao-para-rollback-rag-v1.00.docx`. São
 | [**Índice Mestre** (este doc)](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/INDICE-DOCUMENTACAO.md) | **Este documento** — índice mestre de 93 docs em 10 categorias | P.O. + Agente |
 | [PO-GOVERNANCA-PIPELINE-v3.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/PO-GOVERNANCA-PIPELINE-v3.md) | Visão de P.O.: estado real, roadmap, critérios de produção, decisões de produto | P.O. + Orquestrador |
 | [REBUILD-PIPELINE-v3.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/REBUILD-PIPELINE-v3.md) | Guia de reconstrução completa da pipeline em caso de desastre ou perda de contexto | Agente + P.O. |
+| [MODELO-OPERACIONAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/MODELO-OPERACIONAL.md) | Modelo operacional da equipe: papéis (P.O., Orquestrador, Implementador, Consultor), fluxos de trabalho e protocolo de comunicação | P.O. + Orquestrador + Manus |
 | [SKILL-MANUS-PIPELINE-v3.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/SKILL-MANUS-PIPELINE-v3.md) | Skill técnico permanente do agente: 11 módulos de governança, persistência, QA e compliance | Agente |
 
 ---
@@ -212,7 +214,7 @@ Documentos de especificação funcional e técnica do produto.
 
 | Categoria | Qtd. Documentos | Prioridade de Leitura | Novos desde v2.00 |
 |---|---|---|---|
-| 1 — Governança e Reconstrução (v3.0) | 4 | 🔴 CRÍTICA — ler primeiro | — |
+| 1 — Governança e Reconstrução (v3.0) | 5 | 🔴 CRÍTICA — ler primeiro | 1 (MODELO-OPERACIONAL.md) |
 | 2 — Status Reports e Baseline | 6 | 🔴 CRÍTICA | — |
 | 3 — ADRs | 9 | 🟠 ALTA | — |
 | 4 — Relatórios e Auditorias | 10 | 🟠 ALTA | — |
@@ -226,7 +228,7 @@ Documentos de especificação funcional e técnica do produto.
 | 9 — Histórico de Sprints | 4 | 🟢 BAIXA | — |
 | **10 — Playruns** | **2** | 🟠 ALTA | **2 (todos novos)** |
 | **11 — Suporte ao Usuário** | **3** | 🔴 CRÍTICA | **3 (todos novos)** |
-| **Total** | **98** | — | **18 novos** |
+| **Total** | **99** | — | **19 novos** |
 
 > **Nota:** O total de 80 documentos neste índice representa os documentos ativos e relevantes. O repositório contém 120 arquivos `.md` no total, incluindo ~40 documentos históricos de sprints anteriores (pré-v5.0) na raiz do projeto.
 
@@ -277,6 +279,7 @@ Documentos voltados ao usuário final da plataforma (advogados tributaristas). C
 
 1. **Este documento** (`docs/INDICE-DOCUMENTACAO.md`) — mapa completo de todos os documentos
 2. `docs/PO-GOVERNANCA-PIPELINE-v3.md` — entender o estado e as regras do P.O.
+   2b. `docs/MODELO-OPERACIONAL.md` — entender o modelo operacional da equipe (papéis, fluxos, protocolo)
 3. `docs/SKILL-MANUS-PIPELINE-v3.md` — assumir o modo operacional correto
 4. `docs/PLAYBOOK-PLATAFORMA.md` — regras mandatórias de desenvolvimento
 5. `docs/BASELINE-PRODUTO.md` — estado atual do produto (documento vivo)
@@ -288,7 +291,8 @@ Documentos voltados ao usuário final da plataforma (advogados tributaristas). C
 
 ---
 
-*Atualizado em 2026-03-24 — Versão 2.05 | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Atualizado em 2026-03-24 — Versão 2.06 | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Versão anterior: 2.05 (commit `bc83f9b`, 2026-03-24) — Categoria 11 Suporte ao Usuário + PRODUCT-LIFECYCLE.md v1.0*
 *Versão anterior: 2.04 (commit `52c677b`, 2026-03-24) — PRODUCT-LIFECYCLE.md v1.0 + Playruns + limpeza de token*
 *Versão anterior: 2.03 (commit `a086ee3`, 2026-03-24) — link quebrado removido*
 *Versão anterior: 2.02 (commit `9e25ead`, 93 documentos, 2026-03-24) — BASELINE-PRODUTO.md criado*

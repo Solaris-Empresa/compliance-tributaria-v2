@@ -2,7 +2,7 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 1.1 — 2026-03-24
+> **Versão:** 1.2 — 2026-03-24
 > **Commit HEAD:** `9853111` (branch `main`)
 > **Checkpoint Manus:** `bc83f9b6`
 > **Servidor de produção:** https://iasolaris.manus.space
@@ -133,6 +133,7 @@ Toda transição de retrocesso de etapa passa pelo gate `server/retrocesso-clean
 | CI Bloqueante | `.github/workflows/structural-fix-gate.yml` | 4 jobs: TypeScript, testes, invariants, prefill-contract |
 | Labels GitHub | 5 labels obrigatórias | `structural-fix`, `bug`, `governance`, `prefill`, `uat` |
 | Invariant Registry | `docs/invariants/` | INV-001 a INV-008 com testes de regressão |
+| Modelo Operacional | `docs/MODELO-OPERACIONAL.md` | Papéis e protocolo: P.O., Orquestrador, Implementador, Consultor |
 
 ---
 
@@ -227,12 +228,19 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 - **NÃO executar DROP COLUMN** nas colunas legadas — aguarda Fase 3
 - **NÃO misturar correções de bugs com novas features** — regra permanente de governança
 
+**Novo modelo operacional ativo (2026-03-24):**
+- Claude (Anthropic) assume função de Orquestrador com verificação independente via repositório
+- ChatGPT assume função de Consultor — opina, não decide
+- Manus mantém função de Implementador — executa, não orquestra
+- Ver: `docs/MODELO-OPERACIONAL.md`
+
 ---
 
 ## 10. Próximos Passos
 
 ### P0 — Prioridade Imediata
 
+0. **Sprint de Governança** — implementar automação CI/CD no GitHub antes de qualquer sprint de produto. Escopo: PR governance + changed-files-guard + migration-guard + test-suite. Fecha o ciclo de verificação automática que foi identificado como lacuna crítica no modelo operacional anterior.
 1. **Iniciar UAT com advogados** — Sistema aprovado e pronto. Criar 2-3 projetos piloto com perfis reais (Simples Nacional, Lucro Real com grupo econômico) e registrar feedback usando o [`GUIA-UAT-ADVOGADOS-v2.md`](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md).2. ~~**Tomar DECISÃO-001**~~ — ✅ **Decidido 2026-03-24:** Opção A (prefill cruzado QC-07 → QO-03), executar na sprint pós-UAT.
 
 ### P1 — Próximas Sprints
@@ -284,6 +292,7 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 |---|---|---|---|
 | 1.0 | 2026-03-24 | `9e25ead` | Criação — unificação de STATUS-REPORT-BASELINE-2026-03-23.md e STATUS-BASELINE-PROPOSTA-TESTES.md. Estado pós-Sub-Sprint Prefill Contract. Banco limpo para UAT. |
 | 1.1 | 2026-03-24 | `9853111` | DECISÃO-001 tomada: Opção A (prefill cruzado QC-07→QO-03), executar pós-UAT. Opção B descartada (acionaria Fase 0). Aprovado pelo P.O. |
+| 1.2 | 2026-03-24 | — | Novo modelo operacional registrado (Seções 3.8 + 9) · Sprint de Governança como P0 item 0 (Seção 10) · MODELO-OPERACIONAL.md adicionado como artefato de governança |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
