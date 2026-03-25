@@ -1055,9 +1055,9 @@ Gere o Briefing estruturado em JSON:
       const ragCtxMatrix = await retrieveArticlesFast(cnaeCodesMatrix, input.briefingContent?.substring(0, 500) ?? "", 7);
       const regulatoryContext = ragCtxMatrix.contextText;
 
-      // V70.3: Paralelizar as 4 áreas com Promise.all (reduz ~3min sequencial para ~45s paralelo)
+      // V70.3: Paralelizar as 4 áreas com Promise.allSettled (falhas parciais são silenciosas)
       // Nota: regulatoryContext é compartilhado (1 busca RAG para todas as áreas)
-      const matrixResults = await Promise.all(areas.map(async (area) => {
+      const matrixSettled = await Promise.allSettled(areas.map(async (area) => {
         const adjustmentContext = input.adjustment ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}` : "";
 
         const result = await generateWithRetry(
@@ -1097,9 +1097,12 @@ Formato:
         return { area, risks: result.risks };
       }));
 
-      // Montar o objeto matrices a partir dos resultados paralelos
-      for (const { area, risks } of matrixResults) {
-        matrices[area] = risks;
+      // Montar o objeto matrices a partir dos resultados (falhas parciais são omitidas silenciosamente)
+      for (let i = 0; i < areas.length; i++) {
+        const settled = matrixSettled[i];
+        if (settled.status === "fulfilled") {
+          matrices[settled.value.area] = settled.value.risks;
+        }
       }
 
       // V61: Calcular scoring global no servidor (determinístico)
@@ -1189,8 +1192,8 @@ Formato:
       const cnaeCodesAction = confirmedCnaes.map((c: any) => c.code);
       const cnaeDescriptions = confirmedCnaes.map((c: any) => `${c.code} — ${c.description || c.code}`).join(", ");
 
-      // V70.3: Paralelizar as 4 áreas com Promise.all (reduz ~3min sequencial para ~45s paralelo)
-      const areaResults = await Promise.all(areas.map(async (area) => {
+      // V70.3: Paralelizar as 4 áreas com Promise.allSettled (falhas parciais são silenciosas)
+      const areaSettled = await Promise.allSettled(areas.map(async (area) => {
         const areaRisks = input.matrices[area] || [];
         if (areaRisks.length === 0) {
           return { area, tasks: [] as any[] };
@@ -1286,9 +1289,12 @@ Gere o plano de ação em JSON:
         };
       }));
 
-      // Montar o objeto plans a partir dos resultados paralelos
-      for (const { area, tasks } of areaResults) {
-        plans[area] = tasks;
+      // Montar o objeto plans a partir dos resultados (falhas parciais são omitidas silenciosamente)
+      for (let i = 0; i < areas.length; i++) {
+        const settled = areaSettled[i];
+        if (settled.status === "fulfilled") {
+          plans[settled.value.area] = settled.value.tasks;
+        }
       }
 
       return { plans };

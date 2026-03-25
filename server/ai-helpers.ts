@@ -134,6 +134,16 @@ export async function generateWithRetry<T extends z.ZodTypeAny>(
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
 
+      // Propagar RateLimitError imediatamente sem retry (não adianta tentar novamente)
+      const errMsg = lastError.message.toLowerCase();
+      if (errMsg.includes("rate limit") || errMsg.includes("429") || errMsg.includes("too many requests")) {
+        throw lastError;
+      }
+      // Propagar timeout imediatamente sem retry (não adianta tentar novamente)
+      if (errMsg.includes("timeout") || errMsg.includes("timed out") || errMsg.includes("request timeout")) {
+        throw lastError;
+      }
+
       // Se for erro de validação Zod na última tentativa, propaga
       if (attempt === maxRetries - 1) {
         break;

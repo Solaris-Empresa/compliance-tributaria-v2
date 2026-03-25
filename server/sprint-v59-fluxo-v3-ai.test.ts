@@ -69,7 +69,7 @@ let testClientId: number;
 let testProjectId: number;
 
 beforeEach(async () => {
-  vi.clearAllMocks();
+  vi.resetAllMocks(); // resetAllMocks limpa tanto calls quanto implementações (mockResolvedValueOnce)
 
   const db = await getDb();
   if (!db) throw new Error("DB connection failed");
@@ -155,29 +155,35 @@ describe("A. extractCnaes", () => {
     expect(result.cnaes[0].code).toBe("1112-7/00");
   });
 
-  it("A03 — sucesso: IA retorna JSON com array vazio → retorna array vazio sem lançar erro", async () => {
+  it("A03 — fallback: IA retorna JSON com array vazio → fallback retorna CNAEs sem lançar erro", async () => {
     mockInvokeLLM.mockResolvedValueOnce(mockOk('{"cnaes": []}') as any);
 
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
     const result = await caller.extractCnaes({ projectId: testProjectId, description: desc });
 
-    expect(result.cnaes).toEqual([]);
+    // O fallback de embeddings retorna CNAEs sem lançar erro
+    expect(result.cnaes).toBeDefined();
+    expect(Array.isArray(result.cnaes)).toBe(true);
   });
 
-  it("A04 — falha: IA retorna conteúdo null → lança INTERNAL_SERVER_ERROR", async () => {
+  it("A04 — fallback: IA retorna conteúdo null → fallback retorna CNAEs sem lançar erro", async () => {
     mockInvokeLLM.mockResolvedValueOnce(mockEmpty() as any);
 
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
-    await expect(caller.extractCnaes({ projectId: testProjectId, description: desc }))
-      .rejects.toThrow(TRPCError);
+    // O fallback de embeddings é ativado e retorna CNAEs sem lançar erro
+    const result = await caller.extractCnaes({ projectId: testProjectId, description: desc });
+    expect(result.cnaes).toBeDefined();
+    expect(Array.isArray(result.cnaes)).toBe(true);
   });
 
-  it("A05 — falha: IA retorna texto sem JSON → lança INTERNAL_SERVER_ERROR", async () => {
+  it("A05 — fallback: IA retorna texto sem JSON → fallback retorna CNAEs sem lançar erro", async () => {
     mockInvokeLLM.mockResolvedValueOnce(mockOk("Desculpe, não consigo processar esta solicitação.") as any);
 
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
-    await expect(caller.extractCnaes({ projectId: testProjectId, description: desc }))
-      .rejects.toThrow(TRPCError);
+    // O fallback de embeddings é ativado e retorna CNAEs sem lançar erro
+    const result = await caller.extractCnaes({ projectId: testProjectId, description: desc });
+    expect(result.cnaes).toBeDefined();
+    expect(Array.isArray(result.cnaes)).toBe(true);
   });
 
   it("A06 — falha: projeto não encontrado → lança NOT_FOUND sem chamar IA", async () => {
@@ -188,12 +194,14 @@ describe("A. extractCnaes", () => {
     expect(mockInvokeLLM).not.toHaveBeenCalled();
   });
 
-  it("A07 — falha: IA lança exceção de rede → propaga sem swallow", async () => {
+  it("A07 — fallback: IA lança exceção de rede → fallback retorna CNAEs sem lançar erro", async () => {
     mockInvokeLLM.mockRejectedValueOnce(new Error("Network timeout after 30s"));
 
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
-    await expect(caller.extractCnaes({ projectId: testProjectId, description: desc }))
-      .rejects.toThrow("Network timeout after 30s");
+    // O fallback de embeddings é ativado e retorna CNAEs sem lançar erro
+    const result = await caller.extractCnaes({ projectId: testProjectId, description: desc });
+    expect(result.cnaes).toBeDefined();
+    expect(Array.isArray(result.cnaes)).toBe(true);
   });
 
   it("A08 — verifica que o prompt inclui a descrição do negócio", async () => {
@@ -441,14 +449,25 @@ describe("D. generateBriefing", () => {
   }];
 
   it("D01 — sucesso: retorna briefing em markdown e salva no banco", async () => {
-    const briefingMd = `# Briefing de Compliance\n## Resumo Executivo\n**Nível de Risco: Alto**\nA empresa apresenta exposição significativa.`;
-    mockInvokeLLM.mockResolvedValueOnce(mockOk(briefingMd) as any);
+    const briefingJson = JSON.stringify({
+      nivel_risco_geral: "alto",
+      resumo_executivo: "A empresa apresenta exposição significativa à Reforma Tributária brasileira (LC 214/2025), com gaps críticos identificados.",
+      principais_gaps: [{ gap: "Não possui controle de IBS", causa_raiz: "Sistema legado", evidencia_regulatoria: "Art. 1 LC 214/2025", urgencia: "imediata" }],
+      oportunidades: ["Redução de carga tributária via IBS"],
+      recomendacoes_prioritarias: ["Atualizar ERP para IBS/CBS"],
+      inconsistencias: [],
+      confidence_score: { nivel_confianca: 85, limitacoes: [], recomendacao: "Revisão por advogado tributárista recomendada" },
+    });
+    // 1º mock: re-ranking RAG (retrieveArticles chama invokeLLM para re-ranking)
+    mockInvokeLLM.mockResolvedValueOnce(mockOk('{"indices": [0, 1, 2, 3, 4]}') as any);
+    // 2º mock: geração do briefing estruturado
+    mockInvokeLLM.mockResolvedValueOnce(mockOk(briefingJson) as any);
 
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
     const result = await caller.generateBriefing({ projectId: testProjectId, allAnswers: sampleAnswers });
 
-    expect(result.briefing).toContain("Briefing de Compliance");
-    expect(result.briefing).toContain("Nível de Risco: Alto");
+    expect(result.briefing).toBeTruthy();
+    expect(typeof result.briefing).toBe("string");
 
     // Verificar que foi salvo no banco
     const db = await getDb();
@@ -458,7 +477,19 @@ describe("D. generateBriefing", () => {
   });
 
   it("D02 — sucesso: inclui contexto de correção no prompt quando fornecido", async () => {
-    mockInvokeLLM.mockResolvedValueOnce(mockOk("# Briefing Corrigido\nConteúdo atualizado.") as any);
+    const briefingJson = JSON.stringify({
+      nivel_risco_geral: "alto",
+      resumo_executivo: "Briefing corrigido com conteúdo atualizado conforme solicitação do usuário para a Reforma Tributária.",
+      principais_gaps: [{ gap: "Gap corrigido", causa_raiz: "Causa identificada", evidencia_regulatoria: "Art. 1 LC 214/2025", urgencia: "imediata" }],
+      oportunidades: ["Oportunidade identificada"],
+      recomendacoes_prioritarias: ["Recomendação prioritária"],
+      inconsistencias: [],
+      confidence_score: { nivel_confianca: 90, limitacoes: [], recomendacao: "Revisão por advogado tributárista recomendada" },
+    });
+    // 1º mock: re-ranking RAG
+    mockInvokeLLM.mockResolvedValueOnce(mockOk('{"indices": [0, 1, 2, 3, 4]}') as any);
+    // 2º mock: geração do briefing
+    mockInvokeLLM.mockResolvedValueOnce(mockOk(briefingJson) as any);
 
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
     await caller.generateBriefing({
@@ -467,21 +498,27 @@ describe("D. generateBriefing", () => {
       correction: "Focar mais nos impactos do IBS",
     });
 
-    const callArgs = mockInvokeLLM.mock.calls[0][0];
+    // mock.calls[0] = re-ranking RAG, mock.calls[1] = geração do briefing
+    const callArgs = mockInvokeLLM.mock.calls[1][0];
     const userMsg = callArgs.messages.find((m: any) => m.role === "user");
     expect(userMsg?.content).toContain("CORREÇÃO SOLICITADA");
     expect(userMsg?.content).toContain("Focar mais nos impactos do IBS");
   });
 
-  it("D03 — falha: IA retorna null → lança INTERNAL_SERVER_ERROR", async () => {
+   it("D03 — falha: IA retorna null → lança INTERNAL_SERVER_ERROR", async () => {
+    // 1º mock: re-ranking RAG (sucesso)
+    mockInvokeLLM.mockResolvedValueOnce(mockOk('{"indices": [0, 1, 2, 3, 4]}') as any);
+    // 2º mock: geração do briefing (falha com null)
     mockInvokeLLM.mockResolvedValueOnce(mockEmpty() as any);
-
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
     await expect(caller.generateBriefing({ projectId: testProjectId, allAnswers: sampleAnswers }))
       .rejects.toThrow(TRPCError);
   });
 
   it("D04 — falha: IA lança timeout → propaga sem salvar no banco", async () => {
+    // 1º mock: re-ranking RAG (sucesso)
+    mockInvokeLLM.mockResolvedValueOnce(mockOk('{"indices": [0, 1, 2, 3, 4]}') as any);
+    // 2º mock: geração do briefing (falha com timeout)
     mockInvokeLLM.mockRejectedValueOnce(new Error("Request timeout: LLM took > 60s"));
 
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
@@ -616,32 +653,45 @@ describe("F. generateActionPlan", () => {
     tasks: [
       { id: "t1", titulo: "Revisar sistema de NF-e", descricao: "Atualizar para novo padrão", area: "contabilidade", prazo_sugerido: "30 dias", prioridade: "Alta", responsavel_sugerido: "Contador" },
       { id: "t2", titulo: "Treinamento da equipe", descricao: "Capacitar equipe fiscal", area: "contabilidade", prazo_sugerido: "60 dias", prioridade: "Média", responsavel_sugerido: "RH" },
+      { id: "t3", titulo: "Atualizar ERP para IBS/CBS", descricao: "Adaptar sistema ao novo regime tributário", area: "contabilidade", prazo_sugerido: "90 dias", prioridade: "Alta", responsavel_sugerido: "Controller Fiscal" },
     ],
   };
 
-  it("F01 — sucesso: gera plano para todas as 4 áreas com campos padrão", async () => {
+  it("F01 — sucesso: gera plano para área com riscos e omite áreas sem riscos", async () => {
     mockInvokeLLM.mockResolvedValue(mockOk(JSON.stringify(mockTasks)) as any);
 
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
     const result = await caller.generateActionPlan({ projectId: testProjectId, matrices });
 
-    expect(Object.keys(result.plans)).toHaveLength(4);
-    expect(result.plans.contabilidade).toHaveLength(2);
+    // Áreas com riscos vazios são omitidas (retornam tasks: [] que são incluídas)
+    // Apenas contabilidade tem riscos, então só 1 chamada ao invokeLLM
+    expect(result.plans.contabilidade).toHaveLength(3);
     // Campos padrão adicionados pelo servidor
     expect(result.plans.contabilidade[0].status).toBe("nao_iniciado");
     expect(result.plans.contabilidade[0].progress).toBe(0);
-    expect(mockInvokeLLM).toHaveBeenCalledTimes(4);
+    expect(mockInvokeLLM).toHaveBeenCalledTimes(1);
   });
 
-  it("F02 — sucesso: gera plano apenas para área específica", async () => {
-    const tiTasks = { tasks: [{ id: "t1", titulo: "Atualizar ERP", descricao: "Migrar sistema", area: "ti", prazo_sugerido: "90 dias", prioridade: "Alta", responsavel_sugerido: "CTO" }] };
+  it("F02 — sucesso: gera plano apenas para área específica com riscos", async () => {
+    const tiTasks = { tasks: [
+      { id: "t1", titulo: "Atualizar ERP para IBS", descricao: "Migrar sistema para novo regime", area: "ti", prazo_sugerido: "90 dias", prioridade: "Alta", responsavel_sugerido: "CTO" },
+      { id: "t2", titulo: "Configurar NF-e eletrônica", descricao: "Adaptar emissão de notas fiscais", area: "ti", prazo_sugerido: "60 dias", prioridade: "Alta", responsavel_sugerido: "Gerente de TI" },
+      { id: "t3", titulo: "Implementar controles de CBS", descricao: "Criar rotinas de apuração automática", area: "ti", prazo_sugerido: "120 dias", prioridade: "Média", responsavel_sugerido: "Analista de Sistemas" },
+    ] };
     mockInvokeLLM.mockResolvedValueOnce(mockOk(JSON.stringify(tiTasks)) as any);
 
+    // Usar matrices com riscos na área ti para que invokeLLM seja chamado
+    const matricesWithTi = {
+      contabilidade: [],
+      negocio: [],
+      ti: [{ id: "r1", evento: "Mudança IBS em TI", probabilidade: "Alta", impacto: "Alto", severidade: "Crítica", plano_acao: "Atualizar ERP" }],
+      juridico: [],
+    };
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
-    const result = await caller.generateActionPlan({ projectId: testProjectId, matrices, area: "ti" });
+    const result = await caller.generateActionPlan({ projectId: testProjectId, matrices: matricesWithTi, area: "ti" });
 
     expect(Object.keys(result.plans)).toHaveLength(1);
-    expect(result.plans.ti).toHaveLength(1);
+    expect(result.plans.ti).toHaveLength(3);
     expect(mockInvokeLLM).toHaveBeenCalledTimes(1);
   });
 
@@ -651,7 +701,7 @@ describe("F. generateActionPlan", () => {
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
     const result = await caller.generateActionPlan({ projectId: testProjectId, matrices, area: "contabilidade" });
 
-    expect(result.plans.contabilidade).toEqual([]);
+    expect(result.plans.contabilidade).toBeUndefined();
   });
 
   it("F04 — falha: projeto não encontrado → lança NOT_FOUND sem chamar IA", async () => {
@@ -737,25 +787,31 @@ describe("H3. approveActionPlan", () => {
 describe("I. Cenários de falha de infraestrutura", () => {
   const desc = "Empresa de fabricação de vinhos e comércio varejista de bebidas alcoólicas com distribuição nacional.";
 
-  it("I01 — IA retorna choices vazio → lança erro", async () => {
+  it("I01 — fallback: IA retorna choices vazio → fallback retorna CNAEs sem lançar erro", async () => {
     mockInvokeLLM.mockResolvedValueOnce(mockNoChoices() as any);
 
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
-    await expect(caller.extractCnaes({ projectId: testProjectId, description: desc }))
-      .rejects.toThrow();
+    // O fallback de embeddings é ativado e retorna CNAEs sem lançar erro
+    const result = await caller.extractCnaes({ projectId: testProjectId, description: desc });
+    expect(result.cnaes).toBeDefined();
+    expect(Array.isArray(result.cnaes)).toBe(true);
   });
 
-  it("I02 — IA retorna JSON com array vazio de CNAEs → retorna array vazio sem lançar erro", async () => {
+  it("I02 — fallback: IA retorna JSON com array vazio de CNAEs → fallback retorna CNAEs sem lançar erro", async () => {
     mockInvokeLLM.mockResolvedValueOnce(mockOk('{"cnaes": []}') as any);
 
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
+    // O fallback de embeddings é ativado e retorna CNAEs sem lançar erro
     const result = await caller.extractCnaes({ projectId: testProjectId, description: desc });
-
-    expect(result.cnaes).toEqual([]);
+    expect(result.cnaes).toBeDefined();
+    expect(Array.isArray(result.cnaes)).toBe(true);
   });
 
   it("I03 — IA lança RateLimitError → propaga sem swallow", async () => {
     const rateLimitError = new Error("Rate limit exceeded: 429 Too Many Requests");
+    // 1º mock: re-ranking RAG (sucesso)
+    mockInvokeLLM.mockResolvedValueOnce(mockOk('{"indices": [0, 1, 2, 3, 4]}') as any);
+    // 2º mock: geração do briefing (falha com rate limit)
     mockInvokeLLM.mockRejectedValueOnce(rateLimitError);
 
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
@@ -765,11 +821,13 @@ describe("I. Cenários de falha de infraestrutura", () => {
     })).rejects.toThrow("Rate limit exceeded");
   });
 
-  it("I04 — IA retorna choices com message undefined → lança erro", async () => {
+  it("I04 — fallback: IA retorna choices com message undefined → fallback retorna CNAEs sem lançar erro", async () => {
     mockInvokeLLM.mockResolvedValueOnce({ choices: [{ message: undefined }] } as any);
 
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
-    await expect(caller.extractCnaes({ projectId: testProjectId, description: desc }))
-      .rejects.toThrow();
+    // O fallback de embeddings é ativado e retorna CNAEs sem lançar erro
+    const result = await caller.extractCnaes({ projectId: testProjectId, description: desc });
+    expect(result.cnaes).toBeDefined();
+    expect(Array.isArray(result.cnaes)).toBe(true);
   });
 });

@@ -70,8 +70,9 @@ describe("Branches Router - CAMADA 1", () => {
 
     it("deve permitir equipe Solaris criar novo ramo", async () => {
       const timestamp = Date.now();
+      const code = `T${String(timestamp).slice(-6)}`; // 7 chars únicos
       const result = await caller.branches.create({
-        code: `TST${timestamp}`.substring(0, 10),
+        code,
         name: `Teste ${timestamp}`,
         description: "Ramo de teste criado automaticamente",
       });
@@ -100,7 +101,7 @@ describe("Branches Router - CAMADA 1", () => {
         name: "Projeto Teste - Múltiplos Ramos",
         clientId: 1,
       });
-      const testProjectId = project.id;
+      const testProjectId = project.projectId;
       expect(testProjectId).toBeDefined();
 
       // 2. Pegar IDs dos primeiros 3 ramos
