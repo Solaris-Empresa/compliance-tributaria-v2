@@ -1,0 +1,38 @@
+name: PR Governance
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  validate-pr-body:
+    name: Validate PR body and evidence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate PR template
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node .github/scripts/validate-pr-body.js
+
+  guard-critical-files:
+    name: Guard critical file changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get changed files
+        id: files
+        uses: tj-actions/changed-files@v44
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate file change policy
+        env:
+          ALL_CHANGED_FILES: ${{ steps.files.outputs.all_changed_files }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels) }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: node .github/scripts/changed-files-guard.js

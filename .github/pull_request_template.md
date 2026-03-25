@@ -1,101 +1,80 @@
-# Pull Request — Sprint 98% Confidence
+## Objetivo
+[Descrever claramente o que esta PR resolve]
 
-## Resumo
+## Escopo da alteração
 
-> Descreva em 2-3 frases o que este PR faz e por quê.
+**Tipo:**
+- [ ] Feature
+- [ ] Bugfix
+- [ ] Refactor
+- [ ] Migration (DB)
+- [ ] Observabilidade
+- [ ] Governança / Docs
+- [ ] Infra / CI
 
----
+**Componentes afetados:**
+- [ ] Backend (Node / tRPC)
+- [ ] Frontend (React)
+- [ ] Banco de dados / Schema
+- [ ] RAG (CNAE / requisitos) ❗
+- [ ] Infraestrutura / CI
+- [ ] Apenas documentação
 
-## Issue relacionada
+## Classificação de risco
+- [ ] Baixo — sem impacto em dados ou fluxo principal
+- [ ] Médio — impacto controlado e reversível
+- [ ] Alto — impacto estrutural, requer aprovação explícita
 
-Closes #<!-- número da issue -->
+**Justificativa do risco:**
+[Descrever objetivamente]
 
----
+## Declaração de escopo (obrigatório)
+Esta PR:
+- [ ] NÃO altera comportamento visível ao usuário final
+- [ ] NÃO toca no adaptador `getDiagnosticSource()`
+- [ ] NÃO impacta o domínio RAG
+- [ ] NÃO ativa `DIAGNOSTIC_READ_MODE=new`
+- [ ] NÃO executa DROP COLUMN em colunas legadas
 
-## Tipo de mudança
+Se qualquer item acima for falso → explicar aqui:
 
-- [ ] `feat` — nova funcionalidade
-- [ ] `fix` — correção de bug
-- [ ] `docs` — documentação
-- [ ] `test` — testes
-- [ ] `refactor` — refatoração sem mudança de comportamento
-- [ ] `chore` — configuração, CI/CD, governança
+## Validação executada
 
----
+**Testes:**
+- [ ] `npx tsc --noEmit` — 0 erros
+- [ ] `npx vitest run` — 100% passando
+- [ ] Invariants verificados (INV-001..INV-008)
 
-## Épico / Engine
-
-- [ ] B0 — Governança
-- [ ] B1 — Modelo canônico (ADR-010)
-- [ ] B2 — Requirement Engine
-- [ ] B2 — Coverage Engine
-- [ ] B2 — Question Engine
-- [ ] B2 — Gap Engine
-- [ ] B2 — Consistency Engine
-- [ ] B2 — Risk Engine
-- [ ] B2 — Action Engine
-- [ ] B2 — Briefing / Relatório
-- [ ] B2 — Shadow Mode / QA / CI
-
----
-
-## Checklist de governança obrigatório
-
-### Código
-- [ ] `tsc --noEmit` — zero erros TypeScript
-- [ ] `pnpm test` — todos os testes passando (incluindo novos testes para este PR)
-- [ ] Nenhum `console.log` de debug deixado no código
-- [ ] Nenhum segredo ou token hardcoded
-
-### Rastreabilidade
-- [ ] Issue referenciada com `Closes #N` ou `Relates to #N`
-- [ ] Milestone `Sprint-98-Confidence-Content-Engine` atribuída
-- [ ] Labels de domínio atribuídas (ex: `question-engine`, `risk-engine`)
-- [ ] Commit segue o padrão: `feat(engine): descrição` / `docs(adr): descrição` / `test(engine): descrição`
-
-### Qualidade de conteúdo (quando aplicável)
-- [ ] Toda pergunta gerada tem `requirement_id` e `source_reference`
-- [ ] Todo gap tem status formal (atende/nao_atende/parcial/evidencia_insuficiente/nao_aplicavel)
-- [ ] Todo risco tem `gap_id` de origem
-- [ ] Toda ação tem `risk_id` de origem e `evidence_required`
-- [ ] Protocolo NO_QUESTION implementado (sem pergunta sem base RAG)
-
-### Shadow Mode (quando label `shadow-required`)
-- [ ] Shadow Mode executado após a mudança
-- [ ] Zero divergências críticas novas
-- [ ] Screenshot ou query SQL de evidência incluída no PR
-
-### Checkpoint (quando label `checkpoint-required`)
-- [ ] Checkpoint criado no Manus antes do merge
-- [ ] Versão do checkpoint registrada aqui: `version_id: ___________`
-
-### Evidência objetiva (quando label `evidence-required`)
-- [ ] Output de `pnpm test` incluído no PR
-- [ ] Link do commit no GitHub incluído
-- [ ] Screenshot ou log relevante incluído
-
----
-
-## Evidências
-
-> Cole aqui o output de `pnpm test`, screenshot do Shadow Monitor, ou outro artefato relevante.
-
-```
-# Output de pnpm test (cole aqui)
+**Evidência estruturada (obrigatório):**
+```json
+{
+  "data_integrity": true,
+  "regression": false,
+  "rag_impact": false,
+  "unexpected_behavior": false,
+  "tests_passed": true,
+  "typescript_errors": 0,
+  "risk_level": "low"
+}
 ```
 
----
+## Migração de banco (preencher apenas se aplicável)
+- [ ] Tipo: ADD COLUMN / UPDATE / DROP / INDEX
+- [ ] Reversível: sim / não
+- [ ] Testado em ambiente isolado antes do merge
+- [ ] Não impacta dados existentes
 
-## Notas para o Orquestrador
+## Classificação da task
+- [ ] Nível 1 — Seguro (autônomo — não precisa de revisão humana)
+- [ ] Nível 2 — Controlado (requer revisão do Orquestrador)
+- [ ] Nível 3 — Crítico (requer aprovação explícita do P.O.)
 
-> Preencha se este PR requer revisão do Orquestrador (label `needs-orchestrator`).
+## Checklist final
+- [ ] Código revisado pelo próprio autor
+- [ ] Evidência JSON preenchida e verdadeira
+- [ ] Sem arquivos fora do escopo declarado modificados
+- [ ] Documentação atualizada se necessário
 
----
-
-## Impacto em produção
-
-- [ ] Sem impacto em dados existentes
-- [ ] Requer migração de banco (`pnpm db:push`)
-- [ ] Requer atualização de variável de ambiente
-- [ ] Requer restart do servidor
-- [ ] Requer limpeza de cache
+## Declaração final
+Declaro que a implementação é determinística, não há risco oculto,
+a alteração é auditável e atende o nível de confiabilidade exigido.

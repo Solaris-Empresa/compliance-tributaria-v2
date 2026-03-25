@@ -1,0 +1,39 @@
+name: Migration Guard
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  migration-guard:
+    name: Migration discipline check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect changed files
+        id: files
+        uses: tj-actions/changed-files@v44
+      - name: Check migration discipline
+        env:
+          ALL_CHANGED_FILES: ${{ steps.files.outputs.all_changed_files }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          MIGRATION=false
+          for f in $ALL_CHANGED_FILES; do
+            if echo "$f" | grep -qE "migrations|schema\.ts|\.sql$|drizzle"; then
+              MIGRATION=true
+            fi
+          done
+
+          if [ "$MIGRATION" = "true" ]; then
+            echo "Migration detected. Checking discipline..."
+            echo "$PR_BODY" | grep -q "Migração de banco" || \
+              (echo "ERRO: PR com migration sem seção obrigatória 'Migração de banco'." && exit 1)
+            echo "$PR_BODY" | grep -q "Reversível" || \
+              (echo "ERRO: Migration sem declaração de reversibilidade." && exit 1)
+            echo "$PR_BODY" | grep -q "Testado em ambiente isolado" || \
+              (echo "ERRO: Migration sem evidência de teste isolado." && exit 1)
+            echo "Migration discipline: OK"
+          else
+            echo "No migration detected. Skipping."
+          fi

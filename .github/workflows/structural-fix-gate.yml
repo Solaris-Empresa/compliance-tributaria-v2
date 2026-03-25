@@ -168,20 +168,22 @@ jobs:
   structural-gate-summary:
     name: "🔐 Structural Gate — Summary"
     runs-on: ubuntu-latest
-    needs: [pr-metadata-check, required-files-check, pct-suite]
+    needs: [pr-metadata-check, required-files-check, pct-suite, governance-check]
     if: always() && contains(github.event.pull_request.labels.*.name, 'structural-fix')
     steps:
       - name: Gate result
         run: |
           if [ "${{ needs.pr-metadata-check.result }}" != "success" ] || \
              [ "${{ needs.required-files-check.result }}" != "success" ] || \
-             [ "${{ needs.pct-suite.result }}" != "success" ]; then
+             [ "${{ needs.pct-suite.result }}" != "success" ] || \
+             [ "${{ needs.governance-check.result }}" != "success" ]; then
             echo "❌ STRUCTURAL GATE: BLOQUEADO"
             echo ""
             echo "Resultados:"
             echo "  PR Metadata:     ${{ needs.pr-metadata-check.result }}"
             echo "  Required Files:  ${{ needs.required-files-check.result }}"
             echo "  PCT Suite:       ${{ needs.pct-suite.result }}"
+            echo "  Governance:      ${{ needs.governance-check.result }}"
             echo ""
             echo "Corrija todos os itens bloqueados antes de solicitar merge."
             exit 1
@@ -192,3 +194,32 @@ jobs:
           echo "  PR Metadata:     ✅"
           echo "  Required Files:  ✅"
           echo "  PCT Suite:       ✅"
+          echo "  Governance:      ✅"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # JOB 5: Governance Gate (roda em TODOS os PRs, sem if de label)
+  # Correção 3 aprovada: sem if — governança se aplica a todo PR
+  # ───────────────────────────────────────────────────────────────────────────
+  governance-check:
+    name: "Governance gate — PR body + file guard"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get changed files
+        id: files
+        uses: tj-actions/changed-files@v44
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate PR body
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node .github/scripts/validate-pr-body.js
+      - name: Guard critical files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.files.outputs.all_changed_files }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels) }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: node .github/scripts/changed-files-guard.js

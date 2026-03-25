@@ -1,0 +1,29 @@
+name: Test Suite
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test-and-typecheck:
+    name: TypeScript + Vitest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: TypeScript check
+        run: pnpm exec tsc --noEmit
+      - name: Run all tests
+        run: pnpm test
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - name: Verify invariants
+        run: pnpm vitest run server/prefill-contract.test.ts server/invariants-606-607-608.test.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
