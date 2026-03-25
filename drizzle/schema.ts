@@ -49,7 +49,11 @@ export const projects = mysqlTable("projects", {
     "aprovado",
     "em_andamento",
     "concluido",
-    "arquivado"
+    "arquivado",
+    "assessment_fase1",
+    "assessment_fase2",
+    "parado",
+    "nao_iniciado"
   ]).default("rascunho").notNull(),
   planPeriodMonths: int("planPeriodMonths"), // 12 ou 24 meses - obrigatório antes de gerar plano
   createdById: int("createdById").notNull(),
