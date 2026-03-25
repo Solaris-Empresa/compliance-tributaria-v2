@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 1.0 — 2026-03-24
-> **Commit HEAD:** `9e25ead` (branch `main`)
-> **Checkpoint Manus:** `80d542a4`
+> **Versão:** 1.1 — 2026-03-24
+> **Commit HEAD:** `9853111` (branch `main`)
+> **Checkpoint Manus:** `bc83f9b6`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -187,8 +187,7 @@ Os erros abaixo estão catalogados em [`docs/ERROS-CONHECIDOS.md`](https://githu
 | Código | Descrição | Solução paliativa |
 |---|---|---|
 | **ERR-006** | Descoberta de CNAEs falha se `OPENAI_API_KEY` inválida (HTTP 401) | Reconfigurar chave via `webdev_request_secrets` com `preventMatching: true` |
-| **ERR-009** | Projetos criados antes de 2026-03-24 não têm `isEconomicGroup`/`taxCentralization` | Script de migração (ver próximos passos) |
-| **ERR-010** | Sobreposição QC-07/QO-03 (meios de pagamento) — pergunta duplicada | Aguardando DECISÃO-001 do P.O. |
+| **ERR-009** | Projetos criados antes de 2026-03-24 não têm `isEconomicGroup`/`taxCentralization` | Script de migração (ver próximos passos) || **ERR-010** | Sobreposición QC-07/QO-03 (meios de pagamento) — pergunta duplicada | **DECISÃO-001 tomada:** Opción A (prefill cruzado) — executar pós-UAT |
 
 ---
 
@@ -196,8 +195,7 @@ Os erros abaixo estão catalogados em [`docs/ERROS-CONHECIDOS.md`](https://githu
 
 | Código | Decisão | Opções | Impacto |
 |---|---|---|---|
-| **DECISÃO-001** | Como tratar sobreposição QC-07/QO-03 (meios de pagamento) | A: prefill cruzado (recomendada) · B: remoção de QC-07 · C: consolidação em novo campo | Não bloqueante para UAT |
-
+| ~~**DECISÃO-001**~~ | ~~Como tratar sobreposición QC-07/QO-03 (meios de pagamento)~~ | ~~A: prefill cruzado (recomendada) · B: remoção de QC-07 · C: consolidação em novo campo~~ | **✅ DECIDIDO 2026-03-24 — Opção A (prefill cruzado), executar pós-UAT.** Razão: não contaminar feedback dos advogados com mudança de fluxo durante UAT. Opção B descartada (acionaria Fase 0 + validação jurídica dos 499 requisitos). Aprovado pelo P.O. |
 ---
 
 ## 8. Fases do Projeto — Histórico Completo
@@ -235,8 +233,7 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 
 ### P0 — Prioridade Imediata
 
-1. **Iniciar UAT com advogados** — Sistema aprovado e pronto. Criar 2-3 projetos piloto com perfis reais (Simples Nacional, Lucro Real com grupo econômico) e registrar feedback usando o [`GUIA-UAT-ADVOGADOS-v2.md`](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md).
-2. **Tomar DECISÃO-001** — Definir como tratar sobreposição QC-07/QO-03 (meios de pagamento): prefill cruzado (Opção A recomendada), remoção ou consolidação.
+1. **Iniciar UAT com advogados** — Sistema aprovado e pronto. Criar 2-3 projetos piloto com perfis reais (Simples Nacional, Lucro Real com grupo econômico) e registrar feedback usando o [`GUIA-UAT-ADVOGADOS-v2.md`](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md).2. ~~**Tomar DECISÃO-001**~~ — ✅ **Decidido 2026-03-24:** Opção A (prefill cruzado QC-07 → QO-03), executar na sprint pós-UAT.
 
 ### P1 — Próximas Sprints
 
@@ -286,6 +283,7 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 | Versão | Data | Commit | Descrição da atualização |
 |---|---|---|---|
 | 1.0 | 2026-03-24 | `9e25ead` | Criação — unificação de STATUS-REPORT-BASELINE-2026-03-23.md e STATUS-BASELINE-PROPOSTA-TESTES.md. Estado pós-Sub-Sprint Prefill Contract. Banco limpo para UAT. |
+| 1.1 | 2026-03-24 | `9853111` | DECISÃO-001 tomada: Opção A (prefill cruzado QC-07→QO-03), executar pós-UAT. Opção B descartada (acionaria Fase 0). Aprovado pelo P.O. |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
