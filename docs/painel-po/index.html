@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cockpit P.O. — Compliance Tributária</title>
+<style>
+  :root {
+    --bg: #F8F8F6;
+    --bg2: #FFFFFF;
+    --border: #E2E2DE;
+    --text: #1A1A1A;
+    --text-muted: #6B6B6B;
+    --green: #3B6D11;
+    --green-bg: #EBF4E3;
+    --amber: #854F0B;
+    --amber-bg: #FEF3E2;
+    --red: #A32D2D;
+    --red-bg: #FDEAEA;
+    --blue: #185FA5;
+    --blue-bg: #E8F0FB;
+    --purple: #534AB7;
+    --purple-bg: #EEEDFB;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Layout */
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 24px 48px; }
+  header { background: var(--text); color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 16px; font-weight: 600; letter-spacing: 0.02em; }
+  header .meta { font-size: 12px; color: #aaa; }
+  .section { margin-top: 32px; }
+  .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  /* Cards de status */
+  .status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .status-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); border-top: 3px solid var(--border); }
+  .status-card.blue { border-top-color: var(--blue); }
+  .status-card.green { border-top-color: var(--green); }
+  .status-card.amber { border-top-color: var(--amber); cursor: pointer; }
+  .status-card.purple { border-top-color: var(--purple); }
+  .status-card .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
+  .status-card .value { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .status-card.blue .value { color: var(--blue); }
+  .status-card.green .value { color: var(--green); }
+  .status-card.amber .value { color: var(--amber); }
+  .status-card.purple .value { color: var(--purple); }
+  .status-card .sub { font-size: 12px; color: var(--text-muted); }
+  .status-card .link { display: inline-block; margin-top: 8px; font-size: 11px; }
+
+  /* Bloqueios expandível */
+  .bloqueios-list { display: none; margin-top: 10px; background: var(--amber-bg); border-radius: 6px; padding: 10px 12px; }
+  .bloqueios-list.open { display: block; }
+  .bloqueios-list li { font-size: 12px; color: var(--amber); margin-bottom: 4px; padding-left: 12px; position: relative; }
+  .bloqueios-list li::before { content: "⚠"; position: absolute; left: 0; }
+
+  /* Radar de Governança */
+  .radar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .radar-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: box-shadow 0.15s; text-decoration: none; color: inherit; }
+  .radar-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); text-decoration: none; }
+  .semaforo { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; transition: transform 0.1s; }
+  .semaforo:hover { transform: scale(1.1); }
+  .semaforo.green { background: var(--green-bg); color: var(--green); }
+  .semaforo.amber { background: var(--amber-bg); color: var(--amber); }
+  .semaforo.red { background: var(--red-bg); color: var(--red); }
+  .radar-info { flex: 1; min-width: 0; }
+  .radar-info .name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .radar-info .detail { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .radar-card .ext-link { font-size: 11px; color: var(--blue); margin-left: auto; flex-shrink: 0; }
+
+  /* Kanban */
+  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .kanban-col { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; min-height: 200px; }
+  .kanban-col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .kanban-col[data-col="backlog"] .kanban-col-title { color: var(--blue); }
+  .kanban-col[data-col="andamento"] .kanban-col-title { color: var(--purple); }
+  .kanban-col[data-col="gate"] .kanban-col-title { color: var(--amber); }
+  .kanban-col[data-col="bloqueado"] .kanban-col-title { color: var(--red); }
+  .kanban-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; cursor: grab; font-size: 12px; transition: box-shadow 0.15s; }
+  .kanban-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  .kanban-card.dragging { opacity: 0.4; cursor: grabbing; }
+  .kanban-card .card-title { font-weight: 600; margin-bottom: 4px; }
+  .kanban-card .card-status { font-size: 11px; color: var(--text-muted); }
+  .kanban-card .card-link { font-size: 11px; color: var(--blue); display: block; margin-top: 4px; }
+  .kanban-col.drag-over { background: #F0F4FF; border-color: var(--blue); }
+  .kanban-empty { font-size: 12px; color: var(--text-muted); font-style: italic; padding: 8px 0; }
+
+  /* Biblioteca de Documentos */
+  .docs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .docs-category { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+  .docs-category-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 10px; }
+  .doc-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .doc-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .doc-item .doc-name { font-weight: 600; font-size: 13px; }
+  .doc-item .doc-when { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .doc-item .doc-updated { font-size: 10px; color: var(--text-muted); margin-top: 3px; cursor: pointer; border-bottom: 1px dashed var(--border); display: inline-block; }
+  .doc-item .doc-updated:focus { outline: 1px solid var(--blue); background: #fff; }
+  .doc-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+  .doc-item.missing .doc-name { color: var(--text-muted); }
+  .doc-item.missing .badge { font-size: 10px; background: var(--amber-bg); color: var(--amber); border-radius: 4px; padding: 1px 6px; margin-left: 6px; }
+
+  /* Log de Decisões */
+  .decisions-table { width: 100%; border-collapse: collapse; background: var(--bg2); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .decisions-table th { background: #F0F0EE; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  .decisions-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+  .decisions-table tr:last-child td { border-bottom: none; }
+  .decisions-table td[contenteditable="plaintext-only"] { cursor: text; }
+  .decisions-table td[contenteditable="plaintext-only"]:focus { outline: 2px solid var(--blue); background: #F8F8FF; border-radius: 2px; }
+  .badge-done { background: var(--green-bg); color: var(--green); border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .badge-pending { background: var(--amber-bg); color: var(--amber); border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .add-row-btn { margin-top: 10px; background: none; border: 1px dashed var(--border); border-radius: 6px; padding: 8px 16px; cursor: pointer; font-size: 12px; color: var(--text-muted); width: 100%; transition: background 0.15s; }
+  .add-row-btn:hover { background: var(--bg); color: var(--text); }
+
+  /* Tooltip de instrução */
+  .edit-hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+  /* Responsivo */
+  @media (max-width: 1024px) {
+    .status-grid { grid-template-columns: repeat(2, 1fr); }
+    .radar-grid { grid-template-columns: repeat(2, 1fr); }
+    .kanban { grid-template-columns: repeat(2, 1fr); }
+    .docs-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🏛 Cockpit P.O. — Compliance Tributária (Reforma Tributária)</h1>
+  </div>
+  <div class="meta">Uires Tapajós · P.O. · Última atualização: 2026-03-25</div>
+</header>
+
+<div class="container">
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SEÇÃO 1 — STATUS DO PROJETO
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">Seção 1 — Status do Projeto</div>
+    <div class="status-grid">
+
+      <div class="status-card blue">
+        <div class="label">Fase atual no ciclo de vida</div>
+        <div class="value">Fase 5 — Validação (UAT)</div>
+        <div class="sub">Gate de saída: aprovação P.O. + equipe jurídica</div>
+        <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/PRODUCT-LIFECYCLE.md" target="_blank">→ PRODUCT-LIFECYCLE.md</a>
+      </div>
+
+      <div class="status-card green">
+        <div class="label">Estado do produto</div>
+        <div class="value">v1.3 — Sprint de Governança concluída</div>
+        <div class="sub">410 testes · 0 erros TypeScript · Shadow Mode ativo</div>
+        <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md" target="_blank">→ BASELINE-PRODUTO.md</a>
+      </div>
+
+      <div class="status-card amber" onclick="toggleBloqueios(this)" title="Clique para expandir">
+        <div class="label">Bloqueios ativos</div>
+        <div class="value">3 bloqueios ativos ▾</div>
+        <div class="sub">F-04 Fase 3 · modo new · DROP COLUMN</div>
+        <ul class="bloqueios-list">
+          <li>Issue #56 — F-04 Fase 3 (aguarda 48-72h UAT)</li>
+          <li>Issue #61 — Modo <code>new</code> (aguarda #56)</li>
+          <li>Issue #62 — DROP COLUMN (aguarda #61)</li>
+        </ul>
+      </div>
+
+      <div class="status-card purple">
+        <div class="label">Próxima ação obrigatória</div>
+        <div class="value">Iniciar UAT com advogados</div>
+        <div class="sub">Banco limpo · sistema aprovado · governança no lugar</div>
+        <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md" target="_blank">→ GUIA-UAT-ADVOGADOS-v2.md</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SEÇÃO 2 — RADAR DE GOVERNANÇA
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">Seção 2 — Radar de Governança <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">(clique no semáforo para alternar estado · clique no card para abrir o link)</span></div>
+    <div class="radar-grid" id="radarGrid">
+
+      <div class="radar-card" data-key="cicd" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/actions">
+        <div class="semaforo green" onclick="cycleSemaforo(event, this)" title="Clique para alternar">✔</div>
+        <div class="radar-info">
+          <div class="name">CI/CD — Checks automáticos</div>
+          <div class="detail">Verde se last run passou</div>
+        </div>
+        <span class="ext-link">↗</span>
+      </div>
+
+      <div class="radar-card" data-key="shadow" data-href="https://iasolaris.manus.space/admin/shadow-monitor">
+        <div class="semaforo green" onclick="cycleSemaforo(event, this)" title="Clique para alternar">✔</div>
+        <div class="radar-info">
+          <div class="name">Shadow Mode</div>
+          <div class="detail">Verde se divergências críticas = 0</div>
+        </div>
+        <span class="ext-link">↗</span>
+      </div>
+
+      <div class="radar-card" data-key="issues" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues">
+        <div class="semaforo amber" onclick="cycleSemaforo(event, this)" title="Clique para alternar">!</div>
+        <div class="radar-info">
+          <div class="name">Issues abertas</div>
+          <div class="detail">Âmbar se &gt; 3 abertas</div>
+        </div>
+        <span class="ext-link">↗</span>
+      </div>
+
+      <div class="radar-card" data-key="prs" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/pulls">
+        <div class="semaforo green" onclick="cycleSemaforo(event, this)" title="Clique para alternar">✔</div>
+        <div class="radar-info">
+          <div class="name">Pull Requests</div>
+          <div class="detail">Verde se 0 PRs pendentes</div>
+        </div>
+        <span class="ext-link">↗</span>
+      </div>
+
+      <div class="radar-card" data-key="testes" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/actions">
+        <div class="semaforo green" onclick="cycleSemaforo(event, this)" title="Clique para alternar">✔</div>
+        <div class="radar-info">
+          <div class="name">Testes</div>
+          <div class="detail">410/410 passando (atualizar por sprint)</div>
+        </div>
+        <span class="ext-link">↗</span>
+      </div>
+
+      <div class="radar-card" data-key="branch" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/settings/rules/14328406">
+        <div class="semaforo green" onclick="cycleSemaforo(event, this)" title="Clique para alternar">✔</div>
+        <div class="radar-info">
+          <div class="name">Branch protection</div>
+          <div class="detail">Ativo com 5 checks obrigatórios</div>
+        </div>
+        <span class="ext-link">↗</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SEÇÃO 3 — PAINEL DE SPRINT (KANBAN)
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">Seção 3 — Painel de Sprint <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">(arraste os cards entre colunas · estado salvo automaticamente)</span></div>
+    <div class="kanban" id="kanban">
+
+      <div class="kanban-col" data-col="backlog" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
+        <div class="kanban-col-title">📋 Backlog P0</div>
+      </div>
+
+      <div class="kanban-col" data-col="andamento" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
+        <div class="kanban-col-title">⚡ Em andamento</div>
+      </div>
+
+      <div class="kanban-col" data-col="gate" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
+        <div class="kanban-col-title">⏳ Aguardando gate</div>
+      </div>
+
+      <div class="kanban-col" data-col="bloqueado" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
+        <div class="kanban-col-title">🚫 Bloqueado</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SEÇÃO 4 — BIBLIOTECA DE DOCUMENTOS
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">Seção 4 — Biblioteca de Documentos Essenciais <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">(clique na data para editar)</span></div>
+    <div class="docs-grid">
+
+      <div class="docs-category">
+        <div class="docs-category-title">🔄 Monitorar a cada sprint</div>
+
+        <div class="doc-item">
+          <div class="doc-icon">📊</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md" target="_blank">BASELINE-PRODUTO.md</a>
+            <div class="doc-when">Estado atual — primeira leitura de qualquer dia</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-baseline">Atualizado: 2026-03-25 (v1.3)</span>
+          </div>
+        </div>
+
+        <div class="doc-item">
+          <div class="doc-icon">🐛</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md" target="_blank">ERROS-CONHECIDOS.md</a>
+            <div class="doc-when">Sempre que houver incidente ou comportamento inesperado</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-erros">Atualizado: 2026-03-23</span>
+          </div>
+        </div>
+
+        <div class="doc-item">
+          <div class="doc-icon">📝</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/CHANGELOG.md" target="_blank">CHANGELOG.md</a>
+            <div class="doc-when">Após cada entrega do Manus</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-changelog">Atualizado: 2026-03-25</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="docs-category">
+        <div class="docs-category-title">🧭 Consultar por decisão</div>
+
+        <div class="doc-item">
+          <div class="doc-icon">🔄</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/PRODUCT-LIFECYCLE.md" target="_blank">PRODUCT-LIFECYCLE.md</a>
+            <div class="doc-when">Antes de iniciar nova sprint — verificar fase e gate</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-lifecycle">Atualizado: 2026-03-25 (v1.2)</span>
+          </div>
+        </div>
+
+        <div class="doc-item">
+          <div class="doc-icon">👥</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/MODELO-OPERACIONAL.md" target="_blank">MODELO-OPERACIONAL.md</a>
+            <div class="doc-when">Dúvida sobre quem decide o quê</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-modelo">Atualizado: 2026-03-25 (v1.0)</span>
+          </div>
+        </div>
+
+        <div class="doc-item">
+          <div class="doc-icon">✅</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/DEFINITION-OF-DONE.md" target="_blank">DEFINITION-OF-DONE.md</a>
+            <div class="doc-when">Antes de aceitar uma entrega do Manus</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-dod">Atualizado: 2026-03-25 (v1.0)</span>
+          </div>
+        </div>
+
+        <div class="doc-item">
+          <div class="doc-icon">🏗</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/ADR-008-F04-schema-migration-strategy.md" target="_blank">ADR-008 (F-04 migration)</a>
+            <div class="doc-when">Qualquer discussão sobre trocar leitura para modo <code>new</code></div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-adr008">Atualizado: 2026-03-23</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="docs-category">
+        <div class="docs-category-title">🧪 UAT (agora)</div>
+
+        <div class="doc-item">
+          <div class="doc-icon">📋</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md" target="_blank">GUIA-UAT-ADVOGADOS-v2.md</a>
+            <div class="doc-when">Durante as sessões de UAT</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-guia-uat">Atualizado: 2026-03-23</span>
+          </div>
+        </div>
+
+        <div class="doc-item missing">
+          <div class="doc-icon">📡</div>
+          <div>
+            <span class="doc-name">SHADOW-MONITOR-BASELINE-UAT.md <span class="badge">pendente criação</span></span>
+            <div class="doc-when">A cada 24h durante o UAT</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-shadow-uat">Ainda não criado</span>
+          </div>
+        </div>
+
+        <div class="doc-item">
+          <div class="doc-icon">❓</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/suporte/FAQ.md" target="_blank">FAQ.md</a>
+            <div class="doc-when">Suporte aos advogados testadores</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-faq">Atualizado: 2026-03-25</span>
+          </div>
+        </div>
+
+        <div class="doc-item">
+          <div class="doc-icon">📖</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/suporte/MANUAL-USUARIO.md" target="_blank">MANUAL-USUARIO.md</a>
+            <div class="doc-when">Suporte aos advogados testadores</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-manual">Atualizado: 2026-03-25</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="docs-category">
+        <div class="docs-category-title">🔧 Governança técnica (referência)</div>
+
+        <div class="doc-item">
+          <div class="doc-icon">🚨</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md" target="_blank">ERROS-CONHECIDOS.md</a>
+            <div class="doc-when">Incidente em produção — runbooks</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-erros2">Atualizado: 2026-03-23</span>
+          </div>
+        </div>
+
+        <div class="doc-item">
+          <div class="doc-icon">🔒</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/invariant-registry.md" target="_blank">invariant-registry.md</a>
+            <div class="doc-when">Verificar integridade após qualquer sprint</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-invariant">Atualizado: 2026-03-23</span>
+          </div>
+        </div>
+
+        <div class="doc-item">
+          <div class="doc-icon">▶</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/playruns/PLAYRUN-TEMPLATE.md" target="_blank">PLAYRUN-TEMPLATE.md</a>
+            <div class="doc-when">Exigir do Manus ao fechar sprint</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-playrun">Atualizado: 2026-03-25</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SEÇÃO 5 — LOG DE DECISÕES
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">Seção 5 — Log de Decisões <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">(clique em qualquer célula para editar · Enter para confirmar)</span></div>
+    <table class="decisions-table" id="decisionsTable">
+      <thead>
+        <tr>
+          <th style="width:110px">Data</th>
+          <th>Decisão</th>
+          <th style="width:120px">Status</th>
+        </tr>
+      </thead>
+      <tbody id="decisionsBody">
+      </tbody>
+    </table>
+    <button class="add-row-btn" onclick="addDecisionRow()">+ Adicionar decisão</button>
+    <div class="edit-hint">💡 Clique em qualquer célula para editar. O log é salvo automaticamente no seu navegador.</div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// ESTADO INICIAL (usado quando localStorage está vazio)
+// ═══════════════════════════════════════════════════════════════
+
+const INITIAL_KANBAN = {
+  backlog: [
+    { id: 'k1', title: 'Sprint de Governança', status: '✅ Concluída', link: null },
+    { id: 'k2', title: 'UAT com advogados', status: '⏳ Aguardando', link: null },
+  ],
+  andamento: [],
+  gate: [
+    { id: 'k3', title: 'Issue #57 — Validação E2E', status: 'Aguarda UAT', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/57' },
+    { id: 'k4', title: 'Issue #58 — Refinamento UX', status: 'Aguarda feedback UAT', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/58' },
+    { id: 'k5', title: 'Issue #60 — Shadow Mode monitoramento', status: 'Em andamento', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/60' },
+  ],
+  bloqueado: [
+    { id: 'k6', title: 'Issue #56 — F-04 Fase 3', status: 'Aguarda 48-72h UAT', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/56' },
+    { id: 'k7', title: 'Issue #61 — Modo new', status: 'Aguarda #56', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/61' },
+    { id: 'k8', title: 'Issue #62 — DROP COLUMN', status: 'Aguarda #61', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/62' },
+  ]
+};
+
+const INITIAL_DECISIONS = [
+  { date: '2026-03-25', decision: 'Branch protection ativada — ruleset main-protection com 5 checks', status: 'done' },
+  { date: '2026-03-25', decision: 'Sprint de Governança CI/CD — P0 confirmado e concluída', status: 'done' },
+  { date: '2026-03-24', decision: 'DECISÃO-001 — Opção A (prefill cruzado QC-07→QO-03) pós-UAT', status: 'done' },
+  { date: '2026-03-24', decision: 'Claude como Orquestrador — modelo operacional formalizado', status: 'done' },
+  { date: '—', decision: 'Ativar F-04 Fase 3 (modo new, leitura)', status: 'pending' },
+  { date: '—', decision: 'Promover para modo new (DROP COLUMN)', status: 'pending' },
+];
+
+const INITIAL_SEMAFOROS = {
+  cicd: 'green', shadow: 'green', issues: 'amber',
+  prs: 'green', testes: 'green', branch: 'green'
+};
+
+// ═══════════════════════════════════════════════════════════════
+// PERSISTÊNCIA — localStorage com fallback para estado inicial
+// ═══════════════════════════════════════════════════════════════
+
+function save(key, value) {
+  try { localStorage.setItem('po-cockpit-' + key, JSON.stringify(value)); } catch(e) {}
+}
+function load(key, fallback) {
+  try {
+    const v = localStorage.getItem('po-cockpit-' + key);
+    return v !== null ? JSON.parse(v) : fallback;
+  } catch(e) { return fallback; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SEÇÃO 1 — Bloqueios expandível
+// ═══════════════════════════════════════════════════════════════
+
+function toggleBloqueios(card) {
+  const list = card.querySelector('.bloqueios-list');
+  list.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SEÇÃO 2 — Semáforos (ciclo 3 estados)
+// ═══════════════════════════════════════════════════════════════
+
+const SEMAFORO_CYCLE = { green: 'amber', amber: 'red', red: 'green' };
+const SEMAFORO_ICON = { green: '✔', amber: '!', red: '✕' };
+
+function cycleSemaforo(event, el) {
+  event.stopPropagation();
+  event.preventDefault();
+  const card = el.closest('.radar-card');
+  const key = card.dataset.key;
+  const current = el.className.replace('semaforo ', '');
+  const next = SEMAFORO_CYCLE[current];
+  el.className = 'semaforo ' + next;
+  el.textContent = SEMAFORO_ICON[next];
+  // Salvar estado de todos os semáforos
+  const state = {};
+  document.querySelectorAll('.radar-card').forEach(c => {
+    const s = c.querySelector('.semaforo');
+    state[c.dataset.key] = s.className.replace('semaforo ', '');
+  });
+  save('semaforos', state);
+}
+
+function initSemaforos() {
+  const state = load('semaforos', INITIAL_SEMAFOROS);
+  document.querySelectorAll('.radar-card').forEach(card => {
+    const key = card.dataset.key;
+    const s = card.querySelector('.semaforo');
+    const st = state[key] || 'green';
+    s.className = 'semaforo ' + st;
+    s.textContent = SEMAFORO_ICON[st];
+    // Clique no card abre o link
+    card.addEventListener('click', function(e) {
+      if (e.target.classList.contains('semaforo')) return;
+      const href = card.dataset.href;
+      if (href) window.open(href, '_blank');
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SEÇÃO 3 — Kanban com drag and drop
+// ═══════════════════════════════════════════════════════════════
+
+let draggedCard = null;
+
+function renderKanban(state) {
+  const cols = document.querySelectorAll('.kanban-col');
+  cols.forEach(col => {
+    const colId = col.dataset.col;
+    const title = col.querySelector('.kanban-col-title');
+    // Limpar cards existentes (manter título)
+    Array.from(col.children).forEach(c => { if (!c.classList.contains('kanban-col-title')) c.remove(); });
+    const cards = state[colId] || [];
+    if (cards.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'kanban-empty';
+      empty.textContent = 'Vazio';
+      col.appendChild(empty);
+    } else {
+      cards.forEach(card => {
+        const el = document.createElement('div');
+        el.className = 'kanban-card';
+        el.draggable = true;
+        el.dataset.id = card.id;
+        el.innerHTML = `<div class="card-title">${card.title}</div><div class="card-status">${card.status}</div>${card.link ? `<a class="card-link" href="${card.link}" target="_blank" onclick="event.stopPropagation()">→ Ver issue</a>` : ''}`;
+        el.addEventListener('dragstart', onDragStart);
+        el.addEventListener('dragend', onDragEnd);
+        col.appendChild(el);
+      });
+    }
+  });
+}
+
+function getKanbanState() {
+  const state = {};
+  document.querySelectorAll('.kanban-col').forEach(col => {
+    const colId = col.dataset.col;
+    state[colId] = [];
+    col.querySelectorAll('.kanban-card').forEach(card => {
+      // Encontrar dados do card no estado atual
+      const id = card.dataset.id;
+      const allCards = Object.values(currentKanban).flat();
+      const data = allCards.find(c => c.id === id);
+      if (data) state[colId].push(data);
+    });
+  });
+  return state;
+}
+
+let currentKanban = {};
+
+function initKanban() {
+  currentKanban = load('kanban', INITIAL_KANBAN);
+  renderKanban(currentKanban);
+}
+
+function onDragStart(e) {
+  draggedCard = e.currentTarget;
+  draggedCard.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', draggedCard.dataset.id);
+}
+
+function onDragEnd(e) {
+  if (draggedCard) draggedCard.classList.remove('dragging');
+  draggedCard = null;
+  document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over'));
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  const col = e.currentTarget;
+  col.classList.remove('drag-over');
+  if (!draggedCard) return;
+  const cardId = e.dataTransfer.getData('text/plain');
+  // Encontrar o card nos dados
+  let cardData = null;
+  let sourceCol = null;
+  Object.entries(currentKanban).forEach(([colId, cards]) => {
+    const idx = cards.findIndex(c => c.id === cardId);
+    if (idx !== -1) { cardData = cards[idx]; sourceCol = colId; }
+  });
+  if (!cardData || sourceCol === col.dataset.col) return;
+  // Mover
+  currentKanban[sourceCol] = currentKanban[sourceCol].filter(c => c.id !== cardId);
+  currentKanban[col.dataset.col] = currentKanban[col.dataset.col] || [];
+  currentKanban[col.dataset.col].push(cardData);
+  save('kanban', currentKanban);
+  renderKanban(currentKanban);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SEÇÃO 4 — Datas editáveis dos documentos
+// ═══════════════════════════════════════════════════════════════
+
+function initDocDates() {
+  const savedDates = load('doc-dates', {});
+  document.querySelectorAll('.doc-updated[data-key]').forEach(el => {
+    const key = el.dataset.key;
+    if (savedDates[key]) el.textContent = savedDates[key];
+    el.addEventListener('blur', () => {
+      const all = load('doc-dates', {});
+      all[key] = el.textContent.trim();
+      save('doc-dates', all);
+    });
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SEÇÃO 5 — Log de decisões
+// ═══════════════════════════════════════════════════════════════
+
+function renderDecisions(decisions) {
+  const tbody = document.getElementById('decisionsBody');
+  tbody.innerHTML = '';
+  decisions.forEach((d, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td contenteditable="plaintext-only" data-idx="${i}" data-field="date">${d.date}</td>
+      <td contenteditable="plaintext-only" data-idx="${i}" data-field="decision">${d.decision}</td>
+      <td>
+        <span class="${d.status === 'done' ? 'badge-done' : 'badge-pending'}" 
+              style="cursor:pointer" 
+              onclick="toggleDecisionStatus(${i})" 
+              title="Clique para alternar">
+          ${d.status === 'done' ? '✅ Feito' : '⏳ Aguarda'}
+        </span>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  // Listeners de edição inline
+  tbody.querySelectorAll('td[contenteditable]').forEach(td => {
+    td.addEventListener('blur', () => {
+      const decisions = load('decisions', INITIAL_DECISIONS);
+      const idx = parseInt(td.dataset.idx);
+      const field = td.dataset.field;
+      decisions[idx][field] = td.textContent.trim();
+      save('decisions', decisions);
+    });
+    td.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); td.blur(); } });
+  });
+}
+
+function toggleDecisionStatus(idx) {
+  const decisions = load('decisions', INITIAL_DECISIONS);
+  decisions[idx].status = decisions[idx].status === 'done' ? 'pending' : 'done';
+  save('decisions', decisions);
+  renderDecisions(decisions);
+}
+
+function addDecisionRow() {
+  const decisions = load('decisions', INITIAL_DECISIONS);
+  decisions.push({ date: new Date().toISOString().slice(0,10), decision: 'Nova decisão — clique para editar', status: 'pending' });
+  save('decisions', decisions);
+  renderDecisions(decisions);
+}
+
+function initDecisions() {
+  const decisions = load('decisions', INITIAL_DECISIONS);
+  renderDecisions(decisions);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INICIALIZAÇÃO
+// ═══════════════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  initSemaforos();
+  initKanban();
+  initDocDates();
+  initDecisions();
+});
+</script>
+</body>
+</html>
