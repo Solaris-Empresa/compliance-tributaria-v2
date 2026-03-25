@@ -3,6 +3,11 @@ name: Test Suite
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - 'CHANGELOG.md'
+      - '.github/PULL_REQUEST_TEMPLATE/**'
 
 jobs:
   test-and-typecheck:
