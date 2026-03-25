@@ -117,6 +117,19 @@ Todos os documentos referenciados neste arquivo, com URL direta no GitHub.
 | Relatório Final Shadow Mode ADR-009 | [RELATORIO-FINAL-SHADOW-MODE-ADR009.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/RELATORIO-FINAL-SHADOW-MODE-ADR009.md) | Shadow mode — relatório final |
 | Diagnóstico UAT-001 | [DIAGNOSTICO-UAT-001-FLUXO-QUESTIONARIO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/DIAGNOSTICO-UAT-001-FLUXO-QUESTIONARIO.md) | Diagnóstico do fluxo de questionário |
 
+### 4b. Documentos Entregues pelo P.O. (v2.00) — NOVOS 2026-03-24
+
+Fontes primárias entregues pelo P.O. para apoio a diagnóstico de incidentes e onboarding.
+
+| Documento | URL GitHub | Descrição |
+|---|---|---|
+| `documentacao-projeto-plataforma-reforma-tributaria-v2.00.md` | [GitHub](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/documentacao-projeto-plataforma-reforma-tributaria-v2.00.md) | Inventário completo — 120 arquivos, 11 checkpoints, métricas de produção |
+| `documentacao-projeto-plataforma-reforma-tributaria-v2.00.docx` | [GitHub](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/documentacao-projeto-plataforma-reforma-tributaria-v2.00.docx) | Versão Word do inventário |
+| `INDICE-DOCUMENTACAO-v2.00.docx` | [GitHub](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/INDICE-DOCUMENTACAO-v2.00.docx) | Índice mestre em formato Word — 80 docs ativos em 10 categorias |
+| `0-leia-me.docx` | [GitHub](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/0-leia-me.docx) | Nota de entrega do P.O. — links GitHub, resumo da v2.00 |
+
+---
+
 ### 4.4 Documentos de Governança e Issues
 
 | Documento | URL | Descrição |
@@ -611,6 +624,7 @@ npx vitest run server/prefill-contract.test.ts server/prefill-contract-v2.test.t
 |---|---|---|---|
 | **1.0** | 2026-03-24 | Manus AI | Criação inicial — 10 erros catalogados (7 corrigidos, 3 ativos), 3 riscos arquiteturais, 3 decisões pendentes, 5 runbooks, 8 invariants |
 | **2.0** | 2026-03-24 | Manus AI | Adição de Seção 3 (Mapa de Sprints com 12 checkpoints e commits GitHub), Seção 4 (Índice de 35 documentos com URLs diretas no GitHub), URLs GitHub em todos os erros, checkpoints e testes; incorporação dos documentos v2.00 (commit `c92d5337`, 120 arquivos .md, 80 documentos ativos em 10 categorias) |
+| **2.1** | 2026-03-24 | Manus AI | Incorporação dos 4 documentos entregues pelo P.O. (`documentacao-projeto-plataforma-reforma-tributaria-v2.00.md/.docx`, `INDICE-DOCUMENTACAO-v2.00.docx`, `0-leia-me.docx`); nova Seção 4b com tabela de documentos do PO e URLs GitHub; atualização do Índice Mestre para v2.01 (93 documentos ativos, 13 novos, Categoria 5c adicionada) |
 
 ---
 

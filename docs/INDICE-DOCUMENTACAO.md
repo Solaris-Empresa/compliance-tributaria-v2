@@ -1,11 +1,12 @@
 # Índice Mestre de Documentação
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.00 — 2026-03-23
-> **Versão anterior:** 1.00 (commit `40bf064`, 65 documentos)
-> **Commit HEAD:** `c92d5337` (branch `main`)
-> **Total de documentos:** 120 arquivos Markdown + 7 arquivos .docx
+> **Versão:** 2.01 — 2026-03-24
+> **Versão anterior:** 2.00 (commit `c92d5337`, 120 docs, 2026-03-23)
+> **Commit HEAD:** `92e5d88` (branch `main`)
+> **Total de documentos:** 124 arquivos Markdown + 11 arquivos .docx
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
+> **Novos nesta versão:** 4 documentos do PO (v2.00) + 8 documentos da Sub-Sprint Prefill Contract
 
 ---
 
@@ -83,7 +84,29 @@ Documentos gerados nas sprints v5.0 a v5.3.0. Todos disponíveis em `.md` e `.do
 | [`PLAYBOOK-DA-PLATAFORMA-v3.md`](./product/cpie-v2/produto/PLAYBOOK-DA-PLATAFORMA-v3.md) + [`.docx`](./product/cpie-v2/produto/PLAYBOOK-DA-PLATAFORMA-v3.docx) | **v3.0** | 15 seções — ADRs, Shadow Mode, Onda 1+2, UAT, padrões createPool e JSON nativo | ✅ Novo |
 | [`projeto-compliance-reforma-tributaria-v2.00.md`](./product/cpie-v2/produto/projeto-compliance-reforma-tributaria-v2.00.md) + [`.docx`](./product/cpie-v2/produto/projeto-compliance-reforma-tributaria-v2.00.docx) | **v2.00** | Documento de projeto — reposicionamento CNAE→requisitos regulatórios, 499 requisitos | ✅ Novo |
 | [`snapshot-plataforma-reforma-tributaria-v2.00.md`](./product/cpie-v2/produto/snapshot-plataforma-reforma-tributaria-v2.00.md) + [`.docx`](./product/cpie-v2/produto/snapshot-plataforma-reforma-tributaria-v2.00.docx) | **v2.00** | Snapshot operacional — auditoria v2.3 aprovada (14/14 gates), evolução v2.3→v5.3.0 | ✅ Novo |
-| [`documentacao-projeto-plataforma-reforma-tributaria-v2.00.md`](./product/cpie-v2/produto/documentacao-projeto-plataforma-reforma-tributaria-v2.00.md) + `.docx` | **v2.00** | Inventário completo de documentação — 120 arquivos, 11 checkpoints, estado atual | ✅ Novo |
+| [`documentacao-projeto-plataforma-reforma-tributaria-v2.00.md`](./product/cpie-v2/produto/documentacao-projeto-plataforma-reforma-tributaria-v2.00.md) + [`.docx`](./product/cpie-v2/produto/documentacao-projeto-plataforma-reforma-tributaria-v2.00.docx) | **v2.00** | Inventário completo de documentação — 120 arquivos, 11 checkpoints, estado atual | ✅ Novo |
+| [`INDICE-DOCUMENTACAO-v2.00.docx`](./INDICE-DOCUMENTACAO-v2.00.docx) | **v2.00** | Índice mestre em formato Word — 80 docs ativos em 10 categorias (commit `6a7237b`) | ✅ Novo PO |
+| [`0-leia-me.docx`](./0-leia-me.docx) | **v2.00** | Nota de entrega do PO — links GitHub, resumo do que foi incorporado na v2.00 | ✅ Novo PO |
+
+---
+
+## Categoria 5c — Sub-Sprint Prefill Contract (2026-03-24) — NOVOS
+
+Documentos gerados durante a Sub-Sprint Estrutural de Prefill Contract. Cobrem diagnóstico, governança, testes automatizados e validação E2E.
+
+| Arquivo | Tipo | Descrição | Novo |
+|---|---|---|---|
+| [`docs/issues/ISSUE-001-prefill-contract-fase1-final.md`](./issues/ISSUE-001-prefill-contract-fase1-final.md) | Issue Formal | ISSUE-001 — Fase 1 Final do Prefill Contract: matriz, decisões, 10 blocos de checklist, critérios de aceite | ✅ Novo |
+| [`docs/issues/AUTOAUDITORIA-QUESTIONARIOS.md`](./issues/AUTOAUDITORIA-QUESTIONARIOS.md) | Auditoria | Autoauditoria v1.0 dos 3 questionários — 8 seções técnicas (DA-1..DA-5, gaps, decisões) | ✅ Novo |
+| [`docs/issues/AUTOAUDITORIA-QUESTIONARIOS-v1.1.md`](./issues/AUTOAUDITORIA-QUESTIONARIOS-v1.1.md) | Auditoria | Autoauditoria v1.1 — status atualizado pós-correções BUG-001 e OBS-002, GO para UAT | ✅ Novo |
+| [`docs/issues/QUESTIONARIOS-ARQUITETURA-PO.md`](./issues/QUESTIONARIOS-ARQUITETURA-PO.md) | Produto | Arquitetura dos questionários para o PO — 10 seções executivas, 82 campos mapeados | ✅ Novo |
+| [`docs/issues/QUESTIONARIOS-ARQUITETURA-PO-v1.1.md`](./issues/QUESTIONARIOS-ARQUITETURA-PO-v1.1.md) | Produto | Arquitetura dos questionários v1.1 — checklist 100% aprovado, roadmap atualizado | ✅ Novo |
+| [`docs/issues/FASE2-E2E-VALIDATION-REPORT.md`](./issues/FASE2-E2E-VALIDATION-REPORT.md) | Validação | Relatório E2E Fase 2 — 10 cenários × 8 blocos, 132 testes, decisão GO/NO-GO | ✅ Novo |
+| [`docs/issues/POS-AUTOAUDITORIA-RELATORIO-FINAL.md`](./issues/POS-AUTOAUDITORIA-RELATORIO-FINAL.md) | Relatório | Relatório final pós-autoauditoria — BUG-001 + OBS-002 corrigidos, DECISÃO-001 documentada | ✅ Novo |
+| [`docs/ERROS-CONHECIDOS.md`](./ERROS-CONHECIDOS.md) | Operacional | Registro de erros conhecidos v2.0 — 10 erros, runbooks, invariants, URLs GitHub | ✅ Novo |
+| [`docs/prefill-contract-sprint.md`](./prefill-contract-sprint.md) | Sprint | Documento formal da Sub-Sprint: Prefill Contract Matrix v1, Plano de Correção, Test Plan | ✅ Novo |
+| [`docs/governance/invariant-registry.md`](./governance/invariant-registry.md) | Governança | Invariant Registry — 8 invariants (INV-001..INV-008) com comandos de verificação | ✅ Novo |
+| [`docs/evidence-packs/2026-03-24-prefill-contract-sprint.md`](./evidence-packs/2026-03-24-prefill-contract-sprint.md) | Evidência | Evidence Pack canônico da sprint de Prefill Contract | ✅ Novo |
 
 ---
 
@@ -178,20 +201,21 @@ Documentos de especificação funcional e técnica do produto.
 
 ## Resumo por Categoria
 
-| Categoria | Qtd. Documentos | Prioridade de Leitura | Novos desde v1.00 |
+| Categoria | Qtd. Documentos | Prioridade de Leitura | Novos desde v2.00 |
 |---|---|---|---|
-| 1 — Governança e Reconstrução (v3.0) | 4 | 🔴 CRÍTICA — ler primeiro | 1 |
-| 2 — Status Reports e Baseline | 6 | 🔴 CRÍTICA | 1 |
+| 1 — Governança e Reconstrução (v3.0) | 4 | 🔴 CRÍTICA — ler primeiro | — |
+| 2 — Status Reports e Baseline | 6 | 🔴 CRÍTICA | — |
 | 3 — ADRs | 9 | 🟠 ALTA | — |
-| 4 — Relatórios e Auditorias | 10 | 🟠 ALTA | 4 |
-| 5 — Documentação de Versão Atual (v5.x) | 6 | 🔴 CRÍTICA | 6 |
-| 5b — Especificação de Produto | 12 | 🟡 MÉDIA | 1 |
-| 6b — UAT e Distribuição | 3 | 🔴 CRÍTICA | 3 |
+| 4 — Relatórios e Auditorias | 10 | 🟠 ALTA | — |
+| 5 — Documentação de Versão Atual (v5.x) | 8 | 🔴 CRÍTICA | 2 (INDICE-v2.00.docx, 0-leia-me.docx) |
+| 5b — Especificação de Produto | 12 | 🟡 MÉDIA | — |
+| 5c — Sub-Sprint Prefill Contract | 11 | 🔴 CRÍTICA | 11 (todos novos) |
+| 6b — UAT e Distribuição | 3 | 🔴 CRÍTICA | — |
 | 6 — Arquitetura Técnica | 10 | 🟡 MÉDIA | — |
 | 7 — Operação e Infraestrutura | 10 | 🟢 BAIXA | — |
 | 8 — Playbooks e Guias | 6 | 🟠 ALTA | — |
 | 9 — Histórico de Sprints | 4 | 🟢 BAIXA | — |
-| **Total** | **80** | — | **16 novos** |
+| **Total** | **93** | — | **13 novos** |
 
 > **Nota:** O total de 80 documentos neste índice representa os documentos ativos e relevantes. O repositório contém 120 arquivos `.md` no total, incluindo ~40 documentos históricos de sprints anteriores (pré-v5.0) na raiz do projeto.
 
@@ -207,7 +231,10 @@ Documentos de especificação funcional e técnica do produto.
 | `projeto-compliance-reforma-tributaria-v2.00.docx` | v2.00 |
 | `snapshot-plataforma-reforma-tributaria-v2.00.docx` | v2.00 |
 | `documentacao-projeto-plataforma-reforma-tributaria-v2.00.docx` | v2.00 |
-| `INDICE-DOCUMENTACAO-v2.00.docx` | v2.00 |
+| `AUTOAUDITORIA-QUESTIONARIOS-v1.1.docx` | v1.1 — Sprint Prefill Contract |
+| `QUESTIONARIOS-ARQUITETURA-PO-v1.1.docx` | v1.1 — Sprint Prefill Contract |
+| `ERROS-CONHECIDOS-v2.0.docx` | v2.0 — Sprint Prefill Contract |
+| `INDICE-DOCUMENTACAO-v2.00.docx` | v2.00 — entregue pelo PO |
 
 ---
 
@@ -225,5 +252,6 @@ Documentos de especificação funcional e técnica do produto.
 
 ---
 
-*Atualizado em 2026-03-23 — Versão 2.00 | Commit HEAD: `c92d5337` | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
-*Versão anterior: 1.00 (commit `40bf064`, 65 documentos)*
+*Atualizado em 2026-03-24 — Versão 2.01 | Commit HEAD: `92e5d88` | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Versão anterior: 2.00 (commit `c92d5337`, 80 documentos, 2026-03-23)*
+*Versão anterior: 1.00 (commit `40bf064`, 65 documentos, 2026-03-21)*
