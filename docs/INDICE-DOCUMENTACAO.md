@@ -1,12 +1,12 @@
 # Índice Mestre de Documentação
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.02 — 2026-03-24
-> **Versão anterior:** 2.01 (commit `c3b39da`, 93 docs, 2026-03-24)
-> **Commit HEAD:** `c3b39da` (branch `main`)
-> **Total de documentos:** 124 arquivos Markdown + 11 arquivos .docx
+> **Versão:** 2.03 — 2026-03-24
+> **Versão anterior:** 2.02 (commit `9e25ead`, 93 docs, 2026-03-24)
+> **Commit HEAD:** `9e25ead` (branch `main`)
+> **Total de documentos:** 124 arquivos Markdown (sem .docx — GitHub é o repositório oficial)
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
-> **Novos nesta versão:** Links GitHub diretos em todos os documentos + ERROS-CONHECIDOS v2.1 atualizado
+> **Novos nesta versão:** BASELINE-PRODUTO.md v1.0 — documento vivo unificado substitui STATUS-REPORT-BASELINE e STATUS-BASELINE-PROPOSTA-TESTES
 >
 > **📌 Acesso rápido para o P.O.:**
 > - 🔴 [ERROS CONHECIDOS v2.1](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md) — incidentes, runbooks, sprints
@@ -15,6 +15,7 @@
 > - 🔴 [RELATÓRIO GO/NO-GO](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/POS-AUTOAUDITORIA-RELATORIO-FINAL.md) — decisão UAT
 > - 🔴 [GUIA UAT ADVOGADOS v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md) — sessão com advogados
 > - 🔴 [SNAPSHOT DA PLATAFORMA v2.00](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/snapshot-plataforma-reforma-tributaria-v2.00.md) — estado atual completo
+> - ⭐ [BASELINE DO PRODUTO v1.0](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md) — **documento vivo** — estado técnico e de produto, atualizado a cada sprint
 
 ---
 
@@ -31,18 +32,18 @@ Documentos gerados a partir do `documentacao-para-rollback-rag-v1.00.docx`. São
 
 ---
 
-## Categoria 2 — Status Reports e Baseline
+## Categoria 2 — Baseline e Status do Produto
 
-Documentos de status e baseline técnica do projeto, gerados em marcos importantes.
+O **BASELINE-PRODUTO.md** é o único documento vivo de estado do produto. Substitui todos os status reports pontuais anteriores. Deve ser atualizado a cada sprint concluída. Os demais documentos desta categoria são históricos imutáveis.
 
 | Arquivo | Data | Descrição |
 |---|---|---|
-| [STATUS-REPORT-BASELINE-2026-03-23.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/STATUS-REPORT-BASELINE-2026-03-23.md) | 2026-03-23 | Status report completo + baseline técnica (commit `40bf064`) |
-| [STATUS-BASELINE-PROPOSTA-TESTES.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/STATUS-BASELINE-PROPOSTA-TESTES.md) | 2026-03-23 | Status report pré-Shadow Mode + proposta UAT |
-| [BASELINE-v2.2.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-v2.2.md) | — | Baseline técnica v2.2 |
-| [BaselineTecnica-v2.1.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BaselineTecnica-v2.1.md) | — | Baseline técnica v2.1 |
+| ⭐ [**BASELINE-PRODUTO.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md) | **2026-03-24** | **Documento vivo** — baseline unificada, atualizada a cada sprint. Substitui STATUS-REPORT-BASELINE e STATUS-BASELINE-PROPOSTA-TESTES |
+| [BASELINE-v2.2.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-v2.2.md) | — | Baseline técnica v2.2 (histórico) |
+| [BaselineTecnica-v2.1.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BaselineTecnica-v2.1.md) | — | Baseline técnica v2.1 (histórico) |
 | [SPRINT-STATUS-REPORT.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/SPRINT-STATUS-REPORT.md) | — | Histórico de status de sprints |
-| [AUDITORIA-RECONCILIACAO-POS-v2.2.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/AUDITORIA-RECONCILIACAO-POS-v2.2.md) | — | Auditoria de reconciliação pós-v2.2 |
+| [AUDITORIA-RECONCILIACAO-POS-v2.2.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/AUDITORIA-RECONCILIACAO-POS-v2.2.md) | — | Auditoria de reconciliação pós-v2.2 (histórico) |
+| [STATUS-REPORT-BASELINE-2026-03-23.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/STATUS-REPORT-BASELINE-2026-03-23.md) | 2026-03-23 | ~~Substituído pelo BASELINE-PRODUTO.md~~ — arquivo histórico |
 
 ---
 
