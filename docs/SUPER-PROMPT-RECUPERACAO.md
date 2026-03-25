@@ -25,7 +25,7 @@
 ```
 Repositório: utapajos/compliance-tributaria-v2
 Branch principal: main
-Token PAT (para ajudar - manus): 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
+Token PAT (para ajudar - manus): <REVOGADO — usar manus-agent-governance-token>
 Permissões: repo (read/write)
 ```
 
@@ -34,7 +34,7 @@ Permissões: repo (read/write)
 cd /home/ubuntu/compliance-tributaria-v2
 git config user.email "uires.tapajos@iasolaris.com.br"
 git config user.name "IA Solaris"
-git remote set-url github https://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@github.com/utapajos/compliance-tributaria-v2.git
+git remote set-url github https://<TOKEN-REVOGADO>@github.com/utapajos/compliance-tributaria-v2.git
 git push github main
 ```
 
@@ -200,7 +200,7 @@ npx tsc --noEmit 2>&1
 cd /home/ubuntu/compliance-tributaria-v2
 git config user.email "uires.tapajos@iasolaris.com.br"
 git config user.name "IA Solaris"
-git remote set-url github https://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@github.com/utapajos/compliance-tributaria-v2.git
+git remote set-url github https://<TOKEN-REVOGADO>@github.com/utapajos/compliance-tributaria-v2.git
 git push github main
 ```
 
