@@ -941,6 +941,16 @@ Gere as perguntas no formato:
       const ragCtxBriefing = await retrieveArticles(cnaeCodesForRag, briefingQueryCtx, 7);
       const regulatoryContext = ragCtxBriefing.contextText;
 
+      // G8: Montar bloco de perfil da empresa para personalização do briefing
+      const projectAnyBriefing = project as any;
+      const cp = projectAnyBriefing.companyProfile as Record<string, string> | null | undefined;
+      const primaryCnae = confirmedCnaes[0]
+        ? `${confirmedCnaes[0].code} — ${(confirmedCnaes[0] as any).description || confirmedCnaes[0].code}`
+        : (input.allAnswers[0]?.cnaeCode ?? "não informado");
+      const companyProfileBlock = cp
+        ? `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: ${cp.companySize ?? "não informado"}\n- Regime Tributário: ${cp.taxRegime ?? "não informado"}\n- Faturamento Anual: ${cp.annualRevenueRange ?? "não informado"}`
+        : `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: não informado\n- Regime Tributário: não informado`;
+
       // V60: Geração com retry + temperatura 0.2 + schema estruturado
       const structured = await generateWithRetry(
         [
@@ -962,13 +972,7 @@ ${OUTPUT_CONTRACT}`,
           },
           {
             role: "user",
-            content: `PROJETO: ${project.name}
-DESCRIÇÃO: ${(project as any).description || ""}
-
-RESPOSTAS DO QUESTIONÁRIO:
-${answersText}
-${correctionContext}
-${complementContext}
+            content: `${companyProfileBlock}\n\nPROJETO: ${project.name}\nDESCRIÇÃO: ${(project as any).description || ""}\n\nRESPOSTAS DO QUESTIONÁRIO:\n${answersText}\n${correctionContext}\n${complementContext}
 
 Gere o Briefing estruturado em JSON:
 {
@@ -1049,15 +1053,21 @@ Gere o Briefing estruturado em JSON:
         juridico: "Advocacia Tributária e Jurídico",
       };
 
-      // V65: RAG híbrido — busca artigos para matrizes de risco (versão rápida, 1 chamada para todas as áreas)
+      // G7: RAG separado por área — queries específicas para cada domínio de risco
       const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
       const cnaeCodesMatrix = confirmedCnaes.map((c: any) => c.code);
-      const ragCtxMatrix = await retrieveArticlesFast(cnaeCodesMatrix, input.briefingContent?.substring(0, 500) ?? "", 7);
-      const regulatoryContext = ragCtxMatrix.contextText;
+      const areaRagQueries: Record<string, string> = {
+        contabilidade: "apuração CBS IBS crédito fiscal escrituração contábil regime de competência não cumulatividade",
+        negocio: "operações comerciais cadeia produtiva marketplace distribuição fornecedores clientes contratos",
+        ti: "sistemas ERP nota fiscal eletrônica integração tecnologia automação SPED obrigações acessórias",
+        juridico: "responsabilidade tributária sanção penalidade confissão de dívida prazo decadencial auto de infração",
+      };
 
-      // V70.3: Paralelizar as 4 áreas com Promise.all (reduz ~3min sequencial para ~45s paralelo)
-      // Nota: regulatoryContext é compartilhado (1 busca RAG para todas as áreas)
+      // V70.3 + G7: Paralelizar as 4 áreas com Promise.all + RAG específico por área
       const matrixResults = await Promise.all(areas.map(async (area) => {
+        const areaQuery = `${input.briefingContent?.substring(0, 300) ?? ""} ${areaRagQueries[area] ?? ""}`;
+        const ragCtxArea = await retrieveArticlesFast(cnaeCodesMatrix, areaQuery, 7);
+        const regulatoryContext = ragCtxArea.contextText;
         const adjustmentContext = input.adjustment ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}` : "";
 
         const result = await generateWithRetry(

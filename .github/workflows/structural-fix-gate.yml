@@ -201,7 +201,7 @@ jobs:
   # Correção 3 aprovada: sem if — governança se aplica a todo PR
   # ───────────────────────────────────────────────────────────────────────────
   governance-check:
-    name: "Governance gate — PR body + file guard"
+    name: "Governance gate"
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
