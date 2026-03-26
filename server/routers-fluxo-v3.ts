@@ -1117,10 +1117,14 @@ Formato:
           `[AUDIT-FONTE-RISCO] projectId=${input.projectId} area=${area} ts=${new Date().toISOString()} fontes=${JSON.stringify(fontes)}`
         );
         // G11: calcular fundamentacao deterministicamente por item de risco
+        // Guard defensivo: ragCtxArea pode ser array (mock) ou objeto { articles, contextText }
+        const _riskArticles: any[] = Array.isArray(ragCtxArea)
+          ? ragCtxArea
+          : (ragCtxArea as any).articles ?? [];
         const risksComFundamentacao = finalRisks.map((risco: any) => ({
           ...risco,
           fundamentacao: calcularFundamentacao(
-            ragCtxArea.articles,
+            _riskArticles,
             risco.fonte_risco ?? "fonte não identificada"
           ),
         }));
@@ -1311,16 +1315,21 @@ Gere o plano de ação em JSON:
         );
 
         // B2 — G12: log de auditoria de fonte_acao por área
-        const fonteAcaoBase = ragCtxArea.articles[0]
+        // Guard defensivo: ragCtxArea pode ser array (mock) ou objeto { articles, contextText }
+        const _articles: any[] = Array.isArray(ragCtxArea)
+          ? ragCtxArea
+          : (ragCtxArea as any).articles ?? [];
+        const _firstArticle = _articles[0];
+        const fonteAcaoBase = _firstArticle
           ? {
-              lei: (ragCtxArea.articles[0] as any).lei ?? "não identificado",
-              artigo: (ragCtxArea.articles[0] as any).artigo ?? "não identificado",
-              anchor_id: (ragCtxArea.articles[0] as any).anchorId ?? "",
+              lei: _firstArticle.lei ?? "não identificado",
+              artigo: _firstArticle.artigo ?? "não identificado",
+              anchor_id: _firstArticle.anchorId ?? "",
               tipo_obrigacao: "recomendacao",
-              descricao: `Chunk RAG: ${(ragCtxArea.articles[0] as any).anchorId ?? "sem anchor"}`,
+              descricao: `Chunk RAG: ${_firstArticle.anchorId ?? "sem anchor"}`,
             }
           : undefined;
-        console.log(`[AUDIT-FONTE-ACAO] area=${area} chunks=${ragCtxArea.articles.length} anchor_id=${fonteAcaoBase?.anchor_id ?? "none"}`);
+        console.log(`[AUDIT-FONTE-ACAO] area=${area} chunks=${_articles.length} anchor_id=${fonteAcaoBase?.anchor_id ?? "none"}`);
         return {
           area,
           tasks: result.tasks.map((t: any) => ({
