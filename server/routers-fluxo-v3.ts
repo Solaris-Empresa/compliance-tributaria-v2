@@ -23,6 +23,9 @@ import {
   RisksResponseSchema,
   TasksResponseSchema,
   DecisaoResponseSchema,
+  validateRagOutput,
+  calcularFundamentacao,
+  calcularMatrizMetadata,
 } from "./ai-schemas";
 import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
@@ -941,6 +944,16 @@ Gere as perguntas no formato:
       const ragCtxBriefing = await retrieveArticles(cnaeCodesForRag, briefingQueryCtx, 7);
       const regulatoryContext = ragCtxBriefing.contextText;
 
+      // G8: Montar bloco de perfil da empresa para personalização do briefing
+      const projectAnyBriefing = project as any;
+      const cp = projectAnyBriefing.companyProfile as Record<string, string> | null | undefined;
+      const primaryCnae = confirmedCnaes[0]
+        ? `${confirmedCnaes[0].code} — ${(confirmedCnaes[0] as any).description || confirmedCnaes[0].code}`
+        : (input.allAnswers[0]?.cnaeCode ?? "não informado");
+      const companyProfileBlock = cp
+        ? `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: ${cp.companySize ?? "não informado"}\n- Regime Tributário: ${cp.taxRegime ?? "não informado"}\n- Faturamento Anual: ${cp.annualRevenueRange ?? "não informado"}`
+        : `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: não informado\n- Regime Tributário: não informado`;
+
       // V60: Geração com retry + temperatura 0.2 + schema estruturado
       const structured = await generateWithRetry(
         [
@@ -962,13 +975,7 @@ ${OUTPUT_CONTRACT}`,
           },
           {
             role: "user",
-            content: `PROJETO: ${project.name}
-DESCRIÇÃO: ${(project as any).description || ""}
-
-RESPOSTAS DO QUESTIONÁRIO:
-${answersText}
-${correctionContext}
-${complementContext}
+            content: `${companyProfileBlock}\n\nPROJETO: ${project.name}\nDESCRIÇÃO: ${(project as any).description || ""}\n\nRESPOSTAS DO QUESTIONÁRIO:\n${answersText}\n${correctionContext}\n${complementContext}
 
 Gere o Briefing estruturado em JSON:
 {
@@ -1049,15 +1056,21 @@ Gere o Briefing estruturado em JSON:
         juridico: "Advocacia Tributária e Jurídico",
       };
 
-      // V65: RAG híbrido — busca artigos para matrizes de risco (versão rápida, 1 chamada para todas as áreas)
+      // G7: RAG separado por área — queries específicas para cada domínio de risco
       const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
       const cnaeCodesMatrix = confirmedCnaes.map((c: any) => c.code);
-      const ragCtxMatrix = await retrieveArticlesFast(cnaeCodesMatrix, input.briefingContent?.substring(0, 500) ?? "", 7);
-      const regulatoryContext = ragCtxMatrix.contextText;
+      const areaRagQueries: Record<string, string> = {
+        contabilidade: "apuração CBS IBS crédito fiscal escrituração contábil regime de competência não cumulatividade",
+        negocio: "operações comerciais cadeia produtiva marketplace distribuição fornecedores clientes contratos",
+        ti: "sistemas ERP nota fiscal eletrônica integração tecnologia automação SPED obrigações acessórias",
+        juridico: "responsabilidade tributária sanção penalidade confissão de dívida prazo decadencial auto de infração",
+      };
 
-      // V70.3: Paralelizar as 4 áreas com Promise.all (reduz ~3min sequencial para ~45s paralelo)
-      // Nota: regulatoryContext é compartilhado (1 busca RAG para todas as áreas)
+      // V70.3 + G7: Paralelizar as 4 áreas com Promise.all + RAG específico por área
       const matrixResults = await Promise.all(areas.map(async (area) => {
+        const areaQuery = `${input.briefingContent?.substring(0, 300) ?? ""} ${areaRagQueries[area] ?? ""}`;
+        const ragCtxArea = await retrieveArticlesFast(cnaeCodesMatrix, areaQuery, 7);
+        const regulatoryContext = ragCtxArea.contextText;
         const adjustmentContext = input.adjustment ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}` : "";
 
         const result = await generateWithRetry(
@@ -1070,9 +1083,10 @@ Sua função é identificar e quantificar riscos de compliance para a área de $
 REGRAS OBRIGATÓRIAS:
 1. Cada risco deve ter causa_raiz identificada
 2. Cada risco deve ter evidencia_regulatoria (artigo específico do contexto fornecido)
-3. severidade_score deve ser numérico: Baixa=1-3, Média=4-6, Alta=7-8, Crítica=9
-4. Gere entre 5 e 10 riscos específicos para a área
-5. Nunca invente artigos — use apenas os fornecidos no contexto
+3. Cada risco deve ter fonte_risco no formato "LC 214/2025, Art. X" ou "EC 132/2023, Art. Y" (use os artigos do contexto)
+4. severidade_score deve ser numérico: Baixa=1-3, Média=4-6, Alta=7-8, Crítica=9
+5. Gere entre 5 e 10 riscos específicos para a área
+6. Nunca invente artigos — use apenas os fornecidos no contexto
 
 ${regulatoryContext}
 
@@ -1087,14 +1101,30 @@ ${input.briefingContent}
 ${adjustmentContext}
 
 Formato:
-{"risks": [{"id": "r1", "evento": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "probabilidade": "Alta", "impacto": "Alto", "severidade": "Crítica", "severidade_score": 9, "plano_acao": "..."}]}`,
+{"risks": [{"id": "r1", "evento": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "fonte_risco": "LC 214/2025, Art. X", "probabilidade": "Alta", "impacto": "Alto", "severidade": "Crítica", "severidade_score": 9, "plano_acao": "..."}]}`,
             },
           ],
           RisksResponseSchema,
           { temperature: 0.2, context: `generateRiskMatrices:${area}` }
         );
 
-        return { area, risks: result.risks };
+        // G9: safeParse adicional para capturar falhas estruturais sem propagar exceção
+        const validation = validateRagOutput(RisksResponseSchema, result, `generateRiskMatrices:${area}:safeParse`);
+        const finalRisks = validation.success ? validation.data.risks : result.risks;
+        // G10 + DEC-004: log de auditoria de fonte_risco
+        const fontes = finalRisks.map((r: any) => r.fonte_risco ?? "fonte não identificada");
+        console.log(
+          `[AUDIT-FONTE-RISCO] projectId=${input.projectId} area=${area} ts=${new Date().toISOString()} fontes=${JSON.stringify(fontes)}`
+        );
+        // G11: calcular fundamentacao deterministicamente por item de risco
+        const risksComFundamentacao = finalRisks.map((risco: any) => ({
+          ...risco,
+          fundamentacao: calcularFundamentacao(
+            ragCtxArea.articles,
+            risco.fonte_risco ?? "fonte não identificada"
+          ),
+        }));
+        return { area, risks: risksComFundamentacao };
       }));
 
       // Montar o objeto matrices a partir dos resultados paralelos
@@ -1107,6 +1137,15 @@ Formato:
       const faturamentoAnual = (project as any).faturamentoAnual as number | undefined;
       const scoringData = calculateGlobalScore(allRisks, faturamentoAnual);
 
+      // G11: calcular matriz_metadata agregando fundamentacoes de todos os itens
+      const todasFundamentacoes = allRisks
+        .map((r: any) => r.fundamentacao)
+        .filter(Boolean);
+      const matrizMetadata = calcularMatrizMetadata(todasFundamentacoes);
+      console.log(
+        `[AUDIT-MATRIZ-METADATA] projectId=${input.projectId} ts=${new Date().toISOString()} metadata=${JSON.stringify(matrizMetadata)}`
+      );
+
       // Salvar scoring no banco
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
@@ -1115,7 +1154,7 @@ Formato:
         .set({ scoringData: scoringData as any } as any)
         .where(eq(projects.id, input.projectId));
 
-      return { matrices, scoringData };
+      return { matrices, scoringData, matriz_metadata: matrizMetadata };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────

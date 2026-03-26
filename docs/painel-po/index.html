@@ -237,7 +237,7 @@
         <div class="semaforo green" onclick="cycleSemaforo(event, this)" title="Clique para alternar">✔</div>
         <div class="radar-info">
           <div class="name">Branch protection</div>
-          <div class="detail">Ativo com 5 checks obrigatórios</div>
+          <div class="detail">Ativo com 4 checks obrigatórios</div>
         </div>
         <span class="ext-link">↗</span>
       </div>
@@ -418,6 +418,14 @@
             <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-playrun">Atualizado: 2026-03-25</span>
           </div>
         </div>
+        <div class="doc-item">
+          <div class="doc-icon">🔄</div>
+          <div>
+            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/HANDOFF-MANUS.md" target="_blank">HANDOFF-MANUS.md</a>
+            <div class="doc-when">Quando o chat do Manus travar ou memória acabar — copie e cole no novo chat</div>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-handoff">Atualizado: 2026-03-25</span>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -469,6 +477,7 @@ const INITIAL_KANBAN = {
 };
 
 const INITIAL_DECISIONS = [
+  { date: '2026-03-25', decision: 'Cockpit P.O. v1.0 mergeado no main — PR #100', status: 'done' },
   { date: '2026-03-25', decision: 'Branch protection ativada — ruleset main-protection com 5 checks', status: 'done' },
   { date: '2026-03-25', decision: 'Sprint de Governança CI/CD — P0 confirmado e concluída', status: 'done' },
   { date: '2026-03-24', decision: 'DECISÃO-001 — Opção A (prefill cruzado QC-07→QO-03) pós-UAT', status: 'done' },
