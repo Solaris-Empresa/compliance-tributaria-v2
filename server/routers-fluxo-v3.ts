@@ -1310,6 +1310,17 @@ Gere o plano de ação em JSON:
           { temperature: 0.15, context: `generateActionPlan:${area}` }
         );
 
+        // B2 — G12: log de auditoria de fonte_acao por área
+        const fonteAcaoBase = ragCtxArea.articles[0]
+          ? {
+              lei: (ragCtxArea.articles[0] as any).lei ?? "não identificado",
+              artigo: (ragCtxArea.articles[0] as any).artigo ?? "não identificado",
+              anchor_id: (ragCtxArea.articles[0] as any).anchorId ?? "",
+              tipo_obrigacao: "recomendacao",
+              descricao: `Chunk RAG: ${(ragCtxArea.articles[0] as any).anchorId ?? "sem anchor"}`,
+            }
+          : undefined;
+        console.log(`[AUDIT-FONTE-ACAO] area=${area} chunks=${ragCtxArea.articles.length} anchor_id=${fonteAcaoBase?.anchor_id ?? "none"}`);
         return {
           area,
           tasks: result.tasks.map((t: any) => ({
@@ -1321,6 +1332,8 @@ Gere o plano de ação em JSON:
             responsible: null,
             comments: [],
             notifications: { beforeDays: 7, onStatusChange: true, onProgressUpdate: false, onComment: false },
+            // B2 — G12: rastreabilidade normativa da ação
+            fonte_acao: t.fonte_acao ?? fonteAcaoBase,
           })),
         };
       }));
