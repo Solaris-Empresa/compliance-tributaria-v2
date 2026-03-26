@@ -297,6 +297,7 @@ Documentos gerados na Sprint 98% Confidence (B0/B1/B2) e no rollout pós-sessão
 
 | Arquivo | Descrição | Status |
 |---|---|---|
+| [⭐ **FRAMEWORK-GOVERNANCA-IA-SOLARIS.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/FRAMEWORK-GOVERNANCA-IA-SOLARIS.md) | **Framework de Governança v1.0** — Gates 0–3, falhas identificadas, riscos do implementador, skills e mecanismos de persistência | ✅ Novo |
 | [⭐ **GATE-CHECKLIST.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/GATE-CHECKLIST.md) | Gates 0–3 de controle de qualidade — executar antes de qualquer sprint | ✅ Ativo |
 | [⭐ **HANDOFF-MANUS.md v1.6**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/HANDOFF-MANUS.md) | Handoff para o Manus — estado pós-B2, próximas sprints, bloqueios | ✅ Ativo |
 | [**HANDOFF-SESSAO-2026-03-26.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/handoffs/HANDOFF-SESSAO-2026-03-26.md) | Handoff de sessão — como retomar no próximo chat | ✅ Novo |
