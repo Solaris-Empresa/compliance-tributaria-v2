@@ -23,6 +23,7 @@ import {
   RisksResponseSchema,
   TasksResponseSchema,
   DecisaoResponseSchema,
+  validateRagOutput,
 } from "./ai-schemas";
 import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
@@ -1080,9 +1081,10 @@ Sua função é identificar e quantificar riscos de compliance para a área de $
 REGRAS OBRIGATÓRIAS:
 1. Cada risco deve ter causa_raiz identificada
 2. Cada risco deve ter evidencia_regulatoria (artigo específico do contexto fornecido)
-3. severidade_score deve ser numérico: Baixa=1-3, Média=4-6, Alta=7-8, Crítica=9
-4. Gere entre 5 e 10 riscos específicos para a área
-5. Nunca invente artigos — use apenas os fornecidos no contexto
+3. Cada risco deve ter fonte_risco no formato "LC 214/2025, Art. X" ou "EC 132/2023, Art. Y" (use os artigos do contexto)
+4. severidade_score deve ser numérico: Baixa=1-3, Média=4-6, Alta=7-8, Crítica=9
+5. Gere entre 5 e 10 riscos específicos para a área
+6. Nunca invente artigos — use apenas os fornecidos no contexto
 
 ${regulatoryContext}
 
@@ -1097,14 +1099,22 @@ ${input.briefingContent}
 ${adjustmentContext}
 
 Formato:
-{"risks": [{"id": "r1", "evento": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "probabilidade": "Alta", "impacto": "Alto", "severidade": "Crítica", "severidade_score": 9, "plano_acao": "..."}]}`,
+{"risks": [{"id": "r1", "evento": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "fonte_risco": "LC 214/2025, Art. X", "probabilidade": "Alta", "impacto": "Alto", "severidade": "Crítica", "severidade_score": 9, "plano_acao": "..."}]}`,
             },
           ],
           RisksResponseSchema,
           { temperature: 0.2, context: `generateRiskMatrices:${area}` }
         );
 
-        return { area, risks: result.risks };
+        // G9: safeParse adicional para capturar falhas estruturais sem propagar exceção
+        const validation = validateRagOutput(RisksResponseSchema, result, `generateRiskMatrices:${area}:safeParse`);
+        const finalRisks = validation.success ? validation.data.risks : result.risks;
+        // G10 + DEC-004: log de auditoria de fonte_risco
+        const fontes = finalRisks.map((r: any) => r.fonte_risco ?? "fonte não identificada");
+        console.log(
+          `[AUDIT-FONTE-RISCO] projectId=${input.projectId} area=${area} ts=${new Date().toISOString()} fontes=${JSON.stringify(fontes)}`
+        );
+        return { area, risks: finalRisks };
       }));
 
       // Montar o objeto matrices a partir dos resultados paralelos

@@ -4,6 +4,8 @@
  * Sprint V61: scoring financeiro + confidence score
  * Sprint V63: motor de decisão explícito
  * Bugfix V66b: normalização robusta de enums para Gemini 2.5-flash
+ * Sprint C G9: validateRagOutput — safeParse com erro estruturado (não exceção)
+ * Sprint C G10: fonte_risco obrigatório em RiskItemSchema (fallback tolerante)
  *
  * ESTRATÉGIA DE ROBUSTEZ:
  * - Todos os enums críticos usam z.preprocess() para normalizar antes de validar
@@ -201,6 +203,9 @@ export const RiskItemSchema = z.object({
   evento: z.string(),
   causa_raiz: z.string().optional().default(""),
   evidencia_regulatoria: z.string().optional().default("Reforma Tributária — EC 132/2023"),
+  // G10: fonte_risco — rastreabilidade da origem do risco (lei + artigo)
+  // Tolerante a fallback: se o LLM não retornar, usa "fonte não identificada"
+  fonte_risco: z.string().optional().default("fonte não identificada"),
   probabilidade: z.preprocess(normalizeCapitalized,
     z.enum(["Baixa", "Média", "Alta"]).catch("Média")
   ),
@@ -217,6 +222,36 @@ export const RiskItemSchema = z.object({
 export const RisksResponseSchema = z.object({
   risks: z.array(RiskItemSchema).min(1).max(12), // Reduzido min de 3 para 1
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// G9 — validateRagOutput: safeParse com erro estruturado
+// Aplica validação Zod sem propagar exceção não tratada.
+// Retorna { success: true, data } ou { success: false, error, raw }
+// ─────────────────────────────────────────────────────────────────────────────
+export type RagValidationResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: string; raw: unknown };
+
+export function validateRagOutput<T>(
+  schema: z.ZodType<T>,
+  raw: unknown,
+  context: string
+): RagValidationResult<T> {
+  const result = schema.safeParse(raw);
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  const errorSummary = result.error.issues
+    .slice(0, 5)
+    .map((e: { path: PropertyKey[]; message: string }) => `${String(e.path.join("."))}: ${e.message}`)
+    .join(" | ");
+  console.error(
+    `[RAG-VALIDATION-ERROR] context=${context} errors=${errorSummary}`,
+    { raw }
+  );
+  return { success: false, error: errorSummary, raw };
+}
+
 // ────────────────────────────────────────────────────────────────────────────────
 // ETAPA 5: Plano de Ação
 // V70.2: Schema fortalecido — campos obrigatórios para rastreabilidade CNAE-tarefa
