@@ -198,6 +198,105 @@ export const BriefingStructuredSchema = z.object({
 // ETAPA 4: Matriz de Riscos
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * G11 — FundamentacaoSchema: auditabilidade por item de risco
+ * Campos calculados deterministicamente no código (não pelo LLM):
+ *   - chunks_utilizados: ragCtxArea.articles.length
+ *   - dispositivos: anchor_ids reais dos chunks recuperados
+ *   - cobertura: derivada de chunks_utilizados (>=3 completa, 1-2 parcial, 0 insuficiente)
+ *   - confiabilidade: score determinístico (1.0 / 0.7 / 0.4 / 0.0)
+ * Apenas `alerta` é texto livre (preenchido pelo código, não pelo LLM).
+ */
+export const FundamentacaoSchema = z.object({
+  chunks_utilizados: z.number().min(0),
+  dispositivos: z.array(z.string()),
+  cobertura: z.enum(["completa", "parcial", "insuficiente"]),
+  confiabilidade: z.number().min(0).max(1),
+  alerta: z.string().optional(),
+});
+
+export type Fundamentacao = z.infer<typeof FundamentacaoSchema>;
+
+/**
+ * G11 — MatrizMetadataSchema: score de confiabilidade da matriz completa
+ */
+export const MatrizMetadataSchema = z.object({
+  total_itens: z.number().min(0),
+  itens_cobertura_completa: z.number().min(0),
+  itens_cobertura_parcial: z.number().min(0),
+  itens_cobertura_insuficiente: z.number().min(0),
+  confiabilidade_media: z.number().min(0).max(1),
+  alerta_geral: z.string().optional(),
+});
+
+export type MatrizMetadata = z.infer<typeof MatrizMetadataSchema>;
+
+/**
+ * G11 — calcularFundamentacao: calcula deterministicamente a fundamentacao
+ * de um item de risco com base nos chunks RAG recuperados.
+ * Não usa LLM — auditabilidade real.
+ */
+export function calcularFundamentacao(
+  articles: Array<{ anchorId?: string; lei?: string; artigo?: string }>,
+  fonteRisco: string
+): Fundamentacao {
+  const chunksUtilizados = articles.length;
+  const dispositivos = articles
+    .map(a => a.anchorId)
+    .filter((id): id is string => !!id);
+
+  // Critérios de cobertura (determinísticos)
+  let cobertura: "completa" | "parcial" | "insuficiente";
+  let confiabilidade: number;
+
+  if (chunksUtilizados >= 3) {
+    cobertura = "completa";
+    // 1.0 se fonte_risco tem referência legal específica, 0.9 caso contrário
+    confiabilidade = fonteRisco !== "fonte não identificada" && fonteRisco.length > 5 ? 1.0 : 0.9;
+  } else if (chunksUtilizados >= 1) {
+    cobertura = "parcial";
+    confiabilidade = 0.7;
+  } else {
+    cobertura = "insuficiente";
+    confiabilidade = 0.4;
+  }
+
+  const alerta =
+    cobertura === "insuficiente" || confiabilidade < 0.5
+      ? "Cobertura legal insuficiente para este item. Recomenda-se revisão por especialista antes de decisão fiscal."
+      : undefined;
+
+  return { chunks_utilizados: chunksUtilizados, dispositivos, cobertura, confiabilidade, alerta };
+}
+
+/**
+ * G11 — calcularMatrizMetadata: agrega os scores de todos os itens da matriz
+ */
+export function calcularMatrizMetadata(
+  fundamentacoes: Fundamentacao[]
+): MatrizMetadata {
+  const total = fundamentacoes.length;
+  const completa = fundamentacoes.filter(f => f.cobertura === "completa").length;
+  const parcial = fundamentacoes.filter(f => f.cobertura === "parcial").length;
+  const insuficiente = fundamentacoes.filter(f => f.cobertura === "insuficiente").length;
+  const media = total > 0
+    ? fundamentacoes.reduce((acc, f) => acc + f.confiabilidade, 0) / total
+    : 0;
+  const alertaGeral =
+    insuficiente > 0
+      ? `${insuficiente} item(ns) com cobertura legal insuficiente. Revisão por especialista recomendada.`
+      : undefined;
+
+  return {
+    total_itens: total,
+    itens_cobertura_completa: completa,
+    itens_cobertura_parcial: parcial,
+    itens_cobertura_insuficiente: insuficiente,
+    confiabilidade_media: Math.round(media * 100) / 100,
+    alerta_geral: alertaGeral,
+  };
+}
+
 export const RiskItemSchema = z.object({
   id: z.string(),
   evento: z.string(),
@@ -217,6 +316,9 @@ export const RiskItemSchema = z.object({
   ),
   severidade_score: z.number().min(1).max(9).catch(4),
   plano_acao: z.string().optional().default(""),
+  // G11: fundamentacao — calculada deterministicamente no código, não pelo LLM
+  // opcional para compatibilidade retroativa com testes existentes
+  fundamentacao: FundamentacaoSchema.optional(),
 });
 
 export const RisksResponseSchema = z.object({

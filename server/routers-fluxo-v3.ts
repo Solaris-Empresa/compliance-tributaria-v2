@@ -24,6 +24,8 @@ import {
   TasksResponseSchema,
   DecisaoResponseSchema,
   validateRagOutput,
+  calcularFundamentacao,
+  calcularMatrizMetadata,
 } from "./ai-schemas";
 import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
@@ -1114,7 +1116,15 @@ Formato:
         console.log(
           `[AUDIT-FONTE-RISCO] projectId=${input.projectId} area=${area} ts=${new Date().toISOString()} fontes=${JSON.stringify(fontes)}`
         );
-        return { area, risks: finalRisks };
+        // G11: calcular fundamentacao deterministicamente por item de risco
+        const risksComFundamentacao = finalRisks.map((risco: any) => ({
+          ...risco,
+          fundamentacao: calcularFundamentacao(
+            ragCtxArea.articles,
+            risco.fonte_risco ?? "fonte não identificada"
+          ),
+        }));
+        return { area, risks: risksComFundamentacao };
       }));
 
       // Montar o objeto matrices a partir dos resultados paralelos
@@ -1127,6 +1137,15 @@ Formato:
       const faturamentoAnual = (project as any).faturamentoAnual as number | undefined;
       const scoringData = calculateGlobalScore(allRisks, faturamentoAnual);
 
+      // G11: calcular matriz_metadata agregando fundamentacoes de todos os itens
+      const todasFundamentacoes = allRisks
+        .map((r: any) => r.fundamentacao)
+        .filter(Boolean);
+      const matrizMetadata = calcularMatrizMetadata(todasFundamentacoes);
+      console.log(
+        `[AUDIT-MATRIZ-METADATA] projectId=${input.projectId} ts=${new Date().toISOString()} metadata=${JSON.stringify(matrizMetadata)}`
+      );
+
       // Salvar scoring no banco
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
@@ -1135,7 +1154,7 @@ Formato:
         .set({ scoringData: scoringData as any } as any)
         .where(eq(projects.id, input.projectId));
 
-      return { matrices, scoringData };
+      return { matrices, scoringData, matriz_metadata: matrizMetadata };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────

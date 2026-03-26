@@ -1313,13 +1313,18 @@ export type InsertStepComment = typeof stepComments.$inferInsert;
 export const ragDocuments = mysqlTable("ragDocuments", {
   id: int("id").autoincrement().primaryKey(),
   lei: mysqlEnum("lei", ["lc214", "ec132", "lc227", "lc224", "lc116", "lc87", "cg_ibs", "rfb_cbs", "conv_icms"]).notNull(),
-  artigo: varchar("artigo", { length: 100 }).notNull(),
+  artigo: varchar("artigo", { length: 300 }).notNull(),  // DEC-002: ampliado de 100 para 300
   titulo: varchar("titulo", { length: 500 }).notNull(),
   conteudo: text("conteudo").notNull(),
   topicos: text("topicos").notNull(),          // palavras-chave para FULLTEXT
   cnaeGroups: varchar("cnaeGroups", { length: 500 }).notNull().default(""),
   chunkIndex: int("chunkIndex").notNull().default(0),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+  // DEC-002: campos de rastreabilidade Sprint D
+  anchor_id: varchar("anchor_id", { length: 255 }).unique(),  // identificador único do chunk
+  autor: varchar("autor", { length: 100 }),                   // quem gerou o chunk
+  revisado_por: varchar("revisado_por", { length: 100 }),     // revisor humano
+  data_revisao: varchar("data_revisao", { length: 30 }),      // data de revisão ISO
 });
 export type RagDocument = typeof ragDocuments.$inferSelect;
 export type InsertRagDocument = typeof ragDocuments.$inferInsert;
