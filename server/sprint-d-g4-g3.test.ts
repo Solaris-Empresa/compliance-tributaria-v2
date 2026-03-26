@@ -539,3 +539,93 @@ describe("Sprint D — G4 + G3 — Corpus RAG LC 214/2025 e EC 132/2023", () => 
   });
 
 });
+
+// ---------------------------------------------------------------------------
+// BLOCO 5 — Testes de cobertura do corpus real (banco de dados)
+// Esses testes acessam o banco real — skipados no CI (Issue #101).
+// Quando o Issue #101 for resolvido, remover o skipIf para ativar no CI.
+// ---------------------------------------------------------------------------
+
+import { describe as describeDb, it as itDb, expect as expectDb, beforeEach as beforeEachDb, afterEach as afterEachDb } from "vitest";
+import mysql from "mysql2/promise";
+import dotenv from "dotenv";
+import { resolve } from "path";
+
+dotenv.config({ path: resolve(__dirname, "../.env") });
+
+const isCI = !!process.env.CI;
+
+describeDb.skipIf(isCI)("Bloco 5 — Cobertura do corpus real (banco)", () => {
+  let db: Awaited<ReturnType<typeof mysql.createConnection>>;
+
+  beforeEachDb(async () => {
+    db = await mysql.createConnection(process.env.DATABASE_URL!);
+  });
+
+  afterEachDb(async () => {
+    await db.end();
+  });
+
+  itDb("todos os chunks de lc214 têm anchor_id não nulo", async () => {
+    const [rows] = await db.execute(
+      "SELECT COUNT(*) as sem_anchor FROM ragDocuments WHERE lei = 'lc214' AND anchor_id IS NULL"
+    ) as [Array<{ sem_anchor: string }>, unknown];
+    expectDb(Number(rows[0].sem_anchor)).toBe(0);
+  });
+
+  itDb("todos os chunks de lc227 têm anchor_id não nulo", async () => {
+    const [rows] = await db.execute(
+      "SELECT COUNT(*) as sem_anchor FROM ragDocuments WHERE lei = 'lc227' AND anchor_id IS NULL"
+    ) as [Array<{ sem_anchor: string }>, unknown];
+    expectDb(Number(rows[0].sem_anchor)).toBe(0);
+  });
+
+  itDb("todos os chunks de lc224 têm anchor_id não nulo", async () => {
+    const [rows] = await db.execute(
+      "SELECT COUNT(*) as sem_anchor FROM ragDocuments WHERE lei = 'lc224' AND anchor_id IS NULL"
+    ) as [Array<{ sem_anchor: string }>, unknown];
+    expectDb(Number(rows[0].sem_anchor)).toBe(0);
+  });
+
+  itDb("todos os chunks de ec132 têm anchor_id não nulo", async () => {
+    const [rows] = await db.execute(
+      "SELECT COUNT(*) as sem_anchor FROM ragDocuments WHERE lei = 'ec132' AND anchor_id IS NULL"
+    ) as [Array<{ sem_anchor: string }>, unknown];
+    expectDb(Number(rows[0].sem_anchor)).toBe(0);
+  });
+
+  itDb("nenhum anchor_id duplicado no corpus completo", async () => {
+    const [rows] = await db.execute(
+      "SELECT COUNT(*) as duplicados FROM (SELECT anchor_id, COUNT(*) as cnt FROM ragDocuments WHERE anchor_id IS NOT NULL GROUP BY anchor_id HAVING cnt > 1) as dupes"
+    ) as [Array<{ duplicados: string }>, unknown];
+    expectDb(Number(rows[0].duplicados)).toBe(0);
+  });
+
+  itDb("corpus lc214 tem pelo menos 819 chunks Sprint D com anchor_id canônico", async () => {
+    const [rows] = await db.execute(
+      "SELECT COUNT(*) as total FROM ragDocuments WHERE lei = 'lc214' AND anchor_id LIKE 'lc214-%' AND anchor_id NOT LIKE '%-id%'"
+    ) as [Array<{ total: string }>, unknown];
+    expectDb(Number(rows[0].total)).toBeGreaterThanOrEqual(819);
+  });
+
+  itDb("corpus lc214 legado tem anchor_id com sufixo -id{n}", async () => {
+    const [rows] = await db.execute(
+      "SELECT COUNT(*) as total FROM ragDocuments WHERE lei = 'lc214' AND anchor_id LIKE 'lc214-%-id%'"
+    ) as [Array<{ total: string }>, unknown];
+    expectDb(Number(rows[0].total)).toBeGreaterThanOrEqual(779);
+  });
+
+  itDb("corpus ec132 tem exatamente 18 chunks", async () => {
+    const [rows] = await db.execute(
+      "SELECT COUNT(*) as total FROM ragDocuments WHERE lei = 'ec132'"
+    ) as [Array<{ total: string }>, unknown];
+    expectDb(Number(rows[0].total)).toBe(18);
+  });
+
+  itDb("corpus total tem pelo menos 2078 chunks", async () => {
+    const [rows] = await db.execute(
+      "SELECT COUNT(*) as total FROM ragDocuments"
+    ) as [Array<{ total: string }>, unknown];
+    expectDb(Number(rows[0].total)).toBeGreaterThanOrEqual(2078);
+  });
+});
