@@ -24,7 +24,7 @@ jobs:
           node-version: 22.x
       
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
       
       - name: Run tests
         run: npm test
@@ -55,7 +55,7 @@ jobs:
           node-version: 22.x
       
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
       
       - name: Run linter
         run: npm run lint || echo "Linting completed with warnings"
@@ -75,7 +75,7 @@ jobs:
           node-version: 22.x
       
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
       
       - name: Build application
         run: npm run build

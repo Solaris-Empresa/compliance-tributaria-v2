@@ -6,7 +6,7 @@ on:
 
 jobs:
   validate-pr-body:
-    name: Validate PR body and evidence
+    name: Validate PR body
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,7 +20,7 @@ jobs:
         run: node .github/scripts/validate-pr-body.js
 
   guard-critical-files:
-    name: Guard critical file changes
+    name: Guard critical
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
