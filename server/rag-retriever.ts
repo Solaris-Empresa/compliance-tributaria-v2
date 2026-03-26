@@ -189,9 +189,12 @@ function formatContextText(articles: RetrievedArticle[]): string {
       const leiLabel = {
         lc214: "LC 214/2025",
         ec132: "EC 132/2023",
-        lc227: "LC 227/2024",
+        lc227: "LC 227/2026",
+        lc224: "LC 224/2026",
         lc116: "LC 116/2003",
         lc87: "LC 87/1996",
+        solaris: "Equipe Jurídica SOLARIS",
+        ia_gen:  "Análise de Perfil — IA SOLARIS",
       }[a.lei] ?? a.lei.toUpperCase();
 
       return `**${leiLabel} — ${a.artigo}: ${a.titulo}**\n${a.conteudo}`;
