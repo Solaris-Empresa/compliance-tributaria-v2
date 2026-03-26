@@ -1,8 +1,9 @@
 # Matriz de Rastreabilidade: Requisito → Pergunta → Gap → Risco → Ação
 
-**Versão:** 1.0  
-**Data:** 2026-03-23  
-**Status:** Proposta — aguardando aprovação do Orquestrador (gate B1)  
+**Versão:** 1.1  
+**Data:** 2026-03-26  
+**Status:** Aprovada — gate B1 liberado para B2. Atualizada com anchor_ids canônicos (DEC-002), exemplos reais do pilot-audit, tabela de domínios e invariants formais.  
+**Versão anterior:** 1.0 (2026-03-23) — proposta inicial  
 **Issue:** [#65](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/65)  
 **ADR:** [ADR-010](../../adr/ADR-010-content-architecture-98.md)
 
@@ -13,12 +14,15 @@
 Este documento formaliza a cadeia de rastreabilidade completa da plataforma IA SOLARIS: cada requisito normativo aplicável deve ser rastreável até a ação corretiva, sem lacunas. A cadeia é inviolável — nenhum nó pode existir sem o nó anterior.
 
 ```
-RF-001 (LC 214 Art. 10)
-  └── Q-001 (pergunta gerada pelo Question Engine)
-        └── GAP-001 (classificado pelo Gap Engine)
-              └── RISK-001 (gerado pelo Risk Engine)
-                    └── ACTION-001 (gerada pelo Action Engine)
+regulatory_requirements_v3.code  (ex: REQ-GOV-001)
+  └── ragDocuments.anchor_id       (ex: lc214-art-125-par-1-1)
+        └── Question.requirement_id + Question.anchor_id
+              └── Gap.requirement_id + Gap.compliance_status
+                    └── Risk.gap_id + Risk.fundamentacao.dispositivos[]
+                          └── Action.risk_id + Action.fonte_acao.anchor_id
 ```
+
+Cada nó da cadeia é rastreável ao nó anterior. A ausência de qualquer elo é um **bloqueador de implementação** verificado em CI pelos invariants INV-001 a INV-008.
 
 ---
 
@@ -439,12 +443,118 @@ As seguintes validações devem ser executadas pelo sistema antes de gerar os ou
 
 ---
 
+---
+
+## Exemplos reais do pilot-audit (dados de produção)
+
+Os exemplos a seguir são extraídos diretamente do `scripts/pilot-audit.mjs` — dados reais inseridos no banco de produção durante o piloto com 3 perfis de empresa (P1: Simples, P2: Complexo, P3: Inconsistente).
+
+### REQ-GOV-001 — Como o mesmo requisito gera gaps diferentes por empresa
+
+**Requisito:** `REQ-GOV-001` — Mapear incidência piloto de IBS/CBS em 2026  
+**Domínio:** `governanca_transicao` | **anchor_id RAG:** `lc214-art-1-par-1-1` (faixa canônica: CAN-0161..CAN-0200)
+
+| Empresa | compliance_status | risk_level | risk_score_normalized | action_priority |
+|---|---|---|---|---|
+| P1 — Simples (1 CNAE, 1 UF) | `nao_atendido` | `alto` | 64 | `imediata` |
+| P2 — Complexo (4 CNAEs, 4 UFs) | `nao_atendido` | `critico` | 86 | `imediata` |
+| P3 — Inconsistente | `parcialmente_atendido` | `critico` | 77 | `imediata` |
+
+**Cadeia completa para P1:**
+```
+REQ-GOV-001
+  └── anchor_id: lc214-art-1-par-1-1
+        └── Q-GOV-001 (requirement_id=REQ-GOV-001, anchor_id=lc214-art-1-par-1-1)
+              └── GAP-P1-001 (compliance_status=nao_atendido, evaluation_confidence=high)
+                    └── RSK-P1-001 (gap_id=GAP-P1-001, risk_score_normalized=64, level=alto)
+                          └── ACT-P1-001 (risk_id=RSK-P1-001, priority=imediata, deadline=30d)
+                                fonte_acao: { lei: lc214, anchor_id: lc214-art-1-par-1-1 }
+```
+
+**Cadeia completa para P2 (Complexo — 4 CNAEs, 4 UFs, R$ 150M):**
+```
+REQ-GOV-001
+  └── anchor_id: lc214-art-1-par-1-1
+        └── Q-GOV-001 (mesmo requisito, mesmo anchor_id)
+              └── GAP-P2-001 (compliance_status=nao_atendido, evaluation_confidence=high)
+                    └── RSK-P2-001 (gap_id=GAP-P2-001, risk_score_normalized=86, level=critico)
+                          └── ACT-P2-001 (risk_id=RSK-P2-001, priority=imediata, deadline=15d)
+                                Nota: prazo menor (15d vs 30d) por risco crítico + porte Grande
+```
+
+### REQ-GOV-003 — Risco oculto detectado pela cadeia (P3)
+
+**Requisito:** `REQ-GOV-003` — Criar plano formal de prontidão 2026  
+**anchor_id RAG:** `lc214-art-3-par-1-1` | **gap_status:** `nao_atendido` | **is_hidden_risk:** `true`
+
+```
+REQ-GOV-003
+  └── anchor_id: lc214-art-3-par-1-1
+        └── Q-GOV-003 (requirement_id=REQ-GOV-003)
+              └── GAP-P3-003 (compliance_status=nao_atendido, evaluation_confidence=high)
+                    │  RISCO OCULTO: Empresa afirma ter plano (2024) mas EC 132 não está coberta
+                    │  Gap Engine detectou: documento datado 15/08/2024, EC 132 publicada 20/12/2023
+                    └── RSK-P3-001 (is_hidden_risk=true, risk_score_normalized=77, level=critico)
+                          └── ACT-P3-001 (priority=imediata, deadline=15d)
+                                Ação: URGENTE — Atualizar plano incorporando EC 132 e LC 214
+```
+
+**Por que é risco oculto?** A empresa P3 respondeu afirmativamente à pergunta sobre o plano de prontidão, mas o Gap Engine identificou contradição: o plano existente (2024) não cobre a EC 132/2023 (publicada em dezembro de 2023). Sem a cadeia de rastreabilidade, esse risco seria invisível — a empresa acreditaria estar em conformidade.
+
+---
+
+## Tabela de rastreabilidade por domínio
+
+Os 12 domínios do produto, com seus canonical_ids, faixas RAG e requisitos correspondentes:
+
+| Domínio | Reqs | Faixa Canonical ID | Faixa RAG (anchor_id) | Tipo |
+|---|---|---|---|---|
+| `documentos_obrigacoes` | ~60 | CAN-0001..CAN-0060 | `lc214-art-*` (obrigações documentais) | obrigacao |
+| `apuracao_extincao` | ~50 | CAN-0061..CAN-0110 | `lc214-art-*` (apuração IBS/CBS) | obrigacao |
+| `creditos_ressarcimento` | ~50 | CAN-0111..CAN-0160 | `lc214-art-*` (créditos e ressarcimento) | direito |
+| `governanca_transicao` | 12 | CAN-0161..CAN-0200 | `lc214-art-1..art-50` / `ec132-art-*` | obrigacao |
+| `classificacao_incidencia` | ~40 | CAN-0201..CAN-0240 | `lc214-art-*` (classificação) | obrigacao |
+| `regimes_diferenciados` | ~40 | CAN-0241..CAN-0280 | `lc214-art-*` (regimes especiais) | obrigacao |
+| `sistemas_erp_dados` | ~40 | CAN-0281..CAN-0320 | `lc214-art-*` (ERP e dados fiscais) | obrigacao |
+| `incentivos_beneficios_transparencia` | ~40 | CAN-0321..CAN-0360 | `lc224-art-*` (incentivos) | direito |
+| `split_payment` | ~40 | CAN-0361..CAN-0400 | `lc214-art-*` (split payment) | obrigacao |
+| `conformidade_fiscalizacao_contencioso` | ~40 | CAN-0401..CAN-0440 | `lc214-art-*` (fiscalização) | obrigacao |
+| `contratos_comercial_precificacao` | ~30 | CAN-0441..CAN-0470 | `lc214-art-*` (contratos) | obrigacao |
+| `cadastro_identificacao` | ~29 | CAN-0471..CAN-0499 | `lc214-art-*` (cadastro fiscal) | obrigacao |
+| **Total** | **499** | CAN-0001..CAN-0499 | 2.078+ chunks no corpus | — |
+
+**Fonte:** `scripts/create-d7-mapping.mjs` (12 domínios, 499 canonical_ids)
+
+---
+
+## Invariants formais (verificados em CI)
+
+Os invariants abaixo são verificados automaticamente em cada deploy pela suíte de testes. Uma violação de qualquer invariant é um **bloqueador de merge**.
+
+| Invariant | Regra | Verificação |
+|---|---|---|
+| **INV-001** | `pergunta.requirement_id` → existe em `regulatory_requirements_v3` | Teste de FK em CI |
+| **INV-002** | `pergunta.anchor_id` → existe em `ragDocuments` | Teste de FK em CI |
+| **INV-003** | `gap.requirement_id` → existe em `regulatory_requirements_v3` | Teste de FK em CI |
+| **INV-004** | `risk.gap_id` → existe em `project_gaps_v3` | Teste de FK em CI |
+| **INV-005** | `action.risk_id` → existe em `project_risks_v3` | Teste de FK em CI |
+| **INV-006** | briefing gerado → `coverage_pct = 100%` | Gate explícito no Briefing Engine |
+| **INV-007** | Protocolo NO_QUESTION → pergunta sem `anchor_id` nunca persiste | Teste unitário Question Engine |
+| **INV-008** | CNAE skipped → sem questionário gerado | Teste unitário Requirement Engine |
+
+**Nota sobre INV-002:** O campo `anchor_id` na tabela `ragDocuments` segue o formato canônico definido em `scripts/corpus-utils.mjs` (`buildAnchorId`). O formato é `{lei}-{artigo_normalizado}-{chunkIndex}`, ex: `lc214-art-125-par-1-1`, `ec132-art-149a-par-1-1`. Qualquer alteração neste formato exige migração versionada (DEC-002).
+
+---
+
 ## Referências
 
 - [ADR-010 — Arquitetura canônica de conteúdo](../../adr/ADR-010-content-architecture-98.md)
 - [Matriz Canônica de Inputs/Outputs](MATRIZ-CANONICA-INPUTS-OUTPUTS.md)
 - [Tabela de Melhorias Técnicas HOW v1](TABELA-MELHORIAS-TECNICAS-HOW-v1.md)
 - [Issue #65](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/65)
-- [LC 214/2024 — Contribuição sobre Bens e Serviços (CBS)](https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp214.htm)
+- [corpus-utils.mjs — buildAnchorId canônico](../../../../scripts/corpus-utils.mjs)
+- [pilot-audit.mjs — dados reais do piloto](../../../../scripts/pilot-audit.mjs)
+- [create-d7-mapping.mjs — 12 domínios, 499 canonical_ids](../../../../scripts/create-d7-mapping.mjs)
+- [LC 214/2025 — Contribuição sobre Bens e Serviços (CBS)](https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp214.htm)
 - [EC 132/2023 — Reforma Tributária](https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc132.htm)
 - [LC 224/2024 — IBS e benefícios fiscais](https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp224.htm)
