@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 1.4 — 2026-03-26
-> **Commit HEAD:** `dbad765` (branch `main`)
-> **Checkpoint Manus:** `bc83f9b6`
+> **Versão:** 1.5 — 2026-03-26
+> **Commit HEAD:** `88de16f` (branch `main`)
+> **Checkpoint Manus:** `e6180cf1`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -25,17 +25,18 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | 0 erros (`npx tsc --noEmit`) | ✅ |
-| Testes automatizados — total | **419 testes passando** (PCT v1 + v2 + E2E Fase 2 + BUG-001 + INV-006/007/008 + Sprint B G8/G7) | ✅ |
-| Cobertura de suítes | PCT v1 (117) · PCT v2 (81) · E2E Fase 2 (132) · BUG-001 (33) · INV-606/607/608 (47) · Sprint B (9) | ✅ |
+| Testes automatizados — total | **489 testes passando** | ✅ |
+| Cobertura de suítes | PCT v1 (117) · PCT v2 (81) · E2E Fase 2 (132) · BUG-001 (33) · INV-606/607/608 (47) · Sprint B (9) · Sprint C (15) · Sprint D (55) · Sprint E (20) | ✅ |
 | Git working tree | Limpo — sem arquivos pendentes | ✅ |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
-| Migrations aplicadas | **54** (última: `0053_slow_maggott` — tabela `diagnostic_shadow_divergences`) | ✅ |
-| ADRs formais | **9** (ADR-001 a ADR-009; ADR-004 rejeitado) | ✅ |
+| Migrations aplicadas | **56** (última: `0055` — anchor_id + campos DEC-002) | ✅ |
+| ADRs formais | **10** (ADR-001 a ADR-010; ADR-004 rejeitado) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
-| Banco de dados para UAT | **Limpo** — todos os projetos removidos em 2026-03-24 | ✅ |
+| Corpus RAG | **2.078 chunks — 100% com anchor_id** (lc214: 1.598 · lc227: 434 · lc224: 28 · ec132: 18) | ✅ |
+| Sprint 98% Confidence | **B0 ✅ · B1 ✅** — gate B2 liberado | ✅ |
 
 ---
 
@@ -48,6 +49,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Projetos UAT criados | **0** — aguardando sessão com advogados |
 | Divergências Shadow Mode registradas | **0** (banco limpo) |
 | Divergências críticas | **0** |
+| Chunks RAG no banco | **2.078** — 100% com anchor_id canônico (DEC-002) |
 
 > **Nota:** O banco foi limpo intencionalmente em 2026-03-24 para garantir ambiente neutro no UAT com advogados. Os dados históricos (1.847 projetos, 1.364 usuários) existiam até 2026-03-23 e estão documentados no histórico de commits.
 
@@ -154,6 +156,7 @@ Toda transição de retrocesso de etapa passa pelo gate `server/retrocesso-clean
 | ADR-007 | Gate de limpeza no retrocesso | ✅ Aprovado |
 | ADR-008 | Estratégia de migração F-04 (schema V1/V3) | ✅ Aprovado v1.1 |
 | ADR-009 | Shadow Mode — comparação background V1/V3 | ✅ Implementado |
+| ADR-010 | Arquitetura Canônica de Conteúdo Diagnóstico — 6 engines + contratos I/O | ✅ Aprovado |
 
 ---
 
@@ -182,7 +185,8 @@ Toda transição de retrocesso de etapa passa pelo gate `server/retrocesso-clean
 | [#57](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/57) | Validação E2E completa | ⏳ Aguardando UAT |
 | [#58](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/58) | Refinamento UX final | ⏳ Aguardando feedback UAT |
 | [#60](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/60) | Shadow Mode — monitoramento contínuo | 🔄 Em andamento |
-| [#101](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/101) | 123 testes com débito pré-existente no CI | ⚠️ Débito técnico — não relacionado às sprints RAG |
+| [#101](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/101) | 123 testes legados com fetch real sem mock no CI | ⚠️ Débito ativo — `skipIf(isCI)` aplicado nos testes de corpus (Bloco 5 Sprint D) |
+| [#65](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/65) | [B1] Matriz de rastreabilidade req→pergunta→gap→risco→ação | ✅ Fechada — PR #111 |
 
 ---
 
@@ -202,6 +206,9 @@ Os erros abaixo estão catalogados em [`docs/ERROS-CONHECIDOS.md`](https://githu
 | Código | Decisão | Opções | Impacto |
 |---|---|---|---|
 | ~~**DECISÃO-001**~~ | ~~Como tratar sobreposición QC-07/QO-03 (meios de pagamento)~~ | ~~A: prefill cruzado (recomendada) · B: remoção de QC-07 · C: consolidação em novo campo~~ | **✅ DECIDIDO 2026-03-24 — Opção A (prefill cruzado), executar pós-UAT.** Razão: não contaminar feedback dos advogados com mudança de fluxo durante UAT. Opção B descartada (acionaria Fase 0 + validação jurídica dos 499 requisitos). Aprovado pelo P.O. |
+| ~~**DEC-002**~~ | ~~Schema CSV SOLARIS — campos de rastreabilidade~~ | **✅ DECIDIDO** — anchor_id VARCHAR(255) UNIQUE + autor, revisado_por, data_revisao (nullable). Implementado em PR #109. |
+| ~~**DEC-003**~~ | ~~Estratégia ingestão Anexos LC 214~~ | **✅ DECIDIDO** — Opção A: chunk por NCM/item (Anexos I–IV) + chunk por regra/seção (Anexos V–XI). Implementado em PR #109. |
+| ~~**DEC-004**~~ | ~~Gate de revisão CSV SOLARIS~~ | **✅ DECIDIDO** — Publicação direta com log de auditoria (sem gate manual). Implementado em PR #108. |
 ---
 
 ## 8. Fases do Projeto — Histórico Completo
@@ -223,6 +230,12 @@ Os erros abaixo estão catalogados em [`docs/ERROS-CONHECIDOS.md`](https://githu
 | **Sub-Sprint Prefill** | Sistema de prefill estrutural (DA-1 a DA-4) + 410 testes + governança permanente | ✅ Concluída | `9e25ead` |
 | **Sprint A (RAG)** | G1 label lc224 · G2 ano lc227 (2024→2026) · G5 Art.45 tópicos · G6 LC 224 cnaeGroups universal | ✅ Concluída | PR #105 — `a28875b` |
 | **Sprint B (RAG)** | G8 companyProfile no briefing · G7 RAG por área (4 queries paralelas) · Fix CI: nomes jobs + legacy-peer-deps | ✅ Concluída | PR #106 — `dbad765` |
+| **Sprint C (RAG)** | G9 Schema Zod para outputs do pipeline RAG · G10 campo fonte_risco nas matrizes | ✅ Concluída | PR #108 — `ec6a84e` |
+| **Sprint D (Corpus)** | G3 EC 132/2023 (18 chunks) · G4 Anexos LC 214/2025 (I–XVII, sem VII) · DEC-002 anchor_id · migração 1.241 chunks legados | ✅ Concluída | PR #109 — `03fa2c1` |
+| **Sprint E (RAG)** | G11 fundamentação auditável por item da matriz de riscos (cobertura, confiabilidade, alerta, dispositivos[]) | ✅ Concluída | PR #110 — `5d15105` |
+| **Sprint 98% B0** | Governança GitHub: milestone, labels, 34 issues, PR template, CONTRIBUTING.md, MANUS-GOVERNANCE.md | ✅ Concluída | 2026-03-23 |
+| **Sprint 98% B1** | ADR-010 aprovado · MATRIZ-CANONICA-INPUTS-OUTPUTS v1.1 aprovada · MATRIZ-RASTREABILIDADE v1.1 aprovada | ✅ Concluída | PR #111 — `88de16f` |
+| **Sprint 98% B2** | 6 engines: Requirement, Question, Gap, Coverage, Consistency, Risk, Action + Briefing + Shadow + CI | 🔵 **Próxima — aguarda prompt do Orquestrador** | — |
 
 ---
 
@@ -245,26 +258,21 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 
 ## 10. Próximos Passos
 
-### P0 — Prioridade Imediata
+### P0 — Imediato
 
-0. ~~**Sprint de Governança**~~ — ✅ **Concluída 2026-03-25.** PR template unificado, 3 workflows CI, 2 scripts Node.js, 9 labels de governança, `DEFINITION-OF-DONE.md` e `CHANGELOG.md` atualizados.
-0. ~~**Sprint A (RAG)**~~ — ✅ **Concluída 2026-03-26.** G1 (label lc224), G2 (ano lc227), G5 (Art.45 tópicos), G6 (LC 224 cnaeGroups). PR #105 mergeado.
-0. ~~**Sprint B (RAG)**~~ — ✅ **Concluída 2026-03-26.** G8 (companyProfile no briefing), G7 (RAG por área — 4 queries paralelas). Fix CI: nomes dos jobs alinhados com ruleset + `--legacy-peer-deps`. PR #106 mergeado.
-1. **Iniciar UAT com advogados** — Sistema aprovado e pronto. Criar 2-3 projetos piloto com perfis reais (Simples Nacional, Lucro Real com grupo econômico) e registrar feedback usando o [`GUIA-UAT-ADVOGADOS-v2.md`](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md).
-2. ~~**Tomar DECISÃO-001**~~ — ✅ **Decidido 2026-03-24:** Opção A (prefill cruzado QC-07 → QO-03), executar na sprint pós-UAT.
+1. **Sprint 98% B2** — Implementar 6 engines (Requirement, Question, Gap, Coverage, Consistency, Risk, Action) conforme contratos do ADR-010 e matrizes canônicas aprovadas. Aguarda prompt do Orquestrador.
+2. **Validar G11 em produção** — Testar campo `fundamentacao` na matriz de riscos em https://iasolaris.manus.space
 
-### P1 — Próximas Sprints
+### P1 — Próximo ciclo (pós-B2)
 
-3. **Executar script de migração para projetos legados** — Preencher `isEconomicGroup` e `taxCentralization` em projetos existentes a partir de `taxComplexity.hasMultipleEstablishments` (ERR-009).
-4. **Adicionar ERR-006 ao monitoramento de alertas** — Configurar alerta automático quando `OPENAI_API_KEY` retornar HTTP 401.
-5. **Adicionar testes de regressão para `normalizeProject()`** — Cobrir cenário de projeto legado onde `companyProfile` chega como string JSON.
-6. **Sprint C (RAG) — decidir com P.O.:** Opção A: G9+G10 (Schema Zod + fonte_risco) · Opção B: G4 (Anexos LC 214 — depende de DEC-003) · Opção C: G3 (EC 132 com 0 chunks no corpus ativo).
-7. **Resolver decisões pendentes:** DEC-002 (Schema CSV SOLARIS) · DEC-003 (Estratégia ingestão Anexos LC 214) · DEC-004 (Gate de revisão CSV SOLARIS).
+3. **Sprint G — Corpus complementar** — EC 132 artigos pendentes · id 811 (chunk fragmentado lc227) · normalização campo `lei` para ids 617–807 (lc214 com artigos de outras leis)
+4. **Sprint H — Qualidade do retrieval** — Ordenação semântica + cobertura quinquenal
+5. **Sprint I — Débito técnico** — Issue #101 (123 testes CI) + Issues #56, #61, #62
 
-### P2 — Melhorias Futuras
+### P2 — Suspenso até pós-B2
 
-6. **Avaliar ISSUE-002 para QC-02 campo livre** — `qc02_obs` é o único campo marcado como "não pré-preenchível".
-7. **Após 48-72h de UAT** — Retornar com relatório de divergências para autorização formal da F-04 Fase 3.
+6. **G12** — `fonte_dispositivo` nos questionários (absorvido pela Question Engine do B2)
+7. **G13** — `fonte_acao` no plano de ação (absorvido pela Action Engine do B2)
 
 ---
 
@@ -307,6 +315,7 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 | 1.2 | 2026-03-24 | — | Novo modelo operacional registrado (Seções 3.8 + 9) · Sprint de Governança como P0 item 0 (Seção 10) · MODELO-OPERACIONAL.md adicionado como artefato de governança |
 | 1.3 | 2026-03-25 | — | Sprint de Governança CI/CD concluída · Seção 3.8 atualizada com 4 novos artefatos (DoD, pr-governance, test-suite, migration-guard) · P0 item 0 marcado como concluído |
 | 1.4 | 2026-03-26 | `dbad765` | Sprint A (PR #105) + Sprint B (PR #106) concluídas · G1/G2/G5/G6/G7/G8 corrigidos · Fix CI: nomes dos jobs alinhados com ruleset + legacy-peer-deps · 419 testes (+ 9 Sprint B) · Seção 8 atualizada com Sprints A e B · Seção 10 atualizada com Sprint C candidatos · DEC-002/003/004 registradas como pendentes |
+| 1.5 | 2026-03-26 | *(commit deste PR)* | Sprints C/D/E/B0/B1 registradas · 489 testes · corpus 2.078 chunks 100% anchor_id · ADR-010 aprovado · DEC-002/003/004 resolvidas · B2 como próxima sprint |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
