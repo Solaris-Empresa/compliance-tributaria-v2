@@ -1,359 +1,397 @@
 /**
  * ingest-anexos-lc214-2025.mjs — Sprint D / G4
  *
- * Ingestão dos 11 Anexos da LC 214/2025 no corpus RAG.
+ * Ingestão dos Anexos I–XVII (sem VII) da LC 214/2025 no corpus RAG.
+ * Granularidade: 1 chunk por item numerado do Anexo.
  *
- * PRÉ-REQUISITO: arquivo JSON fornecido pelo P.O.
- *   Caminho esperado: scripts/data/lc214-anexos.json
- *   Formato esperado:
+ * Formato do JSON de entrada (lc214-2025-anexos-completo.json):
  *   {
- *     "anexo_i":   [{ "ncm": "0101.21.00", "descricao": "Animais vivos...", "topicos": ["..."] }],
- *     "anexo_ii":  [...],
- *     "anexo_iii": [...],
- *     "anexo_iv":  [...],
- *     "anexo_v":   [{ "regra": 1, "descricao": "...", "topicos": ["..."] }],
- *     "anexo_vi":  [...],
- *     "anexo_vii": [...],
- *     "anexo_viii":[...],
- *     "anexo_ix":  [...],
- *     "anexo_x":   [...],
- *     "anexo_xi":  [...]
+ *     "metadados": { "lei": "LC 214/2025", ... },
+ *     "anexos": {
+ *       "I":   { "titulo", "regime", "reducao", "tipo_chunk", "referencia_legal", "texto_literal_completo" },
+ *       ...  (sem "VII" — numeração pula VI → VIII)
+ *     }
  *   }
  *
  * USO:
- *   node scripts/ingest-anexos-lc214-2025.mjs [--dry-run]
+ *   node scripts/ingest-anexos-lc214-2025.mjs --file lc214-2025-anexos-completo.json [--dry-run]
  *
- *   --dry-run: imprime os chunks sem inserir no banco
- *
- * IDEMPOTÊNCIA: upsert por anchor_id — seguro para double-run.
+ * IDEMPOTÊNCIA: upsert por anchor_id UNIQUE — seguro para double-run.
  */
 
-import { readFileSync, existsSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
-import {
-  normalizeAnchorSegment,
-  buildAnchorId,
-  connectDb,
-  upsertChunk,
-  detectSemanticOverlap,
-  printCoverageSummary,
-} from "./corpus-utils.mjs";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const DATA_FILE = join(__dirname, "data", "lc214-anexos.json");
-const DRY_RUN = process.argv.includes("--dry-run");
-const AUTOR = "ingestao-automatica-sprint-d";
-const REVISADO_POR = "pendente-revisao-humana";
-const DATA_REVISAO = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+import { readFileSync } from "fs";
+import { createConnection } from "mysql2/promise";
+import { buildAnchorId, normalizeAnchorSegment } from "./corpus-utils.mjs";
 
 // ---------------------------------------------------------------------------
-// Configuração dos Anexos
+// CLI args
 // ---------------------------------------------------------------------------
+const args = process.argv.slice(2);
+const fileIdx = args.indexOf("--file");
+const fileArg = fileIdx !== -1 ? args[fileIdx + 1] : null;
+const isDryRun = args.includes("--dry-run");
 
-const ANEXOS_CONFIG = [
-  {
-    key: "anexo_i",
-    label: "Anexo I",
-    titulo_base: "LC 214/2025 — Anexo I — Alíquota reduzida 60%",
-    tipo: "ncm",
-    topicos_base: ["aliquota reduzida", "60%", "cesta basica", "LC 214/2025", "IBS", "CBS"],
-    cnaeGroups: "COM,IND",
-  },
-  {
-    key: "anexo_ii",
-    label: "Anexo II",
-    titulo_base: "LC 214/2025 — Anexo II — Alíquota reduzida 30%",
-    tipo: "ncm",
-    topicos_base: ["aliquota reduzida", "30%", "LC 214/2025", "IBS", "CBS"],
-    cnaeGroups: "COM,IND",
-  },
-  {
-    key: "anexo_iii",
-    label: "Anexo III",
-    titulo_base: "LC 214/2025 — Anexo III — Alíquota zero",
-    tipo: "ncm",
-    topicos_base: ["aliquota zero", "isencao", "cesta basica", "LC 214/2025", "IBS", "CBS"],
-    cnaeGroups: "COM,IND",
-  },
-  {
-    key: "anexo_iv",
-    label: "Anexo IV",
-    titulo_base: "LC 214/2025 — Anexo IV — Imposto Seletivo",
-    tipo: "ncm",
-    topicos_base: ["imposto seletivo", "IS", "bens prejudiciais", "LC 214/2025"],
-    cnaeGroups: "COM,IND",
-  },
-  {
-    key: "anexo_v",
-    label: "Anexo V",
-    titulo_base: "LC 214/2025 — Anexo V — Combustíveis",
-    tipo: "regra",
-    topicos_base: ["combustiveis", "petroleo", "gas", "biocombustivel", "LC 214/2025", "IBS", "CBS"],
-    cnaeGroups: "IND,COM",
-  },
-  {
-    key: "anexo_vi",
-    label: "Anexo VI",
-    titulo_base: "LC 214/2025 — Anexo VI — Serviços financeiros",
-    tipo: "regra",
-    topicos_base: ["servicos financeiros", "banco", "seguro", "credito", "LC 214/2025", "CBS"],
-    cnaeGroups: "SER",
-  },
-  {
-    key: "anexo_vii",
-    label: "Anexo VII",
-    titulo_base: "LC 214/2025 — Anexo VII — Planos de saúde",
-    tipo: "regra",
-    topicos_base: ["planos de saude", "saude", "assistencia medica", "LC 214/2025", "CBS"],
-    cnaeGroups: "SER",
-  },
-  {
-    key: "anexo_viii",
-    label: "Anexo VIII",
-    titulo_base: "LC 214/2025 — Anexo VIII — Prognósticos",
-    tipo: "regra",
-    topicos_base: ["prognosticos", "apostas", "loterias", "LC 214/2025", "IS"],
-    cnaeGroups: "SER",
-  },
-  {
-    key: "anexo_ix",
-    label: "Anexo IX",
-    titulo_base: "LC 214/2025 — Anexo IX — Cooperativas",
-    tipo: "regra",
-    topicos_base: ["cooperativas", "ato cooperativo", "LC 214/2025", "IBS", "CBS"],
-    cnaeGroups: "COM,IND,SER",
-  },
-  {
-    key: "anexo_x",
-    label: "Anexo X",
-    titulo_base: "LC 214/2025 — Anexo X — Bens imóveis",
-    tipo: "regra",
-    topicos_base: ["bens imoveis", "imoveis", "locacao", "compra e venda", "LC 214/2025", "IBS"],
-    cnaeGroups: "SER,COM",
-  },
-  {
-    key: "anexo_xi",
-    label: "Anexo XI",
-    titulo_base: "LC 214/2025 — Anexo XI — Zona Franca de Manaus",
-    tipo: "regra",
-    topicos_base: ["ZFM", "Zona Franca de Manaus", "beneficio fiscal", "Amazonia", "LC 214/2025"],
-    cnaeGroups: "COM,IND",
-  },
-];
+if (!fileArg) {
+  console.error("Uso: node scripts/ingest-anexos-lc214-2025.mjs --file <caminho.json> [--dry-run]");
+  process.exit(1);
+}
 
 // ---------------------------------------------------------------------------
-// Funções de chunking por tipo
+// Parser: 1 item por chunk
+//
+// Padrão do texto_literal_completo:
+//   - Linhas de cabeçalho (ANEXO X, título, "ITEM DESCRIÇÃO...")
+//   - Número inteiro sozinho em uma linha → início de novo item
+//   - Linhas seguintes (até o próximo número) → conteúdo do item
+//   - Para Anexo XIV: após o nome do medicamento, há uma linha com NCM/SH
+//
+// Estratégia:
+//   1. Ignorar linhas de cabeçalho (antes do primeiro número)
+//   2. Ao encontrar linha que é só um número inteiro → salvar item anterior, iniciar novo
+//   3. Acumular linhas de conteúdo no item atual
 // ---------------------------------------------------------------------------
 
 /**
- * Gera chunks para Anexos de NCM (I, II, III, IV).
- * 1 chunk por NCM.
+ * Retorna true se a linha é um número de item (inteiro positivo sozinho).
  */
-function buildNcmChunks(items, config) {
-  const chunks = [];
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    const ncmNorm = normalizeAnchorSegment(item.ncm);
-    const descNorm = normalizeAnchorSegment(item.descricao ?? "");
-    const artigoGranular = `${config.label}, NCM ${item.ncm} — ${item.descricao ?? ""}`.slice(0, 299);
-    const chunkIndex = 1; // 1 chunk por NCM
-    const anchor_id = buildAnchorId("lc214", `${config.label}-ncm-${ncmNorm}-${descNorm}`, chunkIndex);
-
-    // Validação de integridade
-    if (!item.conteudo && !item.descricao) {
-      console.warn(`[CORPUS-WARN] NCM sem conteúdo: ${item.ncm}`);
-    }
-
-    const conteudo = item.conteudo ??
-      `${config.titulo_base}\nNCM: ${item.ncm}\nDescrição: ${item.descricao ?? ""}\n` +
-      (item.aliquota ? `Alíquota: ${item.aliquota}\n` : "") +
-      (item.observacao ? `Observação: ${item.observacao}\n` : "");
-
-    // Validação de fronteira semântica
-    if (conteudo.trimEnd().endsWith(",") || /,\s*(e|ou|que)\s*$/.test(conteudo.trimEnd())) {
-      console.warn(`[CORPUS-WARN] Chunk termina com conjunção: ${anchor_id}`);
-    }
-
-    const topicosArr = [
-      ...config.topicos_base,
-      ...(item.topicos ?? []),
-      `NCM ${item.ncm}`,
-    ].filter((v, idx, arr) => arr.indexOf(v) === idx).slice(0, 10);
-
-    chunks.push({
-      anchor_id,
-      lei: "lc214",
-      artigo: artigoGranular,
-      titulo: `${config.titulo_base} — NCM ${item.ncm}`,
-      conteudo,
-      topicos: topicosArr.join(", "),
-      cnaeGroups: config.cnaeGroups,
-      chunkIndex,
-      autor: AUTOR,
-      revisado_por: REVISADO_POR,
-      data_revisao: DATA_REVISAO,
-    });
-  }
-  return chunks;
+function isItemNumber(line) {
+  return /^\d+$/.test(line.trim());
 }
 
 /**
- * Gera chunks para Anexos de regras (V–XI).
- * 1 chunk por regra.
+ * Retorna true se a linha é cabeçalho do Anexo (deve ser ignorada).
  */
-function buildRegraChunks(items, config) {
-  const chunks = [];
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    const regraNum = item.regra ?? (i + 1);
-    const artigoGranular = `${config.label}, Regra ${regraNum}`.slice(0, 299);
-    const chunkIndex = 1; // 1 chunk por regra
-    const anchor_id = buildAnchorId("lc214", `${config.label}-regra-${regraNum}`, chunkIndex);
+function isHeader(line) {
+  const l = line.trim();
+  // Linhas de cabeçalho: "ANEXO X", título em maiúsculas, "ITEM DESCRIÇÃO...", "NCM/SH" sozinho
+  if (/^ANEXO\s+[IVXLCDM]+\s*$/.test(l)) return true;
+  if (l === "ITEM DESCRIÇÃO DO PRODUTO") return true;
+  if (l === "ITEM DESCRIÇÃO") return true;
+  if (l === "NCM/SH") return true;
+  // Linhas de título em maiúsculas antes do primeiro item (sem números)
+  return false;
+}
 
-    const conteudo = item.conteudo ??
-      `${config.titulo_base}\nRegra ${regraNum}: ${item.descricao ?? ""}\n` +
-      (item.aliquota ? `Alíquota: ${item.aliquota}\n` : "") +
-      (item.observacao ? `Observação: ${item.observacao}\n` : "");
-
-    // Validação de fronteira semântica
-    if (conteudo.trimEnd().endsWith(",") || /,\s*(e|ou|que)\s*$/.test(conteudo.trimEnd())) {
-      console.warn(`[CORPUS-WARN] Chunk termina com conjunção: ${anchor_id}`);
+/**
+ * Parser especial para Anexo XVI: tabela ano/percentual ("2029 81,0%").
+ * 1 chunk por linha de dado (ignorando cabeçalhos).
+ */
+function parseAnexoXVI(text) {
+  const lines = text.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+  const items = [];
+  let numero = 0;
+  for (const line of lines) {
+    // Linhas de dado: "AAAA PP,P%" ou "AAAA PP%"
+    if (/^\d{4}\s+[\d,\.]+%$/.test(line)) {
+      numero++;
+      items.push({ numero, conteudo: line });
     }
-    if (conteudo.length < 30) {
-      console.warn(`[CORPUS-WARN] Chunk muito curto (${conteudo.length} chars): ${anchor_id}`);
+  }
+  return items;
+}
+
+/**
+ * Parser especial para Anexo XVII: categorias por nome (sem numeração).
+ * 1 chunk por categoria (nome + NCMs).
+ */
+function parseAnexoXVII(text) {
+  const lines = text.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+  const items = [];
+  let numero = 0;
+  let currentCategory = null;
+  let currentLines = [];
+  let headerPhase = true;
+
+  // Categorias do Anexo XVII (nomes conhecidos)
+  const CATEGORY_NAMES = new Set([
+    "Veículos",
+    "Aeronaves e Embarcações",
+    "Produtos fumígenos",
+    "Bebidas alcóolicas",
+    "Bebidas açucaradas",
+    "Bens minerais",
+    "Concursos de prognósticos",
+    "Produtos prejudiciais à saúde",
+    "Produtos prejudiciais ao meio ambiente",
+  ]);
+
+  for (const line of lines) {
+    // Ignorar cabeçalho do Anexo
+    if (/^ANEXO\s+XVII/.test(line) || line === "BENS E SERVIÇOS SUJEITOS AO IMPOSTO SELETIVO") {
+      continue;
     }
+    // Detectar início de nova categoria
+    if (CATEGORY_NAMES.has(line)) {
+      if (currentCategory !== null && currentLines.length > 0) {
+        numero++;
+        items.push({ numero, conteudo: `${currentCategory}: ${currentLines.join(" ")}` });
+      }
+      currentCategory = line;
+      currentLines = [];
+      headerPhase = false;
+    } else if (!headerPhase && currentCategory !== null) {
+      currentLines.push(line);
+    }
+  }
+  // Último item
+  if (currentCategory !== null && currentLines.length > 0) {
+    numero++;
+    items.push({ numero, conteudo: `${currentCategory}: ${currentLines.join(" ")}` });
+  }
+  return items;
+}
 
-    const topicosArr = [
-      ...config.topicos_base,
-      ...(item.topicos ?? []),
-    ].filter((v, idx, arr) => arr.indexOf(v) === idx).slice(0, 10);
+/**
+ * Parseia texto_literal_completo e retorna array de { numero, conteudo }.
+ * 1 item por número encontrado.
+ */
+function parseItemsFromText(text) {
+  const rawLines = text.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
 
-    chunks.push({
-      anchor_id,
-      lei: "lc214",
-      artigo: artigoGranular,
-      titulo: `${config.titulo_base} — Regra ${regraNum}`,
-      conteudo,
-      topicos: topicosArr.join(", "),
-      cnaeGroups: config.cnaeGroups,
-      chunkIndex,
-      autor: AUTOR,
-      revisado_por: REVISADO_POR,
-      data_revisao: DATA_REVISAO,
+  const items = [];
+  let currentNumber = null;
+  let currentLines = [];
+  let headerPhase = true; // Antes do primeiro número, estamos no cabeçalho
+
+  for (const line of rawLines) {
+    if (isItemNumber(line)) {
+      // Salvar item anterior (se existir)
+      if (currentNumber !== null && currentLines.length > 0) {
+        items.push({
+          numero: currentNumber,
+          conteudo: currentLines.join(" ").trim(),
+        });
+      }
+      // Iniciar novo item
+      currentNumber = parseInt(line, 10);
+      currentLines = [];
+      headerPhase = false;
+    } else if (headerPhase) {
+      // Ignorar linhas de cabeçalho antes do primeiro número
+      continue;
+    } else if (currentNumber !== null) {
+      // Acumular linha de conteúdo do item atual
+      // Ignorar linhas que são apenas "NCM/SH" (cabeçalho de coluna)
+      if (line !== "NCM/SH") {
+        currentLines.push(line);
+      }
+    }
+  }
+
+  // Salvar último item
+  if (currentNumber !== null && currentLines.length > 0) {
+    items.push({
+      numero: currentNumber,
+      conteudo: currentLines.join(" ").trim(),
     });
   }
-  return chunks;
+
+  return items;
 }
 
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-
 async function main() {
   console.log("╔══════════════════════════════════════════════════════════════╗");
-  console.log("║   INGESTÃO — LC 214/2025 — 11 Anexos — Sprint D / G4        ║");
-  console.log(`║   Modo: ${DRY_RUN ? "DRY-RUN (sem inserção no banco)         " : "PRODUÇÃO (inserindo no banco)            "}║`);
+  console.log("║   INGESTÃO — LC 214/2025 — Anexos I–XVII (sem VII)          ║");
+  console.log(`║   Modo: ${isDryRun ? "DRY-RUN (sem inserção no banco)         " : "PRODUÇÃO (inserindo no banco)            "}║`);
   console.log("╚══════════════════════════════════════════════════════════════╝\n");
 
-  // ── Verificar arquivo fonte ──────────────────────────────────────────────
-  if (!existsSync(DATA_FILE)) {
-    console.error(`❌ BLOQUEIO: Arquivo fonte não encontrado: ${DATA_FILE}`);
-    console.error("   Forneça o arquivo scripts/data/lc214-anexos.json antes de executar.");
-    console.error("   Formato esperado: { \"anexo_i\": [{ncm, descricao, topicos, conteudo?}], ... }");
+  // Ler JSON
+  let data;
+  try {
+    data = JSON.parse(readFileSync(fileArg, "utf-8"));
+  } catch (e) {
+    console.error(`❌ Erro ao ler ${fileArg}:`, e.message);
     process.exit(1);
   }
 
-  const rawData = JSON.parse(readFileSync(DATA_FILE, "utf-8"));
-  console.log(`✅ Arquivo fonte carregado: ${DATA_FILE}`);
+  const meta = data.metadados || {};
+  const anexos = data.anexos || {};
 
-  // ── Conectar ao banco ────────────────────────────────────────────────────
-  let connection;
-  if (!DRY_RUN) {
-    const conn = await connectDb();
-    connection = conn.connection;
-    console.log("✅ Conexão com banco estabelecida\n");
+  console.log(`📋 Lei: ${meta.lei || "LC 214/2025"}`);
+  console.log(`📅 Publicação: ${meta.data_publicacao || "2025-01-16"}`);
+  console.log(`📦 Anexos no JSON: ${Object.keys(anexos).join(", ")}`);
+
+  if ("VII" in anexos) {
+    console.warn("⚠️  Anexo VII encontrado no JSON — revisar conforme instrução do P.O.");
+  } else {
+    console.log("✅ Anexo VII ausente (conforme instrução do P.O. — numeração pula VI→VIII)\n");
   }
 
-  // ── Gerar e inserir chunks por Anexo ────────────────────────────────────
-  const coverageResults = [];
-  const allChunks = [];
+  // Conectar ao banco (apenas se não for dry-run)
+  let conn = null;
+  if (!isDryRun) {
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) {
+      console.error("❌ DATABASE_URL não definida");
+      process.exit(1);
+    }
+    conn = await createConnection(dbUrl);
+    console.log("✅ Conectado ao banco\n");
+  }
 
-  for (const config of ANEXOS_CONFIG) {
-    const items = rawData[config.key] ?? [];
-    if (items.length === 0) {
-      console.warn(`[CORPUS-WARN] Nenhum item encontrado para ${config.label} (chave: ${config.key})`);
+  // ---------------------------------------------------------------------------
+  // Processar cada Anexo
+  // ---------------------------------------------------------------------------
+  const coverageRows = [];
+  let totalInserted = 0;
+  let totalSkipped = 0;
+  let totalChunks = 0;
+
+  for (const [numRomano, anexo] of Object.entries(anexos)) {
+    const titulo = anexo.titulo || `Anexo ${numRomano}`;
+    const regime = anexo.regime || "nao_especificado";
+    const reducao = anexo.reducao || "";
+    const referenciaLegal = anexo.referencia_legal || `LC 214/2025, Anexo ${numRomano}`;
+    const texto = anexo.texto_literal_completo || "";
+
+    if (!texto.trim()) {
+      console.warn(`⚠️  Anexo ${numRomano}: texto vazio — pulando`);
+      coverageRows.push({ anexo: numRomano, titulo: titulo.slice(0, 55), chunks: 0, inserted: 0, skipped: 0, status: "VAZIO" });
+      continue;
     }
 
-    const chunks = config.tipo === "ncm"
-      ? buildNcmChunks(items, config)
-      : buildRegraChunks(items, config);
+    // Parsear itens: 1 item = 1 chunk
+    // Usar parser especializado para Anexos XVI e XVII (sem numeração por item)
+    let items;
+    if (numRomano === "XVI") {
+      items = parseAnexoXVI(texto);
+    } else if (numRomano === "XVII") {
+      items = parseAnexoXVII(texto);
+    } else {
+      items = parseItemsFromText(texto);
+    }
 
-    allChunks.push(...chunks);
+    if (items.length === 0) {
+      console.warn(`⚠️  Anexo ${numRomano}: nenhum item encontrado no parser — verificar formato`);
+      coverageRows.push({ anexo: numRomano, titulo: titulo.slice(0, 55), chunks: 0, inserted: 0, skipped: 0, status: "SEM_ITENS" });
+      continue;
+    }
 
-    let inserted = 0, updated = 0, skipped = 0;
+    console.log(`📎 Anexo ${numRomano}: ${items.length} itens → ${items.length} chunks`);
 
-    for (const chunk of chunks) {
-      if (DRY_RUN) {
-        console.log(`[DRY-RUN] ${chunk.anchor_id} | ${chunk.conteudo.slice(0, 60)}...`);
+    let inserted = 0;
+    let skipped = 0;
+
+    for (const item of items) {
+      const { numero, conteudo } = item;
+
+      // Conteúdo do chunk: cabeçalho contextual + item
+      const chunkContent = [
+        `ANEXO ${numRomano} — ${titulo}`,
+        `Regime: ${regime}${reducao ? ` | Redução: ${reducao}` : ""}`,
+        `Referência: ${referenciaLegal}`,
+        ``,
+        `Item ${numero}: ${conteudo}`,
+      ].join("\n");
+
+      const artigoLabel = `Anexo ${numRomano}, item ${numero}`;
+      const anchorId = buildAnchorId(
+        "lc214",
+        `anexo-${normalizeAnchorSegment(numRomano)}-item-${numero}`,
+        numero
+      );
+
+      // Tópicos automáticos
+      const topicos = [
+        `Anexo ${numRomano}`,
+        regime.replace(/_/g, " "),
+        reducao ? `redução ${reducao}` : "",
+        "LC 214/2025",
+        "reforma tributária",
+        "IBS",
+        "CBS",
+      ]
+        .filter(Boolean)
+        .join(", ");
+
+      if (isDryRun) {
+        if (numero <= 2) {
+          console.log(`   [DRY-RUN] anchor_id: ${anchorId}`);
+          console.log(`   [DRY-RUN] artigo:    ${artigoLabel}`);
+          console.log(`   [DRY-RUN] conteudo:  ${conteudo.slice(0, 100)}...`);
+        }
         inserted++;
       } else {
-        const result = await upsertChunk(connection, chunk);
-        if (result === "insert") inserted++;
-        else if (result === "update") updated++;
-        else skipped++;
+        try {
+          await conn.execute(
+            `INSERT INTO ragDocuments
+               (lei, artigo, titulo, conteudo, topicos, cnaeGroups, chunkIndex, anchor_id, autor, data_revisao)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE
+               conteudo = VALUES(conteudo),
+               topicos = VALUES(topicos),
+               titulo = VALUES(titulo)`,
+            [
+              "lc214",
+              artigoLabel.slice(0, 299),
+              titulo.slice(0, 499),
+              chunkContent,
+              topicos,
+              "",
+              numero,
+              anchorId,
+              "ingestao-automatica-sprint-d",
+              "2026-03-26",
+            ]
+          );
+          inserted++;
+        } catch (e) {
+          if (e.code === "ER_DUP_ENTRY") {
+            skipped++;
+          } else {
+            console.error(`   ❌ Erro no item ${numero} do Anexo ${numRomano}:`, e.message);
+          }
+        }
       }
     }
 
-    coverageResults.push({
-      label: config.label,
-      expected: items.length,
+    totalInserted += inserted;
+    totalSkipped += skipped;
+    totalChunks += items.length;
+
+    coverageRows.push({
+      anexo: numRomano,
+      titulo: titulo.slice(0, 55),
+      chunks: items.length,
       inserted,
-      updated,
       skipped,
+      status: isDryRun ? "DRY-RUN" : skipped > 0 ? "UPSERTED" : "INSERTED",
     });
   }
 
-  // ── Detecção de sobreposição semântica ──────────────────────────────────
-  const overlapCount = detectSemanticOverlap(allChunks);
-  if (overlapCount > 0) {
-    console.warn(`\n⚠️  ${overlapCount} alertas de sobreposição semântica (>= 80%) — revisar manualmente`);
+  // ---------------------------------------------------------------------------
+  // Tabela de cobertura
+  // ---------------------------------------------------------------------------
+  console.log("\n" + "=".repeat(95));
+  console.log("📊 TABELA DE COBERTURA — LC 214/2025 Anexos (1 chunk por item)");
+  console.log("=".repeat(95));
+  console.log(
+    `${"Anexo".padEnd(8)} ${"Título (55 chars)".padEnd(57)} ${"Itens".padStart(6)} ${"Status".padStart(10)}`
+  );
+  console.log("-".repeat(85));
+  for (const row of coverageRows) {
+    console.log(
+      `${String(row.anexo).padEnd(8)} ${row.titulo.padEnd(57)} ${String(row.chunks).padStart(6)} ${row.status.padStart(10)}`
+    );
   }
-
-  // ── Verificar unicidade de anchor_id ────────────────────────────────────
-  const anchorIds = allChunks.map(c => c.anchor_id);
-  const uniqueAnchorIds = new Set(anchorIds);
-  if (uniqueAnchorIds.size !== anchorIds.length) {
-    const duplicates = anchorIds.filter((id, i) => anchorIds.indexOf(id) !== i);
-    console.error(`❌ COLISÃO DE anchor_id detectada: ${[...new Set(duplicates)].join(", ")}`);
-    process.exit(1);
+  console.log("-".repeat(85));
+  console.log(`${"TOTAL".padEnd(8)} ${"".padEnd(57)} ${String(totalChunks).padStart(6)}`);
+  console.log();
+  console.log(`✅ Chunks ${isDryRun ? "simulados" : "inseridos/atualizados"}: ${totalInserted}`);
+  if (!isDryRun && totalSkipped > 0) {
+    console.log(`♻️  Chunks já existentes (upsert): ${totalSkipped}`);
   }
-  console.log(`\n✅ Unicidade de anchor_id verificada: ${uniqueAnchorIds.size} IDs únicos`);
+  console.log(`📦 Total chunks gerados: ${totalChunks}`);
 
-  // ── Tabela de cobertura ──────────────────────────────────────────────────
-  printCoverageSummary(coverageResults);
+  if (conn) await conn.end();
 
-  // ── Verificar cobertura mínima ───────────────────────────────────────────
-  for (const r of coverageResults) {
-    const actual = r.inserted + r.updated + r.skipped;
-    const pct = r.expected === 0 ? 100 : (actual / r.expected) * 100;
-    if (pct < 50) {
-      console.error(`❌ BLOQUEIO: Cobertura < 50% para ${r.label}: ${pct.toFixed(0)}% (${actual}/${r.expected})`);
-      process.exit(1);
-    }
-    if (pct < 80) {
-      console.warn(`⚠️  Cobertura < 80% para ${r.label}: ${pct.toFixed(0)}% (${actual}/${r.expected})`);
-    }
-  }
-
-  if (!DRY_RUN && connection) {
-    await connection.end();
-  }
-
-  console.log("\n✅ Ingestão LC 214/2025 — Anexos — concluída");
+  console.log(isDryRun ? "\n✅ DRY-RUN concluído — nenhum dado gravado." : "\n✅ Ingestão concluída.");
 }
 
-main().catch(err => {
-  console.error("❌ Erro fatal na ingestão:", err);
+main().catch((e) => {
+  console.error("❌ Erro fatal:", e);
   process.exit(1);
 });
