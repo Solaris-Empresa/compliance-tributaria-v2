@@ -74,6 +74,7 @@ import DiagnosticoStepper from "./pages/DiagnosticoStepper";
 import AdminConsistencia from "./pages/AdminConsistencia";
 import AdminCpieDashboard from "./pages/AdminCpieDashboard";
 import ShadowMonitor from "./pages/ShadowMonitor";
+import RagCockpit from "./pages/RagCockpit";
 
 function Router() {
   return (
@@ -129,6 +130,7 @@ function Router() {
       <Route path="/admin/consistencia" component={AdminConsistencia} />
       <Route path="/admin/cpie-dashboard" component={AdminCpieDashboard} />
       <Route path="/admin/shadow-monitor" component={ShadowMonitor} />
+      <Route path="/admin/rag-cockpit" component={RagCockpit} />
       {/* Compliance Engine v3 */}
       <Route path="/projetos/:id/compliance-v3" component={ComplianceDashboardV3} />
       <Route path="/projetos/:id/compliance-v3/gaps" component={GapsV3} />

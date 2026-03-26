@@ -1,12 +1,12 @@
 # Índice Mestre de Documentação
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.06 — 2026-03-24
-> **Versão anterior:** 2.05 (commit `bc83f9b`, 2026-03-24)
-> **Commit HEAD:** `bc83f9b` (branch `main`)
-> **Total de documentos:** 130 arquivos Markdown (sem .docx — GitHub é o repositório oficial)
+> **Versão:** 2.07 — 2026-03-26
+> **Versão anterior:** 2.06 (commit `bc83f9b`, 2026-03-24)
+> **Commit HEAD:** `3d4bd11` (branch `main`)
+> **Total de documentos:** 135 arquivos Markdown (sem .docx — GitHub é o repositório oficial)
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
-> **Novos nesta versão:** MODELO-OPERACIONAL.md v1.0 (Categoria 1) — modelo operacional da equipe: papéis, fluxos e protocolo
+> **Novos nesta versão:** GATE-CHECKLIST · Skills Manus + Claude · SNAPSHOT-SPRINT-98-B2 · HANDOFF-SESSAO-2026-03-26 · GUIA-PO-ROLLOUT-ENTRE-SESSOES · FRAMEWORK-GOVERNANCA (docs/governanca/)
 >
 > **📌 Acesso rápido para o P.O.:**
 > - 🔴 [ERROS CONHECIDOS v2.1](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md) — incidentes, runbooks, sprints
@@ -297,7 +297,8 @@ Documentos gerados na Sprint 98% Confidence (B0/B1/B2) e no rollout pós-sessão
 
 | Arquivo | Descrição | Status |
 |---|---|---|
-| [⭐ **FRAMEWORK-GOVERNANCA-IA-SOLARIS.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/FRAMEWORK-GOVERNANCA-IA-SOLARIS.md) | **Framework de Governança v1.0** — Gates 0–3, falhas identificadas, riscos do implementador, skills e mecanismos de persistência | ✅ Novo |
+| [⭐ **FRAMEWORK-GOVERNANCA-IA-SOLARIS.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/FRAMEWORK-GOVERNANCA-IA-SOLARIS.md) | **Framework de Governança v1.0** — Gates 0–3, falhas identificadas, riscos do implementador, skills e mecanismos de persistência | ✅ Ativo |
+| [⭐ **FRAMEWORK-GOVERNANCA-IA-SOLARIS.md** (docs/governanca/)](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governanca/FRAMEWORK-GOVERNANCA-IA-SOLARIS.md) | **Framework de Governança v1.0** — cópia canônica em `docs/governanca/` | ✅ Novo |
 | [⭐ **GATE-CHECKLIST.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/GATE-CHECKLIST.md) | Gates 0–3 de controle de qualidade — executar antes de qualquer sprint | ✅ Ativo |
 | [⭐ **HANDOFF-MANUS.md v1.6**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/HANDOFF-MANUS.md) | Handoff para o Manus — estado pós-B2, próximas sprints, bloqueios | ✅ Ativo |
 | [**HANDOFF-SESSAO-2026-03-26.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/handoffs/HANDOFF-SESSAO-2026-03-26.md) | Handoff de sessão — como retomar no próximo chat | ✅ Novo |
@@ -312,7 +313,7 @@ Documentos gerados na Sprint 98% Confidence (B0/B1/B2) e no rollout pós-sessão
 ---
 
 *Atualizado em 2026-03-26 — Versão 2.07 | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
-*Versão anterior: 2.06 (commit `bc83f9b`, 2026-03-24) — Categoria 11 Suporte ao Usuário + PRODUCT-LIFECYCLE.md v1.0*
+*Versão anterior: 2.06 (commit `bc83f9b`, 2026-03-24) — MODELO-OPERACIONAL.md v1.0 + Categoria 11 Suporte ao Usuário + PRODUCT-LIFECYCLE.md v1.0*
 *Versão anterior: 2.05 (commit `bc83f9b`, 2026-03-24) — Categoria 11 Suporte ao Usuário + PRODUCT-LIFECYCLE.md v1.0*
 *Versão anterior: 2.04 (commit `52c677b`, 2026-03-24) — PRODUCT-LIFECYCLE.md v1.0 + Playruns + limpeza de token*
 *Versão anterior: 2.03 (commit `a086ee3`, 2026-03-24) — link quebrado removido*
