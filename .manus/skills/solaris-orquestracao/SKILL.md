@@ -36,6 +36,18 @@ Formato: `tipo(escopo): descrição` (máx 72 chars)
 | `chore` | ci, governance | `chore(governance): atualizar GATE-CHECKLIST` |
 | `db` | schema, migration | `db(schema): adicionar campo fonte_acao` |
 
+## Regra de abertura de branch (OBRIGATÓRIO — executar ANTES de criar qualquer branch)
+
+```bash
+git fetch origin
+git checkout main
+git reset --hard origin/main
+git checkout -b <nome-do-branch>
+```
+
+> **Causa raiz do PR #117 (conflito):** branch criado a partir de estado local com commits de checkpoint que divergiam do `main` do GitHub. Esta regra previne conflitos de merge em todos os PRs futuros.
+> Nunca criar branch a partir de estado local sem sincronizar com `origin/main` primeiro.
+
 ## Template de PR (obrigatório)
 
 Todo PR deve usar o template oficial em `.github/pull_request_template.md`.
