@@ -377,6 +377,14 @@ export const TaskItemSchema = z.object({
   cnae_origem: z.string().optional().default(""),
   gap_especifico: z.string().optional().default(""),
   acao_concreta: z.string().optional().default(""),
+  // B2 — G12: rastreabilidade normativa da ação (anchor_id do chunk RAG de origem)
+  fonte_acao: z.object({
+    lei: z.string().default("não identificado"),
+    artigo: z.string().default("não identificado"),
+    anchor_id: z.string().default(""),
+    tipo_obrigacao: z.string().default("recomendacao"),
+    descricao: z.string().default("fonte não rastreada"),
+  }).optional(),
 });
 
 export const TasksResponseSchema = z.object({

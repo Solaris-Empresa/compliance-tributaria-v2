@@ -1117,10 +1117,14 @@ Formato:
           `[AUDIT-FONTE-RISCO] projectId=${input.projectId} area=${area} ts=${new Date().toISOString()} fontes=${JSON.stringify(fontes)}`
         );
         // G11: calcular fundamentacao deterministicamente por item de risco
+        // Guard defensivo: ragCtxArea pode ser array (mock) ou objeto { articles, contextText }
+        const _riskArticles: any[] = Array.isArray(ragCtxArea)
+          ? ragCtxArea
+          : (ragCtxArea as any).articles ?? [];
         const risksComFundamentacao = finalRisks.map((risco: any) => ({
           ...risco,
           fundamentacao: calcularFundamentacao(
-            ragCtxArea.articles,
+            _riskArticles,
             risco.fonte_risco ?? "fonte não identificada"
           ),
         }));
@@ -1310,6 +1314,22 @@ Gere o plano de ação em JSON:
           { temperature: 0.15, context: `generateActionPlan:${area}` }
         );
 
+        // B2 — G12: log de auditoria de fonte_acao por área
+        // Guard defensivo: ragCtxArea pode ser array (mock) ou objeto { articles, contextText }
+        const _articles: any[] = Array.isArray(ragCtxArea)
+          ? ragCtxArea
+          : (ragCtxArea as any).articles ?? [];
+        const _firstArticle = _articles[0];
+        const fonteAcaoBase = _firstArticle
+          ? {
+              lei: _firstArticle.lei ?? "não identificado",
+              artigo: _firstArticle.artigo ?? "não identificado",
+              anchor_id: _firstArticle.anchorId ?? "",
+              tipo_obrigacao: "recomendacao",
+              descricao: `Chunk RAG: ${_firstArticle.anchorId ?? "sem anchor"}`,
+            }
+          : undefined;
+        console.log(`[AUDIT-FONTE-ACAO] area=${area} chunks=${_articles.length} anchor_id=${fonteAcaoBase?.anchor_id ?? "none"}`);
         return {
           area,
           tasks: result.tasks.map((t: any) => ({
@@ -1321,6 +1341,8 @@ Gere o plano de ação em JSON:
             responsible: null,
             comments: [],
             notifications: { beforeDays: 7, onStatusChange: true, onProgressUpdate: false, onComment: false },
+            // B2 — G12: rastreabilidade normativa da ação
+            fonte_acao: t.fonte_acao ?? fonteAcaoBase,
           })),
         };
       }));
