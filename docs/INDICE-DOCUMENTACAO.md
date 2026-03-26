@@ -291,7 +291,27 @@ Documentos voltados ao usuário final da plataforma (advogados tributaristas). C
 
 ---
 
-*Atualizado em 2026-03-24 — Versão 2.06 | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+## Categoria 12 — Sprint 98% Confidence + Rollout B2 (2026-03-26)
+
+Documentos gerados na Sprint 98% Confidence (B0/B1/B2) e no rollout pós-sessão 2026-03-26.
+
+| Arquivo | Descrição | Status |
+|---|---|---|
+| [⭐ **GATE-CHECKLIST.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/GATE-CHECKLIST.md) | Gates 0–3 de controle de qualidade — executar antes de qualquer sprint | ✅ Ativo |
+| [⭐ **HANDOFF-MANUS.md v1.6**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/HANDOFF-MANUS.md) | Handoff para o Manus — estado pós-B2, próximas sprints, bloqueios | ✅ Ativo |
+| [**HANDOFF-SESSAO-2026-03-26.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/handoffs/HANDOFF-SESSAO-2026-03-26.md) | Handoff de sessão — como retomar no próximo chat | ✅ Novo |
+| [**SNAPSHOT-SPRINT-98-B2.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/SNAPSHOT-SPRINT-98-B2.md) | Snapshot imutável do estado pós-Sprint 98% B2 | ✅ Novo |
+| [⭐ **GUIA-PO-ROLLOUT-ENTRE-SESSOES.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/guias/GUIA-PO-ROLLOUT-ENTRE-SESSOES.md) | **Guia do P.O.** — rollout entre sessões, skills, ciclo de sprints | ✅ Novo |
+| [**SKILL solaris-orquestracao (Manus)**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.manus/skills/solaris-orquestracao/SKILL.md) | Skill operacional do Manus — checklist, commits, bloqueios, pós-sprint | ✅ Novo |
+| [**SKILL solaris-contexto (Claude)**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/skills/solaris-contexto/SKILL.md) | Skill de contexto do Orquestrador — Gate 0, estado do produto, governança | ✅ Novo |
+| [ADR-010](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-010-content-architecture-98.md) | Arquitetura Canônica de Conteúdo Diagnóstico | ✅ Aprovado |
+| [MATRIZ-CANONICA-INPUTS-OUTPUTS v1.1](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/MATRIZ-CANONICA-INPUTS-OUTPUTS.md) | Matriz canônica de inputs/outputs das engines | ✅ Aprovada |
+| [MATRIZ-RASTREABILIDADE v1.1](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/MATRIZ-RASTREABILIDADE-REQ-PERGUNTA-GAP-RISCO-ACAO.md) | Cadeia req→pergunta→gap→risco→ação — INV-001..INV-008 | ✅ Aprovada |
+
+---
+
+*Atualizado em 2026-03-26 — Versão 2.07 | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Versão anterior: 2.06 (commit `bc83f9b`, 2026-03-24) — Categoria 11 Suporte ao Usuário + PRODUCT-LIFECYCLE.md v1.0*
 *Versão anterior: 2.05 (commit `bc83f9b`, 2026-03-24) — Categoria 11 Suporte ao Usuário + PRODUCT-LIFECYCLE.md v1.0*
 *Versão anterior: 2.04 (commit `52c677b`, 2026-03-24) — PRODUCT-LIFECYCLE.md v1.0 + Playruns + limpeza de token*
 *Versão anterior: 2.03 (commit `a086ee3`, 2026-03-24) — link quebrado removido*

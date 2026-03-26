@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 1.5 — 2026-03-26
-> **Commit HEAD:** `88de16f` (branch `main`)
-> **Checkpoint Manus:** `e6180cf1`
+> **Versão:** 1.6 — 2026-03-26
+> **Commit HEAD:** `0647511` (branch `main`)
+> **Checkpoint Manus:** `d72dc119`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -36,7 +36,8 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
 | Corpus RAG | **2.078 chunks — 100% com anchor_id** (lc214: 1.598 · lc227: 434 · lc224: 28 · ec132: 18) | ✅ |
-| Sprint 98% Confidence | **B0 ✅ · B1 ✅** — gate B2 liberado | ✅ |
+| Sprint 98% Confidence | **B0 ✅ · B1 ✅ · B2 ✅** — Sprint 98% CONCLUÍDA | ✅ |
+| Agent Skills | Manus `/solaris-orquestracao` ✅ · Claude `solaris-contexto` ✅ | ✅ |
 
 ---
 
@@ -235,7 +236,8 @@ Os erros abaixo estão catalogados em [`docs/ERROS-CONHECIDOS.md`](https://githu
 | **Sprint E (RAG)** | G11 fundamentação auditável por item da matriz de riscos (cobertura, confiabilidade, alerta, dispositivos[]) | ✅ Concluída | PR #110 — `5d15105` |
 | **Sprint 98% B0** | Governança GitHub: milestone, labels, 34 issues, PR template, CONTRIBUTING.md, MANUS-GOVERNANCE.md | ✅ Concluída | 2026-03-23 |
 | **Sprint 98% B1** | ADR-010 aprovado · MATRIZ-CANONICA-INPUTS-OUTPUTS v1.1 aprovada · MATRIZ-RASTREABILIDADE v1.1 aprovada | ✅ Concluída | PR #111 — `88de16f` |
-| **Sprint 98% B2** | 6 engines: Requirement, Question, Gap, Coverage, Consistency, Risk, Action + Briefing + Shadow + CI | 🔵 **Próxima — aguarda prompt do Orquestrador** | — |
+| **Sprint 98% B2** | GATE-CHECKLIST + Skills (Manus + Claude) + Cockpit v2 + G12 `fonte_acao` em `generateActionPlan` | ✅ Concluída | PR #113 — `805afd1` · PR #115 — `0647511` |
+| **Rollout B2** | HANDOFF-SESSAO + SNAPSHOT-B2 + GUIA-PO-ROLLOUT + BASELINE v1.6 + HANDOFF-MANUS v1.6 | ✅ Concluída | PR #116 |
 
 ---
 
@@ -260,8 +262,8 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 
 ### P0 — Imediato
 
-1. **Sprint 98% B2** — Implementar 6 engines (Requirement, Question, Gap, Coverage, Consistency, Risk, Action) conforme contratos do ADR-010 e matrizes canônicas aprovadas. Aguarda prompt do Orquestrador.
-2. **Validar G11 em produção** — Testar campo `fundamentacao` na matriz de riscos em https://iasolaris.manus.space
+1. **Sprint G — Corpus complementar** — id 811 lc227 (chunk fragmentado) · ids 617–807 campo `lei` incorreto (lc214 com artigos de outras leis). Objetivo: corpus 100% íntegro para retrieval confiável.
+2. **Validar G11 e G12 em produção** — Testar campos `fundamentacao` e `fonte_acao` em https://iasolaris.manus.space
 
 ### P1 — Próximo ciclo (pós-B2)
 
@@ -269,10 +271,10 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 4. **Sprint H — Qualidade do retrieval** — Ordenação semântica + cobertura quinquenal
 5. **Sprint I — Débito técnico** — Issue #101 (123 testes CI) + Issues #56, #61, #62
 
-### P2 — Suspenso até pós-B2
+### P2 — Suspenso
 
-6. **G12** — `fonte_dispositivo` nos questionários (absorvido pela Question Engine do B2)
-7. **G13** — `fonte_acao` no plano de ação (absorvido pela Action Engine do B2)
+6. **G13** — `fonte_dispositivo` nos questionários — Sprint futura
+7. **Rollout DEC-006** — Novo modelo operacional: Claude implementa via artifacts, Manus audita e deploya. Deploy key criada. Rollout após Sprint G.
 
 ---
 
@@ -315,7 +317,8 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 | 1.2 | 2026-03-24 | — | Novo modelo operacional registrado (Seções 3.8 + 9) · Sprint de Governança como P0 item 0 (Seção 10) · MODELO-OPERACIONAL.md adicionado como artefato de governança |
 | 1.3 | 2026-03-25 | — | Sprint de Governança CI/CD concluída · Seção 3.8 atualizada com 4 novos artefatos (DoD, pr-governance, test-suite, migration-guard) · P0 item 0 marcado como concluído |
 | 1.4 | 2026-03-26 | `dbad765` | Sprint A (PR #105) + Sprint B (PR #106) concluídas · G1/G2/G5/G6/G7/G8 corrigidos · Fix CI: nomes dos jobs alinhados com ruleset + legacy-peer-deps · 419 testes (+ 9 Sprint B) · Seção 8 atualizada com Sprints A e B · Seção 10 atualizada com Sprint C candidatos · DEC-002/003/004 registradas como pendentes |
-| 1.5 | 2026-03-26 | *(commit deste PR)* | Sprints C/D/E/B0/B1 registradas · 489 testes · corpus 2.078 chunks 100% anchor_id · ADR-010 aprovado · DEC-002/003/004 resolvidas · B2 como próxima sprint |
+| 1.5 | 2026-03-26 | `d18dadb` | Sprints C/D/E/B0/B1 registradas · 489 testes · corpus 2.078 chunks 100% anchor_id · ADR-010 aprovado · DEC-002/003/004 resolvidas · B2 como próxima sprint |
+| 1.6 | 2026-03-26 | `0647511` | Sprint 98% B2 concluída · GATE-CHECKLIST · Skills Manus+Claude · Cockpit v2 · G12 fonte_acao · Rollout documentado (HANDOFF-SESSAO + SNAPSHOT-B2 + GUIA-PO) |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 

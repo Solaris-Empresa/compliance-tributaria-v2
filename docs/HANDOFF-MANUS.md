@@ -32,26 +32,26 @@ Drizzle ORM / Vitest / pnpm
 
 ## Estado atual do projeto (2026-03-26)
 
-- BASELINE v1.5 — Sprints A, B, C, D, E e B1 concluídas
-- **489 testes passando**
+- BASELINE **v1.6** — Sprint 98% Confidence B0/B1/B2 **CONCLUÍDA**
+- **489+ testes passando**
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - 56 migrations aplicadas
 - Branch protection: ativa (ruleset `main-protection`, ID 14328406)
 - **Corpus RAG: 2.078 chunks — 100% com anchor_id canônico (DEC-002)**
-- Sprint 98% Confidence: B0 ✅ B1 ✅ — B2 é a próxima sprint
+- **Agent Skills ativas:** Manus `/solaris-orquestracao` + Claude `solaris-contexto`
+- **GATE-CHECKLIST:** `docs/GATE-CHECKLIST.md` — executar Gate 0 antes de qualquer sprint
 
 ## PRs mergeados (histórico recente)
 
 | PR | Título | Commit |
 |---|---|---|
-| #104 | docs: AS-IS v1.1 Final | `9617d3c` |
-| #105 | fix(rag): Sprint A — G1/G2/G5/G6 | `a28875b` |
-| #106 | fix(rag): Sprint B — G8/G7 + Fix CI | `dbad765` |
-| #107 | docs: BASELINE v1.4 + HANDOFF v2 | `7420252` |
 | #108 | feat(rag): Sprint C — G9/G10 | `ec6a84e` |
 | #109 | feat(corpus): Sprint D — G3/G4 + migração legados | `03fa2c1` |
 | #110 | feat(rag): Sprint E — G11 fundamentação auditável | `5d15105` |
 | #111 | docs(b1-v1.1): Matriz Rastreabilidade v1.1 | `88de16f` |
+| #112 | docs: BASELINE v1.5 + HANDOFF-MANUS | `d18dadb` |
+| #113 | feat(b2): GATE-CHECKLIST + Skills + Cockpit v2 + fonte_acao G12 | `805afd1` |
+| #115 | docs(cockpit): skills na biblioteca | `0647511` |
 
 ## Gaps RAG — estado atual
 
@@ -68,8 +68,8 @@ Drizzle ORM / Vitest / pnpm
 | G3 | EC 132/2023 — 18 chunks canônicos no corpus | ✅ PR #109 |
 | G4 | Anexos LC 214/2025 (I–XVII, sem VII) no corpus | ✅ PR #109 |
 | G11 | Fundamentação auditável por item de risco | ✅ PR #110 |
-| G12 | fonte_dispositivo nos questionários | 🔜 Absorvido pelo B2 (Question Engine) |
-| G13 | fonte_acao no plano de ação | 🔜 Absorvido pelo B2 (Action Engine) |
+| G12 | fonte_acao no plano de ação | ✅ PR #113 |
+| G13 | fonte_dispositivo nos questionários | 🔜 Sprint futura |
 
 ## Corpus RAG
 
@@ -84,13 +84,19 @@ Drizzle ORM / Vitest / pnpm
 **Nota id 811:** chunk fragmentado lc227 — rastreável, pendente correção em Sprint G.
 **Nota ids 617–807:** artigos de outras leis (LC 87/1996, CTN) sob `lei='lc214'` — normalização pendente Sprint G.
 
-## Sprint 98% Confidence — estado
+## Sprint 98% Confidence — estado FINAL
 
 | Bloco | Conteúdo | Status |
 |---|---|---|
 | B0 | Governança GitHub: milestone, labels, 34 issues, PR template | ✅ Concluído (2026-03-23) |
 | B1 | ADR-010 + Matrizes canônicas (I/O + Rastreabilidade) | ✅ Concluído — PR #111 |
-| B2 | 6 engines + Briefing + Shadow + CI | 🔵 **PRÓXIMO** — aguarda prompt do Orquestrador |
+| B2 | GATE-CHECKLIST + Skills + Cockpit v2 + G12 fonte_acao | ✅ Concluído — PR #113 |
+
+## Próximas sprints
+
+- **Sprint G** — Corpus complementar (P0): id 811 lc227 + ids 617–807 campo `lei`
+- **Sprint H** — Qualidade do retrieval: ordenação semântica + cobertura quinquenal
+- **Sprint I** — Débito técnico: Issue #101 + Issues #56, #61, #62
 
 ## Checks obrigatórios no ruleset (4)
 
@@ -104,20 +110,20 @@ Drizzle ORM / Vitest / pnpm
 - NÃO ativar `DIAGNOSTIC_READ_MODE=new`
 - NÃO executar F-04 Fase 3
 - NÃO executar DROP COLUMN nas colunas legadas
-- NÃO iniciar B2 sem prompt do Orquestrador
 
 ## Issues abertas relevantes
 
 - #56 — F-04 Fase 3 (bloqueada, aguarda UAT)
 - #61 — Modo `new` (bloqueada, aguarda #56)
 - #62 — DROP COLUMN (bloqueada, aguarda #61)
-- #101 — Débito técnico: testes legados com fetch real sem mock no CI (skipIf aplicado)
+- #101 — Débito técnico: 9 testes corpus com skipIf(CI) — habilitar no CI real
 
 ## Decisões resolvidas
 
 - **DEC-002** ✅ — anchor_id VARCHAR(255) UNIQUE + campos de auditoria (PR #109)
 - **DEC-003** ✅ — chunk por NCM/item para Anexos (PR #109)
 - **DEC-004** ✅ — log de auditoria sem gate manual (PR #108)
+- **DEC-005** ✅ — Sprint 98% B2 Opção A bridge (não recriar engines)
 
 ---
 
