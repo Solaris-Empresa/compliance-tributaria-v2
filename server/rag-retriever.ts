@@ -21,6 +21,8 @@ export interface RetrievedArticle {
   titulo: string;
   conteudo: string;
   relevanceScore?: number;
+  /** G11: anchor_id do chunk no banco — rastreabilidade para fundamentacao */
+  anchorId?: string;
 }
 
 export interface RAGContext {
@@ -113,6 +115,7 @@ async function fetchCandidates(
     artigo: r.artigo,
     titulo: r.titulo,
     conteudo: r.conteudo,
+    anchorId: r.anchor_id ?? undefined,
   }));
 }
 
