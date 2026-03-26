@@ -1302,23 +1302,38 @@ export type InsertStepComment = typeof stepComments.$inferInsert;
  * para busca FULLTEXT + re-ranking via LLM.
  *
  * Campos:
+ *   - anchor_id: chave canônica de deduplicação (Sprint D DEC-002) — varchar(255) UNIQUE
  *   - lei: identificador da lei (lc214, ec132, lc227)
- *   - artigo: número do artigo (ex: "Art. 12")
+ *   - artigo: referência granular do dispositivo (ex: "Anexo I, NCM 0101.21.00 — Animais vivos")
  *   - titulo: título/ementa do artigo
  *   - conteudo: texto completo do chunk
  *   - topicos: palavras-chave separadas por vírgula (para FULLTEXT)
  *   - cnaeGroups: grupos CNAE relevantes separados por vírgula
- *   - chunkIndex: índice do chunk dentro do artigo (para artigos longos)
+ *   - chunkIndex: índice do chunk dentro do artigo (começa em 1)
+ *   - autor: autoria da ingestão (Sprint D DEC-002) — nullable
+ *   - revisado_por: responsável pela revisão (Sprint D DEC-002) — nullable
+ *   - data_revisao: data de revisão ISO 8601 (Sprint D DEC-002) — nullable
  */
 export const ragDocuments = mysqlTable("ragDocuments", {
   id: int("id").autoincrement().primaryKey(),
+  // DEC-002 (Sprint D): chave canônica de deduplicação — anchor_id determinístico
+  // Nullable para retrocompatibilidade com chunks existentes (ids 789–794)
+  // Reversível: DROP COLUMN anchor_id
+  anchor_id: varchar("anchor_id", { length: 255 }).unique(),
   lei: mysqlEnum("lei", ["lc214", "ec132", "lc227", "lc224", "lc116", "lc87", "cg_ibs", "rfb_cbs", "conv_icms"]).notNull(),
-  artigo: varchar("artigo", { length: 100 }).notNull(),
+  // Ampliado de varchar(100) → varchar(300) para NCMs com descrição longa (Sprint D)
+  // Reversível: ALTER COLUMN artigo varchar(100) — sem perda se nenhum valor > 100 chars
+  artigo: varchar("artigo", { length: 300 }).notNull(),
   titulo: varchar("titulo", { length: 500 }).notNull(),
   conteudo: text("conteudo").notNull(),
   topicos: text("topicos").notNull(),          // palavras-chave para FULLTEXT
   cnaeGroups: varchar("cnaeGroups", { length: 500 }).notNull().default(""),
   chunkIndex: int("chunkIndex").notNull().default(0),
+  // DEC-002 (Sprint D): rastreabilidade de autoria e revisão — todos nullable
+  // Reversível: DROP COLUMN autor, DROP COLUMN revisado_por, DROP COLUMN data_revisao
+  autor: text("autor"),
+  revisado_por: text("revisado_por"),
+  data_revisao: varchar("data_revisao", { length: 30 }),  // ISO 8601
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type RagDocument = typeof ragDocuments.$inferSelect;
