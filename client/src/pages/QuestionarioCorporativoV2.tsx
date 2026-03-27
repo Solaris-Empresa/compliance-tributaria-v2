@@ -24,7 +24,6 @@ import {
   ChevronRight,
   CheckCircle2,
   Clock,
-  AlertCircle,
   Save,
   ArrowLeft,
 } from "lucide-react";
@@ -38,118 +37,107 @@ const SECOES: Array<{
   codigo: string;
   titulo: string;
   descricao: string;
-  placeholder: string;
   campos: Array<{ id: string; label: string; tipo: string; opcoes?: string[] }>;
 }> = [
   {
     codigo: "QC-01",
     titulo: "Identificação e enquadramento",
     descricao: "Sujeito passivo, regime tributário, porte e estrutura básica da empresa.",
-    placeholder: "[PLACEHOLDER QC-01] Esta seção coletará dados de identificação e enquadramento tributário da empresa. Perguntas jurídicas finais serão inseridas na Fase 5.",
     campos: [
-      { id: "qc01_regime", label: "[QC-01-P1] Regime tributário atual", tipo: "radio", opcoes: ["Simples Nacional", "Lucro Presumido", "Lucro Real", "Lucro Arbitrado", "Outro"] },
-      { id: "qc01_porte", label: "[QC-01-P2] Porte da empresa", tipo: "radio", opcoes: ["MEI / Microempresa (até R$ 360 mil)", "Empresa de Pequeno Porte (até R$ 4,8 mi)", "Médio porte (até R$ 78 mi)", "Grande porte (acima de R$ 78 mi)"] },
-      { id: "qc01_obs", label: "[QC-01-P3] Observações (opcional)", tipo: "textarea" },
+      { id: "qc01_regime", label: "Regime tributário atual", tipo: "radio", opcoes: ["Simples Nacional", "Lucro Presumido", "Lucro Real", "Lucro Arbitrado", "Outro"] },
+      { id: "qc01_porte", label: "Porte da empresa", tipo: "radio", opcoes: ["MEI / Microempresa (até R$ 360 mil)", "Empresa de Pequeno Porte (até R$ 4,8 mi)", "Médio porte (até R$ 78 mi)", "Grande porte (acima de R$ 78 mi)"] },
+      { id: "qc01_obs", label: "Observações (opcional)", tipo: "textarea" },
     ],
   },
   {
     codigo: "QC-02",
     titulo: "Estrutura societária e organizacional",
     descricao: "Grupo econômico, filiais, centralização de operações e governança corporativa.",
-    placeholder: "[PLACEHOLDER QC-02] Esta seção mapeará a estrutura societária: grupo econômico, filiais, centralização fiscal e modelo de governança.",
     campos: [
-      { id: "qc02_grupo", label: "[QC-02-P1] A empresa integra grupo econômico?", tipo: "radio", opcoes: ["Sim", "Não"] },
-      { id: "qc02_filiais", label: "[QC-02-P2] Possui estabelecimentos em outros estados?", tipo: "radio", opcoes: ["Sim", "Não"] },
-      { id: "qc02_centralizacao", label: "[QC-02-P3] Operações fiscais são centralizadas?", tipo: "radio", opcoes: ["Sim — centralizadas na matriz", "Não — cada unidade apura separadamente", "Parcialmente centralizado"] },
-      { id: "qc02_obs", label: "[QC-02-P4] Observações (opcional)", tipo: "textarea" },
+      { id: "qc02_grupo", label: "A empresa integra grupo econômico?", tipo: "radio", opcoes: ["Sim", "Não"] },
+      { id: "qc02_filiais", label: "Possui estabelecimentos em outros estados?", tipo: "radio", opcoes: ["Sim", "Não"] },
+      { id: "qc02_centralizacao", label: "Operações fiscais são centralizadas?", tipo: "radio", opcoes: ["Sim — centralizadas na matriz", "Não — cada unidade apura separadamente", "Parcialmente centralizado"] },
+      { id: "qc02_obs", label: "Observações (opcional)", tipo: "textarea" },
     ],
   },
   {
     codigo: "QC-03",
     titulo: "Operações e incidência",
     descricao: "Bens, serviços, operações mistas, mercado interno e externo.",
-    placeholder: "[PLACEHOLDER QC-03] Esta seção identificará os tipos de operações: bens, serviços, operações mistas, exportações e importações.",
     campos: [
-      { id: "qc03_operacoes", label: "[QC-03-P1] Tipos de operações realizadas", tipo: "checkbox", opcoes: ["Venda de mercadorias", "Prestação de serviços", "Operações mistas (bens + serviços)", "Exportação de bens", "Exportação de serviços", "Importação de bens", "Importação de serviços"] },
-      { id: "qc03_obs", label: "[QC-03-P2] Observações (opcional)", tipo: "textarea" },
+      { id: "qc03_operacoes", label: "Tipos de operações realizadas", tipo: "checkbox", opcoes: ["Venda de mercadorias", "Prestação de serviços", "Operações mistas (bens + serviços)", "Exportação de bens", "Exportação de serviços", "Importação de bens", "Importação de serviços"] },
+      { id: "qc03_obs", label: "Observações (opcional)", tipo: "textarea" },
     ],
   },
   {
     codigo: "QC-04",
     titulo: "Documentos fiscais e cadastro",
     descricao: "Emissão de documentos fiscais, controles, cadastros e consistência documental.",
-    placeholder: "[PLACEHOLDER QC-04] Esta seção avaliará documentos fiscais emitidos, qualidade dos cadastros e consistência com obrigações acessórias.",
     campos: [
-      { id: "qc04_docs", label: "[QC-04-P1] Documentos fiscais emitidos", tipo: "checkbox", opcoes: ["NF-e", "NFS-e", "CT-e", "NFC-e", "MDF-e", "Outro"] },
-      { id: "qc04_cadastro", label: "[QC-04-P2] Qualidade dos cadastros fiscais", tipo: "radio", opcoes: ["Totalmente atualizados", "Parcialmente atualizados", "Desatualizados"] },
-      { id: "qc04_obs", label: "[QC-04-P3] Observações (opcional)", tipo: "textarea" },
+      { id: "qc04_docs", label: "Documentos fiscais emitidos", tipo: "checkbox", opcoes: ["NF-e", "NFS-e", "CT-e", "NFC-e", "MDF-e", "Outro"] },
+      { id: "qc04_cadastro", label: "Qualidade dos cadastros fiscais", tipo: "radio", opcoes: ["Totalmente atualizados", "Parcialmente atualizados", "Desatualizados"] },
+      { id: "qc04_obs", label: "Observações (opcional)", tipo: "textarea" },
     ],
   },
   {
     codigo: "QC-05",
     titulo: "Apuração e obrigações",
     descricao: "Apuração tributária, controles internos, periodicidade e obrigações acessórias.",
-    placeholder: "[PLACEHOLDER QC-05] Esta seção mapeará processos de apuração, periodicidade e obrigações acessórias (SPED, EFD, DCTF, etc.).",
     campos: [
-      { id: "qc05_obrigacoes", label: "[QC-05-P1] Obrigações acessórias entregues regularmente", tipo: "checkbox", opcoes: ["SPED Fiscal (EFD ICMS/IPI)", "EFD Contribuições", "DCTF", "ECF", "ECD", "REINF", "eSocial", "Outro"] },
-      { id: "qc05_periodicidade", label: "[QC-05-P2] Periodicidade de apuração federal", tipo: "radio", opcoes: ["Mensal", "Trimestral", "Anual", "Misto"] },
-      { id: "qc05_obs", label: "[QC-05-P3] Observações (opcional)", tipo: "textarea" },
+      { id: "qc05_obrigacoes", label: "Obrigações acessórias entregues regularmente", tipo: "checkbox", opcoes: ["SPED Fiscal (EFD ICMS/IPI)", "EFD Contribuições", "DCTF", "ECF", "ECD", "REINF", "eSocial", "Outro"] },
+      { id: "qc05_periodicidade", label: "Periodicidade de apuração federal", tipo: "radio", opcoes: ["Mensal", "Trimestral", "Anual", "Misto"] },
+      { id: "qc05_obs", label: "Observações (opcional)", tipo: "textarea" },
     ],
   },
   {
     codigo: "QC-06",
     titulo: "Créditos e não cumulatividade",
     descricao: "Insumos, aproveitamento de créditos, restrições e controles de não cumulatividade.",
-    placeholder: "[PLACEHOLDER QC-06] Esta seção avaliará o aproveitamento de créditos tributários: PIS/COFINS não cumulativo, ICMS, IPI e controles de insumos.",
     campos: [
-      { id: "qc06_creditos", label: "[QC-06-P1] Aproveita créditos de PIS/COFINS?", tipo: "radio", opcoes: ["Sim — sistematicamente", "Sim — parcialmente", "Não — regime cumulativo", "Não — Simples Nacional"] },
-      { id: "qc06_controle", label: "[QC-06-P2] Existe controle formal dos créditos?", tipo: "radio", opcoes: ["Sim — sistema/planilha dedicada", "Sim — dentro do ERP", "Controle informal", "Sem controle"] },
-      { id: "qc06_obs", label: "[QC-06-P3] Observações (opcional)", tipo: "textarea" },
+      { id: "qc06_creditos", label: "Aproveita créditos de PIS/COFINS?", tipo: "radio", opcoes: ["Sim — sistematicamente", "Sim — parcialmente", "Não — regime cumulativo", "Não — Simples Nacional"] },
+      { id: "qc06_controle", label: "Existe controle formal dos créditos?", tipo: "radio", opcoes: ["Sim — sistema/planilha dedicada", "Sim — dentro do ERP", "Controle informal", "Sem controle"] },
+      { id: "qc06_obs", label: "Observações (opcional)", tipo: "textarea" },
     ],
   },
   {
     codigo: "QC-07",
     titulo: "Pagamentos e split payment",
     descricao: "Meios de pagamento, intermediadores financeiros e readiness para split payment.",
-    placeholder: "[PLACEHOLDER QC-07] Esta seção avaliará preparação para o split payment da Reforma: meios de pagamento, gateways e capacidade de adaptação.",
     campos: [
-      { id: "qc07_meios", label: "[QC-07-P1] Meios de pagamento utilizados", tipo: "checkbox", opcoes: ["Pix", "Cartão de débito", "Cartão de crédito", "Boleto bancário", "TED/DOC", "Dinheiro em espécie", "Outro"] },
-      { id: "qc07_gateway", label: "[QC-07-P2] Utiliza gateway de pagamento?", tipo: "radio", opcoes: ["Sim", "Não"] },
-      { id: "qc07_split", label: "[QC-07-P3] Conhecimento sobre split payment", tipo: "radio", opcoes: ["Alto — já se preparando", "Médio — conhecimento básico", "Baixo — não conhece"] },
-      { id: "qc07_obs", label: "[QC-07-P4] Observações (opcional)", tipo: "textarea" },
+      { id: "qc07_meios", label: "Meios de pagamento utilizados", tipo: "checkbox", opcoes: ["Pix", "Cartão de débito", "Cartão de crédito", "Boleto bancário", "TED/DOC", "Dinheiro em espécie", "Outro"] },
+      { id: "qc07_gateway", label: "Utiliza gateway de pagamento?", tipo: "radio", opcoes: ["Sim", "Não"] },
+      { id: "qc07_split", label: "Conhecimento sobre split payment", tipo: "radio", opcoes: ["Alto — já se preparando", "Médio — conhecimento básico", "Baixo — não conhece"] },
+      { id: "qc07_obs", label: "Observações (opcional)", tipo: "textarea" },
     ],
   },
   {
     codigo: "QC-08",
     titulo: "Benefícios, regimes diferenciados e exceções",
     descricao: "Incentivos fiscais, regimes especiais, condições específicas e exceções aplicáveis.",
-    placeholder: "[PLACEHOLDER QC-08] Esta seção identificará benefícios fiscais vigentes: incentivos estaduais, regimes especiais, isenções e diferimentos.",
     campos: [
-      { id: "qc08_beneficios", label: "[QC-08-P1] Possui benefícios fiscais vigentes?", tipo: "radio", opcoes: ["Sim — estaduais (ICMS)", "Sim — federais (PIS/COFINS/IPI)", "Sim — municipais (ISS)", "Não possui", "Não sei informar"] },
-      { id: "qc08_regime_esp", label: "[QC-08-P2] Utiliza regime especial de tributação?", tipo: "radio", opcoes: ["Sim", "Não"] },
-      { id: "qc08_obs", label: "[QC-08-P3] Descreva benefícios ou regimes especiais (opcional)", tipo: "textarea" },
+      { id: "qc08_beneficios", label: "Possui benefícios fiscais vigentes?", tipo: "radio", opcoes: ["Sim — estaduais (ICMS)", "Sim — federais (PIS/COFINS/IPI)", "Sim — municipais (ISS)", "Não possui", "Não sei informar"] },
+      { id: "qc08_regime_esp", label: "Utiliza regime especial de tributação?", tipo: "radio", opcoes: ["Sim", "Não"] },
+      { id: "qc08_obs", label: "Descreva benefícios ou regimes especiais (opcional)", tipo: "textarea" },
     ],
   },
   {
     codigo: "QC-09",
     titulo: "Fiscalização, contencioso e compliance",
     descricao: "Readiness de conformidade, trilha de auditoria, autuações e controles de compliance.",
-    placeholder: "[PLACEHOLDER QC-09] Esta seção avaliará histórico de fiscalização, contencioso tributário ativo e maturidade em compliance tributário.",
     campos: [
-      { id: "qc09_autuacoes", label: "[QC-09-P1] Possui autuações fiscais ativas?", tipo: "radio", opcoes: ["Sim — fase administrativa", "Sim — fase judicial", "Não possui", "Não sei informar"] },
-      { id: "qc09_maturidade", label: "[QC-09-P2] Maturidade em compliance tributário", tipo: "radio", opcoes: ["Alto — processos formalizados e auditados", "Médio — processos existentes não auditados", "Baixo — processos informais", "Inicial — sem processos definidos"] },
-      { id: "qc09_obs", label: "[QC-09-P3] Observações (opcional)", tipo: "textarea" },
+      { id: "qc09_autuacoes", label: "Possui autuações fiscais ativas?", tipo: "radio", opcoes: ["Sim — fase administrativa", "Sim — fase judicial", "Não possui", "Não sei informar"] },
+      { id: "qc09_maturidade", label: "Maturidade em compliance tributário", tipo: "radio", opcoes: ["Alto — processos formalizados e auditados", "Médio — processos existentes não auditados", "Baixo — processos informais", "Inicial — sem processos definidos"] },
+      { id: "qc09_obs", label: "Observações (opcional)", tipo: "textarea" },
     ],
   },
   {
     codigo: "QC-10",
     titulo: "Transição e preparação para a reforma",
     descricao: "Capacidade de adaptação organizacional e prontidão para a Reforma Tributária.",
-    placeholder: "[PLACEHOLDER QC-10] Esta seção avaliará o nível de preparação para a Reforma: conhecimento sobre IBS, CBS e IS, adaptação de sistemas e equipe.",
     campos: [
-      { id: "qc10_conhecimento", label: "[QC-10-P1] Nível de conhecimento sobre a Reforma (IBS, CBS, IS)", tipo: "radio", opcoes: ["Alto — acompanha detalhadamente", "Médio — conhece os pontos principais", "Baixo — conhecimento superficial", "Nenhum"] },
-      { id: "qc10_preparacao", label: "[QC-10-P2] Nível de preparação para a transição", tipo: "radio", opcoes: ["Avançado — já iniciou adaptações", "Em andamento — planejamento iniciado", "Inicial — ainda não iniciou", "Sem plano definido"] },
-      { id: "qc10_obs", label: "[QC-10-P3] Observações (opcional)", tipo: "textarea" },
+      { id: "qc10_conhecimento", label: "Nível de conhecimento sobre a Reforma (IBS, CBS, IS)", tipo: "radio", opcoes: ["Alto — acompanha detalhadamente", "Médio — conhece os pontos principais", "Baixo — conhecimento superficial", "Nenhum"] },
+      { id: "qc10_preparacao", label: "Nível de preparação para a transição", tipo: "radio", opcoes: ["Avançado — já iniciou adaptações", "Em andamento — planejamento iniciado", "Inicial — ainda não iniciou", "Sem plano definido"] },
+      { id: "qc10_obs", label: "Observações (opcional)", tipo: "textarea" },
     ],
   },
 ];
@@ -327,16 +315,6 @@ export default function QuestionarioCorporativoV2() {
                 </div>
               </div>
             )}
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-              <div className="flex items-start gap-2">
-                <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-amber-800">Conteúdo em desenvolvimento (Fase 5)</p>
-                  <p className="text-xs text-amber-700 mt-1">{secao.placeholder}</p>
-                </div>
-              </div>
-            </div>
-
             {secao.campos.map((campo) => (
               <div key={campo.id} className="space-y-2">
                 <Label className="text-sm font-medium">{campo.label}</Label>
