@@ -30,10 +30,10 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-03-26)
+## Estado atual do projeto (2026-03-27)
 
-- BASELINE **v1.6** — Sprint 98% Confidence B0/B1/B2 **CONCLUÍDA**
-- **489+ testes passando**
+- BASELINE **v1.9** — Sprint I/DT-01 **CONCLUÍDA**
+- **492+ testes passando**
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - 56 migrations aplicadas
 - Branch protection: ativa (ruleset `main-protection`, ID 14328406)
@@ -52,6 +52,10 @@ Drizzle ORM / Vitest / pnpm
 | #112 | docs: BASELINE v1.5 + HANDOFF-MANUS | `d18dadb` |
 | #113 | feat(b2): GATE-CHECKLIST + Skills + Cockpit v2 + fonte_acao G12 | `805afd1` |
 | #115 | docs(cockpit): skills na biblioteca | `0647511` |
+| ... | PRs #116–#136 — Sprints F/G/H/I — ver docs/product/cpie-v2/produto/RASTREABILIDADE-RF-PR-SPRINT.md | — |
+| #137 | docs: RASTREABILIDADE-RF-PR-SPRINT.md | — |
+| #138 | chore(skills): solaris-contexto + solaris-orquestracao | — |
+| #139 | test(dt01): guard db:push + 3 testes de integridade de schema | `fc54e13f` |
 
 ## Gaps RAG — estado atual
 

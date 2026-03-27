@@ -25,7 +25,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | 0 erros (`npx tsc --noEmit`) | ✅ |
-| Testes automatizados — total | **489 testes passando** | ✅ |
+| Testes automatizados — total | **492 testes passando** | ✅ |
 | Cobertura de suítes | PCT v1 (117) · PCT v2 (81) · E2E Fase 2 (132) · BUG-001 (33) · INV-606/607/608 (47) · Sprint B (9) · Sprint C (15) · Sprint D (55) · Sprint E (20) | ✅ |
 | Git working tree | Limpo — sem arquivos pendentes | ✅ |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
@@ -39,6 +39,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | RAG Cockpit | Endpoint `ragInventory.getSnapshot` ao vivo · 9 gold set queries (GS-01..GS-08 + GS-07b) · confidence calculado sobre 8 queries canônicas | ✅ |
 | Sprint 98% Confidence | **B0 ✅ · B1 ✅ · B2 ✅** — Sprint 98% CONCLUÍDA | ✅ |
 | Agent Skills | Manus `/solaris-orquestracao` ✅ · Claude `solaris-contexto` ✅ | ✅ |
+| db:push guard | Bloqueado em production — `scripts/db-push-guard.mjs` | ✅ |
 
 ---
 
@@ -242,6 +243,7 @@ Os erros abaixo estão catalogados em [`docs/ERROS-CONHECIDOS.md`](https://githu
 | **Sprint G (Corpus)** | RFC-001 (fusão id 810+811 lc227) · RFC-002 (25 chunks lc214→lc123) · 5 leis ativas · gold set 8/8 · confiabilidade 100% | ✅ Concluída | PR #129 — `f71bf85` |
 | **Sprint H · M1 (RAG)** | `ragInventory.getSnapshot` tRPC endpoint · 9 gold set queries · GS-07 threshold `< 10 bytes` · GS-07b SUPERSEDED informativo · `lc123` ao enum `lei` | ✅ Concluída | PR #131 — `49520a0` |
 | **Sprint H · M2 (Cockpit)** | RAG Cockpit ao vivo: dados estáticos → tRPC · loading state · timestamp · botão Atualizar · 8 abas com dados reais · refetchInterval 60s | ✅ Concluída | PR #132 — `ebfa1cb` |
+| **Sprint I — DT-01** | Guard db:push (.mjs) + 3 testes automatizados + OPENAI_API_KEY no CI | ✅ Concluída | PR #139 — `fc54e13f` |
 
 ---
 
@@ -324,6 +326,7 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 | 1.6 | 2026-03-26 | `0647511` | Sprint 98% B2 concluída · GATE-CHECKLIST · Skills Manus+Claude · Cockpit v2 · G12 fonte_acao · Rollout documentado (HANDOFF-SESSAO + SNAPSHOT-B2 + GUIA-PO) |
 | 1.7 | 2026-03-26 | `a96cf25` | Sprint G concluída · RFC-001 (fusão id 810+811 lc227) · RFC-002 (25 chunks lc214→lc123) · 5 leis ativas · gold set 8/8 · confiabilidade 100% · RAG Cockpit ao vivo |
 | 1.8 | 2026-03-27 | `ebfa1cb` | Sprint H concluída · PR #131 ragInventory tRPC (9 gold set queries, GS-07 threshold < 10 bytes, lc123 ao enum) · PR #132 RAG Cockpit ao vivo (dados estáticos → tRPC, 8 abas, refetchInterval 60s) · Sprint I iniciada (G13+G14 UAT) |
+| 1.9 | 2026-03-27 | `fc54e13f` | DT-01 — guard db:push + 3 testes + secret CI configurado |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
