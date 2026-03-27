@@ -22,6 +22,7 @@ import {
   notifications, InsertNotification,
   clientMembers, InsertClientMember,
   taskHistory, InsertTaskHistory, TaskHistory,
+  solarisQuestions, InsertSolarisQuestion, SolarisQuestion,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1107,4 +1108,104 @@ export async function getProjectTaskHistory(projectId: number, limit = 50): Prom
     .where(eq(taskHistory.projectId, projectId))
     .orderBy(desc(taskHistory.createdAt))
     .limit(limit);
+}
+
+// ============================================================================
+// SOLARIS QUESTIONS — Sprint K / K-1 (Onda 1 — curadoria manual)
+// ============================================================================
+
+/**
+ * Insere uma pergunta de curadoria SOLARIS no banco.
+ * Retorna o id gerado.
+ */
+export async function createSolarisQuestion(
+  data: Omit<InsertSolarisQuestion, "id">
+): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = (await db.insert(solarisQuestions).values(data)) as any;
+  return Number(result[0].insertId);
+}
+
+/**
+ * Retorna todas as perguntas ativas de curadoria SOLARIS.
+ * Opcionalmente filtra por cnaePrefix (ex: "11" ou "1113-5").
+ *
+ * Regra de filtro:
+ *   - cnaeGroups = null → pergunta universal (retorna sempre)
+ *   - cnaeGroups contém cnaePrefix → retorna
+ *   - cnaeGroups não contém cnaePrefix → não retorna
+ */
+export async function getSolarisQuestions(cnaePrefix?: string): Promise<SolarisQuestion[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const rows = await db
+    .select()
+    .from(solarisQuestions)
+    .where(eq(solarisQuestions.ativo, 1))
+    .orderBy(solarisQuestions.id);
+
+  if (!cnaePrefix) return rows;
+
+  return rows.filter((q) => {
+    if (q.cnaeGroups === null || q.cnaeGroups === undefined) return true; // universal
+    const groups = safeParseJson<string[]>(q.cnaeGroups, []);
+    return groups.some((g) => cnaePrefix.startsWith(g) || g.startsWith(cnaePrefix));
+  });
+}
+
+/**
+ * Retorna uma pergunta pelo id.
+ */
+export async function getSolarisQuestionById(id: number): Promise<SolarisQuestion | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(solarisQuestions)
+    .where(eq(solarisQuestions.id, id))
+    .limit(1);
+  return result[0];
+}
+
+/**
+ * Atualiza campos de uma pergunta existente.
+ * Apenas campos fornecidos são alterados (partial update).
+ */
+export async function updateSolarisQuestion(
+  id: number,
+  data: Partial<Pick<InsertSolarisQuestion, "texto" | "categoria" | "cnaeGroups" | "obrigatorio" | "ativo" | "observacao" | "atualizadoEm">>
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(solarisQuestions).set(data).where(eq(solarisQuestions.id, id));
+  return true;
+}
+
+/**
+ * Soft-delete: marca a pergunta como inativa (ativo = 0).
+ */
+export async function deactivateSolarisQuestion(id: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db
+    .update(solarisQuestions)
+    .set({ ativo: 0, atualizadoEm: Date.now() })
+    .where(eq(solarisQuestions.id, id));
+  return true;
+}
+
+/**
+ * Insere múltiplas perguntas em lote (CSV upload).
+ * Retorna o número de registros inseridos.
+ */
+export async function bulkCreateSolarisQuestions(
+  rows: Omit<InsertSolarisQuestion, "id">[]
+): Promise<number> {
+  if (rows.length === 0) return 0;
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(solarisQuestions).values(rows);
+  return rows.length;
 }

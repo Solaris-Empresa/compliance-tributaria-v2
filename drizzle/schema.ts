@@ -1667,3 +1667,67 @@ export type DiagnosticShadowDivergence =
   typeof diagnosticShadowDivergences.$inferSelect;
 export type InsertDiagnosticShadowDivergence =
   typeof diagnosticShadowDivergences.$inferInsert;
+
+// ─── Sprint K — K-1: Tabela solarisQuestions (Onda 1) ─────────────────────────
+/**
+ * Perguntas de curadoria manual da equipe jurídica SOLARIS (Onda 1).
+ *
+ * Estas perguntas são inseridas pelos advogados via CSV upload (Sprint L — L-1)
+ * e aparecem no questionário ANTES das perguntas regulatórias (Onda 3).
+ *
+ * fonte: "solaris" — distingue de "regulatorio" (Onda 3) e "ia_gen" (Onda 2 futura)
+ * cnaeGroups: array JSON de prefixos CNAE (ex: ["11", "1113-5"]) — null = universal
+ * ativo: false = soft-delete, não aparece no questionário
+ * obrigatorio: true = sempre aparece para os CNAEs elegíveis
+ *
+ * Issue: K-1 | Milestone: M2 — Sprint K | Épico: E6
+ */
+export const solarisQuestions = mysqlTable("solaris_questions", {
+  id: int("id").autoincrement().primaryKey(),
+
+  /** Texto da pergunta exibida ao advogado no questionário */
+  texto: text("texto").notNull(),
+
+  /** Categoria temática (ex: "NCM", "CEST", "Cadastro", "Governança", "Fiscal") */
+  categoria: varchar("categoria", { length: 100 }).notNull(),
+
+  /**
+   * Grupos de CNAE elegíveis — array JSON de strings.
+   * Exemplos: ["11", "1113-5", "4639-7"] — prefixo ou código exato.
+   * null = pergunta universal (aparece para todos os CNAEs).
+   */
+  cnaeGroups: json("cnae_groups"),
+
+  /** Se true, a pergunta é obrigatória para os CNAEs elegíveis */
+  obrigatorio: tinyint("obrigatorio").notNull().default(1),
+
+  /** Se false, a pergunta está desativada (soft-delete) */
+  ativo: tinyint("ativo").notNull().default(1),
+
+  /**
+   * Observação interna para a equipe jurídica.
+   * Não exibida ao cliente final.
+   */
+  observacao: text("observacao"),
+
+  /**
+   * Fonte sempre "solaris" — identifica Onda 1 no questionEngine.
+   * Imutável após criação.
+   */
+  fonte: varchar("fonte", { length: 20 }).notNull().default("solaris"),
+
+  /** ID do usuário que criou a pergunta (advogado sênior) */
+  criadoPorId: int("criado_por_id"),
+
+  /** Timestamp de criação (ms UTC) */
+  criadoEm: bigint("criado_em", { mode: "number" }).notNull(),
+
+  /** Timestamp da última atualização (ms UTC) */
+  atualizadoEm: bigint("atualizado_em", { mode: "number" }),
+
+  /** Identificador do lote de upload CSV de origem */
+  uploadBatchId: varchar("upload_batch_id", { length: 64 }),
+});
+
+export type SolarisQuestion = typeof solarisQuestions.$inferSelect;
+export type InsertSolarisQuestion = typeof solarisQuestions.$inferInsert;
