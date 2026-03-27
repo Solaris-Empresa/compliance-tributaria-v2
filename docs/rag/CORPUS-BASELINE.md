@@ -1,9 +1,9 @@
 # CORPUS BASELINE — IA SOLARIS RAG
 
-> **Versão:** v1.0
+> **Versão:** v1.1
 > **Data:** 2026-03-26
-> **Commit HEAD no momento do inventário:** 0ad209b
-> **Sprint de referência:** Sprint G (pré-execução)
+> **Commit HEAD no momento do inventário:** [commit do PR]
+> **Sprint de referência:** Sprint G (pós-execução — RFC-001 + RFC-002)
 > **Autor do inventário:** Manus AI
 > **Aprovado por:** Uires Tapajós (P.O.)
 >
@@ -20,8 +20,8 @@
 | Total de chunks           | 2.078        |
 | Chunks com anchor_id      | 2.078 (100%) |
 | Chunks sem anchor_id      | 0            |
-| Leis ativas no corpus     | 4 (lc214, ec132, lc227, lc224) |
-| Anomalias documentadas    | 2 (G-01, G-02) |
+| Leis ativas no corpus     | 5 (lc214, ec132, lc227, lc224, lc123) |
+| Anomalias documentadas    | 0 ✅ Sprint G concluída |
 | Anomalias críticas (P0)   | 0            |
 
 ---
@@ -30,10 +30,11 @@
 
 | lei   | total_chunks | com_anchor_id | sem_anchor_id | id_min | id_max | status       |
 |-------|-------------|----------------|----------------|--------|--------|--------------|
-| lc214 | 1.598        | 1.598          | 0              | 1      | 30.839 | ⚠️ G-02: ids 617–779 com campo lei a validar |
-| ec132 | 18           | 18             | 0              | 30.840 | 30.857 | ✅ Íntegro   |
-| lc227 | 434          | 434            | 0              | 808    | 1.241  | ⚠️ G-01: id 811 fragmentado |
-| lc224 | 28           | 28             | 0              | 780    | 807    | ✅ Íntegro   |
+| lc214 | 1.573        | 1.573          | 0              | 1      | 30.839 | ✅ Íntegro |
+| ec132 | 18           | 18             | 0              | 30.840 | 30.857 | ✅ Íntegro |
+| lc227 | 434          | 434            | 0              | 808    | 1.241  | ✅ RFC-001 executada · id 810 fusionado |
+| lc224 | 28           | 28             | 0              | 780    | 807    | ✅ Íntegro |
+| lc123 | 25           | 25             | 0              | 664    | 722    | ✅ RFC-002 executada · novo |
 
 ---
 
@@ -41,10 +42,10 @@
 
 | ID   | ids afetados | lei   | problema                            | severidade | status         | RFC               |
 |------|-------------|-------|-------------------------------------|------------|----------------|-------------------|
-| G-01 | 811         | lc227 | chunkIndex=2 sem caput — conteúdo fragmentado (começa no meio de frase) | P2 — Médio | Pendente Sprint G | CORPUS-RFC-001.md |
-| G-02 | 617–779     | lc214 | 163 chunks: campo `lei` possivelmente incorreto — a confirmar via diagnóstico | P1 — Alto  | Pendente Sprint G | CORPUS-RFC-002.md |
+| G-01 | 810–811     | lc227 | Chunk fragmentado — Art. 2 partes 2+3 | P2 | ✅ Corrigido Sprint G · 2026-03-26 | CORPUS-RFC-001.md |
+| G-02 | 617–779     | lc123 | 25 chunks com campo lei=lc214 incorreto | P1 | ✅ Corrigido Sprint G · 2026-03-26 | CORPUS-RFC-002.md |
 
-> **ATENÇÃO:** ids 780–807 (28 chunks, lei=lc224) foram auditados e estão **CORRETOS** — não são pendência.
+> **NOTA:** ids 780–807 (28 chunks, lei=lc224) auditados e **CORRETOS** — não foram pendência.
 
 ---
 
@@ -61,6 +62,7 @@ Resultado esperado por query documentado no Momento 2 (pós-diagnóstico).
 | Versão | Data       | Commit   | Descrição                                      |
 |--------|------------|----------|------------------------------------------------|
 | v1.0   | 2026-03-26 | 0ad209b  | Criação — primeiro inventário granular por lei |
+| v1.1   | 2026-03-26 | [commit do PR] | RFC-001: fusão chunks 810+811 (lc227) · RFC-002: 25 chunks migrados para lc123 · gold set 8/8 verde · confiabilidade 100% |
 
 ---
 
