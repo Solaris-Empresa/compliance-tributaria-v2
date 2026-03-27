@@ -268,8 +268,10 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 
 ### P0 — Imediato (Sprint I)
 
-1. **G13** — Remover placeholders `[QC-XX]` e `[QC-XX-PY]` visíveis ao advogado em todas as 10 seções do Questionário Corporativo V2
-2. **G14** — Label `"Contabilidade"` → `"Contabilidade e Fiscal"` em 7 ocorrências de UI
+~~1. **G13** — Remover placeholders `[QC-XX]` e `[QC-XX-PY]` visíveis ao advogado~~ ✅ **Concluído** — PR #134
+~~2. **G14** — Label `"Contabilidade"` → `"Contabilidade e Fiscal"`~~ ✅ **Concluído** — PR #134
+
+> **Todas as 12 demandas dos advogados estão atendidas. Produto pronto para retorno ao UAT.**
 
 ### P1 — Próximo ciclo
 
@@ -327,6 +329,7 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 | 1.7 | 2026-03-26 | `a96cf25` | Sprint G concluída · RFC-001 (fusão id 810+811 lc227) · RFC-002 (25 chunks lc214→lc123) · 5 leis ativas · gold set 8/8 · confiabilidade 100% · RAG Cockpit ao vivo |
 | 1.8 | 2026-03-27 | `ebfa1cb` | Sprint H concluída · PR #131 ragInventory tRPC (9 gold set queries, GS-07 threshold < 10 bytes, lc123 ao enum) · PR #132 RAG Cockpit ao vivo (dados estáticos → tRPC, 8 abas, refetchInterval 60s) · Sprint I iniciada (G13+G14 UAT) |
 | 1.9 | 2026-03-27 | `fc54e13f` | DT-01 — guard db:push + 3 testes + secret CI configurado |
+| 2.0 | 2026-03-27 | `b8bbc062` | G13-UI + G14 confirmados ✅ prod (PR #134) · todas as 12 demandas UAT atendidas · produto pronto para retorno ao UAT |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
