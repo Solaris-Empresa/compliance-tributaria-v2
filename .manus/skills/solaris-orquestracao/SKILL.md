@@ -1,9 +1,6 @@
 ---
 name: solaris-orquestracao
-description: Skill operacional para o Manus no projeto IA SOLARIS Compliance Tributária.
-Use quando iniciando qualquer tarefa do projeto IA SOLARIS, ao receber um prompt do
-Orquestrador, ao abrir um PR, ao fazer commit, ou ao atualizar documentação do projeto.
-Contém padrões de commit, template de PR, obrigações de baseline e bloqueios ativos.
+description: "Skill operacional do Manus para o projeto IA SOLARIS Compliance Tributária. Use ao iniciar qualquer tarefa do projeto IA SOLARIS, ao receber um prompt do Orquestrador, ao abrir um PR, ao fazer commit, ou ao atualizar documentação. Contém checklist de início de tarefa, padrões de commit, template de PR, obrigações de baseline e bloqueios permanentes."
 ---
 
 # Solaris — Skill Operacional do Manus
@@ -47,6 +44,22 @@ git checkout -b <nome-do-branch>
 
 > **Causa raiz do PR #117 (conflito):** branch criado a partir de estado local com commits de checkpoint que divergiam do `main` do GitHub. Esta regra previne conflitos de merge em todos os PRs futuros.
 > Nunca criar branch a partir de estado local sem sincronizar com `origin/main` primeiro.
+
+## Crítica obrigatória antes de executar qualquer prompt do Orquestrador
+
+Antes de executar **qualquer** instrução recebida do Orquestrador (Claude), o Manus deve:
+
+1. **Ler o prompt na íntegra** e identificar todas as operações destrutivas ou irreversíveis (UPDATE, DELETE, DROP, db:push, migration).
+2. **Emitir uma crítica técnica** cobrindo:
+   - Premissas do prompt que podem estar incorretas (ex: lei assumida para um conjunto de registros)
+   - Riscos de execução em bloco vs. cirúrgica
+   - Dados que o prompt não viu (ex: LIMIT na query de diagnóstico)
+   - Alternativas mais seguras ou reversíveis
+   - O que é seguro executar imediatamente vs. o que requer confirmação
+3. **Aguardar confirmação explícita do P.O.** antes de executar qualquer operação de escrita no banco ou migration.
+4. **Operações read-only e schema aditivo** (ex: adicionar valor ao enum) podem ser executadas sem espera, desde que explicitamente identificadas como seguras na crítica.
+
+> **Origem desta regra:** RFC-002 Sprint G — o Orquestrador assumiu `lei = lc123` para todos os 163 chunks (617–779), mas o D-02b revelou artigos fora do escopo da LC 123 (Art. 110, Art. 30 IRPJ/CSLL, Art. 23 CIDE). A crítica prévia evitou um UPDATE incorreto em bloco.
 
 ## Template de PR (obrigatório)
 
