@@ -97,3 +97,4 @@ double-run executado, PR aberto com link.
 - GOVERNANCE: .github/MANUS-GOVERNANCE.md
 - CONTRIBUTING: .github/CONTRIBUTING.md
 - ADR-010: docs/adr/ADR-010-content-architecture-98.md
+- RASTREABILIDADE: docs/product/cpie-v2/produto/RASTREABILIDADE-RF-PR-SPRINT.md · RF × PR × Sprint (153 RFs, PRs #1–#137) ✅ 2026-03-27
