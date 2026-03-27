@@ -73,6 +73,7 @@ import { actionEngineRouter } from "./routers/actionEngine";
 import { briefingEngineRouter } from "./routers/briefingEngine";
 import { scoringEngineRouter } from "./routers/scoringEngine";
 import { ragInventoryRouter } from "./routers/ragInventory";
+import { ragAdminRouter } from "./routers/ragAdmin";
 
 export const appRouter = router({
   system: systemRouter,
@@ -116,6 +117,7 @@ export const appRouter = router({
   briefingEngine: briefingEngineRouter, // ADR-010 — Briefing Engine B7 (Sprint 98%)
   scoringEngine: scoringEngineRouter, // ADR-010 — Scoring Engine B8 (Sprint 98%)
   ragInventory: ragInventoryRouter, // Sprint H — RAG Cockpit ao vivo (Issue #128)
+  ragAdmin: ragAdminRouter, // Sprint J — G16 Upload CSV corpus RAG (Issue #140)
 
   // ==========================================================================
   // AUTH

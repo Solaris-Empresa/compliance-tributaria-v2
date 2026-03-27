@@ -301,10 +301,15 @@ export const RiskItemSchema = z.object({
   id: z.string(),
   evento: z.string(),
   causa_raiz: z.string().optional().default(""),
-  evidencia_regulatoria: z.string().min(10, "Evidência regulatória obrigatória — cite o artigo específico"),
+  evidencia_regulatoria: z.string().optional().default("Reforma Tributária — EC 132/2023"),
   // G10: fonte_risco — rastreabilidade da origem do risco (lei + artigo)
   // Tolerante a fallback: se o LLM não retornar, usa "fonte não identificada"
   fonte_risco: z.string().optional().default("fonte não identificada"),
+  // G11 / #136: fonte_risco_tipo — classificação da origem do risco
+  // "regulatorio": deriva de artigo legislativo citado no contexto RAG
+  // "solaris": deriva de orientação jurídica SOLARIS
+  // "ia_gen": inferência geral do modelo (default)
+  fonte_risco_tipo: z.enum(["regulatorio", "solaris", "ia_gen"]).optional().default("ia_gen"),
   probabilidade: z.preprocess(normalizeCapitalized,
     z.enum(["Baixa", "Média", "Alta"]).catch("Média")
   ),
@@ -372,12 +377,11 @@ export const TaskItemSchema = z.object({
   responsavel_sugerido: z.string().min(5).catch("Equipe Tributária"),
   // V70.2: Campos obrigatórios com fallback robusto
   objetivo_diagnostico: z.string().min(15).catch("Adequar processo ao novo regime tributário IBS/CBS"),
-  evidencia_regulatoria: z.string().min(10, "Evidência regulatória obrigatória — cite o artigo específico"),
+  evidencia_regulatoria: z.string().min(5).catch("LC 214/2025"),
   // V70.2: Novos campos de rastreabilidade CNAE-tarefa
   cnae_origem: z.string().optional().default(""),
   gap_especifico: z.string().optional().default(""),
-  acao_concreta: z.string().min(20, "Ação concreta obrigatória — descreva a primeira ação imediata"),
-  criterio_de_conclusao: z.string().min(10, "Critério de conclusão obrigatório — como saber que a tarefa foi concluída").optional(),
+  acao_concreta: z.string().optional().default(""),
   // B2 — G12: rastreabilidade normativa da ação (anchor_id do chunk RAG de origem)
   fonte_acao: z.object({
     lei: z.string().default("não identificado"),

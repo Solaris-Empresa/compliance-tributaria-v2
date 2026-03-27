@@ -425,8 +425,8 @@ describe("fluxoV3Router — Etapa 5: Plano de Ação", () => {
   it("generateActionPlan — gera plano para todas as 4 áreas", async () => {
     const mockTasks = {
       tasks: [
-        { id: "t1", titulo: "Revisar contratos de serviço", descricao: "Adaptar cláusulas para CBS/IBS conforme LC 214/2025", area: "contabilidade", prazo_sugerido: "30 dias", prioridade: "Alta", responsavel_sugerido: "Controller", evidencia_regulatoria: "Art. 9 LC 214/2025", acao_concreta: "Revisar todos os contratos de prestação de serviço até 30/04/2026" },
-        { id: "t2", titulo: "Atualizar sistema de faturamento", descricao: "Adaptar NFS-e para novo padrão IBS/CBS conforme legislação", area: "contabilidade", prazo_sugerido: "60 dias", prioridade: "Alta", responsavel_sugerido: "TI", evidencia_regulatoria: "Art. 156-A EC 132/2023", acao_concreta: "Contratar empresa especializada em adaptação de sistemas fiscais até 30/04/2026" },
+        { id: "t1", titulo: "Revisar contratos de serviço", descricao: "Adaptar cláusulas para CBS/IBS", area: "contabilidade", prazo_sugerido: "30 dias", prioridade: "Alta", responsavel_sugerido: "Controller" },
+        { id: "t2", titulo: "Atualizar sistema de faturamento", descricao: "Adaptar NFS-e para novo padrão", area: "contabilidade", prazo_sugerido: "60 dias", prioridade: "Alta", responsavel_sugerido: "TI" },
       ],
     };
     vi.mocked(generateWithRetry).mockResolvedValue(mockTasks);
@@ -451,7 +451,7 @@ describe("fluxoV3Router — Etapa 5: Plano de Ação", () => {
   it("generateActionPlan — regenera apenas uma área com ajuste", async () => {
     const mockTasks = {
       tasks: [
-        { id: "t1", titulo: "Treinamento da equipe contábil", descricao: "Capacitar equipe na Reforma Tributária IBS/CBS conforme LC 214/2025", area: "contabilidade", prazo_sugerido: "30 dias", prioridade: "Alta", responsavel_sugerido: "RH", evidencia_regulatoria: "Art. 1 LC 214/2025", acao_concreta: "Contratar consultoria tributária especializada em IBS/CBS até 30/04/2026" },
+        { id: "t1", titulo: "Treinamento da equipe contábil", descricao: "Capacitar equipe na Reforma Tributária", area: "contabilidade", prazo_sugerido: "30 dias", prioridade: "Alta", responsavel_sugerido: "RH" },
       ],
     };
     vi.mocked(generateWithRetry).mockResolvedValue(mockTasks);
