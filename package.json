@@ -15,7 +15,8 @@
     "db:push": "node scripts/db-push-guard.mjs && drizzle-kit generate && drizzle-kit migrate",
     "db:clear": "node scripts/clear-database.mjs",
     "db:seed": "node scripts/seed-initial-data.mjs",
-    "db:reset": "pnpm db:clear && pnpm db:seed"
+    "db:reset": "pnpm db:clear && pnpm db:seed",
+    "cockpit:sync": "node docs/painel-po/sync-baseline.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",

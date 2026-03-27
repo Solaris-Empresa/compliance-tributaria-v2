@@ -155,8 +155,8 @@
 
       <div class="status-card green">
         <div class="label">Estado do produto</div>
-        <div class="value">v2.0 — 12 demandas UAT implementadas</div>
-        <div class="sub">492 testes · 0 erros TypeScript · Shadow Mode ativo</div>
+        <div class="value">v2.1 — 12 demandas UAT implementadas</div>
+        <div class="sub">517 testes · 0 erros TypeScript · Shadow Mode ativo</div>
         <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md" target="_blank">→ BASELINE-PRODUTO.md</a>
       </div>
 
@@ -173,8 +173,8 @@
 
       <div class="status-card purple">
         <div class="label">Próxima ação obrigatória</div>
-        <div class="value">Retorno ao UAT com advogados</div>
-        <div class="sub">12 demandas implementadas · suite de testes concluída · aguarda aprovação P.O.</div>
+        <div class="value">Testes manuais P.O. → decisão UAT</div>
+        <div class="sub">517 testes · 12 demandas validadas · aguarda aprovação P.O.</div>
         <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md" target="_blank">→ GUIA-UAT-ADVOGADOS-v2.md</a>
       </div>
 
@@ -228,7 +228,7 @@
         <div class="semaforo green" onclick="cycleSemaforo(event, this)" title="Clique para alternar">✔</div>
         <div class="radar-info">
           <div class="name">Testes</div>
-          <div class="detail">492/492 passando (atualizado 2026-03-27)</div>
+          <div class="detail">517/517 passando (atualizado 2026-03-27)</div>
         </div>
         <span class="ext-link">↗</span>
       </div>
@@ -286,7 +286,7 @@
           <div>
             <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md" target="_blank">BASELINE-PRODUTO.md</a>
             <div class="doc-when">Estado atual — primeira leitura de qualquer dia</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-baseline">Atualizado: 2026-03-27 (v2.0)</span>
+            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-baseline">Atualizado: 2026-03-27 (v2.1)</span>
           </div>
         </div>
 
@@ -555,18 +555,18 @@
 
 const INITIAL_KANBAN = {
   backlog: [
-    { id: 'k20', title: 'Sprint I — Issue #101 (CI débito técnico)', status: 'Pendente', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/101' },
-    { id: 'k21', title: 'Sprint K — CRUD QuestionSchema G15 (débito)', status: 'Pós-UAT', link: null },
-    { id: 'k22', title: 'RFC-004 — Expansão corpus (bloqueada)', status: 'Bloqueada — texto não publicado', link: null },
+    { id: 'k20', title: 'Issue #101 — CI débito técnico (skipIf)', status: 'Sprint I pendente', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/101' },
+    { id: 'k21', title: 'Sprint K — CRUD QuestionSchema G15', status: 'Débito técnico pós-UAT', link: null },
+    { id: 'k22', title: 'evidencia_regulatoria default genérico', status: 'Débito técnico pós-UAT', link: null },
+    { id: 'k23', title: 'RFC-004 — Expansão corpus', status: 'Bloqueada — texto não publicado', link: null },
   ],
   andamento: [
-    { id: 'k30', title: 'Suite testes UAT 12 itens — Evidence JSON', status: '⚡ Concluída — PR #144 aberto', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/144' },
-    { id: 'k31', title: 'Testes manuais P.O. com advogados', status: '⏳ Aguardando aprovação P.O.', link: null },
+    { id: 'k30', title: 'BASELINE v2.1 — atualização documental', status: '✅ Mergeado — PR #149', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/149' },
+    { id: 'k31', title: 'Testes manuais P.O.', status: '⏳ Aguardando cockpits atualizados', link: null },
   ],
   gate: [
-    { id: 'k40', title: 'Decisão P.O.: ativar DIAGNOSTIC_READ_MODE=new', status: 'Aguarda UAT aprovado', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/56' },
-    { id: 'k41', title: 'Issue #56 — F-04 Fase 3', status: 'Aguarda UAT', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/56' },
-    { id: 'k42', title: 'Issue #57 — Validação E2E completa', status: 'Aguarda UAT', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/57' },
+    { id: 'k40', title: 'Decisão UAT — retorno dos advogados', status: 'Aguarda testes manuais P.O.', link: null },
+    { id: 'k41', title: 'Issue #56 — F-04 Fase 3 (modo new)', status: 'Aguarda aprovação UAT', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/56' },
   ],
   bloqueado: [
     { id: 'k50', title: 'Issue #61 — Modo new', status: 'Aguarda #56', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/61' },
@@ -575,17 +575,16 @@ const INITIAL_KANBAN = {
 };
 
 const INITIAL_DECISIONS = [
-  { date: '2026-03-27', decision: 'DEC-007: Suite UAT 12 itens concluída — Evidence JSON gerado (PR #144)', status: 'done' },
-  { date: '2026-03-27', decision: 'DEC-007b: RFC-003 — manter lc123 e lc224 no corpus (P.O. aprovou)', status: 'done' },
-  { date: '2026-03-26', decision: 'DEC-006: Mudança de papéis Claude/Manus — após Sprint B2 concluída', status: 'done' },
-  { date: '2026-03-26', decision: 'DEC-005: Sprint 98% B2 — Opção A bridge engines (não recriar)', status: 'done' },
+  { date: '2026-03-27', decision: 'DEC-007: RFC-003 — manter lc123 e lc224 no corpus', status: 'done' },
+  { date: '2026-03-27', decision: 'Suite testes UAT 12 itens — 517 testes, Evidence JSON 18 verificações ✅', status: 'done' },
+  { date: '2026-03-27', decision: 'Sprint H — 16 updates topicos cross-lei (ICMS, ISS, Simples, LRF, CBS)', status: 'done' },
+  { date: '2026-03-26', decision: 'DEC-006: Mudança de papéis Claude/Manus — após Sprint B2 concluída', status: 'pending' },
+  { date: '2026-03-26', decision: 'DEC-005: Sprint 98% B2 — Opção A bridge engines', status: 'done' },
   { date: '2026-03-26', decision: 'DEC-004: Gate revisão CSV — publicação direta com log de auditoria', status: 'done' },
   { date: '2026-03-26', decision: 'DEC-003: Ingestão Anexos LC 214 — chunk por NCM/item (Opção A)', status: 'done' },
   { date: '2026-03-26', decision: 'DEC-002: anchor_id VARCHAR(255) UNIQUE + campos auditoria', status: 'done' },
   { date: '2026-03-26', decision: 'DEC-001: Prefill cruzado QC-07→QO-03 pós-UAT (Opção A)', status: 'done' },
-  { date: '2026-03-25', decision: 'Branch protection ativada — ruleset main-protection com 4 checks', status: 'done' },
-  { date: '2026-03-24', decision: 'Claude como Orquestrador — modelo operacional formalizado', status: 'done' },
-  { date: '—', decision: 'Ativar DIAGNOSTIC_READ_MODE=new — aguarda UAT aprovado pelo P.O.', status: 'pending' },
+  { date: '—', decision: 'Ativar DIAGNOSTIC_READ_MODE=new — aguarda aprovação UAT do P.O.', status: 'pending' },
   { date: '—', decision: 'DROP COLUMN colunas legadas — aguarda modo new ativado', status: 'pending' },
 ];
 
