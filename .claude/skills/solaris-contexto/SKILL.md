@@ -1,9 +1,6 @@
 ---
 name: solaris-contexto
-description: Contexto permanente do projeto IA SOLARIS para o Orquestrador Claude.
-Use ao iniciar qualquer sessão do projeto IA SOLARIS, ao planejar sprints, ao revisar
-PRs, ao gerar prompts para o Manus, ou ao analisar o estado do produto. Contém gates
-obrigatórios, estado atual do produto e regras de governança.
+description: "Contexto permanente do projeto IA SOLARIS para o Orquestrador Claude. Use ao iniciar qualquer sessão do projeto IA SOLARIS, ao planejar sprints, ao revisar PRs, ao gerar prompts para o Manus, ou ao analisar o estado do produto. Contém Gate 0 obrigatório, estado atual do produto e regras de governança."
 ---
 
 # Solaris — Skill de Contexto do Orquestrador
@@ -28,16 +25,28 @@ Antes de qualquer trabalho, verificar via project_knowledge_search:
 
 ## Estado atual do produto
 
-- Baseline: v1.5 | Testes: 489 | Migrations: 56
-- Corpus RAG: 2.078 chunks — 100% anchor_id
-- DIAGNOSTIC_READ_MODE: shadow (NUNCA alterar)
-- Sprint 98% Confidence: B0 ✅ B1 ✅ B2 em andamento
-- Engines: server/routers/ (7 engines, 259/259 testes)
-- G10/G11 implementados em routers-fluxo-v3.ts
+- **Baseline:** v1.8 · HEAD main `8df1834` (pós-PR #137)
+- **Sprints concluídas:** G (corpus RAG + governança) · H (inventário automático + cockpit ao vivo) · I (G9+G10 schemas Zod · G13+G14 UX · G15 diagnóstico · G16 ragAdmin · backlog I/J/K)
+- **PRs mergeados recentes:** #131 · #132 · #133 · #134 · #135 · #136 · #137
+- **Corpus RAG:** 2.078 chunks · 5 leis · 100% confiabilidade · gold set 8/8
+- **Cockpit RAG:** ao vivo em `/admin/rag-cockpit` via `ragInventory.getSnapshot`
+- **GS-07 threshold:** < 10 bytes · id 113 ("e") visível na aba Anomalias
+- **Testes:** 489+ passando
+- **Bloqueios ativos:** DIAGNOSTIC_READ_MODE=shadow · F-04 Fase 3 · DROP COLUMN
 
-## Gaps resolvidos
+## Pendências Sprint J/K
 
-G1–G11 todos resolvidos. G12/G13 absorvidos pelo B2 (Question/Action Engine).
+- n8n Fase 1 — monitoramento agendado (Sprint J) — issue #139 pulada por instrução do P.O.
+- RFC-004 — expansão corpus cg_ibs — **bloqueada** (texto oficial não publicado)
+- G15 Fase B — diagnóstico avançado (Sprint J)
+- BASELINE-PRODUTO v1.9 — documentar Sprint I completa
+
+## Automação RAG — decisão tomada
+
+Abordagem: Híbrido n8n + Claude API + Human-in-the-Loop.
+Documentação: `docs/automation/HIBRIDO-HUMAN-IN-LOOP-RAG-SOLARIS.md`
+Fase 1 (monitoramento): Sprint J
+Fase 2 (RFC automática + aprovação): Sprint K
 
 ## Bloqueios permanentes
 
@@ -45,6 +54,7 @@ G1–G11 todos resolvidos. G12/G13 absorvidos pelo B2 (Question/Action Engine).
 - ❌ F-04 Fase 3 (Issue #56)
 - ❌ DROP COLUMN (Issue #62)
 - ❌ Mover engines para server/engines/ — Sprint futura
+- ❌ Issue #139 (N8N-F1) — pulada por instrução do P.O.
 
 ## Antes de gerar qualquer prompt de implementação
 
@@ -61,3 +71,6 @@ G1–G11 todos resolvidos. G12/G13 absorvidos pelo B2 (Question/Action Engine).
 - ADR-010: docs/adr/ADR-010-content-architecture-98.md
 - MATRIZ I/O: docs/product/cpie-v2/produto/MATRIZ-CANONICA-INPUTS-OUTPUTS.md
 - MANUS-GOVERNANCE: .github/MANUS-GOVERNANCE.md
+- DOC-IA-GENERATIVA-v5: https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/DOCUMENTACAO-IA-GENERATIVA-v5.md ✅ verificado 2026-03-27
+- REQUISITOS-FUNCIONAIS-v6: https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/REQUISITOS-FUNCIONAIS-v6.md ✅ verificado 2026-03-27
+- RASTREABILIDADE-RF-PR-SPRINT: https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/RASTREABILIDADE-RF-PR-SPRINT.md ✅ adicionado 2026-03-27 · RF × Funcionalidade × Arquivo × Sprint × PR × Status (153 RFs, PRs #1–#137)
