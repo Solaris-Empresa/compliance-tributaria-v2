@@ -16,7 +16,7 @@ const PERMISSION_LEVELS = [
 
 const AREAS = [
   { value: "TI", label: "TI" },
-  { value: "CONT", label: "Contabilidade" },
+  { value: "CONT", label: "Contabilidade e Fiscal" },
   { value: "FISC", label: "Fiscal" },
   { value: "JUR", label: "Jurídico" },
   { value: "OPS", label: "Operações" },

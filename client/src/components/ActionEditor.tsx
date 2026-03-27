@@ -135,7 +135,7 @@ export function ActionEditDialog({ action, projectId, onSuccess }: ActionEditorP
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="TI">TI</SelectItem>
-                  <SelectItem value="CONT">Contabilidade</SelectItem>
+                  <SelectItem value="CONT">Contabilidade e Fiscal</SelectItem>
                   <SelectItem value="FISC">Fiscal/Tributário</SelectItem>
                   <SelectItem value="JUR">Jurídico</SelectItem>
                   <SelectItem value="OPS">Operações</SelectItem>
@@ -417,7 +417,7 @@ export function ActionCreateDialog({ projectId, category, branchId, ownerId, onS
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="TI">TI</SelectItem>
-                  <SelectItem value="CONT">Contabilidade</SelectItem>
+                  <SelectItem value="CONT">Contabilidade e Fiscal</SelectItem>
                   <SelectItem value="FISC">Fiscal/Tributário</SelectItem>
                   <SelectItem value="JUR">Jurídico</SelectItem>
                   <SelectItem value="OPS">Operações</SelectItem>
