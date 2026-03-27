@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taskboard P.O. — IA SOLARIS</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+    /* Header */
+    .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 36px; height: 36px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; color: #0f172a; }
+    .header-title { font-size: 18px; font-weight: 700; color: #f8fafc; }
+    .header-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-green { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+    .badge-yellow { background: #422006; color: #fbbf24; border: 1px solid #92400e; }
+    .badge-blue { background: #0c1a3a; color: #60a5fa; border: 1px solid #1e40af; }
+    .last-updated { font-size: 11px; color: #475569; }
+
+    /* KPI Bar */
+    .kpi-bar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; padding: 16px 24px; background: #1e293b; border-bottom: 1px solid #334155; }
+    .kpi { text-align: center; }
+    .kpi-value { font-size: 24px; font-weight: 800; color: #f8fafc; }
+    .kpi-label { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .kpi-value.green { color: #4ade80; }
+    .kpi-value.yellow { color: #fbbf24; }
+    .kpi-value.blue { color: #60a5fa; }
+    .kpi-value.red { color: #f87171; }
+    .kpi-value.orange { color: #fb923c; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 0; padding: 0 24px; background: #1e293b; border-bottom: 1px solid #334155; }
+    .tab { padding: 12px 20px; font-size: 13px; font-weight: 500; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+    .tab:hover { color: #94a3b8; }
+    .tab.active { color: #f59e0b; border-bottom-color: #f59e0b; }
+
+    /* Content */
+    .content { padding: 24px; }
+
+    /* Kanban */
+    .kanban { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+    .kanban-col { background: #1e293b; border-radius: 10px; border: 1px solid #334155; overflow: hidden; }
+    .kanban-header { padding: 12px 14px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between; }
+    .kanban-header.done { background: #052e16; color: #4ade80; }
+    .kanban-header.progress { background: #0c1a3a; color: #60a5fa; }
+    .kanban-header.todo { background: #1e1b4b; color: #a78bfa; }
+    .kanban-header.blocked { background: #450a0a; color: #f87171; }
+    .kanban-header.backlog { background: #1c1917; color: #a8a29e; }
+    .col-count { background: rgba(255,255,255,0.1); border-radius: 10px; padding: 2px 7px; font-size: 11px; }
+    .kanban-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 100px; }
+    .card { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px 12px; cursor: default; transition: border-color 0.2s; }
+    .card:hover { border-color: #475569; }
+    .card-number { font-size: 10px; color: #475569; font-weight: 600; margin-bottom: 4px; }
+    .card-title { font-size: 12px; color: #e2e8f0; line-height: 1.4; margin-bottom: 6px; }
+    .card-labels { display: flex; flex-wrap: wrap; gap: 4px; }
+    .label { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+    .label-backend { background: #1e3a5f; color: #93c5fd; }
+    .label-frontend { background: #1a2e1a; color: #86efac; }
+    .label-database { background: #2d1a4a; color: #c4b5fd; }
+    .label-governance { background: #3d2000; color: #fcd34d; }
+    .label-validation { background: #3d0000; color: #fca5a5; }
+    .label-tests { background: #1a3a2a; color: #6ee7b7; }
+    .label-default { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+
+    /* Milestones */
+    .milestones { display: flex; flex-direction: column; gap: 20px; }
+    .milestone-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; overflow: hidden; }
+    .milestone-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155; }
+    .milestone-title { font-size: 15px; font-weight: 700; color: #f8fafc; }
+    .milestone-meta { font-size: 12px; color: #64748b; margin-top: 4px; }
+    .progress-bar-wrap { margin-top: 10px; background: #0f172a; border-radius: 4px; height: 6px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 4px; transition: width 0.5s; }
+    .progress-bar.green { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .progress-bar.yellow { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .progress-bar.blue { background: linear-gradient(90deg, #3b82f6, #1d4ed8); }
+    .progress-bar.gray { background: #334155; }
+    .milestone-issues { padding: 12px 20px; display: flex; flex-direction: column; gap: 6px; }
+    .issue-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; }
+    .issue-row:hover { background: #0f172a; }
+    .issue-state { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .issue-state.open { background: #22c55e; }
+    .issue-state.closed { background: #64748b; }
+    .issue-num { font-size: 11px; color: #475569; font-weight: 600; min-width: 36px; }
+    .issue-title { font-size: 12px; color: #cbd5e1; flex: 1; }
+
+    /* Sprints */
+    .sprint-timeline { display: flex; flex-direction: column; gap: 12px; }
+    .sprint-item { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; display: flex; align-items: flex-start; gap: 14px; }
+    .sprint-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .sprint-dot.done { background: #22c55e; }
+    .sprint-dot.progress { background: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+    .sprint-dot.planned { background: #475569; }
+    .sprint-info { flex: 1; }
+    .sprint-name { font-size: 13px; font-weight: 700; color: #f8fafc; }
+    .sprint-desc { font-size: 12px; color: #64748b; margin-top: 3px; }
+    .sprint-badges { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+
+    /* Blockers */
+    .blockers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .blocker-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 16px; }
+    .blocker-title { font-size: 13px; font-weight: 700; color: #f87171; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .blocker-desc { font-size: 12px; color: #94a3b8; line-height: 1.6; }
+    .risk-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    .risk-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #334155; }
+    .risk-table td { padding: 10px 12px; font-size: 12px; color: #cbd5e1; border-bottom: 1px solid #1e293b; }
+    .risk-table tr:hover td { background: #1e293b; }
+    .severity { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+    .severity-high { background: #450a0a; color: #f87171; }
+    .severity-medium { background: #422006; color: #fbbf24; }
+    .severity-low { background: #052e16; color: #4ade80; }
+
+    /* Loading */
+    .loading { display: flex; align-items: center; justify-content: center; padding: 60px; color: #475569; font-size: 14px; gap: 10px; }
+    .spinner { width: 20px; height: 20px; border: 2px solid #334155; border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error */
+    .error-msg { background: #450a0a; border: 1px solid #7f1d1d; border-radius: 8px; padding: 12px 16px; color: #fca5a5; font-size: 13px; margin: 16px 0; }
+
+    /* Hidden */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Responsive */
+    @media (max-width: 1200px) { .kanban { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 900px) { .kanban { grid-template-columns: repeat(2, 1fr); } .kpi-bar { grid-template-columns: repeat(3, 1fr); } .blockers-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .kanban { grid-template-columns: 1fr; } .kpi-bar { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">S</div>
+    <div>
+      <div class="header-title">IA SOLARIS — Taskboard P.O.</div>
+      <div class="header-sub">Compliance Tributária · Reforma Tributária LC 214/2024</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="badge badge-yellow" id="version-badge">v2.1</span>
+    <span class="badge badge-green" id="tests-badge">517 testes ✓</span>
+    <span class="badge badge-blue" id="uat-badge">UAT em andamento</span>
+    <span class="last-updated" id="last-updated">Carregando...</span>
+  </div>
+</div>
+
+<div class="kpi-bar">
+  <div class="kpi"><div class="kpi-value green" id="kpi-open">—</div><div class="kpi-label">Issues Abertas</div></div>
+  <div class="kpi"><div class="kpi-value blue" id="kpi-progress">—</div><div class="kpi-label">Em Andamento</div></div>
+  <div class="kpi"><div class="kpi-value yellow" id="kpi-todo">—</div><div class="kpi-label">A Fazer</div></div>
+  <div class="kpi"><div class="kpi-value red" id="kpi-blocked">—</div><div class="kpi-label">Bloqueadas</div></div>
+  <div class="kpi"><div class="kpi-value orange" id="kpi-prs">—</div><div class="kpi-label">PRs Abertos</div></div>
+  <div class="kpi"><div class="kpi-value" id="kpi-milestones" style="color:#c084fc">—</div><div class="kpi-label">Milestones Ativos</div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('kanban')">Kanban por Status</div>
+  <div class="tab" onclick="showTab('milestones')">Milestones</div>
+  <div class="tab" onclick="showTab('sprints')">Histórico de Sprints</div>
+  <div class="tab" onclick="showTab('blockers')">Bloqueios &amp; Riscos</div>
+</div>
+
+<div class="content">
+  <div id="loading" class="loading"><div class="spinner"></div>Carregando dados do GitHub...</div>
+  <div id="error" class="error-msg" style="display:none"></div>
+
+  <div id="tab-kanban" class="tab-panel active">
+    <div class="kanban" id="kanban-board"></div>
+  </div>
+  <div id="tab-milestones" class="tab-panel">
+    <div class="milestones" id="milestones-list"></div>
+  </div>
+  <div id="tab-sprints" class="tab-panel">
+    <div class="sprint-timeline" id="sprint-list"></div>
+  </div>
+  <div id="tab-blockers" class="tab-panel">
+    <div class="blockers-grid" id="blockers-grid"></div>
+    <table class="risk-table" id="risk-table">
+      <thead><tr><th>Risco / Débito</th><th>Severidade</th><th>Status</th><th>Responsável</th></tr></thead>
+      <tbody id="risk-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const REPO = 'Solaris-Empresa/compliance-tributaria-v2';
+const API = 'https://api.github.com/repos/' + REPO;
+
+// Static sprint data (não muda com frequência)
+const SPRINTS = [
+  { name: 'Sprint D', desc: 'Ingestão dos Anexos LC 214 — 839 chunks persistidos', status: 'done', badges: ['RAG', 'Corpus', 'LC 214'] },
+  { name: 'Sprint F-01 a F-04', desc: 'Separação física V1/V3, schema migration, governança', status: 'done', badges: ['Schema', 'Migration', 'Governança'] },
+  { name: 'Sprint G', desc: 'Confidence Score, Shadow Mode, Action Engine, Risk Engine', status: 'done', badges: ['AI Engine', 'Confidence', 'Shadow'] },
+  { name: 'Sprint H', desc: '16 updates de tópicos RAG, RFC-001/RFC-002 resolvidas, Gold Set 9/9', status: 'done', badges: ['RAG', 'Gold Set 9/9', 'RFC'] },
+  { name: 'Sprint 98% B0/B1', desc: 'CI Gates, PR Governance, suite de testes permanente', status: 'done', badges: ['CI/CD', 'Testes', 'Governança'] },
+  { name: 'M1 — UAT Round 1', desc: '12 demandas dos advogados implementadas e validadas', status: 'done', badges: ['UAT', '12 demandas', 'Advogados'] },
+  { name: 'Sprint K', desc: 'Questionário 3 Ondas — K-1 concluída, K-2/K-3/K-4 em andamento', status: 'progress', badges: ['Questionário', 'SOLARIS', 'Ondas'] },
+  { name: 'Sprint L', desc: 'Upload CSV SOLARIS — aguardando Sprint K', status: 'planned', badges: ['CSV', 'Admin', 'Upload'] },
+];
+
+const BLOCKERS = [
+  { title: '🔒 DIAGNOSTIC_READ_MODE=new', desc: 'Nunca ativar sem aprovação explícita do P.O. Uires Tapajós. Risco de regressão no fluxo de diagnóstico.' },
+  { title: '🔒 F-04 Fase 3 (DROP COLUMN)', desc: 'Nunca executar DROP COLUMN sem aprovação do P.O. Dados de produção em risco. Aguardando janela de manutenção.' },
+  { title: '🔒 F-04 Fase 3 (Execução)', desc: 'A Fase 3 completa do F-04 requer aprovação formal do P.O. antes de qualquer execução em produção.' },
+];
+
+const RISKS = [
+  { name: 'GAP-NCM: Corpus não conectado ao questionário', severity: 'high', status: 'Mapeado — Sprint K+', owner: 'Manus' },
+  { name: 'cnaeGroups="" nos chunks de Anexos', severity: 'high', status: 'Aguarda Sprint K-2', owner: 'Manus' },
+  { name: 'Prazo IS (Imposto Seletivo) 01/04/2026', severity: 'high', status: 'Urgente — Sprint K', owner: 'P.O.' },
+  { name: 'Testes de integração desabilitados no CI', severity: 'medium', status: 'Débito Técnico', owner: 'Manus' },
+  { name: 'Bundle React não atualizado via CI/CD GitHub', severity: 'medium', status: 'Infra Manus', owner: 'Plataforma' },
+  { name: 'UAT Round 2 bloqueado por K-3/K-4/L-1', severity: 'low', status: 'Aguardando validação P.O.', owner: 'P.O.' },
+];
+
+function getLabelClass(name) {
+  if (!name) return 'label-default';
+  if (name.includes('backend')) return 'label-backend';
+  if (name.includes('frontend')) return 'label-frontend';
+  if (name.includes('database')) return 'label-database';
+  if (name.includes('governance') || name.includes('p.o.')) return 'label-governance';
+  if (name.includes('validation') || name.includes('valida')) return 'label-validation';
+  if (name.includes('test')) return 'label-tests';
+  return 'label-default';
+}
+
+function getIssueStatus(issue) {
+  const labels = issue.labels.map(l => l.name.toLowerCase());
+  if (labels.includes('status:in_progress') || labels.includes('in-progress')) return 'progress';
+  if (labels.includes('blocked') || labels.includes('bloqueado')) return 'blocked';
+  if (labels.includes('backlog')) return 'backlog';
+  if (labels.includes('done') || labels.includes('done-proof')) return 'done';
+  return 'todo';
+}
+
+function buildKanban(issues, prs) {
+  const cols = {
+    progress: { label: 'Em Andamento', cls: 'progress', issues: [] },
+    todo: { label: 'A Fazer', cls: 'todo', issues: [] },
+    blocked: { label: 'Bloqueado', cls: 'blocked', issues: [] },
+    backlog: { label: 'Backlog', cls: 'backlog', issues: [] },
+    done: { label: 'Concluído', cls: 'done', issues: [] },
+  };
+
+  issues.forEach(issue => {
+    const status = getIssueStatus(issue);
+    cols[status].issues.push(issue);
+  });
+
+  // Update KPIs
+  document.getElementById('kpi-open').textContent = issues.length;
+  document.getElementById('kpi-progress').textContent = cols.progress.issues.length;
+  document.getElementById('kpi-todo').textContent = cols.todo.issues.length;
+  document.getElementById('kpi-blocked').textContent = cols.blocked.issues.length;
+  document.getElementById('kpi-prs').textContent = prs.length;
+
+  const board = document.getElementById('kanban-board');
+  board.innerHTML = '';
+
+  const order = ['progress', 'todo', 'blocked', 'backlog', 'done'];
+  order.forEach(key => {
+    const col = cols[key];
+    const colEl = document.createElement('div');
+    colEl.className = 'kanban-col';
+    colEl.innerHTML = `
+      <div class="kanban-header ${col.cls}">
+        <span>${col.label}</span>
+        <span class="col-count">${col.issues.length}</span>
+      </div>
+      <div class="kanban-body">
+        ${col.issues.length === 0 ? '<div style="color:#475569;font-size:12px;text-align:center;padding:20px">Nenhuma issue</div>' :
+          col.issues.map(issue => `
+            <div class="card">
+              <div class="card-number">#${issue.number} · ${issue.milestone ? issue.milestone.title.split('—')[0].trim() : 'sem milestone'}</div>
+              <div class="card-title">${issue.title.replace(/[<>]/g, '')}</div>
+              <div class="card-labels">
+                ${issue.labels.slice(0, 3).map(l => `<span class="label ${getLabelClass(l.name)}">${l.name}</span>`).join('')}
+              </div>
+            </div>
+          `).join('')}
+      </div>
+    `;
+    board.appendChild(colEl);
+  });
+}
+
+function buildMilestones(milestones, issues) {
+  const list = document.getElementById('milestones-list');
+  list.innerHTML = '';
+
+  const activeMilestones = milestones.filter(m => m.state === 'open');
+  document.getElementById('kpi-milestones').textContent = activeMilestones.length;
+
+  milestones.filter(m => m.state === 'open').forEach(ms => {
+    const total = ms.open_issues + ms.closed_issues;
+    const pct = total > 0 ? Math.round((ms.closed_issues / total) * 100) : 0;
+    const msIssues = issues.filter(i => i.milestone && i.milestone.number === ms.number);
+    const barClass = pct >= 80 ? 'green' : pct >= 40 ? 'yellow' : pct > 0 ? 'blue' : 'gray';
+
+    const el = document.createElement('div');
+    el.className = 'milestone-card';
+    el.innerHTML = `
+      <div class="milestone-header">
+        <div>
+          <div class="milestone-title">${ms.title}</div>
+          <div class="milestone-meta">${ms.open_issues} abertas · ${ms.closed_issues} fechadas · ${pct}% concluído</div>
+          <div class="progress-bar-wrap"><div class="progress-bar ${barClass}" style="width:${pct}%"></div></div>
+        </div>
+        <span class="badge ${pct === 100 ? 'badge-green' : pct > 0 ? 'badge-blue' : 'badge-yellow'}">${pct}%</span>
+      </div>
+      <div class="milestone-issues">
+        ${msIssues.length === 0 ? '<div style="color:#475569;font-size:12px">Nenhuma issue aberta neste milestone</div>' :
+          msIssues.map(i => `
+            <div class="issue-row">
+              <div class="issue-state open"></div>
+              <span class="issue-num">#${i.number}</span>
+              <span class="issue-title">${i.title.replace(/[<>]/g, '')}</span>
+            </div>
+          `).join('')}
+      </div>
+    `;
+    list.appendChild(el);
+  });
+}
+
+function buildSprints() {
+  const list = document.getElementById('sprint-list');
+  list.innerHTML = SPRINTS.map(s => `
+    <div class="sprint-item">
+      <div class="sprint-dot ${s.status}"></div>
+      <div class="sprint-info">
+        <div class="sprint-name">${s.name}</div>
+        <div class="sprint-desc">${s.desc}</div>
+        <div class="sprint-badges">
+          ${s.badges.map(b => `<span class="badge ${s.status === 'done' ? 'badge-green' : s.status === 'progress' ? 'badge-blue' : 'badge-yellow'}">${b}</span>`).join('')}
+        </div>
+      </div>
+      <span class="badge ${s.status === 'done' ? 'badge-green' : s.status === 'progress' ? 'badge-blue' : 'badge-yellow'}">${s.status === 'done' ? '✓ Concluído' : s.status === 'progress' ? '⚡ Em andamento' : '⏳ Planejado'}</span>
+    </div>
+  `).join('');
+}
+
+function buildBlockers() {
+  const grid = document.getElementById('blockers-grid');
+  grid.innerHTML = BLOCKERS.map(b => `
+    <div class="blocker-card">
+      <div class="blocker-title">⛔ ${b.title}</div>
+      <div class="blocker-desc">${b.desc}</div>
+    </div>
+  `).join('');
+
+  const tbody = document.getElementById('risk-tbody');
+  tbody.innerHTML = RISKS.map(r => `
+    <tr>
+      <td>${r.name}</td>
+      <td><span class="severity severity-${r.severity}">${r.severity.toUpperCase()}</span></td>
+      <td>${r.status}</td>
+      <td>${r.owner}</td>
+    </tr>
+  `).join('');
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const names = ['kanban', 'milestones', 'sprints', 'blockers'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+async function loadData() {
+  const loading = document.getElementById('loading');
+  const errorEl = document.getElementById('error');
+
+  try {
+    const headers = { 'Accept': 'application/vnd.github.v3+json' };
+
+    const [issuesRes, milestonesRes, prsRes] = await Promise.all([
+      fetch(`${API}/issues?state=open&per_page=100`, { headers }),
+      fetch(`${API}/milestones?state=open&per_page=20`, { headers }),
+      fetch(`${API}/pulls?state=open&per_page=20`, { headers }),
+    ]);
+
+    if (!issuesRes.ok) throw new Error(`GitHub API: ${issuesRes.status} — ${issuesRes.statusText}. O repositório é privado; os dados estáticos foram carregados.`);
+
+    const [issues, milestones, prs] = await Promise.all([
+      issuesRes.json(),
+      milestonesRes.json(),
+      prsRes.json(),
+    ]);
+
+    loading.style.display = 'none';
+    document.getElementById('last-updated').textContent = 'Atualizado: ' + new Date().toLocaleString('pt-BR');
+
+    buildKanban(issues, prs);
+    buildMilestones(milestones, issues);
+    buildSprints();
+    buildBlockers();
+
+  } catch (err) {
+    loading.style.display = 'none';
+    errorEl.style.display = 'block';
+    errorEl.textContent = '⚠️ ' + err.message + ' — Exibindo dados estáticos do último snapshot.';
+
+    // Fallback: dados estáticos do último snapshot conhecido
+    buildKanbanStatic();
+    buildMilestonesStatic();
+    buildSprints();
+    buildBlockers();
+  }
+}
+
+function buildKanbanStatic() {
+  const staticIssues = [
+    { number: 154, title: 'K-2: Integrar Onda 1 (SOLARIS) no questionEngine', labels: [{name:'backend'},{name:'p.o.-valida'}], milestone: {number:9, title:'M2 — Sprint K'} },
+    { number: 155, title: 'K-3: Badge visual por onda no questionário', labels: [{name:'frontend'},{name:'p.o.-valida'}], milestone: {number:9, title:'M2 — Sprint K'} },
+    { number: 156, title: 'K-4: Onda 2 combinatória por perfil', labels: [{name:'backend'},{name:'p.o.-valida'}], milestone: {number:9, title:'M2 — Sprint K'} },
+    { number: 157, title: 'L-1: Tela de upload CSV no painel admin', labels: [{name:'frontend'},{name:'backend'}], milestone: {number:10, title:'M3 — Sprint L'} },
+    { number: 158, title: 'L-2: Parser e validação do CSV SOLARIS', labels: [{name:'backend'}], milestone: {number:10, title:'M3 — Sprint L'} },
+    { number: 159, title: 'L-3: Dry-run e publicação de questões SOLARIS', labels: [{name:'backend'},{name:'frontend'}], milestone: {number:10, title:'M3 — Sprint L'} },
+    { number: 164, title: 'K-3 ✅ VALIDAÇÃO P.O. — Badge visual por onda', labels: [{name:'p.o.-valida'},{name:'validation'}], milestone: {number:9, title:'M2 — Sprint K'} },
+    { number: 165, title: 'K-4 ✅ VALIDAÇÃO P.O. — Onda 2 combinatória por perfil', labels: [{name:'p.o.-valida'},{name:'validation'}], milestone: {number:9, title:'M2 — Sprint K'} },
+    { number: 166, title: 'L-1 ✅ VALIDAÇÃO P.O. — Tela de upload CSV SOLARIS', labels: [{name:'p.o.-valida'},{name:'validation'}], milestone: {number:10, title:'M3 — Sprint L'} },
+  ];
+  document.getElementById('kpi-open').textContent = staticIssues.length;
+  document.getElementById('kpi-progress').textContent = 1;
+  document.getElementById('kpi-todo').textContent = 5;
+  document.getElementById('kpi-blocked').textContent = 0;
+  document.getElementById('kpi-prs').textContent = '—';
+  document.getElementById('kpi-milestones').textContent = 3;
+
+  const board = document.getElementById('kanban-board');
+  const cols = {
+    progress: { label: 'Em Andamento', cls: 'progress', issues: [staticIssues[0]] },
+    todo: { label: 'A Fazer', cls: 'todo', issues: staticIssues.slice(1, 6) },
+    blocked: { label: 'Bloqueado', cls: 'blocked', issues: [] },
+    backlog: { label: 'Backlog', cls: 'backlog', issues: [] },
+    done: { label: 'Concluído', cls: 'done', issues: [] },
+  };
+  board.innerHTML = '';
+  ['progress','todo','blocked','backlog','done'].forEach(key => {
+    const col = cols[key];
+    const el = document.createElement('div');
+    el.className = 'kanban-col';
+    el.innerHTML = `<div class="kanban-header ${col.cls}"><span>${col.label}</span><span class="col-count">${col.issues.length}</span></div><div class="kanban-body">${col.issues.length === 0 ? '<div style="color:#475569;font-size:12px;text-align:center;padding:20px">Nenhuma issue</div>' : col.issues.map(i => `<div class="card"><div class="card-number">#${i.number} · ${i.milestone ? i.milestone.title.split('—')[0].trim() : ''}</div><div class="card-title">${i.title}</div><div class="card-labels">${i.labels.slice(0,3).map(l => `<span class="label ${getLabelClass(l.name)}">${l.name}</span>`).join('')}</div></div>`).join('')}</div>`;
+    board.appendChild(el);
+  });
+}
+
+function buildMilestonesStatic() {
+  const staticMs = [
+    { title: 'M2 — Sprint K: Questionário 3 Ondas', open: 4, closed: 2, pct: 33, issues: [
+      {number:154, title:'K-2: Integrar Onda 1 (SOLARIS) no questionEngine'},
+      {number:155, title:'K-3: Badge visual por onda no questionário'},
+      {number:156, title:'K-4: Onda 2 combinatória por perfil'},
+      {number:164, title:'K-3 ✅ VALIDAÇÃO P.O. — Badge visual por onda'},
+    ]},
+    { title: 'M3 — Sprint L: Upload CSV SOLARIS', open: 3, closed: 0, pct: 0, issues: [
+      {number:157, title:'L-1: Tela de upload CSV no painel admin'},
+      {number:158, title:'L-2: Parser e validação do CSV SOLARIS'},
+      {number:166, title:'L-1 ✅ VALIDAÇÃO P.O. — Tela de upload CSV SOLARIS'},
+    ]},
+    { title: 'M4 — Débitos Técnicos e Governança', open: 9, closed: 1, pct: 10, issues: [] },
+  ];
+  document.getElementById('kpi-milestones').textContent = staticMs.length;
+  const list = document.getElementById('milestones-list');
+  list.innerHTML = staticMs.map(ms => `
+    <div class="milestone-card">
+      <div class="milestone-header">
+        <div>
+          <div class="milestone-title">${ms.title}</div>
+          <div class="milestone-meta">${ms.open} abertas · ${ms.closed} fechadas · ${ms.pct}% concluído</div>
+          <div class="progress-bar-wrap"><div class="progress-bar ${ms.pct >= 80 ? 'green' : ms.pct >= 40 ? 'yellow' : ms.pct > 0 ? 'blue' : 'gray'}" style="width:${ms.pct}%"></div></div>
+        </div>
+        <span class="badge ${ms.pct === 100 ? 'badge-green' : ms.pct > 0 ? 'badge-blue' : 'badge-yellow'}">${ms.pct}%</span>
+      </div>
+      <div class="milestone-issues">
+        ${ms.issues.map(i => `<div class="issue-row"><div class="issue-state open"></div><span class="issue-num">#${i.number}</span><span class="issue-title">${i.title}</span></div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// Init
+loadData();
+</script>
+</body>
+</html>

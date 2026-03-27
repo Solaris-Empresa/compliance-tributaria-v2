@@ -19,7 +19,7 @@ import {
   ArrowLeft, ArrowRight, ChevronRight, Loader2, Sparkles,
   CheckCircle2, Clock, SkipForward, MessageSquare, BarChart2,
   AlignLeft, List, ToggleLeft, Layers, Play, FileQuestion,
-  AlertCircle, RefreshCw, StickyNote
+  AlertCircle, RefreshCw, StickyNote, Scale
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -43,6 +43,66 @@ interface Question {
   options?: string[];
   scale_labels?: { min: string; max: string };
   placeholder?: string;
+  /** K-3: rastreabilidade de origem — 'solaris'=Onda1, 'regulatorio'/'ia_gen'=Onda3 */
+  fonte?: "solaris" | "regulatorio" | "ia_gen";
+}
+
+// ─── K-3: Badges por onda ────────────────────────────────────────────────────────────────────
+function SolarisBadge() {
+  return (
+    <span
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 shrink-0"
+      title="Pergunta curada pela equipe jurídica SOLARIS"
+    >
+      <Scale className="h-2.5 w-2.5" />
+      Equipe Jurídica SOLARIS
+    </span>
+  );
+}
+
+function LegislacaoBadge() {
+  return (
+    <span
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0"
+      title="Pergunta baseada na legislação tributária"
+    >
+      <AlignLeft className="h-2.5 w-2.5" />
+      Legislação
+    </span>
+  );
+}
+
+function PerfilBadge() {
+  return (
+    <span
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-50 text-orange-700 border border-orange-200 shrink-0"
+      title="Pergunta gerada com base no perfil desta empresa"
+    >
+      <Sparkles className="h-2.5 w-2.5" />
+      Perfil da empresa
+    </span>
+  );
+}
+
+/** K-3: badge correto por fonte; null se fonte indefinida (fallback silencioso) */
+function OndaBadge({ fonte }: { fonte?: string }) {
+  if (fonte === "solaris") return <SolarisBadge />;
+  if (fonte === "regulatorio") return <LegislacaoBadge />;
+  if (fonte === "ia_gen") return <PerfilBadge />;
+  return null;
+}
+
+/** K-3: separador visual entre bloco SOLARIS e bloco regulatório */
+function OndaSeparator({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-3 py-1">
+      <div className="flex-1 h-px bg-border" />
+      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider shrink-0">
+        {label}
+      </span>
+      <div className="flex-1 h-px bg-border" />
+    </div>
+  );
 }
 
 interface CnaeProgress {
@@ -1330,37 +1390,59 @@ export default function QuestionarioV3() {
               </Card>
             ) : (
               <>
-                {/* Perguntas */}
+                {/* K-3: Perguntas com badge por onda e separador visual */}
                 <div className="space-y-4">
-                  {questions.map((question, idx) => (
-                    <Card key={question.id} className={cn(
-                      "transition-all duration-200",
-                      answers[question.id]?.trim() ? "border-primary/20 shadow-sm" : "border-border"
-                    )}>
-                      <CardContent className="p-5 space-y-4">
-                        <div className="space-y-1.5">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex items-start gap-2">
-                              <span className="text-xs font-bold text-primary/60 mt-0.5 shrink-0">{idx + 1}.</span>
-                              <p className="text-sm font-medium leading-relaxed">
-                                {question.text}
-                                {question.required !== false && <span className="text-destructive ml-1">*</span>}
-                              </p>
+                  {questions.map((question, idx) => {
+                    // K-3: detectar transição de onda para exibir separador
+                    const prevFonte = idx > 0 ? questions[idx - 1].fonte : undefined;
+                    const currFonte = question.fonte;
+                    const showSeparator =
+                      idx > 0 &&
+                      prevFonte !== currFonte &&
+                      (prevFonte === "solaris" || currFonte === "solaris");
+                    const separatorLabel =
+                      currFonte === "regulatorio" || currFonte === "ia_gen"
+                        ? "Perguntas da Legislação"
+                        : "Perguntas SOLARIS";
+                    return (
+                      <>
+                        {showSeparator && (
+                          <OndaSeparator key={`sep-${idx}`} label={separatorLabel} />
+                        )}
+                        <Card key={question.id} className={cn(
+                          "transition-all duration-200",
+                          answers[question.id]?.trim() ? "border-primary/20 shadow-sm" : "border-border"
+                        )}>
+                          <CardContent className="p-5 space-y-4">
+                            <div className="space-y-1.5">
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-start gap-2">
+                                  <span className="text-xs font-bold text-primary/60 mt-0.5 shrink-0">{idx + 1}.</span>
+                                  <p className="text-sm font-medium leading-relaxed">
+                                    {question.text}
+                                    {question.required !== false && <span className="text-destructive ml-1">*</span>}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  {/* K-3: badge de origem da pergunta */}
+                                  <OndaBadge fonte={question.fonte} />
+                                  {answers[question.id]?.trim() && (
+                                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                  )}
+                                </div>
+                              </div>
+                              <QuestionTypeIcon type={question.type} />
                             </div>
-                            {answers[question.id]?.trim() && (
-                              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                            )}
-                          </div>
-                          <QuestionTypeIcon type={question.type} />
-                        </div>
-                        <QuestionField
-                          question={question}
-                          value={answers[question.id] || ""}
-                          onChange={(v) => handleAnswer(question.id, v)}
-                        />
-                      </CardContent>
-                    </Card>
-                  ))}
+                            <QuestionField
+                              question={question}
+                              value={answers[question.id] || ""}
+                              onChange={(v) => handleAnswer(question.id, v)}
+                            />
+                          </CardContent>
+                        </Card>
+                      </>
+                    );
+                  })}
                 </div>
 
                 {/* Barra de progresso das perguntas */}

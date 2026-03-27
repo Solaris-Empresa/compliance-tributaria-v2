@@ -28,6 +28,7 @@ import {
   calcularMatrizMetadata,
 } from "./ai-schemas";
 import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
+import { injectOnda1IntoQuestions } from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
 // v2.1 T3: Adaptador de consolidação do diagnóstico em 3 camadas
@@ -591,7 +592,15 @@ Gere as perguntas no formato:
         throw llmErr;
       }
       console.log(`[generateQuestions] OK questions=${result.questions.length}`);
-      return { questions: result.questions };
+
+      // K-2: Injetar perguntas Onda 1 (SOLARIS) antes das regulatórias (Onda 3)
+      const questionsWithOnda1 = await injectOnda1IntoQuestions(
+        input.cnaeCode,
+        result.questions as any
+      );
+      console.log(`[generateQuestions] Onda1 injected: onda1=${questionsWithOnda1.filter(q => q.fonte === 'solaris').length} regulatorio=${questionsWithOnda1.filter(q => q.fonte !== 'solaris').length} total=${questionsWithOnda1.length}`);
+
+      return { questions: questionsWithOnda1 };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
