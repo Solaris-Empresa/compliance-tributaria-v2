@@ -222,6 +222,7 @@ describe("G11 — RiskItemSchema retrocompatibilidade", () => {
     impacto: "Alto",
     severidade: "Crítica",
     severidade_score: 9,
+    evidencia_regulatoria: "Art. 1 LC 214/2025", // G9: campo obrigatório adicionado
   };
 
   it("G11-13: aceita campo fundamentacao opcional", () => {

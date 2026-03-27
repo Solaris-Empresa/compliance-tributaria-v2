@@ -301,7 +301,7 @@ export const RiskItemSchema = z.object({
   id: z.string(),
   evento: z.string(),
   causa_raiz: z.string().optional().default(""),
-  evidencia_regulatoria: z.string().optional().default("Reforma Tributária — EC 132/2023"),
+  evidencia_regulatoria: z.string().min(10, "Evidência regulatória obrigatória — cite o artigo específico"),
   // G10: fonte_risco — rastreabilidade da origem do risco (lei + artigo)
   // Tolerante a fallback: se o LLM não retornar, usa "fonte não identificada"
   fonte_risco: z.string().optional().default("fonte não identificada"),
@@ -372,11 +372,12 @@ export const TaskItemSchema = z.object({
   responsavel_sugerido: z.string().min(5).catch("Equipe Tributária"),
   // V70.2: Campos obrigatórios com fallback robusto
   objetivo_diagnostico: z.string().min(15).catch("Adequar processo ao novo regime tributário IBS/CBS"),
-  evidencia_regulatoria: z.string().min(5).catch("LC 214/2025"),
+  evidencia_regulatoria: z.string().min(10, "Evidência regulatória obrigatória — cite o artigo específico"),
   // V70.2: Novos campos de rastreabilidade CNAE-tarefa
   cnae_origem: z.string().optional().default(""),
   gap_especifico: z.string().optional().default(""),
-  acao_concreta: z.string().optional().default(""),
+  acao_concreta: z.string().min(20, "Ação concreta obrigatória — descreva a primeira ação imediata"),
+  criterio_de_conclusao: z.string().min(10, "Critério de conclusão obrigatório — como saber que a tarefa foi concluída").optional(),
   // B2 — G12: rastreabilidade normativa da ação (anchor_id do chunk RAG de origem)
   fonte_acao: z.object({
     lei: z.string().default("não identificado"),
