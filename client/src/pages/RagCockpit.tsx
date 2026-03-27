@@ -1,26 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { trpc } from "../lib/trpc";
 
-// ── DATA ────────────────────────────────────────────────────────────────────
+// ── HELPERS ──────────────────────────────────────────────────────────────────
 
-const CORPUS = [
-  { lei: "lc214", label: "LC 214/2025", chunks: 1573, anchor: 1573, idMin: 1, idMax: 30839, status: "ok", note: "Corpus principal — íntegro pós-Sprint G" },
-  { lei: "lc123", label: "LC 123/2006", chunks: 25, anchor: 25, idMin: 664, idMax: 722, status: "ok", note: "Simples Nacional — RFC-002 Sprint G" },
-  { lei: "lc227", label: "LC 227/2024", chunks: 434, anchor: 434, idMin: 808, idMax: 1241, status: "ok", note: "RFC-001 executada — id 810 fusionado" },
-  { lei: "lc224", label: "LC 224/2024", chunks: 28, anchor: 28, idMin: 780, idMax: 807, status: "ok", note: "Íntegro — G5/G6 corrigidos Sprint A" },
-  { lei: "ec132", label: "EC 132/2023", chunks: 18, anchor: 18, idMin: 30840, idMax: 30857, status: "ok", note: "Íntegro — Sprint D" },
-];
+function leiLabel(lei: string) {
+  const map: Record<string, string> = {
+    lc214: "LC 214/2025",
+    lc227: "LC 227/2024",
+    lc224: "LC 224/2024",
+    ec132: "EC 132/2023",
+    lc123: "LC 123/2006",
+    lc116: "LC 116/2003",
+    lc87:  "LC 87/1996",
+    cg_ibs:   "CG-IBS",
+    rfb_cbs:  "RFB-CBS",
+    conv_icms: "Conv. ICMS",
+  };
+  return map[lei] ?? lei.toUpperCase();
+}
 
-const GOLD_SET = [
-  { id: "GS-01", label: "Integridade total", desc: "2.078 chunks, 0 sem anchor_id", status: "ok", value: "2.078 / 0 orphans" },
-  { id: "GS-02", label: "Distribuição por lei", desc: "5 leis ativas", status: "ok", value: "5 leis confirmadas" },
-  { id: "GS-03", label: "lc227 — split payment", desc: "≥ 5 chunks recuperáveis", status: "ok", value: "RFC-001 executada ✅" },
-  { id: "GS-04", label: "lc214 Art.45 — confissão", desc: "≥ 1 chunk com tópico relevante", status: "ok", value: "Corpus íntegro" },
-  { id: "GS-05", label: "lc224 — CNAE universal", desc: "cnaeGroups cobrindo grupos 46 e 49", status: "ok", value: "Corrigido Sprint A" },
-  { id: "GS-06", label: "ec132 — cobertura total", desc: "≥ 18 chunks", status: "ok", value: "18 chunks confirmados" },
-  { id: "GS-07", label: "Ausência de anomalias", desc: "anchor_id NOT NULL, lei válida", status: "ok", value: "RFC-001 + RFC-002 ✅" },
-  { id: "GS-08", label: "Ingestão rastrecável", desc: "autor + data_revisao preenchidos", status: "ok", value: "100% rastrecável" },
-];
-
+// RFCs estáticas — governança de mudanças (não vêm do banco)
 const RFCS = [
   {
     id: "RFC-001", title: "Fusão chunks 810+811 (lc227)", lei: "lc227",
@@ -54,11 +53,19 @@ const SPRINTS = [
       "5 leis ativas no corpus · gold set 8/8 verde",
       "Confiabilidade: 100% — meta 98% superada",
     ], status: "done" },
+  { id: "Sprint H", date: "2026-03-26", pr: "#131", commit: "49520a0",
+    changes: [
+      "ragInventory tRPC endpoint — getSnapshot ao vivo",
+      "GS-07 threshold < 10 bytes (cirúrgico)",
+      "lc123 adicionado ao enum lei",
+      "RAG Cockpit alimentado por dados reais",
+    ], status: "done" },
 ];
 
 const SOURCE_FILES = [
   { path: "server/rag-retriever.ts", role: "Motor de recuperação RAG (LIKE + topicos + cnaeGroups)", critical: true },
   { path: "server/rag-corpus.ts", role: "Corpus estático de 63 artigos", critical: true },
+  { path: "server/routers/ragInventory.ts", role: "tRPC endpoint ragInventory.getSnapshot — cockpit ao vivo", critical: true },
   { path: "scripts/corpus-utils.mjs", role: "Utilitários de ingestão — buildAnchorId, upsertChunk", critical: true },
   { path: "scripts/migrate-anchor-id-legado.mjs", role: "Migração de anchor_id para chunks legados", critical: false },
   { path: "drizzle/schema.ts", role: "Schema ragDocuments — enum lei, anchor_id UNIQUE", critical: true },
@@ -69,22 +76,10 @@ const SOURCE_FILES = [
   { path: "docs/rag/gold-set-queries.sql", role: "8 queries canônicas de validação de cobertura", critical: false },
 ];
 
-// ── HELPERS ─────────────────────────────────────────────────────────────────
-
-const totalChunks = CORPUS.reduce((s, c) => s + c.chunks, 0);
-const goldOk = GOLD_SET.filter((g) => g.status === "ok").length;
-const goldTotal = GOLD_SET.length;
-const corpusConfidence = +((goldOk / goldTotal) * 100).toFixed(1);
-const anomalies = RFCS.filter((r) => r.status === "DRAFT" || r.status === "OPEN").length;
-
-// ── COMPONENTS ──────────────────────────────────────────────────────────────
+// ── COMPONENTS ───────────────────────────────────────────────────────────────
 
 const sev: Record<string, string> = { P0: "#ef4444", P1: "#f97316", P2: "#eab308", P3: "#6b7280" };
-const sevBg: Record<string, string> = { P0: "#fee2e2", P1: "#ffedd5", P2: "#fefce8", P3: "#f3f4f6" };
 const sevDark: Record<string, string> = { P0: "#450a0a", P1: "#431407", P2: "#422006", P3: "#1f2937" };
-
-// Suppress unused warning
-void sevBg;
 
 function Badge({ text, color, bg }: { text: string; color: string; bg: string }) {
   return (
@@ -145,20 +140,24 @@ function Tab({ label, active, onClick, alert }: { label: string; active: boolean
   );
 }
 
-// ── TABS ────────────────────────────────────────────────────────────────────
+// ── TABS ─────────────────────────────────────────────────────────────────────
 
-function OverviewTab() {
+function OverviewTab({ totalChunks, totalLeis, goldOk, goldTotal, corpusConfidence, anomalies, snapshot }: {
+  totalChunks: number; totalLeis: number; goldOk: number; goldTotal: number;
+  corpusConfidence: number; anomalies: number; snapshot: any;
+}) {
+  const semAnchor = snapshot ? Number(snapshot.totals.sem_anchor_id) : 0;
   return (
     <div>
       {/* KPI strip */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 20 }}>
         {[
-          { label: "Total de chunks", value: "2.078", sub: "100% anchor_id", color: "#22c55e" },
-          { label: "Leis ativas", value: "4", sub: "lc214 · lc227 · lc224 · ec132", color: "#6366f1" },
-          { label: "Anomalias abertas", value: String(anomalies), sub: "G-01 · G-02", color: anomalies > 0 ? "#f59e0b" : "#22c55e" },
-          { label: "RFCs pendentes", value: String(RFCS.length), sub: "Sprint G", color: "#f59e0b" },
+          { label: "Total de chunks", value: totalChunks.toLocaleString("pt-BR"), sub: `${totalLeis} leis ativas`, color: "#22c55e" },
+          { label: "Leis ativas", value: String(totalLeis), sub: snapshot?.by_lei?.map((r: any) => r.lei).join(" · ") ?? "—", color: "#6366f1" },
+          { label: "Anomalias críticas", value: String(anomalies), sub: anomalies === 0 ? "corpus íntegro" : "requer RFC", color: anomalies > 0 ? "#f59e0b" : "#22c55e" },
+          { label: "Sem anchor_id", value: String(semAnchor), sub: semAnchor === 0 ? "100% rastreável" : "orphans detectados", color: semAnchor > 0 ? "#f59e0b" : "#22c55e" },
           { label: "Gold set verde", value: `${goldOk}/${goldTotal}`, sub: "queries canônicas", color: goldOk === goldTotal ? "#22c55e" : "#f59e0b" },
-          { label: "Testes passando", value: "489+", sub: "baseline v1.6", color: "#22c55e" },
+          { label: "Confiabilidade", value: `${corpusConfidence}%`, sub: "meta: 98%", color: corpusConfidence >= 98 ? "#22c55e" : "#f59e0b" },
         ].map(k => (
           <div key={k.label} style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 10, padding: "14px 16px" }}>
             <div style={{ color: "#64748b", fontSize: 11, marginBottom: 4 }}>{k.label}</div>
@@ -172,17 +171,15 @@ function OverviewTab() {
       <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 20, background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 20, marginBottom: 20 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <ScoreRing value={corpusConfidence} />
-          <div style={{ color: "#64748b", fontSize: 11, textAlign: "center" }}>Confiabilidade RAG<br />gold set atual</div>
+          <div style={{ color: "#64748b", fontSize: 11, textAlign: "center" }}>Confiabilidade RAG<br />gold set ao vivo</div>
         </div>
         <div>
           <div style={{ color: "#94a3b8", fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Status por subsistema</div>
           {[
-            { label: "Integridade do corpus", value: "2.078 chunks · 0 orphans · 100% anchor_id", ok: true },
-            { label: "Distribuição de leis", value: "4 leis · ec132 íntegra · lc224 íntegra", ok: true },
-            { label: "Recuperabilidade lc227", value: "id 811 fragmentado — RFC-001 DRAFT", ok: false },
-            { label: "Recuperabilidade lc214", value: "163 chunks campo lei pendente — RFC-002 DRAFT", ok: false },
-            { label: "Rastreabilidade (anchor_id)", value: "100% preenchido · sistema de rollback ativo", ok: true },
-            { label: "Gold set GS-05, GS-06, GS-08", value: "Verdes · Sprints A, B, D entregues", ok: true },
+            { label: "Integridade do corpus", value: `${totalChunks.toLocaleString("pt-BR")} chunks · ${semAnchor} orphans · ${semAnchor === 0 ? "100%" : "parcial"} anchor_id`, ok: semAnchor === 0 },
+            { label: "Distribuição de leis", value: `${totalLeis} leis ativas`, ok: totalLeis >= 4 },
+            { label: "Gold set canônico", value: `${goldOk}/${goldTotal} verde · ${corpusConfidence}% confiabilidade`, ok: goldOk === goldTotal },
+            { label: "Anomalias críticas", value: anomalies === 0 ? "Nenhuma anomalia crítica detectada" : `${anomalies} anomalia(s) — requer RFC`, ok: anomalies === 0 },
           ].map(s => (
             <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0", borderBottom: "1px solid #0f172a" }}>
               <Dot status={s.ok ? "ok" : "warn"} />
@@ -202,18 +199,20 @@ function OverviewTab() {
   );
 }
 
-function CorpusTab() {
+function CorpusTab({ CORPUS, totalChunks, snapshotAt }: { CORPUS: any[]; totalChunks: number; snapshotAt: string | null }) {
   return (
     <div>
       <div style={{ color: "#64748b", fontSize: 12, marginBottom: 16 }}>
-        Baseline v1.0 · commit d18dadb · 2026-03-26 · total: 2.078 chunks · 100% anchor_id
+        {snapshotAt
+          ? `Dados ao vivo · atualizado ${new Date(snapshotAt).toLocaleString("pt-BR")} · total: ${totalChunks.toLocaleString("pt-BR")} chunks`
+          : "Carregando..."}
       </div>
 
       {/* Bar chart */}
       <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 20, marginBottom: 16 }}>
         <div style={{ color: "#94a3b8", fontSize: 13, fontWeight: 600, marginBottom: 16 }}>Distribuição por lei</div>
-        {CORPUS.map(c => {
-          const w = (c.chunks / totalChunks) * 100;
+        {CORPUS.map((c: any) => {
+          const w = totalChunks > 0 ? (c.chunks / totalChunks) * 100 : 0;
           return (
             <div key={c.lei} style={{ marginBottom: 14 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
@@ -247,14 +246,16 @@ function CorpusTab() {
             </tr>
           </thead>
           <tbody>
-            {CORPUS.map((c, i) => (
+            {CORPUS.map((c: any, i: number) => (
               <tr key={c.lei} style={{ borderBottom: "1px solid #0f172a", background: i % 2 === 0 ? "#0b1423" : "#0f172a" }}>
                 <td style={{ padding: "10px 14px", color: "#a5b4fc", fontFamily: "monospace", fontSize: 12 }}>{c.lei}</td>
                 <td style={{ padding: "10px 14px", color: "#e2e8f0" }}>{c.label}</td>
                 <td style={{ padding: "10px 14px", color: "#e2e8f0", fontFamily: "monospace" }}>{c.chunks.toLocaleString()}</td>
                 <td style={{ padding: "10px 14px", color: "#e2e8f0", fontFamily: "monospace" }}>{c.anchor.toLocaleString()}</td>
                 <td style={{ padding: "10px 14px" }}>
-                  <span style={{ color: "#22c55e", fontFamily: "monospace" }}>100%</span>
+                  <span style={{ color: c.status === "ok" ? "#22c55e" : "#f59e0b", fontFamily: "monospace" }}>
+                    {c.chunks > 0 ? `${((c.anchor / c.chunks) * 100).toFixed(0)}%` : "—"}
+                  </span>
                 </td>
                 <td style={{ padding: "10px 14px", color: "#64748b", fontFamily: "monospace" }}>{c.idMin.toLocaleString()}</td>
                 <td style={{ padding: "10px 14px", color: "#64748b", fontFamily: "monospace" }}>{c.idMax.toLocaleString()}</td>
@@ -270,14 +271,15 @@ function CorpusTab() {
   );
 }
 
-function QualityTab() {
-  const okCount = GOLD_SET.filter(g => g.status === "ok").length;
+function QualityTab({ GOLD_SET, goldOk, goldTotal, corpusConfidence }: {
+  GOLD_SET: any[]; goldOk: number; goldTotal: number; corpusConfidence: number;
+}) {
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
         <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: "12px 20px" }}>
           <div style={{ color: "#64748b", fontSize: 11 }}>Gold set aprovado</div>
-          <div style={{ color: "#22c55e", fontSize: 28, fontWeight: 700, fontFamily: "monospace" }}>{okCount}/{goldTotal}</div>
+          <div style={{ color: "#22c55e", fontSize: 28, fontWeight: 700, fontFamily: "monospace" }}>{goldOk}/{goldTotal}</div>
         </div>
         <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: "12px 20px" }}>
           <div style={{ color: "#64748b", fontSize: 11 }}>Score de cobertura</div>
@@ -290,22 +292,23 @@ function QualityTab() {
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {GOLD_SET.map(g => (
+        {GOLD_SET.map((g: any) => (
           <div key={g.id} style={{
             background: "#0f172a", border: `1px solid ${g.status === "ok" ? "#14532d" : "#451a03"}`,
             borderRadius: 10, padding: "12px 16px",
             display: "flex", alignItems: "center", gap: 12
           }}>
             <span style={{
-              width: 56, fontSize: 11, fontWeight: 700, fontFamily: "monospace",
+              width: 60, fontSize: 11, fontWeight: 700, fontFamily: "monospace",
               color: g.status === "ok" ? "#22c55e" : "#f59e0b"
             }}>{g.id}</span>
             <div style={{ flex: 1 }}>
               <div style={{ color: "#e2e8f0", fontSize: 13, fontWeight: 600 }}>{g.label}</div>
-              <div style={{ color: "#475569", fontSize: 12, marginTop: 2 }}>{g.desc}</div>
+              <div style={{ color: "#475569", fontSize: 12, marginTop: 2 }}>
+                {g.value ? JSON.stringify(g.value) : "—"}
+              </div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{ color: "#64748b", fontSize: 12, fontFamily: "monospace" }}>{g.value}</div>
               <Badge
                 text={g.status === "ok" ? "✓ Verde" : "⚠ Pendente"}
                 color={g.status === "ok" ? "#22c55e" : "#f59e0b"}
@@ -317,22 +320,23 @@ function QualityTab() {
       </div>
 
       <div style={{ marginTop: 16, background: "#0f172a", border: "1px solid #1e293b", borderRadius: 10, padding: "14px 16px", fontSize: 12, color: "#475569" }}>
-        <span style={{ color: "#94a3b8", fontWeight: 600 }}>Para atingir 98%: </span>
-        GS-03 e GS-07 dependem de RFC-001 (id 811). GS-04 requer melhoria de topicos (G5 residual). Com Sprint G completo: 8/8 verde → 100% gold set → 98%+ de confiabilidade.
+        <span style={{ color: "#94a3b8", fontWeight: 600 }}>Gold set ao vivo: </span>
+        Queries executadas em tempo real contra o banco. GS-07b é informativo (chunks SUPERSEDED de governança) e não entra no cálculo de confidence.
       </div>
     </div>
   );
 }
 
-function IncidentsTab() {
+function AnomaliesTab({ anomaliesData }: { anomaliesData: any[] }) {
+  const rfcOpen = RFCS.filter(r => r.status === "DRAFT" || r.status === "OPEN" || r.status === "BACKLOG");
   return (
     <div>
       <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
         {[
-          { label: "P0 Crítico", count: 0, color: "#ef4444" },
-          { label: "P1 Alto", count: 1, color: "#f97316" },
-          { label: "P2 Médio", count: 1, color: "#eab308" },
-          { label: "P3 Baixo", count: 0, color: "#6b7280" },
+          { label: "P0 Crítico", count: anomaliesData.filter((a: any) => a.bytes < 5).length, color: "#ef4444" },
+          { label: "P1 Alto", count: rfcOpen.filter(r => r.severity === "P1").length, color: "#f97316" },
+          { label: "P2 Médio", count: rfcOpen.filter(r => r.severity === "P2").length, color: "#eab308" },
+          { label: "P3 Baixo", count: rfcOpen.filter(r => r.severity === "P3").length, color: "#6b7280" },
         ].map(p => (
           <div key={p.label} style={{
             background: "#0f172a", border: `1px solid ${p.count > 0 ? p.color + "44" : "#1e293b"}`,
@@ -344,6 +348,37 @@ function IncidentsTab() {
         ))}
       </div>
 
+      {/* Anomalias críticas do banco */}
+      {anomaliesData.length > 0 && (
+        <div style={{ background: "#0f172a", border: "1px solid #f9731644", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+          <div style={{ color: "#f97316", fontSize: 13, fontWeight: 600, marginBottom: 10 }}>
+            Anomalias críticas detectadas no corpus ({anomaliesData.length})
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid #1e293b" }}>
+                {["ID", "Lei", "Artigo", "Bytes", "anchor_id", "Autor"].map(h => (
+                  <th key={h} style={{ padding: "6px 10px", textAlign: "left", color: "#475569", fontWeight: 600, fontSize: 11 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {anomaliesData.map((a: any) => (
+                <tr key={a.id} style={{ borderBottom: "1px solid #0f172a" }}>
+                  <td style={{ padding: "6px 10px", color: "#f97316", fontFamily: "monospace" }}>{a.id}</td>
+                  <td style={{ padding: "6px 10px", color: "#a5b4fc", fontFamily: "monospace" }}>{a.lei}</td>
+                  <td style={{ padding: "6px 10px", color: "#94a3b8" }}>{a.artigo}</td>
+                  <td style={{ padding: "6px 10px", color: "#f97316", fontFamily: "monospace" }}>{a.bytes}</td>
+                  <td style={{ padding: "6px 10px", color: a.anchor_id ? "#22c55e" : "#ef4444", fontFamily: "monospace" }}>{a.anchor_id ? "✓" : "NULL"}</td>
+                  <td style={{ padding: "6px 10px", color: "#64748b" }}>{a.autor ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* RFCs */}
       {RFCS.map(r => (
         <div key={r.id} style={{
           background: "#0f172a", border: `1px solid ${sev[r.severity]}44`,
@@ -376,7 +411,7 @@ function IncidentsTab() {
         <div style={{ display: "flex", gap: 0, overflowX: "auto" }}>
           {["Detectar", "Isolar", "Impactar", "RFC", "Aprovar", "Executar", "Verificar", "Registrar"].map((s, i) => (
             <div key={s} style={{ display: "flex", alignItems: "center" }}>
-              <div style={{ textAlign: "center", minWidth: 72 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 60 }}>
                 <div style={{
                   width: 32, height: 32, borderRadius: "50%", background: "#1e293b",
                   border: "1px solid #334155", display: "flex", alignItems: "center", justifyContent: "center",
@@ -389,6 +424,42 @@ function IncidentsTab() {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+function RastreabilidadeTab({ byAutor }: { byAutor: any[] }) {
+  return (
+    <div>
+      <div style={{ color: "#64748b", fontSize: 12, marginBottom: 16 }}>
+        Distribuição de chunks por autor de ingestão — dados ao vivo
+      </div>
+      {byAutor.length === 0 ? (
+        <div style={{ color: "#475569", fontSize: 13, padding: "20px 0" }}>Nenhum dado de rastreabilidade disponível.</div>
+      ) : (
+        <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, overflow: "hidden" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ background: "#0f172a", borderBottom: "1px solid #1e293b" }}>
+                {["Autor", "Chunks", "id_min", "id_max", "Última revisão"].map(h => (
+                  <th key={h} style={{ padding: "10px 14px", textAlign: "left", color: "#475569", fontWeight: 600, fontSize: 11, letterSpacing: "0.06em" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {byAutor.map((a: any, i: number) => (
+                <tr key={i} style={{ borderBottom: "1px solid #0f172a", background: i % 2 === 0 ? "#0b1423" : "#0f172a" }}>
+                  <td style={{ padding: "10px 14px", color: "#a5b4fc", fontFamily: "monospace", fontSize: 12 }}>{a.autor ?? "(null)"}</td>
+                  <td style={{ padding: "10px 14px", color: "#e2e8f0", fontFamily: "monospace" }}>{Number(a.qtd).toLocaleString()}</td>
+                  <td style={{ padding: "10px 14px", color: "#64748b", fontFamily: "monospace" }}>{a.id_min}</td>
+                  <td style={{ padding: "10px 14px", color: "#64748b", fontFamily: "monospace" }}>{a.id_max}</td>
+                  <td style={{ padding: "10px 14px", color: "#64748b", fontSize: 12 }}>{a.ultima_revisao ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
@@ -545,30 +616,74 @@ if (results.length === 0) {
   );
 }
 
-// ── MAIN ────────────────────────────────────────────────────────────────────
+// ── MAIN ─────────────────────────────────────────────────────────────────────
 
 export default function RAGCockpit() {
   const [tab, setTab] = useState(0);
-  const [, setTick] = useState(0);
 
-  useEffect(() => {
-    const t = setInterval(() => setTick(v => v + 1), 3000);
-    return () => clearInterval(t);
-  }, []);
+  // ── Tarefa 1: query tRPC ao vivo ──────────────────────────────────────────
+  const { data: snapshot, isLoading, refetch } = trpc.ragInventory.getSnapshot.useQuery(
+    undefined,
+    { refetchInterval: 60_000 } // atualiza a cada 60s
+  );
+
+  // ── Tarefa 3: loading state ───────────────────────────────────────────────
+  if (isLoading) return (
+    <div style={{
+      background: "#020817", minHeight: "100vh",
+      display: "flex", alignItems: "center", justifyContent: "center"
+    }}>
+      <div style={{ color: "#64748b", fontSize: 14 }}>
+        Carregando inventário do corpus RAG...
+      </div>
+    </div>
+  );
+
+  // ── Tarefa 2: derivar dados do snapshot ───────────────────────────────────
+  const totalChunks      = snapshot ? Number(snapshot.totals.total_chunks) : 0;
+  const totalLeis        = snapshot ? Number(snapshot.totals.total_leis)   : 0;
+  const goldOk           = snapshot ? snapshot.gold_set.filter((g: any) => g.status === "ok").length : 0;
+  const goldTotal        = snapshot ? snapshot.gold_set.length : 8;
+  const corpusConfidence = snapshot?.confidence ?? 0;
+  const anomalies        = snapshot ? snapshot.anomalies.length : 0;
+  const snapshotAt       = snapshot?.snapshot_at ?? null;
+
+  // ── Tarefa 6: derivar arrays das abas ─────────────────────────────────────
+  const CORPUS = snapshot?.by_lei.map((r: any) => ({
+    lei:    r.lei,
+    label:  leiLabel(r.lei),
+    chunks: Number(r.total),
+    anchor: Number(r.total) - Number(r.sem_anchor),
+    idMin:  Number(r.id_min),
+    idMax:  Number(r.id_max),
+    status: Number(r.sem_anchor) > 0 ? "warn" : "ok",
+    note:   Number(r.sem_anchor) > 0 ? `${r.sem_anchor} sem anchor_id` : "Íntegro",
+  })) ?? [];
+
+  const GOLD_SET      = snapshot?.gold_set ?? [];
+  const anomaliesData = snapshot?.anomalies ?? [];
+  const byAutor       = snapshot?.by_autor ?? [];
 
   const tabs = [
-    { label: "Visão geral", alert: 0 },
-    { label: "Corpus por lei", alert: 0 },
-    { label: "Qualidade / Gold set", alert: goldTotal - goldOk },
+    { label: "Visão geral",           alert: 0 },
+    { label: "Corpus por lei",        alert: 0 },
+    { label: "Qualidade / Gold set",  alert: goldTotal - goldOk },
     { label: "Anomalias / Incidentes", alert: anomalies },
-    { label: "Change Management", alert: RFCS.length },
-    { label: "Arquivos fonte", alert: 0 },
-    { label: "Rollback & Fallback", alert: 0 },
+    { label: "Rastreabilidade",       alert: 0 },
+    { label: "Change Management",     alert: 0 },
+    { label: "Arquivos fonte",        alert: 0 },
+    { label: "Rollback & Fallback",   alert: 0 },
   ];
 
   const panels = [
-    <OverviewTab key="overview" />, <CorpusTab key="corpus" />, <QualityTab key="quality" />,
-    <IncidentsTab key="incidents" />, <ChangeMgmtTab key="change" />, <FilesTab key="files" />, <RollbackTab key="rollback" />
+    <OverviewTab key="overview" totalChunks={totalChunks} totalLeis={totalLeis} goldOk={goldOk} goldTotal={goldTotal} corpusConfidence={corpusConfidence} anomalies={anomalies} snapshot={snapshot} />,
+    <CorpusTab key="corpus" CORPUS={CORPUS} totalChunks={totalChunks} snapshotAt={snapshotAt} />,
+    <QualityTab key="quality" GOLD_SET={GOLD_SET} goldOk={goldOk} goldTotal={goldTotal} corpusConfidence={corpusConfidence} />,
+    <AnomaliesTab key="anomalies" anomaliesData={anomaliesData} />,
+    <RastreabilidadeTab key="rastreabilidade" byAutor={byAutor} />,
+    <ChangeMgmtTab key="change" />,
+    <FilesTab key="files" />,
+    <RollbackTab key="rollback" />,
   ];
 
   return (
@@ -594,8 +709,27 @@ export default function RAGCockpit() {
             <span style={{ color: "#334155", fontSize: 13 }}>·</span>
             <span style={{ color: "#475569", fontSize: 13 }}>compliance-tributaria-v2</span>
           </div>
-          <div style={{ color: "#334155", fontSize: 11, marginTop: 3 }}>
-            Corpus baseline v1.0 · commit d18dadb · 2026-03-26 · Sprint G pré-execução
+          {/* Tarefa 4: timestamp ao vivo */}
+          <div style={{ color: "#334155", fontSize: 11, marginTop: 3, display: "flex", alignItems: "center", gap: 8 }}>
+            {snapshotAt
+              ? `Corpus ao vivo · atualizado ${new Date(snapshotAt).toLocaleTimeString("pt-BR")}`
+              : "Carregando..."}
+            {/* Tarefa 5: botão Atualizar */}
+            <button
+              onClick={() => refetch()}
+              style={{
+                background: "transparent",
+                border: "1px solid #1e293b",
+                borderRadius: 6,
+                padding: "2px 10px",
+                fontSize: 11,
+                color: "#475569",
+                cursor: "pointer",
+                marginLeft: 4,
+              }}
+            >
+              Atualizar
+            </button>
           </div>
         </div>
         <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
@@ -611,6 +745,10 @@ export default function RAGCockpit() {
             <div style={{ color: anomalies > 0 ? "#f59e0b" : "#22c55e", fontFamily: "monospace", fontWeight: 700, fontSize: 20 }}>{anomalies}</div>
             <div style={{ color: "#334155", fontSize: 10 }}>anomalias</div>
           </div>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ color: "#94a3b8", fontFamily: "monospace", fontWeight: 700, fontSize: 20 }}>{totalChunks.toLocaleString("pt-BR")}</div>
+            <div style={{ color: "#334155", fontSize: 10 }}>chunks</div>
+          </div>
         </div>
       </div>
 
@@ -620,8 +758,8 @@ export default function RAGCockpit() {
           background: "#431407", borderBottom: "1px solid #f97316",
           padding: "8px 24px", display: "flex", alignItems: "center", gap: 8, fontSize: 13
         }}>
-          <span style={{ color: "#f97316", fontWeight: 700 }}>⚠ {anomalies} anomalia{anomalies > 1 ? "s" : ""} ativa{anomalies > 1 ? "s" : ""}: </span>
-          <span style={{ color: "#fca5a5" }}>RFC-001 (P2 · id 811 lc227 fragmentado) · RFC-002 (P1 · 163 chunks campo lei incorreto) — aguardando diagnóstico e aprovação do P.O.</span>
+          <span style={{ color: "#f97316", fontWeight: 700 }}>⚠ {anomalies} anomalia{anomalies > 1 ? "s" : ""} crítica{anomalies > 1 ? "s" : ""} detectada{anomalies > 1 ? "s" : ""}: </span>
+          <span style={{ color: "#fca5a5" }}>chunks com conteúdo &lt; 10 bytes ou sem anchor_id — requer RFC.</span>
         </div>
       )}
 
