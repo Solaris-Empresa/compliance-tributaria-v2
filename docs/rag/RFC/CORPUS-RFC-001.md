@@ -8,8 +8,9 @@
 | Severidade       | P2 — Médio                     |
 | Sprint           | G                              |
 | Autor            | Manus AI                       |
-| Aprovação P.O.   | [ ] Pendente                   |
-| Status           | DRAFT — aguardando diagnóstico |
+| Aprovação P.O.   | [x] Aprovado 2026-03-26        |
+| Aprovação Claude | [x] Aprovado 2026-03-26        |
+| Status           | EXECUTED                       |
 
 ---
 
@@ -77,5 +78,13 @@ A ser preenchida pelo Manus após execução.
 
 ## Aprovações
 
-- [ ] Orquestrador (Claude) — após diagnóstico
-- [ ] P.O. (Uires Tapajós) — antes da execução no banco
+- [x] Orquestrador (Claude) — aprovado 2026-03-26
+- [x] P.O. (Uires Tapajós) — aprovado 2026-03-26
+
+---
+
+## Histórico de execução
+
+| Data | Status anterior | Status novo | Executor |
+|---|---|---|---|
+| 2026-03-26 | AGUARDA DIAGNÓSTICO | EXECUTED | Manus AI / Orquestrador |

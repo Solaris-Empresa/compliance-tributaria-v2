@@ -8,8 +8,9 @@
 | Severidade       | P1 — Alto                      |
 | Sprint           | G                              |
 | Autor            | Manus AI                       |
-| Aprovação P.O.   | [ ] Pendente                   |
-| Status           | DRAFT — aguardando diagnóstico |
+| Aprovação P.O.   | [x] Aprovado 2026-03-26        |
+| Aprovação Claude | [x] Aprovado 2026-03-26        |
+| Status           | EXECUTED                       |
 
 ---
 
@@ -98,11 +99,33 @@ A ser preenchida pelo Manus antes de qualquer escrita no banco.
 
 ## Snapshot pós-execução
 
-A ser preenchida pelo Manus após execução.
+25 chunks migrados de `lei=lc214` para `lei=lc123` (Simples Nacional / MEI).
+id 632 (Art. 35 / Lei 9.430/1996) preservado como `lc214` — RFC-003 futura.
+
+---
+
+## Gold set pós-execução
+
+| Query | Descrição | Status pré | Status pós | Passou |
+|---|---|---|---|---|
+| GS-01 | Integridade total       | ⚠️ Pendente | ✅ Verde | ✅ |
+| GS-02 | Distribuição por lei    | ⚠️ Pendente | ✅ Verde | ✅ |
+| GS-06 | lc123 — 25 chunks       | —           | ✅ Verde | ✅ |
+| GS-07 | Ausência de anomalias   | ⚠️ Pendente | ✅ Verde | ✅ |
+
+Confiabilidade depois: **100%**
 
 ---
 
 ## Aprovações
 
-- [ ] Orquestrador (Claude) — após análise do diagnóstico
-- [ ] P.O. (Uires Tapajós) — antes do UPDATE no banco
+- [x] Orquestrador (Claude) — aprovado 2026-03-26
+- [x] P.O. (Uires Tapajós) — aprovado 2026-03-26
+
+---
+
+## Histórico de execução
+
+| Data | Status anterior | Status novo | Executor |
+|---|---|---|---|
+| 2026-03-26 | AGUARDA DIAGNÓSTICO | EXECUTED | Manus AI / Orquestrador |
