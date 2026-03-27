@@ -53,12 +53,25 @@ const SPRINTS = [
       "5 leis ativas no corpus · gold set 8/8 verde",
       "Confiabilidade: 100% — meta 98% superada",
     ], status: "done" },
-  { id: "Sprint H", date: "2026-03-26", pr: "#131", commit: "49520a0",
+  { id: "Sprint H", date: "2026-03-27", pr: "#131", commit: "49520a0",
     changes: [
       "ragInventory tRPC endpoint — getSnapshot ao vivo",
       "GS-07 threshold < 10 bytes (cirúrgico)",
       "lc123 adicionado ao enum lei",
       "RAG Cockpit alimentado por dados reais",
+      "16 updates cirúrgicos em topicos — retrieval cross-lei melhorado",
+      "ids 618/633: ICMS+LC87 · ISS+LC116 — keywords de tributos extintos",
+      "ids 657/669/690/698: Simples Nacional+LC123 — regime especial",
+      "ids 734/781: LRF+LC101 — responsabilidade fiscal",
+      "ids 621/625/631/635/736/739/741: PIS+COFINS+CBS — tributos federais",
+    ], status: "done" },
+  { id: "Suite UAT", date: "2026-03-27", pr: "#144", commit: "pending_merge",
+    changes: [
+      "25 testes novos — validação 12 itens UAT (G1–G16)",
+      "517 testes totais (492 baseline + 25 novos)",
+      "Evidence JSON — 18 verificações E2E banco/grep",
+      "Gold set 8/8 = 100% confirmado via queries reais",
+      "DIAGNOSTIC_READ_MODE=shadow confirmado",
     ], status: "done" },
 ];
 
@@ -733,6 +746,14 @@ export default function RAGCockpit() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+          {/* Badge UAT em andamento */}
+          <div style={{
+            background: "#1a2744", border: "1px solid #3b82f6",
+            borderRadius: 8, padding: "6px 14px", textAlign: "center"
+          }}>
+            <div style={{ color: "#60a5fa", fontWeight: 700, fontSize: 12, letterSpacing: "0.05em" }}>🧪 UAT EM ANDAMENTO</div>
+            <div style={{ color: "#334155", fontSize: 10, marginTop: 2 }}>v2.0 · 12 demandas · PR #144</div>
+          </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ color: corpusConfidence >= 98 ? "#22c55e" : "#f59e0b", fontFamily: "monospace", fontWeight: 700, fontSize: 20 }}>{corpusConfidence}%</div>
             <div style={{ color: "#334155", fontSize: 10 }}>confiabilidade</div>
