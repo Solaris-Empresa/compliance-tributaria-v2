@@ -2,8 +2,8 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 1.8 — 2026-03-27
-> **Commit HEAD:** `ebfa1cb` (branch `main`)
+> **Versão:** 2.1 — 2026-03-27
+> **Commit HEAD:** `90814b7` (branch `main`)
 > **Checkpoint Manus:** `ab1cbc31`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
@@ -25,7 +25,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | 0 erros (`npx tsc --noEmit`) | ✅ |
-| Testes automatizados — total | **492 testes passando** | ✅ |
+| Testes automatizados — total | **517 testes passando** (492 baseline + 25 suite UAT 12 itens) | ✅ |
 | Cobertura de suítes | PCT v1 (117) · PCT v2 (81) · E2E Fase 2 (132) · BUG-001 (33) · INV-606/607/608 (47) · Sprint B (9) · Sprint C (15) · Sprint D (55) · Sprint E (20) | ✅ |
 | Git working tree | Limpo — sem arquivos pendentes | ✅ |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
@@ -244,6 +244,12 @@ Os erros abaixo estão catalogados em [`docs/ERROS-CONHECIDOS.md`](https://githu
 | **Sprint H · M1 (RAG)** | `ragInventory.getSnapshot` tRPC endpoint · 9 gold set queries · GS-07 threshold `< 10 bytes` · GS-07b SUPERSEDED informativo · `lc123` ao enum `lei` | ✅ Concluída | PR #131 — `49520a0` |
 | **Sprint H · M2 (Cockpit)** | RAG Cockpit ao vivo: dados estáticos → tRPC · loading state · timestamp · botão Atualizar · 8 abas com dados reais · refetchInterval 60s | ✅ Concluída | PR #132 — `ebfa1cb` |
 | **Sprint I — DT-01** | Guard db:push (.mjs) + 3 testes automatizados + OPENAI_API_KEY no CI | ✅ Concluída | PR #139 — `fc54e13f` |
+| **Sprint I — G16 testes** | 5 testes `ragAdmin.uploadCsv` — dry-run, inserção, validação, acesso | ✅ Concluída | PR #141 — `e21a0ef` |
+| **Sprint J — G15** | `fonte` + `requirement_id` + `source_reference` no `QuestionSchema` · prompt `generateQuestions` atualizado com regra 7 | ✅ Concluída | PR #142 — `51a9863` |
+| **Docs — BASELINE v2.0** | G13-UI + G14 confirmados ✅ prod · todas as 12 demandas UAT atendidas | ✅ Concluída | PR #143 — `e4079cf` |
+| **Suite UAT 12 itens** | 25 testes novos (G1–G16) · Evidence JSON 18 verificações E2E · gold set 8/8 = 100% | ✅ Concluída | PR #144 — `50508a1` |
+| **Cockpit P.O. v3** | v2.0/492 → v2.1/517 · UAT retorno · kanban+decisions atualizados | ⏳ Aguardando merge | PR #148 |
+| **RAG Cockpit v2** | Sprint H enriquecida (16 updates topicos) · Suite UAT · badge UAT em andamento | ⏳ Aguardando merge | PR #147 |
 
 ---
 
@@ -266,22 +272,28 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 
 ## 10. Próximos Passos
 
-### P0 — Imediato (Sprint I)
+### P0 — Imediato
 
 ~~1. **G13** — Remover placeholders `[QC-XX]` e `[QC-XX-PY]` visíveis ao advogado~~ ✅ **Concluído** — PR #134
 ~~2. **G14** — Label `"Contabilidade"` → `"Contabilidade e Fiscal"`~~ ✅ **Concluído** — PR #134
 
 > **Todas as 12 demandas dos advogados estão atendidas. Produto pronto para retorno ao UAT.**
 
-### P1 — Próximo ciclo
+1. **Testes manuais do P.O.** — Uires executa roteiro UAT com produto atualizado. Cockpit P.O. v3 e RAG Cockpit v2 atualizados. 517 testes passando. 12 demandas dos advogados implementadas e validadas.
+2. **Decisão UAT** — após testes manuais, P.O. decide aprovar ou não o retorno dos advogados para validação final antes do modo `new`.
 
-3. **RFC-003 (P3)** — id 113 (`"e"` — 1 char) detectado como anomalia real no RAG Cockpit · avaliar reclassificação
-4. **Issue #101** — 123 testes CI com fetch real sem mock · `skipIf(isCI)` aplicado como paliativo
-5. **Issues #56, #61, #62** — F-04 Fase 3 + modo `new` + DROP COLUMN — aguardam UAT
+### P1 — Pós-aprovação UAT
 
-### P2 — Suspenso
+3. **Ativar DIAGNOSTIC_READ_MODE=new** — Issue #56 (F-04 Fase 3) desbloqueada após aprovação formal do UAT pelo P.O.
+4. **Issue #61** — Promover para modo `new` (aguarda #56)
+5. **Issue #62** — DROP COLUMN colunas legadas (aguarda #61)
+6. **Issue #101** — 9 testes corpus com skipIf(CI) → habilitar no CI real
 
-6. **Rollout DEC-006** — Novo modelo operacional: Claude implementa via artifacts, Manus audita e deploya.
+### P2 — Débitos técnicos registrados
+
+7. **evidencia_regulatoria default genérico** — `RiskItemSchema` (linha 310) e `BriefingSchema` (linha 177) ainda contêm `default("Reforma Tributária — EC 132/2023")`. Registrado no PR #144. Sprint futura.
+8. **CRUD QuestionSchema G15** — `routers-questions-crud.ts` não foi atualizado com `fonte`/`requirement_id`/`source_reference`. Sprint K futura.
+9. **commit "pending_merge" no RAG Cockpit** — atualizar hash da entrada "Suite UAT" para o commit real do PR #144 após merge.
 
 ---
 
@@ -330,6 +342,7 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 | 1.8 | 2026-03-27 | `ebfa1cb` | Sprint H concluída · PR #131 ragInventory tRPC (9 gold set queries, GS-07 threshold < 10 bytes, lc123 ao enum) · PR #132 RAG Cockpit ao vivo (dados estáticos → tRPC, 8 abas, refetchInterval 60s) · Sprint I iniciada (G13+G14 UAT) |
 | 1.9 | 2026-03-27 | `fc54e13f` | DT-01 — guard db:push + 3 testes + secret CI configurado |
 | 2.0 | 2026-03-27 | `b8bbc062` | G13-UI + G14 confirmados ✅ prod (PR #134) · todas as 12 demandas UAT atendidas · produto pronto para retorno ao UAT |
+| 2.1 | 2026-03-27 | `90814b7` | PRs #141–#144 mergeados · 517 testes · suite UAT 12 itens concluída · Cockpit P.O. v3 (PR #148 aguardando merge) · RAG Cockpit v2 (PR #147 aguardando merge) · produto pronto para testes manuais P.O. |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
