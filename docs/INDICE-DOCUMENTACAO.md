@@ -6,7 +6,7 @@
 > **Commit HEAD:** `3d4bd11` (branch `main`)
 > **Total de documentos:** 135 arquivos Markdown (sem .docx — GitHub é o repositório oficial)
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
-> **Novos nesta versão:** GATE-CHECKLIST · Skills Manus + Claude · SNAPSHOT-SPRINT-98-B2 · HANDOFF-SESSAO-2026-03-26 · GUIA-PO-ROLLOUT-ENTRE-SESSOES · FRAMEWORK-GOVERNANCA (docs/governanca/)
+> **Novos nesta versão:** GATE-CHECKLIST · Skills Manus + Claude · SNAPSHOT-SPRINT-98-B2 · HANDOFF-SESSAO-2026-03-26 · GUIA-PO-ROLLOUT-ENTRE-SESSOES · FRAMEWORK-GOVERNANCA (docs/governanca/) · RAG-PROCESSO · RAG-RESPONSABILIDADES · HANDOFF-RAG
 >
 > **📌 Acesso rápido para o P.O.:**
 > - 🔴 [ERROS CONHECIDOS v2.1](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md) — incidentes, runbooks, sprints
@@ -312,8 +312,25 @@ Documentos gerados na Sprint 98% Confidence (B0/B1/B2) e no rollout pós-sessão
 
 ---
 
-*Atualizado em 2026-03-26 — Versão 2.07 | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
-*Versão anterior: 2.06 (commit `bc83f9b`, 2026-03-24) — MODELO-OPERACIONAL.md v1.0 + Categoria 11 Suporte ao Usuário + PRODUCT-LIFECYCLE.md v1.0*
+## Categoria 13 — Sprint G · Governança RAG (2026-03-26)
+
+Documentos gerados na Sprint G (corpus complementar) — RFC-001, RFC-002, governança do corpus RAG.
+
+| Arquivo | Descrição | Status |
+|---|---|---|
+| [⭐ **CORPUS-BASELINE.md v1.1**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/CORPUS-BASELINE.md) | **Baseline do corpus RAG** — 2.078 chunks · 5 leis · gold set 8/8 · confiabilidade 100% | ✅ Ativo |
+| [⭐ **RAG-GOVERNANCE.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/RAG-GOVERNANCE.md) | **Regras de governança RAG** — RFCs, rollback, métricas, P0–P3 | ✅ Ativo |
+| [⭐ **RAG-PROCESSO.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/RAG-PROCESSO.md) | **Processos de governança do corpus** — leitura, escrita, expansão · audiência: P.O. · Orquestrador · Manus | ✅ Novo |
+| [⭐ **RAG-RESPONSABILIDADES.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/RAG-RESPONSABILIDADES.md) | **Matriz RACI do corpus RAG** — P.O. · Orquestrador · Manus · Equipe Jurídica | ✅ Novo |
+| [⭐ **HANDOFF-RAG.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/HANDOFF-RAG.md) | **Handoff RAG** — contexto de sessão para operações do corpus (equivalente ao HANDOFF-MANUS.md) | ✅ Novo |
+| [**CORPUS-RFC-001.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/RFC/CORPUS-RFC-001.md) | RFC-001 EXECUTED — fusão chunks 810+811 (lc227 Art. 2) | ✅ Executada |
+| [**CORPUS-RFC-002.md**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/RFC/CORPUS-RFC-002.md) | RFC-002 EXECUTED — 25 chunks lc214→lc123 (Simples Nacional) | ✅ Executada |
+| [**gold-set-queries.sql**](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/gold-set-queries.sql) | 8 queries canônicas GS-01 a GS-08 de validação do corpus | ✅ Ativo |
+
+---
+
+*Atualizado em 2026-03-26 — Versão 2.08 | Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Versão anterior: 2.07 (commit `4da7ead`, 2026-03-26) — docs/governanca/ + Categoria 12 Sprint B2*
 *Versão anterior: 2.05 (commit `bc83f9b`, 2026-03-24) — Categoria 11 Suporte ao Usuário + PRODUCT-LIFECYCLE.md v1.0*
 *Versão anterior: 2.04 (commit `52c677b`, 2026-03-24) — PRODUCT-LIFECYCLE.md v1.0 + Playruns + limpeza de token*
 *Versão anterior: 2.03 (commit `a086ee3`, 2026-03-24) — link quebrado removido*

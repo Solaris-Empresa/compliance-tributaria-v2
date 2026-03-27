@@ -3,33 +3,43 @@ import { useState, useEffect } from "react";
 // ── DATA ────────────────────────────────────────────────────────────────────
 
 const CORPUS = [
-  { lei: "lc214", label: "LC 214/2025", chunks: 1598, anchor: 1598, idMin: 1, idMax: 30839, status: "warn", note: "G-02: ids 617–779 campo lei a validar" },
-  { lei: "lc227", label: "LC 227/2024", chunks: 434, anchor: 434, idMin: 808, idMax: 1241, status: "warn", note: "G-01: id 811 fragmentado" },
-  { lei: "lc224", label: "LC 224/2024", chunks: 28, anchor: 28, idMin: 780, idMax: 807, status: "ok", note: "Íntegro — G5/G6 corrigidos" },
+  { lei: "lc214", label: "LC 214/2025", chunks: 1573, anchor: 1573, idMin: 1, idMax: 30839, status: "ok", note: "Corpus principal — íntegro pós-Sprint G" },
+  { lei: "lc123", label: "LC 123/2006", chunks: 25, anchor: 25, idMin: 664, idMax: 722, status: "ok", note: "Simples Nacional — RFC-002 Sprint G" },
+  { lei: "lc227", label: "LC 227/2024", chunks: 434, anchor: 434, idMin: 808, idMax: 1241, status: "ok", note: "RFC-001 executada — id 810 fusionado" },
+  { lei: "lc224", label: "LC 224/2024", chunks: 28, anchor: 28, idMin: 780, idMax: 807, status: "ok", note: "Íntegro — G5/G6 corrigidos Sprint A" },
   { lei: "ec132", label: "EC 132/2023", chunks: 18, anchor: 18, idMin: 30840, idMax: 30857, status: "ok", note: "Íntegro — Sprint D" },
 ];
 
 const GOLD_SET = [
   { id: "GS-01", label: "Integridade total", desc: "2.078 chunks, 0 sem anchor_id", status: "ok", value: "2.078 / 0 orphans" },
-  { id: "GS-02", label: "Distribuição por lei", desc: "4 leis ativas, bate com baseline", status: "ok", value: "4 leis confirmadas" },
-  { id: "GS-03", label: "lc227 — split payment", desc: "≥ 5 chunks recuperáveis", status: "warn", value: "Aguarda RFC-001" },
-  { id: "GS-04", label: "lc214 Art.45 — confissão", desc: "≥ 1 chunk com tópico relevante", status: "warn", value: "Topicos incompletos (G5)" },
+  { id: "GS-02", label: "Distribuição por lei", desc: "5 leis ativas", status: "ok", value: "5 leis confirmadas" },
+  { id: "GS-03", label: "lc227 — split payment", desc: "≥ 5 chunks recuperáveis", status: "ok", value: "RFC-001 executada ✅" },
+  { id: "GS-04", label: "lc214 Art.45 — confissão", desc: "≥ 1 chunk com tópico relevante", status: "ok", value: "Corpus íntegro" },
   { id: "GS-05", label: "lc224 — CNAE universal", desc: "cnaeGroups cobrindo grupos 46 e 49", status: "ok", value: "Corrigido Sprint A" },
   { id: "GS-06", label: "ec132 — cobertura total", desc: "≥ 18 chunks", status: "ok", value: "18 chunks confirmados" },
-  { id: "GS-07", label: "Ausência de anomalias", desc: "anchor_id NOT NULL, lei válida", status: "warn", value: "G-01 + G-02 pendentes" },
-  { id: "GS-08", label: "Ingestão rastreável", desc: "autor + data_revisao preenchidos", status: "ok", value: "100% Sprint D" },
+  { id: "GS-07", label: "Ausência de anomalias", desc: "anchor_id NOT NULL, lei válida", status: "ok", value: "RFC-001 + RFC-002 ✅" },
+  { id: "GS-08", label: "Ingestão rastrecável", desc: "autor + data_revisao preenchidos", status: "ok", value: "100% rastrecável" },
 ];
 
 const RFCS = [
   {
-    id: "RFC-001", title: "Chunk fragmentado id 811", lei: "lc227", severity: "P2",
-    status: "DRAFT", ids: "811", action: "Reingesta ou fusão c/ chunk anterior",
-    sprint: "G", created: "2026-03-26", approved: false,
+    id: "RFC-001", title: "Fusão chunks 810+811 (lc227)", lei: "lc227",
+    severity: "P2", status: "EXECUTED", ids: "810–811",
+    action: "✅ Executada — id 810 = 3.547 bytes · id 811 SUPERSEDED",
+    sprint: "G", created: "2026-03-26", approved: true,
   },
   {
-    id: "RFC-002", title: "Campo lei incorreto ids 617–779", lei: "lc214", severity: "P1",
-    status: "DRAFT", ids: "617–779 (163 chunks)", action: "UPDATE SET lei = [correta] após diagnóstico",
-    sprint: "G", created: "2026-03-26", approved: false,
+    id: "RFC-002", title: "25 chunks migrados lc214→lc123", lei: "lc123",
+    severity: "P1", status: "EXECUTED", ids: "664–722 (25 chunks)",
+    action: "✅ Executada — Simples Nacional ativo no corpus",
+    sprint: "G", created: "2026-03-26", approved: true,
+  },
+  {
+    id: "RFC-003", title: "Artigos de leis avulsas na faixa 617–779",
+    lei: "lc214", severity: "P3", status: "BACKLOG",
+    ids: "~10 chunks (Art. 30/Lei 9.430, Art. 23/CIDE, Art. 14/IPI)",
+    action: "Avaliar reclassificação futura — defensável como lc214 por ora",
+    sprint: "H", created: "2026-03-26", approved: false,
   },
 ];
 
@@ -37,7 +47,13 @@ const SPRINTS = [
   { id: "Sprint A", date: "2026-03-26", pr: "#105", commit: "a28875b", changes: ["G1 label lc224", "G2 ano lc227", "G5 Art.45 tópicos", "G6 LC224 cnaeGroups"], status: "done" },
   { id: "Sprint B", date: "2026-03-26", pr: "#106", commit: "dbad765", changes: ["G8 companyProfile no briefing", "G7 RAG 4 queries paralelas", "Fix CI jobs"], status: "done" },
   { id: "Sprint D", date: "2026-03-26", pr: "#109", commit: "03fa2c1", changes: ["ec132 18 chunks ingeridos", "anchor_id 100%", "corpus-utils.mjs"], status: "done" },
-  { id: "Sprint G", date: "2026-03-26", pr: "—", commit: "—", changes: ["RFC-001: id 811 fragmentado", "RFC-002: 163 chunks campo lei", "CORPUS-BASELINE.md v1.0"], status: "active" },
+  { id: "Sprint G", date: "2026-03-26", pr: "#126", commit: "a96cf25",
+    changes: [
+      "RFC-001: fusão chunks 810+811 — lc227 Art. 2 completo",
+      "RFC-002: 25 chunks lc214→lc123 (Simples Nacional)",
+      "5 leis ativas no corpus · gold set 8/8 verde",
+      "Confiabilidade: 100% — meta 98% superada",
+    ], status: "done" },
 ];
 
 const SOURCE_FILES = [
