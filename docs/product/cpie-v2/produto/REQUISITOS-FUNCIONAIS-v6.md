@@ -1,6 +1,8 @@
 # Requisitos Funcionais — Plataforma IA SOLARIS
 ## Compliance Tributário — Reforma Tributária Brasileira 2026–2033
 
+> **Rastreabilidade RF × PR × Sprint:** Para localizar onde cada requisito foi implementado (PR, Sprint, arquivos), consulte [RASTREABILIDADE-RF-PR-SPRINT.md](./RASTREABILIDADE-RF-PR-SPRINT.md).
+
 | Campo | Valor |
 |---|---|
 | **Versão** | 6.0 |
