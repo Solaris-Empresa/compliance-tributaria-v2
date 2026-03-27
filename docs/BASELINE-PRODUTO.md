@@ -319,6 +319,7 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 | 1.4 | 2026-03-26 | `dbad765` | Sprint A (PR #105) + Sprint B (PR #106) concluídas · G1/G2/G5/G6/G7/G8 corrigidos · Fix CI: nomes dos jobs alinhados com ruleset + legacy-peer-deps · 419 testes (+ 9 Sprint B) · Seção 8 atualizada com Sprints A e B · Seção 10 atualizada com Sprint C candidatos · DEC-002/003/004 registradas como pendentes |
 | 1.5 | 2026-03-26 | `d18dadb` | Sprints C/D/E/B0/B1 registradas · 489 testes · corpus 2.078 chunks 100% anchor_id · ADR-010 aprovado · DEC-002/003/004 resolvidas · B2 como próxima sprint |
 | 1.6 | 2026-03-26 | `0647511` | Sprint 98% B2 concluída · GATE-CHECKLIST · Skills Manus+Claude · Cockpit v2 · G12 fonte_acao · Rollout documentado (HANDOFF-SESSAO + SNAPSHOT-B2 + GUIA-PO) |
+| 1.7 | 2026-03-26 | `a96cf25` | Sprint G concluída · RFC-001 (fusão id 810+811 lc227) · RFC-002 (25 chunks lc214→lc123) · 5 leis ativas · gold set 8/8 · confiabilidade 100% · RAG Cockpit ao vivo |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
