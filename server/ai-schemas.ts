@@ -139,6 +139,12 @@ export const QuestionSchema = z.object({
   options: z.union([z.array(z.string()), z.null()]).optional().transform(v => v ?? []),
   scale_labels: z.object({ min: z.string(), max: z.string() }).optional().nullable().transform(v => v ?? undefined),
   placeholder: z.string().optional().nullable().transform(v => v ?? undefined),
+  // G15 / Sprint J: rastreabilidade de origem da pergunta
+  // Migração progressiva — defaults garantem compatibilidade com outputs LLM existentes
+  // INV-005: pergunta nunca deve ter fonte undefined — default "ia_gen" garante isso
+  fonte: z.enum(["regulatorio", "solaris", "ia_gen"]).optional().default("ia_gen"),
+  requirement_id: z.string().optional().default(""),
+  source_reference: z.string().optional().default(""),
 });
 
 export const QuestionsResponseSchema = z.object({
