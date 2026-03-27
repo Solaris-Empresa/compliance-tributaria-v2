@@ -36,6 +36,8 @@ export const projects = mysqlTable("projects", {
     "rascunho",
     "consistencia_pendente",
     "cnaes_confirmados",
+    "assessment_fase1",
+    "assessment_fase2",
     "diagnostico_corporativo",
     "diagnostico_operacional",
     "diagnostico_cnae",

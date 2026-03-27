@@ -305,6 +305,11 @@ export const RiskItemSchema = z.object({
   // G10: fonte_risco — rastreabilidade da origem do risco (lei + artigo)
   // Tolerante a fallback: se o LLM não retornar, usa "fonte não identificada"
   fonte_risco: z.string().optional().default("fonte não identificada"),
+  // G11 / #136: fonte_risco_tipo — classificação da origem do risco
+  // "regulatorio": deriva de artigo legislativo citado no contexto RAG
+  // "solaris": deriva de orientação jurídica SOLARIS
+  // "ia_gen": inferência geral do modelo (default)
+  fonte_risco_tipo: z.enum(["regulatorio", "solaris", "ia_gen"]).optional().default("ia_gen"),
   probabilidade: z.preprocess(normalizeCapitalized,
     z.enum(["Baixa", "Média", "Alta"]).catch("Média")
   ),

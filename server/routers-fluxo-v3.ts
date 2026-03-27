@@ -1084,9 +1084,10 @@ REGRAS OBRIGATÓRIAS:
 1. Cada risco deve ter causa_raiz identificada
 2. Cada risco deve ter evidencia_regulatoria (artigo específico do contexto fornecido)
 3. Cada risco deve ter fonte_risco no formato "LC 214/2025, Art. X" ou "EC 132/2023, Art. Y" (use os artigos do contexto)
-4. severidade_score deve ser numérico: Baixa=1-3, Média=4-6, Alta=7-8, Crítica=9
-5. Gere entre 5 e 10 riscos específicos para a área
-6. Nunca invente artigos — use apenas os fornecidos no contexto
+4. Cada risco deve ter fonte_risco_tipo: use "regulatorio" se o risco deriva de artigo legislativo citado no contexto RAG, "solaris" se deriva de orientação jurídica SOLARIS, "ia_gen" se é inferência geral do modelo
+5. severidade_score deve ser numérico: Baixa=1-3, Média=4-6, Alta=7-8, Crítica=9
+6. Gere entre 5 e 10 riscos específicos para a área
+7. Nunca invente artigos — use apenas os fornecidos no contexto
 
 ${regulatoryContext}
 
@@ -1101,7 +1102,7 @@ ${input.briefingContent}
 ${adjustmentContext}
 
 Formato:
-{"risks": [{"id": "r1", "evento": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "fonte_risco": "LC 214/2025, Art. X", "probabilidade": "Alta", "impacto": "Alto", "severidade": "Crítica", "severidade_score": 9, "plano_acao": "..."}]}`,
+{"risks": [{"id": "r1", "evento": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "fonte_risco": "LC 214/2025, Art. X", "fonte_risco_tipo": "regulatorio", "probabilidade": "Alta", "impacto": "Alto", "severidade": "Crítica", "severidade_score": 9, "plano_acao": "..."}]}`,
             },
           ],
           RisksResponseSchema,
