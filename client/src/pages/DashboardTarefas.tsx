@@ -55,7 +55,7 @@ export default function DashboardTarefas() {
   const getAreaLabel = (area: string) => {
     const labels: Record<string, string> = {
       TI: "TI",
-      CONT: "Contabilidade",
+      CONT: "Contabilidade e Fiscal",
       FISC: "Fiscal",
       JUR: "Jurídico",
       OPS: "Operações",
@@ -272,7 +272,7 @@ export default function DashboardTarefas() {
                   <SelectContent>
                     <SelectItem value="all">Todas</SelectItem>
                     <SelectItem value="TI">TI</SelectItem>
-                    <SelectItem value="CONT">Contabilidade</SelectItem>
+                    <SelectItem value="CONT">Contabilidade e Fiscal</SelectItem>
                     <SelectItem value="FISC">Fiscal</SelectItem>
                     <SelectItem value="JUR">Jurídico</SelectItem>
                     <SelectItem value="OPS">Operações</SelectItem>

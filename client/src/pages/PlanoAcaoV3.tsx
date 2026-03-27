@@ -96,7 +96,7 @@ interface Task {
 }
 
 const AREAS = [
-  { key: "contabilidade", label: "Contabilidade", icon: BarChart3 },
+  { key: "contabilidade", label: "Contabilidade e Fiscal", icon: BarChart3 },
   { key: "negocio", label: "Negócio", icon: Building2 },
   { key: "ti", label: "T.I.", icon: Cpu },
   { key: "juridico", label: "Advocacia Tributária", icon: Scale },
@@ -1592,7 +1592,7 @@ export default function PlanoAcaoV3() {
                 <p className="font-semibold">Gerando Plano de Ação...</p>
                 <p className="text-sm text-muted-foreground">A IA está criando tarefas para as 4 áreas em paralelo. Isso pode levar até 1 minuto.</p>
                 <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><BarChart3 className="h-3 w-3" />Contabilidade</span>
+                  <span className="flex items-center gap-1"><BarChart3 className="h-3 w-3" />Contabilidade e Fiscal</span>
                   <span>·</span>
                   <span className="flex items-center gap-1"><Building2 className="h-3 w-3" />Negócio</span>
                   <span>·</span>

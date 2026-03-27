@@ -62,7 +62,7 @@ interface Risk {
 }
 
 const AREAS = [
-  { key: "contabilidade", label: "Contabilidade", icon: BarChart3, color: "blue" },
+  { key: "contabilidade", label: "Contabilidade e Fiscal", icon: BarChart3, color: "blue" },
   { key: "negocio", label: "Negócio", icon: Building2, color: "violet" },
   { key: "ti", label: "T.I.", icon: Cpu, color: "cyan" },
   { key: "juridico", label: "Advocacia Tributária", icon: Scale, color: "amber" },
