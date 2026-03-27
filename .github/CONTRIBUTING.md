@@ -129,3 +129,26 @@ docs/
 - [Requisitos Funcionais v6.0](../docs/product/cpie-v2/produto/REQUISITOS-FUNCIONAIS-v6.md)
 - [Playbook da Plataforma v3.0](../docs/product/cpie-v2/produto/PLAYBOOK-DA-PLATAFORMA-v3.md)
 - [Milestone Sprint-98-Confidence-Content-Engine](https://github.com/Solaris-Empresa/compliance-tributaria-v2/milestone/7)
+
+---
+
+## Regra de sincronização do Cockpit P.O.
+
+Toda sprint que atualizar o `BASELINE-PRODUTO.md` deve também executar:
+
+```bash
+pnpm cockpit:sync
+```
+
+Isso sincroniza automaticamente no Cockpit P.O. (`docs/painel-po/index.html`):
+- Versão do produto nos cards de status
+- Contagem de testes no radar
+- Data de atualização no cabeçalho
+- Data e versão do BASELINE na biblioteca (via âncora `data-key="doc-baseline"`)
+
+Itens que requerem atualização manual (incluir no mesmo PR):
+- `INITIAL_KANBAN` — estado das tarefas
+- `INITIAL_DECISIONS` — log de decisões
+- Card "Próxima ação obrigatória"
+- Sub-texto dos cards de status (ex: `517 testes`)
+- Documentos novos na biblioteca
