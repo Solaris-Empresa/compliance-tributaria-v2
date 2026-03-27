@@ -560,6 +560,13 @@ REGRAS OBRIGATÓRIAS:
 4. Perguntas de nível 1: diagnóstico essencial (máximo 10 perguntas)
 5. Perguntas de nível 2: aprofundamento baseado nas respostas anteriores (máximo 10 perguntas)
 6. Nunca seja genérico — cada pergunta deve ser específica para o CNAE informado
+7. Cada pergunta deve ter rastreabilidade de origem (G15):
+   - "fonte": "regulatorio" se baseada em legislação (LC 214, EC 132, LC 227, LC 224, LC 116, LC 87),
+              "solaris" se baseada em orientação jurídica SOLARIS interna,
+              "ia_gen" se inferida sem base documental explícita no contexto RAG
+   - "requirement_id": identificador do requisito (ex: "RF-045") ou "" se não aplicável
+   - "source_reference": referência normativa (ex: "LC 214/2025 Art. 9°") ou "" se ia_gen
+   Se não houver base documental no contexto RAG, usar fonte: "ia_gen" e campos vazios.
 
 ${regulatoryContext}
 
@@ -573,7 +580,7 @@ NÍVEL: ${input.level === "nivel1" ? "1 (perguntas essenciais)" : `2 (aprofundam
 ${nivel2Context}
 
 Gere as perguntas no formato:
-{"questions": [{"id": "q1", "text": "...", "objetivo_diagnostico": "...", "impacto_reforma": "...", "type": "sim_nao", "peso_risco": "alto", "required": true, "options": [], "scale_labels": {"min": "Nunca", "max": "Sempre"}, "placeholder": "..."}]}`,
+{"questions": [{"id": "q1", "text": "...", "objetivo_diagnostico": "...", "impacto_reforma": "...", "type": "sim_nao", "peso_risco": "alto", "required": true, "options": [], "scale_labels": {"min": "Nunca", "max": "Sempre"}, "placeholder": "...", "fonte": "regulatorio", "requirement_id": "RF-045", "source_reference": "LC 214/2025 Art. 9°"}]}`,
           },
         ],
           QuestionsResponseSchema,
