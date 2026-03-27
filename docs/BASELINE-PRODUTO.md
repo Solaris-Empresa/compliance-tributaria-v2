@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 1.6 — 2026-03-26
-> **Commit HEAD:** `0647511` (branch `main`)
-> **Checkpoint Manus:** `d72dc119`
+> **Versão:** 1.8 — 2026-03-27
+> **Commit HEAD:** `ebfa1cb` (branch `main`)
+> **Checkpoint Manus:** `ab1cbc31`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -30,12 +30,13 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Git working tree | Limpo — sem arquivos pendentes | ✅ |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
-| Migrations aplicadas | **56** (última: `0055` — anchor_id + campos DEC-002) | ✅ |
+| Migrations aplicadas | **56** (última: `0055` — anchor_id + campos DEC-002; `lc123` adicionado ao enum `lei`) | ✅ |
 | ADRs formais | **10** (ADR-001 a ADR-010; ADR-004 rejeitado) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
-| Corpus RAG | **2.078 chunks — 100% com anchor_id** (lc214: 1.598 · lc227: 434 · lc224: 28 · ec132: 18) | ✅ |
+| Corpus RAG | **2.078 chunks — 100% com anchor_id** (lc214: 1.598 · lc227: 434 · lc224: 28 · ec132: 18 · lc123: pendente RFC-003) | ✅ |
+| RAG Cockpit | Endpoint `ragInventory.getSnapshot` ao vivo · 9 gold set queries (GS-01..GS-08 + GS-07b) · confidence calculado sobre 8 queries canônicas | ✅ |
 | Sprint 98% Confidence | **B0 ✅ · B1 ✅ · B2 ✅** — Sprint 98% CONCLUÍDA | ✅ |
 | Agent Skills | Manus `/solaris-orquestracao` ✅ · Claude `solaris-contexto` ✅ | ✅ |
 
@@ -238,6 +239,9 @@ Os erros abaixo estão catalogados em [`docs/ERROS-CONHECIDOS.md`](https://githu
 | **Sprint 98% B1** | ADR-010 aprovado · MATRIZ-CANONICA-INPUTS-OUTPUTS v1.1 aprovada · MATRIZ-RASTREABILIDADE v1.1 aprovada | ✅ Concluída | PR #111 — `88de16f` |
 | **Sprint 98% B2** | GATE-CHECKLIST + Skills (Manus + Claude) + Cockpit v2 + G12 `fonte_acao` em `generateActionPlan` | ✅ Concluída | PR #113 — `805afd1` · PR #115 — `0647511` |
 | **Rollout B2** | HANDOFF-SESSAO + SNAPSHOT-B2 + GUIA-PO-ROLLOUT + BASELINE v1.6 + HANDOFF-MANUS v1.6 | ✅ Concluída | PR #116 |
+| **Sprint G (Corpus)** | RFC-001 (fusão id 810+811 lc227) · RFC-002 (25 chunks lc214→lc123) · 5 leis ativas · gold set 8/8 · confiabilidade 100% | ✅ Concluída | PR #129 — `f71bf85` |
+| **Sprint H · M1 (RAG)** | `ragInventory.getSnapshot` tRPC endpoint · 9 gold set queries · GS-07 threshold `< 10 bytes` · GS-07b SUPERSEDED informativo · `lc123` ao enum `lei` | ✅ Concluída | PR #131 — `49520a0` |
+| **Sprint H · M2 (Cockpit)** | RAG Cockpit ao vivo: dados estáticos → tRPC · loading state · timestamp · botão Atualizar · 8 abas com dados reais · refetchInterval 60s | ✅ Concluída | PR #132 — `ebfa1cb` |
 
 ---
 
@@ -260,21 +264,20 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 
 ## 10. Próximos Passos
 
-### P0 — Imediato
+### P0 — Imediato (Sprint I)
 
-1. **Sprint G — Corpus complementar** — id 811 lc227 (chunk fragmentado) · ids 617–807 campo `lei` incorreto (lc214 com artigos de outras leis). Objetivo: corpus 100% íntegro para retrieval confiável.
-2. **Validar G11 e G12 em produção** — Testar campos `fundamentacao` e `fonte_acao` em https://iasolaris.manus.space
+1. **G13** — Remover placeholders `[QC-XX]` e `[QC-XX-PY]` visíveis ao advogado em todas as 10 seções do Questionário Corporativo V2
+2. **G14** — Label `"Contabilidade"` → `"Contabilidade e Fiscal"` em 7 ocorrências de UI
 
-### P1 — Próximo ciclo (pós-B2)
+### P1 — Próximo ciclo
 
-3. **Sprint G — Corpus complementar** — EC 132 artigos pendentes · id 811 (chunk fragmentado lc227) · normalização campo `lei` para ids 617–807 (lc214 com artigos de outras leis)
-4. **Sprint H — Qualidade do retrieval** — Ordenação semântica + cobertura quinquenal
-5. **Sprint I — Débito técnico** — Issue #101 (123 testes CI) + Issues #56, #61, #62
+3. **RFC-003 (P3)** — id 113 (`"e"` — 1 char) detectado como anomalia real no RAG Cockpit · avaliar reclassificação
+4. **Issue #101** — 123 testes CI com fetch real sem mock · `skipIf(isCI)` aplicado como paliativo
+5. **Issues #56, #61, #62** — F-04 Fase 3 + modo `new` + DROP COLUMN — aguardam UAT
 
 ### P2 — Suspenso
 
-6. **G13** — `fonte_dispositivo` nos questionários — Sprint futura
-7. **Rollout DEC-006** — Novo modelo operacional: Claude implementa via artifacts, Manus audita e deploya. Deploy key criada. Rollout após Sprint G.
+6. **Rollout DEC-006** — Novo modelo operacional: Claude implementa via artifacts, Manus audita e deploya.
 
 ---
 
@@ -320,6 +323,7 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 | 1.5 | 2026-03-26 | `d18dadb` | Sprints C/D/E/B0/B1 registradas · 489 testes · corpus 2.078 chunks 100% anchor_id · ADR-010 aprovado · DEC-002/003/004 resolvidas · B2 como próxima sprint |
 | 1.6 | 2026-03-26 | `0647511` | Sprint 98% B2 concluída · GATE-CHECKLIST · Skills Manus+Claude · Cockpit v2 · G12 fonte_acao · Rollout documentado (HANDOFF-SESSAO + SNAPSHOT-B2 + GUIA-PO) |
 | 1.7 | 2026-03-26 | `a96cf25` | Sprint G concluída · RFC-001 (fusão id 810+811 lc227) · RFC-002 (25 chunks lc214→lc123) · 5 leis ativas · gold set 8/8 · confiabilidade 100% · RAG Cockpit ao vivo |
+| 1.8 | 2026-03-27 | `ebfa1cb` | Sprint H concluída · PR #131 ragInventory tRPC (9 gold set queries, GS-07 threshold < 10 bytes, lc123 ao enum) · PR #132 RAG Cockpit ao vivo (dados estáticos → tRPC, 8 abas, refetchInterval 60s) · Sprint I iniciada (G13+G14 UAT) |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
