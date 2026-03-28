@@ -106,12 +106,14 @@ async function saveQuestionnaireAnswer(projectId: number, cnaeCode: string, ques
 describe("T06 — Regressão de rotas legadas (regression suite)", () => {
 
   it("T06.1 — rota /questionario-v3 não deve ser o destino após confirmação de CNAEs", () => {
+    // K-4-B alterou o fluxo: após confirmar CNAEs, navega para /questionario-solaris (Onda 1)
+    // antes de /questionario-corporativo-v2. Assertion atualizada em K-4-D.
     const fs = require("fs");
     const novoProjeto = fs.readFileSync(
       "/home/ubuntu/compliance-tributaria-v2/client/src/pages/NovoProjeto.tsx",
       "utf-8"
     );
-    expect(novoProjeto).toContain("questionario-corporativo-v2");
+    expect(novoProjeto).toContain("questionario-solaris"); // K-4-B: Onda 1 é o destino após CNAEs
     const legacyRouteInOnSuccess = /onSuccess[^}]*questionario-v3/.test(novoProjeto);
     expect(legacyRouteInOnSuccess).toBe(false);
   });
