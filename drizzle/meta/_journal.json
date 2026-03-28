@@ -407,6 +407,13 @@
       "when": 1774652837320,
       "tag": "0057_odd_ink",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "5",
+      "when": 1774664794282,
+      "tag": "0058_majestic_cassandra_nova",
+      "breakpoints": true
     }
   ]
 }

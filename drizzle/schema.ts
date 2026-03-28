@@ -38,6 +38,9 @@ export const projects = mysqlTable("projects", {
     "cnaes_confirmados",
     "assessment_fase1",
     "assessment_fase2",
+    // K-4-A: Ondas 1 e 2 do questionário SOLARIS (inseridas antes do diagnóstico)
+    "onda1_solaris",
+    "onda2_iagen",
     "diagnostico_corporativo",
     "diagnostico_operacional",
     "diagnostico_cnae",
@@ -1727,7 +1730,69 @@ export const solarisQuestions = mysqlTable("solaris_questions", {
 
   /** Identificador do lote de upload CSV de origem */
   uploadBatchId: varchar("upload_batch_id", { length: 64 }),
+
+  /**
+   * Código canônico da pergunta — SOL-001..SOL-NNN.
+   * Adicionado em K-4-A. Referenciado em solaris_answers.codigo.
+   * Permite rastrear resposta → pergunta sem depender do id numérico.
+   */
+  codigo: varchar("codigo", { length: 10 }),
 });
 
 export type SolarisQuestion = typeof solarisQuestions.$inferSelect;
 export type InsertSolarisQuestion = typeof solarisQuestions.$inferInsert;
+
+// ─── Sprint K — K-4-A: Tabela solarisAnswers (Onda 1) ─────────────────────────
+/**
+ * Respostas da Onda 1 (SOLARIS) por projeto.
+ * Cada linha = uma resposta de um advogado a uma pergunta SOL-NNN.
+ * Índice único: (project_id, codigo) — impede resposta dupla por projeto.
+ *
+ * Issue: K-4-A | Milestone: M2 — Sprint K | Seção 7 do contrato FLUXO-3-ONDAS v1.1
+ */
+export const solarisAnswers = mysqlTable("solaris_answers", {
+  id:         int("id").autoincrement().primaryKey(),
+  projectId:  int("project_id").notNull()
+              .references(() => projects.id),
+  questionId: int("question_id").notNull()
+              .references(() => solarisQuestions.id),
+  /** Código canônico da pergunta (SOL-001..SOL-NNN) — desnormalizado para auditoria */
+  codigo:     varchar("codigo", { length: 10 }).notNull(),
+  resposta:   text("resposta").notNull(),
+  /** Sempre 'solaris' — identifica Onda 1 no diagnóstico */
+  fonte:      varchar("fonte", { length: 20 }).default("solaris"),
+  createdAt:  bigint("created_at", { mode: "number" }).notNull(),
+  updatedAt:  bigint("updated_at", { mode: "number" }).notNull(),
+});
+
+export type SolarisAnswer = typeof solarisAnswers.$inferSelect;
+export type InsertSolarisAnswer = typeof solarisAnswers.$inferInsert;
+
+// ─── Sprint K — K-4-A: Tabela iagenAnswers (Onda 2) ───────────────────────────
+/**
+ * Respostas da Onda 2 (IA Generativa) por projeto.
+ * Cada linha = uma resposta a uma pergunta gerada dinamicamente pela IA.
+ * Índice: (project_id) — múltiplas respostas por projeto.
+ *
+ * Issue: K-4-A | Milestone: M2 — Sprint K | Seção 7 do contrato FLUXO-3-ONDAS v1.1
+ */
+export const iagenAnswers = mysqlTable("iagen_answers", {
+  id:              int("id").autoincrement().primaryKey(),
+  projectId:       int("project_id").notNull()
+                   .references(() => projects.id),
+  /** Texto completo da pergunta gerada pela IA (não há FK — gerada dinamicamente) */
+  questionText:    text("question_text").notNull(),
+  resposta:        text("resposta").notNull(),
+  /**
+   * Score de confiança da IA ao gerar a pergunta (0.00–1.00).
+   * Obrigatório para rastreabilidade — ver Seção 9 do contrato.
+   */
+  confidenceScore: decimal("confidence_score", { precision: 3, scale: 2 }),
+  /** Sempre 'ia_gen' — identifica Onda 2 no diagnóstico */
+  fonte:           varchar("fonte", { length: 20 }).default("ia_gen"),
+  createdAt:       bigint("created_at", { mode: "number" }).notNull(),
+  updatedAt:       bigint("updated_at", { mode: "number" }).notNull(),
+});
+
+export type IagenAnswer = typeof iagenAnswers.$inferSelect;
+export type InsertIagenAnswer = typeof iagenAnswers.$inferInsert;

@@ -396,3 +396,70 @@ export function createHistoryEntry(
     userId,
   };
 }
+
+// ─── Sprint K — K-4-A: VALID_TRANSITIONS e assertValidTransition ──────────────
+// Seção 10 do contrato FLUXO-3-ONDAS-AS-IS-TO-BE v1.1 (PR #174, mergeado)
+// Regras:
+//   - Transições são unidirecionais no avanço
+//   - Retrocesso é permitido com modal de confirmação
+//   - Retrocesso sempre limpa dados das etapas posteriores
+//   - Nenhuma transição é permitida sem enforcement no backend
+//   - O frontend NUNCA transita o status diretamente
+
+/**
+ * Mapa canônico de transições válidas.
+ * Cada chave é o status atual; o valor é a lista de status para os quais
+ * o projeto pode transitar (avanço OU retrocesso).
+ *
+ * Inclui os novos status onda1_solaris e onda2_iagen (K-4-A).
+ */
+export const VALID_TRANSITIONS: Record<string, string[]> = {
+  'rascunho':                  ['onda1_solaris'],
+  'onda1_solaris':             ['onda2_iagen', 'rascunho'],
+  'onda2_iagen':               ['diagnostico_corporativo', 'onda1_solaris'],
+  'diagnostico_corporativo':   ['diagnostico_operacional', 'onda2_iagen'],
+  'diagnostico_operacional':   ['diagnostico_cnae', 'diagnostico_corporativo'],
+  'diagnostico_cnae':          ['briefing', 'diagnostico_operacional'],
+  'briefing':                  ['matriz_riscos', 'diagnostico_cnae'],
+  'matriz_riscos':             ['aprovado', 'briefing'],
+  'aprovado':                  ['matriz_riscos'],
+  // Status legados — mantidos para compatibilidade com projetos existentes
+  'consistencia_pendente':     ['cnaes_confirmados', 'rascunho'],
+  'cnaes_confirmados':         ['diagnostico_corporativo', 'consistencia_pendente'],
+  'assessment_fase1':          ['assessment_fase2', 'cnaes_confirmados'],
+  'assessment_fase2':          ['diagnostico_corporativo', 'assessment_fase1'],
+  'riscos':                    ['plano', 'briefing'],
+  'plano':                     ['dashboard', 'riscos'],
+  'dashboard':                 ['plano'],
+  'plano_acao':                ['aprovado', 'matriz_riscos'],
+  'em_avaliacao':              ['aprovado', 'plano_acao'],
+  'em_andamento':              ['concluido', 'aprovado'],
+  'concluido':                 ['arquivado'],
+  'arquivado':                 [],
+};
+
+/**
+ * Valida se a transição de `from` para `to` é permitida.
+ * Lança TRPCError com code FORBIDDEN se a transição for inválida.
+ *
+ * Uso: chamar antes de qualquer UPDATE no campo `status` de um projeto.
+ *
+ * @param from - Status atual do projeto
+ * @param to   - Status desejado após a transição
+ * @throws TRPCError({ code: 'FORBIDDEN' }) se a transição não for permitida
+ */
+export function assertValidTransition(from: string, to: string): void {
+  const allowed = VALID_TRANSITIONS[from];
+  if (!allowed) {
+    throw new Error(
+      `[flowStateMachine] Status de origem desconhecido: "${from}". ` +
+      `Adicione-o a VALID_TRANSITIONS antes de usar.`
+    );
+  }
+  if (!allowed.includes(to)) {
+    throw new Error(
+      `[flowStateMachine] Transição inválida: "${from}" → "${to}". ` +
+      `Transições permitidas a partir de "${from}": [${allowed.join(', ')}]`
+    );
+  }
+}
