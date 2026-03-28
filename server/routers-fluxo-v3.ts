@@ -2137,6 +2137,97 @@ Gere o Briefing estruturado em JSON:
         updatedStatus: input.status,
       };
     }),
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // K-4-B: Onda 1 SOLARIS — getOnda1Questions + completeOnda1
+  // Seções 7, 8 e 10 do contrato FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Busca as perguntas SOLARIS ativas para exibição no QuestionarioSolaris.tsx.
+   * Retorna as 12 perguntas SOL-001..SOL-012 com campo codigo populado.
+   */
+  getOnda1Questions: protectedProcedure
+    .input(z.object({ projectId: z.number().int().positive() }))
+    .query(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+
+      // Verificar acesso ao projeto
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+
+      const questions = await db.getOnda1Questions();
+      const existingAnswers = await db.getOnda1Answers(input.projectId);
+
+      // Mapear respostas existentes por questionId
+      const answersMap = new Map(existingAnswers.map(a => [a.questionId, a.resposta]));
+
+      return {
+        questions: questions.map(q => ({
+          id: q.id,
+          codigo: q.codigo ?? `SOL-${String(q.id).padStart(3, '0')}`,
+          texto: q.texto,
+          categoria: q.categoria,
+          cnaeGroups: q.cnaeGroups,
+          obrigatorio: q.obrigatorio,
+          existingAnswer: answersMap.get(q.id) ?? null,
+        })),
+        projectStatus: project.status,
+        totalAnswered: existingAnswers.length,
+      };
+    }),
+
+  /**
+   * Salva as respostas da Onda 1 e avança o status do projeto para onda1_solaris.
+   * Enforcement: assertValidTransition garante que a transição é válida.
+   * Seção 8 do contrato: backend é a fonte de verdade.
+   */
+  completeOnda1: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      answers: z.array(z.object({
+        questionId: z.number().int().positive(),
+        codigo: z.string().min(1).max(10),
+        resposta: z.string().min(1),
+      })).min(1, 'É necessário responder ao menos uma pergunta'),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+
+      // Verificar acesso ao projeto
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+
+      // Enforcement: validar transição de status (Seção 8 + Seção 10)
+      const { assertValidTransition } = await import('./flowStateMachine');
+      try {
+        assertValidTransition(project.status, 'onda1_solaris');
+      } catch (err: any) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: `Transição inválida: ${err.message}. Etapa indisponível. Conclua a etapa anterior.`,
+        });
+      }
+
+      // Salvar respostas (upsert idempotente)
+      await db.saveOnda1Answers(input.projectId, input.answers);
+
+      // Avançar status do projeto para onda1_solaris
+      await db.updateProject(input.projectId, { status: 'onda1_solaris' as any });
+
+      return {
+        success: true,
+        projectId: input.projectId,
+        newStatus: 'onda1_solaris',
+        answersCount: input.answers.length,
+      };
+    }),
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

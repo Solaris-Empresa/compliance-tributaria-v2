@@ -76,6 +76,7 @@ import AdminCpieDashboard from "./pages/AdminCpieDashboard";
 import ShadowMonitor from "./pages/ShadowMonitor";
 import RagCockpit from "./pages/RagCockpit";
 import TaskBoard from "./pages/TaskBoard"; // Sprint K — Taskboard P.O. ao vivo (Issue #151)
+import QuestionarioSolaris from "./pages/QuestionarioSolaris"; // K-4-B: Onda 1 SOLARIS
 
 function Router() {
   return (
@@ -116,6 +117,7 @@ function Router() {
       <Route path="/matriz-riscos-session" component={MatrizRiscosSession} />
       <Route path="/consolidacao" component={Consolidacao} />
       {/* Diagnóstico v2.1 — 3 camadas sequenciais */}
+      <Route path="/projetos/:id/questionario-solaris" component={QuestionarioSolaris} />
       <Route path="/projetos/:id/questionario-corporativo-v2" component={QuestionarioCorporativoV2} />
       <Route path="/projetos/:id/questionario-operacional" component={QuestionarioOperacional} />
       <Route path="/projetos/:id/questionario-cnae" component={QuestionarioCNAE} />
