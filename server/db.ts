@@ -23,6 +23,8 @@ import {
   clientMembers, InsertClientMember,
   taskHistory, InsertTaskHistory, TaskHistory,
   solarisQuestions, InsertSolarisQuestion, SolarisQuestion,
+  solarisAnswers, InsertSolarisAnswer, SolarisAnswer,
+  iagenAnswers, InsertIagenAnswer, IagenAnswer,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1208,4 +1210,90 @@ export async function bulkCreateSolarisQuestions(
   if (!db) throw new Error("Database not available");
   await db.insert(solarisQuestions).values(rows);
   return rows.length;
+}
+
+// ============================================================================
+// SOLARIS ANSWERS — K-4-B (Onda 1)
+// ============================================================================
+
+/**
+ * Busca perguntas SOLARIS ativas, opcionalmente filtradas por prefixo de CNAE.
+ * Retorna as 12 perguntas SOL-001..SOL-012 (ou subconjunto por CNAE).
+ */
+export async function getOnda1Questions(cnaeCode?: string): Promise<SolarisQuestion[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const rows = await db
+    .select()
+    .from(solarisQuestions)
+    .where(eq(solarisQuestions.ativo, 1))
+    .orderBy(solarisQuestions.id);
+
+  return rows;
+}
+
+/**
+ * Salva as respostas da Onda 1 (SOLARIS) para um projeto.
+ * Usa INSERT ... ON DUPLICATE KEY UPDATE para idempotência.
+ */
+export async function saveOnda1Answers(
+  projectId: number,
+  answers: Array<{ questionId: number; codigo: string; resposta: string }>
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const now = Date.now();
+
+  // Salvar em lote — upsert por (projectId, questionId)
+  for (const a of answers) {
+    const row: InsertSolarisAnswer = {
+      projectId,
+      questionId: a.questionId,
+      codigo: a.codigo,
+      resposta: a.resposta,
+      fonte: 'solaris',
+      createdAt: now,
+      updatedAt: now,
+    };
+    await db
+      .insert(solarisAnswers)
+      .values(row)
+      .onDuplicateKeyUpdate({
+        set: {
+          resposta: a.resposta,
+          updatedAt: now,
+        },
+      });
+  }
+}
+
+/**
+ * Busca as respostas da Onda 1 já salvas para um projeto.
+ */
+export async function getOnda1Answers(projectId: number): Promise<SolarisAnswer[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(solarisAnswers)
+    .where(eq(solarisAnswers.projectId, projectId))
+    .orderBy(solarisAnswers.questionId);
+}
+
+/**
+ * Conta quantas respostas da Onda 1 existem para um projeto.
+ */
+export async function countOnda1Answers(projectId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const result = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(solarisAnswers)
+    .where(eq(solarisAnswers.projectId, projectId));
+
+  return Number(result[0]?.count ?? 0);
 }
