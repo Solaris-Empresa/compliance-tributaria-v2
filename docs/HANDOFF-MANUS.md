@@ -1,4 +1,4 @@
-# PROMPT DE HANDOFF — IA Solaris
+# HANDOFF-MANUS.md
 
 ## Cole este prompt no início de qualquer novo chat do Manus
 
@@ -32,16 +32,46 @@ Drizzle ORM / Vitest / pnpm
 
 ## Estado atual do projeto (2026-03-27)
 
-- BASELINE **v1.9** — Sprint I/DT-01 **CONCLUÍDA**
-- **492+ testes passando**
+- BASELINE **v2.2** — Sprint K (K-1, K-2, K-3) **CONCLUÍDA**
+- **541 testes passando** (517 baseline + 12 K-1 + 12 K-2)
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
-- 56 migrations aplicadas
+- **57 migrations aplicadas** (última: `0057_odd_ink.sql` — tabela `solaris_questions`)
 - Branch protection: ativa (ruleset `main-protection`, ID 14328406)
 - **Corpus RAG: 2.078 chunks — 100% com anchor_id canônico (DEC-002)**
+- **Tabela `solaris_questions`: 12 questões ativas (SOL-001..SOL-012)**
 - **Agent Skills ativas:** Manus `/solaris-orquestracao` + Claude `solaris-contexto`
 - **GATE-CHECKLIST:** `docs/GATE-CHECKLIST.md` — executar Gate 0 antes de qualquer sprint
+- **Commit HEAD:** `d166fd3` (PR #174 — FLUXO-3-ONDAS v1.1)
+- **Checkpoint Manus:** `5f7a3297`
 
-## PRs mergeados (histórico recente)
+## ALERTA CRÍTICO — Dois fluxos paralelos
+
+Existem **dois fluxos paralelos** no sistema. K-2 e K-3 foram implementados no Fluxo B (legado). O P.O. usa o Fluxo A. K-4 deve integrar as Ondas no Fluxo A.
+
+| Fluxo | Rota | Quem usa | Ondas |
+|---|---|---|---|
+| **Fluxo A** (caminho real) | QC → QO → QCNAE → Briefing | P.O. e advogados | ❌ Nenhuma ainda |
+| **Fluxo B** (LEGACY — não expandir) | QuestionarioV3 → Briefing | Legado | ✅ Onda 1 + badges |
+
+**Documento de referência:** `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md` (v1.1)
+
+## Erros do watcher TypeScript — FALSO POSITIVO
+
+O watcher reporta 4 erros de `solarisQuestions` não encontrado. São **falso positivo de cache** — `npx tsc --noEmit` retorna 0 erros reais. O servidor compilado tem todos os módulos corretos. Será corrigido em K-4-A.
+
+## PRs mergeados (histórico recente — Sprint K)
+
+| PR | Título | Commit | Data |
+|---|---|---|---|
+| #159 | feat(k1): tabela `solaris_questions` | `5e583f6` | 2026-03-27 |
+| #160 | docs(governança): Tabela Planejamento Macro/Micro v1.0 | `80efc8c` | 2026-03-27 |
+| #162 | feat(k2): integrar Onda 1 (SOLARIS) no questionEngine | `75627e6` | 2026-03-27 |
+| #163 | feat(admin): Taskboard P.O. ao vivo — /admin/taskboard | `5a7b69d` | 2026-03-27 |
+| #171 | feat(k3): badge visual por onda + seed SOL-001..012 | `38a2980` | 2026-03-27 |
+| #172 | feat(admin): taskboard-po — página estática permanente | `2408271` | 2026-03-27 |
+| #174 | docs(arquitetura): FLUXO-3-ONDAS v1.1 | `d166fd3` | 2026-03-27 |
+
+## PRs anteriores (Sprints A-J)
 
 | PR | Título | Commit |
 |---|---|---|
@@ -51,28 +81,13 @@ Drizzle ORM / Vitest / pnpm
 | #111 | docs(b1-v1.1): Matriz Rastreabilidade v1.1 | `88de16f` |
 | #112 | docs: BASELINE v1.5 + HANDOFF-MANUS | `d18dadb` |
 | #113 | feat(b2): GATE-CHECKLIST + Skills + Cockpit v2 + fonte_acao G12 | `805afd1` |
-| #115 | docs(cockpit): skills na biblioteca | `0647511` |
-| ... | PRs #116–#136 — Sprints F/G/H/I — ver docs/product/cpie-v2/produto/RASTREABILIDADE-RF-PR-SPRINT.md | — |
-| #137 | docs: RASTREABILIDADE-RF-PR-SPRINT.md | — |
-| #138 | chore(skills): solaris-contexto + solaris-orquestracao | — |
-| #139 | test(dt01): guard db:push + 3 testes de integridade de schema | `fc54e13f` |
+| ... | PRs #116–#139 — Sprints F/G/H/I/J — ver `docs/product/cpie-v2/produto/RASTREABILIDADE-RF-PR-SPRINT.md` | — |
 
 ## Gaps RAG — estado atual
 
 | Gap | Descrição | Status |
 |---|---|---|
-| G1 | Label lc224 no formatContextText | ✅ PR #105 |
-| G2 | Label lc227 ano errado (2024→2026) | ✅ PR #105 |
-| G5 | Art. 45 tópicos — confissão de dívida | ✅ PR #105 |
-| G6 | LC 224 cnaeGroups — cobertura universal | ✅ PR #105 |
-| G8 | companyProfile não injetado no briefing | ✅ PR #106 |
-| G7 | 1 RAG compartilhado para 4 áreas | ✅ PR #106 |
-| G9 | Schema Zod para outputs do pipeline RAG | ✅ PR #108 |
-| G10 | Campo fonte_risco nas matrizes de risco | ✅ PR #108 |
-| G3 | EC 132/2023 — 18 chunks canônicos no corpus | ✅ PR #109 |
-| G4 | Anexos LC 214/2025 (I–XVII, sem VII) no corpus | ✅ PR #109 |
-| G11 | Fundamentação auditável por item de risco | ✅ PR #110 |
-| G12 | fonte_acao no plano de ação | ✅ PR #113 |
+| G1–G12 | Ver BASELINE-PRODUTO.md seção 11 | ✅ Todos resolvidos |
 | G13 | fonte_dispositivo nos questionários | 🔜 Sprint futura |
 
 ## Corpus RAG
@@ -85,22 +100,50 @@ Drizzle ORM / Vitest / pnpm
 | ec132 | 18 | 100% | 18 Sprint D (canônico v3.1.1) |
 | **TOTAL** | **2.078** | **100%** | Zero duplicatas |
 
-**Nota id 811:** chunk fragmentado lc227 — rastreável, pendente correção em Sprint G.
-**Nota ids 617–807:** artigos de outras leis (LC 87/1996, CTN) sob `lei='lc214'` — normalização pendente Sprint G.
+## Tabela solaris_questions
 
-## Sprint 98% Confidence — estado FINAL
-
-| Bloco | Conteúdo | Status |
+| Coluna | Tipo | Observação |
 |---|---|---|
-| B0 | Governança GitHub: milestone, labels, 34 issues, PR template | ✅ Concluído (2026-03-23) |
-| B1 | ADR-010 + Matrizes canônicas (I/O + Rastreabilidade) | ✅ Concluído — PR #111 |
-| B2 | GATE-CHECKLIST + Skills + Cockpit v2 + G12 fonte_acao | ✅ Concluído — PR #113 |
+| id | bigint PK | Auto-increment |
+| texto | text | Pergunta completa |
+| categoria | varchar(50) | regime_tributario, porte_empresa, operacoes, exportacao, simples_nacional, lucro_real |
+| cnae_groups | text | JSON array de prefixos CNAE ou null (universal) |
+| obrigatorio | tinyint | 1=obrigatório, 0=opcional |
+| ativo | tinyint | 1=ativo, 0=soft-delete |
+| observacao | text | Nota interna |
+| fonte | varchar(20) | Sempre 'solaris' para Onda 1 |
+| criado_em | bigint | Timestamp UTC ms |
+| atualizado_em | bigint | Timestamp UTC ms |
 
-## Próximas sprints
+> **Nota:** campo `codigo` (SOL-001..SOL-012) **ainda não existe** na tabela — será adicionado em K-4-A via migration.
 
-- **Sprint G** — Corpus complementar (P0): id 811 lc227 + ids 617–807 campo `lei`
-- **Sprint H** — Qualidade do retrieval: ordenação semântica + cobertura quinquenal
-- **Sprint I** — Débito técnico: Issue #101 + Issues #56, #61, #62
+## Sprint K — estado atual
+
+| Issue | Título | Status |
+|---|---|---|
+| #153 K-1 | Tabela `solaris_questions` | ✅ Fechada — PR #159 |
+| #154 K-2 | Pipeline Onda 1 no questionEngine | ✅ Fechada — PR #162 |
+| #155 K-3 | Badge visual por onda | ✅ Fechada — PR #171 |
+| #168 K-3 Val. | Validação P.O. badge | ✅ Fechada — aprovada |
+| **#156 K-4** | **Onda 2 combinatória** | 🔴 **Aguarda aprovação P.O.** |
+| #169 K-4 Val. | Validação P.O. Onda 2 | 🔴 Bloqueada por K-4 |
+
+## Próximo passo — K-4
+
+K-4 requer merge do PR #174 (FLUXO-3-ONDAS v1.1) antes de iniciar.
+
+**K-4-A** (sem aprovação P.O. — técnico puro):
+1. Adicionar coluna `codigo VARCHAR(10)` à tabela `solaris_questions`
+2. Atualizar seed com códigos SOL-001..SOL-012
+3. Criar tabela `solaris_answers` (Drizzle schema)
+4. Criar tabela `iagen_answers` (Drizzle schema)
+5. Estender `server/flowStateMachine.ts` com `VALID_TRANSITIONS` e `assertValidTransition`
+6. `pnpm db:push` → 3 migrations
+
+**K-4-B a K-4-D** (requerem aprovação P.O.):
+- Integrar Ondas 1+2 no DiagnosticoStepper (Fluxo A)
+- Geração IA da Onda 2 com fallback hardcoded
+- Badges visuais no Fluxo A
 
 ## Checks obrigatórios no ruleset (4)
 
@@ -111,16 +154,19 @@ Drizzle ORM / Vitest / pnpm
 
 ## Bloqueios ativos — NÃO executar sem aprovação do P.O.
 
-- NÃO ativar `DIAGNOSTIC_READ_MODE=new`
-- NÃO executar F-04 Fase 3
-- NÃO executar DROP COLUMN nas colunas legadas
+- ❌ NÃO ativar `DIAGNOSTIC_READ_MODE=new`
+- ❌ NÃO executar F-04 Fase 3
+- ❌ NÃO executar DROP COLUMN nas colunas legadas
+- ❌ NÃO mergear K-4 sem aprovação do P.O. (label `p.o.-valida`)
 
 ## Issues abertas relevantes
 
 - #56 — F-04 Fase 3 (bloqueada, aguarda UAT)
 - #61 — Modo `new` (bloqueada, aguarda #56)
 - #62 — DROP COLUMN (bloqueada, aguarda #61)
-- #101 — Débito técnico: 9 testes corpus com skipIf(CI) — habilitar no CI real
+- #99 — Débito técnico: refatoração de componentes legados
+- #101 — Débito técnico: 9 testes corpus com skipIf(CI)
+- #128 — Governança: revisão de permissões de repositório
 
 ## Decisões resolvidas
 
@@ -128,6 +174,10 @@ Drizzle ORM / Vitest / pnpm
 - **DEC-003** ✅ — chunk por NCM/item para Anexos (PR #109)
 - **DEC-004** ✅ — log de auditoria sem gate manual (PR #108)
 - **DEC-005** ✅ — Sprint 98% B2 Opção A bridge (não recriar engines)
+- **DEC-006** ✅ — Fluxo B (QuestionarioV3) = LEGACY — não expandir (2026-03-27)
+- **DEC-007** ✅ — Tabelas separadas para Onda 1 e Onda 2 (não JSON) (2026-03-27)
+- **DEC-008** ✅ — `status` = fonte de verdade; `currentStep` depreciado (2026-03-27)
+- **DEC-009** ✅ — DiagnosticoStepper expandido para 8 etapas no TO-BE (2026-03-27)
 
 ---
 
