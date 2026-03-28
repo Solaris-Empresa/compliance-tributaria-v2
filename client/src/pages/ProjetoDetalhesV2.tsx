@@ -476,6 +476,8 @@ export default function ProjetoDetalhesV2() {
                 onGenerateBriefing={() => {
                   setLocation(`/projetos/${projectId}/briefing-v3`);
                 }}
+                onStartMatrizes={() => setLocation(`/projetos/${projectId}/matrizes-v3`)}
+                onStartPlano={() => setLocation(`/projetos/${projectId}/plano-v3`)}
               />
             </CardContent>
           </Card>
