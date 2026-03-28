@@ -1,10 +1,35 @@
-# IA SOLARIS — Arquitetura do Fluxo das 3 Ondas de Questionário
+# FLUXO-3-ONDAS-AS-IS-TO-BE — Contrato de Implementação
 
-**Versão:** 1.0  
-**Data:** 2026-03-28  
-**Autores:** Manus (implementador técnico) + Orquestrador (Claude — Anthropic)  
-**P.O.:** Uires Tapajós  
-**Status:** Aguarda validação do P.O. antes de qualquer implementação
+**Versão:** 1.1
+**Data:** 2026-03-27
+**Autores:** Manus (implementador técnico) + Orquestrador (Claude — Anthropic)
+**P.O.:** Uires Tapajós
+**Status:** ✅ Aprovado pelo P.O. — pronto para implementação K-4-A
+
+**Alterações v1.1:**
+- Decisões formalizadas do P.O. registradas (5 perguntas respondidas)
+- Adicionada Seção 6 — Integração no diagnóstico final
+- Adicionada Seção 7 — Persistência por onda (schema Drizzle correto)
+- Adicionada Seção 8 — Enforcement de fluxo no backend
+- Adicionada Seção 9 — Regras da Onda 2 (IA Generativa)
+- Adicionada Seção 10 — Máquina de estados do fluxo
+- Corrigido schema Drizzle de `solaris_answers` e `iagen_answers`
+- Corrigida tabela de enforcement (pré-condições por rota)
+- Adicionado texto obrigatório do modal de retrocesso
+- Adicionada invalidação do diagnóstico no retrocesso
+- Nota de depreciação do `currentStep` registrada
+
+---
+
+## Decisões Formalizadas pelo P.O. — 2026-03-27
+
+| # | Questão | Decisão | Justificativa |
+|---|---------|---------|---------------|
+| 1 | Persistência Onda 1 | Tabela separada `solaris_answers` | Rastreabilidade por SOL-001..012, auditoria jurídica, base para matriz de risco |
+| 2 | Persistência Onda 2 | Tabela separada `iagen_answers` + campo `confidence_score` | Separa IA de conhecimento jurídico, permite controle de qualidade, evolução do modelo |
+| 3 | Fluxo B | Manter como LEGACY_MODE — não evolui, não recebe features, será descontinuado | Evitar bifurcação de produto |
+| 4 | Stepper UX | Etapas numeradas 1 a 8 (não "Pré-diagnóstico") | Mais didático para advogado, reduz confusão, facilita UAT |
+| 5 | Fonte de verdade do fluxo | `status` (enum) é a fonte de verdade. `currentStep` é apenas visual | Elimina duplicação de lógica |
 
 ---
 
@@ -48,347 +73,149 @@ FLUXO A — "Diagnóstico Tributário" (3 camadas — USADO PELO P.O.)
 ================================================================
 
 [Início]
-    │
-    ▼
-[Criar Projeto] (/projetos/novo)
-    │ → identifica CNAEs via IA (NovoProjeto.tsx)
-    │ → salva: confirmedCnaes, companyProfile
-    │ → currentStep = 1, status = "rascunho"
-    │
-    ▼
-[Detalhe do Projeto] (/projetos/:id)
-    │ → ProjetoDetalhesV2.tsx
-    │ → DiagnosticoStepper: exibe 3 camadas (corporate | operational | cnae)
-    │
-    ├─ [1] QC (/projetos/:id/questionario-corporativo-v2)
-    │       → QuestionarioCorporativoV2.tsx
-    │       → 10 seções: QC-01 a QC-10
-    │       → salva: respostas corporativas
-    │       → completa camada "corporate"
-    │       → navega para QO ao concluir
-    │
-    ├─ [2] QO (/projetos/:id/questionario-operacional)
-    │       → QuestionarioOperacional.tsx
-    │       → 10 seções: QO-01 a QO-10
-    │       → salva: respostas operacionais
-    │       → completa camada "operational"
-    │       → navega para QCNAE ao concluir (setTimeout 1500ms)
-    │
-    └─ [3] QCNAE (/projetos/:id/questionario-cnae)
-            → QuestionarioCNAE.tsx
-            → 5 seções temáticas FIXAS (não 1 por CNAE)
-            → completa camada "cnae"
-            → navega para Briefing V3 ao concluir (setTimeout 1500ms)
-    │
-    ▼
-[Briefing V3] (/projetos/:id/briefing-v3)
-    │ → BriefingV3.tsx
-    │ → gera briefing via LLM
-    │ → currentStep = 4, status = "briefing"
-    │
-    ▼
-[Matrizes V3] (/projetos/:id/matrizes-v3)
-    │ → MatrizesV3.tsx
-    │ → currentStep = 5, status = "matriz_riscos"
-    │
-    ▼
-[Plano de Ação V3] (/projetos/:id/plano-v3)
-    │ → PlanoAcaoV3.tsx
-    │ → currentStep = 5, status = "aprovado"
-    ▼
-[FIM]
+  └─ ProjetoDetalhesV2 (/projetos/:id)
+       └─ DiagnosticoStepper (3 etapas)
+            ├─ [Etapa 1] QC → /questionario-corporativo-v2
+            ├─ [Etapa 2] QO → /questionario-operacional
+            ├─ [Etapa 3] QCNAE → /questionario-cnae
+            └─ [Concluído] → /briefing-v3  ← vai DIRETO para o briefing
 
+FLUXO B — "Compliance V3" (5 etapas — LEGADO, não usado pelo P.O.)
+================================================================
 
-FLUXO B — "Compliance V3" (5 etapas — NÃO USADO PELO P.O.)
-===========================================================
-
-[FormularioProjeto] (/projetos/:id/formulario)
-    │ → step <= 2 → navega para questionario-v3
-    │
-    ▼
-[QuestionarioV3] (/projetos/:id/questionario-v3)
-    │ → QuestionarioV3.tsx
-    │ → chama trpc.fluxoV3.generateQuestions (IA gera perguntas)
-    │ → injectOnda1IntoQuestions() ← K-2 implementado AQUI (errado)
-    │ → badges K-3 implementados AQUI (errado)
-    │ → currentStep = 3, status = "cnaes_confirmados"
-    │
-    ▼
-[BriefingV3] (/projetos/:id/briefing-v3)
-    │ → currentStep = 4, status = "briefing"
-    ▼
-[MatrizesV3] → [PlanoAcaoV3]
+[Início]
+  └─ FormularioProjeto (/projetos/:id/formulario)
+       └─ FlowStepper (5 etapas)
+            ├─ [Etapa 1] Formulário
+            ├─ [Etapa 2] QuestionarioV3 → /questionario-v3  ← K-2 e K-3 estão aqui
+            ├─ [Etapa 3] BriefingV3 → /briefing-v3
+            ├─ [Etapa 4] MatrizesV3 → /matrizes-v3
+            └─ [Etapa 5] PlanoV3 → /plano-v3
 ```
 
-**Problema identificado:** K-2 (`onda1Injector`) e K-3 (badges) foram implementados no Fluxo B, que não é usado pelo P.O. O Fluxo A (caminho real do P.O.) não tem nenhuma etapa de questionário IA.
+**Descoberta crítica:** K-2 (`onda1Injector`) e K-3 (badges visuais) foram implementados no Fluxo B. O P.O. usa o Fluxo A. As perguntas SOLARIS nunca apareceram no teste porque o P.O. nunca passou pelo Fluxo B.
+
+### 2B — Componentes AS-IS
+
+| Componente | Arquivo | Fluxo | Estado |
+|-----------|---------|-------|--------|
+| DiagnosticoStepper | `client/src/components/DiagnosticoStepper.tsx` | A | 3 etapas (QC, QO, QCNAE) |
+| FlowStepper | `client/src/components/FlowStepper.tsx` | B | 5 etapas (Form, Q, Briefing, Matrizes, Plano) |
+| QuestionarioCorporativoV2 | `client/src/pages/QuestionarioCorporativoV2.tsx` | A | Ativo |
+| QuestionarioOperacional | `client/src/pages/QuestionarioOperacional.tsx` | A | Ativo |
+| QuestionarioCNAE | `client/src/pages/QuestionarioCNAE.tsx` | A | Ativo |
+| QuestionarioV3 | `client/src/pages/QuestionarioV3.tsx` | B | Legado — tem badges K-3 |
+| BriefingV3 | `client/src/pages/BriefingV3.tsx` | A+B | Compartilhado |
+| onda1Injector | `server/routers/onda1Injector.ts` | B | Implementado em K-2 |
+| generateQuestions | `server/routers-fluxo-v3.ts` | B | Chamado apenas pelo Fluxo B |
+
+### 2C — Campo `currentStep` AS-IS
+
+O campo `currentStep` (int) na tabela `projects` é atualizado pelo frontend ao navegar entre etapas. Valores atuais: 0 (rascunho), 1 (QC), 2 (QO), 3 (QCNAE), 4 (briefing), 5 (matrizes), 6 (plano).
+
+> **NOTA DE DEPRECIAÇÃO:** O campo `currentStep` (int) será depreciado futuramente. A fonte de verdade do fluxo é o campo `status` (enum). O `currentStep` será mantido apenas para compatibilidade visual com componentes existentes e removido em sprint futura. Registrar como débito técnico no M4.
+
+### 2D — Tabela `solaris_questions` AS-IS
+
+- Criada em K-1 (PR #159, migration `0056_old_molten_man.sql`)
+- 12 questões seed inseridas (SOL-001 a SOL-012, ids 1–12)
+- **Ausência crítica:** coluna `codigo` (VARCHAR 10) não foi implementada em K-1 — será adicionada em K-4-A
 
 ---
 
-### 2B — Tabela de Componentes AS-IS
-
-| Componente | Arquivo | Função | Fluxo |
-|---|---|---|---|
-| `DiagnosticoStepper` | `client/src/components/DiagnosticoStepper.tsx` | Controla 3 camadas: corporate → operational → cnae | **Fluxo A** |
-| `FlowStepper` | `client/src/components/FlowStepper.tsx` | Controla 5 etapas: Projeto → Questionário → Briefing → Riscos → Plano | **Fluxo B** |
-| `QuestionarioCorporativoV2` | `client/src/pages/QuestionarioCorporativoV2.tsx` | QC-01 a QC-10 | **Fluxo A** |
-| `QuestionarioOperacional` | `client/src/pages/QuestionarioOperacional.tsx` | QO-01 a QO-10 | **Fluxo A** |
-| `QuestionarioCNAE` | `client/src/pages/QuestionarioCNAE.tsx` | 5 seções temáticas fixas por CNAE | **Fluxo A** |
-| `QuestionarioV3` | `client/src/pages/QuestionarioV3.tsx` | Questionário IA (gera perguntas via LLM) | **Fluxo B** |
-| `onda1Injector.ts` | `server/routers/onda1Injector.ts` | Injeta perguntas Onda 1 no pipeline IA | **Fluxo B** (errado) |
-| `BriefingV3` | `client/src/pages/BriefingV3.tsx` | Gera briefing via LLM | Ambos |
-| `MatrizesV3` | `client/src/pages/MatrizesV3.tsx` | Matrizes de risco | Ambos |
-| `PlanoAcaoV3` | `client/src/pages/PlanoAcaoV3.tsx` | Plano de ação | Ambos |
-| `ProjetoDetalhesV2` | `client/src/pages/ProjetoDetalhesV2.tsx` | Dashboard do projeto — ponto de entrada do Fluxo A | **Fluxo A** |
-
----
-
-### 2C — `currentStep` e `status` AS-IS
-
-O campo `currentStep` é um `int` (1–9) na tabela `projects`. O campo `status` é um `enum` com 19 valores possíveis.
-
-| `currentStep` | `status` (stepName) | Rota associada | Fluxo |
-|---|---|---|---|
-| 1 | `rascunho` / `perfil_empresa` | `/projetos/novo` | A e B |
-| 2 | `consistencia_pendente` / `descoberta_cnaes` | `/projetos/:id` | A e B |
-| 3 | `cnaes_confirmados` / `confirmacao_cnaes` | `/projetos/:id/questionario-v3` | B |
-| 3 | `diagnostico_corporativo` | `/projetos/:id/questionario-corporativo-v2` | A |
-| 3 | `diagnostico_operacional` | `/projetos/:id/questionario-operacional` | A |
-| 3 | `diagnostico_cnae` | `/projetos/:id/questionario-cnae` | A |
-| 4 | `briefing` | `/projetos/:id/briefing-v3` | A e B |
-| 5 | `matriz_riscos` | `/projetos/:id/matrizes-v3` | A e B |
-| 5 | `aprovado` | `/projetos/:id/plano-v3` | A e B |
-
-**Observação:** Não existem valores de `currentStep` ou `status` para "Onda 1" ou "Onda 2". Esses estados precisarão ser criados.
-
----
-
-### 2D — Estado do Seed e Tabela `solaris_questions`
-
-| Item | Estado |
-|------|--------|
-| Tabela `solaris_questions` em produção | ✅ Existe (migration `0057_odd_ink.sql`) |
-| Seed SOL-001..012 | ✅ 12 registros inseridos (`ativo=1`, `fonte='solaris'`) |
-| `cnae_groups` | 11 perguntas universais (`NULL`) + 1 filtrada por CNAE (id=8, grupos de comércio/indústria) |
-| Exports no schema.ts | ✅ `solarisQuestions`, `SolarisQuestion`, `InsertSolarisQuestion` (linha 1685) |
-| Watcher TypeScript | ⚠️ 4 erros falso-positivos (cache desatualizado) — `npx tsc --noEmit` retorna 0 erros |
-
----
-
-## Parte 3 — TO-BE: Fluxo com as 3 Ondas
+## Parte 3 — TO-BE: Fluxo Unificado com 3 Ondas
 
 ### 3A — Diagrama de Rotas TO-BE
 
-A proposta é **unificar os dois fluxos** em um único fluxo sequencial, inserindo as Ondas 1 e 2 **antes** do Fluxo A existente.
-
 ```
-FLUXO UNIFICADO — "Compliance Tributário com 3 Ondas" (TO-BE)
-=============================================================
+FLUXO UNIFICADO — 8 etapas (DiagnosticoStepper expandido)
+==========================================================
 
 [Início]
-    │
-    ▼
-[Criar Projeto] (/projetos/novo)
-    │ → identifica CNAEs via IA
-    │ → salva: confirmedCnaes, companyProfile
-    │ → currentStep = 1, status = "rascunho"
-    │
-    ▼
-[Detalhe do Projeto] (/projetos/:id)
-    │ → DiagnosticoStepper EXPANDIDO (8 etapas)
-    │
-    ▼
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔵 ONDA 1 — Equipe Jurídica SOLARIS  [NOVA ETAPA]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[Questionário SOLARIS] (/projetos/:id/questionario-solaris)  [NOVA ROTA]
-    │ → QuestionarioSolaris.tsx  [NOVO COMPONENTE]
-    │ → busca solaris_questions filtradas por CNAE
-    │ → exibe 12 perguntas (SOL-001..012) com badge azul
-    │ → advogado responde e avança
-    │ → currentStep = 2, status = "onda1_solaris"  [NOVO STATUS]
-    │
-    ▼
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🟠 ONDA 2 — Perfil da Empresa (IA Gen)  [NOVA ETAPA]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[Questionário IA Gen] (/projetos/:id/questionario-iagen)  [NOVA ROTA]
-    │ → QuestionarioIaGen.tsx  [NOVO COMPONENTE]
-    │ → gera perguntas combinatórias por perfil (regime, porte, operação, CNAE)
-    │ → badge laranja "Perfil da empresa"
-    │ → advogado responde e avança
-    │ → currentStep = 3, status = "onda2_iagen"  [NOVO STATUS]
-    │
-    ▼
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🟢 ONDA 3 — Legislação (modelo completo)  [EXISTENTE]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[QC] (/projetos/:id/questionario-corporativo-v2)
-    │ → currentStep = 4, status = "diagnostico_corporativo"
-    ▼
-[QO] (/projetos/:id/questionario-operacional)
-    │ → currentStep = 4, status = "diagnostico_operacional"
-    ▼
-[QCNAE] (/projetos/:id/questionario-cnae) × N CNAEs
-    │ → currentStep = 4, status = "diagnostico_cnae"
-    │
-    ▼
-[Briefing V3] (/projetos/:id/briefing-v3)
-    │ → currentStep = 5, status = "briefing"
-    ▼
-[Matrizes V3] → [Plano de Ação V3]
+  └─ ProjetoDetalhesV2 (/projetos/:id)
+       └─ DiagnosticoStepper (8 etapas)
+            ├─ [Etapa 1] Onda 1 SOLARIS → /questionario-solaris
+            ├─ [Etapa 2] Onda 2 IA Gen  → /questionario-iagen
+            ├─ [Etapa 3] QC             → /questionario-corporativo-v2
+            ├─ [Etapa 4] QO             → /questionario-operacional
+            ├─ [Etapa 5] QCNAE          → /questionario-cnae
+            ├─ [Etapa 6] Briefing       → /briefing-v3
+            ├─ [Etapa 7] Matrizes       → /matrizes-v3
+            └─ [Etapa 8] Plano          → /plano-v3
+```
+
+### 3B — Novos Status do Enum `status`
+
+| Status | Significado | Etapa |
+|--------|-------------|-------|
+| `rascunho` | Projeto criado, CNAEs confirmados | — |
+| `onda1_solaris` | **NOVO** — Onda 1 concluída e validada | Etapa 1 |
+| `onda2_iagen` | **NOVO** — Onda 2 concluída e validada | Etapa 2 |
+| `diagnostico_corporativo` | QC concluído | Etapa 3 |
+| `diagnostico_operacional` | QO concluído | Etapa 4 |
+| `diagnostico_cnae` | QCNAE concluído | Etapa 5 |
+| `briefing` | Briefing gerado | Etapa 6 |
+| `matriz_riscos` | Matrizes geradas | Etapa 7 |
+| `aprovado` | Plano aprovado | Etapa 8 |
+
+> **Semântica:** `onda1_solaris` e `onda2_iagen` representam **etapa validada** (respostas salvas e completas), não apenas "etapa aberta". O backend só seta esses status após validar a completude dos dados.
+
+### 3C — Novos Componentes a Criar
+
+| Componente | Arquivo | Sprint |
+|-----------|---------|--------|
+| QuestionarioSolaris | `client/src/pages/QuestionarioSolaris.tsx` | K-4-B |
+| QuestionarioIagen | `client/src/pages/QuestionarioIagen.tsx` | K-4-C |
+| DiagnosticoStepper (expandido) | `client/src/components/DiagnosticoStepper.tsx` | K-4-A |
+
+### 3D — Impacto em Arquivos Existentes
+
+| Arquivo | Tipo de mudança | Sprint |
+|---------|----------------|--------|
+| `drizzle/schema.ts` | Adicionar `solarisAnswers`, `iagenAnswers`, `projectStatusLog`; estender enum `status`; adicionar `codigo` em `solarisQuestions` | K-4-A |
+| `server/flowStateMachine.ts` | Estender com `VALID_TRANSITIONS` e `assertValidTransition` | K-4-A |
+| `server/routers-fluxo-v3.ts` | Adicionar procedures `completeOnda1`, `completeOnda2` | K-4-B/C |
+| `server/routers/onda1Injector.ts` | Mover lógica para o novo fluxo A | K-4-B |
+| `client/src/components/DiagnosticoStepper.tsx` | Expandir de 3 para 8 etapas | K-4-A |
+| `client/src/App.tsx` | Adicionar rotas `/questionario-solaris` e `/questionario-iagen` | K-4-B |
+
+---
+
+## Parte 4 — Plano de Sprints K-4
+
+| Sprint | Escopo | Duração | Gate P.O. |
+|--------|--------|---------|-----------|
+| **K-4-A** | Migrations (3): `codigo` em `solaris_questions`, `solaris_answers`, `iagen_answers`. Estender `flowStateMachine.ts`. Expandir `DiagnosticoStepper` para 8 etapas (visuais, sem lógica). | 1 dia | Não |
+| **K-4-B** | Tela `QuestionarioSolaris.tsx` + procedure `completeOnda1`. Onda 1 aparece no Fluxo A. | 1 dia | **Sim — P.O. testa** |
+| **K-4-C** | Tela `QuestionarioIagen.tsx` + procedure `completeOnda2`. Onda 2 aparece no Fluxo A. | 1,5 dias | **Sim — P.O. testa** |
+| **K-4-D** | Integração no diagnóstico: `solaris_answers` e `iagen_answers` injetados nos prompts de `generateBriefing` e `generateRiskMatrices`. | 1 dia | **Sim — P.O. valida diagnóstico** |
+| **K-4-E** | `project_status_log` (migration + logging). Limpeza do Fluxo B (LEGACY_MODE). Remoção dos badges do QuestionarioV3. | 0,5 dia | Não |
+
+**Total estimado:** 5 dias de desenvolvimento, 3 gates P.O.
+
+---
+
+## Parte 5 — Fluxo B: LEGACY_MODE
+
+```
+FLUXO B = LEGACY_MODE
+
+Status: mantido temporariamente
+Regras formais:
+- NÃO recebe novas features
+- NÃO recebe badges das ondas
+- NÃO evolui o schema
+- Uso restrito — apenas projetos antigos
+- Será descontinuado em K-4-E (Issue a criar no M4)
+
+O time NUNCA deve desenvolver nova funcionalidade no Fluxo B.
 ```
 
 ---
 
-### 3B — DiagnosticoStepper TO-BE (8 etapas)
+## Parte 6 — Perguntas Respondidas pelo P.O.
 
-```
-[●] 1. Onda 1 — SOLARIS          (nova — badge azul)
-[●] 2. Onda 2 — Perfil IA        (nova — badge laranja)
-[●] 3. Corporativo (QC)          (existente)
-[●] 4. Operacional (QO)          (existente)
-[●] 5. Setorial CNAE             (existente)
-[●] 6. Briefing                  (existente)
-[●] 7. Matrizes de Risco         (existente)
-[●] 8. Plano de Ação             (existente)
-```
-
-**Regras de bloqueio TO-BE:**
-- Onda 2 só inicia após Onda 1 = `completed`
-- QC só inicia após Onda 2 = `completed`
-- QO só inicia após QC = `completed`
-- QCNAE só inicia após QO = `completed`
-- Briefing só libera após QCNAE = `completed`
-
----
-
-### 3C — `currentStep` e `status` TO-BE
-
-Novos valores necessários no enum `status` da tabela `projects`:
-
-| Novo valor de `status` | Quando ativo | `currentStep` sugerido |
-|---|---|---|
-| `onda1_solaris` | Advogado está no Questionário SOLARIS | 2 |
-| `onda2_iagen` | Advogado está no Questionário IA Gen | 3 |
-
-Os valores existentes (`diagnostico_corporativo`, `diagnostico_operacional`, `diagnostico_cnae`, `briefing`, etc.) são mantidos sem alteração.
-
----
-
-## Parte 4 — Tabela de Impacto
-
-| # | O que muda | Arquivo / Tabela | Tipo | Risco | Rollback |
-|---|---|---|---|---|---|
-| 1 | Nova rota `/questionario-solaris` | `client/src/App.tsx` | Adição | Baixo | Remover rota |
-| 2 | Nova rota `/questionario-iagen` | `client/src/App.tsx` | Adição | Baixo | Remover rota |
-| 3 | Novo componente `QuestionarioSolaris.tsx` | `client/src/pages/` | Criação | Baixo | Remover arquivo |
-| 4 | Novo componente `QuestionarioIaGen.tsx` | `client/src/pages/` | Criação | Médio | Remover arquivo |
-| 5 | `DiagnosticoStepper` — 2 novas etapas (Onda 1 e Onda 2) | `client/src/components/DiagnosticoStepper.tsx` | Modificação | **Médio** | Reverter commit |
-| 6 | Navegação pós-Criar Projeto → Onda 1 (antes era QC) | `client/src/pages/ProjetoDetalhesV2.tsx` | Modificação | **Médio** | Reverter commit |
-| 7 | Navegação pós-QCNAE → Briefing (sem alteração) | `client/src/pages/QuestionarioCNAE.tsx` | Sem alteração | — | — |
-| 8 | Enum `status` — 2 novos valores | `drizzle/schema.ts` + migration | **Migration** | **Alto** | Migration reversa |
-| 9 | Novo tRPC procedure `fluxoV3.getOnda1Questions` | `server/routers-fluxo-v3.ts` | Adição | Baixo | Remover procedure |
-| 10 | Novo tRPC procedure `fluxoV3.generateOnda2Questions` | `server/routers-fluxo-v3.ts` | Adição | Médio | Remover procedure |
-| 11 | Novo tRPC procedure `fluxoV3.saveOnda1Answers` | `server/routers-fluxo-v3.ts` | Adição | Baixo | Remover procedure |
-| 12 | Novo tRPC procedure `fluxoV3.saveOnda2Answers` | `server/routers-fluxo-v3.ts` | Adição | Baixo | Remover procedure |
-| 13 | `onda1Injector.ts` — mover lógica do Fluxo B para Fluxo A | `server/routers/onda1Injector.ts` | Refatoração | Baixo | Reverter commit |
-| 14 | `QuestionarioV3.tsx` — remover badges K-3 (movidos para QuestionarioSolaris) | `client/src/pages/QuestionarioV3.tsx` | Modificação | Baixo | Reverter commit |
-| 15 | Nova tabela `solaris_answers` (respostas Onda 1) | `drizzle/schema.ts` + migration | **Migration** | **Alto** | DROP TABLE |
-| 16 | Nova tabela `iagen_answers` (respostas Onda 2) | `drizzle/schema.ts` + migration | **Migration** | **Alto** | DROP TABLE |
-| 17 | **Correção watcher TypeScript** — schema.ts não exporta `solarisQuestions` no servidor | `drizzle/schema.ts` (sincronização) | Correção | Baixo | — |
-
-**Total de arquivos afetados:** 17 itens — 5 novos, 8 modificados, 4 migrations/schema.
-
----
-
-## Parte 5 — Plano de Sprints
-
-### Fase K-4-A — Correção do watcher TypeScript + Migration de status
-**Duração estimada:** 0,5 dia  
-**Risco:** Médio (migration de enum)  
-**Sem aprovação P.O. necessária**
-
-Entregas:
-- Corrigir sincronização do `schema.ts` no servidor (eliminar 4 erros do watcher)
-- Adicionar `onda1_solaris` e `onda2_iagen` ao enum `status` da tabela `projects`
-- Criar tabelas `solaris_answers` e `iagen_answers`
-- Migration aplicada via `pnpm db:push`
-- Testes: verificar que enum aceita novos valores sem quebrar registros existentes
-
----
-
-### Fase K-4-B — Componente `QuestionarioSolaris.tsx` + tRPC procedures
-**Duração estimada:** 1 dia  
-**Risco:** Baixo  
-**P.O. valida antes do merge**
-
-Entregas:
-- Nova rota `/projetos/:id/questionario-solaris` em `App.tsx`
-- `QuestionarioSolaris.tsx`: busca `solaris_questions` filtradas por CNAE, exibe com badge azul, salva respostas em `solaris_answers`, navega para Onda 2
-- tRPC procedures: `getOnda1Questions`, `saveOnda1Answers`
-- Navegação: `ProjetoDetalhesV2.tsx` — botão "Iniciar" da camada 1 aponta para `/questionario-solaris` (antes apontava para `/questionario-corporativo-v2`)
-
-**Critério de aceite P.O.:**
-> "Ao criar projeto com CNAE 4639-7/01, o PRIMEIRO questionário apresentado é o Questionário SOLARIS com as 12 questões dos advogados, com badge azul 'Equipe Jurídica SOLARIS'."
-
----
-
-### Fase K-4-C — Componente `QuestionarioIaGen.tsx` + tRPC procedures
-**Duração estimada:** 1,5 dias  
-**Risco:** Médio (gera perguntas via IA)  
-**P.O. valida antes do merge**
-
-Entregas:
-- Nova rota `/projetos/:id/questionario-iagen` em `App.tsx`
-- `QuestionarioIaGen.tsx`: gera perguntas combinatórias via LLM (regime tributário + porte + operação + CNAE como parâmetro), exibe com badge laranja, salva respostas em `iagen_answers`, navega para QC
-- tRPC procedures: `generateOnda2Questions`, `saveOnda2Answers`
-- Lógica de geração: reutiliza `invokeLLM` com prompt especializado para Onda 2
-
-**Critério de aceite P.O.:**
-> "Após o Questionário SOLARIS, o SEGUNDO questionário é gerado pela IA com base no perfil da empresa. Empresa A (Simples Nacional, micro) e Empresa B (Lucro Real, grande) recebem perguntas diferentes."
-
----
-
-### Fase K-4-D — Integração no `DiagnosticoStepper` (8 etapas)
-**Duração estimada:** 1 dia  
-**Risco:** Alto (toca o fluxo principal)  
-**P.O. valida antes do merge**
-
-Entregas:
-- `DiagnosticoStepper.tsx`: adicionar etapas `onda1_solaris` e `onda2_iagen` antes de `corporate`
-- Regras de bloqueio atualizadas: Onda 2 bloqueia QC, Onda 1 bloqueia Onda 2
-- `ProjetoDetalhesV2.tsx`: `onStartLayer("onda1")` → `/questionario-solaris`, `onStartLayer("onda2")` → `/questionario-iagen`
-- `flowStateMachine.ts`: adicionar steps `onda1_solaris` e `onda2_iagen` ao `FLOW_STEPS`
-
-**Critério de aceite P.O.:**
-> "O stepper mostra claramente 8 etapas. Onda 1 e Onda 2 aparecem antes do Corporativo. A ordem é visível e navegável. Não é possível pular para QC sem concluir as Ondas."
-
----
-
-### Fase K-4-E — Limpeza e regressão
-**Duração estimada:** 0,5 dia  
-**Risco:** Baixo  
-**Sem aprovação P.O. necessária**
-
-Entregas:
-- Remover badges K-3 de `QuestionarioV3.tsx` (movidos para `QuestionarioSolaris.tsx`)
-- Refatorar `onda1Injector.ts`: remover injeção do Fluxo B (agora desnecessária)
-- Suite completa de testes: K-1, K-2, K-4-A, K-4-B, K-4-C, K-4-D
-- Regressão: verificar que Fluxo B (QuestionarioV3) ainda funciona sem os badges
-
----
-
-## Parte 6 — Perguntas e Dúvidas Identificadas
-
-As seguintes questões precisam de decisão do P.O. ou Orquestrador antes da implementação:
-
-| # | Pergunta | Impacto se não respondida |
-|---|---|---|
-| 1 | As respostas da Onda 1 devem ser salvas em tabela separada (`solaris_answers`) ou na coluna JSON `questionnaireAnswers` da tabela `projects`? | Determina se precisamos de migration de nova tabela (alto risco) ou apenas coluna JSON (baixo risco) |
-| 2 | As respostas da Onda 2 (IA Gen) devem ser salvas em tabela separada (`iagen_answers`) ou em JSON? | Mesmo impacto que #1 |
-| 3 | O Fluxo B (`QuestionarioV3`) deve ser mantido ou descontinuado após a implementação do TO-BE? | Se mantido, os badges K-3 precisam ficar em QuestionarioV3 também |
-| 4 | O `DiagnosticoStepper` deve mostrar Onda 1 e Onda 2 como etapas numeradas (1 e 2) ou como uma seção "Pré-diagnóstico" separada visualmente? | Decisão de UX — impacta o design do stepper |
-| 5 | O `currentStep` deve usar novos valores inteiros (ex: 1.5, 2.5) ou os novos status são suficientes para controle de fluxo? | Determina se o campo `currentStep` (int) precisa ser alterado ou apenas o enum `status` |
+Todas as 5 perguntas foram respondidas e formalizadas na seção "Decisões Formalizadas" no início deste documento.
 
 ---
 
@@ -411,20 +238,382 @@ server/routers/onda1Injector.ts(18,15): error TS2305: Module '"../../drizzle/sch
 
 ---
 
-## Resumo Executivo para o P.O.
+## Seção 6 — Integração no Diagnóstico Final
 
-**O que existe hoje:** Dois fluxos paralelos. O P.O. usa o Fluxo A (QC → QO → QCNAE → Briefing). O K-2 e K-3 foram implementados no Fluxo B (não usado pelo P.O.) — isso explica por que as perguntas SOLARIS não apareceram no teste.
+### Princípio fundamental
 
-**O que precisa ser construído:** Um fluxo unificado onde Onda 1 (SOLARIS) e Onda 2 (IA Gen) aparecem como etapas independentes ANTES do QC/QO/QCNAE.
+> "As ondas são independentes na coleta de dados, mas convergem em um único diagnóstico final."
 
-**Estimativa total:** 4,5 dias de desenvolvimento (K-4-A a K-4-E), 3 gates de validação P.O. (K-4-B, K-4-C, K-4-D).
+Sem esta integração, a Onda 1 e a Onda 2 são **cosméticas** — o advogado responde as perguntas mas o diagnóstico ignora as respostas.
 
-**Risco mais alto:** Migration do enum `status` (K-4-A) — precisa de migration reversa documentada antes de executar.
+### Como cada onda alimenta o diagnóstico
 
-**Próximo passo:** P.O. valida este documento e responde às 5 perguntas da Parte 6 antes de qualquer linha de código.
+**Onda 1 (SOLARIS) → Riscos práticos no diagnóstico:**
+
+As respostas de `solaris_answers` são injetadas como contexto adicional no prompt de `generateRiskMatrices`. Uma resposta "NÃO" na SOL-002 (monitoramento CGIBS) gera risco crítico de confissão por inércia na matriz. Uma resposta "SIM" reduz ou mitiga o risco. As respostas devem aparecer no briefing como "riscos práticos identificados pela equipe jurídica SOLARIS". Impacta: Briefing + Matrizes de Risco + Plano de Ação.
+
+**Onda 2 (IA Gen) → Personalização por perfil:**
+
+As respostas de `iagen_answers` são injetadas no contexto de `generateBriefing` e `generateRiskMatrices`. Perguntas não respondidas ou respondidas com "Não se aplica" são filtradas do contexto. Apenas respostas com `confidence_score >= 0.7` são incluídas. Impacta: Briefing + Matrizes de Risco.
+
+**Onda 3 (regulatório) → Base legislativa:**
+
+Funcionamento atual — não alterar. É a base sobre a qual as ondas 1 e 2 adicionam contexto.
+
+### Implementação técnica — onde integrar
+
+```typescript
+// server/routers-fluxo-v3.ts — função generateBriefing
+// Adicionar ao contexto existente (referencial — não prescritivo):
+const onda1Context = await getOnda1AnswersForProject(projectId)
+const onda2Context = await getOnda2AnswersForProject(projectId)
+
+// Injetar no prompt:
+// ${formatOnda1Context(onda1Context)} → riscos práticos identificados
+// ${formatOnda2Context(onda2Context)} → perfil específico da empresa
+```
+
+### Critério de validação (K-4-D)
+
+O diagnóstico está correto quando:
+
+- Empresa que respondeu "NÃO" em SOL-002 recebe risco crítico de confissão por inércia na matriz
+- Empresa que respondeu "SIM" em SOL-002 recebe risco mitigado ou não recebe o risco
+- O briefing menciona os riscos práticos da Onda 1
+- O briefing menciona a personalização da Onda 2
+
+### O que NÃO fazer
+
+- ❌ Ignorar as respostas das ondas 1 e 2 no diagnóstico
+- ❌ Usar as respostas apenas para exibição (cosmético)
+- ❌ Misturar as respostas das 3 ondas em uma única estrutura
 
 ---
 
-*Documento gerado por Manus (implementador técnico) em 2026-03-28*  
-*Baseado em leitura direta do código-fonte — zero suposições*  
-*Aguarda validação do P.O. antes de qualquer implementação*
+## Seção 7 — Persistência por Onda
+
+### Decisão: tabelas separadas para Onda 1 e Onda 2
+
+Tabelas JSON seriam erro grave: impossível fazer JOIN para auditoria, impossível rastrear resposta SOL-002 → risco na matriz, impossível filtrar por `confidence_score`, impossível evoluir o schema sem migração destrutiva.
+
+### Schema Drizzle — `solaris_answers` (Onda 1)
+
+```typescript
+// drizzle/schema.ts — adicionar em K-4-A
+export const solarisAnswers = mysqlTable('solaris_answers', {
+  id:         int('id').autoincrement().primaryKey(),
+  projectId:  int('project_id').notNull()
+              .references(() => projects.id),
+  questionId: int('question_id').notNull()
+              .references(() => solarisQuestions.id),
+  codigo:     varchar('codigo', { length: 10 }).notNull(), // SOL-001..012
+  resposta:   text('resposta').notNull(),
+  fonte:      varchar('fonte', { length: 20 }).default('solaris'),
+  createdAt:  bigint('created_at', { mode: 'number' }).notNull(),
+  updatedAt:  bigint('updated_at', { mode: 'number' }).notNull(),
+})
+// Índice único: (project_id, codigo)
+```
+
+> **NOTA K-4-A:** Antes de criar `solaris_answers`, adicionar coluna `codigo VARCHAR(10)` à tabela `solaris_questions` existente e atualizar o seed com os valores SOL-001..012 nos registros ids 1–12. A coluna `codigo` foi especificada no design original mas não implementada em K-1.
+
+### Schema Drizzle — `iagen_answers` (Onda 2)
+
+```typescript
+// drizzle/schema.ts — adicionar em K-4-A
+export const iagenAnswers = mysqlTable('iagen_answers', {
+  id:              int('id').autoincrement().primaryKey(),
+  projectId:       int('project_id').notNull()
+                   .references(() => projects.id),
+  questionText:    text('question_text').notNull(),
+  resposta:        text('resposta').notNull(),
+  confidenceScore: decimal('confidence_score', { precision: 3, scale: 2 }),
+  fonte:           varchar('fonte', { length: 20 }).default('ia_gen'),
+  createdAt:       bigint('created_at', { mode: 'number' }).notNull(),
+  updatedAt:       bigint('updated_at', { mode: 'number' }).notNull(),
+})
+// Índice: (project_id)
+```
+
+### Padrão unificado de dados (todas as ondas)
+
+| Campo | Onda 1 | Onda 2 | Onda 3 |
+|-------|--------|--------|--------|
+| `project_id` | ✅ | ✅ | ✅ (existente) |
+| `question_id` | SOL-001..N | gerado dinâmico | existente |
+| `resposta` | texto | texto | texto |
+| `fonte` | `solaris` | `ia_gen` | `regulatorio` |
+| `confidence_score` | N/A | ✅ obrigatório | N/A |
+| `created_at` | ✅ ms UTC | ✅ ms UTC | ✅ (existente) |
+
+### Fluxo B (LEGACY_MODE) — regra formal
+
+```
+FLUXO B = LEGACY_MODE
+
+Status: mantido temporariamente
+Regras:
+- NÃO recebe novas features
+- NÃO recebe badges das ondas
+- NÃO evolui o schema
+- Uso restrito — apenas projetos antigos
+- Será descontinuado em K-4-E (Issue a criar no M4)
+
+O time NUNCA deve desenvolver nova funcionalidade no Fluxo B.
+```
+
+---
+
+## Seção 8 — Enforcement de Fluxo no Backend
+
+### Princípio: backend é a fonte de verdade, não o frontend
+
+O stepper no frontend é apenas visual. O enforcement real acontece no backend via tRPC. O frontend nunca altera o campo `status` diretamente — apenas o backend (via tRPC) atualiza o campo.
+
+### Tabela de enforcement por rota
+
+| Rota | Pré-condição no backend | Status setado ao sair | Erro se não atendido |
+|------|------------------------|-----------------------|---------------------|
+| `/questionario-solaris` | Projeto existe + ondas não iniciadas | `onda1_solaris` | FORBIDDEN |
+| `/questionario-iagen` | `status = 'onda1_solaris'` (Onda 1 concluída) | `onda2_iagen` | FORBIDDEN |
+| `/questionario-corporativo-v2` | `status = 'onda2_iagen'` (Onda 2 concluída) | `diagnostico_corporativo` | FORBIDDEN |
+| `/questionario-operacional` | `status = 'diagnostico_corporativo'` | `diagnostico_operacional` | FORBIDDEN |
+| `/questionario-cnae` | `status = 'diagnostico_operacional'` | `diagnostico_cnae` | FORBIDDEN |
+| `/briefing-v3` | `status = 'diagnostico_cnae'` | `briefing` | FORBIDDEN |
+| `/matrizes-v3` | `status = 'briefing'` | `matriz_riscos` | FORBIDDEN |
+| `/plano-v3` | `status = 'matriz_riscos'` | `aprovado` | FORBIDDEN |
+
+**Resposta ao usuário quando bloqueado:** Backend retorna `TRPCError({ code: 'FORBIDDEN' })`. Frontend exibe: "Etapa indisponível. Conclua a etapa anterior."
+
+### Proteção contra acesso direto por URL
+
+```typescript
+// Referencial — em cada componente de onda/questionário:
+useEffect(() => {
+  if (project.status !== expectedStatus) {
+    navigate(`/projetos/${projectId}`) // volta ao dashboard do projeto
+  }
+}, [project.status])
+```
+
+### Modal de retrocesso — texto obrigatório
+
+O modal NUNCA deve ser genérico. Sempre listar exatamente o que será perdido.
+
+**Retroceder da Onda 2 para a Onda 1:**
+> "Você perderá todas as respostas da Onda 2 (Perfil da empresa). Esta ação não pode ser desfeita. Deseja continuar?"
+
+**Retroceder da Onda 3 (QC) para a Onda 2:**
+> "Você perderá todas as respostas do Questionário Corporativo e da Onda 2 (Perfil da empresa). Esta ação não pode ser desfeita. Deseja continuar?"
+
+**Retroceder de Briefing/Matrizes/Plano para qualquer etapa anterior:**
+> "Você perderá o diagnóstico gerado (briefing, matrizes de risco e plano de ação). Será necessário regenerar o diagnóstico após as alterações. Esta ação não pode ser desfeita. Deseja continuar?"
+
+### Invalidação do diagnóstico no retrocesso
+
+Qualquer retrocesso de onda invalida os dados do diagnóstico já gerado. O sistema deve limpar e exigir regeneração.
+
+| Retrocesso | O que é invalidado e limpo |
+|-----------|---------------------------|
+| Onda 2 → Onda 1 | `iagen_answers` do projeto |
+| Onda 3 → Onda 2 | `iagen_answers` + respostas QC |
+| Qualquer → antes do Briefing | Apenas respostas da etapa posterior |
+| Qualquer → após Briefing gerado | `briefingContentV3` + `riskMatricesDataV3` + `actionPlansDataV3` |
+
+**Regra crítica:** se o advogado retrocede após o briefing estar gerado, o diagnóstico completo é invalidado. O sistema deve: (1) limpar `briefingContentV3`, `riskMatricesDataV3`, `actionPlansDataV3`; (2) atualizar `status` para o status da etapa de destino; (3) exibir aviso: "Diagnóstico anterior removido. Regenere após as alterações."
+
+---
+
+## Seção 9 — Regras da Onda 2 (IA Generativa)
+
+A Onda 2 é a mais complexa porque depende de IA. Sem regras claras, pode travar, gerar perguntas ruins ou criar inconsistência.
+
+### Limites de geração
+
+```
+Quantidade: mínimo 5, máximo 10 perguntas por projeto
+Timeout: 30 segundos (após isso → fallback obrigatório)
+Temperatura LLM: 0.3 (consistência)
+MaxTokens: 2.000 (suficiente para 10 perguntas)
+```
+
+### Parâmetros de entrada (combinatórios)
+
+```typescript
+// Referencial — interface Onda2Params
+interface Onda2Params {
+  regime: 'simples_nacional' | 'lucro_presumido' | 'lucro_real' | 'lucro_arbitrado'
+  porte: 'mei' | 'pequena' | 'media' | 'grande'
+  cnaes: string[]                    // ex: ['4639-7/01', '1113-5/02']
+  operacao_interestadual: boolean
+  faz_exportacao: boolean
+  contrata_simples_nacional: boolean
+  tem_ativo_imobilizado: boolean
+}
+```
+
+### Estrutura obrigatória do output (JSON)
+
+```typescript
+// Referencial — interface Onda2Question
+interface Onda2Question {
+  id: string                          // gerado: "ia-gen-001", "ia-gen-002"...
+  texto: string                       // a pergunta
+  objetivo_diagnostico: string        // o que essa pergunta diagnostica
+  combinacao_gatilho: string          // ex: "Lucro Presumido + exportação"
+  fonte: 'ia_gen'                     // fixo
+  confidence_score: number            // 0.0 a 1.0
+}
+```
+
+### Fallback obrigatório
+
+Se a IA falhar (timeout, erro de API, resposta inválida):
+
+1. Logar o erro (não silencioso)
+2. Exibir conjunto padrão de 5 perguntas genéricas de Onda 2 (hardcoded em `server/routers/onda2Fallback.ts` — não depende de banco)
+3. Marcar as perguntas fallback com `confidence_score = 0.5`
+4. Não bloquear o fluxo — o advogado prossegue normalmente
+
+### Filtragem de qualidade
+
+```
+Perguntas com confidence_score < 0.7:
+- Não injetadas no diagnóstico final
+- Respondidas mas marcadas como "baixa confiança"
+- Podem ser revisadas em sprint futura (Onda 2 v2)
+```
+
+### O que NÃO gerar na Onda 2
+
+- ❌ Perguntas idênticas às da Onda 1 (SOLARIS)
+- ❌ Perguntas sobre o que a lei diz (isso é Onda 3)
+- ❌ Perguntas genéricas que se aplicam a qualquer empresa
+- ❌ Mais de 10 perguntas
+
+---
+
+## Seção 10 — Máquina de Estados do Fluxo
+
+### Por que formalizar
+
+O `status` como fonte de verdade cria implicitamente uma state machine distribuída. Sem formalização, as regras de transição ficam espalhadas em vários lugares — difícil manutenção e bugs de transição silenciosos.
+
+### Diagrama de estados
+
+```
+rascunho
+    │ (projeto criado, CNAEs confirmados)
+    ▼
+onda1_solaris
+    │ (Onda 1 concluída — respostas salvas em solaris_answers)
+    ▼
+onda2_iagen
+    │ (Onda 2 concluída — respostas salvas em iagen_answers)
+    ▼
+diagnostico_corporativo
+    │ (QC concluído)
+    ▼
+diagnostico_operacional
+    │ (QO concluído)
+    ▼
+diagnostico_cnae
+    │ (QCNAE concluído)
+    ▼
+briefing
+    │ (briefing gerado)
+    ▼
+matriz_riscos
+    │ (matrizes geradas)
+    ▼
+aprovado
+```
+
+### Regras de transição
+
+- Transições são **unidirecionais** no avanço
+- Retrocesso é permitido com modal de confirmação
+- Retrocesso **sempre limpa** os dados das etapas posteriores
+- Nenhuma transição é permitida sem enforcement no backend
+- O frontend **nunca** transita o status diretamente — apenas o backend (via tRPC) atualiza o campo `status`
+
+### Implementação — estender arquivo existente
+
+```typescript
+// server/flowStateMachine.ts
+// ESTENDER arquivo existente — NÃO criar novo
+// Adicionar ao arquivo existente (que já tem FLOW_STEPS, FlowStep, StepConfig, FLOW_STEP_MAP):
+
+export const VALID_TRANSITIONS: Record<string, string[]> = {
+  'rascunho':                ['onda1_solaris'],
+  'onda1_solaris':           ['onda2_iagen', 'rascunho'],
+  'onda2_iagen':             ['diagnostico_corporativo', 'onda1_solaris'],
+  'diagnostico_corporativo': ['diagnostico_operacional', 'onda2_iagen'],
+  'diagnostico_operacional': ['diagnostico_cnae', 'diagnostico_corporativo'],
+  'diagnostico_cnae':        ['briefing', 'diagnostico_operacional'],
+  'briefing':                ['matriz_riscos', 'diagnostico_cnae'],
+  'matriz_riscos':           ['aprovado', 'briefing'],
+  'aprovado':                ['matriz_riscos'],
+}
+
+export function assertValidTransition(from: string, to: string) {
+  if (!VALID_TRANSITIONS[from]?.includes(to)) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: `Transição inválida: ${from} → ${to}`
+    })
+  }
+}
+```
+
+### Consistência entre status e dados
+
+O status avançar sem dados correspondentes é um bug silencioso. Para cada transição, o backend deve validar antes de confirmar:
+
+| Status setado | Validação obrigatória antes de confirmar |
+|--------------|----------------------------------------|
+| `onda1_solaris` | Respostas Onda 1 completas (não apenas `≥1 registro` — validar completude da etapa) |
+| `onda2_iagen` | Respostas Onda 2 completas |
+| `diagnostico_corporativo` | Respostas QC salvas |
+| `briefing` | `briefingContentV3` não está vazio |
+| `matriz_riscos` | `riskMatricesDataV3` não está vazio |
+
+Se inconsistente: bloquear a transição, retornar `TRPCError({ code: 'PRECONDITION_FAILED' })`, logar o erro (não silencioso), não gerar diagnóstico com dados incompletos.
+
+### Log de transições (auditoria jurídica) — K-4-E
+
+```typescript
+// drizzle/schema.ts — adicionar em K-4-E (fora do K-4-A)
+export const projectStatusLog = mysqlTable('project_status_log', {
+  id:         int('id').autoincrement().primaryKey(),
+  projectId:  int('project_id').notNull().references(() => projects.id),
+  fromStatus: varchar('from_status', { length: 50 }).notNull(),
+  toStatus:   varchar('to_status', { length: 50 }).notNull(),
+  userId:     int('user_id').notNull(),
+  createdAt:  bigint('created_at', { mode: 'number' }).notNull(),
+})
+```
+
+**Benefícios:** auditoria completa do caminho percorrido, debugging rápido de bugs de fluxo, rastreabilidade nível jurídico, base para analytics futuros (tempo médio por etapa).
+
+> **Decisão do P.O.:** `project_status_log` vai para K-4-E — fora do K-4-A. K-4-A tem apenas 3 migrations: (1) `codigo` em `solaris_questions`, (2) `solaris_answers`, (3) `iagen_answers`.
+
+---
+
+## Resumo Executivo para o P.O.
+
+**O que existia (AS-IS):** Dois fluxos paralelos. O P.O. usa o Fluxo A (QC → QO → QCNAE → Briefing). O K-2 e K-3 foram implementados no Fluxo B (não usado pelo P.O.) — isso explica por que as perguntas SOLARIS não apareceram no teste.
+
+**O que será construído (TO-BE):** Um fluxo unificado com 8 etapas onde Onda 1 (SOLARIS) e Onda 2 (IA Gen) aparecem como etapas independentes ANTES do QC/QO/QCNAE. As respostas das ondas alimentam o diagnóstico final (briefing + matrizes).
+
+**Estimativa total:** 5 dias de desenvolvimento (K-4-A a K-4-E), 3 gates de validação P.O. (K-4-B, K-4-C, K-4-D).
+
+**Risco mais alto:** Migration do enum `status` (K-4-A) — precisa de migration reversa documentada antes de executar.
+
+**Próximo passo:** Merge deste PR. Após o merge, K-4-A pode iniciar imediatamente.
+
+---
+
+*Documento gerado por Manus (implementador técnico) — v1.0 em 2026-03-27, v1.1 em 2026-03-27*
+*Baseado em leitura direta do código-fonte — zero suposições*
+*v1.1 aprovado pelo P.O. Uires Tapajós — pronto para implementação K-4-A*
