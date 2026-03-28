@@ -431,10 +431,10 @@ export default function NovoProjeto() {
   const confirmCnaes = trpc.fluxoV3.confirmCnaes.useMutation({
     onSuccess: () => {
       clearTempData(DRAFT_PROJECT_ID, 'etapa1');
-      toast.success("CNAEs confirmados! Iniciando Diagnóstico Corporativo...");
+      toast.success("CNAEs confirmados! Iniciando Questionário SOLARIS...");
       setShowCnaeModal(false);
-      // v2.1: navegar para o novo fluxo de diagnóstico em 3 camadas
-      setLocation(`/projetos/${projectId}/questionario-corporativo-v2`);
+      // K-4-B: navegar para Onda 1 (QuestionarioSolaris) antes do Corporativo
+      setLocation(`/projetos/${projectId}/questionario-solaris`);
     },
     onError: (err) => toast.error(`Erro: ${err.message}`),
   });
