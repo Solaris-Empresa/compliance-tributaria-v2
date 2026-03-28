@@ -30,50 +30,72 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-03-27)
+## Estado atual do projeto (2026-03-28)
 
-- BASELINE **v1.9** — Sprint I/DT-01 **CONCLUÍDA**
-- **492+ testes passando**
+- BASELINE **v2.2** — Sprint K K-4-A ✅ + K-4-B ⏳ (PR #177 aguardando aprovação P.O.)
+- **587 testes passando** (517 baseline + 70 Sprint K)
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
-- 56 migrations aplicadas
+- **58 migrations aplicadas** (última: `0058` — Sprint K K-4-A)
 - Branch protection: ativa (ruleset `main-protection`, ID 14328406)
 - **Corpus RAG: 2.078 chunks — 100% com anchor_id canônico (DEC-002)**
 - **Agent Skills ativas:** Manus `/solaris-orquestracao` + Claude `solaris-contexto`
 - **GATE-CHECKLIST:** `docs/GATE-CHECKLIST.md` — executar Gate 0 antes de qualquer sprint
+- **Contrato 3 Ondas:** `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174 mergeado)
 
-## PRs mergeados (histórico recente)
+## Sprint K — Estado atual
+
+### K-4-A ✅ CONCLUÍDA (commit `d370932`, tag `k4-a-complete`)
+
+| Entregável | Status |
+|---|---|
+| Migration 0058: `CREATE TABLE solaris_answers` (Onda 1, 8 cols, 2 FKs) | ✅ |
+| Migration 0058: `CREATE TABLE iagen_answers` (Onda 2, 8 cols, 1 FK) | ✅ |
+| `ALTER TABLE solaris_questions ADD COLUMN codigo VARCHAR(10)` | ✅ |
+| `UPDATE` seed: SOL-001..SOL-012 nos ids 1–12 | ✅ |
+| `ALTER TABLE projects MODIFY COLUMN status` (ADD `onda1_solaris`, `onda2_iagen`) | ✅ |
+| `flowStateMachine.ts`: `VALID_TRANSITIONS` + `assertValidTransition` | ✅ |
+| Testes T-K4A-01..08 (36 testes) | ✅ |
+| Issue #156 fechada · tag `k4-a-complete` | ✅ |
+
+### K-4-B ⏳ PR #177 — AGUARDA APROVAÇÃO P.O.
+
+| Entregável | Status |
+|---|---|
+| `DiagnosticoStepper.tsx` v3.0 — 8 etapas visuais (Onda 1 → Plano) | ✅ |
+| `QuestionarioSolaris.tsx` — badge azul, pills SOL-001..012, `completeOnda1` | ✅ |
+| Procedures `getOnda1Questions` + `completeOnda1` com `assertValidTransition` | ✅ |
+| Rota `/projetos/:id/questionario-solaris` em `App.tsx` | ✅ |
+| Entrada pelo stepper em `ProjetoDetalhesV2.tsx` | ✅ |
+| Testes T-K4B-01..08 (26 testes) | ✅ |
+| **Critério de aceite P.O.:** "Ao criar projeto com CNAE 4639-7/01, vejo stepper com 8 etapas. Etapa 1 é o Questionário SOLARIS com 12 questões e badge azul. Consigo responder e avançar." | ⏳ |
+
+## PRs mergeados (histórico recente — Sprint K)
 
 | PR | Título | Commit |
 |---|---|---|
-| #108 | feat(rag): Sprint C — G9/G10 | `ec6a84e` |
-| #109 | feat(corpus): Sprint D — G3/G4 + migração legados | `03fa2c1` |
-| #110 | feat(rag): Sprint E — G11 fundamentação auditável | `5d15105` |
-| #111 | docs(b1-v1.1): Matriz Rastreabilidade v1.1 | `88de16f` |
-| #112 | docs: BASELINE v1.5 + HANDOFF-MANUS | `d18dadb` |
-| #113 | feat(b2): GATE-CHECKLIST + Skills + Cockpit v2 + fonte_acao G12 | `805afd1` |
-| #115 | docs(cockpit): skills na biblioteca | `0647511` |
-| ... | PRs #116–#136 — Sprints F/G/H/I — ver docs/product/cpie-v2/produto/RASTREABILIDADE-RF-PR-SPRINT.md | — |
-| #137 | docs: RASTREABILIDADE-RF-PR-SPRINT.md | — |
-| #138 | chore(skills): solaris-contexto + solaris-orquestracao | — |
-| #139 | test(dt01): guard db:push + 3 testes de integridade de schema | `fc54e13f` |
+| #174 | feat(fluxo-3-ondas): contrato v1.1 | mergeado 2026-03-28T01:37:47Z |
+| #175 | docs(baseline): BASELINE v2.1 + HANDOFF-MANUS | mergeado 2026-03-28 |
+| #176 | feat(k4-a): migration 0058 + VALID_TRANSITIONS | fast-forward → `d370932` |
+
+## PRs abertos
+
+| PR | Título | Label | Ação |
+|---|---|---|---|
+| #177 | feat(k4-b): QuestionarioSolaris + DiagnosticoStepper 8 etapas | `p.o.-valida` | **Aguarda aprovação P.O.** |
+
+## Próximas sprints
+
+- **K-4-C** — `QuestionarioIagen.tsx` (Onda 2, badge roxo, `iagen_answers`, `completeOnda2`)
+- **K-4-D** — Integração completa das 8 etapas no fluxo real (QC → QO → QCNAE → Briefing → Matrizes → Plano)
+- **Sprint L** — Upload CSV SOLARIS (Issues #157, #158, #170)
 
 ## Gaps RAG — estado atual
 
 | Gap | Descrição | Status |
 |---|---|---|
-| G1 | Label lc224 no formatContextText | ✅ PR #105 |
-| G2 | Label lc227 ano errado (2024→2026) | ✅ PR #105 |
-| G5 | Art. 45 tópicos — confissão de dívida | ✅ PR #105 |
-| G6 | LC 224 cnaeGroups — cobertura universal | ✅ PR #105 |
-| G8 | companyProfile não injetado no briefing | ✅ PR #106 |
-| G7 | 1 RAG compartilhado para 4 áreas | ✅ PR #106 |
-| G9 | Schema Zod para outputs do pipeline RAG | ✅ PR #108 |
-| G10 | Campo fonte_risco nas matrizes de risco | ✅ PR #108 |
-| G3 | EC 132/2023 — 18 chunks canônicos no corpus | ✅ PR #109 |
-| G4 | Anexos LC 214/2025 (I–XVII, sem VII) no corpus | ✅ PR #109 |
-| G11 | Fundamentação auditável por item de risco | ✅ PR #110 |
-| G12 | fonte_acao no plano de ação | ✅ PR #113 |
+| G1–G12 | Corpus, retrieval, fundamentação auditável, fonte_acao | ✅ Concluídos |
 | G13 | fonte_dispositivo nos questionários | 🔜 Sprint futura |
+| G15 | `fonte`/`requirement_id`/`source_reference` no `QuestionSchema` | ✅ PR #142 |
 
 ## Corpus RAG
 
@@ -84,23 +106,6 @@ Drizzle ORM / Vitest / pnpm
 | lc224 | 28 | 100% | 28 legados migrados |
 | ec132 | 18 | 100% | 18 Sprint D (canônico v3.1.1) |
 | **TOTAL** | **2.078** | **100%** | Zero duplicatas |
-
-**Nota id 811:** chunk fragmentado lc227 — rastreável, pendente correção em Sprint G.
-**Nota ids 617–807:** artigos de outras leis (LC 87/1996, CTN) sob `lei='lc214'` — normalização pendente Sprint G.
-
-## Sprint 98% Confidence — estado FINAL
-
-| Bloco | Conteúdo | Status |
-|---|---|---|
-| B0 | Governança GitHub: milestone, labels, 34 issues, PR template | ✅ Concluído (2026-03-23) |
-| B1 | ADR-010 + Matrizes canônicas (I/O + Rastreabilidade) | ✅ Concluído — PR #111 |
-| B2 | GATE-CHECKLIST + Skills + Cockpit v2 + G12 fonte_acao | ✅ Concluído — PR #113 |
-
-## Próximas sprints
-
-- **Sprint G** — Corpus complementar (P0): id 811 lc227 + ids 617–807 campo `lei`
-- **Sprint H** — Qualidade do retrieval: ordenação semântica + cobertura quinquenal
-- **Sprint I** — Débito técnico: Issue #101 + Issues #56, #61, #62
 
 ## Checks obrigatórios no ruleset (4)
 
@@ -114,13 +119,19 @@ Drizzle ORM / Vitest / pnpm
 - NÃO ativar `DIAGNOSTIC_READ_MODE=new`
 - NÃO executar F-04 Fase 3
 - NÃO executar DROP COLUMN nas colunas legadas
+- NÃO mergear PR #177 sem aprovação explícita do P.O. (label `p.o.-valida`)
 
 ## Issues abertas relevantes
 
 - #56 — F-04 Fase 3 (bloqueada, aguarda UAT)
 - #61 — Modo `new` (bloqueada, aguarda #56)
 - #62 — DROP COLUMN (bloqueada, aguarda #61)
-- #101 — Débito técnico: 9 testes corpus com skipIf(CI) — habilitar no CI real
+- #101 — Débito técnico: 9 testes corpus com `skipIf(CI)`
+- #165, #169 — K-4 Validação P.O. (aguardam K-4-C)
+
+## Nota sobre erros do LSP do Manus
+
+O watcher de desenvolvimento interno reporta 8 erros TS (`solarisQuestions not exported`). São artefatos do watcher — `npx tsc --noEmit` confirma **0 erros reais**. Não bloqueia build nem deploy.
 
 ## Decisões resolvidas
 
@@ -128,6 +139,7 @@ Drizzle ORM / Vitest / pnpm
 - **DEC-003** ✅ — chunk por NCM/item para Anexos (PR #109)
 - **DEC-004** ✅ — log de auditoria sem gate manual (PR #108)
 - **DEC-005** ✅ — Sprint 98% B2 Opção A bridge (não recriar engines)
+- **DECISÃO-001** ✅ — Prefill cruzado QC-07→QO-03 (executar pós-UAT)
 
 ---
 
