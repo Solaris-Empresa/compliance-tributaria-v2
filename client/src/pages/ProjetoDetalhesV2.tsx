@@ -463,6 +463,7 @@ export default function ProjetoDetalhesV2() {
                 isLoading={completeDiagnosticLayer.isPending}
                 projectStatus={summary.status}
                 onStartOnda1={() => setLocation(`/projetos/${projectId}/questionario-solaris`)}
+                onStartOnda2={() => setLocation(`/projetos/${projectId}/questionario-iagen`)}
                 onStartLayer={(layer) => {
                   if (layer === "corporate") {
                     setLocation(`/projetos/${projectId}/questionario-corporativo-v2`);

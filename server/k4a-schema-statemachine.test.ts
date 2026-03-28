@@ -147,8 +147,8 @@ describe("T-K4A-05: VALID_TRANSITIONS exportado do flowStateMachine", () => {
 
 // ─── T-K4A-06: assertValidTransition aceita transição válida ─────────────────
 describe("T-K4A-06: assertValidTransition aceita transições válidas", () => {
-  it("rascunho → onda1_solaris deve ser válido", () => {
-    expect(() => assertValidTransition("rascunho", "onda1_solaris")).not.toThrow();
+  it("cnaes_confirmados → onda1_solaris deve ser válido (K-4-B fix: rascunho não vai direto para Onda 1)", () => {
+    expect(() => assertValidTransition("cnaes_confirmados", "onda1_solaris")).not.toThrow();
   });
 
   it("onda1_solaris → onda2_iagen deve ser válido", () => {
