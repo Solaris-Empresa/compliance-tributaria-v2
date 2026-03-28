@@ -414,7 +414,7 @@ export function createHistoryEntry(
  * Inclui os novos status onda1_solaris e onda2_iagen (K-4-A).
  */
 export const VALID_TRANSITIONS: Record<string, string[]> = {
-  'rascunho':                  ['onda1_solaris'],
+  'rascunho':                  ['consistencia_pendente'],  // rascunho → consistência (não pula para Onda 1)
   'onda1_solaris':             ['onda2_iagen', 'rascunho'],
   'onda2_iagen':               ['diagnostico_corporativo', 'onda1_solaris'],
   'diagnostico_corporativo':   ['diagnostico_operacional', 'onda2_iagen'],
@@ -425,9 +425,9 @@ export const VALID_TRANSITIONS: Record<string, string[]> = {
   'aprovado':                  ['matriz_riscos'],
   // Status legados — mantidos para compatibilidade com projetos existentes
   'consistencia_pendente':     ['cnaes_confirmados', 'rascunho'],
-  'cnaes_confirmados':         ['diagnostico_corporativo', 'consistencia_pendente'],
+  'cnaes_confirmados':         ['onda1_solaris', 'consistencia_pendente'],  // K-4-B fix: Onda 1 antes do Corporativo
   'assessment_fase1':          ['assessment_fase2', 'cnaes_confirmados'],
-  'assessment_fase2':          ['diagnostico_corporativo', 'assessment_fase1'],
+  'assessment_fase2':          ['onda1_solaris', 'assessment_fase1'],  // legado: também passa por Onda 1
   'riscos':                    ['plano', 'briefing'],
   'plano':                     ['dashboard', 'riscos'],
   'dashboard':                 ['plano'],
