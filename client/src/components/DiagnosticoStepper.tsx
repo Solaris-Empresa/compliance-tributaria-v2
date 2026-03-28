@@ -70,6 +70,10 @@ interface DiagnosticoStepperProps {
   onStartOnda2?: () => void;
   /** Callback ao clicar em "Gerar Briefing" */
   onGenerateBriefing?: () => void;
+  /** Callback ao clicar em "Iniciar" Etapa 7 — Matrizes de Risco (K-4-D) */
+  onStartMatrizes?: () => void;
+  /** Callback ao clicar em "Iniciar" Etapa 8 — Plano de Ação (K-4-D) */
+  onStartPlano?: () => void;
   /** Status do projeto (para derivar estado das ondas) */
   projectStatus?: string;
   /** Se true, desabilita todos os botões (loading state) */
@@ -375,6 +379,8 @@ export function DiagnosticoStepper({
   onStartOnda1,
   onStartOnda2,
   onGenerateBriefing,
+  onStartMatrizes,
+  onStartPlano,
   projectStatus,
   isLoading = false,
   className,
@@ -410,10 +416,10 @@ export function DiagnosticoStepper({
         onGenerateBriefing?.();
         break;
       case "matrizes":
-        // K-4-D — placeholder
+        onStartMatrizes?.(); // K-4-D
         break;
       case "plano":
-        // K-4-D — placeholder
+        onStartPlano?.(); // K-4-D
         break;
     }
   }
