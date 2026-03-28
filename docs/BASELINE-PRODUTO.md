@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.2 — 2026-03-28
-> **Commit HEAD:** `9500935` (branch `feat/k4-b` → PR #177 aguardando aprovação P.O.)
-> **Checkpoint Manus:** `6d425c9d`
+> **Versão:** 2.3 — 2026-03-28
+> **Commit HEAD:** `b7fb1b49` (K-4-C mergeado no main — aprovado pelo P.O.)
+> **Checkpoint Manus:** `b7fb1b49`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -25,12 +25,12 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | 0 erros (`npx tsc --noEmit`) | ✅ |
-| Testes automatizados — total | **70 testes passando** (K-4-A: 36 · K-4-B: 26 · K-1: 12 — suítes Sprint K) | ✅ |
-| Testes históricos | 517 testes (baseline pré-Sprint K) + 70 Sprint K = **587 testes** | ✅ |
-| Git working tree | Limpo — branch `feat/k4-b` pushado, PR #177 aberto | ✅ |
+| Testes automatizados — total | **2.652 passando · 97 falhas pré-existentes · 24 skipped** (2.773 total) | ✅ |
+| Testes Sprint K (suítes K-4) | 82 testes K-4-C · 70 K-4-B · 36 K-4-A — todos passando | ✅ |
+| Git working tree | Limpo — `main` = `b7fb1b49`, sincronizado com GitHub externo | ✅ |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
-| Migrations aplicadas | **58** (última: `0058` — `solaris_answers`, `iagen_answers`, `codigo` em `solaris_questions`, `onda1_solaris`/`onda2_iagen` no enum `status`) | ✅ |
+| Migrations aplicadas | **60** (última: `0059` — `cpie_analysis_history`, `cpie_settings`; `0058` — `solaris_answers`, `iagen_answers`, `onda1_solaris`/`onda2_iagen`) | ✅ |
 | ADRs formais | **10** (ADR-001 a ADR-010; ADR-004 rejeitado) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
@@ -41,7 +41,9 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Agent Skills | Manus `/solaris-orquestracao` ✅ · Claude `solaris-contexto` ✅ | ✅ |
 | db:push guard | Bloqueado em production — `scripts/db-push-guard.mjs` | ✅ |
 | Sprint K — K-4-A | Migration 0058 aplicada em produção · tag `k4-a-complete` · Issue #156 fechada | ✅ |
-| Sprint K — K-4-B | PR #177 aberto com label `p.o.-valida` · aguarda aprovação P.O. | ⏳ |
+| Sprint K — K-4-B | ✅ Aprovado pelo P.O. — Onda 1 SOLARIS funcional em produção | ✅ |
+| Sprint K — K-4-C | ✅ Aprovado pelo P.O. — Onda 2 IA Generativa funcional em produção · PR #182 aberto | ✅ |
+| Sprint K — K-4-D | 🔜 Próximo — integração das etapas 7 (Matrizes) e 8 (Plano) no stepper | 🔜 |
 
 ---
 
@@ -56,8 +58,8 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Divergências críticas | **0** |
 | Chunks RAG no banco | **2.078** — 100% com anchor_id canônico (DEC-002) |
 | Perguntas SOLARIS (Onda 1) | **12** — SOL-001..SOL-012 com `codigo` populado |
-| Respostas Onda 1 (`solaris_answers`) | **0** — tabela criada, aguarda testes manuais |
-| Respostas Onda 2 (`iagen_answers`) | **0** — tabela criada, aguarda K-4-C |
+| Respostas Onda 1 (`solaris_answers`) | Tabela ativa — testes manuais P.O. realizados com sucesso |
+| Respostas Onda 2 (`iagen_answers`) | Tabela ativa — testes manuais P.O. realizados com sucesso (K-4-C ✅) |
 
 > **Nota:** O banco foi limpo intencionalmente em 2026-03-24 para garantir ambiente neutro no UAT com advogados. Os dados históricos (1.847 projetos, 1.364 usuários) existiam até 2026-03-23 e estão documentados no histórico de commits.
 
@@ -311,7 +313,7 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 ### P1 — Sprint K continuação
 
 3. **K-4-C: `QuestionarioIagen.tsx`** — Onda 2 (IA Generativa), mesma estrutura da Onda 1 com `iagen_answers`, procedure `completeOnda2`, badge roxo "IA Generativa", navegação para `/questionario-corporativo-v2`
-4. **K-4-D: Integração completa** — conectar as 8 etapas no fluxo real do P.O. (QC → QO → QCNAE → Briefing → Matrizes → Plano)
+4. **K-4-D: Integração das etapas 7-8** — adicionar callbacks `onStartMatrizes` e `onStartPlano` ao `DiagnosticoStepper`, wiring em `ProjetoDetalhesV2`, navegação para `/matrizes-v3` e `/plano-v3` a partir do stepper. Critério de aceite: clicar em "Iniciar" nas etapas 7 e 8 navega corretamente.
 
 ### P2 — Pós-aprovação UAT
 
@@ -343,9 +345,10 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 | Shadow Monitor (`/admin/shadow-monitor`) | ✅ Funcional | 4 métricas, gráfico 24h, clearOld |
 | Dashboard UAT (`getUatProgress`) | ✅ Funcional | — |
 | Descoberta de CNAEs por IA | ✅ Funcional | Requer `OPENAI_API_KEY` válida (ver ERR-006) |
-| DiagnosticoStepper v3.0 — 8 etapas | ✅ Funcional | K-4-B — PR #177 aguardando merge |
-| Questionário SOLARIS (Onda 1) | ⏳ Aguarda merge | K-4-B — PR #177 com label `p.o.-valida` |
-| Questionário IA Generativa (Onda 2) | 🔜 K-4-C | Tabela `iagen_answers` criada (K-4-A) |
+| DiagnosticoStepper v3.0 — 8 etapas | ✅ Funcional | K-4-B aprovado pelo P.O. |
+| Questionário SOLARIS (Onda 1) | ✅ Funcional | K-4-B — badge azul, SOL-001..012, `completeOnda1` |
+| Questionário IA Generativa (Onda 2) | ✅ Funcional | K-4-C — badge laranja, LLM 5-10 perguntas, fallback 30s |
+| Stepper etapas 7-8 (Matrizes + Plano) | 🔜 K-4-D | Callbacks `onStartMatrizes`/`onStartPlano` pendentes de wiring |
 
 ---
 
@@ -386,6 +389,7 @@ DROP TABLE IF EXISTS iagen_answers;
 | 2.0 | 2026-03-27 | `b8bbc062` | G13-UI + G14 confirmados · 12 demandas UAT atendidas. |
 | 2.1 | 2026-03-27 | `90814b7` | PRs #141–#144 mergeados · 517 testes · suite UAT 12 itens. |
 | 2.2 | 2026-03-28 | `9500935` | Sprint K K-4-A + K-4-B: migration 0058, `solaris_answers`, `iagen_answers`, `VALID_TRANSITIONS`, `assertValidTransition`, `QuestionarioSolaris.tsx`, `DiagnosticoStepper` 8 etapas, `completeOnda1`. 70/70 testes Sprint K. PR #177 aberto com `p.o.-valida`. Testes manuais P.O. em andamento. |
+| 2.3 | 2026-03-28 | `b7fb1b49` | Sprint K K-4-C: `QuestionarioIaGen.tsx` (badge laranja, LLM 5-10 perguntas, timeout 30s, fallback hardcoded), procedures `generateOnda2Questions` + `completeOnda2` com `assertValidTransition`, rota `/questionario-iagen`, `onStartOnda2` wiring em `ProjetoDetalhesV2`. Aprovado pelo P.O. em testes manuais. 2.652/2.773 testes passando (97 falhas pré-existentes, sem regressão K-4-C). |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 

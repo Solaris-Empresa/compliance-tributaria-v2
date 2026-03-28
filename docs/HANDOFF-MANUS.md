@@ -32,15 +32,16 @@ Drizzle ORM / Vitest / pnpm
 
 ## Estado atual do projeto (2026-03-28)
 
-- BASELINE **v2.2** — Sprint K K-4-A ✅ + K-4-B ⏳ (PR #177 aguardando aprovação P.O.)
-- **587 testes passando** (517 baseline + 70 Sprint K)
+- BASELINE **v2.3** — Sprint K K-4-A ✅ + K-4-B ✅ + K-4-C ✅ (todos aprovados pelo P.O.)
+- **2.652 testes passando** (97 falhas pré-existentes, sem regressão K-4-C)
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
-- **58 migrations aplicadas** (última: `0058` — Sprint K K-4-A)
+- **60 migrations aplicadas** (última: `0059` — CPIE; `0058` — Sprint K K-4-A)
 - Branch protection: ativa (ruleset `main-protection`, ID 14328406)
 - **Corpus RAG: 2.078 chunks — 100% com anchor_id canônico (DEC-002)**
 - **Agent Skills ativas:** Manus `/solaris-orquestracao` + Claude `solaris-contexto`
 - **GATE-CHECKLIST:** `docs/GATE-CHECKLIST.md` — executar Gate 0 antes de qualquer sprint
 - **Contrato 3 Ondas:** `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174 mergeado)
+- **Commit HEAD:** `b7fb1b49` (main sincronizado com GitHub externo)
 
 ## Sprint K — Estado atual
 
@@ -57,7 +58,7 @@ Drizzle ORM / Vitest / pnpm
 | Testes T-K4A-01..08 (36 testes) | ✅ |
 | Issue #156 fechada · tag `k4-a-complete` | ✅ |
 
-### K-4-B ⏳ PR #177 — AGUARDA APROVAÇÃO P.O.
+### K-4-B ✅ CONCLUÍDA E APROVADA PELO P.O.
 
 | Entregável | Status |
 |---|---|
@@ -67,7 +68,19 @@ Drizzle ORM / Vitest / pnpm
 | Rota `/projetos/:id/questionario-solaris` em `App.tsx` | ✅ |
 | Entrada pelo stepper em `ProjetoDetalhesV2.tsx` | ✅ |
 | Testes T-K4B-01..08 (26 testes) | ✅ |
-| **Critério de aceite P.O.:** "Ao criar projeto com CNAE 4639-7/01, vejo stepper com 8 etapas. Etapa 1 é o Questionário SOLARIS com 12 questões e badge azul. Consigo responder e avançar." | ⏳ |
+| **Critério de aceite P.O.:** Aprovado — stepper 8 etapas funciona, badge azul correto | ✅ |
+
+### K-4-C ✅ CONCLUÍDA E APROVADA PELO P.O. (commit `b7fb1b49`)
+
+| Entregável | Status |
+|---|---|
+| `QuestionarioIaGen.tsx` — badge laranja "Perfil da empresa", spinner 30s, fallback 5 perguntas | ✅ |
+| Procedure `generateOnda2Questions` — LLM com timeout 30s, fallback hardcoded, `confidence_score` | ✅ |
+| Procedure `completeOnda2` — salva em `iagen_answers`, `assertValidTransition(onda1_solaris → onda2_iagen)` | ✅ |
+| Rota `/projetos/:id/questionario-iagen` em `App.tsx` | ✅ |
+| `onStartOnda2` wiring em `ProjetoDetalhesV2.tsx` | ✅ |
+| Testes T-K4C-01..12 (82 testes totais Sprint K) | ✅ |
+| **Critério de aceite P.O.:** Aprovado — fluxo completo Onda 1 → Onda 2 → Corporativo validado | ✅ |
 
 ## PRs mergeados (histórico recente — Sprint K)
 
@@ -76,18 +89,73 @@ Drizzle ORM / Vitest / pnpm
 | #174 | feat(fluxo-3-ondas): contrato v1.1 | mergeado 2026-03-28T01:37:47Z |
 | #175 | docs(baseline): BASELINE v2.1 + HANDOFF-MANUS | mergeado 2026-03-28 |
 | #176 | feat(k4-a): migration 0058 + VALID_TRANSITIONS | fast-forward → `d370932` |
+| #178 | docs(baseline): BASELINE v2.2 + HANDOFF v2.2 | mergeado 2026-03-28 |
+| #179 | feat(k4-b): QuestionarioSolaris + DiagnosticoStepper | mergeado → `ae517f0` |
+| #180 | fix(k4-b): NovoProjeto.tsx navega para /questionario-solaris | mergeado |
+| #181 | fix(k4-b): VALID_TRANSITIONS cnaes_confirmados → onda1_solaris | mergeado |
 
 ## PRs abertos
 
 | PR | Título | Label | Ação |
 |---|---|---|---|
-| #177 | feat(k4-b): QuestionarioSolaris + DiagnosticoStepper 8 etapas | `p.o.-valida` | **Aguarda aprovação P.O.** |
+| #182 | feat(k4-c): QuestionarioIaGen + Onda 2 IA Generativa | `p.o.-valida` | **Aprovado pelo P.O. — aguarda merge formal no GitHub externo** |
 
 ## Próximas sprints
 
-- **K-4-C** — `QuestionarioIagen.tsx` (Onda 2, badge roxo, `iagen_answers`, `completeOnda2`)
-- **K-4-D** — Integração completa das 8 etapas no fluxo real (QC → QO → QCNAE → Briefing → Matrizes → Plano)
+- **K-4-D** — Integração das etapas 7 (Matrizes) e 8 (Plano) no stepper *(ver diagnóstico detalhado abaixo)*
+- **K-4-E** — `project_status_log` (auditoria jurídica de transições) — conforme contrato v1.1
 - **Sprint L** — Upload CSV SOLARIS (Issues #157, #158, #170)
+
+## Diagnóstico K-4-D (baseado em leitura direta do código)
+
+### O que já existe (não recriar)
+
+| Componente | Estado | Arquivo |
+|---|---|---|
+| `DiagnosticoStepper` — etapas 7 e 8 definidas no array `STEPS` | ✅ Existe | `DiagnosticoStepper.tsx` L.150-165 |
+| `projectStatusToStepState` — mapeia `matriz_riscos` e `aprovado` para `matrizes: completed` / `plano: completed` | ✅ Existe | `DiagnosticoStepper.tsx` L.195-196 |
+| `isStepLocked` — lógica de bloqueio para `matrizes` e `plano` | ✅ Existe | `DiagnosticoStepper.tsx` L.235-236 |
+| Rotas `/matrizes-v3` e `/plano-v3` | ✅ Existem | `ProjetoDetalhesV2.tsx` L.161, 170 |
+| Navegação para matrizes e plano via cards de resumo | ✅ Existe | `ProjetoDetalhesV2.tsx` L.497-512 |
+
+### O que está faltando (escopo K-4-D)
+
+| Gap | Impacto | Arquivo a modificar |
+|---|---|---|
+| `handleStepStart` — cases `matrizes` e `plano` são placeholders vazios | Botão "Iniciar" nas etapas 7 e 8 não faz nada | `DiagnosticoStepper.tsx` L.412-417 |
+| `DiagnosticoStepperProps` — não tem callbacks `onStartMatrizes` / `onStartPlano` | Stepper não pode notificar o pai | `DiagnosticoStepper.tsx` L.58-78 |
+| `ProjetoDetalhesV2.tsx` — não passa `onStartMatrizes` / `onStartPlano` ao stepper | Wiring incompleto | `ProjetoDetalhesV2.tsx` L.463-470 |
+
+### Implementação cirúrgica K-4-D (3 pontos de toque)
+
+**1. `DiagnosticoStepper.tsx` — adicionar callbacks à interface:**
+```typescript
+// Adicionar em DiagnosticoStepperProps:
+onStartMatrizes?: () => void;  // K-4-D
+onStartPlano?: () => void;     // K-4-D
+```
+
+**2. `DiagnosticoStepper.tsx` — preencher cases no `handleStepStart`:**
+```typescript
+case "matrizes":
+  onStartMatrizes?.();
+  break;
+case "plano":
+  onStartPlano?.();
+  break;
+```
+
+**3. `ProjetoDetalhesV2.tsx` — passar os callbacks ao `<DiagnosticoStepper>`:**
+```typescript
+onStartMatrizes={() => setLocation(`/projetos/${projectId}/matrizes-v3`)}
+onStartPlano={() => setLocation(`/projetos/${projectId}/plano-v3`)}
+```
+
+### Critério de aceite K-4-D
+> "Estando no dashboard do projeto com status `briefing` ou superior, clico em 'Iniciar' na Etapa 7 (Matrizes de Risco) e sou levado para `/matrizes-v3`. Clico em 'Iniciar' na Etapa 8 (Plano de Ação) e sou levado para `/plano-v3`."
+
+### Observação sobre T06.1
+O teste `T06.1` espera que `NovoProjeto.tsx` contenha `questionario-corporativo-v2`, mas o K-4-B mudou a navegação para `questionario-solaris`. Esta é uma **falha pré-existente** (presente desde `ebcac6e`), não uma regressão do K-4-C. Deve ser corrigida em K-4-D atualizando o teste para refletir o novo fluxo.
 
 ## Gaps RAG — estado atual
 
@@ -119,7 +187,8 @@ Drizzle ORM / Vitest / pnpm
 - NÃO ativar `DIAGNOSTIC_READ_MODE=new`
 - NÃO executar F-04 Fase 3
 - NÃO executar DROP COLUMN nas colunas legadas
-- NÃO mergear PR #177 sem aprovação explícita do P.O. (label `p.o.-valida`)
+- NÃO mergear PRs sem aprovação explícita do P.O. (label `p.o.-valida`)
+- PR #182 (K-4-C) aprovado pelo P.O. — pode ser mergeado no GitHub externo
 
 ## Issues abertas relevantes
 
