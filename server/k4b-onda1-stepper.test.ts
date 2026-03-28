@@ -118,8 +118,8 @@ describe("T-K4B-04: DiagnosticoStepper — Cadeia completa de bloqueio", () => {
 
 // ─── T-K4B-05: VALID_TRANSITIONS — Onda 1 → onda1_solaris ───────────────────
 describe("T-K4B-05: VALID_TRANSITIONS — Onda 1 → onda1_solaris", () => {
-  it("rascunho → onda1_solaris é válido", () => {
-    expect(VALID_TRANSITIONS["rascunho"]).toContain("onda1_solaris");
+  it("cnaes_confirmados → onda1_solaris é válido (K-4-B fix)", () => {
+    expect(VALID_TRANSITIONS["cnaes_confirmados"]).toContain("onda1_solaris");
   });
 
   it("onda1_solaris → onda2_iagen é válido", () => {
@@ -137,8 +137,8 @@ describe("T-K4B-05: VALID_TRANSITIONS — Onda 1 → onda1_solaris", () => {
 
 // ─── T-K4B-06: assertValidTransition — Enforcement Onda 1 ───────────────────
 describe("T-K4B-06: assertValidTransition — Enforcement Onda 1", () => {
-  it("assertValidTransition('rascunho', 'onda1_solaris') não lança erro", () => {
-    expect(() => assertValidTransition("rascunho", "onda1_solaris")).not.toThrow();
+  it("assertValidTransition('cnaes_confirmados', 'onda1_solaris') não lança erro (K-4-B fix)", () => {
+    expect(() => assertValidTransition("cnaes_confirmados", "onda1_solaris")).not.toThrow();
   });
 
   it("assertValidTransition('onda1_solaris', 'onda2_iagen') não lança erro", () => {

@@ -1297,3 +1297,55 @@ export async function countOnda1Answers(projectId: number): Promise<number> {
 
   return Number(result[0]?.count ?? 0);
 }
+
+// ─── Sprint K — K-4-C: Funções de iagen_answers (Onda 2) ─────────────────────
+
+/**
+ * Salva as respostas da Onda 2 (IA Generativa) para um projeto.
+ * Cada item = uma resposta a uma pergunta gerada dinamicamente pela IA.
+ */
+export async function saveOnda2Answers(
+  projectId: number,
+  answers: Array<{ questionText: string; resposta: string; confidenceScore: number }>
+): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  const now = Date.now();
+  const rows: InsertIagenAnswer[] = answers.map((a) => ({
+    projectId,
+    questionText: a.questionText,
+    resposta: a.resposta,
+    confidenceScore: String(a.confidenceScore),
+    fonte: "ia_gen",
+    createdAt: now,
+    updatedAt: now,
+  }));
+  if (rows.length > 0) {
+    await db.insert(iagenAnswers).values(rows);
+  }
+}
+
+/**
+ * Busca as respostas da Onda 2 já salvas para um projeto.
+ */
+export async function getOnda2Answers(projectId: number): Promise<IagenAnswer[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(iagenAnswers)
+    .where(eq(iagenAnswers.projectId, projectId));
+}
+
+/**
+ * Conta quantas respostas da Onda 2 existem para um projeto.
+ */
+export async function countOnda2Answers(projectId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(iagenAnswers)
+    .where(eq(iagenAnswers.projectId, projectId));
+  return Number(result[0]?.count ?? 0);
+}

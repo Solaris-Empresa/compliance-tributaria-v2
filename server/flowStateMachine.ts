@@ -416,7 +416,7 @@ export function createHistoryEntry(
 export const VALID_TRANSITIONS: Record<string, string[]> = {
   'rascunho':                  ['consistencia_pendente'],  // rascunho → consistência (não pula para Onda 1)
   'onda1_solaris':             ['onda2_iagen', 'rascunho'],
-  'onda2_iagen':               ['diagnostico_corporativo', 'onda1_solaris'],
+  'onda2_iagen':               ['diagnostico_corporativo'],  // K-4-C: sem retrocesso para Onda 1
   'diagnostico_corporativo':   ['diagnostico_operacional', 'onda2_iagen'],
   'diagnostico_operacional':   ['diagnostico_cnae', 'diagnostico_corporativo'],
   'diagnostico_cnae':          ['briefing', 'diagnostico_operacional'],

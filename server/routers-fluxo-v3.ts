@@ -2228,6 +2228,169 @@ Gere o Briefing estruturado em JSON:
         answersCount: input.answers.length,
       };
     }),
+
+  // ─── K-4-C: Onda 2 IA Generativa ──────────────────────────────────────────
+
+  /**
+   * Gera 5–10 perguntas combinatórias via LLM com base no perfil da empresa.
+   * Timeout 30s com fallback obrigatório (5 perguntas hardcoded).
+   * Seção 9 do contrato FLUXO-3-ONDAS v1.1.
+   */
+  generateOnda2Questions: protectedProcedure
+    .input(z.object({ projectId: z.number().int().positive() }))
+    .query(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+
+      // Parâmetros combinatórios (Seção 9)
+      const profile = project.companyProfile as any;
+      const opProfile = project.operationProfile as any;
+      const regime = profile?.taxRegime ?? 'lucro_presumido';
+      const porte = profile?.companySize ?? 'media';
+      const cnaes: string[] = Array.isArray(project.confirmedCnaes) ? project.confirmedCnaes : [];
+      const exportacao = opProfile?.faz_exportacao ?? false;
+      const contrata_simples = opProfile?.contrata_simples_nacional ?? false;
+      const operacao_interestadual = opProfile?.multiState ?? false;
+      const tem_ativo_imobilizado = opProfile?.tem_ativo_imobilizado ?? false;
+
+      // Fallback hardcoded (Seção 9 — 5 perguntas genéricas, confidence_score = 0.5)
+      const FALLBACK_QUESTIONS = [
+        { id: 'ia-gen-001', texto: 'A empresa possui operações com substituição tributária no contexto da Reforma Tributária?', objetivo_diagnostico: 'Identificar impacto da ST no novo regime', combinacao_gatilho: 'Qualquer regime', fonte: 'ia_gen' as const, confidence_score: 0.5 },
+        { id: 'ia-gen-002', texto: 'Qual o percentual estimado de receita sujeita ao IBS/CBS após a transição?', objetivo_diagnostico: 'Dimensionar exposição ao novo tributo', combinacao_gatilho: 'Qualquer regime', fonte: 'ia_gen' as const, confidence_score: 0.5 },
+        { id: 'ia-gen-003', texto: 'A empresa tem créditos acumulados de PIS/COFINS que precisam ser aproveitados antes da transição?', objetivo_diagnostico: 'Gestão de créditos no período de transição', combinacao_gatilho: 'Lucro Real ou Presumido', fonte: 'ia_gen' as const, confidence_score: 0.5 },
+        { id: 'ia-gen-004', texto: 'Existem contratos de longo prazo que precisam de cláusulas de reequilíbrio tributário?', objetivo_diagnostico: 'Risco contratual na transição', combinacao_gatilho: 'Qualquer porte', fonte: 'ia_gen' as const, confidence_score: 0.5 },
+        { id: 'ia-gen-005', texto: 'A empresa possui benefícios fiscais estaduais que podem ser impactados pela unificação do ICMS no IBS?', objetivo_diagnostico: 'Impacto de benefícios fiscais', combinacao_gatilho: 'Operação interestadual', fonte: 'ia_gen' as const, confidence_score: 0.5 },
+      ];
+
+      try {
+        const prompt = `Você é um especialista em Reforma Tributária brasileira (LC 214/2025 e LC 224/2026).
+Gere entre 5 e 10 perguntas diagnósticas combinatórias para uma empresa com o seguinte perfil:
+- Regime tributário: ${regime}
+- Porte: ${porte}
+- CNAEs: ${cnaes.join(', ') || 'não informado'}
+- Operação interestadual: ${operacao_interestadual ? 'Sim' : 'Não'}
+- Faz exportação: ${exportacao ? 'Sim' : 'Não'}
+- Contrata Simples Nacional: ${contrata_simples ? 'Sim' : 'Não'}
+- Tem ativo imobilizado: ${tem_ativo_imobilizado ? 'Sim' : 'Não'}
+
+Regras obrigatórias:
+- Mínimo 5, máximo 10 perguntas
+- NÃO gere perguntas genéricas que se aplicam a qualquer empresa
+- NÃO gere perguntas sobre o que a lei diz
+- CADA pergunta deve ser específica para a combinação de perfil acima
+- confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade`;
+
+        const llmPromise = invokeLLM({
+          messages: [
+            { role: 'system', content: 'Você é um especialista em compliance tributário da Reforma Tributária brasileira. Responda sempre em JSON válido.' },
+            { role: 'user', content: prompt },
+          ],
+          response_format: {
+            type: 'json_schema',
+            json_schema: {
+              name: 'onda2_questions',
+              strict: true,
+              schema: {
+                type: 'object',
+                properties: {
+                  perguntas: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string' },
+                        texto: { type: 'string' },
+                        objetivo_diagnostico: { type: 'string' },
+                        combinacao_gatilho: { type: 'string' },
+                        fonte: { type: 'string' },
+                        confidence_score: { type: 'number' },
+                      },
+                      required: ['id', 'texto', 'objetivo_diagnostico', 'combinacao_gatilho', 'fonte', 'confidence_score'],
+                      additionalProperties: false,
+                    },
+                  },
+                },
+                required: ['perguntas'],
+                additionalProperties: false,
+              },
+            },
+          },
+        });
+
+        // Timeout 30s (Seção 9)
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('LLM timeout 30s')), 30_000)
+        );
+
+        const response = await Promise.race([llmPromise, timeoutPromise]);
+        const content = (response as any).choices?.[0]?.message?.content;
+        if (!content) throw new Error('LLM retornou resposta vazia');
+
+        const parsed = JSON.parse(content);
+        const perguntas = parsed.perguntas;
+        if (!Array.isArray(perguntas) || perguntas.length < 5) throw new Error('LLM retornou menos de 5 perguntas');
+
+        const filtered = perguntas
+          .slice(0, 10)
+          .map((p: any, i: number) => ({
+            id: p.id ?? `ia-gen-${String(i + 1).padStart(3, '0')}`,
+            texto: p.texto,
+            objetivo_diagnostico: p.objetivo_diagnostico,
+            combinacao_gatilho: p.combinacao_gatilho,
+            fonte: 'ia_gen' as const,
+            confidence_score: Number(p.confidence_score ?? 0.5),
+          }));
+
+        return { questions: filtered, source: 'llm' as const };
+      } catch (err: any) {
+        // Fallback obrigatório (Seção 9 — logar, não silenciar)
+        console.error('[K-4-C] generateOnda2Questions fallback ativado:', err?.message ?? err);
+        return { questions: FALLBACK_QUESTIONS, source: 'fallback' as const };
+      }
+    }),
+
+  /**
+   * Salva as respostas da Onda 2 e avança o status para onda2_iagen.
+   * Enforcement: assertValidTransition (Seção 8 + Seção 10).
+   */
+  completeOnda2: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      answers: z.array(z.object({
+        questionText: z.string().min(1),
+        resposta: z.string().min(1),
+        confidenceScore: z.number().min(0).max(1),
+      })).min(1, 'É necessário responder ao menos uma pergunta'),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+      const { assertValidTransition } = await import('./flowStateMachine');
+      try {
+        assertValidTransition(project.status, 'onda2_iagen');
+      } catch (err: any) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: `Transição inválida: ${err.message}. Conclua a Onda 1 antes de avançar.`,
+        });
+      }
+      await db.saveOnda2Answers(input.projectId, input.answers);
+      await db.updateProject(input.projectId, { status: 'onda2_iagen' as any });
+      return {
+        success: true,
+        projectId: input.projectId,
+        newStatus: 'onda2_iagen',
+        answersCount: input.answers.length,
+      };
+    }),
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
