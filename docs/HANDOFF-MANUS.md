@@ -32,16 +32,15 @@ Drizzle ORM / Vitest / pnpm
 
 ## Estado atual do projeto (2026-03-28)
 
-- BASELINE **v2.4** — Sprint K K-4-A ✅ + K-4-B ✅ + K-4-C ✅ + K-4-D ✅ — **Sprint K CONCLUÍDA**
-- **2.652 testes passando** (97 falhas pré-existentes, sem regressão)
+- BASELINE **v2.2** — Sprint K K-4-A ✅ + K-4-B ⏳ (PR #177 aguardando aprovação P.O.)
+- **587 testes passando** (517 baseline + 70 Sprint K)
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
-- **60 migrations aplicadas** (última: `0059` — CPIE; `0058` — Sprint K K-4-A)
+- **58 migrations aplicadas** (última: `0058` — Sprint K K-4-A)
 - Branch protection: ativa (ruleset `main-protection`, ID 14328406)
 - **Corpus RAG: 2.078 chunks — 100% com anchor_id canônico (DEC-002)**
 - **Agent Skills ativas:** Manus `/solaris-orquestracao` + Claude `solaris-contexto`
 - **GATE-CHECKLIST:** `docs/GATE-CHECKLIST.md` — executar Gate 0 antes de qualquer sprint
 - **Contrato 3 Ondas:** `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174 mergeado)
-- **Commit HEAD:** `e54d606` (main sincronizado com GitHub externo)
 
 ## Sprint K — Estado atual
 
@@ -58,7 +57,7 @@ Drizzle ORM / Vitest / pnpm
 | Testes T-K4A-01..08 (36 testes) | ✅ |
 | Issue #156 fechada · tag `k4-a-complete` | ✅ |
 
-### K-4-B ✅ CONCLUÍDA E APROVADA PELO P.O.
+### K-4-B ⏳ PR #177 — AGUARDA APROVAÇÃO P.O.
 
 | Entregável | Status |
 |---|---|
@@ -68,28 +67,7 @@ Drizzle ORM / Vitest / pnpm
 | Rota `/projetos/:id/questionario-solaris` em `App.tsx` | ✅ |
 | Entrada pelo stepper em `ProjetoDetalhesV2.tsx` | ✅ |
 | Testes T-K4B-01..08 (26 testes) | ✅ |
-| **Critério de aceite P.O.:** Aprovado — stepper 8 etapas funciona, badge azul correto | ✅ |
-
-### K-4-C ✅ CONCLUÍDA E APROVADA PELO P.O. (commit `62c4219`, PR #182)
-
-| Entregável | Status |
-|---|---|
-| `QuestionarioIaGen.tsx` — badge laranja, spinner 30s, fallback 5 perguntas | ✅ |
-| Procedure `generateOnda2Questions` — LLM timeout 30s, fallback hardcoded | ✅ |
-| Procedure `completeOnda2` — salva em `iagen_answers`, `assertValidTransition` | ✅ |
-| Rota `/projetos/:id/questionario-iagen` em `App.tsx` | ✅ |
-| `onStartOnda2` wiring em `ProjetoDetalhesV2.tsx` | ✅ |
-| **Critério de aceite P.O.:** Aprovado — fluxo Onda 1 → Onda 2 → Corporativo validado | ✅ |
-
-### K-4-D ✅ CONCLUÍDA E MERGEADA (commit `e54d606`, PR #184)
-
-| Entregável | Status |
-|---|---|
-| `DiagnosticoStepper.tsx` — `onStartMatrizes?` e `onStartPlano?` na interface | ✅ |
-| `DiagnosticoStepper.tsx` — cases `matrizes` e `plano` preenchidos no `handleStepStart` | ✅ |
-| `ProjetoDetalhesV2.tsx` — `onStartMatrizes` e `onStartPlano` passados ao stepper | ✅ |
-| `onda1-t06-t10.test.ts` — T06.1 corrigido (assertion `questionario-solaris`) | ✅ |
-| **Critério de aceite P.O.:** Clicar em Iniciar na Etapa 7 navega para `/matrizes-v3`; Etapa 8 para `/plano-v3` | ⏳ aguarda validação manual |
+| **Critério de aceite P.O.:** "Ao criar projeto com CNAE 4639-7/01, vejo stepper com 8 etapas. Etapa 1 é o Questionário SOLARIS com 12 questões e badge azul. Consigo responder e avançar." | ⏳ |
 
 ## PRs mergeados (histórico recente — Sprint K)
 
@@ -98,21 +76,18 @@ Drizzle ORM / Vitest / pnpm
 | #174 | feat(fluxo-3-ondas): contrato v1.1 | mergeado 2026-03-28T01:37:47Z |
 | #175 | docs(baseline): BASELINE v2.1 + HANDOFF-MANUS | mergeado 2026-03-28 |
 | #176 | feat(k4-a): migration 0058 + VALID_TRANSITIONS | fast-forward → `d370932` |
-| #179 | feat(k4-b): QuestionarioSolaris + DiagnosticoStepper | mergeado → `ae517f0` |
-| #180 | fix(k4-b): NovoProjeto.tsx navega para /questionario-solaris | mergeado |
-| #181 | fix(k4-b): VALID_TRANSITIONS cnaes_confirmados → onda1_solaris | mergeado |
-| #182 | feat(k4-c): QuestionarioIaGen + Onda 2 IA Generativa | mergeado → `62c4219` |
-| #184 | feat(k4-d): wiring etapas 7-8 no stepper + fix T06.1 [clean] | mergeado → `e54d606` |
 
 ## PRs abertos
 
-Nenhum PR aberto no momento. Sprint K concluída.
+| PR | Título | Label | Ação |
+|---|---|---|---|
+| #177 | feat(k4-b): QuestionarioSolaris + DiagnosticoStepper 8 etapas | `p.o.-valida` | **Aguarda aprovação P.O.** |
 
 ## Próximas sprints
 
-- **K-4-E** — `project_status_log` (auditoria jurídica de transições de status) — conforme contrato v1.1
+- **K-4-C** — `QuestionarioIagen.tsx` (Onda 2, badge roxo, `iagen_answers`, `completeOnda2`)
+- **K-4-D** — Integração completa das 8 etapas no fluxo real (QC → QO → QCNAE → Briefing → Matrizes → Plano)
 - **Sprint L** — Upload CSV SOLARIS (Issues #157, #158, #170)
-- **Validação manual K-4-D** — P.O. valida critério de aceite: clicar em Iniciar nas Etapas 7 e 8 navega corretamente
 
 ## Gaps RAG — estado atual
 
@@ -144,7 +119,7 @@ Nenhum PR aberto no momento. Sprint K concluída.
 - NÃO ativar `DIAGNOSTIC_READ_MODE=new`
 - NÃO executar F-04 Fase 3
 - NÃO executar DROP COLUMN nas colunas legadas
-- NÃO mergear PRs sem aprovação explícita do P.O.
+- NÃO mergear PR #177 sem aprovação explícita do P.O. (label `p.o.-valida`)
 
 ## Issues abertas relevantes
 
