@@ -206,6 +206,37 @@ mark.search-hl{
   border-radius:2px;
   padding:0 1px;
 }
+
+/* Modo busca: mostrar todos os painéis */
+.search-active .doc-report-panel { display: block !important; }
+.search-active .doc-report-tab { opacity: 0.5; }
+.search-active .doc-report-tab.has-result { opacity: 1; font-weight: 800; }
+.search-active .doc-report-tab.has-result::after {
+  content: attr(data-match-count);
+  background: var(--blue);
+  color: #fff;
+  border-radius: 10px;
+  font-size: 9px;
+  padding: 1px 5px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+/* Modo busca: mostrar todos os painéis do checklist */
+.search-active .checklist-content { display: block !important; }
+/* Separador de aba nos resultados */
+.search-tab-divider {
+  display: none;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--blue);
+  padding: 8px 10px 4px;
+  border-top: 1px solid rgba(99,102,241,.2);
+  margin-top: 4px;
+}
+.search-active .search-tab-divider { display: block; }
+
 /* Seção oculta durante busca */
 .section.search-hidden{display:none;}
 /* Seção com resultado — borda sutil */
@@ -1364,24 +1395,65 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchDocDates();
 });
 
-// ── BUSCA GLOBAL ──────────────────────────────────────────────────────────
+// ── BUSCA GLOBAL (v2 — corrige abas invisíveis) ──────────────────────────
 (function() {
-  const input   = document.getElementById('globalSearch');
+  const input    = document.getElementById('globalSearch');
   const clearBtn = document.getElementById('searchClear');
-  const countEl = document.getElementById('searchCount');
+  const countEl  = document.getElementById('searchCount');
   const noResult = document.getElementById('searchNoResult');
   const noResultTerm = document.getElementById('searchNoResultTerm');
+  const container = document.querySelector('.container') || document.body;
 
-  // Nós de texto que serão pesquisados (excluir scripts, estilos, inputs)
   const SKIP_TAGS = new Set(['SCRIPT','STYLE','INPUT','TEXTAREA','BUTTON','SELECT','OPTION']);
 
-  // Guarda os nós de texto originais para restaurar
-  let originals = []; // [{node, parent, origText}]
-  let lastQuery = '';
+  function escapeRe(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
 
-  function collectTextNodes(root) {
+  function clearHighlights() {
+    document.querySelectorAll('mark.search-hl').forEach(mark => {
+      const p = mark.parentNode;
+      p.replaceChild(document.createTextNode(mark.textContent), mark);
+      p.normalize();
+    });
+    // Restaurar seções
+    document.querySelectorAll('.section').forEach(s => {
+      s.classList.remove('search-hidden', 'search-match');
+    });
+    // Remover modo busca do container (restaura abas)
+    container.classList.remove('search-active');
+    // Restaurar badges das abas
+    document.querySelectorAll('.doc-report-tab').forEach(btn => {
+      btn.classList.remove('has-result');
+      btn.removeAttribute('data-match-count');
+    });
+    // Restaurar bloco ACAO AGORA
+    const acaoAgora = document.getElementById('acaoAgora');
+    if (acaoAgora) acaoAgora.style.display = '';
+    noResult.style.display = 'none';
+    countEl.textContent = '';
+    clearBtn.style.display = 'none';
+  }
+
+  function getTabIdForPanel(panel) {
+    // docPanel4a → botão com onclick="setDocTab('4a',this)"
+    const id = panel.id; // e.g. "docPanel4d"
+    const tabKey = id.replace('docPanel', ''); // "4d"
+    return document.querySelector(`.doc-report-tab[onclick*="'${tabKey}'"]`);
+  }
+
+  function doSearch(query) {
+    clearHighlights();
+    if (!query) return;
+
+    clearBtn.style.display = 'block';
+    const re = new RegExp('(' + escapeRe(query) + ')', 'gi');
+
+    // Ativar modo busca — mostra todos os painéis via CSS
+    container.classList.add('search-active');
+
     const walker = document.createTreeWalker(
-      root,
+      container,
       NodeFilter.SHOW_TEXT,
       {
         acceptNode(node) {
@@ -1395,64 +1467,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     );
-    const nodes = [];
+
+    const textNodes = [];
     let n;
-    while ((n = walker.nextNode())) nodes.push(n);
-    return nodes;
-  }
-
-  function escapeRe(s) {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
-  function clearHighlights() {
-    // Restaurar todos os nós marcados
-    document.querySelectorAll('mark.search-hl').forEach(mark => {
-      const parent = mark.parentNode;
-      parent.replaceChild(document.createTextNode(mark.textContent), mark);
-      parent.normalize();
-    });
-    // Restaurar seções
-    document.querySelectorAll('.section').forEach(s => {
-      s.classList.remove('search-hidden', 'search-match');
-    });
-    noResult.style.display = 'none';
-    countEl.textContent = '';
-    clearBtn.style.display = 'none';
-    originals = [];
-  }
-
-  function doSearch(query) {
-    clearHighlights();
-    if (!query) return;
-
-    clearBtn.style.display = 'block';
-    lastQuery = query;
-    const re = new RegExp('(' + escapeRe(query) + ')', 'gi');
-
-    // Coletar todos os nós de texto do container principal
-    const container = document.querySelector('.container') || document.body;
-    const textNodes = collectTextNodes(container);
+    while ((n = walker.nextNode())) textNodes.push(n);
 
     let totalMatches = 0;
     const matchedSections = new Set();
+    const tabMatchCount = new Map(); // tabBtn → count
 
     textNodes.forEach(node => {
       if (!re.test(node.textContent)) return;
       re.lastIndex = 0;
 
-      // Encontrar a seção pai
+      // Encontrar seção pai
       let el = node.parentElement;
       let section = null;
+      let docPanel = null;
       while (el && el !== container) {
-        if (el.classList && el.classList.contains('section')) { section = el; break; }
+        if (el.classList && el.classList.contains('section')) section = el;
+        if (el.classList && el.classList.contains('doc-report-panel')) docPanel = el;
         el = el.parentElement;
       }
 
       // Substituir texto por fragmento com <mark>
       const frag = document.createDocumentFragment();
-      let last = 0;
-      let m;
+      let last = 0, m;
       re.lastIndex = 0;
       const text = node.textContent;
       while ((m = re.exec(text)) !== null) {
@@ -1468,6 +1508,14 @@ document.addEventListener('DOMContentLoaded', () => {
       node.parentNode.replaceChild(frag, node);
 
       if (section) matchedSections.add(section);
+
+      // Contabilizar por aba
+      if (docPanel) {
+        const tabBtn = getTabIdForPanel(docPanel);
+        if (tabBtn) {
+          tabMatchCount.set(tabBtn, (tabMatchCount.get(tabBtn) || 0) + 1);
+        }
+      }
     });
 
     // Ocultar seções sem resultado
@@ -1479,21 +1527,26 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Bloco ACAO AGORA — verificar se tem resultado
+    // Bloco ACAO AGORA
     const acaoAgora = document.getElementById('acaoAgora');
     if (acaoAgora) {
       const hasMatch = acaoAgora.querySelectorAll('mark.search-hl').length > 0;
       acaoAgora.style.display = hasMatch ? '' : 'none';
     }
 
-    // Contador
+    // Marcar abas com resultado e badge de contagem
+    tabMatchCount.forEach((count, btn) => {
+      btn.classList.add('has-result');
+      btn.setAttribute('data-match-count', count);
+    });
+
+    // Contador global
     if (totalMatches === 0) {
       noResultTerm.textContent = query;
       noResult.style.display = 'block';
       countEl.textContent = 'Nenhum resultado';
     } else {
       countEl.textContent = totalMatches + (totalMatches === 1 ? ' resultado' : ' resultados');
-      // Scroll para o primeiro resultado
       const first = document.querySelector('mark.search-hl');
       if (first) first.scrollIntoView({behavior:'smooth', block:'center'});
     }
@@ -1509,9 +1562,6 @@ document.addEventListener('DOMContentLoaded', () => {
   clearBtn.addEventListener('click', function() {
     input.value = '';
     clearHighlights();
-    // Restaurar bloco ACAO AGORA
-    const acaoAgora = document.getElementById('acaoAgora');
-    if (acaoAgora) acaoAgora.style.display = '';
     input.focus();
   });
 
@@ -1519,10 +1569,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape' && input.value) {
       input.value = '';
       clearHighlights();
-      const acaoAgora = document.getElementById('acaoAgora');
-      if (acaoAgora) acaoAgora.style.display = '';
     }
-    // Atalho / ou Ctrl+F foca no campo
     if ((e.key === '/' && document.activeElement !== input) ||
         (e.ctrlKey && e.key === 'f')) {
       e.preventDefault();
@@ -1531,7 +1578,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 })();
-
 </script>
 </body>
 </html>
