@@ -5,8 +5,8 @@ description: "Skill operacional do Manus para o projeto IA SOLARIS Compliance Tr
 
 # Solaris — Skill Operacional do Manus
 
-> **Versão do skill:** 2.5 — 2026-03-29 (rev K-4-E)
-> **Sincronizado com:** BASELINE-PRODUTO.md v2.5 | HEAD `b9a5502` | 212 PRs | 2.655 testes | 60 migrations
+> **Versão do skill:** 2.5 rev K-4-E — 2026-03-29
+> **Sincronizado com:** BASELINE-PRODUTO.md v2.5 rev K-4-E | HEAD `88db778` | 213 PRs | 2.655 testes | 60 migrations
 
 ## Identidade
 
@@ -76,6 +76,49 @@ Adicionalmente:
 - ❌ NÃO executar F-04 Fase 3 (Issue #56)
 - ❌ NÃO executar DROP COLUMN colunas legadas (Issue #62)
 - ❌ NÃO iniciar B2 sem prompt do Orquestrador
+
+---
+
+## Crítica obrigatória antes de executar qualquer prompt
+
+> **Antes de escrever qualquer linha de código**, o Manus DEVE executar esta análise e reportar ao Orquestrador:
+
+| # | Verificação | Como verificar |
+|---|---|---|
+| 1 | Todos os arquivos do escopo existem no repositório? | `find` / `grep` nos caminhos citados |
+| 2 | O prompt toca `flowStateMachine`, `schema` ou `VALID_TRANSITIONS`? | Se sim: label `critical-path` obrigatória no PR |
+| 3 | O prompt cria ou altera migration? | Se sim: label `db:migration` obrigatória no PR |
+| 4 | A issue citada existe e está aberta no GitHub? | `gh issue view <N>` |
+| 5 | HEAD e número de migrations batem com o ESTADO-ATUAL.md? | `git log --oneline -1` + `ls drizzle/*.sql \| wc -l` |
+| 6 | O que será implementado já existe no código? | `git grep -r` no escopo declarado |
+
+**Formato de reporte ao Orquestrador (antes de implementar):**
+```
+Verificações pré-implementação:
+- Arquivos do escopo: [existem / não existem]
+- Toca flowStateMachine/schema: [sim/não] → label critical-path: [necessária/não]
+- Cria migration: [sim/não] → label db:migration: [necessária/não]
+- Issue #N: [aberta/fechada/inexistente]
+- HEAD confirmado: [SHA] | Migrations: [N]
+- Implementação já existe: [sim/não]
+```
+
+> **Regra:** Se qualquer verificação retornar resultado inesperado, reportar ao Orquestrador e aguardar instrução. Não executar por conta própria.
+
+---
+
+## Protocolo de atualização pós-merge
+
+> **Problema eliminado:** o gap entre o merge de um PR e a atualização dos skills causava drift. Este protocolo torna a atualização estrutural, não dependente de memória.
+
+Após **todo merge** em `main`, o Manus DEVE verificar:
+
+1. **`skills/solaris-contexto/SKILL.md`** — HEAD, PRs, testes, migrations e última sprint concluída estão atualizados?
+2. **`skills/solaris-orquestracao/SKILL.md`** — campo `Versão do skill` no topo reflete o baseline atual?
+
+Se qualquer um estiver desatualizado, abrir PR cirúrgioco de 1–2 arquivos imediatamente após o merge — **não aguardar a próxima sprint**.
+
+**Exceção documentada:** se o P.O. aprovar explicitamente o adiamento (como ocorreu no PR #213 para `solaris-contexto`), registrar a justificativa no PR body e criar issue de rastreamento.
 
 ---
 

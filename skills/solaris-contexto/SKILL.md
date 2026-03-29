@@ -5,8 +5,8 @@ description: "Contexto permanente do projeto IA SOLARIS para o Orquestrador Clau
 
 # Solaris — Skill de Contexto do Orquestrador
 
-> **Versão do skill:** 2.5 — 2026-03-29
-> **Sincronizado com:** BASELINE-PRODUTO.md v2.5 | HEAD `87cdd4e` | 205 PRs
+> **Versão do skill:** 2.5 rev K-4-E — 2026-03-29
+> **Sincronizado com:** BASELINE-PRODUTO.md v2.5 rev K-4-E | HEAD `88db778` | 213 PRs
 
 ## Identidade
 
@@ -40,14 +40,14 @@ Antes de qualquer trabalho, verificar via `project_knowledge_search` ou lendo di
 | Indicador | Valor |
 |---|---|
 | Baseline | **v2.5** |
-| HEAD | `87cdd4e` |
-| Commits | 582 |
-| PRs mergeados | 205 |
-| Testes passando | **2.652 / 2.773** (97 falhas pré-existentes, sem regressão) |
-| Migrations | 59 |
+| HEAD | `88db778` |
+| Commits | 584 |
+| PRs mergeados | 213 |
+| Testes passando | **2.655 / 2.776** (97 falhas pré-existentes, sem regressão) |
+| Migrations | **60** (0000–0059) |
 | DIAGNOSTIC_READ_MODE | `shadow` (**NUNCA alterar sem aprovação P.O.**) |
 | Sprint atual | **Sprint L** (próxima — Issue #191 G16 Upload CSV) |
-| Última sprint concluída | **Sprint K++** (Cockpit P.O. v2.0 + docs P0/P1 atualizados) |
+| Última sprint concluída | **K-4-E** — `project_status_log` auditoria jurídica (PR #213) |
 
 ### Engines implementadas
 
@@ -79,6 +79,7 @@ Antes de qualquer trabalho, verificar via `project_knowledge_search` ou lendo di
 | Sprint K | Fluxo 3 Ondas (8 etapas) | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) | #197 ✅ |
 | Sprint K++ | Docs P0/P1 + fetch dinâmico + Seção 4 | #199–#205 ✅ |
+| **K-4-E** | **`project_status_log` — auditoria jurídica de transições** | **#213 ✅** |
 
 ---
 
