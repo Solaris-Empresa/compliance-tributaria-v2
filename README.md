@@ -1,6 +1,27 @@
 # Plataforma de Compliance - Reforma Tributária
 
-Sistema completo de gestão de compliance tributário desenvolvido para auxiliar empresas na adequação à reforma tributária brasileira. A plataforma oferece assessment automatizado, geração de planos de ação via IA, matriz de riscos e acompanhamento de execução.
+Sistema completo de gestão de compliance tributário para a Reforma Tributária brasileira (LC 214/2025).  
+**Produção:** https://iasolaris.manus.space · **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
+
+---
+
+## 🧭 Contexto para Agentes de IA — Leia Primeiro
+
+> **Se você é Manus, Claude ou ChatGPT:** comece por aqui antes de qualquer ação.
+
+| Documento | Audiência | O que contém |
+|---|---|---|
+| [`docs/governance/ESTADO-ATUAL.md`](docs/governance/ESTADO-ATUAL.md) | **Todos** | Estado atual do produto, sprint ativa, próxima issue, bloqueios |
+| [`docs/HANDOFF-MANUS.md`](docs/HANDOFF-MANUS.md) | **Manus** | Gate 0, padrões de commit, resolução de conflito, restrições absolutas |
+| [`docs/governance/HANDOFF-IMPLEMENTADOR.md`](docs/governance/HANDOFF-IMPLEMENTADOR.md) | **Manus** | Guia operacional completo com comandos e fluxo de PR |
+| [`docs/governance/CONTEXTO-ORQUESTRADOR.md`](docs/governance/CONTEXTO-ORQUESTRADOR.md) | **Claude** | ADRs, backlog priorizado, invariants, template de prompt |
+| [`docs/BASELINE-PRODUTO.md`](docs/BASELINE-PRODUTO.md) | **Todos** | Baseline técnico oficial — versão atual: v2.4 |
+| [`docs/rag/HANDOFF-RAG.md`](docs/rag/HANDOFF-RAG.md) | **Claude + Manus** | Gate 0 RAG — obrigatório antes de qualquer mudança no corpus |
+
+**Fluxo mínimo para qualquer agente:**
+1. Ler `docs/governance/ESTADO-ATUAL.md` (30 segundos)
+2. Verificar a issue no GitHub antes de qualquer implementação
+3. Branch → PR → merge. NUNCA push direto em main.
 
 ---
 

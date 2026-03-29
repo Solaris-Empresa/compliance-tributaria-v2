@@ -1,0 +1,27 @@
+# CODEOWNERS — IA SOLARIS
+# P.O. (Uires Tapajós — @utapajos) é notificado automaticamente de mudanças em arquivos críticos
+# Qualquer PR que altere estes arquivos exige revisão do P.O. antes do merge
+
+# Schema do banco — qualquer erro é irreversível
+/drizzle/schema.ts @utapajos
+
+# Schemas Zod — define o que o LLM pode retornar
+/server/ai-schemas.ts @utapajos
+
+# Router principal — afeta todos os diagnósticos
+/server/routers-fluxo-v3.ts @utapajos
+
+# Motor RAG — afeta qualidade de todos os diagnósticos
+/server/rag-retriever.ts @utapajos
+
+# Governança RAG — protege integridade do corpus
+/docs/rag/ @utapajos
+
+# Documentos de contexto — protege memória institucional
+/docs/governance/ @utapajos
+
+# Workflows CI/CD — protege branch protection
+/.github/workflows/ @utapajos
+
+# Este próprio arquivo
+/.github/CODEOWNERS @utapajos
