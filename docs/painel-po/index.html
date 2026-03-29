@@ -3,687 +3,659 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cockpit P.O. — Compliance Tributária</title>
+<title>Cockpit P.O. - Compliance Tributaria v2.0</title>
 <style>
-  :root {
-    --bg: #F8F8F6;
-    --bg2: #FFFFFF;
-    --border: #E2E2DE;
-    --text: #1A1A1A;
-    --text-muted: #6B6B6B;
-    --green: #3B6D11;
-    --green-bg: #EBF4E3;
-    --amber: #854F0B;
-    --amber-bg: #FEF3E2;
-    --red: #A32D2D;
-    --red-bg: #FDEAEA;
-    --blue: #185FA5;
-    --blue-bg: #E8F0FB;
-    --purple: #534AB7;
-    --purple-bg: #EEEDFB;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08);
-    --radius: 8px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
-  a { color: var(--blue); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-
-  /* Layout */
-  .container { max-width: 1280px; margin: 0 auto; padding: 0 24px 48px; }
-  header { background: var(--text); color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
-  header h1 { font-size: 16px; font-weight: 600; letter-spacing: 0.02em; }
-  header .meta { font-size: 12px; color: #aaa; }
-  .section { margin-top: 32px; }
-  .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-
-  /* Cards de status */
-  .status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .status-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); border-top: 3px solid var(--border); }
-  .status-card.blue { border-top-color: var(--blue); }
-  .status-card.green { border-top-color: var(--green); }
-  .status-card.amber { border-top-color: var(--amber); cursor: pointer; }
-  .status-card.purple { border-top-color: var(--purple); }
-  .status-card .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
-  .status-card .value { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-  .status-card.blue .value { color: var(--blue); }
-  .status-card.green .value { color: var(--green); }
-  .status-card.amber .value { color: var(--amber); }
-  .status-card.purple .value { color: var(--purple); }
-  .status-card .sub { font-size: 12px; color: var(--text-muted); }
-  .status-card .link { display: inline-block; margin-top: 8px; font-size: 11px; }
-
-  /* Bloqueios expandível */
-  .bloqueios-list { display: none; margin-top: 10px; background: var(--amber-bg); border-radius: 6px; padding: 10px 12px; }
-  .bloqueios-list.open { display: block; }
-  .bloqueios-list li { font-size: 12px; color: var(--amber); margin-bottom: 4px; padding-left: 12px; position: relative; }
-  .bloqueios-list li::before { content: "⚠"; position: absolute; left: 0; }
-
-  /* Radar de Governança */
-  .radar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .radar-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: box-shadow 0.15s; text-decoration: none; color: inherit; }
-  .radar-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); text-decoration: none; }
-  .semaforo { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; transition: transform 0.1s; }
-  .semaforo:hover { transform: scale(1.1); }
-  .semaforo.green { background: var(--green-bg); color: var(--green); }
-  .semaforo.amber { background: var(--amber-bg); color: var(--amber); }
-  .semaforo.red { background: var(--red-bg); color: var(--red); }
-  .radar-info { flex: 1; min-width: 0; }
-  .radar-info .name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .radar-info .detail { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-  .radar-card .ext-link { font-size: 11px; color: var(--blue); margin-left: auto; flex-shrink: 0; }
-
-  /* Kanban */
-  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .kanban-col { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; min-height: 200px; }
-  .kanban-col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-  .kanban-col[data-col="backlog"] .kanban-col-title { color: var(--blue); }
-  .kanban-col[data-col="andamento"] .kanban-col-title { color: var(--purple); }
-  .kanban-col[data-col="gate"] .kanban-col-title { color: var(--amber); }
-  .kanban-col[data-col="bloqueado"] .kanban-col-title { color: var(--red); }
-  .kanban-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; cursor: grab; font-size: 12px; transition: box-shadow 0.15s; }
-  .kanban-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-  .kanban-card.dragging { opacity: 0.4; cursor: grabbing; }
-  .kanban-card .card-title { font-weight: 600; margin-bottom: 4px; }
-  .kanban-card .card-status { font-size: 11px; color: var(--text-muted); }
-  .kanban-card .card-link { font-size: 11px; color: var(--blue); display: block; margin-top: 4px; }
-  .kanban-col.drag-over { background: #F0F4FF; border-color: var(--blue); }
-  .kanban-empty { font-size: 12px; color: var(--text-muted); font-style: italic; padding: 8px 0; }
-
-  /* Biblioteca de Documentos */
-  .docs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-  .docs-category { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
-  .docs-category-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 10px; }
-  .doc-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-  .doc-item:last-child { border-bottom: none; padding-bottom: 0; }
-  .doc-item .doc-name { font-weight: 600; font-size: 13px; }
-  .doc-item .doc-when { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-  .doc-item .doc-updated { font-size: 10px; color: var(--text-muted); margin-top: 3px; cursor: pointer; border-bottom: 1px dashed var(--border); display: inline-block; }
-  .doc-item .doc-updated:focus { outline: 1px solid var(--blue); background: #fff; }
-  .doc-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
-  .doc-item.missing .doc-name { color: var(--text-muted); }
-  .doc-item.missing .badge { font-size: 10px; background: var(--amber-bg); color: var(--amber); border-radius: 4px; padding: 1px 6px; margin-left: 6px; }
-
-  /* Log de Decisões */
-  .decisions-table { width: 100%; border-collapse: collapse; background: var(--bg2); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
-  .decisions-table th { background: #F0F0EE; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
-  .decisions-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
-  .decisions-table tr:last-child td { border-bottom: none; }
-  .decisions-table td[contenteditable="plaintext-only"] { cursor: text; }
-  .decisions-table td[contenteditable="plaintext-only"]:focus { outline: 2px solid var(--blue); background: #F8F8FF; border-radius: 2px; }
-  .badge-done { background: var(--green-bg); color: var(--green); border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-  .badge-pending { background: var(--amber-bg); color: var(--amber); border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-  .add-row-btn { margin-top: 10px; background: none; border: 1px dashed var(--border); border-radius: 6px; padding: 8px 16px; cursor: pointer; font-size: 12px; color: var(--text-muted); width: 100%; transition: background 0.15s; }
-  .add-row-btn:hover { background: var(--bg); color: var(--text); }
-
-  /* Tooltip de instrução */
-  .edit-hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
-
-  /* Responsivo */
-  @media (max-width: 1024px) {
-    .status-grid { grid-template-columns: repeat(2, 1fr); }
-    .radar-grid { grid-template-columns: repeat(2, 1fr); }
-    .kanban { grid-template-columns: repeat(2, 1fr); }
-    .docs-grid { grid-template-columns: 1fr; }
-  }
+:root{--bg:#F8F8F6;--bg2:#FFFFFF;--border:#E2E2DE;--text:#1A1A1A;--text-muted:#6B6B6B;--green:#3B6D11;--green-bg:#EBF4E3;--amber:#854F0B;--amber-bg:#FEF3E2;--red:#A32D2D;--red-bg:#FDEAEA;--blue:#185FA5;--blue-bg:#E8F0FB;--purple:#534AB7;--purple-bg:#EEEDFB;--shadow:0 1px 3px rgba(0,0,0,0.08);--radius:8px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;}
+a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
+.container{max-width:1280px;margin:0 auto;padding:0 24px 48px;}
+header{background:#0F172A;color:white;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+header h1{font-size:16px;font-weight:600;letter-spacing:0.02em;}
+header .meta{font-size:12px;color:#94A3B8;}
+.section{margin-top:32px;}
+.section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.acao-agora{background:#0F172A;color:#F1F5F9;border-radius:var(--radius);padding:20px 24px;margin-top:24px;border-left:4px solid #F59E0B;}
+.acao-agora-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.acao-agora-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#F59E0B;}
+.modo-selector{display:flex;gap:6px;margin-left:auto;}
+.modo-btn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.06em;}
+.modo-btn.uat{background:#1E3A5F;color:#60A5FA;border-color:#2563EB;}
+.modo-btn.dev{background:#1A2E1A;color:#4ADE80;border-color:#16A34A;}
+.modo-btn.hotfix{background:#3B1A1A;color:#F87171;border-color:#DC2626;}
+.modo-btn.active.uat{background:#2563EB;color:white;}
+.modo-btn.active.dev{background:#16A34A;color:white;}
+.modo-btn.active.hotfix{background:#DC2626;color:white;}
+.acao-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.acao-col-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94A3B8;margin-bottom:6px;}
+.acao-item{font-size:13px;color:#E2E8F0;line-height:1.5;}
+.acao-item a{color:#60A5FA;}
+.badge-resp{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-right:4px;margin-bottom:4px;}
+.badge-resp.po{background:#4C1D95;color:#C4B5FD;}
+.badge-resp.manus{background:#1E3A5F;color:#60A5FA;}
+.badge-resp.claude{background:#1A2E1A;color:#4ADE80;}
+.badge-resp.chatgpt{background:#1C1C1C;color:#9CA3AF;}
+.bloqueio-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#FCA5A5;margin-bottom:4px;}
+.bloqueio-item a{color:#FCA5A5;text-decoration:underline;}
+.health-bar-wrap{background:#1E293B;border-radius:6px;padding:12px 16px;margin-top:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.health-label{font-size:11px;color:#94A3B8;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;}
+.health-bar{flex:1;min-width:80px;height:8px;background:#334155;border-radius:4px;overflow:hidden;}
+.health-fill{height:100%;border-radius:4px;transition:width 0.5s ease;}
+.health-score{font-size:18px;font-weight:800;color:#F1F5F9;white-space:nowrap;}
+.health-breakdown{font-size:11px;color:#64748B;display:flex;gap:12px;flex-wrap:wrap;}
+.status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.status-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-top:3px solid var(--border);}
+.status-card.blue{border-top-color:var(--blue);}
+.status-card.green{border-top-color:var(--green);}
+.status-card.amber{border-top-color:var(--amber);cursor:pointer;}
+.status-card.purple{border-top-color:var(--purple);}
+.status-card .label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:6px;}
+.status-card .value{font-size:15px;font-weight:700;margin-bottom:4px;}
+.status-card.blue .value{color:var(--blue);}
+.status-card.green .value{color:var(--green);}
+.status-card.amber .value{color:var(--amber);}
+.status-card.purple .value{color:var(--purple);}
+.status-card .sub{font-size:12px;color:var(--text-muted);}
+.status-card .link{display:inline-block;margin-top:8px;font-size:11px;}
+.status-card .acao-pendente{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;font-weight:600;color:var(--amber);background:var(--amber-bg);padding:3px 8px;border-radius:4px;}
+.bloqueios-list{display:none;margin-top:10px;background:var(--amber-bg);border-radius:6px;padding:10px 12px;}
+.bloqueios-list.open{display:block;}
+.bloqueios-list li{font-size:12px;color:var(--amber);margin-bottom:4px;padding-left:16px;position:relative;list-style:none;}
+.bloqueios-list li::before{content:"!";position:absolute;left:0;}
+.agents-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.agent-card{border-radius:var(--radius);padding:16px;border:1px solid var(--border);}
+.agent-card.manus{background:#EFF6FF;border-top:3px solid #2563EB;}
+.agent-card.claude{background:#F0FDF4;border-top:3px solid #16A34A;}
+.agent-card.chatgpt{background:#F9FAFB;border-top:3px solid #374151;}
+.agent-card-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+.agent-card.manus .agent-card-title{color:#2563EB;}
+.agent-card.claude .agent-card-title{color:#16A34A;}
+.agent-card.chatgpt .agent-card-title{color:#374151;}
+.agent-doc-list{list-style:none;}
+.agent-doc-list li{font-size:12px;margin-bottom:6px;padding-left:14px;position:relative;}
+.agent-doc-list li::before{content:">";position:absolute;left:0;color:var(--text-muted);font-size:10px;}
+.agent-doc-list li a{font-weight:600;}
+.agent-doc-list li .doc-desc{color:var(--text-muted);font-size:11px;display:block;}
+.checklist-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);}
+.checklist-mode-tabs{display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px;flex-wrap:wrap;}
+.checklist-tab{padding:4px 14px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:none;color:var(--text-muted);transition:all 0.15s;}
+.checklist-tab.active{background:var(--blue);color:white;border-color:var(--blue);}
+.checklist-items{list-style:none;}
+.checklist-items li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.checklist-items li:last-child{border-bottom:none;}
+.checklist-items li input[type="checkbox"]{margin-top:2px;cursor:pointer;width:15px;height:15px;flex-shrink:0;}
+.checklist-items li label{cursor:pointer;flex:1;}
+.checklist-items li label.done{text-decoration:line-through;color:var(--text-muted);}
+.checklist-items li .resp-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;flex-shrink:0;}
+.checklist-items li .resp-badge.po{background:var(--purple-bg);color:var(--purple);}
+.checklist-items li .resp-badge.manus{background:var(--blue-bg);color:var(--blue);}
+.checklist-items li .resp-badge.claude{background:var(--green-bg);color:var(--green);}
+.checklist-reset{margin-top:10px;background:none;border:1px dashed var(--border);border-radius:6px;padding:6px 14px;cursor:pointer;font-size:11px;color:var(--text-muted);}
+.radar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.radar-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;cursor:pointer;transition:box-shadow 0.15s;}
+.radar-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.12);}
+.semaforo{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:transform 0.1s;}
+.semaforo:hover{transform:scale(1.1);}
+.semaforo.green{background:var(--green-bg);color:var(--green);}
+.semaforo.amber{background:var(--amber-bg);color:var(--amber);}
+.semaforo.red{background:var(--red-bg);color:var(--red);}
+.radar-info{flex:1;min-width:0;}
+.radar-info .name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.radar-info .detail{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.radar-card .ext-link{font-size:11px;color:var(--blue);margin-left:auto;flex-shrink:0;}
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.kanban-col{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;min-height:200px;}
+.kanban-col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.kanban-col[data-col="backlog"] .kanban-col-title{color:var(--blue);}
+.kanban-col[data-col="andamento"] .kanban-col-title{color:var(--purple);}
+.kanban-col[data-col="gate"] .kanban-col-title{color:var(--amber);}
+.kanban-col[data-col="bloqueado"] .kanban-col-title{color:var(--red);}
+.kanban-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:8px;cursor:grab;font-size:12px;transition:box-shadow 0.15s;}
+.kanban-card:hover{box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+.kanban-card.dragging{opacity:0.4;cursor:grabbing;}
+.kanban-card .card-title{font-weight:600;margin-bottom:4px;}
+.kanban-card .card-status{font-size:11px;color:var(--text-muted);}
+.kanban-card .card-link{font-size:11px;color:var(--blue);display:block;margin-top:4px;}
+.kanban-col.drag-over{background:#F0F4FF;border-color:var(--blue);}
+.kanban-empty{font-size:12px;color:var(--text-muted);font-style:italic;padding:8px 0;}
+.docs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+.docs-category{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);}
+.docs-category-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:10px;}
+.doc-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.doc-item:last-child{border-bottom:none;padding-bottom:0;}
+.doc-item .doc-name{font-weight:600;font-size:13px;}
+.doc-item .doc-when{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.doc-item .doc-updated{font-size:10px;color:var(--text-muted);margin-top:3px;cursor:pointer;border-bottom:1px dashed var(--border);display:inline-block;}
+.doc-item .doc-updated:focus{outline:1px solid var(--blue);background:#fff;}
+.doc-icon{font-size:18px;flex-shrink:0;margin-top:2px;}
+.decisions-table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+.decisions-table th{background:#F0F0EE;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+.decisions-table td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top;}
+.decisions-table tr:last-child td{border-bottom:none;}
+.decisions-table td[contenteditable="plaintext-only"]{cursor:text;}
+.decisions-table td[contenteditable="plaintext-only"]:focus{outline:2px solid var(--blue);background:#F8F8FF;border-radius:2px;}
+.badge-done{background:var(--green-bg);color:var(--green);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap;}
+.badge-pending{background:var(--amber-bg);color:var(--amber);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap;}
+.decision-link{font-size:11px;color:var(--blue);display:inline-block;margin-top:4px;}
+.add-row-btn{margin-top:10px;background:none;border:1px dashed var(--border);border-radius:6px;padding:8px 16px;cursor:pointer;font-size:12px;color:var(--text-muted);width:100%;}
+.add-row-btn:hover{background:var(--bg);color:var(--text);}
+.edit-hint{font-size:11px;color:var(--text-muted);margin-top:6px;}
+@media(max-width:1024px){
+  .status-grid,.kanban{grid-template-columns:repeat(2,1fr);}
+  .radar-grid,.docs-grid,.agents-grid{grid-template-columns:1fr;}
+  .acao-body{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
-
 <header>
-  <div>
-    <h1>🏛 Cockpit P.O. — Compliance Tributária (Reforma Tributária)</h1>
-  </div>
-  <div class="meta">Uires Tapajós · P.O. · Última atualização: 2026-03-27</div>
+  <div><h1>&#127963; Cockpit P.O. &mdash; Compliance Tributaria v2.0</h1></div>
+  <div class="meta">Uires Tapajos &middot; P.O. &middot; <span id="headerDate">2026-03-29</span></div>
 </header>
 
 <div class="container">
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       SEÇÃO 1 — STATUS DO PROJETO
-  ═══════════════════════════════════════════════════════════════ -->
-  <div class="section">
-    <div class="section-title">Seção 1 — Status do Projeto</div>
-    <div class="status-grid">
-
-      <div class="status-card blue">
-        <div class="label">Fase atual no ciclo de vida</div>
-        <div class="value">Fase 5 — Validação (UAT)</div>
-        <div class="sub">Gate de saída: aprovação P.O. + equipe jurídica</div>
-        <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/PRODUCT-LIFECYCLE.md" target="_blank">→ PRODUCT-LIFECYCLE.md</a>
-      </div>
-
-      <div class="status-card green">
-        <div class="label">Estado do produto</div>
-        <div class="value">v2.1 — 12 demandas UAT implementadas</div>
-        <div class="sub">517 testes · 0 erros TypeScript · Shadow Mode ativo</div>
-        <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md" target="_blank">→ BASELINE-PRODUTO.md</a>
-      </div>
-
-      <div class="status-card amber" onclick="toggleBloqueios(this)" title="Clique para expandir">
-        <div class="label">Bloqueios ativos</div>
-        <div class="value">3 bloqueios ativos ▾</div>
-        <div class="sub">F-04 Fase 3 · modo new · DROP COLUMN</div>
-        <ul class="bloqueios-list">
-          <li>Issue #56 — F-04 Fase 3 (aguarda 48-72h UAT)</li>
-          <li>Issue #61 — Modo <code>new</code> (aguarda #56)</li>
-          <li>Issue #62 — DROP COLUMN (aguarda #61)</li>
-        </ul>
-      </div>
-
-      <div class="status-card purple">
-        <div class="label">Próxima ação obrigatória</div>
-        <div class="value">Testes manuais P.O. → decisão UAT</div>
-        <div class="sub">517 testes · 12 demandas validadas · aguarda aprovação P.O.</div>
-        <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md" target="_blank">→ GUIA-UAT-ADVOGADOS-v2.md</a>
-      </div>
-
+<!-- BLOCO ACAO AGORA (C1+C2+C3) -->
+<div class="acao-agora" id="acaoAgora">
+  <div class="acao-agora-header">
+    <span class="acao-agora-title">&#128640; Acao Agora</span>
+    <div class="modo-selector">
+      <button class="modo-btn uat active" onclick="setModo('uat')">UAT</button>
+      <button class="modo-btn dev" onclick="setModo('dev')">DEV</button>
+      <button class="modo-btn hotfix" onclick="setModo('hotfix')">HOTFIX</button>
     </div>
   </div>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       SEÇÃO 2 — RADAR DE GOVERNANÇA
-  ═══════════════════════════════════════════════════════════════ -->
-  <div class="section">
-    <div class="section-title">Seção 2 — Radar de Governança <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">(clique no semáforo para alternar estado · clique no card para abrir o link)</span></div>
-    <div class="radar-grid" id="radarGrid">
-
-      <div class="radar-card" data-key="cicd" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/actions">
-        <div class="semaforo green" onclick="cycleSemaforo(event, this)" title="Clique para alternar">✔</div>
-        <div class="radar-info">
-          <div class="name">CI/CD — Checks automáticos</div>
-          <div class="detail">Verde se last run passou</div>
-        </div>
-        <span class="ext-link">↗</span>
-      </div>
-
-      <div class="radar-card" data-key="shadow" data-href="https://iasolaris.manus.space/admin/shadow-monitor">
-        <div class="semaforo green" onclick="cycleSemaforo(event, this)" title="Clique para alternar">✔</div>
-        <div class="radar-info">
-          <div class="name">Shadow Mode</div>
-          <div class="detail">Verde se divergências críticas = 0</div>
-        </div>
-        <span class="ext-link">↗</span>
-      </div>
-
-      <div class="radar-card" data-key="issues" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues">
-        <div class="semaforo amber" onclick="cycleSemaforo(event, this)" title="Clique para alternar">!</div>
-        <div class="radar-info">
-          <div class="name">Issues abertas</div>
-          <div class="detail">Âmbar se &gt; 3 abertas</div>
-        </div>
-        <span class="ext-link">↗</span>
-      </div>
-
-      <div class="radar-card" data-key="prs" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/pulls">
-        <div class="semaforo green" onclick="cycleSemaforo(event, this)" title="Clique para alternar">✔</div>
-        <div class="radar-info">
-          <div class="name">Pull Requests</div>
-          <div class="detail">Verde se 0 PRs pendentes</div>
-        </div>
-        <span class="ext-link">↗</span>
-      </div>
-
-      <div class="radar-card" data-key="testes" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/actions">
-        <div class="semaforo green" onclick="cycleSemaforo(event, this)" title="Clique para alternar">✔</div>
-        <div class="radar-info">
-          <div class="name">Testes</div>
-          <div class="detail">2.652/2.773 passando (atualizado 2026-03-28)</div>
-        </div>
-        <span class="ext-link">↗</span>
-      </div>
-
-      <div class="radar-card" data-key="branch" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/settings/rules/14328406">
-        <div class="semaforo green" onclick="cycleSemaforo(event, this)" title="Clique para alternar">✔</div>
-        <div class="radar-info">
-          <div class="name">Branch protection</div>
-          <div class="detail">Ativo com 4 checks obrigatórios</div>
-        </div>
-        <span class="ext-link">↗</span>
-      </div>
-
+  <div class="acao-body" id="acaoBody"></div>
+  <div class="health-bar-wrap">
+    <span class="health-label">Score de Saude (I3)</span>
+    <div class="health-bar"><div class="health-fill" id="healthFill" style="width:94%;background:#22C55E;"></div></div>
+    <span class="health-score" id="healthScore">94/100</span>
+    <div class="health-breakdown" id="healthBreakdown">
+      <span>&#10003; Testes: 2.652/2.773 (96%)</span>
+      <span>&#10003; TypeScript: 0 erros</span>
+      <span>&#10003; PRs abertos: 0</span>
+      <span>&#10003; Docs: atualizados</span>
     </div>
   </div>
+</div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       SEÇÃO 3 — PAINEL DE SPRINT (KANBAN)
-  ═══════════════════════════════════════════════════════════════ -->
-  <div class="section">
-    <div class="section-title">Seção 3 — Painel de Sprint <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">(arraste os cards entre colunas · estado salvo automaticamente)</span></div>
-    <div class="kanban" id="kanban">
-
-      <div class="kanban-col" data-col="backlog" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
-        <div class="kanban-col-title">📋 Backlog P0</div>
-      </div>
-
-      <div class="kanban-col" data-col="andamento" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
-        <div class="kanban-col-title">⚡ Em andamento</div>
-      </div>
-
-      <div class="kanban-col" data-col="gate" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
-        <div class="kanban-col-title">⏳ Aguardando gate</div>
-      </div>
-
-      <div class="kanban-col" data-col="bloqueado" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
-        <div class="kanban-col-title">🚫 Bloqueado</div>
-      </div>
-
+<!-- SECAO 0 - ENTRADA PARA AGENTES (I1) -->
+<div class="section">
+  <div class="section-title">Secao 0 &mdash; Entrada para Agentes de IA (I1)</div>
+  <div class="agents-grid">
+    <div class="agent-card manus">
+      <div class="agent-card-title">&#128309; Manus (Implementador)</div>
+      <ul class="agent-doc-list">
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/ESTADO-ATUAL.md" target="_blank">ESTADO-ATUAL.md</a><span class="doc-desc">Leia primeiro &mdash; estado do produto em 30 segundos</span></li>
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/HANDOFF-IMPLEMENTADOR.md" target="_blank">HANDOFF-IMPLEMENTADOR.md</a><span class="doc-desc">Gate 0, padroes de commit, restricoes absolutas</span></li>
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/HANDOFF-MANUS.md" target="_blank">HANDOFF-MANUS.md</a><span class="doc-desc">Handoff operacional &mdash; contexto tecnico completo</span></li>
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues?q=is%3Aopen+milestone%3AM4" target="_blank">Issues M4 abertas</a><span class="doc-desc">Proximas tarefas do backlog</span></li>
+      </ul>
+    </div>
+    <div class="agent-card claude">
+      <div class="agent-card-title">&#128994; Claude (Orquestrador)</div>
+      <ul class="agent-doc-list">
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/ESTADO-ATUAL.md" target="_blank">ESTADO-ATUAL.md</a><span class="doc-desc">Leia primeiro &mdash; estado real do repositorio</span></li>
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/CONTEXTO-ORQUESTRADOR.md" target="_blank">CONTEXTO-ORQUESTRADOR.md</a><span class="doc-desc">ADRs, backlog, invariants, template de prompt</span></li>
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RASTREABILIDADE-COMPLETA.md" target="_blank">RASTREABILIDADE-COMPLETA.md</a><span class="doc-desc">PR x Sprint x RF x arquivo x status</span></li>
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md" target="_blank">BASELINE-PRODUTO.md v2.4</a><span class="doc-desc">Baseline oficial pos-Sprint K</span></li>
+      </ul>
+    </div>
+    <div class="agent-card chatgpt">
+      <div class="agent-card-title">&#9899; ChatGPT (Consultor)</div>
+      <ul class="agent-doc-list">
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/ESTADO-ATUAL.md" target="_blank">ESTADO-ATUAL.md</a><span class="doc-desc">Leia primeiro &mdash; contexto do produto</span></li>
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/AUDITORIA-COMPLIANCE-PLATAFORMA-v1.1.md" target="_blank">AUDITORIA-COMPLIANCE-v1.1.md</a><span class="doc-desc">Visao completa do produto para consultoria</span></li>
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/REQUISITOS-FUNCIONAIS-v6.md" target="_blank">REQUISITOS-FUNCIONAIS-v6.md</a><span class="doc-desc">18 RFs implementados &mdash; escopo do produto</span></li>
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/DOCUMENTACAO-IA-GENERATIVA-v5.md" target="_blank">DOCUMENTACAO-IA-GENERATIVA-v5.md</a><span class="doc-desc">Arquitetura de IA &mdash; GPT-4.1, RAG, 3 ondas</span></li>
+      </ul>
     </div>
   </div>
+</div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       SEÇÃO 4 — BIBLIOTECA DE DOCUMENTOS
-  ═══════════════════════════════════════════════════════════════ -->
-  <div class="section">
-    <div class="section-title">Seção 4 — Biblioteca de Documentos Essenciais <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">(clique na data para editar)</span></div>
-    <div class="docs-grid">
+<!-- SECAO 0B - CHECKLIST (I2) -->
+<div class="section">
+  <div class="section-title">Secao 0B &mdash; Checklist de Execucao por Modo (I2)</div>
+  <div class="checklist-wrap">
+    <div class="checklist-mode-tabs">
+      <button class="checklist-tab active" onclick="setChecklistMode('uat', this)">UAT</button>
+      <button class="checklist-tab" onclick="setChecklistMode('dev', this)">DEV (nova sprint)</button>
+      <button class="checklist-tab" onclick="setChecklistMode('hotfix', this)">HOTFIX</button>
+      <button class="checklist-tab" onclick="setChecklistMode('merge', this)">Pos-merge</button>
+    </div>
+    <ul class="checklist-items" id="checklistItems"></ul>
+    <button class="checklist-reset" onclick="resetChecklist()">&#8634; Resetar checklist</button>
+  </div>
+</div>
 
-      <div class="docs-category">
-        <div class="docs-category-title">🔄 Monitorar a cada sprint</div>
-
-        <div class="doc-item">
-          <div class="doc-icon">📊</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md" target="_blank">BASELINE-PRODUTO.md</a>
-            <div class="doc-when">Estado atual — primeira leitura de qualquer dia</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-baseline">Atualizado: 2026-03-27 (v2.1)</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">🐛</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md" target="_blank">ERROS-CONHECIDOS.md</a>
-            <div class="doc-when">Sempre que houver incidente ou comportamento inesperado</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-erros">Atualizado: 2026-03-23</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">📝</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/CHANGELOG.md" target="_blank">CHANGELOG.md</a>
-            <div class="doc-when">Após cada entrega do Manus</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-changelog">Atualizado: 2026-03-25</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="docs-category">
-        <div class="docs-category-title">🧭 Consultar por decisão</div>
-
-        <div class="doc-item">
-          <div class="doc-icon">🔄</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/PRODUCT-LIFECYCLE.md" target="_blank">PRODUCT-LIFECYCLE.md</a>
-            <div class="doc-when">Antes de iniciar nova sprint — verificar fase e gate</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-lifecycle">Atualizado: 2026-03-25 (v1.2)</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">👥</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/MODELO-OPERACIONAL.md" target="_blank">MODELO-OPERACIONAL.md</a>
-            <div class="doc-when">Dúvida sobre quem decide o quê</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-modelo">Atualizado: 2026-03-25 (v1.0)</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">✅</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/DEFINITION-OF-DONE.md" target="_blank">DEFINITION-OF-DONE.md</a>
-            <div class="doc-when">Antes de aceitar uma entrega do Manus</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-dod">Atualizado: 2026-03-25 (v1.0)</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">🏗</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/ADR-008-F04-schema-migration-strategy.md" target="_blank">ADR-008 (F-04 migration)</a>
-            <div class="doc-when">Qualquer discussão sobre trocar leitura para modo <code>new</code></div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-adr008">Atualizado: 2026-03-23</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="docs-category">
-        <div class="docs-category-title">🧪 UAT (agora)</div>
-
-        <div class="doc-item">
-          <div class="doc-icon">📋</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md" target="_blank">GUIA-UAT-ADVOGADOS-v2.md</a>
-            <div class="doc-when">Durante as sessões de UAT</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-guia-uat">Atualizado: 2026-03-23</span>
-          </div>
-        </div>
-
-        <div class="doc-item missing">
-          <div class="doc-icon">📡</div>
-          <div>
-            <span class="doc-name">SHADOW-MONITOR-BASELINE-UAT.md <span class="badge">pendente criação</span></span>
-            <div class="doc-when">A cada 24h durante o UAT</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-shadow-uat">Ainda não criado</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">❓</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/suporte/FAQ.md" target="_blank">FAQ.md</a>
-            <div class="doc-when">Suporte aos advogados testadores</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-faq">Atualizado: 2026-03-25</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">📖</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/suporte/MANUAL-USUARIO.md" target="_blank">MANUAL-USUARIO.md</a>
-            <div class="doc-when">Suporte aos advogados testadores</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-manual">Atualizado: 2026-03-25</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="docs-category">
-        <div class="docs-category-title">🔧 Governança técnica (referência)</div>
-
-        <div class="doc-item">
-          <div class="doc-icon">🚨</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md" target="_blank">ERROS-CONHECIDOS.md</a>
-            <div class="doc-when">Incidente em produção — runbooks</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-erros2">Atualizado: 2026-03-23</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">🔒</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/invariant-registry.md" target="_blank">invariant-registry.md</a>
-            <div class="doc-when">Verificar integridade após qualquer sprint</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-invariant">Atualizado: 2026-03-23</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">▶</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/playruns/PLAYRUN-TEMPLATE.md" target="_blank">PLAYRUN-TEMPLATE.md</a>
-            <div class="doc-when">Exigir do Manus ao fechar sprint</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-playrun">Atualizado: 2026-03-25</span>
-          </div>
-        </div>
-        <div class="doc-item">
-          <div class="doc-icon">🔄</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/HANDOFF-MANUS.md" target="_blank">HANDOFF-MANUS.md</a>
-            <div class="doc-when">Quando o chat do Manus travar ou memória acabar — copie e cole no novo chat</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-handoff">Atualizado: 2026-03-27 (v1.9)</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">✅</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/GATE-CHECKLIST.md" target="_blank">GATE-CHECKLIST.md</a>
-            <div class="doc-when">Controles internos do Orquestrador — gates 0-3</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-gate-checklist">Atualizado: 2026-03-26</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">🏗️</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.github/MANUS-GOVERNANCE.md" target="_blank">MANUS-GOVERNANCE.md</a>
-            <div class="doc-when">Governança operacional do Manus — Sprint 98% Confidence</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-manus-gov">Atualizado: 2026-03-23</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">📐</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-010-content-architecture-98.md" target="_blank">ADR-010 — Arquitetura 98%</a>
-            <div class="doc-when">Decisão arquitetural — 6 engines + cadeia canônica</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-adr010">Atualizado: 2026-03-24</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">📊</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/MATRIZ-CANONICA-INPUTS-OUTPUTS.md" target="_blank">MATRIZ-CANONICA-INPUTS-OUTPUTS v1.1</a>
-            <div class="doc-when">Contratos I/O das 6 engines — aprovada gate B1</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-matriz-io">Atualizado: 2026-03-24</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">🔗</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/MATRIZ-RASTREABILIDADE-REQ-PERGUNTA-GAP-RISCO-ACAO.md" target="_blank">MATRIZ-RASTREABILIDADE v1.1</a>
-            <div class="doc-when">Cadeia req→pergunta→gap→risco→ação — INV-001..INV-008</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-matriz-rastr">Atualizado: 2026-03-26</span>
-          </div>
-        </div>
-        <div class="docs-category-title" style="margin-top:12px">🤖 Skills dos agentes</div>
-        <div class="doc-item">
-          <div class="doc-icon">🤖</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.manus/skills/solaris-orquestracao/SKILL.md" target="_blank">SKILL — solaris-orquestracao (Manus)</a>
-            <div class="doc-when">Skill operacional do Manus — checklist, commits, bloqueios, pós-sprint</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-skill-manus">Atualizado: 2026-03-27</span>
-          </div>
-        </div>
-        <div class="doc-item">
-          <div class="doc-icon">🧠</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/skills/solaris-contexto/SKILL.md" target="_blank">SKILL — solaris-contexto (Claude)</a>
-            <div class="doc-when">Skill de contexto do Orquestrador — Gate 0, estado do produto, governança</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-skill-claude">Atualizado: 2026-03-27</span>
-          </div>
-        </div>
-        <div class="docs-category-title" style="margin-top:12px">📚 Rollout B2</div>
-        <div class="doc-item">
-          <div class="doc-icon">🛡️</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governanca/FRAMEWORK-GOVERNANCA-IA-SOLARIS.md" target="_blank">FRAMEWORK-GOVERNANCA-IA-SOLARIS</a>
-            <div class="doc-when">Framework de Governança v1.0 — Gates 0–3, falhas identificadas, riscos do implementador, skills e mecanismos de persistência</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-framework-governanca">Atualizado: 2026-03-26</span>
-          </div>
-        </div>
-        <div class="doc-item">
-          <div class="doc-icon">📖</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/guias/GUIA-PO-ROLLOUT-ENTRE-SESSOES.md" target="_blank">GUIA-PO-ROLLOUT-ENTRE-SESSOES</a>
-            <div class="doc-when">Guia do P.O. — rollout entre sessões, skills, ciclo de sprints</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-guia-po-rollout">Atualizado: 2026-03-26</span>
-          </div>
-        </div>
-        <div class="doc-item">
-          <div class="doc-icon">🔄</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/handoffs/HANDOFF-SESSAO-2026-03-26.md" target="_blank">HANDOFF-SESSAO-2026-03-26</a>
-            <div class="doc-when">Handoff de sessão — como retomar no próximo chat</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-handoff-sessao">Atualizado: 2026-03-26</span>
-          </div>
-        </div>
-        <div class="doc-item">
-          <div class="doc-icon">📸</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/SNAPSHOT-SPRINT-98-B2.md" target="_blank">SNAPSHOT-SPRINT-98-B2</a>
-            <div class="doc-when">Snapshot imutável do estado pós-Sprint 98% B2</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-snapshot-b2">Atualizado: 2026-03-26</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- NOVA CATEGORIA: BASE DE CONHECIMENTO CENTRALIZADA -->
-      <div class="docs-category">
-        <div class="docs-category-title">🗂️ Base de Conhecimento Centralizada (novo · Sprint K)</div>
-
-        <div class="doc-item">
-          <div class="doc-icon">🌐</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/ESTADO-ATUAL-PLATAFORMA.md" target="_blank">ESTADO-ATUAL-PLATAFORMA.md</a>
-            <div class="doc-when">Fonte única de verdade — métricas reais, corpus RAG, issues, sprint atual</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-estado-atual">Atualizado: 2026-03-28 (v1.0)</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">🔧</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/HANDOFF-IMPLEMENTADOR.md" target="_blank">HANDOFF-IMPLEMENTADOR.md</a>
-            <div class="doc-when">Para o Manus — cole no início de qualquer nova sessão de implementação</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-handoff-impl">Atualizado: 2026-03-28 (v1.0)</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">🧠</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/CONTEXTO-ORQUESTRADOR.md" target="_blank">CONTEXTO-ORQUESTRADOR.md</a>
-            <div class="doc-when">Para o Claude — estado do produto, ADRs, backlog e governança</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-contexto-orq">Atualizado: 2026-03-28 (v1.0)</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">🔗</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RASTREABILIDADE-COMPLETA.md" target="_blank">RASTREABILIDADE-COMPLETA.md</a>
-            <div class="doc-when">Tabela PR × Sprint × RF × arquivo × status — 184 PRs, 18 RFs</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-rastr-completa">Atualizado: 2026-03-28 (v1.0)</span>
-          </div>
-        </div>
-
-        <div class="doc-item">
-          <div class="doc-icon">⚖️</div>
-          <div>
-            <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/AUDITORIA-COMPLIANCE-PLATAFORMA-v1.1.md" target="_blank">AUDITORIA-COMPLIANCE-PLATAFORMA-v1.1.md</a>
-            <div class="doc-when">Auditoria completa para apresentação aos advogados — resultado: COMPLIANT</div>
-            <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-auditoria">Atualizado: 2026-03-28 (v1.1)</span>
-          </div>
-        </div>
-
-      </div>
-
+<!-- SECAO 1 - STATUS DO PROJETO (I4: status acionavel) -->
+<div class="section">
+  <div class="section-title">Secao 1 &mdash; Status do Projeto (I4: status acionavel)</div>
+  <div class="status-grid">
+    <div class="status-card blue">
+      <div class="label">Fase atual no ciclo de vida</div>
+      <div class="value">Fase 5 &mdash; Validacao (UAT)</div>
+      <div class="sub">Gate de saida: aprovacao P.O. + equipe juridica</div>
+      <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/PRODUCT-LIFECYCLE.md" target="_blank">&#8594; PRODUCT-LIFECYCLE.md</a>
+    </div>
+    <div class="status-card green">
+      <div class="label">Estado do produto</div>
+      <div class="value">v2.4 &mdash; Sprint K concluida</div>
+      <div class="sub">2.652 testes &middot; 0 erros TypeScript &middot; Shadow Mode ativo</div>
+      <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md" target="_blank">&#8594; BASELINE-PRODUTO.md</a>
+    </div>
+    <div class="status-card amber" onclick="toggleBloqueios(this)" title="Clique para expandir">
+      <div class="label">Bloqueios ativos</div>
+      <div class="value">3 bloqueios ativos &#9660;</div>
+      <div class="sub">F-04 Fase 3 &middot; modo new &middot; DROP COLUMN</div>
+      <ul class="bloqueios-list">
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/56" target="_blank">Issue #56 &mdash; F-04 Fase 3 (aguarda UAT)</a></li>
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/61" target="_blank">Issue #61 &mdash; Modo new (aguarda #56)</a></li>
+        <li><a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/62" target="_blank">Issue #62 &mdash; DROP COLUMN (aguarda #61)</a></li>
+      </ul>
+    </div>
+    <div class="status-card purple">
+      <div class="label">Proxima acao obrigatoria</div>
+      <div class="value">Sprint L &mdash; Upload CSV SOLARIS</div>
+      <div class="sub">Issue #191 &middot; G16 &middot; Milestone M4</div>
+      <div class="acao-pendente">&#9889; Acao pendente: P.O. aprovar inicio Sprint L</div>
+      <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/191" target="_blank">&#8594; Issue #191</a>
     </div>
   </div>
+</div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       SEÇÃO 5 — LOG DE DECISÕES
-  ═══════════════════════════════════════════════════════════════ -->
-  <div class="section">
-    <div class="section-title">Seção 5 — Log de Decisões <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">(clique em qualquer célula para editar · Enter para confirmar)</span></div>
-    <table class="decisions-table" id="decisionsTable">
-      <thead>
-        <tr>
-          <th style="width:110px">Data</th>
-          <th>Decisão</th>
-          <th style="width:120px">Status</th>
-        </tr>
-      </thead>
-      <tbody id="decisionsBody">
-      </tbody>
-    </table>
-    <button class="add-row-btn" onclick="addDecisionRow()">+ Adicionar decisão</button>
-    <div class="edit-hint">💡 Clique em qualquer célula para editar. O log é salvo automaticamente no seu navegador.</div>
+<!-- SECAO 2 - RADAR DE GOVERNANCA -->
+<div class="section">
+  <div class="section-title">Secao 2 &mdash; Radar de Governanca <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">(clique no semaforo para alternar estado)</span></div>
+  <div class="radar-grid" id="radarGrid">
+    <div class="radar-card" data-key="cicd" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/actions">
+      <div class="semaforo green" onclick="cycleSemaforo(event, this)">&#10004;</div>
+      <div class="radar-info"><div class="name">CI/CD &mdash; Checks automaticos</div><div class="detail">Verde se last run passou</div></div>
+      <span class="ext-link">&#8599;</span>
+    </div>
+    <div class="radar-card" data-key="shadow" data-href="https://iasolaris.manus.space/admin/shadow-monitor">
+      <div class="semaforo green" onclick="cycleSemaforo(event, this)">&#10004;</div>
+      <div class="radar-info"><div class="name">Shadow Mode</div><div class="detail">Verde se divergencias criticas = 0</div></div>
+      <span class="ext-link">&#8599;</span>
+    </div>
+    <div class="radar-card" data-key="issues" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues">
+      <div class="semaforo amber" onclick="cycleSemaforo(event, this)">!</div>
+      <div class="radar-info"><div class="name">Issues abertas</div><div class="detail">18 abertas &middot; Ambar se &gt; 3</div></div>
+      <span class="ext-link">&#8599;</span>
+    </div>
+    <div class="radar-card" data-key="prs" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/pulls">
+      <div class="semaforo green" onclick="cycleSemaforo(event, this)">&#10004;</div>
+      <div class="radar-info"><div class="name">Pull Requests</div><div class="detail">0 PRs pendentes</div></div>
+      <span class="ext-link">&#8599;</span>
+    </div>
+    <div class="radar-card" data-key="testes" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/actions">
+      <div class="semaforo green" onclick="cycleSemaforo(event, this)">&#10004;</div>
+      <div class="radar-info"><div class="name">Testes</div><div class="detail">2.652/2.773 passando (2026-03-29)</div></div>
+      <span class="ext-link">&#8599;</span>
+    </div>
+    <div class="radar-card" data-key="branch" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/settings/rules/14328406">
+      <div class="semaforo green" onclick="cycleSemaforo(event, this)">&#10004;</div>
+      <div class="radar-info"><div class="name">Branch protection</div><div class="detail">Ativo com 4 checks obrigatorios</div></div>
+      <span class="ext-link">&#8599;</span>
+    </div>
   </div>
+</div>
+
+<!-- SECAO 3 - KANBAN -->
+<div class="section">
+  <div class="section-title">Secao 3 &mdash; Painel de Sprint <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">(arraste os cards entre colunas)</span></div>
+  <div class="kanban" id="kanban">
+    <div class="kanban-col" data-col="backlog" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
+      <div class="kanban-col-title">&#128203; Backlog P0</div>
+    </div>
+    <div class="kanban-col" data-col="andamento" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
+      <div class="kanban-col-title">&#9889; Em andamento</div>
+    </div>
+    <div class="kanban-col" data-col="gate" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
+      <div class="kanban-col-title">&#8987; Aguardando gate</div>
+    </div>
+    <div class="kanban-col" data-col="bloqueado" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
+      <div class="kanban-col-title">&#128683; Bloqueado</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECAO 4 - BIBLIOTECA DE DOCUMENTOS -->
+<div class="section">
+  <div class="section-title">Secao 4 &mdash; Biblioteca de Documentos Essenciais <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">(clique na data para editar)</span></div>
+  <div class="docs-grid">
+    <div class="docs-category">
+      <div class="docs-category-title">&#128260; Monitorar a cada sprint</div>
+      <div class="doc-item"><div class="doc-icon">&#128202;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md" target="_blank">BASELINE-PRODUTO.md</a>
+        <div class="doc-when">Estado atual &mdash; primeira leitura de qualquer dia</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-baseline">Atualizado: 2026-03-28 (v2.4)</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#128027;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ERROS-CONHECIDOS.md" target="_blank">ERROS-CONHECIDOS.md</a>
+        <div class="doc-when">Sempre que houver incidente ou comportamento inesperado</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-erros">Atualizado: 2026-03-29 (v1.1)</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#128221;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/CHANGELOG.md" target="_blank">CHANGELOG.md</a>
+        <div class="doc-when">Apos cada entrega do Manus</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-changelog">Atualizado: 2026-03-29 (Sprint K)</span>
+      </div></div>
+    </div>
+    <div class="docs-category">
+      <div class="docs-category-title">&#129517; Consultar por decisao</div>
+      <div class="doc-item"><div class="doc-icon">&#128260;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/PRODUCT-LIFECYCLE.md" target="_blank">PRODUCT-LIFECYCLE.md</a>
+        <div class="doc-when">Antes de iniciar nova sprint &mdash; verificar fase e gate</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-lifecycle">Atualizado: 2026-03-29 (v1.3)</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#128101;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/MODELO-OPERACIONAL.md" target="_blank">MODELO-OPERACIONAL.md</a>
+        <div class="doc-when">Duvida sobre quem decide o que</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-modelo">Atualizado: 2026-03-29 (v1.1)</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#9989;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/DEFINITION-OF-DONE.md" target="_blank">DEFINITION-OF-DONE.md</a>
+        <div class="doc-when">Antes de aceitar uma entrega do Manus</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-dod">Atualizado: 2026-03-29 (v1.1)</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#127959;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/ADR-008-F04-schema-migration-strategy.md" target="_blank">ADR-008 (F-04 migration)</a>
+        <div class="doc-when">Qualquer discussao sobre trocar leitura para modo new</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-adr008">Atualizado: 2026-03-23</span>
+      </div></div>
+    </div>
+    <div class="docs-category">
+      <div class="docs-category-title">&#129514; UAT (agora)</div>
+      <div class="doc-item"><div class="doc-icon">&#128203;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md" target="_blank">GUIA-UAT-ADVOGADOS-v2.md</a>
+        <div class="doc-when">Durante as sessoes de UAT</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-guia-uat">Atualizado: 2026-03-29 (v2.1)</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#10067;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/suporte/FAQ.md" target="_blank">FAQ.md</a>
+        <div class="doc-when">Suporte aos advogados testadores</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-faq">Atualizado: 2026-03-29 (v1.1)</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#128214;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/suporte/MANUAL-USUARIO.md" target="_blank">MANUAL-USUARIO.md</a>
+        <div class="doc-when">Suporte aos advogados testadores</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-manual">Atualizado: 2026-03-29 (v1.1)</span>
+      </div></div>
+    </div>
+    <div class="docs-category">
+      <div class="docs-category-title">&#128736; Governanca tecnica</div>
+      <div class="doc-item"><div class="doc-icon">&#128680;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/GATE-CHECKLIST.md" target="_blank">GATE-CHECKLIST.md</a>
+        <div class="doc-when">Antes de qualquer sprint &mdash; Gate 0 obrigatorio</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-gate">Atualizado: 2026-03-29 (v1.1)</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#128274;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/invariant-registry.md" target="_blank">invariant-registry.md</a>
+        <div class="doc-when">Verificar integridade apos qualquer sprint</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-invariant">Atualizado: 2026-03-23</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#128208;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/MATRIZ-CANONICA-INPUTS-OUTPUTS.md" target="_blank">MATRIZ-CANONICA-INPUTS-OUTPUTS.md</a>
+        <div class="doc-when">Analise de impacto antes de alterar qualquer engine</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-matriz">Atualizado: 2026-03-29 (v1.1)</span>
+      </div></div>
+    </div>
+    <div class="docs-category">
+      <div class="docs-category-title">&#128193; Base de Conhecimento Centralizada (DEC-007)</div>
+      <div class="doc-item"><div class="doc-icon">&#127760;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/ESTADO-ATUAL.md" target="_blank">ESTADO-ATUAL.md</a>
+        <div class="doc-when">Porta de entrada universal &mdash; leia antes de qualquer sessao</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-estado-atual">Atualizado: 2026-03-29 (v2.4)</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#128736;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/HANDOFF-IMPLEMENTADOR.md" target="_blank">HANDOFF-IMPLEMENTADOR.md</a>
+        <div class="doc-when">Para o Manus &mdash; cole no inicio de qualquer nova sessao</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-handoff-impl">Atualizado: 2026-03-28 (v1.0)</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#129504;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/CONTEXTO-ORQUESTRADOR.md" target="_blank">CONTEXTO-ORQUESTRADOR.md</a>
+        <div class="doc-when">Para o Claude &mdash; estado do produto, ADRs, backlog e governanca</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-contexto-orq">Atualizado: 2026-03-28 (v1.0)</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#128279;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RASTREABILIDADE-COMPLETA.md" target="_blank">RASTREABILIDADE-COMPLETA.md</a>
+        <div class="doc-when">Tabela PR x Sprint x RF x arquivo x status</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-rastr-completa">Atualizado: 2026-03-28 (v1.0)</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#9878;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/AUDITORIA-COMPLIANCE-PLATAFORMA-v1.1.md" target="_blank">AUDITORIA-COMPLIANCE-PLATAFORMA-v1.1.md</a>
+        <div class="doc-when">Auditoria completa para apresentacao aos advogados</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-auditoria">Atualizado: 2026-03-28 (v1.1)</span>
+      </div></div>
+    </div>
+    <div class="docs-category">
+      <div class="docs-category-title">&#128218; Governanca / Sessoes e Snapshots</div>
+      <div class="doc-item"><div class="doc-icon">&#128214;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/guias/GUIA-PO-ROLLOUT-ENTRE-SESSOES.md" target="_blank">GUIA-PO-ROLLOUT-ENTRE-SESSOES</a>
+        <div class="doc-when">Guia do P.O. &mdash; rollout entre sessoes, skills, ciclo de sprints</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-guia-po-rollout">Atualizado: 2026-03-26</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#128260;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/handoffs/HANDOFF-SESSAO-2026-03-26.md" target="_blank">HANDOFF-SESSAO-2026-03-26</a>
+        <div class="doc-when">Handoff de sessao &mdash; historico 26/03</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-handoff-sessao">Atualizado: 2026-03-26</span>
+      </div></div>
+      <div class="doc-item"><div class="doc-icon">&#127963;</div><div>
+        <a class="doc-name" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governanca/FRAMEWORK-GOVERNANCA-IA-SOLARIS.md" target="_blank">FRAMEWORK-GOVERNANCA-IA-SOLARIS.md</a>
+        <div class="doc-when">Framework de governanca da IA &mdash; 4 papeis, 4 principios</div>
+        <span class="doc-updated" contenteditable="plaintext-only" data-key="doc-framework">Atualizado: 2026-03-26</span>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SECAO 5 - LOG DE DECISOES (C5: links decisao -> PR/Issue) -->
+<div class="section">
+  <div class="section-title">Secao 5 &mdash; Log de Decisoes (C5: rastreabilidade) <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">(clique em qualquer celula para editar)</span></div>
+  <table class="decisions-table" id="decisionsTable">
+    <thead>
+      <tr>
+        <th style="width:110px">Data</th>
+        <th>Decisao</th>
+        <th style="width:160px">Rastreabilidade</th>
+        <th style="width:120px">Status</th>
+      </tr>
+    </thead>
+    <tbody id="decisionsBody"></tbody>
+  </table>
+  <button class="add-row-btn" onclick="addDecisionRow()">+ Adicionar decisao</button>
+  <div class="edit-hint">&#128161; Clique em qualquer celula para editar. O log e salvo automaticamente no seu navegador.</div>
+</div>
 
 </div><!-- /container -->
-
 <script>
-// ═══════════════════════════════════════════════════════════════
-// ESTADO INICIAL (usado quando localStorage está vazio)
-// ═══════════════════════════════════════════════════════════════
-
+const GH = "https://github.com/Solaris-Empresa/compliance-tributaria-v2";
 const INITIAL_KANBAN = {
   backlog: [
-    { id: 'k20', title: 'Issue #101 — CI débito técnico (skipIf)', status: 'Sprint I pendente', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/101' },
-    { id: 'k21', title: 'Sprint K — CRUD QuestionSchema G15', status: 'Débito técnico pós-UAT', link: null },
-    { id: 'k22', title: 'evidencia_regulatoria default genérico', status: 'Débito técnico pós-UAT', link: null },
-    { id: 'k23', title: 'RFC-004 — Expansão corpus', status: 'Bloqueada — texto não publicado', link: null },
+    { id: 'k10', title: 'Issue #191 - G16 Upload CSV SOLARIS', status: 'Acao pendente: P.O. aprovar Sprint L', link: GH+'/issues/191' },
+    { id: 'k11', title: 'Issue #187 - G11 Diagnostico V3 canonico', status: 'M4 Backlog', link: GH+'/issues/187' },
+    { id: 'k12', title: 'Issue #188 - DT-01 CI debito tecnico', status: 'M4 Backlog', link: GH+'/issues/188' },
+    { id: 'k13', title: 'Issue #189 - RFC-003 CRUD QuestionSchema', status: 'M4 Backlog', link: GH+'/issues/189' },
+    { id: 'k14', title: 'Issue #190 - N8N-F1 Webhook automacao', status: 'M4 Backlog', link: GH+'/issues/190' },
+    { id: 'k15', title: 'Issue #192 - G15 Arquitetura 3 ondas', status: 'M4 Backlog', link: GH+'/issues/192' },
+    { id: 'k16', title: 'Issue #193 - Corpus expansao leis', status: 'M4 Backlog', link: GH+'/issues/193' },
   ],
-  andamento: [
-    { id: 'k30', title: 'BASELINE v2.1 — atualização documental', status: '✅ Mergeado — PR #149', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/149' },
-    { id: 'k31', title: 'Testes manuais P.O.', status: '⏳ Aguardando cockpits atualizados', link: null },
-  ],
+  andamento: [],
   gate: [
-    { id: 'k40', title: 'Decisão UAT — retorno dos advogados', status: 'Aguarda testes manuais P.O.', link: null },
-    { id: 'k41', title: 'Issue #56 — F-04 Fase 3 (modo new)', status: 'Aguarda aprovação UAT', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/56' },
+    { id: 'k40', title: 'Decisao UAT - retorno dos advogados', status: 'Acao pendente: P.O. executar testes manuais', link: null },
+    { id: 'k41', title: 'Issue #56 - F-04 Fase 3 (modo new)', status: 'Aguarda aprovacao UAT', link: GH+'/issues/56' },
   ],
   bloqueado: [
-    { id: 'k50', title: 'Issue #61 — Modo new', status: 'Aguarda #56', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/61' },
-    { id: 'k51', title: 'Issue #62 — DROP COLUMN', status: 'Aguarda #61', link: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/62' },
+    { id: 'k50', title: 'Issue #61 - Modo new', status: 'Aguarda #56', link: GH+'/issues/61' },
+    { id: 'k51', title: 'Issue #62 - DROP COLUMN', status: 'Aguarda #61', link: GH+'/issues/62' },
   ]
 };
 
 const INITIAL_DECISIONS = [
-  { date: '2026-03-27', decision: 'DEC-007: RFC-003 — manter lc123 e lc224 no corpus', status: 'done' },
-  { date: '2026-03-27', decision: 'Suite testes UAT 12 itens — 517 testes, Evidence JSON 18 verificações ✅', status: 'done' },
-  { date: '2026-03-27', decision: 'Sprint H — 16 updates topicos cross-lei (ICMS, ISS, Simples, LRF, CBS)', status: 'done' },
-  { date: '2026-03-26', decision: 'DEC-006: Mudança de papéis Claude/Manus — após Sprint B2 concluída', status: 'pending' },
-  { date: '2026-03-26', decision: 'DEC-005: Sprint 98% B2 — Opção A bridge engines', status: 'done' },
-  { date: '2026-03-26', decision: 'DEC-004: Gate revisão CSV — publicação direta com log de auditoria', status: 'done' },
-  { date: '2026-03-26', decision: 'DEC-003: Ingestão Anexos LC 214 — chunk por NCM/item (Opção A)', status: 'done' },
-  { date: '2026-03-26', decision: 'DEC-002: anchor_id VARCHAR(255) UNIQUE + campos auditoria', status: 'done' },
-  { date: '2026-03-26', decision: 'DEC-001: Prefill cruzado QC-07→QO-03 pós-UAT (Opção A)', status: 'done' },
-  { date: '—', decision: 'Ativar DIAGNOSTIC_READ_MODE=new — aguarda aprovação UAT do P.O.', status: 'pending' },
-  { date: '—', decision: 'DROP COLUMN colunas legadas — aguarda modo new ativado', status: 'pending' },
+  { date: '2026-03-29', decision: 'DEC-007: Infraestrutura de contexto para agentes - ESTADO-ATUAL.md + CODEOWNERS', status: 'done', link: GH+'/pull/194' },
+  { date: '2026-03-28', decision: 'K-4-D: Wiring etapas 7-8 no DiagnosticoStepper + fix T06.1', status: 'done', link: GH+'/pull/184' },
+  { date: '2026-03-28', decision: 'K-4-C: QuestionarioIaGen (Onda 2) + routers-fluxo-v3 + wiring onStartOnda2', status: 'done', link: GH+'/pull/182' },
+  { date: '2026-03-27', decision: 'K-4-B: DiagnosticoStepper 8 etapas + ProjetoDetalhesV2 + CPIE v2 completo', status: 'done', link: GH+'/pull/177' },
+  { date: '2026-03-27', decision: 'K-4-A: Migrations VALID_TRANSITIONS + project_status_log + 36 testes', status: 'done', link: GH+'/pull/173' },
+  { date: '2026-03-26', decision: 'DEC-006: Mudanca de papeis Claude/Manus - apos Sprint B2 concluida', status: 'done', link: null },
+  { date: '2026-03-26', decision: 'DEC-005: Sprint 98% B2 - Opcao A bridge engines', status: 'done', link: null },
+  { date: '2026-03-26', decision: 'DEC-004: Gate revisao CSV - publicacao direta com log de auditoria', status: 'done', link: null },
+  { date: '2026-03-26', decision: 'DEC-003: Ingestao Anexos LC 214 - chunk por NCM/item (Opcao A)', status: 'done', link: null },
+  { date: '2026-03-26', decision: 'DEC-001: Prefill cruzado QC-07 pos-UAT (Opcao A)', status: 'done', link: null },
+  { date: '-', decision: 'Ativar DIAGNOSTIC_READ_MODE=new - aguarda aprovacao UAT do P.O.', status: 'pending', link: GH+'/issues/61' },
+  { date: '-', decision: 'DROP COLUMN colunas legadas - aguarda modo new ativado', status: 'pending', link: GH+'/issues/62' },
 ];
 
-const INITIAL_SEMAFOROS = {
-  cicd: 'green', shadow: 'green', issues: 'amber',
-  prs: 'green', testes: 'green', branch: 'green'
+const INITIAL_SEMAFOROS = { cicd: 'green', shadow: 'green', issues: 'amber', prs: 'green', testes: 'green', branch: 'green' };
+
+const MODO_CONFIG = {
+  uat: {
+    acao: 'Executar testes manuais do fluxo 3 ondas com advogados',
+    alink: GH+'/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md',
+    alinkLabel: 'GUIA-UAT-ADVOGADOS-v2.md',
+    responsavel: [{ tipo: 'po', label: 'P.O. (Uires)' }],
+    proximo: 'Decisao GO / NO-GO UAT -> ativar F-04 Fase 3',
+    bloqueios: [
+      { texto: 'F-04 Fase 3 (#56)', link: GH+'/issues/56' },
+      { texto: 'Modo new (#61)', link: GH+'/issues/61' },
+      { texto: 'DROP COLUMN (#62)', link: GH+'/issues/62' },
+    ]
+  },
+  dev: {
+    acao: 'Iniciar Sprint L - Issue #191 (G16 Upload CSV SOLARIS)',
+    alink: GH+'/issues/191',
+    alinkLabel: 'Issue #191',
+    responsavel: [{ tipo: 'manus', label: 'Manus' }, { tipo: 'claude', label: 'Claude' }],
+    proximo: 'Manus le ESTADO-ATUAL.md + issue #191 -> abre branch feat/sprint-l',
+    bloqueios: []
+  },
+  hotfix: {
+    acao: 'Identificar regressao - criar branch hotfix/ - abrir PR com evidencia JSON',
+    alink: GH+'/blob/main/docs/GATE-CHECKLIST.md',
+    alinkLabel: 'GATE-CHECKLIST.md',
+    responsavel: [{ tipo: 'manus', label: 'Manus' }, { tipo: 'po', label: 'P.O.' }],
+    proximo: 'PR revisado por P.O. -> merge -> atualizar ESTADO-ATUAL.md',
+    bloqueios: []
+  }
 };
 
-// ═══════════════════════════════════════════════════════════════
-// PERSISTÊNCIA — localStorage com fallback para estado inicial
-// ═══════════════════════════════════════════════════════════════
+const CHECKLISTS = {
+  uat: [
+    { id: 'u1', text: 'Abrir GUIA-UAT-ADVOGADOS-v2.md e revisar os 12 cenarios', resp: 'po' },
+    { id: 'u2', text: 'Acessar iasolaris.manus.space e fazer login', resp: 'po' },
+    { id: 'u3', text: 'Criar projeto de teste e completar Onda 1 (Briefing)', resp: 'po' },
+    { id: 'u4', text: 'Verificar Onda 2 (Diagnostico) - stepper 8 etapas funcionando', resp: 'po' },
+    { id: 'u5', text: 'Testar etapas 7 (Matrizes) e 8 (Plano de Acao)', resp: 'po' },
+    { id: 'u6', text: 'Registrar resultado: GO ou NO-GO com evidencias', resp: 'po' },
+  ],
+  dev: [
+    { id: 'd1', text: 'Ler docs/governance/ESTADO-ATUAL.md (Gate 0)', resp: 'manus' },
+    { id: 'd2', text: 'Verificar que main local esta sincronizado com GitHub', resp: 'manus' },
+    { id: 'd3', text: 'Criar branch feat/sprint-l a partir do main', resp: 'manus' },
+    { id: 'd4', text: 'Orquestrador gera prompt com CONTEXTO-ORQUESTRADOR.md', resp: 'claude' },
+    { id: 'd5', text: 'Implementar issue #191 conforme criterio de aceite', resp: 'manus' },
+    { id: 'd6', text: 'Rodar pnpm test - zero regressoes', resp: 'manus' },
+    { id: 'd7', text: 'Abrir PR com template preenchido + evidencia JSON', resp: 'manus' },
+    { id: 'd8', text: 'P.O. revisa e aprova o PR', resp: 'po' },
+  ],
+  hotfix: [
+    { id: 'h1', text: 'Identificar commit que introduziu a regressao (git bisect)', resp: 'manus' },
+    { id: 'h2', text: 'Criar branch hotfix/descricao a partir do main', resp: 'manus' },
+    { id: 'h3', text: 'Corrigir e rodar pnpm test - confirmar fix', resp: 'manus' },
+    { id: 'h4', text: 'Abrir PR com label hotfix e evidencia JSON', resp: 'manus' },
+    { id: 'h5', text: 'P.O. aprova e mergeia', resp: 'po' },
+    { id: 'h6', text: 'Atualizar ESTADO-ATUAL.md com o fix', resp: 'manus' },
+  ],
+  merge: [
+    { id: 'm1', text: 'Verificar se ha conflito em version.json (padrao recorrente)', resp: 'manus' },
+    { id: 'm2', text: 'Se conflito: criar branch limpo + cherry-pick + novo PR', resp: 'manus' },
+    { id: 'm3', text: 'Sincronizar main local: git fetch solaris && git reset --hard solaris/main', resp: 'manus' },
+    { id: 'm4', text: 'Atualizar ESTADO-ATUAL.md com novo HEAD e contagem de PRs', resp: 'claude' },
+    { id: 'm5', text: 'Salvar checkpoint no Manus', resp: 'manus' },
+  ]
+};
 
-function save(key, value) {
-  try { localStorage.setItem('po-cockpit-' + key, JSON.stringify(value)); } catch(e) {}
-}
-function load(key, fallback) {
-  try {
-    const v = localStorage.getItem('po-cockpit-' + key);
-    return v !== null ? JSON.parse(v) : fallback;
-  } catch(e) { return fallback; }
+function save(key, value) { try { localStorage.setItem('po-cockpit-' + key, JSON.stringify(value)); } catch(e) {} }
+function load(key, fallback) { try { const v = localStorage.getItem('po-cockpit-' + key); return v !== null ? JSON.parse(v) : fallback; } catch(e) { return fallback; } }
+
+let currentModo = 'uat';
+
+function setModo(modo) {
+  currentModo = modo;
+  save('modo', modo);
+  document.querySelectorAll('.modo-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.classList.contains(modo)) btn.classList.add('active');
+  });
+  renderAcaoAgora();
+  const tab = document.querySelector('.checklist-tab[onclick*="\'' + modo + '\'"]');
+  setChecklistMode(modo, tab);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// SEÇÃO 1 — Bloqueios expandível
-// ═══════════════════════════════════════════════════════════════
+function renderAcaoAgora() {
+  const cfg = MODO_CONFIG[currentModo];
+  const body = document.getElementById('acaoBody');
+  const respBadges = cfg.responsavel.map(r => '<span class="badge-resp ' + r.tipo + '">' + r.label + '</span>').join('');
+  const bloqueiosHtml = cfg.bloqueios.length === 0
+    ? '<div class="bloqueio-item">Sem bloqueios ativos neste modo</div>'
+    : cfg.bloqueios.map(b => '<div class="bloqueio-item"><a href="' + b.link + '" target="_blank">' + b.texto + '</a></div>').join('');
+  body.innerHTML = '<div><div class="acao-col-title">Acao imediata</div><div class="acao-item">' + cfg.acao + '<br><a href="' + cfg.alink + '" target="_blank">&#8594; ' + cfg.alinkLabel + '</a></div></div>'
+    + '<div><div class="acao-col-title">Responsavel (C2)</div><div class="acao-item">' + respBadges + '<br><span style="font-size:11px;color:#94A3B8;margin-top:6px;display:block;">Proximo passo:</span>' + cfg.proximo + '</div></div>'
+    + '<div><div class="acao-col-title">Bloqueios</div><div class="acao-item">' + bloqueiosHtml + '</div></div>';
+}
+
+let currentChecklistMode = 'uat';
+
+function setChecklistMode(mode, tabEl) {
+  currentChecklistMode = mode;
+  document.querySelectorAll('.checklist-tab').forEach(t => t.classList.remove('active'));
+  if (tabEl) tabEl.classList.add('active');
+  renderChecklist();
+}
+
+function renderChecklist() {
+  const items = CHECKLISTS[currentChecklistMode] || [];
+  const saved = load('checklist-' + currentChecklistMode, {});
+  const ul = document.getElementById('checklistItems');
+  ul.innerHTML = '';
+  items.forEach(item => {
+    const checked = saved[item.id] || false;
+    const li = document.createElement('li');
+    const respLabel = item.resp === 'po' ? 'P.O.' : item.resp === 'manus' ? 'Manus' : 'Claude';
+    li.innerHTML = '<input type="checkbox" id="chk-' + item.id + '" ' + (checked ? 'checked' : '') + ' onchange="toggleCheck(\'' + item.id + '\', this.checked)"><label for="chk-' + item.id + '" class="' + (checked ? 'done' : '') + '">' + item.text + '</label><span class="resp-badge ' + item.resp + '">' + respLabel + '</span>';
+    ul.appendChild(li);
+  });
+}
+
+function toggleCheck(id, checked) {
+  const saved = load('checklist-' + currentChecklistMode, {});
+  saved[id] = checked;
+  save('checklist-' + currentChecklistMode, saved);
+  renderChecklist();
+}
+
+function resetChecklist() {
+  save('checklist-' + currentChecklistMode, {});
+  renderChecklist();
+}
 
 function toggleBloqueios(card) {
   const list = card.querySelector('.bloqueios-list');
   list.classList.toggle('open');
 }
 
-// ═══════════════════════════════════════════════════════════════
-// SEÇÃO 2 — Semáforos (ciclo 3 estados)
-// ═══════════════════════════════════════════════════════════════
-
 const SEMAFORO_CYCLE = { green: 'amber', amber: 'red', red: 'green' };
-const SEMAFORO_ICON = { green: '✔', amber: '!', red: '✕' };
+const SEMAFORO_ICON = { green: '&#10004;', amber: '!', red: '&#10005;' };
 
 function cycleSemaforo(event, el) {
   event.stopPropagation();
   event.preventDefault();
   const card = el.closest('.radar-card');
-  const key = card.dataset.key;
   const current = el.className.replace('semaforo ', '');
   const next = SEMAFORO_CYCLE[current];
   el.className = 'semaforo ' + next;
-  el.textContent = SEMAFORO_ICON[next];
-  // Salvar estado de todos os semáforos
+  el.innerHTML = SEMAFORO_ICON[next];
   const state = {};
   document.querySelectorAll('.radar-card').forEach(c => {
     const s = c.querySelector('.semaforo');
@@ -699,8 +671,7 @@ function initSemaforos() {
     const s = card.querySelector('.semaforo');
     const st = state[key] || 'green';
     s.className = 'semaforo ' + st;
-    s.textContent = SEMAFORO_ICON[st];
-    // Clique no card abre o link
+    s.innerHTML = SEMAFORO_ICON[st];
     card.addEventListener('click', function(e) {
       if (e.target.classList.contains('semaforo')) return;
       const href = card.dataset.href;
@@ -709,20 +680,14 @@ function initSemaforos() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// SEÇÃO 3 — Kanban com drag and drop
-// ═══════════════════════════════════════════════════════════════
-
 let draggedCard = null;
+let currentKanban = {};
 
 function renderKanban(state) {
-  const cols = document.querySelectorAll('.kanban-col');
-  cols.forEach(col => {
+  document.querySelectorAll('.kanban-col').forEach(col => {
     const colId = col.dataset.col;
-    const title = col.querySelector('.kanban-col-title');
-    // Limpar cards existentes (manter título)
-    Array.from(col.children).forEach(c => { if (!c.classList.contains('kanban-col-title')) c.remove(); });
     const cards = state[colId] || [];
+    Array.from(col.children).forEach(child => { if (!child.classList.contains('kanban-col-title')) child.remove(); });
     if (cards.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'kanban-empty';
@@ -734,7 +699,7 @@ function renderKanban(state) {
         el.className = 'kanban-card';
         el.draggable = true;
         el.dataset.id = card.id;
-        el.innerHTML = `<div class="card-title">${card.title}</div><div class="card-status">${card.status}</div>${card.link ? `<a class="card-link" href="${card.link}" target="_blank" onclick="event.stopPropagation()">→ Ver issue</a>` : ''}`;
+        el.innerHTML = '<div class="card-title">' + card.title + '</div><div class="card-status">' + card.status + '</div>' + (card.link ? '<a class="card-link" href="' + card.link + '" target="_blank" onclick="event.stopPropagation()">&#8594; Ver issue/PR</a>' : '');
         el.addEventListener('dragstart', onDragStart);
         el.addEventListener('dragend', onDragEnd);
         col.appendChild(el);
@@ -743,67 +708,24 @@ function renderKanban(state) {
   });
 }
 
-function getKanbanState() {
-  const state = {};
-  document.querySelectorAll('.kanban-col').forEach(col => {
-    const colId = col.dataset.col;
-    state[colId] = [];
-    col.querySelectorAll('.kanban-card').forEach(card => {
-      // Encontrar dados do card no estado atual
-      const id = card.dataset.id;
-      const allCards = Object.values(currentKanban).flat();
-      const data = allCards.find(c => c.id === id);
-      if (data) state[colId].push(data);
-    });
-  });
-  return state;
-}
+function initKanban() { currentKanban = load('kanban', INITIAL_KANBAN); renderKanban(currentKanban); }
 
-let currentKanban = {};
-
-function initKanban() {
-  currentKanban = load('kanban', INITIAL_KANBAN);
-  renderKanban(currentKanban);
-}
-
-function onDragStart(e) {
-  draggedCard = e.currentTarget;
-  draggedCard.classList.add('dragging');
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', draggedCard.dataset.id);
-}
-
-function onDragEnd(e) {
-  if (draggedCard) draggedCard.classList.remove('dragging');
-  draggedCard = null;
-  document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over'));
-}
-
-function onDragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  e.currentTarget.classList.add('drag-over');
-}
-
-function onDragLeave(e) {
-  e.currentTarget.classList.remove('drag-over');
-}
-
+function onDragStart(e) { draggedCard = e.currentTarget; draggedCard.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', draggedCard.dataset.id); }
+function onDragEnd(e) { if (draggedCard) draggedCard.classList.remove('dragging'); draggedCard = null; document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over')); }
+function onDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; e.currentTarget.classList.add('drag-over'); }
+function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
 function onDrop(e) {
   e.preventDefault();
   const col = e.currentTarget;
   col.classList.remove('drag-over');
   if (!draggedCard) return;
   const cardId = e.dataTransfer.getData('text/plain');
-  // Encontrar o card nos dados
-  let cardData = null;
-  let sourceCol = null;
+  let cardData = null, sourceCol = null;
   Object.entries(currentKanban).forEach(([colId, cards]) => {
     const idx = cards.findIndex(c => c.id === cardId);
     if (idx !== -1) { cardData = cards[idx]; sourceCol = colId; }
   });
   if (!cardData || sourceCol === col.dataset.col) return;
-  // Mover
   currentKanban[sourceCol] = currentKanban[sourceCol].filter(c => c.id !== cardId);
   currentKanban[col.dataset.col] = currentKanban[col.dataset.col] || [];
   currentKanban[col.dataset.col].push(cardData);
@@ -811,47 +733,28 @@ function onDrop(e) {
   renderKanban(currentKanban);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// SEÇÃO 4 — Datas editáveis dos documentos
-// ═══════════════════════════════════════════════════════════════
-
 function initDocDates() {
   const savedDates = load('doc-dates', {});
   document.querySelectorAll('.doc-updated[data-key]').forEach(el => {
     const key = el.dataset.key;
     if (savedDates[key]) el.textContent = savedDates[key];
-    el.addEventListener('blur', () => {
-      const all = load('doc-dates', {});
-      all[key] = el.textContent.trim();
-      save('doc-dates', all);
-    });
+    el.addEventListener('blur', () => { const all = load('doc-dates', {}); all[key] = el.textContent.trim(); save('doc-dates', all); });
     el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
   });
 }
-
-// ═══════════════════════════════════════════════════════════════
-// SEÇÃO 5 — Log de decisões
-// ═══════════════════════════════════════════════════════════════
 
 function renderDecisions(decisions) {
   const tbody = document.getElementById('decisionsBody');
   tbody.innerHTML = '';
   decisions.forEach((d, i) => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td contenteditable="plaintext-only" data-idx="${i}" data-field="date">${d.date}</td>
-      <td contenteditable="plaintext-only" data-idx="${i}" data-field="decision">${d.decision}</td>
-      <td>
-        <span class="${d.status === 'done' ? 'badge-done' : 'badge-pending'}" 
-              style="cursor:pointer" 
-              onclick="toggleDecisionStatus(${i})" 
-              title="Clique para alternar">
-          ${d.status === 'done' ? '✅ Feito' : '⏳ Aguarda'}
-        </span>
-      </td>`;
+    const linkHtml = d.link ? '<a class="decision-link" href="' + d.link + '" target="_blank">&#8594; Ver PR/Issue</a>' : '<span style="font-size:11px;color:#ccc">-</span>';
+    tr.innerHTML = '<td contenteditable="plaintext-only" data-idx="' + i + '" data-field="date">' + d.date + '</td>'
+      + '<td contenteditable="plaintext-only" data-idx="' + i + '" data-field="decision">' + d.decision + '</td>'
+      + '<td>' + linkHtml + '</td>'
+      + '<td><span class="' + (d.status === 'done' ? 'badge-done' : 'badge-pending') + '" style="cursor:pointer" onclick="toggleDecisionStatus(' + i + ')" title="Clique para alternar">' + (d.status === 'done' ? 'Feito' : 'Aguarda') + '</span></td>';
     tbody.appendChild(tr);
   });
-  // Listeners de edição inline
   tbody.querySelectorAll('td[contenteditable]').forEach(td => {
     td.addEventListener('blur', () => {
       const decisions = load('decisions', INITIAL_DECISIONS);
@@ -873,25 +776,28 @@ function toggleDecisionStatus(idx) {
 
 function addDecisionRow() {
   const decisions = load('decisions', INITIAL_DECISIONS);
-  decisions.push({ date: new Date().toISOString().slice(0,10), decision: 'Nova decisão — clique para editar', status: 'pending' });
+  decisions.unshift({ date: new Date().toISOString().slice(0,10), decision: 'Nova decisao - clique para editar', status: 'pending', link: null });
   save('decisions', decisions);
   renderDecisions(decisions);
 }
 
-function initDecisions() {
-  const decisions = load('decisions', INITIAL_DECISIONS);
-  renderDecisions(decisions);
-}
-
-// ═══════════════════════════════════════════════════════════════
-// INICIALIZAÇÃO
-// ═══════════════════════════════════════════════════════════════
+function initDecisions() { const decisions = load('decisions', INITIAL_DECISIONS); renderDecisions(decisions); }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const savedModo = load('modo', 'uat');
+  currentModo = savedModo;
+  document.querySelectorAll('.modo-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.classList.contains(savedModo)) btn.classList.add('active');
+  });
+  renderAcaoAgora();
+  const tab = document.querySelector('.checklist-tab[onclick*="\'' + savedModo + '\'"]');
+  setChecklistMode(savedModo, tab);
   initSemaforos();
   initKanban();
   initDocDates();
   initDecisions();
+  document.getElementById('headerDate').textContent = new Date().toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit' });
 });
 </script>
 </body>
