@@ -196,3 +196,21 @@ Quando isso acontecer, pare e peça: *"Execute o Gate 0 antes de continuar."*
 *Documento criado pelo Orquestrador (Claude — Anthropic) em 2026-03-26*
 *Audiência: P.O. Uires Tapajós*
 *Revisar quando o modelo operacional mudar*
+
+---
+
+## Atualização — DEC-007 (2026-03-29)
+
+### Novo passo obrigatório no início de cada sessão
+
+O **primeiro arquivo a ser lido** em qualquer sessão é:
+
+```
+docs/governance/ESTADO-ATUAL.md
+```
+
+Este arquivo é a **porta de entrada única** para o estado atual do produto. Contém HEAD atual, sprint ativa, indicadores reais e links para os 5 documentos de contexto.
+
+> **Regra:** Nenhum agente deve iniciar trabalho sem ler `ESTADO-ATUAL.md` primeiro.
+
+*Atualizado em 2026-03-29 — DEC-007 em vigor.*
