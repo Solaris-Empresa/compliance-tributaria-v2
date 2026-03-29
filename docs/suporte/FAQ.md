@@ -106,3 +106,18 @@ Documente e reporte. A equipe decide a classificação. Melhor reportar algo que
 *FAQ.md — IA Solaris v1.0 · 2026-03-24*
 *Responsável: P.O. Uires Tapajós*
 *Revisão: ao final de cada sprint ou quando novos padrões de dúvida forem identificados via suporte*
+
+---
+
+## Perguntas Frequentes — Sprint K (Onda 2)
+
+**P: O que é a Onda 2 do diagnóstico?**  
+R: A Onda 2 é a segunda fase do fluxo, composta pelas etapas 7 (Questionário IA Generativa) e 8 (Consolidação Final). Ela aprofunda a análise com perguntas geradas dinamicamente pela IA.
+
+**P: Preciso completar a Onda 1 antes de iniciar a Onda 2?**  
+R: Sim. O chip 'Onda 2' no stepper só fica habilitado após a conclusão de todas as etapas da Onda 1 (etapas 1-6).
+
+**P: O que é o `questionario-solaris`?**  
+R: É o identificador do questionário principal após o fix T06.1 (PR #184). Substitui o identificador legado `questionario-corporativo-v2`.
+
+*Atualizado em 2026-03-29 — Sprint K concluída.*

@@ -340,5 +340,128 @@ Em caso de dúvidas ou problemas durante os testes:
 
 ---
 
-*Documento preparado pela equipe técnica Solaris — Versão 2.0 — 2026-03-23.*  
-*Baseado em: 107/107 testes automáticos aprovados (Onda 1 + Onda 2), 0 divergências críticas no Shadow Monitor.*
+---
+
+## Cenários Adicionais — Sprint K (Etapas 7 e 8 do DiagnosticoStepper)
+
+> **Adicionados em 2026-03-29** após a conclusão da Sprint K (PRs #177–#184).  
+> As etapas 7 e 8 do stepper foram implementadas nos PRs K-4-B e K-4-D.
+
+---
+
+### Cenário 9 — Questionário IA Generativa (Onda 2 — Etapa 7)
+
+**Objetivo:** Validar o fluxo da Onda 2: geração do Questionário IA Generativa após conclusão da Onda 1.
+
+**Pré-condição:** Ter concluído a Onda 1 (Etapas 1–6) com pelo menos um CNAE ativo.
+
+**Tempo estimado:** 20–30 minutos
+
+**Passos:**
+1. A partir de um projeto com Onda 1 concluída, clicar no chip **"Onda 2"** no stepper superior
+2. Verificar se o botão **"Iniciar Questionário IA Generativa"** está habilitado
+3. Clicar no botão e aguardar a geração do questionário (pode levar 10–30 segundos)
+4. Responder as perguntas geradas pela IA — verificar se são contextualmente relevantes ao CNAE
+5. Clicar em **"Finalizar Questionário"** ao concluir
+6. Verificar se o sistema avança para a Etapa 8
+
+**Critério de aceite:**
+
+| Verificação | Esperado |
+|---|---|
+| Botão "Iniciar" habilitado após Onda 1 concluída | SIM |
+| Perguntas geradas são relevantes ao CNAE do projeto | SIM |
+| Sistema aguarda resposta antes de avançar | SIM |
+| Progresso salvo automaticamente entre perguntas | SIM |
+| Avanço para Etapa 8 após finalizar | SIM |
+
+---
+
+### Cenário 10 — Wiring Etapas 7-8: Continuidade do Fluxo
+
+**Objetivo:** Verificar que o stepper navega corretamente entre as etapas 7 e 8 sem perda de estado.
+
+**Passos:**
+1. Iniciar o Questionário IA Generativa (Etapa 7) e responder 2–3 perguntas
+2. Navegar para outra etapa (ex: Etapa 3) usando o stepper
+3. Retornar à Etapa 7 — verificar se as respostas foram preservadas
+4. Concluir o questionário e verificar a transição para a Etapa 8
+
+**Critério de aceite:**
+
+| Verificação | Esperado |
+|---|---|
+| Respostas preservadas ao navegar entre etapas | SIM |
+| Modal de confirmação ao tentar retroceder com dados | SIM |
+| Etapa 8 desbloqueada somente após Etapa 7 concluída | SIM |
+| Indicador de progresso no stepper atualizado corretamente | SIM |
+
+---
+
+### Cenário 11 — Etapa 8: Consolidação Final e Plano de Ação V3
+
+**Objetivo:** Validar a geração do Plano de Ação consolidado na Etapa 8, incorporando dados da Onda 1 e Onda 2.
+
+**Pré-condição:** Etapas 1–7 concluídas.
+
+**Passos:**
+1. Na Etapa 8, clicar em **"Gerar Plano de Ação Consolidado"**
+2. Aguardar a geração (pode levar 15–45 segundos)
+3. Verificar se o plano incorpora dados de ambas as ondas
+4. Avaliar a qualidade jurídica usando a tabela abaixo
+
+**Avaliação jurídica do Plano Consolidado:**
+
+| Critério | Nota (1–5) | Comentário |
+|---|---|---|
+| Integração coerente entre Onda 1 e Onda 2 | | |
+| Tarefas específicas para cada área de risco | | |
+| Prazos alinhados com a Reforma Tributária | | |
+| Ausência de contradições entre as ondas | | |
+| Completude do plano para o CNAE testado | | |
+| **Média** | | |
+
+---
+
+### Cenário 12 — Regressão: Fix T06.1 (Questionário Solaris)
+
+**Objetivo:** Confirmar que o fix do T06.1 (PR #184) está funcionando em produção — o questionário deve usar o identificador `questionario-solaris` (não `questionario-corporativo-v2`).
+
+**Passos:**
+1. Criar um projeto novo com qualquer CNAE
+2. Avançar até a Etapa 2 (Questionário)
+3. Verificar no título/header da página o identificador do questionário exibido
+4. Confirmar que não há referência a `questionario-corporativo-v2`
+
+**Critério de aceite:** O questionário exibe `questionario-solaris` como identificador. Nenhum erro de carregamento.
+
+---
+
+## Critérios de Aprovação Atualizados (v2.1)
+
+Os critérios originais da Seção 6 permanecem válidos. Adicionalmente, para aprovação dos cenários 9–12:
+
+| Critério adicional | Meta |
+|---|---|
+| Cenários 9–12 executados sem erros bloqueantes | 100% |
+| Nota média dos Cenários 9 e 11 (qualidade IA) | ≥ 3,5 / 5,0 |
+| Fix T06.1 confirmado (Cenário 12) | SIM |
+| Wiring etapas 7-8 sem perda de estado (Cenário 10) | SIM |
+
+---
+
+## Cronograma Atualizado (v2.1)
+
+| Dia | Atividade |
+|---|---|
+| **Dia 1** | Onboarding, acesso, Cenários 1 e 2 |
+| **Dia 2** | Cenários 3, 4, 5, 6 e 7 |
+| **Dia 3** | Cenários 8, 9 e 10 (Onda 2 + wiring) |
+| **Dia 4** | Cenários 11 e 12 (Plano consolidado + regressão T06.1) |
+| **Dia 5** | Formulário de feedback final, consolidação, decisão GO/NO-GO |
+
+---
+
+*Atualizado em 2026-03-29 — v2.1 — Sprint K concluída (PRs #177, #182, #184).*  
+*Adicionados Cenários 9–12 cobrindo etapas 7-8 do DiagnosticoStepper e fix T06.1.*  
+*Versão original: 2.0 — 2026-03-23 — 107/107 testes aprovados, 0 divergências críticas.*

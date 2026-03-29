@@ -72,4 +72,4 @@
 | 2026-03-29 | Orquestrador com contexto desatualizado por 4 sprints (v1.8 vs v2.4 real) | Gate 0 item 1 | Resolvido via DEC-007 (ESTADO-ATUAL.md) |
 
 ---
-*Criado pelo Orquestrador em 2026-03-26 — documento vivo · Atualizado 2026-03-29 (Sprint K + DEC-007)*
+*Criado pelo Orquestrador em 2026-03-26 — documento vivo · Atualizado 2026-03-29 (Sprint K completa + Cockpit v2.0)*
