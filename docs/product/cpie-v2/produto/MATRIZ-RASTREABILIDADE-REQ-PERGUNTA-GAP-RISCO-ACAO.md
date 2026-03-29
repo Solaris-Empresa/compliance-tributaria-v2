@@ -1,7 +1,7 @@
 # Matriz de Rastreabilidade: Requisito → Pergunta → Gap → Risco → Ação
 
 **Versão:** 1.1  
-**Data:** 2026-03-26  
+**Data:** 2026-03-29  
 **Status:** Aprovada — gate B1 liberado para B2. Atualizada com anchor_ids canônicos (DEC-002), exemplos reais do pilot-audit, tabela de domínios e invariants formais.  
 **Versão anterior:** 1.0 (2026-03-23) — proposta inicial  
 **Issue:** [#65](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/65)  

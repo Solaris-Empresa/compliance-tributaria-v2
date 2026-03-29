@@ -1,7 +1,7 @@
 # Matriz Canônica de Inputs/Outputs por Etapa do Fluxo de Compliance
 
 **Versão:** 1.1  
-**Data:** 2026-03-24  
+**Data:** 2026-03-29  
 **Status:** Aprovada com ajustes — gate B1 liberado para B2  
 **Ajustes incorporados:** Coverage Engine (fórmula corrigida), Question Quality Gate, evaluation_confidence no Gap  
 **Issue:** [#64](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/64)  

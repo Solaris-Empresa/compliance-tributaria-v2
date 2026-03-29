@@ -1,7 +1,7 @@
 # ERROS CONHECIDOS — Plataforma Compliance Reforma Tributária
 
-**Versão:** 2.0  
-**Data:** 2026-03-24  
+**Versão:** 2.1  
+**Data:** 2026-03-29  
 **Autor:** Manus AI / Equipe de Engenharia  
 **Repositório:** [Solaris-Empresa/compliance-tributaria-v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2)  
 **Branch principal:** `main`  
@@ -68,6 +68,11 @@ Linha do tempo completa de sprints, checkpoints e commits relevantes para rastre
 | **Autoauditoria + Pós-Auditoria** | 2026-03-24 | `98a51663` / `ed4630c6` | [ed4630c6](https://github.com/Solaris-Empresa/compliance-tributaria-v2/commit/ed4630c6) | ERR-004 + ERR-005 corrigidos; BUG-001 + OBS-002; 161/161 testes |
 | **ERROS-CONHECIDOS v1.0** | 2026-03-24 | `7fe761e8` | [7fe761e8](https://github.com/Solaris-Empresa/compliance-tributaria-v2/commit/7fe761e8) | Registro oficial criado — 10 erros, 3 riscos, 5 runbooks, 8 invariants |
 | **v2.00 — Documentação Consolidada** | 2026-03-24 | `c92d5337` | [c92d5337](https://github.com/Solaris-Empresa/compliance-tributaria-v2/commit/c92d5337) | 120 arquivos .md, 11 checkpoints, 80 documentos ativos em 10 categorias |
+| **Sprint K — K-4-A** | 2026-03-27 | `e54d606` | [e54d606](https://github.com/Solaris-Empresa/compliance-tributaria-v2/commit/e54d606) | VALID_TRANSITIONS + migrations 0057/0058; 36 testes K-4-A |
+| **Sprint K — K-4-B** | 2026-03-27 | `ebcac6e` | [ebcac6e](https://github.com/Solaris-Empresa/compliance-tributaria-v2/commit/ebcac6e) | DiagnosticoStepper 8 etapas; QuestionarioSolaris; 70 testes K-4-B |
+| **Sprint K — K-4-C** | 2026-03-28 | `b7fb1b49` | [b7fb1b49](https://github.com/Solaris-Empresa/compliance-tributaria-v2/commit/b7fb1b49) | QuestionarioIaGen (Onda 2); routers-fluxo-v3 wiring; 82 testes K-4-C |
+| **Sprint K — K-4-D** | 2026-03-28 | `ff3438d` | [ff3438d](https://github.com/Solaris-Empresa/compliance-tributaria-v2/commit/ff3438d) | Wiring etapas 7-8 (Matrizes+Plano); T06.1 corrigido; PR #184 |
+| **DEC-007 Governança** | 2026-03-29 | `71be3c9` | [71be3c9](https://github.com/Solaris-Empresa/compliance-tributaria-v2/commit/71be3c9) | ESTADO-ATUAL.md + CODEOWNERS + README atualizado; PR #194 |
 
 ---
 

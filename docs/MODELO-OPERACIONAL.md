@@ -1,8 +1,11 @@
 # MODELO OPERACIONAL — Equipe IA Solaris
 
-**Versão:** 1.0 — 2026-03-24
-**Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
-**Aprovador:** P.O. Uires Tapajós
+**Versão:** 1.1 — 2026-03-29  
+**Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2  
+**Aprovador:** P.O. Uires Tapajós  
+**Última sprint concluída:** Sprint K (K-4-A a K-4-D) · HEAD `5d7ad7d`  
+**Próxima sprint:** Sprint L — Issue #191 (G16 Upload CSV SOLARIS)  
+**Contexto de entrada:** `docs/governance/ESTADO-ATUAL.md` — leia antes de qualquer trabalho
 
 ---
 
@@ -102,7 +105,7 @@ P.O. solicita
 
 ---
 
-## Bloqueios Ativos (2026-03-24)
+## Bloqueios Ativos (2026-03-29)
 
 Não remover sem aprovação documentada do P.O.:
 
@@ -116,20 +119,23 @@ Não remover sem aprovação documentada do P.O.:
 
 ## Backlog Ativo de Trabalho
 
-### P0 — Obrigatório antes de qualquer sprint de produto
+### P0 — Concluído na Sprint K
 
 | Item | Responsável | Status |
 |---|---|---|
-| Sprint de Governança (CI/CD automação GitHub) | Manus, prompt do Orquestrador | ⏳ Aguardando |
+| Sprint de Governança CI/CD | Manus | ✅ Concluído |
+| DEC-007 Infraestrutura de Contexto | Manus | ✅ Concluído |
+| Sprint K — Onda 2 (K-4-A a K-4-D) | Manus | ✅ Concluído |
 | UAT com advogados | P.O. + Orquestrador apoia | ⏳ Aguardando |
 
 ### P1 — Próximas sprints
 
-| Item | Responsável | Status |
-|---|---|---|
-| DECISÃO-001 Opção A (prefill cruzado QC-07→QO-03) | Manus, pós-UAT | ⏳ Backlog |
-| Script migração ERR-009 | Manus após aprovação P.O. | ⏳ Backlog |
-| Alerta ERR-006 no monitoramento | Manus | ⏳ Backlog |
+| Item | Issue | Responsável | Status |
+|---|---|---|---|
+| G16 Upload CSV SOLARIS | #191 | Manus (Sprint L) | ⏳ Próxima |
+| G11 Integração N8N | #187 | Manus | ⏳ Backlog |
+| RFC-003 Corpus expansão | #189 | Manus | ⏳ Backlog |
+| DECISÃO-001 Prefill cruzado QC-07→QO-03 | — | Manus, pós-UAT | ⏳ Backlog |
 
 ### Bloqueados (aguardam UAT)
 
@@ -186,13 +192,16 @@ Quando o Consultor (ChatGPT) for acionado:
 
 ## Referências
 
+- [docs/governance/ESTADO-ATUAL.md](./governance/ESTADO-ATUAL.md) — **LEIA PRIMEIRO** — porta de entrada universal
 - [PRODUCT-LIFECYCLE.md](./PRODUCT-LIFECYCLE.md) — ciclo de vida do produto
-- [BASELINE-PRODUTO.md](./BASELINE-PRODUTO.md) — estado atual do produto
+- [BASELINE-PRODUTO.md](./BASELINE-PRODUTO.md) — estado atual do produto (v2.4)
 - [ERROS-CONHECIDOS.md](./ERROS-CONHECIDOS.md) — incidentes e invariants
 - [docs/governance/invariant-registry.md](./governance/invariant-registry.md) — 8 invariants
+- [docs/governance/HANDOFF-IMPLEMENTADOR.md](./governance/HANDOFF-IMPLEMENTADOR.md) — guia do Manus
+- [docs/governance/CONTEXTO-ORQUESTRADOR.md](./governance/CONTEXTO-ORQUESTRADOR.md) — guia do Claude
 
 ---
 
-*MODELO-OPERACIONAL.md — IA Solaris v1.0 · 2026-03-24*
+*MODELO-OPERACIONAL.md — IA Solaris v1.1 · 2026-03-29*
 *Revisar se a composição da equipe ou os papéis mudarem*
 *Aprovador: P.O. Uires Tapajós*

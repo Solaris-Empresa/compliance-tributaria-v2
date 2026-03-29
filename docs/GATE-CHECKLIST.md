@@ -1,6 +1,6 @@
 # GATE-CHECKLIST — Controles Internos do Orquestrador
 ## IA SOLARIS — Compliance Tributária
-**Versão:** 1.0 — 2026-03-26
+**Versão:** 1.1 — 2026-03-29
 **Audiência:** Orquestrador (Claude) · P.O. (Uires Tapajós) · Implementador (Manus)
 
 > **Por que este documento existe:** Em 2026-03-26 identificamos que sprints foram
@@ -14,6 +14,7 @@
 ## GATE 0 — Abertura de sessão (obrigatório antes de qualquer trabalho)
 
 ```
+□ 0. Ler docs/governance/ESTADO-ATUAL.md — OBRIGATÓRIO PRIMEIRO (DEC-007)
 □ 1. Ler BASELINE-PRODUTO.md — versão atual e commit HEAD
 □ 2. Verificar: último PR mergeado bate com versão do baseline?
 □ 3. Verificar: há PRs abertos sem baseline atualizado?
@@ -67,6 +68,8 @@
 | 2026-03-26 | G12/G13 planejados sem saber cobertura B2 | Gate 0 item 6 | Sprint F suspensa corretamente |
 | 2026-03-26 | Baseline desatualizado por 4 sprints | Gate 3 item 3 | Dívida de documentação |
 | 2026-03-26 | Contagem 44 vs 99 testes aprovada sem verificação | Gate 2 item 1 | Ciclo extra de correção |
+| 2026-03-28 | T06.1 falhou por assertição desatualizada (pré-existente desde K-4-B) | Gate 2 item 1 | Corrigido no K-4-D (PR #184) |
+| 2026-03-29 | Orquestrador com contexto desatualizado por 4 sprints (v1.8 vs v2.4 real) | Gate 0 item 1 | Resolvido via DEC-007 (ESTADO-ATUAL.md) |
 
 ---
-*Criado pelo Orquestrador em 2026-03-26 — documento vivo*
+*Criado pelo Orquestrador em 2026-03-26 — documento vivo · Atualizado 2026-03-29 (Sprint K + DEC-007)*
