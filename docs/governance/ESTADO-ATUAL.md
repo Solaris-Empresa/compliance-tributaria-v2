@@ -1,30 +1,37 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Orquestrador (Claude) ao fechar cada sprint  
-> **v2.4 · 2026-03-29** · Responsável: Orquestrador gera, Manus commita
+> **v2.4 · 2026-03-29 (rev 3)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v2.4 · **HEAD:** 1b7b67b · **Testes:** 2.652/2.773 (97 falhas pré-existentes)  
+**Baseline:** v2.4 · **HEAD:** 326c6e6 · **Testes:** 2.652/2.773 (97 falhas pré-existentes)  
 **DIAGNOSTIC_READ_MODE:** shadow (aguarda UAT)  
 **Corpus RAG:** 2.078 chunks · 5 leis · 100% confiabilidade  
 **Sprint K:** CONCLUÍDA (K-4-A ✅ K-4-B ✅ K-4-C ✅ K-4-D ✅)  
 **Cockpit P.O. v2.0:** ✅ mergeado (#197) — C1+C2+C3+C4+C5+I1+I2+I3+I4 acionável  
+**Cockpit fetch dinâmico:** ✅ mergeado (#199) — Score de Saúde em tempo real via API GitHub  
+**Cockpit Seção 4 (4A–4F):** ✅ mergeado (#200) — 24 docs catalogados com status visual  
+**Docs P0/P1 atualizados:** ✅ mergeado (#202) — 10 docs defasados + datas dinâmicas Seção 4  
 **Sprint L:** Upload CSV SOLARIS — próxima sprint
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** 1b7b67b
+- **Branch base:** main · **HEAD:** 326c6e6
 - **Próxima issue:** #191 — G16 Upload CSV SOLARIS para corpus RAG
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via cherry-pick em branch limpo (padrão PRs #173, #177, #179, #184)
 - **Referência operacional:** docs/HANDOFF-MANUS.md
 - **Referência de governança:** docs/governance/HANDOFF-IMPLEMENTADOR.md
 - **Issues do backlog:** ver milestone M4 no GitHub
+- **Documentos P0/P1 obrigatórios:** atualizar SEMPRE após sprint concluída:
+  - P0: `docs/governance/ESTADO-ATUAL.md` (este arquivo)
+  - P1: `docs/BASELINE-PRODUTO.md`
+  - P1: `docs/HANDOFF-MANUS.md`
 
 ## Para o Claude (orquestrador)
 
@@ -34,10 +41,11 @@ Plataforma de compliance da Reforma Tributária brasileira.
 - **Contexto completo:** docs/governance/CONTEXTO-ORQUESTRADOR.md
 - **Antes de propor qualquer coisa:** verificar se já está implementado via `grep` no repo
 - **Restrições absolutas:** DIAGNOSTIC_READ_MODE=new, F-04 Fase 3, DROP COLUMN — NUNCA sem aprovação P.O.
+- **⚠️ Atenção:** o skill `solaris-contexto` tem estado desatualizado hardcoded (v1.5/489 testes). Usar ESTE arquivo como fonte de verdade.
 
 ## Para o ChatGPT (consultor)
 
-- **Estado:** Sprint K concluída · Sprint L em planejamento
+- **Estado:** Sprint K concluída · Sprint K+ e K++ concluídas · Sprint L em planejamento
 - **Gaps resolvidos:** G1–G10, G13, G14 + K-4-A, K-4-B, K-4-C, K-4-D
 - **Gaps pendentes:** G11 (#187), G15 (#192), G16 (#191)
 - **Corpus RAG:** 5 leis · 2.078 chunks · confiabilidade 100%
@@ -57,6 +65,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | J | CPIE v2 — stepper 8 etapas + Onda 1 | #136–#175 | v2.0 |
 | K | Onda 2 (K-4-A a K-4-D) — fluxo completo | #176–#186 | v2.4 |
 | K+ | Cockpit P.O. v2.0 — C1–C5+I1–I4 acionável | #196–#197 | v2.4 |
+| K++ | Cockpit fetch dinâmico + Seção 4 (4A–4F) + 10 docs atualizados | #199–#202 | v2.4 |
 
 ## Sprint L — próxima
 
@@ -87,6 +96,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DEC-005 | Escopo holístico — todas as empresas brasileiras | 2026-03-26 |
 | DEC-006 | LC 123/2006 incluída no corpus | 2026-03-26 |
 | DEC-007 | Infraestrutura de contexto: ESTADO-ATUAL + CODEOWNERS | 2026-03-28 |
+| DEC-008 | Cockpit P.O. com fetch dinâmico API GitHub (Score de Saúde em tempo real) | 2026-03-29 |
 
 ---
 
@@ -109,6 +119,8 @@ server/rag-retriever.ts
 docs/rag/CORPUS-BASELINE.md
 docs/rag/RAG-GOVERNANCE.md
 docs/governance/ESTADO-ATUAL.md
+docs/BASELINE-PRODUTO.md
+docs/HANDOFF-MANUS.md
 ```
 
 ---
@@ -117,17 +129,18 @@ docs/governance/ESTADO-ATUAL.md
 
 | Indicador | Valor |
 |---|---|
-| Commits no main | 574 |
-| PRs mergeados | 197 |
-| Tabelas no schema | 63 |
+| Commits no main | 580 |
+| PRs mergeados | 202 |
+| Tabelas no schema | 68 |
 | Migrations aplicadas | 60 |
 | Testes passando | 2.652 / 2.773 |
 | Corpus RAG chunks | 2.078 |
 | Leis no corpus | 5 (LC 214, EC 132, LC 227, LC 224, LC 123) |
 | Confiabilidade RAG | 100% |
 | TypeScript erros | 0 |
+| Docs ✅ Atualizados | 22 / 24 |
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-03-29*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-03-29 (rev 3 — pós-PR #202)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
