@@ -179,7 +179,8 @@ export const appRouter = router({
           createdByRole: ctx.user.role as any,
           notificationFrequency: input.notificationFrequency || "semanal",
         });
-
+        // K-4-E: log de auditoria — criação de projeto (from_status: null)
+        await db.insertStatusLog(projectId, null, 'rascunho', String(ctx.user.id));
         return { projectId };
       }),
 
@@ -249,6 +250,8 @@ export const appRouter = router({
 
         // Log da transição para auditoria
         console.log(`[updateStatus] Projeto ${input.projectId}: ${currentStatus} → ${newStatus} (por ${ctx.user.role} #${ctx.user.id})`);
+        // K-4-E: log de auditoria jurídica — transição de status
+        await db.insertStatusLog(input.projectId, currentStatus ?? null, newStatus, String(ctx.user.id));
 
         return {
           success: true,

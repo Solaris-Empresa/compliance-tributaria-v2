@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Orquestrador (Claude) ao fechar cada sprint  
-> **v2.4 · 2026-03-29 (rev 3)** · Responsável: Orquestrador gera, Manus commita
+> **v2.5 · 2026-03-29 (rev 4)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v2.4 · **HEAD:** 326c6e6 · **Testes:** 2.652/2.773 (97 falhas pré-existentes)  
+**Baseline:** v2.5 · **HEAD:** b9a5502 · **Testes:** 2.655/2.776 (97 falhas pré-existentes)  
 **DIAGNOSTIC_READ_MODE:** shadow (aguarda UAT)  
 **Corpus RAG:** 2.078 chunks · 5 leis · 100% confiabilidade  
 **Sprint K:** CONCLUÍDA (K-4-A ✅ K-4-B ✅ K-4-C ✅ K-4-D ✅)  
@@ -15,14 +15,15 @@ Plataforma de compliance da Reforma Tributária brasileira.
 **Cockpit fetch dinâmico:** ✅ mergeado (#199) — Score de Saúde em tempo real via API GitHub  
 **Cockpit Seção 4 (4A–4F):** ✅ mergeado (#200) — 24 docs catalogados com status visual  
 **Docs P0/P1 atualizados:** ✅ mergeado (#202) — 10 docs defasados + datas dinâmicas Seção 4  
+**K-4-E:** ✅ mergeada (#212) — tabela `project_status_log`, migration 0059, 3 testes Vitest  
 **Sprint L:** Upload CSV SOLARIS — próxima sprint
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** 326c6e6
-- **Próxima issue:** #191 — G16 Upload CSV SOLARIS para corpus RAG
+- **Branch base:** main · **HEAD:** b9a5502 (pós-merge K-4-E)
+- **Próxima issue:** #191 — G16 Upload CSV SOLARIS para corpus RAG (Sprint L)
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via cherry-pick em branch limpo (padrão PRs #173, #177, #179, #184)
 - **Referência operacional:** docs/HANDOFF-MANUS.md
@@ -66,6 +67,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | K | Onda 2 (K-4-A a K-4-D) — fluxo completo | #176–#186 | v2.4 |
 | K+ | Cockpit P.O. v2.0 — C1–C5+I1–I4 acionável | #196–#197 | v2.4 |
 | K++ | Cockpit fetch dinâmico + Seção 4 (4A–4F) + 10 docs atualizados | #199–#202 | v2.4 |
+| K-4-E | Auditoria jurídica `project_status_log` (migration 0059, 3 testes) | #212 | v2.5 |
 
 ## Sprint L — próxima
 
@@ -130,10 +132,10 @@ docs/HANDOFF-MANUS.md
 | Indicador | Valor |
 |---|---|
 | Commits no main | 580 |
-| PRs mergeados | 202 |
+| PRs mergeados | 212 (K-4-E) |
 | Tabelas no schema | 68 |
-| Migrations aplicadas | 60 |
-| Testes passando | 2.652 / 2.773 |
+| Migrations aplicadas | **60** (0000–0059; era 59 pré-PR #213) |
+| Testes passando | 2.655 / 2.776 (+3 K-4-E) |
 | Corpus RAG chunks | 2.078 |
 | Leis no corpus | 5 (LC 214, EC 132, LC 227, LC 224, LC 123) |
 | Confiabilidade RAG | 100% |
@@ -142,5 +144,5 @@ docs/HANDOFF-MANUS.md
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-03-29 (rev 3 — pós-PR #202)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-03-29 (rev 4 — pós-PR #212 K-4-E)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*

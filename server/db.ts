@@ -25,6 +25,7 @@ import {
   solarisQuestions, InsertSolarisQuestion, SolarisQuestion,
   solarisAnswers, InsertSolarisAnswer, SolarisAnswer,
   iagenAnswers, InsertIagenAnswer, IagenAnswer,
+  projectStatusLog, InsertProjectStatusLog,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -201,6 +202,44 @@ export async function getProjectById(id: number) {
   const result = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
   // DA-2: normalização canônica — garante que todos os campos JSON chegam como objetos
   return result[0] ? normalizeProject(result[0]) : undefined;
+}
+
+// ─── K-4-E: Auditoria jurídica de transições de status ───────────────────────
+/**
+ * Insere um registro de auditoria na tabela project_status_log.
+ * NUNCA lança exceção — log é auditoria, não é transação crítica.
+ * Se falhar, registra no console.error e retorna silenciosamente.
+ *
+ * @param projectId - ID do projeto
+ * @param fromStatus - Status anterior (null na criação do projeto)
+ * @param toStatus - Novo status
+ * @param changedBy - ID do usuário (string) ou constante "system" — nunca undefined
+ * @param reason - Motivo opcional da transição
+ */
+export async function insertStatusLog(
+  projectId: number,
+  fromStatus: string | null,
+  toStatus: string,
+  changedBy: string,
+  reason?: string
+): Promise<void> {
+  try {
+    const db = await getDb();
+    if (!db) {
+      console.error('[insertStatusLog] Database not available — log não registrado');
+      return;
+    }
+    await db.insert(projectStatusLog).values({
+      projectId,
+      fromStatus: fromStatus ?? null,
+      toStatus,
+      changedBy,
+      reason: reason ?? null,
+    });
+  } catch (err) {
+    // Log é auditoria — nunca propaga erro para não bloquear a operação principal
+    console.error('[insertStatusLog] Falha ao registrar auditoria:', err);
+  }
 }
 
 export async function getProjectsByUser(userId: number, userRole: string) {

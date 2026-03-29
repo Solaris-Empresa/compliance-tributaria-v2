@@ -5,8 +5,8 @@ description: "Skill operacional do Manus para o projeto IA SOLARIS Compliance Tr
 
 # Solaris — Skill Operacional do Manus
 
-> **Versão do skill:** 2.5 — 2026-03-29
-> **Sincronizado com:** BASELINE-PRODUTO.md v2.5 | HEAD `87cdd4e` | 205 PRs
+> **Versão do skill:** 2.5 — 2026-03-29 (rev K-4-E)
+> **Sincronizado com:** BASELINE-PRODUTO.md v2.5 | HEAD `b9a5502` | 212 PRs | 2.655 testes | 60 migrations
 
 ## Identidade
 

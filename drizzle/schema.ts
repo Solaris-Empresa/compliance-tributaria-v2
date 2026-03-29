@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, text, boolean, timestamp, mysqlEnum, decimal, json, bigint, tinyint } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, varchar, text, boolean, timestamp, mysqlEnum, decimal, json, bigint, tinyint, index } from "drizzle-orm/mysql-core";
 
 /**
  * Tabela de usuários - IA SOLARIS
@@ -1796,3 +1796,28 @@ export const iagenAnswers = mysqlTable("iagen_answers", {
 
 export type IagenAnswer = typeof iagenAnswers.$inferSelect;
 export type InsertIagenAnswer = typeof iagenAnswers.$inferInsert;
+
+// ─── K-4-E: Auditoria jurídica de transições de status ───────────────────────
+// Issue #212 — Rastreabilidade completa para fins jurídicos.
+// Registra cada transição de status de um projeto, incluindo a criação
+// (from_status: null → to_status: 'rascunho').
+// NOTA: campos from_status/to_status como text por ora —
+// migrar para enum após estabilização dos status válidos (ver PR K-4-E).
+/**
+ * Tabela de auditoria jurídica de transições de status do diagnóstico.
+ * Definida no contrato FLUXO-3-ONDAS v1.1, Seção 11.
+ */
+export const projectStatusLog = mysqlTable("project_status_log", {
+  id:          int("id").autoincrement().primaryKey(),
+  projectId:   int("project_id").notNull().references(() => projects.id),
+  fromStatus:  text("from_status"),                                // null na criação do projeto
+  toStatus:    text("to_status").notNull(),
+  changedBy:   varchar("changed_by", { length: 255 }).notNull(),  // ctx.user.id ou "system" — nunca undefined
+  reason:      text("reason"),
+  createdAt:   timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("idx_project_status_log_project_id").on(table.projectId),
+}));
+
+export type ProjectStatusLog = typeof projectStatusLog.$inferSelect;
+export type InsertProjectStatusLog = typeof projectStatusLog.$inferInsert;
