@@ -1,5 +1,4 @@
 # PROMPT DE HANDOFF — IA Solaris
-
 ## Cole este prompt no início de qualquer novo chat do Manus
 
 ---
@@ -30,9 +29,11 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-03-28)
+## Estado atual do projeto (2026-03-29)
 
-- BASELINE **v2.4** — Sprint K K-4-A ✅ + K-4-B ✅ + K-4-C ✅ + K-4-D ✅ — **Sprint K CONCLUÍDA**
+- BASELINE **v2.5** — Sprint K K-4-A ✅ + K-4-B ✅ + K-4-C ✅ + K-4-D ✅ — **Sprint K CONCLUÍDA**
+- Sprint K+ ✅ — Cockpit P.O. v2.0 (C1–C5+I1–I4 acionável, PR #197)
+- Sprint K++ ✅ — Cockpit fetch dinâmico (#199) + Seção 4 4A–4F (#200) + 10 docs (#202)
 - **2.652 testes passando** (97 falhas pré-existentes, sem regressão)
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - **60 migrations aplicadas** (última: `0059` — CPIE; `0058` — Sprint K K-4-A)
@@ -41,7 +42,16 @@ Drizzle ORM / Vitest / pnpm
 - **Agent Skills ativas:** Manus `/solaris-orquestracao` + Claude `solaris-contexto`
 - **GATE-CHECKLIST:** `docs/GATE-CHECKLIST.md` — executar Gate 0 antes de qualquer sprint
 - **Contrato 3 Ondas:** `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174 mergeado)
-- **Commit HEAD:** `e54d606` (main sincronizado com GitHub externo)
+- **Commit HEAD:** `326c6e6` (main sincronizado com GitHub externo)
+- **Commits no main:** 580 · **PRs mergeados:** 202
+
+## Documentos P0/P1 — atualizar SEMPRE após sprint concluída
+
+| Prioridade | Arquivo | O que atualizar |
+|---|---|---|
+| **P0** | `docs/governance/ESTADO-ATUAL.md` | HEAD, commits, PRs, sprints, indicadores |
+| **P1** | `docs/BASELINE-PRODUTO.md` | Versão, HEAD, indicadores técnicos, histórico |
+| **P1** | `docs/HANDOFF-MANUS.md` (este arquivo) | Estado atual, PRs recentes, próximas sprints |
 
 ## Sprint K — Estado atual
 
@@ -49,10 +59,8 @@ Drizzle ORM / Vitest / pnpm
 
 | Entregável | Status |
 |---|---|
-| Migration 0058: `CREATE TABLE solaris_answers` (Onda 1, 8 cols, 2 FKs) | ✅ |
-| Migration 0058: `CREATE TABLE iagen_answers` (Onda 2, 8 cols, 1 FK) | ✅ |
+| `CREATE TABLE solaris_answers` + `iagen_answers` | ✅ |
 | `ALTER TABLE solaris_questions ADD COLUMN codigo VARCHAR(10)` | ✅ |
-| `UPDATE` seed: SOL-001..SOL-012 nos ids 1–12 | ✅ |
 | `ALTER TABLE projects MODIFY COLUMN status` (ADD `onda1_solaris`, `onda2_iagen`) | ✅ |
 | `flowStateMachine.ts`: `VALID_TRANSITIONS` + `assertValidTransition` | ✅ |
 | Testes T-K4A-01..08 (36 testes) | ✅ |
@@ -89,30 +97,45 @@ Drizzle ORM / Vitest / pnpm
 | `DiagnosticoStepper.tsx` — cases `matrizes` e `plano` preenchidos no `handleStepStart` | ✅ |
 | `ProjetoDetalhesV2.tsx` — `onStartMatrizes` e `onStartPlano` passados ao stepper | ✅ |
 | `onda1-t06-t10.test.ts` — T06.1 corrigido (assertion `questionario-solaris`) | ✅ |
-| **Critério de aceite P.O.:** Clicar em Iniciar na Etapa 7 navega para `/matrizes-v3`; Etapa 8 para `/plano-v3` | ⏳ aguarda validação manual |
+| **Critério de aceite P.O.:** Clicar em Iniciar na Etapa 7 navega para `/matrizes-v3`; Etapa 8 para `/plano-v3` | ✅ |
 
-## PRs mergeados (histórico recente — Sprint K)
+## Sprint K+ ✅ CONCLUÍDA (PRs #196–#197)
+
+| Entregável | Status |
+|---|---|
+| Cockpit P.O. v2.0 — C1 (ACAO AGORA), C2 (Responsável), C3 (Modo UAT/DEV/HOTFIX) | ✅ PR #197 |
+| C4 (métricas), C5 (Log Decisões com links), I1 (Entrada Agentes) | ✅ PR #197 |
+| I2 (Checklist interativo), I3 (Score de Saúde), I4 (Status acionável) | ✅ PR #197 |
+
+## Sprint K++ ✅ CONCLUÍDA (PRs #199–#202)
+
+| Entregável | Status |
+|---|---|
+| Fetch dinâmico API GitHub — Score de Saúde em tempo real | ✅ PR #199 |
+| Seção 4 (4A–4F) — 24 docs catalogados com status visual e links | ✅ PR #200 |
+| 10 docs defasados atualizados (GUIA-UAT v2.1, CHANGELOG K-4-B/C/D, +8) | ✅ PR #202 |
+| Datas dinâmicas Seção 4 — fetch do último commit de cada arquivo | ✅ PR #202 |
+
+## PRs mergeados (histórico recente — Sprint K++)
 
 | PR | Título | Commit |
 |---|---|---|
-| #174 | feat(fluxo-3-ondas): contrato v1.1 | mergeado 2026-03-28T01:37:47Z |
-| #175 | docs(baseline): BASELINE v2.1 + HANDOFF-MANUS | mergeado 2026-03-28 |
-| #176 | feat(k4-a): migration 0058 + VALID_TRANSITIONS | fast-forward → `d370932` |
-| #179 | feat(k4-b): QuestionarioSolaris + DiagnosticoStepper | mergeado → `ae517f0` |
-| #180 | fix(k4-b): NovoProjeto.tsx navega para /questionario-solaris | mergeado |
-| #181 | fix(k4-b): VALID_TRANSITIONS cnaes_confirmados → onda1_solaris | mergeado |
-| #182 | feat(k4-c): QuestionarioIaGen + Onda 2 IA Generativa | mergeado → `62c4219` |
-| #184 | feat(k4-d): wiring etapas 7-8 no stepper + fix T06.1 [clean] | mergeado → `e54d606` |
+| #184 | feat(k4-d): wiring etapas 7-8 no stepper + fix T06.1 | `e54d606` |
+| #197 | feat(cockpit): Cockpit P.O. v2.0 — C1+C2+C3+C4+C5+I1+I2+I3+I4 | mergeado 2026-03-29 |
+| #198 | docs(estado-atual): atualizar HEAD + registrar cockpit v2.0 | mergeado 2026-03-29 |
+| #199 | feat(cockpit): fetch dinâmico API GitHub — Score de Saúde em tempo real | mergeado 2026-03-29 |
+| #200 | feat(cockpit): Seção 4 — Relatório de Documentação (4A–4F) | mergeado 2026-03-29 |
+| #202 | docs: atualizar 10 docs defasados Sprint K + fetch dinâmico datas Seção 4 | mergeado 2026-03-29 |
 
 ## PRs abertos
 
-Nenhum PR aberto no momento. Sprint K concluída.
+Nenhum PR aberto no momento. Sprint K++ concluída.
 
 ## Próximas sprints
 
-- **K-4-E** — `project_status_log` (auditoria jurídica de transições de status) — conforme contrato v1.1
-- **Sprint L** — Upload CSV SOLARIS (Issues #157, #158, #170)
-- **Validação manual K-4-D** — P.O. valida critério de aceite: clicar em Iniciar nas Etapas 7 e 8 navega corretamente
+- **Sprint L** — Upload CSV SOLARIS (Issue #191 — G16) — **próxima sprint P1**
+- **K-4-E** — `project_status_log` (auditoria jurídica de transições de status)
+- **Validação UAT** — P.O. convoca advogados para testar Cenários 1-12 do GUIA-UAT v2.1
 
 ## Gaps RAG — estado atual
 
@@ -121,6 +144,7 @@ Nenhum PR aberto no momento. Sprint K concluída.
 | G1–G12 | Corpus, retrieval, fundamentação auditável, fonte_acao | ✅ Concluídos |
 | G13 | fonte_dispositivo nos questionários | 🔜 Sprint futura |
 | G15 | `fonte`/`requirement_id`/`source_reference` no `QuestionSchema` | ✅ PR #142 |
+| G16 | Upload CSV SOLARIS para corpus RAG | 🔵 Sprint L |
 
 ## Corpus RAG
 
@@ -152,7 +176,7 @@ Nenhum PR aberto no momento. Sprint K concluída.
 - #61 — Modo `new` (bloqueada, aguarda #56)
 - #62 — DROP COLUMN (bloqueada, aguarda #61)
 - #101 — Débito técnico: 9 testes corpus com `skipIf(CI)`
-- #165, #169 — K-4 Validação P.O. (aguardam K-4-C)
+- #191 — G16 Upload CSV SOLARIS (Sprint L — próxima)
 
 ## Nota sobre erros do LSP do Manus
 
@@ -165,6 +189,8 @@ O watcher de desenvolvimento interno reporta 8 erros TS (`solarisQuestions not e
 - **DEC-004** ✅ — log de auditoria sem gate manual (PR #108)
 - **DEC-005** ✅ — Sprint 98% B2 Opção A bridge (não recriar engines)
 - **DECISÃO-001** ✅ — Prefill cruzado QC-07→QO-03 (executar pós-UAT)
+- **DEC-007** ✅ — Infraestrutura de contexto: ESTADO-ATUAL.md como P0 obrigatório
+- **DEC-008** ✅ — Cockpit P.O. com fetch dinâmico API GitHub
 
 ---
 

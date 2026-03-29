@@ -2,8 +2,8 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.4 — 2026-03-28
-> **Commit HEAD:** `e54d606` (K-4-D mergeado no main — PR #184)
+> **Versão:** 2.5 — 2026-03-29
+> **Commit HEAD:** `326c6e6` (K++ docs P0/P1 atualizados — PR #202)
 > **Checkpoint Manus:** `cea30e3a`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
@@ -27,7 +27,9 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | TypeScript | 0 erros (`npx tsc --noEmit`) | ✅ |
 | Testes automatizados — total | **2.652 passando · 97 falhas pré-existentes · 24 skipped** (2.773 total) | ✅ |
 | Testes Sprint K (suítes K-4) | 36 (K-4-A) + 26 (K-4-B) + 20 (K-4-C) + 36 T06 fix (K-4-D) — todos passando | ✅ |
-| Git working tree | Limpo — `main` = `e54d606`, sincronizado com GitHub externo | ✅ |
+| Git working tree | Limpo — `main` = `326c6e6`, sincronizado com GitHub externo | ✅ |
+| Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
+| Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **60** (última: `0059` — CPIE; `0058` — `solaris_answers`, `iagen_answers`, `onda1_solaris`/`onda2_iagen`) | ✅ |
@@ -224,9 +226,7 @@ O contrato `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174, mergea
 
 ### PRs Abertos
 
-| PR | Título | Label | Ação necessária |
-|---|---|---|---|
-| [#177](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/177) | feat(k4-b): QuestionarioSolaris + DiagnosticoStepper 8 etapas | `p.o.-valida` | **Aprovação do P.O. após testes manuais** |
+Nenhum PR aberto no momento. Sprint K++ concluída.
 
 ---
 
@@ -277,7 +277,9 @@ Os erros abaixo estão catalogados em [`docs/ERROS-CONHECIDOS.md`](https://githu
 | **Sprint K — K-2** | Tabela `iagen_questions` + seed | ✅ Concluída | PR K-2 |
 | **Sprint K — K-3** | Badge visual por onda no `DiagnosticoStepper` | ✅ Concluída | PR K-3 |
 | **Sprint K — K-4-A** | Migration 0058: `solaris_answers`, `iagen_answers`, `codigo`, enum `onda1_solaris`/`onda2_iagen`, `VALID_TRANSITIONS` + `assertValidTransition` | ✅ Concluída | `d370932` · tag `k4-a-complete` |
-| **Sprint K — K-4-B** | `QuestionarioSolaris.tsx` + `DiagnosticoStepper` 8 etapas + `completeOnda1` | ⏳ PR #177 — aguarda aprovação P.O. | `9500935` |
+| **Sprint K — K-4-B** | `QuestionarioSolaris.tsx` + `DiagnosticoStepper` 8 etapas + `completeOnda1` | ✅ Concluída | PR #179 mergeado |
+| **Sprint K+ — Cockpit v2.0** | C1+C2+C3+C4+C5+I1+I2+I3+I4 acionável | ✅ Concluída | PR #197 mergeado |
+| **Sprint K++ — Cockpit dinâmico** | Fetch API GitHub + Seção 4 (4A–4F) + 10 docs atualizados | ✅ Concluída | PRs #199–#202 mergeados |
 
 ---
 
@@ -385,6 +387,7 @@ DROP TABLE IF EXISTS iagen_answers;
 | 2.2 | 2026-03-28 | `9500935` | Sprint K K-4-A + K-4-B: migration 0058, `solaris_answers`, `iagen_answers`, `VALID_TRANSITIONS`, `assertValidTransition`, `QuestionarioSolaris.tsx`, `DiagnosticoStepper` 8 etapas, `completeOnda1`. 70/70 testes Sprint K. PR #177 aberto com `p.o.-valida`. Testes manuais P.O. em andamento. |
 | 2.3 | 2026-03-28 | `62c4219` | Sprint K K-4-C: `QuestionarioIaGen.tsx` (badge laranja, LLM 5-10 perguntas, timeout 30s, fallback hardcoded), procedures `generateOnda2Questions` + `completeOnda2` com `assertValidTransition`, rota `/questionario-iagen`, `onStartOnda2` wiring em `ProjetoDetalhesV2`. Aprovado pelo P.O. PR #182 mergeado. |
 | 2.4 | 2026-03-28 | `e54d606` | Sprint K K-4-D: wiring `onStartMatrizes`/`onStartPlano` no `DiagnosticoStepper` (interface + `handleStepStart`), callbacks passados em `ProjetoDetalhesV2`. Fix T06.1 (assertion atualizada para `questionario-solaris`). PR #184 mergeado. Fluxo das 8 etapas 100% funcional. |
+| 2.5 | 2026-03-29 | `326c6e6` | Sprint K+ e K++ concluídas: Cockpit P.O. v2.0 (C1–C5+I1–I4 acionável, PR #197), fetch dinâmico API GitHub (Score de Saúde em tempo real, PR #199), Seção 4 (4A–4F) com 24 docs catalogados (PR #200), 10 docs defasados atualizados + datas dinâmicas (PR #202). 580 commits · 202 PRs mergeados. |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
