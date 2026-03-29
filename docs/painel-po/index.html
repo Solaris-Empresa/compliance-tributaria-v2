@@ -170,16 +170,80 @@ header .meta{font-size:12px;color:#94A3B8;}
 .doc-commit{font-family:monospace;font-size:10px;color:var(--text-muted);background:rgba(255,255,255,.05);padding:1px 5px;border-radius:3px;}
 .doc-comment{font-size:11px;color:var(--text-muted);}
 .doc-report-refresh{font-size:10px;color:var(--text-muted);margin-top:8px;text-align:right;}
+
+/* ── BUSCA GLOBAL ── */
+.search-wrap{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.search-input-wrap{position:relative;display:flex;align-items:center;}
+.search-input{
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:8px;
+  color:#e2e8f0;
+  font-size:13px;
+  padding:6px 32px 6px 34px;
+  width:240px;
+  outline:none;
+  transition:border .2s,width .2s;
+}
+.search-input:focus{border-color:rgba(99,102,241,.6);width:300px;background:rgba(255,255,255,.1);}
+.search-input::placeholder{color:rgba(255,255,255,.35);}
+.search-icon{position:absolute;left:10px;color:rgba(255,255,255,.4);font-size:14px;pointer-events:none;}
+.search-clear{
+  position:absolute;right:8px;
+  background:none;border:none;cursor:pointer;
+  color:rgba(255,255,255,.4);font-size:16px;line-height:1;
+  display:none;padding:0;
+}
+.search-clear:hover{color:#e2e8f0;}
+.search-count{
+  font-size:11px;color:rgba(255,255,255,.45);
+  white-space:nowrap;min-width:80px;
+}
+/* Highlight de resultado */
+mark.search-hl{
+  background:#FDE68A;
+  color:#1e1b4b;
+  border-radius:2px;
+  padding:0 1px;
+}
+/* Seção oculta durante busca */
+.section.search-hidden{display:none;}
+/* Seção com resultado — borda sutil */
+.section.search-match{border-left:3px solid rgba(99,102,241,.5);}
+/* Nenhum resultado */
+.search-no-result{
+  text-align:center;
+  padding:40px 20px;
+  color:rgba(255,255,255,.35);
+  font-size:14px;
+  display:none;
+}
 </style>
 </head>
 <body>
 <header>
   <div><h1>&#127963; Cockpit P.O. &mdash; Compliance Tributaria v2.0</h1></div>
   <div class="meta">Uires Tapajos &middot; P.O. &middot; <span id="headerDate">2026-03-29</span></div>
+  <div class="search-wrap">
+    <div class="search-input-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input
+        type="text"
+        id="globalSearch"
+        class="search-input"
+        placeholder="Buscar no cockpit..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button class="search-clear" id="searchClear" title="Limpar (Esc)">&#215;</button>
+    </div>
+    <span class="search-count" id="searchCount"></span>
+  </div>
 </header>
 
 <div class="container">
 
+<div class="search-no-result" id="searchNoResult">&#128270; Nenhum resultado encontrado para "<span id="searchNoResultTerm"></span>"</div>
 <!-- BLOCO ACAO AGORA (C1+C2+C3) -->
 <div class="acao-agora" id="acaoAgora">
   <div class="acao-agora-header">
@@ -1299,6 +1363,175 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchGitHubData();
   fetchDocDates();
 });
+
+// ── BUSCA GLOBAL ──────────────────────────────────────────────────────────
+(function() {
+  const input   = document.getElementById('globalSearch');
+  const clearBtn = document.getElementById('searchClear');
+  const countEl = document.getElementById('searchCount');
+  const noResult = document.getElementById('searchNoResult');
+  const noResultTerm = document.getElementById('searchNoResultTerm');
+
+  // Nós de texto que serão pesquisados (excluir scripts, estilos, inputs)
+  const SKIP_TAGS = new Set(['SCRIPT','STYLE','INPUT','TEXTAREA','BUTTON','SELECT','OPTION']);
+
+  // Guarda os nós de texto originais para restaurar
+  let originals = []; // [{node, parent, origText}]
+  let lastQuery = '';
+
+  function collectTextNodes(root) {
+    const walker = document.createTreeWalker(
+      root,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode(node) {
+          const p = node.parentElement;
+          if (!p) return NodeFilter.FILTER_REJECT;
+          if (SKIP_TAGS.has(p.tagName)) return NodeFilter.FILTER_REJECT;
+          if (p.classList && p.classList.contains('search-count')) return NodeFilter.FILTER_REJECT;
+          if (p.id === 'searchNoResult') return NodeFilter.FILTER_REJECT;
+          if (node.textContent.trim() === '') return NodeFilter.FILTER_SKIP;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      }
+    );
+    const nodes = [];
+    let n;
+    while ((n = walker.nextNode())) nodes.push(n);
+    return nodes;
+  }
+
+  function escapeRe(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function clearHighlights() {
+    // Restaurar todos os nós marcados
+    document.querySelectorAll('mark.search-hl').forEach(mark => {
+      const parent = mark.parentNode;
+      parent.replaceChild(document.createTextNode(mark.textContent), mark);
+      parent.normalize();
+    });
+    // Restaurar seções
+    document.querySelectorAll('.section').forEach(s => {
+      s.classList.remove('search-hidden', 'search-match');
+    });
+    noResult.style.display = 'none';
+    countEl.textContent = '';
+    clearBtn.style.display = 'none';
+    originals = [];
+  }
+
+  function doSearch(query) {
+    clearHighlights();
+    if (!query) return;
+
+    clearBtn.style.display = 'block';
+    lastQuery = query;
+    const re = new RegExp('(' + escapeRe(query) + ')', 'gi');
+
+    // Coletar todos os nós de texto do container principal
+    const container = document.querySelector('.container') || document.body;
+    const textNodes = collectTextNodes(container);
+
+    let totalMatches = 0;
+    const matchedSections = new Set();
+
+    textNodes.forEach(node => {
+      if (!re.test(node.textContent)) return;
+      re.lastIndex = 0;
+
+      // Encontrar a seção pai
+      let el = node.parentElement;
+      let section = null;
+      while (el && el !== container) {
+        if (el.classList && el.classList.contains('section')) { section = el; break; }
+        el = el.parentElement;
+      }
+
+      // Substituir texto por fragmento com <mark>
+      const frag = document.createDocumentFragment();
+      let last = 0;
+      let m;
+      re.lastIndex = 0;
+      const text = node.textContent;
+      while ((m = re.exec(text)) !== null) {
+        if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        const mark = document.createElement('mark');
+        mark.className = 'search-hl';
+        mark.textContent = m[0];
+        frag.appendChild(mark);
+        totalMatches++;
+        last = re.lastIndex;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      node.parentNode.replaceChild(frag, node);
+
+      if (section) matchedSections.add(section);
+    });
+
+    // Ocultar seções sem resultado
+    document.querySelectorAll('.section').forEach(s => {
+      if (matchedSections.has(s)) {
+        s.classList.add('search-match');
+      } else {
+        s.classList.add('search-hidden');
+      }
+    });
+
+    // Bloco ACAO AGORA — verificar se tem resultado
+    const acaoAgora = document.getElementById('acaoAgora');
+    if (acaoAgora) {
+      const hasMatch = acaoAgora.querySelectorAll('mark.search-hl').length > 0;
+      acaoAgora.style.display = hasMatch ? '' : 'none';
+    }
+
+    // Contador
+    if (totalMatches === 0) {
+      noResultTerm.textContent = query;
+      noResult.style.display = 'block';
+      countEl.textContent = 'Nenhum resultado';
+    } else {
+      countEl.textContent = totalMatches + (totalMatches === 1 ? ' resultado' : ' resultados');
+      // Scroll para o primeiro resultado
+      const first = document.querySelector('mark.search-hl');
+      if (first) first.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+  }
+
+  let debounceTimer;
+  input.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const q = this.value.trim();
+    debounceTimer = setTimeout(() => doSearch(q), 180);
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    clearHighlights();
+    // Restaurar bloco ACAO AGORA
+    const acaoAgora = document.getElementById('acaoAgora');
+    if (acaoAgora) acaoAgora.style.display = '';
+    input.focus();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && input.value) {
+      input.value = '';
+      clearHighlights();
+      const acaoAgora = document.getElementById('acaoAgora');
+      if (acaoAgora) acaoAgora.style.display = '';
+    }
+    // Atalho / ou Ctrl+F foca no campo
+    if ((e.key === '/' && document.activeElement !== input) ||
+        (e.ctrlKey && e.key === 'f')) {
+      e.preventDefault();
+      input.focus();
+      input.select();
+    }
+  });
+})();
+
 </script>
 </body>
 </html>
