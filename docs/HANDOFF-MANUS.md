@@ -34,16 +34,17 @@ Drizzle ORM / Vitest / pnpm
 - BASELINE **v2.5** — Sprint K K-4-A ✅ + K-4-B ✅ + K-4-C ✅ + K-4-D ✅ — **Sprint K CONCLUÍDA**
 - Sprint K+ ✅ — Cockpit P.O. v2.0 (C1–C5+I1–I4 acionável, PR #197)
 - Sprint K++ ✅ — Cockpit fetch dinâmico (#199) + Seção 4 4A–4F (#200) + 10 docs (#202)
-- **2.652 testes passando** (97 falhas pré-existentes, sem regressão)
+- **K-4-E ✅** — Auditoria jurídica `project_status_log` (migration 0059, 3 testes Vitest) — PR #212
+- **2.655 testes passando** (97 falhas pré-existentes, sem regressão)
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
-- **60 migrations aplicadas** (última: `0059` — CPIE; `0058` — Sprint K K-4-A)
+- **60 migrations aplicadas** (0059 = `project_status_log` K-4-E; 0058 = Sprint K K-4-A)
 - Branch protection: ativa (ruleset `main-protection`, ID 14328406)
 - **Corpus RAG: 2.078 chunks — 100% com anchor_id canônico (DEC-002)**
 - **Agent Skills ativas:** Manus `/solaris-orquestracao` + Claude `solaris-contexto`
 - **GATE-CHECKLIST:** `docs/GATE-CHECKLIST.md` — executar Gate 0 antes de qualquer sprint
 - **Contrato 3 Ondas:** `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174 mergeado)
-- **Commit HEAD:** `326c6e6` (main sincronizado com GitHub externo)
-- **Commits no main:** 580 · **PRs mergeados:** 202
+- **Commit HEAD:** `b9a5502` (main sincronizado com GitHub externo, pós K-4-E)
+- **Commits no main:** 580+ · **PRs mergeados:** 212
 
 ## Documentos P0/P1 — atualizar SEMPRE após sprint concluída
 
