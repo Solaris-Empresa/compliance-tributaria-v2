@@ -69,6 +69,21 @@ Se qualquer item acima for falso → explicar aqui:
 - [ ] Nível 2 — Controlado (requer revisão do Orquestrador)
 - [ ] Nível 3 — Crítico (requer aprovação explícita do P.O.)
 
+## Sincronização P0/P1 + Skills (obrigatório em PRs de fechamento de sprint)
+
+> Marcar apenas se este PR fecha uma sprint ou altera o estado do produto.
+> Se não se aplica, deixar em branco — mas justificar abaixo.
+
+- [ ] `docs/governance/ESTADO-ATUAL.md` — HEAD, PRs, testes, sprint concluída (**P0**)
+- [ ] `docs/BASELINE-PRODUTO.md` — versão, HEAD, indicadores (**P1**)
+- [ ] `docs/HANDOFF-MANUS.md` — estado operacional atual (**P1**)
+- [ ] `skills/solaris-contexto/SKILL.md` — seção "Estado atual do produto" + `Versão do skill`
+- [ ] `skills/solaris-orquestracao/SKILL.md` — campo `Versão do skill` no topo
+
+⚠️ **Se qualquer um dos 5 arquivos acima não foi atualizado, este PR NÃO deve ser mergeado.**
+
+Justificativa (se não aplicável):
+
 ## Checklist final
 - [ ] Código revisado pelo próprio autor
 - [ ] Evidência JSON preenchida e verdadeira
