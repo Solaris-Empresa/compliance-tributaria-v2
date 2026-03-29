@@ -1,6 +1,6 @@
 # MODELO OPERACIONAL — Equipe IA Solaris
 
-**Versão:** 1.1 — 2026-03-29  
+**Versão:** 2.4 — 2026-03-29  
 **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2  
 **Aprovador:** P.O. Uires Tapajós  
 **Última sprint concluída:** Sprint K (K-4-A a K-4-D) · HEAD `5d7ad7d`  

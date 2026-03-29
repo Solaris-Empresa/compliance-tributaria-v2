@@ -236,3 +236,29 @@ Clique em qualquer projeto para abri-lo na etapa em que parou.
 *MANUAL-USUARIO.md — IA Solaris v1.0 · 2026-03-24*
 *Responsável: P.O. Uires Tapajós*
 *Revisão: ao final de cada sprint ou quando o fluxo do produto for alterado*
+
+---
+
+## Seção 6 — Fluxo Completo (Onda 1 + Onda 2)
+
+*Adicionado em 2026-03-29 — Sprint K*
+
+### Onda 1 (Etapas 1-6)
+| Etapa | Nome | Descrição |
+|---|---|---|
+| 1 | Criação do Projeto | Dados básicos (CNAE, regime, porte) |
+| 2 | Questionário CNAE | Perguntas por atividade econômica |
+| 3 | Briefing | Diagnóstico inicial gerado pela IA |
+| 4 | Matrizes de Risco | Riscos tributários por área |
+| 5 | Plano de Ação | Tarefas com prazo e responsável |
+| 6 | Revisão Onda 1 | Consolidação e aprovação |
+
+### Onda 2 (Etapas 7-8)
+| Etapa | Nome | Descrição |
+|---|---|---|
+| 7 | Questionário IA Generativa | Perguntas aprofundadas geradas pela IA |
+| 8 | Consolidação Final | Plano integrado Onda 1 + Onda 2 |
+
+> A Onda 2 só fica disponível após a conclusão completa da Onda 1.
+
+*Atualizado em 2026-03-29.*

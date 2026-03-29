@@ -105,3 +105,16 @@ Uma entrega está "done" quando qualquer pessoa do time — incluindo o Orquestr
 | Versão | Data | Autor | Mudança |
 |---|---|---|---|
 | 1.0 | 2026-03-25 | Manus (Sprint Governança) | Criação inicial |
+
+---
+
+## Adições da Sprint K (2026-03-29)
+
+### DoD adicional para entregas de Cockpit / Governança
+- [ ] Seção do cockpit com status visual para cada documento
+- [ ] Fetch dinâmico de dados via API GitHub implementado
+- [ ] PR com evidência JSON preenchida
+- [ ] Apenas arquivos do escopo declarado alterados
+- [ ] Restrições absolutas verificadas (DIAGNOSTIC_READ_MODE, F-04 Fase 3, DROP COLUMN)
+
+*Atualizado em 2026-03-29 — Sprint K concluída.*
