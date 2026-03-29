@@ -1,23 +1,24 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Orquestrador (Claude) ao fechar cada sprint  
-> **v2.4 · 2026-03-28** · Responsável: Orquestrador gera, Manus commita
+> **v2.4 · 2026-03-29** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v2.4 · **HEAD:** e54d606 · **Testes:** 2.652/2.773 (97 falhas pré-existentes)  
+**Baseline:** v2.4 · **HEAD:** 1b7b67b · **Testes:** 2.652/2.773 (97 falhas pré-existentes)  
 **DIAGNOSTIC_READ_MODE:** shadow (aguarda UAT)  
 **Corpus RAG:** 2.078 chunks · 5 leis · 100% confiabilidade  
 **Sprint K:** CONCLUÍDA (K-4-A ✅ K-4-B ✅ K-4-C ✅ K-4-D ✅)  
+**Cockpit P.O. v2.0:** ✅ mergeado (#197) — C1+C2+C3+C4+C5+I1+I2+I3+I4 acionável  
 **Sprint L:** Upload CSV SOLARIS — próxima sprint
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** e54d606
+- **Branch base:** main · **HEAD:** 1b7b67b
 - **Próxima issue:** #191 — G16 Upload CSV SOLARIS para corpus RAG
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via cherry-pick em branch limpo (padrão PRs #173, #177, #179, #184)
@@ -55,6 +56,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | I (parcial) | G13+G14 UX + G9+G10 schema Zod | #134–#135 | v1.8 |
 | J | CPIE v2 — stepper 8 etapas + Onda 1 | #136–#175 | v2.0 |
 | K | Onda 2 (K-4-A a K-4-D) — fluxo completo | #176–#186 | v2.4 |
+| K+ | Cockpit P.O. v2.0 — C1–C5+I1–I4 acionável | #196–#197 | v2.4 |
 
 ## Sprint L — próxima
 
@@ -111,12 +113,12 @@ docs/governance/ESTADO-ATUAL.md
 
 ---
 
-## Indicadores técnicos (28/03/2026)
+## Indicadores técnicos (29/03/2026)
 
 | Indicador | Valor |
 |---|---|
-| Commits no main | 572 |
-| PRs mergeados | 186 |
+| Commits no main | 574 |
+| PRs mergeados | 197 |
 | Tabelas no schema | 63 |
 | Migrations aplicadas | 60 |
 | Testes passando | 2.652 / 2.773 |
@@ -127,5 +129,5 @@ docs/governance/ESTADO-ATUAL.md
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-03-28*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-03-29*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
