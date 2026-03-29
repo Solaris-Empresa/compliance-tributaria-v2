@@ -6,6 +6,57 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [Sprint K-4-D] — 2026-03-28 · `5d7ad7d`
+
+### Adicionado
+- Wiring completo das etapas 7-8 do `DiagnosticoStepper` (PR #184)
+- Integração Onda 1 → Onda 2 → Plano Consolidado no fluxo de diagnóstico
+
+### Corrigido
+- **T06.1** (`onda1-t06-t10.test.ts`): asserção `questionario-corporativo-v2` → `questionario-solaris` (PR #184)
+
+### Indicadores pós-K-4-D
+| Indicador | Valor |
+|---|---|
+| Testes passando | 2.652 / 2.773 |
+| TypeScript erros | 0 |
+| PRs mergeados | 184 |
+
+---
+
+## [Sprint K-4-C] — 2026-03-27 · `e54d606`
+
+### Adicionado
+- Questionário IA Generativa (Onda 2 — Etapa 7) com geração dinâmica por CNAE (PR #182)
+- Persistência de respostas da Onda 2 entre navegações do stepper
+- Botão "Iniciar Questionário IA Generativa" com estado habilitado/desabilitado por progresso
+
+### Indicadores pós-K-4-C
+| Indicador | Valor |
+|---|---|
+| Testes passando | 2.648 / 2.769 |
+| TypeScript erros | 0 |
+| PRs mergeados | 182 |
+
+---
+
+## [Sprint K-4-B] — 2026-03-26 · `d72dc11`
+
+### Adicionado
+- Etapa 7 do `DiagnosticoStepper`: chip "Onda 2" visível e navegável (PR #177)
+- Etapa 8 do `DiagnosticoStepper`: chip "Consolidação" desbloqueado após Onda 2 concluída (PR #177)
+- Modal de confirmação ao retroceder das etapas 7-8 com dados preenchidos
+- `MATRIZ-RASTREABILIDADE-v1.1.md` atualizado com rastreabilidade K-4-B
+
+### Indicadores pós-K-4-B
+| Indicador | Valor |
+|---|---|
+| Testes passando | 2.640 / 2.761 |
+| TypeScript erros | 0 |
+| PRs mergeados | 177 |
+
+---
+
 ## [Sprint K — Onda 2 + Governança DEC-007] — 2026-03-28 · `5d7ad7d`
 
 ### Adicionado
