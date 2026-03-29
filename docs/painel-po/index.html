@@ -171,8 +171,8 @@ header .meta{font-size:12px;color:#94A3B8;}
     <div class="health-bar"><div class="health-fill" id="healthFill" style="width:94%;background:#22C55E;"></div></div>
     <span class="health-score" id="healthScore">94/100</span>
     <div class="health-breakdown" id="healthBreakdown">
-      <span>&#10003; Testes: 2.652/2.773 (96%)</span>
-      <span>&#10003; TypeScript: 0 erros</span>
+      <span id="scoreTestesLine">&#10003; Testes: 2.652/2.773 (96%)</span>
+      <span id="scoreTsLine">&#10003; TypeScript: 0 erros</span>
       <span>&#10003; PRs abertos: 0</span>
       <span>&#10003; Docs: atualizados</span>
     </div>
@@ -241,7 +241,7 @@ header .meta{font-size:12px;color:#94A3B8;}
     <div class="status-card green">
       <div class="label">Estado do produto</div>
       <div class="value">v2.4 &mdash; Sprint K concluida</div>
-      <div class="sub">2.652 testes &middot; 0 erros TypeScript &middot; Shadow Mode ativo</div>
+      <div class="sub" id="statusTestes">Carregando dados do GitHub...</div>
       <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md" target="_blank">&#8594; BASELINE-PRODUTO.md</a>
     </div>
     <div class="status-card amber" onclick="toggleBloqueios(this)" title="Clique para expandir">
@@ -270,7 +270,7 @@ header .meta{font-size:12px;color:#94A3B8;}
   <div class="radar-grid" id="radarGrid">
     <div class="radar-card" data-key="cicd" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/actions">
       <div class="semaforo green" onclick="cycleSemaforo(event, this)">&#10004;</div>
-      <div class="radar-info"><div class="name">CI/CD &mdash; Checks automaticos</div><div class="detail">Verde se last run passou</div></div>
+      <div class="radar-info"><div class="name">CI/CD &mdash; Checks automaticos</div><div class="detail" id="radarCicdDetail">Carregando...</div></div>
       <span class="ext-link">&#8599;</span>
     </div>
     <div class="radar-card" data-key="shadow" data-href="https://iasolaris.manus.space/admin/shadow-monitor">
@@ -280,17 +280,17 @@ header .meta{font-size:12px;color:#94A3B8;}
     </div>
     <div class="radar-card" data-key="issues" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues">
       <div class="semaforo amber" onclick="cycleSemaforo(event, this)">!</div>
-      <div class="radar-info"><div class="name">Issues abertas</div><div class="detail">18 abertas &middot; Ambar se &gt; 3</div></div>
+      <div class="radar-info"><div class="name">Issues abertas</div><div class="detail" id="radarIssuesDetail">Carregando...</div></div>
       <span class="ext-link">&#8599;</span>
     </div>
     <div class="radar-card" data-key="prs" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/pulls">
       <div class="semaforo green" onclick="cycleSemaforo(event, this)">&#10004;</div>
-      <div class="radar-info"><div class="name">Pull Requests</div><div class="detail">0 PRs pendentes</div></div>
+      <div class="radar-info"><div class="name">Pull Requests</div><div class="detail" id="radarPrsDetail">Carregando...</div></div>
       <span class="ext-link">&#8599;</span>
     </div>
     <div class="radar-card" data-key="testes" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/actions">
       <div class="semaforo green" onclick="cycleSemaforo(event, this)">&#10004;</div>
-      <div class="radar-info"><div class="name">Testes</div><div class="detail">2.652/2.773 passando (2026-03-29)</div></div>
+      <div class="radar-info"><div class="name">Testes / CI</div><div class="detail" id="radarCiDetail">Carregando...</div></div>
       <span class="ext-link">&#8599;</span>
     </div>
     <div class="radar-card" data-key="branch" data-href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/settings/rules/14328406">
@@ -783,6 +783,185 @@ function addDecisionRow() {
 
 function initDecisions() { const decisions = load('decisions', INITIAL_DECISIONS); renderDecisions(decisions); }
 
+
+// ═══════════════════════════════════════════════════════════════════
+// FETCH DINÂMICO — API GitHub (sem token, repositório público)
+// Executa na abertura do cockpit e atualiza os contadores em ~1-2s
+// Rate limit: 60 req/hora por IP (suficiente para uso normal do P.O.)
+// ═══════════════════════════════════════════════════════════════════
+const REPO = 'Solaris-Empresa/compliance-tributaria-v2';
+const API  = 'https://api.github.com/repos/' + REPO;
+
+// Fallback: valores fixos caso a API esteja indisponível (offline)
+const FALLBACK = {
+  openIssues: 18,
+  openPrs: 0,
+  ciStatus: 'success',
+  ciConclusion: 'success',
+  lastCommitSha: '421b799',
+  lastCommitMsg: 'docs(estado-atual): atualizar HEAD para 1b7b67b + PR #197 mergeado (#198)',
+  lastCommitDate: '2026-03-29',
+  totalPrsMerged: 197,
+};
+
+function ghFetch(url) {
+  return fetch(url, { headers: { 'Accept': 'application/vnd.github.v3+json' } })
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+}
+
+function semColorFromStatus(status) {
+  if (status === 'success' || status === 'completed') return 'green';
+  if (status === 'failure' || status === 'action_required') return 'red';
+  return 'amber';
+}
+
+function updateSemaforo(key, color, symbol) {
+  const card = document.querySelector('.radar-card[data-key="' + key + '"]');
+  if (!card) return;
+  const sem = card.querySelector('.semaforo');
+  if (!sem) return;
+  sem.className = 'semaforo ' + color;
+  sem.textContent = symbol || (color === 'green' ? '✔' : color === 'red' ? '✖' : '!');
+  // Persistir no localStorage para manter estado entre recargas
+  const saved = load('semaforos', INITIAL_SEMAFOROS);
+  saved[key] = color;
+  save('semaforos', saved);
+}
+
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function calcScore(data) {
+  // Score 0-100 baseado em dados reais da API
+  let score = 0;
+  // CI verde = +30
+  if (data.ciConclusion === 'success') score += 30;
+  else if (data.ciConclusion === 'failure') score += 0;
+  else score += 15; // em progresso
+  // PRs abertos = 0 → +25 | 1-2 → +15 | 3+ → +5
+  if (data.openPrs === 0) score += 25;
+  else if (data.openPrs <= 2) score += 15;
+  else score += 5;
+  // Issues abertas: ≤5 → +25 | 6-15 → +15 | 16+ → +10
+  if (data.openIssues <= 5) score += 25;
+  else if (data.openIssues <= 15) score += 15;
+  else score += 10;
+  // Commit recente (últimas 48h) → +20
+  try {
+    const commitDate = new Date(data.lastCommitDate);
+    const diffHours = (Date.now() - commitDate.getTime()) / 3600000;
+    if (diffHours <= 48) score += 20;
+    else if (diffHours <= 168) score += 12; // última semana
+    else score += 5;
+  } catch(e) { score += 10; }
+  return Math.min(100, score);
+}
+
+async function fetchGitHubData() {
+  const ghStatusEl = document.getElementById('ghStatus');
+  if (ghStatusEl) ghStatusEl.textContent = '⟳ Buscando dados do GitHub...';
+
+  try {
+    // Executa as 3 chamadas em paralelo
+    const [issuesData, prsData, runsData] = await Promise.all([
+      ghFetch(API + '/issues?state=open&per_page=1'),
+      ghFetch(API + '/pulls?state=open&per_page=100'),
+      ghFetch(API + '/actions/runs?per_page=1&branch=main'),
+    ]);
+
+    // Issues abertas (a API retorna também PRs como issues — subtrair PRs abertos)
+    // Usar o header Link ou contar diretamente via search API
+    const openPrs = Array.isArray(prsData) ? prsData.length : 0;
+
+    // Para total de issues abertas, usar a API de search é mais preciso
+    let openIssues = FALLBACK.openIssues;
+    try {
+      const searchData = await ghFetch(
+        'https://api.github.com/search/issues?q=repo:' + REPO + '+type:issue+state:open'
+      );
+      openIssues = searchData.total_count || FALLBACK.openIssues;
+    } catch(e) { /* usa fallback */ }
+
+    // CI/CD — último run no main
+    let ciConclusion = 'unknown';
+    let ciStatus = 'unknown';
+    let ciName = 'Desconhecido';
+    let ciDate = '';
+    if (runsData && runsData.workflow_runs && runsData.workflow_runs.length > 0) {
+      const run = runsData.workflow_runs[0];
+      ciConclusion = run.conclusion || run.status || 'unknown';
+      ciStatus = run.status || 'unknown';
+      ciName = run.name || 'CI';
+      ciDate = run.updated_at ? run.updated_at.slice(0, 10) : '';
+    }
+
+    // Último commit no main
+    let lastCommitSha = FALLBACK.lastCommitSha;
+    let lastCommitMsg = FALLBACK.lastCommitMsg;
+    let lastCommitDate = FALLBACK.lastCommitDate;
+    try {
+      const commitData = await ghFetch(API + '/commits/main');
+      lastCommitSha = commitData.sha ? commitData.sha.slice(0, 7) : FALLBACK.lastCommitSha;
+      lastCommitMsg = commitData.commit?.message?.split('\n')[0] || FALLBACK.lastCommitMsg;
+      lastCommitDate = commitData.commit?.author?.date?.slice(0, 10) || FALLBACK.lastCommitDate;
+    } catch(e) { /* usa fallback */ }
+
+    const data = { openIssues, openPrs, ciConclusion, ciStatus, ciName, ciDate, lastCommitSha, lastCommitMsg, lastCommitDate };
+
+    // ── Atualizar Radar ──────────────────────────────────────────────
+    // Issues
+    const issueColor = openIssues <= 5 ? 'green' : openIssues <= 15 ? 'amber' : 'red';
+    const issueSymbol = openIssues <= 5 ? '✔' : '!';
+    updateSemaforo('issues', issueColor, issueSymbol);
+    setText('radarIssuesDetail', openIssues + ' abertas · ' + (openIssues <= 3 ? 'Verde' : openIssues <= 15 ? 'Âmbar' : 'Vermelho') + ' (atualizado agora)');
+
+    // PRs
+    const prColor = openPrs === 0 ? 'green' : openPrs <= 2 ? 'amber' : 'red';
+    const prSymbol = openPrs === 0 ? '✔' : '!';
+    updateSemaforo('prs', prColor, prSymbol);
+    setText('radarPrsDetail', openPrs === 0 ? '0 PRs pendentes ✔' : openPrs + ' PR(s) aberto(s) — revisar');
+
+    // CI/CD
+    const ciColor = semColorFromStatus(ciConclusion);
+    const ciSymbol = ciColor === 'green' ? '✔' : ciColor === 'red' ? '✖' : '!';
+    updateSemaforo('cicd', ciColor, ciSymbol);
+    const ciLabel = ciConclusion === 'success' ? 'Verde — último run passou' : ciConclusion === 'failure' ? 'Vermelho — último run falhou' : 'Âmbar — em progresso';
+    setText('radarCicdDetail', ciLabel + (ciDate ? ' (' + ciDate + ')' : ''));
+    setText('radarCiDetail', ciConclusion === 'success' ? 'CI verde · 2.652/2.773 testes (baseline)' : 'CI: ' + ciConclusion + ' · verificar Actions');
+
+    // ── Atualizar Score de Saúde ─────────────────────────────────────
+    const score = calcScore(data);
+    const scoreEl = document.getElementById('healthScore');
+    if (scoreEl) {
+      scoreEl.textContent = score + '/100';
+      scoreEl.style.color = score >= 80 ? '#4ADE80' : score >= 60 ? '#FCD34D' : '#F87171';
+    }
+
+    // Breakdown do score
+    setText('scoreTestesLine', (ciConclusion === 'success' ? '✔' : '✖') + ' CI/CD: ' + ciConclusion + ' (último run main)');
+    setText('scoreTsLine', '✔ TypeScript: 0 erros (baseline v2.4)');
+
+    // Status card "Estado do produto"
+    setText('statusTestes', 'CI: ' + (ciConclusion === 'success' ? '✔ verde' : '✖ ' + ciConclusion) + ' · ' + openPrs + ' PRs abertos · HEAD: ' + lastCommitSha);
+
+    // ── Indicador de atualização no header ───────────────────────────
+    const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    if (ghStatusEl) ghStatusEl.textContent = '✔ GitHub atualizado às ' + now;
+
+  } catch (err) {
+    // Fallback gracioso — mantém os valores fixos, indica offline
+    console.warn('[Cockpit] API GitHub indisponível, usando valores fixos:', err.message);
+    setText('radarIssuesDetail', FALLBACK.openIssues + ' abertas · Âmbar (dados offline)');
+    setText('radarPrsDetail', FALLBACK.openPrs + ' PRs pendentes (dados offline)');
+    setText('radarCicdDetail', 'Verde — dados offline (último conhecido)');
+    setText('radarCiDetail', 'CI verde · 2.652/2.773 testes (baseline — offline)');
+    setText('statusTestes', '2.652 testes · 0 erros TypeScript · Shadow Mode ativo (dados offline)');
+    if (ghStatusEl) ghStatusEl.textContent = '⚠ GitHub offline — dados de ' + FALLBACK.lastCommitDate;
+  }
+}
+// ═══════════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   const savedModo = load('modo', 'uat');
   currentModo = savedModo;
@@ -798,6 +977,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initDocDates();
   initDecisions();
   document.getElementById('headerDate').textContent = new Date().toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  // Fetch dinâmico — executa na abertura e não bloqueia o render
+  fetchGitHubData();
 });
 </script>
 </body>
