@@ -1,7 +1,7 @@
 # Definition of Done — IA Solaris / Plataforma de Compliance Tributária
 
-**Versão:** 1.0  
-**Data:** 2026-03-25  
+**Versão:** 1.1  
+**Data:** 2026-03-29  
 **Responsável:** P.O. (Uires Tapajós)  
 **Aprovação:** Obrigatória do P.O. para qualquer alteração neste documento
 
