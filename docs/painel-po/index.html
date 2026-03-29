@@ -765,7 +765,7 @@ mark.search-hl{
 const GH = "https://github.com/Solaris-Empresa/compliance-tributaria-v2";
 const INITIAL_KANBAN = {
   backlog: [
-    { id: 'k10', title: 'Issue #191 - G16 Upload CSV SOLARIS', status: 'Acao pendente: P.O. aprovar Sprint L', link: GH+'/issues/191' },
+    { id: 'k10-bk', title: 'Issue #191 - G16 Upload CSV SOLARIS (backlog ref)', status: 'Movido para andamento — Sprint L iniciada', link: GH+'/issues/191' },
     { id: 'k11', title: 'Issue #187 - G11 Diagnostico V3 canonico', status: 'M4 Backlog', link: GH+'/issues/187' },
     { id: 'k12', title: 'Issue #188 - DT-01 CI debito tecnico', status: 'M4 Backlog', link: GH+'/issues/188' },
     { id: 'k13', title: 'Issue #189 - RFC-003 CRUD QuestionSchema', status: 'M4 Backlog', link: GH+'/issues/189' },
@@ -773,7 +773,9 @@ const INITIAL_KANBAN = {
     { id: 'k15', title: 'Issue #192 - G15 Arquitetura 3 ondas', status: 'M4 Backlog', link: GH+'/issues/192' },
     { id: 'k16', title: 'Issue #193 - Corpus expansao leis', status: 'M4 Backlog', link: GH+'/issues/193' },
   ],
-  andamento: [],
+  andamento: [
+    { id: 'k10', title: 'Issue #191 - G16 Upload CSV SOLARIS', status: 'Em execução — Manus', link: GH+'/issues/191' },
+  ],
   gate: [
     { id: 'k40', title: 'Decisao UAT - retorno dos advogados', status: 'Acao pendente: P.O. executar testes manuais', link: null },
     { id: 'k41', title: 'Issue #56 - F-04 Fase 3 (modo new)', status: 'Aguarda aprovacao UAT', link: GH+'/issues/56' },
@@ -785,6 +787,8 @@ const INITIAL_KANBAN = {
 };
 
 const INITIAL_DECISIONS = [
+  { date: '2026-03-29', decision: 'DEC-008: Cockpit P.O. com fetch dinâmico API GitHub — Score de Saúde em tempo real (#199)', status: 'done', link: GH+'/pull/199' },
+  { date: '2026-03-29', decision: 'K-4-E: Auditoria jurídica project_status_log — migration 0059, 3 testes Vitest (#212)', status: 'done', link: GH+'/pull/213' },
   { date: '2026-03-29', decision: 'DEC-007: Infraestrutura de contexto para agentes - ESTADO-ATUAL.md + CODEOWNERS', status: 'done', link: GH+'/pull/194' },
   { date: '2026-03-28', decision: 'K-4-D: Wiring etapas 7-8 no DiagnosticoStepper + fix T06.1', status: 'done', link: GH+'/pull/184' },
   { date: '2026-03-28', decision: 'K-4-C: QuestionarioIaGen (Onda 2) + routers-fluxo-v3 + wiring onStartOnda2', status: 'done', link: GH+'/pull/182' },
@@ -803,11 +807,11 @@ const INITIAL_SEMAFOROS = { cicd: 'green', shadow: 'green', issues: 'amber', prs
 
 const MODO_CONFIG = {
   uat: {
-    acao: 'Executar testes manuais do fluxo 3 ondas com advogados',
+    acao: 'Retornar ao UAT com advogados — fluxo 3 ondas + stepper 8 etapas (Sprint K concluída)',
     alink: GH+'/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md',
     alinkLabel: 'GUIA-UAT-ADVOGADOS-v2.md',
     responsavel: [{ tipo: 'po', label: 'P.O. (Uires)' }],
-    proximo: 'Decisao GO / NO-GO UAT -> ativar F-04 Fase 3',
+    proximo: 'Decisão GO / NO-GO UAT → ativar F-04 Fase 3 (issue #56)',
     bloqueios: [
       { texto: 'F-04 Fase 3 (#56)', link: GH+'/issues/56' },
       { texto: 'Modo new (#61)', link: GH+'/issues/61' },
@@ -815,19 +819,19 @@ const MODO_CONFIG = {
     ]
   },
   dev: {
-    acao: 'Iniciar Sprint L - Issue #191 (G16 Upload CSV SOLARIS)',
+    acao: 'Executar Sprint L — Issue #191 (G16 Upload CSV SOLARIS para corpus RAG)',
     alink: GH+'/issues/191',
-    alinkLabel: 'Issue #191',
+    alinkLabel: 'Issue #191 — G16 Upload CSV SOLARIS',
     responsavel: [{ tipo: 'manus', label: 'Manus' }, { tipo: 'claude', label: 'Claude' }],
-    proximo: 'Manus le ESTADO-ATUAL.md + issue #191 -> abre branch feat/sprint-l',
+    proximo: 'Manus lê ESTADO-ATUAL.md + issue #191 → abre branch feat/sprint-l → PR com evidência JSON',
     bloqueios: []
   },
   hotfix: {
-    acao: 'Identificar regressao - criar branch hotfix/ - abrir PR com evidencia JSON',
+    acao: 'Identificar regressão via git bisect — criar branch hotfix/ — abrir PR com evidência JSON',
     alink: GH+'/blob/main/docs/GATE-CHECKLIST.md',
     alinkLabel: 'GATE-CHECKLIST.md',
-    responsavel: [{ tipo: 'manus', label: 'Manus' }, { tipo: 'po', label: 'P.O.' }],
-    proximo: 'PR revisado por P.O. -> merge -> atualizar ESTADO-ATUAL.md',
+    responsavel: [{ tipo: 'manus', label: 'Manus' }],
+    proximo: 'PR revisado pelo P.O. → merge → atualizar ESTADO-ATUAL.md + BASELINE-PRODUTO.md',
     bloqueios: []
   }
 };
@@ -1086,14 +1090,14 @@ const API  = 'https://api.github.com/repos/' + REPO;
 
 // Fallback: valores fixos caso a API esteja indisponível (offline)
 const FALLBACK = {
-  openIssues: 18,
+  openIssues: 25,
   openPrs: 0,
   ciStatus: 'success',
   ciConclusion: 'success',
-  lastCommitSha: '421b799',
-  lastCommitMsg: 'docs(estado-atual): atualizar HEAD para 1b7b67b + PR #197 mergeado (#198)',
+  lastCommitSha: '7d511fa',
+  lastCommitMsg: 'feat(cockpit): fetch dinâmico API GitHub (#199)',
   lastCommitDate: '2026-03-29',
-  totalPrsMerged: 197,
+  totalPrsMerged: 213,
 };
 
 function ghFetch(url) {
