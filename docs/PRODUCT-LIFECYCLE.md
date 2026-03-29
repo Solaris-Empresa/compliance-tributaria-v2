@@ -1,11 +1,13 @@
 # PRODUCT-LIFECYCLE.md
 **IA SOLARIS — Navegação por Ciclo de Vida do Produto**
 
-> **Versão:** 1.2 — 2026-03-24
+> **Versão:** 1.3 — 2026-03-29
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Depende de:** [INDICE-DOCUMENTACAO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/INDICE-DOCUMENTACAO.md) · [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md)
 > **Aprovador:** Product Owner Uires Tapajós
-> **Próxima revisão:** ao final da próxima sprint ou release
+> **Última sprint concluída:** Sprint K (K-4-A a K-4-D) — 2026-03-28 · HEAD `5d7ad7d`  
+> **Próxima sprint:** Sprint L — Issue #191 (G16 Upload CSV SOLARIS)  
+> **Próxima revisão:** ao final da Sprint L
 
 ---
 
@@ -36,15 +38,14 @@ Este não é um índice alfabético. É um **mapa de execução com autoridade d
 Execute nesta ordem sem pular etapas:
 
 ```
-1. docs/INDICE-DOCUMENTACAO.md                              → mapa completo
-2. docs/PO-GOVERNANCA-PIPELINE-v3.md                        → regras do P.O.
-3. docs/SKILL-MANUS-PIPELINE-v3.md                          → modo operacional
-4. docs/PLAYBOOK-PLATAFORMA.md                              → regras mandatórias
-5. docs/BASELINE-PRODUTO.md                                 → estado atual
-6. docs/playruns/PLAYRUN-001-SUB-SPRINT-PREFILL-CONTRACT.md → última sprint
-7. docs/product/cpie-v2/produto/ADR-008-F04-schema-migration-strategy.md → migração ativa
-8. docs/product/cpie-v2/produto/RELATORIO-FINAL-SHADOW-MODE-ADR009.md    → Shadow Mode
-9. docs/product/cpie-v2/produto/RELATORIO-COMPLETO-TESTES-ONDA1-ONDA2-2026-03-23.md → validação
+1. docs/governance/ESTADO-ATUAL.md                          → LEIA PRIMEIRO — estado real do repositório
+2. docs/BASELINE-PRODUTO.md                                 → baseline v2.4
+3. docs/HANDOFF-MANUS.md                                    → regras operacionais do Manus
+4. docs/governance/HANDOFF-IMPLEMENTADOR.md                 → guia completo do implementador
+5. docs/governance/GATE-CHECKLIST.md                        → gates obrigatórios
+6. docs/product/cpie-v2/produto/ADR-008-F04-schema-migration-strategy.md → migração ativa
+7. docs/product/cpie-v2/produto/RELATORIO-FINAL-SHADOW-MODE-ADR009.md    → Shadow Mode
+8. docs/product/cpie-v2/produto/RELATORIO-COMPLETO-TESTES-ONDA1-ONDA2-2026-03-23.md → validação
 ```
 
 ---

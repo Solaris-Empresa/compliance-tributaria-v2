@@ -2,7 +2,7 @@
 ## Plataforma IA SOLARIS — Compliance Tributário
 
 **URL de acesso:** https://iasolaris.manus.space  
-**Versão da plataforma:** `f10cc327` (Sprint Final — Onda 2 validada)  
+**Versão da plataforma:** `5d7ad7d` (Sprint K — K-4-D concluído · 2026-03-28)  
 **Data de início do UAT:** 2026-03-23  
 **Janela de monitoramento:** 48–72h (até 2026-03-26)  
 **Responsável técnico:** Equipe Solaris  

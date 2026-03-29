@@ -3,7 +3,7 @@
 
 **Plataforma:** https://iasolaris.manus.space
 **Audiência:** Advogados e usuários da plataforma em produção
-**Versão:** 1.0 — 2026-03-24
+**Versão:** 1.1 — 2026-03-29
 
 > Não encontrou sua resposta aqui? Consulte o [fluxo de escalação](./ESCALACAO.md).
 

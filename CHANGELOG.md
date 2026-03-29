@@ -6,6 +6,55 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [Sprint K — Onda 2 + Governança DEC-007] — 2026-03-28 · `5d7ad7d`
+
+### Adicionado
+
+**K-4-A — Migrations Onda 2 + VALID_TRANSITIONS** (`drizzle/schema.ts`, `server/db.ts`)
+- Migration 0058: tabelas `onda2_questionario`, `onda2_respostas`, `onda2_status`, `cpie_onda2_state`
+- `VALID_TRANSITIONS` — máquina de estados com 11 transições válidas, enforcement backend
+- 36 novos testes unitários (K-4-A suite) · PRs #176–#178
+
+**K-4-B — Stepper 8 etapas + Onda 1 completa** (`DiagnosticoStepper.tsx`, `ProjetoDetalhesV2.tsx`)
+- Stepper visual com 8 etapas: Briefing → Questionário → CNAE → Diagnóstico → Relatório → Questionário IA Gen → Matrizes → Plano
+- Rota `/questionario-solaris` substituindo `/questionario-corporativo-v2`
+- 70 novos testes unitários (K-4-B suite) · PRs #179–#181
+
+**K-4-C — QuestionárioIaGen + Onda 2 wiring** (`QuestionarioIaGen.tsx`, `routers-fluxo-v3.ts`)
+- Componente `QuestionarioIaGen.tsx` — questionário de IA generativa para Onda 2
+- Procedure `completeOnda2` + callback `onStartOnda2` no stepper
+- Rota `/questionario-iagen` registrada em `App.tsx`
+- 82 novos testes unitários (K-4-C suite) · PR #182
+
+**K-4-D — Wiring etapas 7-8 + fix T06.1** (`DiagnosticoStepper.tsx`, `ProjetoDetalhesV2.tsx`)
+- `onStartMatrizes` e `onStartPlano` adicionados à interface `DiagnosticoStepperProps`
+- Cases `matrizes` e `plano` preenchidos no `handleStepStart`
+- Fix T06.1: asserção atualizada de `questionario-corporativo-v2` para `questionario-solaris`
+- PR #184 (branch limpo, zero conflitos)
+
+**DEC-007 — Infraestrutura de Contexto para Agentes de IA**
+- `docs/governance/ESTADO-ATUAL.md` — porta de entrada universal para todos os agentes
+- `docs/governance/HANDOFF-IMPLEMENTADOR.md` — guia operacional para o Manus
+- `docs/governance/CONTEXTO-ORQUESTRADOR.md` — estado do produto para o Claude
+- `docs/governance/RASTREABILIDADE-COMPLETA.md` — PR × Sprint × RF × arquivo × status
+- `.github/CODEOWNERS` — notificação automática ao P.O. em arquivos críticos
+- 7 issues criadas no M4 (#187–#193) · PRs #185, #186, #194
+
+### Corrigido
+- T06.1 (`onda1-t06-t10.test.ts`): asserção `questionario-corporativo-v2` → `questionario-solaris`
+
+### Indicadores pós-Sprint K
+| Indicador | Valor |
+|---|---|
+| Testes passando | 2.652 / 2.773 |
+| TypeScript erros | 0 |
+| PRs mergeados | 189 |
+| Tabelas no schema | 63 |
+| Migrations aplicadas | 60 |
+| Corpus RAG chunks | 2.078 |
+
+---
+
 ## [Sprint de Governança CI/CD] — 2026-03-25
 
 ### Adicionado
