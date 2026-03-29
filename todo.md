@@ -2862,3 +2862,44 @@
 - [x] Corrigir `operationType` enum mismatch — servidor agora aceita `"industria"`, `"comercio"`, `"servicos"`, `"agronegocio"`, `"financeiro"`
 - [x] Corrigir `companyType` enum mismatch — servidor agora aceita `"slu"` e `"outros"`
 - [x] 39/39 testes passando após os fixes
+
+---
+
+# 🔒 K-4-E — project_status_log (auditoria jurídica de transições) — Issue #212
+
+## Implementação
+
+- [ ] Reconhecimento: verificar schema, flowStateMachine, routers, padrão de id
+- [ ] Migration Drizzle: tabela project_status_log com índice em project_id
+- [ ] Ponto 1: log na criação de projeto (from_status: null)
+- [ ] Ponto 2: log em cada transição em flowStateMachine.ts (try/catch)
+- [ ] Teste 1: transição válida gera registro correto
+- [ ] Teste 2: criação de projeto gera registro com from_status: null
+- [ ] Teste 3: falha no log não propaga, operação principal retorna sucesso
+- [ ] pnpm test sem regressão
+
+## Documentos obrigatórios (mesmo PR)
+
+- [ ] docs/governance/ESTADO-ATUAL.md — K-4-E concluída
+- [ ] docs/BASELINE-PRODUTO.md — migrations será 61
+- [ ] docs/HANDOFF-MANUS.md — estado operacional
+- [ ] skills/solaris-orquestracao/SKILL.md — Versão do skill
+- [ ] skills/solaris-contexto/SKILL.md — ADIADO por decisão do P.O. (Sprint L)
+
+## PR
+
+- [ ] Labels: db:migration + critical-path
+- [ ] Vinculado à issue #212
+- [ ] Justificativa no PR body sobre solaris-contexto adiado
+- [ ] Link reportado ao Orquestrador antes de solicitar review
+
+## K-4-E — Auditoria Jurídica project_status_log (2026-03-29)
+- [x] Migration 0059: tabela project_status_log com FK, índice em project_id
+- [x] insertStatusLog() em server/db.ts com try/catch (log nunca propaga erro)
+- [x] Log automático em projects.create (from_status: null → 'rascunho')
+- [x] Log automático em projects.updateStatus (transições de status)
+- [x] 3 testes Vitest: criação, transição válida, isolamento de falha
+- [x] Docs P0/P1 atualizados: ESTADO-ATUAL v2.5 rev4, BASELINE, HANDOFF-MANUS
+- [x] Skill solaris-orquestracao atualizado: versão 2.5 rev K-4-E
+- [x] PR #213 aberto com labels db:migration e critical-path
+- [x] Issue #212 fechada via Closes #212 no commit

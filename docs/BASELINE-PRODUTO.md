@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.5 — 2026-03-29
-> **Commit HEAD:** `326c6e6` (K++ docs P0/P1 atualizados — PR #202)
-> **Checkpoint Manus:** `cea30e3a`
+> **Versão:** 2.5 — 2026-03-29 (rev K-4-E)
+> **Commit HEAD:** `b9a5502` (K-4-E project_status_log — PR #212)
+> **Checkpoint Manus:** `b9a5502`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -25,14 +25,15 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | 0 erros (`npx tsc --noEmit`) | ✅ |
-| Testes automatizados — total | **2.652 passando · 97 falhas pré-existentes · 24 skipped** (2.773 total) | ✅ |
-| Testes Sprint K (suítes K-4) | 36 (K-4-A) + 26 (K-4-B) + 20 (K-4-C) + 36 T06 fix (K-4-D) — todos passando | ✅ |
-| Git working tree | Limpo — `main` = `326c6e6`, sincronizado com GitHub externo | ✅ |
+| Testes automatizados — total | **2.655 passando · 97 falhas pré-existentes · 24 skipped** (2.776 total) | ✅ |
+| Testes Sprint K (suítes K-4) | 36 (K-4-A) + 26 (K-4-B) + 20 (K-4-C) + 36 T06 fix (K-4-D) + 3 (K-4-E) — todos passando | ✅ |
+| Git working tree | Limpo — `main` = `b9a5502`, sincronizado com GitHub externo | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
+| Sprint K-4-E | Auditoria jurídica `project_status_log` — PR #212 mergeado | ✅ |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
-| Migrations aplicadas | **60** (última: `0059` — CPIE; `0058` — `solaris_answers`, `iagen_answers`, `onda1_solaris`/`onda2_iagen`) | ✅ |
+| Migrations aplicadas | **60** (0000–0059; 0059 = `project_status_log` K-4-E — era 59 pré-PR #213) | ✅ |
 | ADRs formais | **10** (ADR-001 a ADR-010; ADR-004 rejeitado) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
