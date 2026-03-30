@@ -434,12 +434,18 @@ mark.search-hl{
 .rag7e-gate-card.falhou{border-top:3px solid #DC2626;}
 .rag7e-gate-card.pendente{border-top:3px solid #D97706;}
 .rag7e-gate-card.sem-dados{border-top:3px solid var(--border);}
+.rag7e-gate-card.sem-evidencia{border-top:3px solid #9CA3AF;}
+.rag7e-gate-card.nao-aplicavel{border-top:3px solid #D97706;}
+.rag7e-gate-card.parcial{border-top:3px solid #D97706;}
 .rag7e-gate-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);}
 .rag7e-gate-status{font-size:13px;font-weight:800;}
 .rag7e-gate-status.passou{color:#16A34A;}
 .rag7e-gate-status.falhou{color:#DC2626;}
 .rag7e-gate-status.pendente{color:#D97706;}
 .rag7e-gate-status.sem-dados{color:var(--text-muted);}
+.rag7e-gate-status.sem-evidencia{color:#9CA3AF;}
+.rag7e-gate-status.nao-aplicavel{color:#D97706;}
+.rag7e-gate-status.parcial{color:#D97706;}
 .rag7e-gate-detail{font-size:10px;color:var(--text-muted);line-height:1.4;}
 .rag7e-gate-pr{font-size:9px;color:var(--blue);}
 .rag7e-goldset-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:14px;}
@@ -1352,21 +1358,25 @@ mark.search-hl{
 
     <!-- 7E.4: Gold Set Queries -->
     <div class="rag7e-goldset-wrap">
-      <div class="rag7e-goldset-title">&#128269; 7E.4 &mdash; Gold Set &mdash; 8 Queries Críticas <span class="gov-badge static">&#9881; estático</span></div>
+      <div class="rag7e-goldset-title">&#128269; 7E.4 &mdash; Gold Set &mdash; Queries Críticas <span class="gov-badge static">&#9881; estático</span> <span class="gov-badge live" id="goldsetEvidBadge" style="display:none">&#8635; evidência PR</span></div>
+      <div id="goldsetEvidAlert" style="display:none;font-size:10px;background:#FEF3E2;border:1px solid #D97706;border-radius:4px;padding:6px 10px;margin-bottom:8px;color:#854F0B">
+        &#9888; Evidência não disponível — nenhum PR de corpus com dados de recall encontrado.
+        Execute o gold set e registre em <code>artifacts/rag-quality/&lt;pr&gt;/report.md</code>
+      </div>
       <table class="rag7e-goldset-table">
-        <thead><tr><th>#</th><th>Query</th><th>Lei</th><th>Recall Top-5</th><th>Recall Top-10</th><th>ltima Evidência</th></tr></thead>
+        <thead><tr><th>#</th><th>Query</th><th>Lei</th><th>Chunks esperados</th><th>Recall Top-5</th><th>Recall Top-10</th><th>Evidência</th></tr></thead>
         <tbody id="rag7eGoldsetBody">
-          <tr><td>GS-01</td><td>crédito presumido no novo IBS</td><td>LC 214</td><td class="rag7e-recall-warn" id="gs01-r5">—</td><td class="rag7e-recall-warn" id="gs01-r10">—</td><td id="gs01-ev" style="font-size:10px;color:var(--text-muted)">pendente</td></tr>
-          <tr><td>GS-02</td><td>recolhimento por split payment</td><td>LC 214</td><td class="rag7e-recall-warn" id="gs02-r5">—</td><td class="rag7e-recall-warn" id="gs02-r10">—</td><td id="gs02-ev" style="font-size:10px;color:var(--text-muted)">pendente</td></tr>
-          <tr><td>GS-03</td><td>tratamento do Simples na transição</td><td>LC 214</td><td class="rag7e-recall-warn" id="gs03-r5">—</td><td class="rag7e-recall-warn" id="gs03-r10">—</td><td id="gs03-ev" style="font-size:10px;color:var(--text-muted)">pendente</td></tr>
-          <tr><td>GS-04</td><td>alíquota CBS sobre serviços financeiros</td><td>LC 214</td><td class="rag7e-recall-warn" id="gs04-r5">—</td><td class="rag7e-recall-warn" id="gs04-r10">—</td><td id="gs04-ev" style="font-size:10px;color:var(--text-muted)">pendente</td></tr>
-          <tr><td>GS-05</td><td>prazo de transição IBS LC 214</td><td>LC 214</td><td class="rag7e-recall-warn" id="gs05-r5">—</td><td class="rag7e-recall-warn" id="gs05-r10">—</td><td id="gs05-ev" style="font-size:10px;color:var(--text-muted)">pendente</td></tr>
-          <tr><td>GS-06</td><td>regime de caixa no Simples Nacional</td><td>LC 214</td><td class="rag7e-recall-warn" id="gs06-r5">—</td><td class="rag7e-recall-warn" id="gs06-r10">—</td><td id="gs06-ev" style="font-size:10px;color:var(--text-muted)">pendente</td></tr>
-          <tr><td>GS-07</td><td>benefício fiscal estadual na EC 132</td><td>EC 132</td><td class="rag7e-recall-warn" id="gs07-r5">—</td><td class="rag7e-recall-warn" id="gs07-r10">—</td><td id="gs07-ev" style="font-size:10px;color:var(--text-muted)">pendente</td></tr>
-          <tr><td>GS-08</td><td>não cumulatividade plena IBS</td><td>LC 214</td><td class="rag7e-recall-warn" id="gs08-r5">—</td><td class="rag7e-recall-warn" id="gs08-r10">—</td><td id="gs08-ev" style="font-size:10px;color:var(--text-muted)">pendente</td></tr>
+          <tr><td>GS-01</td><td>IBS base de cálculo</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 12–15</td><td class="rag7e-recall-warn" id="gs01-r5">—</td><td class="rag7e-recall-warn" id="gs01-r10">—</td><td id="gs01-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-02</td><td>CBS alíquota padrão</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 87–90</td><td class="rag7e-recall-warn" id="gs02-r5">—</td><td class="rag7e-recall-warn" id="gs02-r10">—</td><td id="gs02-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-03</td><td>Simples Nacional exceção</td><td>LC 123</td><td style="font-size:9px;color:var(--text-muted)">art. 3–5</td><td class="rag7e-recall-warn" id="gs03-r5">—</td><td class="rag7e-recall-warn" id="gs03-r10">—</td><td id="gs03-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-04</td><td>Imposto Seletivo bens</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 400–410</td><td class="rag7e-recall-warn" id="gs04-r5">—</td><td class="rag7e-recall-warn" id="gs04-r10">—</td><td id="gs04-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-05</td><td>Comitê Gestor atribuições</td><td>EC 132</td><td style="font-size:9px;color:var(--text-muted)">art. 1–5</td><td class="rag7e-recall-warn" id="gs05-r5">—</td><td class="rag7e-recall-warn" id="gs05-r10">—</td><td id="gs05-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-06</td><td>split payment mecanismo</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 55–60</td><td class="rag7e-recall-warn" id="gs06-r5">—</td><td class="rag7e-recall-warn" id="gs06-r10">—</td><td id="gs06-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-07</td><td>não cumulatividade IBS</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 28–35</td><td class="rag7e-recall-warn" id="gs07-r5">—</td><td class="rag7e-recall-warn" id="gs07-r10">—</td><td id="gs07-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-08</td><td>benefício fiscal EC 132</td><td>EC 132</td><td style="font-size:9px;color:var(--text-muted)">art. 150–155</td><td class="rag7e-recall-warn" id="gs08-r5">—</td><td class="rag7e-recall-warn" id="gs08-r10">—</td><td id="gs08-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
         </tbody>
       </table>
-      <div style="font-size:10px;color:var(--text-muted);margin-top:8px">Meta: recall top-5 ≥ 90% &middot; recall top-10 = 100% &middot; Evidência: <code>artifacts/rag-quality/&lt;pr&gt;/report.md</code></div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:8px">Fonte: CORPUS-BASELINE.md v2.0 seção 3.1 &middot; Meta: recall top-5 ≥ 90% &middot; recall top-10 = 100% &middot; Evidência: <code>artifacts/rag-quality/&lt;pr&gt;/report.md</code></div>
     </div>
 
     <!-- 7E.5: PRs de Governança RAG -->
@@ -1398,6 +1408,56 @@ mark.search-hl{
         </div>
       </div>
       <div id="rag7eInvisAlert" class="rag7e-action-needed"></div>
+    </div>
+
+    <!-- 7E.7: Desbloqueio do RAG — Sprint L -->
+    <div class="rag7e-goldset-wrap" id="secao7e7-desbloqueio" style="margin-top:14px">
+      <div class="rag7e-goldset-title">&#128680; 7E.7 &mdash; Desbloqueio do RAG <span class="gov-badge static">&#9881; Sprint L</span></div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:10px">O que falta para o RAG ficar saud&aacute;vel &middot; Fonte: CORPUS-BASELINE.md v2.0 se&ccedil;&atilde;o 10</div>
+      <table class="rag7e-goldset-table">
+        <thead><tr><th>Item</th><th>Prioridade</th><th>Descri&ccedil;&atilde;o</th><th>Impacto no Score</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700;color:#DC2626">L-RAG-01</td>
+            <td><span style="background:#FDEAEA;color:#DC2626;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">P0</span></td>
+            <td>Implementar <code>rag_usage_log</code> &mdash; telemetria de uso</td>
+            <td style="color:#DC2626;font-weight:700">+30 pts (uso real)</td>
+            <td><span style="background:#FDEAEA;color:#DC2626;border-radius:10px;padding:1px 8px;font-size:10px">&#8987; pendente</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:#D97706">L-RAG-02</td>
+            <td><span style="background:#FEF3E2;color:#D97706;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">P1</span></td>
+            <td>Implementar <code>rag_chunk_risk_map</code> &mdash; rastreabilidade chunk&rarr;risco</td>
+            <td style="color:#D97706;font-weight:700">qualidade +5 pts</td>
+            <td><span style="background:#FEF3E2;color:#D97706;border-radius:10px;padding:1px 8px;font-size:10px">&#8987; pendente</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:#3B6D11">L-RAG-03</td>
+            <td><span style="background:#FEF3E2;color:#D97706;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">P1</span></td>
+            <td>Dashboard de score no cockpit (Se&ccedil;&atilde;o 7 &mdash; &ldquo;Sa&uacute;de do Corpus&rdquo;)</td>
+            <td style="color:#3B6D11;font-weight:700">visibilidade</td>
+            <td><span style="background:#EBF4E3;color:#3B6D11;border-radius:10px;padding:1px 8px;font-size:10px">&#10003; 7E implementada</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:#6B6B6B">L-RAG-04</td>
+            <td><span style="background:#F3F4F6;color:#6B6B6B;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">P2</span></td>
+            <td>Detector autom&aacute;tico de chunks duplicados (similaridade coseno &gt; 0,95)</td>
+            <td style="color:#6B6B6B;font-weight:700">qualidade +3 pts</td>
+            <td><span style="background:#F3F4F6;color:#6B6B6B;border-radius:10px;padding:1px 8px;font-size:10px">&#8987; pendente</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:#6B6B6B">L-RAG-05</td>
+            <td><span style="background:#F3F4F6;color:#6B6B6B;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">P2</span></td>
+            <td>Ingest&atilde;o lc123 completa (RFC-004) &mdash; cobertura ~60% &rarr; 95%</td>
+            <td style="color:#6B6B6B;font-weight:700">cobertura +2 pts</td>
+            <td><span style="background:#F3F4F6;color:#6B6B6B;border-radius:10px;padding:1px 8px;font-size:10px">&#8987; pendente</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px;padding:8px 12px;background:#E8F0FB;border-radius:6px;font-size:10px;color:#185FA5">
+        <strong>Score atual: 61,6/100 &#9888;</strong> &middot; Com L-RAG-01: estimado 80&ndash;90/100 &middot; Meta Sprint L: &ge; 85/100
+        &middot; <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/CORPUS-BASELINE.md" target="_blank" style="color:#185FA5">ver CORPUS-BASELINE.md &sect;10</a>
+      </div>
     </div>
 
   </div><!-- /7E -->
@@ -2528,15 +2588,17 @@ const ragCache = {
   age(key) { const e = this._store[key]; return e ? Math.round((Date.now() - e.ts) / 1000) : null; }
 };
 
-// Corpus estático (baseline v2.5 — atualizar a cada sprint)
+// Corpus estático — CORPUS-BASELINE.md v2.0 (2026-03-30 · commit a098aab)
+// Fonte de verdade: docs/rag/CORPUS-BASELINE.md seção 1.1
+// NUNCA alterar sem PR com label rag:corpus
 const RAG_CORPUS_BASELINE = [
-  { lei: 'lc214',    descricao: 'LC 214/2024 — IBS e CBS',              chunks: 812 },
-  { lei: 'lc224',    descricao: 'LC 224/2025 — Comitê Gestor IBS',     chunks: 398 },
-  { lei: 'ec132',    descricao: 'EC 132/2023 — Reforma Constitucional', chunks: 347 },
-  { lei: 'lc227',    descricao: 'LC 227/2024 — Complementações',       chunks: 201 },
-  { lei: 'demais',   descricao: 'lc116 + lc87 + cg_ibs + rfb_cbs + outros', chunks: 320 },
+  { lei: 'lc214', descricao: 'LC 214/2024 — IBS e CBS',              chunks: 1573, idMin: 1,      idMax: 30839, status: '✅ Íntegro' },
+  { lei: 'lc227', descricao: 'LC 227/2024 — Complementações',        chunks: 434,  idMin: 808,    idMax: 1241,  status: '✅ RFC-001 executada' },
+  { lei: 'lc224', descricao: 'LC 224/2025 — Comitê Gestor IBS',      chunks: 28,   idMin: 780,    idMax: 807,   status: '✅ Íntegro' },
+  { lei: 'lc123', descricao: 'LC 123/2006 — Simples Nacional',       chunks: 25,   idMin: 664,    idMax: 722,   status: '✅ RFC-002 executada' },
+  { lei: 'ec132', descricao: 'EC 132/2023 — Reforma Constitucional', chunks: 18,   idMin: 30840,  idMax: 30857, status: '✅ Íntegro' },
 ];
-const RAG_CORPUS_TOTAL = RAG_CORPUS_BASELINE.reduce((s, l) => s + l.chunks, 0);
+const RAG_CORPUS_TOTAL = RAG_CORPUS_BASELINE.reduce((s, l) => s + l.chunks, 0); // 2.078
 
 // Labels RAG para busca via API
 const RAG_LABELS = ['rag:corpus', 'rag:retriever', 'rag:incidente', 'rag:rfc', 'rag:performance', 'rag:governanca'];
@@ -2630,10 +2692,12 @@ async function fetchRagData(force = false) {
     };
     ragCache.set(cacheKey, ragData);
     renderRagSection();
+    updateSistemaStatus('github', 'ok'); // Bloco 7
 
   } catch (err) {
     console.warn('[RAG] Erro ao buscar dados:', err);
     updateRagGlobalStatus('erro', 'Erro ao buscar API GitHub', 'Verifique a conexão ou o rate limit');
+    updateSistemaStatus('github', 'erro'); // Bloco 7
   }
 }
 
@@ -2688,6 +2752,53 @@ function renderRagSection() {
     updateRagGlobalStatus('ok', 'Corpus estável — sem incidentes ou RFCs abertas', `${ragPRs.length} PRs RAG mergeados`);
   } else {
     updateRagGlobalStatus('parcial', `${totalOpen} issue(s) RAG abertas`, 'Sem incidentes críticos');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// BLOCO 7 — LOG DE ERRO GLOBAL
+// Usuário nunca vê dados inconsistentes sem aviso
+// ═══════════════════════════════════════════════════════════════════
+const _sistemaLog = { github: null, rag: null, integridade: null };
+
+function updateSistemaStatus(fonte, status) {
+  // status: 'ok' | 'parcial' | 'erro'
+  _sistemaLog[fonte] = status;
+
+  const allOk = Object.values(_sistemaLog).every(v => v === 'ok' || v === null);
+  const anyErro = Object.values(_sistemaLog).some(v => v === 'erro');
+  const globalStatus = allOk ? 'ok' : anyErro ? 'erro' : 'parcial';
+
+  // Atualizar banner no header
+  let banner = document.getElementById('sistemaBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'sistemaBanner';
+    banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;font-size:11px;padding:4px 16px;display:flex;align-items:center;gap:8px;transition:all .3s';
+    document.body.appendChild(banner);
+  }
+
+  if (globalStatus === 'ok') {
+    banner.style.background = '#EBF4E3';
+    banner.style.color = '#3B6D11';
+    banner.style.borderTop = '1px solid #16A34A';
+    banner.innerHTML = '✅ <strong>Sistema: OK</strong> — GitHub, RAG e integridade operacionais';
+    // Ocultar após 5s se tudo OK
+    setTimeout(() => { if (banner) banner.style.display = 'none'; }, 5000);
+  } else if (globalStatus === 'parcial') {
+    banner.style.display = 'flex';
+    banner.style.background = '#FEF3E2';
+    banner.style.color = '#854F0B';
+    banner.style.borderTop = '1px solid #D97706';
+    const erros = Object.entries(_sistemaLog).filter(([,v]) => v === 'erro' || v === 'parcial').map(([k]) => k).join(', ');
+    banner.innerHTML = `⚠️ <strong>Sistema: PARCIAL</strong> — Dados incompletos: ${erros} — <span style="font-size:10px">alguns dados podem estar desatualizados</span>`;
+  } else {
+    banner.style.display = 'flex';
+    banner.style.background = '#FDEAEA';
+    banner.style.color = '#A32D2D';
+    banner.style.borderTop = '1px solid #DC2626';
+    const erros = Object.entries(_sistemaLog).filter(([,v]) => v === 'erro').map(([k]) => k).join(', ');
+    banner.innerHTML = `❌ <strong>Sistema: ERRO</strong> — Falha em: ${erros} — <span style="font-size:10px">dados podem estar desatualizados — recarregue a página</span>`;
   }
 }
 
@@ -2764,16 +2875,18 @@ function renderRagCorpusBars() {
 
   const html = RAG_CORPUS_BASELINE.map(lei => {
     const pct = Math.round((lei.chunks / RAG_CORPUS_TOTAL) * 100);
+    const idRange = lei.idMin !== undefined ? `<span style="font-size:9px;color:var(--text-muted);margin-left:4px">id ${lei.idMin}–${lei.idMax}</span>` : '';
+    const statusHtml = lei.status ? `<span style="font-size:9px;color:#16A34A;margin-left:4px">${escHtml(lei.status)}</span>` : '';
     return `<div class="rag-corpus-bar">
-      <span class="rag-corpus-bar-lei">${escHtml(lei.lei)}</span>
+      <span class="rag-corpus-bar-lei" title="${escHtml(lei.descricao)}">${escHtml(lei.lei)}</span>
       <div class="rag-corpus-bar-track"><div class="rag-corpus-bar-fill" style="width:${pct}%"></div></div>
-      <span class="rag-corpus-bar-count">${lei.chunks} <span style="font-size:9px;color:var(--text-muted)">(${pct}%)</span></span>
+      <span class="rag-corpus-bar-count">${lei.chunks} <span style="font-size:9px;color:var(--text-muted)">(${pct}%)</span>${idRange}${statusHtml}</span>
     </div>`;
   }).join('');
 
   el.innerHTML = html;
-  if (totalEl) totalEl.innerHTML = `✅ ${RAG_CORPUS_TOTAL} chunks totais &middot; 5 leis &middot; 100% anchor_id`;
-  if (tsEl) tsEl.textContent = '⚙️ baseline v2.5';
+  if (totalEl) totalEl.innerHTML = `✅ ${RAG_CORPUS_TOTAL} chunks totais &middot; 5 leis &middot; 100% anchor_id &middot; <span style="font-size:9px;color:var(--text-muted)">Fonte: CORPUS-BASELINE.md v2.0 &middot; 2026-03-30 &middot; commit a098aab</span>`;
+  if (tsEl) tsEl.textContent = '⚙️ baseline v2.0';
 }
 
 // ── 7D: Documentos RAG vivos ───────────────────────────────────────────────
@@ -2970,13 +3083,29 @@ function renderConsistencia6D(data) {
   const commitDate = lastCommit ? (lastCommit.commit && lastCommit.commit.author && lastCommit.commit.author.date || '').slice(0, 10) : '—';
   const commitUrl = lastCommit ? lastCommit.html_url : null;
 
-  // Score de consistência
+  // Score de consistência (Bloco 6: inclui status RAG)
   let score = 0;
   if (ciStatus === 'success') score++;
   if (prsHumanos.length === 0) score++;
   if (issuesCrit.length === 0) score++;
+
+  // Verificar shadow mode (DIAGNOSTIC_READ_MODE)
+  const shadowModeActive = false; // Nunca ativar sem aprovacao do P.O.
+
+  // Status RAG: verificar se há PR de corpus com gate aprovado
+  // (usa cache da 7E se disponível)
+  const ragData7e = rag7eCache.get('rag7e_data');
+  const ragGateStatus = ragData7e && ragData7e.lastPrBody
+    ? (() => {
+        const gates = parseGatesFromPrBody(ragData7e.lastPrBody);
+        const allPassed = [gates.q1, gates.q2, gates.q3, gates.q4].every(g => g === 'passou');
+        const anyFailed = [gates.q1, gates.q2, gates.q3, gates.q4].some(g => g === 'falhou');
+        return allPassed ? 'passou' : anyFailed ? 'falhou' : 'parcial';
+      })()
+    : null;
+
   const scoreColor = score === 3 ? '#16A34A' : score >= 2 ? '#D97706' : '#DC2626';
-  const scoreLabel = score === 3 ? '✅ CONSISTENTE' : score >= 2 ? '⚠️ PARCIAL' : '❌ INCONSTENTE';
+  const scoreLabel = score === 3 ? '✅ CONSISTENTE' : score >= 2 ? '⚠️ PARCIAL' : '❌ INCONSISTENTE';
 
   const age = rag7eCache.age('consistencia6d');
   const ageStr = age !== null ? 'atualizado há ' + age + 's' : 'atualizado';
@@ -3012,6 +3141,18 @@ function renderConsistencia6D(data) {
       &middot; <em>${escHtml(commitMsg)}${commitMsg.length >= 50 ? '…' : ''}</em>
     </div>
     ${prsHumanos.length > 0 ? `<div style="font-size:10px;color:var(--text-muted);margin-top:4px">PRs abertos: ${prsHumanos.slice(0,5).map(pr => `<a href="${escHtml(pr.html_url)}" target="_blank" style="color:var(--blue)">#${pr.number}</a>`).join(', ')}</div>` : ''}
+    <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+      <div style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg2)">
+        <span style="color:var(--text-muted);font-weight:700">SHADOW MODE:</span>
+        <span style="color:${shadowModeActive ? '#DC2626' : '#16A34A'};font-weight:700;margin-left:4px">${shadowModeActive ? '&#9888; ATIVO' : '&#10003; INATIVO'}</span>
+        <span style="color:var(--text-muted);font-size:9px;margin-left:4px">(DIAGNOSTIC_READ_MODE)</span>
+      </div>
+      <div style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg2)">
+        <span style="color:var(--text-muted);font-weight:700">RAG GATE:</span>
+        <span style="color:${ragGateStatus === 'passou' ? '#16A34A' : ragGateStatus === 'falhou' ? '#DC2626' : '#D97706'};font-weight:700;margin-left:4px">${ragGateStatus === 'passou' ? '&#128994; APROVADO' : ragGateStatus === 'falhou' ? '&#128308; FALHOU' : ragGateStatus === 'parcial' ? '&#128993; PARCIAL' : '&#9898; SEM DADOS'}</span>
+        <span style="color:var(--text-muted);font-size:9px;margin-left:4px">(ltimo PR corpus)</span>
+      </div>
+    </div>
   `;
 }
 
@@ -3057,18 +3198,75 @@ const rag7eCache = {
 
 // Extrair estado dos gates do body de um PR
 function parseGatesFromPrBody(body) {
-  if (!body) return { q1: null, q2: null, q3: null, q4: null };
-  // Detecta checkboxes: [x] RAG-Q1 ou - [x] Q1
+  if (!body) return { q1: null, q2: null, q3: null, q4: null, source: null };
+
+  // 1º: tentar JSON de evidência embutido no body
+  try {
+    const jsonMatch = body.match(/```json([\s\S]*?)```/);
+    if (jsonMatch) {
+      const ev = JSON.parse(jsonMatch[1].trim());
+      // Mapear rag_quality_gate global
+      const globalGate = ev.rag_quality_gate;
+      // Mapear gates individuais (suporte a snake_case e camelCase)
+      const mapGate = (v) => {
+        if (!v) return null;
+        if (/passou|pass|ok|true/i.test(String(v))) return 'passou';
+        if (/falhou|fail|false|erro/i.test(String(v))) return 'falhou';
+        if (/parcial|warn|pendente/i.test(String(v))) return 'parcial';
+        if (/n.?a|n.?aplic/i.test(String(v))) return 'nao-aplicavel';
+        return null;
+      };
+      const q1 = mapGate(ev.q1 || ev.gate_q1 || ev.Q1);
+      const q2 = mapGate(ev.q2 || ev.gate_q2 || ev.Q2);
+      const q3 = mapGate(ev.q3 || ev.gate_q3 || ev.Q3);
+      const q4 = mapGate(ev.q4 || ev.gate_q4 || ev.Q4);
+      // Se JSON tem gate global mas não tem individuais, inferir
+      const globalMapped = mapGate(globalGate);
+      if (q1 || q2 || q3 || q4 || globalMapped) {
+        return {
+          q1: q1 || globalMapped,
+          q2: q2 || globalMapped,
+          q3: q3 || globalMapped,
+          q4: q4 || globalMapped,
+          source: 'json'
+        };
+      }
+    }
+  } catch(e) { /* ignorar erro de parse JSON */ }
+
+  // 2º: tentar tabela markdown (| Q1 | Passou | ...)
+  const tableRows = body.match(/\|\s*Q([1-4])\s*\|[^\n]+/gi) || [];
+  const tableResult = { q1: null, q2: null, q3: null, q4: null };
+  tableRows.forEach(row => {
+    const m = row.match(/\|\s*Q([1-4])\s*\|\s*([^|]+)/);
+    if (m) {
+      const qn = 'q' + m[1];
+      const val = m[2].trim();
+      if (/passou|pass|✅/i.test(val)) tableResult[qn] = 'passou';
+      else if (/falhou|fail|❌/i.test(val)) tableResult[qn] = 'falhou';
+      else if (/parcial|⚠/i.test(val)) tableResult[qn] = 'parcial';
+      else if (/n.?a|n.?aplic/i.test(val)) tableResult[qn] = 'nao-aplicavel';
+    }
+  });
+  if (tableRows.length > 0) return { ...tableResult, source: 'tabela' };
+
+  // 3º: checkboxes [x] e [ ]
   const check = (pattern) => new RegExp(pattern, 'i').test(body);
+  const checkNA = (pattern) => new RegExp(pattern, 'i').test(body);
   return {
-    q1: check('\\[x\\].*(?:RAG-Q1|Q1.*estrutural|anchor_id|chunks vazios)') ? 'passou'
-      : check('\\[ \\].*(?:RAG-Q1|Q1.*estrutural)') ? 'pendente' : null,
+    q1: check('\\[x\\].*(?:RAG-Q1|Q1.*estrutural|anchor_id|chunks.?vaz)') ? 'passou'
+      : check('\\[ \\].*(?:RAG-Q1|Q1.*estrutural)') ? 'falhou'
+      : checkNA('(?:Q1.*n.?a|n.?a.*Q1)') ? 'nao-aplicavel' : null,
     q2: check('\\[x\\].*(?:RAG-Q2|Q2.*recupera|gold.?set|recall)') ? 'passou'
-      : check('\\[ \\].*(?:RAG-Q2|Q2.*recupera)') ? 'pendente' : null,
+      : check('\\[ \\].*(?:RAG-Q2|Q2.*recupera)') ? 'falhou'
+      : checkNA('(?:Q2.*n.?a|n.?a.*Q2)') ? 'nao-aplicavel' : null,
     q3: check('\\[x\\].*(?:RAG-Q3|Q3.*visibilidade|invis)') ? 'passou'
-      : check('\\[ \\].*(?:RAG-Q3|Q3.*visibilidade)') ? 'pendente' : null,
+      : check('\\[ \\].*(?:RAG-Q3|Q3.*visibilidade)') ? 'falhou'
+      : checkNA('(?:Q3.*n.?a|n.?a.*Q3)') ? 'nao-aplicavel' : null,
     q4: check('\\[x\\].*(?:RAG-Q4|Q4.*explicabilidade|diverg)') ? 'passou'
-      : check('\\[ \\].*(?:RAG-Q4|Q4.*explicabilidade)') ? 'pendente' : null,
+      : check('\\[ \\].*(?:RAG-Q4|Q4.*explicabilidade)') ? 'falhou'
+      : checkNA('(?:Q4.*n.?a|n.?a.*Q4)') ? 'nao-aplicavel' : null,
+    source: 'checkbox'
   };
 }
 
@@ -3100,10 +3298,19 @@ function updateGateCard(id, status, detail, prLink) {
 
   if (!cardEl) return;
 
-  const icons = { passou: '✅ PASSOU', falhou: '❌ FALHOU', pendente: '⚠️ PENDENTE', 'sem-dados': '— Sem dados' };
-  cardEl.textContent = icons[status] || '—';
-  cardEl.className = 'rag7e-gate-status ' + status;
-  if (cardWrap) cardWrap.className = 'rag7e-gate-card ' + status;
+  // Bloco 3 — Semântica clara: 4 estados, sem ambiguidade
+  const icons = {
+    'passou':         '🟢 Aprovado',
+    'falhou':         '🔴 Falhou',
+    'parcial':        '🟡 Parcial',
+    'nao-aplicavel':  '🟡 Não aplicável',
+    'sem-evidencia':  '⚪ Sem evidência',
+    'sem-dados':      '⚪ Sem evidência',  // alias legado
+    'pendente':       '🟡 Parcial',         // alias legado
+  };
+  cardEl.textContent = icons[status] || '⚪ Sem evidência';
+  cardEl.className = 'rag7e-gate-status ' + (status === 'sem-dados' || status === 'sem-evidencia' ? 'sem-evidencia' : status);
+  if (cardWrap) cardWrap.className = 'rag7e-gate-card ' + (status === 'sem-dados' || status === 'sem-evidencia' ? 'sem-evidencia' : status);
   if (detailEl && detail) detailEl.textContent = detail;
   if (prEl && prLink) prEl.innerHTML = prLink;
 }
@@ -3174,10 +3381,12 @@ async function fetchRag7eData(force = false) {
 
     rag7eCache.set(cacheKey, data);
     renderRag7e(data);
+    updateSistemaStatus('rag', data.isFallback ? 'parcial' : 'ok'); // Bloco 7
 
   } catch(err) {
     console.warn('[7E] Erro API GitHub:', err.message);
     if (tsEl) tsEl.textContent = '⚠ API indisponível';
+    updateSistemaStatus('rag', 'erro'); // Bloco 7
     // Renderiza com dados de fallback
     renderRag7e({ govPRs: [], lastCorpusPR: null, lastPrBody: null,
       lastPrNum: null, lastPrUrl: null, lastPrTitle: null,
@@ -3289,25 +3498,37 @@ function renderRag7e(data) {
     ['Q1','Q2','Q3','Q4'].forEach(q => updateGateCard(q, 'sem-dados', 'Nenhum PR de corpus recente encontrado', ''));
   }
 
-  // — 7E.4: Gold Set — atualizar com dados do ltimo PR se disponível
-  if (lastPrBody) {
-    const recall = parseRecallFromPrBody(lastPrBody);
-    if (recall && recall.top5 !== null) {
-      // Se o PR tem recall global, distribuir para todas as queries
-      const r5 = parseFloat(recall.top5);
-      const r10 = recall.top10 ? parseFloat(recall.top10) : null;
-      const cls5 = r5 >= 90 ? 'rag7e-recall-ok' : r5 >= 70 ? 'rag7e-recall-warn' : 'rag7e-recall-fail';
-      const cls10 = r10 !== null ? (r10 >= 100 ? 'rag7e-recall-ok' : 'rag7e-recall-warn') : '';
-      const prRef = lastPrNum ? `PR #${lastPrNum}` : '—';
-      for (let i = 1; i <= 8; i++) {
-        const idx = String(i).padStart(2,'0');
-        const r5El = document.getElementById('gs' + idx + '-r5');
-        const r10El = document.getElementById('gs' + idx + '-r10');
-        const evEl = document.getElementById('gs' + idx + '-ev');
-        if (r5El) { r5El.textContent = r5 + '%'; r5El.className = cls5; }
-        if (r10El && r10 !== null) { r10El.textContent = r10 + '%'; r10El.className = cls10; }
-        if (evEl) evEl.textContent = prRef;
-      }
+  // — 7E.4: Gold Set — evidencia real (PR body) ou fallback com alerta
+  const goldsetAlert = document.getElementById('goldsetEvidAlert');
+  const goldsetBadge = document.getElementById('goldsetEvidBadge');
+  const recall = lastPrBody ? parseRecallFromPrBody(lastPrBody) : null;
+  if (recall && recall.top5 !== null) {
+    // Evidencia real disponivel no PR
+    const r5 = parseFloat(recall.top5);
+    const r10 = recall.top10 ? parseFloat(recall.top10) : null;
+    const cls5 = r5 >= 90 ? 'rag7e-recall-ok' : r5 >= 70 ? 'rag7e-recall-warn' : 'rag7e-recall-fail';
+    const cls10 = r10 !== null ? (r10 >= 100 ? 'rag7e-recall-ok' : 'rag7e-recall-warn') : '';
+    const prRef = lastPrNum ? `<a href="${escHtml(lastCorpusPR ? lastCorpusPR.html_url : '#')}" target="_blank" style="color:var(--blue)">PR #${lastPrNum}</a>` : '—';
+    for (let i = 1; i <= 8; i++) {
+      const idx = String(i).padStart(2,'0');
+      const r5El = document.getElementById('gs' + idx + '-r5');
+      const r10El = document.getElementById('gs' + idx + '-r10');
+      const evEl = document.getElementById('gs' + idx + '-ev');
+      if (r5El) { r5El.textContent = r5 + '%'; r5El.className = cls5; }
+      if (r10El && r10 !== null) { r10El.textContent = r10 + '%'; r10El.className = cls10; }
+      if (evEl) evEl.innerHTML = prRef;
+    }
+    if (goldsetAlert) goldsetAlert.style.display = 'none';
+    if (goldsetBadge) goldsetBadge.style.display = 'inline-flex';
+  } else {
+    // Sem evidencia — mostrar alerta, manter ⚪
+    if (goldsetAlert) goldsetAlert.style.display = 'block';
+    if (goldsetBadge) goldsetBadge.style.display = 'none';
+    // Marcar todas as linhas como sem evidencia
+    for (let i = 1; i <= 8; i++) {
+      const idx = String(i).padStart(2,'0');
+      const evEl = document.getElementById('gs' + idx + '-ev');
+      if (evEl) evEl.innerHTML = '⚪ sem evidência';
     }
   }
 
