@@ -1301,19 +1301,19 @@ mark.search-hl{
     <!-- 7E.1: Score do Corpus + Integridade -->
     <div class="rag7e-score-wrap">
       <div class="rag7e-score-card">
-        <div class="rag7e-score-card-title">&#128200; 7E.1 &mdash; Score do Corpus <span class="gov-badge static">&#9881; estático</span></div>
+        <div class="rag7e-score-card-title">&#128200; 7E.1 &mdash; Score do Corpus <span class="gov-badge static">&#9881; estático</span> <span class="gov-badge live" id="rag7eScoreLiveBadge" style="display:none">&#8635; uso real</span></div>
         <div class="rag7e-score-main">
           <span class="rag7e-score-num amber" id="rag7eScoreNum">61.6</span>
           <span class="rag7e-score-max">/100</span>
-          <span style="font-size:11px;color:#D97706;font-weight:700;margin-left:4px">⚠️ Em evolução</span>
+          <span style="font-size:11px;color:#D97706;font-weight:700;margin-left:4px" id="rag7eScoreLabel">&#9888;&#65039; Em evolução</span>
         </div>
         <div class="rag7e-score-bar-wrap"><div class="rag7e-score-bar-fill amber" id="rag7eScoreBar" style="width:61.6%"></div></div>
-        <div class="rag7e-score-breakdown">
+        <div class="rag7e-score-breakdown" id="rag7eScoreBreakdown">
           <span>&#10003; Integridade estrutural: 100% anchor_id</span>
           <span>&#10003; 2.078 chunks &middot; 5 leis &middot; 0 duplicatas críticas</span>
-          <span>&#9888; Telemetria de uso: não implementada</span>
+          <span id="rag7eTelemetriaStatus">&#9888; Telemetria de uso: aguardando primeiros logs...</span>
           <span>&#9888; Gold set: evidência manual (script pendente)</span>
-          <span style="font-size:9px;color:var(--text-muted);margin-top:2px">Baseline v2.0 &middot; 2026-03-30 &middot; HEAD 956f014</span>
+          <span style="font-size:9px;color:var(--text-muted);margin-top:2px">Baseline v2.0 &middot; 2026-03-30 &middot; L-RAG-01 implementado</span>
         </div>
       </div>
       <div class="rag7e-score-card">
@@ -1389,8 +1389,8 @@ mark.search-hl{
 
     <!-- 7E.6: Chunks Invisíveis -->
     <div class="rag7e-invisible-wrap">
-      <div class="rag7e-invisible-title">&#128065; 7E.6 &mdash; Chunks Invisíveis <span class="gov-badge live">&#8635; vivo</span></div>
-      <div class="rag7e-invisible-grid">
+      <div class="rag7e-invisible-title">&#128065; 7E.6 &mdash; Chunks Invisíveis <span class="gov-badge live">&#8635; vivo</span> <span class="gov-badge live" id="rag7eUsageLiveBadge" style="display:none">&#8635; telemetria ativa</span></div>
+      <div class="rag7e-invisible-grid" style="grid-template-columns:repeat(4,1fr)">
         <div class="rag7e-invisible-card">
           <div class="val ok" id="rag7eInvisTotal">0</div>
           <div class="lbl">Invisíveis Críticos</div>
@@ -1402,12 +1402,18 @@ mark.search-hl{
           <div class="sub">abertas no GitHub</div>
         </div>
         <div class="rag7e-invisible-card">
+          <div class="val" id="rag7eUsageCoverage">&#8987;</div>
+          <div class="lbl">Cobertura de Uso</div>
+          <div class="sub" id="rag7eUsageCoverageSub">chunks usados / total</div>
+        </div>
+        <div class="rag7e-invisible-card">
           <div class="val" id="rag7eCorpusVersion">v2.0</div>
           <div class="lbl">Versão do Corpus</div>
           <div class="sub">CORPUS-BASELINE.md</div>
         </div>
       </div>
       <div id="rag7eInvisAlert" class="rag7e-action-needed"></div>
+      <div id="rag7eUsageAlert" style="display:none;font-size:10px;background:#E8F0FB;border:1px solid #185FA5;border-radius:4px;padding:6px 10px;margin-top:8px;color:#185FA5"></div>
     </div>
 
     <!-- 7E.7: Desbloqueio do RAG — Sprint L -->
@@ -1418,11 +1424,11 @@ mark.search-hl{
         <thead><tr><th>Item</th><th>Prioridade</th><th>Descri&ccedil;&atilde;o</th><th>Impacto no Score</th><th>Status</th></tr></thead>
         <tbody>
           <tr>
-            <td style="font-weight:700;color:#DC2626">L-RAG-01</td>
+            <td style="font-weight:700;color:#16A34A">L-RAG-01</td>
             <td><span style="background:#FDEAEA;color:#DC2626;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">P0</span></td>
             <td>Implementar <code>rag_usage_log</code> &mdash; telemetria de uso</td>
-            <td style="color:#DC2626;font-weight:700">+30 pts (uso real)</td>
-            <td><span style="background:#FDEAEA;color:#DC2626;border-radius:10px;padding:1px 8px;font-size:10px">&#8987; pendente</span></td>
+            <td style="color:#16A34A;font-weight:700">+30 pts (uso real)</td>
+            <td><span style="background:#EBF4E3;color:#16A34A;border-radius:10px;padding:1px 8px;font-size:10px">&#10003; implementado &middot; PR #235</span></td>
           </tr>
           <tr>
             <td style="font-weight:700;color:#D97706">L-RAG-02</td>
@@ -1455,7 +1461,7 @@ mark.search-hl{
         </tbody>
       </table>
       <div style="margin-top:10px;padding:8px 12px;background:#E8F0FB;border-radius:6px;font-size:10px;color:#185FA5">
-        <strong>Score atual: 61,6/100 &#9888;</strong> &middot; Com L-RAG-01: estimado 80&ndash;90/100 &middot; Meta Sprint L: &ge; 85/100
+        <strong>Score atual: 61,6/100 &#9888;</strong> &middot; L-RAG-01 implementado &mdash; estimado 80&ndash;90/100 após primeiros logs &middot; Meta Sprint L: &ge; 85/100
         &middot; <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/CORPUS-BASELINE.md" target="_blank" style="color:#185FA5">ver CORPUS-BASELINE.md &sect;10</a>
       </div>
     </div>
@@ -3589,6 +3595,82 @@ function renderRag7e(data) {
     } else {
       invisAlertEl.classList.remove('show');
     }
+  }
+
+  // — L-RAG-01: Telemetria de uso via API GitHub (commits rag_usage_log) —
+  // Detecta se a tabela já está em uso buscando commits com 'rag_usage_log' no main
+  fetchRagUsageTelemetry(govPRs);
+}
+
+/**
+ * L-RAG-01 — Detecta se a telemetria rag_usage_log já está ativa
+ * via PRs mergeados com label rag:retriever ou rag:governanca que mencionem rag_usage_log.
+ * Atualiza 7E.1 e 7E.6 com o status real.
+ */
+async function fetchRagUsageTelemetry(govPRs) {
+  try {
+    // Verificar se algum PR mergeado menciona rag_usage_log (L-RAG-01 implementado)
+    const ragUsagePRs = govPRs.filter(pr =>
+      pr.state === 'closed' &&
+      pr.merged_at &&
+      (pr.title || '').toLowerCase().includes('rag-usage') ||
+      (pr.title || '').toLowerCase().includes('l-rag-01') ||
+      (pr.title || '').toLowerCase().includes('rag_usage_log')
+    );
+
+    // Buscar commits recentes que mencionem rag_usage_log
+    const REPO_PATH = '/repos/Solaris-Empresa/compliance-tributaria-v2';
+    let usageCommits = [];
+    try {
+      const commits = await ghFetch(REPO_PATH + '/commits?path=server/rag-retriever.ts&per_page=5');
+      if (Array.isArray(commits)) {
+        usageCommits = commits.filter(c =>
+          (c.commit?.message || '').toLowerCase().includes('rag-usage') ||
+          (c.commit?.message || '').toLowerCase().includes('l-rag-01') ||
+          (c.commit?.message || '').toLowerCase().includes('rag_usage_log')
+        );
+      }
+    } catch(e) { /* silencioso */ }
+
+    const telemetriaAtiva = ragUsagePRs.length > 0 || usageCommits.length > 0;
+
+    // Atualizar 7E.1 — status da telemetria
+    const telEl = document.getElementById('rag7eTelemetriaStatus');
+    const liveBadge = document.getElementById('rag7eScoreLiveBadge');
+    if (telEl) {
+      if (telemetriaAtiva) {
+        telEl.innerHTML = '✓ Telemetria de uso: implementada (L-RAG-01) — aguardando primeiros logs';
+        telEl.style.color = '#16A34A';
+        if (liveBadge) liveBadge.style.display = '';
+      } else {
+        telEl.innerHTML = '⚠ Telemetria de uso: aguardando deploy (rag_usage_log)';
+        telEl.style.color = '#D97706';
+      }
+    }
+
+    // Atualizar 7E.6 — cobertura de uso (placeholder até primeiros logs)
+    const coverageEl = document.getElementById('rag7eUsageCoverage');
+    const coverageSubEl = document.getElementById('rag7eUsageCoverageSub');
+    const usageBadge = document.getElementById('rag7eUsageLiveBadge');
+    const usageAlertEl = document.getElementById('rag7eUsageAlert');
+    if (coverageEl) {
+      if (telemetriaAtiva) {
+        coverageEl.textContent = '–';
+        coverageEl.className = 'val';
+        if (coverageSubEl) coverageSubEl.textContent = 'aguardando primeiros logs';
+        if (usageBadge) usageBadge.style.display = '';
+        if (usageAlertEl) {
+          usageAlertEl.innerHTML = 'ℹ Telemetria L-RAG-01 implementada. Após as primeiras queries em produção, a cobertura de uso será exibida aqui via endpoint ragAdmin.getChunkUsageStats.';
+          usageAlertEl.style.display = '';
+        }
+      } else {
+        coverageEl.textContent = '⏳';
+        coverageEl.className = 'val';
+        if (coverageSubEl) coverageSubEl.textContent = 'telemetria pendente';
+      }
+    }
+  } catch(e) {
+    // Silencioso — telemetria não bloqueia o cockpit
   }
 }
 

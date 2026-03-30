@@ -7,11 +7,15 @@
  *   3. Re-ranking via LLM (temperatura 0.0) — seleciona os top-5 mais relevantes
  *   4. Retorna contexto formatado para injeção nos prompts
  *
+ * L-RAG-01 — Telemetria de uso:
+ *   Após cada retrieval, registra cada chunk recuperado em rag_usage_log
+ *   de forma async non-blocking (não impacta latência da resposta).
+ *
  * Precisão esperada: ~88-93% (vs ~70% do pré-RAG estático do cnae-articles-map.ts)
  */
 
 import { getDb } from "./db";
-import { ragDocuments } from "../drizzle/schema";
+import { ragDocuments, ragUsageLog } from "../drizzle/schema";
 import { or, like } from "drizzle-orm";
 import { invokeLLM } from "./_core/llm";
 
@@ -29,6 +33,45 @@ export interface RAGContext {
   articles: RetrievedArticle[];
   contextText: string;
   totalCandidates: number;
+}
+
+/** Opções de telemetria para logUsage */
+export interface RAGUsageOptions {
+  projectId?: number;
+  sessionId?: string;
+  source?: "rag" | "fallback" | "manual";
+}
+
+/**
+ * L-RAG-01 — Registra uso dos chunks de forma async non-blocking.
+ * Nunca lança exceção — falha silenciosa para não impactar o fluxo principal.
+ */
+async function logUsage(
+  query: string,
+  articles: RetrievedArticle[],
+  opts: RAGUsageOptions = {}
+): Promise<void> {
+  if (articles.length === 0) return;
+  try {
+    const dbConn = await getDb();
+    if (!dbConn) return;
+    const rows = articles
+      .filter(a => a.anchorId) // só loga chunks com anchor_id
+      .map((a, idx) => ({
+        query,
+        anchor_id:    a.anchorId!,
+        lei:          a.lei,
+        score:        a.relevanceScore != null ? String(a.relevanceScore) : null,
+        position:     idx + 1,
+        source:       opts.source ?? "rag",
+        project_id:   opts.projectId ?? null,
+        session_id:   opts.sessionId ?? null,
+      }));
+    if (rows.length === 0) return;
+    await dbConn.insert(ragUsageLog).values(rows);
+  } catch {
+    // Falha silenciosa — telemetria nunca bloqueia o fluxo
+  }
 }
 
 /**
@@ -208,14 +251,16 @@ function formatContextText(articles: RetrievedArticle[]): string {
 /**
  * Função principal: recupera artigos relevantes para um contexto empresarial
  *
- * @param cnaes - Lista de CNAEs da empresa
+ * @param cnaes        - Lista de CNAEs da empresa
  * @param contextQuery - Texto descrevendo o contexto (regime, operações, etc.)
- * @param topK - Número máximo de artigos a retornar (padrão: 5)
+ * @param topK         - Número máximo de artigos a retornar (padrão: 5)
+ * @param usageOpts    - Opções de telemetria (L-RAG-01)
  */
 export async function retrieveArticles(
   cnaes: string[],
   contextQuery: string,
-  topK = 5
+  topK = 5,
+  usageOpts: RAGUsageOptions = {}
 ): Promise<RAGContext> {
   const keywords = extractKeywords(contextQuery);
 
@@ -227,6 +272,9 @@ export async function retrieveArticles(
 
   // 3. Formatar contexto
   const contextText = formatContextText(topArticles);
+
+  // 4. L-RAG-01 — Telemetria async non-blocking (não aguarda, não bloqueia)
+  void logUsage(contextQuery, topArticles, usageOpts);
 
   return {
     articles: topArticles,
@@ -241,14 +289,19 @@ export async function retrieveArticles(
 export async function retrieveArticlesFast(
   cnaes: string[],
   contextQuery: string,
-  topK = 5
+  topK = 5,
+  usageOpts: RAGUsageOptions = {}
 ): Promise<RAGContext> {
   const keywords = extractKeywords(contextQuery);
   const candidates = await fetchCandidates(cnaes, keywords, topK);
+  const topArticles = candidates.slice(0, topK);
+
+  // L-RAG-01 — Telemetria async non-blocking
+  void logUsage(contextQuery, topArticles, { ...usageOpts, source: "fallback" });
 
   return {
-    articles: candidates.slice(0, topK),
-    contextText: formatContextText(candidates.slice(0, topK)),
+    articles: topArticles,
+    contextText: formatContextText(topArticles),
     totalCandidates: candidates.length,
   };
 }

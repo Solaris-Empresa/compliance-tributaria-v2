@@ -4,8 +4,12 @@
  * Endpoints de administração do corpus RAG — acesso restrito a equipe_solaris.
  *
  * Procedures:
- * - ragAdmin.uploadCsv   — faz upload de CSV SOLARIS para corpus ragDocuments
- * - ragAdmin.getStats    — retorna estatísticas de ingestão
+ * - ragAdmin.uploadCsv          — faz upload de CSV SOLARIS para corpus ragDocuments
+ * - ragAdmin.getStats           — retorna estatísticas de ingestão
+ * - ragAdmin.getChunkUsageStats — L-RAG-01: estatísticas de uso por chunk
+ * - ragAdmin.getTopChunks       — L-RAG-01: top-20 chunks mais recuperados
+ * - ragAdmin.getUnusedChunks    — L-RAG-01: chunks nunca recuperados (invisíveis)
+ * - ragAdmin.getUsageByLei      — L-RAG-01: distribuição de uso por lei
  *
  * Formato CSV esperado (UTF-8, separador vírgula):
  *   lei,artigo,titulo,conteudo,topicos,cnaeGroups,chunkIndex
@@ -14,6 +18,7 @@
  *   lc214 | ec132 | lc227 | lc224 | lc116 | lc87 | cg_ibs | rfb_cbs | conv_icms | lc123
  *
  * Sprint J · Issue #140 · G16
+ * Sprint L · L-RAG-01 — Telemetria de uso do RAG
  */
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
@@ -218,6 +223,145 @@ export const ragAdminRouter = router({
          FROM ragDocuments GROUP BY lei ORDER BY id_min`
       );
       return { stats: rows as { lei: string; chunks: number; id_min: number; id_max: number }[] };
+    } finally {
+      await conn.end();
+    }
+  }),
+
+  // =========================================================================
+  // L-RAG-01 — Endpoints de Telemetria de Uso do RAG
+  // =========================================================================
+
+  /**
+   * getChunkUsageStats — L-RAG-01
+   * Retorna estatísticas gerais de uso: total de logs, chunks únicos usados,
+   * total de chunks no corpus e percentual de cobertura.
+   */
+  getChunkUsageStats: solarisOnlyProcedure.query(async () => {
+    const conn = await mysql.createConnection(ENV.databaseUrl);
+    try {
+      const [[totals]] = await conn.execute(
+        `SELECT
+           COUNT(*)                          AS total_logs,
+           COUNT(DISTINCT anchor_id)         AS unique_chunks_used,
+           MIN(retrieved_at)                 AS first_retrieval,
+           MAX(retrieved_at)                 AS last_retrieval
+         FROM rag_usage_log`
+      ) as [{ total_logs: number; unique_chunks_used: number; first_retrieval: string | null; last_retrieval: string | null }[], unknown];
+
+      const [[corpus]] = await conn.execute(
+        `SELECT COUNT(*) AS total_chunks FROM ragDocuments`
+      ) as [{ total_chunks: number }[], unknown];
+
+      const totalChunks = corpus.total_chunks ?? 0;
+      const usedChunks  = totals.unique_chunks_used ?? 0;
+      const coverage    = totalChunks > 0 ? Math.round((usedChunks / totalChunks) * 100) : 0;
+
+      return {
+        total_logs:          totals.total_logs ?? 0,
+        unique_chunks_used:  usedChunks,
+        total_chunks:        totalChunks,
+        coverage_pct:        coverage,
+        first_retrieval:     totals.first_retrieval ?? null,
+        last_retrieval:      totals.last_retrieval ?? null,
+      };
+    } finally {
+      await conn.end();
+    }
+  }),
+
+  /**
+   * getTopChunks — L-RAG-01
+   * Retorna os top-20 chunks mais recuperados com contagem de usos.
+   */
+  getTopChunks: solarisOnlyProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(100).default(20) }).optional())
+    .query(async ({ input }) => {
+      const limit = input?.limit ?? 20;
+      const conn = await mysql.createConnection(ENV.databaseUrl);
+      try {
+        const [rows] = await conn.execute(
+          `SELECT
+             u.anchor_id,
+             d.lei,
+             d.artigo,
+             d.titulo,
+             COUNT(*) AS usos,
+             AVG(u.score) AS avg_score,
+             MAX(u.retrieved_at) AS last_used
+           FROM rag_usage_log u
+           LEFT JOIN ragDocuments d ON d.anchor_id = u.anchor_id
+           GROUP BY u.anchor_id, d.lei, d.artigo, d.titulo
+           ORDER BY usos DESC
+           LIMIT ?`,
+          [limit]
+        );
+        return { chunks: rows as { anchor_id: string; lei: string; artigo: string; titulo: string; usos: number; avg_score: number; last_used: string }[] };
+      } finally {
+        await conn.end();
+      }
+    }),
+
+  /**
+   * getUnusedChunks — L-RAG-01
+   * Retorna chunks que nunca foram recuperados (invisíveis ao usuário).
+   * Crítico para o Gate Q3 do RAG-QUALITY-GATE.
+   */
+  getUnusedChunks: solarisOnlyProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(500).default(50) }).optional())
+    .query(async ({ input }) => {
+      const limit = input?.limit ?? 50;
+      const conn = await mysql.createConnection(ENV.databaseUrl);
+      try {
+        const [rows] = await conn.execute(
+          `SELECT
+             d.id,
+             d.anchor_id,
+             d.lei,
+             d.artigo,
+             d.titulo,
+             d.createdAt
+           FROM ragDocuments d
+           LEFT JOIN rag_usage_log u ON d.anchor_id = u.anchor_id
+           WHERE u.anchor_id IS NULL
+             AND d.anchor_id IS NOT NULL
+           ORDER BY d.lei, d.id
+           LIMIT ?`,
+          [limit]
+        );
+        const [countResult] = await conn.execute(
+          `SELECT COUNT(*) AS total
+           FROM ragDocuments d
+           LEFT JOIN rag_usage_log u ON d.anchor_id = u.anchor_id
+           WHERE u.anchor_id IS NULL AND d.anchor_id IS NOT NULL`
+        ) as [{ total: number }[], unknown];
+        return {
+          chunks: rows as { id: number; anchor_id: string; lei: string; artigo: string; titulo: string; createdAt: string }[],
+          total_invisible: (countResult as unknown as { total: number }[])[0]?.total ?? 0,
+        };
+      } finally {
+        await conn.end();
+      }
+    }),
+
+  /**
+   * getUsageByLei — L-RAG-01
+   * Distribuição de uso por lei: quantos logs e chunks únicos por lei.
+   */
+  getUsageByLei: solarisOnlyProcedure.query(async () => {
+    const conn = await mysql.createConnection(ENV.databaseUrl);
+    try {
+      const [rows] = await conn.execute(
+        `SELECT
+           lei,
+           COUNT(*)                  AS total_logs,
+           COUNT(DISTINCT anchor_id) AS unique_chunks,
+           AVG(score)                AS avg_score
+         FROM rag_usage_log
+         GROUP BY lei
+         ORDER BY total_logs DESC`
+      );
+      return { usage: rows as { lei: string; total_logs: number; unique_chunks: number; avg_score: number }[] };
     } finally {
       await conn.end();
     }

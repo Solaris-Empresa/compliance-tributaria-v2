@@ -421,6 +421,13 @@
       "when": 1774817974859,
       "tag": "0059_chunky_strong_guy",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "5",
+      "when": 1774891153011,
+      "tag": "0060_soft_skin",
+      "breakpoints": true
     }
   ]
 }
