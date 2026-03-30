@@ -28,7 +28,7 @@ const readFile = (f: File): Promise<string> =>
   });
 
 // ── Main component ───────────────────────────────────────────────────────────
-export default function AdminRagUpload() {
+export default function AdminSolarisQuestions() {
   const [file, setFile] = useState<File | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
@@ -40,16 +40,16 @@ export default function AdminRagUpload() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const uploadMutation = trpc.ragAdmin.uploadCsv.useMutation({
+  const uploadMutation = trpc.solarisAdmin.uploadCsv.useMutation({
     onSuccess: (data) => {
       if (phase === "validating") {
         // dryRun result
         const result: ValidationResult = {
           total: data.total,
           valid: data.valid,
-          errors: (data.errors || []).map((e: { row: number; message: string }) => ({
-            row: e.row,
-            field: "—",
+          errors: (data.errors || []).map((e: { line: number; field: string; message: string }) => ({
+            row: e.line,
+            field: e.field ?? "—",
             message: e.message,
           })),
         };
@@ -139,7 +139,7 @@ export default function AdminRagUpload() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => window.open("/template-rag-upload.csv")}
+            onClick={() => { window.location.href = "/template-solaris-questions.csv"; }}
             className="flex items-center gap-2"
           >
             <Download className="w-4 h-4" />

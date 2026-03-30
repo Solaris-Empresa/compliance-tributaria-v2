@@ -75,7 +75,7 @@ import AdminConsistencia from "./pages/AdminConsistencia";
 import AdminCpieDashboard from "./pages/AdminCpieDashboard";
 import ShadowMonitor from "./pages/ShadowMonitor";
 import RagCockpit from "./pages/RagCockpit";
-import AdminRagUpload from "./pages/AdminRagUpload"; // Sprint L — Issue #191
+import AdminSolarisQuestions from "./pages/AdminSolarisQuestions"; // Sprint L — DEC-002 Issue #191
 import TaskBoard from "./pages/TaskBoard"; // Sprint K — Taskboard P.O. ao vivo (Issue #151)
 import QuestionarioSolaris from "./pages/QuestionarioSolaris"; // K-4-B: Onda 1 SOLARIS
 import QuestionarioIaGen from "./pages/QuestionarioIaGen"; // K-4-C: Onda 2 IA Generativa
@@ -137,7 +137,7 @@ function Router() {
       <Route path="/admin/cpie-dashboard" component={AdminCpieDashboard} />
       <Route path="/admin/shadow-monitor" component={ShadowMonitor} />
       <Route path="/admin/rag-cockpit" component={RagCockpit} />
-      <Route path="/admin/rag-upload" component={AdminRagUpload} /> {/* Sprint L — Issue #191 */}
+      <Route path="/admin/solaris-questions" component={AdminSolarisQuestions} /> {/* Sprint L — DEC-002 Issue #191 */}
       <Route path="/admin/taskboard" component={TaskBoard} /> {/* Sprint K — Issue #151 */}
       {/* Compliance Engine v3 */}
       <Route path="/projetos/:id/compliance-v3" component={ComplianceDashboardV3} />

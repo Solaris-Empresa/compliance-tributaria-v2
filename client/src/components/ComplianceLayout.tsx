@@ -103,7 +103,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     navItems.push({ href: "/admin/cpie-dashboard", icon: BarChart3, label: "Dashboard CPIE" });
     navItems.push({ href: "/admin/shadow-monitor", icon: Activity, label: "Shadow Monitor" });
     navItems.push({ href: "/admin/rag-cockpit", icon: Database, label: "RAG Cockpit" });
-    navItems.push({ href: "/admin/rag-upload", icon: Upload, label: "Upload CSV RAG" }); // Sprint L
+    navItems.push({ href: "/admin/solaris-questions", icon: Upload, label: "Upload Perguntas SOLARIS" }); // Sprint L — DEC-002
   }
 
   if (user?.role === "cliente") {

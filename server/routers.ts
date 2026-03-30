@@ -74,6 +74,7 @@ import { briefingEngineRouter } from "./routers/briefingEngine";
 import { scoringEngineRouter } from "./routers/scoringEngine";
 import { ragInventoryRouter } from "./routers/ragInventory";
 import { ragAdminRouter } from "./routers/ragAdmin";
+import { solarisAdminRouter } from "./routers/solarisAdmin"; // Sprint L — DEC-002 Upload CSV Perguntas SOLARIS (Issue #191)
 import { taskboardRouter } from "./routers/taskboard"; // Sprint K — Taskboard P.O. ao vivo (Issue #151)
 
 export const appRouter = router({
@@ -119,6 +120,7 @@ export const appRouter = router({
   scoringEngine: scoringEngineRouter, // ADR-010 — Scoring Engine B8 (Sprint 98%)
   ragInventory: ragInventoryRouter, // Sprint H — RAG Cockpit ao vivo (Issue #128)
   ragAdmin: ragAdminRouter, // Sprint J — G16 Upload CSV corpus RAG (Issue #140)
+  solarisAdmin: solarisAdminRouter, // Sprint L — DEC-002 Upload CSV Perguntas SOLARIS (Issue #191)
   taskboard: taskboardRouter, // Sprint K — Taskboard P.O. ao vivo (Issue #151)
 
   // ==========================================================================
