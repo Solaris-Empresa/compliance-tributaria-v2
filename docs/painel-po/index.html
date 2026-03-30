@@ -340,6 +340,46 @@ mark.search-hl{
 .consistencia-detail{font-size:10px;color:var(--text-muted);margin-top:7px;line-height:1.7;}
 @media(max-width:900px){.ondas-estado-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:600px){.ondas-estado-grid{grid-template-columns:1fr;}}
+/* ── Seção 7 — RAG Rastreabilidade ─────────────────────────────────────── */
+.rag-section{margin-top:24px;}
+.rag-governance-banner{background:#F0FAFA;border:1px solid #0E7490;border-left:4px solid #0E7490;border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.rag-gov-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.rag-gov-text{font-size:12px;color:#0E7490;flex:1;min-width:200px;font-weight:600;}
+.rag-gov-text a{color:#0E7490;font-weight:700;text-decoration:underline;}
+.rag-gov-legend{font-size:11px;color:var(--text-muted);width:100%;margin-top:4px;}
+.rag-labels-grid{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.rag-label-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;border:1px solid;cursor:default;}
+.rag-label-chip.corpus{background:#F0FAFA;border-color:#0E7490;color:#0E7490;}
+.rag-label-chip.retriever{background:#EFF6FF;border-color:#0369A1;color:#0369A1;}
+.rag-label-chip.incidente{background:#FEF2F2;border-color:#DC2626;color:#DC2626;}
+.rag-label-chip.rfc{background:#F5F3FF;border-color:#7C3AED;color:#7C3AED;}
+.rag-label-chip.performance{background:#FEF3E2;border-color:#D97706;color:#D97706;}
+.rag-label-chip.governanca{background:#F0FDF4;border-color:#16A34A;color:#16A34A;}
+.rag-label-count{background:rgba(0,0,0,.1);border-radius:10px;padding:0 5px;font-size:9px;}
+.rag-subsections{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.rag-subsection{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);}
+.rag-subsection-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#0E7490;margin-bottom:10px;padding-bottom:6px;border-bottom:1px dashed var(--border);display:flex;align-items:center;gap:8px;}
+.rag-subsection-title .ts{font-size:10px;font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0;margin-left:auto;}
+.rag-corpus-bars{display:flex;flex-direction:column;gap:6px;}
+.rag-corpus-bar{display:flex;align-items:center;gap:8px;}
+.rag-corpus-bar-lei{font-size:10px;font-weight:700;color:var(--text-muted);white-space:nowrap;min-width:70px;}
+.rag-corpus-bar-track{flex:1;height:7px;background:#E2E2DE;border-radius:4px;overflow:hidden;}
+.rag-corpus-bar-fill{height:100%;background:#0E7490;border-radius:4px;transition:width .5s ease;}
+.rag-corpus-bar-count{font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;min-width:50px;text-align:right;}
+.rag-total-badge{display:inline-flex;align-items:center;gap:5px;background:#F0FAFA;border:1px solid #0E7490;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;color:#0E7490;margin-top:8px;}
+.rag-issues-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.rag-issues-tab{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-muted);transition:all .15s;}
+.rag-issues-tab.active{background:#0E7490;color:#fff;border-color:#0E7490;}
+.rag-issues-content{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;min-height:140px;max-height:320px;overflow-y:auto;box-shadow:var(--shadow);}
+.rag-incidente-alert{background:#FEF2F2;border:1px solid #DC2626;border-radius:var(--radius);padding:8px 12px;font-size:11px;color:#DC2626;font-weight:700;margin-bottom:10px;display:none;}
+.rag-rfc-alert{background:#F5F3FF;border:1px solid #7C3AED;border-radius:var(--radius);padding:8px 12px;font-size:11px;color:#7C3AED;font-weight:600;margin-bottom:10px;display:none;}
+.rag-global-status{display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:14px;font-size:12px;font-weight:700;}
+.rag-global-status.ok{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.rag-global-status.parcial{background:var(--amber-bg);border-color:var(--amber);color:var(--amber);}
+.rag-global-status.erro{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.rag-global-status .rgs-icon{font-size:18px;}
+.rag-global-status .rgs-detail{font-size:11px;font-weight:400;color:var(--text-muted);margin-left:auto;}
+@media(max-width:900px){.rag-subsections{grid-template-columns:1fr;}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
@@ -1014,6 +1054,88 @@ mark.search-hl{
         <div class="consistencia-detail" id="consistenciaDetail">⟳ Carregando...</div>
       </div>
 
+    </div>
+  </div>
+
+</div>
+
+<!-- SECAO 7 - RAG RASTREABILIDADE -->
+<div class="section rag-section">
+  <div class="section-title">RAG &mdash; Rastreabilidade <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">corpus &middot; issues &middot; incidentes &middot; RFCs</span></div>
+
+  <!-- Banner de governança -->
+  <div class="rag-governance-banner">
+    <span class="rag-gov-icon">&#9432;</span>
+    <div class="rag-gov-text">
+      <strong>Governança RAG ativa.</strong> Todo PR, Issue, RFC e incidente RAG recebe label automática via GitHub Actions.
+      Fonte de verdade: <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md" target="_blank">ESTADO-ATUAL.md</a> &middot;
+      <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/RAG-PROCESSO.md" target="_blank">RAG-PROCESSO.md</a>
+    </div>
+    <div class="rag-gov-legend">
+      <span class="gov-badge static">&#9881; estático</span> = baseline v2.5 (atualizar a cada sprint) &middot;
+      <span class="gov-badge live">&#8635; vivo</span> = fetch API GitHub (cache 5 min)
+    </div>
+  </div>
+
+  <!-- Status global RAG -->
+  <div class="rag-global-status" id="ragGlobalStatus">
+    <span class="rgs-icon">&#8987;</span>
+    <span id="ragGlobalText">Aguardando dados...</span>
+    <span class="rgs-detail" id="ragGlobalDetail"></span>
+  </div>
+
+  <!-- Alertas de incidente e RFC -->
+  <div class="rag-incidente-alert" id="ragIncidenteAlert">&#128680; INCIDENTE RAG ABERTO &mdash; <span id="ragIncidenteCount"></span> issue(s) com label <code>rag:incidente</code></div>
+  <div class="rag-rfc-alert" id="ragRfcAlert">&#128196; RFC RAG PENDENTE &mdash; <span id="ragRfcCount"></span> RFC(s) aguardando aprovação do P.O.</div>
+
+  <!-- Labels de governança -->
+  <div class="ondas-subsection">
+    <div class="ondas-subsection-title">Labels de Governança RAG <span class="gov-badge live">&#8635; vivo</span></div>
+    <div class="rag-labels-grid" id="ragLabelsGrid">
+      <div class="rag-label-chip corpus">&#128312; rag:corpus <span class="rag-label-count" id="cnt-rag-corpus">...</span></div>
+      <div class="rag-label-chip retriever">&#128309; rag:retriever <span class="rag-label-count" id="cnt-rag-retriever">...</span></div>
+      <div class="rag-label-chip incidente">&#128308; rag:incidente <span class="rag-label-count" id="cnt-rag-incidente">...</span></div>
+      <div class="rag-label-chip rfc">&#128307; rag:rfc <span class="rag-label-count" id="cnt-rag-rfc">...</span></div>
+      <div class="rag-label-chip performance">&#128992; rag:performance <span class="rag-label-count" id="cnt-rag-performance">...</span></div>
+      <div class="rag-label-chip governanca">&#128994; rag:governanca <span class="rag-label-count" id="cnt-rag-governanca">...</span></div>
+    </div>
+  </div>
+
+  <!-- Sub-paineis: 7A Corpus + 7B Issues/PRs -->
+  <div class="rag-subsections">
+
+    <!-- 7A: Estado do corpus -->
+    <div class="rag-subsection">
+      <div class="rag-subsection-title">7A &mdash; Estado do Corpus <span class="gov-badge static">&#9881; estático</span> <span class="ts" id="ragCorpusTs"></span></div>
+      <div class="rag-corpus-bars" id="ragCorpusBars">
+        <div style="font-size:11px;color:var(--text-muted)">Carregando...</div>
+      </div>
+      <div class="rag-total-badge" id="ragCorpusTotal">&#8987; Carregando...</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:8px">Tabela: <code>ragDocuments</code> &middot; 100% anchor_id &middot; Baseline v2.5</div>
+    </div>
+
+    <!-- 7B: Issues e PRs por label -->
+    <div class="rag-subsection">
+      <div class="rag-subsection-title">7B &mdash; Issues &amp; PRs por Label <span class="gov-badge live">&#8635; vivo</span> <span class="ts" id="ragIssuesTs"></span></div>
+      <div class="rag-issues-tabs">
+        <button class="rag-issues-tab active" onclick="setRagTab('abertos', this)">Abertos</button>
+        <button class="rag-issues-tab" onclick="setRagTab('incidentes', this)">Incidentes</button>
+        <button class="rag-issues-tab" onclick="setRagTab('rfcs', this)">RFCs</button>
+        <button class="rag-issues-tab" onclick="setRagTab('historico', this)">Histórico PRs</button>
+        <button class="rastreabilidade-refresh" onclick="fetchRagData(true)" title="Atualizar">&#8635;</button>
+      </div>
+      <div class="rag-issues-content" id="ragIssuesContent">
+        <div style="font-size:11px;color:var(--text-muted)">&#8987; Carregando...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 7C: Backlog RAG -->
+  <div class="ondas-subsection">
+    <div class="ondas-subsection-title">7C &mdash; Backlog RAG <span class="gov-badge live">&#8635; vivo</span></div>
+    <div class="rag-issues-content" id="ragBacklogContent" style="max-height:200px">
+      <div style="font-size:11px;color:var(--text-muted)">&#8987; Carregando...</div>
     </div>
   </div>
 
@@ -2041,7 +2163,278 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchDocDates();
   // Seção 6 — Cockpit 3 Ondas
   initSecao6();
+  // Seção 7 — RAG Rastreabilidade
+  initSecao7();
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// SEÇÃO 7 — RAG RASTREABILIDADE
+// ═══════════════════════════════════════════════════════════════════
+
+// Cache TTL 5 min (compartilhado com Seção 6)
+const RAG_CACHE_TTL = 5 * 60 * 1000;
+const ragCache = {
+  _store: {},
+  set(key, data) { this._store[key] = { data, ts: Date.now() }; },
+  get(key) {
+    const e = this._store[key];
+    if (!e) return null;
+    if (Date.now() - e.ts > RAG_CACHE_TTL) { delete this._store[key]; return null; }
+    return e.data;
+  },
+  age(key) { const e = this._store[key]; return e ? Math.round((Date.now() - e.ts) / 1000) : null; }
+};
+
+// Corpus estático (baseline v2.5 — atualizar a cada sprint)
+const RAG_CORPUS_BASELINE = [
+  { lei: 'lc214',    descricao: 'LC 214/2024 — IBS e CBS',              chunks: 812 },
+  { lei: 'lc224',    descricao: 'LC 224/2025 — Comitê Gestor IBS',     chunks: 398 },
+  { lei: 'ec132',    descricao: 'EC 132/2023 — Reforma Constitucional', chunks: 347 },
+  { lei: 'lc227',    descricao: 'LC 227/2024 — Complementações',       chunks: 201 },
+  { lei: 'demais',   descricao: 'lc116 + lc87 + cg_ibs + rfb_cbs + outros', chunks: 320 },
+];
+const RAG_CORPUS_TOTAL = RAG_CORPUS_BASELINE.reduce((s, l) => s + l.chunks, 0);
+
+// Labels RAG para busca via API
+const RAG_LABELS = ['rag:corpus', 'rag:retriever', 'rag:incidente', 'rag:rfc', 'rag:performance', 'rag:governanca'];
+
+// Estado das abas
+let ragTabAtiva = 'abertos';
+let ragData = null;
+
+// Helper: badge de label RAG
+function ragLabelBadge(name) {
+  const map = {
+    'rag:corpus':      'background:#F0FAFA;color:#0E7490;border:1px solid #0E7490',
+    'rag:retriever':   'background:#EFF6FF;color:#0369A1;border:1px solid #0369A1',
+    'rag:incidente':   'background:#FEF2F2;color:#DC2626;border:1px solid #DC2626',
+    'rag:rfc':         'background:#F5F3FF;color:#7C3AED;border:1px solid #7C3AED',
+    'rag:performance': 'background:#FEF3E2;color:#D97706;border:1px solid #D97706',
+    'rag:governanca':  'background:#F0FDF4;color:#16A34A;border:1px solid #16A34A',
+  };
+  const style = map[name] || 'background:var(--bg);color:var(--text-muted);border:1px solid var(--border)';
+  return `<span style="display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;${style};margin-right:2px">${escHtml(name)}</span>`;
+}
+
+// Renderizar tabela de issues/PRs RAG
+function renderRagTable(items) {
+  if (!items || items.length === 0) {
+    return '<div style="font-size:11px;color:var(--text-muted);padding:10px 0">Nenhum item encontrado.</div>';
+  }
+  const rows = items.map(item => {
+    const tipo = item.pull_request ? 'PR' : 'Issue';
+    const tipoClass = item.pull_request ? 'pr' : 'issue';
+    const labels = (item.labels || []).filter(l => l.name.startsWith('rag:')).map(l => ragLabelBadge(l.name)).join('');
+    const estado = item.state === 'closed' ? '✅' : '🟡';
+    const data = (item.closed_at || item.merged_at || item.created_at || '').slice(0, 10);
+    return `<tr>
+      <td><span class="rastr-type ${tipoClass}">${tipo}</span></td>
+      <td><a href="${escHtml(item.html_url)}" target="_blank">#${item.number}</a></td>
+      <td style="max-width:280px;word-break:break-word">${escHtml((item.title || '').slice(0, 80))}${item.title && item.title.length > 80 ? '…' : ''}</td>
+      <td>${labels || '<span style="color:var(--text-muted);font-size:10px">&mdash;</span>'}</td>
+      <td style="white-space:nowrap">${estado} ${escHtml(data)}</td>
+    </tr>`;
+  }).join('');
+  return `<table class="rastr-table">
+    <thead><tr>
+      <th>Tipo</th><th>#</th><th>Título</th><th>Labels RAG</th><th>Data</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// Buscar dados RAG via API GitHub
+async function fetchRagData(force = false) {
+  const cacheKey = 'rag_issues_all';
+  if (!force && ragCache.get(cacheKey)) {
+    ragData = ragCache.get(cacheKey);
+    renderRagSection();
+    return;
+  }
+
+  try {
+    // Buscar issues abertas com labels RAG
+    const [openIssues, closedPRs] = await Promise.all([
+      ghFetch('/repos/Solaris-Empresa/compliance-tributaria-v2/issues?state=open&labels=rag:corpus,rag:retriever,rag:incidente,rag:rfc,rag:performance,rag:governanca&per_page=50'),
+      ghFetch('/repos/Solaris-Empresa/compliance-tributaria-v2/pulls?state=closed&per_page=50')
+    ]);
+
+    // Filtrar PRs RAG (que têm pelo menos uma label rag:*)
+    const ragPRs = Array.isArray(closedPRs)
+      ? closedPRs.filter(pr => (pr.labels || []).some(l => l.name.startsWith('rag:')))
+      : [];
+
+    // Buscar issues abertas por label individual para contagens
+    const labelCounts = {};
+    await Promise.all(RAG_LABELS.map(async label => {
+      try {
+        const items = await ghFetch(`/repos/Solaris-Empresa/compliance-tributaria-v2/issues?state=open&labels=${encodeURIComponent(label)}&per_page=1`);
+        // A API retorna X-Total-Count no header, mas como não temos acesso direto, usamos o array
+        // Para contagem real, buscamos com per_page=100
+        const all = await ghFetch(`/repos/Solaris-Empresa/compliance-tributaria-v2/issues?state=all&labels=${encodeURIComponent(label)}&per_page=100`);
+        labelCounts[label] = Array.isArray(all) ? all.length : 0;
+      } catch { labelCounts[label] = 0; }
+    }));
+
+    ragData = {
+      openIssues: Array.isArray(openIssues) ? openIssues : [],
+      ragPRs,
+      labelCounts,
+      ts: Date.now()
+    };
+    ragCache.set(cacheKey, ragData);
+    renderRagSection();
+
+  } catch (err) {
+    console.warn('[RAG] Erro ao buscar dados:', err);
+    updateRagGlobalStatus('erro', 'Erro ao buscar API GitHub', 'Verifique a conexão ou o rate limit');
+  }
+}
+
+// Renderizar a seção RAG com os dados carregados
+function renderRagSection() {
+  if (!ragData) return;
+
+  const { openIssues, ragPRs, labelCounts } = ragData;
+
+  // Atualizar contagens das labels
+  RAG_LABELS.forEach(label => {
+    const key = label.replace(':', '-');
+    const el = document.getElementById('cnt-' + key);
+    if (el) el.textContent = labelCounts[label] || 0;
+  });
+
+  // Alertas de incidente e RFC
+  const incidenteCount = openIssues.filter(i => (i.labels || []).some(l => l.name === 'rag:incidente')).length;
+  const rfcCount = openIssues.filter(i => (i.labels || []).some(l => l.name === 'rag:rfc')).length;
+
+  const incidenteAlert = document.getElementById('ragIncidenteAlert');
+  const rfcAlert = document.getElementById('ragRfcAlert');
+  if (incidenteAlert) {
+    incidenteAlert.style.display = incidenteCount > 0 ? 'block' : 'none';
+    const countEl = document.getElementById('ragIncidenteCount');
+    if (countEl) countEl.textContent = incidenteCount;
+  }
+  if (rfcAlert) {
+    rfcAlert.style.display = rfcCount > 0 ? 'block' : 'none';
+    const countEl = document.getElementById('ragRfcCount');
+    if (countEl) countEl.textContent = rfcCount;
+  }
+
+  // Timestamp
+  const age = ragCache.age('rag_issues_all');
+  const tsEl = document.getElementById('ragIssuesTs');
+  if (tsEl && age !== null) tsEl.textContent = `atualizado há ${age}s`;
+
+  // Renderizar aba ativa
+  setRagTab(ragTabAtiva, null);
+
+  // Renderizar backlog
+  renderRagBacklog(openIssues);
+
+  // Status global
+  const totalOpen = openIssues.length;
+  if (incidenteCount > 0) {
+    updateRagGlobalStatus('erro', `${incidenteCount} incidente(s) RAG aberto(s)`, 'Requer atenção imediata do P.O.');
+  } else if (rfcCount > 0) {
+    updateRagGlobalStatus('parcial', `${rfcCount} RFC(s) aguardando aprovação`, `${totalOpen} issues abertas`);
+  } else if (totalOpen === 0) {
+    updateRagGlobalStatus('ok', 'Corpus estável — sem incidentes ou RFCs abertas', `${ragPRs.length} PRs RAG mergeados`);
+  } else {
+    updateRagGlobalStatus('parcial', `${totalOpen} issue(s) RAG abertas`, 'Sem incidentes críticos');
+  }
+}
+
+// Atualizar status global RAG
+function updateRagGlobalStatus(tipo, texto, detalhe) {
+  const el = document.getElementById('ragGlobalStatus');
+  const textEl = document.getElementById('ragGlobalText');
+  const detailEl = document.getElementById('ragGlobalDetail');
+  if (!el) return;
+  el.className = 'rag-global-status ' + tipo;
+  const icons = { ok: '✅', parcial: '⚠️', erro: '❌' };
+  const iconEl = el.querySelector('.rgs-icon');
+  if (iconEl) iconEl.textContent = icons[tipo] || '⏳';
+  if (textEl) textEl.textContent = texto;
+  if (detailEl) detailEl.textContent = detalhe || '';
+}
+
+// Mudar aba ativa do 7B
+function setRagTab(tab, btn) {
+  ragTabAtiva = tab;
+  document.querySelectorAll('.rag-issues-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.rag-issues-tab').forEach(b => {
+      if (b.textContent.toLowerCase().includes(tab === 'abertos' ? 'abertos' :
+          tab === 'incidentes' ? 'incident' :
+          tab === 'rfcs' ? 'rfc' : 'histórico')) b.classList.add('active');
+    });
+  }
+
+  const el = document.getElementById('ragIssuesContent');
+  if (!el) return;
+
+  if (!ragData) {
+    el.innerHTML = '<div style="font-size:11px;color:var(--text-muted)">&#8987; Carregando...</div>';
+    return;
+  }
+
+  const { openIssues, ragPRs } = ragData;
+
+  if (tab === 'abertos') {
+    el.innerHTML = renderRagTable(openIssues);
+  } else if (tab === 'incidentes') {
+    const items = openIssues.filter(i => (i.labels || []).some(l => l.name === 'rag:incidente'));
+    el.innerHTML = items.length > 0 ? renderRagTable(items)
+      : '<div style="font-size:11px;color:var(--green);padding:10px 0">✅ Nenhum incidente RAG aberto.</div>';
+  } else if (tab === 'rfcs') {
+    const items = openIssues.filter(i => (i.labels || []).some(l => l.name === 'rag:rfc'));
+    el.innerHTML = items.length > 0 ? renderRagTable(items)
+      : '<div style="font-size:11px;color:var(--text-muted);padding:10px 0">Nenhuma RFC RAG pendente.</div>';
+  } else if (tab === 'historico') {
+    el.innerHTML = ragPRs.length > 0 ? renderRagTable(ragPRs)
+      : '<div style="font-size:11px;color:var(--text-muted);padding:10px 0">Nenhum PR RAG encontrado com labels.</div>';
+  }
+}
+
+// Renderizar backlog RAG (7C)
+function renderRagBacklog(openIssues) {
+  const el = document.getElementById('ragBacklogContent');
+  if (!el) return;
+  if (!openIssues || openIssues.length === 0) {
+    el.innerHTML = '<div style="font-size:11px;color:var(--green);padding:6px 0">✅ Backlog RAG vazio.</div>';
+    return;
+  }
+  el.innerHTML = renderRagTable(openIssues);
+}
+
+// Renderizar barras do corpus (7A)
+function renderRagCorpusBars() {
+  const el = document.getElementById('ragCorpusBars');
+  const totalEl = document.getElementById('ragCorpusTotal');
+  const tsEl = document.getElementById('ragCorpusTs');
+  if (!el) return;
+
+  const html = RAG_CORPUS_BASELINE.map(lei => {
+    const pct = Math.round((lei.chunks / RAG_CORPUS_TOTAL) * 100);
+    return `<div class="rag-corpus-bar">
+      <span class="rag-corpus-bar-lei">${escHtml(lei.lei)}</span>
+      <div class="rag-corpus-bar-track"><div class="rag-corpus-bar-fill" style="width:${pct}%"></div></div>
+      <span class="rag-corpus-bar-count">${lei.chunks} <span style="font-size:9px;color:var(--text-muted)">(${pct}%)</span></span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = html;
+  if (totalEl) totalEl.innerHTML = `✅ ${RAG_CORPUS_TOTAL} chunks totais &middot; 5 leis &middot; 100% anchor_id`;
+  if (tsEl) tsEl.textContent = '⚙️ baseline v2.5';
+}
+
+// Inicializar Seção 7
+function initSecao7() {
+  renderRagCorpusBars();
+  fetchRagData();
+}
 
 // ── BUSCA GLOBAL (v2 — corrige abas invisíveis) ──────────────────────────
 (function() {

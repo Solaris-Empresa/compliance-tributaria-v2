@@ -1,4 +1,4 @@
-name: Label Governance — 3 Ondas
+name: Label Governance — 3 Ondas + RAG
 
 on:
   issues:
@@ -15,7 +15,7 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Aplicar label onda:1-solaris
+      - name: Aplicar labels de rastreabilidade (3 Ondas + RAG)
         uses: actions/github-script@v7
         with:
           script: |
@@ -24,6 +24,7 @@ jobs:
             const text  = title + ' ' + body;
 
             const labelMap = [
+              // ── 3 ONDAS ────────────────────────────────────────────────────────
               {
                 label: 'onda:1-solaris',
                 keywords: ['onda 1', 'onda:1', 'solaris', 'sol-00', 'solaris_questions', 'solaris_answers',
@@ -36,13 +37,56 @@ jobs:
               },
               {
                 label: 'onda:3-regulatorio',
-                keywords: ['onda 3', 'onda:3', 'regulatório', 'regulatorio', 'rag', 'corpus', 'lc 214',
-                           'lc 224', 'rag_documents', 'retrievearticles', 'chunks', 'k-4-e', 'l-1', 'l-2']
+                keywords: ['onda 3', 'onda:3', 'regulatório', 'regulatorio', 'k-4-e', 'l-1', 'l-2']
               },
               {
                 label: 'cockpit:3ondas',
                 keywords: ['cockpit', '3 ondas', '3ondas', 'painel-po', 'secao 6', 'seção 6',
                            'index.html', 'rastreabilidade viva', 'spec-cockpit', 'spec cockpit']
+              },
+              // ── RAG ────────────────────────────────────────────────────────────
+              {
+                label: 'rag:corpus',
+                keywords: ['rag:corpus', 'corpus', 'chunks', 'ingestão', 'ingestao', 'anchor_id',
+                           'ragdocuments', 'rag_documents', 'uploadcsv', 'upload csv',
+                           'lc214', 'lc 214', 'lc224', 'lc 224', 'ec132', 'ec 132',
+                           'lc227', 'lc 227', 'lc116', 'lc 116', 'lc87', 'lc 87',
+                           'cg_ibs', 'rfb_cbs', 'conv_icms', 'lc123',
+                           'versionamento corpus', 'expansão corpus', 'expansao corpus']
+              },
+              {
+                label: 'rag:retriever',
+                keywords: ['rag:retriever', 'retrievearticles', 'retrievearticlesfast',
+                           'fetchcandidates', 'rerankwithllm', 'extractkeywords',
+                           'rag-retriever', 'pipeline rag', 're-ranking', 'reranking',
+                           'busca rag', 'recuperação rag', 'recuperacao rag']
+              },
+              {
+                label: 'rag:incidente',
+                keywords: ['rag:incidente', 'incidente rag', 'falha rag', 'hallucination',
+                           'alucinação rag', 'alucinacao rag', 'recuperação falhou',
+                           'recuperacao falhou', 'corpus desatualizado', 'chunk incorreto',
+                           'qualidade rag', 'degradação rag', 'degradacao rag']
+              },
+              {
+                label: 'rag:rfc',
+                keywords: ['rag:rfc', 'rfc-', 'rfc:', 'proposta de mudança rag',
+                           'proposta de mudanca rag', 'mudança arquitetural rag',
+                           'mudanca arquitetural rag', 'reclassificação', 'reclassificacao',
+                           'rfc-001', 'rfc-002', 'rfc-003', 'rfc-004']
+              },
+              {
+                label: 'rag:performance',
+                keywords: ['rag:performance', 'latência rag', 'latencia rag', 'rate limit rag',
+                           'cache rag', 'otimização rag', 'otimizacao rag', 'timeout rag',
+                           'performance rag', 'velocidade rag', 'lentidão rag', 'lentidao rag']
+              },
+              {
+                label: 'rag:governanca',
+                keywords: ['rag:governanca', 'rag:governança', 'governança rag', 'governanca rag',
+                           'auditoria rag', 'versionamento corpus', 'rastreabilidade rag',
+                           'corpus-baseline', 'rag-processo', 'rag-responsabilidades',
+                           'rag-governance', 'gold set', 'gold-set']
               }
             ];
 
@@ -55,7 +99,7 @@ jobs:
               const matched = keywords.some(kw => text.includes(kw));
               if (!matched) continue;
 
-              // Verificar se label já está aplicada
+              // Verificar se label já está aplicada (idempotente)
               const existing = issueOrPr.labels.map(l => l.name);
               if (existing.includes(label)) {
                 console.log(`Label '${label}' já aplicada — pulando`);
