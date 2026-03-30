@@ -1,0 +1,74 @@
+name: Label Governance — 3 Ondas
+
+on:
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  auto-label:
+    name: Aplicar labels de rastreabilidade
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Aplicar label onda:1-solaris
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = (context.payload.issue || context.payload.pull_request).title.toLowerCase();
+            const body  = ((context.payload.issue || context.payload.pull_request).body || '').toLowerCase();
+            const text  = title + ' ' + body;
+
+            const labelMap = [
+              {
+                label: 'onda:1-solaris',
+                keywords: ['onda 1', 'onda:1', 'solaris', 'sol-00', 'solaris_questions', 'solaris_answers',
+                           'questionário solaris', 'questionario solaris', 'k-3', 'k-4-b', 'sprint k']
+              },
+              {
+                label: 'onda:2-iagen',
+                keywords: ['onda 2', 'onda:2', 'iagen', 'ia gen', 'ia generativa', 'generatequestions',
+                           'iagen_answers', 'gpt-4', 'combinatório', 'combinatorio', 'k-4-c', 'k-4-d']
+              },
+              {
+                label: 'onda:3-regulatorio',
+                keywords: ['onda 3', 'onda:3', 'regulatório', 'regulatorio', 'rag', 'corpus', 'lc 214',
+                           'lc 224', 'rag_documents', 'retrievearticles', 'chunks', 'k-4-e', 'l-1', 'l-2']
+              },
+              {
+                label: 'cockpit:3ondas',
+                keywords: ['cockpit', '3 ondas', '3ondas', 'painel-po', 'secao 6', 'seção 6',
+                           'index.html', 'rastreabilidade viva', 'spec-cockpit', 'spec cockpit']
+              }
+            ];
+
+            const issueOrPr = context.payload.issue || context.payload.pull_request;
+            const number    = issueOrPr.number;
+            const owner     = context.repo.owner;
+            const repo      = context.repo.repo;
+
+            for (const { label, keywords } of labelMap) {
+              const matched = keywords.some(kw => text.includes(kw));
+              if (!matched) continue;
+
+              // Verificar se label já está aplicada
+              const existing = issueOrPr.labels.map(l => l.name);
+              if (existing.includes(label)) {
+                console.log(`Label '${label}' já aplicada — pulando`);
+                continue;
+              }
+
+              try {
+                await github.rest.issues.addLabels({
+                  owner, repo, issue_number: number,
+                  labels: [label]
+                });
+                console.log(`✅ Label '${label}' aplicada ao #${number}`);
+              } catch (e) {
+                console.log(`⚠️ Erro ao aplicar '${label}': ${e.message}`);
+              }
+            }
