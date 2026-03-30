@@ -1,0 +1,3 @@
+titulo,conteudo,topicos,cnaeGroups,lei,artigo,area,severidade_base,vigencia_inicio
+Exemplo de pergunta SOLARIS,Texto completo da pergunta aqui,topico1;topico2,[],solaris,SOL-013,contabilidade_fiscal,media,
+Outra pergunta exemplo,Conteudo da segunda pergunta de exemplo,[],solaris,SOL-014,juridico,alta,2026-07-01
