@@ -1183,6 +1183,8 @@ mark.search-hl{
       <button class="rag-docs-tab" onclick="fetchRagDoc('rfc-003', this)">RFC-003 <span class="doc-tag rfc">rfc</span></button>
       <button class="rag-docs-tab" onclick="fetchRagDoc('rfc-004', this)">RFC-004 <span class="doc-tag rfc">rfc</span></button>
       <button class="rag-docs-tab" onclick="fetchRagDoc('rastreabilidade-rag-po', this)">RASTREABILIDADE-RAG-PO <span class="doc-tag rel">rel</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('governanca-rag-po-completo', this)">GOVERNANÇA-RAG-COMPLETO <span class="doc-tag rel">rel</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('diagrama-e2e-rag', this)">E2E-RAG-FLUXO <span class="doc-tag core">core</span></button>
     </div>
     <div class="rag-docs-content" id="ragDocsContent">
       <div class="rag-docs-loading">&#8987; Carregando documento...</div>
@@ -1861,7 +1863,14 @@ const ONDAS_PRS_FALLBACK = [
   { number: 184, title: 'feat(k4-d): wiring etapas 7-8 no stepper', merged: '2026-03-28', sprint: 'K', onda: null },
   { number: 213, title: 'feat(k4-e): project_status_log', merged: '2026-03-29', sprint: 'K', onda: null },
   { number: 215, title: 'docs(arquitetura): TABELA-3-ONDAS-QUESTIONARIO-v1', merged: '2026-03-30', sprint: 'K', onda: null },
-  { number: 217, title: 'docs(arquitetura): E2E-3-ONDAS-QUESTIONARIOS-v1', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 216, title: 'docs(cockpit): atualizar MODO_CONFIG + FALLBACK + decisões', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 219, title: 'feat(cockpit): Seção 6 — Cockpit 3 Ondas (6A+6B+6C)', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 220, title: 'fix(cockpit): título Seção 6 → Cockpit - 3 Ondas', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 221, title: 'feat(cockpit): aba SPEC v2 + labels 3 Ondas + skills', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 222, title: 'fix(cockpit): HTTP 404 docs + ERRO 1/3 checks + GitHub Actions', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 225, title: 'feat(rag-governanca): Seção 7 + 6 labels RAG + GitHub Actions', merged: '2026-03-30', sprint: 'K', onda: 3 },
+  { number: 226, title: 'feat(cockpit): 7D — documentos RAG vivos (10 MDs)', merged: '2026-03-30', sprint: 'K', onda: 3 },
+  { number: 227, title: 'chore(governance): protocolo de auditoria RAG — workflow + templates', merged: '2026-03-30', sprint: 'K', onda: 3 },
 ];
 
 // Milestones
@@ -2523,6 +2532,14 @@ const RAG_DOCS_MAP = {
   'rastreabilidade-rag-po': {
     path: 'docs/painel-po/RASTREABILIDADE-RAG-PO.md',
     descricao: 'Documento P.O.: rastreabilidade completa do RAG'
+  },
+  'governanca-rag-po-completo': {
+    path: 'docs/painel-po/GOVERNANCA-RAG-PO-COMPLETO.md',
+    descricao: 'Documento P.O. completo: governança RAG — labels, workflows, templates, skills, fluxo E2E'
+  },
+  'diagrama-e2e-rag': {
+    path: 'docs/arquitetura/DIAGRAMA-E2E-RAG-RASTREABILIDADE.mmd',
+    descricao: 'Diagrama E2E da rastreabilidade RAG em formato Mermaid (fonte editável)'
   }
 };
 
