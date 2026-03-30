@@ -1085,7 +1085,7 @@ mark.search-hl{
 </div>
 
 <!-- SECAO 7 - RAG RASTREABILIDADE -->
-<div class="section rag-section">
+<div class="section rag-section" id="secao7-rag">
   <div class="section-title">RAG &mdash; Rastreabilidade <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">corpus &middot; issues &middot; incidentes &middot; RFCs</span></div>
 
   <!-- Banner de governança -->
@@ -1533,9 +1533,49 @@ const FALLBACK = {
   totalPrsMerged: 213,
 };
 
+// ─── GH_CACHE global compartilhado entre todas as seções ───────────────────
+// Resolve rate limit: 60 req/hora (sem auth). Cache TTL 5 min por URL.
+// Seções 5, 6B, 7B e 7C reutilizam resultados sem chamadas duplicadas.
+const GH_CACHE = {
+  _store: {},
+  TTL: 5 * 60 * 1000, // 5 minutos
+  get(url) {
+    const e = this._store[url];
+    if (!e) return null;
+    if (Date.now() - e.ts > this.TTL) { delete this._store[url]; return null; }
+    return e.data;
+  },
+  set(url, data) {
+    this._store[url] = { data, ts: Date.now() };
+  },
+  invalidate(url) {
+    delete this._store[url];
+  },
+  clear() {
+    this._store = {};
+  },
+  size() {
+    return Object.keys(this._store).length;
+  }
+};
+
+// ghFetch: todas as chamadas passam pelo GH_CACHE global
+// Chamadas idênticas dentro do TTL retornam do cache sem nova req HTTP
 function ghFetch(url) {
-  return fetch(url, { headers: { 'Accept': 'application/vnd.github.v3+json' } })
-    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  // Normalizar URL: se relativa, prefixar com base da API GitHub
+  const fullUrl = url.startsWith('http') ? url
+    : 'https://api.github.com' + url;
+  const cached = GH_CACHE.get(fullUrl);
+  if (cached !== null) return Promise.resolve(cached);
+  return fetch(fullUrl, { headers: { 'Accept': 'application/vnd.github.v3+json' } })
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(data => {
+      GH_CACHE.set(fullUrl, data);
+      return data;
+    });
 }
 
 function semColorFromStatus(status) {
@@ -2224,8 +2264,22 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchDocDates();
   // Seção 6 — Cockpit 3 Ondas
   initSecao6();
-  // Seção 7 — RAG Rastreabilidade
-  initSecao7();
+  // Seção 7 — RAG Rastreabilidade (lazy: só faz fetch quando visível)
+  // Reduz chamadas API em ~14 req quando o usuário não rola até a seção
+  const secao7El = document.getElementById('secao7-rag');
+  if (secao7El && 'IntersectionObserver' in window) {
+    let secao7Loaded = false;
+    const obs7 = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !secao7Loaded) {
+        secao7Loaded = true;
+        obs7.disconnect();
+        initSecao7();
+      }
+    }, { rootMargin: '200px' }); // pré-carrega 200px antes de chegar
+    obs7.observe(secao7El);
+  } else {
+    initSecao7(); // fallback para browsers sem suporte
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════
@@ -2325,17 +2379,20 @@ async function fetchRagData(force = false) {
       ? closedPRs.filter(pr => (pr.labels || []).some(l => l.name.startsWith('rag:')))
       : [];
 
-    // Buscar issues abertas por label individual para contagens
+    // Consolidado: 1 chamada para todas as issues RAG (abertas + fechadas)
+    // Conta por label localmente — elimina as 12 chamadas individuais anteriores
+    const allRagIssues = await ghFetch(
+      '/repos/Solaris-Empresa/compliance-tributaria-v2/issues?state=all&per_page=100'
+    );
     const labelCounts = {};
-    await Promise.all(RAG_LABELS.map(async label => {
-      try {
-        const items = await ghFetch(`/repos/Solaris-Empresa/compliance-tributaria-v2/issues?state=open&labels=${encodeURIComponent(label)}&per_page=1`);
-        // A API retorna X-Total-Count no header, mas como não temos acesso direto, usamos o array
-        // Para contagem real, buscamos com per_page=100
-        const all = await ghFetch(`/repos/Solaris-Empresa/compliance-tributaria-v2/issues?state=all&labels=${encodeURIComponent(label)}&per_page=100`);
-        labelCounts[label] = Array.isArray(all) ? all.length : 0;
-      } catch { labelCounts[label] = 0; }
-    }));
+    RAG_LABELS.forEach(label => { labelCounts[label] = 0; });
+    if (Array.isArray(allRagIssues)) {
+      allRagIssues.forEach(issue => {
+        (issue.labels || []).forEach(l => {
+          if (RAG_LABELS.includes(l.name)) labelCounts[l.name] = (labelCounts[l.name] || 0) + 1;
+        });
+      });
+    }
 
     ragData = {
       openIssues: Array.isArray(openIssues) ? openIssues : [],
