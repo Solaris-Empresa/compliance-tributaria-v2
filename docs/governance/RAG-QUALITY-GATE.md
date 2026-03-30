@@ -298,5 +298,30 @@ Se muitos chunks nunca aparecem em busca controlada, ou estão mal chunkados, ou
 
 ---
 
-*Documento criado em 2026-03-30. Mantido pelo Orquestrador (Claude) e implementado pelo Manus.*  
+## 8. Telemetria de uso (L-RAG-01 — implementado 2026-03-30)
+
+> A partir do PR #235, toda execução de `retrieveArticles` registra automaticamente
+> os chunks recuperados na tabela `rag_usage_log` de forma **async non-blocking**.
+> Isso habilita os gates Q2 e Q3 com dados reais de produção.
+
+### 8.1 Endpoints disponíveis
+
+| Endpoint tRPC | Uso no gate |
+|---|---|
+| `ragAdmin.getChunkUsageStats` | Score de cobertura: `coverage_pct = unique_chunks_used / total_chunks * 100` |
+| `ragAdmin.getTopChunks` | Validar Q2: chunks do gold set devem aparecer no top-20 |
+| `ragAdmin.getUnusedChunks` | Gate Q3: `total_invisible` deve ser 0 para chunks críticos |
+| `ragAdmin.getUsageByLei` | Cobertura por lei: nenhuma lei deve ter 0 uso |
+
+### 8.2 Integração obrigatória nos gates
+
+- **Gate Q3:** a partir de agora, o relatório de invisibilidade DEVE incluir o resultado de
+  `getUnusedChunks` para PRs que toquem o retriever ou o schema.
+- **Gate Q2:** o recall do gold set pode ser validado cruzando `getTopChunks` com os
+  `anchor_id` esperados por query.
+- **Score de uso real:** meta ≥ 60% de cobertura ao final da Sprint L.
+
+---
+
+*Documento criado em 2026-03-30. Atualizado em 2026-03-30 (L-RAG-01). Mantido pelo Orquestrador (Claude) e implementado pelo Manus.*  
 *Aprovação de mudanças neste documento: P.O. Uires Tapajós.*

@@ -60,17 +60,20 @@ mas "**está funcionando?**"
 
 > **Crítica do Consultor (C-01):** "Você mede quantidade de chunks, mas não mede se os chunks são usados. Isso mata o RAG."
 
+> **Status L-RAG-01 (2026-03-30):** Tabela `rag_usage_log` criada (migration 0060), captura
+> async non-blocking implementada em `server/rag-retriever.ts`, 4 endpoints tRPC adicionados
+> em `ragAdmin`. Aguardando primeiros logs de produção para popular as métricas abaixo.
+
 As métricas abaixo devem ser coletadas a cada sprint via query no banco de produção
-e registradas neste documento. Enquanto o pipeline de telemetria não estiver implementado
-(Sprint L backlog), os campos são marcados como `⏳ pendente`.
+e registradas neste documento.
 
 | Indicador | Descrição | Status atual |
 |---|---|---|
-| **Top 10 chunks usados** | `anchor_id` mais recuperados por `retrieveArticles` | ⏳ pendente — Sprint L |
-| **Chunks nunca usados** | `anchor_id` com 0 recuperações desde a ingestão | ⏳ pendente — Sprint L |
-| **Uso por lei** | % de recuperações por lei (lc214 vs lc227 vs demais) | ⏳ pendente — Sprint L |
-| **Frequência por diagnóstico** | Chunks mais usados por tipo de empresa (CNAE) | ⏳ pendente — Sprint L |
-| **Taxa de fallback** | % de queries que retornaram 0 chunks relevantes | ⏳ pendente — Sprint L |
+| **Top 10 chunks usados** | `anchor_id` mais recuperados por `retrieveArticles` | ✅ endpoint `getTopChunks` disponível |
+| **Chunks nunca usados** | `anchor_id` com 0 recuperações desde a ingestão | ✅ endpoint `getUnusedChunks` disponível |
+| **Uso por lei** | % de recuperações por lei (lc214 vs lc227 vs demais) | ✅ endpoint `getUsageByLei` disponível |
+| **Frequência por diagnóstico** | Chunks mais usados por tipo de empresa (CNAE) | ⏳ aguarda logs de produção |
+| **Taxa de fallback** | % de queries que retornaram 0 chunks relevantes | ⏳ aguarda logs de produção |
 
 ### 2.1 Query de referência para coleta de uso
 
@@ -290,13 +293,13 @@ INGESTÃO → VALIDAÇÃO → USO → MELHORIA
 
 ## 10. Pendências para Sprint L
 
-| Item | Prioridade | Descrição |
-|---|---|---|
-| L-RAG-01 | P0 | Implementar `rag_usage_log` — tabela de telemetria de uso |
-| L-RAG-02 | P1 | Implementar `rag_chunk_risk_map` — rastreabilidade chunk→risco |
-| L-RAG-03 | P1 | Dashboard de score no cockpit (Seção 7 — "Saúde do Corpus") |
-| L-RAG-04 | P2 | Detector automático de chunks duplicados (similaridade coseno) |
-| L-RAG-05 | P2 | Ingestão lc123 completa (RFC-004) — cobertura de ~60% → 95% |
+| Item | Prioridade | Descrição | Status |
+|---|---|---|---|
+| L-RAG-01 | P0 | Implementar `rag_usage_log` — tabela de telemetria de uso | ✅ **implementado** — PR #235 · migration 0060 · 4 endpoints tRPC |
+| L-RAG-02 | P1 | Implementar `rag_chunk_risk_map` — rastreabilidade chunk→risco | ⏳ pendente |
+| L-RAG-03 | P1 | Dashboard de score no cockpit (Seção 7 — "Saúde do Corpus") | ✅ **implementado** — PR #233 |
+| L-RAG-04 | P2 | Detector automático de chunks duplicados (similaridade coseno) | ⏳ pendente |
+| L-RAG-05 | P2 | Ingestão lc123 completa (RFC-004) — cobertura de ~60% → 95% | ⏳ pendente |
 
 ---
 
@@ -307,6 +310,7 @@ INGESTÃO → VALIDAÇÃO → USO → MELHORIA
 | v1.0 | 2026-03-26 | 0ad209b | Criação — primeiro inventário granular por lei |
 | v1.1 | 2026-03-26 | 4591b0c | RFC-001: fusão chunks 810+811 · RFC-002: 25 chunks migrados para lc123 · gold set 8/8 |
 | **v2.0** | **2026-03-30** | **a098aab** | **Evolução para corpus operacional: métricas de uso, qualidade, rastreabilidade chunk→risco, score, alertas, ciclo de vida. Incorpora parecer do Consultor (ChatGPT) de 2026-03-30** |
+| **v2.1** | **2026-03-30** | **PR #235** | **L-RAG-01 implementado: tabela `rag_usage_log`, migration 0060, captura async non-blocking em `rag-retriever.ts`, 4 endpoints tRPC (`getChunkUsageStats`, `getTopChunks`, `getUnusedChunks`, `getUsageByLei`), integração no cockpit 7E** |
 
 ---
 
