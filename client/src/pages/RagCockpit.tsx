@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { trpc } from "../lib/trpc";
-import { Link } from "wouter";
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
 
@@ -74,14 +73,6 @@ const SPRINTS = [
       "Gold set 8/8 = 100% confirmado via queries reais",
       "DIAGNOSTIC_READ_MODE=shadow confirmado",
     ], status: "done" },
-  { id: "Sprint L", date: "2026-03-30", pr: "#TBD", commit: "feat/sprint-l",
-    changes: [
-      "Upload CSV RAG — AdminRagUpload.tsx (Issue #191)",
-      "Cockpit RAG evoluído — 7 seções + health score ao vivo",
-      "getCorpusDistribution + getAuthorDistribution + getHealthScore",
-      "PROTOCOLO-CONTEXTO.md — governança de contexto definitiva",
-      "Skills: solaris-contexto, solaris-orquestracao, solaris-chatgpt",
-    ], status: "in-progress" },
 ];
 
 const SOURCE_FILES = [
@@ -638,216 +629,18 @@ if (results.length === 0) {
   );
 }
 
-// ── NOVAS SEÇÕES SPRINT L ────────────────────────────────────────────────────
-
-function HealthScoreTab({ healthScore }: { healthScore: any }) {
-  if (!healthScore) return (
-    <div style={{ color: "#475569", fontSize: 13, padding: "20px 0" }}>Carregando score de saúde...</div>
-  );
-  const { score, criterios, diasDesdeImport, totalLeis, semAnchor, duplicatas, total } = healthScore;
-  const color = score >= 90 ? "#22c55e" : score >= 70 ? "#f59e0b" : "#ef4444";
-  const criterioLabels: Record<string, string> = {
-    anchor_id_completo: "anchor_id 100% preenchido (25 pts)",
-    cobertura_leis: "Cobertura ≥ 5 leis (20 pts)",
-    zero_duplicatas: "Zero anchor_ids duplicados (20 pts)",
-    import_recente: "Última importação ≤ 30 dias (15 pts)",
-    zero_divergencias: "Zero divergências shadow mode (20 pts)",
-  };
-  return (
-    <div>
-      <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 24, background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 24, marginBottom: 20 }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-          <div style={{ position: "relative", width: 120, height: 120 }}>
-            <svg width={120} height={120} style={{ transform: "rotate(-90deg)" }}>
-              <circle cx={60} cy={60} r={50} fill="none" stroke="#1e293b" strokeWidth={12} />
-              <circle cx={60} cy={60} r={50} fill="none" stroke={color} strokeWidth={12}
-                strokeDasharray={`${(score / 100) * (2 * Math.PI * 50)} ${2 * Math.PI * 50}`} strokeLinecap="round" />
-            </svg>
-            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ color, fontFamily: "monospace", fontWeight: 700, fontSize: 28 }}>{score}</span>
-              <span style={{ color: "#475569", fontSize: 10 }}>/ 100</span>
-            </div>
-          </div>
-          <div style={{ color: "#64748b", fontSize: 11, textAlign: "center" }}>Health Score<br />corpus RAG</div>
-        </div>
-        <div>
-          <div style={{ color: "#94a3b8", fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Critérios (5 dimensões)</div>
-          {Object.entries(criterios).map(([key, pts]) => (
-            <div key={key} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid #0f172a" }}>
-              <span style={{ color: (pts as number) > 0 ? "#22c55e" : "#ef4444", fontSize: 16, width: 20, flexShrink: 0 }}>{(pts as number) > 0 ? "✓" : "✗"}</span>
-              <span style={{ color: "#e2e8f0", fontSize: 13, flex: 1 }}>{criterioLabels[key] ?? key}</span>
-              <span style={{ color: (pts as number) > 0 ? "#22c55e" : "#ef4444", fontFamily: "monospace", fontSize: 13, fontWeight: 700 }}>{pts as number} pts</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
-        {[
-          { label: "Total chunks", value: Number(total).toLocaleString("pt-BR"), color: "#94a3b8" },
-          { label: "Leis ativas", value: String(totalLeis), color: totalLeis >= 5 ? "#22c55e" : "#f59e0b" },
-          { label: "Sem anchor_id", value: String(semAnchor), color: semAnchor === 0 ? "#22c55e" : "#ef4444" },
-          { label: "Duplicatas", value: String(duplicatas), color: duplicatas === 0 ? "#22c55e" : "#ef4444" },
-          { label: "Dias desde import", value: String(diasDesdeImport), color: diasDesdeImport <= 30 ? "#22c55e" : "#f59e0b" },
-        ].map(k => (
-          <div key={k.label} style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 10, padding: "12px 14px" }}>
-            <div style={{ color: "#64748b", fontSize: 11, marginBottom: 4 }}>{k.label}</div>
-            <div style={{ color: k.color, fontSize: 22, fontWeight: 700, fontFamily: "monospace" }}>{k.value}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function AuthorDistributionTab({ authorData }: { authorData: any }) {
-  const authors = authorData?.authors ?? [];
-  const tipoColors: Record<string, string> = {
-    "upload-csv": "#22c55e",
-    "correção-rfc": "#f97316",
-    "ingestão": "#6366f1",
-    "migração": "#a855f7",
-    "outro": "#64748b",
-    "desconhecido": "#334155",
-  };
-  const total = authors.reduce((s: number, a: any) => s + a.count, 0);
-  return (
-    <div>
-      <div style={{ color: "#64748b", fontSize: 12, marginBottom: 16 }}>Rastreabilidade por autor de ingestão — dados ao vivo do banco</div>
-      {authors.length === 0 ? (
-        <div style={{ color: "#475569", fontSize: 13 }}>Nenhum dado disponível.</div>
-      ) : (
-        <>
-          <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 20, marginBottom: 16 }}>
-            <div style={{ color: "#94a3b8", fontSize: 13, fontWeight: 600, marginBottom: 16 }}>Distribuição por autor</div>
-            {authors.map((a: any) => {
-              const w = total > 0 ? (a.count / total) * 100 : 0;
-              const c = tipoColors[a.tipo] ?? "#64748b";
-              return (
-                <div key={a.autor} style={{ marginBottom: 14 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: c, flexShrink: 0 }} />
-                      <span style={{ color: "#e2e8f0", fontSize: 12, fontFamily: "monospace" }}>{a.autor}</span>
-                      <span style={{ color: "#475569", fontSize: 11 }}>({a.tipo})</span>
-                    </div>
-                    <span style={{ color: "#94a3b8", fontSize: 13, fontFamily: "monospace" }}>{a.count.toLocaleString()}</span>
-                  </div>
-                  <div style={{ background: "#1e293b", borderRadius: 4, height: 8, overflow: "hidden" }}>
-                    <div style={{ width: `${w}%`, background: c, height: "100%", borderRadius: 4, transition: "width 0.6s ease" }} />
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-                    <span style={{ color: "#475569", fontSize: 11 }}>{w.toFixed(1)}% · leis: {a.leis.join(", ") || "—"}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, overflow: "hidden" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr style={{ background: "#0f172a", borderBottom: "1px solid #1e293b" }}>
-                  {["Autor", "Chunks", "%", "Tipo", "Leis cobertas"].map(h => (
-                    <th key={h} style={{ padding: "10px 14px", textAlign: "left", color: "#475569", fontWeight: 600, fontSize: 11, letterSpacing: "0.06em" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {authors.map((a: any, i: number) => (
-                  <tr key={i} style={{ borderBottom: "1px solid #0f172a", background: i % 2 === 0 ? "#0b1423" : "#0f172a" }}>
-                    <td style={{ padding: "10px 14px", color: "#a5b4fc", fontFamily: "monospace", fontSize: 12 }}>{a.autor}</td>
-                    <td style={{ padding: "10px 14px", color: "#e2e8f0", fontFamily: "monospace" }}>{a.count.toLocaleString()}</td>
-                    <td style={{ padding: "10px 14px", color: "#94a3b8", fontFamily: "monospace" }}>{total > 0 ? ((a.count / total) * 100).toFixed(1) : 0}%</td>
-                    <td style={{ padding: "10px 14px" }}>
-                      <span style={{ color: tipoColors[a.tipo] ?? "#64748b", fontSize: 12 }}>{a.tipo}</span>
-                    </td>
-                    <td style={{ padding: "10px 14px", color: "#64748b", fontSize: 12 }}>{a.leis.join(", ") || "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function UploadLinkTab() {
-  return (
-    <div>
-      <div style={{ color: "#64748b", fontSize: 12, marginBottom: 20 }}>Importação de chunks em lote via CSV — Sprint L / Issue #191</div>
-      <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 24, marginBottom: 16 }}>
-        <div style={{ color: "#94a3b8", fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Upload CSV RAG</div>
-        <div style={{ color: "#64748b", fontSize: 13, marginBottom: 20, lineHeight: 1.6 }}>
-          Importe chunks legislativos em lote usando o template CSV oficial.
-          O sistema valida todas as linhas antes de inserir (dry-run automático).
-        </div>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <Link href="/admin/rag-upload">
-            <span style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              background: "#6366f1", color: "#fff", padding: "10px 20px",
-              borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
-              textDecoration: "none"
-            }}>⬆ Abrir Upload CSV RAG</span>
-          </Link>
-          <a href="/template-rag-upload.csv" download style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            background: "#1e293b", color: "#94a3b8", padding: "10px 20px",
-            borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
-            textDecoration: "none"
-          }}>⬇ Download Template CSV</a>
-        </div>
-      </div>
-      <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 18 }}>
-        <div style={{ color: "#94a3b8", fontSize: 13, fontWeight: 600, marginBottom: 10 }}>Colunas do CSV</div>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid #1e293b" }}>
-              {["Campo", "Obrigatório", "Tipo", "Descrição"].map(h => (
-                <th key={h} style={{ padding: "8px 12px", textAlign: "left", color: "#475569", fontWeight: 600, fontSize: 11 }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              { campo: "lei", req: "✓", tipo: "enum", desc: "lc214 | ec132 | lc227 | lc224 | lc116 | lc87 | cg_ibs | rfb_cbs | conv_icms | lc123" },
-              { campo: "artigo", req: "✓", tipo: "string", desc: "Ex: Art. 1 (máx 300 chars)" },
-              { campo: "titulo", req: "✓", tipo: "string", desc: "Título do artigo (máx 500 chars)" },
-              { campo: "conteudo", req: "✓", tipo: "string", desc: "Texto do chunk (mín 10 chars)" },
-              { campo: "topicos", req: "—", tipo: "string", desc: "Palavras-chave para retrieval" },
-              { campo: "cnaeGroups", req: "—", tipo: "string", desc: "all ou lista separada por |" },
-              { campo: "chunkIndex", req: "—", tipo: "int", desc: "Índice sequencial do chunk (default: 0)" },
-            ].map(r => (
-              <tr key={r.campo} style={{ borderBottom: "1px solid #0f172a" }}>
-                <td style={{ padding: "8px 12px", color: "#a5b4fc", fontFamily: "monospace" }}>{r.campo}</td>
-                <td style={{ padding: "8px 12px", color: r.req === "✓" ? "#22c55e" : "#475569" }}>{r.req}</td>
-                <td style={{ padding: "8px 12px", color: "#94a3b8", fontFamily: "monospace" }}>{r.tipo}</td>
-                <td style={{ padding: "8px 12px", color: "#64748b" }}>{r.desc}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
 // ── MAIN ─────────────────────────────────────────────────────────────────────
 
 export default function RAGCockpit() {
   const [tab, setTab] = useState(0);
 
-  // ── Tarefa 1: query tRPC ao vivo
+  // ── Tarefa 1: query tRPC ao vivo ──────────────────────────────────────────
   const { data: snapshot, isLoading, refetch } = trpc.ragInventory.getSnapshot.useQuery(
     undefined,
     { refetchInterval: 60_000 } // atualiza a cada 60s
   );
-  // Sprint L — novas queries ao vivo
-  const { data: healthScore } = trpc.ragAdmin.getHealthScore.useQuery(undefined, { refetchInterval: 60_000 });
-  const { data: authorData } = trpc.ragAdmin.getAuthorDistribution.useQuery(undefined, { refetchInterval: 60_000 });
 
-  // ── Tarefa 3: loading state
+  // ── Tarefa 3: loading state ───────────────────────────────────────────────
   if (isLoading) return (
     <div style={{
       background: "#020817", minHeight: "100vh",
@@ -893,10 +686,6 @@ export default function RAGCockpit() {
     { label: "Change Management",     alert: 0 },
     { label: "Arquivos fonte",        alert: 0 },
     { label: "Rollback & Fallback",   alert: 0 },
-    // Sprint L — 3 novas abas
-    { label: "Health Score",          alert: 0 },
-    { label: "Autores / Origem",      alert: 0 },
-    { label: "Upload CSV",            alert: 0 },
   ];
 
   const panels = [
@@ -908,10 +697,6 @@ export default function RAGCockpit() {
     <ChangeMgmtTab key="change" />,
     <FilesTab key="files" />,
     <RollbackTab key="rollback" />,
-    // Sprint L — 3 novos painéis
-    <HealthScoreTab key="health" healthScore={healthScore} />,
-    <AuthorDistributionTab key="authors" authorData={authorData} />,
-    <UploadLinkTab key="upload" />,
   ];
 
   return (

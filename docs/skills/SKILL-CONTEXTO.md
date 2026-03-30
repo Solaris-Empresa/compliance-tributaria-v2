@@ -58,6 +58,73 @@ Ao planejar sprints ou revisar PRs das 3 Ondas, verificar se as labels estão ap
 O sub-painel 6B do Cockpit P.O. usa milestone como filtro primário e labels como contexto adicional.
 Ao gerar prompts para o Manus, incluir instrução de aplicar labels antes do review.
 
+## Labels de rastreabilidade RAG (obrigatórias)
+
+Todo PR, Issue, RFC ou incidente RAG deve receber a label correspondente:
+
+| Label | Cor | Escopo |
+|---|---|---|
+| `rag:corpus` | `#0E7490` | Ingestão, chunks, embeddings, versionamento |
+| `rag:retriever` | `#0369A1` | retrieveArticles, re-ranking, keywords |
+| `rag:incidente` | `#DC2626` | Falhas de recuperação, qualidade, hallucination |
+| `rag:rfc` | `#7C3AED` | Propostas de mudança arquitetural ou de corpus |
+| `rag:performance` | `#D97706` | Latência, rate limit, cache, otimizações |
+| `rag:governanca` | `#16A34A` | Rastreabilidade, auditoria, versionamento |
+
+Regras RAG para o Orquestrador:
+- `rag:incidente` = prioridade máxima — incluir no próximo prompt imediatamente
+- `rag:rfc` = requer aprovação do P.O. antes de gerar prompt de implementação
+- `rag:corpus` = incluir no prompt: versão anterior de chunks + nova contagem esperada
+- O Cockpit P.O. (Seção 7) exibe issues/PRs RAG ao vivo por estas labels
+
+## Protocolo de Auditoria RAG (incluir em todo prompt com label rag:*)
+
+Ao gerar qualquer prompt de implementação RAG para o Manus, incluir obrigatoriamente:
+
+**Instrução de impacto (incluir no prompt):**
+
+Antes de implementar, verificar quais arquivos de rastreabilidade são impactados:
+
+| Arquivo alterado | Arquivos que DEVEM ser atualizados |
+|---|---|
+| `server/rag-retriever.ts` | `RAG-PROCESSO.md`, `HANDOFF-RAG.md`, `RASTREABILIDADE-RAG-PO.md` |
+| `CORPUS-BASELINE.md` | `RAG-GOVERNANCE.md`, `RAG-PROCESSO.md`, `RASTREABILIDADE-RAG-PO.md` |
+| Qualquer RFC | `CORPUS-BASELINE.md`, `RAG-PROCESSO.md`, `RASTREABILIDADE-RAG-PO.md` |
+| Schema `ragDocuments` | `CORPUS-BASELINE.md`, `HANDOFF-RAG.md` |
+
+**Instrução de cockpit (incluir no prompt):**
+
+Após o merge, auditar o Cockpit P.O. em https://solaris-empresa.github.io/compliance-tributaria-v2/painel-po/:
+- Seção 7A: barras de corpus refletem novos totais?
+- Seção 7B: PR mergeado aparece na rastreabilidade viva?
+- Seção 7D: documentos carregam versão atualizada?
+- Reportar resultado da auditoria antes de fechar a sessão.
+
+**Instrução de versionamento (incluir no prompt quando corpus mudar):**
+
+Incrementar versão do `CORPUS-BASELINE.md` (vX.Y → vX.Z) e registrar:
+- Data do merge
+- Commit HEAD
+- Chunks antes e depois
+- Sprint de referência
+
+## Gate 0 adicional — PRs de RAG (obrigatório)
+
+Ao revisar qualquer PR que toque corpus, chunks, embeddings ou retrieval, verificar obrigatoriamente:
+
+1. Existe relatório de qualidade RAG anexado (`artifacts/rag-quality/<pr>/report.md`)?
+2. Gold set crítico foi executado (8 queries mínimas)?
+3. Houve regressão no recall top-5 ou top-10?
+4. Existem chunks invisíveis críticos (> 0)?
+5. Há duplicatas críticas ou chunks órfãos (sem `anchor_id`)?
+6. O PR propõe correção estrutural ou apenas muda quantidade?
+
+**Sem essas respostas, não aprovar prompt de implementação nem GO para merge.**
+
+Referência: `docs/governance/RAG-QUALITY-GATE.md`
+
+---
+
 ## Antes de gerar qualquer prompt de implementação
 
 1. Buscar no project knowledge se o que será implementado já existe
