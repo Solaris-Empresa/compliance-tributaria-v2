@@ -1737,6 +1737,15 @@ export const solarisQuestions = mysqlTable("solaris_questions", {
    * Permite rastrear resposta → pergunta sem depender do id numérico.
    */
   codigo: varchar("codigo", { length: 10 }),
+  // ── Sprint L — DEC-002: campos de enriquecimento para Upload CSV Onda 1 ──
+  /** Título/ementa curta da pergunta — exibido no preview do upload CSV */
+  titulo: varchar("titulo", { length: 255 }),
+  /** Keywords temáticas separadas por vírgula — ex: "IBS,CBS,NF-e" */
+  topicos: text("topicos"),
+  /** Severidade base da não-conformidade: baixa | media | alta | critica */
+  severidade_base: varchar("severidade_base", { length: 20 }),
+  /** Data de início de vigência — formato "YYYY-MM-DD" ou null */
+  vigencia_inicio: varchar("vigencia_inicio", { length: 10 }),
 });
 
 export type SolarisQuestion = typeof solarisQuestions.$inferSelect;
