@@ -65,6 +65,39 @@ Regras:
 - Ao criar um PR que toca as 3 ondas, aplicar as labels **antes** de solicitar review
 - O Cockpit busca issues/PRs por milestone — as labels são filtro adicional de contexto
 
+## Gate obrigatório — Qualidade de Corpus / Embeddings / Chunks
+
+Todo PR que altere corpus, chunking, embeddings, retrieval, ragAdmin, scripts de ingestão, leis, anexos ou `ragDocuments` deve executar obrigatoriamente o **Gate de Qualidade RAG** antes de solicitar merge.
+
+Referência completa: `docs/governance/RAG-QUALITY-GATE.md`
+
+### O PR NÃO pode ser mergeado sem:
+- relatório de integridade estrutural (RAG-Q1)
+- resultado do gold set (RAG-Q2)
+- evidência de qualidade de recuperação (RAG-Q2)
+- relatório de chunks invisíveis (RAG-Q3)
+
+### Evidências mínimas no PR body:
+1. total de chunks afetados
+2. chunks sem `anchor_id` (deve ser 0)
+3. duplicatas críticas detectadas (deve ser 0)
+4. recall top-5 e top-10 no gold set
+5. lista de chunks invisíveis críticos (deve ser 0)
+6. conclusão: `sem regressão` / `com regressão`
+
+### Regra de bloqueio
+Se houver qualquer um dos itens abaixo, o PR deve ser bloqueado:
+- regressão no gold set crítico
+- chunks críticos invisíveis > 0
+- duplicata crítica
+- chunk sem `anchor_id`
+- relatório de invisibilidade ausente
+
+### Artefato de evidência obrigatório
+Criar `artifacts/rag-quality/<pr-number>/report.md` com os resultados dos 4 gates.
+
+---
+
 ## Estratégia de Labels GitHub — RAG (rastreabilidade obrigatória)
 
 Todo PR, Issue, RFC ou incidente relacionado ao RAG **DEVE** receber a label correspondente:
