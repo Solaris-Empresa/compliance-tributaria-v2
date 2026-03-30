@@ -890,6 +890,7 @@ mark.search-hl{
     <div class="ondas-doc-tabs">
       <button class="ondas-doc-tab active" onclick="setOndasDocTab('tabela',this)">&#128196; TABELA-3-ONDAS</button>
       <button class="ondas-doc-tab" onclick="setOndasDocTab('e2e',this)">&#128203; E2E-3-ONDAS</button>
+      <button class="ondas-doc-tab" onclick="setOndasDocTab('spec',this)">&#128208; SPEC v2</button>
       <a class="ondas-doc-tab-link" id="ondasDocGhLink" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/arquitetura/TABELA-3-ONDAS-QUESTIONARIO-v1.md" target="_blank">🔗 Abrir no GitHub</a>
     </div>
     <div class="ondas-doc-container">
@@ -1667,6 +1668,11 @@ const ONDAS_DOCS = {
     url: 'https://raw.githubusercontent.com/Solaris-Empresa/compliance-tributaria-v2/main/docs/arquitetura/E2E-3-ONDAS-QUESTIONARIOS-v1.md',
     github: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/arquitetura/E2E-3-ONDAS-QUESTIONARIOS-v1.md',
     cacheKey: 'doc_e2e'
+  },
+  spec: {
+    url: 'https://raw.githubusercontent.com/Solaris-Empresa/compliance-tributaria-v2/main/docs/specs/SPEC-COCKPIT-3-ONDAS-v2.md',
+    github: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/specs/SPEC-COCKPIT-3-ONDAS-v2.md',
+    cacheKey: 'doc_spec'
   }
 };
 
