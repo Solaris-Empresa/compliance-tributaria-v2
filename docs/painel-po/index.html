@@ -505,6 +505,38 @@ mark.search-hl{
     </div>
     <span class="search-count" id="searchCount"></span>
   </div>
+  <!-- HOTFIX BUG-01 — Token GitHub -->
+  <div id="gh-token-section" style="display:flex;align-items:center;gap:8px;margin-left:16px;flex-shrink:0;">
+    <span id="gh-token-status" style="font-size:11px;white-space:nowrap;"></span>
+    <button id="gh-token-btn" onclick="toggleTokenInput()"
+      title="Configurar token GitHub para aumentar limite de requisições"
+      style="font-size:11px;padding:3px 8px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;white-space:nowrap;">
+      🔑 Token GitHub
+    </button>
+    <div id="gh-token-input-area" style="display:none;gap:6px;align-items:center;">
+      <input id="gh-token-input" type="password"
+        placeholder="ghp_xxxxxxxxxxxx" maxlength="100"
+        style="font-size:11px;padding:3px 6px;border:1px solid #ccc;border-radius:4px;width:220px;" />
+      <button onclick="saveToken()"
+        style="font-size:11px;padding:3px 8px;background:#2da44e;color:white;border:none;border-radius:4px;cursor:pointer;">
+        Salvar
+      </button>
+      <button onclick="clearToken()"
+        style="font-size:11px;padding:3px 8px;background:#cf222e;color:white;border:none;border-radius:4px;cursor:pointer;">
+        Remover
+      </button>
+      <span style="font-size:10px;color:#666;max-width:180px;line-height:1.3;">
+        Token salvo apenas no seu browser. Nunca enviado ao servidor.
+      </span>
+    </div>
+  </div>
+  <!-- FIM HOTFIX BUG-01 -->
+  <!--
+    COMO OBTER O TOKEN:
+    github.com → Settings → Developer settings →
+    Personal access tokens → Tokens (classic) →
+    Generate new token → scope: public_repo → Copiar e colar acima
+  -->
 </header>
 
 <div class="container">
@@ -1287,14 +1319,14 @@ mark.search-hl{
     <div class="ondas-subsection-title">
       7E &mdash; Qualidade do RAG
       <span class="gov-badge live">&#8635; vivo</span>
-      <span style="font-weight:400;font-size:10px;color:var(--text-muted);text-transform:none;letter-spacing:0;margin-left:6px">API GitHub &middot; cache 5 min &middot; 4 gates &middot; gold set 8 queries</span>
+      <span style="font-weight:400;font-size:10px;color:var(--text-muted);text-transform:none;letter-spacing:0;margin-left:6px">API GitHub &middot; cache 5 min &middot; 4 gates &middot; gold set 10 queries</span>
       <button class="rastreabilidade-refresh" onclick="fetchRag7eData(true)" title="Atualizar qualidade" style="margin-left:auto">&#8635;</button>
     </div>
 
     <!-- Banner de governança -->
     <div class="rag7e-banner">
       <span class="rag7e-banner-title">&#127919; O RAG está funcionando ou só existe?</span>
-      <span class="rag7e-banner-sub">Score do corpus &middot; 4 gates de qualidade &middot; gold set 8 queries &middot; chunks invisíveis &middot; PRs de governança</span>
+      <span class="rag7e-banner-sub">Score do corpus &middot; 4 gates de qualidade &middot; gold set 10 queries &middot; chunks invisíveis &middot; PRs de governança</span>
       <span class="rag7e-banner-ts" id="rag7eTs">&#8987; aguardando...</span>
     </div>
 
@@ -1337,7 +1369,7 @@ mark.search-hl{
         <div class="rag7e-gate-card sem-dados">
           <div class="rag7e-gate-label">RAG-Q2</div>
           <div class="rag7e-gate-status sem-dados" id="gateQ2Status">&#8987; ...</div>
-          <div class="rag7e-gate-detail" id="gateQ2Detail">Recuperação: gold set 8 queries, recall top-5 ≥ 90%</div>
+          <div class="rag7e-gate-detail" id="gateQ2Detail">Recuperação: gold set 10 queries, recall top-5 ≥ 90%</div>
           <div class="rag7e-gate-pr" id="gateQ2Pr"></div>
         </div>
         <div class="rag7e-gate-card sem-dados">
@@ -1374,6 +1406,10 @@ mark.search-hl{
           <tr><td>GS-06</td><td>split payment mecanismo</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 55–60</td><td class="rag7e-recall-warn" id="gs06-r5">—</td><td class="rag7e-recall-warn" id="gs06-r10">—</td><td id="gs06-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
           <tr><td>GS-07</td><td>não cumulatividade IBS</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 28–35</td><td class="rag7e-recall-warn" id="gs07-r5">—</td><td class="rag7e-recall-warn" id="gs07-r10">—</td><td id="gs07-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
           <tr><td>GS-08</td><td>benefício fiscal EC 132</td><td>EC 132</td><td style="font-size:9px;color:var(--text-muted)">art. 150–155</td><td class="rag7e-recall-warn" id="gs08-r5">—</td><td class="rag7e-recall-warn" id="gs08-r10">—</td><td id="gs08-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <!-- GS-09 -->
+          <tr><td>GS-09</td><td>crédito presumido IBS</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 28–35</td><td class="rag7e-recall-warn" id="gs09-r5">—</td><td class="rag7e-recall-warn" id="gs09-r10">—</td><td id="gs09-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <!-- GS-10 -->
+          <tr><td>GS-10</td><td>prazo de transição IBS</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">—</td><td class="rag7e-recall-warn" id="gs10-r5">—</td><td class="rag7e-recall-warn" id="gs10-r10">—</td><td id="gs10-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
         </tbody>
       </table>
       <div style="font-size:10px;color:var(--text-muted);margin-top:8px">Fonte: CORPUS-BASELINE.md v2.0 seção 3.1 &middot; Meta: recall top-5 ≥ 90% &middot; recall top-10 = 100% &middot; Evidência: <code>artifacts/rag-quality/&lt;pr&gt;/report.md</code></div>
@@ -1475,7 +1511,6 @@ mark.search-hl{
 const GH = "https://github.com/Solaris-Empresa/compliance-tributaria-v2";
 const INITIAL_KANBAN = {
   backlog: [
-    { id: 'k10-bk', title: 'Issue #191 - G16 Upload CSV SOLARIS (backlog ref)', status: 'Movido para andamento — Sprint L iniciada', link: GH+'/issues/191' },
     { id: 'k11', title: 'Issue #187 - G11 Diagnostico V3 canonico', status: 'M4 Backlog', link: GH+'/issues/187' },
     { id: 'k12', title: 'Issue #188 - DT-01 CI debito tecnico', status: 'M4 Backlog', link: GH+'/issues/188' },
     { id: 'k13', title: 'Issue #189 - RFC-003 CRUD QuestionSchema', status: 'M4 Backlog', link: GH+'/issues/189' },
@@ -1784,7 +1819,7 @@ function toggleDecisionStatus(idx) {
 
 function addDecisionRow() {
   const decisions = load('decisions', INITIAL_DECISIONS);
-  decisions.unshift({ date: new Date().toISOString().slice(0,10), decision: 'Nova decisao - clique para editar', status: 'pending', link: null });
+  decisions.unshift({ date: new Date().toISOString().slice(0,10), decision: 'Nova decisão', status: 'pending', link: null });
   save('decisions', decisions);
   renderDecisions(decisions);
 }
@@ -1838,6 +1873,42 @@ const GH_CACHE = {
   }
 };
 
+/* HOTFIX BUG-01 — Token GitHub via localStorage */
+function getGhToken() {
+  return localStorage.getItem('po-cockpit-gh-token') || '';
+}
+function setGhToken(tok) {
+  if (tok) localStorage.setItem('po-cockpit-gh-token', tok.trim());
+  else localStorage.removeItem('po-cockpit-gh-token');
+}
+function toggleTokenInput() {
+  const area = document.getElementById('gh-token-input-area');
+  if (!area) return;
+  area.style.display = area.style.display === 'none' ? 'flex' : 'none';
+}
+function saveToken() {
+  const val = document.getElementById('gh-token-input').value;
+  setGhToken(val);
+  updateTokenStatus();
+  document.getElementById('gh-token-input-area').style.display = 'none';
+  document.getElementById('gh-token-input').value = '';
+  location.reload();
+}
+function clearToken() {
+  setGhToken('');
+  updateTokenStatus();
+  document.getElementById('gh-token-input-area').style.display = 'none';
+}
+function updateTokenStatus() {
+  const el = document.getElementById('gh-token-status');
+  if (!el) return;
+  const tok = getGhToken();
+  el.textContent = tok ? '\uD83D\uDFE2 Token ativo' : '\uD83D\uDD34 Sem token (60 req/h)';
+  el.style.color = tok ? '#2da44e' : '#cf222e';
+}
+document.addEventListener('DOMContentLoaded', updateTokenStatus);
+/* FIM HOTFIX BUG-01 */
+
 // ghFetch: todas as chamadas passam pelo GH_CACHE global
 // Chamadas idênticas dentro do TTL retornam do cache sem nova req HTTP
 function ghFetch(url) {
@@ -1846,7 +1917,11 @@ function ghFetch(url) {
     : 'https://api.github.com' + url;
   const cached = GH_CACHE.get(fullUrl);
   if (cached !== null) return Promise.resolve(cached);
-  return fetch(fullUrl, { headers: { 'Accept': 'application/vnd.github.v3+json' } })
+  /* HOTFIX BUG-01 — adicionar Authorization se token disponível */
+  const _ghHeaders = { 'Accept': 'application/vnd.github.v3+json' };
+  const _tok = getGhToken();
+  if (_tok) _ghHeaders['Authorization'] = 'token ' + _tok;
+  return fetch(fullUrl, { headers: _ghHeaders })
     .then(r => {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
@@ -3472,7 +3547,7 @@ function renderRag7e(data) {
     const q2Status = gates.q2 || (recall && recall.top5 !== null ? (parseFloat(recall.top5) >= 90 ? 'passou' : 'falhou') : 'sem-dados');
     const q2Detail = recall && recall.top5 !== null
       ? `Top-5: ${recall.top5}% &middot; Top-10: ${recall.top10 || '—'}%`
-      : 'Recuperação: gold set 8 queries, recall top-5 ≥ 90%';
+      : 'Recuperação: gold set 10 queries, recall top-5 ≥ 90%';
     updateGateCard('Q2', q2Status, q2Detail, prLink);
 
     // Q3 Visibilidade
