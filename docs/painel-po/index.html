@@ -1358,7 +1358,7 @@ mark.search-hl{
 
     <!-- 7E.3: Gates de Qualidade -->
     <div class="rag7e-goldset-wrap">
-      <div class="rag7e-goldset-title">&#128682; 7E.3 &mdash; Gates de Qualidade (4 gates &mdash; ltimo PR de corpus) <span class="gov-badge live">&#8635; vivo</span> <span class="ts" id="rag7eGatesTs"></span></div>
+      <div class="rag7e-goldset-title">&#128682; 7E.3 &mdash; Gates de Qualidade (4 gates &mdash; último PR de corpus) <span class="gov-badge live">&#8635; vivo</span> <span class="ts" id="rag7eGatesTs"></span></div>
       <div class="rag7e-gates-grid" id="rag7eGatesGrid">
         <div class="rag7e-gate-card sem-dados">
           <div class="rag7e-gate-label">RAG-Q1</div>
@@ -1509,6 +1509,8 @@ mark.search-hl{
 </div><!-- /container -->
 <script>
 const GH = "https://github.com/Solaris-Empresa/compliance-tributaria-v2";
+// HOTFIX BUG-03/04: versão do kanban — incrementar para forçar reset do localStorage
+const KANBAN_VERSION = 2;
 const INITIAL_KANBAN = {
   backlog: [
     { id: 'k11', title: 'Issue #187 - G11 Diagnostico V3 canonico', status: 'M4 Backlog', link: GH+'/issues/187' },
@@ -1531,6 +1533,8 @@ const INITIAL_KANBAN = {
   ]
 };
 
+// HOTFIX BUG-03: versão das decisões — força reset do localStorage se tiver placeholder
+const DECISIONS_VERSION = 2;
 const INITIAL_DECISIONS = [
   { date: '2026-03-30', decision: 'DEC-010: Seção 7E Qualidade do RAG — 4 gates, gold set, dados vivos API GitHub (#233)', status: 'done', link: GH+'/pull/233' },
   { date: '2026-03-30', decision: 'DEC-009: Gate de Qualidade RAG — RAG-QUALITY-GATE.md + GitHub Action + PR template (#232)', status: 'done', link: GH+'/pull/232' },
@@ -1751,7 +1755,16 @@ function renderKanban(state) {
   });
 }
 
-function initKanban() { currentKanban = load('kanban', INITIAL_KANBAN); renderKanban(currentKanban); }
+function initKanban() {
+  // HOTFIX BUG-04: resetar localStorage se versão desatualizada
+  const savedVersion = parseInt(localStorage.getItem('po-cockpit-kanban-version') || '0');
+  if (savedVersion < KANBAN_VERSION) {
+    localStorage.removeItem('po-cockpit-kanban');
+    localStorage.setItem('po-cockpit-kanban-version', String(KANBAN_VERSION));
+  }
+  currentKanban = load('kanban', INITIAL_KANBAN);
+  renderKanban(currentKanban);
+}
 
 function onDragStart(e) { draggedCard = e.currentTarget; draggedCard.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', draggedCard.dataset.id); }
 function onDragEnd(e) { if (draggedCard) draggedCard.classList.remove('dragging'); draggedCard = null; document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over')); }
@@ -1824,7 +1837,16 @@ function addDecisionRow() {
   renderDecisions(decisions);
 }
 
-function initDecisions() { const decisions = load('decisions', INITIAL_DECISIONS); renderDecisions(decisions); }
+function initDecisions() {
+  // HOTFIX BUG-03: resetar localStorage se versão desatualizada (remove placeholder 'Nova decisao')
+  const savedVersion = parseInt(localStorage.getItem('po-cockpit-decisions-version') || '0');
+  if (savedVersion < DECISIONS_VERSION) {
+    localStorage.removeItem('po-cockpit-decisions');
+    localStorage.setItem('po-cockpit-decisions-version', String(DECISIONS_VERSION));
+  }
+  const decisions = load('decisions', INITIAL_DECISIONS);
+  renderDecisions(decisions);
+}
 
 
 // ═══════════════════════════════════════════════════════════════════
@@ -3158,7 +3180,7 @@ function renderConsistencia6D(data) {
   // Issues críticas (label: bloqueio)
   const issColor = issuesCrit.length === 0 ? '#16A34A' : '#DC2626';
 
-  // ltimo commit
+  // Último commit
   const commitSha = lastCommit ? (lastCommit.sha || '').slice(0, 7) : '—';
   const commitMsg = lastCommit ? (lastCommit.commit && lastCommit.commit.message || '').split('\n')[0].slice(0, 50) : '—';
   const commitDate = lastCommit ? (lastCommit.commit && lastCommit.commit.author && lastCommit.commit.author.date || '').slice(0, 10) : '—';
@@ -3231,7 +3253,7 @@ function renderConsistencia6D(data) {
       <div style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg2)">
         <span style="color:var(--text-muted);font-weight:700">RAG GATE:</span>
         <span style="color:${ragGateStatus === 'passou' ? '#16A34A' : ragGateStatus === 'falhou' ? '#DC2626' : '#D97706'};font-weight:700;margin-left:4px">${ragGateStatus === 'passou' ? '&#128994; APROVADO' : ragGateStatus === 'falhou' ? '&#128308; FALHOU' : ragGateStatus === 'parcial' ? '&#128993; PARCIAL' : '&#9898; SEM DADOS'}</span>
-        <span style="color:var(--text-muted);font-size:9px;margin-left:4px">(ltimo PR corpus)</span>
+        <span style="color:var(--text-muted);font-size:9px;margin-left:4px">(último PR corpus)</span>
       </div>
     </div>
   `;
@@ -3413,7 +3435,7 @@ async function fetchRag7eData(force = false) {
     // Busca em paralelo: PRs RAG fechados + issues rag:incidente abertas
     // Maximiza uso da API: 3 chamadas paralelas
     const [ragPRsClosed, ragPRsOpen, incidenteIssues] = await Promise.all([
-      // PRs fechados com label rag:corpus ou rag:governanca (ltimos 50)
+      // PRs fechados com label rag:corpus ou rag:governanca (últimos 50)
       ghFetch(REPO_PATH + '/pulls?state=closed&per_page=50'),
       // PRs abertos com qualquer label rag:
       ghFetch(REPO_PATH + '/pulls?state=open&per_page=20'),
@@ -3428,11 +3450,11 @@ async function fetchRag7eData(force = false) {
       ...(Array.isArray(ragPRsOpen)   ? ragPRsOpen.filter(isRagPr)   : []),
     ].sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
-    // ltimo PR de corpus para extrair gates
+    // último PR de corpus para extrair gates
     const isCorpusPr = (pr) => (pr.labels || []).some(l => l.name === 'rag:corpus' || l.name === 'rag:governanca');
     const lastCorpusPR = govPRs.find(isCorpusPr);
 
-    // Buscar body completo do ltimo PR de corpus (se necessário)
+    // Buscar body completo do último PR de corpus (se necessário)
     let lastPrBody = lastCorpusPR ? lastCorpusPR.body : null;
     let lastPrNum  = lastCorpusPR ? lastCorpusPR.number : null;
     let lastPrUrl  = lastCorpusPR ? lastCorpusPR.html_url : null;
@@ -3509,7 +3531,7 @@ function renderRag7e(data) {
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
           <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px">PRs DE CORPUS</div>
           <div style="font-size:20px;font-weight:800;color:#16A34A">${corpusPRs.length}</div>
-          <div style="font-size:9px;color:var(--text-muted)">ltimo: ${escHtml(lastCorpusDate)}</div>
+          <div style="font-size:9px;color:var(--text-muted)">Último: ${escHtml(lastCorpusDate)}</div>
         </div>
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
           <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px">PRs GOVERNANÇA</div>
@@ -3650,7 +3672,7 @@ function renderRag7e(data) {
   const invisAlertEl = document.getElementById('rag7eInvisAlert');
 
   if (invisEl) {
-    // Invisíveis críticos: extrair do ltimo PR ou assumir 0 se passou Q3
+    // Invisíveis críticos: extrair do último PR ou assumir 0 se passou Q3
     const recall = lastPrBody ? parseRecallFromPrBody(lastPrBody) : null;
     const invisCrit = recall && recall.invisCrit !== null ? recall.invisCrit : 0;
     invisEl.textContent = invisCrit;
