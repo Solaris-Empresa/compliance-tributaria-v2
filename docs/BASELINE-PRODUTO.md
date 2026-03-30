@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.5 — 2026-03-29 (rev K-4-E)
-> **Commit HEAD:** `b9a5502` (K-4-E project_status_log — PR #212)
-> **Checkpoint Manus:** `b9a5502`
+> **Versão:** 2.6 — 2026-03-30 (rev Sprint L)
+> **Commit HEAD:** `feat/sprint-l` (Sprint L — Upload CSV RAG + Cockpit evoluído + Governança)
+> **Checkpoint Manus:** `b9a5502` (base) · PR Sprint L em aberto
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -31,6 +31,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
 | Sprint K-4-E | Auditoria jurídica `project_status_log` — PR #212 mergeado | ✅ |
+| Sprint L | Upload CSV RAG (Issue #191) + Cockpit 11 abas + PROTOCOLO-CONTEXTO.md + skills | 🔵 Em aberto |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **60** (0000–0059; 0059 = `project_status_log` K-4-E — era 59 pré-PR #213) | ✅ |

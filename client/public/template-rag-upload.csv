@@ -1,0 +1,10 @@
+# Template Upload CSV — Corpus RAG SOLARIS
+# Linhas com # são ignoradas pelo parser
+# Obrigatórios: lei, artigo, titulo, conteudo
+# Opcionais: topicos, cnaeGroups, chunkIndex
+# cnaeGroups: valor "all" ou lista separada por | ex: 6201-5|6202-3
+# chunkIndex: inteiro sequencial, começando em 0
+# lei: valores aceitos — lc214, ec132, lc227, lc224, lc116, lc87, cg_ibs, rfb_cbs, conv_icms, lc123
+lei,artigo,titulo,conteudo,topicos,cnaeGroups,chunkIndex
+lc214,Art. 1,Incidência do IBS,"O IBS incide sobre operações com bens ou serviços.",reforma tributária ibs,all,0
+lc214,Art. 12,Base de cálculo CBS,"A base de cálculo da CBS é o valor da operação.",cbs base cálculo,all,1

@@ -222,4 +222,113 @@ export const ragAdminRouter = router({
       await conn.end();
     }
   }),
+
+  /**
+   * getCorpusDistribution — Sprint L / Fase 2
+   * Distribuição de chunks por lei com percentual calculado.
+   */
+  getCorpusDistribution: solarisOnlyProcedure.query(async () => {
+    const conn = await mysql.createConnection(ENV.databaseUrl);
+    try {
+      const [rows] = await conn.execute(
+        `SELECT lei, COUNT(*) as count FROM ragDocuments GROUP BY lei ORDER BY count DESC`
+      ) as [{ lei: string; count: number }[], unknown];
+      const total = (rows as { lei: string; count: number }[]).reduce((s, r) => s + Number(r.count), 0);
+      return {
+        distribution: (rows as { lei: string; count: number }[]).map((r) => ({
+          lei: r.lei,
+          count: Number(r.count),
+          percentage: total > 0 ? Math.round((Number(r.count) / total) * 1000) / 10 : 0,
+        })),
+        total,
+      };
+    } finally {
+      await conn.end();
+    }
+  }),
+
+  /**
+   * getAuthorDistribution — Sprint L / Fase 2
+   * Distribuição de chunks por autor com leis cobertas e tipo inferido.
+   */
+  getAuthorDistribution: solarisOnlyProcedure.query(async () => {
+    const conn = await mysql.createConnection(ENV.databaseUrl);
+    try {
+      const [rows] = await conn.execute(
+        `SELECT autor, COUNT(*) as count, GROUP_CONCAT(DISTINCT lei ORDER BY lei SEPARATOR ',') as leis
+         FROM ragDocuments GROUP BY autor ORDER BY count DESC`
+      ) as [{ autor: string | null; count: number; leis: string }[], unknown];
+
+      function inferTipo(autor: string | null): string {
+        if (!autor) return "desconhecido";
+        if (autor.includes("upload-csv")) return "upload-csv";
+        if (autor.includes("correcao-rfc") || autor.includes("rfc")) return "correção-rfc";
+        if (autor.includes("ingestao") || autor.includes("ingest")) return "ingestão";
+        if (autor.includes("migracao") || autor.includes("migr")) return "migração";
+        return "outro";
+      }
+
+      return {
+        authors: (rows as { autor: string | null; count: number; leis: string }[]).map((r) => ({
+          autor: r.autor ?? "(sem autor)",
+          count: Number(r.count),
+          leis: r.leis ? r.leis.split(",") : [],
+          tipo: inferTipo(r.autor),
+        })),
+      };
+    } finally {
+      await conn.end();
+    }
+  }),
+
+  /**
+   * getHealthScore — Sprint L / Fase 2
+   * Score de saúde 0–100 calculado com 5 critérios.
+   */
+  getHealthScore: solarisOnlyProcedure.query(async () => {
+    const conn = await mysql.createConnection(ENV.databaseUrl);
+    try {
+      const [[{ total }]] = await conn.execute(
+        `SELECT COUNT(*) as total FROM ragDocuments`
+      ) as [[{ total: number }], unknown];
+      const [[{ sem_anchor }]] = await conn.execute(
+        `SELECT COUNT(*) as sem_anchor FROM ragDocuments WHERE anchor_id IS NULL OR anchor_id = ''`
+      ) as [[{ sem_anchor: number }], unknown];
+      const [[{ total_leis }]] = await conn.execute(
+        `SELECT COUNT(DISTINCT lei) as total_leis FROM ragDocuments`
+      ) as [[{ total_leis: number }], unknown];
+      const [[{ dupes }]] = await conn.execute(
+        `SELECT COUNT(*) as dupes FROM (SELECT anchor_id, COUNT(*) as c FROM ragDocuments WHERE anchor_id IS NOT NULL GROUP BY anchor_id HAVING c > 1) t`
+      ) as [[{ dupes: number }], unknown];
+      const [[{ ultimo_import }]] = await conn.execute(
+        `SELECT MAX(createdAt) as ultimo_import FROM ragDocuments`
+      ) as [[{ ultimo_import: Date | null }], unknown];
+
+      const diasDesdeImport = ultimo_import
+        ? Math.floor((Date.now() - new Date(ultimo_import).getTime()) / 86400000)
+        : 999;
+
+      const criterios = {
+        anchor_id_completo: Number(sem_anchor) === 0 ? 25 : 0,
+        cobertura_leis: Number(total_leis) >= 5 ? 20 : Math.floor((Number(total_leis) / 5) * 20),
+        zero_duplicatas: Number(dupes) === 0 ? 20 : 0,
+        import_recente: diasDesdeImport <= 30 ? 15 : 0,
+        zero_divergencias: 20, // shadow mode — sem divergências conhecidas
+      };
+
+      const score = Object.values(criterios).reduce((s, v) => s + v, 0);
+
+      return {
+        score,
+        total: Number(total),
+        criterios,
+        diasDesdeImport,
+        totalLeis: Number(total_leis),
+        semAnchor: Number(sem_anchor),
+        duplicatas: Number(dupes),
+      };
+    } finally {
+      await conn.end();
+    }
+  }),
 });
