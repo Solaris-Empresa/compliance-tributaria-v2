@@ -108,6 +108,23 @@ Incrementar versão do `CORPUS-BASELINE.md` (vX.Y → vX.Z) e registrar:
 - Chunks antes e depois
 - Sprint de referência
 
+## Gate 0 adicional — PRs de RAG (obrigatório)
+
+Ao revisar qualquer PR que toque corpus, chunks, embeddings ou retrieval, verificar obrigatoriamente:
+
+1. Existe relatório de qualidade RAG anexado (`artifacts/rag-quality/<pr>/report.md`)?
+2. Gold set crítico foi executado (8 queries mínimas)?
+3. Houve regressão no recall top-5 ou top-10?
+4. Existem chunks invisíveis críticos (> 0)?
+5. Há duplicatas críticas ou chunks órfãos (sem `anchor_id`)?
+6. O PR propõe correção estrutural ou apenas muda quantidade?
+
+**Sem essas respostas, não aprovar prompt de implementação nem GO para merge.**
+
+Referência: `docs/governance/RAG-QUALITY-GATE.md`
+
+---
+
 ## Antes de gerar qualquer prompt de implementação
 
 1. Buscar no project knowledge se o que será implementado já existe
