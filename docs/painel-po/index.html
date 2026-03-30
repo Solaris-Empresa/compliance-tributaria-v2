@@ -380,6 +380,31 @@ mark.search-hl{
 .rag-global-status .rgs-icon{font-size:18px;}
 .rag-global-status .rgs-detail{font-size:11px;font-weight:400;color:var(--text-muted);margin-left:auto;}
 @media(max-width:900px){.rag-subsections{grid-template-columns:1fr;}}
+/* ── Seção 7D — Documentos RAG ──────────────────────────────────────── */
+.rag-docs-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+.rag-docs-tab{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-muted);transition:all .15s;white-space:nowrap;}
+.rag-docs-tab.active{background:#0E7490;color:#fff;border-color:#0E7490;}
+.rag-docs-tab .doc-tag{font-size:9px;padding:1px 4px;border-radius:8px;margin-left:4px;font-weight:700;vertical-align:middle;}
+.rag-docs-tab .doc-tag.core{background:#0E7490;color:#fff;}
+.rag-docs-tab .doc-tag.rfc{background:#7C3AED;color:#fff;}
+.rag-docs-tab .doc-tag.gov{background:#16A34A;color:#fff;}
+.rag-docs-tab .doc-tag.rel{background:#D97706;color:#fff;}
+.rag-docs-content{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;min-height:200px;max-height:600px;overflow-y:auto;box-shadow:var(--shadow);font-size:12px;line-height:1.7;}
+.rag-docs-content h1,.rag-docs-content h2,.rag-docs-content h3,.rag-docs-content h4{color:var(--text);margin:14px 0 6px;}
+.rag-docs-content h1{font-size:16px;border-bottom:1px solid var(--border);padding-bottom:6px;}
+.rag-docs-content h2{font-size:14px;}
+.rag-docs-content h3{font-size:13px;color:#0E7490;}
+.rag-docs-content table{width:100%;border-collapse:collapse;font-size:11px;margin:10px 0;}
+.rag-docs-content th{background:var(--bg);padding:5px 8px;text-align:left;font-weight:700;border:1px solid var(--border);}
+.rag-docs-content td{padding:4px 8px;border:1px solid var(--border);vertical-align:top;}
+.rag-docs-content code{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;font-family:monospace;}
+.rag-docs-content pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;font-size:10px;}
+.rag-docs-content blockquote{border-left:3px solid #0E7490;margin:8px 0;padding:4px 12px;background:#F0FAFA;color:var(--text-muted);font-style:italic;}
+.rag-docs-content a{color:#0E7490;}
+.rag-docs-content ul,.rag-docs-content ol{padding-left:20px;margin:6px 0;}
+.rag-docs-error{background:#FEF3E2;border:1px solid #D97706;border-radius:var(--radius);padding:10px 14px;font-size:11px;color:#92400E;}
+.rag-docs-loading{font-size:11px;color:var(--text-muted);padding:20px 0;text-align:center;}
+.rag-docs-open-gh{font-size:10px;float:right;color:#0E7490;text-decoration:none;font-weight:600;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
@@ -1136,6 +1161,31 @@ mark.search-hl{
     <div class="ondas-subsection-title">7C &mdash; Backlog RAG <span class="gov-badge live">&#8635; vivo</span></div>
     <div class="rag-issues-content" id="ragBacklogContent" style="max-height:200px">
       <div style="font-size:11px;color:var(--text-muted)">&#8987; Carregando...</div>
+    </div>
+  </div>
+
+  <!-- 7D: Documentos RAG vivos -->
+  <div class="ondas-subsection">
+    <div class="ondas-subsection-title">
+      7D &mdash; Documentos RAG
+      <span class="gov-badge live">&#8635; vivo</span>
+      <span style="font-weight:400;font-size:10px;color:var(--text-muted);text-transform:none;letter-spacing:0;margin-left:6px">fetch raw GitHub &middot; cache 5 min &middot; DOMPurify</span>
+      <button class="rastreabilidade-refresh" onclick="fetchRagDoc(ragDocAtiva, true)" title="Recarregar documento" style="margin-left:auto">&#8635;</button>
+    </div>
+    <div class="rag-docs-tabs" id="ragDocsTabs">
+      <button class="rag-docs-tab active" onclick="fetchRagDoc('corpus-baseline', this)">CORPUS-BASELINE <span class="doc-tag core">core</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rag-processo', this)">RAG-PROCESSO <span class="doc-tag core">core</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rag-governance', this)">RAG-GOVERNANCE <span class="doc-tag gov">gov</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rag-responsabilidades', this)">RAG-RESPONSABILIDADES <span class="doc-tag gov">gov</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('handoff-rag', this)">HANDOFF-RAG <span class="doc-tag core">core</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rfc-001', this)">RFC-001 <span class="doc-tag rfc">rfc</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rfc-002', this)">RFC-002 <span class="doc-tag rfc">rfc</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rfc-003', this)">RFC-003 <span class="doc-tag rfc">rfc</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rfc-004', this)">RFC-004 <span class="doc-tag rfc">rfc</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rastreabilidade-rag-po', this)">RASTREABILIDADE-RAG-PO <span class="doc-tag rel">rel</span></button>
+    </div>
+    <div class="rag-docs-content" id="ragDocsContent">
+      <div class="rag-docs-loading">&#8987; Carregando documento...</div>
     </div>
   </div>
 
@@ -2430,10 +2480,127 @@ function renderRagCorpusBars() {
   if (tsEl) tsEl.textContent = '⚙️ baseline v2.5';
 }
 
+// ── 7D: Documentos RAG vivos ───────────────────────────────────────────────
+
+// Mapa de documentos RAG: chave -> { path, ghUrl, descricao }
+const RAG_DOCS_MAP = {
+  'corpus-baseline': {
+    path: 'docs/rag/CORPUS-BASELINE.md',
+    descricao: 'Estado atual do corpus: leis, chunks, versão, data de ingestão'
+  },
+  'rag-processo': {
+    path: 'docs/rag/RAG-PROCESSO.md',
+    descricao: 'Pipeline completo: ingestão, retrieval, re-ranking, fallback'
+  },
+  'rag-governance': {
+    path: 'docs/rag/RAG-GOVERNANCE.md',
+    descricao: 'Regras de governança, papéis, protocolo de incidentes'
+  },
+  'rag-responsabilidades': {
+    path: 'docs/rag/RAG-RESPONSABILIDADES.md',
+    descricao: 'Matriz de responsabilidades por área e tipo de evento'
+  },
+  'handoff-rag': {
+    path: 'docs/rag/HANDOFF-RAG.md',
+    descricao: 'Handoff técnico do RAG para novos desenvolvedores'
+  },
+  'rfc-001': {
+    path: 'docs/rag/RFC/CORPUS-RFC-001.md',
+    descricao: 'RFC-001: Proposta de expansão do corpus'
+  },
+  'rfc-002': {
+    path: 'docs/rag/RFC/CORPUS-RFC-002.md',
+    descricao: 'RFC-002: Proposta de melhoria do retriever'
+  },
+  'rfc-003': {
+    path: 'docs/RFC-003-corpus-leis-avulsas.md',
+    descricao: 'RFC-003: Corpus de leis avulsas (LC 116, LC 87, CG IBS, RFB CBS)'
+  },
+  'rfc-004': {
+    path: 'docs/RFC-004-expansao-corpus-lc116-lc87-cgibs-rfbcbs.md',
+    descricao: 'RFC-004: Expansão corpus LC 116 + LC 87 + CG IBS + RFB CBS'
+  },
+  'rastreabilidade-rag-po': {
+    path: 'docs/painel-po/RASTREABILIDADE-RAG-PO.md',
+    descricao: 'Documento P.O.: rastreabilidade completa do RAG'
+  }
+};
+
+const RAG_RAW_BASE = 'https://raw.githubusercontent.com/Solaris-Empresa/compliance-tributaria-v2/main/';
+const RAG_GH_BASE  = 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/';
+
+let ragDocAtiva = 'corpus-baseline';
+const ragDocCache = {};
+
+// Buscar e renderizar documento RAG
+async function fetchRagDoc(key, btnOrForce) {
+  const force = btnOrForce === true;
+  const btn   = btnOrForce instanceof HTMLElement ? btnOrForce : null;
+
+  ragDocAtiva = key;
+
+  // Atualizar abas
+  document.querySelectorAll('.rag-docs-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.rag-docs-tab').forEach(b => {
+      if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${key}'`)) b.classList.add('active');
+    });
+  }
+
+  const el = document.getElementById('ragDocsContent');
+  if (!el) return;
+
+  const doc = RAG_DOCS_MAP[key];
+  if (!doc) {
+    el.innerHTML = `<div class="rag-docs-error">Documento não encontrado: ${escHtml(key)}</div>`;
+    return;
+  }
+
+  // Cache TTL 5 min
+  const cached = ragDocCache[key];
+  if (!force && cached && (Date.now() - cached.ts < RAG_CACHE_TTL)) {
+    el.innerHTML = cached.html;
+    return;
+  }
+
+  el.innerHTML = `<div class="rag-docs-loading">&#8987; Carregando ${escHtml(doc.path)}...</div>`;
+
+  try {
+    const url = RAG_RAW_BASE + doc.path;
+    const resp = await fetch(url, { cache: 'no-store' });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const md = await resp.text();
+
+    const ghUrl = RAG_GH_BASE + doc.path;
+    const header = `<div style="margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:10px;font-weight:700;color:#0E7490">${escHtml(doc.path.split('/').pop())}</span>
+      <span style="font-size:10px;color:var(--text-muted)">&mdash; ${escHtml(doc.descricao)}</span>
+      <a href="${escHtml(ghUrl)}" target="_blank" class="rag-docs-open-gh">Abrir no GitHub →</a>
+    </div>`;
+
+    const rendered = typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined'
+      ? DOMPurify.sanitize(marked.parse(md))
+      : `<pre style="white-space:pre-wrap;font-size:11px">${escHtml(md)}</pre>`;
+
+    const html = header + rendered;
+    ragDocCache[key] = { html, ts: Date.now() };
+    el.innerHTML = html;
+
+  } catch (err) {
+    const ghUrl = RAG_GH_BASE + doc.path;
+    el.innerHTML = `<div class="rag-docs-error">
+      &#9888; Erro ao carregar documento. <a href="${escHtml(ghUrl)}" target="_blank">Abrir no GitHub →</a><br>
+      <span style="font-size:10px">Detalhe: ${escHtml(err.message)}</span>
+    </div>`;
+  }
+}
+
 // Inicializar Seção 7
 function initSecao7() {
   renderRagCorpusBars();
   fetchRagData();
+  fetchRagDoc('corpus-baseline'); // carrega o primeiro documento automaticamente
 }
 
 // ── BUSCA GLOBAL (v2 — corrige abas invisíveis) ──────────────────────────
