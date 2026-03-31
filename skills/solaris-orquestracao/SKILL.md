@@ -113,10 +113,27 @@ SELECT p.id, p.name, MAX(p.updatedAt) as updatedAt
 FROM projects GROUP BY p.id, p.name ORDER BY updatedAt DESC
 ```
 
+**TiDB também rejeita `LIMIT ?` e `OFFSET ?` como parâmetros bind via `conn.execute()`:**
+
+**❌ PROIBIDO:**
+```typescript
+conn.execute(`SELECT ... LIMIT ? OFFSET ?`, [...params, pageSize, offset])
+// TiDB lança: Incorrect arguments to LIMIT
+```
+
+**✅ OBRIGATÓRIO:**
+```typescript
+const limitSafe  = parseInt(String(input.pageSize ?? input.limit ?? 20), 10);
+const offsetSafe = parseInt(String(offset ?? 0), 10);
+conn.execute(`SELECT ... LIMIT ${limitSafe} OFFSET ${offsetSafe}`, params)
+// params: apenas os parâmetros do WHERE — sem limit/offset
+```
+
 Checklist Q2:
 - [ ] `grep -n "SELECT DISTINCT\|distinct:" ARQUIVO` → verificar todo `DISTINCT`
 - [ ] `ORDER BY` usa apenas colunas do `SELECT`
 - [ ] Se não: refatorar para `GROUP BY + MAX()` antes do commit
+- [ ] `grep -n "LIMIT ?\|OFFSET ?" server/routers/` → deve retornar vazio (ou apenas pool.query)
 
 ---
 
@@ -277,9 +294,9 @@ db.select({ id: t.id, updatedAt: max(t.updatedAt) })
 |---|---|---|---|
 | 2026-03-30 | `listQuestions` retorna 0 após upsert OK | `vigencia_inicio = ''` em vez de `NULL` | Q1 obrigatório |
 | 2026-03-30 | TiDB rejeita query do `scoringEngine` | `SELECT DISTINCT` com `ORDER BY` fora do SELECT | Q2 obrigatório |
+| 2026-03-31 | `listQuestions` retorna HTTP 500, UI exibe "0 de 0" | TiDB rejeita `LIMIT ?`/`OFFSET ?` via `conn.execute()` | Q2 — interpolar `LIMIT ${parseInt(...)}` |
 | Sprint K | Deploy não reflete implementação | Branch não mergeada em `main` antes do teste | Checklist de início |
 | Sprint L | PR com 97 commits de divergência | Branch criada de estado antigo | Sempre basear no `main` atual |
-| 2026-03-31 | `listQuestions` exibe 0 com dados no banco | `queryInput` sem `useMemo` → nova referência a cada render → race condition tRPC | Sempre memoizar objetos de input de `useQuery` com `useMemo` |
 
 > Atualizar esta tabela a cada bug encontrado em produção ou UAT.
 

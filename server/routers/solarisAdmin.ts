@@ -202,13 +202,17 @@ export const solarisAdminRouter = router({
         );
         const total = (countRows as { total: number }[])[0].total;
 
+        // BUG-C fix: TiDB rejeita LIMIT ? OFFSET ? via conn.execute().
+        // Usar parseInt() para garantir inteiros seguros antes de interpolar.
+        const limitSafe = parseInt(String(input.pageSize), 10);
+        const offsetSafe = parseInt(String(offset), 10);
         const [rows] = await conn.execute(
           `SELECT id, codigo, titulo, texto, categoria, severidade_base,
                   vigencia_inicio, upload_batch_id, ativo, criado_em
            FROM solaris_questions ${where}
            ORDER BY codigo ASC
-           LIMIT ? OFFSET ?`,
-          [...params, input.pageSize, offset]
+           LIMIT ${limitSafe} OFFSET ${offsetSafe}`,
+          params
         );
 
         return {

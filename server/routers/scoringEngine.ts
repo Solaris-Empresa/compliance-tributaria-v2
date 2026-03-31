@@ -447,6 +447,8 @@ export const scoringEngineRouter = router({
       const conn = await getConn();
       try {
         const clientId = ctx.user.id;
+        // BUG-C fix: TiDB rejeita LIMIT ? via conn.execute() — interpolar inteiro seguro
+        const limitSafe = parseInt(String(input.limit), 10);
         const [rows] = await conn.execute(
           `SELECT cpie_score, gap_score, risk_score, action_score,
                   maturity_level, maturity_label, maturity_color,
@@ -454,8 +456,8 @@ export const scoringEngineRouter = router({
            FROM cpie_score_history
            WHERE project_id = ? AND client_id = ?
            ORDER BY calculated_at DESC
-           LIMIT ?`,
-          [input.projectId, clientId, input.limit]
+           LIMIT ${limitSafe}`,
+          [input.projectId, clientId]
         ) as [Array<{
           cpie_score: string;
           gap_score: string;
