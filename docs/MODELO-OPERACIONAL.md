@@ -1,10 +1,9 @@
 # MODELO OPERACIONAL — Equipe IA Solaris
 
-**Versão:** 2.5 — 2026-03-31  
+**Versão:** 2.4 — 2026-03-29  
 **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2  
 **Aprovador:** P.O. Uires Tapajós  
-**Última sprint concluída:** Sprint M (UAT E2E + BUG-UAT-02/03/05) · HEAD `2f17184`  
-**PRs mergeados:** #254 (BUG-UAT-03 fix) · #256 (E2E Playwright + BUG-UAT-05 + auth.testLogin)  
+**Última sprint concluída:** Sprint K (K-4-A a K-4-D) · HEAD `5d7ad7d`  
 **Próxima sprint:** Sprint L — Issue #191 (G16 Upload CSV SOLARIS)  
 **Contexto de entrada:** `docs/governance/ESTADO-ATUAL.md` — leia antes de qualquer trabalho
 
@@ -106,7 +105,7 @@ P.O. solicita
 
 ---
 
-## Bloqueios Ativos (2026-03-31)
+## Bloqueios Ativos (2026-03-29)
 
 Não remover sem aprovação documentada do P.O.:
 
@@ -120,19 +119,14 @@ Não remover sem aprovação documentada do P.O.:
 
 ## Backlog Ativo de Trabalho
 
-### P0 — Concluído na Sprint K + Sprint M
+### P0 — Concluído na Sprint K
 
 | Item | Responsável | Status |
 |---|---|---|
 | Sprint de Governança CI/CD | Manus | ✅ Concluído |
 | DEC-007 Infraestrutura de Contexto | Manus | ✅ Concluído |
 | Sprint K — Onda 2 (K-4-A a K-4-D) | Manus | ✅ Concluído |
-| BUG-UAT-02/03 fix (PR #254) | Manus | ✅ Concluído |
-| E2E Playwright CT-01/04/06/07/37 (PR #256) | Manus | ✅ Concluído |
-| BUG-UAT-05 DiagnosticoStepper hardcode (PR #256) | Manus | ✅ Concluído |
-| auth.testLogin com guard E2E_TEST_MODE | Manus | ✅ Concluído |
-| SOL-013/014 removidos do corpus (soft-delete) | Manus | ✅ Concluído |
-| UAT Step 3 (Concluir Onda 2) | P.O. | ⏳ Aguardando |
+| UAT com advogados | P.O. + Orquestrador apoia | ⏳ Aguardando |
 
 ### P1 — Próximas sprints
 
@@ -200,7 +194,7 @@ Quando o Consultor (ChatGPT) for acionado:
 
 - [docs/governance/ESTADO-ATUAL.md](./governance/ESTADO-ATUAL.md) — **LEIA PRIMEIRO** — porta de entrada universal
 - [PRODUCT-LIFECYCLE.md](./PRODUCT-LIFECYCLE.md) — ciclo de vida do produto
-- [BASELINE-PRODUTO.md](./BASELINE-PRODUTO.md) — estado atual do produto (v2.4, Sprint M)
+- [BASELINE-PRODUTO.md](./BASELINE-PRODUTO.md) — estado atual do produto (v2.4)
 - [ERROS-CONHECIDOS.md](./ERROS-CONHECIDOS.md) — incidentes e invariants
 - [docs/governance/invariant-registry.md](./governance/invariant-registry.md) — 8 invariants
 - [docs/governance/HANDOFF-IMPLEMENTADOR.md](./governance/HANDOFF-IMPLEMENTADOR.md) — guia do Manus
@@ -208,6 +202,6 @@ Quando o Consultor (ChatGPT) for acionado:
 
 ---
 
-*MODELO-OPERACIONAL.md — IA Solaris v2.5 · 2026-03-31*
+*MODELO-OPERACIONAL.md — IA Solaris v1.1 · 2026-03-29*
 *Revisar se a composição da equipe ou os papéis mudarem*
 *Aprovador: P.O. Uires Tapajós*
