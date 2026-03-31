@@ -428,13 +428,6 @@
       "when": 1774891153011,
       "tag": "0060_soft_skin",
       "breakpoints": true
-    },
-    {
-      "idx": 61,
-      "version": "5",
-      "when": 1774918303319,
-      "tag": "0061_greedy_mysterio",
-      "breakpoints": true
     }
   ]
 }
