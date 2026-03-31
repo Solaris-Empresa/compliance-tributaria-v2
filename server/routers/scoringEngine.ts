@@ -558,7 +558,7 @@ export const scoringEngineRouter = router({
         const clientId = ctx.user.id;
         // Busca projetos que têm dados v3 (gaps, riscos ou ações)
         const [projectsWithData] = await conn.execute(
-          `SELECT DISTINCT p.id, p.name
+          `SELECT p.id, p.name
            FROM projects p
            WHERE p.clientId = ?
              AND (
@@ -566,7 +566,8 @@ export const scoringEngineRouter = router({
                OR EXISTS (SELECT 1 FROM project_risks_v3 r WHERE r.project_id = p.id AND r.client_id = ?)
                OR EXISTS (SELECT 1 FROM project_actions_v3 a WHERE a.project_id = p.id AND a.client_id = ?)
              )
-           ORDER BY p.updatedAt DESC
+           GROUP BY p.id, p.name
+           ORDER BY MAX(p.updatedAt) DESC
            LIMIT 200`,
           [clientId, clientId, clientId, clientId]
         ) as [Array<{ id: number; name: string }>, unknown];
