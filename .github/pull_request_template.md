@@ -84,6 +84,21 @@ Se qualquer item acima for falso → explicar aqui:
 
 Justificativa (se não aplicável):
 
+## Auto-auditoria Q1–5
+
+> Obrigatório para feat, fix, hotfix, schema, procedure e componente com useQuery.
+> Dispensado apenas para `chore(...)` e `docs(...)`.
+
+```
+Q1 — Tipos nulos:         [OK / N/A / BLOQUEADO — descrever]
+Q2 — SQL TiDB:            [OK / N/A / BLOQUEADO — descrever]
+Q3 — Filtros NULL/empty:  [OK / N/A / BLOQUEADO — descrever]
+Q4 — Endpoint registrado: [OK / N/A / BLOQUEADO — descrever]
+Q5 — Testes mínimos:      [OK / N/A / BLOQUEADO — descrever]
+
+Resultado: APTO PARA COMMIT
+```
+
 ## Checklist final
 - [ ] Código revisado pelo próprio autor
 - [ ] Evidência JSON preenchida e verdadeira

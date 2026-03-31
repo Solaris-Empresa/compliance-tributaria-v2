@@ -17,6 +17,7 @@ import ComplianceLayout from "@/components/ComplianceLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Brain, TrendingUp, BarChart3, PieChart, ArrowLeft, ExternalLink,
   AlertTriangle, CheckCircle2, Loader2, RefreshCw
@@ -69,7 +70,7 @@ export default function AdminCpieDashboard() {
   const { user } = useAuth();
 
   // Buscar projetos
-  const { data: projects, isLoading, refetch } = trpc.projects.list.useQuery();
+  const { data: projects, isLoading, isError, refetch } = trpc.projects.list.useQuery();
 
   // Buscar histórico de análises para gráfico de evolução
   // Usamos o getAnalysisHistory de um projeto dummy para obter dados agregados
@@ -140,6 +141,11 @@ export default function AdminCpieDashboard() {
       </ComplianceLayout>
     );
   }
+  if (isError) return (
+    <Alert variant="destructive">
+      <AlertDescription>Erro ao carregar métricas. Tente novamente.</AlertDescription>
+    </Alert>
+  );
 
   // ── Dados dos gráficos ────────────────────────────────────────────────────
 

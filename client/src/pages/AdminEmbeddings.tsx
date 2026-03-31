@@ -17,6 +17,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { io, Socket } from "socket.io-client";
 import {
@@ -58,7 +59,7 @@ export default function AdminEmbeddings() {
   const socketRef = useRef<Socket | null>(null);
 
   // Buscar status atual
-  const { data: status, refetch: refetchStatus } = trpc.adminEmbeddings.getStatus.useQuery(
+  const { data: status, isError: isStatusError, refetch: refetchStatus } = trpc.adminEmbeddings.getStatus.useQuery(
     undefined,
     { refetchInterval: isRebuilding ? 3000 : false }
   );
@@ -187,6 +188,11 @@ export default function AdminEmbeddings() {
   return (
     <ComplianceLayout>
       <div className="max-w-4xl mx-auto px-4 pt-8 pb-16 space-y-8">
+        {isStatusError && (
+          <Alert variant="destructive">
+            <AlertDescription>Erro ao buscar status. Última leitura pode estar desatualizada.</AlertDescription>
+          </Alert>
+        )}
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -409,7 +415,7 @@ export default function AdminEmbeddings() {
 
 // ─── Sub-componente: histórico de rebuilds ────────────────────────────────────
 function HistorySection() {
-  const { data: history, isLoading } = trpc.adminEmbeddings.getHistory.useQuery();
+  const { data: history, isLoading, isError } = trpc.adminEmbeddings.getHistory.useQuery();
 
   return (
     <div className="border rounded-lg p-5 space-y-3">
@@ -418,6 +424,11 @@ function HistorySection() {
         Histórico de Rebuilds
       </h2>
 
+      {isError && (
+        <Alert variant="destructive">
+          <AlertDescription>Erro ao carregar histórico.</AlertDescription>
+        </Alert>
+      )}
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Carregando histórico...</p>
       ) : !history || history.length === 0 ? (
