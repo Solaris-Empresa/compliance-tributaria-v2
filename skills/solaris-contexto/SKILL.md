@@ -1,6 +1,6 @@
 ---
 name: solaris-contexto
-version: v3.0
+version: v3.1
 description: "Contexto permanente do projeto IA SOLARIS para o Orquestrador Claude. Use ao iniciar qualquer sessão do projeto IA SOLARIS, ao planejar sprints, ao revisar PRs, ao gerar prompts para o Manus, ou ao analisar o estado do produto. Contém Gate 0 obrigatório, estado atual do produto, Gate de Qualidade Q1–Q5 e regras de governança."
 ---
 
@@ -131,221 +131,222 @@ Ao gerar prompts para o Manus, incluir instrução de aplicar labels antes do re
 
 ---
 
-## PROTOCOLO DE DEBUG — Geração obrigatória de prompts de causa raiz
+## PROTOCOLO DE DEBUG — Diagnóstico determinístico de causa raiz (v2)
 
-> **Regra absoluta:** Nenhum bug é considerado resolvido sem causa raiz identificada,
-> evidência reproduzível e hipótese confirmada por output de comando.
-> Claude não gera prompt de correção antes da causa raiz estar confirmada.
+> **Regra absoluta:** Bug sem causa raiz comprovada = não resolvido.
+> Output de comando > opinião. Evidência > interpretação.
+> Meta: causa raiz identificada em **1 rodada**.
+
+**Regras de execução para o Manus:**
+- Executar TODOS os comandos em UMA resposta
+- NÃO interpretar resultados — reportar output bruto
+- NÃO sugerir correção antes da autorização do Orquestrador
+- NÃO alterar nenhum arquivo durante o diagnóstico
+- Responder APENAS no formato do Passo 7
 
 ---
 
-### Passo 0 — Verificar padrões conhecidos (fast path)
+### Passo 0 — Fast path: padrões conhecidos (verificar PRIMEIRO)
 
-Antes de gerar qualquer bloco de investigação, verificar se o bug se enquadra
-em padrão já documentado na tabela de erros recorrentes do `solaris-orquestracao/SKILL.md`:
+Se o sintoma bater com padrão abaixo: gerar apenas o comando direto — não executar Passos 1–7.
 
-| Sintoma | Padrão conhecido | Comando direto |
+| Sintoma | Padrão | Comando direto |
 |---|---|---|
-| Lista retorna 0 após insert/upsert OK | `''` em vez de `NULL` em campo opcional | `SELECT campo FROM tabela WHERE campo = ''` |
-| TiDB rejeita query em produção | `SELECT DISTINCT` com `ORDER BY` fora do SELECT | `grep -n "DISTINCT" ARQUIVO` |
-| Endpoint retorna 404 em produção | Router não registrado em `server/routers.ts` | `grep -n "NOME_ROUTER" server/routers.ts` |
-| Filtro não encontra dado existente | Tipo incompatível (string vs number, null vs undefined) | `SELECT tipo_coluna FROM information_schema.columns WHERE table_name=X` |
+| Lista retorna 0 após insert/upsert OK | `''` em vez de `NULL` | `SELECT campo FROM tabela WHERE campo = ''` |
+| TiDB: "Incorrect arguments to LIMIT" | `LIMIT ?` via `conn.execute()` | `grep -n "LIMIT ?\|OFFSET ?" server/routers/ARQUIVO.ts` |
+| TiDB: ORDER BY inválido | `SELECT DISTINCT` com `ORDER BY` fora do SELECT | `grep -n "DISTINCT" server/routers/ARQUIVO.ts` |
+| Endpoint 404 ou undefined | Router não registrado | `grep -n "NOME_ROUTER" server/routers.ts` |
+| UI mostra vazio sem mensagem de erro | `isError` tratado igual a lista vazia | `grep -n "isError\|isLoading" client/src/pages/COMPONENTE.tsx` |
 | Deploy não reflete código | Branch não mergeada em `main` | `git log main --oneline -3` |
+| Query dispara múltiplas vezes | `queryInput` sem `useMemo` | `grep -n "useMemo\|queryInput" client/src/pages/COMPONENTE.tsx` |
 
-**Se o sintoma bater com padrão conhecido:** gerar prompt com o comando direto — não investigação completa.
-**Se não bater:** executar o protocolo completo abaixo.
+**Se padrão confirmado:** reportar `PASSO 0 — PADRÃO CONHECIDO: [nome]` + output.
+**Se não bater:** executar Passos 1–7.
 
 ---
 
 ### Passo 1 — Definição objetiva do problema
-
-Claude estrutura o problema em 4 campos antes de gerar qualquer comando:
-
 ```
-SINTOMA:    [observável, sem interpretação — o que o usuário viu]
-ESPERADO:   [estado correto — o que deveria acontecer]
-REAL:       [estado atual — o que aconteceu]
-DELTA:      [diferença entre esperado e real — onde está a divergência]
+SINTOMA:  [observável — o que o usuário viu, sem interpretação]
+ESPERADO: [estado correto]
+REAL:     [estado atual]
+DELTA:    [diferença objetiva entre esperado e real]
 ```
 
-Regra: se Claude não consegue preencher DELTA com precisão, falta informação — pedir ao P.O. antes de gerar o prompt.
+**Regra:** se DELTA não pode ser preenchido com precisão → pedir informação ao P.O. antes de gerar comandos.
 
 ---
 
-### Passo 2 — Diagrama de fluxo obrigatório
-
-Claude mapeia o caminho completo do dado antes de qualquer grep:
-
+### Passo 2 — Mapa do fluxo de dados
 ```
-Input/CSV → Parser/Zod → upsert() → banco (TiDB)
-                                          ↓
-                              procedure() → tRPC response → React state → UI
+INPUT → [Zod + transforms] → [Banco TiDB]
+                                    ↓
+                    [Query/procedure] → [tRPC response] → [React state] → [UI]
 
-DADO CONFIRMADO EM: [ ] input  [ ] banco  [ ] tRPC response  [ ] React state
-DADO AUSENTE EM:    [ ] input  [ ] banco  [ ] tRPC response  [ ] React state
-CAMADA DO BUG: ______
+DADO CONFIRMADO EM: [ ] input  [ ] banco  [ ] tRPC  [ ] React state
+DADO AUSENTE EM:    [ ] input  [ ] banco  [ ] tRPC  [ ] React state
+CAMADA SUSPEITA:    [banco | query | backend | frontend]
 ```
 
-A camada identificada determina quais comandos incluir. Não investigar camadas que o diagrama já eliminou.
+A camada suspeita determina quais comandos incluir no Passo 4.
 
 ---
 
-### Passo 3 — Hipóteses ranqueadas por probabilidade
-
-Claude gera mínimo 3 hipóteses, da mais à menos provável:
-
+### Passo 3 — Hipóteses ranqueadas (mínimo 3)
 ```
-H1 — [hipótese mais provável dado o stack TiDB/Drizzle/tRPC]
-     Comando: [1 comando único — grep ou SQL]
-     ✅ Confirma se: [output exato que confirma]
-     ❌ Nega se:     [output exato que nega]
+H1 — [hipótese mais provável]
+     Comando: [1 comando único]
+     ✅ Confirma se: [output exato]
+     ❌ Nega se:     [output exato]
 
 H2 — [hipótese alternativa]
      Comando: [1 comando]
-     ✅ Confirma se: [output]
-     ❌ Nega se:     [output]
 
 H3 — [hipótese fallback]
      Comando: [1 comando]
-     ✅ Confirma se: [output]
-     ❌ Nega se:     [output]
 ```
 
-Hipóteses prioritárias para o stack SOLARIS (verificar sempre em H1 ou H2):
-- **Dados:** campo opcional gravado como `''` em vez de `NULL` (Q1)
-- **SQL:** `SELECT DISTINCT` com `ORDER BY` coluna fora do SELECT (Q2)
-- **Filtro:** `WHERE campo IS NULL` não encontra `''` (Q3)
-- **Registro:** procedure/router não registrado em `server/routers.ts` (Q4)
-- **Frontend:** filtro client-side aplicado por padrão (ex: status `ativo=1`) (Q5)
+**Hipóteses prioritárias para o stack SOLARIS** (sempre H1 ou H2):
+- Campo opcional como `''` em vez de `NULL` → Q1
+- `LIMIT ?` via `conn.execute()` → Q2
+- `SELECT DISTINCT` com `ORDER BY` fora do SELECT → Q2
+- Filtro `IS NULL` não encontra `''` → Q3
+- Router/procedure não registrado → Q4
+- `isError` indistinguível de lista vazia → Q5
+- `queryInput` sem `useMemo` → race condition
 
 ---
 
 ### Passo 4 — Bloco de investigação (executar tudo de uma vez)
-
-Claude gera **um único bloco** com todos os comandos agrupados por camada.
-O Manus executa tudo de uma vez e reporta os outputs brutos — sem interpretação.
-
 ```bash
 # ═══ CAMADA 1 — BANCO ═══
 SELECT campo_suspeito, ativo, COUNT(*) as total
 FROM tabela GROUP BY campo_suspeito, ativo;
+SELECT COUNT(*) as string_vazia FROM tabela WHERE campo_suspeito = '';
 
-SELECT COUNT(*) as registros_com_string_vazia
-FROM tabela WHERE campo_suspeito = '';
-
-# ═══ CAMADA 2 — BACKEND (filtro oculto?) ═══
-grep -n "IS NULL\|= ''\|ativo\|where\|findMany\|eq(\|or(" \
+# ═══ CAMADA 2 — QUERY/PROCEDURE ═══
+grep -n "IS NULL\|= ''\|DISTINCT\|LIMIT ?\|OFFSET ?\|where\|findMany" \
   server/routers/ARQUIVO.ts | head -30
 
-# ═══ CAMADA 3 — MAPEAMENTO (tipos e transforms) ═══
+# ═══ CAMADA 3 — MAPEAMENTO ═══
 grep -n "transform\|\.trim\|optional\|default\|null\|''" \
   server/routers/ARQUIVO.ts | head -20
 
-# ═══ CAMADA 4 — REGISTRO (endpoint existe?) ═══
+# ═══ CAMADA 4 — REGISTRO ═══
 grep -n "NOME_ROUTER" server/routers.ts
 
-# ═══ CAMADA 5 — FRONTEND (filtro client-side?) ═══
-grep -n "filter\|ativo\|role\|guard\|default\|useState" \
-  client/src/pages/COMPONENTE.tsx | head -20
+# ═══ CAMADA 5 — FRONTEND ═══
+grep -n "isError\|isLoading\|filter\|ativo\|useMemo\|queryInput" \
+  client/src/pages/COMPONENTE.tsx | head -25
 ```
-
-**Proibições absolutas:**
-- ❌ Não alterar nenhum arquivo antes da causa raiz confirmada
-- ❌ Não usar "acho que" ou "possivelmente"
-- ❌ Não sugerir correção antes do Passo 5 completo
-- ❌ Não sequenciar — executar tudo de uma vez
 
 ---
 
-### Passo 5 — Formato de resposta fechado
-
-Claude inclui este formato no prompt enviado ao Manus.
-O Manus só pode responder neste formato — nada mais:
-
+### Passo 5 — Checklist Q1–Q5
 ```
-## OUTPUTS BRUTOS
+Q1 — Campo opcional grava NULL?      [ OK | FALHOU ] → [linha do output]
+Q2 — SQL TiDB sem incompatibilidade? [ OK | N/A ]    → [linha do output]
+Q3 — Filtro cobre NULL e ''?         [ OK | FALHOU ] → [linha do output]
+Q4 — Endpoint registrado no router?  [ OK | FALHOU ] → [linha do output]
+Q5 — Frontend diferencia erro/vazio? [ OK | FALHOU ] → [linha do output]
+```
 
-### CAMADA 1 — BANCO
-[output exato do SELECT]
+---
 
-### CAMADA 2 — BACKEND
-[output exato do grep]
+### Passo 6 — Isolamento da causa raiz
+```
+TIPO:      [ ] Dado  [ ] SQL  [ ] Backend  [ ] Frontend  [ ] Integração
+LOCAL:     [arquivo.ts linha N]
+CONDIÇÃO:  [regra quebrada — objetiva, sem qualificadores]
+EVIDÊNCIA: [comando executado] → [output que prova]
+```
 
-### CAMADA 3 — MAPEAMENTO
-[output exato do grep]
+---
 
-### CAMADA 4 — REGISTRO
-[output exato do grep]
+### Passo 7 — Formato de resposta fechado
 
-### CAMADA 5 — FRONTEND
-[output exato do grep]
+Manus responde APENAS neste formato:
+```
+### OUTPUTS BRUTOS
 
-## CHECKLIST Q1–Q5
+#### CAMADA 1 — BANCO
+[output exato]
 
-Q1 — Tipos nulos:        [ OK | FALHOU ] → [linha do output como evidência]
-Q2 — SQL DISTINCT:       [ OK | N/A ]    → [linha do output como evidência]
-Q3 — Filtros NULL/'':    [ OK | FALHOU ] → [linha do output como evidência]
-Q4 — Endpoint existe:    [ OK | FALHOU ] → [linha do output como evidência]
-Q5 — Filtro frontend:    [ OK | FALHOU ] → [linha do output como evidência]
+#### CAMADA 2 — QUERY/PROCEDURE
+[output exato]
 
-## HIPÓTESE CONFIRMADA
-H__ — [1 frase objetiva]
+#### CAMADA 3 — MAPEAMENTO
+[output exato]
 
-## CAUSA RAIZ
-Descrição: [sem qualificadores — "o campo X grava Y em vez de Z"]
-Camada:    [banco | query | backend | frontend]
-Evidência: [comando + output exato]
-Tipo:      [dados | estrutura | lógica | integração]
+#### CAMADA 4 — REGISTRO
+[output exato]
 
-## VALIDAÇÃO DA CORREÇÃO
+#### CAMADA 5 — FRONTEND
+[output exato]
+
+---
+
+### CHECKLIST Q1–Q5
+
+Q1: [ OK | FALHOU ] → [evidência]
+Q2: [ OK | N/A ]   → [evidência]
+Q3: [ OK | FALHOU ] → [evidência]
+Q4: [ OK | FALHOU ] → [evidência]
+Q5: [ OK | FALHOU ] → [evidência]
+
+---
+
+### HIPÓTESE CONFIRMADA
+
+H__ — [1 frase]
+
+---
+
+### CAUSA RAIZ
+
+TIPO:      [Dado | SQL | Backend | Frontend | Integração]
+LOCAL:     [arquivo.ts linha N]
+CONDIÇÃO:  [regra quebrada]
+EVIDÊNCIA: [comando → output]
+
+---
+
+### COMO REPRODUZIR
+
+1. [passo]
+2. [passo]
+3. [resultado]
+
+---
+
+### COMO VALIDAR CORREÇÃO
+
 [comando ou fluxo que confirma resolução]
 ```
 
 ---
 
-### Passo 6 — Gate de bloqueio
+### Gate de bloqueio
 
 Claude não gera prompt de correção se:
 
 | Condição | Ação |
 |---|---|
-| Causa raiz não identificada | Nova rodada com comandos mais específicos |
-| Output ausente ou "achei que" | Rejeitar — exigir output de comando |
-| Hipótese não confirmada | Bloquear — exigir output antes de corrigir |
-| Manus sugeriu correção antes da causa raiz | Bloquear — exigir causa raiz primeiro |
+| CAUSA RAIZ vazia ou "acho que" | Nova rodada com comandos mais específicos |
+| LOCAL EXATO ausente | Exigir arquivo + linha antes de corrigir |
+| EVIDÊNCIA ausente | Rejeitar — exigir output do comando |
+| Q5 marcado FALHOU | Exigir correção do frontend junto com o fix |
+| Manus sugeriu correção antes do Passo 7 | Bloquear — exigir formato completo |
 
 ---
 
-### Referência rápida — diagnóstico por tipo de bug
+### Regra final — memória do projeto
 
-**Campo NULL/empty:**
-```bash
-SELECT campo, COUNT(*) FROM tabela GROUP BY campo ORDER BY 2 DESC;
-# '' com N registros → Q1 falhou → causa raiz confirmada
-```
-
-**Filtro eliminando dados:**
-```bash
-SELECT COUNT(*) FROM tabela WHERE ativo = 1;  -- com filtro
-SELECT COUNT(*) FROM tabela;                   -- sem filtro
-# diferença > 0 → filtro é a causa
-```
-
-**Endpoint não registrado:**
-```bash
-grep -n "NOME_ROUTER" server/routers.ts
-grep -rn "export.*router\|export.*Router" server/routers/ARQUIVO.ts
-```
-
-**SQL TiDB rejeitado:**
-```bash
-grep -rn "SELECT DISTINCT\|\.distinct(" server/routers/ | grep -v test
-# qualquer hit → verificar ORDER BY das colunas
-```
-
-> **Regra final:** Bug documentado = regressão evitada.
-> A cada bug resolvido, atualizar a tabela de erros recorrentes
-> em `skills/solaris-orquestracao/SKILL.md`.
+> Cada bug resolvido atualiza a tabela de erros recorrentes em `skills/solaris-orquestracao/SKILL.md`.
+> Meta: Passo 0 resolve ≥ 80% dos bugs recorrentes.
+> Bug que escapa do Passo 0 → atualizar a tabela.
+> Bug que escapa do Gate de Spec → atualizar o Gate de Spec.
+> O sistema aprende com cada falha.
 
 ---
 
