@@ -1,6 +1,6 @@
 ---
 name: solaris-orquestracao
-version: v2.9
+version: v3.0
 description: "Skill operacional do Manus para o projeto IA SOLARIS Compliance Tributária. Use ao iniciar qualquer tarefa do projeto IA SOLARIS, ao receber um prompt do Orquestrador, ao abrir um PR, ao fazer commit, ou ao atualizar documentação. Contém checklist de início de tarefa, padrões de commit, template de PR, obrigações de baseline, Gate de Qualidade Q1–Q5 e bloqueios permanentes."
 ---
 
@@ -20,6 +20,24 @@ Antes de qualquer implementação:
 3. Verificar se o que será implementado já existe no repositório
 4. Confirmar que a issue correspondente está aberta no Milestone #7
 5. Reportar ao Orquestrador antes de escrever código
+
+## Padrão de recebimento de prompt — Crítica vs Execução
+
+Ao receber um prompt do Orquestrador ou do P.O., aplicar a seguinte regra de decisão:
+
+| Situação | Ação obrigatória |
+|---|---|
+| Prompt com **GO explícito** ("Pode executar", "GO", "Autorizado") | Executar diretamente — reconhecimento → implementação → PR |
+| Prompt com instrução **"faça crítica antes de executar"** | Fazer crítica e aguardar confirmação antes de qualquer implementação |
+| Prompt **sem GO e sem instrução de crítica** | **Perguntar ao P.O.:** "Executar diretamente ou fazer crítica primeiro?" |
+
+**Regra de ouro:** nunca iniciar implementação em prompt ambíguo. Sempre perguntar quando não houver GO explícito.
+
+**O que é uma crítica:**
+- Executar reconhecimento (greps, leitura de arquivos relevantes)
+- Identificar riscos bloqueantes, ambiguidades e divergências entre o prompt e o código real
+- Reportar em tabela: Risco | Severidade | Ação necessária
+- Aguardar GO do Orquestrador antes de implementar
 
 ## Padrão de commits
 
