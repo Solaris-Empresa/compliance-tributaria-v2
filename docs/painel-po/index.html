@@ -489,7 +489,7 @@ mark.search-hl{
 <body>
 <header>
   <div><h1>&#127963; Cockpit P.O. &mdash; Compliance Tributaria v2.0</h1></div>
-  <div class="meta">Uires Tapajos &middot; P.O. &middot; <span id="headerDate">2026-03-30</span></div>
+  <div class="meta">Uires Tapajos &middot; P.O. &middot; <span id="headerDate">2026-03-31</span></div>
   <div class="search-wrap">
     <div class="search-input-wrap">
       <span class="search-icon">&#128269;</span>
@@ -558,7 +558,7 @@ mark.search-hl{
     <div class="health-bar"><div class="health-fill" id="healthFill" style="width:94%;background:#22C55E;"></div></div>
     <span class="health-score" id="healthScore">94/100</span>
     <div class="health-breakdown" id="healthBreakdown">
-      <span id="scoreTestesLine">&#10003; Testes: 2.652/2.773 (96%)</span>
+      <span id="scoreTestesLine">&#10003; Testes: 2.678 unitários + 5 E2E Playwright</span>
       <span id="scoreTsLine">&#10003; TypeScript: 0 erros</span>
       <span>&#10003; PRs abertos: 0</span>
       <span>&#10003; Docs: atualizados</span>
@@ -627,7 +627,7 @@ mark.search-hl{
     </div>
     <div class="status-card green">
       <div class="label">Estado do produto</div>
-      <div class="value">v2.4 &mdash; Sprint K concluida</div>
+      <div class="value">v2.4 &mdash; Sprint M (UAT + E2E)</div>
       <div class="sub" id="statusTestes">Carregando dados do GitHub...</div>
       <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md" target="_blank">&#8594; BASELINE-PRODUTO.md</a>
     </div>
@@ -643,10 +643,10 @@ mark.search-hl{
     </div>
     <div class="status-card purple">
       <div class="label">Proxima acao obrigatoria</div>
-      <div class="value">Sprint L &mdash; Upload CSV SOLARIS</div>
-      <div class="sub">Issue #191 &middot; G16 &middot; Milestone M4</div>
-      <div class="acao-pendente">&#9889; Acao pendente: P.O. aprovar inicio Sprint L</div>
-      <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/191" target="_blank">&#8594; Issue #191</a>
+      <div class="value">Sprint M &mdash; UAT E2E Playwright</div>
+      <div class="sub">PR #256 aguarda merge &middot; CT-01/04/06/07/37 cobertos</div>
+      <div class="acao-pendente">&#9889; Acao pendente: Orquestrador mergear PR #256</div>
+      <a class="link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/256" target="_blank">&#8594; PR #256 &mdash; test/uat-e2e-playwright-v2</a>
     </div>
   </div>
 </div>
@@ -709,7 +709,7 @@ mark.search-hl{
 
 <!-- SECAO 4 - RELATORIO DE DOCUMENTACAO -->
 <div class="section">
-  <div class="section-title">Seção 4 &mdash; Relatório de Documentação <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0" id="docReportDate">(gerado em 2026-03-30)</span></div>
+  <div class="section-title">Seção 4 &mdash; Relatório de Documentação <span style="font-weight:400;font-size:11px;text-transform:none;letter-spaci<span id="docReportDate">(gerado em 2026-03-31)</span></div>
 
   <!-- Resumo executivo -->
   <div class="doc-report-summary">
@@ -1534,8 +1534,12 @@ const INITIAL_KANBAN = {
 };
 
 // HOTFIX BUG-03: versão das decisões — força reset do localStorage se tiver placeholder
-const DECISIONS_VERSION = 2;
+const DECISIONS_VERSION = 3;
 const INITIAL_DECISIONS = [
+  { date: '2026-03-31', decision: 'DEC-014: PR #256 — E2E Playwright CT-01/04/06/07/37 + BUG-UAT-05 fix + SKILL.md v3.3 (aguarda merge)', status: 'pending', link: GH+'/pull/256' },
+  { date: '2026-03-31', decision: 'DEC-013: BUG-UAT-05 corrigido — DiagnosticoStepper hardcode SOL-001..012 removido', status: 'done', link: GH+'/pull/256' },
+  { date: '2026-03-31', decision: 'DEC-012: SOL-013 e SOL-014 removidos do corpus (soft-delete ativo=0)', status: 'done', link: null },
+  { date: '2026-03-31', decision: 'DEC-011: auth.testLogin implementado com guard E2E_TEST_MODE — Playwright pronto para UAT automatizado', status: 'done', link: GH+'/pull/255' },
   { date: '2026-03-30', decision: 'DEC-010: Seção 7E Qualidade do RAG — 4 gates, gold set, dados vivos API GitHub (#233)', status: 'done', link: GH+'/pull/233' },
   { date: '2026-03-30', decision: 'DEC-009: Gate de Qualidade RAG — RAG-QUALITY-GATE.md + GitHub Action + PR template (#232)', status: 'done', link: GH+'/pull/232' },
   { date: '2026-03-29', decision: 'DEC-008: Cockpit P.O. com fetch dinâmico API GitHub — Score de Saúde em tempo real (#199)', status: 'done', link: GH+'/pull/199' },
@@ -1558,11 +1562,12 @@ const INITIAL_SEMAFOROS = { cicd: 'green', shadow: 'green', issues: 'amber', prs
 
 const MODO_CONFIG = {
   uat: {
-    acao: 'Retornar ao UAT com advogados — fluxo 3 ondas + stepper 8 etapas (Sprint K concluída)',
-    alink: GH+'/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md',
-    alinkLabel: 'GUIA-UAT-ADVOGADOS-v2.md',
-    responsavel: [{ tipo: 'po', label: 'P.O. (Uires)' }],
-    proximo: 'Decisão GO / NO-GO UAT → ativar F-04 Fase 3 (issue #56)',
+    acao: 'Mergear PR #256 (E2E Playwright) → executar UAT Step 3 (Concluir Onda 2) para confirmar BUG-UAT-03 resolvido',
+    alink: GH+'/pull/256',
+    alinkLabel: 'PR #256 — test/uat-e2e-playwright-v2',
+    responsavel: [{ tipo: 'po', label: 'P.O. (Uires)' }, { tipo: 'claude', label: 'Claude' }],
+    proximo: 'Merge PR #256 → P.O. clica Concluir Onda 2 em iasolaris.manus.space → confirmar status diagnostico_corporativo',
+    bloqueios_uat: 'PR #256 aguarda merge',
     bloqueios: [
       { texto: 'F-04 Fase 3 (#56)', link: GH+'/issues/56' },
       { texto: 'Modo new (#61)', link: GH+'/issues/61' },
@@ -1570,11 +1575,11 @@ const MODO_CONFIG = {
     ]
   },
   dev: {
-    acao: 'Executar Sprint L — Issue #191 (G16 Upload CSV SOLARIS para corpus RAG)',
+    acao: 'Sprint M concluída — aguardar merge PR #256 → iniciar Sprint L (Upload CSV SOLARIS, Issue #191)',
     alink: GH+'/issues/191',
     alinkLabel: 'Issue #191 — G16 Upload CSV SOLARIS',
     responsavel: [{ tipo: 'manus', label: 'Manus' }, { tipo: 'claude', label: 'Claude' }],
-    proximo: 'Manus lê ESTADO-ATUAL.md + issue #191 → abre branch feat/sprint-l → PR com evidência JSON',
+    proximo: 'Após merge PR #256: Manus lê ESTADO-ATUAL.md + issue #191 → abre branch feat/sprint-l → PR com evidência JSON',
     bloqueios: []
   },
   hotfix: {
@@ -1589,12 +1594,12 @@ const MODO_CONFIG = {
 
 const CHECKLISTS = {
   uat: [
-    { id: 'u1', text: 'Abrir GUIA-UAT-ADVOGADOS-v2.md e revisar os 12 cenarios', resp: 'po' },
-    { id: 'u2', text: 'Acessar iasolaris.manus.space e fazer login', resp: 'po' },
-    { id: 'u3', text: 'Criar projeto de teste e completar Onda 1 (Briefing)', resp: 'po' },
-    { id: 'u4', text: 'Verificar Onda 2 (Diagnostico) - stepper 8 etapas funcionando', resp: 'po' },
-    { id: 'u5', text: 'Testar etapas 7 (Matrizes) e 8 (Plano de Acao)', resp: 'po' },
-    { id: 'u6', text: 'Registrar resultado: GO ou NO-GO com evidencias', resp: 'po' },
+    { id: 'u1', text: 'Orquestrador mergea PR #256 (E2E Playwright + BUG-UAT-05)', resp: 'claude' },
+    { id: 'u2', text: 'Acessar iasolaris.manus.space e fazer login (role equipe_solaris confirmado)', resp: 'po' },
+    { id: 'u3', text: 'UAT Step 3: clicar Concluir Onda 2 → confirmar status diagnostico_corporativo (BUG-UAT-03)', resp: 'po' },
+    { id: 'u4', text: 'Verificar DiagnosticoStepper sem hardcode SOL-001..012 (BUG-UAT-05)', resp: 'po' },
+    { id: 'u5', text: 'Confirmar corpus sem SOL-013 e SOL-014 no questionario', resp: 'po' },
+    { id: 'u6', text: 'Registrar resultado: GO ou NO-GO UAT com evidencias', resp: 'po' },
   ],
   dev: [
     { id: 'd1', text: 'Ler docs/governance/ESTADO-ATUAL.md (Gate 0)', resp: 'manus' },
@@ -1859,14 +1864,14 @@ const API  = 'https://api.github.com/repos/' + REPO;
 
 // Fallback: valores fixos caso a API esteja indisponível (offline)
 const FALLBACK = {
-  openIssues: 25,
+  openIssues: 24,
   openPrs: 0,
   ciStatus: 'success',
   ciConclusion: 'success',
-  lastCommitSha: '7d511fa',
-  lastCommitMsg: 'feat(cockpit): fetch dinâmico API GitHub (#199)',
-  lastCommitDate: '2026-03-29',
-  totalPrsMerged: 213,
+  lastCommitSha: 'f22ea22',
+  lastCommitMsg: 'test(e2e): CT-01/04/06/07/37 Playwright + BUG-UAT-05 fix + SKILL.md v3.3',
+  lastCommitDate: '2026-03-31',
+  totalPrsMerged: 254,
 };
 
 // ─── GH_CACHE global compartilhado entre todas as seções ───────────────────
@@ -2074,7 +2079,7 @@ async function fetchGitHubData() {
     updateSemaforo('cicd', ciColor, ciSymbol);
     const ciLabel = ciConclusion === 'success' ? 'Verde — último run passou' : ciConclusion === 'failure' ? 'Vermelho — último run falhou' : 'Âmbar — em progresso';
     setText('radarCicdDetail', ciLabel + (ciDate ? ' (' + ciDate + ')' : ''));
-    setText('radarCiDetail', ciConclusion === 'success' ? 'CI verde · 2.652/2.773 testes (baseline)' : 'CI: ' + ciConclusion + ' · verificar Actions');
+    setText('radarCiDetail', ciConclusion === 'success' ? 'CI verde · 2.678 testes unitários (baseline)' : 'CI: ' + ciConclusion + ' · verificar Actions');
 
     // ── Atualizar Score de Saúde ─────────────────────────────────────
     const score = calcScore(data);
@@ -2101,8 +2106,8 @@ async function fetchGitHubData() {
     setText('radarIssuesDetail', FALLBACK.openIssues + ' abertas · Âmbar (dados offline)');
     setText('radarPrsDetail', FALLBACK.openPrs + ' PRs pendentes (dados offline)');
     setText('radarCicdDetail', 'Verde — dados offline (último conhecido)');
-    setText('radarCiDetail', 'CI verde · 2.652/2.773 testes (baseline — offline)');
-    setText('statusTestes', '2.652 testes · 0 erros TypeScript · Shadow Mode ativo (dados offline)');
+    setText('radarCiDetail', 'CI verde · 2.678 testes unitários (baseline — offline)');
+    setText('statusTestes', '2.678 testes · 0 erros TypeScript · Shadow Mode ativo (dados offline)');
     if (ghStatusEl) ghStatusEl.textContent = '⚠ GitHub offline — dados de ' + FALLBACK.lastCommitDate;
   }
 }
@@ -2289,6 +2294,8 @@ const ONDAS_PRS_FALLBACK = [
   { number: 227, title: 'chore(governance): protocolo de auditoria RAG — workflow + templates', merged: '2026-03-30', sprint: 'K', onda: 3 },
   { number: 228, title: 'chore(cockpit): auditoria pós-merge — PRs #219-#227, 7D +2 docs, fluxo E2E RAG', merged: '2026-03-30', sprint: 'K', onda: null },
   { number: 229, title: 'docs(rag): CORPUS-BASELINE v2.0 — corpus operacional (parecer Consultor 2026-03-30)', merged: '2026-03-30', sprint: 'K', onda: 3 },
+  { number: 254, title: 'fix(uat): BUG-UAT-03 completeOnda2 status destino correto', merged: '2026-03-31', sprint: 'M', onda: 2 },
+  { number: 256, title: 'test(e2e): CT-01/04/06/07/37 Playwright + BUG-UAT-05 fix + SKILL.md v3.3', merged: null, sprint: 'M', onda: null },
 ];
 
 // Milestones
