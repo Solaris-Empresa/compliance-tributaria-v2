@@ -153,7 +153,7 @@ function TabLista({
     pageSize: 20,
   }), [debouncedSearch, categoria, severidade, vigencia, batchFilter, statusFilter, page]);
 
-  const { data, isLoading, refetch } = trpc.solarisAdmin.listQuestions.useQuery(queryInput);
+  const { data, isLoading, isError, refetch } = trpc.solarisAdmin.listQuestions.useQuery(queryInput);
   const { data: batches } = trpc.solarisAdmin.listBatches.useQuery();
 
   const deleteMutation = trpc.solarisAdmin.deleteQuestions.useMutation({
@@ -377,6 +377,15 @@ function TabLista({
             </tr>
           </thead>
           <tbody>
+            {isError && (
+              <tr>
+                <td colSpan={8} className="p-8 text-center">
+                  <Alert variant="destructive">
+                    <AlertDescription>Erro ao carregar perguntas. Tente novamente.</AlertDescription>
+                  </Alert>
+                </td>
+              </tr>
+            )}
             {isLoading ? (
               <tr>
                 <td colSpan={8} className="p-8 text-center text-muted-foreground">
@@ -784,7 +793,7 @@ function TabUploadCsv() {
 
 function TabHistorico({ onViewBatch }: { onViewBatch: (batchId: string) => void }) {
   const utils = trpc.useUtils();
-  const { data: batches, isLoading, refetch } = trpc.solarisAdmin.listBatches.useQuery();
+  const { data: batches, isLoading, isError, refetch } = trpc.solarisAdmin.listBatches.useQuery();
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; batchId: string; count: number } | null>(null);
 
   const deleteBatchMutation = trpc.solarisAdmin.deleteBatch.useMutation({
@@ -798,6 +807,11 @@ function TabHistorico({ onViewBatch }: { onViewBatch: (batchId: string) => void 
     <div className="flex items-center justify-center p-12 text-muted-foreground">
       <Loader2 className="w-5 h-5 animate-spin mr-2" />Carregando lotes...
     </div>
+  );
+  if (isError) return (
+    <Alert variant="destructive">
+      <AlertDescription>Erro ao carregar histórico de lotes. Tente novamente.</AlertDescription>
+    </Alert>
   );
 
   if (!batches || batches.length === 0) return (

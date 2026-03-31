@@ -102,6 +102,46 @@ if (hasScopeSection) {
   }
 }
 
+// ─── Gate Q1–Q5 ─────────────────────────────────────────────────────────────
+function validateGateQ1Q5(body) {
+  const prTitle = process.env.PR_TITLE || body.split('\n')[0] || '';
+
+  // chore(...) e docs(...) dispensados — hotfix NÃO é dispensado
+  const isDispensado =
+    /^chore[:(]/.test(prTitle) ||
+    /^docs[:(]/.test(prTitle);
+
+  if (isDispensado) return;
+
+  const hasSection =
+    body.includes('Auto-auditoria Q1') ||
+    body.includes('auto-auditoria Q1') ||
+    body.includes('## Auto-auditoria');
+
+  if (!hasSection) {
+    errors.push(
+      '[GATE Q1\u20135] Se\u00e7\u00e3o "## Auto-auditoria Q1\u20135" ausente. ' +
+      'Obrigat\u00f3rio para feat, fix, hotfix, schema, procedure e componente com useQuery. ' +
+      'Dispensado apenas para chore(...) e docs(...).'
+    );
+    return;
+  }
+
+  const hasResult =
+    body.includes('APTO PARA COMMIT') ||
+    body.includes('Resultado: BLOQUEADO');
+
+  if (!hasResult) {
+    errors.push('[GATE Q1\u20135] Resultado n\u00e3o declarado \u2014 adicionar APTO PARA COMMIT ou BLOQUEADO.');
+  }
+
+  if (body.includes('Resultado: BLOQUEADO')) {
+    errors.push('[GATE Q1\u20135] PR com auto-auditoria BLOQUEADA \u2014 corrigir antes de abrir o PR.');
+  }
+}
+
+validateGateQ1Q5(body);
+
 // ─── Resultado ────────────────────────────────────────────────────────────
 if (errors.length > 0) {
   console.error('\n❌ VALIDAÇÃO DO PR BODY FALHOU:\n');
