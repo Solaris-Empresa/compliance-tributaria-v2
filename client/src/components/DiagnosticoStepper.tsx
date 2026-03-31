@@ -98,7 +98,7 @@ const STEPS: {
     id: "onda1",
     number: 1,
     label: "Questionário SOLARIS",
-    description: "Análise jurídica especializada pela Equipe SOLARIS",
+    description: "SOL-001 a SOL-012 — Análise jurídica especializada pela Equipe SOLARIS",
     lockedMessage: "",
     icon: Scale,
     accentColor: "blue",
