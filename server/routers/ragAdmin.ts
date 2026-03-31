@@ -280,6 +280,8 @@ export const ragAdminRouter = router({
       const limit = input?.limit ?? 20;
       const conn = await mysql.createConnection(ENV.databaseUrl);
       try {
+        // BUG-C fix: TiDB rejeita LIMIT ? via conn.execute() — interpolar inteiro seguro
+        const limitSafe = parseInt(String(limit), 10);
         const [rows] = await conn.execute(
           `SELECT
              u.anchor_id,
@@ -293,8 +295,8 @@ export const ragAdminRouter = router({
            LEFT JOIN ragDocuments d ON d.anchor_id = u.anchor_id
            GROUP BY u.anchor_id, d.lei, d.artigo, d.titulo
            ORDER BY usos DESC
-           LIMIT ?`,
-          [limit]
+           LIMIT ${limitSafe}`,
+          []
         );
         return { chunks: rows as { anchor_id: string; lei: string; artigo: string; titulo: string; usos: number; avg_score: number; last_used: string }[] };
       } finally {
@@ -313,6 +315,8 @@ export const ragAdminRouter = router({
       const limit = input?.limit ?? 50;
       const conn = await mysql.createConnection(ENV.databaseUrl);
       try {
+        // BUG-C fix: TiDB rejeita LIMIT ? via conn.execute() — interpolar inteiro seguro
+        const limitSafe = parseInt(String(limit), 10);
         const [rows] = await conn.execute(
           `SELECT
              d.id,
@@ -326,8 +330,8 @@ export const ragAdminRouter = router({
            WHERE u.anchor_id IS NULL
              AND d.anchor_id IS NOT NULL
            ORDER BY d.lei, d.id
-           LIMIT ?`,
-          [limit]
+           LIMIT ${limitSafe}`,
+          []
         );
         const [countResult] = await conn.execute(
           `SELECT COUNT(*) AS total
