@@ -1,11 +1,12 @@
 # PRODUCT-LIFECYCLE.md
 **IA SOLARIS — Navegação por Ciclo de Vida do Produto**
 
-> **Versão:** 1.3 — 2026-03-29
+> **Versão:** 1.4 — 2026-03-31
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Depende de:** [INDICE-DOCUMENTACAO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/INDICE-DOCUMENTACAO.md) · [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md)
 > **Aprovador:** Product Owner Uires Tapajós
-> **Última sprint concluída:** Sprint K (K-4-A a K-4-D) — 2026-03-28 · HEAD `5d7ad7d`  
+> **Última sprint concluída:** Sprint M (UAT E2E + BUG-UAT-02/03/05) — 2026-03-31 · HEAD `2f17184`  
+> **PRs mergeados:** #254 (BUG-UAT-03 fix) · #256 (E2E Playwright + BUG-UAT-05 + auth.testLogin)  
 > **Próxima sprint:** Sprint L — Issue #191 (G16 Upload CSV SOLARIS)  
 > **Próxima revisão:** ao final da Sprint L
 
@@ -39,13 +40,14 @@ Execute nesta ordem sem pular etapas:
 
 ```
 1. docs/governance/ESTADO-ATUAL.md                          → LEIA PRIMEIRO — estado real do repositório
-2. docs/BASELINE-PRODUTO.md                                 → baseline v2.4
+2. docs/BASELINE-PRODUTO.md                                 → baseline v2.4 (Sprint M)
 3. docs/HANDOFF-MANUS.md                                    → regras operacionais do Manus
-4. docs/governance/HANDOFF-IMPLEMENTADOR.md                 → guia completo do implementador
+4. docs/governance/HANDOFF-IMPLEMENTADOR.md                 → guia completo do implementador (v1.1)
 5. docs/governance/GATE-CHECKLIST.md                        → gates obrigatórios
 6. docs/product/cpie-v2/produto/ADR-008-F04-schema-migration-strategy.md → migração ativa
 7. docs/product/cpie-v2/produto/RELATORIO-FINAL-SHADOW-MODE-ADR009.md    → Shadow Mode
 8. docs/product/cpie-v2/produto/RELATORIO-COMPLETO-TESTES-ONDA1-ONDA2-2026-03-23.md → validação
+9. tests/e2e/README.md                                      → suites E2E Playwright CT-01/04/06/07/37 (Sprint M)
 ```
 
 ---
@@ -236,6 +238,7 @@ Execute nesta ordem sem pular etapas:
 | [RELATORIO-COMPLETO-TESTES-ONDA1-ONDA2-2026-03-23.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/RELATORIO-COMPLETO-TESTES-ONDA1-ONDA2-2026-03-23.md) | 107/107 testes (Ondas 1+2) |
 | [FASE2-E2E-VALIDATION-REPORT.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/issues/FASE2-E2E-VALIDATION-REPORT.md) | 132 testes E2E, 10 cenários × 8 blocos |
 | [RELATORIO-FINAL-SHADOW-MODE-ADR009.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/RELATORIO-FINAL-SHADOW-MODE-ADR009.md) | Shadow Mode completo |
+| [tests/e2e/README.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/tests/e2e/README.md) | **Sprint M** — 5 suites Playwright: CT-01, CT-04, CT-06, CT-07, CT-37 |
 
 **Autoauditoria e QA:**
 
@@ -458,9 +461,9 @@ Estes documentos atravessam todas as fases. Devem estar acessíveis a qualquer m
 | ✅ Resolvido | `docs/suporte/MANUAL-USUARIO.md` | Exceção: Incidentes | Criado em 2026-03-24 |
 | ✅ Resolvido | `docs/suporte/ESCALACAO.md` | Exceção: Incidentes | Criado em 2026-03-24 |
 | 🔴 Alta | Sprint de Governança (CI/CD) | 0 — Pré-sprint | **P0 obrigatório antes de qualquer sprint de produto** — PR governance + changed-files-guard + migration-guard + test-suite. Fecha o ciclo de verificação automática identificado como lacuna crítica. |
-| 🟠 Média | `CHANGELOG.md` | 6 — Release | Sem histórico estruturado por versão |
+| ✅ Resolvido | `CHANGELOG.md` | 6 — Release | Criado em 2026-03-31 (Sprint M) |
 | 🟠 Média | `docs/templates/RELEASE-NOTES-TEMPLATE.md` | 6 — Release | Sem padrão de comunicação de release |
-| 🟡 Baixa | `docs/DEFINITION-OF-DONE.md` | 4 — Implementação | Sem DoD formal por tipo de entrega |
+| ✅ Resolvido | `docs/DEFINITION-OF-DONE.md` | 4 — Implementação | Criado em 2026-03-29 (Sprint K) |
 | 🟡 Baixa | `docs/SLA-SLO.md` | 7 — Operação | Sem acordos de nível de serviço formais |
 | 🟡 Baixa | `CONTRIBUTING.md` | 4 — Implementação | Sem guia de contribuição ao repositório |
 
@@ -489,9 +492,11 @@ Este documento deve ser atualizado quando:
 | **1.0** | 2026-03-24 | Manus AI | Criação — 8 fases + 2 fluxos de exceção · Gates com aprovador e critério de bloqueio · Fase 0 Regulatória · Janela de observação pós-release · Backlog de lacunas priorizado |
 | **1.1** | 2026-03-24 | Manus AI | 3 inconsistências corrigidas (Orquestrador): (1) lacunas de suporte já marcadas como Resolvido no backlog e no Fluxo de Exceção; (2) link quebrado DOCUMENTACAO-IA-GENERATIVA-v5.md corrigido para path real; (3) versão atualizada para 1.1 com histórico. DECISÃO-001 registrada no BASELINE-PRODUTO.md v1.1 (commit `612d140`). |
 | **1.2** | 2026-03-24 | Manus AI (prompt Orquestrador) | Orquestrador adicionado como persona na tabela de leitura rápida · Gate Fase 4 com verificação independente obrigatória · Sprint de Governança adicionada como P0 no backlog · MODELO-OPERACIONAL.md criado como artefato de governança |
+| **1.3** | 2026-03-29 | Manus AI | Sprint K concluída (K-4-A a K-4-D) · DEFINITION-OF-DONE.md criado · HEAD `5d7ad7d` |
+| **1.4** | 2026-03-31 | Manus AI | Sprint M concluída · PRs #254 (BUG-UAT-03) e #256 (E2E Playwright + BUG-UAT-05) mergeados · auth.testLogin implementado · SOL-013/014 removidos do corpus · suites E2E CT-01/04/06/07/37 adicionadas · CHANGELOG.md criado · HEAD `2f17184` |
 
 ---
 
-*PRODUCT-LIFECYCLE.md — IA Solaris v1.2 · 2026-03-24*
-*Próxima revisão: ao final da próxima sprint ou release*
+*PRODUCT-LIFECYCLE.md — IA Solaris v1.4 · 2026-03-31*
+*Próxima revisão: ao final da Sprint L ou release*
 *Aprovador: P.O. Uires Tapajós*

@@ -1,7 +1,7 @@
 # Definition of Done — IA Solaris / Plataforma de Compliance Tributária
 
-**Versão:** 1.1  
-**Data:** 2026-03-29  
+**Versão:** 1.2  
+**Data:** 2026-03-31  
 **Responsável:** P.O. (Uires Tapajós)  
 **Aprovação:** Obrigatória do P.O. para qualquer alteração neste documento
 
@@ -105,6 +105,8 @@ Uma entrega está "done" quando qualquer pessoa do time — incluindo o Orquestr
 | Versão | Data | Autor | Mudança |
 |---|---|---|---|
 | 1.0 | 2026-03-25 | Manus (Sprint Governança) | Criação inicial |
+| 1.1 | 2026-03-29 | Manus (Sprint K) | Adições de Cockpit/Governança |
+| 1.2 | 2026-03-31 | Manus (Sprint M) | DoD para E2E Playwright + bugs UAT resolvidos |
 
 ---
 
@@ -118,3 +120,27 @@ Uma entrega está "done" quando qualquer pessoa do time — incluindo o Orquestr
 - [ ] Restrições absolutas verificadas (DIAGNOSTIC_READ_MODE, F-04 Fase 3, DROP COLUMN)
 
 *Atualizado em 2026-03-29 — Sprint K concluída.*
+
+---
+
+## Adições da Sprint M (2026-03-31)
+
+### DoD adicional para entregas de testes E2E Playwright
+
+| Critério | Verificação |
+|---|---|
+| Suite em `tests/e2e/` com fixture `loginViaTestEndpoint` | Endpoint `auth.testLogin` ativo apenas com `E2E_TEST_MODE=true` |
+| Casos de teste cobrem caminho crítico do UAT | CT-01, CT-04, CT-06, CT-07, CT-37 mínimo |
+| `E2E_TEST_MODE=false` em produção | Endpoint retorna `FORBIDDEN` sem a variável |
+| `E2E_TEST_SECRET` configurado como secret | Não hardcoded no código |
+| `tests/e2e/README.md` atualizado | Instruções de execução para advogados |
+
+### Bugs UAT resolvidos nesta sprint
+
+| Bug | Descrição | Status |
+|---|---|---|
+| BUG-UAT-02 | Onda 2 não avançava para Corporativo | ✅ Resolvido (PR #254) |
+| BUG-UAT-03 | `completeOnda2` gravava status de origem em vez de destino | ✅ Resolvido (PR #254) |
+| BUG-UAT-05 | `DiagnosticoStepper` exibia hardcode `SOL-001 a SOL-012` | ✅ Resolvido (PR #256) |
+
+*Atualizado em 2026-03-31 — Sprint M concluída.*
