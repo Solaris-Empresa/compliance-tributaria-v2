@@ -1,32 +1,31 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Orquestrador (Claude) ao fechar cada sprint  
-> **v2.9 · 2026-03-30 (rev Sprint L — DEC-002 PR #236 aberto)** · Responsável: Orquestrador gera, Manus commita
+> **v3.0 · 2026-03-31 (rev Sprint M concluída — Sprint N iniciada)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v2.9 · **HEAD:** b06a042 (solaris/main) · **Testes:** 2.666 passando (+11 Sprint L)  
-**DIAGNOSTIC_READ_MODE:** shadow (aguarda UAT)  
+**Baseline:** v3.0 · **HEAD:** `2a2f9818678b` (solaris/main) · **Testes:** 2.664 passando  
+**DIAGNOSTIC_READ_MODE:** shadow (aguarda UAT com advogados)  
 **Corpus RAG:** 2.078 chunks · 5 leis · 100% confiabilidade  
-**Sprint K:** CONCLUÍDA ✅ (K-4-A ✅ K-4-B ✅ K-4-C ✅ K-4-D ✅ K-4-E ✅)  
-**Sprint L:** PR #236 ABERTO — feat/sprint-l-v2 → main (aguarda merge)  
-**DEC-002:** ✅ Migration 0060 + solarisAdmin 6 procedures + AdminSolarisQuestions 3 abas + 11 testes  
-**Cockpit P.O.:** ✅ Seção 7E Qualidade RAG + 6D Consistência Global (PRs #233–#234)  
-**RAG Telemetria:** ✅ rag_usage_log (PR #235 — L-RAG-01)  
+**Sprint M:** CONCLUÍDA ✅ — UAT manual, E2E Playwright, BUG-UAT-02/03/05, auth.testLogin  
+**Sprint N:** INICIADA — G17 P0 (solaris_answers → gapEngine) · Fix CI/CD P1  
+**PRs mergeados:** 260 (último: #260 MODELO-OPERACIONAL v2.6)  
+**Fila de PRs abertos:** VAZIA ✅
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** feat/sprint-l-v2 · **HEAD local:** 3f5fa95 (1 commit à frente de solaris/main)
-- **PR aberto:** #236 — feat/sprint-l-v2 → main — aguarda aprovação P.O.
+- **Branch base:** `main` (solaris/main HEAD `2a2f9818678b`) — fila limpa, 0 PRs abertos
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via cherry-pick em branch limpo (padrão PRs #173, #177, #179, #184)
+- **Divergência de histórico:** `origin/main` (Manus S3) ≠ `solaris/main` (GitHub) — SEMPRE criar branch a partir do HEAD do `solaris/main` via `git fetch`
 - **Referência operacional:** docs/HANDOFF-MANUS.md
 - **Referência de governança:** docs/governance/HANDOFF-IMPLEMENTADOR.md
-- **Issues do backlog:** ver milestone M4 no GitHub
+- **Issues do backlog Sprint N:** #259 (G17 P0), Fix CI/CD P1, #187 (G11 P1), #192 (G15 P2)
 - **Documentos P0/P1 obrigatórios:** atualizar SEMPRE após sprint concluída:
   - P0: `docs/governance/ESTADO-ATUAL.md` (este arquivo)
   - P1: `docs/BASELINE-PRODUTO.md`
@@ -34,22 +33,24 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Claude (orquestrador)
 
-- **Skill:** `/home/ubuntu/skills/solaris-contexto/SKILL.md` (v2.4)
+- **Skill:** `/home/ubuntu/skills/solaris-contexto/SKILL.md` (v3.3)
+- **Skill operacional:** `/home/ubuntu/skills/solaris-orquestracao/SKILL.md` (v3.4)
 - **Gate 0 RAG:** docs/rag/HANDOFF-RAG.md
 - **Corpus baseline:** docs/rag/CORPUS-BASELINE.md
 - **Contexto completo:** docs/governance/CONTEXTO-ORQUESTRADOR.md
 - **Antes de propor qualquer coisa:** verificar se já está implementado via `grep` no repo
 - **Restrições absolutas:** DIAGNOSTIC_READ_MODE=new, F-04 Fase 3, DROP COLUMN — NUNCA sem aprovação P.O.
-- **⚠️ Atenção:** o skill `solaris-contexto` tem estado desatualizado hardcoded. Usar ESTE arquivo como fonte de verdade.
+- **⚠️ Atenção:** usar ESTE arquivo como fonte de verdade (skills têm estado hardcoded)
 
 ## Para o ChatGPT (consultor)
 
-- **Estado:** Sprint L DEC-002 concluída — PR #236 aberto para merge
-- **Gaps resolvidos:** G1–G10, G13, G14 + K-4-A, K-4-B, K-4-C, K-4-D, K-4-E + G16 (DEC-002)
-- **Gaps pendentes:** G11 (#187), G15 (#192)
+- **Estado:** Sprint M concluída — Sprint N iniciada
+- **Gaps resolvidos:** G1–G10, G13, G14, G16 + K-4-A a K-4-E + BUG-UAT-02/03/05
+- **Gaps pendentes:** G11 (#187), G15 (#192), **G17 (#259 P0)**
 - **Corpus RAG:** 5 leis · 2.078 chunks · confiabilidade 100%
 - **Cockpit ao vivo:** /admin/rag-cockpit — 7 seções incluindo 7E Qualidade RAG
-- **RAG Telemetria:** rag_usage_log ativo (PR #235)
+- **Testes E2E:** CT-01, CT-04, CT-06, CT-07, CT-37 (Playwright)
+- **Endpoint testLogin:** ativo apenas com `E2E_TEST_MODE=true`
 
 ---
 
@@ -66,26 +67,18 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | K++ | Cockpit fetch dinâmico + Seção 4 (4A–4F) + 10 docs atualizados | #199–#202 | v2.4 |
 | K-4-E | Auditoria jurídica `project_status_log` (migration 0059, 3 testes) | #212 | v2.5 |
 | L (RAG) | Cockpit 3 Ondas + RAG Quality Gate + rag_usage_log + Seção 7E | #215–#235 | v2.8 |
-| L (DEC-002) | Upload CSV Perguntas SOLARIS — migration 0060 + 6 procedures + 11 testes | #236 (aberto) | v2.9 |
-| L (BUG-C) | Fix TiDB LIMIT/OFFSET bind param — 3 routers corrigidos | #246 (aberto) | v2.9 |
-| L (GOV) | Protocolo de Debug v2 — Passo 0 fast path + Passo 7 formato fechado | PR aberto | v3.1 |
+| L (DEC-002) | Upload CSV Perguntas SOLARIS — migration 0060 + 6 procedures + 11 testes | #236–#246 | v2.9 |
+| M | UAT manual + E2E Playwright + BUG-UAT-02/03/05 + auth.testLogin + 9 docs + painel PO | #251–#260 | v3.0 |
 
-## Sprint L — em andamento
+## Sprint N — em andamento
 
 | Issue | Título | Prioridade | Status |
 |---|---|---|---|
-| #191 | G16 — Upload CSV SOLARIS para corpus RAG | P1 | 🟡 PR #236 aberto (aguarda merge) |
-| #188 | DT-01 — Fix db:push bloqueado por assessmentPhase1 | P2 | ⏳ Backlog |
-| #189 | RFC-003 — Reclassificação chunks leis avulsas | P3 | ⏳ Backlog |
-
-## Backlog Sprint M+
-
-| Issue | Título | Sprint |
-|---|---|---|
-| #190 | N8N-F1 — Monitoramento RAG agendado | M |
-| #187 | G11 — campo fonte_risco no RiskItemSchema | M |
-| #192 | G15 — Arquitetura 3 ondas de perguntas | M+ |
-| #193 | Expansão corpus — lc116, lc87, cg_ibs, rfb_cbs | M+ |
+| #259 | G17 — Integrar solaris_answers ao gapEngine | P0 | 🔴 Aguarda implementação |
+| — | Fix CI/CD npm → pnpm (3 workflows) | P1 | 🟡 PR em andamento |
+| #187 | G11 — campo fonte_risco no RiskItemSchema | P1 | ⏳ Backlog |
+| #192 | G15 — Arquitetura 3 ondas de perguntas | P2 | ⏳ Backlog |
+| — | E2E CT-18..CT-35 (Admin corpus + CRUD) | P2 | ⏳ Backlog |
 
 ---
 
@@ -100,8 +93,10 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DEC-006 | LC 123/2006 incluída no corpus | 2026-03-26 |
 | DEC-007 | Infraestrutura de contexto: ESTADO-ATUAL + CODEOWNERS | 2026-03-28 |
 | DEC-008 | Cockpit P.O. com fetch dinâmico API GitHub (Score de Saúde em tempo real) | 2026-03-29 |
-| DEC-002 | Schema DEC-002: 4 campos novos em solaris_questions (titulo, topicos, severidade_base, vigencia_inicio) | 2026-03-30 |
-| DEC-009 | Protocolo de Debug v2 adotado — Passo 0 fast path obrigatório, Passo 7 formato fechado, Gate de bloqueio | 2026-03-31 |
+| DEC-002 | Schema DEC-002: 4 campos novos em solaris_questions | 2026-03-30 |
+| DEC-009 | Protocolo de Debug v2 adotado — Passo 0 fast path obrigatório | 2026-03-31 |
+| DEC-010 | Corpus SOLARIS: SOL-001..SOL-012 ativos; SOL-013/SOL-014 soft-deleted | 2026-03-31 |
+| DEC-011 | E2E Playwright via auth.testLogin (E2E_TEST_MODE guard) — sem OAuth real | 2026-03-31 |
 
 ---
 
@@ -111,6 +106,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 - `F-04 Fase 3` → aguarda UAT
 - `DROP COLUMN` em colunas legadas → aguarda F-04 Fase 3
 - Issues #56, #61, #62 → bloqueadas em cascata
+- **G17 (#259)** → `gapEngine` NÃO consome `solaris_answers` — aguarda implementação Sprint N P0
 
 ---
 
@@ -130,23 +126,25 @@ docs/HANDOFF-MANUS.md
 
 ---
 
-## Indicadores técnicos (30/03/2026)
+## Indicadores técnicos (31/03/2026)
 
 | Indicador | Valor |
 |---|---|
-| Commits no main | 616 (solaris/main HEAD b06a042) |
-| PRs mergeados | 235 (último: L-RAG-01 rag_usage_log) |
-| PR aberto | #236 — Sprint L DEC-002 (feat/sprint-l-v2 → main) |
+| Commits no main | ~630 (solaris/main HEAD `2a2f9818678b`) |
+| PRs mergeados | **260** (último: #260 MODELO-OPERACIONAL v2.6) |
+| PRs abertos | **0** ✅ |
 | Tabelas no schema | 68 |
-| Migrations aplicadas | **61** (0000–0060; 0060 = DEC-002 solaris_questions) |
-| Testes passando | 2.666 (+11 Sprint L DEC-002) |
+| Migrations aplicadas | **61** (0000–0060) |
+| Testes passando | **2.664** (`it()` calls em 137 arquivos `.test.ts`) |
+| Testes E2E | 5 CTs (CT-01, CT-04, CT-06, CT-07, CT-37) |
 | Corpus RAG chunks | 2.078 |
 | Leis no corpus | 5 (LC 214, EC 132, LC 227, LC 224, LC 123) |
 | Confiabilidade RAG | 100% |
 | TypeScript erros | 0 |
-| Docs ✅ Atualizados | 24 / 24 |
+| Docs ✅ Atualizados | 26 / 26 |
+| SKILL.md versão | v3.4 |
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-03-30 (rev Sprint L DEC-002 — PR #236 aberto)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-03-31 (rev Sprint M concluída — Sprint N iniciada)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
