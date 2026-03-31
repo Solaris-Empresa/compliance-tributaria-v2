@@ -1,16 +1,18 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './e2e',
+  testDir: './tests/e2e',
+  timeout: 60000,
+  retries: 1,
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
   workers: 1,
-  reporter: 'html',
+  reporter: [['html', { outputFolder: 'tests/e2e/reports', open: 'never' }], ['list']],
   use: {
-    baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
+    baseURL: process.env.E2E_BASE_URL || 'https://iasolaris.manus.space',
     screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    trace: 'on-first-retry',
   },
   projects: [
     {
@@ -18,10 +20,4 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: true,
-    timeout: 120000,
-  },
 });

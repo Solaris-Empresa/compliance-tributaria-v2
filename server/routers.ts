@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
@@ -134,6 +135,46 @@ export const appRouter = router({
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
+    // -----------------------------------------------------------------------
+    // testLogin — APENAS ativo quando E2E_TEST_MODE=true
+    // Usado pelo Playwright para criar sessão sem OAuth real.
+    // Em produção (E2E_TEST_MODE ausente ou != 'true') retorna FORBIDDEN.
+    // -----------------------------------------------------------------------
+    testLogin: publicProcedure
+      .input(z.object({ testSecret: z.string() }))
+      .mutation(async ({ input, ctx }) => {
+        if (process.env.E2E_TEST_MODE !== 'true') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Not available in production' });
+        }
+        const expectedSecret = process.env.E2E_TEST_SECRET;
+        if (!expectedSecret || input.testSecret !== expectedSecret) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Invalid test secret' });
+        }
+        // Buscar ou criar usuário de teste fixo
+        const E2E_OPEN_ID = 'e2e-test-user-uat-solaris';
+        let user = await db.getUserByOpenId(E2E_OPEN_ID);
+        if (!user) {
+          const newId = await db.createUser({
+            openId: E2E_OPEN_ID,
+            email: 'uat@iasolaris.com',
+            name: 'Usuário UAT E2E',
+            role: 'equipe_solaris',
+          });
+          user = await db.getUserByOpenId(E2E_OPEN_ID);
+        }
+        if (!user) {
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to create test user' });
+        }
+        // Criar token de sessão idêntico ao OAuth
+        const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365;
+        const sessionToken = await sdk.createSessionToken(E2E_OPEN_ID, {
+          name: user.name ?? 'Usuário UAT E2E',
+          expiresInMs: ONE_YEAR_MS,
+        });
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+        return { ok: true, userId: user.id, email: user.email, role: user.role };
+      }),
   }),
 
   // ==========================================================================
