@@ -241,7 +241,7 @@ export default function QuestionarioSolaris() {
             variant="outline"
             className="shrink-0 border-blue-500/40 text-blue-600 dark:text-blue-400 bg-blue-500/10 text-xs"
           >
-            Equipe Jurídica SOLARIS
+            Equipe técnica SOLARIS
           </Badge>
         </div>
 
