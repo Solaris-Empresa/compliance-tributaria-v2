@@ -129,7 +129,7 @@ export default function QuestionarioIaGen() {
           <div className="flex flex-col items-center">
             <div className="flex items-center gap-2">
               <Brain className="h-5 w-5 text-orange-500" />
-              <span className="font-semibold text-foreground">Questionário IA Generativa</span>
+              <span className="font-semibold text-foreground">Questionário por IA</span>
               <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-xs font-medium">
                 Perfil da empresa
               </Badge>
@@ -195,6 +195,9 @@ export default function QuestionarioIaGen() {
                 <span className="text-xs text-muted-foreground">
                   {currentIndex + 1}/{totalPerguntas}
                 </span>
+                <Badge variant="outline" className="text-[10px] h-4 border-red-300/60 text-red-600 dark:text-red-400 bg-red-500/5">
+                  Obrigatória
+                </Badge>
               </div>
               <span className="text-xs text-muted-foreground">
                 Confiança: {Math.round(perguntaAtual.confidence_score * 100)}%
