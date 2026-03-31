@@ -179,14 +179,16 @@ export const solarisAdminRouter = router({
         }
         if (input.vigencia && input.vigencia !== "todas") {
           if (input.vigencia === "com") {
-            conditions.push("vigencia_inicio IS NOT NULL");
+            // vigencia_inicio preenchida (não NULL e não string vazia)
+            conditions.push("(vigencia_inicio IS NOT NULL AND vigencia_inicio != '')");
           } else if (input.vigencia === "sem") {
-            conditions.push("vigencia_inicio IS NULL");
+            // vigencia_inicio ausente (NULL ou string vazia — compatibilidade com dados legados)
+            conditions.push("(vigencia_inicio IS NULL OR vigencia_inicio = '')");
           } else if (input.vigencia === "vencida") {
-            conditions.push("vigencia_inicio IS NOT NULL AND vigencia_inicio < ?");
+            conditions.push("(vigencia_inicio IS NOT NULL AND vigencia_inicio != '' AND vigencia_inicio < ?)");
             params.push(now);
           } else if (input.vigencia === "a_vencer") {
-            conditions.push("vigencia_inicio IS NOT NULL AND vigencia_inicio >= ?");
+            conditions.push("(vigencia_inicio IS NOT NULL AND vigencia_inicio != '' AND vigencia_inicio >= ?)");
             params.push(now);
           }
         }
@@ -385,7 +387,7 @@ export const solarisAdminRouter = router({
                 [
                   r.conteudo, r.area, cnaeGroupsJson,
                   r.titulo, r.topicos, r.severidade_base,
-                  r.vigencia_inicio ?? null, batchId, now,
+                  (r.vigencia_inicio && r.vigencia_inicio.trim() !== '' ? r.vigencia_inicio : null), batchId, now,
                   r.artigo,
                 ]
               );
@@ -401,7 +403,7 @@ export const solarisAdminRouter = router({
                   r.conteudo, r.area, cnaeGroupsJson,
                   now, now, batchId, r.artigo,
                   r.titulo, r.topicos, r.severidade_base,
-                  r.vigencia_inicio ?? null,
+                  (r.vigencia_inicio && r.vigencia_inicio.trim() !== '' ? r.vigencia_inicio : null),
                 ]
               );
               inserted++;
