@@ -1,6 +1,6 @@
 ---
 name: solaris-contexto
-version: v3.1
+version: v3.2
 description: "Contexto permanente do projeto IA SOLARIS para o Orquestrador Claude. Use ao iniciar qualquer sessão do projeto IA SOLARIS, ao planejar sprints, ao revisar PRs, ao gerar prompts para o Manus, ou ao analisar o estado do produto. Contém Gate 0 obrigatório, estado atual do produto, Gate de Qualidade Q1–Q5 e regras de governança."
 ---
 
@@ -29,16 +29,16 @@ Antes de qualquer trabalho, verificar via project_knowledge_search:
 
 ## Estado atual do produto
 
-> Atualizado em: 2026-03-31 · Sessão Sprint L DEC-002
+> Atualizado em: 2026-03-31 · Sessão Sprint M — BUG-C + Gates G1/G2
 
 - **Baseline:** v2.5 (docs/BASELINE-PRODUTO.md — rev K-4-E)
-- **HEAD:** `a1f7224` — `chore(governance): Gate Q1-Q5 SKILL.md v2.9 (#241)`
-- **Testes:** 2.657 passando
+- **HEAD:** `faf1a2c` — `chore(governance): Gates G1+G2 — isError nos 4 Admin, teste Q5, validateGateQ1Q5 no CI (#250)`
+- **Testes:** 2.657 passando + 13 novos (server/gates/q5-iserror.test.ts)
 - **Migrations:** 61 (última: `0060_stale_tombstone.sql` — campos DEC-002)
 - **Corpus RAG:** 2.078 chunks · 5 leis · 100% anchor_id
 - **DIAGNOSTIC_READ_MODE:** `shadow` (NUNCA alterar sem aprovação do P.O.)
 - **PRs abertos:** 0
-- **PRs mergeados total:** 241
+- **PRs mergeados total:** 250
 
 ### Sprints concluídas
 
@@ -49,6 +49,9 @@ Antes de qualquer trabalho, verificar via project_knowledge_search:
 | Hotfixes Cockpit | ✅ MERGEADOS | #237, #238 | BUG-01..05: token GitHub, GS-09/GS-10, último UTF-8, localStorage |
 | Hotfixes BUG-A/B | ✅ MERGEADOS | #240 | vigencia_inicio NULL-safe, DISTINCT TiDB |
 | Gate Q1–Q5 | ✅ MERGEADO | #241 | SKILL.md v2.9 — gate obrigatório em todo PR |
+| Sprint M — BUG-C | ✅ MERGEADO | #246 | TiDB LIMIT/OFFSET fix em 3 routers (solarisAdmin, ragAdmin, scoringEngine) |
+| Sprint M — Protocolo Debug v2 | ✅ MERGEADO | #248 | SKILL.md v3.1 — Passo 0 fast path, Passo 7, Gate de bloqueio (DEC-009) |
+| Sprint M — Gates G1+G2 | ✅ MERGEADO | #250 | isError nos 4 Admin, q5-iserror.test.ts (13 testes), validateGateQ1Q5 no CI |
 
 ### Engines e routers
 
@@ -61,6 +64,12 @@ Antes de qualquer trabalho, verificar via project_knowledge_search:
 ## Gaps resolvidos
 
 G1–G13 todos resolvidos. DEC-001 ✅. DEC-002 ✅ (Sprint L — PR #236).
+
+**Sprint M (2026-03-31):**
+- **BUG-C** ✅ — TiDB rejeita `LIMIT ?`/`OFFSET ?` via `conn.execute()` → interpolação segura em 3 routers (#246)
+- **G1** ✅ — CI automático Q1–Q5: `validateGateQ1Q5()` em `validate-pr-body.js`, regex `/^chore[:(]/` dispensa governance (#250)
+- **G2** ✅ — Teste automatizado Q5: `server/gates/q5-iserror.test.ts` — 13 testes, verifica isError em todos Admin*.tsx (#250)
+- **DEC-009** ✅ — Protocolo de Debug v2: Passo 0 fast path, Passo 7 formato fechado, Gate de bloqueio (#248)
 
 ---
 
