@@ -6,6 +6,29 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [Sprint M] — 2026-03-31 · `2f17184`
+
+### Corrigido
+- **BUG-UAT-03** `server/routers-fluxo-v3.ts` — `completeOnda2` gravava o status de origem (`onda2_iagen`) em vez do status de destino (`diagnostico_corporativo`). Toda procedure `completeOndaX` deve gravar o status DESTINO, não o status atual. (PR #254 · `199afc8`)
+- **BUG-UAT-05** `client/src/components/DiagnosticoStepper.tsx` — Hardcode `"SOL-001 a SOL-012"` removido e substituído por descrição genérica. (PR #256 · `2f17184`)
+
+### Adicionado
+- **auth.testLogin** `server/routers.ts` — Endpoint de login de teste protegido por `E2E_TEST_MODE=true` e `E2E_TEST_SECRET`. Retorna `FORBIDDEN` em produção. 8 testes unit adicionados. (PR #256)
+- **E2E Playwright** `tests/e2e/` — 5 suites cobrindo CT-01, CT-04, CT-06, CT-07 e CT-37 (fluxo completo Onda 1 → Onda 2 → Corporativo). (PR #256)
+- **SOL-013/014 soft-delete** — Perguntas SOL-013 e SOL-014 desativadas via `ativo=0`. Corpus SOLARIS: SOL-001..012 ativos.
+- **Painel PO** `docs/painel-po/index.html` — Atualizado com estado de 31/03/2026. (PR #257)
+
+### Indicadores pós-Sprint M
+| Indicador | Valor |
+|---|---|
+| Testes passando | 2.678 (vitest unit) |
+| Suites E2E Playwright | 5 (CT-01/04/06/07/37) |
+| TypeScript erros | 0 |
+| PRs mergeados | 256 |
+| Corpus SOLARIS ativo | SOL-001..012 (12 perguntas) |
+
+---
+
 ## [Sprint K-4-D] — 2026-03-28 · `5d7ad7d`
 
 ### Adicionado

@@ -1,11 +1,22 @@
 # RASTREABILIDADE COMPLETA — IA SOLARIS
 
 > **Central de rastreabilidade do projeto.** Audiência: P.O. · Orquestrador · Implementador.
-> Versão: **v1.0** — 2026-03-28. Baseado em 577 commits e 184 PRs mergeados.
+> Versão: **v1.1** — 2026-03-31. Baseado em 577+ commits e 256 PRs mergeados.
 
 ---
 
 ## 1. Mapa de Sprints × PRs × Entregáveis
+
+### Sprint M — UAT E2E + BUG-UAT-02/03/05 (2026-03-31)
+
+| Checkpoint | PR | Commit | Arquivos Alterados | Testes | Status |
+|---|---|---|---|
+| BUG-UAT-03 fix: completeOnda2 | #254 | `199afc8` | `server/routers-fluxo-v3.ts` | Regressão adicionada | ✅ |
+| auth.testLogin + guard E2E_TEST_MODE | #256 | `2f17184` | `server/routers.ts`, `server/e2e-testlogin.test.ts` | 8 unit tests | ✅ |
+| BUG-UAT-05: DiagnosticoStepper hardcode | #256 | `2f17184` | `client/src/components/DiagnosticoStepper.tsx` | — | ✅ |
+| E2E Playwright CT-01/04/06/07/37 | #256 | `2f17184` | `tests/e2e/`, `playwright.config.ts` | 5 suites Playwright | ✅ |
+| SOL-013/014 soft-delete | — | — | Banco de dados (soft-delete `ativo=0`) | — | ✅ |
+| Painel PO atualizado 2026-03-31 | #257 | — | `docs/painel-po/index.html` | — | ⏳ Aguarda merge |
 
 ### Sprint K — Fluxo 3 Ondas (2026-03-28)
 
@@ -84,6 +95,8 @@
 | RF-016 | Wiring etapas 7-8 (Matrizes + Plano) | K | #184 | ✅ |
 | RF-017 | Upload CSV SOLARIS | L | #157 | ⏳ Backlog |
 | RF-018 | Template CSV equipe jurídica | L | #158 | ⏳ Backlog |
+| RF-019 | auth.testLogin (E2E guard) | M | #256 | ✅ |
+| RF-020 | E2E Playwright CT-01/04/06/07/37 | M | #256 | ✅ |
 
 ---
 
@@ -93,7 +106,7 @@
 
 | Issue | Título | Risco | Bloqueio |
 |---|---|---|---|
-| #57 | Teste E2E Completo — Fluxo V1/V3 + Retrocesso | Crítico | Aprovação P.O. |
+| #57 | Teste E2E Completo — Fluxo V1/V3 + Retrocesso | Crítico | ✅ Resolvido parcialmente (CT-37 no PR #256) |
 | #56 | F-04 Separação Física de Colunas V1/V3 | Alto | Aprovação P.O. |
 | #62 | ADR-009 Fase 4 — DROP COLUMN | Alto | Aprovação P.O. |
 
@@ -134,7 +147,11 @@
 | `server/riskEngine.ts` | C | F | Geração de matrizes de risco |
 | `server/routers/scoringEngine.ts` | I | I | Score CPIE ponderado |
 | `server/rag-corpus.ts` | D | H | Corpus RAG — 2.078 chunks |
-| `client/src/components/DiagnosticoStepper.tsx` | K-4-B | K-4-D | Stepper 8 etapas — wiring completo |
+| `client/src/components/DiagnosticoStepper.tsx` | K-4-B | M (BUG-UAT-05) | Stepper 8 etapas — hardcode removido |
+| `server/e2e-testlogin.test.ts` | M | M | 8 testes unit para auth.testLogin |
+| `tests/e2e/fixtures/auth.ts` | M | M | Fixtures Playwright: loginViaTestEndpoint + criarProjetoViaApi |
+| `tests/e2e/01-onda1-solaris.spec.ts` | M | M | Suite CT-01/CT-04/CT-06/CT-07 |
+| `tests/e2e/02-e2e-completo.spec.ts` | M | M | Suite CT-37 (E2E completo) |
 | `client/src/pages/QuestionarioSolaris.tsx` | K-4-B | K-4-B | Questionário Onda 1 (12 perguntas) |
 | `client/src/pages/QuestionarioIaGen.tsx` | K-4-C | K-4-C | Questionário Onda 2 (gerado por LLM) |
 | `client/src/pages/ProjetoDetalhesV2.tsx` | C | K-4-D | Página de detalhes do projeto + stepper |
@@ -144,7 +161,7 @@
 | `docs/HANDOFF-MANUS.md` | A | K (v2.4) | Contexto operacional para o Manus |
 | `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md` | K | K (v1.1) | Contrato de implementação das 3 ondas |
 | `docs/governance/ESTADO-ATUAL-PLATAFORMA.md` | K | K (v1.0) | Fonte única de verdade — métricas reais |
-| `docs/governance/HANDOFF-IMPLEMENTADOR.md` | K | K (v1.0) | Guia operacional para o Manus |
+| `docs/governance/HANDOFF-IMPLEMENTADOR.md` | K | M (v1.1) | Guia operacional para o Manus |
 | `docs/governance/CONTEXTO-ORQUESTRADOR.md` | K | K (v1.0) | Contexto para o Claude (Orquestrador) |
 
 ---
@@ -181,3 +198,4 @@ Todos os 23 anexos foram ingeridos (100% de cobertura):
 | Versão | Data | Autor | Alteração |
 |---|---|---|---|
 | v1.0 | 2026-03-28 | Manus (implementador) | Criação inicial — dados reais de 577 commits e 184 PRs |
+| v1.1 | 2026-03-31 | Manus (Sprint M) | Sprint M adicionada · PRs #254/#256 · RF-019/020 · arquivos E2E · 256 PRs mergeados |
