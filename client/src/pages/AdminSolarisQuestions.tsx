@@ -7,7 +7,7 @@
  *   2. Upload CSV — importação em lote (DEC-002)
  *   3. Histórico de Lotes — gerenciamento de lotes de upload
  */
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { trpc } from "../lib/trpc";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -142,7 +142,7 @@ function TabLista({
   const hasFilters = debouncedSearch || categoria !== "todas" || severidade !== "todas" ||
     vigencia !== "todas" || batchFilter !== "todas" || statusFilter !== "ativas";
 
-  const queryInput = {
+  const queryInput = useMemo(() => ({
     search: debouncedSearch || undefined,
     categoria: categoria !== "todas" ? categoria : undefined,
     severidade_base: severidade !== "todas" ? severidade : undefined,
@@ -151,7 +151,7 @@ function TabLista({
     ativo: statusFilter === "ativas" ? true : statusFilter === "inativas" ? false : undefined,
     page,
     pageSize: 20,
-  };
+  }), [debouncedSearch, categoria, severidade, vigencia, batchFilter, statusFilter, page]);
 
   const { data, isLoading, refetch } = trpc.solarisAdmin.listQuestions.useQuery(queryInput);
   const { data: batches } = trpc.solarisAdmin.listBatches.useQuery();
