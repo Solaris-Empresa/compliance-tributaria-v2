@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, text, boolean, timestamp, mysqlEnum, decimal, json, bigint, tinyint, index, float } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, varchar, text, boolean, timestamp, mysqlEnum, decimal, json, bigint, tinyint, index } from "drizzle-orm/mysql-core";
 
 /**
  * Tabela de usuários - IA SOLARIS
@@ -1737,13 +1737,18 @@ export const solarisQuestions = mysqlTable("solaris_questions", {
    * Permite rastrear resposta → pergunta sem depender do id numérico.
    */
   codigo: varchar("codigo", { length: 10 }),
+
   // ── Sprint L — DEC-002: campos de enriquecimento para Upload CSV Onda 1 ──
+
   /** Título/ementa curta da pergunta — exibido no preview do upload CSV */
   titulo: varchar("titulo", { length: 255 }),
+
   /** Keywords temáticas separadas por vírgula — ex: "IBS,CBS,NF-e" */
   topicos: text("topicos"),
+
   /** Severidade base da não-conformidade: baixa | media | alta | critica */
   severidade_base: varchar("severidade_base", { length: 20 }),
+
   /** Data de início de vigência — formato "YYYY-MM-DD" ou null */
   vigencia_inicio: varchar("vigencia_inicio", { length: 10 }),
 });
@@ -1830,45 +1835,3 @@ export const projectStatusLog = mysqlTable("project_status_log", {
 
 export type ProjectStatusLog = typeof projectStatusLog.$inferSelect;
 export type InsertProjectStatusLog = typeof projectStatusLog.$inferInsert;
-
-// =============================================================================
-// L-RAG-01 — Telemetria de Uso do RAG (Sprint L · Issue #L-RAG-01)
-// =============================================================================
-/**
- * ragUsageLog
- * Registra cada chunk recuperado pelo RAG para telemetria de uso real.
- *
- * Objetivo: medir uso real dos chunks, alimentar Score do corpus,
- * habilitar análise de chunks invisíveis e desbloquear qualidade operacional.
- *
- * Campos:
- * - query:        texto da pergunta/contexto enviado ao RAG
- * - anchor_id:    chave canônica do chunk recuperado (FK lógica para ragDocuments)
- * - lei:          lei do chunk (lc214, ec132, etc.)
- * - score:        relevanceScore atribuído pelo re-ranking LLM
- * - position:     posição no ranking (1 = mais relevante)
- * - retrieved_at: timestamp da recuperação
- * - source:       origem da recuperação (rag / fallback / manual)
- * - project_id:   projeto que originou a query (nullable)
- * - session_id:   sessão do usuário (nullable, para análise de padrões)
- *
- * Reversível: DROP TABLE rag_usage_log (sem FK obrigatória)
- */
-export const ragUsageLog = mysqlTable("rag_usage_log", {
-  id:          int("id").autoincrement().primaryKey(),
-  query:       text("query").notNull(),
-  anchor_id:   varchar("anchor_id", { length: 255 }).notNull(),
-  lei:         varchar("lei", { length: 20 }),
-  score:       decimal("score", { precision: 6, scale: 4 }),
-  position:    int("position"),
-  retrieved_at: timestamp("retrieved_at").defaultNow().notNull(),
-  source:      varchar("source", { length: 20 }).default("rag"),
-  project_id:  int("project_id"),
-  session_id:  varchar("session_id", { length: 50 }),
-}, (table) => ({
-  anchorIdx:    index("idx_rag_usage_anchor").on(table.anchor_id),
-  queryIdx:     index("idx_rag_usage_query").on(table.query),
-  timeIdx:      index("idx_rag_usage_time").on(table.retrieved_at),
-}));
-export type RagUsageLog = typeof ragUsageLog.$inferSelect;
-export type InsertRagUsageLog = typeof ragUsageLog.$inferInsert;
