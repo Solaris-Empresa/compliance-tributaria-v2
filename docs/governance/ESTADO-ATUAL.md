@@ -67,6 +67,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | K-4-E | Auditoria jurídica `project_status_log` (migration 0059, 3 testes) | #212 | v2.5 |
 | L (RAG) | Cockpit 3 Ondas + RAG Quality Gate + rag_usage_log + Seção 7E | #215–#235 | v2.8 |
 | L (DEC-002) | Upload CSV Perguntas SOLARIS — migration 0060 + 6 procedures + 11 testes | #236 (aberto) | v2.9 |
+| L (BUG-C) | Fix TiDB LIMIT/OFFSET bind param — 3 routers corrigidos | #246 (aberto) | v2.9 |
+| L (GOV) | Protocolo de Debug v2 — Passo 0 fast path + Passo 7 formato fechado | PR aberto | v3.1 |
 
 ## Sprint L — em andamento
 
@@ -99,6 +101,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DEC-007 | Infraestrutura de contexto: ESTADO-ATUAL + CODEOWNERS | 2026-03-28 |
 | DEC-008 | Cockpit P.O. com fetch dinâmico API GitHub (Score de Saúde em tempo real) | 2026-03-29 |
 | DEC-002 | Schema DEC-002: 4 campos novos em solaris_questions (titulo, topicos, severidade_base, vigencia_inicio) | 2026-03-30 |
+| DEC-009 | Protocolo de Debug v2 adotado — Passo 0 fast path obrigatório, Passo 7 formato fechado, Gate de bloqueio | 2026-03-31 |
 
 ---
 
