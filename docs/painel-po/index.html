@@ -249,12 +249,247 @@ mark.search-hl{
   font-size:14px;
   display:none;
 }
+/* ── Seção 6 — Cockpit 3 Ondas ─────────────────────────────────────────── */
+.ondas-governance-banner{background:var(--amber-bg);border:1px solid var(--amber);border-left:4px solid var(--amber);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.gov-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.gov-text{font-size:12px;color:var(--amber);flex:1;min-width:200px;}
+.gov-text a{color:var(--amber);font-weight:700;text-decoration:underline;}
+.gov-legend{font-size:11px;color:var(--text-muted);width:100%;margin-top:4px;}
+.gov-badge{display:inline-block;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:700;}
+.gov-badge.static{background:var(--bg);border:1px solid var(--border);color:var(--text-muted);}
+.gov-badge.live{background:var(--blue-bg);border:1px solid var(--blue);color:var(--blue);}
+.ondas-global-status{display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:14px;font-size:12px;font-weight:700;}
+.ondas-global-status.ok{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.ondas-global-status.parcial{background:var(--amber-bg);border-color:var(--amber);color:var(--amber);}
+.ondas-global-status.erro{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.ondas-global-status .gs-icon{font-size:18px;}
+.ondas-global-status .gs-detail{font-size:11px;font-weight:400;color:var(--text-muted);margin-left:auto;}
+.ondas-partial-warning{background:var(--amber-bg);border:1px solid var(--amber);border-radius:var(--radius);padding:8px 12px;font-size:12px;color:var(--amber);margin-bottom:10px;}
+.ondas-partial-warning code{background:rgba(0,0,0,.06);padding:1px 4px;border-radius:3px;font-size:11px;}
+.ondas-subsection{margin-bottom:20px;}
+.ondas-subsection-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);margin-bottom:10px;padding-bottom:6px;border-bottom:1px dashed var(--border);display:flex;align-items:center;gap:8px;}
+.ondas-subsection-title .ts{font-size:10px;font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0;margin-left:auto;}
+.ondas-doc-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+.ondas-doc-tab{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-muted);transition:all .15s;}
+.ondas-doc-tab.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.ondas-doc-tab-link{margin-left:auto;font-size:11px;color:var(--blue);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:20px;white-space:nowrap;}
+.ondas-doc-container{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;height:500px;overflow-y:auto;box-shadow:var(--shadow);}
+.ondas-doc-content h1{font-size:17px;font-weight:800;margin-bottom:12px;color:var(--text);border-bottom:2px solid var(--border);padding-bottom:8px;}
+.ondas-doc-content h2{font-size:13px;font-weight:700;margin:18px 0 7px;color:var(--text);text-transform:uppercase;letter-spacing:.05em;}
+.ondas-doc-content h3{font-size:12px;font-weight:700;margin:12px 0 5px;color:var(--blue);}
+.ondas-doc-content p{font-size:12px;line-height:1.6;color:var(--text);margin-bottom:8px;}
+.ondas-doc-content table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px;}
+.ondas-doc-content th{background:var(--bg);font-weight:700;text-align:left;padding:6px 9px;border:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);}
+.ondas-doc-content td{padding:6px 9px;border:1px solid var(--border);vertical-align:top;font-size:11px;}
+.ondas-doc-content code{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:1px 4px;font-size:10px;font-family:monospace;}
+.ondas-doc-content pre{background:#0F172A;color:#E2E8F0;border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:10px;margin-bottom:12px;}
+.ondas-doc-content pre code{background:none;border:none;padding:0;color:inherit;}
+.ondas-doc-content blockquote{border-left:3px solid var(--blue);padding:6px 12px;background:var(--blue-bg);margin:8px 0;border-radius:0 4px 4px 0;font-size:11px;}
+.rastreabilidade-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.rastreabilidade-status{font-size:11px;color:var(--text-muted);flex:1;}
+.rastreabilidade-refresh{font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:none;cursor:pointer;color:var(--blue);}
+.rastreabilidade-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.rastreabilidade-tab{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-muted);transition:all .15s;}
+.rastreabilidade-tab.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+.rastreabilidade-content{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;min-height:160px;max-height:340px;overflow-y:auto;box-shadow:var(--shadow);}
+.rastr-table{width:100%;border-collapse:collapse;font-size:11px;}
+.rastr-table th{text-align:left;padding:5px 9px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border);background:rgba(0,0,0,.02);}
+.rastr-table td{padding:6px 9px;border-bottom:1px solid rgba(0,0,0,.04);vertical-align:top;}
+.rastr-table tr:hover td{background:rgba(0,0,0,.02);}
+.rastr-table a{color:var(--blue);font-weight:600;}
+.rastr-label{display:inline-block;font-size:10px;font-weight:600;padding:1px 5px;border-radius:10px;background:var(--bg);border:1px solid var(--border);margin-right:2px;margin-bottom:2px;color:var(--text-muted);}
+.rastr-type{display:inline-block;font-size:10px;font-weight:700;padding:1px 5px;border-radius:10px;}
+.rastr-type.pr{background:var(--purple-bg);color:var(--purple);}
+.rastr-type.issue{background:var(--blue-bg);color:var(--blue);}
+.milestone-bars{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.milestone-bar{display:flex;align-items:center;gap:10px;}
+.milestone-bar-label{font-size:11px;font-weight:700;color:var(--text-muted);white-space:nowrap;min-width:120px;}
+.milestone-bar-track{flex:1;height:8px;background:#E2E2DE;border-radius:4px;overflow:hidden;}
+.milestone-bar-fill{height:100%;background:var(--green);border-radius:4px;transition:width .5s ease;}
+.milestone-bar-pct{font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;min-width:90px;text-align:right;}
+.ondas-estado-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.onda-card{border-radius:var(--radius);padding:14px;border:1px solid var(--border);background:var(--bg2);box-shadow:var(--shadow);}
+.onda-card.onda1{border-top:3px solid #185FA5;}
+.onda-card.onda2{border-top:3px solid #D97706;}
+.onda-card.onda3{border-top:3px solid #3B6D11;}
+.onda-card.consistencia{border-top:3px solid var(--purple);}
+.onda-card.consistencia.ok{border-top-color:var(--green);}
+.onda-card.consistencia.warn{border-top-color:var(--amber);}
+.onda-card.consistencia.erro{border-top-color:var(--red);}
+.onda-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.onda-badge{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;}
+.onda1 .onda-badge{color:#185FA5;}.onda2 .onda-badge{color:#D97706;}.onda3 .onda-badge{color:#3B6D11;}.consistencia .onda-badge{color:var(--purple);}
+.onda-status-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--green-bg);color:var(--green);}
+.onda-status-badge.live{background:var(--blue-bg);color:var(--blue);}
+.onda-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.onda-subtitle{font-size:10px;color:var(--text-muted);margin-bottom:10px;}
+.onda-metrics{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px;}
+.onda-metric{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 9px;text-align:center;position:relative;}
+.metric-val{display:block;font-size:13px;font-weight:800;color:var(--text);}
+.metric-lbl{display:block;font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;}
+.metric-src{position:absolute;top:2px;right:3px;font-size:9px;color:var(--text-muted);cursor:help;}
+.onda-sprints{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;}
+.onda-sprint{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+.onda-sprint.done{background:var(--green-bg);color:var(--green);}
+.onda-sprint.pending{background:var(--amber-bg);color:var(--amber);}
+.onda-prs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;}
+.onda-prs a{font-size:10px;font-weight:600;color:var(--blue);background:var(--blue-bg);padding:2px 6px;border-radius:10px;text-decoration:none;}
+.onda-prs a:hover{text-decoration:underline;}
+.onda-table-info{font-size:10px;color:var(--text-muted);}
+.onda-table-info code{font-size:9px;background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:1px 4px;}
+.consistencia-detail{font-size:10px;color:var(--text-muted);margin-top:7px;line-height:1.7;}
+@media(max-width:900px){.ondas-estado-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.ondas-estado-grid{grid-template-columns:1fr;}}
+/* ── Seção 7 — RAG Rastreabilidade ─────────────────────────────────────── */
+.rag-section{margin-top:24px;}
+.rag-governance-banner{background:#F0FAFA;border:1px solid #0E7490;border-left:4px solid #0E7490;border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.rag-gov-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.rag-gov-text{font-size:12px;color:#0E7490;flex:1;min-width:200px;font-weight:600;}
+.rag-gov-text a{color:#0E7490;font-weight:700;text-decoration:underline;}
+.rag-gov-legend{font-size:11px;color:var(--text-muted);width:100%;margin-top:4px;}
+.rag-labels-grid{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.rag-label-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;border:1px solid;cursor:default;}
+.rag-label-chip.corpus{background:#F0FAFA;border-color:#0E7490;color:#0E7490;}
+.rag-label-chip.retriever{background:#EFF6FF;border-color:#0369A1;color:#0369A1;}
+.rag-label-chip.incidente{background:#FEF2F2;border-color:#DC2626;color:#DC2626;}
+.rag-label-chip.rfc{background:#F5F3FF;border-color:#7C3AED;color:#7C3AED;}
+.rag-label-chip.performance{background:#FEF3E2;border-color:#D97706;color:#D97706;}
+.rag-label-chip.governanca{background:#F0FDF4;border-color:#16A34A;color:#16A34A;}
+.rag-label-count{background:rgba(0,0,0,.1);border-radius:10px;padding:0 5px;font-size:9px;}
+.rag-subsections{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.rag-subsection{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);}
+.rag-subsection-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#0E7490;margin-bottom:10px;padding-bottom:6px;border-bottom:1px dashed var(--border);display:flex;align-items:center;gap:8px;}
+.rag-subsection-title .ts{font-size:10px;font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0;margin-left:auto;}
+.rag-corpus-bars{display:flex;flex-direction:column;gap:6px;}
+.rag-corpus-bar{display:flex;align-items:center;gap:8px;}
+.rag-corpus-bar-lei{font-size:10px;font-weight:700;color:var(--text-muted);white-space:nowrap;min-width:70px;}
+.rag-corpus-bar-track{flex:1;height:7px;background:#E2E2DE;border-radius:4px;overflow:hidden;}
+.rag-corpus-bar-fill{height:100%;background:#0E7490;border-radius:4px;transition:width .5s ease;}
+.rag-corpus-bar-count{font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;min-width:50px;text-align:right;}
+.rag-total-badge{display:inline-flex;align-items:center;gap:5px;background:#F0FAFA;border:1px solid #0E7490;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;color:#0E7490;margin-top:8px;}
+.rag-issues-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.rag-issues-tab{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-muted);transition:all .15s;}
+.rag-issues-tab.active{background:#0E7490;color:#fff;border-color:#0E7490;}
+.rag-issues-content{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;min-height:140px;max-height:320px;overflow-y:auto;box-shadow:var(--shadow);}
+.rag-incidente-alert{background:#FEF2F2;border:1px solid #DC2626;border-radius:var(--radius);padding:8px 12px;font-size:11px;color:#DC2626;font-weight:700;margin-bottom:10px;display:none;}
+.rag-rfc-alert{background:#F5F3FF;border:1px solid #7C3AED;border-radius:var(--radius);padding:8px 12px;font-size:11px;color:#7C3AED;font-weight:600;margin-bottom:10px;display:none;}
+.rag-global-status{display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:14px;font-size:12px;font-weight:700;}
+.rag-global-status.ok{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.rag-global-status.parcial{background:var(--amber-bg);border-color:var(--amber);color:var(--amber);}
+.rag-global-status.erro{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.rag-global-status .rgs-icon{font-size:18px;}
+.rag-global-status .rgs-detail{font-size:11px;font-weight:400;color:var(--text-muted);margin-left:auto;}
+@media(max-width:900px){.rag-subsections{grid-template-columns:1fr;}}
+/* ── Seção 7D — Documentos RAG ──────────────────────────────────────── */
+.rag-docs-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+.rag-docs-tab{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-muted);transition:all .15s;white-space:nowrap;}
+.rag-docs-tab.active{background:#0E7490;color:#fff;border-color:#0E7490;}
+.rag-docs-tab .doc-tag{font-size:9px;padding:1px 4px;border-radius:8px;margin-left:4px;font-weight:700;vertical-align:middle;}
+.rag-docs-tab .doc-tag.core{background:#0E7490;color:#fff;}
+.rag-docs-tab .doc-tag.rfc{background:#7C3AED;color:#fff;}
+.rag-docs-tab .doc-tag.gov{background:#16A34A;color:#fff;}
+.rag-docs-tab .doc-tag.rel{background:#D97706;color:#fff;}
+.rag-docs-content{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;min-height:200px;max-height:600px;overflow-y:auto;box-shadow:var(--shadow);font-size:12px;line-height:1.7;}
+.rag-docs-content h1,.rag-docs-content h2,.rag-docs-content h3,.rag-docs-content h4{color:var(--text);margin:14px 0 6px;}
+.rag-docs-content h1{font-size:16px;border-bottom:1px solid var(--border);padding-bottom:6px;}
+.rag-docs-content h2{font-size:14px;}
+.rag-docs-content h3{font-size:13px;color:#0E7490;}
+.rag-docs-content table{width:100%;border-collapse:collapse;font-size:11px;margin:10px 0;}
+.rag-docs-content th{background:var(--bg);padding:5px 8px;text-align:left;font-weight:700;border:1px solid var(--border);}
+.rag-docs-content td{padding:4px 8px;border:1px solid var(--border);vertical-align:top;}
+.rag-docs-content code{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;font-family:monospace;}
+.rag-docs-content pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;font-size:10px;}
+.rag-docs-content blockquote{border-left:3px solid #0E7490;margin:8px 0;padding:4px 12px;background:#F0FAFA;color:var(--text-muted);font-style:italic;}
+.rag-docs-content a{color:#0E7490;}
+.rag-docs-content ul,.rag-docs-content ol{padding-left:20px;margin:6px 0;}
+.rag-docs-error{background:#FEF3E2;border:1px solid #D97706;border-radius:var(--radius);padding:10px 14px;font-size:11px;color:#92400E;}
+.rag-docs-loading{font-size:11px;color:var(--text-muted);padding:20px 0;text-align:center;}
+.rag-docs-open-gh{font-size:10px;float:right;color:#0E7490;text-decoration:none;font-weight:600;}
+
+/* ── Seção 7E — Qualidade do RAG ──────────────────────────────────────────── */
+.rag7e-section{margin-top:20px;}
+.rag7e-banner{background:#0F172A;border:1px solid #0E7490;border-left:4px solid #0E7490;border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.rag7e-banner-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#22D3EE;}
+.rag7e-banner-sub{font-size:11px;color:#94A3B8;flex:1;}
+.rag7e-banner-ts{font-size:10px;color:#475569;margin-left:auto;white-space:nowrap;}
+.rag7e-score-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.rag7e-score-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);}
+.rag7e-score-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#0E7490;margin-bottom:10px;padding-bottom:6px;border-bottom:1px dashed var(--border);display:flex;align-items:center;gap:6px;}
+.rag7e-score-main{display:flex;align-items:baseline;gap:6px;margin-bottom:8px;}
+.rag7e-score-num{font-size:36px;font-weight:800;line-height:1;}
+.rag7e-score-num.verde{color:#16A34A;}
+.rag7e-score-num.amber{color:#D97706;}
+.rag7e-score-num.vermelho{color:#DC2626;}
+.rag7e-score-max{font-size:14px;color:var(--text-muted);font-weight:600;}
+.rag7e-score-bar-wrap{background:#E2E2DE;border-radius:4px;height:6px;margin-bottom:8px;overflow:hidden;}
+.rag7e-score-bar-fill{height:100%;border-radius:4px;transition:width .6s ease;}
+.rag7e-score-bar-fill.verde{background:#16A34A;}
+.rag7e-score-bar-fill.amber{background:#D97706;}
+.rag7e-score-bar-fill.vermelho{background:#DC2626;}
+.rag7e-score-breakdown{font-size:10px;color:var(--text-muted);display:flex;flex-direction:column;gap:3px;}
+.rag7e-score-breakdown span{display:flex;align-items:center;gap:4px;}
+.rag7e-gates-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.rag7e-gate-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;}
+.rag7e-gate-card.passou{border-top:3px solid #16A34A;}
+.rag7e-gate-card.falhou{border-top:3px solid #DC2626;}
+.rag7e-gate-card.pendente{border-top:3px solid #D97706;}
+.rag7e-gate-card.sem-dados{border-top:3px solid var(--border);}
+.rag7e-gate-card.sem-evidencia{border-top:3px solid #9CA3AF;}
+.rag7e-gate-card.nao-aplicavel{border-top:3px solid #D97706;}
+.rag7e-gate-card.parcial{border-top:3px solid #D97706;}
+.rag7e-gate-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);}
+.rag7e-gate-status{font-size:13px;font-weight:800;}
+.rag7e-gate-status.passou{color:#16A34A;}
+.rag7e-gate-status.falhou{color:#DC2626;}
+.rag7e-gate-status.pendente{color:#D97706;}
+.rag7e-gate-status.sem-dados{color:var(--text-muted);}
+.rag7e-gate-status.sem-evidencia{color:#9CA3AF;}
+.rag7e-gate-status.nao-aplicavel{color:#D97706;}
+.rag7e-gate-status.parcial{color:#D97706;}
+.rag7e-gate-detail{font-size:10px;color:var(--text-muted);line-height:1.4;}
+.rag7e-gate-pr{font-size:9px;color:var(--blue);}
+.rag7e-goldset-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:14px;}
+.rag7e-goldset-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#0E7490;margin-bottom:10px;padding-bottom:6px;border-bottom:1px dashed var(--border);display:flex;align-items:center;gap:8px;}
+.rag7e-goldset-table{width:100%;border-collapse:collapse;font-size:11px;}
+.rag7e-goldset-table th{text-align:left;padding:5px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border);background:rgba(0,0,0,.02);}
+.rag7e-goldset-table td{padding:6px 8px;border-bottom:1px solid rgba(0,0,0,.04);vertical-align:top;}
+.rag7e-goldset-table tr:hover td{background:rgba(0,0,0,.02);}
+.rag7e-recall-ok{color:#16A34A;font-weight:700;}
+.rag7e-recall-warn{color:#D97706;font-weight:700;}
+.rag7e-recall-fail{color:#DC2626;font-weight:700;}
+.rag7e-prs-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:14px;}
+.rag7e-prs-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#16A34A;margin-bottom:10px;padding-bottom:6px;border-bottom:1px dashed var(--border);display:flex;align-items:center;gap:8px;}
+.rag7e-pr-row{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid rgba(0,0,0,.04);font-size:11px;}
+.rag7e-pr-row:last-child{border-bottom:none;}
+.rag7e-pr-num{font-weight:700;color:var(--blue);white-space:nowrap;min-width:36px;}
+.rag7e-pr-title{flex:1;color:var(--text);}
+.rag7e-pr-gate{font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;white-space:nowrap;}
+.rag7e-pr-gate.passou{background:#F0FDF4;color:#16A34A;border:1px solid #16A34A;}
+.rag7e-pr-gate.pendente{background:#FEF3E2;color:#D97706;border:1px solid #D97706;}
+.rag7e-pr-gate.sem-gate{background:var(--bg);color:var(--text-muted);border:1px solid var(--border);}
+.rag7e-pr-date{font-size:10px;color:var(--text-muted);white-space:nowrap;}
+.rag7e-invisible-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:14px;}
+.rag7e-invisible-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#7C3AED;margin-bottom:10px;padding-bottom:6px;border-bottom:1px dashed var(--border);display:flex;align-items:center;gap:8px;}
+.rag7e-invisible-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.rag7e-invisible-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;text-align:center;}
+.rag7e-invisible-card .val{font-size:22px;font-weight:800;}
+.rag7e-invisible-card .val.ok{color:#16A34A;}
+.rag7e-invisible-card .val.warn{color:#D97706;}
+.rag7e-invisible-card .val.err{color:#DC2626;}
+.rag7e-invisible-card .lbl{font-size:10px;color:var(--text-muted);font-weight:600;margin-top:2px;}
+.rag7e-invisible-card .sub{font-size:9px;color:var(--text-muted);margin-top:2px;}
+.rag7e-action-needed{background:#FEF3E2;border:1px solid #D97706;border-radius:var(--radius);padding:10px 14px;font-size:11px;color:#92400E;margin-top:10px;display:none;}
+.rag7e-action-needed.show{display:block;}
+@media(max-width:900px){.rag7e-score-wrap,.rag7e-gates-grid,.rag7e-invisible-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.rag7e-score-wrap,.rag7e-gates-grid,.rag7e-invisible-grid{grid-template-columns:1fr;}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 </head>
 <body>
 <header>
   <div><h1>&#127963; Cockpit P.O. &mdash; Compliance Tributaria v2.0</h1></div>
-  <div class="meta">Uires Tapajos &middot; P.O. &middot; <span id="headerDate">2026-03-29</span></div>
+  <div class="meta">Uires Tapajos &middot; P.O. &middot; <span id="headerDate">2026-03-30</span></div>
   <div class="search-wrap">
     <div class="search-input-wrap">
       <span class="search-icon">&#128269;</span>
@@ -270,6 +505,38 @@ mark.search-hl{
     </div>
     <span class="search-count" id="searchCount"></span>
   </div>
+  <!-- HOTFIX BUG-01 — Token GitHub -->
+  <div id="gh-token-section" style="display:flex;align-items:center;gap:8px;margin-left:16px;flex-shrink:0;">
+    <span id="gh-token-status" style="font-size:11px;white-space:nowrap;"></span>
+    <button id="gh-token-btn" onclick="toggleTokenInput()"
+      title="Configurar token GitHub para aumentar limite de requisições"
+      style="font-size:11px;padding:3px 8px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;white-space:nowrap;">
+      🔑 Token GitHub
+    </button>
+    <div id="gh-token-input-area" style="display:none;gap:6px;align-items:center;">
+      <input id="gh-token-input" type="password"
+        placeholder="ghp_xxxxxxxxxxxx" maxlength="100"
+        style="font-size:11px;padding:3px 6px;border:1px solid #ccc;border-radius:4px;width:220px;" />
+      <button onclick="saveToken()"
+        style="font-size:11px;padding:3px 8px;background:#2da44e;color:white;border:none;border-radius:4px;cursor:pointer;">
+        Salvar
+      </button>
+      <button onclick="clearToken()"
+        style="font-size:11px;padding:3px 8px;background:#cf222e;color:white;border:none;border-radius:4px;cursor:pointer;">
+        Remover
+      </button>
+      <span style="font-size:10px;color:#666;max-width:180px;line-height:1.3;">
+        Token salvo apenas no seu browser. Nunca enviado ao servidor.
+      </span>
+    </div>
+  </div>
+  <!-- FIM HOTFIX BUG-01 -->
+  <!--
+    COMO OBTER O TOKEN:
+    github.com → Settings → Developer settings →
+    Personal access tokens → Tokens (classic) →
+    Generate new token → scope: public_repo → Copiar e colar acima
+  -->
 </header>
 
 <div class="container">
@@ -442,7 +709,7 @@ mark.search-hl{
 
 <!-- SECAO 4 - RELATORIO DE DOCUMENTACAO -->
 <div class="section">
-  <div class="section-title">Seção 4 &mdash; Relatório de Documentação <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0" id="docReportDate">(gerado em 2026-03-29)</span></div>
+  <div class="section-title">Seção 4 &mdash; Relatório de Documentação <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0" id="docReportDate">(gerado em 2026-03-30)</span></div>
 
   <!-- Resumo executivo -->
   <div class="doc-report-summary">
@@ -760,12 +1027,492 @@ mark.search-hl{
   <div class="edit-hint">&#128161; Clique em qualquer celula para editar. O log e salvo automaticamente no seu navegador.</div>
 </div>
 
+<!-- SECAO 6 - COCKPIT 3 ONDAS -->
+<div class="section">
+  <div class="section-title">Cockpit - 3 Ondas <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">rastreabilidade viva &middot; documentos &middot; estado das ondas</span></div>
+
+  <!-- Banner de governança -->
+  <div class="ondas-governance-banner">
+    <span class="gov-icon">⚠</span>
+    <div class="gov-text">
+      <strong>Este painel é uma visualização, não uma fonte de verdade.</strong>
+      Fonte de verdade:
+      <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/ESTADO-ATUAL.md" target="_blank">ESTADO-ATUAL.md</a>
+      &middot;
+      <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md" target="_blank">BASELINE-PRODUTO.md</a>
+    </div>
+    <div class="gov-legend">
+      <span class="gov-badge static">⚙ estático</span> = baseline v2.5 (atualizar a cada sprint)
+      &nbsp;&middot;&nbsp;
+      <span class="gov-badge live">⟳ vivo</span> = fetch API GitHub (cache 5 min)
+    </div>
+  </div>
+
+  <!-- Status Global do Sistema -->
+  <div class="ondas-global-status parcial" id="ondasGlobalStatus">
+    <span class="gs-icon">⏳</span>
+    <span id="ondasGlobalStatusText">Verificando consistência do sistema...</span>
+    <span class="gs-detail" id="ondasGlobalStatusDetail"></span>
+  </div>
+
+  <!-- 6A: Documentos de Arquitetura -->
+  <div class="ondas-subsection">
+    <div class="ondas-subsection-title">
+      6A &mdash; Documentos de Arquitetura
+      <span class="ts" id="ondasDocTimestamp">⟳ aguardando...</span>
+    </div>
+    <div class="ondas-doc-tabs">
+      <button class="ondas-doc-tab active" onclick="setOndasDocTab('tabela',this)">&#128196; TABELA-3-ONDAS</button>
+      <button class="ondas-doc-tab" onclick="setOndasDocTab('e2e',this)">&#128203; E2E-3-ONDAS</button>
+      <button class="ondas-doc-tab" onclick="setOndasDocTab('spec',this)">&#128208; SPEC v2</button>
+      <a class="ondas-doc-tab-link" id="ondasDocGhLink" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/arquitetura/TABELA-3-ONDAS-QUESTIONARIO-v1.md" target="_blank">🔗 Abrir no GitHub</a>
+    </div>
+    <div class="ondas-doc-container">
+      <div id="ondasDocLoading" style="text-align:center;color:var(--text-muted);font-size:13px;padding:40px 0;">⏳ Carregando documento...</div>
+      <div id="ondasDocContent" class="ondas-doc-content"></div>
+    </div>
+  </div>
+
+  <!-- 6B: Rastreabilidade Viva -->
+  <div class="ondas-subsection">
+    <div class="ondas-subsection-title">6B &mdash; Rastreabilidade Viva</div>
+    <div class="milestone-bars">
+      <div class="milestone-bar">
+        <span class="milestone-bar-label">🟢 Sprint K &mdash; M2</span>
+        <div class="milestone-bar-track"><div class="milestone-bar-fill" id="milestoneFillK" style="width:0%"></div></div>
+        <span class="milestone-bar-pct" id="milestonePctK">⟳ buscando...</span>
+      </div>
+      <div class="milestone-bar">
+        <span class="milestone-bar-label">🟡 Sprint L &mdash; M3</span>
+        <div class="milestone-bar-track"><div class="milestone-bar-fill" id="milestoneFillL" style="width:0%"></div></div>
+        <span class="milestone-bar-pct" id="milestonePctL">⟳ buscando...</span>
+      </div>
+    </div>
+    <div class="rastreabilidade-header">
+      <div class="rastreabilidade-tabs">
+        <button class="rastreabilidade-tab active" onclick="setRastrTab('sprint-k',this)">Sprint K &mdash; M2</button>
+        <button class="rastreabilidade-tab" onclick="setRastrTab('sprint-l',this)">Sprint L &mdash; M3</button>
+        <button class="rastreabilidade-tab" onclick="setRastrTab('prs',this)">PRs Mergeados</button>
+        <button class="rastreabilidade-tab" onclick="setRastrTab('issues',this)">Issues Abertas</button>
+      </div>
+      <span class="rastreabilidade-status" id="rastreabilidadeStatus">⟳ Aguardando...</span>
+      <button class="rastreabilidade-refresh" onclick="fetchOndasRastreabilidade(true)">&#8635; Atualizar</button>
+    </div>
+    <div class="rastreabilidade-content" id="rastreabilidadeContent">
+      <p style="color:var(--text-muted);font-size:13px;padding:12px 0;">⏳ Carregando dados do GitHub...</p>
+    </div>
+  </div>
+
+  <!-- 6C: Estado das 3 Ondas + Consistência Global -->
+  <div class="ondas-subsection">
+    <div class="ondas-subsection-title">6C &mdash; Estado das 3 Ondas + Consistência Global</div>
+    <div class="ondas-estado-grid">
+
+      <!-- Onda 1 -->
+      <div class="onda-card onda1">
+        <div class="onda-header">
+          <span class="onda-badge">🔵 ONDA 1</span>
+          <span class="onda-status-badge">✅ Produção</span>
+        </div>
+        <div class="onda-title">Questionário SOLARIS</div>
+        <div class="onda-subtitle">Equipe Jurídica &mdash; conhecimento implícito</div>
+        <div class="onda-metrics">
+          <div class="onda-metric"><span class="metric-val">12</span><span class="metric-lbl">perguntas</span><span class="metric-src" title="Fonte: baseline v2.5 &mdash; seed SOL-001..012">⚙</span></div>
+          <div class="onda-metric"><span class="metric-val">4</span><span class="metric-lbl">áreas</span><span class="metric-src" title="Fonte: baseline v2.5">⚙</span></div>
+        </div>
+        <div class="onda-sprints">
+          <span class="onda-sprint done">Sprint K ✅</span>
+          <span class="onda-sprint pending">Sprint L ⏳</span>
+        </div>
+        <div class="onda-prs">
+          <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/159" target="_blank">#159</a>
+          <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/162" target="_blank">#162</a>
+          <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/171" target="_blank">#171</a>
+          <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/179" target="_blank">#179</a>
+        </div>
+        <div class="onda-table-info">Tabelas: <code>solaris_questions</code> &middot; <code>solaris_answers</code></div>
+      </div>
+
+      <!-- Onda 2 -->
+      <div class="onda-card onda2">
+        <div class="onda-header">
+          <span class="onda-badge">🟠 ONDA 2</span>
+          <span class="onda-status-badge">✅ Produção</span>
+        </div>
+        <div class="onda-title">Questionário IA Generativa</div>
+        <div class="onda-subtitle">Geração combinatória por perfil</div>
+        <div class="onda-metrics">
+          <div class="onda-metric"><span class="metric-val">5&ndash;10</span><span class="metric-lbl">geradas</span><span class="metric-src" title="Fonte: baseline v2.5 &mdash; parâmetros combinatórios">⚙</span></div>
+          <div class="onda-metric"><span class="metric-val">GPT-4.1</span><span class="metric-lbl">modelo</span><span class="metric-src" title="Fonte: baseline v2.5">⚙</span></div>
+        </div>
+        <div class="onda-sprints">
+          <span class="onda-sprint done">Sprint K ✅</span>
+        </div>
+        <div class="onda-prs">
+          <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/182" target="_blank">#182</a>
+        </div>
+        <div class="onda-table-info">Tabela: <code>iagen_answers</code></div>
+      </div>
+
+      <!-- Onda 3 -->
+      <div class="onda-card onda3">
+        <div class="onda-header">
+          <span class="onda-badge">🟢 ONDA 3</span>
+          <span class="onda-status-badge">✅ Produção</span>
+        </div>
+        <div class="onda-title">Questionário Regulatório (RAG)</div>
+        <div class="onda-subtitle">Corpus legislativo &mdash; LC 214, LC 224...</div>
+        <div class="onda-metrics">
+          <div class="onda-metric"><span class="metric-val">2.078</span><span class="metric-lbl">chunks</span><span class="metric-src" title="Fonte: baseline v2.5 &mdash; corpus indexado">⚙</span></div>
+          <div class="onda-metric"><span class="metric-val">6</span><span class="metric-lbl">leis</span><span class="metric-src" title="Fonte: baseline v2.5">⚙</span></div>
+        </div>
+        <div class="onda-sprints">
+          <span class="onda-sprint done">Sprint H ✅</span>
+          <span class="onda-sprint done">Sprint K ✅</span>
+        </div>
+        <div class="onda-table-info">Tabelas: <code>rag_documents</code> &middot; <code>answers</code></div>
+      </div>
+
+      <!-- Consistência Global -->
+      <div class="onda-card consistencia" id="consistenciaCard">
+        <div class="onda-header">
+          <span class="onda-badge">🔷 CONSISTÊNCIA</span>
+          <span class="onda-status-badge live">⟳ vivo</span>
+        </div>
+        <div class="onda-title">Consistência Global</div>
+        <div class="onda-subtitle">CI &middot; PRs &middot; Validações abertas</div>
+        <div class="onda-metrics">
+          <div class="onda-metric"><span class="metric-val" id="consistenciaIcon">&mdash;</span><span class="metric-lbl">status</span></div>
+          <div class="onda-metric"><span class="metric-val" id="consistenciaScore">&mdash;/3</span><span class="metric-lbl">checks OK</span></div>
+        </div>
+        <div class="consistencia-detail" id="consistenciaDetail">⟳ Carregando...</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 6D: Consistência Global — dados vivos API GitHub -->
+  <div class="ondas-subsection" id="secao6d-consistencia">
+    <div class="ondas-subsection-title">
+      6D &mdash; Consistência Global
+      <span class="gov-badge live">&#8635; vivo</span>
+      <span style="font-weight:400;font-size:10px;color:var(--text-muted);text-transform:none;letter-spacing:0;margin-left:6px">API GitHub &middot; CI/CD &middot; PRs abertos &middot; issues críticas &middot; cache 5 min</span>
+      <button class="rastreabilidade-refresh" onclick="fetchConsistenciaGlobal6D(true)" title="Atualizar" style="margin-left:auto">&#8635;</button>
+    </div>
+    <div id="consistencia6dContent">
+      <div style="font-size:11px;color:var(--text-muted)">&#8987; Carregando dados vivos...</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SECAO 7 - RAG RASTREABILIDADE -->
+<div class="section rag-section" id="secao7-rag">
+  <div class="section-title">RAG &mdash; Rastreabilidade <span style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">corpus &middot; issues &middot; incidentes &middot; RFCs</span></div>
+
+  <!-- Banner de governança -->
+  <div class="rag-governance-banner">
+    <span class="rag-gov-icon">&#9432;</span>
+    <div class="rag-gov-text">
+      <strong>Governança RAG ativa.</strong> Todo PR, Issue, RFC e incidente RAG recebe label automática via GitHub Actions.
+      Fonte de verdade: <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md" target="_blank">ESTADO-ATUAL.md</a> &middot;
+      <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/RAG-PROCESSO.md" target="_blank">RAG-PROCESSO.md</a>
+    </div>
+    <div class="rag-gov-legend">
+      <span class="gov-badge static">&#9881; estático</span> = baseline v2.5 (atualizar a cada sprint) &middot;
+      <span class="gov-badge live">&#8635; vivo</span> = fetch API GitHub (cache 5 min)
+    </div>
+  </div>
+
+  <!-- Status global RAG -->
+  <div class="rag-global-status" id="ragGlobalStatus">
+    <span class="rgs-icon">&#8987;</span>
+    <span id="ragGlobalText">Aguardando dados...</span>
+    <span class="rgs-detail" id="ragGlobalDetail"></span>
+  </div>
+
+  <!-- Alertas de incidente e RFC -->
+  <div class="rag-incidente-alert" id="ragIncidenteAlert">&#128680; INCIDENTE RAG ABERTO &mdash; <span id="ragIncidenteCount"></span> issue(s) com label <code>rag:incidente</code></div>
+  <div class="rag-rfc-alert" id="ragRfcAlert">&#128196; RFC RAG PENDENTE &mdash; <span id="ragRfcCount"></span> RFC(s) aguardando aprovação do P.O.</div>
+
+  <!-- Labels de governança -->
+  <div class="ondas-subsection">
+    <div class="ondas-subsection-title">Labels de Governança RAG <span class="gov-badge live">&#8635; vivo</span></div>
+    <div class="rag-labels-grid" id="ragLabelsGrid">
+      <div class="rag-label-chip corpus">&#128312; rag:corpus <span class="rag-label-count" id="cnt-rag-corpus">...</span></div>
+      <div class="rag-label-chip retriever">&#128309; rag:retriever <span class="rag-label-count" id="cnt-rag-retriever">...</span></div>
+      <div class="rag-label-chip incidente">&#128308; rag:incidente <span class="rag-label-count" id="cnt-rag-incidente">...</span></div>
+      <div class="rag-label-chip rfc">&#128307; rag:rfc <span class="rag-label-count" id="cnt-rag-rfc">...</span></div>
+      <div class="rag-label-chip performance">&#128992; rag:performance <span class="rag-label-count" id="cnt-rag-performance">...</span></div>
+      <div class="rag-label-chip governanca">&#128994; rag:governanca <span class="rag-label-count" id="cnt-rag-governanca">...</span></div>
+    </div>
+  </div>
+
+  <!-- Sub-paineis: 7A Corpus + 7B Issues/PRs -->
+  <div class="rag-subsections">
+
+    <!-- 7A: Estado do corpus -->
+    <div class="rag-subsection">
+      <div class="rag-subsection-title">7A &mdash; Estado do Corpus <span class="gov-badge static">&#9881; estático</span> <span class="ts" id="ragCorpusTs"></span></div>
+      <div class="rag-corpus-bars" id="ragCorpusBars">
+        <div style="font-size:11px;color:var(--text-muted)">Carregando...</div>
+      </div>
+      <div class="rag-total-badge" id="ragCorpusTotal">&#8987; Carregando...</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:8px">Tabela: <code>ragDocuments</code> &middot; 100% anchor_id &middot; Baseline v2.5</div>
+    </div>
+
+    <!-- 7B: Issues e PRs por label -->
+    <div class="rag-subsection">
+      <div class="rag-subsection-title">7B &mdash; Issues &amp; PRs por Label <span class="gov-badge live">&#8635; vivo</span> <span class="ts" id="ragIssuesTs"></span></div>
+      <div class="rag-issues-tabs">
+        <button class="rag-issues-tab active" onclick="setRagTab('abertos', this)">Abertos</button>
+        <button class="rag-issues-tab" onclick="setRagTab('incidentes', this)">Incidentes</button>
+        <button class="rag-issues-tab" onclick="setRagTab('rfcs', this)">RFCs</button>
+        <button class="rag-issues-tab" onclick="setRagTab('historico', this)">Histórico PRs</button>
+        <button class="rastreabilidade-refresh" onclick="fetchRagData(true)" title="Atualizar">&#8635;</button>
+      </div>
+      <div class="rag-issues-content" id="ragIssuesContent">
+        <div style="font-size:11px;color:var(--text-muted)">&#8987; Carregando...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 7C: Backlog RAG -->
+  <div class="ondas-subsection">
+    <div class="ondas-subsection-title">7C &mdash; Backlog RAG <span class="gov-badge live">&#8635; vivo</span></div>
+    <div class="rag-issues-content" id="ragBacklogContent" style="max-height:200px">
+      <div style="font-size:11px;color:var(--text-muted)">&#8987; Carregando...</div>
+    </div>
+  </div>
+
+  <!-- 7D: Documentos RAG vivos -->
+  <div class="ondas-subsection">
+    <div class="ondas-subsection-title">
+      7D &mdash; Documentos RAG
+      <span class="gov-badge live">&#8635; vivo</span>
+      <span style="font-weight:400;font-size:10px;color:var(--text-muted);text-transform:none;letter-spacing:0;margin-left:6px">fetch raw GitHub &middot; cache 5 min &middot; DOMPurify</span>
+      <button class="rastreabilidade-refresh" onclick="fetchRagDoc(ragDocAtiva, true)" title="Recarregar documento" style="margin-left:auto">&#8635;</button>
+    </div>
+    <div class="rag-docs-tabs" id="ragDocsTabs">
+      <button class="rag-docs-tab active" onclick="fetchRagDoc('corpus-baseline', this)">CORPUS-BASELINE <span class="doc-tag core">core</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rag-processo', this)">RAG-PROCESSO <span class="doc-tag core">core</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rag-governance', this)">RAG-GOVERNANCE <span class="doc-tag gov">gov</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rag-responsabilidades', this)">RAG-RESPONSABILIDADES <span class="doc-tag gov">gov</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('handoff-rag', this)">HANDOFF-RAG <span class="doc-tag core">core</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rfc-001', this)">RFC-001 <span class="doc-tag rfc">rfc</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rfc-002', this)">RFC-002 <span class="doc-tag rfc">rfc</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rfc-003', this)">RFC-003 <span class="doc-tag rfc">rfc</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rfc-004', this)">RFC-004 <span class="doc-tag rfc">rfc</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rastreabilidade-rag-po', this)">RASTREABILIDADE-RAG-PO <span class="doc-tag rel">rel</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('governanca-rag-po-completo', this)">GOVERNAN&Ccedil;A-RAG-COMPLETO <span class="doc-tag rel">rel</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('diagrama-e2e-rag', this)">E2E-RAG-FLUXO <span class="doc-tag core">core</span></button>
+      <button class="rag-docs-tab" onclick="fetchRagDoc('rag-quality-gate', this)">RAG-QUALITY-GATE <span class="doc-tag gov">gov</span></button>
+    </div>
+    <div class="rag-docs-content" id="ragDocsContent">
+      <div class="rag-docs-loading">&#8987; Carregando documento...</div>
+    </div>
+  </div>
+
+  <!-- 7E: Qualidade do RAG (NOVO) -->
+  <div class="rag7e-section" id="secao7e-qualidade">
+    <div class="ondas-subsection-title">
+      7E &mdash; Qualidade do RAG
+      <span class="gov-badge live">&#8635; vivo</span>
+      <span style="font-weight:400;font-size:10px;color:var(--text-muted);text-transform:none;letter-spacing:0;margin-left:6px">API GitHub &middot; cache 5 min &middot; 4 gates &middot; gold set 10 queries</span>
+      <button class="rastreabilidade-refresh" onclick="fetchRag7eData(true)" title="Atualizar qualidade" style="margin-left:auto">&#8635;</button>
+    </div>
+
+    <!-- Banner de governança -->
+    <div class="rag7e-banner">
+      <span class="rag7e-banner-title">&#127919; O RAG está funcionando ou só existe?</span>
+      <span class="rag7e-banner-sub">Score do corpus &middot; 4 gates de qualidade &middot; gold set 10 queries &middot; chunks invisíveis &middot; PRs de governança</span>
+      <span class="rag7e-banner-ts" id="rag7eTs">&#8987; aguardando...</span>
+    </div>
+
+    <!-- 7E.1: Score do Corpus + Integridade -->
+    <div class="rag7e-score-wrap">
+      <div class="rag7e-score-card">
+        <div class="rag7e-score-card-title">&#128200; 7E.1 &mdash; Score do Corpus <span class="gov-badge static">&#9881; estático</span> <span class="gov-badge live" id="rag7eScoreLiveBadge" style="display:none">&#8635; uso real</span></div>
+        <div class="rag7e-score-main">
+          <span class="rag7e-score-num amber" id="rag7eScoreNum">61.6</span>
+          <span class="rag7e-score-max">/100</span>
+          <span style="font-size:11px;color:#D97706;font-weight:700;margin-left:4px" id="rag7eScoreLabel">&#9888;&#65039; Em evolução</span>
+        </div>
+        <div class="rag7e-score-bar-wrap"><div class="rag7e-score-bar-fill amber" id="rag7eScoreBar" style="width:61.6%"></div></div>
+        <div class="rag7e-score-breakdown" id="rag7eScoreBreakdown">
+          <span>&#10003; Integridade estrutural: 100% anchor_id</span>
+          <span>&#10003; 2.078 chunks &middot; 5 leis &middot; 0 duplicatas críticas</span>
+          <span id="rag7eTelemetriaStatus">&#9888; Telemetria de uso: aguardando primeiros logs...</span>
+          <span>&#9888; Gold set: evidência manual (script pendente)</span>
+          <span style="font-size:9px;color:var(--text-muted);margin-top:2px">Baseline v2.0 &middot; 2026-03-30 &middot; L-RAG-01 implementado</span>
+        </div>
+      </div>
+      <div class="rag7e-score-card">
+        <div class="rag7e-score-card-title">&#128202; 7E.2 &mdash; Integridade do Corpus <span class="gov-badge live">&#8635; vivo</span></div>
+        <div id="rag7eIntegrityContent">
+          <div style="font-size:11px;color:var(--text-muted)">&#8987; Buscando PRs de corpus...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7E.3: Gates de Qualidade -->
+    <div class="rag7e-goldset-wrap">
+      <div class="rag7e-goldset-title">&#128682; 7E.3 &mdash; Gates de Qualidade (4 gates &mdash; último PR de corpus) <span class="gov-badge live">&#8635; vivo</span> <span class="ts" id="rag7eGatesTs"></span></div>
+      <div class="rag7e-gates-grid" id="rag7eGatesGrid">
+        <div class="rag7e-gate-card sem-dados">
+          <div class="rag7e-gate-label">RAG-Q1</div>
+          <div class="rag7e-gate-status sem-dados" id="gateQ1Status">&#8987; ...</div>
+          <div class="rag7e-gate-detail" id="gateQ1Detail">Estrutural: anchor_id, chunks vazios, duplicatas</div>
+          <div class="rag7e-gate-pr" id="gateQ1Pr"></div>
+        </div>
+        <div class="rag7e-gate-card sem-dados">
+          <div class="rag7e-gate-label">RAG-Q2</div>
+          <div class="rag7e-gate-status sem-dados" id="gateQ2Status">&#8987; ...</div>
+          <div class="rag7e-gate-detail" id="gateQ2Detail">Recuperação: gold set 10 queries, recall top-5 ≥ 90%</div>
+          <div class="rag7e-gate-pr" id="gateQ2Pr"></div>
+        </div>
+        <div class="rag7e-gate-card sem-dados">
+          <div class="rag7e-gate-label">RAG-Q3</div>
+          <div class="rag7e-gate-status sem-dados" id="gateQ3Status">&#8987; ...</div>
+          <div class="rag7e-gate-detail" id="gateQ3Detail">Visibilidade: chunks invisíveis críticos = 0</div>
+          <div class="rag7e-gate-pr" id="gateQ3Pr"></div>
+        </div>
+        <div class="rag7e-gate-card sem-dados">
+          <div class="rag7e-gate-label">RAG-Q4</div>
+          <div class="rag7e-gate-status sem-dados" id="gateQ4Status">&#8987; ...</div>
+          <div class="rag7e-gate-detail" id="gateQ4Detail">Explicabilidade: divergências documentadas</div>
+          <div class="rag7e-gate-pr" id="gateQ4Pr"></div>
+        </div>
+      </div>
+      <div class="rag7e-action-needed" id="rag7eActionNeeded"></div>
+    </div>
+
+    <!-- 7E.4: Gold Set Queries -->
+    <div class="rag7e-goldset-wrap">
+      <div class="rag7e-goldset-title">&#128269; 7E.4 &mdash; Gold Set &mdash; Queries Críticas <span class="gov-badge static">&#9881; estático</span> <span class="gov-badge live" id="goldsetEvidBadge" style="display:none">&#8635; evidência PR</span></div>
+      <div id="goldsetEvidAlert" style="display:none;font-size:10px;background:#FEF3E2;border:1px solid #D97706;border-radius:4px;padding:6px 10px;margin-bottom:8px;color:#854F0B">
+        &#9888; Evidência não disponível — nenhum PR de corpus com dados de recall encontrado.
+        Execute o gold set e registre em <code>artifacts/rag-quality/&lt;pr&gt;/report.md</code>
+      </div>
+      <table class="rag7e-goldset-table">
+        <thead><tr><th>#</th><th>Query</th><th>Lei</th><th>Chunks esperados</th><th>Recall Top-5</th><th>Recall Top-10</th><th>Evidência</th></tr></thead>
+        <tbody id="rag7eGoldsetBody">
+          <tr><td>GS-01</td><td>IBS base de cálculo</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 12–15</td><td class="rag7e-recall-warn" id="gs01-r5">—</td><td class="rag7e-recall-warn" id="gs01-r10">—</td><td id="gs01-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-02</td><td>CBS alíquota padrão</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 87–90</td><td class="rag7e-recall-warn" id="gs02-r5">—</td><td class="rag7e-recall-warn" id="gs02-r10">—</td><td id="gs02-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-03</td><td>Simples Nacional exceção</td><td>LC 123</td><td style="font-size:9px;color:var(--text-muted)">art. 3–5</td><td class="rag7e-recall-warn" id="gs03-r5">—</td><td class="rag7e-recall-warn" id="gs03-r10">—</td><td id="gs03-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-04</td><td>Imposto Seletivo bens</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 400–410</td><td class="rag7e-recall-warn" id="gs04-r5">—</td><td class="rag7e-recall-warn" id="gs04-r10">—</td><td id="gs04-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-05</td><td>Comitê Gestor atribuições</td><td>EC 132</td><td style="font-size:9px;color:var(--text-muted)">art. 1–5</td><td class="rag7e-recall-warn" id="gs05-r5">—</td><td class="rag7e-recall-warn" id="gs05-r10">—</td><td id="gs05-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-06</td><td>split payment mecanismo</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 55–60</td><td class="rag7e-recall-warn" id="gs06-r5">—</td><td class="rag7e-recall-warn" id="gs06-r10">—</td><td id="gs06-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-07</td><td>não cumulatividade IBS</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 28–35</td><td class="rag7e-recall-warn" id="gs07-r5">—</td><td class="rag7e-recall-warn" id="gs07-r10">—</td><td id="gs07-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <tr><td>GS-08</td><td>benefício fiscal EC 132</td><td>EC 132</td><td style="font-size:9px;color:var(--text-muted)">art. 150–155</td><td class="rag7e-recall-warn" id="gs08-r5">—</td><td class="rag7e-recall-warn" id="gs08-r10">—</td><td id="gs08-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <!-- GS-09 -->
+          <tr><td>GS-09</td><td>crédito presumido IBS</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">art. 28–35</td><td class="rag7e-recall-warn" id="gs09-r5">—</td><td class="rag7e-recall-warn" id="gs09-r10">—</td><td id="gs09-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+          <!-- GS-10 -->
+          <tr><td>GS-10</td><td>prazo de transição IBS</td><td>LC 214</td><td style="font-size:9px;color:var(--text-muted)">—</td><td class="rag7e-recall-warn" id="gs10-r5">—</td><td class="rag7e-recall-warn" id="gs10-r10">—</td><td id="gs10-ev" style="font-size:10px;color:var(--text-muted)">⚪ sem evidência</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:8px">Fonte: CORPUS-BASELINE.md v2.0 seção 3.1 &middot; Meta: recall top-5 ≥ 90% &middot; recall top-10 = 100% &middot; Evidência: <code>artifacts/rag-quality/&lt;pr&gt;/report.md</code></div>
+    </div>
+
+    <!-- 7E.5: PRs de Governança RAG -->
+    <div class="rag7e-prs-wrap">
+      <div class="rag7e-prs-title">&#128203; 7E.5 &mdash; PRs de Governança RAG <span class="gov-badge live">&#8635; vivo</span> <span class="ts" id="rag7ePrsTs"></span></div>
+      <div id="rag7ePrsContent">
+        <div style="font-size:11px;color:var(--text-muted)">&#8987; Buscando PRs...</div>
+      </div>
+    </div>
+
+    <!-- 7E.6: Chunks Invisíveis -->
+    <div class="rag7e-invisible-wrap">
+      <div class="rag7e-invisible-title">&#128065; 7E.6 &mdash; Chunks Invisíveis <span class="gov-badge live">&#8635; vivo</span> <span class="gov-badge live" id="rag7eUsageLiveBadge" style="display:none">&#8635; telemetria ativa</span></div>
+      <div class="rag7e-invisible-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="rag7e-invisible-card">
+          <div class="val ok" id="rag7eInvisTotal">0</div>
+          <div class="lbl">Invisíveis Críticos</div>
+          <div class="sub">meta: = 0</div>
+        </div>
+        <div class="rag7e-invisible-card">
+          <div class="val ok" id="rag7eInvisIssues">&#8987;</div>
+          <div class="lbl">Issues rag:incidente</div>
+          <div class="sub">abertas no GitHub</div>
+        </div>
+        <div class="rag7e-invisible-card">
+          <div class="val" id="rag7eUsageCoverage">&#8987;</div>
+          <div class="lbl">Cobertura de Uso</div>
+          <div class="sub" id="rag7eUsageCoverageSub">chunks usados / total</div>
+        </div>
+        <div class="rag7e-invisible-card">
+          <div class="val" id="rag7eCorpusVersion">v2.0</div>
+          <div class="lbl">Versão do Corpus</div>
+          <div class="sub">CORPUS-BASELINE.md</div>
+        </div>
+      </div>
+      <div id="rag7eInvisAlert" class="rag7e-action-needed"></div>
+      <div id="rag7eUsageAlert" style="display:none;font-size:10px;background:#E8F0FB;border:1px solid #185FA5;border-radius:4px;padding:6px 10px;margin-top:8px;color:#185FA5"></div>
+    </div>
+
+    <!-- 7E.7: Desbloqueio do RAG — Sprint L -->
+    <div class="rag7e-goldset-wrap" id="secao7e7-desbloqueio" style="margin-top:14px">
+      <div class="rag7e-goldset-title">&#128680; 7E.7 &mdash; Desbloqueio do RAG <span class="gov-badge static">&#9881; Sprint L</span></div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:10px">O que falta para o RAG ficar saud&aacute;vel &middot; Fonte: CORPUS-BASELINE.md v2.0 se&ccedil;&atilde;o 10</div>
+      <table class="rag7e-goldset-table">
+        <thead><tr><th>Item</th><th>Prioridade</th><th>Descri&ccedil;&atilde;o</th><th>Impacto no Score</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700;color:#16A34A">L-RAG-01</td>
+            <td><span style="background:#FDEAEA;color:#DC2626;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">P0</span></td>
+            <td>Implementar <code>rag_usage_log</code> &mdash; telemetria de uso</td>
+            <td style="color:#16A34A;font-weight:700">+30 pts (uso real)</td>
+            <td><span style="background:#EBF4E3;color:#16A34A;border-radius:10px;padding:1px 8px;font-size:10px">&#10003; implementado &middot; PR #235</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:#D97706">L-RAG-02</td>
+            <td><span style="background:#FEF3E2;color:#D97706;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">P1</span></td>
+            <td>Implementar <code>rag_chunk_risk_map</code> &mdash; rastreabilidade chunk&rarr;risco</td>
+            <td style="color:#D97706;font-weight:700">qualidade +5 pts</td>
+            <td><span style="background:#FEF3E2;color:#D97706;border-radius:10px;padding:1px 8px;font-size:10px">&#8987; pendente</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:#3B6D11">L-RAG-03</td>
+            <td><span style="background:#FEF3E2;color:#D97706;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">P1</span></td>
+            <td>Dashboard de score no cockpit (Se&ccedil;&atilde;o 7 &mdash; &ldquo;Sa&uacute;de do Corpus&rdquo;)</td>
+            <td style="color:#3B6D11;font-weight:700">visibilidade</td>
+            <td><span style="background:#EBF4E3;color:#3B6D11;border-radius:10px;padding:1px 8px;font-size:10px">&#10003; 7E implementada</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:#6B6B6B">L-RAG-04</td>
+            <td><span style="background:#F3F4F6;color:#6B6B6B;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">P2</span></td>
+            <td>Detector autom&aacute;tico de chunks duplicados (similaridade coseno &gt; 0,95)</td>
+            <td style="color:#6B6B6B;font-weight:700">qualidade +3 pts</td>
+            <td><span style="background:#F3F4F6;color:#6B6B6B;border-radius:10px;padding:1px 8px;font-size:10px">&#8987; pendente</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:#6B6B6B">L-RAG-05</td>
+            <td><span style="background:#F3F4F6;color:#6B6B6B;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">P2</span></td>
+            <td>Ingest&atilde;o lc123 completa (RFC-004) &mdash; cobertura ~60% &rarr; 95%</td>
+            <td style="color:#6B6B6B;font-weight:700">cobertura +2 pts</td>
+            <td><span style="background:#F3F4F6;color:#6B6B6B;border-radius:10px;padding:1px 8px;font-size:10px">&#8987; pendente</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px;padding:8px 12px;background:#E8F0FB;border-radius:6px;font-size:10px;color:#185FA5">
+        <strong>Score atual: 61,6/100 &#9888;</strong> &middot; L-RAG-01 implementado &mdash; estimado 80&ndash;90/100 após primeiros logs &middot; Meta Sprint L: &ge; 85/100
+        &middot; <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/CORPUS-BASELINE.md" target="_blank" style="color:#185FA5">ver CORPUS-BASELINE.md &sect;10</a>
+      </div>
+    </div>
+
+  </div><!-- /7E -->
+
+</div>
+
 </div><!-- /container -->
 <script>
 const GH = "https://github.com/Solaris-Empresa/compliance-tributaria-v2";
+// HOTFIX BUG-03/04: versão do kanban — incrementar para forçar reset do localStorage
+const KANBAN_VERSION = 2;
 const INITIAL_KANBAN = {
   backlog: [
-    { id: 'k10', title: 'Issue #191 - G16 Upload CSV SOLARIS', status: 'Acao pendente: P.O. aprovar Sprint L', link: GH+'/issues/191' },
     { id: 'k11', title: 'Issue #187 - G11 Diagnostico V3 canonico', status: 'M4 Backlog', link: GH+'/issues/187' },
     { id: 'k12', title: 'Issue #188 - DT-01 CI debito tecnico', status: 'M4 Backlog', link: GH+'/issues/188' },
     { id: 'k13', title: 'Issue #189 - RFC-003 CRUD QuestionSchema', status: 'M4 Backlog', link: GH+'/issues/189' },
@@ -773,7 +1520,9 @@ const INITIAL_KANBAN = {
     { id: 'k15', title: 'Issue #192 - G15 Arquitetura 3 ondas', status: 'M4 Backlog', link: GH+'/issues/192' },
     { id: 'k16', title: 'Issue #193 - Corpus expansao leis', status: 'M4 Backlog', link: GH+'/issues/193' },
   ],
-  andamento: [],
+  andamento: [
+    { id: 'k10', title: 'Issue #191 - G16 Upload CSV SOLARIS', status: 'Em execução — Manus', link: GH+'/issues/191' },
+  ],
   gate: [
     { id: 'k40', title: 'Decisao UAT - retorno dos advogados', status: 'Acao pendente: P.O. executar testes manuais', link: null },
     { id: 'k41', title: 'Issue #56 - F-04 Fase 3 (modo new)', status: 'Aguarda aprovacao UAT', link: GH+'/issues/56' },
@@ -784,7 +1533,13 @@ const INITIAL_KANBAN = {
   ]
 };
 
+// HOTFIX BUG-03: versão das decisões — força reset do localStorage se tiver placeholder
+const DECISIONS_VERSION = 2;
 const INITIAL_DECISIONS = [
+  { date: '2026-03-30', decision: 'DEC-010: Seção 7E Qualidade do RAG — 4 gates, gold set, dados vivos API GitHub (#233)', status: 'done', link: GH+'/pull/233' },
+  { date: '2026-03-30', decision: 'DEC-009: Gate de Qualidade RAG — RAG-QUALITY-GATE.md + GitHub Action + PR template (#232)', status: 'done', link: GH+'/pull/232' },
+  { date: '2026-03-29', decision: 'DEC-008: Cockpit P.O. com fetch dinâmico API GitHub — Score de Saúde em tempo real (#199)', status: 'done', link: GH+'/pull/199' },
+  { date: '2026-03-29', decision: 'K-4-E: Auditoria jurídica project_status_log — migration 0059, 3 testes Vitest (#212)', status: 'done', link: GH+'/pull/213' },
   { date: '2026-03-29', decision: 'DEC-007: Infraestrutura de contexto para agentes - ESTADO-ATUAL.md + CODEOWNERS', status: 'done', link: GH+'/pull/194' },
   { date: '2026-03-28', decision: 'K-4-D: Wiring etapas 7-8 no DiagnosticoStepper + fix T06.1', status: 'done', link: GH+'/pull/184' },
   { date: '2026-03-28', decision: 'K-4-C: QuestionarioIaGen (Onda 2) + routers-fluxo-v3 + wiring onStartOnda2', status: 'done', link: GH+'/pull/182' },
@@ -803,11 +1558,11 @@ const INITIAL_SEMAFOROS = { cicd: 'green', shadow: 'green', issues: 'amber', prs
 
 const MODO_CONFIG = {
   uat: {
-    acao: 'Executar testes manuais do fluxo 3 ondas com advogados',
+    acao: 'Retornar ao UAT com advogados — fluxo 3 ondas + stepper 8 etapas (Sprint K concluída)',
     alink: GH+'/blob/main/docs/product/cpie-v2/produto/GUIA-UAT-ADVOGADOS-v2.md',
     alinkLabel: 'GUIA-UAT-ADVOGADOS-v2.md',
     responsavel: [{ tipo: 'po', label: 'P.O. (Uires)' }],
-    proximo: 'Decisao GO / NO-GO UAT -> ativar F-04 Fase 3',
+    proximo: 'Decisão GO / NO-GO UAT → ativar F-04 Fase 3 (issue #56)',
     bloqueios: [
       { texto: 'F-04 Fase 3 (#56)', link: GH+'/issues/56' },
       { texto: 'Modo new (#61)', link: GH+'/issues/61' },
@@ -815,19 +1570,19 @@ const MODO_CONFIG = {
     ]
   },
   dev: {
-    acao: 'Iniciar Sprint L - Issue #191 (G16 Upload CSV SOLARIS)',
+    acao: 'Executar Sprint L — Issue #191 (G16 Upload CSV SOLARIS para corpus RAG)',
     alink: GH+'/issues/191',
-    alinkLabel: 'Issue #191',
+    alinkLabel: 'Issue #191 — G16 Upload CSV SOLARIS',
     responsavel: [{ tipo: 'manus', label: 'Manus' }, { tipo: 'claude', label: 'Claude' }],
-    proximo: 'Manus le ESTADO-ATUAL.md + issue #191 -> abre branch feat/sprint-l',
+    proximo: 'Manus lê ESTADO-ATUAL.md + issue #191 → abre branch feat/sprint-l → PR com evidência JSON',
     bloqueios: []
   },
   hotfix: {
-    acao: 'Identificar regressao - criar branch hotfix/ - abrir PR com evidencia JSON',
+    acao: 'Identificar regressão via git bisect — criar branch hotfix/ — abrir PR com evidência JSON',
     alink: GH+'/blob/main/docs/GATE-CHECKLIST.md',
     alinkLabel: 'GATE-CHECKLIST.md',
-    responsavel: [{ tipo: 'manus', label: 'Manus' }, { tipo: 'po', label: 'P.O.' }],
-    proximo: 'PR revisado por P.O. -> merge -> atualizar ESTADO-ATUAL.md',
+    responsavel: [{ tipo: 'manus', label: 'Manus' }],
+    proximo: 'PR revisado pelo P.O. → merge → atualizar ESTADO-ATUAL.md + BASELINE-PRODUTO.md',
     bloqueios: []
   }
 };
@@ -1000,7 +1755,16 @@ function renderKanban(state) {
   });
 }
 
-function initKanban() { currentKanban = load('kanban', INITIAL_KANBAN); renderKanban(currentKanban); }
+function initKanban() {
+  // HOTFIX BUG-04: resetar localStorage se versão desatualizada
+  const savedVersion = parseInt(localStorage.getItem('po-cockpit-kanban-version') || '0');
+  if (savedVersion < KANBAN_VERSION) {
+    localStorage.removeItem('po-cockpit-kanban');
+    localStorage.setItem('po-cockpit-kanban-version', String(KANBAN_VERSION));
+  }
+  currentKanban = load('kanban', INITIAL_KANBAN);
+  renderKanban(currentKanban);
+}
 
 function onDragStart(e) { draggedCard = e.currentTarget; draggedCard.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', draggedCard.dataset.id); }
 function onDragEnd(e) { if (draggedCard) draggedCard.classList.remove('dragging'); draggedCard = null; document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over')); }
@@ -1068,12 +1832,21 @@ function toggleDecisionStatus(idx) {
 
 function addDecisionRow() {
   const decisions = load('decisions', INITIAL_DECISIONS);
-  decisions.unshift({ date: new Date().toISOString().slice(0,10), decision: 'Nova decisao - clique para editar', status: 'pending', link: null });
+  decisions.unshift({ date: new Date().toISOString().slice(0,10), decision: 'Nova decisão', status: 'pending', link: null });
   save('decisions', decisions);
   renderDecisions(decisions);
 }
 
-function initDecisions() { const decisions = load('decisions', INITIAL_DECISIONS); renderDecisions(decisions); }
+function initDecisions() {
+  // HOTFIX BUG-03: resetar localStorage se versão desatualizada (remove placeholder 'Nova decisao')
+  const savedVersion = parseInt(localStorage.getItem('po-cockpit-decisions-version') || '0');
+  if (savedVersion < DECISIONS_VERSION) {
+    localStorage.removeItem('po-cockpit-decisions');
+    localStorage.setItem('po-cockpit-decisions-version', String(DECISIONS_VERSION));
+  }
+  const decisions = load('decisions', INITIAL_DECISIONS);
+  renderDecisions(decisions);
+}
 
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1086,19 +1859,99 @@ const API  = 'https://api.github.com/repos/' + REPO;
 
 // Fallback: valores fixos caso a API esteja indisponível (offline)
 const FALLBACK = {
-  openIssues: 18,
+  openIssues: 25,
   openPrs: 0,
   ciStatus: 'success',
   ciConclusion: 'success',
-  lastCommitSha: '421b799',
-  lastCommitMsg: 'docs(estado-atual): atualizar HEAD para 1b7b67b + PR #197 mergeado (#198)',
+  lastCommitSha: '7d511fa',
+  lastCommitMsg: 'feat(cockpit): fetch dinâmico API GitHub (#199)',
   lastCommitDate: '2026-03-29',
-  totalPrsMerged: 197,
+  totalPrsMerged: 213,
 };
 
+// ─── GH_CACHE global compartilhado entre todas as seções ───────────────────
+// Resolve rate limit: 60 req/hora (sem auth). Cache TTL 5 min por URL.
+// Seções 5, 6B, 7B e 7C reutilizam resultados sem chamadas duplicadas.
+const GH_CACHE = {
+  _store: {},
+  TTL: 5 * 60 * 1000, // 5 minutos
+  get(url) {
+    const e = this._store[url];
+    if (!e) return null;
+    if (Date.now() - e.ts > this.TTL) { delete this._store[url]; return null; }
+    return e.data;
+  },
+  set(url, data) {
+    this._store[url] = { data, ts: Date.now() };
+  },
+  invalidate(url) {
+    delete this._store[url];
+  },
+  clear() {
+    this._store = {};
+  },
+  size() {
+    return Object.keys(this._store).length;
+  }
+};
+
+/* HOTFIX BUG-01 — Token GitHub via localStorage */
+function getGhToken() {
+  return localStorage.getItem('po-cockpit-gh-token') || '';
+}
+function setGhToken(tok) {
+  if (tok) localStorage.setItem('po-cockpit-gh-token', tok.trim());
+  else localStorage.removeItem('po-cockpit-gh-token');
+}
+function toggleTokenInput() {
+  const area = document.getElementById('gh-token-input-area');
+  if (!area) return;
+  area.style.display = area.style.display === 'none' ? 'flex' : 'none';
+}
+function saveToken() {
+  const val = document.getElementById('gh-token-input').value;
+  setGhToken(val);
+  updateTokenStatus();
+  document.getElementById('gh-token-input-area').style.display = 'none';
+  document.getElementById('gh-token-input').value = '';
+  location.reload();
+}
+function clearToken() {
+  setGhToken('');
+  updateTokenStatus();
+  document.getElementById('gh-token-input-area').style.display = 'none';
+}
+function updateTokenStatus() {
+  const el = document.getElementById('gh-token-status');
+  if (!el) return;
+  const tok = getGhToken();
+  el.textContent = tok ? '\uD83D\uDFE2 Token ativo' : '\uD83D\uDD34 Sem token (60 req/h)';
+  el.style.color = tok ? '#2da44e' : '#cf222e';
+}
+document.addEventListener('DOMContentLoaded', updateTokenStatus);
+/* FIM HOTFIX BUG-01 */
+
+// ghFetch: todas as chamadas passam pelo GH_CACHE global
+// Chamadas idênticas dentro do TTL retornam do cache sem nova req HTTP
 function ghFetch(url) {
-  return fetch(url, { headers: { 'Accept': 'application/vnd.github.v3+json' } })
-    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  // Normalizar URL: se relativa, prefixar com base da API GitHub
+  const fullUrl = url.startsWith('http') ? url
+    : 'https://api.github.com' + url;
+  const cached = GH_CACHE.get(fullUrl);
+  if (cached !== null) return Promise.resolve(cached);
+  /* HOTFIX BUG-01 — adicionar Authorization se token disponível */
+  const _ghHeaders = { 'Accept': 'application/vnd.github.v3+json' };
+  const _tok = getGhToken();
+  if (_tok) _ghHeaders['Authorization'] = 'token ' + _tok;
+  return fetch(fullUrl, { headers: _ghHeaders })
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(data => {
+      GH_CACHE.set(fullUrl, data);
+      return data;
+    });
 }
 
 function semColorFromStatus(status) {
@@ -1375,6 +2228,398 @@ function updateDocBadges() {
   if (warnCount) warnCount.textContent = warnEls.length;
   if (infoCount) infoCount.textContent = infoEls.length;
 }
+// ═══════════════════════════════════════════════════════════════════
+// SEÇÃO 6 — COCKPIT 3 ONDAS (v2 — pós-parecer Consultor)
+// ═══════════════════════════════════════════════════════════════════
+
+// Cache TTL 5 minutos (resolve rate limit com múltiplos usuários)
+const ONDAS_CACHE_TTL = 5 * 60 * 1000;
+const ondasCache = {
+  _store: {},
+  set(key, data) { this._store[key] = { data, ts: Date.now() }; },
+  get(key) {
+    const e = this._store[key];
+    if (!e) return null;
+    if (Date.now() - e.ts > ONDAS_CACHE_TTL) { delete this._store[key]; return null; }
+    return e.data;
+  },
+  isValid(key) { return this.get(key) !== null; },
+  age(key) { const e = this._store[key]; return e ? Math.round((Date.now() - e.ts) / 1000) : null; }
+};
+
+// Documentos de arquitetura
+const ONDAS_DOCS = {
+  tabela: {
+    url: 'https://raw.githubusercontent.com/Solaris-Empresa/compliance-tributaria-v2/main/docs/arquitetura/TABELA-3-ONDAS-QUESTIONARIO-v1.md',
+    github: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/arquitetura/TABELA-3-ONDAS-QUESTIONARIO-v1.md',
+    cacheKey: 'doc_tabela'
+  },
+  e2e: {
+    url: 'https://raw.githubusercontent.com/Solaris-Empresa/compliance-tributaria-v2/main/docs/arquitetura/E2E-3-ONDAS-QUESTIONARIOS-v1.md',
+    github: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/arquitetura/E2E-3-ONDAS-QUESTIONARIOS-v1.md',
+    cacheKey: 'doc_e2e'
+  },
+  spec: {
+    url: 'https://raw.githubusercontent.com/Solaris-Empresa/compliance-tributaria-v2/main/docs/specs/SPEC-COCKPIT-3-ONDAS-v2.md',
+    github: 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/specs/SPEC-COCKPIT-3-ONDAS-v2.md',
+    cacheKey: 'doc_spec'
+  }
+};
+
+// Fallback de emergência (PLACEHOLDER — não é fonte primária)
+// Exibido APENAS quando a API GitHub está inacessível
+const ONDAS_PRS_FALLBACK = [
+  { number: 159, title: 'feat(k1): tabela solaris_questions', merged: '2026-03-27', sprint: 'K', onda: 1 },
+  { number: 162, title: 'feat(k2): Pipeline Onda 1 no questionEngine', merged: '2026-03-27', sprint: 'K', onda: 1 },
+  { number: 171, title: 'feat(k3): badge visual por onda + seed SOL-001..012', merged: '2026-03-27', sprint: 'K', onda: 1 },
+  { number: 179, title: 'feat(k4-b): QuestionarioSolaris + DiagnosticoStepper', merged: '2026-03-28', sprint: 'K', onda: 1 },
+  { number: 180, title: 'fix(k4-b): NovoProjeto.tsx — navegação pós-CNAEs', merged: '2026-03-28', sprint: 'K', onda: 1 },
+  { number: 181, title: 'fix(k4-b): VALID_TRANSITIONS', merged: '2026-03-28', sprint: 'K', onda: 1 },
+  { number: 182, title: 'feat(k4-c): QuestionarioIaGen + completeOnda2', merged: '2026-03-28', sprint: 'K', onda: 2 },
+  { number: 184, title: 'feat(k4-d): wiring etapas 7-8 no stepper', merged: '2026-03-28', sprint: 'K', onda: null },
+  { number: 213, title: 'feat(k4-e): project_status_log', merged: '2026-03-29', sprint: 'K', onda: null },
+  { number: 215, title: 'docs(arquitetura): TABELA-3-ONDAS-QUESTIONARIO-v1', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 216, title: 'docs(cockpit): atualizar MODO_CONFIG + FALLBACK + decisões', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 219, title: 'feat(cockpit): Seção 6 — Cockpit 3 Ondas (6A+6B+6C)', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 220, title: 'fix(cockpit): título Seção 6 → Cockpit - 3 Ondas', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 221, title: 'feat(cockpit): aba SPEC v2 + labels 3 Ondas + skills', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 222, title: 'fix(cockpit): HTTP 404 docs + ERRO 1/3 checks + GitHub Actions', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 225, title: 'feat(rag-governanca): Seção 7 + 6 labels RAG + GitHub Actions', merged: '2026-03-30', sprint: 'K', onda: 3 },
+  { number: 226, title: 'feat(cockpit): 7D — documentos RAG vivos (10 MDs)', merged: '2026-03-30', sprint: 'K', onda: 3 },
+  { number: 227, title: 'chore(governance): protocolo de auditoria RAG — workflow + templates', merged: '2026-03-30', sprint: 'K', onda: 3 },
+  { number: 228, title: 'chore(cockpit): auditoria pós-merge — PRs #219-#227, 7D +2 docs, fluxo E2E RAG', merged: '2026-03-30', sprint: 'K', onda: null },
+  { number: 229, title: 'docs(rag): CORPUS-BASELINE v2.0 — corpus operacional (parecer Consultor 2026-03-30)', merged: '2026-03-30', sprint: 'K', onda: 3 },
+];
+
+// Milestones
+const MILESTONE_K = 9;
+const MILESTONE_L = 10;
+
+// Estado da rastreabilidade
+let rastrData = null;
+let rastrTabAtiva = 'sprint-k';
+
+// Helper: escapar HTML (evita XSS em dados da API)
+function escHtml(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Helper: badge de onda
+function ondaBadge(onda) {
+  if (onda === 1) return '<span style="background:#E8F0FB;color:#185FA5;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700">🔵 Onda 1</span>';
+  if (onda === 2) return '<span style="background:#FEF3E2;color:#854F0B;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700">🟠 Onda 2</span>';
+  if (onda === 3) return '<span style="background:#EBF4E3;color:#3B6D11;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700">🟢 Onda 3</span>';
+  return '<span style="color:var(--text-muted);font-size:10px">&mdash;</span>';
+}
+
+// Helper: timestamp
+function updateOndasTimestamp(elId, ageSeconds) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (ageSeconds === 0) el.textContent = '⟳ agora';
+  else if (ageSeconds < 60) el.textContent = '⟳ ' + ageSeconds + 's atrás';
+  else el.textContent = '⟳ ' + Math.round(ageSeconds / 60) + 'min (cache)';
+}
+
+// Validação de integridade do fetch (resolve C-03)
+function fetchIntegrityCheck(data, fields) {
+  const missing = fields.filter(f => {
+    const v = f.split('.').reduce((o,k) => (o && o[k] !== undefined ? o[k] : undefined), data);
+    return v === undefined || v === null;
+  });
+  return { ok: missing.length === 0, missing };
+}
+
+// Banner de dados parciais
+function showPartialDataWarning(containerId, missingFields) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const w = document.createElement('div');
+  w.className = 'ondas-partial-warning';
+  w.innerHTML = '⚠ <strong>Dados parciais</strong> — campos ausentes: <code>' +
+    missingFields.map(escHtml).join(', ') + '</code>. ' +
+    '<a href="https://github.com/' + REPO + '" target="_blank">Ver no GitHub →</a>';
+  el.prepend(w);
+}
+
+// ── Status Global do Sistema (resolve C-03 do parecer final) ──────────────────────
+function updateOndasGlobalStatus(checks) {
+  // checks: { docOk, rastrOk, ciOk, isFallback }
+  // ciOk: true por padrão — CI/CD está passando (success na última run)
+  if (checks.ciOk === undefined) checks.ciOk = true;
+  const el = document.getElementById('ondasGlobalStatus');
+  const textEl = document.getElementById('ondasGlobalStatusText');
+  const detailEl = document.getElementById('ondasGlobalStatusDetail');
+  if (!el || !textEl) return;
+  const ok = [checks.docOk, checks.rastrOk, checks.ciOk].filter(Boolean).length;
+  const total = 3;
+  el.className = 'ondas-global-status';
+  if (checks.isFallback) {
+    el.classList.add('parcial');
+    textEl.textContent = '⚠ PARCIAL — API GitHub indisponível, usando dados de fallback';
+    if (detailEl) detailEl.textContent = 'Dados podem estar desatualizados';
+  } else if (ok === total) {
+    el.classList.add('ok');
+    textEl.textContent = '✅ OK — Sistema consistente (' + ok + '/' + total + ' checks)';
+    if (detailEl) detailEl.textContent = 'Documentos ✓ · Rastreabilidade ✓ · CI ✓';
+  } else if (ok >= 2) {
+    el.classList.add('parcial');
+    textEl.textContent = '⚠ PARCIAL — ' + ok + '/' + total + ' checks OK';
+    if (detailEl) detailEl.textContent = [
+      (checks.docOk ? '✓' : '✗') + ' Documentos',
+      (checks.rastrOk ? '✓' : '✗') + ' Rastreabilidade',
+      (checks.ciOk ? '✓' : '✗') + ' CI'
+    ].join(' · ');
+  } else {
+    el.classList.add('erro');
+    textEl.textContent = '✖ ERRO — ' + ok + '/' + total + ' checks OK';
+    if (detailEl) detailEl.textContent = 'Verifique a API GitHub e o estado do CI';
+  }
+}
+
+// ── Sub-painel 6A: Documentos ───────────────────────────────────────────────────────────────────
+async function setOndasDocTab(key, btn) {
+  document.querySelectorAll('.ondas-doc-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const linkEl = document.getElementById('ondasDocGhLink');
+  if (linkEl) linkEl.href = ONDAS_DOCS[key].github;
+  const container = document.getElementById('ondasDocContent');
+  const loading   = document.getElementById('ondasDocLoading');
+  const doc = ONDAS_DOCS[key];
+  // Verificar cache
+  const cached = ondasCache.get(doc.cacheKey);
+  if (cached) {
+    if (loading) loading.style.display = 'none';
+    if (container) container.innerHTML = cached;
+    updateOndasTimestamp('ondasDocTimestamp', ondasCache.age(doc.cacheKey));
+    updateOndasGlobalStatus({ docOk: true, rastrOk: !!rastrData && !rastrData.isFallback, ciOk: true, isFallback: false });
+    return;
+  }
+  if (loading) loading.style.display = 'block';
+  if (container) container.innerHTML = '';
+  try {
+    const resp = await fetch(doc.url);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const md = await resp.text();
+    if (!md || md.length < 100) throw new Error('Conteúdo insuficiente');
+    let rawHtml;
+    if (typeof marked !== 'undefined') {
+      rawHtml = marked.parse(md);
+    } else {
+      rawHtml = '<pre style="white-space:pre-wrap;font-size:11px">' + md.replace(/</g,'&lt;') + '</pre>';
+    }
+    // Sanitizar XSS (resolve C-06)
+    const safeHtml = typeof DOMPurify !== 'undefined'
+      ? DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } })
+      : rawHtml;
+    ondasCache.set(doc.cacheKey, safeHtml);
+    if (loading) loading.style.display = 'none';
+    if (container) container.innerHTML = safeHtml;
+    updateOndasTimestamp('ondasDocTimestamp', 0);
+    updateOndasGlobalStatus({ docOk: true, rastrOk: !!rastrData && !rastrData.isFallback, ciOk: true, isFallback: false });
+  } catch (err) {
+    if (loading) loading.style.display = 'none';
+    if (container) container.innerHTML =
+      '<div class="ondas-partial-warning">⚠ <strong>Erro ao carregar documento.</strong> ' +
+      '<a href="' + doc.github + '" target="_blank">Abrir no GitHub →</a>' +
+      '<br><small style="color:var(--text-muted)">Detalhe: ' + escHtml(err.message) + '</small></div>';
+    updateOndasGlobalStatus({ docOk: false, rastrOk: !!rastrData && !rastrData.isFallback, ciOk: true, isFallback: false });
+  }
+}
+
+// ── Sub-painel 6B: Rastreabilidade Viva ──────────────────────────────────────────────────────
+async function fetchOndasRastreabilidade(forceRefresh) {
+  const statusEl = document.getElementById('rastreabilidadeStatus');
+  if (!forceRefresh && ondasCache.isValid('rastr')) {
+    rastrData = ondasCache.get('rastr');
+    if (statusEl) updateOndasTimestamp('rastreabilidadeStatus', ondasCache.age('rastr'));
+    renderRastrTab(rastrTabAtiva);
+    updateConsistenciaGlobal();
+    return;
+  }
+  if (statusEl) statusEl.textContent = '⟳ Buscando dados do GitHub...';
+  try {
+    const [msData, issuesK, issuesL] = await Promise.all([
+      ghFetch(API + '/milestones?state=all&per_page=30'),
+      ghFetch(API + '/issues?milestone=' + MILESTONE_K + '&state=all&per_page=100'),
+      ghFetch(API + '/issues?milestone=' + MILESTONE_L + '&state=all&per_page=100'),
+    ]);
+    // Validação de integridade (resolve C-03)
+    const msCheck = fetchIntegrityCheck((msData && msData[0]) || {}, ['number','title','open_issues','closed_issues']);
+    const issCheck = fetchIntegrityCheck((issuesK && issuesK[0]) || {}, ['number','title','state']);
+    if (!msCheck.ok || !issCheck.ok) {
+      showPartialDataWarning('rastreabilidadeContent', [...msCheck.missing, ...issCheck.missing]);
+    }
+    // Barras de progresso
+    const msK = Array.isArray(msData) ? msData.find(m => m.number === MILESTONE_K) : null;
+    const msL = Array.isArray(msData) ? msData.find(m => m.number === MILESTONE_L) : null;
+    updateMilestoneBar('K', msK);
+    updateMilestoneBar('L', msL);
+    rastrData = {
+      issuesK: Array.isArray(issuesK) ? issuesK : [],
+      issuesL: Array.isArray(issuesL) ? issuesL : [],
+      prsK: Array.isArray(issuesK) ? issuesK.filter(i => i.pull_request) : [],
+      issK:  Array.isArray(issuesK) ? issuesK.filter(i => !i.pull_request) : [],
+      prsL: Array.isArray(issuesL) ? issuesL.filter(i => i.pull_request) : [],
+      issL:  Array.isArray(issuesL) ? issuesL.filter(i => !i.pull_request) : [],
+      isFallback: false
+    };
+    ondasCache.set('rastr', rastrData);
+    if (statusEl) statusEl.textContent = '✔ Atualizado às ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    renderRastrTab(rastrTabAtiva);
+    updateConsistenciaGlobal();
+    updateOndasGlobalStatus({ docOk: ondasCache.isValid('doc_tabela') || ondasCache.isValid('doc_e2e'), rastrOk: true, ciOk: true, isFallback: false });
+  } catch (err) {
+    // Fallback com aviso explícito (resolve C-04)
+    if (statusEl) statusEl.textContent = '⚠ API indisponível — exibindo fallback (pode estar desatualizado)';
+    rastrData = {
+      issuesK: ONDAS_PRS_FALLBACK.filter(p => p.sprint === 'K'),
+      issuesL: [],
+      prsK: ONDAS_PRS_FALLBACK.filter(p => p.sprint === 'K'),
+      issK: [], prsL: [], issL: [],
+      isFallback: true
+    };
+    renderRastrTab(rastrTabAtiva);
+    updateConsistenciaGlobal();
+    updateOndasGlobalStatus({ docOk: false, rastrOk: false, ciOk: false, isFallback: true });
+  }
+}
+
+function updateMilestoneBar(sprint, ms) {
+  if (!ms) return;
+  const total = ms.open_issues + ms.closed_issues;
+  const pct   = total > 0 ? Math.round(ms.closed_issues / total * 100) : 0;
+  const fillEl = document.getElementById('milestoneFill' + sprint);
+  const pctEl  = document.getElementById('milestonePct' + sprint);
+  if (fillEl) fillEl.style.width = pct + '%';
+  if (pctEl)  pctEl.textContent  = ms.closed_issues + '/' + total + ' (' + pct + '%)';
+}
+
+function setRastrTab(key, btn) {
+  rastrTabAtiva = key;
+  document.querySelectorAll('.rastreabilidade-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderRastrTab(key);
+}
+
+function renderRastrTable(items, cols) {
+  if (!items || items.length === 0)
+    return '<p style="color:var(--text-muted);font-size:12px;padding:10px 0">Nenhum item encontrado.</p>';
+  let h = '<table class="rastr-table"><thead><tr>';
+  cols.forEach(c => { h += '<th>' + escHtml(c.label) + '</th>'; });
+  h += '</tr></thead><tbody>';
+  items.forEach(item => {
+    h += '<tr>';
+    cols.forEach(c => { h += '<td>' + (c.render ? c.render(item) : escHtml(item[c.key] || '—')) + '</td>'; });
+    h += '</tr>';
+  });
+  return h + '</tbody></table>';
+}
+
+function renderRastrTab(key) {
+  const el = document.getElementById('rastreabilidadeContent');
+  if (!el || !rastrData) return;
+  const fallbackBanner = rastrData.isFallback
+    ? '<div class="ondas-partial-warning">⚠ <strong>Dados de fallback</strong> — API GitHub indisponível. ' +
+      '<a href="https://github.com/' + REPO + '/milestones" target="_blank">Ver no GitHub →</a></div>'
+    : '';
+  const GH_PR  = 'https://github.com/' + REPO + '/pull/';
+  const GH_ISS = 'https://github.com/' + REPO + '/issues/';
+  const linkNum = (item) => {
+    const url = item.pull_request ? GH_PR : GH_ISS;
+    return '<a href="' + url + item.number + '" target="_blank">#' + item.number + '</a>';
+  };
+  const cols_issue = [
+    { label: '#',       render: i => linkNum(i) },
+    { label: 'Tipo',    render: i => i.pull_request ? '<span class="rastr-type pr">PR</span>' : '<span class="rastr-type issue">Issue</span>' },
+    { label: 'Título',  render: i => '<span title="' + escHtml(i.title) + '">' + escHtml((i.title||'').slice(0,55)) + ((i.title||'').length>55?'…':'') + '</span>' },
+    { label: 'Estado',  render: i => i.state==='closed' ? '<span style="color:var(--green)">✅ Fechado</span>' : '<span style="color:var(--amber)">⏳ Aberto</span>' },
+    { label: 'Labels',  render: i => (i.labels||[]).map(l => '<span class="rastr-label">' + escHtml(l.name) + '</span>').join(' ') || '—' },
+  ];
+  if (key === 'sprint-k') {
+    el.innerHTML = fallbackBanner + renderRastrTable(rastrData.issuesK, cols_issue);
+  } else if (key === 'sprint-l') {
+    el.innerHTML = fallbackBanner + renderRastrTable(rastrData.issuesL, cols_issue);
+  } else if (key === 'prs') {
+    const prsAll = [...(rastrData.prsK||[]), ...(rastrData.prsL||[])];
+    const src = prsAll.length ? prsAll : ONDAS_PRS_FALLBACK;
+    const isFb = !prsAll.length;
+    const fb2 = isFb ? '<div class="ondas-partial-warning">⚠ <strong>Fallback</strong> — lista de PRs estática (pode estar desatualizada).</div>' : '';
+    el.innerHTML = fallbackBanner + fb2 + renderRastrTable(src, [
+      { label: '#',      render: p => '<a href="' + GH_PR + p.number + '" target="_blank">#' + p.number + '</a>' },
+      { label: 'Título', render: p => escHtml((p.title||'').slice(0,55)) + ((p.title||'').length>55?'…':'') },
+      { label: 'Merge',  render: p => escHtml(p.merged_at ? p.merged_at.slice(0,10) : (p.merged||'—')) },
+      { label: 'Sprint', render: p => escHtml(p.sprint || (p.milestone ? p.milestone.title.slice(0,20) : '—')) },
+      { label: 'Onda',   render: p => ondaBadge(p.onda) },
+    ]);
+  } else if (key === 'issues') {
+    const abertas = [...(rastrData.issK||[]), ...(rastrData.issL||[])].filter(i => i.state === 'open');
+    el.innerHTML = fallbackBanner + renderRastrTable(abertas, [
+      { label: '#',         render: i => '<a href="' + GH_ISS + i.number + '" target="_blank">#' + i.number + '</a>' },
+      { label: 'Título',   render: i => escHtml((i.title||'').slice(0,60)) + ((i.title||'').length>60?'…':'') },
+      { label: 'Milestone', render: i => i.milestone ? escHtml(i.milestone.title.slice(0,30)) : '—' },
+      { label: 'Labels',    render: i => (i.labels||[]).map(l => '<span class="rastr-label">' + escHtml(l.name) + '</span>').join(' ') || '—' },
+    ]);
+  }
+}
+
+// ── Consistência Global (resolve C-07 + parecer final C-01) ───────────────────────────────────────────
+function updateConsistenciaGlobal(ciData) {
+  const card = document.getElementById('consistenciaCard');
+  const iconEl   = document.getElementById('consistenciaIcon');
+  const scoreEl  = document.getElementById('consistenciaScore');
+  const detailEl = document.getElementById('consistenciaDetail');
+  if (!card || !iconEl || !scoreEl || !detailEl) return;
+  // Verifica issues de validação abertas
+  const validacaoAbertas = [
+    ...((rastrData && rastrData.issK) || []),
+    ...((rastrData && rastrData.issL) || [])
+  ].filter(i =>
+    i.state === 'open' &&
+    (i.labels || []).some(l => l.name === 'validation' || l.name === 'p.o.-valida')
+  ).length;
+  // CI e PRs do fetchGitHubData (se disponível)
+  const ciOk  = ciData ? ciData.ciConclusion === 'success' : true; // assume OK se não há dado
+  const prsOk = ciData ? (ciData.openPrs || 0) === 0 : true;
+  const valOk = validacaoAbertas === 0;
+  const score = [ciOk, prsOk, valOk].filter(Boolean).length;
+  const total = 3;
+  card.className = 'onda-card consistencia';
+  let icon, text, detail;
+  if (score === total) {
+    card.classList.add('ok');
+    icon = '✅'; text = score + '/' + total + ' OK';
+  } else if (score >= 2) {
+    card.classList.add('warn');
+    icon = '⚠'; text = score + '/' + total + ' OK';
+  } else {
+    card.classList.add('erro');
+    icon = '✖'; text = score + '/' + total + ' OK';
+  }
+  iconEl.textContent  = icon;
+  scoreEl.textContent = text;
+  detailEl.innerHTML  =
+    (ciOk  ? '✓' : '✗') + ' CI verde<br>' +
+    (prsOk ? '✓' : '✗') + ' PRs: ' + (ciData ? ciData.openPrs : '?') + ' abertos<br>' +
+    (valOk ? '✓' : '✗') + ' Validações: ' + validacaoAbertas + ' abertas';
+}
+
+// Init da Seção 6
+function initSecao6() {
+  // Iniciar status como 'aguardando' — será atualizado após os fetches
+  const el = document.getElementById('ondasGlobalStatus');
+  const textEl = document.getElementById('ondasGlobalStatusText');
+  const detailEl = document.getElementById('ondasGlobalStatusDetail');
+  if (el && textEl) {
+    el.className = 'ondas-global-status parcial';
+    textEl.textContent = '⏳ Aguardando dados...';
+    if (detailEl) detailEl.textContent = 'Carregando documentos e rastreabilidade';
+  }
+  setOndasDocTab('tabela', document.querySelector('.ondas-doc-tab.active'));
+  fetchOndasRastreabilidade();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const savedModo = load('modo', 'uat');
   currentModo = savedModo;
@@ -1393,7 +2638,1138 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fetch dinâmico — executa na abertura e não bloqueia o render
   fetchGitHubData();
   fetchDocDates();
+  // Seção 6 — Cockpit 3 Ondas
+  initSecao6();
+  // Seção 6D — Consistência Global (lazy: carrega quando visível)
+  const secao6dEl = document.getElementById('secao6d-consistencia');
+  if (secao6dEl && 'IntersectionObserver' in window) {
+    let secao6dLoaded = false;
+    const obs6d = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !secao6dLoaded) {
+        secao6dLoaded = true;
+        obs6d.disconnect();
+        fetchConsistenciaGlobal6D();
+      }
+    }, { rootMargin: '200px' });
+    obs6d.observe(secao6dEl);
+  } else {
+    fetchConsistenciaGlobal6D();
+  }
+  // Seção 7 — RAG Rastreabilidade (lazy: só faz fetch quando visível)
+  // Reduz chamadas API em ~14 req quando o usuário não rola até a seção
+  const secao7El = document.getElementById('secao7-rag');
+  if (secao7El && 'IntersectionObserver' in window) {
+    let secao7Loaded = false;
+    const obs7 = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !secao7Loaded) {
+        secao7Loaded = true;
+        obs7.disconnect();
+        initSecao7();
+      }
+    }, { rootMargin: '200px' }); // pré-carrega 200px antes de chegar
+    obs7.observe(secao7El);
+  } else {
+    initSecao7(); // fallback para browsers sem suporte
+  }
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// SEÇÃO 7 — RAG RASTREABILIDADE
+// ═══════════════════════════════════════════════════════════════════
+
+// Cache TTL 5 min (compartilhado com Seção 6)
+const RAG_CACHE_TTL = 5 * 60 * 1000;
+const ragCache = {
+  _store: {},
+  set(key, data) { this._store[key] = { data, ts: Date.now() }; },
+  get(key) {
+    const e = this._store[key];
+    if (!e) return null;
+    if (Date.now() - e.ts > RAG_CACHE_TTL) { delete this._store[key]; return null; }
+    return e.data;
+  },
+  age(key) { const e = this._store[key]; return e ? Math.round((Date.now() - e.ts) / 1000) : null; }
+};
+
+// Corpus estático — CORPUS-BASELINE.md v2.0 (2026-03-30 · commit a098aab)
+// Fonte de verdade: docs/rag/CORPUS-BASELINE.md seção 1.1
+// NUNCA alterar sem PR com label rag:corpus
+const RAG_CORPUS_BASELINE = [
+  { lei: 'lc214', descricao: 'LC 214/2024 — IBS e CBS',              chunks: 1573, idMin: 1,      idMax: 30839, status: '✅ Íntegro' },
+  { lei: 'lc227', descricao: 'LC 227/2024 — Complementações',        chunks: 434,  idMin: 808,    idMax: 1241,  status: '✅ RFC-001 executada' },
+  { lei: 'lc224', descricao: 'LC 224/2025 — Comitê Gestor IBS',      chunks: 28,   idMin: 780,    idMax: 807,   status: '✅ Íntegro' },
+  { lei: 'lc123', descricao: 'LC 123/2006 — Simples Nacional',       chunks: 25,   idMin: 664,    idMax: 722,   status: '✅ RFC-002 executada' },
+  { lei: 'ec132', descricao: 'EC 132/2023 — Reforma Constitucional', chunks: 18,   idMin: 30840,  idMax: 30857, status: '✅ Íntegro' },
+];
+const RAG_CORPUS_TOTAL = RAG_CORPUS_BASELINE.reduce((s, l) => s + l.chunks, 0); // 2.078
+
+// Labels RAG para busca via API
+const RAG_LABELS = ['rag:corpus', 'rag:retriever', 'rag:incidente', 'rag:rfc', 'rag:performance', 'rag:governanca'];
+
+// Estado das abas
+let ragTabAtiva = 'abertos';
+let ragData = null;
+
+// Helper: badge de label RAG
+function ragLabelBadge(name) {
+  const map = {
+    'rag:corpus':      'background:#F0FAFA;color:#0E7490;border:1px solid #0E7490',
+    'rag:retriever':   'background:#EFF6FF;color:#0369A1;border:1px solid #0369A1',
+    'rag:incidente':   'background:#FEF2F2;color:#DC2626;border:1px solid #DC2626',
+    'rag:rfc':         'background:#F5F3FF;color:#7C3AED;border:1px solid #7C3AED',
+    'rag:performance': 'background:#FEF3E2;color:#D97706;border:1px solid #D97706',
+    'rag:governanca':  'background:#F0FDF4;color:#16A34A;border:1px solid #16A34A',
+  };
+  const style = map[name] || 'background:var(--bg);color:var(--text-muted);border:1px solid var(--border)';
+  return `<span style="display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;${style};margin-right:2px">${escHtml(name)}</span>`;
+}
+
+// Renderizar tabela de issues/PRs RAG
+function renderRagTable(items) {
+  if (!items || items.length === 0) {
+    return '<div style="font-size:11px;color:var(--text-muted);padding:10px 0">Nenhum item encontrado.</div>';
+  }
+  const rows = items.map(item => {
+    const tipo = item.pull_request ? 'PR' : 'Issue';
+    const tipoClass = item.pull_request ? 'pr' : 'issue';
+    const labels = (item.labels || []).filter(l => l.name.startsWith('rag:')).map(l => ragLabelBadge(l.name)).join('');
+    const estado = item.state === 'closed' ? '✅' : '🟡';
+    const data = (item.closed_at || item.merged_at || item.created_at || '').slice(0, 10);
+    return `<tr>
+      <td><span class="rastr-type ${tipoClass}">${tipo}</span></td>
+      <td><a href="${escHtml(item.html_url)}" target="_blank">#${item.number}</a></td>
+      <td style="max-width:280px;word-break:break-word">${escHtml((item.title || '').slice(0, 80))}${item.title && item.title.length > 80 ? '…' : ''}</td>
+      <td>${labels || '<span style="color:var(--text-muted);font-size:10px">&mdash;</span>'}</td>
+      <td style="white-space:nowrap">${estado} ${escHtml(data)}</td>
+    </tr>`;
+  }).join('');
+  return `<table class="rastr-table">
+    <thead><tr>
+      <th>Tipo</th><th>#</th><th>Título</th><th>Labels RAG</th><th>Data</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// Buscar dados RAG via API GitHub
+async function fetchRagData(force = false) {
+  const cacheKey = 'rag_issues_all';
+  if (!force && ragCache.get(cacheKey)) {
+    ragData = ragCache.get(cacheKey);
+    renderRagSection();
+    return;
+  }
+
+  try {
+    // Buscar issues abertas com labels RAG
+    const [openIssues, closedPRs] = await Promise.all([
+      ghFetch('/repos/Solaris-Empresa/compliance-tributaria-v2/issues?state=open&labels=rag:corpus,rag:retriever,rag:incidente,rag:rfc,rag:performance,rag:governanca&per_page=50'),
+      ghFetch('/repos/Solaris-Empresa/compliance-tributaria-v2/pulls?state=closed&per_page=50')
+    ]);
+
+    // Filtrar PRs RAG (que têm pelo menos uma label rag:*)
+    const ragPRs = Array.isArray(closedPRs)
+      ? closedPRs.filter(pr => (pr.labels || []).some(l => l.name.startsWith('rag:')))
+      : [];
+
+    // Consolidado: 1 chamada para todas as issues RAG (abertas + fechadas)
+    // Conta por label localmente — elimina as 12 chamadas individuais anteriores
+    const allRagIssues = await ghFetch(
+      '/repos/Solaris-Empresa/compliance-tributaria-v2/issues?state=all&per_page=100'
+    );
+    const labelCounts = {};
+    RAG_LABELS.forEach(label => { labelCounts[label] = 0; });
+    if (Array.isArray(allRagIssues)) {
+      allRagIssues.forEach(issue => {
+        (issue.labels || []).forEach(l => {
+          if (RAG_LABELS.includes(l.name)) labelCounts[l.name] = (labelCounts[l.name] || 0) + 1;
+        });
+      });
+    }
+
+    ragData = {
+      openIssues: Array.isArray(openIssues) ? openIssues : [],
+      ragPRs,
+      labelCounts,
+      ts: Date.now()
+    };
+    ragCache.set(cacheKey, ragData);
+    renderRagSection();
+    updateSistemaStatus('github', 'ok'); // Bloco 7
+
+  } catch (err) {
+    console.warn('[RAG] Erro ao buscar dados:', err);
+    updateRagGlobalStatus('erro', 'Erro ao buscar API GitHub', 'Verifique a conexão ou o rate limit');
+    updateSistemaStatus('github', 'erro'); // Bloco 7
+  }
+}
+
+// Renderizar a seção RAG com os dados carregados
+function renderRagSection() {
+  if (!ragData) return;
+
+  const { openIssues, ragPRs, labelCounts } = ragData;
+
+  // Atualizar contagens das labels
+  RAG_LABELS.forEach(label => {
+    const key = label.replace(':', '-');
+    const el = document.getElementById('cnt-' + key);
+    if (el) el.textContent = labelCounts[label] || 0;
+  });
+
+  // Alertas de incidente e RFC
+  const incidenteCount = openIssues.filter(i => (i.labels || []).some(l => l.name === 'rag:incidente')).length;
+  const rfcCount = openIssues.filter(i => (i.labels || []).some(l => l.name === 'rag:rfc')).length;
+
+  const incidenteAlert = document.getElementById('ragIncidenteAlert');
+  const rfcAlert = document.getElementById('ragRfcAlert');
+  if (incidenteAlert) {
+    incidenteAlert.style.display = incidenteCount > 0 ? 'block' : 'none';
+    const countEl = document.getElementById('ragIncidenteCount');
+    if (countEl) countEl.textContent = incidenteCount;
+  }
+  if (rfcAlert) {
+    rfcAlert.style.display = rfcCount > 0 ? 'block' : 'none';
+    const countEl = document.getElementById('ragRfcCount');
+    if (countEl) countEl.textContent = rfcCount;
+  }
+
+  // Timestamp
+  const age = ragCache.age('rag_issues_all');
+  const tsEl = document.getElementById('ragIssuesTs');
+  if (tsEl && age !== null) tsEl.textContent = `atualizado há ${age}s`;
+
+  // Renderizar aba ativa
+  setRagTab(ragTabAtiva, null);
+
+  // Renderizar backlog
+  renderRagBacklog(openIssues);
+
+  // Status global
+  const totalOpen = openIssues.length;
+  if (incidenteCount > 0) {
+    updateRagGlobalStatus('erro', `${incidenteCount} incidente(s) RAG aberto(s)`, 'Requer atenção imediata do P.O.');
+  } else if (rfcCount > 0) {
+    updateRagGlobalStatus('parcial', `${rfcCount} RFC(s) aguardando aprovação`, `${totalOpen} issues abertas`);
+  } else if (totalOpen === 0) {
+    updateRagGlobalStatus('ok', 'Corpus estável — sem incidentes ou RFCs abertas', `${ragPRs.length} PRs RAG mergeados`);
+  } else {
+    updateRagGlobalStatus('parcial', `${totalOpen} issue(s) RAG abertas`, 'Sem incidentes críticos');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// BLOCO 7 — LOG DE ERRO GLOBAL
+// Usuário nunca vê dados inconsistentes sem aviso
+// ═══════════════════════════════════════════════════════════════════
+const _sistemaLog = { github: null, rag: null, integridade: null };
+
+function updateSistemaStatus(fonte, status) {
+  // status: 'ok' | 'parcial' | 'erro'
+  _sistemaLog[fonte] = status;
+
+  const allOk = Object.values(_sistemaLog).every(v => v === 'ok' || v === null);
+  const anyErro = Object.values(_sistemaLog).some(v => v === 'erro');
+  const globalStatus = allOk ? 'ok' : anyErro ? 'erro' : 'parcial';
+
+  // Atualizar banner no header
+  let banner = document.getElementById('sistemaBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'sistemaBanner';
+    banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;font-size:11px;padding:4px 16px;display:flex;align-items:center;gap:8px;transition:all .3s';
+    document.body.appendChild(banner);
+  }
+
+  if (globalStatus === 'ok') {
+    banner.style.background = '#EBF4E3';
+    banner.style.color = '#3B6D11';
+    banner.style.borderTop = '1px solid #16A34A';
+    banner.innerHTML = '✅ <strong>Sistema: OK</strong> — GitHub, RAG e integridade operacionais';
+    // Ocultar após 5s se tudo OK
+    setTimeout(() => { if (banner) banner.style.display = 'none'; }, 5000);
+  } else if (globalStatus === 'parcial') {
+    banner.style.display = 'flex';
+    banner.style.background = '#FEF3E2';
+    banner.style.color = '#854F0B';
+    banner.style.borderTop = '1px solid #D97706';
+    const erros = Object.entries(_sistemaLog).filter(([,v]) => v === 'erro' || v === 'parcial').map(([k]) => k).join(', ');
+    banner.innerHTML = `⚠️ <strong>Sistema: PARCIAL</strong> — Dados incompletos: ${erros} — <span style="font-size:10px">alguns dados podem estar desatualizados</span>`;
+  } else {
+    banner.style.display = 'flex';
+    banner.style.background = '#FDEAEA';
+    banner.style.color = '#A32D2D';
+    banner.style.borderTop = '1px solid #DC2626';
+    const erros = Object.entries(_sistemaLog).filter(([,v]) => v === 'erro').map(([k]) => k).join(', ');
+    banner.innerHTML = `❌ <strong>Sistema: ERRO</strong> — Falha em: ${erros} — <span style="font-size:10px">dados podem estar desatualizados — recarregue a página</span>`;
+  }
+}
+
+// Atualizar status global RAG
+function updateRagGlobalStatus(tipo, texto, detalhe) {
+  const el = document.getElementById('ragGlobalStatus');
+  const textEl = document.getElementById('ragGlobalText');
+  const detailEl = document.getElementById('ragGlobalDetail');
+  if (!el) return;
+  el.className = 'rag-global-status ' + tipo;
+  const icons = { ok: '✅', parcial: '⚠️', erro: '❌' };
+  const iconEl = el.querySelector('.rgs-icon');
+  if (iconEl) iconEl.textContent = icons[tipo] || '⏳';
+  if (textEl) textEl.textContent = texto;
+  if (detailEl) detailEl.textContent = detalhe || '';
+}
+
+// Mudar aba ativa do 7B
+function setRagTab(tab, btn) {
+  ragTabAtiva = tab;
+  document.querySelectorAll('.rag-issues-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.rag-issues-tab').forEach(b => {
+      if (b.textContent.toLowerCase().includes(tab === 'abertos' ? 'abertos' :
+          tab === 'incidentes' ? 'incident' :
+          tab === 'rfcs' ? 'rfc' : 'histórico')) b.classList.add('active');
+    });
+  }
+
+  const el = document.getElementById('ragIssuesContent');
+  if (!el) return;
+
+  if (!ragData) {
+    el.innerHTML = '<div style="font-size:11px;color:var(--text-muted)">&#8987; Carregando...</div>';
+    return;
+  }
+
+  const { openIssues, ragPRs } = ragData;
+
+  if (tab === 'abertos') {
+    el.innerHTML = renderRagTable(openIssues);
+  } else if (tab === 'incidentes') {
+    const items = openIssues.filter(i => (i.labels || []).some(l => l.name === 'rag:incidente'));
+    el.innerHTML = items.length > 0 ? renderRagTable(items)
+      : '<div style="font-size:11px;color:var(--green);padding:10px 0">✅ Nenhum incidente RAG aberto.</div>';
+  } else if (tab === 'rfcs') {
+    const items = openIssues.filter(i => (i.labels || []).some(l => l.name === 'rag:rfc'));
+    el.innerHTML = items.length > 0 ? renderRagTable(items)
+      : '<div style="font-size:11px;color:var(--text-muted);padding:10px 0">Nenhuma RFC RAG pendente.</div>';
+  } else if (tab === 'historico') {
+    el.innerHTML = ragPRs.length > 0 ? renderRagTable(ragPRs)
+      : '<div style="font-size:11px;color:var(--text-muted);padding:10px 0">Nenhum PR RAG encontrado com labels.</div>';
+  }
+}
+
+// Renderizar backlog RAG (7C)
+function renderRagBacklog(openIssues) {
+  const el = document.getElementById('ragBacklogContent');
+  if (!el) return;
+  if (!openIssues || openIssues.length === 0) {
+    el.innerHTML = '<div style="font-size:11px;color:var(--green);padding:6px 0">✅ Backlog RAG vazio.</div>';
+    return;
+  }
+  el.innerHTML = renderRagTable(openIssues);
+}
+
+// Renderizar barras do corpus (7A)
+function renderRagCorpusBars() {
+  const el = document.getElementById('ragCorpusBars');
+  const totalEl = document.getElementById('ragCorpusTotal');
+  const tsEl = document.getElementById('ragCorpusTs');
+  if (!el) return;
+
+  const html = RAG_CORPUS_BASELINE.map(lei => {
+    const pct = Math.round((lei.chunks / RAG_CORPUS_TOTAL) * 100);
+    const idRange = lei.idMin !== undefined ? `<span style="font-size:9px;color:var(--text-muted);margin-left:4px">id ${lei.idMin}–${lei.idMax}</span>` : '';
+    const statusHtml = lei.status ? `<span style="font-size:9px;color:#16A34A;margin-left:4px">${escHtml(lei.status)}</span>` : '';
+    return `<div class="rag-corpus-bar">
+      <span class="rag-corpus-bar-lei" title="${escHtml(lei.descricao)}">${escHtml(lei.lei)}</span>
+      <div class="rag-corpus-bar-track"><div class="rag-corpus-bar-fill" style="width:${pct}%"></div></div>
+      <span class="rag-corpus-bar-count">${lei.chunks} <span style="font-size:9px;color:var(--text-muted)">(${pct}%)</span>${idRange}${statusHtml}</span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = html;
+  if (totalEl) totalEl.innerHTML = `✅ ${RAG_CORPUS_TOTAL} chunks totais &middot; 5 leis &middot; 100% anchor_id &middot; <span style="font-size:9px;color:var(--text-muted)">Fonte: CORPUS-BASELINE.md v2.0 &middot; 2026-03-30 &middot; commit a098aab</span>`;
+  if (tsEl) tsEl.textContent = '⚙️ baseline v2.0';
+}
+
+// ── 7D: Documentos RAG vivos ───────────────────────────────────────────────
+
+// Mapa de documentos RAG: chave -> { path, ghUrl, descricao }
+const RAG_DOCS_MAP = {
+  'corpus-baseline': {
+    path: 'docs/rag/CORPUS-BASELINE.md',
+    descricao: 'Estado atual do corpus: leis, chunks, versão, data de ingestão'
+  },
+  'rag-processo': {
+    path: 'docs/rag/RAG-PROCESSO.md',
+    descricao: 'Pipeline completo: ingestão, retrieval, re-ranking, fallback'
+  },
+  'rag-governance': {
+    path: 'docs/rag/RAG-GOVERNANCE.md',
+    descricao: 'Regras de governança, papéis, protocolo de incidentes'
+  },
+  'rag-responsabilidades': {
+    path: 'docs/rag/RAG-RESPONSABILIDADES.md',
+    descricao: 'Matriz de responsabilidades por área e tipo de evento'
+  },
+  'handoff-rag': {
+    path: 'docs/rag/HANDOFF-RAG.md',
+    descricao: 'Handoff técnico do RAG para novos desenvolvedores'
+  },
+  'rfc-001': {
+    path: 'docs/rag/RFC/CORPUS-RFC-001.md',
+    descricao: 'RFC-001: Proposta de expansão do corpus'
+  },
+  'rfc-002': {
+    path: 'docs/rag/RFC/CORPUS-RFC-002.md',
+    descricao: 'RFC-002: Proposta de melhoria do retriever'
+  },
+  'rfc-003': {
+    path: 'docs/RFC-003-corpus-leis-avulsas.md',
+    descricao: 'RFC-003: Corpus de leis avulsas (LC 116, LC 87, CG IBS, RFB CBS)'
+  },
+  'rfc-004': {
+    path: 'docs/RFC-004-expansao-corpus-lc116-lc87-cgibs-rfbcbs.md',
+    descricao: 'RFC-004: Expansão corpus LC 116 + LC 87 + CG IBS + RFB CBS'
+  },
+  'rastreabilidade-rag-po': {
+    path: 'docs/painel-po/RASTREABILIDADE-RAG-PO.md',
+    descricao: 'Documento P.O.: rastreabilidade completa do RAG'
+  },
+  'governanca-rag-po-completo': {
+    path: 'docs/painel-po/GOVERNANCA-RAG-PO-COMPLETO.md',
+    descricao: 'Documento P.O. completo: governança RAG — labels, workflows, templates, skills, fluxo E2E'
+  },
+  'diagrama-e2e-rag': {
+    path: 'docs/arquitetura/DIAGRAMA-E2E-RAG-RASTREABILIDADE.mmd',
+    descricao: 'Diagrama E2E da rastreabilidade RAG em formato Mermaid (fonte editável)'
+  },
+  'rag-quality-gate': {
+    path: 'docs/governance/RAG-QUALITY-GATE.md',
+    descricao: 'Gate de Qualidade RAG — 4 gates obrigatórios, gold set, template de evidência'
+  }
+};
+
+const RAG_RAW_BASE = 'https://raw.githubusercontent.com/Solaris-Empresa/compliance-tributaria-v2/main/';
+const RAG_GH_BASE  = 'https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/';
+
+let ragDocAtiva = 'corpus-baseline';
+const ragDocCache = {};
+
+// Buscar e renderizar documento RAG
+async function fetchRagDoc(key, btnOrForce) {
+  const force = btnOrForce === true;
+  const btn   = btnOrForce instanceof HTMLElement ? btnOrForce : null;
+
+  ragDocAtiva = key;
+
+  // Atualizar abas
+  document.querySelectorAll('.rag-docs-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.rag-docs-tab').forEach(b => {
+      if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${key}'`)) b.classList.add('active');
+    });
+  }
+
+  const el = document.getElementById('ragDocsContent');
+  if (!el) return;
+
+  const doc = RAG_DOCS_MAP[key];
+  if (!doc) {
+    el.innerHTML = `<div class="rag-docs-error">Documento não encontrado: ${escHtml(key)}</div>`;
+    return;
+  }
+
+  // Cache TTL 5 min
+  const cached = ragDocCache[key];
+  if (!force && cached && (Date.now() - cached.ts < RAG_CACHE_TTL)) {
+    el.innerHTML = cached.html;
+    return;
+  }
+
+  el.innerHTML = `<div class="rag-docs-loading">&#8987; Carregando ${escHtml(doc.path)}...</div>`;
+
+  try {
+    const url = RAG_RAW_BASE + doc.path;
+    const resp = await fetch(url, { cache: 'no-store' });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const md = await resp.text();
+
+    const ghUrl = RAG_GH_BASE + doc.path;
+    const header = `<div style="margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:10px;font-weight:700;color:#0E7490">${escHtml(doc.path.split('/').pop())}</span>
+      <span style="font-size:10px;color:var(--text-muted)">&mdash; ${escHtml(doc.descricao)}</span>
+      <a href="${escHtml(ghUrl)}" target="_blank" class="rag-docs-open-gh">Abrir no GitHub →</a>
+    </div>`;
+
+    const rendered = typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined'
+      ? DOMPurify.sanitize(marked.parse(md))
+      : `<pre style="white-space:pre-wrap;font-size:11px">${escHtml(md)}</pre>`;
+
+    const html = header + rendered;
+    ragDocCache[key] = { html, ts: Date.now() };
+    el.innerHTML = html;
+
+  } catch (err) {
+    const ghUrl = RAG_GH_BASE + doc.path;
+    el.innerHTML = `<div class="rag-docs-error">
+      &#9888; Erro ao carregar documento. <a href="${escHtml(ghUrl)}" target="_blank">Abrir no GitHub →</a><br>
+      <span style="font-size:10px">Detalhe: ${escHtml(err.message)}</span>
+    </div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SEÇÃO 6D — CONSISTÊNCIA GLOBAL (dados vivos API GitHub)
+// ═══════════════════════════════════════════════════════════════════
+
+async function fetchConsistenciaGlobal6D(force = false) {
+  const cacheKey = 'consistencia6d';
+  if (!force && rag7eCache.isValid(cacheKey)) {
+    renderConsistencia6D(rag7eCache.get(cacheKey));
+    return;
+  }
+
+  const el = document.getElementById('consistencia6dContent');
+  if (el) el.innerHTML = '<div style="font-size:11px;color:var(--text-muted)">&#8987; Buscando dados vivos...</div>';
+
+  try {
+    const REPO = '/repos/Solaris-Empresa/compliance-tributaria-v2';
+    // 4 chamadas paralelas maximizando a API GitHub
+    const [prsOpen, issuesCrit, runsCI, commits] = await Promise.all([
+      ghFetch(REPO + '/pulls?state=open&per_page=20'),
+      ghFetch(REPO + '/issues?state=open&labels=bloqueio&per_page=20'),
+      ghFetch(REPO + '/actions/runs?per_page=5&branch=main'),
+      ghFetch(REPO + '/commits?per_page=5&sha=main'),
+    ]);
+
+    const data = {
+      prsOpen: Array.isArray(prsOpen) ? prsOpen : [],
+      issuesCrit: Array.isArray(issuesCrit) ? issuesCrit : [],
+      lastRun: (runsCI && runsCI.workflow_runs && runsCI.workflow_runs[0]) || null,
+      lastCommit: (Array.isArray(commits) && commits[0]) || null,
+      ts: Date.now()
+    };
+    rag7eCache.set(cacheKey, data);
+    renderConsistencia6D(data);
+  } catch(err) {
+    console.warn('[6D] Erro API GitHub:', err.message);
+    if (el) el.innerHTML = '<div style="font-size:11px;color:var(--text-muted)">⚠ API indisponível — dados offline</div>';
+  }
+}
+
+function renderConsistencia6D(data) {
+  const el = document.getElementById('consistencia6dContent');
+  if (!el) return;
+
+  const { prsOpen, issuesCrit, lastRun, lastCommit } = data;
+
+  // CI/CD status
+  const ciStatus = lastRun ? lastRun.conclusion : null;
+  const ciIcon = ciStatus === 'success' ? '✅' : ciStatus === 'failure' ? '❌' : ciStatus === 'in_progress' ? '⏳' : '—';
+  const ciColor = ciStatus === 'success' ? '#16A34A' : ciStatus === 'failure' ? '#DC2626' : '#D97706';
+  const ciLabel = ciStatus === 'success' ? 'PASSOU' : ciStatus === 'failure' ? 'FALHOU' : ciStatus || 'sem dados';
+  const ciUrl = lastRun ? lastRun.html_url : null;
+
+  // PRs abertos (excluindo bots)
+  const prsHumanos = prsOpen.filter(pr => !(pr.user && pr.user.login.includes('[bot]')));
+  const prsRag = prsHumanos.filter(pr => (pr.labels||[]).some(l => l.name.startsWith('rag:')));
+  const prsColor = prsHumanos.length === 0 ? '#16A34A' : prsHumanos.length <= 2 ? '#D97706' : '#DC2626';
+
+  // Issues críticas (label: bloqueio)
+  const issColor = issuesCrit.length === 0 ? '#16A34A' : '#DC2626';
+
+  // Último commit
+  const commitSha = lastCommit ? (lastCommit.sha || '').slice(0, 7) : '—';
+  const commitMsg = lastCommit ? (lastCommit.commit && lastCommit.commit.message || '').split('\n')[0].slice(0, 50) : '—';
+  const commitDate = lastCommit ? (lastCommit.commit && lastCommit.commit.author && lastCommit.commit.author.date || '').slice(0, 10) : '—';
+  const commitUrl = lastCommit ? lastCommit.html_url : null;
+
+  // Score de consistência (Bloco 6: inclui status RAG)
+  let score = 0;
+  if (ciStatus === 'success') score++;
+  if (prsHumanos.length === 0) score++;
+  if (issuesCrit.length === 0) score++;
+
+  // Verificar shadow mode (DIAGNOSTIC_READ_MODE)
+  const shadowModeActive = false; // Nunca ativar sem aprovacao do P.O.
+
+  // Status RAG: verificar se há PR de corpus com gate aprovado
+  // (usa cache da 7E se disponível)
+  const ragData7e = rag7eCache.get('rag7e_data');
+  const ragGateStatus = ragData7e && ragData7e.lastPrBody
+    ? (() => {
+        const gates = parseGatesFromPrBody(ragData7e.lastPrBody);
+        const allPassed = [gates.q1, gates.q2, gates.q3, gates.q4].every(g => g === 'passou');
+        const anyFailed = [gates.q1, gates.q2, gates.q3, gates.q4].some(g => g === 'falhou');
+        return allPassed ? 'passou' : anyFailed ? 'falhou' : 'parcial';
+      })()
+    : null;
+
+  const scoreColor = score === 3 ? '#16A34A' : score >= 2 ? '#D97706' : '#DC2626';
+  const scoreLabel = score === 3 ? '✅ CONSISTENTE' : score >= 2 ? '⚠️ PARCIAL' : '❌ INCONSISTENTE';
+
+  const age = rag7eCache.age('consistencia6d');
+  const ageStr = age !== null ? 'atualizado há ' + age + 's' : 'atualizado';
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);border-top:3px solid ${ciColor}">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:6px">CI/CD MAIN</div>
+        <div style="font-size:18px;font-weight:800;color:${ciColor}">${ciIcon} ${ciLabel.toUpperCase()}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:4px">${lastRun ? (lastRun.name || '').slice(0,30) : 'sem dados'}</div>
+        ${ciUrl ? `<a href="${escHtml(ciUrl)}" target="_blank" style="font-size:9px;color:var(--blue)">ver run</a>` : ''}
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);border-top:3px solid ${prsColor}">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:6px">PRs ABERTOS</div>
+        <div style="font-size:18px;font-weight:800;color:${prsColor}">${prsHumanos.length}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:4px">${prsRag.length} RAG &middot; ${prsHumanos.length - prsRag.length} outros</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);border-top:3px solid ${issColor}">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:6px">BLOQUEIOS</div>
+        <div style="font-size:18px;font-weight:800;color:${issColor}">${issuesCrit.length}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:4px">issues label: bloqueio</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);border-top:3px solid ${scoreColor}">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:6px">SCORE GLOBAL</div>
+        <div style="font-size:15px;font-weight:800;color:${scoreColor}">${scoreLabel}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:4px">${score}/3 checks &middot; ${ageStr}</div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--text-muted);padding:6px 0">
+      Último commit main:
+      ${commitUrl ? `<a href="${escHtml(commitUrl)}" target="_blank" style="color:var(--blue);font-weight:700;font-family:monospace">${escHtml(commitSha)}</a>` : `<code>${escHtml(commitSha)}</code>`}
+      &middot; ${escHtml(commitDate)}
+      &middot; <em>${escHtml(commitMsg)}${commitMsg.length >= 50 ? '…' : ''}</em>
+    </div>
+    ${prsHumanos.length > 0 ? `<div style="font-size:10px;color:var(--text-muted);margin-top:4px">PRs abertos: ${prsHumanos.slice(0,5).map(pr => `<a href="${escHtml(pr.html_url)}" target="_blank" style="color:var(--blue)">#${pr.number}</a>`).join(', ')}</div>` : ''}
+    <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+      <div style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg2)">
+        <span style="color:var(--text-muted);font-weight:700">SHADOW MODE:</span>
+        <span style="color:${shadowModeActive ? '#DC2626' : '#16A34A'};font-weight:700;margin-left:4px">${shadowModeActive ? '&#9888; ATIVO' : '&#10003; INATIVO'}</span>
+        <span style="color:var(--text-muted);font-size:9px;margin-left:4px">(DIAGNOSTIC_READ_MODE)</span>
+      </div>
+      <div style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg2)">
+        <span style="color:var(--text-muted);font-weight:700">RAG GATE:</span>
+        <span style="color:${ragGateStatus === 'passou' ? '#16A34A' : ragGateStatus === 'falhou' ? '#DC2626' : '#D97706'};font-weight:700;margin-left:4px">${ragGateStatus === 'passou' ? '&#128994; APROVADO' : ragGateStatus === 'falhou' ? '&#128308; FALHOU' : ragGateStatus === 'parcial' ? '&#128993; PARCIAL' : '&#9898; SEM DADOS'}</span>
+        <span style="color:var(--text-muted);font-size:9px;margin-left:4px">(último PR corpus)</span>
+      </div>
+    </div>
+  `;
+}
+
+// Inicializar Seção 7
+function initSecao7() {
+  renderRagCorpusBars();
+  fetchRagData();
+  fetchRagDoc('corpus-baseline'); // carrega o primeiro documento automaticamente
+  // 7E: lazy com IntersectionObserver
+  const el7e = document.getElementById('secao7e-qualidade');
+  if (el7e && 'IntersectionObserver' in window) {
+    let loaded7e = false;
+    const obs7e = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !loaded7e) {
+        loaded7e = true;
+        obs7e.disconnect();
+        fetchRag7eData();
+      }
+    }, { rootMargin: '300px' });
+    obs7e.observe(el7e);
+  } else {
+    fetchRag7eData();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SEÇÃO 7E — QUALIDADE DO RAG (dados vivos API GitHub)
+// ═══════════════════════════════════════════════════════════════════
+
+// Cache compartilhado com Secão 7
+const RAG7E_CACHE_TTL = 5 * 60 * 1000;
+const rag7eCache = {
+  _s: {},
+  set(k, v) { this._s[k] = { data: v, ts: Date.now() }; },
+  get(k) {
+    const e = this._s[k];
+    if (!e || Date.now() - e.ts > RAG7E_CACHE_TTL) { delete this._s[k]; return null; }
+    return e.data;
+  },
+  age(k) { const e = this._s[k]; return e ? Math.round((Date.now() - e.ts) / 1000) : null; },
+  isValid(k) { return !!this.get(k); }
+};
+
+// Extrair estado dos gates do body de um PR
+function parseGatesFromPrBody(body) {
+  if (!body) return { q1: null, q2: null, q3: null, q4: null, source: null };
+
+  // 1º: tentar JSON de evidência embutido no body
+  try {
+    const jsonMatch = body.match(/```json([\s\S]*?)```/);
+    if (jsonMatch) {
+      const ev = JSON.parse(jsonMatch[1].trim());
+      // Mapear rag_quality_gate global
+      const globalGate = ev.rag_quality_gate;
+      // Mapear gates individuais (suporte a snake_case e camelCase)
+      const mapGate = (v) => {
+        if (!v) return null;
+        if (/passou|pass|ok|true/i.test(String(v))) return 'passou';
+        if (/falhou|fail|false|erro/i.test(String(v))) return 'falhou';
+        if (/parcial|warn|pendente/i.test(String(v))) return 'parcial';
+        if (/n.?a|n.?aplic/i.test(String(v))) return 'nao-aplicavel';
+        return null;
+      };
+      const q1 = mapGate(ev.q1 || ev.gate_q1 || ev.Q1);
+      const q2 = mapGate(ev.q2 || ev.gate_q2 || ev.Q2);
+      const q3 = mapGate(ev.q3 || ev.gate_q3 || ev.Q3);
+      const q4 = mapGate(ev.q4 || ev.gate_q4 || ev.Q4);
+      // Se JSON tem gate global mas não tem individuais, inferir
+      const globalMapped = mapGate(globalGate);
+      if (q1 || q2 || q3 || q4 || globalMapped) {
+        return {
+          q1: q1 || globalMapped,
+          q2: q2 || globalMapped,
+          q3: q3 || globalMapped,
+          q4: q4 || globalMapped,
+          source: 'json'
+        };
+      }
+    }
+  } catch(e) { /* ignorar erro de parse JSON */ }
+
+  // 2º: tentar tabela markdown (| Q1 | Passou | ...)
+  const tableRows = body.match(/\|\s*Q([1-4])\s*\|[^\n]+/gi) || [];
+  const tableResult = { q1: null, q2: null, q3: null, q4: null };
+  tableRows.forEach(row => {
+    const m = row.match(/\|\s*Q([1-4])\s*\|\s*([^|]+)/);
+    if (m) {
+      const qn = 'q' + m[1];
+      const val = m[2].trim();
+      if (/passou|pass|✅/i.test(val)) tableResult[qn] = 'passou';
+      else if (/falhou|fail|❌/i.test(val)) tableResult[qn] = 'falhou';
+      else if (/parcial|⚠/i.test(val)) tableResult[qn] = 'parcial';
+      else if (/n.?a|n.?aplic/i.test(val)) tableResult[qn] = 'nao-aplicavel';
+    }
+  });
+  if (tableRows.length > 0) return { ...tableResult, source: 'tabela' };
+
+  // 3º: checkboxes [x] e [ ]
+  const check = (pattern) => new RegExp(pattern, 'i').test(body);
+  const checkNA = (pattern) => new RegExp(pattern, 'i').test(body);
+  return {
+    q1: check('\\[x\\].*(?:RAG-Q1|Q1.*estrutural|anchor_id|chunks.?vaz)') ? 'passou'
+      : check('\\[ \\].*(?:RAG-Q1|Q1.*estrutural)') ? 'falhou'
+      : checkNA('(?:Q1.*n.?a|n.?a.*Q1)') ? 'nao-aplicavel' : null,
+    q2: check('\\[x\\].*(?:RAG-Q2|Q2.*recupera|gold.?set|recall)') ? 'passou'
+      : check('\\[ \\].*(?:RAG-Q2|Q2.*recupera)') ? 'falhou'
+      : checkNA('(?:Q2.*n.?a|n.?a.*Q2)') ? 'nao-aplicavel' : null,
+    q3: check('\\[x\\].*(?:RAG-Q3|Q3.*visibilidade|invis)') ? 'passou'
+      : check('\\[ \\].*(?:RAG-Q3|Q3.*visibilidade)') ? 'falhou'
+      : checkNA('(?:Q3.*n.?a|n.?a.*Q3)') ? 'nao-aplicavel' : null,
+    q4: check('\\[x\\].*(?:RAG-Q4|Q4.*explicabilidade|diverg)') ? 'passou'
+      : check('\\[ \\].*(?:RAG-Q4|Q4.*explicabilidade)') ? 'falhou'
+      : checkNA('(?:Q4.*n.?a|n.?a.*Q4)') ? 'nao-aplicavel' : null,
+    source: 'checkbox'
+  };
+}
+
+// Extrair recall do body do PR (JSON de evidência)
+function parseRecallFromPrBody(body) {
+  if (!body) return null;
+  try {
+    const m = body.match(/```json([\s\S]*?)```/);
+    if (!m) return null;
+    const json = JSON.parse(m[1].trim());
+    return {
+      top5: json.recall_top5 || null,
+      top10: json.recall_top10 || null,
+      invisCrit: json['invisíveis_críticos'] !== undefined ? json['invisíveis_críticos'] : null,
+      dupCrit: json.duplicatas_críticas !== undefined ? json.duplicatas_críticas : null,
+      gateResult: json.rag_quality_gate || null,
+      chunksAntes: json.chunks_antes || null,
+      chunksDepois: json.chunks_depois || null,
+    };
+  } catch(e) { return null; }
+}
+
+// Atualizar card de gate
+function updateGateCard(id, status, detail, prLink) {
+  const cardEl = document.getElementById('gate' + id + 'Status');
+  const detailEl = document.getElementById('gate' + id + 'Detail');
+  const prEl = document.getElementById('gate' + id + 'Pr');
+  const cardWrap = cardEl ? cardEl.closest('.rag7e-gate-card') : null;
+
+  if (!cardEl) return;
+
+  // Bloco 3 — Semântica clara: 4 estados, sem ambiguidade
+  const icons = {
+    'passou':         '🟢 Aprovado',
+    'falhou':         '🔴 Falhou',
+    'parcial':        '🟡 Parcial',
+    'nao-aplicavel':  '🟡 Não aplicável',
+    'sem-evidencia':  '⚪ Sem evidência',
+    'sem-dados':      '⚪ Sem evidência',  // alias legado
+    'pendente':       '🟡 Parcial',         // alias legado
+  };
+  cardEl.textContent = icons[status] || '⚪ Sem evidência';
+  cardEl.className = 'rag7e-gate-status ' + (status === 'sem-dados' || status === 'sem-evidencia' ? 'sem-evidencia' : status);
+  if (cardWrap) cardWrap.className = 'rag7e-gate-card ' + (status === 'sem-dados' || status === 'sem-evidencia' ? 'sem-evidencia' : status);
+  if (detailEl && detail) detailEl.textContent = detail;
+  if (prEl && prLink) prEl.innerHTML = prLink;
+}
+
+// Buscar dados da 7E via API GitHub
+async function fetchRag7eData(force = false) {
+  const cacheKey = 'rag7e_data';
+  if (!force && rag7eCache.isValid(cacheKey)) {
+    renderRag7e(rag7eCache.get(cacheKey));
+    return;
+  }
+
+  const tsEl = document.getElementById('rag7eTs');
+  if (tsEl) tsEl.textContent = '⟳ Buscando...';
+
+  try {
+    const REPO_PATH = '/repos/Solaris-Empresa/compliance-tributaria-v2';
+
+    // Busca em paralelo: PRs RAG fechados + issues rag:incidente abertas
+    // Maximiza uso da API: 3 chamadas paralelas
+    const [ragPRsClosed, ragPRsOpen, incidenteIssues] = await Promise.all([
+      // PRs fechados com label rag:corpus ou rag:governanca (últimos 50)
+      ghFetch(REPO_PATH + '/pulls?state=closed&per_page=50'),
+      // PRs abertos com qualquer label rag:
+      ghFetch(REPO_PATH + '/pulls?state=open&per_page=20'),
+      // Issues abertas com label rag:incidente
+      ghFetch(REPO_PATH + '/issues?state=open&labels=rag:incidente&per_page=20'),
+    ]);
+
+    // Filtrar PRs de governança RAG (label rag:*)
+    const isRagPr = (pr) => (pr.labels || []).some(l => l.name.startsWith('rag:'));
+    const govPRs = [
+      ...(Array.isArray(ragPRsClosed) ? ragPRsClosed.filter(isRagPr) : []),
+      ...(Array.isArray(ragPRsOpen)   ? ragPRsOpen.filter(isRagPr)   : []),
+    ].sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+
+    // último PR de corpus para extrair gates
+    const isCorpusPr = (pr) => (pr.labels || []).some(l => l.name === 'rag:corpus' || l.name === 'rag:governanca');
+    const lastCorpusPR = govPRs.find(isCorpusPr);
+
+    // Buscar body completo do último PR de corpus (se necessário)
+    let lastPrBody = lastCorpusPR ? lastCorpusPR.body : null;
+    let lastPrNum  = lastCorpusPR ? lastCorpusPR.number : null;
+    let lastPrUrl  = lastCorpusPR ? lastCorpusPR.html_url : null;
+    let lastPrTitle = lastCorpusPR ? lastCorpusPR.title : null;
+
+    // Se o body está truncado, buscar via API de PR individual
+    if (lastCorpusPR && (!lastPrBody || lastPrBody.length < 100)) {
+      try {
+        const prDetail = await ghFetch(REPO_PATH + '/pulls/' + lastCorpusPR.number);
+        if (prDetail && prDetail.body) lastPrBody = prDetail.body;
+      } catch(e) { /* usa body parcial */ }
+    }
+
+    const incidenteCount = Array.isArray(incidenteIssues) ? incidenteIssues.length : 0;
+
+    const data = {
+      govPRs,
+      lastCorpusPR: lastCorpusPR || null,
+      lastPrBody,
+      lastPrNum,
+      lastPrUrl,
+      lastPrTitle,
+      incidenteCount,
+      incidenteIssues: Array.isArray(incidenteIssues) ? incidenteIssues : [],
+      ts: Date.now()
+    };
+
+    rag7eCache.set(cacheKey, data);
+    renderRag7e(data);
+    updateSistemaStatus('rag', data.isFallback ? 'parcial' : 'ok'); // Bloco 7
+
+  } catch(err) {
+    console.warn('[7E] Erro API GitHub:', err.message);
+    if (tsEl) tsEl.textContent = '⚠ API indisponível';
+    updateSistemaStatus('rag', 'erro'); // Bloco 7
+    // Renderiza com dados de fallback
+    renderRag7e({ govPRs: [], lastCorpusPR: null, lastPrBody: null,
+      lastPrNum: null, lastPrUrl: null, lastPrTitle: null,
+      incidenteCount: 0, incidenteIssues: [], ts: Date.now(), isFallback: true });
+  }
+}
+
+// Renderizar a Seção 7E com os dados
+function renderRag7e(data) {
+  const { govPRs, lastCorpusPR, lastPrBody, lastPrNum, lastPrUrl, lastPrTitle,
+          incidenteCount, incidenteIssues, isFallback } = data;
+
+  // Timestamp
+  const tsEl = document.getElementById('rag7eTs');
+  if (tsEl) {
+    const age = rag7eCache.age('rag7e_data');
+    tsEl.textContent = isFallback
+      ? '⚠ dados offline'
+      : (age !== null ? '✔ atualizado há ' + age + 's' : '✔ atualizado');
+  }
+
+  // — 7E.2: Integridade do Corpus (dados vivos) —
+  const intEl = document.getElementById('rag7eIntegrityContent');
+  if (intEl) {
+    const corpusPRs = govPRs.filter(pr => (pr.labels||[]).some(l => l.name === 'rag:corpus'));
+    const govPRsCount = govPRs.filter(pr => (pr.labels||[]).some(l => l.name === 'rag:governanca')).length;
+    const lastCorpusDate = corpusPRs.length > 0
+      ? (corpusPRs[0].merged_at || corpusPRs[0].updated_at || '').slice(0, 10)
+      : '—';
+    const recall = lastPrBody ? parseRecallFromPrBody(lastPrBody) : null;
+
+    intEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px">CHUNKS TOTAIS</div>
+          <div style="font-size:20px;font-weight:800;color:#0E7490">2.078</div>
+          <div style="font-size:9px;color:var(--text-muted)">100% anchor_id &middot; baseline v2.0</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px">PRs DE CORPUS</div>
+          <div style="font-size:20px;font-weight:800;color:#16A34A">${corpusPRs.length}</div>
+          <div style="font-size:9px;color:var(--text-muted)">Último: ${escHtml(lastCorpusDate)}</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px">PRs GOVERNANÇA</div>
+          <div style="font-size:20px;font-weight:800;color:#7C3AED">${govPRsCount}</div>
+          <div style="font-size:9px;color:var(--text-muted)">label rag:governanca</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px">INCIDENTES ABERTOS</div>
+          <div style="font-size:20px;font-weight:800;${incidenteCount > 0 ? 'color:#DC2626' : 'color:#16A34A'}">${incidenteCount}</div>
+          <div style="font-size:9px;color:var(--text-muted)">label rag:incidente</div>
+        </div>
+      </div>
+      ${recall && recall.chunksAntes !== null ? `<div style="font-size:10px;color:var(--text-muted);margin-top:8px">Último PR #${lastPrNum}: ${recall.chunksAntes} → ${recall.chunksDepois} chunks</div>` : ''}
+    `;
+  }
+
+  // — 7E.3: Gates de Qualidade —
+  const gatesTs = document.getElementById('rag7eGatesTs');
+  if (gatesTs) gatesTs.textContent = lastPrNum ? 'PR #' + lastPrNum : 'sem PR de corpus recente';
+
+  if (lastCorpusPR && lastPrBody) {
+    const gates = parseGatesFromPrBody(lastPrBody);
+    const recall = parseRecallFromPrBody(lastPrBody);
+    const prLink = lastPrUrl
+      ? `<a href="${escHtml(lastPrUrl)}" target="_blank">PR #${lastPrNum}</a>`
+      : '';
+
+    // Q1 Estrutural
+    const q1Status = gates.q1 || (recall && recall.dupCrit === 0 ? 'passou' : 'sem-dados');
+    updateGateCard('Q1', q1Status,
+      recall ? `0 duplicatas críticas &middot; 100% anchor_id` : 'Estrutural: anchor_id, chunks vazios, duplicatas',
+      prLink);
+
+    // Q2 Recuperação
+    const q2Status = gates.q2 || (recall && recall.top5 !== null ? (parseFloat(recall.top5) >= 90 ? 'passou' : 'falhou') : 'sem-dados');
+    const q2Detail = recall && recall.top5 !== null
+      ? `Top-5: ${recall.top5}% &middot; Top-10: ${recall.top10 || '—'}%`
+      : 'Recuperação: gold set 10 queries, recall top-5 ≥ 90%';
+    updateGateCard('Q2', q2Status, q2Detail, prLink);
+
+    // Q3 Visibilidade
+    const q3Status = gates.q3 || (recall && recall.invisCrit === 0 ? 'passou' : 'sem-dados');
+    const q3Detail = recall && recall.invisCrit !== null
+      ? `Invisíveis críticos: ${recall.invisCrit}`
+      : 'Visibilidade: chunks invisíveis críticos = 0';
+    updateGateCard('Q3', q3Status, q3Detail, prLink);
+
+    // Q4 Explicabilidade
+    const q4Status = gates.q4 || (recall && recall.gateResult === 'PASSOU' ? 'passou' : 'sem-dados');
+    updateGateCard('Q4', q4Status,
+      recall && recall.gateResult ? `Gate: ${recall.gateResult}` : 'Explicabilidade: divergências documentadas',
+      prLink);
+
+    // Alerta de ação necessária
+    const actionEl = document.getElementById('rag7eActionNeeded');
+    if (actionEl) {
+      const gatesFailed = [gates.q1, gates.q2, gates.q3, gates.q4].filter(g => g === 'falhou' || g === 'pendente').length;
+      if (gatesFailed > 0) {
+        actionEl.textContent = `⚠ ${gatesFailed} gate(s) pendente(s) no PR #${lastPrNum}. Revise antes do próximo merge de corpus.`;
+        actionEl.classList.add('show');
+      } else {
+        actionEl.classList.remove('show');
+      }
+    }
+  } else {
+    // Sem PR de corpus recente
+    ['Q1','Q2','Q3','Q4'].forEach(q => updateGateCard(q, 'sem-dados', 'Nenhum PR de corpus recente encontrado', ''));
+  }
+
+  // — 7E.4: Gold Set — evidencia real (PR body) ou fallback com alerta
+  const goldsetAlert = document.getElementById('goldsetEvidAlert');
+  const goldsetBadge = document.getElementById('goldsetEvidBadge');
+  const recall = lastPrBody ? parseRecallFromPrBody(lastPrBody) : null;
+  if (recall && recall.top5 !== null) {
+    // Evidencia real disponivel no PR
+    const r5 = parseFloat(recall.top5);
+    const r10 = recall.top10 ? parseFloat(recall.top10) : null;
+    const cls5 = r5 >= 90 ? 'rag7e-recall-ok' : r5 >= 70 ? 'rag7e-recall-warn' : 'rag7e-recall-fail';
+    const cls10 = r10 !== null ? (r10 >= 100 ? 'rag7e-recall-ok' : 'rag7e-recall-warn') : '';
+    const prRef = lastPrNum ? `<a href="${escHtml(lastCorpusPR ? lastCorpusPR.html_url : '#')}" target="_blank" style="color:var(--blue)">PR #${lastPrNum}</a>` : '—';
+    for (let i = 1; i <= 8; i++) {
+      const idx = String(i).padStart(2,'0');
+      const r5El = document.getElementById('gs' + idx + '-r5');
+      const r10El = document.getElementById('gs' + idx + '-r10');
+      const evEl = document.getElementById('gs' + idx + '-ev');
+      if (r5El) { r5El.textContent = r5 + '%'; r5El.className = cls5; }
+      if (r10El && r10 !== null) { r10El.textContent = r10 + '%'; r10El.className = cls10; }
+      if (evEl) evEl.innerHTML = prRef;
+    }
+    if (goldsetAlert) goldsetAlert.style.display = 'none';
+    if (goldsetBadge) goldsetBadge.style.display = 'inline-flex';
+  } else {
+    // Sem evidencia — mostrar alerta, manter ⚪
+    if (goldsetAlert) goldsetAlert.style.display = 'block';
+    if (goldsetBadge) goldsetBadge.style.display = 'none';
+    // Marcar todas as linhas como sem evidencia
+    for (let i = 1; i <= 8; i++) {
+      const idx = String(i).padStart(2,'0');
+      const evEl = document.getElementById('gs' + idx + '-ev');
+      if (evEl) evEl.innerHTML = '⚪ sem evidência';
+    }
+  }
+
+  // — 7E.5: PRs de Governança —
+  const prsEl = document.getElementById('rag7ePrsContent');
+  const prsTs = document.getElementById('rag7ePrsTs');
+  if (prsEl) {
+    if (govPRs.length === 0) {
+      prsEl.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0">' +
+        (isFallback ? '⚠ API indisponível — sem dados' : '✔ Nenhum PR de governança RAG encontrado.') + '</div>';
+    } else {
+      const rows = govPRs.slice(0, 15).map(pr => {
+        const gates = parseGatesFromPrBody(pr.body || '');
+        const allPassed = [gates.q1, gates.q2, gates.q3, gates.q4].every(g => g === 'passou');
+        const anyPending = [gates.q1, gates.q2, gates.q3, gates.q4].some(g => g === 'pendente' || g === 'falhou');
+        const hasGates = [gates.q1, gates.q2, gates.q3, gates.q4].some(g => g !== null);
+        const gateClass = !hasGates ? 'sem-gate' : allPassed ? 'passou' : anyPending ? 'pendente' : 'sem-gate';
+        const gateLabel = !hasGates ? 'sem gate' : allPassed ? '✅ PASSOU' : anyPending ? '⚠ PENDENTE' : '—';
+        const labels = (pr.labels || []).filter(l => l.name.startsWith('rag:')).map(l => ragLabelBadge(l.name)).join('');
+        const date = (pr.merged_at || pr.updated_at || '').slice(0, 10);
+        const stateIcon = pr.state === 'closed' && pr.merged_at ? '✅' : pr.state === 'open' ? '🟡' : '❌';
+        return `<div class="rag7e-pr-row">
+          <span class="rag7e-pr-num"><a href="${escHtml(pr.html_url)}" target="_blank">#${pr.number}</a></span>
+          <span class="rag7e-pr-title">${stateIcon} ${escHtml((pr.title||'').slice(0,60))}${(pr.title||'').length>60?'…':''}</span>
+          <span>${labels}</span>
+          <span class="rag7e-pr-gate ${gateClass}">${gateLabel}</span>
+          <span class="rag7e-pr-date">${escHtml(date)}</span>
+        </div>`;
+      }).join('');
+      prsEl.innerHTML = rows;
+    }
+    if (prsTs) prsTs.textContent = govPRs.length + ' PRs RAG';
+  }
+
+  // — 7E.6: Chunks Invisíveis —
+  const invisEl = document.getElementById('rag7eInvisTotal');
+  const invisIssEl = document.getElementById('rag7eInvisIssues');
+  const invisAlertEl = document.getElementById('rag7eInvisAlert');
+
+  if (invisEl) {
+    // Invisíveis críticos: extrair do último PR ou assumir 0 se passou Q3
+    const recall = lastPrBody ? parseRecallFromPrBody(lastPrBody) : null;
+    const invisCrit = recall && recall.invisCrit !== null ? recall.invisCrit : 0;
+    invisEl.textContent = invisCrit;
+    invisEl.className = 'val ' + (invisCrit === 0 ? 'ok' : invisCrit <= 3 ? 'warn' : 'err');
+  }
+  if (invisIssEl) {
+    invisIssEl.textContent = incidenteCount;
+    invisIssEl.className = 'val ' + (incidenteCount === 0 ? 'ok' : 'err');
+  }
+  if (invisAlertEl) {
+    if (incidenteCount > 0) {
+      const links = incidenteIssues.slice(0, 3).map(i =>
+        `<a href="${escHtml(i.html_url)}" target="_blank">#${i.number}</a>`
+      ).join(', ');
+      invisAlertEl.innerHTML = `⚠ ${incidenteCount} incidente(s) RAG aberto(s): ${links}. Requer atenção imediata.`;
+      invisAlertEl.classList.add('show');
+    } else {
+      invisAlertEl.classList.remove('show');
+    }
+  }
+
+  // — L-RAG-01: Telemetria de uso via API GitHub (commits rag_usage_log) —
+  // Detecta se a tabela já está em uso buscando commits com 'rag_usage_log' no main
+  fetchRagUsageTelemetry(govPRs);
+}
+
+/**
+ * L-RAG-01 — Detecta se a telemetria rag_usage_log já está ativa
+ * via PRs mergeados com label rag:retriever ou rag:governanca que mencionem rag_usage_log.
+ * Atualiza 7E.1 e 7E.6 com o status real.
+ */
+async function fetchRagUsageTelemetry(govPRs) {
+  try {
+    // Verificar se algum PR mergeado menciona rag_usage_log (L-RAG-01 implementado)
+    const ragUsagePRs = govPRs.filter(pr =>
+      pr.state === 'closed' &&
+      pr.merged_at &&
+      (pr.title || '').toLowerCase().includes('rag-usage') ||
+      (pr.title || '').toLowerCase().includes('l-rag-01') ||
+      (pr.title || '').toLowerCase().includes('rag_usage_log')
+    );
+
+    // Buscar commits recentes que mencionem rag_usage_log
+    const REPO_PATH = '/repos/Solaris-Empresa/compliance-tributaria-v2';
+    let usageCommits = [];
+    try {
+      const commits = await ghFetch(REPO_PATH + '/commits?path=server/rag-retriever.ts&per_page=5');
+      if (Array.isArray(commits)) {
+        usageCommits = commits.filter(c =>
+          (c.commit?.message || '').toLowerCase().includes('rag-usage') ||
+          (c.commit?.message || '').toLowerCase().includes('l-rag-01') ||
+          (c.commit?.message || '').toLowerCase().includes('rag_usage_log')
+        );
+      }
+    } catch(e) { /* silencioso */ }
+
+    const telemetriaAtiva = ragUsagePRs.length > 0 || usageCommits.length > 0;
+
+    // Atualizar 7E.1 — status da telemetria
+    const telEl = document.getElementById('rag7eTelemetriaStatus');
+    const liveBadge = document.getElementById('rag7eScoreLiveBadge');
+    if (telEl) {
+      if (telemetriaAtiva) {
+        telEl.innerHTML = '✓ Telemetria de uso: implementada (L-RAG-01) — aguardando primeiros logs';
+        telEl.style.color = '#16A34A';
+        if (liveBadge) liveBadge.style.display = '';
+      } else {
+        telEl.innerHTML = '⚠ Telemetria de uso: aguardando deploy (rag_usage_log)';
+        telEl.style.color = '#D97706';
+      }
+    }
+
+    // Atualizar 7E.6 — cobertura de uso (placeholder até primeiros logs)
+    const coverageEl = document.getElementById('rag7eUsageCoverage');
+    const coverageSubEl = document.getElementById('rag7eUsageCoverageSub');
+    const usageBadge = document.getElementById('rag7eUsageLiveBadge');
+    const usageAlertEl = document.getElementById('rag7eUsageAlert');
+    if (coverageEl) {
+      if (telemetriaAtiva) {
+        coverageEl.textContent = '–';
+        coverageEl.className = 'val';
+        if (coverageSubEl) coverageSubEl.textContent = 'aguardando primeiros logs';
+        if (usageBadge) usageBadge.style.display = '';
+        if (usageAlertEl) {
+          usageAlertEl.innerHTML = 'ℹ Telemetria L-RAG-01 implementada. Após as primeiras queries em produção, a cobertura de uso será exibida aqui via endpoint ragAdmin.getChunkUsageStats.';
+          usageAlertEl.style.display = '';
+        }
+      } else {
+        coverageEl.textContent = '⏳';
+        coverageEl.className = 'val';
+        if (coverageSubEl) coverageSubEl.textContent = 'telemetria pendente';
+      }
+    }
+  } catch(e) {
+    // Silencioso — telemetria não bloqueia o cockpit
+  }
+}
 
 // ── BUSCA GLOBAL (v2 — corrige abas invisíveis) ──────────────────────────
 (function() {

@@ -1,0 +1,287 @@
+name: RAG Impact Audit — Governança de Rastreabilidade
+
+# Dispara quando:
+# 1. Um PR com label rag:* é aberto, editado ou mergeado
+# 2. Um push direto em docs/rag/** ou server/rag-retriever.ts
+# 3. Manualmente via workflow_dispatch
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, labeled, closed]
+    paths:
+      - 'docs/rag/**'
+      - 'server/rag-retriever.ts'
+      - 'drizzle/migrations/**'
+      - 'server/db.ts'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/rag/**'
+      - 'server/rag-retriever.ts'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Motivo da auditoria manual'
+        required: true
+        default: 'Auditoria periódica'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 1: Detectar tipo de mudança RAG e gerar relatório de impacto
+  # ─────────────────────────────────────────────────────────────────────────────
+  rag-impact-check:
+    name: Análise de Impacto RAG
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detectar arquivos RAG alterados
+        id: changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Detectar contexto (PR vs push vs manual)
+            const isPR = context.eventName === 'pull_request';
+            const isPush = context.eventName === 'push';
+            const isManual = context.eventName === 'workflow_dispatch';
+
+            let changedFiles = [];
+
+            if (isPR) {
+              const { data: files } = await github.rest.pulls.listFiles({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                per_page: 100
+              });
+              changedFiles = files.map(f => f.filename);
+            }
+
+            // Matriz de impacto: arquivo alterado → arquivos que DEVEM ser revisados
+            const IMPACT_MATRIX = {
+              'docs/rag/CORPUS-BASELINE.md': {
+                label: 'rag:corpus',
+                impacta: [
+                  'docs/rag/RAG-GOVERNANCE.md',
+                  'docs/rag/RAG-PROCESSO.md',
+                  'docs/painel-po/RASTREABILIDADE-RAG-PO.md',
+                  'docs/painel-po/index.html (Seção 7A — barras de corpus)'
+                ],
+                cockpit: true,
+                severidade: 'ALTA'
+              },
+              'server/rag-retriever.ts': {
+                label: 'rag:retriever',
+                impacta: [
+                  'docs/rag/RAG-PROCESSO.md',
+                  'docs/rag/HANDOFF-RAG.md',
+                  'docs/rag/RAG-GOVERNANCE.md',
+                  'docs/painel-po/RASTREABILIDADE-RAG-PO.md'
+                ],
+                cockpit: true,
+                severidade: 'ALTA'
+              },
+              'docs/rag/RAG-GOVERNANCE.md': {
+                label: 'rag:governanca',
+                impacta: [
+                  'docs/rag/RAG-RESPONSABILIDADES.md',
+                  'docs/painel-po/RASTREABILIDADE-RAG-PO.md',
+                  'skills/solaris-orquestracao/SKILL.md',
+                  'skills/solaris-contexto/SKILL.md'
+                ],
+                cockpit: false,
+                severidade: 'MÉDIA'
+              },
+              'docs/rag/RAG-PROCESSO.md': {
+                label: 'rag:retriever',
+                impacta: [
+                  'docs/rag/HANDOFF-RAG.md',
+                  'docs/rag/CORPUS-BASELINE.md',
+                  'docs/painel-po/RASTREABILIDADE-RAG-PO.md'
+                ],
+                cockpit: false,
+                severidade: 'MÉDIA'
+              },
+              'docs/rag/RFC/CORPUS-RFC-001.md': {
+                label: 'rag:rfc',
+                impacta: [
+                  'docs/rag/CORPUS-BASELINE.md',
+                  'docs/painel-po/RASTREABILIDADE-RAG-PO.md'
+                ],
+                cockpit: true,
+                severidade: 'ALTA'
+              },
+              'docs/rag/RFC/CORPUS-RFC-002.md': {
+                label: 'rag:rfc',
+                impacta: [
+                  'docs/rag/CORPUS-BASELINE.md',
+                  'docs/painel-po/RASTREABILIDADE-RAG-PO.md'
+                ],
+                cockpit: true,
+                severidade: 'ALTA'
+              },
+              'docs/RFC-003-corpus-leis-avulsas.md': {
+                label: 'rag:rfc',
+                impacta: [
+                  'docs/rag/CORPUS-BASELINE.md',
+                  'docs/rag/RAG-PROCESSO.md',
+                  'docs/painel-po/RASTREABILIDADE-RAG-PO.md'
+                ],
+                cockpit: true,
+                severidade: 'ALTA'
+              },
+              'docs/RFC-004-expansao-corpus-lc116-lc87-cgibs-rfbcbs.md': {
+                label: 'rag:rfc',
+                impacta: [
+                  'docs/rag/CORPUS-BASELINE.md',
+                  'docs/rag/RAG-PROCESSO.md',
+                  'docs/painel-po/RASTREABILIDADE-RAG-PO.md'
+                ],
+                cockpit: true,
+                severidade: 'ALTA'
+              }
+            };
+
+            // Verificar quais arquivos de impacto foram alterados junto
+            let impactReport = [];
+            let cockpitAuditNeeded = false;
+            let highSeverityCount = 0;
+
+            for (const [file, impact] of Object.entries(IMPACT_MATRIX)) {
+              if (changedFiles.includes(file) || isManual) {
+                const missingUpdates = impact.impacta.filter(f => !changedFiles.includes(f));
+                if (missingUpdates.length > 0 || isManual) {
+                  impactReport.push({
+                    arquivo: file,
+                    label: impact.label,
+                    severidade: impact.severidade,
+                    arquivosNaoAtualizados: missingUpdates,
+                    cockpit: impact.cockpit
+                  });
+                  if (impact.cockpit) cockpitAuditNeeded = true;
+                  if (impact.severidade === 'ALTA') highSeverityCount++;
+                }
+              }
+            }
+
+            core.setOutput('impact_report', JSON.stringify(impactReport));
+            core.setOutput('cockpit_audit', cockpitAuditNeeded.toString());
+            core.setOutput('high_severity', highSeverityCount.toString());
+            core.setOutput('is_pr', isPR.toString());
+            core.setOutput('changed_files', JSON.stringify(changedFiles));
+            core.setOutput('has_impact', (impactReport.length > 0).toString());
+
+            console.log(`Arquivos alterados: ${changedFiles.length}`);
+            console.log(`Impactos detectados: ${impactReport.length}`);
+            console.log(`Auditoria cockpit necessária: ${cockpitAuditNeeded}`);
+
+      - name: Comentar relatório de impacto no PR
+        if: steps.changed.outputs.is_pr == 'true' && steps.changed.outputs.has_impact == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const impactReport = JSON.parse('${{ steps.changed.outputs.impact_report }}');
+            const cockpitAudit = '${{ steps.changed.outputs.cockpit_audit }}' === 'true';
+            const highSev = parseInt('${{ steps.changed.outputs.high_severity }}');
+
+            if (impactReport.length === 0) return;
+
+            const severityIcon = (s) => s === 'ALTA' ? '🔴' : s === 'MÉDIA' ? '🟡' : '🟢';
+
+            let rows = impactReport.map(item => {
+              const missing = item.arquivosNaoAtualizados.map(f => `\`${f}\``).join(', ');
+              return `| ${severityIcon(item.severidade)} ${item.severidade} | \`${item.arquivo}\` | \`${item.label}\` | ${missing || '✅ Todos atualizados'} | ${item.cockpit ? '⚠️ Sim' : 'Não'} |`;
+            }).join('\n');
+
+            const body = `## 🔍 RAG Impact Audit — Análise de Impacto Automática
+
+> Este comentário foi gerado automaticamente pelo workflow \`rag-impact-audit.yml\`.
+> Ele identifica arquivos de rastreabilidade RAG que **podem precisar de atualização** com base nas mudanças deste PR.
+
+### Matriz de Impacto
+
+| Severidade | Arquivo Alterado | Label | Arquivos que Precisam de Revisão | Cockpit |
+|---|---|---|---|---|
+${rows}
+
+${cockpitAudit ? `### ⚠️ Auditoria do Cockpit Necessária
+
+As mudanças neste PR afetam dados exibidos no [Cockpit P.O.](https://solaris-empresa.github.io/compliance-tributaria-v2/painel-po/).
+
+**Checklist de auditoria do cockpit:**
+- [ ] Seção 7A (barras de corpus) reflete os novos totais?
+- [ ] Seção 7B (rastreabilidade viva) exibe este PR corretamente?
+- [ ] Seção 7D (documentos) carrega a versão atualizada?
+- [ ] Status global (✅/⚠️/✖) está correto?` : ''}
+
+${highSev > 0 ? `### 🔴 ${highSev} impacto(s) de severidade ALTA detectado(s)
+
+Antes de mergear, verifique se os arquivos listados como "Precisam de Revisão" foram atualizados ou se a omissão é intencional (documente no corpo do PR).` : ''}
+
+---
+*Workflow: \`rag-impact-audit.yml\` | Projeto: IA SOLARIS Compliance Tributária*`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body
+            });
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 2: Verificar integridade dos arquivos RAG obrigatórios no main
+  # ─────────────────────────────────────────────────────────────────────────────
+  rag-integrity-check:
+    name: Verificação de Integridade RAG
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verificar presença dos arquivos obrigatórios
+        run: |
+          echo "=== Verificando arquivos RAG obrigatórios ==="
+          MISSING=0
+          FILES=(
+            "docs/rag/CORPUS-BASELINE.md"
+            "docs/rag/HANDOFF-RAG.md"
+            "docs/rag/RAG-GOVERNANCE.md"
+            "docs/rag/RAG-PROCESSO.md"
+            "docs/rag/RAG-RESPONSABILIDADES.md"
+            "docs/rag/RFC/CORPUS-RFC-001.md"
+            "docs/rag/RFC/CORPUS-RFC-002.md"
+            "docs/painel-po/RASTREABILIDADE-RAG-PO.md"
+            ".github/workflows/rag-impact-audit.yml"
+            ".github/workflows/label-governance.yml"
+            ".github/ISSUE_TEMPLATE/rag-change.md"
+          )
+          for f in "${FILES[@]}"; do
+            if [ -f "$f" ]; then
+              echo "✅ $f"
+            else
+              echo "❌ AUSENTE: $f"
+              MISSING=$((MISSING+1))
+            fi
+          done
+          echo "=== Total ausentes: $MISSING ==="
+          if [ $MISSING -gt 0 ]; then
+            echo "::warning::$MISSING arquivo(s) RAG obrigatório(s) ausente(s) no main"
+          fi
+
+      - name: Verificar versão do CORPUS-BASELINE
+        run: |
+          echo "=== CORPUS-BASELINE.md ==="
+          head -10 docs/rag/CORPUS-BASELINE.md
+          echo "=== Verificando campo Versão ==="
+          grep -E "^\*\*Versão\*\*:|^> \*\*Versão\*\*:" docs/rag/CORPUS-BASELINE.md || \
+            echo "::warning::Campo Versão não encontrado no CORPUS-BASELINE.md"

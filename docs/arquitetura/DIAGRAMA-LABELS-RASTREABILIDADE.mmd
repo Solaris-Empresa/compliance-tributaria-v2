@@ -1,0 +1,117 @@
+flowchart TD
+    %% ─── ENTRADAS ───────────────────────────────────────────────────────────
+    DEV(["👩‍💻 Desenvolvedor / Orquestrador\ncria Issue ou PR"])
+    EDIT(["✏️ Edita título ou corpo\nde Issue / PR existente"])
+
+    %% ─── TRIGGER ────────────────────────────────────────────────────────────
+    GHA["⚙️ GitHub Actions\nlabel-governance.yml\n(on: issues / pull_request\nevents: opened, edited)"]
+
+    %% ─── ANÁLISE DE KEYWORDS ────────────────────────────────────────────────
+    KW{"🔍 Analisa título + corpo\npor keywords"}
+
+    %% ─── LABELS ─────────────────────────────────────────────────────────────
+    L1["🔵 onda:1-solaris\n#185FA5\n(onda 1, solaris, sol-00,\nsolaris_questions, k-3, k-4-b)"]
+    L2["🟠 onda:2-iagen\n#D97706\n(onda 2, iagen, ia gen,\ngenerateQuestions, k-4-c, k-4-d)"]
+    L3["🟢 onda:3-regulatorio\n#3B6D11\n(onda 3, rag, corpus,\nlc 214, lc 224, k-4-e, l-1)"]
+    L4["🟣 cockpit:3ondas\n#7C3AED\n(cockpit, 3ondas, painel-po,\nseção 6, spec-cockpit)"]
+    SKIP["⏭️ Nenhuma label\naplicada\n(sem match)"]
+
+    %% ─── IDEMPOTÊNCIA ───────────────────────────────────────────────────────
+    IDEM{"Label já\naplicada?"}
+    APPLY["✅ Aplica label\nvia GitHub API\nissues.addLabels"]
+    NOOP["🔁 Ignora\n(sem duplicata)"]
+
+    %% ─── RASTREABILIDADE: COCKPIT ───────────────────────────────────────────
+    COCKPIT["📊 Cockpit P.O.\nsolaris-empresa.github.io\n/painel-po/"]
+    RASTR["📋 Sub-painel 6B\nRastreabilidade Viva\n(fetch API GitHub)"]
+    FILTER["🔎 Filtra issues/PRs\npor label + milestone\n(Sprint K / Sprint L)"]
+    TABLE["📈 Tabela de rastreabilidade\nIssue → Label → Sprint → PR → Status"]
+
+    %% ─── RASTREABILIDADE: DOCUMENTOS ────────────────────────────────────────
+    DOCS["📄 Sub-painel 6A\nDocumentos de Arquitetura\n(fetch raw GitHub)"]
+    DOC1["📄 TABELA-3-ONDAS\nQuestionário SOL-001..012"]
+    DOC2["📋 E2E-3-ONDAS\nFluxo completo + RAG + schemas"]
+    DOC3["📐 SPEC v2\nEspecificação do cockpit"]
+
+    %% ─── ESTADO DAS ONDAS ───────────────────────────────────────────────────
+    ESTADO["🎯 Sub-painel 6C\nEstado das Ondas\n(estático + vivo)"]
+    O1["Onda 1\n12 perguntas\nSOL-001..012"]
+    O2["Onda 2\nIA Gen\nGPT-4.1"]
+    O3["Onda 3\nRAG\n2.078 chunks"]
+    CONSIST["🔴🟡🟢 Consistência Global\nCI + PRs abertos + validações"]
+
+    %% ─── STATUS GLOBAL ──────────────────────────────────────────────────────
+    STATUS["🟢 ✅ OK — 3/3 checks\nou ⏳ Aguardando\nou ⚠ PARCIAL\nou ✖ ERRO"]
+
+    %% ─── FLUXO PRINCIPAL ────────────────────────────────────────────────────
+    DEV --> GHA
+    EDIT --> GHA
+    GHA --> KW
+
+    KW -->|"onda 1 / solaris / sol-00\nk-3 / k-4-b"| L1
+    KW -->|"onda 2 / iagen / ia gen\nk-4-c / k-4-d"| L2
+    KW -->|"onda 3 / rag / lc 214\nk-4-e / l-1 / l-2"| L3
+    KW -->|"cockpit / 3ondas\npainel-po / seção 6"| L4
+    KW -->|"sem match"| SKIP
+
+    L1 --> IDEM
+    L2 --> IDEM
+    L3 --> IDEM
+    L4 --> IDEM
+
+    IDEM -->|"Não"| APPLY
+    IDEM -->|"Sim"| NOOP
+
+    %% ─── LABELS → COCKPIT ───────────────────────────────────────────────────
+    APPLY -->|"label persistida\nno repositório"| COCKPIT
+
+    COCKPIT --> RASTR
+    COCKPIT --> DOCS
+    COCKPIT --> ESTADO
+
+    RASTR --> FILTER
+    FILTER -->|"label: onda:1-solaris\nmilestone: Sprint K"| TABLE
+    FILTER -->|"label: onda:2-iagen\nmilestone: Sprint K"| TABLE
+    FILTER -->|"label: onda:3-regulatorio\nmilestone: Sprint K/L"| TABLE
+    FILTER -->|"label: cockpit:3ondas\nmilestone: M4"| TABLE
+
+    DOCS --> DOC1
+    DOCS --> DOC2
+    DOCS --> DOC3
+
+    ESTADO --> O1
+    ESTADO --> O2
+    ESTADO --> O3
+    ESTADO --> CONSIST
+
+    TABLE --> STATUS
+    CONSIST --> STATUS
+
+    %% ─── ESTILOS ────────────────────────────────────────────────────────────
+    classDef entrada    fill:#E8F4FD,stroke:#185FA5,color:#0D2B4E,font-weight:bold
+    classDef gha        fill:#F0F0F0,stroke:#555,color:#222,font-weight:bold
+    classDef label1     fill:#185FA5,stroke:#0D3A6B,color:#fff,font-weight:bold
+    classDef label2     fill:#D97706,stroke:#92400E,color:#fff,font-weight:bold
+    classDef label3     fill:#3B6D11,stroke:#1E3A08,color:#fff,font-weight:bold
+    classDef label4     fill:#7C3AED,stroke:#4C1D95,color:#fff,font-weight:bold
+    classDef skip       fill:#F5F5F5,stroke:#999,color:#666
+    classDef cockpit    fill:#1E3A5F,stroke:#0D2040,color:#fff,font-weight:bold
+    classDef subpainel  fill:#2D5A8E,stroke:#1E3A5F,color:#fff
+    classDef doc        fill:#EFF6FF,stroke:#3B82F6,color:#1E3A5F
+    classDef onda       fill:#F0FDF4,stroke:#3B6D11,color:#1E3A5F
+    classDef status     fill:#FEF9C3,stroke:#CA8A04,color:#713F12,font-weight:bold
+    classDef ok         fill:#DCFCE7,stroke:#16A34A,color:#14532D,font-weight:bold
+
+    class DEV,EDIT entrada
+    class GHA gha
+    class L1 label1
+    class L2 label2
+    class L3 label3
+    class L4 label4
+    class SKIP skip
+    class COCKPIT cockpit
+    class RASTR,DOCS,ESTADO subpainel
+    class DOC1,DOC2,DOC3 doc
+    class O1,O2,O3 onda
+    class TABLE,CONSIST status
+    class STATUS ok
