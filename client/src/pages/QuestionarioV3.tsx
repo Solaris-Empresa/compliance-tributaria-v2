@@ -52,10 +52,10 @@ function SolarisBadge() {
   return (
     <span
       className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 shrink-0"
-      title="Pergunta curada pela equipe jurídica SOLARIS"
+      title="Pergunta curada pela equipe técnica SOLARIS"
     >
       <Scale className="h-2.5 w-2.5" />
-      Equipe Jurídica SOLARIS
+      Equipe técnica SOLARIS
     </span>
   );
 }
