@@ -16,6 +16,7 @@ import ComplianceLayout from "@/components/ComplianceLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
@@ -109,7 +110,7 @@ export default function AdminConsistencia() {
   });
 
   // Buscar projetos com dados de consistência
-  const { data: projects, isLoading, refetch } = trpc.projects.list.useQuery();
+  const { data: projects, isLoading, isError, refetch } = trpc.projects.list.useQuery();
 
   // Filtrar e enriquecer projetos
   const enrichedProjects: ProjectWithConsistency[] = (projects || []).map((p: any) => ({
@@ -159,6 +160,12 @@ export default function AdminConsistencia() {
       </ComplianceLayout>
     );
   }
+
+  if (isError) return (
+    <Alert variant="destructive">
+      <AlertDescription>Erro ao carregar dados. Tente novamente.</AlertDescription>
+    </Alert>
+  );
 
   return (
     <ComplianceLayout>
