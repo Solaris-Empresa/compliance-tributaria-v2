@@ -279,6 +279,7 @@ db.select({ id: t.id, updatedAt: max(t.updatedAt) })
 | 2026-03-30 | TiDB rejeita query do `scoringEngine` | `SELECT DISTINCT` com `ORDER BY` fora do SELECT | Q2 obrigatório |
 | Sprint K | Deploy não reflete implementação | Branch não mergeada em `main` antes do teste | Checklist de início |
 | Sprint L | PR com 97 commits de divergência | Branch criada de estado antigo | Sempre basear no `main` atual |
+| 2026-03-31 | `listQuestions` exibe 0 com dados no banco | `queryInput` sem `useMemo` → nova referência a cada render → race condition tRPC | Sempre memoizar objetos de input de `useQuery` com `useMemo` |
 
 > Atualizar esta tabela a cada bug encontrado em produção ou UAT.
 
