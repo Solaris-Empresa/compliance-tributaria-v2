@@ -2383,11 +2383,11 @@ Regras obrigatórias:
         });
       }
       await db.saveOnda2Answers(input.projectId, input.answers);
-      await db.updateProject(input.projectId, { status: 'onda2_iagen' as any });
+      await db.updateProject(input.projectId, { status: 'diagnostico_corporativo' as any }); // BUG-UAT-03 fix
       return {
         success: true,
         projectId: input.projectId,
-        newStatus: 'onda2_iagen',
+        newStatus: 'diagnostico_corporativo',
         answersCount: input.answers.length,
       };
     }),
