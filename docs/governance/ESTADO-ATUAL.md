@@ -1,25 +1,27 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Orquestrador (Claude) ao fechar cada sprint  
-> **v3.3 · 2026-04-01 (rev Sprint N encerrada — CI/CD fix + ONDA1 E2E doc + G15 mergeado)** · Responsável: Orquestrador gera, Manus commita
+> **v3.6 · 2026-04-01 (rev fim de sessão — Sprints O/P/Q/R concluídas · 11 PRs mergeados · 24 perguntas SOLARIS ativas)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v3.0 · **HEAD:** `cb22fd1` (main, PR #272 mergeado) · **Testes:** 2.689 passando  
+**Baseline:** v3.2 · **HEAD:** `8727578` (main, PR #288 mergeado) · **Testes unitários:** 1.436 passando (71 files) · **Testes integração:** 69 em `server/integration/`  
 **DIAGNOSTIC_READ_MODE:** shadow (aguarda UAT com advogados)  
 **Corpus RAG:** 2.078 chunks · 5 leis · 100% confiabilidade  
-**Sprint M:** CONCLUÍDA ✅ — UAT manual, E2E Playwright, BUG-UAT-02/03/05, auth.testLogin  
-**Sprint N:** ENCERRADA ✅ — G17 ✅ · CI/CD fix ✅ · G11 ✅ · Gates v5.0 ✅ · G1/G2 ✅ · G15 ✅ · ONDA1 E2E doc ✅ · Post-mortem G17 ✅  
-**PRs mergeados:** 280 (último: #280 chore(backfill) script g17-backfill 4 projetos)  
+**Corpus SOLARIS:** 24 perguntas ativas (SOL-013..036) · SOLARIS_GAPS_MAP: 77 chaves  
+**Sprint P:** ENCERRADA ✅ — Gate Q6 · 24 perguntas v4 · CI unit tests · Bloqueios dados  
+**Sprint Q:** ENCERRADA ✅ — Gate 7 · fix g17-solaris-gap.test.ts · chave nfe  
+**Sprint R:** ENCERRADA ✅ — fix upsert ativo=1 · fix listBatches · 6 testes Q5  
+**PRs mergeados:** 288 (último: #288 fix(solarisAdmin) upsert+listBatches)  
 **Fila de PRs abertos:** VAZIA ✅
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** `main` (HEAD `cb22fd1`) — fila limpa, 0 PRs abertos
+- **Branch base:** `main` (HEAD `8727578`) — fila limpa, 0 PRs abertos
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via cherry-pick em branch limpo (padrão PRs #173, #177, #179, #184)
 - **Divergência de histórico:** `origin/main` (Manus S3) ≠ `solaris/main` (GitHub) — SEMPRE criar branch a partir do HEAD do `solaris/main` via `git fetch`
@@ -137,24 +139,30 @@ docs/HANDOFF-MANUS.md
 
 | Indicador | Valor |
 |---|---|
-| Commits no main | ~643 (HEAD `72b51d4`) |
-| PRs mergeados | **280** (último: #280 chore(backfill) script g17-backfill) |
+| Commits no main | ~654 (HEAD `8727578`) |
+| PRs mergeados | **288** (último: #288 fix(solarisAdmin) upsert+listBatches) |
 | PRs abertos | **0** ✅ |
 | Tabelas no schema | 68 |
 | Migrations aplicadas | **63** (0000–0062) |
-| Testes passando | **2.690+** (`it()` calls em 140+ arquivos `.test.ts`) |
+| Testes unitários | **1.436 passando** (71 arquivos em `server/**/*.test.ts`) |
+| Testes integração | **69 arquivos** em `server/integration/` (requerem TiDB Cloud) |
 | Testes E2E | 5 CTs (CT-01, CT-04, CT-06, CT-07, CT-37) |
 | Corpus RAG chunks | 2.078 |
+| Corpus SOLARIS | **24 perguntas ativas** (SOL-013..036) |
+| SOLARIS_GAPS_MAP | **77 chaves** (76 originais + nfe) |
 | Leis no corpus | 5 (LC 214, EC 132, LC 227, LC 224, LC 123) |
 | Confiabilidade RAG | 100% |
-| TypeScript erros | 0 |
-| Docs ✅ Atualizados | 26 / 26 |
+| TypeScript erros | 0 (TS6053 é falso positivo do watcher local) |
+| Docs ✅ Atualizados | 27 / 27 |
 | SKILL.md versão | v4.0 (solaris-orquestracao + solaris-contexto) |
 
 | Sprint O+ — Q6 | ✅ MERGEADO | PR #281 | Gate Q6 adicionado ao CONTRIBUTING.md — validação de dados reais obrigatória em PRs de mapeamento |
+| Sprint P — CI unit tests | ✅ MERGEADO | PR #283 | 69 testes movidos para `server/integration/` · `vitest.config.unit.ts` · `test:unit` · CI usa `pnpm test:unit` |
 | Sprint P — Bloqueios dados | ✅ MERGEADO | PR #284 | Proteção formal de rag_chunks, cnaes e solaris_questions documentada |
-| Sprint Q — Gate 7 | ✅ MERGEADO | PR #285 | Auto-auditoria formal adicionada ao CONTRIBUTING.md — Gate 7 obrigatório antes de toda validação do P.O. |
+| Sprint Q — Gate 7 | ✅ MERGEADO | PR #286 | Auto-auditoria formal adicionada ao CONTRIBUTING.md + MANUS-GOVERNANCE.md |
+| Sprint Q — fix g17 + nfe | ✅ MERGEADO | PR #287 | g17-solaris-gap.test.ts corrigido · chave `nfe` adicionada ao SOLARIS_GAPS_MAP |
+| Sprint R — fix solarisAdmin | ✅ MERGEADO | PR #288 | BUG 1: upsert reativa ativo=1 · BUG 2: listBatches oculta lotes deletados · 6 testes Q5 |
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-01 (rev Sprint O: G17-B/C/D + backfill + Q6 governança)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-01 (rev fim de sessão: Sprints O/P/Q/R · PRs #276–#288 · 24 perguntas SOLARIS · 7 gates ativos)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
