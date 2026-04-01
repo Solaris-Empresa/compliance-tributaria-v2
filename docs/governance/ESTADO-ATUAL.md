@@ -153,6 +153,7 @@ docs/HANDOFF-MANUS.md
 
 | Sprint O+ — Q6 | ✅ MERGEADO | PR #281 | Gate Q6 adicionado ao CONTRIBUTING.md — validação de dados reais obrigatória em PRs de mapeamento |
 | Sprint P — Bloqueios dados | ✅ MERGEADO | PR #284 | Proteção formal de rag_chunks, cnaes e solaris_questions documentada |
+| Sprint Q — Gate 7 | ✅ MERGEADO | PR #285 | Auto-auditoria formal adicionada ao CONTRIBUTING.md — Gate 7 obrigatório antes de toda validação do P.O. |
 ---
 
 *IA SOLARIS · DEC-007 · Atualizado em 2026-04-01 (rev Sprint O: G17-B/C/D + backfill + Q6 governança)*  
