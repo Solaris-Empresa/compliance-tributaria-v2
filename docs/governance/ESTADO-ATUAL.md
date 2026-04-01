@@ -12,7 +12,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 **Corpus RAG:** 2.078 chunks · 5 leis · 100% confiabilidade  
 **Sprint M:** CONCLUÍDA ✅ — UAT manual, E2E Playwright, BUG-UAT-02/03/05, auth.testLogin  
 **Sprint N:** ENCERRADA ✅ — G17 ✅ · CI/CD fix ✅ · G11 ✅ · Gates v5.0 ✅ · G1/G2 ✅ · G15 ✅ · ONDA1 E2E doc ✅ · Post-mortem G17 ✅  
-**PRs mergeados:** 272 (último: #272 chore(ci+docs) fix pnpm + ONDA1 E2E doc)  
+**PRs mergeados:** 280 (último: #280 chore(backfill) script g17-backfill 4 projetos)  
 **Fila de PRs abertos:** VAZIA ✅
 
 ---
@@ -134,8 +134,8 @@ docs/HANDOFF-MANUS.md
 
 | Indicador | Valor |
 |---|---|
-| Commits no main | ~643 (HEAD `28ff332`) |
-| PRs mergeados | **267** (último: #267 feat(g11) fonte_risco) |
+| Commits no main | ~643 (HEAD `72b51d4`) |
+| PRs mergeados | **280** (último: #280 chore(backfill) script g17-backfill) |
 | PRs abertos | **0** ✅ |
 | Tabelas no schema | 68 |
 | Migrations aplicadas | **63** (0000–0062) |
@@ -148,7 +148,8 @@ docs/HANDOFF-MANUS.md
 | Docs ✅ Atualizados | 26 / 26 |
 | SKILL.md versão | v4.0 (solaris-orquestracao + solaris-contexto) |
 
+| Sprint O+ — Q6 | ✅ MERGEADO | PR #281 | Gate Q6 adicionado ao CONTRIBUTING.md — validação de dados reais obrigatória em PRs de mapeamento |
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-01 (rev G11 P1 + Gates v5.0 + G1/G2 fechados)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-01 (rev Sprint O: G17-B/C/D + backfill + Q6 governança)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
