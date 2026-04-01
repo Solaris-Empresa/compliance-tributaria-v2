@@ -20,7 +20,7 @@ export const FEATURE_FLAGS: Record<string, boolean> = {
 
   // Sprint N — G15 badge ONDA_BADGE nos questionários (Issue #192)
   // false = badge oculto; true = badge visível para P.O. validar
-  'g15-fonte-perguntas': false,
+  'g15-fonte-perguntas': true,
 
   // Bloqueio permanente — aguarda UAT com advogados (Issue #61)
   'diagnostic-read-mode-new': false,
