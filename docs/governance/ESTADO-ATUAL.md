@@ -1,31 +1,31 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Orquestrador (Claude) ao fechar cada sprint  
-> **v3.0 · 2026-03-31 (rev Sprint M concluída — Sprint N iniciada)** · Responsável: Orquestrador gera, Manus commita
+> **v3.1 · 2026-04-01 (rev G17 P0 concluído — Sprint N: G11 P1 próximo)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v3.0 · **HEAD:** `2a2f9818678b` (solaris/main) · **Testes:** 2.664 passando  
+**Baseline:** v3.1 · **HEAD:** `afe9c6b` (main, PR #263 mergeado) · **Testes:** 2.678 passando  
 **DIAGNOSTIC_READ_MODE:** shadow (aguarda UAT com advogados)  
 **Corpus RAG:** 2.078 chunks · 5 leis · 100% confiabilidade  
 **Sprint M:** CONCLUÍDA ✅ — UAT manual, E2E Playwright, BUG-UAT-02/03/05, auth.testLogin  
-**Sprint N:** INICIADA — G17 P0 (solaris_answers → gapEngine) · Fix CI/CD P1  
-**PRs mergeados:** 260 (último: #260 MODELO-OPERACIONAL v2.6)  
+**Sprint N:** G17 P0 ✅ CONCLUÍDO · Fix CI/CD P1 ✅ · Próximo: G11 (#187)  
+**PRs mergeados:** 263 (último: #263 fix(g17) enums + server/lib)  
 **Fila de PRs abertos:** VAZIA ✅
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** `main` (solaris/main HEAD `2a2f9818678b`) — fila limpa, 0 PRs abertos
+- **Branch base:** `main` (HEAD `afe9c6b`) — fila limpa, 0 PRs abertos
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via cherry-pick em branch limpo (padrão PRs #173, #177, #179, #184)
 - **Divergência de histórico:** `origin/main` (Manus S3) ≠ `solaris/main` (GitHub) — SEMPRE criar branch a partir do HEAD do `solaris/main` via `git fetch`
 - **Referência operacional:** docs/HANDOFF-MANUS.md
 - **Referência de governança:** docs/governance/HANDOFF-IMPLEMENTADOR.md
-- **Issues do backlog Sprint N:** #259 (G17 P0), Fix CI/CD P1, #187 (G11 P1), #192 (G15 P2)
+- **Issues do backlog Sprint N:** ~~#259 (G17 P0)~~ ✅, ~~Fix CI/CD P1~~ ✅, #187 (G11 P1 — **PRÓXIMO**), #192 (G15 P2)
 - **Documentos P0/P1 obrigatórios:** atualizar SEMPRE após sprint concluída:
   - P0: `docs/governance/ESTADO-ATUAL.md` (este arquivo)
   - P1: `docs/BASELINE-PRODUTO.md`
@@ -44,9 +44,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o ChatGPT (consultor)
 
-- **Estado:** Sprint M concluída — Sprint N iniciada
-- **Gaps resolvidos:** G1–G10, G13, G14, G16 + K-4-A a K-4-E + BUG-UAT-02/03/05
-- **Gaps pendentes:** G11 (#187), G15 (#192), **G17 (#259 P0)**
+- **Estado:** Sprint N em andamento — G17 P0 concluído
+- **Gaps resolvidos:** G1–G10, G13, G14, G16, G17 + K-4-A a K-4-E + BUG-UAT-02/03/05
+- **Gaps pendentes:** G11 (#187), G15 (#192)
 - **Corpus RAG:** 5 leis · 2.078 chunks · confiabilidade 100%
 - **Cockpit ao vivo:** /admin/rag-cockpit — 7 seções incluindo 7E Qualidade RAG
 - **Testes E2E:** CT-01, CT-04, CT-06, CT-07, CT-37 (Playwright)
@@ -74,9 +74,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Issue | Título | Prioridade | Status |
 |---|---|---|---|
-| #259 | G17 — Integrar solaris_answers ao gapEngine | P0 | 🔴 Aguarda implementação |
-| — | Fix CI/CD npm → pnpm (3 workflows) | P1 | 🟡 PR em andamento |
-| #187 | G11 — campo fonte_risco no RiskItemSchema | P1 | ⏳ Backlog |
+| #259 | G17 — Integrar solaris_answers ao gapEngine | P0 | ✅ DONE (PR #262 + #263) |
+| — | Fix CI/CD npm → pnpm (3 workflows) | P1 | ✅ DONE (PR #261) |
+| #187 | G11 — campo fonte_risco no RiskItemSchema | P1 | ⏳ **PRÓXIMO** |
 | #192 | G15 — Arquitetura 3 ondas de perguntas | P2 | ⏳ Backlog |
 | — | E2E CT-18..CT-35 (Admin corpus + CRUD) | P2 | ⏳ Backlog |
 
@@ -106,7 +106,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 - `F-04 Fase 3` → aguarda UAT
 - `DROP COLUMN` em colunas legadas → aguarda F-04 Fase 3
 - Issues #56, #61, #62 → bloqueadas em cascata
-- **G17 (#259)** → `gapEngine` NÃO consome `solaris_answers` — aguarda implementação Sprint N P0
+- ~~**G17 (#259)**~~ ✅ CONCLUÍDO — `gapEngine` agora consome `solaris_answers` via `analyzeSolarisAnswers` (source='solaris')
 
 ---
 
@@ -116,6 +116,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 drizzle/schema.ts
 server/ai-schemas.ts
 server/routers-fluxo-v3.ts
+server/lib/solaris-gap-analyzer.ts
+server/config/solaris-gaps-map.ts
 server/rag-retriever.ts
 docs/rag/CORPUS-BASELINE.md
 docs/rag/RAG-GOVERNANCE.md
@@ -126,16 +128,16 @@ docs/HANDOFF-MANUS.md
 
 ---
 
-## Indicadores técnicos (31/03/2026)
+## Indicadores técnicos (01/04/2026)
 
 | Indicador | Valor |
 |---|---|
-| Commits no main | ~630 (solaris/main HEAD `2a2f9818678b`) |
-| PRs mergeados | **260** (último: #260 MODELO-OPERACIONAL v2.6) |
+| Commits no main | ~640 (HEAD `afe9c6b`) |
+| PRs mergeados | **263** (último: #263 fix(g17) enums + server/lib) |
 | PRs abertos | **0** ✅ |
 | Tabelas no schema | 68 |
-| Migrations aplicadas | **61** (0000–0060) |
-| Testes passando | **2.664** (`it()` calls em 137 arquivos `.test.ts`) |
+| Migrations aplicadas | **62** (0000–0061) |
+| Testes passando | **2.678** (`it()` calls em 138 arquivos `.test.ts`) |
 | Testes E2E | 5 CTs (CT-01, CT-04, CT-06, CT-07, CT-37) |
 | Corpus RAG chunks | 2.078 |
 | Leis no corpus | 5 (LC 214, EC 132, LC 227, LC 224, LC 123) |
@@ -146,5 +148,5 @@ docs/HANDOFF-MANUS.md
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-03-31 (rev Sprint M concluída — Sprint N iniciada)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-01 (rev G17 P0 concluído — Sprint N: G11 P1 próximo)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
