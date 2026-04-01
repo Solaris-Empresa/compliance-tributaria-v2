@@ -238,3 +238,74 @@ limpas, mesmo em ambiente de teste ou durante limpeza de base:
 **Gate de bloqueio:** qualquer PR que contenha `DROP TABLE`, `TRUNCATE` ou
 `DELETE FROM` sem cláusula `WHERE` nessas tabelas → **BLOQUEADO** pelo
 Orquestrador independente do contexto.
+
+---
+
+### Gate 7 — Auto-auditoria de sprint (obrigatório antes da validação do P.O.)
+
+**Quando se aplica:** obrigatório ao final de toda sprint, antes que o P.O.
+execute testes manuais ou validação em produção.
+
+**Quem dispara:** o Orquestrador Claude — não o P.O. e não o Manus.
+
+**O que o Manus executa (6 blocos em uma única resposta):**
+
+#### Bloco 1 — Integridade dos PRs
+```bash
+git log main --oneline -5
+git show --stat [HEAD_COMMIT]
+gh pr list --state open
+```
+
+#### Bloco 2 — Q1–Q5 do último PR
+Reexecutar os greps de Q1–Q5 no código mergeado — não confiar apenas
+no body do PR.
+
+#### Bloco 3 — CI/CD
+```bash
+gh run list --limit 3
+gh pr checks [ULTIMO_PR]
+```
+
+#### Bloco 4 — Integridade do código pós-merge
+Verificar que os arquivos alterados no PR estão de acordo com o que
+foi descrito no body. Grep nos pontos críticos.
+
+#### Bloco 5 — Side findings e dados reais (Q6)
+Para PRs que tocaram config/ ou mapeamento:
+```sql
+-- Executar query real de cobertura — não usar grep
+SELECT COUNT(DISTINCT campo) FROM tabela_relevante;
+```
+
+#### Bloco 6 — Bloqueios permanentes intactos
+```bash
+grep -rn "DIAGNOSTIC_READ_MODE" server/ | head -5
+grep -rn "DROP COLUMN" drizzle/ | head -5
+# Confirmar rag_chunks, cnaes, solaris_questions intocados
+```
+
+**Formato de resposta obrigatório (Passo 7):**
+```
+### OUTPUTS BRUTOS
+[outputs exatos de cada bloco]
+
+### RESULTADO GERAL
+[ APROVADO | APROVADO COM RESSALVAS | REPROVADO ]
+
+Ressalvas:
+- [item]: [evidência]
+
+Ações necessárias antes da validação do P.O.:
+- [ação] ou NENHUMA
+```
+
+**Gate de bloqueio:**
+
+| Condição | Ação |
+|---|---|
+| Bloco 5 executado com grep em vez de SQL | REPROVADO — repetir com query real |
+| PRs abertos sem baseline atualizado | REPROVADO |
+| Resultado REPROVADO | Orquestrador NÃO libera validação ao P.O. |
+| Resultado APROVADO COM RESSALVAS | Orquestrador lista ações antes de liberar |
+| P.O. solicitou auditoria antes do Orquestrador | Registrar como falha de processo |

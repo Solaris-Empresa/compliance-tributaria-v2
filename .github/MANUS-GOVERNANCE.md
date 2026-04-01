@@ -87,6 +87,17 @@ O Confidence Score 98% é calculado sobre as seguintes dimensões:
 
 ---
 
+## Processos obrigatórios por sprint
+
+| Processo | Momento | Responsável | Critério de aprovação |
+|---|---|---|---|
+| Gate 0 | Início de cada tarefa | Manus | HEAD confirmado + arquivos de governança lidos |
+| Q1–Q5 | Em todo PR | Manus | Declaração explícita no body do PR |
+| Q6 | PRs que tocam config/ ou mapeamento | Manus | Query SQL real executada, cobertura ≥ 80% |
+| Gate 7 — Auto-auditoria | Fim de cada sprint | Manus executa 6 blocos · Orquestrador analisa · P.O. só valida após APROVADO ou APROVADO COM RESSALVAS resolvidas |
+
+---
+
 ## Checkpoints da sprint
 
 | Bloco | Versão Manus | Data | Status |
