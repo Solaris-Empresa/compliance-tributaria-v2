@@ -31,6 +31,8 @@ import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-h
 import mysql from "mysql2/promise";
 import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
+// G17-B: trigger síncrono de derivação de riscos após gaps SOLARIS
+import { deriveRisksFromGaps, persistRisks } from "./routers/riskEngine";
 import { injectOnda1IntoQuestions } from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
@@ -2230,6 +2232,31 @@ Gere o Briefing estruturado em JSON:
       void analyzeSolarisAnswers(input.projectId).catch((err) => {
         console.error('[G17] analyzeSolarisAnswers falhou — pipeline V1 não afetado:', err);
       });
+
+      // G17-B — Trigger síncrono: derivar e persistir riscos dos gaps SOLARIS
+      // Padrão await (não fire-and-forget) para garantir que riscos existam antes do briefingEngine
+      // Erro no riskEngine NÃO bloqueia o fluxo — logar e continuar
+      try {
+        const project = await db.getProjectById(input.projectId);
+        const porte = (project?.companyProfile as any)?.companySize ?? null;
+        const regime = (project?.companyProfile as any)?.taxRegime ?? null;
+        const gaps = await deriveRisksFromGaps(input.projectId, porte, regime);
+        if (gaps.length > 0) {
+          await persistRisks(input.projectId, gaps);
+        }
+        console.log(JSON.stringify({
+          event: 'g17b_risks_derived',
+          projectId: input.projectId,
+          risksCount: gaps.length,
+        }));
+      } catch (err) {
+        // NÃO bloquear o fluxo — logar e continuar
+        console.log(JSON.stringify({
+          event: 'g17b_risk_engine_error',
+          projectId: input.projectId,
+          error: String(err),
+        }));
+      }
 
       return {
         success: true,
