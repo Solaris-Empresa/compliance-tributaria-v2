@@ -45,9 +45,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o ChatGPT (consultor)
 
-- **Estado:** Sprint N ENCERRADA ✅ — G17 ✅ G11 ✅ G15 ✅ Gates v5.0 ✅ G1/G2 ✅ CI/CD fix ✅ ONDA1 doc ✅
+- **Estado:** Sprint O ENCERRADA ✅ — G17-B ✅ (PR #276) · Sprint N ENCERRADA ✅ — G17 ✅ G11 ✅ G15 ✅ Gates v5.0 ✅
 - **Gaps resolvidos:** G1–G14, G16, G17 + K-4-A a K-4-E + BUG-UAT-02/03/05 + Gates G1/G2
-- **Gaps pendentes:** nenhum na Sprint N · Sprint O: journal migration, riskEngine, alerta INSERT
+- **Gaps pendentes:** Sprint O+ — backfill 4 projetos reais · normalizar SOLARIS_GAPS_MAP (10/76 tópicos) · journal migration
 - **Corpus RAG:** 5 leis · 2.078 chunks · confiabilidade 100%
 - **Cockpit ao vivo:** /admin/rag-cockpit — 7 seções incluindo 7E Qualidade RAG
 - **Testes E2E:** CT-01, CT-04, CT-06, CT-07, CT-37 (Playwright)

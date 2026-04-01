@@ -60,10 +60,6 @@ export default function QuestionarioSolaris() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ── Feature flags (G15) ─────────────────────────────────────────────────
-  const { data: featureFlags } = trpc.system.getFeatureFlags.useQuery();
-  const showOndaBadge = featureFlags?.g15FontePerguntas ?? false;
-
   // ── Buscar perguntas ──────────────────────────────────────────────────────
   const { data, isLoading, error } = trpc.fluxoV3.getOnda1Questions.useQuery(
     { projectId },
@@ -315,16 +311,6 @@ export default function QuestionarioSolaris() {
                         className="text-[10px] h-4 border-red-300/60 text-red-600 dark:text-red-400 bg-red-500/5"
                       >
                         Obrigatória
-                      </Badge>
-                    )}
-                    {/* G15 — ONDA_BADGE: exibido sob feature flag g15-fonte-perguntas */}
-                    {showOndaBadge && (
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] h-4 border-blue-300/60 text-blue-600 dark:text-blue-400 bg-blue-500/5"
-                        title="Origem: Orientação jurídica SOLARIS (Onda 1)"
-                      >
-                        • Onda 1 — SOLARIS
                       </Badge>
                     )}
                   </div>
