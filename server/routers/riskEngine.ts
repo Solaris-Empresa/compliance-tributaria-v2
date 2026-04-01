@@ -324,14 +324,19 @@ export async function deriveRisksFromGaps(
   const db = getPool();
 
   // Buscar gaps classificados do projeto com dados do requisito
+  // G17-B: filtro expandido para incluir gaps SOLARIS sem gap_classification
+  //        (usam g.criticality como fallback para base_criticality)
   const [gaps] = await db.query<mysql.RowDataPacket[]>(
     `SELECT
        g.id as gap_id,
        g.requirement_id,
        g.gap_classification,
+       g.criticality as gap_criticality,
        g.evaluation_confidence,
        g.source_reference as gap_source_reference,
        g.source as gap_source,
+       g.gap_description as gap_desc_solaris,
+       g.domain as gap_domain,
        r.base_criticality,
        r.default_gap_type,
        r.domain,
@@ -341,8 +346,11 @@ export async function deriveRisksFromGaps(
      FROM project_gaps_v3 g
      LEFT JOIN regulatory_requirements_v3 r ON g.requirement_id = r.id
      WHERE g.project_id = ?
-       AND g.gap_classification IS NOT NULL
-       AND g.gap_classification != ''
+       AND (
+         (g.gap_classification IS NOT NULL AND g.gap_classification != '')
+         OR
+         (g.source = 'solaris' AND g.criticality IS NOT NULL)
+       )
      ORDER BY r.base_criticality DESC, g.gap_classification ASC`,
     [projectId]
   );
@@ -351,19 +359,23 @@ export async function deriveRisksFromGaps(
 
   for (const gap of gaps) {
     const origin: RiskOrigin = gap.requirement_id ? "derivado" : "direto";
-    const taxonomy = mapDomainToTaxonomy(
-      gap.domain || "fiscal",
-      gap.default_gap_type || "normativo",
-      gap.req_description || ""
-    );
+    // G17-B: para gaps SOLARIS sem gap_classification, usar 'ausencia' como fallback
+    // (gap identificado = ausência de controle; criticality do gap como base_criticality)
+    const effectiveGapClassification: string =
+      gap.gap_classification || (gap.gap_source === 'solaris' ? 'ausencia' : 'ausencia');
+    const effectiveBaseCriticality: string =
+      gap.base_criticality || gap.gap_criticality || 'media';
+    const effectiveDomain: string = gap.domain || gap.gap_domain || 'fiscal';
+    const effectiveGapType: string = gap.default_gap_type || 'normativo';
+    const effectiveDescription: string = gap.req_description || gap.gap_desc_solaris || '';
+
     const score = calculateRiskScore(
-      gap.base_criticality || "media",
-      gap.gap_classification,
+      effectiveBaseCriticality,
+      effectiveGapClassification,
       porte,
       regime,
       origin
     );
-
     // G11: derivar fonte_risco a partir de project_gaps_v3.source (migration 0061)
     const fonteRisco: 'solaris' | 'cnae' | 'iagen' | 'v1' =
       gap.gap_source === 'solaris' ? 'solaris'
@@ -374,16 +386,16 @@ export async function deriveRisksFromGaps(
       gap_id: gap.gap_id,
       requirement_id: gap.requirement_id || null,
       source_reference: gap.req_source_reference || gap.gap_source_reference || null,
-      gap_classification: gap.gap_classification,
+      gap_classification: effectiveGapClassification,
       origin,
       origin_justification:
         origin === "derivado"
-          ? `Risco derivado do gap classificado como '${gap.gap_classification}' no requisito ${gap.requirement_id}`
-          : `Risco direto do gap ${gap.gap_id}`,
-      taxonomy,
+          ? `Risco derivado do gap classificado como '${effectiveGapClassification}' no requisito ${gap.requirement_id}`
+          : `Risco direto do gap ${gap.gap_id} (source=${gap.gap_source})`,
+      taxonomy: mapDomainToTaxonomy(effectiveDomain, effectiveGapType, effectiveDescription),
       score,
-      description: `Risco ${score.severity} identificado: ${gap.req_description || "gap sem descrição"}`,
-      mitigation_hint: `Regularizar ${gap.default_gap_type || "conformidade"} referente a ${gap.req_source_reference || "requisito aplicável"}`,
+      description: `Risco ${score.severity} identificado: ${effectiveDescription || 'gap sem descrição'}`,
+      mitigation_hint: `Regularizar ${effectiveGapType} referente a ${gap.req_source_reference || gap.gap_source_reference || 'requisito aplicável'}`,
       fonte_risco: fonteRisco,
     });
   }
