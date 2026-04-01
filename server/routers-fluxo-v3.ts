@@ -30,6 +30,7 @@ import {
 import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
 import mysql from "mysql2/promise";
 import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
+import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
 import { injectOnda1IntoQuestions } from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
@@ -45,111 +46,8 @@ const CnaeSchema = z.object({
   justification: z.string().optional(),
 });
 
-// ─── G17: analyzeSolarisAnswers ───────────────────────────────────────────────
-/**
- * Lê as respostas negativas da Onda 1 SOLARIS e gera gaps em project_gaps_v3.
- * Chamada em fire-and-forget após completeOnda1 — não bloqueia o frontend.
- *
- * Padrão de detecção negativa (D2 — conservador):
- *   resposta.trim().toLowerCase().startsWith('não') || === 'nao'
- *   "Não aplicável", "Não sei" → NÃO disparam gap
- *
- * Idempotência: DELETE source='solaris' antes de INSERT (D4).
- * Compatibilidade V1: LEFT JOIN gracioso para projetos sem solaris_answers.
- */
-async function analyzeSolarisAnswers(projectId: number): Promise<void> {
-  const pool = mysql.createPool(process.env.DATABASE_URL ?? '');
-  try {
-    // 1. Buscar respostas da Onda 1 com dados da pergunta (topicos, codigo)
-    const [rows] = await pool.query<mysql.RowDataPacket[]>(
-      `SELECT sa.resposta, sq.topicos, sq.codigo
-       FROM solaris_answers sa
-       LEFT JOIN solaris_questions sq ON sq.id = sa.question_id
-       WHERE sa.project_id = ? AND sq.ativo = 1`,
-      [projectId]
-    );
-
-    if (!rows || rows.length === 0) {
-      // Projeto sem solaris_answers (V1 legado) — degradar graciosamente
-      return;
-    }
-
-    const gapsToInsert: SolarisGapDefinition[] = [];
-
-    for (const row of rows) {
-      const resposta = (row.resposta as string)?.trim().toLowerCase() ?? '';
-      // D2: detecção conservadora — apenas "não" exato ou startsWith
-      const isNegative = resposta.startsWith('não') || resposta === 'nao';
-      if (!isNegative) continue;
-
-      // D6: normalizar tópicos com trim + toLowerCase
-      const topicos = (row.topicos as string | null)
-        ?.split(',')
-        .map((t: string) => t.trim().toLowerCase())
-        .filter(Boolean) ?? [];
-
-      for (const topico of topicos) {
-        const gaps = SOLARIS_GAPS_MAP[topico];
-        if (!gaps) {
-          console.warn(`[G17] Tópico sem mapeamento: "${topico}" (${row.codigo})`);
-          continue;
-        }
-        gapsToInsert.push(...gaps);
-      }
-    }
-
-    if (gapsToInsert.length === 0) {
-      // Todas as respostas positivas — nenhum gap SOLARIS a inserir
-      return;
-    }
-
-    // 2. Idempotência: deletar gaps SOLARIS anteriores para este projeto
-    await pool.query(
-      `DELETE FROM project_gaps_v3 WHERE project_id = ? AND source = 'solaris'`,
-      [projectId]
-    );
-
-    // 3. Inserir novos gaps SOLARIS
-    const now = new Date();
-    for (const gap of gapsToInsert) {
-      await pool.query(
-        `INSERT INTO project_gaps_v3
-           (project_id, gap_description, domain, criticality, analysis_version,
-            source, created_at, updated_at,
-            client_id, requirement_code, requirement_name, gap_level, gap_type,
-            compliance_status, evidence_status, operational_dependency, score,
-            risk_level, priority_score, critical_evidence_flag, action_priority,
-            estimated_days, deterministic_reason, ai_reason, unmet_criteria,
-            recommended_actions, requirement_id, gap_classification,
-            evaluation_confidence, evaluation_confidence_reason, question_id,
-            answer_value, source_reference)
-         VALUES
-           (?, ?, ?, ?, 3,
-            'solaris', ?, ?,
-            0, 'SOLARIS', ?, 'ausencia', 'ausencia',
-            'nao_compliant', 'pendente', 'baixo', 80,
-            'alto', 80, 1, 'alta',
-            30, 'Resposta negativa na Onda 1 SOLARIS', NULL, NULL,
-            'Implementar controle conforme LC 214/2025', 0, 'ausencia',
-            0.9, 'Detectado por resposta negativa SOLARIS', 0,
-            'não', ?)`,
-        [
-          projectId,
-          gap.gap_descricao,
-          gap.area,
-          gap.severidade,
-          now, now,
-          gap.gap_descricao,
-          gap.topico_trigger,
-        ]
-      );
-    }
-
-    console.info(`[G17] ${gapsToInsert.length} gap(s) SOLARIS inseridos para projeto ${projectId}`);
-  } finally {
-    await pool.end();
-  }
-}
+// ─── G17: analyzeSolarisAnswers — extraída para server/lib/solaris-gap-analyzer.ts ──
+// Importada acima (linha 33). Fire-and-forget em completeOnda1 (linha ~2332).
 
 export const fluxoV3Router = router({
 
