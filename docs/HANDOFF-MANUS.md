@@ -29,24 +29,28 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-01)
+## Estado atual do projeto (2026-04-01 — fim de sessão)
 
-- BASELINE **v3.0** — **Sprint N CONCLUÍDA** — 9 PRs mergeados (#261–#269)
-- **G17 ✅** — `analyzeSolarisAnswers` → `server/lib/` · `source='solaris'` em `project_gaps_v3` (PR #263)
-- **G11 ✅** — `fonte_risco` em `project_risks_v3` · migration 0062 · ONDA_BADGE riscos (PR #267)
-- **G15 ✅** — ONDA_BADGE questionários · ADR-0002 · INV-005 · feature flag (PR #269)
-- **Gates v5.0 ✅** — Q1–Q7 + R9/R10 + Gate 0/2.5/4 + Skills v4.0 + validate-pr-body (PR #266)
-- **G1/G2 ✅** — gaps de validação fechados · ESTADO-ATUAL v3.2 (PR #268)
-- **Post-mortem G17 ✅** — `docs/governance/post-mortems/2026-03-31-g17-insert-silencioso.md`
-- **2.689 testes passando** (139 arquivos `.test.ts`)
+- BASELINE **v3.2** — **Sprints O/P/Q/R ENCERRADAS** — 11 PRs mergeados (#276–#288, excluindo #282 e #285)
+- **G17-C ✅** — SOLARIS_GAPS_MAP expandido para 76 tópicos snake_case (PR #278)
+- **G17-D ✅** — fix split delimiter `,` → `/[;,]/` (PR #279)
+- **Backfill ✅** — 4 projetos reais com riscos derivados (PR #280)
+- **Gate Q6 ✅** — validação de dados reais obrigatória em PRs de mapeamento (PR #281)
+- **CI unit tests ✅** — 69 testes em `server/integration/` · `test:unit` · CI usa `pnpm test:unit` (PR #283)
+- **Bloqueios dados ✅** — proteção formal rag_chunks/cnaes/solaris_questions (PR #284)
+- **Gate 7 ✅** — auto-auditoria formal antes de toda validação do P.O. (PR #286)
+- **fix g17 + nfe ✅** — g17-solaris-gap.test.ts corrigido · chave `nfe` adicionada ao SOLARIS_GAPS_MAP (PR #287)
+- **fix solarisAdmin ✅** — upsert reativa ativo=1 · listBatches oculta lotes deletados · 6 testes Q5 (PR #288)
+- **1.436 testes unitários passando** (71 arquivos) · **69 testes integração** em `server/integration/`
+- **Corpus SOLARIS: 24 perguntas ativas** (SOL-013..036) · SOLARIS_GAPS_MAP: 77 chaves
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - **63 migrations aplicadas** (0062 = `fonte_risco` G11 · 0063 = registro G15)
 - Branch protection: ativa (ruleset `main-protection`, ID 14328406)
 - **Corpus RAG: 2.078 chunks — 100% com anchor_id canônico (DEC-002)**
 - **Agent Skills ativas:** Manus `solaris-orquestracao` v4.0 + Claude `solaris-contexto` v4.0
-- **Feature flags:** `server/config/feature-flags.ts` · `g15-fonte-perguntas=true`
-- **Commit HEAD:** `802c3f2` (main sincronizado com GitHub externo, pós G15)
-- **Commits no main:** 642 · **PRs mergeados:** 269
+- **Feature flags:** `server/config/feature-flags.ts` · `g17-solaris-gap-engine=true` · `g11-fonte-risco=true` · `g15-fonte-perguntas=true`
+- **Commit HEAD:** `8727578` (main sincronizado com GitHub externo, pós PR #288)
+- **Commits no main:** ~654 · **PRs mergeados:** 288
 
 ## Documentos P0/P1 — atualizar SEMPRE após sprint concluída
 
@@ -119,29 +123,33 @@ Drizzle ORM / Vitest / pnpm
 | 10 docs defasados atualizados (GUIA-UAT v2.1, CHANGELOG K-4-B/C/D, +8) | ✅ PR #202 |
 | Datas dinâmicas Seção 4 — fetch do último commit de cada arquivo | ✅ PR #202 |
 
-## PRs mergeados (histórico recente — Sprint N)
+## PRs mergeados (histórico recente — Sprints O/P/Q/R)
 
 | PR | Título | Data |
 |---|---|---|
-| #261 | fix(ci): corrigir npm → pnpm nos 3 workflows | 2026-04-01 |
-| #262 | feat(g17): integrar solaris_answers ao gapEngine | 2026-04-01 |
-| #263 | fix(g17): extrair analyzeSolarisAnswers para server/lib e corrigir enums | 2026-04-01 |
-| #264 | docs(sprint-n): ESTADO-ATUAL v3.1 + CHANGELOG — G17 P0 concluído | 2026-04-01 |
-| #266 | chore(gates): Sistema de Engenharia de Qualidade v5.0 | 2026-04-01 |
-| #267 | feat(g11): adicionar campo fonte_risco em project_risks_v3 | 2026-04-01 |
-| #268 | chore(governance): ESTADO-ATUAL v3.2 — G11 + Gates v5.0 + G1/G2 fechados | 2026-04-01 |
-| #269 | feat(g15): Arquitetura 3 Ondas — ONDA_BADGE + feature flag + ADR-0002 | 2026-04-01 |
+| #276 | feat(g17-b): trigger riskEngine em completeOnda1 | 2026-04-01 |
+| #277 | docs: BASELINE v3.1 + ESTADO-ATUAL v3.4 | 2026-04-01 |
+| #278 | feat(g17-c): SOLARIS_GAPS_MAP 76 tópicos snake_case | 2026-04-01 |
+| #279 | fix(g17-d): split(',') → split(/[;,]/) | 2026-04-01 |
+| #280 | chore(backfill): script g17-backfill 4 projetos reais | 2026-04-01 |
+| #281 | chore(governance): Gate Q6 — validação de dados reais | 2026-04-01 |
+| #283 | chore(ci): 69 testes integração para server/integration/ + test:unit | 2026-04-01 |
+| #284 | chore(governance): proteção formal dados permanentes | 2026-04-01 |
+| #286 | chore(governance): Gate 7 auto-auditoria formal | 2026-04-01 |
+| #287 | chore(test+map): fix g17-solaris-gap.test.ts + chave nfe | 2026-04-01 |
+| #288 | fix(solarisAdmin): upsert reativa ativo=1 + listBatches oculta lotes deletados | 2026-04-01 |
 
 ## PRs abertos
 
-Nenhum PR aberto no momento. Sprint N concluída.
+Nenhum PR aberto no momento. Sprints O/P/Q/R encerradas.
 
-## Próximas sprints (Sprint O)
+## Próximas sprints (Sprint Auditoria E2E)
 
-- **Prioridade 1:** Reconciliar `drizzle/meta/_journal.json` (61 entradas vs. 63 migrations — dessincronizado)
-- **Prioridade 2:** Alerta automático para INSERT silencioso em `project_gaps_v3` (ação preventiva post-mortem G17)
-- **Prioridade 3:** G16 Score CPIE automático por CNAE ou G18 exportação PDF do Plano de Ação (definir com Orquestrador)
-- **Meta DORA Sprint O:** CFR < 10% (Sprint N foi ~15% — 1 incidente P1 G17)
+- **Prioridade 1:** Auditar se dados das 3 ondas chegam ao briefing e à matriz de riscos (E2E das tabelas)
+- **Prioridade 2:** Verificar Onda 2 e Onda 3 no pipeline — `project_risks_v3` é populado corretamente?
+- **Prioridade 3:** Segunda planilha advogados (aguardando Dr. José Rodrigues) — SOL-037+ quando disponível
+- **Prioridade 4:** Adicionar `'nfe'` como tópico em SOL-013 no próximo upload CSV
+- **Lembrete de governança:** Gate 7 (auto-auditoria) ANTES da validação do P.O. — o Orquestrador dispara, não o P.O.
 
 ## Gaps RAG — estado atual
 
