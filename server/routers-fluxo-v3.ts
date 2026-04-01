@@ -28,6 +28,10 @@ import {
   calcularMatrizMetadata,
 } from "./ai-schemas";
 import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
+import mysql from "mysql2/promise";
+import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
+import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
+import { deriveRisksFromGaps, persistRisks } from "./routers/riskEngine";
 import { injectOnda1IntoQuestions } from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
@@ -42,6 +46,9 @@ const CnaeSchema = z.object({
   confidence: z.number().min(0).max(100),
   justification: z.string().optional(),
 });
+
+// ─── G17: analyzeSolarisAnswers — extraída para server/lib/solaris-gap-analyzer.ts ──
+// Importada acima (linha 33). Fire-and-forget em completeOnda1 (linha ~2332).
 
 export const fluxoV3Router = router({
 
@@ -2217,9 +2224,48 @@ Gere o Briefing estruturado em JSON:
 
       // Salvar respostas (upsert idempotente)
       await db.saveOnda1Answers(input.projectId, input.answers);
-
       // Avançar status do projeto para onda1_solaris
       await db.updateProject(input.projectId, { status: 'onda1_solaris' as any });
+
+      // G17 — Fire-and-forget: gerar gaps SOLARIS sem bloquear resposta ao frontend
+      void analyzeSolarisAnswers(input.projectId).catch((err) => {
+        console.error('[G17] analyzeSolarisAnswers falhou — pipeline V1 não afetado:', err);
+      });
+
+      // G17-B — Trigger síncrono: derivar riscos a partir dos gaps SOLARIS
+      // Executado APÓS analyzeSolarisAnswers (fire-and-forget) para garantir que
+      // os gaps já estejam gravados antes de chamar o riskEngine.
+      // Erro no riskEngine NÃO bloqueia o fluxo — logar e continuar.
+      try {
+        // Buscar porte/regime do projeto para o score correto
+        const pool = mysql.createPool(process.env.DATABASE_URL ?? '');
+        const [projRows] = await pool.query<import('mysql2').RowDataPacket[]>(
+          'SELECT porte, regime FROM projects WHERE id = ?',
+          [input.projectId]
+        );
+        await pool.end();
+        const projData = (projRows as import('mysql2').RowDataPacket[])[0];
+        const gaps = await deriveRisksFromGaps(
+          input.projectId,
+          projData?.porte ?? null,
+          projData?.regime ?? null
+        );
+        if (gaps.length > 0) {
+          await persistRisks(input.projectId, gaps);
+        }
+        console.log(JSON.stringify({
+          event: 'g17b_risks_derived',
+          projectId: input.projectId,
+          risksCount: gaps.length,
+        }));
+      } catch (err) {
+        // NÃO bloquear o fluxo — logar e continuar
+        console.log(JSON.stringify({
+          event: 'g17b_risk_engine_error',
+          projectId: input.projectId,
+          error: String(err),
+        }));
+      }
 
       return {
         success: true,
