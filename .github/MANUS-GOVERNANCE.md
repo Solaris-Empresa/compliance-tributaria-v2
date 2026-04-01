@@ -110,3 +110,11 @@ O Confidence Score 98% é calculado sobre as seguintes dimensões:
 - [Tabela de melhorias técnicas](../docs/product/cpie-v2/produto/TABELA-MELHORIAS-TECNICAS-HOW-v1.md)
 - [Playbook v3.0](../docs/product/cpie-v2/produto/PLAYBOOK-DA-PLATAFORMA-v3.md)
 - [Shadow Monitor](https://iasolaris.manus.space/admin/shadow-monitor)
+
+---
+
+## Erros Recorrentes e Lições Aprendidas
+
+| Data | Erro | Causa Raiz | Resolução |
+|------|------|-----------|-----------|
+| 2026-04-01 | SOLARIS_GAPS_MAP 96% ineficaz | 7/10 chaves com acentos vs snake_case no banco — grep aceitou como OK, query real revelou falha | Q6 adicionado ao CONTRIBUTING.md |
