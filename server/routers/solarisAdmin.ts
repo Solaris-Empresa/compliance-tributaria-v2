@@ -282,6 +282,7 @@ export const solarisAdminRouter = router({
                 'sistema' as uploaded_by
          FROM solaris_questions
          WHERE upload_batch_id IS NOT NULL
+           AND ativo = 1
          GROUP BY upload_batch_id
          ORDER BY created_at DESC`
       );
@@ -384,6 +385,7 @@ export const solarisAdminRouter = router({
             if (rows.length > 0) {
               await conn.execute(
                 `UPDATE solaris_questions SET
+                  ativo = 1,
                   texto = ?, categoria = ?, cnae_groups = ?,
                   titulo = ?, topicos = ?, severidade_base = ?,
                   vigencia_inicio = ?, upload_batch_id = ?, atualizado_em = ?
