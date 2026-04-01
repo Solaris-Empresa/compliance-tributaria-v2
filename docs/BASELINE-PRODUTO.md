@@ -2,8 +2,8 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 3.0 — 2026-04-01 (rev Sprint N)
-> **Commit HEAD:** `802c3f2` (G15 ONDA_BADGE — PR #269)
+> **Versão:** 3.1 — 2026-04-01 (rev Sprint O — G17-B mergeado)
+> **Commit HEAD:** `9cc0dbf` (G17-B trigger riskEngine — PR #276)
 > **Checkpoint Manus:** `620d0426`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
@@ -27,8 +27,10 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | TypeScript | 0 erros (`npx tsc --noEmit`) | ✅ |
 | Testes automatizados — total | **2.689 passando** (139 arquivos `.test.ts`) | ✅ |
 | Testes Sprint N | G17: 13 · G11: 12 · G15: 5 · Gates Q5: 13 — todos passando | ✅ |
+| Testes Sprint O | G17-B: 6 (`g17b-solaris-pipeline.test.ts`) — todos passando | ✅ |
 | Git working tree | Limpo — `main` = `802c3f2`, sincronizado com GitHub externo | ✅ |
 | Sprint N | G17 ✅ + G11 ✅ + G15 ✅ + Gates v5.0 ✅ + G1/G2 ✅ — 9 PRs mergeados | ✅ |
+| Sprint O | G17-B ✅ — trigger síncrono `riskEngine` após gaps SOLARIS · PR #276 | ✅ |
 | Sprint M | UAT manual + E2E Playwright + BUG-UAT-02/03/05 + auth.testLogin | ✅ |
 | Sprint L (RAG) | Cockpit 3 Ondas + RAG Quality Gate + rag_usage_log + Seção 7E | ✅ |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
@@ -47,6 +49,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | G17 Sprint N | `analyzeSolarisAnswers` → `server/lib/` · `source='solaris'` em `project_gaps_v3` | ✅ |
 | G11 Sprint N | `fonte_risco` em `project_risks_v3` · migration 0062 · ONDA_BADGE riscos | ✅ |
 | G15 Sprint N | `fonte` em perguntas · ONDA_BADGE questionários · ADR-0002 · INV-005 | ✅ |
+| G17-B Sprint O | trigger síncrono `deriveRisksFromGaps`+`persistRisks` em `completeOnda1` · fallback `gap_classification=NULL` para `source='solaris'` · 6 testes | ✅ |
 | Feature flags | `server/config/feature-flags.ts` · `g15-fonte-perguntas=true` ativo | ✅ |
 | Post-mortem G17 | `docs/governance/post-mortems/2026-03-31-g17-insert-silencioso.md` · 5 Whys | ✅ |
 
@@ -298,6 +301,7 @@ Os erros abaixo estão catalogados em [`docs/ERROS-CONHECIDOS.md`](https://githu
 | **Sprint N — Gates v5.0** | Q1–Q7 + R9/R10 + Gate 0/2.5/4 + Skills v4.0 + validate-pr-body | ✅ Concluída | PR #266 |
 | **Sprint N — G11** | `fonte_risco` em `project_risks_v3` · migration 0062 · badge visual | ✅ Concluída | PR #267 |
 | **Sprint N — G15** | ONDA_BADGE nos questionários · ADR-0002 · INV-005 · feature flag | ✅ Concluída | PR #269 |
+| **Sprint O — G17-B** | trigger síncrono `deriveRisksFromGaps`+`persistRisks` em `completeOnda1` · filtro OR `source='solaris'` em `riskEngine.ts` · fallback `criticality` quando `gap_classification=NULL` · G11 preservado · 6 testes | ✅ Concluída | PR #276 |
 
 ---
 
@@ -416,6 +420,7 @@ DROP TABLE IF EXISTS iagen_answers;
 | 2.4 | 2026-03-28 | `e54d606` | Sprint K K-4-D: wiring `onStartMatrizes`/`onStartPlano` no `DiagnosticoStepper` (interface + `handleStepStart`), callbacks passados em `ProjetoDetalhesV2`. Fix T06.1 (assertion atualizada para `questionario-solaris`). PR #184 mergeado. Fluxo das 8 etapas 100% funcional. |
 | 2.5 | 2026-03-29 | `326c6e6` | Sprint K+ e K++ concluídas: Cockpit P.O. v2.0 (C1–C5+I1–I4 acionável, PR #197), fetch dinâmico API GitHub (Score de Saúde em tempo real, PR #199), Seção 4 (4A–4F) com 24 docs catalogados (PR #200), 10 docs defasados atualizados + datas dinâmicas (PR #202). 580 commits · 202 PRs mergeados. |
 | 3.0 | 2026-04-01 | `802c3f2` | Sprint N concluída: G17 P0 (`analyzeSolarisAnswers` → `server/lib/`, source='solaris', PR #263), Fix CI/CD npm→pnpm (PR #261), G11 (`fonte_risco` em `project_risks_v3`, migration 0062, PR #267), Gates v5.0 (Q1–Q7+R9/R10+Gate 0/2.5/4+Skills v4.0, PR #266), G1/G2 fechados (PR #268), G15 (ONDA_BADGE+ADR-0002+INV-005+feature flag, PR #269), post-mortem G17 (5 Whys, MTTR ~4h). 642 commits · 269 PRs mergeados. |
+| 3.1 | 2026-04-01 | `9cc0dbf` | Sprint O — G17-B: trigger síncrono `deriveRisksFromGaps`+`persistRisks` em `completeOnda1` após `analyzeSolarisAnswers` (PR #276). `riskEngine.ts`: filtro OR `source='solaris'` + fallback `criticality` quando `gap_classification=NULL`. G11 (`fonte_risco`) preservado. 6 testes novos. Side-finding: SOLARIS_GAPS_MAP cobre 10/76 tópicos (7 chaves com problema de normalização acentos vs. snake_case). 276 PRs mergeados. |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 

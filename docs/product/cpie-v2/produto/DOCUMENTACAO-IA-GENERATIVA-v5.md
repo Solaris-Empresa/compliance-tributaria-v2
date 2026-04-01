@@ -3,19 +3,17 @@
 
 | Campo | Valor |
 |---|---|
-| **Versão** | 5.1 |
-| **Data** | 31 de Março de 2026 |
-| **Sprint de Referência** | Sprint M (UAT E2E + BUG-UAT-02/03/05, 31/03/2026) |
-| **Versão anterior** | v5.0 (Sprint v5.3.0, 23/03/2026) |
+| **Versão** | 5.0 |
+| **Data** | 23 de Março de 2026 |
+| **Sprint de Referência** | v5.3.0 (versão atual em produção) |
+| **Versão anterior** | v4.0 (IA SOLARIS v5.2.0, Sprint V74) |
 | **Classificação** | Documento Técnico Interno |
 | **Responsável** | Equipe SOLARIS |
 
 > **Histórico de versões:**
-> v1.0 (Sprint V60) → v2.0 (Sprint V69) → v3.0 (Sprint V74) → v4.0 (IA SOLARIS v5.2.0) → v5.0 (Sprint v5.3.0, 23/03/2026) → **v5.1 (Sprint M, 31/03/2026)**
+> v1.0 (Sprint V60) → v2.0 (Sprint V69) → v3.0 (Sprint V74) → v4.0 (IA SOLARIS v5.2.0) → **v5.0 (Sprint v5.3.0, 23/03/2026)**
 >
-> **Mudanças da v5.1 (Sprint M):** BUG-UAT-03 corrigido (`completeOnda2` gravava status de origem em vez de destino — PR #254) · BUG-UAT-05 corrigido (DiagnosticoStepper hardcode `SOL-001 a SOL-012` removido — PR #256) · auth.testLogin implementado com guard `E2E_TEST_MODE` · 5 suites E2E Playwright adicionadas (CT-01/04/06/07/37) · SOL-013/014 removidos do corpus via soft-delete.
->
-> **Mudanças da v5.0:** Incorporação da arquitetura de diagnóstico dual V1/V3 (ADR-005), Shadow Mode com `getDiagnosticSource()`, gate de retrocesso com limpeza de dados (ADR-007), suite de validação automatizada Onda 1 + Onda 2 (107/107 ✅), protocolo UAT com advogados, métricas de performance atualizadas, roadmap revisado para Sprint V80+.
+> **Mudanças desta versão:** Incorporação da arquitetura de diagnóstico dual V1/V3 (ADR-005), Shadow Mode com `getDiagnosticSource()`, gate de retrocesso com limpeza de dados (ADR-007), suite de validação automatizada Onda 1 + Onda 2 (107/107 ✅), protocolo UAT com advogados, métricas de performance atualizadas, roadmap revisado para Sprint V80+.
 
 ---
 
@@ -55,7 +53,7 @@ O design do motor prioriza três propriedades: **precisão** (citações legais 
 
 A versão 5.0 introduz uma quarta propriedade: **coexistência de motores**. O campo `flowVersion` em cada projeto determina qual motor de diagnóstico serve os dados — V1 (legado) ou V3 (novo) — permitindo migração gradual sem impacto nos 2.145 projetos existentes.
 
-### Números-chave da plataforma (31/03/2026)
+### Números-chave da plataforma (23/03/2026)
 
 | Indicador | Valor |
 |---|---|
@@ -63,9 +61,9 @@ A versão 5.0 introduz uma quarta propriedade: **coexistência de motores**. O c
 | Usuários cadastrados | 1.497 |
 | CNAEs com embedding | 1.332 / 1.332 (100%) |
 | Documentos no corpus RAG | 1.241 |
-| Testes automatizados | 107 / 107 ✅ (unit) + 5 suites E2E Playwright (Sprint M) |
+| Testes automatizados | 107 / 107 ✅ |
 | Divergências Shadow Mode | 274 (0 críticas) |
-| Arquivos de teste | 102 (unit) + 3 (E2E Playwright) |
+| Arquivos de teste | 102 |
 | Tabelas no schema | 64 |
 
 ---
