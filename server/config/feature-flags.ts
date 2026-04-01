@@ -15,8 +15,12 @@ export const FEATURE_FLAGS: Record<string, boolean> = {
   // Sprint N — G17 validado em produção (projeto 2310001, 3 gaps inseridos)
   'g17-solaris-gap-engine': true,
 
-  // Sprint N — G11 fonte_risco: aguarda implementação
-  'g11-fonte-risco': false,
+  // Sprint N — G11 fonte_risco: implementado (PR #267)
+  'g11-fonte-risco': true,
+
+  // Sprint N — G15 badge ONDA_BADGE nos questionários (Issue #192)
+  // false = badge oculto; true = badge visível para P.O. validar
+  'g15-fonte-perguntas': true,
 
   // Bloqueio permanente — aguarda UAT com advogados (Issue #61)
   'diagnostic-read-mode-new': false,
