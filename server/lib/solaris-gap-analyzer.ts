@@ -54,7 +54,7 @@ export async function analyzeSolarisAnswers(
 
       // D6: normalizar tópicos com trim + toLowerCase
       const topicos = (row.topicos as string | null)
-        ?.split(',')
+        ?.split(/[;,]/)
         .map((t: string) => t.trim().toLowerCase())
         .filter(Boolean) ?? [];
 
