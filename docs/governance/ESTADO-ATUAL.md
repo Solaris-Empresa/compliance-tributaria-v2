@@ -109,6 +109,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 - `DROP COLUMN` em colunas legadas → aguarda F-04 Fase 3
 - Issues #56, #61, #62 → bloqueadas em cascata
 - ~~**G17 (#259)**~~ ✅ CONCLUÍDO — `gapEngine` agora consome `solaris_answers` via `analyzeSolarisAnswers` (source='solaris')
+- `DROP`/`TRUNCATE` em `rag_documents`/`rag_chunks` → NUNCA (2.078 chunks reais · 5 leis)
+- `DROP`/`TRUNCATE` em `cnaes` → NUNCA (base do filtro cnaeGroups)
+- `DROP`/`TRUNCATE` em `solaris_questions` → NUNCA (corpus jurídico curado)
 
 ---
 
@@ -149,6 +152,7 @@ docs/HANDOFF-MANUS.md
 | SKILL.md versão | v4.0 (solaris-orquestracao + solaris-contexto) |
 
 | Sprint O+ — Q6 | ✅ MERGEADO | PR #281 | Gate Q6 adicionado ao CONTRIBUTING.md — validação de dados reais obrigatória em PRs de mapeamento |
+| Sprint P — Bloqueios dados | ✅ MERGEADO | PR #284 | Proteção formal de rag_chunks, cnaes e solaris_questions documentada |
 ---
 
 *IA SOLARIS · DEC-007 · Atualizado em 2026-04-01 (rev Sprint O: G17-B/C/D + backfill + Q6 governança)*  
