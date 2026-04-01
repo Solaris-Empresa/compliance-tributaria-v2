@@ -2,7 +2,7 @@
 
 > **Cole este documento no início de qualquer nova sessão do Manus.**
 > Audiência: **Manus (implementador técnico)**.
-> Versão: **v1.0** — 2026-03-28.
+> Versão: **v1.1** — 2026-03-31.
 
 ---
 
@@ -182,14 +182,18 @@ GH_TOKEN=$TOKEN gh issue list --repo Solaris-Empresa/compliance-tributaria-v2 --
 
 ---
 
-## Estado Atual (2026-03-28)
+## Estado Atual (2026-03-31)
 
 - **Sprint K: CONCLUÍDA** — K-4-A ✅ K-4-B ✅ K-4-C ✅ K-4-D ✅
-- **Próxima sprint: L** — Upload CSV SOLARIS (Issues #152, #157, #158)
-- **PR aberto:** PR #185 (docs BASELINE v2.4 + HANDOFF v2.4) — aguarda merge
-- **Testes:** 2.652 / 2.773 passando (97 falhas pré-existentes — Issue #101)
+- **Sprint M: CONCLUÍDA** — BUG-UAT-02/03/05 ✅ E2E Playwright ✅ auth.testLogin ✅
+- **PRs mergeados:** #254 (BUG-UAT-03 fix) · #256 (E2E Playwright + BUG-UAT-05)
+- **PR aberto:** PR #257 (painel PO atualizado) — aguarda merge
+- **Próxima sprint: L** — Upload CSV SOLARIS (Issue #191)
+- **Testes:** 2.678 passando (vitest unit) + 5 suites Playwright (CT-01/04/06/07/37)
 - **DIAGNOSTIC_READ_MODE:** `shadow` — **NÃO alterar**
 - **Migrations:** 60 aplicadas (última: `0060`)
+- **Corpus SOLARIS:** SOL-001..012 ativos (SOL-013/014 removidos via soft-delete)
+- **auth.testLogin:** ativo apenas com `E2E_TEST_MODE=true` (produção: FORBIDDEN)
 
 ---
 
