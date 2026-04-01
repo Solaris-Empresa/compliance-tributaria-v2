@@ -152,3 +152,72 @@ Itens que requerem atualização manual (incluir no mesmo PR):
 - Card "Próxima ação obrigatória"
 - Sub-texto dos cards de status (ex: `517 testes`)
 - Documentos novos na biblioteca
+
+---
+
+## Gates de Qualidade — Auto-auditoria por PR
+
+Todo PR deve incluir a declaração Q1–Q6 no body. Use N/A quando o gate não se aplica.
+
+### Q1 — Tipos nulos
+Verificar se inputs recebem `null` ou `undefined` sem guard. Aplicável em PRs que adicionam ou alteram procedures tRPC, funções de banco ou transformações de dados.
+
+### Q2 — SQL DISTINCT / ORDER BY em TiDB
+Verificar se queries com `DISTINCT` ou `ORDER BY` estão fora de subqueries sem `LIMIT`. TiDB tem restrições específicas que diferem do MySQL padrão.
+
+### Q3 — Filtros NULL / string vazia
+Verificar se filtros WHERE cobrem tanto `IS NULL` quanto `= ''` quando relevante. Gaps SOLARIS com `gap_classification` vazia são o caso canônico.
+
+### Q4 — Endpoint registrado
+Verificar se procedures novas estão registradas no router correto e acessíveis via tRPC.
+
+### Q5 — Testes mínimos
+Verificar se há pelo menos 1 teste cobrindo o caminho feliz e 1 cobrindo o caminho de erro para cada procedure nova ou modificada.
+
+### Q6 — Validação de Dados Reais (Gate de Cobertura)
+
+**Quando se aplica:** obrigatório em PRs que alteram qualquer um destes arquivos:
+- `server/config/solaris-gaps-map.ts`
+- `server/lib/solaris-gap-analyzer.ts`
+- `server/config/` (qualquer arquivo de mapeamento ou config de dados)
+- `drizzle/seeds/` (qualquer seed)
+- Qualquer arquivo que contenha dicionários/mapas de tópicos, categorias ou enums
+
+**Quando NÃO se aplica (N/A):**
+- PRs que tocam apenas routers, componentes React, testes, docs
+- PRs tipo `chore`, `fix` sem alteração de mapeamento
+- PRs de infra (CI, workflows)
+
+**O que deve ser executado (query real — grep NÃO é evidência):**
+
+```sql
+-- Exemplo para SOLARIS_GAPS_MAP:
+-- Q6-A: quantos valores distintos existem no banco?
+SELECT COUNT(DISTINCT valor_campo) as total_banco
+FROM tabela_relevante
+WHERE condicao;
+
+-- Q6-B: quantas chaves o mapa/config cobre?
+-- (via grep ou inspeção do arquivo)
+
+-- Q6-C: cobertura = Q6-B / Q6-A
+-- Deve ser >= 80% ou justificado
+```
+
+**Formato obrigatório no body do PR:**
+
+```
+Q6 — Cobertura de dados reais:
+  Arquivo alterado: [nome do arquivo de config/mapeamento]
+  Total no banco (query SQL): [N valores distintos]
+  Total no mapa/config: [N chaves]
+  Cobertura: [N%]
+  Query executada: [SQL exato]
+  Resultado: [ OK (≥80%) | JUSTIFICADO | BLOQUEADO ]
+  Justificativa (se < 80%): [motivo]
+```
+
+**Gate de bloqueio:**
+- `grep` como evidência → **BLOQUEADO** (grep verifica código, não banco)
+- Cobertura < 80% sem justificativa → **BLOQUEADO**
+- Campo "Query executada" vazio → **BLOQUEADO**
