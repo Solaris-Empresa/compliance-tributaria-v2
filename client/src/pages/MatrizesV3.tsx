@@ -59,6 +59,8 @@ interface Risk {
   severidade: "Baixa" | "Média" | "Alta" | "Crítica";
   plano_acao: string;
   manual?: boolean; // RF-4.03: indica risco adicionado manualmente
+  // G11 — fonte_risco: origem do pipeline que gerou o risco
+  fonte_risco?: 'solaris' | 'cnae' | 'iagen' | 'v1';
 }
 
 const AREAS = [
@@ -67,6 +69,14 @@ const AREAS = [
   { key: "ti", label: "T.I.", icon: Cpu, color: "cyan" },
   { key: "juridico", label: "Advocacia Tributária", icon: Scale, color: "amber" },
 ] as const;
+
+// G11 — Badge de origem do risco
+const FONTE_BADGE: Record<string, { label: string; className: string }> = {
+  solaris: { label: 'Equipe técnica SOLARIS', className: 'bg-blue-100 text-blue-800 border-blue-200' },
+  cnae:    { label: 'Análise setorial',        className: 'bg-green-100 text-green-800 border-green-200' },
+  iagen:   { label: 'IA Generativa',            className: 'bg-orange-100 text-orange-800 border-orange-200' },
+  v1:      { label: 'Diagnóstico V1',          className: 'bg-gray-100 text-gray-600 border-gray-200' },
+};
 
 const SEVERITY_COLORS: Record<string, string> = {
   Crítica: "bg-red-100 text-red-700 border-red-300",
@@ -105,6 +115,7 @@ function RiskTable({ risks, onEdit, onDelete, locked }: {
             <th className="text-center py-2.5 px-3 font-semibold text-muted-foreground text-xs uppercase tracking-wide w-24">Probabilidade</th>
             <th className="text-center py-2.5 px-3 font-semibold text-muted-foreground text-xs uppercase tracking-wide w-20">Impacto</th>
             <th className="text-center py-2.5 px-3 font-semibold text-muted-foreground text-xs uppercase tracking-wide w-24">Severidade</th>
+            <th className="text-center py-2.5 px-3 font-semibold text-muted-foreground text-xs uppercase tracking-wide w-36">Origem</th>
             <th className="text-left py-2.5 px-3 font-semibold text-muted-foreground text-xs uppercase tracking-wide">Plano de Ação</th>
             {!locked && <th className="w-20"></th>}
           </tr>
@@ -126,6 +137,18 @@ function RiskTable({ risks, onEdit, onDelete, locked }: {
                 <Badge variant="outline" className={cn("text-xs", SEVERITY_COLORS[risk.severidade] || "")}>
                   {risk.severidade}
                 </Badge>
+              </td>
+              <td className="py-3 px-3 text-center">
+                {/* G11 — badge de origem do risco */}
+                {(() => {
+                  const fonte = risk.fonte_risco ?? 'v1';
+                  const b = FONTE_BADGE[fonte] ?? FONTE_BADGE['v1'];
+                  return (
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full border ${b.className}`}>
+                      {b.label}
+                    </span>
+                  );
+                })()}
               </td>
               <td className="py-3 px-3 text-muted-foreground text-xs max-w-sm">{risk.plano_acao}</td>
               {!locked && (
