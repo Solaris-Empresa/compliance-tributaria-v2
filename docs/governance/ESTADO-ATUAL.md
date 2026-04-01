@@ -1,31 +1,32 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Orquestrador (Claude) ao fechar cada sprint  
-> **v3.2 · 2026-04-01 (rev G11 P1 + Gates v5.0 + G1/G2 fechados)** · Responsável: Orquestrador gera, Manus commita
+> **v3.3 · 2026-04-01 (rev Sprint N encerrada — CI/CD fix + ONDA1 E2E doc + G15 mergeado)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v3.1 · **HEAD:** `afe9c6b` (main, PR #263 mergeado) · **Testes:** 2.678 passando  
+**Baseline:** v3.0 · **HEAD:** `cb22fd1` (main, PR #272 mergeado) · **Testes:** 2.689 passando  
 **DIAGNOSTIC_READ_MODE:** shadow (aguarda UAT com advogados)  
 **Corpus RAG:** 2.078 chunks · 5 leis · 100% confiabilidade  
 **Sprint M:** CONCLUÍDA ✅ — UAT manual, E2E Playwright, BUG-UAT-02/03/05, auth.testLogin  
-**Sprint N:** G17 P0 ✅ · Fix CI/CD ✅ · G11 ✅ · Gates v5.0 ✅ · G1/G2 ✅ · Próximo: G15 (#192) após sessão planejamento  
-**PRs mergeados:** 267 (último: #267 feat(g11) fonte_risco)  
+**Sprint N:** ENCERRADA ✅ — G17 ✅ · CI/CD fix ✅ · G11 ✅ · Gates v5.0 ✅ · G1/G2 ✅ · G15 ✅ · ONDA1 E2E doc ✅ · Post-mortem G17 ✅  
+**PRs mergeados:** 272 (último: #272 chore(ci+docs) fix pnpm + ONDA1 E2E doc)  
 **Fila de PRs abertos:** VAZIA ✅
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** `main` (HEAD `afe9c6b`) — fila limpa, 0 PRs abertos
+- **Branch base:** `main` (HEAD `cb22fd1`) — fila limpa, 0 PRs abertos
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via cherry-pick em branch limpo (padrão PRs #173, #177, #179, #184)
 - **Divergência de histórico:** `origin/main` (Manus S3) ≠ `solaris/main` (GitHub) — SEMPRE criar branch a partir do HEAD do `solaris/main` via `git fetch`
 - **Referência operacional:** docs/HANDOFF-MANUS.md
 - **Referência de governança:** docs/governance/HANDOFF-IMPLEMENTADOR.md
-- **Issues do backlog Sprint N:** ~~#259 (G17 P0)~~ ✅, ~~Fix CI/CD P1~~ ✅, ~~#187 (G11 P1)~~ ✅, #192 (G15 P2 — **PRÓXIMO** após sessão planejamento)
+- **Issues do backlog Sprint N:** ~~#259 (G17 P0)~~ ✅, ~~Fix CI/CD P1~~ ✅, ~~#187 (G11 P1)~~ ✅, ~~#192 (G15 P2)~~ ✅ — **Sprint N ENCERRADA**
+- **Sprint O — P0:** Reconciliar `drizzle/meta/_journal.json` (61 entradas vs. 63 migrations) · Executar riskEngine para projetos 2310001/2370001/2370002 · Alerta INSERT silencioso
 - **Documentos P0/P1 obrigatórios:** atualizar SEMPRE após sprint concluída:
   - P0: `docs/governance/ESTADO-ATUAL.md` (este arquivo)
   - P1: `docs/BASELINE-PRODUTO.md`
@@ -44,9 +45,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o ChatGPT (consultor)
 
-- **Estado:** Sprint N em andamento — G17 ✅ G11 ✅ Gates v5.0 ✅ G1/G2 ✅
+- **Estado:** Sprint N ENCERRADA ✅ — G17 ✅ G11 ✅ G15 ✅ Gates v5.0 ✅ G1/G2 ✅ CI/CD fix ✅ ONDA1 doc ✅
 - **Gaps resolvidos:** G1–G14, G16, G17 + K-4-A a K-4-E + BUG-UAT-02/03/05 + Gates G1/G2
-- **Gaps pendentes:** G15 (#192 — aguarda sessão planejamento)
+- **Gaps pendentes:** nenhum na Sprint N · Sprint O: journal migration, riskEngine, alerta INSERT
 - **Corpus RAG:** 5 leis · 2.078 chunks · confiabilidade 100%
 - **Cockpit ao vivo:** /admin/rag-cockpit — 7 seções incluindo 7E Qualidade RAG
 - **Testes E2E:** CT-01, CT-04, CT-06, CT-07, CT-37 (Playwright)
