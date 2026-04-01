@@ -2,8 +2,8 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 3.1 — 2026-04-01 (rev Sprint O — G17-B mergeado)
-> **Commit HEAD:** `9cc0dbf` (G17-B trigger riskEngine — PR #276)
+> **Versão:** 3.2 — 2026-04-01 (rev fim de sessão — Sprints O/P/Q/R · 11 PRs · 24 perguntas SOLARIS ativas)
+> **Commit HEAD:** `8727578` (fix(solarisAdmin) upsert+listBatches — PR #288)
 > **Checkpoint Manus:** `620d0426`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
@@ -25,9 +25,9 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | 0 erros (`npx tsc --noEmit`) | ✅ |
-| Testes automatizados — total | **2.689 passando** (139 arquivos `.test.ts`) | ✅ |
-| Testes Sprint N | G17: 13 · G11: 12 · G15: 5 · Gates Q5: 13 — todos passando | ✅ |
-| Testes Sprint O | G17-B: 6 (`g17b-solaris-pipeline.test.ts`) — todos passando | ✅ |
+| Testes unitários | **1.436 passando** (71 arquivos em `server/**/*.test.ts`) | ✅ |
+| Testes integração | **69 arquivos** em `server/integration/` (requerem TiDB Cloud) | ✅ |
+| Testes Sprint R | fix solarisAdmin: 6 testes Q5 (`solaris-admin-bugs.test.ts`) | ✅ |
 | Git working tree | Limpo — `main` = `802c3f2`, sincronizado com GitHub externo | ✅ |
 | Sprint N | G17 ✅ + G11 ✅ + G15 ✅ + Gates v5.0 ✅ + G1/G2 ✅ — 9 PRs mergeados | ✅ |
 | Sprint O | G17-B ✅ — trigger síncrono `riskEngine` após gaps SOLARIS · PR #276 | ✅ |
@@ -65,7 +65,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Divergências Shadow Mode registradas | **0** (banco limpo) |
 | Divergências críticas | **0** |
 | Chunks RAG no banco | **2.078** — 100% com anchor_id canônico (DEC-002) |
-| Perguntas SOLARIS (Onda 1) | **12** — SOL-001..SOL-012 com `codigo` populado |
+| Perguntas SOLARIS (Onda 1) | **24 ativas** — SOL-013..SOL-036 (v4 interrogativo direto) |
 | Respostas Onda 1 (`solaris_answers`) | Tabela ativa — testes manuais P.O. realizados com sucesso |
 | Respostas Onda 2 (`iagen_answers`) | Tabela ativa — testes manuais P.O. realizados com sucesso (K-4-C ✅) |
 
@@ -435,6 +435,7 @@ DROP TABLE IF EXISTS iagen_answers;
 | 2.5 | 2026-03-29 | `326c6e6` | Sprint K+ e K++ concluídas: Cockpit P.O. v2.0 (C1–C5+I1–I4 acionável, PR #197), fetch dinâmico API GitHub (Score de Saúde em tempo real, PR #199), Seção 4 (4A–4F) com 24 docs catalogados (PR #200), 10 docs defasados atualizados + datas dinâmicas (PR #202). 580 commits · 202 PRs mergeados. |
 | 3.0 | 2026-04-01 | `802c3f2` | Sprint N concluída: G17 P0 (`analyzeSolarisAnswers` → `server/lib/`, source='solaris', PR #263), Fix CI/CD npm→pnpm (PR #261), G11 (`fonte_risco` em `project_risks_v3`, migration 0062, PR #267), Gates v5.0 (Q1–Q7+R9/R10+Gate 0/2.5/4+Skills v4.0, PR #266), G1/G2 fechados (PR #268), G15 (ONDA_BADGE+ADR-0002+INV-005+feature flag, PR #269), post-mortem G17 (5 Whys, MTTR ~4h). 642 commits · 269 PRs mergeados. |
 | 3.1 | 2026-04-01 | `9cc0dbf` | Sprint O — G17-B: trigger síncrono `deriveRisksFromGaps`+`persistRisks` em `completeOnda1` após `analyzeSolarisAnswers` (PR #276). `riskEngine.ts`: filtro OR `source='solaris'` + fallback `criticality` quando `gap_classification=NULL`. G11 (`fonte_risco`) preservado. 6 testes novos. Side-finding: SOLARIS_GAPS_MAP cobre 10/76 tópicos (7 chaves com problema de normalização acentos vs. snake_case). 276 PRs mergeados. |
+| 3.2 | 2026-04-01 | `8727578` | Sprints O/P/Q/R: G17-C (SOLARIS_GAPS_MAP 76 tópicos snake_case, PR #278) · G17-D (fix split delimiter, PR #279) · Backfill 4 projetos reais (PR #280) · Gate Q6 (PR #281) · CI unit tests — 69 testes para `server/integration/` + `test:unit` (PR #283) · Bloqueios dados permanentes (PR #284) · Gate 7 auto-auditoria (PR #286) · fix g17-solaris-gap.test.ts + chave `nfe` (PR #287) · fix upsert ativo=1 + listBatches (PR #288). 24 perguntas SOLARIS ativas (SOL-013..036). SOLARIS_GAPS_MAP: 77 chaves. 288 PRs mergeados. |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
