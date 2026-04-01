@@ -536,4 +536,12 @@ export const SOLARIS_GAPS_MAP: Record<string, SolarisGapDefinition[]> = {
     topico_trigger: 'repasse',
   }],
 
+  // ── SOL-001 (legado) — NF-e: validação automática de documento fiscal ───────────────────────────────────────
+  'nfe': [{
+    gap_descricao: 'Ausência de validação automática de NF-e — risco de confissão de dívida por erro de emissão (Art. 45 LC 214/2025)',
+    area: 'contabilidade_fiscal',
+    severidade: 'critica',
+    topico_trigger: 'nfe',
+  }],
+
 };
