@@ -20,12 +20,27 @@
 - [ ] Infraestrutura / CI
 - [ ] Apenas documentação
 
-## Classificação de risco
-- [ ] Baixo — sem impacto em dados ou fluxo principal
-- [ ] Médio — impacto controlado e reversível
-- [ ] Alto — impacto estrutural, requer aprovação explícita
+## Classificação de risco (Gate 0 D3 / Gate 2.5)
 
-**Justificativa do risco:**
+- [ ] **low** — hotfix, chore, docs: Gate 2.5 dispensado
+- [ ] **medium** — nova procedure, componente, migration: revisão Claude obrigatória
+- [ ] **high** — novo pipeline, integração externa, mudança de enum global: revisão Claude + parecer ChatGPT
+
+**Risk Score (Gate 2.5):**
+
+| Critério | Pontos |
+|---|---|
+| Novo arquivo em `server/lib/` | +1 |
+| Nova migration | +2 |
+| Alteração em pipeline de dados existente | +2 |
+| Integração com sistema externo | +2 |
+| Mudança em enum global | +2 |
+| Fire-and-forget sem teste de integração | +1 |
+| Feature flag ausente (risco medium/high) | +1 |
+
+**Score total:** ___ → **[ low | medium | high ]**
+
+**Justificativa:**
 [Descrever objetivamente]
 
 ## Declaração de escopo (obrigatório)
@@ -41,28 +56,46 @@ Se qualquer item acima for falso → explicar aqui:
 ## Validação executada
 
 **Testes:**
-- [ ] `npx tsc --noEmit` — 0 erros
-- [ ] `npx vitest run` — 100% passando
+- [ ] `pnpm tsc --noEmit` — 0 erros
+- [ ] `pnpm test` — 100% passando
 - [ ] Invariants verificados (INV-001..INV-008)
 
 **Evidência estruturada (obrigatório):**
 ```json
 {
-  "data_integrity": true,
-  "regression": false,
-  "rag_impact": false,
-  "unexpected_behavior": false,
-  "tests_passed": true,
+  "head": "COMMIT_SHA",
+  "branch": "nome-do-branch",
+  "arquivos": ["arquivo1.ts", "arquivo2.ts"],
+  "testes_passando": 0,
   "typescript_errors": 0,
-  "risk_level": "low"
+  "risk_level": "low",
+  "data_integrity": true,
+  "regression": false
 }
 ```
 
 ## Migração de banco (preencher apenas se aplicável)
+
 - [ ] Tipo: ADD COLUMN / UPDATE / DROP / INDEX
 - [ ] Reversível: sim / não
 - [ ] Testado em ambiente isolado antes do merge
 - [ ] Não impacta dados existentes
+
+**S6 — Estratégia de rollback (obrigatório se migration):**
+```
+DEPLOY STRATEGY:
+  [ ] direto — feature sem risco de regressão
+  [ ] feature flag — habilitar por usuário/ambiente
+  [ ] migration reversível — DOWN migration declarada
+
+ROLLBACK PROCEDURE:
+  1. [ação imediata]
+  2. [ação de dados]
+  3. [verificação — SELECT que confirma rollback]
+
+CRITÉRIO DE ROLLBACK:
+  "Fazer rollback se: [condição mensurável]"
+```
 
 ## Classificação da task
 - [ ] Nível 1 — Seguro (autônomo — não precisa de revisão humana)
@@ -84,19 +117,24 @@ Se qualquer item acima for falso → explicar aqui:
 
 Justificativa (se não aplicável):
 
-## Auto-auditoria Q1–5
+## Auto-auditoria Q1–Q7 + observabilidade (Gate 2 v5.0)
 
 > Obrigatório para feat, fix, hotfix, schema, procedure e componente com useQuery.
 > Dispensado apenas para `chore(...)` e `docs(...)`.
 
 ```
-Q1 — Tipos nulos:         [OK / N/A / BLOQUEADO — descrever]
-Q2 — SQL TiDB:            [OK / N/A / BLOQUEADO — descrever]
-Q3 — Filtros NULL/empty:  [OK / N/A / BLOQUEADO — descrever]
-Q4 — Endpoint registrado: [OK / N/A / BLOQUEADO — descrever]
-Q5 — Testes mínimos:      [OK / N/A / BLOQUEADO — descrever]
+Q1 — Tipos nulos:         [ OK | N/A ] — [evidência]
+Q2 — SQL TiDB:            [ OK | N/A ] — [evidência]
+Q3 — Filtros NULL/'':     [ OK | N/A ] — [evidência]
+Q4 — Endpoint registrado: [ OK | N/A ] — [evidência]
+Q5 — isError ≠ vazio:     [ OK | N/A ] — [evidência]
+Q6 — Retorno explícito:   [ OK | N/A ] — [inserted confirmado via SELECT]
+Q7 — Driver único:        [ OK | N/A ] — [Opção A/B/C declarada]
+R9 — Evento estruturado:  [ OK | N/A ] — [evento emitido no início/sucesso/falha]
+S6 — Rollback declarado:  [ OK | N/A ] — [estratégia acima preenchida]
 
-Resultado: APTO PARA COMMIT
+Risk score (herdado Gate 0): [ low | medium | high ]
+Resultado: [ APTO | BLOQUEADO — motivo ]
 ```
 
 ## Checklist final
@@ -104,6 +142,7 @@ Resultado: APTO PARA COMMIT
 - [ ] Evidência JSON preenchida e verdadeira
 - [ ] Sem arquivos fora do escopo declarado modificados
 - [ ] Documentação atualizada se necessário
+- [ ] Feature flag criada se risk score ≥ medium
 
 ## Declaração final
 Declaro que a implementação é determinística, não há risco oculto,
