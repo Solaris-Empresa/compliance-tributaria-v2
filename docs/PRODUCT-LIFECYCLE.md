@@ -1,14 +1,14 @@
 # PRODUCT-LIFECYCLE.md
 **IA SOLARIS — Navegação por Ciclo de Vida do Produto**
 
-> **Versão:** 1.4 — 2026-03-31
+> **Versão:** 1.5 — 2026-04-01
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Depende de:** [INDICE-DOCUMENTACAO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/INDICE-DOCUMENTACAO.md) · [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md)
 > **Aprovador:** Product Owner Uires Tapajós
-> **Última sprint concluída:** Sprint M (UAT E2E + BUG-UAT-02/03/05) — 2026-03-31 · HEAD `2f17184`  
-> **PRs mergeados:** #254 (BUG-UAT-03 fix) · #256 (E2E Playwright + BUG-UAT-05 + auth.testLogin)  
-> **Próxima sprint:** Sprint L — Issue #191 (G16 Upload CSV SOLARIS)  
-> **Próxima revisão:** ao final da Sprint L
+> **Última sprint concluída:** Sprint N (G17+G11+G15+Gates v5.0) — 2026-04-01 · HEAD `802c3f2`  
+> **PRs mergeados:** #261–#269 (9 PRs — G17, G11, G15, Gates v5.0, G1/G2, post-mortem)  
+> **Próxima sprint:** Sprint O — reconciliar journal migrations + alerta INSERT silencioso  
+> **Próxima revisão:** ao final da Sprint O
 
 ---
 
@@ -40,7 +40,7 @@ Execute nesta ordem sem pular etapas:
 
 ```
 1. docs/governance/ESTADO-ATUAL.md                          → LEIA PRIMEIRO — estado real do repositório
-2. docs/BASELINE-PRODUTO.md                                 → baseline v2.4 (Sprint M)
+2. docs/BASELINE-PRODUTO.md                                 → baseline v3.0 (Sprint N)
 3. docs/HANDOFF-MANUS.md                                    → regras operacionais do Manus
 4. docs/governance/HANDOFF-IMPLEMENTADOR.md                 → guia completo do implementador (v1.1)
 5. docs/governance/GATE-CHECKLIST.md                        → gates obrigatórios
@@ -494,9 +494,10 @@ Este documento deve ser atualizado quando:
 | **1.2** | 2026-03-24 | Manus AI (prompt Orquestrador) | Orquestrador adicionado como persona na tabela de leitura rápida · Gate Fase 4 com verificação independente obrigatória · Sprint de Governança adicionada como P0 no backlog · MODELO-OPERACIONAL.md criado como artefato de governança |
 | **1.3** | 2026-03-29 | Manus AI | Sprint K concluída (K-4-A a K-4-D) · DEFINITION-OF-DONE.md criado · HEAD `5d7ad7d` |
 | **1.4** | 2026-03-31 | Manus AI | Sprint M concluída · PRs #254 (BUG-UAT-03) e #256 (E2E Playwright + BUG-UAT-05) mergeados · auth.testLogin implementado · SOL-013/014 removidos do corpus · suites E2E CT-01/04/06/07/37 adicionadas · CHANGELOG.md criado · HEAD `2f17184` |
+| **1.5** | 2026-04-01 | Manus AI | Sprint N concluída · 9 PRs mergeados (#261–#269) · G17 P0 (analyzeSolarisAnswers → server/lib, source='solaris') · G11 (fonte_risco em project_risks_v3, migration 0062) · G15 (ONDA_BADGE + ADR-0002 + INV-005 + feature flag) · Gates v5.0 (Q1–Q7+R9/R10+Gate 0/2.5/4+Skills v4.0) · post-mortem G17 (5 Whys, MTTR ~4h) · HEAD `802c3f2` |
 
 ---
 
-*PRODUCT-LIFECYCLE.md — IA Solaris v1.4 · 2026-03-31*
+*PRODUCT-LIFECYCLE.md — IA Solaris v1.5 · 2026-04-01*
 *Próxima revisão: ao final da Sprint L ou release*
 *Aprovador: P.O. Uires Tapajós*

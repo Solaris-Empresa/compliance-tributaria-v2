@@ -1,11 +1,24 @@
 # RASTREABILIDADE COMPLETA — IA SOLARIS
 
 > **Central de rastreabilidade do projeto.** Audiência: P.O. · Orquestrador · Implementador.
-> Versão: **v1.1** — 2026-03-31. Baseado em 577+ commits e 256 PRs mergeados.
+> Versão: **v1.2** — 2026-04-01. Baseado em 642 commits e 269 PRs mergeados.
 
 ---
 
 ## 1. Mapa de Sprints × PRs × Entregáveis
+
+### Sprint N — G17 + G11 + G15 + Gates v5.0 (2026-04-01)
+
+| Checkpoint | PR | Commit | Arquivos Alterados | Testes | Status |
+|---|---|---|---|---|---|
+| Fix CI/CD: npm → pnpm | #261 | — | `.github/workflows/*.yml` | — | ✅ |
+| G17: analyzeSolarisAnswers inline | #262 | — | `routers-fluxo-v3.ts` | 13 (g17-solaris-gap) | ✅ |
+| G17: extrair para server/lib + enums | #263 | `d65c8b5` | `server/lib/solaris-gap-analyzer.ts`, `server/config/solaris-gaps-map.ts` | 13 | ✅ |
+| Gates v5.0: Q1–Q7+R9/R10+Skills v4.0 | #266 | `9674296` | `skills/*.md`, `.github/workflows/validate-implementation.yml`, `server/config/feature-flags.ts` | 13 (Q5) | ✅ |
+| G11: fonte_risco em project_risks_v3 | #267 | `28ff332` | `drizzle/0062_g11_fonte_risco.sql`, `server/routers/riskEngine.ts`, `client/src/pages/MatrizesV3.tsx` | 12 | ✅ |
+| G1/G2: ESTADO-ATUAL v3.2 | #268 | `75ac176` | `docs/governance/ESTADO-ATUAL.md` | — | ✅ |
+| G15: ONDA_BADGE + ADR-0002 + INV-005 | #269 | `802c3f2` | `docs/adr/0002-*.md`, `drizzle/0063_*.sql`, `server/config/feature-flags.ts`, `QuestionarioSolaris.tsx`, `QuestionarioIaGen.tsx` | 5 (INV-005) | ✅ |
+| Post-mortem G17 INSERT silencioso | #269 | `802c3f2` | `docs/governance/post-mortems/2026-03-31-g17-insert-silencioso.md` | — | ✅ |
 
 ### Sprint M — UAT E2E + BUG-UAT-02/03/05 (2026-03-31)
 

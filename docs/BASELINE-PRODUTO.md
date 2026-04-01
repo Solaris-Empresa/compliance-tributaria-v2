@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.5 — 2026-03-29 (rev K-4-E)
-> **Commit HEAD:** `b9a5502` (K-4-E project_status_log — PR #212)
-> **Checkpoint Manus:** `b9a5502`
+> **Versão:** 3.0 — 2026-04-01 (rev Sprint N)
+> **Commit HEAD:** `802c3f2` (G15 ONDA_BADGE — PR #269)
+> **Checkpoint Manus:** `620d0426`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -25,28 +25,30 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | 0 erros (`npx tsc --noEmit`) | ✅ |
-| Testes automatizados — total | **2.655 passando · 97 falhas pré-existentes · 24 skipped** (2.776 total) | ✅ |
-| Testes Sprint K (suítes K-4) | 36 (K-4-A) + 26 (K-4-B) + 20 (K-4-C) + 36 T06 fix (K-4-D) + 3 (K-4-E) — todos passando | ✅ |
-| Git working tree | Limpo — `main` = `b9a5502`, sincronizado com GitHub externo | ✅ |
-| Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
-| Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
-| Sprint K-4-E | Auditoria jurídica `project_status_log` — PR #212 mergeado | ✅ |
+| Testes automatizados — total | **2.689 passando** (139 arquivos `.test.ts`) | ✅ |
+| Testes Sprint N | G17: 13 · G11: 12 · G15: 5 · Gates Q5: 13 — todos passando | ✅ |
+| Git working tree | Limpo — `main` = `802c3f2`, sincronizado com GitHub externo | ✅ |
+| Sprint N | G17 ✅ + G11 ✅ + G15 ✅ + Gates v5.0 ✅ + G1/G2 ✅ — 9 PRs mergeados | ✅ |
+| Sprint M | UAT manual + E2E Playwright + BUG-UAT-02/03/05 + auth.testLogin | ✅ |
+| Sprint L (RAG) | Cockpit 3 Ondas + RAG Quality Gate + rag_usage_log + Seção 7E | ✅ |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
-| Migrations aplicadas | **60** (0000–0059; 0059 = `project_status_log` K-4-E — era 59 pré-PR #213) | ✅ |
-| ADRs formais | **10** (ADR-001 a ADR-010; ADR-004 rejeitado) | ✅ |
+| Migrations aplicadas | **63** (0000–0062; 0062 = `fonte_risco` G11 · 0063 = `fonte` G15 registro) | ✅ |
+| ADRs formais | **12** (ADR-001 a ADR-010 + ADR-0001 G17 + ADR-0002 G15; ADR-004 rejeitado) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
-| Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
+| Invariants do sistema | **9** (INV-001 a INV-008 + INV-005 fonte perguntas) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
 | Corpus RAG | **2.078 chunks — 100% com anchor_id** | ✅ |
 | RAG Cockpit | Endpoint `ragInventory.getSnapshot` ao vivo · 9 gold set queries | ✅ |
 | Sprint 98% Confidence | **B0 ✅ · B1 ✅ · B2 ✅** — Sprint 98% CONCLUÍDA | ✅ |
-| Agent Skills | Manus `/solaris-orquestracao` ✅ · Claude `solaris-contexto` ✅ | ✅ |
+| Agent Skills | Manus `solaris-orquestracao` v4.0 ✅ · Claude `solaris-contexto` v4.0 ✅ | ✅ |
 | db:push guard | Bloqueado em production — `scripts/db-push-guard.mjs` | ✅ |
-| Sprint K — K-4-A | Migration 0058 aplicada em produção · tag `k4-a-complete` · Issue #156 fechada | ✅ |
-| Sprint K — K-4-B | ✅ Aprovado pelo P.O. — Onda 1 SOLARIS funcional em produção | ✅ |
-| Sprint K — K-4-C | ✅ Aprovado pelo P.O. — Onda 2 IA Generativa funcional em produção · PR #182 mergeado | ✅ |
-| Sprint K — K-4-D | ✅ Mergeado — PR #184 · wiring `onStartMatrizes`/`onStartPlano` + fix T06.1 | ✅ |
+| Gates v5.0 | Q1–Q7 + R9/R10 + S6 + Risk Score + Gate 0/2.5/4 — PR #266 | ✅ |
+| G17 Sprint N | `analyzeSolarisAnswers` → `server/lib/` · `source='solaris'` em `project_gaps_v3` | ✅ |
+| G11 Sprint N | `fonte_risco` em `project_risks_v3` · migration 0062 · ONDA_BADGE riscos | ✅ |
+| G15 Sprint N | `fonte` em perguntas · ONDA_BADGE questionários · ADR-0002 · INV-005 | ✅ |
+| Feature flags | `server/config/feature-flags.ts` · `g15-fonte-perguntas=true` ativo | ✅ |
+| Post-mortem G17 | `docs/governance/post-mortems/2026-03-31-g17-insert-silencioso.md` · 5 Whys | ✅ |
 
 ---
 
@@ -208,6 +210,14 @@ O contrato `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174, mergea
 
 **Milestone M2 — Sprint K:** 8 fechadas / 4 abertas = **67%**
 
+### Issues Sprint N (Milestone M4)
+
+| Issue | Título | Estado |
+|---|---|---|
+| [#259](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/259) | G17 — Integrar solaris_answers ao gapEngine | ✅ Fechada — PR #262 + #263 |
+| [#187](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/187) | G11 — campo `fonte_risco` no RiskItemSchema | ✅ Fechada — PR #267 |
+| [#192](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/192) | G15 — Arquitetura 3 ondas de perguntas | ✅ Fechada — PR #269 |
+
 ### Issues Bloqueadas (aguardam UAT)
 
 | Issue | Título | Bloqueio |
@@ -281,6 +291,13 @@ Os erros abaixo estão catalogados em [`docs/ERROS-CONHECIDOS.md`](https://githu
 | **Sprint K — K-4-B** | `QuestionarioSolaris.tsx` + `DiagnosticoStepper` 8 etapas + `completeOnda1` | ✅ Concluída | PR #179 mergeado |
 | **Sprint K+ — Cockpit v2.0** | C1+C2+C3+C4+C5+I1+I2+I3+I4 acionável | ✅ Concluída | PR #197 mergeado |
 | **Sprint K++ — Cockpit dinâmico** | Fetch API GitHub + Seção 4 (4A–4F) + 10 docs atualizados | ✅ Concluída | PRs #199–#202 mergeados |
+| **Sprint L (RAG)** | Cockpit 3 Ondas + RAG Quality Gate + rag_usage_log + Seção 7E | ✅ Concluída | PRs #215–#235 |
+| **Sprint L (DEC-002)** | Upload CSV SOLARIS — migration 0060 + 6 procedures + 11 testes | ✅ Concluída | PRs #236–#246 |
+| **Sprint M** | UAT manual + E2E Playwright + BUG-UAT-02/03/05 + auth.testLogin + 9 docs | ✅ Concluída | PRs #251–#260 |
+| **Sprint N — G17** | `analyzeSolarisAnswers` extraído para `server/lib/` · enums corrigidos · source='solaris' | ✅ Concluída | PRs #261–#263 |
+| **Sprint N — Gates v5.0** | Q1–Q7 + R9/R10 + Gate 0/2.5/4 + Skills v4.0 + validate-pr-body | ✅ Concluída | PR #266 |
+| **Sprint N — G11** | `fonte_risco` em `project_risks_v3` · migration 0062 · badge visual | ✅ Concluída | PR #267 |
+| **Sprint N — G15** | ONDA_BADGE nos questionários · ADR-0002 · INV-005 · feature flag | ✅ Concluída | PR #269 |
 
 ---
 
@@ -346,18 +363,27 @@ Todas as 4 sub-sprints K-4-A, K-4-B, K-4-C e K-4-D foram concluídas e aprovadas
 | Questionário SOLARIS (Onda 1) | ✅ Funcional | K-4-B — badge azul, SOL-001..012, `completeOnda1` |
 | Questionário IA Generativa (Onda 2) | ✅ Funcional | K-4-C — badge laranja, LLM 5-10 perguntas, fallback 30s |
 | Stepper etapas 7-8 (Matrizes + Plano) | ✅ Funcional | K-4-D — PR #184 mergeado · navega para `/matrizes-v3` e `/plano-v3` |
+| ONDA_BADGE nos questionários | ✅ Funcional | G15 — badge fonte `solaris`/`ia_gen`/`regulatorio` sob feature flag |
+| `fonte_risco` nas matrizes | ✅ Funcional | G11 — coluna `Origem` na tabela de riscos com badge por onda |
+| `analyzeSolarisAnswers` no gapEngine | ✅ Funcional | G17 — gaps `source='solaris'` inseridos em `project_gaps_v3` |
+| Gates v5.0 — CI/CD | ✅ Funcional | validate-implementation.yml · Q6/Q7/R9/R2 · PR template com Risk Score |
 
 ---
 
 ## 12. Migrations do Banco de Dados
 
-60 migrations aplicadas via Drizzle ORM. As mais recentes:
+63 migrations aplicadas via Drizzle ORM (0000–0062). As mais recentes:
 
 | Migration | Descrição |
 |---|---|
 | `0052_stormy_phalanx.sql` | F-04 Fase 1 — ADD COLUMN 6 colunas V1/V3 |
 | `0053_slow_maggott.sql` | Tabela `diagnostic_shadow_divergences` para Shadow Mode |
 | `0058` (K-4-A) | `CREATE TABLE solaris_answers` · `CREATE TABLE iagen_answers` · `ALTER TABLE solaris_questions ADD COLUMN codigo VARCHAR(10)` · `ALTER TABLE projects MODIFY COLUMN status` (ADD `onda1_solaris`, `onda2_iagen`) |
+| `0059` (K-4-E) | `CREATE TABLE project_status_log` — auditoria jurídica de transições de status |
+| `0060` (L-DEC-002) | Upload CSV SOLARIS — campos `area`, `severidade_base`, `vigencia_inicio`, `upload_batch_id` |
+| `0061` (G17) | `ALTER TABLE project_gaps_v3 ADD COLUMN source VARCHAR(20) NOT NULL DEFAULT 'v1'` |
+| `0062` (G11) | `ALTER TABLE project_risks_v3 ADD COLUMN fonte_risco VARCHAR(20) NOT NULL DEFAULT 'v1'` |
+| `0063` (G15) | Registro idempotente — `fonte` em `solaris_questions` já existia em produção |
 
 **Rollback K-4-A:**
 ```sql
@@ -389,6 +415,7 @@ DROP TABLE IF EXISTS iagen_answers;
 | 2.3 | 2026-03-28 | `62c4219` | Sprint K K-4-C: `QuestionarioIaGen.tsx` (badge laranja, LLM 5-10 perguntas, timeout 30s, fallback hardcoded), procedures `generateOnda2Questions` + `completeOnda2` com `assertValidTransition`, rota `/questionario-iagen`, `onStartOnda2` wiring em `ProjetoDetalhesV2`. Aprovado pelo P.O. PR #182 mergeado. |
 | 2.4 | 2026-03-28 | `e54d606` | Sprint K K-4-D: wiring `onStartMatrizes`/`onStartPlano` no `DiagnosticoStepper` (interface + `handleStepStart`), callbacks passados em `ProjetoDetalhesV2`. Fix T06.1 (assertion atualizada para `questionario-solaris`). PR #184 mergeado. Fluxo das 8 etapas 100% funcional. |
 | 2.5 | 2026-03-29 | `326c6e6` | Sprint K+ e K++ concluídas: Cockpit P.O. v2.0 (C1–C5+I1–I4 acionável, PR #197), fetch dinâmico API GitHub (Score de Saúde em tempo real, PR #199), Seção 4 (4A–4F) com 24 docs catalogados (PR #200), 10 docs defasados atualizados + datas dinâmicas (PR #202). 580 commits · 202 PRs mergeados. |
+| 3.0 | 2026-04-01 | `802c3f2` | Sprint N concluída: G17 P0 (`analyzeSolarisAnswers` → `server/lib/`, source='solaris', PR #263), Fix CI/CD npm→pnpm (PR #261), G11 (`fonte_risco` em `project_risks_v3`, migration 0062, PR #267), Gates v5.0 (Q1–Q7+R9/R10+Gate 0/2.5/4+Skills v4.0, PR #266), G1/G2 fechados (PR #268), G15 (ONDA_BADGE+ADR-0002+INV-005+feature flag, PR #269), post-mortem G17 (5 Whys, MTTR ~4h). 642 commits · 269 PRs mergeados. |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
