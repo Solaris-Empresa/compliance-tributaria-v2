@@ -54,6 +54,9 @@ export const DerivedRiskSchema = z.object({
   score: RiskScoreSchema,
   description: z.string(),
   mitigation_hint: z.string(),
+  // G11 — fonte_risco: origem do pipeline que gerou o risco
+  // Derivado de project_gaps_v3.source (migration 0061 G17)
+  fonte_risco: z.enum(['solaris', 'cnae', 'iagen', 'v1']).default('v1'),
 });
 export type DerivedRisk = z.infer<typeof DerivedRiskSchema>;
 
@@ -273,6 +276,7 @@ function generateContextualRisks(input: ContextualRiskInput): DerivedRisk[] {
       score: calculateRiskScore("alta", "ausencia", input.porte, input.regime, "contextual"),
       description: "Risco de não conformidade com split payment obrigatório para empresas de médio/grande porte na transição IBS/CBS",
       mitigation_hint: "Verificar integração do sistema de pagamentos com a plataforma do split payment do Comitê Gestor do IBS",
+      fonte_risco: 'v1' as const, // risco contextual — sem gap_source
     });
   }
 
@@ -289,6 +293,7 @@ function generateContextualRisks(input: ContextualRiskInput): DerivedRisk[] {
       score: calculateRiskScore("alta", "ausencia", input.porte, input.regime, "contextual"),
       description: "Risco de apuração incorreta de créditos IBS/CBS em empresa com múltiplas atividades no lucro real",
       mitigation_hint: "Implementar controle de créditos por CNAE com segregação de receitas e despesas por atividade",
+      fonte_risco: 'v1' as const, // risco contextual — sem gap_source
     });
   }
 
@@ -319,13 +324,19 @@ export async function deriveRisksFromGaps(
   const db = getPool();
 
   // Buscar gaps classificados do projeto com dados do requisito
+  // G17-B: filtro expandido para incluir gaps SOLARIS sem gap_classification
+  //        (usam g.criticality como fallback para base_criticality)
   const [gaps] = await db.query<mysql.RowDataPacket[]>(
     `SELECT
        g.id as gap_id,
        g.requirement_id,
        g.gap_classification,
+       g.criticality as gap_criticality,
        g.evaluation_confidence,
        g.source_reference as gap_source_reference,
+       g.source as gap_source,
+       g.gap_description as gap_desc_solaris,
+       g.domain as gap_domain,
        r.base_criticality,
        r.default_gap_type,
        r.domain,
@@ -335,8 +346,11 @@ export async function deriveRisksFromGaps(
      FROM project_gaps_v3 g
      LEFT JOIN regulatory_requirements_v3 r ON g.requirement_id = r.id
      WHERE g.project_id = ?
-       AND g.gap_classification IS NOT NULL
-       AND g.gap_classification != ''
+       AND (
+         (g.gap_classification IS NOT NULL AND g.gap_classification != '')
+         OR
+         (g.source = 'solaris' AND g.criticality IS NOT NULL)
+       )
      ORDER BY r.base_criticality DESC, g.gap_classification ASC`,
     [projectId]
   );
@@ -345,33 +359,45 @@ export async function deriveRisksFromGaps(
 
   for (const gap of gaps) {
     const origin: RiskOrigin = gap.requirement_id ? "derivado" : "direto";
-    const taxonomy = mapDomainToTaxonomy(
-      gap.domain || "fiscal",
-      gap.default_gap_type || "normativo",
-      gap.req_description || ""
-    );
+    // G17-B: para gaps SOLARIS sem gap_classification, usar 'ausencia' como fallback
+    // (gap identificado = ausência de controle; criticality do gap como base_criticality)
+    const effectiveGapClassification: string =
+      gap.gap_classification || (gap.gap_source === 'solaris' ? 'ausencia' : 'ausencia');
+    const effectiveBaseCriticality: string =
+      gap.base_criticality || gap.gap_criticality || 'media';
+    const effectiveDomain: string = gap.domain || gap.gap_domain || 'fiscal';
+    const effectiveGapType: string = gap.default_gap_type || 'normativo';
+    const effectiveDescription: string = gap.req_description || gap.gap_desc_solaris || '';
+
     const score = calculateRiskScore(
-      gap.base_criticality || "media",
-      gap.gap_classification,
+      effectiveBaseCriticality,
+      effectiveGapClassification,
       porte,
       regime,
       origin
     );
 
+    // G11: derivar fonte_risco a partir de project_gaps_v3.source (migration 0061)
+    const fonteRisco: 'solaris' | 'cnae' | 'iagen' | 'v1' =
+      gap.gap_source === 'solaris' ? 'solaris'
+      : gap.gap_source === 'cnae'  ? 'cnae'
+      : gap.gap_source === 'iagen' ? 'iagen'
+      : 'v1';
     risks.push({
       gap_id: gap.gap_id,
       requirement_id: gap.requirement_id || null,
       source_reference: gap.req_source_reference || gap.gap_source_reference || null,
-      gap_classification: gap.gap_classification,
+      gap_classification: effectiveGapClassification,
       origin,
       origin_justification:
         origin === "derivado"
-          ? `Risco derivado do gap classificado como '${gap.gap_classification}' no requisito ${gap.requirement_id}`
-          : `Risco direto do gap ${gap.gap_id}`,
-      taxonomy,
+          ? `Risco derivado do gap classificado como '${effectiveGapClassification}' no requisito ${gap.requirement_id}`
+          : `Risco direto do gap ${gap.gap_id} (source=${gap.gap_source})`,
+      taxonomy: mapDomainToTaxonomy(effectiveDomain, effectiveGapType, effectiveDescription),
       score,
-      description: `Risco ${score.severity} identificado: ${gap.req_description || "gap sem descrição"}`,
-      mitigation_hint: `Regularizar ${gap.default_gap_type || "conformidade"} referente a ${gap.req_source_reference || "requisito aplicável"}`,
+      description: `Risco ${score.severity} identificado: ${effectiveDescription || 'gap sem descrição'}`,
+      mitigation_hint: `Regularizar ${effectiveGapType} referente a ${gap.req_source_reference || gap.gap_source_reference || 'requisito aplicável'}`,
+      fonte_risco: fonteRisco,
     });
   }
 
@@ -437,8 +463,9 @@ export async function persistRisks(
               base_score, adjusted_score, scoring_factors,
               evaluation_confidence, evaluation_confidence_reason,
               source_reference, origin_justification, description, mitigation_hint,
+              fonte_risco,
               created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
           [
             clientId, projectId, risk.gap_id, risk.requirement_id,
             `RISK-${projectId}-${risk.gap_id}`,
@@ -456,6 +483,7 @@ export async function persistRisks(
             risk.score.confidence, risk.score.confidence_reason,
             risk.source_reference, risk.origin_justification,
             risk.description, risk.mitigation_hint,
+            risk.fonte_risco ?? 'v1',
           ]
         );
         inserted++;
@@ -474,9 +502,10 @@ export async function persistRisks(
             deterministic_score, contextual_score, hybrid_score,
             base_score, adjusted_score, scoring_factors,
             evaluation_confidence, evaluation_confidence_reason,
-            source_reference, origin_justification, description, mitigation_hint,
+              source_reference, origin_justification, description, mitigation_hint,
+              fonte_risco,
             created_at, updated_at)
-         VALUES (?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+         VALUES (?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           clientId, projectId,
           `RISK-${projectId}-CTX-${Date.now()}`,
@@ -493,6 +522,7 @@ export async function persistRisks(
           risk.score.confidence, risk.score.confidence_reason,
           risk.source_reference, risk.origin_justification,
           risk.description, risk.mitigation_hint,
+          risk.fonte_risco ?? 'v1',
         ]
       );
       inserted++;
