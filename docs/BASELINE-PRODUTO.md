@@ -314,6 +314,20 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 - **NÃO executar DROP COLUMN** nas colunas legadas — aguarda Fase 3
 - **NÃO misturar correções de bugs com novas features** — regra permanente de governança
 
+### Bloqueios permanentes — Dados de produção
+
+❌ `DROP` ou `TRUNCATE` em `rag_documents` / `rag_chunks` — NUNCA
+   Motivo: 2.078 chunks reais · 5 leis · 100% anchor_id
+   Risco: reconstrução leva dias + reprocessamento completo do corpus
+
+❌ `DROP` ou `TRUNCATE` em `cnaes` — NUNCA
+   Motivo: tabela real · base do filtro cnaeGroups em todo o corpus SOLARIS
+   Risco: todas as perguntas setoriais perdem referência de elegibilidade
+
+❌ `DROP` ou `TRUNCATE` em `solaris_questions` — NUNCA
+   Motivo: corpus curado pela equipe jurídica (Dr. José Rodrigues)
+   Risco: recuperável via CSV mas perde rastreabilidade de lotes e histórico
+
 **Modelo operacional ativo (2026-03-24):**
 - Claude (Anthropic) assume função de Orquestrador com verificação independente via repositório
 - ChatGPT assume função de Consultor — opina, não decide

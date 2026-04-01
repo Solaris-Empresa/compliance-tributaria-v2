@@ -221,3 +221,20 @@ Q6 — Cobertura de dados reais:
 - `grep` como evidência → **BLOQUEADO** (grep verifica código, não banco)
 - Cobertura < 80% sem justificativa → **BLOQUEADO**
 - Campo "Query executada" vazio → **BLOQUEADO**
+
+---
+
+## Dados permanentes — proteção obrigatória
+
+As tabelas abaixo contêm dados reais de produção e NUNCA devem ser
+limpas, mesmo em ambiente de teste ou durante limpeza de base:
+
+| Tabela | Conteúdo | Risco se apagado |
+|---|---|---|
+| `rag_documents` / `rag_chunks` | 2.078 chunks · 5 leis reais | Corpus RAG irrecuperável sem reprocessamento |
+| `cnaes` | Tabela oficial de CNAEs | Filtros setoriais quebram em todo o sistema |
+| `solaris_questions` | Perguntas jurídicas curadas | Onda 1 para de funcionar |
+
+**Gate de bloqueio:** qualquer PR que contenha `DROP TABLE`, `TRUNCATE` ou
+`DELETE FROM` sem cláusula `WHERE` nessas tabelas → **BLOQUEADO** pelo
+Orquestrador independente do contexto.
