@@ -199,9 +199,47 @@ Quando o Consultor (ChatGPT) for acionado:
 - [docs/governance/invariant-registry.md](./governance/invariant-registry.md) — 8 invariants
 - [docs/governance/HANDOFF-IMPLEMENTADOR.md](./governance/HANDOFF-IMPLEMENTADOR.md) — guia do Manus
 - [docs/governance/CONTEXTO-ORQUESTRADOR.md](./governance/CONTEXTO-ORQUESTRADOR.md) — guia do Claude
+- [docs/GATES-DOCUMENTACAO-COMPLETA-v5.md](./GATES-DOCUMENTACAO-COMPLETA-v5.md) — Sistema de Engenharia de Qualidade v5.0
+- [docs/governance/POST-MORTEM-TEMPLATE.md](./governance/POST-MORTEM-TEMPLATE.md) — Gate 4 Post-mortem
+- [server/config/feature-flags.ts](../server/config/feature-flags.ts) — Feature Flags
 
 ---
 
-*MODELO-OPERACIONAL.md — IA Solaris v1.1 · 2026-03-29*
+## DORA Metrics — Contrato de Saúde do Sistema (v5.0)
+
+> Atualizar a cada sprint com os valores reais.  
+> Ref: docs/GATES-DOCUMENTACAO-COMPLETA-v5.md § 11
+
+| Métrica | Definição | Meta | Sprint N (real) |
+|---|---|---|---|
+| **Deployment frequency** | Deploys por semana | Diária (Sprint pace) | ~5 PRs/semana |
+| **Lead time for changes** | Issue criada → produção | < 1 dia (features simples) | ~4h (G17 P0) |
+| **MTTR** | Anomalia detectada → fix em prod | P0: < 1h / P1: < 4h | ~4h (G17 INSERT silencioso) |
+| **Change failure rate** | % de deploys que causam bug | < 5% | ~15% (Sprint N — 9 bugs documentados) |
+
+**Plano Sprint O:** CFR < 10% com Gates v5.0 ativos.
+
+---
+
+## Tabela de Erros Recorrentes — v5.0
+
+> Atualizada após cada bug em produção ou UAT.  
+> Gate 4 obrigatório após qualquer bug em produção — template: `docs/governance/POST-MORTEM-TEMPLATE.md`
+
+| Data | Bug | Causa raiz (5 Whys resumido) | Gate preventivo | MTTR |
+|---|---|---|---|---|
+| 2026-03-30 | Lista retorna 0 após upsert | `vigencia_inicio = ''` → IS NULL não encontra | G0 D4 + G1 S3 + G2 Q1 | ~2h |
+| 2026-03-30 | TiDB rejeita scoringEngine | DISTINCT + ORDER BY → incompatibilidade TiDB | G1 S3 + G2 Q2 | ~1h |
+| 2026-03-31 | Lista retorna 0 silencioso | `LIMIT ?` → bind param TiDB rejeita | G1 S3 + G2 Q2 | ~3h |
+| 2026-03-31 | Race condition tRPC | `queryInput` sem `useMemo` → re-renders | G1 S4 + G2 Q5 | ~1h |
+| 2026-03-31 | isError silencioso | `isError` = lista vazia → 13 testes auto | G1 S4 + G2 Q5 | ~2h |
+| 2026-03-31 | G17 INSERT silencioso | Enums inválidos + catch engolindo | G1.5 R5 + G2 Q6 | ~4h |
+| 2026-03-31 | Script backfill side effects | Import de router em script | G1.5 R1 | ~2h |
+| 2026-03-31 | Mistura de drivers | Drizzle ORM + raw SQL | G1.5 R2 + G2 Q7 | ~1h |
+| 2026-03-31 | `void` impossível de validar | `Promise<void>` em função de persistência | G1.5 R4 + G2 Q6 | ~1h |
+
+---
+
+*MODELO-OPERACIONAL.md — IA Solaris v1.2 · 2026-03-31 · Gates v5.0 adicionados*
 *Revisar se a composição da equipe ou os papéis mudarem*
 *Aprovador: P.O. Uires Tapajós*
