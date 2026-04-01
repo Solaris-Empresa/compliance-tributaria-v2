@@ -1,7 +1,7 @@
 # Definition of Done — IA Solaris / Plataforma de Compliance Tributária
 
-**Versão:** 1.2  
-**Data:** 2026-03-31  
+**Versão:** 1.3  
+**Data:** 2026-04-01  
 **Responsável:** P.O. (Uires Tapajós)  
 **Aprovação:** Obrigatória do P.O. para qualquer alteração neste documento
 
@@ -22,7 +22,7 @@ Uma entrega está "done" quando qualquer pessoa do time — incluindo o Orquestr
 | TypeScript: zero erros | `pnpm exec tsc --noEmit` → 0 erros |
 | Testes passando | `pnpm test` → 100% passando |
 | Testes novos adicionados | Arquivo `.test.ts` modificado ou criado |
-| Invariants verificados | INV-001..INV-008 cobertos pelos testes |
+| Invariants verificados | INV-001..INV-009 cobertos pelos testes (INV-005 = fonte perguntas) |
 | PR template preenchido | Todos os campos obrigatórios + evidência JSON |
 | Comportamento documentado | CHANGELOG.md atualizado |
 | Sem regressão RAG | `rag_impact: false` na evidência JSON |
@@ -107,6 +107,7 @@ Uma entrega está "done" quando qualquer pessoa do time — incluindo o Orquestr
 | 1.0 | 2026-03-25 | Manus (Sprint Governança) | Criação inicial |
 | 1.1 | 2026-03-29 | Manus (Sprint K) | Adições de Cockpit/Governança |
 | 1.2 | 2026-03-31 | Manus (Sprint M) | DoD para E2E Playwright + bugs UAT resolvidos |
+| 1.3 | 2026-04-01 | Manus (Sprint N) | DoD para Gates v5.0 + post-mortem + feature flags |
 
 ---
 
@@ -144,3 +145,30 @@ Uma entrega está "done" quando qualquer pessoa do time — incluindo o Orquestr
 | BUG-UAT-05 | `DiagnosticoStepper` exibia hardcode `SOL-001 a SOL-012` | ✅ Resolvido (PR #256) |
 
 *Atualizado em 2026-03-31 — Sprint M concluída.*
+
+---
+
+## Adições da Sprint N (2026-04-01)
+
+### DoD adicional para entregas com Gates v5.0
+
+| Critério | Verificação |
+|---|---|
+| Gate 0 Discovery executado | D1–D4 respondidos no PR body |
+| Risk Score declarado | `risk_level: low/medium/high` no PR body |
+| Q1–Q7 + R9 respondidos | Seção `Auto-auditoria` no PR template preenchida |
+| Feature flag criada | `server/config/feature-flags.ts` atualizado se feature nova |
+| INV-005 coberto | Testes em `server/schema-g15-question.test.ts` passando |
+| Post-mortem criado | Se incidente P1/P2 ocorreu: `docs/governance/post-mortems/` |
+
+### Entregas Sprint N
+
+| Entrega | Status |
+|---|---|
+| G17 P0 — analyzeSolarisAnswers → server/lib | ✅ PR #263 |
+| G11 — fonte_risco em project_risks_v3 | ✅ PR #267 |
+| G15 — ONDA_BADGE + ADR-0002 + INV-005 | ✅ PR #269 |
+| Gates v5.0 — Q1–Q7+R9/R10+Skills v4.0 | ✅ PR #266 |
+| Post-mortem G17 INSERT silencioso | ✅ PR #269 |
+
+*Atualizado em 2026-04-01 — Sprint N concluída.*
