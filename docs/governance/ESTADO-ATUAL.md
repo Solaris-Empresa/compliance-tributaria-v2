@@ -1,6 +1,6 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Orquestrador (Claude) ao fechar cada sprint  
-> **v3.1 · 2026-04-01 (rev G17 P0 concluído — Sprint N: G11 P1 próximo)** · Responsável: Orquestrador gera, Manus commita
+> **v3.2 · 2026-04-01 (rev G11 P1 + Gates v5.0 + G1/G2 fechados)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
@@ -11,8 +11,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 **DIAGNOSTIC_READ_MODE:** shadow (aguarda UAT com advogados)  
 **Corpus RAG:** 2.078 chunks · 5 leis · 100% confiabilidade  
 **Sprint M:** CONCLUÍDA ✅ — UAT manual, E2E Playwright, BUG-UAT-02/03/05, auth.testLogin  
-**Sprint N:** G17 P0 ✅ CONCLUÍDO · Fix CI/CD P1 ✅ · Próximo: G11 (#187)  
-**PRs mergeados:** 263 (último: #263 fix(g17) enums + server/lib)  
+**Sprint N:** G17 P0 ✅ · Fix CI/CD ✅ · G11 ✅ · Gates v5.0 ✅ · G1/G2 ✅ · Próximo: G15 (#192) após sessão planejamento  
+**PRs mergeados:** 267 (último: #267 feat(g11) fonte_risco)  
 **Fila de PRs abertos:** VAZIA ✅
 
 ---
@@ -25,7 +25,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 - **Divergência de histórico:** `origin/main` (Manus S3) ≠ `solaris/main` (GitHub) — SEMPRE criar branch a partir do HEAD do `solaris/main` via `git fetch`
 - **Referência operacional:** docs/HANDOFF-MANUS.md
 - **Referência de governança:** docs/governance/HANDOFF-IMPLEMENTADOR.md
-- **Issues do backlog Sprint N:** ~~#259 (G17 P0)~~ ✅, ~~Fix CI/CD P1~~ ✅, #187 (G11 P1 — **PRÓXIMO**), #192 (G15 P2)
+- **Issues do backlog Sprint N:** ~~#259 (G17 P0)~~ ✅, ~~Fix CI/CD P1~~ ✅, ~~#187 (G11 P1)~~ ✅, #192 (G15 P2 — **PRÓXIMO** após sessão planejamento)
 - **Documentos P0/P1 obrigatórios:** atualizar SEMPRE após sprint concluída:
   - P0: `docs/governance/ESTADO-ATUAL.md` (este arquivo)
   - P1: `docs/BASELINE-PRODUTO.md`
@@ -44,9 +44,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o ChatGPT (consultor)
 
-- **Estado:** Sprint N em andamento — G17 P0 concluído
-- **Gaps resolvidos:** G1–G10, G13, G14, G16, G17 + K-4-A a K-4-E + BUG-UAT-02/03/05
-- **Gaps pendentes:** G11 (#187), G15 (#192)
+- **Estado:** Sprint N em andamento — G17 ✅ G11 ✅ Gates v5.0 ✅ G1/G2 ✅
+- **Gaps resolvidos:** G1–G14, G16, G17 + K-4-A a K-4-E + BUG-UAT-02/03/05 + Gates G1/G2
+- **Gaps pendentes:** G15 (#192 — aguarda sessão planejamento)
 - **Corpus RAG:** 5 leis · 2.078 chunks · confiabilidade 100%
 - **Cockpit ao vivo:** /admin/rag-cockpit — 7 seções incluindo 7E Qualidade RAG
 - **Testes E2E:** CT-01, CT-04, CT-06, CT-07, CT-37 (Playwright)
@@ -76,8 +76,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 |---|---|---|---|
 | #259 | G17 — Integrar solaris_answers ao gapEngine | P0 | ✅ DONE (PR #262 + #263) |
 | — | Fix CI/CD npm → pnpm (3 workflows) | P1 | ✅ DONE (PR #261) |
-| #187 | G11 — campo fonte_risco no RiskItemSchema | P1 | ⏳ **PRÓXIMO** |
-| #192 | G15 — Arquitetura 3 ondas de perguntas | P2 | ⏳ Backlog |
+| #187 | G11 — campo fonte_risco no RiskItemSchema | P1 | ✅ DONE (PR #267) |
+| #192 | G15 — Arquitetura 3 ondas de perguntas | P2 | ⏳ Gate 0 NO-GO — aguarda P.O. |
+| — | Gates v5.0 (Q5/G1/G2 + validate-pr-body) | P1 | ✅ DONE (PR #266) |
 | — | E2E CT-18..CT-35 (Admin corpus + CRUD) | P2 | ⏳ Backlog |
 
 ---
@@ -132,21 +133,21 @@ docs/HANDOFF-MANUS.md
 
 | Indicador | Valor |
 |---|---|
-| Commits no main | ~640 (HEAD `afe9c6b`) |
-| PRs mergeados | **263** (último: #263 fix(g17) enums + server/lib) |
+| Commits no main | ~643 (HEAD `28ff332`) |
+| PRs mergeados | **267** (último: #267 feat(g11) fonte_risco) |
 | PRs abertos | **0** ✅ |
 | Tabelas no schema | 68 |
-| Migrations aplicadas | **62** (0000–0061) |
-| Testes passando | **2.678** (`it()` calls em 138 arquivos `.test.ts`) |
+| Migrations aplicadas | **63** (0000–0062) |
+| Testes passando | **2.690+** (`it()` calls em 140+ arquivos `.test.ts`) |
 | Testes E2E | 5 CTs (CT-01, CT-04, CT-06, CT-07, CT-37) |
 | Corpus RAG chunks | 2.078 |
 | Leis no corpus | 5 (LC 214, EC 132, LC 227, LC 224, LC 123) |
 | Confiabilidade RAG | 100% |
 | TypeScript erros | 0 |
 | Docs ✅ Atualizados | 26 / 26 |
-| SKILL.md versão | v3.4 |
+| SKILL.md versão | v4.0 (solaris-orquestracao + solaris-contexto) |
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-01 (rev G17 P0 concluído — Sprint N: G11 P1 próximo)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-01 (rev G11 P1 + Gates v5.0 + G1/G2 fechados)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
