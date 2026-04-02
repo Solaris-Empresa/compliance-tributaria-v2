@@ -31,6 +31,8 @@ import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-h
 import mysql from "mysql2/promise";
 import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
+import { analyzeIagenAnswers } from "./lib/iagen-gap-analyzer";
+import { persistCpieScoreForProject } from "./routers/scoringEngine";
 import { deriveRisksFromGaps, persistRisks } from "./routers/riskEngine";
 import { injectOnda1IntoQuestions } from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
@@ -1500,7 +1502,7 @@ Gere o plano de ação em JSON:
       projectId: z.number(),
       plans: z.record(z.string(), z.array(z.any())),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
@@ -1509,6 +1511,12 @@ Gere o plano de ação em JSON:
         .update(projects)
         .set({ currentStep: 5, status: "aprovado", actionPlansDataV3: input.plans as any, actionPlansData: input.plans as any } as any)
         .where(eq(projects.id, input.projectId));
+
+      // Lote B (AUDIT-C-003): fire-and-forget — persiste score CPIE no backend
+      // Garante persistência independente da navegação do usuário na tela de score
+      void persistCpieScoreForProject(input.projectId, ctx.user.id).catch((err) => {
+        console.error('[CPIE-PERSIST] persistCpieScoreForProject falhou — pipeline não afetado:', err);
+      });
 
       return { success: true };
     }),
@@ -2430,6 +2438,10 @@ Regras obrigatórias:
       }
       await db.saveOnda2Answers(input.projectId, input.answers);
       await db.updateProject(input.projectId, { status: 'diagnostico_corporativo' as any }); // BUG-UAT-03 fix
+      // Lote A (AUDIT-C-002): fire-and-forget — gera gaps a partir das respostas iagen
+      void analyzeIagenAnswers(input.projectId).catch((err) => {
+        console.error('[IAGEN-GAP] analyzeIagenAnswers falhou — pipeline não afetado:', err);
+      });
       return {
         success: true,
         projectId: input.projectId,
