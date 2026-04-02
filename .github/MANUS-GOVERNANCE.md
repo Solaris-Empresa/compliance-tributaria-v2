@@ -87,17 +87,6 @@ O Confidence Score 98% é calculado sobre as seguintes dimensões:
 
 ---
 
-## Processos obrigatórios por sprint
-
-| Processo | Momento | Responsável | Critério de aprovação |
-|---|---|---|---|
-| Gate 0 | Início de cada tarefa | Manus | HEAD confirmado + arquivos de governança lidos |
-| Q1–Q5 | Em todo PR | Manus | Declaração explícita no body do PR |
-| Q6 | PRs que tocam config/ ou mapeamento | Manus | Query SQL real executada, cobertura ≥ 80% |
-| Gate 7 — Auto-auditoria | Fim de cada sprint | Manus executa 6 blocos · Orquestrador analisa · P.O. só valida após APROVADO ou APROVADO COM RESSALVAS resolvidas |
-
----
-
 ## Checkpoints da sprint
 
 | Bloco | Versão Manus | Data | Status |
@@ -121,11 +110,3 @@ O Confidence Score 98% é calculado sobre as seguintes dimensões:
 - [Tabela de melhorias técnicas](../docs/product/cpie-v2/produto/TABELA-MELHORIAS-TECNICAS-HOW-v1.md)
 - [Playbook v3.0](../docs/product/cpie-v2/produto/PLAYBOOK-DA-PLATAFORMA-v3.md)
 - [Shadow Monitor](https://iasolaris.manus.space/admin/shadow-monitor)
-
----
-
-## Erros Recorrentes e Lições Aprendidas
-
-| Data | Erro | Causa Raiz | Resolução |
-|------|------|-----------|-----------|
-| 2026-04-01 | SOLARIS_GAPS_MAP 96% ineficaz | 7/10 chaves com acentos vs snake_case no banco — grep aceitou como OK, query real revelou falha | Q6 adicionado ao CONTRIBUTING.md |

@@ -273,64 +273,6 @@ async function getConn() {
   return mysql.createConnection(ENV.databaseUrl);
 }
 
-/**
- * Lote B (AUDIT-C-003): Persiste o score CPIE no backend de forma autônoma.
- * Chamada fire-and-forget em approveActionPlan para garantir persistência
- * independente da navegação do usuário na tela de score.
- *
- * @param projectId - ID do projeto
- * @param clientId  - ID do cliente (owner do projeto)
- */
-export async function persistCpieScoreForProject(
-  projectId: number,
-  clientId: number
-): Promise<{ inserted: boolean; cpieScore: number }> {
-  const conn = await getConn();
-  try {
-    const [gaps] = await conn.execute(
-      'SELECT criticality, score FROM project_gaps_v3 WHERE project_id = ? AND client_id = ?',
-      [projectId, clientId]
-    ) as [Array<{ criticality: string; score: string }>, unknown];
-    const [risks] = await conn.execute(
-      'SELECT risk_level, risk_score FROM project_risks_v3 WHERE project_id = ? AND client_id = ?',
-      [projectId, clientId]
-    ) as [Array<{ risk_level: string; risk_score: number }>, unknown];
-    const [actions] = await conn.execute(
-      'SELECT action_priority, status FROM project_actions_v3 WHERE project_id = ? AND client_id = ?',
-      [projectId, clientId]
-    ) as [Array<{ action_priority: string; status: string }>, unknown];
-    const result = computeCpieScore(projectId, gaps, risks, actions);
-    if (!result.meta.hasData) {
-      console.warn('[CPIE-PERSIST] Sem dados para persistir — projectId:', projectId);
-      return { inserted: false, cpieScore: 0 };
-    }
-    await conn.execute(
-      `INSERT INTO cpie_score_history
-         (client_id, project_id, cpie_score, gap_score, risk_score, action_score,
-          maturity_level, maturity_label, maturity_color,
-          total_gaps, total_risks, total_actions)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        clientId, projectId,
-        result.cpieScore,
-        result.dimensions.gap.score,
-        result.dimensions.risk.score,
-        result.dimensions.action.score,
-        result.maturityLevel,
-        result.maturityLabel,
-        result.maturityColor,
-        result.dimensions.gap.detail.totalGaps,
-        result.dimensions.risk.detail.totalRisks,
-        result.dimensions.action.detail.totalActions,
-      ]
-    );
-    console.log('[CPIE-PERSIST] Score persistido — projectId:', projectId, '| cpieScore:', result.cpieScore);
-    return { inserted: true, cpieScore: result.cpieScore };
-  } finally {
-    await conn.end();
-  }
-}
-
 // ─── tRPC Router ──────────────────────────────────────────────────────────────
 
 export const scoringEngineRouter = router({

@@ -73,37 +73,6 @@ const SPRINTS = [
       "Gold set 8/8 = 100% confirmado via queries reais",
       "DIAGNOSTIC_READ_MODE=shadow confirmado",
     ], status: "done" },
-  { id: "Sprint N — G17", date: "2026-03-31", pr: "#261–#263", commit: "d65c8b5",
-    changes: [
-      "G17: analyzeSolarisAnswers extraído para server/lib/solaris-gap-analyzer.ts",
-      "Enums corrigidos: 'Sim'/'Não' → 'sim'/'nao'",
-      "INSERT com transação + retorno { inserted: N } verificável",
-      "3 gaps source=solaris validados em produção (projeto 2310001)",
-      "Post-mortem: INSERT silencioso — 5 Whys + 7 ações corretivas",
-    ], status: "done" },
-  { id: "Sprint N — G11", date: "2026-03-31", pr: "#267", commit: "28ff332",
-    changes: [
-      "G11: campo fonte_risco em project_risks_v3 (migration 0062)",
-      "Derivação automática: gap.source → fonte_risco",
-      "FONTE_BADGE na coluna Origem das Matrizes de Risco",
-      "12/12 testes passando · TypeScript 0 erros",
-    ], status: "done" },
-  { id: "Sprint N — G15", date: "2026-03-31", pr: "#269", commit: "802c3f2",
-    changes: [
-      "G15: Arquitetura 3 Ondas — campo fonte em solaris_questions",
-      "ONDA_BADGE nos questionários SOLARIS e IA Gen",
-      "Feature flag g15-fonte-perguntas=true",
-      "ADR-0002: Arquitetura 3 Ondas de Perguntas",
-      "INV-005: 5/5 testes cobrindo regulatorio/solaris/ia_gen",
-    ], status: "done" },
-  { id: "Sprint N — Gates v5.0", date: "2026-03-31", pr: "#266", commit: "75ac176",
-    changes: [
-      "Gates v5.0: Gate 0 Discovery + Gate 2.5 Risk Score + Gate 4 Post-mortem",
-      "CI: validate-implementation.yml com Q6/Q7/R9/R2",
-      "Feature flags: server/config/feature-flags.ts",
-      "Skills solaris-orquestracao v4.0 + solaris-contexto v4.0",
-      "DORA Metrics + tabela de erros v5.0 no MODELO-OPERACIONAL",
-    ], status: "done" },
 ];
 
 const SOURCE_FILES = [
@@ -118,13 +87,6 @@ const SOURCE_FILES = [
   { path: "docs/rag/RFC/CORPUS-RFC-001.md", role: "RFC G-01: id 811 fragmentado", critical: false },
   { path: "docs/rag/RFC/CORPUS-RFC-002.md", role: "RFC G-02: ids 617–779 campo lei", critical: false },
   { path: "docs/rag/gold-set-queries.sql", role: "8 queries canônicas de validação de cobertura", critical: false },
-  // Sprint N
-  { path: "server/lib/solaris-gap-analyzer.ts", role: "G17: módulo isolado de análise SOLARIS — INSERT com transação", critical: true },
-  { path: "server/config/feature-flags.ts", role: "Feature flags — g15-fonte-perguntas, g17-solaris-analyzer, bloqueios", critical: false },
-  { path: "docs/adr/0001-g17-modulo-isolado.md", role: "ADR-0001: G17 módulo isolado (Sprint N)", critical: false },
-  { path: "docs/adr/0002-arquitetura-3-ondas-perguntas.md", role: "ADR-0002: Arquitetura 3 Ondas de Perguntas (Sprint N)", critical: false },
-  { path: "docs/governance/post-mortems/2026-03-31-g17-insert-silencioso.md", role: "Post-mortem G17: INSERT silencioso — 5 Whys + DORA Sprint N", critical: false },
-  { path: ".github/workflows/validate-implementation.yml", role: "CI: Gates v5.0 — Q6/Q7/R9/R2 automáticos", critical: false },
 ];
 
 // ── COMPONENTS ───────────────────────────────────────────────────────────────
@@ -673,7 +635,7 @@ export default function RAGCockpit() {
   const [tab, setTab] = useState(0);
 
   // ── Tarefa 1: query tRPC ao vivo ──────────────────────────────────────────
-  const { data: snapshot, isLoading, isError, error, refetch } = trpc.ragInventory.getSnapshot.useQuery(
+  const { data: snapshot, isLoading, refetch } = trpc.ragInventory.getSnapshot.useQuery(
     undefined,
     { refetchInterval: 60_000 } // atualiza a cada 60s
   );
@@ -687,32 +649,6 @@ export default function RAGCockpit() {
       <div style={{ color: "#64748b", fontSize: 14 }}>
         Carregando inventário do corpus RAG...
       </div>
-    </div>
-  );
-
-  // ── Tarefa 3b: error state (401 não autenticado ou erro de servidor) ─────
-  if (isError) return (
-    <div style={{
-      background: "#020817", minHeight: "100vh",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      flexDirection: "column", gap: 16
-    }}>
-      <div style={{ color: "#f97316", fontSize: 16, fontWeight: 700 }}>⚠ RAG Cockpit indisponível</div>
-      <div style={{ color: "#64748b", fontSize: 13, textAlign: "center", maxWidth: 400 }}>
-        {(error as any)?.data?.code === "UNAUTHORIZED"
-          ? "Você precisa estar autenticado para acessar o RAG Cockpit. Faça login e tente novamente."
-          : `Erro ao carregar inventário: ${(error as any)?.message ?? "erro desconhecido"}`
-        }
-      </div>
-      <button
-        onClick={() => refetch()}
-        style={{
-          background: "#1e293b", color: "#94a3b8", border: "1px solid #334155",
-          borderRadius: 6, padding: "6px 16px", cursor: "pointer", fontSize: 13
-        }}
-      >
-        Tentar novamente
-      </button>
     </div>
   );
 
@@ -815,8 +751,8 @@ export default function RAGCockpit() {
             background: "#1a2744", border: "1px solid #3b82f6",
             borderRadius: 8, padding: "6px 14px", textAlign: "center"
           }}>
-            <div style={{ color: "#22c55e", fontWeight: 700, fontSize: 12, letterSpacing: "0.05em" }}>✅ SPRINT N CONCLUÍDA</div>
-            <div style={{ color: "#334155", fontSize: 10, marginTop: 2 }}>G11 · G15 · G17 · Gates v5.0 · 9 PRs</div>
+            <div style={{ color: "#60a5fa", fontWeight: 700, fontSize: 12, letterSpacing: "0.05em" }}>🧪 UAT EM ANDAMENTO</div>
+            <div style={{ color: "#334155", fontSize: 10, marginTop: 2 }}>v2.0 · 12 demandas · PR #144</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ color: corpusConfidence >= 98 ? "#22c55e" : "#f59e0b", fontFamily: "monospace", fontWeight: 700, fontSize: 20 }}>{corpusConfidence}%</div>
