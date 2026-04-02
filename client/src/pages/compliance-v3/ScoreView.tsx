@@ -3,6 +3,7 @@
  * Exibe o score consolidado com breakdown completo por dimensão.
  */
 import { useParams, Link } from "wouter";
+import { useEffect, useRef } from "react";
 import { ArrowLeft, RefreshCw, TrendingUp, AlertTriangle, CheckCircle2, Activity, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -38,6 +39,15 @@ export default function ScoreView() {
     },
     onError: () => toast.error("Erro ao salvar o score no histórico."),
   });
+
+  // Lote B: persistir score automaticamente quando dados chegam pela primeira vez
+  const autoPersistedRef = useRef(false);
+  useEffect(() => {
+    if (data?.meta.hasData && !autoPersistedRef.current && !persistMutation.isPending) {
+      autoPersistedRef.current = true;
+      persistMutation.mutate({ projectId });
+    }
+  }, [data?.meta.hasData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="min-h-screen bg-background">

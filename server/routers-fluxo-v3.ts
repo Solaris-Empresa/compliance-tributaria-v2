@@ -31,6 +31,7 @@ import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-h
 import mysql from "mysql2/promise";
 import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
+import { analyzeIagenAnswers } from "./lib/iagen-gap-analyzer";
 import { deriveRisksFromGaps, persistRisks } from "./routers/riskEngine";
 import { injectOnda1IntoQuestions } from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
@@ -2430,6 +2431,10 @@ Regras obrigatórias:
       }
       await db.saveOnda2Answers(input.projectId, input.answers);
       await db.updateProject(input.projectId, { status: 'diagnostico_corporativo' as any }); // BUG-UAT-03 fix
+      // Sprint S Lote A: fire-and-forget — converte iagen_answers em gaps (source='iagen')
+      void analyzeIagenAnswers(input.projectId).catch((err) => {
+        console.error('[IAGEN-GAP] analyzeIagenAnswers falhou — pipeline V1 não afetado:', err);
+      });
       return {
         success: true,
         projectId: input.projectId,
