@@ -1,10 +1,10 @@
 ---
 name: solaris-contexto
-version: v4.0
-description: "Contexto permanente do projeto IA SOLARIS para o Orquestrador Claude. Use ao iniciar qualquer sessão do projeto IA SOLARIS, ao planejar sprints, ao revisar PRs, ao gerar prompts para o Manus, ou ao analisar o estado do produto."
+version: v3.2
+description: "Contexto permanente do projeto IA SOLARIS para o Orquestrador Claude. Use ao iniciar qualquer sessão do projeto IA SOLARIS, ao planejar sprints, ao revisar PRs, ao gerar prompts para o Manus, ou ao analisar o estado do produto. Contém Gate 0 obrigatório, estado atual do produto, Gate de Qualidade Q1–Q5 e regras de governança."
 ---
 
-# Solaris — Skill de Contexto do Orquestrador v4.0
+# Solaris — Skill de Contexto do Orquestrador
 
 ## Identidade
 
@@ -13,113 +13,84 @@ Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2
 Produção: https://iasolaris.manus.space
 P.O.: Uires Tapajós | Implementador: Manus AI | Consultor: ChatGPT
 
----
-
 ## GATE 0 — Executar SEMPRE ao iniciar sessão
 
-Ler na ordem (usar bash/file tools — NÃO usar project_knowledge_search):
-1. `docs/governance/ESTADO-ATUAL.md` — HEAD atual e sprint corrente
-2. `docs/BASELINE-PRODUTO.md` — versão e contagem de testes
-3. `git log main --oneline -5` — confirmar PRs recentes
+Antes de qualquer trabalho, verificar via project_knowledge_search:
+1. Versão atual do BASELINE-PRODUTO.md e commit HEAD
+2. Último PR mergeado bate com versão do baseline?
+3. PRs abertos sem baseline atualizado?
+4. HANDOFF-MANUS.md reflete estado real?
+5. Para sprint planejada: buscar no repo se já existe implementação
+6. Gaps propostos não cobertos por arquitetura já planejada?
 
-**Declarar antes do primeiro prompt:**
-`"Estado verificado — baseline v[X], HEAD [commit], [N] testes, Sprint [X]"`
+**Declarar antes do primeiro prompt:** "Estado verificado — baseline v[X], [N] testes"
 
 ---
 
 ## Estado atual do produto
 
-> Atualizado em: 2026-04-01 · Sprint S em execução
+> Atualizado em: 2026-03-31 · Sessão Sprint M — BUG-C + Gates G1/G2
 
-- **Baseline:** v3.2
-- **HEAD:** ver ESTADO-ATUAL.md (última sessão conhecida: `8fa615a`)
-- **Testes unitários:** 1.436 passando (71 files) · `pnpm test:unit`
-- **Testes integração:** 69 arquivos em `server/integration/`
-- **Corpus RAG:** 2.078 chunks · 5 leis (5 leis ainda ausentes)
-- **Corpus SOLARIS:** 24 perguntas ativas (SOL-013..036)
+- **Baseline:** v2.5 (docs/BASELINE-PRODUTO.md — rev K-4-E)
+- **HEAD:** `faf1a2c` — `chore(governance): Gates G1+G2 — isError nos 4 Admin, teste Q5, validateGateQ1Q5 no CI (#250)`
+- **Testes:** 2.657 passando + 13 novos (server/gates/q5-iserror.test.ts)
+- **Migrations:** 61 (última: `0060_stale_tombstone.sql` — campos DEC-002)
+- **Corpus RAG:** 2.078 chunks · 5 leis · 100% anchor_id
 - **DIAGNOSTIC_READ_MODE:** `shadow` (NUNCA alterar sem aprovação do P.O.)
-- **PRs mergeados total:** 292+
+- **PRs abertos:** 0
+- **PRs mergeados total:** 250
 
 ### Sprints concluídas
 
 | Sprint | Status | PRs | Entregáveis principais |
 |---|---|---|---|
-| K–M | ✅ | #215–#250 | RAG corpus · CI/CD · Gates Q1–Q5 · Debug v2 |
-| N | ✅ | #261–#273 | G17 pipeline Onda 1 · 3 Ondas badge · ESTADO-ATUAL v3.3 |
-| O | ✅ | #276–#280 | G17-B/C/D · SOLARIS_GAPS_MAP 100% · Backfill |
-| P | ✅ | #281–#284 | Gate Q6 · 24 perguntas v4 · CI unit tests · Bloqueios dados |
-| Q | ✅ | #286–#288 | Gate 7 · fix nfe · fix upsert ativo=1 |
-| R | ✅ | — | Auditoria AS-IS Pipeline 3 Ondas · 17 achados |
-| S | 🔄 | #292 | Lotes A+B+E mergeados · Lote B pendente decisão P.O. · Lote D pendente |
+| Sprint K (K-4-A..E) | ✅ CONCLUÍDA | #215–#232 | RAG corpus, embeddings, CNAE, cockpit v3 |
+| Sprint L DEC-002 | ✅ CONCLUÍDA | #236 | Upload CSV SOLARIS, solarisAdmin 6 procedures, migration 0060 |
+| Hotfixes Cockpit | ✅ MERGEADOS | #237, #238 | BUG-01..05: token GitHub, GS-09/GS-10, último UTF-8, localStorage |
+| Hotfixes BUG-A/B | ✅ MERGEADOS | #240 | vigencia_inicio NULL-safe, DISTINCT TiDB |
+| Gate Q1–Q5 | ✅ MERGEADO | #241 | SKILL.md v2.9 — gate obrigatório em todo PR |
+| Sprint M — BUG-C | ✅ MERGEADO | #246 | TiDB LIMIT/OFFSET fix em 3 routers (solarisAdmin, ragAdmin, scoringEngine) |
+| Sprint M — Protocolo Debug v2 | ✅ MERGEADO | #248 | SKILL.md v3.1 — Passo 0 fast path, Passo 7, Gate de bloqueio (DEC-009) |
+| Sprint M — Gates G1+G2 | ✅ MERGEADO | #250 | isError nos 4 Admin, q5-iserror.test.ts (13 testes), validateGateQ1Q5 no CI |
+
+### Engines e routers
+
+- `server/routers/` — 2.657 testes passando
+- Routers principais: ragAdmin, solarisAdmin, scoringEngine, assessmentRouter, actionPlanRouter, analyticsRouter, consistencyRouter, shadowMonitor
+- `DIAGNOSTIC_READ_MODE=shadow` — modo de leitura paralela (não altera fluxo principal)
 
 ---
 
-## Pipeline das 3 Ondas — Estado AS-IS (auditado 2026-04-01)
+## Gaps resolvidos
 
-| # | Etapa | Status |
-|---|---|---|
-| 1–5 | Onda 1: SOLARIS → gaps → riscos | ✅ Validado em banco |
-| 6–9 | Onda 2: iagen → gaps → riscos | ⚠️ Lote A mergeado (PR #292) |
-| 10–14 | Onda 3: RAG → gaps → riscos | 🔴 source='rag'=0 em produção |
-| 15–17 | Briefing · Matriz · Plano | 🔴 0 briefings/scores no banco |
+G1–G13 todos resolvidos. DEC-001 ✅. DEC-002 ✅ (Sprint L — PR #236).
 
-**Achados críticos abertos (pós Sprint S):**
-- AUDIT-C-004: Score CPIE backend — decisão P.O. pendente (Opção A vs B)
-- AUDIT-C-005: Pipeline E2E nunca completado (0 projetos com 3 ondas)
-- AUDIT-M-004: Apenas 5 de 10 leis no corpus RAG (Lote D pendente)
+**Sprint M (2026-03-31):**
+- **BUG-C** ✅ — TiDB rejeita `LIMIT ?`/`OFFSET ?` via `conn.execute()` → interpolação segura em 3 routers (#246)
+- **G1** ✅ — CI automático Q1–Q5: `validateGateQ1Q5()` em `validate-pr-body.js`, regex `/^chore[:(]/` dispensa governance (#250)
+- **G2** ✅ — Teste automatizado Q5: `server/gates/q5-iserror.test.ts` — 13 testes, verifica isError em todos Admin*.tsx (#250)
+- **DEC-009** ✅ — Protocolo de Debug v2: Passo 0 fast path, Passo 7 formato fechado, Gate de bloqueio (#248)
 
 ---
 
 ## Bloqueios permanentes
 
-### Código
-- ❌ `DIAGNOSTIC_READ_MODE=new` — NUNCA sem aprovação do P.O.
-- ❌ F-04 Fase 3 (Issue #56) — NUNCA sem aprovação do P.O.
-- ❌ DROP COLUMN (Issue #62) — NUNCA sem aprovação do P.O.
-
-### Dados (NUNCA fazer DROP ou TRUNCATE)
-- ❌ `rag_documents` / `rag_chunks` — 2.078 chunks reais
-- ❌ `cnaes` — tabela real, base de todo filtro setorial
-- ❌ `solaris_questions` — corpus jurídico Dr. José Rodrigues
+- ❌ `DIAGNOSTIC_READ_MODE=new` — NUNCA ativar sem aprovação do P.O.
+- ❌ F-04 Fase 3 (Issue #56) — NUNCA executar sem aprovação do P.O.
+- ❌ DROP COLUMN (Issue #62) — NUNCA executar sem aprovação do P.O.
+- ❌ Mover engines para `server/engines/` — Sprint futura
 
 ---
 
-## INICIATIVAS PROATIVAS DO ORQUESTRADOR
+## GATE DE QUALIDADE Q1–Q5 — Obrigatório em todo PR do Manus
 
-Propor automaticamente, sem esperar o P.O. pedir:
+> ⚠️ Todo PR aberto pelo Manus **deve conter** a Declaração Q1–Q5 no body.
+> PR sem a declaração → **BLOQUEADO** pelo Orquestrador.
+> Detalhes completos em: `skills/solaris-orquestracao/SKILL.md` (seção "GATE DE QUALIDADE")
 
-| Gatilho | Iniciativa |
-|---|---|
-| 3+ bugs em sequência | Propor auditoria AS-IS antes de continuar |
-| Backlog com 5+ itens abertos | Propor agrupamento em lotes com priorização |
-| Sprint sem Gate 7 | Bloquear validação do P.O. e executar auto-auditoria |
-| E2E visual OK sem evidência SQL | Propor auditoria de dados |
-| Manus pular etapa ou alterar ordem | Corrigir prompt imediatamente |
+### Checklist rápido para revisão de PR
 
-**Princípios estratégicos:**
-- Auditar antes de implementar features novas
-- E2E de dados > E2E visual (query banco > screenshot)
-- Agrupar bugs em lotes independentes
-- Visão holística (tabela entrada/saída) antes de nova sprint
-- Pipeline nunca validado sem evidência SQL
-
----
-
-## Modo autônomo do Manus
-
-O Manus opera 100% autônomo exceto:
-- P.O. clica merge no GitHub
-- Testes de frontend que exigem navegação manual (marcados `[PENDENTE P.O.]`)
-
-**Regra de ordem:** se impedimento técnico impedir a ordem combinada,
-Manus reporta ao Orquestrador ANTES de alterar sequência.
-Nunca pula etapas silenciosamente.
-
----
-
-## GATE DE QUALIDADE — Q1–Q5 + Q6 + Gate 7
-
-### Q1–Q5 — Obrigatório em todo PR
+Ao revisar qualquer PR do Manus, verificar se o body contém:
 
 ```
 ## Auto-auditoria Q1–Q5
@@ -127,75 +98,276 @@ Q1 — Tipos nulos:         [ OK | BLOQUEADO | N/A ] — [evidência]
 Q2 — SQL DISTINCT TiDB:   [ OK | BLOQUEADO | N/A ] — [evidência]
 Q3 — Filtros NULL/empty:  [ OK | BLOQUEADO | N/A ] — [evidência]
 Q4 — Endpoint registrado: [ OK | BLOQUEADO | N/A ] — [evidência]
-Q5 — Testes mínimos:      [ OK | BLOQUEADO | N/A ] — [N testes]
+Q5 — Testes mínimos:      [ OK | BLOQUEADO | N/A ] — [N testes / casos cobertos]
 Resultado: [ APTO PARA COMMIT | BLOQUEADO ]
 ```
 
-### Q6 — Cobertura de dados reais
-Obrigatório em PRs que tocam `config/`, `seeds/`, `gap-analyzer`, mapeamentos.
-- Query SQL real obrigatória — grep NÃO é evidência de banco
-- Cobertura ≥ 80% ou justificada
-- Campo "Query executada" vazio → PR BLOQUEADO
-
-### Gate 7 — Auto-auditoria de sprint
-Obrigatório ao final de toda sprint, antes da validação do P.O.
-6 blocos: integridade PR · Q1–Q5 reexecutados · CI · código pós-merge
-         · dados reais (Q6) · bloqueios permanentes
-Resultado: `APROVADO | APROVADO COM RESSALVAS | REPROVADO`
-
-Se o P.O. solicitou auditoria antes do Orquestrador → falha de processo.
-
----
-
-## PROTOCOLO DE DEBUG v2
-
-> Regra absoluta: Bug sem causa raiz comprovada = não resolvido.
-> Output de comando > opinião. Evidência > interpretação.
-
-### Passo 0 — Fast path (verificar PRIMEIRO)
-
-| Sintoma | Padrão | Comando direto |
-|---|---|---|
-| Lista retorna 0 após upsert | `''` em vez de `NULL` | `SELECT campo FROM tabela WHERE campo = ''` |
-| TiDB: LIMIT inválido | `LIMIT ?` via `conn.execute()` | `grep -n "LIMIT ?" server/routers/ARQUIVO.ts` |
-| TiDB: ORDER BY inválido | `SELECT DISTINCT` + ORDER BY fora | `grep -n "DISTINCT" server/routers/ARQUIVO.ts` |
-| Endpoint 404 | Router não registrado | `grep -n "NOME_ROUTER" server/routers.ts` |
-| UI vazio sem erro | `isError` = lista vazia | `grep -n "isError" client/src/pages/COMPONENTE.tsx` |
-| Deploy não reflete código | Branch não mergeada | `git log main --oneline -3` |
-| Mapa/config baixa cobertura | Acentos vs snake_case | Query SQL real no banco (Q6) |
-
-### Erros recorrentes documentados
+### Erros recorrentes documentados (referência para revisão)
 
 | Data | Bug | Causa raiz |
 |---|---|---|
-| 2026-03-30 | `listQuestions` retorna 0 | `vigencia_inicio = ''` (Q1) |
-| 2026-03-30 | TiDB rejeita scoringEngine | `SELECT DISTINCT` + ORDER BY fora (Q2) |
-| 2026-04-01 | SOLARIS_GAPS_MAP 96% ineficaz | Acentos vs snake_case — grep enganoso (Q6) |
-| 2026-04-01 | G17-D: tópicos não lidos | `split(',')` mas banco usa `';'` (Q6) |
-| 2026-04-01 | Lotes fora de ordem | Manus alterou sequência sem reportar |
+| 2026-03-30 | `listQuestions` retorna 0 após upsert OK | `vigencia_inicio = ''` em vez de `NULL` (Q1) |
+| 2026-03-30 | TiDB rejeita query do `scoringEngine` | `SELECT DISTINCT` com `ORDER BY` fora do SELECT (Q2) |
+| Sprint K | Deploy não reflete implementação | Branch não mergeada em `main` antes do teste |
+| Sprint L | PR com 97 commits de divergência | Branch criada de estado antigo — sempre basear no `main` atual |
 
-### Gate de bloqueio do Debug
+---
 
-| Condição | Ação |
-|---|---|
-| CAUSA RAIZ vazia ou "acho que" | Nova rodada com comandos específicos |
-| LOCAL EXATO ausente | Exigir arquivo + linha |
-| EVIDÊNCIA ausente | Rejeitar — exigir output |
-| Q5 FALHOU | Exigir fix frontend junto |
-| Manus sugeriu correção antes do Passo 7 | Bloquear |
+## Labels de rastreabilidade (obrigatórias nas 3 Ondas)
+
+Ao planejar sprints ou revisar PRs das 3 Ondas, verificar se as labels estão aplicadas:
+
+| Label | Cor | Escopo |
+|---|---|---|
+| `onda:1-solaris` | `#185FA5` | Onda 1 — questionário SOLARIS |
+| `onda:2-iagen` | `#D97706` | Onda 2 — IA Generativa |
+| `onda:3-regulatorio` | `#3B6D11` | Onda 3 — RAG regulatório |
+| `cockpit:3ondas` | `#7C3AED` | Cockpit P.O. — Seção 6 |
+
+O sub-painel 6B do Cockpit P.O. usa milestone como filtro primário e labels como contexto adicional.
+Ao gerar prompts para o Manus, incluir instrução de aplicar labels antes do review.
 
 ---
 
 ## Antes de gerar qualquer prompt de implementação
 
-1. Ler ESTADO-ATUAL.md — confirmar HEAD e sprint
-2. Verificar se o que será implementado já existe
-3. Verificar schemas em `drizzle/schema.ts`
-4. Incluir leitura obrigatória de BASELINE + HANDOFF
-5. Incluir perguntas de confirmação antes de implementar
-6. Exigir Q1–Q5 + Q6 (se aplicável) no body do PR
-7. Especificar branch de `origin/main` explicitamente
-8. Marcar testes de frontend como `[PENDENTE VALIDAÇÃO P.O.]`
+1. Buscar no project knowledge se o que será implementado já existe
+2. Verificar se campos/schemas já existem em `drizzle/schema.ts`
+3. Incluir no prompt: leitura obrigatória de `docs/BASELINE-PRODUTO.md` + `docs/HANDOFF-MANUS.md`
+4. Incluir no prompt: perguntas de confirmação antes de implementar
+5. Nunca gerar prompt de implementação sem Gate 0 completo
+6. **Exigir Declaração Q1–Q5 no body de todo PR gerado pelo Manus**
+
+---
+
+## PROTOCOLO DE DEBUG — Diagnóstico determinístico de causa raiz (v2)
+
+> **Regra absoluta:** Bug sem causa raiz comprovada = não resolvido.
+> Output de comando > opinião. Evidência > interpretação.
+> Meta: causa raiz identificada em **1 rodada**.
+
+**Regras de execução para o Manus:**
+- Executar TODOS os comandos em UMA resposta
+- NÃO interpretar resultados — reportar output bruto
+- NÃO sugerir correção antes da autorização do Orquestrador
+- NÃO alterar nenhum arquivo durante o diagnóstico
+- Responder APENAS no formato do Passo 7
+
+---
+
+### Passo 0 — Fast path: padrões conhecidos (verificar PRIMEIRO)
+
+Se o sintoma bater com padrão abaixo: gerar apenas o comando direto — não executar Passos 1–7.
+
+| Sintoma | Padrão | Comando direto |
+|---|---|---|
+| Lista retorna 0 após insert/upsert OK | `''` em vez de `NULL` | `SELECT campo FROM tabela WHERE campo = ''` |
+| TiDB: "Incorrect arguments to LIMIT" | `LIMIT ?` via `conn.execute()` | `grep -n "LIMIT ?\|OFFSET ?" server/routers/ARQUIVO.ts` |
+| TiDB: ORDER BY inválido | `SELECT DISTINCT` com `ORDER BY` fora do SELECT | `grep -n "DISTINCT" server/routers/ARQUIVO.ts` |
+| Endpoint 404 ou undefined | Router não registrado | `grep -n "NOME_ROUTER" server/routers.ts` |
+| UI mostra vazio sem mensagem de erro | `isError` tratado igual a lista vazia | `grep -n "isError\|isLoading" client/src/pages/COMPONENTE.tsx` |
+| Deploy não reflete código | Branch não mergeada em `main` | `git log main --oneline -3` |
+| Query dispara múltiplas vezes | `queryInput` sem `useMemo` | `grep -n "useMemo\|queryInput" client/src/pages/COMPONENTE.tsx` |
+
+**Se padrão confirmado:** reportar `PASSO 0 — PADRÃO CONHECIDO: [nome]` + output.
+**Se não bater:** executar Passos 1–7.
+
+---
+
+### Passo 1 — Definição objetiva do problema
+```
+SINTOMA:  [observável — o que o usuário viu, sem interpretação]
+ESPERADO: [estado correto]
+REAL:     [estado atual]
+DELTA:    [diferença objetiva entre esperado e real]
+```
+
+**Regra:** se DELTA não pode ser preenchido com precisão → pedir informação ao P.O. antes de gerar comandos.
+
+---
+
+### Passo 2 — Mapa do fluxo de dados
+```
+INPUT → [Zod + transforms] → [Banco TiDB]
+                                    ↓
+                    [Query/procedure] → [tRPC response] → [React state] → [UI]
+
+DADO CONFIRMADO EM: [ ] input  [ ] banco  [ ] tRPC  [ ] React state
+DADO AUSENTE EM:    [ ] input  [ ] banco  [ ] tRPC  [ ] React state
+CAMADA SUSPEITA:    [banco | query | backend | frontend]
+```
+
+A camada suspeita determina quais comandos incluir no Passo 4.
+
+---
+
+### Passo 3 — Hipóteses ranqueadas (mínimo 3)
+```
+H1 — [hipótese mais provável]
+     Comando: [1 comando único]
+     ✅ Confirma se: [output exato]
+     ❌ Nega se:     [output exato]
+
+H2 — [hipótese alternativa]
+     Comando: [1 comando]
+
+H3 — [hipótese fallback]
+     Comando: [1 comando]
+```
+
+**Hipóteses prioritárias para o stack SOLARIS** (sempre H1 ou H2):
+- Campo opcional como `''` em vez de `NULL` → Q1
+- `LIMIT ?` via `conn.execute()` → Q2
+- `SELECT DISTINCT` com `ORDER BY` fora do SELECT → Q2
+- Filtro `IS NULL` não encontra `''` → Q3
+- Router/procedure não registrado → Q4
+- `isError` indistinguível de lista vazia → Q5
+- `queryInput` sem `useMemo` → race condition
+
+---
+
+### Passo 4 — Bloco de investigação (executar tudo de uma vez)
+```bash
+# ═══ CAMADA 1 — BANCO ═══
+SELECT campo_suspeito, ativo, COUNT(*) as total
+FROM tabela GROUP BY campo_suspeito, ativo;
+SELECT COUNT(*) as string_vazia FROM tabela WHERE campo_suspeito = '';
+
+# ═══ CAMADA 2 — QUERY/PROCEDURE ═══
+grep -n "IS NULL\|= ''\|DISTINCT\|LIMIT ?\|OFFSET ?\|where\|findMany" \
+  server/routers/ARQUIVO.ts | head -30
+
+# ═══ CAMADA 3 — MAPEAMENTO ═══
+grep -n "transform\|\.trim\|optional\|default\|null\|''" \
+  server/routers/ARQUIVO.ts | head -20
+
+# ═══ CAMADA 4 — REGISTRO ═══
+grep -n "NOME_ROUTER" server/routers.ts
+
+# ═══ CAMADA 5 — FRONTEND ═══
+grep -n "isError\|isLoading\|filter\|ativo\|useMemo\|queryInput" \
+  client/src/pages/COMPONENTE.tsx | head -25
+```
+
+---
+
+### Passo 5 — Checklist Q1–Q5
+```
+Q1 — Campo opcional grava NULL?      [ OK | FALHOU ] → [linha do output]
+Q2 — SQL TiDB sem incompatibilidade? [ OK | N/A ]    → [linha do output]
+Q3 — Filtro cobre NULL e ''?         [ OK | FALHOU ] → [linha do output]
+Q4 — Endpoint registrado no router?  [ OK | FALHOU ] → [linha do output]
+Q5 — Frontend diferencia erro/vazio? [ OK | FALHOU ] → [linha do output]
+```
+
+---
+
+### Passo 6 — Isolamento da causa raiz
+```
+TIPO:      [ ] Dado  [ ] SQL  [ ] Backend  [ ] Frontend  [ ] Integração
+LOCAL:     [arquivo.ts linha N]
+CONDIÇÃO:  [regra quebrada — objetiva, sem qualificadores]
+EVIDÊNCIA: [comando executado] → [output que prova]
+```
+
+---
+
+### Passo 7 — Formato de resposta fechado
+
+Manus responde APENAS neste formato:
+```
+### OUTPUTS BRUTOS
+
+#### CAMADA 1 — BANCO
+[output exato]
+
+#### CAMADA 2 — QUERY/PROCEDURE
+[output exato]
+
+#### CAMADA 3 — MAPEAMENTO
+[output exato]
+
+#### CAMADA 4 — REGISTRO
+[output exato]
+
+#### CAMADA 5 — FRONTEND
+[output exato]
+
+---
+
+### CHECKLIST Q1–Q5
+
+Q1: [ OK | FALHOU ] → [evidência]
+Q2: [ OK | N/A ]   → [evidência]
+Q3: [ OK | FALHOU ] → [evidência]
+Q4: [ OK | FALHOU ] → [evidência]
+Q5: [ OK | FALHOU ] → [evidência]
+
+---
+
+### HIPÓTESE CONFIRMADA
+
+H__ — [1 frase]
+
+---
+
+### CAUSA RAIZ
+
+TIPO:      [Dado | SQL | Backend | Frontend | Integração]
+LOCAL:     [arquivo.ts linha N]
+CONDIÇÃO:  [regra quebrada]
+EVIDÊNCIA: [comando → output]
+
+---
+
+### COMO REPRODUZIR
+
+1. [passo]
+2. [passo]
+3. [resultado]
+
+---
+
+### COMO VALIDAR CORREÇÃO
+
+[comando ou fluxo que confirma resolução]
+```
+
+---
+
+### Gate de bloqueio
+
+Claude não gera prompt de correção se:
+
+| Condição | Ação |
+|---|---|
+| CAUSA RAIZ vazia ou "acho que" | Nova rodada com comandos mais específicos |
+| LOCAL EXATO ausente | Exigir arquivo + linha antes de corrigir |
+| EVIDÊNCIA ausente | Rejeitar — exigir output do comando |
+| Q5 marcado FALHOU | Exigir correção do frontend junto com o fix |
+| Manus sugeriu correção antes do Passo 7 | Bloquear — exigir formato completo |
+
+---
+
+### Regra final — memória do projeto
+
+> Cada bug resolvido atualiza a tabela de erros recorrentes em `skills/solaris-orquestracao/SKILL.md`.
+> Meta: Passo 0 resolve ≥ 80% dos bugs recorrentes.
+> Bug que escapa do Passo 0 → atualizar a tabela.
+> Bug que escapa do Gate de Spec → atualizar o Gate de Spec.
+> O sistema aprende com cada falha.
+
+---
+
+## Próximas sprints sugeridas (Sprint M)
+
+| Issue | Descrição | Onda |
+|---|---|---|
+| #190 | N8N-F1 — integração N8N | Onda 2 |
+| #187 | G11 — gap regulatório | Onda 3 |
+| #192 | G15 — gap regulatório | Onda 3 |
+| CI/CD fix | Workflow usa `npm install` mas projeto usa `pnpm` | Infra |
+| L-RAG-02/04/05 | Próximas issues do backlog RAG | Onda 3 |
 
 ---
 
@@ -204,8 +376,10 @@ Se o P.O. solicitou auditoria antes do Orquestrador → falha de processo.
 - ESTADO-ATUAL: `docs/governance/ESTADO-ATUAL.md` (P0 — ler PRIMEIRO)
 - BASELINE: `docs/BASELINE-PRODUTO.md`
 - HANDOFF: `docs/HANDOFF-MANUS.md`
-- CONTRIBUTING: `.github/CONTRIBUTING.md`
-- MANUS-GOVERNANCE: `.github/MANUS-GOVERNANCE.md`
+- GATE-CHECKLIST: `docs/GATE-CHECKLIST.md`
+- GATE Q1–Q5: `skills/solaris-orquestracao/SKILL.md` (seção "GATE DE QUALIDADE")
 - ADR-010: `docs/adr/ADR-010-content-architecture-98.md`
-- Auditoria AS-IS: `docs/audits/AUDITORIA-AS-IS-PIPELINE-3-ONDAS.md`
-- Planilha controle: `SOLARIS_CONTROLE_PIPELINE.xlsx` (com P.O.)
+- MATRIZ I/O: `docs/product/cpie-v2/produto/MATRIZ-CANONICA-INPUTS-OUTPUTS.md`
+- MANUS-GOVERNANCE: `.github/MANUS-GOVERNANCE.md`
+- CONTRIBUTING: `.github/CONTRIBUTING.md`
+- PROTOCOLO: `docs/governance/PROTOCOLO-CONTEXTO.md`
