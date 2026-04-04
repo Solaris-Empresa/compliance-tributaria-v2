@@ -1,10 +1,10 @@
 # MODELO OPERACIONAL — Equipe IA Solaris
 
-**Versão:** 2.4 — 2026-03-29  
+**Versão:** 1.2 — 2026-04-04  
 **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2  
 **Aprovador:** P.O. Uires Tapajós  
-**Última sprint concluída:** Sprint K (K-4-A a K-4-D) · HEAD `5d7ad7d`  
-**Próxima sprint:** Sprint L — Issue #191 (G16 Upload CSV SOLARIS)  
+**Última sprint concluída:** Sprint S (Lotes A–E + fix iagen) · HEAD `d08c12a`  
+**Próxima sprint:** Sprint T — campo NCM + LC 87 + engine Onda 3 (`source='rag'`)  
 **Contexto de entrada:** `docs/governance/ESTADO-ATUAL.md` — leia antes de qualquer trabalho
 
 ---
@@ -105,7 +105,7 @@ P.O. solicita
 
 ---
 
-## Bloqueios Ativos (2026-03-29)
+## Bloqueios Ativos (2026-04-04)
 
 Não remover sem aprovação documentada do P.O.:
 
@@ -119,29 +119,32 @@ Não remover sem aprovação documentada do P.O.:
 
 ## Backlog Ativo de Trabalho
 
-### P0 — Concluído na Sprint K
+### Concluído — Sprint S (2026-04-04)
+
+| Item | PR | Status |
+|---|---|---|
+| Lote A: `iagen-gap-analyzer.ts` + `completeOnda2` | #292 | ✅ Mergeado |
+| Lote B: `persistCpieScoreForProject` backend | #292 | ✅ Mergeado |
+| Lote C: Hard delete 1.705 projetos legados | — | ✅ Executado |
+| Lote D: 5 novas leis corpus RAG (376 chunks) | #296 | ✅ Mergeado |
+| Lote E: `briefingEngine` usa `actionPlans` (401 reg.) | #292 | ✅ Mergeado |
+| Fix: `isNonCompliantAnswer` (bug confidence_score) | #295 | ✅ Mergeado |
+| T1 validado: projeto 2490006 → `iagen=3` | — | ✅ Validado |
+
+### P0 — Sprint T (próxima)
 
 | Item | Responsável | Status |
 |---|---|---|
-| Sprint de Governança CI/CD | Manus | ✅ Concluído |
-| DEC-007 Infraestrutura de Contexto | Manus | ✅ Concluído |
-| Sprint K — Onda 2 (K-4-A a K-4-D) | Manus | ✅ Concluído |
-| UAT com advogados | P.O. + Orquestrador apoia | ⏳ Aguardando |
+| Campo `principaisProdutos` (NCM) no perfil da empresa | Manus | ⏳ Próxima |
+| Engine Onda 3: tabular Anexos I–XI LC 214 por NCM (~400 chunks) | Manus | ⏳ Próxima |
+| LC 87 compilada completa (~80 chunks) | Manus | ⏳ Próxima |
+| IN RFB 2.121/2022 (~200 chunks) | Manus | ⏳ Próxima |
 
-### P1 — Próximas sprints
-
-| Item | Issue | Responsável | Status |
-|---|---|---|---|
-| G16 Upload CSV SOLARIS | #191 | Manus (Sprint L) | ⏳ Próxima |
-| G11 Integração N8N | #187 | Manus | ⏳ Backlog |
-| RFC-003 Corpus expansão | #189 | Manus | ⏳ Backlog |
-| DECISÃO-001 Prefill cruzado QC-07→QO-03 | — | Manus, pós-UAT | ⏳ Backlog |
-
-### Bloqueados (aguardam UAT)
+### Bloqueados (aguardam P.O.)
 
 | Item | Desbloqueio |
 |---|---|
-| Issue #56 — F-04 Fase 3 | 48-72h UAT + aprovação P.O. |
+| Issue #56 — F-04 Fase 3 | Aprovação P.O. |
 | Issue #61 — modo `new` | Após #56 |
 | Issue #62 — DROP COLUMN | Após #61 |
 
@@ -194,7 +197,7 @@ Quando o Consultor (ChatGPT) for acionado:
 
 - [docs/governance/ESTADO-ATUAL.md](./governance/ESTADO-ATUAL.md) — **LEIA PRIMEIRO** — porta de entrada universal
 - [PRODUCT-LIFECYCLE.md](./PRODUCT-LIFECYCLE.md) — ciclo de vida do produto
-- [BASELINE-PRODUTO.md](./BASELINE-PRODUTO.md) — estado atual do produto (v2.4)
+- [BASELINE-PRODUTO.md](./BASELINE-PRODUTO.md) — estado atual do produto (v3.2)
 - [ERROS-CONHECIDOS.md](./ERROS-CONHECIDOS.md) — incidentes e invariants
 - [docs/governance/invariant-registry.md](./governance/invariant-registry.md) — 8 invariants
 - [docs/governance/HANDOFF-IMPLEMENTADOR.md](./governance/HANDOFF-IMPLEMENTADOR.md) — guia do Manus
@@ -202,6 +205,6 @@ Quando o Consultor (ChatGPT) for acionado:
 
 ---
 
-*MODELO-OPERACIONAL.md — IA Solaris v1.1 · 2026-03-29*
+*MODELO-OPERACIONAL.md — IA Solaris v1.2 · 2026-04-04 (pós-Sprint S)*
 *Revisar se a composição da equipe ou os papéis mudarem*
 *Aprovador: P.O. Uires Tapajós*
