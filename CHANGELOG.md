@@ -6,6 +6,34 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [Sprint S] — 2026-04-04 · `d08c12a`
+
+### Corrigido
+- **BUG-M-007** `server/lib/iagen-gap-analyzer.ts` — `isUncertainAnswer` usava `confidence_score < 0.7` como proxy de gap, ignorando respostas "não" com alta certeza do LLM. Substituído por `isNonCompliantAnswer` que analisa o conteúdo da resposta (padrão G17). (PR #295 · `d08c12a`)
+
+### Adicionado
+- **Lote A** `server/lib/iagen-gap-analyzer.ts` — Engine de análise de respostas IAgen, integrado ao `completeOnda2` como fire-and-forget. Gera gaps `source='iagen'` em `project_gaps_v3`. (PR #292)
+- **Lote B** `server/routers-fluxo-v3.ts` — `persistCpieScoreForProject` chamado em `approveActionPlan`, persistindo score CPIE em `cpie_score_history`. (PR #292)
+- **Lote E** `server/routers/briefingEngine.ts` — `briefingEngine` passa a ler `actionPlans` (401 registros) em vez de `project_actions_v3` (9 registros). (PR #292)
+- **Lote D** `docs/rag/` — 5 novas leis ingeridas: `conv_icms` (278 chunks), `lc116` (60), `cg_ibs` (26), `rfb_cbs` (7), `lc87` (5). Corpus total: 2.454 chunks · 10 leis. (PR #296)
+- **Gate Q8** — Nova regra de governança: verificar ordem de execução dos lotes antes de abrir PR.
+- **T1 validado** — Projeto 2490006: `source='iagen' | gaps=3` após `completeOnda2` com fix aplicado.
+
+### Removido
+- **Lote C** — Hard delete de 1.705 projetos legados (cascade) para limpar banco de produção.
+
+### Indicadores pós-Sprint S
+| Indicador | Valor |
+|---|---|
+| Testes passando | 1.436 (0 falhas) |
+| TypeScript erros | 1 pré-existente (Sprint T) |
+| PRs mergeados | 295 |
+| Corpus RAG | 2.454 chunks · 10 leis |
+| Perguntas SOLARIS ativas | 24 (SOL-013..036) |
+| Migrations | 62 |
+
+---
+
 ## [Sprint M] — 2026-03-31 · `2f17184`
 
 ### Corrigido

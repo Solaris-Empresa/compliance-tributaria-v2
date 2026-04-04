@@ -1,9 +1,9 @@
 # CORPUS BASELINE — IA SOLARIS RAG
 
-> **Versão:** v2.0
-> **Data:** 2026-03-30
-> **Commit HEAD:** a098aab
-> **Sprint de referência:** Sprint K (pós-merge PRs #219–#228)
+> **Versão:** v2.2
+> **Data:** 2026-04-04
+> **Commit HEAD:** d08c12a
+> **Sprint de referência:** Sprint S (pós-merge PR #296)
 > **Autor:** Manus AI
 > **Aprovado por:** Uires Tapajós (P.O.)
 > **Revisão externa:** Consultor (ChatGPT) — parecer de 2026-03-30
@@ -37,22 +37,27 @@ mas "**está funcionando?**"
 
 | Indicador | Valor |
 |---|---|
-| Total de chunks | 2.078 |
-| Chunks com `anchor_id` | 2.078 (100%) |
+| Total de chunks | 2.454 |
+| Chunks com `anchor_id` | 2.454 (100%) |
 | Chunks sem `anchor_id` | 0 |
-| Leis ativas no corpus | 5 |
+| Leis ativas no corpus | 10 |
 | Anomalias abertas | 0 ✅ Sprint G concluída |
 | Anomalias críticas (P0) | 0 |
 
 ### 1.1 Distribuição por lei
 
-| Lei | Total chunks | Com anchor_id | Sem anchor_id | id_min | id_max | Status |
-|---|---|---|---|---|---|---|
-| lc214 | 1.573 | 1.573 | 0 | 1 | 30.839 | ✅ Íntegro |
-| ec132 | 18 | 18 | 0 | 30.840 | 30.857 | ✅ Íntegro |
-| lc227 | 434 | 434 | 0 | 808 | 1.241 | ✅ RFC-001 executada |
-| lc224 | 28 | 28 | 0 | 780 | 807 | ✅ Íntegro |
-| lc123 | 25 | 25 | 0 | 664 | 722 | ✅ RFC-002 executada |
+| Lei | Total chunks | Com anchor_id | Sem anchor_id | Status |
+|---|---|---|---|---|
+| lc214 | 1.573 | 1.573 | 0 | ✅ Íntegro |
+| ec132 | 18 | 18 | 0 | ✅ Íntegro |
+| lc227 | 434 | 434 | 0 | ✅ RFC-001 executada |
+| lc224 | 28 | 28 | 0 | ✅ Íntegro |
+| lc123 | 25 | 25 | 0 | ✅ RFC-002 executada |
+| conv_icms | 278 | 278 | 0 | ✅ Sprint S · PR #296 |
+| lc116 | 60 | 60 | 0 | ✅ Sprint S · PR #296 |
+| cg_ibs | 26 | 26 | 0 | ✅ Sprint S · PR #296 |
+| rfb_cbs | 7 | 7 | 0 | ✅ Sprint S · PR #296 |
+| lc87 | 5 | 5 | 0 | ✅ Sprint S · PR #296 |
 
 ---
 
@@ -311,6 +316,7 @@ INGESTÃO → VALIDAÇÃO → USO → MELHORIA
 | v1.1 | 2026-03-26 | 4591b0c | RFC-001: fusão chunks 810+811 · RFC-002: 25 chunks migrados para lc123 · gold set 8/8 |
 | **v2.0** | **2026-03-30** | **a098aab** | **Evolução para corpus operacional: métricas de uso, qualidade, rastreabilidade chunk→risco, score, alertas, ciclo de vida. Incorpora parecer do Consultor (ChatGPT) de 2026-03-30** |
 | **v2.1** | **2026-03-30** | **PR #235** | **L-RAG-01 implementado: tabela `rag_usage_log`, migration 0060, captura async non-blocking em `rag-retriever.ts`, 4 endpoints tRPC (`getChunkUsageStats`, `getTopChunks`, `getUnusedChunks`, `getUsageByLei`), integração no cockpit 7E** |
+| **v2.2** | **2026-04-04** | **d08c12a** | **Sprint S: 5 novas leis ingeridas (conv_icms=278, lc116=60, cg_ibs=26, rfb_cbs=7, lc87=5). Corpus: 2.454 chunks · 10 leis. PR #296.** |
 
 ---
 

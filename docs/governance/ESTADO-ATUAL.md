@@ -1,19 +1,18 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v3.5 · 2026-04-02 (rev Sprint S — PRs #292 + #293 mergeados)** · Responsável: Orquestrador gera, Manus commita
+> **v3.6 · 2026-04-04 (pós-Sprint S — PRs #291–#295 mergeados)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v3.5 · **HEAD:** `d08c12a` (solaris/main) · **Testes:** 1.436 passando  
+**Baseline:** v3.2 · **HEAD:** `d08c12a` (solaris/main) · **Testes:** 1.436 passando  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.454 chunks · 10 leis · 100% confiabilidade  
-**Sprint S:** CONCLUÍDA ✅ (Lotes A ✅ B ✅ C ✅ D ✅ E ✅)  
-**PRs mergeados nesta sessão:** #292 (Lotes A+B+E) · #293 (skill v4.0)  
-**Lote D:** 376 chunks inseridos — corpus completo (10 leis, 2.454 chunks)  
-**Skill solaris-contexto:** v4.0 — Pipeline 3 Ondas, sprints K–S, iniciativas proativas  
+**Sprint S:** ENCERRADA ✅ (Lotes A ✅ B ✅ C ✅ D ✅ E ✅ + Fix #295 ✅)  
+**Sprint T:** próxima — campo NCM + LC 87 compilada + engine Onda 3 (source='rag')  
+**Pipeline 3 Ondas:** Onda 1 ✅ validada · Onda 2 ✅ validada (T1 projeto 2490006) · Onda 3 ⏳ pendente  
 
 ---
 
@@ -21,7 +20,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 - **Branch base:** solaris/main · **HEAD:** `d08c12a`
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
-- **Regra de ordem:** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
+- **Regra de ordem (Q8):** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git checkout --ours`
 - **Referência operacional:** docs/HANDOFF-MANUS.md
 - **Referência de governança:** docs/governance/HANDOFF-IMPLEMENTADOR.md
@@ -41,21 +40,24 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Indicador | Valor | Status |
 |---|---|---|
 | HEAD (solaris/main) | `d08c12a` | ✅ |
+| Baseline | **v3.2** | ✅ |
 | Testes passando | **1.436** | ✅ |
 | Testes falhando | 0 | ✅ |
 | Migrations aplicadas | **62** | ✅ |
-| PRs mergeados (total) | **293+** | ✅ |
+| PRs mergeados (total) | **295** | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
 | Corpus RAG | **2.454 chunks — 10 leis** | ✅ |
 | Skill solaris-contexto | **v4.0** | ✅ |
-| Skill solaris-orquestracao | **v3.0** | ✅ |
+| Skill solaris-orquestracao | **v3.1** | ✅ |
 | feature-flags.ts | g17 ✅ g11 ✅ g15 ✅ | ✅ |
 | db:push guard | Bloqueado em production | ✅ |
+| Perguntas SOLARIS ativas | **24 (SOL-013..036)** | ✅ |
+| Pipeline E2E | T1 ✅ T2 ✅ validados em produção | ✅ |
 
 ---
 
-## 2. Corpus RAG — Estado pós-Sprint S Lote D
+## 2. Corpus RAG — Estado pós-Sprint S
 
 | Lei | Chunks | Status |
 |---|---|---|
@@ -71,7 +73,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | lc87 (Lei Kandir — texto original 1996) | 5 | ✅ Novo (Sprint S) |
 | **Total** | **2.454** | ✅ |
 
-> **Nota LC 87:** PDF recebido é o texto original de 1996 (2 páginas, 5 chunks). Solicitar versão compilada com emendas ao Dr. Rodrigues para enriquecer cobertura ICMS.
+> **Nota LC 87:** PDF recebido é o texto original de 1996 (2 páginas, 5 chunks). Solicitar versão compilada com emendas ao Dr. Rodrigues para enriquecer cobertura ICMS. **Sprint T: pendente.**
 
 ---
 
@@ -79,13 +81,16 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Lote | AUDIT | Entregável | PR | Status |
 |---|---|---|---|---|
-| C | — | Hard delete projetos legados | Sem PR (dados) | ✅ 0 restantes |
+| C | — | Hard delete projetos legados (1.705 projetos) | Sem PR (dados) | ✅ |
 | B | C-003 | `persistCpieScoreForProject` no backend (`approveActionPlan`) | #292 | ✅ |
 | E | C-004 | `briefingEngine` lê `actionPlans` (401 reg.) em vez de `project_actions_v3` (9) | #292 | ✅ |
 | A | C-002 | `iagen-gap-analyzer.ts` + integração `completeOnda2` fire-and-forget | #292 | ✅ |
-| D | — | Upload 5 leis no corpus RAG (376 chunks) | Sem PR (dados) | ✅ |
+| D | — | Upload 5 leis no corpus RAG (376 chunks → total 2.454) | #294→#296 | ✅ |
+| Fix | — | `isNonCompliantAnswer` — bug `confidence_score` corrigido | #295 | ✅ |
 
-**Desvio de governança registrado:** ordem C→B→E→A→D não foi respeitada na primeira execução. Corrigido na sessão corretiva. Nova regra Q8 sugerida para o Gate 7: verificar sequência de lotes antes de abrir PR.
+**Desvio de governança registrado:** ordem C→B→E→A→D não foi respeitada na primeira execução. Corrigido na sessão corretiva. **Gate Q8** adicionado: verificar sequência de lotes antes de abrir PR.
+
+**T1 validado:** projeto `2490006` → `source='iagen' | gaps=3` após `completeOnda2` com fix aplicado.
 
 ---
 
@@ -103,35 +108,47 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | P | Planos de ação v3 (actionPlans) | ✅ CONCLUÍDA |
 | Q | ScoreView CPIE + cpie_score_history | ✅ CONCLUÍDA |
 | R | briefingEngine v2 + iagen_answers pipeline | ✅ CONCLUÍDA |
-| **S** | **Lotes A+B+C+D+E — pipeline 3 Ondas completo + corpus 10 leis** | **✅ CONCLUÍDA** |
+| **S** | **Lotes A+B+C+D+E + Fix #295 — pipeline 3 Ondas completo + corpus 10 leis** | **✅ ENCERRADA 2026-04-04** |
+| **T** | **Campo NCM + LC 87 compilada + engine Onda 3 (source='rag')** | **⏳ PRÓXIMA** |
 
 ---
 
-## 5. Achados Críticos — Estado
+## 5. Pipeline 3 Ondas — Status
+
+| Onda | Fonte | Trigger | Status |
+|---|---|---|---|
+| Onda 1 | `source='solaris'` | `completeOnda1` → `analyzeSolarisAnswers` | ✅ Validada em produção |
+| Onda 2 | `source='iagen'` | `completeOnda2` → `analyzeIagenAnswers` | ✅ Validada (T1 projeto 2490006) |
+| Onda 3 | `source='rag'` | `completeOnda3` → engine RAG | ⏳ Sprint T |
+
+---
+
+## 6. Achados Críticos — Estado
 
 | ID | Descrição | Status |
 |---|---|---|
-| AUDIT-C-002 | iagen_answers não geravam gaps | ✅ Resolvido (Lote A, PR #292) |
+| AUDIT-C-002 | iagen_answers não geravam gaps | ✅ Resolvido (Lote A, PR #292 + fix PR #295) |
 | AUDIT-C-003 | cpie_score_history sempre vazio | ✅ Resolvido (Lote B, PR #292) |
 | AUDIT-C-004 | briefingEngine lia project_actions_v3 (9 reg.) | ✅ Resolvido (Lote E, PR #292) |
-| AUDIT-C-005 | Corpus RAG com 5 leis faltando | ✅ Resolvido (Lote D, dados) |
-| AUDIT-M-004 | LC 87 com apenas 5 chunks (texto original) | ⚠️ Aberto — solicitar versão compilada |
+| AUDIT-C-005 | Corpus RAG com 5 leis faltando | ✅ Resolvido (Lote D, PR #296) |
+| AUDIT-M-004 | LC 87 com apenas 5 chunks (texto original) | ⚠️ Aberto — Sprint T: solicitar versão compilada |
+| AUDIT-M-007 | iagen-gap-analyzer: confidence_score como proxy de gap | ✅ Resolvido (PR #295 — isNonCompliantAnswer) |
 
 ---
 
-## 6. Pendências e Próximas Ações
+## 7. Pendências e Próximas Ações (Sprint T)
 
 | Prioridade | Ação | Responsável |
 |---|---|---|
-| P0 | Decidir Lote B Opção A vs B (persistência CPIE em `getScore`) | P.O. |
-| P1 | Executar testes T1 e T2 do Sprint S (validação manual) | P.O. |
-| P1 | Solicitar LC 87 compilada ao Dr. Rodrigues | P.O. |
+| P0 | Campo `principaisProdutos` (NCM) no perfil da empresa | Manus |
+| P0 | Engine Onda 3: tabular Anexos I–XI LC 214 por NCM (~400 chunks) | Manus |
+| P1 | LC 87 compilada completa (~80 chunks) | P.O. → Dr. Rodrigues |
+| P1 | IN RFB 2.121/2022 (~200 chunks) | Manus |
 | P2 | Validar RAG com query real sobre ISS/ICMS no RAG Cockpit | P.O. |
-| P2 | Atualizar skill solaris-orquestracao para v3.1 (nova regra Q8) | Manus |
 
 ---
 
-## 7. Decisões tomadas pelo P.O.
+## 8. Decisões tomadas pelo P.O.
 
 | Código | Decisão | Data |
 |---|---|---|
@@ -145,10 +162,12 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DEC-008 | Cockpit P.O. com fetch dinâmico API GitHub | 2026-03-29 |
 | DEC-009 | Protocolo de Debug v2 adotado | 2026-03-31 |
 | DEC-010 | Corpus RAG expandido para 10 leis (Sprint S Lote D) | 2026-04-02 |
+| DEC-011 | Gate Q8: verificar ordem de execução dos lotes | 2026-04-04 |
+| DEC-012 | isNonCompliantAnswer: conteúdo da resposta (não confidence_score) | 2026-04-04 |
 
 ---
 
-## 8. Bloqueios Permanentes — NÃO remover sem aprovação P.O.
+## 9. Bloqueios Permanentes — NÃO remover sem aprovação P.O.
 
 - `DIAGNOSTIC_READ_MODE=new` → aguarda UAT com advogados
 - `F-04 Fase 3` → aguarda UAT
@@ -157,7 +176,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ---
 
-## 9. Arquivos críticos — alterar SOMENTE via PR aprovado
+## 10. Arquivos críticos — alterar SOMENTE via PR aprovado
 
 ```
 drizzle/schema.ts
@@ -174,5 +193,5 @@ docs/HANDOFF-MANUS.md
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-02 (rev Sprint S — PRs #292 + #293 mergeados)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-04 (pós-Sprint S — PRs #291–#295 mergeados · baseline v3.2)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*

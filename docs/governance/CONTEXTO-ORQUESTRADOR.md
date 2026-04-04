@@ -2,7 +2,7 @@
 
 > **Cole este documento no início de qualquer nova sessão do Claude (Orquestrador).**
 > Audiência: **Claude (Anthropic) — Orquestrador do projeto**.
-> Versão: **v1.0** — 2026-03-28.
+> Versão: **v1.1** — 2026-04-04 (pós-Sprint S).
 
 ---
 
@@ -18,29 +18,39 @@ Você é o **Orquestrador** do projeto IA SOLARIS. Você **não executa código*
 
 ---
 
-## Estado do Produto (2026-03-28)
+## Estado do Produto (2026-04-04)
 
-### Sprint K — CONCLUÍDA ✅
+### Sprint S — ENCERRADA ✅ (2026-04-04)
 
-| Checkpoint | PR | Status |
+| Lote | PR | Status |
 |---|---|---|
-| K-4-A: Schema + State Machine | #176 | ✅ Mergeado |
-| K-4-B: QuestionarioSolaris + Stepper 8 etapas | #179 | ✅ Mergeado |
-| K-4-C: QuestionarioIaGen + Onda 2 | #182 | ✅ Mergeado |
-| K-4-D: Wiring etapas 7-8 + fix T06.1 | #184 | ✅ Mergeado |
+| A: iagen-gap-analyzer.ts + completeOnda2 | #292 | ✅ Mergeado |
+| B: persistCpieScoreForProject backend | #292 | ✅ Mergeado |
+| C: Hard delete projetos legados (1.705) | Sem PR | ✅ |
+| D: Upload 5 leis corpus RAG (376 chunks) | #294→#296 | ✅ Mergeado |
+| E: briefingEngine usa actionPlans (401 reg.) | #292 | ✅ Mergeado |
+| Fix: isNonCompliantAnswer (confidence_score bug) | #295 | ✅ Mergeado |
 
 ### Métricas Técnicas
 
 | Indicador | Valor |
 |---|---|
-| Commits | 577 |
-| PRs mergeados | 184 |
+| Baseline | v3.2 |
+| HEAD | `d08c12a` |
+| PRs mergeados | 295 |
 | Tabelas schema | 63 |
-| Migrations | 60 |
-| Arquivos de teste | 131 |
-| Testes passando | 2.652 / 2.773 |
-| TypeScript | 0 erros |
-| Corpus RAG | 2.078 chunks (100% anchor_id) |
+| Migrations | 62 |
+| Testes passando | 1.436 (0 falhas) |
+| TypeScript | 1 erro pré-existente (Sprint T) |
+| Corpus RAG | 2.454 chunks · 10 leis |
+| Perguntas SOLARIS ativas | 24 (SOL-013..036) |
+| Pipeline E2E | T1 ✅ T2 ✅ validados |
+
+### Lição aprendida (Sprint S)
+
+> **Bug iagen-gap-analyzer:** `confidence_score` mede certeza do LLM na interpretação, não status de compliance da empresa.  
+> Padrão correto (G17): analisar o **conteúdo** da resposta (`startsWith('não') = gap`).  
+> Fix: `isNonCompliantAnswer` (PR #295). T1 validado: projeto 2490006 → `iagen=3`.
 
 ---
 
@@ -85,13 +95,15 @@ briefing_pendente → briefing_concluido → cnaes_confirmados
 
 ## Backlog Priorizado
 
-### Sprint L — Próxima Sprint (Upload CSV SOLARIS)
+### Sprint T — Próxima Sprint (Wave 3 RAG engine)
 
-| Issue | Título | Prioridade |
-|---|---|---|
-| #152 | ÉPICO E6 — Upload CSV SOLARIS | Epic |
-| #157 | L-1: Tela de upload CSV no painel admin | Alta |
-| #158 | L-2: Template CSV e documentação para equipe jurídica | Média |
+| Prioridade | Ação |
+|---|---|
+| P0 | Campo `principaisProdutos` (NCM) no perfil da empresa |
+| P0 | Engine Onda 3: tabular Anexos I–XI LC 214 por NCM (~400 chunks) |
+| P1 | LC 87 compilada completa (~80 chunks) |
+| P1 | IN RFB 2.121/2022 (~200 chunks) |
+| P2 | Validar RAG com query real sobre ISS/ICMS no RAG Cockpit |
 
 ### Débito Técnico
 
@@ -162,7 +174,7 @@ Estes invariants nunca devem ser violados:
 | INV-002 | Retrocesso limpa dados da onda atual antes de voltar |
 | INV-003 | `assertValidTransition` é chamado em toda mudança de status |
 | INV-004 | Chunks RAG têm anchor_id canônico (DEC-002) |
-| INV-005 | Perguntas SOLARIS têm `codigo` SOL-001..SOL-012 |
+| INV-005 | Perguntas SOLARIS têm `codigo` SOL-013..SOL-036 (24 ativas) |
 | INV-006 | `DIAGNOSTIC_READ_MODE` nunca é alterado em runtime |
 | INV-007 | Branch protection ativa — merge apenas via PR aprovado |
 | INV-008 | Testes de regressão cobrem todos os invariants |
@@ -178,7 +190,9 @@ Estes invariants nunca devem ser violados:
 | G–H (v7–v8) | #101–#135 | RAG Cockpit, corpus 2.078 chunks, Sprint G/H |
 | I–J (v9–v10) | #136–#150 | Bateria avançada, scoring engine, UAT gate |
 | K (v11) | #151–#184 | Fluxo 3 Ondas, DiagnosticoStepper 8 etapas |
-| **L (próxima)** | — | Upload CSV SOLARIS, equipe jurídica |
+| L–R (v12–v18) | #185–#291 | RAG engine, scoring, briefing, actionPlans, iagen pipeline |
+| **S (v19)** | #292–#295 | **Pipeline 3 Ondas completo + corpus 10 leis + fix iagen** |
+| **T (próxima)** | — | **Campo NCM + LC 87 compilada + engine Onda 3 (source='rag')** |
 
 ---
 
@@ -186,10 +200,10 @@ Estes invariants nunca devem ser violados:
 
 | Documento | URL GitHub |
 |---|---|
-| BASELINE-PRODUTO v2.4 | `docs/BASELINE-PRODUTO.md` |
-| HANDOFF-MANUS v2.4 | `docs/HANDOFF-MANUS.md` |
+| BASELINE-PRODUTO v3.2 | `docs/BASELINE-PRODUTO.md` |
+| HANDOFF-MANUS v3.5 | `docs/HANDOFF-MANUS.md` |
+| ESTADO-ATUAL v3.6 | `docs/governance/ESTADO-ATUAL.md` |
 | FLUXO-3-ONDAS v1.1 | `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md` |
-| GATE-CHECKLIST | `docs/GATE-CHECKLIST.md` |
-| ESTADO-ATUAL-PLATAFORMA | `docs/governance/ESTADO-ATUAL-PLATAFORMA.md` |
+| GATE-CHECKLIST | `docs/governance/GATE-CHECKLIST.md` |
 | RASTREABILIDADE-COMPLETA | `docs/governance/RASTREABILIDADE-COMPLETA.md` |
 | Skill Orquestrador | `/home/ubuntu/skills/solaris-contexto/SKILL.md` |
