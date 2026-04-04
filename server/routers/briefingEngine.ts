@@ -467,11 +467,63 @@ export async function generateBriefing(
     [projectId]
   );
 
-  // 4. Buscar ações
-  const [actions] = await pool.query<mysql.RowDataPacket[]>(
-    `SELECT * FROM project_actions_v3 WHERE project_id = ? ORDER BY FIELD(action_priority,'imediata','curto_prazo','medio_prazo','planejamento'), estimated_days ASC`,
+  // 4. Buscar ações — Lote E (AUDIT-C-004): leitura via actionPlans (401 registros)
+  // Antes: project_actions_v3 (apenas 9 registros — tabela legada subutilizada)
+  // Agora: actionPlans.planData.phases[].actions[] aplanado para o formato esperado
+  const [actionPlanRows] = await pool.query<mysql.RowDataPacket[]>(
+    `SELECT planData FROM actionPlans WHERE projectId = ? ORDER BY generatedAt DESC LIMIT 1`,
     [projectId]
   );
+  // Aplanar fases → ações no formato compatível com o schema do briefingEngine
+  const actions: mysql.RowDataPacket[] = [];
+  if (actionPlanRows.length > 0 && actionPlanRows[0].planData) {
+    try {
+      const planData = typeof actionPlanRows[0].planData === 'string'
+        ? JSON.parse(actionPlanRows[0].planData)
+        : actionPlanRows[0].planData;
+      const phases: Array<{ name: string; actions: Array<Record<string, unknown>> }> =
+        Array.isArray(planData?.phases) ? planData.phases : [];
+      for (const phase of phases) {
+        if (!Array.isArray(phase.actions)) continue;
+        for (const act of phase.actions) {
+          // Mapear campos do actionPlans para o schema esperado pelo briefingEngine
+          const priority = String(act.priority ?? 'medio_prazo');
+          const priorityMap: Record<string, string> = {
+            high: 'imediata', medium: 'curto_prazo', low: 'medio_prazo',
+            alta: 'imediata', media: 'curto_prazo', baixa: 'medio_prazo',
+          };
+          actions.push({
+            id: act.id,
+            action_name: act.title,
+            action_description: act.description,
+            action_priority: priorityMap[priority] ?? priority,
+            estimated_days: act.dueDate
+              ? Math.max(1, Math.round((new Date(act.dueDate as string).getTime() - Date.now()) / 86400000))
+              : 30,
+            owner_suggestion: act.responsible ?? 'Equipe Tributária',
+            evidence_required: Array.isArray(act.indicators) ? (act.indicators as string[]).join('; ') : 'Comprovante de execução',
+            source_reference: 'LC 214/2025',
+            phase_name: phase.name,
+            status: 'pendente',
+            risk_id: null,
+            gap_id: null,
+            requirement_id: null,
+            template_id: 'TMPL-ACTIONPLAN',
+          } as unknown as mysql.RowDataPacket);
+        }
+      }
+    } catch (parseErr) {
+      console.warn('[BRIEFING-E] Falha ao parsear actionPlans.planData — projectId:', projectId, parseErr);
+    }
+  }
+  // Fallback para project_actions_v3 se actionPlans vazio (projetos legados)
+  if (actions.length === 0) {
+    const [legacyActions] = await pool.query<mysql.RowDataPacket[]>(
+      `SELECT * FROM project_actions_v3 WHERE project_id = ? ORDER BY FIELD(action_priority,'imediata','curto_prazo','medio_prazo','planejamento'), estimated_days ASC`,
+      [projectId]
+    );
+    actions.push(...legacyActions);
+  }
 
   // 5. Buscar requisitos únicos cobertos
   const requirementIds = Array.from(new Set([
@@ -649,7 +701,7 @@ export async function generateBriefing(
         a.action_name || a.description || "Ação prioritária"
       ),
       prazo_critico_dias: prazoCritico,
-      fonte_dados: `project_gaps_v3 (${totalGaps} gaps) + project_risks_v3 (${totalRisks} riscos) + project_actions_v3 (${totalActions} ações)`,
+      fonte_dados: `project_gaps_v3 (${totalGaps} gaps) + project_risks_v3 (${totalRisks} riscos) + actionPlans (${totalActions} ações)`,
     },
 
     section_perfil_regulatorio: {
@@ -768,13 +820,13 @@ export async function persistBriefing(
 
   const traceabilityMap = {
     identificacao: ["projects", "clients"],
-    escopo: ["project_gaps_v3", "project_risks_v3", "project_actions_v3", "requirements_v3"],
-    resumo_executivo: ["project_risks_v3", "project_gaps_v3", "project_actions_v3"],
+    escopo: ["project_gaps_v3", "project_risks_v3", "actionPlans", "requirements_v3"],
+    resumo_executivo: ["project_risks_v3", "project_gaps_v3", "actionPlans"],
     perfil_regulatorio: ["projects", "requirements_v3"],
     gaps: ["project_gaps_v3"],
     riscos: ["project_risks_v3"],
-    plano_acao: ["project_actions_v3"],
-    proximos_passos: ["project_actions_v3"],
+    plano_acao: ["actionPlans"],
+    proximos_passos: ["actionPlans"],
   };
 
   const [result] = await pool.query<mysql.OkPacket>(

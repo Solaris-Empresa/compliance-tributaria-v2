@@ -156,4 +156,43 @@ O contexto está saudável quando:
 
 ---
 
-*IA SOLARIS · Sprint L · DEC-007 · 2026-03-30*
+---
+
+## 11. Lições Aprendidas (2026-04-01 — Sprints O/P/Q/R)
+
+### 11.1 Falha de governança: Q1–Q5 não cobre dados de banco
+
+**O que falhou:** 3 bugs em cadeia (G17-B/C/D) passaram por Gate 0 + Q1–Q5 + testes passando. Encontrados apenas após auto-auditoria manual solicitada pelo P.O.
+
+**Causa raiz:** Q1–Q5 verifica código. Não verifica dados de banco. `grep` foi usado como substituto de query SQL.
+
+**Correções implementadas:**
+- Q6: cobertura de dados reais obrigatória em PRs de mapeamento (PR #281)
+- Gate 7: auto-auditoria formal antes de toda validação do P.O. (PR #286)
+
+**Regra resultante:** Se o P.O. solicitar auditoria antes do Orquestrador → registrar como falha de processo do Orquestrador.
+
+### 11.2 Divergência de branch: `main` local ≠ `origin/main`
+
+**O que falhou:** PRs #282 e #285 bloqueados por `mergeable_state: dirty`. Branches criadas sobre `main` local (com commits de checkpoint Manus S3) divergiam do `origin/main` do GitHub.
+
+**Causa raiz:** `webdev_save_checkpoint` cria commits locais que não são propagados para o `origin/main` do GitHub.
+
+**Regra resultante:** Toda branch de PR deve ser criada com:
+```bash
+git checkout origin/main -b <nome-da-branch>
+```
+Nunca usar `git checkout main -b <nome>` sem antes confirmar que `main` local == `origin/main`.
+
+### 11.3 Resumo de regras adicionadas
+
+| Regra | Origem | Desde |
+|---|---|---|
+| Q6 obrigatório em PRs que tocam mapeamento de dados | PR #281 | 2026-04-01 |
+| Gate 7 (auto-auditoria) antes de toda validação do P.O. | PR #286 | 2026-04-01 |
+| Branch sempre a partir de `origin/main` (não `main` local) | Lição #282 | 2026-04-01 |
+| `grep` não substitui query SQL para validar dados de banco | Lição G17-C | 2026-04-01 |
+
+---
+
+*IA SOLARIS · Sprint L · DEC-007 · Atualizado em 2026-04-01 (rev Sprints O/P/Q/R)*

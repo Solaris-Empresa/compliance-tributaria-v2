@@ -2,11 +2,11 @@
 
 | Campo | Valor |
 |---|---|
-| **Versão** | 1.1 |
-| **Data** | 2026-03-28 |
+| **Versão** | 1.2 |
+| **Data** | 2026-03-31 |
 | **Escopo** | Governança, Rastreabilidade, DR, Operação e Evolução |
 | **Responsável** | Product Owner — Uires Tapajós |
-| **Referência de Sprint** | Sprint K (v5.3.0 + K-4-D mergeado em 28/03/2026) |
+| **Referência de Sprint** | Sprint M (UAT E2E + BUG-UAT-02/03/05 — PRs #254/#256 mergeados em 31/03/2026) |
 | **Domínio de produção** | https://iasolaris.manus.space |
 | **Repositório** | https://github.com/Solaris-Empresa/compliance-tributaria-v2 |
 
@@ -174,7 +174,7 @@ A plataforma mantém dois motores de diagnóstico coexistentes para permitir mig
 
 ### 5.1 Estrutura do Banco
 
-| Indicador | Valor (28/03/2026) |
+| Indicador | Valor (31/03/2026) |
 |---|---|
 | Banco de dados | TiDB Cloud (MySQL-compatible) |
 | Tabelas no schema | 64 |
@@ -183,6 +183,8 @@ A plataforma mantém dois motores de diagnóstico coexistentes para permitir mig
 | Usuários cadastrados | 1.497+ |
 | CNAEs com embedding | 1.332 / 1.332 (100%) |
 | Chunks no corpus RAG | 2.078 (atualizado 28/03/2026) |
+| Perguntas SOLARIS ativas | 12 (SOL-001..012; SOL-013/014 removidos via soft-delete em 31/03/2026) |
+| Suites E2E Playwright | 5 suites (CT-01, CT-04, CT-06, CT-07, CT-37) — Sprint M |
 
 ### 5.2 Separação de Responsabilidade
 

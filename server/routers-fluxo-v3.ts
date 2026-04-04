@@ -28,6 +28,12 @@ import {
   calcularMatrizMetadata,
 } from "./ai-schemas";
 import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
+import mysql from "mysql2/promise";
+import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
+import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
+import { analyzeIagenAnswers } from "./lib/iagen-gap-analyzer";
+import { persistCpieScoreForProject } from "./routers/scoringEngine";
+import { deriveRisksFromGaps, persistRisks } from "./routers/riskEngine";
 import { injectOnda1IntoQuestions } from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
@@ -42,6 +48,9 @@ const CnaeSchema = z.object({
   confidence: z.number().min(0).max(100),
   justification: z.string().optional(),
 });
+
+// ─── G17: analyzeSolarisAnswers — extraída para server/lib/solaris-gap-analyzer.ts ──
+// Importada acima (linha 33). Fire-and-forget em completeOnda1 (linha ~2332).
 
 export const fluxoV3Router = router({
 
@@ -1493,7 +1502,7 @@ Gere o plano de ação em JSON:
       projectId: z.number(),
       plans: z.record(z.string(), z.array(z.any())),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
@@ -1502,6 +1511,12 @@ Gere o plano de ação em JSON:
         .update(projects)
         .set({ currentStep: 5, status: "aprovado", actionPlansDataV3: input.plans as any, actionPlansData: input.plans as any } as any)
         .where(eq(projects.id, input.projectId));
+
+      // Lote B (AUDIT-C-003): fire-and-forget — persiste score CPIE no backend
+      // Garante persistência independente da navegação do usuário na tela de score
+      void persistCpieScoreForProject(input.projectId, ctx.user.id).catch((err) => {
+        console.error('[CPIE-PERSIST] persistCpieScoreForProject falhou — pipeline não afetado:', err);
+      });
 
       return { success: true };
     }),
@@ -2217,9 +2232,48 @@ Gere o Briefing estruturado em JSON:
 
       // Salvar respostas (upsert idempotente)
       await db.saveOnda1Answers(input.projectId, input.answers);
-
       // Avançar status do projeto para onda1_solaris
       await db.updateProject(input.projectId, { status: 'onda1_solaris' as any });
+
+      // G17 — Fire-and-forget: gerar gaps SOLARIS sem bloquear resposta ao frontend
+      void analyzeSolarisAnswers(input.projectId).catch((err) => {
+        console.error('[G17] analyzeSolarisAnswers falhou — pipeline V1 não afetado:', err);
+      });
+
+      // G17-B — Trigger síncrono: derivar riscos a partir dos gaps SOLARIS
+      // Executado APÓS analyzeSolarisAnswers (fire-and-forget) para garantir que
+      // os gaps já estejam gravados antes de chamar o riskEngine.
+      // Erro no riskEngine NÃO bloqueia o fluxo — logar e continuar.
+      try {
+        // Buscar porte/regime do projeto para o score correto
+        const pool = mysql.createPool(process.env.DATABASE_URL ?? '');
+        const [projRows] = await pool.query<import('mysql2').RowDataPacket[]>(
+          'SELECT porte, regime FROM projects WHERE id = ?',
+          [input.projectId]
+        );
+        await pool.end();
+        const projData = (projRows as import('mysql2').RowDataPacket[])[0];
+        const gaps = await deriveRisksFromGaps(
+          input.projectId,
+          projData?.porte ?? null,
+          projData?.regime ?? null
+        );
+        if (gaps.length > 0) {
+          await persistRisks(input.projectId, gaps);
+        }
+        console.log(JSON.stringify({
+          event: 'g17b_risks_derived',
+          projectId: input.projectId,
+          risksCount: gaps.length,
+        }));
+      } catch (err) {
+        // NÃO bloquear o fluxo — logar e continuar
+        console.log(JSON.stringify({
+          event: 'g17b_risk_engine_error',
+          projectId: input.projectId,
+          error: String(err),
+        }));
+      }
 
       return {
         success: true,
@@ -2384,6 +2438,10 @@ Regras obrigatórias:
       }
       await db.saveOnda2Answers(input.projectId, input.answers);
       await db.updateProject(input.projectId, { status: 'diagnostico_corporativo' as any }); // BUG-UAT-03 fix
+      // Lote A (AUDIT-C-002): fire-and-forget — gera gaps a partir das respostas iagen
+      void analyzeIagenAnswers(input.projectId).catch((err) => {
+        console.error('[IAGEN-GAP] analyzeIagenAnswers falhou — pipeline não afetado:', err);
+      });
       return {
         success: true,
         projectId: input.projectId,

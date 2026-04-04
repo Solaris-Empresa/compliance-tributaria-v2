@@ -34,6 +34,10 @@ export default function QuestionarioIaGen() {
   const [respostas, setRespostas] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // G15 — Feature flags para ONDA_BADGE
+  const { data: featureFlags } = trpc.system.getFeatureFlags.useQuery();
+  const showOndaBadge = featureFlags?.g15FontePerguntas ?? false;
+
   // Buscar perguntas geradas pela IA
   const { data, isLoading, error } = trpc.fluxoV3.generateOnda2Questions.useQuery(
     { projectId },
@@ -198,6 +202,16 @@ export default function QuestionarioIaGen() {
                 <Badge variant="outline" className="text-[10px] h-4 border-red-300/60 text-red-600 dark:text-red-400 bg-red-500/5">
                   Obrigatória
                 </Badge>
+                {/* G15 — ONDA_BADGE: exibido sob feature flag g15-fonte-perguntas */}
+                {showOndaBadge && (
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] h-4 border-orange-300/60 text-orange-600 dark:text-orange-400 bg-orange-500/5"
+                    title="Origem: Inferência contextual IA Generativa (Onda 2)"
+                  >
+                    • Onda 2 — IA Gen
+                  </Badge>
+                )}
               </div>
               <span className="text-xs text-muted-foreground">
                 Confiança: {Math.round(perguntaAtual.confidence_score * 100)}%

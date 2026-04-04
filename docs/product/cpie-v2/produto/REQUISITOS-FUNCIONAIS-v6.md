@@ -5,17 +5,19 @@
 
 | Campo | Valor |
 |---|---|
-| **Versão** | 6.0 |
-| **Data** | 23 de Março de 2026 |
-| **Sprint de Referência** | v5.3.0 (versão atual em produção) |
-| **Versão anterior** | v5.0 (Sprint V74) |
+| **Versão** | 6.1 |
+| **Data** | 31 de Março de 2026 |
+| **Sprint de Referência** | Sprint M (UAT E2E + BUG-UAT-02/03/05, 31/03/2026) |
+| **Versão anterior** | v6.0 (Sprint v5.3.0, 23/03/2026) |
 | **Classificação** | Documento Técnico Interno |
 | **Responsável** | Equipe SOLARIS |
 
 > **Histórico de versões:**
-> v4.0 (Sprint V69) → v5.0 (Sprint V74) → **v6.0 (Sprint v5.3.0, 23/03/2026)**
+> v4.0 (Sprint V69) → v5.0 (Sprint V74) → v6.0 (Sprint v5.3.0, 23/03/2026) → **v6.1 (Sprint M, 31/03/2026)**
 >
-> **Mudanças desta versão:** Incorporação das Fases F-01 a F-04 (ADR-005 a ADR-008), Shadow Mode com adaptador `getDiagnosticSource()`, gate de limpeza de dados no retrocesso (F-03), estratégia de migração de schema (F-04/ADR-008), suite de validação automatizada Onda 1 (75 testes) + Onda 2 (32 testes = 107/107 ✅), protocolo UAT com advogados, monitoramento Shadow Monitor 48–72h. Total: **145 RFs** (15 novos em relação à v5.0).
+> **Mudanças da v6.1 (Sprint M):** RF-019 (auth.testLogin com guard E2E_TEST_MODE) e RF-020 (E2E Playwright CT-01/04/06/07/37) adicionados · BUG-UAT-03 corrigido (RF-015 — `completeOnda2` status destino) · BUG-UAT-05 corrigido (RF-014 — DiagnosticoStepper hardcode removido) · SOL-013/014 removidos do corpus. Total: **147 RFs** (2 novos em relação à v6.0).
+>
+> **Mudanças da v6.0:** Incorporação das Fases F-01 a F-04 (ADR-005 a ADR-008), Shadow Mode com adaptador `getDiagnosticSource()`, gate de limpeza de dados no retrocesso (F-03), estratégia de migração de schema (F-04/ADR-008), suite de validação automatizada Onda 1 (75 testes) + Onda 2 (32 testes = 107/107 ✅), protocolo UAT com advogados, monitoramento Shadow Monitor 48–72h. Total: **145 RFs** (15 novos em relação à v5.0).
 
 ---
 
