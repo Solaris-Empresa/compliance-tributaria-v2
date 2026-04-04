@@ -1,13 +1,13 @@
 # PRODUCT-LIFECYCLE.md
 **IA SOLARIS — Navegação por Ciclo de Vida do Produto**
 
-> **Versão:** 1.3 — 2026-03-29
+> **Versão:** 1.4 — 2026-04-04 (pós-Sprint S)
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
-> **Depende de:** [INDICE-DOCUMENTACAO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/INDICE-DOCUMENTACAO.md) · [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md)
+> **Depende de:** [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md) · [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/ESTADO-ATUAL.md)
 > **Aprovador:** Product Owner Uires Tapajós
-> **Última sprint concluída:** Sprint K (K-4-A a K-4-D) — 2026-03-28 · HEAD `5d7ad7d`  
-> **Próxima sprint:** Sprint L — Issue #191 (G16 Upload CSV SOLARIS)  
-> **Próxima revisão:** ao final da Sprint L
+> **Última sprint concluída:** Sprint S — 2026-04-04 · HEAD `d08c12a`  
+> **Próxima sprint:** Sprint T — campo NCM + LC 87 compilada + engine Onda 3 (source='rag')  
+> **Próxima revisão:** ao final da Sprint T
 
 ---
 
@@ -39,7 +39,7 @@ Execute nesta ordem sem pular etapas:
 
 ```
 1. docs/governance/ESTADO-ATUAL.md                          → LEIA PRIMEIRO — estado real do repositório
-2. docs/BASELINE-PRODUTO.md                                 → baseline v2.4
+2. docs/BASELINE-PRODUTO.md                                 → baseline v3.2
 3. docs/HANDOFF-MANUS.md                                    → regras operacionais do Manus
 4. docs/governance/HANDOFF-IMPLEMENTADOR.md                 → guia completo do implementador
 5. docs/governance/GATE-CHECKLIST.md                        → gates obrigatórios

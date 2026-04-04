@@ -25,14 +25,23 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-02)
-- BASELINE **v3.5** — Sprint S CONCLUÍDA ✅ (Lotes A ✅ B ✅ C ✅ D ✅ E ✅)
+## Estado atual do projeto (2026-04-04)
+- BASELINE **v3.2** — Sprint S ENCERRADA ✅ (Lotes A ✅ B ✅ C ✅ D ✅ E ✅ + Fix #295 ✅)
 - **HEAD:** `d08c12a` (solaris/main)
-- **PRs mergeados:** 293+ · **Testes passando:** 1.436
-- **Corpus RAG:** 2.454 chunks · 10 leis (expandido em Sprint S Lote D)
-- **Skill solaris-contexto:** v4.0 (PR #293 mergeado)
+- **PRs mergeados:** 295 · **Testes passando:** 1.436 (0 falhas)
+- **Corpus RAG:** 2.454 chunks · 10 leis
+- **Skill solaris-contexto:** v4.0 (PR #293) · **Skill solaris-orquestracao:** v3.1
+- **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
+- **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
+- **Próxima sprint:** T — campo NCM + LC 87 compilada + engine Onda 3 (source='rag')
+
+## Lembrete: Bug encontrado e corrigido na Sprint S
+
+> **iagen-gap-analyzer:** usar conteúdo da resposta (não `confidence_score`) para detectar gap.  
+> Padrão G17: `startsWith('não') = gap`. Fix: `isNonCompliantAnswer` (PR #295).  
+> Lição: `confidence_score` mede certeza do LLM na interpretação, não status de compliance da empresa.
 
 ## Documentos P0/P1 — atualizar SEMPRE após sprint concluída
 | Prioridade | Arquivo | O que atualizar |
@@ -64,19 +73,21 @@ Drizzle ORM / Vitest / pnpm
 ## Sprint S — Estado final
 | Lote | AUDIT | Entregável | PR | Status |
 |---|---|---|---|---|
-| C | — | Hard delete projetos legados | Sem PR | ✅ |
+| C | — | Hard delete projetos legados (1.705) | Sem PR | ✅ |
 | B | C-003 | `persistCpieScoreForProject` backend | #292 | ✅ |
-| E | C-004 | `briefingEngine` lê `actionPlans` | #292 | ✅ |
+| E | C-004 | `briefingEngine` lê `actionPlans` (401 reg.) | #292 | ✅ |
 | A | C-002 | `iagen-gap-analyzer.ts` + `completeOnda2` | #292 | ✅ |
-| D | — | Upload 5 leis corpus RAG (376 chunks) | Sem PR | ✅ |
+| D | — | Upload 5 leis corpus RAG (376 chunks) | #294→#296 | ✅ |
+| Fix | M-007 | `isNonCompliantAnswer` — bug confidence_score | #295 | ✅ |
 
 ## Pendências abertas (Sprint T)
 | Prioridade | Ação | Responsável |
 |---|---|---|
-| P0 | Decidir Lote B Opção A vs B (persistência CPIE em `getScore`) | P.O. |
-| P1 | Executar testes T1 e T2 do Sprint S (validação manual) | P.O. |
-| P1 | Solicitar LC 87 compilada ao Dr. Rodrigues | P.O. |
-| P2 | Validar RAG com query real sobre ISS/ICMS | P.O. |
+| P0 | Campo `principaisProdutos` (NCM) no perfil da empresa | Manus |
+| P0 | Engine Onda 3: tabular Anexos I–XI LC 214 por NCM (~400 chunks) | Manus |
+| P1 | LC 87 compilada completa (~80 chunks) | P.O. → Dr. Rodrigues |
+| P1 | IN RFB 2.121/2022 (~200 chunks) | Manus |
+| P2 | Validar RAG com query real sobre ISS/ICMS no RAG Cockpit | P.O. |
 
 ## Corpus RAG — 10 leis (2.454 chunks)
 lc214 (1.573) · lc227 (434) · conv_icms (278) · lc116 (60) · lc224 (28) ·

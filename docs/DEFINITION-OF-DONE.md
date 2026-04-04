@@ -1,7 +1,7 @@
 # Definition of Done — IA Solaris / Plataforma de Compliance Tributária
 
-**Versão:** 1.1  
-**Data:** 2026-03-29  
+**Versão:** 1.2  
+**Data:** 2026-04-04 (pós-Sprint S)  
 **Responsável:** P.O. (Uires Tapajós)  
 **Aprovação:** Obrigatória do P.O. para qualquer alteração neste documento
 
@@ -105,6 +105,8 @@ Uma entrega está "done" quando qualquer pessoa do time — incluindo o Orquestr
 | Versão | Data | Autor | Mudança |
 |---|---|---|---|
 | 1.0 | 2026-03-25 | Manus (Sprint Governança) | Criação inicial |
+| 1.1 | 2026-03-29 | Manus (Sprint K) | Adições para Cockpit e Governança |
+| 1.2 | 2026-04-04 | Manus (Sprint S) | Gate Q8 + DoD para analyzers de compliance |
 
 ---
 
@@ -118,3 +120,14 @@ Uma entrega está "done" quando qualquer pessoa do time — incluindo o Orquestr
 - [ ] Restrições absolutas verificadas (DIAGNOSTIC_READ_MODE, F-04 Fase 3, DROP COLUMN)
 
 *Atualizado em 2026-03-29 — Sprint K concluída.*
+
+## Adições da Sprint S (2026-04-04)
+
+### DoD adicional para analyzers de compliance (iagen, solaris, rag)
+- [ ] Analyzer usa **conteúdo** da resposta para detectar gap (não `confidence_score`)
+- [ ] Padrão G17 respeitado: `startsWith('não') = gap`, `startsWith('sim') = sem gap`
+- [ ] Teste `confidence_score alto não impede geração de gap` presente
+- [ ] T1 validado: query `SELECT source, COUNT(*) FROM project_gaps_v3 WHERE project_id = X GROUP BY source` retorna `iagen > 0`
+- [ ] Gate Q8 verificado: ordem de lotes respeitada
+
+*Atualizado em 2026-04-04 — Sprint S encerrada.*
