@@ -1,6 +1,6 @@
 # Governança do Corpus RAG — IA SOLARIS
 
-> **Versão:** 1.0 | **Data:** 2026-03-26
+> **Versão:** 1.1 | **Data:** 2026-04-04
 > **Aprovado por:** Uires Tapajós (P.O.)
 
 ---
@@ -49,7 +49,7 @@ docs/rag/
 | Chunks com lei inválida          | `SELECT lei, COUNT(*) FROM ragDocuments GROUP BY lei` — verificar contra enum | 0 fora do enum |
 | Chunks fragmentados              | `SELECT id, lei, chunkIndex, LENGTH(conteudo) FROM ragDocuments WHERE LENGTH(conteudo) < 200` | Revisão manual |
 | Cobertura por lei                | Gold set — ver `gold-set-queries.sql`                                    | 100%     |
-| Dominância de fonte              | `SELECT lei, COUNT(*)*100.0/(SELECT COUNT(*) FROM ragDocuments) AS pct FROM ragDocuments GROUP BY lei` | lc214 < 85% |
+| Dominância de fonte              | `SELECT lei, COUNT(*)*100.0/(SELECT COUNT(*) FROM ragDocuments) AS pct FROM ragDocuments GROUP BY lei` | lc214 < 70% (10 leis ativas) |
 
 ---
 

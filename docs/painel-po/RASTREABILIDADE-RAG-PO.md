@@ -2,7 +2,7 @@
 
 > **Projeto:** IA SOLARIS — Compliance Tributária  
 > **Repositório:** [Solaris-Empresa/compliance-tributaria-v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2)  
-> **Versão:** v1.0 — 2026-03-30  
+> **Versão:** v1.1 — 2026-04-04  
 > **Autor:** Manus (implementador técnico) — revisão P.O.: Uires Tapajós  
 > **Status:** ✅ Governança ativa no `main`
 
@@ -10,7 +10,7 @@
 
 ## 1. O que é o RAG e por que ele precisa de rastreabilidade
 
-O **RAG** (Retrieval-Augmented Generation) é o componente do IA SOLARIS responsável por fundamentar o diagnóstico tributário na legislação vigente. Quando o sistema gera um diagnóstico para um escritório de advocacia, ele não inventa as referências legais — ele as recupera de um corpus de 2.078 chunks extraídos das leis LC 214/2024, LC 224/2025, EC 132/2023 e outras normas da Reforma Tributária.
+O **RAG** (Retrieval-Augmented Generation) é o componente do IA SOLARIS responsável por fundamentar o diagnóstico tributário na legislação vigente. Quando o sistema gera um diagnóstico para um escritório de advocacia, ele não inventa as referências legais — ele as recupera de um corpus de 2.454 chunks extraídos de 10 leis da Reforma Tributária (LC 214/2024, LC 224/2025, EC 132/2023, LC 227/2021, LC 123/2006, LC 87/1996, LC 116/2003, CG-IBS, RFB-CBS e Conv. ICMS).
 
 A rastreabilidade do RAG é necessária porque qualquer falha neste componente tem impacto direto na qualidade jurídica do produto. Um chunk desatualizado, uma lei mal classificada ou uma falha de recuperação pode resultar em um diagnóstico incorreto entregue a um advogado. Por isso, toda alteração no corpus, no pipeline de recuperação, ou na arquitetura do RAG deve ser rastreável do commit até o cockpit.
 
@@ -22,7 +22,7 @@ O RAG do IA SOLARIS é composto por três camadas:
 
 | Camada | Componente | Responsabilidade |
 |---|---|---|
-| **Corpus** | Tabela `ragDocuments` (TiDB Cloud) | Armazena 2.078 chunks das leis tributárias com metadados de lei, artigo, tópicos e CNAE |
+| **Corpus** | Tabela `ragDocuments` (TiDB Cloud) | Armazena 2.454 chunks de 10 leis tributárias com metadados de lei, artigo, tópicos e CNAE |
 | **Retriever** | `server/rag-retriever.ts` | Recupera os chunks mais relevantes para o contexto do cliente |
 | **Gerador** | `routers-fluxo-v3.ts` → GPT-4.1 | Usa os chunks recuperados para fundamentar o diagnóstico |
 
@@ -131,7 +131,7 @@ A tabela `ragDocuments` é o coração do corpus RAG. Cada linha representa um c
 | `data_revisao` | varchar(30) | Data de revisão ISO 8601 (nullable — DEC-002) |
 | `createdAt` | timestamp | Data de criação |
 
-**Estado atual do corpus:** 2.078 chunks — 100% com `anchor_id` preenchido.
+**Estado atual do corpus:** 2.454 chunks — 100% com `anchor_id` preenchido. 10 leis ativas (Sprint S, 2026-04-04).
 
 **Distribuição por lei:**
 
@@ -141,7 +141,12 @@ A tabela `ragDocuments` é o coração do corpus RAG. Cada linha representa um c
 | `lc224` | LC 224/2025 — Comitê Gestor IBS | ~400 |
 | `ec132` | EC 132/2023 — Reforma Constitucional | ~350 |
 | `lc227` | LC 227/2024 — Complementações | ~200 |
-| Demais | lc116, lc87, cg_ibs, rfb_cbs, conv_icms, lc123 | ~328 |
+| `lc87` | LC 87/1996 — ICMS | ~100 |
+| `lc116` | LC 116/2003 — ISS | ~80 |
+| `lc123` | LC 123/2006 — Simples Nacional | ~148 |
+| `cg_ibs` | Regulamento CG-IBS | ~60 |
+| `rfb_cbs` | Regulamento RFB-CBS | ~60 |
+| `conv_icms` | Convênios ICMS | ~60 |
 
 ---
 
@@ -238,7 +243,9 @@ Evento RAG (nova funcionalidade / alteração / RFC / incidente)
 | 2026-03-30 | GitHub Actions atualizado com keywords RAG | Governança automática sem intervenção |
 | 2026-03-30 | Skills atualizadas com regras RAG | Propagação para sessões futuras |
 | 2026-03-30 | RFC-003 identificada como pendente (Issue #189) | Aguarda aprovação do P.O. |
+| 2026-04-04 | Sprint S: 5 novas leis ingeridas (2.454 chunks, 10 leis) | RFC-003 e RFC-004 executadas |
+| 2026-04-04 | Fix iagen: `isNonCompliantAnswer` substitui `confidence_score` (PR #295) | Gaps `source=iagen` gerados corretamente |
 
 ---
 
-*Documento gerado em 2026-03-30 pelo implementador técnico Manus. Fonte de verdade: [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md) e [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md).*
+*Documento gerado em 2026-03-30. Atualizado em 2026-04-04 (Sprint S). Pelo implementador técnico Manus. Fonte de verdade: [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md) e [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md).*
