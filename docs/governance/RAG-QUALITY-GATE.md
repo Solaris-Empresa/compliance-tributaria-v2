@@ -1,7 +1,7 @@
 # RAG Quality Gate — Governança Obrigatória de Corpus / Embeddings / Chunks
 
 > **Audiência:** P.O. · Orquestrador · Implementador  
-> **Versão:** v1.0 — 2026-03-30  
+> **Versão:** v1.1 — 2026-04-04  
 > **Status:** 🔴 OBRIGATÓRIO — todo PR de RAG passa por este gate antes do merge  
 > **Princípio:** *PR que mexe em chunk não é aprovado por volume. É aprovado por recuperação.*
 
@@ -20,7 +20,7 @@ Todo PR que altere **qualquer** um dos itens abaixo entra automaticamente no gat
 | `ragAdmin` | rotas de administração do corpus |
 | Retrieval | `server/rag-retriever.ts`, re-ranking, keywords |
 | Corpus RFC | qualquer RFC com label `rag:rfc` |
-| Leis e anexos | LC 214, LC 224, EC 132, LC 227, LC 123 |
+| Leis e anexos | LC 214, LC 224, EC 132, LC 227, LC 123, LC 87, LC 116, CG-IBS, RFB-CBS, Conv. ICMS |
 | `anchor_id` | qualquer alteração de mapeamento ou geração |
 
 **Regra de detecção automática:** o workflow `.github/workflows/rag-quality-gate.yml` detecta esses caminhos via `paths` filter e bloqueia o merge se o checklist não estiver preenchido.
@@ -319,9 +319,9 @@ Se muitos chunks nunca aparecem em busca controlada, ou estão mal chunkados, ou
   `getUnusedChunks` para PRs que toquem o retriever ou o schema.
 - **Gate Q2:** o recall do gold set pode ser validado cruzando `getTopChunks` com os
   `anchor_id` esperados por query.
-- **Score de uso real:** meta ≥ 60% de cobertura ao final da Sprint L.
+- **Score de uso real:** meta ≥ 60% de cobertura ao final da Sprint T.
 
 ---
 
-*Documento criado em 2026-03-30. Atualizado em 2026-03-30 (L-RAG-01). Mantido pelo Orquestrador (Claude) e implementado pelo Manus.*  
+*Documento criado em 2026-03-30. Atualizado em 2026-04-04 (Sprint S — 10 leis, 2.454 chunks). Mantido pelo Orquestrador (Claude) e implementado pelo Manus.*  
 *Aprovação de mudanças neste documento: P.O. Uires Tapajós.*

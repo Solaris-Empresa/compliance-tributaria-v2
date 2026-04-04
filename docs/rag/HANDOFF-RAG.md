@@ -35,12 +35,11 @@ Regras invioláveis:
 
 | Indicador | Valor | Última atualização |
 |---|---|---|
-| Versão do baseline | v1.1 | 2026-03-26 (PR #126) |
-| Total de chunks | 2.078 | Sprint G |
-| Leis ativas | 5 | lc214 · lc227 · lc224 · ec132 · lc123 |
+| Versão do baseline | v2.2 | 2026-04-04 (PR #296) |
+| Total de chunks | 2.454 | Sprint S |
+| Leis ativas | 10 | lc214 · lc227 · lc224 · ec132 · lc123 · lc87 · lc116 · cg_ibs · rfb_cbs · conv_icms |
 | Confiabilidade gold set | 100% (8/8) | Sprint G |
-| RFCs abertas | 0 | Sprint G concluída |
-| RFC em backlog | RFC-003 (P3) | Leis avulsas ~10 chunks |
+| RFCs abertas | 0 | Sprint S concluída (RFC-003 e RFC-004 executadas) |
 | Próxima revisão gold set | 2026-09-26 | Semestral |
 
 ---
@@ -56,11 +55,11 @@ Regras invioláveis:
 | lc224 | LC 224/2024 — IBS compartilhado | 28 | ✅ Ativo |
 | ec132 | EC 132/2023 — Emenda constitucional | 18 | ✅ Ativo |
 | lc123 | LC 123/2006 — Simples Nacional / MEI | 25 | ✅ Ativo (RFC-002) |
-| lc116 | LC 116/2003 — ISS | 0 | Enum disponível, corpus pendente |
-| lc87  | LC 87/1996 — ICMS | 0 | Enum disponível, corpus pendente |
-| cg_ibs | Regulamento CGIBS | 0 | Enum disponível, corpus pendente |
-| rfb_cbs | Regulamento CBS/RFB | 0 | Enum disponível, corpus pendente |
-| conv_icms | Convênios ICMS | 0 | Enum disponível, corpus pendente |
+| lc116 | LC 116/2003 — ISS | ~80 | ✅ Ativo (Sprint S) |
+| lc87  | LC 87/1996 — ICMS | ~100 | ✅ Ativo (Sprint S) |
+| cg_ibs | Regulamento CGIBS | ~60 | ✅ Ativo (Sprint S) |
+| rfb_cbs | Regulamento CBS/RFB | ~60 | ✅ Ativo (Sprint S) |
+| conv_icms | Convênios ICMS | ~60 | ✅ Ativo (Sprint S) |
 | solaris | Conhecimento jurídico SOLARIS | 0 | Pendente DEC-004 |
 
 ---
@@ -71,7 +70,8 @@ Regras invioláveis:
 |-----|---------|------|--------|
 | RFC-001 | id 811 lc227 fragmentado | Fusão chunks 810+811 | EXECUTED 2026-03-26 |
 | RFC-002 | 25 chunks lc214→lc123 | UPDATE cirúrgico | EXECUTED 2026-03-26 |
-| RFC-003 | ~10 chunks leis avulsas | Reclassificação futura | BACKLOG Sprint H |
+| RFC-003 | ~10 chunks leis avulsas | Reclassificação futura | EXECUTED Sprint S |
+| RFC-004 | Expansão 5 novas leis | lc87, lc116, cg_ibs, rfb_cbs, conv_icms | EXECUTED Sprint S |
 
 ---
 
@@ -122,5 +122,5 @@ Antes de gerar qualquer prompt para o Manus, identificar qual processo se aplica
 
 ---
 
-*HANDOFF-RAG.md v1.0 · 2026-03-26*
+*HANDOFF-RAG.md v1.1 · 2026-04-04 (Sprint S — 2.454 chunks, 10 leis, fix iagen PR #295)*
 *Atualizar a cada sprint que altere o corpus*
