@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 2.5 — 2026-03-29 (rev K-4-E)
-> **Commit HEAD:** `b9a5502` (K-4-E project_status_log — PR #212)
-> **Checkpoint Manus:** `b9a5502`
+> **Versão:** 3.2 — 2026-04-04 (pós-Sprint S — PRs #291–#295)
+> **Commit HEAD:** `d08c12a` (fix iagen-gap-logic — PR #295)
+> **Checkpoint Manus:** `a415c463`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -24,29 +24,25 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 
 | Indicador | Valor atual | Status |
 |---|---|---|
-| TypeScript | 0 erros (`npx tsc --noEmit`) | ✅ |
-| Testes automatizados — total | **2.655 passando · 97 falhas pré-existentes · 24 skipped** (2.776 total) | ✅ |
-| Testes Sprint K (suítes K-4) | 36 (K-4-A) + 26 (K-4-B) + 20 (K-4-C) + 36 T06 fix (K-4-D) + 3 (K-4-E) — todos passando | ✅ |
-| Git working tree | Limpo — `main` = `b9a5502`, sincronizado com GitHub externo | ✅ |
+| TypeScript | 1 erro pré-existente (`iagen-gap-analyzer.ts:207`) | ⚠️ Sprint T |
+| Testes automatizados — total | **1.436 passando · 0 falhas** (71 files) | ✅ |
+| Git working tree | Limpo — `main` = `d08c12a`, sincronizado com GitHub externo | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
-| Sprint K-4-E | Auditoria jurídica `project_status_log` — PR #212 mergeado | ✅ |
+| Sprint S | Lotes A+B+C+D+E + Fix #295 — ENCERRADA 2026-04-04 | ✅ |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
-| Migrations aplicadas | **60** (0000–0059; 0059 = `project_status_log` K-4-E — era 59 pré-PR #213) | ✅ |
+| Migrations aplicadas | **62** | ✅ |
 | ADRs formais | **10** (ADR-001 a ADR-010; ADR-004 rejeitado) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
-| Corpus RAG | **2.078 chunks — 100% com anchor_id** | ✅ |
+| Corpus RAG | **2.454 chunks — 10 leis — 100% com anchor_id** | ✅ |
+| Perguntas SOLARIS ativas | **24 (SOL-013..036)** | ✅ |
 | RAG Cockpit | Endpoint `ragInventory.getSnapshot` ao vivo · 9 gold set queries | ✅ |
-| Sprint 98% Confidence | **B0 ✅ · B1 ✅ · B2 ✅** — Sprint 98% CONCLUÍDA | ✅ |
-| Agent Skills | Manus `/solaris-orquestracao` ✅ · Claude `solaris-contexto` ✅ | ✅ |
+| Agent Skills | Manus `/solaris-orquestracao` v3.1 ✅ · Claude `solaris-contexto` v4.0 ✅ | ✅ |
 | db:push guard | Bloqueado em production — `scripts/db-push-guard.mjs` | ✅ |
-| Sprint K — K-4-A | Migration 0058 aplicada em produção · tag `k4-a-complete` · Issue #156 fechada | ✅ |
-| Sprint K — K-4-B | ✅ Aprovado pelo P.O. — Onda 1 SOLARIS funcional em produção | ✅ |
-| Sprint K — K-4-C | ✅ Aprovado pelo P.O. — Onda 2 IA Generativa funcional em produção · PR #182 mergeado | ✅ |
-| Sprint K — K-4-D | ✅ Mergeado — PR #184 · wiring `onStartMatrizes`/`onStartPlano` + fix T06.1 | ✅ |
+| Pipeline E2E | T1 ✅ T2 ✅ validados em produção | ✅ |
 
 ---
 
@@ -54,15 +50,14 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 
 | Métrica | Valor |
 |---|---|
-| Total de projetos | **0** — banco limpo para início do UAT |
-| Total de usuários cadastrados | — (preservados; apenas projetos foram removidos) |
-| Projetos UAT criados | **0** — aguardando testes manuais do P.O. |
-| Divergências Shadow Mode registradas | **0** (banco limpo) |
-| Divergências críticas | **0** |
-| Chunks RAG no banco | **2.078** — 100% com anchor_id canônico (DEC-002) |
-| Perguntas SOLARIS (Onda 1) | **12** — SOL-001..SOL-012 com `codigo` populado |
-| Respostas Onda 1 (`solaris_answers`) | Tabela ativa — testes manuais P.O. realizados com sucesso |
-| Respostas Onda 2 (`iagen_answers`) | Tabela ativa — testes manuais P.O. realizados com sucesso (K-4-C ✅) |
+| Total de projetos | **8.812** (produção — 2026-04-04) |
+| Projetos em andamento | **154** |
+| Projetos aprovados | **7** |
+| Chunks RAG no banco | **2.454** — 100% com anchor_id canônico (DEC-002) |
+| Perguntas SOLARIS ativas | **24** — SOL-013..SOL-036 com `codigo` populado |
+| Respostas Onda 1 (`solaris_answers`) | Tabela ativa — T1 validado (projeto 2490006) |
+| Respostas Onda 2 (`iagen_answers`) | Tabela ativa — T1 validado: `source='iagen' | gaps=3` |
+| Projetos legados removidos | **1.705** (hard delete cascade Sprint S Lote C) |
 
 > **Nota:** O banco foi limpo intencionalmente em 2026-03-24 para garantir ambiente neutro no UAT com advogados. Os dados históricos (1.847 projetos, 1.364 usuários) existiam até 2026-03-23 e estão documentados no histórico de commits.
 
@@ -227,7 +222,7 @@ O contrato `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174, mergea
 
 ### PRs Abertos
 
-Nenhum PR aberto no momento. Sprint K++ concluída.
+Nenhum PR aberto no momento. Sprint S encerrada em 2026-04-04.
 
 ---
 
@@ -389,6 +384,9 @@ DROP TABLE IF EXISTS iagen_answers;
 | 2.3 | 2026-03-28 | `62c4219` | Sprint K K-4-C: `QuestionarioIaGen.tsx` (badge laranja, LLM 5-10 perguntas, timeout 30s, fallback hardcoded), procedures `generateOnda2Questions` + `completeOnda2` com `assertValidTransition`, rota `/questionario-iagen`, `onStartOnda2` wiring em `ProjetoDetalhesV2`. Aprovado pelo P.O. PR #182 mergeado. |
 | 2.4 | 2026-03-28 | `e54d606` | Sprint K K-4-D: wiring `onStartMatrizes`/`onStartPlano` no `DiagnosticoStepper` (interface + `handleStepStart`), callbacks passados em `ProjetoDetalhesV2`. Fix T06.1 (assertion atualizada para `questionario-solaris`). PR #184 mergeado. Fluxo das 8 etapas 100% funcional. |
 | 2.5 | 2026-03-29 | `326c6e6` | Sprint K+ e K++ concluídas: Cockpit P.O. v2.0 (C1–C5+I1–I4 acionável, PR #197), fetch dinâmico API GitHub (Score de Saúde em tempo real, PR #199), Seção 4 (4A–4F) com 24 docs catalogados (PR #200), 10 docs defasados atualizados + datas dinâmicas (PR #202). 580 commits · 202 PRs mergeados. |
+| 3.0 | 2026-04-02 | `8fa615a` | Sprint S Lotes A+B+E: iagen-gap-analyzer.ts criado, persistCpie backend, briefingEngine usa actionPlans (401 reg.). PR #292. |
+| 3.1 | 2026-04-02 | `d08c12a` | Sprint S Lote D: corpus RAG 5 novas leis (2.454 chunks, 10 leis). Skill solaris-contexto v4.0. PRs #293+#296. |
+| 3.2 | 2026-04-04 | `d08c12a` | Sprint S encerrada: fix isNonCompliantAnswer (PR #295) — iagen-gap-analyzer usa conteúdo da resposta (não confidence_score). T1 validado: projeto 2490006 → iagen=3. 1.436 testes, 0 falhas. 24 perguntas SOLARIS ativas. |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 

@@ -2,7 +2,7 @@
 
 > **Cole este documento no início de qualquer nova sessão do Manus.**
 > Audiência: **Manus (implementador técnico)**.
-> Versão: **v1.0** — 2026-03-28.
+> Versão: **v1.1** — 2026-04-04 (pós-Sprint S).
 
 ---
 
@@ -182,14 +182,37 @@ GH_TOKEN=$TOKEN gh issue list --repo Solaris-Empresa/compliance-tributaria-v2 --
 
 ---
 
-## Estado Atual (2026-03-28)
+## Estado Atual (2026-04-04)
 
-- **Sprint K: CONCLUÍDA** — K-4-A ✅ K-4-B ✅ K-4-C ✅ K-4-D ✅
-- **Próxima sprint: L** — Upload CSV SOLARIS (Issues #152, #157, #158)
-- **PR aberto:** PR #185 (docs BASELINE v2.4 + HANDOFF v2.4) — aguarda merge
-- **Testes:** 2.652 / 2.773 passando (97 falhas pré-existentes — Issue #101)
+- **Baseline:** v3.2 · **HEAD:** `d08c12a`
+- **Sprint S: ENCERRADA** — Lotes A ✅ B ✅ C ✅ D ✅ E ✅ + Fix #295 ✅
+- **PRs mergeados:** 295 (total)
+- **Próxima sprint: T** — campo NCM + LC 87 compilada + engine Onda 3 (source='rag')
+- **PRs abertos:** 0
+- **Testes:** 1.436 passando · 0 falhas (71 files)
 - **DIAGNOSTIC_READ_MODE:** `shadow` — **NÃO alterar**
-- **Migrations:** 60 aplicadas (última: `0060`)
+- **Migrations:** 62 aplicadas
+- **Corpus RAG:** 2.454 chunks · 10 leis
+- **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
+- **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção
+
+### Lembrete Sprint S — Bug Encontrado e Corrigido
+
+> **iagen-gap-analyzer:** usar conteúdo da resposta (não `confidence_score`) para detectar gap.  
+> Padrão G17: `startsWith('não') = gap`. Fix: `isNonCompliantAnswer` (PR #295).
+
+### Gates Ativos (Q1–Q8)
+
+| Gate | Descrição |
+|---|---|
+| Q1 | Branch limpa sobre `origin/main` |
+| Q2 | Apenas arquivos do escopo declarado |
+| Q3 | Sem `DROP COLUMN`, sem `DIAGNOSTIC_READ_MODE=new` |
+| Q4 | Testes criados para o escopo |
+| Q5 | Todos os testes passando |
+| Q6 | Evidência JSON no commit |
+| Q7 | Gate 7 executado (checklist completo) |
+| Q8 | Ordem de execução dos lotes respeitada |
 
 ---
 
@@ -198,6 +221,6 @@ GH_TOKEN=$TOKEN gh issue list --repo Solaris-Empresa/compliance-tributaria-v2 --
 1. `docs/BASELINE-PRODUTO.md` — estado técnico atual
 2. `docs/HANDOFF-MANUS.md` — contexto operacional
 3. `docs/governance/ESTADO-ATUAL-PLATAFORMA.md` — métricas e issues
-4. `docs/GATE-CHECKLIST.md` — checklist obrigatório
+4. `docs/governance/GATE-CHECKLIST.md` — checklist obrigatório (Q1–Q8)
 5. `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md` — contrato de implementação
 6. `/home/ubuntu/skills/solaris-orquestracao/SKILL.md` — skill operacional
