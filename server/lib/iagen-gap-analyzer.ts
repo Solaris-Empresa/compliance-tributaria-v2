@@ -4,8 +4,11 @@
  * Converte iagen_answers (Onda 2 IA Generativa) em gaps em project_gaps_v3.
  * Padrão idêntico ao solaris-gap-analyzer.ts (DELETE + INSERT atômico).
  *
- * Lógica de detecção:
- *   - confidence_score < 0.7 → resposta incerta → gap potencial
+ * Lógica de detecção (fix/iagen-gap-logic — Sprint S):
+ *   - resposta.startsWith('não') ou 'nao' → não-conformidade → gap (padrão G17)
+ *   - Padrões de incerteza ('não sei', 'depende', 'verificar') → gap de incerteza
+ *   - resposta.startsWith('sim') → empresa tem controle → sem gap
+ *   - confidence_score NÃO é usado para detectar gap (era o bug anterior)
  *   - Palavras-chave no question_text mapeiam para tópicos do SOLARIS_GAPS_MAP
  *   - Fallback: se nenhum tópico mapeado, usa gap genérico de risco_sistemico
  *
@@ -66,19 +69,30 @@ function extractTopicsFromQuestion(questionText: string): string[] {
 }
 
 /**
- * Determina se uma resposta iagen indica gap (incerteza ou risco).
- * confidence_score < 0.7 = incerto → gap potencial.
+ * Determina se uma resposta iagen indica não-conformidade (gap de compliance).
+ *
+ * Padrão G17 (solaris-gap-analyzer): usa conteúdo da resposta, NÃO confidence_score.
+ * confidence_score mede a certeza do LLM na interpretação — não o status de compliance.
+ *
+ * Regras:
+ *   1. 'não' / 'nao' → empresa não tem o controle → gap real
+ *   2. Padrões de incerteza → empresa não sabe → gap de incerteza
+ *   3. 'sim' → empresa tem o controle → sem gap
+ *   4. Ambíguo (fallback) → gap de incerteza por precaução
  */
-function isUncertainAnswer(resposta: string, confidenceScore: number): boolean {
-  if (confidenceScore < 0.7) return true;
-  const lower = resposta.toLowerCase();
-  // Respostas que indicam incerteza explícita
-  const uncertainPatterns = [
-    'não sei', 'nao sei', 'incerto', 'depende', 'pode ser',
-    'não tenho certeza', 'nao tenho certeza', 'verificar', 'a verificar',
-    'não aplicável', 'nao aplicavel', 'não realiza', 'nao realiza',
-  ];
-  return uncertainPatterns.some(p => lower.includes(p));
+function isNonCompliantAnswer(resposta: string): boolean {
+  const r = resposta.toLowerCase().trim();
+  // Regra 3: 'sim' → empresa tem controle → sem gap
+  if (r.startsWith('sim')) return false;
+  // Regra 1: 'não' / 'nao' → não-conformidade → gap
+  if (r.startsWith('não') || r === 'nao') return true;
+  // Regra 2: incerteza explícita → gap de incerteza
+  if (r.includes('não sei') || r.includes('nao sei')) return true;
+  if (r.includes('depende') || r.includes('verificar')) return true;
+  if (r.includes('incerto') || r.includes('pode ser')) return true;
+  if (r.includes('não tenho certeza') || r.includes('nao tenho certeza')) return true;
+  // Regra 4: ambíguo → gap por precaução
+  return true;
 }
 
 export async function analyzeIagenAnswers(
@@ -110,11 +124,10 @@ export async function analyzeIagenAnswers(
     }> = [];
 
     for (const row of rows) {
-      const confidenceScore = parseFloat(String(row.confidence_score ?? '1'));
       const resposta = String(row.resposta ?? '');
       const questionText = String(row.question_text ?? '');
 
-      if (!isUncertainAnswer(resposta, confidenceScore)) continue;
+      if (!isNonCompliantAnswer(resposta)) continue;
 
       const topics = extractTopicsFromQuestion(questionText);
 
@@ -144,7 +157,7 @@ export async function analyzeIagenAnswers(
 
     console.log('[IAGEN-GAP] gaps calculados:', gapsToInsert.length);
     if (gapsToInsert.length === 0) {
-      console.warn('[IAGEN-GAP] Nenhum gap gerado — todas as respostas com alta confiança');
+      console.warn('[IAGEN-GAP] Nenhum gap gerado — todas as respostas indicam conformidade (sim)');
       return { inserted: 0 };
     }
 
