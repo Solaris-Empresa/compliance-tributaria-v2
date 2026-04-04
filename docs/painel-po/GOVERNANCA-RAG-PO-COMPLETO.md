@@ -1,8 +1,8 @@
 # Governança de Rastreabilidade RAG — Documento P.O. Completo
 
 **Projeto:** IA SOLARIS — Compliance Tributária  
-**Versão:** v1.0  
-**Data:** 2026-03-30  
+**Versão:** v1.1  
+**Data:** 2026-04-04  
 **Autor:** Manus AI (implementador técnico)  
 **Revisão:** Uires Tapajós (P.O.)  
 **Status:** ✅ Implementado e ativo
@@ -19,7 +19,7 @@ A governança opera em **quatro camadas independentes e complementares**, garant
 
 ## 1. O que é o RAG e por que ele precisa de governança especial
 
-O RAG (Retrieval-Augmented Generation) é a camada de recuperação de conhecimento jurídico da plataforma. Ele funciona como uma biblioteca especializada: quando o sistema precisa responder sobre uma regra tributária específica, o RAG busca os artigos relevantes no corpus de 2.078 chunks de legislação e os entrega ao modelo de linguagem (GPT-4.1) para que a resposta seja fundamentada em lei, não em memória do modelo.
+O RAG (Retrieval-Augmented Generation) é a camada de recuperação de conhecimento jurídico da plataforma. Ele funciona como uma biblioteca especializada: quando o sistema precisa responder sobre uma regra tributária específica, o RAG busca os artigos relevantes no corpus de 2.454 chunks de legislação (10 leis) e os entrega ao modelo de linguagem (GPT-4.1) para que a resposta seja fundamentada em lei, não em memória do modelo.
 
 Por ser a base de conhecimento jurídico do produto, qualquer falha ou desatualização no RAG tem impacto direto na qualidade dos diagnósticos entregues aos advogados e contadores. Um corpus desatualizado pode gerar um diagnóstico incorreto sobre a reforma tributária. Uma falha no retriever pode fazer o sistema responder sem base legal. Por isso, a governança do RAG é tratada com o mesmo rigor de uma auditoria contábil: toda mudança deve ser documentada, rastreada e verificável.
 
@@ -29,13 +29,13 @@ Por ser a base de conhecimento jurídico do produto, qualquer falha ou desatuali
 
 | Dimensão | Valor atual | Baseline |
 |---|---|---|
-| Total de chunks | **2.078** | v1.1 (2026-03-26) |
-| Chunks com `anchor_id` | 2.078 (100%) | Sprint G |
-| Leis ativas | 5 | lc214, ec132, lc227, lc224, lc123 |
-| Anomalias abertas | 0 | Sprint G concluída |
+| Total de chunks | **2.454** | v2.2 (2026-04-04) |
+| Chunks com `anchor_id` | 2.454 (100%) | Sprint S |
+| Leis ativas | 10 | lc214, ec132, lc227, lc224, lc123, lc87, lc116, cg-ibs, rfb-cbs, conv-icms |
+| Anomalias abertas | 0 | Sprint S concluída |
 | Modelo de retrieval | GPT-4.1 (re-ranking) | Sprint H |
 | Estratégia de busca | Híbrida (keyword LIKE + re-ranking LLM) | Sprint F |
-| RFCs pendentes | RFC-003 (leis avulsas), RFC-004 (expansão) | Aprovação P.O. |
+| RFCs pendentes | 0 — RFC-003 e RFC-004 executadas na Sprint S | ✅ Sprint S |
 
 ---
 
@@ -289,7 +289,8 @@ Inclui:
 | G | #121–#155 | Limpeza de anomalias, 100% anchor_id, Sprint G |
 | H | #156–#190 | GPT-4.1 re-ranking, performance, Sprint H |
 | I–J | #191–#213 | Integração 3 Ondas, Onda 3 RAG, Sprint I–J |
-| K (atual) | #214–#227 | Governança rastreabilidade, cockpit, labels, Sprint K |
+| K | #214–#227 | Governança rastreabilidade, cockpit, labels, Sprint K |
+| S (atual) | #292–#298 | Pipeline 3 Ondas, fix iagen (`isNonCompliantAnswer`), 5 novas leis (2.454 chunks, 10 leis) |
 
 ---
 
@@ -341,4 +342,4 @@ Inclui:
 
 ---
 
-*Documento gerado em 2026-03-30. Próxima revisão: Sprint L (após merge das RFCs pendentes).*
+*Documento gerado em 2026-03-30. Atualizado em 2026-04-04 (Sprint S — 10 leis, 2.454 chunks, fix iagen). Próxima revisão: Sprint T (NCM + engine Onda 3).*
