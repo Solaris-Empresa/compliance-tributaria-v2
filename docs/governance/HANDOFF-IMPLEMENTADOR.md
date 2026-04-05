@@ -224,3 +224,17 @@ GH_TOKEN=$TOKEN gh issue list --repo Solaris-Empresa/compliance-tributaria-v2 --
 4. `docs/governance/GATE-CHECKLIST.md` — checklist obrigatório (Q1–Q8)
 5. `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md` — contrato de implementação
 6. `/home/ubuntu/skills/solaris-orquestracao/SKILL.md` — skill operacional
+
+---
+
+## Caminhos importantes — Milestone 1
+
+- Contratos:          docs/contracts/
+- ADR:                docs/adr/
+- RAG governance:     docs/rag/
+- Decision Kernel:    server/lib/decision-kernel/
+  - Datasets:         server/lib/decision-kernel/datasets/
+  - Engine:           server/lib/decision-kernel/engine/
+- Artifacts engine:   artifacts/engine-quality/
+- POC M1:             artifacts/engine-quality/poc-m1/
+- Engine gate:        docs/rag/ENGINE-QUALITY-GATE.md
