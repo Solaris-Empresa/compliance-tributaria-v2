@@ -32,6 +32,7 @@ import mysql from "mysql2/promise";
 import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
 import { analyzeIagenAnswers } from "./lib/iagen-gap-analyzer";
+import { analyzeEngineGaps } from "./lib/engine-gap-analyzer";
 import { persistCpieScoreForProject } from "./routers/scoringEngine";
 import { deriveRisksFromGaps, persistRisks } from "./routers/riskEngine";
 import { injectOnda1IntoQuestions } from "./routers/onda1Injector";
@@ -2419,6 +2420,10 @@ Regras obrigatórias:
         resposta: z.string().min(1),
         confidenceScore: z.number().min(0).max(1),
       })).min(1, 'É necessário responder ao menos uma pergunta'),
+      // Bloco D (Opção A): NCM/NBS como parâmetro temporário até Bloco E (schema de projetos)
+      // DECISÃO ARQUITETURAL: não persistidos no schema de projetos neste PR
+      ncmCodes: z.array(z.string()).optional().default([]),
+      nbsCodes: z.array(z.string()).optional().default([]),
     }))
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
@@ -2442,6 +2447,13 @@ Regras obrigatórias:
       void analyzeIagenAnswers(input.projectId).catch((err) => {
         console.error('[IAGEN-GAP] analyzeIagenAnswers falhou — pipeline não afetado:', err);
       });
+      // Lote B (Bloco D): fire-and-forget — Decision Kernel engine (source='engine')
+      // Opção A: NCM/NBS recebidos como parâmetro (Bloco E adicionará ao schema de projetos)
+      if (input.ncmCodes.length > 0 || input.nbsCodes.length > 0) {
+        void analyzeEngineGaps(input.projectId, input.ncmCodes, input.nbsCodes).catch((err) => {
+          console.error('[ENGINE-GAP] analyzeEngineGaps falhou — pipeline não afetado:', err);
+        });
+      }
       return {
         success: true,
         projectId: input.projectId,
