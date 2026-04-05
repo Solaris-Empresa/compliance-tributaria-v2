@@ -22,7 +22,10 @@
       "artigo_aliquota_ibs": {
         "numero": "15",
         "inciso": "I",
-        "alineas": ["a", "b"],
+        "alineas": [
+          "a",
+          "b"
+        ],
         "texto": "A alíquota do IBS incidente sobre cada operação corresponderá: I - à soma: a) da alíquota do Estado de destino da operação; e b) da alíquota do Município de destino da operação"
       },
       "artigo_inscricao": {
@@ -93,7 +96,10 @@
       "artigo_aliquota_ibs": {
         "numero": "15",
         "inciso": "I",
-        "alineas": ["a", "b"],
+        "alineas": [
+          "a",
+          "b"
+        ],
         "texto": "alíquota IBS = alíquota estado destino + alíquota município destino"
       },
       "artigo_inscricao": {
@@ -105,6 +111,121 @@
     },
     "status": "confirmado",
     "validado_por": "Dr. José Rodrigues · Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "nbs_code": "1.2201.20.00",
+    "descricao": "Serviços de ensino fundamental",
+    "setor_economico": "Escolas privadas · redes educacionais · cooperativas de ensino",
+    "regime": "reducao_60",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "ISS municipal (LC 116/2003, item 8.01) — 2% a 5%",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Escola privada não estruturou apuração de IBS/CBS com redução de 60%. Continua recolhendo ISS municipal no início da transição. Não calcula alíquota por destino para alunos de outros municípios.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "129",
+      "texto_caput": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos serviços de educação relacionados no Anexo II desta Lei Complementar",
+      "anexo": "Anexo II — item 2 (Ensino Fundamental — NBS 1.2201.20.00)"
+    },
+    "status": "confirmado",
+    "validado_por": "Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "nbs_code": "1.2301.22.00",
+    "descricao": "Serviços médicos especializados",
+    "setor_economico": "Clínicas médicas · consultórios especializados · hospitais",
+    "regime": "reducao_60",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "ISS municipal (LC 116/2003, item 4.01) — 2% a 5%",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Clínica médica não diferencia serviço médico (redução 60%) de plano de saúde (regime especial Art. 193-199). Apuração incorreta resulta em subcoleta ou excesso de pagamento.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "130",
+      "texto_caput": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos serviços de saúde relacionados no Anexo III desta Lei Complementar",
+      "anexo": "Anexo III — item 8 (Serviços médicos especializados — NBS 1.2301.22.00)"
+    },
+    "status": "confirmado",
+    "validado_por": "Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "nbs_code": "1.0901.40.00",
+    "descricao": "Serviços de cartão de crédito",
+    "setor_economico": "Fintechs · credenciadoras · bancos digitais",
+    "regime": "regime_especial",
+    "subtipo_regime": "servicos_financeiros",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "IOF + PIS/COFINS específico",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Fintech de cartão não identifica que o serviço de cartão de crédito está no regime especial de serviços financeiros (Art. 181-182). Apura no regime regular e paga IBS/CBS sobre receita bruta em vez de base específica.",
+    "confianca": {
+      "valor": 98,
+      "tipo": "regra"
+    },
+    "nota_engine": "No M1: retornar regime_especial e remeter ao capítulo 181-199. Não detalhar base de cálculo no output estruturado. Detalhamento fica para M2.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo_regime_especial": {
+        "numero": "181",
+        "texto_caput": "Os serviços financeiros ficam sujeitos a regime específico de incidência do IBS e da CBS"
+      },
+      "artigo_definicao": {
+        "numero": "182",
+        "inciso": "IV",
+        "texto": "Para fins desta Lei Complementar, consideram-se serviços financeiros: IV - serviços de pagamento, incluídos os de emissão de instrumentos de pagamento, credenciamento, arranjo de pagamento e processamento de transações"
+      }
+    },
+    "status": "confirmado",
+    "validado_por": "Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "nbs_code": "1.1501.10.00",
+    "descricao": "Serviços de consultoria em tecnologia da informação (TI)",
+    "setor_economico": "Consultorias de TI · empresas de tecnologia · SIs",
+    "regime": "regime_geral",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "ISS municipal (LC 116/2003, item 1.03) — 2% a 5%",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Consultoria de TI sediada em SP atendendo cliente em RS não tem inscrição IBS no RS. Continua recolhendo ISS para SP. Migração de competência prestador → destino do tomador gera passivo fiscal não identificado.",
+    "confianca": {
+      "valor": 95,
+      "tipo": "regra"
+    },
+    "nota_confianca": "NBS 1.1501.10.00 não consta nos Anexos diferenciados — regime geral por ausência de listagem. Verificado contra NBS 2.0 MDIC: 'Serviços de consultoria em tecnologia da informação (TI)' — confirmado.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo_local": {
+        "numero": "11",
+        "paragrafo_1": "local = destino do tomador para serviços não presenciais"
+      },
+      "artigo_aliquota": {
+        "numero": "15",
+        "inciso": "I",
+        "texto": "alíquota IBS = estado destino + município destino"
+      },
+      "artigo_inscricao": {
+        "numero": "21",
+        "texto": "inscrição cadastral obrigatória nos locais de destino"
+      }
+    },
+    "status": "confirmado",
+    "validado_por": "Orquestrador Claude",
     "data_validacao": "2026-04-05"
   }
 ]

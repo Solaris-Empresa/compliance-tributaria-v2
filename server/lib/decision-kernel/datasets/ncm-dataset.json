@@ -18,7 +18,11 @@
       "lei": "LC 214/2025",
       "artigo": "147",
       "paragrafo": "caput",
-      "incisos": ["I", "II", "III"],
+      "incisos": [
+        "I",
+        "II",
+        "III"
+      ],
       "paragrafo_unico": "A redução de alíquotas prevista no caput deste artigo somente se aplica aos produtos de cuidados básicos à saúde menstrual que atendam aos requisitos previstos em norma da Anvisa.",
       "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos seguintes produtos de cuidados básicos à saúde menstrual:",
       "anexo": null,
@@ -103,6 +107,150 @@
     },
     "status": "confirmado",
     "validado_por": "Orquestrador Claude · Dr. José Rodrigues",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "1006.40.00",
+    "descricao": "Arroz quebrado",
+    "setor_economico": "Indústria alimentícia · varejo de alimentos",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS alíquota zero (Lei 10.925/2004) · ICMS isento",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Empresa não verifica se NCM específico consta no Anexo I. Arroz parboilizado (1006.30) tem tratamento diferente do quebrado (1006.40). Confusão de subposição.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "125",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre as vendas de produtos destinados à alimentação humana relacionados no Anexo I desta Lei Complementar",
+      "anexo": "Anexo I — item 1 (Arroz das subposições 1006.20 e 1006.30 e do código 1006.40.00)"
+    },
+    "status": "confirmado",
+    "validado_por": "Orquestrador Claude (verificado no PDF lc214-2025.pdf)",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "0401.10.10",
+    "descricao": "Leite integral — teor de gordura <= 1%",
+    "setor_economico": "Indústria de laticínios · varejo alimentício",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS alíquota zero · ICMS isento",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Empresa laticínio não diferencia subposições de leite. 0401.10 (baixo teor gordura) tem alíquota zero; subposições com adição de sabor saem do Anexo I. Erro na classificação fiscal.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "125",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre as vendas de produtos destinados à alimentação humana relacionados no Anexo I desta Lei Complementar",
+      "anexo": "Anexo I — item 2 (Leite — códigos 0401.10.10, 0401.10.90, 0401.20.10, 0401.20.90, 0401.40.10, 0401.50.10)"
+    },
+    "status": "confirmado",
+    "validado_por": "Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "0713.33.19",
+    "descricao": "Feijões da espécie Vigna mungo (L.) — outros",
+    "setor_economico": "Agronegócio · varejo alimentício · distribuidoras",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS alíquota zero · ICMS isento em maioria dos estados",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Empresa não distingue subposições de feijão. 0713.33 tem alíquota zero no Anexo I; feijão em conserva (posição 2005) não está coberto.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "125",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre as vendas de produtos destinados à alimentação humana relacionados no Anexo I desta Lei Complementar",
+      "anexo": "Anexo I — item 7 (Feijões — códigos 0713.33.19, 0713.33.29, 0713.33.99, 0713.35.90)"
+    },
+    "status": "confirmado",
+    "validado_por": "Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "1106.20.00",
+    "descricao": "Farinha e sêmolas de sagu ou de raízes ou tubérculos (inclui farinha de mandioca)",
+    "setor_economico": "Indústria alimentícia · varejo alimentício · norte e nordeste",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS alíquota zero · ICMS isento",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Empresa confunde farinha de mandioca (1106.20.00 — alíquota zero) com tapioca (1903.00.00 — também alíquota zero) vs. amido de mandioca (1108.14.00 — não listado). Erro na subposição gera tributação indevida.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "125",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre as vendas de produtos destinados à alimentação humana relacionados no Anexo I desta Lei Complementar",
+      "anexo": "Anexo I — item 10 (Farinha de mandioca — código 1106.20.00 e tapioca — código 1903.00.00)"
+    },
+    "status": "confirmado",
+    "validado_por": "Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "1701.14.00",
+    "descricao": "Açúcar de cana, em bruto, para refino",
+    "setor_economico": "Indústria sucroalcooleira · varejo alimentício",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS alíquota zero · ICMS variável por estado",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Empresa não segrega açúcar de cana bruto (alíquota zero) de açúcar refinado embalado para venda direta (mesmo código — alíquota zero) vs. preparações com açúcar (capítulo 17 excluídas do Anexo). Importante distinguir fase da cadeia.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "125",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre as vendas de produtos destinados à alimentação humana relacionados no Anexo I desta Lei Complementar",
+      "anexo": "Anexo I — item 14 (Açúcar — códigos 1701.14.00 e 1701.99.00)"
+    },
+    "status": "confirmado",
+    "validado_por": "Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "1517.10.00",
+    "descricao": "Margarina, exceto em embalagens de conteúdo inferior a 1 kg",
+    "setor_economico": "Indústria de alimentos · varejo de alimentos",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS alíquota zero · ICMS isento",
+    "impacto_compliance": "baixo",
+    "gap_tipico": "Empresa não diferencia margarina (1517.10.00 — alíquota zero) de creme vegetal (1517.90 — não listado no Anexo I). Classificação fiscal incorreta resulta em não aplicação do benefício.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "125",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre as vendas de produtos destinados à alimentação humana relacionados no Anexo I desta Lei Complementar",
+      "anexo": "Anexo I — item 6 (Margarina — código 1517.10.00)"
+    },
+    "status": "confirmado",
+    "validado_por": "Orquestrador Claude",
     "data_validacao": "2026-04-05"
   }
 ]

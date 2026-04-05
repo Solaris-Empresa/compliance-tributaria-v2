@@ -2,9 +2,11 @@
  * decision-kernel.test.ts — Testes Vitest para ncm-engine + nbs-engine
  *
  * Cobertura: 6 casos POC Milestone 1 (5 confirmados + 1 pending_validation)
+ *            + 10 casos Lote 1 (6 NCM + 4 NBS) — Sprint V / PV-01
  * Contratos: CNT-01a, CNT-01b, CNT-02, CNT-03
  *
  * Aprovado: Orquestrador Claude — 2026-04-05 (Bloco C)
+ * Lote 1 adicionado: 2026-04-05 (PR feat/decision-kernel-lote-1)
  */
 
 import { describe, it, expect } from 'vitest';
@@ -166,6 +168,142 @@ describe('nbs-engine — lookupNbs', () => {
       expect(['deterministico', 'regra', 'fallback', 'condicional']).toContain(result.confianca.tipo);
     }
   });
+});
+
+// ─── Q5 Lote 1 — NCM (6 casos cesta básica + alimentos) ─────────────────────
+
+describe('ncm-engine — Lote 1 (cesta básica + alimentos)', () => {
+
+  // L1-01: Arroz quebrado
+  it('[L1-01] NCM 1006.40.00 → aliquota_zero, deterministico, artigo 125', () => {
+    const result = lookupNcm({ codigo: '1006.40.00', sistema: 'NCM' });
+
+    expect(result.regime).toBe('aliquota_zero');
+    expect(result.aliquota).toBe(0);
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('125');
+    expect(result.nota).toBeUndefined();
+  });
+
+  // L1-02: Leite fluido
+  it('[L1-02] NCM 0401.10.10 → aliquota_zero, deterministico, artigo 125', () => {
+    const result = lookupNcm({ codigo: '0401.10.10', sistema: 'NCM' });
+
+    expect(result.regime).toBe('aliquota_zero');
+    expect(result.aliquota).toBe(0);
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('125');
+    expect(result.nota).toBeUndefined();
+  });
+
+  // L1-03: Feijão
+  it('[L1-03] NCM 0713.33.19 → aliquota_zero, deterministico, artigo 125', () => {
+    const result = lookupNcm({ codigo: '0713.33.19', sistema: 'NCM' });
+
+    expect(result.regime).toBe('aliquota_zero');
+    expect(result.aliquota).toBe(0);
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('125');
+    expect(result.nota).toBeUndefined();
+  });
+
+  // L1-04: Farinha de mandioca
+  it('[L1-04] NCM 1106.20.00 → aliquota_zero, deterministico, artigo 125', () => {
+    const result = lookupNcm({ codigo: '1106.20.00', sistema: 'NCM' });
+
+    expect(result.regime).toBe('aliquota_zero');
+    expect(result.aliquota).toBe(0);
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('125');
+    expect(result.nota).toBeUndefined();
+  });
+
+  // L1-05: Açúcar
+  it('[L1-05] NCM 1701.14.00 → aliquota_zero, deterministico, artigo 125', () => {
+    const result = lookupNcm({ codigo: '1701.14.00', sistema: 'NCM' });
+
+    expect(result.regime).toBe('aliquota_zero');
+    expect(result.aliquota).toBe(0);
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('125');
+    expect(result.nota).toBeUndefined();
+  });
+
+  // L1-06: Margarina
+  it('[L1-06] NCM 1517.10.00 → aliquota_zero, deterministico, artigo 125', () => {
+    const result = lookupNcm({ codigo: '1517.10.00', sistema: 'NCM' });
+
+    expect(result.regime).toBe('aliquota_zero');
+    expect(result.aliquota).toBe(0);
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('125');
+    expect(result.nota).toBeUndefined();
+  });
+
+});
+
+// ─── Q5 Lote 1 — NBS (4 casos: educação + saúde + financeiro + TI) ───────────
+
+describe('nbs-engine — Lote 1 (educação + saúde + financeiro + TI)', () => {
+
+  // L1-01 NBS: Ensino fundamental
+  it('[NBS L1-01] NBS 1.2201.20.00 → reducao_60, deterministico (capped 98), artigo 129', () => {
+    const result = lookupNbs({ codigo: '1.2201.20.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('reducao_60');
+    expect(result.confianca.valor).toBeLessThanOrEqual(98); // CNT-01b
+    expect(result.confianca.valor).toBeGreaterThan(0);
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('129');
+  });
+
+  // L1-02 NBS: Serviços médicos especializados
+  it('[NBS L1-02] NBS 1.2301.22.00 → reducao_60, deterministico (capped 98), artigo 130', () => {
+    const result = lookupNbs({ codigo: '1.2301.22.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('reducao_60');
+    expect(result.confianca.valor).toBeLessThanOrEqual(98); // CNT-01b
+    expect(result.confianca.valor).toBeGreaterThan(0);
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('130');
+  });
+
+  // L1-03 NBS: Cartão de crédito (regime_especial financeiro)
+  it('[NBS L1-03] NBS 1.0901.40.00 → regime_especial, regra ≤ 98, artigo 181', () => {
+    const result = lookupNbs({ codigo: '1.0901.40.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('regime_especial');
+    expect(result.confianca.tipo).toBe('regra');
+    expect(result.confianca.valor).toBeLessThanOrEqual(98); // CNT-01b
+    expect(result.confianca.valor).toBeGreaterThan(0);
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toContain('181');
+  });
+
+  // L1-04 NBS: Consultoria em TI (regime_geral)
+  it('[NBS L1-04] NBS 1.1501.10.00 → regime_geral, regra ≤ 98, artigos 11+15+21', () => {
+    const result = lookupNbs({ codigo: '1.1501.10.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('regime_geral');
+    expect(result.confianca.tipo).toBe('regra');
+    expect(result.confianca.valor).toBe(95); // confiança declarada no dataset
+    expect(result.confianca.valor).toBeLessThanOrEqual(98); // CNT-01b
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBeTruthy();
+  });
+
 });
 
 // ─── Contrato CNT-03: source='engine' ────────────────────────────────────────
