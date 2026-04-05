@@ -1,0 +1,110 @@
+[
+  {
+    "nbs_code": "1.1506.21.00",
+    "descricao": "Serviços de hospedagem de aplicativos e programas — software como serviço (SaaS)",
+    "setor_economico": "Empresas de tecnologia · startups · fintechs · plataformas digitais",
+    "regime": "regime_geral",
+    "imposto_seletivo": false,
+    "regime_anterior": "ISS municipal (LC 116/2003, item 1.07) — alíquota 2% a 5% para município do prestador",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Empresa SaaS mantém recolhimento ISS para município da sede. Não sabe que IBS/CBS incide no destino do tomador. Sem inscrição cadastral nos municípios de destino. Sem cálculo de alíquota por destino.",
+    "confianca": {
+      "valor": 98,
+      "tipo": "regra"
+    },
+    "nota_confianca": "NBS não aparece nos Anexos diferenciados — regime geral por ausência de listagem expressa. Confirmar com confronto dos Anexos vigentes.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo_local_operacao": {
+        "numero": "11",
+        "paragrafo_1": "Para serviços prestados de forma não presencial, o local é o do tomador do serviço"
+      },
+      "artigo_aliquota_ibs": {
+        "numero": "15",
+        "inciso": "I",
+        "alineas": ["a", "b"],
+        "texto": "A alíquota do IBS incidente sobre cada operação corresponderá: I - à soma: a) da alíquota do Estado de destino da operação; e b) da alíquota do Município de destino da operação"
+      },
+      "artigo_inscricao": {
+        "numero": "21",
+        "texto": "Obrigação de inscrição cadastral no IBS em cada estado e município de destino"
+      },
+      "contraste_regime_anterior": "ISS Art. 3º caput LC 116/2003: local do estabelecimento prestador → IBS Art. 11 LC 214/2025: local do tomador",
+      "versao_texto": "original_lcp214_2025"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. José Rodrigues · Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "nbs_code": "1.0901.33.00",
+    "descricao": "Serviços de empréstimos e financiamentos pessoais",
+    "setor_economico": "Bancos · fintechs de crédito · cooperativas de crédito",
+    "regime": "regime_especial",
+    "subtipo_regime": "servicos_financeiros",
+    "imposto_seletivo": false,
+    "regime_anterior": "IOF + PIS/COFINS com alíquotas específicas (Lei 9.718/98)",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Fintech/banco não mapeou que serviços financeiros têm regime específico com regras próprias de base de cálculo. Não segregou operações financeiras das não-financeiras. Não configurou sistema para regime especial.",
+    "confianca": {
+      "valor": 98,
+      "tipo": "regra"
+    },
+    "nota_engine": "No M1: retornar regime_especial e remeter ao capítulo 181-199. Não detalhar base de cálculo dos arts. 183-199 no output estruturado. Detalhamento fica para M2.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo_regime_especial": {
+        "numero": "181",
+        "texto_caput": "Os serviços financeiros ficam sujeitos a regime específico de incidência do IBS e da CBS, de acordo com o disposto neste Capítulo."
+      },
+      "artigo_definicao": {
+        "numero": "182",
+        "inciso": "I",
+        "texto": "Para fins desta Lei Complementar, consideram-se serviços financeiros: I - operações de crédito, incluídas as operações de captação e repasse, adiantamento, empréstimo, financiamento, desconto de títulos, recuperação de créditos e prestação de garantias..."
+      },
+      "remissao_base_calculo": "Arts. 183 a 199 — regras específicas da base de cálculo (escopo M2)",
+      "versao_texto": "original_lcp214_2025"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. José Rodrigues · Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "nbs_code": "1.1303.10.00",
+    "descricao": "Serviços de consultoria tributária para pessoas jurídicas",
+    "setor_economico": "Escritórios de advocacia · consultorias tributárias · contabilidades",
+    "regime": "regime_geral",
+    "imposto_seletivo": false,
+    "regime_anterior": "ISS municipal (LC 116/2003, item 17.01 — assessoria e consultoria) — alíquota 2% a 5% para município do prestador",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Escritório sediado em SP que atende cliente no PA não possui inscrição IBS no PA. Continua recolhendo ISS para SP. Não calcula IBS com alíquota do estado/município do cliente. Mudança de competência prestador → destino.",
+    "nota_relevancia": "Este caso é especialmente relevante: o próprio cliente da plataforma IA SOLARIS (escritório tributário) está sujeito a este gap.",
+    "confianca": {
+      "valor": 95,
+      "tipo": "regra"
+    },
+    "nota_confianca": "NBS não consta nos Anexos diferenciados pesquisados. Regime geral por ausência de listagem expressa. Confirmar com confronto dos Anexos vigentes.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo_local_operacao": {
+        "numero": "11",
+        "paragrafo_1": "Para serviços prestados de forma não presencial, o local é o do tomador do serviço"
+      },
+      "artigo_aliquota_ibs": {
+        "numero": "15",
+        "inciso": "I",
+        "alineas": ["a", "b"],
+        "texto": "alíquota IBS = alíquota estado destino + alíquota município destino"
+      },
+      "artigo_inscricao": {
+        "numero": "21",
+        "texto": "inscrição cadastral obrigatória nos locais de destino"
+      },
+      "contraste_regime_anterior": "ISS Art. 3º caput LC 116/2003: local do estabelecimento prestador → IBS Art. 11 LC 214/2025: local do tomador",
+      "versao_texto": "original_lcp214_2025"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. José Rodrigues · Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  }
+]

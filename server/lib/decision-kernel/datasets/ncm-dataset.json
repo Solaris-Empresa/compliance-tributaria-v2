@@ -1,0 +1,105 @@
+[
+  {
+    "ncm_code": "9619.00.00",
+    "descricao": "Absorventes higiênicos internos ou externos, descartáveis ou reutilizáveis, calcinhas absorventes, tampões higiênicos e coletores menstruais — produtos de cuidados básicos à saúde menstrual",
+    "setor_economico": "Indústria de higiene pessoal · farmácias · varejo de saúde",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS alíquota zero (Lei 10.147/2000) · ICMS isento em alguns estados",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Empresa não verificou conformidade com requisitos Anvisa obrigatórios para fruição da alíquota zero. Perda do benefício por produto sem registro válido.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "condicionante": "Produto deve atender requisitos previstos em norma da Anvisa (§ único Art. 147)",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "147",
+      "paragrafo": "caput",
+      "incisos": ["I", "II", "III"],
+      "paragrafo_unico": "A redução de alíquotas prevista no caput deste artigo somente se aplica aos produtos de cuidados básicos à saúde menstrual que atendam aos requisitos previstos em norma da Anvisa.",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos seguintes produtos de cuidados básicos à saúde menstrual:",
+      "anexo": null,
+      "versao_texto": "original_lcp214_2025"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. José Rodrigues · Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "3101.00.00",
+    "descricao": "Adubos (fertilizantes) de origem animal ou vegetal, mesmo misturados entre si ou tratados quimicamente; adubos resultantes da mistura ou do tratamento químico de produtos de origem animal ou vegetal",
+    "setor_economico": "Agronegócio · distribuidores de insumos agrícolas · cooperativas rurais",
+    "regime": "condicional",
+    "regime_se_condicao_cumprida": "reducao_60",
+    "regime_se_condicao_nao_cumprida": "regime_geral",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "ICMS isento (Convênio ICMS 100/97) · PIS/COFINS alíquota zero (Lei 10.925/2004)",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Empresa não monitora validade do registro no MAPA. Produto com registro vencido perde redução de 60% e passa a regime geral sem que a empresa perceba. Ausência de estrutura de apuração mesmo com benefício.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "condicional"
+    },
+    "condicionante": "Redução de 60% somente se produto estiver registrado como insumo agropecuário no órgão competente do Ministério da Agricultura e Pecuária (MAPA) — Art. 138, § 1º",
+    "instrucao_engine": "Retornar tipo=condicional. Não inferir automaticamente o cumprimento da condição. Sem comprovação de registro, tratar operacionalmente como regime_geral.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo_128": {
+        "numero": "128",
+        "inciso": "IX",
+        "texto": "ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre operações com: IX - insumos agropecuários e aquícolas"
+      },
+      "artigo_138": {
+        "numero": "138",
+        "paragrafo": "caput",
+        "texto_caput": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos insumos agropecuários e aquícolas relacionados no Anexo IX desta Lei Complementar, com a especificação das respectivas classificações da NCM/SH e da NBS.",
+        "paragrafo_1": "A redução de alíquotas prevista no caput deste artigo somente se aplica aos produtos de que trata o Anexo IX desta Complementar que, quando exigido, estejam registrados como insumos agropecuários ou aquícolas no órgão competente do Ministério da Agricultura e Pecuária."
+      },
+      "anexo": "Anexo IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% — item 2 (Fertilizantes/adubos) — NCM Capítulo 31",
+      "versao_texto": "original_lcp214_2025"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. José Rodrigues · Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "2202.10.00",
+    "descricao": "Água, incluída a água mineral e a água gaseificada, adicionada de açúcar ou de outros edulcorantes ou aromatizada — bebidas açucaradas",
+    "setor_economico": "Indústria de bebidas · varejo alimentício · distribuidoras",
+    "regime": "regime_geral",
+    "imposto_seletivo": true,
+    "categoria_is": "bebidas_acucaradas",
+    "instrucao_is": "Sinalizar incidência do IS e natureza monofásica (incidência única). Não determinar sujeito passivo na cadeia no M1.",
+    "regime_anterior": "ICMS (alíquota estadual 25–38%) · PIS/COFINS",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Empresa desconhece que IS incide além do IBS/CBS. Não calcula o IS separadamente. Não identifica se é o contribuinte do IS na cadeia (fabricante vs distribuidor vs varejista).",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo_is_instituicao": {
+        "nota": "PENDENTE — verificar numeração na versão compilada vigente (Lcp214compilado.htm). Texto original: Art. 409. Dr. Rodrigues indica Arts. 393-397 na versão compilada.",
+        "artigo_original": "409",
+        "paragrafo_1_inciso_5": "bebidas açucaradas",
+        "texto_caput": "Fica instituído o Imposto Seletivo, de que trata o inciso VIII do art. 153 da Constituição Federal, incidente sobre a produção, extração, comercialização ou importação de bens e serviços prejudiciais à saúde ou ao meio ambiente."
+      },
+      "artigo_incidencia_unica": {
+        "nota": "PENDENTE — verificar numeração compilada. Texto original: Art. 410.",
+        "texto": "O Imposto Seletivo incidirá uma única vez sobre o bem ou serviço."
+      },
+      "anexo": "Anexo XVII — BENS E SERVIÇOS SUJEITOS AO IMPOSTO SELETIVO · categoria Bebidas açucaradas · NCM 2202.10.00",
+      "versao_texto": "original_lcp214_2025",
+      "alerta": "ARTIGOS DO IS PODEM ESTAR RENUMERADOS NA VERSÃO COMPILADA — NÃO LIBERAR PARA PRODUÇÃO SEM VALIDAÇÃO"
+    },
+    "status": "pending_validation",
+    "pendencia": "Verificar numeração dos artigos do IS na versão compilada (Lcp214compilado.htm) antes de usar em produção",
+    "validado_por": "Orquestrador Claude — conteúdo confirmado, artigos pendentes",
+    "data_validacao": "2026-04-05"
+  }
+]
