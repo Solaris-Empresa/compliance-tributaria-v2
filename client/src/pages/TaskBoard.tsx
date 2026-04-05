@@ -322,7 +322,7 @@ export default function TaskBoard() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-          <Badge color="#22c55e" bg="rgba(34,197,94,0.15)">517 testes</Badge>
+          <Badge color="#22c55e" bg="rgba(34,197,94,0.15)">1.470 testes</Badge>
           <Badge color="#3b82f6" bg="rgba(59,130,246,0.15)">2.454 chunks RAG</Badge>
           <Badge color="#f97316" bg="rgba(249,115,22,0.15)">UAT Round 2 pendente</Badge>
           <button
