@@ -1,0 +1,48 @@
+name: Branch Scope Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  scope-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check branch scope
+        run: |
+          BRANCH="${GITHUB_HEAD_REF}"
+          echo "Branch: $BRANCH"
+
+          if [[ "$BRANCH" == chore/docs-* ]]; then
+            VIOLATIONS=$(git diff origin/main --name-only | \
+              grep -vE "\.(md|json)$" | \
+              grep -v "\.gitkeep$" | \
+              grep -v "^\.github/" || true)
+
+            if [ -n "$VIOLATIONS" ]; then
+              echo "❌ Branch de docs contém arquivos fora do escopo:"
+              echo "$VIOLATIONS"
+              echo "Permitido em chore/docs-*: .md, .json, .gitkeep"
+              exit 1
+            fi
+            echo "✅ Escopo OK"
+          fi
+
+          if [[ "$BRANCH" == chore/setup-* ]]; then
+            VIOLATIONS=$(git diff origin/main --name-only | \
+              grep -vE "(\.gitkeep|README\.md)$" | \
+              grep -v "^\.github/" || true)
+
+            if [ -n "$VIOLATIONS" ]; then
+              echo "❌ Branch de setup contém arquivos fora do escopo:"
+              echo "$VIOLATIONS"
+              exit 1
+            fi
+            echo "✅ Escopo OK"
+          fi
+
+          echo "✅ Branch scope check concluído"
