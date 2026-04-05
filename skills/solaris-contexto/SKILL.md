@@ -1,6 +1,6 @@
 ---
 name: solaris-contexto
-version: v4.1
+version: v4.2
 description: "Contexto permanente do projeto IA SOLARIS para o Orquestrador Claude. Use ao iniciar qualquer sessão do projeto IA SOLARIS, ao planejar sprints, ao revisar PRs, ao gerar prompts para o Manus, ou ao analisar o estado do produto. Contém Gate 0 Discovery, Gate 2.5 Risk Score, Gate 4 Post-mortem, estado atual do produto, Gate de Qualidade Q1–Q7 + R9 (v5.0), regras de governança, Regra de Realidade Inesperada (RRI), Definition of Done por task, Gate Q8 e Regra de Escopo de Branch."
 ---
 
@@ -66,18 +66,22 @@ D4 critério:  [texto testável]
 
 ## Estado atual do produto
 
-> Atualizado em: 2026-04-04 · Sprint S — encerrada · HEAD 7887ca27
+> Atualizado em: 2026-04-05 · Sprint T Pré-M1 — encerrada · HEAD 33de471
 
-- **Baseline:** v3.2 (docs/governance/ESTADO-ATUAL.md)
-- **HEAD:** `7887ca27` — `chore(docs): atualizar 8 documentos RAG pós-Sprint S (#299)`
-- **Testes:** 1.436 passando
+- **Baseline:** v4.0 (docs/governance/ESTADO-ATUAL.md)
+- **HEAD:** `33de471` — `chore(datasets): GATE-EXT-01 — NBS 2.0 CSV + README datasets (#309)`
+- **Testes:** 1.446 passando (5 skipped · 0 falhas)
+- **TypeScript:** 0 erros
+- **CI Workflows:** 12 ativos (branch-scope + file-declaration + autoaudit + 9)
+- **CODEOWNERS:** 15 entradas — `@utapajos` em arquivos críticos
 - **Corpus RAG:** 2.454 chunks · 10 leis · 100% anchor_id
 - **DIAGNOSTIC_READ_MODE:** `shadow` (NUNCA alterar sem aprovação do P.O.)
 - **PRs abertos:** 0
-- **PRs mergeados total:** 300
-- **Gates ativos:** 7 (Gate 0 Discovery + 1 + 1.5 + 2 + 2.5 + 3 + 4 + Q8)
-- **TS2339:** 1 erro pré-existente em `iagen-gap-analyzer.ts:207` — corrigir no início da Sprint T
-- **Skills:** HOLD até Milestone 1 aprovado
+- **PRs mergeados total:** 309
+- **Contratos M1:** CNT-01a/01b/02/03 em `docs/contracts/`
+- **Datasets:** `nbs-2-0-utf8.csv` (1.237 reg.) no repo · `lc214-2025.pdf` no sandbox
+- **GATE-EXT-01:** ⏳ Fase 2 — aguardando Dr. Rodrigues validar 3 NCM + 3 NBS
+- **Bloco C:** ⛔ BLOQUEADO — aguarda GATE-EXT-01 Fase 2
 
 ### Sprints concluídas
 
@@ -89,7 +93,9 @@ D4 critério:  [texto testável]
 | Hotfixes BUG-A/B | ✅ MERGEADOS | #240 | vigencia_inicio NULL-safe, DISTINCT TiDB |
 | Gate Q1–Q5 | ✅ MERGEADO | #241 | SKILL.md v2.9 — gate obrigatório em todo PR |
 | Sprint M (G14, G16, G17 prep) | ✅ CONCLUÍDA | #242–#258 | G14 action-engine, G16 scoring, G17 Fase 1 |
-| Sprint N — G17 P0 | ✅ CONCLUÍDA | #259–#263 | G17 DONE: analyzeSolarisAnswers + enums + server/lib |
+| Sprint N — G17 P0 | ✅ CONCÍUÍDA | #259–#263 | G17 DONE: analyzeSolarisAnswers + enums + server/lib |
+| Sprint S | ✅ ENCERRADA | #292–#299 | Lotes A+B+C+D+E + Fix #295 — pipeline 3 Ondas + corpus 10 leis |
+| Sprint T Pré-M1 | ✅ ENCERRADA | #302–#309 | GOV-02/03 + Contratos M1 + Datasets GATE-EXT-01 |
 
 ### Engines e routers
 
