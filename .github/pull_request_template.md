@@ -1,6 +1,15 @@
 ## Objetivo
 [Descrever claramente o que esta PR resolve]
 
+## Arquivos que serão tocados
+<!-- Liste TODOS os arquivos que esta PR vai modificar -->
+<!-- O CI verifica se arquivos não declarados foram tocados -->
+
+- `caminho/do/arquivo.ts`
+
+<!-- Se tocar arquivo protegido por CODEOWNERS: justificar abaixo -->
+**Justificativa para arquivo crítico (se aplicável):**
+
 ## Escopo da alteração
 
 **Tipo:**
