@@ -1,0 +1,34 @@
+name: File Declaration Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  file-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check file declaration in PR body
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          # Só verifica branches de feature e fix
+          if [[ "$BRANCH" != feat/* ]] && [[ "$BRANCH" != fix/* ]]; then
+            echo "✅ Branch não requer file declaration (não é feat/* ou fix/*)"
+            exit 0
+          fi
+
+          # Verificar se seção de escopo está presente
+          if echo "$PR_BODY" | grep -q "Arquivos que serão tocados\|Escopo declarado"; then
+            echo "✅ Seção de arquivos declarados presente no PR body"
+          else
+            echo "⚠️  AVISO: PR de feat/fix sem seção 'Arquivos que serão tocados'"
+            echo "Adicione a lista de arquivos que serão tocados no PR body"
+            echo "Template: .github/pull_request_template.md"
+            # warning — não bloqueia, apenas alerta
+          fi
