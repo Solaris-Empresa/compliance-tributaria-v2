@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 3.2 — 2026-04-04 (pós-Sprint S — PRs #291–#295)
-> **Commit HEAD:** `d08c12a` (fix iagen-gap-logic — PR #295)
-> **Checkpoint Manus:** `a415c463`
+> **Versão:** 3.3 — 2026-04-05 (Milestone 1 — Decision Kernel — PRs #302–#316)
+> **Commit HEAD:** `d562127` (baseline v4.1 — PR #316)
+> **Checkpoint Manus:** `120b4f11`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -24,23 +24,27 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 
 | Indicador | Valor atual | Status |
 |---|---|---|
-| TypeScript | 1 erro pré-existente (`iagen-gap-analyzer.ts:207`) | ⚠️ Sprint T |
-| Testes automatizados — total | **1.436 passando · 0 falhas** (71 files) | ✅ |
-| Git working tree | Limpo — `main` = `d08c12a`, sincronizado com GitHub externo | ✅ |
+| TypeScript | **0 erros** | ✅ |
+| Testes automatizados — total | **1.470 passando · 0 falhas** (72 files) | ✅ |
+| Git working tree | Limpo — `main` = `d562127`, sincronizado com GitHub externo | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
 | Sprint S | Lotes A+B+C+D+E + Fix #295 — ENCERRADA 2026-04-04 | ✅ |
+| **Sprint T / Milestone 1** | **Decision Kernel: ncm-engine + nbs-engine + engine-gap-analyzer. 5/6 casos validados. Gate triplo aprovado. PRs #302–#316 — ENCERRADO 2026-04-05** | **✅** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **62** | ✅ |
-| ADRs formais | **10** (ADR-001 a ADR-010; ADR-004 rejeitado) | ✅ |
+| ADRs formais | **11** (ADR-001 a ADR-010; ADR-004 rejeitado; DEC-013/014 Bloco C/D) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
 | Corpus RAG | **2.454 chunks — 10 leis — 100% com anchor_id** | ✅ |
 | Perguntas SOLARIS ativas | **24 (SOL-013..036)** | ✅ |
 | RAG Cockpit | Endpoint `ragInventory.getSnapshot` ao vivo · 9 gold set queries | ✅ |
-| Agent Skills | Manus `/solaris-orquestracao` v3.1 ✅ · Claude `solaris-contexto` v4.0 ✅ | ✅ |
+| Agent Skills | Manus `/solaris-orquestracao` v3.1 ✅ · Claude `solaris-contexto` v4.2 ✅ | ✅ |
+| Decision Kernel | `ncm-engine.ts` + `nbs-engine.ts` + `engine-gap-analyzer.ts` — source='engine' ativo | ✅ |
+| CI Workflows | **12 ativos** (branch-scope, file-declaration, autoaudit + 9 pré-existentes) | ✅ |
+| CODEOWNERS | 15 entradas (`@utapajos` em arquivos críticos) | ✅ |
 | db:push guard | Bloqueado em production — `scripts/db-push-guard.mjs` | ✅ |
 | Pipeline E2E | T1 ✅ T2 ✅ validados em produção | ✅ |
 
@@ -55,6 +59,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Projetos aprovados | **7** |
 | Chunks RAG no banco | **2.454** — 100% com anchor_id canônico (DEC-002) |
 | Perguntas SOLARIS ativas | **24** — SOL-013..SOL-036 com `codigo` populado |
+| Gaps engine (source='engine') | Ativo em `project_gaps_v3` — 5/6 casos NCM/NBS confirmados |
 | Respostas Onda 1 (`solaris_answers`) | Tabela ativa — T1 validado (projeto 2490006) |
 | Respostas Onda 2 (`iagen_answers`) | Tabela ativa — T1 validado: `source='iagen' | gaps=3` |
 | Projetos legados removidos | **1.705** (hard delete cascade Sprint S Lote C) |
@@ -222,7 +227,7 @@ O contrato `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174, mergea
 
 ### PRs Abertos
 
-Nenhum PR aberto no momento. Sprint S encerrada em 2026-04-04.
+Nenhum PR aberto no momento. Sprint T / Milestone 1 encerrado em 2026-04-05.
 
 ---
 
@@ -276,6 +281,12 @@ Os erros abaixo estão catalogados em [`docs/ERROS-CONHECIDOS.md`](https://githu
 | **Sprint K — K-4-B** | `QuestionarioSolaris.tsx` + `DiagnosticoStepper` 8 etapas + `completeOnda1` | ✅ Concluída | PR #179 mergeado |
 | **Sprint K+ — Cockpit v2.0** | C1+C2+C3+C4+C5+I1+I2+I3+I4 acionável | ✅ Concluída | PR #197 mergeado |
 | **Sprint K++ — Cockpit dinâmico** | Fetch API GitHub + Seção 4 (4A–4F) + 10 docs atualizados | ✅ Concluída | PRs #199–#202 mergeados |
+| **Sprint T Pre-M1 — GOV** | Skill v4.1 · CODEOWNERS 15 entradas · branch-scope + file-declaration + autoaudit CI | ✅ Concluída | PRs #304–#307 mergeados |
+| **Sprint T — Bloco B** | CNT-01a/01b/02/03 — contratos canônicos Milestone 1 | ✅ Concluída | PR #308 mergeado |
+| **Sprint T — Bloco C** | `ncm-engine.ts` + `nbs-engine.ts` + datasets M1 (5/6 confirmados) | ✅ Concluída | PR #311 mergeado |
+| **Sprint T — Bloco D** | `engine-gap-analyzer.ts` + integração Onda 3 (source='engine') | ✅ Concluída | PR #312 mergeado |
+| **Sprint T — DK-Q1/Q2** | Gate estrutural + gold set 5/5 PASS | ✅ Concluída | PRs #313–#314 mergeados |
+| **Milestone 1 — Gate Triplo** | Evidence Pack + gate triplo aprovado (Técnico + Dr. Rodrigues + P.O.) | ✅ Concluído | PRs #315–#316 mergeados |
 
 ---
 
@@ -302,10 +313,12 @@ Os seguintes bloqueios estão em vigor por decisão formal e **não devem ser re
 
 Todas as 4 sub-sprints K-4-A, K-4-B, K-4-C e K-4-D foram concluídas e aprovadas pelo P.O. O fluxo das 8 etapas do `DiagnosticoStepper` está 100% funcional em produção.
 
-### P1 — Próximas sprints
+### P1 — Próximas sprints (Sprint U)
 
-1. **K-4-E: `project_status_log`** — tabela de auditoria jurídica de transições de status, conforme contrato FLUXO-3-ONDAS v1.1
-2. **Sprint L: Upload CSV SOLARIS** — Issues #157, #158, #170 — carregamento em lote de respostas da Onda 1 pela equipe jurídica
+1. **Patch 2202.10.00 (IS)** — PR separado com label `governance` após Dr. Rodrigues confirmar artigos IS na versão compilada
+2. **Bloco E** — `principaisProdutos/principaisServicos` no schema de projetos + migration controlada + aprovação P.O.
+3. **GOV-03b** — invariant check CI
+4. **Dívida técnica** — `riskEngine.ts` duplicado
 
 ### P2 — Pós-aprovação UAT
 
@@ -387,6 +400,7 @@ DROP TABLE IF EXISTS iagen_answers;
 | 3.0 | 2026-04-02 | `8fa615a` | Sprint S Lotes A+B+E: iagen-gap-analyzer.ts criado, persistCpie backend, briefingEngine usa actionPlans (401 reg.). PR #292. |
 | 3.1 | 2026-04-02 | `d08c12a` | Sprint S Lote D: corpus RAG 5 novas leis (2.454 chunks, 10 leis). Skill solaris-contexto v4.0. PRs #293+#296. |
 | 3.2 | 2026-04-04 | `d08c12a` | Sprint S encerrada: fix isNonCompliantAnswer (PR #295) — iagen-gap-analyzer usa conteúdo da resposta (não confidence_score). T1 validado: projeto 2490006 → iagen=3. 1.436 testes, 0 falhas. 24 perguntas SOLARIS ativas. |
+| **3.3** | **2026-04-05** | **`d562127`** | **Milestone 1 Decision Kernel: Sprint T Pre-M1 encerrada (PRs #302–#316). GOV: Skill v4.2 · CODEOWNERS 15 entradas · 12 CI workflows. Contratos CNT-01a/01b/02/03. ncm-engine + nbs-engine + engine-gap-analyzer. 5/6 casos NCM/NBS validados (Dr. Rodrigues). Gate triplo aprovado (Técnico + Jurídico + P.O.). 1.470 testes, 0 falhas, 0 TS erros. Baseline v3.3 oficial.** |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
