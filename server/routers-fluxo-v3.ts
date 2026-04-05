@@ -83,6 +83,17 @@ export const fluxoV3Router = router({
         clientType: z.array(z.string()).min(1, "Selecione pelo menos 1 tipo de cliente"),
         multiState: z.boolean(),
         geographicScope: z.string().optional(),
+        // Bloco E (CNT-01c): NCM/NBS persistidos no operationProfile — sem colunas soltas
+        principaisProdutos: z.array(z.object({
+          ncm_code: z.string(),
+          descricao: z.string(),
+          percentualFaturamento: z.number().optional(),
+        })).optional().default([]),
+        principaisServicos: z.array(z.object({
+          nbs_code: z.string(),
+          descricao: z.string(),
+          percentualFaturamento: z.number().optional(),
+        })).optional().default([]),
       }),
       taxComplexity: z.object({
         hasInternationalOps: z.boolean().optional(),
@@ -2447,10 +2458,18 @@ Regras obrigatórias:
       void analyzeIagenAnswers(input.projectId).catch((err) => {
         console.error('[IAGEN-GAP] analyzeIagenAnswers falhou — pipeline não afetado:', err);
       });
-      // Lote B (Bloco D): fire-and-forget — Decision Kernel engine (source='engine')
-      // Opção A: NCM/NBS recebidos como parâmetro (Bloco E adicionará ao schema de projetos)
-      if (input.ncmCodes.length > 0 || input.nbsCodes.length > 0) {
-        void analyzeEngineGaps(input.projectId, input.ncmCodes, input.nbsCodes).catch((err) => {
+      // Lote B (Bloco E / CNT-01c): fire-and-forget — Decision Kernel engine (source='engine')
+      // Bloco E: NCM/NBS lidos do operationProfile persistido (principaisProdutos/principaisServicos)
+      // Fallback: ncmCodes/nbsCodes como parâmetro (compatibilidade com clientes legados)
+      const opProfile = project.operationProfile as {
+        principaisProdutos?: Array<{ ncm_code: string; descricao: string }>;
+        principaisServicos?: Array<{ nbs_code: string; descricao: string }>;
+      } | null;
+      const ncmFromProfile = extractNcmNbsFromProfile(opProfile);
+      const finalNcmCodes = ncmFromProfile.ncmCodes.length > 0 ? ncmFromProfile.ncmCodes : input.ncmCodes;
+      const finalNbsCodes = ncmFromProfile.nbsCodes.length > 0 ? ncmFromProfile.nbsCodes : input.nbsCodes;
+      if (finalNcmCodes.length > 0 || finalNbsCodes.length > 0) {
+        void analyzeEngineGaps(input.projectId, finalNcmCodes, finalNbsCodes).catch((err) => {
           console.error('[ENGINE-GAP] analyzeEngineGaps falhou — pipeline não afetado:', err);
         });
       }
@@ -2465,7 +2484,27 @@ Regras obrigatórias:
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPER: Converter BriefingStructured → Markdown (compatibilidade com UI)
-// ─────────────────────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────────────────────────
+
+// ────────────────────────────────────────────────────────────────────────────────
+// HELPER: Bloco E (CNT-01c) — Extrair NCM/NBS do operationProfile
+// ────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Extrai códigos NCM e NBS do operationProfile persistido no banco.
+ * Usado em completeOnda2 para alimentar o Decision Kernel engine.
+ * Projetos legados (sem principaisProdutos/principaisServicos) retornam arrays vazios.
+ */
+export function extractNcmNbsFromProfile(operationProfile: unknown): { ncmCodes: string[]; nbsCodes: string[] } {
+  const profile = operationProfile as {
+    principaisProdutos?: Array<{ ncm_code: string; descricao: string }>;
+    principaisServicos?: Array<{ nbs_code: string; descricao: string }>;
+  } | null;
+  return {
+    ncmCodes: profile?.principaisProdutos?.map((p) => p.ncm_code) ?? [],
+    nbsCodes: profile?.principaisServicos?.map((s) => s.nbs_code) ?? [],
+  };
+}
 
 function buildBriefingMarkdown(structured: any): string {
   const nivelLabel: Record<string, string> = {
