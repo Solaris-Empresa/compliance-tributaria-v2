@@ -25,3 +25,11 @@
 
 # Este próprio arquivo
 /.github/CODEOWNERS @utapajos
+
+# Engines de saída — adicionados GOV-03a 2026-04-04
+/server/routers/briefingEngine.ts          @utapajos
+/server/routers/riskEngine.ts              @utapajos
+/server/riskEngine.ts                      @utapajos
+/server/routers/scoringEngine.ts           @utapajos
+/skills/solaris-contexto/SKILL.md          @utapajos
+/skills/solaris-orquestracao/SKILL.md      @utapajos
