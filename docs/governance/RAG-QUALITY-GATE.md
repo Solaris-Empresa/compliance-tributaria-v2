@@ -323,5 +323,16 @@ Se muitos chunks nunca aparecem em busca controlada, ou estão mal chunkados, ou
 
 ---
 
-*Documento criado em 2026-03-30. Atualizado em 2026-04-04 (Sprint S — 10 leis, 2.454 chunks). Mantido pelo Orquestrador (Claude) e implementado pelo Manus.*  
+*Documento criado em 2026-03-30. Atualizado em 2026-04-05 (Milestone 1 — Decision Kernel). Mantido pelo Orquestrador (Claude) e implementado pelo Manus.*  
 *Aprovação de mudanças neste documento: P.O. Uires Tapajós.*
+
+---
+
+## 9. Estado atual (2026-04-05) — Baseline v3.3
+
+- HEAD: `dad90ec`
+- Testes: 1.470 · 0 falhas · 0 erros TS
+- CI: 12 workflows · CODEOWNERS: 15 entradas
+- Milestone 1 Decision Kernel: CONCLUÍDO ✅ (PRs #302–#315)
+- Decision Kernel: `source='engine'` ativo em `project_gaps_v3`
+- Datasets NCM/NBS: 5/6 casos confirmados (Dr. Rodrigues, 2026-04-05)

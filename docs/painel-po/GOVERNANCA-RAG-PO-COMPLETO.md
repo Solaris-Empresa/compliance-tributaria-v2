@@ -290,7 +290,8 @@ Inclui:
 | H | #156–#190 | GPT-4.1 re-ranking, performance, Sprint H |
 | I–J | #191–#213 | Integração 3 Ondas, Onda 3 RAG, Sprint I–J |
 | K | #214–#227 | Governança rastreabilidade, cockpit, labels, Sprint K |
-| S (atual) | #292–#298 | Pipeline 3 Ondas, fix iagen (`isNonCompliantAnswer`), 5 novas leis (2.454 chunks, 10 leis) |
+| S | #292–#298 | Pipeline 3 Ondas, fix iagen (`isNonCompliantAnswer`), 5 novas leis (2.454 chunks, 10 leis) |
+| T (M1) | #302–#315 | Decision Kernel: ncm-engine + nbs-engine + engine-gap-analyzer + datasets NCM/NBS + governança (CODEOWNERS, 3 CI gates) |
 
 ---
 
@@ -342,4 +343,19 @@ Inclui:
 
 ---
 
-*Documento gerado em 2026-03-30. Atualizado em 2026-04-04 (Sprint S — 10 leis, 2.454 chunks, fix iagen). Próxima revisão: Sprint T (NCM + engine Onda 3).*
+---
+
+## 12. Milestone 1 — Decision Kernel (2026-04-05)
+
+| Data | Decisão | Impacto |
+|---|---|---|
+| 2026-04-05 | Skill v4.1: RRI + DoD + Q8 + Regra de Escopo de Branch | Governança permanente em toda sessão futura |
+| 2026-04-05 | CODEOWNERS: 15 entradas (`@utapajos`) | Arquivos críticos protegidos por aprovador |
+| 2026-04-05 | 3 novos CI gates: `branch-scope` + `file-declaration` + `autoaudit` | Escopo de branch e Q8 obrigatórios |
+| 2026-04-05 | Decision Kernel: `source='engine'` ativo em `project_gaps_v3` | Classificação determinística NCM/NBS |
+| 2026-04-05 | Datasets NCM/NBS: 5/6 casos confirmados (Dr. Rodrigues) | Rastreabilidade atômica com artigo + parágrafo |
+| 2026-04-05 | Gate triplo: Técnico + Dr. Rodrigues + P.O. | Milestone 1 aprovado formalmente |
+
+---
+
+*Documento gerado em 2026-03-30. Atualizado em 2026-04-05 (Milestone 1 — Decision Kernel). Aprovado pelo P.O. Uires Tapajós.*

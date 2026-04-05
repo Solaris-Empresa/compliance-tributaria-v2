@@ -77,5 +77,15 @@ Próxima abertura reflete o merge
 Botão ⟳ para reload forçado]:::action
 
     %% ─── NOTA DE VERSÃO ──────────────────────────────────────────────────────────
+    %% v1.2 · 2026-04-05 (Milestone 1 — Decision Kernel, source=engine)
     %% v1.1 · 2026-04-04 (Sprint S — 2.454 chunks, 10 leis, fix iagen PR #295)
     %% v1.0 · 2026-03-30 (Sprint K — governança RAG, labels, cockpit)
+
+    %% Decision Kernel — adicionado Milestone 1 (2026-04-05)
+    subgraph DK["Decision Kernel (source=engine)"]
+      NCM["ncm-engine.ts / lookupNcm()"] --> GapEngine
+      NBS["nbs-engine.ts / lookupNbs()"] --> GapEngine
+      GapEngine["engine-gap-analyzer.ts (fire-and-forget)"] --> PGV3E["project_gaps_v3 source='engine'"]
+    end
+    NCMData["ncm-dataset.json · LC 214/2025"] --> NCM
+    NBSData["nbs-dataset.json · NBS 2.0 MDIC"] --> NBS
