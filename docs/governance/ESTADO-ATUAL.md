@@ -1,25 +1,25 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v4.2 · 2026-04-05 (Sprint U ENCERRADA — PRs #302–#323 mergeados)** · Responsável: Orquestrador gera, Manus commita
+> **v4.3 · 2026-04-05 (Sprint V em andamento — PRs #302–#326 mergeados)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v3.3 · **HEAD:** `74c3a9c` (origin/main) · **Testes:** 1.470 passando  
+**Baseline:** v3.3 · **HEAD:** `8f3ba4b` (origin/main) · **Testes:** 1.476 passando  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
-**Corpus RAG:** 2.454 chunks · 10 leis · 100% confiabilidade · 8/8 gold set  
+**Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
 **Sprint U:** ENCERRADA ✅ (PRs #318–#323 · 4 tasks · 6/6 casos POC M1 confirmados)  
 **Pipeline 3 Ondas:** Onda 1 ✅ · Onda 2 ✅ · Onda 3 ✅ integrada (`source='engine'`, 6/6 casos)  
-**Sprint V:** ⏳ Aguardando prompt do Orquestrador (3 frentes: Dataset, Frontend Bloco E, M2 prep)
+**Sprint V:** ⏳ Em andamento (PV-02 ✅ #325 · PV-03 ✅ #326 · PV-01 aguarda Dr. Rodrigues)
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `74c3a9c`
+- **Branch base:** main · **HEAD:** `8f3ba4b`
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git restore --staged`
@@ -41,16 +41,16 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (origin/main) | `74c3a9c` | ✅ |
+| HEAD (origin/main) | `8f3ba4b` | ✅ |
 | Baseline | **v3.3** | ✅ |
 | Testes passando | **1.470** (0 falhas) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | CI Workflows | **12 ativos** + invariant-check (GOV-03b) | ✅ |
 | CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
-| PRs mergeados (total) | **323** | ✅ |
+| PRs mergeados (total) | **326** | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
-| Corpus RAG | **2.454 chunks — 10 leis** | ✅ |
+| Corpus RAG | **2.509 chunks — 10 leis** | ✅ |
 | RAG Gold Set | **8/8 verde — 100% confiabilidade** | ✅ |
 | GS-08 (autor NULL) | **0 chunks** (RFC-004 executada) | ✅ |
 | CORPUS_VERSION | **v3.3** (env definida) | ✅ |
@@ -85,10 +85,10 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | lc123 (Simples) | 25 | ✅ |
 | ec132 | 18 | ✅ |
 | rfb_cbs (Ato Conjunto RFB/CGIBS nº 1/2025) | 7 | ✅ |
-| lc87 (Lei Kandir — texto original 1996) | 5 | ✅ |
-| **Total** | **2.454** | ✅ |
+| lc87 (Lei Kandir — compilada 1996+emendas) | 60 | ✅ |
+| **Total** | **2.509** | ✅ |
 
-> **Nota LC 87:** PDF recebido é o texto original de 1996 (2 páginas, 5 chunks). Solicitar versão compilada com emendas ao Dr. Rodrigues para enriquecer cobertura ICMS. **Sprint V: pendente.**
+> **LC 87 (Sprint V PV-03):** Ingestão completa executada via PR #326. 55 novos chunks inseridos (5 legados + 55 novos = 60 total). Cobertura: Arts. 1–36, ementa, vigência, compensações financeiras. Anexo Kandir (tabelas históricas de 1996) excluído por gerar ruído no RAG.
 
 > **RFC-004 executada (Sprint U):** 376 chunks com `autor NULL` corrigidos para `legado-pre-sprint-g/{lei}`. GS-08 passou de WARN para verde. Confiabilidade: 87.5% → 100%.
 
@@ -187,7 +187,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | AUDIT-C-003 | cpie_score_history sempre vazio | ✅ Resolvido (Lote B, PR #292) |
 | AUDIT-C-004 | briefingEngine lia project_actions_v3 (9 reg.) | ✅ Resolvido (Lote E, PR #292) |
 | AUDIT-C-005 | Corpus RAG com 5 leis faltando | ✅ Resolvido (Lote D, PR #296) |
-| AUDIT-M-004 | LC 87 com apenas 5 chunks (texto original) | ⚠️ Aberto — Sprint V: solicitar versão compilada |
+| AUDIT-M-004 | LC 87 com apenas 5 chunks (texto original) | ✅ Resolvido (PV-03, PR #326 — 55 novos chunks, total 60) |
 | AUDIT-M-007 | iagen-gap-analyzer: confidence_score como proxy de gap | ✅ Resolvido (PR #295 — isNonCompliantAnswer) |
 | GS-08 | 376 chunks sem `autor` (herança pré-Sprint G) | ✅ Resolvido (RFC-004, PR #319) |
 
@@ -198,8 +198,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | ID | Prioridade | Ação | Responsável | Bloqueio |
 |---|---|---|---|---|
 | PV-01 | P0 | Dataset 30–50 casos NCM/NBS | Manus + Dr. Rodrigues | Curadoria jurídica |
-| PV-02 | P1 | Frontend Bloco E — campos NCM/NBS no formulário de projeto | Manus | GO do P.O. |
-| PV-03 | P1 | LC 87 compilada completa (~80 chunks) | P.O. → Dr. Rodrigues | Nenhum |
+| PV-02 | P1 | Frontend Bloco E — campos NCM/NBS no formulário de projeto | Manus | **✅ CONCLUÍDA** (#325) |
+| PV-03 | P1 | LC 87 compilada completa (55 novos chunks) | Manus | **✅ CONCLUÍDA** (#326) |
 | PV-04 | P2 | M2 prep — GOV-03b já feito, aguarda validação Claude Code | Orquestrador | Sprint W |
 
 ---
@@ -227,7 +227,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DEC-017 | RFC-004: autor NULL corrigido para `legado-pre-sprint-g/{lei}` — não é regressão | 2026-04-05 |
 | DEC-018 | Checkpoint Manus ≠ versão de produto — estado canônico é sempre origin/main GitHub | 2026-04-05 |
 | DEC-019 | Bloco E: NCM/NBS persistidos em operationProfile (campo JSON existente) — sem migration | 2026-04-05 |
-| DEC-020 | 2202.10.00 IS: Art. 393 compilado = Art. 409 original — confirmado via fontes especializadas | 2026-04-05 |
+| DEC-020 | 2202.10.00 IS: **Art. 409 original (DOU 16/01/2025) = Art. 393 compilado (Planalto)** — dataset mantém ambas as numerações com nota de equivalência | 2026-04-05 |
+| DEC-021 | PV-02: campos NCM/NBS opcionais no formulário de projeto — compatibilidade legada garantida (arrays vazios) | 2026-04-05 |
+| DEC-022 | PV-03: LC 87 compilada ingerida com 55 novos chunks — Anexo Kandir excluído (ruído histórico) | 2026-04-05 |
 
 ---
 
@@ -269,5 +271,5 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-05 (Sprint U ENCERRADA — PRs #302–#323 mergeados · baseline v3.3 · HEAD 74c3a9c)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-05 (Sprint V em andamento — PRs #302–#326 mergeados · baseline v3.3 · HEAD 8f3ba4b)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
