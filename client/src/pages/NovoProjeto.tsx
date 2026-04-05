@@ -479,6 +479,13 @@ export default function NovoProjeto() {
       operationType: perfilData.operationType,
       clientType: perfilData.clientType,
       multiState: perfilData.multiState,
+      // Bloco E (CNT-01c): NCM/NBS para o Decision Kernel
+      ...(perfilData.principaisProdutos.filter(p => p.ncm_code.trim()).length > 0 && {
+        principaisProdutos: perfilData.principaisProdutos.filter(p => p.ncm_code.trim()),
+      }),
+      ...(perfilData.principaisServicos.filter(s => s.nbs_code.trim()).length > 0 && {
+        principaisServicos: perfilData.principaisServicos.filter(s => s.nbs_code.trim()),
+      }),
     };
     const taxComplexity = (perfilData.hasMultipleEstablishments !== null || perfilData.hasImportExport !== null || perfilData.hasSpecialRegimes !== null) ? {
       hasMultipleEstablishments: perfilData.hasMultipleEstablishments ?? undefined,

@@ -13,7 +13,8 @@ import { useState, useEffect, useCallback } from "react";
 import {
   CheckCircle2, Lock, AlertCircle, Sparkles, Building2, TrendingUp,
   Globe, CreditCard, Shield, ChevronRight, Info, Loader2, Brain,
-  Lightbulb, AlertTriangle, ArrowRight, RefreshCw, MessageSquare, Network
+  Lightbulb, AlertTriangle, ArrowRight, RefreshCw, MessageSquare, Network,
+  Package, Tag, Plus, X
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,9 @@ export interface PerfilEmpresaData {
   // QC-02: Estrutura Societária (ISSUE-001 — Prefill Contract Fase 1 Final)
   isEconomicGroup: boolean | null;
   taxCentralization: string | null;
+  // Bloco E (CNT-01c): NCM/NBS para o Decision Kernel
+  principaisProdutos: Array<{ ncm_code: string; descricao: string }>;
+  principaisServicos: Array<{ nbs_code: string; descricao: string }>;
 }
 
 export const PERFIL_VAZIO: PerfilEmpresaData = {
@@ -68,6 +72,9 @@ export const PERFIL_VAZIO: PerfilEmpresaData = {
   hasTaxIssues: null,
   isEconomicGroup: null,
   taxCentralization: null,
+  // Bloco E (CNT-01c)
+  principaisProdutos: [],
+  principaisServicos: [],
 };
 
 // Tipos do CPIE (espelham server/cpie.ts)
@@ -181,6 +188,7 @@ export function calcProfileScore(p: PerfilEmpresaData): { completeness: number; 
     [p.hasTaxIssues !== null, "Passivo tributário"],
     [p.isEconomicGroup !== null, "Grupo econômico"],
     [p.taxCentralization !== null, "Centralização fiscal"],
+    [p.principaisProdutos.length > 0 || p.principaisServicos.length > 0, "Produtos/Serviços (NCM/NBS)"],
   ];
   const reqDone = required.filter(([ok]) => ok).length;
   const optDone = optional.filter(([ok]) => ok).length;
@@ -1056,6 +1064,124 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
             ))}
           </div>
         </div>
+
+        {/* Bloco E (CNT-01c): Principais Produtos NCM */}
+        {(value.operationType === "industria" || value.operationType === "comercio" || value.operationType === "misto" || value.operationType === "agronegocio") && (
+          <div className="space-y-2">
+            <Label className="text-sm flex items-center gap-1.5">
+              <Package className="h-3.5 w-3.5 text-primary" />
+              Principais Produtos (NCM)
+              <Badge variant="outline" className="text-xs ml-1">Opcional — ativa Decision Kernel</Badge>
+            </Label>
+            <p className="text-xs text-muted-foreground">Informe os códigos NCM dos principais produtos comercializados/fabricados. O Decision Kernel usará esses dados para calcular o impacto do Imposto Seletivo e regimes diferenciados.</p>
+            <div className="space-y-2">
+              {value.principaisProdutos.map((item, idx) => (
+                <div key={idx} className="flex gap-2 items-start">
+                  <Input
+                    className="w-36 font-mono text-sm"
+                    placeholder="Ex: 2202.10.00"
+                    value={item.ncm_code}
+                    maxLength={14}
+                    onChange={(e) => {
+                      const updated = [...value.principaisProdutos];
+                      updated[idx] = { ...updated[idx], ncm_code: e.target.value.replace(/[^0-9.]/g, "") };
+                      set("principaisProdutos", updated);
+                    }}
+                  />
+                  <Input
+                    className="flex-1 text-sm"
+                    placeholder="Descrição do produto"
+                    value={item.descricao}
+                    onChange={(e) => {
+                      const updated = [...value.principaisProdutos];
+                      updated[idx] = { ...updated[idx], descricao: e.target.value };
+                      set("principaisProdutos", updated);
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => set("principaisProdutos", value.principaisProdutos.filter((_, i) => i !== idx))}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              {value.principaisProdutos.length < 5 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-xs gap-1.5"
+                  onClick={() => set("principaisProdutos", [...value.principaisProdutos, { ncm_code: "", descricao: "" }])}
+                >
+                  <Plus className="h-3.5 w-3.5" /> Adicionar produto (NCM)
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Bloco E (CNT-01c): Principais Serviços NBS */}
+        {(value.operationType === "servicos" || value.operationType === "misto" || value.operationType === "financeiro") && (
+          <div className="space-y-2">
+            <Label className="text-sm flex items-center gap-1.5">
+              <Tag className="h-3.5 w-3.5 text-primary" />
+              Principais Serviços (NBS)
+              <Badge variant="outline" className="text-xs ml-1">Opcional — ativa Decision Kernel</Badge>
+            </Label>
+            <p className="text-xs text-muted-foreground">Informe os códigos NBS dos principais serviços prestados. O Decision Kernel usará esses dados para identificar regimes diferenciados (saúde, educação, construção, financeiro).</p>
+            <div className="space-y-2">
+              {value.principaisServicos.map((item, idx) => (
+                <div key={idx} className="flex gap-2 items-start">
+                  <Input
+                    className="w-36 font-mono text-sm"
+                    placeholder="Ex: 1.0901.00.00"
+                    value={item.nbs_code}
+                    maxLength={16}
+                    onChange={(e) => {
+                      const updated = [...value.principaisServicos];
+                      updated[idx] = { ...updated[idx], nbs_code: e.target.value.replace(/[^0-9.]/g, "") };
+                      set("principaisServicos", updated);
+                    }}
+                  />
+                  <Input
+                    className="flex-1 text-sm"
+                    placeholder="Descrição do serviço"
+                    value={item.descricao}
+                    onChange={(e) => {
+                      const updated = [...value.principaisServicos];
+                      updated[idx] = { ...updated[idx], descricao: e.target.value };
+                      set("principaisServicos", updated);
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => set("principaisServicos", value.principaisServicos.filter((_, i) => i !== idx))}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              {value.principaisServicos.length < 5 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-xs gap-1.5"
+                  onClick={() => set("principaisServicos", [...value.principaisServicos, { nbs_code: "", descricao: "" }])}
+                >
+                  <Plus className="h-3.5 w-3.5" /> Adicionar serviço (NBS)
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Multi-estado */}
         <div className="space-y-2">
