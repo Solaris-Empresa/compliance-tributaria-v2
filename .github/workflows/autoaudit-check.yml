@@ -1,0 +1,34 @@
+name: Auto-audit Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  autoaudit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check auto-audit section in PR body
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          # Só verifica branches de feature e fix
+          if [[ "$BRANCH" != feat/* ]] && [[ "$BRANCH" != fix/* ]]; then
+            echo "✅ Branch não requer auto-auditoria (não é feat/* ou fix/*)"
+            exit 0
+          fi
+
+          # Verificar seção de auto-auditoria Q1–Q8
+          if echo "$PR_BODY" | grep -qE "Q1|Auto-auditoria|auto.audit"; then
+            echo "✅ Seção de auto-auditoria presente"
+          else
+            echo "❌ PR de feat/fix sem auto-auditoria Q1–Q8"
+            echo "Preencha a seção 'Auto-auditoria Q1–Q8' no body do PR"
+            echo "Formato:"
+            echo "  Q1 — Tipos nulos:         [ OK | BLOQUEADO | N/A ]"
+            echo "  Q2 — SQL DISTINCT TiDB:   [ OK | BLOQUEADO | N/A ]"
+            echo "  Q8 — Premissas:           [ OK | ACHADO ]"
+            echo "  Resultado: [ APTO PARA COMMIT | BLOQUEADO ]"
+            exit 1
+          fi
