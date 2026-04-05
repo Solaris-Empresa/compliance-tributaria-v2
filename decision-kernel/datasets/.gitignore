@@ -1,0 +1,4 @@
+# Binários grandes — mantidos apenas no sandbox
+*.pdf
+*.xlsx
+lc214-source/
