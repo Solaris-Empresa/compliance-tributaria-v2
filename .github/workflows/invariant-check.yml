@@ -1,0 +1,110 @@
+name: Invariant Check (GOV-03b)
+
+# GOV-03b — Sprint U — 2026-04-05
+# Protege invariantes críticos do projeto contra modificações acidentais.
+# Comportamento: WARNING no PR body (não bloqueia merge).
+# O P.O. vê o alerta e decide conscientemente.
+# Histórico: 319 PRs — invariantes documentados em docs/BASELINE-PRODUTO.md
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  invariant-check:
+    name: Invariant Check (GOV-03b)
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=1
+          git diff origin/${{ github.base_ref }}...HEAD > /tmp/pr.diff
+          echo "Diff gerado: $(wc -l < /tmp/pr.diff) linhas"
+
+      - name: Check invariants
+        id: invariants
+        run: |
+          DIFF_CONTENT=$(cat /tmp/pr.diff)
+          WARNINGS=""
+
+          # INV-01: DIAGNOSTIC_READ_MODE — nunca mudar sem aprovação P.O.
+          if echo "$DIFF_CONTENT" | grep -q "DIAGNOSTIC_READ_MODE"; then
+            WARNINGS="${WARNINGS}\n⚠️ **INV-01 — DIAGNOSTIC_READ_MODE detectado**\n> Este PR toca \`DIAGNOSTIC_READ_MODE\`. Mudança requer aprovação explícita do P.O. (Uires Tapajós). Nunca ativar \`DIAGNOSTIC_READ_MODE=new\` sem GO formal.\n"
+          fi
+
+          # INV-02: DROP COLUMN — proibido sem aprovação P.O.
+          if echo "$DIFF_CONTENT" | grep -qi "DROP COLUMN\|dropColumn\|drop_column"; then
+            WARNINGS="${WARNINGS}\n⚠️ **INV-02 — DROP COLUMN detectado**\n> Este PR contém operação de DROP COLUMN. Requer aprovação explícita do P.O. Dados são irrecuperáveis após DROP. Verificar se migration de rollback está preparada.\n"
+          fi
+
+          # INV-03: db:push sem guard — proibido em produção sem gate ativo
+          if echo "$DIFF_CONTENT" | grep -q '"db:push"\|pnpm db:push\|drizzle-kit push'; then
+            WARNINGS="${WARNINGS}\n⚠️ **INV-03 — db:push detectado**\n> Este PR referencia \`db:push\`. Confirmar que migration guard está ativo e que o push foi testado em ambiente de staging antes de produção.\n"
+          fi
+
+          # INV-04: F-04 Fase 3 — proibido sem aprovação P.O.
+          if echo "$DIFF_CONTENT" | grep -q "F-04\|F04\|fase.3\|fase_3"; then
+            WARNINGS="${WARNINGS}\n⚠️ **INV-04 — F-04 / Fase 3 detectado**\n> Este PR referencia F-04 ou Fase 3. Execução requer aprovação explícita do P.O. Verificar MODELO-OPERACIONAL.md antes de prosseguir.\n"
+          fi
+
+          # INV-05: DIAGNOSTIC_READ_MODE=new — alerta adicional específico
+          if echo "$DIFF_CONTENT" | grep -q 'DIAGNOSTIC_READ_MODE.*new\|DIAGNOSTIC_READ_MODE.*=.*new'; then
+            WARNINGS="${WARNINGS}\n🚨 **INV-05 — DIAGNOSTIC_READ_MODE=new DETECTADO**\n> BLOQUEIO CRÍTICO: \`DIAGNOSTIC_READ_MODE=new\` foi detectado. Esta ativação requer aprovação formal do P.O. com evidência JSON. Ver REGRAS OBRIGATÓRIAS em docs/HANDOFF-MANUS.md.\n"
+          fi
+
+          if [ -z "$WARNINGS" ]; then
+            echo "has_warnings=false" >> $GITHUB_OUTPUT
+            echo "✅ Nenhum invariante crítico detectado."
+          else
+            echo "has_warnings=true" >> $GITHUB_OUTPUT
+            printf "$WARNINGS" > /tmp/warnings.txt
+            echo "⚠️ Invariantes detectados — ver comentário no PR."
+          fi
+
+      - name: Post warning comment
+        if: steps.invariants.outputs.has_warnings == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const warnings = fs.readFileSync('/tmp/warnings.txt', 'utf8');
+            const body = `## ⚠️ GOV-03b — Invariant Check Warning
+
+            Este PR toca padrões críticos protegidos pelo **Invariant Check (GOV-03b)**.
+            Este é um **WARNING** — não bloqueia o merge. O P.O. deve revisar conscientemente.
+
+            ${warnings}
+
+            ---
+            **Referências:**
+            - \`docs/BASELINE-PRODUTO.md\` — baseline do produto
+            - \`docs/HANDOFF-MANUS.md\` — regras obrigatórias
+            - \`docs/MODELO-OPERACIONAL.md\` — modelo operacional
+
+            *Gerado automaticamente por GOV-03b — Sprint U — 2026-04-05*`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.invariants.outputs.has_warnings }}" == "true" ]; then
+            echo "## ⚠️ GOV-03b: Invariantes detectados" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/warnings.txt >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ✅ GOV-03b: Nenhum invariante crítico" >> $GITHUB_STEP_SUMMARY
+            echo "PR não toca padrões protegidos." >> $GITHUB_STEP_SUMMARY
+          fi
