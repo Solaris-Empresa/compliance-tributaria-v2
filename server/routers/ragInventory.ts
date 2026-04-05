@@ -123,7 +123,7 @@ export const ragInventoryRouter = router({
    * - by_autor: distribuição por autor (rastreabilidade de ingestão)
    * - gold_set: resultado das 9 queries canônicas (GS-01 a GS-08 + GS-07b)
    * - confidence: % de queries do gold set com status "ok" (GS-07b excluída do cálculo)
-   * - corpus_version: versão do corpus (env CORPUS_VERSION ou "v1.1")
+   * - corpus_version: versão do corpus (env CORPUS_VERSION ou "v3.3")
    */
   getSnapshot: protectedProcedure.query(async () => {
     const conn = await mysql.createConnection(ENV.databaseUrl);
@@ -196,7 +196,7 @@ export const ragInventoryRouter = router({
         by_autor: byAutor,
         gold_set: goldSet,
         confidence,
-        corpus_version: process.env.CORPUS_VERSION ?? "v1.1",
+        corpus_version: process.env.CORPUS_VERSION ?? "v3.3",
       };
     } finally {
       await conn.end();

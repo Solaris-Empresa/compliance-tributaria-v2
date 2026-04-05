@@ -1,7 +1,7 @@
 # Governança do Corpus RAG — IA SOLARIS
 
-> **Versão:** 1.1 | **Data:** 2026-04-04
-> **Aprovado por:** Uires Tapajós (P.O.)
+> **Versão:** 1.2 | **Data:** 2026-04-05
+> **Aprovado por:** Uires Tapajós (P.O.) — Milestone 1 Decision Kernel
 
 ---
 

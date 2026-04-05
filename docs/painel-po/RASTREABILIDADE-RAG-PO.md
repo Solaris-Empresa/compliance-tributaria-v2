@@ -245,7 +245,9 @@ Evento RAG (nova funcionalidade / alteração / RFC / incidente)
 | 2026-03-30 | RFC-003 identificada como pendente (Issue #189) | Aguarda aprovação do P.O. |
 | 2026-04-04 | Sprint S: 5 novas leis ingeridas (2.454 chunks, 10 leis) | RFC-003 e RFC-004 executadas |
 | 2026-04-04 | Fix iagen: `isNonCompliantAnswer` substitui `confidence_score` (PR #295) | Gaps `source=iagen` gerados corretamente |
+| 2026-04-05 | Sprint T Pré-M1: Skill v4.1, CODEOWNERS 15 entradas, 3 CI gates, CNT-01a/01b/02/03 | Governança reforçada, contratos M1 canônicos |
+| 2026-04-05 | Milestone 1: ncm-engine + nbs-engine + engine-gap-analyzer (PRs #311–#315) | `source='engine'` ativo, 5/6 casos validados, gate triplo aprovado |
 
 ---
 
-*Documento gerado em 2026-03-30. Atualizado em 2026-04-04 (Sprint S). Pelo implementador técnico Manus. Fonte de verdade: [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md) e [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md).*
+*Documento gerado em 2026-03-30. Atualizado em 2026-04-05 (Milestone 1 — Decision Kernel). Pelo implementador técnico Manus. Aprovado pelo P.O. Uires Tapajós. Fonte de verdade: [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md) e [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md).*

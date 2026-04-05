@@ -35,7 +35,7 @@ Regras invioláveis:
 
 | Indicador | Valor | Última atualização |
 |---|---|---|
-| Versão do baseline | v2.2 | 2026-04-04 (PR #296) |
+| Versão do baseline | v3.3 | 2026-04-05 (Milestone 1 — Decision Kernel) |
 | Total de chunks | 2.454 | Sprint S |
 | Leis ativas | 10 | lc214 · lc227 · lc224 · ec132 · lc123 · lc87 · lc116 · cg_ibs · rfb_cbs · conv_icms |
 | Confiabilidade gold set | 100% (8/8) | Sprint G |
@@ -122,5 +122,5 @@ Antes de gerar qualquer prompt para o Manus, identificar qual processo se aplica
 
 ---
 
-*HANDOFF-RAG.md v1.1 · 2026-04-04 (Sprint S — 2.454 chunks, 10 leis, fix iagen PR #295)*
-*Atualizar a cada sprint que altere o corpus*
+*HANDOFF-RAG.md v1.2 · 2026-04-05 (Milestone 1 — Decision Kernel: ncm-engine + nbs-engine + engine-gap-analyzer, source='engine' ativo em project_gaps_v3, 5/6 casos validados, gate triplo aprovado)*
+*Atualizar a cada sprint que altere o corpus ou o Decision Kernel*

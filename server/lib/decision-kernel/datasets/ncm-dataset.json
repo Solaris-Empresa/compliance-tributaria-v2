@@ -78,8 +78,8 @@
     "impacto_compliance": "alto",
     "gap_tipico": "Empresa desconhece que IS incide além do IBS/CBS. Não calcula o IS separadamente. Não identifica se é o contribuinte do IS na cadeia (fabricante vs distribuidor vs varejista).",
     "confianca": {
-      "valor": 100,
-      "tipo": "deterministico"
+      "valor": 0,
+      "tipo": "fallback"
     },
     "fonte": {
       "lei": "LC 214/2025",
