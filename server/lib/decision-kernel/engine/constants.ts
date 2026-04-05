@@ -16,6 +16,21 @@ export const ENGINE_SOURCE = 'engine' as const;
 export type ValidSource = typeof VALID_SOURCES[number];
 
 /**
+ * DatasetStatus — controla comportamento do engine por entrada de dataset.
+ *
+ * 'confirmado'          → processa normalmente (lookup determinístico)
+ * 'pending_validation'  → retorna fallback explícito com nota
+ *                          NUNCA inventa dados jurídicos
+ *
+ * Fonte canônica obrigatória para qualquer referência legal nos outputs:
+ * LC 214/2025 — versão compilada vigente
+ * https://www.planalto.gov.br/ccivil_03/leis/lcp/Lcp214compilado.htm
+ *
+ * Aprovado: Orquestrador Claude — 2026-04-05 (Bloco C)
+ */
+export type DatasetStatus = 'confirmado' | 'pending_validation';
+
+/**
  * Mapeamento engine → project_gaps_v3 (TASK-ENG-04)
  * Campos que já existem na tabela e recebem output do Decision Kernel:
  *
