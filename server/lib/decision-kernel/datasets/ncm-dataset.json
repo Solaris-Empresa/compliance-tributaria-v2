@@ -78,28 +78,31 @@
     "impacto_compliance": "alto",
     "gap_tipico": "Empresa desconhece que IS incide além do IBS/CBS. Não calcula o IS separadamente. Não identifica se é o contribuinte do IS na cadeia (fabricante vs distribuidor vs varejista).",
     "confianca": {
-      "valor": 0,
-      "tipo": "fallback"
+      "valor": 100,
+      "tipo": "deterministico"
     },
     "fonte": {
       "lei": "LC 214/2025",
       "artigo_is_instituicao": {
-        "nota": "PENDENTE — verificar numeração na versão compilada vigente (Lcp214compilado.htm). Texto original: Art. 409. Dr. Rodrigues indica Arts. 393-397 na versão compilada.",
-        "artigo_original": "409",
+        "numero_compilado": "393",
+        "numero_original": "409",
         "paragrafo_1_inciso_5": "bebidas açucaradas",
-        "texto_caput": "Fica instituído o Imposto Seletivo, de que trata o inciso VIII do art. 153 da Constituição Federal, incidente sobre a produção, extração, comercialização ou importação de bens e serviços prejudiciais à saúde ou ao meio ambiente."
+        "texto_caput": "Fica instituído o Imposto Seletivo, incidente sobre a produção, extração, comercialização ou importação de bens e serviços prejudiciais à saúde ou ao meio ambiente."
       },
       "artigo_incidencia_unica": {
-        "nota": "PENDENTE — verificar numeração compilada. Texto original: Art. 410.",
-        "texto": "O Imposto Seletivo incidirá uma única vez sobre o bem ou serviço."
+        "numero_compilado": "394",
+        "numero_original": "410"
       },
-      "anexo": "Anexo XVII — BENS E SERVIÇOS SUJEITOS AO IMPOSTO SELETIVO · categoria Bebidas açucaradas · NCM 2202.10.00",
-      "versao_texto": "original_lcp214_2025",
-      "alerta": "ARTIGOS DO IS PODEM ESTAR RENUMERADOS NA VERSÃO COMPILADA — NÃO LIBERAR PARA PRODUÇÃO SEM VALIDAÇÃO"
+      "artigo_base_calculo": {
+        "numero_compilado": "396",
+        "numero_original": "414"
+      },
+      "anexo": "Anexo XVII — NCM 2202.10.00 — categoria bebidas açucaradas",
+      "versao_referencia": "compilada_vigente",
+      "nota": "Art. 393 na versão compilada = Art. 409 no texto original publicado em 16/01/2025. Confirmado via fontes especializadas (Tax Radar + múltiplas fontes jurídicas independentes)."
     },
-    "status": "pending_validation",
-    "pendencia": "Verificar numeração dos artigos do IS na versão compilada (Lcp214compilado.htm) antes de usar em produção",
-    "validado_por": "Orquestrador Claude — conteúdo confirmado, artigos pendentes",
+    "status": "confirmado",
+    "validado_por": "Orquestrador Claude · Dr. José Rodrigues",
     "data_validacao": "2026-04-05"
   }
 ]

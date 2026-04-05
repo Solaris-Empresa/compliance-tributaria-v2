@@ -38,16 +38,19 @@ describe('ncm-engine — lookupNcm', () => {
     expect(result.aliquota).toBeNull(); // condicional: não resolver
   });
 
-  // Caso 3: NCM 2202.10.00 — pending_validation → fallback obrigatório
-  it('NCM 2202.10.00 (pending_validation) → confiança 0, tipo fallback, nota presente', () => {
+  // Caso 3: NCM 2202.10.00 — confirmado (patch U-2: artigos IS versão compilada)
+  // Antes: pending_validation (confiança 0, fallback). Após patch: confirmado (confiança 100, deterministico)
+  it('2202.10.00 retorna regime_geral com imposto_seletivo=true e artigo confirmado', () => {
     const result = lookupNcm({ codigo: '2202.10.00', sistema: 'NCM' });
 
-    expect(result.confianca.valor).toBe(0);
-    expect(result.confianca.tipo).toBe('fallback');
-    expect(result.nota).toBeTruthy();
-    expect(result.nota).toContain('pendente de validação');
-    // regime retornado mas não deve ser usado em produção
-    expect(result.regime).toBeTruthy();
+    expect(result.regime).toBe('regime_geral');
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    // Artigos IS versão compilada confirmados pelo Orquestrador (Task U-2)
+    expect(result.fonte.artigo).toBeTruthy();
+    // Não deve mais ter nota de pendência
+    expect(result.nota).toBeUndefined();
   });
 
   // Caso 4: NCM não encontrado → fallback genérico
