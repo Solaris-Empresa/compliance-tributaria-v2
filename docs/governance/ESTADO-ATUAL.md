@@ -1,24 +1,25 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v3.6 · 2026-04-04 (pós-Sprint S — PRs #291–#295 mergeados)** · Responsável: Orquestrador gera, Manus commita
+> **v4.0 · 2026-04-05 (pós-Sprint T Pré-M1 — PRs #302–#309 mergeados)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v3.2 · **HEAD:** `d08c12a` (solaris/main) · **Testes:** 1.436 passando  
+**Baseline:** v4.0 · **HEAD:** `33de471` (solaris/main) · **Testes:** 1.446 passando  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.454 chunks · 10 leis · 100% confiabilidade  
 **Sprint S:** ENCERRADA ✅ (Lotes A ✅ B ✅ C ✅ D ✅ E ✅ + Fix #295 ✅)  
-**Sprint T:** próxima — campo NCM + LC 87 compilada + engine Onda 3 (source='rag')  
-**Pipeline 3 Ondas:** Onda 1 ✅ validada · Onda 2 ✅ validada (T1 projeto 2490006) · Onda 3 ⏳ pendente  
+**Sprint T Pré-M1:** ENCERRADA ✅ (PRs #302–#309 · Governança + Contratos M1 + Datasets)  
+**GATE-EXT-01:** ⏳ Fase 2 — aguardando Dr. Rodrigues validar 3 NCM + 3 NBS  
+**Pipeline 3 Ondas:** Onda 1 ✅ validada · Onda 2 ✅ validada (T1 projeto 2490006) · Onda 3 ⛔ bloqueada (Bloco C)
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** solaris/main · **HEAD:** `d08c12a`
+- **Branch base:** solaris/main · **HEAD:** `33de471`
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git checkout --ours`
@@ -39,21 +40,26 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (solaris/main) | `d08c12a` | ✅ |
-| Baseline | **v3.2** | ✅ |
-| Testes passando | **1.436** | ✅ |
+| HEAD (solaris/main) | `33de471` | ✅ |
+| Baseline | **v4.0** | ✅ |
+| Testes passando | **1.446** (5 skipped) | ✅ |
 | Testes falhando | 0 | ✅ |
-| Migrations aplicadas | **62** | ✅ |
-| PRs mergeados (total) | **295** | ✅ |
+| TypeScript | 0 erros | ✅ |
+| CI Workflows | **12 ativos** | ✅ |
+| CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
+| PRs mergeados (total) | **309** | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
 | Corpus RAG | **2.454 chunks — 10 leis** | ✅ |
-| Skill solaris-contexto | **v4.0** | ✅ |
-| Skill solaris-orquestracao | **v3.1** | ✅ |
+| Skill solaris-contexto | **v4.1** | ✅ |
+| Skill solaris-orquestracao | **v3.2** | ✅ |
 | feature-flags.ts | g17 ✅ g11 ✅ g15 ✅ | ✅ |
 | db:push guard | Bloqueado em production | ✅ |
 | Perguntas SOLARIS ativas | **24 (SOL-013..036)** | ✅ |
 | Pipeline E2E | T1 ✅ T2 ✅ validados em produção | ✅ |
+| Contratos Milestone 1 | CNT-01a/01b/02/03 em `docs/contracts/` | ✅ |
+| Dataset NBS | `nbs-2-0-utf8.csv` (1.237 reg.) no repo | ✅ |
+| LC 214/2025 | `lc214-2025.pdf` (6.7 MB) no sandbox | ✅ |
 
 ---
 
@@ -109,7 +115,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Q | ScoreView CPIE + cpie_score_history | ✅ CONCLUÍDA |
 | R | briefingEngine v2 + iagen_answers pipeline | ✅ CONCLUÍDA |
 | **S** | **Lotes A+B+C+D+E + Fix #295 — pipeline 3 Ondas completo + corpus 10 leis** | **✅ ENCERRADA 2026-04-04** |
-| **T** | **Campo NCM + LC 87 compilada + engine Onda 3 (source='rag')** | **⏳ PRÓXIMA** |
+| **T Pré-M1** | **Governança (GOV-02/03) + Contratos M1 + Datasets GATE-EXT-01** | **✅ ENCERRADA 2026-04-05** |
+| **T Bloco C** | **Decision Kernel engine (ncm-dataset.json + nbs-dataset.json)** | **⛔ BLOQUEADO — aguarda GATE-EXT-01 Fase 2** |
 
 ---
 
@@ -119,7 +126,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 |---|---|---|---|
 | Onda 1 | `source='solaris'` | `completeOnda1` → `analyzeSolarisAnswers` | ✅ Validada em produção |
 | Onda 2 | `source='iagen'` | `completeOnda2` → `analyzeIagenAnswers` | ✅ Validada (T1 projeto 2490006) |
-| Onda 3 | `source='rag'` | `completeOnda3` → engine RAG | ⏳ Sprint T |
+| Onda 3 | `source='engine'` | `completeOnda3` → Decision Kernel | ⛔ Bloco C bloqueado (GATE-EXT-01 Fase 2) |
 
 ---
 
@@ -164,6 +171,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DEC-010 | Corpus RAG expandido para 10 leis (Sprint S Lote D) | 2026-04-02 |
 | DEC-011 | Gate Q8: verificar ordem de execução dos lotes | 2026-04-04 |
 | DEC-012 | isNonCompliantAnswer: conteúdo da resposta (não confidence_score) | 2026-04-04 |
+| DEC-013 | source='engine' substitui source='rag' para Onda 3 (Decision Kernel) | 2026-04-04 |
+| DEC-014 | Binários grandes (PDFs/XLSX) mantidos no sandbox, não no repositório | 2026-04-05 |
 
 ---
 
@@ -173,6 +182,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 - `F-04 Fase 3` → aguarda UAT
 - `DROP COLUMN` em colunas legadas → aguarda F-04 Fase 3
 - Issues #56, #61, #62 → bloqueadas em cascata
+- **Bloco C (engine)** → bloqueado até GATE-EXT-01 Fase 2 (validação Dr. Rodrigues: 3 NCM + 3 NBS)
 
 ---
 
@@ -189,9 +199,15 @@ docs/rag/RAG-GOVERNANCE.md
 docs/governance/ESTADO-ATUAL.md
 docs/BASELINE-PRODUTO.md
 docs/HANDOFF-MANUS.md
+docs/contracts/CNT-01a.md
+docs/contracts/CNT-01b.md
+docs/contracts/CNT-02.md
+docs/contracts/CNT-03.md
+server/lib/iagen-gap-analyzer.ts
+server/lib/decision-kernel/engine/constants.ts
 ```
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-04 (pós-Sprint S — PRs #291–#295 mergeados · baseline v3.2)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-05 (pós-Sprint T Pré-M1 — PRs #302–#309 mergeados · baseline v4.0)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*

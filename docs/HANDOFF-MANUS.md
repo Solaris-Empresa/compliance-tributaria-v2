@@ -25,17 +25,21 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-04)
-- BASELINE **v3.2** — Sprint S ENCERRADA ✅ (Lotes A ✅ B ✅ C ✅ D ✅ E ✅ + Fix #295 ✅)
-- **HEAD:** `d08c12a` (solaris/main)
-- **PRs mergeados:** 295 · **Testes passando:** 1.436 (0 falhas)
+## Estado atual do projeto (2026-04-05)
+- BASELINE **v4.0** — Sprint T Pré-M1 ENCERRADA ✅ (PRs #302–#309)
+- **HEAD:** `33de471` (solaris/main)
+- **PRs mergeados:** 309 · **Testes passando:** 1.446 (0 falhas · 5 skipped)
+- **TypeScript:** 0 erros · **CI:** 12 workflows ativos
 - **Corpus RAG:** 2.454 chunks · 10 leis
-- **Skill solaris-contexto:** v4.0 (PR #293) · **Skill solaris-orquestracao:** v3.1
+- **Skill solaris-contexto:** v4.1 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
 - **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção
+- **Contratos M1:** CNT-01a/01b/02/03 em `docs/contracts/`
+- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit
+- **Datasets:** `nbs-2-0-utf8.csv` no repo · `lc214-2025.pdf` no sandbox
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
-- **Próxima sprint:** T — campo NCM + LC 87 compilada + engine Onda 3 (source='rag')
+- **Bloco C:** ⛔ BLOQUEADO — aguarda GATE-EXT-01 Fase 2 (Dr. Rodrigues: 3 NCM + 3 NBS)
 
 ## Lembrete: Bug encontrado e corrigido na Sprint S
 
@@ -70,6 +74,19 @@ Drizzle ORM / Vitest / pnpm
 - Q7 Gate 7 executado ✅
 - **Q8 Ordem de lotes respeitada** ✅ *(nova regra — Sprint S)*
 
+## Sprint T Pré-M1 — Estado final
+
+| PR | Bloco | Entregável | Status |
+|---|---|---|---|
+| #302 | FIX-TS2339 | `resposta: string` em `gapsToInsert` | ✅ |
+| #303 | Bloco A | `decision-kernel/datasets/.gitkeep` + `artifacts/poc-m1/README.md` | ✅ |
+| #304 | GOV-02 | `branch-scope-check.yml` | ✅ |
+| #305 | GOV-03a | CODEOWNERS 15 entradas | ✅ |
+| #306 | GOV-03c | PR template + `file-declaration-check.yml` | ✅ |
+| #307 | GOV-03d | `autoaudit-check.yml` | ✅ |
+| #308 | Bloco B | CNT-01a/01b/02/03 contratos M1 | ✅ |
+| #309 | GATE-EXT-01 | NBS 2.0 CSV + README datasets | ✅ |
+
 ## Sprint S — Estado final
 | Lote | AUDIT | Entregável | PR | Status |
 |---|---|---|---|---|
@@ -80,14 +97,16 @@ Drizzle ORM / Vitest / pnpm
 | D | — | Upload 5 leis corpus RAG (376 chunks) | #294→#296 | ✅ |
 | Fix | M-007 | `isNonCompliantAnswer` — bug confidence_score | #295 | ✅ |
 
-## Pendências abertas (Sprint T)
-| Prioridade | Ação | Responsável |
-|---|---|---|
-| P0 | Campo `principaisProdutos` (NCM) no perfil da empresa | Manus |
-| P0 | Engine Onda 3: tabular Anexos I–XI LC 214 por NCM (~400 chunks) | Manus |
-| P1 | LC 87 compilada completa (~80 chunks) | P.O. → Dr. Rodrigues |
-| P1 | IN RFB 2.121/2022 (~200 chunks) | Manus |
-| P2 | Validar RAG com query real sobre ISS/ICMS no RAG Cockpit | P.O. |
+## Pendências abertas (Sprint T Bloco C)
+
+| Prioridade | Ação | Responsável | Bloqueio |
+|---|---|---|---|
+| P0 | Validar 3 NCM + 3 NBS para POC | Dr. Rodrigues | GATE-EXT-01 Fase 2 |
+| P0 | Converter para `ncm-dataset.json` + `nbs-dataset.json` | Manus | Após validação Dr. Rodrigues |
+| P0 | Implementar engine determinístico (Bloco C) | Manus | Após datasets validados |
+| P1 | Campo `principaisProdutos` (NCM) no perfil da empresa | Manus | Bloco C |
+| P1 | LC 87 compilada completa (~80 chunks) | P.O. → Dr. Rodrigues | — |
+| P2 | IN RFB 2.121/2022 (~200 chunks) | Manus | — |
 
 ## Corpus RAG — 10 leis (2.454 chunks)
 lc214 (1.573) · lc227 (434) · conv_icms (278) · lc116 (60) · lc224 (28) ·
