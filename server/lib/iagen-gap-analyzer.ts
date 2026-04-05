@@ -121,6 +121,7 @@ export async function analyzeIagenAnswers(
       severidade: string;
       topico_trigger: string;
       question_text: string;
+      resposta: string;
     }> = [];
 
     for (const row of rows) {
@@ -139,6 +140,7 @@ export async function analyzeIagenAnswers(
             ...g,
             topico_trigger: 'risco_sistemico',
             question_text: questionText,
+            resposta,
           })));
         }
         continue;
@@ -151,6 +153,7 @@ export async function analyzeIagenAnswers(
           ...g,
           topico_trigger: topic,
           question_text: questionText,
+          resposta,
         })));
       }
     }
