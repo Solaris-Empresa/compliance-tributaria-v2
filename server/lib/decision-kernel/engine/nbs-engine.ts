@@ -81,7 +81,17 @@ function clampConfiancaNbs(valor: number): number {
 function extractFonte(entry: NbsEntry): EngineFonte {
   const f = entry.fonte as Record<string, unknown>;
 
-  // Extrair artigos presentes no objeto fonte
+  // Caso simples: campo artigo direto como string (ex: educação, saúde)
+  if (typeof f.artigo === 'string') {
+    return {
+      lei: String(f.lei ?? 'LC 214/2025'),
+      artigo: f.artigo,
+      paragrafo: typeof f.paragrafo === 'string' ? f.paragrafo : null,
+      inciso: null,
+    };
+  }
+
+  // Caso NBS com múltiplos artigos nomeados (ex: artigo_local, artigo_aliquota, artigo_regime_especial)
   const artigos = Object.entries(f)
     .filter(([k]) => k.startsWith('artigo'))
     .map(([, v]) => {
