@@ -1,29 +1,29 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v4.1 · 2026-04-05 (Milestone 1 ENCERRADO — PRs #302–#315 mergeados)** · Responsável: Orquestrador gera, Manus commita
+> **v4.2 · 2026-04-05 (Sprint U ENCERRADA — PRs #302–#323 mergeados)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v4.1 · **HEAD:** `fde1d0e` (solaris/main) · **Testes:** 1.470 passando  
+**Baseline:** v3.3 · **HEAD:** `74c3a9c` (origin/main) · **Testes:** 1.470 passando  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
-**Corpus RAG:** 2.454 chunks · 10 leis · 100% confiabilidade  
-**Sprint S:** ENCERRADA ✅ (Lotes A ✅ B ✅ C ✅ D ✅ E ✅ + Fix #295 ✅)  
-**Sprint T Pré-M1:** ENCERRADA ✅ (PRs #302–#310 · Governança + Contratos M1 + Datasets)  
-**Milestone 1:** ✅ **ENCERRADO** — Gate triplo aprovado (Técnico + Jurídico + P.O.)  
-**Pipeline 3 Ondas:** Onda 1 ✅ · Onda 2 ✅ · Onda 3 ✅ integrada (`source='engine'`, 5/6 casos)  
-**Sprint U:** ⏳ Aguardando prompt do Orquestrador
+**Corpus RAG:** 2.454 chunks · 10 leis · 100% confiabilidade · 8/8 gold set  
+**Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
+**Sprint U:** ENCERRADA ✅ (PRs #318–#323 · 4 tasks · 6/6 casos POC M1 confirmados)  
+**Pipeline 3 Ondas:** Onda 1 ✅ · Onda 2 ✅ · Onda 3 ✅ integrada (`source='engine'`, 6/6 casos)  
+**Sprint V:** ⏳ Aguardando prompt do Orquestrador (3 frentes: Dataset, Frontend Bloco E, M2 prep)
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** solaris/main · **HEAD:** `fde1d0e`
+- **Branch base:** main · **HEAD:** `74c3a9c`
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
-- **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git checkout --ours`
+- **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git restore --staged`
+- **Checkpoint Manus ≠ versão de produto:** checkpoints são artefatos de infraestrutura para recuperação do sandbox. O estado canônico do produto é sempre `origin/main` no GitHub.
 - **Referência operacional:** docs/HANDOFF-MANUS.md
 - **Referência de governança:** docs/governance/HANDOFF-IMPLEMENTADOR.md
 
@@ -41,50 +41,56 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (solaris/main) | `fde1d0e` | ✅ |
-| Baseline | **v4.1** | ✅ |
-| Testes passando | **1.470** (5 skipped) | ✅ |
-| Testes falhando | 0 | ✅ |
+| HEAD (origin/main) | `74c3a9c` | ✅ |
+| Baseline | **v3.3** | ✅ |
+| Testes passando | **1.470** (0 falhas) | ✅ |
 | TypeScript | 0 erros | ✅ |
-| CI Workflows | **12 ativos** | ✅ |
+| CI Workflows | **12 ativos** + invariant-check (GOV-03b) | ✅ |
 | CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
-| PRs mergeados (total) | **315** | ✅ |
+| PRs mergeados (total) | **323** | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
 | Corpus RAG | **2.454 chunks — 10 leis** | ✅ |
+| RAG Gold Set | **8/8 verde — 100% confiabilidade** | ✅ |
+| GS-08 (autor NULL) | **0 chunks** (RFC-004 executada) | ✅ |
+| CORPUS_VERSION | **v3.3** (env definida) | ✅ |
 | Skill solaris-contexto | **v4.2** | ✅ |
 | Skill solaris-orquestracao | **v3.2** | ✅ |
 | feature-flags.ts | g17 ✅ g11 ✅ g15 ✅ | ✅ |
 | db:push guard | Bloqueado em production | ✅ |
 | Perguntas SOLARIS ativas | **24 (SOL-013..036)** | ✅ |
 | Pipeline E2E | T1 ✅ T2 ✅ validados em produção | ✅ |
-| Contratos Milestone 1 | CNT-01a/01b/02/03 em `docs/contracts/` | ✅ |
+| Contratos Milestone 1 | CNT-01a/01b/02/03/01c em `docs/contracts/` | ✅ |
 | Dataset NBS | `nbs-2-0-utf8.csv` (1.237 reg.) no repo | ✅ |
-| LC 214/2025 | `lc214-2025.pdf` (6.7 MB) no sandbox | ✅ |
-| Decision Kernel | ncm-engine + nbs-engine (5/6 casos) | ✅ |
+| Decision Kernel | ncm-engine + nbs-engine (**6/6 casos confirmados**) | ✅ |
 | Engine Onda 3 | `engine-gap-analyzer.ts` integrado | ✅ |
+| Bloco E | `operationProfile` aceita NCM/NBS (CNT-01c) | ✅ |
 | Evidence Pack M1 | `artifacts/engine-quality/poc-m1/` | ✅ |
 | **Milestone 1** | **Gate triplo APROVADO** | **✅** |
+| GOV-03b | `invariant-check.yml` — 5 invariantes protegidos | ✅ |
+| RAG Cockpit | Baseline v3.3 · Sprint T/M1 · MIG-001 | ✅ |
 
 ---
 
-## 2. Corpus RAG — Estado pós-Sprint S
+## 2. Corpus RAG — Estado pós-Sprint S/T/U
 
 | Lei | Chunks | Status |
 |---|---|---|
 | lc214 (IBS/CBS/IS) | 1.573 | ✅ |
 | lc227 | 434 | ✅ |
-| conv_icms (Convênio ICMS 142/2018) | 278 | ✅ Novo (Sprint S) |
-| lc116 (ISS) | 60 | ✅ Novo (Sprint S) |
+| conv_icms (Convênio ICMS 142/2018) | 278 | ✅ |
+| lc116 (ISS) | 60 | ✅ |
 | lc224 | 28 | ✅ |
-| cg_ibs (Resolução CSIBS nº 1/2026) | 26 | ✅ Novo (Sprint S) |
+| cg_ibs (Resolução CSIBS nº 1/2026) | 26 | ✅ |
 | lc123 (Simples) | 25 | ✅ |
 | ec132 | 18 | ✅ |
-| rfb_cbs (Ato Conjunto RFB/CGIBS nº 1/2025) | 7 | ✅ Novo (Sprint S) |
-| lc87 (Lei Kandir — texto original 1996) | 5 | ✅ Novo (Sprint S) |
+| rfb_cbs (Ato Conjunto RFB/CGIBS nº 1/2025) | 7 | ✅ |
+| lc87 (Lei Kandir — texto original 1996) | 5 | ✅ |
 | **Total** | **2.454** | ✅ |
 
-> **Nota LC 87:** PDF recebido é o texto original de 1996 (2 páginas, 5 chunks). Solicitar versão compilada com emendas ao Dr. Rodrigues para enriquecer cobertura ICMS. **Sprint U: pendente.**
+> **Nota LC 87:** PDF recebido é o texto original de 1996 (2 páginas, 5 chunks). Solicitar versão compilada com emendas ao Dr. Rodrigues para enriquecer cobertura ICMS. **Sprint V: pendente.**
+
+> **RFC-004 executada (Sprint U):** 376 chunks com `autor NULL` corrigidos para `legado-pre-sprint-g/{lei}`. GS-08 passou de WARN para verde. Confiabilidade: 87.5% → 100%.
 
 ---
 
@@ -114,22 +120,35 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DK-Q1 | Gate estrutural dataset (Q1-A/B/C/D PASS) | #313 | ✅ |
 | DK-Q2 | Validação manual gold set (5/5 PASS) | #314 | ✅ |
 | Evidence Pack | Gate triplo — Técnico + Jurídico + P.O. | #315 | ✅ |
+| RAG Cockpit v3.3 | Badge Sprint T/M1 · MIG-001 · CORPUS_VERSION v3.3 | #318 | ✅ |
 | **Milestone 1** | **Gate triplo APROVADO** | — | **✅ ENCERRADO** |
 
-**Casos validados (5/6):**
+**Casos validados (6/6 — pós Sprint U):**
 
 | Código | Tipo | Regime | Status |
 |---|---|---|---|
 | 9619.00.00 | NCM | aliquota_zero | ✅ confirmado |
 | 3101.00.00 | NCM | condicional | ✅ confirmado |
+| 2202.10.00 | NCM | regime_geral + IS | ✅ confirmado (patch U-2 — Art. 393 compilado) |
 | 1.1506.21.00 | NBS | regime_geral | ✅ confirmado |
 | 1.0901.33.00 | NBS | regime_especial | ✅ confirmado |
 | 1.1303.10.00 | NBS | regime_geral | ✅ confirmado |
-| 2202.10.00 | NCM | pending_validation | ⏳ Patch IS — aguarda Dr. Rodrigues |
 
 ---
 
-## 5. Histórico de Sprints (K → T)
+## 5. Sprint U — Resumo de Execução
+
+| Task | Entregável | PR | Status |
+|---|---|---|---|
+| U-4 GOV-03b | `invariant-check.yml` — 5 invariantes protegidos | #320 | ✅ |
+| U-3 | Badge TaskBoard: `517 testes` → `1.470 testes` | #321 | ✅ |
+| U-1 Bloco E | `operationProfile` aceita NCM/NBS · CNT-01c · 6 testes Q5 | #322 | ✅ |
+| U-2 Patch IS | 2202.10.00 confirmado · artigos IS compilados (Art. 393/394/396) | #323 | ✅ |
+| RFC-004 | 376 chunks `autor NULL` → `legado-pre-sprint-g/{lei}` · GS-08 verde | #319 | ✅ |
+
+---
+
+## 6. Histórico de Sprints (K → U)
 
 | Sprint | Entregável principal | Status |
 |---|---|---|
@@ -144,22 +163,23 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Q | ScoreView CPIE + cpie_score_history | ✅ CONCLUÍDA |
 | R | briefingEngine v2 + iagen_answers pipeline | ✅ CONCLUÍDA |
 | **S** | **Lotes A+B+C+D+E + Fix #295 — pipeline 3 Ondas completo + corpus 10 leis** | **✅ ENCERRADA 2026-04-04** |
-| **T** | **Milestone 1 — Decision Kernel (Blocos C+D + DK-Q1/Q2 + Gate triplo)** | **✅ ENCERRADA 2026-04-05** |
-| **U** | **A definir pelo Orquestrador** | **⏳ AGUARDANDO** |
+| **T** | **Milestone 1 — Decision Kernel (Blocos C+D + DK-Q1/Q2 + Gate triplo · 16 PRs)** | **✅ ENCERRADA 2026-04-05** |
+| **U** | **RFC-004 + GOV-03b + Bloco E + Patch IS 2202.10.00 · 6/6 casos M1 confirmados** | **✅ ENCERRADA 2026-04-05** |
+| **V** | **A definir pelo Orquestrador (Dataset 30–50 casos · Frontend Bloco E · M2 prep)** | **⏳ AGUARDANDO** |
 
 ---
 
-## 6. Pipeline 3 Ondas — Status
+## 7. Pipeline 3 Ondas — Status
 
 | Onda | Fonte | Trigger | Status |
 |---|---|---|---|
 | Onda 1 | `source='solaris'` | `completeOnda1` → `analyzeSolarisAnswers` | ✅ Validada em produção |
 | Onda 2 | `source='iagen'` | `completeOnda2` → `analyzeIagenAnswers` | ✅ Validada (T1 projeto 2490006) |
-| Onda 3 | `source='engine'` | `completeOnda2` → `analyzeEngineGaps` (fire-and-forget) | ✅ Integrada (5/6 casos, 1 pending IS) |
+| Onda 3 | `source='engine'` | `completeOnda2` → `analyzeEngineGaps` (fire-and-forget) | ✅ Integrada (6/6 casos confirmados) |
 
 ---
 
-## 7. Achados Críticos — Estado
+## 8. Achados Críticos — Estado
 
 | ID | Descrição | Status |
 |---|---|---|
@@ -167,24 +187,24 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | AUDIT-C-003 | cpie_score_history sempre vazio | ✅ Resolvido (Lote B, PR #292) |
 | AUDIT-C-004 | briefingEngine lia project_actions_v3 (9 reg.) | ✅ Resolvido (Lote E, PR #292) |
 | AUDIT-C-005 | Corpus RAG com 5 leis faltando | ✅ Resolvido (Lote D, PR #296) |
-| AUDIT-M-004 | LC 87 com apenas 5 chunks (texto original) | ⚠️ Aberto — Sprint U: solicitar versão compilada |
+| AUDIT-M-004 | LC 87 com apenas 5 chunks (texto original) | ⚠️ Aberto — Sprint V: solicitar versão compilada |
 | AUDIT-M-007 | iagen-gap-analyzer: confidence_score como proxy de gap | ✅ Resolvido (PR #295 — isNonCompliantAnswer) |
+| GS-08 | 376 chunks sem `autor` (herança pré-Sprint G) | ✅ Resolvido (RFC-004, PR #319) |
 
 ---
 
-## 8. Pendências Formais — Sprint U
+## 9. Pendências Formais — Sprint V
 
 | ID | Prioridade | Ação | Responsável | Bloqueio |
 |---|---|---|---|---|
-| PU-01 | P0 | Patch 2202.10.00 (IS) — PR separado com label `governance` | Manus | Dr. Rodrigues confirma artigos IS |
-| PU-02 | P0 | Bloco E — `principaisProdutos/principaisServicos` no schema de projetos + CNT-01c + migration | Manus | Aprovação P.O. |
-| PU-03 | P1 | GOV-03b — invariant check CI | Manus | Nenhum |
-| PU-04 | P2 | Dívida técnica `riskEngine.ts` duplicado | Manus | Nenhum |
-| PU-05 | P2 | LC 87 compilada completa (~80 chunks) | P.O. → Dr. Rodrigues | Nenhum |
+| PV-01 | P0 | Dataset 30–50 casos NCM/NBS | Manus + Dr. Rodrigues | Curadoria jurídica |
+| PV-02 | P1 | Frontend Bloco E — campos NCM/NBS no formulário de projeto | Manus | GO do P.O. |
+| PV-03 | P1 | LC 87 compilada completa (~80 chunks) | P.O. → Dr. Rodrigues | Nenhum |
+| PV-04 | P2 | M2 prep — GOV-03b já feito, aguarda validação Claude Code | Orquestrador | Sprint W |
 
 ---
 
-## 9. Decisões tomadas pelo P.O.
+## 10. Decisões tomadas pelo P.O.
 
 | Código | Decisão | Data |
 |---|---|---|
@@ -204,10 +224,14 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DEC-014 | Binários grandes (PDFs/XLSX) mantidos no sandbox, não no repositório | 2026-04-05 |
 | DEC-015 | Opção A (Bloco D): NCM/NBS como parâmetro de entrada — Bloco E persiste no schema | 2026-04-05 |
 | DEC-016 | Milestone 1 aprovado — Gate triplo (Técnico + Dr. Rodrigues + P.O.) | 2026-04-05 |
+| DEC-017 | RFC-004: autor NULL corrigido para `legado-pre-sprint-g/{lei}` — não é regressão | 2026-04-05 |
+| DEC-018 | Checkpoint Manus ≠ versão de produto — estado canônico é sempre origin/main GitHub | 2026-04-05 |
+| DEC-019 | Bloco E: NCM/NBS persistidos em operationProfile (campo JSON existente) — sem migration | 2026-04-05 |
+| DEC-020 | 2202.10.00 IS: Art. 393 compilado = Art. 409 original — confirmado via fontes especializadas | 2026-04-05 |
 
 ---
 
-## 10. Bloqueios Permanentes — NÃO remover sem aprovação P.O.
+## 11. Bloqueios Permanentes — NÃO remover sem aprovação P.O.
 
 - `DIAGNOSTIC_READ_MODE=new` → aguarda UAT com advogados
 - `F-04 Fase 3` → aguarda UAT
@@ -216,7 +240,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ---
 
-## 11. Arquivos críticos — alterar SOMENTE via PR aprovado
+## 12. Arquivos críticos — alterar SOMENTE via PR aprovado
 
 ```
 drizzle/schema.ts
@@ -231,6 +255,7 @@ docs/BASELINE-PRODUTO.md
 docs/HANDOFF-MANUS.md
 docs/contracts/CNT-01a.md
 docs/contracts/CNT-01b.md
+docs/contracts/CNT-01c.md
 docs/contracts/CNT-02.md
 docs/contracts/CNT-03.md
 server/lib/iagen-gap-analyzer.ts
@@ -244,5 +269,5 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-05 (Milestone 1 ENCERRADO — PRs #302–#315 mergeados · baseline v4.1)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-05 (Sprint U ENCERRADA — PRs #302–#323 mergeados · baseline v3.3 · HEAD 74c3a9c)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
