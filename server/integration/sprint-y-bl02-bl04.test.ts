@@ -1,9 +1,9 @@
 /**
  * sprint-y-bl02-bl04.test.ts — Sprint Y
- * ─────────────────────────────────────────────────────────────────────────────
+ * ────────────────────────────────────────────────────────────────────────────────
  * BL-02: Teste de integração para completeOnda2 — handler completo
- *        Cobre a transição onda2_iagen → diagnostico_corporativo no nível de
- *        procedure (não apenas state machine).
+ *        BUG-UAT-07 fix: completeOnda2 grava onda2_iagen (não diagnostico_corporativo)
+ *        Fluxo: cnaes_confirmados → onda1_solaris (completeOnda1) → onda2_iagen (completeOnda2)
  *
  * BL-03: Teste de integração para completeDiagnosticLayer — handler completo
  *        Cobre as 3 camadas (corporate, operational, cnae) e o assertValidTransition
@@ -25,34 +25,36 @@ import {
   getDiagnosticProgress,
 } from "../diagnostic-consolidator";
 
-// ─── BL-02: completeOnda2 — transição onda2_iagen → diagnostico_corporativo ──
+// ─── BL-02: completeOnda2 — transição onda1_solaris → onda2_iagen (BUG-UAT-07 fix) ──
 describe("BL-02: completeOnda2 — transição de estado", () => {
-  it("onda2_iagen → diagnostico_corporativo é uma transição válida", () => {
+  // BUG-UAT-07: completeOnda2 deve gravar onda2_iagen (não diagnostico_corporativo)
+  // Fluxo correto: cnaes_confirmados → onda1_solaris (completeOnda1) → onda2_iagen (completeOnda2)
+  it("onda1_solaris → onda2_iagen é uma transição válida (fluxo correto)", () => {
     expect(() =>
-      assertValidTransition("onda2_iagen", "diagnostico_corporativo")
+      assertValidTransition("onda1_solaris", "onda2_iagen")
     ).not.toThrow();
   });
 
-  it("onda2_iagen → onda2_iagen (auto-loop) é inválido — era o BUG-UAT-05", () => {
+  it("cnaes_confirmados → onda2_iagen é inválido (deve passar por onda1_solaris)", () => {
+    expect(() =>
+      assertValidTransition("cnaes_confirmados", "onda2_iagen")
+    ).toThrow();
+  });
+
+  it("onda2_iagen → onda2_iagen (auto-loop) é inválido", () => {
     expect(() =>
       assertValidTransition("onda2_iagen", "onda2_iagen")
     ).toThrow();
   });
 
-  it("onda2_iagen → onda1_solaris (retrocesso) é inválido", () => {
-    expect(() =>
-      assertValidTransition("onda2_iagen", "onda1_solaris")
-    ).toThrow();
+  it("VALID_TRANSITIONS['onda1_solaris'] contém 'onda2_iagen'", () => {
+    expect(VALID_TRANSITIONS["onda1_solaris"]).toContain("onda2_iagen");
   });
 
-  it("VALID_TRANSITIONS['onda2_iagen'] contém exatamente ['diagnostico_corporativo']", () => {
-    expect(VALID_TRANSITIONS["onda2_iagen"]).toEqual(["diagnostico_corporativo"]);
-  });
-
-  it("completeOnda2 destino gravado no banco deve ser diagnostico_corporativo", () => {
-    // Simula o mapeamento interno do handler completeOnda2
-    const targetStatus = "diagnostico_corporativo";
-    expect(VALID_TRANSITIONS["onda2_iagen"]).toContain(targetStatus);
+  it("completeOnda2 destino gravado no banco deve ser onda2_iagen (BUG-UAT-07 fix)", () => {
+    // Fluxo correto: onda1_solaris → onda2_iagen (completeOnda2)
+    const targetStatus = "onda2_iagen";
+    expect(VALID_TRANSITIONS["onda1_solaris"]).toContain(targetStatus);
   });
 });
 
@@ -64,7 +66,9 @@ describe("BL-03: completeDiagnosticLayer — assertValidTransition (BL-01)", () 
     cnae: "diagnostico_cnae",
   };
 
-  it("diagnostico_corporativo é destino válido a partir de onda2_iagen", () => {
+  it("diagnostico_corporativo é destino válido a partir de onda2_iagen (completeDiagnosticLayer corporate)", () => {
+    // BUG-UAT-07: onda2_iagen é o status correto após completeOnda2
+    // completeDiagnosticLayer(corporate) avança de onda2_iagen para diagnostico_corporativo
     expect(() =>
       assertValidTransition("onda2_iagen", layerToStatus["corporate"])
     ).not.toThrow();
