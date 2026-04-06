@@ -2236,7 +2236,7 @@ Gere o Briefing estruturado em JSON:
       // Enforcement: validar transição de status (Seção 8 + Seção 10)
       const { assertValidTransition } = await import('./flowStateMachine');
       try {
-        assertValidTransition(project.status, 'onda1_solaris');
+        assertValidTransition(project.status, 'onda2_iagen');
       } catch (err: any) {
         throw new TRPCError({
           code: 'FORBIDDEN',
@@ -2246,8 +2246,8 @@ Gere o Briefing estruturado em JSON:
 
       // Salvar respostas (upsert idempotente)
       await db.saveOnda1Answers(input.projectId, input.answers);
-      // Avançar status do projeto para onda1_solaris
-      await db.updateProject(input.projectId, { status: 'onda1_solaris' as any });
+      // Avançar status do projeto para onda2_iagen (BUG-UAT-04 fix: era 'onda1_solaris' incorretamente)
+      await db.updateProject(input.projectId, { status: 'onda2_iagen' as any });
 
       // G17 — Fire-and-forget: gerar gaps SOLARIS sem bloquear resposta ao frontend
       void analyzeSolarisAnswers(input.projectId).catch((err) => {
@@ -2292,7 +2292,7 @@ Gere o Briefing estruturado em JSON:
       return {
         success: true,
         projectId: input.projectId,
-        newStatus: 'onda1_solaris',
+        newStatus: 'onda2_iagen',
         answersCount: input.answers.length,
       };
     }),
