@@ -337,5 +337,182 @@
     "status": "confirmado",
     "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
     "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "0402.10.10",
+    "descricao": "Leite em pó — teor de gordura ≤ 1,5%",
+    "setor_economico": "Indústria de laticínios · varejo alimentício",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS alíquota zero · ICMS isento",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Laticínio não distingue leite em pó integral (0402.21.10 — alíquota zero) de leite em pó para uso industrial (0402.10 — mesmo código mas uso diferente). Verificação da destinação é obrigatória.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "125",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre as vendas de produtos destinados à alimentação humana relacionados no Anexo I desta Lei Complementar",
+      "texto_anexo": "Leite em pó, em conformidade com os requisitos da legislação específica, classificado nos códigos 0402.10.10, 0402.10.90, 0402.21.10, 0402.21.20, 0402.29.10 e 0402.29.20 da NCM/SH",
+      "anexo": "Anexo I — item 3"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "0901.11.00",
+    "descricao": "Café não torrado, não descafeinado, em grão",
+    "setor_economico": "Torrefadoras · exportadores · varejo",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS alíquota zero · ICMS isento",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Torrefadora não verifica que café em grão verde (0901.11.00) e café torrado (0901.21.00) são ambos posição 09.01 — ambos com alíquota zero. Empresa aplica regime geral por não verificar a listagem do Anexo I.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "125",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre as vendas de produtos destinados à alimentação humana relacionados no Anexo I desta Lei Complementar",
+      "texto_anexo": "Café da posição 09.01 e da subposição 2101.1, ambos da NCM/SH",
+      "anexo": "Anexo I — item 8"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "1101.00.10",
+    "descricao": "Farinha de trigo",
+    "setor_economico": "Moinhos · indústria alimentícia · panificação",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS alíquota zero · ICMS isento",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Moinho não distingue farinha de trigo (1101.00.10 — alíquota zero) de farinha de outros cereais (1102.XX — redução 60%, não alíquota zero). Erro de subposição resulta em benefício errado aplicado.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "125",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre as vendas de produtos destinados à alimentação humana relacionados no Anexo I desta Lei Complementar",
+      "texto_anexo": "Farinha de trigo do código 1101.00.10 da NCM/SH",
+      "anexo": "Anexo I — item 13"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "0405.10.00",
+    "descricao": "Manteiga",
+    "setor_economico": "Indústria de laticínios · varejo alimentício",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS alíquota zero · ICMS isento",
+    "impacto_compliance": "baixo",
+    "gap_tipico": "Laticínio confunde manteiga (0405.10.00 — alíquota zero) com requeijão (0406.XX — não listado no Anexo I). Empresa aplica alíquota zero para toda a linha de laticínios sem verificar o Anexo.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "125",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre as vendas de produtos destinados à alimentação humana relacionados no Anexo I desta Lei Complementar",
+      "texto_anexo": "Manteiga do código 0405.10.00 da NCM/SH",
+      "anexo": "Anexo I — item 5"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "4818.10.00",
+    "descricao": "Papel higiênico para famílias de baixa renda",
+    "setor_economico": "Indústria de papel · varejo de higiene",
+    "regime": "reducao_60",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS · ICMS estadual",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Indústria de papel não identifica que papel higiênico (4818.10.00) tem redução de 60% pelo Anexo VIII. Confunde com papel de uso industrial sem benefício. Diferença está na destinação ao consumidor final de baixa renda.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "136",
+      "texto_caput": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos produtos de higiene pessoal e limpeza relacionados no Anexo VIII desta Lei Complementar",
+      "texto_anexo": "Papel higiênico do código 4818.10.00 da NCM/SH",
+      "anexo": "Anexo VIII — item 4"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "3401.19.00",
+    "descricao": "Sabões em barra para famílias de baixa renda",
+    "setor_economico": "Indústria química · varejo de higiene",
+    "regime": "reducao_60",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS · ICMS estadual",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Fabricante confunde sabão em barra popular (3401.19.00 — redução 60%) com sabão de toucador premium (3401.11.90 — também redução 60%). Ambos cobertos pelo Anexo VIII com códigos distintos. Empresa não verifica qual código exato consta no Anexo.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "136",
+      "texto_caput": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos produtos de higiene pessoal e limpeza relacionados no Anexo VIII desta Lei Complementar",
+      "texto_anexo": "Sabões em barra classificados no código 3401.19.00 da NCM/SH",
+      "anexo": "Anexo VIII — item 6"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "1507.90.11",
+    "descricao": "Óleo de soja refinado para consumo humano",
+    "setor_economico": "Indústria de óleos vegetais · varejo alimentício",
+    "regime": "reducao_60",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS · ICMS",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Indústria de óleos não distingue óleo de soja refinado para consumo humano (1507.90 — redução 60%, Anexo VII) de óleo de soja bruto para uso industrial (1507.10 — sem benefício expresso no Anexo VII). Aplicar redução no produto errado gera risco fiscal.",
+    "confianca": {
+      "valor": 95,
+      "tipo": "regra"
+    },
+    "nota_confianca": "1507.90 listado no Anexo VII. Condicionante: conformidade com legislação específica para consumo humano.",
+    "condicionante": "Em conformidade com os requisitos da legislação específica relativos ao consumo como alimento",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "135",
+      "texto_caput": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos alimentos destinados ao consumo humano relacionados no Anexo VII desta Lei Complementar",
+      "texto_anexo": "Óleos de soja, de milho, canola e demais óleos vegetais, em conformidade com os requisitos da legislação específica relativos ao consumo como alimento, classificados na subposição 1507.90 e nas posições 15.08, 15.11, 15.12, 15.13, 15.14 e 15.15 da NCM/SH",
+      "anexo": "Anexo VII — item 8"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
   }
 ]
