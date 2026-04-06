@@ -35,8 +35,8 @@ Regras invioláveis:
 
 | Indicador | Valor | Última atualização |
 |---|---|---|
-| Versão do baseline | v3.3 | 2026-04-05 (Milestone 1 — Decision Kernel) |
-| Total de chunks | 2.454 | Sprint S |
+| Versão do baseline | v4.4 | 2026-04-05 (Sprint V — Lote 2: 24 casos NCM/NBS) |
+| Total de chunks | 2.509 | Sprint S |
 | Leis ativas | 10 | lc214 · lc227 · lc224 · ec132 · lc123 · lc87 · lc116 · cg_ibs · rfb_cbs · conv_icms |
 | Confiabilidade gold set | 100% (8/8) | Sprint G |
 | RFCs abertas | 0 | Sprint S concluída (RFC-003 e RFC-004 executadas) |
@@ -122,5 +122,5 @@ Antes de gerar qualquer prompt para o Manus, identificar qual processo se aplica
 
 ---
 
-*HANDOFF-RAG.md v1.2 · 2026-04-05 (Milestone 1 — Decision Kernel: ncm-engine + nbs-engine + engine-gap-analyzer, source='engine' ativo em project_gaps_v3, 5/6 casos validados, gate triplo aprovado)*
+*HANDOFF-RAG.md v1.3 · 2026-04-05 (Sprint V Lote 2: 24 casos NCM/NBS confirmados, NCM:12 · NBS:12 · Testes:34/34, PR #330, correção S-07 Arts.234-235)*
 *Atualizar a cada sprint que altere o corpus ou o Decision Kernel*

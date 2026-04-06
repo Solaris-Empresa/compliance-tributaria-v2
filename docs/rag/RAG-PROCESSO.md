@@ -273,5 +273,5 @@ DECISÃO ESTRATÉGICA (P.O.)
 
 ---
 
-*RAG-PROCESSO.md v1.2 · 2026-04-05 (Milestone 1 — Decision Kernel: source='engine' ativo, 5/6 casos validados, gate triplo aprovado)*
+*RAG-PROCESSO.md v1.3 · 2026-04-05 (Sprint V Lote 2: 24 casos NCM/NBS confirmados, NCM:12 · NBS:12 · Testes:34/34, PR #330)*
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
