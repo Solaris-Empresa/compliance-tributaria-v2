@@ -35,7 +35,7 @@ Regras invioláveis:
 
 | Indicador | Valor | Última atualização |
 |---|---|---|
-| Versão do baseline | v4.4 | 2026-04-05 (Sprint V — Lote 2: 24 casos NCM/NBS) |
+| Versão do baseline | v4.5 | 2026-04-05 (Sprint V encerrada — Lote 3: 37 casos NCM/NBS) |
 | Total de chunks | 2.509 | Sprint S |
 | Leis ativas | 10 | lc214 · lc227 · lc224 · ec132 · lc123 · lc87 · lc116 · cg_ibs · rfb_cbs · conv_icms |
 | Confiabilidade gold set | 100% (8/8) | Sprint G |
@@ -122,5 +122,5 @@ Antes de gerar qualquer prompt para o Manus, identificar qual processo se aplica
 
 ---
 
-*HANDOFF-RAG.md v1.3 · 2026-04-05 (Sprint V Lote 2: 24 casos NCM/NBS confirmados, NCM:12 · NBS:12 · Testes:34/34, PR #330, correção S-07 Arts.234-235)*
+*HANDOFF-RAG.md v1.4 · 2026-04-05 (Sprint V encerrada Lote 3: 37 casos NCM/NBS confirmados, NCM:19 · NBS:19 · Testes:48/48, PR #333)*
 *Atualizar a cada sprint que altere o corpus ou o Decision Kernel*
