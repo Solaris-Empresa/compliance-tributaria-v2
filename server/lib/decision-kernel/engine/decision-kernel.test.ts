@@ -410,6 +410,177 @@ describe('nbs-engine — Lote 2 (educação superior + saúde + financeiro + TI)
 
 });
 
+// ─── Q5 Lote 3 — NCM (7 casos: cesta básica + higiene + alimentos) ─────────────
+
+describe('ncm-engine — Lote 3 (cesta básica + higiene + óleos)', () => {
+
+  // L3-01: Leite em pó
+  it('[L3-01] NCM 0402.10.10 → aliquota_zero, deterministico, artigo 125 Anexo I', () => {
+    const result = lookupNcm({ codigo: '0402.10.10', sistema: 'NCM' });
+
+    expect(result.regime).toBe('aliquota_zero');
+    expect(result.aliquota).toBe(0);
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('125');
+  });
+
+  // L3-02: Café
+  it('[L3-02] NCM 0901.11.00 → aliquota_zero, deterministico, artigo 125 Anexo I', () => {
+    const result = lookupNcm({ codigo: '0901.11.00', sistema: 'NCM' });
+
+    expect(result.regime).toBe('aliquota_zero');
+    expect(result.aliquota).toBe(0);
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('125');
+  });
+
+  // L3-03: Farinha de trigo
+  it('[L3-03] NCM 1101.00.10 → aliquota_zero, deterministico, artigo 125 Anexo I', () => {
+    const result = lookupNcm({ codigo: '1101.00.10', sistema: 'NCM' });
+
+    expect(result.regime).toBe('aliquota_zero');
+    expect(result.aliquota).toBe(0);
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('125');
+  });
+
+  // L3-04: Manteiga
+  it('[L3-04] NCM 0405.10.00 → aliquota_zero, deterministico, artigo 125 Anexo I', () => {
+    const result = lookupNcm({ codigo: '0405.10.00', sistema: 'NCM' });
+
+    expect(result.regime).toBe('aliquota_zero');
+    expect(result.aliquota).toBe(0);
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('125');
+  });
+
+  // L3-05: Papel higiênico
+  it('[L3-05] NCM 4818.10.00 → reducao_60, deterministico, artigo 136 Anexo VIII', () => {
+    const result = lookupNcm({ codigo: '4818.10.00', sistema: 'NCM' });
+
+    expect(result.regime).toBe('reducao_60');
+    expect(result.aliquota).toBeNull();
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('136');
+  });
+
+  // L3-06: Sabão em barra
+  it('[L3-06] NCM 3401.19.00 → reducao_60, deterministico, artigo 136 Anexo VIII', () => {
+    const result = lookupNcm({ codigo: '3401.19.00', sistema: 'NCM' });
+
+    expect(result.regime).toBe('reducao_60');
+    expect(result.aliquota).toBeNull();
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('136');
+  });
+
+  // L3-07: Óleo de soja refinado
+  it('[L3-07] NCM 1507.90.11 → reducao_60, regra 95, artigo 135 Anexo VII', () => {
+    const result = lookupNcm({ codigo: '1507.90.11', sistema: 'NCM' });
+
+    expect(result.regime).toBe('reducao_60');
+    expect(result.aliquota).toBeNull();
+    expect(result.confianca.valor).toBe(95);
+    expect(result.confianca.tipo).toBe('regra');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('135');
+  });
+
+});
+
+// ─── Q5 Lote 3 — NBS (6 confirmados + 1 pending) ────────────────────────────
+
+describe('nbs-engine — Lote 3 (saúde + educação + financeiro + geral + pending)', () => {
+
+  // L3-01 NBS: Psicologia
+  it('[NBS L3-01] NBS 1.2301.98.00 → reducao_60, regra ≤ 98, artigo 130 Anexo III', () => {
+    const result = lookupNbs({ codigo: '1.2301.98.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('reducao_60');
+    expect(result.confianca.valor).toBeLessThanOrEqual(98);
+    expect(result.confianca.valor).toBeGreaterThan(0);
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('130');
+  });
+
+  // L3-02 NBS: Fisioterapia
+  it('[NBS L3-02] NBS 1.2301.92.00 → reducao_60, regra ≤ 98, artigo 130 Anexo III', () => {
+    const result = lookupNbs({ codigo: '1.2301.92.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('reducao_60');
+    expect(result.confianca.valor).toBeLessThanOrEqual(98);
+    expect(result.confianca.valor).toBeGreaterThan(0);
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('130');
+  });
+
+  // L3-03 NBS: Ensino médio
+  it('[NBS L3-03] NBS 1.2201.30.00 → reducao_60, deterministico, artigo 129 Anexo II', () => {
+    const result = lookupNbs({ codigo: '1.2201.30.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('reducao_60');
+    expect(result.confianca.valor).toBeLessThanOrEqual(98); // CNT-01b cap
+    expect(result.confianca.valor).toBeGreaterThan(95);
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('129');
+  });
+
+  // L3-04 NBS: Leasing financeiro
+  it('[NBS L3-04] NBS 1.0901.51.24 → regime_especial, regra ≤ 98, artigo 182 VI + 201', () => {
+    const result = lookupNbs({ codigo: '1.0901.51.24', sistema: 'NBS' });
+
+    expect(result.regime).toBe('regime_especial');
+    expect(result.confianca.valor).toBeLessThanOrEqual(98);
+    expect(result.confianca.valor).toBeGreaterThan(0);
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toContain('181');
+  });
+
+  // L3-05 NBS: Contabilidade
+  it('[NBS L3-05] NBS 1.1302.21.00 → regime_geral, regra 95, artigos 11+15+21', () => {
+    const result = lookupNbs({ codigo: '1.1302.21.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('regime_geral');
+    expect(result.confianca.valor).toBe(95);
+    expect(result.confianca.valor).toBeLessThanOrEqual(98);
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBeTruthy();
+  });
+
+  // L3-06 NBS: Arquitetura
+  it('[NBS L3-06] NBS 1.1402.12.00 → regime_geral, regra 95, artigos 11+15+21', () => {
+    const result = lookupNbs({ codigo: '1.1402.12.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('regime_geral');
+    expect(result.confianca.valor).toBe(95);
+    expect(result.confianca.valor).toBeLessThanOrEqual(98);
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBeTruthy();
+  });
+
+  // L3-07 NBS: Corretagem de seguros (PENDING — confianca.valor=0, tipo=fallback)
+  it('[NBS L3-07] NBS 1.0906.11.00 → confianca.valor=0, tipo=fallback (pending_validation)', () => {
+    const result = lookupNbs({ codigo: '1.0906.11.00', sistema: 'NBS' });
+
+    expect(result.confianca.valor).toBe(0);
+    expect(result.confianca.tipo).toBe('fallback');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+  });
+
+});
+
 // ─── Contrato CNT-03: source='engine' ────────────────────────────────────────
 
 describe('CNT-03 — campos obrigatórios para gaps com source=engine', () => {
