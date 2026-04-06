@@ -1,9 +1,9 @@
 # CORPUS BASELINE — IA SOLARIS RAG
 
-> **Versão:** v3.3
+> **Versão:** v4.4
 > **Data:** 2026-04-05
-> **Commit HEAD:** d562127
-> **Sprint de referência:** Sprint T / Milestone 1 (pós-merge PR #316)
+> **Commit HEAD:** 1c42774
+> **Sprint de referência:** Sprint V / PV-01 Lote 2 (pós-merge PR #330)
 > **Autor:** Manus AI
 > **Aprovado por:** Uires Tapajós (P.O.)
 > **Revisão externa:** Consultor (ChatGPT) — parecer de 2026-03-30
@@ -37,8 +37,8 @@ mas "**está funcionando?**"
 
 | Indicador | Valor |
 |---|---|
-| Total de chunks | 2.454 |
-| Chunks com `anchor_id` | 2.454 (100%) |
+| Total de chunks | 2.509 |
+| Chunks com `anchor_id` | 2.509 (100%) |
 | Chunks sem `anchor_id` | 0 |
 | Leis ativas no corpus | 10 |
 | Anomalias abertas | 0 ✅ Sprint G concluída |
@@ -318,6 +318,8 @@ INGESTÃO → VALIDAÇÃO → USO → MELHORIA
 | **v2.1** | **2026-03-30** | **PR #235** | **L-RAG-01 implementado: tabela `rag_usage_log`, migration 0060, captura async non-blocking em `rag-retriever.ts`, 4 endpoints tRPC (`getChunkUsageStats`, `getTopChunks`, `getUnusedChunks`, `getUsageByLei`), integração no cockpit 7E** |
 | **v2.2** | **2026-04-04** | **d08c12a** | **Sprint S: 5 novas leis ingeridas (conv_icms=278, lc116=60, cg_ibs=26, rfb_cbs=7, lc87=5). Corpus: 2.454 chunks · 10 leis. PR #296.** |
 | **v3.3** | **2026-04-05** | **d562127** | **Milestone 1 Decision Kernel: ncm-engine + nbs-engine + engine-gap-analyzer (PRs #311–#315). source='engine' ativo em project_gaps_v3. 5/6 casos NCM/NBS validados (Dr. Rodrigues). Gate triplo aprovado (Técnico + Jurídico + P.O.). Baseline v3.3 oficial.** |
+| **v4.3** | **2026-04-05** | **49c3f68** | **Sprint V Lote 1 (PR #328): +10 casos NCM/NBS → 16 confirmados. NCM:9 · NBS:7 · Testes:26/26. Fix nbs-engine.ts extractFonte.** |
+| **v4.4** | **2026-04-05** | **1c42774** | **Sprint V Lote 2 (PR #330): +8 casos NCM/NBS → 24 confirmados. NCM:12 · NBS:12 · Testes:34/34. Correção S-07 (planos saúde: Arts.234-235).** |
 
 ---
 
