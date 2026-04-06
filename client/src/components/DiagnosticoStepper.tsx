@@ -446,6 +446,15 @@ export function DiagnosticoStepper({
             >
               {completedCount}/8 etapas
             </Badge>
+            {/* BL-05 (Sprint Y): badge Diagnóstico Completo quando todas as 8 etapas estão concluídas */}
+            {computedProgress === 100 && (
+              <Badge
+                variant="outline"
+                className="text-[10px] h-4 border-emerald-500 text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 font-semibold"
+              >
+                ✓ Diagnóstico Completo
+              </Badge>
+            )}
           </div>
           <span
             className={cn(
