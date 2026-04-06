@@ -518,6 +518,8 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         corporateAnswers: diagSource.corporateAnswers ?? null,
         operationalAnswers: diagSource.operationalAnswers ?? null,
         cnaeAnswers: diagSource.cnaeAnswers ?? null,
+        // M2 Componente D: operationProfile exposto para edição NCM/NBS (TO-BE v3 2026-04-06)
+        operationProfile: (project as any).operationProfile ?? null,
       };
     }),
 
@@ -2479,6 +2481,79 @@ Regras obrigatórias:
         newStatus: 'diagnostico_corporativo',
         answersCount: input.answers.length,
       };
+    }),
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // M2 COMPONENTE D: Editar NCM/NBS do operationProfile (TO-BE v3 2026-04-06)
+  // CODEOWNERS: exige aprovação do P.O. (Uires Tapajos)
+  // ─────────────────────────────────────────────────────────────────────────
+  updateOperationProfile: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      principaisProdutos: z.array(z.object({
+        ncm_code: z.string(),
+        descricao: z.string(),
+        percentualFaturamento: z.number().optional(),
+      })).optional(),
+      principaisServicos: z.array(z.object({
+        nbs_code: z.string(),
+        descricao: z.string(),
+        percentualFaturamento: z.number().optional(),
+      })).optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const { projectId, principaisProdutos, principaisServicos } = input;
+
+      // 1. Buscar projeto atual
+      const projeto = await db.getProjectById(projectId);
+      if (!projeto) throw new TRPCError({ code: 'NOT_FOUND' });
+
+      // 2. Parse seguro do operationProfile
+      let perfilAtual: Record<string, unknown> = {};
+      const raw = (projeto as any).operationProfile;
+      if (raw !== null && raw !== undefined) {
+        if (typeof raw === 'string') {
+          try { perfilAtual = JSON.parse(raw); } catch { perfilAtual = {}; }
+        } else if (typeof raw === 'object') {
+          perfilAtual = raw as Record<string, unknown>;
+        }
+      }
+
+      // 3. Merge seguro — undefined NÃO sobrescreve
+      const merged = { ...perfilAtual };
+      if (principaisProdutos !== undefined) {
+        merged.principaisProdutos = principaisProdutos;
+      }
+      if (principaisServicos !== undefined) {
+        merged.principaisServicos = principaisServicos;
+      }
+
+      // 4. Persistir
+      await db.updateProject(projectId, { operationProfile: merged } as any);
+
+      // 5. Fire-and-forget engine APENAS se change material
+      const produtosAntes = (perfilAtual.principaisProdutos as any[]) ?? [];
+      const produtosDepois = (merged.principaisProdutos as any[]) ?? [];
+      const servicosAntes  = (perfilAtual.principaisServicos as any[]) ?? [];
+      const servicosDepois = (merged.principaisServicos as any[]) ?? [];
+
+      const houveChangeMaterial =
+        JSON.stringify(produtosAntes) !== JSON.stringify(produtosDepois) ||
+        JSON.stringify(servicosAntes) !== JSON.stringify(servicosDepois);
+
+      if (houveChangeMaterial) {
+        // Reutilizar extractNcmNbsFromProfile (já existe no arquivo) — não duplicar lógica
+        const { ncmCodes, nbsCodes } = extractNcmNbsFromProfile(merged);
+        if (ncmCodes.length > 0 || nbsCodes.length > 0) {
+          // analyzeEngineGaps requer 3 parâmetros obrigatórios — NUNCA chamar com apenas projectId
+          void analyzeEngineGaps(projectId, ncmCodes, nbsCodes)
+            .catch(err =>
+              console.error('[ENGINE-GAP] falhou após updateOperationProfile:', err)
+            );
+        }
+      }
+
+      return { success: true, projectId };
     }),
 });
 

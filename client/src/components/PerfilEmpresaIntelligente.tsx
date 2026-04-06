@@ -49,8 +49,8 @@ export interface PerfilEmpresaData {
   isEconomicGroup: boolean | null;
   taxCentralization: string | null;
   // Bloco E (CNT-01c): NCM/NBS para o Decision Kernel
-  principaisProdutos: Array<{ ncm_code: string; descricao: string }>;
-  principaisServicos: Array<{ nbs_code: string; descricao: string }>;
+  principaisProdutos: Array<{ ncm_code: string; descricao: string; percentualFaturamento?: number }>;
+  principaisServicos: Array<{ nbs_code: string; descricao: string; percentualFaturamento?: number }>;
 }
 
 export const PERFIL_VAZIO: PerfilEmpresaData = {
@@ -725,6 +725,15 @@ interface PerfilEmpresaIntelligenteProps {
   projectId?: number;
   /** Nome do projeto para o relatório CPIE (H3) */
   projectName?: string;
+  /**
+   * M2 Componente D: modo de operação do componente.
+   * 'create' = comportamento atual (padrão, sem alteração).
+   * 'edit' = exibe botão explícito "Salvar NCM/NBS" que dispara updateOperationProfile.
+   * NUNCA disparar por onChange.
+   */
+  mode?: 'create' | 'edit';
+  /** Chamado após sucesso do save em mode='edit'. */
+  onSave?: () => void;
   /** K2: Callback chamado quando o score CPIE v2 é calculado/atualizado */
   onCpieScore?: (data: {
     // Compat v1 (mantido para não quebrar usos legados)
@@ -741,12 +750,41 @@ interface PerfilEmpresaIntelligenteProps {
   externalCpieV2Gate?: CpieV2GateResult | null;
 }
 
-export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description, projectId, projectName, onCpieScore, externalCpieV2Gate }: PerfilEmpresaIntelligenteProps) {
+export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description, projectId, projectName, onCpieScore, externalCpieV2Gate, mode = 'create', onSave }: PerfilEmpresaIntelligenteProps) {
   const [cnpjError, setCnpjError] = useState("");
   const [cpieResult, setCpieResult] = useState<CpieResult | null>(null);
   const [cpieV2Gate, setCpieV2Gate] = useState<CpieV2GateResult | null>(null);
   const [restoredFromDb, setRestoredFromDb] = useState(false);
   const score = calcProfileScore(value);
+
+  // M2 Componente D: mutation de edição NCM/NBS (só ativa em mode='edit')
+  const updateOperationProfile = trpc.fluxoV3.updateOperationProfile.useMutation({
+    onSuccess: () => {
+      toast.success('NCM/NBS salvos com sucesso.');
+      onSave?.();
+    },
+    onError: (err) => {
+      toast.error(`Erro ao salvar: ${err.message}`);
+    },
+  });
+
+  // Handler do botão explícito — NUNCA disparar por onChange
+  const handleSaveNcmNbs = () => {
+    if (!projectId) return;
+    updateOperationProfile.mutate({
+      projectId,
+      principaisProdutos: value.principaisProdutos?.map(p => ({
+        ncm_code: p.ncm_code,
+        descricao: p.descricao,
+        percentualFaturamento: p.percentualFaturamento,
+      })),
+      principaisServicos: value.principaisServicos?.map(s => ({
+        nbs_code: s.nbs_code,
+        descricao: s.descricao,
+        percentualFaturamento: s.percentualFaturamento,
+      })),
+    });
+  };
 
   // H1: Carregar análise salva do banco ao abrir projeto existente
   const savedAnalysis = trpc.cpie.getProjectAnalysis.useQuery(
@@ -1304,12 +1342,23 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
           <SimNaoToggle value={value.hasTaxIssues} onChange={(v) => set("hasTaxIssues", v)}
             label="Possui passivo tributário ou pendências com a Receita Federal?"
             tooltip="Passivos existentes podem ser agravados pela mudança de regime na Reforma Tributária." />
-        </div>
+          </div>
       </section>
-
+      {/* M2 Componente D: botão explícito Salvar NCM/NBS — só em mode='edit' */}
+      {mode === 'edit' && projectId && (
+        <div className="pt-4 border-t">
+          <Button
+            type="button"
+            onClick={handleSaveNcmNbs}
+            disabled={updateOperationProfile.isPending}
+            className="w-full sm:w-auto"
+          >
+            {updateOperationProfile.isPending ? 'Salvando...' : 'Salvar NCM/NBS'}
+          </Button>
+        </div>
+      )}
     </div>
   );
-
   if (!showScorePanel) return formContent;
 
   return (
