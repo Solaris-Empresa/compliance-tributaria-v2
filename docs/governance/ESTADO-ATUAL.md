@@ -1,25 +1,26 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v4.6 · 2026-04-05 (Sprint V encerrada — PRs #302–#333 mergeados)** · Responsável: Orquestrador gera, Manus commita
+> **v4.7 · 2026-04-06 (Sprint W — M2 Fase 1 concluída: PRs #337+#338+#339)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v4.4 · **HEAD:** `2d53596` (origin/main) · **Testes:** 1.476 passando  
+**Baseline:** v4.4 · **HEAD:** `9d55068` (origin/main) · **Testes:** 1.476+ (incluindo 12 novos M2: 5A + 7D)  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
 **Sprint U:** ENCERRADA ✅ (PRs #318–#323 · 4 tasks · 6/6 casos POC M1 confirmados)  
 **Pipeline 3 Ondas:** Onda 1 ✅ · Onda 2 ✅ · Onda 3 ✅ integrada (`source='engine'`, 6/6 casos)  
-**Sprint V:** ✅ Encerrada (PV-01 Lote 1 ✅ #328 · PV-02 ✅ #325 · PV-03 ✅ #326 · PV-01 Lote 2 ✅ #330 · PV-01 Lote 3 ✅ #333 · AS-IS ⏳)
+**Sprint V:** ✅ Encerrada (PV-01 Lote 1 ✅ #328 · PV-02 ✅ #325 · PV-03 ✅ #326 · PV-01 Lote 2 ✅ #330 · PV-01 Lote 3 ✅ #333 · AS-IS ✅ #336)  
+**Sprint W:** 🔄 Em execução — M2 Fase 1 CONCLUÍDA (A ✅ #337 · D ✅ #338 · UX ✅ #339) · B ⏳ Gate B · C ⏳ pós-B
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `2d53596`
+- **Branch base:** main · **HEAD:** `9d55068`
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git restore --staged`
@@ -41,13 +42,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (origin/main) | `2d53596` | ✅ |
+| HEAD (origin/main) | `9d55068` | ✅ |
 | Baseline | **v4.4** | ✅ |
-| Testes passando | **1.476** (0 falhas) | ✅ |
+| Testes passando | **1.476+** (12 novos M2 · 2 falhas pré-existentes conhecidas T-B7-08/T-B7-10) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | CI Workflows | **12 ativos** + invariant-check (GOV-03b) | ✅ |
 | CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
-| PRs mergeados (total) | **333** | ✅ |
+| PRs mergeados (total) | **339** | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
 | Corpus RAG | **2.509 chunks — 10 leis** | ✅ |
@@ -55,6 +56,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | GS-08 (autor NULL) | **0 chunks** (RFC-004 executada) | ✅ |
 | CORPUS_VERSION | **v4.4** (env definida) | ✅ |
 | Skill solaris-contexto | **v4.2** | ✅ |
+| M2 Fase 1 | **A+D+UX concluídos** (PRs #337–#339) | ✅ |
+| Gate B | ⏳ 6 critérios pendentes (aguarda P.O.) | ⏳ |
 | Skill solaris-orquestracao | **v3.2** | ✅ |
 | feature-flags.ts | g17 ✅ g11 ✅ g15 ✅ | ✅ |
 | db:push guard | Bloqueado em production | ✅ |
@@ -169,7 +172,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | **S** | **Lotes A+B+C+D+E + Fix #295 — pipeline 3 Ondas completo + corpus 10 leis** | **✅ ENCERRADA 2026-04-04** |
 | **T** | **Milestone 1 — Decision Kernel (Blocos C+D + DK-Q1/Q2 + Gate triplo · 16 PRs)** | **✅ ENCERRADA 2026-04-05** |
 | **U** | **RFC-004 + GOV-03b + Bloco E + Patch IS 2202.10.00 · 6/6 casos M1 confirmados** | **✅ ENCERRADA 2026-04-05** |
-| **V** | **PV-01 Lote 1+2+3 ✅ (37 casos) · PV-02 ✅ · PV-03 ✅ · AS-IS ⏳** | **✅ ENCERRADA** |
+| **V** | **PV-01 Lote 1+2+3 ✅ (37 casos) · PV-02 ✅ · PV-03 ✅ · AS-IS ✅ #336** | **✅ ENCERRADA** |
+| **W** | **M2 Fase 1: A ✅ #337 · D ✅ #338 · UX ✅ #339 · B ⏳ Gate B · C ⏳ pós-B** | **🔄 EM EXECUÇÃO** |
 
 ---
 
@@ -206,7 +210,57 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | PV-01 Lote 3 | P0 | Dataset +13 casos NCM/NBS + 1 pending | Manus + Dr. Rodrigues | **✅ CONCLUÍDA** (#333) |
 | PV-02 | P1 | Frontend Bloco E — campos NCM/NBS no formulário de projeto | Manus | **✅ CONCLUÍDA** (#325) |
 | PV-03 | P1 | LC 87 compilada completa (55 novos chunks) | Manus | **✅ CONCLUÍDA** (#326) |
-| PV-04 | P2 | M2 prep — GOV-03b já feito, aguarda validação Claude Code | Orquestrador | Sprint W |
+| PV-04 | P2 | M2 prep — GOV-03b já feito, aguarda validação Claude Code | Orquestrador | **✅ CONCLUÍDA** (Sprint W) |
+
+---
+
+## 9b. Sprint W — M2 Fase 1 (Em Execução)
+
+### Componentes M2 — Status
+
+| Componente | Arquivo | PR | Status | Bloqueio |
+|---|---|---|---|---|
+| A — briefingEngine | `server/routers/briefingEngine.ts` | #337 | **✅ CONCLUÍDO** | — |
+| D — Edição NCM/NBS | `server/routers-fluxo-v3.ts` | #338 | **✅ CONCLUÍDO** | — |
+| UX NCM/NBS | `client/src/components/PerfilEmpresaIntelligente.tsx` | #339 | **✅ CONCLUÍDO** | — |
+| B — riskEngine | `server/routers/riskEngine.ts` | — | **⏳ BLOQUEADO** | Gate B |
+| C — scoringEngine | `server/routers/scoringEngine.ts` | — | **⏳ BLOQUEADO** | Gate B + Comp. B |
+
+### Decisões Canônicas M2 (DEC-M2-01 a DEC-M2-07)
+
+| Código | Decisão | Status |
+|---|---|---|
+| DEC-M2-01 | briefingEngine ordena por `COALESCE(evaluation_confidence, 0.8)` — valor 0.8 FIXO · `top_gaps` mantém TODOS os gaps · `engine_gaps` é seção ADICIONAL opcional | ✅ PR #337 |
+| DEC-M2-02 | `updateOperationProfile` — `undefined` NÃO sobrescreve · arrays vazios `[]` SÃO aceitos · engine só dispara em change material | ✅ PR #338 |
+| DEC-M2-03 | `analyzeEngineGaps` requer 3 parâmetros: `analyzeEngineGaps(projectId, ncmCodes, nbsCodes)` — NUNCA chamar com apenas `projectId` | ✅ PR #338 |
+| DEC-M2-04 | `gap_classification=NULL` para `source='engine'` é INTENCIONAL · fallback `'ausencia'` via `effectiveGapClassification` correto · NÃO corrigir o NULL | ✅ PR #337 |
+| DEC-M2-05 | `fonte_risco` é `VARCHAR(20)` — sem migration de banco · Componente B: apenas Zod enum + WHERE clause | ⏳ Comp. B |
+| DEC-M2-06 | Scoring — menor confidence = menor penalidade (APROVADO P.O.) · engine 1.00→100% · solaris 0.90→90% · iagen 0.70→70% | ⏳ Comp. C |
+| DEC-M2-07 | UX NCM/NBS — validação em tempo real · NCM: `NNNN.NN.NN` · NBS: `N.NNNN.NN.NN` · botão salvar desabilitado com códigos inválidos | ✅ PR #339 |
+
+### Gate B — Critérios obrigatórios antes do Componente B
+
+> O Orquestrador NÃO deve gerar prompt de Componente B sem verificar os 6 critérios abaixo com o P.O.
+
+| # | Critério | Status |
+|---|---|---|
+| 1 | 1+ projeto com NCM/NBS criado via nova UI (Componente D) | [ ] |
+| 2 | `project_gaps_v3`: `COUNT(*) WHERE source='engine' >= 1` | [ ] |
+| 3 | `evaluation_confidence >= 0.90` confirmado no registro | [ ] |
+| 4 | `source_reference` preenchido no registro | [ ] |
+| 5 | Briefing gerado sem erro Zod | [ ] |
+| 6 | `project_risks_v3`: `COUNT(*) WHERE fonte_risco='engine' = 0` (esperado) | [ ] |
+
+### Flags Ativas — Sprint W
+
+| Flag | Descrição | Status |
+|---|---|---|
+| FLAG 1 | `DIAGNOSTIC_READ_MODE=new` bloqueado | 🔴 ATIVA |
+| FLAG 2 | Escopo cirurúgico por PR | ✅ RESOLVIDA (3 PRs respeitados) |
+| FLAG 4 | Gate B obrigatório antes Comp. B | 🔴 ATIVA |
+| FLAG 5 | Falhas pré-existentes T-B7-08/T-B7-10 não são regressões | 🔴 ATIVA |
+| FLAG 6 | 0 regressões além das 2 conhecidas | ✅ OK |
+| FLAG 7 | `consistencyRouter.OperationProfileSchema` desatualizado | 🔴 ATIVA (M2.1/M3) |
 
 ---
 
@@ -237,6 +291,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DEC-021 | PV-02: campos NCM/NBS opcionais no formulário de projeto — compatibilidade legada garantida (arrays vazios) | 2026-04-05 |
 | DEC-022 | PV-03: LC 87 compilada ingerida com 55 novos chunks — Anexo Kandir excluído (ruído histórico) | 2026-04-05 |
 | DEC-023 | nbs-engine.ts extractFonte — suporte a artigo string direta além de artigos nomeados. PR #328. Sem regressão. | 2026-04-05 |
+| DEC-M2-01 | briefingEngine: COALESCE(0.8) FIXO + engine_gaps opcional + source enum. PR #337. | 2026-04-06 |
+| DEC-M2-02 | updateOperationProfile: merge seguro + fire-and-forget change material. PR #338. | 2026-04-06 |
+| DEC-M2-03 | analyzeEngineGaps: 3 parâmetros obrigatórios (projectId, ncmCodes, nbsCodes). PR #338. | 2026-04-06 |
+| DEC-M2-04 | gap_classification=NULL para source=engine: intencional, NÃO corrigir. PR #337. | 2026-04-06 |
+| DEC-M2-05 | fonte_risco VARCHAR(20): sem migration. Componente B: apenas Zod enum + WHERE. | 2026-04-06 |
+| DEC-M2-06 | Scoring confidence ponderado: aprovado P.O. (engine 1.00→100%, solaris 0.90→90%, iagen 0.70→70%). | 2026-04-06 |
+| DEC-M2-07 | UX NCM/NBS: validação em tempo real + acessibilidade WCAG (aria-describedby/invalid). PR #339. | 2026-04-06 |
 
 ---
 
@@ -246,6 +307,14 @@ Plataforma de compliance da Reforma Tributária brasileira.
 - `F-04 Fase 3` → aguarda UAT
 - `DROP COLUMN` em colunas legadas → aguarda F-04 Fase 3
 - Issues #56, #61, #62 → bloqueadas em cascata
+- `analyzeEngineGaps(projectId)` → SEMPRE 3 parâmetros (DEC-M2-03)
+- `gap_classification=NULL` para `source='engine'` → NUNCA corrigir (DEC-M2-04)
+- `COALESCE(0.8)` no briefingEngine → NUNCA alterar sem P.O. (DEC-M2-01)
+- `undefined` em `updateOperationProfile` → NUNCA sobrescreve dados (DEC-M2-02)
+- Componente B → NUNCA iniciar sem Gate B verificado pelo P.O.
+- Gate B critério 3: `evaluation_confidence >= 0.90` (operador >=, não >)
+- T-B7-08 + T-B7-10 → falhas PRÉ-EXISTENTES, não investigar como regressão
+- `consistencyRouter.OperationProfileSchema` → ATUALIZAR antes do M3 Consolidador (pré-requisito)
 
 ---
 
@@ -278,5 +347,5 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-05 (Sprint V encerrada — PRs #302–#333 mergeados · baseline v4.4 · HEAD 2d53596)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (Sprint W — M2 Fase 1 concluída · PRs #337–#339 · HEAD 9d55068)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
