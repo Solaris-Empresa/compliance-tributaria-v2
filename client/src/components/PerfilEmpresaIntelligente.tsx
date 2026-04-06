@@ -1142,11 +1142,14 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                     <div className="flex flex-col gap-1">
                       <div className="relative">
                         <Input
+                          id={`ncm-code-${idx}`}
                           className={cn("w-36 font-mono text-sm", ncmValid === false && "border-destructive", ncmValid === true && "border-green-500")}
                           placeholder="Ex: 1006.40.00"
                           value={item.ncm_code}
                           maxLength={14}
                           aria-label={`Código NCM do produto ${idx + 1}`}
+                          aria-describedby={ncmValid === false ? `ncm-error-${idx}` : undefined}
+                          aria-invalid={ncmValid === false}
                           onChange={(e) => {
                             const updated = [...value.principaisProdutos];
                             updated[idx] = { ...updated[idx], ncm_code: e.target.value.replace(/[^0-9.]/g, "") };
@@ -1156,7 +1159,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                         {ncmValid === true && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-green-500 text-xs">✓</span>}
                       </div>
                       {ncmValid === false && (
-                        <p className="text-xs text-destructive">Formato inválido. Use NNNN.NN.NN (ex: 1006.40.00)</p>
+                        <p id={`ncm-error-${idx}`} className="text-xs text-destructive">Formato inválido. Use NNNN.NN.NN (ex: 1006.40.00)</p>
                       )}
                     </div>
                     <Input
@@ -1245,11 +1248,14 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                     <div className="flex flex-col gap-1">
                       <div className="relative">
                         <Input
+                          id={`nbs-code-${idx}`}
                           className={cn("w-36 font-mono text-sm", nbsValid === false && "border-destructive", nbsValid === true && "border-green-500")}
                           placeholder="Ex: 1.1501.10.00"
                           value={item.nbs_code}
                           maxLength={16}
                           aria-label={`Código NBS do serviço ${idx + 1}`}
+                          aria-describedby={nbsValid === false ? `nbs-error-${idx}` : undefined}
+                          aria-invalid={nbsValid === false}
                           onChange={(e) => {
                             const updated = [...value.principaisServicos];
                             updated[idx] = { ...updated[idx], nbs_code: e.target.value.replace(/[^0-9.]/g, "") };
@@ -1259,7 +1265,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                         {nbsValid === true && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-green-500 text-xs">✓</span>}
                       </div>
                       {nbsValid === false && (
-                        <p className="text-xs text-destructive">Formato inválido. Use N.NNNN.NN.NN (ex: 1.1501.10.00)</p>
+                        <p id={`nbs-error-${idx}`} className="text-xs text-destructive">Formato inválido. Use N.NNNN.NN.NN (ex: 1.1501.10.00)</p>
                       )}
                     </div>
                     <Input
