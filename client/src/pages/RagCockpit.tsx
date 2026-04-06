@@ -133,6 +133,12 @@ const SPRINTS = [
       "Testes decision-kernel: 34/34 passando",
       "CORPUS-BASELINE.md v4.4",
     ], status: "done" },
+  { id: "Sprint V — PV-01 Lote 3", date: "2026-04-05", pr: "#333", commit: "2d53596",
+    changes: [
+      "Lote 3: +13 casos NCM/NBS + 1 pending → 37 confirmados (NCM:19 · NBS:19)",
+      "Testes decision-kernel: 48/48 passando",
+      "CORPUS-BASELINE.md v4.5 · Sprint V encerrada",
+    ], status: "done" },
 ];
 
 const SOURCE_FILES = [
@@ -155,8 +161,9 @@ const SOURCE_FILES = [
   { path: "docs/governance/post-mortems/2026-03-31-g17-insert-silencioso.md", role: "Post-mortem G17: INSERT silencioso — 5 Whys + DORA Sprint N", critical: false },
   { path: ".github/workflows/validate-implementation.yml", role: "CI: Gates v5.0 — Q6/Q7/R9/R2 automáticos", critical: false },
   // Sprint T — Milestone 1 (Decision Kernel)
-  { path: "server/lib/decision-kernel/datasets/ncm-dataset.json", role: "Dataset NCM — 12 casos confirmados · Sprint V Lote 1+2 (PRs #328, #330)", critical: true },
-  { path: "server/lib/decision-kernel/datasets/nbs-dataset.json", role: "Dataset NBS — 12 casos confirmados · Sprint V Lote 1+2 (PRs #328, #330)", critical: true },
+  { path: "server/lib/decision-kernel/datasets/ncm-dataset.json", role: "Dataset NCM — 19 casos confirmados · Sprint V Lote 1+2+3 (PRs #328, #330, #333)", critical: true },
+  { path: "server/lib/decision-kernel/datasets/nbs-dataset.json", role: "Dataset NBS — 19 casos confirmados · Sprint V Lote 1+2+3 (PRs #328, #330, #333)", critical: true },
+  { path: "server/lib/decision-kernel/engine/decision-kernel.test.ts", role: "48 testes Q5 decision-kernel · Sprint V Lote 1+2+3", critical: false },
   { path: "server/lib/decision-kernel/engine/ncm-engine.ts", role: "Engine determinístico NCM — lookup regime tributário LC 214/2025", critical: true },
   { path: "server/lib/decision-kernel/engine/nbs-engine.ts", role: "Engine determinístico NBS — lookup regime tributário LC 214/2025", critical: true },
   { path: "server/lib/engine-gap-analyzer.ts", role: "Integrador engine → project_gaps_v3 (fire-and-forget, source='engine')", critical: true },
@@ -850,8 +857,8 @@ export default function RAGCockpit() {
             background: "#1a2744", border: "1px solid #3b82f6",
             borderRadius: 8, padding: "6px 14px", textAlign: "center"
           }}>
-            <div style={{ color: "#22c55e", fontWeight: 700, fontSize: 12, letterSpacing: "0.05em" }}>✅ SPRINT V / PV-01 LOTE 1+2 CONCLUÍDA</div>
-            <div style={{ color: "#334155", fontSize: 10, marginTop: 2 }}>Decision Kernel · 24 casos NCM/NBS · 34 testes · 1c42774</div>
+            <div style={{ color: "#22c55e", fontWeight: 700, fontSize: 12, letterSpacing: "0.05em" }}>✅ SPRINT V / PV-01 LOTE 1+2+3 CONCLUÍDA</div>
+            <div style={{ color: "#334155", fontSize: 10, marginTop: 2 }}>Decision Kernel · 37 casos NCM/NBS + 1 pending · 48 testes · 2d53596</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ color: corpusConfidence >= 98 ? "#22c55e" : "#f59e0b", fontFamily: "monospace", fontWeight: 700, fontSize: 20 }}>{corpusConfidence}%</div>

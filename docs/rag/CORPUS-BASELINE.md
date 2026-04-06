@@ -1,9 +1,9 @@
 # CORPUS BASELINE — IA SOLARIS RAG
 
-> **Versão:** v4.4
+> **Versão:** v4.5
 > **Data:** 2026-04-05
-> **Commit HEAD:** 1c42774
-> **Sprint de referência:** Sprint V / PV-01 Lote 2 (pós-merge PR #330)
+> **Commit HEAD:** 2d53596
+> **Sprint de referência:** Sprint V / PV-01 Lote 3 (pós-merge PR #333)
 > **Autor:** Manus AI
 > **Aprovado por:** Uires Tapajós (P.O.)
 > **Revisão externa:** Consultor (ChatGPT) — parecer de 2026-03-30
@@ -320,6 +320,7 @@ INGESTÃO → VALIDAÇÃO → USO → MELHORIA
 | **v3.3** | **2026-04-05** | **d562127** | **Milestone 1 Decision Kernel: ncm-engine + nbs-engine + engine-gap-analyzer (PRs #311–#315). source='engine' ativo em project_gaps_v3. 5/6 casos NCM/NBS validados (Dr. Rodrigues). Gate triplo aprovado (Técnico + Jurídico + P.O.). Baseline v3.3 oficial.** |
 | **v4.3** | **2026-04-05** | **49c3f68** | **Sprint V Lote 1 (PR #328): +10 casos NCM/NBS → 16 confirmados. NCM:9 · NBS:7 · Testes:26/26. Fix nbs-engine.ts extractFonte.** |
 | **v4.4** | **2026-04-05** | **1c42774** | **Sprint V Lote 2 (PR #330): +8 casos NCM/NBS → 24 confirmados. NCM:12 · NBS:12 · Testes:34/34. Correção S-07 (planos saúde: Arts.234-235).** |
+| **v4.5** | **2026-04-05** | **2d53596** | **Sprint V Lote 3 (PR #333): +13 casos NCM/NBS + 1 pending → 37 confirmados. NCM:19 · NBS:19 · Testes:48/48. Sprint V encerrada. Meta 38 casos atingida com margem de segurança jurídica.** |
 
 ---
 
