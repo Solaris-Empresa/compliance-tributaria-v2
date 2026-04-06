@@ -1904,6 +1904,10 @@ Gere o veredito final em JSON:
         cnae: "diagnostico_cnae",
       };
 
+      // BL-01 (Sprint Y): assertValidTransition — mesmo padrão de completeOnda1/Onda2
+      const { assertValidTransition } = await import('./flowStateMachine');
+      assertValidTransition(project.status, layerToStatus[input.layer]);
+
       await db.updateProject(input.projectId, {
         diagnosticStatus: updated,
         status: layerToStatus[input.layer],
