@@ -435,7 +435,9 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
     .mutation(async ({ input }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
-
+      // BUG-UAT-08: assertValidTransition universal
+      const { assertValidTransition } = await import('./flowStateMachine');
+      assertValidTransition(project.status, 'cnaes_confirmados');
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await database
@@ -1072,6 +1074,11 @@ Gere o Briefing estruturado em JSON:
       briefingContent: z.string(),
     }))
     .mutation(async ({ input }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+      // BUG-UAT-08: assertValidTransition universal
+      const { assertValidTransition } = await import('./flowStateMachine');
+      assertValidTransition(project.status, 'matriz_riscos');
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await database
@@ -1222,6 +1229,11 @@ Formato:
       matrices: z.record(z.string(), z.array(z.any())),
     }))
     .mutation(async ({ input }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+      // BUG-UAT-08: assertValidTransition universal
+      const { assertValidTransition } = await import('./flowStateMachine');
+      assertValidTransition(project.status, 'plano_acao');
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await database
@@ -1529,6 +1541,11 @@ Gere o plano de ação em JSON:
       plans: z.record(z.string(), z.array(z.any())),
     }))
     .mutation(async ({ ctx, input }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+      // BUG-UAT-08: assertValidTransition universal
+      const { assertValidTransition } = await import('./flowStateMachine');
+      assertValidTransition(project.status, 'aprovado');
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 

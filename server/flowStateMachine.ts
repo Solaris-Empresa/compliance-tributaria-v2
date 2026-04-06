@@ -421,7 +421,7 @@ export const VALID_TRANSITIONS: Record<string, string[]> = {
   'diagnostico_operacional':   ['diagnostico_cnae', 'diagnostico_corporativo'],
   'diagnostico_cnae':          ['briefing', 'diagnostico_operacional'],
   'briefing':                  ['matriz_riscos', 'diagnostico_cnae'],
-  'matriz_riscos':             ['aprovado', 'briefing'],
+  'matriz_riscos':             ['plano_acao', 'briefing'],  // BUG-UAT-08 fix: fluxo 3 passos — plano_acao é Etapa 8 obrigatória (não pular para aprovado)
   'aprovado':                  ['matriz_riscos'],
   // Status legados — mantidos para compatibilidade com projetos existentes
   'consistencia_pendente':     ['cnaes_confirmados', 'rascunho'],
