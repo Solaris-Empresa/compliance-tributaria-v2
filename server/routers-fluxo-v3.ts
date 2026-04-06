@@ -2447,11 +2447,11 @@ Regras obrigatórias:
       }
       const { assertValidTransition } = await import('./flowStateMachine');
       try {
-        assertValidTransition(project.status, 'onda2_iagen');
+        assertValidTransition(project.status, 'diagnostico_corporativo'); // BUG-UAT-05 fix: era 'onda2_iagen' incorretamente
       } catch (err: any) {
         throw new TRPCError({
           code: 'FORBIDDEN',
-          message: `Transição inválida: ${err.message}. Conclua a Onda 1 antes de avançar.`,
+          message: `Transição inválida: ${err.message}. Conclua a Onda 2 antes de avançar.`,
         });
       }
       await db.saveOnda2Answers(input.projectId, input.answers);
