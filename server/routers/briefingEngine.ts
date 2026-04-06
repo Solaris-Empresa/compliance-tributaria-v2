@@ -719,7 +719,7 @@ export async function generateBriefing(
         a.action_name || a.description || "Ação prioritária"
       ),
       prazo_critico_dias: prazoCritico,
-      fonte_dados: `project_gaps_v3 (${totalGaps} gaps) + project_risks_v3 (${totalRisks} riscos) + actionPlans (${totalActions} ações)`,
+      fonte_dados: `project_gaps_v3 (${totalGaps} gaps) + project_risks_v3 (${totalRisks} riscos) + project_actions_v3 (${totalActions} ações)`,  // T-B7-08: nome real da tabela (não alias ORM)
     },
 
     section_perfil_regulatorio: {
@@ -857,13 +857,13 @@ export async function persistBriefing(
 
   const traceabilityMap = {
     identificacao: ["projects", "clients"],
-    escopo: ["project_gaps_v3", "project_risks_v3", "actionPlans", "requirements_v3"],
-    resumo_executivo: ["project_risks_v3", "project_gaps_v3", "actionPlans"],
+    escopo: ["project_gaps_v3", "project_risks_v3", "project_actions_v3", "requirements_v3"],
+    resumo_executivo: ["project_risks_v3", "project_gaps_v3", "project_actions_v3"],
     perfil_regulatorio: ["projects", "requirements_v3"],
     gaps: ["project_gaps_v3"],
     riscos: ["project_risks_v3"],
-    plano_acao: ["actionPlans"],
-    proximos_passos: ["actionPlans"],
+    plano_acao: ["project_actions_v3"],  // T-B7-10: nome real da tabela (não alias ORM)
+    proximos_passos: ["project_actions_v3"],
   };
 
   const [result] = await pool.query<mysql.OkPacket>(
