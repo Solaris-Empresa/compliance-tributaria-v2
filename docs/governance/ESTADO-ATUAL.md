@@ -298,6 +298,21 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ---
 
+## 9c.1 — Pendências Abertas: Expansão Corpus RAG (NCM/NBS)
+
+> Documento completo: `docs/governance/PENDENCIA_RAG_EXPANSAO_NCM_NBS.md`  
+> Registrado pelo Orquestrador — 2026-04-06 · Não bloqueiam nenhuma feature arquitetural (M3, M4, etc.)
+
+| Lote | Documento | Impacto | Status |
+|---|---|---|---|
+| D-1 | Resoluções CGIBS nº 1, 2 e 3/2026 | NCM 55% → 63% · NBS 30% → 45% | **ABERTA** |
+| D-2 | TIPI 2022 (Decreto 11.158/2022) | NCM 63% → 78% | **ABERTA** |
+| D-3 | Reindexação Anexo I LC 214/2025 (tabela estruturada) | NCM 78% → 84% | **ABERTA** |
+| E | NBS completa + Notas Técnicas RFB CBS por segmento | NBS 45% → 65% | **ABERTA** |
+| F | Listas oficiais governo (aliquota zero, IBS/CBS por NCM) | NCM 84% → 95%+ · NBS 65% → 85%+ | **AGUARDA GOVERNO** |
+
+---
+
 ## 9d. Histórico de Bugs UAT
 
 | Bug | PR | HEAD | Causa | Fix | Lição |
