@@ -255,12 +255,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Flag | Descrição | Status |
 |---|---|---|
-| FLAG 1 | `DIAGNOSTIC_READ_MODE=new` bloqueado | 🔴 ATIVA |
-| FLAG 2 | Escopo cirurúgico por PR | ✅ RESOLVIDA (3 PRs respeitados) |
-| FLAG 4 | Gate B obrigatório antes Comp. B | 🔴 ATIVA |
-| FLAG 5 | Falhas pré-existentes T-B7-08/T-B7-10 não são regressões | 🔴 ATIVA |
-| FLAG 6 | 0 regressões além das **4 conhecidas** | ✅ OK |
-| FLAG 7 | `consistencyRouter.OperationProfileSchema` desatualizado | 🔴 ATIVA (M2.1/M3) |
+| FLAG 1 | Gate B não verificado — `source='engine'` = 0 em produção | 🔴 ATIVA |
+| FLAG 2 | Escopo cirúrgico por PR | ✅ RESOLVIDA (6 PRs Sprint W respeitados) |
+| FLAG 4 | C1-C7 pendentes (Consultor) — TO-BE v9 bloqueado | 🔴 ATIVA |
+| FLAG 5 | Arquitetura crescendo sem validação de uso real (M3 planejado sem dados reais) | 🟡 MONITORAR |
+| FLAG 6 | 0 regressões além das **4 conhecidas** (T-B7-08 · T-B7-10 · Q5-3 · Q5-mix) | ✅ OK |
+| FLAG 7 | `DIAGNOSTIC_READ_MODE` alterado sem aprovação P.O. | 🔴 ATIVA PERMANENTE |
+| FLAG 8 | `consistencyRouter.OperationProfileSchema` desatualizado | 🟡 MONITORAR (M2.1/M3) |
 
 ---
 
@@ -348,5 +349,5 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (Sprint W — M2 Fase 1 concluída · PRs #337–#340 · HEAD 857d8bc · Audit PR #341)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (Sprint W encerrada · PRs #336–#342 · HEAD b20de98 · Flags corrigidas PR #342)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
