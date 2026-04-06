@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v4.9 · 2026-04-06 (E2E completo ✔ · BUG-UAT-04/05 corrigidos · DEC-M2-08/09 registradas · Sprint X encerrada · Sprint Y backlog BL-01 a BL-04)** · Responsável: Orquestrador gera, Manus commita
+> **v4.9.1 · 2026-04-06 (BUG-UAT-06 corrigido · HEAD 94c241f · PRs #352–#353)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v4.4 · **HEAD:** `f1f0f13` (origin/main) · **Testes:** 1.476+ (incluindo 21 novos M2: 5A + 7D + 4B + 5C)  
+**Baseline:** v4.4 · **HEAD:** `94c241f` (origin/main) · **Testes:** 4.064+ (148 arquivos · crescimento Sprints W/X)  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -18,7 +18,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 **Sprint X:** ✅ ENCERRADA — falhas conhecidas = 0 (T-B7-08/T-B7-10 ✅ #347 · BUG-UAT-04 ✅ #348 · BUG-UAT-05 ✅ #349)  
 **Sprint Y:** ⏳ PENDENTE — backlog BL-01 a BL-04 (assertValidTransition + testes de integração)
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
-**Ponto de atenção:** descrições de risco ausentes na matriz do relatório consolidado — investigação pendente
+**BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 
 ---
 
@@ -46,13 +46,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (origin/main) | `f1f0f13` | ✅ |
+| HEAD (origin/main) | `94c241f` | ✅ |
 | Baseline | **v4.4** | ✅ |
-| Testes passando | **1.476+** (21 novos M2 · 2 falhas pré-existentes conhecidas T-B7-08/T-B7-10) | ✅ |
+| Testes passando | **4.064+** (148 arquivos · 2 falhas pré-existentes conhecidas T-B7-08/T-B7-10) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | CI Workflows | **12 ativos** + invariant-check (GOV-03b) | ✅ |
 | CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
-| PRs mergeados (total) | **350** | ✅ |
+| PRs mergeados (total) | **353** | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
@@ -294,7 +294,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 **Resultado: PIPELINE VALIDADO EM PRODUÇÃO ✅**
 
-> **Ponto de atenção aberto:** descrições de risco ausentes na matriz do relatório consolidado — investigação pendente (não bloqueia Sprint Y).
+> **BUG-UAT-06 RESOLVIDO (PR #352):** coluna "Descrição do Risco" no PDF do Relatório Final agora exibe `r.evento` corretamente. Fix: `PlanoAcaoV3.tsx` L1149.
 
 ---
 
@@ -304,6 +304,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 |---|---|---|---|---|---|
 | BUG-UAT-04 | #348 | 21f2cd2 | `completeOnda1` marcava `onda1_solaris` em 3 lugares (em vez de `onda2_iagen`) — travava transição para Onda 2 | Corrigido em `routers-fluxo-v3.ts` | Transição de estado não coberta por testes automatizados — só detectada via uso real |
 | BUG-UAT-05 | #349 | f1f0f13 | `completeOnda2` usava `assertValidTransition('onda2_iagen')` mas gravava `diagnostico_corporativo` — inconsistência entre assert e update | Corrigido em `routers-fluxo-v3.ts` L2450 | Mesmo padrão do BUG-UAT-04 — detectado via auditoria P2 |
+| BUG-UAT-06 | #352 | 94c241f | `PlanoAcaoV3.tsx` L1149 usava `r.descricao \|\| r.description` para coluna "Descrição do Risco" no PDF — campos inexistentes no `RiskItemSchema` · coluna sempre vazia | Corrigido para `r.evento \|\| r.descricao \|\| r.description \|\| ""` | Campo correto no schema é `r.evento` (ai-schemas.ts L308) — `MatrizesV3.tsx` já usava corretamente; apenas `PlanoAcaoV3.tsx` estava com mapeamento errado |
 
 ---
 
@@ -408,5 +409,5 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (v4.9 COMPLETO · E2E ✅ · BUG-UAT-04/05 · DEC-M2-08/09 · Sprint X encerrada · Sprint Y backlog · PRs #347–#351 · HEAD f1f0f13)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (v4.9.1 · BUG-UAT-06 ✅ PR #352 · PRs #347–#353 · HEAD 94c241f)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
