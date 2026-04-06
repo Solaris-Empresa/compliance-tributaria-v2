@@ -453,3 +453,57 @@ describe("T-B8-10: Score é determinístico", () => {
     expect(r1.maturityLevel).not.toBe(r2.maturityLevel);
   });
 });
+
+// ─── Q5 — Componente C: CPIE pondera por evaluation_confidence (DEC-M2-06) ────
+
+describe("Q5 — Componente C: CPIE pondera por evaluation_confidence", () => {
+  it("CPIE pondera penalidade por confidence — engine(1.0) > solaris(0.9) > iagen(0.7)", () => {
+    const gapEngine  = calcGapScore([{ criticality: "alta", score: "0.5", confidence: 1.0 }]);
+    const gapSolaris = calcGapScore([{ criticality: "alta", score: "0.5", confidence: 0.9 }]);
+    const gapIagen   = calcGapScore([{ criticality: "alta", score: "0.5", confidence: 0.7 }]);
+
+    // Maior confidence = maior penalidade = menor score
+    expect(gapEngine.score).toBeLessThanOrEqual(gapSolaris.score);
+    expect(gapSolaris.score).toBeLessThanOrEqual(gapIagen.score);
+    expect(gapEngine.score).toBeLessThan(gapIagen.score);
+  });
+
+  it("COALESCE(1.0) para gaps sem confidence mantém comportamento atual", () => {
+    const gapSemConfidence = calcGapScore([{ criticality: "alta", score: "0.5" }]);
+    const gapConfidence1   = calcGapScore([{ criticality: "alta", score: "0.5", confidence: 1.0 }]);
+    expect(gapSemConfidence.score).toBe(gapConfidence1.score);
+  });
+
+  it("confidence=0.70 reduz penalidade em 30% vs confidence=1.00", () => {
+    // score=0.0, criticality=media (w=1.0)
+    // confidence=1.0: weightedPenalty = 1.0 → score = 0
+    // confidence=0.7: weightedPenalty = 0.7 → score = 30
+    const gapFull    = calcGapScore([{ criticality: "media", score: "0.0", confidence: 1.0 }]);
+    const gapReduced = calcGapScore([{ criticality: "media", score: "0.0", confidence: 0.7 }]);
+    expect(gapFull.score).toBe(0);
+    expect(gapReduced.score).toBe(30);
+    expect(gapReduced.score).toBeGreaterThan(gapFull.score);
+  });
+
+  it("calcGapScore recebe e usa campo confidence da interface", () => {
+    const result = calcGapScore([
+      { criticality: "critica", score: "0.0", confidence: 1.0 },
+      { criticality: "alta",   score: "0.5", confidence: 0.9 },
+      { criticality: "media",  score: "1.0", confidence: 0.7 },
+    ]);
+    expect(result.score).toBeGreaterThanOrEqual(0);
+    expect(result.score).toBeLessThanOrEqual(100);
+    expect(result.detail.totalGaps).toBe(3);
+  });
+
+  it("query SELECT inclui COALESCE(evaluation_confidence, 1.0)", () => {
+    const fs   = require("fs");
+    const path = require("path");
+    const filePath = path.resolve(__dirname, "../routers/scoringEngine.ts");
+    const content  = fs.readFileSync(filePath, "utf-8");
+    expect(content).toContain("COALESCE(evaluation_confidence, 1.0)");
+    expect(content).toContain("AS confidence");
+    // Garantir que NÃO usa 0.85 (exclusivo M3 — DEC-M2-06)
+    expect(content).not.toContain("COALESCE(evaluation_confidence, 0.85)");
+  });
+});
