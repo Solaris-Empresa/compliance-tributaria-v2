@@ -113,7 +113,7 @@ export function calcGapScore(gaps: Array<{
   for (const gap of gaps) {
     const w = GAP_CRITICALITY_WEIGHT[gap.criticality] ?? 1.0;
     const gapScore = Math.min(1, Math.max(0, Number(gap.score)));
-    const confidence = gap.confidence ?? 1.0;  // DEC-M2-06: fallback defensivo (COALESCE=1.0)
+    const confidence = Number(gap.confidence ?? 1.0);  // DEC-M2-06: cast explícito — MySQL retorna DECIMAL como string
     weightedPenalty += (1 - gapScore) * w * confidence;
     totalWeight += w;
   }
