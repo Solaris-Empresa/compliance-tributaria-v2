@@ -6,7 +6,10 @@
  * Acessível pelo chip "Projeto" no FlowStepper de qualquer etapa do fluxo V3.
  */
 import { useParams, useLocation } from "wouter";
+import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+
+import { PerfilEmpresaIntelligente, PERFIL_VAZIO } from "@/components/PerfilEmpresaIntelligente";
 import ComplianceLayout from "@/components/ComplianceLayout";
 import FlowStepper from "@/components/FlowStepper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -261,6 +264,9 @@ export default function FormularioProjeto() {
               </CardContent>
             </Card>
 
+            {/* Card: Edição NCM/NBS — M2 Componente D */}
+            <NcmNbsEditCard projectId={projectId} operationProfile={(project as any).operationProfile} />
+
             {/* CTA — Continuar para a próxima etapa */}
             {nextStepRoute && (
               <div className="flex justify-end pt-2">
@@ -277,5 +283,55 @@ export default function FormularioProjeto() {
         )}
       </div>
     </ComplianceLayout>
+  );
+}
+
+/**
+ * M2 Componente D: Card de edição NCM/NBS no FormularioProjeto.
+ * Renderiza PerfilEmpresaIntelligente em mode='edit' com botão explícito.
+ */
+function NcmNbsEditCard({ projectId, operationProfile }: {
+  projectId: number;
+  operationProfile: unknown;
+}) {
+  const utils = trpc.useUtils();
+
+  // Derivar valor inicial do operationProfile persistido
+  const parseProfile = (raw: unknown) => {
+    if (!raw) return { ...PERFIL_VAZIO };
+    if (typeof raw === 'string') {
+      try { return { ...PERFIL_VAZIO, ...JSON.parse(raw) }; } catch { return { ...PERFIL_VAZIO }; }
+    }
+    if (typeof raw === 'object') return { ...PERFIL_VAZIO, ...(raw as object) };
+    return { ...PERFIL_VAZIO };
+  };
+
+  const [perfilLocal, setPerfilLocal] = useState(() => parseProfile(operationProfile));
+
+  const handleSave = () => {
+    // Invalidar query para refletir os dados atualizados
+    utils.fluxoV3.getProjectStep1.invalidate({ projectId });
+  };
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base flex items-center gap-2">
+          <Tag className="h-4 w-4 text-primary" />
+          Produtos e Serviços (NCM/NBS)
+          <Badge variant="outline" className="ml-auto text-xs">Editável</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <PerfilEmpresaIntelligente
+          value={perfilLocal}
+          onChange={setPerfilLocal}
+          mode="edit"
+          projectId={projectId}
+          showScorePanel={false}
+          onSave={handleSave}
+        />
+      </CardContent>
+    </Card>
   );
 }

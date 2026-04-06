@@ -1,4 +1,5 @@
 import { useParams, useLocation } from "wouter";
+import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import ComplianceLayout from "@/components/ComplianceLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,6 +35,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 import { DiagnosticoStepper, type DiagnosticLayerState } from "@/components/DiagnosticoStepper";
 import { CpieHistoryPanel } from "@/components/CpieHistoryPanel";
+import { PerfilEmpresaIntelligente, PERFIL_VAZIO } from "@/components/PerfilEmpresaIntelligente";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -633,6 +635,9 @@ export default function ProjetoDetalhesV2() {
           {/* ── J1: Histórico de Análises IA (CPIE) ── */}
           <CpieHistoryPanel projectId={projectId} projectName={summary.name} />
 
+          {/* ── M2 Componente D: Edição NCM/NBS ── */}
+          <NcmNbsEditCardV2 projectId={projectId} />
+
           {/* ── Ações administrativas (equipe SOLARIS) ── */}
           {isEquipe && (
             <Card className="border-dashed">
@@ -771,5 +776,64 @@ function SectionLink({
         <Circle className="w-4 h-4 text-muted-foreground/40" />
       )}
     </button>
+  );
+}
+
+/**
+ * M2 Componente D: Card de edição NCM/NBS em ProjetoDetalhesV2.
+ * Busca operationProfile via getProjectStep1 e renderiza PerfilEmpresaIntelligente
+ * em mode='edit' com botão explícito "Salvar NCM/NBS".
+ */
+function NcmNbsEditCardV2({ projectId }: { projectId: number }) {
+  const utils = trpc.useUtils();
+  const { data: step1 } = trpc.fluxoV3.getProjectStep1.useQuery(
+    { projectId },
+    { enabled: !!projectId }
+  );
+
+  const parseProfile = (raw: unknown) => {
+    if (!raw) return { ...PERFIL_VAZIO };
+    if (typeof raw === 'string') {
+      try { return { ...PERFIL_VAZIO, ...JSON.parse(raw) }; } catch { return { ...PERFIL_VAZIO }; }
+    }
+    if (typeof raw === 'object') return { ...PERFIL_VAZIO, ...(raw as object) };
+    return { ...PERFIL_VAZIO };
+  };
+
+  const [perfilLocal, setPerfilLocal] = useState(() =>
+    parseProfile((step1 as any)?.operationProfile)
+  );
+
+  // Sincronizar quando os dados chegam do servidor
+  const [initialized, setInitialized] = useState(false);
+  if (step1 && !initialized) {
+    setPerfilLocal(parseProfile((step1 as any)?.operationProfile));
+    setInitialized(true);
+  }
+
+  const handleSave = () => {
+    utils.fluxoV3.getProjectStep1.invalidate({ projectId });
+  };
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base flex items-center gap-2">
+          <Tag className="w-4 h-4 text-primary" />
+          Produtos e Serviços (NCM/NBS)
+          <Badge variant="outline" className="ml-auto text-xs">Editável</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <PerfilEmpresaIntelligente
+          value={perfilLocal}
+          onChange={setPerfilLocal}
+          mode="edit"
+          projectId={projectId}
+          showScorePanel={false}
+          onSave={handleSave}
+        />
+      </CardContent>
+    </Card>
   );
 }
