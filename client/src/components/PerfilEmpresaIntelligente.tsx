@@ -760,17 +760,29 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
   // M2 Componente D: mutation de edição NCM/NBS (só ativa em mode='edit')
   const updateOperationProfile = trpc.fluxoV3.updateOperationProfile.useMutation({
     onSuccess: () => {
-      toast.success('NCM/NBS salvos com sucesso.');
+      toast.success('✓ Produtos e serviços salvos. A análise tributária será atualizada.');
       onSave?.();
     },
-    onError: (err) => {
-      toast.error(`Erro ao salvar: ${err.message}`);
+    onError: () => {
+      toast.error('Erro ao salvar. Tente novamente.');
     },
   });
+
+  // Validação de formato NCM: NNNN.NN.NN
+  const isValidNcm = (code: string) => /^\d{4}\.\d{2}\.\d{2}$/.test(code);
+  // Validação de formato NBS: N.NNNN.NN.NN
+  const isValidNbs = (code: string) => /^\d\.\d{4}\.\d{2}\.\d{2}$/.test(code);
+  // Verifica se há algum código inválido antes de salvar
+  const hasInvalidNcm = value.principaisProdutos.some(p => p.ncm_code && !isValidNcm(p.ncm_code));
+  const hasInvalidNbs = value.principaisServicos.some(s => s.nbs_code && !isValidNbs(s.nbs_code));
 
   // Handler do botão explícito — NUNCA disparar por onChange
   const handleSaveNcmNbs = () => {
     if (!projectId) return;
+    if (hasInvalidNcm || hasInvalidNbs) {
+      toast.error('Corrija os códigos inválidos antes de salvar.');
+      return;
+    }
     updateOperationProfile.mutate({
       projectId,
       principaisProdutos: value.principaisProdutos?.map(p => ({
@@ -1103,51 +1115,95 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
           </div>
         </div>
 
-        {/* Bloco E (CNT-01c): Principais Produtos NCM */}
+        {/* Bloco E (CNT-01c): Produtos e Serviços da Empresa — NCM */}
         {(value.operationType === "industria" || value.operationType === "comercio" || value.operationType === "misto" || value.operationType === "agronegocio") && (
           <div className="space-y-2">
-            <Label className="text-sm flex items-center gap-1.5">
-              <Package className="h-3.5 w-3.5 text-primary" />
-              Principais Produtos (NCM)
-              <Badge variant="outline" className="text-xs ml-1">Opcional — ativa Decision Kernel</Badge>
-            </Label>
-            <p className="text-xs text-muted-foreground">Informe os códigos NCM dos principais produtos comercializados/fabricados. O Decision Kernel usará esses dados para calcular o impacto do Imposto Seletivo e regimes diferenciados.</p>
+            <div>
+              <Label className="text-sm flex items-center gap-1.5">
+                <Package className="h-3.5 w-3.5 text-primary" />
+                Produtos e Serviços da Empresa (NCM)
+                <Badge variant="outline" className="text-xs ml-1">Opcional — ativa análise automática</Badge>
+              </Label>
+              <p className="text-xs text-muted-foreground mt-1">
+                NCM é o código que classifica produtos na tabela tributária federal.
+                Exemplos: arroz (1006.40.00), absorventes (9619.00.00).
+              </p>
+            </div>
             <div className="space-y-2">
-              {value.principaisProdutos.map((item, idx) => (
-                <div key={idx} className="flex gap-2 items-start">
-                  <Input
-                    className="w-36 font-mono text-sm"
-                    placeholder="Ex: 2202.10.00"
-                    value={item.ncm_code}
-                    maxLength={14}
-                    onChange={(e) => {
-                      const updated = [...value.principaisProdutos];
-                      updated[idx] = { ...updated[idx], ncm_code: e.target.value.replace(/[^0-9.]/g, "") };
-                      set("principaisProdutos", updated);
-                    }}
-                  />
-                  <Input
-                    className="flex-1 text-sm"
-                    placeholder="Descrição do produto"
-                    value={item.descricao}
-                    onChange={(e) => {
-                      const updated = [...value.principaisProdutos];
-                      updated[idx] = { ...updated[idx], descricao: e.target.value };
-                      set("principaisProdutos", updated);
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
-                    onClick={() => set("principaisProdutos", value.principaisProdutos.filter((_, i) => i !== idx))}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              {value.principaisProdutos.length < 5 && (
+              {value.principaisProdutos.length === 0 && (
+                <p className="text-xs text-muted-foreground italic py-2">
+                  Nenhum produto cadastrado. Adicione os principais produtos comercializados pela empresa.
+                </p>
+              )}
+              {value.principaisProdutos.map((item, idx) => {
+                const ncmValid = item.ncm_code ? isValidNcm(item.ncm_code) : null;
+                return (
+                  <div key={idx} className="flex gap-2 items-start">
+                    <div className="flex flex-col gap-1">
+                      <div className="relative">
+                        <Input
+                          id={`ncm-code-${idx}`}
+                          className={cn("w-36 font-mono text-sm", ncmValid === false && "border-destructive", ncmValid === true && "border-green-500")}
+                          placeholder="Ex: 1006.40.00"
+                          value={item.ncm_code}
+                          maxLength={14}
+                          aria-label={`Código NCM do produto ${idx + 1}`}
+                          aria-describedby={ncmValid === false ? `ncm-error-${idx}` : undefined}
+                          aria-invalid={ncmValid === false}
+                          onChange={(e) => {
+                            const updated = [...value.principaisProdutos];
+                            updated[idx] = { ...updated[idx], ncm_code: e.target.value.replace(/[^0-9.]/g, "") };
+                            set("principaisProdutos", updated);
+                          }}
+                        />
+                        {ncmValid === true && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-green-500 text-xs">✓</span>}
+                      </div>
+                      {ncmValid === false && (
+                        <p id={`ncm-error-${idx}`} className="text-xs text-destructive">Formato inválido. Use NNNN.NN.NN (ex: 1006.40.00)</p>
+                      )}
+                    </div>
+                    <Input
+                      className="flex-1 text-sm"
+                      placeholder="Ex: Arroz quebrado — cesta básica"
+                      value={item.descricao}
+                      aria-label={`Descrição do produto ${idx + 1}`}
+                      onChange={(e) => {
+                        const updated = [...value.principaisProdutos];
+                        updated[idx] = { ...updated[idx], descricao: e.target.value };
+                        set("principaisProdutos", updated);
+                      }}
+                    />
+                    <div className="flex items-center gap-1">
+                      <Input
+                        className="w-16 text-sm text-right"
+                        placeholder="%"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={item.percentualFaturamento ?? ""}
+                        aria-label={`Percentual de faturamento do produto ${idx + 1}`}
+                        onChange={(e) => {
+                          const updated = [...value.principaisProdutos];
+                          updated[idx] = { ...updated[idx], percentualFaturamento: e.target.value ? Number(e.target.value) : undefined };
+                          set("principaisProdutos", updated);
+                        }}
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
+                      aria-label={`Remover produto ${item.descricao || idx + 1}`}
+                      onClick={() => set("principaisProdutos", value.principaisProdutos.filter((_, i) => i !== idx))}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                );
+              })}
+              {value.principaisProdutos.length < 10 ? (
                 <Button
                   type="button"
                   variant="outline"
@@ -1155,58 +1211,105 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                   className="w-full text-xs gap-1.5"
                   onClick={() => set("principaisProdutos", [...value.principaisProdutos, { ncm_code: "", descricao: "" }])}
                 >
-                  <Plus className="h-3.5 w-3.5" /> Adicionar produto (NCM)
+                  <Plus className="h-3.5 w-3.5" /> + Adicionar produto
                 </Button>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center py-1">Limite de 10 produtos atingido.</p>
               )}
+              <p className="text-xs text-muted-foreground">Opcional — ajuda a priorizar os riscos mais relevantes</p>
             </div>
           </div>
         )}
 
-        {/* Bloco E (CNT-01c): Principais Serviços NBS */}
+        {/* Bloco E (CNT-01c): Produtos e Serviços da Empresa — NBS */}
         {(value.operationType === "servicos" || value.operationType === "misto" || value.operationType === "financeiro") && (
           <div className="space-y-2">
-            <Label className="text-sm flex items-center gap-1.5">
-              <Tag className="h-3.5 w-3.5 text-primary" />
-              Principais Serviços (NBS)
-              <Badge variant="outline" className="text-xs ml-1">Opcional — ativa Decision Kernel</Badge>
-            </Label>
-            <p className="text-xs text-muted-foreground">Informe os códigos NBS dos principais serviços prestados. O Decision Kernel usará esses dados para identificar regimes diferenciados (saúde, educação, construção, financeiro).</p>
+            <div>
+              <Label className="text-sm flex items-center gap-1.5">
+                <Tag className="h-3.5 w-3.5 text-primary" />
+                Produtos e Serviços da Empresa (NBS)
+                <Badge variant="outline" className="text-xs ml-1">Opcional — ativa análise automática</Badge>
+              </Label>
+              <p className="text-xs text-muted-foreground mt-1">
+                NBS é o código que classifica serviços na tabela brasileira oficial.
+                Exemplos: consultoria em TI (1.1501.10.00), ensino superior (1.2204.10.00).
+              </p>
+            </div>
             <div className="space-y-2">
-              {value.principaisServicos.map((item, idx) => (
-                <div key={idx} className="flex gap-2 items-start">
-                  <Input
-                    className="w-36 font-mono text-sm"
-                    placeholder="Ex: 1.0901.00.00"
-                    value={item.nbs_code}
-                    maxLength={16}
-                    onChange={(e) => {
-                      const updated = [...value.principaisServicos];
-                      updated[idx] = { ...updated[idx], nbs_code: e.target.value.replace(/[^0-9.]/g, "") };
-                      set("principaisServicos", updated);
-                    }}
-                  />
-                  <Input
-                    className="flex-1 text-sm"
-                    placeholder="Descrição do serviço"
-                    value={item.descricao}
-                    onChange={(e) => {
-                      const updated = [...value.principaisServicos];
-                      updated[idx] = { ...updated[idx], descricao: e.target.value };
-                      set("principaisServicos", updated);
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
-                    onClick={() => set("principaisServicos", value.principaisServicos.filter((_, i) => i !== idx))}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              {value.principaisServicos.length < 5 && (
+              {value.principaisServicos.length === 0 && (
+                <p className="text-xs text-muted-foreground italic py-2">
+                  Nenhum serviço cadastrado. Adicione os principais serviços prestados pela empresa.
+                </p>
+              )}
+              {value.principaisServicos.map((item, idx) => {
+                const nbsValid = item.nbs_code ? isValidNbs(item.nbs_code) : null;
+                return (
+                  <div key={idx} className="flex gap-2 items-start">
+                    <div className="flex flex-col gap-1">
+                      <div className="relative">
+                        <Input
+                          id={`nbs-code-${idx}`}
+                          className={cn("w-36 font-mono text-sm", nbsValid === false && "border-destructive", nbsValid === true && "border-green-500")}
+                          placeholder="Ex: 1.1501.10.00"
+                          value={item.nbs_code}
+                          maxLength={16}
+                          aria-label={`Código NBS do serviço ${idx + 1}`}
+                          aria-describedby={nbsValid === false ? `nbs-error-${idx}` : undefined}
+                          aria-invalid={nbsValid === false}
+                          onChange={(e) => {
+                            const updated = [...value.principaisServicos];
+                            updated[idx] = { ...updated[idx], nbs_code: e.target.value.replace(/[^0-9.]/g, "") };
+                            set("principaisServicos", updated);
+                          }}
+                        />
+                        {nbsValid === true && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-green-500 text-xs">✓</span>}
+                      </div>
+                      {nbsValid === false && (
+                        <p id={`nbs-error-${idx}`} className="text-xs text-destructive">Formato inválido. Use N.NNNN.NN.NN (ex: 1.1501.10.00)</p>
+                      )}
+                    </div>
+                    <Input
+                      className="flex-1 text-sm"
+                      placeholder="Ex: Consultoria em tecnologia da informação"
+                      value={item.descricao}
+                      aria-label={`Descrição do serviço ${idx + 1}`}
+                      onChange={(e) => {
+                        const updated = [...value.principaisServicos];
+                        updated[idx] = { ...updated[idx], descricao: e.target.value };
+                        set("principaisServicos", updated);
+                      }}
+                    />
+                    <div className="flex items-center gap-1">
+                      <Input
+                        className="w-16 text-sm text-right"
+                        placeholder="%"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={item.percentualFaturamento ?? ""}
+                        aria-label={`Percentual de faturamento do serviço ${idx + 1}`}
+                        onChange={(e) => {
+                          const updated = [...value.principaisServicos];
+                          updated[idx] = { ...updated[idx], percentualFaturamento: e.target.value ? Number(e.target.value) : undefined };
+                          set("principaisServicos", updated);
+                        }}
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
+                      aria-label={`Remover serviço ${item.descricao || idx + 1}`}
+                      onClick={() => set("principaisServicos", value.principaisServicos.filter((_, i) => i !== idx))}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                );
+              })}
+              {value.principaisServicos.length < 10 ? (
                 <Button
                   type="button"
                   variant="outline"
@@ -1214,9 +1317,12 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                   className="w-full text-xs gap-1.5"
                   onClick={() => set("principaisServicos", [...value.principaisServicos, { nbs_code: "", descricao: "" }])}
                 >
-                  <Plus className="h-3.5 w-3.5" /> Adicionar serviço (NBS)
+                  <Plus className="h-3.5 w-3.5" /> + Adicionar serviço
                 </Button>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center py-1">Limite de 10 serviços atingido.</p>
               )}
+              <p className="text-xs text-muted-foreground">Opcional — ajuda a priorizar os riscos mais relevantes</p>
             </div>
           </div>
         )}
@@ -1344,17 +1450,21 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
             tooltip="Passivos existentes podem ser agravados pela mudança de regime na Reforma Tributária." />
           </div>
       </section>
-      {/* M2 Componente D: botão explícito Salvar NCM/NBS — só em mode='edit' */}
+      {/* M2 UX: botão explícito Salvar Produtos e Serviços — só em mode='edit' */}
       {mode === 'edit' && projectId && (
         <div className="pt-4 border-t">
           <Button
             type="button"
             onClick={handleSaveNcmNbs}
-            disabled={updateOperationProfile.isPending}
+            disabled={updateOperationProfile.isPending || hasInvalidNcm || hasInvalidNbs}
             className="w-full sm:w-auto"
+            aria-label="Salvar produtos e serviços"
           >
-            {updateOperationProfile.isPending ? 'Salvando...' : 'Salvar NCM/NBS'}
+            {updateOperationProfile.isPending ? 'Salvando...' : 'Salvar Produtos e Serviços'}
           </Button>
+          {(hasInvalidNcm || hasInvalidNbs) && (
+            <p className="text-xs text-destructive mt-2">Corrija os códigos inválidos antes de salvar.</p>
+          )}
         </div>
       )}
     </div>
