@@ -309,12 +309,23 @@ export default function BriefingV3() {
           .content li{font-size:13px;color:#374151;margin:4px 0}
           .content strong{color:#111}
           .footer{margin-top:40px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:10px;color:#9ca3af;text-align:right}
+          .scope-block{margin-bottom:24px;padding:12px 16px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px}
+          .scope-block h2{font-size:13px;color:#0c4a6e;margin:0 0 8px;padding-bottom:4px;border-bottom:1px solid #bae6fd}
+          .scope-block table{width:100%;border-collapse:collapse;font-size:12px}
+          .scope-block td{padding:3px 0;vertical-align:top}
+          .scope-block td:first-child{color:#6b7280;width:160px;padding-right:8px}
           @media print{@page{margin:20mm}body{margin:0;max-width:none}}
         </style>
         </head><body>
         <div class="header">
           <h1>Briefing de Compliance — ${projectName} <span class="version-badge">Versão ${versionNum}</span></h1>
           <p>Reforma Tributária 2024 · Gerado em ${dateStr}</p>
+        </div>
+        <div class="scope-block">
+          <h2>Escopo do Diagn\u00f3stico</h2>
+          <table>
+            <tr><td>Status</td><td style="font-weight:600">${(project as any)?.diagnosticCompleteness ?? 'n\u00e3o dispon\u00edvel'}</td></tr>
+          </table>
         </div>
         <div class="content">${htmlContent}</div>
         <div class="footer">IA SOLARIS — Plataforma de Compliance Tributário · Reforma Tributária 2024</div>
@@ -432,6 +443,53 @@ export default function BriefingV3() {
           onCancel={() => setRetrocessoModal(m => ({ ...m, open: false }))}
         />
 
+        {/* M2.1: Banner de Completude Diagnóstica (ADR-0007 Seção 12) */}
+        {(() => {
+          const completeness = (project as any)?.diagnosticCompleteness;
+          if (!completeness || completeness === 'completo') return null;
+          const cfgMap: Record<string, { bg: string; border: string; icon: string; title: string; body: string; cta?: string; ctaUrl?: string }> = {
+            insuficiente: {
+              bg: 'bg-red-50', border: 'border-red-300',
+              icon: '🔴',
+              title: 'Diagnóstico Insuficiente',
+              body: 'Nenhum questionário foi respondido. Responda ao menos um questionário para gerar um diagnóstico confiável.',
+              cta: 'Retornar ao questionário',
+              ctaUrl: `/projetos/${projectId}/questionario-v3`,
+            },
+            parcial: {
+              bg: 'bg-yellow-50', border: 'border-yellow-300',
+              icon: '🟡',
+              title: 'Diagnóstico Parcial',
+              body: 'O sistema identificou informações suficientes para análise, mas algumas dimensões aplicáveis não foram respondidas.',
+              cta: 'Completar diagnóstico',
+              ctaUrl: `/projetos/${projectId}/questionario-iagen`,
+            },
+            adequado: {
+              bg: 'bg-green-50', border: 'border-green-300',
+              icon: '🟢',
+              title: 'Diagnóstico Adequado',
+              body: 'Diagnóstico gerado com base nas dimensões respondidas. Informe NCM/NBS para aumentar a precisão.',
+              cta: 'Informar NCM/NBS',
+              ctaUrl: `/projetos/${projectId}/operation-profile`,
+            },
+          };
+          const cfg = cfgMap[completeness];
+          if (!cfg) return null;
+          return (
+            <div className={`flex items-start gap-3 p-4 rounded-xl border ${cfg.bg} ${cfg.border}`}>
+              <span className="text-lg shrink-0 mt-0.5">{cfg.icon}</span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold">{cfg.title}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{cfg.body}</p>
+                {cfg.cta && cfg.ctaUrl && (
+                  <Button variant="outline" size="sm" className="mt-2 text-xs h-7" onClick={() => setLocation(cfg.ctaUrl!)}>
+                    {cfg.cta}
+                  </Button>
+                )}
+              </div>
+            </div>
+          );
+        })()}
         {/* V64: Alertas de Inconsistência — exibido apenas quando há inconsistências */}
         {/* V70.2: onCorrigir habilita o botão "Corrigir no Questionário" em cada inconsistência */}
         {inconsistencias.length > 0 && !isGenerating && (
