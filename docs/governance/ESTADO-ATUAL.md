@@ -1,25 +1,25 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v4.5 · 2026-04-05 (Sprint V em andamento — PRs #302–#330 mergeados)** · Responsável: Orquestrador gera, Manus commita
+> **v4.6 · 2026-04-05 (Sprint V encerrada — PRs #302–#333 mergeados)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v4.4 · **HEAD:** `1c42774` (origin/main) · **Testes:** 1.476 passando  
+**Baseline:** v4.4 · **HEAD:** `2d53596` (origin/main) · **Testes:** 1.476 passando  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
 **Sprint U:** ENCERRADA ✅ (PRs #318–#323 · 4 tasks · 6/6 casos POC M1 confirmados)  
 **Pipeline 3 Ondas:** Onda 1 ✅ · Onda 2 ✅ · Onda 3 ✅ integrada (`source='engine'`, 6/6 casos)  
-**Sprint V:** ⏳ Em andamento (PV-01 Lote 1 ✅ #328 · PV-02 ✅ #325 · PV-03 ✅ #326 · PV-01 Lote 2 ✅ #330 · AS-IS ⏳ · Lote 3 ⏳)
+**Sprint V:** ✅ Encerrada (PV-01 Lote 1 ✅ #328 · PV-02 ✅ #325 · PV-03 ✅ #326 · PV-01 Lote 2 ✅ #330 · PV-01 Lote 3 ✅ #333 · AS-IS ⏳)
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `1c42774`
+- **Branch base:** main · **HEAD:** `2d53596`
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git restore --staged`
@@ -41,13 +41,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (origin/main) | `1c42774` | ✅ |
+| HEAD (origin/main) | `2d53596` | ✅ |
 | Baseline | **v4.4** | ✅ |
 | Testes passando | **1.476** (0 falhas) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | CI Workflows | **12 ativos** + invariant-check (GOV-03b) | ✅ |
 | CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
-| PRs mergeados (total) | **330** | ✅ |
+| PRs mergeados (total) | **333** | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
 | Corpus RAG | **2.509 chunks — 10 leis** | ✅ |
@@ -62,17 +62,17 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Pipeline E2E | T1 ✅ T2 ✅ validados em produção | ✅ |
 | Contratos Milestone 1 | CNT-01a/01b/02/03/01c em `docs/contracts/` | ✅ |
 | Dataset NBS | `nbs-2-0-utf8.csv` (1.237 reg.) no repo | ✅ |
-| Decision Kernel | ncm-engine + nbs-engine (**24/24 casos confirmados**) | ✅ |
-| Dataset NCM | **12 casos** (Lote 1+2 mergeados — PRs #328, #330) | ✅ |
-| Dataset NBS | **12 casos** (Lote 1+2 mergeados — PRs #328, #330) | ✅ |
-| Testes decision-kernel | **34/34** | ✅ |
-| Nota Q6 | total 24 (não 25) — N-09 e S-06 já existiam do M1. Reaproveitamentos não somam como inserções novas. | ℹ️ |
+| Decision Kernel | ncm-engine + nbs-engine (**37/38 casos confirmados + 1 pending**) | ✅ |
+| Dataset NCM | **19 casos** (Lote 1+2+3 mergeados — PRs #328, #330, #333) | ✅ |
+| Dataset NBS | **19 casos** (Lote 1+2+3 mergeados — PRs #328, #330, #333) | ✅ |
+| Testes decision-kernel | **48/48** | ✅ |
+| Nota Q6 | total 37 (meta 38) — 2202.10.00 IS já estava confirmado. 1 pending: 1.0906.11.00 (corretagem de seguros — sem base legal explícita). Meta Sprint V atingida com margem de segurança jurídica. | ℹ️ |
 | Engine Onda 3 | `engine-gap-analyzer.ts` integrado | ✅ |
 | Bloco E | `operationProfile` aceita NCM/NBS (CNT-01c) | ✅ |
 | Evidence Pack M1 | `artifacts/engine-quality/poc-m1/` | ✅ |
 | **Milestone 1** | **Gate triplo APROVADO** | **✅** |
 | GOV-03b | `invariant-check.yml` — 5 invariantes protegidos | ✅ |
-| RAG Cockpit | Baseline v4.4 · Sprint V Lote 1+2 · 24 casos NCM/NBS | ✅ |
+| RAG Cockpit | Baseline v4.4 · Sprint V Lote 1+2+3 · 37 casos NCM/NBS | ✅ |
 
 ---
 
@@ -169,7 +169,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | **S** | **Lotes A+B+C+D+E + Fix #295 — pipeline 3 Ondas completo + corpus 10 leis** | **✅ ENCERRADA 2026-04-04** |
 | **T** | **Milestone 1 — Decision Kernel (Blocos C+D + DK-Q1/Q2 + Gate triplo · 16 PRs)** | **✅ ENCERRADA 2026-04-05** |
 | **U** | **RFC-004 + GOV-03b + Bloco E + Patch IS 2202.10.00 · 6/6 casos M1 confirmados** | **✅ ENCERRADA 2026-04-05** |
-| **V** | **PV-01 Lote 1+2 ✅ (24 casos) · PV-02 ✅ · PV-03 ✅ · AS-IS ⏳ · Lote 3 ⏳** | **⏳ EM ANDAMENTO** |
+| **V** | **PV-01 Lote 1+2+3 ✅ (37 casos) · PV-02 ✅ · PV-03 ✅ · AS-IS ⏳** | **✅ ENCERRADA** |
 
 ---
 
@@ -203,6 +203,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 |---|---|---|---|---|
 | PV-01 Lote 1 | P0 | Dataset +10 casos NCM/NBS | Manus + Dr. Rodrigues | **✅ CONCLUÍDA** (#328) |
 | PV-01 Lote 2 | P0 | Dataset +8 casos NCM/NBS | Manus + Dr. Rodrigues | **✅ CONCLUÍDA** (#330) |
+| PV-01 Lote 3 | P0 | Dataset +13 casos NCM/NBS + 1 pending | Manus + Dr. Rodrigues | **✅ CONCLUÍDA** (#333) |
 | PV-02 | P1 | Frontend Bloco E — campos NCM/NBS no formulário de projeto | Manus | **✅ CONCLUÍDA** (#325) |
 | PV-03 | P1 | LC 87 compilada completa (55 novos chunks) | Manus | **✅ CONCLUÍDA** (#326) |
 | PV-04 | P2 | M2 prep — GOV-03b já feito, aguarda validação Claude Code | Orquestrador | Sprint W |
@@ -277,5 +278,5 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-05 (Sprint V em andamento — PRs #302–#330 mergeados · baseline v4.4 · HEAD 1c42774)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-05 (Sprint V encerrada — PRs #302–#333 mergeados · baseline v4.4 · HEAD 2d53596)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*

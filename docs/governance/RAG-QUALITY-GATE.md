@@ -323,18 +323,18 @@ Se muitos chunks nunca aparecem em busca controlada, ou estão mal chunkados, ou
 
 ---
 
-*Documento criado em 2026-03-30. Atualizado em 2026-04-05 (Sprint V — Lote 2: 24 casos NCM/NBS confirmados, PR #330). Mantido pelo Orquestrador (Claude) e implementado pelo Manus.*  
+*Documento criado em 2026-03-30. Atualizado em 2026-04-05 (Sprint V encerrada — Lote 3: 37 casos NCM/NBS confirmados, PR #333). Mantido pelo Orquestrador (Claude) e implementado pelo Manus.*  
 *Aprovação de mudanças neste documento: P.O. Uires Tapajós.*
 
 ---
 
-## 9. Estado atual (2026-04-05) — Baseline v4.4
+## 9. Estado atual (2026-04-05) — Baseline v4.5
 
-- HEAD: `1c42774`
+- HEAD: `2d53596`
 - Testes: 1.476 · 0 falhas · 0 erros TS
 - CI: 12 workflows · CODEOWNERS: 15 entradas
 - Milestone 1 Decision Kernel: CONCLUÍDO ✅ (PRs #302–#315)
-- Sprint V PV-01 Lote 1: CONCLUÍDO ✅ (PR #328) · Lote 2: CONCLUÍDO ✅ (PR #330)
+- Sprint V PV-01 Lote 1: CONCLUÍDO ✅ (PR #328) · Lote 2: CONCLUÍDO ✅ (PR #330) · Lote 3: CONCLUÍDO ✅ (PR #333)
 - Decision Kernel: `source='engine'` ativo em `project_gaps_v3`
-- Datasets NCM/NBS: **24/24 casos confirmados** (NCM:12 · NBS:12 · Testes decision-kernel:34/34)
+- Datasets NCM/NBS: **37/38 casos confirmados + 1 pending** (NCM:19 · NBS:19 · Testes decision-kernel:48/48)
 - Corpus RAG: 2.509 chunks · 10 leis · 100% com anchor_id

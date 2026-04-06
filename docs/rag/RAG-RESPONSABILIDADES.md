@@ -130,5 +130,5 @@ Este documento deve ser revisado quando:
 
 ---
 
-*RAG-RESPONSABILIDADES.md v1.3 · 2026-04-05 (Sprint V Lote 2: 24 casos NCM/NBS confirmados, NCM:12 · NBS:12 · Testes:34/34, PR #330)*
+*RAG-RESPONSABILIDADES.md v1.4 · 2026-04-05 (Sprint V encerrada Lote 3: 37 casos NCM/NBS confirmados, NCM:19 · NBS:19 · Testes:48/48, PR #333)*
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*

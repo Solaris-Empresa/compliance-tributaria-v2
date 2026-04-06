@@ -249,7 +249,8 @@ Evento RAG (nova funcionalidade / alteração / RFC / incidente)
 | 2026-04-05 | Milestone 1: ncm-engine + nbs-engine + engine-gap-analyzer (PRs #311–#315) | `source='engine'` ativo, 5/6 casos validados, gate triplo aprovado |
 | 2026-04-05 | Sprint V Lote 1 (PR #328): +10 casos NCM/NBS → 16 confirmados | NCM:9 · NBS:7 · Testes:26/26 |
 | 2026-04-05 | Sprint V Lote 2 (PR #330): +8 casos NCM/NBS → 24 confirmados | NCM:12 · NBS:12 · Testes:34/34 · Correção S-07 (Arts.234-235) |
+| 2026-04-05 | Sprint V Lote 3 (PR #333): +13 casos + 1 pending → 37 confirmados | NCM:19 · NBS:19 · Testes:48/48 · Sprint V encerrada |
 
 ---
 
-*Documento gerado em 2026-03-30. Atualizado em 2026-04-05 (Sprint V — Lote 2: 24 casos NCM/NBS confirmados, PR #330). Pelo implementador técnico Manus. Aprovado pelo P.O. Uires Tapajós. Fonte de verdade: [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md) e [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md).*
+*Documento gerado em 2026-03-30. Atualizado em 2026-04-05 (Sprint V encerrada — Lote 3: 37 casos NCM/NBS confirmados, PR #333). Pelo implementador técnico Manus. Aprovado pelo P.O. Uires Tapajós. Fonte de verdade: [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md) e [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md).*

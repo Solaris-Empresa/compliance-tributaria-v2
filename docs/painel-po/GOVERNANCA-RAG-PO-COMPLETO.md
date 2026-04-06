@@ -292,7 +292,7 @@ Inclui:
 | K | #214–#227 | Governança rastreabilidade, cockpit, labels, Sprint K |
 | S | #292–#298 | Pipeline 3 Ondas, fix iagen (`isNonCompliantAnswer`), 5 novas leis (2.454 chunks, 10 leis) |
 | T (M1) | #302–#315 | Decision Kernel: ncm-engine + nbs-engine + engine-gap-analyzer + datasets NCM/NBS + governança (CODEOWNERS, 3 CI gates) |
-| V (PV-01) | #328, #330 | Lote 1 + Lote 2: 24 casos NCM/NBS confirmados (NCM:12 · NBS:12 · Testes:34/34) |
+| V (PV-01) | #328, #330, #333 | Lote 1 + Lote 2 + Lote 3: 37 casos NCM/NBS confirmados + 1 pending (NCM:19 · NBS:19 · Testes:48/48) |
 
 ---
 
@@ -358,7 +358,8 @@ Inclui:
 | 2026-04-05 | Gate triplo: Técnico + Dr. Rodrigues + P.O. | Milestone 1 aprovado formalmente |
 | 2026-04-05 | Sprint V Lote 1 (PR #328): +10 casos → 16 confirmados | NCM:9 · NBS:7 · Testes:26/26 |
 | 2026-04-05 | Sprint V Lote 2 (PR #330): +8 casos → 24 confirmados | NCM:12 · NBS:12 · Testes:34/34 · Correção S-07 |
+| 2026-04-05 | Sprint V Lote 3 (PR #333): +13 casos + 1 pending → 37 confirmados | NCM:19 · NBS:19 · Testes:48/48 · Sprint V encerrada |
 
 ---
 
-*Documento gerado em 2026-03-30. Atualizado em 2026-04-05 (Sprint V — Lote 2: 24 casos NCM/NBS confirmados, PR #330). Aprovado pelo P.O. Uires Tapajós.*
+*Documento gerado em 2026-03-30. Atualizado em 2026-04-05 (Sprint V encerrada — Lote 3: 37 casos NCM/NBS confirmados, PR #333). Aprovado pelo P.O. Uires Tapajós.*
