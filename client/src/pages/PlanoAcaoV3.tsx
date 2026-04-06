@@ -1146,7 +1146,7 @@ export default function PlanoAcaoV3() {
         head: [["Área", "Descrição do Risco", "Probabilidade", "Impacto", "Severidade"]],
         body: conclusionData.allRisks.map((r: any) => [
           r.area || "",
-          r.descricao || r.description || "",
+          r.evento || r.descricao || r.description || "",
           r.probabilidade || "",
           r.impacto || "",
           r.severidade || "",
