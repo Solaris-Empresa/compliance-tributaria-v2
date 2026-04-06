@@ -42,6 +42,8 @@ import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
 import { consolidateDiagnosticLayers, isDiagnosticComplete, getNextDiagnosticLayer, getDiagnosticProgress } from "./diagnostic-consolidator";
 // ADR-005 F-02A: Adaptador centralizado de leitura de diagnóstico (leitura via getDiagnosticSource)
 import { getDiagnosticSource, assertFlowVersion } from "./diagnostic-source";
+// M2.1: Completude diagnóstica (ADR-0007 Seção 12)
+import { calcDiagnosticCompleteness } from "./lib/completeness";
 
 const CnaeSchema = z.object({
   code: z.string(),
@@ -520,10 +522,17 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         cnaeAnswers: diagSource.cnaeAnswers ?? null,
         // M2 Componente D: operationProfile exposto para edição NCM/NBS (TO-BE v3 2026-04-06)
         operationProfile: (project as any).operationProfile ?? null,
+        // M2.1: Completude diagnóstica (ADR-0007 Seção 12)
+        diagnosticCompleteness: calcDiagnosticCompleteness({
+          solarisAnswersCount: await db.countOnda1Answers(input.projectId),
+          iagenAnswersCount: await db.countOnda2Answers(input.projectId),
+          diagnosticStatus: (project as any).diagnosticStatus ?? null,
+          operationProfile: (project as any).operationProfile ?? null,
+        }),
       };
     }),
 
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   // ETAPA 2: Gerar perguntas do questionário (V60: retry + temperatura 0.2 + metadata)
   // ─────────────────────────────────────────────────────────────────────────
   generateQuestions: protectedProcedure
