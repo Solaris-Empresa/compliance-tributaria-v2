@@ -799,3 +799,169 @@ function buildCompleteBriefing(): CompleteBriefing {
     },
   };
 }
+
+// ===========================================================================
+// M2 COMPONENTE A — Testes obrigatórios (TO-BE v3 aprovado 2026-04-06)
+// Q5: 5 testes mínimos conforme prompt do Orquestrador
+// ===========================================================================
+describe("M2-A: engine_gaps + source enum + ordenação por confidence", () => {
+  let m2aPool: mysql.Pool;
+  let m2aProjectId: number;
+  let m2aUserId: number;
+
+  beforeAll(async () => {
+    m2aPool = mysql.createPool(process.env.DATABASE_URL ?? "");
+    const [users] = await m2aPool.query<mysql.RowDataPacket[]>("SELECT id FROM users LIMIT 1");
+    m2aUserId = users[0]?.id ?? 1;
+
+    const [projResult] = await m2aPool.query<mysql.OkPacket>(
+      `INSERT INTO projects (name, clientId, businessType, status, createdById, createdByRole, notificationFrequency, notificationEmail, companySize, taxRegime)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ["[M2-A-TEST] engine_gaps", m2aUserId, "diagnostico_cnae", m2aUserId, m2aUserId, "equipe_solaris", "semanal", "m2atest@test.com", "grande", "lucro_real"]
+    );
+    m2aProjectId = projResult.insertId;
+
+    // Gap source='solaris' confidence=0.90
+    await m2aPool.query(
+      `INSERT INTO project_gaps_v3 (
+        client_id, project_id, requirement_id, gap_classification, evidence_status,
+        evaluation_confidence, source_reference, requirement_code, requirement_name,
+        domain, gap_level, gap_type, compliance_status, criticality, score, priority_score,
+        operational_dependency, risk_level, action_priority, estimated_days,
+        gap_description, deterministic_reason, unmet_criteria, recommended_actions,
+        analysis_version, source, created_at, updated_at)
+       VALUES (?, ?, 1, 'ausencia', 'ausente', 0.90, 'LC 214/2024 Art. 25',
+               'REQ-001', 'Registro IBS', 'fiscal', 'operacional', 'normativo',
+               'nao_atendido', 'alta', 70, 70, 'alta', 'critico', 'imediata', 30,
+               'Gap fiscal solaris', 'Determinístico',
+               '["Registro IBS/CBS não realizado"]', '["Realizar registro"]',
+               1, 'solaris', NOW(), NOW())`,
+      [m2aUserId, m2aProjectId]
+    );
+
+    // Gap source='engine' confidence=1.00
+    await m2aPool.query(
+      `INSERT INTO project_gaps_v3 (
+        client_id, project_id, requirement_id, gap_classification, evidence_status,
+        evaluation_confidence, source_reference, requirement_code, requirement_name,
+        domain, gap_level, gap_type, compliance_status, criticality, score, priority_score,
+        operational_dependency, risk_level, action_priority, estimated_days,
+        gap_description, deterministic_reason, unmet_criteria, recommended_actions,
+        analysis_version, source, created_at, updated_at)
+       VALUES (?, ?, 0, NULL, 'ausente', 1.00, 'LC 214/2025 Art. 18',
+               'NCM-9619', 'Enquadramento NCM', 'fiscal_ncm', 'operacional', 'normativo',
+               'nao_atendido', 'alta', 70, 70, 'baixa', 'alto', 'imediata', 30,
+               'Enquadramento tributário identificado pelo Decision Kernel',
+               'Decision Kernel',
+               '["Enquadramento NCM não realizado"]', '["Verificar enquadramento"]',
+               3, 'engine', NOW(), NOW())`,
+      [m2aUserId, m2aProjectId]
+    );
+  });
+
+  afterAll(async () => {
+    await m2aPool.query("DELETE FROM project_gaps_v3 WHERE project_id = ?", [m2aProjectId]);
+    await m2aPool.query("DELETE FROM projects WHERE id = ?", [m2aProjectId]);
+    await m2aPool.end();
+  });
+
+  it("M2-A-01: top_gaps inclui gaps source=engine junto com solaris/iagen", async () => {
+    const briefing = await generateBriefing(m2aProjectId, m2aPool);
+    const sources = briefing.section_gaps.top_gaps.map((g: any) => g.source);
+    expect(sources).toContain("solaris");
+    expect(sources).toContain("engine");
+  });
+
+  it("M2-A-02: engine_gaps contém apenas gaps source=engine com evaluation_confidence", async () => {
+    const briefing = await generateBriefing(m2aProjectId, m2aPool);
+    const engineGaps = (briefing.section_gaps as any).engine_gaps;
+    expect(engineGaps).toBeDefined();
+    expect(Array.isArray(engineGaps)).toBe(true);
+    for (const eg of engineGaps) {
+      expect(eg.gap_id).toBeDefined();
+      expect(typeof eg.evaluation_confidence).toBe("number");
+      expect(eg.evaluation_confidence).toBeGreaterThan(0);
+    }
+  });
+
+  it("M2-A-03: engine_gaps é undefined quando não há gaps engine no projeto", async () => {
+    const noEnginePool = mysql.createPool(process.env.DATABASE_URL ?? "");
+    const [projResult] = await noEnginePool.query<mysql.OkPacket>(
+      `INSERT INTO projects (name, clientId, businessType, status, createdById, createdByRole, notificationFrequency, notificationEmail, companySize, taxRegime)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ["[M2-A-TEST-NOENGINE]", m2aUserId, "diagnostico_cnae", m2aUserId, m2aUserId, "equipe_solaris", "semanal", "m2anoengine@test.com", "grande", "lucro_real"]
+    );
+    const noEngineProjectId = projResult.insertId;
+    await noEnginePool.query(
+      `INSERT INTO project_gaps_v3 (
+        client_id, project_id, requirement_id, gap_classification, evidence_status,
+        evaluation_confidence, source_reference, requirement_code, requirement_name,
+        domain, gap_level, gap_type, compliance_status, criticality, score, priority_score,
+        operational_dependency, risk_level, action_priority, estimated_days,
+        gap_description, deterministic_reason, unmet_criteria, recommended_actions,
+        analysis_version, source, created_at, updated_at)
+       VALUES (?, ?, 1, 'ausencia', 'ausente', 0.90, 'LC 214/2024',
+               'REQ-001', 'Registro IBS', 'fiscal', 'operacional', 'normativo',
+               'nao_atendido', 'alta', 70, 70, 'alta', 'critico', 'imediata', 30,
+               'Gap solaris apenas', 'Determinístico',
+               '["Registro não realizado"]', '["Realizar registro"]',
+               1, 'solaris', NOW(), NOW())`,
+      [m2aUserId, noEngineProjectId]
+    );
+    try {
+      const briefing = await generateBriefing(noEngineProjectId, noEnginePool);
+      const engineGaps = (briefing.section_gaps as any).engine_gaps;
+      expect(engineGaps).toBeUndefined();
+    } finally {
+      await noEnginePool.query("DELETE FROM project_gaps_v3 WHERE project_id = ?", [noEngineProjectId]);
+      await noEnginePool.query("DELETE FROM projects WHERE id = ?", [noEngineProjectId]);
+      await noEnginePool.end();
+    }
+  });
+
+  it("M2-A-04: top_gaps.min(1) preservado quando projeto tem apenas gaps engine", async () => {
+    const engineOnlyPool = mysql.createPool(process.env.DATABASE_URL ?? "");
+    const [projResult] = await engineOnlyPool.query<mysql.OkPacket>(
+      `INSERT INTO projects (name, clientId, businessType, status, createdById, createdByRole, notificationFrequency, notificationEmail, companySize, taxRegime)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ["[M2-A-TEST-ENGINEONLY]", m2aUserId, "diagnostico_cnae", m2aUserId, m2aUserId, "equipe_solaris", "semanal", "m2aengineonly@test.com", "grande", "lucro_real"]
+    );
+    const engineOnlyProjectId = projResult.insertId;
+    await engineOnlyPool.query(
+      `INSERT INTO project_gaps_v3 (
+        client_id, project_id, requirement_id, gap_classification, evidence_status,
+        evaluation_confidence, source_reference, requirement_code, requirement_name,
+        domain, gap_level, gap_type, compliance_status, criticality, score, priority_score,
+        operational_dependency, risk_level, action_priority, estimated_days,
+        gap_description, deterministic_reason, unmet_criteria, recommended_actions,
+        analysis_version, source, created_at, updated_at)
+       VALUES (?, ?, 0, NULL, 'ausente', 1.00, 'LC 214/2025 Art. 18',
+               'NCM-9619', 'Enquadramento NCM', 'fiscal_ncm', 'operacional', 'normativo',
+               'nao_atendido', 'alta', 70, 70, 'baixa', 'alto', 'imediata', 30,
+               'Gap engine apenas', 'Decision Kernel',
+               '["Enquadramento não realizado"]', '["Verificar enquadramento"]',
+               3, 'engine', NOW(), NOW())`,
+      [m2aUserId, engineOnlyProjectId]
+    );
+    try {
+      const briefing = await generateBriefing(engineOnlyProjectId, engineOnlyPool);
+      expect(briefing.section_gaps.top_gaps.length).toBeGreaterThanOrEqual(1);
+      // Zod não deve lançar erro
+      expect(() => SectionGapsSchema.parse(briefing.section_gaps)).not.toThrow();
+    } finally {
+      await engineOnlyPool.query("DELETE FROM project_gaps_v3 WHERE project_id = ?", [engineOnlyProjectId]);
+      await engineOnlyPool.query("DELETE FROM projects WHERE id = ?", [engineOnlyProjectId]);
+      await engineOnlyPool.end();
+    }
+  });
+
+  it("M2-A-05: source em top_gaps usa enum válido ['solaris','iagen','engine','v1']", async () => {
+    const briefing = await generateBriefing(m2aProjectId, m2aPool);
+    const validSources = ["solaris", "iagen", "engine", "v1"];
+    for (const gap of briefing.section_gaps.top_gaps) {
+      expect(validSources).toContain((gap as any).source);
+    }
+    // Validação Zod completa da seção
+    expect(() => SectionGapsSchema.parse(briefing.section_gaps)).not.toThrow();
+  });
+});
