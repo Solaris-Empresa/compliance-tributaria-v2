@@ -56,7 +56,8 @@ export const DerivedRiskSchema = z.object({
   mitigation_hint: z.string(),
   // G11 — fonte_risco: origem do pipeline que gerou o risco
   // Derivado de project_gaps_v3.source (migration 0061 G17)
-  fonte_risco: z.enum(['solaris', 'cnae', 'iagen', 'v1']).default('v1'),
+  // Componente B (DEC-M2-05): 'engine' adicionado sem migration de banco
+  fonte_risco: z.enum(['solaris', 'cnae', 'iagen', 'engine', 'v1']).default('v1'),
 });
 export type DerivedRisk = z.infer<typeof DerivedRiskSchema>;
 
@@ -350,6 +351,8 @@ export async function deriveRisksFromGaps(
          (g.gap_classification IS NOT NULL AND g.gap_classification != '')
          OR
          (g.source = 'solaris' AND g.criticality IS NOT NULL)
+         OR
+         (g.source = 'engine')
        )
      ORDER BY r.base_criticality DESC, g.gap_classification ASC`,
     [projectId]
@@ -377,10 +380,12 @@ export async function deriveRisksFromGaps(
       origin
     );
     // G11: derivar fonte_risco a partir de project_gaps_v3.source (migration 0061)
-    const fonteRisco: 'solaris' | 'cnae' | 'iagen' | 'v1' =
+    // Componente B (DEC-M2-05): 'engine' sem migration — apenas Zod enum + ternária
+    const fonteRisco: 'solaris' | 'cnae' | 'iagen' | 'engine' | 'v1' =
       gap.gap_source === 'solaris' ? 'solaris'
       : gap.gap_source === 'cnae'  ? 'cnae'
       : gap.gap_source === 'iagen' ? 'iagen'
+      : gap.gap_source === 'engine' ? 'engine'
       : 'v1';
     risks.push({
       gap_id: gap.gap_id,
