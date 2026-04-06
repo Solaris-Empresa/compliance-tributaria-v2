@@ -2252,18 +2252,17 @@ Gere o Briefing estruturado em JSON:
       // Enforcement: validar transição de status (Seção 8 + Seção 10)
       const { assertValidTransition } = await import('./flowStateMachine');
       try {
-        assertValidTransition(project.status, 'onda2_iagen');
+        assertValidTransition(project.status, 'onda1_solaris'); // BUG-UAT-07 fix: BUG-UAT-04 havia pulado onda1_solaris incorretamente
       } catch (err: any) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: `Transição inválida: ${err.message}. Etapa indisponível. Conclua a etapa anterior.`,
         });
       }
-
       // Salvar respostas (upsert idempotente)
       await db.saveOnda1Answers(input.projectId, input.answers);
-      // Avançar status do projeto para onda2_iagen (BUG-UAT-04 fix: era 'onda1_solaris' incorretamente)
-      await db.updateProject(input.projectId, { status: 'onda2_iagen' as any });
+      // Avançar status do projeto para onda1_solaris (BUG-UAT-07 fix: restaura semântica correta)
+      await db.updateProject(input.projectId, { status: 'onda1_solaris' as any });
 
       // G17 — Fire-and-forget: gerar gaps SOLARIS sem bloquear resposta ao frontend
       void analyzeSolarisAnswers(input.projectId).catch((err) => {
@@ -2308,11 +2307,10 @@ Gere o Briefing estruturado em JSON:
       return {
         success: true,
         projectId: input.projectId,
-        newStatus: 'onda2_iagen',
+        newStatus: 'onda1_solaris', // BUG-UAT-07 fix
         answersCount: input.answers.length,
       };
     }),
-
   // ─── K-4-C: Onda 2 IA Generativa ──────────────────────────────────────────
 
   /**
@@ -2463,7 +2461,7 @@ Regras obrigatórias:
       }
       const { assertValidTransition } = await import('./flowStateMachine');
       try {
-        assertValidTransition(project.status, 'diagnostico_corporativo'); // BUG-UAT-05 fix: era 'onda2_iagen' incorretamente
+        assertValidTransition(project.status, 'onda2_iagen'); // BUG-UAT-07 fix: BUG-UAT-05 havia pulado onda2_iagen incorretamente
       } catch (err: any) {
         throw new TRPCError({
           code: 'FORBIDDEN',
@@ -2471,7 +2469,7 @@ Regras obrigatórias:
         });
       }
       await db.saveOnda2Answers(input.projectId, input.answers);
-      await db.updateProject(input.projectId, { status: 'diagnostico_corporativo' as any }); // BUG-UAT-03 fix
+      await db.updateProject(input.projectId, { status: 'onda2_iagen' as any }); // BUG-UAT-07 fix: restaura semântica onda2_iagen
       // Lote A (AUDIT-C-002): fire-and-forget — gera gaps a partir das respostas iagen
       void analyzeIagenAnswers(input.projectId).catch((err) => {
         console.error('[IAGEN-GAP] analyzeIagenAnswers falhou — pipeline não afetado:', err);
@@ -2494,12 +2492,11 @@ Regras obrigatórias:
       return {
         success: true,
         projectId: input.projectId,
-        newStatus: 'diagnostico_corporativo',
+        newStatus: 'onda2_iagen', // BUG-UAT-07 fix
         answersCount: input.answers.length,
       };
     }),
-
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   // M2 COMPONENTE D: Editar NCM/NBS do operationProfile (TO-BE v3 2026-04-06)
   // CODEOWNERS: exige aprovação do P.O. (Uires Tapajos)
   // ─────────────────────────────────────────────────────────────────────────
