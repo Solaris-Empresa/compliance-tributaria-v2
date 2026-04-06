@@ -10,7 +10,7 @@
 
 ## 1. O que é o RAG e por que ele precisa de rastreabilidade
 
-O **RAG** (Retrieval-Augmented Generation) é o componente do IA SOLARIS responsável por fundamentar o diagnóstico tributário na legislação vigente. Quando o sistema gera um diagnóstico para um escritório de advocacia, ele não inventa as referências legais — ele as recupera de um corpus de 2.454 chunks extraídos de 10 leis da Reforma Tributária (LC 214/2024, LC 224/2025, EC 132/2023, LC 227/2021, LC 123/2006, LC 87/1996, LC 116/2003, CG-IBS, RFB-CBS e Conv. ICMS).
+O **RAG** (Retrieval-Augmented Generation) é o componente do IA SOLARIS responsável por fundamentar o diagnóstico tributário na legislação vigente. Quando o sistema gera um diagnóstico para um escritório de advocacia, ele não inventa as referências legais — ele as recupera de um corpus de 2.509 chunks extraídos de 10 leis da Reforma Tributária (LC 214/2024, LC 224/2025, EC 132/2023, LC 227/2021, LC 123/2006, LC 87/1996, LC 116/2003, CG-IBS, RFB-CBS e Conv. ICMS).
 
 A rastreabilidade do RAG é necessária porque qualquer falha neste componente tem impacto direto na qualidade jurídica do produto. Um chunk desatualizado, uma lei mal classificada ou uma falha de recuperação pode resultar em um diagnóstico incorreto entregue a um advogado. Por isso, toda alteração no corpus, no pipeline de recuperação, ou na arquitetura do RAG deve ser rastreável do commit até o cockpit.
 
@@ -22,7 +22,7 @@ O RAG do IA SOLARIS é composto por três camadas:
 
 | Camada | Componente | Responsabilidade |
 |---|---|---|
-| **Corpus** | Tabela `ragDocuments` (TiDB Cloud) | Armazena 2.454 chunks de 10 leis tributárias com metadados de lei, artigo, tópicos e CNAE |
+| **Corpus** | Tabela `ragDocuments` (TiDB Cloud) | Armazena 2.509 chunks de 10 leis tributárias com metadados de lei, artigo, tópicos e CNAE |
 | **Retriever** | `server/rag-retriever.ts` | Recupera os chunks mais relevantes para o contexto do cliente |
 | **Gerador** | `routers-fluxo-v3.ts` → GPT-4.1 | Usa os chunks recuperados para fundamentar o diagnóstico |
 
@@ -131,7 +131,7 @@ A tabela `ragDocuments` é o coração do corpus RAG. Cada linha representa um c
 | `data_revisao` | varchar(30) | Data de revisão ISO 8601 (nullable — DEC-002) |
 | `createdAt` | timestamp | Data de criação |
 
-**Estado atual do corpus:** 2.454 chunks — 100% com `anchor_id` preenchido. 10 leis ativas (Sprint S, 2026-04-04).
+**Estado atual do corpus:** 2.509 chunks — 100% com `anchor_id` preenchido. 10 leis ativas (Sprint S, 2026-04-04).
 
 **Distribuição por lei:**
 
@@ -247,7 +247,9 @@ Evento RAG (nova funcionalidade / alteração / RFC / incidente)
 | 2026-04-04 | Fix iagen: `isNonCompliantAnswer` substitui `confidence_score` (PR #295) | Gaps `source=iagen` gerados corretamente |
 | 2026-04-05 | Sprint T Pré-M1: Skill v4.1, CODEOWNERS 15 entradas, 3 CI gates, CNT-01a/01b/02/03 | Governança reforçada, contratos M1 canônicos |
 | 2026-04-05 | Milestone 1: ncm-engine + nbs-engine + engine-gap-analyzer (PRs #311–#315) | `source='engine'` ativo, 5/6 casos validados, gate triplo aprovado |
+| 2026-04-05 | Sprint V Lote 1 (PR #328): +10 casos NCM/NBS → 16 confirmados | NCM:9 · NBS:7 · Testes:26/26 |
+| 2026-04-05 | Sprint V Lote 2 (PR #330): +8 casos NCM/NBS → 24 confirmados | NCM:12 · NBS:12 · Testes:34/34 · Correção S-07 (Arts.234-235) |
 
 ---
 
-*Documento gerado em 2026-03-30. Atualizado em 2026-04-05 (Milestone 1 — Decision Kernel). Pelo implementador técnico Manus. Aprovado pelo P.O. Uires Tapajós. Fonte de verdade: [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md) e [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md).*
+*Documento gerado em 2026-03-30. Atualizado em 2026-04-05 (Sprint V — Lote 2: 24 casos NCM/NBS confirmados, PR #330). Pelo implementador técnico Manus. Aprovado pelo P.O. Uires Tapajós. Fonte de verdade: [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md) e [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md).*

@@ -114,10 +114,24 @@ const SPRINTS = [
     changes: [
       "Decision Kernel: ncm-engine.ts + nbs-engine.ts (lookup determinístico)",
       "engine-gap-analyzer.ts integrado na Onda 3 (source='engine')",
-      "5/6 casos validados — Dr. José Rodrigues (NCM 2202.10.00 pending IS)",
+      "6/6 casos validados — Dr. José Rodrigues (M1 baseline)",
       "Governança v4.1: CODEOWNERS 15 entradas + 12 workflows CI",
-      "1.470 testes passando · 0 erros TypeScript · 16 PRs mergeados",
+      "1.476 testes passando · 0 erros TypeScript · 16 PRs mergeados",
       "Evidence Pack M1 — gate triplo aprovado (Técnico + Jurídico + P.O.)",
+    ], status: "done" },
+  { id: "Sprint V — PV-01 Lote 1", date: "2026-04-05", pr: "#328", commit: "49c3f68",
+    changes: [
+      "Lote 1: +10 casos NCM/NBS → 16 confirmados (NCM:9 · NBS:7)",
+      "Fix nbs-engine.ts extractFonte (suporte a artigo string direta)",
+      "Testes decision-kernel: 26/26 passando",
+      "ESTADO-ATUAL v4.4 (PR #329)",
+    ], status: "done" },
+  { id: "Sprint V — PV-01 Lote 2", date: "2026-04-05", pr: "#330", commit: "1c42774",
+    changes: [
+      "Lote 2: +8 casos NCM/NBS → 24 confirmados (NCM:12 · NBS:12)",
+      "Correção S-07: planos saúde Arts.234-235 (não Arts.193-199)",
+      "Testes decision-kernel: 34/34 passando",
+      "CORPUS-BASELINE.md v4.4",
     ], status: "done" },
 ];
 
@@ -141,8 +155,8 @@ const SOURCE_FILES = [
   { path: "docs/governance/post-mortems/2026-03-31-g17-insert-silencioso.md", role: "Post-mortem G17: INSERT silencioso — 5 Whys + DORA Sprint N", critical: false },
   { path: ".github/workflows/validate-implementation.yml", role: "CI: Gates v5.0 — Q6/Q7/R9/R2 automáticos", critical: false },
   // Sprint T — Milestone 1 (Decision Kernel)
-  { path: "server/lib/decision-kernel/datasets/ncm-dataset.json", role: "Dataset NCM — 3 casos (2 confirmados + 1 pending IS) · Sprint T / M1", critical: true },
-  { path: "server/lib/decision-kernel/datasets/nbs-dataset.json", role: "Dataset NBS — 3 casos (3 confirmados) · Sprint T / M1", critical: true },
+  { path: "server/lib/decision-kernel/datasets/ncm-dataset.json", role: "Dataset NCM — 12 casos confirmados · Sprint V Lote 1+2 (PRs #328, #330)", critical: true },
+  { path: "server/lib/decision-kernel/datasets/nbs-dataset.json", role: "Dataset NBS — 12 casos confirmados · Sprint V Lote 1+2 (PRs #328, #330)", critical: true },
   { path: "server/lib/decision-kernel/engine/ncm-engine.ts", role: "Engine determinístico NCM — lookup regime tributário LC 214/2025", critical: true },
   { path: "server/lib/decision-kernel/engine/nbs-engine.ts", role: "Engine determinístico NBS — lookup regime tributário LC 214/2025", critical: true },
   { path: "server/lib/engine-gap-analyzer.ts", role: "Integrador engine → project_gaps_v3 (fire-and-forget, source='engine')", critical: true },
@@ -836,8 +850,8 @@ export default function RAGCockpit() {
             background: "#1a2744", border: "1px solid #3b82f6",
             borderRadius: 8, padding: "6px 14px", textAlign: "center"
           }}>
-            <div style={{ color: "#22c55e", fontWeight: 700, fontSize: 12, letterSpacing: "0.05em" }}>✅ SPRINT T / MILESTONE 1 CONCLUÍDA</div>
-            <div style={{ color: "#334155", fontSize: 10, marginTop: 2 }}>Decision Kernel · 16 PRs · 1.470 testes · ad5aca0</div>
+            <div style={{ color: "#22c55e", fontWeight: 700, fontSize: 12, letterSpacing: "0.05em" }}>✅ SPRINT V / PV-01 LOTE 1+2 CONCLUÍDA</div>
+            <div style={{ color: "#334155", fontSize: 10, marginTop: 2 }}>Decision Kernel · 24 casos NCM/NBS · 34 testes · 1c42774</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ color: corpusConfidence >= 98 ? "#22c55e" : "#f59e0b", fontFamily: "monospace", fontWeight: 700, fontSize: 20 }}>{corpusConfidence}%</div>

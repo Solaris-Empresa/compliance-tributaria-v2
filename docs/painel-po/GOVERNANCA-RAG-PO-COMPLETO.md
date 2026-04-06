@@ -19,7 +19,7 @@ A governança opera em **quatro camadas independentes e complementares**, garant
 
 ## 1. O que é o RAG e por que ele precisa de governança especial
 
-O RAG (Retrieval-Augmented Generation) é a camada de recuperação de conhecimento jurídico da plataforma. Ele funciona como uma biblioteca especializada: quando o sistema precisa responder sobre uma regra tributária específica, o RAG busca os artigos relevantes no corpus de 2.454 chunks de legislação (10 leis) e os entrega ao modelo de linguagem (GPT-4.1) para que a resposta seja fundamentada em lei, não em memória do modelo.
+O RAG (Retrieval-Augmented Generation) é a camada de recuperação de conhecimento jurídico da plataforma. Ele funciona como uma biblioteca especializada: quando o sistema precisa responder sobre uma regra tributária específica, o RAG busca os artigos relevantes no corpus de 2.509 chunks de legislação (10 leis) e os entrega ao modelo de linguagem (GPT-4.1) para que a resposta seja fundamentada em lei, não em memória do modelo.
 
 Por ser a base de conhecimento jurídico do produto, qualquer falha ou desatualização no RAG tem impacto direto na qualidade dos diagnósticos entregues aos advogados e contadores. Um corpus desatualizado pode gerar um diagnóstico incorreto sobre a reforma tributária. Uma falha no retriever pode fazer o sistema responder sem base legal. Por isso, a governança do RAG é tratada com o mesmo rigor de uma auditoria contábil: toda mudança deve ser documentada, rastreada e verificável.
 
@@ -29,8 +29,8 @@ Por ser a base de conhecimento jurídico do produto, qualquer falha ou desatuali
 
 | Dimensão | Valor atual | Baseline |
 |---|---|---|
-| Total de chunks | **2.454** | v2.2 (2026-04-04) |
-| Chunks com `anchor_id` | 2.454 (100%) | Sprint S |
+| Total de chunks | **2.509** | v4.4 (2026-04-05) |
+| Chunks com `anchor_id` | 2.509 (100%) | Sprint S |
 | Leis ativas | 10 | lc214, ec132, lc227, lc224, lc123, lc87, lc116, cg-ibs, rfb-cbs, conv-icms |
 | Anomalias abertas | 0 | Sprint S concluída |
 | Modelo de retrieval | GPT-4.1 (re-ranking) | Sprint H |
@@ -292,6 +292,7 @@ Inclui:
 | K | #214–#227 | Governança rastreabilidade, cockpit, labels, Sprint K |
 | S | #292–#298 | Pipeline 3 Ondas, fix iagen (`isNonCompliantAnswer`), 5 novas leis (2.454 chunks, 10 leis) |
 | T (M1) | #302–#315 | Decision Kernel: ncm-engine + nbs-engine + engine-gap-analyzer + datasets NCM/NBS + governança (CODEOWNERS, 3 CI gates) |
+| V (PV-01) | #328, #330 | Lote 1 + Lote 2: 24 casos NCM/NBS confirmados (NCM:12 · NBS:12 · Testes:34/34) |
 
 ---
 
@@ -355,7 +356,9 @@ Inclui:
 | 2026-04-05 | Decision Kernel: `source='engine'` ativo em `project_gaps_v3` | Classificação determinística NCM/NBS |
 | 2026-04-05 | Datasets NCM/NBS: 5/6 casos confirmados (Dr. Rodrigues) | Rastreabilidade atômica com artigo + parágrafo |
 | 2026-04-05 | Gate triplo: Técnico + Dr. Rodrigues + P.O. | Milestone 1 aprovado formalmente |
+| 2026-04-05 | Sprint V Lote 1 (PR #328): +10 casos → 16 confirmados | NCM:9 · NBS:7 · Testes:26/26 |
+| 2026-04-05 | Sprint V Lote 2 (PR #330): +8 casos → 24 confirmados | NCM:12 · NBS:12 · Testes:34/34 · Correção S-07 |
 
 ---
 
-*Documento gerado em 2026-03-30. Atualizado em 2026-04-05 (Milestone 1 — Decision Kernel). Aprovado pelo P.O. Uires Tapajós.*
+*Documento gerado em 2026-03-30. Atualizado em 2026-04-05 (Sprint V — Lote 2: 24 casos NCM/NBS confirmados, PR #330). Aprovado pelo P.O. Uires Tapajós.*
