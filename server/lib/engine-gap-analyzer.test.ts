@@ -4,7 +4,7 @@
  * Testes Q5 obrigatórios (Orquestrador Claude — 2026-04-05):
  *   1. NCM confirmado gera gap source=engine
  *   2. NBS confirmado gera gap source=engine
- *   3. NCM pending_validation NÃO gera gap no banco
+ *   3. NBS pending_validation NÃO gera gap no banco
  *   4. evaluation_confidence = confianca.valor / 100
  *   5. source_reference contém artigo da lei
  *
@@ -99,9 +99,11 @@ describe('engine-gap-analyzer — Q5 obrigatórios (Bloco D)', () => {
     expect(sourceRef).toBeTruthy();
   });
 
-  // Q5-3: NCM pending_validation NÃO gera gap no banco
-  it('NCM pending_validation (2202.10.00) NÃO gera INSERT no banco', async () => {
-    const result = await analyzeEngineGaps(42, ['2202.10.00'], []);
+  // Q5-3: NBS pending_validation NÃO gera gap no banco
+  // Nota: 2202.10.00 (NCM) foi promovido pending→confirmado no PR #323 (Patch U-2).
+  // Usando 1.0906.11.00 (NBS) — único código pending_validation no dataset atual.
+  it('NBS pending_validation (1.0906.11.00) NÃO gera INSERT no banco', async () => {
+    const result = await analyzeEngineGaps(42, [], ['1.0906.11.00']);
 
     expect(result.skipped_pending).toBe(1);
 
@@ -111,8 +113,7 @@ describe('engine-gap-analyzer — Q5 obrigatórios (Bloco D)', () => {
     );
     expect(insertCalls.length).toBe(0);
 
-    // Sem gaps inseridos — SELECT COUNT deve retornar 0
-    // (o banco não foi tocado com INSERT)
+    // Sem gaps inseridos
     expect(result.inserted).toBe(0);
   });
 
@@ -166,9 +167,11 @@ describe('engine-gap-analyzer — Q5 obrigatórios (Bloco D)', () => {
   });
 
   // Adicional: pending + confirmados — apenas confirmados gravam
+  // Nota: 2202.10.00 (NCM) foi promovido pending→confirmado no PR #323 (Patch U-2).
+  // Usando mix: 1 NBS pending (1.0906.11.00) + 1 NCM confirmado (9619.00.00)
   it('mix pending + confirmados: apenas confirmados gravam no banco', async () => {
-    // 1 pending (2202.10.00) + 1 confirmado (9619.00.00)
-    const result = await analyzeEngineGaps(42, ['2202.10.00', '9619.00.00'], []);
+    // 1 NBS pending (1.0906.11.00) + 1 NCM confirmado (9619.00.00)
+    const result = await analyzeEngineGaps(42, ['9619.00.00'], ['1.0906.11.00']);
 
     expect(result.skipped_pending).toBe(1);
     const insertCalls = mockExecute.mock.calls.filter(
