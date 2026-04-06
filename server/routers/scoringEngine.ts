@@ -95,6 +95,7 @@ export interface CpieScoreBreakdown {
 export function calcGapScore(gaps: Array<{
   criticality: string;
   score: string | number;
+  confidence?: number;  // DEC-M2-06: ponderação por confiança da fonte
 }>): { score: number; detail: GapDimension } {
   if (gaps.length === 0) {
     return {
@@ -112,7 +113,8 @@ export function calcGapScore(gaps: Array<{
   for (const gap of gaps) {
     const w = GAP_CRITICALITY_WEIGHT[gap.criticality] ?? 1.0;
     const gapScore = Math.min(1, Math.max(0, Number(gap.score)));
-    weightedPenalty += (1 - gapScore) * w;
+    const confidence = Number(gap.confidence ?? 1.0);  // DEC-M2-06: cast explícito — MySQL retorna DECIMAL como string
+    weightedPenalty += (1 - gapScore) * w * confidence;
     totalWeight += w;
   }
 
@@ -288,9 +290,11 @@ export async function persistCpieScoreForProject(
   const conn = await getConn();
   try {
     const [gaps] = await conn.execute(
-      'SELECT criticality, score FROM project_gaps_v3 WHERE project_id = ? AND client_id = ?',
+      `SELECT criticality, score,
+              COALESCE(evaluation_confidence, 1.0) AS confidence
+       FROM project_gaps_v3 WHERE project_id = ? AND client_id = ?`,
       [projectId, clientId]
-    ) as [Array<{ criticality: string; score: string }>, unknown];
+    ) as [Array<{ criticality: string; score: string; confidence: number }>, unknown];
     const [risks] = await conn.execute(
       'SELECT risk_level, risk_score FROM project_risks_v3 WHERE project_id = ? AND client_id = ?',
       [projectId, clientId]
