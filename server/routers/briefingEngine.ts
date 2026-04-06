@@ -109,7 +109,20 @@ export const SectionGapsSchema = z.object({
     domain: z.string(),
     gap_description: z.string().min(1),
     source_reference: z.string().min(1),
+    // M2 Componente A: source adicionado para rastreabilidade por pipeline
+    source: z.enum(['solaris', 'iagen', 'engine', 'v1']),
   })).min(1),
+  // M2 Componente A: engine_gaps — campo ADICIONAL opcional (não substitui top_gaps)
+  // top_gaps mantém TODOS os gaps (incluindo engine). Constraint .min(1) preservada.
+  engine_gaps: z.array(z.object({
+    gap_id: z.number(),
+    requirement_name: z.string(),
+    criticality: z.string(),
+    domain: z.string(),
+    gap_description: z.string(),
+    source_reference: z.string(),
+    evaluation_confidence: z.number(),
+  })).optional(),
 });
 
 /** Seção 6 — Riscos */
@@ -457,7 +470,12 @@ export async function generateBriefing(
 
   // 2. Buscar gaps
   const [gaps] = await pool.query<mysql.RowDataPacket[]>(
-    `SELECT * FROM project_gaps_v3 WHERE project_id = ? ORDER BY score DESC`,
+    `SELECT * FROM project_gaps_v3
+     WHERE project_id = ?
+     ORDER BY score DESC,
+              COALESCE(evaluation_confidence, 0.8) DESC`,
+    // COALESCE(0.8): valor fixo — posiciona gaps sem confidence entre solaris(0.90) e iagen(0.70)
+    // NÃO alterar sem revisão do P.O. (TO-BE v3 — 2026-04-06)
     [projectId]
   );
 
@@ -729,14 +747,33 @@ export async function generateBriefing(
       gaps_por_dominio: gapsPorDominio,
       top_gaps: gaps.slice(0, 5).map((g: any) => ({
         gap_id: g.id,
-        requirement_id: g.requirement_id,
-        requirement_code: g.requirement_code || `REQ-${g.requirement_id}`,
-        gap_classification: g.gap_classification,
+        requirement_id: Number(g.requirement_id ?? 0),
+        requirement_code: g.requirement_code || `REQ-${Number(g.requirement_id ?? 0)}`,
+        // gap_classification pode ser NULL para gaps engine (por design do Decision Kernel)
+        gap_classification: g.gap_classification ?? 'engine',
         criticality: g.criticality,
         domain: g.domain,
         gap_description: g.gap_description || "Gap identificado",
         source_reference: g.source_reference || "LC 214/2024",
+        // M2 Componente A: source tipado como enum — rastreabilidade por pipeline
+        source: (g.source as 'solaris' | 'iagen' | 'engine' | 'v1') || 'v1',
       })),
+      // M2 Componente A: engine_gaps — subconjunto de top_gaps filtrado por source='engine'
+      // Incluso apenas quando há gaps engine (campo opcional no schema)
+      ...((() => {
+        const engineGaps = gaps
+          .filter((g: any) => g.source === 'engine')
+          .map((g: any) => ({
+            gap_id: g.id,
+            requirement_name: g.requirement_name || g.domain || 'Gap engine',
+            criticality: g.criticality,
+            domain: g.domain,
+            gap_description: g.gap_description || 'Gap identificado',
+            source_reference: g.source_reference || '',
+            evaluation_confidence: Number(g.evaluation_confidence ?? 0),
+          }));
+        return engineGaps.length > 0 ? { engine_gaps: engineGaps } : {};
+      })()),
     },
 
     section_riscos: {
