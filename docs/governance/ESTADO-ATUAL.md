@@ -259,7 +259,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | FLAG 2 | Escopo cirurúgico por PR | ✅ RESOLVIDA (3 PRs respeitados) |
 | FLAG 4 | Gate B obrigatório antes Comp. B | 🔴 ATIVA |
 | FLAG 5 | Falhas pré-existentes T-B7-08/T-B7-10 não são regressões | 🔴 ATIVA |
-| FLAG 6 | 0 regressões além das 2 conhecidas | ✅ OK |
+| FLAG 6 | 0 regressões além das **4 conhecidas** | ✅ OK |
 | FLAG 7 | `consistencyRouter.OperationProfileSchema` desatualizado | 🔴 ATIVA (M2.1/M3) |
 
 ---
@@ -314,6 +314,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 - Componente B → NUNCA iniciar sem Gate B verificado pelo P.O.
 - Gate B critério 3: `evaluation_confidence >= 0.90` (operador >=, não >)
 - T-B7-08 + T-B7-10 → falhas PRÉ-EXISTENTES, não investigar como regressão
+- Q5-3 + Q5-mix (`engine-gap-analyzer.test.ts`) → falhas PRÉ-EXISTENTES: 2202.10.00 foi promovido `pending_validation` → `confirmado` no Patch U-2 (PR #323); testes esperam `skipped_pending=1` mas dataset NCM não tem mais nenhum pending. Código correto — testes desatualizados. Não investigar como regressão.
 - `consistencyRouter.OperationProfileSchema` → ATUALIZAR antes do M3 Consolidador (pré-requisito)
 
 ---
@@ -347,5 +348,5 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (Sprint W — M2 Fase 1 concluída · PRs #337–#339 · HEAD 9d55068)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (Sprint W — M2 Fase 1 concluída · PRs #337–#340 · HEAD 857d8bc · Audit PR #341)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
