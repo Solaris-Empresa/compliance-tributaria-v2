@@ -306,6 +306,110 @@ describe('nbs-engine — Lote 1 (educação + saúde + financeiro + TI)', () => 
 
 });
 
+// ─── Q5 Lote 2 — NCM (3 casos: pão francês + calcário + fungicidas) ─────────
+
+describe('ncm-engine — Lote 2 (panificação + agropecuário)', () => {
+
+  // L2-01: Pão francês
+  it('[L2-01] NCM 1905.90.90 → aliquota_zero, deterministico, artigo 125 Anexo I', () => {
+    const result = lookupNcm({ codigo: '1905.90.90', sistema: 'NCM' });
+
+    expect(result.regime).toBe('aliquota_zero');
+    expect(result.aliquota).toBe(0);
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('deterministico');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('125');
+    expect(result.nota).toBeUndefined();
+  });
+
+  // L2-02: Calcário agrícola
+  it('[L2-02] NCM 2521.00.00 → condicional, 100, artigo 138 Anexo IX', () => {
+    const result = lookupNcm({ codigo: '2521.00.00', sistema: 'NCM' });
+
+    expect(result.regime).toBe('condicional');
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('condicional');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('138');
+    expect(result.aliquota).toBeNull();
+  });
+
+  // L2-03: Fungicidas agropecuários
+  it('[L2-03] NCM 3808.92.19 → condicional, 100, artigo 138 Anexo IX', () => {
+    const result = lookupNcm({ codigo: '3808.92.19', sistema: 'NCM' });
+
+    expect(result.regime).toBe('condicional');
+    expect(result.confianca.valor).toBe(100);
+    expect(result.confianca.tipo).toBe('condicional');
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('138');
+    expect(result.aliquota).toBeNull();
+  });
+
+});
+
+// ─── Q5 Lote 2 — NBS (5 casos: ensino superior + planos saúde + auditoria + seguro + software) ─
+
+describe('nbs-engine — Lote 2 (educação superior + saúde + financeiro + TI)', () => {
+
+  // L2-01 NBS: Ensino superior
+  it('[NBS L2-01] NBS 1.2204.10.00 → reducao_60, regra ≤ 98, artigo 129 Anexo II', () => {
+    const result = lookupNbs({ codigo: '1.2204.10.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('reducao_60');
+    expect(result.confianca.valor).toBe(98);
+    expect(result.confianca.valor).toBeLessThanOrEqual(98); // CNT-01b
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBe('129');
+  });
+
+  // L2-03 NBS: Planos de saúde (CORREÇÃO S-07 — Arts. 234-235, não 193-199)
+  it('[NBS L2-03] NBS 1.0910.10.00 → regime_especial, regra ≤ 98, artigo 234 (planos saúde)', () => {
+    const result = lookupNbs({ codigo: '1.0910.10.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('regime_especial');
+    expect(result.confianca.valor).toBe(98);
+    expect(result.confianca.valor).toBeLessThanOrEqual(98); // CNT-01b
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toContain('234');
+  });
+
+  // L2-04 NBS: Auditoria contábil (regime_geral)
+  it('[NBS L2-04] NBS 1.1302.11.00 → regime_geral, regra ≤ 98, artigos 11+15+21', () => {
+    const result = lookupNbs({ codigo: '1.1302.11.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('regime_geral');
+    expect(result.confianca.valor).toBe(95);
+    expect(result.confianca.valor).toBeLessThanOrEqual(98); // CNT-01b
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBeTruthy();
+  });
+
+  // L2-05 NBS: Seguro de vida (regime_especial financeiro)
+  it('[NBS L2-05] NBS 1.0903.11.00 → regime_especial, regra ≤ 98, artigo 182 XI + 223', () => {
+    const result = lookupNbs({ codigo: '1.0903.11.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('regime_especial');
+    expect(result.confianca.valor).toBe(98);
+    expect(result.confianca.valor).toBeLessThanOrEqual(98); // CNT-01b
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toContain('182');
+  });
+
+  // L2-06 NBS: Software customizado (regime_geral)
+  it('[NBS L2-06] NBS 1.1502.20.00 → regime_geral, regra ≤ 98, artigos 11+15+21', () => {
+    const result = lookupNbs({ codigo: '1.1502.20.00', sistema: 'NBS' });
+
+    expect(result.regime).toBe('regime_geral');
+    expect(result.confianca.valor).toBe(95);
+    expect(result.confianca.valor).toBeLessThanOrEqual(98); // CNT-01b
+    expect(result.fonte.lei).toBe('LC 214/2025');
+    expect(result.fonte.artigo).toBeTruthy();
+  });
+
+});
+
 // ─── Contrato CNT-03: source='engine' ────────────────────────────────────────
 
 describe('CNT-03 — campos obrigatórios para gaps com source=engine', () => {
