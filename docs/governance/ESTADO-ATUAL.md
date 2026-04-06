@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v4.8 · 2026-04-06 (M2 COMPLETO — 10 PRs #336–#345 · pipeline engine→risco→score E2E)** · Responsável: Orquestrador gera, Manus commita
+> **v4.9 · 2026-04-06 (BUG-UAT-04/05 corrigidos · DEC-M2-08/09 registradas · Sprint Y backlog BL-01 a BL-04)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v4.4 · **HEAD:** `5ae8144` (origin/main) · **Testes:** 1.476+ (incluindo 21 novos M2: 5A + 7D + 4B + 5C)  
+**Baseline:** v4.4 · **HEAD:** `f1f0f13` (origin/main) · **Testes:** 1.476+ (incluindo 21 novos M2: 5A + 7D + 4B + 5C)  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -15,13 +15,15 @@ Plataforma de compliance da Reforma Tributária brasileira.
 **Pipeline 3 Ondas:** Onda 1 ✅ · Onda 2 ✅ · Onda 3 ✅ integrada (`source='engine'`, 6/6 casos)  
 **Sprint V:** ✅ Encerrada (PV-01 Lote 1 ✅ #328 · PV-02 ✅ #325 · PV-03 ✅ #326 · PV-01 Lote 2 ✅ #330 · PV-01 Lote 3 ✅ #333 · AS-IS ✅ #336)  
 **Sprint W:** ✅ ENCERRADA — M2 COMPLETO (A ✅ #337 · D ✅ #338 · UX ✅ #339 · B ✅ #344 · C ✅ #345 · docs #340–#343)  
-**Sprint X:** 🔄 Em andamento — dívidas técnicas (T-B7-08/T-B7-10 · GAP-AS-IS-06)
+**Sprint X:** ✅ ENCERRADA — falhas conhecidas = 0 (T-B7-08/T-B7-10 ✅ #347 · BUG-UAT-04 ✅ #348 · BUG-UAT-05 ✅ #349)  
+**Sprint Y:** ⏳ PENDENTE — backlog BL-01 a BL-04 (assertValidTransition + testes de integração)
+**UAT E2E:** 🔄 Em andamento — projeto 2851328 (P.O. testando fluxo completo)
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `5ae8144`
+- **Branch base:** main · **HEAD:** `f1f0f13`
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git restore --staged`
@@ -43,7 +45,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (origin/main) | `5ae8144` | ✅ |
+| HEAD (origin/main) | `f1f0f13` | ✅ |
 | Baseline | **v4.4** | ✅ |
 | Testes passando | **1.476+** (21 novos M2 · 2 falhas pré-existentes conhecidas T-B7-08/T-B7-10) | ✅ |
 | TypeScript | 0 erros | ✅ |
@@ -227,7 +229,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | B — riskEngine | `server/routers/riskEngine.ts` | — | **⏳ BLOQUEADO** | Gate B |
 | C — scoringEngine | `server/routers/scoringEngine.ts` | — | **⏳ BLOQUEADO** | Gate B + Comp. B |
 
-### Decisões Canônicas M2 (DEC-M2-01 a DEC-M2-07)
+### Decisões Canônicas M2 (DEC-M2-01 a DEC-M2-09)
 
 | Código | Decisão | Status |
 |---|---|---|
@@ -238,6 +240,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DEC-M2-05 | `fonte_risco` é `VARCHAR(20)` — sem migration de banco · Componente B: apenas Zod enum + WHERE clause | ⏳ Comp. B |
 | DEC-M2-06 | Scoring — menor confidence = menor penalidade (APROVADO P.O.) · engine 1.00→100% · solaris 0.90→90% · iagen 0.70→70% | ⏳ Comp. C |
 | DEC-M2-07 | UX NCM/NBS — validação em tempo real · NCM: `NNNN.NN.NN` · NBS: `N.NNNN.NN.NN` · botão salvar desabilitado com códigos inválidos | ✅ PR #339 |
+| DEC-M2-08 | `onda3_rag` **NÃO existe** no schema nem no VALID_TRANSITIONS — status correto pós-`completeOnda2` é `diagnostico_corporativo` · referências a `onda3_rag` em docs anteriores são inválidas | ✅ PR #350 |
+| DEC-M2-09 | Handlers `completeDiagnosticLayer` (#3–#5) e de aprovação (#6–#10) operam sem `assertValidTransition` — status gravados estão corretos · risco classificado como regressão futura (backlog BL-01) · não bloqueiam E2E | ✅ PR #350 |
 
 ### Gate B — ✅ APROVADO (2026-04-06 · projeto 2850797)
 
@@ -301,6 +305,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DEC-M2-05 | fonte_risco VARCHAR(20): sem migration. Componente B: apenas Zod enum + WHERE. | 2026-04-06 |
 | DEC-M2-06 | Scoring confidence ponderado: aprovado P.O. (engine 1.00→100%, solaris 0.90→90%, iagen 0.70→70%). | 2026-04-06 |
 | DEC-M2-07 | UX NCM/NBS: validação em tempo real + acessibilidade WCAG (aria-describedby/invalid). PR #339. | 2026-04-06 |
+| DEC-M2-08 | onda3_rag não existe — status correto pós-completeOnda2 é diagnostico_corporativo. Auditoria P2. PR #350. | 2026-04-06 |
+| DEC-M2-09 | completeDiagnosticLayer e handlers de aprovação sem assertValidTransition: status corretos, risco=regressão futura. Backlog BL-01. PR #350. | 2026-04-06 |
 
 ---
 
@@ -351,5 +357,20 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (M2 COMPLETO · PRs #336–#345 · HEAD 5ae8144 · ACHADO-01 documentado)*  
+---
+
+## 13. Backlog Sprint Y (não bloqueiam E2E)
+
+| ID | Ação | Prioridade | Tamanho |
+|---|---|---|---|
+| BL-01 | `assertValidTransition` em `completeDiagnosticLayer` | P2 | ~5 linhas |
+| BL-02 | Teste de integração `completeOnda2` — handler completo | P2 | 1 arquivo novo |
+| BL-03 | Teste de integração `completeDiagnosticLayer` | P3 | 1 arquivo novo |
+| BL-04 | Teste de integração `updateDiagnosticStatus` | P3 | 1 arquivo novo |
+
+> Fonte: Auditoria P2 (2026-04-06) · Orquestrador aprovado · DEC-M2-09
+
+---
+
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (v4.9 · BUG-UAT-04/05 · DEC-M2-08/09 · Sprint Y backlog · PRs #348–#350 · HEAD f1f0f13)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
