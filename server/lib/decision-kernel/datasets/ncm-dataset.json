@@ -252,5 +252,90 @@
     "status": "confirmado",
     "validado_por": "Orquestrador Claude",
     "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "1905.90.90",
+    "descricao": "Pão comumente denominado pão francês, de formato cilíndrico e alongado, com miolo branco creme e macio, e casca dourada e crocante",
+    "setor_economico": "Padarias · indústria de panificação · varejo alimentício",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS alíquota zero · ICMS isento",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Padaria não identifica que apenas o pão francês no formato específico descrito no Anexo I tem alíquota zero. Pão de forma (1905.90.10) tem tratamento diferente. Classificação fiscal incorreta resulta em não aplicação do benefício.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "condicionante": "Formato específico obrigatório: cilíndrico e alongado, miolo branco creme e macio, casca dourada e crocante — conforme Anexo I item 16",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "125",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre as vendas de produtos destinados à alimentação humana relacionados no Anexo I desta Lei Complementar",
+      "texto_anexo": "Pão comumente denominado pão francês, de formato cilíndrico e alongado, com miolo branco creme e macio, e casca dourada e crocante, elaborado a partir da mistura ou pré-mistura de farinha de trigo, fermento biológico, água, sal, açúcar, aditivos alimentares e produtos de fortificação de farinhas, em conformidade com a legislação vigente, classificado no código 1905.90.90 da NCM/SH",
+      "anexo": "Anexo I — item 16"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "2521.00.00",
+    "descricao": "Calcário calcítico e dolomítico — corretivo de solo para uso agropecuário",
+    "setor_economico": "Agronegócio · distribuidores de insumos · cooperativas rurais",
+    "regime": "condicional",
+    "regime_se_condicao_cumprida": "reducao_60",
+    "regime_se_condicao_nao_cumprida": "regime_geral",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "ICMS isento em maioria dos estados · PIS/COFINS alíquota zero",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Empresa distribuidora de corretivos agrícolas não monitora validade do registro no MAPA. Perde redução de 60% sem perceber. NCM 2521.00.00 está no Capítulo 25, coberto pelo Anexo IX item 3.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "condicional"
+    },
+    "condicionante": "Registro ativo no MAPA obrigatório quando exigido pela legislação — Art. 138 § 1º",
+    "instrucao_engine": "Retornar tipo=condicional. Sem comprovação de registro: tratar como regime_geral.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "138",
+      "texto_caput": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos insumos agropecuários e aquícolas relacionados no Anexo IX desta Lei Complementar",
+      "paragrafo_1": "A redução de alíquotas prevista no caput deste artigo somente se aplica aos produtos de que trata o Anexo IX desta Complementar que, quando exigido, estejam registrados como insumos agropecuários ou aquícolas no órgão competente do Ministério da Agricultura e Pecuária.",
+      "texto_anexo": "Corretivos de solo (inclusive condicionadores), remineralizadores e substratos para plantas; em conformidade com as definições e demais requisitos da legislação específica — Capítulo 25",
+      "anexo": "Anexo IX — item 3 (Capítulo 25 cobre NCM 2521.00.00)"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "3808.92.19",
+    "descricao": "Fungicidas para uso agropecuário ou fabricação de defensivo agropecuário",
+    "setor_economico": "Indústria de defensivos · distribuidoras agrícolas · cooperativas",
+    "regime": "condicional",
+    "regime_se_condicao_cumprida": "reducao_60",
+    "regime_se_condicao_nao_cumprida": "regime_geral",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "IPI isenção + ICMS isento · PIS/COFINS alíquota zero (Lei 10.925/2004)",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Distribuidora de defensivos não segrega produtos com registro MAPA dos sem registro. Aplica redução de 60% indevidamente para toda a linha. Condicionante dupla: destinação agropecuária E registro MAPA.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "condicional"
+    },
+    "condicionante": "Dupla: (a) destinação agropecuária ou fabricação de defensivo; (b) registro MAPA quando exigido — Art. 138 § 1º",
+    "instrucao_engine": "Retornar tipo=condicional. Sem ambas as condicionantes confirmadas: regime_geral.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "138",
+      "texto_caput": "Ficam reduzidas em 60% as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos insumos agropecuários e aquícolas relacionados no Anexo IX",
+      "texto_anexo": "Inseticidas, fungicidas, formicidas, herbicidas, parasiticidas, germicidas, acaricidas, nematicidas, raticidas, desfolhantes, dessecantes, espalhantes adesivos, estimuladores e inibidores de crescimento (reguladores); todos destinados diretamente ao uso agropecuário ou destinados diretamente à fabricação de defensivo agropecuário — 38.08",
+      "anexo": "Anexo IX — item 6 (posição 38.08 cobre NCM 3808.92.19)"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
   }
 ]

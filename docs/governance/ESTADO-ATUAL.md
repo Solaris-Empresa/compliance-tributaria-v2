@@ -1,25 +1,25 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v4.3 · 2026-04-05 (Sprint V em andamento — PRs #302–#326 mergeados)** · Responsável: Orquestrador gera, Manus commita
+> **v4.4 · 2026-04-05 (Sprint V em andamento — PRs #302–#328 mergeados)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v3.3 · **HEAD:** `8f3ba4b` (origin/main) · **Testes:** 1.476 passando  
+**Baseline:** v3.3 · **HEAD:** `49c3f68` (origin/main) · **Testes:** 1.476 passando  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
 **Sprint U:** ENCERRADA ✅ (PRs #318–#323 · 4 tasks · 6/6 casos POC M1 confirmados)  
 **Pipeline 3 Ondas:** Onda 1 ✅ · Onda 2 ✅ · Onda 3 ✅ integrada (`source='engine'`, 6/6 casos)  
-**Sprint V:** ⏳ Em andamento (PV-02 ✅ #325 · PV-03 ✅ #326 · PV-01 aguarda Dr. Rodrigues)
+**Sprint V:** ⏳ Em andamento (PV-01 Lote 1 ✅ #328 · PV-02 ✅ #325 · PV-03 ✅ #326 · PV-01 Lote 2 ⏳)
 
 ---
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `8f3ba4b`
+- **Branch base:** main · **HEAD:** `49c3f68`
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git restore --staged`
@@ -41,13 +41,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (origin/main) | `8f3ba4b` | ✅ |
+| HEAD (origin/main) | `49c3f68` | ✅ |
 | Baseline | **v3.3** | ✅ |
-| Testes passando | **1.470** (0 falhas) | ✅ |
+| Testes passando | **1.476** (0 falhas) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | CI Workflows | **12 ativos** + invariant-check (GOV-03b) | ✅ |
 | CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
-| PRs mergeados (total) | **326** | ✅ |
+| PRs mergeados (total) | **328** | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
 | Corpus RAG | **2.509 chunks — 10 leis** | ✅ |
@@ -62,7 +62,10 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Pipeline E2E | T1 ✅ T2 ✅ validados em produção | ✅ |
 | Contratos Milestone 1 | CNT-01a/01b/02/03/01c em `docs/contracts/` | ✅ |
 | Dataset NBS | `nbs-2-0-utf8.csv` (1.237 reg.) no repo | ✅ |
-| Decision Kernel | ncm-engine + nbs-engine (**6/6 casos confirmados**) | ✅ |
+| Decision Kernel | ncm-engine + nbs-engine (**16/16 casos confirmados**) | ✅ |
+| Dataset NCM | **9 casos** (Lote 1 mergeado — PR #328) | ✅ |
+| Dataset NBS | **7 casos** (Lote 1 mergeado — PR #328) | ✅ |
+| Testes decision-kernel | **26/26** | ✅ |
 | Engine Onda 3 | `engine-gap-analyzer.ts` integrado | ✅ |
 | Bloco E | `operationProfile` aceita NCM/NBS (CNT-01c) | ✅ |
 | Evidence Pack M1 | `artifacts/engine-quality/poc-m1/` | ✅ |
@@ -197,7 +200,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | ID | Prioridade | Ação | Responsável | Bloqueio |
 |---|---|---|---|---|
-| PV-01 | P0 | Dataset 30–50 casos NCM/NBS | Manus + Dr. Rodrigues | Curadoria jurídica |
+| PV-01 Lote 1 | P0 | Dataset +10 casos NCM/NBS | Manus + Dr. Rodrigues | **✅ CONCLUÍDA** (#328) |
+| PV-01 Lote 2 | P0 | Dataset +11 casos NCM/NBS | Manus + Dr. Rodrigues | ⏳ Aguarda decisão P.O. (N-07, S-07) |
 | PV-02 | P1 | Frontend Bloco E — campos NCM/NBS no formulário de projeto | Manus | **✅ CONCLUÍDA** (#325) |
 | PV-03 | P1 | LC 87 compilada completa (55 novos chunks) | Manus | **✅ CONCLUÍDA** (#326) |
 | PV-04 | P2 | M2 prep — GOV-03b já feito, aguarda validação Claude Code | Orquestrador | Sprint W |
@@ -230,6 +234,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DEC-020 | 2202.10.00 IS: **Art. 409 original (DOU 16/01/2025) = Art. 393 compilado (Planalto)** — dataset mantém ambas as numerações com nota de equivalência | 2026-04-05 |
 | DEC-021 | PV-02: campos NCM/NBS opcionais no formulário de projeto — compatibilidade legada garantida (arrays vazios) | 2026-04-05 |
 | DEC-022 | PV-03: LC 87 compilada ingerida com 55 novos chunks — Anexo Kandir excluído (ruído histórico) | 2026-04-05 |
+| DEC-023 | nbs-engine.ts extractFonte — suporte a artigo string direta além de artigos nomeados. PR #328. Sem regressão. | 2026-04-05 |
 
 ---
 
@@ -271,5 +276,5 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-05 (Sprint V em andamento — PRs #302–#326 mergeados · baseline v3.3 · HEAD 8f3ba4b)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-05 (Sprint V em andamento — PRs #302–#328 mergeados · baseline v3.3 · HEAD 49c3f68)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*

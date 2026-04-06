@@ -227,5 +227,163 @@
     "status": "confirmado",
     "validado_por": "Orquestrador Claude",
     "data_validacao": "2026-04-05"
+  },
+  {
+    "nbs_code": "1.2204.10.00",
+    "descricao": "Serviços educacionais de graduação",
+    "setor_economico": "Instituições de ensino superior privadas · universidades",
+    "regime": "reducao_60",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "ISS municipal (LC 116/2003, item 8.01) — 2% a 5%",
+    "impacto_compliance": "alto",
+    "gap_tipico": "IES privada não diferencia graduação (Anexo II — redução 60%) de cursos livres não listados no Anexo (regime geral). Aplica redução indevidamente para toda a receita educacional.",
+    "confianca": {
+      "valor": 98,
+      "tipo": "regra"
+    },
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "129",
+      "texto_caput": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos serviços de educação relacionados no Anexo II desta Lei Complementar",
+      "anexo": "Anexo II — item 6 (1.2204 — Ensino Superior cobre 1.2204.10.00)"
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "nbs_code": "1.0910.10.00",
+    "descricao": "Serviços de planos privados de assistência à saúde",
+    "setor_economico": "Operadoras de planos · seguradoras de saúde · cooperativas médicas",
+    "regime": "regime_especial",
+    "subtipo_regime": "planos_saude",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS específico + ISS municipal",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Operadora de plano de saúde confunde regime específico dos planos de saúde (Arts. 234-235) com regime de crédito para tomadores de operações de crédito (Arts. 193-199). São capítulos completamente distintos. Base de cálculo dos planos: prêmios recebidos menos indenizações pagas (Art. 235).",
+    "confianca": {
+      "valor": 98,
+      "tipo": "regra"
+    },
+    "nota_engine": "NÃO confundir com Arts. 193-199 (créditos para tomadores de crédito). Regime dos planos é Arts. 234-235.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo_regime": {
+        "numero": "234",
+        "texto_caput": "Os planos de assistência à saúde ficam sujeitos a regime específico de incidência do IBS e da CBS, de acordo com o disposto neste Capítulo"
+      },
+      "artigo_base_calculo": {
+        "numero": "235",
+        "texto": "Base de cálculo: prêmios recebidos menos indenizações pagas"
+      }
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) — correção de Arts. 193-199 para Arts. 234-235",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "nbs_code": "1.1302.11.00",
+    "descricao": "Serviços de auditoria contábil",
+    "setor_economico": "Firmas de auditoria · Big Four · auditores independentes",
+    "regime": "regime_geral",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "ISS municipal (LC 116/2003, item 17.01) — 2% a 5%",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Firma de auditoria com clientes interestaduais não tem inscrição IBS nos estados dos clientes. Recolhe ISS para seu município de sede, ignorando a nova regra de destino do IBS/CBS.",
+    "confianca": {
+      "valor": 95,
+      "tipo": "regra"
+    },
+    "nota_confianca": "NBS 1.1302.11.00 não consta nos Anexos I a XV — regime geral por ausência de listagem expressa.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo_local": {
+        "numero": "11",
+        "paragrafo_1": "local = destino do tomador"
+      },
+      "artigo_aliquota": {
+        "numero": "15",
+        "inciso": "I",
+        "texto": "alíquota IBS = estado destino + município destino"
+      },
+      "artigo_inscricao": {
+        "numero": "21",
+        "texto": "inscrição cadastral obrigatória nos locais de destino"
+      }
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "nbs_code": "1.0903.11.00",
+    "descricao": "Serviços de seguro de vida",
+    "setor_economico": "Seguradoras · corretoras de seguro · fintechs de seguro",
+    "regime": "regime_especial",
+    "subtipo_regime": "servicos_financeiros",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "IOF + PIS/COFINS específico (Lei 9.718/98)",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Seguradora não identifica que seguro de vida é serviço financeiro (Art. 182, XI) e tenta apurar no regime regular, pagando IBS/CBS em excesso. NÃO confundir com seguro de saúde (Arts. 234-235 — regime próprio).",
+    "confianca": {
+      "valor": 98,
+      "tipo": "regra"
+    },
+    "nota_engine": "Seguro de vida = Art. 182, XI (serviços financeiros). Seguro de saúde = Arts. 234-235 (regime planos de saúde). São regimes distintos.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo_regime_especial": {
+        "numero": "181",
+        "texto_caput": "Os serviços financeiros ficam sujeitos a regime específico de incidência do IBS e da CBS"
+      },
+      "artigo_definicao": {
+        "numero": "182",
+        "inciso": "XI",
+        "texto": "operações de seguros, com exceção dos seguros de saúde de que trata o Capítulo III deste Título"
+      },
+      "artigo_base_calculo": {
+        "numero": "223"
+      }
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
+  },
+  {
+    "nbs_code": "1.1502.20.00",
+    "descricao": "Serviços de projeto e desenvolvimento de aplicativos e programas personalizados (customizados)",
+    "setor_economico": "Software houses · consultorias de TI · fábricas de software",
+    "regime": "regime_geral",
+    "aliquota": null,
+    "imposto_seletivo": false,
+    "regime_anterior": "ISS municipal (LC 116/2003, item 1.04) — 2% a 5%",
+    "impacto_compliance": "medio",
+    "gap_tipico": "Software house que desenvolve sistema customizado para cliente em outro estado não diferencia o regime fiscal do SaaS (1.1506.21.00 — também regime geral) vs. software customizado. Ambos regime geral com destino do tomador, mas NBS distintos. Registra incorretamente como mesma operação.",
+    "confianca": {
+      "valor": 95,
+      "tipo": "regra"
+    },
+    "nota_confianca": "NBS 1.1502.20.00 não consta nos Anexos — regime geral por exclusão.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo_local": {
+        "numero": "11",
+        "paragrafo_1": "local = destino do tomador"
+      },
+      "artigo_aliquota": {
+        "numero": "15",
+        "inciso": "I"
+      },
+      "artigo_inscricao": {
+        "numero": "21"
+      }
+    },
+    "status": "confirmado",
+    "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
+    "data_validacao": "2026-04-05"
   }
 ]
