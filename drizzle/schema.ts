@@ -43,6 +43,9 @@ export const projects = mysqlTable("projects", {
     "onda2_iagen",
     "diagnostico_corporativo",
     "diagnostico_operacional",
+    // Z-02 TO-BE — ADR-0010 — novos estados para Q.Produtos e Q.Serviços
+    "q_produto",
+    "q_servico",
     "diagnostico_cnae",
     "briefing",
     "riscos",
@@ -119,8 +122,13 @@ export const projects = mysqlTable("projects", {
   financialProfile: json("financialProfile"),           // { paymentMethods: string[], hasIntermediaries }
   governanceProfile: json("governanceProfile"),         // { hasTaxTeam, hasAudit, hasTaxIssues }
   // v2.1 Diagnostic Flow — respostas das 3 camadas de diagnóstico
-  corporateAnswers: json("corporateAnswers"),   // Respostas do Questionário Corporativo (QC-01..QC-10)
-  operationalAnswers: json("operationalAnswers"), // Respostas do Questionário Operacional (QO-01..QO-10)
+  corporateAnswers: json("corporateAnswers"),   // Respostas do Questionário Corporativo (QC-01..QC-10) — LEGADO
+  operationalAnswers: json("operationalAnswers"), // Respostas do Questionário Operacional (QO-01..QO-10) — LEGADO
+  // Z-02 TO-BE — ADR-0010 — Q.Produtos (NCM) e Q.Serviços (NBS)
+  // ADD COLUMN IF NOT EXISTS — não-destrutivo — tabela vazia pós-Z06
+  // Reversível: DROP COLUMN product_answers, DROP COLUMN service_answers
+  productAnswers: json("product_answers"),   // Respostas Q.Produtos NCM (ProductAnswer[]) — ADR-0010
+  serviceAnswers: json("service_answers"),   // Respostas Q.Serviços NBS (ServiceAnswer[]) — ADR-0010
   cnaeAnswers: json("cnaeAnswers"),              // Respostas do Questionário Especializado por CNAE (QCNAE-01..QCNAE-05)
   // v2.1 Diagnostic Flow — rastreamento das 3 camadas de diagnóstico
   diagnosticStatus: json("diagnosticStatus").$type<{

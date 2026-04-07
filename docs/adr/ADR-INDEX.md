@@ -12,7 +12,7 @@ Script: `./scripts/gate-adr.sh` verifica automaticamente a consistência.
 |---|---|---|---|---|---|
 | ADR-0002 | `0002-arquitetura-3-ondas-perguntas.md` | Arquitetura 3 Ondas de Perguntas | — | — | M (legado) |
 | ADR-0009 | `ADR-0009-fluxo-canonico-fontes-diagnostico.md` | Fluxo Canônico e Fontes do Diagnóstico | Aprovado | 2026-04-06 | M |
-| ADR-0010 | `ADR-010-content-architecture-98.md` | Substituição QC/QO por Q.Produtos/Q.Serviços (NCM/NBS) | Aprovado com ajustes | 2026-03-23 | Z-02 |
+| ADR-0010 | `ADR-0010-substituicao-qc-qo-por-ncm-nbs.md` | Substituição QC/QO por Q.Produtos/Q.Serviços (NCM/NBS) | Aceito | 2026-04-07 | Z-02 |
 
 ---
 
@@ -21,6 +21,7 @@ Script: `./scripts/gate-adr.sh` verifica automaticamente a consistência.
 | Contrato | Arquivo | Escopo | Data | Sprint |
 |---|---|---|---|---|
 | CONTRATO-DEC-M3-05-v3 | `docs/contratos/CONTRATO-DEC-M3-05-v3.md` | ProductAnswer · ServiceAnswer · procedures Q.Produtos/Q.Serviços | 2026-04-07 | Z-02 |
+| CONTRATO-DEC-M3-05-v3-interface | `docs/contratos/CONTRATO-DEC-M3-05-v3-interface.md` | Contrato completo com partes 1-7: tipos, procedures, FSM, Stepper, Banner, violações | 2026-04-07 | Z-02 |
 
 ---
 
@@ -61,4 +62,4 @@ Antes de qualquer PR que modifique arquivo arquitetural:
 
 ---
 
-*Atualizado: 2026-04-07 · PR #378 · governance/fitness-functions-adr-contrato*
+*Atualizado: 2026-04-07 · PR #379 · feat/z02-to-be-flow-refactor*

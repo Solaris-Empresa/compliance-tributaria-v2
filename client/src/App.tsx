@@ -79,6 +79,8 @@ import TaskBoard from "./pages/TaskBoard"; // Sprint K — Taskboard P.O. ao viv
 import QuestionarioSolaris from "./pages/QuestionarioSolaris"; // K-4-B: Onda 1 SOLARIS
 import QuestionarioIaGen from "./pages/QuestionarioIaGen"; // K-4-C: Onda 2 IA Generativa
 import AdminSolarisQuestions from "./pages/AdminSolarisQuestions"; // Sprint L — DEC-002 Issue #191
+import QuestionarioProduto from "./pages/QuestionarioProduto"; // Z-02: DEC-M3-05 v3 · ADR-0010
+import QuestionarioServico from "./pages/QuestionarioServico"; // Z-02: DEC-M3-05 v3 · ADR-0010
 
 function Router() {
   return (
@@ -124,6 +126,9 @@ function Router() {
       <Route path="/projetos/:id/questionario-corporativo-v2" component={QuestionarioCorporativoV2} />
       <Route path="/projetos/:id/questionario-operacional" component={QuestionarioOperacional} />
       <Route path="/projetos/:id/questionario-cnae" component={QuestionarioCNAE} />
+      {/* Z-02 TO-BE: DEC-M3-05 v3 · ADR-0010 — Questionários NCM/NBS */}
+      <Route path="/projetos/:id/questionario-produto" component={QuestionarioProduto} />
+      <Route path="/projetos/:id/questionario-servico" component={QuestionarioServico} />
       {/* Novo Fluxo v3.0 */}
       <Route path="/projetos/:id/formulario" component={FormularioProjeto} />
       <Route path="/projetos/:id/questionario-v3" component={QuestionarioV3} />
