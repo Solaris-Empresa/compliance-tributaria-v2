@@ -2,6 +2,10 @@
  * QuestionarioServico — Z-02 DEC-M3-05 v3 · ADR-0010
  * Wizard de questionário de serviços NBS.
  * Rota: /projetos/:id/questionario-servico
+ *
+ * ADR-0016 Etapa 4 (BUG-NCM-01 + BUG-NCM-02):
+ * - Corrigido navigate: /diagnostico-cnae → /questionario-cnae
+ * - Adicionados botões "Pular pergunta" e "Pular questionário" com data-testid.
  */
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
@@ -10,8 +14,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Briefcase } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Briefcase, SkipForward, AlertTriangle } from "lucide-react";
 import NaoAplicavelBanner from "@/components/NaoAplicavelBanner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export default function QuestionarioServico() {
   const [, params] = useRoute("/projetos/:id/questionario-servico");
@@ -19,6 +32,8 @@ export default function QuestionarioServico() {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
+  const [confirmSkipAll, setConfirmSkipAll] = useState(false);
 
   const { data, isLoading, isError } = trpc.fluxoV3.getServiceQuestions.useQuery(
     { projectId },
@@ -27,7 +42,8 @@ export default function QuestionarioServico() {
 
   const completeMutation = trpc.fluxoV3.completeServiceQuestionnaire.useMutation({
     onSuccess: () => {
-      navigate(`/projetos/${projectId}/diagnostico-cnae`);
+      // BUG-NCM-02 fix: rota correta é /questionario-cnae (não /diagnostico-cnae)
+      navigate(`/projetos/${projectId}/questionario-cnae`);
     },
   });
 
@@ -77,6 +93,21 @@ export default function QuestionarioServico() {
     completeMutation.mutate({ projectId, respostas });
   };
 
+  const handleSkipQuestion = () => {
+    if (!perguntaAtual) return;
+    const id = String(perguntaAtual.id);
+    setSkippedIds((prev) => new Set([...prev, id]));
+    toast.info("Pergunta pulada. Você pode voltar e responder depois.");
+    if (currentIndex < total - 1) setCurrentIndex((i) => i + 1);
+  };
+
+  const handleSkipAll = () => {
+    // Pular questionário inteiro: submeter com respostas vazias
+    toast.warning("Questionário de Serviços pulado — diagnóstico com confiança reduzida.", { duration: 6000 });
+    completeMutation.mutate({ projectId, respostas: [] });
+    setConfirmSkipAll(false);
+  };
+
   if (total === 0) {
     return (
       <div className="max-w-2xl mx-auto py-8 px-4">
@@ -124,7 +155,7 @@ export default function QuestionarioServico() {
               <CardDescription>{(perguntaAtual as any).contexto}</CardDescription>
             )}
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
             <Textarea
               placeholder="Digite sua resposta aqui…"
               value={answers[perguntaAtual.id] ?? ""}
@@ -132,6 +163,27 @@ export default function QuestionarioServico() {
               rows={4}
               className="resize-none"
             />
+            {/* ADR-0016 BUG-NCM-01: Botão Pular pergunta */}
+            {!answers[perguntaAtual.id]?.trim() && !skippedIds.has(String(perguntaAtual.id)) && (
+              <div className="flex justify-end pt-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSkipQuestion}
+                  data-testid={`btn-pular-pergunta-${perguntaAtual.id}`}
+                  className="text-xs text-muted-foreground hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 gap-1.5"
+                >
+                  <SkipForward className="h-3.5 w-3.5" />
+                  Pular esta pergunta
+                </Button>
+              </div>
+            )}
+            {skippedIds.has(String(perguntaAtual.id)) && (
+              <p className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                Pergunta pulada
+              </p>
+            )}
           </CardContent>
         </Card>
       )}
@@ -151,6 +203,54 @@ export default function QuestionarioServico() {
           </Button>
         )}
       </div>
+
+      {/* ADR-0016 BUG-NCM-01: Botão Pular questionário */}
+      <div className="flex justify-center pt-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setConfirmSkipAll(true)}
+          data-testid="btn-pular-questionario-servico"
+          className="text-xs text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 gap-1.5"
+        >
+          <SkipForward className="h-3.5 w-3.5" />
+          Pular este questionário
+        </Button>
+      </div>
+
+      {/* Modal de confirmação — Pular questionário */}
+      <Dialog open={confirmSkipAll} onOpenChange={setConfirmSkipAll}>
+        <DialogContent data-testid="modal-confirmar-pular-questionario">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Pular questionário de Serviços?
+            </DialogTitle>
+            <DialogDescription>
+              Ao pular este questionário, o diagnóstico será gerado com{" "}
+              <strong>confiança reduzida</strong>. Você poderá voltar e
+              responder as perguntas depois.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setConfirmSkipAll(false)}
+              data-testid="btn-cancelar-pular"
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleSkipAll}
+              disabled={completeMutation.isPending}
+              data-testid="btn-confirmar-pular"
+            >
+              {completeMutation.isPending ? "Pulando..." : "Confirmar — Pular questionário"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
