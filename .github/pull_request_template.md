@@ -126,6 +126,47 @@ CRITÉRIO DE ROLLBACK:
 
 Justificativa (se não aplicável):
 
+## Gate ADR — Architecture Decision Record (v4.4)
+
+> Obrigatório quando este PR modifica: `flowStateMachine.ts` · `schema.ts` · `routers-fluxo-v3.ts` · `App.tsx` · `DiagnosticoStepper.tsx` · `lib/*.ts`
+
+```bash
+./scripts/gate-adr.sh
+```
+
+```
+Arquivos arquiteturais modificados: [lista ou "nenhum"]
+ADR referenciado: [ ADR-XXXX | N/A — nenhuma mudança arquitetural ]
+Contrato atualizado: [ docs/contratos/CONTRATO-*.md | N/A ]
+Fitness Functions: [ pnpm vitest run server/integration/fitness-functions.test.ts ]
+Resultado: [ PASS | BLOQUEADO | N/A ]
+```
+
+- [ ] ADR criado/atualizado: `docs/adr/ADR-XXXX-descricao.md`
+- [ ] Contrato criado/atualizado: `docs/contratos/CONTRATO-*.md` (se mudança de interface)
+- [ ] DIVs abertas documentadas: `docs/divergencias/DIV-*.md`
+- [ ] `docs/adr/ADR-INDEX.md` atualizado
+
+**ADR relacionado:** ADR-XXXX (ou N/A)
+
+---
+
+## Gate FC — Feature Completeness (v4.3)
+
+> Obrigatório quando este PR adiciona procedures tRPC novas.
+
+```bash
+./scripts/gate-fc.sh
+```
+
+```
+Procedures novas: [lista ou "nenhuma"]
+Consumidores no frontend: [componentes ou N/A]
+Resultado: [ PASS | BLOQUEADO | N/A ]
+```
+
+---
+
 ## Auto-auditoria Q1–Q7 + observabilidade (Gate 2 v5.0)
 
 > Obrigatório para feat, fix, hotfix, schema, procedure e componente com useQuery.
