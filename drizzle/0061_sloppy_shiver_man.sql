@@ -1,0 +1,3 @@
+ALTER TABLE `projects` MODIFY COLUMN `status` enum('rascunho','consistencia_pendente','cnaes_confirmados','assessment_fase1','assessment_fase2','onda1_solaris','onda2_iagen','diagnostico_corporativo','diagnostico_operacional','q_produto','q_servico','diagnostico_cnae','briefing','riscos','plano','dashboard','matriz_riscos','plano_acao','em_avaliacao','aprovado','em_andamento','concluido','arquivado') NOT NULL DEFAULT 'rascunho';--> statement-breakpoint
+ALTER TABLE `projects` ADD `product_answers` json;--> statement-breakpoint
+ALTER TABLE `projects` ADD `service_answers` json;
