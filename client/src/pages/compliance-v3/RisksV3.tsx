@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RiskLevelBadge, CriticalityBadge } from "@/components/compliance-v3/shared/Badges";
+import { RiskLevelBadge, CriticalityBadge, CategoryBadge } from "@/components/compliance-v3/shared/Badges";
 import { RiskMatrix4x4 } from "@/components/compliance-v3/dashboard/RiskMatrix4x4";
 import { useRiskMatrix } from "@/hooks/compliance-v3/useRiskMatrix";
 import { DOMAIN_LABELS } from "@/types/compliance-v3";
@@ -150,6 +150,8 @@ export default function RisksV3() {
                       <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Requisito</th>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Domínio</th>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Nível</th>
+                      {/* ADR-0013: Coluna Categoria (risk_category_l2) */}
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Categoria</th>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Dimensão</th>
                       <th className="text-right px-4 py-3 text-xs font-semibold text-muted-foreground">Score</th>
                       <th className="text-right px-4 py-3 text-xs font-semibold text-muted-foreground">Normalizado</th>
@@ -167,6 +169,12 @@ export default function RisksV3() {
                           {DOMAIN_LABELS[r.domain] ?? r.domain}
                         </td>
                         <td className="px-4 py-3"><RiskLevelBadge value={r.riskLevel} /></td>
+                        {/* ADR-0013: CategoryBadge — risk_category_l2 canônico LC 214/2025 */}
+                        <td className="px-4 py-3">
+                          {r.riskCategoryL2
+                            ? <CategoryBadge value={r.riskCategoryL2} />
+                            : <span className="text-xs text-muted-foreground">—</span>}
+                        </td>
                         <td className="px-4 py-3 text-xs capitalize text-muted-foreground">{r.riskDimension}</td>
                         <td className="px-4 py-3 text-right font-bold tabular-nums">{r.riskScore}</td>
                         <td className="px-4 py-3 text-right text-xs tabular-nums text-muted-foreground">

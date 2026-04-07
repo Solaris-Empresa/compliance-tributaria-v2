@@ -248,6 +248,13 @@ export const projectRisksV3 = mysqlTable("project_risks_v3", {
   // Mitigação
   mitigationStrategy: text("mitigation_strategy").notNull(),
 
+  // ADR-0013: Categoria canônica LC 214/2025 (risk_category_l2)
+  // ADD COLUMN IF NOT EXISTS — não-destrutivo (Issue #62 — nunca DROP COLUMN)
+  // Valores: imposto_seletivo | ibs_cbs | regime_diferenciado | aliquota_reduzida |
+  //          aliquota_zero | split_payment | cadastro_fiscal | obrigacao_acessoria |
+  //          transicao | enquadramento_geral
+  riskCategoryL2: varchar("risk_category_l2", { length: 100 }),
+
   // Versionamento
   analysisVersion: int("analysis_version").default(1).notNull(),
 

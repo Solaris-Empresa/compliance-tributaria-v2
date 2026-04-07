@@ -79,3 +79,46 @@ export function ComplianceStatusBadge({ value, className }: BadgeProps) {
   };
   return <Badge value={value} colorMap={colorMap} className={className} />;
 }
+
+// ADR-0013: CategoryBadge — 10 categorias canônicas LC 214/2025 (risk_category_l2)
+const CATEGORY_LABELS: Record<string, string> = {
+  imposto_seletivo: "IS",
+  ibs_cbs: "IBS/CBS",
+  regime_diferenciado: "Regime Dif.",
+  aliquota_reduzida: "Alíq. Reduzida",
+  aliquota_zero: "Alíq. Zero",
+  split_payment: "Split Payment",
+  cadastro_fiscal: "Cadastro",
+  obrigacao_acessoria: "Obrig. Acessória",
+  transicao: "Transição",
+  enquadramento_geral: "Geral",
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  imposto_seletivo: "text-red-700 bg-red-50",
+  ibs_cbs: "text-blue-700 bg-blue-50",
+  regime_diferenciado: "text-purple-700 bg-purple-50",
+  aliquota_reduzida: "text-green-600 bg-green-50",
+  aliquota_zero: "text-green-800 bg-green-100",
+  split_payment: "text-orange-700 bg-orange-50",
+  cadastro_fiscal: "text-gray-600 bg-gray-100",
+  obrigacao_acessoria: "text-yellow-700 bg-yellow-50",
+  transicao: "text-indigo-700 bg-indigo-50",
+  enquadramento_geral: "text-gray-500 bg-gray-50",
+};
+
+export function CategoryBadge({ value, className }: BadgeProps) {
+  const colorClass = CATEGORY_COLORS[value] ?? "text-gray-500 bg-gray-50";
+  const label = CATEGORY_LABELS[value] ?? value;
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold",
+        colorClass,
+        className
+      )}
+    >
+      {label}
+    </span>
+  );
+}
