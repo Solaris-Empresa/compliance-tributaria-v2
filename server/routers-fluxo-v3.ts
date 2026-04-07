@@ -439,9 +439,16 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
     .mutation(async ({ input }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
-      // BUG-UAT-08: assertValidTransition universal
+      // BUG-E2E-01: transição atômica rascunho → consistencia_pendente → cnaes_confirmados
+      // Mesma lógica do approveBriefing (BUG-UAT-09): se o projeto ainda está em rascunho,
+      // valida as duas transições em sequência antes de persistir o status final.
       const { assertValidTransition } = await import('./flowStateMachine');
-      assertValidTransition(project.status, 'cnaes_confirmados');
+      if (project.status === 'rascunho') {
+        assertValidTransition(project.status, 'consistencia_pendente');
+        assertValidTransition('consistencia_pendente', 'cnaes_confirmados');
+      } else {
+        assertValidTransition(project.status, 'cnaes_confirmados');
+      }
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await database
