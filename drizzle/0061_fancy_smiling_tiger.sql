@@ -1,0 +1,1 @@
+ALTER TABLE `project_risks_v3` ADD `risk_category_l2` varchar(100);

@@ -143,6 +143,8 @@ export type RiskItem = {
   riskScore: number;
   riskScoreNormalized: number;
   financialImpactPercent: number;
+  /** ADR-0013: Categoria canônica LC 214/2025 (risk_category_l2) */
+  riskCategoryL2?: string | null;
 };
 
 export type RiskMatrixCell = {
