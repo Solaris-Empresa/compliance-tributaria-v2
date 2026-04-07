@@ -62,6 +62,7 @@ const mockCtx = { user: mockUser, req: {} as any, res: {} as any };
 const mockProject = {
   id: 42,
   name: "Projeto Reforma Tributária",
+  status: "diagnostico_cnae", // BUG-UAT-09 fix: status padrão para approveBriefing
   description: "Empresa de serviços de TI com faturamento de R$ 5M/ano, regime Lucro Presumido.",
   confirmedCnaes: [
     { code: "6201-5/01", description: "Desenvolvimento de programas de computador sob encomenda", confidence: 95 },
@@ -328,12 +329,14 @@ describe("fluxoV3Router — Etapa 3: Briefing de Compliance", () => {
   });
 });
 
-// ─── ETAPA 4: Matrizes de Riscos ─────────────────────────────────────────────
+// ─── ETAPA 4: Matrizes de Riscos ─────────────────────────────────────────────────────
 describe("fluxoV3Router — Etapa 4: Matrizes de Riscos", () => {
+  // BUG-UAT-09 fix: approveMatrices requer status 'matriz_riscos'
+  const mockProjectMatriz = { ...mockProject, status: "matriz_riscos" };
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(db.getDb).mockResolvedValue(mockDb as any);
-    vi.mocked(db.getProjectById).mockResolvedValue(mockProject as any);
+    vi.mocked(db.getProjectById).mockResolvedValue(mockProjectMatriz as any);
   });
 
   it("generateRiskMatrices — gera matrizes para todas as 4 áreas", async () => {
@@ -414,12 +417,14 @@ describe("fluxoV3Router — Etapa 4: Matrizes de Riscos", () => {
   });
 });
 
-// ─── ETAPA 5: Plano de Ação ───────────────────────────────────────────────────
+// ─── ETAPA 5: Plano de Ação─────────────────────────────────────────────────────
 describe("fluxoV3Router — Etapa 5: Plano de Ação", () => {
+  // BUG-UAT-09 fix: approveActionPlan requer status 'plano_acao'
+  const mockProjectPlano = { ...mockProject, status: "plano_acao" };
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(db.getDb).mockResolvedValue(mockDb as any);
-    vi.mocked(db.getProjectById).mockResolvedValue(mockProject as any);
+    vi.mocked(db.getProjectById).mockResolvedValue(mockProjectPlano as any);
   });
 
   it("generateActionPlan — gera plano para todas as 4 áreas", async () => {
@@ -541,12 +546,20 @@ describe("fluxoV3Router — Etapa 5: Plano de Ação", () => {
   });
 });
 
-// ─── Testes de Integração do Fluxo Completo ───────────────────────────────────
+// ─── Testes de Integração do Fluxo Completo ───────────────────────────────────────────────
 describe("fluxoV3Router — Fluxo Completo E2E (mock)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(db.getDb).mockResolvedValue(mockDb as any);
-    vi.mocked(db.getProjectById).mockResolvedValue(mockProject as any);
+    // BUG-UAT-09 fix: simular progressão de status ao longo do fluxo E2E
+    vi.mocked(db.getProjectById)
+      .mockResolvedValueOnce({ ...mockProject, status: "diagnostico_cnae" } as any)  // generateQuestions
+      .mockResolvedValueOnce({ ...mockProject, status: "diagnostico_cnae" } as any)  // saveQuestionnaireProgress
+      .mockResolvedValueOnce({ ...mockProject, status: "diagnostico_cnae" } as any)  // generateBriefing
+      .mockResolvedValueOnce({ ...mockProject, status: "diagnostico_cnae" } as any)  // approveBriefing
+      .mockResolvedValueOnce({ ...mockProject, status: "matriz_riscos" } as any)     // generateRiskMatrices
+      .mockResolvedValueOnce({ ...mockProject, status: "matriz_riscos" } as any)     // approveMatrices
+      .mockResolvedValueOnce({ ...mockProject, status: "plano_acao" } as any);       // approveActionPlan
   });
 
   it("fluxo completo: Etapa 2 → 3 → 4 → 5 executa sem erros", async () => {

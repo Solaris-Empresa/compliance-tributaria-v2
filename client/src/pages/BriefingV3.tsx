@@ -324,7 +324,7 @@ export default function BriefingV3() {
         <div class="scope-block">
           <h2>Escopo do Diagn\u00f3stico</h2>
           <table>
-            <tr><td>Status</td><td style="font-weight:600">${(project as any)?.diagnosticCompleteness ?? 'n\u00e3o dispon\u00edvel'}</td></tr>
+            <tr><td>Status</td><td style="font-weight:600">${(project as any)?.diagnosticCompleteness?.status ?? 'n\u00e3o dispon\u00edvel'}</td></tr>
           </table>
         </div>
         <div class="content">${htmlContent}</div>
