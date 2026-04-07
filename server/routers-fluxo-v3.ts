@@ -1998,6 +1998,16 @@ Gere o veredito final em JSON:
           message: `Diagnóstico incompleto. Próxima camada pendente: ${nextLayer}. Conclua todas as 3 camadas antes de gerar o briefing.`,
         });
       }
+      // BUG-MANUAL-01: verificar Onda 1 SOLARIS antes de gerar briefing V3
+      // diagnosticStatus cobre apenas QC/QO/CNAE — não inclui solarisAnswers
+      const solarisCount = await db.countOnda1Answers(input.projectId);
+      const statusesThatImplySolarisDone = ['onda1_solaris','onda2_iagen','diagnostico_corporativo','diagnostico_operacional','diagnostico_cnae','q_produto','q_servico','briefing','matriz_riscos','aprovado'];
+      if (solarisCount === 0 && !statusesThatImplySolarisDone.includes(p.status ?? '')) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "O Questionário SOLARIS (Onda 1) deve ser concluído antes de gerar o Briefing V3. Acesse /projetos/:id/questionario-solaris para iniciar.",
+        });
+      }
 
       // Buscar respostas do questionário CNAE (camada 3)
       const database = await db.getDb();
@@ -2068,6 +2078,11 @@ RESPONSABILIDADES:
 3. Calcular nível de risco geral (baixo/medio/alto/critico)
 4. Identificar inconsistências nas respostas quando existirem
 5. Gerar confidence score honesto com limitações declaradas
+
+REGRA OBRIGATÓRIA — IMPOSTO SELETIVO (BUG-MANUAL-03 fix):
+- Quando identificar risco de Imposto Seletivo (IS), citar EXCLUSIVAMENTE Art. 2 da LC 214/2025.
+- O Art. 57 da LC 214/2025 trata de bens de uso/consumo pessoal — NÃO está relacionado ao IS.
+- NUNCA associar Art. 57 a riscos de IS. Se o contexto RAG trouxer Art. 57 em busca sobre IS, ignorar essa associação.
 
 ${regulatoryContext}
 
