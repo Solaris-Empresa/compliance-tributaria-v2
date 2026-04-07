@@ -441,3 +441,30 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 *IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (v4.9.3 · Sprint M3 UAT · PRs #362–#365 · HEAD d820163)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+
+## Melhoria de Governanca - Gate Q7 + Regra DIV (2026-04-07)
+
+**Origem:** Analise pos-Sprint Z-01 - Manus adaptou asserts silenciosamente
+**Status:** Implementado
+
+### Mudancas implementadas
+
+| Artefato | Mudanca |
+|---|---|
+| .github/MANUS-GOVERNANCE.md | Gate Q7 adicionado - Regra DIV adicionada |
+| .github/CODEOWNERS | Protecao de interfaces de contrato |
+| docs/templates/DIV-TEMPLATE.md | Template padronizado de divergencia |
+| docs/divergencias/ | Diretorio criado - 2 DIVs historicas registradas |
+| Skill v4.2 | Gate Q7 e Regra DIV incorporados (pendente) |
+
+### Gate Q7 - resumo
+
+Antes de qualquer prompt de testes que referencie tipos do sistema,
+o Manus deve executar o comando de validacao de interface e reportar
+ao Orquestrador antes de prosseguir.
+
+### Regra DIV - resumo
+
+Divergencias de spec vs implementacao devem ser documentadas em
+docs/divergencias/DIV-{SPRINT}-{ID}-{campo}.md e reportadas ao
+Orquestrador ANTES de adaptar qualquer assert.

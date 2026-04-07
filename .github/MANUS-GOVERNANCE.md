@@ -129,3 +129,77 @@ O Confidence Score 98% é calculado sobre as seguintes dimensões:
 | Data | Erro | Causa Raiz | Resolução |
 |------|------|-----------|-----------|
 | 2026-04-01 | SOLARIS_GAPS_MAP 96% ineficaz | 7/10 chaves com acentos vs snake_case no banco — grep aceitou como OK, query real revelou falha | Q6 adicionado ao CONTRIBUTING.md |
+
+---
+
+## Gate Q7 — Validação de Interface (novo · 2026-04-07)
+
+**Quando aplicar:** obrigatório antes de qualquer prompt de testes que
+referencie tipos do sistema: DiagnosticLayer · CompleteBriefing ·
+TrackedQuestion · GapScore · RiskScore · CpieScore · QuestionResult ·
+ou qualquer interface declarada em `server/lib/*.ts`
+
+**Comando obrigatório:**
+```bash
+grep -rn "export interface\|export type\|export class" \
+  server/lib/*.ts server/routers-fluxo-v3.ts \
+  | grep -Ei "(diagnostic|briefing|gap|risk|cpie|tracked|question|score)" \
+  | sort
+```
+
+**O que fazer com o resultado:**
+1. Retornar output completo ao Orquestrador
+2. Orquestrador confronta com spec (ADR-0009, DEC-M3-*, prompts)
+3. SE campo real ≠ campo da spec → abrir DIV antes de prosseguir
+4. SE campo real = campo da spec → Gate Q7 PASS · prosseguir
+
+**Resultado obrigatório no body do PR:**
+```
+## Gate Q7 — Validação de Interface
+Interfaces verificadas: [lista]
+Divergências encontradas: [N] → [lista de DIVs abertas ou "nenhuma"]
+Resultado: [ PASS | DIVERGÊNCIA DOCUMENTADA ]
+```
+
+---
+
+## Regra DIV — Divergência de Spec vs Implementação
+
+**O que é uma divergência:**
+Qualquer diferença entre o campo/tipo/nome descrito na spec (prompt, ADR,
+DEC) e o campo/tipo/nome real no código.
+
+Exemplos:
+- Spec: `result.layer` → Código: `result.cnaeCode`
+- Spec: `result.sections` → Código: `result.section_identificacao`
+- Spec: `status='insuficiente'` → Código: `status='parcial'`
+
+**O que NÃO fazer:**
+```
+❌ Adaptar o assert silenciosamente
+❌ Colocar a divergência só em comentário de código
+❌ Ignorar e continuar
+❌ Decidir sozinho qual está certo
+```
+
+**O que fazer SEMPRE:**
+```
+1. PARAR a implementação do bloco afetado
+2. NÃO adaptar o assert — mantê-lo como na spec
+3. CRIAR: docs/divergencias/DIV-{SPRINT}-{ID}-{campo}.md
+   (usar template em docs/templates/DIV-TEMPLATE.md)
+4. REPORTAR ao Orquestrador com o arquivo gerado
+5. AGUARDAR decisão antes de continuar
+
+O Orquestrador decide uma de três opções:
+  A) Spec está errada → atualizar ADR/DEC com nome real
+  B) Código está errado → corrigir código antes de testar
+  C) São equivalentes → registrar como alias no ADR + adaptar assert
+```
+
+**Prioridade de reporte:**
+```
+CRÍTICO (parar sprint): campo inexistente · tipo incompatível · array vs objeto
+ALTO (reportar antes do PR): nome diferente · campo opcional vs obrigatório
+MÉDIO (reportar no body do PR): valor enum diferente · ordem de campos
+```
