@@ -43,7 +43,11 @@ import { consolidateDiagnosticLayers, isDiagnosticComplete, getNextDiagnosticLay
 // ADR-005 F-02A: Adaptador centralizado de leitura de diagnóstico (leitura via getDiagnosticSource)
 import { getDiagnosticSource, assertFlowVersion } from "./diagnostic-source";
 // M3 Fase 1: Completude diagnóstica expandida (DEC-M3-01 + DEC-M3-02)
-import { computeCompleteness } from "./lib/completeness";
+import { computeCompleteness, inferCompanyType } from "./lib/completeness";
+// Z-01: Q.Produtos (NCM) + Q.Serviços (NBS) rastreados — DEC-M3-05 v3 · ADR-0009
+import { generateProductQuestions } from "./lib/product-questions";
+import { generateServiceQuestions } from "./lib/service-questions";
+import type { QuestionResult, TrackedQuestion } from "./lib/tracked-question";
 
 const CnaeSchema = z.object({
   code: z.string(),
@@ -2589,6 +2593,76 @@ Regras obrigatórias:
       }
 
       return { success: true, projectId };
+    }),
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Z-01: Q.Produtos (NCM) — DEC-M3-05 v3 · ADR-0009
+  // Gera perguntas diagnósticas rastreadas para empresas de produto (NCM)
+  // corporateAnswers grava TrackedQuestion[] (DEC-M3-06 — ciclo completo em Z-02)
+  // ───────────────────────────────────────────────────────────────────────────
+  getProductQuestions: protectedProcedure
+    .input(z.object({ projectId: z.number().int().positive() }))
+    .query(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+
+      const op = (project as any).operationProfile ?? {};
+      const ncmCodes: string[] = (op.principaisProdutos ?? []).map((p: any) => p.ncm_code).filter(Boolean);
+      const cnaeCodes: string[] = Array.isArray((project as any).cnaes) ? (project as any).cnaes : [];
+      const companyProfile = { operationType: op.operationType };
+
+      const result: QuestionResult = await generateProductQuestions(ncmCodes, cnaeCodes, companyProfile);
+
+      // Narrowing explícito — sem `as any` (DEC-M3-06)
+      if ('nao_aplicavel' in result) {
+        return { nao_aplicavel: true as const, perguntas: [] as TrackedQuestion[], alerta: null };
+      }
+      if ('perguntas' in result) {
+        await db.updateProject(input.projectId, { corporateAnswers: JSON.stringify(result.perguntas) } as any);
+        return { nao_aplicavel: false as const, perguntas: result.perguntas, alerta: result.alerta };
+      }
+      // result é TrackedQuestion[]
+      await db.updateProject(input.projectId, { corporateAnswers: JSON.stringify(result) } as any);
+      return { nao_aplicavel: false as const, perguntas: result as TrackedQuestion[], alerta: null };
+    }),
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Z-01: Q.Serviços (NBS) — DEC-M3-05 v3 · ADR-0009
+  // Gera perguntas diagnósticas rastreadas para empresas de serviço (NBS)
+  // operationalAnswers grava TrackedQuestion[] (DEC-M3-06 — ciclo completo em Z-02)
+  // ───────────────────────────────────────────────────────────────────────────
+  getServiceQuestions: protectedProcedure
+    .input(z.object({ projectId: z.number().int().positive() }))
+    .query(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+
+      const op = (project as any).operationProfile ?? {};
+      const nbsCodes: string[] = (op.principaisServicos ?? []).map((s: any) => s.nbs_code).filter(Boolean);
+      const cnaeCodes: string[] = Array.isArray((project as any).cnaes) ? (project as any).cnaes : [];
+      const companyProfile = { operationType: op.operationType };
+
+      const result: QuestionResult = await generateServiceQuestions(nbsCodes, cnaeCodes, companyProfile);
+
+      // Narrowing explícito — sem `as any` (DEC-M3-06)
+      if ('nao_aplicavel' in result) {
+        return { nao_aplicavel: true as const, perguntas: [] as TrackedQuestion[], alerta: null };
+      }
+      if ('perguntas' in result) {
+        await db.updateProject(input.projectId, { operationalAnswers: JSON.stringify(result.perguntas) } as any);
+        return { nao_aplicavel: false as const, perguntas: result.perguntas, alerta: result.alerta };
+      }
+      // result é TrackedQuestion[]
+      await db.updateProject(input.projectId, { operationalAnswers: JSON.stringify(result) } as any);
+      return { nao_aplicavel: false as const, perguntas: result as TrackedQuestion[], alerta: null };
     }),
 });
 
