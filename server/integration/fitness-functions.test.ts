@@ -358,3 +358,50 @@ describe('Fitness Function 5 — Rastreabilidade ADR → Código → Teste', () 
   })
 
 })
+
+// ─── SUITE 6: Cobertura E2E de componentes de página ────────────────────────
+// Gate E2E v4.5 · 2026-04-07
+
+describe('Fitness Function 6 — E2E Coverage de Frontend', () => {
+
+  const PAGES_DIR = resolve(ROOT, 'client/src/pages')
+  const E2E_DIR   = resolve(ROOT, 'playwright/e2e')
+
+  // Páginas críticas que OBRIGATORIAMENTE precisam de spec E2E:
+  const CRITICAL_PAGES = [
+    { page: 'QuestionarioProduto.tsx', spec: 'fluxo-produto.spec.ts' },
+    { page: 'QuestionarioServico.tsx', spec: 'fluxo-servico.spec.ts' },
+  ]
+
+  CRITICAL_PAGES.forEach(({ page, spec }) => {
+    it(`FF-23: ${page} tem spec E2E em ${spec}`, () => {
+      const specPath = resolve(E2E_DIR, spec)
+      if (!existsSync(resolve(PAGES_DIR, page))) {
+        console.warn(`⚠️  FF-23: ${page} ainda não existe — pendente Z-02`)
+        return
+      }
+      expect(
+        existsSync(specPath),
+        `${page} existe mas não tem spec E2E correspondente.\n` +
+        `Criar: playwright/e2e/${spec}\n` +
+        `Gate E2E: toda PR com alteração em ${page} requer spec passando.`
+      ).toBe(true)
+    })
+  })
+
+  it('FF-24: playwright.config.ts existe', () => {
+    expect(
+      existsSync(resolve(ROOT, 'playwright.config.ts')),
+      'playwright.config.ts não encontrado. Executar: Tarefa 2 do Gate E2E.'
+    ).toBe(true)
+  })
+
+  it('FF-25: GitHub Action e2e-frontend.yml existe', () => {
+    expect(
+      existsSync(resolve(ROOT, '.github/workflows/e2e-frontend.yml')),
+      'Workflow e2e-frontend.yml não encontrado.\n' +
+      'PRs de frontend não estão sendo testados automaticamente no CI.'
+    ).toBe(true)
+  })
+
+})

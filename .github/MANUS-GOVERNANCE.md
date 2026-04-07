@@ -317,3 +317,77 @@ Resultado: [ PASS | BLOQUEADO ]
 | 2026-04-07 | Gate Q7 como tsc check | Manus interpretou validação de interface como TypeScript check | Gate Q7 corrigido para grep |
 | 2026-04-07 | Backend sem frontend (BUG-MANUAL-02) | product-questions.ts Z-01 sem consumidor | Gate FC implementado |
 | 2026-04-07 | DEC-M3-05 sem ADR no fluxo de dev | ADR-0010 criado após E2E manual revelar falha | Gate ADR implementado |
+
+---
+
+## Gate E2E — Cobertura de Frontend (v4.5 · 2026-04-07)
+
+**Origem:** BUG-MANUAL-02 — 198 testes backend PASS, UI entregava fluxo errado.
+O P.O. validou manualmente o que deveria ser verificado automaticamente.
+
+**Princípio:**
+> P.O. NÃO valida manualmente antes do workflow e2e-frontend.yml estar verde.
+> P.O. valida julgamento, não cliques.
+
+### Quando o Gate E2E é obrigatório
+
+Todo PR que altere qualquer arquivo em:
+- `client/src/pages/**`
+- `client/src/components/**`
+- `client/src/App.tsx`
+
+**Deve ter:**
+1. Spec E2E correspondente em `playwright/e2e/`
+2. Workflow `e2e-frontend.yml` passando no CI
+
+### Estrutura dos specs E2E
+
+```
+playwright/e2e/
+  helpers/
+    auth.ts          ← loginViaTestEndpoint (sem OAuth)
+    projeto.ts       ← criarProjetoViaApi + aguardarStatus
+  fluxo-produto.spec.ts    ← E2E-P-01..E2E-P-05
+  fluxo-servico.spec.ts    ← E2E-S-01..E2E-S-04
+  fluxo-misto.spec.ts      ← E2E-M-01..E2E-M-04
+```
+
+### Testes TO-BE (documentação de bugs como contratos)
+
+Testes marcados com `[TO-BE Z-02]` **falham intencionalmente** até Z-02 mergear.
+Quando Z-02 mergear, estes testes passam automaticamente — zero alteração nos specs.
+
+| Spec | TO-BE | Documenta |
+|---|---|---|
+| `fluxo-produto.spec.ts` | E2E-P-03, E2E-P-04, E2E-P-05 | QuestionarioProduto + NaoAplicavelBanner |
+| `fluxo-servico.spec.ts` | E2E-S-03, E2E-S-04 | QuestionarioServico + NaoAplicavelBanner |
+| `fluxo-misto.spec.ts` | E2E-M-03, E2E-M-04 | Fluxo misto sem banner |
+
+### Configuração de secrets (GitHub)
+
+| Secret | Valor | Onde obter |
+|---|---|---|
+| `E2E_TEST_SECRET` | Valor de `E2E_TEST_SECRET` no servidor | Manus Secrets |
+| `PLAYWRIGHT_BASE_URL` | `https://iasolaris.manus.space` | Fixo |
+
+### Seed do usuário de teste
+
+```bash
+npx tsx scripts/seed-test-user.ts
+# Cria: e2e-test@solaris.internal (openId: e2e-test-user, role: admin)
+```
+
+### Definição de "done" atualizada — features de frontend
+
+```
+✅ Testes backend PASS
+✅ TypeScript 0 erros
+✅ Gate Q7 PASS
+✅ Gate FC PASS
+✅ Gate ADR PASS
+✅ Fitness Functions PASS (FF-23/24/25 incluídas)
+✅ E2E specs criados para páginas novas
+✅ e2e-frontend.yml PASS no CI
+✅ PR template preenchido
+✅ E2E manual pelo P.O. (após CI verde)
+```
