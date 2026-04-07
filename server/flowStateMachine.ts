@@ -38,6 +38,9 @@ export type ProjectStatus =
   | "cnaes_confirmados"
   | "diagnostico_corporativo"
   | "diagnostico_operacional"
+  // Z-02 TO-BE — ADR-0010 — Q.Produtos (NCM) e Q.Serviços (NBS)
+  | "q_produto"
+  | "q_servico"
   | "diagnostico_cnae"
   | "briefing"
   | "riscos"
@@ -418,10 +421,14 @@ export function createHistoryEntry(
 export const VALID_TRANSITIONS: Record<string, string[]> = {
   'rascunho':                  ['consistencia_pendente'],  // rascunho → consistência (não pula para Onda 1)
   'onda1_solaris':             ['onda2_iagen', 'rascunho'],
-  'onda2_iagen':               ['diagnostico_corporativo'],  // K-4-C: sem retrocesso para Onda 1
+  'onda2_iagen':               ['diagnostico_corporativo', 'q_produto'],  // K-4-C: sem retrocesso para Onda 1 | Z-02: TO-BE adiciona q_produto
+  // Z-02 TO-BE — ADR-0010 — Q.Produtos (NCM) e Q.Serviços (NBS)
+  // Estratégia ADITIVA: diagnostico_corporativo/operacional preservados para projetos legados
+  'q_produto':                 ['q_servico', 'diagnostico_cnae', 'onda2_iagen'],  // produto/comercio → cnae; demais → q_servico
+  'q_servico':                 ['diagnostico_cnae', 'q_produto'],                 // sempre → diagnostico_cnae
   'diagnostico_corporativo':   ['diagnostico_operacional', 'onda2_iagen'],
   'diagnostico_operacional':   ['diagnostico_cnae', 'diagnostico_corporativo'],
-  'diagnostico_cnae':          ['briefing', 'diagnostico_operacional'],
+  'diagnostico_cnae':          ['briefing', 'diagnostico_operacional', 'q_servico', 'q_produto'],  // Z-02: retrocesso para q_produto/q_servico
   'briefing':                  ['matriz_riscos', 'diagnostico_cnae'],
   'matriz_riscos':             ['plano_acao', 'briefing'],  // BUG-UAT-08 fix: fluxo 3 passos — plano_acao é Etapa 8 obrigatória (não pular para aprovado)
   'aprovado':                  ['matriz_riscos'],
@@ -467,4 +474,52 @@ export function assertValidTransition(from: string, to: string): void {
                `[${VALID_TRANSITIONS[from]?.join(', ') ?? 'nenhuma'}]`
     });
   }
+}
+
+// ─── Z-02 TO-BE — ADR-0010 — Funções de roteamento Q.Produtos e Q.Serviços ──
+
+/**
+ * Determina o próximo estado após o Q.Produtos (NCM) com base no operationType.
+ *
+ * DIV-Z02-003 aplicada: usa valores em PORTUGUÊS ('produto', 'servico', 'comercio', 'misto').
+ * O valor 'product' (inglês) é tratado como fallback → 'q_servico' para evitar bug silencioso.
+ *
+ * Tabela de verdade (CONTRATO-DEC-M3-05-v3-interface Parte 3):
+ *   'produto'  → 'diagnostico_cnae'  (empresa de produto puro — Q.Serviços não aplicável)
+ *   'comercio' → 'diagnostico_cnae'  (comércio — Q.Serviços não aplicável)
+ *   'servico'  → 'q_servico'         (empresa de serviço — precisa responder Q.Serviços)
+ *   'misto'    → 'q_servico'         (empresa mista — precisa responder Q.Serviços)
+ *   demais     → 'q_servico'         (fallback seguro — inclui 'product' inglês)
+ *
+ * @param operationType - Tipo de operação da empresa (campo operationProfile.operationType)
+ * @returns 'diagnostico_cnae' ou 'q_servico'
+ */
+export function getNextStateAfterProductQ(operationType: string | undefined | null): 'diagnostico_cnae' | 'q_servico' {
+  const type = (operationType ?? '').toLowerCase().trim();
+  if (type === 'produto' || type === 'comercio') {
+    return 'diagnostico_cnae';
+  }
+  // 'servico', 'misto', '' (vazio), 'product' (inglês — fallback), ou qualquer outro
+  return 'q_servico';
+}
+
+/**
+ * Determina o próximo estado após o Q.Serviços (NBS).
+ * Sempre retorna 'diagnostico_cnae' — Q.Serviços é sempre o último questionário.
+ *
+ * @returns 'diagnostico_cnae'
+ */
+export function getNextStateAfterServiceQ(): 'diagnostico_cnae' {
+  return 'diagnostico_cnae';
+}
+
+/**
+ * Verifica se o projeto está em um estado TO-BE (Q.Produtos ou Q.Serviços).
+ * Usado pelo DiagnosticoStepper para renderizar o componente correto.
+ *
+ * @param status - Status atual do projeto
+ * @returns true se o projeto está no fluxo TO-BE
+ */
+export function isToBeFlowState(status: string): boolean {
+  return status === 'q_produto' || status === 'q_servico';
 }
