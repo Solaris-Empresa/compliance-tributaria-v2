@@ -1079,11 +1079,11 @@ Gere o Briefing estruturado em JSON:
       // BUG-UAT-09: fluxo correto é diagnostico_cnae → briefing → matriz_riscos
       // approveBriefing aceita tanto 'diagnostico_cnae' (primeira aprovação) quanto 'briefing' (re-aprovação)
       const { assertValidTransition } = await import('./flowStateMachine');
-      if (project.status === 'diagnostico_cnae') {
-        assertValidTransition(project.status, 'briefing');
-      } else {
-        assertValidTransition(project.status, 'matriz_riscos');
-      }
+      // BUG-UAT-09 fix (DEC-produto): transição atômica diagnostico_cnae → briefing → matriz_riscos
+      // Dois asserts garantem integridade da state machine; um único db.update = UX limpa (1 clique)
+      // 'briefing' como status intermediário permanece válido para retrocesso (matriz_riscos → briefing)
+      assertValidTransition(project.status, 'briefing');       // valida diagnostico_cnae → briefing
+      assertValidTransition('briefing', 'matriz_riscos');      // valida briefing → matriz_riscos
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await database
