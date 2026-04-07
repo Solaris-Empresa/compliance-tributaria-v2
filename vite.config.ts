@@ -1,6 +1,7 @@
 import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
@@ -150,10 +151,23 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
+// ADR-0016 Etapa 1-B: injetar SHA do git em build time para Gate POST-DEPLOY S-02
+const gitSha = (() => {
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim();
+  } catch {
+    return 'unknown';
+  }
+})();
+
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
 
 export default defineConfig({
   plugins,
+  define: {
+    // ADR-0016 Etapa 1-B: SHA injetado em build time — consumido por health.ts via VITE_GIT_SHA
+    'import.meta.env.VITE_GIT_SHA': JSON.stringify(gitSha),
+  },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),

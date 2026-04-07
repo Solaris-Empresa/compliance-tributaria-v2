@@ -27,11 +27,14 @@ export const healthRouter = Router();
 /** Obtém o SHA do commit atual (short, 7 chars) */
 function getDeploySha(): { short: string; full: string } {
   // Prioridade: variáveis injetadas por plataformas de deploy
+  // ADR-0016 Etapa 1-B: VITE_GIT_SHA é injetado pelo vite.config.ts via execSync('git rev-parse --short HEAD')
+  // É a variável correta para a plataforma Manus (não usa Railway/Render/Vercel)
   const full =
     process.env.DEPLOY_SHA ??
     process.env.RAILWAY_GIT_COMMIT_SHA ??
     process.env.RENDER_GIT_COMMIT ??
     process.env.VERCEL_GIT_COMMIT_SHA ??
+    process.env.VITE_GIT_SHA ??       // ← plataforma Manus (injetado via vite.config.ts define)
     process.env.VITE_BUILD_HASH ??
     (() => {
       try {
