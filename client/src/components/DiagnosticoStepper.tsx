@@ -194,6 +194,9 @@ export function projectStatusToStepState(
     onda2_iagen: { onda1: "completed", onda2: "completed" },
     diagnostico_corporativo: { onda1: "completed", onda2: "completed", corporate: "completed" },
     diagnostico_operacional: { onda1: "completed", onda2: "completed", corporate: "completed", operational: "completed" },
+    // Z-02 TO-BE: ADR-0010 — fluxo NCM/NBS substitui QC/QO
+    q_produto: { onda1: "completed", onda2: "completed", corporate: "in_progress" },
+    q_servico: { onda1: "completed", onda2: "completed", corporate: "completed", operational: "in_progress" },
     diagnostico_cnae: { onda1: "completed", onda2: "completed", corporate: "completed", operational: "completed", cnae: "completed" },
     briefing: { onda1: "completed", onda2: "completed", corporate: "completed", operational: "completed", cnae: "completed", briefing: "completed" },
     matriz_riscos: { onda1: "completed", onda2: "completed", corporate: "completed", operational: "completed", cnae: "completed", briefing: "completed", matrizes: "completed" },

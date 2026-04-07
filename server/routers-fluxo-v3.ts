@@ -2624,23 +2624,31 @@ Regras obrigatórias:
 
       const result: QuestionResult = await generateProductQuestions(ncmCodes, cnaeCodes, companyProfile);
 
-      // Narrowing explícito — sem `as any` (DEC-M3-06)
+      // Z-02: grava em productAnswers (corrige BUG-MANUAL-02 — era corporateAnswers)
+      // DIV-Z02-001 aplicada: assinatura real (ncmCodes, cnaeCodes, companyProfile)
       if ('nao_aplicavel' in result) {
+        await db.updateProject(input.projectId, { status: 'q_produto' } as any);
         return { nao_aplicavel: true as const, perguntas: [] as TrackedQuestion[], alerta: null };
       }
       if ('perguntas' in result) {
-        await db.updateProject(input.projectId, { corporateAnswers: JSON.stringify(result.perguntas) } as any);
+        await db.updateProject(input.projectId, {
+          productAnswers: JSON.stringify(result.perguntas),
+          status: 'q_produto',
+        } as any);
         return { nao_aplicavel: false as const, perguntas: result.perguntas, alerta: result.alerta };
       }
       // result é TrackedQuestion[]
-      await db.updateProject(input.projectId, { corporateAnswers: JSON.stringify(result) } as any);
+      await db.updateProject(input.projectId, {
+        productAnswers: JSON.stringify(result),
+        status: 'q_produto',
+      } as any);
       return { nao_aplicavel: false as const, perguntas: result as TrackedQuestion[], alerta: null };
     }),
 
   // ───────────────────────────────────────────────────────────────────────────
-  // Z-01: Q.Serviços (NBS) — DEC-M3-05 v3 · ADR-0009
+  // Z-02: Q.Serviços (NBS) — DEC-M3-05 v3 · ADR-0010
   // Gera perguntas diagnósticas rastreadas para empresas de serviço (NBS)
-  // operationalAnswers grava TrackedQuestion[] (DEC-M3-06 — ciclo completo em Z-02)
+  // serviceAnswers grava TrackedQuestion[] (corrige BUG-MANUAL-02 — era operationalAnswers)
   // ───────────────────────────────────────────────────────────────────────────
   getServiceQuestions: protectedProcedure
     .input(z.object({ projectId: z.number().int().positive() }))
@@ -2659,17 +2667,100 @@ Regras obrigatórias:
 
       const result: QuestionResult = await generateServiceQuestions(nbsCodes, cnaeCodes, companyProfile);
 
-      // Narrowing explícito — sem `as any` (DEC-M3-06)
+      // Z-02: grava em serviceAnswers (corrige BUG-MANUAL-02 — era operationalAnswers)
       if ('nao_aplicavel' in result) {
+        await db.updateProject(input.projectId, { status: 'q_servico' } as any);
         return { nao_aplicavel: true as const, perguntas: [] as TrackedQuestion[], alerta: null };
       }
       if ('perguntas' in result) {
-        await db.updateProject(input.projectId, { operationalAnswers: JSON.stringify(result.perguntas) } as any);
+        await db.updateProject(input.projectId, {
+          serviceAnswers: JSON.stringify(result.perguntas),
+          status: 'q_servico',
+        } as any);
         return { nao_aplicavel: false as const, perguntas: result.perguntas, alerta: result.alerta };
       }
       // result é TrackedQuestion[]
-      await db.updateProject(input.projectId, { operationalAnswers: JSON.stringify(result) } as any);
+      await db.updateProject(input.projectId, {
+        serviceAnswers: JSON.stringify(result),
+        status: 'q_servico',
+      } as any);
       return { nao_aplicavel: false as const, perguntas: result as TrackedQuestion[], alerta: null };
+    }),
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Z-02: completeProductQuestionnaire — DEC-M3-05 v3 · ADR-0010
+  // Persiste respostas do usuário em productAnswers e avança o status
+  // ───────────────────────────────────────────────────────────────────────────
+  completeProductQuestionnaire: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      respostas: z.array(z.object({
+        pergunta_id: z.string(),
+        resposta: z.union([z.string(), z.boolean(), z.number()]),
+        fonte_ref: z.string().min(1, 'fonte_ref obrigatório — Contrato DEC-M3-05 Parte 1'),
+        lei_ref:   z.string().min(1, 'lei_ref obrigatório — Contrato DEC-M3-05 Parte 1'),
+      })),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+      // Invariante: fonte_ref e lei_ref não podem ser vazios (Contrato DEC-M3-05 Parte 1)
+      for (const r of input.respostas) {
+        if (!r.fonte_ref || !r.lei_ref) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'fonte_ref e lei_ref são obrigatórios em todas as respostas' });
+        }
+      }
+      // Determinar próximo status (DIV-Z02-003: usar português)
+      const op = (project as any).operationProfile ?? {};
+      const operationType: string = op.operationType ?? 'misto';
+      const { getNextStateAfterProductQ } = await import('./flowStateMachine');
+      const nextStatus = getNextStateAfterProductQ(operationType);
+      await db.updateProject(input.projectId, {
+        productAnswers: JSON.stringify(input.respostas),
+        status: nextStatus,
+      } as any);
+      return { ok: true, nextStatus };
+    }),
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Z-02: completeServiceQuestionnaire — DEC-M3-05 v3 · ADR-0010
+  // Persiste respostas do usuário em serviceAnswers e avança o status
+  // ───────────────────────────────────────────────────────────────────────────
+  completeServiceQuestionnaire: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      respostas: z.array(z.object({
+        pergunta_id: z.string(),
+        resposta: z.union([z.string(), z.boolean(), z.number()]),
+        fonte_ref: z.string().min(1, 'fonte_ref obrigatório — Contrato DEC-M3-05 Parte 1'),
+        lei_ref:   z.string().min(1, 'lei_ref obrigatório — Contrato DEC-M3-05 Parte 1'),
+      })),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+      // Invariante: fonte_ref e lei_ref não podem ser vazios (Contrato DEC-M3-05 Parte 1)
+      for (const r of input.respostas) {
+        if (!r.fonte_ref || !r.lei_ref) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'fonte_ref e lei_ref são obrigatórios em todas as respostas' });
+        }
+      }
+      // Sempre avança para diagnostico_cnae (DIV-Z02-003 não se aplica aqui)
+      const { getNextStateAfterServiceQ } = await import('./flowStateMachine');
+      const nextStatus = getNextStateAfterServiceQ();
+      await db.updateProject(input.projectId, {
+        serviceAnswers: JSON.stringify(input.respostas),
+        status: nextStatus,
+      } as any);
+      return { ok: true, nextStatus };
     }),
 });
 
