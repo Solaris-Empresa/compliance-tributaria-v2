@@ -1,5 +1,5 @@
 # DIV-Z02-001 — Assinatura errada de generateProductQuestions no DEC-M3-05
-Sprint: Z-02 · ID: 001 · Data: 2026-04-07 · Status: RESOLVIDA · Opção B
+Sprint: Z-02 · ID: 001 · Data: 2026-04-07 · Status: RESOLVIDA · Opção B · Corrigido em: feat/z02-to-be-flow-refactor · ADR-0010
 
 ## Divergência
 

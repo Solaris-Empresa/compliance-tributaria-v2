@@ -1,5 +1,5 @@
 # DIV-Z02-002 — project.confirmedCnaes vs (project as any).cnaes
-Sprint: Z-02 · ID: 002 · Data: 2026-04-07 · Status: RESOLVIDA · Opção B
+Sprint: Z-02 · ID: 002 · Data: 2026-04-07 · Status: RESOLVIDA · Opção B · Corrigido em: feat/z02-to-be-flow-refactor · ADR-0010
 
 ## Divergência
 
