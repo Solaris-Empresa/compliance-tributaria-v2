@@ -16,7 +16,13 @@ O corpus RAG contém 6 chunks com "Art. 57" — todos tratando de **bens de uso/
 
 ---
 
-## 2. Causa Raiz
+## 2. Decisão
+
+Adicionar instrução explícita e permanente ao prompt do `generateBriefingFromDiagnostic` para distinguir Art. 2 (IS) de Art. 57 (bens pessoais). Ver seção 3 para detalhes da causa raiz e seção 4 para o mapeamento canônico completo.
+
+---
+
+## 3. Causa Raiz
 
 Falha de precisão na query RAG + ausência de instrução explícita no prompt do briefing.
 
@@ -26,7 +32,7 @@ O modelo não tinha instrução para distinguir:
 
 ---
 
-## 3. Decisão
+## 4. Decisão (detalhada)
 
 Adicionar instrução explícita e permanente ao prompt do `generateBriefingFromDiagnostic`:
 
