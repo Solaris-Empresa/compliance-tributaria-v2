@@ -26,9 +26,9 @@ Drizzle ORM / Vitest / pnpm
 | Consultor | ChatGPT — segunda opinião estratégica |
 
 ## Estado atual do projeto (2026-04-06)
-- BASELINE **v4.4** — Sprint M3 UAT EM ANDAMENTO 🔄 (PRs #362–#365)
-- **HEAD:** `d820163` (origin/main)
-- **PRs mergeados:** 365 · **Testes passando:** 4.064+ (151 arquivos · +15 E2E Sprint M3 UAT)
+- BASELINE **v4.4** — Sprint M3 UAT ✅ ENCERRADA · Pré-Sprint Z ✅ CONCLUÍDO (PRs #362–#368)
+- **HEAD:** `57b8f05` (origin/main)
+- **PRs mergeados:** 368 · **Testes passando:** 4.064+ (151 arquivos · +15 E2E Sprint M3 UAT)
 - **TypeScript:** 0 erros · **CI:** 12 workflows ativos
 - **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade
 - **Skill solaris-contexto:** v4.2 · **Skill solaris-orquestracao:** v3.2
@@ -44,6 +44,8 @@ Drizzle ORM / Vitest / pnpm
 - **BUG-UAT-09:** ✅ CORRIGIDO (PR #365) — approveBriefing atômico diagnostico_cnae → briefing → matriz_riscos
 - **BUG-UAT-PDF-01:** ✅ CORRIGIDO (PR #365) — diagnosticCompleteness?.status no PDF do briefing
 - **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
+- **ADR-0009:** ✅ CRIADO (PR #368) — Fluxo Canônico e Fontes do Diagnóstico (DEC-M3-05 v3)
+- **Sprint Z:** ✅ DESBLOQUEADA — ADR-0009 mergeado, bloqueador Z-01 removido
 
 ## Lembrete: Bug encontrado e corrigido na Sprint S
 
