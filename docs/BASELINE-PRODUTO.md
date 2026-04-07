@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 4.5 — 2026-04-07 (Sprint Z — PRs #364–#389)
-> **Commit HEAD:** `d4e708a` (pós-PR #383)
-> **Checkpoint Manus:** `d1610519`
+> **Versão:** 4.6 — 2026-04-07 (ADR-0016 Etapas 1-4 — PR #391)
+> **Commit HEAD:** `18df234` (pós-PR #391)
+> **Checkpoint Manus:** `d1610519` (novo checkpoint pendente pós-auditoria)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -25,8 +25,8 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | **0 erros** | ✅ |
-| Testes automatizados — total | **120/120 passando** (7 arquivos de integração desta sessão · 26/26 Fitness Functions · 47/47 Connection Manifest) | ✅ |
-| Git working tree | Limpo — `main` = `d4e708a`, sincronizado com GitHub externo | ✅ |
+| Testes automatizados — total | **124/124 passando** (34 CC-01..CC-17 · 17 CC-18..CC-21 · 26/26 Fitness Functions · 47/47 Connection Manifest) | ✅ |
+| Git working tree | Limpo — `main` = `18df234`, sincronizado com GitHub externo | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
 | Sprint S | Lotes A+B+C+D+E + Fix #295 — ENCERRADA 2026-04-04 | ✅ |
@@ -36,16 +36,17 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Pré-Sprint Z** | **ADR-0009 criado ✅ #368 · ADR-001/002 supersedidos · ADR-007 atualizado · Sprint Z DESBLOQUEADA** | **✅ CONCLUÍDO** |
 | **Sprint Z — Z-01** | **Q.Produtos (NCM) + Q.Serviços (NBS) rastreados — DEC-M3-05 v1 ✅ #370 · BUG-E2E-01 ✅ #372 · DIV-Z01-004/005 ✅ #374–#375 · riskEngine integrado ✅ #376** | **✅ ENCERRADA** |
 | **Sprint Z — Z-02** | **DEC-M3-05 v3 TO-BE: Q.Produtos NCM + Q.Serviços NBS substituem QC/QO ✅ #381 · Wiring DiagnosticoStepper v3.1 ✅ #387 · BUG-RESP-01 fallback duplo ✅ #383** | **✅ ENCERRADA** |
+| **ADR-0016 Etapas 1-4** | **Completude/Confiança: schema 4 colunas + questionnaire-completeness.ts + 3 procedures skip + botões frontend ✅ #391** | **✅ MERGEADO** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
-| Migrations aplicadas | **62** | ✅ |
-| PRs mergeados (total) | **389** (23 PRs em 2026-04-07) | ✅ |
+| Migrations aplicadas | **63** | ✅ |
+| PRs mergeados (total) | **391** (25 PRs em 2026-04-07) | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
 | BUG-UAT-09 | ✅ CORRIGIDO (PR #365) | ✅ |
 | BUG-UAT-PDF-01 | ✅ CORRIGIDO (PR #365) | ✅ |
-| ADRs formais | **15** (ADR-001 a ADR-010 + ADR-0009/0010/0011/0012/0013; ADR-001/002 supersedidos) | ✅ |
+| ADRs formais | **16** (ADR-001 a ADR-010 + ADR-0009/0010/0011/0012/0013/0016; ADR-001/002 supersedidos) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
