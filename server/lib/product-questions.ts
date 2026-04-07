@@ -20,7 +20,6 @@ import { querySolarisByCnaes } from "./solaris-query";
 import { inferCompanyType } from "./completeness";
 
 // ─── Fallback para empresa de produto sem NCMs cadastrados ───────────────────
-// ncm é undefined — sem NCM de origem (array vazio)
 
 function buildProductFallback(): TrackedQuestion[] {
   return [
@@ -45,24 +44,6 @@ function buildProductFallback(): TrackedQuestion[] {
   ];
 }
 
-// ─── Fallback por NCM específico (sem cobertura RAG) ─────────────────────────
-// ncm é preenchido com o NCM de origem
-
-function buildNcmFallback(ncm: string): TrackedQuestion[] {
-  return [
-    {
-      id:         `fallback-ncm-${ncm}-01`,
-      fonte:      "fallback",
-      fonte_ref:  `fallback-ncm-${ncm}`,
-      lei_ref:    "LC 214/2025 (genérico)",
-      texto:      `A empresa analisou o enquadramento tributário do produto NCM ${ncm} nas regras do IBS e CBS da Reforma Tributária?`,
-      categoria:  "enquadramento_geral",
-      ncm,           // ← campo obrigatório: rastreia o NCM de origem
-      confidence: 0.5,
-    },
-  ];
-}
-
 // ─── Função principal ─────────────────────────────────────────────────────────
 
 /**
@@ -70,15 +51,9 @@ function buildNcmFallback(ncm: string): TrackedQuestion[] {
  *
  * Fluxo:
  * 1. Se não é empresa de produto → { nao_aplicavel: true }
- * 2. Se não tem NCMs → buildProductFallback() como TrackedQuestion[] direto
- * 3. Para cada NCM: busca RAG; se vazio → buildNcmFallback(ncm) com ncm preenchido
- * 4. Perguntas SOLARIS filtradas por CNAE
- * 5. Deduplica e retorna TrackedQuestion[]
- *
- * Retorna APENAS:
- *   TrackedQuestion[]        ← caso normal, fallback por NCM e fallback genérico
- *   { nao_aplicavel: true }  ← caso serviço puro
- * Nunca retorna { perguntas, alerta }.
+ * 2. Se não tem NCMs → buildProductFallback() com alerta
+ * 3. Para cada NCM: busca RAG + perguntas SOLARIS filtradas por CNAE
+ * 4. Deduplica e retorna TrackedQuestion[]
  *
  * @param ncmCodes   Códigos NCM da empresa (ex: ['2202.10.00', '2106.90.10'])
  * @param cnaeCodes  CNAEs da empresa para filtrar perguntas SOLARIS
@@ -100,9 +75,12 @@ export async function generateProductQuestions(
     return { nao_aplicavel: true };
   }
 
-  // FIX A-04: Sem NCMs → retorna TrackedQuestion[] direto (não { perguntas, alerta })
+  // Sem NCMs: fallback com alerta
   if (ncmCodes.length === 0) {
-    return buildProductFallback();
+    return {
+      perguntas: buildProductFallback(),
+      alerta: "Adicione códigos NCM para diagnóstico mais preciso sobre IBS/CBS em produtos.",
+    };
   }
 
   const allQuestions: TrackedQuestion[] = [];
@@ -117,26 +95,21 @@ export async function generateProductQuestions(
       // RAG indisponível: continua sem perguntas RAG para este NCM
     }
 
-    if (chunks.length === 0) {
-      // FIX A-03/A-07: NCM sem cobertura RAG → fallback com ncm preenchido
-      allQuestions.push(...buildNcmFallback(ncm));
-    } else {
-      for (const chunk of chunks) {
-        try {
-          const texto = await generateQuestionFromChunk(chunk, ncm);
-          allQuestions.push({
-            id:         `rag-ncm-${ncm}-${chunk.anchor_id}`,
-            fonte:      "rag",
-            fonte_ref:  chunk.anchor_id,
-            lei_ref:    extractLeiRef(chunk),
-            texto,
-            categoria:  inferCategoria(chunk),
-            ncm,
-            confidence: chunk.score ?? 0.7,
-          });
-        } catch {
-          // Falha na geração de uma pergunta não interrompe o fluxo
-        }
+    for (const chunk of chunks) {
+      try {
+        const texto = await generateQuestionFromChunk(chunk, ncm);
+        allQuestions.push({
+          id:         `rag-ncm-${ncm}-${chunk.anchor_id}`,
+          fonte:      "rag",
+          fonte_ref:  chunk.anchor_id,
+          lei_ref:    extractLeiRef(chunk),
+          texto,
+          categoria:  inferCategoria(chunk),
+          ncm,
+          confidence: chunk.score ?? 0.7,
+        });
+      } catch {
+        // Falha na geração de uma pergunta não interrompe o fluxo
       }
     }
   }
@@ -162,9 +135,12 @@ export async function generateProductQuestions(
     });
   }
 
-  // Fallback se nenhuma pergunta foi gerada (não deve ocorrer após fix, mas por segurança)
+  // Fallback se nenhuma pergunta foi gerada
   if (allQuestions.length === 0) {
-    return buildProductFallback();
+    return {
+      perguntas: buildProductFallback(),
+      alerta: "Diagnóstico parcial: nenhuma fonte retornou perguntas para os NCMs informados.",
+    };
   }
 
   return deduplicateById(allQuestions);

@@ -51,14 +51,9 @@ function buildServiceFallback(): TrackedQuestion[] {
  *
  * Fluxo:
  * 1. Se não é empresa de serviço → { nao_aplicavel: true }
- * 2. SOLARIS primeiro (fonte primária) — sempre, independente de nbsCodes
- * 3. RAG por NBS (fonte secundária) — apenas se houver nbsCodes
- * 4. Fallback apenas se AMBAS as fontes retornarem vazio
- * 5. Deduplica e retorna TrackedQuestion[]
- *
- * Retorna APENAS:
- *   TrackedQuestion[]        ← caso normal e fallback
- *   { nao_aplicavel: true }  ← caso produto puro
+ * 2. Se não tem NBS → buildServiceFallback() com alerta
+ * 3. Para cada NBS: busca RAG + perguntas SOLARIS filtradas por CNAE
+ * 4. Deduplica e retorna TrackedQuestion[]
  *
  * @param nbsCodes    Códigos NBS da empresa (ex: ['1.01.01.00.00', '1.09.01.00.00'])
  * @param cnaeCodes   CNAEs da empresa para filtrar perguntas SOLARIS
@@ -80,31 +75,17 @@ export async function generateServiceQuestions(
     return { nao_aplicavel: true };
   }
 
+  // Sem NBS: fallback com alerta
+  if (nbsCodes.length === 0) {
+    return {
+      perguntas: buildServiceFallback(),
+      alerta: "Adicione códigos NBS para diagnóstico mais preciso sobre IBS/CBS em serviços.",
+    };
+  }
+
   const allQuestions: TrackedQuestion[] = [];
 
-  // FIX B-03 + B-06: SOLARIS PRIMEIRO — sempre, independente de nbsCodes
-  // SOLARIS filtra por CNAE, não por NBS
-  let solarisQuestions: SolarisQuestion[] = [];
-  try {
-    solarisQuestions = await querySolarisFn(cnaeCodes);
-  } catch {
-    // SOLARIS indisponível: continua sem perguntas SOLARIS
-  }
-
-  for (const sq of solarisQuestions) {
-    allQuestions.push({
-      id:         `solaris-${sq.id}`,
-      fonte:      "solaris",
-      fonte_ref:  sq.codigo ?? `SOL-${String(sq.id).padStart(3, "0")}`,
-      lei_ref:    extractLeiRefFromSolaris(sq),
-      texto:      sq.texto,
-      categoria:  sq.categoria ?? "enquadramento_geral",
-      ncm:        undefined, // perguntas SOLARIS são por CNAE, não por NCM
-      confidence: 1.0,
-    });
-  }
-
-  // FIX B-03: RAG SEGUNDO — apenas se houver nbsCodes
+  // ─── Perguntas RAG por NBS ────────────────────────────────────────────────
   for (const nbs of nbsCodes) {
     const contextQuery = `IBS CBS alíquota serviço NBS ${nbs} reforma tributária`;
     let chunks: RagChunk[] = [];
@@ -133,11 +114,32 @@ export async function generateServiceQuestions(
     }
   }
 
-  // Fallback apenas se AMBAS as fontes retornarem vazio
+  // ─── Perguntas SOLARIS filtradas por CNAE ────────────────────────────────
+  let solarisQuestions: SolarisQuestion[] = [];
+  try {
+    solarisQuestions = await querySolarisFn(cnaeCodes);
+  } catch {
+    // SOLARIS indisponível: continua sem perguntas SOLARIS
+  }
+
+  for (const sq of solarisQuestions) {
+    allQuestions.push({
+      id:         `solaris-${sq.id}`,
+      fonte:      "solaris",
+      fonte_ref:  sq.codigo ?? `SOL-${String(sq.id).padStart(3, "0")}`,
+      lei_ref:    extractLeiRefFromSolaris(sq),
+      texto:      sq.texto,
+      categoria:  sq.categoria ?? "enquadramento_geral",
+      ncm:        undefined, // perguntas SOLARIS são por CNAE, não por NCM
+      confidence: 1.0,
+    });
+  }
+
+  // Fallback se nenhuma pergunta foi gerada
   if (allQuestions.length === 0) {
     return {
       perguntas: buildServiceFallback(),
-      alerta: "Adicione códigos NBS para diagnóstico mais preciso sobre IBS/CBS em serviços.",
+      alerta: "Diagnóstico parcial: nenhuma fonte retornou perguntas para os NBS informados.",
     };
   }
 

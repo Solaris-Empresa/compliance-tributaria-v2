@@ -34,6 +34,7 @@
 ### Ao concluir uma engine (B2)
 1. Executar `pnpm test` — todos os testes passando
 2. Executar `tsc --noEmit` — zero erros TypeScript
+   > **Nota:** `tsc --noEmit` verifica compilação TypeScript. Gate Q7 (seção abaixo) é diferente — valida nomenclatura de interfaces. São verificações distintas e ambas são obrigatórias.
 3. Executar Shadow Mode — zero divergências críticas novas
 4. Criar checkpoint no Manus
 5. Registrar evidências (output de test + screenshot Shadow Monitor)
@@ -129,10 +130,15 @@ O Confidence Score 98% é calculado sobre as seguintes dimensões:
 | Data | Erro | Causa Raiz | Resolução |
 |------|------|-----------|-----------|
 | 2026-04-01 | SOLARIS_GAPS_MAP 96% ineficaz | 7/10 chaves com acentos vs snake_case no banco — grep aceitou como OK, query real revelou falha | Q6 adicionado ao CONTRIBUTING.md |
+| 2026-04-07 | Gate Q7 implementado como tsc check | Manus interpretou validação de interface como TypeScript check — `npx tsc --noEmit` não captura divergências de nomenclatura (DIV-Z01-003) | Gate Q7 corrigido para grep de interfaces neste PR |
 
 ---
 
-## Gate Q7 — Validação de Interface (novo · 2026-04-07)
+## Gate Q7 — Validação de Interface (v4.2 · 2026-04-07)
+
+> **ATENÇÃO:** Gate Q7 NÃO é TypeScript check.
+> `npx tsc --noEmit` verifica compilação — já coberto pelo critério "TypeScript 0 erros" desde Sprint K.
+> Gate Q7 valida **nomenclatura de campos de interface** contra a spec. São verificações diferentes.
 
 **Quando aplicar:** obrigatório antes de qualquer prompt de testes que
 referencie tipos do sistema: DiagnosticLayer · CompleteBriefing ·
@@ -203,3 +209,10 @@ CRÍTICO (parar sprint): campo inexistente · tipo incompatível · array vs obj
 ALTO (reportar antes do PR): nome diferente · campo opcional vs obrigatório
 MÉDIO (reportar no body do PR): valor enum diferente · ordem de campos
 ```
+
+**Histórico Z-01:**
+| ID | Campo | Decisão |
+|---|---|---|
+| DIV-Z01-001 | DiagnosticLayer.layer vs cnaeCode | Opção A — spec atualizada |
+| DIV-Z01-002 | CpieScore hasData | Opção A — spec atualizada |
+| DIV-Z01-003 | Gate Q7 tsc vs grep | Opção B — código corrigido (este PR) |

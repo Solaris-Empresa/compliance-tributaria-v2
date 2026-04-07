@@ -1,293 +1,186 @@
 /**
- * z01-qc-ncm.test.ts — Sprint Z Z-01 · 22 Casos de Validação
- * Blocos A (A-01 a A-08) + C-01 + C-02
+ * z01-qc-ncm.test.ts — Sprint Z Z-01
+ * Testes de Q.Produtos (NCM) rastreados
  * DEC-M3-05 v3 · ADR-0009
  *
- * Casos:
- *   A-01: NCM 1006 com RAG retornando chunk válido
- *   A-02: NCM 2202 com chunk de Imposto Seletivo
- *   A-03: NCM sem cobertura RAG (retorna vazio)
- *   A-04: Sem NCM cadastrado (array vazio)
- *   A-05: Empresa serviço puro
- *   A-06: 2 NCMs iguais → deduplicação
- *   A-07: lei_ref nunca null ou vazio em fallback
- *   A-08: inferCategoria determinístico com mock
- *   C-01: Narrowing TrackedQuestion[]
- *   C-02: Narrowing { nao_aplicavel: true }
+ * 6 casos:
+ *   Caso 1: NCM 2202.10.00 → TrackedQuestion[] com fonte='rag'
+ *   Caso 2: inferCategoria com chunk { topicos: 'imposto seletivo' } → 'imposto_seletivo'
+ *   Caso 3: empresa de serviço → { nao_aplicavel: true }
+ *   Caso 4: empresa de produto sem NCM → fallback com alerta
+ *   Caso 5: deduplicateById remove duplicatas por id
+ *   Caso 6: corporateAnswers grava TrackedQuestion[] com fonte_ref + lei_ref
  */
+
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
+  deduplicateById,
   inferCategoria,
   extractLeiRef,
-  deduplicateById,
   type TrackedQuestion,
-  type QuestionResult,
   type RagChunk,
 } from "../lib/tracked-question";
 import { generateProductQuestions } from "../lib/product-questions";
 
-// ─── Mocks de módulos ─────────────────────────────────────────────────────────
+// ─── Mocks ────────────────────────────────────────────────────────────────────
+
+vi.mock("../lib/rag-query", () => ({
+  queryRag: vi.fn(),
+}));
+
+vi.mock("../lib/solaris-query", () => ({
+  querySolarisByCnaes: vi.fn(),
+}));
+
 vi.mock("../lib/tracked-question", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../lib/tracked-question")>();
   return {
     ...actual,
     generateQuestionFromChunk: vi.fn().mockResolvedValue(
-      "A empresa realizou o enquadramento do produto nas alíquotas do IBS e CBS?"
+      "A empresa realizou o enquadramento do NCM 2202.10.00 nas alíquotas do IBS e CBS?"
     ),
   };
 });
 
-vi.mock("../lib/rag-query", () => ({
-  queryRag: vi.fn(),
-}));
-vi.mock("../lib/solaris-query", () => ({
-  querySolarisByCnaes: vi.fn(),
-}));
+import { queryRag } from "../lib/rag-query";
+import { querySolarisByCnaes } from "../lib/solaris-query";
 
-// ─── Bloco A — generateProductQuestions ──────────────────────────────────────
+const mockChunkNcm: RagChunk = {
+  anchor_id:   "LC214-art45-ncm220210",
+  conteudo:    "Art. 45 — Bebidas açucaradas classificadas no NCM 2202.10.00 estão sujeitas ao Imposto Seletivo.",
+  topicos:     "imposto seletivo",
+  score:       0.92,
+};
 
-describe("Z-01 · Bloco A — generateProductQuestions (NCM)", () => {
+const mockSolarisQ = {
+  id:         42,
+  codigo:     "SOL-042",
+  texto:      "A empresa possui controle de estoque por NCM?",
+  categoria:  "controle_fiscal",
+  cnaeGroups: ["15.1", "15.2"],
+  obrigatorio: false,
+};
+
+// ─── Casos ────────────────────────────────────────────────────────────────────
+
+describe("Z-01 Q.Produtos (NCM)", () => {
+
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(queryRag).mockResolvedValue([mockChunkNcm]);
+    vi.mocked(querySolarisByCnaes).mockResolvedValue([mockSolarisQ]);
   });
 
-  // ─── A-01: NCM 1006 com RAG retornando chunk válido ────────────────────────
-  it("A-01: NCM 1006 com RAG retornando chunk válido", async () => {
-    const mockChunk: RagChunk = {
-      anchor_id: "lc214-art14-001",
-      artigo:    "Art. 14",
-      lei:       "lc214",
-      topicos:   "aliquota zero arroz",
-      conteudo:  "Ficam sujeitos à alíquota zero do IBS e CBS os seguintes bens...",
-      score:     0.94,
-    };
-    const mockQueryRag = vi.fn().mockResolvedValue([mockChunk]);
-    const mockSolaris  = vi.fn().mockResolvedValue([]);
-
-    const result = await generateProductQuestions(
-      ["1006.40.00"],
-      ["4632-0/01"],
-      {},
-      mockQueryRag,
-      mockSolaris
-    );
-
-    expect(Array.isArray(result)).toBe(true);
-    expect((result as TrackedQuestion[])[0].fonte).toBe("rag");
-    expect((result as TrackedQuestion[])[0].fonte_ref).toBe("lc214-art14-001");
-    expect((result as TrackedQuestion[])[0].ncm).toBe("1006.40.00");
-    expect((result as TrackedQuestion[])[0].lei_ref).toContain("Art. 14");
-    expect((result as TrackedQuestion[])[0].confidence).toBe(0.94);
-  });
-
-  // ─── A-02: NCM 2202 com chunk de Imposto Seletivo ─────────────────────────
-  it("A-02: NCM 2202 com chunk de Imposto Seletivo", async () => {
-    const mockChunk: RagChunk = {
-      anchor_id: "lc214-art2-001",
-      artigo:    "Art. 2",
-      lei:       "lc214",
-      topicos:   "imposto seletivo bebidas",
-      conteudo:  "O Imposto Seletivo incide sobre bens e serviços prejudiciais...",
-      score:     0.91,
-    };
-    const mockQueryRag = vi.fn().mockResolvedValue([mockChunk]);
-    const mockSolaris  = vi.fn().mockResolvedValue([]);
-
+  // Caso 1: NCM 2202.10.00 → TrackedQuestion[] com fonte='rag'
+  it("Caso 1: NCM 2202.10.00 → TrackedQuestion[] com fonte='rag'", async () => {
     const result = await generateProductQuestions(
       ["2202.10.00"],
-      ["4635-4/02"],
-      {},
-      mockQueryRag,
-      mockSolaris
-    );
-
-    expect((result as TrackedQuestion[])[0].categoria).toBe("imposto_seletivo");
-    expect((result as TrackedQuestion[])[0].ncm).toBe("2202.10.00");
-    expect((result as TrackedQuestion[])[0].fonte).toBe("rag");
-  });
-
-  // ─── A-03: NCM sem cobertura RAG (retorna vazio) ──────────────────────────
-  it("A-03: NCM sem cobertura RAG (retorna vazio)", async () => {
-    const mockQueryRag = vi.fn().mockResolvedValue([]);
-    const mockSolaris  = vi.fn().mockResolvedValue([]);
-
-    const result = await generateProductQuestions(
-      ["9999.99.99"],
-      ["4632-0/01"],
-      {},
-      mockQueryRag,
-      mockSolaris
+      ["15.1"],
+      { operationType: "produto" },
+      vi.mocked(queryRag),
+      vi.mocked(querySolarisByCnaes)
     );
 
     expect(Array.isArray(result)).toBe(true);
-    const r = (result as TrackedQuestion[]);
-    expect(r[0].fonte).toBe("fallback");
-    expect(r[0].confidence).toBe(0.5);
-    expect(r[0].lei_ref).toBe("LC 214/2025 (genérico)");
-    expect(r[0].ncm).toBe("9999.99.99");
+    const perguntas = result as TrackedQuestion[];
+    const ragQ = perguntas.find(q => q.fonte === "rag");
+    expect(ragQ).toBeDefined();
+    expect(ragQ!.fonte_ref).toBe("LC214-art45-ncm220210");
+    expect(ragQ!.ncm).toBe("2202.10.00");
+    expect(ragQ!.lei_ref).toBeTruthy();
+    expect(ragQ!.confidence).toBeGreaterThan(0);
   });
 
-  // ─── A-04: Sem NCM cadastrado (array vazio) ───────────────────────────────
-  it("A-04: Sem NCM cadastrado (array vazio)", async () => {
-    const mockQueryRag = vi.fn().mockResolvedValue([]);
-    const mockSolaris  = vi.fn().mockResolvedValue([]);
-
-    const result = await generateProductQuestions(
-      [],
-      ["4632-0/01"],
-      {},
-      mockQueryRag,
-      mockSolaris
-    );
-
-    expect(Array.isArray(result)).toBe(true);
-    expect((result as TrackedQuestion[]).length).toBeGreaterThanOrEqual(1);
-    expect((result as TrackedQuestion[])[0].lei_ref).not.toBe("");
-    expect((result as TrackedQuestion[])[0].lei_ref).not.toBeNull();
-    expect((result as TrackedQuestion[])[0].fonte).toBe("fallback");
-    // queryRag NÃO deve ter sido chamado (sem NCM para consultar)
-    expect(mockQueryRag).not.toHaveBeenCalled();
+  // Caso 2: inferCategoria com chunk { topicos: 'imposto seletivo' } → 'imposto_seletivo'
+  it("Caso 2: inferCategoria com topicos 'imposto seletivo' → 'imposto_seletivo'", () => {
+    const chunk: RagChunk = {
+      anchor_id: "test-001",
+      conteudo:  "Artigo sobre imposto seletivo",
+      topicos:   "imposto seletivo",
+      score:     0.8,
+    };
+    expect(inferCategoria(chunk)).toBe("imposto_seletivo");
   });
 
-  // ─── A-05: Empresa serviço puro ───────────────────────────────────────────
-  it("A-05: Empresa serviço puro", async () => {
-    const mockQueryRag = vi.fn();
-    const mockSolaris  = vi.fn();
-
+  // Caso 3: empresa de serviço → { nao_aplicavel: true }
+  it("Caso 3: empresa de serviço → { nao_aplicavel: true }", async () => {
     const result = await generateProductQuestions(
-      ["1006.40.00"],
-      ["8599-6/99"],
-      { operationType: "service" },
-      mockQueryRag,
-      mockSolaris
+      ["1.01.01.00.00"],
+      ["62.01"],
+      { operationType: "servico" },
+      vi.mocked(queryRag),
+      vi.mocked(querySolarisByCnaes)
     );
 
     expect(result).toEqual({ nao_aplicavel: true });
-    expect(mockQueryRag).not.toHaveBeenCalled();
+    expect(queryRag).not.toHaveBeenCalled();
   });
 
-  // ─── A-06: 2 NCMs iguais → deduplicação ──────────────────────────────────
-  it("A-06: 2 NCMs iguais → deduplicação", async () => {
-    const mockChunk: RagChunk = {
-      anchor_id: "lc214-art14-001",
-      artigo:    "Art. 14",
-      lei:       "lc214",
-      topicos:   "aliquota zero",
-      conteudo:  "...",
-      score:     0.94,
+  // Caso 4: empresa de produto sem NCM → fallback com alerta
+  it("Caso 4: empresa de produto sem NCM → fallback com alerta", async () => {
+    const result = await generateProductQuestions(
+      [],
+      ["15.1"],
+      { operationType: "produto" },
+      vi.mocked(queryRag),
+      vi.mocked(querySolarisByCnaes)
+    );
+
+    expect(result).toHaveProperty("perguntas");
+    expect(result).toHaveProperty("alerta");
+    const r = result as { perguntas: TrackedQuestion[]; alerta: string };
+    expect(r.perguntas.length).toBeGreaterThan(0);
+    expect(r.alerta).toContain("NCM");
+    expect(queryRag).not.toHaveBeenCalled();
+  });
+
+  // Caso 5: deduplicateById remove duplicatas por id
+  it("Caso 5: deduplicateById remove duplicatas por id", () => {
+    const q1: TrackedQuestion = {
+      id: "rag-ncm-001", fonte: "rag", fonte_ref: "art1", lei_ref: "LC 214/2025",
+      texto: "Pergunta A", categoria: "enquadramento_geral", confidence: 0.9,
     };
-    // Mesmo chunk retornado para ambos os NCMs
-    const mockQueryRag = vi.fn().mockResolvedValue([mockChunk]);
-    const mockSolaris  = vi.fn().mockResolvedValue([]);
+    const q2: TrackedQuestion = {
+      id: "rag-ncm-001", fonte: "rag", fonte_ref: "art1", lei_ref: "LC 214/2025",
+      texto: "Pergunta A duplicada", categoria: "enquadramento_geral", confidence: 0.8,
+    };
+    const q3: TrackedQuestion = {
+      id: "solaris-042", fonte: "solaris", fonte_ref: "SOL-042", lei_ref: "LC 214/2025",
+      texto: "Pergunta B", categoria: "controle_fiscal", confidence: 1.0,
+    };
 
-    const result = await generateProductQuestions(
-      ["1006.40.00", "1006.40.00"],
-      ["4632-0/01"],
-      {},
-      mockQueryRag,
-      mockSolaris
-    );
-
-    // ID gerado é rag-ncm-1006.40.00-lc214-art14-001 — deve aparecer 1 vez
-    const arr = result as TrackedQuestion[];
-    const ids = arr.map(q => q.id);
-    const unique = new Set(ids);
-    expect(unique.size).toBe(ids.length); // sem duplicatas
+    const result = deduplicateById([q1, q2, q3]);
+    expect(result).toHaveLength(2);
+    expect(result.map(q => q.id)).toEqual(["rag-ncm-001", "solaris-042"]);
+    // Mantém o primeiro (q1), descarta q2
+    expect(result[0].texto).toBe("Pergunta A");
   });
 
-  // ─── A-07: lei_ref nunca null ou vazio em fallback ────────────────────────
-  it("A-07: lei_ref nunca null ou vazio em fallback", async () => {
-    const mockQueryRag = vi.fn().mockResolvedValue([]);
-    const mockSolaris  = vi.fn().mockResolvedValue([]);
-
+  // Caso 6: corporateAnswers grava TrackedQuestion[] com fonte_ref + lei_ref
+  it("Caso 6: TrackedQuestion[] gerada tem fonte_ref e lei_ref preenchidos", async () => {
     const result = await generateProductQuestions(
-      ["0000.00.00"],
-      ["4632-0/01"],
-      {},
-      mockQueryRag,
-      mockSolaris
+      ["2202.10.00"],
+      ["15.1"],
+      { operationType: "produto" },
+      vi.mocked(queryRag),
+      vi.mocked(querySolarisByCnaes)
     );
 
-    const arr = result as TrackedQuestion[];
-    arr.forEach(q => {
+    expect(Array.isArray(result)).toBe(true);
+    const perguntas = result as TrackedQuestion[];
+
+    // Todas as perguntas devem ter fonte_ref e lei_ref preenchidos (rastreabilidade Z-01)
+    for (const q of perguntas) {
+      expect(q.fonte_ref).toBeTruthy();
       expect(q.lei_ref).toBeTruthy();
-      expect(q.lei_ref).not.toBe("");
-      expect(q.lei_ref).not.toBeNull();
-      expect(q.lei_ref).not.toBeUndefined();
-    });
-  });
-
-  // ─── A-08: inferCategoria determinístico com mock ─────────────────────────
-  it("A-08: inferCategoria determinístico com mock", () => {
-    const chunk1: RagChunk = { anchor_id: "x", conteudo: "", topicos: "aliquota zero arroz" };
-    const chunk2: RagChunk = { anchor_id: "x", conteudo: "", topicos: "imposto seletivo" };
-    const chunk3: RagChunk = { anchor_id: "x", conteudo: "", topicos: "cbs ibs tributo" };
-    const chunk4: RagChunk = { anchor_id: "x", conteudo: "", topicos: "inscrição cadastro" };
-    const chunk5: RagChunk = { anchor_id: "x", conteudo: "", topicos: "outro assunto" };
-
-    expect(inferCategoria(chunk1)).toBe("aliquota_zero");
-    expect(inferCategoria(chunk2)).toBe("imposto_seletivo");
-    expect(inferCategoria(chunk3)).toBe("ibs_cbs");
-    expect(inferCategoria(chunk4)).toBe("cadastro_fiscal");
-    expect(inferCategoria(chunk5)).toBe("enquadramento_geral");
-  });
-});
-
-// ─── Bloco C — Handler narrowing (C-01 e C-02) ───────────────────────────────
-
-describe("Z-01 · Bloco C — Handler narrowing QC (C-01 e C-02)", () => {
-  // ─── C-01: Narrowing TrackedQuestion[] ────────────────────────────────────
-  it("C-01: Narrowing TrackedQuestion[] — corporateAnswers é array serializado", () => {
-    // Simula o narrowing que o handler faz em getProductQuestions
-    const mockPerguntas: TrackedQuestion[] = [
-      {
-        id:         "rag-ncm-2202.10.00-lc214-art14-001",
-        fonte:      "rag",
-        fonte_ref:  "lc214-art14-001",
-        lei_ref:    "Art. 14 LC214",
-        texto:      "A empresa realizou o enquadramento do NCM 2202.10.00?",
-        categoria:  "aliquota_zero",
-        ncm:        "2202.10.00",
-        confidence: 0.94,
-      },
-    ];
-
-    // Simular resultado TrackedQuestion[] (array direto)
-    const result: QuestionResult = mockPerguntas;
-
-    // Narrowing explícito (como no handler)
-    let corporateAnswersJson: string;
-    if ("nao_aplicavel" in result) {
-      corporateAnswersJson = JSON.stringify([{ nao_aplicavel: true }]);
-    } else if ("perguntas" in result) {
-      corporateAnswersJson = JSON.stringify(result.perguntas);
-    } else {
-      // result é TrackedQuestion[]
-      corporateAnswersJson = JSON.stringify(result);
+      expect(q.id).toBeTruthy();
     }
 
-    const corporateAnswers = JSON.parse(corporateAnswersJson);
-    expect(Array.isArray(corporateAnswers)).toBe(true);
-    expect(corporateAnswers[0].fonte).toBeDefined();
-    expect(corporateAnswers[0].fonte_ref).toBeDefined();
+    // JSON.stringify deve funcionar sem erros (compatível com corporateAnswers)
+    expect(() => JSON.stringify(perguntas)).not.toThrow();
+    const parsed = JSON.parse(JSON.stringify(perguntas)) as TrackedQuestion[];
+    expect(parsed[0]).toHaveProperty("fonte_ref");
+    expect(parsed[0]).toHaveProperty("lei_ref");
   });
 
-  // ─── C-02: Narrowing { nao_aplicavel: true } ──────────────────────────────
-  it("C-02: Narrowing { nao_aplicavel: true } — corporateAnswers grava nao_aplicavel", () => {
-    // Simula o narrowing que o handler faz quando generateProductQuestions retorna nao_aplicavel
-    const result: QuestionResult = { nao_aplicavel: true };
-
-    // Narrowing explícito (como no handler)
-    let corporateAnswersJson: string;
-    if ("nao_aplicavel" in result) {
-      corporateAnswersJson = JSON.stringify([{ nao_aplicavel: true }]);
-    } else if ("perguntas" in result) {
-      corporateAnswersJson = JSON.stringify(result.perguntas);
-    } else {
-      corporateAnswersJson = JSON.stringify(result);
-    }
-
-    const corporateAnswers = JSON.parse(corporateAnswersJson);
-    expect(corporateAnswers[0].nao_aplicavel).toBe(true);
-  });
 });

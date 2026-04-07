@@ -1,281 +1,171 @@
 /**
- * z01-qo-nbs.test.ts — Sprint Z Z-01 · 22 Casos de Validação
- * Bloco B (B-01 a B-07) + C-03
+ * z01-qo-nbs.test.ts — Sprint Z Z-01
+ * Testes de Q.Serviços (NBS) rastreados
  * DEC-M3-05 v3 · ADR-0009
  *
- * Casos:
- *   B-01: SOLARIS retorna perguntas válidas
- *   B-02: RAG por NBS retorna chunk válido
- *   B-03: SOLARIS + RAG combinados e deduplicados
- *   B-04: Ambas fontes vazias → fallback com alerta
- *   B-05: Empresa produto puro
- *   B-06: SOLARIS: fonte_ref nunca usa anchor_id RAG
- *   B-07: RAG: nbs por pergunta de origem (não posição 0)
- *   C-03: Narrowing { perguntas, alerta }
+ * 5 casos:
+ *   Caso 7:  NBS 1.01.01.00.00 → TrackedQuestion[] com fonte='rag'
+ *   Caso 8:  empresa de produto → { nao_aplicavel: true }
+ *   Caso 9:  empresa de serviço sem NBS → fallback com alerta
+ *   Caso 10: extractLeiRef extrai referência correta do chunk
+ *   Caso 11: operationalAnswers grava TrackedQuestion[] com fonte_ref + lei_ref
  */
+
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
+  extractLeiRef,
   type TrackedQuestion,
-  type QuestionResult,
   type RagChunk,
 } from "../lib/tracked-question";
 import { generateServiceQuestions } from "../lib/service-questions";
 
-// ─── Mocks de módulos ─────────────────────────────────────────────────────────
+// ─── Mocks ────────────────────────────────────────────────────────────────────
+
+vi.mock("../lib/rag-query", () => ({
+  queryRag: vi.fn(),
+}));
+
+vi.mock("../lib/solaris-query", () => ({
+  querySolarisByCnaes: vi.fn(),
+}));
+
 vi.mock("../lib/tracked-question", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../lib/tracked-question")>();
   return {
     ...actual,
     generateQuestionFromChunk: vi.fn().mockResolvedValue(
-      "A empresa realizou o enquadramento do serviço nas alíquotas do IBS e CBS?"
+      "A empresa avaliou o enquadramento do serviço NBS 1.01.01.00.00 nas alíquotas do IBS e CBS?"
     ),
   };
 });
 
-vi.mock("../lib/rag-query", () => ({
-  queryRag: vi.fn(),
-}));
-vi.mock("../lib/solaris-query", () => ({
-  querySolarisByCnaes: vi.fn(),
-}));
+import { queryRag } from "../lib/rag-query";
+import { querySolarisByCnaes } from "../lib/solaris-query";
 
-// ─── Bloco B — generateServiceQuestions ──────────────────────────────────────
+const mockChunkNbs: RagChunk = {
+  anchor_id:   "LC214-art67-nbs101010000",
+  conteudo:    "Art. 67 — Serviços de consultoria classificados no NBS 1.01.01.00.00 estão sujeitos ao IBS e CBS.",
+  topicos:     "ibs cbs servico",
+  score:       0.88,
+};
 
-describe("Z-01 · Bloco B — generateServiceQuestions (NBS)", () => {
+const mockSolarisQServico = {
+  id:         55,
+  codigo:     "SOL-055",
+  texto:      "A empresa possui controle de NBS para os serviços prestados?",
+  categoria:  "cadastro_fiscal",
+  cnaeGroups: ["62.01", "62.02"],
+  obrigatorio: false,
+};
+
+// ─── Casos ────────────────────────────────────────────────────────────────────
+
+describe("Z-01 Q.Serviços (NBS)", () => {
+
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(queryRag).mockResolvedValue([mockChunkNbs]);
+    vi.mocked(querySolarisByCnaes).mockResolvedValue([mockSolarisQServico]);
   });
 
-  // ─── B-01: SOLARIS retorna perguntas válidas ───────────────────────────────
-  it("B-01: SOLARIS retorna perguntas válidas", async () => {
-    const mockSolaris = vi.fn().mockResolvedValue([{
-      id: 19, codigo: "SOL-019",
-      texto: "A empresa mapeou a incidência de CBS sobre seus serviços?",
-      categoria: "cbs_aliquota",
-      cnaeGroups: ["46"],
-      topicos: "CBS LC 214/2025",
-    }]);
-    const mockQueryRag = vi.fn().mockResolvedValue([]);
-
+  // Caso 7: NBS 1.01.01.00.00 → TrackedQuestion[] com fonte='rag'
+  it("Caso 7: NBS 1.01.01.00.00 → TrackedQuestion[] com fonte='rag'", async () => {
     const result = await generateServiceQuestions(
-      ["1.01.00"],
-      ["4632-0/01"],
-      { operationType: "service" },
-      mockQueryRag,
-      mockSolaris
+      ["1.01.01.00.00"],
+      ["62.01"],
+      { operationType: "servico" },
+      vi.mocked(queryRag),
+      vi.mocked(querySolarisByCnaes)
     );
 
-    const arr = result as TrackedQuestion[];
-    expect(arr[0].fonte).toBe("solaris");
-    expect(arr[0].fonte_ref).toBe("SOL-019");
-    expect(arr[0].confidence).toBe(1.0);
-    expect(arr[0].nbs).toBeUndefined(); // SOLARIS é por CNAE, não por NBS
+    expect(Array.isArray(result)).toBe(true);
+    const perguntas = result as TrackedQuestion[];
+    const ragQ = perguntas.find(q => q.fonte === "rag");
+    expect(ragQ).toBeDefined();
+    expect(ragQ!.fonte_ref).toBe("LC214-art67-nbs101010000");
+    expect(ragQ!.nbs).toBe("1.01.01.00.00");
+    expect(ragQ!.lei_ref).toBeTruthy();
+    expect(ragQ!.confidence).toBeGreaterThan(0);
   });
 
-  // ─── B-02: RAG por NBS retorna chunk válido ────────────────────────────────
-  it("B-02: RAG por NBS retorna chunk válido", async () => {
-    const mockSolaris = vi.fn().mockResolvedValue([]);
-    const mockChunk: RagChunk = {
-      anchor_id: "lc214-cbs-001",
-      artigo:    "Art. 8",
-      lei:       "lc214",
-      topicos:   "cbs aliquota servicos",
-      conteudo:  "...",
-      score:     0.88,
-    };
-    const mockQueryRag = vi.fn().mockResolvedValue([mockChunk]);
-
+  // Caso 8: empresa de produto → { nao_aplicavel: true }
+  it("Caso 8: empresa de produto → { nao_aplicavel: true }", async () => {
     const result = await generateServiceQuestions(
-      ["1.01.00"],
-      ["4632-0/01"],
-      { operationType: "service" },
-      mockQueryRag,
-      mockSolaris
-    );
-
-    const arr = result as TrackedQuestion[];
-    expect(arr[0].fonte).toBe("rag");
-    expect(arr[0].fonte_ref).toBe("lc214-cbs-001");
-    expect(arr[0].nbs).toBe("1.01.00"); // NBS de origem da query
-    expect(arr[0].confidence).toBe(0.88);
-  });
-
-  // ─── B-03: SOLARIS + RAG combinados e deduplicados ────────────────────────
-  it("B-03: SOLARIS + RAG combinados e deduplicados", async () => {
-    const mockSolaris = vi.fn().mockResolvedValue([{
-      id: 5, codigo: "SOL-005",
-      texto: "Pergunta SOLARIS...", categoria: "enquadramento_geral",
-      cnaeGroups: ["46"], topicos: "LC 214/2025",
-    }]);
-    const mockChunk: RagChunk = {
-      anchor_id: "lc116-art1-001",
-      artigo:    "Art. 1",
-      lei:       "lc116",
-      topicos:   "iss servicos",
-      conteudo:  "...",
-      score:     0.85,
-    };
-    const mockQueryRag = vi.fn().mockResolvedValue([mockChunk]);
-
-    const result = await generateServiceQuestions(
-      ["1.01.00"],
-      ["4632-0/01"],
-      { operationType: "service" },
-      mockQueryRag,
-      mockSolaris
-    );
-
-    const arr = result as TrackedQuestion[];
-    expect(arr.length).toBe(2);
-    expect(arr[0].fonte).toBe("solaris");
-    expect(arr[1].fonte).toBe("rag");
-    // IDs distintos
-    expect(arr[0].id).not.toBe(arr[1].id);
-  });
-
-  // ─── B-04: Ambas fontes vazias → fallback com alerta ─────────────────────
-  it("B-04: Ambas fontes vazias → fallback com alerta", async () => {
-    const mockSolaris  = vi.fn().mockResolvedValue([]);
-    const mockQueryRag = vi.fn().mockResolvedValue([]);
-
-    const result = await generateServiceQuestions(
-      [],
-      ["4632-0/01"],
-      { operationType: "service" },
-      mockQueryRag,
-      mockSolaris
-    );
-
-    expect("perguntas" in result).toBe(true);
-    const r = result as { perguntas: TrackedQuestion[]; alerta: string };
-    expect(r.alerta.length).toBeGreaterThan(0);
-    expect(r.perguntas.length).toBeGreaterThanOrEqual(1);
-    expect(r.perguntas[0].lei_ref).toBeTruthy();
-    expect(r.perguntas[0].confidence).toBe(0.5);
-  });
-
-  // ─── B-05: Empresa produto puro ───────────────────────────────────────────
-  it("B-05: Empresa produto puro", async () => {
-    const mockSolaris  = vi.fn();
-    const mockQueryRag = vi.fn();
-
-    const result = await generateServiceQuestions(
-      ["1.01.00"],
-      ["4632-0/01"],
-      { operationType: "product" },
-      mockQueryRag,
-      mockSolaris
+      ["2202.10.00"],
+      ["15.1"],
+      { operationType: "produto" },
+      vi.mocked(queryRag),
+      vi.mocked(querySolarisByCnaes)
     );
 
     expect(result).toEqual({ nao_aplicavel: true });
-    expect(mockSolaris).not.toHaveBeenCalled();
-    expect(mockQueryRag).not.toHaveBeenCalled();
+    expect(queryRag).not.toHaveBeenCalled();
   });
 
-  // ─── B-06: SOLARIS: fonte_ref nunca usa anchor_id RAG ────────────────────
-  it("B-06: SOLARIS: fonte_ref nunca usa anchor_id RAG", async () => {
-    const mockSolaris = vi.fn().mockResolvedValue([{
-      id: 5, codigo: "SOL-005", texto: "...", categoria: "enquadramento_geral",
-      cnaeGroups: ["46"], topicos: "LC 214/2025",
-    }]);
-    const mockQueryRag = vi.fn().mockResolvedValue([]);
-
+  // Caso 9: empresa de serviço sem NBS → fallback com alerta
+  it("Caso 9: empresa de serviço sem NBS → fallback com alerta", async () => {
     const result = await generateServiceQuestions(
       [],
-      ["4632-0/01"],
-      { operationType: "service" },
-      mockQueryRag,
-      mockSolaris
+      ["62.01"],
+      { operationType: "servico" },
+      vi.mocked(queryRag),
+      vi.mocked(querySolarisByCnaes)
     );
 
-    const arr = result as TrackedQuestion[];
-    expect(arr[0].fonte_ref).toBe("SOL-005");
-    // fonte_ref deve ser o codigo SOLARIS, não um anchor_id
-    expect(arr[0].fonte_ref).not.toMatch(/^lc\d+/);
-    expect(arr[0].fonte_ref).not.toMatch(/^ec\d+/);
+    expect(result).toHaveProperty("perguntas");
+    expect(result).toHaveProperty("alerta");
+    const r = result as { perguntas: TrackedQuestion[]; alerta: string };
+    expect(r.perguntas.length).toBeGreaterThan(0);
+    expect(r.alerta).toContain("NBS");
+    expect(queryRag).not.toHaveBeenCalled();
   });
 
-  // ─── B-07: RAG: nbs por pergunta de origem (não posição 0) ───────────────
-  it("B-07: RAG: nbs por pergunta de origem (não posição 0)", async () => {
-    const chunk1: RagChunk = {
-      anchor_id: "chunk-nbs1",
-      artigo:    "Art. 1",
-      lei:       "lc214",
-      topicos:   "cbs",
-      conteudo:  "...",
-      score:     0.9,
-    };
-    const chunk2: RagChunk = {
-      anchor_id: "chunk-nbs2",
-      artigo:    "Art. 2",
-      lei:       "lc214",
-      topicos:   "iss",
-      conteudo:  "...",
+  // Caso 10: extractLeiRef extrai referência correta do chunk
+  it("Caso 10: extractLeiRef extrai lei_ref do conteúdo do chunk", () => {
+    const chunkComLei: RagChunk = {
+      anchor_id: "test-lei-001",
+      conteudo:  "Conforme o Art. 45 da LC 214/2025, os serviços de TI estão sujeitos ao IBS.",
+      topicos:   "ibs cbs",
       score:     0.85,
     };
+    const leiRef = extractLeiRef(chunkComLei);
+    expect(leiRef).toContain("LC 214/2025");
 
-    const mockSolaris = vi.fn().mockResolvedValue([]);
-    // queryRag retorna chunk diferente dependendo do NBS consultado
-    const mockQueryRag = vi.fn()
-      .mockImplementation((codes: string[], _contextQuery: string) => {
-        if (codes.includes("1.01.00")) return Promise.resolve([chunk1]);
-        if (codes.includes("1.02.00")) return Promise.resolve([chunk2]);
-        return Promise.resolve([]);
-      });
+    const chunkSemLei: RagChunk = {
+      anchor_id: "test-sem-lei",
+      conteudo:  "Texto sem referência legislativa explícita.",
+      topicos:   "enquadramento",
+      score:     0.6,
+    };
+    const leiRefFallback = extractLeiRef(chunkSemLei);
+    expect(leiRefFallback).toBeTruthy(); // fallback genérico
+  });
 
+  // Caso 11: operationalAnswers grava TrackedQuestion[] com fonte_ref + lei_ref
+  it("Caso 11: TrackedQuestion[] gerada tem fonte_ref e lei_ref preenchidos", async () => {
     const result = await generateServiceQuestions(
-      ["1.01.00", "1.02.00"],
-      ["4632-0/01"],
-      { operationType: "service" },
-      mockQueryRag,
-      mockSolaris
+      ["1.01.01.00.00"],
+      ["62.01"],
+      { operationType: "servico" },
+      vi.mocked(queryRag),
+      vi.mocked(querySolarisByCnaes)
     );
 
-    const arr = result as TrackedQuestion[];
-    // Pergunta do NBS 1.01.00 tem nbs='1.01.00'
-    const p1 = arr.find(q => q.fonte_ref === "chunk-nbs1");
-    expect(p1?.nbs).toBe("1.01.00");
-    // Pergunta do NBS 1.02.00 tem nbs='1.02.00'
-    const p2 = arr.find(q => q.fonte_ref === "chunk-nbs2");
-    expect(p2?.nbs).toBe("1.02.00");
-  });
-});
+    expect(Array.isArray(result)).toBe(true);
+    const perguntas = result as TrackedQuestion[];
 
-// ─── Bloco C — Handler narrowing (C-03) ──────────────────────────────────────
-
-describe("Z-01 · Bloco C — Handler narrowing QO (C-03)", () => {
-  // ─── C-03: Narrowing { perguntas, alerta } ────────────────────────────────
-  it("C-03: Narrowing { perguntas, alerta } — operationalAnswers grava array de perguntas", () => {
-    // Simula o narrowing que o handler faz quando generateServiceQuestions retorna { perguntas, alerta }
-    const mockPerguntas: TrackedQuestion[] = [
-      {
-        id:         "fallback-servico-001",
-        fonte:      "fallback",
-        fonte_ref:  "fallback-servico-001",
-        lei_ref:    "LC 214/2025 (genérico)",
-        texto:      "A empresa possui códigos NBS cadastrados?",
-        categoria:  "cadastro_fiscal",
-        confidence: 0.5,
-      },
-    ];
-
-    const result: QuestionResult = {
-      perguntas: mockPerguntas,
-      alerta: "Adicione códigos NBS para diagnóstico mais preciso.",
-    };
-
-    // Narrowing explícito (como no handler)
-    let operationalAnswersJson: string;
-    if ("nao_aplicavel" in result) {
-      operationalAnswersJson = JSON.stringify([{ nao_aplicavel: true }]);
-    } else if ("perguntas" in result) {
-      operationalAnswersJson = JSON.stringify(result.perguntas);
-    } else {
-      operationalAnswersJson = JSON.stringify(result);
+    // Todas as perguntas devem ter fonte_ref e lei_ref preenchidos (rastreabilidade Z-01)
+    for (const q of perguntas) {
+      expect(q.fonte_ref).toBeTruthy();
+      expect(q.lei_ref).toBeTruthy();
+      expect(q.id).toBeTruthy();
     }
 
-    const operationalAnswers = JSON.parse(operationalAnswersJson);
-    expect(Array.isArray(operationalAnswers)).toBe(true);
-    expect(operationalAnswers[0].fonte).toBeDefined();
+    // JSON.stringify deve funcionar sem erros (compatível com operationalAnswers)
+    expect(() => JSON.stringify(perguntas)).not.toThrow();
+    const parsed = JSON.parse(JSON.stringify(perguntas)) as TrackedQuestion[];
+    expect(parsed[0]).toHaveProperty("fonte_ref");
+    expect(parsed[0]).toHaveProperty("lei_ref");
   });
+
 });

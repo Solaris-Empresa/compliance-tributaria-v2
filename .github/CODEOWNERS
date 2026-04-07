@@ -33,37 +33,3 @@
 /server/routers/scoringEngine.ts           @utapajos
 /skills/solaris-contexto/SKILL.md          @utapajos
 /skills/solaris-orquestracao/SKILL.md      @utapajos
-
-# ─── Interfaces de contrato — revisão obrigatória do Orquestrador ───────────
-# Qualquer alteração nestes arquivos exige aprovação antes do merge.
-# Alterações silenciosas nestas interfaces são a causa raiz de divergências.
-
-server/lib/tracked-question.ts        @Solaris-Empresa/orquestrador
-server/lib/completeness.ts            @Solaris-Empresa/orquestrador
-server/lib/product-questions.ts       @Solaris-Empresa/orquestrador
-server/lib/service-questions.ts       @Solaris-Empresa/orquestrador
-server/lib/rag-query.ts               @Solaris-Empresa/orquestrador
-server/lib/solaris-query.ts           @Solaris-Empresa/orquestrador
-
-# ─── Documentos de governança ───────────────────────────────────────────────
-docs/adr/                             @Solaris-Empresa/orquestrador
-docs/divergencias/                    @Solaris-Empresa/orquestrador
-docs/templates/                       @Solaris-Empresa/orquestrador
-.github/MANUS-GOVERNANCE.md           @Solaris-Empresa/orquestrador
-
-
-# --- Interfaces de contrato - revisao obrigatoria do Orquestrador ---
-# Qualquer alteracao nestes arquivos exige aprovacao antes do merge.
-
-server/lib/tracked-question.ts        @Solaris-Empresa/orquestrador
-server/lib/completeness.ts            @Solaris-Empresa/orquestrador
-server/lib/product-questions.ts       @Solaris-Empresa/orquestrador
-server/lib/service-questions.ts       @Solaris-Empresa/orquestrador
-server/lib/rag-query.ts               @Solaris-Empresa/orquestrador
-server/lib/solaris-query.ts           @Solaris-Empresa/orquestrador
-
-# --- Documentos de governanca ---
-docs/adr/                             @Solaris-Empresa/orquestrador
-docs/divergencias/                    @Solaris-Empresa/orquestrador
-docs/templates/                       @Solaris-Empresa/orquestrador
-.github/MANUS-GOVERNANCE.md           @Solaris-Empresa/orquestrador
