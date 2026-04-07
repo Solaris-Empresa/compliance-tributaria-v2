@@ -264,6 +264,7 @@ Resultado: [ APTO | BLOQUEADO — motivo ]
 | 2026-04-04 | Schema diferente do esperado no MIG-001 | Skill sem regra para "realidade inesperada" — RRI adicionada |
 | 2026-04-04 | FIX-TS2339 iniciado sem merge do MIG-001 | Definition of Done ausente — DoD adicionado |
 | 2026-04-04 | Código editado em branch de docs | Regra de escopo de branch ausente — adicionada |
+| 2026-04-07 | Gate Q7 implementado como tsc check | Manus interpretou validação de interface como TypeScript check (DIV-Z01-003) — `npx tsc --noEmit` não captura divergências de nomenclatura |
 
 ---
 
@@ -514,6 +515,59 @@ Claude não gera prompt de correção se:
 > Bug que escapa do Passo 0 → atualizar a tabela.
 > Bug que escapa do Gate de Spec → atualizar o Gate de Spec.
 > O sistema aprende com cada falha.
+
+---
+
+## Gate Q7 — Validação de Interface (v4.2)
+
+> **ATENÇÃO:** Gate Q7 NÃO é TypeScript check.
+> `npx tsc --noEmit` é cobertura de compilação, já existia antes.
+> Gate Q7 é validação de nomenclatura de interface. São diferentes.
+
+**Quando aplicar:** obrigatório antes de qualquer prompt de testes que
+referencie tipos do sistema.
+
+**Comando obrigatório:**
+```bash
+grep -rn "export interface\|export type\|export class" \
+  server/lib/*.ts server/routers-fluxo-v3.ts \
+  | grep -Ei "(diagnostic|briefing|gap|risk|cpie|tracked|question|score)" \
+  | sort
+```
+
+**O que fazer:**
+1. Retornar output ao Orquestrador
+2. Orquestrador confronta com spec
+3. Campo real ≠ spec → abrir DIV antes de prosseguir
+4. Campo real = spec → Gate Q7 PASS
+
+**No body do PR:**
+```
+## Gate Q7
+Interfaces: [lista]
+Divergências: [N] → [DIVs ou "nenhuma"]
+Resultado: [ PASS | DIVERGÊNCIA DOCUMENTADA ]
+```
+
+---
+
+## Regra DIV — Divergência de Spec v4.2
+
+SE campo real ≠ campo da spec:
+  → NUNCA adaptar assert silenciosamente
+  → CRIAR docs/divergencias/DIV-{SPRINT}-{ID}-{campo}.md
+  → PARAR o bloco afetado
+  → REPORTAR ao Orquestrador com o arquivo
+
+Prioridade:
+  CRÍTICO: campo inexistente · tipo incompatível · array vs objeto
+  ALTO:    nome diferente · campo opcional vs obrigatório
+  MÉDIO:   valor enum diferente · ordem de campos
+
+Histórico Z-01:
+  DIV-Z01-001: DiagnosticLayer.layer vs cnaeCode → Opção A
+  DIV-Z01-002: CpieScore hasData → Opção A
+  DIV-Z01-003: Gate Q7 tsc vs grep → Opção B (corrigido)
 
 ---
 
