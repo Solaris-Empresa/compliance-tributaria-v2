@@ -468,3 +468,18 @@ ao Orquestrador antes de prosseguir.
 Divergencias de spec vs implementacao devem ser documentadas em
 docs/divergencias/DIV-{SPRINT}-{ID}-{campo}.md e reportadas ao
 Orquestrador ANTES de adaptar qualquer assert.
+
+## EV-05 — Gaps legado sem source_reference (2026-04-07)
+
+**Status:** Documentado · Aguarda limpeza em Z-06
+**Diagnóstico:** CASO A (variante órfãos)
+
+12 gaps sem `source_reference` identificados em `project_gaps_v3`.
+Investigação confirmou que todos pertencem a project_ids (691585, 691586, 691587)
+que **não existem mais** na tabela `projects` — projetos deletados antes do PR #370.
+Todos criados em 2026-03-24 com `source='v1'` (engine v1, pré-rastreabilidade).
+
+**Rastreabilidade pós-PR #370:** 100% confirmada (1/1 gap com source_reference).
+
+**Ação:** Script `scripts/migrations/z06-cleanup-legacy-gaps.sql` criado para
+execução na Sprint Z-06 (limpeza do banco). Não impacta projetos ativos.
