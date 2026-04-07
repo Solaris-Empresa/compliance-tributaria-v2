@@ -12,7 +12,7 @@
  * Issue: K-4-B | Milestone: M2 — Sprint K
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -31,7 +31,17 @@ import {
   AlertCircle,
   Save,
   ArrowRight,
+  SkipForward,
+  AlertTriangle,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -87,6 +97,28 @@ export default function QuestionarioSolaris() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.questions.length]);
 
+  // ── ADR-0016 Etapa 4: Skip de perguntas e questionário ─────────────────────
+  const [confirmSkipAll, setConfirmSkipAll] = useState(false);
+  const [skippedIds, setSkippedIds] = useState<Set<number>>(new Set());
+
+  const skipSolarisQuestion = trpc.fluxoV3.skipSolarisQuestion.useMutation({
+    onSuccess: (data) => {
+      const newSkipped = new Set(data.skippedIds.map(Number));
+      setSkippedIds(newSkipped);
+      toast.info("Pergunta pulada. Você pode voltar e responder depois.");
+      if (currentIndex < totalQuestions - 1) setCurrentIndex((i) => i + 1);
+    },
+    onError: (err) => toast.error(err.message ?? "Erro ao pular pergunta."),
+  });
+
+  const skipQuestionnaire = trpc.fluxoV3.skipQuestionnaire.useMutation({
+    onSuccess: (data) => {
+      toast.warning(data.confidenceWarning, { duration: 6000 });
+      setLocation(`/projetos/${projectId}`);
+    },
+    onError: (err) => toast.error(err.message ?? "Erro ao pular questionário."),
+  });
+
   const completeOnda1 = trpc.fluxoV3.completeOnda1.useMutation({
     onSuccess: () => {
       toast.success("Questionário SOLARIS concluído! Avançando para a próxima etapa.");
@@ -122,7 +154,17 @@ export default function QuestionarioSolaris() {
       .every((q) => answers[q.id]?.trim());
   }, [questions, answers]);
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  // ── Handlers ────────────────────────────────────────────────────────────────────────────────
+
+  const handleSkipQuestion = useCallback(() => {
+    if (!currentQuestion) return;
+    skipSolarisQuestion.mutate({ projectId, questionId: String(currentQuestion.id) });
+  }, [currentQuestion, projectId, skipSolarisQuestion]);
+
+  const handleSkipAll = useCallback(() => {
+    skipQuestionnaire.mutate({ projectId, questionnaire: 'solaris' });
+    setConfirmSkipAll(false);
+  }, [projectId, skipQuestionnaire]);
 
   function handleAnswerChange(questionId: number, value: string) {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
@@ -309,14 +351,7 @@ export default function QuestionarioSolaris() {
                     >
                       {currentQuestion.categoria}
                     </Badge>
-                    {currentQuestion.obrigatorio === 1 && (
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] h-4 border-red-300/60 text-red-600 dark:text-red-400 bg-red-500/5"
-                      >
-                        Obrigatória
-                      </Badge>
-                    )}
+                    {/* ADR-0016 Etapa 4: label "Obrigatória" removido — skip habilitado */}
                     {/* G15 — ONDA_BADGE: exibido sob feature flag g15-fonte-perguntas */}
                     {showOndaBadge && (
                       <Badge
@@ -353,6 +388,28 @@ export default function QuestionarioSolaris() {
                 <p className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Resposta registrada
+                </p>
+              )}
+              {/* ADR-0016 Etapa 4: Botão Pular pergunta */}
+              {!answers[currentQuestion.id]?.trim() && !skippedIds.has(currentQuestion.id) && (
+                <div className="flex justify-end pt-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSkipQuestion}
+                    disabled={skipSolarisQuestion.isPending}
+                    data-testid={`btn-pular-pergunta-${currentQuestion.id}`}
+                    className="text-xs text-muted-foreground hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 gap-1.5"
+                  >
+                    <SkipForward className="h-3.5 w-3.5" />
+                    Pular esta pergunta
+                  </Button>
+                </div>
+              )}
+              {skippedIds.has(currentQuestion.id) && (
+                <p className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  Pergunta pulada
                 </p>
               )}
             </CardContent>
@@ -408,6 +465,54 @@ export default function QuestionarioSolaris() {
             )}
           </div>
         </div>
+
+        {/* ADR-0016 Etapa 4: Botão Pular questionário */}
+        <div className="flex justify-center pt-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setConfirmSkipAll(true)}
+            data-testid="btn-pular-questionario-solaris"
+            className="text-xs text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 gap-1.5"
+          >
+            <SkipForward className="h-3.5 w-3.5" />
+            Pular este questionário
+          </Button>
+        </div>
+
+        {/* Modal de confirmação — Pular questionário */}
+        <Dialog open={confirmSkipAll} onOpenChange={setConfirmSkipAll}>
+          <DialogContent data-testid="modal-confirmar-pular-questionario">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-500" />
+                Pular questionário SOLARIS?
+              </DialogTitle>
+              <DialogDescription>
+                Ao pular este questionário, o diagnóstico será gerado com{" "}
+                <strong>confiança reduzida</strong>. Você poderá voltar e
+                responder as perguntas depois.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setConfirmSkipAll(false)}
+                data-testid="btn-cancelar-pular"
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleSkipAll}
+                disabled={skipQuestionnaire.isPending}
+                data-testid="btn-confirmar-pular"
+              >
+                {skipQuestionnaire.isPending ? "Pulando..." : "Confirmar — Pular questionário"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Aviso de perguntas obrigatórias pendentes */}
         {!canSubmit && answeredCount > 0 && (

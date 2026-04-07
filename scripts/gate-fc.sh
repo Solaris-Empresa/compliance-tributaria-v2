@@ -23,11 +23,14 @@ echo "════════════════════════�
 echo ""
 echo "→ Procedures novas em $ROUTER:"
 
+# Procedures são declaradas com exatamente 2 espaços no router (nível raiz do objeto).
+# Campos de objetos internos (ex: solarisSkippedIds em db.updateProject) têm 4+ espaços.
+# O grep -E "^\+  [a-z]" captura apenas linhas com exatamente 2 espaços após o +.
 NEW_PROCS=$(git diff "$BASE" -- "$ROUTER" \
   | grep "^+" \
-  | grep -E "^\+\s+[a-zA-Z][a-zA-Z0-9]+\s*:" \
+  | grep -E "^\+  [a-zA-Z][a-zA-Z0-9]+\s*:" \
   | grep -v "^+++\|\/\/" \
-  | sed 's/.*+\s*//' \
+  | sed 's/^+  //' \
   | sed 's/:.*//' \
   | sed 's/\s//g' \
   | sort -u)
