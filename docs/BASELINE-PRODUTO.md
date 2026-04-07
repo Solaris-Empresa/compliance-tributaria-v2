@@ -4,7 +4,7 @@
 
 > **Versão:** 4.6 — 2026-04-07 (ADR-0016 Etapas 1-4 — PR #391)
 > **Commit HEAD:** `18df234` (pós-PR #391)
-> **Checkpoint Manus:** `d1610519` (novo checkpoint pendente pós-auditoria)
+> **Checkpoint Manus:** `fb96627d` (auditoria pós-merge PR #391 + #392 ✅)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
