@@ -1,21 +1,21 @@
 /**
- * DiagnosticoStepper.tsx — v3.0 (K-4-B)
+ * DiagnosticoStepper.tsx — v3.1 (Z-02 ADR-0010)
  * ─────────────────────────────────────────────────────────────────────────────
- * Exibe o progresso das 8 etapas do diagnóstico tributário (Fluxo A unificado):
- *   1. Onda 1 SOLARIS   → /questionario-solaris
- *   2. Onda 2 IA Gen    → /questionario-iagen        (K-4-C — visual only)
- *   3. Corporativo      → /questionario-corporativo-v2
- *   4. Operacional      → /questionario-operacional
- *   5. CNAE             → /questionario-cnae
- *   6. Briefing         → /briefing-v3
- *   7. Matrizes         → /matrizes-v3
- *   8. Plano            → /plano-v3
+ * Exibe o progresso das 8 etapas do diagnóstico tributário (Fluxo TO-BE Z-02):
+ *   1. Onda 1 SOLARIS          → /questionario-solaris
+ *   2. Onda 2 IA Gen           → /questionario-iagen
+ *   3. Q. de Produtos (NCM)    → /questionario-produto   (Z-02 — substitui QC)
+ *   4. Q. de Serviços (NBS)    → /questionario-servico   (Z-02 — substitui QO)
+ *   5. CNAE                    → /questionario-cnae
+ *   6. Briefing                → /briefing-v3
+ *   7. Matrizes                → /matrizes-v3
+ *   8. Plano                   → /plano-v3
  *
  * Regras de bloqueio (espelham VALID_TRANSITIONS no backend):
  *   - Onda 2 só inicia após Onda 1 = completed
- *   - Corporativo só inicia após Onda 2 = completed
- *   - Operacional só inicia após Corporativo = completed
- *   - CNAE só inicia após Operacional = completed
+ *   - Q.Produtos só inicia após Onda 2 = completed
+ *   - Q.Serviços só inicia após Q.Produtos = completed
+ *   - CNAE só inicia após Q.Serviços = completed
  *   - Briefing só libera após CNAE = completed
  *   - Matrizes só libera após Briefing = completed
  *   - Plano só libera após Matrizes = completed
@@ -117,27 +117,31 @@ const STEPS: {
   {
     id: "corporate",
     number: 3,
-    label: "Questionário Corporativo",
-    description: "QC-01 a QC-10 — Estrutura jurídica, regime tributário e porte da empresa",
+    // Z-02 ADR-0010: label atualizado de "Questionário Corporativo" para "Q. de Produtos (NCM)"
+    label: "Q. de Produtos (NCM)",
+    description: "Perguntas geradas pelos NCMs cadastrados no perfil da empresa",
     lockedMessage: "Conclua o Questionário por IA para desbloquear",
     icon: Building2,
     accentColor: "slate",
+    badge: "Z-02 · NCM",
   },
   {
     id: "operational",
     number: 4,
-    label: "Questionário Operacional",
-    description: "QO-01 a QO-10 — Operações, fluxos e exposição tributária por atividade",
-    lockedMessage: "Conclua o Questionário Corporativo para desbloquear",
+    // Z-02 ADR-0010: label atualizado de "Questionário Operacional" para "Q. de Serviços (NBS)"
+    label: "Q. de Serviços (NBS)",
+    description: "Condicional — só para empresas de serviço, misto ou indústria",
+    lockedMessage: "Conclua o Q. de Produtos para desbloquear",
     icon: Wrench,
     accentColor: "orange",
+    badge: "Z-02 · NBS",
   },
   {
     id: "cnae",
     number: 5,
     label: "Questionário Especializado por CNAE",
     description: "QCNAE-01 a QCNAE-05 — Análise setorial por atividade econômica",
-    lockedMessage: "Conclua o Questionário Operacional para desbloquear",
+    lockedMessage: "Conclua o Q. de Serviços para desbloquear",
     icon: Hash,
     accentColor: "indigo",
   },

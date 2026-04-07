@@ -468,9 +468,11 @@ export default function ProjetoDetalhesV2() {
                 onStartOnda2={() => setLocation(`/projetos/${projectId}/questionario-iagen`)}
                 onStartLayer={(layer) => {
                   if (layer === "corporate") {
-                    setLocation(`/projetos/${projectId}/questionario-corporativo-v2`);
+                    // Z-02 ADR-0010: Q.Produtos (NCM) substitui Questionário Corporativo
+                    setLocation(`/projetos/${projectId}/questionario-produto`);
                   } else if (layer === "operational") {
-                    setLocation(`/projetos/${projectId}/questionario-operacional`);
+                    // Z-02 ADR-0010: Q.Serviços (NBS) substitui Questionário Operacional
+                    setLocation(`/projetos/${projectId}/questionario-servico`);
                   } else if (layer === "cnae") {
                     setLocation(`/projetos/${projectId}/questionario-cnae`);
                   }
