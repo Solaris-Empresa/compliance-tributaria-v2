@@ -131,6 +131,7 @@ O Confidence Score 98% é calculado sobre as seguintes dimensões:
 |------|------|-----------|-----------|
 | 2026-04-01 | SOLARIS_GAPS_MAP 96% ineficaz | 7/10 chaves com acentos vs snake_case no banco — grep aceitou como OK, query real revelou falha | Q6 adicionado ao CONTRIBUTING.md |
 | 2026-04-07 | Gate Q7 implementado como tsc check | Manus interpretou validação de interface como TypeScript check — `npx tsc --noEmit` não captura divergências de nomenclatura (DIV-Z01-003) | Gate Q7 corrigido para grep de interfaces neste PR |
+| 2026-04-07 | Backend implementado sem frontend | product-questions.ts Z-01: 198 testes PASS, UI nunca conectada. Gate FC ausente (DIV-Z01-006) | Gate FC implementado neste PR |
 
 ---
 
