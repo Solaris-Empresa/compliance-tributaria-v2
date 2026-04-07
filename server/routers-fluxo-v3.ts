@@ -39,7 +39,7 @@ import { injectOnda1IntoQuestions } from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
 // v2.1 T3: Adaptador de consolidação do diagnóstico em 3 camadas
-import { consolidateDiagnosticLayers, isDiagnosticComplete, getNextDiagnosticLayer, getDiagnosticProgress } from "./diagnostic-consolidator";
+import { consolidateDiagnosticLayers, isDiagnosticComplete, getNextDiagnosticLayer, getDiagnosticProgress, resolveProjectAnswers, buildProductServiceLayers } from "./diagnostic-consolidator";
 // ADR-005 F-02A: Adaptador centralizado de leitura de diagnóstico (leitura via getDiagnosticSource)
 import { getDiagnosticSource, assertFlowVersion } from "./diagnostic-source";
 // M3 Fase 1: Completude diagnóstica expandida (DEC-M3-01 + DEC-M3-02)
@@ -1863,8 +1863,8 @@ Gere o veredito final em JSON:
         cnaeAnswers = Object.values(byCnae);
       }
 
-      // Consolidar as 3 camadas
-      const aggregatedDiagnosticAnswers = consolidateDiagnosticLayers({
+      // Consolidar as 3 camadas base
+      const baseLayers = consolidateDiagnosticLayers({
         companyProfile: p.companyProfile,
         operationProfile: p.operationProfile,
         taxComplexity: p.taxComplexity,
@@ -1872,6 +1872,11 @@ Gere o veredito final em JSON:
         governanceProfile: p.governanceProfile,
         cnaeAnswers,
       });
+
+      // ADR-0011: Camadas 4+5 — Q.Produtos (NCM) e Q.Serviços (NBS) com fallback V1/V2
+      const { productAnswers: resolvedProduct, serviceAnswers: resolvedService } = resolveProjectAnswers(p);
+      const productServiceLayers = buildProductServiceLayers(resolvedProduct, resolvedService);
+      const aggregatedDiagnosticAnswers = [...baseLayers, ...productServiceLayers];
 
       const progress = getDiagnosticProgress(diagnosticStatus);
       const nextLayer = getNextDiagnosticLayer(diagnosticStatus);
@@ -1886,11 +1891,13 @@ Gere o veredito final em JSON:
         isComplete,
         // Metadados para o frontend
         meta: {
-          totalLayers: 3,
+          totalLayers: 3 + productServiceLayers.length,
           completedLayers: Object.values(diagnosticStatus).filter(s => s === "completed").length,
           corporateAnswersCount: aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "CORPORATIVO")?.questions.length ?? 0,
           operationalAnswersCount: aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "OPERACIONAL")?.questions.length ?? 0,
           cnaeLayersCount: cnaeAnswers.length,
+          productLayerCount: productServiceLayers.filter(l => l.level === "q_produto").length,
+          serviceLayerCount: productServiceLayers.filter(l => l.level === "q_servico").length,
         },
       };
     }),
@@ -2034,8 +2041,8 @@ Gere o veredito final em JSON:
         cnaeAnswers = Object.values(byCnae);
       }
 
-      // Consolidar as 3 camadas
-      const aggregatedDiagnosticAnswers = consolidateDiagnosticLayers({
+      // Consolidar as 3 camadas base
+      const baseLayers = consolidateDiagnosticLayers({
         companyProfile: p.companyProfile,
         operationProfile: p.operationProfile,
         taxComplexity: p.taxComplexity,
@@ -2043,6 +2050,11 @@ Gere o veredito final em JSON:
         governanceProfile: p.governanceProfile,
         cnaeAnswers,
       });
+
+      // ADR-0011: Camadas 4+5 — Q.Produtos (NCM) e Q.Serviços (NBS) com fallback V1/V2
+      const { productAnswers: briefingProduct, serviceAnswers: briefingService } = resolveProjectAnswers(p);
+      const productServiceLayers = buildProductServiceLayers(briefingProduct, briefingService);
+      const aggregatedDiagnosticAnswers = [...baseLayers, ...productServiceLayers];
 
       // Usar o generateBriefing existente com o payload consolidado
       // (sem alterar a lógica interna do generateBriefing)

@@ -394,3 +394,97 @@ export function getDiagnosticProgress(diagnosticStatus: DiagnosticStatus): numbe
   else if (diagnosticStatus.cnae === "in_progress") progress += Math.round(weights.cnae / 2);
   return Math.min(100, progress);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADR-0011 — Resolução de respostas com fallback V3+/V1-V2
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Resolve as respostas de produto e serviço de um projeto,
+ * priorizando as colunas TO-BE (productAnswers/serviceAnswers) da Z-02
+ * e fazendo fallback para as colunas legadas (corporateAnswers/operationalAnswers).
+ *
+ * Projetos V3+ → productAnswers / serviceAnswers
+ * Projetos V1/V2 → corporateAnswers / operationalAnswers
+ */
+export function resolveProjectAnswers(project: Record<string, any>): {
+  productAnswers: any | null;
+  serviceAnswers: any | null;
+} {
+  const parseIfString = (v: any) => {
+    if (!v) return null;
+    if (typeof v === "string") {
+      try { return JSON.parse(v); } catch { return null; }
+    }
+    return v;
+  };
+
+  // Prioridade 1: colunas TO-BE (Z-02)
+  const rawProduct = project.productAnswers ?? project.product_answers ?? null;
+  const rawService = project.serviceAnswers ?? project.service_answers ?? null;
+
+  // Fallback: colunas legadas V1/V2
+  const rawCorporate = project.corporateAnswers ?? project.corporate_answers ?? null;
+  const rawOperational = project.operationalAnswers ?? project.operational_answers ?? null;
+
+  return {
+    productAnswers: parseIfString(rawProduct) ?? parseIfString(rawCorporate),
+    serviceAnswers: parseIfString(rawService) ?? parseIfString(rawOperational),
+  };
+}
+
+/**
+ * Constrói camadas DiagnosticLayer a partir das respostas de produto/serviço
+ * resolvidas por resolveProjectAnswers. Compatível com TrackedAnswer[].
+ */
+export function buildProductServiceLayers(
+  productAnswers: any | null,
+  serviceAnswers: any | null
+): DiagnosticLayer[] {
+  const layers: DiagnosticLayer[] = [];
+
+  const toQuestions = (answers: any): DiagnosticAnswer[] => {
+    if (!answers) return [];
+    // TrackedAnswer[] — formato Z-02
+    if (Array.isArray(answers)) {
+      return answers
+        .filter((a: any) => a && (a.pergunta || a.question) && (a.resposta || a.answer))
+        .map((a: any) => ({
+          question: a.pergunta ?? a.question ?? "",
+          answer: a.resposta ?? a.answer ?? "",
+        }));
+    }
+    // Objeto com campo 'perguntas' (formato Z-01 legado)
+    if (answers.perguntas && Array.isArray(answers.perguntas)) {
+      return answers.perguntas
+        .filter((a: any) => a && (a.pergunta || a.question))
+        .map((a: any) => ({
+          question: a.pergunta ?? a.question ?? "",
+          answer: a.resposta ?? a.answer ?? "Não respondido",
+        }));
+    }
+    return [];
+  };
+
+  const productQs = toQuestions(productAnswers);
+  if (productQs.length > 0) {
+    layers.push({
+      cnaeCode: "NCM_PRODUTO",
+      cnaeDescription: "Questionário de Produtos — NCM e Imposto Seletivo",
+      level: "q_produto",
+      questions: productQs,
+    });
+  }
+
+  const serviceQs = toQuestions(serviceAnswers);
+  if (serviceQs.length > 0) {
+    layers.push({
+      cnaeCode: "NBS_SERVICO",
+      cnaeDescription: "Questionário de Serviços — NBS e Regime Diferenciado",
+      level: "q_servico",
+      questions: serviceQs,
+    });
+  }
+
+  return layers;
+}
