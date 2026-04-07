@@ -131,6 +131,7 @@ O Confidence Score 98% é calculado sobre as seguintes dimensões:
 |------|------|-----------|-----------|
 | 2026-04-01 | SOLARIS_GAPS_MAP 96% ineficaz | 7/10 chaves com acentos vs snake_case no banco — grep aceitou como OK, query real revelou falha | Q6 adicionado ao CONTRIBUTING.md |
 | 2026-04-07 | Gate Q7 implementado como tsc check | Manus interpretou validação de interface como TypeScript check — `npx tsc --noEmit` não captura divergências de nomenclatura (DIV-Z01-003) | Gate Q7 corrigido para grep de interfaces neste PR |
+| 2026-04-07 | Backend implementado sem frontend | product-questions.ts Z-01: 198 testes PASS, UI nunca conectada. Gate FC ausente (DIV-Z01-006) | Gate FC implementado neste PR |
 
 ---
 
@@ -216,3 +217,54 @@ MÉDIO (reportar no body do PR): valor enum diferente · ordem de campos
 | DIV-Z01-001 | DiagnosticLayer.layer vs cnaeCode | Opção A — spec atualizada |
 | DIV-Z01-002 | CpieScore hasData | Opção A — spec atualizada |
 | DIV-Z01-003 | Gate Q7 tsc vs grep | Opção B — código corrigido (este PR) |
+| DIV-Z01-006 | Backend sem frontend | Gate FC implementado (este PR) |
+
+---
+
+## Gate FC — Feature Completeness (v4.3 · 2026-04-07)
+
+**Origem:** BUG-MANUAL-02 — product-questions.ts implementado mas não
+conectado ao frontend. 198 testes passaram; E2E manual falhou.
+
+**Quando aplicar:** obrigatório em todo PR que:
+  - Adiciona procedure em `server/routers-fluxo-v3.ts`
+  - Cria novo endpoint tRPC com interação de usuário
+
+**Comando obrigatório:**
+```bash
+./scripts/gate-fc.sh
+```
+
+**O que verifica:**
+  1. Cada procedure nova tem referência em `client/src/`
+  2. Rota correspondente existe em `App.tsx` (se aplicável)
+  3. `connection-manifest.test.ts` tem entrada para a procedure
+
+**Resultado no body do PR:**
+```
+## Gate FC — Feature Completeness
+Procedures novas: [lista]
+Consumidores verificados: [componentes encontrados]
+Rotas em App.tsx: [verificadas ou N/A]
+connection-manifest.test.ts: [atualizado? sim/não]
+Resultado: [ PASS | BLOQUEADO ]
+```
+
+**Definição de "done" atualizada para features com UI:**
+```
+✅ Testes unitários PASS
+✅ Testes integração backend PASS
+✅ TypeScript 0 erros
+✅ Gate Q7: interfaces validadas
+✅ Gate FC: PASS — procedure tem consumidor no frontend   ← NOVO
+✅ connection-manifest.test.ts atualizado                 ← NOVO
+✅ E2E manual após deploy confirmado pelo P.O.            ← NOVO
+```
+
+**SE Gate FC BLOQUEADO:**
+  → Não mergear o PR
+  → Criar componente frontend antes
+  → Re-executar gate-fc.sh
+  → Atualizar connection-manifest.test.ts
+
+**Histórico:** DIV-Z01-006 · BUG-MANUAL-02 · Sprint Z E2E manual
