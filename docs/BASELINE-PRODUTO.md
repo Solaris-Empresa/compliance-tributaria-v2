@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 4.4 — 2026-04-06 (Pré-Sprint Z — PRs #362–#368)
-> **Commit HEAD:** `57b8f05` (pós-PR #368)
-> **Checkpoint Manus:** `af79a25d`
+> **Versão:** 4.5 — 2026-04-07 (Sprint Z — PRs #364–#389)
+> **Commit HEAD:** `d4e708a` (pós-PR #383)
+> **Checkpoint Manus:** `d1610519`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -25,8 +25,8 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | **0 erros** | ✅ |
-| Testes automatizados — total | **4.064+ passando** (151 arquivos · +15 E2E Sprint M3 UAT) | ✅ |
-| Git working tree | Limpo — `main` = `57b8f05`, sincronizado com GitHub externo | ✅ |
+| Testes automatizados — total | **120/120 passando** (7 arquivos de integração desta sessão · 26/26 Fitness Functions · 47/47 Connection Manifest) | ✅ |
+| Git working tree | Limpo — `main` = `d4e708a`, sincronizado com GitHub externo | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
 | Sprint S | Lotes A+B+C+D+E + Fix #295 — ENCERRADA 2026-04-04 | ✅ |
@@ -34,25 +34,27 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Y** | **BL-01 a BL-05 ✅ · M2.1 ✅ #354 · M3 Fase 1 ✅ #357 · PRs #354–#359** | **✅ ENCERRADA** |
 | **Sprint M3 UAT** | **BUG-UAT-08 ✅ #362 · E2E 15 casos ✅ #364 · BUG-UAT-09+PDF-01 ✅ #365 · Docs ✅ #367** | **✅ ENCERRADA** |
 | **Pré-Sprint Z** | **ADR-0009 criado ✅ #368 · ADR-001/002 supersedidos · ADR-007 atualizado · Sprint Z DESBLOQUEADA** | **✅ CONCLUÍDO** |
+| **Sprint Z — Z-01** | **Q.Produtos (NCM) + Q.Serviços (NBS) rastreados — DEC-M3-05 v1 ✅ #370 · BUG-E2E-01 ✅ #372 · DIV-Z01-004/005 ✅ #374–#375 · riskEngine integrado ✅ #376** | **✅ ENCERRADA** |
+| **Sprint Z — Z-02** | **DEC-M3-05 v3 TO-BE: Q.Produtos NCM + Q.Serviços NBS substituem QC/QO ✅ #381 · Wiring DiagnosticoStepper v3.1 ✅ #387 · BUG-RESP-01 fallback duplo ✅ #383** | **✅ ENCERRADA** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **62** | ✅ |
-| PRs mergeados (total) | **368** | ✅ |
+| PRs mergeados (total) | **389** (23 PRs em 2026-04-07) | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
 | BUG-UAT-09 | ✅ CORRIGIDO (PR #365) | ✅ |
 | BUG-UAT-PDF-01 | ✅ CORRIGIDO (PR #365) | ✅ |
-| ADRs formais | **12** (ADR-001 a ADR-010 + ADR-0009; ADR-001/002 supersedidos; DEC-013/014 Bloco C/D) | ✅ |
+| ADRs formais | **15** (ADR-001 a ADR-010 + ADR-0009/0010/0011/0012/0013; ADR-001/002 supersedidos) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
 | Corpus RAG | **2.509 chunks — 10 leis — 100% com anchor_id** | ✅ |
 | Perguntas SOLARIS ativas | **24 (SOL-013..036)** | ✅ |
 | RAG Cockpit | Endpoint `ragInventory.getSnapshot` ao vivo · 9 gold set queries | ✅ |
-| Agent Skills | Manus `/solaris-orquestracao` v3.1 ✅ · Claude `solaris-contexto` v4.2 ✅ | ✅ |
+| Agent Skills | Manus `/solaris-orquestracao` v3.1 ✅ · Claude `solaris-contexto` **v4.7** ✅ | ✅ |
 | Decision Kernel | `ncm-engine.ts` + `nbs-engine.ts` + `engine-gap-analyzer.ts` — source='engine' ativo | ✅ |
-| CI Workflows | **12 ativos** (branch-scope, file-declaration, autoaudit + 9 pré-existentes) | ✅ |
+| CI Workflows | **13 ativos** (branch-scope, file-declaration, autoaudit, smoke-post-deploy + 9 pré-existentes) | ✅ |
 | CODEOWNERS | 15 entradas (`@utapajos` em arquivos críticos) | ✅ |
 | db:push guard | Bloqueado em production — `scripts/db-push-guard.mjs` | ✅ |
 | Pipeline E2E | T1 ✅ T2 ✅ validados em produção | ✅ |
@@ -171,14 +173,14 @@ O contrato `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174, mergea
 
 | Etapa | Nome | Tabela de persistência | Status |
 |---|---|---|---|
-| 1 | Onda 1 — Questionário SOLARIS | `solaris_answers` | ✅ K-4-A + K-4-B |
-| 2 | Onda 2 — Questionário IA Generativa | `iagen_answers` | 🔜 K-4-C |
-| 3 | Corporativo | `corporateAnswers` | ✅ Existente |
-| 4 | Operacional | `operationalAnswers` | ✅ Existente |
-| 5 | CNAE | `cnaeAnswers` | ✅ Existente |
-| 6 | Briefing | `briefingContentV3` | ✅ Existente |
-| 7 | Matrizes | `riskMatricesDataV3` | ✅ Existente |
-| 8 | Plano | `actionPlansDataV3` | ✅ Existente |
+| 1 | Perfil da empresa (absorve dados corporativos + NCM/NBS) | `projects.operationProfile` | ✅ Z-02 |
+| 2 | Onda 1 — Questionário SOLARIS | `solaris_answers` | ✅ K-4-A + K-4-B |
+| 3 | Onda 2 — Questionário IA Generativa | `iagen_answers` | ✅ K-4-C |
+| 4 | **Q. de Produtos (NCM)** — perguntas geradas pelos NCMs cadastrados | `productAnswers` | ✅ **Z-02 DEC-M3-05 v3** |
+| 5 | **Q. de Serviços (NBS)** — condicional: só para serviços/misto | `serviceAnswers` | ✅ **Z-02 DEC-M3-05 v3** |
+| 6 | CNAE | `cnaeAnswers` | ✅ Existente |
+| 7 | Consolidadores (completude + diagnóstico) — M3 calcula status antes do briefing | `diagnostic_consolidator.ts` | ✅ Z-02 |
+| 8 | Briefing → Ações → Plano → Tarefas | `briefingContentV3` / `riskMatricesDataV3` / `actionPlansDataV3` | ✅ Existente |
 
 **State Machine (`server/flowStateMachine.ts`):** `VALID_TRANSITIONS` e `assertValidTransition` adicionados em K-4-A. Enforcement integrado em `completeOnda1` (K-4-B). Transição canônica: `rascunho → onda1_solaris → onda2_iagen → diagnostico_corporativo → ...`
 
@@ -202,6 +204,10 @@ O contrato `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174, mergea
 | ADR-008 | Estratégia de migração F-04 (schema V1/V3) | ✅ Aprovado v1.1 |
 | ADR-009 | Shadow Mode — comparação background V1/V3 | ✅ Implementado |
 | ADR-010 | Arquitetura Canônica de Conteúdo Diagnóstico — 6 engines + contratos I/O | ✅ Aprovado |
+| ADR-0010 | Substituição QC/QO por Q.Produtos (NCM) + Q.Serviços (NBS) — DEC-M3-05 v3 | ✅ Aprovado |
+| ADR-0011 | Consolidação de respostas — `resolveProjectAnswers` com fallback V3+/V1-V2 | ✅ Aprovado |
+| ADR-0012 | Mapeamento canônico Art. 57 vs Art. 2 IS (LC 214/2025) — BUG-MANUAL-03 | ✅ Aprovado |
+| ADR-0013 | Badge `risk_category_l2` no frontend — `CategoryBadge` em `RisksV3` | ✅ Aprovado |
 
 ---
 
@@ -240,7 +246,7 @@ O contrato `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174, mergea
 
 ### PRs Abertos
 
-Nenhum PR aberto no momento. Sprint T / Milestone 1 encerrado em 2026-04-05.
+Nenhum PR aberto no momento. Sprint Z encerrada em 2026-04-07 (23 PRs mergeados).
 
 ---
 
@@ -363,7 +369,7 @@ Todas as 4 sub-sprints K-4-A, K-4-B, K-4-C e K-4-D foram concluídas e aprovadas
 | Shadow Monitor (`/admin/shadow-monitor`) | ✅ Funcional | 4 métricas, gráfico 24h, clearOld |
 | Dashboard UAT (`getUatProgress`) | ✅ Funcional | — |
 | Descoberta de CNAEs por IA | ✅ Funcional | Requer `OPENAI_API_KEY` válida (ver ERR-006) |
-| DiagnosticoStepper v3.0 — 8 etapas | ✅ Funcional | K-4-B aprovado pelo P.O. |
+| DiagnosticoStepper **v3.1** — 8 etapas (TO-BE Z-02) | ✅ Funcional | Z-02 #387 — labels TO-BE + wiring correto |
 | Questionário SOLARIS (Onda 1) | ✅ Funcional | K-4-B — badge azul, SOL-001..012, `completeOnda1` |
 | Questionário IA Generativa (Onda 2) | ✅ Funcional | K-4-C — badge laranja, LLM 5-10 perguntas, fallback 30s |
 | Stepper etapas 7-8 (Matrizes + Plano) | ✅ Funcional | K-4-D — PR #184 mergeado · navega para `/matrizes-v3` e `/plano-v3` |
@@ -379,6 +385,7 @@ Todas as 4 sub-sprints K-4-A, K-4-B, K-4-C e K-4-D foram concluídas e aprovadas
 | `0052_stormy_phalanx.sql` | F-04 Fase 1 — ADD COLUMN 6 colunas V1/V3 |
 | `0053_slow_maggott.sql` | Tabela `diagnostic_shadow_divergences` para Shadow Mode |
 | `0058` (K-4-A) | `CREATE TABLE solaris_answers` · `CREATE TABLE iagen_answers` · `ALTER TABLE solaris_questions ADD COLUMN codigo VARCHAR(10)` · `ALTER TABLE projects MODIFY COLUMN status` (ADD `onda1_solaris`, `onda2_iagen`) |
+| `0059–0062` (Z-01/Z-02) | Migrations Sprint Z — Q.Produtos NCM + Q.Serviços NBS + `productAnswers`/`serviceAnswers` + `risk_category_l2` |
 
 **Rollback K-4-A:**
 ```sql
@@ -414,6 +421,8 @@ DROP TABLE IF EXISTS iagen_answers;
 | 3.1 | 2026-04-02 | `d08c12a` | Sprint S Lote D: corpus RAG 5 novas leis (2.454 chunks, 10 leis). Skill solaris-contexto v4.0. PRs #293+#296. |
 | 3.2 | 2026-04-04 | `d08c12a` | Sprint S encerrada: fix isNonCompliantAnswer (PR #295) — iagen-gap-analyzer usa conteúdo da resposta (não confidence_score). T1 validado: projeto 2490006 → iagen=3. 1.436 testes, 0 falhas. 24 perguntas SOLARIS ativas. |
 | **3.3** | **2026-04-05** | **`d562127`** | **Milestone 1 Decision Kernel: Sprint T Pre-M1 encerrada (PRs #302–#316). GOV: Skill v4.2 · CODEOWNERS 15 entradas · 12 CI workflows. Contratos CNT-01a/01b/02/03. ncm-engine + nbs-engine + engine-gap-analyzer. 5/6 casos NCM/NBS validados (Dr. Rodrigues). Gate triplo aprovado (Técnico + Jurídico + P.O.). 1.470 testes, 0 falhas, 0 TS erros. Baseline v3.3 oficial.** |
+| 4.4 | 2026-04-06 | `57b8f05` | Pré-Sprint Z: ADR-0009 criado · ADR-001/002 supersedidos · ADR-007 atualizado · Sprint Z DESBLOQUEADA. PRs #362–#368. |
+| **4.5** | **2026-04-07** | **`d4e708a`** | **Sprint Z encerrada (23 PRs — #364–#389). Z-01: Q.Produtos NCM + Q.Serviços NBS rastreados · riskEngine integrado. Z-02: DEC-M3-05 v3 TO-BE — QC/QO substituídos · DiagnosticoStepper v3.1 labels + wiring · resolveProjectAnswers fallback duplo [ADR-0011] · CategoryBadge risk_category_l2 [ADR-0013] · mapeamento Art. 57/Art. 2 IS [ADR-0012]. Gate POST-DEPLOY /api/health + smoke.sh [v4.6]. Skill solaris-contexto v4.7. 120/120 testes · 26/26 FF · 0 TS erros. Checkpoint d1610519.** |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
