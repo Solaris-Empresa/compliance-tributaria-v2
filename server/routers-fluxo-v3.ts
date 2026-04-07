@@ -1076,9 +1076,14 @@ Gere o Briefing estruturado em JSON:
     .mutation(async ({ input }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
-      // BUG-UAT-08: assertValidTransition universal
+      // BUG-UAT-09: fluxo correto é diagnostico_cnae → briefing → matriz_riscos
+      // approveBriefing aceita tanto 'diagnostico_cnae' (primeira aprovação) quanto 'briefing' (re-aprovação)
       const { assertValidTransition } = await import('./flowStateMachine');
-      assertValidTransition(project.status, 'matriz_riscos');
+      if (project.status === 'diagnostico_cnae') {
+        assertValidTransition(project.status, 'briefing');
+      } else {
+        assertValidTransition(project.status, 'matriz_riscos');
+      }
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await database
