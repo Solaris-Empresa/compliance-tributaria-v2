@@ -216,3 +216,103 @@ MÉDIO (reportar no body do PR): valor enum diferente · ordem de campos
 | DIV-Z01-001 | DiagnosticLayer.layer vs cnaeCode | Opção A — spec atualizada |
 | DIV-Z01-002 | CpieScore hasData | Opção A — spec atualizada |
 | DIV-Z01-003 | Gate Q7 tsc vs grep | Opção B — código corrigido (este PR) |
+
+---
+
+## Gate FC — Feature Completeness (v4.3 · 2026-04-07)
+
+**Origem:** BUG-MANUAL-02 — `product-questions.ts` implementado na Sprint Z-01
+sem nenhum consumidor no frontend. 198 testes passaram, E2E manual revelou
+que o fluxo não existia na UI.
+
+**Quando aplicar:** obrigatório em todo PR que adiciona procedures tRPC novas.
+
+**Comando obrigatório:**
+```bash
+./scripts/gate-fc.sh
+```
+
+**Resultado obrigatório no body do PR:**
+```
+## Gate FC
+Procedures novas: [lista ou "nenhuma"]
+Consumidores no frontend: [componentes ou N/A]
+Resultado: [ PASS | BLOQUEADO ]
+```
+
+**O que o gate teria dito na Sprint Z-01:**
+```
+❌ BLOQUEADO: 'getProductQuestions' não tem consumidor em client/src/
+❌ BLOQUEADO: 'getServiceQuestions' não tem consumidor em client/src/
+```
+
+---
+
+## Gate ADR — Architecture Decision Record (v4.4 · 2026-04-07)
+
+**Origem:** E2E manual descobriu que DEC-M3-05 nunca teve ADR no fluxo de
+desenvolvimento. O ADR-0010 foi criado APÓS a falha — não antes.
+
+**Quando aplicar:** obrigatório em todo PR que modifica:
+  - `server/flowStateMachine.ts`
+  - `drizzle/schema.ts`
+  - `server/routers-fluxo-v3.ts`
+  - `client/src/App.tsx`
+  - `client/src/pages/DiagnosticoStepper.tsx`
+  - `server/lib/tracked-question.ts`
+  - `server/lib/completeness.ts`
+  - `server/lib/risk-categorizer.ts`
+
+**Comando obrigatório:**
+```bash
+./scripts/gate-adr.sh
+```
+
+**Fitness Functions automáticas:**
+```bash
+pnpm vitest run server/integration/fitness-functions.test.ts
+```
+
+**Resultado obrigatório no body do PR:**
+```
+## Gate ADR
+Arquivos arquiteturais: [lista]
+ADR referenciado: [ ADR-XXXX | N/A ]
+Contrato atualizado: [ sim | N/A ]
+Fitness: [ PASS | FALHAS ]
+Resultado: [ PASS | BLOQUEADO ]
+```
+
+**O que fazer SE bloqueado:**
+  1. Criar ADR em `docs/adr/ADR-XXXX-descricao.md`
+  2. Se mudança de interface: criar `docs/contratos/CONTRATO-*.md`
+  3. Atualizar `docs/adr/ADR-INDEX.md`
+  4. Re-executar `gate-adr.sh`
+
+**Definição de "done" atualizada — features arquiteturais:**
+```
+✅ Testes backend PASS
+✅ TypeScript 0 erros
+✅ Gate Q7 PASS
+✅ Gate FC PASS
+✅ Gate ADR PASS              ← NOVO v4.4
+✅ Fitness Functions PASS     ← NOVO v4.4
+✅ PR template preenchido     ← NOVO v4.4
+✅ E2E manual pelo P.O.
+```
+
+**Princípio:**
+> Documentos não participam da entrega. Testes sim.
+> Um ADR documenta a decisão. Uma Fitness Function garante a decisão.
+> — *Building Evolutionary Architectures* · Neal Ford, Rebecca Parsons, Patrick Kua
+
+---
+
+## Erros recorrentes — histórico
+
+| Data | Erro | Causa | Prevenção ativa |
+|---|---|---|---|
+| 2026-04-01 | SOLARIS_GAPS_MAP 96% ineficaz | 7/10 chaves com acentos vs snake_case | Q6 adicionado |
+| 2026-04-07 | Gate Q7 como tsc check | Manus interpretou validação de interface como TypeScript check | Gate Q7 corrigido para grep |
+| 2026-04-07 | Backend sem frontend (BUG-MANUAL-02) | product-questions.ts Z-01 sem consumidor | Gate FC implementado |
+| 2026-04-07 | DEC-M3-05 sem ADR no fluxo de dev | ADR-0010 criado após E2E manual revelar falha | Gate ADR implementado |

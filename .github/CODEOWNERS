@@ -33,3 +33,11 @@
 /server/routers/scoringEngine.ts           @utapajos
 /skills/solaris-contexto/SKILL.md          @utapajos
 /skills/solaris-orquestracao/SKILL.md      @utapajos
+
+# ─── ADRs e Contratos — revisão obrigatória do Orquestrador ─────────────────
+# Qualquer ADR ou Contrato novo exige aprovação antes do merge.
+# Garante que o Orquestrador revisa toda decisão arquitetural documentada.
+# Adicionado: governance/fitness-functions-adr-contrato · 2026-04-07
+/docs/adr/           @utapajos
+/docs/contratos/     @utapajos
+/docs/divergencias/  @utapajos
