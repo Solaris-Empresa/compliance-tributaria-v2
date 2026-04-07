@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v4.9.2 · 2026-04-06 (Sprint Y encerrada · M3 Fase 1 · HEAD ad08a97 · PRs #354–#359)** · Responsável: Orquestrador gera, Manus commita
+> **v4.9.3 · 2026-04-06 (Sprint M3 UAT · HEAD d820163 · PRs #362–#365)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v4.4 · **HEAD:** `ad08a97` (origin/main) · **Testes:** 4.064+ (151 arquivos · +3 Sprint Y/M3)  
+**Baseline:** v4.4 · **HEAD:** `d820163` (origin/main) · **Testes:** 4.064+ (151 arquivos · +15 E2E Sprint M3 UAT)  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -17,6 +17,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 **Sprint W:** ✅ ENCERRADA — M2 COMPLETO (A ✅ #337 · D ✅ #338 · UX ✅ #339 · B ✅ #344 · C ✅ #345 · docs #340–#343)  
 **Sprint X:** ✅ ENCERRADA — falhas conhecidas = 0 (T-B7-08/T-B7-10 ✅ #347 · BUG-UAT-04 ✅ #348 · BUG-UAT-05 ✅ #349)  
 **Sprint Y:** ✅ ENCERRADA — BL-01 a BL-05 concluídos (PRs #355 + #356)
+**Sprint M3 UAT:** 🔄 EM ANDAMENTO — BUG-UAT-08 ✅ #362 · E2E 15 casos ✅ #364 · BUG-UAT-09+PDF-01 ✅ #365 · BL-06 ⏳ backlog
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -26,7 +27,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `ad08a97`
+- **Branch base:** main · **HEAD:** `d820163`
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git restore --staged`
@@ -48,13 +49,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (origin/main) | `ad08a97` | ✅ |
+| HEAD (origin/main) | `d820163` | ✅ |
 | Baseline | **v4.4** | ✅ |
 | Testes passando | **4.064+** (151 arquivos · 2 falhas pré-existentes conhecidas T-B7-08/T-B7-10) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | CI Workflows | **12 ativos** + invariant-check (GOV-03b) | ✅ |
 | CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
-| PRs mergeados (total) | **359** | ✅ |
+| PRs mergeados (total) | **365** | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
@@ -183,6 +184,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | **W** | **M2 COMPLETO: A ✅ #337 · D ✅ #338 · UX ✅ #339 · B ✅ #344 · C ✅ #345** | **✅ ENCERRADA** |
 | **X** | **Dívidas técnicas: T-B7-08/T-B7-10 ✅ #347 · BUG-UAT-04 ✅ #348 · BUG-UAT-05 ✅ #349** | **✅ ENCERRADA** |
 | **Y** | **BL-01 assertValidTransition ✅ #355 · BL-02/03/04 testes ✅ #355 · BL-05 badge ✅ #356 · M2.1 ✅ #354 · M3 Fase 1 ✅ #357** | **✅ ENCERRADA** |
+| **Sprint M3 UAT** | **BUG-UAT-08 ✅ #362 · E2E 15 casos ✅ #364 · BUG-UAT-09+PDF-01 ✅ #365** | **🔄 EM ANDAMENTO** |
 
 ---
 
@@ -414,18 +416,26 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-## 13. Backlog Sprint Y (não bloqueiam E2E)
+## 13. Backlog Sprint M3 UAT
+| ID | Ação | Prioridade | Tamanho | Status |
+|---|---|---|---|---|
+| BL-01 | `assertValidTransition` em `completeDiagnosticLayer` | P2 | ~5 linhas | ✅ PR #362 |
+| BL-02 | Teste de integração `completeOnda2` — handler completo | P2 | 1 arquivo novo | ✅ PR #362 |
+| BL-03 | Teste de integração `completeDiagnosticLayer` | P3 | 1 arquivo novo | ✅ PR #362 |
+| BL-04 | Teste de integração `updateDiagnosticStatus` | P3 | 1 arquivo novo | ✅ PR #362 |
+| BL-05 | Badge de completude diagnóstica no briefing | P2 | ~20 linhas | ✅ PR #356 |
+| BL-06 | `vi.mock` path mismatch em `routers-fluxo-v3-etapas2-5.test.ts` (`"./db"` → `"../db"`) | P3 | ~5 linhas | ⏳ backlog |
 
-| ID | Ação | Prioridade | Tamanho |
-|---|---|---|---|
-| BL-01 | `assertValidTransition` em `completeDiagnosticLayer` | P2 | ~5 linhas |
-| BL-02 | Teste de integração `completeOnda2` — handler completo | P2 | 1 arquivo novo |
-| BL-03 | Teste de integração `completeDiagnosticLayer` | P3 | 1 arquivo novo |
-| BL-04 | Teste de integração `updateDiagnosticStatus` | P3 | 1 arquivo novo |
+### PRs Sprint M3 UAT
+| PR | Título | Status |
+|---|---|---|
+| #362 | fix: BUG-UAT-08 — VALID_TRANSITIONS + assertValidTransition universal | ✅ mergeado |
+| #364 | test: E2E fluxo completo — 15 casos automatizados | ✅ mergeado |
+| #365 | fix: BUG-UAT-09 + BUG-UAT-PDF-01 — approveBriefing atômico + PDF status | ✅ mergeado |
 
-> Fonte: Auditoria P2 (2026-04-06) · Orquestrador aprovado · DEC-M2-09
+> Fonte: Auditoria P2 (2026-04-06) · Orquestrador aprovado · DEC-M2-09 · DEC-M3-05
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (v4.9.1 · BUG-UAT-06 ✅ PR #352 · PRs #347–#353 · HEAD 94c241f)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (v4.9.3 · Sprint M3 UAT · PRs #362–#365 · HEAD d820163)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*

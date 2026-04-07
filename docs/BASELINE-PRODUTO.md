@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 3.3 — 2026-04-05 (Milestone 1 — Decision Kernel — PRs #302–#316)
-> **Commit HEAD:** `d562127` (baseline v4.1 — PR #316)
-> **Checkpoint Manus:** `120b4f11`
+> **Versão:** 4.4 — 2026-04-06 (Sprint M3 UAT — PRs #362–#365)
+> **Commit HEAD:** `d820163` (pós-PR #365)
+> **Checkpoint Manus:** `cdb4e22e`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -25,20 +25,28 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | **0 erros** | ✅ |
-| Testes automatizados — total | **1.470 passando · 0 falhas** (72 files) | ✅ |
-| Git working tree | Limpo — `main` = `d562127`, sincronizado com GitHub externo | ✅ |
+| Testes automatizados — total | **4.064+ passando** (151 arquivos · +15 E2E Sprint M3 UAT) | ✅ |
+| Git working tree | Limpo — `main` = `d820163`, sincronizado com GitHub externo | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
 | Sprint S | Lotes A+B+C+D+E + Fix #295 — ENCERRADA 2026-04-04 | ✅ |
 | **Sprint T / Milestone 1** | **Decision Kernel: ncm-engine + nbs-engine + engine-gap-analyzer. 5/6 casos validados. Gate triplo aprovado. PRs #302–#316 — ENCERRADO 2026-04-05** | **✅** |
+| **Sprint Y** | **BL-01 a BL-05 ✅ · M2.1 ✅ #354 · M3 Fase 1 ✅ #357 · PRs #354–#359** | **✅ ENCERRADA** |
+| **Sprint M3 UAT** | **BUG-UAT-08 ✅ #362 · E2E 15 casos ✅ #364 · BUG-UAT-09+PDF-01 ✅ #365** | **🔄 EM ANDAMENTO** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **62** | ✅ |
+| PRs mergeados (total) | **365** | ✅ |
+| UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
+| Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
+| BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
+| BUG-UAT-09 | ✅ CORRIGIDO (PR #365) | ✅ |
+| BUG-UAT-PDF-01 | ✅ CORRIGIDO (PR #365) | ✅ |
 | ADRs formais | **11** (ADR-001 a ADR-010; ADR-004 rejeitado; DEC-013/014 Bloco C/D) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
-| Corpus RAG | **2.454 chunks — 10 leis — 100% com anchor_id** | ✅ |
+| Corpus RAG | **2.509 chunks — 10 leis — 100% com anchor_id** | ✅ |
 | Perguntas SOLARIS ativas | **24 (SOL-013..036)** | ✅ |
 | RAG Cockpit | Endpoint `ragInventory.getSnapshot` ao vivo · 9 gold set queries | ✅ |
 | Agent Skills | Manus `/solaris-orquestracao` v3.1 ✅ · Claude `solaris-contexto` v4.2 ✅ | ✅ |
@@ -57,7 +65,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Total de projetos | **8.812** (produção — 2026-04-04) |
 | Projetos em andamento | **154** |
 | Projetos aprovados | **7** |
-| Chunks RAG no banco | **2.454** — 100% com anchor_id canônico (DEC-002) |
+| Chunks RAG no banco | **2.509** — 100% com anchor_id canônico (DEC-002) |
 | Perguntas SOLARIS ativas | **24** — SOL-013..SOL-036 com `codigo` populado |
 | Gaps engine (source='engine') | Ativo em `project_gaps_v3` — 5/6 casos NCM/NBS confirmados |
 | Respostas Onda 1 (`solaris_answers`) | Tabela ativa — T1 validado (projeto 2490006) |
@@ -172,6 +180,10 @@ O contrato `docs/arquitetura/FLUXO-3-ONDAS-AS-IS-TO-BE.md v1.1` (PR #174, mergea
 | 8 | Plano | `actionPlansDataV3` | ✅ Existente |
 
 **State Machine (`server/flowStateMachine.ts`):** `VALID_TRANSITIONS` e `assertValidTransition` adicionados em K-4-A. Enforcement integrado em `completeOnda1` (K-4-B). Transição canônica: `rascunho → onda1_solaris → onda2_iagen → diagnostico_corporativo → ...`
+
+**BUG-UAT-08 (PR #362):** `VALID_TRANSITIONS` universalizado + `assertValidTransition` aplicado em todos os handlers do fluxo (`completeOnda1`, `completeOnda2`, `completeDiagnosticLayer`, `approveBriefing`, `approveMatrices`, `approveActionPlan`).
+
+**BUG-UAT-09 (PR #365):** `approveBriefing` corrigido para transição atômica `diagnostico_cnae → briefing → matriz_riscos` (2 asserts + 1 `db.update`). DEC-M3-05 aprovada pelo Orquestrador.
 
 ---
 
