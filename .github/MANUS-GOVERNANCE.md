@@ -317,3 +317,138 @@ Resultado: [ PASS | BLOQUEADO ]
 | 2026-04-07 | Gate Q7 como tsc check | Manus interpretou validação de interface como TypeScript check | Gate Q7 corrigido para grep |
 | 2026-04-07 | Backend sem frontend (BUG-MANUAL-02) | product-questions.ts Z-01 sem consumidor | Gate FC implementado |
 | 2026-04-07 | DEC-M3-05 sem ADR no fluxo de dev | ADR-0010 criado após E2E manual revelar falha | Gate ADR implementado |
+
+---
+
+## Gate E2E — Cobertura de Frontend (v4.5 · 2026-04-07)
+
+**Origem:** BUG-MANUAL-02 — 198 testes backend PASS, UI entregava fluxo errado.
+O P.O. validou manualmente o que deveria ser verificado automaticamente.
+
+**Princípio:**
+> P.O. NÃO valida manualmente antes do workflow e2e-frontend.yml estar verde.
+> P.O. valida julgamento, não cliques.
+
+### Quando o Gate E2E é obrigatório
+
+Todo PR que altere qualquer arquivo em:
+- `client/src/pages/**`
+- `client/src/components/**`
+- `client/src/App.tsx`
+
+**Deve ter:**
+1. Spec E2E correspondente em `playwright/e2e/`
+2. Workflow `e2e-frontend.yml` passando no CI
+
+### Estrutura dos specs E2E
+
+```
+playwright/e2e/
+  helpers/
+    auth.ts          ← loginViaTestEndpoint (sem OAuth)
+    projeto.ts       ← criarProjetoViaApi + aguardarStatus
+  fluxo-produto.spec.ts    ← E2E-P-01..E2E-P-05
+  fluxo-servico.spec.ts    ← E2E-S-01..E2E-S-04
+  fluxo-misto.spec.ts      ← E2E-M-01..E2E-M-04
+```
+
+### Testes TO-BE (documentação de bugs como contratos)
+
+Testes marcados com `[TO-BE Z-02]` **falham intencionalmente** até Z-02 mergear.
+Quando Z-02 mergear, estes testes passam automaticamente — zero alteração nos specs.
+
+| Spec | TO-BE | Documenta |
+|---|---|---|
+| `fluxo-produto.spec.ts` | E2E-P-03, E2E-P-04, E2E-P-05 | QuestionarioProduto + NaoAplicavelBanner |
+| `fluxo-servico.spec.ts` | E2E-S-03, E2E-S-04 | QuestionarioServico + NaoAplicavelBanner |
+| `fluxo-misto.spec.ts` | E2E-M-03, E2E-M-04 | Fluxo misto sem banner |
+
+### Configuração de secrets (GitHub)
+
+| Secret | Valor | Onde obter |
+|---|---|---|
+| `E2E_TEST_SECRET` | Valor de `E2E_TEST_SECRET` no servidor | Manus Secrets |
+| `PLAYWRIGHT_BASE_URL` | `https://iasolaris.manus.space` | Fixo |
+
+### Seed do usuário de teste
+
+```bash
+npx tsx scripts/seed-test-user.ts
+# Cria: e2e-test@solaris.internal (openId: e2e-test-user, role: admin)
+```
+
+### Definição de "done" atualizada — features de frontend
+
+```
+✅ Testes backend PASS
+✅ TypeScript 0 erros
+✅ Gate Q7 PASS
+✅ Gate FC PASS
+✅ Gate ADR PASS
+✅ Fitness Functions PASS (FF-23/24/25 incluídas)
+✅ E2E specs criados para páginas novas
+✅ e2e-frontend.yml PASS no CI
+✅ PR template preenchido
+✅ E2E manual pelo P.O. (após CI verde)
+```
+
+---
+
+## Gate POST-DEPLOY — Smoke Tests de Produção (v4.6 · 2026-04-07)
+
+**Origem:** Z-02 mergeado com 47/47 PASS mas produção exibia QC legado.
+Descoberto no E2E manual do P.O. 40 minutos após o merge.
+Gate POST-DEPLOY detecta o mesmo problema em < 3 minutos.
+
+### Quando executar
+
+Obrigatório **após todo merge para main** — antes do E2E manual do P.O.
+
+```bash
+# Smoke tests de produção (< 60s)
+./scripts/smoke.sh https://iasolaris.manus.space
+
+# Com SHA esperado (recomendado):
+EXPECTED_SHA=<7-chars-do-commit-mergeado> ./scripts/smoke.sh https://iasolaris.manus.space
+```
+
+### Smoke Tests (S-01..S-05)
+
+| ID | Verificação | Critério |
+|----|-------------|----------|
+| S-01 | `/api/health` responde | `status=healthy` |
+| S-02 | SHA match | SHA deployado = SHA esperado |
+| S-03 | `/questionario-produto` existe | HTTP 200/302/401 (não 404) |
+| S-04 | `/questionario-servico` existe | HTTP 200/302/401 (não 404) |
+| S-05 | OAuth API responde | HTTP 200/302/400/401 (não 404) |
+
+### GitHub Action
+
+`.github/workflows/smoke-post-deploy.yml` — dispara automaticamente em `deployment_status`.
+Comenta resultado no commit. Falha o workflow se smoke tests falharem.
+
+### Resultado no body do PR
+
+```
+## Gate POST-DEPLOY
+SHA: [sha-7-chars]
+Health: [ healthy | degraded ]
+Smoke: [ PASS | FALHOU ]
+Resultado: [ PASS | BLOQUEADO ]
+```
+
+### Definição de "done" atualizada — qualquer PR (v4.6)
+
+```
+✅ Testes backend PASS
+✅ TypeScript 0 erros
+✅ Gate Q7 PASS
+✅ Gate FC PASS
+✅ Gate ADR PASS
+✅ Fitness Functions PASS (FF-23/24/25 incluídas)
+✅ E2E specs criados para páginas novas
+✅ e2e-frontend.yml PASS no CI
+✅ PR template preenchido
+✅ Gate POST-DEPLOY PASS (smoke.sh em produção)  ← NOVO v4.6
+✅ E2E manual pelo P.O. (após Gate POST-DEPLOY verde)
+```

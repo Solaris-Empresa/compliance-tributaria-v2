@@ -1,0 +1,94 @@
+# .github/workflows/smoke-post-deploy.yml
+# Gate POST-DEPLOY — Smoke Tests de Produção SOLARIS
+#
+# Origem: Z-02 mergeado com 47/47 PASS mas produção exibia QC legado.
+# Descoberto no E2E manual do P.O. 40 minutos após o merge.
+# Gate POST-DEPLOY detecta o mesmo problema em < 3 minutos.
+#
+# Referência: MANUS-GOVERNANCE.md v4.6
+
+name: Smoke Tests — Post Deploy
+
+# Disparado automaticamente após deploy completar com sucesso
+# Suporte a plataformas comuns de deploy (Railway, Render, Vercel, etc.)
+on:
+  deployment_status:   # trigger padrão GitHub para qualquer deploy
+
+  # Fallback: pode ser disparado manualmente também
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'URL de produção para testar'
+        required: false
+        default: 'https://iasolaris.manus.space'
+
+jobs:
+  smoke-test:
+    name: Smoke Tests de Produção
+    runs-on: ubuntu-latest
+    # Só executar quando o deploy teve sucesso
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'deployment_status' &&
+       github.event.deployment_status.state == 'success')
+    timeout-minutes: 5
+
+    env:
+      PLAYWRIGHT_BASE_URL: ${{ github.event.deployment_status.target_url || inputs.base_url || 'https://iasolaris.manus.space' }}
+      # SHA esperado = commit que disparou o deploy (primeiros 7 chars)
+      EXPECTED_SHA: ${{ github.event.deployment.sha && github.event.deployment.sha[:7] || github.sha[:7] }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Aguardar estabilização do deploy
+        run: sleep 15
+        # Deploy pode levar alguns segundos para propagar
+
+      - name: Executar smoke tests
+        id: smoke
+        run: |
+          chmod +x scripts/smoke.sh
+          ./scripts/smoke.sh "$PLAYWRIGHT_BASE_URL"
+
+      - name: Comentar resultado no commit/PR
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const passed  = '${{ steps.smoke.outcome }}' === 'success'
+            const baseUrl = '${{ env.PLAYWRIGHT_BASE_URL }}'
+            const sha     = '${{ env.EXPECTED_SHA }}'
+            const title   = passed
+              ? '✅ Gate POST-DEPLOY: PASS — produção atualizada'
+              : '❌ Gate POST-DEPLOY: FALHOU — produção pode estar na versão errada'
+
+            const body = `## ${title}
+
+**URL:** ${baseUrl}
+**SHA deployado:** \`${sha}\`
+**Timestamp:** ${new Date().toISOString()}
+
+${passed
+  ? '### O que foi verificado\n- S-01: /api/health → healthy ✅\n- S-02: SHA match ✅\n- S-03: /questionario-produto → registrado ✅\n- S-04: /questionario-servico → registrado ✅\n- S-05: OAuth API → respondendo ✅'
+  : '### ⚠️ Ação necessária\nO deploy pode não ter completado. Verificar:\n1. Logs do deploy na plataforma\n2. Re-executar deploy manualmente\n3. Reportar ao Orquestrador\n\nVer detalhes no [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})'
+}`
+
+            // Comentar no commit (visível em qualquer PR associado)
+            try {
+              await github.rest.repos.createCommitComment({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                commit_sha: '${{ github.event.deployment.sha || github.sha }}',
+                body,
+              })
+            } catch (e) {
+              console.log('Não foi possível comentar no commit:', e.message)
+            }
+
+      - name: Falhar workflow se smoke tests falharam
+        if: steps.smoke.outcome == 'failure'
+        run: |
+          echo "❌ Smoke tests falharam — verificar produção"
+          exit 1
