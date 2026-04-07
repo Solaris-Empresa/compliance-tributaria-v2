@@ -1,6 +1,6 @@
 # ADR-002 — Plano de Implementação com Rollback: Migração Arquitetural do Diagnóstico
 **Plataforma COMPLIANCE da Reforma Tributária**
-**Data:** 22/03/2026 | **Versão:** 1.0 | **Status:** APROVADO PARA EXECUÇÃO (condicionado ao checklist de segurança)
+**Data:** 22/03/2026 | **Versão:** 1.0 | **Status:** SUPERSEDIDO — State machine substituída por ADR-0009 (2026-04-06)
 **Referência:** ADR-001 (Decisão Arquitetural) | Auditoria do Orquestrador (22/03/2026)
 
 > "Arquitetura certa sem rollback é risco. Arquitetura certa com rollback é produto."
