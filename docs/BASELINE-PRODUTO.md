@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 4.4 — 2026-04-06 (Sprint M3 UAT — PRs #362–#365)
-> **Commit HEAD:** `d820163` (pós-PR #365)
-> **Checkpoint Manus:** `cdb4e22e`
+> **Versão:** 4.4 — 2026-04-06 (Pré-Sprint Z — PRs #362–#368)
+> **Commit HEAD:** `57b8f05` (pós-PR #368)
+> **Checkpoint Manus:** `af79a25d`
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -26,23 +26,24 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 |---|---|---|
 | TypeScript | **0 erros** | ✅ |
 | Testes automatizados — total | **4.064+ passando** (151 arquivos · +15 E2E Sprint M3 UAT) | ✅ |
-| Git working tree | Limpo — `main` = `d820163`, sincronizado com GitHub externo | ✅ |
+| Git working tree | Limpo — `main` = `57b8f05`, sincronizado com GitHub externo | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
 | Sprint S | Lotes A+B+C+D+E + Fix #295 — ENCERRADA 2026-04-04 | ✅ |
 | **Sprint T / Milestone 1** | **Decision Kernel: ncm-engine + nbs-engine + engine-gap-analyzer. 5/6 casos validados. Gate triplo aprovado. PRs #302–#316 — ENCERRADO 2026-04-05** | **✅** |
 | **Sprint Y** | **BL-01 a BL-05 ✅ · M2.1 ✅ #354 · M3 Fase 1 ✅ #357 · PRs #354–#359** | **✅ ENCERRADA** |
-| **Sprint M3 UAT** | **BUG-UAT-08 ✅ #362 · E2E 15 casos ✅ #364 · BUG-UAT-09+PDF-01 ✅ #365** | **🔄 EM ANDAMENTO** |
+| **Sprint M3 UAT** | **BUG-UAT-08 ✅ #362 · E2E 15 casos ✅ #364 · BUG-UAT-09+PDF-01 ✅ #365 · Docs ✅ #367** | **✅ ENCERRADA** |
+| **Pré-Sprint Z** | **ADR-0009 criado ✅ #368 · ADR-001/002 supersedidos · ADR-007 atualizado · Sprint Z DESBLOQUEADA** | **✅ CONCLUÍDO** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **62** | ✅ |
-| PRs mergeados (total) | **365** | ✅ |
+| PRs mergeados (total) | **368** | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
 | BUG-UAT-09 | ✅ CORRIGIDO (PR #365) | ✅ |
 | BUG-UAT-PDF-01 | ✅ CORRIGIDO (PR #365) | ✅ |
-| ADRs formais | **11** (ADR-001 a ADR-010; ADR-004 rejeitado; DEC-013/014 Bloco C/D) | ✅ |
+| ADRs formais | **12** (ADR-001 a ADR-010 + ADR-0009; ADR-001/002 supersedidos; DEC-013/014 Bloco C/D) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
