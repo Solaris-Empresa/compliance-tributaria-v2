@@ -1,0 +1,112 @@
+name: E2E Frontend Tests
+
+# Gate E2E v4.5 — ADR-0010 · DEC-M3-05
+# Princípio: testes E2E automatizados protegem o P.O. de validar manualmente
+# o que deve ser verificado automaticamente. P.O. valida julgamento, não cliques.
+#
+# Regra: P.O. NÃO valida manualmente antes deste workflow estar verde.
+# Histórico: BUG-MANUAL-02 — 198 testes backend PASS, UI entregava fluxo errado.
+
+on:
+  pull_request:
+    paths:
+      - 'client/src/pages/**'
+      - 'client/src/components/**'
+      - 'client/src/App.tsx'
+      - 'playwright/e2e/**'
+      - 'playwright.config.ts'
+  push:
+    branches:
+      - main
+
+# Bloqueia merge se os testes falharem
+# P.O. só valida manualmente após este workflow passar
+
+jobs:
+  e2e:
+    name: E2E Playwright Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      PLAYWRIGHT_BASE_URL:   ${{ secrets.PLAYWRIGHT_BASE_URL || 'https://iasolaris.manus.space' }}
+      E2E_TEST_SECRET:       ${{ secrets.E2E_TEST_SECRET }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: pnpm exec playwright test --reporter=list,html
+        env:
+          CI: true
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: |
+            playwright-report/
+            playwright-results.json
+          retention-days: 7
+
+      - name: Upload screenshots/videos on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-failures-${{ github.run_id }}
+          path: test-results/
+          retention-days: 3
+
+      - name: Comment PR with results
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const fs = require('fs')
+            let summary = '## E2E Frontend Tests\n\n'
+            try {
+              const results = JSON.parse(fs.readFileSync('playwright-results.json', 'utf8'))
+              const passed  = results.suites?.reduce((acc, s) => acc + (s.specs?.filter(sp => sp.ok).length ?? 0), 0) ?? 0
+              const failed  = results.suites?.reduce((acc, s) => acc + (s.specs?.filter(sp => !sp.ok).length ?? 0), 0) ?? 0
+              const total   = passed + failed
+              const icon    = failed === 0 ? '✅' : '❌'
+              summary += `${icon} **${passed}/${total} testes passando**\n\n`
+              if (failed > 0) {
+                summary += '### Falhas — o P.O. NÃO deve validar manualmente até estes serem corrigidos:\n'
+                results.suites?.forEach(suite => {
+                  suite.specs?.filter(sp => !sp.ok).forEach(sp => {
+                    summary += `- ❌ ${sp.title}\n`
+                  })
+                })
+              } else {
+                summary += '**Todos os testes passaram. P.O. pode prosseguir com a validação manual.**\n'
+              }
+            } catch {
+              summary += '⚠️ Não foi possível ler os resultados dos testes.\n'
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              body:         summary,
+            })
