@@ -1,6 +1,6 @@
 # ADR-001 — Decisão Arquitetural: Unificação do Diagnóstico Tributário
 **Plataforma COMPLIANCE da Reforma Tributária**
-**Data:** 22/03/2026 | **Versão:** 1.0 | **Status:** PROPOSTA — Aguardando aprovação do P.O.
+**Data:** 22/03/2026 | **Versão:** 1.0 | **Status:** SUPERSEDIDO — Substituído por ADR-0009 (2026-04-06)
 **Autor:** Análise baseada em leitura direta do código-fonte (checkpoint `c1dac201`)
 
 ---

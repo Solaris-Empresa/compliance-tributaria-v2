@@ -1,5 +1,14 @@
 # ADR-007 — Gate de Limpeza de Dados no Retrocesso do Fluxo
 
+> **ATUALIZAÇÃO 2026-04-06 — ADR-0009:**
+> As etapas `diagnostico_corporativo` (etapa 5) e
+> `diagnostico_operacional` (etapa 6) serão substituídas por
+> `questionario_produtos` e `questionario_servicos` na Sprint Z.
+> Os campos `corporateAnswers`/`operationalAnswers` serão
+> substituídos pelos dados dos novos questionários.
+> O gate de limpeza permanece válido — apenas os nomes
+> de etapas e campos serão atualizados no final da Sprint Z.
+
 **Número:** ADR-007  
 **Título:** Gate de Limpeza de Dados no Retrocesso do Fluxo  
 **Status:** `APROVADO — F-03 AUTORIZADA`  
