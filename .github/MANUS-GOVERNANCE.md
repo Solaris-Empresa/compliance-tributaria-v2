@@ -391,3 +391,64 @@ npx tsx scripts/seed-test-user.ts
 ✅ PR template preenchido
 ✅ E2E manual pelo P.O. (após CI verde)
 ```
+
+---
+
+## Gate POST-DEPLOY — Smoke Tests de Produção (v4.6 · 2026-04-07)
+
+**Origem:** Z-02 mergeado com 47/47 PASS mas produção exibia QC legado.
+Descoberto no E2E manual do P.O. 40 minutos após o merge.
+Gate POST-DEPLOY detecta o mesmo problema em < 3 minutos.
+
+### Quando executar
+
+Obrigatório **após todo merge para main** — antes do E2E manual do P.O.
+
+```bash
+# Smoke tests de produção (< 60s)
+./scripts/smoke.sh https://iasolaris.manus.space
+
+# Com SHA esperado (recomendado):
+EXPECTED_SHA=<7-chars-do-commit-mergeado> ./scripts/smoke.sh https://iasolaris.manus.space
+```
+
+### Smoke Tests (S-01..S-05)
+
+| ID | Verificação | Critério |
+|----|-------------|----------|
+| S-01 | `/api/health` responde | `status=healthy` |
+| S-02 | SHA match | SHA deployado = SHA esperado |
+| S-03 | `/questionario-produto` existe | HTTP 200/302/401 (não 404) |
+| S-04 | `/questionario-servico` existe | HTTP 200/302/401 (não 404) |
+| S-05 | OAuth API responde | HTTP 200/302/400/401 (não 404) |
+
+### GitHub Action
+
+`.github/workflows/smoke-post-deploy.yml` — dispara automaticamente em `deployment_status`.
+Comenta resultado no commit. Falha o workflow se smoke tests falharem.
+
+### Resultado no body do PR
+
+```
+## Gate POST-DEPLOY
+SHA: [sha-7-chars]
+Health: [ healthy | degraded ]
+Smoke: [ PASS | FALHOU ]
+Resultado: [ PASS | BLOQUEADO ]
+```
+
+### Definição de "done" atualizada — qualquer PR (v4.6)
+
+```
+✅ Testes backend PASS
+✅ TypeScript 0 erros
+✅ Gate Q7 PASS
+✅ Gate FC PASS
+✅ Gate ADR PASS
+✅ Fitness Functions PASS (FF-23/24/25 incluídas)
+✅ E2E specs criados para páginas novas
+✅ e2e-frontend.yml PASS no CI
+✅ PR template preenchido
+✅ Gate POST-DEPLOY PASS (smoke.sh em produção)  ← NOVO v4.6
+✅ E2E manual pelo P.O. (após Gate POST-DEPLOY verde)
+```
