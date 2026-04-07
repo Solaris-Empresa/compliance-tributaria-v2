@@ -2789,6 +2789,122 @@ Regras obrigatórias:
       } as any);
       return { ok: true, nextStatus };
     }),
+
+  // ─── ADR-0016 Etapa 3: Procedures de Skip de Questionário ────────────────
+  // DIV-Z02-ADR16-001: ConfidenceLevel usa 'nenhuma' em vez de 'muito_baixa'
+  // (decisão mais precisa semanticamente — aprovada pelo P.O. em 2026-04-07)
+
+  /**
+   * Pula uma pergunta individual do questionário SOLARIS (Onda 1).
+   * NÃO altera solaris_answers nem o status do projeto.
+   * Adiciona questionId ao array solarisSkippedIds (JSON) se não presente.
+   */
+  skipSolarisQuestion: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      questionId: z.string().min(1),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+      const currentSkipped: string[] = (() => {
+        try {
+          const raw = (project as any).solarisSkippedIds;
+          const parsed = JSON.parse(raw ?? '[]');
+          return Array.isArray(parsed) ? parsed : [];
+        } catch { return []; }
+      })();
+      if (!currentSkipped.includes(input.questionId)) {
+        currentSkipped.push(input.questionId);
+      }
+      await db.updateProject(input.projectId, {
+        solarisSkippedIds: JSON.stringify(currentSkipped),
+      } as any);
+      return { ok: true, skippedIds: currentSkipped };
+    }),
+
+  /**
+   * Pula uma pergunta individual do questionário IA Gen (Onda 2).
+   * NÃO altera iagen_answers nem o status do projeto.
+   * Adiciona questionId ao array iagenSkippedIds (JSON) se não presente.
+   */
+  skipIagenQuestion: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      questionId: z.string().min(1),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+      const currentSkipped: string[] = (() => {
+        try {
+          const raw = (project as any).iagenSkippedIds;
+          const parsed = JSON.parse(raw ?? '[]');
+          return Array.isArray(parsed) ? parsed : [];
+        } catch { return []; }
+      })();
+      if (!currentSkipped.includes(input.questionId)) {
+        currentSkipped.push(input.questionId);
+      }
+      await db.updateProject(input.projectId, {
+        iagenSkippedIds: JSON.stringify(currentSkipped),
+      } as any);
+      return { ok: true, skippedIds: currentSkipped };
+    }),
+
+  /**
+   * Pula o questionário inteiro (SOLARIS ou IA Gen).
+   * Seta solarisSkippedAll=true ou iagenSkippedAll=true.
+   * Avança o status do projeto para o próximo step via assertValidTransition.
+   * Retorna { success, nextState, confidenceWarning }.
+   */
+  skipQuestionnaire: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      questionnaire: z.enum(['solaris', 'iagen']),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+      // Determinar próximo status com base no questionário pulado
+      const nextStateMap: Record<'solaris' | 'iagen', string> = {
+        solaris: 'onda1_solaris',  // pular SOLARIS → avança para onda1_solaris (marcado como completo)
+        iagen:   'onda2_iagen',   // pular IA Gen → avança para onda2_iagen (marcado como completo)
+      };
+      const nextState = nextStateMap[input.questionnaire];
+      // Validar transição antes de persistir
+      const { assertValidTransition } = await import('./flowStateMachine');
+      try {
+        assertValidTransition(project.status, nextState);
+      } catch (err: any) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: `Transição inválida ao pular ${input.questionnaire}: ${err.message}`,
+        });
+      }
+      // Persistir skip + avançar status
+      const updateData: Record<string, unknown> = { status: nextState };
+      if (input.questionnaire === 'solaris') {
+        updateData.solarisSkippedAll = true;
+      } else {
+        updateData.iagenSkippedAll = true;
+      }
+      await db.updateProject(input.projectId, updateData as any);
+      const confidenceWarning = `Questionário ${input.questionnaire === 'solaris' ? 'SOLARIS (Onda 1)' : 'IA Gen (Onda 2)'} foi pulado — diagnóstico com confiança reduzida. Recomenda-se revisão manual antes da aprovação do briefing.`;
+      return { success: true, nextState, confidenceWarning };
+    }),
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

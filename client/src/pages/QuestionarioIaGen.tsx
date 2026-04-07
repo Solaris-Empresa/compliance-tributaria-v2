@@ -6,7 +6,7 @@
  * Badge laranja "Perfil da empresa". Salva em iagen_answers via completeOnda2.
  * Ao concluir: navega para /questionario-corporativo-v2.
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Brain, ChevronLeft, ChevronRight, Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Brain, ChevronLeft, ChevronRight, Loader2, AlertTriangle, CheckCircle2, SkipForward } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Pergunta {
   id: string;
@@ -51,6 +59,38 @@ export default function QuestionarioIaGen() {
   const respondidas = Object.values(respostas).filter((r) => r.trim().length > 0).length;
   const todasRespondidas = respondidas === totalPerguntas && totalPerguntas > 0;
   const progresso = totalPerguntas > 0 ? Math.round((respondidas / totalPerguntas) * 100) : 0;
+
+  // ── ADR-0016 Etapa 4: Skip de perguntas e questionário ─────────────────────
+  const [confirmSkipAll, setConfirmSkipAll] = useState(false);
+  const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
+
+  const skipIagenQuestion = trpc.fluxoV3.skipIagenQuestion.useMutation({
+    onSuccess: (data) => {
+      const newSkipped = new Set(data.skippedIds);
+      setSkippedIds(newSkipped);
+      toast.info("Pergunta pulada. Você pode voltar e responder depois.");
+      if (currentIndex < totalPerguntas - 1) setCurrentIndex((i) => i + 1);
+    },
+    onError: (err) => toast.error(err.message ?? "Erro ao pular pergunta."),
+  });
+
+  const skipQuestionnaire = trpc.fluxoV3.skipQuestionnaire.useMutation({
+    onSuccess: (data) => {
+      toast.warning(data.confidenceWarning, { duration: 6000 });
+      setLocation(`/projetos/${projectId}`);
+    },
+    onError: (err) => toast.error(err.message ?? "Erro ao pular questionário."),
+  });
+
+  const handleSkipQuestion = useCallback(() => {
+    if (!perguntaAtual) return;
+    skipIagenQuestion.mutate({ projectId, questionId: perguntaAtual.id });
+  }, [perguntaAtual, projectId, skipIagenQuestion]);
+
+  const handleSkipAll = useCallback(() => {
+    skipQuestionnaire.mutate({ projectId, questionnaire: 'iagen' });
+    setConfirmSkipAll(false);
+  }, [projectId, skipQuestionnaire]);
 
   // Mutation para salvar respostas e avançar status
   const completeOnda2 = trpc.fluxoV3.completeOnda2.useMutation({
@@ -199,9 +239,7 @@ export default function QuestionarioIaGen() {
                 <span className="text-xs text-muted-foreground">
                   {currentIndex + 1}/{totalPerguntas}
                 </span>
-                <Badge variant="outline" className="text-[10px] h-4 border-red-300/60 text-red-600 dark:text-red-400 bg-red-500/5">
-                  Obrigatória
-                </Badge>
+                {/* ADR-0016 Etapa 4: label "Obrigatória" removido — skip habilitado */}
                 {/* G15 — ONDA_BADGE: exibido sob feature flag g15-fonte-perguntas */}
                 {showOndaBadge && (
                   <Badge
@@ -241,6 +279,28 @@ export default function QuestionarioIaGen() {
               <div className="flex items-center gap-1.5 mt-2">
                 <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
                 <span className="text-xs text-green-600">Resposta registrada</span>
+              </div>
+            )}
+            {/* ADR-0016 Etapa 4: Botão Pular pergunta */}
+            {!(respostas[perguntaAtual.id] ?? "").trim() && !skippedIds.has(perguntaAtual.id) && (
+              <div className="flex justify-end mt-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSkipQuestion}
+                  disabled={skipIagenQuestion.isPending}
+                  data-testid={`btn-pular-pergunta-${perguntaAtual.id}`}
+                  className="text-xs text-muted-foreground hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 gap-1.5"
+                >
+                  <SkipForward className="h-3.5 w-3.5" />
+                  Pular esta pergunta
+                </Button>
+              </div>
+            )}
+            {skippedIds.has(perguntaAtual.id) && (
+              <div className="flex items-center gap-1.5 mt-2">
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                <span className="text-xs text-amber-600">Pergunta pulada</span>
               </div>
             )}
           </div>
@@ -286,6 +346,54 @@ export default function QuestionarioIaGen() {
             </Button>
           )}
         </div>
+
+        {/* ADR-0016 Etapa 4: Botão Pular questionário */}
+        <div className="flex justify-center mt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setConfirmSkipAll(true)}
+            data-testid="btn-pular-questionario-iagen"
+            className="text-xs text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 gap-1.5"
+          >
+            <SkipForward className="h-3.5 w-3.5" />
+            Pular este questionário
+          </Button>
+        </div>
+
+        {/* Modal de confirmação — Pular questionário */}
+        <Dialog open={confirmSkipAll} onOpenChange={setConfirmSkipAll}>
+          <DialogContent data-testid="modal-confirmar-pular-questionario">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-500" />
+                Pular questionário IA Gen?
+              </DialogTitle>
+              <DialogDescription>
+                Ao pular este questionário, o diagnóstico será gerado com{" "}
+                <strong>confiança reduzida</strong>. Você poderá voltar e
+                responder as perguntas depois.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setConfirmSkipAll(false)}
+                data-testid="btn-cancelar-pular"
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleSkipAll}
+                disabled={skipQuestionnaire.isPending}
+                data-testid="btn-confirmar-pular"
+              >
+                {skipQuestionnaire.isPending ? "Pulando..." : "Confirmar — Pular questionário"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Resumo final */}
         {todasRespondidas && (

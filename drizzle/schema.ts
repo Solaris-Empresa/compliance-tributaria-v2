@@ -129,6 +129,12 @@ export const projects = mysqlTable("projects", {
   // Reversível: DROP COLUMN product_answers, DROP COLUMN service_answers
   productAnswers: json("product_answers"),   // Respostas Q.Produtos NCM (ProductAnswer[]) — ADR-0010
   serviceAnswers: json("service_answers"),   // Respostas Q.Serviços NBS (ServiceAnswer[]) — ADR-0010
+  // ADR-0016: Modelo de Completude e Confiança — arrays de IDs pulados (Z-03)
+  // Reversível: DROP COLUMN não quebra respostas existentes em solaris_answers/iagen_answers
+  solarisSkippedIds: text("solaris_skipped_ids"),   // JSON: string[] — IDs de perguntas SOLARIS puladas individualmente
+  iagenSkippedIds:   text("iagen_skipped_ids"),     // JSON: string[] — IDs de perguntas IA Gen puladas individualmente
+  solarisSkippedAll: boolean("solaris_skipped_all").default(false),  // true = usuário pulou o questionário SOLARIS inteiro
+  iagenSkippedAll:   boolean("iagen_skipped_all").default(false),    // true = usuário pulou o questionário IA Gen inteiro
   cnaeAnswers: json("cnaeAnswers"),              // Respostas do Questionário Especializado por CNAE (QCNAE-01..QCNAE-05)
   // v2.1 Diagnostic Flow — rastreamento das 3 camadas de diagnóstico
   diagnosticStatus: json("diagnosticStatus").$type<{

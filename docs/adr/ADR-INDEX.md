@@ -16,6 +16,7 @@ Script: `./scripts/gate-adr.sh` verifica automaticamente a consistência.
 | ADR-0011 | `ADR-0011-consolidacao-respostas-pipeline.md` | Consolidação de Respostas — Pipeline resolveProjectAnswers | Aceito | 2026-04-07 | Z-02 |
 | ADR-0012 | `ADR-0012-art57-vs-art2-is-mapeamento-canonico.md` | Mapeamento Canônico Art. 57 vs Art. 2 LC 214/2025 (IS) | Aceito | 2026-04-07 | Z-02 |
 | ADR-0013 | `ADR-0013-badge-risk-category-l2-frontend.md` | Badge risk_category_l2 no Frontend RisksV3 | Aceito | 2026-04-07 | Z-02 |
+| ADR-0016 | `ADR-0016-completude-confianca-questionarios.md` | Completude e Confiança de Questionários (skip + confidence) | Aceito | 2026-04-07 | ADR-0016 |
 
 ---
 
@@ -36,6 +37,7 @@ Script: `./scripts/gate-adr.sh` verifica automaticamente a consistência.
 | DIV-Z02-001 | `docs/divergencias/DIV-Z02-001-*.md` | Assinatura errada generateProductQuestions | Pendente criação |
 | DIV-Z02-002 | `docs/divergencias/DIV-Z02-002-*.md` | confirmedCnaes vs cnaes | Pendente criação |
 | DIV-Z02-003 | `docs/divergencias/DIV-Z02-003-*.md` | Enum inglês vs português no FSM | Resolvida — PR #387 (ADR-0010) |
+| DIV-Z02-ADR16-001 | — | ConfidenceLevel 'muito_baixa' → 'nenhuma' (ADR-0016 §5) | Resolvida — ADR-0016 |
 
 ---
 
@@ -55,14 +57,15 @@ Antes de qualquer PR que modifique arquivo arquitetural:
 | Arquivo | ADR de referência |
 |---|---|
 | `server/flowStateMachine.ts` | ADR-0010 |
-| `drizzle/schema.ts` | ADR-0009, ADR-0010 |
-| `server/routers-fluxo-v3.ts` | ADR-0009, ADR-0010 |
+| `drizzle/schema.ts` | ADR-0009, ADR-0010, ADR-0016 |
+| `server/routers-fluxo-v3.ts` | ADR-0009, ADR-0010, ADR-0016 |
 | `client/src/App.tsx` | ADR-0009 |
 | `client/src/pages/DiagnosticoStepper.tsx` | ADR-0009, ADR-0010 |
 | `server/lib/completeness.ts` | ADR-0009 |
+| `server/lib/questionnaire-completeness.ts` | ADR-0016 |
 | `server/lib/tracked-question.ts` | ADR-0010 |
 | `server/lib/risk-categorizer.ts` | ADR-0009 |
 
 ---
 
-*Atualizado: 2026-04-07 · PRs #379 #385 #386 #387 · Audit checkpoint 2d0dca13*
+*Atualizado: 2026-04-07 · PRs #379 #385 #386 #387 #389 · ADR-0016 adicionado · Audit checkpoint 2d0dca13*
