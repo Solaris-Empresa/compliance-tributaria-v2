@@ -167,6 +167,27 @@ Resultado: [ PASS | BLOQUEADO | N/A ]
 
 ---
 
+## Gate Wiring de Navegação (v4.7)
+
+> Obrigatório quando este PR toca `DiagnosticoStepper.tsx`, `ProjetoDetalhesV2.tsx`, `App.tsx` (rotas), ou qualquer componente de stepper/hub de diagnóstico.
+> Dispensado para PRs que não tocam componentes de navegação.
+
+- [ ] `ProjetoDetalhesV2.tsx` ou equivalente navega para as rotas corretas (TO-BE)
+- [ ] Labels visuais nos steps correspondem ao fluxo implementado
+- [ ] IDs internos de steps (`StepId`) documentados no contrato se alterados (CONTRATO-DEC-M3-05-v3 §2.5)
+- [ ] Enum `z.enum()` no router atualizado se `StepId` mudar
+- [ ] Testes W03/W04 (rotas legadas removidas / TO-BE presentes) passando
+- [ ] Testes W06 (sem valores em inglês no `operationType`) passando
+
+```
+Wiring verificado: [ SIM | N/A — PR não toca navegação ]
+Rotas legadas removidas: [ SIM | N/A ]
+Labels atualizados: [ SIM | N/A ]
+Resultado: [ PASS | BLOQUEADO | N/A ]
+```
+
+---
+
 ## Auto-auditoria Q1–Q7 + observabilidade (Gate 2 v5.0)
 
 > Obrigatório para feat, fix, hotfix, schema, procedure e componente com useQuery.
