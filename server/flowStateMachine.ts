@@ -1,3 +1,5 @@
+import { TRPCError } from '@trpc/server';
+
 /**
  * FLOW STATE MACHINE — v2.3
  * Máquina de estados para o fluxo de compliance tributário.
@@ -451,15 +453,18 @@ export const VALID_TRANSITIONS: Record<string, string[]> = {
 export function assertValidTransition(from: string, to: string): void {
   const allowed = VALID_TRANSITIONS[from];
   if (!allowed) {
-    throw new Error(
-      `[flowStateMachine] Status de origem desconhecido: "${from}". ` +
-      `Adicione-o a VALID_TRANSITIONS antes de usar.`
-    );
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: `[flowStateMachine] Status de origem desconhecido: "${from}". ` +
+               `Adicione-o a VALID_TRANSITIONS antes de usar.`
+    });
   }
   if (!allowed.includes(to)) {
-    throw new Error(
-      `[flowStateMachine] Transição inválida: "${from}" → "${to}". ` +
-      `Transições permitidas a partir de "${from}": [${allowed.join(', ')}]`
-    );
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: `[flowStateMachine] Transição inválida: "${from}" → "${to}". ` +
+               `Transições permitidas a partir de "${from}": ` +
+               `[${VALID_TRANSITIONS[from]?.join(', ') ?? 'nenhuma'}]`
+    });
   }
 }

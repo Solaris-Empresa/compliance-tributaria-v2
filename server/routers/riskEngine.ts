@@ -15,7 +15,6 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import mysql from "mysql2/promise";
-import { categorizeRisk } from "../lib/risk-categorizer";
 
 // ---------------------------------------------------------------------------
 // Schemas públicos (exportados para testes)
@@ -59,8 +58,6 @@ export const DerivedRiskSchema = z.object({
   // Derivado de project_gaps_v3.source (migration 0061 G17)
   // Componente B (DEC-M2-05): 'engine' adicionado sem migration de banco
   fonte_risco: z.enum(['solaris', 'cnae', 'iagen', 'engine', 'v1']).default('v1'),
-  // Z-02b: categoria canônica da LC 214/2025 — NUNCA vazia
-  categoria: z.string().default('enquadramento_geral'),
 });
 export type DerivedRisk = z.infer<typeof DerivedRiskSchema>;
 
@@ -281,7 +278,6 @@ function generateContextualRisks(input: ContextualRiskInput): DerivedRisk[] {
       description: "Risco de não conformidade com split payment obrigatório para empresas de médio/grande porte na transição IBS/CBS",
       mitigation_hint: "Verificar integração do sistema de pagamentos com a plataforma do split payment do Comitê Gestor do IBS",
       fonte_risco: 'v1' as const, // risco contextual — sem gap_source
-      categoria: 'split_payment', // Z-02b: split payment é categoria canônica
     });
   }
 
@@ -299,7 +295,6 @@ function generateContextualRisks(input: ContextualRiskInput): DerivedRisk[] {
       description: "Risco de apuração incorreta de créditos IBS/CBS em empresa com múltiplas atividades no lucro real",
       mitigation_hint: "Implementar controle de créditos por CNAE com segregação de receitas e despesas por atividade",
       fonte_risco: 'v1' as const, // risco contextual — sem gap_source
-      categoria: 'ibs_cbs', // Z-02b: IBS/CBS é categoria canônica
     });
   }
 
@@ -407,15 +402,6 @@ export async function deriveRisksFromGaps(
       description: `Risco ${score.severity} identificado: ${effectiveDescription || 'gap sem descrição'}`,
       mitigation_hint: `Regularizar ${effectiveGapType} referente a ${gap.req_source_reference || gap.gap_source_reference || 'requisito aplicável'}`,
       fonte_risco: fonteRisco,
-      // Z-02b: categoria canônica da LC 214/2025
-      categoria: categorizeRisk({
-        description: effectiveDescription,
-        lei_ref: gap.req_source_reference || gap.gap_source_reference || null,
-        topicos: gap.topicos || null,
-        domain: effectiveDomain,
-        category: mapDomainToTaxonomy(effectiveDomain, effectiveGapType, effectiveDescription).category,
-        type: mapDomainToTaxonomy(effectiveDomain, effectiveGapType, effectiveDescription).type,
-      }),
     });
   }
 
@@ -456,8 +442,7 @@ export async function persistRisks(
              updated_at = NOW()
            WHERE project_id = ? AND gap_id = ?`,
           [
-            // Z-02b: risk_category_l2 recebe categoria canônica da LC 214/2025
-            risk.origin, risk.taxonomy.domain, risk.categoria ?? risk.taxonomy.category, risk.taxonomy.type,
+            risk.origin, risk.taxonomy.domain, risk.taxonomy.category, risk.taxonomy.type,
             risk.score.base_score, risk.score.adjusted_score, risk.score.adjusted_score,
             risk.score.severity,
             JSON.stringify(risk.score.scoring_factors),
@@ -495,8 +480,7 @@ export async function persistRisks(
             risk.score.severity, "regulatorio",
             0.05, risk.description || "",
             risk.mitigation_hint || "", 1,
-            // Z-02b: risk_category_l2 recebe categoria canônica da LC 214/2025
-            risk.origin, risk.taxonomy.domain, risk.categoria ?? risk.taxonomy.category, risk.taxonomy.type,
+            risk.origin, risk.taxonomy.domain, risk.taxonomy.category, risk.taxonomy.type,
             risk.score.base_score, risk.score.adjusted_score, risk.score.adjusted_score,
             risk.score.base_score, risk.score.adjusted_score,
             JSON.stringify(risk.score.scoring_factors),
@@ -535,8 +519,7 @@ export async function persistRisks(
           risk.score.severity, "regulatorio",
           0.05, risk.description || "",
           risk.mitigation_hint || "", 1,
-          // Z-02b: risk_category_l2 recebe categoria canônica da LC 214/2025
-          risk.origin, risk.taxonomy.domain, risk.categoria ?? risk.taxonomy.category, risk.taxonomy.type,
+          risk.origin, risk.taxonomy.domain, risk.taxonomy.category, risk.taxonomy.type,
           risk.score.base_score, risk.score.adjusted_score, risk.score.adjusted_score,
           risk.score.base_score, risk.score.adjusted_score,
           JSON.stringify(risk.score.scoring_factors),
