@@ -25,21 +25,25 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-05)
-- BASELINE **v4.0** — Sprint T Pré-M1 ENCERRADA ✅ (PRs #302–#309)
-- **HEAD:** `33de471` (solaris/main)
-- **PRs mergeados:** 309 · **Testes passando:** 1.446 (0 falhas · 5 skipped)
+## Estado atual do projeto (2026-04-06)
+- BASELINE **v4.4** — Sprint M3 UAT EM ANDAMENTO 🔄 (PRs #362–#365)
+- **HEAD:** `d820163` (origin/main)
+- **PRs mergeados:** 365 · **Testes passando:** 4.064+ (151 arquivos · +15 E2E Sprint M3 UAT)
 - **TypeScript:** 0 erros · **CI:** 12 workflows ativos
-- **Corpus RAG:** 2.454 chunks · 10 leis
-- **Skill solaris-contexto:** v4.1 · **Skill solaris-orquestracao:** v3.2
+- **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade
+- **Skill solaris-contexto:** v4.2 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
-- **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção
+- **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção · Suite E2E automatizada 15 casos ✅ (#364)
 - **Contratos M1:** CNT-01a/01b/02/03 em `docs/contracts/`
 - **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit
 - **Datasets:** `nbs-2-0-utf8.csv` no repo · `lc214-2025.pdf` no sandbox
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
-- **Bloco C:** ⛔ BLOQUEADO — aguarda GATE-EXT-01 Fase 2 (Dr. Rodrigues: 3 NCM + 3 NBS)
+- **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06
+- **BUG-UAT-08:** ✅ CORRIGIDO (PR #362) — VALID_TRANSITIONS + assertValidTransition universal
+- **BUG-UAT-09:** ✅ CORRIGIDO (PR #365) — approveBriefing atômico diagnostico_cnae → briefing → matriz_riscos
+- **BUG-UAT-PDF-01:** ✅ CORRIGIDO (PR #365) — diagnosticCompleteness?.status no PDF do briefing
+- **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
 
 ## Lembrete: Bug encontrado e corrigido na Sprint S
 
