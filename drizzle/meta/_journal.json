@@ -435,6 +435,13 @@
       "when": 1775586815554,
       "tag": "0061_fancy_smiling_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "5",
+      "when": 1775596218560,
+      "tag": "0062_elite_dorian_gray",
+      "breakpoints": true
     }
   ]
 }

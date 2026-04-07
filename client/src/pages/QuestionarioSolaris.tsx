@@ -147,13 +147,12 @@ export default function QuestionarioSolaris() {
     : 0;
 
   const canSubmit = useMemo(() => {
-    // ADR-0016: sem perguntas obrigatórias — pode concluir com qualquer qtd
-    // Mínimo: ao menos 1 interação (respondida ou pulada)
     if (questions.length === 0) return false;
-    const respondidas = Object.keys(answers).length;
-    const puladas = skippedIds.size;
-    return respondidas + puladas > 0;
-  }, [questions, answers, skippedIds]);
+    // Todas as perguntas obrigatórias devem ter resposta
+    return questions
+      .filter((q) => q.obrigatorio === 1)
+      .every((q) => answers[q.id]?.trim());
+  }, [questions, answers]);
 
   // ── Handlers ────────────────────────────────────────────────────────────────────────────────
 
@@ -181,7 +180,7 @@ export default function QuestionarioSolaris() {
 
   async function handleSubmit() {
     if (!canSubmit) {
-      toast.warning("Responda ou pule ao menos uma pergunta antes de concluir.");
+      toast.warning("Responda todas as perguntas obrigatórias antes de concluir.");
       return;
     }
     setIsSubmitting(true);
@@ -515,7 +514,16 @@ export default function QuestionarioSolaris() {
           </DialogContent>
         </Dialog>
 
-        {/* ADR-0016: aviso de obrigatórias removido — não há mais perguntas obrigatórias */}
+        {/* Aviso de perguntas obrigatórias pendentes */}
+        {!canSubmit && answeredCount > 0 && (
+          <Alert className="border-amber-500/40 bg-amber-500/5">
+            <AlertCircle className="h-4 w-4 text-amber-500" />
+            <AlertDescription className="text-xs text-amber-700 dark:text-amber-400">
+              {questions.filter((q) => q.obrigatorio === 1 && !answers[q.id]?.trim()).length} pergunta(s) obrigatória(s) ainda sem resposta.
+              Navegue pelos números acima para completar.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Resumo final (última pergunta) */}
         {currentIndex === totalQuestions - 1 && canSubmit && (
