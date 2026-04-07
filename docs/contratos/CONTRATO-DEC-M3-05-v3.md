@@ -88,7 +88,56 @@ Se qualquer invariante for violada:
 | ID | Invariante | Causa | Resolução |
 |---|---|---|---|
 | DIV-Z01-006 | INV-P01 (implícita) | product-questions.ts sem frontend | Gate FC implementado |
-| DIV-Z02-003 | INV-P04 | Enum inglês vs português | Pendente Z-02 |
+| DIV-Z02-003 | INV-P04 | Enum inglês vs português | Resolvido PR #387 (2026-04-07) |
+
+---
+
+## 2.5 Enum interno StepId — contrato implícito documentado
+
+**Origem:** BUG descoberto em 2026-04-07 — IDs internos não estavam
+documentados, permitindo confusão entre ID interno e label visual.
+Fix aplicado em PR #387 (fix/bug-manual-04-02-stepper-wiring).
+
+```typescript
+// IDs internos do DiagnosticoStepper
+// Usados como enum de input em completeDiagnosticLayer (routers-fluxo-v3.ts:~1904)
+// z.enum(["corporate", "operational", "cnae"])
+
+// REGRA: IDs internos NUNCA devem ser renomeados sem atualizar:
+//   1. z.enum em completeDiagnosticLayer
+//   2. Este contrato (seção 2.5)
+//   3. ADR correspondente (ADR-0010)
+
+const STEP_IDS = {
+  corporate:   'corporate',   // Q. de Produtos — ID interno ≠ label visual
+  operational: 'operational', // Q. de Serviços — ID interno ≠ label visual
+  cnae:        'cnae',
+} as const
+
+// INVARIANTE: ID interno !== label visual (separação explícita)
+// INVARIANTE: mudança de label NÃO requer mudança de ID
+// INVARIANTE: mudança de ID requer mudança no z.enum do router
+```
+
+---
+
+## 2.6 Navegação do ProjetoDetalhesV2 — mapeamento canônico
+
+**Origem:** Fix-wiring-z02 (PR #387) — onStartLayer apontava para rotas legadas.
+
+```typescript
+// CONTRATO: mapeamento canônico StepId → rota de navegação (Z-02 TO-BE)
+
+onStartLayer('corporate')   → /projetos/:id/questionario-produto
+onStartLayer('operational') → /projetos/:id/questionario-servico
+onStartLayer('cnae')        → /projetos/:id/questionario-cnae
+
+// INVARIANTE: rotas legadas preservadas no App.tsx (ADR-0010 retrocompat)
+// INVARIANTE: navegação NUNCA para /questionario-corporativo-v2 (legado)
+// INVARIANTE: navegação NUNCA para /questionario-operacional (legado)
+```
+
+**Rastreabilidade:** ADR-0010, DIV-Z02-003, BUG-MANUAL-02 remainder, BUG-MANUAL-04
 
 ---
 
