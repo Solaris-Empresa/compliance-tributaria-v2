@@ -57,12 +57,15 @@ export default function QuestionarioIaGen() {
   const totalPerguntas = perguntas.length;
   const perguntaAtual = perguntas[currentIndex];
   const respondidas = Object.values(respostas).filter((r) => r.trim().length > 0).length;
-  const todasRespondidas = respondidas === totalPerguntas && totalPerguntas > 0;
   const progresso = totalPerguntas > 0 ? Math.round((respondidas / totalPerguntas) * 100) : 0;
 
-  // ── ADR-0016 Etapa 4: Skip de perguntas e questionário ─────────────────────
+  // ── ADR-0016 Etapa 4: Skip de perguntas e questionário ───────────────────────────────────
   const [confirmSkipAll, setConfirmSkipAll] = useState(false);
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
+  // ADR-0016: sem perguntas obrigatórias — pode concluir com ao menos 1 interação
+  const podeAvancar = totalPerguntas === 0
+    ? false
+    : (respondidas > 0 || skippedIds.size > 0);
 
   const skipIagenQuestion = trpc.fluxoV3.skipIagenQuestion.useMutation({
     onSuccess: (data) => {
@@ -118,10 +121,6 @@ export default function QuestionarioIaGen() {
   };
 
   const handleConcluir = async () => {
-    if (!todasRespondidas) {
-      toast.warning(`Faltam ${totalPerguntas - respondidas} resposta(s) para concluir.`);
-      return;
-    }
     setIsSubmitting(true);
     const answers = perguntas.map((p) => ({
       questionText: p.texto,
@@ -329,7 +328,7 @@ export default function QuestionarioIaGen() {
           ) : (
             <Button
               onClick={handleConcluir}
-              disabled={!todasRespondidas || isSubmitting}
+              disabled={!podeAvancar || isSubmitting}
               className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white"
             >
               {isSubmitting ? (
@@ -395,12 +394,12 @@ export default function QuestionarioIaGen() {
           </DialogContent>
         </Dialog>
 
-        {/* Resumo final */}
-        {todasRespondidas && (
+        {/* Resumo final — ADR-0016: mostra quando pode avançar */}
+        {podeAvancar && (
           <div className="mt-4 p-3 rounded-lg border border-green-200 bg-green-50 flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
             <p className="text-sm text-green-700">
-              Todas as {totalPerguntas} perguntas respondidas. Clique em "Concluir Onda 2" para salvar e avançar.
+              {respondidas} de {totalPerguntas} respondidas{skippedIds.size > 0 ? ` · ${skippedIds.size} pulada(s)` : ""}. Clique em "Concluir Onda 2" para salvar e avançar.
             </p>
           </div>
         )}
