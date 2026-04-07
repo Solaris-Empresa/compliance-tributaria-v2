@@ -16,6 +16,7 @@ import { getBuildVersionInfo } from "../build-version"; // Informações de vers
 import { validateCnaePipeline } from "../cnae-pipeline-validator"; // Validação on-demand do pipeline
 import { warmUpEmbeddingCache } from "../cnae-embeddings"; // Warm-up do cache de embeddings
 import { notifyOwner } from "./notification"; // Notificações ao owner
+import { healthRouter } from "../routers/health"; // Gate POST-DEPLOY v4.6
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -44,6 +45,13 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+
+  // ── Gate POST-DEPLOY v4.6 — endpoint público /api/health ─────────────────
+  // Sem autenticação — usado pelo smoke.sh e GitHub Action smoke-post-deploy.yml
+  // Retorna: status, sha, version, checks.database, checks.routes
+  // RESTRIÇÃO: não expor dados sensíveis (apenas SHA, status, versão)
+  app.use("/api", healthRouter);
+  // ─────────────────────────────────────────────────────────────────────────
 
   // ── Health check do pipeline CNAE Discovery ─────────────────────────────
   // GET /api/health/cnae — retorna status do pipeline sem autenticação
