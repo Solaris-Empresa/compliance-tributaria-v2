@@ -175,18 +175,19 @@ export default function QuestionarioSolaris() {
 
   async function handleSubmit() {
     if (!canSubmit) {
-      toast.warning("Responda todas as perguntas obrigatórias antes de concluir.");
+      // ADR-0016 MASP: mensagem alinhada com Opção B (canSubmit = questions.length > 0)
+      toast.warning("Nenhuma pergunta disponível para concluir.");
       return;
     }
     setIsSubmitting(true);
 
-    const payload = questions
-      .filter((q) => answers[q.id]?.trim())
-      .map((q) => ({
-        questionId: q.id,
-        codigo: q.codigo,
-        resposta: answers[q.id].trim(),
-      }));
+    // ADR-0016 MASP: envia TODAS as perguntas (sem filter) — consistênte com IaGen
+    // Perguntas sem resposta chegam com resposta: "" e são aceitas pelo backend (z.string())
+    const payload = questions.map((q) => ({
+      questionId: q.id,
+      codigo: q.codigo,
+      resposta: answers[q.id]?.trim() ?? "",
+    }));
 
     completeOnda1.mutate({ projectId, answers: payload });
   }
