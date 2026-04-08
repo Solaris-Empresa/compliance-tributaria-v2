@@ -396,12 +396,47 @@ describe('Fitness Function 6 — E2E Coverage de Frontend', () => {
     ).toBe(true)
   })
 
-  it('FF-25: GitHub Action e2e-frontend.yml existe', () => {
+   it('FF-25: GitHub Action e2e-frontend.yml existe', () => {
     expect(
       existsSync(resolve(ROOT, '.github/workflows/e2e-frontend.yml')),
       'Workflow e2e-frontend.yml não encontrado.\n' +
       'PRs de frontend não estão sendo testados automaticamente no CI.'
     ).toBe(true)
+  })
+})
+
+// ─── SUITE 7: Wiring de Rotas TO-BE ─────────────────────────────────────────
+// Origem: regressão 2026-04-08 — QuestionarioIaGen navegava para
+// /questionario-corporativo-v2 em vez de /questionario-produto.
+// Estes testes garantem que o wiring TO-BE não regride silenciosamente.
+
+describe('Fitness Function 7 — Wiring de Rotas TO-BE (FF-WIRING)', () => {
+
+  it('FF-WIRING-01: QuestionarioIaGen navega para questionario-produto', () => {
+    const content = readFileSync(
+      resolve(ROOT, 'client/src/pages/QuestionarioIaGen.tsx'), 'utf-8'
+    )
+    expect(content).toContain('questionario-produto')
+    expect(content).not.toContain('questionario-corporativo-v2')
+  })
+
+  it('FF-WIRING-02: ProjetoDetalhesV2 usa rotas TO-BE', () => {
+    const content = readFileSync(
+      resolve(ROOT, 'client/src/pages/ProjetoDetalhesV2.tsx'), 'utf-8'
+    )
+    expect(content).toContain('questionario-produto')
+    expect(content).not.toContain('questionario-corporativo-v2')
+  })
+
+  it('FF-WIRING-03: DiagnosticoStepper labels TO-BE', () => {
+    const content = readFileSync(
+      resolve(ROOT, 'client/src/components/DiagnosticoStepper.tsx'), 'utf-8'
+    )
+    // Label ativo deve usar nomenclatura TO-BE
+    expect(content).toContain('Q. de Produtos')
+    // Rota não deve apontar para fluxo legado
+    // (comentarios históricos de migração são permitidos)
+    expect(content).not.toContain('questionario-corporativo-v2')
   })
 
 })
