@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 4.6 — 2026-04-07 (ADR-0016 Etapas 1-4 — PR #391)
-> **Commit HEAD:** `18df234` (pós-PR #391)
-> **Checkpoint Manus:** `fb96627d` (auditoria pós-merge PR #391 + #392 ✅)
+> **Versão:** 4.8 — 2026-04-08 (Gate B ✅ — FIX_01+FIX_02+FIX_03 — PRs #414+#416+#417)
+> **Commit HEAD:** `08ee879` (pós-PR #417)
+> **Checkpoint Manus:** `689077a8` (auditoria pós Gate B ✅)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -37,23 +37,32 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z — Z-01** | **Q.Produtos (NCM) + Q.Serviços (NBS) rastreados — DEC-M3-05 v1 ✅ #370 · BUG-E2E-01 ✅ #372 · DIV-Z01-004/005 ✅ #374–#375 · riskEngine integrado ✅ #376** | **✅ ENCERRADA** |
 | **Sprint Z — Z-02** | **DEC-M3-05 v3 TO-BE: Q.Produtos NCM + Q.Serviços NBS substituem QC/QO ✅ #381 · Wiring DiagnosticoStepper v3.1 ✅ #387 · BUG-RESP-01 fallback duplo ✅ #383** | **✅ ENCERRADA** |
 | **ADR-0016 Etapas 1-4** | **Completude/Confiança: schema 4 colunas + questionnaire-completeness.ts + 3 procedures skip + botões frontend ✅ #391** | **✅ MERGEADO** |
+| **FIX_02 — BUG-CNAE-AUTO** | **opLabel expandido para 8 valores (comercio/industria/agronegocio/financeiro) — embedding semântico correto ✅ #414** | **✅ MERGEADO** |
+| **FIX_03 — BUG-SOLARIS-SAVE** | **Auto-save debounce 800ms + resume da última pergunta (saveSolarisAnswer procedure) ✅ #414** | **✅ MERGEADO** |
+| **FIX_01 — Gate EVIDENCE** | **PR template + FF-EVIDENCE-01/02 no fitness-functions.test.ts ✅ #414** | **✅ MERGEADO** |
+| **ADR-0020** | **Schema drift 0063 documentado — migration não re-executada (hash divergente) ✅ #416** | **✅ MERGEADO** |
+| **Gate B** | **Teste manual 3 cenários PASS — evidência em docs/evidencias/EVIDENCIA-GATE-B-20260408.md ✅ #417** | **✅ APROVADO** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **63** | ✅ |
-| PRs mergeados (total) | **391** (25 PRs em 2026-04-07) | ✅ |
+| PRs mergeados (total) | **417** (pós Gate B — 2026-04-08) | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
 | BUG-UAT-09 | ✅ CORRIGIDO (PR #365) | ✅ |
 | BUG-UAT-PDF-01 | ✅ CORRIGIDO (PR #365) | ✅ |
-| ADRs formais | **16** (ADR-001 a ADR-010 + ADR-0009/0010/0011/0012/0013/0016; ADR-001/002 supersedidos) | ✅ |
+| ADRs formais | **18** (ADR-001 a ADR-010 + ADR-0009..0013 + ADR-0016 + ADR-0018 + ADR-0020; ADR-001/002 supersedidos) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
 | Corpus RAG | **2.509 chunks — 10 leis — 100% com anchor_id** | ✅ |
 | Perguntas SOLARIS ativas | **24 (SOL-013..036)** | ✅ |
 | RAG Cockpit | Endpoint `ragInventory.getSnapshot` ao vivo · 9 gold set queries | ✅ |
-| Agent Skills | Manus `/solaris-orquestracao` v3.1 ✅ · Claude `solaris-contexto` **v4.7** ✅ | ✅ |
+| Agent Skills | Manus `/solaris-orquestracao` v3.2 ✅ · Claude `solaris-contexto` **v4.10** ✅ | ✅ |
+| Gate EVIDENCE | FF-EVIDENCE-01/02 PASS · PR template com checklist LLM ✅ | ✅ |
+| BUG-CNAE-AUTO | opLabel 8 valores — comercio/industria/agronegocio/financeiro mapeados ✅ | ✅ |
+| BUG-SOLARIS-SAVE | Auto-save debounce 800ms + resume index ✅ | ✅ |
+| Gate B (Sprint Z) | ✅ APROVADO — 3 cenários PASS · 2026-04-08 | ✅ |
 | Decision Kernel | `ncm-engine.ts` + `nbs-engine.ts` + `engine-gap-analyzer.ts` — source='engine' ativo | ✅ |
 | CI Workflows | **13 ativos** (branch-scope, file-declaration, autoaudit, smoke-post-deploy + 9 pré-existentes) | ✅ |
 | CODEOWNERS | 15 entradas (`@utapajos` em arquivos críticos) | ✅ |

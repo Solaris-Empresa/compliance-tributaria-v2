@@ -26,27 +26,34 @@ Drizzle ORM / Vitest / pnpm
 | Consultor | ChatGPT — segunda opinião estratégica |
 
 ## Estado atual do projeto (2026-04-08)
-- BASELINE **v4.7** — ADR-0016 Etapas 1-4 ✅ MERGEADO (PRs #391–#392) · Deploy ✅ iasolaris.manus.space
-- **HEAD: `2c3cfb1` (github/main) · **Checkpoint Manus:** `5b195fca``
-- **PRs mergeados:** 397 · **Testes passando:** 124/124 (CC-01..CC-21 + 26 FF + 47 CM)
-- **TypeScript:** 0 erros · **CI:** 13 workflows ativos
+- BASELINE **v4.8** — Gate B ✅ APROVADO · FIX_01+FIX_02+FIX_03 mergeados (PRs #414+#416+#417)
+- **HEAD: `08ee879` (github/main) · Checkpoint Manus:** `689077a8`
+- **PRs mergeados:** 417 · **Testes passando:** 30/31 (FF-18 pré-existente) · **TypeScript:** 0 erros
+- **CI:** 13 workflows ativos · **Gate FC:** PASS · **FF-EVIDENCE-01/02:** PASS
 - **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade
-- **Skill solaris-contexto:** v4.2 · **Skill solaris-orquestracao:** v3.2
+- **Skill solaris-contexto:** v4.10 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
 - **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção · Suite E2E automatizada 15 casos ✅ (#364)
 - **Contratos M1:** CNT-01a/01b/02/03 em `docs/contracts/`
-- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit
+- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + Gate EVIDENCE
 - **Datasets:** `nbs-2-0-utf8.csv` no repo · `lc214-2025.pdf` no sandbox
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
 - **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06
-- **BUG-UAT-08:** ✅ CORRIGIDO (PR #362) — VALID_TRANSITIONS + assertValidTransition universal
-- **BUG-UAT-09:** ✅ CORRIGIDO (PR #365) — approveBriefing atômico diagnostico_cnae → briefing → matriz_riscos
-- **BUG-UAT-PDF-01:** ✅ CORRIGIDO (PR #365) — diagnosticCompleteness?.status no PDF do briefing
+- **BUG-UAT-08:** ✅ CORRIGIDO (PR #362)
+- **BUG-UAT-09:** ✅ CORRIGIDO (PR #365)
+- **BUG-UAT-PDF-01:** ✅ CORRIGIDO (PR #365)
+- **BUG-CNAE-AUTO:** ✅ CORRIGIDO (PR #414) — opLabel 8 valores — comercio/industria/agronegocio/financeiro mapeados
+- **BUG-SOLARIS-SAVE:** ✅ CORRIGIDO (PR #414) — auto-save debounce 800ms + resume da última pergunta
+- **Gate EVIDENCE:** ✅ IMPLEMENTADO (PR #414) — FF-EVIDENCE-01/02 + checklist no PR template
+- **ADR-0020:** ✅ DOCUMENTADO (PR #416) — schema drift 0063 — migration não re-executada
+- **Gate B:** ✅ APROVADO — 3 cenários PASS · evidência em docs/evidencias/EVIDENCIA-GATE-B-20260408.md
 - **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
+- **FF-18 ADR-INDEX:** ⏳ backlog — ADR-INDEX.md não inclui ADR-0018/0020 (PR separado)
 - **ADR-0009:** ✅ CRIADO (PR #368) — Fluxo Canônico e Fontes do Diagnóstico (DEC-M3-05 v3)
-- **Sprint Z:** ✅ ENCERRADA — Z-01 + Z-02 + ADR-0016 Etapas 1-4 mergeados
+- **Sprint Z:** ✅ ENCERRADA — Z-01 + Z-02 + ADR-0016 Etapas 1-4 + Gate B mergeados
 - **ADR-0016 Etapas 1-4:** ✅ MERGEADO (PR #391) — skip pergunta/questionário + completude
+- **Próxima Sprint:** Z-07 — Sistema de Riscos v4
 
 ## ADR-0016 — Estado atual (2026-04-07)
 
