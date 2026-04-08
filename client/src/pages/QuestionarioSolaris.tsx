@@ -12,7 +12,7 @@
  * Issue: K-4-B | Milestone: M2 — Sprint K
  */
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -130,6 +130,20 @@ export default function QuestionarioSolaris() {
       setIsSubmitting(false);
     },
   });
+  // BUG-SOLARIS-SAVE: auto-save individual com debounce 800ms
+  const saveSolarisAnswer = trpc.fluxoV3.saveSolarisAnswer.useMutation();
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // BUG-SOLARIS-SAVE: Mudança 3 — retomar da última pergunta não respondida
+  useEffect(() => {
+    if (!data?.questions?.length) return;
+    const qs = data.questions;
+    // Encontrar a primeira pergunta SEM resposta salva (existingAnswer)
+    const firstUnanswered = qs.findIndex((q) => !q.existingAnswer);
+    const resumeIndex = firstUnanswered > 0 ? firstUnanswered : 0;
+    setCurrentIndex(resumeIndex);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.questions?.length]);
 
   // ── Derivações ────────────────────────────────────────────────────────────
 
@@ -163,6 +177,19 @@ export default function QuestionarioSolaris() {
 
   function handleAnswerChange(questionId: number, value: string) {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
+    // BUG-SOLARIS-SAVE: auto-save com debounce 800ms
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    const question = questions.find((q) => q.id === questionId);
+    if (question) {
+      saveTimer.current = setTimeout(() => {
+        saveSolarisAnswer.mutate({
+          projectId,
+          questionId,
+          codigo: question.codigo,
+          answer: value,
+        });
+      }, 800);
+    }
   }
 
   function handleNext() {
