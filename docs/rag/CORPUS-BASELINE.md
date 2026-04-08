@@ -1,9 +1,9 @@
 # CORPUS BASELINE — IA SOLARIS RAG
 
-> **Versão:** v4.8
-> **Data:** 2026-04-08
-> **Commit HEAD:** 08ee879
-> **Sprint de referência:** Gate B ✅ — FIX_01+FIX_02+FIX_03 (PRs #414+#416+#417) — corpus inalterado
+> **Versão:** v4.5
+> **Data:** 2026-04-05
+> **Commit HEAD:** 2d53596
+> **Sprint de referência:** Sprint V / PV-01 Lote 3 (pós-merge PR #333)
 > **Autor:** Manus AI
 > **Aprovado por:** Uires Tapajós (P.O.)
 > **Revisão externa:** Consultor (ChatGPT) — parecer de 2026-03-30

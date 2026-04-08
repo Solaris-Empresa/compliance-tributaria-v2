@@ -1,7 +1,7 @@
 # Governança do Corpus RAG — IA SOLARIS
 
-> **Versão:** 1.4 | **Data:** 2026-04-08
-> **Aprovado por:** Uires Tapajós (P.O.) — Gate B ✅ (PRs #414+#416+#417 — corpus inalterado)
+> **Versão:** 1.3 | **Data:** 2026-04-05
+> **Aprovado por:** Uires Tapajós (P.O.) — Sprint V encerrada Lote 3 (37 casos NCM/NBS confirmados, PR #333)
 
 ---
 

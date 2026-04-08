@@ -18,6 +18,8 @@ Script: `./scripts/gate-adr.sh` verifica automaticamente a consistência.
 | ADR-0013 | `ADR-0013-badge-risk-category-l2-frontend.md` | Badge risk_category_l2 no Frontend RisksV3 | Aceito | 2026-04-07 | Z-02 |
 | ADR-0016 | `ADR-0016-completude-confianca-questionarios.md` | Completude e Confiança de Questionários (skip + confidence) | Aceito | 2026-04-07 | ADR-0016 |
 | ADR-0017 | `ADR-0017-aviso-ncm-nbs-ausente.md` | Aviso de Diagnóstico Genérico quando NCM/NBS Ausente | Aceito | 2026-04-08 | Fix-Legacy-02 |
+| ADR-0018 | `ADR-0018-context-injection-briefing.md` | Context Injection no Briefing — IS + Art. 2 + alíquota zero + Art. 14 | Aceito | 2026-04-08 | Sprint Z (Gate B) |
+| ADR-0020 | `ADR-0020-schema-drift-0063.md` | Schema Drift 0063 — migration acumulada, não re-executar | Aceito | 2026-04-08 | Sprint Z (Gate B) |
 
 ---
 
@@ -71,4 +73,4 @@ Antes de qualquer PR que modifique arquivo arquitetural:
 
 ---
 
-*Atualizado: 2026-04-08 · PRs #391 #394 #395 #397 #399 · ADR-0016 + ADR-0017 adicionados · Audit checkpoint 1b40d522*
+*Atualizado: 2026-04-08 · PRs #391 #394 #395 #397 #399 #414 #416 · ADR-0016 + ADR-0017 + ADR-0018 + ADR-0020 adicionados · Audit checkpoint 72489dd6*
