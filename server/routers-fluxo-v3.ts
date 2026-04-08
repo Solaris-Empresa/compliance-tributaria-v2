@@ -2293,11 +2293,12 @@ Gere o Briefing estruturado em JSON:
   completeOnda1: protectedProcedure
     .input(z.object({
       projectId: z.number().int().positive(),
+      // ADR-0016 Opção B: sem perguntas obrigatórias — array pode ser vazio
       answers: z.array(z.object({
         questionId: z.number().int().positive(),
         codigo: z.string().min(1).max(10),
         resposta: z.string().min(1),
-      })).min(1, 'É necessário responder ao menos uma pergunta'),
+      })),
     }))
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
@@ -2502,11 +2503,12 @@ Regras obrigatórias:
   completeOnda2: protectedProcedure
     .input(z.object({
       projectId: z.number().int().positive(),
+      // ADR-0016 Opção B: sem perguntas obrigatórias — array pode ser vazio
       answers: z.array(z.object({
         questionText: z.string().min(1),
         resposta: z.string().min(1),
         confidenceScore: z.number().min(0).max(1),
-      })).min(1, 'É necessário responder ao menos uma pergunta'),
+      })),
       // Bloco D (Opção A): NCM/NBS como parâmetro temporário até Bloco E (schema de projetos)
       // DECISÃO ARQUITETURAL: não persistidos no schema de projetos neste PR
       ncmCodes: z.array(z.string()).optional().default([]),
