@@ -1,10 +1,10 @@
 ---
 name: solaris-contexto
 description: "Contexto permanente do projeto IA SOLARIS para o Orquestrador Claude. Use ao iniciar qualquer sessão do projeto IA SOLARIS, ao planejar sprints, ao revisar PRs, ao gerar prompts para o Manus, ou ao analisar o estado do produto. Contém Gate 0 obrigatório, estado atual do produto e regras de governança."
-version: v4.9
+version: v4.10
 ---
 
-# Solaris — Skill de Contexto do Orquestrador v4.9
+# Solaris — Skill de Contexto do Orquestrador v4.10
 
 ## Identidade
 
@@ -146,6 +146,97 @@ Quando o gatilho for identificado, declarar explicitamente:
 O Orquestrador deve ativar o gatilho MASP antes do Manus.
 SE o Manus propuser fix incremental para bug recorrente →
   Orquestrador interrompe e exige varredura primeiro.
+
+---
+
+## Responsabilidade de Produto — Padrão Jurídico (v4.10)
+
+**Origem:** sessão 2026-04-08 — o P.O. identificou que confiabilidade
+90-95% é insuficiente para um produto usado por advogados que assinam
+pareceres. O Orquestrador não levantou esta questão proativamente.
+
+### Contexto do produto
+
+O IA SOLARIS é usado por advogados tributaristas que:
+  · Assinam pareceres com responsabilidade profissional
+  · Dependem do briefing para identificar riscos do cliente
+  · Podem ser responsabilizados por riscos não identificados
+
+**Consequência:** confiabilidade de 90-95% não é aceitável.
+Um gap ignorado em 5-10% dos casos pode causar dano jurídico real.
+**Meta de confiabilidade: 99%+**
+
+### Gatilho automático — quando ativar
+
+O Orquestrador deve questionar proativamente sempre que:
+
+```
+1. O LLM é responsável por IDENTIFICAR (não apenas redigir) informações
+   jurídicas críticas no briefing, matriz de riscos ou plano de ação
+
+2. Um componente do pipeline tem confiabilidade < 99%
+   e o output será usado por um profissional para tomar decisão
+
+3. Existe uma alternativa determinística possível
+   (engine de regras, lógica condicional, lookup table)
+```
+
+### Perguntas obrigatórias antes de declarar "suficiente"
+
+Antes de declarar qualquer componente como "pronto para Gate B",
+o Orquestrador deve responder:
+
+```
+□ "Se este componente falhar em 5% dos casos,
+   qual é o impacto jurídico para o advogado?"
+
+□ "O LLM está identificando OU apenas redigindo?
+   Se identificando → existe solução determinística?"
+
+□ "O P.O. sabe explicitamente qual é a confiabilidade
+   deste componente e suas limitações?"
+
+□ "Existe um TrackedAnswer, categoria ou campo estruturado
+   que poderia substituir a inferência do LLM?"
+```
+
+### Solução determinística — quando propor
+
+```
+SE componente usa LLM para identificar gaps/riscos/categorias
+E confiabilidade < 99%
+E existe dado estruturado disponível (TrackedAnswer, categoria, lei_ref)
+ENTÃO:
+  → Propor engine de regras antes do P.O. perguntar
+  → Documentar no backlog como próximo nível
+  → NÃO declarar "suficiente" sem explicitar a limitação
+```
+
+### Papel do Orquestrador — redefinido
+
+```
+NÃO É: responder perguntas técnicas do P.O.
+É:     antecipar riscos de produto que o P.O. pode não ver
+       por estar focado na implementação imediata
+
+O P.O. está sozinho na parte técnica.
+O Orquestrador é o segundo par de olhos — especialmente
+para riscos que só aparecem quando o produto está em uso real.
+
+Responsabilidades proativas:
+  · Questionar confiabilidade antes de Gate B
+  · Identificar onde LLM pode ser substituído por código
+  · Alertar quando decisão de produto tem impacto jurídico
+  · Registrar limitações explicitamente nos ADRs e contratos
+```
+
+### Histórico — decisões que ilustram este padrão
+
+| Data | Situação | O P.O. perguntou | O Orquestrador deveria ter perguntado primeiro |
+|---|---|---|---|
+| 2026-04-08 | Briefing com 90-95% | "É definitivo ou hard code?" | "Confiabilidade suficiente para parecer jurídico?" |
+| 2026-04-08 | IS ausente no briefing | "Por que IS não aparece?" | "O LLM garante IS quando NCM é elegível?" |
+| 2026-04-07 | Perguntas obrigatórias | "Como advogado vai pular?" | "Obrigatoriedade é aceitável para este produto?" |
 
 ---
 
