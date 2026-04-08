@@ -2091,9 +2091,11 @@ Gere o veredito final em JSON:
 
       if (iagenAnswersForBriefing.length > 0) {
         additionalContext.push('<respostas_iagen>');
-        iagenAnswersForBriefing.forEach((a: any) => {
-          additionalContext.push(`${a.questionText}: ${a.resposta}`);
-        });
+        iagenAnswersForBriefing
+          .filter((a: any) => a.answer)
+          .forEach((a: any) => {
+            additionalContext.push(`Q: ${a.question || a.questionId}\nR: ${a.answer}`);
+          });
         additionalContext.push('</respostas_iagen>');
       }
 
@@ -2142,9 +2144,10 @@ REGRA OBRIGATÓRIA — IMPOSTO SELETIVO (BUG-MANUAL-03 fix):
 - NUNCA associar Art. 57 a riscos de IS. Se o contexto RAG trouxer Art. 57 em busca sobre IS, ignorar essa associação.
 
 REGRA OBRIGATÓRIA — QCNAE ESPECIALIZADO (ADR-0018):
-- Se os dados do cliente (tag <qcnae_especializado>) confirmam sujeição ao IS → citar IS e Art. 2 LC 214/2025 nos gaps.
-- Se os dados do cliente confirmam alíquota zero → citar Art. 14 LC 214/2025 nas oportunidades.
-- Priorizar dados do cliente sobre inferências genéricas do RAG.
+- Se os dados do cliente (tag <qcnae_especializado>) confirmam sujeição ao IS → incluir gap sobre IS e citar Art. 2 LC 214/2025.
+- Se os dados do cliente confirmam alíquota zero → incluir gap sobre alíquota zero e citar Art. 14 LC 214/2025.
+- Se os dados do cliente confirmam ST (substituição tributária) → incluir gap sobre transição ST e citar Art. 28 LC 214/2025.
+- Priorizar dados estruturados do cliente sobre inferências do LLM.
 
 ${regulatoryContext}
 
@@ -2154,7 +2157,6 @@ ${OC}`,
             role: "user",
             content: `PROJETO: ${project.name}
 DESCRIÇÃO: ${p.description || ""}
-
 ${additionalContextText}DIAGNÓSTICO CONSOLIDADO (3 CAMADAS):
 ${answersText}
 ${correctionContext}
