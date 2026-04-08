@@ -17,6 +17,7 @@ Script: `./scripts/gate-adr.sh` verifica automaticamente a consistência.
 | ADR-0012 | `ADR-0012-art57-vs-art2-is-mapeamento-canonico.md` | Mapeamento Canônico Art. 57 vs Art. 2 LC 214/2025 (IS) | Aceito | 2026-04-07 | Z-02 |
 | ADR-0013 | `ADR-0013-badge-risk-category-l2-frontend.md` | Badge risk_category_l2 no Frontend RisksV3 | Aceito | 2026-04-07 | Z-02 |
 | ADR-0016 | `ADR-0016-completude-confianca-questionarios.md` | Completude e Confiança de Questionários (skip + confidence) | Aceito | 2026-04-07 | ADR-0016 |
+| ADR-0017 | `ADR-0017-aviso-ncm-nbs-ausente.md` | Aviso de Diagnóstico Genérico quando NCM/NBS Ausente | Aceito | 2026-04-08 | Fix-Legacy-02 |
 
 ---
 
@@ -63,9 +64,11 @@ Antes de qualquer PR que modifique arquivo arquitetural:
 | `client/src/pages/DiagnosticoStepper.tsx` | ADR-0009, ADR-0010 |
 | `server/lib/completeness.ts` | ADR-0009 |
 | `server/lib/questionnaire-completeness.ts` | ADR-0016 |
+| `client/src/pages/QuestionarioProduto.tsx` | ADR-0017 |
+| `client/src/pages/QuestionarioServico.tsx` | ADR-0017 |
 | `server/lib/tracked-question.ts` | ADR-0010 |
 | `server/lib/risk-categorizer.ts` | ADR-0009 |
 
 ---
 
-*Atualizado: 2026-04-07 · PRs #379 #385 #386 #387 #389 · ADR-0016 adicionado · Audit checkpoint 2d0dca13*
+*Atualizado: 2026-04-08 · PRs #379 #385 #386 #387 #389 #391 #394 #395 #397 #399 · ADR-0016 + ADR-0017 adicionados · Audit checkpoint 1b40d522*
