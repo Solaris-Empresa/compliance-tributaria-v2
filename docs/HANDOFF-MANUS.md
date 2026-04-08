@@ -25,11 +25,11 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-06)
-- BASELINE **v4.4** — Sprint M3 UAT ✅ ENCERRADA · Pré-Sprint Z ✅ CONCLUÍDO (PRs #362–#368)
-- **HEAD:** `57b8f05` (origin/main)
-- **PRs mergeados:** 368 · **Testes passando:** 4.064+ (151 arquivos · +15 E2E Sprint M3 UAT)
-- **TypeScript:** 0 erros · **CI:** 12 workflows ativos
+## Estado atual do projeto (2026-04-07)
+- BASELINE **v4.6** — ADR-0016 Etapas 1-4 ✅ MERGEADO (PRs #391–#392) · Deploy ✅ iasolaris.manus.space
+- **HEAD:** `a570570` (github/main) · **Checkpoint Manus:** `fb96627d`
+- **PRs mergeados:** 392 · **Testes passando:** 124/124 (CC-01..CC-21 + 26 FF + 47 CM)
+- **TypeScript:** 0 erros · **CI:** 13 workflows ativos
 - **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade
 - **Skill solaris-contexto:** v4.2 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
@@ -45,7 +45,66 @@ Drizzle ORM / Vitest / pnpm
 - **BUG-UAT-PDF-01:** ✅ CORRIGIDO (PR #365) — diagnosticCompleteness?.status no PDF do briefing
 - **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
 - **ADR-0009:** ✅ CRIADO (PR #368) — Fluxo Canônico e Fontes do Diagnóstico (DEC-M3-05 v3)
-- **Sprint Z:** ✅ DESBLOQUEADA — ADR-0009 mergeado, bloqueador Z-01 removido
+- **Sprint Z:** ✅ ENCERRADA — Z-01 + Z-02 + ADR-0016 Etapas 1-4 mergeados
+- **ADR-0016 Etapas 1-4:** ✅ MERGEADO (PR #391) — skip pergunta/questionário + completude
+
+## ADR-0016 — Estado atual (2026-04-07)
+
+### Etapas concluídas
+
+| Etapa | Entregável | PR | Status |
+|---|---|---|---|
+| 1 | Schema: 4 colunas skip (`solarisSkippedIds`, `iagenSkippedIds`, `solarisSkippedAll`, `iagenSkippedAll`) + migration 0062 | #391 | ✅ |
+| 1-B | `VITE_GIT_SHA` injetado no build via `vite.config.ts` + `health.ts` | #391 | ✅ |
+| 2 | `server/lib/questionnaire-completeness.ts` — tipos canônicos + funções (`computeState`, `computeConfidenceLevel`, `computeDiagnosticConfidence`) | #391 | ✅ |
+| 3 | 3 procedures: `skipSolarisQuestion`, `skipIagenQuestion`, `skipQuestionnaire` | #391 | ✅ |
+| 4 | Frontend: botões "Pular pergunta" + "Pular questionário" + modal confirmação; label "Obrigatória" removido | #391 | ✅ |
+
+### data-testid implementados (Etapa 4)
+
+| data-testid | Componente |
+|---|---|
+| `btn-pular-pergunta-{questionId}` | QuestionarioSolaris + QuestionarioIaGen |
+| `btn-pular-questionario-solaris` | QuestionarioSolaris |
+| `btn-pular-questionario-iagen` | QuestionarioIaGen |
+| `modal-confirmar-pular-questionario` | QuestionarioSolaris + QuestionarioIaGen |
+| `btn-confirmar-pular` | Modal compartilhado |
+| `btn-cancelar-pular` | Modal compartilhado |
+
+### Etapas pendentes (aguardando prompt do Orquestrador)
+
+| Etapa | Entregável | Status |
+|---|---|---|
+| 5 | Badge de confiança no `DiagnosticoStepper` — exibir `ConfidenceLevel` calculado | ⏳ pendente |
+| 6 | GET `/briefing` retorna campo `confidence` no payload | ⏳ pendente |
+| 7 | Testes E2E Playwright para botões de skip | ⏳ pendente |
+
+### Guia de testes manuais E2E — ADR-0016 Etapa 4
+
+**URL de produção:** https://iasolaris.manus.space
+
+**Cenário 1 — Pular pergunta individual (SOLARIS)**
+1. Abrir projeto em andamento → navegar até Questionário SOLARIS (Onda 1)
+2. Verificar que badge "Obrigatória" **não aparece** em nenhuma pergunta
+3. Clicar em "Pular esta pergunta" (`btn-pular-pergunta-{questionId}`) → pergunta marcada como pulada
+4. Progresso avança sem exigir resposta
+
+**Cenário 2 — Pular questionário inteiro (SOLARIS)**
+1. No rodapé do Questionário SOLARIS, clicar em "Pular questionário" (`btn-pular-questionario-solaris`)
+2. Modal aparece (`modal-confirmar-pular-questionario`)
+3. Testar "Cancelar" (`btn-cancelar-pular`) → modal fecha, questionário permanece
+4. Testar "Confirmar" (`btn-confirmar-pular`) → questionário avança para próxima etapa
+
+**Cenário 3 — Pular pergunta individual (IA Gen)**
+1. Avançar até Questionário IA Gen (Onda 2)
+2. Verificar ausência do badge "Obrigatória"
+3. Clicar em "Pular esta pergunta" (`btn-pular-pergunta-{questionId}`) → comportamento idêntico ao Cenário 1
+
+**Cenário 4 — Pular questionário inteiro (IA Gen)**
+1. No rodapé do Questionário IA Gen, clicar em "Pular questionário" (`btn-pular-questionario-iagen`)
+2. Fluxo idêntico ao Cenário 2
+
+**Resultado esperado em todos os cenários:** projeto avança sem bloqueio; diagnóstico gerado com aviso de confiança reduzida.
 
 ## Lembrete: Bug encontrado e corrigido na Sprint S
 
