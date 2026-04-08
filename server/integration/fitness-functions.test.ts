@@ -439,4 +439,17 @@ describe('Fitness Function 7 — Wiring de Rotas TO-BE (FF-WIRING)', () => {
     expect(content).not.toContain('questionario-corporativo-v2')
   })
 
+
+  it('FF-EVIDENCE-01: diretório docs/evidencias existe', () => {
+    expect(existsSync(resolve(ROOT, 'docs/evidencias'))).toBe(true)
+  })
+
+  it('FF-EVIDENCE-02: PR template tem Gate EVIDENCE', () => {
+    const template = readFileSync(
+      resolve(ROOT, '.github/pull_request_template.md'), 'utf-8'
+    )
+    expect(template).toContain('Gate EVIDENCE')
+    expect(template).toContain('LLM REAL executado')
+    expect(template).toContain('Orquestrador aprovou')
+  })
 })

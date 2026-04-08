@@ -2424,6 +2424,33 @@ Gere o Briefing estruturado em JSON:
         answersCount: input.answers.length,
       };
     }),
+  // K-4-B-2: saveSolarisAnswer — auto-save individual (BUG-SOLARIS-SAVE)
+  /**
+   * Salva uma única resposta SOLARIS (auto-save com debounce no frontend).
+   * Usa o mesmo upsert idempotente de saveOnda1Answers — sem efeito colateral
+   * de status (não avança o projeto — isso é responsabilidade do completeOnda1).
+   */
+  saveSolarisAnswer: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      questionId: z.number().int().positive(),
+      codigo: z.string().min(1).max(10),
+      answer: z.string(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+      await db.saveOnda1Answers(input.projectId, [{
+        questionId: input.questionId,
+        codigo: input.codigo,
+        resposta: input.answer,
+      }]);
+      return { saved: true };
+    }),
   // ─── K-4-C: Onda 2 IA Generativa ──────────────────────────────────────────
 
   /**
