@@ -32,7 +32,6 @@ import {
   AlertCircle,
   Save,
   ArrowLeft,
-  Lock,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -135,9 +134,6 @@ export default function QuestionarioCNAE() {
     { enabled: !!projectId }
   );
 
-  // Verificar bloqueio: operational deve estar completed
-  const operationalCompleted = diagnosticStatus?.diagnosticStatus?.operational === "completed";
-
   // Carregar respostas salvas ao montar — com auto-prefill do perfil
   useEffect(() => {
     if (projeto) {
@@ -214,39 +210,6 @@ export default function QuestionarioCNAE() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-      </div>
-    );
-  }
-
-  // Tela de bloqueio se operacional não foi concluído
-  if (!operationalCompleted) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <Card className="max-w-md w-full">
-          <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center">
-                <Lock className="h-8 w-8 text-amber-600" />
-              </div>
-            </div>
-            <CardTitle>Diagnóstico Operacional Necessário</CardTitle>
-            <CardDescription>
-              O Diagnóstico Setorial CNAE só pode ser iniciado após a conclusão do Diagnóstico Operacional.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Complete primeiro o <strong>Questionário Operacional (QO-01 a QO-10)</strong> para desbloquear esta etapa.
-            </p>
-            <Button onClick={() => navigate(`/projetos/${projectId}/questionario-operacional`)} className="w-full">
-              Ir para o Diagnóstico Operacional
-            </Button>
-            <Button variant="outline" onClick={() => navigate(`/projetos/${projectId}`)} className="w-full">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar ao Projeto
-            </Button>
-          </CardContent>
-        </Card>
       </div>
     );
   }

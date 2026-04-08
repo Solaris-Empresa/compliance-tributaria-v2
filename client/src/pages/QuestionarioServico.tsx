@@ -6,6 +6,7 @@
  * ADR-0016 Etapa 4 (BUG-NCM-01 + BUG-NCM-02):
  * - Corrigido navigate: /diagnostico-cnae → /questionario-cnae
  * - Adicionados botões "Pular pergunta" e "Pular questionário" com data-testid.
+ * ADR-0017: aviso informativo quando sem NBS (não bloqueia). Fix D: navigate padronizado.
  */
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
@@ -35,14 +36,23 @@ export default function QuestionarioServico() {
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
   const [confirmSkipAll, setConfirmSkipAll] = useState(false);
 
+  const { data: projectData } = trpc.fluxoV3.getProjectStep1.useQuery(
+    { projectId },
+    { enabled: projectId > 0 }
+  );
+
+  // ADR-0017: aviso informativo quando sem NBS cadastrado (não bloqueia)
+  const hasNbs = (projectData?.operationProfile?.principaisServicos ?? [])
+    .some((s: any) => s.nbs_code);
+
   const { data, isLoading, isError } = trpc.fluxoV3.getServiceQuestions.useQuery(
     { projectId },
     { enabled: projectId > 0 }
   );
 
   const completeMutation = trpc.fluxoV3.completeServiceQuestionnaire.useMutation({
-    onSuccess: () => {
-      // BUG-NCM-02 fix: rota correta é /questionario-cnae (não /diagnostico-cnae)
+    onSuccess: (_result) => {
+      // Fix D (ADR-0017): padronizado com Q.Produtos — completeServiceQuestionnaire sempre vai para diagnostico_cnae
       navigate(`/projetos/${projectId}/questionario-cnae`);
     },
   });
@@ -186,6 +196,24 @@ export default function QuestionarioServico() {
             )}
           </CardContent>
         </Card>
+      )}
+
+      {/* ADR-0017: aviso informativo quando sem NBS — não bloqueia */}
+      {!hasNbs && (
+        <div
+          data-testid="aviso-sem-nbs"
+          className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-4 text-sm"
+        >
+          <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+          <div className="space-y-1">
+            <p className="font-semibold text-amber-800 dark:text-amber-300">Diagnóstico genérico</p>
+            <p className="text-amber-700 dark:text-amber-400">
+              Nenhum código NBS foi informado. O diagnóstico de serviços será baseado em perguntas
+              genéricas, sem análise específica de regime diferenciado, imunidade ou alíquota
+              reduzida por serviço (LC 214/2025).
+            </p>
+          </div>
+        </div>
       )}
 
       <div className="flex justify-between">
