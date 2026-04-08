@@ -2,9 +2,9 @@
 
 > **Projeto:** IA SOLARIS — Compliance Tributária  
 > **Repositório:** [Solaris-Empresa/compliance-tributaria-v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2)  
-> **Versão:** v1.2 — 2026-04-08  
+> **Versão:** v1.1 — 2026-04-04  
 > **Autor:** Manus (implementador técnico) — revisão P.O.: Uires Tapajós  
-> **Status:** ✅ Governança ativa no `main` — Gate B ✅ APROVADO
+> **Status:** ✅ Governança ativa no `main`
 
 ---
 

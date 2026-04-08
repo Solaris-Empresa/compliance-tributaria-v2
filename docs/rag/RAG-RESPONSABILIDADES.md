@@ -1,6 +1,6 @@
 # RAG-RESPONSABILIDADES.md — RACI do Corpus RAG
 
-> **Versão:** 1.3 | **Data:** 2026-04-08
+> **Versão:** 1.2 | **Data:** 2026-04-05
 > **Modelo:** RACI (Responsible · Accountable · Consulted · Informed)
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 
