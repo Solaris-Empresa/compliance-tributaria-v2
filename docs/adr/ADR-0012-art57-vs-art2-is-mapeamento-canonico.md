@@ -16,7 +16,7 @@ O corpus RAG contém 6 chunks com "Art. 57" — todos tratando de **bens de uso/
 
 ---
 
-## 2. Causa Raiz
+## 1.1 Causa Raiz
 
 Falha de precisão na query RAG + ausência de instrução explícita no prompt do briefing.
 
@@ -26,7 +26,7 @@ O modelo não tinha instrução para distinguir:
 
 ---
 
-## 3. Decisão
+## 2. Decisão
 
 Adicionar instrução explícita e permanente ao prompt do `generateBriefingFromDiagnostic`:
 
