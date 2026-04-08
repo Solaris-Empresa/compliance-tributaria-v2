@@ -5,6 +5,7 @@
  *
  * ADR-0016 Etapa 4 (BUG-NCM-01): adicionados botões "Pular pergunta" e
  * "Pular questionário" com data-testid obrigatórios.
+ * ADR-0017: aviso informativo quando sem NCM (não bloqueia).
  */
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
@@ -33,6 +34,15 @@ export default function QuestionarioProduto() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
   const [confirmSkipAll, setConfirmSkipAll] = useState(false);
+
+  const { data: projectData } = trpc.fluxoV3.getProjectStep1.useQuery(
+    { projectId },
+    { enabled: projectId > 0 }
+  );
+
+  // ADR-0017: aviso informativo quando sem NCM cadastrado (não bloqueia)
+  const hasNcm = (projectData?.operationProfile?.principaisProdutos ?? [])
+    .some((p: any) => p.ncm_code);
 
   const { data, isLoading, isError } = trpc.fluxoV3.getProductQuestions.useQuery(
     { projectId },
@@ -188,6 +198,27 @@ export default function QuestionarioProduto() {
             )}
           </CardContent>
         </Card>
+      )}
+
+      {/* ADR-0017: aviso informativo quando sem NCM — não bloqueia */}
+      {!hasNcm && (
+        <div
+          data-testid="aviso-sem-ncm"
+          className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-4 text-sm"
+        >
+          <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+          <div className="space-y-1">
+            <p className="font-semibold text-amber-800 dark:text-amber-300">Diagnóstico genérico</p>
+            <p className="text-amber-700 dark:text-amber-400">
+              Nenhum código NCM foi informado para esta empresa. O diagnóstico de produtos será
+              baseado em perguntas genéricas, sem análise específica de alíquota zero, Imposto
+              Seletivo ou regime diferenciado por produto (LC 214/2025).
+            </p>
+            <p className="text-amber-700 dark:text-amber-400">
+              Para um diagnóstico mais preciso, adicione os códigos NCM no perfil do projeto.
+            </p>
+          </div>
+        </div>
       )}
 
       <div className="flex justify-between">
