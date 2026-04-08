@@ -171,19 +171,10 @@ export const diagnosticRouter = router({
         operational: "not_started",
         cnae: "not_started",
       };
-      // Validar regra de progressão sequencial
-      if (input.layer === "operational" && current.corporate !== "completed") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "O Diagnóstico Corporativo deve ser concluído antes de iniciar o Operacional.",
-        });
-      }
-      if (input.layer === "cnae" && current.operational !== "completed") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "O Diagnóstico Operacional deve ser concluído antes de iniciar o CNAE.",
-        });
-      }
+      // ADR-0010: guardas de progressão sequencial removidas (fluxo AS-IS legado)
+      // Fluxo TO-BE chega ao CNAE via q_produto/q_servico sem passar por operational.
+      // Retrocompatibilidade garantida pelo flowStateMachine (projetos legados ainda
+      // passam por operational antes de cnae — a transição é válida).
       // Salvar respostas da camada
       const answerField = input.layer === "corporate"
         ? "corporateAnswers"
