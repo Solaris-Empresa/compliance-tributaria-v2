@@ -2056,6 +2056,51 @@ Gere o veredito final em JSON:
       const productServiceLayers = buildProductServiceLayers(briefingProduct, briefingService);
       const aggregatedDiagnosticAnswers = [...baseLayers, ...productServiceLayers];
 
+      // ADR-0018: Camadas 6+7+8 — Fontes ausentes: QCNAE especializado, SOLARIS (Onda 1), IA Gen (Onda 2)
+      // Fonte A: QCNAE especializado (IS, alíquota zero, ST, regime especial, prioridade)
+      const specializedCnaeAnswers = p.cnaeAnswers
+        ? (typeof p.cnaeAnswers === 'string'
+            ? (() => { try { return JSON.parse(p.cnaeAnswers as string); } catch { return null; } })()
+            : p.cnaeAnswers)
+        : null;
+
+      // Fonte B: Respostas SOLARIS (Onda 1)
+      const solarisAnswersForBriefing = await db.getOnda1Answers(input.projectId);
+
+      // Fonte C: Respostas IA Gen (Onda 2)
+      const iagenAnswersForBriefing = await db.getOnda2Answers(input.projectId);
+
+      // Montar bloco de texto adicional para o userPrompt
+      const additionalContext: string[] = [];
+
+      if (specializedCnaeAnswers) {
+        additionalContext.push('<qcnae_especializado>');
+        additionalContext.push(JSON.stringify(specializedCnaeAnswers, null, 2));
+        additionalContext.push('</qcnae_especializado>');
+      }
+
+      if (solarisAnswersForBriefing.length > 0) {
+        additionalContext.push('<respostas_solaris>');
+        solarisAnswersForBriefing
+          .filter((a: any) => a.resposta)
+          .forEach((a: any) => {
+            additionalContext.push(`${a.codigo}: ${a.resposta}`);
+          });
+        additionalContext.push('</respostas_solaris>');
+      }
+
+      if (iagenAnswersForBriefing.length > 0) {
+        additionalContext.push('<respostas_iagen>');
+        iagenAnswersForBriefing.forEach((a: any) => {
+          additionalContext.push(`${a.questionText}: ${a.resposta}`);
+        });
+        additionalContext.push('</respostas_iagen>');
+      }
+
+      const additionalContextText = additionalContext.length > 0
+        ? `DADOS ADICIONAIS DO CLIENTE:\n${additionalContext.join('\n')}\n\n`
+        : '';
+
       // Usar o generateBriefing existente com o payload consolidado
       // (sem alterar a lógica interna do generateBriefing)
       const answersText = aggregatedDiagnosticAnswers.map(layer =>
@@ -2096,6 +2141,11 @@ REGRA OBRIGATÓRIA — IMPOSTO SELETIVO (BUG-MANUAL-03 fix):
 - O Art. 57 da LC 214/2025 trata de bens de uso/consumo pessoal — NÃO está relacionado ao IS.
 - NUNCA associar Art. 57 a riscos de IS. Se o contexto RAG trouxer Art. 57 em busca sobre IS, ignorar essa associação.
 
+REGRA OBRIGATÓRIA — QCNAE ESPECIALIZADO (ADR-0018):
+- Se os dados do cliente (tag <qcnae_especializado>) confirmam sujeição ao IS → citar IS e Art. 2 LC 214/2025 nos gaps.
+- Se os dados do cliente confirmam alíquota zero → citar Art. 14 LC 214/2025 nas oportunidades.
+- Priorizar dados do cliente sobre inferências genéricas do RAG.
+
 ${regulatoryContext}
 
 ${OC}`,
@@ -2105,7 +2155,7 @@ ${OC}`,
             content: `PROJETO: ${project.name}
 DESCRIÇÃO: ${p.description || ""}
 
-DIAGNÓSTICO CONSOLIDADO (3 CAMADAS):
+${additionalContextText}DIAGNÓSTICO CONSOLIDADO (3 CAMADAS):
 ${answersText}
 ${correctionContext}
 ${complementContext}
