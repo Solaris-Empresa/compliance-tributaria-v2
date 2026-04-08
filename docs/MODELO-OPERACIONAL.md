@@ -1,11 +1,11 @@
 # MODELO OPERACIONAL — Equipe IA Solaris
 
-**Versão:** 1.2 — 2026-04-04  
+**Versão:** 1.3 — 2026-04-08  
 **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2  
 **Aprovador:** P.O. Uires Tapajós  
-**Última sprint concluída:** Sprint S (Lotes A–E + fix iagen) · HEAD `d08c12a`  
-**Próxima sprint:** Sprint T — campo NCM + LC 87 + engine Onda 3 (`source='rag'`)  
-**Contexto de entrada:** `docs/governance/ESTADO-ATUAL.md` — leia antes de qualquer trabalho
+**Última sprint concluída:** Sprint Z — Gate B (BUG-CNAE-AUTO + BUG-SOLARIS-SAVE + Gate EVIDENCE) · HEAD `17199c4`  
+**Próxima sprint:** Sprint Z-07 — Sistema de Riscos v4  
+**Contexto de entrada:** `docs/BASELINE-PRODUTO.md` + `docs/HANDOFF-MANUS.md` — leia antes de qualquer trabalho (Gate 0 obrigatório)
 
 ---
 
@@ -105,7 +105,7 @@ P.O. solicita
 
 ---
 
-## Bloqueios Ativos (2026-04-04)
+## Bloqueios Ativos (2026-04-08)
 
 Não remover sem aprovação documentada do P.O.:
 
@@ -119,26 +119,26 @@ Não remover sem aprovação documentada do P.O.:
 
 ## Backlog Ativo de Trabalho
 
-### Concluído — Sprint S (2026-04-04)
+### Concluído — Sprint Z Gate B (2026-04-08)
 
 | Item | PR | Status |
 |---|---|---|
-| Lote A: `iagen-gap-analyzer.ts` + `completeOnda2` | #292 | ✅ Mergeado |
-| Lote B: `persistCpieScoreForProject` backend | #292 | ✅ Mergeado |
-| Lote C: Hard delete 1.705 projetos legados | — | ✅ Executado |
-| Lote D: 5 novas leis corpus RAG (376 chunks) | #296 | ✅ Mergeado |
-| Lote E: `briefingEngine` usa `actionPlans` (401 reg.) | #292 | ✅ Mergeado |
-| Fix: `isNonCompliantAnswer` (bug confidence_score) | #295 | ✅ Mergeado |
-| T1 validado: projeto 2490006 → `iagen=3` | — | ✅ Validado |
+| FIX_02: BUG-CNAE-AUTO — opLabel 8 valores | #414 | ✅ Mergeado |
+| FIX_03: BUG-SOLARIS-SAVE — auto-save + resume | #414 | ✅ Mergeado |
+| FIX_01: Gate EVIDENCE + FF-EVIDENCE-01/02 | #414 | ✅ Mergeado |
+| ADR-0018: Context Injection Briefing | #412 | ✅ Mergeado |
+| ADR-0020: Schema Drift 0063 documentado | #416 | ✅ Mergeado |
+| ADR-INDEX: ADR-0018 + ADR-0020 adicionados (FF-18 resolvido) | #420 | ✅ Mergeado |
+| Cockpit P.O. atualizado para v4.8 Gate B | #419 | ✅ Mergeado |
+| Evidência Gate B capturada | #417 | ✅ Mergeado |
+| Documentação RAG v1.3–1.5 atualizada | #418 | ✅ Mergeado |
 
-### P0 — Sprint T (próxima)
+### P0 — Sprint Z-07 (próxima)
 
 | Item | Responsável | Status |
 |---|---|---|
-| Campo `principaisProdutos` (NCM) no perfil da empresa | Manus | ⏳ Próxima |
-| Engine Onda 3: tabular Anexos I–XI LC 214 por NCM (~400 chunks) | Manus | ⏳ Próxima |
-| LC 87 compilada completa (~80 chunks) | Manus | ⏳ Próxima |
-| IN RFB 2.121/2022 (~200 chunks) | Manus | ⏳ Próxima |
+| Sistema de Riscos v4 | Manus | ⏳ Próxima |
+| Gate B+ — evidência LLM real (matriz de riscos) | Manus | ⏳ Próxima |
 
 ### Bloqueados (aguardam P.O.)
 
@@ -197,7 +197,7 @@ Quando o Consultor (ChatGPT) for acionado:
 
 - [docs/governance/ESTADO-ATUAL.md](./governance/ESTADO-ATUAL.md) — **LEIA PRIMEIRO** — porta de entrada universal
 - [PRODUCT-LIFECYCLE.md](./PRODUCT-LIFECYCLE.md) — ciclo de vida do produto
-- [BASELINE-PRODUTO.md](./BASELINE-PRODUTO.md) — estado atual do produto (v3.2)
+- [BASELINE-PRODUTO.md](./BASELINE-PRODUTO.md) — estado atual do produto (v4.8 Gate B ✅)
 - [ERROS-CONHECIDOS.md](./ERROS-CONHECIDOS.md) — incidentes e invariants
 - [docs/governance/invariant-registry.md](./governance/invariant-registry.md) — 8 invariants
 - [docs/governance/HANDOFF-IMPLEMENTADOR.md](./governance/HANDOFF-IMPLEMENTADOR.md) — guia do Manus
@@ -205,6 +205,6 @@ Quando o Consultor (ChatGPT) for acionado:
 
 ---
 
-*MODELO-OPERACIONAL.md — IA Solaris v1.2 · 2026-04-04 (pós-Sprint S)*
+*MODELO-OPERACIONAL.md — IA Solaris v1.3 · 2026-04-08 (pós-Sprint Z Gate B)*
 *Revisar se a composição da equipe ou os papéis mudarem*
 *Aprovador: P.O. Uires Tapajós*
