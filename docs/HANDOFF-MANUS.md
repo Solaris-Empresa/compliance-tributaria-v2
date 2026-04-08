@@ -25,10 +25,10 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-07)
-- BASELINE **v4.6** — ADR-0016 Etapas 1-4 ✅ MERGEADO (PRs #391–#392) · Deploy ✅ iasolaris.manus.space
-- **HEAD:** `a570570` (github/main) · **Checkpoint Manus:** `fb96627d`
-- **PRs mergeados:** 392 · **Testes passando:** 124/124 (CC-01..CC-21 + 26 FF + 47 CM)
+## Estado atual do projeto (2026-04-08)
+- BASELINE **v4.7** — ADR-0016 Etapas 1-4 + fixes pós-UAT ✅ MERGEADOS (PRs #391–#397) · Deploy ✅ iasolaris.manus.space
+- **HEAD:** `2c3cfb1` (github/main) · **Checkpoint Manus:** `5b195fca`
+- **PRs mergeados:** 397 · **Testes passando:** 124/124 (CC-01..CC-21 + 26 FF + 47 CM)
 - **TypeScript:** 0 erros · **CI:** 13 workflows ativos
 - **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade
 - **Skill solaris-contexto:** v4.2 · **Skill solaris-orquestracao:** v3.2
@@ -40,15 +40,20 @@ Drizzle ORM / Vitest / pnpm
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
 - **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06
-- **BUG-UAT-08:** ✅ CORRIGIDO (PR #362) — VALID_TRANSITIONS + assertValidTransition universal
-- **BUG-UAT-09:** ✅ CORRIGIDO (PR #365) — approveBriefing atômico diagnostico_cnae → briefing → matriz_riscos
-- **BUG-UAT-PDF-01:** ✅ CORRIGIDO (PR #365) — diagnosticCompleteness?.status no PDF do briefing
+- **BUG-UAT-08:** ✅ CORRIGIDO (PR #362)
+- **BUG-UAT-09:** ✅ CORRIGIDO (PR #365)
+- **BUG-UAT-PDF-01:** ✅ CORRIGIDO (PR #365)
+- **BUG-SKIP-01/02:** ✅ CORRIGIDO (PR #394) — canSubmit SOLARIS + podeAvancar IaGen
+- **BUG-NCM-01/02:** ✅ CORRIGIDO (PR #394) — skip em Q.Produto + Q.Serviço + 404 eliminado
+- **BUG-LEGACY-02:** ✅ CORRIGIDO (PR #395) — guarda QO removida do Q.CNAE + avisos NCM/NBS
+- **BUG-CNAE-01:** ✅ CORRIGIDO (PR #397) — guarda `operational≠completed` removida de `completeDiagnosticLayer`
+- **ADR-0017:** ✅ CRIADO (PR #395) — Aviso de Diagnóstico Genérico quando NCM/NBS Ausente
 - **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
 - **ADR-0009:** ✅ CRIADO (PR #368) — Fluxo Canônico e Fontes do Diagnóstico (DEC-M3-05 v3)
-- **Sprint Z:** ✅ ENCERRADA — Z-01 + Z-02 + ADR-0016 Etapas 1-4 mergeados
+- **Sprint Z:** ✅ ENCERRADA — Z-01 + Z-02 + ADR-0016 Etapas 1-4 + fixes pós-UAT mergeados
 - **ADR-0016 Etapas 1-4:** ✅ MERGEADO (PR #391) — skip pergunta/questionário + completude
 
-## ADR-0016 — Estado atual (2026-04-07)
+## ADR-0016 — Estado atual (2026-04-08)
 
 ### Etapas concluídas
 
