@@ -1,10 +1,10 @@
 ---
 name: solaris-contexto
 description: "Contexto permanente do projeto IA SOLARIS para o Orquestrador Claude. Use ao iniciar qualquer sessão do projeto IA SOLARIS, ao planejar sprints, ao revisar PRs, ao gerar prompts para o Manus, ou ao analisar o estado do produto. Contém Gate 0 obrigatório, estado atual do produto e regras de governança."
-version: v4.8
+version: v4.9
 ---
 
-# Solaris — Skill de Contexto do Orquestrador v4.8
+# Solaris — Skill de Contexto do Orquestrador v4.9
 
 ## Identidade
 
@@ -95,7 +95,7 @@ G1–G12 todos resolvidos. G13 absorvido pelo B2.
 3. Incluir no prompt: leitura obrigatória + perguntas de confirmação
 4. Nunca gerar prompt de implementação sem Gate 0 completo
 
-## Regra MASP — Anti-incremental (v4.8)
+## Regra MASP — Anti-incremental (v4.9)
 
 **Origem:** sessão 2026-04-07 — validações de obrigatoriedade apareceram
 em 5 camadas diferentes. Fixes pontuais consumiram 1h+ e exigiram
@@ -146,6 +146,161 @@ Quando o gatilho for identificado, declarar explicitamente:
 O Orquestrador deve ativar o gatilho MASP antes do Manus.
 SE o Manus propuser fix incremental para bug recorrente →
   Orquestrador interrompe e exige varredura primeiro.
+
+---
+
+## Técnicas de Design de Testes — ISTQB aplicado ao SOLARIS (v4.9)
+
+**Origem:** sessão 2026-04-07 — bugs descobertos no E2E manual do P.O.
+que teriam sido capturados antes do deploy com design sistemático de testes.
+
+### Quando aplicar cada técnica
+
+---
+
+#### DECISION TABLE — regras de negócio com combinações
+
+**Quando usar:** obrigatório em todo PR que toca fluxo de questionários,
+Q.Produtos, Q.Serviços, ou qualquer lógica com múltiplas condições simultâneas.
+
+**O que criar ANTES de escrever specs:** tabela de decisão com todas as
+combinações relevantes de input → output esperado.
+
+**Tabela canônica do SOLARIS — fluxo de questionários:**
+
+| operationType | ncmCodes | nbsCodes | Q.Produtos | Q.Serviços | Fluxo |
+|---|---|---|---|---|---|
+| produto    | ✓ | ✗ | ativo (NCM específico) | não aplicável | →cnae |
+| produto    | ✗ | ✗ | ativo (fallback genérico + aviso) | não aplicável | →cnae |
+| servico    | ✗ | ✓ | não aplicável | ativo (NBS específico) | →cnae |
+| servico    | ✗ | ✗ | não aplicável | ativo (fallback + aviso) | →cnae |
+| misto      | ✓ | ✓ | ativo (NCM específico) | ativo (NBS específico) | →serv→cnae |
+| misto      | ✓ | ✗ | ativo (NCM específico) | ativo (fallback + aviso) | →serv→cnae |
+| misto      | ✗ | ✓ | ativo (fallback + aviso) | ativo (NBS específico) | →serv→cnae |
+| comercio   | ✓ | ✗ | ativo (NCM específico) | não aplicável | →cnae |
+| industria  | ✓ | ✓ | ativo (NCM específico) | ativo (NBS específico) | →serv→cnae |
+| (ausente)  | ✗ | ✗ | fallback genérico | fallback genérico | →cnae |
+
+**Regra:** cada linha da tabela deve ter pelo menos 1 teste automatizado.
+Antes de abrir PR: confirmar que specs cobrem todas as linhas relevantes.
+
+---
+
+#### STATE TRANSITION TESTING — flowStateMachine é um FSM
+
+**Quando usar:** obrigatório em todo PR que toca `server/flowStateMachine.ts`
+ou `VALID_TRANSITIONS`.
+
+**O que criar ANTES de implementar:** tabela de transições com estados válidos
+e inválidos.
+
+**Tabela de transições canônica TO-BE (ADR-0010):**
+
+| Estado atual | Evento | Próximo estado | Válido? |
+|---|---|---|---|
+| onda2_iagen | completeIaGen (produto/comercio) | q_produto | ✓ |
+| onda2_iagen | completeIaGen (legado) | diagnostico_corporativo | ✓ (retrocompat) |
+| q_produto | completeProduct (produto/comercio) | diagnostico_cnae | ✓ |
+| q_produto | completeProduct (misto/industria) | q_servico | ✓ |
+| q_produto | completeDiagnosticLayer | — | ✗ INVÁLIDO |
+| q_servico | completeService | diagnostico_cnae | ✓ |
+| diagnostico_cnae | completeDiagnosticLayer(cnae) | briefing | ✓ |
+| diagnostico_cnae | completeDiagnosticLayer(operational) | — | ✗ INVÁLIDO (guard legada) |
+| diagnostico_corporativo | completeLayer(corporate) | diagnostico_operacional | ✓ (legado) |
+
+**Regra:** transições INVÁLIDAS devem ter testes que confirmam rejeição.
+Toda nova transição adicionada ao VALID_TRANSITIONS → nova linha na tabela.
+
+---
+
+#### EQUIVALENCE PARTITIONING — partições por operationType
+
+**Quando usar:** design de baterias de teste E2E ou de integração
+que cobrem múltiplos tipos de empresa.
+
+**Partições canônicas do SOLARIS:**
+
+| Classe | operationType | Representante | O que cobre |
+|---|---|---|---|
+| P1 — Produto puro | produto, comercio | produto | Q.Produtos ativo, Q.Serviços não aplicável |
+| P2 — Serviço puro | servico, servicos | servico | Q.Produtos não aplicável, Q.Serviços ativo |
+| P3 — Misto/Indústria | misto, industria | misto | Ambos ativos |
+| P4 — Agronegócio/Financeiro | agronegocio, financeiro | agronegocio | Conservador — ambos ativos |
+| P5 — Sem definição | null, undefined, "" | null | Fallback genérico |
+
+**Regra:** toda bateria de testes deve ter 1 representante de cada partição.
+Testar 5 casos cobre o mesmo espaço que testar 50 casos aleatórios.
+Não repetir casos dentro da mesma partição sem motivo específico.
+
+---
+
+#### BOUNDARY VALUE ANALYSIS — campos de texto e percentuais
+
+**Quando usar:** campos de resposta, percentuais de completude, contagem
+de perguntas respondidas.
+
+**Fronteiras críticas do SOLARIS:**
+
+| Campo | Mínimo | Fronteira inferior | Nominal | Fronteira superior | Máximo |
+|---|---|---|---|---|---|
+| Completude questionário | 0% | 1% (1 resposta) | 50% | 79% (parcial→completo) | 100% |
+| Threshold completo | — | 79% | — | 80% (vira "completo") | — |
+| Threshold parcial | 30% | 31% | 50% | 79% | — |
+| Respostas SOLARIS | 0 | 1 | 12 | 23 | 24 |
+
+**Regra:** ao implementar lógica de threshold (completo/parcial/incompleto),
+criar testes para os valores na fronteira: 79%, 80%, 29%, 30%.
+
+---
+
+#### ERROR GUESSING — histórico de bugs como guia
+
+**Quando usar:** SEMPRE, antes de implementar qualquer feature nova.
+Consultar "Erros Recorrentes" da Skill e perguntar:
+"Este tipo de erro já aconteceu antes neste projeto?"
+
+**Padrões de erro recorrentes no SOLARIS:**
+
+| Padrão | Ocorrências | Pergunta antes de implementar |
+|---|---|---|
+| Validação `.min(1)` em Zod | 4x (sessão Z) | "Esta procedure tem min(1) em campo de resposta?" |
+| Guard legada no frontend | 3x | "Existe if(!completado) bloqueando navegação?" |
+| Guard legada no backend | 2x | "Existe verificação de estado legado na procedure?" |
+| Wiring de navegação regressão | 3x | "O navigate() usa rota TO-BE ou legada?" |
+| Enum inglês vs português | 1x (DIV-Z02-003) | "operationType usa 'produto' ou 'product'?" |
+| map paralelo não grava arquivos | 1x | "Esta tarefa precisa gravar arquivos? → sequencial" |
+| Obrigatoriedade em múltiplas camadas | 5x | "Onde mais esta validação pode existir?" |
+
+**Regra:** ao ver qualquer um destes padrões pela primeira vez numa feature,
+verificar imediatamente se o mesmo padrão existe em outros arquivos.
+Gatilho MASP se encontrado em 2+ lugares.
+
+---
+
+### Protocolo de design de testes antes de implementar
+
+Para toda feature que toca fluxo de questionários ou flowStateMachine:
+
+```
+PASSO 1 — Decision Table (10 min):
+  Mapear todas as combinações de input → output esperado
+  Confirmar que specs cobrem todas as linhas
+
+PASSO 2 — State Transition (5 min, se toca FSM):
+  Listar transições novas + transições que devem ser inválidas
+  Confirmar que testes verificam rejeição de transições inválidas
+
+PASSO 3 — Equivalence Partitioning (5 min):
+  Identificar partições de operationType relevantes para a feature
+  Garantir 1 teste por partição (não repetir dentro da partição)
+
+PASSO 4 — Error Guessing (2 min):
+  Consultar tabela "Padrões de erro recorrentes"
+  Fazer perguntas de verificação antes de escrever código
+
+Total: ~20 min antes de implementar
+Evita: horas de debugging após deploy
+```
 
 ---
 
