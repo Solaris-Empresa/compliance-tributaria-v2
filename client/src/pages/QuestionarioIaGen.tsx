@@ -4,7 +4,7 @@
  *
  * Gera 5–10 perguntas combinatórias via LLM com base no perfil da empresa.
  * Badge laranja "Perfil da empresa". Salva em iagen_answers via completeOnda2.
- * Ao concluir: navega para /questionario-corporativo-v2.
+ * Ao concluir: navega para /questionario-produto.
  */
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useParams } from "wouter";
@@ -97,7 +97,7 @@ export default function QuestionarioIaGen() {
   const completeOnda2 = trpc.fluxoV3.completeOnda2.useMutation({
     onSuccess: () => {
       toast.success("Onda 2 concluída! Iniciando Questionário Corporativo...");
-      setLocation(`/projetos/${projectId}/questionario-corporativo-v2`);
+      setLocation(`/projetos/${projectId}/questionario-produto`);
     },
     onError: (err) => {
       toast.error(err.message ?? "Erro ao concluir Onda 2. Tente novamente.");
