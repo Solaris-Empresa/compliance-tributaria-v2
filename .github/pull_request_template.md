@@ -187,6 +187,22 @@ Resultado: [ PASS | BLOQUEADO | N/A ]
 ```
 
 ---
+## Gate EVIDENCE — Componentes LLM
+> Se o PR toca `generateBriefingFromDiagnostic`, `generateRiskMatrices`
+> ou qualquer função que chama o LLM para gerar conteúdo jurídico:
+
+- [ ] Teste com LLM REAL executado (não mock)
+- [ ] Output completo capturado como evidência
+- [ ] IS mencionado quando `cnaeAnswers.IS = sim`
+- [ ] Art. 2 citado quando IS identificado
+- [ ] alíquota zero mencionada quando elegível
+- [ ] Art. 14 citado quando alíquota zero identificada
+- [ ] Evidência salva em `docs/evidencias/`
+- [ ] Orquestrador aprovou após leitura do output real
+
+⚠️ PRs que tocam pipeline LLM sem evidência não devem ser mergeados.
+
+---
 
 ## Auto-auditoria Q1–Q7 + observabilidade (Gate 2 v5.0)
 

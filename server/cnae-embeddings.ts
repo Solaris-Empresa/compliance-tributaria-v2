@@ -225,7 +225,7 @@ export function formatCandidatesForPrompt(candidates: CnaeCandidate[]): string {
  */
 export interface CompanyContext {
   taxRegime?: "simples_nacional" | "lucro_presumido" | "lucro_real";
-  operationType?: "produto" | "servico" | "misto";
+  operationType?: "produto" | "servico" | "servicos" | "misto" | "industria" | "comercio" | "agronegocio" | "financeiro";
   clientType?: string[];
   annualRevenueRange?: "ate_360k" | "360k_4_8m" | "4_8m_78m" | "acima_78m";
 }
@@ -251,7 +251,12 @@ export async function buildSemanticCnaeContext(
       const opLabel: Record<string, string> = {
         produto: "venda de produtos",
         servico: "prestação de serviços",
+        servicos: "prestação de serviços",
         misto: "venda de produtos e serviços",
+        industria: "fabricação e produção industrial",
+        comercio: "comércio atacadista e varejista",
+        agronegocio: "agronegócio e atividades rurais",
+        financeiro: "serviços financeiros e seguros",
       };
       contextParts.push(opLabel[companyContext.operationType] ?? companyContext.operationType);
     }
