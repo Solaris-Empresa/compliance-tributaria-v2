@@ -146,14 +146,8 @@ export default function QuestionarioSolaris() {
     ? Math.round((answeredCount / totalQuestions) * 100)
     : 0;
 
-  const canSubmit = useMemo(() => {
-    // ADR-0016: sem perguntas obrigatórias — pode concluir com qualquer qtd
-    // Mínimo: ao menos 1 interação (respondida ou pulada)
-    if (questions.length === 0) return false
-    const respondidas = Object.keys(answers).length
-    const puladas     = skippedIds.size
-    return respondidas + puladas > 0
-  }, [questions, answers, skippedIds])
+  // ADR-0016 Opção B: sem perguntas obrigatórias — habilitar Concluir assim que as perguntas carregarem
+  const canSubmit = questions.length > 0
 
   // ── Handlers ────────────────────────────────────────────────────────────────────────────────
 

@@ -25,10 +25,10 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-07)
-- BASELINE **v4.6** — ADR-0016 Etapas 1-4 ✅ MERGEADO (PRs #391–#392) · Deploy ✅ iasolaris.manus.space
-- **HEAD:** `a570570` (github/main) · **Checkpoint Manus:** `fb96627d`
-- **PRs mergeados:** 392 · **Testes passando:** 124/124 (CC-01..CC-21 + 26 FF + 47 CM)
+## Estado atual do projeto (2026-04-08)
+- BASELINE **v4.7** — ADR-0016 Etapas 1-4 ✅ MERGEADO (PRs #391–#392) · Deploy ✅ iasolaris.manus.space
+- **HEAD: `2c3cfb1` (github/main) · **Checkpoint Manus:** `5b195fca``
+- **PRs mergeados:** 397 · **Testes passando:** 124/124 (CC-01..CC-21 + 26 FF + 47 CM)
 - **TypeScript:** 0 erros · **CI:** 13 workflows ativos
 - **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade
 - **Skill solaris-contexto:** v4.2 · **Skill solaris-orquestracao:** v3.2
