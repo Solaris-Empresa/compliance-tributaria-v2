@@ -57,7 +57,8 @@ export default function QuestionarioIaGen() {
   const totalPerguntas = perguntas.length;
   const perguntaAtual = perguntas[currentIndex];
   const respondidas = Object.values(respostas).filter((r) => r.trim().length > 0).length;
-  const todasRespondidas = respondidas === totalPerguntas && totalPerguntas > 0;
+  // ADR-0016 Opção B: sem perguntas obrigatórias — habilitar Concluir assim que as perguntas carregarem
+  const todasRespondidas = totalPerguntas > 0;
   const progresso = totalPerguntas > 0 ? Math.round((respondidas / totalPerguntas) * 100) : 0;
 
   // ── ADR-0016 Etapa 4: Skip de perguntas e questionário ─────────────────────
@@ -118,10 +119,7 @@ export default function QuestionarioIaGen() {
   };
 
   const handleConcluir = async () => {
-    if (!todasRespondidas) {
-      toast.warning(`Faltam ${totalPerguntas - respondidas} resposta(s) para concluir.`);
-      return;
-    }
+    // ADR-0016: guarda de obrigatórias removida
     setIsSubmitting(true);
     const answers = perguntas.map((p) => ({
       questionText: p.texto,
