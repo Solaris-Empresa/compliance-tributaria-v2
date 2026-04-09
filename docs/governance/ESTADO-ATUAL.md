@@ -366,6 +366,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | DEC-M2-07 | UX NCM/NBS: validação em tempo real + acessibilidade WCAG (aria-describedby/invalid). PR #339. | 2026-04-06 |
 | DEC-M2-08 | onda3_rag não existe — status correto pós-completeOnda2 é diagnostico_corporativo. Auditoria P2. PR #350. | 2026-04-06 |
 | DEC-M2-09 | completeDiagnosticLayer e handlers de aprovação sem assertValidTransition: status corretos, risco=regressão futura. Backlog BL-01. PR #350. | 2026-04-06 |
+| DEC-SWAP-05 | AUDIT-C-004 — Opção A aprovada: `scoringEngine.ts` NÃO é tocado no Sprint Z-07. `generateRisks` sem dependência do CPIE. PR #E (migração score → tabelas v4) na próxima sprint. | 2026-04-09 |
 
 ---
 
