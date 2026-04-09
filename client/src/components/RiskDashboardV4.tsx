@@ -2,7 +2,7 @@
  * RiskDashboardV4.tsx — Sprint Z-07 PR #C
  *
  * Dashboard do Sistema de Riscos v4 (engine determinístico).
- * Consome: trpc.risksV4.listRisks · deleteRisk · restoreRisk · approveRisk
+ * Consome: trpc.risksV4.generateRisks · listRisks · deleteRisk · restoreRisk · approveRisk
  * Arquivo novo — não altera nenhum arquivo existente (ADR-0022).
  */
 
@@ -283,6 +283,10 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   const approveMutation = trpc.risksV4.approveRisk.useMutation({
     onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
   });
+  // generateRisks — consumidor obrigatório da procedure (Gate FC)
+  const generateMutation = trpc.risksV4.generateRisks.useMutation({
+    onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
+  });
 
   // ── Render ─────────────────────────────────────────────────────────────────
   if (isLoading) {
@@ -361,9 +365,23 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
         </CardHeader>
         <CardContent className="space-y-2.5">
           {active.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">
-              Nenhum risco ativo. Execute o diagnóstico para gerar riscos v4.
-            </p>
+            <div className="flex flex-col items-center gap-3 py-6">
+              <p className="text-sm text-muted-foreground">
+                Nenhum risco ativo. Gere os riscos v4 a partir do diagnóstico.
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={generateMutation.isPending}
+                onClick={() => generateMutation.mutate({ projectId, gaps: [] })}
+              >
+                {generateMutation.isPending ? (
+                  <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Gerando…</>
+                ) : (
+                  <><ShieldAlert className="h-3.5 w-3.5 mr-1.5" />Gerar Riscos v4</>
+                )}
+              </Button>
+            </div>
           ) : (
             active.map((risk) => (
               <RiskCard
