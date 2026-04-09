@@ -2,8 +2,8 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 4.6 — 2026-04-07 (ADR-0016 Etapas 1-4 — PR #391)
-> **Commit HEAD:** `18df234` (pós-PR #391)
+> **Versão:** 4.9 — 2026-04-09 (Sprint Z-07 ENCERRADA — PRs #427–#429)
+> **Commit HEAD:** `c03d401` (pós-Sprint Z-07)
 > **Checkpoint Manus:** `fb96627d` (auditoria pós-merge PR #391 + #392 ✅)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
@@ -37,10 +37,11 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z — Z-01** | **Q.Produtos (NCM) + Q.Serviços (NBS) rastreados — DEC-M3-05 v1 ✅ #370 · BUG-E2E-01 ✅ #372 · DIV-Z01-004/005 ✅ #374–#375 · riskEngine integrado ✅ #376** | **✅ ENCERRADA** |
 | **Sprint Z — Z-02** | **DEC-M3-05 v3 TO-BE: Q.Produtos NCM + Q.Serviços NBS substituem QC/QO ✅ #381 · Wiring DiagnosticoStepper v3.1 ✅ #387 · BUG-RESP-01 fallback duplo ✅ #383** | **✅ ENCERRADA** |
 | **ADR-0016 Etapas 1-4** | **Completude/Confiança: schema 4 colunas + questionnaire-completeness.ts + 3 procedures skip + botões frontend ✅ #391** | **✅ MERGEADO** |
+| **Sprint Z-07** | **PR #B ✅ #427 (0064_risks_v4.sql · db-queries-risks-v4.ts) · PR #C ✅ #429 (risks-v4.ts · RiskDashboardV4.tsx · ActionPlanPage.tsx) · Gate 3/3 PASS · DEC-SWAP-05 · deploy estável** | **✅ ENCERRADA 2026-04-09** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
-| Migrations aplicadas | **63** | ✅ |
-| PRs mergeados (total) | **391** (25 PRs em 2026-04-07) | ✅ |
+| Migrations aplicadas | **64** (0064_risks_v4.sql) | ✅ |
+| PRs mergeados (total) | **429** (PRs #427–#429 Sprint Z-07) | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
