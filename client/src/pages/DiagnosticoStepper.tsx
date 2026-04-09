@@ -20,6 +20,8 @@
  */
 
 import { useState, useEffect } from "react";
+// Sprint Z-07 PR #C — flag de feature para o engine determinístico v4 (ADR-0022)
+const useNewRiskEngine = true;
 import { useRoute, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -135,7 +137,7 @@ const STEPS: StepConfig[] = [
     label: "Análise de Riscos",
     description: "Mapeamento e priorização dos riscos tributários",
     icon: <AlertTriangle className="w-4 h-4" />,
-    route: (id) => `/projetos/${id}/matrizes-v3`,
+    route: (id) => useNewRiskEngine ? `/projetos/${id}/risk-dashboard-v4` : `/projetos/${id}/matrizes-v3`,
   },
   {
     id: "plano",
