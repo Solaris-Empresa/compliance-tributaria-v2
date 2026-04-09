@@ -6,6 +6,38 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [Sprint Z — Gate B] — 2026-04-08 · `17199c4`
+
+### Corrigido
+- **BUG-CNAE-AUTO** `server/cnae-embeddings.ts` — `opLabel` tinha apenas 3 entradas; `comercio`, `industria`, `agronegocio` e `financeiro` retornavam `undefined`, degradando embeddings e identificação de CNAEs. Expandido para 8 valores. `CompanyContext.operationType` expandido com 4 novos literais no union type. (PR #414 · `bb2e449`)
+- **BUG-SOLARIS-SAVE** `client/src/pages/QuestionarioSolaris.tsx` + `server/routers-fluxo-v3.ts` — Respostas só eram persistidas no submit final (`completeOnda1`). Se o usuário saísse antes, tudo era perdido; ao reabrir, `currentIndex` resetava para 0. Corrigido com: (1) procedure `saveSolarisAnswer` (upsert individual K-4-B-2); (2) auto-save com debounce 800ms em `handleAnswerChange`; (3) `useEffect` de resume que retoma da primeira pergunta não respondida. (PR #414 · `bb2e449`)
+
+### Adicionado
+- **Gate EVIDENCE** `.github/pull_request_template.md` — Checklist obrigatório para PRs que tocam pipeline LLM: LLM REAL executado, output capturado, IS/Art.2/alíquota zero/Art.14 verificados, evidência salva em `docs/evidencias/`, Orquestrador aprovou. (PR #414)
+- **FF-EVIDENCE-01/02** `server/integration/fitness-functions.test.ts` — Fitness functions que verificam existência de `docs/evidencias/` e Gate EVIDENCE no PR template. (PR #414)
+- **ADR-0018** `docs/adr/ADR-0018-context-injection-briefing.md` — Context Injection no Briefing: IS + Art. 2 + alíquota zero + Art. 14. (PR #412)
+- **ADR-0020** `docs/adr/ADR-0020-schema-drift-0063.md` — Schema drift migration 0063: tabelas já existem em produção, hash divergente, não re-executar. (PR #416)
+- **ADR-INDEX** `docs/adr/ADR-INDEX.md` — ADR-0018 e ADR-0020 adicionados. FF-18 resolvido (31/31 PASS). (PR #420)
+- **Cockpit P.O.** `docs/painel-po/index.html` — Atualizado: data 2026-04-08, versão v4.8 Gate B ✅, Sprint Z na barra de milestones, 2.509 chunks / 10 leis, DEC-015/016/017. (PR #419)
+- **Evidência Gate B** `docs/evidencias/EVIDENCIA-GATE-B-20260408.md` — 3 cenários testados e aprovados pelo Orquestrador. (PR #417)
+- **Documentação RAG** `docs/rag/` — 6 arquivos atualizados para v1.3–1.5 / v4.8 pós Gate B. (PR #418)
+
+### Indicadores pós-Sprint Z (Gate B)
+
+| Indicador | Valor |
+|---|---|
+| Testes fitness-functions | 31/31 PASS (0 falhas) |
+| TypeScript erros | 0 |
+| Gate FC | PASS |
+| PRs mergeados nesta sprint | #412 #414 #416 #417 #418 #419 #420 |
+| Corpus RAG | 2.509 chunks · 10 leis |
+| opLabel entries | 8 (era 3) |
+| Bugs críticos resolvidos | BUG-CNAE-AUTO + BUG-SOLARIS-SAVE + Gate EVIDENCE |
+| Checkpoint Manus | `c2d79dc1` |
+| HEAD GitHub | `17199c4` |
+
+---
+
 ## [Sprint S] — 2026-04-04 · `d08c12a`
 
 ### Corrigido
