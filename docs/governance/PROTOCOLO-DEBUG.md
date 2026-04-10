@@ -74,3 +74,33 @@ com dados violadores.
 
 *IA SOLARIS · PROTOCOLO-DEBUG · 2026-04-10*
 *Atualizar a cada bug encontrado em produção*
+
+---
+
+## REGRA-SMOKE-02 — Smoke test tem duas camadas obrigatórias
+
+Todo smoke test de sprint é composto de 2 camadas:
+
+CAMADA 1 — Backend (Manus · automatizado):
+  [ ] Pipeline executou sem erro
+  [ ] Banco populado: SELECT COUNT(*) FROM risks_v4 > 0
+  [ ] reviewQueue retornado (mesmo que vazio)
+  [ ] Nenhum erro nos logs do servidor
+
+CAMADA 2 — Frontend (P.O. · manual · obrigatório):
+  [ ] Abrir URL no browser como usuário real
+  [ ] Botão visível e habilitado
+  [ ] Pipeline executa ao clicar (labels progressivos)
+  [ ] Riscos aparecem na tela com categoria correta
+  [ ] reviewQueue visível quando há itens ambíguos
+  [ ] Nenhum erro visual ou de console
+
+Sprint só encerra quando AMBAS as camadas passam.
+Camada 1 sem Camada 2 = sprint incompleta.
+
+Origem: Sprint Z-10 — smoke test automatizado não captura
+bugs de UX que o teste manual anterior capturou.
+
+---
+
+*Atualizado: 2026-04-10*
