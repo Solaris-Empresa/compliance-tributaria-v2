@@ -7,6 +7,7 @@
  */
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -297,6 +298,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
     onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
   });
   const analyzeGapsMutation = trpc.gapEngine.analyzeGaps.useMutation({
+    onError: (err) => toast.error("Erro ao analisar gaps", { description: err.message }),
     onSuccess: async (result) => {
       const gapInputs = (result.gaps ?? []).map((g: any) => ({
         id: g.requirement_id,
