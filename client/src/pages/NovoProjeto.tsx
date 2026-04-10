@@ -487,20 +487,23 @@ export default function NovoProjeto() {
         principaisServicos: perfilData.principaisServicos.filter(s => s.nbs_code.trim()),
       }),
     };
-    const taxComplexity = (perfilData.hasMultipleEstablishments !== null || perfilData.hasImportExport !== null || perfilData.hasSpecialRegimes !== null) ? {
-      hasMultipleEstablishments: perfilData.hasMultipleEstablishments ?? undefined,
-      hasImportExport: perfilData.hasImportExport ?? undefined,
-      hasSpecialRegimes: perfilData.hasSpecialRegimes ?? undefined,
-    } : undefined;
-    const financialProfile = (perfilData.paymentMethods.length > 0 || perfilData.hasIntermediaries !== null) ? {
-      paymentMethods: perfilData.paymentMethods.length > 0 ? perfilData.paymentMethods : undefined,
-      hasIntermediaries: perfilData.hasIntermediaries ?? undefined,
-    } : undefined;
-    const governanceProfile = (perfilData.hasTaxTeam !== null || perfilData.hasAudit !== null || perfilData.hasTaxIssues !== null) ? {
-      hasTaxTeam: perfilData.hasTaxTeam ?? undefined,
-      hasAudit: perfilData.hasAudit ?? undefined,
-      hasTaxIssues: perfilData.hasTaxIssues ?? undefined,
-    } : undefined;
+    // Z-11 ENTREGA 1 (BUG-FRONTEND-01): sempre enviar objetos não-nulos
+    // Antes: condicionais que retornavam undefined → banco recebia null → pipeline sem dados
+    // Depois: objetos sempre presentes com defaults conservadores (false/[])
+    const taxComplexity = {
+      hasMultipleEstablishments: perfilData.hasMultipleEstablishments ?? false,
+      hasImportExport: perfilData.hasImportExport ?? false,
+      hasSpecialRegimes: perfilData.hasSpecialRegimes ?? false,
+    };
+    const financialProfile = {
+      paymentMethods: perfilData.paymentMethods ?? [],
+      hasIntermediaries: perfilData.hasIntermediaries ?? false,
+    };
+    const governanceProfile = {
+      hasTaxTeam: perfilData.hasTaxTeam ?? false,
+      hasAudit: perfilData.hasAudit ?? false,
+      hasTaxIssues: perfilData.hasTaxIssues ?? false,
+    };
     const payload = {
       name: name.trim(),
       description: description.trim(),
