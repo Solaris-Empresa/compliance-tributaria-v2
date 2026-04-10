@@ -104,6 +104,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     navItems.push({ href: "/admin/shadow-monitor", icon: Activity, label: "Shadow Monitor" });
     navItems.push({ href: "/admin/rag-cockpit", icon: Database, label: "RAG Cockpit" });
     navItems.push({ href: "/admin/solaris-questions", icon: Upload, label: "Upload Perguntas SOLARIS" }); // Sprint L — DEC-002
+    navItems.push({ href: "/admin/categorias", icon: Database, label: "Categorias de Risco" }); // Sprint Z-09 — ADR-0025
   }
 
   if (user?.role === "cliente") {
