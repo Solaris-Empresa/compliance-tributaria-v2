@@ -27,6 +27,7 @@ import {
   upsertCategory,
 } from "../lib/db-queries-risk-categories";
 import { getChunkById } from "../lib/rag-category-sensor";
+import { resetCategoryCache } from "../lib/risk-engine-v4";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Schemas Zod
@@ -140,8 +141,8 @@ export const adminCategoriesRouter = router({
         vigencia_fim: input.vigencia_fim,
       });
 
-      // Nota: o cache do engine (TTL 1h) será invalidado na próxima chamada
-      // após a aprovação. O PR #B (engine lendo do banco) implementa o cache.
+      // GAP-CONTRACT-02: invalida cache imediatamente após aprovação
+      resetCategoryCache();
       return { ok: true };
     }),
 
