@@ -204,7 +204,9 @@ async function query<T = unknown>(
   params: unknown[] = []
 ): Promise<T[]> {
   const db = await getDb();
-  const [rows] = await (db.$client as any).execute(sql, params);
+  // TiDB/MySQL2: $client é um Pool — precisa de .promise() para API baseada em Promise.
+  // Sem .promise(), .execute() usa callbacks e não é iterável (fix/pool-execute-risks-v4).
+  const [rows] = await (db.$client as any).promise().execute(sql, params);
   return rows as T[];
 }
 
