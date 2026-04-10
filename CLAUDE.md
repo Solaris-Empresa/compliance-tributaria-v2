@@ -145,3 +145,24 @@ Prettier with: double quotes, semicolons, trailing commas (es5), 2-space indent,
 - `docs/sprints/Z-07/HANDOFF-MANUS-Z07.md`
 - `docs/sprints/Z-07/SKELETON-SPEC-ADR-0021.md`
 - `docs/governance/ESTADO-ATUAL.md`
+
+## Sprint Z-09 — Categorias Configuráveis (ADR-0025)
+
+Tabela: `risk_categories` (não hardcode)
+  - engine lê do banco via `getRiskCategories()` com cache TTL 1h
+  - `vigencia_fim = NULL` → vigência indeterminada
+  - `vigencia_fim = DATE` → expira automaticamente
+
+Labels em português:
+  - status: `ativo` · `sugerido` · `pendente_revisao` · `inativo` · `legado`
+  - origem: `lei_federal` · `regulamentacao` · `rag_sensor` · `manual`
+  - escopo: `nacional` · `estadual` · `setorial`
+
+NÃO tocar:
+  - `SEVERITY_TABLE` (mantida como fallback)
+  - `risks_v4` dados existentes
+
+Gate antes do commit:
+  - `pnpm tsc --noEmit` → 0 erros
+  - `ls docs/adr/ADR-0025*` → arquivo existe
+  - `grep "Z-09" docs/governance/ESTADO-ATUAL.md` → match

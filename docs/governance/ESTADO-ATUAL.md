@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v4.9 · 2026-04-09 (Sprint Z-07 ENCERRADA · HEAD c03d401 · PRs #427–#429)** · Responsável: Orquestrador gera, Manus commita
+> **v5.0 · 2026-04-09 (Sprint Z-09 · HEAD dbd20b6 · PRs #436–#439)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v4.9 · **HEAD:** `c03d401` (origin/main) · **Testes:** 4.064+ (151 arquivos · +15 E2E Sprint M3 UAT)  
+**Baseline:** v5.0 · **HEAD:** `dbd20b6` (origin/main) · **Testes:** 4.064+ (151 arquivos · +15 E2E Sprint M3 UAT)  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -20,7 +20,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 **Sprint M3 UAT:** ✅ ENCERRADA — BUG-UAT-08 ✅ #362 · E2E 15 casos ✅ #364 · BUG-UAT-09+PDF-01 ✅ #365 · Docs v4.9.3 ✅ #367 · BL-06 ⏳ backlog
 **Pré-Sprint Z:** ✅ ADR-0009 criado ✅ #368 · ADR-001/002 supersedidos · ADR-007 atualizado · **Bloqueador Z-01 REMOVIDO**
 **Sprint Z-07:** ✅ ENCERRADA — PR #B ✅ #427 (0064_risks_v4.sql · db-queries-risks-v4.ts) · PR #C ✅ #429 (risks-v4.ts · RiskDashboardV4.tsx · ActionPlanPage.tsx) · Gate Z-07 3/3 PASS · DEC-SWAP-05 aprovada · deploy estável
-**Próxima sprint: Z-08** — scoringEngine-v4.ts (PR #E) · migração Score CPIE para tabelas v4 · shadow validation
+**Sprint Z-08:** ✅ ENCERRADA — fix JSON.parse (#434) · fix pool.promise (#435) · conexão engine v4 ao pipeline
+**Sprint Z-09:** 🔄 EM ANDAMENTO — risk_categories configurável (#436) · VARCHAR migration (#437) · RAG sensor + painel admin (#438) · ADR-0025 (#439)
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -30,7 +31,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `c03d401`
+- **Branch base:** main · **HEAD:** `dbd20b6`
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git restore --staged`
@@ -52,13 +53,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (origin/main) | `c03d401` | ✅ |
-| Baseline | **v4.9** | ✅ |
+| HEAD (origin/main) | `dbd20b6` | ✅ |
+| Baseline | **v5.0** | ✅ |
 | Testes passando | **4.064+** (151 arquivos · 2 falhas pré-existentes conhecidas T-B7-08/T-B7-10) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | CI Workflows | **12 ativos** + invariant-check (GOV-03b) | ✅ |
 | CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
-| PRs mergeados (total) | **429** | ✅ |
+| PRs mergeados (total) | **439** | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
@@ -190,6 +191,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | **Sprint M3 UAT** | **BUG-UAT-08 ✅ #362 · E2E 15 casos ✅ #364 · BUG-UAT-09+PDF-01 ✅ #365 · Docs ✅ #367** | **✅ ENCERRADA** |
 | **Pré-Sprint Z** | **ADR-0009 criado ✅ #368 · ADR-001/002 supersedidos · ADR-007 atualizado · Bloqueador Z-01 REMOVIDO** | **✅ CONCLUÍDO** |
 | **Sprint Z-07** | **PR #B ✅ #427 (0064_risks_v4.sql · db-queries-risks-v4.ts) · PR #C ✅ #429 (risks-v4.ts · RiskDashboardV4.tsx · ActionPlanPage.tsx) · Gate Z-07 3/3 PASS · DEC-SWAP-05 · deploy estável** | **✅ ENCERRADA 2026-04-09** |
+| **Z-07** | **✅** | **#425–#431** | **Engine v4 · schema 0064 · router 11 procedures · RiskDashboardV4** |
+| **Z-08** | **✅** | **#432–#435** | **Conexão engine v4 ao pipeline · fix JSON.parse · fix pool.promise** |
+| **Z-09** | **🔄** | **#436–#439** | **risk_categories configurável · RAG sensor · ADR-0025** |
 
 ---
 
@@ -443,5 +447,5 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-06 (v4.9.3 · Sprint M3 UAT · PRs #362–#365 · HEAD d820163)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-09 (v5.0 · Sprint Z-09 · PRs #436–#439 · HEAD dbd20b6)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
