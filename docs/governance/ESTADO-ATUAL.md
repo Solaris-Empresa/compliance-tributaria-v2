@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v5.0 · 2026-04-09 (Sprint Z-09 · HEAD 8df07b7 · PRs #436–#440)** · Responsável: Orquestrador gera, Manus commita
+> **v5.1 · 2026-04-09 (Sprint Z-09 ENCERRADA · HEAD ceabb06 · PRs #436–#443)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v5.0 · **HEAD:** `8df07b7` (origin/main) · **Testes:** 4.064+ (151 arquivos · +15 E2E Sprint M3 UAT)  
+**Baseline:** v5.1 · **HEAD:** `ceabb06` (origin/main) · **Testes:** 4.064+ (151 arquivos · +15 E2E Sprint M3 UAT)  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -21,7 +21,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 **Pré-Sprint Z:** ✅ ADR-0009 criado ✅ #368 · ADR-001/002 supersedidos · ADR-007 atualizado · **Bloqueador Z-01 REMOVIDO**
 **Sprint Z-07:** ✅ ENCERRADA — PR #B ✅ #427 (0064_risks_v4.sql · db-queries-risks-v4.ts) · PR #C ✅ #429 (risks-v4.ts · RiskDashboardV4.tsx · ActionPlanPage.tsx) · Gate Z-07 3/3 PASS · DEC-SWAP-05 aprovada · deploy estável
 **Sprint Z-08:** ✅ ENCERRADA — fix JSON.parse (#434) · fix pool.promise (#435) · conexão engine v4 ao pipeline
-**Sprint Z-09:** 🔄 EM ANDAMENTO — risk_categories configurável (#436) · VARCHAR migration (#437) · RAG sensor + painel admin (#438) · ADR-0025 (#439) · engine cache 1h (#440)
+**Sprint Z-09:** ✅ ENCERRADA — risk_categories configurável (#436) · VARCHAR migration (#437) · RAG sensor + painel admin (#438) · ADR-0025 (#439) · engine cache 1h (#440) · docs fix (#441) · CONTRACT-02/03 (#442) · FK CONTRACT-01 (#443)
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -53,13 +53,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (origin/main) | `8df07b7` | ✅ |
-| Baseline | **v5.0** | ✅ |
+| HEAD (origin/main) | `ceabb06` | ✅ |
+| Baseline | **v5.1** | ✅ |
 | Testes passando | **4.064+** (151 arquivos · 2 falhas pré-existentes conhecidas T-B7-08/T-B7-10) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | CI Workflows | **12 ativos** + invariant-check (GOV-03b) | ✅ |
 | CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
-| PRs mergeados (total) | **440** | ✅ |
+| PRs mergeados (total) | **443** | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
@@ -193,7 +193,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | **Sprint Z-07** | **PR #B ✅ #427 (0064_risks_v4.sql · db-queries-risks-v4.ts) · PR #C ✅ #429 (risks-v4.ts · RiskDashboardV4.tsx · ActionPlanPage.tsx) · Gate Z-07 3/3 PASS · DEC-SWAP-05 · deploy estável** | **✅ ENCERRADA 2026-04-09** |
 | **Z-07** | **✅** | **#425–#431** | **Engine v4 · schema 0064 · router · RiskDashboardV4** |
 | **Z-08** | **✅** | **#432–#435** | **Conexão engine v4 · fix JSON.parse · fix pool.promise** |
-| **Z-09** | **🔄** | **#436–#440** | **risk_categories · RAG sensor · ADR-0025** |
+| **Z-09** | **✅** | **#436–#443** | **risk_categories · RAG sensor · ADR-0025 · FK CONTRACT-01 · ENCERRADA** |
 
 ---
 
@@ -447,5 +447,5 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-09 (v5.0 · Sprint Z-09 · PRs #436–#440 · HEAD 8df07b7)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-09 (v5.1 · Sprint Z-09 ENCERRADA · PRs #436–#443 · HEAD ceabb06)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
