@@ -1,16 +1,24 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   classifyRisk,
   buildBreadcrumb,
   sortBySourceRank,
   computeRiskMatrix,
   buildActionPlans,
+  getRiskCategories,
+  resetCategoryCache,
   SEVERITY_TABLE,
   SOURCE_RANK,
   type GapRule,
   type RiskV4,
   type ActionPlanV4,
 } from "./risk-engine-v4";
+
+vi.mock("./db-queries-risk-categories", () => ({
+  listActiveCategories: vi.fn(),
+}));
+
+import { listActiveCategories } from "./db-queries-risk-categories";
 
 // ---------------------------------------------------------------------------
 // Helpers — dados simulados
@@ -292,5 +300,76 @@ describe("Bloco D — action plan engine", () => {
   it("D8: buildActionPlans com array vazio retorna array vazio", () => {
     const plans = buildActionPlans([]);
     expect(plans).toEqual([]);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BLOCO E — DB categories cache (2 testes — Sprint Z-09 PR #B)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function makeCategoryRow(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 1,
+    codigo: "split_payment",
+    nome: "Split Payment",
+    severidade: "alta",
+    urgencia: "imediata",
+    tipo: "risk",
+    artigo_base: "Art. 29",
+    lei_codigo: "LC214",
+    vigencia_inicio: new Date("2025-01-01"),
+    vigencia_fim: null,
+    status: "ativo",
+    origem: "lei_federal",
+    escopo: "nacional",
+    sugerido_por: null,
+    aprovado_por: null,
+    aprovado_at: null,
+    chunk_origem_id: null,
+    created_at: new Date(),
+    updated_at: new Date(),
+    ...overrides,
+  };
+}
+
+describe("Bloco E — DB categories cache", () => {
+  const mockedList = vi.mocked(listActiveCategories);
+
+  beforeEach(() => {
+    resetCategoryCache();
+    mockedList.mockReset();
+  });
+
+  it("R-31: cache TTL — segunda chamada não vai ao banco", async () => {
+    mockedList.mockResolvedValue([
+      makeCategoryRow() as any,
+    ]);
+
+    const first = await getRiskCategories();
+    const second = await getRiskCategories();
+
+    expect(mockedList).toHaveBeenCalledTimes(1);
+    expect(first).toEqual(second);
+    expect(first.split_payment).toEqual({ severity: "alta", urgency: "imediata" });
+  });
+
+  it("R-32: categoria com vigencia_fim expirada não aparece", async () => {
+    mockedList.mockResolvedValue([
+      makeCategoryRow({
+        id: 1,
+        codigo: "split_payment",
+        vigencia_fim: new Date("2024-01-01"),
+      }) as any,
+      makeCategoryRow({
+        id: 2,
+        codigo: "inscricao_cadastral",
+        nome: "Inscrição Cadastral",
+        vigencia_fim: null,
+      }) as any,
+    ]);
+
+    const table = await getRiskCategories();
+    expect(table.split_payment).toBeUndefined();
+    expect(table.inscricao_cadastral).toEqual({ severity: "alta", urgency: "imediata" });
   });
 });

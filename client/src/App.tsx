@@ -81,6 +81,7 @@ import TaskBoard from "./pages/TaskBoard"; // Sprint K — Taskboard P.O. ao viv
 import QuestionarioSolaris from "./pages/QuestionarioSolaris"; // K-4-B: Onda 1 SOLARIS
 import QuestionarioIaGen from "./pages/QuestionarioIaGen"; // K-4-C: Onda 2 IA Generativa
 import AdminSolarisQuestions from "./pages/AdminSolarisQuestions"; // Sprint L — DEC-002 Issue #191
+import AdminCategorias from "./pages/AdminCategorias"; // Sprint Z-09 — Categorias configuráveis (ADR-0025)
 import QuestionarioProduto from "./pages/QuestionarioProduto"; // Z-02: DEC-M3-05 v3 · ADR-0010
 import QuestionarioServico from "./pages/QuestionarioServico"; // Z-02: DEC-M3-05 v3 · ADR-0010
 
@@ -146,6 +147,7 @@ function Router() {
       <Route path="/admin/rag-cockpit" component={RagCockpit} />
       <Route path="/admin/taskboard" component={TaskBoard} /> {/* Sprint K — Issue #151 */}
       <Route path="/admin/solaris-questions" component={AdminSolarisQuestions} /> {/* Sprint L — DEC-002 Issue #191 */}
+      <Route path="/admin/categorias" component={AdminCategorias} /> {/* Sprint Z-09 — ADR-0025 */}
       {/* Compliance Engine v3 */}
       <Route path="/projetos/:id/compliance-v3" component={ComplianceDashboardV3} />
       <Route path="/projetos/:id/compliance-v3/gaps" component={GapsV3} />
