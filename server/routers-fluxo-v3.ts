@@ -32,6 +32,9 @@ import mysql from "mysql2/promise";
 import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
 import { analyzeIagenAnswers } from "./lib/iagen-gap-analyzer";
+import { listActiveCategories, type RiskCategory } from "./lib/db-queries-risk-categories";
+
+const ONDA2_PROMPT_VERSION = "Z11-v1";
 import { analyzeEngineGaps } from "./lib/engine-gap-analyzer";
 import { persistCpieScoreForProject } from "./routers/scoringEngine";
 import { deriveRisksFromGaps, persistRisks } from "./routers/riskEngine";
@@ -58,6 +61,70 @@ const CnaeSchema = z.object({
 
 // ─── G17: analyzeSolarisAnswers — extraída para server/lib/solaris-gap-analyzer.ts ──
 // Importada acima (linha 33). Fire-and-forget em completeOnda1 (linha ~2332).
+
+// ─── Z-11: Helper functions para Onda 2 inteligente ─────────────────────────
+
+interface ProjectProfile {
+  companyProfile: any;
+  operationProfile: any;
+  taxComplexity: any;
+  financialProfile: any;
+  governanceProfile: any;
+}
+
+function calcularLimitePerguntas(
+  companyProfile: any,
+  operationProfile: any,
+  taxComplexity: any,
+  financialProfile: any,
+  governanceProfile: any,
+): number {
+  let limite = 3;
+  if (taxComplexity?.hasInternationalOps) limite += 2;
+  if (
+    financialProfile?.paymentMethods?.includes("marketplace") ||
+    financialProfile?.paymentMethods?.includes("cartao") ||
+    financialProfile?.paymentMethods?.includes("cartão")
+  )
+    limite += 2;
+  if (taxComplexity?.usesTaxIncentives) limite += 2;
+  if (financialProfile?.hasIntermediaries) limite += 1;
+  if (governanceProfile?.hasTaxIssues) limite += 1;
+  if (
+    operationProfile?.operationType === "industria" ||
+    operationProfile?.operationType === "agronegocio"
+  )
+    limite += 1;
+  return Math.min(limite, 12);
+}
+
+function filtrarCategoriasPorPerfil(
+  categorias: RiskCategory[],
+  profile: ProjectProfile,
+): RiskCategory[] {
+  const fin = profile.financialProfile;
+  const tax = profile.taxComplexity;
+  const op = profile.operationProfile;
+
+  return categorias.filter((cat) => {
+    switch (cat.codigo) {
+      case "split_payment":
+        return (
+          fin?.paymentMethods?.some((m: string) =>
+            ["cartao", "marketplace", "cartão", "pix"].includes(m),
+          ) || !!fin?.hasIntermediaries
+        );
+      case "imposto_seletivo":
+        return ["industria", "comercio"].includes(op?.operationType ?? "");
+      case "transicao_iss_ibs":
+        return ["servicos", "misto"].includes(op?.operationType ?? "");
+      case "regime_diferenciado":
+        return !!tax?.usesTaxIncentives;
+      default:
+        return true;
+    }
+  });
+}
 
 export const fluxoV3Router = router({
 
@@ -2468,18 +2535,35 @@ Gere o Briefing estruturado em JSON:
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
       }
 
-      // Parâmetros combinatórios (Seção 9)
-      const profile = project.companyProfile as any;
+      // ── Z-11: Ler todos os 5 JSONs do projeto ──────────────────────────
+      const companyProfile = project.companyProfile as any;
       const opProfile = project.operationProfile as any;
-      const regime = profile?.taxRegime ?? 'lucro_presumido';
-      const porte = profile?.companySize ?? 'media';
+      const taxComplexity = project.taxComplexity as any;
+      const financialProfile = project.financialProfile as any;
+      const governanceProfile = project.governanceProfile as any;
+      const regime = companyProfile?.taxRegime ?? 'lucro_presumido';
+      const porte = companyProfile?.companySize ?? 'media';
       const cnaes: string[] = Array.isArray(project.confirmedCnaes) ? project.confirmedCnaes : [];
-      const exportacao = opProfile?.faz_exportacao ?? false;
-      const contrata_simples = opProfile?.contrata_simples_nacional ?? false;
-      const operacao_interestadual = opProfile?.multiState ?? false;
-      const tem_ativo_imobilizado = opProfile?.tem_ativo_imobilizado ?? false;
 
-      // Fallback hardcoded (Seção 9 — 5 perguntas genéricas, confidence_score = 0.5)
+      // ── Z-11: Categorias ativas do banco ──────────────────────────────
+      let activeCategories: RiskCategory[] = [];
+      try {
+        activeCategories = await listActiveCategories();
+      } catch {
+        console.warn('[Z11-ONDA2] listActiveCategories falhou — usando todas');
+      }
+      const relevantCats = filtrarCategoriasPorPerfil(activeCategories, {
+        companyProfile, operationProfile: opProfile, taxComplexity, financialProfile, governanceProfile,
+      });
+      const limitePerguntas = calcularLimitePerguntas(
+        companyProfile, opProfile, taxComplexity, financialProfile, governanceProfile,
+      );
+      const categoryList = relevantCats.length > 0
+        ? relevantCats.map((c) => `${c.codigo}: ${c.nome} (${c.artigo_base})`).join('\n')
+        : 'Usar categorias gerais da LC 214/2025';
+      const activeCodigos = new Set(activeCategories.map((c) => c.codigo));
+
+      // Fallback hardcoded (Seção 9 — perguntas genéricas sem risk_category_code)
       const FALLBACK_QUESTIONS = [
         { id: 'ia-gen-001', texto: 'A empresa possui operações com substituição tributária no contexto da Reforma Tributária?', objetivo_diagnostico: 'Identificar impacto da ST no novo regime', combinacao_gatilho: 'Qualquer regime', fonte: 'ia_gen' as const, confidence_score: 0.5 },
         { id: 'ia-gen-002', texto: 'Qual o percentual estimado de receita sujeita ao IBS/CBS após a transição?', objetivo_diagnostico: 'Dimensionar exposição ao novo tributo', combinacao_gatilho: 'Qualquer regime', fonte: 'ia_gen' as const, confidence_score: 0.5 },
@@ -2489,28 +2573,56 @@ Gere o Briefing estruturado em JSON:
       ];
 
       try {
-        const prompt = `Você é um especialista em Reforma Tributária brasileira (LC 214/2025 e LC 224/2026).
-Gere entre 5 e 10 perguntas diagnósticas combinatórias para uma empresa com o seguinte perfil:
-- Regime tributário: ${regime}
-- Porte: ${porte}
-- CNAEs: ${cnaes.join(', ') || 'não informado'}
-- Operação interestadual: ${operacao_interestadual ? 'Sim' : 'Não'}
-- Faz exportação: ${exportacao ? 'Sim' : 'Não'}
-- Contrata Simples Nacional: ${contrata_simples ? 'Sim' : 'Não'}
-- Tem ativo imobilizado: ${tem_ativo_imobilizado ? 'Sim' : 'Não'}
+        // ── Z-11: Prompt enriquecido com 5 JSONs + categorias do banco ──
+        const profileFields: string[] = [];
+        profileFields.push(`Regime tributário: ${regime}`);
+        profileFields.push(`Porte: ${porte}`);
+        profileFields.push(`CNAEs: ${cnaes.join(', ') || 'não informado'}`);
+        if (opProfile?.operationType) profileFields.push(`Tipo operação: ${opProfile.operationType}`);
+        if (opProfile?.clientType) profileFields.push(`Tipo cliente: ${Array.isArray(opProfile.clientType) ? opProfile.clientType.join(', ') : opProfile.clientType}`);
+        if (opProfile?.multiState !== undefined) profileFields.push(`Multiestadual: ${opProfile.multiState ? 'Sim' : 'Não'}`);
+        if (taxComplexity?.hasInternationalOps !== undefined) profileFields.push(`Operações internacionais: ${taxComplexity.hasInternationalOps ? 'Sim' : 'Não'}`);
+        if (taxComplexity?.usesTaxIncentives !== undefined) profileFields.push(`Usa incentivos fiscais: ${taxComplexity.usesTaxIncentives ? 'Sim' : 'Não'}`);
+        if (taxComplexity?.usesMarketplace !== undefined) profileFields.push(`Opera marketplace: ${taxComplexity.usesMarketplace ? 'Sim' : 'Não'}`);
+        if (financialProfile?.paymentMethods) profileFields.push(`Meios pagamento: ${Array.isArray(financialProfile.paymentMethods) ? financialProfile.paymentMethods.join(', ') : financialProfile.paymentMethods}`);
+        if (financialProfile?.hasIntermediaries !== undefined) profileFields.push(`Intermediários financeiros: ${financialProfile.hasIntermediaries ? 'Sim' : 'Não'}`);
+        if (governanceProfile?.hasTaxTeam !== undefined) profileFields.push(`Equipe tributária interna: ${governanceProfile.hasTaxTeam ? 'Sim' : 'Não'}`);
+        if (governanceProfile?.hasTaxIssues !== undefined) profileFields.push(`Passivo tributário: ${governanceProfile.hasTaxIssues ? 'Sim' : 'Não'}`);
+        if (governanceProfile?.hasAudit !== undefined) profileFields.push(`Auditoria fiscal: ${governanceProfile.hasAudit ? 'Sim' : 'Não'}`);
 
-Regras obrigatórias:
-- Mínimo 5, máximo 10 perguntas
-- NÃO gere perguntas genéricas que se aplicam a qualquer empresa
-- NÃO gere perguntas sobre o que a lei diz
-- CADA pergunta deve ser específica para a combinação de perfil acima
-- confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade`;
+        const prompt = `Você é um gerador de perguntas diagnósticas tributárias para a Reforma Tributária brasileira (LC 214/2025).
+
+PERFIL DA EMPRESA:
+${profileFields.map(f => `- ${f}`).join('\n')}
+
+CATEGORIAS DE RISCO ATIVAS (use APENAS estas para risk_category_code):
+${categoryList}
+
+REGRAS INVIOLÁVEIS:
+1. Cada pergunta DEVE ter risk_category_code de uma categoria ativa acima
+2. Cada pergunta DEVE referenciar campos específicos do perfil da empresa
+3. used_profile_fields DEVE ter >= 2 campos do perfil usados
+4. PROIBIDO: perguntas genéricas que se aplicam a qualquer empresa
+5. PROIBIDO: perguntas sem menção ao contexto operacional concreto
+
+EXEMPLO BOM:
+  risk_category_code: "split_payment"
+  texto: "Sua empresa mapeia a incidência do split payment sobre recebíveis antecipados considerando operações multiestaduais e marketplace?"
+  used_profile_fields: ["paymentMethods", "multiState", "usesMarketplace"]
+
+EXEMPLO RUIM (PROIBIDO):
+  texto: "A empresa possui operações com substituição tributária?"
+  (não menciona nenhum campo específico do perfil)
+
+Gere exatamente ${limitePerguntas} perguntas.
+confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
 
         const llmPromise = invokeLLM({
           messages: [
             { role: 'system', content: 'Você é um especialista em compliance tributário da Reforma Tributária brasileira. Responda sempre em JSON válido.' },
             { role: 'user', content: prompt },
           ],
+          temperature: 0.1, // Z-11: determinístico
           response_format: {
             type: 'json_schema',
             json_schema: {
@@ -2530,8 +2642,10 @@ Regras obrigatórias:
                         combinacao_gatilho: { type: 'string' },
                         fonte: { type: 'string' },
                         confidence_score: { type: 'number' },
+                        risk_category_code: { type: 'string' },
+                        used_profile_fields: { type: 'array', items: { type: 'string' } },
                       },
-                      required: ['id', 'texto', 'objetivo_diagnostico', 'combinacao_gatilho', 'fonte', 'confidence_score'],
+                      required: ['id', 'texto', 'objetivo_diagnostico', 'combinacao_gatilho', 'fonte', 'confidence_score', 'risk_category_code', 'used_profile_fields'],
                       additionalProperties: false,
                     },
                   },
@@ -2554,10 +2668,16 @@ Regras obrigatórias:
 
         const parsed = JSON.parse(content);
         const perguntas = parsed.perguntas;
-        if (!Array.isArray(perguntas) || perguntas.length < 5) throw new Error('LLM retornou menos de 5 perguntas');
+        if (!Array.isArray(perguntas) || perguntas.length < 3) throw new Error('LLM retornou menos de 3 perguntas');
 
-        const filtered = perguntas
-          .slice(0, 10)
+        // Z-11: Validação pós-LLM
+        const perguntasValidas = perguntas
+          .filter((p: any) => {
+            if (activeCodigos.size > 0 && !activeCodigos.has(p.risk_category_code)) return false;
+            if ((p.used_profile_fields?.length ?? 0) < 2) return false;
+            return true;
+          })
+          .slice(0, limitePerguntas)
           .map((p: any, i: number) => ({
             id: p.id ?? `ia-gen-${String(i + 1).padStart(3, '0')}`,
             texto: p.texto,
@@ -2565,9 +2685,17 @@ Regras obrigatórias:
             combinacao_gatilho: p.combinacao_gatilho,
             fonte: 'ia_gen' as const,
             confidence_score: Number(p.confidence_score ?? 0.5),
+            risk_category_code: p.risk_category_code as string,
+            used_profile_fields: p.used_profile_fields as string[],
           }));
 
-        return { questions: filtered, source: 'llm' as const };
+        // Fallback se menos de 3 válidas
+        if (perguntasValidas.length < 3) {
+          console.warn(`[Z11-ONDA2] Apenas ${perguntasValidas.length} perguntas válidas — ativando fallback`);
+          return { questions: FALLBACK_QUESTIONS, source: 'fallback' as const };
+        }
+
+        return { questions: perguntasValidas, source: 'llm' as const };
       } catch (err: any) {
         // Fallback obrigatório (Seção 9 — logar, não silenciar)
         console.error('[K-4-C] generateOnda2Questions fallback ativado:', err?.message ?? err);
@@ -2587,6 +2715,9 @@ Regras obrigatórias:
         questionText: z.string(), // ADR-0016 MASP: removido .min(1) — consistência com resposta
         resposta: z.string(), // ADR-0016 MASP: removido .min(1) — resposta vazia permitida
         confidenceScore: z.number().min(0).max(1),
+        // Z-11: campos opcionais — compatíveis com frontend legado
+        risk_category_code: z.string().optional().nullable(),
+        used_profile_fields: z.array(z.string()).optional(),
       })),
       // Bloco D (Opção A): NCM/NBS como parâmetro temporário até Bloco E (schema de projetos)
       // DECISÃO ARQUITETURAL: não persistidos no schema de projetos neste PR
@@ -2609,7 +2740,14 @@ Regras obrigatórias:
           message: `Transição inválida: ${err.message}. Conclua a Onda 2 antes de avançar.`,
         });
       }
-      await db.saveOnda2Answers(input.projectId, input.answers);
+      await db.saveOnda2Answers(input.projectId, input.answers.map((a) => ({
+        questionText: a.questionText,
+        resposta: a.resposta,
+        confidenceScore: a.confidenceScore,
+        risk_category_code: a.risk_category_code ?? null,
+        used_profile_fields: a.used_profile_fields,
+        prompt_version: a.risk_category_code ? ONDA2_PROMPT_VERSION : undefined,
+      })));
       await db.updateProject(input.projectId, { status: 'onda2_iagen' as any }); // BUG-UAT-07 fix: restaura semântica onda2_iagen
       // Lote A (AUDIT-C-002): fire-and-forget — gera gaps a partir das respostas iagen
       void analyzeIagenAnswers(input.projectId).catch((err) => {
