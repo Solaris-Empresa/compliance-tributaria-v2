@@ -37,6 +37,12 @@ import { DiagnosticoStepper, type DiagnosticLayerState } from "@/components/Diag
 import { CpieHistoryPanel } from "@/components/CpieHistoryPanel";
 import { PerfilEmpresaIntelligente, PERFIL_VAZIO } from "@/components/PerfilEmpresaIntelligente";
 
+// Sprint Z-08 — flag de feature para o engine determinístico v4 (ADR-0022)
+const useNewRiskEngine = true;
+const riskRoute = (id: string | number) => useNewRiskEngine
+  ? `/projetos/${id}/risk-dashboard-v4`
+  : `/projetos/${id}/matrizes-v3`;
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 // Todos os status disponíveis para seleção no dropdown — v2.1 (ENUM limpo)
@@ -160,7 +166,7 @@ const FLOW_STEPS: FlowStep[] = [
     label: "Riscos",
     description: "Matrizes de risco tributário",
     icon: <AlertTriangle className="w-4 h-4" />,
-    route: (id) => `/projetos/${id}/matrizes-v3`,
+    route: (id) => riskRoute(id),
     completedStatuses: ["plano_acao", "em_avaliacao", "aprovado", "em_andamento", "concluido", "arquivado"],
     activeStatuses: ["matriz_riscos"],
   },
@@ -480,7 +486,7 @@ export default function ProjetoDetalhesV2() {
                 onGenerateBriefing={() => {
                   setLocation(`/projetos/${projectId}/briefing-v3`);
                 }}
-                onStartMatrizes={() => setLocation(`/projetos/${projectId}/matrizes-v3`)}
+                onStartMatrizes={() => setLocation(riskRoute(projectId))}
                 onStartPlano={() => setLocation(`/projetos/${projectId}/plano-v3`)}
               />
             </CardContent>
@@ -500,7 +506,7 @@ export default function ProjetoDetalhesV2() {
               label="Riscos Mapeados"
               value={summary.totalRisks}
               color="orange"
-              onClick={() => summary.hasRiskMatrices ? setLocation(`/projetos/${projectId}/matrizes-v3`) : toast.info("Matrizes ainda não geradas")}
+              onClick={() => summary.hasRiskMatrices ? setLocation(riskRoute(projectId)) : toast.info("Matrizes ainda não geradas")}
             />
             <MetricCard
               icon={<ListTodo className="w-5 h-5 text-purple-600" />}
@@ -613,7 +619,7 @@ export default function ProjetoDetalhesV2() {
                 label="Matrizes de Riscos"
                 description={summary.hasRiskMatrices ? `${summary.totalRisks} riscos mapeados` : "Ainda não geradas"}
                 available={summary.hasRiskMatrices || statusToStep(summary.status) >= 4}
-                onClick={() => setLocation(`/projetos/${projectId}/matrizes-v3`)}
+                onClick={() => setLocation(riskRoute(projectId))}
               />
               <Separator />
               <SectionLink
