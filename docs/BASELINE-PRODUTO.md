@@ -2,8 +2,8 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 4.9 — 2026-04-09 (Sprint Z-07 ENCERRADA — PRs #427–#429)
-> **Commit HEAD:** `c03d401` (pós-Sprint Z-07)
+> **Versão:** 5.1 — 2026-04-09 (Sprint Z-09 ENCERRADA — PRs #436–#443)
+> **Commit HEAD:** `ceabb06` (pós-Sprint Z-09)
 > **Checkpoint Manus:** `fb96627d` (auditoria pós-merge PR #391 + #392 ✅)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
@@ -38,16 +38,18 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z — Z-02** | **DEC-M3-05 v3 TO-BE: Q.Produtos NCM + Q.Serviços NBS substituem QC/QO ✅ #381 · Wiring DiagnosticoStepper v3.1 ✅ #387 · BUG-RESP-01 fallback duplo ✅ #383** | **✅ ENCERRADA** |
 | **ADR-0016 Etapas 1-4** | **Completude/Confiança: schema 4 colunas + questionnaire-completeness.ts + 3 procedures skip + botões frontend ✅ #391** | **✅ MERGEADO** |
 | **Sprint Z-07** | **PR #B ✅ #427 (0064_risks_v4.sql · db-queries-risks-v4.ts) · PR #C ✅ #429 (risks-v4.ts · RiskDashboardV4.tsx · ActionPlanPage.tsx) · Gate 3/3 PASS · DEC-SWAP-05 · deploy estável** | **✅ ENCERRADA 2026-04-09** |
+| **Sprint Z-08** | **fix JSON.parse (#434) · fix pool.promise (#435) · conexão engine v4 ao pipeline** | **✅ ENCERRADA 2026-04-09** |
+| **Sprint Z-09** | **risk_categories configurável (#436) · VARCHAR migration (#437) · RAG sensor + painel admin (#438) · ADR-0025 (#439) · engine cache 1h (#440) · docs fix (#441) · CONTRACT-02/03 (#442) · FK CONTRACT-01 (#443) · GAPs ARCH-06/07/08/09 + CONTRACT-01/02/03 resolvidos** | **✅ ENCERRADA 2026-04-09** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
-| Migrations aplicadas | **64** (0064_risks_v4.sql) | ✅ |
-| PRs mergeados (total) | **429** (PRs #427–#429 Sprint Z-07) | ✅ |
+| Migrations aplicadas | **67** (0065 risk_categories · 0066 VARCHAR · 0067 FK) | ✅ |
+| PRs mergeados (total) | **443** (PRs #436–#443 Sprint Z-09) | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
 | BUG-UAT-09 | ✅ CORRIGIDO (PR #365) | ✅ |
 | BUG-UAT-PDF-01 | ✅ CORRIGIDO (PR #365) | ✅ |
-| ADRs formais | **16** (ADR-001 a ADR-010 + ADR-0009/0010/0011/0012/0013/0016; ADR-001/002 supersedidos) | ✅ |
+| ADRs formais | **17** (ADR-001 a ADR-010 + ADR-0009/0010/0011/0012/0013/0016/0025; ADR-001/002 supersedidos) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
@@ -425,6 +427,9 @@ DROP TABLE IF EXISTS iagen_answers;
 | **3.3** | **2026-04-05** | **`d562127`** | **Milestone 1 Decision Kernel: Sprint T Pre-M1 encerrada (PRs #302–#316). GOV: Skill v4.2 · CODEOWNERS 15 entradas · 12 CI workflows. Contratos CNT-01a/01b/02/03. ncm-engine + nbs-engine + engine-gap-analyzer. 5/6 casos NCM/NBS validados (Dr. Rodrigues). Gate triplo aprovado (Técnico + Jurídico + P.O.). 1.470 testes, 0 falhas, 0 TS erros. Baseline v3.3 oficial.** |
 | 4.4 | 2026-04-06 | `57b8f05` | Pré-Sprint Z: ADR-0009 criado · ADR-001/002 supersedidos · ADR-007 atualizado · Sprint Z DESBLOQUEADA. PRs #362–#368. |
 | **4.5** | **2026-04-07** | **`d4e708a`** | **Sprint Z encerrada (23 PRs — #364–#389). Z-01: Q.Produtos NCM + Q.Serviços NBS rastreados · riskEngine integrado. Z-02: DEC-M3-05 v3 TO-BE — QC/QO substituídos · DiagnosticoStepper v3.1 labels + wiring · resolveProjectAnswers fallback duplo [ADR-0011] · CategoryBadge risk_category_l2 [ADR-0013] · mapeamento Art. 57/Art. 2 IS [ADR-0012]. Gate POST-DEPLOY /api/health + smoke.sh [v4.6]. Skill solaris-contexto v4.7. 120/120 testes · 26/26 FF · 0 TS erros. Checkpoint d1610519.** |
+| 4.9 | 2026-04-09 | `895469c` | Sprint Z-07 ENCERRADA: engine v4 · schema 0064 · router 11 procedures · RiskDashboardV4 · ActionPlanPage. PRs #425–#431. |
+| 5.0 | 2026-04-09 | `8df07b7` | Sprint Z-08 ENCERRADA: fix JSON.parse (#434) · fix pool.promise (#435). Sprint Z-09 iniciada: risk_categories (#436) · VARCHAR (#437) · RAG sensor + admin (#438) · ADR-0025 (#439) · engine cache 1h (#440) · docs fix (#441) · CONTRACT-02/03 (#442). |
+| **5.1** | **2026-04-09** | **`ceabb06`** | **Sprint Z-09 ENCERRADA: GAP-CONTRACT-01 FK risks_v4.categoria → risk_categories.codigo (#443). 67 migrations · 443 PRs mergeados · ADRs 17 · GAPs ARCH-06/07/08/09 + CONTRACT-01/02/03 resolvidos. ADR-0025 vigente. Baseline v5.1 oficial.** |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
