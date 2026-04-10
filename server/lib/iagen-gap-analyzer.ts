@@ -102,9 +102,9 @@ export async function analyzeIagenAnswers(
   const pool = mysql.createPool(process.env.DATABASE_URL ?? '');
   const conn = await pool.getConnection();
   try {
-    // 1. Buscar respostas da Onda 2 para o projeto
+    // 1. Buscar respostas da Onda 2 para o projeto (inclui risk_category_code Z-11)
     const [rows] = await conn.execute<mysql.RowDataPacket[]>(
-      `SELECT id, question_text, resposta, confidence_score
+      `SELECT id, question_text, resposta, confidence_score, risk_category_code
        FROM iagen_answers
        WHERE project_id = ?`,
       [projectId]
@@ -127,9 +127,24 @@ export async function analyzeIagenAnswers(
     for (const row of rows) {
       const resposta = String(row.resposta ?? '');
       const questionText = String(row.question_text ?? '');
+      const riskCategoryCode = row.risk_category_code ? String(row.risk_category_code) : null;
 
       if (!isNonCompliantAnswer(resposta)) continue;
 
+      // Z-11 DEC-Z11-ARCH-03: risk_category_code preenchido → usar diretamente
+      if (riskCategoryCode) {
+        gapsToInsert.push({
+          gap_descricao: `Gap na categoria ${riskCategoryCode} — resposta Onda 2`,
+          area: 'compliance',
+          severidade: 'alta',
+          topico_trigger: riskCategoryCode,
+          question_text: questionText,
+          resposta,
+        });
+        continue;
+      }
+
+      // Fallback legado: risk_category_code NULL → KEYWORD_TO_TOPIC
       const topics = extractTopicsFromQuestion(questionText);
 
       if (topics.length === 0) {
