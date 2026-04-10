@@ -283,10 +283,50 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   const approveMutation = trpc.risksV4.approveRisk.useMutation({
     onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
   });
-  // generateRisks — consumidor obrigatório da procedure (Gate FC)
+  // generateRisks — consumidor obrigatório da procedure (Gate FC) — mantido para compatibilidade
   const generateMutation = trpc.risksV4.generateRisks.useMutation({
     onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
   });
+
+  // Sprint Z-10 PR #B — Pipeline 3 passos: analyzeGaps → mapGapsToRules → generateRisksFromGaps
+  const [reviewQueue, setReviewQueue] = useState<Array<{ gapId: string; status: string; ruleCode: string | null; categoria: string | null; reason: string }>>([]);
+  const [pipelineStats, setPipelineStats] = useState<{ total: number; mapped: number; ambiguous: number; unmapped: number } | null>(null);
+
+  const mapGapsMutation = trpc.risksV4.mapGapsToRules.useMutation();
+  const generateFromGapsMutation = trpc.risksV4.generateRisksFromGaps.useMutation({
+    onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
+  });
+  const analyzeGapsMutation = trpc.gapEngine.analyzeGaps.useMutation({
+    onSuccess: async (result) => {
+      const gapInputs = (result.gaps ?? []).map((g: any) => ({
+        id: g.requirement_id,
+        canonicalId: g.requirement_id,
+        gapStatus: (g.compliance_status === "nao_atendido" ? "nao_compliant"
+          : g.compliance_status === "parcialmente_atendido" ? "parcial"
+          : g.compliance_status === "nao_aplicavel" ? "nao_aplicavel"
+          : "compliant") as "nao_compliant" | "parcial" | "nao_aplicavel" | "compliant",
+        gapSeverity: (g.criticality === "critica" ? "critica"
+          : g.criticality === "alta" ? "alta"
+          : g.criticality === "media" ? "media" : "baixa") as "critica" | "alta" | "media" | "baixa",
+        gapType: g.gap_type ?? "normativo",
+        area: g.domain ?? "",
+        descricao: g.gap_description ?? "",
+        sourceOrigin: "solaris" as const,
+        requirementId: g.requirement_id,
+        sourceReference: g.source_reference ?? "",
+        domain: g.domain ?? "",
+        layer: g.layer ?? "corporativo",
+      }));
+      if (gapInputs.length === 0) return;
+      const mapped = await mapGapsMutation.mutateAsync({ projectId, gaps: gapInputs });
+      setReviewQueue(mapped.reviewQueue ?? []);
+      setPipelineStats(mapped.stats ?? null);
+      if ((mapped.mappedRules ?? []).length > 0) {
+        await generateFromGapsMutation.mutateAsync({ projectId, mappedRules: mapped.mappedRules });
+      }
+    },
+  });
+  const isGenerating = analyzeGapsMutation.isPending || mapGapsMutation.isPending || generateFromGapsMutation.isPending;
 
   // ── Render ─────────────────────────────────────────────────────────────────
   if (isLoading) {
@@ -369,18 +409,45 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
               <p className="text-sm text-muted-foreground">
                 Nenhum risco ativo. Gere os riscos v4 a partir do diagnóstico.
               </p>
+              {/* Pipeline Z-10: analyzeGaps → mapGapsToRules → generateRisksFromGaps */}
               <Button
                 size="sm"
                 variant="outline"
-                disabled={generateMutation.isPending}
-                onClick={() => generateMutation.mutate({ projectId, gaps: [] })}
+                disabled={isGenerating}
+                onClick={() => analyzeGapsMutation.mutate({ project_id: projectId, dry_run: false })}
               >
-                {generateMutation.isPending ? (
-                  <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Gerando…</>
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                    {analyzeGapsMutation.isPending ? "Analisando gaps…"
+                      : mapGapsMutation.isPending ? "Mapeando regras…"
+                      : "Gerando riscos…"}
+                  </>
                 ) : (
                   <><ShieldAlert className="h-3.5 w-3.5 mr-1.5" />Gerar Riscos v4</>
                 )}
               </Button>
+              {/* Review Queue — visível ao advogado quando há itens ambíguos */}
+              {reviewQueue.length > 0 && (
+                <div className="mt-3 w-full rounded-md border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 p-3">
+                  <p className="text-xs font-medium text-amber-800 dark:text-amber-300 mb-2">
+                    Fila de revisão ({reviewQueue.length} itens ambíguos)
+                  </p>
+                  <div className="space-y-1">
+                    {reviewQueue.map((item, i) => (
+                      <div key={i} className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground truncate max-w-[60%]">{item.gapId}</span>
+                        <Badge variant="outline" className="text-xs">{item.status}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                  {pipelineStats && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Total: {pipelineStats.total} · Mapeados: {pipelineStats.mapped} · Ambíguos: {pipelineStats.ambiguous} · Sem categoria: {pipelineStats.unmapped}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             active.map((risk) => (

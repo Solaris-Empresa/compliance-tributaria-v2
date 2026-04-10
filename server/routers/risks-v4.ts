@@ -15,6 +15,12 @@ import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { computeRiskMatrix, buildActionPlans } from "../lib/risk-engine-v4";
 import type { GapRule } from "../lib/risk-engine-v4";
+// Sprint Z-10 PR #B — ACL Gap→Risk
+import { GapToRuleMapper } from "../lib/gap-to-rule-mapper";
+import { getActiveCategories, getCategoryByCodigo } from "../lib/risk-category.repository.drizzle";
+import { GapInputSchema } from "../schemas/gap-risk.schemas";
+import type { CategoryACL } from "../schemas/gap-risk.schemas";
+import type { CategoryResolver } from "../lib/gap-to-rule-mapper";
 import {
   insertRiskV4WithAudit,
   insertActionPlanV4WithAudit,
@@ -488,6 +494,94 @@ export const risksV4Router = router({
       });
 
       return { success: true };
+    }),
+
+  /**
+   * 12. mapGapsToRules — Sprint Z-10 PR #B
+   * Anti-Corruption Layer: traduz GapInput[] (compliance operacional) em GapRule[] (normativo).
+   * Usa GapToRuleMapper com allowLayerInference=false (DEC-Z10-05).
+   * Retorna: { mappedRules, reviewQueue, stats }
+   */
+  mapGapsToRules: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      gaps: z.array(GapInputSchema),
+    }))
+    .mutation(async ({ input }) => {
+      // Adapter: CategoryResolver usando funções standalone do repository
+      const resolver: CategoryResolver = {
+        async findByCodigo(codigo: string): Promise<CategoryACL | undefined> {
+          const cat = await getCategoryByCodigo(codigo);
+          if (!cat || cat.status !== "ativo") return undefined;
+          return {
+            codigo: cat.codigo,
+            nome: cat.nome,
+            severidade: cat.severidade as CategoryACL["severidade"],
+            urgencia: cat.urgencia as CategoryACL["urgencia"],
+            tipo: cat.tipo as CategoryACL["tipo"],
+            status: cat.status as CategoryACL["status"],
+            allowedDomains: cat.allowedDomains ?? null,
+            allowedGapTypes: cat.allowedGapTypes ?? null,
+            ruleCode: cat.ruleCode ?? null,
+          };
+        },
+        async findByArticle(normalizedArticle: string): Promise<CategoryACL[]> {
+          const all = await getActiveCategories();
+          // Busca categorias cujo artigo_base contém o artigo normalizado
+          return all.filter((c) =>
+            c.allowedGapTypes?.some((t) =>
+              t.toLowerCase().includes(normalizedArticle.toLowerCase())
+            ) ?? false
+          );
+        },
+      };
+      const mapper = new GapToRuleMapper(resolver, { allowLayerInference: false });
+      return mapper.mapMany(input.gaps);
+    }),
+
+  /**
+   * 13. generateRisksFromGaps — Sprint Z-10 PR #B
+   * Recebe mappedRules (GapRule[]) do ACL e gera risks_v4 via engine determinístico.
+   * Persiste riscos + planos de ação. Retorna: { risks, actionPlans, inserted }
+   */
+  generateRisksFromGaps: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      mappedRules: z.array(GapRuleSchema),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const risks = computeRiskMatrix(input.mappedRules as GapRule[]);
+      const actionPlans = buildActionPlans(risks);
+      const actor = {
+        user_id: ctx.user.id,
+        user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
+        user_role: ctx.user.role ?? "user",
+      };
+      const riskIds: string[] = [];
+      for (const risk of risks) {
+        const id = await insertRiskV4WithAudit(
+          {
+            project_id: input.projectId,
+            rule_id: risk.ruleId,
+            type: risk.severity === "oportunidade" ? "opportunity" : "risk",
+            categoria: risk.categoria as import("../lib/db-queries-risks-v4").CategoriaV4,
+            titulo: `[${risk.categoria}] ${risk.artigo}`,
+            descricao: risk.sourceReference,
+            artigo: risk.artigo,
+            severidade: risk.severity as import("../lib/db-queries-risks-v4").SeveridadeV4,
+            urgencia: risk.urgency as import("../lib/db-queries-risks-v4").UrgenciaV4,
+            evidence: { gapClassification: risk.gapClassification, requirementId: risk.requirementId },
+            breadcrumb: risk.breadcrumb,
+            source_priority: risk.fonte as import("../lib/db-queries-risks-v4").SourcePriorityV4,
+            confidence: 1.0,
+            created_by: ctx.user.id,
+            updated_by: ctx.user.id,
+          },
+          actor
+        );
+        riskIds.push(id);
+      }
+      return { risks, actionPlans, inserted: riskIds.length };
     }),
 
   /**
