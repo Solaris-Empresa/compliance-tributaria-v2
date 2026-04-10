@@ -1,5 +1,11 @@
 // risk-engine-v4.ts — Engine determinístico de riscos v4 (Sprint Z-07 / ADR-0022)
 // Função pura: mesma entrada → mesma saída. SEVERITY é tabela fixa — nunca LLM.
+// Sprint Z-09 PR #B: getRiskCategories() lê da tabela risk_categories com cache TTL 1h.
+
+import {
+  listActiveCategories,
+  type RiskCategory,
+} from "./db-queries-risk-categories";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -85,6 +91,55 @@ const SEVERITY_ORDER: Record<Severity, number> = {
   media: 1,
   oportunidade: 2,
 };
+
+// ---------------------------------------------------------------------------
+// Cache de categorias via DB (Sprint Z-09 PR #B)
+// ---------------------------------------------------------------------------
+
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hora
+
+let _categoryCache: Record<string, { severity: Severity; urgency: Urgency }> | null = null;
+let _cacheTimestamp = 0;
+
+/**
+ * Lê categorias ativas da tabela risk_categories com cache em memória (TTL 1h).
+ * Filtra categorias com vigencia_fim expirada (defesa em profundidade).
+ * Substitui SEVERITY_TABLE para chamadas via DB.
+ */
+export async function getRiskCategories(): Promise<
+  Record<string, { severity: Severity; urgency: Urgency }>
+> {
+  const now = Date.now();
+  if (_categoryCache && now - _cacheTimestamp < CACHE_TTL_MS) {
+    return _categoryCache;
+  }
+
+  const rows = await listActiveCategories();
+  const table: Record<string, { severity: Severity; urgency: Urgency }> = {};
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  for (const row of rows) {
+    if (row.vigencia_fim) {
+      const fim = new Date(row.vigencia_fim);
+      if (fim < today) continue;
+    }
+    table[row.codigo] = {
+      severity: row.severidade as Severity,
+      urgency: row.urgencia as Urgency,
+    };
+  }
+
+  _categoryCache = table;
+  _cacheTimestamp = now;
+  return table;
+}
+
+/** Reset do cache — usado apenas em testes. */
+export function resetCategoryCache(): void {
+  _categoryCache = null;
+  _cacheTimestamp = 0;
+}
 
 // ---------------------------------------------------------------------------
 // Funções puras
