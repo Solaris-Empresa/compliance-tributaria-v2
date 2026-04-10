@@ -103,4 +103,48 @@ bugs de UX que o teste manual anterior capturou.
 
 ---
 
+## REGRA-ARCH-01 — Verificar tabelas de origem antes de especificar pipeline
+
+Antes de especificar qualquer procedure que lê respostas,
+gaps, ou dados de questionário, verificar obrigatoriamente:
+
+SHOW TABLES LIKE '%answer%';
+SHOW TABLES LIKE '%question%';
+SHOW TABLES LIKE '%gap%';
+SHOW TABLES LIKE '%response%';
+
+Mapear qual tabela o fluxo ATUAL usa e qual o novo
+pipeline vai usar. Se forem diferentes, o adapter
+deve estar na spec — não descoberto no smoke test.
+
+Tabelas de origem do produto IA SOLARIS (2026-04-10):
+  Onda 1 (SOLARIS):  solaris_answers
+  Onda 2 (IA GEN):   iagen_answers
+  Pipeline legado:   questionnaireAnswersV3
+  Gaps legados:      project_gaps_v3
+
+analyzeGaps DEVE ler solaris_answers + iagen_answers.
+NÃO ler questionnaireAnswersV3 para novos pipelines.
+
+Origem: Sprint Z-10 — analyzeGaps lia questionnaireAnswersV3
+(tabela legada vazia) em vez de solaris_answers + iagen_answers
+(tabelas reais da arquitetura 3 Ondas).
+
+---
+
+## REGRA-ARCH-02 — Documentar o fluxo de dados antes de implementar
+
+Antes de qualquer PR que conecta dois sistemas existentes,
+desenhar o fluxo de dados com tabelas reais:
+
+  [tela] → [procedure] → [tabela lida] → [tabela escrita]
+
+Se qualquer tabela não existir ou tiver nome diferente
+do assumido → parar e corrigir a spec antes de codificar.
+
+Origem: mesma falha da Z-10 — spec assumiu tabela
+sem verificar a arquitetura 3 Ondas existente.
+
+---
+
 *Atualizado: 2026-04-10*
