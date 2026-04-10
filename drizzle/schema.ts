@@ -1760,6 +1760,10 @@ export const solarisQuestions = mysqlTable("solaris_questions", {
   severidade_base: varchar("severidade_base", { length: 20 }),
   /** Data de início de vigência — formato "YYYY-MM-DD" ou null */
   vigencia_inicio: varchar("vigencia_inicio", { length: 10 }),
+  // Sprint Z-11 — Migration 0068
+  riskCategoryCode: varchar("risk_category_code", { length: 64 }),
+  classificationScope: mysqlEnum("classification_scope", ["risk_engine", "diagnostic_only"]).notNull().default("risk_engine"),
+  mappingReviewStatus: mysqlEnum("mapping_review_status", ["curated_internal", "pending_legal", "approved_legal"]).notNull().default("curated_internal"),
 });
 
 export type SolarisQuestion = typeof solarisQuestions.$inferSelect;
@@ -1815,6 +1819,11 @@ export const iagenAnswers = mysqlTable("iagen_answers", {
   fonte:           varchar("fonte", { length: 20 }).default("ia_gen"),
   createdAt:       bigint("created_at", { mode: "number" }).notNull(),
   updatedAt:       bigint("updated_at", { mode: "number" }).notNull(),
+  // Sprint Z-11 — Migration 0069
+  riskCategoryCode:      varchar("risk_category_code", { length: 64 }),
+  categoryAssignmentMode: mysqlEnum("category_assignment_mode", ["llm_assigned", "human_validated"]),
+  usedProfileFields:     json("used_profile_fields"),
+  promptVersion:         varchar("prompt_version", { length: 20 }),
 });
 
 export type IagenAnswer = typeof iagenAnswers.$inferSelect;
