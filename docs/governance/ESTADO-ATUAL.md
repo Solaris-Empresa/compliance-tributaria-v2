@@ -1,6 +1,6 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v5.1 · 2026-04-09 (Sprint Z-09 ENCERRADA · HEAD ceabb06 · PRs #436–#443)** · Responsável: Orquestrador gera, Manus commita
+> **v5.2 · 2026-04-10 (Sprint Z-10 EM EXECUÇÃO · HEAD 7948b6d · PRs #447–#453)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
@@ -22,6 +22,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 **Sprint Z-07:** ✅ ENCERRADA — PR #B ✅ #427 (0064_risks_v4.sql · db-queries-risks-v4.ts) · PR #C ✅ #429 (risks-v4.ts · RiskDashboardV4.tsx · ActionPlanPage.tsx) · Gate Z-07 3/3 PASS · DEC-SWAP-05 aprovada · deploy estável
 **Sprint Z-08:** ✅ ENCERRADA — fix JSON.parse (#434) · fix pool.promise (#435) · conexão engine v4 ao pipeline
 **Sprint Z-09:** ✅ ENCERRADA — risk_categories configurável (#436) · VARCHAR migration (#437) · RAG sensor + painel admin (#438) · ADR-0025 (#439) · engine cache 1h (#440) · docs fix (#441) · CONTRACT-02/03 (#442) · FK CONTRACT-01 (#443)
+**Sprint Z-10:** 🔄 EM EXECUÇÃO — ACL Gap→Risk (#448) · fix mapper determinístico (#449) · risks-v4 router (#450) · fix user_id→createdById (#451) · PROTOCOLO-DEBUG (#452 #453) · ADR-0026 · Pendente: smoke test Camada 2 (P.O.)
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -447,5 +448,5 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-09 (v5.1 · Sprint Z-09 ENCERRADA · PRs #436–#443 · HEAD ceabb06)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-10 (v5.2 · Sprint Z-10 EM EXECUÇÃO · PRs #447–#453 · HEAD 7948b6d)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
