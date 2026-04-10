@@ -93,7 +93,12 @@ function StatusBadge({ v }: { v: string }) {
 
 function formatDate(d: string | Date | null | undefined): string {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("pt-BR");
+  // BUG-TZ-01: mysql2 retorna DATE como Date JS com hora 05:00:00 UTC.
+  // toLocaleDateString('pt-BR') convertia para BRT, exibindo 31/12/2025.
+  // Fix: extrair data em UTC via toISOString().slice(0,10).
+  const iso = d instanceof Date ? d.toISOString().slice(0, 10) : String(d).slice(0, 10);
+  const [year, month, day] = iso.split("-");
+  return `${day}/${month}/${year}`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -282,10 +287,14 @@ export default function AdminCategorias() {
         artigo_base: cat.artigo_base,
         lei_codigo: cat.lei_codigo,
         vigencia_inicio: cat.vigencia_inicio
-          ? new Date(cat.vigencia_inicio).toISOString().slice(0, 10)
+          ? (cat.vigencia_inicio instanceof Date
+              ? cat.vigencia_inicio.toISOString().slice(0, 10)
+              : String(cat.vigencia_inicio).slice(0, 10))
           : "2026-01-01",
         vigencia_fim: cat.vigencia_fim
-          ? new Date(cat.vigencia_fim).toISOString().slice(0, 10)
+          ? (cat.vigencia_fim instanceof Date
+              ? cat.vigencia_fim.toISOString().slice(0, 10)
+              : String(cat.vigencia_fim).slice(0, 10))
           : "",
         origem: cat.origem,
         escopo: cat.escopo,
