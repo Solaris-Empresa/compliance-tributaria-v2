@@ -69,6 +69,8 @@ import DemoAcoes from "./pages/demo/DemoAcoes";
 import DemoTarefas from "./pages/demo/DemoTarefas";
 import GapDiagnostic from "./pages/GapDiagnostic";
 import RiskDashboard from "./pages/RiskDashboard";
+import RiskDashboardV4Page from "./pages/RiskDashboardV4Page"; // Sprint Z-07 PR #C (ADR-0022)
+import ActionPlanPage from "./pages/ActionPlanPage"; // Sprint Z-07 PR #C (ADR-0022)
 import ConsistencyGate from "./pages/ConsistencyGate";
 import DiagnosticoStepper from "./pages/DiagnosticoStepper";
 import AdminConsistencia from "./pages/AdminConsistencia";
@@ -167,6 +169,9 @@ function Router() {
       <Route path="/projetos/:projectId/diagnostico" component={GapDiagnostic} />
       <Route path="/risk-engine" component={RiskDashboard} />
       <Route path="/projetos/:projectId/risk-engine" component={RiskDashboard} />
+      {/* Sprint Z-07 — Sistema de Riscos v4 (ADR-0022) */}
+      <Route path="/projetos/:projectId/risk-dashboard-v4" component={RiskDashboardV4Page} />
+      <Route path="/projetos/:projectId/planos-v4" component={ActionPlanPage} />
       {/* v2.2 — Consistency Engine */}
       <Route path="/consistencia" component={ConsistencyGate} />
       <Route path="/projetos/:projectId/consistencia" component={ConsistencyGate} />
