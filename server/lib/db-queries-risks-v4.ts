@@ -252,12 +252,18 @@ export async function insertRiskV4(data: InsertRiskV4): Promise<string> {
 export async function getRisksV4ByProject(
   projectId: number
 ): Promise<RiskV4Row[]> {
-  return query<RiskV4Row>(
+  const rows = await query<RiskV4Row>(
     `SELECT * FROM risks_v4
      WHERE project_id = ? AND status = 'active'
      ORDER BY created_at DESC`,
     [projectId]
   );
+  // TiDB retorna campos JSON como string — parse necessário (fix/json-parse-risks-v4)
+  return rows.map((r) => ({
+    ...r,
+    evidence: typeof r.evidence === 'string' ? JSON.parse(r.evidence) : r.evidence,
+    breadcrumb: typeof r.breadcrumb === 'string' ? JSON.parse(r.breadcrumb) : r.breadcrumb,
+  }));
 }
 
 /**
@@ -268,7 +274,14 @@ export async function getRiskV4ById(id: string): Promise<RiskV4Row | null> {
     `SELECT * FROM risks_v4 WHERE id = ? LIMIT 1`,
     [id]
   );
-  return rows[0] ?? null;
+  const row = rows[0] ?? null;
+  if (!row) return null;
+  // TiDB retorna campos JSON como string — parse necessário (fix/json-parse-risks-v4)
+  return {
+    ...row,
+    evidence: typeof row.evidence === 'string' ? JSON.parse(row.evidence) : row.evidence,
+    breadcrumb: typeof row.breadcrumb === 'string' ? JSON.parse(row.breadcrumb) : row.breadcrumb,
+  };
 }
 
 /**
