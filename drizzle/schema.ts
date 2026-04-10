@@ -1886,3 +1886,42 @@ export const ragUsageLog = mysqlTable("rag_usage_log", {
 }));
 export type RagUsageLog = typeof ragUsageLog.$inferSelect;
 export type InsertRagUsageLog = typeof ragUsageLog.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tabela: risk_categories — Sprint Z-09 (ADR-0025) + Z-10 PR #A (GAP-ACL)
+// Categorias configuráveis de risco da Reforma Tributária LC 214/2025.
+// Os 3 campos de ACL (allowed_domains, allowed_gap_types, rule_code) foram
+// adicionados pela migration 0067b (Sprint Z-10).
+// ─────────────────────────────────────────────────────────────────────────────
+export const riskCategories = mysqlTable("risk_categories", {
+  id:              int("id").autoincrement().primaryKey(),
+  codigo:          varchar("codigo", { length: 64 }).notNull(),
+  nome:            varchar("nome", { length: 255 }).notNull(),
+  severidade:      mysqlEnum("severidade", ["alta", "media", "oportunidade"]).notNull(),
+  urgencia:        mysqlEnum("urgencia", ["imediata", "curto_prazo", "medio_prazo"]).notNull(),
+  tipo:            mysqlEnum("tipo", ["risk", "opportunity"]).notNull(),
+  artigoBase:      varchar("artigo_base", { length: 255 }).notNull(),
+  leiCodigo:       varchar("lei_codigo", { length: 64 }).notNull(),
+  vigenciaInicio:  timestamp("vigencia_inicio").notNull(),
+  vigenciaFim:     timestamp("vigencia_fim"),
+  status:          mysqlEnum("status", ["ativo", "sugerido", "pendente_revisao", "inativo", "legado"]).default("ativo").notNull(),
+  origem:          mysqlEnum("origem", ["lei_federal", "regulamentacao", "rag_sensor", "manual"]).notNull(),
+  escopo:          mysqlEnum("escopo", ["nacional", "estadual", "setorial"]).default("nacional").notNull(),
+  sugeridoPor:     varchar("sugerido_por", { length: 100 }),
+  aprovadoPor:     varchar("aprovado_por", { length: 100 }),
+  aprovadoAt:      timestamp("aprovado_at"),
+  chunkOrigemId:   int("chunk_origem_id"),
+  createdAt:       timestamp("created_at").defaultNow().notNull(),
+  updatedAt:       timestamp("updated_at").defaultNow().notNull(),
+  // Sprint Z-10 PR #A — GAP-ACL (migration 0067b)
+  allowedDomains:  json("allowed_domains").$type<string[] | null>(),
+  allowedGapTypes: json("allowed_gap_types").$type<string[] | null>(),
+  ruleCode:        varchar("rule_code", { length: 64 }),
+}, (table) => ({
+  codigoIdx:  index("idx_risk_categories_codigo").on(table.codigo),
+  statusIdx:  index("idx_risk_categories_status").on(table.status),
+  origemIdx:  index("idx_risk_categories_origem").on(table.origem),
+}));
+
+export type RiskCategory = typeof riskCategories.$inferSelect;
+export type InsertRiskCategory = typeof riskCategories.$inferInsert;
