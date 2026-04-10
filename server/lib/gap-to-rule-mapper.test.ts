@@ -1,338 +1,211 @@
 /**
- * gap-to-rule-mapper.test.ts — Sprint Z-10 PR #A
- * Gold set: 7 testes que cobrem os 3 modos de resolução + edge cases
+ * gap-to-rule-mapper.test.ts — Sprint Z-10 Gold Set (7 testes)
  *
- * Testes:
- *   T1 — rule_code: gap com gapType que casa com ruleCode explícito → score 1.0
- *   T2 — acl_filter: gap com domain+gapType cobertos por allowedDomains/allowedGapTypes → score 0.75+
- *   T3 — fallback: gap sem nenhuma regra ACL → usa DOMAIN_FALLBACK → score 0.3
- *   T4 — prioridade rule_code > acl_filter: quando ambos casam, rule_code vence
- *   T5 — acl_filter mais específico vence: categoria com ambos os filtros > categoria com apenas um
- *   T6 — domínio desconhecido → fallback _default → "apuracao_ibs_cbs"
- *   T7 — lista vazia de gaps → MapperResult com matches=[] e unmatched=[]
+ * Testes unitários para o ACL Gap→GapRule v2 (classe GapToRuleMapper).
+ * Não requer banco — usa resolver mockado.
+ *
+ * PROIBIDO nos testes: score, confidence, ranking, fallback por domínio.
  */
 
-import { describe, it, expect } from "vitest";
-import { mapGapsToCategories, DOMAIN_FALLBACK } from "./gap-to-rule-mapper";
-import type { GapConfirmed, CategoryACL } from "../schemas/gap-risk.schemas";
+import { describe, it, expect, vi } from "vitest";
+import {
+  GapToRuleMapper,
+  type CategoryResolver,
+} from "./gap-to-rule-mapper";
+import type { GapInput, CategoryACL } from "../schemas/gap-risk.schemas";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Fixtures de categorias (mock do banco)
-// ─────────────────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
-const CAT_RULE: CategoryACL = {
-  codigo: "split_payment",
-  nome: "Split Payment Obrigatório",
-  severidade: "alta",
-  urgencia: "imediata",
-  tipo: "risk",
-  status: "ativo",
-  allowedDomains: null,
-  allowedGapTypes: null,
-  ruleCode: "obrigacao_acessoria", // casa com gapType exato
-};
+function makeGap(overrides: Partial<GapInput> = {}): GapInput {
+  return {
+    id: "GAP-001",
+    canonicalId: "CAN-001",
+    gapStatus: "nao_compliant",
+    gapSeverity: "alta",
+    gapType: "ausencia",
+    area: "fiscal",
+    descricao: "Gap de teste",
+    categoria: undefined,
+    sourceOrigin: "cnae",
+    requirementId: "REQ-001",
+    sourceReference: "Art. 9 LC 214/2025",
+    domain: "fiscal",
+    ...overrides,
+  };
+}
 
-const CAT_ACL_FULL: CategoryACL = {
-  codigo: "apuracao_ibs_cbs",
-  nome: "Apuração IBS/CBS",
-  severidade: "alta",
-  urgencia: "imediata",
-  tipo: "risk",
-  status: "ativo",
-  allowedDomains: ["contabilidade", "fiscal"],
-  allowedGapTypes: ["apuracao", "credito"],
-  ruleCode: null,
-};
+function makeCat(overrides: Partial<CategoryACL> = {}): CategoryACL {
+  return {
+    codigo: "split_payment",
+    nome: "Split Payment",
+    severidade: "alta",
+    urgencia: "imediata",
+    tipo: "risk",
+    status: "ativo",
+    allowedDomains: null,
+    allowedGapTypes: null,
+    ruleCode: null,
+    ...overrides,
+  };
+}
 
-const CAT_ACL_DOMAIN_ONLY: CategoryACL = {
-  codigo: "nfe_nfse_adaptacao",
-  nome: "Adaptação NF-e/NFS-e",
-  severidade: "media",
-  urgencia: "curto_prazo",
-  tipo: "risk",
-  status: "ativo",
-  allowedDomains: ["ti"],
-  allowedGapTypes: null, // aceita qualquer tipo de gap
-  ruleCode: null,
-};
+function makeResolver(
+  overrides: Partial<CategoryResolver> = {},
+): CategoryResolver {
+  return {
+    findByCodigo: vi.fn().mockResolvedValue(undefined),
+    findByArticle: vi.fn().mockResolvedValue([]),
+    ...overrides,
+  };
+}
 
-const CAT_FALLBACK: CategoryACL = {
-  codigo: "apuracao_ibs_cbs",
-  nome: "Apuração IBS/CBS",
-  severidade: "alta",
-  urgencia: "imediata",
-  tipo: "risk",
-  status: "ativo",
-  allowedDomains: null,
-  allowedGapTypes: null,
-  ruleCode: null,
-};
+// ═══════════════════════════════════════════════════════════════════════════
+// Gold Set — 7 testes (spec Z-10 aprovada)
+// ═══════════════════════════════════════════════════════════════════════════
 
-const CAT_INATIVA: CategoryACL = {
-  codigo: "legado_iss",
-  nome: "ISS Legado",
-  severidade: "media",
-  urgencia: "medio_prazo",
-  tipo: "risk",
-  status: "inativo", // não deve ser usada
-  allowedDomains: null,
-  allowedGapTypes: null,
-  ruleCode: null,
-};
+describe("Gap-to-Rule Mapper v2 — Gold Set Z-10", () => {
+  // ─── T1: categoria explícita válida → mapped ──────────────────────────
+  it("T1: gap com categoria explícita válida em risk_categories → mapped", async () => {
+    const cat = makeCat({ codigo: "split_payment", status: "ativo" });
+    const resolver = makeResolver({
+      findByCodigo: vi.fn().mockResolvedValue(cat),
+    });
+    const mapper = new GapToRuleMapper(resolver);
+    const gap = makeGap({ id: "GAP-T1", categoria: "split_payment" });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Fixtures de gaps
-// ─────────────────────────────────────────────────────────────────────────────
+    const result = await mapper.mapOne(gap);
 
-const GAP_RULE: GapConfirmed = {
-  id: "gap-001",
-  domain: "fiscal",
-  gapType: "obrigacao_acessoria",
-  artigos: ["art. 12"],
-};
-
-const GAP_ACL: GapConfirmed = {
-  id: "gap-002",
-  domain: "contabilidade",
-  gapType: "apuracao",
-  artigos: ["art. 45"],
-};
-
-const GAP_FALLBACK: GapConfirmed = {
-  id: "gap-003",
-  domain: "financeiro",
-  gapType: "desconhecido",
-  artigos: [],
-};
-
-const GAP_UNKNOWN_DOMAIN: GapConfirmed = {
-  id: "gap-004",
-  domain: "dominio_inexistente",
-  gapType: "qualquer",
-  artigos: [],
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Testes
-// ─────────────────────────────────────────────────────────────────────────────
-
-describe("gap-to-rule-mapper — gold set Z-10", () => {
-  // T1 — rule_code
-  it("T1: gap com gapType = ruleCode → mode='rule_code', score=1.0", () => {
-    const result = mapGapsToCategories([GAP_RULE], [CAT_RULE, CAT_ACL_FULL]);
-
-    expect(result.matches).toHaveLength(1);
-    expect(result.unmatched).toHaveLength(0);
-
-    const match = result.matches[0];
-    expect(match.gapId).toBe("gap-001");
-    expect(match.mode).toBe("rule_code");
-    expect(match.score).toBe(1.0);
-    expect(match.categoriaCodigo).toBe("split_payment");
-    expect(match.ruleCode).toBe("obrigacao_acessoria");
+    expect(result.status).toBe("mapped");
+    expect(result.categoria).toBe("split_payment");
+    expect(result.reason).toContain("explicit");
   });
 
-  // T2 — acl_filter
-  it("T2: gap coberto por allowedDomains+allowedGapTypes → mode='acl_filter', score>=0.75", () => {
-    const result = mapGapsToCategories([GAP_ACL], [CAT_ACL_FULL]);
+  // ─── T2: categoria explícita inválida → unmapped ──────────────────────
+  it("T2: gap com categoria explícita inexistente/inativa → unmapped (DEC-Z10-06)", async () => {
+    const resolver = makeResolver({
+      findByCodigo: vi.fn().mockResolvedValue(undefined),
+    });
+    const mapper = new GapToRuleMapper(resolver);
+    const gap = makeGap({ id: "GAP-T2", categoria: "categoria_fantasma" });
 
-    expect(result.matches).toHaveLength(1);
-    const match = result.matches[0];
-    expect(match.mode).toBe("acl_filter");
-    expect(match.score).toBeGreaterThanOrEqual(0.75);
-    expect(match.categoriaCodigo).toBe("apuracao_ibs_cbs");
+    const result = await mapper.mapOne(gap);
+
+    expect(result.status).toBe("unmapped");
+    expect(result.categoria).toBeNull();
+    expect(result.reason).toContain("explicit_not_found");
   });
 
-  // T3 — fallback
-  it("T3: gap sem regra ACL → mode='fallback', score=0.3", () => {
-    // CAT_FALLBACK tem allowedDomains=null e allowedGapTypes=null
-    // mas o domain "financeiro" está no DOMAIN_FALLBACK → "split_payment"
-    // Como CAT_FALLBACK tem codigo "apuracao_ibs_cbs", não casa com fallback "split_payment"
-    // Então o mapper vai para acl_filter (null = aceita todos) → mode="acl_filter"
-    // Para forçar fallback, usamos uma categoria que NÃO aceita o domínio "financeiro"
-    const catRestrita: CategoryACL = {
-      codigo: "nfe_nfse_adaptacao",
-      nome: "NF-e/NFS-e",
-      severidade: "media",
-      urgencia: "curto_prazo",
-      tipo: "risk",
-      status: "ativo",
-      allowedDomains: ["ti"], // não aceita "financeiro"
-      allowedGapTypes: null,
-      ruleCode: null,
-    };
-    const catFallback: CategoryACL = {
+  // ─── T3: artigo com 1 candidato → mapped ─────────────────────────────
+  it("T3: artigo com exatamente 1 candidato em risk_categories → mapped", async () => {
+    const cat = makeCat({
       codigo: "split_payment",
-      nome: "Split Payment",
-      severidade: "alta",
-      urgencia: "imediata",
-      tipo: "risk",
       status: "ativo",
-      allowedDomains: null,
-      allowedGapTypes: null,
-      ruleCode: null,
-    };
+    });
+    const resolver = makeResolver({
+      findByArticle: vi.fn().mockResolvedValue([cat]),
+    });
+    const mapper = new GapToRuleMapper(resolver);
+    const gap = makeGap({
+      id: "GAP-T3",
+      categoria: undefined,
+      sourceReference: "Art. 9 LC 214/2025",
+    });
 
-    // Com catRestrita (não aceita "financeiro") + catFallback (aceita todos via null)
-    // O acl_filter vai casar com catFallback (null=aceita tudo) → mode="acl_filter"
-    // Para testar fallback puro, precisamos que NENHUMA categoria aceite o gap
-    const catSoTi: CategoryACL = {
-      codigo: "nfe_nfse_adaptacao",
-      nome: "NF-e",
-      severidade: "media",
-      urgencia: "curto_prazo",
-      tipo: "risk",
-      status: "ativo",
-      allowedDomains: ["ti"],
-      allowedGapTypes: ["adaptacao"],
-      ruleCode: null,
-    };
-    const catFallbackSplit: CategoryACL = {
-      codigo: "split_payment",
-      nome: "Split Payment",
-      severidade: "alta",
-      urgencia: "imediata",
-      tipo: "risk",
-      status: "ativo",
-      allowedDomains: ["financeiro"], // aceita "financeiro"
-      allowedGapTypes: null,
-      ruleCode: null,
-    };
+    const result = await mapper.mapOne(gap);
 
-    const result = mapGapsToCategories([GAP_FALLBACK], [catSoTi, catFallbackSplit]);
-    expect(result.matches).toHaveLength(1);
-    const match = result.matches[0];
-    // catFallbackSplit aceita domain="financeiro" → acl_filter (score 0.75)
-    expect(match.mode).toBe("acl_filter");
-    expect(match.categoriaCodigo).toBe("split_payment");
+    expect(result.status).toBe("mapped");
+    expect(result.categoria).toBe("split_payment");
+    expect(result.reason).toContain("article");
   });
 
-  // T3b — fallback puro: o mapper encontra a categoria pelo código DOMAIN_FALLBACK
-  it("T3b: nenhuma ACL casa → mapper usa DOMAIN_FALLBACK por código → mode='fallback'", () => {
-    const catSoTi: CategoryACL = {
-      codigo: "nfe_nfse_adaptacao",
-      nome: "NF-e",
-      severidade: "media",
-      urgencia: "curto_prazo",
-      tipo: "risk",
-      status: "ativo",
-      allowedDomains: ["ti"],
-      allowedGapTypes: ["adaptacao"],
-      ruleCode: null,
-    };
-    // DOMAIN_FALLBACK["financeiro"] = "split_payment"
-    // O mapper vai buscar categoria com codigo="split_payment" na lista
-    const catFallbackSplit: CategoryACL = {
-      codigo: "split_payment", // mesmo código que DOMAIN_FALLBACK["financeiro"]
-      nome: "Split Payment",
-      severidade: "alta",
-      urgencia: "imediata",
-      tipo: "risk",
-      status: "ativo",
-      allowedDomains: ["ti"], // NÃO aceita "financeiro" via ACL
-      allowedGapTypes: ["adaptacao"], // NÃO aceita "desconhecido" via ACL
-      ruleCode: null,
-    };
+  // ─── T4: artigo com 2 candidatos → ambiguous (NÃO mapped) ────────────
+  it("T4: artigo com 2+ candidatos → ambiguous, NUNCA mapped", async () => {
+    const cat1 = makeCat({ codigo: "obrigacao_acessoria" });
+    const cat2 = makeCat({ codigo: "regime_diferenciado" });
+    const resolver = makeResolver({
+      findByArticle: vi.fn().mockResolvedValue([cat1, cat2]),
+    });
+    const mapper = new GapToRuleMapper(resolver);
+    const gap = makeGap({
+      id: "GAP-T4",
+      categoria: undefined,
+      sourceReference: "Art. 102 LC 214/2025",
+    });
 
-    // Nenhuma ACL casa (catSoTi e catFallbackSplit não aceitam domain="financeiro")
-    // Mas o fallback encontra catFallbackSplit pelo código → mode="fallback"
-    const result = mapGapsToCategories([GAP_FALLBACK], [catSoTi, catFallbackSplit]);
-    expect(result.matches).toHaveLength(1);
-    expect(result.matches[0].mode).toBe("fallback");
-    expect(result.matches[0].categoriaCodigo).toBe("split_payment");
-    expect(result.matches[0].score).toBe(0.3);
-    expect(result.unmatched).toHaveLength(0);
+    const result = await mapper.mapOne(gap);
+
+    expect(result.status).toBe("ambiguous");
+    expect(result.status).not.toBe("mapped");
+    expect(result.categoria).toBeNull();
+    expect(result.reason).toContain("ambiguous");
   });
 
-  // T4 — prioridade rule_code > acl_filter
-  it("T4: rule_code tem prioridade sobre acl_filter quando ambos casam", () => {
-    const catAcl: CategoryACL = {
-      codigo: "apuracao_ibs_cbs",
-      nome: "Apuração IBS/CBS",
-      severidade: "alta",
-      urgencia: "imediata",
-      tipo: "risk",
+  // ─── T5: artigo sem candidato → unmapped ──────────────────────────────
+  it("T5: artigo sem nenhum candidato em risk_categories → unmapped", async () => {
+    const resolver = makeResolver({
+      findByArticle: vi.fn().mockResolvedValue([]),
+    });
+    const mapper = new GapToRuleMapper(resolver);
+    const gap = makeGap({
+      id: "GAP-T5",
+      categoria: undefined,
+      sourceReference: "Art. 999 LC 214/2025",
+    });
+
+    const result = await mapper.mapOne(gap);
+
+    expect(result.status).toBe("unmapped");
+    expect(result.categoria).toBeNull();
+    expect(result.reason).toContain("article_not_found");
+  });
+
+  // ─── T6: sem source_origin + allowLayerInference=false → unmapped ─────
+  it("T6: gap sem categoria, sem artigo, allowLayerInference=false → unmapped", async () => {
+    const resolver = makeResolver();
+    const mapper = new GapToRuleMapper(resolver, {
+      allowLayerInference: false,
+    });
+    const gap = makeGap({
+      id: "GAP-T6",
+      categoria: undefined,
+      sourceOrigin: undefined,
+      sourceReference: undefined,
+    });
+
+    const result = await mapper.mapOne(gap);
+
+    expect(result.status).toBe("unmapped");
+    expect(result.categoria).toBeNull();
+    expect(result.reason).toContain("unmapped");
+  });
+
+  // ─── T7: allowLayerInference=true + layer=onda2 → fonte=iagen ────────
+  it("T7: allowLayerInference=true + layer=onda2 + artigo 1 candidato → mapped com fonte=iagen", async () => {
+    const cat = makeCat({
+      codigo: "confissao_automatica",
       status: "ativo",
-      allowedDomains: null, // aceita qualquer domínio
-      allowedGapTypes: null, // aceita qualquer tipo
-      ruleCode: null,
-    };
+    });
+    const resolver = makeResolver({
+      findByArticle: vi.fn().mockResolvedValue([cat]),
+    });
+    const mapper = new GapToRuleMapper(resolver, {
+      allowLayerInference: true,
+    });
+    const gap = makeGap({
+      id: "GAP-T7",
+      categoria: undefined,
+      sourceOrigin: undefined,
+      sourceReference: "Art. 45 LC 214/2025",
+      layer: "onda2",
+    });
 
-    // CAT_RULE tem ruleCode="obrigacao_acessoria" que casa com GAP_RULE.gapType
-    const result = mapGapsToCategories([GAP_RULE], [catAcl, CAT_RULE]);
-    expect(result.matches[0].mode).toBe("rule_code");
-    expect(result.matches[0].categoriaCodigo).toBe("split_payment");
-  });
+    const result = await mapper.mapMany([gap]);
 
-  // T5 — acl_filter mais específico vence
-  it("T5: categoria com allowedDomains+allowedGapTypes tem score > categoria com apenas allowedDomains", () => {
-    const result = mapGapsToCategories([GAP_ACL], [CAT_ACL_DOMAIN_ONLY, CAT_ACL_FULL]);
-    // CAT_ACL_FULL tem ambos os filtros → score 1.0
-    // CAT_ACL_DOMAIN_ONLY tem só allowedDomains → score 0.75
-    // GAP_ACL.domain="contabilidade" não está em CAT_ACL_DOMAIN_ONLY.allowedDomains=["ti"]
-    // Então só CAT_ACL_FULL casa
-    expect(result.matches[0].categoriaCodigo).toBe("apuracao_ibs_cbs");
-    expect(result.matches[0].mode).toBe("acl_filter");
-  });
-
-  // T6 — domínio desconhecido → fallback _default por código
-  it("T6: domínio desconhecido → DOMAIN_FALLBACK['_default'] → mode='fallback', codigo='apuracao_ibs_cbs'", () => {
-    // DOMAIN_FALLBACK["_default"] = "apuracao_ibs_cbs"
-    // O mapper não encontra ACL para domain="dominio_inexistente"
-    // Então busca categoria com codigo="apuracao_ibs_cbs" na lista
-    const catDefault: CategoryACL = {
-      codigo: "apuracao_ibs_cbs", // mesmo código que DOMAIN_FALLBACK["_default"]
-      nome: "Apuração IBS/CBS",
-      severidade: "alta",
-      urgencia: "imediata",
-      tipo: "risk",
-      status: "ativo",
-      allowedDomains: ["fiscal"], // NÃO aceita "dominio_inexistente" via ACL
-      allowedGapTypes: ["apuracao"], // NÃO aceita "qualquer" via ACL
-      ruleCode: null,
-    };
-
-    // Nenhuma ACL casa, mas o fallback encontra catDefault pelo código "apuracao_ibs_cbs"
-    const result = mapGapsToCategories([GAP_UNKNOWN_DOMAIN], [catDefault]);
-    expect(result.matches).toHaveLength(1);
-    expect(result.matches[0].mode).toBe("fallback");
-    expect(result.matches[0].categoriaCodigo).toBe("apuracao_ibs_cbs");
-    expect(result.matches[0].score).toBe(0.3);
-    expect(result.unmatched).toHaveLength(0);
-
-    // Quando a categoria do fallback não existe na lista → unmatched
-    const catSemFallback: CategoryACL = {
-      codigo: "nfe_nfse_adaptacao", // código diferente do fallback _default
-      nome: "NF-e",
-      severidade: "media",
-      urgencia: "curto_prazo",
-      tipo: "risk",
-      status: "ativo",
-      allowedDomains: ["ti"],
-      allowedGapTypes: ["adaptacao"],
-      ruleCode: null,
-    };
-    const result2 = mapGapsToCategories([GAP_UNKNOWN_DOMAIN], [catSemFallback]);
-    expect(result2.unmatched).toContain("gap-004");
-    expect(result2.matches).toHaveLength(0);
-  });
-
-  // T7 — lista vazia
-  it("T7: lista vazia de gaps → matches=[], unmatched=[], executedAt válido", () => {
-    const result = mapGapsToCategories([], [CAT_ACL_FULL, CAT_RULE]);
-
-    expect(result.matches).toHaveLength(0);
-    expect(result.unmatched).toHaveLength(0);
-    expect(result.executedAt).toBeTruthy();
-    expect(new Date(result.executedAt).getTime()).toBeGreaterThan(0);
-  });
-
-  // T8 — categorias inativas não são usadas
-  it("T8: categorias inativas são ignoradas", () => {
-    const result = mapGapsToCategories([GAP_ACL], [CAT_INATIVA]);
-    // CAT_INATIVA tem status="inativo" → não deve ser usada
-    // Nenhuma categoria ativa → unmatched
-    expect(result.unmatched).toContain("gap-002");
-    expect(result.matches).toHaveLength(0);
+    expect(result.stats.mapped).toBe(1);
+    expect(result.mappedRules).toHaveLength(1);
+    expect(result.mappedRules[0].categoria).toBe("confissao_automatica");
+    expect(result.mappedRules[0].fonte).toBe("iagen");
   });
 });
