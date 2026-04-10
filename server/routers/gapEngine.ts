@@ -239,7 +239,7 @@ export const gapEngineRouter = router({
       try {
         // 1. Buscar projeto
         const [[project]] = await pool.query<mysql.RowDataPacket[]>(
-          "SELECT id, name, status, client_id FROM projects WHERE id = ? AND user_id = ?",
+          "SELECT id, name, status, client_id FROM projects WHERE id = ? AND createdById = ?",
           [input.project_id, ctx.user.id]
         );
 
@@ -460,7 +460,7 @@ export const gapEngineRouter = router({
       const pool = mysql.createPool(process.env.DATABASE_URL ?? "");
       try {
         const [[project]] = await pool.query<mysql.RowDataPacket[]>(
-          "SELECT id FROM projects WHERE id = ? AND user_id = ?",
+          "SELECT id FROM projects WHERE id = ? AND createdById = ?",
           [input.project_id, ctx.user.id]
         );
         if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
@@ -492,7 +492,7 @@ export const gapEngineRouter = router({
       const pool = mysql.createPool(process.env.DATABASE_URL ?? "");
       try {
         const [[project]] = await pool.query<mysql.RowDataPacket[]>(
-          "SELECT id FROM projects WHERE id = ? AND user_id = ?",
+          "SELECT id FROM projects WHERE id = ? AND createdById = ?",
           [input.project_id, ctx.user.id]
         );
         if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
