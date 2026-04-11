@@ -1345,7 +1345,14 @@ export async function countOnda1Answers(projectId: number): Promise<number> {
  */
 export async function saveOnda2Answers(
   projectId: number,
-  answers: Array<{ questionText: string; resposta: string; confidenceScore: number }>
+  answers: Array<{
+    questionText: string;
+    resposta: string;
+    confidenceScore: number;
+    risk_category_code?: string | null;
+    used_profile_fields?: string[];
+    prompt_version?: string;
+  }>
 ): Promise<void> {
   const db = await getDb();
   if (!db) return;
@@ -1358,6 +1365,10 @@ export async function saveOnda2Answers(
     fonte: "ia_gen",
     createdAt: now,
     updatedAt: now,
+    riskCategoryCode: a.risk_category_code ?? null,
+    categoryAssignmentMode: a.risk_category_code ? ("llm_assigned" as const) : null,
+    usedProfileFields: a.used_profile_fields ?? null,
+    promptVersion: a.prompt_version ?? null,
   }));
   if (rows.length > 0) {
     await db.insert(iagenAnswers).values(rows);
