@@ -260,8 +260,10 @@ export default function BriefingV3() {
     }
   };
 
-  // B-Z11-010: guard — só permite aprovar quando status é diagnostico_cnae ou briefing
-  const canApprove = ['diagnostico_cnae', 'briefing'].includes((project as any)?.status ?? '');
+  // B-Z11-010/011: guard — só permite aprovar quando status é diagnostico_cnae, briefing ou q_servico
+  // q_servico: isToBeFlowState cobre; após skip CNAE transita para diagnostico_cnae (fix B-Z11-012)
+  // Guard mantém q_servico para navegação direta antes do skip (B-Z11-011)
+  const canApprove = ['diagnostico_cnae', 'briefing', 'q_servico'].includes((project as any)?.status ?? '');
 
   const handleApprove = async () => {
     if (!briefing) return;
