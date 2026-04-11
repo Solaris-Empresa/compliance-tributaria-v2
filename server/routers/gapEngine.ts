@@ -239,7 +239,7 @@ export const gapEngineRouter = router({
       try {
         // 1. Buscar projeto
         const [[project]] = await pool.query<mysql.RowDataPacket[]>(
-          "SELECT id, name, status, client_id FROM projects WHERE id = ? AND createdById = ?",
+          "SELECT id, name, status, clientId FROM projects WHERE id = ? AND createdById = ?",
           [input.project_id, ctx.user.id]
         );
 
@@ -386,7 +386,7 @@ export const gapEngineRouter = router({
                 evaluation_confidence_reason, question_id, answer_value, source_reference
               ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?, ?, ?, ?, ?, ?)`,
               [
-                project.client_id ?? 1,
+                project.clientId ?? 1,
                 input.project_id,
                 gap.requirement_id,
                 gap.requirement_name,
