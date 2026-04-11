@@ -2216,6 +2216,12 @@ REGRA OBRIGATÓRIA — QCNAE ESPECIALIZADO (ADR-0018):
 - Se os dados do cliente confirmam ST (substituição tributária) → incluir gap sobre transição ST e citar Art. 28 LC 214/2025.
 - Priorizar dados estruturados do cliente sobre inferências do LLM.
 
+REGRA OBRIGATÓRIA — IBS INTERESTADUAL (B-Z11-003/004 fix):
+- Risco de IBS em operações interestaduais: causa_raiz = "Falta de adaptação ao modelo de partilha IBS entre estados de origem e destino" — citar Art. 15 LC 214/2025 (não Art. 57).
+- Art. 15 LC 214/2025 regula a partilha do IBS entre estados/municípios nas operações interestaduais.
+- NUNCA inverter causas raiz: se o gap é de operação interestadual, a causa é a partilha IBS (Art. 15), não o regime de bens pessoais (Art. 57).
+- Se o gap é de crédito IBS/CBS, a causa_raiz deve ser sobre apuração de créditos, não sobre obrigações acessórias.
+
 ${regulatoryContext}
 
 ${OC}`,

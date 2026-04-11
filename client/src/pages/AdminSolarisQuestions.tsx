@@ -370,7 +370,6 @@ function TabLista({
               </th>
               <th className="p-3 text-left font-medium w-20">Código</th>
               <th className="p-3 text-left font-medium">Título</th>
-              <th className="p-3 text-left font-medium w-36">Área</th>
               <th className="p-3 text-left font-medium w-24">Severidade</th>
               <th className="p-3 text-left font-medium w-24">Vigência</th>
               <th className="p-3 text-left font-medium w-36">Código do Risco</th>
@@ -381,7 +380,7 @@ function TabLista({
           <tbody>
             {isError && (
               <tr>
-                <td colSpan={8} className="p-8 text-center">
+                <td colSpan={7} className="p-8 text-center">
                   <Alert variant="destructive">
                     <AlertDescription>Erro ao carregar perguntas. Tente novamente.</AlertDescription>
                   </Alert>
@@ -390,14 +389,14 @@ function TabLista({
             )}
             {isLoading ? (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                <td colSpan={7} className="p-8 text-center text-muted-foreground">
                   <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
                   Carregando...
                 </td>
               </tr>
             ) : questions.length === 0 ? (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                <td colSpan={7} className="p-8 text-center text-muted-foreground">
                   Nenhuma pergunta encontrada
                 </td>
               </tr>
@@ -419,11 +418,6 @@ function TabLista({
                   </td>
                   <td className="p-3 max-w-xs">
                     <span className="line-clamp-2 text-foreground" title={q.titulo}>{q.titulo}</span>
-                  </td>
-                  <td className="p-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${AREA_COLORS[q.categoria] ?? "bg-muted text-muted-foreground"}`}>
-                      {AREA_LABELS[q.categoria] ?? q.categoria}
-                    </span>
                   </td>
                   <td className="p-3 text-xs">
                     {q.severidade_base ? (
