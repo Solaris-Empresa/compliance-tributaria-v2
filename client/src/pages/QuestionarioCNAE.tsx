@@ -32,7 +32,17 @@ import {
   AlertCircle,
   Save,
   ArrowLeft,
+  SkipForward,
+  AlertTriangle,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
   buildCnaePrefill,
@@ -121,6 +131,8 @@ export default function QuestionarioCNAE() {
   const [respostas, setRespostas] = useState<Record<string, any>>({});
   const [salvando, setSalvando] = useState(false);
   const [concluido, setConcluido] = useState(false);
+  // B-Z11-009: estado do modal de confirmação de pular
+  const [confirmSkipAll, setConfirmSkipAll] = useState(false);
 
   // Buscar projeto
   const { data: projeto, isLoading } = trpc.projects.getById.useQuery(
@@ -204,6 +216,13 @@ export default function QuestionarioCNAE() {
       layer: "cnae",
       answers: respostas,
     });
+  }
+
+  // B-Z11-009: pular questionário CNAE — submete com respostas vazias
+  function handleSkipAll() {
+    toast.warning("Questionário Setorial CNAE pulado — diagnóstico com confiança reduzida.", { duration: 6000 });
+    completarCamada.mutate({ projectId, layer: "cnae", answers: {} });
+    setConfirmSkipAll(false);
   }
 
   if (isLoading) {
@@ -378,6 +397,53 @@ export default function QuestionarioCNAE() {
             ))}
           </CardContent>
         </Card>
+
+        {/* B-Z11-009: Botão Pular questionário */}
+        <div className="flex justify-center mt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setConfirmSkipAll(true)}
+            data-testid="btn-pular-questionario-cnae"
+            className="text-xs text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 gap-1.5"
+          >
+            <SkipForward className="h-3.5 w-3.5" />
+            Pular este questionário
+          </Button>
+        </div>
+        {/* Modal de confirmação — Pular questionário CNAE */}
+        <Dialog open={confirmSkipAll} onOpenChange={setConfirmSkipAll}>
+          <DialogContent data-testid="modal-confirmar-pular-questionario-cnae">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-500" />
+                Pular questionário Setorial CNAE?
+              </DialogTitle>
+              <DialogDescription>
+                Ao pular este questionário, o diagnóstico será gerado com{" "}
+                <strong>confiança reduzida</strong>. Você poderá voltar e
+                responder as perguntas depois.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setConfirmSkipAll(false)}
+                data-testid="btn-cancelar-pular-cnae"
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleSkipAll}
+                disabled={completarCamada.isPending}
+                data-testid="btn-confirmar-pular-cnae"
+              >
+                {completarCamada.isPending ? "Pulando..." : "Confirmar — Pular questionário"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Navegação entre seções */}
         <div className="flex items-center justify-between mt-6">
