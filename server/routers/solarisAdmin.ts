@@ -216,7 +216,8 @@ export const solarisAdminRouter = router({
         const offsetSafe = parseInt(String(offset), 10);
         const [rows] = await conn.execute(
           `SELECT id, codigo, titulo, texto, categoria, severidade_base,
-                  vigencia_inicio, upload_batch_id, ativo, criado_em
+                  vigencia_inicio, upload_batch_id, ativo, criado_em,
+                  risk_category_code
            FROM solaris_questions ${where}
            ORDER BY codigo ASC
            LIMIT ${limitSafe} OFFSET ${offsetSafe}`,
@@ -228,6 +229,7 @@ export const solarisAdminRouter = router({
             id: number; codigo: string; titulo: string; texto: string;
             categoria: string; severidade_base: string | null;
             vigencia_inicio: number | null; upload_batch_id: string | null;
+            risk_category_code: string | null;
             ativo: number; criado_em: number;
           }[],
           total,
