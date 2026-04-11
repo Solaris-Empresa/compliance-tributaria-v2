@@ -16,7 +16,7 @@ import { statusToCompletedStep } from "@/lib/flowStepperUtils";
 import {
   ArrowLeft, ChevronRight, Loader2, Sparkles,
   CheckCircle2, RefreshCw, MessageSquare, ThumbsUp, Edit3, Info, Download,
-  History, Clock, ChevronDown, ChevronUp, AlertTriangle,
+  History, Clock, ChevronDown, ChevronUp, AlertTriangle, AlertCircle,
   Layers, TrendingUp, BarChart3, Flame, StickyNote
 } from "lucide-react";
 import { toast } from "sonner";
@@ -259,6 +259,9 @@ export default function BriefingV3() {
       setIsGenerating(false);
     }
   };
+
+  // B-Z11-010: guard — só permite aprovar quando status é diagnostico_cnae ou briefing
+  const canApprove = ['diagnostico_cnae', 'briefing'].includes((project as any)?.status ?? '');
 
   const handleApprove = async () => {
     if (!briefing) return;
@@ -737,8 +740,26 @@ export default function BriefingV3() {
                     <p className="text-xs text-amber-700 mt-0.5">Leia com atenção. Se estiver correto e completo, aprove para avançar. Se precisar de ajustes, use as opções abaixo.</p>
                   </div>
                 </div>
+                {/* B-Z11-010: aviso quando status não permite aprovar */}
+                {!canApprove && (
+                  <div className="flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200">
+                    <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-red-800">Diagnóstico incompleto</p>
+                      <p className="text-xs text-red-700 mt-0.5">Conclua o <strong>Diagnóstico Setorial CNAE</strong> (Etapa 5) antes de aprovar o briefing.</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 text-xs h-7 border-red-300 text-red-700 hover:bg-red-100"
+                        onClick={() => setLocation(`/projetos/${projectId}/questionario-cnae`)}
+                      >
+                        Ir para Diagnóstico Setorial CNAE
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  <Button size="lg" onClick={handleApprove} disabled={isApproving} className="gap-2">
+                  <Button size="lg" onClick={handleApprove} disabled={isApproving || !canApprove} className="gap-2">
                     {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsUp className="h-4 w-4" />}
                     Aprovar Briefing
                   </Button>
