@@ -18,6 +18,7 @@ import {
   getNextDiagnosticLayer,
   getDiagnosticProgress,
 } from "../diagnostic-consolidator";
+import { isToBeFlowState } from "../flowStateMachine";
 
 export const diagnosticRouter = router({
   // ─────────────────────────────────────────────────────────────────────────
@@ -183,12 +184,19 @@ export const diagnosticRouter = router({
         : "cnaeAnswers";
       const updatedStatus = { ...current, [input.layer]: "completed" };
       // Verificar se todas as camadas estão completas → avançar status do projeto
+      // B-Z11-012: fluxo TO-BE (q_produto/q_servico) só usa camada CNAE;
+      //   isDiagnosticComplete exigiria corporate+operational+cnae, o que nunca ocorre
+      //   nesse fluxo. Portanto: se layer=cnae E projeto está no fluxo TO-BE,
+      //   transitar diretamente para diagnostico_cnae.
       const allComplete = isDiagnosticComplete(updatedStatus);
+      const isToBeFlow = isToBeFlowState((project as any).status ?? "");
+      const shouldAdvanceToDiagnosticCnae =
+        allComplete || (input.layer === "cnae" && updatedStatus.cnae === "completed" && isToBeFlow);
       const projectUpdates: Record<string, any> = {
         [answerField]: input.answers,
         diagnosticStatus: updatedStatus,
       };
-      if (allComplete) {
+      if (shouldAdvanceToDiagnosticCnae) {
         projectUpdates.status = "diagnostico_cnae";
       }
       await db.updateProject(input.projectId, projectUpdates as any);
