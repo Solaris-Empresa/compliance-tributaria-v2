@@ -13,7 +13,7 @@
  * - solarisAdmin.deleteBatch  — soft delete de lote inteiro
  *
  * Formato CSV esperado (UTF-8, separador vírgula):
- *   titulo,conteudo,topicos,cnaeGroups,lei,artigo,area,severidade_base,vigencia_inicio
+ *   titulo,conteudo,topicos,cnaeGroups,lei,artigo,categoria,severidade_base,vigencia_inicio[,risk_category_code[,classification_scope]]
  *
  * Mapeamento CSV → tabela solaris_questions (DEC-002):
  *   titulo          → titulo
@@ -22,11 +22,14 @@
  *   cnaeGroups      → cnae_groups (JSON array)
  *   lei             → fonte (fixo 'solaris' — validado, não inserido como coluna)
  *   artigo          → codigo (SOL-001..N)
- *   area            → categoria
+ *   categoria       → categoria
  *   severidade_base → severidade_base
- *   vigencia_inicio → vigencia_inicio (opcional)
+ *   vigencia_inicio      → vigencia_inicio (opcional)
+ *   risk_category_code   → risk_category_code (opcional, FK → risk_categories.codigo)
+ *   classification_scope → classification_scope (opcional, default 'risk_engine')
  *
  * Sprint L · DEC-002 · Issue #191
+ * Sprint Z-11 · ENTREGA 2 — suporte a risk_category_code + classification_scope
  */
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
@@ -39,6 +42,7 @@ import { randomUUID } from "crypto";
 
 const AREA_VALUES = ["contabilidade_fiscal", "negocio", "ti", "juridico"] as const;
 const SEVERIDADE_VALUES = ["baixa", "media", "alta", "critica"] as const;
+const CLASSIFICATION_SCOPE_VALUES = ["risk_engine", "diagnostic_only"] as const;
 
 const CsvRowSchema = z.object({
   titulo: z.string().min(1, "Campo 'titulo' é obrigatório"),
@@ -47,9 +51,12 @@ const CsvRowSchema = z.object({
   cnaeGroups: z.string(),
   lei: z.literal("solaris"),
   artigo: z.string().min(1, "Campo 'artigo' é obrigatório (ex: SOL-001)"),
-  area: z.enum(AREA_VALUES),
+  categoria: z.enum(AREA_VALUES),
   severidade_base: z.enum(SEVERIDADE_VALUES),
   vigencia_inicio: z.string().optional(),
+  // Z-11 ENTREGA 2 — campos opcionais novos
+  risk_category_code: z.string().optional(),
+  classification_scope: z.enum(CLASSIFICATION_SCOPE_VALUES).optional(),
 });
 
 type CsvRow = z.infer<typeof CsvRowSchema>;
@@ -70,7 +77,8 @@ export function parseCsv(csvContent: string): ParsedRow[] {
 
   if (lines.length === 0) return [];
 
-  const header = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+  // Z-11 ENTREGA 2: usar parseCSVLine no header também para suportar campos entre aspas
+  const header = parseCSVLine(lines[0]).map((h) => h.trim().replace(/^"|"$/g, ""));
 
   const results: ParsedRow[] = [];
 
@@ -344,7 +352,7 @@ export const solarisAdminRouter = router({
           preview: valid.slice(0, 20).map((r) => ({
             artigo: r.data!.artigo,
             titulo: r.data!.titulo,
-            area: r.data!.area,
+            categoria: r.data!.categoria,
             severidade_base: r.data!.severidade_base,
             vigencia_inicio: r.data!.vigencia_inicio ?? null,
           })),
@@ -363,13 +371,39 @@ export const solarisAdminRouter = router({
 
       const conn = await mysql.createConnection(ENV.databaseUrl);
       try {
+        // Z-11 ENTREGA 2: pré-carregar códigos válidos de risk_categories para validação FK
+        const [rcRows] = await conn.execute(
+          "SELECT codigo FROM risk_categories WHERE status = 'ativo'"
+        );
+        const validRiskCodes = new Set(
+          (rcRows as { codigo: string }[]).map((r) => r.codigo)
+        );
+
         for (const row of valid) {
           const r = row.data!;
+
+          // Z-11 ENTREGA 2: validar risk_category_code se preenchido
+          const rcc = r.risk_category_code && r.risk_category_code.trim() !== ""
+            ? r.risk_category_code.trim()
+            : null;
+          if (rcc !== null && !validRiskCodes.has(rcc)) {
+            importErrors.push({
+              line: row.line,
+              field: "risk_category_code",
+              message: `risk_category_code '${rcc}' não existe em risk_categories (status=ativo)`,
+            });
+            continue;
+          }
+
+          // Z-11 ENTREGA 2: classification_scope — default 'risk_engine'
+          const scope = (r.classification_scope && r.classification_scope.trim() !== "")
+            ? r.classification_scope.trim()
+            : "risk_engine";
 
           let cnaeGroupsJson: string | null = null;
           if (r.cnaeGroups && r.cnaeGroups.trim() !== "") {
             const groups = r.cnaeGroups
-              .split(",")
+              .split(";")
               .map((g) => g.trim())
               .filter((g) => g.length > 0);
             cnaeGroupsJson = JSON.stringify(groups);
@@ -388,12 +422,15 @@ export const solarisAdminRouter = router({
                   ativo = 1,
                   texto = ?, categoria = ?, cnae_groups = ?,
                   titulo = ?, topicos = ?, severidade_base = ?,
-                  vigencia_inicio = ?, upload_batch_id = ?, atualizado_em = ?
+                  vigencia_inicio = ?, upload_batch_id = ?, atualizado_em = ?,
+                  risk_category_code = ?, classification_scope = ?
                 WHERE codigo = ?`,
                 [
-                  r.conteudo, r.area, cnaeGroupsJson,
+                  r.conteudo, r.categoria, cnaeGroupsJson,
                   r.titulo, r.topicos, r.severidade_base,
-                  (r.vigencia_inicio && r.vigencia_inicio.trim() !== '' ? r.vigencia_inicio : null), batchId, now,
+                  (r.vigencia_inicio && r.vigencia_inicio.trim() !== '' ? r.vigencia_inicio : null),
+                  batchId, now,
+                  rcc, scope,
                   r.artigo,
                 ]
               );
@@ -403,13 +440,15 @@ export const solarisAdminRouter = router({
                 `INSERT INTO solaris_questions
                   (texto, categoria, cnae_groups, obrigatorio, ativo, fonte,
                    criado_em, atualizado_em, upload_batch_id, codigo,
-                   titulo, topicos, severidade_base, vigencia_inicio)
-                VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?)`,
+                   titulo, topicos, severidade_base, vigencia_inicio,
+                   risk_category_code, classification_scope)
+                VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
-                  r.conteudo, r.area, cnaeGroupsJson,
+                  r.conteudo, r.categoria, cnaeGroupsJson,
                   now, now, batchId, r.artigo,
                   r.titulo, r.topicos, r.severidade_base,
                   (r.vigencia_inicio && r.vigencia_inicio.trim() !== '' ? r.vigencia_inicio : null),
+                  rcc, scope,
                 ]
               );
               inserted++;
