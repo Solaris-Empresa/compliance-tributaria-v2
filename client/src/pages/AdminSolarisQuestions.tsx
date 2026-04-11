@@ -566,7 +566,7 @@ function TabUploadCsv() {
   const [validationResult, setValidationResult] = useState<{
     total: number; valid: number;
     errors: { row: number; field: string; message: string }[];
-    preview?: { artigo: string; titulo: string; area: string; severidade_base: string; vigencia_inicio: string | null }[];
+    preview?: { artigo: string; titulo: string; categoria: string; severidade_base: string; vigencia_inicio: string | null }[];
   } | null>(null);
   const [importResult, setImportResult] = useState<{ inserted: number; updated: number } | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
