@@ -51,6 +51,7 @@ interface SolarisQuestion {
   severidade_base: string | null;
   vigencia_inicio: number | null;
   upload_batch_id: string | null;
+  risk_category_code?: string | null;
   ativo: number;
   criado_em: number;
 }
@@ -372,6 +373,7 @@ function TabLista({
               <th className="p-3 text-left font-medium w-36">Área</th>
               <th className="p-3 text-left font-medium w-24">Severidade</th>
               <th className="p-3 text-left font-medium w-24">Vigência</th>
+              <th className="p-3 text-left font-medium w-36">Código do Risco</th>
               <th className="p-3 text-left font-medium w-24">Lote</th>
               <th className="p-3 w-16"></th>
             </tr>
@@ -429,6 +431,15 @@ function TabLista({
                     ) : "—"}
                   </td>
                   <td className="p-3 text-xs text-muted-foreground">{formatDate(q.vigencia_inicio)}</td>
+                  <td className="p-3">
+                    {q.risk_category_code ? (
+                      <Badge variant="outline" className="text-xs font-mono text-emerald-700 border-emerald-300">
+                        {q.risk_category_code}
+                      </Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
                   <td className="p-3 text-xs font-mono text-muted-foreground">{shortBatchId(q.upload_batch_id)}</td>
                   <td className="p-3">
                     <Button
