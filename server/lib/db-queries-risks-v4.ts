@@ -521,6 +521,22 @@ export async function getAuditLog(
   );
 }
 
+/**
+ * Sprint Z-12: Lê o histórico de auditoria global de um projeto (sem filtro de entity).
+ */
+export async function getProjectAuditLog(
+  projectId: number,
+  limit = 100
+): Promise<AuditLogRow[]> {
+  return query<AuditLogRow>(
+    `SELECT * FROM audit_log
+     WHERE project_id = ?
+     ORDER BY created_at DESC
+     LIMIT ?`,
+    [projectId, limit]
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers compostos
 // ─────────────────────────────────────────────────────────────────────────────

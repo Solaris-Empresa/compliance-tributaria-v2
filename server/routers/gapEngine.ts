@@ -253,7 +253,7 @@ export const gapEngineRouter = router({
                   r.gap_level, r.gap_type, r.criticality, r.evaluation_criteria, r.evidence_required,
                   r.risk_category_code
            FROM regulatory_requirements_v3 r
-           WHERE r.is_active = 1
+           WHERE r.active = 1
              AND r.source_reference IS NOT NULL
              AND r.source_reference != ''
            ORDER BY r.domain, r.code`,

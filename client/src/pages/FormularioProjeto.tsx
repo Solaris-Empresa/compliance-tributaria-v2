@@ -60,7 +60,7 @@ export default function FormularioProjeto() {
     if (step <= 1) return `/projetos/${projectId}/questionario-v3`;
     if (step <= 2) return `/projetos/${projectId}/questionario-v3`;
     if (step <= 3) return `/projetos/${projectId}/briefing-v3`;
-    if (step <= 4) return `/projetos/${projectId}/matrizes-v3`;
+    if (step <= 4) return `/projetos/${projectId}/risk-dashboard-v4`;
     return `/projetos/${projectId}/plano-v3`;
   })();
 

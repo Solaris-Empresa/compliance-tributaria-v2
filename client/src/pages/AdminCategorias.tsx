@@ -196,9 +196,9 @@ export default function AdminCategorias() {
   const { user } = useAuth();
 
   // Queries
-  const { data: suggestions, isLoading: loadingSugg, refetch: refetchSugg } =
+  const { data: suggestions, isLoading: loadingSugg, isError: isErrorSugg, refetch: refetchSugg } =
     trpc.adminCategories.listSuggestions.useQuery();
-  const { data: allCategories, isLoading: loadingCats, refetch: refetchCats } =
+  const { data: allCategories, isLoading: loadingCats, isError: isErrorCats, refetch: refetchCats } =
     trpc.adminCategories.listAllCategories.useQuery();
 
   // Mutations
@@ -237,6 +237,15 @@ export default function AdminCategorias() {
     escopo: "nacional" as "nacional" | "estadual" | "setorial",
   });
 
+  // Tratamento de erro de queries (Gate Q5)
+  if (isErrorCats || isErrorSugg) {
+    return (
+      <div className="p-8 text-center text-red-500 flex items-center justify-center gap-2">
+        <AlertTriangle className="h-5 w-5" />
+        Erro ao carregar categorias. Tente recarregar a página.
+      </div>
+    );
+  }
   // Acesso restrito
   if (user && user.role !== "equipe_solaris") {
     return (
@@ -413,6 +422,7 @@ export default function AdminCategorias() {
                   <TableHead>Vigência</TableHead>
                   <TableHead>Origem</TableHead>
                   <TableHead>Escopo</TableHead>
+                  <TableHead className="max-w-[220px]">Descrição</TableHead>
                   <TableHead className="w-[100px]">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -428,6 +438,17 @@ export default function AdminCategorias() {
                     </TableCell>
                     <TableCell className="text-xs text-gray-500">{cat.origem}</TableCell>
                     <TableCell className="text-xs text-gray-500">{cat.escopo}</TableCell>
+                    <TableCell
+                      className="text-xs text-gray-600 max-w-[220px] truncate"
+                      title={cat.descricao ?? undefined}
+                      data-testid={`cat-descricao-${cat.codigo}`}
+                    >
+                      {cat.descricao
+                        ? cat.descricao.length > 80
+                          ? cat.descricao.slice(0, 80) + "…"
+                          : cat.descricao
+                        : <span className="text-gray-300 italic">—</span>}
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
                         <Button
