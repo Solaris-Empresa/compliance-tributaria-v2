@@ -1,12 +1,14 @@
 /**
- * RiskDashboardV4.tsx — Sprint Z-07 PR #C
+ * RiskDashboardV4.tsx — Sprint Z-07 PR #C → Sprint Z-12 UX Spec
  *
  * Dashboard do Sistema de Riscos v4 (engine determinístico).
  * Consome: trpc.risksV4.generateRisks · listRisks · deleteRisk · restoreRisk · approveRisk
- * Arquivo novo — não altera nenhum arquivo existente (ADR-0022).
+ *
+ * Z-12: Tabs (Riscos/Oportunidades/Histórico), breadcrumb 4 nós, evidence panel,
+ *       modais approve/delete, filtros severidade+categoria, skeleton, toasts.
  */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -14,6 +16,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -29,22 +44,58 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────────────────
 
-const SEVERIDADE_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+interface EvidenceItem {
+  fonte?: string;
+  prioridade?: string;
+  pergunta?: string;
+  resposta?: string;
+  confianca?: number;
+  [key: string]: unknown;
+}
+
+interface RiskData {
+  id: string;
+  project_id: number;
+  rule_id: string;
+  type: "risk" | "opportunity";
+  categoria: string;
+  titulo: string;
+  descricao?: string | null;
+  artigo: string;
+  severidade: string;
+  urgencia: string;
+  status: string;
+  source_priority: string;
+  evidence: EvidenceItem[] | string;
+  breadcrumb: [string, string, string, string] | string;
+  confidence: number;
+  approved_at?: string | null;
+  approved_by?: number | null;
+  deleted_reason?: string | null;
+  actionPlans?: { id: string; titulo: string; status: string }[];
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const SEVERIDADE_CONFIG: Record<string, { label: string; color: string; borderColor: string; icon: React.ReactNode }> = {
   alta: {
     label: "Alta",
     color: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300",
+    borderColor: "border-l-red-500",
     icon: <ShieldAlert className="h-3.5 w-3.5" />,
   },
   media: {
     label: "Média",
     color: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300",
+    borderColor: "border-l-amber-500",
     icon: <AlertTriangle className="h-3.5 w-3.5" />,
   },
   oportunidade: {
     label: "Oportunidade",
     color: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300",
+    borderColor: "border-l-teal-500",
     icon: <TrendingUp className="h-3.5 w-3.5" />,
   },
 };
@@ -68,44 +119,120 @@ const CATEGORIA_LABELS: Record<string, string> = {
   credito_presumido: "Crédito Presumido",
 };
 
-// ─── Sub-componente: RiskCard ─────────────────────────────────────────────────
+const SOURCE_LABELS: Record<string, string> = {
+  cnae: "CNAE",
+  ncm: "NCM",
+  nbs: "NBS",
+  solaris: "Solaris",
+  iagen: "IA Gen",
+};
 
-interface RiskCardProps {
-  risk: {
-    id: string;
-    project_id: number;
-    rule_id: string;
-    categoria: string;
-    titulo: string;
-    artigo: string;
-    severidade: string;
-    urgencia: string;
-    status: string;
-    approved_at?: string | null;
-    approved_by?: number | null;
-    actionPlans?: { id: string; titulo: string; status: string }[];
-  };
-  canApprove: boolean;
-  onDelete: (id: string, reason: string) => void;
-  onRestore: (id: string) => void;
-  onApprove: (id: string) => void;
+function parseEvidence(raw: EvidenceItem[] | string): EvidenceItem[] {
+  if (Array.isArray(raw)) return raw;
+  try { return JSON.parse(raw as string) as EvidenceItem[]; } catch { return []; }
 }
 
-function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove }: RiskCardProps) {
+function parseBreadcrumb(raw: [string, string, string, string] | string): [string, string, string, string] {
+  if (Array.isArray(raw)) return raw;
+  try { return JSON.parse(raw as string) as [string, string, string, string]; } catch { return ["", "", "", ""]; }
+}
+
+// ─── Sub-componente: Breadcrumb4 ─────────────────────────────────────────────
+
+function Breadcrumb4({ breadcrumb }: { breadcrumb: [string, string, string, string] }) {
+  const [fonte, categoria, artigo, ruleId] = breadcrumb;
+  const chips: { label: string; value: string; color: string; tooltip: string }[] = [
+    { label: SOURCE_LABELS[fonte] ?? fonte, value: fonte, color: "bg-blue-100 text-blue-700", tooltip: `Fonte: ${fonte}` },
+    { label: CATEGORIA_LABELS[categoria] ?? categoria, value: categoria, color: "bg-purple-100 text-purple-700", tooltip: `Categoria: ${CATEGORIA_LABELS[categoria] ?? categoria}` },
+    { label: `Art. ${artigo}`, value: artigo, color: "bg-green-100 text-green-700", tooltip: `Artigo: ${artigo}` },
+    { label: ruleId, value: ruleId, color: "bg-gray-100 text-gray-600", tooltip: `Rule ID: ${ruleId}` },
+  ];
+
+  return (
+    <div className="flex items-center gap-1 flex-wrap">
+      {chips.map((chip, i) => (
+        <span key={i} className="flex items-center gap-1">
+          {i > 0 && <span className="text-muted-foreground text-[10px]">›</span>}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${chip.color}`}>
+                {chip.label}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>{chip.tooltip}</TooltipContent>
+          </Tooltip>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// ─── Sub-componente: EvidencePanel ───────────────────────────────────────────
+
+function EvidencePanel({ evidence }: { evidence: EvidenceItem[] }) {
+  const [expanded, setExpanded] = useState(evidence.length <= 2);
+
+  if (evidence.length === 0) return null;
+
+  const visible = expanded ? evidence : evidence.slice(0, 2);
+
+  return (
+    <div className="mt-3 border-t border-border pt-3 space-y-2">
+      <p className="text-xs font-medium text-muted-foreground">
+        Evidências ({evidence.length})
+      </p>
+      {visible.map((ev, i) => (
+        <div key={i} className="rounded bg-muted/40 px-2.5 py-2 text-xs space-y-0.5">
+          <div className="flex items-center gap-2 flex-wrap">
+            {ev.fonte && <Badge variant="outline" className="text-[10px]">{ev.fonte}</Badge>}
+            {ev.prioridade && <Badge variant="secondary" className="text-[10px]">{ev.prioridade}</Badge>}
+            {ev.confianca != null && (
+              <span className="text-muted-foreground text-[10px]">
+                Confiança: {(Number(ev.confianca) * 100).toFixed(0)}%
+              </span>
+            )}
+          </div>
+          {ev.pergunta && <p className="text-muted-foreground"><span className="font-medium text-foreground">P:</span> {ev.pergunta}</p>}
+          {ev.resposta && <p className="text-muted-foreground"><span className="font-medium text-foreground">R:</span> {ev.resposta}</p>}
+        </div>
+      ))}
+      {evidence.length > 2 && (
+        <Button variant="ghost" size="sm" className="h-6 text-xs w-full" onClick={() => setExpanded(!expanded)}>
+          {expanded ? "Recolher" : `Ver mais ${evidence.length - 2} evidências`}
+          {expanded ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+// ─── Sub-componente: RiskCard ────────────────────────────────────────────────
+
+interface RiskCardProps {
+  risk: RiskData;
+  canApprove: boolean;
+  onDelete: (id: string) => void;
+  onRestore: (id: string) => void;
+  onApprove: (id: string) => void;
+  showRestore?: boolean;
+}
+
+function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, showRestore }: RiskCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteReason, setDeleteReason] = useState("");
 
   const sev = SEVERIDADE_CONFIG[risk.severidade] ?? SEVERIDADE_CONFIG.media;
   const isDeleted = risk.status === "deleted";
   const isApproved = !!risk.approved_at;
+  const borderColor = isApproved ? "border-l-green-500" : sev.borderColor;
+  const evidence = parseEvidence(risk.evidence);
+  const breadcrumb = parseBreadcrumb(risk.breadcrumb);
 
   return (
     <div
-      className={`rounded-lg border p-4 transition-colors ${
+      className={`rounded-lg border border-l-4 p-4 transition-colors ${borderColor} ${
         isDeleted
-          ? "opacity-50 border-dashed border-muted-foreground/30 bg-muted/20"
-          : "border-border bg-card"
+          ? "opacity-50 border-dashed border-r-muted-foreground/30 border-t-muted-foreground/30 border-b-muted-foreground/30 bg-muted/20"
+          : "border-r-border border-t-border border-b-border bg-card"
       }`}
     >
       {/* Header */}
@@ -118,23 +245,26 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove }: RiskCard
               {sev.icon}
               {sev.label}
             </span>
-            <Badge variant="outline" className="text-xs">
-              {CATEGORIA_LABELS[risk.categoria] ?? risk.categoria}
-            </Badge>
-            <Badge variant="secondary" className="text-xs">
-              {URGENCIA_LABELS[risk.urgencia] ?? risk.urgencia}
-            </Badge>
+            {!isApproved && !isDeleted && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                Aguardando aprovação
+              </span>
+            )}
             {isApproved && (
-              <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
                 <CheckCircle2 className="h-3 w-3" />
                 Aprovado
               </span>
             )}
+            <Badge variant="secondary" className="text-xs">
+              {URGENCIA_LABELS[risk.urgencia] ?? risk.urgencia}
+            </Badge>
           </div>
           <p className="mt-1.5 text-sm font-medium text-foreground line-clamp-2">{risk.titulo}</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Art. {risk.artigo} · Rule: {risk.rule_id}
-          </p>
+          {/* Breadcrumb 4 nós */}
+          <div className="mt-1">
+            <Breadcrumb4 breadcrumb={breadcrumb} />
+          </div>
         </div>
 
         {/* Ações */}
@@ -169,13 +299,13 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove }: RiskCard
                 variant="ghost"
                 className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
                 title="Excluir risco"
-                onClick={() => setDeleting(!deleting)}
+                onClick={() => onDelete(risk.id)}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </>
           )}
-          {isDeleted && (
+          {showRestore && isDeleted && (
             <Button
               size="icon"
               variant="ghost"
@@ -197,63 +327,35 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove }: RiskCard
         </div>
       </div>
 
-      {/* Inline delete reason */}
-      {deleting && (
-        <div className="mt-3 flex gap-2">
-          <input
-            className="flex-1 text-xs rounded border border-border bg-background px-2 py-1 focus:outline-none focus:ring-1 focus:ring-ring"
-            placeholder="Motivo da exclusão (obrigatório)"
-            value={deleteReason}
-            onChange={(e) => setDeleteReason(e.target.value)}
-          />
-          <Button
-            size="sm"
-            variant="destructive"
-            className="h-7 text-xs"
-            disabled={!deleteReason.trim()}
-            onClick={() => {
-              onDelete(risk.id, deleteReason);
-              setDeleting(false);
-              setDeleteReason("");
-            }}
-          >
-            Confirmar
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-7 text-xs"
-            onClick={() => setDeleting(false)}
-          >
-            Cancelar
-          </Button>
-        </div>
-      )}
-
-      {/* Planos de ação expandidos */}
-      {expanded && (risk.actionPlans?.length ?? 0) > 0 && (
-        <div className="mt-3 space-y-1.5 border-t border-border pt-3">
-          <p className="text-xs font-medium text-muted-foreground">
-            Planos de ação ({risk.actionPlans!.length})
-          </p>
-          {risk.actionPlans!.map((plan) => (
-            <div
-              key={plan.id}
-              className="flex items-center justify-between rounded bg-muted/40 px-2.5 py-1.5"
-            >
-              <span className="text-xs text-foreground line-clamp-1">{plan.titulo}</span>
-              <Badge variant="outline" className="text-xs ml-2 shrink-0">
-                {plan.status}
-              </Badge>
+      {/* Expanded: Evidence + Action Plans */}
+      {expanded && (
+        <>
+          <EvidencePanel evidence={evidence} />
+          {(risk.actionPlans?.length ?? 0) > 0 && (
+            <div className="mt-3 space-y-1.5 border-t border-border pt-3">
+              <p className="text-xs font-medium text-muted-foreground">
+                Planos de ação ({risk.actionPlans!.length})
+              </p>
+              {risk.actionPlans!.map((plan) => (
+                <div
+                  key={plan.id}
+                  className="flex items-center justify-between rounded bg-muted/40 px-2.5 py-1.5"
+                >
+                  <span className="text-xs text-foreground line-clamp-1">{plan.titulo}</span>
+                  <Badge variant="outline" className="text-xs ml-2 shrink-0">
+                    {plan.status}
+                  </Badge>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );
 }
 
-// ─── Componente principal ─────────────────────────────────────────────────────
+// ─── Componente principal ────────────────────────────────────────────────────
 
 interface RiskDashboardV4Props {
   projectId: number;
@@ -266,30 +368,57 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   const canApprove =
     user?.role === "equipe_solaris" || user?.role === "advogado_senior";
 
-  // ── Queries ────────────────────────────────────────────────────────────────
+  // ── State ─────────────────────────────────────────────────────────────────
+  const [filterSeveridade, setFilterSeveridade] = useState<string>("todos");
+  const [filterCategoria, setFilterCategoria] = useState<string>("todos");
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [approveTarget, setApproveTarget] = useState<RiskData | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<RiskData | null>(null);
+  const [deleteReason, setDeleteReason] = useState("");
+
+  // ── Queries ───────────────────────────────────────────────────────────────
   const { data, isLoading, error } = trpc.risksV4.listRisks.useQuery(
     { projectId },
     { enabled: !!projectId }
   );
 
-  // ── Mutations ──────────────────────────────────────────────────────────────
+  // ── Mutations ─────────────────────────────────────────────────────────────
   const deleteMutation = trpc.risksV4.deleteRisk.useMutation({
-    onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
+    onSuccess: (_data, variables) => {
+      utils.risksV4.listRisks.invalidate({ projectId });
+      toast("Risco excluído", {
+        description: "O risco foi movido para o histórico.",
+        action: {
+          label: "Desfazer",
+          onClick: () => restoreMutation.mutate({ riskId: variables.riskId }),
+        },
+        duration: 5000,
+      });
+    },
+    onError: (err) => toast.error("Erro ao excluir risco", { description: err.message, duration: 6000 }),
   });
 
   const restoreMutation = trpc.risksV4.restoreRisk.useMutation({
-    onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
+    onSuccess: () => {
+      utils.risksV4.listRisks.invalidate({ projectId });
+      toast.success("Risco restaurado", { duration: 3000 });
+    },
+    onError: (err) => toast.error("Erro ao restaurar risco", { description: err.message, duration: 6000 }),
   });
 
   const approveMutation = trpc.risksV4.approveRisk.useMutation({
-    onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
+    onSuccess: () => {
+      utils.risksV4.listRisks.invalidate({ projectId });
+      toast.success("Risco aprovado com sucesso", { duration: 3000 });
+    },
+    onError: (err) => toast.error("Erro ao aprovar risco", { description: err.message, duration: 6000 }),
   });
-  // generateRisks — consumidor obrigatório da procedure (Gate FC) — mantido para compatibilidade
+
   const generateMutation = trpc.risksV4.generateRisks.useMutation({
     onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
   });
 
-  // Sprint Z-10 PR #B — Pipeline 3 passos: analyzeGaps → mapGapsToRules → generateRisksFromGaps
+  // Sprint Z-10 PR #B — Pipeline 3 passos
   const [reviewQueue, setReviewQueue] = useState<Array<{ gapId: string; status: string; ruleCode: string | null; categoria: string | null; reason: string }>>([]);
   const [pipelineStats, setPipelineStats] = useState<{ total: number; mapped: number; ambiguous: number; unmapped: number } | null>(null);
 
@@ -330,12 +459,58 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   });
   const isGenerating = analyzeGapsMutation.isPending || mapGapsMutation.isPending || generateFromGapsMutation.isPending;
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // ── Derived data ──────────────────────────────────────────────────────────
+  const allRisks = (data?.risks ?? []) as unknown as RiskData[];
+
+  const activeRisks = allRisks.filter((r) => r.status === "active" && r.type === "risk");
+  const opportunities = allRisks.filter((r) => r.status === "active" && r.type === "opportunity");
+  const deleted = allRisks.filter((r) => r.status === "deleted");
+
+  // Category distribution for filter chips
+  const categoryDistribution = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const r of activeRisks) {
+      counts[r.categoria] = (counts[r.categoria] ?? 0) + 1;
+    }
+    return Object.entries(counts).sort(([, a], [, b]) => b - a);
+  }, [activeRisks]);
+
+  const visibleCategories = showAllCategories ? categoryDistribution : categoryDistribution.slice(0, 5);
+
+  // Filtered risks for the Riscos tab
+  const filteredRisks = useMemo(() => {
+    return activeRisks
+      .filter((r) => filterSeveridade === "todos" || r.severidade === filterSeveridade)
+      .filter((r) => filterCategoria === "todos" || r.categoria === filterCategoria);
+  }, [activeRisks, filterSeveridade, filterCategoria]);
+
+  // KPI summary
+  const byCategory = activeRisks.reduce<Record<string, number>>((acc, r) => {
+    acc[r.severidade] = (acc[r.severidade] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  // ── Handlers ──────────────────────────────────────────────────────────────
+  function handleApproveConfirm() {
+    if (!approveTarget) return;
+    approveMutation.mutate({ riskId: approveTarget.id });
+    setApproveTarget(null);
+  }
+
+  function handleDeleteConfirm() {
+    if (!deleteTarget || deleteReason.length < 10) return;
+    deleteMutation.mutate({ riskId: deleteTarget.id, reason: deleteReason });
+    setDeleteTarget(null);
+    setDeleteReason("");
+  }
+
+  // ── Render: Loading ───────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        <span className="ml-2 text-sm text-muted-foreground">Carregando riscos v4…</span>
+      <div className="space-y-3">
+        <Skeleton className="h-[120px] rounded-lg" />
+        <Skeleton className="h-[120px] rounded-lg" />
+        <Skeleton className="h-[120px] rounded-lg" />
       </div>
     );
   }
@@ -349,18 +524,10 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
     );
   }
 
-  const risks = data?.risks ?? [];
-  const active = risks.filter((r) => r.status === "active");
-  const deleted = risks.filter((r) => r.status === "deleted");
-
-  const byCategory = active.reduce<Record<string, number>>((acc, r) => {
-    acc[r.severidade] = (acc[r.severidade] ?? 0) + 1;
-    return acc;
-  }, {});
-
+  // ── Render: Main ──────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
-      {/* ── Sumário ── */}
+      {/* ── Sumário KPI ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {(["alta", "media", "oportunidade"] as const).map((sev) => {
           const cfg = SEVERIDADE_CONFIG[sev];
@@ -394,101 +561,313 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
         </Card>
       </div>
 
-      {/* ── Lista de riscos ativos ── */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <ShieldAlert className="h-4 w-4 text-red-500" />
-            Riscos Ativos — v4
-            <Badge variant="secondary" className="ml-auto text-xs">
-              {active.length} riscos
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2.5">
-          {active.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-6">
-              <p className="text-sm text-muted-foreground">
-                Nenhum risco ativo. Gere os riscos v4 a partir do diagnóstico.
-              </p>
-              {/* Pipeline Z-10: analyzeGaps → mapGapsToRules → generateRisksFromGaps */}
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={isGenerating}
-                onClick={() => analyzeGapsMutation.mutate({ project_id: projectId, dry_run: false })}
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                    {analyzeGapsMutation.isPending ? "Analisando gaps…"
-                      : mapGapsMutation.isPending ? "Mapeando regras…"
-                      : "Gerando riscos…"}
-                  </>
-                ) : (
-                  <><ShieldAlert className="h-3.5 w-3.5 mr-1.5" />Gerar Riscos v4</>
+      {/* ── Tabs ── */}
+      <Tabs defaultValue="riscos">
+        <TabsList>
+          <TabsTrigger value="riscos">Riscos ({activeRisks.length})</TabsTrigger>
+          <TabsTrigger value="oportunidades">Oportunidades ({opportunities.length})</TabsTrigger>
+          <TabsTrigger value="historico">Histórico ({deleted.length})</TabsTrigger>
+        </TabsList>
+
+        {/* ── Tab: Riscos ── */}
+        <TabsContent value="riscos">
+          {/* Filtros */}
+          <div className="space-y-2 mb-4 mt-2">
+            {/* Severidade */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs text-muted-foreground mr-1">Severidade:</span>
+              {["todos", "alta", "media"].map((sev) => (
+                <button
+                  key={sev}
+                  className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                    filterSeveridade === sev
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-background text-muted-foreground border-border hover:border-foreground/50"
+                  }`}
+                  onClick={() => setFilterSeveridade(sev)}
+                >
+                  {sev === "todos" ? "Todos" : SEVERIDADE_CONFIG[sev]?.label ?? sev}
+                </button>
+              ))}
+            </div>
+            {/* Categoria */}
+            {categoryDistribution.length > 0 && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs text-muted-foreground mr-1">Categoria:</span>
+                <button
+                  className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                    filterCategoria === "todos"
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-background text-muted-foreground border-border hover:border-foreground/50"
+                  }`}
+                  onClick={() => setFilterCategoria("todos")}
+                >
+                  Todos
+                </button>
+                {visibleCategories.map(([cat, count]) => (
+                  <button
+                    key={cat}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                      filterCategoria === cat
+                        ? "bg-purple-600 text-white border-purple-600"
+                        : "bg-background text-muted-foreground border-border hover:border-purple-400"
+                    }`}
+                    onClick={() => setFilterCategoria(cat)}
+                  >
+                    {CATEGORIA_LABELS[cat] ?? cat} ({count})
+                  </button>
+                ))}
+                {categoryDistribution.length > 5 && (
+                  <button
+                    className="px-2.5 py-1 rounded-full text-xs font-medium text-muted-foreground border border-dashed border-border hover:border-foreground/50"
+                    onClick={() => setShowAllCategories(!showAllCategories)}
+                  >
+                    {showAllCategories ? "−menos" : `+${categoryDistribution.length - 5} mais`}
+                  </button>
                 )}
-              </Button>
-              {/* Review Queue — visível ao advogado quando há itens ambíguos */}
-              {reviewQueue.length > 0 && (
-                <div className="mt-3 w-full rounded-md border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 p-3">
-                  <p className="text-xs font-medium text-amber-800 dark:text-amber-300 mb-2">
-                    Fila de revisão ({reviewQueue.length} itens ambíguos)
-                  </p>
-                  <div className="space-y-1">
-                    {reviewQueue.map((item, i) => (
-                      <div key={i} className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground truncate max-w-[60%]">{item.gapId}</span>
-                        <Badge variant="outline" className="text-xs">{item.status}</Badge>
-                      </div>
-                    ))}
+              </div>
+            )}
+          </div>
+
+          {/* Risk list */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <ShieldAlert className="h-4 w-4 text-red-500" />
+                Riscos Ativos
+                <Badge variant="secondary" className="ml-auto text-xs">
+                  {filteredRisks.length} de {activeRisks.length}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2.5">
+              {activeRisks.length === 0 ? (
+                <div className="flex flex-col items-center gap-3 py-8">
+                  <div className="rounded-full bg-muted p-4">
+                    <ShieldAlert className="h-8 w-8 text-muted-foreground" />
                   </div>
-                  {pipelineStats && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      Total: {pipelineStats.total} · Mapeados: {pipelineStats.mapped} · Ambíguos: {pipelineStats.ambiguous} · Sem categoria: {pipelineStats.unmapped}
-                    </p>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Nenhum risco ativo. Gere os riscos v4 a partir do diagnóstico.
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={isGenerating}
+                    onClick={() => analyzeGapsMutation.mutate({ project_id: projectId, dry_run: false })}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                        {analyzeGapsMutation.isPending ? "Analisando gaps…"
+                          : mapGapsMutation.isPending ? "Mapeando regras…"
+                          : "Gerando riscos…"}
+                      </>
+                    ) : (
+                      <><ShieldAlert className="h-3.5 w-3.5 mr-1.5" />Gerar Riscos v4</>
+                    )}
+                  </Button>
+                  {reviewQueue.length > 0 && (
+                    <div className="mt-3 w-full rounded-md border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 p-3">
+                      <p className="text-xs font-medium text-amber-800 dark:text-amber-300 mb-2">
+                        Fila de revisão ({reviewQueue.length} itens ambíguos)
+                      </p>
+                      <div className="space-y-1">
+                        {reviewQueue.map((item, i) => (
+                          <div key={i} className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground truncate max-w-[60%]">{item.gapId}</span>
+                            <Badge variant="outline" className="text-xs">{item.status}</Badge>
+                          </div>
+                        ))}
+                      </div>
+                      {pipelineStats && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          Total: {pipelineStats.total} · Mapeados: {pipelineStats.mapped} · Ambíguos: {pipelineStats.ambiguous} · Sem categoria: {pipelineStats.unmapped}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
+              ) : filteredRisks.length === 0 ? (
+                <div className="py-6 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Nenhum risco corresponde aos filtros selecionados.
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2 text-xs"
+                    onClick={() => { setFilterSeveridade("todos"); setFilterCategoria("todos"); }}
+                  >
+                    Limpar filtros
+                  </Button>
+                </div>
+              ) : (
+                filteredRisks.map((risk) => (
+                  <RiskCard
+                    key={risk.id}
+                    risk={risk}
+                    canApprove={canApprove}
+                    onDelete={(id) => setDeleteTarget(allRisks.find((r) => r.id === id) ?? null)}
+                    onRestore={(id) => restoreMutation.mutate({ riskId: id })}
+                    onApprove={(id) => setApproveTarget(allRisks.find((r) => r.id === id) ?? null)}
+                  />
+                ))
               )}
-            </div>
-          ) : (
-            active.map((risk) => (
-              <RiskCard
-                key={risk.id}
-                risk={risk as any}
-                canApprove={canApprove}
-                onDelete={(id, reason) => deleteMutation.mutate({ riskId: id, reason })}
-                onRestore={(id) => restoreMutation.mutate({ riskId: id })}
-                onApprove={(id) => approveMutation.mutate({ riskId: id })}
-              />
-            ))
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      {/* ── Riscos excluídos (collapsible) ── */}
-      {deleted.length > 0 && (
-        <Card className="border-dashed border-muted-foreground/30">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
-              <Trash2 className="h-3.5 w-3.5" />
-              Riscos Excluídos ({deleted.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {deleted.map((risk) => (
-              <RiskCard
-                key={risk.id}
-                risk={risk as any}
-                canApprove={false}
-                onDelete={() => {}}
-                onRestore={(id) => restoreMutation.mutate({ riskId: id })}
-                onApprove={() => {}}
-              />
-            ))}
-          </CardContent>
-        </Card>
-      )}
+        {/* ── Tab: Oportunidades ── */}
+        <TabsContent value="oportunidades">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-teal-500" />
+                Oportunidades
+                <Badge variant="secondary" className="ml-auto text-xs">
+                  {opportunities.length}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2.5">
+              {opportunities.length === 0 ? (
+                <div className="flex flex-col items-center gap-3 py-8">
+                  <div className="rounded-full bg-muted p-4">
+                    <TrendingUp className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Nenhuma oportunidade identificada.
+                  </p>
+                </div>
+              ) : (
+                opportunities.map((risk) => (
+                  <RiskCard
+                    key={risk.id}
+                    risk={risk}
+                    canApprove={canApprove}
+                    onDelete={(id) => setDeleteTarget(allRisks.find((r) => r.id === id) ?? null)}
+                    onRestore={(id) => restoreMutation.mutate({ riskId: id })}
+                    onApprove={(id) => setApproveTarget(allRisks.find((r) => r.id === id) ?? null)}
+                  />
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Tab: Histórico ── */}
+        <TabsContent value="historico">
+          <Card className="border-dashed border-muted-foreground/30">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
+                <Trash2 className="h-3.5 w-3.5" />
+                Riscos Excluídos ({deleted.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2.5">
+              {deleted.length === 0 ? (
+                <div className="flex flex-col items-center gap-3 py-8">
+                  <div className="rounded-full bg-muted p-4">
+                    <RotateCcw className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Nenhum risco excluído.
+                  </p>
+                </div>
+              ) : (
+                deleted.map((risk) => (
+                  <RiskCard
+                    key={risk.id}
+                    risk={risk}
+                    canApprove={false}
+                    onDelete={() => {}}
+                    onRestore={(id) => restoreMutation.mutate({ riskId: id })}
+                    onApprove={() => {}}
+                    showRestore
+                  />
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* ── Modal: Aprovar risco ── */}
+      <AlertDialog open={!!approveTarget} onOpenChange={(open) => { if (!open) setApproveTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Aprovar risco</AlertDialogTitle>
+            <AlertDialogDescription>
+              Confirma a aprovação do risco abaixo? Esta ação registra seu nome e data no histórico de auditoria.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {approveTarget && (
+            <div className="rounded border border-border bg-muted/40 p-3 my-2">
+              <p className="text-sm font-medium">{approveTarget.titulo}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {CATEGORIA_LABELS[approveTarget.categoria] ?? approveTarget.categoria} · Art. {approveTarget.artigo}
+              </p>
+            </div>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              onClick={handleApproveConfirm}
+            >
+              Confirmar aprovação
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* ── Modal: Excluir risco ── */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) { setDeleteTarget(null); setDeleteReason(""); } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir risco</AlertDialogTitle>
+            <AlertDialogDescription>
+              Informe o motivo da exclusão. O risco será movido para o histórico e poderá ser restaurado posteriormente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {deleteTarget && (
+            <div className="rounded border border-border bg-muted/40 p-3 my-2">
+              <p className="text-sm font-medium">{deleteTarget.titulo}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {CATEGORIA_LABELS[deleteTarget.categoria] ?? deleteTarget.categoria} · Art. {deleteTarget.artigo}
+              </p>
+            </div>
+          )}
+          <div className="space-y-1">
+            <textarea
+              className="w-full text-sm rounded-md border border-border bg-background px-3 py-2 focus:outline-none focus:ring-1 focus:ring-ring resize-none"
+              placeholder="Motivo da exclusão (mínimo 10 caracteres)"
+              rows={3}
+              maxLength={200}
+              value={deleteReason}
+              onChange={(e) => setDeleteReason(e.target.value)}
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>
+                {deleteReason.length < 10
+                  ? `Mínimo 10 caracteres (faltam ${10 - deleteReason.length})`
+                  : ""}
+              </span>
+              <span>{deleteReason.length}/200</span>
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              disabled={deleteReason.length < 10}
+              onClick={handleDeleteConfirm}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

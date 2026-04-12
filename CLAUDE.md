@@ -119,32 +119,27 @@ Prettier with: double quotes, semicolons, trailing commas (es5), 2-space indent,
 - Auth uses OAuth + JWT cookies with role-based access (equipe_solaris, advogado_senior, cliente)
 - Health endpoints: `/api/health`, `/api/health/cnae`, `/api/health/cnae/validate`
 
-## Sprint Z-07 — Sistema de Riscos v4
+## Sprint Z-07 — Sistema de Riscos v4 — CONCLUÍDA (Z-12)
 
-**Sprint ativa:** Z-07
-**Objetivo:** Substituir `generateRiskMatrices` (`routers-fluxo-v3.ts` linha 1113) por engine determinístico via module hot-swap.
-**Estratégia:** ADR-0022 — construir do zero em arquivos novos, testar com dados simulados, fazer swap quando aprovado.
+**Status:** CONCLUÍDA — Hot swap final executado na Sprint Z-12 (PR feat/z12-hot-swap-final).
+**ADR:** `docs/adr/ADR-0022-hot-swap-risk-engine-v4.md`
 
-### Arquivos a criar (NÃO editar existentes)
+`generateRiskMatrices` em `routers-fluxo-v3.ts` está **desativado** (throw METHOD_NOT_SUPPORTED).
+O frontend usa `useNewRiskEngine=true` → `/risk-dashboard-v4` → `risksV4.generateRisks` (determinístico).
 
-- `server/lib/risk-engine-v4.ts`
-- `server/lib/action-plan-engine-v4.ts`
-- `server/lib/risk-engine-v4.test.ts` (30 testes já existem — fazer todos passarem)
+### Arquivos do engine v4 (criados e ativos)
 
-### Regras invioláveis
+- `server/lib/risk-engine-v4.ts` — `computeRiskMatrix`, `classifyRisk`, `buildBreadcrumb`, `sortBySourceRank`
+- `server/lib/action-plan-engine-v4.ts` — `buildActionPlans`
+- `server/routers/risks-v4.ts` — 11 procedures (Skeleton Spec ADR-0021)
 
-- **NUNCA editar:** `routers-fluxo-v3.ts`, `riskEngine.ts`, `MatrizesV3.tsx`, `project_risks_v3`
+### Regras invioláveis (mantidas)
+
 - **SEVERITY** é tabela fixa no código — nunca LLM
 - `inscricao_cadastral` = **alta** (não media)
 - `oportunidade` retorna `[]` de planos — sempre
 - Breadcrumb sempre 4 nos: `[fonte] > [categoria] > [artigo] > [ruleId]`
 - **SOURCE_RANK:** cnae=1, ncm=2, nbs=3, solaris=4, iagen=5
-
-### Docs de referencia
-
-- `docs/sprints/Z-07/HANDOFF-MANUS-Z07.md`
-- `docs/sprints/Z-07/SKELETON-SPEC-ADR-0021.md`
-- `docs/governance/ESTADO-ATUAL.md`
 
 ## Sprint Z-09 — Categorias Configuráveis (ADR-0025)
 
@@ -165,3 +160,16 @@ NÃO tocar: `SEVERITY_TABLE` (fallback) · `risks_v4` dados existentes
 GAPs resolvidos: ARCH-06 · ARCH-07 · ARCH-08 · ARCH-09
 
 Correções pendentes: CONTRACT-01 · CONTRACT-02 · CONTRACT-03
+
+## Regra anti-bifurcação — Manus + Claude Code
+
+Quando Claude Code e Manus trabalham em paralelo,
+o S3 (storage de checkpoint do Manus) pode divergir
+do GitHub se o Claude Code mergear PRs diretamente.
+
+OBRIGATÓRIO antes de qualquer checkpoint ou push:
+  git fetch origin && git reset --hard origin/main
+
+Isso garante que o S3 sempre espelha o GitHub.
+Causa raiz documentada: PRs #473/#474 (Claude Code)
+criaram bifurcação detectada na Sprint Z-12.

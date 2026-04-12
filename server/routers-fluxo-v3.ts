@@ -1184,7 +1184,18 @@ Gere o Briefing estruturado em JSON:
       area: z.enum(["contabilidade", "negocio", "ti", "juridico"]).optional(),
       adjustment: z.string().optional(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input: _input }) => {
+      // ── Sprint Z-12 · Hot Swap Final (ADR-0022 · feat/z12-hot-swap-final) ──────────────
+      // Endpoint legado desativado. O frontend usa useNewRiskEngine=true → /risk-dashboard-v4
+      // que chama risksV4.generateRisks (computeRiskMatrix determinístico, sem LLM).
+      // Rollback: git revert <commit-hash>
+      void _input; // supress TS unused-variable
+      throw new TRPCError({
+        code: "METHOD_NOT_SUPPORTED",
+        message:
+          "[Z-12] Endpoint legado desativado. Use risksV4.generateRisks — engine determinístico ativo em /risk-dashboard-v4.",
+      });
+      /* ── LEGADO PRESERVADO PARA ROLLBACK ─────────────────────────────────────────────
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
@@ -1301,6 +1312,7 @@ Formato:
         .where(eq(projects.id, input.projectId));
 
       return { matrices, scoringData, matriz_metadata: matrizMetadata };
+      ── FIM DO BLOCO LEGADO ── */
     }),
 
   // ─────────────────────────────────────────────────────────────────────────

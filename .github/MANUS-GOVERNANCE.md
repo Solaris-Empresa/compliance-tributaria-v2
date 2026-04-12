@@ -452,3 +452,26 @@ Resultado: [ PASS | BLOQUEADO ]
 ✅ Gate POST-DEPLOY PASS (smoke.sh em produção)  ← NOVO v4.6
 ✅ E2E manual pelo P.O. (após Gate POST-DEPLOY verde)
 ```
+
+---
+
+## Regras Operacionais — Manus + Claude Code
+
+### Regra R-SYNC-01 — Sync antes de checkpoint
+
+Antes de executar qualquer checkpoint ou push para S3:
+  1. git fetch origin
+  2. git reset --hard origin/main
+  3. Confirmar que HEAD local == HEAD do GitHub
+  4. Só então executar o checkpoint
+
+Violação desta regra causa bifurcação entre
+S3 e GitHub — requer force-push para correção.
+
+Gatilho de bifurcação: sempre que Claude Code
+mergear PRs diretamente no GitHub sem passar
+pelo sistema de checkpoint do Manus.
+
+**Causa raiz documentada:** PRs #473/#474 (Claude Code, Sprint Z-12)
+criaram bifurcação detectada em 2026-04-12.
+Correção aplicada via autorização do P.O. (Uires Tapajós).
