@@ -65,11 +65,19 @@ git revert <commit-hash-do-feat/z12-hot-swap-final>
 # ou manualmente: remover o throw e o bloco de comentário, restaurar o código original
 ```
 
+## Frontend (Sprint Z-12)
+
+O frontend v4 foi completado na Sprint Z-12 com a implementação da UX Spec Z-07:
+- **RiskDashboardV4.tsx** — tabs, breadcrumb 4 nós, evidence panel, modais, filtros, skeleton, toasts (PR #480)
+- **ActionPlanPage.tsx** — traceability banner, task lock, global audit log (PR #482)
+- Detalhes: `docs/sprints/Z-12/HANDOFF-Z12-FRONTEND.md`
+
 ## Referências
 
 - `server/routers-fluxo-v3.ts` — procedure `generateRiskMatrices` (linha 1180)
-- `server/routers/risks-v4.ts` — novo router determinístico
+- `server/routers/risks-v4.ts` — novo router determinístico (12 procedures)
 - `server/lib/risk-engine-v4.ts` — engine puro
 - `server/lib/action-plan-engine-v4.ts` — planos de ação
 - `docs/sprints/Z-07/SKELETON-SPEC-ADR-0021.md` — spec original
 - `docs/sprints/Z-07/HANDOFF-MANUS-Z07.md` — handoff da Sprint Z-07
+- `docs/sprints/Z-12/HANDOFF-Z12-FRONTEND.md` — handoff do frontend Z-12
