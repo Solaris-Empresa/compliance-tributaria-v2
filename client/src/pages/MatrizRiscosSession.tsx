@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, AlertTriangle } from "lucide-react";
 import { FluxoStepper } from "@/components/FluxoStepper";
+import { CategoryBadge } from "@/components/compliance-v3/shared/Badges";
 
 // ─── Tipos ─────────────────────────────────────────────────────────────────────
 
@@ -26,6 +27,7 @@ interface MatrixItem {
   priority: string;
   riskLevel: string;
   status: string;
+  riskCategoryCode?: string | null;
 }
 
 interface BranchSummary {
@@ -202,7 +204,12 @@ export default function MatrizRiscosSession() {
                                   className="bg-white/80 rounded px-1.5 py-1 text-xs text-slate-700 leading-tight cursor-default hover:bg-white transition-colors shadow-sm"
                                 >
                                   <span className="font-medium block truncate">{item.action}</span>
-                                  <span className="text-slate-400 text-[10px]">{item.branchName}</span>
+                                  <div className="flex items-center gap-1 mt-0.5">
+                                    <span className="text-slate-400 text-[10px]">{item.branchName}</span>
+                                    {item.riskCategoryCode && (
+                                      <CategoryBadge value={item.riskCategoryCode} className="text-[9px] px-1 py-0" />
+                                    )}
+                                  </div>
                                 </div>
                               ))}
                             </div>

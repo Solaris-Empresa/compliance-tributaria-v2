@@ -3,6 +3,11 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as dbAssessments from "./db-assessments";
 import * as dbBranches from "./db-branches";
 import { invokeLLM } from "./_core/llm";
+import {
+  ASSESSMENT_CORPORATE_MIN, ASSESSMENT_CORPORATE_MAX,
+  ASSESSMENT_BRANCH_MIN, ASSESSMENT_BRANCH_MAX,
+  questionRange,
+} from "./config/question-limits";
 
 // ============================================================================
 // CORPORATE ASSESSMENT ROUTER (Questionário Corporativo)
@@ -79,7 +84,7 @@ Gere um questionário corporativo para avaliar a preparação de uma empresa par
 - Sistema ERP: ${input.erpSystem || "Não informado"}
 - Sistemas integrados: ${input.hasIntegratedSystems ? "Sim" : "Não"}
 
-**Gere 15-20 perguntas focadas em:**
+**Gere ${questionRange(ASSESSMENT_CORPORATE_MIN, ASSESSMENT_CORPORATE_MAX)} perguntas focadas em:**
 1. Estrutura organizacional e governança
 2. Processos contábeis e fiscais atuais
 3. Sistemas e tecnologia
@@ -216,7 +221,7 @@ ${corporateAssessment ? `**Contexto corporativo:**
   corporateAssessment.hasITDept && "TI"
 ].filter(Boolean).join(", ")}` : ""}
 
-**Gere 10-15 perguntas específicas sobre:**
+**Gere ${questionRange(ASSESSMENT_BRANCH_MIN, ASSESSMENT_BRANCH_MAX)} perguntas específicas sobre:**
 1. Operações típicas deste ramo
 2. Tributação específica (IBS, CBS, Imposto Seletivo)
 3. Documentação fiscal necessária
