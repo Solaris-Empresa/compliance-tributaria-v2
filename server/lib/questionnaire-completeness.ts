@@ -1,5 +1,3 @@
-import { IAGEN_MIN_ANSWERS } from "../config/question-limits";
-
 /**
  * questionnaire-completeness.ts — Etapa 2 ADR-0016
  *
@@ -80,7 +78,7 @@ export const THRESHOLD_PARCIAL = 0.30;
  */
 export const MINIMUM_ANSWERS: Record<string, number> = {
   solaris: 20,  // 24 perguntas → 20 respondidas (83%)
-  iagen: IAGEN_MIN_ANSWERS,  // IAGEN_QUESTIONS_COUNT perguntas → IAGEN_MIN_ANSWERS respondidas (86%)
+  iagen: 6,     // 7 perguntas → 6 respondidas (86%)
 };
 
 // ─── Funções principais ───────────────────────────────────────────────────────

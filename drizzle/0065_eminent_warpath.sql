@@ -1,0 +1,1 @@
+ALTER TABLE `regulatory_requirements_v3` DROP COLUMN `risk_category_code`;

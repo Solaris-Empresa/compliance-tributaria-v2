@@ -80,10 +80,6 @@ export const regulatoryRequirementsV3 = mysqlTable("regulatory_requirements_v3",
   evidenceRequired: text("evidence_required").notNull(),     // JSON: string[]
   tags: text("tags"),                                        // JSON: string[]
 
-  // Rastreabilidade nível 2 — Z-12 (migration 0072)
-  // FK → risk_categories.codigo
-  riskCategoryCode: varchar("risk_category_code", { length: 64 }),
-
   // Referência legal
   legalReference: varchar("legal_reference", { length: 255 }),
   legalArticle: varchar("legal_article", { length: 100 }),

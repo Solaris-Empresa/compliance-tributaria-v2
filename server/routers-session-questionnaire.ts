@@ -17,7 +17,6 @@ import { invokeLLM } from "./_core/llm";
 import * as db from "./db";
 import { sessions, sessionBranchAnswers } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
-import { IAGEN_QUESTIONS_COUNT } from "./config/question-limits";
 
 // ─── Tipos internos ────────────────────────────────────────────────────────────
 
@@ -51,7 +50,7 @@ async function generateQuestionsForBranch(
 Empresa: ${companyDescription}
 Ramo de Atividade: ${branchName} (${branchCode})
 
-Gere exatamente ${IAGEN_QUESTIONS_COUNT} perguntas de diagnóstico de compliance tributário para este ramo específico.
+Gere exatamente 7 perguntas de diagnóstico de compliance tributário para este ramo específico.
 As perguntas devem ser práticas, objetivas e relevantes para a Reforma Tributária 2024-2033.
 
 Retorne APENAS um JSON válido com este formato:

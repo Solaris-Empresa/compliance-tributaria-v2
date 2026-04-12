@@ -1,1 +1,0 @@
-ALTER TABLE `regulatory_requirements_v3` ADD `risk_category_code` varchar(64);

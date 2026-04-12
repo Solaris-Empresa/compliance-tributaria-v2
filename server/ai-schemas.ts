@@ -13,7 +13,6 @@
  * - Campos opcionais têm .default() para evitar undefined
  */
 import { z } from "zod";
-import { QUESTIONS_SCHEMA_MAX } from "./config/question-limits";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS DE NORMALIZAÇÃO
@@ -149,7 +148,7 @@ export const QuestionSchema = z.object({
 });
 
 export const QuestionsResponseSchema = z.object({
-  questions: z.array(QuestionSchema).min(1).max(QUESTIONS_SCHEMA_MAX),
+  questions: z.array(QuestionSchema).min(1).max(15),
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -61,8 +61,6 @@ export const DerivedRiskSchema = z.object({
   fonte_risco: z.enum(['solaris', 'cnae', 'iagen', 'engine', 'v1']).default('v1'),
   // Z-02b: categoria canônica da LC 214/2025 — NUNCA vazia
   categoria: z.string().default('enquadramento_geral'),
-  // Z-12: rastreabilidade nível 2 — FK para risk_categories.codigo
-  risk_category_code: z.string().nullable().default(null),
 });
 export type DerivedRisk = z.infer<typeof DerivedRiskSchema>;
 
@@ -284,7 +282,6 @@ function generateContextualRisks(input: ContextualRiskInput): DerivedRisk[] {
       mitigation_hint: "Verificar integração do sistema de pagamentos com a plataforma do split payment do Comitê Gestor do IBS",
       fonte_risco: 'v1' as const, // risco contextual — sem gap_source
       categoria: 'split_payment', // Z-02b: split payment é categoria canônica
-      risk_category_code: 'split_payment', // Z-12: categoria de risco
     });
   }
 
@@ -303,7 +300,6 @@ function generateContextualRisks(input: ContextualRiskInput): DerivedRisk[] {
       mitigation_hint: "Implementar controle de créditos por CNAE com segregação de receitas e despesas por atividade",
       fonte_risco: 'v1' as const, // risco contextual — sem gap_source
       categoria: 'ibs_cbs', // Z-02b: IBS/CBS é categoria canônica
-      risk_category_code: null, // Z-12: contextual sem requisito mapeado
     });
   }
 
@@ -352,8 +348,7 @@ export async function deriveRisksFromGaps(
        r.domain,
        r.description as req_description,
        r.source_reference as req_source_reference,
-       r.legal_reference,
-       r.risk_category_code
+       r.legal_reference
      FROM project_gaps_v3 g
      LEFT JOIN regulatory_requirements_v3 r ON g.requirement_id = r.id
      WHERE g.project_id = ?
@@ -421,8 +416,6 @@ export async function deriveRisksFromGaps(
         category: mapDomainToTaxonomy(effectiveDomain, effectiveGapType, effectiveDescription).category,
         type: mapDomainToTaxonomy(effectiveDomain, effectiveGapType, effectiveDescription).type,
       }),
-      // Z-12: rastreabilidade nível 2 — FK para risk_categories.codigo
-      risk_category_code: gap.risk_category_code || null,
     });
   }
 
