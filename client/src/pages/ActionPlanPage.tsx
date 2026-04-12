@@ -1,11 +1,12 @@
 /**
- * ActionPlanPage.tsx — Sprint Z-07 PR #C
+ * ActionPlanPage.tsx — Sprint Z-07 PR #C → Sprint Z-12 UX Spec
  *
  * Página de gestão de planos de ação e tarefas do Sistema de Riscos v4.
  * Consome: trpc.risksV4.upsertActionPlan · deleteActionPlan · approveActionPlan
- *          trpc.risksV4.upsertTask · deleteTask · getAuditLog
+ *          trpc.risksV4.upsertTask · deleteTask · getProjectAuditLog
  *
- * Arquivo novo — não altera nenhum arquivo existente (ADR-0022).
+ * Z-12: Sticky traceability banner (5 chips), task lock when plan=rascunho,
+ *       global audit log tab.
  */
 
 import { useState, useMemo } from "react";
@@ -16,6 +17,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -27,10 +31,12 @@ import {
   Trash2,
   ThumbsUp,
   CheckSquare,
+  Lock,
 } from "lucide-react";
 import { Link } from "wouter";
+import { toast } from "sonner";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const STATUS_PLAN_LABELS: Record<string, string> = {
   rascunho: "Rascunho",
@@ -48,7 +54,98 @@ const STATUS_TASK_COLORS: Record<string, string> = {
   deleted: "bg-muted text-muted-foreground border-dashed",
 };
 
-// ─── Sub-componente: TaskRow ──────────────────────────────────────────────────
+const CATEGORIA_LABELS: Record<string, string> = {
+  imposto_seletivo: "Imposto Seletivo",
+  confissao_automatica: "Confissão Automática",
+  split_payment: "Split Payment",
+  inscricao_cadastral: "Inscrição Cadastral",
+  regime_diferenciado: "Regime Diferenciado",
+  transicao_iss_ibs: "Transição ISS/IBS",
+  obrigacao_acessoria: "Obrigação Acessória",
+  aliquota_zero: "Alíquota Zero",
+  aliquota_reduzida: "Alíquota Reduzida",
+  credito_presumido: "Crédito Presumido",
+};
+
+const SOURCE_LABELS: Record<string, string> = {
+  cnae: "CNAE",
+  ncm: "NCM",
+  nbs: "NBS",
+  solaris: "Solaris",
+  iagen: "IA Gen",
+};
+
+const AUDIT_ACTION_LABELS: Record<string, string> = {
+  created: "Criado",
+  updated: "Atualizado",
+  deleted: "Excluído",
+  restored: "Restaurado",
+  approved: "Aprovado",
+};
+
+const AUDIT_ENTITY_LABELS: Record<string, string> = {
+  risk: "Risco",
+  action_plan: "Plano de Ação",
+  task: "Tarefa",
+};
+
+// ─── Sub-componente: TraceabilityBanner ──────────────────────────────────────
+
+interface RiskParent {
+  id: string;
+  project_id: number;
+  titulo: string;
+  categoria: string;
+  artigo: string;
+  rule_id: string;
+  source_priority: string;
+  breadcrumb: [string, string, string, string] | string;
+}
+
+function TraceabilityBanner({ risk, projectId }: { risk: RiskParent; projectId: number }) {
+  const bc = Array.isArray(risk.breadcrumb)
+    ? risk.breadcrumb
+    : (() => { try { return JSON.parse(risk.breadcrumb as string); } catch { return [risk.source_priority, risk.categoria, risk.artigo, risk.rule_id]; } })();
+
+  const chips: { label: string; color: string; tooltip: string }[] = [
+    { label: SOURCE_LABELS[bc[0]] ?? bc[0], color: "bg-blue-100 text-blue-700", tooltip: `Fonte: ${bc[0]}` },
+    { label: CATEGORIA_LABELS[bc[1]] ?? bc[1], color: "bg-purple-100 text-purple-700", tooltip: `Categoria: ${CATEGORIA_LABELS[bc[1]] ?? bc[1]}` },
+    { label: `Art. ${bc[2]}`, color: "bg-green-100 text-green-700", tooltip: `Artigo: ${bc[2]}` },
+    { label: bc[3], color: "bg-gray-100 text-gray-600", tooltip: `Rule ID: ${bc[3]}` },
+    { label: risk.titulo.length > 40 ? risk.titulo.slice(0, 40) + "…" : risk.titulo, color: "bg-amber-100 text-amber-700", tooltip: risk.titulo },
+  ];
+
+  return (
+    <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border px-4 py-2.5">
+      <div className="flex items-center gap-1.5 flex-wrap max-w-4xl mx-auto">
+        <span className="text-xs text-muted-foreground mr-1 shrink-0">Rastreabilidade:</span>
+        {chips.map((chip, i) => (
+          <span key={i} className="flex items-center gap-1">
+            {i > 0 && <span className="text-muted-foreground text-[10px]">›</span>}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                {i === chips.length - 1 ? (
+                  <Link href={`/projetos/${projectId}/risk-dashboard-v4`}>
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium cursor-pointer hover:opacity-80 ${chip.color}`}>
+                      {chip.label}
+                    </span>
+                  </Link>
+                ) : (
+                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${chip.color}`}>
+                    {chip.label}
+                  </span>
+                )}
+              </TooltipTrigger>
+              <TooltipContent>{chip.tooltip}</TooltipContent>
+            </Tooltip>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Sub-componente: TaskRow ─────────────────────────────────────────────────
 
 interface TaskRowProps {
   task: {
@@ -58,12 +155,12 @@ interface TaskRowProps {
     status: string;
     ordem: number;
   };
-  projectId: number;
+  locked: boolean;
   onStatusChange: (taskId: string, status: string) => void;
   onDelete: (taskId: string, reason: string) => void;
 }
 
-function TaskRow({ task, onStatusChange, onDelete }: TaskRowProps) {
+function TaskRow({ task, locked, onStatusChange, onDelete }: TaskRowProps) {
   const [deleting, setDeleting] = useState(false);
   const [reason, setReason] = useState("");
 
@@ -75,18 +172,33 @@ function TaskRow({ task, onStatusChange, onDelete }: TaskRowProps) {
   };
 
   return (
-    <div className="flex items-center gap-2 rounded border border-border bg-background px-3 py-2">
-      <button
-        className={`shrink-0 w-4 h-4 rounded border ${
-          task.status === "done"
-            ? "bg-emerald-500 border-emerald-500 text-white"
-            : "border-muted-foreground/40"
-        } flex items-center justify-center`}
-        onClick={() => onStatusChange(task.id, NEXT_STATUS[task.status] ?? "todo")}
-        title="Avançar status"
-      >
-        {task.status === "done" && <CheckSquare className="h-3 w-3" />}
-      </button>
+    <div
+      className={`flex items-center gap-2 rounded border border-border bg-background px-3 py-2 ${
+        locked ? "opacity-40 cursor-not-allowed" : ""
+      }`}
+    >
+      {locked ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="shrink-0 w-4 h-4 rounded border border-muted-foreground/40 flex items-center justify-center">
+              <Lock className="h-2.5 w-2.5 text-muted-foreground" />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>Aprovar plano para liberar tarefas</TooltipContent>
+        </Tooltip>
+      ) : (
+        <button
+          className={`shrink-0 w-4 h-4 rounded border ${
+            task.status === "done"
+              ? "bg-emerald-500 border-emerald-500 text-white"
+              : "border-muted-foreground/40"
+          } flex items-center justify-center`}
+          onClick={() => onStatusChange(task.id, NEXT_STATUS[task.status] ?? "todo")}
+          title="Avançar status"
+        >
+          {task.status === "done" && <CheckSquare className="h-3 w-3" />}
+        </button>
+      )}
 
       <span
         className={`flex-1 text-sm ${task.status === "done" ? "line-through text-muted-foreground" : "text-foreground"}`}
@@ -102,16 +214,18 @@ function TaskRow({ task, onStatusChange, onDelete }: TaskRowProps) {
         {task.status}
       </span>
 
-      <Button
-        size="icon"
-        variant="ghost"
-        className="h-6 w-6 text-destructive/70 hover:text-destructive"
-        onClick={() => setDeleting(!deleting)}
-      >
-        <Trash2 className="h-3 w-3" />
-      </Button>
+      {!locked && (
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-6 w-6 text-destructive/70 hover:text-destructive"
+          onClick={() => setDeleting(!deleting)}
+        >
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      )}
 
-      {deleting && (
+      {deleting && !locked && (
         <div className="flex gap-1 ml-1">
           <input
             className="text-xs rounded border border-border bg-background px-1.5 py-0.5 w-28 focus:outline-none"
@@ -138,7 +252,7 @@ function TaskRow({ task, onStatusChange, onDelete }: TaskRowProps) {
   );
 }
 
-// ─── Sub-componente: ActionPlanCard ───────────────────────────────────────────
+// ─── Sub-componente: ActionPlanCard ──────────────────────────────────────────
 
 interface ActionPlanCardProps {
   plan: {
@@ -167,7 +281,7 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete }: ActionPlanCar
 
   const tasksQuery = trpc.risksV4.listRisks.useQuery(
     { projectId: plan.project_id },
-    { enabled: false } // tasks são carregadas via getTasksByActionPlan — placeholder
+    { enabled: false }
   );
 
   const auditQuery = trpc.risksV4.getAuditLog.useQuery(
@@ -180,11 +294,17 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete }: ActionPlanCar
       utils.risksV4.listRisks.invalidate({ projectId: plan.project_id });
       setShowAddTask(false);
       setNewTask({ titulo: "", responsavel: "" });
+      toast.success("Tarefa adicionada");
     },
+    onError: (err) => toast.error("Erro ao adicionar tarefa", { description: err.message }),
   });
 
   const deleteTaskMutation = trpc.risksV4.deleteTask.useMutation({
-    onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId: plan.project_id }),
+    onSuccess: () => {
+      utils.risksV4.listRisks.invalidate({ projectId: plan.project_id });
+      toast.success("Tarefa excluída");
+    },
+    onError: (err) => toast.error("Erro ao excluir tarefa", { description: err.message }),
   });
 
   const updateTaskMutation = trpc.risksV4.upsertTask.useMutation({
@@ -193,6 +313,7 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete }: ActionPlanCar
 
   const isApproved = !!plan.approved_at;
   const isDeleted = plan.status === "deleted";
+  const isLocked = plan.status === "rascunho";
 
   return (
     <div
@@ -214,6 +335,12 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete }: ActionPlanCar
               <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
                 <CheckCircle2 className="h-3 w-3" />
                 Aprovado
+              </span>
+            )}
+            {isLocked && (
+              <span className="inline-flex items-center gap-1 text-xs text-amber-600">
+                <Lock className="h-3 w-3" />
+                Tarefas bloqueadas
               </span>
             )}
           </div>
@@ -315,8 +442,9 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete }: ActionPlanCar
           >
             <CheckSquare className="h-3 w-3" />
             Tarefas
+            {isLocked && <Lock className="h-2.5 w-2.5 ml-0.5 text-amber-500" />}
           </button>
-          {!isDeleted && (
+          {!isDeleted && !isLocked && (
             <Button
               size="sm"
               variant="ghost"
@@ -329,7 +457,7 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete }: ActionPlanCar
           )}
         </div>
 
-        {showAddTask && (
+        {showAddTask && !isLocked && (
           <div className="mb-2 flex gap-2 flex-wrap">
             <input
               className="flex-1 min-w-32 text-xs rounded border border-border bg-background px-2 py-1 focus:outline-none"
@@ -369,7 +497,7 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete }: ActionPlanCar
   );
 }
 
-// ─── Componente principal ─────────────────────────────────────────────────────
+// ─── Componente principal ────────────────────────────────────────────────────
 
 export default function ActionPlanPage() {
   const [, params] = useRoute("/projetos/:projectId/planos-v4");
@@ -380,24 +508,51 @@ export default function ActionPlanPage() {
   const canApprove =
     user?.role === "equipe_solaris" || user?.role === "advogado_senior";
 
+  // Ler riskId da query string para traceability banner
+  const riskIdParam = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("riskId")
+    : null;
+
   // Carregar todos os riscos com planos de ação
   const { data, isLoading, error } = trpc.risksV4.listRisks.useQuery(
     { projectId },
     { enabled: !!projectId }
   );
 
+  // Global audit log
+  const auditLogQuery = trpc.risksV4.getProjectAuditLog.useQuery(
+    { projectId, limit: 100 },
+    { enabled: !!projectId }
+  );
+
   const approvePlanMutation = trpc.risksV4.approveActionPlan.useMutation({
-    onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
+    onSuccess: () => {
+      utils.risksV4.listRisks.invalidate({ projectId });
+      toast.success("Plano aprovado com sucesso");
+    },
+    onError: (err) => toast.error("Erro ao aprovar plano", { description: err.message }),
   });
 
   const deletePlanMutation = trpc.risksV4.deleteActionPlan.useMutation({
-    onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
+    onSuccess: () => {
+      utils.risksV4.listRisks.invalidate({ projectId });
+      toast("Plano excluído", { description: "Movido para o histórico." });
+    },
+    onError: (err) => toast.error("Erro ao excluir plano", { description: err.message }),
   });
 
   const allPlans = useMemo(
     () => (data?.risks ?? []).flatMap((r) => (r as any).actionPlans ?? []),
     [data]
   );
+
+  // Find the parent risk for the traceability banner
+  const parentRisk = useMemo(() => {
+    if (!riskIdParam || !data?.risks) return null;
+    return (data.risks as unknown as RiskParent[]).find((r) => r.id === riskIdParam) ?? null;
+  }, [riskIdParam, data]);
+
+  const auditEntries = auditLogQuery.data?.entries ?? [];
 
   if (!projectId) {
     return (
@@ -409,91 +564,170 @@ export default function ActionPlanPage() {
   }
 
   return (
-    <div className="container max-w-4xl py-6 space-y-6">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2">
-        <Link href={`/projetos/${projectId}`}>
-          <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground">
-            <ChevronLeft className="h-4 w-4" />
-            Projeto
-          </Button>
-        </Link>
-        <span className="text-muted-foreground">/</span>
-        <span className="text-sm font-medium text-foreground flex items-center gap-1.5">
-          <ClipboardList className="h-4 w-4" />
-          Planos de Ação v4
-        </span>
-      </div>
+    <div className="min-h-screen">
+      {/* Item 10: Sticky traceability banner */}
+      {parentRisk && <TraceabilityBanner risk={parentRisk} projectId={projectId} />}
 
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Planos de Ação — v4</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Gestão de planos e tarefas do Sistema de Riscos v4 (Sprint Z-07)
-        </p>
-      </div>
-
-      {/* Loading */}
-      {isLoading && (
-        <div className="flex items-center gap-2 py-8 justify-center">
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">Carregando planos…</span>
+      <div className="container max-w-4xl py-6 space-y-6">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2">
+          <Link href={`/projetos/${projectId}`}>
+            <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="h-4 w-4" />
+              Projeto
+            </Button>
+          </Link>
+          <span className="text-muted-foreground">/</span>
+          <span className="text-sm font-medium text-foreground flex items-center gap-1.5">
+            <ClipboardList className="h-4 w-4" />
+            Planos de Ação v4
+          </span>
         </div>
-      )}
 
-      {/* Error */}
-      {error && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>Erro ao carregar planos: {error.message}</AlertDescription>
-        </Alert>
-      )}
+        {/* Header */}
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Planos de Ação — v4</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Gestão de planos e tarefas do Sistema de Riscos v4
+          </p>
+        </div>
 
-      {/* Planos */}
-      {!isLoading && !error && (
-        <>
-          {allPlans.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <ClipboardList className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">
-                  Nenhum plano de ação gerado ainda.
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Execute o diagnóstico para gerar riscos e planos de ação v4.
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <ClipboardList className="h-4 w-4 text-blue-500" />
-                  Planos de Ação
-                  <Badge variant="secondary" className="ml-auto text-xs">
-                    {allPlans.length} planos
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {allPlans.map((plan: any) => (
-                  <ActionPlanCard
-                    key={plan.id}
-                    plan={plan}
-                    canApprove={canApprove}
-                    onApprove={(planId) =>
-                      approvePlanMutation.mutate({ projectId, planId })
-                    }
-                    onDelete={(planId, reason) =>
-                      deletePlanMutation.mutate({ projectId, planId, reason })
-                    }
-                  />
-                ))}
-              </CardContent>
-            </Card>
-          )}
-        </>
-      )}
+        {/* Loading */}
+        {isLoading && (
+          <div className="space-y-3">
+            <Skeleton className="h-[100px] rounded-lg" />
+            <Skeleton className="h-[100px] rounded-lg" />
+          </div>
+        )}
+
+        {/* Error */}
+        {error && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>Erro ao carregar planos: {error.message}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* Item 12: Tabs — Planos + Histórico global */}
+        {!isLoading && !error && (
+          <Tabs defaultValue="planos">
+            <TabsList>
+              <TabsTrigger value="planos">Planos ({allPlans.length})</TabsTrigger>
+              <TabsTrigger value="historico">Histórico ({auditEntries.length})</TabsTrigger>
+            </TabsList>
+
+            {/* Tab: Planos */}
+            <TabsContent value="planos">
+              {allPlans.length === 0 ? (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <ClipboardList className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">
+                      Nenhum plano de ação gerado ainda.
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Execute o diagnóstico para gerar riscos e planos de ação v4.
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <ClipboardList className="h-4 w-4 text-blue-500" />
+                      Planos de Ação
+                      <Badge variant="secondary" className="ml-auto text-xs">
+                        {allPlans.length} planos
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {allPlans.map((plan: any) => (
+                      <ActionPlanCard
+                        key={plan.id}
+                        plan={plan}
+                        canApprove={canApprove}
+                        onApprove={(planId) =>
+                          approvePlanMutation.mutate({ projectId, planId })
+                        }
+                        onDelete={(planId, reason) =>
+                          deletePlanMutation.mutate({ projectId, planId, reason })
+                        }
+                      />
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            {/* Tab: Histórico global (audit log) */}
+            <TabsContent value="historico">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <History className="h-4 w-4 text-muted-foreground" />
+                    Histórico de Auditoria
+                    <Badge variant="secondary" className="ml-auto text-xs">
+                      {auditEntries.length} eventos
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {auditLogQuery.isLoading ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-8" />
+                      <Skeleton className="h-8" />
+                      <Skeleton className="h-8" />
+                    </div>
+                  ) : auditEntries.length === 0 ? (
+                    <div className="py-8 text-center">
+                      <History className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground">
+                        Nenhum evento de auditoria registrado.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b bg-muted/40">
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Data</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Ação</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Entidade</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Usuário</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Motivo</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {auditEntries.map((entry) => (
+                            <tr key={entry.id} className="border-b last:border-0 hover:bg-muted/20">
+                              <td className="px-3 py-2 text-xs font-mono text-muted-foreground whitespace-nowrap">
+                                {new Date(entry.created_at).toLocaleString("pt-BR")}
+                              </td>
+                              <td className="px-3 py-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {AUDIT_ACTION_LABELS[entry.action] ?? entry.action}
+                                </Badge>
+                              </td>
+                              <td className="px-3 py-2 text-xs text-muted-foreground">
+                                {AUDIT_ENTITY_LABELS[entry.entity] ?? entry.entity}
+                              </td>
+                              <td className="px-3 py-2 text-xs">{entry.user_name}</td>
+                              <td className="px-3 py-2 text-xs text-muted-foreground italic max-w-[200px] truncate">
+                                {entry.reason ?? "—"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        )}
+      </div>
     </div>
   );
 }
