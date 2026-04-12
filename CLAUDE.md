@@ -160,3 +160,16 @@ NÃO tocar: `SEVERITY_TABLE` (fallback) · `risks_v4` dados existentes
 GAPs resolvidos: ARCH-06 · ARCH-07 · ARCH-08 · ARCH-09
 
 Correções pendentes: CONTRACT-01 · CONTRACT-02 · CONTRACT-03
+
+## Regra anti-bifurcação — Manus + Claude Code
+
+Quando Claude Code e Manus trabalham em paralelo,
+o S3 (storage de checkpoint do Manus) pode divergir
+do GitHub se o Claude Code mergear PRs diretamente.
+
+OBRIGATÓRIO antes de qualquer checkpoint ou push:
+  git fetch origin && git reset --hard origin/main
+
+Isso garante que o S3 sempre espelha o GitHub.
+Causa raiz documentada: PRs #473/#474 (Claude Code)
+criaram bifurcação detectada na Sprint Z-12.
