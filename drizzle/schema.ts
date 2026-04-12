@@ -1926,6 +1926,8 @@ export const riskCategories = mysqlTable("risk_categories", {
   allowedDomains:  json("allowed_domains").$type<string[] | null>(),
   allowedGapTypes: json("allowed_gap_types").$type<string[] | null>(),
   ruleCode:        varchar("rule_code", { length: 64 }),
+  // Sprint Z-12 — migration 0073: descrição jurídica da categoria
+  descricao:       text("descricao"),
 }, (table) => ({
   codigoIdx:  index("idx_risk_categories_codigo").on(table.codigo),
   statusIdx:  index("idx_risk_categories_status").on(table.status),
