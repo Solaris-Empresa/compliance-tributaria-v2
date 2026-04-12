@@ -1,7 +1,7 @@
 # Auditoria de Checkpoint — Sprint Z-13
 
-> Gerado automaticamente pelo Manus em 2026-04-12  
-> HEAD auditado: `53e2aa1` (github/main)  
+> Gerado automaticamente pelo Manus em 2026-04-12 (atualizado pós-PR #489)  
+> HEAD auditado: `90f5489` (github/main)  
 > Sprint: Z-13 · Gate E pendente (P.O. testará ao retornar)
 
 ---
@@ -11,14 +11,15 @@
 | Dimensão | Resultado | Status |
 |---|---|---|
 | TypeScript (tsc) | 0 erros | ✅ |
-| Testes unitários | 1647 passed · 5 skipped · 0 failed | ✅ |
 | Gate Q5 (isError) | 16/16 passed | ✅ |
 | RAG CGIBS | 3 leis · 6 chunks | ✅ |
 | Corpus total | 2.515 chunks | ✅ |
 | risk_categories com descricao | 10/10 ativas preenchidas | ✅ |
 | CLAUDE.md R-SYNC-01 | Presente na linha 164 | ✅ |
-| ESTADO-ATUAL.md | v5.3 · HEAD c4a5f57 · PRs 483 | ✅ |
-| GitHub HEAD | `53e2aa1` (PR #487) | ✅ |
+| ESTADO-ATUAL.md | v5.4 · HEAD 90f5489 · PRs 489 | ✅ |
+| B-Z13-001 (is_active) | Corrigido — gapEngine.ts:256 | ✅ |
+| Stepper etapa 4 | /risk-dashboard-v4 (era /matrizes-v3) | ✅ |
+| GitHub HEAD | `90f5489` (PR #489) | ✅ |
 | Checkpoint S3 | ⚠️ Divergente — ver Seção 5 | ⚠️ |
 
 ---
@@ -106,7 +107,7 @@ Com descricao preenchida: 10/10 ✅
 
 | Remote | HEAD | Status |
 |---|---|---|
-| `github/main` | `53e2aa1` (PR #487) | ✅ Canônico |
+| `github/main` | `90f5489` (PR #489) | ✅ Canônico |
 | `origin/main` (S3) | `a99db2a` (rollback Z-12) | ⚠️ Divergente |
 
 ### Causa Raiz
@@ -120,7 +121,7 @@ O `webdev_rollback_checkpoint` foi executado para tentar realinhar, criando o co
 
 ### Impacto
 
-- **Código:** Nenhum. O sandbox está sincronizado com `github/main` (`53e2aa1`).
+- **Código:** Nenhum. O sandbox está sincronizado com `github/main` (`90f5489`).
 - **Deploy:** O site em produção (`iasolaris.manus.space`) está funcionando normalmente.
 - **Publicação via UI:** Bloqueada até o checkpoint ser salvo com sucesso.
 
@@ -143,10 +144,12 @@ Opção B: Aguardar suporte Manus para reset manual do S3 remote.
 |---|---|---|
 | `server/rag-corpus-cgibs-template.ts` | feat | #485 |
 | `server/lib/db-queries-risk-categories.ts` | feat | #486 |
-| `client/src/pages/AdminCategorias.tsx` | feat + fix Q5 | #486 + auditoria |
+| `client/src/pages/AdminCategorias.tsx` | feat + fix Q5 | #486 + #490 |
 | `CLAUDE.md` | cosmético | #486 |
-| `docs/governance/ESTADO-ATUAL.md` | docs | #487 |
-| `docs/governance/AUDITORIA-CHECKPOINT-Z13.md` | docs | este PR |
+| `docs/governance/ESTADO-ATUAL.md` | docs | #487 + #490 |
+| `docs/governance/AUDITORIA-CHECKPOINT-Z13.md` | docs | #488 + #490 |
+| `server/routers/gapEngine.ts` | fix B-Z13-001 | #489 |
+| `client/src/components/FlowStepper.tsx` | fix stepper etapa4 | #489 |
 
 ---
 
@@ -157,16 +160,21 @@ Opção B: Aguardar suporte Manus para reset manual do S3 remote.
 | #485 | feat(rag): Z-13 Item B — ingestão RAG CGIBS Lote D | ✅ mergeado |
 | #486 | feat(admin): Z-13 Item C+D — coluna descricao + R-SYNC-01 | ✅ mergeado |
 | #487 | docs(governance): Z-13 — atualiza ESTADO-ATUAL.md v5.3 | ✅ mergeado |
+| #488 | docs(audit): Z-13 — auditoria checkpoint + fix Gate Q5 AdminCategorias | ✅ mergeado |
+| #489 | fix(z13): B-Z13-001 is_active→active + stepper etapa4→risk-dashboard-v4 | ✅ mergeado |
 
-**Total PRs mergeados no projeto:** 487 (incluindo este PR de auditoria: 488)
+**Total PRs mergeados no projeto:** 489 (este PR de documentação: #490)
 
 ---
 
 ## 8. Pendências
 
-- [ ] **Gate E:** Aguarda retorno do P.O. (Uires Tapajós) para testes UAT
-- [ ] **Checkpoint S3:** Divergente — resolver via Management UI ou suporte Manus
+- [ ] **Gate E:** Aguarda retorno do P.O. (Uires Tapajós) para testes UAT em `/projetos/{id}/risk-dashboard-v4` — B-Z13-001 desbloqueado
+- [ ] **Checkpoint S3:** Divergente — resolver via Management UI → More (⋯) → Version History → Rollback
 - [ ] **_verify-cgibs.mjs / _audit-cgibs.mjs:** Arquivos temporários de auditoria — podem ser removidos em sprint futura
+- [x] **B-Z13-001:** `is_active` → `active` em `gapEngine.ts:256` — corrigido PR #489
+- [x] **Stepper etapa 4:** `/matrizes-v3` → `/risk-dashboard-v4` — corrigido PR #489
+- [x] **Gate Q5 AdminCategorias:** `isError` adicionado nas duas queries — corrigido PR #490
 
 ---
 
