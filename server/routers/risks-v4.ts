@@ -37,6 +37,7 @@ import {
   getTasksByActionPlan,
   updateTaskStatus,
   softDeleteTaskV4,
+  getProjectAuditLog,
 } from "../lib/db-queries-risks-v4";
 import type {
   CategoriaV4,
@@ -598,6 +599,22 @@ export const risksV4Router = router({
     )
     .query(async ({ input }) => {
       const entries = await getAuditLog(input.projectId, input.entity, input.entityId);
+      return { entries };
+    }),
+
+  /**
+   * 12. getProjectAuditLog (Sprint Z-12)
+   * Lê o histórico de auditoria global de um projeto (todas as entidades).
+   */
+  getProjectAuditLog: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        limit: z.number().min(1).max(500).optional().default(100),
+      })
+    )
+    .query(async ({ input }) => {
+      const entries = await getProjectAuditLog(input.projectId, input.limit);
       return { entries };
     }),
 });
