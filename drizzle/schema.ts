@@ -1340,7 +1340,8 @@ export const ragDocuments = mysqlTable("ragDocuments", {
   // Reversível: DROP COLUMN anchor_id
   anchor_id: varchar("anchor_id", { length: 255 }).unique(),
   // lc123 adicionado em Sprint H (feat/rag-inventory-live) — resolve débito técnico migration 0055
-  lei: mysqlEnum("lei", ["lc214", "ec132", "lc227", "lc224", "lc116", "lc87", "cg_ibs", "rfb_cbs", "conv_icms", "lc123"]).notNull(),
+  // resolucao_cgibs_1/2/3 adicionados em Sprint Z-12 (migration 0074 — Lote D)
+  lei: mysqlEnum("lei", ["lc214", "ec132", "lc227", "lc224", "lc116", "lc87", "cg_ibs", "rfb_cbs", "conv_icms", "lc123", "resolucao_cgibs_1", "resolucao_cgibs_2", "resolucao_cgibs_3"]).notNull(),
   // Ampliado de varchar(100) → varchar(300) para NCMs com descrição longa (Sprint D)
   // Reversível: ALTER COLUMN artigo varchar(100) — sem perda se nenhum valor > 100 chars
   artigo: varchar("artigo", { length: 300 }).notNull(),
