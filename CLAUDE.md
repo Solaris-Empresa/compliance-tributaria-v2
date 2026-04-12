@@ -161,7 +161,7 @@ GAPs resolvidos: ARCH-06 · ARCH-07 · ARCH-08 · ARCH-09
 
 Correções pendentes: CONTRACT-01 · CONTRACT-02 · CONTRACT-03
 
-## Regra anti-bifurcação — Manus + Claude Code
+## R-SYNC-01 — Regra anti-bifurcação — Manus + Claude Code
 
 Quando Claude Code e Manus trabalham em paralelo,
 o S3 (storage de checkpoint do Manus) pode divergir

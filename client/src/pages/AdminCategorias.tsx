@@ -413,6 +413,7 @@ export default function AdminCategorias() {
                   <TableHead>Vigência</TableHead>
                   <TableHead>Origem</TableHead>
                   <TableHead>Escopo</TableHead>
+                  <TableHead className="max-w-[220px]">Descrição</TableHead>
                   <TableHead className="w-[100px]">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -428,6 +429,17 @@ export default function AdminCategorias() {
                     </TableCell>
                     <TableCell className="text-xs text-gray-500">{cat.origem}</TableCell>
                     <TableCell className="text-xs text-gray-500">{cat.escopo}</TableCell>
+                    <TableCell
+                      className="text-xs text-gray-600 max-w-[220px] truncate"
+                      title={cat.descricao ?? undefined}
+                      data-testid={`cat-descricao-${cat.codigo}`}
+                    >
+                      {cat.descricao
+                        ? cat.descricao.length > 80
+                          ? cat.descricao.slice(0, 80) + "…"
+                          : cat.descricao
+                        : <span className="text-gray-300 italic">—</span>}
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
                         <Button

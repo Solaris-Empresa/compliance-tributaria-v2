@@ -44,6 +44,7 @@ export interface RiskCategory {
   aprovado_por: string | null;
   aprovado_at: Date | null;
   chunk_origem_id: number | null;
+  descricao: string | null; // migration 0073 — Sprint Z-12
   created_at: Date;
   updated_at: Date;
 }
