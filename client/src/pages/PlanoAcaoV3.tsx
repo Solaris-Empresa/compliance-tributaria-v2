@@ -1486,7 +1486,7 @@ export default function PlanoAcaoV3() {
         )}
         {/* Header */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" className="gap-2 text-sm shrink-0" onClick={() => handleVoltarClick(`/projetos/${projectId}/matrizes-v3`, 4, "Riscos")}>
+          <Button variant="ghost" className="gap-2 text-sm shrink-0" onClick={() => handleVoltarClick(`/projetos/${projectId}/risk-dashboard-v4`, 4, "Riscos")}>
             <ArrowLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Voltar às Matrizes</span>
             <span className="sm:hidden">Voltar</span>
