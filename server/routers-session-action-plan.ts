@@ -31,6 +31,8 @@ interface PlanItem {
   riskLevel: "critico" | "alto" | "medio" | "baixo";
   category: string; // ex: "Sistemas", "Treinamento", "Processos", "Documentação"
   estimatedCost: "baixo" | "medio" | "alto"; // custo estimado de implementação
+  /** Sprint Z-12: Categoria canônica LC 214/2025 (10 códigos) */
+  riskCategoryCode?: string;
 }
 
 interface BranchAnalysis {
@@ -103,7 +105,8 @@ Retorne APENAS JSON válido com este formato exato:
       "status": "pendente",
       "riskLevel": "critico",
       "category": "Sistemas",
-      "estimatedCost": "alto"
+      "estimatedCost": "alto",
+      "riskCategoryCode": "split_payment"
     }
   ],
   "executiveSummary": "Texto do resumo executivo...",
@@ -117,6 +120,7 @@ Regras:
 - responsible: "Equipe Fiscal", "TI/Sistemas", "Diretoria", "Contabilidade", "RH", "Jurídico", "Todos"
 - category: "Sistemas", "Treinamento", "Processos", "Documentação", "Governança", "Consultoria"
 - estimatedCost: "baixo" (< R$5k), "medio" (R$5k-50k), "alto" (> R$50k)
+- riskCategoryCode: uma das 10 categorias canônicas da LC 214/2025: "imposto_seletivo", "ibs_cbs", "regime_diferenciado", "aliquota_reduzida", "aliquota_zero", "split_payment", "cadastro_fiscal", "obrigacao_acessoria", "transicao", "enquadramento_geral"
 - Priorize ações críticas relacionadas ao prazo da Reforma Tributária (2026-2033)`;
 
   try {
@@ -154,8 +158,9 @@ Regras:
                     riskLevel: { type: "string", enum: ["critico", "alto", "medio", "baixo"] },
                     category: { type: "string" },
                     estimatedCost: { type: "string", enum: ["baixo", "medio", "alto"] },
+                    riskCategoryCode: { type: "string", enum: ["imposto_seletivo", "ibs_cbs", "regime_diferenciado", "aliquota_reduzida", "aliquota_zero", "split_payment", "cadastro_fiscal", "obrigacao_acessoria", "transicao", "enquadramento_geral"] },
                   },
-                  required: ["id", "branchCode", "branchName", "action", "description", "priority", "deadline", "responsible", "status", "riskLevel", "category", "estimatedCost"],
+                  required: ["id", "branchCode", "branchName", "action", "description", "priority", "deadline", "responsible", "status", "riskLevel", "category", "estimatedCost", "riskCategoryCode"],
                   additionalProperties: false,
                 },
               },
@@ -210,6 +215,7 @@ function generateFallbackPlan(branchAnalyses: BranchAnalysis[]): {
       riskLevel: "critico" as const,
       category: "Sistemas",
       estimatedCost: "alto" as const,
+      riskCategoryCode: "ibs_cbs",
     },
     {
       id: `a${idx * 3 + 2}`,
@@ -224,6 +230,7 @@ function generateFallbackPlan(branchAnalyses: BranchAnalysis[]): {
       riskLevel: "alto" as const,
       category: "Treinamento",
       estimatedCost: "medio" as const,
+      riskCategoryCode: "transicao",
     },
     {
       id: `a${idx * 3 + 3}`,
@@ -238,6 +245,7 @@ function generateFallbackPlan(branchAnalyses: BranchAnalysis[]): {
       riskLevel: "medio" as const,
       category: "Documentação",
       estimatedCost: "baixo" as const,
+      riskCategoryCode: "obrigacao_acessoria",
     },
   ]);
 
@@ -507,6 +515,7 @@ export const sessionActionPlanRouter = router({
         priority: item.priority,
         riskLevel: item.riskLevel,
         status: item.status,
+        riskCategoryCode: item.riskCategoryCode ?? null,
       }));
 
       return { matrixData, branches, overallRiskLevel: row.overallRiskLevel, complianceScore: row.complianceScore };
