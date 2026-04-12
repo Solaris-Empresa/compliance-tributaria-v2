@@ -272,7 +272,7 @@ export default function BriefingV3() {
       await approveBriefing.mutateAsync({ projectId, briefingContent: briefing });
       clearTempData(projectId, 'etapa3');
       toast.success("Briefing aprovado! Avançando para Matrizes de Riscos...");
-      setLocation(`/projetos/${projectId}/matrizes-v3`);
+      setLocation(`/projetos/${projectId}/risk-dashboard-v4`);
     } catch {
       toast.error("Erro ao aprovar o briefing. Tente novamente.");
     } finally {
