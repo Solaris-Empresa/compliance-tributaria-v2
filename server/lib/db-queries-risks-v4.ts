@@ -95,6 +95,16 @@ export interface InsertRiskV4 {
   confidence?: number;
   created_by: number;
   updated_by: number;
+  // Sprint Z-13.5 — migration 0075
+  risk_key?: string | null;
+  operational_context?: unknown;
+  evidence_count?: number;
+  rag_validated?: number; // tinyint: 0 | 1
+  rag_confidence?: number;
+  rag_artigo_exato?: string | null;
+  rag_trecho_legal?: string | null;
+  rag_query?: string | null;
+  rag_validation_note?: string | null;
 }
 
 export interface ActionPlanRow {
@@ -224,8 +234,12 @@ export async function insertRiskV4(data: InsertRiskV4): Promise<string> {
     `INSERT INTO risks_v4
       (id, project_id, rule_id, type, categoria, titulo, descricao, artigo,
        severidade, urgencia, evidence, breadcrumb, source_priority, confidence,
-       created_by, updated_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       created_by, updated_by,
+       risk_key, operational_context, evidence_count,
+       rag_validated, rag_confidence, rag_artigo_exato,
+       rag_trecho_legal, rag_query, rag_validation_note)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+             ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       id,
       data.project_id,
@@ -243,6 +257,15 @@ export async function insertRiskV4(data: InsertRiskV4): Promise<string> {
       data.confidence ?? 1.0,
       data.created_by,
       data.updated_by,
+      data.risk_key ?? null,
+      data.operational_context != null ? JSON.stringify(data.operational_context) : null,
+      data.evidence_count ?? 0,
+      data.rag_validated ?? 0,
+      data.rag_confidence ?? 0,
+      data.rag_artigo_exato ?? null,
+      data.rag_trecho_legal ?? null,
+      data.rag_query ?? null,
+      data.rag_validation_note ?? null,
     ]
   );
   return id;
