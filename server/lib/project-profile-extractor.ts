@@ -157,17 +157,34 @@ export async function extractProjectProfile(
     })
     .filter(Boolean);
 
+  // B-Z13.5-002: suporte dual-schema
+  // Novo formulário: operationType / multiState / clientType (array)
+  // Schema legado:   tipoOperacao  / multiestadual / tipoCliente (array)
+  const tipoOperacaoRaw =
+    (opProfile.operationType as string) ??
+    (opProfile.tipoOperacao as string) ??
+    null;
+
+  const clientTypeRaw = opProfile.clientType ?? opProfile.tipoCliente;
+  const tipoClienteRaw = Array.isArray(clientTypeRaw)
+    ? (clientTypeRaw as string[]).join(",")
+    : (clientTypeRaw as string) ?? null;
+
+  const multiestadualRaw =
+    opProfile.multiState != null
+      ? Boolean(opProfile.multiState)
+      : opProfile.multiestadual != null
+        ? Boolean(opProfile.multiestadual)
+        : null;
+
   return {
     projectId: row.id,
     cnaes,
     taxRegime: row.taxRegime ?? null,
     companySize: row.companySize ?? null,
-    tipoOperacao: (opProfile.tipoOperacao as string) ?? null,
-    tipoCliente: (opProfile.tipoCliente as string) ?? null,
-    multiestadual:
-      opProfile.multiestadual != null
-        ? Boolean(opProfile.multiestadual)
-        : null,
+    tipoOperacao: tipoOperacaoRaw,
+    tipoCliente: tipoClienteRaw,
+    multiestadual: multiestadualRaw,
     meiosPagamento: Array.isArray(opProfile.meiosPagamento)
       ? (opProfile.meiosPagamento as string[])
       : null,
