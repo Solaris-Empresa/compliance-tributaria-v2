@@ -250,7 +250,7 @@ export const gapEngineRouter = router({
         // 2. Buscar requisitos aplicáveis com fonte
         const [requirements] = await pool.query<mysql.RowDataPacket[]>(
           `SELECT r.id, r.code, r.name, r.domain, r.layer, r.source_reference,
-                  r.gap_level, r.gap_type, r.criticality, r.evaluation_criteria, r.evidence_required,
+                  r.gap_level, r.default_gap_type AS gap_type, r.base_criticality AS criticality, r.evaluation_criteria, r.evidence_required,
                   r.risk_category_code
            FROM regulatory_requirements_v3 r
            WHERE r.active = 1
