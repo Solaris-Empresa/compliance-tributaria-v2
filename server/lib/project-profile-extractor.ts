@@ -165,10 +165,13 @@ export async function extractProjectProfile(
     (opProfile.tipoOperacao as string) ??
     null;
 
+  // clientType na UI é string[] (ex: ["B2B"]). Normalizar para string único lowercase.
   const clientTypeRaw = opProfile.clientType ?? opProfile.tipoCliente;
   const tipoClienteRaw = Array.isArray(clientTypeRaw)
-    ? (clientTypeRaw as string[]).join(",")
-    : (clientTypeRaw as string) ?? null;
+    ? (clientTypeRaw[0] as string)?.toLowerCase() ?? null
+    : typeof clientTypeRaw === "string"
+    ? clientTypeRaw
+    : null;
 
   const multiestadualRaw =
     opProfile.multiState != null
@@ -185,12 +188,17 @@ export async function extractProjectProfile(
     tipoOperacao: tipoOperacaoRaw,
     tipoCliente: tipoClienteRaw,
     multiestadual: multiestadualRaw,
-    meiosPagamento: Array.isArray(opProfile.meiosPagamento)
-      ? (opProfile.meiosPagamento as string[])
-      : null,
-    intermediarios: Array.isArray(opProfile.intermediarios)
-      ? (opProfile.intermediarios as string[])
-      : null,
+    meiosPagamento: (() => {
+      const raw = opProfile.paymentMethods ?? opProfile.meiosPagamento;
+      return Array.isArray(raw) ? (raw as string[]) : null;
+    })(),
+    intermediarios: (() => {
+      // hasIntermediaries na UI é boolean | null. intermediarios em legados é string[].
+      const raw = opProfile.hasIntermediaries ?? opProfile.intermediarios;
+      if (Array.isArray(raw)) return raw as string[];
+      if (raw === true) return ["sim"]; // boolean true → sinalizar presença
+      return null;
+    })(),
     productNcms,
   };
 }
