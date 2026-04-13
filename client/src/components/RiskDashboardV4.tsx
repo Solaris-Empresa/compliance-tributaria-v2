@@ -442,6 +442,8 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
         gapType: g.gap_type ?? "normativo",
         area: g.domain ?? "",
         descricao: g.gap_description ?? "",
+        // B-Z13-004: risk_category_code → categoria para o GapToRuleMapper (Caso A)
+        categoria: g.risk_category_code ?? undefined,
         sourceOrigin: "solaris" as const,
         requirementId: g.requirement_id,
         sourceReference: g.source_reference ?? "",
