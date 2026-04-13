@@ -430,6 +430,9 @@ DROP TABLE IF EXISTS iagen_answers;
 | 4.9 | 2026-04-09 | `895469c` | Sprint Z-07 ENCERRADA: engine v4 · schema 0064 · router 11 procedures · RiskDashboardV4 · ActionPlanPage. PRs #425–#431. |
 | 5.0 | 2026-04-09 | `8df07b7` | Sprint Z-08 ENCERRADA: fix JSON.parse (#434) · fix pool.promise (#435). Sprint Z-09 iniciada: risk_categories (#436) · VARCHAR (#437) · RAG sensor + admin (#438) · ADR-0025 (#439) · engine cache 1h (#440) · docs fix (#441) · CONTRACT-02/03 (#442). |
 | **5.1** | **2026-04-09** | **`ceabb06`** | **Sprint Z-09 ENCERRADA: GAP-CONTRACT-01 FK risks_v4.categoria → risk_categories.codigo (#443). 67 migrations · 443 PRs mergeados · ADRs 17 · GAPs ARCH-06/07/08/09 + CONTRACT-01/02/03 resolvidos. ADR-0025 vigente. Baseline v5.1 oficial.** |
+| 5.2 | 2026-04-09 | `8df07b7` | Sprint Z-08 ENCERRADA: fix JSON.parse (#434) · fix pool.promise (#435). Sprint Z-09 iniciada. |
+| 5.3 | 2026-04-12 | `c4a5f57` | Sprint Z-13 iniciada: RAG CGIBS 6 chunks · descricao /admin/categorias · R-SYNC-01 CLAUDE.md · fix B-Z13-001/002/003. PRs #485–#486. |
+| **5.6** | **2026-04-13** | **`f396fed`** | **Sprint Z-13 ENCERRADA · Gate 7 PASS: fix B-Z13-004 risk_category_code GapSchema+INSERT (#495+#496) · backfill project_gaps_v3 138/138 mapeados · 9 docs RAG v5.0 (#498) · cockpits P.O.+RAG atualizados (#499) · ESTADO-ATUAL v5.6 (#497). 499 PRs mergeados · tsc 0 erros · 13 leis · 2.515 chunks.** |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
