@@ -154,6 +154,13 @@ export async function inferNormativeRisks(
   const ctx = buildContext(profile);
   const op = profile.tipoOperacao ?? "geral";
 
+  if (profile.cnaes.length === 0) {
+    console.warn(`[normative-inference] project=${projectId} cnaes vazio — inferência pulada`);
+  }
+  if (profile.productNcms.length === 0) {
+    console.warn(`[normative-inference] project=${projectId} NCMs vazios — aliquota_zero potencial apenas`);
+  }
+
   // ── Alíquota zero ─────────────────────────────────────────────────────────
   if (hasAlimentarCnae(profile.cnaes)) {
     const rules = await loadNormativeRules("aliquota_zero");

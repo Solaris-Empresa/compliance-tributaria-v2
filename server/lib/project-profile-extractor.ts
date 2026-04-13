@@ -66,26 +66,36 @@ interface ProjectRow {
 // Helpers de parse seguro
 // ─────────────────────────────────────────────────────────────────────────────
 
-function safeParseArray(raw: string | null, fallback: unknown[] = []): unknown[] {
+function safeParseArray(raw: unknown, fallback: unknown[] = []): unknown[] {
   if (!raw) return fallback;
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : fallback;
-  } catch {
-    return fallback;
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : fallback;
+    } catch {
+      return fallback;
+    }
   }
+  return fallback;
 }
 
-function safeParseObject(raw: string | null): Record<string, unknown> {
+function safeParseObject(raw: unknown): Record<string, unknown> {
   if (!raw) return {};
-  try {
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
-      ? (parsed as Record<string, unknown>)
-      : {};
-  } catch {
-    return {};
+  if (typeof raw === "object" && !Array.isArray(raw)) {
+    return raw as Record<string, unknown>;
   }
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+        ? (parsed as Record<string, unknown>)
+        : {};
+    } catch {
+      return {};
+    }
+  }
+  return {};
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
