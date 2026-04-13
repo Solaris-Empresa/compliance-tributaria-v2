@@ -35,9 +35,9 @@ Regras invioláveis:
 
 | Indicador | Valor | Última atualização |
 |---|---|---|
-| Versão do baseline | v4.5 | 2026-04-05 (Sprint V encerrada — Lote 3: 37 casos NCM/NBS) |
-| Total de chunks | 2.509 | Sprint S |
-| Leis ativas | 10 | lc214 · lc227 · lc224 · ec132 · lc123 · lc87 · lc116 · cg_ibs · rfb_cbs · conv_icms |
+| Versão do baseline | **v5.0** | 2026-04-13 (Sprint Z-13 ENCERRADA · Gate 7 PASS · PRs #485–#497) |
+| Total de chunks | **2.515** | Sprint Z-12 Lote D (CGIBS +6 chunks) |
+| Leis ativas | **13** | lc214 · lc227 · lc224 · ec132 · lc123 · lc87 · lc116 · cg_ibs · rfb_cbs · conv_icms · resolucao_cgibs_1 · resolucao_cgibs_2 · resolucao_cgibs_3 |
 | Confiabilidade gold set | 100% (8/8) | Sprint G |
 | RFCs abertas | 0 | Sprint S concluída (RFC-003 e RFC-004 executadas) |
 | Próxima revisão gold set | 2026-09-26 | Semestral |
@@ -55,11 +55,14 @@ Regras invioláveis:
 | lc224 | LC 224/2024 — IBS compartilhado | 28 | ✅ Ativo |
 | ec132 | EC 132/2023 — Emenda constitucional | 18 | ✅ Ativo |
 | lc123 | LC 123/2006 — Simples Nacional / MEI | 25 | ✅ Ativo (RFC-002) |
-| lc116 | LC 116/2003 — ISS | ~80 | ✅ Ativo (Sprint S) |
-| lc87  | LC 87/1996 — ICMS | ~100 | ✅ Ativo (Sprint S) |
-| cg_ibs | Regulamento CGIBS | ~60 | ✅ Ativo (Sprint S) |
-| rfb_cbs | Regulamento CBS/RFB | ~60 | ✅ Ativo (Sprint S) |
-| conv_icms | Convênios ICMS | ~60 | ✅ Ativo (Sprint S) |
+| lc116 | LC 116/2003 — ISS | 60 | ✅ Ativo (Sprint S) |
+| lc87  | LC 87/1996 — ICMS | 60 | ✅ Ativo (Sprint S) |
+| cg_ibs | Regulamento CGIBS | 26 | ✅ Ativo (Sprint S) |
+| rfb_cbs | Regulamento CBS/RFB | 7 | ✅ Ativo (Sprint S) |
+| conv_icms | Convênios ICMS | 278 | ✅ Ativo (Sprint S) |
+| resolucao_cgibs_1 | Resolução CGIBS 01/2025 | 4 | ✅ Ativo (Sprint Z-12 · Lote D) |
+| resolucao_cgibs_2 | Resolução CGIBS 02/2025 | 1 | ✅ Ativo (Sprint Z-12 · Lote D) |
+| resolucao_cgibs_3 | Resolução CGIBS 03/2025 | 1 | ✅ Ativo (Sprint Z-12 · Lote D) |
 | solaris | Conhecimento jurídico SOLARIS | 0 | Pendente DEC-004 |
 
 ---
@@ -122,5 +125,5 @@ Antes de gerar qualquer prompt para o Manus, identificar qual processo se aplica
 
 ---
 
-*HANDOFF-RAG.md v1.4 · 2026-04-05 (Sprint V encerrada Lote 3: 37 casos NCM/NBS confirmados, NCM:19 · NBS:19 · Testes:48/48, PR #333)*
+*HANDOFF-RAG.md v1.5 · 2026-04-13 (Sprint Z-13 ENCERRADA · Gate 7 PASS · HEAD 1ea5c64 · PRs #485–#497 · 2.515 chunks · 13 leis · 100% anchor_id)*
 *Atualizar a cada sprint que altere o corpus ou o Decision Kernel*
