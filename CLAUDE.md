@@ -123,12 +123,13 @@ Prettier with: double quotes, semicolons, trailing commas (es5), 2-space indent,
 
 ANTES de qualquer implementacao que toca banco de dados:
 
-1. Orquestrador consulta `docs/governance/DATA_DICTIONARY.md`
+1. **Orquestrador** consulta `docs/governance/DATA_DICTIONARY.md`
 2. Se campo nao estiver documentado:
-   - Executar: `SHOW FULL COLUMNS FROM [tabela]`
-   - Executar: `SELECT JSON_KEYS([campo]) FROM [tabela] WHERE [campo] IS NOT NULL LIMIT 3`
-3. Orquestrador confirma nomes reais
-4. So entao despacha prompt para implementacao
+   - Acionar agente: `.claude/agents/db-schema-validator.md`
+   - **Manus** executa: `SHOW FULL COLUMNS FROM [tabela]`
+   - **Manus** executa: `SELECT JSON_KEYS([campo]) FROM [tabela] WHERE [campo] IS NOT NULL LIMIT 3`
+3. **Orquestrador** confirma nomes reais e atualiza DATA_DICTIONARY se necessario
+4. **Claude Code** implementa somente com nomes confirmados
 
 **SEM EXCECAO** — nem para fixes "simples".
 Violacao desta regra = causa raiz garantida de bug (post-mortem B-Z13.5-001/002).
