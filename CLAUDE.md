@@ -133,6 +133,39 @@ ANTES de qualquer implementacao que toca banco de dados:
 **SEM EXCECAO** — nem para fixes "simples".
 Violacao desta regra = causa raiz garantida de bug (post-mortem B-Z13.5-001/002).
 
+## Gate UX — Verificacao de spec (obrigatorio para frontend)
+
+ANTES de qualquer implementacao de componente frontend:
+
+1. **Orquestrador** consulta `docs/governance/UX_DICTIONARY.md` — verificar estado atual da tela
+2. **Claude Code** executa agente `.claude/agents/ux-spec-validator.md` — reportar gaps vs spec
+3. **Orquestrador** cria issue com spec HIBRIDA:
+   - Conteudo copiado no corpo da issue
+   - Link para arquivo fonte
+   - Lock apos aprovacao P.O.
+   - PATCH (<=5 linhas): comentario na issue
+   - AMENDMENT (estrutural): nova issue
+4. **P.O.** aprova issue com spec congelada
+5. **Claude Code** implementa somente apos aprovacao — todo prompt DEVE iniciar com `gh issue view [N]`
+
+**SEM EXCECAO** — nem para ajustes visuais "simples".
+Violacao desta regra = causa raiz do retrabalho Z-07 (spec existia mas nao foi incluida no prompt).
+
+### REGRA-ORQ-08
+Todo prompt de implementacao DEVE iniciar com `gh issue view [N]`.
+O implementador le a issue diretamente do GitHub. Nunca depende do orquestrador copiar a spec.
+
+### REGRA-ORQ-09
+Gate UX obrigatorio antes de qualquer frontend.
+`ux-spec-validator` deve reportar LIBERAR antes de codar.
+
+### REGRA-ORQ-10
+Integration Checkpoint (F4.5) obrigatorio antes do merge:
+- `grep -n "trpc\." [componente]` executado
+- Cruzar com Contrato API da issue
+- 100% das procedures da issue devem estar sendo chamadas
+- Procedure nao chamada = merge bloqueado
+
 ## Sprint Z-07 — Sistema de Riscos v4 — CONCLUÍDA (Z-12)
 
 **Status:** CONCLUÍDA — Hot swap final executado na Sprint Z-12 (PR feat/z12-hot-swap-final).
