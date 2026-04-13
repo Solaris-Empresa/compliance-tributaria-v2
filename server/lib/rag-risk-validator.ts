@@ -35,17 +35,20 @@ interface RagDocument {
 
 // ─── Query templates por categoria ───────────────────────────────────────────
 
+// Termos validados contra o corpus ragDocuments (2.515 chunks, TiDB LIKE).
+// Cada entrada usa 1-2 palavras que garantem hits reais.
+// Validado em 2026-04-13 — Sprint Z-13.5
 const RAG_QUERIES: Record<string, string> = {
-  split_payment: "split payment LC 214",
-  confissao_automatica: "confissão automática apuração IBS CBS",
-  aliquota_zero: "cesta básica alíquota zero art 125",
-  credito_presumido: "crédito presumido IBS CBS",
-  obrigacao_acessoria: "obrigação acessória documento fiscal",
-  inscricao_cadastral: "cadastro IBS CBS inscrição",
-  transicao_iss_ibs: "transição ISS IBS serviços",
-  imposto_seletivo: "imposto seletivo",
-  regime_diferenciado: "regime diferenciado LC 214",
-  aliquota_reduzida: "alíquota reduzida IBS CBS",
+  split_payment:        "split payment",          // 20 hits
+  confissao_automatica: "apuração do IBS",         // 10 hits (Art. 43, Art. 270)
+  aliquota_zero:        "cesta básica",            // 5 hits (Art. 125 lc214)
+  credito_presumido:    "crédito presumido",       // 32 hits
+  obrigacao_acessoria:  "obrigação acessória",     // 7 hits
+  inscricao_cadastral:  "sujeito passivo",         // 74 hits (melhor proxy disponível)
+  transicao_iss_ibs:    "prestação de serviços",   // 34 hits (melhor proxy disponível)
+  imposto_seletivo:     "imposto seletivo",        // 54 hits
+  regime_diferenciado:  "regime diferenciado",     // 3 hits
+  aliquota_reduzida:    "alíquota reduzida",       // 8 hits
 };
 
 // ─── Função principal ────────────────────────────────────────────────────────
