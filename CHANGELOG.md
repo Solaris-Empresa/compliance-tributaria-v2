@@ -6,6 +6,34 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [Sprint Z-13 — Gate 7 PASS] — 2026-04-13 · `f396fed`
+
+### Corrigido
+- **B-Z13-004** `server/routers/gapEngine.ts` — `risk_category_code` ausente no `GapSchema` e no `INSERT project_gaps_v3`; campo nunca chegava ao `GapToRuleMapper` → 138 gaps unmapped. Fix: campo adicionado no schema Zod, no objeto `gap` e no INSERT. PRs #495+#496.
+- **Backfill** `project_gaps_v3` — projeto 2281 e demais projetos com gaps antigos sem `risk_category_code` atualizados via JOIN com `regulatory_requirements_v3`. 138/138 mapeados. 0 NULLs.
+
+### Adicionado
+- **Cockpit P.O.** `docs/painel-po/index.html` — 17 campos atualizados: datas `2026-04-13`, Baseline `v5.0`, DEC-018 no log de decisões. PR #499.
+- **Cockpit RAG** `client/src/pages/RagCockpit.tsx` — badge principal atualizado para Sprint Z-13 Gate 7 PASS. PR #499.
+- **9 docs RAG** — CORPUS-BASELINE v5.0, HANDOFF-RAG v1.5, RAG-GOVERNANCE v1.4, RAG-RESPONSABILIDADES v1.3, RAG-PROCESSO v1.3, RAG-QUALITY-GATE v1.2, GOVERNANCA-RAG-PO-COMPLETO v1.2, RASTREABILIDADE-RAG-PO v1.2, DIAGRAMA-E2E v1.4. PR #498.
+- **ESTADO-ATUAL.md v5.6** — Sprint Z-13 ENCERRADA, Gate 7 PASS, HEAD f396fed, 499 PRs. PR #497.
+
+### Indicadores pós-Sprint Z-13 (Gate 7)
+
+| Indicador | Valor |
+|---|---|
+| PRs mergeados nesta sprint | #485–#499 (15 PRs) |
+| PRs mergeados total | **499** |
+| TypeScript erros | 0 |
+| Corpus RAG | 2.515 chunks · 13 leis |
+| project_gaps_v3 mapeados | 138/138 (100%) |
+| risk_categories ativas | 9 categorias |
+| Bloqueios permanentes | Intactos (DIAGNOSTIC_READ_MODE=shadow) |
+| HEAD GitHub | `f396fed` |
+| Baseline | v5.6 |
+
+---
+
 ## [Sprint Z — Gate B] — 2026-04-08 · `17199c4`
 
 ### Corrigido

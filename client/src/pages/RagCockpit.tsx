@@ -868,7 +868,7 @@ export default function RAGCockpit() {
             background: "#1a2744", border: "1px solid #3b82f6",
             borderRadius: 8, padding: "6px 14px", textAlign: "center"
           }}>
-            <div style={{ color: "#22c55e", fontWeight: 700, fontSize: 12, letterSpacing: "0.05em" }}>✅ SPRINT V / PV-01 LOTE 1+2+3 CONCLUÍDA</div>
+            <div style={{ color: "#22c55e", fontWeight: 700, fontSize: 12, letterSpacing: "0.05em" }}>✅ SPRINT Z-13 — Gate 7 PASS · 2.515 chunks · 13 leis</div>
             <div style={{ color: "#334155", fontSize: 10, marginTop: 2 }}>Decision Kernel · 37 casos NCM/NBS + 1 pending · 48 testes · 2d53596</div>
           </div>
           <div style={{ textAlign: "center" }}>

@@ -197,7 +197,7 @@ Quando o Consultor (ChatGPT) for acionado:
 
 - [docs/governance/ESTADO-ATUAL.md](./governance/ESTADO-ATUAL.md) — **LEIA PRIMEIRO** — porta de entrada universal
 - [PRODUCT-LIFECYCLE.md](./PRODUCT-LIFECYCLE.md) — ciclo de vida do produto
-- [BASELINE-PRODUTO.md](./BASELINE-PRODUTO.md) — estado atual do produto (v4.8 Gate B ✅)
+- [BASELINE-PRODUTO.md](./BASELINE-PRODUTO.md) — estado atual do produto (v5.6 Sprint Z-13 Gate 7 PASS ✅)
 - [ERROS-CONHECIDOS.md](./ERROS-CONHECIDOS.md) — incidentes e invariants
 - [docs/governance/invariant-registry.md](./governance/invariant-registry.md) — 8 invariants
 - [docs/governance/HANDOFF-IMPLEMENTADOR.md](./governance/HANDOFF-IMPLEMENTADOR.md) — guia do Manus
@@ -205,6 +205,6 @@ Quando o Consultor (ChatGPT) for acionado:
 
 ---
 
-*MODELO-OPERACIONAL.md — IA Solaris v1.3 · 2026-04-08 (pós-Sprint Z Gate B)*
+*MODELO-OPERACIONAL.md — IA Solaris v1.4 · 2026-04-13 (pós-Sprint Z-13 Gate 7 PASS)*
 *Revisar se a composição da equipe ou os papéis mudarem*
 *Aprovador: P.O. Uires Tapajós*
