@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v5.7 · 2026-04-13 (fix B-Z13.5-001 · HEAD 85424bfd · safeParseObject/safeParseArray)** · Responsável: Orquestrador gera, Manus commita
+> **v5.8 · 2026-04-13 (Sprint Z-13.5 ENCERRADA · Gate 7 PASS · HEAD 01dcc21)** · Responsável: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v5.7 · **HEAD:** `85424bfd` (github/main) · **Testes:** Gate 7 PASS ✅ · tsc 0 erros  
+**Baseline:** v5.8 · **HEAD:** `01dcc21` (github/main) · **Testes:** Gate 7 PASS ✅ · tsc 0 erros  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -26,7 +26,10 @@ Plataforma de compliance da Reforma Tributária brasileira.
 **Sprint Z-11:** ✅ ENCERRADA · Gate E PASS — B-Z11-009 (CNAE skip) · B-Z11-010 (briefing guard) · B-Z11-012 (status transition) · PRs #467–#468
 **Sprint Z-12:** ✅ ENCERRADA · Gate 7 PASS — migration 0072/0073/0074 · housekeeping Z-11 em lote · RAG Lote D (CGIBS) · hot swap ADR-0022 · R-SYNC-01 · PRs #469–#483 · HEAD c4a5f57
 **Sprint Z-13:** ✅ ENCERRADA · Gate 7 PASS — RAG CGIBS 6 chunks ✅ · descricao /admin/categorias ✅ · R-SYNC-01 CLAUDE.md ✅ · fix B-Z13-001 is_active→active ✅ · fix B-Z13-002 gap_type/criticality ✅ · fix B-Z13-003 JOIN inválido ✅ · stepper etapa4→risk-dashboard-v4 ✅ · fix B-Z13-004 risk_category_code GapSchema+INSERT ✅ (#495+#496) · backfill project_gaps_v3 ✅ · cockpits P.O.+RAG atualizados ✅ (#499) · 9 docs RAG v5.0 ✅ (#498) · PRs #485–#499 · HEAD f396fed · Gate E PASS
-**fix B-Z13.5-001:** ✅ DEPLOYADO · safeParseObject/safeParseArray aceitam objetos nativos do mysql2 · tipoOperacao=comercio · multiestadual=true · risk_key::op:comercio::geo:multi PASS · HEAD 85424bfd · UAT T6 PASS em produção
+**Sprint Z-13.5:** ✅ ENCERRADA · Gate E PASS · Gate 7 PASS — B-Z13.5-001 (safeParseObject/safeParseArray) ✅ · B-Z13.5-002 (dual-schema operationProfile) ✅ · PRs #502–#510 · HEAD 01dcc21
+  - Campos confirmados: `operationProfile` → `operationType/multiState/clientType/paymentMethods/hasIntermediaries` (novo) + `tipoOperacao/multiestadual/tipoCliente/meiosPagamento/intermediarios` (legado)
+  - `product_answers`: `ncm` (snake_case) · `confirmedCnaes`: camelCase JSON
+  - UAT T1–T6 PASS em produção · ragDocuments: 2.515 · normative_product_rules: 20 · risk_categories: 10
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -36,7 +39,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `85424bfd`
+- **Branch base:** main · **HEAD:** `01dcc21`
 - **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git restore --staged`
@@ -58,13 +61,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `85424bfd` | ✅ |
-| Baseline | **v5.7** | ✅ |
-| Testes passando | **Gate 7 PASS ✅** · tsc 0 erros | ✅ |
+| HEAD (github/main) | `01dcc21` | ✅ |
+| Baseline | **v5.8** | ✅ |
+| Testes passando | **Gate 7 PASS ✅** · tsc 0 erros · 75/75 (Z-13.5) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | CI Workflows | **12 ativos** + invariant-check (GOV-03b) | ✅ |
 | CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
-| PRs mergeados (total) | **499 + fix B-Z13.5-001** | ✅ |
+| PRs mergeados (total) | **510 (Sprint Z-13.5 PRs #502–#510)** | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
