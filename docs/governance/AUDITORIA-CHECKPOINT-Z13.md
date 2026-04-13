@@ -1,8 +1,8 @@
 # Auditoria de Checkpoint — Sprint Z-13
 
-> Gerado automaticamente pelo Manus em 2026-04-12 (atualizado pós-PR #489)  
-> HEAD auditado: `90f5489` (github/main)  
-> Sprint: Z-13 · Gate E pendente (P.O. testará ao retornar)
+> Gerado automaticamente pelo Manus em 2026-04-12 (atualizado pós-PR #493)  
+> HEAD auditado: `2abeb24` (github/main)  
+> Sprint: Z-13 · Gate E pendente (P.O. testando com novo projeto)
 
 ---
 
@@ -11,16 +11,18 @@
 | Dimensão | Resultado | Status |
 |---|---|---|
 | TypeScript (tsc) | 0 erros | ✅ |
-| Gate Q5 (isError) | 16/16 passed | ✅ |
+| Gate B (edge cases) | 8/8 passed | ✅ |
 | RAG CGIBS | 3 leis · 6 chunks | ✅ |
 | Corpus total | 2.515 chunks | ✅ |
 | risk_categories com descricao | 10/10 ativas preenchidas | ✅ |
 | CLAUDE.md R-SYNC-01 | Presente na linha 164 | ✅ |
-| ESTADO-ATUAL.md | v5.4 · HEAD 90f5489 · PRs 489 | ✅ |
+| ESTADO-ATUAL.md | v5.5 · HEAD 2abeb24 · PRs 493 | ✅ |
 | B-Z13-001 (is_active) | Corrigido — gapEngine.ts:256 | ✅ |
+| B-Z13-002 (gap_type/criticality) | Corrigido — gapEngine.ts:253 | ✅ |
+| B-Z13-003 (JOIN inválido) | Corrigido — gapEngine.ts:275 | ✅ |
 | Stepper etapa 4 | /risk-dashboard-v4 (era /matrizes-v3) | ✅ |
-| GitHub HEAD | `90f5489` (PR #489) | ✅ |
-| Checkpoint S3 | ⚠️ Divergente — ver Seção 5 | ⚠️ |
+| GitHub HEAD | `2abeb24` (PR #493) | ✅ |
+| Checkpoint S3 | ✅ Sincronizado — checkpoint `6c4ceba3` | ✅ |
 
 ---
 
@@ -107,8 +109,8 @@ Com descricao preenchida: 10/10 ✅
 
 | Remote | HEAD | Status |
 |---|---|---|
-| `github/main` | `90f5489` (PR #489) | ✅ Canônico |
-| `origin/main` (S3) | `a99db2a` (rollback Z-12) | ⚠️ Divergente |
+| `github/main` | `2abeb24` (PR #493) | ✅ Canônico |
+| `origin/main` (S3) | `6c4ceba3` (checkpoint salvo) | ✅ Sincronizado |
 
 ### Causa Raiz
 
@@ -150,6 +152,8 @@ Opção B: Aguardar suporte Manus para reset manual do S3 remote.
 | `docs/governance/AUDITORIA-CHECKPOINT-Z13.md` | docs | #488 + #490 |
 | `server/routers/gapEngine.ts` | fix B-Z13-001 | #489 |
 | `client/src/components/FlowStepper.tsx` | fix stepper etapa4 | #489 |
+| `server/routers/gapEngine.ts` | fix B-Z13-002 gap_type/criticality | #492 |
+| `server/routers/gapEngine.ts` | fix B-Z13-003 JOIN inválido | #493 |
 
 ---
 
@@ -162,20 +166,27 @@ Opção B: Aguardar suporte Manus para reset manual do S3 remote.
 | #487 | docs(governance): Z-13 — atualiza ESTADO-ATUAL.md v5.3 | ✅ mergeado |
 | #488 | docs(audit): Z-13 — auditoria checkpoint + fix Gate Q5 AdminCategorias | ✅ mergeado |
 | #489 | fix(z13): B-Z13-001 is_active→active + stepper etapa4→risk-dashboard-v4 | ✅ mergeado |
+| #490 | docs(audit): Z-13 — fix Gate Q5 + ESTADO-ATUAL v5.4 + auditoria pós-#489 | ✅ mergeado |
+| #491 | fix(stepper): redirect 4 hardcoded /matrizes-v3 routes to /risk-dashboard-v4 | ✅ mergeado |
+| #492 | fix(z13): B-Z13-002 gap_type→default_gap_type + criticality→base_criticality | ✅ mergeado |
+| #493 | fix(z13): B-Z13-003 remover JOIN inválido com questionnaireQuestionsCache | ✅ mergeado |
 
-**Total PRs mergeados no projeto:** 489 (este PR de documentação: #490)
+**Total PRs mergeados no projeto:** 493
 
 ---
 
 ## 8. Pendências
 
-- [ ] **Gate E:** Aguarda retorno do P.O. (Uires Tapajós) para testes UAT em `/projetos/{id}/risk-dashboard-v4` — B-Z13-001 desbloqueado
-- [ ] **Checkpoint S3:** Divergente — resolver via Management UI → More (⋯) → Version History → Rollback
-- [ ] **_verify-cgibs.mjs / _audit-cgibs.mjs:** Arquivos temporários de auditoria — podem ser removidos em sprint futura
+- [ ] **Gate E:** P.O. testando com novo projeto — gapEngine corrigido (B-Z13-001/002/003)
+- [ ] **_verify-cgibs.mjs / _audit-cgibs.mjs:** Arquivos temporários de auditoria — remover em sprint futura
+- [ ] **Mapeamento unmapped:** 138 requisitos `REQ-APU-*` sem regras no engine v4 — backlog Z-14
 - [x] **B-Z13-001:** `is_active` → `active` em `gapEngine.ts:256` — corrigido PR #489
 - [x] **Stepper etapa 4:** `/matrizes-v3` → `/risk-dashboard-v4` — corrigido PR #489
 - [x] **Gate Q5 AdminCategorias:** `isError` adicionado nas duas queries — corrigido PR #490
+- [x] **B-Z13-002:** `gap_type` → `default_gap_type AS gap_type`, `criticality` → `base_criticality AS criticality` — corrigido PR #492
+- [x] **B-Z13-003:** JOIN inválido com `questionnaireQuestionsCache` removido — corrigido PR #493
+- [x] **Checkpoint S3:** Sincronizado — checkpoint `6c4ceba3` salvo com sucesso
 
 ---
 
-*IA SOLARIS · Auditoria gerada pelo Manus · 2026-04-12 · Sprint Z-13*
+*IA SOLARIS · Auditoria gerada pelo Manus · 2026-04-13 (atualizada) · Sprint Z-13*
