@@ -15,6 +15,7 @@ import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { computeRiskMatrix, buildActionPlans } from "../lib/risk-engine-v4";
 import type { GapRule } from "../lib/risk-engine-v4";
+import { generateRisksV4Pipeline } from "../lib/generate-risks-pipeline";
 // Sprint Z-10 PR #B — ACL Gap→Risk
 import { GapToRuleMapper } from "../lib/gap-to-rule-mapper";
 import { getActiveCategories, getCategoryByCodigo } from "../lib/risk-category.repository.drizzle";
@@ -38,6 +39,7 @@ import {
   updateTaskStatus,
   softDeleteTaskV4,
   getProjectAuditLog,
+  deleteRisksByProject,
 } from "../lib/db-queries-risks-v4";
 import type {
   CategoriaV4,
@@ -101,54 +103,58 @@ export const risksV4Router = router({
         user_role: ctx.user.role ?? "user",
       };
 
-      // Engine determinístico — função pura
-      const risks = computeRiskMatrix(gaps as GapRule[]);
-      const actionPlans = buildActionPlans(risks);
+      // Sprint Z-13.5: limpar snapshot anterior
+      await deleteRisksByProject(projectId);
 
+      // Sprint Z-13.5: pipeline consolidada
+      const { risks, summary } = await generateRisksV4Pipeline(
+        projectId,
+        gaps as GapRule[],
+        ctx.user.id,
+      );
+
+      // Persistir riscos consolidados
       const riskIds: string[] = [];
-
       for (const risk of risks) {
-        const id = await insertRiskV4WithAudit(
-          {
-            project_id: projectId,
-            rule_id: risk.ruleId,
-            type: risk.severity === "oportunidade" ? "opportunity" : "risk",
-            categoria: risk.categoria as CategoriaV4,
-            titulo: `[${risk.categoria}] ${risk.artigo}`,
-            descricao: risk.sourceReference,
-            artigo: risk.artigo,
-            severidade: risk.severity as SeveridadeV4,
-            urgencia: risk.urgency as UrgenciaV4,
-            evidence: { gapClassification: risk.gapClassification, requirementId: risk.requirementId },
-            breadcrumb: risk.breadcrumb,
-            source_priority: risk.fonte as SourcePriorityV4,
-            confidence: 1.0,
-            created_by: ctx.user.id,
-            updated_by: ctx.user.id,
-          },
-          actor
-        );
+        const id = await insertRiskV4WithAudit(risk, actor);
         riskIds.push(id);
       }
 
-      // Persistir planos de ação para riscos não-oportunidade
+      // Gerar planos de ação para riscos não-oportunidade
+      const actionPlans = buildActionPlans(
+        risks
+          .filter((r) => r.type === "risk")
+          .map((r) => ({
+            ruleId: r.rule_id,
+            categoria: r.categoria,
+            artigo: r.artigo,
+            fonte: r.source_priority,
+            severity: r.severidade as "alta" | "media" | "oportunidade",
+            urgency: r.urgencia as "imediata" | "curto_prazo" | "medio_prazo",
+            breadcrumb: (Array.isArray(r.breadcrumb) ? r.breadcrumb : []) as [string, string, string, string],
+            gapClassification: "consolidado",
+            requirementId: r.rule_id,
+            sourceReference: r.descricao ?? "",
+            domain: "",
+          }))
+      );
+
+      const prazoMap: Record<string, PrazoActionPlan> = {
+        imediata: "30_dias",
+        curto_prazo: "60_dias",
+        medio_prazo: "90_dias",
+      };
       const planIds: string[] = [];
       for (let i = 0; i < actionPlans.length; i++) {
         const plan = actionPlans[i];
-        const riskId = riskIds[i];
+        const riskId = riskIds.find((_id, idx) => risks[idx]?.rule_id === plan.riskRuleId);
         if (!riskId) continue;
-
-        const prazoMap: Record<string, PrazoActionPlan> = {
-          imediata: "30_dias",
-          curto_prazo: "60_dias",
-          medio_prazo: "90_dias",
-        };
 
         const id = await insertActionPlanV4WithAudit(
           {
             project_id: projectId,
             risk_id: riskId,
-            titulo: `Plano: [${plan.categoria}] ${plan.artigo}`,
+            titulo: `Plano: ${plan.categoria} — ${plan.artigo}`,
             responsavel: "equipe_compliance",
             prazo: prazoMap[plan.prioridade] ?? "60_dias",
             created_by: ctx.user.id,
@@ -164,6 +170,7 @@ export const risksV4Router = router({
         actionPlansGenerated: planIds.length,
         riskIds,
         planIds,
+        summary,
       };
     }),
 
@@ -551,38 +558,28 @@ export const risksV4Router = router({
       mappedRules: z.array(GapRuleSchema),
     }))
     .mutation(async ({ input, ctx }) => {
-      const risks = computeRiskMatrix(input.mappedRules as GapRule[]);
-      const actionPlans = buildActionPlans(risks);
       const actor = {
         user_id: ctx.user.id,
         user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
         user_role: ctx.user.role ?? "user",
       };
+
+      // Sprint Z-13.5: limpar snapshot anterior + pipeline consolidada
+      await deleteRisksByProject(input.projectId);
+
+      const { risks, summary } = await generateRisksV4Pipeline(
+        input.projectId,
+        input.mappedRules as GapRule[],
+        ctx.user.id,
+      );
+
       const riskIds: string[] = [];
       for (const risk of risks) {
-        const id = await insertRiskV4WithAudit(
-          {
-            project_id: input.projectId,
-            rule_id: risk.ruleId,
-            type: risk.severity === "oportunidade" ? "opportunity" : "risk",
-            categoria: risk.categoria as import("../lib/db-queries-risks-v4").CategoriaV4,
-            titulo: `[${risk.categoria}] ${risk.artigo}`,
-            descricao: risk.sourceReference,
-            artigo: risk.artigo,
-            severidade: risk.severity as import("../lib/db-queries-risks-v4").SeveridadeV4,
-            urgencia: risk.urgency as import("../lib/db-queries-risks-v4").UrgenciaV4,
-            evidence: { gapClassification: risk.gapClassification, requirementId: risk.requirementId },
-            breadcrumb: risk.breadcrumb,
-            source_priority: risk.fonte as import("../lib/db-queries-risks-v4").SourcePriorityV4,
-            confidence: 1.0,
-            created_by: ctx.user.id,
-            updated_by: ctx.user.id,
-          },
-          actor
-        );
+        const id = await insertRiskV4WithAudit(risk, actor);
         riskIds.push(id);
       }
-      return { risks, actionPlans, inserted: riskIds.length };
+
+      return { inserted: riskIds.length, summary };
     }),
 
   /**

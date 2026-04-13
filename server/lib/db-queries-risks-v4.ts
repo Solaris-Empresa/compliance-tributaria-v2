@@ -272,6 +272,22 @@ export async function insertRiskV4(data: InsertRiskV4): Promise<string> {
 }
 
 /**
+ * Sprint Z-13.5: Remove todos os riscos de um projeto (hard delete para re-geração).
+ * Também remove action_plans e tasks associados (cascade manual).
+ */
+export async function deleteRisksByProject(projectId: number): Promise<number> {
+  // Cascade: tasks → action_plans → risks
+  await query(`DELETE t FROM tasks t
+    INNER JOIN action_plans ap ON t.action_plan_id = ap.id
+    WHERE ap.project_id = ?`, [projectId]);
+  await query(`DELETE FROM action_plans WHERE project_id = ?`, [projectId]);
+  const result = await query<{ affectedRows?: number }>(
+    `DELETE FROM risks_v4 WHERE project_id = ?`, [projectId]);
+  // MySQL2 returns ResultSetHeader with affectedRows — extract safely
+  return (result as any)?.affectedRows ?? 0;
+}
+
+/**
  * Lista todos os riscos ativos de um projeto.
  */
 export async function getRisksV4ByProject(
