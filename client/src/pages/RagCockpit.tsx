@@ -15,6 +15,9 @@ function leiLabel(lei: string) {
     cg_ibs:   "CG-IBS",
     rfb_cbs:  "RFB-CBS",
     conv_icms: "Conv. ICMS",
+    resolucao_cgibs_1: "Res. CGIBS 01",
+    resolucao_cgibs_2: "Res. CGIBS 02",
+    resolucao_cgibs_3: "Res. CGIBS 03",
   };
   return map[lei] ?? lei.toUpperCase();
 }
@@ -138,6 +141,14 @@ const SPRINTS = [
       "Lote 3: +13 casos NCM/NBS + 1 pending → 37 confirmados (NCM:19 · NBS:19)",
       "Testes decision-kernel: 48/48 passando",
       "CORPUS-BASELINE.md v4.5 · Sprint V encerrada",
+    ], status: "done" },
+  { id: "Sprint Z-13 — Gate 7 PASS", date: "2026-04-13", pr: "#485–#497", commit: "1ea5c64",
+    changes: [
+      "fix B-Z13-004: risk_category_code adicionado no GapSchema + INSERT project_gaps_v3",
+      "Backfill project_gaps_v3 projeto 2281: 138/138 mapeados",
+      "Backfill global project_gaps_v3: 138/146 mapeados (8 órfãos REQ-001 legado)",
+      "CORPUS-BASELINE.md v5.0 · 2.515 chunks · 13 leis · 100% anchor_id",
+      "ESTADO-ATUAL.md v5.6 · Gate 7 PASS",
     ], status: "done" },
 ];
 

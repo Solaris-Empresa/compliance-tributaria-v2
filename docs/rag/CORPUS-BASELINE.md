@@ -1,9 +1,9 @@
 # CORPUS BASELINE — IA SOLARIS RAG
 
-> **Versão:** v4.5
-> **Data:** 2026-04-05
-> **Commit HEAD:** 2d53596
-> **Sprint de referência:** Sprint V / PV-01 Lote 3 (pós-merge PR #333)
+> **Versão:** v5.0
+> **Data:** 2026-04-13
+> **Commit HEAD:** 1ea5c64
+> **Sprint de referência:** Sprint Z-13 ENCERRADA · Gate 7 PASS (PRs #485–#497)
 > **Autor:** Manus AI
 > **Aprovado por:** Uires Tapajós (P.O.)
 > **Revisão externa:** Consultor (ChatGPT) — parecer de 2026-03-30
@@ -37,10 +37,10 @@ mas "**está funcionando?**"
 
 | Indicador | Valor |
 |---|---|
-| Total de chunks | 2.509 |
-| Chunks com `anchor_id` | 2.509 (100%) |
+| Total de chunks | **2.515** |
+| Chunks com `anchor_id` | 2.515 (100%) |
 | Chunks sem `anchor_id` | 0 |
-| Leis ativas no corpus | 10 |
+| Leis ativas no corpus | **13** (10 leis + 3 CGIBS) |
 | Anomalias abertas | 0 ✅ Sprint G concluída |
 | Anomalias críticas (P0) | 0 |
 
@@ -49,15 +49,18 @@ mas "**está funcionando?**"
 | Lei | Total chunks | Com anchor_id | Sem anchor_id | Status |
 |---|---|---|---|---|
 | lc214 | 1.573 | 1.573 | 0 | ✅ Íntegro |
-| ec132 | 18 | 18 | 0 | ✅ Íntegro |
 | lc227 | 434 | 434 | 0 | ✅ RFC-001 executada |
-| lc224 | 28 | 28 | 0 | ✅ Íntegro |
-| lc123 | 25 | 25 | 0 | ✅ RFC-002 executada |
 | conv_icms | 278 | 278 | 0 | ✅ Sprint S · PR #296 |
 | lc116 | 60 | 60 | 0 | ✅ Sprint S · PR #296 |
+| lc87 | 60 | 60 | 0 | ✅ Sprint S · PR #296 |
+| lc224 | 28 | 28 | 0 | ✅ Íntegro |
 | cg_ibs | 26 | 26 | 0 | ✅ Sprint S · PR #296 |
+| lc123 | 25 | 25 | 0 | ✅ RFC-002 executada |
+| ec132 | 18 | 18 | 0 | ✅ Íntegro |
 | rfb_cbs | 7 | 7 | 0 | ✅ Sprint S · PR #296 |
-| lc87 | 5 | 5 | 0 | ✅ Sprint S · PR #296 |
+| resolucao_cgibs_1 | 4 | 4 | 0 | ✅ Sprint Z-12 · Lote D |
+| resolucao_cgibs_2 | 1 | 1 | 0 | ✅ Sprint Z-12 · Lote D |
+| resolucao_cgibs_3 | 1 | 1 | 0 | ✅ Sprint Z-12 · Lote D |
 
 ---
 
@@ -321,6 +324,7 @@ INGESTÃO → VALIDAÇÃO → USO → MELHORIA
 | **v4.3** | **2026-04-05** | **49c3f68** | **Sprint V Lote 1 (PR #328): +10 casos NCM/NBS → 16 confirmados. NCM:9 · NBS:7 · Testes:26/26. Fix nbs-engine.ts extractFonte.** |
 | **v4.4** | **2026-04-05** | **1c42774** | **Sprint V Lote 2 (PR #330): +8 casos NCM/NBS → 24 confirmados. NCM:12 · NBS:12 · Testes:34/34. Correção S-07 (planos saúde: Arts.234-235).** |
 | **v4.5** | **2026-04-05** | **2d53596** | **Sprint V Lote 3 (PR #333): +13 casos NCM/NBS + 1 pending → 37 confirmados. NCM:19 · NBS:19 · Testes:48/48. Sprint V encerrada. Meta 38 casos atingida com margem de segurança jurídica.** |
+| **v5.0** | **2026-04-13** | **1ea5c64** | **Sprint Z-13 ENCERRADA · Gate 7 PASS (PRs #485–#497): Lote D CGIBS (resolucao_cgibs_1=4, resolucao_cgibs_2=1, resolucao_cgibs_3=1 → +6 chunks). fix B-Z13-004 risk_category_code. backfill project_gaps_v3. Corpus: 2.515 chunks · 13 leis · 100% anchor_id.** |
 
 ---
 

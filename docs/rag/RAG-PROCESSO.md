@@ -1,6 +1,6 @@
 # RAG-PROCESSO.md — Processos de Governança do Corpus RAG
 
-> **Versão:** 1.2 | **Data:** 2026-04-05
+> **Versão:** 1.3 | **Data:** 2026-04-13
 > **Escopo:** Todos os processos que envolvem leitura, escrita ou expansão do corpus RAG da IA SOLARIS
 > **Audiência:** P.O. · Orquestrador (Claude) · Implementador (Manus) · Equipe Jurídica
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2

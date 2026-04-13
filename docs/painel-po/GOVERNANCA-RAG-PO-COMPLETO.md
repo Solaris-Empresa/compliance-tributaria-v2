@@ -1,8 +1,8 @@
 # Governança de Rastreabilidade RAG — Documento P.O. Completo
 
 **Projeto:** IA SOLARIS — Compliance Tributária  
-**Versão:** v1.1  
-**Data:** 2026-04-04  
+**Versão:** v1.2  
+**Data:** 2026-04-13  
 **Autor:** Manus AI (implementador técnico)  
 **Revisão:** Uires Tapajós (P.O.)  
 **Status:** ✅ Implementado e ativo
@@ -19,7 +19,7 @@ A governança opera em **quatro camadas independentes e complementares**, garant
 
 ## 1. O que é o RAG e por que ele precisa de governança especial
 
-O RAG (Retrieval-Augmented Generation) é a camada de recuperação de conhecimento jurídico da plataforma. Ele funciona como uma biblioteca especializada: quando o sistema precisa responder sobre uma regra tributária específica, o RAG busca os artigos relevantes no corpus de 2.509 chunks de legislação (10 leis) e os entrega ao modelo de linguagem (GPT-4.1) para que a resposta seja fundamentada em lei, não em memória do modelo.
+O RAG (Retrieval-Augmented Generation) é a camada de recuperação de conhecimento jurídico da plataforma. Ele funciona como uma biblioteca especializada: quando o sistema precisa responder sobre uma regra tributária específica, o RAG busca os artigos relevantes no corpus de 2.515 chunks de legislação (13 leis) e os entrega ao modelo de linguagem (GPT-4.1) para que a resposta seja fundamentada em lei, não em memória do modelo.
 
 Por ser a base de conhecimento jurídico do produto, qualquer falha ou desatualização no RAG tem impacto direto na qualidade dos diagnósticos entregues aos advogados e contadores. Um corpus desatualizado pode gerar um diagnóstico incorreto sobre a reforma tributária. Uma falha no retriever pode fazer o sistema responder sem base legal. Por isso, a governança do RAG é tratada com o mesmo rigor de uma auditoria contábil: toda mudança deve ser documentada, rastreada e verificável.
 
@@ -29,9 +29,9 @@ Por ser a base de conhecimento jurídico do produto, qualquer falha ou desatuali
 
 | Dimensão | Valor atual | Baseline |
 |---|---|---|
-| Total de chunks | **2.509** | v4.4 (2026-04-05) |
-| Chunks com `anchor_id` | 2.509 (100%) | Sprint S |
-| Leis ativas | 10 | lc214, ec132, lc227, lc224, lc123, lc87, lc116, cg-ibs, rfb-cbs, conv-icms |
+| Total de chunks | **2.515** | v5.0 (2026-04-13) · +6 CGIBS (Lote D) |
+| Chunks com `anchor_id` | 2.515 (100%) | Sprint Z-12 Lote D |
+| Leis ativas | **13** | lc214, ec132, lc227, lc224, lc123, lc87, lc116, cg-ibs, rfb-cbs, conv-icms, resolucao_cgibs_1, resolucao_cgibs_2, resolucao_cgibs_3 |
 | Anomalias abertas | 0 | Sprint S concluída |
 | Modelo de retrieval | GPT-4.1 (re-ranking) | Sprint H |
 | Estratégia de busca | Híbrida (keyword LIKE + re-ranking LLM) | Sprint F |
