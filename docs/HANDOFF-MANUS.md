@@ -25,12 +25,11 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-08)
-- BASELINE **v4.7** — ADR-0016 Etapas 1-4 ✅ MERGEADO (PRs #391–#392) · Deploy ✅ iasolaris.manus.space
-- **HEAD: `2c3cfb1` (github/main) · **Checkpoint Manus:** `5b195fca``
-- **PRs mergeados:** 397 · **Testes passando:** 124/124 (CC-01..CC-21 + 26 FF + 47 CM)
-- **TypeScript:** 0 erros · **CI:** 13 workflows ativos
-- **Corpus RAG:** 2.509 chunks · 10 leis · 100% confiabilidade
+## Estado atual do projeto (2026-04-13)
+- BASELINE **v5.6** — Sprint Z-13 ENCERRADA · Gate 7 PASS · PRs #485–#500 · Deploy ✅ iasolaris.manus.space
+- **HEAD: `0e19bcd` (github/main)** · **Checkpoint Manus:** `0f13cd32`
+- **PRs mergeados:** 500 · **TypeScript:** 0 erros · **CI:** 12 workflows ativos
+- **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade (GS-08: 0 chunks sem autor)
 - **Skill solaris-contexto:** v4.2 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
 - **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção · Suite E2E automatizada 15 casos ✅ (#364)
@@ -40,13 +39,12 @@ Drizzle ORM / Vitest / pnpm
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
 - **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06
-- **BUG-UAT-08:** ✅ CORRIGIDO (PR #362) — VALID_TRANSITIONS + assertValidTransition universal
-- **BUG-UAT-09:** ✅ CORRIGIDO (PR #365) — approveBriefing atômico diagnostico_cnae → briefing → matriz_riscos
-- **BUG-UAT-PDF-01:** ✅ CORRIGIDO (PR #365) — diagnosticCompleteness?.status no PDF do briefing
+- **B-Z13-004:** ✅ CORRIGIDO (PRs #495+#496) — risk_category_code ausente no GapSchema e INSERT project_gaps_v3
+- **Backfill project_gaps_v3:** ✅ EXECUTADO — 138/138 mapeados · 0 NULLs (projeto 2281)
+- **risk_categories:** 9 categorias ativas · 10 no banco (1 inativa)
 - **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
-- **ADR-0009:** ✅ CRIADO (PR #368) — Fluxo Canônico e Fontes do Diagnóstico (DEC-M3-05 v3)
-- **Sprint Z:** ✅ ENCERRADA — Z-01 + Z-02 + ADR-0016 Etapas 1-4 mergeados
-- **ADR-0016 Etapas 1-4:** ✅ MERGEADO (PR #391) — skip pergunta/questionário + completude
+- **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
+- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · **Z-13 ✅ Gate 7 PASS**
 
 ## ADR-0016 — Estado atual (2026-04-07)
 
@@ -162,20 +160,21 @@ Drizzle ORM / Vitest / pnpm
 | D | — | Upload 5 leis corpus RAG (376 chunks) | #294→#296 | ✅ |
 | Fix | M-007 | `isNonCompliantAnswer` — bug confidence_score | #295 | ✅ |
 
-## Pendências abertas (Sprint T Bloco C)
+## Pendências abertas (Sprint Z-14)
 
 | Prioridade | Ação | Responsável | Bloqueio |
 |---|---|---|---|
-| P0 | Validar 3 NCM + 3 NBS para POC | Dr. Rodrigues | GATE-EXT-01 Fase 2 |
-| P0 | Converter para `ncm-dataset.json` + `nbs-dataset.json` | Manus | Após validação Dr. Rodrigues |
-| P0 | Implementar engine determinístico (Bloco C) | Manus | Após datasets validados |
-| P1 | Campo `principaisProdutos` (NCM) no perfil da empresa | Manus | Bloco C |
-| P1 | LC 87 compilada completa (~80 chunks) | P.O. → Dr. Rodrigues | — |
+| P0 | UAT Gate E formal — projeto 2281 · `pipelineStats.unmapped = 0` | P.O. | — |
+| P1 | Consolidação de riscos por categoria (1 risco/categoria vs 1 risco/gap) | Manus | Aprovação P.O. |
 | P2 | IN RFB 2.121/2022 (~200 chunks) | Manus | — |
+| P3 | BL-06: vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts | Manus | — |
 
-## Corpus RAG — 10 leis (2.454 chunks)
+## Corpus RAG — 13 leis (2.515 chunks)
 lc214 (1.573) · lc227 (434) · conv_icms (278) · lc116 (60) · lc224 (28) ·
-cg_ibs (26) · lc123 (25) · ec132 (18) · rfb_cbs (7) · lc87 (5)
+cg_ibs (26) · lc123 (25) · ec132 (18) · rfb_cbs (7) · lc87 (5) ·
+resolucao_cgibs_001 (2) · resolucao_cgibs_002 (2) · resolucao_cgibs_003 (2)
 
 ## Conflito recorrente
-`client/public/__manus__/version.json` — resolver via `git checkout --ours` e `git add`
+`client/public/__manus__/version.json` — resolver via `git restore --staged client/public/__manus__/version.json`
+
+*Atualizado em 2026-04-13 · v2.0 · Sprint Z-13 ENCERRADA · Gate 7 PASS · Aprovador: P.O. Uires Tapajós*
