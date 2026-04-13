@@ -46,6 +46,8 @@ export const GapSchema = z.object({
   action_priority: z.enum(["imediata", "curto_prazo", "medio_prazo", "planejamento"]),
   estimated_days: z.number().int().min(1),
   recommended_actions: z.string(),
+  // B-Z13-004: risk_category_code propagado do regulatory_requirements_v3
+  risk_category_code: z.string().nullable().optional(),
 });
 
 export type Gap = z.infer<typeof GapSchema>;
@@ -357,6 +359,8 @@ export const gapEngineRouter = router({
             action_priority: actionPriority as Gap["action_priority"],
             estimated_days: estimatedDays,
             recommended_actions: `Regularizar ${req.name} conforme ${req.source_reference}`,
+            // B-Z13-004: propagar risk_category_code para o GapToRuleMapper (Caso A)
+            risk_category_code: req.risk_category_code ?? null,
           };
 
           gaps.push(gap);
@@ -381,8 +385,9 @@ export const gapEngineRouter = router({
                 gap_description, deterministic_reason, unmet_criteria, recommended_actions,
                 analysis_version, created_at, updated_at,
                 requirement_id, gap_classification, evaluation_confidence,
-                evaluation_confidence_reason, question_id, answer_value, source_reference
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?, ?, ?, ?, ?, ?)`,
+                evaluation_confidence_reason, question_id, answer_value, source_reference,
+                risk_category_code
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?, ?, ?, ?, ?, ?, ?)`,
               [
                 project.clientId ?? 1,
                 input.project_id,
@@ -413,6 +418,8 @@ export const gapEngineRouter = router({
                 gap.question_id,
                 gap.answer_value,
                 gap.source_reference,
+                // B-Z13-004: persistir risk_category_code para novos gaps
+                gap.risk_category_code ?? null,
               ]
             );
           }
