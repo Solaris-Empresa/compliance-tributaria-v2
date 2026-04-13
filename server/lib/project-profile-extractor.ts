@@ -66,34 +66,36 @@ interface ProjectRow {
 // Helpers de parse seguro
 // ─────────────────────────────────────────────────────────────────────────────
 
-function safeParseArray(raw: string | null | unknown, fallback: unknown[] = []): unknown[] {
-  if (raw == null) return fallback;
-  // mysql2 pode retornar JSON já parseado como objeto/array nativo
+function safeParseArray(raw: unknown, fallback: unknown[] = []): unknown[] {
+  if (!raw) return fallback;
   if (Array.isArray(raw)) return raw;
-  if (typeof raw !== "string") return fallback;
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : fallback;
-  } catch {
-    return fallback;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : fallback;
+    } catch {
+      return fallback;
+    }
   }
+  return fallback;
 }
 
-function safeParseObject(raw: string | null | unknown): Record<string, unknown> {
-  if (raw == null) return {};
-  // mysql2 pode retornar JSON já parseado como objeto nativo
+function safeParseObject(raw: unknown): Record<string, unknown> {
+  if (!raw) return {};
   if (typeof raw === "object" && !Array.isArray(raw)) {
     return raw as Record<string, unknown>;
   }
-  if (typeof raw !== "string") return {};
-  try {
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
-      ? (parsed as Record<string, unknown>)
-      : {};
-  } catch {
-    return {};
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+        ? (parsed as Record<string, unknown>)
+        : {};
+    } catch {
+      return {};
+    }
   }
+  return {};
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
