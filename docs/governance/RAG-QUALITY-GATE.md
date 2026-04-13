@@ -1,7 +1,7 @@
 # RAG Quality Gate — Governança Obrigatória de Corpus / Embeddings / Chunks
 
 > **Audiência:** P.O. · Orquestrador · Implementador  
-> **Versão:** v1.1 — 2026-04-04  
+> **Versão:** v1.2 — 2026-04-13  
 > **Status:** 🔴 OBRIGATÓRIO — todo PR de RAG passa por este gate antes do merge  
 > **Princípio:** *PR que mexe em chunk não é aprovado por volume. É aprovado por recuperação.*
 
