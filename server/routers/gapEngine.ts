@@ -269,11 +269,8 @@ export const gapEngineRouter = router({
 
         // 3. Buscar respostas do questionário do projeto
         const [answers] = await pool.query<mysql.RowDataPacket[]>(
-          `SELECT qa.id, qa.cnaeCode, qa.questionIndex, qa.questionText, qa.answerValue,
-                  qq.requirement_id, qq.source_reference, qq.evidence_type
+          `SELECT qa.id, qa.cnaeCode, qa.questionIndex, qa.questionText, qa.answerValue
            FROM questionnaireAnswersV3 qa
-           LEFT JOIN questionnaireQuestionsCache qq ON qq.project_id = qa.projectId
-             AND qq.question_index = qa.questionIndex
            WHERE qa.projectId = ?
            ORDER BY qa.questionIndex`,
           [input.project_id]
