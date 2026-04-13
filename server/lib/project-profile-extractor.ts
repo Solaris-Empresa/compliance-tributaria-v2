@@ -66,8 +66,11 @@ interface ProjectRow {
 // Helpers de parse seguro
 // ─────────────────────────────────────────────────────────────────────────────
 
-function safeParseArray(raw: string | null, fallback: unknown[] = []): unknown[] {
-  if (!raw) return fallback;
+function safeParseArray(raw: string | null | unknown, fallback: unknown[] = []): unknown[] {
+  if (raw == null) return fallback;
+  // mysql2 pode retornar JSON já parseado como objeto/array nativo
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw !== "string") return fallback;
   try {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : fallback;
@@ -76,8 +79,13 @@ function safeParseArray(raw: string | null, fallback: unknown[] = []): unknown[]
   }
 }
 
-function safeParseObject(raw: string | null): Record<string, unknown> {
-  if (!raw) return {};
+function safeParseObject(raw: string | null | unknown): Record<string, unknown> {
+  if (raw == null) return {};
+  // mysql2 pode retornar JSON já parseado como objeto nativo
+  if (typeof raw === "object" && !Array.isArray(raw)) {
+    return raw as Record<string, unknown>;
+  }
+  if (typeof raw !== "string") return {};
   try {
     const parsed = JSON.parse(raw);
     return parsed && typeof parsed === "object" && !Array.isArray(parsed)
