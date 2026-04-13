@@ -119,6 +119,20 @@ Prettier with: double quotes, semicolons, trailing commas (es5), 2-space indent,
 - Auth uses OAuth + JWT cookies with role-based access (equipe_solaris, advogado_senior, cliente)
 - Health endpoints: `/api/health`, `/api/health/cnae`, `/api/health/cnae/validate`
 
+## Gate 0 — Verificacao de Schema (OBRIGATORIO)
+
+ANTES de qualquer implementacao que toca banco de dados:
+
+1. Orquestrador consulta `docs/governance/DATA_DICTIONARY.md`
+2. Se campo nao estiver documentado:
+   - Executar: `SHOW FULL COLUMNS FROM [tabela]`
+   - Executar: `SELECT JSON_KEYS([campo]) FROM [tabela] WHERE [campo] IS NOT NULL LIMIT 3`
+3. Orquestrador confirma nomes reais
+4. So entao despacha prompt para implementacao
+
+**SEM EXCECAO** — nem para fixes "simples".
+Violacao desta regra = causa raiz garantida de bug (post-mortem B-Z13.5-001/002).
+
 ## Sprint Z-07 — Sistema de Riscos v4 — CONCLUÍDA (Z-12)
 
 **Status:** CONCLUÍDA — Hot swap final executado na Sprint Z-12 (PR feat/z12-hot-swap-final).
