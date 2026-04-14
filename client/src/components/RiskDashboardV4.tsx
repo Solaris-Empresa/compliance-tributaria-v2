@@ -382,6 +382,12 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
     { enabled: !!projectId }
   );
 
+  // ── Audit log query ───────────────────────────────────────────────────────
+  const auditLogQuery = trpc.risksV4.getProjectAuditLog.useQuery(
+    { projectId, limit: 50 },
+    { enabled: !!projectId }
+  );
+
   // ── Mutations ─────────────────────────────────────────────────────────────
   const deleteMutation = trpc.risksV4.deleteRisk.useMutation({
     onSuccess: (_data, variables) => {
@@ -529,38 +535,39 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   // ── Render: Main ──────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
-      {/* ── Sumário KPI ── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {(["alta", "media", "oportunidade"] as const).map((sev) => {
-          const cfg = SEVERIDADE_CONFIG[sev];
-          const count = byCategory[sev] ?? 0;
-          return (
-            <Card key={sev} className="border-border">
+      {/* ── SummaryBar (4 cards sticky) ── */}
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur pb-3 -mx-1 px-1 pt-1">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {([
+            { key: "alta", count: activeRisks.filter((r) => r.severidade === "alta").length, label: "Alta", color: "bg-red-100 text-red-700", icon: <ShieldAlert className="h-3.5 w-3.5" /> },
+            { key: "media", count: activeRisks.filter((r) => r.severidade === "media").length, label: "Média", color: "bg-amber-100 text-amber-700", icon: <AlertTriangle className="h-3.5 w-3.5" /> },
+            { key: "opps", count: opportunities.length, label: "Oportunidades", color: "bg-emerald-100 text-emerald-700", icon: <TrendingUp className="h-3.5 w-3.5" /> },
+            { key: "pending", count: activeRisks.filter((r) => !r.approved_at).length, label: "Aguardando", color: "bg-amber-100 text-amber-700", icon: <AlertTriangle className="h-3.5 w-3.5" /> },
+          ] as const).map((item) => (
+            <Card key={item.key} className="border-border">
               <CardContent className="pt-4 pb-3 px-4">
                 <div className="flex items-center gap-2">
-                  <span className={`p-1.5 rounded-full ${cfg.color}`}>{cfg.icon}</span>
+                  <span className={`p-1.5 rounded-full ${item.color}`}>{item.icon}</span>
                   <div>
-                    <p className="text-xl font-bold text-foreground">{count}</p>
-                    <p className="text-xs text-muted-foreground">{cfg.label}</p>
+                    <p className="text-xl font-bold text-foreground">{item.count}</p>
+                    <p className="text-xs text-muted-foreground">{item.label}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          );
-        })}
-        <Card className="border-border">
-          <CardContent className="pt-4 pb-3 px-4">
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-full bg-muted text-muted-foreground">
-                <Trash2 className="h-3.5 w-3.5" />
-              </span>
-              <div>
-                <p className="text-xl font-bold text-foreground">{deleted.length}</p>
-                <p className="text-xs text-muted-foreground">Excluídos</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          ))}
+        </div>
+        {/* Banner condicional — N aguardando */}
+        {activeRisks.filter((r) => !r.approved_at).length > 0 && (
+          <div className="mt-2 flex items-center justify-between rounded-md border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 px-3 py-2">
+            <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
+              {activeRisks.filter((r) => !r.approved_at).length} itens aguardando sua análise
+            </p>
+            <Button size="sm" variant="outline" className="text-xs h-7" disabled title="Aprovar todos (Issue #4b)">
+              Aprovar todos
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* ── Tabs ── */}
@@ -758,7 +765,8 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
         </TabsContent>
 
         {/* ── Tab: Histórico ── */}
-        <TabsContent value="historico">
+        <TabsContent value="historico" className="space-y-4">
+          {/* Riscos excluídos */}
           <Card className="border-dashed border-muted-foreground/30">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
@@ -788,6 +796,47 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
                     showRestore
                   />
                 ))
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Audit log */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
+                <ClipboardList className="h-3.5 w-3.5" />
+                Registro de Auditoria
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {auditLogQuery.isLoading ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-6 w-full" />
+                  <Skeleton className="h-6 w-full" />
+                  <Skeleton className="h-6 w-3/4" />
+                </div>
+              ) : (auditLogQuery.data?.entries ?? []).length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-4">
+                  Nenhum registro de auditoria.
+                </p>
+              ) : (
+                <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
+                  {(auditLogQuery.data?.entries ?? []).map((entry: any, i: number) => (
+                    <div key={entry.id ?? i} className="flex items-center gap-2 text-xs py-1 border-b border-border/50 last:border-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground shrink-0" />
+                      <Badge variant="outline" className="text-[10px] shrink-0">
+                        {entry.action}
+                      </Badge>
+                      <span className="text-muted-foreground">{entry.entity ?? entry.entity_type}</span>
+                      <span className="text-foreground font-medium ml-auto shrink-0">
+                        {entry.user_name ?? "sistema"}
+                      </span>
+                      <span className="text-muted-foreground shrink-0">
+                        {entry.created_at ? new Date(entry.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : ""}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>
