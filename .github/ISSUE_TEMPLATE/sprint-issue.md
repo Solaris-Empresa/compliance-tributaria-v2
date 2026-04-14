@@ -30,6 +30,12 @@ assignees: ''
 **Integracao downstream:** [para onde vai / componente seguinte]
 **Triggers automaticos:** [useEffect ou outros, se aplicavel, ou "nenhum"]
 
+### Efeitos cascata (obrigatorio se issue implementa uma acao — REGRA-ORQ-14)
+**Efeito imediato:** [o que acontece no banco/estado]
+**Efeito cascata:** [o que deve acontecer automaticamente depois]
+**Formato dos dados:** [schema/enum/status exatos do resultado]
+**Navegacao pos-acao:** [redirect? permanecer? qual rota?]
+
 ---
 
 ## Bloco 2 — UX Spec
@@ -248,6 +254,9 @@ CENARIO DE ERRO:
 
 - [ ] Bloco 1: contexto e dependencias claros
 - [ ] Bloco 1: step do fluxo declarado? upstream/downstream documentados? (REGRA-ORQ-13)
+- [ ] Bloco 1: efeitos cascata documentados (4 elementos)? (REGRA-ORQ-14)
+- [ ] Bloco 7: criterio para cada efeito cascata?
+- [ ] Bloco 7: invariante do estado final verificavel?
 - [ ] Bloco 2: spec inline suficiente para implementar sem arquivo externo
 - [ ] Bloco 3: skeleton mostra o delta (nao estrutura completa)
 - [ ] Bloco 4: schema veio de SHOW FULL COLUMNS real
