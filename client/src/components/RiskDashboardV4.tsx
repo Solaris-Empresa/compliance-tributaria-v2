@@ -268,9 +268,9 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, onNewPlan,
               {URGENCIA_LABELS[risk.urgencia] ?? risk.urgencia}
             </Badge>
           </div>
-          <p className="mt-1.5 text-sm font-medium text-foreground line-clamp-2">{risk.titulo}</p>
+          <p className="mt-1.5 text-sm font-medium text-foreground line-clamp-2" data-testid="risk-title">{risk.titulo}</p>
           {/* Breadcrumb 4 nós */}
-          <div className="mt-1">
+          <div className="mt-1" data-testid="risk-legal-basis">
             <Breadcrumb4 breadcrumb={breadcrumb} />
           </div>
         </div>
