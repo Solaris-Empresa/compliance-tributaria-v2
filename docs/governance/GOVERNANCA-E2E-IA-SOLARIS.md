@@ -1,6 +1,6 @@
 # GOVERNANCA E2E — IA SOLARIS
 ## Visao do Product Owner (P.O.)
-**Versao:** v2.1 · 14/04/2026 | **HEAD:** `20ba377` | **Baseline:** v6.0
+**Versao:** v2.2 · 14/04/2026 | **HEAD:** `4af3e55` | **Baseline:** v6.1
 **Repo:** [Solaris-Empresa/compliance-tributaria-v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2)
 
 > Todos os numeros neste documento foram validados contra o codigo-fonte em 14/04/2026.
@@ -383,36 +383,72 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 
 ---
 
-# 6. MODELO DE ORQUESTRACAO v2
+# 6. MODELO DE ORQUESTRACAO v1.1
 
 **Documento completo:** [MODELO-ORQUESTRACAO-V2.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/MODELO-ORQUESTRACAO-V2.md)
+**Aprovado:** 14/04/2026 | Validado: Claude Code + Consultor ChatGPT (12 ajustes incorporados)
 
-### Fases
+### Fases (atualizado v1.1 — PR #518)
 
-| Fase | Responsavel | O que faz | Gate associado |
+| Fase | Responsavel | O que faz | Gate |
 |---|---|---|---|
+| **0.0 SYNC** | Manus | `git fetch && git reset --hard origin/main` | R-SYNC-01 |
 | F0 Discovery | Manus + CC | SHOW FULL COLUMNS + ux-spec-validator | Gate 0, Gate UX |
-| F1 Issues | Orquestrador | 7 blocos obrigatorios por issue | — |
-| F2 Auditoria | CC (front) / Manus (banco) | Validacao assimetrica | — |
-| F3 Aprovacao | P.O. | Aprova issues, spec congela | Gate E |
-| F4 Implementacao | CC + Manus | `gh issue view [N]` obrigatorio | Gate C |
-| F4.5 Checkpoint | CC | 100% procedures chamadas | Gate D |
-| F5 Gate final | Todos | tsc + testes + UAT | Gate 7 |
+| F1 Planejamento | Orquestrador | Draft issues no GitHub + Milestone + Sprint Log | — |
+| F2 Producao issues | Todos | 8 blocos obrigatorios, em lotes por dependencia | — |
+| F3 Auditoria | CC (front) / Manus (banco) | Checklist binario 8 items | — |
+| F4 Aprovacao | P.O. (P0) / Orq (P1/P2) | Spec congelada, label `spec-aprovada` | — |
+| F4 Implementacao | CC + Manus | `gh issue view [N]` obrigatorio, 1 issue = 1 PR | Gate C |
+| F4.5 Checkpoint | CC | 100% procedures chamadas, CI WARN | Gate D |
+| F5 Gate C | CI | tsc + testes + issue vinculada + label | automatico |
+| F6 Gate final | Todos | UAT P.O. com checklist da issue | Gate 7 |
+| F7 Deploy+Smoke | Manus + CC | 4 provas Gate E em projeto de referencia | Gate E |
 
-### 10 regras [VALIDADO: MODELO-ORQUESTRACAO-V2.md + CLAUDE.md + SKILL.md]
+### 11 regras [VALIDADO: MODELO-ORQUESTRACAO-V2.md + CLAUDE.md]
 
 | Regra | Descricao |
 |---|---|
-| ORQ-01 | Nenhuma implementacao sem issue completa |
-| ORQ-02 | Spec hibrida (inline + link + lock). PATCH <= 5 linhas: comentario. AMENDMENT: nova issue |
-| ORQ-03 | Auditoria assimetrica antes de codar |
+| ORQ-01 | Nenhuma implementacao sem issue completa (8 blocos) |
+| ORQ-02 | Spec hibrida: resumo inline OBRIGATORIO + link arquivo |
+| ORQ-03 | Auditoria assimetrica com checklist binario |
 | ORQ-04 | Claude Code implementa frontend/logica |
 | ORQ-05 | Manus valida banco/ambiente |
 | ORQ-06 | UAT so apos batch completo |
-| ORQ-07 | R-SYNC-01 (S3 != GitHub = bloqueio) |
-| ORQ-08 | `gh issue view [N]` obrigatorio no prompt |
+| ORQ-07 | R-SYNC-01 obrigatorio (passo 0.0 — antes de tudo) |
+| ORQ-08 | `gh issue view [N]` obrigatorio como primeiro comando |
 | ORQ-09 | Gate UX obrigatorio antes de frontend |
 | ORQ-10 | F4.5 Integration Checkpoint obrigatorio |
+| ORQ-11 | Fast-track hotfix P0: Gate 0 minimo → `[HOTFIX]` PR → P.O. direto |
+
+### CI/CD Enforcement (novo em v1.1)
+
+| Workflow | Tipo | O que faz |
+|---|---|---|
+| `validate-pr.yml` | FAIL (bloqueia) | Issue vinculada + label spec-aprovada + tsc + testes |
+| `project-automation.yml` | Automatico | PR aberto → label in-progress, PR mergeado → label done |
+| `structural-fix-gate.yml` | FAIL (bloqueia) | Evidence pack + testes + referencia issue (issues estruturais) |
+
+### Issue Template (8 blocos — `.github/ISSUE_TEMPLATE/sprint-issue.md`)
+
+| Bloco | Conteudo | Quem preenche |
+|---|---|---|
+| 1. Contexto | O que, por que, aceite minimo | Orquestrador |
+| 2. UX Spec | Resumo inline + link arquivo | Orquestrador |
+| 3. Skeleton | Delta: o que muda (nao estrutura toda) | Claude Code |
+| 4. Schema banco | SHOW FULL COLUMNS real | Manus |
+| 5. Contrato API | Procedure existe? chamada? acao? | Claude Code |
+| 6. Estado atual | Gerado via grep (nao estimado) | Claude Code |
+| 7. Criterios aceite | Binarios (pass/fail) + plano testes | Orquestrador |
+| 8. Armadilhas | O que parece certo mas esta errado (opcional) | Todos |
+
+### Sprint Log (`docs/governance/SPRINT-ZXX-LOG.md`)
+
+Novo artefato para persistir decisoes entre sessoes do Orquestrador:
+- Decisoes tomadas por sessao (APROVACAO/BLOQUEIO/AJUSTE/AMENDMENT)
+- Status das issues por lote
+- Pendencias para proxima sessao
+- **Template:** [SPRINT-LOG-TEMPLATE.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/SPRINT-LOG-TEMPLATE.md)
+- **Z-14:** [SPRINT-Z14-LOG.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/SPRINT-Z14-LOG.md)
 
 ### Matriz de responsabilidade
 
@@ -425,7 +461,8 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 | Testes unitarios | — | PRINCIPAL | — |
 | Auditoria codigo | — | PRINCIPAL | — |
 | Auditoria banco | PRINCIPAL | suporte | — |
-| Aprovacao spec / UAT | — | suporte | PRINCIPAL |
+| Aprovacao spec P0 / UAT | — | suporte | PRINCIPAL |
+| Aprovacao spec P1/P2 | Orquestrador | Orquestrador | so em desacordo |
 
 ---
 
@@ -531,8 +568,8 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 
 | Indicador | Valor | Fonte de validacao |
 |---|---|---|
-| HEAD | `20ba377` | `git rev-parse --short HEAD` |
-| Baseline | v6.0 | ESTADO-ATUAL.md |
+| HEAD | `4af3e55` | `git rev-parse --short HEAD` |
+| Baseline | v6.1 | ESTADO-ATUAL.md |
 | TypeScript | 0 erros | `npx tsc --noEmit` |
 | Testes unitarios | 124/124 | `npx vitest run server/lib/` |
 | Suite PCT | 117/117 | `npx vitest run server/prefill-contract.test.ts` |
@@ -542,10 +579,13 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 | Risk categories | 10 ativas | SEVERITY_TABLE risk-engine-v4.ts |
 | Perguntas SOLARIS | 22 ativas (SOL-015..036) | ESTADO-ATUAL.md |
 | Migrations | 86 | `ls drizzle/*.sql \| wc -l` |
-| PRs mergeados | 515 | `gh pr list --state merged` |
+| PRs mergeados | 518 | `gh pr list --state merged` |
 | Campos banco documentados | 60 | DATA_DICTIONARY.md |
 | Funcionalidades UX mapeadas | 33 | UX_DICTIONARY.md |
-| Regras orquestracao | 10 | MODELO-ORQUESTRACAO-V2.md |
+| Regras orquestracao | 11 (ORQ-01..11) | MODELO-ORQUESTRACAO-V2.md v1.1 |
+| CI Workflows | 17 ativos | `.github/workflows/` |
+| Issue Templates | 5 (sprint-issue novo) | `.github/ISSUE_TEMPLATE/` |
+| Sprint Z-14 | planejada — 6 issues, 3 lotes | SPRINT-Z14-LOG.md |
 | Invariants formalizados | 8 | invariant-registry.md |
 | Agentes automatizados | 2 | .claude/agents/ |
 | SKILL.md | 170 linhas, atualizado 14/abr | Manus report + `grep REGRA-ORQ-08 SKILL.md` confirmado |
@@ -560,7 +600,9 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 
 | Arquivo | Link |
 |---|---|
-| MODELO-ORQUESTRACAO-V2.md | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/MODELO-ORQUESTRACAO-V2.md) |
+| MODELO-ORQUESTRACAO-V2.md (v1.1) | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/MODELO-ORQUESTRACAO-V2.md) |
+| SPRINT-LOG-TEMPLATE.md | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/SPRINT-LOG-TEMPLATE.md) |
+| SPRINT-Z14-LOG.md | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/SPRINT-Z14-LOG.md) |
 | CLAUDE.md (Gates + regras) | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/CLAUDE.md) |
 | HANDOFF-IMPLEMENTADOR.md | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/HANDOFF-IMPLEMENTADOR.md) |
 | CONTEXTO-ORQUESTRADOR.md | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/CONTEXTO-ORQUESTRADOR.md) |
@@ -596,6 +638,15 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 | PROTOCOLO-DEBUG.md | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/PROTOCOLO-DEBUG.md) |
 | RASTREABILIDADE-COMPLETA.md | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RASTREABILIDADE-COMPLETA.md) |
 | invariant-registry.md | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/invariant-registry.md) |
+
+## CI/CD (novo em v1.1)
+
+| Arquivo | Link |
+|---|---|
+| validate-pr.yml | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.github/workflows/validate-pr.yml) |
+| project-automation.yml | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.github/workflows/project-automation.yml) |
+| sprint-issue.md (template) | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.github/ISSUE_TEMPLATE/sprint-issue.md) |
+| PULL_REQUEST_TEMPLATE.md | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.github/PULL_REQUEST_TEMPLATE.md) |
 | evidence-pack-template.md | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/evidence-pack-template.md) |
 
 ## ADRs
@@ -666,5 +717,5 @@ Use antes de aprovar qualquer sprint:
 
 ---
 
-**Total de artefatos rastreados: 45** (27 governanca + 2 agentes + 6 ADRs + 5 contratos + 5 RAG)
+**Total de artefatos rastreados: 53** (30 governanca + 2 agentes + 4 CI/CD + 6 ADRs + 5 contratos + 5 RAG + 1 Sprint Log)
 **Todos com link direto para o GitHub e validados contra o codigo-fonte.**
