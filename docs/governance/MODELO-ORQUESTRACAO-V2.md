@@ -48,22 +48,37 @@ Criterio de done:
 ### F1 — Planejamento = Draft Issues no GitHub
 
 ```
+ORDEM OBRIGATORIA NO F1:
+  1. Verificar que project-automation.yml esta em main
+     com job add-issue-to-project ativo
+  2. Criar Project (board) no GitHub Projects
+     gh api graphql → anotar PROJECT_ID retornado
+  3. Se PROJECT_ID mudou: atualizar em project-automation.yml
+  4. Criar Milestone com lotes e estimativas
+  5. Criar Sprint Log: docs/governance/SPRINT-ZXX-LOG.md
+  6. SO ENTAO criar as issues (draft)
+     → entram no board automaticamente via workflow
+
 Orquestrador cria DRAFT issues diretamente no GitHub:
   gh issue create --draft --title "..." --body "..."
 
-Simultaneamente:
-  Criar Sprint Log: docs/governance/SPRINT-ZXX-LOG.md
-  Criar Milestone com:
-    - Ordem dos lotes (criterio: "usuario consegue usar sem lote anterior?")
-    - Estimativas P/M/G por issue
-    - Dependencias de merge
+Se issues foram criadas ANTES do workflow ativo:
+  Executar para cada issue:
+    ISSUE_ID=$(gh api repos/[repo]/issues/[N] --jq '.node_id')
+    gh api graphql -f query="mutation {
+      addProjectV2ItemById(input: {
+        projectId: \"[PROJECT_ID]\"
+        contentId: \"$ISSUE_ID\"
+      }) { item { id } }
+    }"
 
 P.O. aprova o planejamento no GitHub (nao em chat)
 
 Criterio de done:
-  Todas as issues existem como draft no GitHub
+  Project (board) criado e com PROJECT_ID anotado
   Milestone criado com lotes definidos
   Sprint Log iniciado
+  Todas as issues existem como draft no GitHub E no board
 ```
 
 ### F2 — Producao das issues (8 blocos, em lotes)
