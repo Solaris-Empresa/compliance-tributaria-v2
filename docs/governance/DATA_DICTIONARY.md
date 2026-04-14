@@ -1,7 +1,22 @@
 # DATA DICTIONARY — IA SOLARIS
 
-**Criado:** Sprint Z-13.5 | **Motivo:** Post-mortem B-Z13.5-001 / B-Z13.5-002
+**Criado:** Sprint Z-13.5 | **Atualizado:** Sprint Z-14 | **Motivo:** Post-mortem B-Z13.5-001 / B-Z13.5-002 / B-Z14-001
 **Regra:** Este documento e fonte autoritativa para nomes de campos do banco.
+
+---
+
+## ⚠️ Regra de verificação dupla (B-Z14-001)
+
+> `SHOW FULL COLUMNS` mostra o **banco atual**.
+> O banco pode estar **desatualizado** em relação à migration.
+> **SEMPRE cruzar com:**
+> ```bash
+> grep -n "[campo]" drizzle/*.sql
+> ```
+> **A migration é a fonte de verdade — não o banco.**
+>
+> Exemplo do bug B-Z14-001: banco mostrava `prazo DATE` mas migration define `prazo ENUM('30_dias','60_dias','90_dias')`.
+> O implementador usou o banco → form errado → retrabalho.
 
 ## Regra de ouro
 
@@ -77,6 +92,54 @@ SELECT JSON_KEYS([campo_json]) FROM [tabela] WHERE [campo_json] IS NOT NULL LIMI
 | deleted_reason | text | motivo da exclusao |
 | created_by | int | FK para users |
 | updated_by | int | FK para users |
+
+---
+
+## action_plans (raw SQL — migration 0064_risks_v4.sql)
+
+| Campo | Tipo REAL (migration) | Observacao |
+|---|---|---|
+| id | varchar(36) | UUID |
+| project_id | int | FK para projects |
+| risk_id | varchar(36) | FK para risks_v4 |
+| titulo | varchar(500) | NOT NULL |
+| descricao | text | NULL |
+| responsavel | varchar(100) | NOT NULL — campo obrigatorio no form |
+| prazo | **ENUM('30_dias','60_dias','90_dias')** | ⚠️ NAO e date — usar `<Select>` no form |
+| status | **ENUM('rascunho','aprovado','em_andamento','concluido','deleted')** | DEFAULT 'rascunho' — ⚠️ NAO existe 'pendente' |
+| approved_by | int | NULL — FK para users |
+| approved_at | timestamp | NULL |
+| deleted_reason | text | NULL |
+| created_by | int | NOT NULL |
+| updated_by | int | NOT NULL |
+| created_at | timestamp | CURRENT_TIMESTAMP |
+| updated_at | timestamp | CURRENT_TIMESTAMP |
+
+> **⚠️ Armadilha B-Z14-001:** O banco pode mostrar `prazo DATE` por divergência de schema.
+> A migration define `ENUM('30_dias','60_dias','90_dias')`. Usar sempre o valor da migration.
+
+---
+
+## tasks (raw SQL — migration 0064_risks_v4.sql)
+
+| Campo | Tipo REAL (migration) | Observacao |
+|---|---|---|
+| id | varchar(36) | UUID |
+| action_plan_id | varchar(36) | FK para action_plans |
+| project_id | int | FK para projects |
+| titulo | varchar(500) | NOT NULL |
+| descricao | text | NULL |
+| responsavel | varchar(255) | NULL |
+| prazo | **DATE** | NULL — tasks usa date livre (diferente de action_plans!) |
+| status | **ENUM('todo','doing','done','blocked','deleted')** | DEFAULT 'todo' — ⚠️ NAO e 'pendente' |
+| prioridade | enum('alta','media','baixa') | DEFAULT 'media' |
+| ordem | int | DEFAULT 0 |
+| deleted_reason | text | NULL |
+| created_by | int | NOT NULL |
+| created_at | timestamp | CURRENT_TIMESTAMP |
+| updated_at | timestamp | CURRENT_TIMESTAMP |
+
+> **Atenção:** `tasks.prazo` é DATE (campo livre), diferente de `action_plans.prazo` que é ENUM.
 
 ---
 
