@@ -593,6 +593,10 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       if (data.generated > 0) {
         utils.risksV4.listRisks.invalidate({ projectId });
         toast.success(`${data.generated} plano(s) de ação gerado(s) automaticamente`, { duration: 4000 });
+        // B-04: redirect para ActionPlanPage após planos gerados
+        setTimeout(() => {
+          window.location.href = `/projetos/${projectId}/planos-v4`;
+        }, 1500);
       }
     },
     onError: () => toast.error("Erro ao gerar planos de ação", { description: "Verifique os riscos aprovados", duration: 6000 }),
@@ -745,16 +749,15 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   // ── Render: Main ──────────────────────────────────────────────────────────
   return (
     <div className="space-y-6" data-testid="risk-dashboard-page">
-      {/* ── SummaryBar (4 cards sticky) ── */}
+      {/* ── SummaryBar (3 cards sticky) ── */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur pb-3 -mx-1 px-1 pt-1" data-testid="summary-bar">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-3 gap-3">
           {([
             { key: "alta", count: activeRisks.filter((r) => r.severidade === "alta").length, label: "Alta", color: "bg-red-100 text-red-700", icon: <ShieldAlert className="h-3.5 w-3.5" /> },
             { key: "media", count: activeRisks.filter((r) => r.severidade === "media").length, label: "Média", color: "bg-amber-100 text-amber-700", icon: <AlertTriangle className="h-3.5 w-3.5" /> },
             { key: "opps", count: opportunities.length, label: "Oportunidades", color: "bg-emerald-100 text-emerald-700", icon: <TrendingUp className="h-3.5 w-3.5" /> },
-            { key: "pending", count: activeRisks.filter((r) => !r.approved_at).length, label: "Aguardando", color: "bg-amber-100 text-amber-700", icon: <AlertTriangle className="h-3.5 w-3.5" /> },
           ] as const).map((item) => (
-            <Card key={item.key} className="border-border" data-testid={`summary-count-${item.key === "opps" ? "oportunidade" : item.key === "pending" ? "aguardando" : item.key}`}>
+            <Card key={item.key} className="border-border" data-testid={`summary-count-${item.key === "opps" ? "oportunidade" : item.key}`}>
               <CardContent className="pt-4 pb-3 px-4">
                 <div className="flex items-center gap-2">
                   <span className={`p-1.5 rounded-full ${item.color}`}>{item.icon}</span>

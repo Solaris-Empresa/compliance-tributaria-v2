@@ -82,6 +82,51 @@ Todas as features de UX fazem parte dele.
 
 ---
 
+## Efeitos cascata obrigatorios por acao (REGRA-ORQ-14)
+
+Toda issue que implementa uma ACAO deve declarar no Bloco 1:
+1. O efeito imediato da acao
+2. O efeito cascata (o que acontece depois)
+3. O formato correto dos dados gerados
+4. A navegacao obrigatoria (se houver)
+
+Sem esses 4 itens documentados = issue invalida no F3.
+
+| Acao | Efeito imediato | Efeito cascata | Formato obrigatorio | Navegacao |
+|---|---|---|---|---|
+| Briefing aprovado | redirect STEP 5 | risks=0 → generateRisks auto | risks_v4 com rag_validated | permanecer no dashboard |
+| Risco aprovado (individual) | approved_at preenchido | plano gerado auto | status='rascunho', prazo=ENUM | nenhuma |
+| Bulk approve | N riscos approved_at | N planos gerados auto | status='rascunho', prazo=ENUM | redirect /planos-v4 |
+| Risco deletado | status='deleted' | aparece HistoryTab | opacity 55% | permanecer no dashboard |
+| Risco restaurado | status='active' | volta aba Riscos | card normal | permanecer no dashboard |
+| Plano aprovado | status='aprovado' | tarefas desbloqueadas | tasks.status='todo' | permanecer na ActionPlanPage |
+| Plano editado | campos atualizados | status NAO muda | mesmo status anterior | permanecer na ActionPlanPage |
+
+### Invariantes do estado final
+
+Apos bulk approve:
+- Todos os riscos: approved_at IS NOT NULL
+- Todos os planos: status='rascunho', prazo=ENUM valido
+- UI: redireciona para /planos-v4
+- USA insertActionPlanV4WithAudit (formato novo)
+
+Apos aprovar risco individual:
+- risco: approved_at preenchido
+- plano: status='rascunho' (nao 'pendente', nao null)
+- prazo: ENUM('30_dias','60_dias','90_dias')
+
+### Como auditar efeitos cascata no F3
+
+Para cada issue de acao, o auditor F3 verifica:
+- [ ] Bloco 1: efeito imediato documentado?
+- [ ] Bloco 1: efeito cascata documentado?
+- [ ] Bloco 1: formato dos dados gerados documentado?
+- [ ] Bloco 1: navegacao pos-acao documentada?
+- [ ] Bloco 7: criterio de aceite para CADA efeito?
+- [ ] Bloco 7: invariante do estado final verificavel?
+
+---
+
 ## Regra obrigatoria para issues
 
 Todo Bloco 1 de issue de frontend DEVE conter:
@@ -99,3 +144,5 @@ Todo Bloco 1 de issue de frontend DEVE conter:
 - [ ] Issue declara em qual step do fluxo se encaixa?
 - [ ] Integracoes upstream e downstream documentadas?
 - [ ] Trigger automatico (se aplicavel) documentado?
+- [ ] Efeitos cascata documentados no Bloco 1? (REGRA-ORQ-14)
+- [ ] Criterio de aceite para cada efeito cascata no Bloco 7?

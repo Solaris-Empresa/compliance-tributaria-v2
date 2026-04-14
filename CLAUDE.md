@@ -119,6 +119,21 @@ Prettier with: double quotes, semicolons, trailing commas (es5), 2-space indent,
 - Auth uses OAuth + JWT cookies with role-based access (equipe_solaris, advogado_senior, cliente)
 - Health endpoints: `/api/health`, `/api/health/cnae`, `/api/health/cnae/validate`
 
+## REGRA-ORQ-00 — Leitura obrigatoria pre-sprint
+
+Antes de qualquer issue de riscos ou planos:
+1. `cat docs/governance/RN_GERACAO_RISCOS_V4.md`
+2. `cat docs/governance/RN_PLANOS_TAREFAS_V4.md`
+
+Verificar especificamente:
+- SEVERITY/URGENCIA/TYPE — tabelas deterministicas
+- Catalogo PLANS — titulos canonicos por ruleId
+- Invariantes RN-RISK-05 e RN-AP-09: opportunity → NUNCA gera plano
+- RN-AP-02: status inicial = 'rascunho'
+- prazo: 30_dias | 60_dias | 90_dias | 180_dias (nao date)
+
+Se estes arquivos nao existirem no repo: **BLOQUEAR** — criar antes de qualquer issue.
+
 ## BLOQUEIO OBRIGATORIO — Antes de qualquer implementacao
 
 Claude Code DEVE executar antes de escrever qualquer codigo:
@@ -209,7 +224,43 @@ Toda issue de frontend DEVE no Bloco 1:
 - **Integracoes obrigatorias:** triggers automaticos
 
 Sem fluxo declarado = issue invalida no F3.
-Motivado por: Issue B-01 (#554) nao especificada porque issues nao declaravam que RiskDashboardV4 faz parte de um stepper de 6 steps.
+
+### REGRA-ORQ-14 — Efeitos cascata obrigatorios (4 elementos)
+
+Antes de criar issue que implementa qualquer ACAO de usuario:
+1. Consultar `docs/governance/FLOW_DICTIONARY.md` secao "Efeitos cascata"
+2. Declarar no Bloco 1 os **4 elementos obrigatorios:**
+   - Efeito imediato
+   - Efeito cascata
+   - Formato correto dos dados
+   - Navegacao pos-acao
+3. Incluir no Bloco 7 criterio para CADA efeito
+4. Incluir no Bloco 7 invariante do estado final
+
+Acoes com efeito cascata confirmado:
+- aprovar briefing → gerar riscos (B-01)
+- aprovar risco → gerar plano formato correto (B-02/B-03)
+- bulk approve → gerar planos + redirect /planos-v4 (B-04)
+- aprovar plano → desbloquear tarefas
+
+"Gerar plano" nao e suficiente. Deve especificar: `status='rascunho'`, `prazo=ENUM`, `insertActionPlanV4WithAudit`.
+
+### REGRA-ORQ-15 — PR body template obrigatorio
+
+Todo PR DEVE conter no body os campos exatos do `.github/PULL_REQUEST_TEMPLATE.md`:
+- Checkboxes de declaracao de escopo
+- F4.5 Integration Checkpoint
+- JSON de evidencia com 7 campos obrigatorios
+
+Nunca confiar em memoria para gerar PR body. Copiar do template.
+Sem este bloco: `validate-pr` FALHA no CI.
+
+**ORQ-15 ADENDO — risk_level OBRIGATORIO em ingles:**
+O campo `risk_level` no JSON de evidencia DEVE ser em ingles:
+- `"low"` — nao `"baixo"`
+- `"medium"` — nao `"medio"`
+- `"high"` — nao `"alto"`
+Valor em portugues: `validate-pr` FALHA com `RISK_LEVEL INVALIDO`.
 
 ### REGRA-ORQ-11 — Fast-track hotfix P0
 

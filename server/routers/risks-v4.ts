@@ -356,7 +356,7 @@ export const risksV4Router = router({
         titulo: z.string().min(1),
         descricao: z.string().optional(),
         responsavel: z.string().min(1),
-        prazo: z.enum(["30_dias", "60_dias", "90_dias"]),
+        prazo: z.enum(["30_dias", "60_dias", "90_dias", "180_dias"]),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -686,6 +686,23 @@ export const risksV4Router = router({
         return { generated: 0, planIds: [] };
       }
 
+      // B-03: usar buildActionPlans canonico (mesmo formato do generateRisks)
+      const actionPlans = buildActionPlans(
+        risksWithoutPlans.map((r) => ({
+          ruleId: r.rule_id,
+          categoria: r.categoria,
+          artigo: r.artigo,
+          fonte: r.source_priority,
+          severity: r.severidade as "alta" | "media" | "oportunidade",
+          urgency: r.urgencia as "imediata" | "curto_prazo" | "medio_prazo",
+          breadcrumb: (typeof r.breadcrumb === "string" ? JSON.parse(r.breadcrumb) : r.breadcrumb ?? []) as [string, string, string, string],
+          gapClassification: "consolidado",
+          requirementId: r.rule_id,
+          sourceReference: r.descricao ?? "",
+          domain: "",
+        }))
+      );
+
       const prazoMap: Record<string, PrazoActionPlan> = {
         imediata: "30_dias",
         curto_prazo: "60_dias",
@@ -693,14 +710,17 @@ export const risksV4Router = router({
       };
 
       const planIds: string[] = [];
-      for (const risk of risksWithoutPlans) {
+      for (const plan of actionPlans) {
+        const riskId = risksWithoutPlans.find((r) => r.rule_id === plan.riskRuleId)?.id;
+        if (!riskId) continue;
+
         const id = await insertActionPlanV4WithAudit(
           {
             project_id: projectId,
-            risk_id: risk.id,
-            titulo: `Plano: ${risk.categoria} — ${risk.artigo}`,
+            risk_id: riskId,
+            titulo: `Plano: ${plan.categoria} — ${plan.artigo}`,
             responsavel: "equipe_compliance",
-            prazo: prazoMap[risk.urgencia as string] ?? "60_dias",
+            prazo: prazoMap[plan.prioridade] ?? "60_dias",
             created_by: ctx.user.id,
             updated_by: ctx.user.id,
           },

@@ -26,6 +26,17 @@ Criterio de done: repo local = origin/main
 Por que: schema reportado de repo desatualizado = bug garantido (R-SYNC-01)
 ```
 
+### REGRA-ORQ-00 — antes do Gate 0
+
+```
+Verificar existencia dos arquivos de RN:
+  ls docs/governance/RN_GERACAO_RISCOS_V4.md
+  ls docs/governance/RN_PLANOS_TAREFAS_V4.md
+
+Se ausentes: CRIAR antes de avancar.
+Se presentes: ler secoes relevantes para a sprint.
+```
+
 ### F0 — Discovery
 
 ```
@@ -127,6 +138,8 @@ P2 UI pura:  Claude Code obrigatorio, Manus dispensado
 Checklist binario por issue (todos devem estar marcados):
   [ ] Bloco 1: contexto e dependencias claros
   [ ] Bloco 1: step do fluxo declarado? upstream/downstream? (FLOW_DICTIONARY + REGRA-ORQ-13)
+  [ ] Bloco 1: efeitos cascata (4 elementos)? formato + navegacao? (REGRA-ORQ-14)
+  [ ] Bloco 7: criterio para cada efeito cascata + invariante estado final?
   [ ] Bloco 2: spec inline suficiente para implementar sem arquivo externo
   [ ] Bloco 3: skeleton mostra O QUE MUDA (nao estrutura completa)
   [ ] Bloco 4: schema veio de SHOW FULL COLUMNS real (nao de memoria)
@@ -182,6 +195,37 @@ Mini-gate antes de abrir PR:
 Criterio de done:
   PR aberto com Closes #N
   CI verde (tsc + testes)
+```
+
+### PR body obrigatorio (REGRA-ORQ-15)
+
+```
+Todo PR DEVE conter no body — copiar do template, nunca improvisar:
+
+## Declaracao de escopo
+- [x] Baixo — sem impacto em dados ou fluxo principal
+  (ou marcar o nivel correto: Medio/Alto)
+- [x] Nivel 1 — Seguro
+
+## F4.5 Integration Checkpoint
+- [x] [procedure chamada confirmada]
+
+## Evidencia de qualidade
+{
+  "data_integrity": true,
+  "regression": false,
+  "rag_impact": false,
+  "unexpected_behavior": false,
+  "tests_passed": true,
+  "typescript_errors": 0,
+  "risk_level": "low"
+}
+
+Closes #[N]
+
+Sem este bloco: validate-pr FALHA no CI.
+Custo de nao incluir: 2-3 rodadas de CI desperdicadas.
+Nunca confiar em memoria — copiar do template.
 ```
 
 ### Regra de paralelismo obrigatorio (RACI — REGRA-ORQ-12)
@@ -343,6 +387,8 @@ Apos deploy, criar issue de governanca para prevenir recorrencia.
 | ORQ-11 | Fast-track hotfix P0: Gate 0 minimo → PR [HOTFIX] → P.O. direto |
 | ORQ-12 | Manus sempre em paralelo: Orquestrador aciona Manus simultaneamente ao Claude Code |
 | ORQ-13 | Fluxo declarado obrigatorio: issue frontend deve declarar step/upstream/downstream (FLOW_DICTIONARY) |
+| ORQ-14 | Efeitos cascata obrigatorios: documentar no Bloco 1 + criterio no Bloco 7 |
+| ORQ-15 | PR body template obrigatorio: copiar do template, nunca improvisar |
 
 ---
 
