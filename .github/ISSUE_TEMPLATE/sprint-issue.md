@@ -20,6 +20,16 @@ assignees: ''
 **Por que:** [impacto no usuario se nao for feito]
 **Aceite minimo:** [o minimo para esta issue ser considerada done]
 
+### Fluxo relacionado (obrigatorio para frontend — REGRA-ORQ-13)
+
+> Ver `docs/governance/FLOW_DICTIONARY.md` para o mapa completo.
+
+**Step:** [numero] — [nome do step]
+**Fluxo:** [step anterior] → [AQUI] → [step seguinte]
+**Integracao upstream:** [de onde vem o usuario / componente anterior]
+**Integracao downstream:** [para onde vai / componente seguinte]
+**Triggers automaticos:** [useEffect ou outros, se aplicavel, ou "nenhum"]
+
 ---
 
 ## Bloco 2 — UX Spec
@@ -28,7 +38,18 @@ assignees: ''
 > Arquivo completo como referencia adicional.
 > Implementador DEVE conseguir codar sem abrir o arquivo.
 
-**Arquivo fonte:** `docs/sprints/Z-XX/UX_SPEC_XXX.md`
+**Arquivos de referencia obrigatorios:**
+
+| Arquivo | Tipo | Uso |
+|---|---|---|
+| `docs/sprints/Z-XX/UX_SPEC_XXX.md` | Spec textual | estados, validacoes, toasts |
+| `docs/sprints/Z-XX/MOCKUPS_XXX.md` | Mockup ASCII | layout, estrutura |
+| `docs/sprints/Z-XX/MOCKUP_XXX.html` | Mockup interativo | estados reais, cores, seletores CSS |
+
+> O mockup HTML e obrigatorio para issues de frontend.
+> Abrir no browser antes de implementar — nao apenas ler o .md.
+> Seletores no Bloco 9 devem ser baseados no HTML renderizado.
+> Se o mockup HTML nao existe: solicitar ao Orquestrador ANTES de produzir a issue.
 
 ### Resumo funcional (obrigatorio inline)
 [estados do componente, acoes disponiveis, validacoes, toasts]
@@ -226,6 +247,7 @@ CENARIO DE ERRO:
 ## Checklist de auditoria (preencher em F3)
 
 - [ ] Bloco 1: contexto e dependencias claros
+- [ ] Bloco 1: step do fluxo declarado? upstream/downstream documentados? (REGRA-ORQ-13)
 - [ ] Bloco 2: spec inline suficiente para implementar sem arquivo externo
 - [ ] Bloco 3: skeleton mostra o delta (nao estrutura completa)
 - [ ] Bloco 4: schema veio de SHOW FULL COLUMNS real

@@ -103,3 +103,28 @@ Processo funcionou: spec na issue → 9/9 primeira rodada.
 
 Auditoria consolidada #536+#537: zero achados.
 Processo: spec na issue → 9/9 primeira rodada.
+
+### Lote C iniciado — 14/04/2026
+
+[F4] Issue #544 aprovada — 5 labels + spec-aprovada
+[IMPL] Claude Code implementando testes E2E
+[PARALLEL] Manus preparando ambiente E2E
+PROJECT_ID referência: 30760
+
+### B-01 identificado — 14/04/2026
+
+[BLOQUEADOR] Geração automática pós-briefing ausente
+Issue B-01 sendo criada — P0 bloqueador da suite E2E
+Executor: Claude Code
+
+### Ambiente E2E seedado — 14/04/2026
+
+[SEED] Projeto E2E dedicado criado: E2E_PROJECT_ID=270001
+[SEED] 10 riscos controlados: imposto_seletivo(3) + split_payment(3) + aliquota_zero(2) + credito_presumido(2)
+[SEED] Fixture CT-02 criada: action_plan id=90e41fa7-657c-47e6-a72e-d5e65cccadcd
+[FIXTURES] tests/fixtures/e2e-project-seed.sql + e2e-reset.sql versionados
+
+### Lote D iniciado — 14/04/2026
+[F4] Issue #554 B-01 aprovada — implementando
+[F4] Issue #556 data-testid aprovada — implementando
+E2E_PROJECT_ID=270001 validado em produção

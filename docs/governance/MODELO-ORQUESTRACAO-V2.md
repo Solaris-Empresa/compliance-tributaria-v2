@@ -99,6 +99,12 @@ Criterio de done:
 Cada issue produzida com template obrigatorio (.github/ISSUE_TEMPLATE/sprint-issue.md)
 Blocos 1-8 obrigatorios + Bloco 9 se componente existente >200L
 
+  Antes de produzir issue de frontend:
+  Verificar: mockup HTML existe em docs/sprints/Z-XX/?
+    ls docs/sprints/Z-XX/MOCKUP_*.html
+  Se nao: Orquestrador cria mockup HTML PRIMEIRO
+  Se sim: referenciar no Bloco 2 + seletores no Bloco 9
+
 Regra de lotes:
   Criterio de corte: "usuario consegue usar a feature sem o lote anterior?"
   Dentro do lote: desenvolvimento PARALELO, merge respeita ordem
@@ -120,6 +126,7 @@ P2 UI pura:  Claude Code obrigatorio, Manus dispensado
 
 Checklist binario por issue (todos devem estar marcados):
   [ ] Bloco 1: contexto e dependencias claros
+  [ ] Bloco 1: step do fluxo declarado? upstream/downstream? (FLOW_DICTIONARY + REGRA-ORQ-13)
   [ ] Bloco 2: spec inline suficiente para implementar sem arquivo externo
   [ ] Bloco 3: skeleton mostra O QUE MUDA (nao estrutura completa)
   [ ] Bloco 4: schema veio de SHOW FULL COLUMNS real (nao de memoria)
@@ -175,6 +182,31 @@ Mini-gate antes de abrir PR:
 Criterio de done:
   PR aberto com Closes #N
   CI verde (tsc + testes)
+```
+
+### Regra de paralelismo obrigatorio (RACI — REGRA-ORQ-12)
+
+```
+Sempre que Claude Code inicia implementacao (F4):
+O Orquestrador DEVE acionar o Manus SIMULTANEAMENTE.
+
+Manus recebe automaticamente:
+  - Atualizar Sprint Log com inicio da implementacao
+  - Preparar ambiente se issue toca banco/deploy
+  - Verificar integridade banco se issue toca dados
+  - Confirmar projeto de referencia se issue toca E2E
+
+NAO aguardar Claude Code terminar para acionar Manus.
+NAO esperar o P.O. cobrar o acionamento.
+
+Matriz de acionamento paralelo:
+  | Tipo de issue       | Claude Code faz    | Manus faz          |
+  |---------------------|--------------------|--------------------|
+  | Frontend puro       | implementa         | Sprint Log         |
+  | Frontend + banco    | implementa         | Sprint Log + banco |
+  | Backend (Manus)     | audita             | implementa         |
+  | E2E                 | implementa testes  | confirma ambiente  |
+  | Governance          | cria artefatos     | Sprint Log         |
 ```
 
 ### F4.5 — Integration Checkpoint (gate humano, CI avisa)
@@ -309,6 +341,8 @@ Apos deploy, criar issue de governanca para prevenir recorrencia.
 | ORQ-09 | Gate UX obrigatorio antes de qualquer frontend |
 | ORQ-10 | F4.5 Integration Checkpoint obrigatorio antes do merge |
 | ORQ-11 | Fast-track hotfix P0: Gate 0 minimo → PR [HOTFIX] → P.O. direto |
+| ORQ-12 | Manus sempre em paralelo: Orquestrador aciona Manus simultaneamente ao Claude Code |
+| ORQ-13 | Fluxo declarado obrigatorio: issue frontend deve declarar step/upstream/downstream (FLOW_DICTIONARY) |
 
 ---
 

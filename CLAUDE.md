@@ -177,12 +177,39 @@ O implementador le a issue diretamente do GitHub. Nunca depende do orquestrador 
 Gate UX obrigatorio antes de qualquer frontend.
 `ux-spec-validator` deve reportar LIBERAR antes de codar.
 
+#### Mockup HTML (complemento REGRA-ORQ-09)
+Antes de criar issue de frontend, verificar: `ls docs/sprints/Z-XX/MOCKUP_*.html`
+- Se nao existe: solicitar ao Orquestrador criacao do mockup HTML antes de produzir a issue
+- Se existe: referenciar no Bloco 2 + documentar seletores no Bloco 9 baseados no HTML
+
 ### REGRA-ORQ-10
 Integration Checkpoint (F4.5) obrigatorio antes do merge:
 - `grep -n "trpc\." [componente]` executado
 - Cruzar com Contrato API da issue
 - 100% das procedures da issue devem estar sendo chamadas
 - Procedure nao chamada = merge bloqueado
+
+### REGRA-ORQ-12 — Manus sempre em paralelo
+
+Ao despachar qualquer prompt de implementacao para Claude Code,
+o Orquestrador DEVE simultaneamente despachar para o Manus:
+- Atualizar Sprint Log com inicio da implementacao
+- Se issue toca banco: verificar schema afetado
+- Se issue e E2E: confirmar ambiente + projeto de referencia
+- Se issue toca deploy: verificar health endpoint
+
+**SEM EXCECAO** — Sprint Log e sempre responsabilidade do Manus.
+
+### REGRA-ORQ-13 — Fluxo declarado obrigatorio
+
+Toda issue de frontend DEVE no Bloco 1:
+- **Step:** X — nome do step (ver `docs/governance/FLOW_DICTIONARY.md`)
+- **Upstream:** de onde vem o usuario
+- **Downstream:** para onde vai apos esta tela
+- **Integracoes obrigatorias:** triggers automaticos
+
+Sem fluxo declarado = issue invalida no F3.
+Motivado por: Issue B-01 (#554) nao especificada porque issues nao declaravam que RiskDashboardV4 faz parte de um stepper de 6 steps.
 
 ### REGRA-ORQ-11 — Fast-track hotfix P0
 
