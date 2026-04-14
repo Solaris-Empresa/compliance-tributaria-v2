@@ -130,6 +130,30 @@ estado_B → [acao] → estado_C
 
 ---
 
+## Bloco 9 — Referencias de codigo (obrigatorio se componente existente >200L)
+
+> Preencher com dados LIDOS DO CODIGO — nunca de memoria.
+> Obrigatorio quando a issue toca componente existente com mais de 200 linhas.
+
+### Procedure — schema Zod real
+```typescript
+// Colar trecho do router: input Zod schema
+```
+
+### Localizacao no componente
+**Arquivo:** `client/src/...`
+**Linha de insercao:** ~L[N] (apos/antes de [referencia])
+**Estados existentes que podem conflitar:** [lista ou "nenhum"]
+
+### Tipos TypeScript relevantes
+```typescript
+// Interfaces/tipos que o implementador vai usar
+```
+
+> Se a issue NAO toca componente existente (>200L): substituir por "N/A — componente novo ou <200L"
+
+---
+
 ## Checklist de auditoria (preencher em F3)
 
 - [ ] Bloco 1: contexto e dependencias claros
@@ -140,6 +164,8 @@ estado_B → [acao] → estado_C
 - [ ] Bloco 6: estado atual gerado via grep
 - [ ] Bloco 7: criterios de aceite sao binarios
 - [ ] Bloco 8: armadilhas documentadas (ou "N/A — sem historico relevante")
+- [ ] Bloco 9 (se componente existente >200L): Zod schema lido do router? Linha de insercao documentada? Tipos TS confirmados?
+- [ ] Gate 0 verificacao dupla: SHOW FULL COLUMNS cruzado com migration? (migration e fonte de verdade)
 
 **Auditor:** @nome | **Data:** DD/MM/AAAA | **Resultado:** APROVADA / DEVOLVIDA
 **Motivo se devolvida:** [...]
