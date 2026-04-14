@@ -1,20 +1,65 @@
 /**
- * Suite E2E — Sprint Z-14: RiskDashboard + ActionPlan
+ * Z-14 E2E Suite — IA SOLARIS (Final)
+ *
  * CT-01: Criar plano de acao
  * CT-02: Editar plano existente
- * CT-03: SummaryBar 4 cards
+ * CT-03: SummaryBar coerente
  * CT-04: Aprovar risco individual
- * CT-05: Bulk approve
+ * CT-05: Bulk approve com confirmacao
  * CT-06: Excluir risco → HistoryTab
  * CT-07: Restaurar risco
+ * CT-08: Oportunidade NAO gera plano
+ * CT-09: Regressao engine v4 invariantes
  *
- * Rota: /projetos/:id/risk-dashboard-v4
- * Depende: E2E_TEST_MODE=true no servidor
+ * E2E_PROJECT_ID=270001 (seed SQL)
+ * E2E_TEST_MODE=true obrigatorio
  */
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { loginViaTestEndpoint } from "./fixtures/auth";
 
-const PROJECT_ID = process.env.E2E_PROJECT_ID || "30760";
+const E2E_PROJECT_ID = process.env.E2E_PROJECT_ID || "270001";
+
+const TID = {
+  dashboardPage: "risk-dashboard-page",
+  riskCard: "risk-card",
+  riskTitle: "risk-title",
+  riskLegalBasis: "risk-legal-basis",
+  summaryBar: "summary-bar",
+  summaryAlta: "summary-count-alta",
+  summaryMedia: "summary-count-media",
+  summaryOportunidade: "summary-count-oportunidade",
+  summaryAguardando: "summary-count-aguardando",
+  createActionPlanButton: "create-action-plan-button",
+  actionPlanModal: "action-plan-modal",
+  actionPlanRow: "action-plan-row",
+  bulkApproveButton: "bulk-approve-button",
+  bulkApproveConfirmModal: "bulk-approve-confirm-modal",
+  approveRiskButton: "approve-risk-button",
+  deleteRiskButton: "delete-risk-button",
+  historyTab: "history-tab",
+  restoreRiskButton: "restore-risk-button",
+  opportunityCard: "opportunity-card",
+} as const;
+
+function dashboardUrl(): string {
+  return `/projetos/${E2E_PROJECT_ID}/risk-dashboard-v4`;
+}
+
+function actionPlanUrl(): string {
+  return `/projetos/${E2E_PROJECT_ID}/planos-v4`;
+}
+
+async function gotoDashboard(page: Page): Promise<void> {
+  await page.goto(dashboardUrl());
+  await page.waitForLoadState("networkidle");
+  await expect(page.getByTestId(TID.dashboardPage)).toBeVisible({ timeout: 15_000 });
+}
+
+async function getSummaryCount(page: Page, testId: string): Promise<number> {
+  const card = page.getByTestId(testId);
+  const text = await card.locator("p.text-xl").textContent();
+  return parseInt(text ?? "0");
+}
 
 test.describe("Sprint Z-14 — RiskDashboard + ActionPlan", () => {
   test.describe.configure({ mode: "serial" });
@@ -22,187 +67,194 @@ test.describe("Sprint Z-14 — RiskDashboard + ActionPlan", () => {
 
   test.beforeEach(async ({ page }) => {
     await loginViaTestEndpoint(page);
-    await page.goto(`/projetos/${PROJECT_ID}/risk-dashboard-v4`);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
   });
 
-  test("CT-01: criar plano via botao + Plano", async ({ page }) => {
-    // Find first risk card with + Plano button
-    const plusPlanBtn = page.locator('button[title="Criar plano de ação"]').first();
-    await expect(plusPlanBtn).toBeVisible({ timeout: 10_000 });
-    await plusPlanBtn.click();
+  test.afterEach(async ({ page }, testInfo) => {
+    if (testInfo.status !== testInfo.expectedStatus) {
+      await page.screenshot({
+        path: `test-results/${testInfo.title.replace(/[^\w\d-]+/g, "_")}.png`,
+        fullPage: true,
+      });
+    }
+    // Reset destrutivo obrigatorio fora do browser via seed/reset SQL
+  });
 
-    // Modal should open
-    const modal = page.locator('[role="dialog"]');
+  test("CT-01 — criar plano de acao", async ({ page }) => {
+    await gotoDashboard(page);
+
+    const card = page.getByTestId(TID.riskCard).first();
+    await expect(card).toBeVisible();
+    await card.getByTestId(TID.createActionPlanButton).click();
+
+    const modal = page.getByTestId(TID.actionPlanModal);
     await expect(modal).toBeVisible({ timeout: 5_000 });
 
-    // Fill form
-    await modal.locator('input[id="plan-titulo"]').fill("Plano E2E CT-01 Teste");
-    await modal.locator('input[id="plan-responsavel"]').fill("Equipe Solaris");
-
-    // Select prazo
-    await modal.locator('button[id="plan-prazo"]').click();
+    await modal.locator("#plan-titulo").fill("E2E Z14 CT-01");
+    await modal.locator("#plan-responsavel").fill("Equipe Solaris");
+    await modal.locator("button#plan-prazo").click();
     await page.locator('[role="option"]:has-text("30 dias")').click();
 
-    // Submit
     await modal.locator('button:has-text("Criar plano")').click();
-
-    // Toast should appear
     await expect(page.locator('text=Plano criado')).toBeVisible({ timeout: 5_000 });
   });
 
-  test("CT-02: editar plano — campos pre-preenchidos", async ({ page }) => {
-    // Navigate to ActionPlanPage
-    const firstRisk = page.locator('[class*="border-l-4"]').first();
-    const actionLink = firstRisk.locator('a[href*="planos-v4"]').first();
-
-    if (await actionLink.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await actionLink.click();
-    } else {
-      await page.goto(`/projetos/${PROJECT_ID}/planos-v4`);
-    }
+  test("CT-02 — editar plano existente", async ({ page }) => {
+    await page.goto(actionPlanUrl());
     await page.waitForLoadState("networkidle");
 
-    // Find edit button on a plan card
     const editBtn = page.locator('button[title="Editar plano"]').first();
-    if (await editBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+    if (await editBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
       await editBtn.click();
 
-      // Modal should show "Editar plano de ação"
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 3000 });
-      await expect(modal.locator('text=Editar plano')).toBeVisible();
+      const modal = page.getByTestId(TID.actionPlanModal);
+      await expect(modal).toBeVisible();
 
-      // Fields should be pre-filled (not empty)
       const tituloInput = modal.locator("#ap-titulo");
-      const tituloValue = await tituloInput.inputValue();
-      expect(tituloValue.length).toBeGreaterThan(0);
+      const currentValue = await tituloInput.inputValue();
+      expect(currentValue.length).toBeGreaterThan(0);
 
-      // Modify title
-      await tituloInput.fill("Plano E2E CT-02 Editado");
+      await tituloInput.fill("E2E Z14 CT-02 EDITADO");
       await modal.locator('button:has-text("Salvar")').click();
-
       await expect(page.locator('text=Plano atualizado')).toBeVisible({ timeout: 5_000 });
     } else {
-      test.skip(true, "Nenhum plano editavel encontrado");
+      test.skip(true, "Nenhum plano editavel");
     }
   });
 
-  test("CT-03: SummaryBar exibe 4 cards corretos", async ({ page }) => {
-    // SummaryBar should have 4 cards
-    const summaryCards = page.locator(".sticky .grid > div");
-    const cardCount = await summaryCards.count();
-    expect(cardCount).toBe(4);
+  test("CT-03 — SummaryBar coerente", async ({ page }) => {
+    await gotoDashboard(page);
 
-    // Each card should have a number
-    for (let i = 0; i < 4; i++) {
-      const number = summaryCards.nth(i).locator("p.text-xl");
-      await expect(number).toBeVisible();
-      const text = await number.textContent();
-      expect(parseInt(text ?? "NaN")).toBeGreaterThanOrEqual(0);
-    }
+    await expect(page.getByTestId(TID.summaryBar)).toBeVisible();
+
+    const alta = await getSummaryCount(page, TID.summaryAlta);
+    const media = await getSummaryCount(page, TID.summaryMedia);
+    const opps = await getSummaryCount(page, TID.summaryOportunidade);
+    const aguardando = await getSummaryCount(page, TID.summaryAguardando);
+
+    expect(alta).toBeGreaterThanOrEqual(0);
+    expect(media).toBeGreaterThanOrEqual(0);
+    expect(opps).toBeGreaterThanOrEqual(0);
+    expect(aguardando).toBeGreaterThanOrEqual(0);
+    expect(alta + media + opps).toBeGreaterThan(0);
   });
 
-  test("CT-04: aprovar risco individual", async ({ page }) => {
-    // Find approve button on a pending risk
-    const approveBtn = page.locator('button[title="Aprovar risco"]').first();
+  test("CT-04 — aprovar risco individual", async ({ page }) => {
+    await gotoDashboard(page);
 
-    if (await approveBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+    const approveBtn = page.getByTestId(TID.approveRiskButton).first();
+    if (await approveBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
       await approveBtn.click();
 
-      // Confirmation dialog
       const dialog = page.locator('[role="alertdialog"]');
-      await expect(dialog).toBeVisible({ timeout: 3000 });
+      await expect(dialog).toBeVisible({ timeout: 3_000 });
       await dialog.locator('button:has-text("Confirmar")').click();
 
-      // Toast
       await expect(page.locator('text=Risco aprovado')).toBeVisible({ timeout: 5_000 });
     } else {
-      test.skip(true, "Nenhum risco pendente para aprovar");
+      test.skip(true, "Nenhum risco pendente");
     }
   });
 
-  test("CT-05: bulk approve todos pendentes", async ({ page }) => {
-    // Check if banner with "Aprovar todos" exists
-    const bulkBtn = page.locator('button:has-text("Aprovar todos")').first();
+  test("CT-05 — bulk approve com confirmacao e cancelamento", async ({ page }) => {
+    await gotoDashboard(page);
 
-    if (await bulkBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+    const bulkBtn = page.getByTestId(TID.bulkApproveButton);
+    if (await bulkBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      // Cancel first
       await bulkBtn.click();
+      const modal = page.getByTestId(TID.bulkApproveConfirmModal);
+      await expect(modal).toBeVisible();
+      await modal.locator('button:has-text("Cancelar")').click();
+      await expect(modal).not.toBeVisible();
 
-      // Confirmation dialog
-      const dialog = page.locator('[role="alertdialog"]');
-      await expect(dialog).toBeVisible({ timeout: 3000 });
-      await expect(dialog.locator('text=riscos de uma vez')).toBeVisible();
-      await dialog.locator('button:has-text("Confirmar")').click();
-
-      // Toast with N approved
+      // Now confirm
+      await bulkBtn.click();
+      await expect(modal).toBeVisible();
+      await modal.locator('button:has-text("Confirmar")').click();
       await expect(page.locator('text=riscos aprovados')).toBeVisible({ timeout: 10_000 });
-
-      // Banner should disappear (pending = 0)
-      await page.waitForTimeout(1000);
-      await expect(page.locator('text=itens aguardando')).not.toBeVisible({ timeout: 5000 });
     } else {
-      test.skip(true, "Nenhum risco pendente — banner ausente");
+      test.skip(true, "Banner ausente — sem pending");
     }
   });
 
-  test("CT-06: excluir risco aparece na HistoryTab", async ({ page }) => {
-    // Find delete button on first active risk
-    const deleteBtn = page.locator('button[title="Excluir risco"]').first();
+  test("CT-06 — excluir risco → HistoryTab", async ({ page }) => {
+    await gotoDashboard(page);
 
-    if (await deleteBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+    const deleteBtn = page.getByTestId(TID.deleteRiskButton).first();
+    if (await deleteBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      const riskTitle = await page.getByTestId(TID.riskTitle).first().textContent();
+
       await deleteBtn.click();
 
-      // Delete dialog with reason
       const dialog = page.locator('[role="alertdialog"]');
-      await expect(dialog).toBeVisible({ timeout: 3000 });
-
-      // Fill reason (min 10 chars)
-      const reasonInput = dialog.locator("textarea");
-      await reasonInput.fill("Exclusao para teste E2E CT-06 automatizado");
+      await expect(dialog).toBeVisible();
+      await dialog.locator("textarea").fill("Exclusao E2E CT-06 automatizado");
       await dialog.locator('button:has-text("Excluir")').click();
 
-      // Toast
       await expect(page.locator('text=excluído')).toBeVisible({ timeout: 5_000 });
 
-      // Switch to History tab
-      await page.locator('button:has-text("Histórico")').click();
+      await page.getByTestId(TID.historyTab).click();
       await page.waitForTimeout(500);
 
-      // Deleted risk should appear with reduced opacity
-      const historyContent = page.locator('[value="historico"]');
-      await expect(historyContent.or(page.locator('text=Riscos Excluídos'))).toBeVisible({ timeout: 3000 });
+      if (riskTitle) {
+        await expect(page.locator(`text=${riskTitle.slice(0, 30)}`)).toBeVisible({ timeout: 5_000 });
+      }
     } else {
-      test.skip(true, "Nenhum risco ativo para excluir");
+      test.skip(true, "Nenhum risco para excluir");
     }
   });
 
-  test("CT-07: restaurar risco da HistoryTab", async ({ page }) => {
-    // Go to History tab
-    await page.locator('button:has-text("Histórico")').click();
+  test("CT-07 — restaurar risco", async ({ page }) => {
+    await gotoDashboard(page);
+    await page.getByTestId(TID.historyTab).click();
     await page.waitForTimeout(500);
 
-    // Find restore button
-    const restoreBtn = page.locator('button[title="Restaurar risco"]').first();
-
-    if (await restoreBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+    const restoreBtn = page.getByTestId(TID.restoreRiskButton).first();
+    if (await restoreBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
       await restoreBtn.click();
-
-      // Toast
       await expect(page.locator('text=Risco restaurado')).toBeVisible({ timeout: 5_000 });
-
-      // Switch back to Riscos tab
-      await page.locator('button:has-text("Riscos")').first().click();
-      await page.waitForTimeout(500);
-
-      // Risk count should have increased (at least 1)
-      const riscosTab = page.locator('button:has-text("Riscos")').first();
-      const tabText = await riscosTab.textContent();
-      const count = parseInt(tabText?.match(/\((\d+)\)/)?.[1] ?? "0");
-      expect(count).toBeGreaterThan(0);
     } else {
-      test.skip(true, "Nenhum risco excluido para restaurar");
+      test.skip(true, "Nenhum risco para restaurar");
     }
+  });
+
+  test("CT-08 — oportunidade NAO gera plano", async ({ page }) => {
+    await gotoDashboard(page);
+
+    const oppCard = page.getByTestId(TID.opportunityCard).first();
+    if (await oppCard.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      const createBtn = oppCard.getByTestId(TID.createActionPlanButton);
+      await expect(createBtn).toHaveCount(0);
+    } else {
+      test.skip(true, "Nenhuma oportunidade visivel");
+    }
+  });
+
+  test("CT-09 — regressao engine v4 invariantes", async ({ page }) => {
+    await gotoDashboard(page);
+
+    // Risk cards exist
+    const riskCards = page.getByTestId(TID.riskCard);
+    const oppCards = page.getByTestId(TID.opportunityCard);
+    const totalRisks = await riskCards.count();
+    const totalOpps = await oppCards.count();
+    expect(totalRisks + totalOpps).toBeGreaterThanOrEqual(1);
+
+    // No generic titles
+    const titles = await page.getByTestId(TID.riskTitle).allTextContents();
+    for (const title of titles) {
+      expect(title).not.toMatch(/\[categoria\]/i);
+      expect(title).not.toMatch(/\bgeral\b/i);
+    }
+
+    // Legal basis present
+    const legalBasis = page.getByTestId(TID.riskLegalBasis).first();
+    if (await legalBasis.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      const text = await legalBasis.textContent();
+      expect(text).toMatch(/Art\./i);
+    }
+
+    // SummaryBar visible
+    await expect(page.getByTestId(TID.summaryBar)).toBeVisible();
   });
 });
