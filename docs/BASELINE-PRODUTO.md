@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 5.1 — 2026-04-09 (Sprint Z-09 ENCERRADA — PRs #436–#443)
-> **Commit HEAD:** `ceabb06` (pós-Sprint Z-09)
-> **Checkpoint Manus:** `fb96627d` (auditoria pós-merge PR #391 + #392 ✅)
+> **Versão:** 5.7 — 2026-04-14 (Sprint Z-14 Lote D — PRs #536–#560)
+> **Commit HEAD:** `f7b58e7` (pós-Sprint Z-14 Lote D)
+> **Checkpoint Manus:** `a77a7eb1` (auditoria pós-merge Sprint Z-14 Lote D ✅)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -26,7 +26,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 |---|---|---|
 | TypeScript | **0 erros** | ✅ |
 | Testes automatizados — total | **124/124 passando** (34 CC-01..CC-17 · 17 CC-18..CC-21 · 26/26 Fitness Functions · 47/47 Connection Manifest) | ✅ |
-| Git working tree | Limpo — `main` = `18df234`, sincronizado com GitHub externo | ✅ |
+| Git working tree | Limpo — `main` = `f7b58e7`, sincronizado com GitHub externo | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
 | Sprint S | Lotes A+B+C+D+E + Fix #295 — ENCERRADA 2026-04-04 | ✅ |
@@ -40,10 +40,15 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z-07** | **PR #B ✅ #427 (0064_risks_v4.sql · db-queries-risks-v4.ts) · PR #C ✅ #429 (risks-v4.ts · RiskDashboardV4.tsx · ActionPlanPage.tsx) · Gate 3/3 PASS · DEC-SWAP-05 · deploy estável** | **✅ ENCERRADA 2026-04-09** |
 | **Sprint Z-08** | **fix JSON.parse (#434) · fix pool.promise (#435) · conexão engine v4 ao pipeline** | **✅ ENCERRADA 2026-04-09** |
 | **Sprint Z-09** | **risk_categories configurável (#436) · VARCHAR migration (#437) · RAG sensor + painel admin (#438) · ADR-0025 (#439) · engine cache 1h (#440) · docs fix (#441) · CONTRACT-02/03 (#442) · FK CONTRACT-01 (#443) · GAPs ARCH-06/07/08/09 + CONTRACT-01/02/03 resolvidos** | **✅ ENCERRADA 2026-04-09** |
+| **Sprint Z-13** | **Cockpit P.O. v3 · Shadow Monitor · RAG Cockpit · Corpus 2.515 chunks · 13 leis · PRs #485–#500 · Gate 7 PASS** | **✅ ENCERRADA 2026-04-13** |
+| **Sprint Z-14 Lote A** | **bulkApprove backend (#536) · edição plano UI (#537) · fix CI pnpm (#540+#542)** | **✅ ENCERRADA 2026-04-14** |
+| **Sprint Z-14 Lote B** | **bulkApprove UI (#538) · Sprint Logs (#539+#543+#549+#553+#558)** | **✅ ENCERRADA 2026-04-14** |
+| **Sprint Z-14 Lote C** | **REGRA-ORQ-12 (#551) · GOVERNANCA-E2E v2.5 (#552) · Playwright E2E + fix imports (#550) · REGRA-ORQ-13 (#555)** | **✅ ENCERRADA 2026-04-14** |
+| **Sprint Z-14 Lote D** | **data-testid 17 seletores (#559) · geração automática riscos pós-briefing (#560) · fixtures E2E (#557) · E2E_PROJECT_ID=270001** | **✅ ENCERRADA 2026-04-14** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **67** (0065 risk_categories · 0066 VARCHAR · 0067 FK) | ✅ |
-| PRs mergeados (total) | **443** (PRs #436–#443 Sprint Z-09) | ✅ |
+| PRs mergeados (total) | **560** (último: #560 — feat(dashboard): geração automática riscos pós-briefing) | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
@@ -69,9 +74,9 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 
 | Métrica | Valor |
 |---|---|
-| Total de projetos | **8.812** (produção — 2026-04-04) |
-| Projetos em andamento | **154** |
-| Projetos aprovados | **7** |
+| Total de projetos | **2.081** (produção — 2026-04-14) |
+| Projetos em andamento | **94** |
+| Projetos aprovados | **93** |
 | Chunks RAG no banco | **2.509** — 100% com anchor_id canônico (DEC-002) |
 | Perguntas SOLARIS ativas | **24** — SOL-013..SOL-036 com `codigo` populado |
 | Gaps engine (source='engine') | Ativo em `project_gaps_v3` — 5/6 casos NCM/NBS confirmados |
