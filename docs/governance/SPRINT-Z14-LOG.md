@@ -110,3 +110,9 @@ Processo: spec na issue → 9/9 primeira rodada.
 [IMPL] Claude Code implementando testes E2E
 [PARALLEL] Manus preparando ambiente E2E
 PROJECT_ID referência: 30760
+
+### B-01 identificado — 14/04/2026
+
+[BLOQUEADOR] Geração automática pós-briefing ausente
+Issue B-01 sendo criada — P0 bloqueador da suite E2E
+Executor: Claude Code
