@@ -240,6 +240,13 @@ Todo PR DEVE conter no body os campos exatos do `.github/PULL_REQUEST_TEMPLATE.m
 Nunca confiar em memoria para gerar PR body. Copiar do template.
 Sem este bloco: `validate-pr` FALHA no CI.
 
+**ORQ-15 ADENDO — risk_level OBRIGATORIO em ingles:**
+O campo `risk_level` no JSON de evidencia DEVE ser em ingles:
+- `"low"` — nao `"baixo"`
+- `"medium"` — nao `"medio"`
+- `"high"` — nao `"alto"`
+Valor em portugues: `validate-pr` FALHA com `RISK_LEVEL INVALIDO`.
+
 ### REGRA-ORQ-11 — Fast-track hotfix P0
 
 Para bugs criticos em producao que nao podem esperar o fluxo normal.
