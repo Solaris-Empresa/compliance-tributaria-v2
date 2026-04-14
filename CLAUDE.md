@@ -167,6 +167,42 @@ Integration Checkpoint (F4.5) obrigatorio antes do merge:
 - 100% das procedures da issue devem estar sendo chamadas
 - Procedure nao chamada = merge bloqueado
 
+### REGRA-ORQ-11 — Fast-track hotfix P0
+
+Para bugs criticos em producao que nao podem esperar o fluxo normal.
+
+1. Gate 0 minimo (5 min): confirmar root cause com evidencia JSON
+2. PR: titulo `[HOTFIX] descricao`, body com `Closes #N` + root cause + fix + evidencia
+3. P.O. aprova diretamente (sem auditoria dupla)
+4. CI normal se aplica (tsc + testes obrigatorios)
+5. Apos deploy: criar issue de governanca para prevenir recorrencia
+
+## PASSO 0.0 — R-SYNC-01 (ANTES DE TUDO)
+
+Antes de qualquer trabalho em qualquer sprint:
+
+```
+git fetch origin && git diff --stat origin/main
+Se divergente: git reset --hard origin/main
+```
+
+**SEM EXCECAO** — nem para fixes "simples".
+Violacao: schema reportado errado → bugs garantidos.
+
+## F7 — Deploy + Smoke test (OBRIGATORIO)
+
+Apos todo Gate 7, antes de declarar sprint encerrada:
+
+1. **Manus:** deploy em producao
+2. **Claude Code:** regenerar riscos no projeto de referencia
+3. Verificar 4 provas:
+   - PROVA 1: 10 <= riscos <= 40
+   - PROVA 2: aliquota_zero + credito_presumido presentes
+   - PROVA 3: titulos sem "[categoria]" e sem "geral"
+   - PROVA 4: >= 50% rag_validated=true
+
+Sprint nao encerra sem F7 passando.
+
 ## Sprint Z-07 — Sistema de Riscos v4 — CONCLUÍDA (Z-12)
 
 **Status:** CONCLUÍDA — Hot swap final executado na Sprint Z-12 (PR feat/z12-hot-swap-final).
