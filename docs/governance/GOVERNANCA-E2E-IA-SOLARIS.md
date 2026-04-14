@@ -1,6 +1,6 @@
 # GOVERNANCA E2E — IA SOLARIS
 ## Visao do Product Owner (P.O.)
-**Versao:** v2.2 · 14/04/2026 | **HEAD:** `4af3e55` | **Baseline:** v6.1
+**Versao:** v2.3 · 14/04/2026 | **HEAD:** `564ada8` | **Baseline:** v6.2
 **Repo:** [Solaris-Empresa/compliance-tributaria-v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2)
 
 > Todos os numeros neste documento foram validados contra o codigo-fonte em 14/04/2026.
@@ -284,15 +284,16 @@ cnae=1 > ncm=2 > nbs=3 > solaris=4 > iagen=5
 
 O [UX_DICTIONARY.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/UX_DICTIONARY.md) documenta o estado real de cada tela. Principais gaps:
 
-| Componente | Gap | Impacto |
+| Componente | Gap | Status |
 |---|---|---|
-| RiskDashboardV4 (877L) | `upsertActionPlan` nao chamada | Nao e possivel criar plano pelo dashboard |
-| RiskDashboardV4 | `bulkApprove` nao existe | Aprovar riscos apenas 1 a 1 |
-| RiskDashboardV4 | SummaryBar ausente | Sem resumo visual sticky |
-| RiskDashboardV4 | HistoryTab sem audit log | Aba existe mas vazia |
-| RiskDashboardV4 | RAG validation badge parcial | Dados no banco, sem badge visual |
-| ActionPlanPage (733L) | Criar/editar plano ausente | `upsertActionPlan` nao chamada |
-| ActionPlanPage | Filtro por status ausente | Lista plana |
+| RiskDashboardV4 (1020L) | `upsertActionPlan` nao chamada | **RESOLVIDO** PR #526 — botao "+ Plano" + NewPlanModal |
+| RiskDashboardV4 | `bulkApprove` nao existe | pendente (Issue #4b) |
+| RiskDashboardV4 | SummaryBar ausente | **RESOLVIDO** PR #527 — 4 cards sticky |
+| RiskDashboardV4 | HistoryTab sem audit log | **RESOLVIDO** PR #527 — audit log via getProjectAuditLog |
+| RiskDashboardV4 | RAG validation badge parcial | pendente |
+| ActionPlanPage (818L) | Criar plano ausente | **RESOLVIDO** PR #526 — botao "+ Novo plano" |
+| ActionPlanPage | Editar plano ausente | pendente (Issue #3) |
+| ActionPlanPage | Filtro por status ausente | pendente |
 
 ---
 
@@ -367,6 +368,7 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 | **Gate UX** (frontend) | Antes de codar componente | Tela no [UX_DICTIONARY](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/UX_DICTIONARY.md) | CC + P.O. | CLAUDE.md L137 |
 | **Gate A** (dados) | Antes de questionario | 5 JSONs preenchidos | sistema | automatico |
 | **Gate B** (schema) | Antes de deploy | Migrations + FKs validas | Manus | manual |
+| **Gate Spec** (5 labels) | Antes de implementar | 5 labels spec-* na issue + conteudo verificado | CC + CI | CLAUDE.md bloqueio + validate-pr.yml |
 | **Gate C** (codigo) | Antes de merge | tsc 0 + testes PASS | CC | CI |
 | **Gate D** (backend) | Apos pipeline | `risks_v4 > 0` | CC | manual |
 | **Gate E** (UAT) | Apos deploy | 4 provas mensuraveis (ver abaixo) | P.O. | checklist |
@@ -440,6 +442,23 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 | 6. Estado atual | Gerado via grep (nao estimado) | Claude Code |
 | 7. Criterios aceite | Binarios (pass/fail) + plano testes | Orquestrador |
 | 8. Armadilhas | O que parece certo mas esta errado (opcional) | Todos |
+| 9. Refs codigo | Zod schema real + linha insercao + tipos TS (se componente >200L) | Claude Code |
+| ADR | Decisao arquitetural ou "N/A" com justificativa | Orquestrador |
+| Contrato | Input/output/erro da procedure | Claude Code |
+| Fluxo E2E | Passo a passo usuario ate banco | Orquestrador + CC |
+
+### 5 Labels obrigatorias (Gate Spec — PR #529)
+
+| Label | Significado | Quem aplica |
+|---|---|---|
+| `spec-bloco9` | Bloco 9 preenchido com dados do codigo | Auditor (F3) |
+| `spec-adr` | ADR criado ou N/A documentado | Auditor (F3) |
+| `spec-contrato` | Contrato input/output/erro | Auditor (F3) |
+| `spec-e2e` | Fluxo E2E completo | Auditor (F3) |
+| `spec-aprovada` | P.O. aprovou (ULTIMA — so apos as 4 anteriores) | P.O. (F4) |
+
+**CI Enforcement:** `validate-pr.yml` bloqueia merge se qualquer label ausente.
+**Claude Code Enforcement:** CLAUDE.md bloqueio obrigatorio — para antes de criar branch.
 
 ### Sprint Log (`docs/governance/SPRINT-ZXX-LOG.md`)
 
@@ -523,6 +542,7 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | Z-12 | Migrations 0072–0074 + hot swap ADR-0022 + R-SYNC-01 + RAG Lote D | #469–#483 | ENCERRADA |
 | Z-13 | 8 bugs corrigidos (is_active, gap_type, JOIN, risk_category_code) + RAG CGIBS | #485–#499 | ENCERRADA |
 | Z-13.5 | `generateRisksV4Pipeline` + `consolidateRisks` + `inferNormativeRisks` + `enrichRiskWithRag` + Gate 0 + Gate UX + Modelo Orquestracao v2 | #502–#516 | ENCERRADA |
+| Z-14 (Lote A) | upsertActionPlan UI (#520) + SummaryBar + HistoryTab (#521) + Bloco 9 + Gate 0 dupla + 5 labels spec enforcement | #518–#529 | **EM ANDAMENTO** |
 
 ### Sprint Z-13.5 — Detalhamento (sessao 13–14/abr/2026)
 
@@ -568,8 +588,8 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 
 | Indicador | Valor | Fonte de validacao |
 |---|---|---|
-| HEAD | `4af3e55` | `git rev-parse --short HEAD` |
-| Baseline | v6.1 | ESTADO-ATUAL.md |
+| HEAD | `564ada8` | `git rev-parse --short HEAD` |
+| Baseline | v6.2 | ESTADO-ATUAL.md |
 | TypeScript | 0 erros | `npx tsc --noEmit` |
 | Testes unitarios | 124/124 | `npx vitest run server/lib/` |
 | Suite PCT | 117/117 | `npx vitest run server/prefill-contract.test.ts` |
@@ -579,13 +599,14 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | Risk categories | 10 ativas | SEVERITY_TABLE risk-engine-v4.ts |
 | Perguntas SOLARIS | 22 ativas (SOL-015..036) | ESTADO-ATUAL.md |
 | Migrations | 86 | `ls drizzle/*.sql \| wc -l` |
-| PRs mergeados | 518 | `gh pr list --state merged` |
+| PRs mergeados | 529 | `gh pr list --state merged` |
 | Campos banco documentados | 60 | DATA_DICTIONARY.md |
 | Funcionalidades UX mapeadas | 33 | UX_DICTIONARY.md |
 | Regras orquestracao | 11 (ORQ-01..11) | MODELO-ORQUESTRACAO-V2.md v1.1 |
+| Labels spec-* | 5 (bloco9, adr, contrato, e2e, aprovada) | CI enforcement |
 | CI Workflows | 17 ativos | `.github/workflows/` |
-| Issue Templates | 5 (sprint-issue novo) | `.github/ISSUE_TEMPLATE/` |
-| Sprint Z-14 | planejada — 6 issues, 3 lotes | SPRINT-Z14-LOG.md |
+| Issue Templates | 5 (sprint-issue com 12 blocos) | `.github/ISSUE_TEMPLATE/` |
+| Sprint Z-14 | **Lote A DONE** (#520 + #521) — Lote B pendente | SPRINT-Z14-LOG.md |
 | Invariants formalizados | 8 | invariant-registry.md |
 | Agentes automatizados | 2 | .claude/agents/ |
 | SKILL.md | 170 linhas, atualizado 14/abr | Manus report + `grep REGRA-ORQ-08 SKILL.md` confirmado |
@@ -717,5 +738,5 @@ Use antes de aprovar qualquer sprint:
 
 ---
 
-**Total de artefatos rastreados: 53** (30 governanca + 2 agentes + 4 CI/CD + 6 ADRs + 5 contratos + 5 RAG + 1 Sprint Log)
+**Total de artefatos rastreados: 53+** (30 governanca + 2 agentes + 4 CI/CD + 5 labels + 6 ADRs + 5 contratos + 5 RAG + Sprint Logs)
 **Todos com link direto para o GitHub e validados contra o codigo-fonte.**
