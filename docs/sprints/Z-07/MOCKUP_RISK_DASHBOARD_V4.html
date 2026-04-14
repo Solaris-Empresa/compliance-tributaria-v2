@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IA SOLARIS — RiskDashboardV4 Mockup</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;background:#F8F9FA;color:#1a1a1a;padding:20px}
+.container{max-width:900px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden}
+.topbar{background:#1a1a2e;color:#fff;padding:12px 20px;font-size:12px;display:flex;justify-content:space-between;align-items:center}
+.topbar strong{font-size:14px}
+.page-nav{display:flex;gap:8px;padding:12px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0;flex-wrap:wrap}
+.page-btn{padding:5px 12px;font-size:12px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer;color:#475569}
+.page-btn.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.screen{display:none;padding:20px}
+.screen.active{display:block}
+.header-bar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.header-title{font-size:20px;font-weight:600}
+.header-sub{font-size:12px;color:#64748b;margin-top:2px}
+.btn{padding:6px 14px;font-size:12px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer;color:#334155}
+.btn:hover{background:#f1f5f9}
+.btn-green{background:#059669;color:#fff;border-color:#059669}
+.btn-green:hover{background:#047857}
+.btn-red{background:#dc2626;color:#fff;border-color:#dc2626}
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.summary-card{background:#f8fafc;border-radius:8px;padding:14px;text-align:center;border:1px solid #e2e8f0}
+.summary-num{font-size:24px;font-weight:600}
+.summary-label{font-size:11px;color:#64748b;margin-top:3px}
+.num-red{color:#dc2626}
+.num-amber{color:#d97706}
+.num-teal{color:#0d9488}
+.banner-pending{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.banner-text{font-size:13px;color:#92400e}
+.nav-tabs{display:flex;border-bottom:1px solid #e2e8f0;margin-bottom:16px}
+.nav-tab{padding:8px 18px;border:none;background:none;cursor:pointer;font-size:13px;color:#64748b;border-bottom:2px solid transparent;margin-bottom:-1px}
+.nav-tab.active{color:#1a1a2e;border-bottom-color:#1a1a2e;font-weight:500}
+.filter-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;color:#64748b}
+.chip.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.cat-divider{display:flex;align-items:center;gap:8px;margin:12px 0 8px}
+.cat-line{flex:1;height:1px;background:#e2e8f0}
+.cat-label{font-size:11px;color:#94a3b8;white-space:nowrap}
+.risk-card{border:1px solid #e2e8f0;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.risk-card-body{padding:14px 16px}
+.risk-high .risk-card-body{border-left:4px solid #dc2626}
+.risk-med .risk-card-body{border-left:4px solid #d97706}
+.risk-opp .risk-card-body{border-left:4px solid #0d9488}
+.breadcrumb{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.bc{padding:3px 9px;border-radius:12px;font-size:11px;cursor:pointer}
+.bc-blue{background:#eff6ff;color:#1d4ed8}
+.bc-purple{background:#f5f3ff;color:#6d28d9}
+.bc-green{background:#f0fdf4;color:#166534}
+.bc-gray{background:#f8fafc;color:#475569;border:1px solid #e2e8f0}
+.bc-teal{background:#f0fdfa;color:#0f766e}
+.bc-sep{color:#94a3b8;font-size:11px}
+.risk-title{font-size:14px;font-weight:500;margin-bottom:6px}
+.risk-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.badge{padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500}
+.badge-red{background:#fef2f2;color:#b91c1c}
+.badge-amber{background:#fffbeb;color:#92400e}
+.badge-teal{background:#f0fdfa;color:#0f766e}
+.badge-green{background:#f0fdf4;color:#166534}
+.badge-gray{background:#f8fafc;color:#475569}
+.evidence-toggle{font-size:12px;color:#64748b;cursor:pointer;border:none;background:none;padding:2px 0}
+.evidence-panel{background:#f8fafc;border-radius:6px;padding:10px;margin-top:6px;font-size:12px;display:none}
+.evidence-item{padding:5px 0;border-bottom:1px solid #e2e8f0}
+.evidence-item:last-child{border-bottom:none}
+.approval-bar{border-top:1px solid #e2e8f0;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.bar-pending{background:#fffbeb}
+.bar-approved{background:#f0fdf4}
+.bar-text-pending{color:#92400e}
+.bar-text-approved{color:#166534}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.hist-card{border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;margin-bottom:8px;opacity:0.6}
+.hist-title{text-decoration:line-through;font-size:13px;color:#64748b}
+.hist-meta{font-size:11px;color:#94a3b8;margin-top:4px}
+.audit-log{margin-top:16px}
+.audit-row{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:12px}
+.audit-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff}
+.modal-bg{min-height:320px;background:rgba(0,0,0,0.4);border-radius:10px;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:10px;padding:20px;width:380px;max-width:100%;border:1px solid #e2e8f0;box-shadow:0 8px 24px rgba(0,0,0,0.12)}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:4px}
+.modal-sub{font-size:12px;color:#64748b;margin-bottom:14px}
+.info-box{background:#f8fafc;border-radius:6px;padding:10px;font-size:12px;color:#64748b;margin-bottom:12px;border-left:3px solid #cbd5e1}
+textarea,input[type=text]{width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:13px;font-family:inherit;resize:vertical;background:#fff}
+textarea:focus,input:focus{outline:none;border-color:#6366f1}
+.char-count{font-size:11px;color:#94a3b8;text-align:right;margin-top:3px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <strong>IA SOLARIS — Mockup: RiskDashboardV4</strong>
+    <span>UX Spec Z-07 · Sprint Z-14</span>
+  </div>
+  <div class="page-nav">
+    <button class="page-btn active" onclick="showPg('main')">Tela principal</button>
+    <button class="page-btn" onclick="showPg('opps')">Aba oportunidades</button>
+    <button class="page-btn" onclick="showPg('hist')">Aba histórico</button>
+    <button class="page-btn" onclick="showPg('m-approve')">Modal aprovar</button>
+    <button class="page-btn" onclick="showPg('m-delete')">Modal excluir</button>
+  </div>
+
+  <div id="pg-main" class="screen active">
+    <div class="header-bar">
+      <div>
+        <div class="header-title">Matriz de riscos</div>
+        <div class="header-sub">Distribuidora Alimentos UIRES · 13/04/2026</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn">+ Risco manual</button>
+        <button class="btn">↺ Re-diagnosticar</button>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card"><div class="summary-num num-red">7</div><div class="summary-label">Alta</div></div>
+      <div class="summary-card"><div class="summary-num num-amber">3</div><div class="summary-label">Média</div></div>
+      <div class="summary-card"><div class="summary-num num-teal">3</div><div class="summary-label">Oportunidades</div></div>
+      <div class="summary-card"><div class="summary-num num-amber">9</div><div class="summary-label">Aguardando</div></div>
+    </div>
+
+    <div class="banner-pending">
+      <span class="banner-text">9 itens aguardando sua análise e aprovação</span>
+      <button class="btn">Aprovar todos</button>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab(this,'tab-r')">Riscos (10)</button>
+      <button class="nav-tab" onclick="showPg('opps')">Oportunidades (3)</button>
+      <button class="nav-tab" onclick="showPg('hist')">Histórico (1)</button>
+    </div>
+
+    <div id="tab-r">
+      <div class="filter-chips">
+        <div class="chip active" onclick="fc(this)">Todos</div>
+        <div class="chip" onclick="fc(this)">Alta (7)</div>
+        <div class="chip" onclick="fc(this)">Média (3)</div>
+        <div class="chip" onclick="fc(this)">Imposto Seletivo (2)</div>
+        <div class="chip" onclick="fc(this)">Split Payment (3)</div>
+        <div class="chip" onclick="fc(this)">Obrigação Acessória (2)</div>
+      </div>
+
+      <div class="cat-divider"><div class="cat-line"></div><div class="cat-label">Imposto Seletivo · Art. 2 LC 214/2025 · 2 riscos</div><div class="cat-line"></div></div>
+
+      <div class="risk-card risk-high">
+        <div class="risk-card-body">
+          <div class="breadcrumb">
+            <span class="bc bc-blue">NCM 2202.10.00</span><span class="bc-sep">›</span>
+            <span class="bc bc-purple">imposto_seletivo</span><span class="bc-sep">›</span>
+            <span class="bc bc-green">Art. 2 LC 214/2025</span><span class="bc-sep">›</span>
+            <span class="bc bc-gray">GAP-IS-001</span>
+          </div>
+          <div class="risk-title">Exposição ao Imposto Seletivo — Bebidas açucaradas</div>
+          <div class="risk-meta">
+            <span class="badge badge-red">Alta</span>
+            <span class="badge badge-red">Imediata</span>
+            <span style="font-size:11px;color:#64748b">2 evidências · RAG validado</span>
+          </div>
+          <button class="evidence-toggle" onclick="te(this)">▸ Ver evidências (2)</button>
+          <div class="evidence-panel">
+            <div class="evidence-item"><strong>NCM 2202.10.00</strong> · "Produto sujeito ao IS?" → Sim · conf 94% · Art. 2</div>
+            <div class="evidence-item">SOLARIS SOL-019 · "IS identificado?" → Sim · conf 90%</div>
+          </div>
+        </div>
+        <div class="approval-bar bar-pending">
+          <span class="bar-text-pending">⏳ Aguardando análise</span>
+          <div class="actions">
+            <button class="btn">Editar</button>
+            <button class="btn" onclick="showPg('m-delete')">Excluir</button>
+            <button class="btn btn-green" onclick="showPg('m-approve')">✓ Aprovar risco</button>
+            <button class="btn">+ Plano</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="risk-card risk-high">
+        <div class="risk-card-body">
+          <div class="breadcrumb">
+            <span class="bc bc-blue">CNAE 4635-4/02</span><span class="bc-sep">›</span>
+            <span class="bc bc-purple">imposto_seletivo</span><span class="bc-sep">›</span>
+            <span class="bc bc-green">Art. 2 LC 214/2025</span><span class="bc-sep">›</span>
+            <span class="bc bc-gray">GAP-IS-002</span>
+          </div>
+          <div class="risk-title">Risco de não conformidade com IS nas operações de comercio</div>
+          <div class="risk-meta">
+            <span class="badge badge-red">Alta</span>
+            <span class="badge badge-red">Imediata</span>
+          </div>
+        </div>
+        <div class="approval-bar bar-approved">
+          <span class="bar-text-approved">✅ Aprovado por Dr. Rodrigues · 13/04/2026</span>
+          <div class="actions">
+            <button class="btn">Editar</button>
+            <button class="btn">Excluir</button>
+            <button class="btn btn-green">▶ Ver planos</button>
+            <button class="btn">+ Plano</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cat-divider"><div class="cat-line"></div><div class="cat-label">Split Payment · Art. 9 LC 214/2025 · 3 riscos</div><div class="cat-line"></div></div>
+
+      <div class="risk-card risk-high">
+        <div class="risk-card-body">
+          <div class="breadcrumb">
+            <span class="bc bc-blue">Comercio</span><span class="bc-sep">›</span>
+            <span class="bc bc-purple">split_payment</span><span class="bc-sep">›</span>
+            <span class="bc bc-green">Art. 9 LC 214/2025</span><span class="bc-sep">›</span>
+            <span class="bc bc-gray">GAP-SP-001</span>
+          </div>
+          <div class="risk-title">Risco de não conformidade com Split Payment nas operações de comercio</div>
+          <div class="risk-meta">
+            <span class="badge badge-red">Alta</span>
+            <span class="badge badge-red">Imediata</span>
+            <span style="font-size:11px;color:#64748b">3 evidências</span>
+          </div>
+        </div>
+        <div class="approval-bar bar-pending">
+          <span class="bar-text-pending">⏳ Aguardando análise</span>
+          <div class="actions">
+            <button class="btn">Editar</button>
+            <button class="btn">Excluir</button>
+            <button class="btn btn-green">✓ Aprovar risco</button>
+            <button class="btn">+ Plano</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pg-opps" class="screen">
+    <div class="nav-tabs">
+      <button class="nav-tab" onclick="showPg('main')">Riscos (10)</button>
+      <button class="nav-tab active">Oportunidades (3)</button>
+      <button class="nav-tab" onclick="showPg('hist')">Histórico (1)</button>
+    </div>
+    <div class="risk-card risk-opp">
+      <div class="risk-card-body">
+        <div class="breadcrumb">
+          <span class="bc bc-blue">NCM 1006.40.00</span><span class="bc-sep">›</span>
+          <span class="bc bc-teal">aliquota_zero</span><span class="bc-sep">›</span>
+          <span class="bc bc-green">Art. 125 LC 214/2025</span><span class="bc-sep">›</span>
+          <span class="bc bc-gray">GAP-AZ-001</span>
+        </div>
+        <div class="risk-title">Oportunidade de alíquota zero sobre produtos elegíveis nas operações de comercio</div>
+        <div class="risk-meta">
+          <span class="badge badge-teal">Oportunidade</span>
+          <span class="badge badge-gray">Curto prazo</span>
+          <span style="font-size:11px;color:#64748b">conf 0.90 · inferência normativa</span>
+        </div>
+        <div style="font-size:12px;color:#64748b;margin-top:6px">Arroz (cesta básica) — Art. 125 c/c Anexo I LC 214/2025</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:6px;font-style:italic">ⓘ Oportunidades não geram plano de ação</div>
+      </div>
+    </div>
+    <div class="risk-card risk-opp">
+      <div class="risk-card-body">
+        <div class="breadcrumb">
+          <span class="bc bc-blue">Lucro Real</span><span class="bc-sep">›</span>
+          <span class="bc bc-teal">credito_presumido</span><span class="bc-sep">›</span>
+          <span class="bc bc-green">Art. 45 LC 214/2025</span><span class="bc-sep">›</span>
+          <span class="bc bc-gray">INF-CP-001</span>
+        </div>
+        <div class="risk-title">Oportunidade de aproveitamento de crédito presumido nas operações de comercio</div>
+        <div class="risk-meta">
+          <span class="badge badge-teal">Oportunidade</span>
+          <span class="badge badge-gray">Médio prazo</span>
+          <span style="font-size:11px;color:#64748b">conf 0.85</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pg-hist" class="screen">
+    <div class="nav-tabs">
+      <button class="nav-tab" onclick="showPg('main')">Riscos (10)</button>
+      <button class="nav-tab" onclick="showPg('opps')">Oportunidades (3)</button>
+      <button class="nav-tab active">Histórico (1)</button>
+    </div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:10px">1 item excluído · restauração disponível por 90 dias</div>
+    <div class="hist-card">
+      <div class="hist-title">Risco: Confissão Automática — Declaração Anual</div>
+      <div class="hist-meta">GAP-CA-001 · excluído 12/04/2026 por Carlos V.</div>
+      <div class="hist-meta">Motivo: "Não se aplica — empresa no regime diferenciado"</div>
+      <button class="btn" style="margin-top:8px;font-size:12px">↩ Restaurar risco</button>
+    </div>
+    <div class="audit-log">
+      <div style="font-size:12px;font-weight:500;color:#64748b;margin-bottom:8px">Audit log</div>
+      <div class="audit-row"><div class="audit-dot" style="background:#7c3aed">✓</div><div>Plano aprovado · AP-RISK-001 · Carlos V. · 15:44</div></div>
+      <div class="audit-row"><div class="audit-dot" style="background:#2563eb">~</div><div>Plano editado · prazo 30d→45d · Ana M. · 11:15</div></div>
+      <div class="audit-row"><div class="audit-dot" style="background:#16a34a">+</div><div>Tarefa criada · TASK-003 · Ana M. · 10:02</div></div>
+      <div class="audit-row"><div class="audit-dot" style="background:#94a3b8">⚙</div><div>Diagnóstico gerado · 10 riscos · 3 oportunidades · 09:00</div></div>
+    </div>
+  </div>
+
+  <div id="pg-m-approve" class="screen">
+    <div class="modal-bg">
+      <div class="modal">
+        <h3>Aprovar risco</h3>
+        <div class="modal-sub">Exposição ao Imposto Seletivo · imposto_seletivo · Art. 2 LC 214/2025</div>
+        <div class="info-box">Ao aprovar, você confirma que este risco foi analisado e é relevante para este cliente. A aprovação será registrada com data e hora.</div>
+        <div class="modal-actions">
+          <button class="btn" onclick="showPg('main')">Cancelar</button>
+          <button class="btn btn-green">Confirmar aprovação</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pg-m-delete" class="screen">
+    <div class="modal-bg">
+      <div class="modal">
+        <h3>Excluir risco</h3>
+        <div class="modal-sub">Esta ação é reversível — Histórico por 90 dias</div>
+        <div class="info-box">Ao excluir, os planos vinculados serão arquivados. Você pode restaurar a qualquer momento.</div>
+        <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Motivo da exclusão <span style="color:#dc2626">*</span></label>
+        <textarea id="dr" rows="3" placeholder="Mínimo 10 caracteres" oninput="cd()"></textarea>
+        <div class="char-count" id="dc">0 / 200</div>
+        <div class="modal-actions">
+          <button class="btn" onclick="showPg('main')">Cancelar</button>
+          <button class="btn btn-red" id="db" disabled style="opacity:0.5">Confirmar exclusão</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+function showPg(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  document.querySelectorAll('.page-btn').forEach(b=>b.classList.remove('active'));
+  const m={main:0,opps:1,hist:2,'m-approve':3,'m-delete':4};
+  if(m[id]!==undefined)document.querySelectorAll('.page-btn')[m[id]].classList.add('active');
+}
+function switchTab(btn,tid){
+  btn.closest('.screen').querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+}
+function te(btn){
+  const p=btn.nextElementSibling;
+  if(p.style.display==='none'||!p.style.display){p.style.display='block';btn.textContent=btn.textContent.replace('▸','▾');}
+  else{p.style.display='none';btn.textContent=btn.textContent.replace('▾','▸');}
+}
+function fc(el){
+  el.closest('.filter-chips').querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+function cd(){
+  const v=document.getElementById('dr').value;
+  document.getElementById('dc').textContent=v.length+' / 200';
+  const b=document.getElementById('db');
+  b.disabled=v.length<10;b.style.opacity=v.length<10?'0.5':'1';
+}
+</script>
+</body>
+</html>

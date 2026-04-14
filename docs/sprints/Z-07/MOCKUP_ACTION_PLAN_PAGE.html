@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IA SOLARIS — ActionPlanPage Mockup</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;background:#F8F9FA;color:#1a1a1a;padding:20px}
+.container{max-width:900px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden}
+.topbar{background:#1a1a2e;color:#fff;padding:12px 20px;font-size:12px;display:flex;justify-content:space-between;align-items:center}
+.topbar strong{font-size:14px}
+.page-nav{display:flex;gap:8px;padding:12px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0;flex-wrap:wrap}
+.page-btn{padding:5px 12px;font-size:12px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer;color:#475569}
+.page-btn.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.screen{display:none;padding:0}
+.screen.active{display:block}
+.sticky-banner{background:#fef2f2;border-bottom:1px solid #fecaca;padding:12px 20px;position:sticky;top:0;z-index:10}
+.banner-label{font-size:11px;font-weight:600;color:#b91c1c;margin-bottom:6px}
+.banner-chips{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.bc{padding:3px 9px;border-radius:12px;font-size:11px;cursor:pointer}
+.bc-blue{background:#eff6ff;color:#1d4ed8}
+.bc-purple{background:#f5f3ff;color:#6d28d9}
+.bc-green{background:#f0fdf4;color:#166534}
+.bc-gray{background:#f8fafc;color:#475569;border:1px solid #e2e8f0}
+.bc-sep{color:#94a3b8;font-size:11px}
+.banner-risk{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+.badge{padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500}
+.badge-red{background:#fef2f2;color:#b91c1c}
+.badge-amber{background:#fffbeb;color:#92400e}
+.badge-green{background:#f0fdf4;color:#166534}
+.badge-gray{background:#f8fafc;color:#475569}
+.cardinality-note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:12px;color:#1d4ed8;margin:16px 20px 0}
+.content-area{padding:20px}
+.header-bar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.header-title{font-size:20px;font-weight:600}
+.header-sub{font-size:12px;color:#64748b;margin-top:2px}
+.btn{padding:6px 14px;font-size:12px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer;color:#334155}
+.btn:hover{background:#f1f5f9}
+.btn-green{background:#059669;color:#fff;border-color:#059669}
+.btn-green:hover{background:#047857}
+.btn-red{background:#dc2626;color:#fff;border-color:#dc2626}
+.nav-tabs{display:flex;border-bottom:1px solid #e2e8f0;margin-bottom:16px}
+.nav-tab{padding:8px 18px;border:none;background:none;cursor:pointer;font-size:13px;color:#64748b;border-bottom:2px solid transparent;margin-bottom:-1px}
+.nav-tab.active{color:#1a1a2e;border-bottom-color:#1a1a2e;font-weight:500}
+.plan-card{border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;overflow:hidden}
+.plan-approved{border-top:3px solid #059669}
+.plan-pending{border-top:3px solid #d97706}
+.plan-body{padding:14px 16px}
+.plan-origin{font-size:11px;color:#64748b;margin-bottom:8px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.plan-title{font-size:14px;font-weight:500;margin-bottom:4px}
+.plan-meta{font-size:12px;color:#64748b;display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.progress-bar{height:6px;background:#e2e8f0;border-radius:3px;margin:8px 0 4px}
+.progress-fill{height:100%;border-radius:3px;background:#059669}
+.progress-label{font-size:11px;color:#64748b}
+.blocked-notice{background:#fffbeb;border:1px solid #fcd34d;border-radius:6px;padding:8px 12px;font-size:12px;color:#92400e;margin:8px 0}
+.task-section{margin-top:10px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}
+.task-header{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#f8fafc;font-size:12px;font-weight:500}
+.task-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid #f1f5f9;font-size:13px}
+.task-item:hover{background:#f8fafc}
+.task-locked{opacity:0.4;cursor:not-allowed}
+.task-locked:hover{background:transparent}
+.task-check{width:20px;height:20px;border-radius:50%;border:1.5px solid #cbd5e1;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer}
+.check-done{background:#dcfce7;border-color:#16a34a;color:#166534}
+.check-doing{background:#dbeafe;border-color:#2563eb;color:#1d4ed8}
+.task-status{font-size:11px;border:1px solid #e2e8f0;border-radius:4px;padding:2px 6px;background:#f8fafc;color:#64748b;cursor:pointer;margin-left:auto}
+.task-add{padding:8px 12px;font-size:12px;color:#64748b;cursor:pointer;border-top:1px solid #f1f5f9}
+.task-add:hover{background:#f8fafc;color:#334155}
+.approval-bar{border-top:1px solid #e2e8f0;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.bar-approved{background:#f0fdf4}
+.bar-pending{background:#fffbeb}
+.bar-text-approved{color:#166534}
+.bar-text-pending{color:#92400e}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.hist-card{border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;margin-bottom:8px;opacity:0.55}
+.hist-title{text-decoration:line-through;font-size:13px;color:#64748b}
+.hist-meta{font-size:11px;color:#94a3b8;margin-top:4px}
+.audit-log{margin-top:16px}
+.audit-row{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:12px}
+.audit-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff}
+.modal-bg{min-height:400px;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:10px;padding:20px;width:400px;max-width:100%;border:1px solid #e2e8f0;box-shadow:0 8px 24px rgba(0,0,0,0.12)}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:4px}
+.modal-sub{font-size:12px;color:#64748b;margin-bottom:14px}
+.info-box{background:#f8fafc;border-radius:6px;padding:10px;font-size:12px;color:#64748b;margin-bottom:12px;border-left:3px solid #cbd5e1}
+.form-label{font-size:12px;font-weight:500;display:block;margin-bottom:4px}
+.form-req{color:#dc2626}
+textarea,input[type=text],select{width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:13px;font-family:inherit;background:#fff;color:#1a1a1a}
+textarea{resize:vertical}
+textarea:focus,input:focus,select:focus{outline:none;border-color:#6366f1}
+.char-count{font-size:11px;color:#94a3b8;text-align:right;margin-top:3px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.mb8{margin-bottom:8px}
+.ai-tip{font-size:11px;color:#2563eb;cursor:pointer;margin-top:3px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <strong>IA SOLARIS — Mockup: ActionPlanPage</strong>
+    <span>1 plano → N tarefas · UX Spec Z-07 · Sprint Z-14</span>
+  </div>
+  <div class="page-nav">
+    <button class="page-btn active" onclick="showPg('main')">Plano aprovado</button>
+    <button class="page-btn" onclick="showPg('pending')">Plano pendente</button>
+    <button class="page-btn" onclick="showPg('hist')">Histórico</button>
+    <button class="page-btn" onclick="showPg('m-new')">Modal novo plano</button>
+    <button class="page-btn" onclick="showPg('m-task')">Modal editar tarefa</button>
+    <button class="page-btn" onclick="showPg('m-del')">Modal excluir plano</button>
+  </div>
+
+  <div id="pg-main" class="screen active">
+    <div class="sticky-banner">
+      <div class="banner-label">Risco de origem — rastreabilidade completa</div>
+      <div class="banner-chips">
+        <span class="bc bc-blue">CNAE 4635-4/02</span><span class="bc-sep">›</span>
+        <span class="bc bc-purple">imposto_seletivo</span><span class="bc-sep">›</span>
+        <span class="bc bc-green">Art. 2 LC 214/2025</span><span class="bc-sep">›</span>
+        <span class="bc bc-gray">GAP-IS-002</span><span class="bc-sep">›</span>
+        <span class="bc bc-gray">RISK-002</span>
+      </div>
+      <div class="banner-risk">
+        Risco de não conformidade com IS nas operações de comercio
+        <span class="badge badge-red">Alta</span>
+        <span class="badge badge-red">Imediata</span>
+      </div>
+    </div>
+    <div class="cardinality-note">1 plano de ação → N tarefas atômicas · cada tarefa tem responsável e status independente</div>
+    <div class="content-area">
+      <div class="header-bar">
+        <div>
+          <div class="header-title">Planos de ação</div>
+          <div class="header-sub">2 planos · 5 tarefas · 2 concluídas</div>
+        </div>
+        <button class="btn btn-green" onclick="showPg('m-new')">+ Novo plano</button>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active">Planos ativos (2)</button>
+        <button class="nav-tab" onclick="showPg('hist')">Histórico (1)</button>
+      </div>
+
+      <div class="plan-card plan-approved">
+        <div class="plan-body">
+          <div class="plan-origin">
+            <span class="bc bc-gray" style="font-size:10px">GAP-IS-002</span>
+            <span class="bc-sep">·</span><span>imposto_seletivo</span>
+            <span class="bc-sep">·</span><span>Art. 2 LC 214/2025</span>
+            <span class="bc-sep">·</span><span class="badge badge-red" style="font-size:10px">Alta</span>
+          </div>
+          <div class="plan-title">Implantar controle de apuração do IS</div>
+          <div class="plan-meta"><span>Gestor fiscal</span><span>·</span><span>90 dias · vence 12/07/2026</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:66%"></div></div>
+          <div class="progress-label">2 / 3 tarefas concluídas</div>
+          <div class="task-section">
+            <div class="task-header"><span>Tarefas (3)</span><button class="btn" style="font-size:11px;padding:3px 8px" onclick="showPg('m-task')">+ Tarefa</button></div>
+            <div class="task-item">
+              <div class="task-check check-done">✓</div>
+              <span style="text-decoration:line-through;color:#64748b">Levantar NCMs sujeitos ao IS</span>
+              <select class="task-status"><option>todo</option><option>doing</option><option selected>done</option><option>blocked</option></select>
+            </div>
+            <div class="task-item">
+              <div class="task-check check-done">✓</div>
+              <span style="text-decoration:line-through;color:#64748b">Verificar alíquota no SEFAZ</span>
+              <select class="task-status"><option>todo</option><option>doing</option><option selected>done</option><option>blocked</option></select>
+            </div>
+            <div class="task-item">
+              <div class="task-check check-doing">▶</div>
+              <span>Parametrizar IS no ERP</span>
+              <select class="task-status"><option>todo</option><option selected>doing</option><option>done</option><option>blocked</option></select>
+            </div>
+            <div class="task-add">+ Adicionar tarefa</div>
+          </div>
+        </div>
+        <div class="approval-bar bar-approved">
+          <span class="bar-text-approved">✅ Aprovado por Carlos V. · 13/04/2026 15:44</span>
+          <div class="actions"><button class="btn">Editar</button><button class="btn" onclick="showPg('m-del')">Excluir</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pg-pending" class="screen">
+    <div class="sticky-banner">
+      <div class="banner-label">Risco de origem — rastreabilidade completa</div>
+      <div class="banner-chips">
+        <span class="bc bc-blue">CNAE 4635-4/02</span><span class="bc-sep">›</span>
+        <span class="bc bc-purple">imposto_seletivo</span><span class="bc-sep">›</span>
+        <span class="bc bc-green">Art. 2 LC 214/2025</span><span class="bc-sep">›</span>
+        <span class="bc bc-gray">GAP-IS-002</span><span class="bc-sep">›</span>
+        <span class="bc bc-gray">RISK-002</span>
+      </div>
+      <div class="banner-risk">Risco de não conformidade com IS nas operações de comercio <span class="badge badge-red">Alta</span></div>
+    </div>
+    <div class="content-area">
+      <div class="plan-card plan-pending">
+        <div class="plan-body">
+          <div class="plan-origin"><span class="bc bc-gray" style="font-size:10px">GAP-IS-002</span><span class="bc-sep">·</span><span>imposto_seletivo</span><span class="bc-sep">·</span><span class="badge badge-red" style="font-size:10px">Alta</span></div>
+          <div class="plan-title">Contratar assessoria tributária IS</div>
+          <div class="plan-meta"><span>Diretor</span><span>·</span><span>30 dias · vence 13/05/2026</span></div>
+          <div class="blocked-notice">⚠ Tarefas bloqueadas — aprovar o plano para liberar as tarefas</div>
+          <div class="task-section">
+            <div class="task-header"><span>Tarefas (2)</span><span style="font-size:11px;color:#94a3b8">bloqueadas</span></div>
+            <div class="task-item task-locked"><div class="task-check"></div><span>Solicitar 3 propostas de consultoria</span><span style="margin-left:auto;font-size:11px">🔒</span></div>
+            <div class="task-item task-locked"><div class="task-check"></div><span>Avaliar e contratar consultoria</span><span style="margin-left:auto;font-size:11px">🔒</span></div>
+          </div>
+        </div>
+        <div class="approval-bar bar-pending">
+          <span class="bar-text-pending">⏳ Aguardando aprovação do advogado</span>
+          <div class="actions">
+            <button class="btn">Editar</button>
+            <button class="btn" onclick="showPg('m-del')">Excluir</button>
+            <button class="btn btn-green">✓ Aprovar plano</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pg-hist" class="screen">
+    <div class="sticky-banner">
+      <div class="banner-label">Risco de origem</div>
+      <div class="banner-risk" style="font-size:12px">Risco de não conformidade com IS · <span class="badge badge-red">Alta</span></div>
+    </div>
+    <div class="content-area">
+      <div class="nav-tabs">
+        <button class="nav-tab" onclick="showPg('main')">Planos ativos (2)</button>
+        <button class="nav-tab active">Histórico (1)</button>
+      </div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:10px">1 plano excluído · disponível por 90 dias</div>
+      <div class="hist-card">
+        <div class="hist-title">Revisar documentação de alíquotas</div>
+        <div class="hist-meta">Excluído 12/04/2026 por Ana M.</div>
+        <div class="hist-meta">Motivo: "Tarefa absorvida pelo plano principal"</div>
+        <button class="btn" style="margin-top:8px;font-size:12px">↩ Restaurar plano</button>
+      </div>
+      <div class="audit-log">
+        <div style="font-size:12px;font-weight:500;color:#64748b;margin-bottom:8px">Audit log</div>
+        <div class="audit-row"><div class="audit-dot" style="background:#7c3aed">✓</div><div>Plano aprovado · AP-RISK-002-01 · Carlos V. · 15:44</div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:#2563eb">~</div><div>Tarefa: todo→done · Ana M. · 14:30</div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:#2563eb">~</div><div>Plano editado · prazo 30d→90d · Ana M. · 11:15</div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:#16a34a">+</div><div>Tarefa criada · Parametrizar IS no ERP · Ana M. · 10:02</div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:#94a3b8">⚙</div><div>Plano criado · 3 tarefas · Carlos V. · 09:00</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pg-m-new" class="screen">
+    <div class="modal-bg">
+      <div class="modal">
+        <h3>Novo plano de ação</h3>
+        <div class="modal-sub">Vinculado: GAP-IS-002 · Imposto Seletivo · Alta</div>
+        <div class="banner-chips" style="margin-bottom:14px">
+          <span class="bc bc-blue">CNAE 4635-4/02</span><span class="bc-sep">›</span>
+          <span class="bc bc-purple">imposto_seletivo</span><span class="bc-sep">›</span>
+          <span class="bc bc-green">Art. 2</span><span class="bc-sep">›</span>
+          <span class="bc bc-gray">este plano</span>
+        </div>
+        <label class="form-label">Título do plano <span class="form-req">*</span></label>
+        <input type="text" placeholder="Ex: Implantar controle de apuração do IS" class="mb8">
+        <div class="ai-tip">Sugestão da IA ↗ — clique para usar</div>
+        <div class="grid2">
+          <div>
+            <label class="form-label">Responsável <span class="form-req">*</span></label>
+            <select><option value="">Selecionar...</option><option>Gestor fiscal</option><option>Diretor</option><option>TI</option><option>Advogado</option></select>
+          </div>
+          <div>
+            <label class="form-label">Prazo <span class="form-req">*</span></label>
+            <select><option value="">Selecionar...</option><option>30 dias</option><option>60 dias</option><option>90 dias</option></select>
+          </div>
+        </div>
+        <label class="form-label">Descrição</label>
+        <textarea rows="2" placeholder="Opcional" class="mb8"></textarea>
+        <div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:4px">
+          <div style="font-size:12px;font-weight:500;margin-bottom:6px">Tarefas iniciais (opcional)</div>
+          <input type="text" placeholder="+ Adicionar tarefa atômica...">
+        </div>
+        <div class="modal-actions">
+          <button class="btn" onclick="showPg('main')">Cancelar</button>
+          <button class="btn btn-green">Criar plano</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pg-m-task" class="screen">
+    <div class="modal-bg">
+      <div class="modal">
+        <h3>Editar tarefa</h3>
+        <div class="modal-sub">Plano: "Implantar controle de apuração do IS"</div>
+        <div class="info-box">Tarefa vinculada: AP-RISK-002-01 · GAP-IS-002 · Art. 2 LC 214/2025</div>
+        <label class="form-label">Título <span class="form-req">*</span></label>
+        <input type="text" value="Parametrizar IS no ERP" class="mb8">
+        <label class="form-label">Descrição</label>
+        <textarea rows="2" placeholder="Opcional" class="mb8"></textarea>
+        <div class="grid2">
+          <div>
+            <label class="form-label">Responsável</label>
+            <input type="text" value="TI">
+          </div>
+          <div>
+            <label class="form-label">Status</label>
+            <select><option>todo</option><option selected>doing</option><option>done</option><option>blocked</option></select>
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <label class="form-label">Data limite</label>
+          <input type="text" value="12/07/2026">
+        </div>
+        <div class="modal-actions">
+          <button class="btn" onclick="showPg('main')">Cancelar</button>
+          <button class="btn btn-green">Salvar tarefa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pg-m-del" class="screen">
+    <div class="modal-bg">
+      <div class="modal">
+        <h3>Excluir plano de ação</h3>
+        <div class="modal-sub">Esta ação é reversível — disponível por 90 dias</div>
+        <div class="info-box">Ao excluir este plano, as tarefas vinculadas serão arquivadas junto. Você pode restaurar a qualquer momento.</div>
+        <label class="form-label">Motivo da exclusão <span class="form-req">*</span></label>
+        <textarea id="drt" rows="3" placeholder="Mínimo 10 caracteres" oninput="cdd()"></textarea>
+        <div class="char-count" id="dct">0 / 200</div>
+        <div class="modal-actions">
+          <button class="btn" onclick="showPg('main')">Cancelar</button>
+          <button class="btn btn-red" id="dbt" disabled style="opacity:0.5">Confirmar exclusão</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+function showPg(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  const m={main:0,pending:1,hist:2,'m-new':3,'m-task':4,'m-del':5};
+  document.querySelectorAll('.page-btn').forEach(b=>b.classList.remove('active'));
+  if(m[id]!==undefined)document.querySelectorAll('.page-btn')[m[id]].classList.add('active');
+}
+function cdd(){
+  const v=document.getElementById('drt').value;
+  document.getElementById('dct').textContent=v.length+' / 200';
+  const b=document.getElementById('dbt');
+  b.disabled=v.length<10;b.style.opacity=v.length<10?'0.5':'1';
+}
+</script>
+</body>
+</html>
