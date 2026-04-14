@@ -32,9 +32,15 @@ import {
   ThumbsUp,
   CheckSquare,
   Lock,
+  Pencil,
 } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -268,9 +274,10 @@ interface ActionPlanCardProps {
   canApprove: boolean;
   onApprove: (planId: string) => void;
   onDelete: (planId: string, reason: string) => void;
+  onEdit?: (plan: ActionPlanCardProps["plan"]) => void;
 }
 
-function ActionPlanCard({ plan, canApprove, onApprove, onDelete }: ActionPlanCardProps) {
+function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: ActionPlanCardProps) {
   const utils = trpc.useUtils();
   const [showTasks, setShowTasks] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
@@ -358,6 +365,17 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete }: ActionPlanCar
               onClick={() => onApprove(plan.id)}
             >
               <ThumbsUp className="h-3.5 w-3.5" />
+            </Button>
+          )}
+          {onEdit && !isDeleted && plan.status !== "concluido" && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-7 w-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              title="Editar plano"
+              onClick={() => onEdit(plan)}
+            >
+              <Pencil className="h-3.5 w-3.5" />
             </Button>
           )}
           <Button
@@ -533,6 +551,40 @@ export default function ActionPlanPage() {
     onError: (err) => toast.error("Erro ao aprovar plano", { description: err.message }),
   });
 
+  const [showNewPlan, setShowNewPlan] = useState(false);
+  const [editPlanTarget, setEditPlanTarget] = useState<{ id: string; risk_id: string; titulo: string; responsavel: string; prazo: string; descricao?: string | null; status: string } | null>(null);
+  const [npTitulo, setNpTitulo] = useState("");
+  const [npResponsavel, setNpResponsavel] = useState("");
+  const [npPrazo, setNpPrazo] = useState("");
+  const [npDescricao, setNpDescricao] = useState("");
+
+  const isEditMode = !!editPlanTarget;
+
+  const openEditPlan = (plan: typeof editPlanTarget) => {
+    if (!plan) return;
+    setEditPlanTarget(plan);
+    setNpTitulo(plan.titulo);
+    setNpResponsavel(plan.responsavel);
+    setNpPrazo(plan.prazo);
+    setNpDescricao((plan as any).descricao ?? "");
+    setShowNewPlan(true);
+  };
+
+  const closePlanModal = () => {
+    setShowNewPlan(false);
+    setEditPlanTarget(null);
+    setNpTitulo(""); setNpResponsavel(""); setNpPrazo(""); setNpDescricao("");
+  };
+
+  const upsertPlanMutation = trpc.risksV4.upsertActionPlan.useMutation({
+    onSuccess: () => {
+      utils.risksV4.listRisks.invalidate({ projectId });
+      toast.success(isEditMode ? "Plano atualizado" : "Plano criado", { duration: isEditMode ? 3000 : 5000 });
+      closePlanModal();
+    },
+    onError: (err) => toast.error(isEditMode ? "Erro ao salvar plano" : "Erro ao criar plano", { description: err.message }),
+  });
+
   const deletePlanMutation = trpc.risksV4.deleteActionPlan.useMutation({
     onSuccess: () => {
       utils.risksV4.listRisks.invalidate({ projectId });
@@ -585,12 +637,79 @@ export default function ActionPlanPage() {
         </div>
 
         {/* Header */}
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Planos de Ação — v4</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Gestão de planos e tarefas do Sistema de Riscos v4
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Planos de Ação — v4</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Gestão de planos e tarefas do Sistema de Riscos v4
+            </p>
+          </div>
+          {riskIdParam && (
+            <Button size="sm" onClick={() => setShowNewPlan(true)}>
+              <Plus className="h-3.5 w-3.5 mr-1.5" />
+              Novo plano
+            </Button>
+          )}
         </div>
+
+        {/* Modal: Novo / Editar plano */}
+        {showNewPlan && (riskIdParam || editPlanTarget) && (
+          <Dialog open onOpenChange={(open) => { if (!open) closePlanModal(); }}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>{isEditMode ? "Editar plano de ação" : "Novo plano de ação"}</DialogTitle>
+                <DialogDescription>{isEditMode ? "Altere os campos e salve" : "Vinculado ao risco selecionado"}</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="ap-titulo">Título *</Label>
+                  <Input id="ap-titulo" value={npTitulo} onChange={(e) => setNpTitulo(e.target.value)} placeholder="Min 5 caracteres" maxLength={500} />
+                  {npTitulo.length > 0 && npTitulo.length < 5 && <p className="text-xs text-destructive mt-1">Título muito curto</p>}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="ap-resp">Responsável *</Label>
+                    <Input id="ap-resp" value={npResponsavel} onChange={(e) => setNpResponsavel(e.target.value)} placeholder="Nome" />
+                  </div>
+                  <div>
+                    <Label htmlFor="ap-prazo">Prazo *</Label>
+                    <Select value={npPrazo} onValueChange={setNpPrazo}>
+                      <SelectTrigger id="ap-prazo"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="30_dias">30 dias</SelectItem>
+                        <SelectItem value="60_dias">60 dias</SelectItem>
+                        <SelectItem value="90_dias">90 dias</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="ap-desc">Descrição (opcional)</Label>
+                  <Textarea id="ap-desc" value={npDescricao} onChange={(e) => setNpDescricao(e.target.value)} rows={3} />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={closePlanModal}>Cancelar</Button>
+                <Button
+                  disabled={npTitulo.length < 5 || !npResponsavel || !npPrazo || upsertPlanMutation.isPending}
+                  onClick={() => upsertPlanMutation.mutate({
+                    projectId,
+                    riskId: editPlanTarget?.risk_id ?? riskIdParam!,
+                    titulo: npTitulo,
+                    responsavel: npResponsavel,
+                    prazo: npPrazo as "30_dias" | "60_dias" | "90_dias",
+                    descricao: npDescricao || undefined,
+                    ...(editPlanTarget ? { planId: editPlanTarget.id } : {}),
+                  })}
+                >
+                  {upsertPlanMutation.isPending
+                    ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />{isEditMode ? "Salvando..." : "Criando..."}</>
+                    : isEditMode ? "Salvar alterações" : "Criar plano"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
 
         {/* Loading */}
         {isLoading && (
@@ -653,6 +772,7 @@ export default function ActionPlanPage() {
                         onDelete={(planId, reason) =>
                           deletePlanMutation.mutate({ projectId, planId, reason })
                         }
+                        onEdit={(p) => openEditPlan(p)}
                       />
                     ))}
                   </CardContent>

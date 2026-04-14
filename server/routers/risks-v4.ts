@@ -295,7 +295,55 @@ export const risksV4Router = router({
     }),
 
   /**
-   * 6. upsertActionPlan
+   * 6. bulkApprove — Sprint Z-14 Issue #533
+   * Aprova múltiplos riscos de um projeto em uma única chamada.
+   * Sem riskIds: aprova todos os pending (approved_at IS NULL AND status='active').
+   * Com riskIds: aprova apenas os IDs informados (desde que pending).
+   */
+  bulkApprove: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        riskIds: z.array(z.string().uuid()).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { projectId, riskIds } = input;
+
+      // Buscar todos os riscos ativos do projeto (status='active' garantido pelo helper)
+      const allRisks = await getRisksV4ByProject(projectId);
+      // Filtrar pending: approved_at IS NULL
+      const pending = allRisks.filter((r) => !r.approved_at);
+      const toApprove = riskIds
+        ? pending.filter((r) => riskIds.includes(r.id))
+        : pending;
+
+      if (toApprove.length === 0) {
+        return { approved: 0, risks: [] };
+      }
+
+      // Aprovar cada risco individualmente (reutiliza helpers existentes)
+      await Promise.all(
+        toApprove.map(async (risk) => {
+          await approveRiskV4(risk.id, ctx.user.id);
+          await insertAuditLog({
+            project_id: projectId,
+            entity: "risk",
+            entity_id: risk.id,
+            action: "approved",
+            user_id: ctx.user.id,
+            user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
+            user_role: ctx.user.role ?? "user",
+            after_state: { approved_by: ctx.user.id, approved_at: new Date() },
+          });
+        })
+      );
+
+      return { approved: toApprove.length, risks: toApprove };
+    }),
+
+  /**
+   * 7. upsertActionPlan
    * Cria ou atualiza um plano de ação vinculado a um risco.
    */
   upsertActionPlan: protectedProcedure

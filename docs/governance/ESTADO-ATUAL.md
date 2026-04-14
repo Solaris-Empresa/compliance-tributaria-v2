@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v5.8 · 2026-04-13 (Sprint Z-13.5 ENCERRADA · Gate 7 PASS · HEAD 01dcc21)** · Responsável: Orquestrador gera, Manus commita
+> **v6.2 · 2026-04-14 (Sprint Z-14 F1 done · HEAD 9c0ac16)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v5.8 · **HEAD:** `01dcc21` (github/main) · **Testes:** Gate 7 PASS ✅ · tsc 0 erros  
+**Baseline:** v6.2 · **HEAD:** `9c0ac16` (github/main) · **Testes:** Gate 7 PASS ✅ · tsc 0 erros · 124/124 unit  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -26,10 +26,15 @@ Plataforma de compliance da Reforma Tributária brasileira.
 **Sprint Z-11:** ✅ ENCERRADA · Gate E PASS — B-Z11-009 (CNAE skip) · B-Z11-010 (briefing guard) · B-Z11-012 (status transition) · PRs #467–#468
 **Sprint Z-12:** ✅ ENCERRADA · Gate 7 PASS — migration 0072/0073/0074 · housekeeping Z-11 em lote · RAG Lote D (CGIBS) · hot swap ADR-0022 · R-SYNC-01 · PRs #469–#483 · HEAD c4a5f57
 **Sprint Z-13:** ✅ ENCERRADA · Gate 7 PASS — RAG CGIBS 6 chunks ✅ · descricao /admin/categorias ✅ · R-SYNC-01 CLAUDE.md ✅ · fix B-Z13-001 is_active→active ✅ · fix B-Z13-002 gap_type/criticality ✅ · fix B-Z13-003 JOIN inválido ✅ · stepper etapa4→risk-dashboard-v4 ✅ · fix B-Z13-004 risk_category_code GapSchema+INSERT ✅ (#495+#496) · backfill project_gaps_v3 ✅ · cockpits P.O.+RAG atualizados ✅ (#499) · 9 docs RAG v5.0 ✅ (#498) · PRs #485–#499 · HEAD f396fed · Gate E PASS
-**Sprint Z-13.5:** ✅ ENCERRADA · Gate E PASS · Gate 7 PASS — B-Z13.5-001 (safeParseObject/safeParseArray) ✅ · B-Z13.5-002 (dual-schema operationProfile) ✅ · PRs #502–#510 · HEAD 01dcc21
+**Sprint Z-13.5:** ✅ ENCERRADA · Gate E PASS · Gate 7 PASS · **Gate 0 CONFIAVEL** — B-Z13.5-001 (safeParseObject/safeParseArray) ✅ · B-Z13.5-002 (dual-schema operationProfile) ✅ · PRs #502–#511 · HEAD 7080d40
   - Campos confirmados: `operationProfile` → `operationType/multiState/clientType/paymentMethods/hasIntermediaries` (novo) + `tipoOperacao/multiestadual/tipoCliente/meiosPagamento/intermediarios` (legado)
   - `product_answers`: `ncm` (snake_case) · `confirmedCnaes`: camelCase JSON
-  - UAT T1–T6 PASS em produção · ragDocuments: 2.515 · normative_product_rules: 20 · risk_categories: 10
+  - UAT T1–T6 PASS em producao · ragDocuments: 2.515 · normative_product_rules: 20 · risk_categories: 10
+  - **Governanca Gate 0:** DATA_DICTIONARY.md (60 campos, 8 tabelas) + db-schema-validator agent + CLAUDE.md Gate 0 section
+  - **Governanca Gate UX:** UX_DICTIONARY.md (2 telas, 33 funcionalidades) + ux-spec-validator agent + CLAUDE.md Gate UX section
+  - **Modelo Orquestracao v1.1:** F0–F7 + F4.5 · 11 regras (ORQ-01..11) · CI/CD enforcement · Sprint Log · PRs #512–#518
+  - **Post-mortem:** `docs/governance/POST-MORTEM-Z13.5-SESSAO-CLAUDE-CODE.md` — auditoria completa, 5/5 bugs cobertos
+  - **Resumo P.O.:** `docs/governance/GOVERNANCA-SESSAO-13ABR2026.md` — documento executivo para o P.O.
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -39,13 +44,15 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `01dcc21`
-- **Regra obrigatória:** SEMPRE branch → PR → merge. NUNCA push direto em main.
-- **Regra de ordem (Q8):** respeitar a sequência de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequência.
+- **Branch base:** main · **HEAD:** `9c0ac16`
+- **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
+- **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
+- **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
 - **Conflito recorrente:** `client/public/__manus__/version.json` — resolver via `git restore --staged`
-- **Checkpoint Manus ≠ versão de produto:** checkpoints são artefatos de infraestrutura para recuperação do sandbox. O estado canônico do produto é sempre `origin/main` no GitHub.
-- **Referência operacional:** docs/HANDOFF-MANUS.md
-- **Referência de governança:** docs/governance/HANDOFF-IMPLEMENTADOR.md
+- **Checkpoint Manus ≠ versao de produto:** checkpoints sao artefatos de infraestrutura para recuperacao do sandbox. O estado canonico do produto e sempre `origin/main` no GitHub.
+- **Referencia operacional:** docs/HANDOFF-MANUS.md
+- **Referencia de governanca:** docs/governance/HANDOFF-IMPLEMENTADOR.md
+- **Post-mortem Z-13.5:** docs/governance/POST-MORTEM-Z13.5-SESSAO-CLAUDE-CODE.md
 
 ## Para o Claude (orquestrador)
 
@@ -61,13 +68,19 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `01dcc21` | ✅ |
-| Baseline | **v5.8** | ✅ |
-| Testes passando | **Gate 7 PASS ✅** · tsc 0 erros · 75/75 (Z-13.5) | ✅ |
+| HEAD (github/main) | `9c0ac16` | ✅ |
+| Baseline | **v6.0** | ✅ |
+| Testes passando | **Gate 7 PASS ✅** · tsc 0 erros · 124/124 unit (Z-13.5) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | CI Workflows | **12 ativos** + invariant-check (GOV-03b) | ✅ |
 | CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
-| PRs mergeados (total) | **510 (Sprint Z-13.5 PRs #502–#510)** | ✅ |
+| PRs mergeados (total) | **523 (sessao 13–14/abr: PRs #500–#523)** | ✅ |
+| Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · 5/5 bugs prevenidos | ✅ |
+| Gate UX (frontend) | **CONFIAVEL** — UX_DICTIONARY 33 funcionalidades · ux-spec-validator · 2 telas | ✅ |
+| Modelo Orquestracao | **v1.1** — F0–F7 + F4.5 · 11 regras · CI/CD enforcement · Sprint Log | ✅ |
+| CI Workflows | **17 ativos** (validate-pr + project-automation novos) | ✅ |
+| Issue Templates | **5** (sprint-issue novo, v1.1) | ✅ |
+| Sprint Z-14 | **F1 DONE** — Milestone #12 + Board #9 + Issues #520/#521 (Lote A) + CI auto-add | ⏳ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |

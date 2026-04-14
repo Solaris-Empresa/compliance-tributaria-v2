@@ -119,19 +119,106 @@ Prettier with: double quotes, semicolons, trailing commas (es5), 2-space indent,
 - Auth uses OAuth + JWT cookies with role-based access (equipe_solaris, advogado_senior, cliente)
 - Health endpoints: `/api/health`, `/api/health/cnae`, `/api/health/cnae/validate`
 
+## BLOQUEIO OBRIGATORIO — Antes de qualquer implementacao
+
+Claude Code DEVE executar antes de escrever qualquer codigo:
+
+1. **Ler a issue:**
+   `gh issue view [N] --json body,labels --jq '{labels: [.labels[].name]}'`
+
+2. **Verificar 5 labels:** `spec-bloco9`, `spec-adr`, `spec-contrato`, `spec-e2e`, `spec-aprovada`
+   Se qualquer label ausente: **PARAR. NAO criar branch. Reportar ao Orquestrador.**
+
+3. **Verificar conteudo:** "Bloco 9", "ADR" ou "N/A", "Contrato", "Fluxo E2E"
+   Se qualquer secao ausente: **PARAR. Reportar secoes faltantes.**
+
+4. **Confirmar:** "Issue #N verificada — 5 labels + 4 secoes — iniciando implementacao"
+
+**SEM EXCECAO** — nem para fixes de 1 linha. A responsabilidade e do Claude Code.
+
 ## Gate 0 — Verificacao de Schema (OBRIGATORIO)
 
 ANTES de qualquer implementacao que toca banco de dados:
 
-1. Orquestrador consulta `docs/governance/DATA_DICTIONARY.md`
+1. **Orquestrador** consulta `docs/governance/DATA_DICTIONARY.md`
 2. Se campo nao estiver documentado:
-   - Executar: `SHOW FULL COLUMNS FROM [tabela]`
-   - Executar: `SELECT JSON_KEYS([campo]) FROM [tabela] WHERE [campo] IS NOT NULL LIMIT 3`
-3. Orquestrador confirma nomes reais
-4. So entao despacha prompt para implementacao
+   - Acionar agente: `.claude/agents/db-schema-validator.md`
+   - **Manus** executa: `SHOW FULL COLUMNS FROM [tabela]`
+   - **Manus** executa: `SELECT JSON_KEYS([campo]) FROM [tabela] WHERE [campo] IS NOT NULL LIMIT 3`
+3. **Orquestrador** confirma nomes reais e atualiza DATA_DICTIONARY se necessario
+4. **Claude Code** implementa somente com nomes confirmados
 
 **SEM EXCECAO** — nem para fixes "simples".
 Violacao desta regra = causa raiz garantida de bug (post-mortem B-Z13.5-001/002).
+
+## Gate UX — Verificacao de spec (obrigatorio para frontend)
+
+ANTES de qualquer implementacao de componente frontend:
+
+1. **Orquestrador** consulta `docs/governance/UX_DICTIONARY.md` — verificar estado atual da tela
+2. **Claude Code** executa agente `.claude/agents/ux-spec-validator.md` — reportar gaps vs spec
+3. **Orquestrador** cria issue com spec HIBRIDA:
+   - Conteudo copiado no corpo da issue
+   - Link para arquivo fonte
+   - Lock apos aprovacao P.O.
+   - PATCH (<=5 linhas): comentario na issue
+   - AMENDMENT (estrutural): nova issue
+4. **P.O.** aprova issue com spec congelada
+5. **Claude Code** implementa somente apos aprovacao — todo prompt DEVE iniciar com `gh issue view [N]`
+
+**SEM EXCECAO** — nem para ajustes visuais "simples".
+Violacao desta regra = causa raiz do retrabalho Z-07 (spec existia mas nao foi incluida no prompt).
+
+### REGRA-ORQ-08
+Todo prompt de implementacao DEVE iniciar com `gh issue view [N]`.
+O implementador le a issue diretamente do GitHub. Nunca depende do orquestrador copiar a spec.
+
+### REGRA-ORQ-09
+Gate UX obrigatorio antes de qualquer frontend.
+`ux-spec-validator` deve reportar LIBERAR antes de codar.
+
+### REGRA-ORQ-10
+Integration Checkpoint (F4.5) obrigatorio antes do merge:
+- `grep -n "trpc\." [componente]` executado
+- Cruzar com Contrato API da issue
+- 100% das procedures da issue devem estar sendo chamadas
+- Procedure nao chamada = merge bloqueado
+
+### REGRA-ORQ-11 — Fast-track hotfix P0
+
+Para bugs criticos em producao que nao podem esperar o fluxo normal.
+
+1. Gate 0 minimo (5 min): confirmar root cause com evidencia JSON
+2. PR: titulo `[HOTFIX] descricao`, body com `Closes #N` + root cause + fix + evidencia
+3. P.O. aprova diretamente (sem auditoria dupla)
+4. CI normal se aplica (tsc + testes obrigatorios)
+5. Apos deploy: criar issue de governanca para prevenir recorrencia
+
+## PASSO 0.0 — R-SYNC-01 (ANTES DE TUDO)
+
+Antes de qualquer trabalho em qualquer sprint:
+
+```
+git fetch origin && git diff --stat origin/main
+Se divergente: git reset --hard origin/main
+```
+
+**SEM EXCECAO** — nem para fixes "simples".
+Violacao: schema reportado errado → bugs garantidos.
+
+## F7 — Deploy + Smoke test (OBRIGATORIO)
+
+Apos todo Gate 7, antes de declarar sprint encerrada:
+
+1. **Manus:** deploy em producao
+2. **Claude Code:** regenerar riscos no projeto de referencia
+3. Verificar 4 provas:
+   - PROVA 1: 10 <= riscos <= 40
+   - PROVA 2: aliquota_zero + credito_presumido presentes
+   - PROVA 3: titulos sem "[categoria]" e sem "geral"
+   - PROVA 4: >= 50% rag_validated=true
+
+Sprint nao encerra sem F7 passando.
 
 ## Sprint Z-07 — Sistema de Riscos v4 — CONCLUÍDA (Z-12)
 
