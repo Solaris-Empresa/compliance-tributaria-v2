@@ -5,6 +5,17 @@
 
 ---
 
+## Documentos de regras de negocio
+
+| Arquivo | Conteudo |
+|---|---|
+| [RN_GERACAO_RISCOS_V4.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RN_GERACAO_RISCOS_V4.md) | Pipeline 3 passos, SEVERITY/URGENCIA/TYPE, ACL, 10 RNs |
+| [RN_PLANOS_TAREFAS_V4.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RN_PLANOS_TAREFAS_V4.md) | Catalogo buildActionPlans, fluxo status, cascata, audit log |
+
+**REGRA-ORQ-00:** Ler AMBOS antes de criar qualquer issue que toque riscos ou planos.
+
+---
+
 ## ⚠️ Regra de verificação dupla (B-Z14-001)
 
 > `SHOW FULL COLUMNS` mostra o **banco atual**.

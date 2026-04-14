@@ -26,6 +26,17 @@ Criterio de done: repo local = origin/main
 Por que: schema reportado de repo desatualizado = bug garantido (R-SYNC-01)
 ```
 
+### REGRA-ORQ-00 — antes do Gate 0
+
+```
+Verificar existencia dos arquivos de RN:
+  ls docs/governance/RN_GERACAO_RISCOS_V4.md
+  ls docs/governance/RN_PLANOS_TAREFAS_V4.md
+
+Se ausentes: CRIAR antes de avancar.
+Se presentes: ler secoes relevantes para a sprint.
+```
+
 ### F0 — Discovery
 
 ```
