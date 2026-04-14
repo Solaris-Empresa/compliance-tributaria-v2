@@ -537,6 +537,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   const [deleteTarget, setDeleteTarget] = useState<RiskData | null>(null);
   const [deleteReason, setDeleteReason] = useState("");
   const [newPlanTarget, setNewPlanTarget] = useState<RiskData | null>(null);
+  const [showBulkConfirm, setShowBulkConfirm] = useState(false);
 
   // ── Queries ───────────────────────────────────────────────────────────────
   const { data, isLoading, error } = trpc.risksV4.listRisks.useQuery(
@@ -580,6 +581,15 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       toast.success("Risco aprovado com sucesso", { duration: 3000 });
     },
     onError: (err) => toast.error("Erro ao aprovar risco", { description: err.message, duration: 6000 }),
+  });
+
+  const bulkApproveMutation = trpc.risksV4.bulkApprove.useMutation({
+    onSuccess: (data) => {
+      utils.risksV4.listRisks.invalidate({ projectId });
+      toast.success(`${data.approved} riscos aprovados com sucesso`, { duration: 3000 });
+      setShowBulkConfirm(false);
+    },
+    onError: () => toast.error("Erro ao aprovar riscos", { description: "Tentar novamente", duration: 6000 }),
   });
 
   const generateMutation = trpc.risksV4.generateRisks.useMutation({
@@ -725,7 +735,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
             <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
               {activeRisks.filter((r) => !r.approved_at).length} itens aguardando sua análise
             </p>
-            <Button size="sm" variant="outline" className="text-xs h-7" disabled title="Aprovar todos (Issue #4b)">
+            <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => setShowBulkConfirm(true)}>
               Aprovar todos
             </Button>
           </div>
@@ -1006,6 +1016,28 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* ── Modal: Aprovar em lote ── */}
+      <AlertDialog open={showBulkConfirm} onOpenChange={(open) => { if (!open) setShowBulkConfirm(false); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Aprovar todos os riscos pendentes</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você está aprovando {activeRisks.filter((r) => !r.approved_at).length} riscos de uma vez.
+              Esta ação será registrada com data e hora no histórico de auditoria.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => bulkApproveMutation.mutate({ projectId })}
+              disabled={bulkApproveMutation.isPending}
+            >
+              {bulkApproveMutation.isPending ? "Aprovando..." : "Confirmar aprovação em lote"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* ── Modal: Novo plano de ação ── */}
       {newPlanTarget && (
