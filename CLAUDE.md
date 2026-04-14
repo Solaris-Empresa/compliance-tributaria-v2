@@ -119,6 +119,21 @@ Prettier with: double quotes, semicolons, trailing commas (es5), 2-space indent,
 - Auth uses OAuth + JWT cookies with role-based access (equipe_solaris, advogado_senior, cliente)
 - Health endpoints: `/api/health`, `/api/health/cnae`, `/api/health/cnae/validate`
 
+## REGRA-ORQ-00 — Leitura obrigatoria pre-sprint
+
+Antes de qualquer issue de riscos ou planos:
+1. `cat docs/governance/RN_GERACAO_RISCOS_V4.md`
+2. `cat docs/governance/RN_PLANOS_TAREFAS_V4.md`
+
+Verificar especificamente:
+- SEVERITY/URGENCIA/TYPE — tabelas deterministicas
+- Catalogo PLANS — titulos canonicos por ruleId
+- Invariantes RN-RISK-05 e RN-AP-09: opportunity → NUNCA gera plano
+- RN-AP-02: status inicial = 'rascunho'
+- prazo: 30_dias | 60_dias | 90_dias | 180_dias (nao date)
+
+Se estes arquivos nao existirem no repo: **BLOQUEAR** — criar antes de qualquer issue.
+
 ## BLOQUEIO OBRIGATORIO — Antes de qualquer implementacao
 
 Claude Code DEVE executar antes de escrever qualquer codigo:
