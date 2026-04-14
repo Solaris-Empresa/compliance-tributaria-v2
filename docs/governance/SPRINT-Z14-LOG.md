@@ -40,12 +40,46 @@
 - [PENDENTE] Issues #1 a #5 ainda nao criadas no GitHub (proxima sessao)
 - [PENDENTE] Taskboard Sprint Z-14 nao criado (proxima sessao)
 
+### Sessao 14/04/2026 — continuacao
+
+**HEAD no inicio:** 869d2c7
+**HEAD no fim:** 564ada8
+
+- [DONE] Milestone Sprint Z-14 criado (#12)
+- [DONE] Taskboard Project #9 criado
+- [DONE] Issues #520 (P0) e #521 (P1) criadas — Lote A
+- [DONE] F3 auditoria: #521 aprovada, #520 devolvida (prazo=date vs ENUM)
+- [DONE] Issue #520 corrigida (migration 0064 e fonte de verdade)
+- [DONE] F4 P.O. aprovacao: labels spec-aprovada aplicadas
+- [DONE] Implementacao: PR #526 (Closes #520) + PR #527 (Closes #521) — mergeados
+- [DONE] Bloco 9 retroativo adicionado via comentario em #520 e #521
+- [DONE] Issues Lote B criadas: #532, #533, #534
+- [DONE] CI enforcement: PR #529 (5 labels spec-* obrigatorias)
+- [DONE] Gate 0 verificacao dupla: PR #525 + #528
+
+### DEBITO DE PROCESSO — PRs #526/#527
+
+[DEBITO] PRs #526 e #527 foram mergeados antes do ciclo completo
+de spec (sem ADR, Contrato, E2E no momento da implementacao).
+
+**Decisao:** Manter codigo no main (revert criaria conflitos).
+
+**Compensacao:**
+- Issues #520/#521 tem Bloco 9 retroativo (comentarios)
+- ADR + Contrato + E2E adicionados retroativamente
+- CI #529 bloqueia PRs futuros sem 5 labels
+- CLAUDE.md bloqueio obrigatorio adicionado
+
+**Lote B e C:** Ciclo completo obrigatorio antes de implementar.
+Nenhum PR sera aberto sem as 5 labels na issue.
+
 ---
 
 ## Pendencias para proxima sessao
 
-- [ ] Executar Gate 0 (Manus: SHOW FULL COLUMNS das tabelas Z-14)
-- [ ] Executar Gate UX (Claude Code: ux-spec-validator nas 2 telas)
-- [ ] Produzir issues #1 e #2 (Lote A)
-- [ ] Criar milestone "Sprint Z-14" no GitHub
-- [ ] Criar taskboard no GitHub Projects
+- [ ] Adicionar ADR + Contrato + E2E retroativos nas issues #520/#521
+- [ ] F3 auditoria do Lote B (#532, #533, #534)
+- [ ] Aplicar labels spec-* no Lote B apos auditoria
+- [ ] F4 aprovacao P.O. do Lote B
+- [ ] Implementar Lote B (ciclo completo)
+- [ ] Criar issue #5 (Lote C — E2E Playwright)
