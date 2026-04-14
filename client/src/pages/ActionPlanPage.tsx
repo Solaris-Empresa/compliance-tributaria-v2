@@ -324,6 +324,7 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
 
   return (
     <div
+      data-testid="action-plan-row"
       className={`rounded-lg border p-4 ${
         isDeleted ? "opacity-50 border-dashed border-muted-foreground/30" : "border-border"
       }`}
@@ -655,7 +656,7 @@ export default function ActionPlanPage() {
         {/* Modal: Novo / Editar plano */}
         {showNewPlan && (riskIdParam || editPlanTarget) && (
           <Dialog open onOpenChange={(open) => { if (!open) closePlanModal(); }}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md" data-testid="action-plan-modal">
               <DialogHeader>
                 <DialogTitle>{isEditMode ? "Editar plano de ação" : "Novo plano de ação"}</DialogTitle>
                 <DialogDescription>{isEditMode ? "Altere os campos e salve" : "Vinculado ao risco selecionado"}</DialogDescription>
