@@ -119,6 +119,23 @@ Prettier with: double quotes, semicolons, trailing commas (es5), 2-space indent,
 - Auth uses OAuth + JWT cookies with role-based access (equipe_solaris, advogado_senior, cliente)
 - Health endpoints: `/api/health`, `/api/health/cnae`, `/api/health/cnae/validate`
 
+## BLOQUEIO OBRIGATORIO — Antes de qualquer implementacao
+
+Claude Code DEVE executar antes de escrever qualquer codigo:
+
+1. **Ler a issue:**
+   `gh issue view [N] --json body,labels --jq '{labels: [.labels[].name]}'`
+
+2. **Verificar 5 labels:** `spec-bloco9`, `spec-adr`, `spec-contrato`, `spec-e2e`, `spec-aprovada`
+   Se qualquer label ausente: **PARAR. NAO criar branch. Reportar ao Orquestrador.**
+
+3. **Verificar conteudo:** "Bloco 9", "ADR" ou "N/A", "Contrato", "Fluxo E2E"
+   Se qualquer secao ausente: **PARAR. Reportar secoes faltantes.**
+
+4. **Confirmar:** "Issue #N verificada — 5 labels + 4 secoes — iniciando implementacao"
+
+**SEM EXCECAO** — nem para fixes de 1 linha. A responsabilidade e do Claude Code.
+
 ## Gate 0 — Verificacao de Schema (OBRIGATORIO)
 
 ANTES de qualquer implementacao que toca banco de dados:
