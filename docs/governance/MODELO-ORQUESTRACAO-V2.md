@@ -184,6 +184,37 @@ Criterio de done:
   CI verde (tsc + testes)
 ```
 
+### PR body obrigatorio (REGRA-ORQ-15)
+
+```
+Todo PR DEVE conter no body — copiar do template, nunca improvisar:
+
+## Declaracao de escopo
+- [x] Baixo — sem impacto em dados ou fluxo principal
+  (ou marcar o nivel correto: Medio/Alto)
+- [x] Nivel 1 — Seguro
+
+## F4.5 Integration Checkpoint
+- [x] [procedure chamada confirmada]
+
+## Evidencia de qualidade
+{
+  "data_integrity": true,
+  "regression": false,
+  "rag_impact": false,
+  "unexpected_behavior": false,
+  "tests_passed": true,
+  "typescript_errors": 0,
+  "risk_level": "low"
+}
+
+Closes #[N]
+
+Sem este bloco: validate-pr FALHA no CI.
+Custo de nao incluir: 2-3 rodadas de CI desperdicadas.
+Nunca confiar em memoria — copiar do template.
+```
+
 ### Regra de paralelismo obrigatorio (RACI — REGRA-ORQ-12)
 
 ```
@@ -343,6 +374,8 @@ Apos deploy, criar issue de governanca para prevenir recorrencia.
 | ORQ-11 | Fast-track hotfix P0: Gate 0 minimo → PR [HOTFIX] → P.O. direto |
 | ORQ-12 | Manus sempre em paralelo: Orquestrador aciona Manus simultaneamente ao Claude Code |
 | ORQ-13 | Fluxo declarado obrigatorio: issue frontend deve declarar step/upstream/downstream (FLOW_DICTIONARY) |
+| ORQ-14 | Efeitos cascata obrigatorios: documentar no Bloco 1 + criterio no Bloco 7 |
+| ORQ-15 | PR body template obrigatorio: copiar do template, nunca improvisar |
 
 ---
 
