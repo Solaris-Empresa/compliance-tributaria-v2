@@ -8,7 +8,7 @@
  *       modais approve/delete, filtros severidade+categoria, skeleton, toasts.
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -639,12 +639,28 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   });
   const isGenerating = analyzeGapsMutation.isPending || mapGapsMutation.isPending || generateFromGapsMutation.isPending;
 
+  // ── Auto-generate on first load (B-01: trigger pos-briefing) ────────────
+  const hasAutoTriggered = useRef(false);
+
   // ── Derived data ──────────────────────────────────────────────────────────
   const allRisks = (data?.risks ?? []) as unknown as RiskData[];
 
   const activeRisks = allRisks.filter((r) => r.status === "active" && r.type === "risk");
   const opportunities = allRisks.filter((r) => r.status === "active" && r.type === "opportunity");
   const deleted = allRisks.filter((r) => r.status === "deleted");
+
+  // B-01: Auto-generate risks when arriving from briefing with empty dashboard
+  useEffect(() => {
+    if (
+      !isLoading &&
+      !hasAutoTriggered.current &&
+      allRisks.length === 0 &&
+      !isGenerating
+    ) {
+      hasAutoTriggered.current = true;
+      analyzeGapsMutation.mutate({ project_id: projectId, dry_run: false });
+    }
+  }, [isLoading, allRisks.length, isGenerating]);
 
   // Category distribution for filter chips
   const categoryDistribution = useMemo(() => {
