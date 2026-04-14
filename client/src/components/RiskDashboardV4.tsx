@@ -41,8 +41,14 @@ import {
   ChevronDown,
   ChevronUp,
   ClipboardList,
+  Plus,
 } from "lucide-react";
 import { Link } from "wouter";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -214,10 +220,11 @@ interface RiskCardProps {
   onDelete: (id: string) => void;
   onRestore: (id: string) => void;
   onApprove: (id: string) => void;
+  onNewPlan?: (risk: RiskData) => void;
   showRestore?: boolean;
 }
 
-function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, showRestore }: RiskCardProps) {
+function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, onNewPlan, showRestore }: RiskCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   const sev = SEVERIDADE_CONFIG[risk.severidade] ?? SEVERIDADE_CONFIG.media;
@@ -280,6 +287,17 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, showRestor
                   onClick={() => onApprove(risk.id)}
                 >
                   <ThumbsUp className="h-3.5 w-3.5" />
+                </Button>
+              )}
+              {onNewPlan && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                  title="Criar plano de ação"
+                  onClick={() => onNewPlan(risk)}
+                >
+                  <Plus className="h-3.5 w-3.5" />
                 </Button>
               )}
               {(risk.actionPlans?.length ?? 0) > 0 && (
@@ -355,6 +373,149 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, showRestor
   );
 }
 
+// ─── Sub-componente: NewPlanModal ────────────────────────────────────────────
+
+const PRAZO_OPTIONS = [
+  { value: "30_dias", label: "30 dias" },
+  { value: "60_dias", label: "60 dias" },
+  { value: "90_dias", label: "90 dias" },
+] as const;
+
+function NewPlanModal({
+  risk,
+  projectId,
+  onClose,
+  onSuccess,
+}: {
+  risk: RiskData;
+  projectId: number;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [titulo, setTitulo] = useState("");
+  const [responsavel, setResponsavel] = useState("");
+  const [prazo, setPrazo] = useState<string>("");
+  const [descricao, setDescricao] = useState("");
+
+  const breadcrumb = parseBreadcrumb(risk.breadcrumb);
+  const isValid = titulo.length >= 5 && responsavel.length > 0 && prazo.length > 0;
+
+  const createPlan = trpc.risksV4.upsertActionPlan.useMutation({
+    onSuccess: () => {
+      toast.success("Plano criado", {
+        description: "Ver plano na página de ações.",
+        action: {
+          label: "Ver plano",
+          onClick: () => {
+            window.location.href = `/projetos/${projectId}/planos-v4?riskId=${risk.id}`;
+          },
+        },
+        duration: 5000,
+      });
+      onSuccess();
+      onClose();
+    },
+    onError: (err) =>
+      toast.error("Erro ao criar plano", { description: err.message, duration: 6000 }),
+  });
+
+  const handleSubmit = () => {
+    if (!isValid) return;
+    createPlan.mutate({
+      projectId,
+      riskId: risk.id,
+      titulo,
+      responsavel,
+      prazo: prazo as "30_dias" | "60_dias" | "90_dias",
+      descricao: descricao || undefined,
+    });
+  };
+
+  return (
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Novo plano de ação</DialogTitle>
+          <DialogDescription>
+            Vinculado: {risk.rule_id} · {risk.titulo.slice(0, 50)}{risk.titulo.length > 50 ? "…" : ""}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="mb-3">
+          <Breadcrumb4 breadcrumb={breadcrumb} />
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <Label htmlFor="plan-titulo">Título *</Label>
+            <Input
+              id="plan-titulo"
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+              placeholder="Título do plano (min 5 caracteres)"
+              maxLength={500}
+            />
+            {titulo.length > 0 && titulo.length < 5 && (
+              <p className="text-xs text-destructive mt-1">Título muito curto</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="plan-responsavel">Responsável *</Label>
+              <Input
+                id="plan-responsavel"
+                value={responsavel}
+                onChange={(e) => setResponsavel(e.target.value)}
+                placeholder="Nome do responsável"
+              />
+            </div>
+            <div>
+              <Label htmlFor="plan-prazo">Prazo *</Label>
+              <Select value={prazo} onValueChange={setPrazo}>
+                <SelectTrigger id="plan-prazo">
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRAZO_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="plan-descricao">Descrição (opcional)</Label>
+            <Textarea
+              id="plan-descricao"
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+              placeholder="Descrição do plano de ação"
+              rows={3}
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button onClick={handleSubmit} disabled={!isValid || createPlan.isPending}>
+            {createPlan.isPending ? (
+              <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Criando...</>
+            ) : (
+              "Criar plano"
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Componente principal ────────────────────────────────────────────────────
 
 interface RiskDashboardV4Props {
@@ -375,6 +536,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   const [approveTarget, setApproveTarget] = useState<RiskData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<RiskData | null>(null);
   const [deleteReason, setDeleteReason] = useState("");
+  const [newPlanTarget, setNewPlanTarget] = useState<RiskData | null>(null);
 
   // ── Queries ───────────────────────────────────────────────────────────────
   const { data, isLoading, error } = trpc.risksV4.listRisks.useQuery(
@@ -712,6 +874,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
                     onDelete={(id) => setDeleteTarget(allRisks.find((r) => r.id === id) ?? null)}
                     onRestore={(id) => restoreMutation.mutate({ riskId: id })}
                     onApprove={(id) => setApproveTarget(allRisks.find((r) => r.id === id) ?? null)}
+                    onNewPlan={(r) => setNewPlanTarget(r)}
                   />
                 ))
               )}
@@ -750,6 +913,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
                     onDelete={(id) => setDeleteTarget(allRisks.find((r) => r.id === id) ?? null)}
                     onRestore={(id) => restoreMutation.mutate({ riskId: id })}
                     onApprove={(id) => setApproveTarget(allRisks.find((r) => r.id === id) ?? null)}
+                    onNewPlan={(r) => setNewPlanTarget(r)}
                   />
                 ))
               )}
@@ -793,6 +957,16 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* ── Modal: Novo plano de ação ── */}
+      {newPlanTarget && (
+        <NewPlanModal
+          risk={newPlanTarget}
+          projectId={projectId}
+          onClose={() => setNewPlanTarget(null)}
+          onSuccess={() => utils.risksV4.listRisks.invalidate({ projectId })}
+        />
+      )}
 
       {/* ── Modal: Aprovar risco ── */}
       <AlertDialog open={!!approveTarget} onOpenChange={(open) => { if (!open) setApproveTarget(null); }}>

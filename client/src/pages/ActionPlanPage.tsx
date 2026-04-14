@@ -35,6 +35,11 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -533,6 +538,22 @@ export default function ActionPlanPage() {
     onError: (err) => toast.error("Erro ao aprovar plano", { description: err.message }),
   });
 
+  const [showNewPlan, setShowNewPlan] = useState(false);
+  const [npTitulo, setNpTitulo] = useState("");
+  const [npResponsavel, setNpResponsavel] = useState("");
+  const [npPrazo, setNpPrazo] = useState("");
+  const [npDescricao, setNpDescricao] = useState("");
+
+  const createPlanMutation = trpc.risksV4.upsertActionPlan.useMutation({
+    onSuccess: () => {
+      utils.risksV4.listRisks.invalidate({ projectId });
+      toast.success("Plano criado", { duration: 5000 });
+      setShowNewPlan(false);
+      setNpTitulo(""); setNpResponsavel(""); setNpPrazo(""); setNpDescricao("");
+    },
+    onError: (err) => toast.error("Erro ao criar plano", { description: err.message }),
+  });
+
   const deletePlanMutation = trpc.risksV4.deleteActionPlan.useMutation({
     onSuccess: () => {
       utils.risksV4.listRisks.invalidate({ projectId });
@@ -585,12 +606,76 @@ export default function ActionPlanPage() {
         </div>
 
         {/* Header */}
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Planos de Ação — v4</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Gestão de planos e tarefas do Sistema de Riscos v4
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Planos de Ação — v4</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Gestão de planos e tarefas do Sistema de Riscos v4
+            </p>
+          </div>
+          {riskIdParam && (
+            <Button size="sm" onClick={() => setShowNewPlan(true)}>
+              <Plus className="h-3.5 w-3.5 mr-1.5" />
+              Novo plano
+            </Button>
+          )}
         </div>
+
+        {/* Modal: Novo plano */}
+        {showNewPlan && riskIdParam && (
+          <Dialog open onOpenChange={(open) => { if (!open) setShowNewPlan(false); }}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Novo plano de ação</DialogTitle>
+                <DialogDescription>Vinculado ao risco selecionado</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="ap-titulo">Título *</Label>
+                  <Input id="ap-titulo" value={npTitulo} onChange={(e) => setNpTitulo(e.target.value)} placeholder="Min 5 caracteres" maxLength={500} />
+                  {npTitulo.length > 0 && npTitulo.length < 5 && <p className="text-xs text-destructive mt-1">Título muito curto</p>}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="ap-resp">Responsável *</Label>
+                    <Input id="ap-resp" value={npResponsavel} onChange={(e) => setNpResponsavel(e.target.value)} placeholder="Nome" />
+                  </div>
+                  <div>
+                    <Label htmlFor="ap-prazo">Prazo *</Label>
+                    <Select value={npPrazo} onValueChange={setNpPrazo}>
+                      <SelectTrigger id="ap-prazo"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="30_dias">30 dias</SelectItem>
+                        <SelectItem value="60_dias">60 dias</SelectItem>
+                        <SelectItem value="90_dias">90 dias</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="ap-desc">Descrição (opcional)</Label>
+                  <Textarea id="ap-desc" value={npDescricao} onChange={(e) => setNpDescricao(e.target.value)} rows={3} />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowNewPlan(false)}>Cancelar</Button>
+                <Button
+                  disabled={npTitulo.length < 5 || !npResponsavel || !npPrazo || createPlanMutation.isPending}
+                  onClick={() => createPlanMutation.mutate({
+                    projectId,
+                    riskId: riskIdParam,
+                    titulo: npTitulo,
+                    responsavel: npResponsavel,
+                    prazo: npPrazo as "30_dias" | "60_dias" | "90_dias",
+                    descricao: npDescricao || undefined,
+                  })}
+                >
+                  {createPlanMutation.isPending ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Criando...</> : "Criar plano"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
 
         {/* Loading */}
         {isLoading && (
