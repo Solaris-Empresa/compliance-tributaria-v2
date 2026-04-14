@@ -588,11 +588,25 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
     onError: (err) => toast.error("Erro ao aprovar risco", { description: err.message, duration: 6000 }),
   });
 
+  const bulkGenerateActionPlansMutation = trpc.risksV4.bulkGenerateActionPlans.useMutation({
+    onSuccess: (data) => {
+      if (data.generated > 0) {
+        utils.risksV4.listRisks.invalidate({ projectId });
+        toast.success(`${data.generated} plano(s) de ação gerado(s) automaticamente`, { duration: 4000 });
+      }
+    },
+    onError: () => toast.error("Erro ao gerar planos de ação", { description: "Verifique os riscos aprovados", duration: 6000 }),
+  });
+
   const bulkApproveMutation = trpc.risksV4.bulkApprove.useMutation({
     onSuccess: (data) => {
       utils.risksV4.listRisks.invalidate({ projectId });
       toast.success(`${data.approved} riscos aprovados com sucesso`, { duration: 3000 });
       setShowBulkConfirm(false);
+      // B-02: Gerar planos de ação automaticamente após aprovar riscos
+      if (data.approved > 0) {
+        bulkGenerateActionPlansMutation.mutate({ projectId });
+      }
     },
     onError: () => toast.error("Erro ao aprovar riscos", { description: "Tentar novamente", duration: 6000 }),
   });
