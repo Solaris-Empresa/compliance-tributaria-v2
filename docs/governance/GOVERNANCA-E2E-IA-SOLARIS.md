@@ -1,6 +1,6 @@
 # GOVERNANCA E2E — IA SOLARIS
 ## Visao do Product Owner (P.O.)
-**Versao:** v2.5 · 14/04/2026 | **HEAD:** `b9637a2` | **Baseline:** v6.3
+**Versao:** v2.6 · 14/04/2026 | **HEAD:** `f7b58e7` | **Baseline:** v6.4
 **Repo:** [Solaris-Empresa/compliance-tributaria-v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2)
 
 > Todos os numeros neste documento foram validados contra o codigo-fonte em 14/04/2026.
@@ -563,7 +563,7 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | Z-12 | Migrations 0072–0074 + hot swap ADR-0022 + R-SYNC-01 + RAG Lote D | #469–#483 | ENCERRADA |
 | Z-13 | 8 bugs corrigidos (is_active, gap_type, JOIN, risk_category_code) + RAG CGIBS | #485–#499 | ENCERRADA |
 | Z-13.5 | `generateRisksV4Pipeline` + `consolidateRisks` + `inferNormativeRisks` + `enrichRiskWithRag` + Gate 0 + Gate UX + Modelo Orquestracao v2 | #502–#516 | ENCERRADA |
-| Z-14 | upsertActionPlan (#520) + SummaryBar/HistoryTab (#521) + edicao plano (#532) + bulkApprove (#533/#534) + E2E 7 CTs (#544) + fix #545 imports + Bloco 9 + Gate 0 dupla + 5 labels + mockup HTML + REGRA-ORQ-12 | #518–#551 | **ENCERRADA** (6/6 issues fechadas) |
+| Z-14 | upsertActionPlan (#520) + SummaryBar/HistoryTab (#521) + edicao plano (#532) + bulkApprove (#533/#534) + E2E 7 CTs (#544) + auto-generate B-01 (#554) + 17 data-testid (#556) + fix #545 + FLOW_DICTIONARY + ORQ-12/13 | #518–#560 | **ENCERRADA** (8/8 issues fechadas) |
 
 ### Sprint Z-13.5 — Detalhamento (sessao 13–14/abr/2026)
 
@@ -609,8 +609,8 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 
 | Indicador | Valor | Fonte de validacao |
 |---|---|---|
-| HEAD | `b9637a2` | `git rev-parse --short HEAD` |
-| Baseline | v6.3 | ESTADO-ATUAL.md |
+| HEAD | `f7b58e7` | `git rev-parse --short HEAD` |
+| Baseline | v6.4 | ESTADO-ATUAL.md |
 | TypeScript | 0 erros | `npx tsc --noEmit` |
 | Testes unitarios | 124/124 | `npx vitest run server/lib/` |
 | Suite PCT | 117/117 | `npx vitest run server/prefill-contract.test.ts` |
@@ -620,14 +620,14 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | Risk categories | 10 ativas | SEVERITY_TABLE risk-engine-v4.ts |
 | Perguntas SOLARIS | 22 ativas (SOL-015..036) | ESTADO-ATUAL.md |
 | Migrations | 86 | `ls drizzle/*.sql \| wc -l` |
-| PRs mergeados | 550 | `gh pr list --state merged` |
+| PRs mergeados | 560 | `gh pr list --state merged` |
 | Campos banco documentados | 60 | DATA_DICTIONARY.md |
 | Funcionalidades UX mapeadas | 33 | UX_DICTIONARY.md |
-| Regras orquestracao | 12 (ORQ-01..12) | MODELO-ORQUESTRACAO-V2.md v1.1 |
+| Regras orquestracao | 13 (ORQ-01..13) | MODELO-ORQUESTRACAO-V2.md v1.1 |
 | Labels spec-* | 5 (bloco9, adr, contrato, e2e, aprovada) | CI enforcement |
 | CI Workflows | 17 ativos | `.github/workflows/` |
 | Issue Templates | 5 (sprint-issue com 12 blocos) | `.github/ISSUE_TEMPLATE/` |
-| Sprint Z-14 | **ENCERRADA** — 6/6 issues fechadas (#520-#544) + 7 E2E CTs | SPRINT-Z14-LOG.md |
+| Sprint Z-14 | **ENCERRADA** — 8/8 issues fechadas (#520-#556) · auto-generate · 17 data-testid | SPRINT-Z14-LOG.md |
 | Invariants formalizados | 8 | invariant-registry.md |
 | Agentes automatizados | 2 | .claude/agents/ |
 | SKILL.md | 170 linhas, atualizado 14/abr | Manus report + `grep REGRA-ORQ-08 SKILL.md` confirmado |
@@ -655,6 +655,7 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 |---|---|
 | DATA_DICTIONARY.md (60 campos) | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/DATA_DICTIONARY.md) |
 | UX_DICTIONARY.md (33 funcionalidades) | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/UX_DICTIONARY.md) |
+| FLOW_DICTIONARY.md (6 steps fluxo principal) | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/FLOW_DICTIONARY.md) |
 
 ## Agentes
 

@@ -128,3 +128,13 @@ Executor: Claude Code
 [F4] Issue #554 B-01 aprovada — implementando
 [F4] Issue #556 data-testid aprovada — implementando
 E2E_PROJECT_ID=270001 validado em produção
+
+  ### Sprint Z-14 — ENCERRADA — 14/04/2026
+
+  [DONE] 8/8 issues entregues
+  [DONE] Suite E2E final: CT-01 a CT-09
+  [DONE] B-01 auto-generate em produção
+  [DONE] 17 data-testid · 4 dicionários · 13 regras
+  [DONE] Checkpoint v6.4 HEAD a77a7eb1
+  [PENDENTE] UAT manual P.O.
+  [PENDENTE] Execução suite E2E E2E_PROJECT_ID=270001

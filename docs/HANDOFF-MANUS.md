@@ -25,16 +25,17 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-13)
-- BASELINE **v5.6** — Sprint Z-13 ENCERRADA · Gate 7 PASS · PRs #485–#500 · Deploy ✅ iasolaris.manus.space
-- **HEAD: `0e19bcd` (github/main)** · **Checkpoint Manus:** `0f13cd32`
-- **PRs mergeados:** 500 · **TypeScript:** 0 erros · **CI:** 12 workflows ativos
+## Estado atual do projeto (2026-04-14)
+- BASELINE **v5.7** — Sprint Z-14 Lote D ENCERRADA · PRs #536–#560 · Deploy ✅ iasolaris.manus.space
+- **HEAD: `f7b58e7` (github/main)** · **Checkpoint Manus:** `a77a7eb1`
+- **PRs mergeados:** 560 · **TypeScript:** 0 erros · **CI:** 13 workflows ativos
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade (GS-08: 0 chunks sem autor)
-- **Skill solaris-contexto:** v4.2 · **Skill solaris-orquestracao:** v3.2
+- **Skill solaris-contexto:** v4.7 (REGRA-ORQ-12 + F4 paralelo adicionados) · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
 - **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção · Suite E2E automatizada 15 casos ✅ (#364)
+- **E2E Playwright Z-14:** data-testid 17 seletores (#559) · E2E_PROJECT_ID=270001 · fixtures SQL versionadas (#557)
 - **Contratos M1:** CNT-01a/01b/02/03 em `docs/contracts/`
-- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit
+- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + REGRA-ORQ-12/13
 - **Datasets:** `nbs-2-0-utf8.csv` no repo · `lc214-2025.pdf` no sandbox
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
@@ -43,8 +44,9 @@ Drizzle ORM / Vitest / pnpm
 - **Backfill project_gaps_v3:** ✅ EXECUTADO — 138/138 mapeados · 0 NULLs (projeto 2281)
 - **risk_categories:** 9 categorias ativas · 10 no banco (1 inativa)
 - **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
+- **Bug #545:** ⏳ ABERTO — imports dinâmicos incorretos em diagnostic-source.test.ts (sem impacto em produção)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
-- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · **Z-13 ✅ Gate 7 PASS**
+- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ Gate 7 PASS · **Z-14 Lotes A+B+C+D ✅**
 
 ## ADR-0016 — Estado atual (2026-04-07)
 
@@ -160,12 +162,12 @@ Drizzle ORM / Vitest / pnpm
 | D | — | Upload 5 leis corpus RAG (376 chunks) | #294→#296 | ✅ |
 | Fix | M-007 | `isNonCompliantAnswer` — bug confidence_score | #295 | ✅ |
 
-## Pendências abertas (Sprint Z-14)
+## Pendências abertas (pós Sprint Z-14 Lote D)
 
 | Prioridade | Ação | Responsável | Bloqueio |
 |---|---|---|---|
-| P0 | UAT Gate E formal — projeto 2281 · `pipelineStats.unmapped = 0` | P.O. | — |
-| P1 | Consolidação de riscos por categoria (1 risco/categoria vs 1 risco/gap) | Manus | Aprovação P.O. |
+| P0 | Testes E2E Playwright — executar suite com E2E_PROJECT_ID=270001 | Claude Code | B-01 resolvido (#560) |
+| P1 | Fix Bug #545 — imports dinâmicos em diagnostic-source.test.ts (2 linhas) | Manus | — |
 | P2 | IN RFB 2.121/2022 (~200 chunks) | Manus | — |
 | P3 | BL-06: vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts | Manus | — |
 
@@ -177,4 +179,4 @@ resolucao_cgibs_001 (2) · resolucao_cgibs_002 (2) · resolucao_cgibs_003 (2)
 ## Conflito recorrente
 `client/public/__manus__/version.json` — resolver via `git restore --staged client/public/__manus__/version.json`
 
-*Atualizado em 2026-04-13 · v2.0 · Sprint Z-13 ENCERRADA · Gate 7 PASS · Aprovador: P.O. Uires Tapajós*
+*Atualizado em 2026-04-14 · v2.1 · Sprint Z-14 Lotes A+B+C+D ENCERRADOS · PRs #536–#560 · Aprovador: P.O. Uires Tapajós*

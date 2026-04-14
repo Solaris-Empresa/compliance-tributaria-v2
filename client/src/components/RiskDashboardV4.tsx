@@ -8,7 +8,7 @@
  *       modais approve/delete, filtros severidade+categoria, skeleton, toasts.
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -236,6 +236,7 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, onNewPlan,
 
   return (
     <div
+      data-testid={risk.type === "opportunity" ? "opportunity-card" : "risk-card"}
       className={`rounded-lg border border-l-4 p-4 transition-colors ${borderColor} ${
         isDeleted
           ? "opacity-50 border-dashed border-r-muted-foreground/30 border-t-muted-foreground/30 border-b-muted-foreground/30 bg-muted/20"
@@ -267,9 +268,9 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, onNewPlan,
               {URGENCIA_LABELS[risk.urgencia] ?? risk.urgencia}
             </Badge>
           </div>
-          <p className="mt-1.5 text-sm font-medium text-foreground line-clamp-2">{risk.titulo}</p>
+          <p className="mt-1.5 text-sm font-medium text-foreground line-clamp-2" data-testid="risk-title">{risk.titulo}</p>
           {/* Breadcrumb 4 nós */}
-          <div className="mt-1">
+          <div className="mt-1" data-testid="risk-legal-basis">
             <Breadcrumb4 breadcrumb={breadcrumb} />
           </div>
         </div>
@@ -284,6 +285,7 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, onNewPlan,
                   variant="ghost"
                   className="h-7 w-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                   title="Aprovar risco"
+                  data-testid="approve-risk-button"
                   onClick={() => onApprove(risk.id)}
                 >
                   <ThumbsUp className="h-3.5 w-3.5" />
@@ -295,6 +297,7 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, onNewPlan,
                   variant="ghost"
                   className="h-7 w-7 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
                   title="Criar plano de ação"
+                  data-testid="create-action-plan-button"
                   onClick={() => onNewPlan(risk)}
                 >
                   <Plus className="h-3.5 w-3.5" />
@@ -317,6 +320,7 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, onNewPlan,
                 variant="ghost"
                 className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
                 title="Excluir risco"
+                data-testid="delete-risk-button"
                 onClick={() => onDelete(risk.id)}
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -329,6 +333,7 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, onNewPlan,
               variant="ghost"
               className="h-7 w-7 text-muted-foreground hover:text-foreground"
               title="Restaurar risco"
+              data-testid="restore-risk-button"
               onClick={() => onRestore(risk.id)}
             >
               <RotateCcw className="h-3.5 w-3.5" />
@@ -639,12 +644,31 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   });
   const isGenerating = analyzeGapsMutation.isPending || mapGapsMutation.isPending || generateFromGapsMutation.isPending;
 
+  // ── Auto-generate on first load (B-01: trigger pos-briefing) ────────────
+  const hasAutoTriggered = useRef(false);
+
   // ── Derived data ──────────────────────────────────────────────────────────
   const allRisks = (data?.risks ?? []) as unknown as RiskData[];
 
   const activeRisks = allRisks.filter((r) => r.status === "active" && r.type === "risk");
   const opportunities = allRisks.filter((r) => r.status === "active" && r.type === "opportunity");
   const deleted = allRisks.filter((r) => r.status === "deleted");
+
+  // B-01: Auto-generate risks when arriving from briefing with empty dashboard
+  // Fix: usar activeRisks.length (não allRisks.length) para ignorar riscos deletados
+  // e disparar corretamente quando não há riscos ativos, mesmo que existam registros
+  // deletados de gerações anteriores.
+  useEffect(() => {
+    if (
+      !isLoading &&
+      !hasAutoTriggered.current &&
+      activeRisks.length === 0 &&
+      !isGenerating
+    ) {
+      hasAutoTriggered.current = true;
+      analyzeGapsMutation.mutate({ project_id: projectId, dry_run: false });
+    }
+  }, [isLoading, activeRisks.length, isGenerating]);
 
   // Category distribution for filter chips
   const categoryDistribution = useMemo(() => {
@@ -706,9 +730,9 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
 
   // ── Render: Main ──────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="risk-dashboard-page">
       {/* ── SummaryBar (4 cards sticky) ── */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur pb-3 -mx-1 px-1 pt-1">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur pb-3 -mx-1 px-1 pt-1" data-testid="summary-bar">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {([
             { key: "alta", count: activeRisks.filter((r) => r.severidade === "alta").length, label: "Alta", color: "bg-red-100 text-red-700", icon: <ShieldAlert className="h-3.5 w-3.5" /> },
@@ -716,7 +740,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
             { key: "opps", count: opportunities.length, label: "Oportunidades", color: "bg-emerald-100 text-emerald-700", icon: <TrendingUp className="h-3.5 w-3.5" /> },
             { key: "pending", count: activeRisks.filter((r) => !r.approved_at).length, label: "Aguardando", color: "bg-amber-100 text-amber-700", icon: <AlertTriangle className="h-3.5 w-3.5" /> },
           ] as const).map((item) => (
-            <Card key={item.key} className="border-border">
+            <Card key={item.key} className="border-border" data-testid={`summary-count-${item.key === "opps" ? "oportunidade" : item.key === "pending" ? "aguardando" : item.key}`}>
               <CardContent className="pt-4 pb-3 px-4">
                 <div className="flex items-center gap-2">
                   <span className={`p-1.5 rounded-full ${item.color}`}>{item.icon}</span>
@@ -735,7 +759,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
             <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
               {activeRisks.filter((r) => !r.approved_at).length} itens aguardando sua análise
             </p>
-            <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => setShowBulkConfirm(true)}>
+            <Button size="sm" variant="outline" className="text-xs h-7" data-testid="bulk-approve-button" onClick={() => setShowBulkConfirm(true)}>
               Aprovar todos
             </Button>
           </div>
@@ -747,7 +771,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
         <TabsList>
           <TabsTrigger value="riscos">Riscos ({activeRisks.length})</TabsTrigger>
           <TabsTrigger value="oportunidades">Oportunidades ({opportunities.length})</TabsTrigger>
-          <TabsTrigger value="historico">Histórico ({deleted.length})</TabsTrigger>
+          <TabsTrigger value="historico" data-testid="history-tab">Histórico ({deleted.length})</TabsTrigger>
         </TabsList>
 
         {/* ── Tab: Riscos ── */}
@@ -1019,7 +1043,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
 
       {/* ── Modal: Aprovar em lote ── */}
       <AlertDialog open={showBulkConfirm} onOpenChange={(open) => { if (!open) setShowBulkConfirm(false); }}>
-        <AlertDialogContent>
+        <AlertDialogContent data-testid="bulk-approve-confirm-modal">
           <AlertDialogHeader>
             <AlertDialogTitle>Aprovar todos os riscos pendentes</AlertDialogTitle>
             <AlertDialogDescription>
