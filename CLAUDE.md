@@ -209,7 +209,20 @@ Toda issue de frontend DEVE no Bloco 1:
 - **Integracoes obrigatorias:** triggers automaticos
 
 Sem fluxo declarado = issue invalida no F3.
-Motivado por: Issue B-01 (#554) nao especificada porque issues nao declaravam que RiskDashboardV4 faz parte de um stepper de 6 steps.
+
+### REGRA-ORQ-14 — Efeitos cascata obrigatorios
+
+Antes de criar issue que implementa uma acao:
+1. Consultar `docs/governance/FLOW_DICTIONARY.md` secao "Efeitos colaterais"
+2. Documentar NO BLOCO 1 todos os efeitos cascata
+3. Incluir NO BLOCO 7 criterio para cada efeito
+
+Acoes com efeito cascata confirmado:
+- aprovar briefing → gerar riscos automaticamente
+- aprovar risco → gerar plano automaticamente (buildActionPlans)
+- aprovar plano → desbloquear tarefas
+
+Motivado por: B-01 (briefing → riscos) e B-02 (aprovar risco → plano).
 
 ### REGRA-ORQ-11 — Fast-track hotfix P0
 
