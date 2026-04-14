@@ -20,6 +20,16 @@ assignees: ''
 **Por que:** [impacto no usuario se nao for feito]
 **Aceite minimo:** [o minimo para esta issue ser considerada done]
 
+### Fluxo relacionado (obrigatorio para frontend — REGRA-ORQ-13)
+
+> Ver `docs/governance/FLOW_DICTIONARY.md` para o mapa completo.
+
+**Step:** [numero] — [nome do step]
+**Fluxo:** [step anterior] → [AQUI] → [step seguinte]
+**Integracao upstream:** [de onde vem o usuario / componente anterior]
+**Integracao downstream:** [para onde vai / componente seguinte]
+**Triggers automaticos:** [useEffect ou outros, se aplicavel, ou "nenhum"]
+
 ---
 
 ## Bloco 2 — UX Spec
@@ -237,6 +247,7 @@ CENARIO DE ERRO:
 ## Checklist de auditoria (preencher em F3)
 
 - [ ] Bloco 1: contexto e dependencias claros
+- [ ] Bloco 1: step do fluxo declarado? upstream/downstream documentados? (REGRA-ORQ-13)
 - [ ] Bloco 2: spec inline suficiente para implementar sem arquivo externo
 - [ ] Bloco 3: skeleton mostra o delta (nao estrutura completa)
 - [ ] Bloco 4: schema veio de SHOW FULL COLUMNS real

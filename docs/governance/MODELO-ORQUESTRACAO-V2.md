@@ -126,6 +126,7 @@ P2 UI pura:  Claude Code obrigatorio, Manus dispensado
 
 Checklist binario por issue (todos devem estar marcados):
   [ ] Bloco 1: contexto e dependencias claros
+  [ ] Bloco 1: step do fluxo declarado? upstream/downstream? (FLOW_DICTIONARY + REGRA-ORQ-13)
   [ ] Bloco 2: spec inline suficiente para implementar sem arquivo externo
   [ ] Bloco 3: skeleton mostra O QUE MUDA (nao estrutura completa)
   [ ] Bloco 4: schema veio de SHOW FULL COLUMNS real (nao de memoria)
@@ -341,6 +342,7 @@ Apos deploy, criar issue de governanca para prevenir recorrencia.
 | ORQ-10 | F4.5 Integration Checkpoint obrigatorio antes do merge |
 | ORQ-11 | Fast-track hotfix P0: Gate 0 minimo → PR [HOTFIX] → P.O. direto |
 | ORQ-12 | Manus sempre em paralelo: Orquestrador aciona Manus simultaneamente ao Claude Code |
+| ORQ-13 | Fluxo declarado obrigatorio: issue frontend deve declarar step/upstream/downstream (FLOW_DICTIONARY) |
 
 ---
 
