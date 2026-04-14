@@ -26,9 +26,9 @@ Drizzle ORM / Vitest / pnpm
 | Consultor | ChatGPT — segunda opinião estratégica |
 
 ## Estado atual do projeto (2026-04-14)
-- BASELINE **v5.7** — Sprint Z-14 Lote D ENCERRADA · PRs #536–#560 · Deploy ✅ iasolaris.manus.space
-- **HEAD: `f7b58e7` (github/main)** · **Checkpoint Manus:** `a77a7eb1`
-- **PRs mergeados:** 560 · **TypeScript:** 0 erros · **CI:** 13 workflows ativos
+- BASELINE **v5.8** — Sprint Z-14 Lote E EM ANDAMENTO · PRs #536–#583 · Deploy ✅ iasolaris.manus.space
+- **HEAD: `ec482b81` (github/main)** · **Checkpoint Manus:** `ec482b81`
+- **PRs mergeados:** 581 · **PR aberto:** #583 (fix/z14-prazo-180dias) · **TypeScript:** 0 erros · **CI:** 13 workflows ativos
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade (GS-08: 0 chunks sem autor)
 - **Skill solaris-contexto:** v4.7 (REGRA-ORQ-12 + F4 paralelo adicionados) · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
@@ -47,6 +47,17 @@ Drizzle ORM / Vitest / pnpm
 - **Bug #545:** ⏳ ABERTO — imports dinâmicos incorretos em diagnostic-source.test.ts (sem impacto em produção)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
 - **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ Gate 7 PASS · **Z-14 Lotes A+B+C+D ✅**
+
+### Sprint Z-14 Lote E — Estado (2026-04-14)
+| Issue | Título | Status |
+|---|---|---|
+| #578 | SummaryBar 3 cards (grid 4→3, remover card pending) | 🔄 F4 aprovada — aguarda implementação |
+| #579 | Migration prazo 180_dias em action_plans [P0] | ✅ PR #583 aberto — aguarda merge P.O. |
+| #580 | Catálogo PLANS por ruleId + defaultPlan() | ⏳ Aguarda merge #583 |
+
+**Migration aplicada no banco:** `ALTER TABLE action_plans MODIFY COLUMN prazo ENUM(+180_dias)` — ENUM confirmado: `enum('30_dias','60_dias','90_dias','180_dias')`
+
+**Limpeza de base executada:** tasks=0 · action_plans=0 · audit_log=0 · risks_v4 active=10 (apenas E2E) · projects=1 (id=270001) · RAG preservado (2.515 chunks)
 
 ## ADR-0016 — Estado atual (2026-04-07)
 
@@ -179,4 +190,4 @@ resolucao_cgibs_001 (2) · resolucao_cgibs_002 (2) · resolucao_cgibs_003 (2)
 ## Conflito recorrente
 `client/public/__manus__/version.json` — resolver via `git restore --staged client/public/__manus__/version.json`
 
-*Atualizado em 2026-04-14 · v2.1 · Sprint Z-14 Lotes A+B+C+D ENCERRADOS · PRs #536–#560 · Aprovador: P.O. Uires Tapajós*
+*Atualizado em 2026-04-14 · v2.2 · Sprint Z-14 Lote E EM ANDAMENTO · PRs #536–#583 · Aprovador: P.O. Uires Tapajós*

@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 5.7 — 2026-04-14 (Sprint Z-14 Lote D — PRs #536–#560)
-> **Commit HEAD:** `f7b58e7` (pós-Sprint Z-14 Lote D)
-> **Checkpoint Manus:** `a77a7eb1` (auditoria pós-merge Sprint Z-14 Lote D ✅)
+> **Versão:** 5.8 — 2026-04-14 (Sprint Z-14 Lote E — PRs #536–#583)
+> **Commit HEAD:** `ec482b81` (pós-Sprint Z-14 Lote E)
+> **Checkpoint Manus:** `ec482b81` (auditoria pós-implementação Issue #579 ✅)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -45,10 +45,11 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z-14 Lote B** | **bulkApprove UI (#538) · Sprint Logs (#539+#543+#549+#553+#558)** | **✅ ENCERRADA 2026-04-14** |
 | **Sprint Z-14 Lote C** | **REGRA-ORQ-12 (#551) · GOVERNANCA-E2E v2.5 (#552) · Playwright E2E + fix imports (#550) · REGRA-ORQ-13 (#555)** | **✅ ENCERRADA 2026-04-14** |
 | **Sprint Z-14 Lote D** | **data-testid 17 seletores (#559) · geração automática riscos pós-briefing (#560) · fixtures E2E (#557) · E2E_PROJECT_ID=270001** | **✅ ENCERRADA 2026-04-14** |
+| **Sprint Z-14 Lote E** | **Gate 0 ✅ · Issue #579 prazo 180_dias migration (#583) · Issue #578 SummaryBar 3 cards (em F4) · Issue #580 catálogo PLANS (aguarda #583 merge) · Sprint Log #581** | **🔄 EM ANDAMENTO** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
-| Migrations aplicadas | **67** (0065 risk_categories · 0066 VARCHAR · 0067 FK) | ✅ |
-| PRs mergeados (total) | **560** (último: #560 — feat(dashboard): geração automática riscos pós-briefing) | ✅ |
+| Migrations aplicadas | **77** (última: 0077_add_180_dias_prazo.sql — ENUM prazo +180_dias) | ✅ |
+| PRs mergeados (total) | **581** (último mergeado: #581 — docs: Sprint Log Lote E · PR #583 aberto) | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
@@ -58,7 +59,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
-| Corpus RAG | **2.509 chunks — 10 leis — 100% com anchor_id** | ✅ |
+| Corpus RAG | **2.515 chunks — 13 leis — 100% com anchor_id** | ✅ |
 | Perguntas SOLARIS ativas | **24 (SOL-013..036)** | ✅ |
 | RAG Cockpit | Endpoint `ragInventory.getSnapshot` ao vivo · 9 gold set queries | ✅ |
 | Agent Skills | Manus `/solaris-orquestracao` v3.1 ✅ · Claude `solaris-contexto` **v4.7** ✅ | ✅ |
