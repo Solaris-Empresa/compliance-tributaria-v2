@@ -33,6 +33,18 @@ Manus:
   SHOW FULL COLUMNS FROM [tabelas afetadas]
   grep procedures no router relevante
 
+GATE 0 — VERIFICACAO DUPLA OBRIGATORIA:
+  Passo 1: SHOW FULL COLUMNS FROM [tabela] (banco real)
+  Passo 2: Cruzar com migration correspondente:
+    grep -n "prazo\|status\|[campo]" drizzle/[migration].sql
+  Se banco != migration:
+    BLOQUEAR — reportar divergencia ao Orquestrador
+    NAO documentar dados do banco desatualizado
+    A migration e a fonte de verdade — nao o banco
+  Motivo: banco de producao pode ter migration pendente.
+  Evidencia: B-Z14-001 — prazo reportado como date (banco)
+             mas ENUM('30_dias',...) na migration 0064
+
 Claude Code:
   Executar .claude/agents/ux-spec-validator.md nos componentes afetados
   Reportar: o que existe vs o que a spec exige
