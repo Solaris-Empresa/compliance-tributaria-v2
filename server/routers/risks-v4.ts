@@ -32,6 +32,7 @@ import {
   insertAuditLog,
   getAuditLog,
   getActionPlansByRisk,
+  getActionPlansByProject,
   approveActionPlanV4,
   softDeleteActionPlanV4,
   insertTaskV4,
@@ -645,6 +646,70 @@ export const risksV4Router = router({
     .query(async ({ input }) => {
       const entries = await getAuditLog(input.projectId, input.entity, input.entityId);
       return { entries };
+    }),
+
+  /**
+   * 14. bulkGenerateActionPlans — Fix B-02 (Sprint Z-14)
+   * Gera planos de ação para todos os riscos aprovados sem plano no projeto.
+   * Chamado automaticamente após bulkApprove.
+   */
+  bulkGenerateActionPlans: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const { projectId } = input;
+      const actor = {
+        user_id: ctx.user.id,
+        user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
+        user_role: ctx.user.role ?? "user",
+      };
+
+      // Buscar riscos aprovados do projeto
+      const allRisks = await getRisksV4ByProject(projectId);
+      const approvedRisks = allRisks.filter(
+        (r) => r.approved_at !== null && r.type === "risk"
+      );
+
+      if (approvedRisks.length === 0) {
+        return { generated: 0, planIds: [] };
+      }
+
+      // Buscar planos já existentes para evitar duplicatas
+      const existingPlans = await getActionPlansByProject(projectId);
+      const riskIdsWithPlans = new Set(existingPlans.map((p) => p.risk_id));
+
+      // Filtrar riscos sem plano de ação
+      const risksWithoutPlans = approvedRisks.filter(
+        (r) => !riskIdsWithPlans.has(r.id)
+      );
+
+      if (risksWithoutPlans.length === 0) {
+        return { generated: 0, planIds: [] };
+      }
+
+      const prazoMap: Record<string, PrazoActionPlan> = {
+        imediata: "30_dias",
+        curto_prazo: "60_dias",
+        medio_prazo: "90_dias",
+      };
+
+      const planIds: string[] = [];
+      for (const risk of risksWithoutPlans) {
+        const id = await insertActionPlanV4WithAudit(
+          {
+            project_id: projectId,
+            risk_id: risk.id,
+            titulo: `Plano: ${risk.categoria} — ${risk.artigo}`,
+            responsavel: "equipe_compliance",
+            prazo: prazoMap[risk.urgencia as string] ?? "60_dias",
+            created_by: ctx.user.id,
+            updated_by: ctx.user.id,
+          },
+          actor
+        );
+        planIds.push(id);
+      }
+
+      return { generated: planIds.length, planIds };
     }),
 
   /**
