@@ -3,8 +3,30 @@ name: Taskboard Automation
 on:
   pull_request:
     types: [opened, closed]
+  issues:
+    types: [opened]
 
 jobs:
+  add-issue-to-project:
+    name: Issue criada — adicionar ao board
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    steps:
+      - name: Adicionar ao Project #9
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_ID=$(gh api \
+            repos/${{ github.repository }}/issues/${{ github.event.issue.number }} \
+            --jq '.node_id')
+          gh api graphql -f query="
+            mutation {
+              addProjectV2ItemById(input: {
+                projectId: \"PVT_kwDOCZgyFM4BUm21\"
+                contentId: \"$ISSUE_ID\"
+              }) { item { id } }
+            }" || echo "WARN: falha ao adicionar ao project (pode ser scope)"
+
   move-card-in-progress:
     name: PR aberto — In Progress
     runs-on: ubuntu-latest
