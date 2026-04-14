@@ -1,6 +1,6 @@
 # GOVERNANCA E2E — IA SOLARIS
 ## Visao do Product Owner (P.O.)
-**Versao:** v2.6 · 14/04/2026 | **HEAD:** `f7b58e7` | **Baseline:** v6.4
+**Versao:** v2.7 · 14/04/2026 | **HEAD:** `61e85e9` | **Baseline:** v6.4
 **Repo:** [Solaris-Empresa/compliance-tributaria-v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2)
 
 > Todos os numeros neste documento foram validados contra o codigo-fonte em 14/04/2026.
@@ -423,7 +423,9 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 | ORQ-09 | Gate UX obrigatorio antes de frontend |
 | ORQ-10 | F4.5 Integration Checkpoint obrigatorio |
 | ORQ-11 | Fast-track hotfix P0: Gate 0 minimo → `[HOTFIX]` PR → P.O. direto |
-| ORQ-12 | Manus sempre em paralelo: Orquestrador aciona simultaneamente ao Claude Code (PR #551) |
+| ORQ-12 | Manus sempre em paralelo: Orquestrador aciona simultaneamente ao Claude Code |
+| ORQ-13 | Fluxo declarado obrigatorio: issue frontend deve declarar step/upstream/downstream |
+| ORQ-14 | Efeitos cascata obrigatorios: documentar no Bloco 1 + criterio no Bloco 7 (PR #567) |
 
 ### CI/CD Enforcement (novo em v1.1)
 
@@ -541,6 +543,8 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | Editar plano ausente | **RESOLVIDO** PR #537 | — | Z-14 Lote B |
 | Import path diagnostic-source.test.ts | **RESOLVIDO** PR #550 | — | Z-14 Lote C |
 | Mockups HTML nao existem no repo | pendente | Medio — Orquestrador deve criar | proximo |
+| B-01: auto-generate usava allRisks (incluia deletados) | **RESOLVIDO** PR #565 | — | Z-14 hotfix |
+| B-02: bulkApprove nao gerava planos auto | **RESOLVIDO** PR #566 | — | Z-14 hotfix |
 | Kanban tarefas | ausente | Baixo — lista simples funcional | futuro |
 | INV-006/007/008 sem testes | planejado | Alto — invariants sem deteccao automatica | proximo |
 | RAG `transicao_iss_ibs` termo generico | ativo | Medio — "prestacao de servicos" retorna 34 hits inespecificos | proximo |
@@ -563,7 +567,7 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | Z-12 | Migrations 0072–0074 + hot swap ADR-0022 + R-SYNC-01 + RAG Lote D | #469–#483 | ENCERRADA |
 | Z-13 | 8 bugs corrigidos (is_active, gap_type, JOIN, risk_category_code) + RAG CGIBS | #485–#499 | ENCERRADA |
 | Z-13.5 | `generateRisksV4Pipeline` + `consolidateRisks` + `inferNormativeRisks` + `enrichRiskWithRag` + Gate 0 + Gate UX + Modelo Orquestracao v2 | #502–#516 | ENCERRADA |
-| Z-14 | upsertActionPlan (#520) + SummaryBar/HistoryTab (#521) + edicao plano (#532) + bulkApprove (#533/#534) + E2E 7 CTs (#544) + auto-generate B-01 (#554) + 17 data-testid (#556) + fix #545 + FLOW_DICTIONARY + ORQ-12/13 | #518–#560 | **ENCERRADA** (8/8 issues fechadas) |
+| Z-14 | upsertActionPlan (#520) + SummaryBar/HistoryTab (#521) + edicao plano (#532) + bulkApprove (#533/#534) + E2E 9 CTs (#544/#564) + auto-generate B-01 (#554/#565) + B-02 bulkApprove→planos (#566) + 19 data-testid (#556) + fix #545 + FLOW_DICTIONARY + ORQ-12/13/14 | #518–#567 | **ENCERRADA** |
 
 ### Sprint Z-13.5 — Detalhamento (sessao 13–14/abr/2026)
 
@@ -609,7 +613,7 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 
 | Indicador | Valor | Fonte de validacao |
 |---|---|---|
-| HEAD | `f7b58e7` | `git rev-parse --short HEAD` |
+| HEAD | `61e85e9` | `git rev-parse --short HEAD` |
 | Baseline | v6.4 | ESTADO-ATUAL.md |
 | TypeScript | 0 erros | `npx tsc --noEmit` |
 | Testes unitarios | 124/124 | `npx vitest run server/lib/` |
@@ -620,14 +624,14 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | Risk categories | 10 ativas | SEVERITY_TABLE risk-engine-v4.ts |
 | Perguntas SOLARIS | 22 ativas (SOL-015..036) | ESTADO-ATUAL.md |
 | Migrations | 86 | `ls drizzle/*.sql \| wc -l` |
-| PRs mergeados | 560 | `gh pr list --state merged` |
+| PRs mergeados | 566 | `gh pr list --state merged` |
 | Campos banco documentados | 60 | DATA_DICTIONARY.md |
 | Funcionalidades UX mapeadas | 33 | UX_DICTIONARY.md |
-| Regras orquestracao | 13 (ORQ-01..13) | MODELO-ORQUESTRACAO-V2.md v1.1 |
+| Regras orquestracao | 14 (ORQ-01..14) | MODELO-ORQUESTRACAO-V2.md v1.1 |
 | Labels spec-* | 5 (bloco9, adr, contrato, e2e, aprovada) | CI enforcement |
 | CI Workflows | 17 ativos | `.github/workflows/` |
 | Issue Templates | 5 (sprint-issue com 12 blocos) | `.github/ISSUE_TEMPLATE/` |
-| Sprint Z-14 | **ENCERRADA** — 8/8 issues fechadas (#520-#556) · auto-generate · 17 data-testid | SPRINT-Z14-LOG.md |
+| Sprint Z-14 | **ENCERRADA** — 8 issues + fixes B-01/B-02 + 9 CTs + 19 data-testid + ORQ-14 | SPRINT-Z14-LOG.md |
 | Invariants formalizados | 8 | invariant-registry.md |
 | Agentes automatizados | 2 | .claude/agents/ |
 | SKILL.md | 170 linhas, atualizado 14/abr | Manus report + `grep REGRA-ORQ-08 SKILL.md` confirmado |
