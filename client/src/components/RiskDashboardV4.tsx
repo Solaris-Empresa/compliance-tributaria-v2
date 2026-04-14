@@ -593,6 +593,10 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       if (data.generated > 0) {
         utils.risksV4.listRisks.invalidate({ projectId });
         toast.success(`${data.generated} plano(s) de ação gerado(s) automaticamente`, { duration: 4000 });
+        // B-04: redirect para ActionPlanPage após planos gerados
+        setTimeout(() => {
+          window.location.href = `/projetos/${projectId}/planos-v4`;
+        }, 1500);
       }
     },
     onError: () => toast.error("Erro ao gerar planos de ação", { description: "Verifique os riscos aprovados", duration: 6000 }),
