@@ -183,6 +183,31 @@ Criterio de done:
   CI verde (tsc + testes)
 ```
 
+### Regra de paralelismo obrigatorio (RACI — REGRA-ORQ-12)
+
+```
+Sempre que Claude Code inicia implementacao (F4):
+O Orquestrador DEVE acionar o Manus SIMULTANEAMENTE.
+
+Manus recebe automaticamente:
+  - Atualizar Sprint Log com inicio da implementacao
+  - Preparar ambiente se issue toca banco/deploy
+  - Verificar integridade banco se issue toca dados
+  - Confirmar projeto de referencia se issue toca E2E
+
+NAO aguardar Claude Code terminar para acionar Manus.
+NAO esperar o P.O. cobrar o acionamento.
+
+Matriz de acionamento paralelo:
+  | Tipo de issue       | Claude Code faz    | Manus faz          |
+  |---------------------|--------------------|--------------------|
+  | Frontend puro       | implementa         | Sprint Log         |
+  | Frontend + banco    | implementa         | Sprint Log + banco |
+  | Backend (Manus)     | audita             | implementa         |
+  | E2E                 | implementa testes  | confirma ambiente  |
+  | Governance          | cria artefatos     | Sprint Log         |
+```
+
 ### F4.5 — Integration Checkpoint (gate humano, CI avisa)
 
 ```
@@ -315,6 +340,7 @@ Apos deploy, criar issue de governanca para prevenir recorrencia.
 | ORQ-09 | Gate UX obrigatorio antes de qualquer frontend |
 | ORQ-10 | F4.5 Integration Checkpoint obrigatorio antes do merge |
 | ORQ-11 | Fast-track hotfix P0: Gate 0 minimo → PR [HOTFIX] → P.O. direto |
+| ORQ-12 | Manus sempre em paralelo: Orquestrador aciona Manus simultaneamente ao Claude Code |
 
 ---
 

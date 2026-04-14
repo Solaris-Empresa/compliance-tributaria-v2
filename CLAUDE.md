@@ -189,6 +189,17 @@ Integration Checkpoint (F4.5) obrigatorio antes do merge:
 - 100% das procedures da issue devem estar sendo chamadas
 - Procedure nao chamada = merge bloqueado
 
+### REGRA-ORQ-12 — Manus sempre em paralelo
+
+Ao despachar qualquer prompt de implementacao para Claude Code,
+o Orquestrador DEVE simultaneamente despachar para o Manus:
+- Atualizar Sprint Log com inicio da implementacao
+- Se issue toca banco: verificar schema afetado
+- Se issue e E2E: confirmar ambiente + projeto de referencia
+- Se issue toca deploy: verificar health endpoint
+
+**SEM EXCECAO** — Sprint Log e sempre responsabilidade do Manus.
+
 ### REGRA-ORQ-11 — Fast-track hotfix P0
 
 Para bugs criticos em producao que nao podem esperar o fluxo normal.
