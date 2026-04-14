@@ -1,6 +1,6 @@
 # GOVERNANCA E2E — IA SOLARIS
 ## Visao do Product Owner (P.O.)
-**Versao:** v2.0 · 14/04/2026 | **HEAD:** `20ba377` | **Baseline:** v6.0
+**Versao:** v2.1 · 14/04/2026 | **HEAD:** `20ba377` | **Baseline:** v6.0
 **Repo:** [Solaris-Empresa/compliance-tributaria-v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2)
 
 > Todos os numeros neste documento foram validados contra o codigo-fonte em 14/04/2026.
@@ -29,6 +29,15 @@ Erro inaceitavel: "classificado errado"
 > A IA SOLARIS nao substitui o raciocinio juridico.
 > Ela estrutura, acelera e garante consistencia na analise.
 
+### Disclaimer juridico obrigatorio
+
+> **AVISO LEGAL:** Este sistema e uma ferramenta de apoio a decisao tributaria.
+> Os resultados gerados (riscos, oportunidades, planos de acao) NAO constituem
+> parecer juridico. Toda classificacao deve ser validada por profissional
+> habilitado antes de qualquer acao fiscal ou contabil. A severidade dos riscos
+> e deterministica (baseada em tabela, nao em LLM), mas a aplicabilidade ao
+> caso concreto depende de analise humana qualificada.
+
 ---
 
 # 1. PIPELINE E2E — VISAO COMPLETA
@@ -42,7 +51,7 @@ FORMULARIO (5 JSONs: companyProfile, operationProfile,
   |
   v
 ONDAS DE COLETA
-  |-- Onda 1: SOLARIS (24 perguntas deterministicas)  [VALIDADO: onda1Injector.ts]
+  |-- Onda 1: SOLARIS (22 perguntas deterministicas)  [VALIDADO: onda1Injector.ts]
   |-- Onda 2: IA GEN (LLM, temperature 0.2)           [VALIDADO: llm.ts L299]
   |-- Onda 3: REGULATORIA (RAG + normative rules)     [VALIDADO: engine-gap-analyzer.ts]
   |
@@ -105,13 +114,13 @@ PLANOS DE ACAO → TAREFAS → UAT P.O.
 |---|---|
 | **Por que** | Base confiavel — perguntas curadas por especialista, nao LLM |
 | **Como** | CSV curado → banco (`solaris_questions`) → injecao no pipeline, filtro por CNAE |
-| **Resultado** | 24 perguntas deterministicas com categoria e referencia normativa |
+| **Resultado** | 22 perguntas deterministicas com categoria e referencia normativa |
 | **Como medir** | Todas tem `risk_category_code` + `source_reference` nao-null |
 | **Quando** | Primeira etapa da coleta |
 | **Onde no fluxo** | Entrada do questionario — injetadas ANTES de Onda 2 e 3 |
 
 **Arquivo:** `server/routers/onda1Injector.ts` [VALIDADO: fonte="solaris", L84]
-**Perguntas ativas:** 24 (SOL-013..036) [VALIDADO: ESTADO-ATUAL.md L84]
+**Perguntas ativas:** 22 (SOL-015..036, ativas) — SOL-001..014 soft-deleted (legado) [VALIDADO: ESTADO-ATUAL.md L84]
 
 **Pontos de atencao:**
 - [ ] Perguntas SOLARIS sao a base confiavel — nunca depender apenas de Onda 2
@@ -271,6 +280,20 @@ cnae=1 > ncm=2 > nbs=3 > solaris=4 > iagen=5
 
 **Garantias:** Rastreavel, auditavel, deterministico, reversivel (soft delete + restore), aprovavel (audit log).
 
+### Frontend — Gaps conhecidos (Discovery 13/04/2026)
+
+O [UX_DICTIONARY.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/UX_DICTIONARY.md) documenta o estado real de cada tela. Principais gaps:
+
+| Componente | Gap | Impacto |
+|---|---|---|
+| RiskDashboardV4 (877L) | `upsertActionPlan` nao chamada | Nao e possivel criar plano pelo dashboard |
+| RiskDashboardV4 | `bulkApprove` nao existe | Aprovar riscos apenas 1 a 1 |
+| RiskDashboardV4 | SummaryBar ausente | Sem resumo visual sticky |
+| RiskDashboardV4 | HistoryTab sem audit log | Aba existe mas vazia |
+| RiskDashboardV4 | RAG validation badge parcial | Dados no banco, sem badge visual |
+| ActionPlanPage (733L) | Criar/editar plano ausente | `upsertActionPlan` nao chamada |
+| ActionPlanPage | Filtro por status ausente | Lista plana |
+
 ---
 
 # 3. GOVERNANCA DO LLM
@@ -346,8 +369,17 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 | **Gate B** (schema) | Antes de deploy | Migrations + FKs validas | Manus | manual |
 | **Gate C** (codigo) | Antes de merge | tsc 0 + testes PASS | CC | CI |
 | **Gate D** (backend) | Apos pipeline | `risks_v4 > 0` | CC | manual |
-| **Gate E** (UAT) | Apos deploy | Validacao visual P.O. | P.O. | checklist |
+| **Gate E** (UAT) | Apos deploy | 4 provas mensuraveis (ver abaixo) | P.O. | checklist |
 | **Gate 7** (final) | Antes de fechar sprint | Todos os gates PASS | todos | padrao |
+
+### Gate E — 4 Provas mensuraveis (UAT P.O.)
+
+| Prova | Criterio PASS | Criterio FAIL |
+|---|---|---|
+| PROVA 1: Quantidade de riscos | 10 <= total <= 40 | total = 0 ou total > 60 |
+| PROVA 2: Inferencia normativa | `aliquota_zero` + `credito_presumido` presentes | aba oportunidades vazia |
+| PROVA 3: Titulos juridicos | Sem `"[categoria]"` e sem `"geral"` nos titulos | qualquer titulo com colchetes ou "geral" |
+| PROVA 4: RAG validation | >= 50% riscos com `rag_validated=1` | 0% validados |
 
 ---
 
@@ -434,10 +466,68 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 | `HistoryTab` sem audit log | gap | Baixo — aba existe, conteudo ausente | proximo |
 | Kanban tarefas | ausente | Baixo — lista simples funcional | futuro |
 | INV-006/007/008 sem testes | planejado | Alto — invariants sem deteccao automatica | proximo |
+| RAG `transicao_iss_ibs` termo generico | ativo | Medio — "prestacao de servicos" retorna 34 hits inespecificos | proximo |
+| RISK-TECH-01: LIKE vs FULLTEXT TiDB | aberto | Medio — falsos negativos possiveis no RAG | futuro |
+| Dual-schema `operationProfile` EN/PT | ativo | Baixo — funciona mas complica manutencao | normalizar em Z-14 |
+
+**Referencia tecnica:** [RISK-TECH-01.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/risks/RISK-TECH-01.md)
 
 ---
 
-# 10. METRICAS ATUAIS [TODAS VALIDADAS 14/04/2026]
+# 10. SPRINTS QUE CONSTRUIRAM ESTA ARQUITETURA
+
+| Sprint | Entrega principal | PRs | Status |
+|---|---|---|---|
+| Z-07 | Risk Engine v4 deterministico + RiskDashboardV4 + ActionPlanPage | #427, #429 | ENCERRADA |
+| Z-08 | Fix JSON.parse + pool.promise + conexao engine ao pipeline | #434, #435 | ENCERRADA |
+| Z-09 | `risk_categories` configuravel + RAG sensor + ADR-0025 | #436–#443 | ENCERRADA |
+| Z-10 | ACL Gap→Risk (ADR-0026) + mapper deterministico + PROTOCOLO-DEBUG | #448–#453 | ENCERRADA |
+| Z-11 | CNAE skip + briefing guard + status transition | #467–#468 | ENCERRADA |
+| Z-12 | Migrations 0072–0074 + hot swap ADR-0022 + R-SYNC-01 + RAG Lote D | #469–#483 | ENCERRADA |
+| Z-13 | 8 bugs corrigidos (is_active, gap_type, JOIN, risk_category_code) + RAG CGIBS | #485–#499 | ENCERRADA |
+| Z-13.5 | `generateRisksV4Pipeline` + `consolidateRisks` + `inferNormativeRisks` + `enrichRiskWithRag` + Gate 0 + Gate UX + Modelo Orquestracao v2 | #502–#516 | ENCERRADA |
+
+### Sprint Z-13.5 — Detalhamento (sessao 13–14/abr/2026)
+
+**Engine novo (PRs #502–#505):**
+- `generateRisksV4Pipeline()` — orquestra todo o fluxo: consolidate → infer → merge → enrich
+- `consolidateRisks()` — N gaps da mesma categoria → 1 risco com evidencias agregadas
+- `inferNormativeRisks()` — infere oportunidades (aliquota_zero, credito_presumido) a partir do perfil
+- `enrichRiskWithRag()` — valida cada risco contra o corpus legal (timeout 3s)
+- `normative_product_rules` — 20 regras NCM para cesta basica
+
+**Bugs corrigidos (PRs #506–#509):**
+
+| Bug | Causa raiz | Fix |
+|---|---|---|
+| B-Z13.5-001 | `safeParseObject`/`safeParseArray` nao lidavam com JSON pre-parseado pelo driver TiDB | Aceitar `unknown`, verificar tipo antes de `JSON.parse` |
+| B-Z13.5-002 | 5 campos com nomes em PT (`tipoOperacao`) vs nomes reais em EN (`operationType`) | Dual-schema com fallback EN → PT |
+
+**Governanca (PRs #510–#516):**
+- DATA_DICTIONARY.md: 60 campos em 8 tabelas
+- UX_DICTIONARY.md: 33 funcionalidades em 2 telas
+- db-schema-validator + ux-spec-validator (2 agentes)
+- Gate 0 (banco) + Gate UX (frontend) no CLAUDE.md
+- MODELO-ORQUESTRACAO-V2.md: F0–F5, 10 regras
+- SKILL.md atualizado (confirmado 14/abr)
+- Post-mortem + auditoria final: 6/6 bugs prevenidos
+
+### Bugs historicos — aprendizado consolidado
+
+| Bug | Sprint | Causa raiz | Protecao implementada |
+|---|---|---|---|
+| B-Z13-001 | Z-13 | `is_active` → campo real e `active` (tinyint) | DATA_DICTIONARY: "NAO is_active" |
+| B-Z13-003 | Z-13 | Mesmo erro em `normative_product_rules` | DATA_DICTIONARY: "NAO is_active" |
+| B-Z13-004 | Z-13 | `risk_category_code` nao propagado para gap | DATA_DICTIONARY: campo documentado |
+| B-Z13.5-001 | Z-13.5 | Driver TiDB retorna JSON como objeto, nao string | DATA_DICTIONARY: secao aviso driver |
+| B-Z13.5-002 | Z-13.5 | `tipoOperacao` vs `operationType` (5 campos) | DATA_DICTIONARY: dual-schema EN/PT |
+| Z-07 retrabalho | Z-07 | Spec UX nao incluida no prompt de implementacao | Gate UX + REGRA-ORQ-08 (`gh issue view`) |
+
+**Todos os 6 bugs teriam sido prevenidos pela governanca atual.** Detalhes: [AUDITORIA-GOVERNANCA-FINAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/AUDITORIA-GOVERNANCA-FINAL.md)
+
+---
+
+# 11. METRICAS ATUAIS [TODAS VALIDADAS 14/04/2026]
 
 | Indicador | Valor | Fonte de validacao |
 |---|---|---|
@@ -446,11 +536,11 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 | TypeScript | 0 erros | `npx tsc --noEmit` |
 | Testes unitarios | 124/124 | `npx vitest run server/lib/` |
 | Suite PCT | 117/117 | `npx vitest run server/prefill-contract.test.ts` |
-| Decision Kernel | 48/48 testes | vitest |
+| Decision Kernel | 48/48 testes | `npx vitest run server/lib/decision-kernel/` |
 | Corpus RAG | 2.515 chunks | ESTADO-ATUAL.md |
 | RAG Gold Set | 8/8 verde | ESTADO-ATUAL.md |
 | Risk categories | 10 ativas | SEVERITY_TABLE risk-engine-v4.ts |
-| Perguntas SOLARIS | 24 ativas | ESTADO-ATUAL.md |
+| Perguntas SOLARIS | 22 ativas (SOL-015..036) | ESTADO-ATUAL.md |
 | Migrations | 86 | `ls drizzle/*.sql \| wc -l` |
 | PRs mergeados | 515 | `gh pr list --state merged` |
 | Campos banco documentados | 60 | DATA_DICTIONARY.md |
@@ -458,13 +548,13 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 | Regras orquestracao | 10 | MODELO-ORQUESTRACAO-V2.md |
 | Invariants formalizados | 8 | invariant-registry.md |
 | Agentes automatizados | 2 | .claude/agents/ |
-| SKILL.md | 170 linhas | Manus report 14/abr |
+| SKILL.md | 170 linhas, atualizado 14/abr | Manus report + `grep REGRA-ORQ-08 SKILL.md` confirmado |
 | Bugs historicos prevenidos | 6/6 | AUDITORIA-GOVERNANCA-FINAL.md |
 | Temperature LLM | 0.2 | llm.ts L299 |
 
 ---
 
-# 11. RASTREABILIDADE DOS ARTEFATOS
+# 12. RASTREABILIDADE DOS ARTEFATOS
 
 ## Processo e modelo
 
@@ -538,7 +628,7 @@ Pacote implantado em 24/03/2026 (Sprint Prefill Contract). **Todos os artefatos 
 
 ---
 
-# 12. CHECKLIST MASTER — P.O.
+# 13. CHECKLIST MASTER — P.O.
 
 Use antes de aprovar qualquer sprint:
 
