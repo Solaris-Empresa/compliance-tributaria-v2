@@ -1,0 +1,111 @@
+name: Validate PR
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  validate-issue-link:
+    name: Issue vinculada e aberta
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar issue vinculada
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          LINKED=$(gh pr view $PR_NUMBER \
+            --repo $REPO \
+            --json closingIssuesReferences \
+            --jq '.closingIssuesReferences | length')
+          if [ "$LINKED" -eq "0" ]; then
+            echo "FAIL: PR sem issue vinculada. Adicionar 'Closes #N' no body."
+            exit 1
+          fi
+          echo "OK: $LINKED issue(s) vinculada(s)"
+
+  validate-spec-label:
+    name: Label spec-aprovada presente
+    runs-on: ubuntu-latest
+    if: |
+      !contains(github.event.pull_request.title, '[HOTFIX]') &&
+      !contains(github.event.pull_request.title, 'chore(governance)')
+    steps:
+      - name: Verificar label na issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          ISSUE_NUMBER=$(gh pr view $PR_NUMBER \
+            --repo $REPO \
+            --json closingIssuesReferences \
+            --jq '.closingIssuesReferences[0].number' 2>/dev/null || echo "")
+          if [ -z "$ISSUE_NUMBER" ]; then
+            echo "SKIP: sem issue vinculada (verificado em outro job)"
+            exit 0
+          fi
+          LABELS=$(gh issue view $ISSUE_NUMBER \
+            --repo $REPO \
+            --json labels \
+            --jq '[.labels[].name] | join(",")')
+          if [[ "$LABELS" != *"spec-aprovada"* ]]; then
+            echo "FAIL: Issue #$ISSUE_NUMBER sem label 'spec-aprovada'"
+            echo "Labels atuais: $LABELS"
+            exit 1
+          fi
+          echo "OK: label spec-aprovada presente na issue #$ISSUE_NUMBER"
+
+  typecheck:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tsc --noEmit
+
+  test:
+    name: Testes unitarios
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm vitest run server/lib/
+
+  procedure-check:
+    name: Integration Checkpoint (WARN)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Verificar procedures nos arquivos modificados
+        run: |
+          MODIFIED=$(git diff --name-only HEAD~1 | grep -E "\.(ts|tsx)$" | grep -v "\.test\." || true)
+          if [ -z "$MODIFIED" ]; then
+            echo "Nenhum arquivo TS modificado"
+            exit 0
+          fi
+          echo "Arquivos TS modificados:"
+          echo "$MODIFIED"
+          echo ""
+          echo "Procedures encontradas:"
+          echo "$MODIFIED" | xargs grep -h "trpc\." 2>/dev/null | grep -v "//" | sort -u || echo "Nenhuma"
+          echo ""
+          echo "WARN: Verificar manualmente se todas as procedures do Bloco 5 da issue estao presentes"

@@ -1,0 +1,48 @@
+name: Taskboard Automation
+
+on:
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  move-card-in-progress:
+    name: PR aberto — In Progress
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    steps:
+      - name: Marcar issue como in-progress
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          ISSUE_NUMBER=$(gh pr view $PR_NUMBER \
+            --repo $REPO \
+            --json closingIssuesReferences \
+            --jq '.closingIssuesReferences[0].number' 2>/dev/null || echo "")
+          if [ -n "$ISSUE_NUMBER" ]; then
+            echo "Issue #$ISSUE_NUMBER → In Progress (PR #$PR_NUMBER aberto)"
+            gh issue edit $ISSUE_NUMBER --repo $REPO --add-label "in-progress" || true
+          fi
+
+  move-card-done:
+    name: PR mergeado — Done
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    steps:
+      - name: Marcar issue como done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          ISSUE_NUMBER=$(gh pr view $PR_NUMBER \
+            --repo $REPO \
+            --json closingIssuesReferences \
+            --jq '.closingIssuesReferences[0].number' 2>/dev/null || echo "")
+          if [ -n "$ISSUE_NUMBER" ]; then
+            echo "Issue #$ISSUE_NUMBER → Done (PR #$PR_NUMBER mergeado)"
+            gh issue edit $ISSUE_NUMBER --repo $REPO \
+              --remove-label "in-progress" \
+              --add-label "done" || true
+          fi
