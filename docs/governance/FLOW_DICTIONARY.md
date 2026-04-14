@@ -82,6 +82,26 @@ Todas as features de UX fazem parte dele.
 
 ---
 
+## Efeitos colaterais obrigatorios por acao
+
+| Acao | Efeito imediato | Efeito cascata obrigatorio |
+|---|---|---|
+| Briefing aprovado | redirect STEP 5 | risks=0 → generateRisks auto |
+| Risco aprovado (individual) | approved_at preenchido | plano de acao gerado auto (buildActionPlans) |
+| Bulk approve | N riscos approved_at | N planos gerados auto |
+| Risco deletado | status=deleted | aparece HistoryTab |
+| Risco restaurado | status=active | volta aba Riscos |
+| Plano aprovado | status=aprovado | tarefas desbloqueadas |
+
+**REGRA:** Toda issue que implementa uma ACAO deve documentar no Bloco 1 os efeitos cascata.
+
+Se uma acao tem efeito cascata:
+- O efeito cascata e criterio de aceite obrigatorio (Bloco 7)
+- O efeito cascata tem CT dedicado na suite E2E
+- Sem efeito cascata implementado = issue incompleta
+
+---
+
 ## Regra obrigatoria para issues
 
 Todo Bloco 1 de issue de frontend DEVE conter:
@@ -99,3 +119,5 @@ Todo Bloco 1 de issue de frontend DEVE conter:
 - [ ] Issue declara em qual step do fluxo se encaixa?
 - [ ] Integracoes upstream e downstream documentadas?
 - [ ] Trigger automatico (se aplicavel) documentado?
+- [ ] Efeitos cascata documentados no Bloco 1? (REGRA-ORQ-14)
+- [ ] Criterio de aceite para cada efeito cascata no Bloco 7?
