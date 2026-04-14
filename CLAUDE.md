@@ -224,6 +224,16 @@ Acoes com efeito cascata confirmado:
 
 Motivado por: B-01 (briefing → riscos) e B-02 (aprovar risco → plano).
 
+### REGRA-ORQ-15 — PR body template obrigatorio
+
+Todo PR DEVE conter no body os campos exatos do `.github/PULL_REQUEST_TEMPLATE.md`:
+- Checkboxes de declaracao de escopo
+- F4.5 Integration Checkpoint
+- JSON de evidencia com 7 campos obrigatorios
+
+Nunca confiar em memoria para gerar PR body. Copiar do template.
+Sem este bloco: `validate-pr` FALHA no CI.
+
 ### REGRA-ORQ-11 — Fast-track hotfix P0
 
 Para bugs criticos em producao que nao podem esperar o fluxo normal.
