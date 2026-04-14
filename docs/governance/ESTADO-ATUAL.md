@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v6.0 · 2026-04-13 (Governance Final · Gate 0 + Gate UX CONFIAVEIS · HEAD 04c5331)** · Responsavel: Orquestrador gera, Manus commita
+> **v6.1 · 2026-04-14 (Workflow v1.1 · CI/CD enforcement · HEAD 4af3e55)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v6.0 · **HEAD:** `04c5331` (github/main) · **Testes:** Gate 7 PASS ✅ · tsc 0 erros · 124/124 unit  
+**Baseline:** v6.1 · **HEAD:** `4af3e55` (github/main) · **Testes:** Gate 7 PASS ✅ · tsc 0 erros · 124/124 unit  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -32,7 +32,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - UAT T1–T6 PASS em producao · ragDocuments: 2.515 · normative_product_rules: 20 · risk_categories: 10
   - **Governanca Gate 0:** DATA_DICTIONARY.md (60 campos, 8 tabelas) + db-schema-validator agent + CLAUDE.md Gate 0 section
   - **Governanca Gate UX:** UX_DICTIONARY.md (2 telas, 33 funcionalidades) + ux-spec-validator agent + CLAUDE.md Gate UX section
-  - **Modelo Orquestracao v2:** F0–F5 + F4.5 · 10 regras (ORQ-01..10) · matriz de responsabilidade · PRs #512–#513
+  - **Modelo Orquestracao v1.1:** F0–F7 + F4.5 · 11 regras (ORQ-01..11) · CI/CD enforcement · Sprint Log · PRs #512–#518
   - **Post-mortem:** `docs/governance/POST-MORTEM-Z13.5-SESSAO-CLAUDE-CODE.md` — auditoria completa, 5/5 bugs cobertos
   - **Resumo P.O.:** `docs/governance/GOVERNANCA-SESSAO-13ABR2026.md` — documento executivo para o P.O.
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
@@ -44,7 +44,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `04c5331`
+- **Branch base:** main · **HEAD:** `4af3e55`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
@@ -74,10 +74,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | TypeScript | 0 erros | ✅ |
 | CI Workflows | **12 ativos** + invariant-check (GOV-03b) | ✅ |
 | CODEOWNERS | **15 entradas** — `@utapajos` | ✅ |
-| PRs mergeados (total) | **513 (Sprint Z-13.5 PRs #502–#513)** | ✅ |
-| Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator agent · 5/5 bugs cobertos | ✅ |
-| Gate UX (frontend) | **CONFIAVEL** — UX_DICTIONARY 33 funcionalidades · ux-spec-validator agent · 2 telas mapeadas | ✅ |
-| Modelo Orquestracao | **v2** — F0–F5 + F4.5 · 10 regras · matriz de responsabilidade | ✅ |
+| PRs mergeados (total) | **518 (sessao 13–14/abr: PRs #500–#518)** | ✅ |
+| Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · 5/5 bugs prevenidos | ✅ |
+| Gate UX (frontend) | **CONFIAVEL** — UX_DICTIONARY 33 funcionalidades · ux-spec-validator · 2 telas | ✅ |
+| Modelo Orquestracao | **v1.1** — F0–F7 + F4.5 · 11 regras · CI/CD enforcement · Sprint Log | ✅ |
+| CI Workflows | **17 ativos** (validate-pr + project-automation novos) | ✅ |
+| Issue Templates | **5** (sprint-issue novo, v1.1) | ✅ |
+| Sprint Z-14 | **PLANEJADA** — 6 issues, 3 lotes, log iniciado | ⏳ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
