@@ -99,6 +99,12 @@ Criterio de done:
 Cada issue produzida com template obrigatorio (.github/ISSUE_TEMPLATE/sprint-issue.md)
 Blocos 1-8 obrigatorios + Bloco 9 se componente existente >200L
 
+  Antes de produzir issue de frontend:
+  Verificar: mockup HTML existe em docs/sprints/Z-XX/?
+    ls docs/sprints/Z-XX/MOCKUP_*.html
+  Se nao: Orquestrador cria mockup HTML PRIMEIRO
+  Se sim: referenciar no Bloco 2 + seletores no Bloco 9
+
 Regra de lotes:
   Criterio de corte: "usuario consegue usar a feature sem o lote anterior?"
   Dentro do lote: desenvolvimento PARALELO, merge respeita ordem

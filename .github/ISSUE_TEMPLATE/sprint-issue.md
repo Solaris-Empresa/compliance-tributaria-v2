@@ -28,7 +28,18 @@ assignees: ''
 > Arquivo completo como referencia adicional.
 > Implementador DEVE conseguir codar sem abrir o arquivo.
 
-**Arquivo fonte:** `docs/sprints/Z-XX/UX_SPEC_XXX.md`
+**Arquivos de referencia obrigatorios:**
+
+| Arquivo | Tipo | Uso |
+|---|---|---|
+| `docs/sprints/Z-XX/UX_SPEC_XXX.md` | Spec textual | estados, validacoes, toasts |
+| `docs/sprints/Z-XX/MOCKUPS_XXX.md` | Mockup ASCII | layout, estrutura |
+| `docs/sprints/Z-XX/MOCKUP_XXX.html` | Mockup interativo | estados reais, cores, seletores CSS |
+
+> O mockup HTML e obrigatorio para issues de frontend.
+> Abrir no browser antes de implementar — nao apenas ler o .md.
+> Seletores no Bloco 9 devem ser baseados no HTML renderizado.
+> Se o mockup HTML nao existe: solicitar ao Orquestrador ANTES de produzir a issue.
 
 ### Resumo funcional (obrigatorio inline)
 [estados do componente, acoes disponiveis, validacoes, toasts]
