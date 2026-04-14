@@ -9,6 +9,19 @@
 Se a tela nao estiver aqui, executar `.claude/agents/ux-spec-validator.md`
 e criar entrada antes de codar.
 
+## Regra do mockup HTML (adicionada Z-14)
+
+Todo mockup HTML deve ser:
+1. Criado pelo Orquestrador antes da issue de implementacao
+2. Referenciado no Bloco 2 da issue
+3. Aberto no browser pelo implementador antes de codar
+4. Fonte dos seletores CSS documentados no Bloco 9
+
+Quando criar mockup HTML:
+- Toda nova tela ou componente significativo
+- Quando spec ASCII nao captura estados visuais
+- Quando ha multiplos estados de UI (pending/approved/deleted)
+
 ## Regra de spec
 
 Spec HIBRIDA obrigatoria:
@@ -25,8 +38,9 @@ Spec HIBRIDA obrigatoria:
 **Componente:** `client/src/components/RiskDashboardV4.tsx`
 **Rota:** `/projetos/:id/risk-dashboard-v4`
 **Spec:** `docs/sprints/Z-07/UX_SPEC_RISCOS_V4.md`
-**Mock:** `docs/sprints/Z-07/MOCKUPS_SISTEMA_RISCOS_V4.md`
-**Linhas:** 877
+**Mock ASCII:** `docs/sprints/Z-07/MOCKUPS_SISTEMA_RISCOS_V4.md`
+**Mock HTML:** `docs/sprints/Z-07/MOCKUP_RISK_DASHBOARD_V4.html` (a criar pelo Orquestrador)
+**Linhas:** 1100
 
 ### Estado atual (Discovery 13/04/2026)
 
@@ -81,8 +95,9 @@ Spec HIBRIDA obrigatoria:
 **Componente:** `client/src/pages/ActionPlanPage.tsx`
 **Rota:** `/projetos/:id/planos-v4`
 **Spec:** `docs/sprints/Z-07/UX_SPEC_RISCOS_V4.md`
-**Mock:** `docs/sprints/Z-07/MOCKUPS_SISTEMA_RISCOS_V4.md`
-**Linhas:** 733
+**Mock ASCII:** `docs/sprints/Z-07/MOCKUPS_SISTEMA_RISCOS_V4.md`
+**Mock HTML:** `docs/sprints/Z-07/MOCKUP_ACTION_PLAN_PAGE.html` (a criar pelo Orquestrador)
+**Linhas:** 818
 **Cardinalidade:** 1 plano → N tarefas atomicas
 
 ### Estado atual (Discovery 13/04/2026)

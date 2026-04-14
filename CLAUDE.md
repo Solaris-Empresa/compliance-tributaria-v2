@@ -177,6 +177,11 @@ O implementador le a issue diretamente do GitHub. Nunca depende do orquestrador 
 Gate UX obrigatorio antes de qualquer frontend.
 `ux-spec-validator` deve reportar LIBERAR antes de codar.
 
+#### Mockup HTML (complemento REGRA-ORQ-09)
+Antes de criar issue de frontend, verificar: `ls docs/sprints/Z-XX/MOCKUP_*.html`
+- Se nao existe: solicitar ao Orquestrador criacao do mockup HTML antes de produzir a issue
+- Se existe: referenciar no Bloco 2 + documentar seletores no Bloco 9 baseados no HTML
+
 ### REGRA-ORQ-10
 Integration Checkpoint (F4.5) obrigatorio antes do merge:
 - `grep -n "trpc\." [componente]` executado
