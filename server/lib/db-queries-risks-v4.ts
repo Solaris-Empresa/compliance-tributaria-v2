@@ -32,7 +32,7 @@ export type UrgenciaV4 = "imediata" | "curto_prazo" | "medio_prazo";
 export type SourcePriorityV4 = "cnae" | "ncm" | "nbs" | "solaris" | "iagen";
 export type RiskStatusV4 = "active" | "deleted";
 
-export type PrazoActionPlan = "30_dias" | "60_dias" | "90_dias";
+export type PrazoActionPlan = "30_dias" | "60_dias" | "90_dias" | "180_dias";
 export type StatusActionPlan =
   | "rascunho"
   | "aprovado"

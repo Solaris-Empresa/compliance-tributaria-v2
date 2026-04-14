@@ -356,7 +356,7 @@ export const risksV4Router = router({
         titulo: z.string().min(1),
         descricao: z.string().optional(),
         responsavel: z.string().min(1),
-        prazo: z.enum(["30_dias", "60_dias", "90_dias"]),
+        prazo: z.enum(["30_dias", "60_dias", "90_dias", "180_dias"]),
       })
     )
     .mutation(async ({ input, ctx }) => {
