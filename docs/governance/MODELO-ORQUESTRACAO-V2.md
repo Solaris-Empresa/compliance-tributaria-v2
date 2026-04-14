@@ -127,6 +127,8 @@ P2 UI pura:  Claude Code obrigatorio, Manus dispensado
 Checklist binario por issue (todos devem estar marcados):
   [ ] Bloco 1: contexto e dependencias claros
   [ ] Bloco 1: step do fluxo declarado? upstream/downstream? (FLOW_DICTIONARY + REGRA-ORQ-13)
+  [ ] Bloco 1: efeitos cascata (4 elementos)? formato + navegacao? (REGRA-ORQ-14)
+  [ ] Bloco 7: criterio para cada efeito cascata + invariante estado final?
   [ ] Bloco 2: spec inline suficiente para implementar sem arquivo externo
   [ ] Bloco 3: skeleton mostra O QUE MUDA (nao estrutura completa)
   [ ] Bloco 4: schema veio de SHOW FULL COLUMNS real (nao de memoria)

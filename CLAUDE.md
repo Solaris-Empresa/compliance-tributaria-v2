@@ -210,19 +210,25 @@ Toda issue de frontend DEVE no Bloco 1:
 
 Sem fluxo declarado = issue invalida no F3.
 
-### REGRA-ORQ-14 — Efeitos cascata obrigatorios
+### REGRA-ORQ-14 — Efeitos cascata obrigatorios (4 elementos)
 
-Antes de criar issue que implementa uma acao:
-1. Consultar `docs/governance/FLOW_DICTIONARY.md` secao "Efeitos colaterais"
-2. Documentar NO BLOCO 1 todos os efeitos cascata
-3. Incluir NO BLOCO 7 criterio para cada efeito
+Antes de criar issue que implementa qualquer ACAO de usuario:
+1. Consultar `docs/governance/FLOW_DICTIONARY.md` secao "Efeitos cascata"
+2. Declarar no Bloco 1 os **4 elementos obrigatorios:**
+   - Efeito imediato
+   - Efeito cascata
+   - Formato correto dos dados
+   - Navegacao pos-acao
+3. Incluir no Bloco 7 criterio para CADA efeito
+4. Incluir no Bloco 7 invariante do estado final
 
 Acoes com efeito cascata confirmado:
-- aprovar briefing → gerar riscos automaticamente
-- aprovar risco → gerar plano automaticamente (buildActionPlans)
+- aprovar briefing → gerar riscos (B-01)
+- aprovar risco → gerar plano formato correto (B-02/B-03)
+- bulk approve → gerar planos + redirect /planos-v4 (B-04)
 - aprovar plano → desbloquear tarefas
 
-Motivado por: B-01 (briefing → riscos) e B-02 (aprovar risco → plano).
+"Gerar plano" nao e suficiente. Deve especificar: `status='rascunho'`, `prazo=ENUM`, `insertActionPlanV4WithAudit`.
 
 ### REGRA-ORQ-15 — PR body template obrigatorio
 
