@@ -138,3 +138,7 @@ E2E_PROJECT_ID=270001 validado em produção
   [DONE] Checkpoint v6.4 HEAD a77a7eb1
   [PENDENTE] UAT manual P.O.
   [PENDENTE] Execução suite E2E E2E_PROJECT_ID=270001
+
+### B-04 redirect — 14/04/2026
+[FIX] redirect automático pós-bulk approve
+Aguarda decisão consultor para B-03 (título planos)
