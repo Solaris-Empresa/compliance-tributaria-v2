@@ -142,3 +142,8 @@ E2E_PROJECT_ID=270001 validado em produção
 ### B-04 redirect — 14/04/2026
 [FIX] redirect automático pós-bulk approve
 Aguarda decisão consultor para B-03 (título planos)
+
+### Lote E — 14/04/2026
+[F4] #578 SummaryBar 3 cards — implementando
+[F3] #579 migration — em auditoria
+[F4] #580 catálogo PLANS — aguarda #579
