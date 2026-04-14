@@ -94,3 +94,12 @@ Nenhum PR sera aberto sem as 5 labels na issue.
 
 Auditoria consolidada: zero achados, zero retrabalho.
 Processo funcionou: spec na issue → 9/9 primeira rodada.
+
+### Lote B — implementação concluída
+
+[MERGE] PR #536 — bulkApprove backend (9/9)
+[MERGE] PR #537 — edição de plano UI (9/9)
+[REVIEW] PR #538 — bulkApprove UI (em auditoria)
+
+Auditoria consolidada #536+#537: zero achados.
+Processo: spec na issue → 9/9 primeira rodada.
