@@ -200,6 +200,17 @@ o Orquestrador DEVE simultaneamente despachar para o Manus:
 
 **SEM EXCECAO** — Sprint Log e sempre responsabilidade do Manus.
 
+### REGRA-ORQ-13 — Fluxo declarado obrigatorio
+
+Toda issue de frontend DEVE no Bloco 1:
+- **Step:** X — nome do step (ver `docs/governance/FLOW_DICTIONARY.md`)
+- **Upstream:** de onde vem o usuario
+- **Downstream:** para onde vai apos esta tela
+- **Integracoes obrigatorias:** triggers automaticos
+
+Sem fluxo declarado = issue invalida no F3.
+Motivado por: Issue B-01 (#554) nao especificada porque issues nao declaravam que RiskDashboardV4 faz parte de um stepper de 6 steps.
+
 ### REGRA-ORQ-11 — Fast-track hotfix P0
 
 Para bugs criticos em producao que nao podem esperar o fluxo normal.
