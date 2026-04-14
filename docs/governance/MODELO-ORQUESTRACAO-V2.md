@@ -97,6 +97,7 @@ Criterio de done:
 
 ```
 Cada issue produzida com template obrigatorio (.github/ISSUE_TEMPLATE/sprint-issue.md)
+Blocos 1-8 obrigatorios + Bloco 9 se componente existente >200L
 
 Regra de lotes:
   Criterio de corte: "usuario consegue usar a feature sem o lote anterior?"
@@ -126,6 +127,13 @@ Checklist binario por issue (todos devem estar marcados):
   [ ] Bloco 6: estado atual gerado via grep (linhas + procedures reais)
   [ ] Bloco 7: criterios de aceite sao binarios (pass/fail, nao subjetivos)
   [ ] Bloco 8: armadilhas e impacto documentados (se historico relevante)
+  [ ] Bloco 9 (se componente existente >200L):
+      Zod schema lido do router real?
+      Linha de insercao documentada?
+      Tipos TypeScript confirmados?
+  [ ] Gate 0 verificacao dupla:
+      SHOW FULL COLUMNS cruzado com migration?
+      banco != migration → BLOQUEAR (migration e fonte de verdade)
 
 Criterio de done:
   Todos os 8 checkboxes marcados pelo auditor
