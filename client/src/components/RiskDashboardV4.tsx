@@ -655,17 +655,20 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   const deleted = allRisks.filter((r) => r.status === "deleted");
 
   // B-01: Auto-generate risks when arriving from briefing with empty dashboard
+  // Fix: usar activeRisks.length (não allRisks.length) para ignorar riscos deletados
+  // e disparar corretamente quando não há riscos ativos, mesmo que existam registros
+  // deletados de gerações anteriores.
   useEffect(() => {
     if (
       !isLoading &&
       !hasAutoTriggered.current &&
-      allRisks.length === 0 &&
+      activeRisks.length === 0 &&
       !isGenerating
     ) {
       hasAutoTriggered.current = true;
       analyzeGapsMutation.mutate({ project_id: projectId, dry_run: false });
     }
-  }, [isLoading, allRisks.length, isGenerating]);
+  }, [isLoading, activeRisks.length, isGenerating]);
 
   // Category distribution for filter chips
   const categoryDistribution = useMemo(() => {
