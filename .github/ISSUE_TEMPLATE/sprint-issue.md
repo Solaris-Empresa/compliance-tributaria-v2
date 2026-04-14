@@ -154,6 +154,75 @@ estado_B → [acao] → estado_C
 
 ---
 
+## ADR — Decisao arquitetural
+
+> OBRIGATORIO — ou documentar "N/A" com justificativa.
+
+**Decisao:** [uma frase descrevendo a decisao]
+**Alternativas consideradas:**
+- Opcao A: [descricao] — descartada por: [motivo]
+- Opcao B: [descricao] — descartada por: [motivo]
+
+**Tradeoffs aceitos:** [o que abrimos mao com esta decisao]
+
+> Se nao ha decisao arquitetural: "N/A — issue de UI sem decisao estrutural. Segue padrao existente."
+
+---
+
+## Contrato de integracao
+
+> OBRIGATORIO para issues que chamam procedures.
+
+### Input
+```typescript
+// Tipo exato enviado pelo frontend
+```
+
+### Output (sucesso)
+```typescript
+// Tipo exato retornado pelo backend
+```
+
+### Output (erro)
+| Cenario | Erro | Tratamento frontend |
+|---|---|---|
+| Validacao Zod | TRPC BAD_REQUEST | Toast vermelho |
+| Nao encontrado | TRPC NOT_FOUND | Toast vermelho |
+| Rede | timeout | Toast "Tente novamente" |
+
+---
+
+## Fluxo E2E completo
+
+> OBRIGATORIO — passo a passo do usuario ate o banco.
+
+```
+USUARIO clica em [botao]
+  -> frontend valida [campos]
+  -> chama [procedure] com [input]
+    -> backend valida com Zod
+    -> executa [SQL]
+    -> retorna [output]
+  -> frontend recebe [output]
+  -> atualiza [query]
+  -> exibe [toast/feedback]
+
+CENARIO DE ERRO:
+  [passo que falha] -> [tratamento] -> [feedback]
+```
+
+---
+
+## Checklist spec completa (para aplicar labels)
+
+- [ ] `spec-bloco9` — Bloco 9 preenchido com dados do codigo
+- [ ] `spec-adr` — ADR preenchido ou "N/A" documentado
+- [ ] `spec-contrato` — Contrato com input/output/erro
+- [ ] `spec-e2e` — Fluxo E2E passo a passo
+- [ ] `spec-aprovada` — P.O. aprovou (ULTIMA label — so apos as 4 anteriores)
+
+---
+
 ## Checklist de auditoria (preencher em F3)
 
 - [ ] Bloco 1: contexto e dependencias claros

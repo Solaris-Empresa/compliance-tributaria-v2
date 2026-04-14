@@ -87,6 +87,62 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm vitest run server/lib/
 
+  validate-spec-completeness:
+    name: Spec completa (5 labels obrigatorias)
+    runs-on: ubuntu-latest
+    if: |
+      !contains(github.event.pull_request.title, '[HOTFIX]') &&
+      !contains(github.event.pull_request.title, 'chore(governance)') &&
+      !contains(github.event.pull_request.title, 'chore(ci)') &&
+      !contains(github.event.pull_request.title, 'docs(')
+    steps:
+      - name: Verificar labels e conteudo da issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          ISSUE_NUMBER=$(gh pr view $PR_NUMBER \
+            --repo $REPO \
+            --json closingIssuesReferences \
+            --jq '.closingIssuesReferences[0].number' 2>/dev/null || echo "")
+          if [ -z "$ISSUE_NUMBER" ]; then
+            echo "SKIP: sem issue vinculada"
+            exit 0
+          fi
+          LABELS=$(gh issue view $ISSUE_NUMBER \
+            --repo $REPO \
+            --json labels \
+            --jq '[.labels[].name] | join(",")')
+          echo "Labels da issue #$ISSUE_NUMBER: $LABELS"
+          MISSING=""
+          for LABEL in spec-bloco9 spec-adr spec-contrato spec-e2e spec-aprovada; do
+            if [[ "$LABELS" != *"$LABEL"* ]]; then
+              MISSING="$MISSING $LABEL"
+            fi
+          done
+          if [ -n "$MISSING" ]; then
+            echo ""
+            echo "FAIL: Issue #$ISSUE_NUMBER com spec incompleta."
+            echo "Labels ausentes:$MISSING"
+            echo ""
+            echo "Nenhum PR pode ser mergeado sem as 5 labels spec-*."
+            exit 1
+          fi
+          echo "OK: Issue #$ISSUE_NUMBER tem todas as 5 labels obrigatorias"
+
+          BODY=$(gh issue view $ISSUE_NUMBER --repo $REPO --json body --jq '.body')
+          MISSING_CONTENT=""
+          echo "$BODY" | grep -q "Bloco 9" || MISSING_CONTENT="$MISSING_CONTENT Bloco9"
+          echo "$BODY" | grep -qiE "ADR|N/A.*decisao|sem.*ADR" || MISSING_CONTENT="$MISSING_CONTENT ADR"
+          echo "$BODY" | grep -qiE "Contrato|input.*output" || MISSING_CONTENT="$MISSING_CONTENT Contrato"
+          echo "$BODY" | grep -qiE "E2E|fluxo.*completo|passo.*passo" || MISSING_CONTENT="$MISSING_CONTENT E2E"
+          if [ -n "$MISSING_CONTENT" ]; then
+            echo "FAIL: Conteudo ausente na issue:$MISSING_CONTENT"
+            exit 1
+          fi
+          echo "OK: conteudo completo"
+
   procedure-check:
     name: Integration Checkpoint (WARN)
     runs-on: ubuntu-latest
