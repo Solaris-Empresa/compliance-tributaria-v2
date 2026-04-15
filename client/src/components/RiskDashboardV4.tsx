@@ -1104,7 +1104,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       <AlertDialog open={showBulkConfirm} onOpenChange={(open) => { if (!open) setShowBulkConfirm(false); }}>
         <AlertDialogContent data-testid="bulk-approve-confirm-modal">
           <AlertDialogHeader>
-            <AlertDialogTitle>Aprovar matriz de riscos os riscos pendentes</AlertDialogTitle>
+            <AlertDialogTitle>Aprovar matriz de riscos</AlertDialogTitle>
             <AlertDialogDescription>
               Você está aprovando {activeRisks.filter((r) => !r.approved_at).length} riscos de uma vez.
               Esta ação será registrada com data e hora no histórico de auditoria.
