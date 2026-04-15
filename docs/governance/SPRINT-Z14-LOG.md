@@ -156,3 +156,10 @@ Aguarda decisão consultor para B-03 (título planos)
 [WONTDO] E-F tarefas manuais — buildTasks não existe
 [GATE0] risk_categories: campo label ausente (campo real = nome) — migration necessária para Issue E-C
 [SKILL] REGRA-ORQ-14 adicionada ao solaris-contexto/SKILL.md
+
+### Lote E implementação — 14/04/2026
+[IMPL] #580 catálogo PLANS — Claude Code
+[IMPL] #586 renomear label — Claude Code
+[IMPL] #587 agrupamento categoria — Claude Code
+[AGUARDA] #588 após #586/#587
+[AGUARDA] #589 após todos
