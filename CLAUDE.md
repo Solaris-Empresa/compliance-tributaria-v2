@@ -262,6 +262,28 @@ O campo `risk_level` no JSON de evidencia DEVE ser em ingles:
 - `"high"` — nao `"alto"`
 Valor em portugues: `validate-pr` FALHA com `RISK_LEVEL INVALIDO`.
 
+### REGRA-ORQ-16 — GOVERNANCE GATE (HARD-ENFORCED)
+
+F1 (Definicao):
+  - Produz spec em /docs/specs/
+  - Requer aprovacao do P.O.
+  - Gera governance/APPROVED_SPEC.json com hash SHA-256
+
+F2 (Execucao):
+  - So inicia se APPROVED_SPEC.json existir e for valido
+  - CI bloqueia merge se gate falhar (validate-governance.sh)
+
+Checklist obrigatorio antes de F3 (frontend):
+  1. diff data-testid mockup vs componente
+  2. Gap = 0 obrigatorio
+  3. Cada elemento sem issue = defer aprovado pelo P.O.
+
+Proibicoes absolutas:
+  - Codigo sem gate aprovado
+  - Prompt de implementacao sem artefato
+  - Fechar sprint com gap mockup > 0
+  - Alterar spec apos aprovacao (hash invalida)
+
 ### REGRA-ORQ-11 — Fast-track hotfix P0
 
 Para bugs criticos em producao que nao podem esperar o fluxo normal.
