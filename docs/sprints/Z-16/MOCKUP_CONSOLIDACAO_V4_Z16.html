@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOCKUP Z-16 — ConsolidacaoV4 · IA SOLARIS</title>
+<style>
+  :root {
+    --bg:#f8f7f4;--surface:#fff;--surface2:#f2f1ee;
+    --border:rgba(0,0,0,0.08);--border-md:rgba(0,0,0,0.13);
+    --text:#1a1a18;--text2:#5c5b57;--text3:#9c9a92;
+    --red50:#FCEBEB;--red400:#E24B4A;--red600:#A32D2D;--red800:#791F1F;
+    --amb50:#FAEEDA;--amb400:#EF9F27;--amb600:#854F0B;--amb800:#633806;
+    --tel50:#E1F5EE;--tel400:#1D9E75;--tel600:#0F6E56;--tel800:#085041;
+    --grn50:#EAF3DE;--grn400:#639922;--grn600:#3B6D11;--grn800:#27500A;
+    --blu50:#E6F1FB;--blu400:#378ADD;--blu600:#185FA5;--blu800:#0C447C;
+    --pur50:#EEEDFE;--pur400:#7F77DD;--pur600:#534AB7;--pur800:#3C3489;
+    --gry50:#F1EFE8;--gry400:#888780;--gry600:#5F5E5A;--gry800:#444441;
+    --radius:10px;--radius-sm:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans','Helvetica Neue',sans-serif;font-size:13px;background:var(--bg);color:var(--text);line-height:1.5}
+  .shell{max-width:980px;margin:0 auto;padding:24px 20px 80px}
+
+  /* ── changelog ── */
+  .changelog{background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--radius);padding:14px 16px;margin-bottom:24px}
+  .changelog h3{font-size:12px;font-weight:600;margin-bottom:10px}
+  .cl-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;font-size:11px}
+  .cl-row:last-child{margin-bottom:0}
+  .cl-text{color:var(--text2)}
+  .cl-text strong{color:var(--text)}
+
+  /* ── header diagnóstico ── */
+  .diag-header{background:var(--blu800);border-radius:var(--radius);padding:20px 24px;margin-bottom:16px;color:#fff}
+  .diag-title{font-size:18px;font-weight:600;margin-bottom:4px}
+  .diag-lei{font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:14px}
+  .diag-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .diag-meta-item{font-size:12px}
+  .diag-meta-label{font-size:10px;color:rgba(255,255,255,0.5);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+  .diag-meta-val{color:#fff;font-weight:500}
+  .cnae-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  .cnae-chip{background:rgba(255,255,255,0.15);color:#fff;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:500}
+
+  /* ── section label ── */
+  .section-hdr{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin:24px 0 10px;border-top:0.5px solid var(--border-md);padding-top:14px}
+  .annot{font-size:10px;color:var(--blu600);background:var(--blu50);border:0.5px solid #B5D4F4;border-radius:4px;padding:2px 7px;display:inline-block;margin-bottom:8px}
+
+  /* ── kpi grid ── */
+  .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px}
+  .kpi{background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--radius-sm);padding:10px 12px;border-top:2px solid transparent}
+  .kpi-alta{border-top-color:var(--red400)}
+  .kpi-media{border-top-color:var(--amb400)}
+  .kpi-opp{border-top-color:var(--tel400)}
+  .kpi-planos{border-top-color:var(--grn400)}
+  .kpi-tarefas{border-top-color:var(--blu400)}
+  .kpi-score{border-top-color:var(--pur400)}
+  .kpi-label{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+  .kpi-val{font-size:22px;font-weight:600;line-height:1}
+  .kpi-sub{font-size:10px;color:var(--text3);margin-top:2px}
+
+  /* ── score card ── */
+  .score-card{background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--radius);padding:16px 20px;margin-bottom:12px}
+  .score-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+  .score-left h2{font-size:15px;font-weight:600;margin-bottom:4px}
+  .score-left p{font-size:11px;color:var(--text2);max-width:480px;line-height:1.6}
+  .score-number{font-size:48px;font-weight:700;color:var(--amb800);line-height:1}
+  .score-nivel{font-size:12px;color:var(--text2);text-align:right;margin-top:4px}
+  .score-nivel strong{color:var(--amb800)}
+  .score-legenda{background:var(--amb50);border:0.5px solid var(--amb400);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--amb800)}
+  .score-legenda ul{list-style:none;margin-top:6px}
+  .score-legenda ul li{margin-bottom:3px}
+  .score-transparencia{background:var(--gry50);border-radius:var(--radius-sm);padding:10px 14px;font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:12px}
+  .score-historico{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .snap{background:var(--blu50);border:0.5px solid var(--blu400);border-radius:20px;padding:3px 10px;font-size:10px;color:var(--blu800)}
+  .snap.current{background:var(--blu600);color:#fff;border-color:var(--blu600)}
+  .score-detail-btn{font-size:11px;padding:5px 12px;border:0.5px solid var(--border-md);border-radius:var(--radius-sm);background:var(--surface);cursor:pointer;color:var(--text2)}
+
+  /* ── aviso ── */
+  .aviso-amber{background:var(--amb50);border:0.5px solid var(--amb400);border-radius:var(--radius-sm);padding:8px 14px;font-size:11px;color:var(--amb800);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+  /* ── badges ── */
+  .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;margin-right:3px}
+  .badge-red{background:var(--red50);color:var(--red800)}
+  .badge-amb{background:var(--amb50);color:var(--amb800)}
+  .badge-grn{background:var(--grn50);color:var(--grn800)}
+  .badge-blu{background:var(--blu50);color:var(--blu800)}
+  .badge-pur{background:var(--pur50);color:var(--pur800)}
+  .badge-tel{background:var(--tel50);color:var(--tel800)}
+  .badge-gry{background:var(--gry50);color:var(--gry800)}
+  .badge-whi{background:rgba(255,255,255,0.15);color:#fff}
+
+  /* ── onda badges ── */
+  .onda-solaris{background:var(--grn50);color:var(--grn800);padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+  .onda-iagen{background:var(--amb50);color:var(--amb800);padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+  .onda-produto{background:var(--blu50);color:var(--blu800);padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+  .onda-servico{background:var(--pur50);color:var(--pur800);padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+  .onda-cnae{background:var(--tel50);color:var(--tel800);padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+
+  /* ── breadcrumb chips ── */
+  .bc{padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
+  .bc-src{background:var(--blu50);color:var(--blu800)}
+  .bc-cat{background:var(--pur50);color:var(--pur800)}
+  .bc-art{background:var(--grn50);color:var(--grn800)}
+  .bc-gap{background:var(--gry50);color:var(--gry800)}
+  .bc-sep{color:var(--text3);font-size:10px}
+
+  /* ── tabelas ── */
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th{font-size:10px;font-weight:500;color:var(--text3);text-align:left;padding:6px 10px;border-bottom:0.5px solid var(--border-md);background:var(--surface2);text-transform:uppercase;letter-spacing:.03em}
+  td{padding:8px 10px;border-bottom:0.5px solid var(--border);vertical-align:top;line-height:1.4}
+  tr:last-child td{border-bottom:none}
+  .risk-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px}
+  .risk-cat{font-size:10px;color:var(--text3)}
+  .breadcrumb-row{display:flex;align-items:center;gap:3px;flex-wrap:wrap;margin-top:4px}
+
+  /* ── rag status ── */
+  .rag-ok{font-size:10px;color:var(--grn800);background:var(--grn50);padding:2px 7px;border-radius:20px;border:0.5px solid var(--grn400)}
+  .rag-warn{font-size:10px;color:var(--amb800);background:var(--amb50);padding:2px 7px;border-radius:20px;border:0.5px solid var(--amb400)}
+  .rag-no{font-size:10px;color:var(--text3);background:var(--gry50);padding:2px 7px;border-radius:20px;border:0.5px solid var(--border-md)}
+
+  /* ── planos ── */
+  .plano-card{background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+  .plano-header{padding:12px 14px;border-bottom:0.5px solid var(--border)}
+  .plano-risco{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+  .plano-titulo{font-size:13px;font-weight:600;margin-bottom:4px}
+  .plano-meta{font-size:11px;color:var(--text2)}
+  .plano-progress{padding:8px 14px;border-bottom:0.5px solid var(--border)}
+  .progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:4px}
+  .progress-bar{height:4px;background:var(--gry50);border-radius:2px;overflow:hidden}
+  .progress-fill{height:100%;background:var(--grn400);border-radius:2px}
+  .plano-tarefas{padding:8px 14px}
+  .tarefa-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);font-size:11px}
+  .tarefa-row:last-child{border-bottom:none}
+  .tarefa-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .dot-done{background:var(--grn400)}
+  .dot-doing{background:var(--blu400)}
+  .dot-todo{background:var(--gry400)}
+  .tarefa-txt{flex:1;color:var(--text2)}
+  .tarefa-txt.done{text-decoration:line-through;color:var(--text3)}
+  .tarefa-datas{font-size:10px;color:var(--text3)}
+  .tarefa-who{font-size:10px;color:var(--text3)}
+
+  /* ── base legal ── */
+  .lei-card{background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+  .lei-header{background:var(--blu800);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+  .lei-nome{font-size:13px;font-weight:600;color:#fff}
+  .lei-desc{font-size:11px;color:rgba(255,255,255,0.6)}
+  .lei-body{padding:12px 14px}
+  .artigo-row{display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:0.5px solid var(--border);font-size:11px}
+  .artigo-row:last-child{border-bottom:none}
+  .artigo-num{font-weight:600;color:var(--text);min-width:60px}
+  .artigo-cat{flex:1;color:var(--text2)}
+  .artigo-count{font-size:10px;color:var(--text3)}
+
+  /* ── timeline ── */
+  .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:0}
+  .tl-item{background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--radius);padding:12px}
+  .tl-ano{font-size:16px;font-weight:700;margin-bottom:6px}
+  .tl-ano.urgente{color:var(--red600)}
+  .tl-ano.curto{color:var(--amb600)}
+  .tl-ano.medio{color:var(--blu600)}
+  .tl-ano.longo{color:var(--grn600)}
+  .tl-label{font-size:10px;color:var(--text3);margin-bottom:8px}
+  .tl-cats{display:flex;flex-direction:column;gap:4px}
+  .tl-cat{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:500}
+  .tl-cat-red{background:var(--red50);color:var(--red800)}
+  .tl-cat-amb{background:var(--amb50);color:var(--amb800)}
+  .tl-cat-blu{background:var(--blu50);color:var(--blu800)}
+  .tl-cat-grn{background:var(--grn50);color:var(--grn800)}
+
+  /* ── próximos passos ── */
+  .proximo-box{background:var(--amb50);border-left:3px solid var(--amb400);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 16px;margin-bottom:12px}
+  .proximo-nivel{font-size:10px;font-weight:700;color:var(--amb800);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+  .proximo-texto{font-size:12px;color:var(--amb800);line-height:1.6}
+
+  /* ── disclaimer ── */
+  .disclaimer{background:var(--red50);border:0.5px solid var(--red400);border-radius:var(--radius);padding:14px 16px;margin-top:24px}
+  .disclaimer-title{font-size:11px;font-weight:700;color:var(--red800);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+  .disclaimer-txt{font-size:11px;color:var(--red800);line-height:1.7}
+
+  /* ── botões de saída ── */
+  .saida-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border-md)}
+  .btn{padding:7px 16px;border:0.5px solid var(--border-md);border-radius:var(--radius-sm);font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text)}
+  .btn-prim{background:var(--blu800);color:#fff;border-color:var(--blu800)}
+  .btn-ghost{border-color:transparent;background:transparent;color:var(--text3)}
+
+  /* ── secao excluídos ── */
+  .excluido-card{background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:8px;opacity:.6}
+  .excluido-titulo{font-size:12px;font-weight:500;text-decoration:line-through;color:var(--text2);margin-bottom:4px}
+  .excluido-meta{font-size:10px;color:var(--text3)}
+  .excluido-motivo{font-size:11px;color:var(--text2);font-style:italic;margin-top:4px}
+
+  /* ── invariantes ── */
+  .inv-box{margin-top:24px;padding:12px 14px;background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--radius);font-size:11px;color:var(--text3);line-height:1.8}
+  .inv-box strong{color:var(--text2)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ══ CHANGELOG ══ -->
+<div class="changelog">
+  <h3>Mockup Z-16 — ConsolidacaoV4 · Step 7 do fluxo E2E · NOVO</h3>
+  <div class="cl-row">
+    <span class="badge badge-red" style="flex-shrink:0">novo</span>
+    <span class="cl-text"><strong>Step 7 — ConsolidacaoV4.</strong> Rota /projetos/:id/consolidacao-v4. Entregável final da plataforma. Acionado após aprovação de plano na ActionPlanPage.</span>
+  </div>
+  <div class="cl-row">
+    <span class="badge badge-red" style="flex-shrink:0">novo</span>
+    <span class="cl-text"><strong>Score de compliance determinístico.</strong> Fórmula: sum(peso×max(confidence,0.5))/(n×9)×100. Oportunidades fora do denominador. Snapshot salvo a cada visita.</span>
+  </div>
+  <div class="cl-row">
+    <span class="badge badge-red" style="flex-shrink:0">novo</span>
+    <span class="cl-text"><strong>Badges de origem por onda.</strong> SOLARIS (verde) · IA GEN (âmbar) · PRODUTO/NCM (azul) · SERVIÇO/NBS (roxo) · ATIVIDADE/CNAE (teal).</span>
+  </div>
+  <div class="cl-row">
+    <span class="badge badge-red" style="flex-shrink:0">novo</span>
+    <span class="cl-text"><strong>Base legal escalável.</strong> Cards por lei: LC 214/2025 → LC 224 → LC 227. Layout suporta N leis sem ajuste de código.</span>
+  </div>
+  <div class="cl-row">
+    <span class="badge badge-red" style="flex-shrink:0">novo</span>
+    <span class="cl-text"><strong>Linha do tempo 2026–2032.</strong> Urgência dos riscos mapeada para horizonte temporal da reforma.</span>
+  </div>
+  <div class="cl-row">
+    <span class="badge badge-red" style="flex-shrink:0">novo</span>
+    <span class="cl-text"><strong>PDF no browser.</strong> jsPDF 4.2.0 + autoTable. Nome: diagnostico-[CNPJ]-[YYYY-MM-DD].pdf. CNPJ + CNAEs + data + disclaimer.</span>
+  </div>
+  <div class="cl-row">
+    <span class="badge badge-amb" style="flex-shrink:0">decisão P.O.</span>
+    <span class="cl-text"><strong>Veredito determinístico</strong> — template PT-BR com variáveis. SEM LLM. Expansão opcional Z-17+.</span>
+  </div>
+  <div class="cl-row">
+    <span class="badge badge-amb" style="flex-shrink:0">decisão P.O.</span>
+    <span class="cl-text"><strong>Riscos Onda 1/2 sem artigo</strong> — exibidos com badge de origem + texto explicativo. Nunca tentamos adivinhar o artigo.</span>
+  </div>
+</div>
+
+<!-- ══ HEADER DIAGNÓSTICO ══ -->
+<div class="diag-header" data-testid="consolidacao-header">
+  <div class="diag-title">Diagnóstico de Adequação LC 214/2025</div>
+  <div class="diag-lei">Reforma Tributária Brasileira · IBS · CBS · Imposto Seletivo</div>
+  <div class="diag-meta">
+    <div class="diag-meta-item">
+      <div class="diag-meta-label">Empresa</div>
+      <div class="diag-meta-val">Empresa Exemplo Ltda</div>
+    </div>
+    <div class="diag-meta-item">
+      <div class="diag-meta-label">CNPJ</div>
+      <div class="diag-meta-val">12.345.678/0001-90</div>
+    </div>
+    <div class="diag-meta-item">
+      <div class="diag-meta-label">Data do diagnóstico</div>
+      <div class="diag-meta-val">15/04/2026</div>
+    </div>
+    <div class="diag-meta-item">
+      <div class="diag-meta-label">Legislação base</div>
+      <div class="diag-meta-val">LC 214/2025 · LC 224/2026</div>
+    </div>
+  </div>
+  <div class="cnae-chips">
+    <span class="cnae-chip">4639-7/01 — Comércio atacadista</span>
+    <span class="cnae-chip">4711-3/02 — Supermercados</span>
+    <span class="cnae-chip">1031-7/00 — Fabricação de sucos</span>
+  </div>
+</div>
+
+<!-- ══ KPI CARDS ══ -->
+<div class="section-hdr">Resumo do diagnóstico</div>
+<div class="kpi-grid" data-testid="kpi-grid">
+  <div class="kpi kpi-score">
+    <div class="kpi-label">Score</div>
+    <div class="kpi-val" style="color:var(--amb800)" data-testid="kpi-score">65</div>
+    <div class="kpi-sub">nível Alto</div>
+  </div>
+  <div class="kpi kpi-alta">
+    <div class="kpi-label">Alta severidade</div>
+    <div class="kpi-val" style="color:var(--red600)" data-testid="kpi-alta">4</div>
+    <div class="kpi-sub">riscos aprovados</div>
+  </div>
+  <div class="kpi kpi-media">
+    <div class="kpi-label">Média severidade</div>
+    <div class="kpi-val" style="color:var(--amb600)" data-testid="kpi-media">3</div>
+    <div class="kpi-sub">riscos aprovados</div>
+  </div>
+  <div class="kpi kpi-opp">
+    <div class="kpi-label">Oportunidades</div>
+    <div class="kpi-val" style="color:var(--tel600)" data-testid="kpi-oportunidades">2</div>
+    <div class="kpi-sub">seção separada</div>
+  </div>
+  <div class="kpi kpi-planos">
+    <div class="kpi-label">Planos aprovados</div>
+    <div class="kpi-val" style="color:var(--grn600)" data-testid="kpi-planos">5</div>
+    <div class="kpi-sub">de ação</div>
+  </div>
+  <div class="kpi kpi-tarefas">
+    <div class="kpi-label">Tarefas</div>
+    <div class="kpi-val" style="color:var(--blu600)" data-testid="kpi-tarefas">12</div>
+    <div class="kpi-sub">definidas</div>
+  </div>
+</div>
+
+<!-- ══ AVISO PLANOS SEM TAREFAS ══ -->
+<div class="aviso-amber" data-testid="aviso-planos-sem-tarefas">
+  <span>⚠</span>
+  <span>1 plano aprovado sem tarefas definidas. Considere adicionar tarefas antes de apresentar ao cliente.</span>
+</div>
+
+<!-- ══ SCORE DE COMPLIANCE ══ -->
+<div class="section-hdr">Score de compliance tributário</div>
+<div class="annot">Calculado apenas sobre riscos aprovados · oportunidades em seção separada · determinístico</div>
+
+<div class="score-card" data-testid="compliance-score-card">
+  <div class="score-top">
+    <div class="score-left">
+      <h2>Score de Compliance Tributário</h2>
+      <p>O score combina severidade do risco com o nível de evidência operacional disponível. A severidade define o peso principal; a confiança apenas ajusta esse peso, sem zerar riscos incertos.</p>
+    </div>
+    <div>
+      <div class="score-number">65</div>
+      <div class="score-nivel">Nível: <strong>Alto</strong></div>
+    </div>
+  </div>
+
+  <div class="score-legenda">
+    <strong>Legenda da ponderação:</strong>
+    <ul>
+      <li>Alta = peso 7 · Média = peso 5 · Oportunidade = peso 1 (não entra no denominador)</li>
+      <li>Confidence mínima aplicada = 0,5 (nenhum risco é zerado)</li>
+      <li>Validação RAG não reduz o score; gera alerta de rastreabilidade normativa separado</li>
+    </ul>
+  </div>
+
+  <div style="font-size:11px;font-weight:500;color:var(--text2);margin-bottom:6px">Histórico de snapshots</div>
+  <div class="score-historico" data-testid="score-historico">
+    <span class="snap">15/04/2026 · 65 · Alto</span>
+    <span class="snap current">15/04/2026 · 65 · Alto (atual)</span>
+  </div>
+
+  <div class="score-transparencia" data-testid="score-transparencia">
+    <strong>Transparência do score:</strong> Este score não é estimado por IA generativa. Ele é calculado de forma determinística a partir da severidade dos riscos identificados e da evidência operacional disponível para cada risco. A validação normativa via RAG é exibida separadamente para reforçar a rastreabilidade jurídica, sem reduzir automaticamente a exposição principal.
+  </div>
+
+  <button class="score-detail-btn" data-testid="score-detalhe-btn">Ver detalhamento auditável ↓</button>
+
+  <!-- Tabela auditável expandida -->
+  <div style="margin-top:12px;overflow-x:auto" data-testid="score-tabela-auditavel">
+    <table>
+      <thead>
+        <tr>
+          <th>Risco</th>
+          <th>Severidade</th>
+          <th>Peso</th>
+          <th>Confidence</th>
+          <th>Conf. aplicada</th>
+          <th>Contribuição</th>
+          <th>Base legal</th>
+          <th>RAG</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="risk-title">Exposição ao Imposto Seletivo — Bebidas</div>
+            <div class="risk-cat">imposto_seletivo</div>
+          </td>
+          <td><span class="badge badge-red">Alta</span></td>
+          <td>7</td>
+          <td>0,97</td>
+          <td>0,97</td>
+          <td>6,79 / 9</td>
+          <td>Art. 2 LC 214/2025</td>
+          <td><span class="rag-ok">✓ Validado (0,89)</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="risk-title">Split Payment no fluxo de caixa</div>
+            <div class="risk-cat">split_payment</div>
+          </td>
+          <td><span class="badge badge-red">Alta</span></td>
+          <td>7</td>
+          <td>0,97</td>
+          <td>0,97</td>
+          <td>6,79 / 9</td>
+          <td>Art. 9 LC 214/2025</td>
+          <td><span class="rag-ok">✓ Validado (0,85)</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="risk-title">Prontidão operacional fiscal</div>
+            <div class="risk-cat">obrigacao_acessoria · origem: SOLARIS</div>
+          </td>
+          <td><span class="badge badge-amb">Média</span></td>
+          <td>5</td>
+          <td>0,82</td>
+          <td>0,82</td>
+          <td>4,10 / 9</td>
+          <td>—</td>
+          <td><span class="rag-no">Onda 1 — sem artigo</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="risk-title">Risco de perfil identificado pela IA</div>
+            <div class="risk-cat">regime_diferenciado · origem: IA GEN</div>
+          </td>
+          <td><span class="badge badge-amb">Média</span></td>
+          <td>5</td>
+          <td>0,55</td>
+          <td>0,55</td>
+          <td>2,75 / 9</td>
+          <td>—</td>
+          <td><span class="rag-no">Onda 2 — sem artigo</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ RISCOS APROVADOS ══ -->
+<div class="section-hdr">Riscos aprovados — tabela auditável</div>
+<div class="annot">Breadcrumb 4 nós · badge de onda · base legal por fonte</div>
+
+<div style="overflow-x:auto" data-testid="tabela-riscos-aprovados">
+  <table>
+    <thead>
+      <tr>
+        <th style="width:28%">Risco</th>
+        <th>Origem</th>
+        <th>Severidade</th>
+        <th>Urgência</th>
+        <th>Base legal</th>
+        <th>RAG</th>
+        <th>Planos</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Onda 3 — CNAE -->
+      <tr data-testid="risk-row">
+        <td>
+          <div class="risk-title">Exposição ao Imposto Seletivo — Bebidas Açucaradas</div>
+          <div class="breadcrumb-row">
+            <span class="bc bc-src">NCM 2202.10.00</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-cat">imposto_seletivo</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-art">Art. 2 LC 214/2025</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-gap">GAP-IS-001</span>
+          </div>
+        </td>
+        <td data-testid="risk-origem-badge">
+          <span class="onda-produto">Produto NCM</span>
+        </td>
+        <td><span class="badge badge-red">Alta</span></td>
+        <td><span class="badge badge-red" style="font-size:9px">Imediata</span></td>
+        <td data-testid="risk-base-legal">
+          <div style="font-size:11px;font-weight:500">Art. 2 LC 214/2025</div>
+          <div style="font-size:10px;color:var(--text3)">§1º Inciso I — IPI + produtos prejudiciais</div>
+        </td>
+        <td data-testid="risk-rag-status">
+          <span class="rag-ok">✓ Validado (0,89)</span>
+        </td>
+        <td>2</td>
+      </tr>
+
+      <!-- Onda 3 — CNAE -->
+      <tr data-testid="risk-row">
+        <td>
+          <div class="risk-title">Impacto do Split Payment no fluxo de caixa</div>
+          <div class="breadcrumb-row">
+            <span class="bc bc-src">CNAE 4639-7/01</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-cat">split_payment</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-art">Art. 9 LC 214/2025</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-gap">GAP-SP-001</span>
+          </div>
+        </td>
+        <td><span class="onda-cnae">Atividade CNAE</span></td>
+        <td><span class="badge badge-red">Alta</span></td>
+        <td><span class="badge badge-red" style="font-size:9px">Imediata</span></td>
+        <td>
+          <div style="font-size:11px;font-weight:500">Art. 9 LC 214/2025</div>
+          <div style="font-size:10px;color:var(--text3)">Caput — retenção automática IBS/CBS</div>
+        </td>
+        <td><span class="rag-ok">✓ Validado (0,85)</span></td>
+        <td>1</td>
+      </tr>
+
+      <!-- Onda 1 — SOLARIS -->
+      <tr data-testid="risk-row">
+        <td>
+          <div class="risk-title">Prontidão para obrigações acessórias IBS</div>
+          <div class="breadcrumb-row">
+            <span class="bc bc-src">SOLARIS SOL-021</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-cat">obrigacao_acessoria</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-art">—</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-gap">GAP-OA-SOL021</span>
+          </div>
+        </td>
+        <td><span class="onda-solaris">SOLARIS</span></td>
+        <td><span class="badge badge-amb">Média</span></td>
+        <td><span class="badge badge-amb" style="font-size:9px">Curto prazo</span></td>
+        <td>
+          <div style="font-size:10px;color:var(--amb800);background:var(--amb50);padding:4px 8px;border-radius:4px">
+            Onda 1 — curadoria jurídica SOLARIS.<br>
+            Base legal a confirmar pelo advogado.
+          </div>
+        </td>
+        <td><span class="rag-no">Onda 1</span></td>
+        <td>1</td>
+      </tr>
+
+      <!-- Onda 2 — IA GEN -->
+      <tr data-testid="risk-row">
+        <td>
+          <div class="risk-title">Regime diferenciado — perfil operacional identificado</div>
+          <div class="breadcrumb-row">
+            <span class="bc bc-src">IA GEN</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-cat">regime_diferenciado</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-art">—</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-gap">GAP-RD-IAGEN</span>
+          </div>
+        </td>
+        <td><span class="onda-iagen">IA GEN</span></td>
+        <td><span class="badge badge-amb">Média</span></td>
+        <td><span class="badge badge-amb" style="font-size:9px">Curto prazo</span></td>
+        <td>
+          <div style="font-size:10px;color:var(--amb800);background:var(--amb50);padding:4px 8px;border-radius:4px">
+            Onda 2 — perfil operacional via IA Gen (temp=0.1).<br>
+            Base legal a confirmar pelo advogado.
+          </div>
+        </td>
+        <td><span class="rag-warn">⚠ Revisão normativa</span></td>
+        <td>1</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ OPORTUNIDADES ══ -->
+<div class="section-hdr">Oportunidades tributárias identificadas</div>
+<div class="annot">Seção separada · não entram no score de risco · base legal via RAG</div>
+
+<div style="overflow-x:auto" data-testid="secao-oportunidades">
+  <table>
+    <thead>
+      <tr>
+        <th>Oportunidade</th>
+        <th>Categoria</th>
+        <th>Origem</th>
+        <th>Base legal</th>
+        <th>RAG</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-testid="oportunidade-row">
+        <td>
+          <div class="risk-title">Alíquota zero — Arroz Quebrado (Cesta Básica)</div>
+          <div class="breadcrumb-row">
+            <span class="bc bc-src">NCM 1006.40.00</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-cat">aliquota_zero</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-art">Art. 14 LC 214/2025</span>
+          </div>
+        </td>
+        <td><span class="badge badge-tel">Alíquota zero</span></td>
+        <td><span class="onda-produto">Produto NCM</span></td>
+        <td>Art. 14 LC 214/2025</td>
+        <td><span class="rag-ok">✓ Validado (0,92)</span></td>
+      </tr>
+      <tr data-testid="oportunidade-row">
+        <td>
+          <div class="risk-title">Crédito presumido — insumos agrícolas</div>
+          <div class="breadcrumb-row">
+            <span class="bc bc-src">CNAE 4639-7/01</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-cat">credito_presumido</span>
+            <span class="bc-sep">›</span>
+            <span class="bc bc-art">Art. 31 LC 214/2025</span>
+          </div>
+        </td>
+        <td><span class="badge badge-tel">Crédito presumido</span></td>
+        <td><span class="onda-cnae">Atividade CNAE</span></td>
+        <td>Art. 31 LC 214/2025</td>
+        <td><span class="rag-ok">✓ Validado (0,78)</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ RISCOS DESCONSIDERADOS ══ -->
+<div class="section-hdr">Riscos desconsiderados durante a análise</div>
+<div class="annot">Soft delete · motivo registrado para auditoria · base para rastreabilidade</div>
+
+<div data-testid="secao-riscos-desconsiderados">
+  <div class="excluido-card" data-testid="risco-desconsiderado-row">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+      <div>
+        <div class="excluido-titulo">Risco de inscrição cadastral — filial desativada</div>
+        <div class="excluido-meta">inscricao_cadastral · excluído 10/04/2026 por Dr. Rodrigues</div>
+        <div class="excluido-motivo">"Filial referenciada foi encerrada em 2023. Risco não se aplica ao estado atual da empresa."</div>
+      </div>
+      <span class="badge badge-gry">Desconsiderado</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PLANOS DE AÇÃO ══ -->
+<div class="section-hdr">Planos de ação aprovados</div>
+<div class="annot">Agrupados por risco de origem · rastreabilidade completa</div>
+
+<div data-testid="secao-planos">
+  <div class="plano-card" data-testid="plano-row">
+    <div class="plano-header">
+      <div class="plano-risco">
+        <span class="bc bc-src" style="font-size:10px">NCM 2202.10.00</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-cat" style="font-size:10px">imposto_seletivo</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-art" style="font-size:10px">Art. 2 LC 214/2025</span>
+      </div>
+      <div class="plano-titulo">Implantar controle de apuração do IS</div>
+      <div class="plano-meta">
+        <span class="badge badge-grn">Aprovado</span>
+        Gestor fiscal · 90 dias · vence 10/07/2026 · Aprovado por Dr. Rodrigues
+      </div>
+    </div>
+    <div class="plano-progress">
+      <div class="progress-label"><span>Progresso</span><span>2/3 tarefas</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:66%"></div></div>
+    </div>
+    <div class="plano-tarefas" data-testid="plano-tarefas-lista">
+      <div class="tarefa-row">
+        <div class="tarefa-dot dot-done"></div>
+        <span class="tarefa-txt done">Levantar NCMs sujeitos ao IS</span>
+        <span class="tarefa-who">Ana M.</span>
+        <span class="tarefa-datas">01/05 → 10/05/2026</span>
+        <span class="badge badge-grn" style="font-size:9px">Concluída</span>
+      </div>
+      <div class="tarefa-row">
+        <div class="tarefa-dot dot-doing"></div>
+        <span class="tarefa-txt">Parametrizar ERP para apuração automática</span>
+        <span class="tarefa-who">TI</span>
+        <span class="tarefa-datas">10/05 → 30/05/2026</span>
+        <span class="badge badge-blu" style="font-size:9px">Em andamento</span>
+      </div>
+      <div class="tarefa-row">
+        <div class="tarefa-dot dot-todo"></div>
+        <span class="tarefa-txt">Validar cálculo com contador</span>
+        <span class="tarefa-who">Advogado</span>
+        <span class="tarefa-datas">01/06 → 10/07/2026</span>
+        <span class="badge badge-gry" style="font-size:9px">A fazer</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BASE LEGAL APLICÁVEL ══ -->
+<div class="section-hdr">Base legal aplicável</div>
+<div class="annot">Escalável — suporta LC 214 · LC 224 · LC 227 e demais · agrupado por lei</div>
+
+<div data-testid="secao-base-legal">
+  <div class="lei-card" data-testid="lei-card">
+    <div class="lei-header">
+      <div>
+        <div class="lei-nome">LC 214/2025</div>
+        <div class="lei-desc">Lei Complementar — IBS · CBS · Imposto Seletivo · Vigência: 2026–2032</div>
+      </div>
+      <span class="badge-whi badge" style="font-size:10px">5 artigos aplicados</span>
+    </div>
+    <div class="lei-body">
+      <div class="artigo-row">
+        <span class="artigo-num">Art. 2</span>
+        <span class="artigo-cat">imposto_seletivo — bebidas açucaradas, produtos prejudiciais</span>
+        <span class="artigo-count">2 riscos</span>
+      </div>
+      <div class="artigo-row">
+        <span class="artigo-num">Art. 9</span>
+        <span class="artigo-cat">split_payment — retenção automática IBS/CBS</span>
+        <span class="artigo-count">1 risco</span>
+      </div>
+      <div class="artigo-row">
+        <span class="artigo-num">Art. 14</span>
+        <span class="artigo-cat">aliquota_zero — cesta básica</span>
+        <span class="artigo-count">1 oportunidade</span>
+      </div>
+      <div class="artigo-row">
+        <span class="artigo-num">Art. 29</span>
+        <span class="artigo-cat">regime_diferenciado — setores específicos</span>
+        <span class="artigo-count">1 risco</span>
+      </div>
+      <div class="artigo-row">
+        <span class="artigo-num">Art. 31</span>
+        <span class="artigo-cat">credito_presumido — insumos agrícolas</span>
+        <span class="artigo-count">1 oportunidade</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lei futura — placeholder escalável -->
+  <div class="lei-card" data-testid="lei-card">
+    <div class="lei-header" style="background:var(--gry600)">
+      <div>
+        <div class="lei-nome">LC 224/2026</div>
+        <div class="lei-desc">Lei Complementar — complementa a reforma · adicionada quando disponível no corpus</div>
+      </div>
+      <span class="badge-whi badge" style="font-size:10px">0 artigos aplicados</span>
+    </div>
+    <div class="lei-body">
+      <div style="font-size:11px;color:var(--text3);padding:8px 0">
+        Nenhum artigo desta lei foi identificado como aplicável a este projeto ainda.
+        Será atualizado quando o corpus RAG incluir a LC 224/2026.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LINHA DO TEMPO ══ -->
+<div class="section-hdr">Linha do tempo da reforma tributária</div>
+<div class="annot">Baseada no campo urgencia dos riscos aprovados · determinístico</div>
+
+<div class="timeline" data-testid="timeline-reforma">
+  <div class="tl-item">
+    <div class="tl-ano urgente">2026</div>
+    <div class="tl-label">Urgência imediata</div>
+    <div class="tl-cats">
+      <span class="tl-cat tl-cat-red">Imposto Seletivo</span>
+      <span class="tl-cat tl-cat-red">Split Payment</span>
+      <span class="tl-cat tl-cat-red">Confissão Automática</span>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-ano curto">2026–2027</div>
+    <div class="tl-label">Curto prazo</div>
+    <div class="tl-cats">
+      <span class="tl-cat tl-cat-amb">Obrig. Acessória</span>
+      <span class="tl-cat tl-cat-amb">Inscrição Cadastral</span>
+      <span class="tl-cat tl-cat-grn">Alíquota Zero</span>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-ano medio">2027–2029</div>
+    <div class="tl-label">Médio prazo</div>
+    <div class="tl-cats">
+      <span class="tl-cat tl-cat-blu">Transição ISS→IBS</span>
+      <span class="tl-cat tl-cat-blu">Regime Diferenciado</span>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-ano longo">2029–2032</div>
+    <div class="tl-label">Longo prazo</div>
+    <div class="tl-cats">
+      <span class="tl-cat tl-cat-grn">IS pleno</span>
+      <span class="tl-cat tl-cat-grn">Fim transição ISS</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRÓXIMOS PASSOS ══ -->
+<div class="section-hdr">Próximos passos recomendados</div>
+<div class="annot">Texto determinístico por nível do score · template PT-BR · sem LLM</div>
+
+<div class="proximo-box" data-testid="proximo-passo-box">
+  <div class="proximo-nivel">Nível Alto — Score 65</div>
+  <div class="proximo-texto">
+    Atenção necessária nos próximos 30 a 90 dias. Foram identificados 4 risco(s) de alta severidade nas categorias imposto_seletivo e split_payment. Inicie os planos de ação aprovados priorizando estes dois itens. Acompanhe os prazos definidos e revise o diagnóstico ao término da fase de implementação inicial da reforma tributária.
+  </div>
+</div>
+
+<!-- ══ DISCLAIMER ══ -->
+<div class="disclaimer" data-testid="disclaimer-box">
+  <div class="disclaimer-title">Aviso Legal — Leia antes de utilizar este diagnóstico</div>
+  <div class="disclaimer-txt">
+    AVISO LEGAL: Este diagnóstico é uma ferramenta de apoio à decisão tributária elaborada com base nas informações fornecidas pela empresa. Os resultados apresentados — incluindo a identificação de riscos, oportunidades e planos de ação — NÃO constituem parecer jurídico. Toda classificação e recomendação deve ser validada por advogado tributarista ou contador habilitado antes de qualquer ação fiscal, contábil ou de compliance. A severidade dos riscos é determinística (baseada em tabelas normativas), mas a aplicabilidade ao caso concreto depende de análise humana qualificada. IA SOLARIS não se responsabiliza por decisões tomadas sem a devida validação profissional.
+  </div>
+</div>
+
+<!-- ══ BOTÕES DE SAÍDA ══ -->
+<div class="saida-bar">
+  <button class="btn btn-prim" data-testid="btn-download-pdf">↓ Baixar diagnóstico (PDF)</button>
+  <button class="btn" data-testid="btn-ver-projetos">Ver projetos</button>
+  <button class="btn" data-testid="btn-voltar-planos">← Voltar para planos</button>
+  <button class="btn btn-ghost" data-testid="btn-ver-projeto">Ver projeto</button>
+</div>
+
+<!-- ══ INVARIANTES ══ -->
+<div class="inv-box">
+  <strong>INV-CV4-01:</strong> Score=0 se não há riscos aprovados. Nível='baixo' se score=0.<br>
+  <strong>INV-CV4-02:</strong> Oportunidades NUNCA entram no denominador do score de risco.<br>
+  <strong>INV-CV4-03:</strong> Snapshot salvo a cada visita — nunca deletado.<br>
+  <strong>INV-CV4-04:</strong> Disclaimer sempre presente — tela e PDF.<br>
+  <strong>INV-CV4-05:</strong> Riscos SOLARIS/IA GEN nunca exibem artigo como confirmado.<br>
+  <strong>INV-CV4-06:</strong> Riscos excluídos aparecem em seção própria com motivo.<br>
+  <strong>INV-CV4-07:</strong> Botão "Voltar para planos" sempre visível — advogado nunca fica preso.<br>
+  <strong>INV-CV4-08:</strong> Veredito e próximos passos: template PT-BR — sem LLM.<br>
+  <strong>INV-CV4-09:</strong> Base legal: cards escaláveis por lei — sem limite de N leis.<br>
+  <strong>INV-CV4-10:</strong> Confidence floor=0.5 — nenhum risco aprovado é zerado no score.
+</div>
+
+<!-- ══ DATA-TESTID INVENTORY ══ -->
+<div style="margin-top:24px;padding:12px 14px;background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--radius);font-size:10px;color:var(--text3)">
+  <strong style="color:var(--text2);display:block;margin-bottom:8px">Inventário data-testid — 33 total</strong>
+  consolidacao-header · kpi-grid · kpi-score · kpi-alta · kpi-media · kpi-oportunidades · kpi-planos · kpi-tarefas ·
+  aviso-planos-sem-tarefas · compliance-score-card · score-historico · score-transparencia · score-detalhe-btn · score-tabela-auditavel ·
+  tabela-riscos-aprovados · risk-row · risk-origem-badge · risk-base-legal · risk-rag-status ·
+  secao-oportunidades · oportunidade-row ·
+  secao-riscos-desconsiderados · risco-desconsiderado-row ·
+  secao-planos · plano-row · plano-tarefas-lista ·
+  secao-base-legal · lei-card ·
+  timeline-reforma · proximo-passo-box ·
+  disclaimer-box ·
+  btn-download-pdf · btn-ver-projetos · btn-voltar-planos · btn-ver-projeto
+</div>
+
+</div>
+</body>
+</html>
