@@ -81,6 +81,8 @@ interface RiskData {
   approved_by?: number | null;
   deleted_reason?: string | null;
   actionPlans?: { id: string; titulo: string; status: string }[];
+  rag_validated?: number;
+  rag_artigo_exato?: string | null;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -280,6 +282,24 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, onNewPlan,
             <Badge variant="secondary" className="text-xs">
               {URGENCIA_LABELS[risk.urgencia] ?? risk.urgencia}
             </Badge>
+            {risk.type !== "opportunity" && (
+              risk.rag_validated === 1 ? (
+                <span
+                  data-testid="rag-badge-validated"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200"
+                  title={risk.rag_artigo_exato ?? ""}
+                >
+                  RAG ✓
+                </span>
+              ) : (
+                <span
+                  data-testid="rag-badge-pending"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-50 text-gray-500 border border-gray-200"
+                >
+                  Não validado
+                </span>
+              )
+            )}
           </div>
           <p className="mt-1.5 text-sm font-medium text-foreground line-clamp-2" data-testid="risk-title">{risk.titulo}</p>
           {/* Breadcrumb 4 nós */}
@@ -1104,7 +1124,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       <AlertDialog open={showBulkConfirm} onOpenChange={(open) => { if (!open) setShowBulkConfirm(false); }}>
         <AlertDialogContent data-testid="bulk-approve-confirm-modal">
           <AlertDialogHeader>
-            <AlertDialogTitle>Aprovar matriz de riscos os riscos pendentes</AlertDialogTitle>
+            <AlertDialogTitle>Aprovar matriz de riscos</AlertDialogTitle>
             <AlertDialogDescription>
               Você está aprovando {activeRisks.filter((r) => !r.approved_at).length} riscos de uma vez.
               Esta ação será registrada com data e hora no histórico de auditoria.
