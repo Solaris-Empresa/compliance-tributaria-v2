@@ -25,12 +25,12 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-14)
-- BASELINE **v5.8** — Sprint Z-14 Lote E · PRs #536–#583 · Deploy ✅ iasolaris.manus.space
-- **HEAD: `7bd9237` (github/main)** · **Checkpoint Manus:** `7bd9237`
-- **PRs mergeados:** 583 · **TypeScript:** 0 erros · **CI:** 17 workflows ativos
+## Estado atual do projeto (2026-04-15)
+- BASELINE **v7.0** — Sprint Z-15 Lote A · PRs #598–#607 · Deploy ✅ iasolaris.manus.space
+- **HEAD: `78955e2` (github/main)** · **Checkpoint Manus:** `2d203e06`
+- **PRs mergeados:** 607 · **TypeScript:** 0 erros · **CI:** 17 workflows ativos
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade (GS-08: 0 chunks sem autor)
-- **Skill solaris-contexto:** v4.7 (REGRA-ORQ-12 + F4 paralelo adicionados) · **Skill solaris-orquestracao:** v3.2
+- **Skill solaris-contexto:** v4.7 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
 - **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção · Suite E2E automatizada 15 casos ✅ (#364)
 - **E2E Playwright Z-14:** data-testid 17 seletores (#559) · E2E_PROJECT_ID=270001 · fixtures SQL versionadas (#557)
@@ -46,14 +46,17 @@ Drizzle ORM / Vitest / pnpm
 - **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
 - **Bug #545:** ⏳ ABERTO — imports dinâmicos incorretos em diagnostic-source.test.ts (sem impacto em produção)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
-- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ Gate 7 PASS · **Z-14 Lotes A+B+C+D+E ✅**
+- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · **Z-14 ✅ (16 issues)** · **Z-15 Lote A ✅**
 
-### Sprint Z-14 Lote E — Estado (2026-04-14)
+### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |
 |---|---|---|
-| #578 | SummaryBar 3 cards (grid 4→3, remover card pending) | 🔄 F4 aprovada — aguarda implementação |
-| #579 | Migration prazo 180_dias em action_plans [P0] | ✅ PR #583 aberto — aguarda merge P.O. |
-| #580 | Catálogo PLANS por ruleId + defaultPlan() | ⏳ Aguarda merge #583 |
+| #598 | fix L1107: texto duplicado "riscos os riscos" no modal bulkApprove | ✅ PR #605 mergeado |
+| #600 | RAG badge: rag-badge-validated / rag-badge-pending no card de risco | ✅ PR #605 mergeado |
+| #601 | Plans preview: miniatura dos planos inline no card (data-testid="plans-preview") | ✅ PR #607 mergeado |
+| #602 | Sugestão da IA: botão determinístico (PLANS exportado, sem LLM) | ✅ PR #607 mergeado |
+
+**Checkpoint:** `2d203e06` · HEAD `78955e2` · tsc 0 erros · HTTP 200 · Deploy aguardando Publish P.O.
 
 **Migration aplicada no banco:** `ALTER TABLE action_plans MODIFY COLUMN prazo ENUM(+180_dias)` — ENUM confirmado: `enum('30_dias','60_dias','90_dias','180_dias')`
 
@@ -173,14 +176,15 @@ Drizzle ORM / Vitest / pnpm
 | D | — | Upload 5 leis corpus RAG (376 chunks) | #294→#296 | ✅ |
 | Fix | M-007 | `isNonCompliantAnswer` — bug confidence_score | #295 | ✅ |
 
-## Pendências abertas (pós Sprint Z-14 Lote D)
+## Pendências abertas (pós Sprint Z-15 Lote A)
 
 | Prioridade | Ação | Responsável | Bloqueio |
 |---|---|---|---|
-| P0 | Testes E2E Playwright — executar suite com E2E_PROJECT_ID=270001 | Claude Code | B-01 resolvido (#560) |
-| P1 | Fix Bug #545 — imports dinâmicos em diagnostic-source.test.ts (2 linhas) | Manus | — |
-| P2 | IN RFB 2.121/2022 (~200 chunks) | Manus | — |
-| P3 | BL-06: vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts | Manus | — |
+| P0 | Testes manuais do P.O. em iasolaris.manus.space (Checkpoint 2d203e06) | P.O. Uires Tapajós | Aguardando Publish |
+| P1 | Sprint Z-15 Lote B — identificar e planejar próximas issues | Orquestrador | Após testes manuais |
+| P2 | Fix Bug #545 — imports dinâmicos em diagnostic-source.test.ts (2 linhas) | Manus | — |
+| P3 | IN RFB 2.121/2022 (~200 chunks) | Manus | — |
+| P4 | BL-06: vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts | Manus | — |
 
 ## Corpus RAG — 13 leis (2.515 chunks)
 lc214 (1.573) · lc227 (434) · conv_icms (278) · lc116 (60) · lc224 (28) ·
@@ -190,4 +194,4 @@ resolucao_cgibs_001 (2) · resolucao_cgibs_002 (2) · resolucao_cgibs_003 (2)
 ## Conflito recorrente
 `client/public/__manus__/version.json` — resolver via `git restore --staged client/public/__manus__/version.json`
 
-*Atualizado em 2026-04-14 · v2.2 · Sprint Z-14 Lote E · PRs #536–#583 · Aprovador: P.O. Uires Tapajós*
+*Atualizado em 2026-04-15 · v2.3 · Sprint Z-15 Lote A · PRs #598–#607 · Aprovador: P.O. Uires Tapajós*
