@@ -23,3 +23,8 @@ F4 labels P.O.: pendente
 [IMPL] #600 RAG badge — Claude Code
 [AGUARDA] #601 plans preview — após #600
 [AGUARDA] #602 Sugestão IA — após #601
+
+### #598 #600 mergeados — 15/04/2026
+[DONE] PR #605 mergeado — fix L1107 + RAG badge
+[IMPL] #601 plans preview — Claude Code
+[IMPL] #602 Sugestão IA — Claude Code
