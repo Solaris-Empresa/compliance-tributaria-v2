@@ -67,6 +67,29 @@ Todas as features de UX fazem parte dele.
 **INTEGRACOES OBRIGATORIAS:**
 - Banner rastreabilidade sempre visivel (sticky)
 - Tarefas bloqueadas ate plano aprovado (status='rascunho' → opacity 40%)
+- Redirect para STEP 7 quando todos os planos aprovados (ou botao manual)
+
+### STEP 7: Consolidacao (ConsolidacaoV4)
+
+**Rota:** `/projetos/:id/consolidacao-v4`
+**Componente:** `ConsolidacaoV4.tsx` (a criar — Sprint Z-16)
+**Entrada:** action_plans.status='aprovado' (redirect de STEP 6 ou navegacao direta)
+**Saida:** PDF "Diagnostico de Adequacao LC 214/2025" + snapshot scoringData
+
+**INTEGRACOES OBRIGATORIAS:**
+- risks_v4 (riscos aprovados + excluidos com motivo)
+- action_plans + tasks (planos aprovados com tarefas)
+- projects.scoringData (score calculado + historico snapshots)
+- Disclaimer juridico obrigatorio em PT-BR (RN-CV4-11)
+- Score calculado apenas com riscos aprovados (RN-CV4-01)
+- Oportunidades NAO entram no denominador (RN-CV4-02)
+- Snapshot salvo a cada visita (RN-CV4-03)
+
+**Efeitos cascata:**
+- Imediato: score calculado + snapshot salvo em projects.scoringData
+- Cascata: PDF gerado sob demanda (jsPDF + autoTable)
+- Formato: ConsolidacaoV4Output (RN_CONSOLIDACAO_V4.md)
+- Navegacao: 4 botoes (PDF / Ver projetos / Voltar planos / Ver projeto)
 
 ---
 
@@ -79,6 +102,10 @@ Todas as features de UX fazem parte dele.
 | STEP 5 generateRisks | action_plans criados | buildActionPlans() | implementado |
 | STEP 5 (aprovar risco) | STEP 6 disponivel | approved_at preenchido | implementado |
 | STEP 6 (aprovar plano) | tarefas liberadas | status=aprovado | implementado |
+| STEP 6 (todos aprovados) | STEP 7 disponivel | redirect ou botao | a implementar (Z-16) |
+| STEP 7 mount | score calculado | calculateComplianceScore() | a implementar (Z-16) |
+| STEP 7 mount | snapshot salvo | projects.scoringData.snapshots[] | a implementar (Z-16) |
+| STEP 7 (PDF) | download browser | jsPDF + autoTable | a implementar (Z-16) |
 
 ---
 
@@ -101,6 +128,9 @@ Sem esses 4 itens documentados = issue invalida no F3.
 | Risco restaurado | status='active' | volta aba Riscos | card normal | permanecer no dashboard |
 | Plano aprovado | status='aprovado' | tarefas desbloqueadas | tasks.status='todo' | permanecer na ActionPlanPage |
 | Plano editado | campos atualizados | status NAO muda | mesmo status anterior | permanecer na ActionPlanPage |
+| Todos planos aprovados | redirect STEP 7 | score calculado + snapshot | scoringData.snapshots[] | redirect /consolidacao-v4 |
+| Consolidacao visitada | snapshot salvo | historico acumulado | scoringData atualizado | permanecer na ConsolidacaoV4 |
+| Download PDF | gera PDF no browser | nenhum | jsPDF A4 com autoTable | download local |
 
 ### Invariantes do estado final
 

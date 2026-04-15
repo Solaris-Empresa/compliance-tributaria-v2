@@ -140,6 +140,50 @@ Spec HIBRIDA obrigatoria:
 
 ---
 
+## TELA 3 — ConsolidacaoV4 (Step 7)
+
+**Componente:** `client/src/pages/ConsolidacaoV4.tsx` (a criar)
+**Rota:** `/projetos/:id/consolidacao-v4`
+**Spec:** `docs/governance/RN_CONSOLIDACAO_V4.md`
+**Mock HTML:** `docs/sprints/Z-16/MOCKUP_CONSOLIDACAO_V4_Z16.html`
+**Linhas:** 0 (a implementar)
+**Cardinalidade:** 1 projeto → N riscos aprovados → N planos → N tarefas
+
+### Estado atual (Checkpoint 15/04/2026 — pré Z-16)
+
+| Funcionalidade | Status | Observacao |
+|---|---|---|
+| Header (empresa/CNPJ/CNAEs/data) | ausente | Z16-F1 |
+| KPI cards (score/alta/media/opp/planos/tarefas) | ausente | Z16-F1 |
+| Score card + historico snapshots | ausente | Z16-F0+F1 |
+| Tabela riscos aprovados + badges onda | ausente | Z16-F1 |
+| Oportunidades (secao separada) | ausente | Z16-F1 |
+| Riscos desconsiderados + motivo | ausente | Z16-F1 |
+| Planos aprovados + tarefas | ausente | Z16-F1 |
+| Base legal escalavel por lei | ausente | Z16-F1 |
+| Linha do tempo 2026-2032 | ausente | Z16-F1 |
+| Proximos passos (template PT-BR) | ausente | Z16-F1 |
+| Disclaimer juridico obrigatorio | ausente | Z16-F1 |
+| Redirect de ActionPlanPage | ausente | Z16-F2 |
+| PDF download (jsPDF) | ausente | Z16-F3 |
+| calculateComplianceScore | ausente | Z16-F0 |
+
+### Procedures (a criar)
+
+| Procedure | Existe no router? | Chamada pelo componente? |
+|---|---|---|
+| calculateComplianceScore | NAO | NAO |
+| getConsolidationData | NAO | NAO |
+| saveScoreSnapshot | NAO | NAO |
+
+### Regras de negocio (RN_CONSOLIDACAO_V4.md)
+
+16 RNs: RN-CV4-01 a RN-CV4-16
+Score determinisitco, oportunidades fora do denominador,
+snapshot a cada visita, disclaimer obrigatorio.
+
+---
+
 ## Aviso de driver TiDB
 
 > **ATENCAO — Driver TiDB/mysql2**

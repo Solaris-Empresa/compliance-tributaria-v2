@@ -11,8 +11,9 @@
 |---|---|
 | [RN_GERACAO_RISCOS_V4.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RN_GERACAO_RISCOS_V4.md) | Pipeline 3 passos, SEVERITY/URGENCIA/TYPE, ACL, 10 RNs |
 | [RN_PLANOS_TAREFAS_V4.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RN_PLANOS_TAREFAS_V4.md) | Catalogo buildActionPlans, fluxo status, cascata, audit log |
+| [RN_CONSOLIDACAO_V4.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RN_CONSOLIDACAO_V4.md) | Score compliance, snapshot, PDF, 16 RN-CV4 |
 
-**REGRA-ORQ-00:** Ler AMBOS antes de criar qualquer issue que toque riscos ou planos.
+**REGRA-ORQ-00:** Ler TODOS antes de criar qualquer issue que toque riscos, planos ou consolidacao.
 
 ---
 
@@ -151,6 +152,51 @@ SELECT JSON_KEYS([campo_json]) FROM [tabela] WHERE [campo_json] IS NOT NULL LIMI
 | updated_at | timestamp | CURRENT_TIMESTAMP |
 
 > **Atenção:** `tasks.prazo` é DATE (campo livre), diferente de `action_plans.prazo` que é ENUM.
+
+> **Z-16 PENDENTE:** Issue #614 propoe adicionar `data_inicio` (DATE NOT NULL) e `data_fim` (DATE NOT NULL).
+> Estes campos NAO EXISTEM no banco atualmente. Migration necessaria ANTES de implementar #614.
+> Ate a migration, `prazo` (DATE nullable) e o unico campo de data na tabela tasks.
+
+---
+
+## projects — campo scoringData (Z-16)
+
+| Campo | Tipo REAL | Observacao |
+|---|---|---|
+| scoringData | **JSON** | NULL — campo existente desde v3 |
+
+**Estrutura atual (v3):**
+```json
+{
+  "score_global": number,
+  "nivel": "critico" | "alto" | "medio" | "baixo",
+  "impacto_estimado": string,
+  "custo_inacao": string,
+  "prioridade": string
+}
+```
+
+**Estrutura proposta (v4 — RN_CONSOLIDACAO_V4.md):**
+```json
+{
+  "snapshots": [{
+    "timestamp": "ISO string",
+    "score": number (0-100),
+    "nivel": "critico" | "alto" | "medio" | "baixo",
+    "total_riscos_aprovados": number,
+    "total_alta": number,
+    "total_media": number,
+    "formula_version": "v4.0"
+  }],
+  "score_atual": number,
+  "nivel_atual": string,
+  "ultima_atualizacao": "ISO string"
+}
+```
+
+> **AVISO:** Campo JSON existente com estrutura v3 diferente da v4.
+> NAO sobrescrever dados v3 — acrescentar array `snapshots` preservando campos existentes.
+> `safeParseObject()` obrigatorio para leitura (driver TiDB).
 
 ---
 
