@@ -142,45 +142,42 @@ Spec HIBRIDA obrigatoria:
 
 ## TELA 3 — ConsolidacaoV4 (Step 7)
 
-**Componente:** `client/src/pages/ConsolidacaoV4.tsx` (a criar)
+**Arquivo:** `client/src/pages/ConsolidacaoV4.tsx`
 **Rota:** `/projetos/:id/consolidacao-v4`
-**Spec:** `docs/governance/RN_CONSOLIDACAO_V4.md`
-**Mock HTML:** `docs/sprints/Z-16/MOCKUP_CONSOLIDACAO_V4_Z16.html`
-**Linhas:** 0 (a implementar)
-**Cardinalidade:** 1 projeto → N riscos aprovados → N planos → N tarefas
+**Status:** A IMPLEMENTAR (Z-16)
+**Entrada:** redirect de ActionPlanPage apos todos os planos aprovados
+**Saida:** PDF "Diagnostico de Adequacao LC 214/2025"
 
-### Estado atual (Checkpoint 15/04/2026 — pré Z-16)
-
-| Funcionalidade | Status | Observacao |
+| Funcionalidade | Status | Issue |
 |---|---|---|
 | Header (empresa/CNPJ/CNAEs/data) | ausente | Z16-F1 |
-| KPI cards (score/alta/media/opp/planos/tarefas) | ausente | Z16-F1 |
+| KPI cards (score/alta/media/oportunidade/planos/tarefas) | ausente | Z16-F1 |
 | Score card + historico snapshots | ausente | Z16-F0+F1 |
-| Tabela riscos aprovados + badges onda | ausente | Z16-F1 |
+| Tabela riscos aprovados + badges onda (alta/media/oportunidade) | ausente | Z16-F1 |
 | Oportunidades (secao separada) | ausente | Z16-F1 |
 | Riscos desconsiderados + motivo | ausente | Z16-F1 |
-| Planos aprovados + tarefas | ausente | Z16-F1 |
-| Base legal escalavel por lei | ausente | Z16-F1 |
+| Planos aprovados + tarefas vinculadas | ausente | Z16-F1 |
+| Base legal escalavel por lei (LC 214/2025 + futuras) | ausente | Z16-F1 |
 | Linha do tempo 2026-2032 | ausente | Z16-F1 |
 | Proximos passos (template PT-BR) | ausente | Z16-F1 |
 | Disclaimer juridico obrigatorio | ausente | Z16-F1 |
-| Redirect de ActionPlanPage | ausente | Z16-F2 |
-| PDF download (jsPDF) | ausente | Z16-F3 |
-| calculateComplianceScore | ausente | Z16-F0 |
+| Redirect de ActionPlanPage (botao "Ver Consolidacao") | ausente | Z16-F2 |
+| PDF download (jsPDF, client-side) | ausente | Z16-F3 |
 
-### Procedures (a criar)
+### Invariantes da TELA 3
 
-| Procedure | Existe no router? | Chamada pelo componente? |
-|---|---|---|
-| calculateComplianceScore | NAO | NAO |
-| getConsolidationData | NAO | NAO |
-| saveScoreSnapshot | NAO | NAO |
+- Score calculado deterministicamente no mount (NUNCA LLM)
+- Snapshot persistido em `projects.scoringData` no mount (idempotente)
+- Disclaimer juridico SEMPRE visivel — nao pode ser ocultado
+- Rastreabilidade: cada risco exibe `ruleId` + artigo de origem
+- 4 botoes de saida: PDF / Ver Projetos / Voltar ao Plano / Ver Projeto
 
-### Regras de negocio (RN_CONSOLIDACAO_V4.md)
+### Procedures necessarias (A CRIAR)
 
-16 RNs: RN-CV4-01 a RN-CV4-16
-Score determinisitco, oportunidades fora do denominador,
-snapshot a cada visita, disclaimer obrigatorio.
+| Procedure | Descricao |
+|---|---|
+| `risksV4.getConsolidationData(projectId)` | Retorna riscos + planos + tarefas + scoringData |
+| `risksV4.calculateAndSaveScore(projectId)` | Calcula score e persiste snapshot em scoringData |
 
 ---
 

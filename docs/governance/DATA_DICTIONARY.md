@@ -11,9 +11,8 @@
 |---|---|
 | [RN_GERACAO_RISCOS_V4.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RN_GERACAO_RISCOS_V4.md) | Pipeline 3 passos, SEVERITY/URGENCIA/TYPE, ACL, 10 RNs |
 | [RN_PLANOS_TAREFAS_V4.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RN_PLANOS_TAREFAS_V4.md) | Catalogo buildActionPlans, fluxo status, cascata, audit log |
-| [RN_CONSOLIDACAO_V4.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RN_CONSOLIDACAO_V4.md) | Score compliance, snapshot, PDF, 16 RN-CV4 |
 
-**REGRA-ORQ-00:** Ler TODOS antes de criar qualquer issue que toque riscos, planos ou consolidacao.
+**REGRA-ORQ-00:** Ler AMBOS antes de criar qualquer issue que toque riscos ou planos.
 
 ---
 
@@ -153,50 +152,45 @@ SELECT JSON_KEYS([campo_json]) FROM [tabela] WHERE [campo_json] IS NOT NULL LIMI
 
 > **Atenção:** `tasks.prazo` é DATE (campo livre), diferente de `action_plans.prazo` que é ENUM.
 
-> **Z-16 PENDENTE:** Issue #614 propoe adicionar `data_inicio` (DATE NOT NULL) e `data_fim` (DATE NOT NULL).
-> Estes campos NAO EXISTEM no banco atualmente. Migration necessaria ANTES de implementar #614.
-> Ate a migration, `prazo` (DATE nullable) e o unico campo de data na tabela tasks.
+> **Verificado em Sprint Z-16 Gate 0 (2026-04-15):** O banco NAO tem `data_inicio` nem `data_fim` na tabela `tasks`. Colunas existentes: id, project_id, action_plan_id, titulo, descricao, responsavel, prazo, status, ordem, deleted_reason, created_by, created_at, updated_at.
 
 ---
 
-## projects — campo scoringData (Z-16)
+## projects.scoringData (v4)
 
-| Campo | Tipo REAL | Observacao |
+> **Verificado em Sprint Z-16 Gate 0 (2026-04-15)**
+> **Banco atual:** `scoringData = NULL` para projetos criados no fluxo v4 (nunca calculado)
+> **Calculado por:** `calculateGlobalScore()` em `server/ai-helpers.ts`
+> **Chamado em:** APENAS `server/routers-fluxo-v3.ts` — NAO chamado no fluxo v4 ainda
+
+| Campo | Tipo | Observacao |
 |---|---|---|
-| scoringData | **JSON** | NULL — campo existente desde v3 |
+| score_global | number | 0-100 — formula: `round(sum(SEVERIDADE_SCORE_MAP[r.severidade]) / (n × 9) × 100)` |
+| nivel | string | `'baixo'` \| `'medio'` \| `'alto'` \| `'critico'` |
+| impacto_estimado | string | ex: `'R$ 120k/ano em risco fiscal estimado'` |
+| custo_inacao | string | descricao qualitativa |
+| prioridade | string | descricao qualitativa |
+| total_riscos | number | |
+| riscos_criticos | number | |
+| riscos_altos | number | |
 
-**Estrutura atual (v3):**
-```json
-{
-  "score_global": number,
-  "nivel": "critico" | "alto" | "medio" | "baixo",
-  "impacto_estimado": string,
-  "custo_inacao": string,
-  "prioridade": string
-}
-```
+**Formula de nivel:**
+- `score >= 70 OU riscos_criticos >= 2` → `'critico'`
+- `score >= 45 OU riscos_criticos >= 1` → `'alto'`
+- `score >= 25` → `'medio'`
+- else → `'baixo'`
 
-**Estrutura proposta (v4 — RN_CONSOLIDACAO_V4.md):**
-```json
-{
-  "snapshots": [{
-    "timestamp": "ISO string",
-    "score": number (0-100),
-    "nivel": "critico" | "alto" | "medio" | "baixo",
-    "total_riscos_aprovados": number,
-    "total_alta": number,
-    "total_media": number,
-    "formula_version": "v4.0"
-  }],
-  "score_atual": number,
-  "nivel_atual": string,
-  "ultima_atualizacao": "ISO string"
-}
-```
+**SEVERIDADE_SCORE_MAP (deterministico — NUNCA LLM):**
 
-> **AVISO:** Campo JSON existente com estrutura v3 diferente da v4.
-> NAO sobrescrever dados v3 — acrescentar array `snapshots` preservando campos existentes.
-> `safeParseObject()` obrigatorio para leitura (driver TiDB).
+| Severidade | Score |
+|---|---|
+| Crítica | 9 |
+| Alta | 7 |
+| Média | 5 |
+| Baixa | 3 |
+| Oportunidade | 1 |
+
+**Para Z-16:** A procedure `risksV4.calculateAndSaveScore(projectId)` deve calcular este score a partir de `risks_v4` (nao de `riskMatricesDataV3`) e persistir em `projects.scoringData`.
 
 ---
 
