@@ -1,6 +1,6 @@
 # GOVERNANCA E2E — IA SOLARIS
 ## Visao do Product Owner (P.O.)
-**Versao:** v2.8 · 14/04/2026 | **HEAD:** `7bd9237` | **Baseline:** v6.5
+**Versao:** v2.9 · 14/04/2026 | **HEAD:** `5203654` | **Baseline:** v6.6
 **Repo:** [Solaris-Empresa/compliance-tributaria-v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2)
 
 > Todos os numeros neste documento foram validados contra o codigo-fonte em 14/04/2026.
@@ -613,8 +613,8 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 
 | Indicador | Valor | Fonte de validacao |
 |---|---|---|
-| HEAD | `7bd9237` | `git rev-parse --short HEAD` |
-| Baseline | v6.5 | ESTADO-ATUAL.md |
+| HEAD | `5203654` | `git rev-parse --short HEAD` |
+| Baseline | v6.6 | ESTADO-ATUAL.md |
 | TypeScript | 0 erros | `npx tsc --noEmit` |
 | Testes unitarios | 124/124 | `npx vitest run server/lib/` |
 | Suite PCT | 117/117 | `npx vitest run server/prefill-contract.test.ts` |
@@ -624,14 +624,14 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | Risk categories | 10 ativas | SEVERITY_TABLE risk-engine-v4.ts |
 | Perguntas SOLARIS | 22 ativas (SOL-015..036) | ESTADO-ATUAL.md |
 | Migrations | 86 | `ls drizzle/*.sql \| wc -l` |
-| PRs mergeados | 583 | `gh pr list --state merged` |
+| PRs mergeados | 595 | `gh pr list --state merged` |
 | Campos banco documentados | 60 | DATA_DICTIONARY.md |
 | Funcionalidades UX mapeadas | 33 | UX_DICTIONARY.md |
 | Regras orquestracao | 16 (ORQ-00..15) | MODELO-ORQUESTRACAO-V2.md v1.1 |
 | Labels spec-* | 5 (bloco9, adr, contrato, e2e, aprovada) | CI enforcement |
 | CI Workflows | 17 ativos | `.github/workflows/` |
 | Issue Templates | 5 (sprint-issue com 12 blocos) | `.github/ISSUE_TEMPLATE/` |
-| Sprint Z-14 | **Lote E** — 11/12 issues · B-01/B-02/B-03/B-04 fixed · migration 180_dias · RNs · mockups HTML · #580 pendente | SPRINT-Z14-LOG.md |
+| Sprint Z-14 | **ENCERRADA** — 16 issues · catalogo PLANS · cat-divider · mockups HTML v2 · 9 CTs · 16 regras · RNs | SPRINT-Z14-LOG.md |
 | Invariants formalizados | 8 | invariant-registry.md |
 | Agentes automatizados | 2 | .claude/agents/ |
 | SKILL.md | 170 linhas, atualizado 14/abr | Manus report + `grep REGRA-ORQ-08 SKILL.md` confirmado |
