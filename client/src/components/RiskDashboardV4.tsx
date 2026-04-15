@@ -80,7 +80,7 @@ interface RiskData {
   approved_at?: string | null;
   approved_by?: number | null;
   deleted_reason?: string | null;
-  actionPlans?: { id: string; titulo: string; status: string }[];
+  actionPlans?: { id: string; titulo: string; status: string; responsavel?: string }[];
   rag_validated?: number;
   rag_artigo_exato?: string | null;
 }
@@ -306,6 +306,17 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, onNewPlan,
           <div className="mt-1" data-testid="risk-legal-basis">
             <Breadcrumb4 breadcrumb={breadcrumb} />
           </div>
+          {/* Plans preview inline — #601 */}
+          {risk.type !== "opportunity" && (risk.actionPlans?.length ?? 0) > 0 && (
+            <div data-testid="plans-preview" className="mt-2 space-y-0.5">
+              {risk.actionPlans!.map((p, i) => (
+                <div data-testid="plan-preview-row" key={p.id ?? i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className={`inline-block h-2 w-2 rounded-full shrink-0 ${p.status === "aprovado" ? "bg-green-500" : p.status === "em_andamento" ? "bg-blue-500" : "bg-amber-400"}`} />
+                  <span className="line-clamp-1">{p.titulo}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Ações */}

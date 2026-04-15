@@ -14,6 +14,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { computeRiskMatrix, buildActionPlans } from "../lib/risk-engine-v4";
+import { PLANS } from "../lib/action-plan-engine-v4";
 import type { GapRule } from "../lib/risk-engine-v4";
 import { generateRisksV4Pipeline } from "../lib/generate-risks-pipeline";
 // Sprint Z-10 PR #B — ACL Gap→Risk
@@ -187,6 +188,25 @@ export const risksV4Router = router({
       );
 
       return { risks: risksWithPlans };
+    }),
+
+  /**
+   * 2b. getActionPlanSuggestion
+   * Retorna sugestão do catálogo PLANS para um ruleId (#602).
+   * NÃO chama LLM — determinístico (decisão E-G Z-14).
+   */
+  getActionPlanSuggestion: protectedProcedure
+    .input(z.object({ ruleId: z.string(), riskTitulo: z.string().optional() }))
+    .query(({ input }) => {
+      const suggestions = PLANS[input.ruleId];
+      if (suggestions && suggestions.length > 0) {
+        return suggestions[0];
+      }
+      return {
+        titulo: `Avaliar e mitigar: ${input.riskTitulo ?? input.ruleId}`,
+        responsavel: "advogado",
+        prazo: "60_dias" as const,
+      };
     }),
 
   /**
