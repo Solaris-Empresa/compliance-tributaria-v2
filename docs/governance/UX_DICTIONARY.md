@@ -140,6 +140,47 @@ Spec HIBRIDA obrigatoria:
 
 ---
 
+## TELA 3 — ConsolidacaoV4 (Step 7)
+
+**Arquivo:** `client/src/pages/ConsolidacaoV4.tsx`
+**Rota:** `/projetos/:id/consolidacao-v4`
+**Status:** A IMPLEMENTAR (Z-16)
+**Entrada:** redirect de ActionPlanPage apos todos os planos aprovados
+**Saida:** PDF "Diagnostico de Adequacao LC 214/2025"
+
+| Funcionalidade | Status | Issue |
+|---|---|---|
+| Header (empresa/CNPJ/CNAEs/data) | ausente | Z16-F1 |
+| KPI cards (score/alta/media/oportunidade/planos/tarefas) | ausente | Z16-F1 |
+| Score card + historico snapshots | ausente | Z16-F0+F1 |
+| Tabela riscos aprovados + badges onda (alta/media/oportunidade) | ausente | Z16-F1 |
+| Oportunidades (secao separada) | ausente | Z16-F1 |
+| Riscos desconsiderados + motivo | ausente | Z16-F1 |
+| Planos aprovados + tarefas vinculadas | ausente | Z16-F1 |
+| Base legal escalavel por lei (LC 214/2025 + futuras) | ausente | Z16-F1 |
+| Linha do tempo 2026-2032 | ausente | Z16-F1 |
+| Proximos passos (template PT-BR) | ausente | Z16-F1 |
+| Disclaimer juridico obrigatorio | ausente | Z16-F1 |
+| Redirect de ActionPlanPage (botao "Ver Consolidacao") | ausente | Z16-F2 |
+| PDF download (jsPDF, client-side) | ausente | Z16-F3 |
+
+### Invariantes da TELA 3
+
+- Score calculado deterministicamente no mount (NUNCA LLM)
+- Snapshot persistido em `projects.scoringData` no mount (idempotente)
+- Disclaimer juridico SEMPRE visivel — nao pode ser ocultado
+- Rastreabilidade: cada risco exibe `ruleId` + artigo de origem
+- 4 botoes de saida: PDF / Ver Projetos / Voltar ao Plano / Ver Projeto
+
+### Procedures necessarias (A CRIAR)
+
+| Procedure | Descricao |
+|---|---|
+| `risksV4.getConsolidationData(projectId)` | Retorna riscos + planos + tarefas + scoringData |
+| `risksV4.calculateAndSaveScore(projectId)` | Calcula score e persiste snapshot em scoringData |
+
+---
+
 ## Aviso de driver TiDB
 
 > **ATENCAO — Driver TiDB/mysql2**
