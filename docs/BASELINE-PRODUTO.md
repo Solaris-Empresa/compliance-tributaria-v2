@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 5.8 — 2026-04-14 (Sprint Z-14 Lote E — PRs #536–#583)
-> **Commit HEAD:** `7bd9237` (pós-Sprint Z-14 Lote E)
-> **Checkpoint Manus:** `7bd9237` (auditoria pós-implementação Issue #579 ✅)
+> **Versão:** 7.0 — 2026-04-15 (Sprint Z-15 Lote A — PRs #598–#607)
+> **Commit HEAD:** `78955e2` (pós-Sprint Z-15 Lote A)
+> **Checkpoint Manus:** `2d203e06` (deploy iasolaris.manus.space ✅)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -45,11 +45,12 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z-14 Lote B** | **bulkApprove UI (#538) · Sprint Logs (#539+#543+#549+#553+#558)** | **✅ ENCERRADA 2026-04-14** |
 | **Sprint Z-14 Lote C** | **REGRA-ORQ-12 (#551) · GOVERNANCA-E2E v2.5 (#552) · Playwright E2E + fix imports (#550) · REGRA-ORQ-13 (#555)** | **✅ ENCERRADA 2026-04-14** |
 | **Sprint Z-14 Lote D** | **data-testid 17 seletores (#559) · geração automática riscos pós-briefing (#560) · fixtures E2E (#557) · E2E_PROJECT_ID=270001** | **✅ ENCERRADA 2026-04-14** |
-| **Sprint Z-14 Lote E** | **Gate 0 ✅ · Issue #579 prazo 180_dias migration (#583) · Issue #578 SummaryBar 3 cards (em F4) · Issue #580 catálogo PLANS (aguarda #583 merge) · Sprint Log #581** | **🔄 EM ANDAMENTO** |
+| **Sprint Z-14 Lote E** | **Gate 0 ✅ · Issue #579 prazo 180_dias migration (#583) · Issue #578 SummaryBar 3 cards · Issue #580 catálogo PLANS · Sprint Log #581. PRs #579–#594 mergeados.** | **✅ ENCERRADA 2026-04-14** |
+| **Sprint Z-15 Lote A** | **fix L1107 modal bulkApprove (#598) · RAG badge rag-badge-validated/pending (#600) · plans-preview inline no card (#601) · Sugestão IA determinística PLANS exportado (#602) · 180_dias no Select. PRs #605+#607 mergeados. Checkpoint 2d203e06.** | **✅ ENCERRADA 2026-04-15** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **77** (última: 0077_add_180_dias_prazo.sql — ENUM prazo +180_dias) | ✅ |
-| PRs mergeados (total) | **583** | ✅ |
+| PRs mergeados (total) | **607** | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
@@ -439,6 +440,8 @@ DROP TABLE IF EXISTS iagen_answers;
 | 5.2 | 2026-04-09 | `8df07b7` | Sprint Z-08 ENCERRADA: fix JSON.parse (#434) · fix pool.promise (#435). Sprint Z-09 iniciada. |
 | 5.3 | 2026-04-12 | `c4a5f57` | Sprint Z-13 iniciada: RAG CGIBS 6 chunks · descricao /admin/categorias · R-SYNC-01 CLAUDE.md · fix B-Z13-001/002/003. PRs #485–#486. |
 | **5.6** | **2026-04-13** | **`f396fed`** | **Sprint Z-13 ENCERRADA · Gate 7 PASS: fix B-Z13-004 risk_category_code GapSchema+INSERT (#495+#496) · backfill project_gaps_v3 138/138 mapeados · 9 docs RAG v5.0 (#498) · cockpits P.O.+RAG atualizados (#499) · ESTADO-ATUAL v5.6 (#497). 499 PRs mergeados · tsc 0 erros · 13 leis · 2.515 chunks.** |
+| 6.6 | 2026-04-14 | `984c890` | Sprint Z-14 ENCERRADA: 16 issues concluídas — ActionPlanPage + bulkApprove + catálogo PLANS por ruleId + agrupamento por categoria + RAG badge + 9 CTs E2E + migration prazo 180_dias. PRs #500–#594. tsc 0 · 124/124 testes. |
+| **7.0** | **2026-04-15** | **`78955e2`** | **Sprint Z-15 Lote A ENCERRADA: fix L1107 (texto duplicado modal bulkApprove) · RAG badge rag-badge-validated/rag-badge-pending no card · plans-preview inline (data-testid) · Sugestão IA determinística (PLANS exportado) · 180_dias no Select. PRs #605+#607. Checkpoint 2d203e06. Deploy iasolaris.manus.space. tsc 0 · 124/124 testes.** |
 
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
