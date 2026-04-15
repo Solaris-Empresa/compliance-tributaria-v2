@@ -1,6 +1,6 @@
 # GOVERNANCA E2E — IA SOLARIS
 ## Visao do Product Owner (P.O.)
-**Versao:** v2.7 · 14/04/2026 | **HEAD:** `61e85e9` | **Baseline:** v6.4
+**Versao:** v2.8 · 14/04/2026 | **HEAD:** `7bd9237` | **Baseline:** v6.5
 **Repo:** [Solaris-Empresa/compliance-tributaria-v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2)
 
 > Todos os numeros neste documento foram validados contra o codigo-fonte em 14/04/2026.
@@ -613,8 +613,8 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 
 | Indicador | Valor | Fonte de validacao |
 |---|---|---|
-| HEAD | `61e85e9` | `git rev-parse --short HEAD` |
-| Baseline | v6.4 | ESTADO-ATUAL.md |
+| HEAD | `7bd9237` | `git rev-parse --short HEAD` |
+| Baseline | v6.5 | ESTADO-ATUAL.md |
 | TypeScript | 0 erros | `npx tsc --noEmit` |
 | Testes unitarios | 124/124 | `npx vitest run server/lib/` |
 | Suite PCT | 117/117 | `npx vitest run server/prefill-contract.test.ts` |
@@ -624,14 +624,14 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | Risk categories | 10 ativas | SEVERITY_TABLE risk-engine-v4.ts |
 | Perguntas SOLARIS | 22 ativas (SOL-015..036) | ESTADO-ATUAL.md |
 | Migrations | 86 | `ls drizzle/*.sql \| wc -l` |
-| PRs mergeados | 566 | `gh pr list --state merged` |
+| PRs mergeados | 583 | `gh pr list --state merged` |
 | Campos banco documentados | 60 | DATA_DICTIONARY.md |
 | Funcionalidades UX mapeadas | 33 | UX_DICTIONARY.md |
-| Regras orquestracao | 14 (ORQ-01..14) | MODELO-ORQUESTRACAO-V2.md v1.1 |
+| Regras orquestracao | 16 (ORQ-00..15) | MODELO-ORQUESTRACAO-V2.md v1.1 |
 | Labels spec-* | 5 (bloco9, adr, contrato, e2e, aprovada) | CI enforcement |
 | CI Workflows | 17 ativos | `.github/workflows/` |
 | Issue Templates | 5 (sprint-issue com 12 blocos) | `.github/ISSUE_TEMPLATE/` |
-| Sprint Z-14 | **ENCERRADA** — 8 issues + fixes B-01/B-02 + 9 CTs + 19 data-testid + ORQ-14 | SPRINT-Z14-LOG.md |
+| Sprint Z-14 | **Lote E** — 11/12 issues · B-01/B-02/B-03/B-04 fixed · migration 180_dias · RNs · mockups HTML · #580 pendente | SPRINT-Z14-LOG.md |
 | Invariants formalizados | 8 | invariant-registry.md |
 | Agentes automatizados | 2 | .claude/agents/ |
 | SKILL.md | 170 linhas, atualizado 14/abr | Manus report + `grep REGRA-ORQ-08 SKILL.md` confirmado |
@@ -660,6 +660,8 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | DATA_DICTIONARY.md (60 campos) | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/DATA_DICTIONARY.md) |
 | UX_DICTIONARY.md (33 funcionalidades) | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/UX_DICTIONARY.md) |
 | FLOW_DICTIONARY.md (6 steps fluxo principal) | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/FLOW_DICTIONARY.md) |
+| RN_GERACAO_RISCOS_V4.md (10 RNs riscos) | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RN_GERACAO_RISCOS_V4.md) |
+| RN_PLANOS_TAREFAS_V4.md (10 RNs planos) | [abrir](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RN_PLANOS_TAREFAS_V4.md) |
 
 ## Agentes
 
