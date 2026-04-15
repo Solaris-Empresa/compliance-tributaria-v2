@@ -61,6 +61,9 @@ export interface ActionPlanV4 {
   prioridade: Urgency;
   breadcrumb: [string, string, string, string];
   severity: Severity;
+  titulo: string;
+  responsavel: string;
+  prazo: string;
 }
 
 // ---------------------------------------------------------------------------

@@ -125,6 +125,19 @@ const CATEGORIA_LABELS: Record<string, string> = {
   credito_presumido: "Crédito Presumido",
 };
 
+const CATEGORIA_ARTIGOS: Record<string, string> = {
+  imposto_seletivo: "Art. 393 LC 214/2025",
+  confissao_automatica: "Art. 45 LC 214/2025",
+  split_payment: "Art. 29 LC 214/2025",
+  inscricao_cadastral: "Art. 21 LC 214/2025",
+  regime_diferenciado: "Art. 258 LC 214/2025",
+  transicao_iss_ibs: "Arts. 6-12 LC 214/2025",
+  obrigacao_acessoria: "Art. 88 LC 214/2025",
+  aliquota_zero: "Art. 125 LC 214/2025",
+  aliquota_reduzida: "Art. 120 LC 214/2025",
+  credito_presumido: "Art. 185 LC 214/2025",
+};
+
 const SOURCE_LABELS: Record<string, string> = {
   cnae: "CNAE",
   ncm: "NCM",
@@ -777,7 +790,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
               {activeRisks.filter((r) => !r.approved_at).length} itens aguardando sua análise
             </p>
             <Button size="sm" variant="outline" className="text-xs h-7" data-testid="bulk-approve-button" onClick={() => setShowBulkConfirm(true)}>
-              Aprovar todos
+              Aprovar matriz de riscos
             </Button>
           </div>
         )}
@@ -924,17 +937,46 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
                   </Button>
                 </div>
               ) : (
-                filteredRisks.map((risk) => (
-                  <RiskCard
-                    key={risk.id}
-                    risk={risk}
-                    canApprove={canApprove}
-                    onDelete={(id) => setDeleteTarget(allRisks.find((r) => r.id === id) ?? null)}
-                    onRestore={(id) => restoreMutation.mutate({ riskId: id })}
-                    onApprove={(id) => setApproveTarget(allRisks.find((r) => r.id === id) ?? null)}
-                    onNewPlan={(r) => setNewPlanTarget(r)}
-                  />
-                ))
+                (() => {
+                  const SEVERITY_ORDER = ["alta", "media", "oportunidade"];
+                  const grouped = filteredRisks.reduce<Record<string, typeof filteredRisks>>((acc, r) => {
+                    const key = r.categoria;
+                    if (!acc[key]) acc[key] = [];
+                    acc[key].push(r);
+                    return acc;
+                  }, {});
+                  const sortedCats = Object.keys(grouped).sort((a, b) => {
+                    const sevA = grouped[a][0]?.severidade ?? "media";
+                    const sevB = grouped[b][0]?.severidade ?? "media";
+                    return SEVERITY_ORDER.indexOf(sevA) - SEVERITY_ORDER.indexOf(sevB);
+                  });
+                  return sortedCats.map((cat) => (
+                    <div key={`group-${cat}`}>
+                      <div data-testid="cat-divider" className="flex items-center gap-2 py-2 px-1 text-xs text-muted-foreground border-b border-border mb-2">
+                        <span data-testid="cat-divider-label" className="font-semibold text-foreground">
+                          {CATEGORIA_LABELS[cat] ?? cat}
+                        </span>
+                        <span className="text-muted-foreground">·</span>
+                        <span className="text-muted-foreground">{CATEGORIA_ARTIGOS[cat] ?? ""}</span>
+                        <span className="text-muted-foreground">·</span>
+                        <span data-testid="cat-divider-count">
+                          {grouped[cat].length} risco{grouped[cat].length > 1 ? "s" : ""}
+                        </span>
+                      </div>
+                      {grouped[cat].map((risk) => (
+                        <RiskCard
+                          key={risk.id}
+                          risk={risk}
+                          canApprove={canApprove}
+                          onDelete={(id) => setDeleteTarget(allRisks.find((r) => r.id === id) ?? null)}
+                          onRestore={(id) => restoreMutation.mutate({ riskId: id })}
+                          onApprove={(id) => setApproveTarget(allRisks.find((r) => r.id === id) ?? null)}
+                          onNewPlan={(r) => setNewPlanTarget(r)}
+                        />
+                      ))}
+                    </div>
+                  ));
+                })()
               )}
             </CardContent>
           </Card>
@@ -1062,7 +1104,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       <AlertDialog open={showBulkConfirm} onOpenChange={(open) => { if (!open) setShowBulkConfirm(false); }}>
         <AlertDialogContent data-testid="bulk-approve-confirm-modal">
           <AlertDialogHeader>
-            <AlertDialogTitle>Aprovar todos os riscos pendentes</AlertDialogTitle>
+            <AlertDialogTitle>Aprovar matriz de riscos os riscos pendentes</AlertDialogTitle>
             <AlertDialogDescription>
               Você está aprovando {activeRisks.filter((r) => !r.approved_at).length} riscos de uma vez.
               Esta ação será registrada com data e hora no histórico de auditoria.
