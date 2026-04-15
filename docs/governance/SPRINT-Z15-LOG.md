@@ -16,3 +16,10 @@
 ## Status
 F3 auditoria: pendente
 F4 labels P.O.: pendente
+
+### Lote A implementação — 15/04/2026
+[F4] Labels aplicadas pelo P.O. em #598 #600 #601 #602
+[IMPL] #598 fix L1107 — Claude Code
+[IMPL] #600 RAG badge — Claude Code
+[AGUARDA] #601 plans preview — após #600
+[AGUARDA] #602 Sugestão IA — após #601
