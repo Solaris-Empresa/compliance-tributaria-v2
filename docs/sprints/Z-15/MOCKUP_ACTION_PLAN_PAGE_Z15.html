@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOCKUP — ActionPlanPage Z-15 · IA SOLARIS</title>
+<style>
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --surface2: #f2f1ee;
+    --border: rgba(0,0,0,0.08);
+    --border-md: rgba(0,0,0,0.13);
+    --text: #1a1a18;
+    --text2: #5c5b57;
+    --text3: #9c9a92;
+    --red50: #FCEBEB; --red400: #E24B4A; --red600: #A32D2D; --red800: #791F1F;
+    --amb50: #FAEEDA; --amb400: #EF9F27; --amb600: #854F0B; --amb800: #633806;
+    --tel50: #E1F5EE; --tel400: #1D9E75; --tel600: #0F6E56; --tel800: #085041;
+    --grn50: #EAF3DE; --grn400: #639922; --grn600: #3B6D11; --grn800: #27500A;
+    --blu50: #E6F1FB; --blu400: #378ADD; --blu600: #185FA5; --blu800: #0C447C;
+    --pur50: #EEEDFE; --pur400: #7F77DD; --pur600: #534AB7; --pur800: #3C3489;
+    --gry50: #F1EFE8; --gry400: #888780; --gry600: #5F5E5A; --gry800: #444441;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans','Helvetica Neue', Arial, sans-serif; font-size: 13px; background: var(--bg); color: var(--text); line-height: 1.5; }
+  .shell { max-width: 980px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* -- banner rastreabilidade -- */
+  .trace-banner {
+    background: #FEF2F2; border: 0.5px solid #F7C1C1;
+    border-radius: var(--radius-sm); padding: 10px 14px;
+    margin-bottom: 0; position: sticky; top: 0; z-index: 20;
+  }
+  .trace-label { font-size: 10px; font-weight: 600; color: var(--red800); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  .trace-chips { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
+  .bc { padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 500; cursor: pointer; }
+  .bc-src { background: var(--blu50); color: var(--blu800); }
+  .bc-cat { background: var(--pur50); color: var(--pur800); }
+  .bc-art { background: var(--grn50); color: var(--grn800); }
+  .bc-gap { background: var(--gry50); color: var(--gry800); }
+  .bc-risk { background: var(--red50); color: var(--red800); }
+  .bc-sep { color: var(--text3); font-size: 11px; }
+  .trace-risk-title { font-size: 13px; font-weight: 600; color: var(--red800); display: flex; align-items: center; gap: 8px; }
+
+  /* -- header -- */
+  .hdr { display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 0 14px; gap: 12px; flex-wrap: wrap; }
+  .hdr-left h1 { font-size: 18px; font-weight: 600; letter-spacing: -.3px; margin-bottom: 2px; }
+  .hdr-left p { font-size: 12px; color: var(--text3); }
+
+  /* -- status filter bar -- */
+  .status-filter {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px;
+    padding: 8px 0;
+  }
+  .filter-chip {
+    padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 500;
+    border: 0.5px solid var(--border-md); background: var(--surface); color: var(--text2);
+    cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+  }
+  .filter-chip.active { background: var(--text); color: var(--surface); border-color: var(--text); }
+  .filter-chip .count {
+    background: rgba(255,255,255,0.2); padding: 0 5px; border-radius: 10px;
+    font-size: 10px; font-weight: 600;
+  }
+  .filter-chip.active .count { background: rgba(255,255,255,0.25); }
+  .filter-chip:not(.active) .count { background: var(--surface2); color: var(--text3); }
+
+  /* -- tabs -- */
+  .tabs { display: flex; border-bottom: 0.5px solid var(--border-md); margin-bottom: 16px; }
+  .tab { padding: 7px 16px; font-size: 12px; font-weight: 500; color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -0.5px; cursor: pointer; }
+  .tab.on { color: var(--text); border-bottom-color: var(--text); }
+
+  /* -- plan card -- */
+  .plan-card {
+    background: var(--surface); border: 0.5px solid var(--border-md);
+    border-radius: var(--radius); border-top: 2px solid transparent;
+    overflow: hidden; margin-bottom: 12px;
+  }
+  .plan-card.draft { border-top-color: var(--amb400); }
+  .plan-card.approved { border-top-color: var(--grn400); }
+  .plan-card.em_andamento { border-top-color: var(--blu400); }
+  .plan-card.concluido { border-top-color: var(--grn600); }
+
+  .plan-card-body { padding: 12px 14px 10px; }
+  .plan-origin { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+  .plan-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .plan-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .plan-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+
+  /* -- approval bar -- */
+  .apv-bar { padding: 8px 14px; border-top: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .apv-bar.draft { background: #fffbf3; }
+  .apv-bar.approved { background: #f5fbf1; }
+  .apv-bar.em_andamento { background: var(--blu50); }
+  .apv-bar.concluido { background: var(--grn50); }
+  .apv-msg { font-size: 11px; font-weight: 500; }
+  .apv-msg.draft { color: var(--amb800); }
+  .apv-msg.approved { color: var(--grn800); }
+  .apv-msg.em_andamento { color: var(--blu800); }
+  .apv-msg.concluido { color: var(--grn800); }
+  .apv-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* -- progress -- */
+  .progress-wrap { padding: 10px 14px 6px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+  .progress-bar { height: 5px; border-radius: 3px; background: var(--border-md); overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; }
+  .fill-grn { background: var(--grn400); }
+  .fill-blu { background: var(--blu400); }
+
+  /* -- tasks -- */
+  .tasks-section { border-top: 0.5px solid var(--border); }
+  .lock-notice { display: flex; align-items: center; gap: 6px; padding: 7px 14px; font-size: 11px; color: var(--amb800); background: var(--amb50); border-bottom: 0.5px solid var(--border); }
+  .task-row { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-bottom: 0.5px solid var(--border); font-size: 12px; cursor: pointer; }
+  .task-row:last-child { border-bottom: none; }
+  .task-row:hover { background: var(--surface2); }
+  .task-row.locked { opacity: 0.38; pointer-events: none; }
+  .task-check { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border-md); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .task-check.done { background: var(--grn400); border-color: var(--grn400); }
+  .task-check.doing { background: var(--blu400); border-color: var(--blu400); }
+  .task-check.todo { background: transparent; }
+  .task-check.blocked { background: var(--red400); border-color: var(--red400); }
+  .task-txt { flex: 1; }
+  .task-txt.done { text-decoration: line-through; color: var(--text3); }
+  .task-who { font-size: 11px; color: var(--text3); white-space: nowrap; }
+  .task-sel { font-size: 11px; padding: 2px 6px; border: 0.5px solid var(--border-md); border-radius: 4px; background: var(--surface2); color: var(--text2); }
+  .task-add-row { display: flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 11px; color: var(--blu600); cursor: pointer; }
+
+  /* -- buttons -- */
+  .btn { padding: 5px 12px; border: 0.5px solid var(--border-md); border-radius: var(--radius-sm); font-size: 11px; font-weight: 500; cursor: pointer; background: var(--surface); color: var(--text); }
+  .btn-prim { background: var(--text); color: var(--surface); border-color: var(--text); }
+  .btn-grn { background: var(--grn50); color: var(--grn800); border-color: var(--grn400); }
+  .btn-red { background: var(--red50); color: var(--red800); border-color: var(--red400); }
+  .btn-ghost { background: transparent; border-color: transparent; color: var(--text3); font-size: 14px; padding: 2px 6px; cursor: pointer; }
+  .btn-blu { background: var(--blu50); color: var(--blu800); border-color: var(--blu400); }
+
+  /* -- badges -- */
+  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+  .badge-red { background: var(--red50); color: var(--red800); }
+  .badge-amb { background: var(--amb50); color: var(--amb800); }
+  .badge-grn { background: var(--grn50); color: var(--grn800); }
+  .badge-blu { background: var(--blu50); color: var(--blu800); }
+  .badge-gry { background: var(--gry50); color: var(--gry800); }
+
+  /* -- modals -- */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+    z-index: 100; align-items: center; justify-content: center;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal {
+    background: var(--surface); border: 0.5px solid var(--border-md);
+    border-radius: var(--radius); padding: 20px 22px; width: 100%; max-width: 520px;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal h3 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .modal-sub { font-size: 11px; color: var(--text3); margin-bottom: 14px; }
+  .modal-breadcrumb { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-bottom: 14px; }
+  .form-label { font-size: 11px; font-weight: 500; color: var(--text2); margin-bottom: 4px; display: block; }
+  .form-req { color: var(--red600); }
+  input[type=text], textarea, select { width: 100%; padding: 7px 10px; border: 0.5px solid var(--border-md); border-radius: var(--radius-sm); font-size: 12px; background: var(--surface); color: var(--text); margin-bottom: 10px; font-family: inherit; }
+  textarea { resize: vertical; min-height: 60px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; border-top: 0.5px solid var(--border); padding-top: 12px; }
+
+  /* -- AI suggestion box -- */
+  .ai-suggestion-box {
+    background: var(--blu50); border: 0.5px solid #B5D4F4;
+    border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 14px;
+  }
+  .ai-suggestion-label {
+    font-size: 10px; font-weight: 600; color: var(--blu800);
+    text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .ai-suggestion-label .sparkle { font-size: 13px; }
+  .ai-suggestion-content { font-size: 12px; color: var(--blu800); margin-bottom: 8px; line-height: 1.6; }
+  .ai-suggestion-content strong { display: block; margin-bottom: 2px; }
+  .ai-suggestion-actions { display: flex; gap: 6px; }
+
+  /* -- task breadcrumb in modal -- */
+  .task-breadcrumb {
+    display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+    padding: 6px 10px; background: var(--surface2); border-radius: var(--radius-sm);
+    margin-bottom: 14px; font-size: 11px;
+  }
+  .task-breadcrumb .bc { font-size: 10px; }
+
+  /* -- section labels -- */
+  .section-hdr { font-size: 12px; font-weight: 600; color: var(--text2); margin: 28px 0 10px; padding-bottom: 6px; border-bottom: 0.5px solid var(--border-md); }
+
+  /* -- history -- */
+  .hist-card { background: var(--surface); border: 0.5px solid var(--border-md); border-radius: var(--radius); overflow: hidden; margin-bottom: 10px; opacity: .55; }
+  .hist-body { padding: 12px 14px; }
+  .hist-title { font-size: 13px; font-weight: 500; text-decoration: line-through; color: var(--text2); margin-bottom: 4px; }
+  .hist-meta { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+  .hist-reason { font-size: 11px; color: var(--text2); font-style: italic; }
+
+  /* -- audit log -- */
+  .audit-log { margin-top: 16px; }
+  .audit-row { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: 0.5px solid var(--border); font-size: 11px; }
+  .audit-row:last-child { border-bottom: none; }
+  .audit-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; }
+  .audit-txt { flex: 1; color: var(--text2); }
+  .audit-time { color: var(--text3); white-space: nowrap; }
+
+  /* -- invariants -- */
+  .inv-box { margin-top: 32px; padding: 12px 14px; background: var(--surface); border: 0.5px solid var(--border-md); border-radius: var(--radius); font-size: 11px; color: var(--text3); line-height: 1.8; }
+  .inv-box strong { color: var(--text2); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ============================================ -->
+  <!-- BANNER RASTREABILIDADE (sticky)              -->
+  <!-- ============================================ -->
+  <div class="trace-banner" data-testid="traceability-banner">
+    <div class="trace-label">Risco de origem — rastreabilidade completa</div>
+    <div class="trace-chips">
+      <span class="bc bc-src">NCM 2202.10.00</span>
+      <span class="bc-sep">></span>
+      <span class="bc bc-cat">imposto_seletivo</span>
+      <span class="bc-sep">></span>
+      <span class="bc bc-art">Art. 393 LC 214/2025</span>
+      <span class="bc-sep">></span>
+      <span class="bc bc-gap">GAP-IS-001</span>
+      <span class="bc-sep">></span>
+      <span class="bc bc-risk">RISK-001</span>
+    </div>
+    <div class="trace-risk-title">
+      Exposicao ao Imposto Seletivo — Bebidas Acucaradas
+      <span class="badge badge-red">Alta</span>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <h1>Plano de acao</h1>
+      <p>4 planos · 9 tarefas · 3 concluidas · risco aprovado em 10/04/2026</p>
+    </div>
+    <button class="btn btn-prim" data-testid="new-plan-button" onclick="document.getElementById('new-plan-modal').classList.add('visible')">+ Novo plano</button>
+  </div>
+
+  <!-- STATUS FILTER BAR (Z-15) -->
+  <div class="status-filter" data-testid="plan-status-filter">
+    <span class="filter-chip active" data-testid="plan-filter-todos" onclick="filterPlans('todos',this)">Todos <span class="count">4</span></span>
+    <span class="filter-chip" data-testid="plan-filter-rascunho" onclick="filterPlans('rascunho',this)">Rascunho <span class="count">1</span></span>
+    <span class="filter-chip" data-testid="plan-filter-aprovado" onclick="filterPlans('aprovado',this)">Aprovado <span class="count">1</span></span>
+    <span class="filter-chip" data-testid="plan-filter-em_andamento" onclick="filterPlans('em_andamento',this)">Em andamento <span class="count">1</span></span>
+    <span class="filter-chip" data-testid="plan-filter-concluido" onclick="filterPlans('concluido',this)">Concluido <span class="count">1</span></span>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab on">Planos ativos (4)</div>
+    <div class="tab" data-testid="history-tab">Historico (1)</div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- PLANO 1 — EM ANDAMENTO                      -->
+  <!-- ============================================ -->
+  <div class="plan-card em_andamento" data-testid="action-plan-row" data-status="em_andamento">
+    <div class="plan-card-body">
+      <div class="plan-origin">
+        <span class="bc bc-gap" style="font-size:10px">GAP-IS-001</span>
+        <span class="bc-sep">.</span>
+        <span class="bc bc-cat" style="font-size:10px">imposto_seletivo</span>
+        <span class="bc-sep">.</span>
+        <span class="bc bc-art" style="font-size:10px">Art. 393</span>
+      </div>
+      <div class="plan-title-row">
+        <div class="plan-title">Implantar controle de apuracao do Imposto Seletivo</div>
+        <button class="btn-ghost">&#8943;</button>
+      </div>
+      <div class="plan-meta">
+        <span class="badge badge-blu">Em andamento</span>
+        <span style="font-size:11px;color:var(--text3)">Gestor fiscal · 90 dias · vence 10/07/2026</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3)">Aprovado por Dr. Rodrigues · 12/04/2026 10:30</div>
+    </div>
+
+    <div class="apv-bar em_andamento">
+      <span class="apv-msg em_andamento">&#9654; Em andamento</span>
+      <div class="apv-btns">
+        <button class="btn">Editar</button>
+        <button class="btn btn-red">Excluir</button>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Progresso</span><span>2/3 tarefas</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-blu" style="width:66%"></div></div>
+    </div>
+
+    <div class="tasks-section">
+      <div class="task-row" onclick="document.getElementById('task-edit-modal').classList.add('visible')">
+        <div class="task-check done">
+          <svg width="8" height="8" viewBox="0 0 8 8"><polyline points="1.5,4 3,5.5 6.5,2" stroke="#fff" stroke-width="1.5" fill="none"/></svg>
+        </div>
+        <span class="task-txt done">Levantar NCMs sujeitas ao IS no portfolio</span>
+        <span class="task-who">Ana M.</span>
+        <span class="badge badge-grn" style="font-size:10px">done</span>
+      </div>
+      <div class="task-row" onclick="document.getElementById('task-edit-modal').classList.add('visible')">
+        <div class="task-check done">
+          <svg width="8" height="8" viewBox="0 0 8 8"><polyline points="1.5,4 3,5.5 6.5,2" stroke="#fff" stroke-width="1.5" fill="none"/></svg>
+        </div>
+        <span class="task-txt done">Calcular impacto financeiro do IS sobre bebidas</span>
+        <span class="task-who">Ana M.</span>
+        <span class="badge badge-grn" style="font-size:10px">done</span>
+      </div>
+      <div class="task-row" onclick="document.getElementById('task-edit-modal').classList.add('visible')">
+        <div class="task-check doing">
+          <div style="width:6px;height:6px;border-radius:50%;background:#fff"></div>
+        </div>
+        <span class="task-txt">Parametrizar apuracao IS no ERP fiscal</span>
+        <span class="task-who">TI</span>
+        <select class="task-sel" onclick="event.stopPropagation()">
+          <option>em andamento</option>
+          <option>todo</option>
+          <option>concluido</option>
+          <option>bloqueado</option>
+        </select>
+      </div>
+      <div class="task-add-row">+ Adicionar tarefa</div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- PLANO 2 — APROVADO                          -->
+  <!-- ============================================ -->
+  <div class="plan-card approved" data-testid="action-plan-row" data-status="aprovado">
+    <div class="plan-card-body">
+      <div class="plan-origin">
+        <span class="bc bc-gap" style="font-size:10px">GAP-IS-001</span>
+        <span class="bc-sep">.</span>
+        <span class="bc bc-cat" style="font-size:10px">imposto_seletivo</span>
+        <span class="bc-sep">.</span>
+        <span class="bc bc-art" style="font-size:10px">Art. 393</span>
+      </div>
+      <div class="plan-title-row">
+        <div class="plan-title">Contratar assessoria tributaria especializada em IS</div>
+        <button class="btn-ghost">&#8943;</button>
+      </div>
+      <div class="plan-meta">
+        <span class="badge badge-grn">Aprovado</span>
+        <span style="font-size:11px;color:var(--text3)">Diretor · 60 dias · vence 12/06/2026</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3)">Aprovado por Dr. Rodrigues · 12/04/2026 10:32</div>
+    </div>
+
+    <div class="apv-bar approved">
+      <span class="apv-msg approved">&#10004; Aprovado</span>
+      <div class="apv-btns">
+        <button class="btn">Editar</button>
+        <button class="btn btn-red">Excluir</button>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Progresso</span><span>0/2 tarefas</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-grn" style="width:0%"></div></div>
+    </div>
+
+    <div class="tasks-section">
+      <div class="task-row">
+        <div class="task-check todo"></div>
+        <span class="task-txt">Pesquisar escritorios especializados em IS</span>
+        <span class="task-who">Diretor</span>
+        <span class="badge badge-gry" style="font-size:10px">todo</span>
+      </div>
+      <div class="task-row">
+        <div class="task-check todo"></div>
+        <span class="task-txt">Solicitar propostas e cronograma</span>
+        <span class="task-who">Diretor</span>
+        <span class="badge badge-gry" style="font-size:10px">todo</span>
+      </div>
+      <div class="task-add-row">+ Adicionar tarefa</div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- PLANO 3 — RASCUNHO (tarefas bloqueadas)     -->
+  <!-- ============================================ -->
+  <div class="plan-card draft" data-testid="action-plan-row" data-status="rascunho">
+    <div class="plan-card-body">
+      <div class="plan-origin">
+        <span class="bc bc-gap" style="font-size:10px">GAP-IS-001</span>
+        <span class="bc-sep">.</span>
+        <span class="bc bc-cat" style="font-size:10px">imposto_seletivo</span>
+      </div>
+      <div class="plan-title-row">
+        <div class="plan-title">Documentar impacto tributario e apresentar ao cliente</div>
+        <button class="btn-ghost">&#8943;</button>
+      </div>
+      <div class="plan-meta">
+        <span class="badge badge-amb">Rascunho</span>
+        <span style="font-size:11px;color:var(--text3)">Advogado · 30 dias · vence 15/05/2026</span>
+      </div>
+    </div>
+
+    <div class="apv-bar draft">
+      <span class="apv-msg draft">&#9203; Aguardando aprovacao do advogado</span>
+      <div class="apv-btns">
+        <button class="btn">Editar</button>
+        <button class="btn btn-red">Excluir</button>
+        <button class="btn btn-grn">&#10003; Aprovar plano</button>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Progresso</span><span>0/2 tarefas</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-grn" style="width:0%"></div></div>
+    </div>
+
+    <div class="tasks-section">
+      <div class="lock-notice">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="2" y="5" width="8" height="6" rx="1" stroke="#854F0B" stroke-width="1.2"/><path d="M4 5V4a2 2 0 014 0v1" stroke="#854F0B" stroke-width="1.2"/></svg>
+        Tarefas bloqueadas — aprovar o plano para liberar execucao
+      </div>
+      <div class="task-row locked">
+        <div class="task-check todo"></div>
+        <span class="task-txt">Elaborar relatorio de impacto do IS</span>
+        <span class="task-who">Advogado</span>
+        <span class="badge badge-gry" style="font-size:10px">todo</span>
+      </div>
+      <div class="task-row locked">
+        <div class="task-check todo"></div>
+        <span class="task-txt">Apresentar documentacao ao cliente</span>
+        <span class="task-who">Diretor</span>
+        <span class="badge badge-gry" style="font-size:10px">todo</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- PLANO 4 — CONCLUIDO                         -->
+  <!-- ============================================ -->
+  <div class="plan-card concluido" data-testid="action-plan-row" data-status="concluido">
+    <div class="plan-card-body">
+      <div class="plan-origin">
+        <span class="bc bc-gap" style="font-size:10px">GAP-IS-001</span>
+        <span class="bc-sep">.</span>
+        <span class="bc bc-cat" style="font-size:10px">imposto_seletivo</span>
+        <span class="bc-sep">.</span>
+        <span class="bc bc-art" style="font-size:10px">Art. 393</span>
+      </div>
+      <div class="plan-title-row">
+        <div class="plan-title">Mapear produtos sujeitos ao IS no portfolio</div>
+        <button class="btn-ghost">&#8943;</button>
+      </div>
+      <div class="plan-meta">
+        <span class="badge badge-grn">Concluido</span>
+        <span style="font-size:11px;color:var(--text3)">Ana M. · 30 dias · concluido 08/04/2026</span>
+      </div>
+    </div>
+
+    <div class="apv-bar concluido">
+      <span class="apv-msg concluido">&#10004; Concluido</span>
+      <div class="apv-btns">
+        <button class="btn">Ver detalhes</button>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Progresso</span><span>2/2 tarefas</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-grn" style="width:100%"></div></div>
+    </div>
+
+    <div class="tasks-section">
+      <div class="task-row">
+        <div class="task-check done">
+          <svg width="8" height="8" viewBox="0 0 8 8"><polyline points="1.5,4 3,5.5 6.5,2" stroke="#fff" stroke-width="1.5" fill="none"/></svg>
+        </div>
+        <span class="task-txt done">Listar NCMs com incidencia de IS</span>
+        <span class="task-who">Ana M.</span>
+        <span class="badge badge-grn" style="font-size:10px">done</span>
+      </div>
+      <div class="task-row">
+        <div class="task-check done">
+          <svg width="8" height="8" viewBox="0 0 8 8"><polyline points="1.5,4 3,5.5 6.5,2" stroke="#fff" stroke-width="1.5" fill="none"/></svg>
+        </div>
+        <span class="task-txt done">Validar com SEFAZ e atualizar cadastro</span>
+        <span class="task-who">Ana M.</span>
+        <span class="badge badge-grn" style="font-size:10px">done</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL — NOVO PLANO (com sugestao IA)        -->
+  <!-- ============================================ -->
+  <div class="modal-overlay" id="new-plan-modal" data-testid="action-plan-modal">
+    <div class="modal">
+      <h3>Novo plano de acao</h3>
+      <div class="modal-sub">Vinculado ao risco: GAP-IS-001 · imposto_seletivo</div>
+      <div class="modal-breadcrumb">
+        <span class="bc bc-src" style="font-size:10px">NCM 2202.10.00</span>
+        <span class="bc-sep">></span>
+        <span class="bc bc-cat" style="font-size:10px">imposto_seletivo</span>
+        <span class="bc-sep">></span>
+        <span class="bc bc-art" style="font-size:10px">Art. 393</span>
+        <span class="bc-sep">></span>
+        <span class="bc bc-gap" style="font-size:10px">GAP-IS-001</span>
+      </div>
+
+      <!-- AI Suggestion Box (Z-15) -->
+      <div class="ai-suggestion-box" data-testid="ai-suggestion-box">
+        <div class="ai-suggestion-label">
+          <span class="sparkle">&#10024;</span> Sugestao da IA
+        </div>
+        <div class="ai-suggestion-content">
+          <strong>Titulo sugerido:</strong> Implantar controle de apuracao do Imposto Seletivo
+          <strong>Responsavel:</strong> Gestor fiscal
+          <strong>Prazo:</strong> 90 dias
+        </div>
+        <div class="ai-suggestion-actions">
+          <button class="btn btn-blu" data-testid="ai-suggestion-accept" onclick="acceptSuggestion()">Usar sugestao</button>
+          <span style="font-size:11px;color:var(--text3);padding:5px 0">ou preencha manualmente abaixo</span>
+        </div>
+      </div>
+
+      <label class="form-label">Titulo <span class="form-req">*</span></label>
+      <input type="text" id="plan-title-input" placeholder="Digite o titulo do plano" data-testid="plan-title-input">
+
+      <div class="grid2">
+        <div>
+          <label class="form-label">Responsavel <span class="form-req">*</span></label>
+          <select id="plan-responsavel" data-testid="plan-responsavel-select">
+            <option value="">Selecione...</option>
+            <option>Gestor fiscal</option>
+            <option>Diretor</option>
+            <option>TI</option>
+            <option>Advogado</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Prazo <span class="form-req">*</span></label>
+          <select id="plan-prazo" data-testid="plan-prazo-select">
+            <option value="30">30 dias</option>
+            <option value="60">60 dias</option>
+            <option value="90">90 dias</option>
+            <option value="180">180 dias</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="form-label">Descricao</label>
+      <textarea placeholder="Opcional" data-testid="plan-descricao-textarea"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn" onclick="document.getElementById('new-plan-modal').classList.remove('visible')">Cancelar</button>
+        <button class="btn btn-prim" data-testid="plan-submit-button">Criar plano</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL — EDITAR TAREFA (com breadcrumb)      -->
+  <!-- ============================================ -->
+  <div class="modal-overlay" id="task-edit-modal" data-testid="task-edit-modal">
+    <div class="modal">
+      <h3>Editar tarefa</h3>
+      <div class="modal-sub">Plano: "Implantar controle de apuracao do Imposto Seletivo"</div>
+
+      <!-- Task breadcrumb (Z-15) -->
+      <div class="task-breadcrumb" data-testid="task-breadcrumb">
+        <span class="bc bc-blu" style="background:var(--blu50);color:var(--blu800)">Implantar controle de apuracao do IS</span>
+        <span class="bc-sep">></span>
+        <span class="bc bc-gap">GAP-IS-001</span>
+        <span class="bc-sep">></span>
+        <span class="bc bc-art">Art. 393 LC 214/2025</span>
+      </div>
+
+      <label class="form-label">Titulo <span class="form-req">*</span></label>
+      <input type="text" value="Parametrizar apuracao IS no ERP fiscal" data-testid="task-title-input">
+
+      <label class="form-label">Descricao</label>
+      <textarea data-testid="task-descricao-textarea">Configurar o modulo fiscal do ERP para calcular e escriturar o IS conforme Art. 393 da LC 214/2025.</textarea>
+
+      <div class="grid2">
+        <div>
+          <label class="form-label">Responsavel</label>
+          <input type="text" value="TI" data-testid="task-responsavel-input">
+        </div>
+        <div>
+          <label class="form-label">Status</label>
+          <select data-testid="task-status-select">
+            <option>todo</option>
+            <option selected>doing</option>
+            <option>done</option>
+            <option>blocked</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="form-label">Data limite</label>
+      <input type="text" value="10/07/2026" data-testid="task-prazo-input">
+
+      <div class="modal-actions">
+        <button class="btn" onclick="document.getElementById('task-edit-modal').classList.remove('visible')">Cancelar</button>
+        <button class="btn btn-prim" data-testid="task-submit-button">Salvar tarefa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- ABA HISTORICO                                -->
+  <!-- ============================================ -->
+  <div class="section-hdr">Aba historico — planos excluidos + audit log</div>
+
+  <div class="hist-card">
+    <div class="hist-body">
+      <div class="hist-title">Contratar consultoria externa de IS</div>
+      <div class="hist-meta">AP-005 · excluido 07/04/2026 11:20 por Carlos V.</div>
+      <div class="hist-reason">"Empresa decidiu internalizar a analise com equipe propria."</div>
+    </div>
+    <div style="padding:8px 14px;border-top:0.5px solid var(--border);background:var(--gry50)">
+      <button class="btn" style="font-size:11px" data-testid="restore-plan-button">&#8617; Restaurar plano</button>
+    </div>
+  </div>
+
+  <div class="audit-log" data-testid="audit-log">
+    <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Audit log</div>
+    <div class="audit-row">
+      <div class="audit-dot" style="background:var(--grn400)"></div>
+      <span class="audit-txt">Plano concluido · AP-004 · "Mapear produtos sujeitos ao IS" · Ana M.</span>
+      <span class="audit-time">08/04 16:00</span>
+    </div>
+    <div class="audit-row">
+      <div class="audit-dot" style="background:var(--grn400)"></div>
+      <span class="audit-txt">Plano aprovado · AP-001 · Dr. Rodrigues (advogado)</span>
+      <span class="audit-time">12/04 10:30</span>
+    </div>
+    <div class="audit-row">
+      <div class="audit-dot" style="background:var(--blu400)"></div>
+      <span class="audit-txt">Tarefa status: todo -> doing · "Parametrizar IS no ERP" · TI</span>
+      <span class="audit-time">13/04 09:15</span>
+    </div>
+    <div class="audit-row">
+      <div class="audit-dot" style="background:var(--grn400)"></div>
+      <span class="audit-txt">Tarefa concluida · "Calcular impacto financeiro" · Ana M.</span>
+      <span class="audit-time">11/04 14:22</span>
+    </div>
+    <div class="audit-row">
+      <div class="audit-dot" style="background:var(--red400)"></div>
+      <span class="audit-txt">Plano excluido · AP-005 · Carlos V. · motivo registrado</span>
+      <span class="audit-time">07/04 11:20</span>
+    </div>
+    <div class="audit-row">
+      <div class="audit-dot" style="background:var(--gry400)"></div>
+      <span class="audit-txt">Plano criado · AP-003 · "Documentar impacto tributario" · Gestor fiscal</span>
+      <span class="audit-time">06/04 09:00</span>
+    </div>
+  </div>
+
+  <!-- INVARIANTS FOOTER -->
+  <div class="inv-box">
+    <strong style="color:var(--blu600)">Sprint Z-15 — Novas features neste mockup:</strong><br>
+    <strong>A) Sugestao da IA:</strong> Modal "+ Novo plano" mostra caixa azul com sugestao do catalogo PLANS. data-testid="ai-suggestion-box" / "ai-suggestion-accept".<br>
+    <strong>B) Task breadcrumb:</strong> Modal editar tarefa mostra trilha Plan > GAP > Artigo. data-testid="task-breadcrumb".<br>
+    <strong>C) Filtro por status:</strong> Chips no topo: Todos | Rascunho | Aprovado | Em andamento | Concluido. data-testid="plan-status-filter" / "plan-filter-{status}".<br>
+    <hr style="margin:8px 0;border:none;border-top:0.5px solid var(--border)">
+    <strong>INV-AP-01:</strong> Tarefas NUNCA liberadas antes da aprovacao do plano pelo advogado.<br>
+    <strong>INV-AP-02:</strong> Soft delete obrigatorio em todos os niveis.<br>
+    <strong>INV-AP-05:</strong> Banner de rastreabilidade fixo no topo — sticky z-20.<br>
+    <strong>INV-AP-06:</strong> Cascata soft delete: excluir plano -> tarefas arquivadas.
+  </div>
+
+</div>
+
+<script>
+function acceptSuggestion() {
+  document.getElementById('plan-title-input').value = 'Implantar controle de apuracao do Imposto Seletivo';
+  var resp = document.getElementById('plan-responsavel');
+  for (var i = 0; i < resp.options.length; i++) {
+    if (resp.options[i].text === 'Gestor fiscal') { resp.selectedIndex = i; break; }
+  }
+  var prazo = document.getElementById('plan-prazo');
+  for (var i = 0; i < prazo.options.length; i++) {
+    if (prazo.options[i].value === '90') { prazo.selectedIndex = i; break; }
+  }
+}
+
+function filterPlans(status, el) {
+  document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+  el.classList.add('active');
+  document.querySelectorAll('[data-testid="action-plan-row"]').forEach(function(card) {
+    if (status === 'todos') {
+      card.style.display = '';
+    } else {
+      card.style.display = card.getAttribute('data-status') === status ? '' : 'none';
+    }
+  });
+}
+</script>
+</body>
+</html>
