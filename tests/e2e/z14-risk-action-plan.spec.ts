@@ -28,7 +28,9 @@ const TID = {
   summaryAlta: "summary-count-alta",
   summaryMedia: "summary-count-media",
   summaryOportunidade: "summary-count-oportunidade",
-  summaryAguardando: "summary-count-aguardando",
+  catDivider: "cat-divider",
+  catDividerLabel: "cat-divider-label",
+  catDividerCount: "cat-divider-count",
   createActionPlanButton: "create-action-plan-button",
   actionPlanModal: "action-plan-modal",
   actionPlanRow: "action-plan-row",
@@ -121,21 +123,25 @@ test.describe("Sprint Z-14 — RiskDashboard + ActionPlan", () => {
     }
   });
 
-  test("CT-03 — SummaryBar coerente", async ({ page }) => {
+  test("CT-03 — SummaryBar 3 cards coerente", async ({ page }) => {
     await gotoDashboard(page);
 
     await expect(page.getByTestId(TID.summaryBar)).toBeVisible();
 
+    // 3 cards only (pending card removed in #578)
     const alta = await getSummaryCount(page, TID.summaryAlta);
     const media = await getSummaryCount(page, TID.summaryMedia);
     const opps = await getSummaryCount(page, TID.summaryOportunidade);
-    const aguardando = await getSummaryCount(page, TID.summaryAguardando);
 
     expect(alta).toBeGreaterThanOrEqual(0);
     expect(media).toBeGreaterThanOrEqual(0);
     expect(opps).toBeGreaterThanOrEqual(0);
-    expect(aguardando).toBeGreaterThanOrEqual(0);
     expect(alta + media + opps).toBeGreaterThan(0);
+
+    // Verify cat-dividers exist (agrupamento #587)
+    const dividers = page.getByTestId("cat-divider");
+    const dividerCount = await dividers.count();
+    expect(dividerCount).toBeGreaterThanOrEqual(1);
   });
 
   test("CT-04 — aprovar risco individual", async ({ page }) => {

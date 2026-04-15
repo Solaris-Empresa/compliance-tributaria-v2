@@ -6,13 +6,13 @@ import type { RiskV4, ActionPlanV4 } from "./risk-engine-v4";
 
 // ─── Catálogo canônico de planos por ruleId ─────────────────────────────────
 
-interface ActionPlanSuggestion {
+export interface ActionPlanSuggestion {
   titulo: string;
   responsavel: string;
   prazo: "30_dias" | "60_dias" | "90_dias" | "180_dias";
 }
 
-const PLANS: Record<string, ActionPlanSuggestion[]> = {
+export const PLANS: Record<string, ActionPlanSuggestion[]> = {
   "GAP-IS-001": [
     { titulo: "Implantar controle de apuração do IS", responsavel: "gestor_fiscal", prazo: "90_dias" },
     { titulo: "Contratar assessoria tributária IS", responsavel: "diretor", prazo: "30_dias" },

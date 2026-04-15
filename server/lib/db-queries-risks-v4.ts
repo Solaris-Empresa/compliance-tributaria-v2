@@ -77,6 +77,8 @@ export interface RiskV4Row {
   updated_by: number;
   created_at: Date;
   updated_at: Date;
+  rag_validated: number;
+  rag_artigo_exato: string | null;
 }
 
 export interface InsertRiskV4 {
