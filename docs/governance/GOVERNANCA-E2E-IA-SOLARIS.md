@@ -1,6 +1,6 @@
 # GOVERNANCA E2E — IA SOLARIS
 ## Visao do Product Owner (P.O.)
-**Versao:** v2.9 · 14/04/2026 | **HEAD:** `5203654` | **Baseline:** v6.6
+**Versao:** v3.0 · 15/04/2026 | **HEAD:** `78955e2` | **Baseline:** v6.7
 **Repo:** [Solaris-Empresa/compliance-tributaria-v2](https://github.com/Solaris-Empresa/compliance-tributaria-v2)
 
 > Todos os numeros neste documento foram validados contra o codigo-fonte em 14/04/2026.
@@ -290,12 +290,14 @@ O [UX_DICTIONARY.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2
 | RiskDashboardV4 | `bulkApprove` nao existe | **RESOLVIDO** PR #536 (backend) + #538 (UI) |
 | RiskDashboardV4 | SummaryBar ausente | **RESOLVIDO** PR #527 |
 | RiskDashboardV4 | HistoryTab sem audit log | **RESOLVIDO** PR #527 |
-| RiskDashboardV4 | RAG validation badge parcial | pendente |
+| RiskDashboardV4 | RAG validation badge | **RESOLVIDO** PR #605 — rag-badge-validated/pending |
+| RiskDashboardV4 | Plans preview inline | **RESOLVIDO** PR #607 — plans-preview/plan-preview-row |
 | ActionPlanPage (870L) | Criar plano ausente | **RESOLVIDO** PR #526 |
 | ActionPlanPage | Editar plano ausente | **RESOLVIDO** PR #537 |
 | ActionPlanPage | Filtro por status ausente | pendente |
 | Ambos | Testes E2E Playwright | **RESOLVIDO** PR #550 — 7 CTs (CT-01 a CT-07) |
-| Ambos | Mockup HTML interativo | pendente (a criar pelo Orquestrador, PR #546) |
+| Ambos | Mockup HTML interativo Z-15 | **RESOLVIDO** PR #599 — 72+35 data-testid |
+| ActionPlanPage | Sugestão da IA no modal | **RESOLVIDO** PR #607 — ai-suggestion-btn |
 
 ---
 
@@ -542,7 +544,7 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | `HistoryTab` sem audit log | **RESOLVIDO** PR #527 | — | Z-14 Lote A |
 | Editar plano ausente | **RESOLVIDO** PR #537 | — | Z-14 Lote B |
 | Import path diagnostic-source.test.ts | **RESOLVIDO** PR #550 | — | Z-14 Lote C |
-| Mockups HTML nao existem no repo | pendente | Medio — Orquestrador deve criar | proximo |
+| Mockups HTML Z-15 | **RESOLVIDO** PR #599 | — | Z-15 |
 | B-01: auto-generate usava allRisks (incluia deletados) | **RESOLVIDO** PR #565 | — | Z-14 hotfix |
 | B-02: bulkApprove nao gerava planos auto | **RESOLVIDO** PR #566 | — | Z-14 hotfix |
 | Kanban tarefas | ausente | Baixo — lista simples funcional | futuro |
@@ -568,6 +570,7 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | Z-13 | 8 bugs corrigidos (is_active, gap_type, JOIN, risk_category_code) + RAG CGIBS | #485–#499 | ENCERRADA |
 | Z-13.5 | `generateRisksV4Pipeline` + `consolidateRisks` + `inferNormativeRisks` + `enrichRiskWithRag` + Gate 0 + Gate UX + Modelo Orquestracao v2 | #502–#516 | ENCERRADA |
 | Z-14 | upsertActionPlan (#520) + SummaryBar/HistoryTab (#521) + edicao plano (#532) + bulkApprove (#533/#534) + E2E 9 CTs (#544/#564) + auto-generate B-01 (#554/#565) + B-02 bulkApprove→planos (#566) + 19 data-testid (#556) + fix #545 + FLOW_DICTIONARY + ORQ-12/13/14 | #518–#567 | **ENCERRADA** |
+| Z-15 | fix L1107 (#598) + RAG badge (#600) + plans preview (#601) + AI suggestion (#602) + mockups Z-15 (#599) + getActionPlanSuggestion + PLANS export + 180_dias | #599–#607 | **ENCERRADA** |
 
 ### Sprint Z-13.5 — Detalhamento (sessao 13–14/abr/2026)
 
@@ -613,8 +616,8 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 
 | Indicador | Valor | Fonte de validacao |
 |---|---|---|
-| HEAD | `5203654` | `git rev-parse --short HEAD` |
-| Baseline | v6.6 | ESTADO-ATUAL.md |
+| HEAD | `78955e2` | `git rev-parse --short HEAD` |
+| Baseline | v6.7 | ESTADO-ATUAL.md |
 | TypeScript | 0 erros | `npx tsc --noEmit` |
 | Testes unitarios | 124/124 | `npx vitest run server/lib/` |
 | Suite PCT | 117/117 | `npx vitest run server/prefill-contract.test.ts` |
@@ -624,7 +627,7 @@ Novo artefato para persistir decisoes entre sessoes do Orquestrador:
 | Risk categories | 10 ativas | SEVERITY_TABLE risk-engine-v4.ts |
 | Perguntas SOLARIS | 22 ativas (SOL-015..036) | ESTADO-ATUAL.md |
 | Migrations | 86 | `ls drizzle/*.sql \| wc -l` |
-| PRs mergeados | 595 | `gh pr list --state merged` |
+| PRs mergeados | 607 | `gh pr list --state merged` |
 | Campos banco documentados | 60 | DATA_DICTIONARY.md |
 | Funcionalidades UX mapeadas | 33 | UX_DICTIONARY.md |
 | Regras orquestracao | 16 (ORQ-00..15) | MODELO-ORQUESTRACAO-V2.md v1.1 |
