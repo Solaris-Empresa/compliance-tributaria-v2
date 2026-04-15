@@ -147,3 +147,12 @@ Aguarda decisão consultor para B-03 (título planos)
 [F4] #578 SummaryBar 3 cards — implementando
 [F3] #579 migration — em auditoria
 [F4] #580 catálogo PLANS — aguarda #579
+
+### Lote E issues — 14/04/2026
+[CRIANDO] E-B renomear label bulkApprove
+[CRIANDO] E-C agrupamento por categoria
+[CRIANDO] E-H CT-08 + CT-09 E2E
+[CRIANDO] E-I fix Bug #545
+[WONTDO] E-F tarefas manuais — buildTasks não existe
+[GATE0] risk_categories: campo label ausente (campo real = nome) — migration necessária para Issue E-C
+[SKILL] REGRA-ORQ-14 adicionada ao solaris-contexto/SKILL.md
