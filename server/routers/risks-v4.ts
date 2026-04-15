@@ -140,11 +140,6 @@ export const risksV4Router = router({
           }))
       );
 
-      const prazoMap: Record<string, PrazoActionPlan> = {
-        imediata: "30_dias",
-        curto_prazo: "60_dias",
-        medio_prazo: "90_dias",
-      };
       const planIds: string[] = [];
       for (let i = 0; i < actionPlans.length; i++) {
         const plan = actionPlans[i];
@@ -155,9 +150,9 @@ export const risksV4Router = router({
           {
             project_id: projectId,
             risk_id: riskId,
-            titulo: `Plano: ${plan.categoria} — ${plan.artigo}`,
-            responsavel: "equipe_compliance",
-            prazo: prazoMap[plan.prioridade] ?? "60_dias",
+            titulo: plan.titulo,
+            responsavel: plan.responsavel,
+            prazo: plan.prazo as PrazoActionPlan,
             created_by: ctx.user.id,
             updated_by: ctx.user.id,
           },
@@ -718,9 +713,9 @@ export const risksV4Router = router({
           {
             project_id: projectId,
             risk_id: riskId,
-            titulo: `Plano: ${plan.categoria} — ${plan.artigo}`,
-            responsavel: "equipe_compliance",
-            prazo: prazoMap[plan.prioridade] ?? "60_dias",
+            titulo: plan.titulo,
+            responsavel: plan.responsavel,
+            prazo: plan.prazo as PrazoActionPlan,
             created_by: ctx.user.id,
             updated_by: ctx.user.id,
           },
