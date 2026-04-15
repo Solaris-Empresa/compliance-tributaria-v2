@@ -57,6 +57,14 @@ jobs:
           fi
           echo "OK: label spec-aprovada presente na issue #$ISSUE_NUMBER"
 
+  governance:
+    name: Governance Gate (ORQ-16)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enforce Governance Gate
+        run: bash scripts/validate-governance.sh
+
   typecheck:
     name: TypeScript
     runs-on: ubuntu-latest

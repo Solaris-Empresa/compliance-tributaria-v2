@@ -39,10 +39,10 @@ Spec HIBRIDA obrigatoria:
 **Rota:** `/projetos/:id/risk-dashboard-v4`
 **Spec:** `docs/sprints/Z-07/UX_SPEC_RISCOS_V4.md`
 **Mock ASCII:** `docs/sprints/Z-07/MOCKUPS_SISTEMA_RISCOS_V4.md`
-**Mock HTML:** `docs/sprints/Z-07/MOCKUP_RISK_DASHBOARD_V4.html` (a criar pelo Orquestrador)
-**Linhas:** 1100
+**Mock HTML:** `docs/sprints/Z-15/MOCKUP_RISK_DASHBOARD_V4_Z15.html`
+**Linhas:** 1246
 
-### Estado atual (Discovery 13/04/2026)
+### Estado atual (Checkpoint 15/04/2026 — pós Z-15)
 
 | Funcionalidade | Status | Observacao |
 |---|---|---|
@@ -57,13 +57,14 @@ Spec HIBRIDA obrigatoria:
 | Breadcrumb 4 nos | implementado | chips coloridos com tooltip |
 | Link para ActionPlanPage | implementado | ?riskId= query param |
 | Gerar riscos (pipeline) | implementado | 3 estados: gaps, regras, riscos |
-| Agrupamento por categoria | ausente | lista plana atualmente |
-| SummaryBar sticky | ausente | |
-| Banner N aguardando | ausente | |
-| Botao criar plano no card | ausente | |
-| HistoryTab com audit log | ausente | aba existe, sem conteudo de auditoria |
-| BulkApprove | ausente | procedure nao existe no router |
-| RAG validation badge | parcial | dados no banco (rag_validated), sem badge visual |
+| Agrupamento por categoria | implementado | cat-divider Z-14 PR #592 |
+| SummaryBar sticky | implementado | 3 cards Z-14 PR #582 |
+| Banner N aguardando | implementado | Z-14 L786-790 |
+| Botao criar plano no card | implementado | create-action-plan-button Z-14 PR #526 |
+| HistoryTab com audit log | implementado | history-tab Z-14 PR #527 |
+| BulkApprove | implementado | bulk-approve-button Z-14 PR #536+#538 |
+| RAG validation badge | implementado | rag-badge-validated/pending Z-15 PR #605 |
+| Plans preview inline | implementado | plans-preview/plan-preview-row Z-15 PR #607 |
 
 ### Procedures (confirmed Discovery)
 
@@ -76,9 +77,10 @@ Spec HIBRIDA obrigatoria:
 | generateRisks | SIM | SIM |
 | mapGapsToRules | SIM | SIM |
 | generateRisksFromGaps | SIM | SIM |
-| upsertActionPlan | SIM | NAO (gap — nao chamada no dashboard) |
-| bulkApprove | NAO | NAO (procedure nao existe) |
-| getProjectAuditLog | SIM | NAO (nao usada no dashboard) |
+| upsertActionPlan | SIM | SIM (create-action-plan-button Z-14) |
+| bulkApprove | SIM | SIM (bulk-approve-button Z-14) |
+| getProjectAuditLog | SIM | SIM (history-tab Z-14) |
+| getActionPlanSuggestion | SIM | SIM (ai-suggestion-btn Z-15) |
 
 ### Principios UX (spec Z-07)
 
@@ -96,11 +98,11 @@ Spec HIBRIDA obrigatoria:
 **Rota:** `/projetos/:id/planos-v4`
 **Spec:** `docs/sprints/Z-07/UX_SPEC_RISCOS_V4.md`
 **Mock ASCII:** `docs/sprints/Z-07/MOCKUPS_SISTEMA_RISCOS_V4.md`
-**Mock HTML:** `docs/sprints/Z-07/MOCKUP_ACTION_PLAN_PAGE.html` (a criar pelo Orquestrador)
-**Linhas:** 818
+**Mock HTML:** `docs/sprints/Z-15/MOCKUP_ACTION_PLAN_PAGE_Z15.html`
+**Linhas:** 877
 **Cardinalidade:** 1 plano → N tarefas atomicas
 
-### Estado atual (Discovery 13/04/2026)
+### Estado atual (Checkpoint 15/04/2026 — pós Z-15)
 
 | Funcionalidade | Status | Observacao |
 |---|---|---|
@@ -115,9 +117,11 @@ Spec HIBRIDA obrigatoria:
 | Audit log global | implementado | getProjectAuditLog |
 | Audit log por plano | implementado | getAuditLog |
 | Lock tarefas (plan=rascunho) | implementado | opacity-40, cursor-not-allowed |
-| Criar novo plano | ausente | upsertActionPlan nao chamada |
-| Editar plano existente | ausente | sem form de edicao |
-| Filtro por status de plano | ausente | |
+| Criar novo plano | implementado | upsertActionPlan Z-14 PR #526 |
+| Editar plano existente | implementado | action-plan-modal Z-14 PR #537 |
+| Sugestão da IA no modal | implementado | ai-suggestion-btn Z-15 PR #607 |
+| 180_dias no prazo | implementado | SelectItem Z-15 PR #607 |
+| Filtro por status de plano | ausente | mockup Z-15 pronto, backlog |
 | Kanban tarefas | ausente | lista simples atualmente |
 
 ### Procedures (confirmed Discovery)
@@ -131,7 +135,49 @@ Spec HIBRIDA obrigatoria:
 | upsertTask | SIM | SIM |
 | deleteTask | SIM | SIM |
 | getAuditLog | SIM | SIM |
-| upsertActionPlan | SIM | NAO (gap — nao chamada) |
+| upsertActionPlan | SIM | SIM (Z-14 PR #526) |
+| getActionPlanSuggestion | SIM | SIM (ai-suggestion-btn Z-15) |
+
+---
+
+## TELA 3 — ConsolidacaoV4 (Step 7)
+
+**Arquivo:** `client/src/pages/ConsolidacaoV4.tsx`
+**Rota:** `/projetos/:id/consolidacao-v4`
+**Status:** A IMPLEMENTAR (Z-16)
+**Entrada:** redirect de ActionPlanPage apos todos os planos aprovados
+**Saida:** PDF "Diagnostico de Adequacao LC 214/2025"
+
+| Funcionalidade | Status | Issue |
+|---|---|---|
+| Header (empresa/CNPJ/CNAEs/data) | ausente | Z16-F1 |
+| KPI cards (score/alta/media/oportunidade/planos/tarefas) | ausente | Z16-F1 |
+| Score card + historico snapshots | ausente | Z16-F0+F1 |
+| Tabela riscos aprovados + badges onda (alta/media/oportunidade) | ausente | Z16-F1 |
+| Oportunidades (secao separada) | ausente | Z16-F1 |
+| Riscos desconsiderados + motivo | ausente | Z16-F1 |
+| Planos aprovados + tarefas vinculadas | ausente | Z16-F1 |
+| Base legal escalavel por lei (LC 214/2025 + futuras) | ausente | Z16-F1 |
+| Linha do tempo 2026-2032 | ausente | Z16-F1 |
+| Proximos passos (template PT-BR) | ausente | Z16-F1 |
+| Disclaimer juridico obrigatorio | ausente | Z16-F1 |
+| Redirect de ActionPlanPage (botao "Ver Consolidacao") | ausente | Z16-F2 |
+| PDF download (jsPDF, client-side) | ausente | Z16-F3 |
+
+### Invariantes da TELA 3
+
+- Score calculado deterministicamente no mount (NUNCA LLM)
+- Snapshot persistido em `projects.scoringData` no mount (idempotente)
+- Disclaimer juridico SEMPRE visivel — nao pode ser ocultado
+- Rastreabilidade: cada risco exibe `ruleId` + artigo de origem
+- 4 botoes de saida: PDF / Ver Projetos / Voltar ao Plano / Ver Projeto
+
+### Procedures necessarias (A CRIAR)
+
+| Procedure | Descricao |
+|---|---|
+| `risksV4.getConsolidationData(projectId)` | Retorna riscos + planos + tarefas + scoringData |
+| `risksV4.calculateAndSaveScore(projectId)` | Calcula score e persiste snapshot em scoringData |
 
 ---
 
