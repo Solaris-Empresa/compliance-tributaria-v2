@@ -14,9 +14,9 @@
 | ✅ DONE | Bloqueador 2: UX_DICTIONARY TELA 3 (13 funcionalidades) | [#619](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/619) | Mergeado |
 | ✅ DONE | Bloqueador 3: DATA_DICTIONARY campos tasks + scoringData v4 | [#619](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/619) + [#620](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/620) | Mergeados |
 | ✅ DONE | Bloqueador 5: ADR-INDEX Opção B (normalização lookup ruleId) | [#617](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/617) | Mergeado |
-| ⏳ PENDING | Bloqueador 4: issues Z16-F0/F1/F2/F3 | — | Aguardando Orquestrador |
-| ⏳ PENDING | Bloqueador 6: #613 escopo definido | — | Aguardando decisão P.O. |
-| ⏳ PENDING | Bloqueador 7: #614 migration 0087 | [#621](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/621) | Preview criado — aguardando aprovação P.O. para executar |
+| ✅ DONE | Bloqueador 4: issues Z16-F0/F1/F2/F3 | #622/#624/#625/#626 | Criadas por Claude Code |
+| ✅ DONE | Bloqueador 6: #613 escopo definido | — | 18 testids, F3 APROVADA |
+| ✅ DONE | Bloqueador 7: #614 migration 0087 | [#621](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/621) | MERGEADA — data_inicio + data_fim em tasks |
 
 ---
 
@@ -43,10 +43,35 @@
 
 ---
 
-## Próximos passos (aguardando Orquestrador)
+## F3 Auditoria — 15/04/2026 (Claude Code)
 
-1. Retirar HOLD após validação dos dicionários pelo Orquestrador
-2. Abrir issues Z16-F0/F1/F2/F3 ancoradas nas 4 fontes de verdade
-3. Decidir blocos A-E da ActionPlanPage (5 decisões do P.O.)
-4. Aprovar migration 0087 para execução no banco
-5. Definir escopo da issue #613
+| Issue | Score | Veredicto |
+|---|---|---|
+| #611 fallback PLANS | 16/16 | APROVADA |
+| #613 instrumentação testid | 16/16 | APROVADA |
+| #614 modal editar tarefa | 16/16 | APROVADA (Gate 0 atualizado + migration mergeada) |
+| #615 modal excluir tarefa | 16/16 | APROVADA |
+| #616 ordenação + Atrasada | 15/16 | DEVOLVIDA — falta RN cruzada |
+| #622 calculateComplianceScore | 16/16 | APROVADA |
+| #624 ConsolidacaoV4 componente | 16/16 | APROVADA |
+| #625 redirect ConsolidacaoV4 | 15/16 | DEVOLVIDA — falta mockup ref |
+| #626 PDF jsPDF | 15/16 | DEVOLVIDA — falta mockup ref |
+
+## Bloqueadores pendentes
+
+| # | Bloqueador | Status |
+|---|---|---|
+| 1 | MOCKUP_ACTION_PLAN_PAGE_Z16.html | NÃO EXISTE no repo |
+| 2 | #616 patch: adicionar RN cruzada | Orquestrador |
+| 3 | #625 patch: adicionar mockup ref | Orquestrador |
+| 4 | #626 patch: adicionar mockup ref | Orquestrador |
+| 5 | 8 issues sem spec-aprovada | P.O. aplica 5 labels |
+| 6 | 5 issues com on-hold | Remover após patches |
+
+## Próximos passos
+
+1. Orquestrador: patch #616 #625 #626 (3 linhas)
+2. Manus: commitar MOCKUP_ACTION_PLAN_PAGE_Z16.html
+3. P.O.: aplicar spec-aprovada nas 9 issues
+4. Remover on-hold de #611 #613 #614 #615 #616
+5. Implementar na ordem: #611 → #622 → #613 → #624 → #614 → #615 → #625 → #626 → #616
