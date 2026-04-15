@@ -666,6 +666,28 @@ export default function ActionPlanPage() {
                   <Label htmlFor="ap-titulo">Título *</Label>
                   <Input id="ap-titulo" value={npTitulo} onChange={(e) => setNpTitulo(e.target.value)} placeholder="Min 5 caracteres" maxLength={500} />
                   {npTitulo.length > 0 && npTitulo.length < 5 && <p className="text-xs text-destructive mt-1">Título muito curto</p>}
+                  {!isEditMode && parentRisk && (
+                    <button
+                      data-testid="ai-suggestion-btn"
+                      type="button"
+                      className="mt-1 text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer bg-transparent border-none p-0"
+                      onClick={async () => {
+                        try {
+                          const suggestion = await utils.risksV4.getActionPlanSuggestion.fetch({
+                            ruleId: parentRisk.rule_id,
+                            riskTitulo: parentRisk.titulo,
+                          });
+                          if (suggestion) {
+                            setNpTitulo(suggestion.titulo);
+                            setNpResponsavel(suggestion.responsavel);
+                            setNpPrazo(suggestion.prazo);
+                          }
+                        } catch { /* fallback: campos ficam como estão */ }
+                      }}
+                    >
+                      Sugestão da IA ↗ — clique para usar
+                    </button>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -680,6 +702,7 @@ export default function ActionPlanPage() {
                         <SelectItem value="30_dias">30 dias</SelectItem>
                         <SelectItem value="60_dias">60 dias</SelectItem>
                         <SelectItem value="90_dias">90 dias</SelectItem>
+                        <SelectItem value="180_dias">180 dias</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -698,7 +721,7 @@ export default function ActionPlanPage() {
                     riskId: editPlanTarget?.risk_id ?? riskIdParam!,
                     titulo: npTitulo,
                     responsavel: npResponsavel,
-                    prazo: npPrazo as "30_dias" | "60_dias" | "90_dias",
+                    prazo: npPrazo as "30_dias" | "60_dias" | "90_dias" | "180_dias",
                     descricao: npDescricao || undefined,
                     ...(editPlanTarget ? { planId: editPlanTarget.id } : {}),
                   })}
