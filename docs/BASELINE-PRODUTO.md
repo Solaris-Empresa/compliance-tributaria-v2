@@ -3,8 +3,8 @@
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
 > **Versão:** 5.8 — 2026-04-14 (Sprint Z-14 Lote E — PRs #536–#583)
-> **Commit HEAD:** `ec482b81` (pós-Sprint Z-14 Lote E)
-> **Checkpoint Manus:** `ec482b81` (auditoria pós-implementação Issue #579 ✅)
+> **Commit HEAD:** `7bd9237` (pós-Sprint Z-14 Lote E)
+> **Checkpoint Manus:** `7bd9237` (auditoria pós-implementação Issue #579 ✅)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -49,7 +49,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **77** (última: 0077_add_180_dias_prazo.sql — ENUM prazo +180_dias) | ✅ |
-| PRs mergeados (total) | **581** (último mergeado: #581 — docs: Sprint Log Lote E · PR #583 aberto) | ✅ |
+| PRs mergeados (total) | **583** | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |

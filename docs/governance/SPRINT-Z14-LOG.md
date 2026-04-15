@@ -147,14 +147,3 @@ Aguarda decisão consultor para B-03 (título planos)
 [F4] #578 SummaryBar 3 cards — implementando
 [F3] #579 migration — em auditoria
 [F4] #580 catálogo PLANS — aguarda #579
-
-### Lote E — Checkpoint ec482b81 — 14/04/2026
-[DONE] Issue #579 implementada — migration prazo 180_dias (PR #583 aberto)
-[DONE] ALTER TABLE action_plans ENUM(+180_dias) aplicado no banco TiDB Cloud
-[DONE] PrazoActionPlan TypeScript L35 + Zod L359 atualizados
-[DONE] TypeScript: 0 erros · Checkpoint Manus: ec482b81
-[DONE] BASELINE-PRODUTO.md v5.8 atualizado
-[DONE] HANDOFF-MANUS.md v2.2 atualizado
-[PENDENTE] PR #583 merge pelo P.O.
-[PENDENTE] Issue #578 SummaryBar 3 cards — implementação F4
-[PENDENTE] Issue #580 catálogo PLANS — aguarda merge #583

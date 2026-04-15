@@ -26,9 +26,9 @@ Drizzle ORM / Vitest / pnpm
 | Consultor | ChatGPT — segunda opinião estratégica |
 
 ## Estado atual do projeto (2026-04-14)
-- BASELINE **v5.8** — Sprint Z-14 Lote E EM ANDAMENTO · PRs #536–#583 · Deploy ✅ iasolaris.manus.space
-- **HEAD: `ec482b81` (github/main)** · **Checkpoint Manus:** `ec482b81`
-- **PRs mergeados:** 581 · **PR aberto:** #583 (fix/z14-prazo-180dias) · **TypeScript:** 0 erros · **CI:** 13 workflows ativos
+- BASELINE **v5.8** — Sprint Z-14 Lote E · PRs #536–#583 · Deploy ✅ iasolaris.manus.space
+- **HEAD: `7bd9237` (github/main)** · **Checkpoint Manus:** `7bd9237`
+- **PRs mergeados:** 583 · **TypeScript:** 0 erros · **CI:** 17 workflows ativos
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade (GS-08: 0 chunks sem autor)
 - **Skill solaris-contexto:** v4.7 (REGRA-ORQ-12 + F4 paralelo adicionados) · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
@@ -46,7 +46,7 @@ Drizzle ORM / Vitest / pnpm
 - **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
 - **Bug #545:** ⏳ ABERTO — imports dinâmicos incorretos em diagnostic-source.test.ts (sem impacto em produção)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
-- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ Gate 7 PASS · **Z-14 Lotes A+B+C+D ✅**
+- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ Gate 7 PASS · **Z-14 Lotes A+B+C+D+E ✅**
 
 ### Sprint Z-14 Lote E — Estado (2026-04-14)
 | Issue | Título | Status |
@@ -190,4 +190,4 @@ resolucao_cgibs_001 (2) · resolucao_cgibs_002 (2) · resolucao_cgibs_003 (2)
 ## Conflito recorrente
 `client/public/__manus__/version.json` — resolver via `git restore --staged client/public/__manus__/version.json`
 
-*Atualizado em 2026-04-14 · v2.2 · Sprint Z-14 Lote E EM ANDAMENTO · PRs #536–#583 · Aprovador: P.O. Uires Tapajós*
+*Atualizado em 2026-04-14 · v2.2 · Sprint Z-14 Lote E · PRs #536–#583 · Aprovador: P.O. Uires Tapajós*

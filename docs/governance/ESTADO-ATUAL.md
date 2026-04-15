@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v6.4 · 2026-04-14 (Sprint Z-14 ENCERRADA · 8/8 issues · HEAD f7b58e7)** · Responsavel: Orquestrador gera, Manus commita
+> **v6.5 · 2026-04-14 (Sprint Z-14 Lote E · HEAD 7bd9237)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v6.4 · **HEAD:** `f7b58e7` (github/main) · **Testes:** tsc 0 erros · 124/124 unit  
+**Baseline:** v6.5 · **HEAD:** `7bd9237` (github/main) · **Testes:** tsc 0 erros · 124/124 unit  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -44,7 +44,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `f7b58e7`
+- **Branch base:** main · **HEAD:** `7bd9237`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
@@ -68,19 +68,21 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `f7b58e7` | ✅ |
+| HEAD (github/main) | `7bd9237` | ✅ |
 | Baseline | **v6.4** | ✅ |
 | Baseline | **v6.3** | ✅ |
 | Testes passando | tsc 0 erros · 124/124 unit | ✅ |
 | TypeScript | 0 erros | ✅ |
-| PRs mergeados (total) | **560 (sessao 13–14/abr: PRs #500–#560)** | ✅ |
+| PRs mergeados (total) | **583 (sessao 13–14/abr: PRs #500–#583)** | ✅ |
 | Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · verificacao dupla banco vs migration | ✅ |
 | Gate UX (frontend) | **CONFIAVEL** — UX_DICTIONARY + ux-spec-validator + mockup HTML obrigatorio | ✅ |
 | Gate Spec (5 labels) | **ATIVO** — CI bloqueia PR sem spec-bloco9/adr/contrato/e2e/aprovada | ✅ |
 | Modelo Orquestracao | **v1.1** — F0–F7 + F4.5 · 11 regras · CI/CD · Sprint Log · mockup HTML | ✅ |
 | CI Workflows | **17 ativos** (validate-pr + project-automation) | ✅ |
 | Issue Templates | **5** (sprint-issue com 12 blocos + ADR/Contrato/E2E) | ✅ |
-| Sprint Z-14 | **ENCERRADA** — 8/8 issues fechadas (#520-#556) · 7 E2E CTs · 17 data-testid · auto-generate B-01 | ✅ |
+| Sprint Z-14 | **Lote E** — 11/12 issues closed · B-01/B-02/B-03/B-04 fixed · migration 180_dias (#579/#583) · #580 pendente (catalogo PLANS) | ⏳ |
+| Regras ORQ | **16** (ORQ-00..15) · RN riscos + planos · FLOW_DICTIONARY · 4 dicionarios | ✅ |
+| Mockups HTML | **2** (RiskDashboard + ActionPlan) no repo | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
