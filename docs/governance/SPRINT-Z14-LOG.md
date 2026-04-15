@@ -163,3 +163,9 @@ Aguarda decisão consultor para B-03 (título planos)
 [IMPL] #587 agrupamento categoria — Claude Code
 [AGUARDA] #588 após #586/#587
 [AGUARDA] #589 após todos
+
+### Mockups + #589 — 14/04/2026
+[DOCS] Mockups HTML v2 restaurados ao main (PR #593 mergeado)
+[IMPL] #589 suite E2E — Claude Code (issue open)
+[DONE] #588 CT-08 + CT-09 — fechada
+[DONE] #592 catálogo PLANS + rename label + agrupamento — mergeado
