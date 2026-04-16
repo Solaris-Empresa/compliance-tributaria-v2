@@ -32,8 +32,22 @@
 | #626 | Mockup: `MOCKUP_CONSOLIDACAO_V4_Z16.html` não referenciado (1 linha) |
 
 **Pendências críticas:**
-- ❌ `MOCKUP_ACTION_PLAN_PAGE_Z16.html` ausente no repo — Orquestrador precisa commitar
-- ❌ Patches #616 #625 #626 — aguardando Orquestrador
+- ✅ `MOCKUP_ACTION_PLAN_PAGE_Z16.html` commitado — PR #628
+- ✅ Patches #616 #625 #626 — aplicados
+
+---
+
+## F3 Re-auditoria pós-patches — 16/04/2026
+
+| Issue | Score | Patch verificado | Veredicto |
+|---|---|---|---|
+| #616 | 16/16 | `RN: INV-AP-10` presente no Bloco 1 | **APROVADA** |
+| #625 | 16/16 | `Mockup: MOCKUP_ACTION_PLAN_PAGE_Z15.html` presente no Bloco 2 | **APROVADA** |
+| #626 | 16/16 | `Mockup: MOCKUP_CONSOLIDACAO_V4_Z16.html` presente no Bloco 2 | **APROVADA** |
+
+**Auditado por:** Claude Code  
+**Evidência:** `gh issue view [N] --json body | grep [campo]`  
+**Total aprovadas Z-16:** 9/9
 
 ---
 
@@ -72,8 +86,9 @@
 
 ## Próximos passos (aguardando Orquestrador)
 
-1. Orquestrador commitar `MOCKUP_ACTION_PLAN_PAGE_Z16.html` em `docs/sprints/Z-16/`
-2. Orquestrador enviar patches das issues #616, #625, #626
-3. P.O. aprovar execução da migration 0087 (`pnpm db:push`)
-4. Retirar HOLD após validação dos patches e execução da migration
-5. Implementar issues na ordem: #611 → #614 → #622 → #624 → #613 → #615 → #616 → #625 → #626
+1. ~~Orquestrador commitar `MOCKUP_ACTION_PLAN_PAGE_Z16.html`~~ — ✅ PR #628
+2. ~~Orquestrador enviar patches das issues #616, #625, #626~~ — ✅ aplicados + re-auditados
+3. P.O. mergear PR #628 (mockup)
+4. P.O. aprovar execução da migration 0087 (`pnpm db:push`)
+5. Remover `on-hold` de #611 #613 #614 #615 #616
+6. Implementar issues na ordem: Lote 1 (#611 #622) → Lote 2 (#624) → Lote 3 (#625 #626) → Lote 4 (#613 #614 #615 #616)
