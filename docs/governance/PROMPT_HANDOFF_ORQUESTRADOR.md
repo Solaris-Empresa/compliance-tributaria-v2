@@ -162,8 +162,10 @@ Isso significa:
 
   Opportunity: NUNCA gera plano de ação (INV-RD-05).
 
-  Tarefas: SEMPRE manuais.
-  buildTasks() não existe. Decisão Sprint Z-14.
+  Tarefas: carga inicial gerada via LLM
+  (generateTaskSuggestions, Sprint Z-17).
+  Advogado revisa/edita/exclui.
+  Reversão de Z-14 — autorização P.O. 16/04/2026.
 
   Breadcrumb: SEMPRE 4 nós.
   fonte › categoria › artigo › gap. Nunca NULL.
@@ -186,7 +188,7 @@ Isso significa:
 
 1 gap mapeado = 1 risco (nunca N riscos por gap)
 1 risco = N planos de ação (buildActionPlans catálogo)
-1 plano = N tarefas (sempre manuais)
+1 plano = N tarefas (carga inicial via LLM, Sprint Z-17)
 
 Oportunidade: entra na matriz, nunca gera plano.
 ```
@@ -226,7 +228,7 @@ Se você fizer qualquer uma destas ações, PARE:
 ❌ Ignorar o Gate 0 (banco + código real)
 ❌ Inventar campos de banco sem confirmar via Gate 0
 ❌ Usar risk_level em português no PR body
-❌ Implementar buildTasks() (não existe, não vai existir)
+❌ Implementar buildTasks() — substituído por generateTaskSuggestions (Sprint Z-17, Refs #659)
 ❌ Gerar plano para opportunity
 ❌ Usar risk_categories.label (campo real é .nome)
 ❌ Usar prazo como Date (é ENUM string: 30_dias etc)
