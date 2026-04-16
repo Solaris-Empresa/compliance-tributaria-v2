@@ -10,7 +10,7 @@
  */
 
 import { useState, useMemo } from "react";
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -545,6 +545,7 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
 export default function ActionPlanPage() {
   const [, params] = useRoute("/projetos/:projectId/planos-v4");
   const projectId = parseInt(params?.projectId ?? "0", 10);
+  const [, setLocation] = useLocation();
   const { user } = useAuth();
   const utils = trpc.useUtils();
 
@@ -776,7 +777,7 @@ export default function ActionPlanPage() {
         )}
 
         {/* Item 12: Tabs — Planos + Histórico global */}
-        {!isLoading && !error && (
+        {!isLoading && !error && (<>
           <Tabs defaultValue="planos">
             <TabsList>
               <TabsTrigger value="planos">Planos ({allPlans.length})</TabsTrigger>
@@ -894,7 +895,24 @@ export default function ActionPlanPage() {
               </Card>
             </TabsContent>
           </Tabs>
-        )}
+
+          {/* Botão Ver Consolidação — visível quando todos os planos estão aprovados (#625) */}
+          {allPlans.length > 0 &&
+            allPlans.every((p: any) => p.status !== "rascunho") && (
+              <div className="flex justify-center pt-4">
+                <Button
+                  data-testid="btn-ver-consolidacao"
+                  size="lg"
+                  onClick={() =>
+                    setLocation(`/projetos/${projectId}/consolidacao-v4`)
+                  }
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Ver Consolidação
+                </Button>
+              </div>
+          )}
+        </>)}
       </div>
     </div>
   );
