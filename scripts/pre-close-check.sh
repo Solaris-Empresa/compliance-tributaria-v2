@@ -20,15 +20,28 @@ log_skip() { echo "⏭️  PC-$1: $2"; }
 
 # ─── Resolve issue number ───────────────────────────────────────────────────
 
-ISSUE_NUMBER=$(gh pr view "$PR_NUMBER" \
+# ─── GAP 1: Validar 1 issue por PR ──────────────────────────────────────────
+
+ISSUE_COUNT=$(gh pr view "$PR_NUMBER" \
   --repo "$REPO" \
   --json closingIssuesReferences \
-  --jq '.closingIssuesReferences[0].number' 2>/dev/null || echo "")
+  --jq '.closingIssuesReferences | length' 2>/dev/null || echo "0")
 
-if [ -z "$ISSUE_NUMBER" ] || [ "$ISSUE_NUMBER" = "null" ]; then
+if [ "$ISSUE_COUNT" -eq 0 ]; then
   echo "SKIP: PR sem 'Closes #N' — checklist não se aplica"
   exit 0
 fi
+
+if [ "$ISSUE_COUNT" -gt 1 ]; then
+  echo "::error::PC-0: PR fecha $ISSUE_COUNT issues — máximo permitido é 1."
+  echo "Separar em PRs individuais para validação correta de cada entrega."
+  exit 1
+fi
+
+ISSUE_NUMBER=$(gh pr view "$PR_NUMBER" \
+  --repo "$REPO" \
+  --json closingIssuesReferences \
+  --jq '.closingIssuesReferences[0].number')
 
 echo "═══════════════════════════════════════════════════"
 echo "PRE-CLOSE-CHECKLIST — PR #$PR_NUMBER → Issue #$ISSUE_NUMBER"
@@ -70,9 +83,26 @@ IS_FRONTEND=false
 IS_ENGINE=false
 IS_MIGRATION=false
 
+# GAP 3: Inferir tipo por path do PR (fallback sobre labels)
+# Path é mais confiável que labels manuais
+PR_TOUCHES_CLIENT=$(echo "$PR_FILES" | grep -q "^client/" && echo true || echo false)
+PR_TOUCHES_SERVER=$(echo "$PR_FILES" | grep -q "^server/" && echo true || echo false)
+PR_TOUCHES_DRIZZLE=$(echo "$PR_FILES" | grep -q "^drizzle/" && echo true || echo false)
+
+# Labels como fonte primária
 [[ "$ISSUE_LABELS" == *"frontend"* ]] && IS_FRONTEND=true
 [[ "$ISSUE_LABELS" == *"engine"* ]] && IS_ENGINE=true
+
+# Inferência por Bloco 3 da issue (arquivo alvo mencionado)
+if ! $IS_FRONTEND && ! $IS_ENGINE; then
+  echo "$ISSUE_BODY" | grep -qi "client/src/\|\.tsx" && IS_FRONTEND=true
+  echo "$ISSUE_BODY" | grep -qi "server/\|router\|procedure" && IS_ENGINE=true
+fi
+
 echo "$ISSUE_BODY" | grep -qi "migration\|ALTER TABLE\|drizzle/" && IS_MIGRATION=true
+
+if $IS_FRONTEND; then echo "  Tipo issue: frontend (label ou Bloco 3)"; fi
+if $IS_ENGINE; then echo "  Tipo issue: engine (label ou Bloco 3)"; fi
 
 PC1_PASS=true
 
@@ -183,15 +213,12 @@ echo "── PC-5: Tipo PR vs Tipo Issue ──"
 
 PR_IS_DOCS=false
 PR_IS_DB=false
-PR_IS_FEAT_FE=false
-PR_IS_FEAT_BE=false
 
 [[ "$PR_TITLE" == docs* ]] && PR_IS_DOCS=true
 [[ "$PR_TITLE" == db:* ]] || [[ "$PR_TITLE" == *migration* ]] && PR_IS_DB=true
-echo "$PR_FILES" | grep -q "^client/" && PR_IS_FEAT_FE=true
-echo "$PR_FILES" | grep -q "^server/" && PR_IS_FEAT_BE=true
+$PR_TOUCHES_DRIZZLE && ! $PR_TOUCHES_CLIENT && ! $PR_TOUCHES_SERVER && PR_IS_DB=true
 
-if $IS_FRONTEND && $PR_IS_DB && ! $PR_IS_FEAT_FE; then
+if $IS_FRONTEND && $PR_IS_DB && ! $PR_TOUCHES_CLIENT; then
   log_fail "5" "PR de migration/db fechando issue frontend SEM tocar client/ — BLOQUEADO"
 elif $IS_FRONTEND && $PR_IS_DOCS; then
   log_fail "5" "PR de docs fechando issue frontend — BLOQUEADO"
