@@ -159,6 +159,25 @@ Resultado: 3/5 gates FALHAM → PR #639 NÃO fecha #614
 
 ---
 
+## Gate PC-0 — Máximo 1 issue por PR
+
+PR com múltiplas `Closes #N` é bloqueado automaticamente.
+O script valida apenas a primeira issue — a segunda passaria sem checagem.
+Separar em PRs individuais para validação correta de cada entrega.
+
+---
+
+## Inferência de tipo (GAP 3)
+
+O script infere o tipo da issue por 3 fontes (em ordem):
+1. Label `frontend` / `engine` (fonte primária)
+2. Bloco 3 da issue: menção a `client/src/` ou `.tsx` → frontend; `server/` ou `procedure` → engine
+3. Path dos arquivos no PR (para PC-5)
+
+Isso elimina dependência de labels manuais que podem ser esquecidas.
+
+---
+
 ## Integração no fluxo do Orquestrador
 
 ### Quando executar
