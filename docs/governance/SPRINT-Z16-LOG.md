@@ -1,6 +1,6 @@
 # Sprint Z-16 — Log de Execução
 
-**Status:** 🟡 EM PROGRESSO — 6/9 issues fechadas, 3 pendentes (#613 #614 #616)  
+**Status:** ✅ ENCERRADA — 9/9 issues fechadas · HEAD 5ccb045  
 **Milestone:** [#14 Sprint Z-16](https://github.com/Solaris-Empresa/compliance-tributaria-v2/milestone/14)  
 **Decisão P.O.:** 2026-04-15  
 
@@ -158,7 +158,7 @@ data_fim    | date | Null: YES | Default: null  ✅
 |---|---|---|
 | #611 | ✅ CLOSED | #632 |
 | #613 | 🔴 OPEN | — pendente |
-| #614 | 🔴 OPEN (reaberta) | #639 fechou migration, UI pendente |
+| #614 | ✅ CLOSED | #648 (UI modal) + #639 (migration) |
 | #615 | ✅ CLOSED | #636 |
 | #616 | 🔴 OPEN | — pendente |
 | #622 | ✅ CLOSED | #634 |
@@ -166,15 +166,42 @@ data_fim    | date | Null: YES | Default: null  ✅
 | #625 | ✅ CLOSED | #635 |
 | #626 | ✅ CLOSED | #638 |
 
-**Progresso: 6/9 (67%) — #614 reaberta**
+**Progresso: 9/9 (100%)**
 
-### Pendentes para encerrar Sprint Z-16
+### Lote Final — 16/04/2026
 
-1. **#613** — instrumentação data-testid (frontend puro, sem bloqueio)
-2. **#614** — modal editar tarefa UI (**REABERTA** — PR #639 foi migration, não UI)
-3. **#616** — ordenação + badge Atrasada (depende de schema NOT NULL confirmado no banco)
-4. **Integração** PDF (#638) com botão na ConsolidacaoV4 (#637) — placeholder ativo
-5. **Manus** confirmou `SHOW COLUMNS FROM tasks LIKE 'data_%'` → NOT NULL ✅ (16/04/2026)
+| PR | Issue | Mergeado |
+|---|---|---|
+| #647 | #613 data-testid (20 total) | 16/04 |
+| #648 | #614 modal editar tarefa + z.string().date() | 16/04 |
+| #649 | #616 ordenação + badge Atrasada | 16/04 |
+
+---
+
+## Decisão P.O. — escopo #614 (16/04/2026)
+
+Issue #614 cobre APENAS edição de tarefa existente.
+
+Critério de aceite:
+- tarefa existente → modal abre
+- campos editáveis: titulo, status, responsavel, data_inicio, data_fim
+- validação dupla: data_fim >= data_inicio
+- backend updateTaskFull salva corretamente
+- audit_log registra update
+
+Fora do aceite:
+- botão "+ Adicionar tarefa" usando este modal
+- fluxo de criação no mesmo componente
+- reuso create/edit sem decisão explícita
+
+Regra geral registrada:
+"modal editar X" = edição de X existente apenas.
+Criação requer issue própria com aceite separado.
+
+### Débitos técnicos registrados
+
+1. **Integração PDF** — `generateDiagnosticoPDF` criado (#638) mas botão na ConsolidacaoV4 é placeholder
+2. **restore-plan-button** — data-testid no mockup, funcionalidade não existe no código
 
 ---
 
