@@ -15,6 +15,9 @@ import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { computeRiskMatrix, buildActionPlans } from "../lib/risk-engine-v4";
 import { PLANS } from "../lib/action-plan-engine-v4";
+import { calculateComplianceScore } from "../lib/compliance-score-v4";
+import type { ScoringDataSnapshot } from "../lib/compliance-score-v4";
+import { getProjectById, updateProject, safeParseJson } from "../db";
 import type { GapRule } from "../lib/risk-engine-v4";
 import { generateRisksV4Pipeline } from "../lib/generate-risks-pipeline";
 // Sprint Z-10 PR #B — ACL Gap→Risk
@@ -196,9 +199,10 @@ export const risksV4Router = router({
    * NÃO chama LLM — determinístico (decisão E-G Z-14).
    */
   getActionPlanSuggestion: protectedProcedure
-    .input(z.object({ ruleId: z.string(), riskTitulo: z.string().optional() }))
+    .input(z.object({ ruleId: z.string(), categoria: z.string().optional(), riskTitulo: z.string().optional() }))
     .query(({ input }) => {
-      const suggestions = PLANS[input.ruleId];
+      const suggestions = PLANS[input.ruleId]
+        ?? (input.categoria ? PLANS[input.categoria] : undefined);
       if (suggestions && suggestions.length > 0) {
         return suggestions[0];
       }
@@ -489,6 +493,8 @@ export const risksV4Router = router({
         descricao: z.string().optional(),
         responsavel: z.string().min(1),
         prazo: z.string().optional(),
+        dataInicio: z.string().optional(), // Sprint Z-16 #614 — ISO date string
+        dataFim: z.string().optional(),    // Sprint Z-16 #614 — ISO date string
         status: z.enum(["todo", "doing", "done", "blocked"]).optional(),
         ordem: z.number().optional(),
       })
@@ -514,6 +520,9 @@ export const risksV4Router = router({
       }
 
       // Insert
+      const today = new Date();
+      const in30Days = new Date(today);
+      in30Days.setDate(in30Days.getDate() + 30);
       const taskId = await insertTaskV4({
         project_id: input.projectId,
         action_plan_id: input.actionPlanId,
@@ -521,6 +530,8 @@ export const risksV4Router = router({
         descricao: input.descricao,
         responsavel: input.responsavel,
         prazo: input.prazo ? new Date(input.prazo) : undefined,
+        data_inicio: input.dataInicio ? new Date(input.dataInicio) : today,
+        data_fim: input.dataFim ? new Date(input.dataFim) : in30Days,
         ordem: input.ordem ?? 0,
         created_by: ctx.user.id,
       });
@@ -761,5 +772,45 @@ export const risksV4Router = router({
     .query(async ({ input }) => {
       const entries = await getProjectAuditLog(input.projectId, input.limit);
       return { entries };
+    }),
+
+  /**
+   * 13. calculateAndSaveScore (Sprint Z-16 #622)
+   * Calcula score de compliance v4 deterministicamente e salva snapshot.
+   * RN-CV4-01..07 + RN-CV4-10 + RN-CV4-14
+   */
+  calculateAndSaveScore: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input }) => {
+      const risks = await getRisksV4ByProject(input.projectId);
+
+      const result = calculateComplianceScore(
+        risks.map((r) => ({
+          severidade: r.severidade,
+          confidence: r.confidence,
+          type: r.type,
+          approved_at: r.approved_at,
+        }))
+      );
+
+      // RN-CV4-03 + RN-CV4-10: acrescentar snapshot, nunca deletar
+      const project = await getProjectById(input.projectId);
+      const existing = safeParseJson<{ snapshots?: ScoringDataSnapshot[] }>(
+        project?.scoringData,
+        {}
+      );
+      const snapshots = existing.snapshots ?? [];
+
+      const snapshot: ScoringDataSnapshot = {
+        ...result,
+        calculated_at: new Date().toISOString(),
+      };
+      snapshots.push(snapshot);
+
+      await updateProject(input.projectId, {
+        scoringData: { ...existing, ...result, snapshots },
+      });
+
+      return result;
     }),
 });

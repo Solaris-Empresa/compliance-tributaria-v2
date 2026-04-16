@@ -249,14 +249,14 @@ describe("Bloco D — action plan engine", () => {
     expect(plans[0].prioridade).toBe("curto_prazo");
   });
 
-  it("D3: múltiplos riscos alta geram um plano por risco", () => {
+  it("D3: múltiplos riscos alta geram planos via fallback categoria", () => {
     const risks = [
-      classifyRisk(makeGap({ ruleId: "R-1", categoria: "split_payment" })),
-      classifyRisk(makeGap({ ruleId: "R-2", categoria: "confissao_automatica" })),
-      classifyRisk(makeGap({ ruleId: "R-3", categoria: "imposto_seletivo" })),
+      classifyRisk(makeGap({ ruleId: "R-1", categoria: "split_payment" })),       // 1 plan (PLANS["split_payment"])
+      classifyRisk(makeGap({ ruleId: "R-2", categoria: "confissao_automatica" })), // 1 plan (defaultSuggestion)
+      classifyRisk(makeGap({ ruleId: "R-3", categoria: "imposto_seletivo" })),     // 2 plans (PLANS["imposto_seletivo"])
     ];
     const plans = buildActionPlans(risks);
-    expect(plans).toHaveLength(3);
+    expect(plans).toHaveLength(4);
     plans.forEach(p => expect(p.prioridade).toBe("imediata"));
   });
 
