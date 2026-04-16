@@ -4,6 +4,11 @@
 // LLM redige conteúdo contextualizado, engine persiste, advogado revisa.
 // Reversão Z-14: "tarefas manuais" → "carga inicial LLM + revisão humana"
 // Autorização P.O.: 16/04/2026
+//
+// fix/task-generator-schema-wrapper (Sprint Z-17):
+// LLM retorna objeto wrapper {tarefas:[]} em vez de array direto [].
+// extractJsonFromLLMResponse extrai o maior bloco {} — que é o wrapper.
+// Solução: schema wrapper z.union aceita ambos os formatos.
 
 import { z } from "zod";
 import { generateWithRetry } from "../ai-helpers";
@@ -40,6 +45,25 @@ const TaskSuggestionSchema = z.object({
 });
 
 const TaskSuggestionsArraySchema = z.array(TaskSuggestionSchema).min(1).max(4);
+
+/**
+ * Schema wrapper robusto: aceita array direto [] OU objeto wrapper {tarefas:[]}
+ * O LLM (GPT-4.1 / Gemini) frequentemente envolve o array em um objeto.
+ * extractJsonFromLLMResponse extrai o maior bloco {} — que é o wrapper, não o array.
+ * z.union tenta cada alternativa em ordem e retorna o primeiro match.
+ */
+const TaskSuggestionsWrapperSchema = z.union([
+  // Formato 1: array direto []
+  TaskSuggestionsArraySchema,
+  // Formato 2: { tarefas: [] }
+  z.object({ tarefas: TaskSuggestionsArraySchema }).transform((v) => v.tarefas),
+  // Formato 3: { tasks: [] }
+  z.object({ tasks: TaskSuggestionsArraySchema }).transform((v) => v.tasks),
+  // Formato 4: { tarefas_sugeridas: [] }
+  z.object({ tarefas_sugeridas: TaskSuggestionsArraySchema }).transform((v) => v.tarefas_sugeridas),
+  // Formato 5: { resultado: [] }
+  z.object({ resultado: TaskSuggestionsArraySchema }).transform((v) => v.resultado),
+]);
 
 export type TaskSuggestion = z.infer<typeof TaskSuggestionSchema>;
 
@@ -92,7 +116,7 @@ Gere as tarefas:`,
 
   const result = await generateWithRetry(
     messages,
-    TaskSuggestionsArraySchema,
+    TaskSuggestionsWrapperSchema,
     {
       context: "TaskGenerator",
       temperature: 0.3,
