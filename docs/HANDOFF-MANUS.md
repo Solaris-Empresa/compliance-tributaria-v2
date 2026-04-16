@@ -25,10 +25,10 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-15)
-- BASELINE **v7.0** — Sprint Z-15 Lote A · PRs #598–#607 · Deploy ✅ iasolaris.manus.space
-- **HEAD: `78955e2` (github/main)** · **Checkpoint Manus:** `2d203e06`
-- **PRs mergeados:** 607 · **TypeScript:** 0 erros · **CI:** 17 workflows ativos
+## Estado atual do projeto (2026-04-16)
+- BASELINE **v7.2** — Sprint Z-16 ENCERRADA · 9/9 issues · PRs #617–#650 · Gate 7 PASS · Deploy ✅ iasolaris.manus.space
+- **HEAD: `1ea954e` (github/main)** · **Checkpoint Manus:** `8620bd66`
+- **PRs mergeados:** 650 · **TypeScript:** 0 erros · **CI:** 17 workflows ativos · **Testes:** 1665 passando
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade (GS-08: 0 chunks sem autor)
 - **Skill solaris-contexto:** v4.7 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
@@ -40,13 +40,12 @@ Drizzle ORM / Vitest / pnpm
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
 - **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06
-- **B-Z13-004:** ✅ CORRIGIDO (PRs #495+#496) — risk_category_code ausente no GapSchema e INSERT project_gaps_v3
-- **Backfill project_gaps_v3:** ✅ EXECUTADO — 138/138 mapeados · 0 NULLs (projeto 2281)
+- **tasks.data_inicio / data_fim:** DATE NOT NULL confirmado (Opção C — PR #639) · SHOW COLUMNS verificado 2026-04-16
 - **risk_categories:** 9 categorias ativas · 10 no banco (1 inativa)
 - **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
 - **Bug #545:** ⏳ ABERTO — imports dinâmicos incorretos em diagnostic-source.test.ts (sem impacto em produção)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
-- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · **Z-14 ✅ (16 issues)** · **Z-15 Lote A ✅**
+- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · **Z-14 ✅ (16 issues)** · **Z-15 Lote A ✅** · **Z-16 ✅ (9/9 issues)**
 
 ### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |
@@ -195,3 +194,35 @@ resolucao_cgibs_001 (2) · resolucao_cgibs_002 (2) · resolucao_cgibs_003 (2)
 `client/public/__manus__/version.json` — resolver via `git restore --staged client/public/__manus__/version.json`
 
 *Atualizado em 2026-04-15 · v2.3 · Sprint Z-15 Lote A · PRs #598–#607 · Aprovador: P.O. Uires Tapajós*
+
+---
+
+## Sprint Z-16 — Estado final (2026-04-16) · Gate 7 PASS
+
+| Issue | Título | PR | Status |
+|---|---|---|---|
+| #611 | fix fallback PLANS por categoria | #632 | ✅ mergeado |
+| #622 | calculateComplianceScore v4 | #634 | ✅ mergeado |
+| #624 | ConsolidacaoV4 Step 7 completo | #637 | ✅ mergeado |
+| #625 | redirect ActionPlan → ConsolidacaoV4 | #635 | ✅ mergeado |
+| #626 | PDF diagnóstico jsPDF client-side | #638 | ✅ mergeado |
+| #615 | modal excluir tarefa (soft delete + motivo) | #636 | ✅ mergeado |
+| #614 | migration tasks NOT NULL (Opção C) + modal editar tarefa | #639 + #648 | ✅ mergeado |
+| #613 | instrumentação data-testid ActionPlan (40+ seletores) | #647 | ✅ mergeado |
+| #616 | ordenação urgência DESC + badge Atrasada | #649 | ✅ mergeado |
+
+**Gate 7 Smoke Tests (REF_ID=270001):**
+- PROVA 1 — COUNT: 10 ✅ PASS (10 <= N <= 40)
+- PROVA 2 — CATEGORIAS: aliquota_zero, split_payment, imposto_seletivo, credito_presumido ✅ PASS
+- PROVA 3 — TÍTULOS SUJOS: 0 ✅ PASS
+- PROVA 4 — RAG: 10/10 (100.0%) ✅ PASS
+
+**Checkpoint:** `8620bd66` · HEAD `1ea954e` · tsc 0 erros · 1665 testes · Deploy iasolaris.manus.space ✅
+
+**Decisão P.O.:** Issue #614 expandida para modal editar tarefa completo (não apenas datas) — aprovado.
+
+**tasks.data_inicio / data_fim:** DATE NOT NULL (Opção C) — SHOW COLUMNS verificado 2026-04-16:
+```
+data_inicio | date | Null: NO | Default: null
+data_fim    | date | Null: NO | Default: null
+```
