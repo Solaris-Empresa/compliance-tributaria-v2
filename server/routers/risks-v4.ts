@@ -42,6 +42,7 @@ import {
   insertTaskV4,
   getTasksByActionPlan,
   updateTaskStatus,
+  updateTaskFull,
   softDeleteTaskV4,
   getProjectAuditLog,
   deleteRisksByProject,
@@ -186,7 +187,14 @@ export const risksV4Router = router({
       const risksWithPlans = await Promise.all(
         risks.map(async (risk) => {
           const plans = await getActionPlansByRisk(risk.id);
-          return { ...risk, actionPlans: plans };
+          // Sprint Z-16 #614 — include tasks per plan for task edit modal
+          const plansWithTasks = await Promise.all(
+            plans.map(async (plan) => {
+              const tasks = await getTasksByActionPlan(plan.id);
+              return { ...plan, tasks };
+            })
+          );
+          return { ...risk, actionPlans: plansWithTasks };
         })
       );
 
@@ -493,17 +501,32 @@ export const risksV4Router = router({
         descricao: z.string().optional(),
         responsavel: z.string().min(1),
         prazo: z.string().optional(),
-        dataInicio: z.string().optional(), // Sprint Z-16 #614 — ISO date string
-        dataFim: z.string().optional(),    // Sprint Z-16 #614 — ISO date string
+        dataInicio: z.string().date().optional(), // Sprint Z-16 #614 — ISO date string
+        dataFim: z.string().date().optional(),    // Sprint Z-16 #614 — ISO date string
         status: z.enum(["todo", "doing", "done", "blocked"]).optional(),
         ordem: z.number().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // Sprint Z-16 #614 — validação data_fim >= data_inicio
+      if (input.dataInicio && input.dataFim && input.dataFim < input.dataInicio) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Data fim não pode ser anterior à data início",
+        });
+      }
+
       if (input.taskId) {
-        // Update status ou campos
+        // Update all editable fields (Sprint Z-16 #614)
         const newStatus = (input.status ?? "todo") as StatusTask;
-        await updateTaskStatus(input.taskId, newStatus);
+        await updateTaskFull(input.taskId, {
+          titulo: input.titulo,
+          descricao: input.descricao ?? null,
+          responsavel: input.responsavel,
+          status: newStatus,
+          data_inicio: input.dataInicio ? new Date(input.dataInicio) : null,
+          data_fim: input.dataFim ? new Date(input.dataFim) : null,
+        });
 
         await insertAuditLog({
           project_id: input.projectId,
@@ -513,7 +536,13 @@ export const risksV4Router = router({
           user_id: ctx.user.id,
           user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
           user_role: ctx.user.role ?? "user",
-          after_state: { status: newStatus },
+          after_state: {
+            titulo: input.titulo,
+            responsavel: input.responsavel,
+            status: newStatus,
+            data_inicio: input.dataInicio,
+            data_fim: input.dataFim,
+          },
         });
 
         return { taskId: input.taskId, created: false };

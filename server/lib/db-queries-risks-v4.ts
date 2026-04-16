@@ -511,6 +511,37 @@ export async function updateTaskStatus(
 }
 
 /**
+ * Sprint Z-16 #614 — Atualiza todos os campos editáveis de uma tarefa.
+ */
+export async function updateTaskFull(
+  id: string,
+  data: {
+    titulo: string;
+    descricao?: string | null;
+    responsavel: string;
+    status: StatusTask;
+    data_inicio?: Date | null;
+    data_fim?: Date | null;
+  }
+): Promise<void> {
+  await query(
+    `UPDATE tasks
+     SET titulo = ?, descricao = ?, responsavel = ?, status = ?,
+         data_inicio = ?, data_fim = ?
+     WHERE id = ?`,
+    [
+      data.titulo,
+      data.descricao ?? null,
+      data.responsavel,
+      data.status,
+      data.data_inicio ?? null,
+      data.data_fim ?? null,
+      id,
+    ]
+  );
+}
+
+/**
  * Soft-delete de uma tarefa.
  */
 export async function softDeleteTaskV4(
