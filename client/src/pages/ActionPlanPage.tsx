@@ -154,6 +154,42 @@ function TraceabilityBanner({ risk, projectId }: { risk: RiskParent; projectId: 
 
 // ─── Sub-componente: TaskRow ─────────────────────────────────────────────────
 
+// ─── Sort + Overdue helpers (#616) ──────────────────────────────────────────
+
+function getToday(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function isOverdue(task: { data_fim?: string | Date | null; status: string }): boolean {
+  if (task.status === "done" || task.status === "deleted") return false;
+  if (!task.data_fim) return false;
+  const fim = typeof task.data_fim === "string" ? task.data_fim.slice(0, 10) : task.data_fim.toISOString().slice(0, 10);
+  return fim < getToday();
+}
+
+function overdueDays(task: { data_fim?: string | Date | null }): number {
+  if (!task.data_fim) return 0;
+  const fim = typeof task.data_fim === "string" ? task.data_fim.slice(0, 10) : task.data_fim.toISOString().slice(0, 10);
+  const diff = new Date(getToday()).getTime() - new Date(fim).getTime();
+  return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+}
+
+function sortTasks<T extends { data_fim?: string | Date | null; status: string }>(tasks: T[]): T[] {
+  return [...tasks].sort((a, b) => {
+    const aOverdue = isOverdue(a);
+    const bOverdue = isOverdue(b);
+    if (aOverdue && !bOverdue) return -1;
+    if (!aOverdue && bOverdue) return 1;
+    const aDone = a.status === "done";
+    const bDone = b.status === "done";
+    if (aDone && !bDone) return 1;
+    if (!aDone && bDone) return -1;
+    const aFim = a.data_fim ? (typeof a.data_fim === "string" ? a.data_fim : a.data_fim.toISOString()) : "9999";
+    const bFim = b.data_fim ? (typeof b.data_fim === "string" ? b.data_fim : b.data_fim.toISOString()) : "9999";
+    return aFim.localeCompare(bFim);
+  });
+}
+
 interface TaskRowProps {
   task: {
     id: string;
@@ -161,6 +197,7 @@ interface TaskRowProps {
     responsavel: string;
     status: string;
     ordem: number;
+    data_fim?: string | Date | null;
   };
   locked: boolean;
   onStatusChange: (taskId: string, status: string) => void;
@@ -178,10 +215,15 @@ function TaskRow({ task, locked, onStatusChange, onDelete }: TaskRowProps) {
     blocked: "todo",
   };
 
+  const taskOverdue = isOverdue(task);
+  const days = overdueDays(task);
+
   return (
     <div
-      className={`flex items-center gap-2 rounded border border-border bg-background px-3 py-2 ${
-        locked ? "opacity-40 cursor-not-allowed" : ""
+      className={`flex items-center gap-2 rounded border px-3 py-2 ${
+        locked ? "opacity-40 cursor-not-allowed border-border bg-background"
+          : taskOverdue ? "border-amber-300 bg-amber-50"
+          : "border-border bg-background"
       }`}
     >
       {locked ? (
@@ -220,6 +262,15 @@ function TaskRow({ task, locked, onStatusChange, onDelete }: TaskRowProps) {
       >
         {task.status}
       </span>
+
+      {taskOverdue && (
+        <span
+          data-testid="task-overdue-indicator"
+          className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-200 font-medium"
+        >
+          Atrasada {days} {days === 1 ? "dia" : "dias"}
+        </span>
+      )}
 
       {!locked && (
         <Button
