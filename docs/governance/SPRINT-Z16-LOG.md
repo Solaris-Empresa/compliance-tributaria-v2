@@ -1,6 +1,6 @@
 # Sprint Z-16 — Log de Execução
 
-**Status:** 🟡 EM PROGRESSO — 7/9 issues fechadas, 2 pendentes (#613 #616)  
+**Status:** 🟡 EM PROGRESSO — 6/9 issues fechadas, 3 pendentes (#613 #614 #616)  
 **Milestone:** [#14 Sprint Z-16](https://github.com/Solaris-Empresa/compliance-tributaria-v2/milestone/14)  
 **Decisão P.O.:** 2026-04-15  
 
@@ -158,7 +158,7 @@ data_fim    | date | Null: YES | Default: null  ✅
 |---|---|---|
 | #611 | ✅ CLOSED | #632 |
 | #613 | 🔴 OPEN | — pendente |
-| #614 | ✅ CLOSED | #639 |
+| #614 | 🔴 OPEN (reaberta) | #639 fechou migration, UI pendente |
 | #615 | ✅ CLOSED | #636 |
 | #616 | 🔴 OPEN | — pendente |
 | #622 | ✅ CLOSED | #634 |
@@ -166,11 +166,35 @@ data_fim    | date | Null: YES | Default: null  ✅
 | #625 | ✅ CLOSED | #635 |
 | #626 | ✅ CLOSED | #638 |
 
-**Progresso: 7/9 (78%)**
+**Progresso: 6/9 (67%) — #614 reaberta**
 
 ### Pendentes para encerrar Sprint Z-16
 
 1. **#613** — instrumentação data-testid (frontend puro, sem bloqueio)
-2. **#616** — ordenação + badge Atrasada (depende de schema NOT NULL confirmado no banco)
-3. **Integração** PDF (#638) com botão na ConsolidacaoV4 (#637) — placeholder ativo
-4. **Manus** confirmou `SHOW COLUMNS FROM tasks LIKE 'data_%'` → NOT NULL ✅ (16/04/2026)
+2. **#614** — modal editar tarefa UI (**REABERTA** — PR #639 foi migration, não UI)
+3. **#616** — ordenação + badge Atrasada (depende de schema NOT NULL confirmado no banco)
+4. **Integração** PDF (#638) com botão na ConsolidacaoV4 (#637) — placeholder ativo
+5. **Manus** confirmou `SHOW COLUMNS FROM tasks LIKE 'data_%'` → NOT NULL ✅ (16/04/2026)
+
+---
+
+## Correção de governança — 16/04/2026
+
+**PROBLEMA:** #614 fechada indevidamente por PR #639
+- PR #639 = migration NOT NULL (infraestrutura)
+- #614 = modal UI editar tarefa (funcionalidade)
+- PR usou `Closes #614` → GitHub auto-fechou
+- UI do modal não existe no código: `grep 'task-edit-modal' ActionPlanPage.tsx → 0`
+
+**CAUSA RAIZ:** processo aceitava `Closes #N` sem validar entrega funcional
+
+**CORREÇÕES APLICADAS:**
+1. #614 reaberta com evidência documentada
+2. PRE-CLOSE-CHECKLIST (ORQ-17) integrado no CI — PR #643
+3. PC-0: máximo 1 issue por PR — PR #644
+4. PC-5: migration nunca fecha frontend — PR #643
+5. PR template: seção "Escopo de fechamento" com regra Closes vs Refs
+6. Inferência de tipo por path (GAP 3) — PR #644
+
+**LIÇÃO:** `Closes #N` ≠ issue resolvida funcionalmente.
+Verificar sempre: grep/data-testid/UI antes de aceitar fechamento.
