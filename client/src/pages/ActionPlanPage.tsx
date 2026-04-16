@@ -10,7 +10,7 @@
  */
 
 import { useState, useMemo } from "react";
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +41,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -50,6 +51,13 @@ const STATUS_PLAN_LABELS: Record<string, string> = {
   em_andamento: "Em Andamento",
   concluido: "Concluído",
   deleted: "Excluído",
+};
+
+const STATUS_TASK_LABELS: Record<string, string> = {
+  todo: "A Fazer",
+  doing: "Em Andamento",
+  done: "Concluída",
+  blocked: "Bloqueada",
 };
 
 const STATUS_TASK_COLORS: Record<string, string> = {
@@ -122,7 +130,7 @@ function TraceabilityBanner({ risk, projectId }: { risk: RiskParent; projectId: 
   ];
 
   return (
-    <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border px-4 py-2.5">
+    <div data-testid="traceability-banner" className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border px-4 py-2.5">
       <div className="flex items-center gap-1.5 flex-wrap max-w-4xl mx-auto">
         <span className="text-xs text-muted-foreground mr-1 shrink-0">Rastreabilidade:</span>
         {chips.map((chip, i) => (
@@ -153,20 +161,60 @@ function TraceabilityBanner({ risk, projectId }: { risk: RiskParent; projectId: 
 
 // ─── Sub-componente: TaskRow ─────────────────────────────────────────────────
 
+// ─── Sort + Overdue helpers (#616) ──────────────────────────────────────────
+
+function getToday(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function isOverdue(task: { data_fim?: string | Date | null; status: string }): boolean {
+  if (task.status === "done" || task.status === "deleted") return false;
+  if (!task.data_fim) return false;
+  const fim = typeof task.data_fim === "string" ? task.data_fim.slice(0, 10) : task.data_fim.toISOString().slice(0, 10);
+  return fim < getToday();
+}
+
+function overdueDays(task: { data_fim?: string | Date | null }): number {
+  if (!task.data_fim) return 0;
+  const fim = typeof task.data_fim === "string" ? task.data_fim.slice(0, 10) : task.data_fim.toISOString().slice(0, 10);
+  const diff = new Date(getToday()).getTime() - new Date(fim).getTime();
+  return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+}
+
+function sortTasks<T extends { data_fim?: string | Date | null; status: string }>(tasks: T[]): T[] {
+  return [...tasks].sort((a, b) => {
+    const aOverdue = isOverdue(a);
+    const bOverdue = isOverdue(b);
+    if (aOverdue && !bOverdue) return -1;
+    if (!aOverdue && bOverdue) return 1;
+    const aDone = a.status === "done";
+    const bDone = b.status === "done";
+    if (aDone && !bDone) return 1;
+    if (!aDone && bDone) return -1;
+    const aFim = a.data_fim ? (typeof a.data_fim === "string" ? a.data_fim : a.data_fim.toISOString()) : "9999";
+    const bFim = b.data_fim ? (typeof b.data_fim === "string" ? b.data_fim : b.data_fim.toISOString()) : "9999";
+    return aFim.localeCompare(bFim);
+  });
+}
+
 interface TaskRowProps {
   task: {
     id: string;
     titulo: string;
+    descricao?: string | null;
     responsavel: string;
     status: string;
     ordem: number;
+    data_inicio?: string | Date | null;
+    data_fim?: string | Date | null;
   };
   locked: boolean;
   onStatusChange: (taskId: string, status: string) => void;
   onDelete: (taskId: string, reason: string) => void;
+  onEdit?: (task: TaskRowProps["task"]) => void;
 }
 
-function TaskRow({ task, locked, onStatusChange, onDelete }: TaskRowProps) {
+function TaskRow({ task, locked, onStatusChange, onDelete, onEdit }: TaskRowProps) {
   const [deleting, setDeleting] = useState(false);
   const [reason, setReason] = useState("");
 
@@ -177,10 +225,16 @@ function TaskRow({ task, locked, onStatusChange, onDelete }: TaskRowProps) {
     blocked: "todo",
   };
 
+  const taskOverdue = isOverdue(task);
+  const days = overdueDays(task);
+
   return (
     <div
-      className={`flex items-center gap-2 rounded border border-border bg-background px-3 py-2 ${
-        locked ? "opacity-40 cursor-not-allowed" : ""
+      data-testid="task-row"
+      className={`flex items-center gap-2 rounded border px-3 py-2 ${
+        locked ? "opacity-40 cursor-not-allowed border-border bg-background"
+          : taskOverdue ? "border-amber-300 bg-amber-50"
+          : "border-border bg-background"
       }`}
     >
       {locked ? (
@@ -220,40 +274,84 @@ function TaskRow({ task, locked, onStatusChange, onDelete }: TaskRowProps) {
         {task.status}
       </span>
 
+      {taskOverdue && (
+        <span
+          data-testid="task-overdue-indicator"
+          className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-200 font-medium"
+        >
+          Atrasada {days} {days === 1 ? "dia" : "dias"}
+        </span>
+      )}
+
+      {!locked && onEdit && (
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-6 w-6 text-blue-600 hover:text-blue-700"
+          title="Editar tarefa"
+          onClick={() => onEdit(task)}
+        >
+          <Pencil className="h-3 w-3" />
+        </Button>
+      )}
+
       {!locked && (
         <Button
           size="icon"
           variant="ghost"
           className="h-6 w-6 text-destructive/70 hover:text-destructive"
-          onClick={() => setDeleting(!deleting)}
+          onClick={() => setDeleting(true)}
         >
           <Trash2 className="h-3 w-3" />
         </Button>
       )}
 
-      {deleting && !locked && (
-        <div className="flex gap-1 ml-1">
-          <input
-            className="text-xs rounded border border-border bg-background px-1.5 py-0.5 w-28 focus:outline-none"
-            placeholder="Motivo"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-          />
-          <Button
-            size="sm"
-            variant="destructive"
-            className="h-6 text-xs px-2"
-            disabled={!reason.trim()}
-            onClick={() => {
-              onDelete(task.id, reason);
-              setDeleting(false);
-              setReason("");
-            }}
-          >
-            OK
-          </Button>
-        </div>
-      )}
+      {/* Modal excluir tarefa (#615) */}
+      <AlertDialog open={deleting} onOpenChange={setDeleting}>
+        <AlertDialogContent data-testid="task-delete-modal">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir tarefa</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. A tarefa será marcada como excluída
+              e o motivo ficará registrado no histórico de auditoria.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2">
+            <Label htmlFor="delete-reason" className="text-sm font-medium">
+              Motivo da exclusão (mínimo 10 caracteres)
+            </Label>
+            <Textarea
+              id="delete-reason"
+              data-testid="task-delete-reason-textarea"
+              className="mt-1.5"
+              placeholder="Descreva o motivo da exclusão..."
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={3}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {reason.length}/10 caracteres
+            </p>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => { setDeleting(false); setReason(""); }}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              data-testid="task-delete-confirm-button"
+              disabled={reason.length < 10}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                onDelete(task.id, reason);
+                setDeleting(false);
+                setReason("");
+              }}
+            >
+              Confirmar exclusão
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -286,6 +384,43 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
   const [deleteReason, setDeleteReason] = useState("");
   const [newTask, setNewTask] = useState({ titulo: "", responsavel: "" });
 
+  // Sprint Z-16 #614 — Task edit modal state
+  const [editingTask, setEditingTask] = useState<TaskRowProps["task"] | null>(null);
+  const [taskForm, setTaskForm] = useState({
+    titulo: "",
+    descricao: "",
+    responsavel: "",
+    status: "todo",
+    dataInicio: "",
+    dataFim: "",
+  });
+
+  const openTaskEdit = (task: TaskRowProps["task"]) => {
+    setEditingTask(task);
+    const fmtDate = (d?: string | Date | null) => {
+      if (!d) return "";
+      if (typeof d === "string") return d.slice(0, 10);
+      return d.toISOString().slice(0, 10);
+    };
+    setTaskForm({
+      titulo: task.titulo,
+      descricao: (task.descricao as string) ?? "",
+      responsavel: task.responsavel,
+      status: task.status,
+      dataInicio: fmtDate(task.data_inicio),
+      dataFim: fmtDate(task.data_fim),
+    });
+  };
+
+  const closeTaskEdit = () => {
+    setEditingTask(null);
+    setTaskForm({ titulo: "", descricao: "", responsavel: "", status: "todo", dataInicio: "", dataFim: "" });
+  };
+
+  const taskDateError = taskForm.dataInicio && taskForm.dataFim && taskForm.dataFim < taskForm.dataInicio
+    ? "Data fim não pode ser anterior à data início"
+    : "";
+
   const tasksQuery = trpc.risksV4.listRisks.useQuery(
     { projectId: plan.project_id },
     { enabled: false }
@@ -316,6 +451,16 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
 
   const updateTaskMutation = trpc.risksV4.upsertTask.useMutation({
     onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId: plan.project_id }),
+  });
+
+  // Sprint Z-16 #614 — Save full task edit
+  const saveTaskEditMutation = trpc.risksV4.upsertTask.useMutation({
+    onSuccess: () => {
+      utils.risksV4.listRisks.invalidate({ projectId: plan.project_id });
+      closeTaskEdit();
+      toast.success("Tarefa atualizada");
+    },
+    onError: (err) => toast.error("Erro ao salvar tarefa", { description: err.message }),
   });
 
   const isApproved = !!plan.approved_at;
@@ -511,7 +656,153 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
             </Button>
           </div>
         )}
+
+        {/* Sprint Z-16 #614 — Task list rendering */}
+        {showTasks && (plan as any).tasks && (
+          <div className="space-y-1.5 mt-2">
+            {sortTasks((plan as any).tasks).map((task: any) => (
+              <TaskRow
+                key={task.id}
+                task={task}
+                locked={isLocked}
+                onStatusChange={(taskId, status) =>
+                  updateTaskMutation.mutate({
+                    projectId: plan.project_id,
+                    actionPlanId: plan.id,
+                    taskId,
+                    titulo: task.titulo,
+                    responsavel: task.responsavel,
+                    status: status as "todo" | "doing" | "done" | "blocked",
+                  })
+                }
+                onDelete={(taskId, reason) =>
+                  deleteTaskMutation.mutate({
+                    projectId: plan.project_id,
+                    taskId,
+                    reason,
+                  })
+                }
+                onEdit={(t) => openTaskEdit(t)}
+              />
+            ))}
+            {(plan as any).tasks.length === 0 && (
+              <p className="text-xs text-muted-foreground py-2">Nenhuma tarefa cadastrada.</p>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Sprint Z-16 #614 — Task edit modal */}
+      <Dialog open={!!editingTask} onOpenChange={(open) => { if (!open) closeTaskEdit(); }}>
+        <DialogContent className="sm:max-w-md" data-testid="task-edit-modal">
+          <DialogHeader>
+            <DialogTitle>Editar tarefa</DialogTitle>
+            <DialogDescription>Altere os campos da tarefa e salve</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="task-titulo">Título *</Label>
+              <Input
+                id="task-titulo"
+                data-testid="task-edit-titulo"
+                value={taskForm.titulo}
+                onChange={(e) => setTaskForm((f) => ({ ...f, titulo: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="task-descricao">Descrição</Label>
+              <Textarea
+                id="task-descricao"
+                data-testid="task-edit-descricao"
+                value={taskForm.descricao}
+                onChange={(e) => setTaskForm((f) => ({ ...f, descricao: e.target.value }))}
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="task-responsavel">Responsável *</Label>
+                <Input
+                  id="task-responsavel"
+                  data-testid="task-edit-responsavel"
+                  value={taskForm.responsavel}
+                  onChange={(e) => setTaskForm((f) => ({ ...f, responsavel: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="task-status">Status</Label>
+                <Select
+                  value={taskForm.status}
+                  onValueChange={(v) => setTaskForm((f) => ({ ...f, status: v }))}
+                >
+                  <SelectTrigger id="task-status" data-testid="task-edit-status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(STATUS_TASK_LABELS).map(([val, label]) => (
+                      <SelectItem key={val} value={val}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="task-data-inicio">Data Início</Label>
+                <Input
+                  id="task-data-inicio"
+                  data-testid="task-edit-data-inicio"
+                  type="date"
+                  value={taskForm.dataInicio}
+                  onChange={(e) => setTaskForm((f) => ({ ...f, dataInicio: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="task-data-fim">Data Fim</Label>
+                <Input
+                  id="task-data-fim"
+                  data-testid="task-edit-data-fim"
+                  type="date"
+                  value={taskForm.dataFim}
+                  onChange={(e) => setTaskForm((f) => ({ ...f, dataFim: e.target.value }))}
+                />
+              </div>
+            </div>
+            {taskDateError && (
+              <p className="text-xs text-destructive">{taskDateError}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeTaskEdit}>Cancelar</Button>
+            <Button
+              disabled={
+                !taskForm.titulo.trim() ||
+                !taskForm.responsavel.trim() ||
+                !!taskDateError ||
+                saveTaskEditMutation.isPending
+              }
+              onClick={() => {
+                if (!editingTask) return;
+                saveTaskEditMutation.mutate({
+                  projectId: plan.project_id,
+                  actionPlanId: plan.id,
+                  taskId: editingTask.id,
+                  titulo: taskForm.titulo,
+                  descricao: taskForm.descricao || undefined,
+                  responsavel: taskForm.responsavel,
+                  status: taskForm.status as "todo" | "doing" | "done" | "blocked",
+                  dataInicio: taskForm.dataInicio || undefined,
+                  dataFim: taskForm.dataFim || undefined,
+                });
+              }}
+            >
+              {saveTaskEditMutation.isPending
+                ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Salvando...</>
+                : "Salvar alterações"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -521,6 +812,7 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
 export default function ActionPlanPage() {
   const [, params] = useRoute("/projetos/:projectId/planos-v4");
   const projectId = parseInt(params?.projectId ?? "0", 10);
+  const [, setLocation] = useLocation();
   const { user } = useAuth();
   const utils = trpc.useUtils();
 
@@ -646,7 +938,7 @@ export default function ActionPlanPage() {
             </p>
           </div>
           {riskIdParam && (
-            <Button size="sm" onClick={() => setShowNewPlan(true)}>
+            <Button data-testid="new-plan-button" size="sm" onClick={() => setShowNewPlan(true)}>
               <Plus className="h-3.5 w-3.5 mr-1.5" />
               Novo plano
             </Button>
@@ -664,11 +956,12 @@ export default function ActionPlanPage() {
               <div className="space-y-3">
                 <div>
                   <Label htmlFor="ap-titulo">Título *</Label>
-                  <Input id="ap-titulo" value={npTitulo} onChange={(e) => setNpTitulo(e.target.value)} placeholder="Min 5 caracteres" maxLength={500} />
+                  <Input data-testid="plan-title-input" id="ap-titulo" value={npTitulo} onChange={(e) => setNpTitulo(e.target.value)} placeholder="Min 5 caracteres" maxLength={500} />
                   {npTitulo.length > 0 && npTitulo.length < 5 && <p className="text-xs text-destructive mt-1">Título muito curto</p>}
                   {!isEditMode && parentRisk && (
+                    <span data-testid="ai-suggestion-box">
                     <button
-                      data-testid="ai-suggestion-btn"
+                      data-testid="ai-suggestion-accept"
                       type="button"
                       className="mt-1 text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer bg-transparent border-none p-0"
                       onClick={async () => {
@@ -687,17 +980,18 @@ export default function ActionPlanPage() {
                     >
                       Sugestão da IA ↗ — clique para usar
                     </button>
+                    </span>
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="ap-resp">Responsável *</Label>
-                    <Input id="ap-resp" value={npResponsavel} onChange={(e) => setNpResponsavel(e.target.value)} placeholder="Nome" />
+                    <Input data-testid="plan-responsavel-select" id="ap-resp" value={npResponsavel} onChange={(e) => setNpResponsavel(e.target.value)} placeholder="Nome" />
                   </div>
                   <div>
                     <Label htmlFor="ap-prazo">Prazo *</Label>
                     <Select value={npPrazo} onValueChange={setNpPrazo}>
-                      <SelectTrigger id="ap-prazo"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectTrigger data-testid="plan-prazo-select" id="ap-prazo"><SelectValue placeholder="Selecione" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="30_dias">30 dias</SelectItem>
                         <SelectItem value="60_dias">60 dias</SelectItem>
@@ -709,12 +1003,13 @@ export default function ActionPlanPage() {
                 </div>
                 <div>
                   <Label htmlFor="ap-desc">Descrição (opcional)</Label>
-                  <Textarea id="ap-desc" value={npDescricao} onChange={(e) => setNpDescricao(e.target.value)} rows={3} />
+                  <Textarea data-testid="plan-descricao-textarea" id="ap-desc" value={npDescricao} onChange={(e) => setNpDescricao(e.target.value)} rows={3} />
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={closePlanModal}>Cancelar</Button>
                 <Button
+                  data-testid="plan-submit-button"
                   disabled={npTitulo.length < 5 || !npResponsavel || !npPrazo || upsertPlanMutation.isPending}
                   onClick={() => upsertPlanMutation.mutate({
                     projectId,
@@ -752,11 +1047,11 @@ export default function ActionPlanPage() {
         )}
 
         {/* Item 12: Tabs — Planos + Histórico global */}
-        {!isLoading && !error && (
+        {!isLoading && !error && (<>
           <Tabs defaultValue="planos">
             <TabsList>
-              <TabsTrigger value="planos">Planos ({allPlans.length})</TabsTrigger>
-              <TabsTrigger value="historico">Histórico ({auditEntries.length})</TabsTrigger>
+              <TabsTrigger data-testid="plans-tab" value="planos">Planos ({allPlans.length})</TabsTrigger>
+              <TabsTrigger data-testid="history-tab" value="historico">Histórico ({auditEntries.length})</TabsTrigger>
             </TabsList>
 
             {/* Tab: Planos */}
@@ -806,7 +1101,7 @@ export default function ActionPlanPage() {
 
             {/* Tab: Histórico global (audit log) */}
             <TabsContent value="historico">
-              <Card>
+              <Card data-testid="audit-log">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center gap-2">
                     <History className="h-4 w-4 text-muted-foreground" />
@@ -870,7 +1165,24 @@ export default function ActionPlanPage() {
               </Card>
             </TabsContent>
           </Tabs>
-        )}
+
+          {/* Botão Ver Consolidação — visível quando todos os planos estão aprovados (#625) */}
+          {allPlans.length > 0 &&
+            allPlans.every((p: any) => p.status !== "rascunho") && (
+              <div className="flex justify-center pt-4">
+                <Button
+                  data-testid="btn-ver-consolidacao"
+                  size="lg"
+                  onClick={() =>
+                    setLocation(`/projetos/${projectId}/consolidacao-v4`)
+                  }
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Ver Consolidação
+                </Button>
+              </div>
+          )}
+        </>)}
       </div>
     </div>
   );

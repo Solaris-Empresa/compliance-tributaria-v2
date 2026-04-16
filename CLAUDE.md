@@ -245,6 +245,44 @@ Acoes com efeito cascata confirmado:
 
 "Gerar plano" nao e suficiente. Deve especificar: `status='rascunho'`, `prazo=ENUM`, `insertActionPlanV4WithAudit`.
 
+### REGRA-ORQ-17 — PRE-CLOSE-CHECKLIST (obrigatorio antes de fechar issue)
+
+Antes de mergear qualquer PR que contém `Closes #N`:
+executar `docs/governance/PRE-CLOSE-CHECKLIST.md` gates PC-1..PC-5.
+
+5 gates obrigatórios:
+  PC-1: PR toca os arquivos do Bloco 3 da issue?
+  PC-2: data-testid do Bloco 9 presentes no componente?
+  PC-3: critérios do Bloco 7 verificáveis no código?
+  PC-4: procedures do Bloco 5 chamadas pelo componente?
+  PC-5: tipo do PR compatível com tipo da issue?
+
+Se qualquer gate FALHA: remover `Closes #N` do PR body.
+PR de migration/docs NUNCA fecha issue de UI/frontend.
+
+Causa raiz: Sprint Z-16 — #614 fechada por PR #639 (migration)
+sem UI do modal implementada. 3/5 gates teriam bloqueado.
+
+### REGRA-ORQ-18 — Sincronizacao board obrigatoria
+
+Issue na coluna "Bloqueada" DEVE ter bloqueio explicito:
+  - label `on-hold` presente, OU
+  - dependencia tecnica declarada na issue (predecessora OPEN)
+
+Se a issue:
+  - tem `spec-aprovada`
+  - NAO possui label `on-hold`
+  - NAO possui bloqueio tecnico explicito
+entao DEVE estar em "Todo" (ou "In Progress" se PR aberto).
+
+R-SYNC-01 obrigatorio ANTES de qualquer operacao no board.
+Apos cada decisao do P.O. (labels, on-hold, merge):
+  sincronizar board imediatamente.
+
+Causa raiz: Sprint Z-16 — #613 e #616 ficaram em "Bloqueada"
+por horas apos remocao de on-hold e aprovacao do P.O.
+Estado operacional nao sincronizado com decisao formal.
+
 ### REGRA-ORQ-15 — PR body template obrigatorio
 
 Todo PR DEVE conter no body os campos exatos do `.github/PULL_REQUEST_TEMPLATE.md`:

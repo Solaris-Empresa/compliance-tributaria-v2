@@ -1,3 +1,11 @@
+## Escopo de fechamento
+
+> ⚠️ **REGRA ORQ-17:** usar `Closes #N` SOMENTE se este PR implementa o escopo funcional completo da issue.
+> Para infraestrutura/migration que SUPORTA uma issue mas não a implementa: usar `Refs #N`.
+> Máximo 1 `Closes #N` por PR (CI bloqueia múltiplos).
+
+- Closes #N → [descrever entrega funcional]
+
 ## Objetivo
 [Descrever claramente o que esta PR resolve]
 

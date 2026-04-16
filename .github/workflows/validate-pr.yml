@@ -149,6 +149,23 @@ jobs:
           fi
           echo "OK: conteudo completo"
 
+  pre-close-checklist:
+    name: Pre-Close Checklist (ORQ-17)
+    runs-on: ubuntu-latest
+    if: |
+      !contains(github.event.pull_request.title, 'docs(') &&
+      !contains(github.event.pull_request.title, 'chore(')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run PRE-CLOSE-CHECKLIST
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          chmod +x scripts/pre-close-check.sh
+          bash scripts/pre-close-check.sh
+
   procedure-check:
     name: Integration Checkpoint (WARN)
     runs-on: ubuntu-latest
