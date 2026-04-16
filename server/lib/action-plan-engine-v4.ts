@@ -13,6 +13,7 @@ export interface ActionPlanSuggestion {
 }
 
 export const PLANS: Record<string, ActionPlanSuggestion[]> = {
+  // ─── Por ruleId (prioridade máxima) ───
   "GAP-IS-001": [
     { titulo: "Implantar controle de apuração do IS", responsavel: "gestor_fiscal", prazo: "90_dias" },
     { titulo: "Contratar assessoria tributária IS", responsavel: "diretor", prazo: "30_dias" },
@@ -24,6 +25,20 @@ export const PLANS: Record<string, ActionPlanSuggestion[]> = {
     { titulo: "Parametrizar alíquota zero nos produtos elegíveis", responsavel: "gestor_fiscal", prazo: "60_dias" },
   ],
   "GAP-TR-001": [
+    { titulo: "Plano de transição ISS para IBS 2026 a 2032", responsavel: "juridico", prazo: "180_dias" },
+  ],
+  // ─── Por categoria (fallback hierárquico — #611) ───
+  "imposto_seletivo": [
+    { titulo: "Implantar controle de apuração do IS", responsavel: "gestor_fiscal", prazo: "90_dias" },
+    { titulo: "Contratar assessoria tributária IS", responsavel: "diretor", prazo: "30_dias" },
+  ],
+  "split_payment": [
+    { titulo: "Adequar sistema para split payment", responsavel: "ti", prazo: "90_dias" },
+  ],
+  "aliquota_zero": [
+    { titulo: "Parametrizar alíquota zero nos produtos elegíveis", responsavel: "gestor_fiscal", prazo: "60_dias" },
+  ],
+  "transicao_iss_ibs": [
     { titulo: "Plano de transição ISS para IBS 2026 a 2032", responsavel: "juridico", prazo: "180_dias" },
   ],
 };
@@ -50,7 +65,9 @@ export function buildActionPlans(risks: RiskV4[]): ActionPlanV4[] {
     // RN-AP-09: oportunidade NUNCA gera plano
     if (risk.severity === "oportunidade") continue;
 
-    const suggestions = PLANS[risk.ruleId] ?? [defaultSuggestion(risk)];
+    const suggestions = PLANS[risk.ruleId]
+      ?? PLANS[risk.categoria]
+      ?? [defaultSuggestion(risk)];
 
     for (const s of suggestions) {
       plans.push({
