@@ -1,0 +1,75 @@
+name: Post-Merge Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'client/src/**'
+      - 'server/**'
+
+jobs:
+  typecheck:
+    name: tsc post-merge
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tsc --noEmit
+
+  data-testid-audit:
+    name: data-testid gap mockup vs componente
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit data-testid coverage
+        run: |
+          echo "=== data-testid audit ==="
+
+          for MOCKUP in docs/sprints/*/MOCKUP_*.html; do
+            [ -f "$MOCKUP" ] || continue
+            BASENAME=$(basename "$MOCKUP" .html)
+            echo ""
+            echo "── $BASENAME ──"
+
+            MOCK_COUNT=$(grep -o 'data-testid="[^"]*"' "$MOCKUP" | sort -u | wc -l)
+            echo "Mockup: $MOCK_COUNT data-testid"
+
+            # Match mockup to component by name pattern
+            if echo "$BASENAME" | grep -qi "ACTION_PLAN"; then
+              COMP="client/src/pages/ActionPlanPage.tsx"
+            elif echo "$BASENAME" | grep -qi "RISK_DASHBOARD"; then
+              COMP="client/src/components/RiskDashboardV4.tsx"
+            elif echo "$BASENAME" | grep -qi "CONSOLIDACAO"; then
+              COMP="client/src/pages/ConsolidacaoV4.tsx"
+            else
+              echo "  No matching component found — skipping"
+              continue
+            fi
+
+            if [ ! -f "$COMP" ]; then
+              echo "  Component $COMP not found — skipping"
+              continue
+            fi
+
+            COMP_COUNT=$(grep -o 'data-testid="[^"]*"' "$COMP" | sort -u | wc -l)
+            echo "Component: $COMP_COUNT data-testid"
+
+            GAP=$(comm -23 \
+              <(grep -o 'data-testid="[^"]*"' "$MOCKUP" | sort -u) \
+              <(grep -o 'data-testid="[^"]*"' "$COMP" | sort -u) \
+              | wc -l)
+            echo "Gap: $GAP"
+
+            if [ "$GAP" -gt 10 ]; then
+              echo "::warning::$BASENAME: $GAP data-testid no mockup ausentes no componente"
+            fi
+          done
+
+          echo ""
+          echo "=== audit complete ==="
