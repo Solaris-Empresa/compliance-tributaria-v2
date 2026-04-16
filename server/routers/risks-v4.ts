@@ -16,6 +16,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { computeRiskMatrix, buildActionPlans } from "../lib/risk-engine-v4";
 import { PLANS } from "../lib/action-plan-engine-v4";
 import { calculateComplianceScore } from "../lib/compliance-score-v4";
+import { generateTaskSuggestions } from "../lib/task-generator-v4";
 import type { ScoringDataSnapshot } from "../lib/compliance-score-v4";
 import { getProjectById, updateProject, safeParseJson } from "../db";
 import type { GapRule } from "../lib/risk-engine-v4";
@@ -166,9 +167,101 @@ export const risksV4Router = router({
         planIds.push(id);
       }
 
+      // ─── Sprint Z-17 #659: Gerar tarefas para cada plano via LLM ──────
+      const PRAZO_DAYS: Record<string, number> = {
+        "30_dias": 30, "60_dias": 60, "90_dias": 90, "180_dias": 180,
+      };
+      const CONCURRENCY = 3;
+      const empresaProfile = await getProjectById(projectId);
+      const empresa = {
+        cnpj: (empresaProfile?.companyProfile as any)?.cnpj ?? null,
+        cnaes: (Array.isArray(empresaProfile?.confirmedCnaes)
+          ? empresaProfile.confirmedCnaes.map((c: any) => c.code ?? c)
+          : []) as string[],
+        porte: empresaProfile?.companySize
+          ?? (empresaProfile?.companyProfile as any)?.companySize
+          ?? null,
+        regime_tributario: empresaProfile?.taxRegime
+          ?? (empresaProfile?.companyProfile as any)?.taxRegime
+          ?? null,
+      };
+      const today = new Date();
+      let tasksGenerated = 0;
+
+      for (let batch = 0; batch < planIds.length; batch += CONCURRENCY) {
+        const chunk = planIds.slice(batch, batch + CONCURRENCY);
+        const results = await Promise.allSettled(
+          chunk.map(async (planId, chunkIdx) => {
+            const globalIdx = batch + chunkIdx;
+            const plan = actionPlans[globalIdx];
+            const riskIdx = riskIds.findIndex(
+              (_id, idx) => risks[idx]?.rule_id === plan.riskRuleId
+            );
+            const risk = riskIdx >= 0 ? risks[riskIdx] : null;
+            if (!risk) return;
+
+            const prazoDias = PRAZO_DAYS[plan.prazo] ?? 60;
+            const dataFim = new Date(today);
+            dataFim.setDate(dataFim.getDate() + prazoDias);
+
+            const suggestions = await generateTaskSuggestions({
+              risco: {
+                titulo: risk.titulo,
+                categoria: risk.categoria,
+                artigo: risk.artigo || null,
+                severidade: risk.severidade,
+                source_priority: risk.source_priority,
+              },
+              plano: {
+                titulo: plan.titulo,
+                responsavel: plan.responsavel,
+                prazo: plan.prazo,
+              },
+              empresa,
+            });
+
+            for (let j = 0; j < suggestions.length; j++) {
+              const s = suggestions[j];
+              const taskId = await insertTaskV4({
+                project_id: projectId,
+                action_plan_id: planId,
+                titulo: s.titulo,
+                descricao: s.descricao || null,
+                responsavel: s.responsavel || plan.responsavel,
+                data_inicio: today,
+                data_fim: dataFim,
+                ordem: j,
+                created_by: ctx.user.id,
+              });
+              await insertAuditLog({
+                project_id: projectId,
+                entity: "task",
+                entity_id: taskId,
+                action: "created",
+                user_id: ctx.user.id,
+                user_name: actor.user_name,
+                user_role: actor.user_role,
+                after_state: {
+                  titulo: s.titulo,
+                  action_plan_id: planId,
+                  generated_by: "llm",
+                },
+              });
+              tasksGenerated++;
+            }
+          })
+        );
+        results
+          .filter((r) => r.status === "rejected")
+          .forEach((r) =>
+            console.warn("[TaskGenerator] falha:", (r as PromiseRejectedResult).reason)
+          );
+      }
+
       return {
         risksGenerated: riskIds.length,
         actionPlansGenerated: planIds.length,
+        tasksGenerated,
         riskIds,
         planIds,
         summary,
@@ -784,7 +877,96 @@ export const risksV4Router = router({
         planIds.push(id);
       }
 
-      return { generated: planIds.length, planIds };
+      // ─── Sprint Z-17 #659: Gerar tarefas para planos criados via LLM ──
+      const empresaProfileBulk = await getProjectById(projectId);
+      const empresaBulk = {
+        cnpj: (empresaProfileBulk?.companyProfile as any)?.cnpj ?? null,
+        cnaes: (Array.isArray(empresaProfileBulk?.confirmedCnaes)
+          ? empresaProfileBulk.confirmedCnaes.map((c: any) => c.code ?? c)
+          : []) as string[],
+        porte: empresaProfileBulk?.companySize
+          ?? (empresaProfileBulk?.companyProfile as any)?.companySize
+          ?? null,
+        regime_tributario: empresaProfileBulk?.taxRegime
+          ?? (empresaProfileBulk?.companyProfile as any)?.taxRegime
+          ?? null,
+      };
+      const todayBulk = new Date();
+      const PRAZO_DAYS_BULK: Record<string, number> = {
+        "30_dias": 30, "60_dias": 60, "90_dias": 90, "180_dias": 180,
+      };
+      let tasksGeneratedBulk = 0;
+
+      for (let batch = 0; batch < planIds.length; batch += 3) {
+        const chunk = planIds.slice(batch, batch + 3);
+        const resultsBulk = await Promise.allSettled(
+          chunk.map(async (planId, chunkIdx) => {
+            const globalIdx = batch + chunkIdx;
+            const plan = actionPlans[globalIdx];
+            const risk = risksWithoutPlans.find(
+              (r) => r.rule_id === plan.riskRuleId
+            );
+            if (!risk) return;
+
+            const prazoDias = PRAZO_DAYS_BULK[plan.prazo] ?? 60;
+            const dataFimBulk = new Date(todayBulk);
+            dataFimBulk.setDate(dataFimBulk.getDate() + prazoDias);
+
+            const suggestions = await generateTaskSuggestions({
+              risco: {
+                titulo: risk.titulo,
+                categoria: risk.categoria,
+                artigo: risk.artigo || null,
+                severidade: risk.severidade,
+                source_priority: risk.source_priority,
+              },
+              plano: {
+                titulo: plan.titulo,
+                responsavel: plan.responsavel,
+                prazo: plan.prazo,
+              },
+              empresa: empresaBulk,
+            });
+
+            for (let j = 0; j < suggestions.length; j++) {
+              const s = suggestions[j];
+              const taskId = await insertTaskV4({
+                project_id: projectId,
+                action_plan_id: planId,
+                titulo: s.titulo,
+                descricao: s.descricao || null,
+                responsavel: s.responsavel || plan.responsavel,
+                data_inicio: todayBulk,
+                data_fim: dataFimBulk,
+                ordem: j,
+                created_by: ctx.user.id,
+              });
+              await insertAuditLog({
+                project_id: projectId,
+                entity: "task",
+                entity_id: taskId,
+                action: "created",
+                user_id: ctx.user.id,
+                user_name: actor.user_name,
+                user_role: actor.user_role,
+                after_state: {
+                  titulo: s.titulo,
+                  action_plan_id: planId,
+                  generated_by: "llm",
+                },
+              });
+              tasksGeneratedBulk++;
+            }
+          })
+        );
+        resultsBulk
+          .filter((r) => r.status === "rejected")
+          .forEach((r) =>
+            console.warn("[TaskGenerator:bulk] falha:", (r as PromiseRejectedResult).reason)
+          );
+      }
+
+      return { generated: planIds.length, planIds, tasksGenerated: tasksGeneratedBulk };
     }),
 
   /**
