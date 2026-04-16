@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v6.9 · 2026-04-16 (Sprint Z-16 ENCERRADA · 9/9 issues · HEAD 1ea954e)** · Responsavel: Orquestrador gera, Manus commita
+> **v6.9 · 2026-04-16 (Sprint Z-16 ENCERRADA · 9/9 issues · HEAD 04eefdd)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v6.9 · **HEAD:** `1ea954e` (github/main) · **Testes:** tsc 0 erros · **Gate 7:** PASS  
+**Baseline:** v6.9 · **HEAD:** `04eefdd` (github/main) · **Testes:** tsc 0 erros · 44 unit tests · **Gate 7:** PASS  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -43,7 +43,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - Mockups HTML Z-15 com data-testid ✅ (PR #599) — 72+35 testids
   - 180_dias adicionado ao Select prazo · PLANS exportado do engine
   - **ACHADO:** catálogo PLANS com 4 chaves legado (GAP-XX-000) vs ruleId composto (categoria::op:X::geo:Y) — fallback ativo
-**Sprint Z-16:** ✅ ENCERRADA · 9/9 issues · PRs #617–#650 · HEAD 1ea954e · Gate 7 PASS
+**Sprint Z-16:** ✅ ENCERRADA · 9/9 issues · PRs #617–#650 · HEAD 04eefdd · Gate 7 PASS
   - fix fallback PLANS por categoria ✅ (#611 → PR #632) — PLANS[ruleId] ?? PLANS[categoria] ?? default
   - calculateComplianceScore v4 ✅ (#622 → PR #634) — score determinístico + snapshot scoringData
   - ConsolidacaoV4 Step 7 completo ✅ (#624 → PR #637) — 27 data-testid · disclaimer · score · riscos · planos · timeline
@@ -51,11 +51,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - PDF diagnóstico jsPDF ✅ (#626 → PR #638) — generateDiagnosticoPDF client-side
   - modal excluir tarefa ✅ (#615 → PR #636) — AlertDialog + motivo min 10 chars + audit log
   - migration tasks NOT NULL ✅ (#614 → PR #639) — data_inicio + data_fim NOT NULL (Opção C)
-  - instrumentação data-testid ActionPlan ✅ (#613 → PR #647) — 40+ data-testid
-  - modal editar tarefa completo ✅ (#614 → PR #648) — campos data_inicio/data_fim + validação
-  - ordenação + badge Atrasada ✅ (#616 → PR #649) — urgência DESC + badge vermelho Atrasada
+  - instrumentação data-testid 20+ ✅ (#613 → PR #647)
+  - modal editar tarefa + z.string().date() ✅ (#614 → PR #648) — updateTaskFull + validação dupla
+  - ordenação overdue + badge Atrasada ✅ (#616 → PR #649) — sortTasks + isOverdue
   - **Gate 7 Smoke Tests (REF_ID=270001):** P1 COUNT=10 ✅ · P2 aliquota_zero+credito_presumido ✅ · P3 0 títulos sujos ✅ · P4 RAG 10/10 (100%) ✅
   - **Deploy:** checkpoint 8620bd66 · iasolaris.manus.space · 2026-04-16
+  - **Governança:** PRE-CLOSE-CHECKLIST CI (#643) · PC-0 1 issue/PR (#644) · Closes vs Refs (#645) · ORQ-18 sync board (#646) · POST-MERGE-GATE (#651)
+  - **Post-mortem:** #614 fechada por migration sem UI → detectado, reaberto, corrigido, regra criada
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -65,7 +67,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `1ea954e`
+- **Branch base:** main · **HEAD:** `04eefdd`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
@@ -89,11 +91,11 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `1ea954e` | ✅ |
+| HEAD (github/main) | `04eefdd` | ✅ |
 | Baseline | **v6.9** | ✅ |
-| Testes passando | tsc 0 erros | ✅ |
+| Testes passando | tsc 0 erros · 44 unit tests | ✅ |
 | TypeScript | 0 erros | ✅ |
-| PRs mergeados (total) | **650 (sessao 16/abr: PRs #617–#650)** | ✅ |
+| PRs mergeados (total) | **651 (sessao 16/abr: PRs #617–#651)** | ✅ |
 | Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · verificacao dupla banco vs migration | ✅ |
 | Gate UX (frontend) | **CONFIAVEL** — UX_DICTIONARY + ux-spec-validator + mockup HTML obrigatorio | ✅ |
 | Gate Spec (5 labels) | **ATIVO** — CI bloqueia PR sem spec-bloco9/adr/contrato/e2e/aprovada | ✅ |
@@ -102,9 +104,11 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Issue Templates | **5** (sprint-issue com 12 blocos + ADR/Contrato/E2E) | ✅ |
 | Sprint Z-14 | **ENCERRADA** — 16 issues · catalogo PLANS · cat-divider · mockups HTML v2 · 9 CTs E2E · 16 regras ORQ | ✅ |
 | Sprint Z-15 | **ENCERRADA** — 4 issues · RAG badge · plans preview · AI suggestion · fix L1107 · PRs #599–#607 | ✅ |
-| Sprint Z-16 | **ENCERRADA** — 9/9 issues · Gate 7 PASS · deploy 8620bd66 · PRs #617–#650 | ✅ |
-| Regras ORQ | **16** (ORQ-00..16) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
+| Sprint Z-16 | **ENCERRADA** — 9/9 issues · Gate 7 PASS · deploy 8620bd66 · PRs #617–#651 · 18 regras ORQ · CI PRE-CLOSE + POST-MERGE | ✅ |
+| Regras ORQ | **18** (ORQ-00..18) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
 | Mockups HTML | **6** (Z-07: 2 + Z-15: 2 + Z-16: 2 com data-testid) no repo | ✅ |
+| CI Workflows | **18 ativos** (validate-pr + pre-close-checklist + post-merge-gate + project-automation) | ✅ |
+| data-testid | **74** (ActionPlanPage: 27 · ConsolidacaoV4: 27 · RiskDashboardV4: 20) | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |

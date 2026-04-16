@@ -27,15 +27,15 @@ Drizzle ORM / Vitest / pnpm
 
 ## Estado atual do projeto (2026-04-16)
 - BASELINE **v7.2** — Sprint Z-16 ENCERRADA · 9/9 issues · PRs #617–#650 · Gate 7 PASS · Deploy ✅ iasolaris.manus.space
-- **HEAD: `1ea954e` (github/main)** · **Checkpoint Manus:** `8620bd66`
-- **PRs mergeados:** 650 · **TypeScript:** 0 erros · **CI:** 17 workflows ativos · **Testes:** 1665 passando
+- **HEAD: `04eefdd` (github/main)** · **Checkpoint Manus:** `8620bd66`
+- **PRs mergeados:** 650+ · **TypeScript:** 0 erros · **CI:** 17 workflows ativos · **Testes:** 1665 passando
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade (GS-08: 0 chunks sem autor)
 - **Skill solaris-contexto:** v4.7 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
 - **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção · Suite E2E automatizada 15 casos ✅ (#364)
 - **E2E Playwright Z-14:** data-testid 17 seletores (#559) · E2E_PROJECT_ID=270001 · fixtures SQL versionadas (#557)
 - **Contratos M1:** CNT-01a/01b/02/03 em `docs/contracts/`
-- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + REGRA-ORQ-12/13
+- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + REGRA-ORQ-12/13 + ORQ-17
 - **Datasets:** `nbs-2-0-utf8.csv` no repo · `lc214-2025.pdf` no sandbox
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
@@ -217,9 +217,7 @@ resolucao_cgibs_001 (2) · resolucao_cgibs_002 (2) · resolucao_cgibs_003 (2)
 - PROVA 3 — TÍTULOS SUJOS: 0 ✅ PASS
 - PROVA 4 — RAG: 10/10 (100.0%) ✅ PASS
 
-**Checkpoint:** `8620bd66` · HEAD `1ea954e` · tsc 0 erros · 1665 testes · Deploy iasolaris.manus.space ✅
-
-**Decisão P.O.:** Issue #614 expandida para modal editar tarefa completo (não apenas datas) — aprovado.
+**Checkpoint:** `8620bd66` · HEAD `04eefdd` · tsc 0 erros · 1665 testes · Deploy iasolaris.manus.space ✅
 
 **tasks.data_inicio / data_fim:** DATE NOT NULL (Opção C) — SHOW COLUMNS verificado 2026-04-16:
 ```

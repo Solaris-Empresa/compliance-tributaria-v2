@@ -3,7 +3,7 @@
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
 > **Versão:** 7.2 — 2026-04-16 (Sprint Z-16 ENCERRADA — 9/9 issues — Gate 7 PASS)
-> **Commit HEAD:** `1ea954e` (pós-Sprint Z-16 ENCERRADA)
+> **Commit HEAD:** `04eefdd` (pós-Sprint Z-16 ENCERRADA)
 > **Checkpoint Manus:** `8620bd66` (deploy iasolaris.manus.space ✅ — Gate 7 PASS 2026-04-16)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
@@ -51,7 +51,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **88** (última: tasks.data_inicio + data_fim NOT NULL — Opção C) | ✅ |
-| PRs mergeados (total) | **650** | ✅ |
+| PRs mergeados (total) | **650+** | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
