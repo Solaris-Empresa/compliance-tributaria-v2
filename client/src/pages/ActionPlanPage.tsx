@@ -41,6 +41,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -225,35 +226,58 @@ function TaskRow({ task, locked, onStatusChange, onDelete }: TaskRowProps) {
           size="icon"
           variant="ghost"
           className="h-6 w-6 text-destructive/70 hover:text-destructive"
-          onClick={() => setDeleting(!deleting)}
+          onClick={() => setDeleting(true)}
         >
           <Trash2 className="h-3 w-3" />
         </Button>
       )}
 
-      {deleting && !locked && (
-        <div className="flex gap-1 ml-1">
-          <input
-            className="text-xs rounded border border-border bg-background px-1.5 py-0.5 w-28 focus:outline-none"
-            placeholder="Motivo"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-          />
-          <Button
-            size="sm"
-            variant="destructive"
-            className="h-6 text-xs px-2"
-            disabled={!reason.trim()}
-            onClick={() => {
-              onDelete(task.id, reason);
-              setDeleting(false);
-              setReason("");
-            }}
-          >
-            OK
-          </Button>
-        </div>
-      )}
+      {/* Modal excluir tarefa (#615) */}
+      <AlertDialog open={deleting} onOpenChange={setDeleting}>
+        <AlertDialogContent data-testid="task-delete-modal">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir tarefa</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. A tarefa será marcada como excluída
+              e o motivo ficará registrado no histórico de auditoria.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2">
+            <Label htmlFor="delete-reason" className="text-sm font-medium">
+              Motivo da exclusão (mínimo 10 caracteres)
+            </Label>
+            <Textarea
+              id="delete-reason"
+              data-testid="task-delete-reason-textarea"
+              className="mt-1.5"
+              placeholder="Descreva o motivo da exclusão..."
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={3}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {reason.length}/10 caracteres
+            </p>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => { setDeleting(false); setReason(""); }}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              data-testid="task-delete-confirm-button"
+              disabled={reason.length < 10}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                onDelete(task.id, reason);
+                setDeleting(false);
+                setReason("");
+              }}
+            >
+              Confirmar exclusão
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
