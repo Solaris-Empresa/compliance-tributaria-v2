@@ -25,17 +25,17 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-15)
-- BASELINE **v7.0** — Sprint Z-15 Lote A · PRs #598–#607 · Deploy ✅ iasolaris.manus.space
-- **HEAD: `78955e2` (github/main)** · **Checkpoint Manus:** `2d203e06`
-- **PRs mergeados:** 607 · **TypeScript:** 0 erros · **CI:** 17 workflows ativos
+## Estado atual do projeto (2026-04-16)
+- BASELINE **v7.1** — Sprint Z-16 Fase 2 · PRs #628–#639 · Deploy ✅ iasolaris.manus.space
+- **HEAD: `2cd17b18` (github/main)** · **Checkpoint Manus:** `f029b541`
+- **PRs mergeados:** 639 · **TypeScript:** 0 erros · **CI:** 17 workflows ativos
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade (GS-08: 0 chunks sem autor)
 - **Skill solaris-contexto:** v4.7 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
 - **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção · Suite E2E automatizada 15 casos ✅ (#364)
 - **E2E Playwright Z-14:** data-testid 17 seletores (#559) · E2E_PROJECT_ID=270001 · fixtures SQL versionadas (#557)
 - **Contratos M1:** CNT-01a/01b/02/03 em `docs/contracts/`
-- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + REGRA-ORQ-12/13
+- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + REGRA-ORQ-12/13/16
 - **Datasets:** `nbs-2-0-utf8.csv` no repo · `lc214-2025.pdf` no sandbox
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
@@ -46,7 +46,25 @@ Drizzle ORM / Vitest / pnpm
 - **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
 - **Bug #545:** ⏳ ABERTO — imports dinâmicos incorretos em diagnostic-source.test.ts (sem impacto em produção)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
-- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · **Z-14 ✅ (16 issues)** · **Z-15 Lote A ✅**
+- **tasks.data_inicio / data_fim:** ✅ DATE NOT NULL no banco (Opção C · PR #639 mergeado)
+- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · **Z-14 ✅ (16 issues)** · **Z-15 Lote A ✅** · **Z-16 Fase 1 ✅** · **Z-16 Fase 2 ✅** · **Z-16 F6 Lotes 1+2+3 ✅**
+
+### Sprint Z-16 Fase 2 — Estado final (2026-04-16)
+| Issue | Título | Status |
+|---|---|---|
+| #614 | tasks.data_inicio + data_fim DATE NOT NULL (Opção C) | ✅ PR #639 mergeado |
+| #611 | fix engine: fallback hierárquico PLANS por categoria | ✅ PR #632 mergeado |
+| #622 | calculateComplianceScore v4 | ✅ PR #634 mergeado |
+| #624 | ConsolidacaoV4 Step 7 completo | ✅ PR #637 mergeado |
+| #625 | redirect ConsolidacaoV4 | ✅ PR #635 mergeado |
+| #626 | PDF diagnóstico jsPDF | ✅ PR #638 mergeado |
+| #615 | modal excluir tarefa | ✅ PR #636 mergeado |
+
+**Checkpoint:** `f029b541` · HEAD `2cd17b18` · tsc 0 erros · 1665 testes passando
+
+**Migration aplicada no banco:** `ALTER TABLE tasks MODIFY data_inicio DATE NOT NULL; ALTER TABLE tasks MODIFY data_fim DATE NOT NULL;` — SHOW COLUMNS: Null=NO para ambas
+
+**Estado do banco:** tasks=0 · audit_log=54 · risks_v4 active=10 (E2E) · projects=1 (id=270001) · RAG preservado (2.515 chunks)
 
 ### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |
@@ -55,12 +73,6 @@ Drizzle ORM / Vitest / pnpm
 | #600 | RAG badge: rag-badge-validated / rag-badge-pending no card de risco | ✅ PR #605 mergeado |
 | #601 | Plans preview: miniatura dos planos inline no card (data-testid="plans-preview") | ✅ PR #607 mergeado |
 | #602 | Sugestão da IA: botão determinístico (PLANS exportado, sem LLM) | ✅ PR #607 mergeado |
-
-**Checkpoint:** `2d203e06` · HEAD `78955e2` · tsc 0 erros · HTTP 200 · Deploy aguardando Publish P.O.
-
-**Migration aplicada no banco:** `ALTER TABLE action_plans MODIFY COLUMN prazo ENUM(+180_dias)` — ENUM confirmado: `enum('30_dias','60_dias','90_dias','180_dias')`
-
-**Limpeza de base executada:** tasks=0 · action_plans=0 · audit_log=0 · risks_v4 active=10 (apenas E2E) · projects=1 (id=270001) · RAG preservado (2.515 chunks)
 
 ## ADR-0016 — Estado atual (2026-04-07)
 
@@ -176,12 +188,12 @@ Drizzle ORM / Vitest / pnpm
 | D | — | Upload 5 leis corpus RAG (376 chunks) | #294→#296 | ✅ |
 | Fix | M-007 | `isNonCompliantAnswer` — bug confidence_score | #295 | ✅ |
 
-## Pendências abertas (pós Sprint Z-15 Lote A)
+## Pendências abertas (pós Sprint Z-16 Fase 2)
 
 | Prioridade | Ação | Responsável | Bloqueio |
 |---|---|---|---|
-| P0 | Testes manuais do P.O. em iasolaris.manus.space (Checkpoint 2d203e06) | P.O. Uires Tapajós | Aguardando Publish |
-| P1 | Sprint Z-15 Lote B — identificar e planejar próximas issues | Orquestrador | Após testes manuais |
+| P0 | Lote 4: #613 (data-testid) → #614 (UI data_inicio/data_fim) → #616 (badge Atrasada) | Manus | Aguarda prompt Orquestrador |
+| P1 | Publish do checkpoint `f029b541` em iasolaris.manus.space | P.O. Uires Tapajós | — |
 | P2 | Fix Bug #545 — imports dinâmicos em diagnostic-source.test.ts (2 linhas) | Manus | — |
 | P3 | IN RFB 2.121/2022 (~200 chunks) | Manus | — |
 | P4 | BL-06: vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts | Manus | — |
@@ -194,4 +206,4 @@ resolucao_cgibs_001 (2) · resolucao_cgibs_002 (2) · resolucao_cgibs_003 (2)
 ## Conflito recorrente
 `client/public/__manus__/version.json` — resolver via `git restore --staged client/public/__manus__/version.json`
 
-*Atualizado em 2026-04-15 · v2.3 · Sprint Z-15 Lote A · PRs #598–#607 · Aprovador: P.O. Uires Tapajós*
+*Atualizado em 2026-04-16 · v2.4 · Sprint Z-16 Fase 2 · PRs #628–#639 · Aprovador: P.O. Uires Tapajós*

@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 7.0 — 2026-04-15 (Sprint Z-15 Lote A — PRs #598–#607)
-> **Commit HEAD:** `78955e2` (pós-Sprint Z-15 Lote A)
-> **Checkpoint Manus:** `2d203e06` (deploy iasolaris.manus.space ✅)
+> **Versão:** 7.1 — 2026-04-16 (Sprint Z-16 Fase 2 — PRs #628–#639)
+> **Commit HEAD:** `2cd17b18` (pós-Sprint Z-16 Fase 2 · github/main)
+> **Checkpoint Manus:** `f029b541` (Sprint Z-16 Fase 2 · db NOT NULL ✅)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -25,8 +25,8 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | **0 erros** | ✅ |
-| Testes automatizados — total | **124/124 passando** (34 CC-01..CC-17 · 17 CC-18..CC-21 · 26/26 Fitness Functions · 47/47 Connection Manifest) | ✅ |
-| Git working tree | Limpo — `main` = `f7b58e7`, sincronizado com GitHub externo | ✅ |
+| Testes automatizados — total | **1665 passando** (unit suite · falha b-z11-012 pré-existente sem impacto) | ✅ |
+| Git working tree | Limpo — `main` = `2cd17b18`, sincronizado com GitHub externo | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
 | Sprint S | Lotes A+B+C+D+E + Fix #295 — ENCERRADA 2026-04-04 | ✅ |
@@ -47,10 +47,13 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z-14 Lote D** | **data-testid 17 seletores (#559) · geração automática riscos pós-briefing (#560) · fixtures E2E (#557) · E2E_PROJECT_ID=270001** | **✅ ENCERRADA 2026-04-14** |
 | **Sprint Z-14 Lote E** | **Gate 0 ✅ · Issue #579 prazo 180_dias migration (#583) · Issue #578 SummaryBar 3 cards · Issue #580 catálogo PLANS · Sprint Log #581. PRs #579–#594 mergeados.** | **✅ ENCERRADA 2026-04-14** |
 | **Sprint Z-15 Lote A** | **fix L1107 modal bulkApprove (#598) · RAG badge rag-badge-validated/pending (#600) · plans-preview inline no card (#601) · Sugestão IA determinística PLANS exportado (#602) · 180_dias no Select. PRs #605+#607 mergeados. Checkpoint 2d203e06.** | **✅ ENCERRADA 2026-04-15** |
+| **Sprint Z-16 Fase 1** | **Docs governance: FLOW Step 7 + UX TELA 3 + DATA_DICTIONARY (#619+#620) · ADR-INDEX Opção B (#617) · migration 0087 tasks.data_inicio/data_fim (#621) · Mockup ActionPlan Z-16 (#628) · ORQ-16 gate F1→F2 (#612) · F3 auditoria 9/9 APROVADAS (#627+#631)** | **✅ CONCLUÍDA 2026-04-15/16** |
+| **Sprint Z-16 Fase 2** | **ALTER TABLE tasks MODIFY data_inicio/data_fim DATE NOT NULL (Opção C) · TaskRow + InsertTaskV4 atualizados · upsertTask defaults · DATA_DICTIONARY corrigido · PR #639 mergeado · tsc 0 erros · 1665 testes passando** | **✅ CONCLUÍDA 2026-04-16** |
+| **Sprint Z-16 F6 Lotes 1+2+3** | **#611 fix engine fallback PLANS (#632) · #622 calculateComplianceScore v4 (#634) · #624 ConsolidacaoV4 Step 7 (#637) · #625 redirect ConsolidacaoV4 (#635) · #626 PDF diagnóstico jsPDF (#638) · #615 modal excluir tarefa (#636)** | **✅ CONCLUÍDA 2026-04-16** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
-| Migrations aplicadas | **77** (última: 0077_add_180_dias_prazo.sql — ENUM prazo +180_dias) | ✅ |
-| PRs mergeados (total) | **607** | ✅ |
+| Migrations aplicadas | **88** (última: 0087_tasks_data_inicio_fim.sql — DATE NOT NULL via ALTER TABLE MODIFY Opção C) | ✅ |
+| PRs mergeados (total) | **639** | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |

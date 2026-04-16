@@ -1,6 +1,6 @@
 # Sprint Z-16 — Log de Execução
 
-**Status:** 🔴 HOLD — Reconciliação E2E obrigatória  
+**Status:** 🟡 EM PROGRESSO — Lote 4 pendente (#613 → #614 → #616)  
 **Milestone:** [#14 Sprint Z-16](https://github.com/Solaris-Empresa/compliance-tributaria-v2/milestone/14)  
 **Decisão P.O.:** 2026-04-15  
 
@@ -123,3 +123,55 @@ data_fim    | date | Null: YES | Default: null  ✅
 
 - **Bloqueio #614 e #616: RESOLVIDO** — colunas existem no banco
 - **Observação para o Orquestrador:** o schema Drizzle (`drizzle/schema.ts`) precisa ser atualizado para refletir `data_inicio` e `data_fim` como `date().nullable()` em vez de `NOT NULL DEFAULT (CURDATE())` — incompatível com TiDB.
+
+---
+
+## Sprint Z-16 Fase 2 — NOT NULL (Opção C) — 16/04/2026
+
+**Autorização P.O.:** Opção C aprovada (MODIFY NOT NULL sem DEFAULT)
+
+### Execução
+
+```sql
+ALTER TABLE tasks
+  MODIFY data_inicio DATE NOT NULL,
+  MODIFY data_fim DATE NOT NULL;
+```
+
+### Verificação SHOW COLUMNS FROM tasks LIKE 'data_%'
+
+```
+data_inicio | date | Null: NO | Default: null  ✅
+data_fim    | date | Null: NO | Default: null  ✅
+```
+
+### Arquivos alterados (PR #639)
+
+| Arquivo | Mudança |
+|---|---|
+| `server/lib/db-queries-risks-v4.ts` | `TaskRow` + `InsertTaskV4` com `data_inicio: Date` e `data_fim: Date` NOT NULL; INSERT SQL atualizado |
+| `server/routers/risks-v4.ts` | `upsertTask` input schema + defaults (`today` / `today+30d`) |
+| `docs/governance/DATA_DICTIONARY.md` | Tipos corrigidos para `DATE NOT NULL` |
+
+### Gate 7
+
+- tsc: 0 erros ✅
+- testes: 1665 passed (falha `b-z11-012` pré-existente, sem regressão) ✅
+- sem DROP COLUMN ✅
+- sem DIAGNOSTIC_READ_MODE=new ✅
+- escopo declarado: 3 arquivos ✅
+
+**PR #639:** https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/639 — mergeado 2026-04-16
+
+---
+
+## Estado atual Z-16 (16/04/2026)
+
+| Lote | Issues | Status |
+|---|---|---|
+| Lote 1 | #622 + #611 | ✅ CONCLUÍDO (PRs #634+#632) |
+| Lote 2 | #624 | ✅ CONCLUÍDO (PR #637) |
+| Lote 3 | #625 + #626 | ✅ CONCLUÍDO (PRs #635+#638) |
+| Lote 4 | #613 → #615 → #614 → #616 | ⏳ PENDENTE (aguarda prompt Orquestrador) |
+
+**Próximo passo:** Orquestrador enviar prompt para Lote 4 (#613 data-testid → #615 já mergeado → #614 UI → #616 badge).
