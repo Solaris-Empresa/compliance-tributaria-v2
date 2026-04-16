@@ -53,6 +53,13 @@ const STATUS_PLAN_LABELS: Record<string, string> = {
   deleted: "Excluído",
 };
 
+const STATUS_TASK_LABELS: Record<string, string> = {
+  todo: "A Fazer",
+  doing: "Em Andamento",
+  done: "Concluída",
+  blocked: "Bloqueada",
+};
+
 const STATUS_TASK_COLORS: Record<string, string> = {
   todo: "bg-slate-100 text-slate-700 border-slate-200",
   doing: "bg-blue-100 text-blue-700 border-blue-200",
@@ -194,17 +201,20 @@ interface TaskRowProps {
   task: {
     id: string;
     titulo: string;
+    descricao?: string | null;
     responsavel: string;
     status: string;
     ordem: number;
+    data_inicio?: string | Date | null;
     data_fim?: string | Date | null;
   };
   locked: boolean;
   onStatusChange: (taskId: string, status: string) => void;
   onDelete: (taskId: string, reason: string) => void;
+  onEdit?: (task: TaskRowProps["task"]) => void;
 }
 
-function TaskRow({ task, locked, onStatusChange, onDelete }: TaskRowProps) {
+function TaskRow({ task, locked, onStatusChange, onDelete, onEdit }: TaskRowProps) {
   const [deleting, setDeleting] = useState(false);
   const [reason, setReason] = useState("");
 
@@ -270,6 +280,18 @@ function TaskRow({ task, locked, onStatusChange, onDelete }: TaskRowProps) {
         >
           Atrasada {days} {days === 1 ? "dia" : "dias"}
         </span>
+      )}
+
+      {!locked && onEdit && (
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-6 w-6 text-blue-600 hover:text-blue-700"
+          title="Editar tarefa"
+          onClick={() => onEdit(task)}
+        >
+          <Pencil className="h-3 w-3" />
+        </Button>
       )}
 
       {!locked && (
@@ -361,6 +383,43 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
   const [deleteReason, setDeleteReason] = useState("");
   const [newTask, setNewTask] = useState({ titulo: "", responsavel: "" });
 
+  // Sprint Z-16 #614 — Task edit modal state
+  const [editingTask, setEditingTask] = useState<TaskRowProps["task"] | null>(null);
+  const [taskForm, setTaskForm] = useState({
+    titulo: "",
+    descricao: "",
+    responsavel: "",
+    status: "todo",
+    dataInicio: "",
+    dataFim: "",
+  });
+
+  const openTaskEdit = (task: TaskRowProps["task"]) => {
+    setEditingTask(task);
+    const fmtDate = (d?: string | Date | null) => {
+      if (!d) return "";
+      if (typeof d === "string") return d.slice(0, 10);
+      return d.toISOString().slice(0, 10);
+    };
+    setTaskForm({
+      titulo: task.titulo,
+      descricao: (task.descricao as string) ?? "",
+      responsavel: task.responsavel,
+      status: task.status,
+      dataInicio: fmtDate(task.data_inicio),
+      dataFim: fmtDate(task.data_fim),
+    });
+  };
+
+  const closeTaskEdit = () => {
+    setEditingTask(null);
+    setTaskForm({ titulo: "", descricao: "", responsavel: "", status: "todo", dataInicio: "", dataFim: "" });
+  };
+
+  const taskDateError = taskForm.dataInicio && taskForm.dataFim && taskForm.dataFim < taskForm.dataInicio
+    ? "Data fim não pode ser anterior à data início"
+    : "";
+
   const tasksQuery = trpc.risksV4.listRisks.useQuery(
     { projectId: plan.project_id },
     { enabled: false }
@@ -391,6 +450,16 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
 
   const updateTaskMutation = trpc.risksV4.upsertTask.useMutation({
     onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId: plan.project_id }),
+  });
+
+  // Sprint Z-16 #614 — Save full task edit
+  const saveTaskEditMutation = trpc.risksV4.upsertTask.useMutation({
+    onSuccess: () => {
+      utils.risksV4.listRisks.invalidate({ projectId: plan.project_id });
+      closeTaskEdit();
+      toast.success("Tarefa atualizada");
+    },
+    onError: (err) => toast.error("Erro ao salvar tarefa", { description: err.message }),
   });
 
   const isApproved = !!plan.approved_at;
@@ -586,7 +655,153 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
             </Button>
           </div>
         )}
+
+        {/* Sprint Z-16 #614 — Task list rendering */}
+        {showTasks && (plan as any).tasks && (
+          <div className="space-y-1.5 mt-2">
+            {sortTasks((plan as any).tasks).map((task: any) => (
+              <TaskRow
+                key={task.id}
+                task={task}
+                locked={isLocked}
+                onStatusChange={(taskId, status) =>
+                  updateTaskMutation.mutate({
+                    projectId: plan.project_id,
+                    actionPlanId: plan.id,
+                    taskId,
+                    titulo: task.titulo,
+                    responsavel: task.responsavel,
+                    status: status as "todo" | "doing" | "done" | "blocked",
+                  })
+                }
+                onDelete={(taskId, reason) =>
+                  deleteTaskMutation.mutate({
+                    projectId: plan.project_id,
+                    taskId,
+                    reason,
+                  })
+                }
+                onEdit={(t) => openTaskEdit(t)}
+              />
+            ))}
+            {(plan as any).tasks.length === 0 && (
+              <p className="text-xs text-muted-foreground py-2">Nenhuma tarefa cadastrada.</p>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Sprint Z-16 #614 — Task edit modal */}
+      <Dialog open={!!editingTask} onOpenChange={(open) => { if (!open) closeTaskEdit(); }}>
+        <DialogContent className="sm:max-w-md" data-testid="task-edit-modal">
+          <DialogHeader>
+            <DialogTitle>Editar tarefa</DialogTitle>
+            <DialogDescription>Altere os campos da tarefa e salve</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="task-titulo">Título *</Label>
+              <Input
+                id="task-titulo"
+                data-testid="task-edit-titulo"
+                value={taskForm.titulo}
+                onChange={(e) => setTaskForm((f) => ({ ...f, titulo: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="task-descricao">Descrição</Label>
+              <Textarea
+                id="task-descricao"
+                data-testid="task-edit-descricao"
+                value={taskForm.descricao}
+                onChange={(e) => setTaskForm((f) => ({ ...f, descricao: e.target.value }))}
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="task-responsavel">Responsável *</Label>
+                <Input
+                  id="task-responsavel"
+                  data-testid="task-edit-responsavel"
+                  value={taskForm.responsavel}
+                  onChange={(e) => setTaskForm((f) => ({ ...f, responsavel: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="task-status">Status</Label>
+                <Select
+                  value={taskForm.status}
+                  onValueChange={(v) => setTaskForm((f) => ({ ...f, status: v }))}
+                >
+                  <SelectTrigger id="task-status" data-testid="task-edit-status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(STATUS_TASK_LABELS).map(([val, label]) => (
+                      <SelectItem key={val} value={val}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="task-data-inicio">Data Início</Label>
+                <Input
+                  id="task-data-inicio"
+                  data-testid="task-edit-data-inicio"
+                  type="date"
+                  value={taskForm.dataInicio}
+                  onChange={(e) => setTaskForm((f) => ({ ...f, dataInicio: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="task-data-fim">Data Fim</Label>
+                <Input
+                  id="task-data-fim"
+                  data-testid="task-edit-data-fim"
+                  type="date"
+                  value={taskForm.dataFim}
+                  onChange={(e) => setTaskForm((f) => ({ ...f, dataFim: e.target.value }))}
+                />
+              </div>
+            </div>
+            {taskDateError && (
+              <p className="text-xs text-destructive">{taskDateError}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeTaskEdit}>Cancelar</Button>
+            <Button
+              disabled={
+                !taskForm.titulo.trim() ||
+                !taskForm.responsavel.trim() ||
+                !!taskDateError ||
+                saveTaskEditMutation.isPending
+              }
+              onClick={() => {
+                if (!editingTask) return;
+                saveTaskEditMutation.mutate({
+                  projectId: plan.project_id,
+                  actionPlanId: plan.id,
+                  taskId: editingTask.id,
+                  titulo: taskForm.titulo,
+                  descricao: taskForm.descricao || undefined,
+                  responsavel: taskForm.responsavel,
+                  status: taskForm.status as "todo" | "doing" | "done" | "blocked",
+                  dataInicio: taskForm.dataInicio || undefined,
+                  dataFim: taskForm.dataFim || undefined,
+                });
+              }}
+            >
+              {saveTaskEditMutation.isPending
+                ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Salvando...</>
+                : "Salvar alterações"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
