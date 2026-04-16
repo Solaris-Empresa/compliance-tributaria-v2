@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.0 · 2026-04-16 (Sprint Z-17 EM PROGRESSO · 1/1 issues · HEAD 85032c6)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.1 · 2026-04-16 (Sprint Z-17 · 2/2 issues · HEAD bf75cd0)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v7.0 · **HEAD:** `85032c6` (github/main) · **Testes:** tsc 0 erros · 44 unit tests  
+**Baseline:** v7.1 · **HEAD:** `bf75cd0` (github/main) · **Testes:** tsc 0 erros · 44 unit tests  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -58,10 +58,11 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - **Deploy:** checkpoint 8620bd66 · iasolaris.manus.space · 2026-04-16
   - **Governança:** PRE-CLOSE-CHECKLIST CI (#643) · PC-0 1 issue/PR (#644) · Closes vs Refs (#645) · ORQ-18 sync board (#646) · POST-MERGE-GATE (#651)
   - **Post-mortem:** #614 fechada por migration sem UI → detectado, reaberto, corrigido, regra criada
-**Sprint Z-17:** 🟡 EM PROGRESSO · 1/1 issues · PRs #655–#657 · HEAD 85032c6
+**Sprint Z-17:** 2/2 issues · PRs #655–#661 · HEAD bf75cd0
   - modal criar tarefa completo ✅ (#655 → PR #657) — taskModalMode create/edit, guard duplo, Tooltip wrapper, toLocaleDateString('en-CA'), form inline removido
-  - **Decisão arquitetural:** tarefas manuais (advogado decide COMO); geração automática descartada (risco jurídico)
-  - **Deploy:** aguardando teste em produção
+  - geração automática tarefas via LLM ✅ (#659 → PR #660) — generateTaskSuggestions via generateWithRetry, Promise.allSettled chunks 3, audit_log generated_by='llm'
+  - **Reversão Z-14:** "tarefas manuais" → "carga inicial LLM + revisão humana" (autorização P.O. 16/04/2026)
+  - **Deploy:** aguardando build + teste em produção
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -71,7 +72,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `85032c6`
+- **Branch base:** main · **HEAD:** `bf75cd0`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
@@ -95,11 +96,11 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `85032c6` | ✅ |
-| Baseline | **v7.0** | ✅ |
+| HEAD (github/main) | `bf75cd0` | ✅ |
+| Baseline | **v7.1** | ✅ |
 | Testes passando | tsc 0 erros · 44 unit tests | ✅ |
 | TypeScript | 0 erros | ✅ |
-| PRs mergeados (total) | **657 (sessao 16/abr: PRs #617–#657)** | ✅ |
+| PRs mergeados (total) | **661 (sessao 16/abr: PRs #617–#661)** | ✅ |
 | Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · verificacao dupla banco vs migration | ✅ |
 | Gate UX (frontend) | **CONFIAVEL** — UX_DICTIONARY + ux-spec-validator + mockup HTML obrigatorio | ✅ |
 | Gate Spec (5 labels) | **ATIVO** — CI bloqueia PR sem spec-bloco9/adr/contrato/e2e/aprovada | ✅ |
@@ -109,7 +110,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Sprint Z-14 | **ENCERRADA** — 16 issues · catalogo PLANS · cat-divider · mockups HTML v2 · 9 CTs E2E · 16 regras ORQ | ✅ |
 | Sprint Z-15 | **ENCERRADA** — 4 issues · RAG badge · plans preview · AI suggestion · fix L1107 · PRs #599–#607 | ✅ |
 | Sprint Z-16 | **ENCERRADA** — 9/9 issues · Gate 7 PASS · deploy 8620bd66 · PRs #617–#651 · 18 regras ORQ · CI PRE-CLOSE + POST-MERGE | ✅ |
-| Sprint Z-17 | **EM PROGRESSO** — 1/1 issues · modal criar tarefa · PRs #655–#657 | 🟡 |
+| Sprint Z-17 | **2/2 issues** — modal criar tarefa + geração LLM · reversão Z-14 · PRs #655–#661 · deploy pendente | 🟡 |
 | Regras ORQ | **18** (ORQ-00..18) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
 | Mockups HTML | **6** (Z-07: 2 + Z-15: 2 + Z-16: 2 com data-testid) no repo | ✅ |
 | CI Workflows | **18 ativos** (validate-pr + pre-close-checklist + post-merge-gate + project-automation) | ✅ |
