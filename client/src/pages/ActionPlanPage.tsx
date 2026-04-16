@@ -378,13 +378,13 @@ interface ActionPlanCardProps {
 function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: ActionPlanCardProps) {
   const utils = trpc.useUtils();
   const [showTasks, setShowTasks] = useState(false);
-  const [showAddTask, setShowAddTask] = useState(false);
   const [showAudit, setShowAudit] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteReason, setDeleteReason] = useState("");
-  const [newTask, setNewTask] = useState({ titulo: "", responsavel: "" });
 
-  // Sprint Z-16 #614 — Task edit modal state
+  // Sprint Z-17 #655 — Task modal state (create + edit unified)
+  const [taskModalMode, setTaskModalMode] = useState<"create" | "edit" | null>(null);
+  const [editingForPlanId, setEditingForPlanId] = useState<string | null>(null);
   const [editingTask, setEditingTask] = useState<TaskRowProps["task"] | null>(null);
   const [taskForm, setTaskForm] = useState({
     titulo: "",
@@ -395,7 +395,18 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
     dataFim: "",
   });
 
+  const openTaskCreate = (planId: string) => {
+    const today = new Date().toLocaleDateString("en-CA");
+    const in30 = new Date(Date.now() + 30 * 86400000).toLocaleDateString("en-CA");
+    setTaskModalMode("create");
+    setEditingForPlanId(planId);
+    setEditingTask(null);
+    setTaskForm({ titulo: "", descricao: "", responsavel: "", status: "todo", dataInicio: today, dataFim: in30 });
+  };
+
   const openTaskEdit = (task: TaskRowProps["task"]) => {
+    setTaskModalMode("edit");
+    setEditingForPlanId(null);
     setEditingTask(task);
     const fmtDate = (d?: string | Date | null) => {
       if (!d) return "";
@@ -412,8 +423,10 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
     });
   };
 
-  const closeTaskEdit = () => {
+  const closeTaskModal = () => {
+    setTaskModalMode(null);
     setEditingTask(null);
+    setEditingForPlanId(null);
     setTaskForm({ titulo: "", descricao: "", responsavel: "", status: "todo", dataInicio: "", dataFim: "" });
   };
 
@@ -431,16 +444,6 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
     { enabled: showAudit }
   );
 
-  const upsertTaskMutation = trpc.risksV4.upsertTask.useMutation({
-    onSuccess: () => {
-      utils.risksV4.listRisks.invalidate({ projectId: plan.project_id });
-      setShowAddTask(false);
-      setNewTask({ titulo: "", responsavel: "" });
-      toast.success("Tarefa adicionada");
-    },
-    onError: (err) => toast.error("Erro ao adicionar tarefa", { description: err.message }),
-  });
-
   const deleteTaskMutation = trpc.risksV4.deleteTask.useMutation({
     onSuccess: () => {
       utils.risksV4.listRisks.invalidate({ projectId: plan.project_id });
@@ -457,8 +460,9 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
   const saveTaskEditMutation = trpc.risksV4.upsertTask.useMutation({
     onSuccess: () => {
       utils.risksV4.listRisks.invalidate({ projectId: plan.project_id });
-      closeTaskEdit();
-      toast.success("Tarefa atualizada");
+      const wasCreate = taskModalMode === "create";
+      closeTaskModal();
+      toast.success(wasCreate ? "Tarefa criada" : "Tarefa atualizada");
     },
     onError: (err) => toast.error("Erro ao salvar tarefa", { description: err.message }),
   });
@@ -608,54 +612,39 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
             Tarefas
             {isLocked && <Lock className="h-2.5 w-2.5 ml-0.5 text-amber-500" />}
           </button>
-          {!isDeleted && !isLocked && (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-6 text-xs gap-1"
-              onClick={() => setShowAddTask(!showAddTask)}
-            >
-              <Plus className="h-3 w-3" />
-              Nova tarefa
-            </Button>
+          {!isDeleted && (
+            isLocked ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-6 text-xs gap-1"
+                      disabled
+                      data-testid="task-create-button"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Nova tarefa
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>Aprove o plano para criar tarefas</TooltipContent>
+              </Tooltip>
+            ) : (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 text-xs gap-1"
+                onClick={() => openTaskCreate(plan.id)}
+                data-testid="task-create-button"
+              >
+                <Plus className="h-3 w-3" />
+                Nova tarefa
+              </Button>
+            )
           )}
         </div>
-
-        {showAddTask && !isLocked && (
-          <div className="mb-2 flex gap-2 flex-wrap">
-            <input
-              className="flex-1 min-w-32 text-xs rounded border border-border bg-background px-2 py-1 focus:outline-none"
-              placeholder="Título da tarefa"
-              value={newTask.titulo}
-              onChange={(e) => setNewTask((t) => ({ ...t, titulo: e.target.value }))}
-            />
-            <input
-              className="w-32 text-xs rounded border border-border bg-background px-2 py-1 focus:outline-none"
-              placeholder="Responsável"
-              value={newTask.responsavel}
-              onChange={(e) => setNewTask((t) => ({ ...t, responsavel: e.target.value }))}
-            />
-            <Button
-              size="sm"
-              className="h-7 text-xs"
-              disabled={!newTask.titulo.trim() || !newTask.responsavel.trim()}
-              onClick={() =>
-                upsertTaskMutation.mutate({
-                  projectId: plan.project_id,
-                  actionPlanId: plan.id,
-                  titulo: newTask.titulo,
-                  responsavel: newTask.responsavel,
-                })
-              }
-            >
-              {upsertTaskMutation.isPending ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                "Adicionar"
-              )}
-            </Button>
-          </div>
-        )}
 
         {/* Sprint Z-16 #614 — Task list rendering */}
         {showTasks && (plan as any).tasks && (
@@ -693,11 +682,13 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
       </div>
 
       {/* Sprint Z-16 #614 — Task edit modal */}
-      <Dialog open={!!editingTask} onOpenChange={(open) => { if (!open) closeTaskEdit(); }}>
+      <Dialog open={taskModalMode !== null} onOpenChange={(open) => { if (!open) closeTaskModal(); }}>
         <DialogContent className="sm:max-w-md" data-testid="task-edit-modal">
           <DialogHeader>
-            <DialogTitle>Editar tarefa</DialogTitle>
-            <DialogDescription>Altere os campos da tarefa e salve</DialogDescription>
+            <DialogTitle>{taskModalMode === "create" ? "Nova tarefa" : "Editar tarefa"}</DialogTitle>
+            <DialogDescription>
+              {taskModalMode === "create" ? "Preencha os campos para criar a tarefa" : "Altere os campos e salve"}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div>
@@ -773,32 +764,35 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeTaskEdit}>Cancelar</Button>
+            <Button variant="outline" onClick={closeTaskModal}>Cancelar</Button>
             <Button
+              data-testid="task-submit-button"
               disabled={
                 !taskForm.titulo.trim() ||
+                taskForm.titulo.trim().length < 3 ||
                 !taskForm.responsavel.trim() ||
                 !!taskDateError ||
                 saveTaskEditMutation.isPending
               }
               onClick={() => {
-                if (!editingTask) return;
+                if (taskModalMode === "edit" && !editingTask) return;
+                if (taskModalMode === "create" && !editingForPlanId) return;
                 saveTaskEditMutation.mutate({
                   projectId: plan.project_id,
-                  actionPlanId: plan.id,
-                  taskId: editingTask.id,
+                  actionPlanId: taskModalMode === "create" ? editingForPlanId! : plan.id,
+                  taskId: taskModalMode === "edit" ? editingTask!.id : undefined,
                   titulo: taskForm.titulo,
                   descricao: taskForm.descricao || undefined,
                   responsavel: taskForm.responsavel,
                   status: taskForm.status as "todo" | "doing" | "done" | "blocked",
-                  dataInicio: taskForm.dataInicio || undefined,
-                  dataFim: taskForm.dataFim || undefined,
+                  dataInicio: taskForm.dataInicio,
+                  dataFim: taskForm.dataFim,
                 });
               }}
             >
               {saveTaskEditMutation.isPending
-                ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Salvando...</>
-                : "Salvar alterações"}
+                ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />{taskModalMode === "create" ? "Criando..." : "Salvando..."}</>
+                : taskModalMode === "create" ? "Criar tarefa" : "Salvar"}
             </Button>
           </DialogFooter>
         </DialogContent>
