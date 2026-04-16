@@ -61,7 +61,7 @@
 - `ALTER TABLE tasks MODIFY data_inicio DATE NOT NULL`
 - `ALTER TABLE tasks MODIFY data_fim DATE NOT NULL`
 - PR #639 mergeado 16/04/2026T14:38:56Z
-- **Manus deve confirmar:** `SHOW COLUMNS FROM tasks LIKE 'data_%'` → NOT NULL
+- **Confirmado por Manus 16/04/2026:** `SHOW COLUMNS FROM tasks LIKE 'data_%'` → NOT NULL ✅
 
 ---
 
@@ -173,4 +173,4 @@ data_fim    | date | Null: YES | Default: null  ✅
 1. **#613** — instrumentação data-testid (frontend puro, sem bloqueio)
 2. **#616** — ordenação + badge Atrasada (depende de schema NOT NULL confirmado no banco)
 3. **Integração** PDF (#638) com botão na ConsolidacaoV4 (#637) — placeholder ativo
-4. **Manus** confirmar `SHOW COLUMNS FROM tasks LIKE 'data_%'` → NOT NULL
+4. **Manus** confirmou `SHOW COLUMNS FROM tasks LIKE 'data_%'` → NOT NULL ✅ (16/04/2026)
