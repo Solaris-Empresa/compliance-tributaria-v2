@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.2 · 2026-04-16 (Sprint Z-17 ENCERRADA · 2/2 issues · HEAD e77dca7)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.3 · 2026-04-17 (Sprint Z-17 · HEAD d6cfcb4 · fix observabilidade TaskGenerator)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v7.2 · **HEAD:** `e77dca7` (github/main) · **Testes:** tsc 0 erros · 1665 unit tests pass  
+**Baseline:** v7.3 · **HEAD:** `d6cfcb4` (github/main) · **Testes:** tsc 0 erros  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -63,6 +63,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - geração automática tarefas via LLM ✅ (#659 → PR #660) — generateTaskSuggestions via generateWithRetry, Promise.allSettled chunks 3, audit_log generated_by='llm'
   - **Reversão Z-14:** "tarefas manuais" → "carga inicial LLM + revisão humana" (autorização P.O. 16/04/2026)
   - **Deploy:** iasolaris.manus.space ✅ — 2026-04-16
+  - **Hotfix #664:** observabilidade TaskGenerator — timeout 15s→45s, console.warn→insertAuditLog (LLM falhava silenciosamente em produção, 8 planos 0 tarefas no projeto 780192)
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
