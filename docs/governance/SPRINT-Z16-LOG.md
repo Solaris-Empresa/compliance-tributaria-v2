@@ -92,3 +92,34 @@
 4. P.O. aprovar execução da migration 0087 (`pnpm db:push`)
 5. Remover `on-hold` de #611 #613 #614 #615 #616
 6. Implementar issues na ordem: Lote 1 (#611 #622) → Lote 2 (#624) → Lote 3 (#625 #626) → Lote 4 (#613 #614 #615 #616)
+
+---
+
+## F6 iniciada — 16/04/2026
+
+**Autorização P.O.:** migration 0087 autorizada em 16/04/2026
+
+### Lotes de implementação
+
+| Lote | Issues | Dependência |
+|---|---|---|
+| Lote 1 | #622 + #611 (engine, paralelo) | — |
+| Lote 2 | #624 (ConsolidacaoV4) | após #622 |
+| Lote 3 | #625 + #626 | após #624 |
+| Lote 4 | #613 → #615 → #614 → #616 | após migration confirmada no banco |
+
+### Migration 0087 — resultado real (16/04/2026)
+
+- `pnpm db:push`: **FALHOU** — `ER_TABLE_EXISTS_ERROR` em `cpie_analysis_history`
+  - Causa: arquivo `0087` criado manualmente no PR #621, **não estava no journal Drizzle**
+  - Solução: `ALTER TABLE` executado diretamente no banco TiDB Cloud
+- TiDB incompatibilidade: `DATE_ADD()` em `DEFAULT` não suportado → colunas criadas com `NULL DEFAULT`
+- `SHOW COLUMNS FROM tasks LIKE 'data_%'`:
+
+```
+data_inicio | date | Null: YES | Default: null  ✅
+data_fim    | date | Null: YES | Default: null  ✅
+```
+
+- **Bloqueio #614 e #616: RESOLVIDO** — colunas existem no banco
+- **Observação para o Orquestrador:** o schema Drizzle (`drizzle/schema.ts`) precisa ser atualizado para refletir `data_inicio` e `data_fim` como `date().nullable()` em vez de `NOT NULL DEFAULT (CURDATE())` — incompatível com TiDB.
