@@ -251,11 +251,22 @@ export const risksV4Router = router({
             }
           })
         );
-        results
-          .filter((r) => r.status === "rejected")
-          .forEach((r) =>
-            console.warn("[TaskGenerator] falha:", (r as PromiseRejectedResult).reason)
-          );
+        for (const r of results) {
+          if (r.status === "rejected") {
+            const errMsg = r.reason instanceof Error ? r.reason.message : String(r.reason);
+            console.error("[TaskGenerator] falha:", errMsg);
+            await insertAuditLog({
+              project_id: projectId,
+              entity: "task",
+              entity_id: "llm_error",
+              action: "created",
+              user_id: ctx.user.id,
+              user_name: actor.user_name,
+              user_role: actor.user_role,
+              after_state: { error: errMsg, generated_by: "llm", step: "generateRisks" },
+            });
+          }
+        }
       }
 
       return {
@@ -959,11 +970,22 @@ export const risksV4Router = router({
             }
           })
         );
-        resultsBulk
-          .filter((r) => r.status === "rejected")
-          .forEach((r) =>
-            console.warn("[TaskGenerator:bulk] falha:", (r as PromiseRejectedResult).reason)
-          );
+        for (const r of resultsBulk) {
+          if (r.status === "rejected") {
+            const errMsg = r.reason instanceof Error ? r.reason.message : String(r.reason);
+            console.error("[TaskGenerator:bulk] falha:", errMsg);
+            await insertAuditLog({
+              project_id: projectId,
+              entity: "task",
+              entity_id: "llm_error",
+              action: "created",
+              user_id: ctx.user.id,
+              user_name: actor.user_name,
+              user_role: actor.user_role,
+              after_state: { error: errMsg, generated_by: "llm", step: "bulkGenerateActionPlans" },
+            });
+          }
+        }
       }
 
       return { generated: planIds.length, planIds, tasksGenerated: tasksGeneratedBulk };
