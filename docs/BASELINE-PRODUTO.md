@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 7.2 — 2026-04-16 (Sprint Z-16 ENCERRADA — 9/9 issues — Gate 7 PASS)
-> **Commit HEAD:** `04eefdd` (pós-Sprint Z-16 ENCERRADA)
-> **Checkpoint Manus:** `8620bd66` (deploy iasolaris.manus.space ✅ — Gate 7 PASS 2026-04-16)
+> **Versão:** 7.3 — 2026-04-16 (Sprint Z-17 ENCERRADA — 2/2 issues — Gate 7 PASS)
+> **Commit HEAD:** `e77dca7` (pós-Sprint Z-17 ENCERRADA)
+> **Checkpoint Manus:** `06614c05` (deploy iasolaris.manus.space ✅ — Gate 7 PASS 2026-04-16)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -48,10 +48,11 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z-14 Lote E** | **Gate 0 ✅ · Issue #579 prazo 180_dias migration (#583) · Issue #578 SummaryBar 3 cards · Issue #580 catálogo PLANS · Sprint Log #581. PRs #579–#594 mergeados.** | **✅ ENCERRADA 2026-04-14** |
 | **Sprint Z-15 Lote A** | **fix L1107 modal bulkApprove (#598) · RAG badge rag-badge-validated/pending (#600) · plans-preview inline no card (#601) · Sugestão IA determinística PLANS exportado (#602) · 180_dias no Select. PRs #605+#607 mergeados. Checkpoint 2d203e06.** | **✅ ENCERRADA 2026-04-15** |
 | **Sprint Z-16** | **9/9 issues · PRs #617–#650 · Gate 7 PASS · Checkpoint 8620bd66 · deploy 2026-04-16. Issues: #611 fallback PLANS · #622 compliance score v4 · #624 ConsolidacaoV4 Step 7 · #625 redirect · #626 PDF jsPDF · #615 modal excluir · #614 migration NOT NULL + modal editar · #613 data-testid · #616 badge Atrasada. Smoke Tests: P1-P4 PASS (REF_ID=270001).** | **✅ ENCERRADA 2026-04-16** |
+| **Sprint Z-17** | **2/2 issues · PRs #657–#662 · Gate 7 PASS · Checkpoint 06614c05 · deploy 2026-04-16. Issues: #655 modal criar tarefa (taskModalMode, guard duplo, Tooltip, timezone-safe) · #659 geração automática tarefas via LLM (generateTaskSuggestions, Promise.allSettled, audit_log). ADR: reversão Z-14 — tarefas LLM carga inicial → revisão humana (P.O. 16/04/2026). HANDOFF PR #661.** | **✅ ENCERRADA 2026-04-16** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **88** (última: tasks.data_inicio + data_fim NOT NULL — Opção C) | ✅ |
-| PRs mergeados (total) | **650+** | ✅ |
+| PRs mergeados (total) | **662** | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
@@ -449,3 +450,4 @@ DROP TABLE IF EXISTS iagen_answers;
 ---
 
 *Documento vivo mantido pela equipe IA SOLARIS. Repositório oficial: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
+*Atualizado em 2026-04-16 (v7.3 · Sprint Z-17 ENCERRADA · Gate 7 PASS · PRs #657–#662 · HEAD e77dca7)*
