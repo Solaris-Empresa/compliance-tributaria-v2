@@ -196,9 +196,10 @@ export const risksV4Router = router({
    * NÃO chama LLM — determinístico (decisão E-G Z-14).
    */
   getActionPlanSuggestion: protectedProcedure
-    .input(z.object({ ruleId: z.string(), riskTitulo: z.string().optional() }))
+    .input(z.object({ ruleId: z.string(), categoria: z.string().optional(), riskTitulo: z.string().optional() }))
     .query(({ input }) => {
-      const suggestions = PLANS[input.ruleId];
+      const suggestions = PLANS[input.ruleId]
+        ?? (input.categoria ? PLANS[input.categoria] : undefined);
       if (suggestions && suggestions.length > 0) {
         return suggestions[0];
       }
