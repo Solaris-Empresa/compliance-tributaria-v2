@@ -1,6 +1,6 @@
 # Sprint Z-16 — Log de Execução
 
-**Status:** 🔴 HOLD — Reconciliação E2E obrigatória  
+**Status:** 🟡 EM PROGRESSO — 7/9 issues fechadas, 2 pendentes (#613 #616)  
 **Milestone:** [#14 Sprint Z-16](https://github.com/Solaris-Empresa/compliance-tributaria-v2/milestone/14)  
 **Decisão P.O.:** 2026-04-15  
 
@@ -15,7 +15,7 @@
 | ✅ DONE | Bloqueador 3: DATA_DICTIONARY campos tasks + scoringData v4 | [#619](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/619) + [#620](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/620) | Mergeados |
 | ✅ DONE | Bloqueador 4: issues Z16 criadas | — | Issues: #611 #613 #614 #615 #616 #622 #624 #625 #626 |
 | ✅ DONE | Bloqueador 5: ADR-INDEX Opção B (normalização lookup ruleId) | [#617](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/617) | Mergeado |
-| ⏳ PENDING | Bloqueador 6: #613 escopo definido | — | Aguardando decisão P.O. |
+| ⏳ PENDING | Bloqueador 6: #613 escopo definido | — | Issue OPEN — aguardando implementação |
 | ✅ DONE | Bloqueador 7: migration 0087 tasks.data_inicio + tasks.data_fim | [#621](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/621) | PR mergeado 15/04/2026T20:00:40Z · HEAD: 8d7ef43 |
 
 ---
@@ -51,13 +51,17 @@
 
 ---
 
-## Verificação banco — SHOW COLUMNS FROM tasks LIKE 'data_%'
+## Verificação banco — tasks.data_inicio / data_fim
 
-**Resultado:** `[]` — campos `data_inicio` e `data_fim` **NÃO existem no banco.**
+### Migration 0087 (PR #621) — campos criados NULLABLE
+- `pnpm db:push` falhou (ER_TABLE_EXISTS_ERROR) → ALTER TABLE manual
+- TiDB: DATE_ADD() em DEFAULT não suportado → criados com NULL DEFAULT
 
-> A migration 0087 foi mergeada no repositório (PR #621, HEAD: 8d7ef43) mas **não foi executada no banco TiDB Cloud**. O arquivo `drizzle/0087_tasks_data_inicio_fim.sql` existe como preview — aguarda `pnpm db:push` com aprovação do P.O.
-
-**Colunas atuais de `tasks`:** `id, project_id, action_plan_id, titulo, descricao, responsavel, prazo, status, ordem, deleted_reason, created_by, created_at, updated_at`
+### Migration Opção C (PR #639) — NOT NULL aplicado
+- `ALTER TABLE tasks MODIFY data_inicio DATE NOT NULL`
+- `ALTER TABLE tasks MODIFY data_fim DATE NOT NULL`
+- PR #639 mergeado 16/04/2026T14:38:56Z
+- **Manus deve confirmar:** `SHOW COLUMNS FROM tasks LIKE 'data_%'` → NOT NULL
 
 ---
 
@@ -123,3 +127,50 @@ data_fim    | date | Null: YES | Default: null  ✅
 
 - **Bloqueio #614 e #616: RESOLVIDO** — colunas existem no banco
 - **Observação para o Orquestrador:** o schema Drizzle (`drizzle/schema.ts`) precisa ser atualizado para refletir `data_inicio` e `data_fim` como `date().nullable()` em vez de `NOT NULL DEFAULT (CURDATE())` — incompatível com TiDB.
+
+---
+
+## F6 Fase 1 — implementação 16/04/2026
+
+### PRs mergeados (12 PRs na sprint)
+
+| PR | Issue | Tipo | Mergeado |
+|---|---|---|---|
+| #617 | — | RN_CONSOLIDACAO_V4.md | 15/04 |
+| #618 | — | Mockup Consolidacao V4 | 15/04 |
+| #619 | — | Bloqueadores 1+2+3 | 15/04 |
+| #620 | — | FLOW + UX + DATA dicionários | 15/04 |
+| #621 | #614 | Migration 0087 (nullable) | 15/04 |
+| #628 | — | Mockup ActionPlanPage Z-16 | 16/04 |
+| #631 | — | Sprint Log F3 re-auditoria | 16/04 |
+| #632 | #611 | fix: fallback PLANS por categoria | 16/04 |
+| #633 | — | Sprint Log F6 iniciada | 16/04 |
+| #634 | #622 | feat: calculateComplianceScore v4 | 16/04 |
+| #635 | #625 | feat: redirect ConsolidacaoV4 | 16/04 |
+| #636 | #615 | feat: modal excluir tarefa | 16/04 |
+| #637 | #624 | feat: ConsolidacaoV4 Step 7 | 16/04 |
+| #638 | #626 | feat: PDF jsPDF client-side | 16/04 |
+| #639 | #614 | db: tasks NOT NULL (Opção C) | 16/04 |
+
+### Issues — estado final
+
+| Issue | Estado | PR |
+|---|---|---|
+| #611 | ✅ CLOSED | #632 |
+| #613 | 🔴 OPEN | — pendente |
+| #614 | ✅ CLOSED | #639 |
+| #615 | ✅ CLOSED | #636 |
+| #616 | 🔴 OPEN | — pendente |
+| #622 | ✅ CLOSED | #634 |
+| #624 | ✅ CLOSED | #637 |
+| #625 | ✅ CLOSED | #635 |
+| #626 | ✅ CLOSED | #638 |
+
+**Progresso: 7/9 (78%)**
+
+### Pendentes para encerrar Sprint Z-16
+
+1. **#613** — instrumentação data-testid (frontend puro, sem bloqueio)
+2. **#616** — ordenação + badge Atrasada (depende de schema NOT NULL confirmado no banco)
+3. **Integração** PDF (#638) com botão na ConsolidacaoV4 (#637) — placeholder ativo
+4. **Manus** confirmar `SHOW COLUMNS FROM tasks LIKE 'data_%'` → NOT NULL

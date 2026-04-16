@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v6.7 · 2026-04-15 (Sprint Z-15 ENCERRADA · 4 issues · HEAD 78955e2)** · Responsavel: Orquestrador gera, Manus commita
+> **v6.8 · 2026-04-16 (Sprint Z-16 EM PROGRESSO · 7/9 issues · HEAD 2cd17b1)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v6.7 · **HEAD:** `78955e2` (github/main) · **Testes:** tsc 0 erros · 124/124 unit  
+**Baseline:** v6.8 · **HEAD:** `2cd17b1` (github/main) · **Testes:** tsc 0 erros  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -43,6 +43,15 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - Mockups HTML Z-15 com data-testid ✅ (PR #599) — 72+35 testids
   - 180_dias adicionado ao Select prazo · PLANS exportado do engine
   - **ACHADO:** catálogo PLANS com 4 chaves legado (GAP-XX-000) vs ruleId composto (categoria::op:X::geo:Y) — fallback ativo
+**Sprint Z-16:** 🟡 EM PROGRESSO · 7/9 issues fechadas · PRs #617–#639 · HEAD 2cd17b1
+  - fix fallback PLANS por categoria ✅ (#611 → PR #632) — PLANS[ruleId] ?? PLANS[categoria] ?? default
+  - calculateComplianceScore v4 ✅ (#622 → PR #634) — score determinístico + snapshot scoringData
+  - ConsolidacaoV4 Step 7 completo ✅ (#624 → PR #637) — 27 data-testid · disclaimer · score · riscos · planos · timeline
+  - redirect ActionPlan → ConsolidacaoV4 ✅ (#625 → PR #635) — btn-ver-consolidacao
+  - PDF diagnóstico jsPDF ✅ (#626 → PR #638) — generateDiagnosticoPDF client-side
+  - modal excluir tarefa ✅ (#615 → PR #636) — AlertDialog + motivo min 10 chars + audit log
+  - migration tasks NOT NULL ✅ (#614 → PR #639) — data_inicio + data_fim NOT NULL (Opção C)
+  - **PENDENTES:** #613 (data-testid instrumentação) · #616 (ordenação + badge Atrasada)
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -52,7 +61,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `78955e2`
+- **Branch base:** main · **HEAD:** `2cd17b1`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
@@ -76,11 +85,11 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `78955e2` | ✅ |
-| Baseline | **v6.7** | ✅ |
-| Testes passando | tsc 0 erros · 124/124 unit | ✅ |
+| HEAD (github/main) | `2cd17b1` | ✅ |
+| Baseline | **v6.8** | ✅ |
+| Testes passando | tsc 0 erros | ✅ |
 | TypeScript | 0 erros | ✅ |
-| PRs mergeados (total) | **607 (sessao 15/abr: PRs #596–#607)** | ✅ |
+| PRs mergeados (total) | **639 (sessao 16/abr: PRs #617–#639)** | ✅ |
 | Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · verificacao dupla banco vs migration | ✅ |
 | Gate UX (frontend) | **CONFIAVEL** — UX_DICTIONARY + ux-spec-validator + mockup HTML obrigatorio | ✅ |
 | Gate Spec (5 labels) | **ATIVO** — CI bloqueia PR sem spec-bloco9/adr/contrato/e2e/aprovada | ✅ |
@@ -89,8 +98,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Issue Templates | **5** (sprint-issue com 12 blocos + ADR/Contrato/E2E) | ✅ |
 | Sprint Z-14 | **ENCERRADA** — 16 issues · catalogo PLANS · cat-divider · mockups HTML v2 · 9 CTs E2E · 16 regras ORQ | ✅ |
 | Sprint Z-15 | **ENCERRADA** — 4 issues · RAG badge · plans preview · AI suggestion · fix L1107 · PRs #599–#607 | ✅ |
-| Regras ORQ | **16** (ORQ-00..15) · RN riscos + planos · FLOW_DICTIONARY · 4 dicionarios | ✅ |
-| Mockups HTML | **4** (Z-07: 2 + Z-15: 2 com data-testid) no repo | ✅ |
+| Sprint Z-16 | **EM PROGRESSO** — 7/9 issues · ConsolidacaoV4 · compliance score · PDF · modal delete · PRs #617–#639 | 🟡 |
+| Regras ORQ | **16** (ORQ-00..16) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
+| Mockups HTML | **6** (Z-07: 2 + Z-15: 2 + Z-16: 2 com data-testid) no repo | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (NÃO alterar) | ✅ |
