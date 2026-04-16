@@ -225,3 +225,9 @@ Criação requer issue própria com aceite separado.
 
 **LIÇÃO:** `Closes #N` ≠ issue resolvida funcionalmente.
 Verificar sempre: grep/data-testid/UI antes de aceitar fechamento.
+
+## Sprint Z-17 iniciada — 16/04/2026
+  Issue: #655 feat(action-plan): modal criar tarefa [P0]
+  F1: DONE (Manus) · F3: 16/16 (Claude Code)
+  F4: DONE (P.O.) · F6: em execução (Claude Code)
+  Milestone: Sprint Z-17 (#15)
