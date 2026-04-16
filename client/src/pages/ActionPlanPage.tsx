@@ -130,7 +130,7 @@ function TraceabilityBanner({ risk, projectId }: { risk: RiskParent; projectId: 
   ];
 
   return (
-    <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border px-4 py-2.5">
+    <div data-testid="traceability-banner" className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border px-4 py-2.5">
       <div className="flex items-center gap-1.5 flex-wrap max-w-4xl mx-auto">
         <span className="text-xs text-muted-foreground mr-1 shrink-0">Rastreabilidade:</span>
         {chips.map((chip, i) => (
@@ -230,6 +230,7 @@ function TaskRow({ task, locked, onStatusChange, onDelete, onEdit }: TaskRowProp
 
   return (
     <div
+      data-testid="task-row"
       className={`flex items-center gap-2 rounded border px-3 py-2 ${
         locked ? "opacity-40 cursor-not-allowed border-border bg-background"
           : taskOverdue ? "border-amber-300 bg-amber-50"
@@ -937,7 +938,7 @@ export default function ActionPlanPage() {
             </p>
           </div>
           {riskIdParam && (
-            <Button size="sm" onClick={() => setShowNewPlan(true)}>
+            <Button data-testid="new-plan-button" size="sm" onClick={() => setShowNewPlan(true)}>
               <Plus className="h-3.5 w-3.5 mr-1.5" />
               Novo plano
             </Button>
@@ -955,11 +956,12 @@ export default function ActionPlanPage() {
               <div className="space-y-3">
                 <div>
                   <Label htmlFor="ap-titulo">Título *</Label>
-                  <Input id="ap-titulo" value={npTitulo} onChange={(e) => setNpTitulo(e.target.value)} placeholder="Min 5 caracteres" maxLength={500} />
+                  <Input data-testid="plan-title-input" id="ap-titulo" value={npTitulo} onChange={(e) => setNpTitulo(e.target.value)} placeholder="Min 5 caracteres" maxLength={500} />
                   {npTitulo.length > 0 && npTitulo.length < 5 && <p className="text-xs text-destructive mt-1">Título muito curto</p>}
                   {!isEditMode && parentRisk && (
+                    <span data-testid="ai-suggestion-box">
                     <button
-                      data-testid="ai-suggestion-btn"
+                      data-testid="ai-suggestion-accept"
                       type="button"
                       className="mt-1 text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer bg-transparent border-none p-0"
                       onClick={async () => {
@@ -978,17 +980,18 @@ export default function ActionPlanPage() {
                     >
                       Sugestão da IA ↗ — clique para usar
                     </button>
+                    </span>
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="ap-resp">Responsável *</Label>
-                    <Input id="ap-resp" value={npResponsavel} onChange={(e) => setNpResponsavel(e.target.value)} placeholder="Nome" />
+                    <Input data-testid="plan-responsavel-select" id="ap-resp" value={npResponsavel} onChange={(e) => setNpResponsavel(e.target.value)} placeholder="Nome" />
                   </div>
                   <div>
                     <Label htmlFor="ap-prazo">Prazo *</Label>
                     <Select value={npPrazo} onValueChange={setNpPrazo}>
-                      <SelectTrigger id="ap-prazo"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectTrigger data-testid="plan-prazo-select" id="ap-prazo"><SelectValue placeholder="Selecione" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="30_dias">30 dias</SelectItem>
                         <SelectItem value="60_dias">60 dias</SelectItem>
@@ -1000,12 +1003,13 @@ export default function ActionPlanPage() {
                 </div>
                 <div>
                   <Label htmlFor="ap-desc">Descrição (opcional)</Label>
-                  <Textarea id="ap-desc" value={npDescricao} onChange={(e) => setNpDescricao(e.target.value)} rows={3} />
+                  <Textarea data-testid="plan-descricao-textarea" id="ap-desc" value={npDescricao} onChange={(e) => setNpDescricao(e.target.value)} rows={3} />
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={closePlanModal}>Cancelar</Button>
                 <Button
+                  data-testid="plan-submit-button"
                   disabled={npTitulo.length < 5 || !npResponsavel || !npPrazo || upsertPlanMutation.isPending}
                   onClick={() => upsertPlanMutation.mutate({
                     projectId,
@@ -1046,8 +1050,8 @@ export default function ActionPlanPage() {
         {!isLoading && !error && (<>
           <Tabs defaultValue="planos">
             <TabsList>
-              <TabsTrigger value="planos">Planos ({allPlans.length})</TabsTrigger>
-              <TabsTrigger value="historico">Histórico ({auditEntries.length})</TabsTrigger>
+              <TabsTrigger data-testid="plans-tab" value="planos">Planos ({allPlans.length})</TabsTrigger>
+              <TabsTrigger data-testid="history-tab" value="historico">Histórico ({auditEntries.length})</TabsTrigger>
             </TabsList>
 
             {/* Tab: Planos */}
@@ -1097,7 +1101,7 @@ export default function ActionPlanPage() {
 
             {/* Tab: Histórico global (audit log) */}
             <TabsContent value="historico">
-              <Card>
+              <Card data-testid="audit-log">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center gap-2">
                     <History className="h-4 w-4 text-muted-foreground" />
