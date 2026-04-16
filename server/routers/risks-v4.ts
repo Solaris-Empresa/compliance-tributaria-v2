@@ -15,6 +15,9 @@ import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { computeRiskMatrix, buildActionPlans } from "../lib/risk-engine-v4";
 import { PLANS } from "../lib/action-plan-engine-v4";
+import { calculateComplianceScore } from "../lib/compliance-score-v4";
+import type { ScoringDataSnapshot } from "../lib/compliance-score-v4";
+import { getProjectById, updateProject, safeParseJson } from "../db";
 import type { GapRule } from "../lib/risk-engine-v4";
 import { generateRisksV4Pipeline } from "../lib/generate-risks-pipeline";
 // Sprint Z-10 PR #B — ACL Gap→Risk
@@ -761,5 +764,45 @@ export const risksV4Router = router({
     .query(async ({ input }) => {
       const entries = await getProjectAuditLog(input.projectId, input.limit);
       return { entries };
+    }),
+
+  /**
+   * 13. calculateAndSaveScore (Sprint Z-16 #622)
+   * Calcula score de compliance v4 deterministicamente e salva snapshot.
+   * RN-CV4-01..07 + RN-CV4-10 + RN-CV4-14
+   */
+  calculateAndSaveScore: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input }) => {
+      const risks = await getRisksV4ByProject(input.projectId);
+
+      const result = calculateComplianceScore(
+        risks.map((r) => ({
+          severidade: r.severidade,
+          confidence: r.confidence,
+          type: r.type,
+          approved_at: r.approved_at,
+        }))
+      );
+
+      // RN-CV4-03 + RN-CV4-10: acrescentar snapshot, nunca deletar
+      const project = await getProjectById(input.projectId);
+      const existing = safeParseJson<{ snapshots?: ScoringDataSnapshot[] }>(
+        project?.scoringData,
+        {}
+      );
+      const snapshots = existing.snapshots ?? [];
+
+      const snapshot: ScoringDataSnapshot = {
+        ...result,
+        calculated_at: new Date().toISOString(),
+      };
+      snapshots.push(snapshot);
+
+      await updateProject(input.projectId, {
+        scoringData: { ...existing, ...result, snapshots },
+      });
+
+      return result;
     }),
 });
