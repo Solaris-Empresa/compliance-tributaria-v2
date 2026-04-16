@@ -96,7 +96,7 @@ Gere as tarefas:`,
     {
       context: "TaskGenerator",
       temperature: 0.3,
-      timeoutMs: 15_000, // 15s por tentativa — pior caso 30s/plano (2 tentativas totais)
+      timeoutMs: 45_000, // 45s por tentativa — pior caso 90s/plano (2 tentativas totais)
       maxRetries: 2, // 2 tentativas totais (attempt 0 + attempt 1)
       enableCache: true, // system prompt fixo → cache GPT-4.1 reduz custo ~75%
     }
