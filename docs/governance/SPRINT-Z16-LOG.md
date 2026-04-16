@@ -6,17 +6,44 @@
 
 ---
 
-## Bloqueadores resolvidos — 15/04/2026
+## Bloqueadores — estado em 15/04/2026T20:30Z
 
 | Status | Bloqueador | PR | Observação |
 |---|---|---|---|
 | ✅ DONE | Bloqueador 1: FLOW_DICTIONARY Step 7 ConsolidacaoV4 | [#619](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/619) | Mergeado |
 | ✅ DONE | Bloqueador 2: UX_DICTIONARY TELA 3 (13 funcionalidades) | [#619](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/619) | Mergeado |
 | ✅ DONE | Bloqueador 3: DATA_DICTIONARY campos tasks + scoringData v4 | [#619](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/619) + [#620](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/620) | Mergeados |
+| ✅ DONE | Bloqueador 4: issues Z16 criadas | — | Issues: #611 #613 #614 #615 #616 #622 #624 #625 #626 |
 | ✅ DONE | Bloqueador 5: ADR-INDEX Opção B (normalização lookup ruleId) | [#617](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/617) | Mergeado |
-| ✅ DONE | Bloqueador 4: issues Z16-F0/F1/F2/F3 | #622/#624/#625/#626 | Criadas por Claude Code |
-| ✅ DONE | Bloqueador 6: #613 escopo definido | — | 18 testids, F3 APROVADA |
-| ✅ DONE | Bloqueador 7: #614 migration 0087 | [#621](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/621) | MERGEADA — data_inicio + data_fim em tasks |
+| ⏳ PENDING | Bloqueador 6: #613 escopo definido | — | Aguardando decisão P.O. |
+| ✅ DONE | Bloqueador 7: migration 0087 tasks.data_inicio + tasks.data_fim | [#621](https://github.com/Solaris-Empresa/compliance-tributaria-v2/pull/621) | PR mergeado 15/04/2026T20:00:40Z · HEAD: 8d7ef43 |
+
+---
+
+## F3 Auditoria — estado em 15/04/2026
+
+**APROVADAS (6):** #611 #613 #614 #615 #622 #624  
+**DEVOLVIDAS (3):** #616 #625 #626
+
+| Issue | Item faltante |
+|---|---|
+| #616 | RN: `INV-AP-10` ausente (1 linha) |
+| #625 | Mockup: `MOCKUP_ACTION_PLAN_PAGE_Z15.html` não referenciado (1 linha) |
+| #626 | Mockup: `MOCKUP_CONSOLIDACAO_V4_Z16.html` não referenciado (1 linha) |
+
+**Pendências críticas:**
+- ❌ `MOCKUP_ACTION_PLAN_PAGE_Z16.html` ausente no repo — Orquestrador precisa commitar
+- ❌ Patches #616 #625 #626 — aguardando Orquestrador
+
+---
+
+## Verificação banco — SHOW COLUMNS FROM tasks LIKE 'data_%'
+
+**Resultado:** `[]` — campos `data_inicio` e `data_fim` **NÃO existem no banco.**
+
+> A migration 0087 foi mergeada no repositório (PR #621, HEAD: 8d7ef43) mas **não foi executada no banco TiDB Cloud**. O arquivo `drizzle/0087_tasks_data_inicio_fim.sql` existe como preview — aguarda `pnpm db:push` com aprovação do P.O.
+
+**Colunas atuais de `tasks`:** `id, project_id, action_plan_id, titulo, descricao, responsavel, prazo, status, ordem, deleted_reason, created_by, created_at, updated_at`
 
 ---
 
@@ -43,35 +70,10 @@
 
 ---
 
-## F3 Auditoria — 15/04/2026 (Claude Code)
+## Próximos passos (aguardando Orquestrador)
 
-| Issue | Score | Veredicto |
-|---|---|---|
-| #611 fallback PLANS | 16/16 | APROVADA |
-| #613 instrumentação testid | 16/16 | APROVADA |
-| #614 modal editar tarefa | 16/16 | APROVADA (Gate 0 atualizado + migration mergeada) |
-| #615 modal excluir tarefa | 16/16 | APROVADA |
-| #616 ordenação + Atrasada | 15/16 | DEVOLVIDA — falta RN cruzada |
-| #622 calculateComplianceScore | 16/16 | APROVADA |
-| #624 ConsolidacaoV4 componente | 16/16 | APROVADA |
-| #625 redirect ConsolidacaoV4 | 15/16 | DEVOLVIDA — falta mockup ref |
-| #626 PDF jsPDF | 15/16 | DEVOLVIDA — falta mockup ref |
-
-## Bloqueadores pendentes
-
-| # | Bloqueador | Status |
-|---|---|---|
-| 1 | MOCKUP_ACTION_PLAN_PAGE_Z16.html | NÃO EXISTE no repo |
-| 2 | #616 patch: adicionar RN cruzada | Orquestrador |
-| 3 | #625 patch: adicionar mockup ref | Orquestrador |
-| 4 | #626 patch: adicionar mockup ref | Orquestrador |
-| 5 | 8 issues sem spec-aprovada | P.O. aplica 5 labels |
-| 6 | 5 issues com on-hold | Remover após patches |
-
-## Próximos passos
-
-1. Orquestrador: patch #616 #625 #626 (3 linhas)
-2. Manus: commitar MOCKUP_ACTION_PLAN_PAGE_Z16.html
-3. P.O.: aplicar spec-aprovada nas 9 issues
-4. Remover on-hold de #611 #613 #614 #615 #616
-5. Implementar na ordem: #611 → #622 → #613 → #624 → #614 → #615 → #625 → #626 → #616
+1. Orquestrador commitar `MOCKUP_ACTION_PLAN_PAGE_Z16.html` em `docs/sprints/Z-16/`
+2. Orquestrador enviar patches das issues #616, #625, #626
+3. P.O. aprovar execução da migration 0087 (`pnpm db:push`)
+4. Retirar HOLD após validação dos patches e execução da migration
+5. Implementar issues na ordem: #611 → #614 → #622 → #624 → #613 → #615 → #616 → #625 → #626
