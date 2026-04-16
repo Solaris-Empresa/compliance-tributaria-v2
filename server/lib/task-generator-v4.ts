@@ -5,10 +5,11 @@
 // Reversão Z-14: "tarefas manuais" → "carga inicial LLM + revisão humana"
 // Autorização P.O.: 16/04/2026
 //
-// fix/task-generator-schema-wrapper (Sprint Z-17):
-// LLM retorna objeto wrapper {tarefas:[]} em vez de array direto [].
+// fix/task-generator-flexible-schema (Sprint Z-17):
+// O LLM retorna objeto wrapper com chave variável (tarefas/tasks/sugestoes/acoes/etc).
 // extractJsonFromLLMResponse extrai o maior bloco {} — que é o wrapper.
-// Solução: schema wrapper z.union aceita ambos os formatos.
+// Solução: z.preprocess extrai o primeiro array encontrado no objeto,
+// independente do nome da chave. Robusto a qualquer variação do LLM.
 
 import { z } from "zod";
 import { generateWithRetry } from "../ai-helpers";
@@ -47,23 +48,34 @@ const TaskSuggestionSchema = z.object({
 const TaskSuggestionsArraySchema = z.array(TaskSuggestionSchema).min(1).max(4);
 
 /**
- * Schema wrapper robusto: aceita array direto [] OU objeto wrapper {tarefas:[]}
- * O LLM (GPT-4.1 / Gemini) frequentemente envolve o array em um objeto.
- * extractJsonFromLLMResponse extrai o maior bloco {} — que é o wrapper, não o array.
- * z.union tenta cada alternativa em ordem e retorna o primeiro match.
+ * Schema robusto: aceita array direto [] OU objeto wrapper com QUALQUER chave.
+ *
+ * Problema: o LLM retorna objeto wrapper com chave variável (tarefas, tasks,
+ * sugestoes, acoes, resultado, items, data, etc). z.union com chaves fixas
+ * falha quando o LLM usa uma chave não prevista.
+ *
+ * Solução: z.preprocess normaliza o input ANTES da validação Zod:
+ * - Se já é array → passa direto
+ * - Se é objeto → extrai o primeiro valor que seja array
+ * - Caso contrário → passa o valor original (Zod vai rejeitar com erro claro)
  */
-const TaskSuggestionsWrapperSchema = z.union([
-  // Formato 1: array direto []
-  TaskSuggestionsArraySchema,
-  // Formato 2: { tarefas: [] }
-  z.object({ tarefas: TaskSuggestionsArraySchema }).transform((v) => v.tarefas),
-  // Formato 3: { tasks: [] }
-  z.object({ tasks: TaskSuggestionsArraySchema }).transform((v) => v.tasks),
-  // Formato 4: { tarefas_sugeridas: [] }
-  z.object({ tarefas_sugeridas: TaskSuggestionsArraySchema }).transform((v) => v.tarefas_sugeridas),
-  // Formato 5: { resultado: [] }
-  z.object({ resultado: TaskSuggestionsArraySchema }).transform((v) => v.resultado),
-]);
+const TaskSuggestionsWrapperSchema = z.preprocess((raw) => {
+  // Já é array → passa direto
+  if (Array.isArray(raw)) return raw;
+
+  // É objeto → extrai o primeiro valor que seja array
+  if (raw !== null && typeof raw === "object") {
+    const obj = raw as Record<string, unknown>;
+    for (const key of Object.keys(obj)) {
+      if (Array.isArray(obj[key])) {
+        return obj[key];
+      }
+    }
+  }
+
+  // Não é array nem objeto com array → retorna como está (Zod vai rejeitar)
+  return raw;
+}, TaskSuggestionsArraySchema);
 
 export type TaskSuggestion = z.infer<typeof TaskSuggestionSchema>;
 
