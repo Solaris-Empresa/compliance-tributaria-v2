@@ -146,6 +146,8 @@ export interface TaskRow {
   descricao: string | null;
   responsavel: string;
   prazo: Date | null;
+  data_inicio: Date;    // Sprint Z-16 #614 — NOT NULL
+  data_fim: Date;       // Sprint Z-16 #614 — NOT NULL
   status: StatusTask;
   ordem: number;
   deleted_reason: string | null;
@@ -161,6 +163,8 @@ export interface InsertTaskV4 {
   descricao?: string | null;
   responsavel: string;
   prazo?: Date | null;
+  data_inicio: Date;    // Sprint Z-16 #614 — NOT NULL
+  data_fim: Date;       // Sprint Z-16 #614 — NOT NULL
   ordem?: number;
   created_by: number;
 }
@@ -463,8 +467,8 @@ export async function insertTaskV4(data: InsertTaskV4): Promise<string> {
   await query(
     `INSERT INTO tasks
       (id, project_id, action_plan_id, titulo, descricao, responsavel, prazo,
-       ordem, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       data_inicio, data_fim, ordem, created_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       id,
       data.project_id,
@@ -473,6 +477,8 @@ export async function insertTaskV4(data: InsertTaskV4): Promise<string> {
       data.descricao ?? null,
       data.responsavel,
       data.prazo ?? null,
+      data.data_inicio,
+      data.data_fim,
       data.ordem ?? 0,
       data.created_by,
     ]

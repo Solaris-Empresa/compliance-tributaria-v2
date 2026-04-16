@@ -142,6 +142,8 @@ SELECT JSON_KEYS([campo_json]) FROM [tabela] WHERE [campo_json] IS NOT NULL LIMI
 | descricao | text | NULL |
 | responsavel | varchar(255) | NULL |
 | prazo | **DATE** | NULL — tasks usa date livre (diferente de action_plans!) |
+| **data_inicio** | **DATE NOT NULL** | Sprint Z-16 #614 — Opção C: MODIFY NOT NULL (sem DEFAULT) |
+| **data_fim** | **DATE NOT NULL** | Sprint Z-16 #614 — Opção C: MODIFY NOT NULL (sem DEFAULT) |
 | status | **ENUM('todo','doing','done','blocked','deleted')** | DEFAULT 'todo' — ⚠️ NAO e 'pendente' |
 | prioridade | enum('alta','media','baixa') | DEFAULT 'media' |
 | ordem | int | DEFAULT 0 |
@@ -152,7 +154,7 @@ SELECT JSON_KEYS([campo_json]) FROM [tabela] WHERE [campo_json] IS NOT NULL LIMI
 
 > **Atenção:** `tasks.prazo` é DATE (campo livre), diferente de `action_plans.prazo` que é ENUM.
 
-> **Verificado em Sprint Z-16 Gate 0 (2026-04-15):** O banco NAO tem `data_inicio` nem `data_fim` na tabela `tasks`. Colunas existentes: id, project_id, action_plan_id, titulo, descricao, responsavel, prazo, status, ordem, deleted_reason, created_by, created_at, updated_at.
+> **Atualizado em Sprint Z-16 Fase 2 (2026-04-16):** `data_inicio` e `data_fim` adicionados como DATE NOT NULL via ALTER TABLE MODIFY (Opção C aprovada pelo P.O.). Interfaces TypeScript `TaskRow` e `InsertTaskV4` atualizadas em `server/lib/db-queries-risks-v4.ts`. Defaults no código: `data_inicio = CURDATE()`, `data_fim = CURDATE() + 30 dias`.
 
 ---
 

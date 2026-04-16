@@ -493,6 +493,8 @@ export const risksV4Router = router({
         descricao: z.string().optional(),
         responsavel: z.string().min(1),
         prazo: z.string().optional(),
+        dataInicio: z.string().optional(), // Sprint Z-16 #614 — ISO date string
+        dataFim: z.string().optional(),    // Sprint Z-16 #614 — ISO date string
         status: z.enum(["todo", "doing", "done", "blocked"]).optional(),
         ordem: z.number().optional(),
       })
@@ -518,6 +520,9 @@ export const risksV4Router = router({
       }
 
       // Insert
+      const today = new Date();
+      const in30Days = new Date(today);
+      in30Days.setDate(in30Days.getDate() + 30);
       const taskId = await insertTaskV4({
         project_id: input.projectId,
         action_plan_id: input.actionPlanId,
@@ -525,6 +530,8 @@ export const risksV4Router = router({
         descricao: input.descricao,
         responsavel: input.responsavel,
         prazo: input.prazo ? new Date(input.prazo) : undefined,
+        data_inicio: input.dataInicio ? new Date(input.dataInicio) : today,
+        data_fim: input.dataFim ? new Date(input.dataFim) : in30Days,
         ordem: input.ordem ?? 0,
         created_by: ctx.user.id,
       });
