@@ -245,27 +245,26 @@ Acoes com efeito cascata confirmado:
 
 "Gerar plano" nao e suficiente. Deve especificar: `status='rascunho'`, `prazo=ENUM`, `insertActionPlanV4WithAudit`.
 
-### REGRA-ORQ-19 — LLM Integration Gate (obrigatorio para features LLM)
+## Convenção de testes LLM
 
-PR que toca `server/lib/*generator*`, `server/ai-helpers*`, ou `server/_core/llm*`:
+Features que envolvem LLM devem incluir:
 
-1. **Teste unitário obrigatório:** `extractJsonFromLLMResponse` deve ter cobertura
-   para arrays [], objetos {}, markdown fences, thinking blocks.
-   CI: `llm-integration-gate.yml` roda automaticamente.
+1. **Teste unitário para extractJson** (`server/lib/extract-json.test.ts`)
+   Cobertura: arrays [], objetos {}, markdown fences, thinking blocks.
+   CI: `llm-integration-gate.yml` roda automaticamente em PRs que tocam LLM.
 
-2. **Teste de integração LLM:** executar localmente antes do merge:
+2. **Teste de integração com LLM real** (`server/lib/*.integration.test.ts`)
+   Executar localmente antes do merge:
    `OPENAI_API_KEY=sk-... pnpm vitest run server/lib/*.integration.test.ts`
-   Verifica que a chamada LLM real retorna dados válidos (não mock).
    CI: roda se OPENAI_API_KEY configurada nos secrets.
 
-3. **Observabilidade obrigatória:** toda chamada LLM que falha deve gravar
-   `insertAuditLog` com mensagem de erro (NÃO `console.warn`).
-   Erros devem ser visíveis na aba Histórico (entity='task', entity_id='llm_error').
+3. **audit_log para observabilidade** (não console.warn como única saída)
+   Toda chamada LLM que falha deve gravar `insertAuditLog`.
+   Erros visíveis na aba Histórico (entity='task', entity_id='llm_error').
 
 4. **Gate 7 PROVA 5:** `tasks >= 10` no projeto de referência.
-   Sprint NÃO encerra sem tarefas geradas em produção.
 
-Causa raiz: Sprint Z-17 — 5 PRs de fix (#664 #666 #667 #673 #674)
+Lição aprendida Sprint Z-17: 5 hotfixes (#664 #666 #667 #673 #674)
 porque LLM falhava silenciosamente sem cobertura de testes.
 
 ### REGRA-ORQ-17 — PRE-CLOSE-CHECKLIST (obrigatorio antes de fechar issue)
