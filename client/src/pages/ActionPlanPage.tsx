@@ -447,6 +447,7 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
   const deleteTaskMutation = trpc.risksV4.deleteTask.useMutation({
     onSuccess: () => {
       utils.risksV4.listRisks.invalidate({ projectId: plan.project_id });
+      utils.risksV4.getProjectAuditLog.invalidate({ projectId: plan.project_id });
       toast.success("Tarefa excluída");
     },
     onError: (err) => toast.error("Erro ao excluir tarefa", { description: err.message }),
@@ -460,6 +461,7 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
   const saveTaskEditMutation = trpc.risksV4.upsertTask.useMutation({
     onSuccess: () => {
       utils.risksV4.listRisks.invalidate({ projectId: plan.project_id });
+      utils.risksV4.getProjectAuditLog.invalidate({ projectId: plan.project_id });
       const wasCreate = taskModalMode === "create";
       closeTaskModal();
       toast.success(wasCreate ? "Tarefa criada" : "Tarefa atualizada");
@@ -833,6 +835,7 @@ export default function ActionPlanPage() {
   const approvePlanMutation = trpc.risksV4.approveActionPlan.useMutation({
     onSuccess: () => {
       utils.risksV4.listRisks.invalidate({ projectId });
+      utils.risksV4.getProjectAuditLog.invalidate({ projectId });
       toast.success("Plano aprovado com sucesso");
     },
     onError: (err) => toast.error("Erro ao aprovar plano", { description: err.message }),
@@ -875,6 +878,7 @@ export default function ActionPlanPage() {
   const deletePlanMutation = trpc.risksV4.deleteActionPlan.useMutation({
     onSuccess: () => {
       utils.risksV4.listRisks.invalidate({ projectId });
+      utils.risksV4.getProjectAuditLog.invalidate({ projectId });
       toast("Plano excluído", { description: "Movido para o histórico." });
     },
     onError: (err) => toast.error("Erro ao excluir plano", { description: err.message }),
