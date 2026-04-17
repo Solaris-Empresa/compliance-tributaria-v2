@@ -48,11 +48,11 @@ jobs:
           fi
 
   move-card-done:
-    name: PR mergeado — Done
+    name: PR mergeado — Done (label + board)
     runs-on: ubuntu-latest
     if: github.event.action == 'closed' && github.event.pull_request.merged == true
     steps:
-      - name: Marcar issue como done
+      - name: Marcar issue como done (label + board Projects V2)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -62,9 +62,69 @@ jobs:
             --repo $REPO \
             --json closingIssuesReferences \
             --jq '.closingIssuesReferences[0].number' 2>/dev/null || echo "")
-          if [ -n "$ISSUE_NUMBER" ]; then
-            echo "Issue #$ISSUE_NUMBER → Done (PR #$PR_NUMBER mergeado)"
-            gh issue edit $ISSUE_NUMBER --repo $REPO \
-              --remove-label "in-progress" \
-              --add-label "done" || true
+
+          if [ -z "$ISSUE_NUMBER" ] || [ "$ISSUE_NUMBER" = "null" ]; then
+            echo "Sem issue vinculada — skip"
+            exit 0
+          fi
+
+          echo "Issue #$ISSUE_NUMBER → Done (PR #$PR_NUMBER mergeado)"
+
+          # Label
+          gh issue edit $ISSUE_NUMBER --repo $REPO \
+            --remove-label "in-progress" \
+            --add-label "done" || true
+
+          # Board Projects V2: mover para Done
+          PROJECT_ID="PVT_kwDOCZgyFM4BUm21"
+          FIELD_ID="PVTSSF_lADOCZgyFM4BUm21zhBt4BI"
+
+          DONE_ID=$(gh api graphql -f query='
+            query {
+              node(id: "'"$PROJECT_ID"'") {
+                ... on ProjectV2 {
+                  fields(first: 20) {
+                    nodes {
+                      ... on ProjectV2SingleSelectField {
+                        name options { id name }
+                      }
+                    }
+                  }
+                }
+              }
+            }' --jq '.data.node.fields.nodes[] | select(.name == "Status") | .options[] | select(.name == "Done") | .id' 2>/dev/null || echo "")
+
+          if [ -z "$DONE_ID" ]; then
+            echo "WARN: Done option not found in board — skip board update"
+            exit 0
+          fi
+
+          ITEM_ID=$(gh api graphql -f query='
+            query {
+              node(id: "'"$PROJECT_ID"'") {
+                ... on ProjectV2 {
+                  items(first: 50) {
+                    nodes {
+                      id
+                      content { ... on Issue { number } }
+                    }
+                  }
+                }
+              }
+            }' --jq ".data.node.items.nodes[] | select(.content.number == $ISSUE_NUMBER) | .id" 2>/dev/null || echo "")
+
+          if [ -n "$ITEM_ID" ]; then
+            gh api graphql -f query='
+              mutation {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: "'"$PROJECT_ID"'"
+                  itemId: "'"$ITEM_ID"'"
+                  fieldId: "'"$FIELD_ID"'"
+                  value: { singleSelectOptionId: "'"$DONE_ID"'" }
+                }) { projectV2Item { id } }
+              }' > /dev/null 2>&1 \
+            && echo "#$ISSUE_NUMBER → Done on board ✅" \
+            || echo "#$ISSUE_NUMBER → board update FAIL (permissions?)"
+          else
+            echo "#$ISSUE_NUMBER not found in project board — skip"
           fi
