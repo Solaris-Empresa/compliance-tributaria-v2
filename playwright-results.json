@@ -1,0 +1,513 @@
+{
+  "config": {
+    "configFile": "/home/ubuntu/compliance-tributaria-v2/playwright.config.ts",
+    "rootDir": "/home/ubuntu/compliance-tributaria-v2",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/ubuntu/compliance-tributaria-v2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/ubuntu/compliance-tributaria-v2",
+        "testIgnore": [],
+        "testMatch": [
+          "tests/e2e/**/*.spec.ts",
+          "playwright/e2e/**/*.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.1",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "tests/e2e/z17-pipeline-completo.spec.ts",
+      "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Z-17 Pipeline Completo",
+          "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+          "line": 101,
+          "column": 6,
+          "specs": [
+            {
+              "title": "CT-01 — Criar projeto com perfil completo",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-8a6dca9c53e71ce7a1dc",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 123,
+              "column": 3
+            },
+            {
+              "title": "CT-02 — Responder Questionário Solaris (Onda 1)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-61da3480e416666eb5a3",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 137,
+              "column": 3
+            },
+            {
+              "title": "CT-03 — Responder Questionário IA Gen (Onda 2)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-a64f78e828b34eff071b",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 155,
+              "column": 3
+            },
+            {
+              "title": "CT-04 — Verificar gaps gerados",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-6801c228e1d6a07b0ab7",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 171,
+              "column": 3
+            },
+            {
+              "title": "CT-04b — Completar 3 camadas de diagnóstico",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-547185a4271628f1cc5d",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 214,
+              "column": 3
+            },
+            {
+              "title": "CT-05 — Briefing gerado com conteúdo",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-1b74de073aafe18d2dd5",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 263,
+              "column": 3
+            },
+            {
+              "title": "CT-06 — Briefing contém dados da empresa",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-56e34fe2ff0f00d24943",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 304,
+              "column": 3
+            },
+            {
+              "title": "CT-07 — Briefing referencia gaps identificados",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-e7bb1a0a1ad744b6aa63",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 325,
+              "column": 3
+            },
+            {
+              "title": "CT-08 — Avançar para Risk Dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-fc8fee07b03792658026",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 347,
+              "column": 3
+            },
+            {
+              "title": "CT-09 — Riscos gerados com categorias corretas",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-ea25b15c906f58b32f3c",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 376,
+              "column": 3
+            },
+            {
+              "title": "CT-10 — Severidade determinística presente",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-c5998599243a55bcfe4a",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 405,
+              "column": 3
+            },
+            {
+              "title": "CT-11 — Oportunidades em seção separada",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-9b18a11979b6d0eb104b",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 429,
+              "column": 3
+            },
+            {
+              "title": "CT-12 — RAG badge visível nos riscos",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-0b1c5da6fd36fd7b57ed",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 445,
+              "column": 3
+            },
+            {
+              "title": "CT-13 — Breadcrumb presente nos riscos",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-c829dd46f566c5748d08",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 463,
+              "column": 3
+            },
+            {
+              "title": "CT-14 — Botão Ver Planos disabled antes de aprovar",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-52f3ad79415e30c7e21b",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 487,
+              "column": 3
+            },
+            {
+              "title": "CT-15 — Bulk approve sem auto-geração nem redirect",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-8cebc5fbaf0fae53e6c6",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 511,
+              "column": 3
+            },
+            {
+              "title": "CT-16 — Botão Ver Planos habilitado após aprovação",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-82fc4ac2aa3eb6ce8a04",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 557,
+              "column": 3
+            },
+            {
+              "title": "CT-17 — Clicar Ver Planos gera planos + tarefas LLM",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-e61afc60a7b38b1e652f",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 579,
+              "column": 3
+            },
+            {
+              "title": "CT-18 — Cada plano tem 2-4 tarefas geradas",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-45fd0594aa4c4965ebc1",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 619,
+              "column": 3
+            },
+            {
+              "title": "CT-19 — Audit log mostra criação automática",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-39e90e0b54da25429841",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 657,
+              "column": 3
+            },
+            {
+              "title": "CT-20 — Criar tarefa manual via modal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a920142000cf4244206b-0650543239088310947e",
+              "file": "tests/e2e/z17-pipeline-completo.spec.ts",
+              "line": 694,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-04-17T02:14:32.015Z",
+    "duration": 320.25299999999993,
+    "expected": 0,
+    "skipped": 21,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
