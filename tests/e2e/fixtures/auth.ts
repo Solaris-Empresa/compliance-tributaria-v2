@@ -6,8 +6,11 @@
  *
  * COOKIE: app_session_id (definido em shared/const.ts)
  * CLIENT_ID fixo: 9999 (demo@iasolaris.com.br — Advocacia & Contabilidade Ltda)
+ *
+ * Fix v2: usar page.request em vez de playwrightRequest.newContext para evitar
+ * fechamento acidental do browser context ao chamar ctx.dispose().
  */
-import { type Page, request as playwrightRequest } from '@playwright/test';
+import { type Page } from '@playwright/test';
 
 const BASE_URL = process.env.E2E_BASE_URL || 'https://iasolaris.manus.space';
 const TEST_SECRET = process.env.E2E_TEST_SECRET || '';
@@ -17,46 +20,34 @@ const E2E_CLIENT_ID = 9999;
 
 /**
  * Autentica a página via endpoint testLogin (sem OAuth).
- * Injeta o cookie app_session_id na página e navega para /projetos.
+ * Usa page.request para manter o mesmo contexto do browser.
  */
 export async function loginViaTestEndpoint(page: Page): Promise<void> {
-  const ctx = await playwrightRequest.newContext({ baseURL: BASE_URL });
-
-  const res = await ctx.post('/api/trpc/auth.testLogin', {
+  const res = await page.request.post(`${BASE_URL}/api/trpc/auth.testLogin`, {
     data: { json: { testSecret: TEST_SECRET } },
     headers: { 'Content-Type': 'application/json' },
   });
-
   if (!res.ok()) {
     const body = await res.text();
     throw new Error(`testLogin falhou: ${res.status()} — ${body}`);
   }
-
-  // Transferir cookies da sessão para a página
-  const storageState = await ctx.storageState();
-  await page.context().addCookies(storageState.cookies);
-  await ctx.dispose();
-
-  await page.goto('/projetos');
+  await page.goto(`${BASE_URL}/projetos`);
   await page.waitForURL(/\/projetos/, { timeout: 15000 });
 }
 
 /**
  * Cria um projeto via tRPC API com payload mínimo válido.
  * Retorna o ID do projeto criado (string).
+ *
+ * Fix: description >= 50 chars (schema validation).
+ * Fix: API retorna { projectId: N } — extrair corretamente.
+ * Fix v2: usa page.request para manter cookies do browser context.
  */
 export async function criarProjetoViaApi(page: Page, nome: string = 'UAT E2E Auto'): Promise<string> {
-  const ctx = await playwrightRequest.newContext({ baseURL: BASE_URL });
-
-  // Transferir cookies de autenticação para o contexto da API
-  const cookies = await page.context().cookies();
-  await ctx.storageState(); // inicializar
-  // Usar fetch direto com cookies no header
-  const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
-
   const payload = {
     name: nome,
-    description: `Projeto de teste E2E automatizado criado em ${new Date().toISOString()}. Utilizado para validação do fluxo UAT SOLARIS Onda 1 → Onda 2 → Corporativo.`,
+    // Fix: descrição mínima de 50 caracteres exigida pelo schema do servidor
+    description: `Projeto de teste E2E automatizado — validação do pipeline completo Sprint Z-17. Criado em ${new Date().toISOString()}.`,
     clientId: E2E_CLIENT_ID,
     companyProfile: {
       cnpj: '00.000.000/0001-00',
@@ -71,12 +62,9 @@ export async function criarProjetoViaApi(page: Page, nome: string = 'UAT E2E Aut
     },
   };
 
-  const res = await ctx.post('/api/trpc/fluxoV3.createProject', {
+  const res = await page.request.post(`${BASE_URL}/api/trpc/fluxoV3.createProject`, {
     data: { json: payload },
-    headers: {
-      'Content-Type': 'application/json',
-      'Cookie': cookieHeader,
-    },
+    headers: { 'Content-Type': 'application/json' },
   });
 
   if (!res.ok()) {
@@ -84,13 +72,16 @@ export async function criarProjetoViaApi(page: Page, nome: string = 'UAT E2E Aut
     throw new Error(`createProject falhou: ${res.status()} — ${body}`);
   }
 
-  const json = await res.json() as { result?: { data?: { json?: number } } };
-  const projectId = json?.result?.data?.json;
+  // Fix: API retorna { projectId: N } — não um número direto
+  const json = await res.json() as { result?: { data?: { json?: { projectId?: number } | number } } };
+  const raw = json?.result?.data?.json;
+  const projectId = typeof raw === 'object' && raw !== null
+    ? (raw as { projectId?: number }).projectId
+    : (raw as number | undefined);
 
   if (!projectId) {
     throw new Error(`createProject não retornou projectId: ${JSON.stringify(json)}`);
   }
 
-  await ctx.dispose();
   return String(projectId);
 }
