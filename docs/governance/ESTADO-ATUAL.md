@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.3 · 2026-04-17 (Sprint Z-17 · HEAD d6cfcb4 · fix observabilidade TaskGenerator)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.4 · 2026-04-17 (Sprint Z-17 · 3/3 issues · HEAD 8741624)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v7.3 · **HEAD:** `d6cfcb4` (github/main) · **Testes:** tsc 0 erros  
+**Baseline:** v7.4 · **HEAD:** `8741624` (github/main) · **Testes:** tsc 0 erros  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -63,7 +63,11 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - geração automática tarefas via LLM ✅ (#659 → PR #660) — generateTaskSuggestions via generateWithRetry, Promise.allSettled chunks 3, audit_log generated_by='llm'
   - **Reversão Z-14:** "tarefas manuais" → "carga inicial LLM + revisão humana" (autorização P.O. 16/04/2026)
   - **Deploy:** iasolaris.manus.space ✅ — 2026-04-16
-  - **Hotfix #664:** observabilidade TaskGenerator — timeout 15s→45s, console.warn→insertAuditLog (LLM falhava silenciosamente em produção, 8 planos 0 tarefas no projeto 780192)
+  - **Hotfix #664:** observabilidade TaskGenerator — timeout 15s→45s, console.warn→insertAuditLog
+  - **Hotfix #666:** schema wrapper z.union — LLM retorna {tarefas:[]} ao invés de [] (Manus)
+  - **Hotfix #667:** schema flexível z.preprocess — extrai array de qualquer chave wrapper (Manus)
+  - **#668 → PR #670:** gatilho Ver Planos — geração planos+tarefas no clique do botão, não na aprovação. Botão condicional (disabled se 0 aprovados). Remove auto-geração do bulkApprove.
+  - **PRs totais Z-17:** #655–#670 (7 PRs produto + 3 hotfixes + docs)
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -97,11 +101,11 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `e77dca7` | ✅ |
-| Baseline | **v7.2** | ✅ |
-| Testes passando | tsc 0 erros · 1665 unit tests pass (1 file pré-existente Z-11 fora do escopo) | ✅ |
+| HEAD (github/main) | `8741624` | ✅ |
+| Baseline | **v7.4** | ✅ |
+| Testes passando | tsc 0 erros | ✅ |
 | TypeScript | 0 erros | ✅ |
-| PRs mergeados (total) | **662 (sessão 16/abr: PRs #617–#662)** | ✅ |
+| PRs mergeados (total) | **670 (sessão 16-17/abr: PRs #617–#670)** | ✅ |
 | Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · verificacao dupla banco vs migration | ✅ |
 | Gate UX (frontend) | **CONFIAVEL** — UX_DICTIONARY + ux-spec-validator + mockup HTML obrigatorio | ✅ |
 | Gate Spec (5 labels) | **ATIVO** — CI bloqueia PR sem spec-bloco9/adr/contrato/e2e/aprovada | ✅ |
@@ -111,7 +115,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Sprint Z-14 | **ENCERRADA** — 16 issues · catalogo PLANS · cat-divider · mockups HTML v2 · 9 CTs E2E · 16 regras ORQ | ✅ |
 | Sprint Z-15 | **ENCERRADA** — 4 issues · RAG badge · plans preview · AI suggestion · fix L1107 · PRs #599–#607 | ✅ |
 | Sprint Z-16 | **ENCERRADA** — 9/9 issues · Gate 7 PASS · deploy 8620bd66 · PRs #617–#651 · 18 regras ORQ · CI PRE-CLOSE + POST-MERGE | ✅ |
-| Sprint Z-17 | **ENCERRADA** — 2/2 issues · Gate 7 PASS · deploy 06614c05 · PRs #657–#662 | ✅ |
+| Sprint Z-17 | **3/3 issues** — modal criar tarefa + geração LLM + gatilho Ver Planos · PRs #655–#670 · deploy pendente | 🟡 |
 | Regras ORQ | **18** (ORQ-00..18) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
 | Mockups HTML | **6** (Z-07: 2 + Z-15: 2 + Z-16: 2 com data-testid) no repo | ✅ |
 | CI Workflows | **18 ativos** (validate-pr + pre-close-checklist + post-merge-gate + project-automation) | ✅ |
