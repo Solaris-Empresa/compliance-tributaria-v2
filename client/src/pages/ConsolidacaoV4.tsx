@@ -8,6 +8,7 @@
 import { useMemo, useEffect } from "react";
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { generateDiagnosticoPDF } from "@/lib/generateDiagnosticoPDF";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -450,7 +451,44 @@ export default function ConsolidacaoV4() {
             data-testid="btn-download-pdf"
             variant="outline"
             size="sm"
-            onClick={() => toast.info("PDF será implementado na issue #626")}
+            onClick={() => {
+              generateDiagnosticoPDF({
+                cnpj: undefined,
+                score: score?.score ?? 0,
+                nivel: score?.nivel ?? "baixo",
+                totalAlta: score?.total_alta ?? 0,
+                totalMedia: score?.total_media ?? 0,
+                risks: approvedRisks.map((r: any) => ({
+                  titulo: r.titulo,
+                  categoria: r.categoria,
+                  severidade: r.severidade,
+                  artigo: r.artigo || "",
+                  source_priority: r.source_priority,
+                  rag_validated: r.rag_validated,
+                })),
+                opportunities: opportunities.map((o: any) => ({
+                  titulo: o.titulo,
+                  categoria: o.categoria,
+                  artigo: o.artigo || "",
+                })),
+                plans: approvedPlans.map((p: any) => ({
+                  titulo: p.titulo,
+                  responsavel: p.responsavel,
+                  prazo: p.prazo,
+                  status: p.status,
+                  tasks: p.tasks?.map((t: any) => ({
+                    titulo: t.titulo,
+                    status: t.status,
+                    data_fim: t.data_fim
+                      ? (t.data_fim instanceof Date
+                          ? t.data_fim.toLocaleDateString("pt-BR")
+                          : String(t.data_fim).slice(0, 10))
+                      : null,
+                  })),
+                })),
+              });
+              toast.success("PDF gerado com sucesso");
+            }}
           >
             <Download className="h-3.5 w-3.5 mr-1.5" />
             Baixar diagnóstico (PDF)
