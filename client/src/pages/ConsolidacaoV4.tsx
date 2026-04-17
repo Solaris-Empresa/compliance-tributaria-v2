@@ -27,6 +27,16 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/** Converte qualquer valor para string segura para JSX (previne React error #31) */
+function safeStr(val: unknown): string {
+  if (val === null || val === undefined) return "—";
+  if (val instanceof Date) return val.toLocaleDateString("pt-BR");
+  if (typeof val === "object") return JSON.stringify(val);
+  return String(val);
+}
+
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const DISCLAIMER = `AVISO LEGAL: Este diagnóstico é uma ferramenta de apoio à decisão tributária elaborada com base nas informações fornecidas pela empresa. Os resultados apresentados — incluindo a identificação de riscos, oportunidades e planos de ação — NÃO constituem parecer jurídico. Toda classificação e recomendação deve ser validada por advogado tributarista ou contador habilitado antes de qualquer ação fiscal, contábil ou de compliance. A severidade dos riscos é determinística (baseada em tabelas normativas), mas a aplicabilidade ao caso concreto depende de análise humana qualificada. IA SOLARIS não se responsabiliza por decisões tomadas sem a devida validação profissional.`;
@@ -329,7 +339,7 @@ export default function ConsolidacaoV4() {
               {deletedRisks.map((r: any) => (
                 <div key={r.id} data-testid="risco-desconsiderado-row" className="flex items-center gap-2 text-xs text-muted-foreground border-b last:border-0 py-1.5">
                   <span className="truncate">{r.titulo}</span>
-                  <span className="ml-auto shrink-0 italic">{r.deleted_reason ?? "—"}</span>
+                  <span className="ml-auto shrink-0 italic">{safeStr(r.deleted_reason)}</span>
                 </div>
               ))}
             </CardContent>
@@ -367,11 +377,7 @@ export default function ConsolidacaoV4() {
                         }`} />
                         <span className="truncate">{task.titulo}</span>
                         <span className="text-muted-foreground ml-auto shrink-0">
-                          {task.data_fim
-                            ? (task.data_fim instanceof Date
-                                ? task.data_fim.toLocaleDateString("pt-BR")
-                                : String(task.data_fim).slice(0, 10))
-                            : "—"}
+                          {safeStr(task.data_fim)}
                         </span>
                       </div>
                     ))}
