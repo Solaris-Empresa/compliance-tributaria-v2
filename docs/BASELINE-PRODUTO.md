@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 7.3 — 2026-04-16 (Sprint Z-17 ENCERRADA — 2/2 issues — Gate 7 PASS)
-> **Commit HEAD:** `e77dca7` (pós-Sprint Z-17 ENCERRADA)
-> **Checkpoint Manus:** `06614c05` (deploy iasolaris.manus.space ✅ — Gate 7 PASS 2026-04-16)
+> **Versão:** 7.5 — 2026-04-17 (Sprint Z-17 Gate E2E PASS — 21/21 CTs — PR #677)
+> **Commit HEAD:** `d3ea681` (pós-PR #677 mergeado)
+> **Checkpoint Manus:** `34a0bae3` (deploy iasolaris.manus.space ✅ — Gate E2E Z-17 PASS 2026-04-17)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -49,12 +49,13 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z-15 Lote A** | **fix L1107 modal bulkApprove (#598) · RAG badge rag-badge-validated/pending (#600) · plans-preview inline no card (#601) · Sugestão IA determinística PLANS exportado (#602) · 180_dias no Select. PRs #605+#607 mergeados. Checkpoint 2d203e06.** | **✅ ENCERRADA 2026-04-15** |
 | **Sprint Z-16** | **9/9 issues · PRs #617–#650 · Gate 7 PASS · Checkpoint 8620bd66 · deploy 2026-04-16. Issues: #611 fallback PLANS · #622 compliance score v4 · #624 ConsolidacaoV4 Step 7 · #625 redirect · #626 PDF jsPDF · #615 modal excluir · #614 migration NOT NULL + modal editar · #613 data-testid · #616 badge Atrasada. Smoke Tests: P1-P4 PASS (REF_ID=270001).** | **✅ ENCERRADA 2026-04-16** |
 | **Sprint Z-17** | **2/2 issues · PRs #657–#662 · Gate 7 PASS · Checkpoint 06614c05 · deploy 2026-04-16. Issues: #655 modal criar tarefa (taskModalMode, guard duplo, Tooltip, timezone-safe) · #659 geração automática tarefas via LLM (generateTaskSuggestions, Promise.allSettled, audit_log). ADR: reversão Z-14 — tarefas LLM carga inicial → revisão humana (P.O. 16/04/2026). HANDOFF PR #661.** | **✅ ENCERRADA 2026-04-16** |
+| **Sprint Z-17 Hotfixes** | **PR #674: fix dual extractJsonFromLLMResponse (arrays []) + geração retroativa de tarefas. PR #677: Gate E2E 21/21 PASS — fixtures robustos + CT-04b + timeouts produção. Banco limpo (legado removido, RAG preservado). Checkpoint 34a0bae3.** | **✅ 2026-04-17** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **88** (última: tasks.data_inicio + data_fim NOT NULL — Opção C) | ✅ |
-| PRs mergeados (total) | **662** | ✅ |
+| PRs mergeados (total) | **677** | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
-| Suite E2E automatizada | 15 casos (cnaes_confirmados → aprovado) | ✅ |
+| Suite E2E automatizada | **21 casos Z-17 PASS** (pipeline completo: rascunho → tarefas LLM aprovadas) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
 | BUG-UAT-09 | ✅ CORRIGIDO (PR #365) | ✅ |
 | BUG-UAT-PDF-01 | ✅ CORRIGIDO (PR #365) | ✅ |
