@@ -842,7 +842,119 @@ export const risksV4Router = router({
       );
 
       if (risksWithoutPlans.length === 0) {
-        return { generated: 0, planIds: [] };
+        // Sprint Z-17: planos já existem — verificar se têm tarefas
+        // Se planos com 0 tarefas: gerar tarefas via LLM (carga inicial retroativa)
+        const plansWithoutTasks: Array<{ planId: string; riskId: string }> = [];
+        for (const plan of existingPlans) {
+          const tasks = await getTasksByActionPlan(plan.id);
+          if (tasks.length === 0) {
+            plansWithoutTasks.push({ planId: plan.id, riskId: plan.risk_id });
+          }
+        }
+
+        if (plansWithoutTasks.length === 0) {
+          return { generated: 0, planIds: [], tasksGenerated: 0 };
+        }
+
+        // Gerar tarefas para planos existentes sem tarefas
+        const empresaProfileRetro = await getProjectById(projectId);
+        const empresaRetro = {
+          cnpj: (empresaProfileRetro?.companyProfile as any)?.cnpj ?? null,
+          cnaes: (Array.isArray(empresaProfileRetro?.confirmedCnaes)
+            ? empresaProfileRetro.confirmedCnaes.map((c: any) => c.code ?? c)
+            : []) as string[],
+          porte: empresaProfileRetro?.companySize
+            ?? (empresaProfileRetro?.companyProfile as any)?.companySize
+            ?? null,
+          regime_tributario: empresaProfileRetro?.taxRegime
+            ?? (empresaProfileRetro?.companyProfile as any)?.taxRegime
+            ?? null,
+        };
+        const todayRetro = new Date();
+        const PRAZO_DAYS_RETRO: Record<string, number> = {
+          "30_dias": 30, "60_dias": 60, "90_dias": 90, "180_dias": 180,
+        };
+        let tasksGeneratedRetro = 0;
+
+        for (let batch = 0; batch < plansWithoutTasks.length; batch += 3) {
+          const chunk = plansWithoutTasks.slice(batch, batch + 3);
+          const resultsRetro = await Promise.allSettled(
+            chunk.map(async ({ planId, riskId }) => {
+              const plan = existingPlans.find((p) => p.id === planId);
+              const risk = approvedRisks.find((r) => r.id === riskId);
+              if (!plan || !risk) return;
+
+              const prazoDias = PRAZO_DAYS_RETRO[plan.prazo] ?? 60;
+              const dataFimRetro = new Date(todayRetro);
+              dataFimRetro.setDate(dataFimRetro.getDate() + prazoDias);
+
+              const suggestions = await generateTaskSuggestions({
+                risco: {
+                  titulo: risk.titulo,
+                  categoria: risk.categoria,
+                  artigo: risk.artigo || null,
+                  severidade: risk.severidade,
+                  source_priority: risk.source_priority,
+                },
+                plano: {
+                  titulo: plan.titulo,
+                  responsavel: plan.responsavel,
+                  prazo: plan.prazo,
+                },
+                empresa: empresaRetro,
+              });
+
+              for (let j = 0; j < suggestions.length; j++) {
+                const s = suggestions[j];
+                const taskId = await insertTaskV4({
+                  project_id: projectId,
+                  action_plan_id: planId,
+                  titulo: s.titulo,
+                  descricao: s.descricao || null,
+                  responsavel: s.responsavel || plan.responsavel,
+                  data_inicio: todayRetro,
+                  data_fim: dataFimRetro,
+                  ordem: j,
+                  created_by: ctx.user.id,
+                });
+                await insertAuditLog({
+                  project_id: projectId,
+                  entity: "task",
+                  entity_id: taskId,
+                  action: "created",
+                  user_id: ctx.user.id,
+                  user_name: actor.user_name,
+                  user_role: actor.user_role,
+                  after_state: {
+                    titulo: s.titulo,
+                    action_plan_id: planId,
+                    generated_by: "llm",
+                    retroactive: true,
+                  },
+                });
+                tasksGeneratedRetro++;
+              }
+            })
+          );
+          for (const r of resultsRetro) {
+            if (r.status === "rejected") {
+              const errMsg = r.reason instanceof Error ? r.reason.message : String(r.reason);
+              console.error("[TaskGenerator:retro] falha:", errMsg);
+              await insertAuditLog({
+                project_id: projectId,
+                entity: "task",
+                entity_id: "llm_error",
+                action: "created",
+                user_id: ctx.user.id,
+                user_name: actor.user_name,
+                user_role: actor.user_role,
+                after_state: { error: errMsg, generated_by: "llm", step: "retroactive" },
+              });
+            }
+          }
+        }
+
+        return { generated: 0, planIds: [], tasksGenerated: tasksGeneratedRetro };
       }
 
       // B-03: usar buildActionPlans canonico (mesmo formato do generateRisks)
