@@ -20,7 +20,7 @@ import type { ScoringDataSchema } from "./ai-schemas";
  * Extrai o maior JSON válido de uma string de resposta do LLM.
  * Suporta: markdown code blocks, Gemini thinking blocks, JSON inline.
  */
-function extractJsonFromLLMResponse(raw: string): string | null {
+export function extractJsonFromLLMResponse(raw: string): string | null {
   if (!raw || typeof raw !== "string") return null;
 
   // 1. Remover blocos de thinking do Gemini (```thinking ... ```)
