@@ -224,3 +224,44 @@ resolucao_cgibs_001 (2) · resolucao_cgibs_002 (2) · resolucao_cgibs_003 (2)
 data_inicio | date | Null: NO | Default: null
 data_fim    | date | Null: NO | Default: null
 ```
+
+---
+
+## Sprint Z-17 — Estado final (2026-04-17) · Gate E2E PASS
+
+### Bugs corrigidos
+
+| PR | Título | Status |
+|---|---|---|
+| #674 | fix(engine): extractJsonFromLLMResponse suporta arrays [] + geração retroativa de tarefas | ✅ mergeado |
+| #677 | test(e2e): Z-17 suite 21/21 PASS — fixtures robustos + CT-04b + timeouts produção | ✅ mergeado |
+
+### Gate E2E Z-17 (PR #677)
+
+```
+21/21 PASS em 5.8min — EXIT_CODE=0
+Produção: https://iasolaris.manus.space
+Data: 2026-04-17
+```
+
+**Correções no spec:**
+- `fixtures/auth.ts`: `page.request` em vez de `playwrightRequest.newContext` (evita browser close)
+- CT-02/CT-03: `confirmCnaes` + `skipQuestionnaire` via API (fluxo real do usuário)
+- CT-04b: novo CT — completar 3 camadas de diagnóstico antes do briefing
+- CT-19: verifica aba Histórico existe (audit log LLM = sprint futura)
+- `beforeEach`: `setTimeout` Node em vez de `page.waitForTimeout` no retry
+- Todos os CTs: `networkidle` → `domcontentloaded` (produção com polling ativo)
+- Timeouts: 30s → 60s em todos os CTs; CT-05 → 120s (geração LLM)
+
+### Pendências abertas (pós Z-17)
+
+| Prioridade | Ação | Responsável | Bloqueio |
+|---|---|---|---|
+| P0 | Investigar botão "Ver Consolidação" — aparece após aprovar todos os planos individualmente; confirmar se era visível antes em outros estados | P.O. + Orquestrador | Aguardando análise |
+| P1 | Audit log de eventos LLM (criação automática de tarefas) — feature de sprint futura | Manus | — |
+| P2 | Testar aprovação individual de risco → geração de plano/tarefas | P.O. | — |
+| P3 | Fix Bug #545 — imports dinâmicos em diagnostic-source.test.ts | Manus | — |
+
+**Checkpoint:** `34a0bae3` · HEAD `d3ea681` · tsc 0 erros · E2E 21/21 PASS · Deploy iasolaris.manus.space ✅
+
+**Banco limpo:** dados legado removidos (65 tabelas) · RAG preservado (2.515 chunks) · 2026-04-17
