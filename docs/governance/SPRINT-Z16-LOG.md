@@ -232,3 +232,9 @@ Verificar sempre: grep/data-testid/UI antes de aceitar fechamento.
 - F1: DONE (Manus) · F3: 16/16 (Claude Code)
 - F4: DONE (P.O.) · F6: PR #657 mergeado
 - Milestone: Sprint Z-17 (#15)
+
+## Sprint Z-17 — issues em execução (16/04/2026)
+  #655 modal criar tarefa: DONE (PR #657)
+  #659 geração tarefas LLM: DONE (PR #660)
+  #668 gatilho Ver Planos: F6 em execução
+  Baseline: v6.9 · HEAD: d3a6b73
