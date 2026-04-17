@@ -245,6 +245,23 @@ Acoes com efeito cascata confirmado:
 
 "Gerar plano" nao e suficiente. Deve especificar: `status='rascunho'`, `prazo=ENUM`, `insertActionPlanV4WithAudit`.
 
+## Convenção TiDB/MySQL — queries SQL
+
+PR que modifica queries SQL em `server/lib/db-queries-*.ts`:
+
+1. **LIMIT/OFFSET:** TiDB NÃO aceita `?` como parâmetro em LIMIT/OFFSET.
+   Usar interpolação com clamp: `` LIMIT ${Math.max(1, Math.min(500, limit))} ``
+   O `?` causa `ER_WRONG_ARGUMENTS` silencioso — query retorna `[]` sem erro.
+
+2. **SELECT *:** retorna campos Date como objetos `Date` do JavaScript.
+   No frontend, NÃO renderizar Date diretamente em JSX (React error #31).
+   Usar `safeStr()` ou `toLocaleDateString()` antes de renderizar.
+
+3. **CI automático:** `post-merge-gate.yml` job `tidb-query-safety` detecta `LIMIT ?` em queries.
+
+Lição aprendida Sprint Z-17: `LIMIT ?` causou aba Histórico vazia por horas.
+Bug trivial que passou por tsc, unit tests, E2E, e code review.
+
 ## Convenção de testes LLM
 
 Features que envolvem LLM devem incluir:
