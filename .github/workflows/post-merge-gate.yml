@@ -74,6 +74,24 @@ jobs:
           echo ""
           echo "=== audit complete ==="
 
+  tidb-query-safety:
+    name: TiDB query safety (LIMIT ?)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect LIMIT ? in SQL queries
+        run: |
+          echo "=== TiDB Query Safety ==="
+          FOUND=$(grep -rn 'LIMIT ?' server/**/*.ts 2>/dev/null || true)
+          if [ -n "$FOUND" ]; then
+            echo "$FOUND"
+            echo ""
+            echo "::warning::LIMIT ? detectado — TiDB não aceita parâmetro em LIMIT/OFFSET."
+            echo "Usar interpolação com clamp: LIMIT \${Math.max(1, Math.min(500, limit))}"
+          else
+            echo "OK — nenhum LIMIT ? encontrado"
+          fi
+
   llm-unit-regression:
     name: extractJsonFromLLMResponse regression
     runs-on: ubuntu-latest
