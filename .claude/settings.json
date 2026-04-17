@@ -13,12 +13,49 @@
       "Bash(pnpm tsc*)",
       "Bash(pnpm test*)",
       "Bash(pnpm build*)",
+      "Bash(pnpm vitest*)",
+      "Bash(pnpm format*)",
       "Bash(grep*)",
       "Bash(find*)",
       "Bash(cat*)",
       "Bash(ls*)",
       "Bash(head*)",
-      "Bash(tail*)"
+      "Bash(tail*)",
+      "Bash(wc*)",
+      "Bash(gh pr*)",
+      "Bash(gh issue*)",
+      "Bash(gh api*)",
+      "Bash(git fetch*)",
+      "Bash(git merge*)",
+      "Bash(git rebase*)",
+      "Bash(git stash*)",
+      "Bash(git reset*)",
+      "Bash(git cherry-pick*)",
+      "Bash(git branch*)",
+      "Bash(claude --version)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-init.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash(git push*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-push-sync.sh"
+          }
+        ]
+      }
     ]
   }
 }
