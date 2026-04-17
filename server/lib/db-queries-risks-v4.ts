@@ -606,12 +606,15 @@ export async function getProjectAuditLog(
   projectId: number,
   limit = 100
 ): Promise<AuditLogRow[]> {
+  // TiDB: LIMIT ? via mysql2 execute() lança ER_WRONG_ARGUMENTS
+  // Fix: interpolar safeLimit (já clamped 1-500 pelo zod no router)
+  const safeLimit = Math.max(1, Math.min(500, Math.floor(limit)));
   return query<AuditLogRow>(
     `SELECT * FROM audit_log
      WHERE project_id = ?
      ORDER BY created_at DESC
-     LIMIT ?`,
-    [projectId, limit]
+     LIMIT ${safeLimit}`,
+    [projectId]
   );
 }
 
