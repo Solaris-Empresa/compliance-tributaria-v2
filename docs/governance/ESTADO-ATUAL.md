@@ -522,6 +522,7 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-16 (v7.2 · Sprint Z-17 ENCERRADA · Gate 7 PASS · PRs #657–#662 · HEAD e77dca7)*  
-*PRs mergeados total: 499 · Novos componentes: RiskDashboardV4 (UX completa) · ActionPlanPage (UX completa) · Hot swap ADR-0022: ATIVO*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-17 (v7.8 · Sprint Z-17 ENCERRADA · Gate 7 5/5 PASS · E2E 21/21 PASS · CRUD 6/6 PASS · PRs #655–#695 · HEAD 28b14e3)*  
+*PRs mergeados total: 695 · Novos componentes: RiskDashboardV4 (UX completa) · ActionPlanPage (UX completa) · Hot swap ADR-0022: ATIVO*  
+*Novas entregas Z-17: #655 (planos-v4 CRUD) · #659 (audit log) · #668 (tasks UI) · #693 (claude-code hooks+rules+skills)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
