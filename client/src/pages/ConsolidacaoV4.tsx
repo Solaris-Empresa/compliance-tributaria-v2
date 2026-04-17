@@ -367,7 +367,11 @@ export default function ConsolidacaoV4() {
                         }`} />
                         <span className="truncate">{task.titulo}</span>
                         <span className="text-muted-foreground ml-auto shrink-0">
-                          {task.data_fim ?? "—"}
+                          {task.data_fim
+                            ? (task.data_fim instanceof Date
+                                ? task.data_fim.toLocaleDateString("pt-BR")
+                                : String(task.data_fim).slice(0, 10))
+                            : "—"}
                         </span>
                       </div>
                     ))}
