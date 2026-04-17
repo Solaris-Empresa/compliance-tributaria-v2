@@ -175,7 +175,7 @@ const FLOW_STEPS: FlowStep[] = [
     label: "Plano de Ação",
     description: "Tarefas e responsáveis por área",
     icon: <ListTodo className="w-4 h-4" />,
-    route: (id) => `/projetos/${id}/plano-v3`,
+    route: (id) => `/projetos/${id}/planos-v4`,
     completedStatuses: ["arquivado"],
     activeStatuses: ["plano_acao", "em_avaliacao", "aprovado", "em_andamento", "concluido"],
   },
@@ -487,7 +487,7 @@ export default function ProjetoDetalhesV2() {
                   setLocation(`/projetos/${projectId}/briefing-v3`);
                 }}
                 onStartMatrizes={() => setLocation(riskRoute(projectId))}
-                onStartPlano={() => setLocation(`/projetos/${projectId}/plano-v3`)}
+                onStartPlano={() => setLocation(`/projetos/${projectId}/planos-v4`)}
               />
             </CardContent>
           </Card>
@@ -513,7 +513,7 @@ export default function ProjetoDetalhesV2() {
               label="Tarefas Criadas"
               value={summary.totalTasks}
               color="purple"
-              onClick={() => summary.hasActionPlan ? setLocation(`/projetos/${projectId}/plano-v3`) : toast.info("Plano ainda não gerado")}
+              onClick={() => summary.hasActionPlan ? setLocation(`/projetos/${projectId}/planos-v4`) : toast.info("Plano ainda não gerado")}
             />
             <MetricCard
               icon={<BarChart3 className="w-5 h-5 text-green-600" />}
@@ -521,7 +521,7 @@ export default function ProjetoDetalhesV2() {
               value={summary.completedTasks}
               color="green"
               subtitle={summary.totalTasks > 0 ? `${progressPct}% do plano` : undefined}
-              onClick={() => summary.hasActionPlan ? setLocation(`/projetos/${projectId}/plano-v3`) : undefined}
+              onClick={() => summary.hasActionPlan ? setLocation(`/projetos/${projectId}/planos-v4`) : undefined}
             />
           </div>
 
@@ -627,7 +627,7 @@ export default function ProjetoDetalhesV2() {
                 label="Plano de Ação"
                 description={summary.hasActionPlan ? `${summary.totalTasks} tarefas em ${summary.tasksByArea.length} áreas` : "Ainda não gerado"}
                 available={summary.hasActionPlan || statusToStep(summary.status) >= 5}
-                onClick={() => setLocation(`/projetos/${projectId}/plano-v3`)}
+                onClick={() => setLocation(`/projetos/${projectId}/planos-v4`)}
               />
               <Separator />
               <SectionLink
@@ -693,7 +693,7 @@ export default function ProjetoDetalhesV2() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setLocation(`/projetos/${projectId}/plano-v3`)}
+                    onClick={() => setLocation(`/projetos/${projectId}/planos-v4`)}
                   >
                     <Edit3 className="w-3.5 h-3.5 mr-1.5" />
                     Editar Plano de Ação
