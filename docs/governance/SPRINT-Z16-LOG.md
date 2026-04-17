@@ -254,3 +254,9 @@ Bugs de produção corrigidos como hotfix (ORQ-11):
 
 Cobertura: PR #675 (17 unit tests + 3 integration tests + CI workflow)
 Gate E2E: 21/21 PASS (PR #677)
+
+### Z-17 #693 — F6 em execução (16/04/2026)
+  chore(claude-code): hooks + rules + skills
+  Hooks: R-SYNC-01 automático + warning governança
+  Rules: 5 modulares por domínio
+  Skills: 5 slash commands (/gate-check etc.)
