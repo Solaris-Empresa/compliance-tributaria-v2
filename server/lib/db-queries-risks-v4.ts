@@ -606,12 +606,15 @@ export async function getProjectAuditLog(
   projectId: number,
   limit = 100
 ): Promise<AuditLogRow[]> {
+  // TiDB Cloud não aceita parâmetro ? em LIMIT via execute() — interpolar diretamente
+  // (limit é validado pelo zod: min 1, max 500, sem risco de SQL injection)
+  const safeLimit = Math.min(Math.max(1, Math.floor(limit)), 500);
   return query<AuditLogRow>(
     `SELECT * FROM audit_log
      WHERE project_id = ?
      ORDER BY created_at DESC
-     LIMIT ?`,
-    [projectId, limit]
+     LIMIT ${safeLimit}`,
+    [projectId]
   );
 }
 
