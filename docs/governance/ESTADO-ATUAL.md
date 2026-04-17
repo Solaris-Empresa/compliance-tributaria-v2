@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.6 · 2026-04-17 (Sprint Z-17 · HEAD bf1207f · CRUD 6/6 PASS + E2E 21/21 PASS)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.7 · 2026-04-17 (Sprint Z-17 ENCERRADA · HEAD 1252849 · 691 PRs · CRUD 6/6 + E2E 21/21)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v7.6 · **HEAD:** `bf1207f` (github/main) · **Testes:** tsc 0 erros · 61 unit + 21 E2E  
+**Baseline:** v7.7 · **HEAD:** `1252849` (github/main) · **Testes:** tsc 0 erros · 61 unit + 21 E2E  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -92,7 +92,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `bf1207f`
+- **Branch base:** main · **HEAD:** `1252849`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
@@ -116,11 +116,11 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `bf1207f` | ✅ |
-| Baseline | **v7.6** | ✅ |
+| HEAD (github/main) | `1252849` | ✅ |
+| Baseline | **v7.7** | ✅ |
 | Testes passando | tsc 0 erros · 61 unit + 21 E2E | ✅ |
 | TypeScript | 0 erros | ✅ |
-| PRs mergeados (total) | **689 (sessão 16-17/abr: PRs #617–#689)** | ✅ |
+| PRs mergeados (total) | **691 (sessão 16-17/abr: PRs #617–#691)** | ✅ |
 | Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · verificacao dupla banco vs migration | ✅ |
 | Gate UX (frontend) | **CONFIAVEL** — UX_DICTIONARY + ux-spec-validator + mockup HTML obrigatorio | ✅ |
 | Gate Spec (5 labels) | **ATIVO** — CI bloqueia PR sem spec-bloco9/adr/contrato/e2e/aprovada | ✅ |
@@ -130,10 +130,10 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Sprint Z-14 | **ENCERRADA** — 16 issues · catalogo PLANS · cat-divider · mockups HTML v2 · 9 CTs E2E · 16 regras ORQ | ✅ |
 | Sprint Z-15 | **ENCERRADA** — 4 issues · RAG badge · plans preview · AI suggestion · fix L1107 · PRs #599–#607 | ✅ |
 | Sprint Z-16 | **ENCERRADA** — 9/9 issues · Gate 7 PASS · deploy 8620bd66 · PRs #617–#651 · 18 regras ORQ · CI PRE-CLOSE + POST-MERGE | ✅ |
-| Sprint Z-17 | **3/3 issues + 12 hotfixes** — tarefas LLM + CRUD + auditoria + ConsolidacaoV4 + CI gates · PRs #655–#689 · E2E 21/21 · CRUD 6/6 | ✅ |
+| Sprint Z-17 | **ENCERRADA** — 3 issues + 12 hotfixes + governança · PRs #655–#691 · E2E 21/21 · CRUD 6/6 · CI TiDB + LLM gates | ✅ |
 | Regras ORQ | **18** (ORQ-00..18) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
 | Mockups HTML | **6** (Z-07: 2 + Z-15: 2 + Z-16: 2 com data-testid) no repo | ✅ |
-| CI Workflows | **18 ativos** (validate-pr + pre-close-checklist + post-merge-gate + project-automation) | ✅ |
+| CI Workflows | **19 ativos** (validate-pr + pre-close-checklist + post-merge-gate + llm-integration-gate + project-automation) | ✅ |
 | data-testid | **74** (ActionPlanPage: 27 · ConsolidacaoV4: 27 · RiskDashboardV4: 20) | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
