@@ -18,7 +18,7 @@ import {
   Database,
   Upload,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { ROLES } from "@shared/translations";
@@ -59,9 +59,12 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
 
   // Disparar tour automaticamente no primeiro login
   // (shouldShowTour só é true quando isNew === true)
-  if (!tourLoading && shouldShowTour && !showTour) {
-    setShowTour(true);
-  }
+  // Fix: useEffect evita setState durante render — causa do crash ErrorBoundary
+  useEffect(() => {
+    if (!tourLoading && shouldShowTour && !showTour) {
+      setShowTour(true);
+    }
+  }, [tourLoading, shouldShowTour, showTour]);
 
   if (loading) {
     return (
