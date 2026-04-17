@@ -457,6 +457,16 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
     onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId: plan.project_id }),
   });
 
+  // Sprint Z-18 #705 — Restore plano deletado
+  const restoreActionPlanMutation = trpc.risksV4.restoreActionPlan.useMutation({
+    onSuccess: () => {
+      utils.risksV4.listRisks.invalidate({ projectId: plan.project_id });
+      utils.risksV4.getProjectAuditLog.invalidate({ projectId: plan.project_id });
+      toast.success("Plano restaurado");
+    },
+    onError: (err) => toast.error("Erro ao restaurar plano", { description: err.message }),
+  });
+
   // Sprint Z-16 #614 — Save full task edit
   const saveTaskEditMutation = trpc.risksV4.upsertTask.useMutation({
     onSuccess: () => {
@@ -539,6 +549,25 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
           >
             <History className="h-3.5 w-3.5" />
           </Button>
+          {isDeleted && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 text-xs text-blue-600 hover:text-blue-700"
+              data-testid="restore-plan-button"
+              onClick={() =>
+                restoreActionPlanMutation.mutate({
+                  projectId: plan.project_id,
+                  actionPlanId: plan.id,
+                })
+              }
+              disabled={restoreActionPlanMutation.isPending}
+            >
+              {restoreActionPlanMutation.isPending
+                ? <Loader2 className="h-3 w-3 animate-spin" />
+                : "↩ Restaurar"}
+            </Button>
+          )}
           {!isDeleted && (
             <Button
               size="icon"
