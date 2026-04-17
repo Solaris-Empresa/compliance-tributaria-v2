@@ -245,6 +245,28 @@ Acoes com efeito cascata confirmado:
 
 "Gerar plano" nao e suficiente. Deve especificar: `status='rascunho'`, `prazo=ENUM`, `insertActionPlanV4WithAudit`.
 
+## Convenção de testes LLM
+
+Features que envolvem LLM devem incluir:
+
+1. **Teste unitário para extractJson** (`server/lib/extract-json.test.ts`)
+   Cobertura: arrays [], objetos {}, markdown fences, thinking blocks.
+   CI: `llm-integration-gate.yml` roda automaticamente em PRs que tocam LLM.
+
+2. **Teste de integração com LLM real** (`server/lib/*.integration.test.ts`)
+   Executar localmente antes do merge:
+   `OPENAI_API_KEY=sk-... pnpm vitest run server/lib/*.integration.test.ts`
+   CI: roda se OPENAI_API_KEY configurada nos secrets.
+
+3. **audit_log para observabilidade** (não console.warn como única saída)
+   Toda chamada LLM que falha deve gravar `insertAuditLog`.
+   Erros visíveis na aba Histórico (entity='task', entity_id='llm_error').
+
+4. **Gate 7 PROVA 5:** `tasks >= 10` no projeto de referência.
+
+Lição aprendida Sprint Z-17: 5 hotfixes (#664 #666 #667 #673 #674)
+porque LLM falhava silenciosamente sem cobertura de testes.
+
 ### REGRA-ORQ-17 — PRE-CLOSE-CHECKLIST (obrigatorio antes de fechar issue)
 
 Antes de mergear qualquer PR que contém `Closes #N`:

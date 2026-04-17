@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.4 · 2026-04-17 (Sprint Z-17 · 3/3 issues · HEAD 8741624)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.5 · 2026-04-17 (Sprint Z-17 · HEAD 362b761 · tarefas LLM funcionando + CI gates)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v7.4 · **HEAD:** `8741624` (github/main) · **Testes:** tsc 0 erros  
+**Baseline:** v7.5 · **HEAD:** `362b761` (github/main) · **Testes:** tsc 0 erros · 61 unit tests  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -66,6 +66,13 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - **Hotfix #664:** observabilidade TaskGenerator — timeout 15s→45s, console.warn→insertAuditLog
   - **Hotfix #666:** schema wrapper z.union — LLM retorna {tarefas:[]} ao invés de [] (Manus)
   - **Hotfix #667:** schema flexível z.preprocess — extrai array de qualquer chave wrapper (Manus)
+  - **#668 → PR #670:** gatilho Ver Planos — geração no clique, não na aprovação
+  - **#672:** E2E Pipeline Completo — 20 CTs (questionários → briefing → riscos → planos → tarefas)
+  - **#673:** geração retroativa de tarefas para planos existentes sem tarefas
+  - **#674:** dual fix extractJsonFromLLMResponse arrays + geração retroativa (Manus)
+  - **#675 (aberto):** LLM Integration Gates — ORQ-19 (17 unit tests extractJson + 3 integration tests LLM + CI workflow)
+  - **Geração tarefas LLM:** FUNCIONANDO em produção (testado pelo P.O. 17/04/2026)
+  - **Pendente teste:** aprovação individual de risco → verificar geração tarefas + botão consolidação
   - **#668 → PR #670:** gatilho Ver Planos — geração planos+tarefas no clique do botão, não na aprovação. Botão condicional (disabled se 0 aprovados). Remove auto-geração do bulkApprove.
   - **PRs totais Z-17:** #655–#670 (7 PRs produto + 3 hotfixes + docs)
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO

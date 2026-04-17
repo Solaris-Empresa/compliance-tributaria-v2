@@ -238,3 +238,19 @@ Verificar sempre: grep/data-testid/UI antes de aceitar fechamento.
   #659 geração tarefas LLM: DONE (PR #660)
   #668 gatilho Ver Planos: F6 em execução
   Baseline: v6.9 · HEAD: d3a6b73
+
+### Hotfixes Z-17 (ORQ-11) — 16-17/04/2026
+
+Bugs de produção corrigidos como hotfix (ORQ-11):
+
+| PR | Bug | Fix |
+|---|---|---|
+| #664 | LLM falhava silenciosamente (console.warn) | Timeout 15s→45s + insertAuditLog |
+| #666 | Schema wrapper: LLM retorna {tarefas:[]} | z.union 5 formatos |
+| #667 | Chave variável: LLM retorna {sugestoes:[]} | z.preprocess flexível |
+| #670 | Auto-geração no bulkApprove | Gatilho movido para botão Ver Planos |
+| #673 | Planos existentes sem tarefas | Geração retroativa |
+| #674 | extractJsonFromLLMResponse ignorava arrays | Suporte [] e {} |
+
+Cobertura: PR #675 (17 unit tests + 3 integration tests + CI workflow)
+Gate E2E: 21/21 PASS (PR #677)
