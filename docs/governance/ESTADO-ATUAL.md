@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.7 · 2026-04-17 (Sprint Z-17 ENCERRADA · HEAD 1252849 · 691 PRs · CRUD 6/6 + E2E 21/21)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.8 · 2026-04-17 (Sprint Z-18 EM PROGRESSO · HEAD 47506be · hot swap completo)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v7.7 · **HEAD:** `1252849` (github/main) · **Testes:** tsc 0 erros · 61 unit + 21 E2E  
+**Baseline:** v7.8 · **HEAD:** `47506be` (github/main) · **Testes:** tsc 0 erros · 61 unit + 25 E2E  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -82,7 +82,12 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - **Geração tarefas LLM:** FUNCIONANDO em produção (testado P.O. 17/04/2026)
   - **Trilha de auditoria:** 31 eventos visíveis na aba Histórico (criação LLM + CRUD manual)
   - **ConsolidacaoV4:** FUNCIONANDO (após fixes #682 #683 #684 #685)
-  - **PRs totais Z-17:** #655–#689 (35 PRs — produto + hotfixes + governança + E2E)
+  - **PRs totais Z-17:** #655–#695 (produto + hotfixes + governança + E2E + Claude Code optimization)
+**Sprint Z-18:** 🟡 EM PROGRESSO · HEAD 47506be
+  - hot swap plano-v3 → planos-v4 completo ✅ (#697 → PR #698) — 6 botões hub, ADR-0022 fechado após 10 sprints
+  - E2E hub-hotswap: 4/4 PASS
+  - Claude Code optimization: hooks + rules + skills (#693 → PR #695)
+  - **Pendente P1:** integração botão PDF na ConsolidacaoV4
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -92,7 +97,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `1252849`
+- **Branch base:** main · **HEAD:** `47506be`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
@@ -116,9 +121,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `1252849` | ✅ |
-| Baseline | **v7.7** | ✅ |
-| Testes passando | tsc 0 erros · 61 unit + 21 E2E | ✅ |
+| HEAD (github/main) | `47506be` | ✅ |
+| Baseline | **v7.8** | ✅ |
+| Testes passando | tsc 0 erros · 61 unit + 25 E2E | ✅ |
 | TypeScript | 0 erros | ✅ |
 | PRs mergeados (total) | **691 (sessão 16-17/abr: PRs #617–#691)** | ✅ |
 | Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · verificacao dupla banco vs migration | ✅ |
@@ -130,7 +135,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Sprint Z-14 | **ENCERRADA** — 16 issues · catalogo PLANS · cat-divider · mockups HTML v2 · 9 CTs E2E · 16 regras ORQ | ✅ |
 | Sprint Z-15 | **ENCERRADA** — 4 issues · RAG badge · plans preview · AI suggestion · fix L1107 · PRs #599–#607 | ✅ |
 | Sprint Z-16 | **ENCERRADA** — 9/9 issues · Gate 7 PASS · deploy 8620bd66 · PRs #617–#651 · 18 regras ORQ · CI PRE-CLOSE + POST-MERGE | ✅ |
-| Sprint Z-17 | **ENCERRADA** — 3 issues + 12 hotfixes + governança · PRs #655–#691 · E2E 21/21 · CRUD 6/6 · CI TiDB + LLM gates | ✅ |
+| Sprint Z-17 | **ENCERRADA** — 3 issues + 12 hotfixes + governança · PRs #655–#695 · E2E 21/21 · CRUD 6/6 · CI TiDB + LLM gates | ✅ |
+| Sprint Z-18 | **EM PROGRESSO** — hot swap completo (#697 PR #698) + PDF pendente · E2E 25 (21+4) | 🟡 |
 | Regras ORQ | **18** (ORQ-00..18) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
 | Mockups HTML | **6** (Z-07: 2 + Z-15: 2 + Z-16: 2 com data-testid) no repo | ✅ |
 | CI Workflows | **19 ativos** (validate-pr + pre-close-checklist + post-merge-gate + llm-integration-gate + project-automation) | ✅ |
