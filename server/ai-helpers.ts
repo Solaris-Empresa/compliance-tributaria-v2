@@ -35,27 +35,32 @@ function extractJsonFromLLMResponse(raw: string): string | null {
     }
   }
 
-  // 3. Tentar extrair o maior bloco JSON { ... } da resposta
-  // Usa busca gulosa para pegar o JSON mais externo
-  let depth = 0;
-  let start = -1;
+  // 3. Tentar extrair o maior bloco JSON — suporta ARRAY [] e OBJETO {}
+  // Busca o bloco mais externo que começa com [ ou {
   let bestStart = -1;
   let bestEnd = -1;
   let bestLength = 0;
 
-  for (let i = 0; i < withoutThinking.length; i++) {
-    const ch = withoutThinking[i];
-    if (ch === "{") {
-      if (depth === 0) start = i;
-      depth++;
-    } else if (ch === "}") {
-      depth--;
-      if (depth === 0 && start !== -1) {
-        const len = i - start + 1;
-        if (len > bestLength) {
-          bestLength = len;
-          bestStart = start;
-          bestEnd = i;
+  for (const openChar of ["[", "{"] as const) {
+    const closeChar = openChar === "[" ? "]" : "}";
+    let depth = 0;
+    let start = -1;
+
+    for (let i = 0; i < withoutThinking.length; i++) {
+      const ch = withoutThinking[i];
+      if (ch === openChar) {
+        if (depth === 0) start = i;
+        depth++;
+      } else if (ch === closeChar) {
+        depth--;
+        if (depth === 0 && start !== -1) {
+          const len = i - start + 1;
+          if (len > bestLength) {
+            bestLength = len;
+            bestStart = start;
+            bestEnd = i;
+          }
+          start = -1;
         }
       }
     }
