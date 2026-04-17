@@ -634,14 +634,13 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
 
   const bulkGenerateActionPlansMutation = trpc.risksV4.bulkGenerateActionPlans.useMutation({
     onSuccess: (data) => {
-      if (data.generated > 0) {
-        utils.risksV4.listRisks.invalidate({ projectId });
-        toast.success(`${data.generated} plano(s) de ação gerado(s) automaticamente`, { duration: 4000 });
-        // B-04: redirect para ActionPlanPage após planos gerados
-        setTimeout(() => {
-          window.location.href = `/projetos/${projectId}/planos-v4`;
-        }, 1500);
-      }
+      utils.risksV4.listRisks.invalidate({ projectId });
+      const msg = data.generated > 0
+        ? `${data.generated} plano(s) e ${(data as any).tasksGenerated ?? 0} tarefa(s) gerados`
+        : "Planos já existiam — navegando para planos";
+      toast.success(msg, { duration: 4000 });
+      // Sprint Z-17 #668: redirect imediato (sem setTimeout)
+      window.location.href = `/projetos/${projectId}/planos-v4`;
     },
     onError: () => toast.error("Erro ao gerar planos de ação", { description: "Verifique os riscos aprovados", duration: 6000 }),
   });
@@ -651,10 +650,8 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       utils.risksV4.listRisks.invalidate({ projectId });
       toast.success(`${data.approved} riscos aprovados com sucesso`, { duration: 3000 });
       setShowBulkConfirm(false);
-      // B-02: Gerar planos de ação automaticamente após aprovar riscos
-      if (data.approved > 0) {
-        bulkGenerateActionPlansMutation.mutate({ projectId });
-      }
+      // Sprint Z-17 #668: NÃO chama bulkGenerateActionPlans aqui
+      // Advogado decide quando gerar planos via botão "Ver Planos de Ação"
     },
     onError: () => toast.error("Erro ao aprovar riscos", { description: "Tentar novamente", duration: 6000 }),
   });
@@ -823,6 +820,35 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
             <Button size="sm" variant="outline" className="text-xs h-7" data-testid="bulk-approve-button" onClick={() => setShowBulkConfirm(true)}>
               Aprovar matriz de riscos
             </Button>
+          </div>
+        )}
+
+        {/* Sprint Z-17 #668: Botão "Ver Planos de Ação" condicional */}
+        {activeRisks.some((r) => r.approved_at) ? (
+          <div className="mt-2">
+            <Button
+              data-testid="btn-ver-planos"
+              size="sm"
+              onClick={() => bulkGenerateActionPlansMutation.mutate({ projectId })}
+              disabled={bulkGenerateActionPlansMutation.isPending}
+            >
+              {bulkGenerateActionPlansMutation.isPending
+                ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Gerando planos e tarefas...</>
+                : "Ver Planos de Ação"}
+            </Button>
+          </div>
+        ) : (
+          <div className="mt-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button size="sm" disabled data-testid="btn-ver-planos">
+                    Ver Planos de Ação
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Aprove pelo menos um risco</TooltipContent>
+            </Tooltip>
           </div>
         )}
       </div>
