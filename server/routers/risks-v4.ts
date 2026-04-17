@@ -564,6 +564,49 @@ export const risksV4Router = router({
     }),
 
   /**
+   * 7b. restoreActionPlan — Sprint Z-18 #705
+   * Restaura plano deletado (status → 'rascunho'). Padrão restoreRisk.
+   */
+  restoreActionPlan: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        actionPlanId: z.string().uuid(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Verificar que o plano existe e está deletado
+      const plans = await getActionPlansByProject(input.projectId);
+      const plan = plans.find((p) => p.id === input.actionPlanId);
+      if (!plan) throw new TRPCError({ code: "NOT_FOUND", message: "Plano não encontrado" });
+      if (plan.status !== "deleted") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Plano não está deletado" });
+      }
+
+      // Restaurar via query direta (padrão restoreRisk L379-385)
+      const { drizzle } = await import("drizzle-orm/mysql2");
+      const db = drizzle(process.env.DATABASE_URL!);
+      await (db.$client as any).execute(
+        "UPDATE action_plans SET status = 'rascunho', deleted_reason = NULL, updated_by = ? WHERE id = ? AND status = 'deleted'",
+        [ctx.user.id, input.actionPlanId]
+      );
+
+      await insertAuditLog({
+        project_id: input.projectId,
+        entity: "action_plan",
+        entity_id: input.actionPlanId,
+        action: "restored",
+        user_id: ctx.user.id,
+        user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
+        user_role: ctx.user.role ?? "user",
+        before_state: { status: "deleted" },
+        after_state: { status: "rascunho" },
+      });
+
+      return { success: true };
+    }),
+
+  /**
    * 8. approveActionPlan
    * Aprova um plano de ação (status → 'aprovado'). Registra no audit_log.
    */
