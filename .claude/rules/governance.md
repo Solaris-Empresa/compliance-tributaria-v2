@@ -277,6 +277,16 @@ Todo prompt DEVE ser autocontido — nunca depender de contexto anterior.
 Licao aprendida Sprint Z-17: Manus gerou PR com 72 arquivos (git add .),
 perdeu contexto 5+ vezes, e demorou horas em tarefas de 1 minuto.
 
+## Template de prompt Manus (F1)
+
+Ao despachar F1 para o Manus:
+- Usar template: `.claude/templates/manus-issue-create.md`
+- SEMPRE fornecer body-file com spec completa
+- NUNCA permitir reescrita do body pelo Manus
+- Se Manus reescrever: Claude Code corrige via `gh issue edit --body-file`
+
+Lição Z-18: Manus reescreveu specs 3x (#697 #701 #705) — 30+ min de retrabalho.
+
 ## Key Documentation
 
 - `docs/governance/ESTADO-ATUAL.md` — Current sprint state

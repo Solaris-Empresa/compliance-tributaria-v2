@@ -53,6 +53,25 @@ Features that involve LLM must include:
 Lesson learned Sprint Z-17: 5 hotfixes (#664 #666 #667 #673 #674)
 because LLM failed silently without test coverage.
 
+## Regra: E2E obrigatória no PR
+
+Todo PR de `feat` ou `fix` que toca `client/src/` ou `server/routers/` DEVE incluir suite E2E no mesmo PR. Sem E2E = sem merge.
+
+- **Formato:** `tests/e2e/[feature-name].spec.ts`
+- **Mínimo:** 2 CTs por feature (golden path + edge case)
+- **Auth:** usar padrão z17-pipeline-completo (retry 3x com backoff no beforeEach)
+- **Timeout:** 60s geral, 180s para operações LLM
+
+**Exceções:**
+- PRs de `docs/` ou `chore/` (apenas `.claude/`, `.github/`) — E2E opcional
+- PRs de hotfix P0 (ORQ-11) — E2E pode vir em PR separado após o fix
+
+**Condição de merge (aplicada pelo Orquestrador):**
+"Manus executa suite E2E X/X PASS antes do merge — sem exceção"
+
+Lição Z-16/Z-17: features sem E2E geraram 12 hotfixes.
+Lição Z-18: E2E obrigatória pegou 3 bugs antes do merge.
+
 ## Pre-merge Checklist
 
 1. `pnpm test` passing
