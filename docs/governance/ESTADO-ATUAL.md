@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.9 · 2026-04-17 (Sprint Z-18 · 3/3 issues · HEAD 6be3d26)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.10 · 2026-04-17 (Sprint Z-18 ENCERRADA · 3/3 issues · HEAD 56b495b · Checkpoint 56b495bf)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v7.9 · **HEAD:** `6be3d26` (github/main) · **Testes:** tsc 0 erros · 61 unit + 33 E2E  
+**Baseline:** v7.10 · **HEAD:** `56b495b` (github/main) · **Testes:** tsc 0 erros · 182 unit + 37 E2E  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -83,12 +83,17 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - **Trilha de auditoria:** 31 eventos visíveis na aba Histórico (criação LLM + CRUD manual)
   - **ConsolidacaoV4:** FUNCIONANDO (após fixes #682 #683 #684 #685)
   - **PRs totais Z-17:** #655–#695 (produto + hotfixes + governança + E2E + Claude Code optimization)
-**Sprint Z-18:** 3/3 issues · HEAD 6be3d26 · Checkpoint e8f413c0
+**Sprint Z-18:** ✅ ENCERRADA · 3/3 issues · HEAD 56b495b · Checkpoint 56b495bf · Gate 7 5/5 PASS
   - hot swap plano-v3 → planos-v4 completo ✅ (#697 → PR #698) — 6 botões hub, ADR-0022 fechado após 10 sprints. E2E 4/4 PASS.
-  - integração botão PDF ConsolidacaoV4 ✅ (#701 → PR #702) — generateDiagnosticoPDF conectado, toast placeholder removido
+  - integração botão PDF ConsolidacaoV4 ✅ (#701 → PR #703) — generateDiagnosticoPDF conectado, toast placeholder removido. E2E 4/4 PASS.
   - restore plano deletado ✅ (#705 → PR #706) — procedure restoreActionPlan, botão "↩ Restaurar", audit_log restored. E2E 2 PASS + 2 SKIP.
-  - Claude Code optimization: hooks + rules + skills (#693 → PR #695) + tooling MCP + lint (PR #704 aberto)
-  - **E2E total:** 33 CTs (21 pipeline + 4 hub + 4 pdf + 4 restore)
+  - fix gitignore playwright ✅ (PR #700) — playwright-report/ removido do git tracking
+  - tooling MCP + post-edit-lint ✅ (PR #704) — E2E 4/4 PASS
+  - governance: E2E rule obrigatória + template Manus + board auto Projects V2 ✅ (PR #710)
+  - docs handoff v2.4 ✅ (PR #709) — HANDOFF-MANUS.md atualizado
+  - **Gate 7 (project_id=930001):** P1 COUNT=10 ✅ · P2 categorias ✅ · P3 0 títulos sujos ✅ · P4 RAG 10/10 (100%) ✅ · P5 25 tasks ✅
+  - **E2E total:** 37 CTs (21 pipeline + 4 hub + 4 pdf + 4 restore + 4 tooling)
+  - **PRs Z-18:** #698 #700 #703 #704 #706 #707 #709 #710
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -98,7 +103,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `6be3d26`
+- **Branch base:** main · **HEAD:** `56b495b`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
@@ -122,11 +127,11 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `6be3d26` | ✅ |
-| Baseline | **v7.9** | ✅ |
-| Testes passando | tsc 0 erros · 61 unit + 33 E2E | ✅ |
+| HEAD (github/main) | `56b495b` | ✅ |
+| Baseline | **v7.10** | ✅ |
+| Testes passando | tsc 0 erros · 182 unit + 37 E2E | ✅ |
 | TypeScript | 0 erros | ✅ |
-| PRs mergeados (total) | **706 (sessão 16-17/abr: PRs #617–#706)** | ✅ |
+| PRs mergeados (total) | **710 (sessão 16-17/abr: PRs #617–#710)** | ✅ |
 | Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · verificacao dupla banco vs migration | ✅ |
 | Gate UX (frontend) | **CONFIAVEL** — UX_DICTIONARY + ux-spec-validator + mockup HTML obrigatorio | ✅ |
 | Gate Spec (5 labels) | **ATIVO** — CI bloqueia PR sem spec-bloco9/adr/contrato/e2e/aprovada | ✅ |
@@ -137,7 +142,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Sprint Z-15 | **ENCERRADA** — 4 issues · RAG badge · plans preview · AI suggestion · fix L1107 · PRs #599–#607 | ✅ |
 | Sprint Z-16 | **ENCERRADA** — 9/9 issues · Gate 7 PASS · deploy 8620bd66 · PRs #617–#651 · 18 regras ORQ · CI PRE-CLOSE + POST-MERGE | ✅ |
 | Sprint Z-17 | **ENCERRADA** — 3 issues + 12 hotfixes + governança · PRs #655–#695 · E2E 21/21 · CRUD 6/6 · CI TiDB + LLM gates | ✅ |
-| Sprint Z-18 | **3/3 issues** — hot swap + PDF + restore · PRs #697–#706 · E2E 33 · Checkpoint e8f413c0 | ✅ |
+| Sprint Z-18 | **ENCERRADA** ✅ — hot swap + PDF + restore + tooling + governance · PRs #698–#710 · E2E 37 · Gate 7 5/5 PASS · Checkpoint 56b495bf | ✅ |
 | Regras ORQ | **18** (ORQ-00..18) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
 | Mockups HTML | **6** (Z-07: 2 + Z-15: 2 + Z-16: 2 com data-testid) no repo | ✅ |
 | CI Workflows | **19 ativos** (validate-pr + pre-close-checklist + post-merge-gate + llm-integration-gate + project-automation) | ✅ |
