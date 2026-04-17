@@ -5,7 +5,7 @@
  * Leitura defensiva: data_fim ?? '—'
  */
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -117,13 +117,13 @@ export default function ConsolidacaoV4() {
     [allPlans]
   );
 
-  // Calculate score on mount
+  // Calculate score on mount — useEffect (não useMemo) para side effects
   const score = scoreMutation.data;
-  useMemo(() => {
+  useEffect(() => {
     if (projectId && !scoreMutation.data && !scoreMutation.isPending) {
       scoreMutation.mutate({ projectId });
     }
-  }, [projectId]);
+  }, [projectId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const nivel = score?.nivel ?? "baixo";
   const nivelColors = NIVEL_COLORS[nivel] ?? NIVEL_COLORS.baixo;
