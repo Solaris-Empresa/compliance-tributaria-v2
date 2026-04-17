@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.9 · 2026-04-17 (Sprint Z-18 · 3/3 issues · HEAD 6be3d26)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.10 · 2026-04-17 (Sprint Z-18 ENCERRADA · 3/3 issues + governance · HEAD 31ef5a6)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v7.9 · **HEAD:** `6be3d26` (github/main) · **Testes:** tsc 0 erros · 61 unit + 33 E2E  
+**Baseline:** v7.10 · **HEAD:** `31ef5a6` (github/main) · **Testes:** tsc 0 erros · 61 unit + 33 E2E  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -83,12 +83,14 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - **Trilha de auditoria:** 31 eventos visíveis na aba Histórico (criação LLM + CRUD manual)
   - **ConsolidacaoV4:** FUNCIONANDO (após fixes #682 #683 #684 #685)
   - **PRs totais Z-17:** #655–#695 (produto + hotfixes + governança + E2E + Claude Code optimization)
-**Sprint Z-18:** 3/3 issues · HEAD 6be3d26 · Checkpoint e8f413c0
+**Sprint Z-18:** ✅ ENCERRADA · 3/3 issues + governance · PRs #697–#710 · HEAD 31ef5a6 · Checkpoint 56b495bf
   - hot swap plano-v3 → planos-v4 completo ✅ (#697 → PR #698) — 6 botões hub, ADR-0022 fechado após 10 sprints. E2E 4/4 PASS.
   - integração botão PDF ConsolidacaoV4 ✅ (#701 → PR #702) — generateDiagnosticoPDF conectado, toast placeholder removido
   - restore plano deletado ✅ (#705 → PR #706) — procedure restoreActionPlan, botão "↩ Restaurar", audit_log restored. E2E 2 PASS + 2 SKIP.
-  - Claude Code optimization: hooks + rules + skills (#693 → PR #695) + tooling MCP + lint (PR #704 aberto)
+  - Claude Code optimization: hooks + rules + skills (#693 → PR #695) + tooling MCP + lint (PR #704)
+  - governance automation: E2E rule + Manus template + board automation (#710) — project-automation.yml (add/in-progress/done)
   - **E2E total:** 33 CTs (21 pipeline + 4 hub + 4 pdf + 4 restore)
+  - **Governança:** ORQ-17 PRE-CLOSE · ORQ-18 board sync · Manus template · E2E obrigatória · board automation CI
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -98,7 +100,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `6be3d26`
+- **Branch base:** main · **HEAD:** `31ef5a6`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
@@ -122,11 +124,11 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `6be3d26` | ✅ |
-| Baseline | **v7.9** | ✅ |
+| HEAD (github/main) | `31ef5a6` | ✅ |
+| Baseline | **v7.10** | ✅ |
 | Testes passando | tsc 0 erros · 61 unit + 33 E2E | ✅ |
 | TypeScript | 0 erros | ✅ |
-| PRs mergeados (total) | **706 (sessão 16-17/abr: PRs #617–#706)** | ✅ |
+| PRs mergeados (total) | **710 (sessão 16-17/abr: PRs #617–#710)** | ✅ |
 | Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · verificacao dupla banco vs migration | ✅ |
 | Gate UX (frontend) | **CONFIAVEL** — UX_DICTIONARY + ux-spec-validator + mockup HTML obrigatorio | ✅ |
 | Gate Spec (5 labels) | **ATIVO** — CI bloqueia PR sem spec-bloco9/adr/contrato/e2e/aprovada | ✅ |
@@ -137,10 +139,10 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Sprint Z-15 | **ENCERRADA** — 4 issues · RAG badge · plans preview · AI suggestion · fix L1107 · PRs #599–#607 | ✅ |
 | Sprint Z-16 | **ENCERRADA** — 9/9 issues · Gate 7 PASS · deploy 8620bd66 · PRs #617–#651 · 18 regras ORQ · CI PRE-CLOSE + POST-MERGE | ✅ |
 | Sprint Z-17 | **ENCERRADA** — 3 issues + 12 hotfixes + governança · PRs #655–#695 · E2E 21/21 · CRUD 6/6 · CI TiDB + LLM gates | ✅ |
-| Sprint Z-18 | **3/3 issues** — hot swap + PDF + restore · PRs #697–#706 · E2E 33 · Checkpoint e8f413c0 | ✅ |
+| Sprint Z-18 | **ENCERRADA** — 3/3 issues + governance · PRs #697–#710 · E2E 33 · board automation · Checkpoint 56b495bf | ✅ |
 | Regras ORQ | **18** (ORQ-00..18) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
 | Mockups HTML | **6** (Z-07: 2 + Z-15: 2 + Z-16: 2 com data-testid) no repo | ✅ |
-| CI Workflows | **19 ativos** (validate-pr + pre-close-checklist + post-merge-gate + llm-integration-gate + project-automation) | ✅ |
+| CI Workflows | **20 ativos** (validate-pr + pre-close-checklist + post-merge-gate + llm-integration-gate + project-automation + taskboard-automation) | ✅ |
 | data-testid | **74** (ActionPlanPage: 27 · ConsolidacaoV4: 27 · RiskDashboardV4: 20) | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Branch protection | Ativa (ruleset `main-protection`) | ✅ |
@@ -529,7 +531,7 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-17 (v7.8 · Sprint Z-17 ENCERRADA · Gate 7 5/5 PASS · E2E 21/21 PASS · CRUD 6/6 PASS · PRs #655–#695 · HEAD 28b14e3)*  
-*PRs mergeados total: 695 · Novos componentes: RiskDashboardV4 (UX completa) · ActionPlanPage (UX completa) · Hot swap ADR-0022: ATIVO*  
-*Novas entregas Z-17: #655 (planos-v4 CRUD) · #659 (audit log) · #668 (tasks UI) · #693 (claude-code hooks+rules+skills)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-17 (v7.10 · Sprint Z-18 ENCERRADA · 3/3 issues + governance · PRs #697–#710 · HEAD 31ef5a6)*  
+*PRs mergeados total: 710 · Hot swap ADR-0022: COMPLETO · Board automation: ATIVO · E2E: 33 CTs*  
+*Novas entregas Z-18: #698 (hot swap) · #702 (PDF) · #706 (restore) · #710 (governance automation)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
