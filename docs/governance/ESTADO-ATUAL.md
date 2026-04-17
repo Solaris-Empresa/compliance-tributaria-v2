@@ -1,13 +1,13 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.5 · 2026-04-17 (Sprint Z-17 · HEAD 362b761 · tarefas LLM funcionando + CI gates)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.6 · 2026-04-17 (Sprint Z-17 · HEAD bf1207f · CRUD 6/6 PASS + E2E 21/21 PASS)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
 ## TL;DR — 30 segundos
 
 Plataforma de compliance da Reforma Tributária brasileira.  
-**Baseline:** v7.5 · **HEAD:** `362b761` (github/main) · **Testes:** tsc 0 erros · 61 unit tests  
+**Baseline:** v7.6 · **HEAD:** `bf1207f` (github/main) · **Testes:** tsc 0 erros · 61 unit + 21 E2E  
 **DIAGNOSTIC_READ_MODE:** `shadow` (aguarda UAT — NÃO alterar)  
 **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade · 8/8 gold set  
 **Sprint T:** ENCERRADA ✅ (Milestone 1 — Decision Kernel · PRs #302–#317 · 16 PRs)  
@@ -70,11 +70,19 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - **#672:** E2E Pipeline Completo — 20 CTs (questionários → briefing → riscos → planos → tarefas)
   - **#673:** geração retroativa de tarefas para planos existentes sem tarefas
   - **#674:** dual fix extractJsonFromLLMResponse arrays + geração retroativa (Manus)
-  - **#675 (aberto):** LLM Integration Gates — ORQ-19 (17 unit tests extractJson + 3 integration tests LLM + CI workflow)
-  - **Geração tarefas LLM:** FUNCIONANDO em produção (testado pelo P.O. 17/04/2026)
-  - **Pendente teste:** aprovação individual de risco → verificar geração tarefas + botão consolidação
-  - **#668 → PR #670:** gatilho Ver Planos — geração planos+tarefas no clique do botão, não na aprovação. Botão condicional (disabled se 0 aprovados). Remove auto-geração do bulkApprove.
-  - **PRs totais Z-17:** #655–#670 (7 PRs produto + 3 hotfixes + docs)
+  - **#675:** LLM Integration Gates — 17 unit tests + 3 integration tests + CI workflow (ORQ-19 → convenção testes LLM, PR #680)
+  - **#682:** useMemo → useEffect para calculateAndSaveScore
+  - **#683:** safeStr para Date objects — previne React error #31
+  - **#684:** setShowTour → useEffect em ComplianceLayout (Manus)
+  - **#685:** safeStr helper abrangente no ConsolidacaoV4
+  - **#686:** invalidar getProjectAuditLog cache após mutations
+  - **#688:** LIMIT ? → LIMIT interpolado para TiDB (aba Histórico vazia)
+  - **#689:** CI TiDB query safety — grep LIMIT ? + DB integration tests + CLAUDE.md
+  - **Gate E2E:** 21/21 PASS (PR #677) · **CRUD:** 6/6 PASS (planos + tarefas + auditoria)
+  - **Geração tarefas LLM:** FUNCIONANDO em produção (testado P.O. 17/04/2026)
+  - **Trilha de auditoria:** 31 eventos visíveis na aba Histórico (criação LLM + CRUD manual)
+  - **ConsolidacaoV4:** FUNCIONANDO (após fixes #682 #683 #684 #685)
+  - **PRs totais Z-17:** #655–#689 (35 PRs — produto + hotfixes + governança + E2E)
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -84,7 +92,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `e77dca7`
+- **Branch base:** main · **HEAD:** `bf1207f`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
@@ -108,11 +116,11 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `8741624` | ✅ |
-| Baseline | **v7.4** | ✅ |
-| Testes passando | tsc 0 erros | ✅ |
+| HEAD (github/main) | `bf1207f` | ✅ |
+| Baseline | **v7.6** | ✅ |
+| Testes passando | tsc 0 erros · 61 unit + 21 E2E | ✅ |
 | TypeScript | 0 erros | ✅ |
-| PRs mergeados (total) | **670 (sessão 16-17/abr: PRs #617–#670)** | ✅ |
+| PRs mergeados (total) | **689 (sessão 16-17/abr: PRs #617–#689)** | ✅ |
 | Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · verificacao dupla banco vs migration | ✅ |
 | Gate UX (frontend) | **CONFIAVEL** — UX_DICTIONARY + ux-spec-validator + mockup HTML obrigatorio | ✅ |
 | Gate Spec (5 labels) | **ATIVO** — CI bloqueia PR sem spec-bloco9/adr/contrato/e2e/aprovada | ✅ |
@@ -122,7 +130,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Sprint Z-14 | **ENCERRADA** — 16 issues · catalogo PLANS · cat-divider · mockups HTML v2 · 9 CTs E2E · 16 regras ORQ | ✅ |
 | Sprint Z-15 | **ENCERRADA** — 4 issues · RAG badge · plans preview · AI suggestion · fix L1107 · PRs #599–#607 | ✅ |
 | Sprint Z-16 | **ENCERRADA** — 9/9 issues · Gate 7 PASS · deploy 8620bd66 · PRs #617–#651 · 18 regras ORQ · CI PRE-CLOSE + POST-MERGE | ✅ |
-| Sprint Z-17 | **3/3 issues** — modal criar tarefa + geração LLM + gatilho Ver Planos · PRs #655–#670 · deploy pendente | 🟡 |
+| Sprint Z-17 | **3/3 issues + 12 hotfixes** — tarefas LLM + CRUD + auditoria + ConsolidacaoV4 + CI gates · PRs #655–#689 · E2E 21/21 · CRUD 6/6 | ✅ |
 | Regras ORQ | **18** (ORQ-00..18) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
 | Mockups HTML | **6** (Z-07: 2 + Z-15: 2 + Z-16: 2 com data-testid) no repo | ✅ |
 | CI Workflows | **18 ativos** (validate-pr + pre-close-checklist + post-merge-gate + project-automation) | ✅ |
