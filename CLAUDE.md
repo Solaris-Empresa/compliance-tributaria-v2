@@ -245,6 +245,21 @@ Acoes com efeito cascata confirmado:
 
 "Gerar plano" nao e suficiente. Deve especificar: `status='rascunho'`, `prazo=ENUM`, `insertActionPlanV4WithAudit`.
 
+## Convenção de prompts para Manus (implementador)
+
+O Manus perde contexto frequentemente (compactação de chat sem aviso).
+Todo prompt DEVE ser autocontido — nunca depender de contexto anterior.
+
+1. **1 tarefa por prompt.** Nunca 2+ tarefas no mesmo prompt.
+2. **Incluir HEAD atual** no início: `git fetch origin && git reset --hard origin/main`
+3. **Incluir TODO o contexto:** arquivos, linhas, comandos exatos. Nunca "conforme discutido".
+4. **Terminar com "FIM."** — sinal claro de que não há mais nada a fazer.
+5. **Se divagar:** interromper e reenviar o prompt original. Não tentar corrigir.
+6. **git add:** SEMPRE especificar arquivos por nome. NUNCA `git add .` ou `git add -A`.
+
+Lição aprendida Sprint Z-17: Manus gerou PR com 72 arquivos (git add .),
+perdeu contexto 5+ vezes, e demorou horas em tarefas de 1 minuto.
+
 ## Convenção TiDB/MySQL — queries SQL
 
 PR que modifica queries SQL em `server/lib/db-queries-*.ts`:
