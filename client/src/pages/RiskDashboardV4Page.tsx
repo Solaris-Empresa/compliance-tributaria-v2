@@ -55,11 +55,7 @@ export default function RiskDashboardV4Page() {
             Engine determinístico · 10 categorias LC 214/2025 · Sprint Z-07
           </p>
         </div>
-        <Link href={`/projetos/${projectId}/planos-v4`}>
-          <Button variant="outline" size="sm" className="gap-1.5">
-            Ver Planos de Ação
-          </Button>
-        </Link>
+        {/* Sprint Z-17 #668: botão "Ver Planos" movido para RiskDashboardV4 (condicional) */}
       </div>
 
       {/* Dashboard */}
