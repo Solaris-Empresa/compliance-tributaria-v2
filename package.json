@@ -18,7 +18,15 @@
     "db:clear": "node scripts/clear-database.mjs",
     "db:seed": "node scripts/seed-initial-data.mjs",
     "db:reset": "pnpm db:clear && pnpm db:seed",
-    "cockpit:sync": "node docs/painel-po/sync-baseline.mjs"
+    "cockpit:sync": "node docs/painel-po/sync-baseline.mjs",
+    "test:smoke:reporter": "bash scripts/smoke-test-reporter.sh",
+    "test:afericao": "node scripts/audit-risk-matrix.mjs",
+    "test:drift": "node scripts/categoria-drift-check.mjs",
+    "test:battery-1": "BATTERY_REPORT_DIR=reports/battery-1 vitest run && pnpm test:drift && pnpm test:afericao -- --battery=1",
+    "test:battery-2": "BATTERY_REPORT_DIR=reports/battery-2 vitest run && pnpm test:drift && pnpm test:afericao -- --battery=2",
+    "test:battery-3": "BATTERY_REPORT_DIR=reports/battery-3 vitest run && pnpm test:drift && pnpm test:afericao -- --battery=3",
+    "test:battery-4": "BATTERY_REPORT_DIR=reports/battery-4 vitest run && pnpm test:drift && pnpm test:afericao -- --battery=4",
+    "test:battery-full": "pnpm test:smoke:reporter && pnpm test:battery-1"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
