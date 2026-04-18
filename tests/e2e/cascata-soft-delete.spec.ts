@@ -65,9 +65,9 @@ test.describe("Cascata soft delete + restore — #719", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(3000);
 
+    await page.waitForSelector('[data-testid="history-tab"]', { timeout: 15_000 });
     const tab = page.locator('[data-testid="history-tab"]');
-    const visible = await tab.isVisible({ timeout: 10_000 }).catch(() => false);
-    expect(visible).toBe(true);
+    await expect(tab).toBeVisible();
   });
 
   // ── Testes de mutação real (DB) ───────────────────────────────────────────
