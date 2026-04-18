@@ -64,8 +64,10 @@ test.describe("Soft delete cascade — risco → planos → tarefas", () => {
   // E2E visual apenas valida que a UI existe — cascata é verificada
   // via SQL no script de aferição após execução.
 
-  test.todo("deleteRisk cascata planos → status=deleted");
-  test.todo("deleteRisk cascata tasks → status=deleted");
-  test.todo("audit_log registra cascata com before_state + reason");
-  test.todo("restoreRisk restaura todos os filhos (RI-07)");
+  // Testes pendentes (Bateria 2+) — usar test.fixme() pois
+  // Playwright 1.58.x NÃO suporta test.todo() (sintaxe Vitest).
+  test.fixme("deleteRisk cascata planos → status=deleted", () => {});
+  test.fixme("deleteRisk cascata tasks → status=deleted", () => {});
+  test.fixme("audit_log registra cascata com before_state + reason", () => {});
+  test.fixme("restoreRisk restaura todos os filhos (RI-07)", () => {});
 });
