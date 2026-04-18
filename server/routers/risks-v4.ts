@@ -47,6 +47,8 @@ import {
   softDeleteTaskV4,
   getProjectAuditLog,
   deleteRisksByProject,
+  softDeleteRiskWithCascade,
+  restoreRiskWithCascade,
 } from "../lib/db-queries-risks-v4";
 import type {
   CategoriaV4,
@@ -326,8 +328,10 @@ export const risksV4Router = router({
     }),
 
   /**
-   * 3. deleteRisk
-   * Soft-delete de um risco (status → 'deleted'). Registra no audit_log.
+   * 3. deleteRisk — Sprint Z-21 #719: com cascata soft delete
+   * Soft-delete de um risco + cascata em action_plans + tasks.
+   * audit_log registra N+1 entradas (1 risco + N planos afetados).
+   * Ref: RN_CONSOLIDACAO_V4.md §14 · RI-07
    */
   deleteRisk: protectedProcedure
     .input(
@@ -340,27 +344,26 @@ export const risksV4Router = router({
       const risk = await getRiskV4ById(input.riskId);
       if (!risk) throw new TRPCError({ code: "NOT_FOUND", message: "Risco não encontrado" });
 
-      await softDeleteRiskV4(input.riskId, ctx.user.id, input.reason);
-
-      await insertAuditLog({
-        project_id: risk.project_id,
-        entity: "risk",
-        entity_id: input.riskId,
-        action: "deleted",
-        user_id: ctx.user.id,
-        user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
-        user_role: ctx.user.role ?? "user",
-        before_state: { status: "active" },
-        after_state: { status: "deleted", deleted_reason: input.reason },
-        reason: input.reason,
-      });
+      await softDeleteRiskWithCascade(
+        input.riskId,
+        risk.project_id,
+        ctx.user.id,
+        input.reason,
+        {
+          user_id: ctx.user.id,
+          user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
+          user_role: ctx.user.role ?? "user",
+        }
+      );
 
       return { success: true };
     }),
 
   /**
-   * 4. restoreRisk
-   * Restaura um risco deletado (status → 'active'). Registra no audit_log.
+   * 4. restoreRisk — Sprint Z-21 #719: com cascata restore (RI-07)
+   * Restaura risco + action_plans (status='rascunho') + tasks (status='pending').
+   * audit_log registra N+1 entradas.
+   * Ref: RI-07 snapshot §22
    */
   restoreRisk: protectedProcedure
     .input(
@@ -376,26 +379,17 @@ export const risksV4Router = router({
         throw new TRPCError({ code: "BAD_REQUEST", message: "Risco não está deletado" });
       }
 
-      // Restaurar via query direta (status → active)
-      const { drizzle } = await import("drizzle-orm/mysql2");
-      const db = drizzle(process.env.DATABASE_URL!);
-      await (db.$client as any).execute(
-        "UPDATE risks_v4 SET status = 'active', deleted_reason = NULL, updated_by = ? WHERE id = ?",
-        [ctx.user.id, input.riskId]
+      await restoreRiskWithCascade(
+        input.riskId,
+        risk.project_id,
+        ctx.user.id,
+        {
+          user_id: ctx.user.id,
+          user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
+          user_role: ctx.user.role ?? "user",
+        },
+        input.reason
       );
-
-      await insertAuditLog({
-        project_id: risk.project_id,
-        entity: "risk",
-        entity_id: input.riskId,
-        action: "restored",
-        user_id: ctx.user.id,
-        user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
-        user_role: ctx.user.role ?? "user",
-        before_state: { status: "deleted" },
-        after_state: { status: "active" },
-        reason: input.reason,
-      });
 
       return { success: true };
     }),
