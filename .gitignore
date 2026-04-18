@@ -119,3 +119,10 @@ drizzle/meta/*_snapshot.json
 playwright-report/
 test-results/
 playwright-results.json
+
+# Suite de testes Z-20 — apenas relatórios efêmeros (Gate G0 smoke + results)
+# Note: progress.md e final.md por bateria SÃO commitados como evidência.
+reports/battery-smoke/
+reports/battery-*/results/
+reports/battery-*/*.xml
+reports/battery-*/e2e-screenshots/
