@@ -1414,7 +1414,215 @@ Antes da próxima iteração, o P.O. precisa decidir:
 
 ---
 
+## 25. Fluxos visuais (Mermaid)
+
+### 25.1 Fluxo E2E — do perfil ao PDF entregue ao cliente
+
+```mermaid
+flowchart TD
+    Start([Advogado acessa<br/>plataforma]) --> S1
+
+    subgraph PERF["Steps 1-3 · Perfil da Empresa"]
+        S1[Cadastro: CNPJ, CNAEs,<br/>regime, porte] --> S2[5 JSONs de perfil<br/>operationProfile, taxComplexity,<br/>financialProfile, governanceProfile]
+        S2 --> CPIE{{"CPIE v1/v2 analyze<br/>profileScore 0-100<br/>(Score A/B)"}}
+    end
+
+    CPIE --> QSTART
+
+    subgraph QUEST["Steps 1-3 · Questionários das 3 Ondas"]
+        QSTART[Ondas em paralelo/sequência] --> Q1[Onda 1 SOLARIS<br/>22 perguntas curadas<br/>classification_scope='risk_engine']
+        QSTART --> Q2[Onda 2 IA GEN<br/>perguntas dinâmicas<br/>temperature=0.1]
+        QSTART --> Q3[Onda 3 NCM/NBS/CNAE<br/>QC + QO + QCNAE]
+    end
+
+    Q1 --> GAPPIPE
+    Q2 --> GAPPIPE
+    Q3 --> GAPPIPE
+
+    subgraph GAP["Step 4 · Gap Engine + Briefing"]
+        GAPPIPE[analyzeGapsFromQuestionnaires<br/>+ analyzeGaps legado] --> GAPS[("project_gaps_v3")]
+        GAPS --> BR[generateBriefing<br/>LLM + RAG]
+        BR --> BRAPR{{Advogado<br/>aprova briefing?}}
+    end
+
+    BRAPR -->|Não| S2
+    BRAPR -->|Sim| GENR
+
+    subgraph MATRIZ["Step 5 · Matriz de Riscos (auto-gen)"]
+        GENR[generateRisksV4Pipeline<br/>automático no mount] --> PL[consolidateRisks → inferNormativeRisks → merge → enrichRiskWithRag]
+        PL --> RV4[("risks_v4<br/>status=active<br/>approved_at=NULL")]
+        RV4 --> RAPPR{{Advogado aprova<br/>ou exclui riscos}}
+        RAPPR -->|approveRisk| RAPR[approved_at=NOW]
+        RAPPR -->|deleteRisk<br/>motivo ≥ 10 chars| RDEL[status=deleted<br/>cascata planos+tarefas]
+    end
+
+    RAPR --> STEP6
+    RDEL -.-> STEP6
+
+    subgraph PLAN["Step 6 · Planos de Ação"]
+        STEP6[buildActionPlans<br/>RN-RISK-05: opportunity → sem plano] --> AP[("action_plans<br/>status=rascunho<br/>tarefas BLOQUEADAS")]
+        AP --> TGEN[Tarefas LLM<br/>concorrência=3<br/>falha não bloqueia]
+        TGEN --> TASKS[("tasks<br/>status=todo")]
+        TASKS --> PAPR{{Advogado<br/>aprova plano?}}
+        PAPR -->|Sim| PLIB[status=aprovado<br/>tarefas LIBERADAS]
+    end
+
+    PLIB --> STEP7
+
+    subgraph CONS["Step 7 · Consolidação"]
+        STEP7[ConsolidacaoV4<br/>useEffect no mount] --> CS[calculateComplianceScore<br/>Score D — determinístico]
+        CS --> SNAP[("projects.scoringData<br/>snapshots acumulados<br/>formula_version=v4.0")]
+        SNAP --> PDF[generateDiagnosticoPDF<br/>jsPDF + autoTable<br/>browser-side]
+    end
+
+    PDF --> END([Cliente recebe<br/>diagnostico-CNPJ-YYYY-MM-DD.pdf<br/>com disclaimer jurídico])
+
+    AUDIT[(audit_log<br/>entity/action/before/after/reason<br/>imutável)]
+    RAPR -.->|approved| AUDIT
+    RDEL -.->|deleted| AUDIT
+    PLIB -.->|approved| AUDIT
+    TGEN -.->|created| AUDIT
+
+    style CPIE fill:#fff3cd,stroke:#856404
+    style RV4 fill:#f8d7da,stroke:#721c24
+    style CS fill:#d4edda,stroke:#155724
+    style SNAP fill:#d4edda,stroke:#155724
+    style AUDIT fill:#e2e3e5,stroke:#383d41
+```
+
+**Leitura do fluxo:**
+
+- **Amarelo (CPIE):** score de perfil — débito ADR-0023, pode estar zerado em projetos v4.
+- **Vermelho (risks_v4):** entidade central — criada com `approved_at=NULL` e aprovada pelo advogado.
+- **Verde (Score D / snapshot):** fórmula determinística, persistido em `projects.scoringData`.
+- **Cinza (audit_log):** toda mutação gera entrada — imutável, base para auditoria fiscal.
+- **Decisões (losangos):** pontos de controle humano — 3 aprovações obrigatórias (briefing, cada risco, cada plano).
+
+---
+
+### 25.2 Origem dos dados → riscos (fluxo de rastreabilidade)
+
+```mermaid
+flowchart LR
+    subgraph ONDAS["3 Ondas de Origem"]
+        O1["Onda 1 — SOLARIS<br/>SOURCE_RANK=4<br/>confidence=1.0 fixo"]
+        O2["Onda 2 — IA GEN<br/>SOURCE_RANK=5<br/>confidence ~0.7"]
+        O3A["Onda 3A — RAG Normativo<br/>cnae=1 · ncm=2 · nbs=3"]
+        O3B["Onda 3B — Inferência Normativa<br/>aditiva, sem questionário"]
+    end
+
+    subgraph TABELAS["Tabelas de entrada"]
+        SA[("solaris_answers<br/>JOIN solaris_questions<br/>WHERE classification_scope='risk_engine'<br/>AND risk_category_code IS NOT NULL")]
+        IA[("iagen_answers<br/>WHERE risk_category_code IS NOT NULL")]
+        REQ[("regulatory_requirements_v3<br/>138 requisitos normativos")]
+        NPR[("normative_product_rules<br/>migration 0076")]
+        PROF[("projects:<br/>companyProfile · operationProfile<br/>+ NCMs + CNAEs")]
+    end
+
+    O1 --> SA
+    O2 --> IA
+    O3A --> REQ
+    O3B --> NPR
+    O3B --> PROF
+
+    subgraph ANALISE["Análise de Gaps"]
+        AGQ["analyzeGapsFromQuestionnaires<br/>Z-11<br/>classify pessimista:<br/>nao_atendido ganha"]
+        AGL["analyzeGaps legado<br/>Onda 3A"]
+    end
+
+    SA --> AGQ
+    IA --> AGQ
+    REQ --> AGL
+
+    subgraph ACL["ACL - Gap to Rule Mapper"]
+        ACLRULES["gap-to-rule-mapper<br/>status:<br/>• mapped (1 match) → gera<br/>• ambiguous (2+) → reviewQueue<br/>• unmapped (0) → descarta"]
+    end
+
+    AGQ --> PG
+    AGL --> PG
+    PG[("project_gaps_v3")]
+    PG --> ACLRULES
+
+    subgraph PIPELINE["generate-risks-pipeline.ts (Z-13.5)"]
+        PEX[extractProjectProfile]
+        CR["consolidateRisks<br/>agrupa por risk_key:<br/>categoria :: op :: multi|mono<br/>RN-RISK-04: 1 categoria = 1 risco"]
+        NI["inferNormativeRisks<br/>Onda 3B<br/>sem gap → risco direto"]
+        MG["mergeByRiskKey<br/>dedup — último vence"]
+        ERG["enrichAllWithRag<br/>timeout 3s"]
+    end
+
+    PROF --> PEX
+    ACLRULES --> CR
+    PEX --> CR
+    PEX --> NI
+    NPR --> NI
+    CR --> MG
+    NI --> MG
+    MG --> ERG
+
+    subgraph CATALOGOS["Catálogos (precedência)"]
+        RC[("risk_categories - DB<br/>10 rows<br/>N1: autoritativo")]
+        ST["SEVERITY_TABLE código<br/>N2: fallback<br/>10 categorias"]
+        TT["TITULO_TEMPLATES<br/>{op} := tipoOperacao ?? 'geral'"]
+        RAG_Q["RAG_QUERIES<br/>ragDocuments — 2515 chunks"]
+    end
+
+    RC -.severidade<br/>urgencia<br/>tipo<br/>artigo.-> CR
+    ST -.fallback.-> CR
+    TT -.titulo.-> CR
+    RAG_Q -.LIKE match.-> ERG
+
+    subgraph DESTINO["Persistência Final"]
+        RISKS[("risks_v4<br/>• breadcrumb: 4 nós<br/>• evidence: SOURCE_RANK ordenada<br/>• rag_validated: 1 se hit else 0<br/>• confidence: blend ou penalidade 0.75<br/>• status=active, approved_at=NULL<br/>• risk_key (dedup)")]
+    end
+
+    ERG --> RISKS
+
+    subgraph INVARIANTES["Invariantes garantidos"]
+        INV1["RN-RISK-01: artigo nunca NULL"]
+        INV2["RN-RISK-02: severidade nunca LLM"]
+        INV3["RN-RISK-04: 1 risco por categoria"]
+        INV5["RN-RISK-09: evidence ordenada SOURCE_RANK"]
+        DEC05["DEC-05: nunca repetir risco entre categorias"]
+    end
+
+    RISKS -.valida.-> INV1
+    RISKS -.valida.-> INV2
+    RISKS -.valida.-> INV3
+    RISKS -.valida.-> INV5
+    RISKS -.valida.-> DEC05
+
+    style O1 fill:#c3e6cb
+    style O2 fill:#fff3cd
+    style O3A fill:#bee5eb
+    style O3B fill:#bee5eb
+    style RC fill:#d1ecf1,stroke:#0c5460,stroke-width:3px
+    style RISKS fill:#f8d7da,stroke:#721c24,stroke-width:3px
+    style ACLRULES fill:#fce4ec
+```
+
+**Leitura do fluxo:**
+
+- **Verde (Onda 1 SOLARIS):** fonte humana curada pela equipe jurídica — maior confiança (1.0). SOURCE_RANK=4.
+- **Amarelo (Onda 2 IA GEN):** perguntas geradas dinamicamente pela IA — confidence variável (~0.7). SOURCE_RANK=5.
+- **Azul (Onda 3A/3B):** fontes normativas — menor rank = maior prioridade (cnae=1 é a mais confiável).
+- **Rosa (ACL):** gatekeeper — descarta gaps ambíguos/unmapped. Um gap só vira risco se tiver exatamente 1 match.
+- **Azul escuro (risk_categories):** autoritativo em runtime. Fallback SEVERITY_TABLE é só para casos de falha do DB.
+- **Vermelho (risks_v4):** destino final — todos os riscos carregam rastreabilidade completa até a fonte.
+- **Linhas tracejadas:** relações de validação/fornecimento de metadados (não fluxo de dados principal).
+
+**Rastreabilidade reversa (top → bottom):**
+
+Dado um `risks_v4.id`, é possível reconstruir a cadeia:
+1. `breadcrumb[0]` → fonte (cnae/ncm/nbs/solaris/iagen)
+2. `evidence[0].ruleId` → gap em `project_gaps_v3`
+3. `project_gaps_v3.source_type` → tabela original (`solaris_answers` / `iagen_answers` / `regulatory_requirements_v3`)
+4. JOIN com `risk_category_code` → pergunta que gerou a resposta
+5. `answer_value` → resposta do advogado/IA
+
+---
+
 *IA SOLARIS · Snapshot de Matriz de Riscos · 2026-04-18*
 *Documento imutável — novas versões geram novo arquivo datado*
-*Baseline + Inventário consolidado (24 seções · ~1400 linhas)*
+*Baseline + Inventário + Fluxos consolidados (25 seções · ~1600 linhas)*
 *Status: aguardando aprovação P.O. para liberar suite de testes*
