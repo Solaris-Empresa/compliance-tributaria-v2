@@ -1,8 +1,9 @@
 # SPEC — Suite de Testes: Matriz de Riscos v4
 
 ## IA SOLARIS · Compliance Tributário v2
-## Versão 1.0 · 2026-04-18 · Audiência: P.O. · Orquestrador · Claude Code · Manus
+## Versão 1.1 · 2026-04-18 · Audiência: P.O. · Orquestrador · Claude Code · Manus
 ## Baseline: `docs/governance/MATRIZ_RISCOS_SNAPSHOT_2026-04-18.md` (1628 linhas)
+## Changelog v1.0 → v1.1: aplicadas C1-C7 + decisões P1-P5 (crítica Manus 2026-04-18)
 
 ---
 
@@ -44,13 +45,20 @@ real fornecido pelos advogados.
 
 ## Bloco 2 — UX Spec
 
-**ISENÇÃO ORQ-16:** esta é spec de **teste**, não de UI. Não há
-componente frontend a validar contra mockup. O único artefato
-visual é o **relatório de progresso** (`progress.md`), cujo
-formato é definido no Bloco 5.
+**ISENÇÃO ORQ-16 (explicitada por bateria — C5):**
 
-Nenhum `data-testid` novo introduzido (Bloco 9 consolida os
-existentes que serão cobertos pelos testes E2E).
+- **B1-B3:** isenção aplica — sem componentes UI novos. Suite usa
+  `data-testid` existentes (listados em Bloco 9). Nenhum mockup
+  necessário.
+- **B4:** testa UI existente via Playwright (fluxo completo com caso
+  real do advogado) — sem criar componentes novos. Isenção
+  mantida: nenhum mockup de UI novo é requerido em nenhuma bateria.
+
+O único artefato visual produzido pela spec é o **relatório de
+progresso** (`progress.md`), cujo formato é definido no Bloco 5.
+
+Novos `data-testid` para E2E listados no Bloco 9 são para elementos
+já existentes no código — confirmar via grep antes da implementação.
 
 ---
 
@@ -85,7 +93,39 @@ existentes que serão cobertos pelos testes E2E).
 | 13 | `docs/governance/TEST_PROGRESS_TEMPLATE.md` | Template do `progress.md` |
 | 14 | `docs/governance/CASO_REAL_UAT_CHECKLIST.md` | Checklist para teste manual pós-bateria 4 |
 
-### 3.4 Estrutura de diretórios criada
+### 3.4 Projeto de testes destrutivos (C6 + P5)
+
+Criado pelo Manus via `trpc.createProject` **antes de G1.1** (pré-requisito
+da Bateria 1). Perfil padronizado — paralelo estrutural ao 930001:
+
+```
+name:               "test_z20_destructive"
+cnpj:               "00.000.000/0001-99"   (fake válido)
+companyType:        ltda
+companySize:        media
+taxRegime:          lucro_real
+annualRevenueRange: 4800000-78000000
+confirmedCnaes:     ["4639-7/01"]           (atacadista alimentar)
+operationProfile.tipoOperacao:  comercio
+operationProfile.tipoCliente:   b2b
+operationProfile.multiestadual: false
+```
+
+**Por que esse perfil:**
+- Mesmo perfil do 930001 permite comparação determinística de outputs
+- CNAE 4639-7/01 aciona `CNAES_ALIMENTAR` **e** `CNAES_ATACADISTA`
+  (inferência Onda 3B gera 2 riscos inferidos)
+- `multiestadual=false` evita variação de `risk_key` entre baterias
+
+**ID atribuído dinamicamente** — spec lê de variável de ambiente
+`E2E_DESTRUCTIVE_PROJECT_ID` (exposta pelo Orquestrador após a
+criação). Nunca hardcoded.
+
+**Limpeza entre baterias:** DELETE lógico do projeto ao final de
+cada bateria via SQL (permitido em projeto de testes dedicado).
+Projeto é recriado no início da próxima bateria com mesmo perfil.
+
+### 3.5 Estrutura de diretórios criada
 
 ```
 reports/                          (novo, .gitignored)
@@ -245,6 +285,36 @@ echo "SELECT COUNT(*) FROM risks_v4 WHERE project_id=930001;" | # execute via Ma
 
 ## Bloco 7 — Critérios de aceite (por bateria)
 
+### Gate G0 — smoke-test do reporter (C3) — antes de qualquer bateria
+
+**Pré-condição absoluta.** Antes de G1.1 da Bateria 1.
+
+**Arquivo:** `scripts/smoke-test-reporter.sh`
+
+**Executa 3 testes sintéticos que validam o reporter em tempo real:**
+
+1. **Append simples:** 1 processo escreve 10 linhas em `progress.md`
+   com delay de 500ms entre cada. Verificação: cada linha aparece
+   em tempo real (delta < 2s entre escrita e leitura).
+2. **Lock de arquivo (concorrência):** 2 processos paralelos escrevem
+   5 linhas cada simultaneamente. Verificação: arquivo final tem
+   10 linhas sem corrupção, sem interleaving partial.
+3. **Flush sem buffer:** kill -9 do processo após 3 escritas.
+   Verificação: as 3 linhas estão no disco (não perdidas em buffer).
+
+**Critério G0:** PASS em todos os 3 testes antes de qualquer bateria.
+
+**Ação se G0 FAIL:**
+- Reporter está quebrado — abortar bateria
+- Corrigir `vitest.config.ts` custom reporter
+- Reexecutar G0 até PASS
+
+**Por que G0 vem antes de G1.1:** se o reporter não funciona, o P.O.
+não consegue acompanhar a bateria em tempo real. A falha de infraestrutura
+de observabilidade precede qualquer falha de teste de negócio.
+
+---
+
 ### Bateria 1 — Baseline (primeira passada)
 
 **Objetivo:** fotografar o estado real vs esperado. Vai falhar muito —
@@ -298,12 +368,30 @@ esse é o ponto.
 - [ ] G3.1: 100% unit tests PASS
 - [ ] G3.2: 100% integration tests PASS
 - [ ] G3.3: 10/10 critérios de aferição PASS
-- [ ] G3.4: 21/21 bugs UAT verificados
+- [ ] G3.4: 21/21 bugs UAT verificados (ver exceção abaixo)
 - [ ] G3.5: Zero flaky tests em 3 execuções consecutivas (critério
   anti-intermitência)
 - [ ] G3.6: Drift check: zero divergências (DB × código × RN
   alinhados após PRs de governança P1)
 - [ ] G3.7: Compliance Score visível no RiskDashboardV4 (DEC-01)
+
+**EXCEÇÃO B3 (C7) — "blocked-by-product-decision":**
+
+Bugs marcados com label `blocked-by-product-decision` **NÃO contam**
+no denominador do 100%. Regras da exceção:
+
+- Cada exceção requer justificativa explícita do P.O. no issue do bug
+- Máximo **3 exceções** por bateria (acima disso, travar e reavaliar)
+- A justificativa deve citar qual decisão de produto está pendente
+- Bugs em exceção são listados no `final.md` como "débito consciente"
+
+**Exemplo legítimo:** bug B-XX requer decisão P.O. sobre se a UI deve
+mostrar X ou Y. Enquanto P.O. não decide, o teste está bloqueado.
+Label `blocked-by-product-decision` aplicada → sai do denominador.
+
+**Anti-abuso:** labels aplicadas sem justificativa do P.O. são
+consideradas tentativa de burlar o gate — Orquestrador remove e
+conta no denominador.
 
 ---
 
@@ -422,6 +510,63 @@ faltante — Claude Code corrige via PR antes de avançar.
 
 ---
 
+## Bloco 9.1 — Triagem dos 21 bugs UAT Gate E (C2)
+
+Fonte: `MATRIZ_RISCOS_SNAPSHOT_2026-04-18.md §10` — os 21 bugs
+catalogados no UAT Gate E de 2026-04-11 (B-01 a B-21).
+
+**Classificação obrigatória por cobertura de teste** — a ser preenchida
+pelo Claude Code ao implementar os arquivos da suite (B1):
+
+### Playwright COBRE (automatizável em B1-B3)
+
+Bugs verificáveis por DOM query, assertion de URL, chamada de API
+via tRPC client, ou contagem de elementos. Incluídos nas suites
+`risk-matrix-audit.spec.ts`, `soft-delete-cascade.spec.ts`,
+`consolidacao-v4.spec.ts`.
+
+```
+[ Claude Code lista quais dos 21 bugs estão aqui após implementação ]
+```
+
+### Inspeção humana (manual, checklist na Bateria 4)
+
+Bugs de UX, fluxo de aprovação jurídica, layout ou ordem visual que
+não são deterministicamente detectáveis por teste automatizado.
+Entram no `docs/governance/CASO_REAL_UAT_CHECKLIST.md` para
+verificação P.O. durante Bateria 4.
+
+```
+[ Claude Code lista quais dos 21 bugs estão aqui após implementação ]
+```
+
+### UX puro (fora do escopo desta suite)
+
+Bugs de percepção, preferência subjetiva, ou estética pura sem
+impacto funcional. Movidos para backlog separado — não entram
+no denominador dos gates B1-B4.
+
+```
+[ Claude Code lista quais dos 21 bugs estão aqui após implementação ]
+```
+
+**Regra de soma:** `|Playwright| + |Inspeção humana| + |UX puro| = 21`.
+
+**Entregável desta seção:** ao final da implementação da suite
+(primeira execução da B1), Claude Code atualiza este Bloco 9.1
+com a triagem completa. A versão **v1.2 da spec** refletirá a
+triagem concreta.
+
+**Impacto nos thresholds:**
+- B2 usa apenas bugs em "Playwright cobre" como denominador
+  (se a categoria tem 13 bugs, threshold é 17/13 — precisa ajuste)
+- **Ajuste automático:** Claude Code recalcula os thresholds de B2
+  e B3 com base no denominador real após a triagem
+- Se triagem revelar < 10 bugs automatizáveis: Orquestrador
+  reavalia escopo antes de B2
+
+---
+
 ## ADR — Decisões arquiteturais
 
 ### ADR-TST-01 — 4 baterias iterativas em vez de 1 execução única
@@ -464,6 +609,39 @@ além de PASS/FAIL, imprime:
 
 **Consequências:** aferição demora mais para rodar (~30s por critério),
 mas permite ação imediata do Orquestrador ao ler o relatório.
+
+---
+
+### Decisões P.O. registradas (P1, P2, P3)
+
+**DECISÃO P1 — Thresholds do score (D5 do snapshot):**
+- Thresholds oficiais: **75/50/25** (código — `compliance-score-v4.ts:46-51`)
+- Runtime atual é a fonte de verdade — RN será atualizada
+- Ação: `RN_CONSOLIDACAO_V4.md §3` será corrigida em PR pós-snapshot
+  (P1.5) para remover bypass por `totalAlta` e alinhar limiares
+- Justificativa: todos os snapshots históricos em `projects.scoringData`
+  usaram os thresholds do código; mudar código agora invalidaria histórico
+  (registrado P.O. 2026-04-18)
+
+**DECISÃO P2 — Cap 77.78% é design intencional (RI-06):**
+- `MAX_PESO=9` reserva espaço para severidade futura "crítica" (peso 9)
+- Severidade mais alta atual é "alta" (peso 7) → cap natural `7/9 = 77.78%`
+- Padrão comum em engines determinísticos (reserva para expansão
+  sem invalidar scores históricos)
+- Ação: documentar em `RN_CONSOLIDACAO_V4.md §3` como "reserva para
+  severidade crítica futura"
+- Validação (B1): projeto sintético com 10 riscos alta + confidence=1.0
+  deve produzir score ≈ 77 (confirma design, descarta bug)
+- (registrado P.O. 2026-04-18)
+
+**DECISÃO P3 — PR #E (CPIE-B) antes da Bateria 3:**
+- Plano A: PR #E mergeado antes de B3 → suite testa estado final
+- Plano B (se PR #E > 2 sprints):
+  - CPIE-B registrado como "débito aceito" no `final.md` de cada bateria
+  - Suite valida apenas **Score D** (`compliance-score-v4.ts`)
+  - Critério 8 do §13.5 marcado `N/A — débito PR #E aceito`
+  - Orquestrador decide Plano A ou B antes de despachar F6 da suite
+- (registrado P.O. 2026-04-18)
 
 ---
 
@@ -595,27 +773,73 @@ Mesmo com todos os gates PASS.
 
 ---
 
-## Pendências bloqueadoras (antes da aprovação da spec)
+## Pendências por bateria (estratificadas — C1)
 
-O Orquestrador precisa validar com o P.O. antes de abrir issue:
+Substitui a lista plana de "5 pendências bloqueadoras" da v1.0.
+Esta versão estratifica por bateria, evitando que pendências de
+B3/B4 bloqueiem a abertura de F1 para a B1.
 
-1. **D5 do snapshot (thresholds score):** seguir RN (70/50/30 + bypass
-   totalAlta) ou código (75/50/25 sem bypass)? A Bateria 3 não
-   pode passar em 10/10 critérios sem essa decisão.
+### ANTES DA BATERIA 1 (bloqueadoras de F1)
 
-2. **RI-06 (cap ~77.8% do score):** design intencional ou bug?
-   Se bug, corrigir antes da Bateria 3. Se intencional, documentar
-   na RN como "cap determinístico" antes da Bateria 3.
+- [ ] **P5 + C6** — Criar projeto `test_z20_destructive` com o perfil
+  definido em Bloco 3.4. Responsável: Orquestrador despacha Manus.
+  ID exposto em `E2E_DESTRUCTIVE_PROJECT_ID`.
+- [ ] **P1** — Confirmar que thresholds oficiais são 75/50/25 (código).
+  Já decidido (ver ADR "Decisões P.O. registradas"), pendência é
+  apenas confirmação pelo Orquestrador antes de abrir issue.
+- [ ] **C2** — Placeholder de triagem dos 21 bugs UAT inserido no
+  Bloco 9.1. Preenchimento concreto é responsabilidade do Claude Code
+  ao implementar a suite — não bloqueia F1.
+- [ ] **C3 / G0** — Smoke-test do reporter implementado antes de G1.1.
+  Responsável: Claude Code como primeiro artefato da F6.
 
-3. **PR #E (CPIE-B):** será feito ANTES ou DEPOIS da suite?
-   Se antes: critério 8 do §13.5 pode passar.
-   Se depois: critério 8 entra como débito aceito no caso real UAT.
+### ANTES DA BATERIA 3 (bloqueadoras de avanço B2 → B3)
 
-4. **Caso real do advogado:** definir projeto de UAT + perfil +
-   questionários antes da ETAPA 5. Ideal: advogado fornece 2026-04-XX.
+- [ ] **P3** — PR #E (CPIE-B) mergeado **OU** Plano B ativado
+  (CPIE como débito aceito, Score D isolado).
+  Responsável: Orquestrador decide antes de despachar correções B2.
+- [ ] **P1.5** — PR atualizando `RN_CONSOLIDACAO_V4.md §3` com
+  thresholds 75/50/25 mergeado (alinha RN × código).
+- [ ] **P1.2-P1.4** — Demais PRs de governança pós-snapshot
+  mergeados (D2, D3, D6 do snapshot §5) para drift check zerar.
 
-5. **Projeto de testes destrutivos:** ID a ser definido pelo
-   Orquestrador + criado no DB antes da Bateria 1.
+### ANTES DA BATERIA 4 (bloqueadoras de validação final)
+
+- [ ] **P4** — Projeto UAT do advogado provisionado no DB com os
+  **6 requisitos** (ver abaixo). Responsável: P.O. fornece caso
+  via advogado parceiro; Manus importa e executa pipeline completo.
+
+### 6 requisitos do projeto UAT (P4 — substitui lista v1.0)
+
+1. Caso de **empresa real** (anonimizado se necessário por LGPD)
+2. Cobrir **no mínimo 5 das 10 categorias** oficiais (garantir
+   diversidade entre alta/media/oportunidade)
+3. Ter **respostas completas nas Ondas 1+2** (SOLARIS + IA GEN) —
+   não apenas dados de perfil
+4. Ter CNAE(s) válido(s) para acionar **Onda 3 (RAG)** com hits
+   mínimos no corpus `ragDocuments`
+5. **NÃO ser o 930001** (projeto sintético de teste) nem o
+   `test_z20_destructive` (projeto dedicado a B1-B3)
+6. Ter `status=aprovado` OU `em_andamento` com Ondas 1+2 concluídas
+   no sistema — ou seja, o projeto já **passou pelo fluxo SOLARIS
+   completo**, não é apenas um seed de DB. Isso garante que a
+   Bateria 4 testa o pipeline integral, não dados sintéticos.
+
+### Matriz bloqueadora × bateria
+
+| Pendência | B1 | B2 | B3 | B4 |
+|---|---|---|---|---|
+| P1 (thresholds) | Confirma | — | Aplica RN | — |
+| P2 (cap 77.8%) | Valida em teste sintético | — | — | — |
+| P3 (PR #E) | — | — | **Bloqueia** | — |
+| P4 (projeto UAT) | — | — | — | **Bloqueia** |
+| P5 (projeto destrutivo) | **Bloqueia** | — | — | — |
+| C1 (estratificação) | — | — | — | — |
+| C2 (triagem bugs) | — | **Ajusta denominador** | **Ajusta denominador** | — |
+| C3 (reporter smoke) | **Bloqueia via G0** | — | — | — |
+| C5 (ORQ-16 por bateria) | — | — | — | — |
+| C6 (perfil destrutivo) | Ver P5 | — | — | — |
+| C7 (exceção B3) | — | — | **Aplica** | — |
 
 ---
 
@@ -638,5 +862,6 @@ O Orquestrador precisa validar com o P.O. antes de abrir issue:
 ---
 
 *IA SOLARIS · Spec de Suite de Testes · Matriz de Riscos v4*
-*Versão 1.0 · 2026-04-18 · Pendente aprovação P.O. + Orquestrador*
+*Versão 1.1 · 2026-04-18 · C1-C7 + P1-P5 aplicadas*
 *Após aprovação: submeter como issue com 5 labels spec-* + 4 blocos obrigatórios*
+*v1.2 será gerada após triagem concreta dos 21 bugs UAT (Bloco 9.1)*
