@@ -182,20 +182,33 @@ GH_TOKEN=$TOKEN gh issue list --repo Solaris-Empresa/compliance-tributaria-v2 --
 
 ---
 
-## Estado Atual (2026-04-17)
+## Estado Atual (2026-04-18)
 
-- **Baseline:** v7.10 · **HEAD:** `31ef5a6`
-- **Sprint Z-18: ENCERRADA** — hot swap ✅ PDF ✅ restore ✅ governance ✅
-- **PRs mergeados:** 710 (total)
-- **E2E:** 33 CTs · **Unit:** 61 testes · **tsc:** 0 erros
-- **Próxima sprint: T** — campo NCM + LC 87 compilada + engine Onda 3 (source='rag')
-- **PRs abertos:** 0
-- **Testes:** 1.436 passando · 0 falhas (71 files)
+- **Baseline:** v7.11 · **HEAD:** `f08dfc1`
+- **Sprints Z-19/Z-20/Z-21: ENCERRADAS** — UI refinements ✅ Snapshot Matriz ✅ CPIE doc ✅ Cascata soft delete ✅
+- **PRs mergeados na sessão:** #714 (Z-19) · #716 (snapshot) · #721 (CPIE) · #722 (cascata)
+- **Último commit:** `f08dfc1 docs(governance): CPIE — mapeamento dos 4 scores (#721)`
+- **E2E:** 39 CTs (33 prévios + 6 UI refinements + cascata smoke) · **Unit:** 61 testes · **tsc:** 0 erros
+- **PRs abertos:** 3 (#718 Suite Z-20, #715 inventário Manus, #713 Z-19 log inicial — todos reavaliados)
+- **Issues OPEN:** #720 (converter 4 fixme em executáveis — pendente F6)
 - **DIAGNOSTIC_READ_MODE:** `shadow` — **NÃO alterar**
-- **Migrations:** 62 aplicadas
-- **Corpus RAG:** 2.454 chunks · 10 leis
-- **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
-- **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção
+- **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade (Gate 7 PASS no projeto 930001)
+
+### Achados documentais consolidados (v7.11)
+
+- `docs/governance/MATRIZ_RISCOS_SNAPSHOT_2026-04-18.md` (1628 linhas · 25 seções · base para auditoria jurídica)
+- `docs/governance/CPIE_SCORES_MAPEAMENTO.md` (570 linhas · 4 scores desambiguados)
+- `docs/specs/SPEC-TESTE-MATRIZ-RISCOS-v1.md` (867 linhas · suite de 4 baterias — mas estratégia reavaliada)
+
+### Décisão P.O. 2026-04-18 — overengineering Z-20
+
+Sistema estava "razoável a bom" na Bateria 1 (10/10 critérios §13.5 PASS · Gate 7 4/4 PASS · 0 bugs de produto inéditos — apenas 1 bug de cascata corrigido em #719). **Bateria 2/3/4 canceladas** — ir direto ao caso real do advogado. Reduzir overhead de governança para fixes pontuais.
+
+### Débito operacional conhecido (fora do escopo imediato)
+
+- **CI FAILURES sistêmicas:** `OAUTH_SERVER_URL` + `OPENAI_API_KEY` ausentes em GitHub Actions → "Run Unit Tests" + "Validate PR body" + "Governance gate" falham em todos PRs. Merges passaram porque repo não tem branch protection exigindo checks. **Tarefa futura:** configurar secrets OU marcar jobs como non-blocking
+- **CPIE zerado em produção (ADR-0023):** 0/2367 projetos analisados. `profileCompleteness` default=0 em todos. Débito do PR #E (não fechado). **Sprint CPIE separada** a ser priorizada
+- **4 fixme em `soft-delete-cascade.spec.ts`:** validados em runtime pelo Manus (task/restored=3 ✅) mas ainda marcados test.fixme. Conversão em issue #720 pendente F6
 
 ### Lembrete Sprint S — Bug Encontrado e Corrigido
 
