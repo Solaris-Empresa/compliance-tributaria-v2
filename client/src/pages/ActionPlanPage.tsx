@@ -1,7 +1,7 @@
 /**
  * ActionPlanPage.tsx — Sprint Z-07 PR #C → Sprint Z-12 UX Spec
  *
- * Página de gestão de planos de ação e tarefas do Sistema de Riscos v4.
+ * Página de gestão de planos de ação e tarefas do Sistema de Riscos.
  * Consome: trpc.risksV4.upsertActionPlan · deleteActionPlan · approveActionPlan
  *          trpc.risksV4.upsertTask · deleteTask · getProjectAuditLog
  *
@@ -42,6 +42,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { generateDiagnosticoPDF } from "@/lib/generateDiagnosticoPDF";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -497,9 +498,6 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
             <Badge variant="outline" className="text-xs">
               {STATUS_PLAN_LABELS[plan.status] ?? plan.status}
             </Badge>
-            <Badge variant="secondary" className="text-xs">
-              {plan.prazo.replace("_", " ")}
-            </Badge>
             {isApproved && (
               <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
                 <CheckCircle2 className="h-3 w-3" />
@@ -950,26 +948,80 @@ export default function ActionPlanPage() {
             </Button>
           </Link>
           <span className="text-muted-foreground">/</span>
+          <Link href={`/projetos/${projectId}/risk-dashboard-v4`}>
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+              Matriz de Riscos
+            </Button>
+          </Link>
+          <span className="text-muted-foreground">/</span>
           <span className="text-sm font-medium text-foreground flex items-center gap-1.5">
             <ClipboardList className="h-4 w-4" />
-            Planos de Ação v4
+            Planos de Ação
           </span>
         </div>
 
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-xl font-bold text-foreground">Planos de Ação — v4</h1>
+            <h1 className="text-xl font-bold text-foreground">Planos de Ação</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Gestão de planos e tarefas do Sistema de Riscos v4
+              Gestão de planos e tarefas
             </p>
           </div>
-          {riskIdParam && (
-            <Button data-testid="new-plan-button" size="sm" onClick={() => setShowNewPlan(true)}>
-              <Plus className="h-3.5 w-3.5 mr-1.5" />
-              Novo plano
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {riskIdParam && (
+              <Button data-testid="new-plan-button" size="sm" onClick={() => setShowNewPlan(true)}>
+                <Plus className="h-3.5 w-3.5 mr-1.5" />
+                Novo plano
+              </Button>
+            )}
+            {allPlans.length > 0 && (
+              <Button
+                data-testid="btn-ver-consolidacao-top"
+                variant="outline"
+                size="sm"
+                onClick={() => setLocation(`/projetos/${projectId}/consolidacao-v4`)}
+              >
+                Ver Consolidação
+              </Button>
+            )}
+            {allPlans.length > 0 && (
+              <Button
+                data-testid="btn-exportar-pdf-planos"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  generateDiagnosticoPDF({
+                    cnpj: undefined,
+                    score: 0,
+                    nivel: "baixo",
+                    totalAlta: 0,
+                    totalMedia: 0,
+                    risks: [],
+                    opportunities: [],
+                    plans: allPlans.map((p: any) => ({
+                      titulo: p.titulo,
+                      responsavel: p.responsavel,
+                      prazo: p.prazo,
+                      status: p.status,
+                      tasks: p.tasks?.map((t: any) => ({
+                        titulo: t.titulo,
+                        status: t.status,
+                        data_fim: t.data_fim
+                          ? (t.data_fim instanceof Date
+                              ? t.data_fim.toLocaleDateString("pt-BR")
+                              : String(t.data_fim).slice(0, 10))
+                          : null,
+                      })),
+                    })),
+                  });
+                  toast.success("PDF gerado com sucesso");
+                }}
+              >
+                Exportar PDF
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Modal: Novo / Editar plano */}
@@ -1091,7 +1143,7 @@ export default function ActionPlanPage() {
                       Nenhum plano de ação gerado ainda.
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Execute o diagnóstico para gerar riscos e planos de ação v4.
+                      Execute o diagnóstico para gerar riscos e planos de ação.
                     </p>
                   </CardContent>
                 </Card>
@@ -1193,21 +1245,20 @@ export default function ActionPlanPage() {
             </TabsContent>
           </Tabs>
 
-          {/* Botão Ver Consolidação — visível quando todos os planos estão aprovados (#625) */}
-          {allPlans.length > 0 &&
-            allPlans.every((p: any) => p.status !== "rascunho") && (
-              <div className="flex justify-center pt-4">
-                <Button
-                  data-testid="btn-ver-consolidacao"
-                  size="lg"
-                  onClick={() =>
-                    setLocation(`/projetos/${projectId}/consolidacao-v4`)
-                  }
-                >
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Ver Consolidação
-                </Button>
-              </div>
+          {/* Botão Ver Consolidação — visível quando existem planos (#712) */}
+          {allPlans.length > 0 && (
+            <div className="flex justify-center pt-4">
+              <Button
+                data-testid="btn-ver-consolidacao"
+                size="lg"
+                onClick={() =>
+                  setLocation(`/projetos/${projectId}/consolidacao-v4`)
+                }
+              >
+                <CheckCircle2 className="h-4 w-4 mr-2" />
+                Ver Consolidação
+              </Button>
+            </div>
           )}
         </>)}
       </div>
