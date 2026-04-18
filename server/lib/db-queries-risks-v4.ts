@@ -838,7 +838,7 @@ export async function restoreRiskWithCascade(
     );
     await query(
       `UPDATE tasks
-       SET status = 'pending', deleted_reason = NULL
+       SET status = 'todo', deleted_reason = NULL
        WHERE action_plan_id = ? AND status = 'deleted'`,
       [plan.id]
     );
@@ -854,7 +854,7 @@ export async function restoreRiskWithCascade(
         user_role: actor.user_role,
         before_state: { status: "deleted" },
         after_state: {
-          status: "pending",
+          status: "todo",
           cascade_source: "risk",
           cascade_source_id: riskId,
           cascade_via_plan: plan.id,
