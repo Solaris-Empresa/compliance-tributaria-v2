@@ -25,27 +25,26 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-17)
-- BASELINE **v7.9** — Sprint Z-18 ENCERRADA · 3/3 issues · PRs #698–#707 · Gate 7 PASS 5/5 · Deploy ✅ iasolaris.manus.space
-- **HEAD: `b387bbb` (github/main)** · **Checkpoint Manus:** `ba7e7af2`
-- **PRs mergeados:** 708+ · **TypeScript:** 0 erros · **E2E:** 37 CTs · **Unit tests:** 61
-- **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade (GS-08: 0 chunks sem autor)
+## Estado atual do projeto (2026-04-18)
+- BASELINE **v7.12** — Sprint Z-21 ENCERRADA · Sprint Z-22 INICIADA
+- **HEAD: `48a3dda` (github/main)** · **Checkpoint Manus:** `6e196d3c`
+- **PRs mergeados:** 726 · **TypeScript:** 0 erros · **Unit tests:** 1717 passed / 9 skipped (1 falha conhecida: b-z11-012-evidence)
+- **Bundle:** ~1.4MB gzipado (vendor 761KB) — redução de 63% vs baseline Z-20
+- **streamdown:** REMOVIDA (PR #726) → `MarkdownRenderer.tsx` (react-markdown + remark-gfm)
+- **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade
 - **Skill solaris-contexto:** v4.7 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
-- **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção · Suite E2E automatizada 15 casos ✅ (#364)
-- **E2E Playwright Z-14:** data-testid 17 seletores (#559) · E2E_PROJECT_ID=270001 · fixtures SQL versionadas (#557)
+- **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção · Suite E2E automatizada 21 casos ✅ (Z-17)
 - **Contratos M1:** CNT-01a/01b/02/03 em `docs/contracts/`
 - **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + REGRA-ORQ-12/13 + ORQ-17
 - **Datasets:** `nbs-2-0-utf8.csv` no repo · `lc214-2025.pdf` no sandbox
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
 - **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06
-- **tasks.data_inicio / data_fim:** DATE NOT NULL confirmado (Opção C — PR #639) · SHOW COLUMNS verificado 2026-04-16
 - **risk_categories:** 9 categorias ativas · 10 no banco (1 inativa)
-- **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
-- **Bug #545:** ⏳ ABERTO — imports dinâmicos incorretos em diagnostic-source.test.ts (sem impacto em produção)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
-- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · **Z-14 ✅ (16 issues)** · **Z-15 Lote A ✅** · **Z-16 ✅ (9/9 issues)** · **Z-17 ✅** · **Z-18 ✅ (3/3 issues)**
+- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · Z-14 ✅ (16 issues) · Z-15 Lote A ✅ · Z-16 ✅ (9/9 issues) · Z-17 ✅ · Z-18 ✅ (3/3 issues) · **Z-19 ✅** · **Z-20 ✅** · **Z-21 ✅ (bundle -63% + streamdown removido)**
+- **Sprint Z-22 INICIADA:** Issue #725 · Milestone #20 · Dashboard Compliance v3 on-demand [P0] · SPEC 573 linhas
 
 ### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |
