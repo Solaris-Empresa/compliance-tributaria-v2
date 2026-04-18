@@ -19,7 +19,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Download, Edit2, Eye, FileT
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { toast } from "sonner";
-import { Streamdown } from "@/components/MarkdownRenderer";
+import { Streamdown } from "streamdown";
 import { VersionHistory } from "@/components/VersionHistory";
 import { GenerationProgressModal } from "@/components/GenerationProgressModal";
 import { useAuth } from "@/_core/hooks/useAuth";

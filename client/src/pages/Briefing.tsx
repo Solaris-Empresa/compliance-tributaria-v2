@@ -8,7 +8,7 @@ import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, History, Loader2, S
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { toast } from "sonner";
-import { Streamdown } from "@/components/MarkdownRenderer";
+import { Streamdown } from "streamdown";
 import { VersionHistory } from "@/components/VersionHistory";
 import { GenerationProgressModal } from "@/components/GenerationProgressModal";
 import {

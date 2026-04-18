@@ -1,0 +1,92 @@
+flowchart TD
+    %% ─── ESTILOS ───────────────────────────────────────────────
+    classDef evento    fill:#1e3a5f,stroke:#4a90d9,color:#fff,font-weight:bold
+    classDef template  fill:#2d4a1e,stroke:#6abf4b,color:#fff
+    classDef action    fill:#0e7490,stroke:#22d3ee,color:#fff
+    classDef workflow  fill:#7c3aed,stroke:#c084fc,color:#fff
+    classDef audit_ok  fill:#166534,stroke:#4ade80,color:#fff
+    classDef audit_err fill:#991b1b,stroke:#f87171,color:#fff
+    classDef merge     fill:#1e40af,stroke:#60a5fa,color:#fff
+    classDef cockpit   fill:#92400e,stroke:#fbbf24,color:#fff
+    classDef skill     fill:#4a1d96,stroke:#a78bfa,color:#fff
+    classDef doc       fill:#374151,stroke:#9ca3af,color:#fff
+
+    %% ─── EVENTO INICIAL ────────────────────────────────────────
+    E1([🔔 EVENTO RAG IDENTIFICADO\nnova func / corpus / incidente / RFC / performance / governança]):::evento
+
+    %% ─── ABERTURA DO ISSUE ─────────────────────────────────────
+    E1 --> T1[📋 Abrir Issue\nusando template rag-change.md\n.github/ISSUE_TEMPLATE/]:::template
+    T1 --> T1a{Tipo de evento?}:::action
+
+    T1a -->|Incidente| T2a[⚠️ Preencher\nSeveridade P0–P3\nLeis afetadas\nImpacto no diagnóstico]:::template
+    T1a -->|RFC| T2b[📐 Preencher\nMotivação + Alternativas\nCritérios de aceite\nAprovação P.O. obrigatória]:::template
+    T1a -->|Corpus| T2c[📦 Preencher\nLei a adicionar\nChunks antes/depois\nFonte oficial]:::template
+    T1a -->|Performance| T2d[⚡ Preencher\nMétrica atual vs meta\nAmbiente dev/prod]:::template
+    T1a -->|Nova func / Governança| T2e[✨ Preencher\nDescrição + Critérios\nSprint alvo]:::template
+
+    %% ─── LABEL GOVERNANCE ──────────────────────────────────────
+    T2a & T2b & T2c & T2d & T2e --> LG[⚙️ label-governance.yml DISPARA\nAnalisa título + corpo do issue\nAplica label rag:* automaticamente]:::workflow
+
+    LG --> LG1[🩵 rag:corpus\nchunks, embeddings, ingestão]:::action
+    LG --> LG2[🔵 rag:retriever\nretrieveArticles, re-ranking]:::action
+    LG --> LG3[🔴 rag:incidente\nfalha, hallucination, erro]:::action
+    LG --> LG4[🟣 rag:rfc\nRFC, proposta, expansão]:::action
+    LG --> LG5[🟠 rag:performance\nlatência, cache, timeout]:::action
+    LG --> LG6[🟢 rag:governanca\nauditoria, rastreabilidade]:::action
+
+    %% ─── IMPLEMENTAÇÃO ─────────────────────────────────────────
+    LG1 & LG2 & LG3 & LG4 & LG5 & LG6 --> IMPL[💻 IMPLEMENTAÇÃO\nDesenvolvedor / Manus]:::action
+
+    IMPL --> SK[🧠 Skill solaris-orquestracao\nProtocolo de Auditoria RAG\nTabela de impacto consultada]:::skill
+
+    SK --> IMP2{Arquivo alterado?}:::action
+    IMP2 -->|rag-retriever.ts| D1[Atualizar\nRAG-PROCESSO.md\nHANDOFF-RAG.md\nRASTREABILIDADE-RAG-PO.md]:::doc
+    IMP2 -->|CORPUS-BASELINE.md| D2[Atualizar\nRAG-GOVERNANCE.md\nRAG-PROCESSO.md\nRASTREABILIDADE-RAG-PO.md]:::doc
+    IMP2 -->|RFC-*.md| D3[Atualizar\nCORPUS-BASELINE.md\nRAG-PROCESSO.md\nRASTREABILIDADE-RAG-PO.md]:::doc
+    IMP2 -->|Schema ragDocuments| D4[Atualizar\nCORPUS-BASELINE.md\nHANDOFF-RAG.md]:::doc
+
+    %% ─── ABERTURA DO PR ─────────────────────────────────────────
+    D1 & D2 & D3 & D4 --> PR[📤 Abrir PR\nusando template rag-pr.md\n.github/PULL_REQUEST_TEMPLATE/\nPreencher JSON de evidência]:::template
+
+    %% ─── AUDITORIA AUTOMÁTICA ───────────────────────────────────
+    PR --> RA[🔍 rag-impact-audit.yml DISPARA\nDetecta arquivos RAG alterados\nConsulta tabela de impacto\nVerifica docs de rastreabilidade]:::workflow
+
+    RA --> RA_OK{Auditoria OK?}:::action
+    RA_OK -->|✅ Todos os docs atualizados| AOK[✅ Check PASSED\nComentário de aprovação\npostado no PR]:::audit_ok
+    RA_OK -->|❌ Doc crítico não atualizado| AERR[❌ Check FAILED\nPR BLOQUEADO\nComentário com lista\ndo que falta atualizar]:::audit_err
+
+    AERR --> IMPL
+
+    %% ─── RFC: APROVAÇÃO P.O. ────────────────────────────────────
+    AOK --> RFC_CHECK{É uma RFC?}:::action
+    RFC_CHECK -->|Sim| PO_APROV[👤 P.O. revisa e aprova\nUires Tapajós\nAprovação obrigatória\nbefore merge]:::evento
+    RFC_CHECK -->|Não| MERGE[🔀 MERGE no main\nCI passa\nGitHub Pages atualiza]:::merge
+    PO_APROV --> MERGE
+
+    %% ─── COCKPIT ATUALIZADO ─────────────────────────────────────
+    MERGE --> CK[🖥️ COCKPIT P.O. ATUALIZADO\nsolaris-empresa.github.io/\ncompliance-tributaria-v2/painel-po/]:::cockpit
+
+    CK --> CK7A[📊 Seção 7A\nEstado do Corpus\nBarras por lei\nTotal chunks]:::cockpit
+    CK --> CK7B[📋 Seção 7B\nRastreabilidade Viva\nIssues/PRs por label\nAbertos / Incidentes / RFCs]:::cockpit
+    CK --> CK7C[🔴 Seção 7C\nConsistência Global\nCI status + incidentes P0/P1\nRFCs pendentes de aprovação]:::cockpit
+    CK --> CK7D[📄 Seção 7D\nDocumentos RAG\n10 MDs renderizados\nvia fetch raw GitHub]:::cockpit
+
+    %% ─── CACHE ──────────────────────────────────────────────────
+      CK7B & CK7C & CK7D --> CACHE[⏱️ Cache TTL 5 min
+Próxima abertura reflete o merge
+Botão ⟳ para reload forçado]:::action
+
+    %% ─── NOTA DE VERSÃO ──────────────────────────────────────────────────────────
+    %% v1.4 · 2026-04-13 (Sprint Z-13 ENCERRADA · Gate 7 PASS · HEAD 1ea5c64 · 2.515 chunks · 13 leis)
+    %% v1.2 · 2026-04-05 (Milestone 1 — Decision Kernel, source=engine)
+    %% v1.1 · 2026-04-04 (Sprint S — 2.454 chunks, 10 leis, fix iagen PR #295)
+    %% v1.0 · 2026-03-30 (Sprint K — governança RAG, labels, cockpit)
+
+    %% Decision Kernel — adicionado Milestone 1 (2026-04-05)
+    subgraph DK["Decision Kernel (source=engine)"]
+      NCM["ncm-engine.ts / lookupNcm()"] --> GapEngine
+      NBS["nbs-engine.ts / lookupNbs()"] --> GapEngine
+      GapEngine["engine-gap-analyzer.ts (fire-and-forget)"] --> PGV3E["project_gaps_v3 source='engine'"]
+    end
+    NCMData["ncm-dataset.json · 19 casos · LC 214/2025"] --> NCM
+    NBSData["nbs-dataset.json · 19 casos · NBS 2.0 MDIC"] --> NBS

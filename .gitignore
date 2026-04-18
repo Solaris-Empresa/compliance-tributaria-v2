@@ -120,19 +120,9 @@ playwright-report/
 test-results/
 playwright-results.json
 
-# Documentação (não necessária para o deploy)
-docs/
-
-# Drizzle meta snapshots antigos
-drizzle/meta/0045_snapshot.json
-drizzle/meta/0046_snapshot.json
-drizzle/meta/0047_snapshot.json
-
-# Arquivos de desenvolvimento (não necessários para o deploy)
-todo.md
-decision-kernel/datasets/nbs/*.csv
-
-# Resultados de testes e scripts de dados
-test-results-v1.0.txt
-scripts/lc87-1996-artigos.json
-baseline.md
+# Suite de testes Z-20 — apenas relatórios efêmeros (Gate G0 smoke + results)
+# Note: progress.md e final.md por bateria SÃO commitados como evidência.
+reports/battery-smoke/
+reports/battery-*/results/
+reports/battery-*/*.xml
+reports/battery-*/e2e-screenshots/

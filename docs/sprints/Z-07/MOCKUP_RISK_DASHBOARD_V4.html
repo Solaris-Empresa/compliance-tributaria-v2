@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOCKUP — RiskDashboardV4 · IA SOLARIS</title>
+<style>
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --surface2: #f2f1ee;
+    --border: rgba(0,0,0,0.08);
+    --border-md: rgba(0,0,0,0.13);
+    --text: #1a1a18;
+    --text2: #5c5b57;
+    --text3: #9c9a92;
+    --red50: #FCEBEB; --red400: #E24B4A; --red600: #A32D2D; --red800: #791F1F;
+    --amb50: #FAEEDA; --amb400: #EF9F27; --amb600: #854F0B; --amb800: #633806;
+    --tel50: #E1F5EE; --tel400: #1D9E75; --tel600: #0F6E56; --tel800: #085041;
+    --grn50: #EAF3DE; --grn400: #639922; --grn600: #3B6D11; --grn800: #27500A;
+    --blu50: #E6F1FB; --blu400: #378ADD; --blu600: #185FA5; --blu800: #0C447C;
+    --pur50: #EEEDFE; --pur400: #7F77DD; --pur600: #534AB7; --pur800: #3C3489;
+    --gry50: #F1EFE8; --gry400: #888780; --gry600: #5F5E5A; --gry800: #444441;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  /* ── layout ── */
+  .shell { max-width: 980px; margin: 0 auto; padding: 24px 20px 60px; }
+  /* ── header ── */
+  .hdr { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
+  .hdr-left h1 { font-size: 20px; font-weight: 600; letter-spacing: -.3px; margin-bottom: 3px; }
+  .hdr-left p { font-size: 12px; color: var(--text3); }
+  .hdr-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  /* ── summary bar — 3 cards ── */
+  .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .kpi { background: var(--surface); border: 0.5px solid var(--border-md); border-radius: var(--radius); padding: 14px 16px; border-top: 2px solid transparent; }
+  .kpi-alta { border-top-color: var(--red400); }
+  .kpi-media { border-top-color: var(--amb400); }
+  .kpi-opp { border-top-color: var(--tel400); }
+  .kpi-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+  .kpi-n { font-size: 28px; font-weight: 600; line-height: 1; }
+  .kpi-alta .kpi-n { color: var(--red600); }
+  .kpi-media .kpi-n { color: var(--amb600); }
+  .kpi-opp .kpi-n { color: var(--tel600); }
+  .kpi-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+  /* ── pending banner ── */
+  .pending-banner {
+    background: var(--amb50);
+    border: 0.5px solid var(--amb400);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .pending-banner span { font-size: 12px; color: var(--amb800); font-weight: 500; }
+  /* ── tabs ── */
+  .tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--border-md); margin-bottom: 16px; }
+  .tab { padding: 8px 16px; font-size: 12px; font-weight: 500; color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -0.5px; cursor: pointer; }
+  .tab.on { color: var(--text); border-bottom-color: var(--text); }
+  /* ── filters ── */
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .chip { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; border: 0.5px solid var(--border-md); background: var(--surface); color: var(--text2); cursor: pointer; }
+  .chip.on { background: var(--text); color: var(--surface); border-color: var(--text); }
+  .chip-red.on { background: var(--red600); border-color: var(--red600); }
+  .chip-amb.on { background: var(--amb600); border-color: var(--amb600); }
+  .chip-tel.on { background: var(--tel600); border-color: var(--tel600); }
+  /* ── category divider ── */
+  .cat-divider {
+    display: flex; align-items: center; gap: 10px;
+    margin: 20px 0 12px;
+    font-size: 11px; font-weight: 600; color: var(--text3);
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  .cat-divider::before, .cat-divider::after {
+    content: ''; flex: 1; height: 0.5px; background: var(--border-md);
+  }
+  .cat-badge { background: var(--gry50); color: var(--gry800); padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+  .cat-art { color: var(--text3); font-weight: 400; }
+  /* ── risk card ── */
+  .risk-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius);
+    border-left: 3px solid transparent;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .risk-card.alta { border-left-color: var(--red400); }
+  .risk-card.media { border-left-color: var(--amb400); }
+  .risk-card.approved { border-left-color: var(--grn400); }
+  .risk-card.opportunity { border-left-color: var(--tel400); }
+  .card-body { padding: 12px 14px 10px; }
+  /* breadcrumb */
+  .breadcrumb { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+  .bc { padding: 2px 7px; border-radius: 20px; font-size: 10px; font-weight: 500; cursor: pointer; }
+  .bc-src { background: var(--blu50); color: var(--blu800); }
+  .bc-cat { background: var(--pur50); color: var(--pur800); }
+  .bc-art { background: var(--grn50); color: var(--grn800); }
+  .bc-gap { background: var(--gry50); color: var(--gry800); }
+  .bc-sep { color: var(--text3); font-size: 10px; }
+  /* card title row */
+  .card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .card-title-txt { flex: 1; }
+  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; margin-right: 4px; }
+  .badge-red { background: var(--red50); color: var(--red800); }
+  .badge-amb { background: var(--amb50); color: var(--amb800); }
+  .badge-tel { background: var(--tel50); color: var(--tel800); }
+  .badge-grn { background: var(--grn50); color: var(--grn800); }
+  .badge-blu { background: var(--blu50); color: var(--blu800); }
+  /* evidence toggle */
+  .evidence-toggle { font-size: 11px; color: var(--blu600); cursor: pointer; margin-top: 8px; display: inline-flex; align-items: center; gap: 4px; }
+  .evidence-panel { margin-top: 8px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .ev-row { padding: 7px 10px; font-size: 11px; border-bottom: 0.5px solid var(--border); }
+  .ev-row:last-child { border-bottom: none; }
+  .ev-src { font-weight: 600; color: var(--text2); }
+  .ev-q { color: var(--text2); margin: 1px 0; }
+  .ev-conf { color: var(--text3); }
+  /* action bar */
+  .action-bar {
+    padding: 8px 14px;
+    border-top: 0.5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .action-bar.pending { background: #fffbf3; }
+  .action-bar.approved { background: #f5fbf1; }
+  .action-bar.opportunity { background: var(--tel50); }
+  .ab-msg { font-size: 11px; color: var(--text2); }
+  .ab-msg.pend { color: var(--amb800); font-weight: 500; }
+  .ab-msg.apv { color: var(--grn800); font-weight: 500; }
+  .ab-msg.opp { color: var(--tel800); font-weight: 500; }
+  .ab-btns { display: flex; gap: 6px; }
+  /* buttons */
+  .btn { padding: 5px 12px; border: 0.5px solid var(--border-md); border-radius: var(--radius-sm); font-size: 11px; font-weight: 500; cursor: pointer; background: var(--surface); color: var(--text); }
+  .btn-prim { background: var(--text); color: var(--surface); border-color: var(--text); }
+  .btn-grn { background: var(--grn50); color: var(--grn800); border-color: var(--grn400); }
+  .btn-red { background: var(--red50); color: var(--red800); border-color: var(--red400); }
+  .btn-ghost { background: transparent; border-color: transparent; color: var(--text3); font-size: 13px; padding: 4px 6px; }
+  /* plans preview */
+  .plans-preview { margin-top: 8px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); overflow:hidden; }
+  .plan-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; font-size: 11px; border-bottom: 0.5px solid var(--border); }
+  .plan-row:last-child { border-bottom: none; }
+  .plan-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-draft { background: var(--amb400); }
+  .dot-approved { background: var(--grn400); }
+  .plan-title { flex: 1; color: var(--text2); }
+  .plan-who { color: var(--text3); }
+  /* annotations */
+  .annot {
+    font-size: 10px; color: var(--blu600); background: var(--blu50);
+    border: 0.5px solid #B5D4F4; border-radius: 4px;
+    padding: 2px 7px; display: inline-block; margin-bottom: 6px;
+  }
+  .change-note {
+    font-size: 10px; font-weight: 600; color: #fff;
+    background: var(--red600); border-radius: 4px;
+    padding: 2px 7px; display: inline-block; margin-bottom: 6px;
+  }
+  .delta-box {
+    border: 1.5px dashed var(--red400);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    margin-bottom: 12px;
+    background: var(--red50);
+  }
+  .delta-box .delta-title { font-size: 11px; font-weight: 600; color: var(--red800); margin-bottom: 4px; }
+  .delta-box .delta-body { font-size: 11px; color: var(--red800); }
+  .delta-grn { border-color: var(--grn400); background: var(--grn50); }
+  .delta-grn .delta-title { color: var(--grn800); }
+  .delta-grn .delta-body { color: var(--grn800); }
+  /* changelog header */
+  .changelog {
+    background: var(--surface); border: 0.5px solid var(--border-md);
+    border-radius: var(--radius); padding: 14px 16px; margin-bottom: 24px;
+  }
+  .changelog h3 { font-size: 12px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+  .cl-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; font-size: 11px; }
+  .cl-row:last-child { margin-bottom: 0; }
+  .cl-tag { flex-shrink: 0; }
+  .cl-text { color: var(--text2); }
+  .cl-text strong { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── CHANGELOG ── -->
+  <div class="changelog">
+    <h3>Changelog do mockup — alterações desta versão</h3>
+    <div class="cl-row">
+      <span class="cl-tag"><span class="badge badge-red">alterado</span></span>
+      <span class="cl-text"><strong>SummaryBar: 4 → 3 cards.</strong> Removido card "Aguardando aprovação" (PR #582). Cards canônicos: Alta/Críticos · Médios · Oportunidades.</span>
+    </div>
+    <div class="cl-row">
+      <span class="cl-tag"><span class="badge badge-red">alterado</span></span>
+      <span class="cl-text"><strong>Label renomeado:</strong> "Aprovar todos" → "Aprovar matriz de riscos" no banner de pendentes. Procedure: <code style="font-family:monospace;background:var(--gry50);padding:1px 4px;border-radius:3px">bulkApprove</code> (já implementado em #533/#534).</span>
+    </div>
+    <div class="cl-row">
+      <span class="cl-tag"><span class="badge badge-grn">mantido</span></span>
+      <span class="cl-text"><strong>Agrupamento por categoria</strong> já estava correto no mockup anterior. Mantido sem alteração.</span>
+    </div>
+  </div>
+
+  <!-- ── HEADER ── -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <h1>Análise de riscos — v4</h1>
+      <p>Empresa Exemplo Ltda · CNAE 4639-7/01 · Lucro Real · diagnóstico 14/04/2026</p>
+    </div>
+    <div class="hdr-btns">
+      <button class="btn">↺ Re-diagnosticar</button>
+      <button class="btn btn-prim">+ Risco manual</button>
+    </div>
+  </div>
+
+  <!-- ── SUMMARY BAR — 3 CARDS ── -->
+  <div class="annot">✦ ALTERADO — 3 cards (era 4). Card "Aguardando" removido. Decisão P.O. ref. PR #582.</div>
+
+  <div class="delta-box" style="margin-bottom:10px">
+    <div class="delta-title">Antes (mockup anterior)</div>
+    <div class="delta-body">4 cards: Alta/Críticos · Médios · Oportunidades · <del>Aguardando aprovação</del></div>
+  </div>
+  <div class="delta-box delta-grn" style="margin-bottom:16px">
+    <div class="delta-title">Agora (este mockup)</div>
+    <div class="delta-body">3 cards: Alta/Críticos · Médios · Oportunidades</div>
+  </div>
+
+  <div class="summary">
+    <div class="kpi kpi-alta">
+      <div class="kpi-label">Alta / Críticos</div>
+      <div class="kpi-n">4</div>
+      <div class="kpi-sub">COUNT(severidade IN 'alta','critica')</div>
+    </div>
+    <div class="kpi kpi-media">
+      <div class="kpi-label">Médios</div>
+      <div class="kpi-n">3</div>
+      <div class="kpi-sub">COUNT(severidade = 'media')</div>
+    </div>
+    <div class="kpi kpi-opp">
+      <div class="kpi-label">Oportunidades</div>
+      <div class="kpi-n">2</div>
+      <div class="kpi-sub">COUNT(type = 'opportunity')</div>
+    </div>
+  </div>
+
+  <!-- ── PENDING BANNER — label renomeado ── -->
+  <div class="annot">✦ ALTERADO — label renomeado: "Aprovar todos" → "Aprovar matriz de riscos"</div>
+
+  <div class="delta-box" style="margin-bottom:10px">
+    <div class="delta-title">Antes</div>
+    <div class="delta-body">Botão: <del>"Aprovar todos"</del></div>
+  </div>
+  <div class="delta-box delta-grn" style="margin-bottom:10px">
+    <div class="delta-title">Agora</div>
+    <div class="delta-body">Botão: <strong>"Aprovar matriz de riscos"</strong> — aprova todos os riscos pending do projeto. Procedure: bulkApprove. Coexiste com approveRisk individual no card.</div>
+  </div>
+
+  <div class="pending-banner">
+    <span>4 riscos aguardando sua análise e aprovação</span>
+    <button class="btn" style="background:var(--amb600);color:#fff;border-color:var(--amb600);font-size:11px">Aprovar matriz de riscos</button>
+  </div>
+
+  <!-- ── TABS ── -->
+  <div class="tabs">
+    <div class="tab on">Riscos (7)</div>
+    <div class="tab">Oportunidades (2)</div>
+    <div class="tab">Histórico (1)</div>
+  </div>
+
+  <!-- ── FILTERS ── -->
+  <div class="filters">
+    <span class="chip on">Todos</span>
+    <span class="chip chip-red">Alta (4)</span>
+    <span class="chip chip-amb">Média (3)</span>
+    <span style="width:1px;background:var(--border-md);margin:0 2px;align-self:stretch"></span>
+    <span class="chip">Imposto Seletivo (2)</span>
+    <span class="chip">Split Payment (1)</span>
+    <span class="chip">Transição ISS→IBS (2)</span>
+    <span class="chip">Confissão (1)</span>
+    <span class="chip">+ 1</span>
+  </div>
+
+  <!-- ══ CATEGORIA: IMPOSTO SELETIVO ══ -->
+  <div class="annot">✦ MANTIDO — agrupamento por categoria já estava correto</div>
+
+  <div class="cat-divider">
+    <span class="cat-badge">Imposto Seletivo</span>
+    <span class="cat-art">· Art. 2 LC 214/2025 ·</span>
+    <span>2 riscos</span>
+  </div>
+
+  <!-- CARD 1 — pending -->
+  <div class="risk-card alta">
+    <div class="card-body">
+      <div class="breadcrumb">
+        <span class="bc bc-src">NCM 2202.10.00</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-cat">imposto_seletivo</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-art">Art. 2 LC 214/2025</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-gap">GAP-IS-001</span>
+      </div>
+      <div class="card-title">
+        <span class="card-title-txt">Exposição ao Imposto Seletivo — Bebidas Açucaradas</span>
+        <button class="btn-ghost">⋯</button>
+      </div>
+      <div>
+        <span class="badge badge-red">Alta</span>
+        <span class="badge badge-amb">Imediata</span>
+      </div>
+      <div class="evidence-toggle">▸ 2 evidências</div>
+
+      <div class="plans-preview">
+        <div class="plan-row">
+          <div class="plan-status-dot dot-draft"></div>
+          <span class="plan-title">Implantar controle de apuração do IS</span>
+          <span class="plan-who">Gestor fiscal</span>
+        </div>
+        <div class="plan-row">
+          <div class="plan-status-dot dot-draft"></div>
+          <span class="plan-title">Contratar assessoria tributária IS</span>
+          <span class="plan-who">Diretor</span>
+        </div>
+        <div class="plan-row" style="background:var(--gry50)">
+          <span style="color:var(--blu600);font-size:11px;cursor:pointer">+ Novo plano</span>
+        </div>
+      </div>
+    </div>
+    <div class="action-bar pending">
+      <span class="ab-msg pend">⏳ Aguardando análise</span>
+      <div class="ab-btns">
+        <button class="btn">Editar</button>
+        <button class="btn btn-red">Excluir</button>
+        <button class="btn btn-grn">✓ Aprovar risco</button>
+        <button class="btn">Ver planos →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD 2 — approved -->
+  <div class="risk-card approved">
+    <div class="card-body">
+      <div class="breadcrumb">
+        <span class="bc bc-src">CNAE 4639-7/01</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-cat">imposto_seletivo</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-art">Art. 2 LC 214/2025</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-gap">GAP-IS-002</span>
+      </div>
+      <div class="card-title">
+        <span class="card-title-txt">IS sobre produtos industrializados — risco de dupla incidência</span>
+        <button class="btn-ghost">⋯</button>
+      </div>
+      <div>
+        <span class="badge badge-red">Alta</span>
+        <span class="badge badge-grn">✅ Aprovado</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">Aprovado por Dr. Rodrigues · 08/04/2026 15:44</div>
+    </div>
+    <div class="action-bar approved">
+      <span class="ab-msg apv">✅ Aprovado</span>
+      <div class="ab-btns">
+        <button class="btn">Editar</button>
+        <button class="btn btn-red">Excluir</button>
+        <button class="btn">Ver planos →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CATEGORIA: SPLIT PAYMENT ══ -->
+  <div class="cat-divider">
+    <span class="cat-badge">Split Payment</span>
+    <span class="cat-art">· Art. 9 LC 214/2025 ·</span>
+    <span>1 risco</span>
+  </div>
+
+  <!-- CARD 3 — pending -->
+  <div class="risk-card alta">
+    <div class="card-body">
+      <div class="breadcrumb">
+        <span class="bc bc-src">NCM 1006.40.00</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-cat">split_payment</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-art">Art. 9 LC 214/2025</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-gap">GAP-SP-001</span>
+      </div>
+      <div class="card-title">
+        <span class="card-title-txt">Impacto do Split Payment no fluxo de caixa</span>
+        <button class="btn-ghost">⋯</button>
+      </div>
+      <div>
+        <span class="badge badge-red">Alta</span>
+        <span class="badge badge-amb">Imediata</span>
+      </div>
+    </div>
+    <div class="action-bar pending">
+      <span class="ab-msg pend">⏳ Aguardando análise</span>
+      <div class="ab-btns">
+        <button class="btn">Editar</button>
+        <button class="btn btn-red">Excluir</button>
+        <button class="btn btn-grn">✓ Aprovar risco</button>
+        <button class="btn">Ver planos →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CATEGORIA: TRANSIÇÃO ISS → IBS ══ -->
+  <div class="cat-divider">
+    <span class="cat-badge">Transição ISS → IBS</span>
+    <span class="cat-art">· Art. 7 LC 214/2025 ·</span>
+    <span>2 riscos</span>
+  </div>
+
+  <!-- CARD 4 — media pending -->
+  <div class="risk-card media">
+    <div class="card-body">
+      <div class="breadcrumb">
+        <span class="bc bc-src">CNAE 4639-7/01</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-cat">transicao_iss_ibs</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-art">Art. 7 LC 214/2025</span>
+        <span class="bc-sep">›</span>
+        <span class="bc bc-gap">GAP-TR-001</span>
+      </div>
+      <div class="card-title">
+        <span class="card-title-txt">Transição gradual ISS → IBS 2026–2032</span>
+        <button class="btn-ghost">⋯</button>
+      </div>
+      <div>
+        <span class="badge badge-amb">Média</span>
+        <span class="badge" style="background:var(--gry50);color:var(--gry800)">Médio prazo</span>
+      </div>
+    </div>
+    <div class="action-bar pending">
+      <span class="ab-msg pend">⏳ Aguardando análise</span>
+      <div class="ab-btns">
+        <button class="btn">Editar</button>
+        <button class="btn btn-red">Excluir</button>
+        <button class="btn btn-grn">✓ Aprovar risco</button>
+        <button class="btn">Ver planos →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FOOTER NOTE ── -->
+  <div style="margin-top:32px;padding:12px 14px;background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--radius);font-size:11px;color:var(--text3)">
+    <strong style="color:var(--text2)">INV-RD-05:</strong> Cards de oportunidades (aliquota_zero, aliquota_reduzida, credito_presumido) aparecem na aba Oportunidades — sem botão "+ Plano". Verificar aba para ver os 2 registros.<br>
+    <strong style="color:var(--text2);margin-top:4px;display:block">INV-RD-10:</strong> bulkApprove implementado (#533/#534). Label renomeado neste mockup para "Aprovar matriz de riscos". Sem issue nova de implementação.
+  </div>
+
+</div>
+</body>
+</html>
