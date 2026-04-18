@@ -1,6 +1,6 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.10 · 2026-04-17 (Sprint Z-18 ENCERRADA · 3/3 issues + governance · HEAD 31ef5a6)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.11 · 2026-04-18 (Sprint Z-21 Cascata + Snapshot Matriz + CPIE doc · HEAD f08dfc1)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
@@ -91,6 +91,27 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - governance automation: E2E rule + Manus template + board automation (#710) — project-automation.yml (add/in-progress/done)
   - **E2E total:** 33 CTs (21 pipeline + 4 hub + 4 pdf + 4 restore)
   - **Governança:** ORQ-17 PRE-CLOSE · ORQ-18 board sync · Manus template · E2E obrigatória · board automation CI
+**Sprint Z-19:** ✅ ENCERRADA · UI refinements · PR #714 · HEAD 6b5bbfe · Issue #712 (6 ajustes P.O. em ActionPlanPage)
+  - Botão "Ver Consolidação" + "Exportar PDF" no header ✅
+  - Badge prazo removido do card (modal mantido) ✅
+  - Breadcrumb expandido "Projeto / Matriz de Riscos / Planos de Ação" ✅
+  - Remover "v4" dos textos de UI (3 locais) + limpeza de jsdoc/empty-state ✅
+  - Suite E2E `action-plan-ui-refinements.spec.ts` — 6 CTs cobrindo mudanças
+  - Pipeline 3 etapas: implementação + E2E + teste manual P.O.
+**Sprint Z-20:** 🟡 PARCIAL · Suite Matriz de Riscos + snapshot + CPIE doc · PRs #716 #718 #721 · Issue #717
+  - **Snapshot Matriz de Riscos v4** ✅ MERGED (#716 → 52a1739) — `docs/governance/MATRIZ_RISCOS_SNAPSHOT_2026-04-18.md` (1628 linhas · 25 seções · 4 scores CPIE mapeados · 10 critérios §13.5 · Gate 7 PASS · fluxos Mermaid)
+  - **SPEC-TESTE-MATRIZ-RISCOS v1.1** ✅ mergeada junto do snapshot (via #716) — spec de suite 4 baterias · 867 linhas
+  - **CPIE doc (4 scores mapeados)** ✅ MERGED (#721 → f08dfc1) — `docs/governance/CPIE_SCORES_MAPEAMENTO.md` (570 linhas · v1/v2/CPIE-B/Score v4 desambiguados · achado: 0/2367 projetos analisados — débito operacional)
+  - **Suite de testes Z-20 (PR #718)** ⏳ ABERTA · Bateria 1 PASS (33/33 unit · 10/10 aferição · Gate 7 4/4) — **estratégia reavaliada:** sistema estava "razoável a bom", overengineered para 4 baterias. Decisão P.O. 2026-04-18: declarar vitória, não rodar B2/B3/B4 formais, ir direto ao caso real do advogado.
+  - **Governança:** REGRA-ORQ-19 (F4 automático após F3) + REGRA-ORQ-20 (Manus não edita Claude Code sem F0) esboçadas — pendentes PR formal
+  - **Débito operacional CI:** `OAUTH_SERVER_URL` e `OPENAI_API_KEY` ausentes em GitHub Actions → "Run Unit Tests" FAIL sistemático em todos PRs
+**Sprint Z-21:** ✅ ENCERRADA · Cascata Soft Delete + Bateria 3 · PRs #722 · HEAD f08dfc1 · Issues #719 + #720
+  - **Bug cascata descoberto pela B1 Gate 0 da Z-20** — `deleteRisk` e `restoreRisk` não cascateavam para `action_plans` e `tasks`. Violação RN-CONSOLIDACAO-V4 §14 + RI-07. Bug existia desde Z-07.
+  - **Fix #719** ✅ MERGED (#722 → 0ff2337) — `softDeleteRiskWithCascade` + `restoreRiskWithCascade` em `db-queries-risks-v4.ts`. Audit_log N+1+M (risco + planos + tasks). Validação ATIVA comprovada pelo Manus: `task/restored = 3 ✅` após restore via tRPC real.
+  - **Fix colateral Manus (0c3c07f):** `status='pending'` → `status='todo'` em restore de tasks (enum correto). Bug meu herdado do 4a13cde.
+  - **Issue #720** ⏳ OPEN — F6 pendente (converter 4 `test.fixme` em executáveis após #722 merge)
+  - **Lição de processo:** dupla checagem Claude+Manus pegou 3 incidentes (D8 falso positivo · status pending bug · explanação incoerente audit_log task) · Adoção de (R1) output bruto + (R2) audit_log evidence em reports
+**Snapshot Matriz + CPIE:** consolidação documental — base para sprints futuras tocarem risco ou CPIE
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
 **M2.1:** ✅ CONCLUÍDO (PR #354) — banner de completude diagnóstica no briefing + bloco PDF
@@ -100,7 +121,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `31ef5a6`
+- **Branch base:** main · **HEAD:** `f08dfc1`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
@@ -124,9 +145,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `31ef5a6` | ✅ |
-| Baseline | **v7.10** | ✅ |
-| Testes passando | tsc 0 erros · 61 unit + 33 E2E | ✅ |
+| HEAD (github/main) | `f08dfc1` | ✅ |
+| Baseline | **v7.11** | ✅ |
+| Testes passando | tsc 0 erros · 61 unit + 39 E2E (6 UI refinements + cascata) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | PRs mergeados (total) | **710 (sessão 16-17/abr: PRs #617–#710)** | ✅ |
 | Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · verificacao dupla banco vs migration | ✅ |
@@ -140,6 +161,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Sprint Z-16 | **ENCERRADA** — 9/9 issues · Gate 7 PASS · deploy 8620bd66 · PRs #617–#651 · 18 regras ORQ · CI PRE-CLOSE + POST-MERGE | ✅ |
 | Sprint Z-17 | **ENCERRADA** — 3 issues + 12 hotfixes + governança · PRs #655–#695 · E2E 21/21 · CRUD 6/6 · CI TiDB + LLM gates | ✅ |
 | Sprint Z-18 | **ENCERRADA** — 3/3 issues + governance · PRs #697–#710 · E2E 33 · board automation · Checkpoint 56b495bf | ✅ |
+| Sprint Z-19 | **ENCERRADA** — UI refinements ActionPlanPage · PR #714 (#712) · 6 ajustes P.O. · E2E 6 CTs · HEAD 6b5bbfe | ✅ |
+| Sprint Z-20 | **PARCIAL** — Snapshot Matriz + SPEC + CPIE doc (#716 #721 MERGED) · Suite B1 PASS (33/33 · 10/10 · Gate 7 4/4) · B2/B3/B4 canceladas (overengineered · sistema "razoável a bom" · decisão P.O. 2026-04-18) | 🟡 |
+| Sprint Z-21 | **ENCERRADA** — Cascata soft delete (#719 → PR #722 MERGED) · validação ativa comprovada pelo Manus · Issue #720 OPEN (4 fixme → executáveis) · HEAD f08dfc1 | ✅ |
 | Regras ORQ | **18** (ORQ-00..18) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
 | Mockups HTML | **6** (Z-07: 2 + Z-15: 2 + Z-16: 2 com data-testid) no repo | ✅ |
 | CI Workflows | **20 ativos** (validate-pr + pre-close-checklist + post-merge-gate + llm-integration-gate + project-automation + taskboard-automation) | ✅ |
@@ -531,7 +555,7 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-17 (v7.10 · Sprint Z-18 ENCERRADA · 3/3 issues + governance · PRs #697–#710 · HEAD 31ef5a6)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-18 (v7.11 · Sprint Z-19/Z-20/Z-21 encerradas com 4 PRs mergeados · HEAD f08dfc1)*  
 *PRs mergeados total: 710 · Hot swap ADR-0022: COMPLETO · Board automation: ATIVO · E2E: 33 CTs*  
 *Novas entregas Z-18: #698 (hot swap) · #702 (PDF) · #706 (restore) · #710 (governance automation)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
