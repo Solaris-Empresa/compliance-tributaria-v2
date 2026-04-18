@@ -717,12 +717,38 @@ export async function softDeleteRiskWithCascade(
     );
 
     // 3b. Soft delete das tasks do plano (apenas não-deletadas)
+    // Buscar tasks antes do delete para registrar audit_log individual por task
+    const tasks = await query<{ id: string }>(
+      `SELECT id FROM tasks
+       WHERE action_plan_id = ? AND status != 'deleted'`,
+      [plan.id]
+    );
     await query(
       `UPDATE tasks
        SET status = 'deleted', deleted_reason = ?
        WHERE action_plan_id = ? AND status != 'deleted'`,
       [`cascade from risk ${riskId}`, plan.id]
     );
+    // 3b-ii. audit_log para cada task deletada em cascata (N+1 por plano)
+    for (const task of tasks) {
+      await insertAuditLog({
+        project_id: projectId,
+        entity: "task",
+        entity_id: task.id,
+        action: "deleted",
+        user_id: actor.user_id,
+        user_name: actor.user_name,
+        user_role: actor.user_role,
+        before_state: { status: "active" },
+        after_state: {
+          status: "deleted",
+          cascade_source: "risk",
+          cascade_source_id: riskId,
+          cascade_via_plan: plan.id,
+        },
+        reason: `cascade from risk ${riskId}`,
+      });
+    }
 
     // 3c. audit_log do plano cascateado
     await insertAuditLog({
@@ -804,12 +830,38 @@ export async function restoreRiskWithCascade(
     );
 
     // 3b. Restaurar tasks para 'pending' (sem histórico do status anterior)
+    // Buscar tasks antes do restore para registrar audit_log individual por task
+    const tasksToRestore = await query<{ id: string }>(
+      `SELECT id FROM tasks
+       WHERE action_plan_id = ? AND status = 'deleted'`,
+      [plan.id]
+    );
     await query(
       `UPDATE tasks
        SET status = 'pending', deleted_reason = NULL
        WHERE action_plan_id = ? AND status = 'deleted'`,
       [plan.id]
     );
+    // 3b-ii. audit_log para cada task restaurada em cascata
+    for (const task of tasksToRestore) {
+      await insertAuditLog({
+        project_id: projectId,
+        entity: "task",
+        entity_id: task.id,
+        action: "restored",
+        user_id: actor.user_id,
+        user_name: actor.user_name,
+        user_role: actor.user_role,
+        before_state: { status: "deleted" },
+        after_state: {
+          status: "pending",
+          cascade_source: "risk",
+          cascade_source_id: riskId,
+          cascade_via_plan: plan.id,
+        },
+        reason: reason ?? `cascade from risk restore ${riskId}`,
+      });
+    }
 
     // 3c. audit_log do plano restaurado
     await insertAuditLog({
