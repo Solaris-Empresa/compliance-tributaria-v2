@@ -197,10 +197,10 @@ Execução direta via SQL `UPDATE ... approved_at=NOW()` **não é aceitável** 
 
 ---
 
-## Threshold Bateria 2 — PROPOSTA (aguarda P.O.)
+## Threshold Bateria 2 — APROVADO P.O. 18/04/2026
 
 **Atual na spec v1.1:** `≥ 17/21 bugs UAT cobertos`
-**PROPOSTA ajustada:** `≥ 12/15 bugs automatizáveis`
+**THRESHOLD APROVADO:** `≥ 12/15 bugs automatizáveis`
 
 **Justificativa:**
 - Triagem Bloco 9.1 preliminar identificou **15 bugs automatizáveis**, 5 de inspeção humana, 1 UX puro
@@ -208,7 +208,7 @@ Execução direta via SQL `UPDATE ... approved_at=NOW()` **não é aceitável** 
 - Substituição pelo denominador triado mantém rigor proporcional (80%)
 - Humanos (5) e UX (1) vão para checklist P.O. na Bateria 4
 
-**Status:** aguardando aprovação explícita do P.O. antes de abrir issues de correção da Bateria 2.
+**Status:** ✅ **APROVADO P.O. em 18/04/2026.** Este é o threshold oficial para fechar Bateria 2.
 
 ---
 
