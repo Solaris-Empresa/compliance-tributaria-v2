@@ -181,6 +181,37 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // React core — chunk separado e estável
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'react-core';
+          }
+          // UI components — shadcn/radix
+          if (id.includes('@radix-ui') || id.includes('lucide-react')) {
+            return 'ui-components';
+          }
+          // tRPC + tanstack query
+          if (id.includes('@trpc') || id.includes('@tanstack')) {
+            return 'trpc-query';
+          }
+          // recharts (gráficos)
+          if (id.includes('recharts') || id.includes('d3-')) {
+            return 'charts';
+          }
+          // react-markdown (leve, substituto do streamdown)
+          if (id.includes('react-markdown') || id.includes('remark') || id.includes('rehype') || id.includes('unified') || id.includes('micromark')) {
+            return 'markdown';
+          }
+          // Demais node_modules — vendor chunk
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+      },
+    },
   },
   server: {
     host: true,
