@@ -182,11 +182,12 @@ GH_TOKEN=$TOKEN gh issue list --repo Solaris-Empresa/compliance-tributaria-v2 --
 
 ---
 
-## Estado Atual (2026-04-04)
+## Estado Atual (2026-04-17)
 
-- **Baseline:** v3.2 · **HEAD:** `d08c12a`
-- **Sprint S: ENCERRADA** — Lotes A ✅ B ✅ C ✅ D ✅ E ✅ + Fix #295 ✅
-- **PRs mergeados:** 295 (total)
+- **Baseline:** v7.10 · **HEAD:** `31ef5a6`
+- **Sprint Z-18: ENCERRADA** — hot swap ✅ PDF ✅ restore ✅ governance ✅
+- **PRs mergeados:** 710 (total)
+- **E2E:** 33 CTs · **Unit:** 61 testes · **tsc:** 0 erros
 - **Próxima sprint: T** — campo NCM + LC 87 compilada + engine Onda 3 (source='rag')
 - **PRs abertos:** 0
 - **Testes:** 1.436 passando · 0 falhas (71 files)
