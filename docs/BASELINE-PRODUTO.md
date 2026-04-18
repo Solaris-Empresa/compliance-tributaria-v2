@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 7.5 — 2026-04-17 (Sprint Z-17 Gate E2E PASS — 21/21 CTs — PR #677)
-> **Commit HEAD:** `d3ea681` (pós-PR #677 mergeado)
-> **Checkpoint Manus:** `34a0bae3` (deploy iasolaris.manus.space ✅ — Gate E2E Z-17 PASS 2026-04-17)
+> **Versão:** 7.12 — 2026-04-18 (Sprint Z-21 ENCERRADA · streamdown removido via PR #726 · bundle −63% · Issue #725 CPIE v3)
+> **Commit HEAD:** `48a3dda` (pós-PR #726 mergeado — streamdown removido)
+> **Checkpoint Manus:** `6e196d3c` (Sprint Z-21 FINAL — 2026-04-18)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -25,8 +25,8 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | **0 erros** | ✅ |
-| Testes automatizados — total | **124/124 passando** (34 CC-01..CC-17 · 17 CC-18..CC-21 · 26/26 Fitness Functions · 47/47 Connection Manifest) | ✅ |
-| Git working tree | Limpo — `main` = `f7b58e7`, sincronizado com GitHub externo | ✅ |
+| Testes unitários | **1717 passed · 9 skipped · 5 todo** (1 falha conhecida: b-z11-012-evidence — PROJECT_ID não encontrado no banco de teste) | ⚠️ |
+| Git working tree | Limpo — `main` = `48a3dda`, sincronizado com GitHub | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
 | Sprint S | Lotes A+B+C+D+E + Fix #295 — ENCERRADA 2026-04-04 | ✅ |
@@ -50,10 +50,17 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z-16** | **9/9 issues · PRs #617–#650 · Gate 7 PASS · Checkpoint 8620bd66 · deploy 2026-04-16. Issues: #611 fallback PLANS · #622 compliance score v4 · #624 ConsolidacaoV4 Step 7 · #625 redirect · #626 PDF jsPDF · #615 modal excluir · #614 migration NOT NULL + modal editar · #613 data-testid · #616 badge Atrasada. Smoke Tests: P1-P4 PASS (REF_ID=270001).** | **✅ ENCERRADA 2026-04-16** |
 | **Sprint Z-17** | **2/2 issues · PRs #657–#662 · Gate 7 PASS · Checkpoint 06614c05 · deploy 2026-04-16. Issues: #655 modal criar tarefa (taskModalMode, guard duplo, Tooltip, timezone-safe) · #659 geração automática tarefas via LLM (generateTaskSuggestions, Promise.allSettled, audit_log). ADR: reversão Z-14 — tarefas LLM carga inicial → revisão humana (P.O. 16/04/2026). HANDOFF PR #661.** | **✅ ENCERRADA 2026-04-16** |
 | **Sprint Z-17 Hotfixes** | **PR #674: fix dual extractJsonFromLLMResponse (arrays []) + geração retroativa de tarefas. PR #677: Gate E2E 21/21 PASS — fixtures robustos + CT-04b + timeouts produção. Banco limpo (legado removido, RAG preservado). Checkpoint 34a0bae3.** | **✅ 2026-04-17** |
+| **Sprint Z-18** | **3/3 issues · PRs #698–#707 · Gate 7 PASS 5/5 · Checkpoint ba7e7af2 · deploy 2026-04-17. Issues: #698 PDF ConsolidacaoV4 · #701 restore plano de ação · #705 hub planos v4.** | **✅ ENCERRADA 2026-04-17** |
+| **Sprint Z-19** | **Inventário Matriz Riscos v4 + nota sessão · PRs #715–#716 · 2026-04-18.** | **✅ ENCERRADA 2026-04-18** |
+| **Sprint Z-20** | **Suite Matriz de Riscos v4 [#717] · PR #718 · 2026-04-18.** | **✅ ENCERRADA 2026-04-18** |
+| **Sprint Z-21** | **Bundle −63% (21MB→7.8MB) · vendor chunk −44% (1,346KB→761KB) · streamdown removido → MarkdownRenderer (react-markdown+remark-gfm) · React.lazy()+Suspense 60+ páginas · PRs #720–#724 + #726 · Checkpoint 6e196d3c · 2026-04-18.** | **✅ ENCERRADA 2026-04-18** |
+| **Sprint Z-22** | **Issue #725 criada: feat(compliance): Dashboard de Compliance v3 on-demand [P0] · Milestone #20 · SPEC-CPIE-V3-DASHBOARD-COMPLIANCE-v1.md (573 linhas) · 2026-04-18.** | **🔄 INICIADA** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **88** (última: tasks.data_inicio + data_fim NOT NULL — Opção C) | ✅ |
-| PRs mergeados (total) | **677** | ✅ |
+| PRs mergeados (total) | **726** | ✅ |
+| Bundle JS (gzipado) | **~1.4MB total** (vendor 761KB · pdf-gen · websocket · animations · date-utils) | ✅ |
+| Dependência streamdown | **REMOVIDA** (PR #726) — substituída por `MarkdownRenderer.tsx` (react-markdown + remark-gfm) | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
 | Suite E2E automatizada | **21 casos Z-17 PASS** (pipeline completo: rascunho → tarefas LLM aprovadas) | ✅ |
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
