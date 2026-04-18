@@ -197,13 +197,29 @@ export default defineConfig({
           if (id.includes('@trpc') || id.includes('@tanstack')) {
             return 'trpc-query';
           }
-          // recharts (gráficos)
-          if (id.includes('recharts') || id.includes('d3-')) {
+          // recharts + chart.js (gráficos)
+          if (id.includes('recharts') || id.includes('d3-') || id.includes('chart.js') || id.includes('react-chartjs')) {
             return 'charts';
           }
           // react-markdown (leve, substituto do streamdown)
           if (id.includes('react-markdown') || id.includes('remark') || id.includes('rehype') || id.includes('unified') || id.includes('micromark')) {
             return 'markdown';
+          }
+          // jspdf — geração de PDF (carregado sob demanda)
+          if (id.includes('jspdf') || id.includes('jspdf-autotable')) {
+            return 'pdf-gen';
+          }
+          // socket.io-client — WebSocket (carregado sob demanda)
+          if (id.includes('socket.io-client') || id.includes('socket.io-parser') || id.includes('engine.io-client')) {
+            return 'websocket';
+          }
+          // framer-motion — animações
+          if (id.includes('framer-motion')) {
+            return 'animations';
+          }
+          // date-fns — utilitários de data
+          if (id.includes('date-fns') || id.includes('react-day-picker')) {
+            return 'date-utils';
           }
           // Demais node_modules — vendor chunk
           if (id.includes('node_modules')) {
