@@ -25,10 +25,10 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-16)
-- BASELINE **v7.2** — Sprint Z-16 ENCERRADA · 9/9 issues · PRs #617–#650 · Gate 7 PASS · Deploy ✅ iasolaris.manus.space
-- **HEAD: `04eefdd` (github/main)** · **Checkpoint Manus:** `8620bd66`
-- **PRs mergeados:** 650+ · **TypeScript:** 0 erros · **CI:** 17 workflows ativos · **Testes:** 1665 passando
+## Estado atual do projeto (2026-04-17)
+- BASELINE **v7.9** — Sprint Z-18 ENCERRADA · 3/3 issues · PRs #698–#707 · Gate 7 PASS 5/5 · Deploy ✅ iasolaris.manus.space
+- **HEAD: `b387bbb` (github/main)** · **Checkpoint Manus:** `ba7e7af2`
+- **PRs mergeados:** 708+ · **TypeScript:** 0 erros · **E2E:** 37 CTs · **Unit tests:** 61
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade (GS-08: 0 chunks sem autor)
 - **Skill solaris-contexto:** v4.7 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
@@ -45,7 +45,7 @@ Drizzle ORM / Vitest / pnpm
 - **BL-06:** ⏳ backlog — vi.mock path mismatch em routers-fluxo-v3-etapas2-5.test.ts
 - **Bug #545:** ⏳ ABERTO — imports dinâmicos incorretos em diagnostic-source.test.ts (sem impacto em produção)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
-- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · **Z-14 ✅ (16 issues)** · **Z-15 Lote A ✅** · **Z-16 ✅ (9/9 issues)**
+- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · **Z-14 ✅ (16 issues)** · **Z-15 Lote A ✅** · **Z-16 ✅ (9/9 issues)** · **Z-17 ✅** · **Z-18 ✅ (3/3 issues)**
 
 ### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |
@@ -265,3 +265,50 @@ Data: 2026-04-17
 **Checkpoint:** `34a0bae3` · HEAD `d3ea681` · tsc 0 erros · E2E 21/21 PASS · Deploy iasolaris.manus.space ✅
 
 **Banco limpo:** dados legado removidos (65 tabelas) · RAG preservado (2.515 chunks) · 2026-04-17
+
+---
+
+## Sprint Z-18 — Estado final (2026-04-17) · Gate 7 PASS 5/5
+
+### Issues entregues (3/3)
+
+| Issue | Título | PR | Status |
+|---|---|---|---|
+| #697 | feat(hub): hot swap plano-v3 → planos-v4 em ProjetoDetalhesV2 | #698 | ✅ mergeado — ADR-0022 fechado |
+| #701 | feat(consolidacao): integração botão PDF (generateDiagnosticoPDF) | #703 | ✅ mergeado — placeholder removido |
+| #705 | feat(action-plan): restore plano deletado (restoreActionPlan + audit_log) | #706 | ✅ mergeado — 2 PASS + 2 SKIP |
+
+### PRs tooling e docs
+
+| PR | Título | Status |
+|---|---|---|
+| #700 | chore: ignorar artefatos playwright do git | ✅ mergeado |
+| #704 | chore(tooling): GitHub MCP + post-edit-lint | ✅ mergeado — E2E 4/4 PASS |
+| #707 | docs(checkpoint): v7.9 — Sprint Z-18 completa | ✅ mergeado |
+
+### Gate 7 Smoke Tests (project_id=930001 / tasks: project_id=840935)
+
+```
+PROVA 1 — riscos ativos: 10 ✅ PASS (10 <= N <= 40)
+PROVA 2 — categorias: obrigacao_acessoria, aliquota_zero, imposto_seletivo, inscricao_cadastral, credito_presumido ✅ PASS
+PROVA 3 — títulos sujos: 0 ✅ PASS
+PROVA 4 — RAG validado: 10/10 (100.0%) ✅ PASS
+PROVA 5 — tasks projeto 840935: 25 ✅ PASS (>= 10)
+Gate 7: PASS 5/5
+```
+
+**Nota técnica:** coluna real no schema é `categoria` (não `risk_category_code`). Spec do Gate 7 deve ser atualizada na próxima sprint.
+
+### Pendências abertas (pós Z-18)
+
+| Prioridade | Ação | Responsável | Bloqueio |
+|---|---|---|---|
+| P0 | Investigar botão "Ver Consolidação" — aparece após aprovar todos os planos individualmente | P.O. + Orquestrador | Aguardando análise |
+| P1 | Audit log de eventos LLM (criação automática de tarefas) — feature de sprint futura | Manus | — |
+| P2 | Testar aprovação individual de risco → geração de plano/tarefas | P.O. | — |
+| P2 | Atualizar spec Gate 7 PROVA 2: `risk_category_code` → `categoria` | Orquestrador | — |
+| P3 | Fix Bug #545 — imports dinâmicos em diagnostic-source.test.ts | Manus | — |
+
+**Checkpoint:** `ba7e7af2` · HEAD `b387bbb` · tsc 0 erros · E2E 37 CTs · Gate 7 5/5 PASS · Deploy iasolaris.manus.space ✅
+
+*Atualizado em 2026-04-17 · v2.4 · Sprint Z-18 · Aprovador: P.O. Uires Tapajós*

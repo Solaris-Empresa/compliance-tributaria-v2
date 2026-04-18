@@ -260,8 +260,3 @@ Gate E2E: 21/21 PASS (PR #677)
   Hooks: R-SYNC-01 automático + warning governança
   Rules: 5 modulares por domínio
   Skills: 5 slash commands (/gate-check etc.)
-
-### Z-19 iniciada — 17/04/2026
-  Issue #712: UI refinements ActionPlanPage
-  F1 ✅ F3 ✅ F4 ✅ F6 em execução
-  Condição merge: E2E PASS + teste manual P.O.

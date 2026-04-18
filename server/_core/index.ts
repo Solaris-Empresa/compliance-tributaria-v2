@@ -17,6 +17,7 @@ import { validateCnaePipeline } from "../cnae-pipeline-validator"; // Validaçã
 import { warmUpEmbeddingCache } from "../cnae-embeddings"; // Warm-up do cache de embeddings
 import { notifyOwner } from "./notification"; // Notificações ao owner
 import { healthRouter } from "../routers/health"; // Gate POST-DEPLOY v4.6
+import { dbSnapshotHandler } from "../lib/db-snapshot"; // Sprint Z-21: read-only DB access para Claude Code
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -110,6 +111,14 @@ async function startServer() {
     }
   });
   // ─────────────────────────────────────────────────────────────────────────
+
+  // ── Read-only DB snapshot para Claude Code (E2E_TEST_MODE=true apenas) ────────
+  // GET /api/admin/db-snapshot?projectId=N&tables=risks_v4,action_plans&limit=50
+  // Autenticado via Bearer E2E_TEST_SECRET
+  // Whitelist: risks_v4, action_plans, tasks, audit_log, projects (projeção restrita)
+  // Documentação: docs/governance/CLAUDE_CODE_DB_ACCESS.md
+  app.get("/api/admin/db-snapshot", dbSnapshotHandler);
+  // ─────────────────────────────────────────────────────────────────────────────
 
   // tRPC API
   app.use(

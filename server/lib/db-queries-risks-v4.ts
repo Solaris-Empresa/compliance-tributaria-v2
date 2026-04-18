@@ -663,3 +663,187 @@ export async function insertActionPlanV4WithAudit(
   });
   return id;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sprint Z-21 #719 — Cascata soft delete + restore
+// Fix de bug detectado em Bateria 2 (Z-20 Gate 0):
+//   softDeleteRiskV4 / restoreRisk não propagavam para action_plans/tasks.
+// Viola RN_CONSOLIDACAO_V4.md §14 e RI-07 do snapshot §22.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Soft-delete de um risco COM cascata em action_plans e tasks.
+ * Registra audit_log para cada entidade afetada (N+1 entradas).
+ *
+ * Sequência (ordem importa — não usar DELETE com CASCADE no banco):
+ *   1. UPDATE risks_v4 SET status='deleted'
+ *   2. SELECT action_plans filhos ativos
+ *   3. Para cada plano:
+ *      a. UPDATE action_plans SET status='deleted'
+ *      b. UPDATE tasks WHERE action_plan_id SET status='deleted'
+ *      c. insertAuditLog entity='action_plan' action='deleted_cascade'
+ *   4. insertAuditLog entity='risk' action='deleted'
+ */
+export async function softDeleteRiskWithCascade(
+  riskId: string,
+  projectId: number,
+  deletedBy: number,
+  reason: string,
+  actor: { user_id: number; user_name: string; user_role: string }
+): Promise<void> {
+  // 1. Soft delete do risco
+  await query(
+    `UPDATE risks_v4
+     SET status = 'deleted', deleted_reason = ?, updated_by = ?
+     WHERE id = ? AND status = 'active'`,
+    [reason, deletedBy, riskId]
+  );
+
+  // 2. Buscar planos filhos ativos
+  const plans = await query<{ id: string }>(
+    `SELECT id FROM action_plans
+     WHERE risk_id = ? AND status != 'deleted'`,
+    [riskId]
+  );
+
+  // 3. Cascata para cada plano
+  for (const plan of plans) {
+    // 3a. Soft delete do plano
+    await query(
+      `UPDATE action_plans
+       SET status = 'deleted', deleted_reason = ?, updated_by = ?
+       WHERE id = ? AND status != 'deleted'`,
+      [`cascade from risk ${riskId}`, deletedBy, plan.id]
+    );
+
+    // 3b. Soft delete das tasks do plano (apenas não-deletadas)
+    await query(
+      `UPDATE tasks
+       SET status = 'deleted', deleted_reason = ?
+       WHERE action_plan_id = ? AND status != 'deleted'`,
+      [`cascade from risk ${riskId}`, plan.id]
+    );
+
+    // 3c. audit_log do plano cascateado
+    await insertAuditLog({
+      project_id: projectId,
+      entity: "action_plan",
+      entity_id: plan.id,
+      action: "deleted",
+      user_id: actor.user_id,
+      user_name: actor.user_name,
+      user_role: actor.user_role,
+      before_state: { status: "active" },
+      after_state: {
+        status: "deleted",
+        cascade_source: "risk",
+        cascade_source_id: riskId,
+      },
+      reason: `cascade from risk ${riskId}`,
+    });
+  }
+
+  // 4. audit_log do risco
+  await insertAuditLog({
+    project_id: projectId,
+    entity: "risk",
+    entity_id: riskId,
+    action: "deleted",
+    user_id: actor.user_id,
+    user_name: actor.user_name,
+    user_role: actor.user_role,
+    before_state: { status: "active" },
+    after_state: {
+      status: "deleted",
+      deleted_reason: reason,
+      cascaded_plans: plans.length,
+    },
+    reason,
+  });
+}
+
+/**
+ * Restore de um risco COM cascata (RI-07): action_plans e tasks voltam.
+ * Registra audit_log para cada entidade afetada (N+1 entradas).
+ *
+ * Regras:
+ *   - Planos restaurados voltam para 'rascunho' (aprovação deve ser refeita)
+ *   - Tasks restauradas voltam para 'pending' (não há histórico do status anterior)
+ *   - Apenas entidades com status='deleted' são afetadas
+ */
+export async function restoreRiskWithCascade(
+  riskId: string,
+  projectId: number,
+  restoredBy: number,
+  actor: { user_id: number; user_name: string; user_role: string },
+  reason?: string
+): Promise<void> {
+  // 1. Restaurar risco
+  await query(
+    `UPDATE risks_v4
+     SET status = 'active', deleted_reason = NULL, updated_by = ?
+     WHERE id = ? AND status = 'deleted'`,
+    [restoredBy, riskId]
+  );
+
+  // 2. Buscar planos deletados via cascata
+  const plans = await query<{ id: string }>(
+    `SELECT id FROM action_plans
+     WHERE risk_id = ? AND status = 'deleted'`,
+    [riskId]
+  );
+
+  // 3. Cascata de restore para cada plano
+  for (const plan of plans) {
+    // 3a. Restaurar plano para 'rascunho' (aprovação refeita)
+    await query(
+      `UPDATE action_plans
+       SET status = 'rascunho', deleted_reason = NULL, updated_by = ?
+       WHERE id = ? AND status = 'deleted'`,
+      [restoredBy, plan.id]
+    );
+
+    // 3b. Restaurar tasks para 'pending' (sem histórico do status anterior)
+    await query(
+      `UPDATE tasks
+       SET status = 'pending', deleted_reason = NULL
+       WHERE action_plan_id = ? AND status = 'deleted'`,
+      [plan.id]
+    );
+
+    // 3c. audit_log do plano restaurado
+    await insertAuditLog({
+      project_id: projectId,
+      entity: "action_plan",
+      entity_id: plan.id,
+      action: "restored",
+      user_id: actor.user_id,
+      user_name: actor.user_name,
+      user_role: actor.user_role,
+      before_state: { status: "deleted" },
+      after_state: {
+        status: "rascunho",
+        cascade_source: "risk",
+        cascade_source_id: riskId,
+      },
+      reason: reason ?? `cascade from risk restore ${riskId}`,
+    });
+  }
+
+  // 4. audit_log do risco
+  await insertAuditLog({
+    project_id: projectId,
+    entity: "risk",
+    entity_id: riskId,
+    action: "restored",
+    user_id: actor.user_id,
+    user_name: actor.user_name,
+    user_role: actor.user_role,
+    before_state: { status: "deleted" },
+    after_state: {
+      status: "active",
+      cascaded_plans: plans.length,
+    },
+    reason,
+  });
+}
