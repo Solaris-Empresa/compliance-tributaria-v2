@@ -20,7 +20,7 @@ import {
   Layers, TrendingUp, BarChart3, Flame, StickyNote
 } from "lucide-react";
 import { toast } from "sonner";
-import { Streamdown } from "streamdown";
+import { MarkdownRenderer as Streamdown } from "@/components/MarkdownRenderer";
 import StepComments from "@/components/StepComments";
 // V64: Alertas de inconsistência
 import AlertasInconsistencia, { InconsistenciaBadge } from "@/components/AlertasInconsistencia";
