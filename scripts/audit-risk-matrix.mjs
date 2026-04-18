@@ -60,13 +60,16 @@ if (!process.env.DATABASE_URL) {
 }
 
 // ─── Conexão DB ─────────────────────────────────────────────────────────
+// Usa createConnection (single) em vez de createPool —
+// createPool tem bug com parse de SSL em TiDB Cloud URLs.
+// Padrão adotado de scripts/clear-database.mjs e seed-initial-data.mjs.
 import mysql from "mysql2/promise";
 
-const pool = mysql.createPool(process.env.DATABASE_URL);
+const connection = await mysql.createConnection(process.env.DATABASE_URL);
 
 async function query(sql, params = []) {
   try {
-    const [rows] = await pool.execute(sql, params);
+    const [rows] = await connection.execute(sql, params);
     return rows;
   } catch (e) {
     write(`\n⚠️ Query error: ${e.message}\nSQL: ${sql}\n`);
@@ -347,7 +350,7 @@ async function run() {
   write(``);
   write(`Gerado em ${new Date().toISOString()}`);
 
-  await pool.end();
+  await connection.end();
   console.log(`Aferição concluída: ${passed}/${total} PASS`);
   console.log(`Relatório: ${outPath}`);
 }

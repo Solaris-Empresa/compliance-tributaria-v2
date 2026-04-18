@@ -61,19 +61,21 @@ try {
 }
 
 // ─── N1: DB (se disponível) ─────────────────────────────────────────────
+// Usa createConnection (single) em vez de createPool —
+// createPool tem bug com parse de SSL em TiDB Cloud URLs.
 let dbCategorias = new Set();
 if (process.env.DATABASE_URL) {
   const mysql = await import("mysql2/promise");
-  const pool = mysql.default.createPool(process.env.DATABASE_URL);
+  const connection = await mysql.default.createConnection(process.env.DATABASE_URL);
   try {
-    const [rows] = await pool.execute(
+    const [rows] = await connection.execute(
       "SELECT codigo FROM risk_categories WHERE status='ativo' ORDER BY codigo"
     );
     dbCategorias = new Set(rows.map((r) => r.codigo));
   } catch (e) {
     console.error(`Erro query DB: ${e.message}`);
   } finally {
-    await pool.end();
+    await connection.end();
   }
 }
 
