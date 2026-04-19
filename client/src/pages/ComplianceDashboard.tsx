@@ -124,7 +124,7 @@ export default function ComplianceDashboard() {
         <span className="text-muted-foreground">/</span>
         <span className="flex items-center gap-1.5 text-sm font-medium">
           <ShieldCheck className="h-4 w-4 text-emerald-600" />
-          Dashboard de Compliance
+          Exposição a Riscos de Compliance
         </span>
       </div>
 
@@ -132,10 +132,10 @@ export default function ComplianceDashboard() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            Dashboard de Compliance
+            Exposição a Riscos de Compliance
           </h1>
           <p className="text-sm text-muted-foreground">
-            Consulta on-demand dos 3 scores do projeto.{" "}
+            Exposição ao risco de compliance · on-demand · 3 indicadores.{" "}
             {project?.name && (
               <span className="text-foreground">· {project.name}</span>
             )}

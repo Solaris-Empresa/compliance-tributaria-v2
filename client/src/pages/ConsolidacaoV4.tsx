@@ -211,7 +211,7 @@ export default function ConsolidacaoV4() {
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
-              Score de Compliance
+              Exposição ao Risco de Compliance
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -230,24 +230,18 @@ export default function ConsolidacaoV4() {
               />
             </div>
             <p data-testid="score-transparencia" className="text-xs text-muted-foreground">
-              <strong>Snapshot persistido</strong> (defensável em auditoria) —{" "}
-              calculado a partir de {approvedRisks.length} risco
-              {approvedRisks.length !== 1 ? "s" : ""} aprovado
-              {approvedRisks.length !== 1 ? "s" : ""}.
+              Este indicador mostra o nível de exposição ao risco de compliance com base nos riscos aprovados.
+              Ele aumenta quando a quantidade de riscos, a gravidade deles e/ou a falta de qualidade das respostas
+              (força das evidências) aumenta.
               {(score as any)?.calculated_at && (
                 <>
-                  {" "}
-                  Gerado em{" "}
-                  {new Date((score as any).calculated_at).toLocaleString(
-                    "pt-BR"
-                  )}
-                  .
+                  {" "}Calculado em{" "}
+                  {new Date((score as any).calculated_at).toLocaleString("pt-BR")}.
                 </>
-              )}{" "}
-              Para a visão viva on-demand, use o Dashboard de Compliance.
+              )}
               {" "}
               <span className="font-mono text-[10px]">
-                (fórmula v4.0 · peso × max(confiança, 0,5) / n × 9 × 100)
+                (Fórmula v4.0 · peso × max(confiança, 0,5) / n × 9 × 100)
               </span>
             </p>
           </CardContent>

@@ -379,12 +379,7 @@ export default function ProjetoDetalhesV2() {
                     <Clock className="w-3.5 h-3.5" />
                     Atualizado {new Date(summary.updatedAt).toLocaleDateString("pt-BR")}
                   </span>
-                  {summary.planPeriodMonths && (
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5" />
-                      Período: {summary.planPeriodMonths} meses
-                    </span>
-                  )}
+
                 </div>
               </div>
             </div>
@@ -601,7 +596,7 @@ export default function ProjetoDetalhesV2() {
               {/* Sprint Z-22 — CPIE v3 Dashboard on-demand (#725) · fix(z22): movido para o topo (#733) */}
               <SectionLink
                 icon={<BarChart3 className="w-4 h-4" />}
-                label="Dashboard de Compliance"
+                label="Exposição a Riscos de Compliance"
                 description="Score on-demand · 3 indicadores · calculado agora"
                 available={true}
                 onClick={() => setLocation(`/projetos/${projectId}/compliance-dashboard`)}
@@ -650,8 +645,7 @@ export default function ProjetoDetalhesV2() {
             </CardContent>
           </Card>
 
-          {/* ── J1: Histórico de Análises IA (CPIE) ── */}
-          <CpieHistoryPanel projectId={projectId} projectName={summary.name} />
+          {/* J1: CpieHistoryPanel removido no UAT Z-22 — substituído pelo ComplianceDashboard on-demand */}
 
           {/* ── M2 Componente D: Edição NCM/NBS ── */}
           <NcmNbsEditCardV2 projectId={projectId} />
