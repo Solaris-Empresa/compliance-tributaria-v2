@@ -17,7 +17,11 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["server/**/*.test.ts", "server/**/*.spec.ts"],
+    include: [
+      "server/**/*.test.ts",
+      "server/**/*.spec.ts",
+      "client/src/lib/**/*.test.ts",
+    ],
     exclude: ["server/integration/**"],
     testTimeout: 180000, // 180 segundos (3 minutos) para acomodar operações com LLM
     hookTimeout: 180000, // 180 segundos (3 minutos) para hooks (beforeEach, afterEach)

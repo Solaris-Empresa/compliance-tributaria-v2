@@ -9,10 +9,13 @@
  *
  * Fix v2: usar page.request em vez de playwrightRequest.newContext para evitar
  * fechamento acidental do browser context ao chamar ctx.dispose().
+ * Fix v3 (run6): PLAYWRIGHT_BASE_URL tem prioridade sobre E2E_BASE_URL para garantir
+ * que o goto pós-login aponte para localhost em vez de produção.
  */
 import { type Page } from '@playwright/test';
 
-const BASE_URL = process.env.E2E_BASE_URL || 'https://iasolaris.manus.space';
+// PLAYWRIGHT_BASE_URL tem prioridade (passado via CLI); E2E_BASE_URL é fallback; produção é último recurso
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || process.env.E2E_BASE_URL || 'https://iasolaris.manus.space';
 const TEST_SECRET = process.env.E2E_TEST_SECRET || '';
 
 // clientId fixo: usuário demo que sempre existe no banco

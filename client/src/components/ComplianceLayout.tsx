@@ -17,6 +17,7 @@ import {
   Activity,
   Database,
   Upload,
+  ShieldCheck,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
@@ -93,9 +94,20 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     );
   }
 
-  const navItems = [
+  const navItems: Array<{
+    href: string;
+    icon: typeof LayoutDashboard;
+    label: string;
+    testId?: string;
+  }> = [
     { href: "/", icon: LayoutDashboard, label: "Painel" },
     { href: "/projetos", icon: FolderKanban, label: "Projetos" },
+    {
+      href: "/projetos",
+      icon: ShieldCheck,
+      label: "Dashboard Compliance",
+      testId: "menu-link-compliance-dashboard",
+    }, // Sprint Z-22 CPIE v3 (#725) — entry-point; usuario escolhe projeto em /projetos
     { href: "/clientes", icon: Users, label: "Clientes" },
   ];
 
@@ -180,8 +192,9 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
             const activeCount = activeCountData?.count ?? 0;
             return (
               <Link
-                key={item.href}
+                key={`${item.href}-${item.label}`}
                 href={item.href}
+                data-testid={item.testId}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                   isActive(item.href)
                     ? "bg-primary text-primary-foreground"
