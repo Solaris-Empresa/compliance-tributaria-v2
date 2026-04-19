@@ -598,6 +598,16 @@ export default function ProjetoDetalhesV2() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
+              {/* Sprint Z-22 — CPIE v3 Dashboard on-demand (#725) · fix(z22): movido para o topo (#733) */}
+              <SectionLink
+                icon={<BarChart3 className="w-4 h-4" />}
+                label="Dashboard de Compliance"
+                description="Score on-demand · 3 indicadores · calculado agora"
+                available={true}
+                onClick={() => setLocation(`/projetos/${projectId}/compliance-dashboard`)}
+                testId="btn-ver-score-projeto"
+              />
+              <Separator />
               <SectionLink
                 icon={<ClipboardList className="w-4 h-4" />}
                 label="Diagnóstico Adaptativo"
@@ -628,16 +638,6 @@ export default function ProjetoDetalhesV2() {
                 description={summary.hasActionPlan ? `${summary.totalTasks} tarefas em ${summary.tasksByArea.length} áreas` : "Ainda não gerado"}
                 available={summary.hasActionPlan || statusToStep(summary.status) >= 5}
                 onClick={() => setLocation(`/projetos/${projectId}/planos-v4`)}
-              />
-              <Separator />
-              {/* Sprint Z-22 — CPIE v3 Dashboard on-demand (#725) */}
-              <SectionLink
-                icon={<BarChart3 className="w-4 h-4" />}
-                label="Dashboard de Compliance"
-                description="Score on-demand · 3 indicadores · sem persistência"
-                available={true}
-                onClick={() => setLocation(`/projetos/${projectId}/compliance-dashboard`)}
-                testId="btn-ver-score-projeto"
               />
               <Separator />
               <SectionLink

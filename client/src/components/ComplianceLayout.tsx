@@ -13,7 +13,6 @@ import {
   Plus,
   Cpu,
   Shield,
-  BarChart3,
   Activity,
   Database,
   Upload,
@@ -109,7 +108,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     navItems.push({ href: "/usuarios", icon: Users, label: "Usuários" });
     navItems.push({ href: "/admin/embeddings", icon: Cpu, label: "Embeddings" });
     navItems.push({ href: "/admin/consistencia", icon: Shield, label: "Consistência" });
-    navItems.push({ href: "/admin/cpie-dashboard", icon: BarChart3, label: "Dashboard CPIE" });
+    // fix(z22): item "Dashboard CPIE" admin removido — legado CPIE-B (ADR-0023 · 0/2367 analisados). Página será deletada em PR #2 Wave B.
     navItems.push({ href: "/admin/shadow-monitor", icon: Activity, label: "Shadow Monitor" });
     navItems.push({ href: "/admin/rag-cockpit", icon: Database, label: "RAG Cockpit" });
     navItems.push({ href: "/admin/solaris-questions", icon: Upload, label: "Upload Perguntas SOLARIS" }); // Sprint L — DEC-002

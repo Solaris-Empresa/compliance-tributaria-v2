@@ -230,8 +230,25 @@ export default function ConsolidacaoV4() {
               />
             </div>
             <p data-testid="score-transparencia" className="text-xs text-muted-foreground">
-              Fórmula v4.0: sum(peso × max(confiança, 0.5)) / (n × 9) × 100 —{" "}
-              {approvedRisks.length} riscos aprovados no cálculo
+              <strong>Snapshot persistido</strong> (defensável em auditoria) —{" "}
+              calculado a partir de {approvedRisks.length} risco
+              {approvedRisks.length !== 1 ? "s" : ""} aprovado
+              {approvedRisks.length !== 1 ? "s" : ""}.
+              {(score as any)?.calculated_at && (
+                <>
+                  {" "}
+                  Gerado em{" "}
+                  {new Date((score as any).calculated_at).toLocaleString(
+                    "pt-BR"
+                  )}
+                  .
+                </>
+              )}{" "}
+              Para a visão viva on-demand, use o Dashboard de Compliance.
+              {" "}
+              <span className="font-mono text-[10px]">
+                (fórmula v4.0 · peso × max(confiança, 0,5) / n × 9 × 100)
+              </span>
             </p>
           </CardContent>
         </Card>
