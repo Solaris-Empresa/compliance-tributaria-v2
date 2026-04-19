@@ -373,7 +373,7 @@ esse é o ponto.
   anti-intermitência)
 - [ ] G3.6: Drift check: zero divergências (DB × código × RN
   alinhados após PRs de governança P1)
-- [ ] G3.7: Compliance Score visível no RiskDashboardV4 (DEC-01)
+- [ ] G3.7: Exposição ao Risco de Compliance visível no RiskDashboardV4 (DEC-01)
 
 **EXCEÇÃO B3 (C7) — "blocked-by-product-decision":**
 

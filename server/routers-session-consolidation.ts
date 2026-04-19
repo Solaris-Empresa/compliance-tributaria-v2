@@ -291,7 +291,7 @@ Responda APENAS com JSON válido.`;
       } catch {
         // Fallback se IA falhar
         consolidationData = {
-          executiveSummary: `A empresa analisada apresenta um score de compliance de ${actionPlan.complianceScore ?? 0}% em relação às exigências da Reforma Tributária. Foram identificadas ${planItems.length} ações necessárias, sendo ${planItems.filter((i) => i.priority === "critica").length} de prioridade crítica. Os ramos analisados foram: ${confirmedBranches.map((b) => b.name).join(", ")}. O nível de risco global é classificado como ${actionPlan.overallRiskLevel ?? "médio"}, exigindo atenção imediata nas áreas identificadas.`,
+          executiveSummary: `A empresa analisada apresenta uma exposição ao risco de compliance de ${actionPlan.complianceScore ?? 0}% em relação às exigências da Reforma Tributária. Foram identificadas ${planItems.length} ações necessárias, sendo ${planItems.filter((i) => i.priority === "critica").length} de prioridade crítica. Os ramos analisados foram: ${confirmedBranches.map((b) => b.name).join(", ")}. O nível de risco global é classificado como ${actionPlan.overallRiskLevel ?? "médio"}, exigindo atenção imediata nas áreas identificadas.`,
           keyFindings: planItems
             .filter((i) => i.priority === "critica" || i.priority === "alta")
             .slice(0, 5)

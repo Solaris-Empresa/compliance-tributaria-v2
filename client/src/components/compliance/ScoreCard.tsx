@@ -1,5 +1,5 @@
 // ScoreCard.tsx — Sprint Z-22 CPIE v3 (#725)
-// Card principal (hero) com o Score de Compliance.
+// Card principal (hero) com a Exposicao ao Risco de Compliance.
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -60,8 +60,8 @@ export function ScoreCard({
             Nenhum risco aprovado ainda
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            O Score de Compliance é calculado após a aprovação de pelo menos um
-            risco.
+            A Exposição ao Risco de Compliance é calculada após a aprovação de
+            pelo menos um risco.
           </p>
         </CardContent>
       </Card>
@@ -73,7 +73,7 @@ export function ScoreCard({
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <Shield className="h-4 w-4" />
-          Score de Compliance
+          Exposição ao Risco de Compliance
         </CardTitle>
         {onFormulaClick && (
           <Button

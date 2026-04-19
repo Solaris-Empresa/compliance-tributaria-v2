@@ -94,7 +94,7 @@ FROM projects WHERE id = :projectId;
 
 ### PASSO 8 — Verificar Dashboard
 1. Acesse o **Dashboard** do projeto
-2. Verifique: score de compliance, top riscos, plano de ação
+2. Verifique: exposição ao risco de compliance, top riscos, plano de ação
 
 **Evidência esperada:** `currentStep: 11`, `status: "dashboard"`
 

@@ -106,7 +106,7 @@ function ScoreCard({
     <div className={`rounded-xl border-2 p-6 ${riskBg[riskLevel] ?? "bg-card border-border"}`}>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <div className="text-sm font-medium text-muted-foreground">Score de Compliance</div>
+          <div className="text-sm font-medium text-muted-foreground">Exposição ao Risco de Compliance</div>
           <div className={`text-5xl font-bold mt-1 ${riskColors[riskLevel] ?? "text-foreground"}`}>
             {score}%
           </div>

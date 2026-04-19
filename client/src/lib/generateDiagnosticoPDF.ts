@@ -92,7 +92,7 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
   doc.setTextColor(30, 30, 30);
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  doc.text("Score de Compliance", margin, y);
+  doc.text("Exposição ao Risco de Compliance", margin, y);
   y += 6;
 
   autoTable(doc, {

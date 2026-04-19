@@ -21,7 +21,7 @@
 10. [Procedures tRPC — risks-v4 Router](#10-procedures-trpc--risks-v4-router)
 11. [Regras de Negócio — Planos de Ação (RN-AP)](#11-regras-de-negócio--planos-de-ação-rn-ap)
 12. [Regras de Negócio — Tarefas (RN-TASK)](#12-regras-de-negócio--tarefas-rn-task)
-13. [Score de Compliance v4 (RN-CV4)](#13-score-de-compliance-v4-rn-cv4)
+13. [Exposição ao Risco de Compliance v4 (RN-CV4)](#13-score-de-compliance-v4-rn-cv4)
 14. [Score CPIE (Scoring Engine)](#14-score-cpie-scoring-engine)
 15. [Frontend — RiskDashboardV4](#15-frontend--riskdashboardv4)
 16. [Frontend — ActionPlanPage](#16-frontend--actionplanpage)
@@ -519,7 +519,7 @@ doing → blocked → todo
 
 ---
 
-## 13. Score de Compliance v4 (RN-CV4)
+## 13. Exposição ao Risco de Compliance v4 (RN-CV4)
 
 **Arquivo:** `server/lib/compliance-score-v4.ts` (Sprint Z-16 #622)
 **Fórmula:** `score = round(Σ(peso × max(confidence, 0.5)) / (n × 9) × 100)`
@@ -558,7 +558,7 @@ export const MAX_PESO = 9;            // peso máximo possível (alta=7, mas den
 
 **Arquivo:** `server/routers/scoringEngine.ts` (Sprint I)
 
-O Score CPIE é um score **diferente** do Score de Compliance v4. Ele usa dados das tabelas **legadas** (`project_gaps_v3`, `project_risks_v3`, `project_actions_v3`) e não da `risks_v4`.
+O Score CPIE é um score **diferente** do Exposição ao Risco de Compliance v4. Ele usa dados das tabelas **legadas** (`project_gaps_v3`, `project_risks_v3`, `project_actions_v3`) e não da `risks_v4`.
 
 ### 14.1 Fórmula CPIE
 
@@ -592,7 +592,7 @@ cpieScore = round(
 | ≥ 30 | `baixo` | Baixo | `#dc2626` (vermelho) |
 | < 30 | `critico` | Crítico | `#7f1d1d` (vermelho escuro) |
 
-**Regra implícita crítica:** Score CPIE e Score de Compliance v4 são **dois scores independentes** com fontes de dados diferentes. O Score CPIE usa tabelas v3 (legadas); o Score v4 usa `risks_v4`. Eles coexistem no produto e são exibidos em páginas diferentes. Não há sincronização automática entre eles.
+**Regra implícita crítica:** Score CPIE e Exposição ao Risco de Compliance v4 são **dois scores independentes** com fontes de dados diferentes. O Score CPIE usa tabelas v3 (legadas); o Score v4 usa `risks_v4`. Eles coexistem no produto e são exibidos em páginas diferentes. Não há sincronização automática entre eles.
 
 ---
 
@@ -720,7 +720,7 @@ Visível no header. Usa `generateDiagnosticoPDF` de `client/src/lib/generateDiag
 | `kpi-alta` | Total de riscos `alta` aprovados |
 | `kpi-media` | Total de riscos `media` aprovados |
 
-### 17.2 Compliance Score Card (`data-testid="compliance-score-card"`)
+### 17.2 Exposição ao Risco de Compliance Card (`data-testid="compliance-score-card"`)
 
 Exibe score calculado via `trpc.risksV4.calculateAndSaveScore` (disparado no `useEffect` do mount). Inclui `data-testid="score-transparencia"` com texto: "Calculado com base em X riscos aprovados".
 
@@ -756,7 +756,7 @@ Exibe marcos fixos hardcoded:
 | 3 | Briefing aprovado | `projects.briefingData` (JSON) | LLM + RAG | Advogado |
 | 4 | **Matriz de Riscos** | `risks_v4` | Pipeline v4 (determinístico) | Advogado |
 | 5 | Planos de Ação | `action_plans` + `tasks` | LLM (tarefas) + manual | Advogado |
-| 6 | Score de Compliance | `projects.scoringData` (JSON) | `calculateComplianceScore` (puro) | Sistema |
+| 6 | Exposição ao Risco de Compliance | `projects.scoringData` (JSON) | `calculateComplianceScore` (puro) | Sistema |
 | 7 | PDF de Diagnóstico | arquivo local | jsPDF (browser) | Cliente final |
 | 8 | Audit Log | `audit_log` | Toda mutação | Auditoria fiscal |
 
@@ -851,7 +851,7 @@ As regras a seguir **não estão documentadas explicitamente** nos docs de gover
 | **RI-01** | `CATEGORIA_ARTIGOS` no frontend é hardcoded e diverge dos artigos do seed do banco | `RiskDashboardV4.tsx` + `0065_risk_categories.sql` | Inconsistência visual (não afeta persistência) |
 | **RI-02** | Cache de categorias tem TTL de 1h — alterações no banco levam até 1h para refletir | `risk-engine-v4.ts` linha ~85 | Delay de propagação de mudanças em `risk_categories` |
 | **RI-03** | `risk_key` não inclui `project_id` — não é globalmente único | `risk-engine-v4.ts` → `buildRiskKey` | Dedup funciona apenas dentro de um projeto |
-| **RI-04** | Score de Compliance v4 só é calculado quando o usuário visita `ConsolidacaoV4` | `ConsolidacaoV4.tsx` → `useEffect` | Score pode estar desatualizado se usuário não visitar a página |
+| **RI-04** | Exposição ao Risco de Compliance v4 só é calculado quando o usuário visita `ConsolidacaoV4` | `ConsolidacaoV4.tsx` → `useEffect` | Score pode estar desatualizado se usuário não visitar a página |
 | **RI-05** | Score CPIE usa tabelas v3 legadas, não `risks_v4` | `scoringEngine.ts` | Dois scores independentes coexistem; não há sincronização |
 | **RI-06** | `MAX_PESO = 9` torna score de 100% matematicamente impossível para riscos `alta` | `compliance-score-v4.ts` | Score máximo teórico ≈ 77.8% para projetos com apenas riscos `alta` |
 | **RI-07** | Restore de risco restaura **todos** os filhos sem granularidade | `risks-v4.ts` → `restoreRisk` | Não é possível restaurar risco sem restaurar planos/tarefas |

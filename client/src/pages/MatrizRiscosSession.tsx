@@ -248,13 +248,13 @@ export default function MatrizRiscosSession() {
               </CardContent>
             </Card>
 
-            {/* Score de Compliance */}
+            {/* Exposicao ao Risco de Compliance */}
             {data?.complianceScore !== undefined && (
               <Card className="border-blue-200 bg-blue-50">
                 <CardContent className="pt-4 pb-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-semibold text-blue-900">Score de Compliance</h3>
+                      <h3 className="font-semibold text-blue-900">Exposição ao Risco de Compliance</h3>
                       <p className="text-sm text-blue-700">
                         Avaliação geral da adequação à Reforma Tributária
                       </p>

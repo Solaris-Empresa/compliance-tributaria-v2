@@ -7,7 +7,7 @@
 
 A **IA SOLARIS** é uma plataforma SaaS de compliance tributário que guia empresas pela adequação à Reforma Tributária Brasileira (LC 214/2025 e LC 227/2025). O produto combina um motor de requisitos regulatórios canônicos com inteligência artificial generativa para produzir diagnósticos, planos de ação e relatórios de risco personalizados.
 
-**Proposta de valor central:** Transformar 499 requisitos legais complexos em um diagnóstico empresarial acionável, com score de compliance, identificação de gaps e plano de mitigação priorizado.
+**Proposta de valor central:** Transformar 499 requisitos legais complexos em um diagnóstico empresarial acionável, com exposição ao risco de compliance, identificação de gaps e plano de mitigação priorizado.
 
 ---
 

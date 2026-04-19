@@ -15,7 +15,7 @@ equipe técnica. Este documento **consolida os 4 scores** em um único local
 autoritativo, com fórmulas, pontos de atualização no fluxo E2E e estado atual
 em produção.
 
-> **Escopo:** apenas CPIE. Não trata da Matriz de Riscos, do Score de Compliance
+> **Escopo:** apenas CPIE. Não trata da Matriz de Riscos, da Exposição ao Risco de Compliance
 > da Consolidação (Step 7) nem da suite de testes Z-20. Para esses, ver
 > `MATRIZ_RISCOS_SNAPSHOT_2026-04-18.md` e artefatos relacionados.
 
@@ -28,7 +28,7 @@ em produção.
 | A | **CPIE v1 (Profile)** | `server/cpie.ts` | Qualidade/completude do perfil (5 dimensões) | Sim (score puro) — LLM usado só para perguntas dinâmicas |
 | B | **CPIE v2 (Conflict Intelligence)** | `server/cpie-v2.ts` | Coerência de realidade — 3 scores + vetos | Parcial (veto determinístico + veto IA) |
 | C | **CPIE-B (Scoring Engine)** | `server/routers/scoringEngine.ts` | Score consolidado Gaps 40% + Riscos 35% + Ações 25% | Sim |
-| D | **Compliance Score v4** | `server/lib/compliance-score-v4.ts` | Exposição tributária sobre riscos aprovados (Step 7) | Sim |
+| D | **Exposição ao Risco de Compliance v4** | `server/lib/compliance-score-v4.ts` | Exposição tributária sobre riscos aprovados (Step 7) | Sim |
 
 **Nota:** Este documento cobre A, B, C em profundidade. O Score D é detalhado em
 `MATRIZ_RISCOS_SNAPSHOT_2026-04-18.md §6-§7` (sprint Z-20, separada).
@@ -338,7 +338,7 @@ porque as v3 tables não são populadas para projetos v4.
 
 - ❌ Score B (CPIE v2) — três scores separados nunca expostos
 - ❌ Score C (CPIE-B / Scoring Engine) — valores em `cpie_score_history`, não renderizado
-- ❌ Score D (Compliance Score v4) — exibido na `ConsolidacaoV4` (Step 7), não no admin
+- ❌ Score D (Exposição ao Risco de Compliance v4) — exibido na `ConsolidacaoV4` (Step 7), não no admin
 
 ### 5.3 Estado atual em produção (2026-04-18)
 

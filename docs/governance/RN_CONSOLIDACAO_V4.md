@@ -1672,7 +1672,7 @@ ARTEFATO 5 — Planos de Ação (banco + UI)
   Visibilidade: ActionPlanPage (Step 6) + ConsolidacaoV4
 
 ══════════════════════════════════════════════════════════════
-ARTEFATO 6 — Score de Compliance (banco)
+ARTEFATO 6 — Exposição ao Risco de Compliance (banco)
 ══════════════════════════════════════════════════════════════
 
   Produzido em: Step 7 (a cada visita)
