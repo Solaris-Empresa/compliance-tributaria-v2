@@ -72,6 +72,33 @@ Todo PR de `feat` ou `fix` que toca `client/src/` ou `server/routers/` DEVE incl
 Lição Z-16/Z-17: features sem E2E geraram 12 hotfixes.
 Lição Z-18: E2E obrigatória pegou 3 bugs antes do merge.
 
+## E2E — baseURL e cookies em localhost (Sprint Z-22 lição)
+
+Para rodar E2E localmente **contra servidor dev**, e não contra producao:
+
+```bash
+PLAYWRIGHT_BASE_URL=http://localhost:3000 \
+E2E_BASE_URL=http://localhost:3000 \
+npx playwright test tests/e2e/<nome>.spec.ts
+```
+
+Sem essas variaveis, `tests/e2e/fixtures/auth.ts` pode cair no fallback para
+`https://iasolaris.manus.space` (producao). O teste passa a rodar contra codigo
+**ja deployado**, nao contra a branch atual. Sintoma: elementos/rotas novas
+ausentes no DOM mesmo com `git rev-parse HEAD` correto.
+
+Lição Z-22: 8 iteracoes E2E ate identificar esse descompasso. O Manus precisou
+de PR #729 para priorizar `PLAYWRIGHT_BASE_URL` sobre `E2E_BASE_URL` no fixture.
+
+### SameSite em cookies (RFC 6265bis)
+
+`server/_core/cookies.ts` define `SameSite=Lax` em localhost (HTTP) e
+`SameSite=None` em producao (HTTPS). Chrome rejeita `SameSite=None` sem
+`Secure=true` — login via test-endpoint falha silenciosamente em localhost
+se a regra nao for respeitada.
+
+Ver PR #729 (2026-04-19) para o fix completo e audit log.
+
 ## Pre-merge Checklist
 
 1. `pnpm test` passing

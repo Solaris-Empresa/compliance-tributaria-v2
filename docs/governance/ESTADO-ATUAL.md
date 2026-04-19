@@ -1,6 +1,6 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.11 · 2026-04-18 (Sprint Z-21 Cascata + Snapshot Matriz + CPIE doc · HEAD f08dfc1)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.13 · 2026-04-19 (Sprint Z-22 Wave A.1 ENCERRADA · CPIE v3 Dashboard · HEAD 5775d1d · UAT adiado — Manus deploy congelado)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
@@ -111,6 +111,27 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - **Fix colateral Manus (0c3c07f):** `status='pending'` → `status='todo'` em restore de tasks (enum correto). Bug meu herdado do 4a13cde.
   - **Issue #720** ⏳ OPEN — F6 pendente (converter 4 `test.fixme` em executáveis após #722 merge)
   - **Lição de processo:** dupla checagem Claude+Manus pegou 3 incidentes (D8 falso positivo · status pending bug · explanação incoerente audit_log task) · Adoção de (R1) output bruto + (R2) audit_log evidence em reports
+**Sessão 2026-04-18 pós-checkpoint v7.11:** 3 PRs adicionais mergeados
+  - **PR #715** ✅ MERGED (94db0fb) — inventário regras Matriz Riscos v4
+  - **PR #718** ✅ MERGED (3b25eca) — suite Matriz v4 (B2/B3/B4 canceladas conforme decisão P.O.)
+  - **PR #724** ✅ MERGED (f846781) — SPEC-CPIE-V3-DASHBOARD-COMPLIANCE-v1.md (573 linhas)
+**Sprint Z-22 Wave A.1:** ✅ ENCERRADA · CPIE v3 Dashboard on-demand · HEAD 5775d1d · 2026-04-19
+  - **PR #725** (issue) criada pelo Manus com spec + Blocos 6/7/8/9 (F1 aprovado condicional pelo Orquestrador; 5 labels spec-* aplicadas no F4)
+  - **PR #728** ✅ MERGED (9ad75c0 → 5775d1d) — implementação solo dev (Claude Code) · Wave A.1 (ADDITIVE ONLY)
+    - Backend: `compute-execution-score.ts` + `.test.ts` · `compute-compliance-scores.ts` · `complianceRouter.ts` (read-only) · registro em `routers.ts`
+    - Frontend: `compute-profile-quality.ts` + `.test.ts` · 3 componentes (`ScoreCard`, `AuxiliaryScoresRow`, `ScoreFormulaModal`) · `ComplianceDashboard.tsx` · rota em `App.tsx` · link menu em `ComplianceLayout.tsx` · botão contextual em `ProjetoDetalhesV2.tsx`
+    - E2E: `tests/e2e/compliance-dashboard.spec.ts` (5 CTs)
+    - Config: `vitest.config[.unit].ts` include `client/src/lib/**/*.test.ts`
+    - **NÃO tocou** (reservado PR #2): NovoProjeto.tsx · PerfilEmpresaIntelligente.tsx · CpieReportExport.tsx · 14 arquivos CPIE legado
+    - Unit tests: **17/17 PASS** · tsc 0 erros · LLM/cron/scheduler check 0 ocorrências
+  - **PR #729** ✅ MERGED (5775d1d) — Manus E2E fix (após 8 runs de debug)
+    - `server/_core/cookies.ts`: SameSite=Lax em localhost (RFC 6265bis — Chrome rejeita None sem Secure em HTTP)
+    - `tests/e2e/fixtures/auth.ts`: PLAYWRIGHT_BASE_URL prioritário sobre E2E_BASE_URL
+    - `tests/e2e/compliance-dashboard.spec.ts`: CT-4 timeout 60s→120s (tRPC cache warming)
+    - **E2E final: 5/5 PASS em 22.9s (run9)**
+  - **⚠️ VIOLAÇÃO DE PROCESSO REGISTRADA:** Manus editou `server/_core/cookies.ts` sem aprovação P.O. prévia (restrição absoluta em HANDOFF-IMPLEMENTADOR.md). Fix tecnicamente correto e auditado (9 linhas, zero impacto em produção HTTPS). Registro preserva precedente — regra continua ativa para futuras sprints.
+  - **ETAPA 3 (UAT P.O.)** ⏳ ADIADA — Manus deploy congelado (infraestrutura); UAT manual em produção (`iasolaris.manus.space`) bloqueado até estabilização.
+  - **Próximo:** PR #2 (Wave A.2 + B) — escopo **DROP tudo** (autorização P.O. 2026-04-18: apagar todos os dados exceto RAG). Remove 3 tabelas legadas + 4 colunas órfãs + deleta 14 arquivos CPIE + reescreve PerfilEmpresaIntelligente + remove gate NovoProjeto. Fecha #725.
 **Snapshot Matriz + CPIE:** consolidação documental — base para sprints futuras tocarem risco ou CPIE
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
@@ -121,7 +142,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `f08dfc1`
+- **Branch base:** main · **HEAD:** `5775d1d`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
@@ -145,9 +166,9 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `f08dfc1` | ✅ |
-| Baseline | **v7.11** | ✅ |
-| Testes passando | tsc 0 erros · 61 unit + 39 E2E (6 UI refinements + cascata) | ✅ |
+| HEAD (github/main) | `5775d1d` | ✅ |
+| Baseline | **v7.13** | ✅ |
+| Testes passando | tsc 0 erros · 78 unit (61 + 17 CPIE v3) · 44 E2E (39 prévios + 5 compliance-dashboard) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | PRs mergeados (total) | **710 (sessão 16-17/abr: PRs #617–#710)** | ✅ |
 | Gate 0 (banco) | **CONFIAVEL** — DATA_DICTIONARY 60 campos · db-schema-validator · verificacao dupla banco vs migration | ✅ |
@@ -164,6 +185,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Sprint Z-19 | **ENCERRADA** — UI refinements ActionPlanPage · PR #714 (#712) · 6 ajustes P.O. · E2E 6 CTs · HEAD 6b5bbfe | ✅ |
 | Sprint Z-20 | **PARCIAL** — Snapshot Matriz + SPEC + CPIE doc (#716 #721 MERGED) · Suite B1 PASS (33/33 · 10/10 · Gate 7 4/4) · B2/B3/B4 canceladas (overengineered · sistema "razoável a bom" · decisão P.O. 2026-04-18) | 🟡 |
 | Sprint Z-21 | **ENCERRADA** — Cascata soft delete (#719 → PR #722 MERGED) · validação ativa comprovada pelo Manus · Issue #720 OPEN (4 fixme → executáveis) · HEAD f08dfc1 | ✅ |
+| Sprint Z-22 Wave A.1 | **ENCERRADA** — Dashboard CPIE v3 on-demand (#725 → PR #728 + #729 MERGED) · 17 unit + 5 E2E PASS · Wave A.2 + B (DROP) pendente · UAT adiado (deploy Manus congelado) · HEAD 5775d1d | ✅ |
 | Regras ORQ | **18** (ORQ-00..18) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
 | Mockups HTML | **6** (Z-07: 2 + Z-15: 2 + Z-16: 2 com data-testid) no repo | ✅ |
 | CI Workflows | **20 ativos** (validate-pr + pre-close-checklist + post-merge-gate + llm-integration-gate + project-automation + taskboard-automation) | ✅ |
@@ -555,7 +577,7 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-18 (v7.11 · Sprint Z-19/Z-20/Z-21 encerradas com 4 PRs mergeados · HEAD f08dfc1)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-19 (v7.13 · Sprint Z-22 Wave A.1 encerrada · PR #728 + #729 MERGED · 5/5 E2E · UAT adiado — Manus deploy congelado · PR #2 DROP tudo pendente · HEAD 5775d1d)*  
 *PRs mergeados total: 710 · Hot swap ADR-0022: COMPLETO · Board automation: ATIVO · E2E: 33 CTs*  
 *Novas entregas Z-18: #698 (hot swap) · #702 (PDF) · #706 (restore) · #710 (governance automation)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*

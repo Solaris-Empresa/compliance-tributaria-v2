@@ -182,23 +182,26 @@ GH_TOKEN=$TOKEN gh issue list --repo Solaris-Empresa/compliance-tributaria-v2 --
 
 ---
 
-## Estado Atual (2026-04-18)
+## Estado Atual (2026-04-19 · pós-Sprint Z-22 Wave A.1)
 
-- **Baseline:** v7.11 · **HEAD:** `f08dfc1`
-- **Sprints Z-19/Z-20/Z-21: ENCERRADAS** — UI refinements ✅ Snapshot Matriz ✅ CPIE doc ✅ Cascata soft delete ✅
-- **PRs mergeados na sessão:** #714 (Z-19) · #716 (snapshot) · #721 (CPIE) · #722 (cascata)
-- **Último commit:** `f08dfc1 docs(governance): CPIE — mapeamento dos 4 scores (#721)`
-- **E2E:** 39 CTs (33 prévios + 6 UI refinements + cascata smoke) · **Unit:** 61 testes · **tsc:** 0 erros
-- **PRs abertos:** 3 (#718 Suite Z-20, #715 inventário Manus, #713 Z-19 log inicial — todos reavaliados)
-- **Issues OPEN:** #720 (converter 4 fixme em executáveis — pendente F6)
+- **Baseline:** v7.13 · **HEAD:** `5775d1d`
+- **Sprint Z-22 Wave A.1:** ✅ ENCERRADA — Dashboard CPIE v3 on-demand entregue (#728 + #729 MERGED)
+- **PRs mergeados na sessão Z-22:** #727 (checkpoint v7.12) · #728 (implementação Wave A.1) · #729 (E2E fix Manus)
+- **Último commit:** `5775d1d fix(e2e): SameSite=Lax em localhost + fixtures baseURL + CT-4 timeout 120s (#729)`
+- **E2E:** 44 CTs (39 prévios + 5 compliance-dashboard · 5/5 PASS em 22.9s) · **Unit:** 78 testes (61 prévios + 17 CPIE v3) · **tsc:** 0 erros
+- **PRs abertos:** 1 (#713 Z-19 log inicial — obsoleto, candidato a close)
+- **Issues OPEN:** #720 (4 fixme → executáveis) · #725 (aguardando Closes no PR #2 Wave A.2 + B)
+- **UAT Wave A.1:** ⏳ ADIADO — Manus deploy congelado · testar após estabilização em `iasolaris.manus.space/projetos/:id/compliance-dashboard`
+- **Próximo PR (#2):** Wave A.2 + B — DROP tudo (escopo atualizado: remove 3 tabelas + 4 colunas + deleta 14 arquivos · autorização P.O. 2026-04-18 para apagar dados exceto RAG)
 - **DIAGNOSTIC_READ_MODE:** `shadow` — **NÃO alterar**
 - **Corpus RAG:** 2.515 chunks · 10 leis + 3 CGIBS · 100% confiabilidade (Gate 7 PASS no projeto 930001)
 
-### Achados documentais consolidados (v7.11)
+### Achados documentais consolidados (v7.13)
 
 - `docs/governance/MATRIZ_RISCOS_SNAPSHOT_2026-04-18.md` (1628 linhas · 25 seções · base para auditoria jurídica)
 - `docs/governance/CPIE_SCORES_MAPEAMENTO.md` (570 linhas · 4 scores desambiguados)
 - `docs/specs/SPEC-TESTE-MATRIZ-RISCOS-v1.md` (867 linhas · suite de 4 baterias — mas estratégia reavaliada)
+- `docs/specs/SPEC-CPIE-V3-DASHBOARD-COMPLIANCE-v1.md` (573 linhas · PR #724 MERGED · implementado em Wave A.1 · Wave A.2 + B pendente)
 
 ### Décisão P.O. 2026-04-18 — overengineering Z-20
 
