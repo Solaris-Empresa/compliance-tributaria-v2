@@ -34,7 +34,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 import { DiagnosticoStepper, type DiagnosticLayerState } from "@/components/DiagnosticoStepper";
-import { CpieHistoryPanel } from "@/components/CpieHistoryPanel";
+// fix(z22) Wave A.2+B: import CpieHistoryPanel removido (componente deletado).
 import { PerfilEmpresaIntelligente, PERFIL_VAZIO } from "@/components/PerfilEmpresaIntelligente";
 
 // Sprint Z-08 — flag de feature para o engine determinístico v4 (ADR-0022)

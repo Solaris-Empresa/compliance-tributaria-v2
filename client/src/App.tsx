@@ -76,7 +76,6 @@ import ComplianceDashboard from "./pages/ComplianceDashboard"; // Sprint Z-22 CP
 import ConsistencyGate from "./pages/ConsistencyGate";
 import DiagnosticoStepper from "./pages/DiagnosticoStepper";
 import AdminConsistencia from "./pages/AdminConsistencia";
-import AdminCpieDashboard from "./pages/AdminCpieDashboard";
 import ShadowMonitor from "./pages/ShadowMonitor";
 import RagCockpit from "./pages/RagCockpit";
 import TaskBoard from "./pages/TaskBoard"; // Sprint K — Taskboard P.O. ao vivo (Issue #151)
@@ -144,7 +143,6 @@ function Router() {
       <Route path="/usuarios" component={Usuarios} />
       <Route path="/admin/embeddings" component={AdminEmbeddings} />
       <Route path="/admin/consistencia" component={AdminConsistencia} />
-      <Route path="/admin/cpie-dashboard" component={AdminCpieDashboard} />
       <Route path="/admin/shadow-monitor" component={ShadowMonitor} />
       <Route path="/admin/rag-cockpit" component={RagCockpit} />
       <Route path="/admin/taskboard" component={TaskBoard} /> {/* Sprint K — Issue #151 */}

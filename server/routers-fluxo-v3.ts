@@ -36,7 +36,7 @@ import { listActiveCategories, type RiskCategory } from "./lib/db-queries-risk-c
 
 const ONDA2_PROMPT_VERSION = "Z11-v1";
 import { analyzeEngineGaps } from "./lib/engine-gap-analyzer";
-import { persistCpieScoreForProject } from "./routers/scoringEngine";
+// fix(z22) Wave A.2+B EX-2: persistCpieScoreForProject removido (scoringEngine.ts deletado · ADR-0029 D-3).
 import { deriveRisksFromGaps, persistRisks } from "./routers/riskEngine";
 import { injectOnda1IntoQuestions } from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
@@ -1650,11 +1650,9 @@ Gere o plano de ação em JSON:
         .set({ currentStep: 5, status: "aprovado", actionPlansDataV3: input.plans as any, actionPlansData: input.plans as any } as any)
         .where(eq(projects.id, input.projectId));
 
-      // Lote B (AUDIT-C-003): fire-and-forget — persiste score CPIE no backend
-      // Garante persistência independente da navegação do usuário na tela de score
-      void persistCpieScoreForProject(input.projectId, ctx.user.id).catch((err) => {
-        console.error('[CPIE-PERSIST] persistCpieScoreForProject falhou — pipeline não afetado:', err);
-      });
+      // fix(z22) Wave A.2+B EX-2: chamada fire-and-forget persistCpieScoreForProject removida.
+      // Original declarava "pipeline não afetado" — CPIE v3 (Compliance Dashboard on-demand)
+      // substitui snapshot persistido do CPIE-B. Step 7 ConsolidacaoV4 preserva scoringData.
 
       return { success: true };
     }),

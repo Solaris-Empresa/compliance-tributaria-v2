@@ -15,7 +15,6 @@ import { RiskLevelBadge, PriorityBadge } from "@/components/compliance-v3/shared
 import { useDashboardData } from "@/hooks/compliance-v3/useDashboardData";
 import { useExportActions } from "@/hooks/compliance-v3/useExportActions";
 import { trpc } from "@/lib/trpc";
-import { CpieScoreCard } from "@/components/CpieScoreBadge";
 
 const DOMAINS = [
   { value: "governanca_transicao", label: "Governança da Transição" },
@@ -192,9 +191,6 @@ export default function ComplianceDashboardV3() {
           immediateActions={data?.actionSummary?.imediata ?? 0}
           progressPercent={taskSummary?.progressPercent ?? 0}
         />
-
-        {/* Score CPIE B8 */}
-        <CpieScoreCard projectId={projectId} />
 
         {/* Executive Narrative */}
         {executiveData && (
