@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 7.13 — 2026-04-19 (Sprint Z-22 Wave A.1 · E2E 5/5 PASS · PR #729 fix SameSite=Lax · deploy bloqueado Manus)
-> **Commit HEAD:** `5775d1d` (branch `feat/z22-725-cpie-v3-wave-a1` · PR #729 mergeado)
-> **Checkpoint Manus:** `e77bd842` (Sprint Z-22 ETAPA 2 — E2E 5/5 PASS — 2026-04-19)
+> **Versão:** 7.12 — 2026-04-18 (Sprint Z-21 ENCERRADA · streamdown removido via PR #726 · bundle −63% · Issue #725 CPIE v3)
+> **Commit HEAD:** `48a3dda` (pós-PR #726 mergeado — streamdown removido)
+> **Checkpoint Manus:** `6e196d3c` (Sprint Z-21 FINAL — 2026-04-18)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -26,7 +26,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 |---|---|---|
 | TypeScript | **0 erros** | ✅ |
 | Testes unitários | **1717 passed · 9 skipped · 5 todo** (1 falha conhecida: b-z11-012-evidence — PROJECT_ID não encontrado no banco de teste) | ⚠️ |
-| Git working tree | Branch `feat/z22-725-cpie-v3-wave-a1` HEAD `5775d1d` · main = `84b5bf7` (GitHub) | ✅ |
+| Git working tree | Limpo — `main` = `48a3dda`, sincronizado com GitHub | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
 | Sprint S | Lotes A+B+C+D+E + Fix #295 — ENCERRADA 2026-04-04 | ✅ |
@@ -54,7 +54,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z-19** | **Inventário Matriz Riscos v4 + nota sessão · PRs #715–#716 · 2026-04-18.** | **✅ ENCERRADA 2026-04-18** |
 | **Sprint Z-20** | **Suite Matriz de Riscos v4 [#717] · PR #718 · 2026-04-18.** | **✅ ENCERRADA 2026-04-18** |
 | **Sprint Z-21** | **Bundle −63% (21MB→7.8MB) · vendor chunk −44% (1,346KB→761KB) · streamdown removido → MarkdownRenderer (react-markdown+remark-gfm) · React.lazy()+Suspense 60+ páginas · PRs #720–#724 + #726 · Checkpoint 6e196d3c · 2026-04-18.** | **✅ ENCERRADA 2026-04-18** |
-| **Sprint Z-22** | **Wave A.1 · feat(compliance): Dashboard CPIE v3 on-demand [#725] · PR #729 fix(e2e) SameSite=Lax+fixtures+CT-4 timeout · E2E 5/5 PASS (22.9s) · Checkpoint e77bd842 · Deploy BLOQUEADO (fila Manus) · 2026-04-19.** | **🔄 EM ANDAMENTO** |
+| **Sprint Z-22** | **Issue #725 criada: feat(compliance): Dashboard de Compliance v3 on-demand [P0] · Milestone #20 · SPEC-CPIE-V3-DASHBOARD-COMPLIANCE-v1.md (573 linhas) · 2026-04-18.** | **🔄 INICIADA** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **88** (última: tasks.data_inicio + data_fim NOT NULL — Opção C) | ✅ |
@@ -453,10 +453,9 @@ DROP TABLE IF EXISTS iagen_answers;
 | 6.6 | 2026-04-14 | `984c890` | Sprint Z-14 ENCERRADA: 16 issues concluídas — ActionPlanPage + bulkApprove + catálogo PLANS por ruleId + agrupamento por categoria + RAG badge + 9 CTs E2E + migration prazo 180_dias. PRs #500–#594. tsc 0 · 124/124 testes. |
 | **7.0** | **2026-04-15** | **`78955e2`** | **Sprint Z-15 Lote A ENCERRADA: fix L1107 (texto duplicado modal bulkApprove) · RAG badge rag-badge-validated/rag-badge-pending no card · plans-preview inline (data-testid) · Sugestão IA determinística (PLANS exportado) · 180_dias no Select. PRs #605+#607. Checkpoint 2d203e06. Deploy iasolaris.manus.space. tsc 0 · 124/124 testes.** |
 
-| **7.13** | **2026-04-19** | **`5775d1d`** | **Sprint Z-22 Wave A.1: feat(compliance) Dashboard CPIE v3 on-demand [#725] · fix(e2e) SameSite=Lax em localhost (RFC 6265bis) + fixtures PLAYWRIGHT_BASE_URL + CT-4 timeout 120s · E2E 5/5 PASS 22.9s · PR #729 mergeado em feat/z22-725-cpie-v3-wave-a1 · Checkpoint e77bd842 · Deploy BLOQUEADO (fila Manus — abrir ticket help.manus.im).** |
 > **Instrução para próxima atualização:** ao concluir uma sprint ou tomar uma decisão relevante, adicione uma linha nesta tabela e atualize as seções 1, 2, 5 e 10 com os novos valores. Faça commit com mensagem `docs: BASELINE-PRODUTO v1.x — <descrição>`.
 
 ---
 
 *Documento vivo mantido pela equipe IA SOLARIS. Repositório oficial: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
-*Atualizado em 2026-04-19 (v7.13 · Sprint Z-22 Wave A.1 · E2E 5/5 PASS · PR #729 · HEAD 5775d1d · Checkpoint e77bd842)*
+*Atualizado em 2026-04-16 (v7.3 · Sprint Z-17 ENCERRADA · Gate 7 PASS · PRs #657–#662 · HEAD e77dca7)*
