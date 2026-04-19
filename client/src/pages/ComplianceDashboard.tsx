@@ -245,7 +245,7 @@ export default function ComplianceDashboard() {
             profile={profile}
           />
           <p className="text-xs text-muted-foreground">
-            Calculado em{" "}
+            Calculado agora (on-demand · sem persistência) em{" "}
             {new Date(scores.computed_at).toLocaleString("pt-BR")} · Fórmula{" "}
             {scores.formula_version}
           </p>
@@ -270,6 +270,20 @@ export default function ComplianceDashboard() {
       <ScoreFormulaModal
         open={formulaOpen}
         onClose={() => setFormulaOpen(false)}
+        breakdown={
+          complianceBlock && !complianceEmpty
+            ? {
+                score: (complianceBlock as any).score,
+                nivel: (complianceBlock as any).nivel,
+                total_riscos_aprovados: (complianceBlock as any)
+                  .total_riscos_aprovados,
+                total_alta: (complianceBlock as any).total_alta,
+                total_media: (complianceBlock as any).total_media,
+                total_oportunidade: (complianceBlock as any).total_oportunidade,
+                computed_at: scores?.computed_at,
+              }
+            : undefined
+        }
       />
     </div>
   );
