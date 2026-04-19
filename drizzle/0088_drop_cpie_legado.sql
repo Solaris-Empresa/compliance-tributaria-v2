@@ -5,14 +5,15 @@
 -- Apaga legado CPIE v1 / v2 / CPIE-B conforme autorizacao explicita:
 --   "todos os dados do banco podem ser apagados, com excecao RAG"
 --
--- Invariante obrigatoria: rag_chunks deve permanecer em 2.515 linhas
+-- Invariante obrigatoria: ragDocuments deve permanecer em 2.515 linhas
 -- (baseline v7.12 Corpus RAG · 10 leis + 3 CGIBS).
+-- Nome real da tabela e camelCase (drizzle/schema.ts L1329: mysqlTable("ragDocuments")).
 
 -- Gate 1: contagens pre-drop (evidencia para PR body)
 SELECT 'pre_drop_cpieAnalysisHistory' AS label, COUNT(*) AS n FROM cpie_analysis_history;
 SELECT 'pre_drop_cpieSettings' AS label, COUNT(*) AS n FROM cpie_settings;
 SELECT 'pre_drop_cpie_score_history' AS label, COUNT(*) AS n FROM cpie_score_history;
-SELECT 'pre_drop_rag_chunks_INVARIANTE' AS label, COUNT(*) AS n FROM rag_chunks;
+SELECT 'pre_drop_ragDocuments_INVARIANTE' AS label, COUNT(*) AS n FROM ragDocuments;
 
 -- DROP das 3 tabelas CPIE legado (nomes snake_case conforme criacao original)
 DROP TABLE IF EXISTS cpie_analysis_history;
@@ -27,5 +28,5 @@ ALTER TABLE projects DROP COLUMN IF EXISTS profileLastAnalyzedAt;
 ALTER TABLE projects DROP COLUMN IF EXISTS profileIntelligenceData;
 
 -- Gate 2: invariante pos-drop
-SELECT 'post_drop_rag_chunks_INVARIANTE' AS label, COUNT(*) AS n FROM rag_chunks;
+SELECT 'post_drop_ragDocuments_INVARIANTE' AS label, COUNT(*) AS n FROM ragDocuments;
 -- Esperado: 2515 (valor fixo do Corpus RAG baseline v7.12)
