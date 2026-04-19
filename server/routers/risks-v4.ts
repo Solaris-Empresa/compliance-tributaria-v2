@@ -1158,7 +1158,7 @@ export const risksV4Router = router({
 
   /**
    * 13. calculateAndSaveScore (Sprint Z-16 #622)
-   * Calcula score de compliance v4 deterministicamente e salva snapshot.
+   * Calcula a exposicao ao risco de compliance v4 deterministicamente e salva snapshot.
    * RN-CV4-01..07 + RN-CV4-10 + RN-CV4-14
    */
   calculateAndSaveScore: protectedProcedure

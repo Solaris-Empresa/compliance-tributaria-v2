@@ -219,7 +219,7 @@ do RN doc linha 92.
 
 ---
 
-### D5 — Thresholds do Compliance Score
+### D5 — Thresholds do Exposição ao Risco de Compliance
 
 | Nível | Código `compliance-score-v4.ts:46-51` | RN_CONSOLIDACAO_V4 §3 |
 |---|---|---|
@@ -306,14 +306,14 @@ quer ver atualizando conforme aprovações.
 | A | CPIE v1 (Profile) | `server/cpie.ts` | Qualidade do perfil (5 dims) | Não | Parcialmente (LLM para perguntas) |
 | B | CPIE v2 (Profile + IA) | `server/cpie-v2.ts` | v1 + Arbitragem IA | Não | Parcialmente |
 | C | CPIE-B (scoringEngine) | `server/routers/scoringEngine.ts` | Gaps 40% + Riscos 35% + Ações 25% | Sim — mas lê tabelas v3 legadas | Sim |
-| D | **Compliance Score v4** | `server/lib/compliance-score-v4.ts` | `sum(peso × max(conf, 0.5)) / (n × 9) × 100` | **Sim — lê `risks_v4.approved_at`** | **Sim** |
+| D | **Exposição ao Risco de Compliance v4** | `server/lib/compliance-score-v4.ts` | `sum(peso × max(conf, 0.5)) / (n × 9) × 100` | **Sim — lê `risks_v4.approved_at`** | **Sim** |
 
-**O que o P.O. quer na Matriz de Riscos:** o **score D (Compliance Score v4)**.
+**O que o P.O. quer na Matriz de Riscos:** o **score D (Exposição ao Risco de Compliance v4)**.
 Esse sim muda conforme aprovações, é determinístico, e já está implementado.
 Apenas **não está sendo exibido no RiskDashboardV4** — só é chamado no Step 7
 (ConsolidacaoV4), uma única ocorrência em `server/routers/risks-v4.ts:1175`.
 
-### 6.2 Score D (Compliance Score v4) — detalhamento
+### 6.2 Score D (Exposição ao Risco de Compliance v4) — detalhamento
 
 **Arquivo:** `server/lib/compliance-score-v4.ts`
 **Determinismo:** 100% — mesma entrada, mesma saída. Zero LLM.
@@ -387,7 +387,7 @@ PERSISTÊNCIA:
   Gravado em cada visita à ConsolidacaoV4.
 ```
 
-### 6.5 Regra de integração DEC-01 (revisada) — Compliance Score na Matriz
+### 6.5 Regra de integração DEC-01 (revisada) — Exposição ao Risco de Compliance na Matriz
 
 Para atender ao P.O. ("preciso dele na matriz, pois conforme os riscos
 aprovados, o nível de compliance pode aumentar ou diminuir"):
@@ -411,7 +411,7 @@ Reatividade:
   - Invalida cache ao montar (consistente com Step 7)
 
 NÃO é o CPIE v1/v2 (score A/B — qualidade do perfil).
-É o Compliance Score v4 (score D — exposição tributária aprovada).
+É o Exposição ao Risco de Compliance v4 (score D — exposição tributária aprovada).
 
 Semântica visível ao advogado:
   - "SCORE DE COMPLIANCE" (label do card)
@@ -424,7 +424,7 @@ Semântica visível ao advogado:
 Sim, mas secundário:
 - **Dashboard do projeto (Step 1-3):** KPI "Qualidade do Perfil"
 - **Header da Matriz:** chip pequeno "Perfil 75/100" — só aviso se < 50
-- **Nunca** se confunde com o Score de Compliance principal
+- **Nunca** se confunde com o Exposição ao Risco de Compliance principal
 
 ### 6.7 Status de débito técnico (ADR-0023)
 
@@ -438,7 +438,7 @@ Confirmação no 930001:
   profileConfidence = 0
 
 O que funciona hoje:
-  ✅ Score D (Compliance Score v4) — calculado corretamente
+  ✅ Score D (Exposição ao Risco de Compliance v4) — calculado corretamente
      sobre risks_v4, mas só exibido no Step 7.
   ❌ Score C (CPIE-B scoringEngine) — zerado para projetos v4.
   ❓ Score A/B (CPIE Profile) — precisa verificar se leitura
@@ -451,7 +451,7 @@ Mesmo sem PR #E, podemos avançar com Score D na Matriz
 
 ---
 
-## 7. Fórmula do score de compliance (fonte: RN_CONSOLIDACAO_V4)
+## 7. Fórmula do exposição ao risco de compliance (fonte: RN_CONSOLIDACAO_V4)
 
 ```typescript
 // Constantes
@@ -614,7 +614,7 @@ Nenhum caiu no fallback `"Risco: ${categoria} nas operações de {op}"`.
 | V3 | Invariante RN-RISK-05 (oportunidade → sem plano) | `SELECT COUNT(*) FROM action_plans ap JOIN risks_v4 r ON ap.risk_id=r.id WHERE r.type='opportunity' AND r.project_id=930001` → deve ser 0 |
 | V4 | Consistência `type ⇔ severidade` | `SELECT type, severidade, COUNT(*) FROM risks_v4 WHERE project_id=930001 GROUP BY type, severidade` |
 | V5 | **Unicidade por categoria** (regra P.O.) | `SELECT categoria, COUNT(*) FROM risks_v4 WHERE project_id=930001 GROUP BY categoria HAVING COUNT(*) > 1` — deve retornar 0 linhas |
-| V6 | Compliance Score atual (se riscos aprovados) | `SELECT scoringData FROM projects WHERE id=930001` + calcular hipotético |
+| V6 | Exposição ao Risco de Compliance atual (se riscos aprovados) | `SELECT scoringData FROM projects WHERE id=930001` + calcular hipotético |
 
 ---
 
@@ -698,7 +698,7 @@ Lista ordenada por prioridade. Nenhum item foi executado neste snapshot.
 - `docs/adr/ADR-0023-cpie-score-opcao-a-sprint-z07.md` — débito CPIE
 - `docs/adr/ADR-0025-risk-categories-configurable-rag-sensor.md` — risk_categories configurável
 - `docs/governance/RN_GERACAO_RISCOS_V4.md` — spec geração (desatualizada nos pontos D2, D3, D4)
-- `docs/governance/RN_CONSOLIDACAO_V4.md` — score de compliance Step 7
+- `docs/governance/RN_CONSOLIDACAO_V4.md` — exposição ao risco de compliance Step 7
 - `docs/governance/RN_PLANOS_TAREFAS_V4.md` — planos e tarefas
 - `docs/governance/GOVERNANCA-E2E-IA-SOLARIS.md` — Gate 7 P1-P4
 - `server/lib/risk-engine-v4.ts` — engine determinístico
@@ -999,7 +999,7 @@ Precisa ser atacado antes da liberação.
 
 | # | Decisão | Por | Data |
 |---|---|---|---|
-| DEC-01 | Score **D (Compliance Score v4)** deve ser exibido no RiskDashboardV4, atualizando com aprovações/exclusões de riscos. Score A/B (CPIE Profile) permanece secundário (chip/aviso). NÃO usar sigla "CPIE" na UI principal. | P.O. | 2026-04-18 |
+| DEC-01 | Score **D (Exposição ao Risco de Compliance v4)** deve ser exibido no RiskDashboardV4, atualizando com aprovações/exclusões de riscos. Score A/B (CPIE Profile) permanece secundário (chip/aviso). NÃO usar sigla "CPIE" na UI principal. | P.O. | 2026-04-18 |
 | DEC-02 | `tributacao_servicos`: remover linha 92 do RN_GERACAO_RISCOS_V4.md (reclassificada como órfã no doc — nunca foi implementada, Opção C original não se aplica) | P.O. | 2026-04-18 |
 | DEC-03 | Alinhamento RN × código × DB (D3, D5, D6) fica para PR pós-snapshot | P.O. | 2026-04-18 |
 | DEC-04 | `aliquota_reduzida` — confirmada presente em DB (row 9) e código; sem ação necessária (D1 descartada) | diagnóstico | 2026-04-18 |
@@ -1161,7 +1161,7 @@ doing → blocked → todo
 ```
 `titulo.length >= 3` (vs >= 5 em planos).
 
-### 17.4 RN-CV4 (score de compliance) — consolidado
+### 17.4 RN-CV4 (exposição ao risco de compliance) — consolidado
 
 Ver §6.2 (Score D) e §7 (fórmula). Pontos críticos:
 - RN-CV4-01: apenas aprovados
@@ -1272,7 +1272,7 @@ categorias.
 ### 19.3 ConsolidacaoV4 (`client/src/pages/ConsolidacaoV4.tsx`)
 
 - **KPIs:** `kpi-score · kpi-alta · kpi-media`
-- **Compliance Score Card:** chama `trpc.risksV4.calculateAndSaveScore` no mount
+- **Exposição ao Risco de Compliance Card:** chama `trpc.risksV4.calculateAndSaveScore` no mount
 - **Disclaimer** (`disclaimer-box`) obrigatório no topo
 - **Timeline Reforma:** marcos `2026 / 2027 / 2029 / 2033` (hardcoded — D6)
 
@@ -1285,7 +1285,7 @@ categorias.
 | 3 | Briefing aprovado | projects.briefingData | LLM + RAG | Advogado |
 | 4 | Matriz de Riscos | risks_v4 | Pipeline v4 (determinístico) | Advogado |
 | 5 | Planos + Tarefas | action_plans + tasks | LLM + manual | Advogado |
-| 6 | Score de Compliance | projects.scoringData | calculateComplianceScore | Sistema |
+| 6 | Exposição ao Risco de Compliance | projects.scoringData | calculateComplianceScore | Sistema |
 | 7 | PDF Diagnóstico | arquivo local | jsPDF (browser) | Cliente final |
 | 8 | Audit Log | audit_log | Toda mutação | Auditoria fiscal |
 
@@ -1370,7 +1370,7 @@ Restaurar RISCO (restoreRisk):
 
 ### P0 — Bloqueadores antes da liberação para advogados
 
-- **P0.1** Expor Compliance Score v4 no RiskDashboardV4 (DEC-01)
+- **P0.1** Expor Exposição ao Risco de Compliance v4 no RiskDashboardV4 (DEC-01)
 - **P0.2** Resolver D5 (thresholds código × RN) — decisão P.O. sobre bypass totalAlta
 - **P0.3** Concluir auditoria dos 12 bugs UAT Gate E "a verificar" (§10)
 - **P0.4** Executar queries Q1-Q6 de rastreabilidade (§13.4) no 930001

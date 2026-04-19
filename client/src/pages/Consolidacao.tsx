@@ -236,14 +236,14 @@ export default function Consolidacao() {
             <CardTitle className="text-2xl">Gerar Consolidação Final</CardTitle>
             <p className="text-white/70 mt-2">
               A IA irá consolidar todas as análises dos ramos e gerar um relatório executivo completo
-              com score de compliance, principais achados e recomendações priorizadas.
+              com a exposição ao risco de compliance, principais achados e recomendações priorizadas.
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="bg-white/5 rounded-lg p-4 space-y-2">
               <p className="text-sm text-white/60 font-medium">O relatório incluirá:</p>
               <ul className="space-y-1 text-sm text-white/80">
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-400" /> Score de Compliance (0-100)</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-400" /> Exposição ao Risco de Compliance (0-100)</li>
                 <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-400" /> Sumário Executivo personalizado</li>
                 <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-400" /> Principais achados por ramo</li>
                 <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-400" /> Top 5 recomendações prioritárias</li>
@@ -338,7 +338,7 @@ export default function Consolidacao() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        {/* Score de Compliance */}
+        {/* Exposicao ao Risco de Compliance */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Score Principal */}
           <Card className="md:col-span-1 bg-white/10 border-white/20">
@@ -363,7 +363,7 @@ export default function Consolidacao() {
               <p className={`font-semibold ${scoreColor(data.complianceScore)}`}>
                 {scoreLabel(data.complianceScore)}
               </p>
-              <p className="text-xs text-white/50 mt-1">Score de Compliance</p>
+              <p className="text-xs text-white/50 mt-1">Exposição ao Risco de Compliance</p>
             </CardContent>
           </Card>
 

@@ -2,7 +2,7 @@
  * consolidacao-v4.spec.ts — Suite Z-20 #717 Bateria 1
  *
  * E2E do Step 7 (ConsolidacaoV4). Anteriormente AUSENTE.
- * Cobre: Compliance Score Card, KPIs, disclaimer, PDF export.
+ * Cobre: Exposição ao Risco de Compliance Card, KPIs, disclaimer, PDF export.
  */
 import { test, expect } from "@playwright/test";
 import { loginViaTestEndpoint } from "./fixtures/auth";
@@ -24,7 +24,7 @@ test.describe("ConsolidacaoV4 — Step 7 entregável final", () => {
     throw lastErr;
   });
 
-  test("Compliance Score Card visível", async ({ page }) => {
+  test("Exposição ao Risco de Compliance Card visível", async ({ page }) => {
     test.setTimeout(60_000);
     await page.goto(`/projetos/${REFERENCE_PROJECT_ID}/consolidacao-v4`);
     await page.waitForLoadState("networkidle");

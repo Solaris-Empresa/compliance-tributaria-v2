@@ -441,7 +441,7 @@ export default function DemoAssessment() {
               <div>
                 <h2 className="text-2xl font-bold mb-2">Gerando Diagnóstico</h2>
                 <p className="text-slate-400 text-sm">
-                  O motor v3 está processando as respostas e calculando o score de compliance para <strong className="text-white">{companyName}</strong>...
+                  O motor v3 está processando as respostas e calculando a exposição ao risco de compliance para <strong className="text-white">{companyName}</strong>...
                 </p>
               </div>
               <div className="space-y-2 text-left bg-slate-900 rounded-xl p-4 border border-slate-800">
