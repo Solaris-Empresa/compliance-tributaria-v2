@@ -630,6 +630,16 @@ export default function ProjetoDetalhesV2() {
                 onClick={() => setLocation(`/projetos/${projectId}/planos-v4`)}
               />
               <Separator />
+              {/* Sprint Z-22 — CPIE v3 Dashboard on-demand (#725) */}
+              <SectionLink
+                icon={<BarChart3 className="w-4 h-4" />}
+                label="Dashboard de Compliance"
+                description="Score on-demand · 3 indicadores · sem persistência"
+                available={true}
+                onClick={() => setLocation(`/projetos/${projectId}/compliance-dashboard`)}
+                testId="btn-ver-score-projeto"
+              />
+              <Separator />
               <SectionLink
                 icon={<ExternalLink className="w-4 h-4" />}
                 label="Compliance Engine v3 ✨"
@@ -752,15 +762,18 @@ function SectionLink({
   description,
   available,
   onClick,
+  testId,
 }: {
   icon: React.ReactNode;
   label: string;
   description: string;
   available: boolean;
   onClick: () => void;
+  testId?: string;
 }) {
   return (
     <button
+      data-testid={testId}
       onClick={available ? onClick : undefined}
       className={`w-full flex items-center justify-between py-2.5 px-1 rounded-lg transition-colors group ${
         available ? "hover:bg-muted/50 cursor-pointer" : "opacity-40 cursor-not-allowed"
