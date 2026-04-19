@@ -482,7 +482,7 @@ function NewPlanModal({
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" data-testid="action-plan-modal">
         <DialogHeader>
           <DialogTitle>Novo plano de ação</DialogTitle>
           <DialogDescription>
