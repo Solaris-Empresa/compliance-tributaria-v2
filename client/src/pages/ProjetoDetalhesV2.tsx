@@ -634,7 +634,7 @@ export default function ProjetoDetalhesV2() {
                 available={summary.hasActionPlan || statusToStep(summary.status) >= 5}
                 onClick={() => setLocation(`/projetos/${projectId}/planos-v4`)}
               />
-              {/* fix(z22) UAT B-01: SectionLink "Compliance Engine v3 ✨" removido — duplicava o "Exposição a Riscos de Compliance" (topo) com funcionalidade equivalente. Rota /compliance-v3 permanece acessível por URL direta (legado, não exibida). */}
+              {/* fix(z22) UAT B-01/B-02b: SectionLink "Compliance Engine v3 ✨" removido — duplicava o "Exposição a Riscos de Compliance" (topo). Rota /compliance-v3 desativada (ver App.tsx · dashboard legado lia agregados zerados pós hot swap ADR-0022). */}
             </CardContent>
           </Card>
 
