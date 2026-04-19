@@ -2,11 +2,22 @@
  * Compliance Dashboard E2E — Sprint Z-22 CPIE v3 (#725) Wave A.1
  * Valida 5 CTs da spec SPEC-CPIE-V3-DASHBOARD-COMPLIANCE-v1.md Bloco 7.
  * Auth pattern: mesmo do z17-pipeline-completo (retry com backoff).
+ *
+ * NOTAS ANTI-FLAKY (aplicadas apos E2E run4 — 1/5 PASS → 5/5 alvo):
+ * - `waitForLoadState("networkidle")` removido: React Query refaz polling e
+ *   networkidle nunca dispara → goto aborta com ERR_ABORTED no teste seguinte.
+ *   Em SPA, aguarda-se pelo testid-alvo (Playwright ja faz auto-wait).
+ * - `goto` usa `{ waitUntil: "domcontentloaded" }` — mais determinista que o
+ *   default ("load") para paginas com chunk tRPC lazy.
+ * - CT-4 navega para "/" (Painel) em vez de /projetos/:id. ComplianceLayout
+ *   e garantido la, independente do estado do projeto de referencia.
  */
 import { test, expect } from "@playwright/test";
 import { loginViaTestEndpoint } from "./fixtures/auth";
 
 const PROJECT_ID = process.env.E2E_PROJECT_ID || "930001";
+const DASHBOARD_PATH = `/projetos/${PROJECT_ID}/compliance-dashboard`;
+const NAV_TIMEOUT = 30_000;
 
 test.describe("Compliance Dashboard v3 (#725)", () => {
   test.beforeEach(async ({ page }) => {
@@ -25,22 +36,19 @@ test.describe("Compliance Dashboard v3 (#725)", () => {
 
   test("CT-1 — rota /compliance-dashboard carrega", async ({ page }) => {
     test.setTimeout(60_000);
-    await page.goto(`/projetos/${PROJECT_ID}/compliance-dashboard`);
-    await page.waitForLoadState("networkidle");
+    await page.goto(DASHBOARD_PATH, { waitUntil: "domcontentloaded" });
     await expect(
       page.getByTestId("compliance-dashboard-page")
-    ).toBeVisible({ timeout: 10_000 });
+    ).toBeVisible({ timeout: NAV_TIMEOUT });
   });
 
   test("CT-2 — 'Gerar Dashboard' renderiza os 3 cards", async ({ page }) => {
     test.setTimeout(60_000);
-    await page.goto(`/projetos/${PROJECT_ID}/compliance-dashboard`);
-    await page.waitForLoadState("networkidle");
-
-    await page.getByTestId("btn-gerar-dashboard").click();
+    await page.goto(DASHBOARD_PATH, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("btn-gerar-dashboard").click({ timeout: NAV_TIMEOUT });
 
     await expect(page.getByTestId("score-card-compliance")).toBeVisible({
-      timeout: 15_000,
+      timeout: NAV_TIMEOUT,
     });
     await expect(page.getByTestId("score-card-execution")).toBeVisible();
     await expect(page.getByTestId("score-card-data-quality")).toBeVisible();
@@ -48,11 +56,12 @@ test.describe("Compliance Dashboard v3 (#725)", () => {
 
   test("CT-3 — modal da formula abre com breakdown", async ({ page }) => {
     test.setTimeout(60_000);
-    await page.goto(`/projetos/${PROJECT_ID}/compliance-dashboard`);
-    await page.waitForLoadState("networkidle");
+    await page.goto(DASHBOARD_PATH, { waitUntil: "domcontentloaded" });
 
-    await page.getByTestId("btn-gerar-dashboard").click();
-    await page.getByTestId("score-card-compliance").waitFor({ timeout: 15_000 });
+    await page.getByTestId("btn-gerar-dashboard").click({ timeout: NAV_TIMEOUT });
+    await page
+      .getByTestId("score-card-compliance")
+      .waitFor({ timeout: NAV_TIMEOUT });
 
     await page.getByTestId("btn-formula-modal").click();
     await expect(page.getByTestId("formula-modal")).toBeVisible();
@@ -62,25 +71,25 @@ test.describe("Compliance Dashboard v3 (#725)", () => {
     await expect(page.getByTestId("formula-modal")).not.toBeVisible();
   });
 
-  test("CT-4 — link menu 'Dashboard Compliance' navega para lista de projetos", async ({
+  test("CT-4 — link menu 'Dashboard Compliance' aparece no layout global", async ({
     page,
   }) => {
     test.setTimeout(60_000);
-    await page.goto(`/projetos/${PROJECT_ID}`);
-    await page.waitForLoadState("networkidle");
+    // Painel inicial (rota "/") — ComplianceLayout garantido, sem dependencia
+    // do estado de um projeto especifico.
+    await page.goto("/", { waitUntil: "domcontentloaded" });
 
     const menuLink = page.getByTestId("menu-link-compliance-dashboard");
-    await expect(menuLink).toBeVisible();
+    await expect(menuLink).toBeVisible({ timeout: NAV_TIMEOUT });
     await menuLink.click();
-    await expect(page).toHaveURL(/\/projetos$/, { timeout: 10_000 });
+    await expect(page).toHaveURL(/\/projetos$/, { timeout: NAV_TIMEOUT });
   });
 
   test("CT-5 — botão Exportar PDF visível apos gerar", async ({ page }) => {
     test.setTimeout(60_000);
-    await page.goto(`/projetos/${PROJECT_ID}/compliance-dashboard`);
-    await page.waitForLoadState("networkidle");
+    await page.goto(DASHBOARD_PATH, { waitUntil: "domcontentloaded" });
 
     const btnPdf = page.getByTestId("btn-exportar-pdf-compliance");
-    await expect(btnPdf).toBeVisible();
+    await expect(btnPdf).toBeVisible({ timeout: NAV_TIMEOUT });
   });
 });
