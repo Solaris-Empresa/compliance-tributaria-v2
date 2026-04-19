@@ -46,7 +46,7 @@ export function ComplianceKPICards({ complianceScore, criticalRisks, immediateAc
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <KPICard
         icon={<ShieldCheck className="w-5 h-5" />}
-        label="Score de Compliance"
+        label="Exposição ao Risco de Compliance"
         value={`${complianceScore}/100`}
         sub={
           complianceScore >= 85 ? "Adequado" :

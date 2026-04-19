@@ -42,7 +42,7 @@ A **IA SOLARIS** não é um "assistente de IA". É um:
 
 **Em uma frase:** A IA SOLARIS é um **ERP cognitivo de compliance tributário** que transforma a Reforma Tributária Brasileira (EC 132/2023, LC 214/2025, LC 227/2024) em um processo estruturado e executável.
 
-**Proposta de valor central:** Transformar 499 requisitos legais complexos em um diagnóstico empresarial acionável, com score de compliance por domínio, identificação de gaps classificados por nível e criticidade, e plano de ação com tarefas atômicas rastreáveis até o requisito de origem.
+**Proposta de valor central:** Transformar 499 requisitos legais complexos em um diagnóstico empresarial acionável, com exposição ao risco de compliance por domínio, identificação de gaps classificados por nível e criticidade, e plano de ação com tarefas atômicas rastreáveis até o requisito de origem.
 
 **O que o produto entrega:**
 

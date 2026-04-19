@@ -1,5 +1,5 @@
 // ScoreFormulaModal.tsx — Sprint Z-22 CPIE v3 (#725) + hotfix transparencia (#733)
-// Modal explicando o Score de Compliance em linguagem compreensivel por advogado.
+// Modal explicando a Exposicao ao Risco de Compliance em linguagem compreensivel por advogado.
 // Mantem secao tecnica ao final para auditoria.
 
 import { useState } from "react";
@@ -65,7 +65,7 @@ export function ScoreFormulaModal({
         className="max-h-[85vh] overflow-y-auto sm:max-w-[640px]"
       >
         <DialogHeader>
-          <DialogTitle>Como o Score de Compliance é calculado</DialogTitle>
+          <DialogTitle>Como a Exposição ao Risco de Compliance é calculada</DialogTitle>
           <DialogDescription>
             O número de 0 a 100 mede a exposição tributária identificada.{" "}
             <strong>Quanto maior, mais risco a empresa carrega hoje.</strong>

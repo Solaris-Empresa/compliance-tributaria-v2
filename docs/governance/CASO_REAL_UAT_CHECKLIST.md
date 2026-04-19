@@ -62,7 +62,7 @@ Lista preenchida pelo Claude Code na implementação. Exemplos:
 - [ ] **RAG:** ≥50% dos riscos com `rag_validated=1` (PROVA 4)
 - [ ] **Severidades** batem com a realidade do caso (advogado valida)
 - [ ] **Breadcrumb** de cada risco faz sentido (fonte › categoria › artigo › ruleId)
-- [ ] **Compliance Score** atualiza ao aprovar/excluir riscos (DEC-01)
+- [ ] **Exposição ao Risco de Compliance** atualiza ao aprovar/excluir riscos (DEC-01)
 - [ ] Advogado aprova riscos relevantes / exclui com motivo os irrelevantes
 
 ### 2.5 — Planos de Ação (Step 6)

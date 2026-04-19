@@ -224,14 +224,14 @@ describe("Fase 4 - Frontend: rota /consolidacao registrada", () => {
     expect(exists).toBe(true);
   });
 
-  it("Consolidacao.tsx contém score de compliance", async () => {
+  it("Consolidacao.tsx contém exposição ao risco de compliance", async () => {
     const fs = await import("fs");
     const content = fs.readFileSync(
       "/home/ubuntu/compliance-tributaria-v2/client/src/pages/Consolidacao.tsx",
       "utf-8"
     );
     expect(content).toContain("complianceScore");
-    expect(content).toContain("Score de Compliance");
+    expect(content).toContain("Exposição ao Risco de Compliance");
   });
 
   it("Consolidacao.tsx contém exportação CSV", async () => {

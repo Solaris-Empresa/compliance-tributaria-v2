@@ -206,7 +206,7 @@ export default function ConsolidacaoV4() {
           <KpiCard testId="kpi-tarefas" label="Tarefas" value={allTasks.length} color="text-purple-600" />
         </div>
 
-        {/* Compliance Score Card (RN-CV4-01..07) */}
+        {/* Exposicao ao Risco de Compliance Card (RN-CV4-01..07) */}
         <Card data-testid="compliance-score-card" className={nivelColors.bg}>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
