@@ -79,6 +79,11 @@ test.describe("Compliance Dashboard v3 (#725)", () => {
     // do estado de um projeto especifico.
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
+    // Aguarda useAuth resolver. Enquanto `loading=true`, ComplianceLayout
+    // renderiza spinner (sem <nav>), depois troca para o layout autenticado.
+    // Sem esse wait, o goto retorna enquanto ainda ha spinner → menu ausente.
+    await page.waitForSelector("nav", { timeout: NAV_TIMEOUT });
+
     const menuLink = page.getByTestId("menu-link-compliance-dashboard");
     await expect(menuLink).toBeVisible({ timeout: NAV_TIMEOUT });
     await menuLink.click();
