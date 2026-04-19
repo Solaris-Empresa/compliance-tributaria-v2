@@ -74,7 +74,7 @@ test.describe("Compliance Dashboard v3 (#725)", () => {
   test("CT-4 — link menu 'Dashboard Compliance' aparece no layout global", async ({
     page,
   }) => {
-    test.setTimeout(60_000);
+    test.setTimeout(120_000); // Fix run8: CT-4 leva ~1.6min quando roda após CT-3 (tRPC cache warming)
     // Painel inicial (rota "/") — ComplianceLayout garantido, sem dependencia
     // do estado de um projeto especifico.
     await page.goto("/", { waitUntil: "domcontentloaded" });

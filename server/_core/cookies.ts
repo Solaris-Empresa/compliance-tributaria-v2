@@ -39,10 +39,15 @@ export function getSessionCookieOptions(
   //       ? hostname
   //       : undefined;
 
+  const secure = isSecureRequest(req);
+  // Chrome rejeita SameSite=None sem Secure (RFC 6265bis).
+  // Em localhost (HTTP), usar SameSite=Lax para que o Playwright/Chromium aceite o cookie E2E.
+  const sameSite = secure ? ("none" as const) : ("lax" as const);
+
   return {
     httpOnly: true,
     path: "/",
-    sameSite: "none",
-    secure: isSecureRequest(req),
+    sameSite,
+    secure,
   };
 }
