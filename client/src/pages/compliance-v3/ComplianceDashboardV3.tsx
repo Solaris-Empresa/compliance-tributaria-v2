@@ -142,9 +142,9 @@ export default function ComplianceDashboardV3() {
             <FileText className="w-3.5 h-3.5 mr-1.5" />
             PDF
           </Button>
-          <Link href={`/projetos/${projectId}/compliance-v3/assessment`}>
+          <Link href={`/projetos/${projectId}/questionario-v3`}>
             <Button size="sm">
-              Iniciar Assessment
+              Fazer Avaliação de Riscos de Compliance
             </Button>
           </Link>
         </div>
