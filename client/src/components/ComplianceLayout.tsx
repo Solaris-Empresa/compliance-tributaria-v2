@@ -17,7 +17,6 @@ import {
   Activity,
   Database,
   Upload,
-  ShieldCheck,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
@@ -102,13 +101,8 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
   }> = [
     { href: "/", icon: LayoutDashboard, label: "Painel" },
     { href: "/projetos", icon: FolderKanban, label: "Projetos" },
-    {
-      href: "/projetos",
-      icon: ShieldCheck,
-      label: "Dashboard Compliance",
-      testId: "menu-link-compliance-dashboard",
-    }, // Sprint Z-22 CPIE v3 (#725) — entry-point; usuario escolhe projeto em /projetos
     { href: "/clientes", icon: Users, label: "Clientes" },
+    // fix(z22): item "Dashboard Compliance" removido do sidebar global — acesso via botão contextual em ProjetoDetalhesV2 (#731)
   ];
 
   if (user?.role === "equipe_solaris") {
