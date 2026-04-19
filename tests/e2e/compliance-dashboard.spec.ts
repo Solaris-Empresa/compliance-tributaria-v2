@@ -9,8 +9,8 @@
  *   Em SPA, aguarda-se pelo testid-alvo (Playwright ja faz auto-wait).
  * - `goto` usa `{ waitUntil: "domcontentloaded" }` — mais determinista que o
  *   default ("load") para paginas com chunk tRPC lazy.
- * - CT-4 navega para "/" (Painel) em vez de /projetos/:id. ComplianceLayout
- *   e garantido la, independente do estado do projeto de referencia.
+ * - CT-4 (fix #731): testa botao contextual btn-ver-score-projeto em ProjetoDetalhesV2.
+ *   Item removido do sidebar global — acesso preservado via botao contextual.
  */
 import { test, expect } from "@playwright/test";
 import { loginViaTestEndpoint } from "./fixtures/auth";
@@ -71,23 +71,20 @@ test.describe("Compliance Dashboard v3 (#725)", () => {
     await expect(page.getByTestId("formula-modal")).not.toBeVisible();
   });
 
-  test("CT-4 — link menu 'Dashboard Compliance' aparece no layout global", async ({
+  test("CT-4 — botão contextual 'Dashboard de Compliance' em ProjetoDetalhesV2 navega para dashboard", async ({
     page,
   }) => {
-    test.setTimeout(120_000); // Fix run8: CT-4 leva ~1.6min quando roda após CT-3 (tRPC cache warming)
-    // Painel inicial (rota "/") — ComplianceLayout garantido, sem dependencia
-    // do estado de um projeto especifico.
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-
-    // Aguarda useAuth resolver. Enquanto `loading=true`, ComplianceLayout
-    // renderiza spinner (sem <nav>), depois troca para o layout autenticado.
-    // Sem esse wait, o goto retorna enquanto ainda ha spinner → menu ausente.
+    // fix(z22) #731: item removido do sidebar global — acesso via botao contextual em ProjetoDetalhesV2
+    test.setTimeout(60_000);
+    await page.goto(`/projetos/${PROJECT_ID}`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector("nav", { timeout: NAV_TIMEOUT });
-
-    const menuLink = page.getByTestId("menu-link-compliance-dashboard");
-    await expect(menuLink).toBeVisible({ timeout: NAV_TIMEOUT });
-    await menuLink.click();
-    await expect(page).toHaveURL(/\/projetos$/, { timeout: NAV_TIMEOUT });
+    const btnContextual = page.getByTestId("btn-ver-score-projeto");
+    await expect(btnContextual).toBeVisible({ timeout: NAV_TIMEOUT });
+    await btnContextual.click();
+    await expect(page).toHaveURL(
+      new RegExp(`/projetos/${PROJECT_ID}/compliance-dashboard`),
+      { timeout: NAV_TIMEOUT }
+    );
   });
 
   test("CT-5 — botão Exportar PDF visível apos gerar", async ({ page }) => {

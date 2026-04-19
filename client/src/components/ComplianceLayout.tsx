@@ -13,11 +13,9 @@ import {
   Plus,
   Cpu,
   Shield,
-  BarChart3,
   Activity,
   Database,
   Upload,
-  ShieldCheck,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
@@ -102,20 +100,15 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
   }> = [
     { href: "/", icon: LayoutDashboard, label: "Painel" },
     { href: "/projetos", icon: FolderKanban, label: "Projetos" },
-    {
-      href: "/projetos",
-      icon: ShieldCheck,
-      label: "Dashboard Compliance",
-      testId: "menu-link-compliance-dashboard",
-    }, // Sprint Z-22 CPIE v3 (#725) — entry-point; usuario escolhe projeto em /projetos
     { href: "/clientes", icon: Users, label: "Clientes" },
+    // fix(z22): item "Dashboard Compliance" removido do sidebar global — acesso via botão contextual em ProjetoDetalhesV2 (#731)
   ];
 
   if (user?.role === "equipe_solaris") {
     navItems.push({ href: "/usuarios", icon: Users, label: "Usuários" });
     navItems.push({ href: "/admin/embeddings", icon: Cpu, label: "Embeddings" });
     navItems.push({ href: "/admin/consistencia", icon: Shield, label: "Consistência" });
-    navItems.push({ href: "/admin/cpie-dashboard", icon: BarChart3, label: "Dashboard CPIE" });
+    // fix(z22): item "Dashboard CPIE" admin removido — legado CPIE-B (ADR-0023 · 0/2367 analisados). Página será deletada em PR #2 Wave B.
     navItems.push({ href: "/admin/shadow-monitor", icon: Activity, label: "Shadow Monitor" });
     navItems.push({ href: "/admin/rag-cockpit", icon: Database, label: "RAG Cockpit" });
     navItems.push({ href: "/admin/solaris-questions", icon: Upload, label: "Upload Perguntas SOLARIS" }); // Sprint L — DEC-002
