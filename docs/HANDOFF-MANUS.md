@@ -25,9 +25,9 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-18)
-- BASELINE **v7.12** — Sprint Z-21 ENCERRADA · Sprint Z-22 INICIADA
-- **HEAD: `48a3dda` (github/main)** · **Checkpoint Manus:** `6e196d3c`
+## Estado atual do projeto (2026-04-19)
+- BASELINE **v7.13** — Sprint Z-22 Wave A.1 EM ANDAMENTO · E2E 5/5 PASS
+- **HEAD: `5775d1d` (branch `feat/z22-725-cpie-v3-wave-a1`)** · **Checkpoint Manus:** `e77bd842`
 - **PRs mergeados:** 726 · **TypeScript:** 0 erros · **Unit tests:** 1717 passed / 9 skipped (1 falha conhecida: b-z11-012-evidence)
 - **Bundle:** ~1.4MB gzipado (vendor 761KB) — redução de 63% vs baseline Z-20
 - **streamdown:** REMOVIDA (PR #726) → `MarkdownRenderer.tsx` (react-markdown + remark-gfm)
@@ -44,7 +44,8 @@ Drizzle ORM / Vitest / pnpm
 - **risk_categories:** 9 categorias ativas · 10 no banco (1 inativa)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
 - **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · Z-14 ✅ (16 issues) · Z-15 Lote A ✅ · Z-16 ✅ (9/9 issues) · Z-17 ✅ · Z-18 ✅ (3/3 issues) · **Z-19 ✅** · **Z-20 ✅** · **Z-21 ✅ (bundle -63% + streamdown removido)**
-- **Sprint Z-22 INICIADA:** Issue #725 · Milestone #20 · Dashboard Compliance v3 on-demand [P0] · SPEC 573 linhas
+- **Sprint Z-22 Wave A.1:** Issue #725 · PR #729 mergeado · E2E 5/5 PASS (22.9s) · Deploy BLOQUEADO (fila Manus — abrir ticket help.manus.im)
+- **⚠️ DEPLOY BLOQUEADO:** Botão "Publicando..." no Manus nunca conclui para `compliance-tributaria-v2` (iasolaris.manus.space). Abrir ticket em https://help.manus.im mencionando checkpoint `e77bd842`. NÃO tentar re-deploy até suporte destravar a fila.
 
 ### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |
