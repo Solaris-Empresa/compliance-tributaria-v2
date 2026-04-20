@@ -2176,7 +2176,7 @@ Gere o veredito final em JSON:
       if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
 
       const bs = (project as any).briefingStructured;
-      if (!bs) return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null };
+      if (!bs) return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null, structured: null };
 
       try {
         const parsed = typeof bs === "string" ? JSON.parse(bs) : bs;
@@ -2194,9 +2194,20 @@ Gere o veredito final em JSON:
             baixo: inconsistencias.filter((i: any) => i.impacto === "baixo").length,
           },
           confidenceScore,
+          // fix(#767 UAT 2026-04-20): expor briefing estruturado completo para
+          // o modal "Compartilhar Resumo WhatsApp" consumir no cliente.
+          structured: {
+            nivel_risco_geral: parsed?.nivel_risco_geral ?? null,
+            resumo_executivo: parsed?.resumo_executivo ?? null,
+            principais_gaps: Array.isArray(parsed?.principais_gaps) ? parsed.principais_gaps : [],
+            oportunidades: Array.isArray(parsed?.oportunidades) ? parsed.oportunidades : [],
+            recomendacoes_prioritarias: Array.isArray(parsed?.recomendacoes_prioritarias) ? parsed.recomendacoes_prioritarias : [],
+            inconsistencias,
+            confidence_score: confidenceScore,
+          },
         };
       } catch {
-        return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null };
+        return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null, structured: null };
       }
     }),
 
