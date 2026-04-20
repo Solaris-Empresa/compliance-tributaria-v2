@@ -25,48 +25,26 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-20)
-- BASELINE **v7.39** — Sprint Z-22 Wave B EM ANDAMENTO
-- **HEAD: `22afb65` (github/main)** · **Checkpoint Manus:** `2dfb44f1` (Online em produção)
-- **PRs mergeados nesta sessão:** #755–#789 (35 PRs em 2026-04-20)
-- **TypeScript:** 0 erros · **HTTP produção:** 200 ✓
-- **Bundle:** ~1.4MB gzipado (vendor 761KB)
+## Estado atual do projeto (2026-04-18)
+- BASELINE **v7.12** — Sprint Z-21 ENCERRADA · Sprint Z-22 INICIADA
+- **HEAD: `48a3dda` (github/main)** · **Checkpoint Manus:** `6e196d3c`
+- **PRs mergeados:** 726 · **TypeScript:** 0 erros · **Unit tests:** 1717 passed / 9 skipped (1 falha conhecida: b-z11-012-evidence)
+- **Bundle:** ~1.4MB gzipado (vendor 761KB) — redução de 63% vs baseline Z-20
 - **streamdown:** REMOVIDA (PR #726) → `MarkdownRenderer.tsx` (react-markdown + remark-gfm)
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade
 - **Skill solaris-contexto:** v4.7 · **Skill solaris-orquestracao:** v3.2
-- **Perguntas SOLARIS ativas:** 0 (soft-delete executado 2026-04-20 13:14 — faixa SOL-026..SOL-037 livre)
+- **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
 - **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção · Suite E2E automatizada 21 casos ✅ (Z-17)
 - **Contratos M1:** CNT-01a/01b/02/03 em `docs/contracts/`
-- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + REGRA-ORQ-12/13 + ORQ-17 + R-SYNC-02 (fetch refspec explícito)
+- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + REGRA-ORQ-12/13 + ORQ-17
 - **Datasets:** `nbs-2-0-utf8.csv` no repo · `lc214-2025.pdf` no sandbox
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
-- **UAT Combustíveis:** EM ANDAMENTO — empresa Petrolog (CNPJ 00394460005887) · NBS correto: `1.0501.14.51`
+- **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06
 - **risk_categories:** 9 categorias ativas · 10 no banco (1 inativa)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
-- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · Z-14 ✅ (16 issues) · Z-15 Lote A ✅ · Z-16 ✅ (9/9 issues) · Z-17 ✅ · Z-18 ✅ (3/3 issues) · **Z-19 ✅** · **Z-20 ✅** · **Z-21 ✅** · **Z-22 Wave A.2+B EM ANDAMENTO**
-- **Sprint Z-22 Wave B:** PRs #755–#789 deployados · Features: hero card exposição, botões Sim/Não/N.A., paginação /projetos, audit trail, resumo WhatsApp, export CSV riscos, briefing determinismo
-
-### Pendências Críticas (2026-04-20)
-| ID | Descrição | Prioridade |
-|---|---|---|
-| DT-01 | Registrar hash `0088_drop_cpie_legado.sql` em `__drizzle_migrations` | Alta |
-| SOLARIS-UPLOAD | `solaris_questions` zerada (0 ativas) — faixa SOL-026..SOL-037 livre | Alta |
-| BUG-3 | Badge de inconsistências persiste após aprovação do briefing | Média |
-
-### Bugs UAT Resolvidos (2026-04-20)
-| Bug | PR | Status |
-|---|---|---|
-| BUG-1 — inconsistências somem após regeneração | #787 | ✅ RESOLVIDO |
-| BUG-2 — NBS/NCM não incluído no prompt LLM | #764, #768, #770 | ✅ RESOLVIDO |
-| BUG-4 — contador de versões regride | #788 | ✅ RESOLVIDO |
-
-### Regra R-SYNC-02 (obrigatória)
-```bash
-# Fetch SEMPRE com refspec explícito para evitar refs ambíguas:
-git fetch solaris refs/heads/main:refs/remotes/solaris/main
-git reset --hard solaris/main
-```
+- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · Z-14 ✅ (16 issues) · Z-15 Lote A ✅ · Z-16 ✅ (9/9 issues) · Z-17 ✅ · Z-18 ✅ (3/3 issues) · **Z-19 ✅** · **Z-20 ✅** · **Z-21 ✅ (bundle -63% + streamdown removido)**
+- **Sprint Z-22 INICIADA:** Issue #725 · Milestone #20 · Dashboard Compliance v3 on-demand [P0] · SPEC 573 linhas
 
 ### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |

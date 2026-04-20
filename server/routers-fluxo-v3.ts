@@ -1081,10 +1081,20 @@ Gere as perguntas no formato:
       const cnaeCodesForRag = confirmedCnaes.length > 0
         ? confirmedCnaes.map((c: any) => c.code)
         : input.allAnswers.map(a => a.cnaeCode);
+      // fix(#785 item G UAT 2026-04-20): detector geo/export injeta sufixo jurídico
+      // no briefingQueryCtx para forçar RAG a recuperar chunks de Art. 8 LC 214/2025
+      // quando usuário menciona país estrangeiro ou termo de exportação.
+      const { detectExportSignal: detectExportGB } = await import("./lib/detect-export-signal");
+      const exportSignalGB = detectExportGB([
+        (project as any).description,
+        input.correction,
+        input.complement,
+      ]);
       const briefingQueryCtx = [
         (project as any).description || "",
         input.correction || "",
         input.complement || "",
+        exportSignalGB.suffix,
         answersText.substring(0, 500),
       ].filter(Boolean).join(" ");
       const ragCtxBriefing = await retrieveArticles(cnaeCodesForRag, briefingQueryCtx, 7);
@@ -1310,6 +1320,13 @@ Gere o Briefing estruturado em JSON:
           ...inc,
           impacto: classifyInconsistenciaImpacto(inc),
         }));
+      }
+
+      // fix(#780 item 1 UAT 2026-04-20): consolida gaps com mesmo artigo+parágrafo
+      // (LLM fragmentava em 3+ gaps para Art. 21 §1º). Pós-processamento determinístico.
+      if (Array.isArray(structured.principais_gaps)) {
+        const { consolidateGapsByArticle } = await import("./lib/consolidate-gaps");
+        structured.principais_gaps = consolidateGapsByArticle(structured.principais_gaps) as any;
       }
 
       // fix(BUG-1 UAT 2026-04-20): preservar inconsistências dismissed entre regenerações.
@@ -2885,10 +2902,18 @@ Gere o veredito final em JSON:
       const cnaeCodesForRag = confirmedCnaes.length > 0
         ? confirmedCnaes.map((c: any) => c.code)
         : cnaeAnswers.map((a: any) => a.cnaeCode).filter((c: string) => c !== "CORPORATIVO" && c !== "OPERACIONAL");
+      // fix(#785 item G UAT 2026-04-20): detector geo/export no generateBriefingFromDiagnostic.
+      const { detectExportSignal: detectExportFD } = await import("./lib/detect-export-signal");
+      const exportSignalFD = detectExportFD([
+        p.description,
+        input.correction,
+        input.complement,
+      ]);
       const briefingQueryCtx = [
         p.description || "",
         input.correction || "",
         input.complement || "",
+        exportSignalFD.suffix,
         answersText.substring(0, 500),
       ].filter(Boolean).join(" ");
       const ragCtxBriefing = await retrieveArticles(cnaeCodesForRag, briefingQueryCtx, 7);
@@ -3008,6 +3033,12 @@ Gere o Briefing estruturado em JSON:
           ...inc,
           impacto: classifyInconsistenciaImpacto(inc),
         }));
+      }
+
+      // fix(#780 item 1 UAT 2026-04-20): consolida gaps com mesmo artigo+parágrafo
+      if (Array.isArray(structured.principais_gaps)) {
+        const { consolidateGapsByArticle } = await import("./lib/consolidate-gaps");
+        structured.principais_gaps = consolidateGapsByArticle(structured.principais_gaps) as any;
       }
 
       // fix(BUG-1 UAT 2026-04-20): preserva dismissed_inconsistencias entre regenerações.
