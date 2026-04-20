@@ -24,6 +24,7 @@ import { Streamdown } from "@/components/MarkdownRenderer";
 import StepComments from "@/components/StepComments";
 // V64: Alertas de inconsistência
 import AlertasInconsistencia, { InconsistenciaBadge } from "@/components/AlertasInconsistencia";
+import { ConfidenceBar } from "@/components/ConfidenceBar";
 
 // ── Componente: Painel de Diagnóstico de Entrada (3 Camadas) ─────────────────────────────────
 function DiagnosticoEntradaPanel({
@@ -186,6 +187,8 @@ export default function BriefingV3() {
     { enabled: !!projectId }
   );
   const inconsistencias = inconsistenciasData?.inconsistencias ?? [];
+  // fix(UX1 UAT 2026-04-20): confidence_score para barra visual
+  const confidenceScore = (inconsistenciasData as any)?.confidenceScore ?? null;
 
   // fix(B2 UAT 2026-04-20): resolver inconsistência sem regerar briefing (LLM-free)
   const dismissInconsistencia = trpc.fluxoV3.dismissInconsistencia.useMutation();
@@ -271,6 +274,14 @@ export default function BriefingV3() {
       });
       setBriefing(result.briefing);
       setGenerationCount(prev => prev + 1);
+      // fix(UX3 UAT 2026-04-20): transparência de retries da LLM
+      const retries = (result as any).llmRetries ?? 0;
+      if (retries > 0) {
+        toast.info(
+          `Briefing gerado após ${retries} ${retries === 1 ? "nova tentativa" : "novas tentativas"}. A LLM teve dificuldade na primeira resposta — o resultado foi validado antes de salvar.`,
+          { duration: 6000 }
+        );
+      }
       if (generationCount > 0) toast.success("Briefing atualizado com suas correções!");
       // V64: Atualizar inconsistências após nova geração
       setTimeout(() => refetchInconsistencias(), 500);
@@ -522,6 +533,11 @@ export default function BriefingV3() {
             </div>
           );
         })()}
+        {/* fix(UX1 UAT 2026-04-20): barra visual de confiança do diagnóstico */}
+        {confidenceScore && !isGenerating && (
+          <ConfidenceBar score={confidenceScore} />
+        )}
+
         {/* V64: Alertas de Inconsistência — exibido apenas quando há inconsistências */}
         {/* V70.2: onCorrigir habilita o botão "Corrigir no Questionário" em cada inconsistência */}
         {inconsistencias.length > 0 && !isGenerating && (
