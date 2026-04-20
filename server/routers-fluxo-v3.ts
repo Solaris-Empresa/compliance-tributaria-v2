@@ -1081,9 +1081,27 @@ Gere as perguntas no formato:
       const primaryCnae = confirmedCnaes[0]
         ? `${confirmedCnaes[0].code} — ${(confirmedCnaes[0] as any).description || confirmedCnaes[0].code}`
         : (input.allAnswers[0]?.cnaeCode ?? "não informado");
+
+      // fix(briefing 2026-04-20): inclui NCMs e NBS do operationProfile no perfil da empresa,
+      // para que o LLM considere alíquota zero/Imposto Seletivo/regime diferenciado por produto/serviço.
+      const opProfile = projectAnyBriefing.operationProfile as {
+        principaisProdutos?: Array<{ ncm_code?: string; descricao?: string }>;
+        principaisServicos?: Array<{ nbs_code?: string; descricao?: string }>;
+      } | null | undefined;
+      const produtosList = (opProfile?.principaisProdutos ?? [])
+        .filter((p) => p?.ncm_code)
+        .map((p) => `  - NCM ${p.ncm_code}${p.descricao ? ` — ${p.descricao}` : ""}`)
+        .join("\n");
+      const servicosList = (opProfile?.principaisServicos ?? [])
+        .filter((s) => s?.nbs_code)
+        .map((s) => `  - NBS ${s.nbs_code}${s.descricao ? ` — ${s.descricao}` : ""}`)
+        .join("\n");
+      const produtosBlock = produtosList ? `\n- Principais Produtos (NCM):\n${produtosList}` : "";
+      const servicosBlock = servicosList ? `\n- Principais Serviços (NBS):\n${servicosList}` : "";
+
       const companyProfileBlock = cp
-        ? `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: ${cp.companySize ?? "não informado"}\n- Regime Tributário: ${cp.taxRegime ?? "não informado"}\n- Faturamento Anual: ${cp.annualRevenueRange ?? "não informado"}`
-        : `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: não informado\n- Regime Tributário: não informado`;
+        ? `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: ${cp.companySize ?? "não informado"}\n- Regime Tributário: ${cp.taxRegime ?? "não informado"}\n- Faturamento Anual: ${cp.annualRevenueRange ?? "não informado"}${produtosBlock}${servicosBlock}`
+        : `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: não informado\n- Regime Tributário: não informado${produtosBlock}${servicosBlock}`;
 
       // V60: Geração com retry + temperatura 0.2 + schema estruturado
       // fix(UX3 UAT 2026-04-20): contador de retries para propagar ao frontend
@@ -2298,6 +2316,31 @@ Gere o veredito final em JSON:
       // Montar bloco de texto adicional para o userPrompt
       const additionalContext: string[] = [];
 
+      // fix(briefing 2026-04-20): inclui NCMs e NBS do operationProfile, para que o LLM
+      // considere alíquota zero, Imposto Seletivo e regime diferenciado por produto/serviço.
+      const opProfileForBriefing = p.operationProfile as {
+        principaisProdutos?: Array<{ ncm_code?: string; descricao?: string }>;
+        principaisServicos?: Array<{ nbs_code?: string; descricao?: string }>;
+      } | null | undefined;
+      const ncmItens = (opProfileForBriefing?.principaisProdutos ?? []).filter((p) => p?.ncm_code);
+      const nbsItens = (opProfileForBriefing?.principaisServicos ?? []).filter((s) => s?.nbs_code);
+      if (ncmItens.length > 0 || nbsItens.length > 0) {
+        additionalContext.push('<perfil_produtos_servicos>');
+        if (ncmItens.length > 0) {
+          additionalContext.push('Principais Produtos (NCM):');
+          ncmItens.forEach((p) => {
+            additionalContext.push(`- NCM ${p.ncm_code}${p.descricao ? ` — ${p.descricao}` : ''}`);
+          });
+        }
+        if (nbsItens.length > 0) {
+          additionalContext.push('Principais Serviços (NBS):');
+          nbsItens.forEach((s) => {
+            additionalContext.push(`- NBS ${s.nbs_code}${s.descricao ? ` — ${s.descricao}` : ''}`);
+          });
+        }
+        additionalContext.push('</perfil_produtos_servicos>');
+      }
+
       if (specializedCnaeAnswers) {
         additionalContext.push('<qcnae_especializado>');
         additionalContext.push(JSON.stringify(specializedCnaeAnswers, null, 2));
@@ -3126,6 +3169,9 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
       projectId: z.number().int().positive(),
       respostas: z.array(z.object({
         pergunta_id: z.string(),
+        // fix(briefing 2026-04-20): texto da pergunta + NCM agora persistidos para alimentar buildProductServiceLayers/briefing LLM.
+        pergunta_texto: z.string().optional(),
+        ncm_code: z.string().optional(),
         resposta: z.union([z.string(), z.boolean(), z.number()]),
         fonte_ref: z.string().min(1, 'fonte_ref obrigatório — Contrato DEC-M3-05 Parte 1'),
         lei_ref:   z.string().min(1, 'lei_ref obrigatório — Contrato DEC-M3-05 Parte 1'),
@@ -3165,6 +3211,9 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
       projectId: z.number().int().positive(),
       respostas: z.array(z.object({
         pergunta_id: z.string(),
+        // fix(briefing 2026-04-20): texto da pergunta + NBS agora persistidos para alimentar buildProductServiceLayers/briefing LLM.
+        pergunta_texto: z.string().optional(),
+        nbs_code: z.string().optional(),
         resposta: z.union([z.string(), z.boolean(), z.number()]),
         fonte_ref: z.string().min(1, 'fonte_ref obrigatório — Contrato DEC-M3-05 Parte 1'),
         lei_ref:   z.string().min(1, 'lei_ref obrigatório — Contrato DEC-M3-05 Parte 1'),
