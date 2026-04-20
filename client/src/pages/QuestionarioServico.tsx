@@ -112,11 +112,15 @@ export default function QuestionarioServico() {
   const isLast = currentIndex === total - 1;
 
   const handleFinalize = () => {
+    // fix(briefing 2026-04-20): persistir pergunta_texto + nbs_code para que o briefing LLM
+    // receba o texto real das perguntas NBS (antes apenas pergunta_id chegava ao prompt).
     const respostas = perguntas.map((p) => ({
       pergunta_id: p.id,
+      pergunta_texto: (p as any).texto ?? (p as any).pergunta ?? "",
+      nbs_code: (p as any).nbs ?? undefined,
       resposta: answers[p.id] ?? "",
-      fonte_ref: "NBS",
-      lei_ref: "LC 214/2025",
+      fonte_ref: (p as any).fonte_ref ?? "NBS",
+      lei_ref: (p as any).lei_ref ?? "LC 214/2025",
     }));
     completeMutation.mutate({ projectId, respostas });
   };
