@@ -87,9 +87,14 @@ export async function generateWithRetry<T extends z.ZodTypeAny>(
      * Padrão: true — todos os prompts de compliance tributário são longos e repetidos.
      */
     enableCache?: boolean;
+    /**
+     * fix(UX3 UAT 2026-04-20): callback opcional chamado a cada retry.
+     * Permite ao caller propagar info de retries ao frontend (toast "Gerando... tentativa 2/3").
+     */
+    onRetry?: (attempt: number, error: string) => void;
   } = {}
 ): Promise<z.infer<T>> {
-  const { maxRetries = 2, context = "LLM", temperature, timeoutMs, enableCache = true } = options;
+  const { maxRetries = 2, context = "LLM", temperature, timeoutMs, enableCache = true, onRetry } = options;
 
   let lastError: Error | null = null;
 
@@ -142,6 +147,15 @@ export async function generateWithRetry<T extends z.ZodTypeAny>(
       // Se for erro de validação Zod na última tentativa, propaga
       if (attempt === maxRetries - 1) {
         break;
+      }
+
+      // fix(UX3 UAT 2026-04-20): notificar caller antes do próximo retry
+      if (onRetry) {
+        try {
+          onRetry(attempt + 1, lastError.message);
+        } catch {
+          // callback não pode quebrar o retry
+        }
       }
 
       // Aguarda 1s antes do retry
