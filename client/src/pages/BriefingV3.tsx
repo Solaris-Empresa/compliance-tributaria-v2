@@ -263,7 +263,16 @@ export default function BriefingV3() {
     const savedBriefing = (project as any).briefingContentV3 || (project as any).briefingContent;
     if (savedBriefing && generationCount === 0) {
       setBriefing(savedBriefing);
-      setGenerationCount(1);
+      // fix(BUG-4 UAT 2026-04-20): preservar generationCount + versionHistory do auto-save
+      // quando disponíveis. Antes, hardcode `setGenerationCount(1)` fazia o contador
+      // regredir (v3 → v1) sempre que a página era recarregada — perdia numeração real.
+      const draft = loadTempData(projectId, 'etapa3');
+      const draftCount = draft?.data?.generationCount;
+      const nextCount = typeof draftCount === "number" && draftCount > 0 ? draftCount : 1;
+      setGenerationCount(nextCount);
+      if (Array.isArray(draft?.data?.versionHistory)) {
+        setVersionHistory(draft.data.versionHistory as BriefingVersion[]);
+      }
       setWasAlreadyApproved(true); // Sinaliza que este briefing já foi aprovado
       return;
     }
