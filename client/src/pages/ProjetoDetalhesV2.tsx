@@ -29,6 +29,7 @@ import {
   Users,
   Edit3,
   Tag,
+  History,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -380,7 +381,16 @@ export default function ProjetoDetalhesV2() {
                     <Clock className="w-3.5 h-3.5" />
                     Atualizado {new Date(summary.updatedAt).toLocaleDateString("pt-BR")}
                   </span>
-
+                  {/* #766: Trilha de Auditoria — acesso permanente (Reforma até 2031) */}
+                  <button
+                    type="button"
+                    onClick={() => setLocation(`/projetos/${projectId}/historico`)}
+                    data-testid="btn-trilha-auditoria"
+                    className="flex items-center gap-1 text-xs hover:text-foreground underline-offset-2 hover:underline transition-colors"
+                  >
+                    <History className="w-3.5 h-3.5" />
+                    Trilha de Auditoria
+                  </button>
                 </div>
               </div>
             </div>
