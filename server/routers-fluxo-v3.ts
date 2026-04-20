@@ -1235,6 +1235,34 @@ REGRA CRÍTICA — FATOS ADICIONAIS e CORREÇÃO DECLARADOS PELO USUÁRIO (fix U
 - Exemplos: "fazemos exportação" → análise de imunidade (Art. 8 LC 214/2025). "também transportamos óleo vegetal" → incluir análise para esse tipo de carga. "operamos em regime especial" → citar artigo pertinente.
 - Cada fato adicional e cada correção deve gerar pelo menos um gap OU uma oportunidade específica no briefing.
 
+REGRA DE ARTIGOS CRÍTICOS — GATILHOS SEMÂNTICOS (issue #785 item F, fix UAT 2026-04-20):
+Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORREÇÃO ou respostas, você DEVE gerar OPORTUNIDADE OU GAP citando o artigo específico listado, MESMO QUE o regulatoryContext acima não contenha o texto exato do artigo:
+
+1. EXPORTAÇÃO INTERNACIONAL (Art. 8 LC 214/2025 — imunidade):
+   - Menções a países estrangeiros: Bolívia, Argentina, Paraguai, Uruguai, Chile, Peru, Colômbia, Venezuela, EUA, Estados Unidos, Canadá, México, Portugal, Espanha, Alemanha, França, Itália, Reino Unido, China, Japão, Coreia, Angola, Moçambique, qualquer país não-Brasil.
+   - Termos: "exportação", "exportamos", "exporto", "mercado externo", "exterior", "cross-border", "operação internacional", "venda para fora", "transporte internacional", "importação" (para gap de crédito).
+   - AÇÃO: gerar OPORTUNIDADE "Aplicação da imunidade tributária nas operações de exportação (Art. 8 LC 214/2025)" + GAP sobre controles e documentação fiscal de comprovação de exportação.
+
+2. CESTA BÁSICA / ALÍQUOTA ZERO (Art. 9 LC 214/2025):
+   - NCMs explícitos na lista de cesta básica nacional: 1006 (arroz), 0713 (feijão), 0401 (leite), 0901 (café), 0802 (castanha), 1701 (açúcar), 1507 (óleo de soja), 0713.33 (feijão preto), 1101 (farinha de trigo), 0407 (ovos), 1104 (cereais processados).
+   - Termos genéricos: "cesta básica", "alimentos básicos", "gêneros alimentícios essenciais".
+   - AÇÃO: gerar OPORTUNIDADE "Enquadramento em alíquota zero / cesta básica nacional (Art. 9 LC 214/2025)" citando o(s) NCM(s) específico(s).
+
+3. IMPOSTO SELETIVO (Art. 2 LC 214/2025):
+   - NCMs com potencial IS: 2202.10 (bebidas açucaradas), 2401-2403 (tabaco), 2710 (combustíveis fósseis), 2203-2208 (bebidas alcoólicas), 8703 (veículos).
+   - Termos: "combustível", "álcool", "cigarro", "tabaco", "bebida açucarada", "refrigerante".
+   - AÇÃO: gerar GAP sobre avaliação de incidência do Imposto Seletivo (Art. 2 LC 214/2025) nos produtos comercializados.
+
+4. IBS INTERESTADUAL (Art. 14 e 15 LC 214/2025):
+   - Termos: "multiestadual", "interestadual", "outros estados", operação em mais de 1 UF (SP+RJ+MG etc).
+   - AÇÃO: gerar GAP sobre parametrização de alíquotas IBS por UF/município de destino.
+
+5. INSCRIÇÃO CADASTRAL IBS/CBS (Art. 21 §1º LC 214/2025):
+   - Sempre relevante para empresas com operação multiestadual ou porte médio/grande.
+   - AÇÃO: gerar GAP sobre atualização cadastral no novo regime.
+
+IMPORTANTE: Essas regras operam EM ADIÇÃO ao regulatoryContext. Se o RAG já trouxe o artigo, aprofunde com o texto. Se não trouxe, cite o artigo com a descrição curta acima e sinalize na limitação que a análise deve ser validada por advogado tributarista. NUNCA invente texto de artigo que não esteja no regulatoryContext — apenas cite o número e a regra curta.
+
 ${regulatoryContext}
 
 ${OUTPUT_CONTRACT}`,
@@ -2807,6 +2835,34 @@ REGRA CRÍTICA — FATOS ADICIONAIS e CORREÇÃO DECLARADOS PELO USUÁRIO (fix U
 - CORREÇÃO tem prioridade máxima: algo que o briefing atual errou ou informação nova que invalida/estende o diagnóstico. Reflita explicitamente (cite no resumo executivo).
 - Exemplos: "fazemos exportação" → análise de imunidade (Art. 8 LC 214/2025). "transportamos óleo vegetal" → incluir esse tipo de carga. "operamos em regime especial" → citar artigo específico.
 - Cada fato adicional e cada correção deve gerar pelo menos um gap OU uma oportunidade específica.
+
+REGRA DE ARTIGOS CRÍTICOS — GATILHOS SEMÂNTICOS (issue #785 item F, fix UAT 2026-04-20):
+Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORREÇÃO, QCNAE ou respostas de Onda 1/2/Q.Produtos/Q.Serviços, você DEVE gerar OPORTUNIDADE OU GAP citando o artigo específico, MESMO QUE o regulatoryContext acima não contenha o texto exato:
+
+1. EXPORTAÇÃO INTERNACIONAL (Art. 8 LC 214/2025 — imunidade):
+   - Países estrangeiros: Bolívia, Argentina, Paraguai, Uruguai, Chile, Peru, Colômbia, Venezuela, EUA, Canadá, México, Portugal, Espanha, Alemanha, França, Itália, Reino Unido, China, Japão, Coreia, Angola, Moçambique, qualquer país não-Brasil.
+   - Termos: "exportação", "exportamos", "mercado externo", "exterior", "operação internacional", "transporte internacional", "importação".
+   - AÇÃO: gerar OPORTUNIDADE "Aplicação da imunidade em exportação (Art. 8 LC 214/2025)" + GAP de controles/documentação de comprovação.
+
+2. CESTA BÁSICA / ALÍQUOTA ZERO (Art. 9 LC 214/2025):
+   - NCMs: 1006 (arroz), 0713 (feijão), 0401 (leite), 0901 (café), 0802 (castanha), 1701 (açúcar), 1507 (óleo de soja), 1101 (farinha de trigo), 0407 (ovos), 1104 (cereais processados).
+   - Termos: "cesta básica", "alimentos básicos", "gêneros alimentícios essenciais".
+   - AÇÃO: gerar OPORTUNIDADE "Enquadramento em alíquota zero / cesta básica (Art. 9 LC 214/2025)" citando o(s) NCM(s).
+
+3. IMPOSTO SELETIVO (Art. 2 LC 214/2025):
+   - NCMs: 2202.10 (bebidas açucaradas), 2401-2403 (tabaco), 2710 (combustíveis), 2203-2208 (bebidas alcoólicas), 8703 (veículos).
+   - Termos: "combustível", "álcool", "cigarro", "bebida açucarada", "refrigerante".
+   - AÇÃO: gerar GAP sobre avaliação de IS (Art. 2 LC 214/2025).
+
+4. IBS INTERESTADUAL (Art. 14 e 15 LC 214/2025):
+   - Termos: "multiestadual", "interestadual", "outros estados", mais de 1 UF.
+   - AÇÃO: gerar GAP sobre parametrização de alíquotas IBS por UF/município de destino.
+
+5. INSCRIÇÃO CADASTRAL IBS/CBS (Art. 21 §1º LC 214/2025):
+   - Relevante para multiestadual ou porte médio/grande.
+   - AÇÃO: gerar GAP sobre atualização cadastral.
+
+IMPORTANTE: Essas regras operam EM ADIÇÃO ao regulatoryContext. Se RAG trouxe o artigo, aprofunde com o texto. Se não, cite número e regra curta e sinalize em limitações que validação por advogado é recomendada. NUNCA invente texto de artigo que não esteja no regulatoryContext.
 
 ${regulatoryContext}
 
