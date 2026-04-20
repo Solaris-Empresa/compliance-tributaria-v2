@@ -1054,7 +1054,7 @@ Gere as perguntas no formato:
       correction: z.string().optional(),
       complement: z.string().optional(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
@@ -1206,6 +1206,56 @@ Gere o Briefing estruturado em JSON:
           currentStep: 3,
         } as any)
         .where(eq(projects.id, input.projectId));
+
+      // fix(UAT 2026-04-20): registra evidência das fontes usadas na geração do briefing.
+      // Visível na aba Histórico — permite ao consultor auditar se SOLARIS/IA Gen/NCM/CNAE
+      // contribuíram ou não para o diagnóstico.
+      try {
+        const { logAudit } = await import("./routers-audit");
+        const solarisAnswersCount = await db.countOnda1Answers(input.projectId);
+        const iagenAnswersCount = await db.countOnda2Answers(input.projectId);
+        const productAnswersArr = (() => {
+          const raw = (project as any).productAnswers;
+          if (!raw) return [];
+          try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return []; }
+        })();
+        const serviceAnswersArr = (() => {
+          const raw = (project as any).serviceAnswers;
+          if (!raw) return [];
+          try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return []; }
+        })();
+        const cnaeLayers = input.allAnswers.filter(l => l.cnaeCode !== "CORPORATIVO" && l.cnaeCode !== "OPERACIONAL");
+        const cnaeQuestionsCount = cnaeLayers.reduce((acc, l) => acc + (l.questions?.length ?? 0), 0);
+        const ncmCodesCount = (opProfile.principaisProdutos ?? []).filter(p => p?.ncm_code).length;
+        const nbsCodesCount = (opProfile.principaisServicos ?? []).filter(s => s?.nbs_code).length;
+
+        await logAudit({
+          userId: ctx.user.id,
+          userName: ctx.user.name ?? "usuário",
+          projectId: input.projectId,
+          entityType: "project",
+          entityId: input.projectId,
+          action: "update",
+          metadata: {
+            event: "briefing_generated",
+            sources: {
+              solaris_onda1: { answers: solarisAnswersCount, used: solarisAnswersCount > 0 },
+              iagen_onda2: { answers: iagenAnswersCount, used: iagenAnswersCount > 0 },
+              q_produtos_ncm: { answers: Array.isArray(productAnswersArr) ? productAnswersArr.length : 0, ncm_codes: ncmCodesCount, used: ncmCodesCount > 0 || (Array.isArray(productAnswersArr) && productAnswersArr.length > 0) },
+              q_servicos_nbs: { answers: Array.isArray(serviceAnswersArr) ? serviceAnswersArr.length : 0, nbs_codes: nbsCodesCount, used: nbsCodesCount > 0 || (Array.isArray(serviceAnswersArr) && serviceAnswersArr.length > 0) },
+              qcnae_especializado: { question_count: cnaeQuestionsCount, layer_count: cnaeLayers.length, used: cnaeQuestionsCount > 0 },
+            },
+            output: {
+              nivel_risco: structured.nivel_risco_geral,
+              gaps_count: Array.isArray(structured.principais_gaps) ? structured.principais_gaps.length : 0,
+              confidence: structured.confidence_score?.nivel_confianca ?? null,
+              llm_retries: llmRetries,
+            },
+          },
+        });
+      } catch (auditErr) {
+        console.warn("[generateBriefing] logAudit falhou (não bloqueia):", auditErr);
+      }
 
       return { briefing: briefingMarkdown, structured, llmRetries };
     }),
@@ -2524,6 +2574,43 @@ Gere o Briefing estruturado em JSON:
           status: "matriz_riscos",
         } as any)
         .where(eq(projects.id, input.projectId));
+
+      // fix(UAT 2026-04-20): registra evidência das fontes usadas (Histórico).
+      try {
+        const { logAudit } = await import("./routers-audit");
+        const productAnswersArr = Array.isArray(briefingProduct) ? briefingProduct : [];
+        const serviceAnswersArr = Array.isArray(briefingService) ? briefingService : [];
+        const cnaeQuestionsCount = cnaeAnswers.reduce((acc: number, l: any) => acc + (l.questions?.length ?? 0), 0);
+        const ncmCodesCount = (opProfileForBriefing.principaisProdutos ?? []).filter(x => x?.ncm_code).length;
+        const nbsCodesCount = (opProfileForBriefing.principaisServicos ?? []).filter(x => x?.nbs_code).length;
+
+        await logAudit({
+          userId: ctx.user.id,
+          userName: ctx.user.name ?? "usuário",
+          projectId: input.projectId,
+          entityType: "project",
+          entityId: input.projectId,
+          action: "update",
+          metadata: {
+            event: "briefing_generated_from_diagnostic",
+            sources: {
+              solaris_onda1: { answers: solarisAnswersForBriefing.length, used: solarisAnswersForBriefing.length > 0 },
+              iagen_onda2: { answers: iagenAnswersForBriefing.length, used: iagenAnswersForBriefing.length > 0 },
+              q_produtos_ncm: { answers: productAnswersArr.length, ncm_codes: ncmCodesCount, used: ncmCodesCount > 0 || productAnswersArr.length > 0 },
+              q_servicos_nbs: { answers: serviceAnswersArr.length, nbs_codes: nbsCodesCount, used: nbsCodesCount > 0 || serviceAnswersArr.length > 0 },
+              qcnae_especializado: { question_count: cnaeQuestionsCount, layer_count: cnaeAnswers.length, used: cnaeQuestionsCount > 0 },
+              qcnae_especializado_struct: { used: !!specializedCnaeAnswers },
+            },
+            output: {
+              nivel_risco: structured.nivel_risco_geral,
+              gaps_count: Array.isArray(structured.principais_gaps) ? structured.principais_gaps.length : 0,
+              confidence: structured.confidence_score?.nivel_confianca ?? null,
+            },
+          },
+        });
+      } catch (auditErr) {
+        console.warn("[generateBriefingFromDiagnostic] logAudit falhou (não bloqueia):", auditErr);
+      }
 
       return {
         briefing: briefingMarkdown,
