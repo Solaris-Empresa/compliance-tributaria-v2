@@ -1100,6 +1100,17 @@ RESPONSABILIDADES:
 4. Identificar inconsistências nas respostas quando existirem
 5. Gerar confidence score honesto com limitações declaradas
 
+REGRA DE DETERMINISMO (fix N1b UAT 2026-04-20):
+- Use APENAS critérios objetivos. Mesma entrada → mesma saída.
+- Dois gaps com mesma base legal devem sempre aparecer na mesma ordem (alfabética por artigo).
+- Nível de risco é função determinística: "alto" se >=2 gaps com urgência=imediata; "medio" se 1 gap imediata; "baixo" apenas se 0 gap imediata.
+
+REGRA CRÍTICA — INCONSISTÊNCIAS vs LIMITAÇÕES (fix N2 UAT 2026-04-20):
+- "inconsistencias" = APENAS contradições diretas entre duas respostas (ex: "Sim" em P1 + "Não" em P2 para temas correlatos).
+- "inconsistencias" NUNCA deve incluir: "falta de informação", "ausência de resposta", "impossibilidade de aferir", "não informado", "sem dados detalhados" — TUDO ISSO vai em "confidence_score.limitacoes".
+- Se a única "contradição" detectada é que o usuário não respondeu, NÃO liste como inconsistência. Liste como limitação.
+- Array "inconsistencias" pode ser vazio [] — e isso é saudável.
+
 ${regulatoryContext}
 
 ${OUTPUT_CONTRACT}`,
@@ -1121,7 +1132,10 @@ Gere o Briefing estruturado em JSON:
           },
         ],
         BriefingStructuredSchema,
-        { temperature: 0.2, context: "generateBriefing" }
+        // fix(T1 UAT 2026-04-20): temperatura 0 para máximo determinismo. Variabilidade
+        // observada com T=0.2 (2→1→2 inconsistências em gerações consecutivas) era
+        // inaceitável no contexto jurídico. Com T=0, mesma entrada → (quase) mesma saída.
+        { temperature: 0, context: "generateBriefing" }
       );
 
       // Converter estruturado para Markdown (compatibilidade com UI existente)
@@ -2343,6 +2357,17 @@ REGRA OBRIGATÓRIA — IBS INTERESTADUAL (B-Z11-003/004 fix):
 - NUNCA inverter causas raiz: se o gap é de operação interestadual, a causa é a partilha IBS (Art. 15), não o regime de bens pessoais (Art. 57).
 - Se o gap é de crédito IBS/CBS, a causa_raiz deve ser sobre apuração de créditos, não sobre obrigações acessórias.
 
+REGRA DE DETERMINISMO (fix N1b UAT 2026-04-20):
+- Use APENAS critérios objetivos. Mesma entrada → mesma saída.
+- Gaps ordenados alfabeticamente por artigo da base legal.
+- Nível de risco é função determinística: "alto" se >=2 gaps com urgência=imediata; "medio" se 1 gap imediata; "baixo" apenas se 0 gap imediata.
+
+REGRA CRÍTICA — INCONSISTÊNCIAS vs LIMITAÇÕES (fix N2 UAT 2026-04-20):
+- "inconsistencias" = APENAS contradições diretas entre duas respostas (ex: "Sim" em P1 + "Não" em P2 para temas correlatos).
+- "inconsistencias" NUNCA deve incluir: "falta de informação", "ausência de resposta", "impossibilidade de aferir", "não informado", "sem dados detalhados" — TUDO ISSO vai em "confidence_score.limitacoes".
+- Se a única "contradição" detectada é que o usuário não respondeu, NÃO liste como inconsistência. Liste como limitação.
+- Array "inconsistencias" pode ser vazio [] — e isso é saudável.
+
 ${regulatoryContext}
 
 ${OC}`,
@@ -2369,7 +2394,8 @@ Gere o Briefing estruturado em JSON:
           },
         ],
         BriefingStructuredSchema,
-        { temperature: 0.2, context: "generateBriefingFromDiagnostic" }
+        // fix(T1 UAT 2026-04-20): alinhado com generateBriefing — temperatura 0.
+        { temperature: 0, context: "generateBriefingFromDiagnostic" }
       );
 
       const { buildBriefingMarkdown } = await import("./routers-fluxo-v3").then(m => ({
