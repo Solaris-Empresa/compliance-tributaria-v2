@@ -187,6 +187,25 @@ export default function BriefingV3() {
   );
   const inconsistencias = inconsistenciasData?.inconsistencias ?? [];
 
+  // fix(B2 UAT 2026-04-20): resolver inconsistência sem regerar briefing (LLM-free)
+  const dismissInconsistencia = trpc.fluxoV3.dismissInconsistencia.useMutation();
+  const handleResolverInconsistencia = async (perguntaOrigem: string) => {
+    try {
+      const result = await dismissInconsistencia.mutateAsync({
+        projectId,
+        perguntaOrigem,
+      });
+      if (result.success) {
+        toast.success("Inconsistência marcada como resolvida.");
+        refetchInconsistencias();
+      } else {
+        toast.info(result.reason ?? "Inconsistência não encontrada.");
+      }
+    } catch {
+      toast.error("Erro ao resolver inconsistência. Tente novamente.");
+    }
+  };
+
   // Carregar briefing salvo do banco (se existir) ou gerar novo
   useEffect(() => {
     if (!project) return;
@@ -246,7 +265,9 @@ export default function BriefingV3() {
         projectId,
         allAnswers,
         correction,
-        additionalInfo: moreInfo,
+        // fix(B1 UAT 2026-04-20): campo correto é "complement" (backend Zod input).
+        // Antes: "additionalInfo" que era silenciosamente descartado pelo servidor.
+        complement: moreInfo,
       });
       setBriefing(result.briefing);
       setGenerationCount(prev => prev + 1);
@@ -501,6 +522,7 @@ export default function BriefingV3() {
           <AlertasInconsistencia
             inconsistencias={inconsistencias}
             onCorrigir={handleCorrigirInconsistencia}
+            onResolver={handleResolverInconsistencia}
           />
         )}
 
@@ -706,7 +728,25 @@ export default function BriefingV3() {
                     {viewingVersion && <Badge variant="outline" className="text-xs ml-2">Versão {viewingVersion.version}</Badge>}
                   </CardTitle>
                   {!viewingVersion && (
-                    <Button variant="ghost" size="sm" onClick={() => handleGenerate()} className="text-xs gap-1.5">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        // fix(G5 UAT 2026-04-20): confirmação antes de regenerar — evita perder edição em andamento.
+                        // Exibe somente se há briefing atual (primeira geração não precisa confirmar).
+                        if (briefing && briefing.trim().length > 0) {
+                          const ok = window.confirm(
+                            "Regerar o briefing vai SUBSTITUIR o conteúdo atual (incluindo suas edições).\n\n" +
+                            "Dica: se você quer ajustar o briefing, use \"Corrigir\" ou \"Mais Informações\" — assim a IA considera seu feedback.\n\n" +
+                            "Continuar com a regeneração completa?"
+                          );
+                          if (!ok) return;
+                        }
+                        handleGenerate();
+                      }}
+                      className="text-xs gap-1.5"
+                      data-testid="btn-regenerar-briefing"
+                    >
                       <RefreshCw className="h-3.5 w-3.5" />
                       Regenerar
                     </Button>

@@ -1146,12 +1146,94 @@ Gere o Briefing estruturado em JSON:
   // ─────────────────────────────────────────────────────────────────────────
   // ETAPA 3: Aprovar Briefing
   // ─────────────────────────────────────────────────────────────────────────
+  /**
+   * fix(B2 UAT 2026-04-20): permite marcar uma inconsistência do briefing como resolvida
+   * sem regenerar o briefing via LLM. Atualiza apenas o campo JSON briefingStructured.
+   *
+   * Motivação: quando o usuário edita manualmente o markdown corrigindo a inconsistência,
+   * a query `getBriefingInconsistencias` continuava mostrando a inconsistência antiga
+   * porque lê de briefingStructured (que o approveBriefing não tocava).
+   *
+   * Zero mudança de schema — apenas UPDATE em coluna JSON existente.
+   */
+  dismissInconsistencia: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      perguntaOrigem: z.string(),  // chave para identificar qual inconsistência remover
+      motivo: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const userId = ctx.user.id;
+      const isOwner = (project as any).clientId === userId || (project as any).createdById === userId;
+      const isTeam = ["equipe_solaris", "advogado_senior", "advogado_junior"].includes(ctx.user.role);
+      if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
+
+      const bs = (project as any).briefingStructured;
+      if (!bs) {
+        return { success: false, reason: "Briefing estruturado não existe para este projeto." };
+      }
+
+      let parsed: any;
+      try {
+        parsed = typeof bs === "string" ? JSON.parse(bs) : bs;
+      } catch {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "briefingStructured JSON inválido" });
+      }
+
+      const before: any[] = Array.isArray(parsed?.inconsistencias) ? parsed.inconsistencias : [];
+      const after = before.filter((i: any) => i?.pergunta_origem !== input.perguntaOrigem);
+
+      if (after.length === before.length) {
+        return { success: false, reason: "Inconsistência não encontrada (já resolvida ou removida?)." };
+      }
+
+      const updatedStructured = { ...parsed, inconsistencias: after };
+
+      const database = await db.getDb();
+      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      await database
+        .update(projects)
+        .set({ briefingStructured: JSON.stringify(updatedStructured) as any } as any)
+        .where(eq(projects.id, input.projectId));
+
+      // Audit trail (best-effort)
+      try {
+        const { logAudit } = await import('./routers-audit');
+        await logAudit({
+          userId: ctx.user.id,
+          userName: ctx.user.name ?? ctx.user.email ?? "unknown",
+          projectId: input.projectId,
+          entityType: "project",
+          entityId: input.projectId,
+          action: "update",
+          metadata: {
+            event: "inconsistencia_dismissed",
+            pergunta_origem: input.perguntaOrigem,
+            motivo: input.motivo ?? null,
+            inconsistencias_antes: before.length,
+            inconsistencias_depois: after.length,
+          },
+        });
+      } catch (auditErr) {
+        console.error("[dismissInconsistencia] audit log falhou:", auditErr);
+      }
+
+      return {
+        success: true,
+        inconsistenciasRestantes: after.length,
+      };
+    }),
+
   approveBriefing: protectedProcedure
     .input(z.object({
       projectId: z.number(),
       briefingContent: z.string(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       // BUG-UAT-09: fluxo correto é diagnostico_cnae → briefing → matriz_riscos
@@ -1164,10 +1246,39 @@ Gere o Briefing estruturado em JSON:
       assertValidTransition('briefing', 'matriz_riscos');      // valida briefing → matriz_riscos
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      const previousStatus = project.status;
       await database
         .update(projects)
         .set({ currentStep: 4, status: "matriz_riscos", briefingContentV3: input.briefingContent as any, briefingContent: input.briefingContent as any } as any)
         .where(eq(projects.id, input.projectId));
+
+      // fix(G2 UAT 2026-04-20): audit trail da aprovação do briefing.
+      // Usa tabela auditLog (camelCase) com entityType='project' + metadata indicando
+      // event=briefing_approved. Não altera schema — tabela já aceita 'project' no enum.
+      try {
+        const { logAudit } = await import('./routers-audit');
+        await logAudit({
+          userId: ctx.user.id,
+          userName: ctx.user.name ?? ctx.user.email ?? "unknown",
+          projectId: input.projectId,
+          entityType: "project",
+          entityId: input.projectId,
+          action: "status_change",
+          changes: {
+            status: { old: previousStatus, new: "matriz_riscos" },
+            currentStep: { old: (project as any).currentStep ?? null, new: 4 },
+          },
+          metadata: {
+            event: "briefing_approved",
+            briefingLength: input.briefingContent.length,
+            editedBeforeApproval: input.briefingContent !== ((project as any).briefingContentV3 ?? ""),
+          },
+        });
+      } catch (auditErr) {
+        // Audit é best-effort — nunca bloqueia a aprovação.
+        console.error("[approveBriefing] audit log falhou:", auditErr);
+      }
+
       return { success: true, nextStep: 4 };
     }),
 
