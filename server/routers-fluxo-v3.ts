@@ -1063,15 +1063,30 @@ Gere as perguntas no formato:
         cnae.questions.map(q => `**P:** ${q.question}\n**R:** ${q.answer}`).join("\n\n")
       ).join("\n\n---\n\n");
 
-      const correctionContext = input.correction ? `\n\nCORREÇÃO SOLICITADA:\n${input.correction}` : "";
-      const complementContext = input.complement ? `\n\nINFORMAÇÕES ADICIONAIS:\n${input.complement}` : "";
+      const correctionContext = input.correction ? `\n\nCORREÇÃO SOLICITADA PELO USUÁRIO:\n${input.correction}` : "";
+      // fix(UAT 2026-04-20): "INFORMAÇÕES ADICIONAIS" renomeadas para "FATOS ADICIONAIS SOBRE A EMPRESA"
+      // e marcadas com instrução explícita de que são fatos declarados pelo usuário, para
+      // obrigar o LLM a tratar como informação de primeira classe (equivalente ao perfil).
+      // Antes: LLM ignorava quando dizia "fazemos exportação" porque o texto ficava no fim do
+      // prompt, depois de "ausência total de respostas", e não influenciava nem o RAG.
+      const complementContext = input.complement
+        ? `\n\nFATOS ADICIONAIS SOBRE A EMPRESA (declarados pelo usuário — trate como parte do perfil corporativo):\n${input.complement}`
+        : "";
 
       // V65: RAG híbrido — busca artigos relevantes para o briefing (com re-ranking LLM)
+      // fix(UAT 2026-04-20): RAG query agora inclui correction+complement para que chunks
+      // relacionados a fatos declarados (ex: "fazemos exportação" → Art. 8 LC 214/2025)
+      // sejam recuperados.
       const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
       const cnaeCodesForRag = confirmedCnaes.length > 0
         ? confirmedCnaes.map((c: any) => c.code)
         : input.allAnswers.map(a => a.cnaeCode);
-      const briefingQueryCtx = `${(project as any).description || ""} ${answersText.substring(0, 500)}`;
+      const briefingQueryCtx = [
+        (project as any).description || "",
+        input.correction || "",
+        input.complement || "",
+        answersText.substring(0, 500),
+      ].filter(Boolean).join(" ");
       const ragCtxBriefing = await retrieveArticles(cnaeCodesForRag, briefingQueryCtx, 7);
       const regulatoryContext = ragCtxBriefing.contextText;
 
@@ -1213,13 +1228,23 @@ REGRA CRÍTICA — INCONSISTÊNCIAS vs LIMITAÇÕES (fix N2 UAT 2026-04-20):
 - Se a única "contradição" detectada é que o usuário não respondeu, NÃO liste como inconsistência. Liste como limitação.
 - Array "inconsistencias" pode ser vazio [] — e isso é saudável.
 
+REGRA CRÍTICA — FATOS ADICIONAIS DECLARADOS PELO USUÁRIO (fix UAT 2026-04-20):
+- Toda informação presente em "FATOS ADICIONAIS SOBRE A EMPRESA" é FATO declarado pelo usuário, equivalente ao perfil corporativo.
+- Trate esses fatos como VERDADE sobre a empresa — NÃO ignore, NÃO trate como "respondido no questionário", e NÃO descarte por "não haver respostas ao questionário".
+- Exemplos: se o usuário declara "fazemos exportação", você DEVE gerar análise específica sobre imunidade em exportação (Art. 8 LC 214/2025) e obrigações acessórias correlatas.
+- Se o usuário declara "operamos em regime especial", você DEVE citar o artigo pertinente e gaps específicos desse regime.
+- Cada fato adicional deve gerar pelo menos um gap OU uma oportunidade específica no briefing.
+
 ${regulatoryContext}
 
 ${OUTPUT_CONTRACT}`,
           },
           {
             role: "user",
-            content: `${companyProfileBlock}${additionalSourcesText}\n\nPROJETO: ${project.name}\nDESCRIÇÃO: ${(project as any).description || ""}\n\nRESPOSTAS DO QUESTIONÁRIO CNAE:\n${answersText}\n${correctionContext}\n${complementContext}
+            // fix(UAT 2026-04-20): fatos adicionais declarados pelo usuário vão DEPOIS do perfil
+            // corporativo e ANTES das respostas do questionário — para que o LLM os trate como
+            // primeira classe (equivalente ao perfil), não como nota de rodapé que pode ignorar.
+            content: `${companyProfileBlock}${complementContext}${additionalSourcesText}\n\nPROJETO: ${project.name}\nDESCRIÇÃO: ${(project as any).description || ""}\n\nRESPOSTAS DO QUESTIONÁRIO CNAE:\n${answersText}\n${correctionContext}
 
 Gere o Briefing estruturado em JSON:
 {
@@ -2569,15 +2594,24 @@ Gere o veredito final em JSON:
         layer.questions.map(q => `**P:** ${q.question}\n**R:** ${q.answer}`).join("\n\n")
       ).join("\n\n---\n\n");
 
-      const correctionContext = input.correction ? `\n\nCORREÇÃO SOLICITADA:\n${input.correction}` : "";
-      const complementContext = input.complement ? `\n\nINFORMAÇÕES ADICIONAIS:\n${input.complement}` : "";
+      const correctionContext = input.correction ? `\n\nCORREÇÃO SOLICITADA PELO USUÁRIO:\n${input.correction}` : "";
+      // fix(UAT 2026-04-20): alinhado com generateBriefing — complement como FATO da empresa.
+      const complementContext = input.complement
+        ? `\n\nFATOS ADICIONAIS SOBRE A EMPRESA (declarados pelo usuário — trate como parte do perfil corporativo):\n${input.complement}`
+        : "";
 
       // RAG para o briefing
+      // fix(UAT 2026-04-20): RAG query inclui correction+complement.
       const confirmedCnaes = (p.confirmedCnaes as any[]) || [];
       const cnaeCodesForRag = confirmedCnaes.length > 0
         ? confirmedCnaes.map((c: any) => c.code)
         : cnaeAnswers.map((a: any) => a.cnaeCode).filter((c: string) => c !== "CORPORATIVO" && c !== "OPERACIONAL");
-      const briefingQueryCtx = `${p.description || ""} ${answersText.substring(0, 500)}`;
+      const briefingQueryCtx = [
+        p.description || "",
+        input.correction || "",
+        input.complement || "",
+        answersText.substring(0, 500),
+      ].filter(Boolean).join(" ");
       const ragCtxBriefing = await retrieveArticles(cnaeCodesForRag, briefingQueryCtx, 7);
       const regulatoryContext = ragCtxBriefing.contextText;
 
@@ -2625,18 +2659,24 @@ REGRA CRÍTICA — INCONSISTÊNCIAS vs LIMITAÇÕES (fix N2 UAT 2026-04-20):
 - Se a única "contradição" detectada é que o usuário não respondeu, NÃO liste como inconsistência. Liste como limitação.
 - Array "inconsistencias" pode ser vazio [] — e isso é saudável.
 
+REGRA CRÍTICA — FATOS ADICIONAIS DECLARADOS PELO USUÁRIO (fix UAT 2026-04-20):
+- Toda informação presente em "FATOS ADICIONAIS SOBRE A EMPRESA" é FATO declarado pelo usuário, equivalente ao perfil corporativo.
+- Trate como VERDADE sobre a empresa — NÃO ignore, NÃO trate como "respondido no questionário", e NÃO descarte por "não haver respostas".
+- Exemplos: "fazemos exportação" → gerar análise de imunidade (Art. 8 LC 214/2025). "operamos em regime especial" → citar artigo específico.
+- Cada fato adicional deve gerar pelo menos um gap OU uma oportunidade específica.
+
 ${regulatoryContext}
 
 ${OC}`,
           },
           {
             role: "user",
+            // fix(UAT 2026-04-20): complement logo após projeto/descrição, antes do diagnóstico.
             content: `PROJETO: ${project.name}
-DESCRIÇÃO: ${p.description || ""}
+DESCRIÇÃO: ${p.description || ""}${complementContext}
 ${additionalContextText}DIAGNÓSTICO CONSOLIDADO (3 CAMADAS):
 ${answersText}
 ${correctionContext}
-${complementContext}
 
 Gere o Briefing estruturado em JSON:
 {
