@@ -265,6 +265,56 @@ antes de liberar próxima sprint.
   auditoria formal teria pego antes de produção
 - Primeiro caso concreto arquivado: `docs/governance/audits/v7.42-2026-04-20.md`
 
+## REGRA-ORQ-20 — Avaliação de risco estrutural obrigatória
+
+Antes de QUALQUER alteração com sinais de risco estrutural, a issue
+(ou PR direto em hotfix P0) DEVE conter o bloco "Avaliação de Risco"
+padronizado. Previne incidentes que seriam descobertos só em produção.
+
+**Gatilhos (qualquer sinal dispara exigência):**
+
+| Gatilho | Sinal |
+|---|---|
+| Schema DB | ALTER TABLE · DROP COLUMN · novo JSON column · migration |
+| Cross-file | mudança toca ≥3 arquivos em módulos diferentes |
+| Amplitude | PR estimado ≥200 linhas OU ≥3 procedures tRPC |
+| Runtime crítico | BriefingV3 · RiskDashboardV4 · QuestionarioCNAE · generateBriefing |
+| Engine determinística | risk-engine-v4 · calculateComplianceScore · classifyInconsistenciaImpacto |
+| Guardrail removido | remover @ts-nocheck · remover feature flag · remover gate |
+| Dependência externa | upgrade de lib · mudança tRPC version · nova biblioteca |
+| Infra/deploy | mudança checkpoint strategy · branch protection · CI/CD |
+
+**Bloco obrigatório na issue:**
+- Amplitude (arquivos/linhas/procedures/schema)
+- Classificação (tier 1/2/3 · reversibilidade)
+- Riscos identificados (severidade 🔴🟠🟡🟢 · mitigação)
+- Estratégia de rollout (direto · feature flag · snapshot→cold→hot · fases)
+- Plano de rollback (4 níveis: CI · tela branca · cascata · catastrófico)
+- Abort criteria (quando pausar)
+
+**Templates pré-preenchidos em `docs/governance/risk-assessment/`:**
+- `template-schema-change.md` — ALTER/DROP
+- `template-crossfile-refactor.md` — mudanças amplas
+- `template-remove-guardrail.md` — @ts-nocheck/feature flag
+- `template-engine-change.md` — risk-engine/score
+
+**Consequências hard-enforced:**
+- Issue SEM bloco quando gatilho aplica → Orquestrador REJEITA em F1/F2
+  → label `spec-aprovada` NÃO aplicada → Manus NÃO implementa
+- Hotfix P0 sem issue: PR body DEVE ter bloco resumido + título
+  declarando tier `[HOTFIX-P0-TIER-N]`
+
+**Baseado em lições:**
+- Z-13.5 `operationProfile` string vs objeto — análise teria antecipado dual-schema
+- Z-17 LLM silencioso — análise teria exigido cobertura de testes antes
+- Z-22 `@ts-nocheck` — análise atual do issue #793 é o exemplo canônico do que
+  deveria sempre acontecer antes, não depois do incidente
+- Z-22 UAT Wave — 37 PRs sem formalização de risco; sorte não houve mais crashes
+
+**Exemplo concreto de referência:** análise do #793 (migração @ts-nocheck) com
+snapshot→cold→hot + 4 níveis de rollback + abort criteria. Ver comentários da
+issue #793 para padrão-ouro.
+
 ## PASSO 0.0 — R-SYNC-01 (ANTES DE TUDO)
 
 Antes de qualquer trabalho em qualquer sprint:
