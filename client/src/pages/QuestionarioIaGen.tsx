@@ -33,6 +33,31 @@ interface Pergunta {
   confidence_score: number;
 }
 
+// ─── Prefix helper (fix UAT 2026-04-20 — opção A2) ───────────────────────────
+// Sugere formato Sim/Não/N.A. + justificativa sem alterar schema.
+// Backend continua aceitando qualquer texto em iagen_answers.resposta.
+
+const PREFIX_OPTIONS = [
+  { prefix: "Sim. ", label: "Sim", testId: "sim" },
+  { prefix: "Não. ", label: "Não", testId: "nao" },
+  { prefix: "N/A. ", label: "Não se aplica", testId: "na" },
+] as const;
+
+const KNOWN_PREFIXES = PREFIX_OPTIONS.map((o) => o.prefix);
+
+/**
+ * Aplica um prefixo (Sim./Não./N/A.) ao texto atual.
+ * - Se já tem um prefixo conhecido → substitui
+ * - Se não tem → prepend no início preservando o texto
+ */
+function applyPrefix(currentText: string, newPrefix: string): string {
+  const existing = KNOWN_PREFIXES.find((p) => currentText.startsWith(p));
+  if (existing) {
+    return newPrefix + currentText.slice(existing.length);
+  }
+  return newPrefix + currentText;
+}
+
 export default function QuestionarioIaGen() {
   const params = useParams<{ id: string }>();
   const projectId = Number(params.id);
@@ -264,13 +289,38 @@ export default function QuestionarioIaGen() {
               Objetivo: {perguntaAtual.objetivo_diagnostico}
             </p>
 
+            {/* fix UAT 2026-04-20: guia de formato + botões de prefix — respostas ganham
+                consistência visual sem mudança de schema (opção A2 · mesmo padrão da Onda 1). */}
+            <p className="text-xs text-muted-foreground mb-2">
+              💡 Formato sugerido: <strong>Sim</strong>, <strong>Não</strong> ou <strong>Não se aplica</strong> — seguido de justificativa breve.
+            </p>
+
+            <div className="flex gap-2 flex-wrap mb-2" data-testid="prefix-buttons">
+              {PREFIX_OPTIONS.map((opt) => (
+                <Button
+                  key={opt.prefix}
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    handleResposta(applyPrefix(respostas[perguntaAtual.id] ?? "", opt.prefix))
+                  }
+                  data-testid={`prefix-btn-${opt.testId}`}
+                  className="h-7 text-xs"
+                >
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
+
             {/* Campo de resposta */}
             <Textarea
-              placeholder="Digite sua resposta aqui..."
+              placeholder="Ex: Sim. A empresa possui sistema de NF-e integrado com emissão automática..."
               value={respostas[perguntaAtual.id] ?? ""}
               onChange={(e) => handleResposta(e.target.value)}
               className="min-h-[120px] resize-none"
               autoFocus
+              data-testid={`textarea-resposta-${perguntaAtual.id}`}
             />
 
             {(respostas[perguntaAtual.id] ?? "").trim().length > 0 && (
