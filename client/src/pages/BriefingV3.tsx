@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
 import { ResumeBanner } from "@/components/ResumeBanner";
 import { useParams, useLocation, useSearch } from "wouter";
