@@ -311,3 +311,68 @@ Gate 7: PASS 5/5
 **Checkpoint:** `ba7e7af2` · HEAD `b387bbb` · tsc 0 erros · E2E 37 CTs · Gate 7 5/5 PASS · Deploy iasolaris.manus.space ✅
 
 *Atualizado em 2026-04-17 · v2.4 · Sprint Z-18 · Aprovador: P.O. Uires Tapajós*
+
+---
+
+## Sprint Z-22 Wave B — Estado atual (2026-04-20) · Checkpoint v7.42
+
+### Resumo da sessão
+
+| Artefato | Valor |
+|---|---|
+| **Checkpoint atual** | v7.42 (`9eefcf85`) |
+| **HEAD GitHub / S3 Manus** | `ab88497` |
+| **PR mais recente** | #792 `fix/briefing-v3-missing-usememo-import` (hotfix P0) |
+| **PRs incluídos** | #755 → #792 (38 PRs) |
+| **TypeScript** | 0 erros |
+| **HTTP dev** | 200 |
+| **HTTP prod** | 200 |
+| **8 greps obrigatórios** | todos ✓ |
+| **Produção** | https://iasolaris.manus.space ✅ LIVE |
+
+### PRs mergeados nesta sessão (Wave B — 2026-04-20)
+
+| PR | Branch | Descrição |
+|---|---|---|
+| #755 | feat/hero-exposicao-risco | Hero card de Exposição ao Risco em ProjetoDetalhesV2 |
+| #758 | feat/prefix-buttons-solaris | Botões Sim/Não/N.A. QuestionarioSolaris (data-testid=prefix-buttons) |
+| #759 | feat/prefix-buttons-iagen | Botões Sim/Não/N.A. QuestionarioIaGen (data-testid=prefix-buttons) |
+| #762 | feat/listpaginated-projetos | Paginação server-side em Projetos (btn-carregar-mais) |
+| #763–#789 | fix/briefing-* | Fluxo de briefing: inconsistências, lifecycle, fontes, WhatsApp, audit trail |
+| #790 | fix/780-consolidate-gaps-by-article | Consolida gaps com mesmo artigo+parágrafo |
+| #791 | fix/785-g-geo-detector-rag-boost | Detector geográfico + RAG query boost |
+| #792 | fix/briefing-v3-missing-usememo-import | **Hotfix P0** — useMemo não importado → crash /briefing-v3 |
+
+### Regra R-SYNC-02 (obrigatória)
+
+```bash
+git fetch solaris refs/heads/main:refs/remotes/solaris/main
+git reset --hard solaris/main
+```
+
+### Bugs UAT — Segmento Combustíveis (empresa Petrolog, NBS 1.0501.14.51)
+
+| Bug | Descrição | Status |
+|---|---|---|
+| BUG-1 | Inconsistências sobrescritas ao regenerar briefing | ✅ Resolvido — PR #787 |
+| BUG-2 | Código NBS incorreto (usava 1.0501.14.50 em vez de .51) | ✅ Resolvido — PR #786 |
+| BUG-3 | Badge de inconsistências persiste após aprovação do briefing | 🔴 **Aberto** |
+| BUG-4 | Contador de versões regredindo ao regenerar | ✅ Resolvido — PR #788 |
+
+### Pendências críticas abertas
+
+| ID | Descrição | Bloqueio |
+|---|---|---|
+| **DT-01** | `drizzle/0088_drop_cpie_legado.sql` não registrado em `__drizzle_migrations` | Bloqueia `pnpm db:push` |
+| **SOLARIS-UPLOAD** | `solaris_questions` zerada (0 ativas) — faixa SOL-026..SOL-037 livre | Aguardando CSV do Orquestrador |
+| **BUG-3** | Badge de inconsistências persiste após aprovação do briefing | Único bug UAT aberto |
+
+### Checkpoints desta sessão
+
+| Versão | Version ID | HEAD | Descrição |
+|---|---|---|---|
+| v7.40 | `ce291a5a` | `22afb65` | Auditoria PASS + HANDOFF atualizado |
+| v7.41 | `cee57023` | `778c4ff` | PRs #790 e #791 sincronizados |
+| v7.42 | `9eefcf85` | `ab88497` | Hotfix P0 #792 useMemo — crash /briefing-v3 corrigido |
+
+*Atualizado em 2026-04-20 · v2.5 · Sprint Z-22 Wave B · PRs #755–#792 · Aprovador: P.O. Uires Tapajós*
