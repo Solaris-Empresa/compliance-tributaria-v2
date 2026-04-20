@@ -17,7 +17,7 @@ import {
   ArrowLeft, ChevronRight, Loader2, Sparkles,
   CheckCircle2, RefreshCw, MessageSquare, ThumbsUp, Edit3, Info, Download,
   History, Clock, ChevronDown, ChevronUp, AlertTriangle, AlertCircle,
-  Layers, TrendingUp, BarChart3, Flame, StickyNote
+  Layers, TrendingUp, BarChart3, Flame, StickyNote, Share2
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "@/components/MarkdownRenderer";
@@ -25,6 +25,8 @@ import StepComments from "@/components/StepComments";
 // V64: Alertas de inconsistência
 import AlertasInconsistencia, { InconsistenciaBadge } from "@/components/AlertasInconsistencia";
 import { ConfidenceBar } from "@/components/ConfidenceBar";
+// #767: Modal compartilhar resumo WhatsApp (6 áreas)
+import { ShareBriefingModal } from "@/components/ShareBriefingModal";
 
 // ── Componente: Painel de Diagnóstico de Entrada (3 Camadas) ─────────────────────────────────
 function DiagnosticoEntradaPanel({
@@ -189,6 +191,9 @@ export default function BriefingV3() {
   const inconsistencias = inconsistenciasData?.inconsistencias ?? [];
   // fix(UX1 UAT 2026-04-20): confidence_score para barra visual
   const confidenceScore = (inconsistenciasData as any)?.confidenceScore ?? null;
+  // #767: structured briefing para modal compartilhar resumo WhatsApp
+  const briefingStructuredForShare = (inconsistenciasData as any)?.structured ?? null;
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   // fix(B2 UAT 2026-04-20): resolver inconsistência sem regerar briefing (LLM-free)
   const dismissInconsistencia = trpc.fluxoV3.dismissInconsistencia.useMutation();
@@ -825,7 +830,7 @@ export default function BriefingV3() {
                     </div>
                   </div>
                 )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                   <Button size="lg" onClick={handleApprove} disabled={isApproving || !canApprove} className="gap-2">
                     {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsUp className="h-4 w-4" />}
                     Aprovar Briefing
@@ -841,6 +846,18 @@ export default function BriefingV3() {
                   <Button variant="outline" size="lg" onClick={handleExportPDF} className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-50">
                     <Download className="h-4 w-4" />
                     Exportar PDF
+                  </Button>
+                  {/* #767: Compartilhar resumo em formato WhatsApp por área */}
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => setShareModalOpen(true)}
+                    disabled={!briefingStructuredForShare}
+                    className="gap-2 border-green-300 text-green-700 hover:bg-green-50"
+                    data-testid="btn-compartilhar-resumo"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    Compartilhar Resumo
                   </Button>
                 </div>
               </div>
@@ -894,6 +911,14 @@ export default function BriefingV3() {
           title="Anotações da Equipe — Briefing"
         />
       </div>
+
+      {/* #767: Modal compartilhar resumo WhatsApp (6 áreas) */}
+      <ShareBriefingModal
+        open={shareModalOpen}
+        onOpenChange={setShareModalOpen}
+        structured={briefingStructuredForShare}
+        projectName={projectName}
+      />
     </ComplianceLayout>
   );
 }

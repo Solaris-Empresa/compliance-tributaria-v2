@@ -1118,6 +1118,73 @@ Gere as perguntas no formato:
         ? `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: ${cp.companySize ?? "não informado"}\n- Regime Tributário: ${cp.taxRegime ?? "não informado"}\n- Faturamento Anual: ${cp.annualRevenueRange ?? "não informado"}${produtosBlock}${servicosBlock}`
         : `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: não informado\n- Regime Tributário: não informado${produtosBlock}${servicosBlock}`;
 
+      // fix(#774 UAT 2026-04-20): enriquece o prompt com as 4 fontes que o path atual
+      // não lia: SOLARIS Onda 1, IA Gen Onda 2, Q.Produtos e Q.Serviços. Mitigação do
+      // gap arquitetural descoberto (BriefingV3.tsx usa generateBriefing e não
+      // generateBriefingFromDiagnostic). Zero mudança de gates/status — apenas leitura
+      // adicional do DB + injeção no userPrompt.
+      const additionalSourcesContext: string[] = [];
+
+      const solarisAnswersForPrompt = await db.getOnda1Answers(input.projectId);
+      if (Array.isArray(solarisAnswersForPrompt) && solarisAnswersForPrompt.length > 0) {
+        additionalSourcesContext.push('<respostas_solaris_onda1>');
+        solarisAnswersForPrompt
+          .filter((a: any) => a?.resposta)
+          .forEach((a: any) => {
+            additionalSourcesContext.push(`${a.codigo}: ${a.resposta}`);
+          });
+        additionalSourcesContext.push('</respostas_solaris_onda1>');
+      }
+
+      const iagenAnswersForPrompt = await db.getOnda2Answers(input.projectId);
+      if (Array.isArray(iagenAnswersForPrompt) && iagenAnswersForPrompt.length > 0) {
+        additionalSourcesContext.push('<respostas_iagen_onda2>');
+        iagenAnswersForPrompt
+          .filter((a: any) => a?.resposta)
+          .forEach((a: any) => {
+            additionalSourcesContext.push(`Q: ${a.questionText ?? a.question ?? ''}\nR: ${a.resposta}`);
+          });
+        additionalSourcesContext.push('</respostas_iagen_onda2>');
+      }
+
+      const productAnswersArr = (() => {
+        const raw = projectAnyBriefing.productAnswers;
+        if (!raw) return [];
+        try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return []; }
+      })();
+      if (Array.isArray(productAnswersArr) && productAnswersArr.length > 0) {
+        additionalSourcesContext.push('<respostas_q_produtos_ncm>');
+        productAnswersArr
+          .filter((a: any) => a && (a.pergunta_texto || a.pergunta) && a.resposta !== undefined && a.resposta !== null && a.resposta !== '')
+          .forEach((a: any) => {
+            const codePrefix = a.ncm_code ? `[NCM ${a.ncm_code}] ` : '';
+            const text = a.pergunta_texto ?? a.pergunta ?? '';
+            additionalSourcesContext.push(`${codePrefix}P: ${text}\nR: ${a.resposta}`);
+          });
+        additionalSourcesContext.push('</respostas_q_produtos_ncm>');
+      }
+
+      const serviceAnswersArr = (() => {
+        const raw = projectAnyBriefing.serviceAnswers;
+        if (!raw) return [];
+        try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return []; }
+      })();
+      if (Array.isArray(serviceAnswersArr) && serviceAnswersArr.length > 0) {
+        additionalSourcesContext.push('<respostas_q_servicos_nbs>');
+        serviceAnswersArr
+          .filter((a: any) => a && (a.pergunta_texto || a.pergunta) && a.resposta !== undefined && a.resposta !== null && a.resposta !== '')
+          .forEach((a: any) => {
+            const codePrefix = a.nbs_code ? `[NBS ${a.nbs_code}] ` : '';
+            const text = a.pergunta_texto ?? a.pergunta ?? '';
+            additionalSourcesContext.push(`${codePrefix}P: ${text}\nR: ${a.resposta}`);
+          });
+        additionalSourcesContext.push('</respostas_q_servicos_nbs>');
+      }
+
+      const additionalSourcesText = additionalSourcesContext.length > 0
+        ? `\n\nDADOS ADICIONAIS DO CLIENTE:\n${additionalSourcesContext.join('\n')}\n`
+        : '';
+
       // V60: Geração com retry + temperatura 0.2 + schema estruturado
       // fix(UX3 UAT 2026-04-20): contador de retries para propagar ao frontend
       let llmRetries = 0;
@@ -1152,7 +1219,7 @@ ${OUTPUT_CONTRACT}`,
           },
           {
             role: "user",
-            content: `${companyProfileBlock}\n\nPROJETO: ${project.name}\nDESCRIÇÃO: ${(project as any).description || ""}\n\nRESPOSTAS DO QUESTIONÁRIO:\n${answersText}\n${correctionContext}\n${complementContext}
+            content: `${companyProfileBlock}${additionalSourcesText}\n\nPROJETO: ${project.name}\nDESCRIÇÃO: ${(project as any).description || ""}\n\nRESPOSTAS DO QUESTIONÁRIO CNAE:\n${answersText}\n${correctionContext}\n${complementContext}
 
 Gere o Briefing estruturado em JSON:
 {
@@ -1191,6 +1258,47 @@ Gere o Briefing estruturado em JSON:
         }));
       }
 
+      // fix(#771 UAT 2026-04-20): confidence.nivel_confianca agora é função determinística
+      // server-side das contagens de fontes. Elimina o bug de "85% com ausência total".
+      // Preserva limitações e recomendação do LLM (texto qualitativo segue sendo gerado).
+      const solarisCountForConf = await db.countOnda1Answers(input.projectId);
+      const iagenCountForConf = await db.countOnda2Answers(input.projectId);
+      const productAnswersForConf = (() => {
+        const raw = (project as any).productAnswers;
+        if (!raw) return [];
+        try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return []; }
+      })();
+      const serviceAnswersForConf = (() => {
+        const raw = (project as any).serviceAnswers;
+        if (!raw) return [];
+        try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return []; }
+      })();
+      const cnaeQuestionsCountForConf = input.allAnswers
+        .filter(l => l.cnaeCode !== "CORPORATIVO" && l.cnaeCode !== "OPERACIONAL")
+        .reduce((acc, l) => acc + (l.questions?.length ?? 0), 0);
+      const ncmCountForConf = (opProfile.principaisProdutos ?? []).filter(p => p?.ncm_code).length;
+      const nbsCountForConf = (opProfile.principaisServicos ?? []).filter(s => s?.nbs_code).length;
+
+      const { calculateBriefingConfidence } = await import("./lib/calculate-briefing-confidence");
+      const deterministicConfidence = calculateBriefingConfidence({
+        solarisAnswersCount: solarisCountForConf,
+        iagenAnswersCount: iagenCountForConf,
+        productAnswersCount: Array.isArray(productAnswersForConf) ? productAnswersForConf.length : 0,
+        serviceAnswersCount: Array.isArray(serviceAnswersForConf) ? serviceAnswersForConf.length : 0,
+        cnaeAnswersCount: cnaeQuestionsCountForConf,
+        ncmCodesCount: ncmCountForConf,
+        nbsCodesCount: nbsCountForConf,
+      });
+      if (structured.confidence_score && typeof structured.confidence_score === "object") {
+        structured.confidence_score.nivel_confianca = deterministicConfidence;
+      } else {
+        structured.confidence_score = {
+          nivel_confianca: deterministicConfidence,
+          limitacoes: [],
+          recomendacao: "Revisão por advogado tributarista recomendada",
+        };
+      }
+
       // Converter estruturado para Markdown (compatibilidade com UI existente)
       const briefingMarkdown = buildBriefingMarkdown(structured);
 
@@ -1212,22 +1320,15 @@ Gere o Briefing estruturado em JSON:
       // contribuíram ou não para o diagnóstico.
       try {
         const { logAudit } = await import("./routers-audit");
-        const solarisAnswersCount = await db.countOnda1Answers(input.projectId);
-        const iagenAnswersCount = await db.countOnda2Answers(input.projectId);
-        const productAnswersArr = (() => {
-          const raw = (project as any).productAnswers;
-          if (!raw) return [];
-          try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return []; }
-        })();
-        const serviceAnswersArr = (() => {
-          const raw = (project as any).serviceAnswers;
-          if (!raw) return [];
-          try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return []; }
-        })();
+        // Reaproveita contagens já calculadas para o confidence determinístico (evita query duplicada).
+        const solarisAnswersCount = solarisCountForConf;
+        const iagenAnswersCount = iagenCountForConf;
+        const productAnswersArr = productAnswersForConf;
+        const serviceAnswersArr = serviceAnswersForConf;
         const cnaeLayers = input.allAnswers.filter(l => l.cnaeCode !== "CORPORATIVO" && l.cnaeCode !== "OPERACIONAL");
-        const cnaeQuestionsCount = cnaeLayers.reduce((acc, l) => acc + (l.questions?.length ?? 0), 0);
-        const ncmCodesCount = (opProfile.principaisProdutos ?? []).filter(p => p?.ncm_code).length;
-        const nbsCodesCount = (opProfile.principaisServicos ?? []).filter(s => s?.nbs_code).length;
+        const cnaeQuestionsCount = cnaeQuestionsCountForConf;
+        const ncmCodesCount = ncmCountForConf;
+        const nbsCodesCount = nbsCountForConf;
 
         await logAudit({
           userId: ctx.user.id,
@@ -2075,7 +2176,7 @@ Gere o veredito final em JSON:
       if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
 
       const bs = (project as any).briefingStructured;
-      if (!bs) return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null };
+      if (!bs) return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null, structured: null };
 
       try {
         const parsed = typeof bs === "string" ? JSON.parse(bs) : bs;
@@ -2093,9 +2194,20 @@ Gere o veredito final em JSON:
             baixo: inconsistencias.filter((i: any) => i.impacto === "baixo").length,
           },
           confidenceScore,
+          // fix(#767 UAT 2026-04-20): expor briefing estruturado completo para
+          // o modal "Compartilhar Resumo WhatsApp" consumir no cliente.
+          structured: {
+            nivel_risco_geral: parsed?.nivel_risco_geral ?? null,
+            resumo_executivo: parsed?.resumo_executivo ?? null,
+            principais_gaps: Array.isArray(parsed?.principais_gaps) ? parsed.principais_gaps : [],
+            oportunidades: Array.isArray(parsed?.oportunidades) ? parsed.oportunidades : [],
+            recomendacoes_prioritarias: Array.isArray(parsed?.recomendacoes_prioritarias) ? parsed.recomendacoes_prioritarias : [],
+            inconsistencias,
+            confidence_score: confidenceScore,
+          },
         };
       } catch {
-        return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null };
+        return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null, structured: null };
       }
     }),
 
@@ -2549,6 +2661,35 @@ Gere o Briefing estruturado em JSON:
           ...inc,
           impacto: classifyInconsistenciaImpacto(inc),
         }));
+      }
+
+      // fix(#771 UAT 2026-04-20): confidence determinístico server-side — mesma heurística de generateBriefing.
+      {
+        const productAnswersCount = Array.isArray(briefingProduct) ? briefingProduct.length : 0;
+        const serviceAnswersCount = Array.isArray(briefingService) ? briefingService.length : 0;
+        const cnaeQuestionsCountForConf = cnaeAnswers.reduce((acc: number, l: any) => acc + (l.questions?.length ?? 0), 0);
+        const ncmCountForConf = (opProfileForBriefing.principaisProdutos ?? []).filter(x => x?.ncm_code).length;
+        const nbsCountForConf = (opProfileForBriefing.principaisServicos ?? []).filter(x => x?.nbs_code).length;
+
+        const { calculateBriefingConfidence } = await import("./lib/calculate-briefing-confidence");
+        const deterministicConfidence = calculateBriefingConfidence({
+          solarisAnswersCount: solarisAnswersForBriefing.length,
+          iagenAnswersCount: iagenAnswersForBriefing.length,
+          productAnswersCount,
+          serviceAnswersCount,
+          cnaeAnswersCount: cnaeQuestionsCountForConf,
+          ncmCodesCount: ncmCountForConf,
+          nbsCodesCount: nbsCountForConf,
+        });
+        if (structured.confidence_score && typeof structured.confidence_score === "object") {
+          structured.confidence_score.nivel_confianca = deterministicConfidence;
+        } else {
+          structured.confidence_score = {
+            nivel_confianca: deterministicConfidence,
+            limitacoes: [],
+            recomendacao: "Revisão por advogado tributarista recomendada",
+          };
+        }
       }
 
       const { buildBriefingMarkdown } = await import("./routers-fluxo-v3").then(m => ({
