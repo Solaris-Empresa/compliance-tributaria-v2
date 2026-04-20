@@ -1284,6 +1284,31 @@ Gere o Briefing estruturado em JSON:
         }));
       }
 
+      // fix(BUG-1 UAT 2026-04-20): preservar inconsistências dismissed entre regenerações.
+      // Se o usuário resolveu uma inconsistência na v1 e o LLM detecta a mesma na v2,
+      // filtramos aqui para não reaparecer. Dismissed list persiste em briefingStructured.
+      const priorStructuredRaw = (project as any).briefingStructured;
+      const priorStructured = (() => {
+        if (!priorStructuredRaw) return null;
+        try { return typeof priorStructuredRaw === "string" ? JSON.parse(priorStructuredRaw) : priorStructuredRaw; } catch { return null; }
+      })();
+      const dismissedInconsistencias: any[] = Array.isArray(priorStructured?.dismissed_inconsistencias)
+        ? priorStructured.dismissed_inconsistencias
+        : [];
+      const normalizePerguntaOrigem = (s: string): string =>
+        String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+      const dismissedKeys = new Set(
+        dismissedInconsistencias.map((d: any) => normalizePerguntaOrigem(d?.pergunta_origem ?? ""))
+      );
+      if (Array.isArray(structured.inconsistencias)) {
+        structured.inconsistencias = structured.inconsistencias.filter((inc: any) => {
+          const key = normalizePerguntaOrigem(inc?.pergunta_origem ?? "");
+          return !key || !dismissedKeys.has(key);
+        });
+      }
+      // Preserva a dismissed list para próxima regeneração / auditoria.
+      (structured as any).dismissed_inconsistencias = dismissedInconsistencias;
+
       // fix(#771 UAT 2026-04-20): confidence.nivel_confianca agora é função determinística
       // server-side das contagens de fontes. Elimina o bug de "85% com ausência total".
       // Preserva limitações e recomendação do LLM (texto qualitativo segue sendo gerado).
@@ -1434,7 +1459,35 @@ Gere o Briefing estruturado em JSON:
         return { success: false, reason: "Inconsistência não encontrada (já resolvida ou removida?)." };
       }
 
-      const updatedStructured = { ...parsed, inconsistencias: after };
+      // fix(BUG-1 UAT 2026-04-20): adiciona à dismissed list para que regenerações futuras
+      // filtrem a mesma inconsistência ao invés de recriarem.
+      const removedItem = before.find((i: any) => i?.pergunta_origem === input.perguntaOrigem);
+      const priorDismissed: any[] = Array.isArray(parsed?.dismissed_inconsistencias)
+        ? parsed.dismissed_inconsistencias
+        : [];
+      const alreadyDismissed = priorDismissed.some(
+        (d: any) => d?.pergunta_origem === input.perguntaOrigem
+      );
+      const newDismissed = alreadyDismissed
+        ? priorDismissed
+        : [
+            ...priorDismissed,
+            {
+              pergunta_origem: input.perguntaOrigem,
+              contradicao_detectada: removedItem?.contradicao_detectada ?? null,
+              impacto: removedItem?.impacto ?? null,
+              motivo: input.motivo ?? null,
+              dismissed_at: Date.now(),
+              dismissed_by_user_id: ctx.user.id,
+              reason: "user_dismiss",
+            },
+          ];
+
+      const updatedStructured = {
+        ...parsed,
+        inconsistencias: after,
+        dismissed_inconsistencias: newDismissed,
+      };
 
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
@@ -1507,9 +1560,45 @@ Gere o Briefing estruturado em JSON:
       const database = await db.getDb();
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       const previousStatus = project.status;
+
+      // fix(BUG-3 UAT 2026-04-20): arquiva inconsistências ativas ao aprovar briefing.
+      // Move para dismissed_inconsistencias com reason='approval'. Badge some
+      // naturalmente porque lista ativa fica vazia. Audit preservado para compliance.
+      let briefingStructuredUpdated: any = null;
+      if (briefingStructuredForGate) {
+        const activeIncs: any[] = Array.isArray(briefingStructuredForGate?.inconsistencias)
+          ? briefingStructuredForGate.inconsistencias
+          : [];
+        const priorDismissed: any[] = Array.isArray(briefingStructuredForGate?.dismissed_inconsistencias)
+          ? briefingStructuredForGate.dismissed_inconsistencias
+          : [];
+        const approvedArchive = activeIncs.map((inc: any) => ({
+          pergunta_origem: inc?.pergunta_origem ?? null,
+          contradicao_detectada: inc?.contradicao_detectada ?? null,
+          impacto: inc?.impacto ?? null,
+          motivo: null,
+          dismissed_at: Date.now(),
+          dismissed_by_user_id: ctx.user.id,
+          reason: "approval",
+        }));
+        briefingStructuredUpdated = {
+          ...briefingStructuredForGate,
+          inconsistencias: [],
+          dismissed_inconsistencias: [...priorDismissed, ...approvedArchive],
+        };
+      }
+
       await database
         .update(projects)
-        .set({ currentStep: 4, status: "matriz_riscos", briefingContentV3: input.briefingContent as any, briefingContent: input.briefingContent as any } as any)
+        .set({
+          currentStep: 4,
+          status: "matriz_riscos",
+          briefingContentV3: input.briefingContent as any,
+          briefingContent: input.briefingContent as any,
+          ...(briefingStructuredUpdated
+            ? { briefingStructured: JSON.stringify(briefingStructuredUpdated) as any }
+            : {}),
+        } as any)
         .where(eq(projects.id, input.projectId));
 
       // fix(G2 UAT 2026-04-20): audit trail da aprovação do briefing.
@@ -1614,8 +1703,28 @@ Gere o Briefing estruturado em JSON:
         answered_sources: answeredSources,
         missing_sources: missingSources,
       };
+
+      // fix(BUG-3 UAT 2026-04-20): arquiva inconsistências ativas ao aprovar (mesmo com ressalva).
+      const activeIncs: any[] = Array.isArray(briefingStructured?.inconsistencias)
+        ? briefingStructured.inconsistencias
+        : [];
+      const priorDismissed: any[] = Array.isArray(briefingStructured?.dismissed_inconsistencias)
+        ? briefingStructured.dismissed_inconsistencias
+        : [];
+      const approvedArchive = activeIncs.map((inc: any) => ({
+        pergunta_origem: inc?.pergunta_origem ?? null,
+        contradicao_detectada: inc?.contradicao_detectada ?? null,
+        impacto: inc?.impacto ?? null,
+        motivo: null,
+        dismissed_at: Date.now(),
+        dismissed_by_user_id: ctx.user.id,
+        reason: "approval_with_reservation",
+      }));
+
       const updatedStructured = {
         ...briefingStructured,
+        inconsistencias: [],
+        dismissed_inconsistencias: [...priorDismissed, ...approvedArchive],
         approval_reservation: reservation,
       };
 
@@ -2843,6 +2952,28 @@ Gere o Briefing estruturado em JSON:
           ...inc,
           impacto: classifyInconsistenciaImpacto(inc),
         }));
+      }
+
+      // fix(BUG-1 UAT 2026-04-20): preserva dismissed_inconsistencias entre regenerações.
+      {
+        const priorStructuredRawFD = p.briefingStructured;
+        const priorStructuredFD = (() => {
+          if (!priorStructuredRawFD) return null;
+          try { return typeof priorStructuredRawFD === "string" ? JSON.parse(priorStructuredRawFD) : priorStructuredRawFD; } catch { return null; }
+        })();
+        const dismissedFD: any[] = Array.isArray(priorStructuredFD?.dismissed_inconsistencias)
+          ? priorStructuredFD.dismissed_inconsistencias
+          : [];
+        const normalize = (s: string): string =>
+          String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+        const dismissedKeysFD = new Set(dismissedFD.map((d: any) => normalize(d?.pergunta_origem ?? "")));
+        if (Array.isArray(structured.inconsistencias)) {
+          structured.inconsistencias = structured.inconsistencias.filter((inc: any) => {
+            const key = normalize(inc?.pergunta_origem ?? "");
+            return !key || !dismissedKeysFD.has(key);
+          });
+        }
+        (structured as any).dismissed_inconsistencias = dismissedFD;
       }
 
       // fix(#771 UAT 2026-04-20): confidence determinístico server-side — mesma heurística de generateBriefing.
