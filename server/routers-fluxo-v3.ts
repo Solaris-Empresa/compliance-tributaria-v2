@@ -1084,10 +1084,25 @@ Gere as perguntas no formato:
 
       // fix(briefing 2026-04-20): inclui NCMs e NBS do operationProfile no perfil da empresa,
       // para que o LLM considere alíquota zero/Imposto Seletivo/regime diferenciado por produto/serviço.
-      const opProfile = projectAnyBriefing.operationProfile as {
+      // fix-of-fix(briefing 2026-04-20 pós-#768): operationProfile pode chegar como string em alguns
+      // fluxos (B-Z13.5-001). Aplica parse defensivo antes de ler principaisProdutos/principaisServicos.
+      const opProfileRaw = projectAnyBriefing.operationProfile;
+      const opProfile: {
         principaisProdutos?: Array<{ ncm_code?: string; descricao?: string }>;
         principaisServicos?: Array<{ nbs_code?: string; descricao?: string }>;
-      } | null | undefined;
+      } = (() => {
+        if (!opProfileRaw) return {};
+        if (typeof opProfileRaw === "string") {
+          try {
+            const parsed = JSON.parse(opProfileRaw);
+            return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+          } catch { return {}; }
+        }
+        if (typeof opProfileRaw === "object" && !Array.isArray(opProfileRaw)) {
+          return opProfileRaw as any;
+        }
+        return {};
+      })();
       const produtosList = (opProfile?.principaisProdutos ?? [])
         .filter((p) => p?.ncm_code)
         .map((p) => `  - NCM ${p.ncm_code}${p.descricao ? ` — ${p.descricao}` : ""}`)
@@ -2318,10 +2333,24 @@ Gere o veredito final em JSON:
 
       // fix(briefing 2026-04-20): inclui NCMs e NBS do operationProfile, para que o LLM
       // considere alíquota zero, Imposto Seletivo e regime diferenciado por produto/serviço.
-      const opProfileForBriefing = p.operationProfile as {
+      // fix-of-fix(briefing 2026-04-20 pós-#768): operationProfile pode chegar como string (B-Z13.5-001).
+      const opProfileRawFB = p.operationProfile;
+      const opProfileForBriefing: {
         principaisProdutos?: Array<{ ncm_code?: string; descricao?: string }>;
         principaisServicos?: Array<{ nbs_code?: string; descricao?: string }>;
-      } | null | undefined;
+      } = (() => {
+        if (!opProfileRawFB) return {};
+        if (typeof opProfileRawFB === "string") {
+          try {
+            const parsed = JSON.parse(opProfileRawFB);
+            return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+          } catch { return {}; }
+        }
+        if (typeof opProfileRawFB === "object" && !Array.isArray(opProfileRawFB)) {
+          return opProfileRawFB as any;
+        }
+        return {};
+      })();
       const ncmItens = (opProfileForBriefing?.principaisProdutos ?? []).filter((p) => p?.ncm_code);
       const nbsItens = (opProfileForBriefing?.principaisServicos ?? []).filter((s) => s?.nbs_code);
       if (ncmItens.length > 0 || nbsItens.length > 0) {
