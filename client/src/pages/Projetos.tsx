@@ -1,6 +1,7 @@
 import ComplianceLayout from "@/components/ComplianceLayout";
 import { Button } from "@/components/ui/button";
-// fix(z22): CpieScoreBadge removido do card — legado CPIE-B (0/2367 analisados · ADR-0023). Componente será deletado em PR #2 Wave B.
+// fix(#741): ExposicaoRiscoBadge substitui o antigo CpieScoreBadge (deletado no PR #737, Z-22 Wave A.2+B).
+import { ExposicaoRiscoBadge } from "@/components/ExposicaoRiscoBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -262,7 +263,9 @@ export default function Projetos() {
                       <span>Criado em {new Date(project.createdAt).toLocaleDateString('pt-BR')}</span>
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-2">
+                    {/* fix(#741): Badge de Exposição ao Risco — engine v4 (lê projects.scoringData) */}
+                    <ExposicaoRiscoBadge scoringData={(project as any).scoringData} showScore />
                     {project.planPeriodMonths && (
                       <p className="text-sm text-muted-foreground">
                         Prazo do plano: {project.planPeriodMonths} meses
