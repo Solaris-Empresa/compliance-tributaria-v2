@@ -76,6 +76,11 @@ interface DiagnosticoStepperProps {
   onStartPlano?: () => void;
   /** Status do projeto (para derivar estado das ondas) */
   projectStatus?: string;
+  /**
+   * Etapa atual do projeto (1-8). Se fornecido em conjunto com status pós-aprovação,
+   * o stepper deriva honestamente o estado em vez de marcar tudo como concluído (#739).
+   */
+  currentStep?: number;
   /** Se true, desabilita todos os botões (loading state) */
   isLoading?: boolean;
   /** Classe CSS adicional */
@@ -176,9 +181,39 @@ const STEPS: {
 
 // ─── Mapeamento de status do projeto → StepState ────────────────────────────
 
+/**
+ * Ordem canônica das 8 etapas do fluxo TO-BE (Z-02 ADR-0010).
+ * Usada para derivar estado a partir de currentStep quando necessário.
+ */
+const STEP_ORDER: StepId[] = [
+  "onda1",
+  "onda2",
+  "corporate",
+  "operational",
+  "cnae",
+  "briefing",
+  "matrizes",
+  "plano",
+];
+
+/**
+ * Status pós-aprovação onde o projeto está em execução/finalizado.
+ * Usado pelo guard de #739: se currentStep < 8 + status pós-aprovação,
+ * derivar honestamente em vez de marcar tudo como completed.
+ */
+const POST_APPROVAL_STATUSES = new Set([
+  "plano_acao",
+  "aprovado",
+  "em_avaliacao",
+  "em_andamento",
+  "concluido",
+  "arquivado",
+]);
+
 export function projectStatusToStepState(
   projectStatus: string,
-  legacyState?: DiagnosticLayerState
+  legacyState?: DiagnosticLayerState,
+  currentStep?: number
 ): StepState {
   const base: StepState = {
     onda1: "not_started",
@@ -223,9 +258,22 @@ export function projectStatusToStepState(
     arquivado: ALL_COMPLETED,
   };
 
-  const mapped = statusMap[projectStatus];
-  if (mapped) {
-    Object.assign(base, mapped);
+  // fix(#739): para status pós-aprovação, se currentStep < 8 (override admin
+  // ou estado parcial), derivar do currentStep em vez de assumir tudo concluído.
+  if (
+    POST_APPROVAL_STATUSES.has(projectStatus) &&
+    typeof currentStep === "number" &&
+    currentStep > 0 &&
+    currentStep < 8
+  ) {
+    for (let i = 0; i < currentStep; i++) {
+      base[STEP_ORDER[i]] = "completed";
+    }
+  } else {
+    const mapped = statusMap[projectStatus];
+    if (mapped) {
+      Object.assign(base, mapped);
+    }
   }
 
   // Compatibilidade retroativa: se legacyState fornecido, sobrescreve corporate/operational/cnae
@@ -405,11 +453,12 @@ export function DiagnosticoStepper({
   onStartMatrizes,
   onStartPlano,
   projectStatus,
+  currentStep,
   isLoading = false,
   className,
 }: DiagnosticoStepperProps) {
   // Derivar stepState a partir do projectStatus (preferência) ou legacyState
-  const stepState = projectStatusToStepState(projectStatus ?? "", diagnosticStatus);
+  const stepState = projectStatusToStepState(projectStatus ?? "", diagnosticStatus, currentStep);
 
   const completedCount = Object.values(stepState).filter(
     (s) => s === "completed"
