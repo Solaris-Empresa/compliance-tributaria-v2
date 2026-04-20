@@ -166,15 +166,9 @@ export default function ComplianceDashboard() {
         </div>
       </div>
 
-      {/* Banner — propósito do dashboard */}
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription className="text-sm">
-          Esta visão é <strong>on-demand</strong> e efêmera — mostra o estado
-          atual do projeto. Para o <strong>entregável formal ao cliente</strong>{" "}
-          (com snapshot e base legal), use a Consolidação (Step 7).
-        </AlertDescription>
-      </Alert>
+      {/* fix UAT 2026-04-20: banner "on-demand e efêmera / use Consolidação (Step 7)" removido por
+          decisão do P.O. — mensagem era contraproducente (sugeria ao usuário sair da página que ele
+          justamente acabou de procurar). O dashboard é válido como fonte de decisão on-demand. */}
 
       {/* Loading */}
       {isLoading && !scores && (
