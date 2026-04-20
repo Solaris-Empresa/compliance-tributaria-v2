@@ -151,7 +151,7 @@ const STEPS: StepConfig[] = [
     label: "Dashboard",
     description: "Visão consolidada do compliance tributário",
     icon: <LayoutDashboard className="w-4 h-4" />,
-    route: (id) => `/projetos/${id}/compliance-v3`,
+    route: (id) => `/projetos/${id}/compliance-dashboard`, // fix(z22) UAT B-02b: /compliance-v3 → /compliance-dashboard (v4).
   },
 ];
 

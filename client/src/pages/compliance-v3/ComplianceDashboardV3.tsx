@@ -15,7 +15,6 @@ import { RiskLevelBadge, PriorityBadge } from "@/components/compliance-v3/shared
 import { useDashboardData } from "@/hooks/compliance-v3/useDashboardData";
 import { useExportActions } from "@/hooks/compliance-v3/useExportActions";
 import { trpc } from "@/lib/trpc";
-import { CpieScoreCard } from "@/components/CpieScoreBadge";
 
 const DOMAINS = [
   { value: "governanca_transicao", label: "Governança da Transição" },
@@ -125,8 +124,8 @@ export default function ComplianceDashboardV3() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-lg font-bold">Dashboard de Compliance <span className="text-xs font-normal bg-primary/10 text-primary px-1.5 py-0.5 rounded ml-1">v3 · S8</span></h1>
-            <p className="text-xs text-muted-foreground">Reforma Tributária — IBS/CBS/IS</p>
+            <h1 className="text-lg font-bold">Exposição ao Risco de Compliance <span className="text-xs font-normal bg-muted text-muted-foreground px-1.5 py-0.5 rounded ml-1">legado v3</span></h1>
+            <p className="text-xs text-muted-foreground">Reforma Tributária — IBS/CBS/IS · visão legada · use "Dashboard de Compliance" para visão on-demand</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -193,9 +192,6 @@ export default function ComplianceDashboardV3() {
           progressPercent={taskSummary?.progressPercent ?? 0}
         />
 
-        {/* Score CPIE B8 */}
-        <CpieScoreCard projectId={projectId} />
-
         {/* Executive Narrative */}
         {executiveData && (
           <ExecutiveNarrative
@@ -238,15 +234,23 @@ export default function ComplianceDashboardV3() {
               <CardTitle className="text-sm font-semibold">Matriz de Risco 4×4</CardTitle>
             </CardHeader>
             <CardContent>
-              <RiskMatrix4x4
-                matrix={matrixCells}
-                selectedCell={selectedCell}
-                onCellClick={(cell) => setSelectedCell(
-                  selectedCell?.probability === cell.probability && selectedCell?.impact === cell.impact
-                    ? undefined
-                    : cell
-                )}
-              />
+              {/* fix(z22) UAT B-02d: guard empty state — evita mostrar grade estática sem dados reais */}
+              {matrixCells.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-12">
+                  Nenhum risco avaliado ainda. A matriz será populada automaticamente
+                  após o Questionário de Compliance gerar riscos.
+                </p>
+              ) : (
+                <RiskMatrix4x4
+                  matrix={matrixCells}
+                  selectedCell={selectedCell}
+                  onCellClick={(cell) => setSelectedCell(
+                    selectedCell?.probability === cell.probability && selectedCell?.impact === cell.impact
+                      ? undefined
+                      : cell
+                  )}
+                />
+              )}
             </CardContent>
           </Card>
 
@@ -304,24 +308,7 @@ export default function ComplianceDashboardV3() {
           ))}
         </div>
 
-        {/* Quick Navigation */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          {[
-            { label: "Ver Gaps", href: `/projetos/${projectId}/compliance-v3/gaps`, icon: "🔍" },
-            { label: "Ver Riscos", href: `/projetos/${projectId}/compliance-v3/risks`, icon: "⚠️" },
-            { label: "Plano de Ação", href: `/projetos/${projectId}/compliance-v3/actions`, icon: "📋" },
-            { label: "Tarefas", href: `/projetos/${projectId}/compliance-v3/tasks`, icon: "✅" },
-            { label: "Briefing B7", href: `/projetos/${projectId}/compliance-v3/briefing`, icon: "📄" },
-            { label: "Score B8", href: `/projetos/${projectId}/compliance-v3/score`, icon: "📊" },
-          ].map(({ label, href, icon }) => (
-            <Link key={href} href={href}>
-              <Button variant="outline" className="w-full h-12 text-sm">
-                <span className="mr-2">{icon}</span>
-                {label}
-              </Button>
-            </Link>
-          ))}
-        </div>
+        {/* fix(z22) UAT B-02c: bloco "Quick Navigation" (Ver Gaps / Ver Riscos / Plano de Ação / Tarefas / Briefing B7 / Score B8) removido. Botões apontavam para rotas CPIE v2 / legacy — funcionalidades cobertas pelo novo Dashboard de Compliance (Wave A.1) e pelo pipeline principal do projeto. */}
       </div>
     </div>
   );

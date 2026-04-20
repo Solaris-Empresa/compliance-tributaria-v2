@@ -50,15 +50,7 @@ import GerenciarEquipe from "./pages/GerenciarEquipe";
 import Usuarios from "./pages/Usuarios";
 import AdminEmbeddings from "./pages/AdminEmbeddings";
 import FormularioProjeto from "./pages/FormularioProjeto";
-// Compliance Engine v3
-import ComplianceDashboardV3 from "./pages/compliance-v3/ComplianceDashboardV3";
-import GapsV3 from "./pages/compliance-v3/GapsV3";
-import RisksV3 from "./pages/compliance-v3/RisksV3";
-import ActionsV3 from "./pages/compliance-v3/ActionsV3";
-import TasksV3 from "./pages/compliance-v3/TasksV3";
-import ExportsV3 from "./pages/compliance-v3/ExportsV3";
-import BriefingEngineView from "./pages/compliance-v3/BriefingEngineView";
-import ScoreView from "./pages/compliance-v3/ScoreView";
+// fix(z22) UAT B-02b: imports compliance-v3 removidos (rota /compliance-v3 retirada — legado com gaps=0).
 // Demo standalone
 import DemoLanding from "./pages/demo/DemoLanding";
 import DemoAssessment from "./pages/demo/DemoAssessment";
@@ -76,7 +68,6 @@ import ComplianceDashboard from "./pages/ComplianceDashboard"; // Sprint Z-22 CP
 import ConsistencyGate from "./pages/ConsistencyGate";
 import DiagnosticoStepper from "./pages/DiagnosticoStepper";
 import AdminConsistencia from "./pages/AdminConsistencia";
-import AdminCpieDashboard from "./pages/AdminCpieDashboard";
 import ShadowMonitor from "./pages/ShadowMonitor";
 import RagCockpit from "./pages/RagCockpit";
 import TaskBoard from "./pages/TaskBoard"; // Sprint K — Taskboard P.O. ao vivo (Issue #151)
@@ -144,23 +135,12 @@ function Router() {
       <Route path="/usuarios" component={Usuarios} />
       <Route path="/admin/embeddings" component={AdminEmbeddings} />
       <Route path="/admin/consistencia" component={AdminConsistencia} />
-      <Route path="/admin/cpie-dashboard" component={AdminCpieDashboard} />
       <Route path="/admin/shadow-monitor" component={ShadowMonitor} />
       <Route path="/admin/rag-cockpit" component={RagCockpit} />
       <Route path="/admin/taskboard" component={TaskBoard} /> {/* Sprint K — Issue #151 */}
       <Route path="/admin/solaris-questions" component={AdminSolarisQuestions} /> {/* Sprint L — DEC-002 Issue #191 */}
       <Route path="/admin/categorias" component={AdminCategorias} /> {/* Sprint Z-09 — ADR-0025 */}
-      {/* Compliance Engine v3 */}
-      <Route path="/projetos/:id/compliance-v3" component={ComplianceDashboardV3} />
-      <Route path="/projetos/:id/compliance-v3/gaps" component={GapsV3} />
-      <Route path="/projetos/:id/compliance-v3/risks" component={RisksV3} />
-      <Route path="/projetos/:id/compliance-v3/actions" component={ActionsV3} />
-      <Route path="/projetos/:id/compliance-v3/tasks" component={TasksV3} />
-      <Route path="/projetos/:id/compliance-v3/exports" component={ExportsV3} />
-      {/* Briefing Engine B7 */}
-      <Route path="/projetos/:id/compliance-v3/briefing" component={BriefingEngineView} />
-      {/* Scoring Engine B8 */}
-      <Route path="/projetos/:id/compliance-v3/score" component={ScoreView} />
+      {/* fix(z22) UAT B-02b: rotas /compliance-v3/* removidas — dashboard legado v3 lia agregados zerados (project_risks_v3 vazia pós hot swap ADR-0022). Substituído por /compliance-dashboard (v4). */}
       {/* Demo standalone — sem login */}
       <Route path="/demo" component={DemoLanding} />
       <Route path="/demo/assessment" component={DemoAssessment} />

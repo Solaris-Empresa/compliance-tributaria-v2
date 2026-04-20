@@ -24,7 +24,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { CpieReportExport } from "@/components/CpieReportExport";
+// fix(z22) Wave A.2+B: CpieReportExport removido (deletado junto com CPIE legado).
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -634,16 +634,7 @@ function ScorePanel({
                 </div>
               )}
 
-              {/* Exportar PDF */}
-              {canExport && (
-                <CpieReportExport
-                  projectId={projectId!}
-                  projectName={projectName || "Projeto"}
-                  variant="outline"
-                  size="sm"
-                  className="w-full gap-2"
-                />
-              )}
+              {/* fix(z22): botão Exportar PDF (CpieReportExport) removido. Export PDF agora via Dashboard de Compliance (Wave A.1). */}
             </div>
           )}
         </div>
@@ -750,11 +741,11 @@ interface PerfilEmpresaIntelligenteProps {
   externalCpieV2Gate?: CpieV2GateResult | null;
 }
 
-export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description, projectId, projectName, onCpieScore, externalCpieV2Gate, mode = 'create', onSave }: PerfilEmpresaIntelligenteProps) {
+export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description, projectId, projectName, onCpieScore: _onCpieScore, externalCpieV2Gate, mode = 'create', onSave }: PerfilEmpresaIntelligenteProps) {
   const [cnpjError, setCnpjError] = useState("");
-  const [cpieResult, setCpieResult] = useState<CpieResult | null>(null);
-  const [cpieV2Gate, setCpieV2Gate] = useState<CpieV2GateResult | null>(null);
-  const [restoredFromDb, setRestoredFromDb] = useState(false);
+  // fix(z22) Wave A.2+B: states cpieResult / cpieV2Gate / restoredFromDb removidos — CPIE v1/v2 deletados.
+  // Props onCpieScore / externalCpieV2Gate preservadas nas assinaturas para retrocompatibilidade
+  // de call sites (NovoProjeto, FormularioProjeto, ProjetoDetalhesV2) até próxima sprint de cleanup.
   const score = calcProfileScore(value);
 
   // M2 Componente D: mutation de edição NCM/NBS (só ativa em mode='edit')
@@ -798,115 +789,10 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
     });
   };
 
-  // H1: Carregar análise salva do banco ao abrir projeto existente
-  const savedAnalysis = trpc.cpie.getProjectAnalysis.useQuery(
-    { projectId: projectId! },
-    {
-      enabled: !!projectId,
-      staleTime: 5 * 60 * 1000, // 5 min
-    }
-  );
-
-  // Reagir aos dados salvos via useEffect
-  useEffect(() => {
-    const data = savedAnalysis.data;
-    if (data?.profileIntelligenceData && !cpieResult && !restoredFromDb) {
-      const intel = data.profileIntelligenceData as Record<string, unknown>;
-      if (intel?.dimensions || intel?.dynamicQuestions || intel?.suggestions) {
-        setCpieResult({
-          overallScore: (data.profileCompleteness as number) ?? 0,
-          confidenceScore: (data.profileConfidence as number) ?? 0,
-          dimensions: (intel.dimensions as ScoreDimension[]) ?? [],
-          dynamicQuestions: (intel.dynamicQuestions as DynamicQuestion[]) ?? [],
-          suggestions: (intel.suggestions as ProfileSuggestion[]) ?? [],
-          insights: (intel.insights as ProfileInsight[]) ?? [],
-          readinessLevel: (intel.readinessLevel as CpieResult["readinessLevel"]) ?? "basic",
-          readinessMessage: (intel.readinessMessage as string) ?? "",
-        });
-        setRestoredFromDb(true);
-        toast.info("ℹ️ Análise IA carregada da sessão anterior.");
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [savedAnalysis.data]);
-
-  const saveHistory = trpc.cpie.saveAnalysisToHistory.useMutation();
-
-  const analyzeProfile = trpc.cpie.analyze.useMutation({
-    onSuccess: (data) => {
-      const result = data as CpieResult;
-      setCpieResult(result);
-      setRestoredFromDb(false);
-      // I1: Salvar no histórico se houver projectId
-      if (projectId) {
-        saveHistory.mutate({
-          projectId,
-          overallScore: result.overallScore,
-          confidenceScore: result.confidenceScore,
-          readinessLevel: result.readinessLevel,
-          readinessMessage: result.readinessMessage,
-          dimensionsJson: result.dimensions,
-          suggestionsJson: result.suggestions,
-          dynamicQuestionsJson: result.dynamicQuestions,
-          insightsJson: result.insights,
-        });
-      }
-    },
-    onError: () => {
-      toast.error("Erro ao analisar perfil. Tente novamente.");
-    },
-  });
-
-  // CPIE v2 analyzePreview — pipeline completo sem persistência
-  const analyzePreviewV2 = trpc.cpieV2.analyzePreview.useMutation({
-    onSuccess: (data) => {
-      const gate = data as unknown as CpieV2GateResult;
-      setCpieV2Gate(gate);
-      // K2: Notificar o pai com score compat v1 + gate v2 completo
-      onCpieScore?.({
-        score: gate.diagnosticConfidence, // usa diagnosticConfidence como score principal
-        dimensions: cpieResult?.dimensions ?? [],
-        v2Gate: gate,
-      });
-      if (!gate.canProceed) {
-        if (gate.blockType === "hard_block") {
-          toast.error("⛔ Perfil bloqueado: contradições críticas detectadas. Corrija antes de prosseguir.");
-        } else {
-          toast.warning("⚠️ Conflitos detectados. Justifique para prosseguir.");
-        }
-      } else {
-        toast.success("✅ Análise CPIE v2 concluída. Perfil consistente.");
-      }
-    },
-    onError: () => {
-      toast.error("Erro na análise CPIE v2. Tente novamente.");
-    },
-  });
-
-  const handleAnalyze = () => {
-    const profileInput = {
-      cnpj: value.cnpj || undefined,
-      companyType: value.companyType || undefined,
-      companySize: value.companySize || undefined,
-      annualRevenueRange: value.annualRevenueRange || undefined,
-      taxRegime: value.taxRegime || undefined,
-      operationType: value.operationType || undefined,
-      clientType: value.clientType.length > 0 ? value.clientType : undefined,
-      multiState: value.multiState,
-      hasMultipleEstablishments: value.hasMultipleEstablishments,
-      hasImportExport: value.hasImportExport,
-      hasSpecialRegimes: value.hasSpecialRegimes,
-      paymentMethods: value.paymentMethods.length > 0 ? value.paymentMethods : undefined,
-      hasIntermediaries: value.hasIntermediaries,
-      hasTaxTeam: value.hasTaxTeam,
-      hasAudit: value.hasAudit,
-      hasTaxIssues: value.hasTaxIssues,
-      description: description || undefined,
-    };
-    // Chamar v1 (para sugestões, dimensões, insights) e v2 preview (para gate real)
-    analyzeProfile.mutate(profileInput);
-    analyzePreviewV2.mutate(profileInput);
-  };
+  // fix(z22) Wave A.2+B: savedAnalysis / saveHistory / analyzeProfile / analyzePreviewV2 + handleAnalyze removidos.
+  // Dependências eram 100% CPIE v1/v2 (trpc.cpie.getProjectAnalysis, saveAnalysisToHistory, analyze, cpieV2.analyzePreview).
+  // ScorePanel passa a mostrar apenas completeness local (cálculo puro de campos preenchidos) — compute-profile-quality
+  // (Wave A.1) cobre o caso equivalente para o Dashboard de Compliance.
 
   const set = useCallback(<K extends keyof PerfilEmpresaData>(key: K, val: PerfilEmpresaData[K]) => {
     onChange({ ...value, [key]: val });
@@ -1476,12 +1362,12 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       <div>{formContent}</div>
       <ScorePanel
         {...score}
-        cpieResult={cpieResult}
-        cpieV2Gate={externalCpieV2Gate !== undefined ? externalCpieV2Gate : cpieV2Gate}
-        isAnalyzing={analyzeProfile.isPending || analyzePreviewV2.isPending}
-        onAnalyze={handleAnalyze}
+        cpieResult={null}
+        cpieV2Gate={externalCpieV2Gate !== undefined ? externalCpieV2Gate : null}
+        isAnalyzing={false}
+        onAnalyze={() => undefined}
         profileData={value}
-        restoredFromDb={restoredFromDb}
+        restoredFromDb={false}
         projectId={projectId}
         projectName={projectName}
         descLength={description ? description.trim().length : undefined}

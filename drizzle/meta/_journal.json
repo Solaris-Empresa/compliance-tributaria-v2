@@ -463,6 +463,13 @@
       "when": 1775951316853,
       "tag": "0065_spicy_tag",
       "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "5",
+      "when": 1776648629272,
+      "tag": "0066_lowly_blazing_skull",
+      "breakpoints": true
     }
   ]
 }
