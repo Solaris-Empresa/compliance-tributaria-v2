@@ -26,10 +26,11 @@
  * para não quebrar usos existentes em ProjetoDetalhesV2.tsx.
  */
 
-import { CheckCircle2, Circle, Clock, Lock, ChevronRight, Zap, Scale, Brain, Building2, Wrench, Hash, FileText, BarChart3, ClipboardCheck } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Lock, ChevronRight, Zap, Scale, Brain, Building2, Wrench, Hash, FileText, BarChart3, ClipboardCheck, Info } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 // ─── Tipos ──────────────────────────────────────────────────────────────────
@@ -98,6 +99,11 @@ const STEPS: {
   icon: React.ComponentType<{ className?: string }>;
   accentColor: "blue" | "purple" | "slate" | "orange" | "indigo" | "emerald" | "teal" | "green";
   badge?: string;
+  /**
+   * fix(#58 B5.2): texto detalhado exibido em tooltip ao lado do label.
+   * Explica o que cada etapa faz e — quando aplicável — como a IA atua.
+   */
+  tooltip?: string;
 }[] = [
   {
     id: "onda1",
@@ -108,6 +114,8 @@ const STEPS: {
     icon: Scale,
     accentColor: "blue",
     badge: "Equipe técnica SOLARIS",
+    tooltip:
+      "Conjunto curado de perguntas escritas pela equipe jurídica SOLARIS. Sem participação de IA — todas as questões e seus pesos são revisados por advogados.",
   },
   {
     id: "onda2",
@@ -118,6 +126,8 @@ const STEPS: {
     icon: Brain,
     accentColor: "purple",
     badge: "IA Generativa",
+    tooltip:
+      "Perguntas geradas dinamicamente por IA a partir do perfil da empresa, dos NCMs cadastrados e do contexto regulatório (RAG). A IA não inventa requisitos — apenas reorganiza conhecimento já validado.",
   },
   {
     id: "corporate",
@@ -129,6 +139,8 @@ const STEPS: {
     icon: Building2,
     accentColor: "slate",
     badge: "Z-02 · NCM",
+    tooltip:
+      "Cada NCM cadastrado dispara perguntas específicas vindas do Decision Kernel (regras determinísticas, sem IA). Cobre tributação setorial, regimes especiais e obrigações acessórias.",
   },
   {
     id: "operational",
@@ -140,6 +152,8 @@ const STEPS: {
     icon: Wrench,
     accentColor: "orange",
     badge: "Z-02 · NBS",
+    tooltip:
+      "Aplicável apenas a empresas de serviço, misto ou indústria. Perguntas determinísticas pelos códigos NBS — cobre transição ISS → IBS e split payment.",
   },
   {
     id: "cnae",
@@ -149,6 +163,8 @@ const STEPS: {
     lockedMessage: "Conclua o Q. de Serviços para desbloquear",
     icon: Hash,
     accentColor: "indigo",
+    tooltip:
+      "Bateria QCNAE-01 a QCNAE-05 — perguntas pré-definidas por categoria CNAE. Sem IA: catálogo curado para garantir cobertura setorial uniforme.",
   },
   {
     id: "briefing",
@@ -158,6 +174,8 @@ const STEPS: {
     lockedMessage: "Conclua o Questionário CNAE para desbloquear",
     icon: FileText,
     accentColor: "emerald",
+    tooltip:
+      "IA consolida as 5 etapas anteriores em um briefing executivo. Cada afirmação cita a lei + artigo correspondente (RAG validado). Sem alucinação — apenas síntese rastreável.",
   },
   {
     id: "matrizes",
@@ -167,6 +185,8 @@ const STEPS: {
     lockedMessage: "Gere o Briefing para desbloquear",
     icon: BarChart3,
     accentColor: "teal",
+    tooltip:
+      "Engine determinístico v4 (ADR-0022) calcula severidade e gera matriz 4x4 por CNAE — sem IA. Score consolidado, oportunidades não geram planos, breadcrumb sempre 4 níveis.",
   },
   {
     id: "plano",
@@ -176,6 +196,8 @@ const STEPS: {
     lockedMessage: "Gere as Matrizes de Risco para desbloquear",
     icon: ClipboardCheck,
     accentColor: "green",
+    tooltip:
+      "Catálogo PLANS por ruleId (determinístico) gera planos com prazos calibrados (30/60/90/180 dias). IA gera apenas a carga inicial de tarefas — todas revisáveis e editáveis pelo time.",
   },
 ];
 
@@ -389,6 +411,24 @@ function StepCard({
           >
             {step.label}
           </span>
+          {/* fix(#58 B5.2): tooltip explicativo da etapa — atuação humana vs IA, fonte determinística etc. */}
+          {step.tooltip && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={`Sobre: ${step.label}`}
+                  className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                  data-testid={`step-info-${step.id}`}
+                >
+                  <Info className="h-3 w-3" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" align="start" className="max-w-xs text-xs leading-relaxed">
+                {step.tooltip}
+              </TooltipContent>
+            </Tooltip>
+          )}
           {/* Badge especial (Onda 1 = azul SOLARIS, Onda 2 = purple IA) */}
           {step.badge && !locked && (
             <Badge
@@ -497,6 +537,8 @@ export function DiagnosticoStepper({
   }
 
   return (
+    // fix(#58 B5.2): Provider auto-suficiente — funciona mesmo se o ancestor não envolveu em TooltipProvider.
+    <TooltipProvider delayDuration={200}>
     <div className={cn("space-y-3", className)}>
       {/* ── Cabeçalho com progresso geral ── */}
       <div className="space-y-2">
@@ -611,6 +653,7 @@ export function DiagnosticoStepper({
         </div>
       )}
     </div>
+    </TooltipProvider>
   );
 }
 
