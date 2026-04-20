@@ -27,6 +27,10 @@ import AlertasInconsistencia, { InconsistenciaBadge } from "@/components/Alertas
 import { ConfidenceBar } from "@/components/ConfidenceBar";
 // #767: Modal compartilhar resumo WhatsApp (6 áreas)
 import { ShareBriefingModal } from "@/components/ShareBriefingModal";
+// fix(UAT 2026-04-20): modal + badge de aprovação com ressalva <85%
+import { ApproveReservationModal, type PredefinedReason } from "@/components/ApproveReservationModal";
+import { BriefingReservationBadge, type ApprovalReservation } from "@/components/BriefingReservationBadge";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 // ── Componente: Painel de Diagnóstico de Entrada (3 Camadas) ─────────────────────────────────
 function DiagnosticoEntradaPanel({
@@ -132,6 +136,8 @@ export default function BriefingV3() {
   const [versionHistory, setVersionHistory] = useState<BriefingVersion[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [viewingVersion, setViewingVersion] = useState<BriefingVersion | null>(null);
+  // fix(UAT 2026-04-20): versões cujo motivo está expandido (texto completo visível).
+  const [expandedReasonVersions, setExpandedReasonVersions] = useState<Set<number>>(new Set());
 
   // Verificar rascunho local ao montar
   useEffect(() => {
@@ -168,6 +174,8 @@ export default function BriefingV3() {
 
   const generateBriefing = trpc.fluxoV3.generateBriefing.useMutation();
   const approveBriefing = trpc.fluxoV3.approveBriefing.useMutation();
+  // fix(UAT 2026-04-20): aprovação com ressalva quando confiança <85%
+  const approveBriefingWithReservation = trpc.fluxoV3.approveBriefingWithReservation.useMutation();
   // Bug #4: Buscar respostas do questionário como fallback (tabela questionnaireAnswersV3)
   const { data: savedProgress } = trpc.fluxoV3.getProgress.useQuery(
     { projectId },
@@ -194,6 +202,31 @@ export default function BriefingV3() {
   // #767: structured briefing para modal compartilhar resumo WhatsApp
   const briefingStructuredForShare = (inconsistenciasData as any)?.structured ?? null;
   const [shareModalOpen, setShareModalOpen] = useState(false);
+
+  // fix(UAT 2026-04-20): aprovação com ressalva <85%
+  const approvalReservation: ApprovalReservation | null =
+    (inconsistenciasData as any)?.approvalReservation ?? null;
+  const currentConfidence: number | null =
+    typeof confidenceScore?.nivel_confianca === "number" ? confidenceScore.nivel_confianca : null;
+  const [reservationModalOpen, setReservationModalOpen] = useState(false);
+  const { user: currentUser } = useAuth();
+
+  // Fontes respondidas vs faltantes (para modal) — usa contagens via query do audit do último briefing
+  const { data: lastBriefingAudit } = trpc.audit.getProjectTimeline.useQuery(
+    { projectId, categories: ["briefing"], limit: 10 },
+    { enabled: projectId > 0 && reservationModalOpen }
+  );
+  const lastBriefingSources = useMemo(() => {
+    const entry = (lastBriefingAudit?.entries ?? [])
+      .find((e: any) => e.event === "briefing_generated" || e.event === "briefing_generated_from_diagnostic");
+    const sources = (entry as any)?.metadata?.sources ?? {};
+    const answered: string[] = [];
+    const missing: string[] = [];
+    Object.entries(sources).forEach(([key, v]: any) => {
+      if (v?.used) answered.push(key); else missing.push(key);
+    });
+    return { answered, missing };
+  }, [lastBriefingAudit]);
 
   // fix(B2 UAT 2026-04-20): resolver inconsistência sem regerar briefing (LLM-free)
   const dismissInconsistencia = trpc.fluxoV3.dismissInconsistencia.useMutation();
@@ -244,11 +277,16 @@ export default function BriefingV3() {
     if (!project) return;
     // RF-3.06: Salvar versão atual no histórico antes de regenerar
     if (briefing && generationCount > 0) {
+      // fix(UAT 2026-04-20): armazenar texto completo — truncagem fica no render.
       const newVersion: BriefingVersion = {
         version: generationCount,
         content: briefing,
         timestamp: Date.now(),
-        reason: correction ? `Correção: ${correction.substring(0, 60)}...` : moreInfo ? `Complemento: ${moreInfo.substring(0, 60)}...` : "Regeneração manual",
+        reason: correction
+          ? `Correção: ${correction}`
+          : moreInfo
+            ? `Complemento: ${moreInfo}`
+            : "Regeneração manual",
       };
       setVersionHistory(prev => [...prev, newVersion]);
     }
@@ -310,14 +348,45 @@ export default function BriefingV3() {
 
   const handleApprove = async () => {
     if (!briefing) return;
+    // fix(UAT 2026-04-20): gate <85% → abrir modal de ressalva.
+    if (currentConfidence !== null && currentConfidence < 85) {
+      setReservationModalOpen(true);
+      return;
+    }
     setIsApproving(true);
     try {
       await approveBriefing.mutateAsync({ projectId, briefingContent: briefing });
       clearTempData(projectId, 'etapa3');
       toast.success("Briefing aprovado! Avançando para Matrizes de Riscos...");
       setLocation(`/projetos/${projectId}/risk-dashboard-v4`);
+    } catch (err: any) {
+      // Defesa extra: se backend lançou CONFIDENCE_BELOW_THRESHOLD, abre o modal.
+      if (typeof err?.message === "string" && err.message.includes("CONFIDENCE_BELOW_THRESHOLD")) {
+        setReservationModalOpen(true);
+      } else {
+        toast.error("Erro ao aprovar o briefing. Tente novamente.");
+      }
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
+  const handleConfirmReservation = async (predefinedReason: PredefinedReason, freeReason: string) => {
+    if (!briefing) return;
+    setIsApproving(true);
+    try {
+      await approveBriefingWithReservation.mutateAsync({
+        projectId,
+        briefingContent: briefing,
+        predefinedReason,
+        freeReason,
+      });
+      clearTempData(projectId, 'etapa3');
+      setReservationModalOpen(false);
+      toast.success("Briefing aprovado com ressalva. Avançando para Matrizes de Riscos...");
+      setLocation(`/projetos/${projectId}/risk-dashboard-v4`);
     } catch {
-      toast.error("Erro ao aprovar o briefing. Tente novamente.");
+      toast.error("Erro ao registrar a ressalva. Tente novamente.");
     } finally {
       setIsApproving(false);
     }
@@ -543,6 +612,12 @@ export default function BriefingV3() {
           <ConfidenceBar score={confidenceScore} />
         )}
 
+        {/* fix(UAT 2026-04-20): badge permanente de ressalva quando briefing foi
+            aprovado abaixo do patamar de 85% — visível em todas as telas do briefing. */}
+        {approvalReservation && (
+          <BriefingReservationBadge reservation={approvalReservation} />
+        )}
+
         {/* V64: Alertas de Inconsistência — exibido apenas quando há inconsistências */}
         {/* V70.2: onCorrigir habilita o botão "Corrigir no Questionário" em cada inconsistência */}
         {inconsistencias.length > 0 && !isGenerating && (
@@ -577,25 +652,85 @@ export default function BriefingV3() {
                 <span className="text-xs text-muted-foreground">Versão mais recente</span>
               </button>
               {/* Versões anteriores (ordem decrescente) */}
-              {[...versionHistory].reverse().map((v) => (
-                <button
-                  key={v.version}
-                  className={`w-full flex items-center justify-between p-3 rounded-lg border-2 text-left transition-all ${
-                    viewingVersion?.version === v.version ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
-                  }`}
-                  onClick={() => setViewingVersion(v)}
-                >
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">v{v.version}</Badge>
-                    <span className="text-sm font-medium">Versão {v.version}</span>
-                    {v.reason && <span className="text-xs text-muted-foreground truncate max-w-[200px]">{v.reason}</span>}
+              {/* fix(UAT 2026-04-20): motivo completo visível — botão "ver mais" abre inline. */}
+              {[...versionHistory].reverse().map((v) => {
+                const REASON_THRESHOLD = 60;
+                const isLongReason = !!v.reason && v.reason.length > REASON_THRESHOLD;
+                const isExpanded = expandedReasonVersions.has(v.version);
+                const preview = isLongReason && !isExpanded
+                  ? `${v.reason!.slice(0, REASON_THRESHOLD)}…`
+                  : v.reason;
+                return (
+                  <div
+                    key={v.version}
+                    className={`w-full rounded-lg border-2 transition-all ${
+                      viewingVersion?.version === v.version ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
+                    }`}
+                    data-testid={`version-history-row-${v.version}`}
+                  >
+                    <button
+                      type="button"
+                      className="w-full flex items-center justify-between p-3 text-left"
+                      onClick={() => setViewingVersion(v)}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Badge variant="outline" className="text-xs shrink-0">v{v.version}</Badge>
+                        <span className="text-sm font-medium shrink-0">Versão {v.version}</span>
+                        {v.reason && (
+                          <span
+                            className={`text-xs text-muted-foreground ${isExpanded ? "whitespace-normal break-words" : "truncate max-w-[200px]"}`}
+                            data-testid={`version-history-reason-${v.version}`}
+                          >
+                            {preview}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0">
+                        <Clock className="h-3 w-3" />
+                        {new Date(v.timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </button>
+                    {isLongReason && (
+                      <div className="px-3 pb-2 -mt-1">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setExpandedReasonVersions(prev => {
+                              const next = new Set(prev);
+                              if (next.has(v.version)) next.delete(v.version);
+                              else next.add(v.version);
+                              return next;
+                            });
+                          }}
+                          className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                          data-testid={`btn-toggle-reason-${v.version}`}
+                        >
+                          {isExpanded ? (
+                            <>
+                              <ChevronUp className="h-3 w-3" />
+                              Ocultar motivo completo
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown className="h-3 w-3" />
+                              Ver motivo completo ({v.reason!.length} caracteres)
+                            </>
+                          )}
+                        </button>
+                        {isExpanded && (
+                          <div
+                            className="mt-2 rounded border bg-muted/30 p-2 text-xs whitespace-pre-wrap break-words"
+                            data-testid={`version-history-reason-full-${v.version}`}
+                          >
+                            {v.reason}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0">
-                    <Clock className="h-3 w-3" />
-                    {new Date(v.timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                </button>
-              ))}
+                );
+              })}
             </CardContent>
           </Card>
         )}
@@ -921,6 +1056,19 @@ export default function BriefingV3() {
         onOpenChange={setShareModalOpen}
         structured={briefingStructuredForShare}
         projectName={project?.name || "Briefing de Compliance"}
+      />
+
+      {/* fix(UAT 2026-04-20): modal de aprovação com ressalva <85% */}
+      <ApproveReservationModal
+        open={reservationModalOpen}
+        onOpenChange={setReservationModalOpen}
+        confidence={currentConfidence ?? 0}
+        answeredSources={lastBriefingSources.answered}
+        missingSources={lastBriefingSources.missing}
+        approverName={currentUser?.name ?? currentUser?.email ?? "Usuário"}
+        approverRole={currentUser?.role ?? null}
+        onConfirm={handleConfirmReservation}
+        isSubmitting={isApproving}
       />
     </ComplianceLayout>
   );
