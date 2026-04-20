@@ -466,6 +466,12 @@ export default function ProjetoDetalhesV2() {
                 isLoading={completeDiagnosticLayer.isPending}
                 projectStatus={summary.status}
                 currentStep={(summary as any).currentStep}
+                evidence={{
+                  totalAnswers: summary.totalAnswers,
+                  hasBriefing: summary.hasBriefing,
+                  hasRiskMatrices: summary.hasRiskMatrices,
+                  hasActionPlan: summary.hasActionPlan,
+                }}
                 onStartOnda1={() => setLocation(`/projetos/${projectId}/questionario-solaris`)}
                 onStartOnda2={() => setLocation(`/projetos/${projectId}/questionario-iagen`)}
                 onStartLayer={(layer) => {
