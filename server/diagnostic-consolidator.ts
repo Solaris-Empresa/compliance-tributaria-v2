@@ -443,30 +443,38 @@ export function buildProductServiceLayers(
 ): DiagnosticLayer[] {
   const layers: DiagnosticLayer[] = [];
 
-  const toQuestions = (answers: any): DiagnosticAnswer[] => {
+  // fix(briefing 2026-04-20): aceita pergunta_texto (novo formato Z-02 pós-fix)
+  // e encoda NCM/NBS no prefixo da pergunta para alimentar o prompt do LLM.
+  const prefixWithCode = (text: string, code?: string): string => {
+    const t = (text ?? "").trim();
+    if (!code) return t;
+    return `[${code}] ${t}`;
+  };
+
+  const toQuestions = (answers: any, codeField: "ncm_code" | "nbs_code"): DiagnosticAnswer[] => {
     if (!answers) return [];
     // TrackedAnswer[] — formato Z-02
     if (Array.isArray(answers)) {
       return answers
-        .filter((a: any) => a && (a.pergunta || a.question) && (a.resposta || a.answer))
+        .filter((a: any) => a && (a.pergunta_texto || a.pergunta || a.question) && (a.resposta || a.answer))
         .map((a: any) => ({
-          question: a.pergunta ?? a.question ?? "",
-          answer: a.resposta ?? a.answer ?? "",
+          question: prefixWithCode(a.pergunta_texto ?? a.pergunta ?? a.question ?? "", a[codeField]),
+          answer: String(a.resposta ?? a.answer ?? ""),
         }));
     }
     // Objeto com campo 'perguntas' (formato Z-01 legado)
     if (answers.perguntas && Array.isArray(answers.perguntas)) {
       return answers.perguntas
-        .filter((a: any) => a && (a.pergunta || a.question))
+        .filter((a: any) => a && (a.pergunta_texto || a.pergunta || a.question))
         .map((a: any) => ({
-          question: a.pergunta ?? a.question ?? "",
-          answer: a.resposta ?? a.answer ?? "Não respondido",
+          question: prefixWithCode(a.pergunta_texto ?? a.pergunta ?? a.question ?? "", a[codeField]),
+          answer: String(a.resposta ?? a.answer ?? "Não respondido"),
         }));
     }
     return [];
   };
 
-  const productQs = toQuestions(productAnswers);
+  const productQs = toQuestions(productAnswers, "ncm_code");
   if (productQs.length > 0) {
     layers.push({
       cnaeCode: "NCM_PRODUTO",
@@ -476,7 +484,7 @@ export function buildProductServiceLayers(
     });
   }
 
-  const serviceQs = toQuestions(serviceAnswers);
+  const serviceQs = toQuestions(serviceAnswers, "nbs_code");
   if (serviceQs.length > 0) {
     layers.push({
       cnaeCode: "NBS_SERVICO",
