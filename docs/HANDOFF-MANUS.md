@@ -25,15 +25,15 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-18)
-- BASELINE **v7.12** — Sprint Z-21 ENCERRADA · Sprint Z-22 INICIADA
-- **HEAD: `48a3dda` (github/main)** · **Checkpoint Manus:** `6e196d3c`
-- **PRs mergeados:** 726 · **TypeScript:** 0 erros · **Unit tests:** 1717 passed / 9 skipped (1 falha conhecida: b-z11-012-evidence)
+## Estado atual do projeto (2026-04-20) — v7.28
+- BASELINE **v7.28** — Sprint Z-22 Wave B em andamento
+- **HEAD: `5a4ac1e` (github/main)** · **Checkpoint Manus:** `114ab724` (v7.27 — Online)
+- **PRs mergeados:** 768 (117 merge commits no GitHub) · **TypeScript:** 0 erros
 - **Bundle:** ~1.4MB gzipado (vendor 761KB) — redução de 63% vs baseline Z-20
 - **streamdown:** REMOVIDA (PR #726) → `MarkdownRenderer.tsx` (react-markdown + remark-gfm)
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade
 - **Skill solaris-contexto:** v4.7 · **Skill solaris-orquestracao:** v3.2
-- **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
+- **Perguntas SOLARIS ativas:** 0 — `solaris_questions` zerada · faixa SOL-026..SOL-037 livre para upload
 - **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção · Suite E2E automatizada 21 casos ✅ (Z-17)
 - **Contratos M1:** CNT-01a/01b/02/03 em `docs/contracts/`
 - **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + REGRA-ORQ-12/13 + ORQ-17
@@ -41,10 +41,42 @@ Drizzle ORM / Vitest / pnpm
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
 - Branch protection: ativa (ruleset `main-protection`)
 - **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06
+- **UAT Combustíveis:** 🔄 EM ANDAMENTO — transporte rodoviário combustíveis perigosos · NBS `1.0501.14.51`
 - **risk_categories:** 9 categorias ativas · 10 no banco (1 inativa)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
-- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · Z-14 ✅ (16 issues) · Z-15 Lote A ✅ · Z-16 ✅ (9/9 issues) · Z-17 ✅ · Z-18 ✅ (3/3 issues) · **Z-19 ✅** · **Z-20 ✅** · **Z-21 ✅ (bundle -63% + streamdown removido)**
-- **Sprint Z-22 INICIADA:** Issue #725 · Milestone #20 · Dashboard Compliance v3 on-demand [P0] · SPEC 573 linhas
+- **Sprints encerradas:** Z-07..Z-21 ✅ · **Z-22 Wave A ✅**
+- **Sprint Z-22 Wave B:** PRs #755–#768 mergeados · hero card Exposição · paginação /projetos · botões Sim/Não/N.A. · fixes briefing NCM/NBS
+
+### PRs Z-22 Wave B (2026-04-20)
+| PR | Branch | Descrição |
+|---|---|---|
+| #755 | feat/exposicao-hero-card | Hero card Exposição ao Risco em `/projetos/:id` |
+| #756 | feat/compliance-dashboard-linkage | Remove banner + linkage compliance-dashboard |
+| #757 | docs/solaris-csv-consultor | Fluxo E2E SOLARIS + spec CSV Onda 1 |
+| #758 | feat/solaris-prefix-buttons | Botões Sim/Não/N.A. Questionário SOLARIS (Onda 1) |
+| #759 | feat/iagen-prefix-buttons | Botões Sim/Não/N.A. Questionário IA Gen (Onda 2) |
+| #762 | fix/760-projetos-paginacao | Paginação server-side `/projetos` — resolve timeout 4.500+ projetos |
+| #763 | fix/briefing-uat-fixes | 4 fixes briefing UAT (complement, resolver inconsistência, audit) |
+| #764 | fix/briefing-determinismo-e-prefix-buttons-ncm-nbs | Determinismo briefing + prefix-buttons NCM/NBS |
+| #765 | fix/briefing-ux1-ux3-severidade | Fixes UX1/UX3 severidade no briefing |
+| #768 | fix/briefing-ncm-nbs-fontes-completas | NCM/NBS fontes completas no briefing |
+
+### Pendências técnicas abertas (2026-04-20)
+| ID | Descrição | Prioridade |
+|---|---|---|
+| DT-01 | `0088_drop_cpie_legado.sql` não registrado em `__drizzle_migrations` | Alta |
+| SOLARIS-UPLOAD | `solaris_questions` zerada (0 ativas) — faixa SOL-026..SOL-037 livre | Alta |
+| BUG-1 | Merge de inconsistências no briefing (não sobrescrever a cada regeneração) | Alta |
+| BUG-3 | Limpar inconsistências ao aprovar briefing (badge persiste após aprovação) | Média |
+
+### Sincronização GitHub ↔ S3 Manus (R-SYNC-02)
+O S3 Manus (origin) não aceita `git push` direto do shell. Fluxo obrigatório:
+```
+git fetch solaris refs/heads/main:refs/remotes/solaris/main
+git reset --hard solaris/main
+webdev_save_checkpoint → Publish
+```
+Branches `create_ckpt_main_*` são geradas automaticamente — comportamento normal.
 
 ### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |
