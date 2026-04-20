@@ -187,6 +187,23 @@ export const appRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
       return await db.getProjectsByUser(ctx.user.id, ctx.user.role);
     }),
+    /**
+     * fix(#760): listagem paginada — resolve carga total da tabela (~4000+ projetos).
+     * Não remove `list` para preservar callers existentes (getActiveCount, testes).
+     * Preferir este endpoint em novas telas.
+     */
+    listPaginated: protectedProcedure
+      .input(
+        z.object({
+          limit: z.number().min(1).max(100).default(50),
+          offset: z.number().min(0).default(0),
+          search: z.string().optional(),
+          statusFilter: z.string().optional(),
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        return await db.getProjectsByUserPaginated(ctx.user.id, ctx.user.role, input);
+      }),
     getActiveCount: protectedProcedure.query(async ({ ctx }) => {
       const all = await db.getProjectsByUser(ctx.user.id, ctx.user.role);
       const inactive = ["rascunho", "arquivado", "concluido"];
