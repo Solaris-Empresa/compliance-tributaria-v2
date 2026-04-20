@@ -1,6 +1,6 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.15 · 2026-04-20 (Sprint Z-22 carry-over fechado — 3 issues + 1 PR cobertura E2E · HEAD 56e403c)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.26 · 2026-04-20 (Sprint Z-22 UAT Wave — 10 PRs briefing/questionários/exposição + 2 issues backlog · HEAD 5a4ac1e)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
@@ -121,6 +121,20 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - **Bug pós-merge:** `/projetos/:id` 404 por dessincronia schema↔DB · resolvido com migration 0088 + restart dev · UAT destravada
   - **Issues abertas pós-merge:** #739 débito B-03 statusMap · #740 UAT B-04 botão Exposição · #741 badge Exposição nos cards · #742 filtro Score IA órfão · #743 escopo "página completa" (carry-over)
   - **Lição Z-22:** drop destrutivo em sprint ativa ≠ comentar código. Custo real 10× estimado (triple review · 2 empty commits · admin merge · 7.8KB→102MB backup · bloqueio UAT). Regra proposta para próximas: **comentar agora, dropar em janela dedicada pós-sprint**.
+**Sprint Z-22 (UAT Wave):** ✅ ENCERRADA · 10 PRs briefing/UX/exposição · 2026-04-20 · HEAD `5a4ac1e`
+  - **#755 hero card Exposição ao Risco** (PR #755) — ProjetoDetalhesV2 ganha hero card via `ExposicaoRiscoBadge` (scoringData engine v4).
+  - **#756 compliance-dashboard linkage** (PR #756) — remove banner contraproducente e restaura link do dashboard (#743).
+  - **#757 docs CSV SOLARIS consultor** (PR #757) — fluxo E2E + spec CSV Onda 1 para consultor jurídico.
+  - **#758 prefix buttons SOLARIS (Onda 1)** (PR #758) — botões Sim/Não/N.A. com prefixo determinístico (A2).
+  - **#759 prefix buttons IA Gen (Onda 2)** (PR #759) — mesmo padrão aplicado à Onda 2.
+  - **#760 paginação /projetos** (PR #762 P0) — paginação server-side, alivia carga com projetos em massa.
+  - **#763 briefing 4 bugs UAT** (PR #763) — B1 `additionalInfo`→`complement` silenciosamente descartado; B2 botão "Resolver" inconsistência; G2 audit log de regeneração; G5 confirmação antes de regenerar.
+  - **#764 prefix NCM/NBS + determinismo T0** (PR #764) — Questionário Produtos/Serviços ganha Sim/Não/N.A.; T1 temperatura 0; N1b regra de determinismo; N2 separa inconsistência × limitação; N5 esconde banner após aprovação; UX2 disable btn.
+  - **#765 UX1 ConfidenceBar + UX3 toast retry + classificação severidade server-side** (PR #765) — ConfidenceBar visual (≥85/70/<70), toast "Gerando... tentativa 2/3", `classifyInconsistenciaImpacto` heurística determinística.
+  - **#768 NCM/NBS fontes completas no briefing** (PR #768) — `completeProductQuestionnaire/completeServiceQuestionnaire` aceitam `pergunta_texto` + `ncm_code`/`nbs_code` opcionais; `buildProductServiceLayers` prefixa `[NCM xxx]`/`[NBS xxx]`; `companyProfileBlock` e `generateBriefingFromDiagnostic` incluem NCMs/NBS do `operationProfile`. **Root cause UAT:** códigos NCM/NBS nunca chegavam ao prompt — corrigido sem schema change.
+  - **Issues abertas (backlog):** #766 UI Trilha de Auditoria · #767 resumo briefing formato WhatsApp (6 áreas: genérico/fiscal/TI/contabilidade/legal/gestão) · #761 cleanup comentários CpieReportExport · #752 Drizzle journal drift (Z-23).
+  - **Determinismo do briefing:** temperatura 0 + regras objetivas N1b/N2 + classificação server-side → eliminam variabilidade observada em UAT (2→1→2 inconsistências em gerações consecutivas).
+
 **Sprint Z-22 (carry-over):** ✅ ENCERRADA · 3 issues fechadas + 1 PR cobertura · 2026-04-20 · HEAD 56e403c
   - **#739 statusMap currentStep** (PR #745 → 44eace5) — projectStatusToStepState aceita currentStep opcional. Para status pós-aprovação com currentStep<8, deriva honestamente em vez de marcar tudo como completed. Cenário (admin force em_andamento + currentStep=1) agora exibe 1/8 em vez de 8/8.
   - **#742 filtro Score IA órfão removido** (PR #746 → 80ca31b) — `<Select>` "Filtrar por Score IA" lia `projects.profileCompleteness` dropada na 0088. SCORE_FILTER_OPTIONS, matchesScoreFilter, ScoreIaBadge, sortedProjects, scoreFilter state, import Brain — todos removidos. Decisão P.O.: opção (a) remover; reintrodução com engine v4 ficou para #741.
@@ -137,7 +151,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `f08dfc1`
+- **Branch base:** main · **HEAD:** `5a4ac1e`
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
