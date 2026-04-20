@@ -19,7 +19,7 @@
  */
 
 import { useState } from "react";
-import { AlertTriangle, AlertCircle, Info, ChevronDown, ChevronUp, X, Eye, PencilLine } from "lucide-react";
+import { AlertTriangle, AlertCircle, Info, ChevronDown, ChevronUp, X, Eye, PencilLine, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +49,11 @@ interface AlertasInconsistenciaProps {
    * Recebe o texto da pergunta de origem para highlight no questionário.
    */
   onCorrigir?: (pergunta: string) => void;
+  /**
+   * fix(B2 UAT 2026-04-20): Callback chamado ao marcar inconsistência como resolvida.
+   * O backend remove a inconsistência de briefingStructured sem regenerar o briefing via LLM.
+   */
+  onResolver?: (pergunta: string) => void;
 }
 
 // ─── Helpers de estilo por impacto ────────────────────────────────────────────
@@ -208,6 +213,7 @@ export default function AlertasInconsistencia({
   inconsistencias,
   compact = false,
   onCorrigir,
+  onResolver,
 }: AlertasInconsistenciaProps) {
   const [expanded, setExpanded] = useState(!compact);
   const [selectedItem, setSelectedItem] = useState<Inconsistencia | null>(null);
@@ -346,6 +352,28 @@ export default function AlertasInconsistencia({
                         >
                           <PencilLine className="h-3 w-3 mr-1" />
                           Corrigir
+                        </Button>
+                      )}
+                      {/* fix(B2 UAT 2026-04-20): botão "Resolver" — remove inconsistência sem LLM */}
+                      {onResolver && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 text-[10px] text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm(
+                              "Marcar esta inconsistência como resolvida?\n\n" +
+                              "Use se você já corrigiu a resposta no questionário ou editou o briefing. " +
+                              "A inconsistência será removida sem regerar o briefing."
+                            )) {
+                              onResolver(item.pergunta_origem);
+                            }
+                          }}
+                          data-testid={`btn-resolver-inconsistencia-${idx}`}
+                        >
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          Resolver
                         </Button>
                       )}
                     </div>
