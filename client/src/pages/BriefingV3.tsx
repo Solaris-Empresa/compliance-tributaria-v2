@@ -913,11 +913,14 @@ export default function BriefingV3() {
       </div>
 
       {/* #767: Modal compartilhar resumo WhatsApp (6 áreas) */}
+      {/* fix(hotfix 2026-04-20): usar project?.name diretamente em vez de `projectName`.
+          A variável `projectName` só existia no escopo de handleExportPDF — render
+          JSX quebrava com ReferenceError, causando tela branca ao entrar na página. */}
       <ShareBriefingModal
         open={shareModalOpen}
         onOpenChange={setShareModalOpen}
         structured={briefingStructuredForShare}
-        projectName={projectName}
+        projectName={project?.name || "Briefing de Compliance"}
       />
     </ComplianceLayout>
   );
