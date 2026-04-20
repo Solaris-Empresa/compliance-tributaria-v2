@@ -285,6 +285,12 @@ export default function BriefingV3() {
   // q_servico: isToBeFlowState cobre; após skip CNAE transita para diagnostico_cnae (fix B-Z11-012)
   // Guard mantém q_servico para navegação direta antes do skip (B-Z11-011)
   const canApprove = ['diagnostico_cnae', 'briefing', 'q_servico'].includes((project as any)?.status ?? '');
+  // fix(N5 UAT 2026-04-20): status pós-aprovação → briefing já aprovado. Não exibir banner
+  // "Diagnóstico incompleto" (seria contraditório com o banner "Briefing aprovado anteriormente").
+  const isAlreadyApproved = [
+    'matriz_riscos', 'plano_acao', 'em_avaliacao', 'aprovado',
+    'em_andamento', 'concluido', 'arquivado'
+  ].includes((project as any)?.status ?? '');
 
   const handleApprove = async () => {
     if (!briefing) return;
@@ -731,6 +737,8 @@ export default function BriefingV3() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      // fix(UX2 UAT 2026-04-20): desabilita durante geração — evita double-click/múltiplas gerações simultâneas.
+                      disabled={isGenerating || generateBriefing.isPending}
                       onClick={() => {
                         // fix(G5 UAT 2026-04-20): confirmação antes de regenerar — evita perder edição em andamento.
                         // Exibe somente se há briefing atual (primeira geração não precisa confirmar).
@@ -747,8 +755,8 @@ export default function BriefingV3() {
                       className="text-xs gap-1.5"
                       data-testid="btn-regenerar-briefing"
                     >
-                      <RefreshCw className="h-3.5 w-3.5" />
-                      Regenerar
+                      {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                      {isGenerating ? "Gerando..." : "Regenerar"}
                     </Button>
                   )}
                 </div>
@@ -783,7 +791,8 @@ export default function BriefingV3() {
                   </div>
                 </div>
                 {/* B-Z11-010: aviso quando status não permite aprovar */}
-                {!canApprove && (
+                {/* fix(N5 UAT 2026-04-20): só exibir se NÃO está pós-aprovação */}
+                {!canApprove && !isAlreadyApproved && (
                   <div className="flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200">
                     <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
                     <div>

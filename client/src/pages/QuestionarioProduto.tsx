@@ -26,6 +26,25 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
+// ─── Prefix helper (fix UAT 2026-04-20 — opção A2, padrão Onda 1/2) ─────────
+// Sugere formato Sim/Não/N.A. + justificativa. Backend aceita qualquer texto.
+
+const PREFIX_OPTIONS = [
+  { prefix: "Sim. ", label: "Sim", testId: "sim" },
+  { prefix: "Não. ", label: "Não", testId: "nao" },
+  { prefix: "N/A. ", label: "Não se aplica", testId: "na" },
+] as const;
+
+const KNOWN_PREFIXES = PREFIX_OPTIONS.map((o) => o.prefix);
+
+function applyPrefix(currentText: string, newPrefix: string): string {
+  const existing = KNOWN_PREFIXES.find((p) => currentText.startsWith(p));
+  if (existing) {
+    return newPrefix + currentText.slice(existing.length);
+  }
+  return newPrefix + currentText;
+}
+
 export default function QuestionarioProduto() {
   const [, params] = useRoute("/projetos/:id/questionario-produto");
   const projectId = parseInt(params?.id ?? "0");
@@ -168,12 +187,39 @@ export default function QuestionarioProduto() {
             )}
           </CardHeader>
           <CardContent className="space-y-3">
+            {/* fix UAT 2026-04-20: guia de formato + botões de prefix — padrão das Ondas 1 e 2. */}
+            <p className="text-xs text-muted-foreground">
+              💡 Formato sugerido: <strong>Sim</strong>, <strong>Não</strong> ou <strong>Não se aplica</strong> — seguido de justificativa breve.
+            </p>
+
+            <div className="flex gap-2 flex-wrap" data-testid="prefix-buttons">
+              {PREFIX_OPTIONS.map((opt) => (
+                <Button
+                  key={opt.prefix}
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    setAnswers((prev) => ({
+                      ...prev,
+                      [perguntaAtual.id]: applyPrefix(prev[perguntaAtual.id] ?? "", opt.prefix),
+                    }))
+                  }
+                  data-testid={`prefix-btn-${opt.testId}`}
+                  className="h-7 text-xs"
+                >
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
+
             <Textarea
-              placeholder="Digite sua resposta aqui…"
+              placeholder="Ex: Sim. O NCM está cadastrado corretamente conforme TIPI..."
               value={answers[perguntaAtual.id] ?? ""}
               onChange={(e) => setAnswers((prev) => ({ ...prev, [perguntaAtual.id]: e.target.value }))}
               rows={4}
               className="resize-none"
+              data-testid={`textarea-resposta-${perguntaAtual.id}`}
             />
             {/* ADR-0016 BUG-NCM-01: Botão Pular pergunta */}
             {!answers[perguntaAtual.id]?.trim() && !skippedIds.has(String(perguntaAtual.id)) && (
