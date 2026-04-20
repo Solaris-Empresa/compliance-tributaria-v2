@@ -6,9 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { FolderKanban, Plus, Search, Zap, Filter, X, Eye, Play } from "lucide-react";
+import { FolderKanban, Plus, Search, Zap, Filter, X, Eye, Play, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { PROJECT_STATUS, STATUS_COLORS } from "@shared/translations";
 
@@ -97,22 +97,65 @@ function ProjectCTA({ projectId, status }: { projectId: number; status: string }
 // (PR #737, Sprint Z-22 Wave A.2+B). Filtro órfão eliminado.
 // Reintrodução com engine v4 será feita em #741 (badge nos cards).
 
+// fix(#760): paginação servidor-side + busca/filtro servidor-side
+const PAGE_SIZE = 50;
+const SEARCH_DEBOUNCE_MS = 300;
+
 export default function Projetos() {
-  const { data: projects, isLoading } = trpc.projects.list.useQuery();
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("todos");
+  const [offset, setOffset] = useState(0);
 
-  const filteredProjects = projects?.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "todos" || p.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // Debounce da busca (300ms) — evita query a cada tecla
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchTerm), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
 
-  const hasActiveFilter = searchTerm || statusFilter !== "todos";
+  // Reset paginação quando busca ou filtro mudam
+  useEffect(() => {
+    setOffset(0);
+  }, [debouncedSearch, statusFilter]);
+
+  const queryInput = useMemo(
+    () => ({
+      limit: PAGE_SIZE,
+      offset,
+      search: debouncedSearch.trim() || undefined,
+      statusFilter: statusFilter !== "todos" ? statusFilter : undefined,
+    }),
+    [offset, debouncedSearch, statusFilter]
+  );
+
+  const { data, isLoading, isFetching } = trpc.projects.listPaginated.useQuery(queryInput, {
+    keepPreviousData: true,
+  } as any);
+
+  // Acumulação via offset: quando offset=0 reseta, senão anexa
+  const [accumulated, setAccumulated] = useState<any[]>([]);
+  useEffect(() => {
+    if (!data) return;
+    if (offset === 0) {
+      setAccumulated((data as any).projects ?? []);
+    } else {
+      setAccumulated((prev) => [...prev, ...((data as any).projects ?? [])]);
+    }
+  }, [data, offset]);
+
+  const total: number = (data as any)?.total ?? 0;
+  const hasMore: boolean = (data as any)?.hasMore ?? false;
+
+  const hasActiveFilter = !!searchTerm || statusFilter !== "todos";
 
   const clearFilters = () => {
     setSearchTerm("");
     setStatusFilter("todos");
+    setOffset(0);
+  };
+
+  const handleLoadMore = () => {
+    setOffset((o) => o + PAGE_SIZE);
   };
 
   return (
@@ -165,18 +208,18 @@ export default function Projetos() {
           </div>
         </div>
 
-        {/* Contador de resultados */}
-        {!isLoading && filteredProjects && (
-          <p className="text-sm text-muted-foreground mb-4">
-            {filteredProjects.length === 0
+        {/* Contador de resultados — mostra paginação do total */}
+        {!isLoading && data && (
+          <p className="text-sm text-muted-foreground mb-4" data-testid="projetos-count">
+            {total === 0
               ? "Nenhum projeto encontrado"
-              : `${filteredProjects.length} projeto${filteredProjects.length !== 1 ? "s" : ""} encontrado${filteredProjects.length !== 1 ? "s" : ""}`}
+              : `${accumulated.length} de ${total} projeto${total !== 1 ? "s" : ""}`}
             {hasActiveFilter && " (com filtros ativos)"}
           </p>
         )}
 
         {/* Projects Grid */}
-        {isLoading ? (
+        {isLoading && accumulated.length === 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
               <Card key={i} className="animate-pulse">
@@ -191,9 +234,9 @@ export default function Projetos() {
               </Card>
             ))}
           </div>
-        ) : filteredProjects && filteredProjects.length > 0 ? (
+        ) : accumulated.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(filteredProjects ?? []).map((project) => (
+            {accumulated.map((project) => (
               <Card key={project.id} className="hover:shadow-lg transition-shadow h-full flex flex-col">
                 <Link href={`/projetos/${project.id}`} className="flex-1 block">
                   <CardHeader>
@@ -254,6 +297,24 @@ export default function Projetos() {
               )}
             </CardContent>
           </Card>
+        )}
+
+        {/* fix(#760): botão "Carregar mais" — paginação progressiva */}
+        {hasMore && accumulated.length > 0 && (
+          <div className="flex justify-center mt-8">
+            <Button
+              variant="outline"
+              onClick={handleLoadMore}
+              disabled={isFetching}
+              data-testid="btn-carregar-mais"
+              className="gap-2"
+            >
+              {isFetching && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isFetching
+                ? "Carregando..."
+                : `Carregar mais (${Math.min(PAGE_SIZE, total - accumulated.length)} de ${total - accumulated.length} restantes)`}
+            </Button>
+          </div>
         )}
       </div>
     </ComplianceLayout>

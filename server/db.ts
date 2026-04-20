@@ -1,4 +1,4 @@
-import { eq, desc, and, sql, ne, lt } from "drizzle-orm";
+import { eq, desc, and, sql, ne, lt, like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   users, InsertUser,
@@ -268,6 +268,89 @@ export async function getProjectsByUser(userId: number, userRole: string) {
   }
   // DA-2: normalização canônica em todas as listagens
   return rows.map(normalizeProject);
+}
+
+/**
+ * fix(#760): listagem paginada com busca + filtro por status.
+ *
+ * Motivação: /projetos carregava 4307+ projetos via SELECT *, risco de timeout/500.
+ * Esta versão respeita limite, aplica filtros servidor-side e retorna meta (total, hasMore).
+ *
+ * Regras TiDB (CLAUDE.md):
+ *   - LIMIT/OFFSET: Drizzle .limit()/.offset() interpola seguro (não usa binding)
+ *   - search: case-insensitive (TiDB utf8mb4_unicode_ci já é case-insensitive por default)
+ */
+export async function getProjectsByUserPaginated(
+  userId: number,
+  userRole: string,
+  opts: {
+    limit: number;
+    offset: number;
+    search?: string;
+    statusFilter?: string;
+  }
+): Promise<{ projects: any[]; total: number; hasMore: boolean }> {
+  const db = await getDb();
+  if (!db) return { projects: [], total: 0, hasMore: false };
+
+  const limit = Math.max(1, Math.min(100, opts.limit));
+  const offset = Math.max(0, opts.offset);
+
+  // Filtros adicionais (aplicados em cima do filtro de acesso)
+  const extraFilters: any[] = [];
+  if (opts.search && opts.search.trim().length > 0) {
+    extraFilters.push(like(projects.name, `%${opts.search.trim()}%`));
+  }
+  if (opts.statusFilter && opts.statusFilter !== "todos") {
+    extraFilters.push(eq(projects.status, opts.statusFilter as any));
+  }
+
+  // ── Construção da cláusula WHERE respeitando o papel do usuário ──
+  let baseCondition: any;
+
+  if (userRole === "equipe_solaris" || userRole === "advogado_senior") {
+    // Equipe vê tudo — sem filtro de acesso
+    baseCondition = undefined;
+  } else {
+    // Cliente vê apenas seus projetos (owner ou participante)
+    const participantProjects = await db
+      .select({ projectId: projectParticipants.projectId })
+      .from(projectParticipants)
+      .where(eq(projectParticipants.userId, userId));
+    const projectIds = participantProjects.map(p => p.projectId);
+
+    if (projectIds.length === 0) {
+      baseCondition = eq(projects.clientId, userId);
+    } else {
+      baseCondition = sql`${projects.clientId} = ${userId} OR ${projects.id} IN (${sql.raw(projectIds.join(','))})`;
+    }
+  }
+
+  const whereClause = extraFilters.length > 0
+    ? (baseCondition ? and(baseCondition, ...extraFilters) : and(...extraFilters))
+    : baseCondition;
+
+  // COUNT(*) total — uma query
+  const totalQuery = whereClause
+    ? db.select({ count: sql<number>`COUNT(*)` }).from(projects).where(whereClause)
+    : db.select({ count: sql<number>`COUNT(*)` }).from(projects);
+  const [totalResult] = await totalQuery;
+  const total = Number((totalResult as any)?.count ?? 0);
+
+  // Página atual
+  const pageQuery = whereClause
+    ? db.select().from(projects).where(whereClause)
+    : db.select().from(projects);
+  const rows = await pageQuery
+    .orderBy(desc(projects.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  return {
+    projects: rows.map(normalizeProject),
+    total,
+    hasMore: offset + rows.length < total,
+  };
 }
 
 export async function updateProject(projectId: number, data: Partial<InsertProject>) {
