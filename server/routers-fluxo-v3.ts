@@ -1312,6 +1312,13 @@ Gere o Briefing estruturado em JSON:
         }));
       }
 
+      // fix(#780 item 1 UAT 2026-04-20): consolida gaps com mesmo artigo+parágrafo
+      // (LLM fragmentava em 3+ gaps para Art. 21 §1º). Pós-processamento determinístico.
+      if (Array.isArray(structured.principais_gaps)) {
+        const { consolidateGapsByArticle } = await import("./lib/consolidate-gaps");
+        structured.principais_gaps = consolidateGapsByArticle(structured.principais_gaps) as any;
+      }
+
       // fix(BUG-1 UAT 2026-04-20): preservar inconsistências dismissed entre regenerações.
       // Se o usuário resolveu uma inconsistência na v1 e o LLM detecta a mesma na v2,
       // filtramos aqui para não reaparecer. Dismissed list persiste em briefingStructured.
@@ -3008,6 +3015,12 @@ Gere o Briefing estruturado em JSON:
           ...inc,
           impacto: classifyInconsistenciaImpacto(inc),
         }));
+      }
+
+      // fix(#780 item 1 UAT 2026-04-20): consolida gaps com mesmo artigo+parágrafo
+      if (Array.isArray(structured.principais_gaps)) {
+        const { consolidateGapsByArticle } = await import("./lib/consolidate-gaps");
+        structured.principais_gaps = consolidateGapsByArticle(structured.principais_gaps) as any;
       }
 
       // fix(BUG-1 UAT 2026-04-20): preserva dismissed_inconsistencias entre regenerações.
