@@ -1228,12 +1228,12 @@ REGRA CRÍTICA — INCONSISTÊNCIAS vs LIMITAÇÕES (fix N2 UAT 2026-04-20):
 - Se a única "contradição" detectada é que o usuário não respondeu, NÃO liste como inconsistência. Liste como limitação.
 - Array "inconsistencias" pode ser vazio [] — e isso é saudável.
 
-REGRA CRÍTICA — FATOS ADICIONAIS DECLARADOS PELO USUÁRIO (fix UAT 2026-04-20):
-- Toda informação presente em "FATOS ADICIONAIS SOBRE A EMPRESA" é FATO declarado pelo usuário, equivalente ao perfil corporativo.
+REGRA CRÍTICA — FATOS ADICIONAIS e CORREÇÃO DECLARADOS PELO USUÁRIO (fix UAT 2026-04-20):
+- Toda informação presente em "FATOS ADICIONAIS SOBRE A EMPRESA" OU "CORREÇÃO SOLICITADA PELO USUÁRIO" é FATO declarado pelo usuário, equivalente ao perfil corporativo.
 - Trate esses fatos como VERDADE sobre a empresa — NÃO ignore, NÃO trate como "respondido no questionário", e NÃO descarte por "não haver respostas ao questionário".
-- Exemplos: se o usuário declara "fazemos exportação", você DEVE gerar análise específica sobre imunidade em exportação (Art. 8 LC 214/2025) e obrigações acessórias correlatas.
-- Se o usuário declara "operamos em regime especial", você DEVE citar o artigo pertinente e gaps específicos desse regime.
-- Cada fato adicional deve gerar pelo menos um gap OU uma oportunidade específica no briefing.
+- CORREÇÃO tem prioridade máxima: descreve algo que o briefing atual errou OU informação nova que invalida/estende o diagnóstico anterior. Reflita a correção explicitamente (cite o item corrigido no resumo executivo).
+- Exemplos: "fazemos exportação" → análise de imunidade (Art. 8 LC 214/2025). "também transportamos óleo vegetal" → incluir análise para esse tipo de carga. "operamos em regime especial" → citar artigo pertinente.
+- Cada fato adicional e cada correção deve gerar pelo menos um gap OU uma oportunidade específica no briefing.
 
 ${regulatoryContext}
 
@@ -1241,10 +1241,11 @@ ${OUTPUT_CONTRACT}`,
           },
           {
             role: "user",
-            // fix(UAT 2026-04-20): fatos adicionais declarados pelo usuário vão DEPOIS do perfil
-            // corporativo e ANTES das respostas do questionário — para que o LLM os trate como
-            // primeira classe (equivalente ao perfil), não como nota de rodapé que pode ignorar.
-            content: `${companyProfileBlock}${complementContext}${additionalSourcesText}\n\nPROJETO: ${project.name}\nDESCRIÇÃO: ${(project as any).description || ""}\n\nRESPOSTAS DO QUESTIONÁRIO CNAE:\n${answersText}\n${correctionContext}
+            // fix(UAT 2026-04-20): fatos adicionais E correção declarados pelo usuário vão DEPOIS
+            // do perfil corporativo e ANTES das respostas do questionário — LLM trata como
+            // primeira classe. Correção antes do complement porque descreve algo que o briefing
+            // atual ignorou/errou (maior prioridade semântica).
+            content: `${companyProfileBlock}${correctionContext}${complementContext}${additionalSourcesText}\n\nPROJETO: ${project.name}\nDESCRIÇÃO: ${(project as any).description || ""}\n\nRESPOSTAS DO QUESTIONÁRIO CNAE:\n${answersText}
 
 Gere o Briefing estruturado em JSON:
 {
@@ -2800,11 +2801,12 @@ REGRA CRÍTICA — INCONSISTÊNCIAS vs LIMITAÇÕES (fix N2 UAT 2026-04-20):
 - Se a única "contradição" detectada é que o usuário não respondeu, NÃO liste como inconsistência. Liste como limitação.
 - Array "inconsistencias" pode ser vazio [] — e isso é saudável.
 
-REGRA CRÍTICA — FATOS ADICIONAIS DECLARADOS PELO USUÁRIO (fix UAT 2026-04-20):
-- Toda informação presente em "FATOS ADICIONAIS SOBRE A EMPRESA" é FATO declarado pelo usuário, equivalente ao perfil corporativo.
-- Trate como VERDADE sobre a empresa — NÃO ignore, NÃO trate como "respondido no questionário", e NÃO descarte por "não haver respostas".
-- Exemplos: "fazemos exportação" → gerar análise de imunidade (Art. 8 LC 214/2025). "operamos em regime especial" → citar artigo específico.
-- Cada fato adicional deve gerar pelo menos um gap OU uma oportunidade específica.
+REGRA CRÍTICA — FATOS ADICIONAIS e CORREÇÃO DECLARADOS PELO USUÁRIO (fix UAT 2026-04-20):
+- Toda informação presente em "FATOS ADICIONAIS SOBRE A EMPRESA" OU "CORREÇÃO SOLICITADA PELO USUÁRIO" é FATO declarado pelo usuário, equivalente ao perfil corporativo.
+- Trate como VERDADE — NÃO ignore, NÃO trate como "respondido no questionário", e NÃO descarte por "não haver respostas".
+- CORREÇÃO tem prioridade máxima: algo que o briefing atual errou ou informação nova que invalida/estende o diagnóstico. Reflita explicitamente (cite no resumo executivo).
+- Exemplos: "fazemos exportação" → análise de imunidade (Art. 8 LC 214/2025). "transportamos óleo vegetal" → incluir esse tipo de carga. "operamos em regime especial" → citar artigo específico.
+- Cada fato adicional e cada correção deve gerar pelo menos um gap OU uma oportunidade específica.
 
 ${regulatoryContext}
 
@@ -2812,12 +2814,11 @@ ${OC}`,
           },
           {
             role: "user",
-            // fix(UAT 2026-04-20): complement logo após projeto/descrição, antes do diagnóstico.
+            // fix(UAT 2026-04-20): correção e complement logo após projeto/descrição, antes do diagnóstico.
             content: `PROJETO: ${project.name}
-DESCRIÇÃO: ${p.description || ""}${complementContext}
+DESCRIÇÃO: ${p.description || ""}${correctionContext}${complementContext}
 ${additionalContextText}DIAGNÓSTICO CONSOLIDADO (3 CAMADAS):
 ${answersText}
-${correctionContext}
 
 Gere o Briefing estruturado em JSON:
 {
