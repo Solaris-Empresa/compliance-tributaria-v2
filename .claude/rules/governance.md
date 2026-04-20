@@ -223,6 +223,98 @@ Causa raiz: Sprint Z-16 — #613 e #616 ficaram em "Bloqueada"
 por horas apos remocao de on-hold e aprovacao do P.O.
 Estado operacional nao sincronizado com decisao formal.
 
+## REGRA-ORQ-19 — Auditoria de fim de sessão (obrigatória)
+
+Toda sessão que produzir lote de mudanças DEVE ser encerrada com
+execução do template `docs/governance/AUDITORIA-FIM-DE-SESSAO-TEMPLATE.md`
+antes de liberar próxima sprint.
+
+**Gatilhos (qualquer condição dispara):**
+- ≥3 PRs mergeados na sessão
+- Sprint encerrada (Gate 7 PASS)
+- UAT Wave encerrada
+- Deploy de lote (múltiplos checkpoints em sequência)
+- Divergência detectada entre GitHub e S3 Manus
+
+**Atores:**
+- **Claude Code:** passos 0 (sincronia local), 2 (inventário PRs via gh CLI),
+  3 (greps de artefatos), 5 (unit tests locais)
+- **Manus:** passos 1 (4 HEADs alinhados), 4 (HTTP prod), 6 (smoke UX)
+- **P.O.:** passo 7 (veredito 🟢/🟡/🔴 consolidado)
+
+**Consequências:**
+- Sessão NÃO encerra sem veredito 🟢 arquivado em `docs/governance/audits/`
+- Próxima sprint NÃO abre sem relatório arquivado
+- Se 🟡 ou 🔴: issue urgente + pausar todos os merges até resolver
+
+**Formato canônico do relatório:**
+- 7 passos com evidências (sincronia, HEADs, inventário, greps, tsc, tests, UX)
+- Resumo executivo tabular (HEAD / PRs auditados / Greps / tsc / tests / HTTP / smoke UX)
+- Veredito 🟢/🟡/🔴 + próximos passos
+- Lista de bugs/bloqueadores residuais
+
+**Artefatos obrigatórios:**
+- `docs/governance/AUDITORIA-FIM-DE-SESSAO-TEMPLATE.md` — template genérico (placeholders)
+- `docs/governance/AUDITORIA-FIM-DE-SESSAO-LATEST.md` — cópia/link do mais recente
+- `docs/governance/audits/vX.XX-YYYY-MM-DD.md` — histórico arquivado por execução
+
+**Baseado em:**
+- Z-12: PRs #473/#474 criaram bifurcação silenciosa detectada só depois
+- Z-17: 5 hotfixes #664/#666/#667/#673/#674 por falta de auditoria pós-merge
+- Z-22 UAT Wave 2026-04-20: 2 crashes P0 (#778 projectName, #792 useMemo)
+  auditoria formal teria pego antes de produção
+- Primeiro caso concreto arquivado: `docs/governance/audits/v7.42-2026-04-20.md`
+
+## REGRA-ORQ-20 — Avaliação de risco estrutural obrigatória
+
+Antes de QUALQUER alteração com sinais de risco estrutural, a issue
+(ou PR direto em hotfix P0) DEVE conter o bloco "Avaliação de Risco"
+padronizado. Previne incidentes que seriam descobertos só em produção.
+
+**Gatilhos (qualquer sinal dispara exigência):**
+
+| Gatilho | Sinal |
+|---|---|
+| Schema DB | ALTER TABLE · DROP COLUMN · novo JSON column · migration |
+| Cross-file | mudança toca ≥3 arquivos em módulos diferentes |
+| Amplitude | PR estimado ≥200 linhas OU ≥3 procedures tRPC |
+| Runtime crítico | BriefingV3 · RiskDashboardV4 · QuestionarioCNAE · generateBriefing |
+| Engine determinística | risk-engine-v4 · calculateComplianceScore · classifyInconsistenciaImpacto |
+| Guardrail removido | remover @ts-nocheck · remover feature flag · remover gate |
+| Dependência externa | upgrade de lib · mudança tRPC version · nova biblioteca |
+| Infra/deploy | mudança checkpoint strategy · branch protection · CI/CD |
+
+**Bloco obrigatório na issue:**
+- Amplitude (arquivos/linhas/procedures/schema)
+- Classificação (tier 1/2/3 · reversibilidade)
+- Riscos identificados (severidade 🔴🟠🟡🟢 · mitigação)
+- Estratégia de rollout (direto · feature flag · snapshot→cold→hot · fases)
+- Plano de rollback (4 níveis: CI · tela branca · cascata · catastrófico)
+- Abort criteria (quando pausar)
+
+**Templates pré-preenchidos em `docs/governance/risk-assessment/`:**
+- `template-schema-change.md` — ALTER/DROP
+- `template-crossfile-refactor.md` — mudanças amplas
+- `template-remove-guardrail.md` — @ts-nocheck/feature flag
+- `template-engine-change.md` — risk-engine/score
+
+**Consequências hard-enforced:**
+- Issue SEM bloco quando gatilho aplica → Orquestrador REJEITA em F1/F2
+  → label `spec-aprovada` NÃO aplicada → Manus NÃO implementa
+- Hotfix P0 sem issue: PR body DEVE ter bloco resumido + título
+  declarando tier `[HOTFIX-P0-TIER-N]`
+
+**Baseado em lições:**
+- Z-13.5 `operationProfile` string vs objeto — análise teria antecipado dual-schema
+- Z-17 LLM silencioso — análise teria exigido cobertura de testes antes
+- Z-22 `@ts-nocheck` — análise atual do issue #793 é o exemplo canônico do que
+  deveria sempre acontecer antes, não depois do incidente
+- Z-22 UAT Wave — 37 PRs sem formalização de risco; sorte não houve mais crashes
+
+**Exemplo concreto de referência:** análise do #793 (migração @ts-nocheck) com
+snapshot→cold→hot + 4 níveis de rollback + abort criteria. Ver comentários da
+issue #793 para padrão-ouro.
+
 ## PASSO 0.0 — R-SYNC-01 (ANTES DE TUDO)
 
 Antes de qualquer trabalho em qualquer sprint:
