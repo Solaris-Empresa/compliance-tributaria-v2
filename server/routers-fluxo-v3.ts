@@ -1191,6 +1191,47 @@ Gere o Briefing estruturado em JSON:
         }));
       }
 
+      // fix(#771 UAT 2026-04-20): confidence.nivel_confianca agora é função determinística
+      // server-side das contagens de fontes. Elimina o bug de "85% com ausência total".
+      // Preserva limitações e recomendação do LLM (texto qualitativo segue sendo gerado).
+      const solarisCountForConf = await db.countOnda1Answers(input.projectId);
+      const iagenCountForConf = await db.countOnda2Answers(input.projectId);
+      const productAnswersForConf = (() => {
+        const raw = (project as any).productAnswers;
+        if (!raw) return [];
+        try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return []; }
+      })();
+      const serviceAnswersForConf = (() => {
+        const raw = (project as any).serviceAnswers;
+        if (!raw) return [];
+        try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return []; }
+      })();
+      const cnaeQuestionsCountForConf = input.allAnswers
+        .filter(l => l.cnaeCode !== "CORPORATIVO" && l.cnaeCode !== "OPERACIONAL")
+        .reduce((acc, l) => acc + (l.questions?.length ?? 0), 0);
+      const ncmCountForConf = (opProfile.principaisProdutos ?? []).filter(p => p?.ncm_code).length;
+      const nbsCountForConf = (opProfile.principaisServicos ?? []).filter(s => s?.nbs_code).length;
+
+      const { calculateBriefingConfidence } = await import("./lib/calculate-briefing-confidence");
+      const deterministicConfidence = calculateBriefingConfidence({
+        solarisAnswersCount: solarisCountForConf,
+        iagenAnswersCount: iagenCountForConf,
+        productAnswersCount: Array.isArray(productAnswersForConf) ? productAnswersForConf.length : 0,
+        serviceAnswersCount: Array.isArray(serviceAnswersForConf) ? serviceAnswersForConf.length : 0,
+        cnaeAnswersCount: cnaeQuestionsCountForConf,
+        ncmCodesCount: ncmCountForConf,
+        nbsCodesCount: nbsCountForConf,
+      });
+      if (structured.confidence_score && typeof structured.confidence_score === "object") {
+        structured.confidence_score.nivel_confianca = deterministicConfidence;
+      } else {
+        structured.confidence_score = {
+          nivel_confianca: deterministicConfidence,
+          limitacoes: [],
+          recomendacao: "Revisão por advogado tributarista recomendada",
+        };
+      }
+
       // Converter estruturado para Markdown (compatibilidade com UI existente)
       const briefingMarkdown = buildBriefingMarkdown(structured);
 
@@ -1212,22 +1253,15 @@ Gere o Briefing estruturado em JSON:
       // contribuíram ou não para o diagnóstico.
       try {
         const { logAudit } = await import("./routers-audit");
-        const solarisAnswersCount = await db.countOnda1Answers(input.projectId);
-        const iagenAnswersCount = await db.countOnda2Answers(input.projectId);
-        const productAnswersArr = (() => {
-          const raw = (project as any).productAnswers;
-          if (!raw) return [];
-          try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return []; }
-        })();
-        const serviceAnswersArr = (() => {
-          const raw = (project as any).serviceAnswers;
-          if (!raw) return [];
-          try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return []; }
-        })();
+        // Reaproveita contagens já calculadas para o confidence determinístico (evita query duplicada).
+        const solarisAnswersCount = solarisCountForConf;
+        const iagenAnswersCount = iagenCountForConf;
+        const productAnswersArr = productAnswersForConf;
+        const serviceAnswersArr = serviceAnswersForConf;
         const cnaeLayers = input.allAnswers.filter(l => l.cnaeCode !== "CORPORATIVO" && l.cnaeCode !== "OPERACIONAL");
-        const cnaeQuestionsCount = cnaeLayers.reduce((acc, l) => acc + (l.questions?.length ?? 0), 0);
-        const ncmCodesCount = (opProfile.principaisProdutos ?? []).filter(p => p?.ncm_code).length;
-        const nbsCodesCount = (opProfile.principaisServicos ?? []).filter(s => s?.nbs_code).length;
+        const cnaeQuestionsCount = cnaeQuestionsCountForConf;
+        const ncmCodesCount = ncmCountForConf;
+        const nbsCodesCount = nbsCountForConf;
 
         await logAudit({
           userId: ctx.user.id,
@@ -2549,6 +2583,35 @@ Gere o Briefing estruturado em JSON:
           ...inc,
           impacto: classifyInconsistenciaImpacto(inc),
         }));
+      }
+
+      // fix(#771 UAT 2026-04-20): confidence determinístico server-side — mesma heurística de generateBriefing.
+      {
+        const productAnswersCount = Array.isArray(briefingProduct) ? briefingProduct.length : 0;
+        const serviceAnswersCount = Array.isArray(briefingService) ? briefingService.length : 0;
+        const cnaeQuestionsCountForConf = cnaeAnswers.reduce((acc: number, l: any) => acc + (l.questions?.length ?? 0), 0);
+        const ncmCountForConf = (opProfileForBriefing.principaisProdutos ?? []).filter(x => x?.ncm_code).length;
+        const nbsCountForConf = (opProfileForBriefing.principaisServicos ?? []).filter(x => x?.nbs_code).length;
+
+        const { calculateBriefingConfidence } = await import("./lib/calculate-briefing-confidence");
+        const deterministicConfidence = calculateBriefingConfidence({
+          solarisAnswersCount: solarisAnswersForBriefing.length,
+          iagenAnswersCount: iagenAnswersForBriefing.length,
+          productAnswersCount,
+          serviceAnswersCount,
+          cnaeAnswersCount: cnaeQuestionsCountForConf,
+          ncmCodesCount: ncmCountForConf,
+          nbsCodesCount: nbsCountForConf,
+        });
+        if (structured.confidence_score && typeof structured.confidence_score === "object") {
+          structured.confidence_score.nivel_confianca = deterministicConfidence;
+        } else {
+          structured.confidence_score = {
+            nivel_confianca: deterministicConfidence,
+            limitacoes: [],
+            recomendacao: "Revisão por advogado tributarista recomendada",
+          };
+        }
       }
 
       const { buildBriefingMarkdown } = await import("./routers-fluxo-v3").then(m => ({
