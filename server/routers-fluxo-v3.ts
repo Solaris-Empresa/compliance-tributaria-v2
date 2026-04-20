@@ -1118,6 +1118,73 @@ Gere as perguntas no formato:
         ? `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: ${cp.companySize ?? "não informado"}\n- Regime Tributário: ${cp.taxRegime ?? "não informado"}\n- Faturamento Anual: ${cp.annualRevenueRange ?? "não informado"}${produtosBlock}${servicosBlock}`
         : `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: não informado\n- Regime Tributário: não informado${produtosBlock}${servicosBlock}`;
 
+      // fix(#774 UAT 2026-04-20): enriquece o prompt com as 4 fontes que o path atual
+      // não lia: SOLARIS Onda 1, IA Gen Onda 2, Q.Produtos e Q.Serviços. Mitigação do
+      // gap arquitetural descoberto (BriefingV3.tsx usa generateBriefing e não
+      // generateBriefingFromDiagnostic). Zero mudança de gates/status — apenas leitura
+      // adicional do DB + injeção no userPrompt.
+      const additionalSourcesContext: string[] = [];
+
+      const solarisAnswersForPrompt = await db.getOnda1Answers(input.projectId);
+      if (Array.isArray(solarisAnswersForPrompt) && solarisAnswersForPrompt.length > 0) {
+        additionalSourcesContext.push('<respostas_solaris_onda1>');
+        solarisAnswersForPrompt
+          .filter((a: any) => a?.resposta)
+          .forEach((a: any) => {
+            additionalSourcesContext.push(`${a.codigo}: ${a.resposta}`);
+          });
+        additionalSourcesContext.push('</respostas_solaris_onda1>');
+      }
+
+      const iagenAnswersForPrompt = await db.getOnda2Answers(input.projectId);
+      if (Array.isArray(iagenAnswersForPrompt) && iagenAnswersForPrompt.length > 0) {
+        additionalSourcesContext.push('<respostas_iagen_onda2>');
+        iagenAnswersForPrompt
+          .filter((a: any) => a?.resposta)
+          .forEach((a: any) => {
+            additionalSourcesContext.push(`Q: ${a.questionText ?? a.question ?? ''}\nR: ${a.resposta}`);
+          });
+        additionalSourcesContext.push('</respostas_iagen_onda2>');
+      }
+
+      const productAnswersArr = (() => {
+        const raw = projectAnyBriefing.productAnswers;
+        if (!raw) return [];
+        try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return []; }
+      })();
+      if (Array.isArray(productAnswersArr) && productAnswersArr.length > 0) {
+        additionalSourcesContext.push('<respostas_q_produtos_ncm>');
+        productAnswersArr
+          .filter((a: any) => a && (a.pergunta_texto || a.pergunta) && a.resposta !== undefined && a.resposta !== null && a.resposta !== '')
+          .forEach((a: any) => {
+            const codePrefix = a.ncm_code ? `[NCM ${a.ncm_code}] ` : '';
+            const text = a.pergunta_texto ?? a.pergunta ?? '';
+            additionalSourcesContext.push(`${codePrefix}P: ${text}\nR: ${a.resposta}`);
+          });
+        additionalSourcesContext.push('</respostas_q_produtos_ncm>');
+      }
+
+      const serviceAnswersArr = (() => {
+        const raw = projectAnyBriefing.serviceAnswers;
+        if (!raw) return [];
+        try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return []; }
+      })();
+      if (Array.isArray(serviceAnswersArr) && serviceAnswersArr.length > 0) {
+        additionalSourcesContext.push('<respostas_q_servicos_nbs>');
+        serviceAnswersArr
+          .filter((a: any) => a && (a.pergunta_texto || a.pergunta) && a.resposta !== undefined && a.resposta !== null && a.resposta !== '')
+          .forEach((a: any) => {
+            const codePrefix = a.nbs_code ? `[NBS ${a.nbs_code}] ` : '';
+            const text = a.pergunta_texto ?? a.pergunta ?? '';
+            additionalSourcesContext.push(`${codePrefix}P: ${text}\nR: ${a.resposta}`);
+          });
+        additionalSourcesContext.push('</respostas_q_servicos_nbs>');
+      }
+
+      const additionalSourcesText = additionalSourcesContext.length > 0
+        ? `\n\nDADOS ADICIONAIS DO CLIENTE:\n${additionalSourcesContext.join('\n')}\n`
+        : '';
+
       // V60: Geração com retry + temperatura 0.2 + schema estruturado
       // fix(UX3 UAT 2026-04-20): contador de retries para propagar ao frontend
       let llmRetries = 0;
@@ -1152,7 +1219,7 @@ ${OUTPUT_CONTRACT}`,
           },
           {
             role: "user",
-            content: `${companyProfileBlock}\n\nPROJETO: ${project.name}\nDESCRIÇÃO: ${(project as any).description || ""}\n\nRESPOSTAS DO QUESTIONÁRIO:\n${answersText}\n${correctionContext}\n${complementContext}
+            content: `${companyProfileBlock}${additionalSourcesText}\n\nPROJETO: ${project.name}\nDESCRIÇÃO: ${(project as any).description || ""}\n\nRESPOSTAS DO QUESTIONÁRIO CNAE:\n${answersText}\n${correctionContext}\n${complementContext}
 
 Gere o Briefing estruturado em JSON:
 {
