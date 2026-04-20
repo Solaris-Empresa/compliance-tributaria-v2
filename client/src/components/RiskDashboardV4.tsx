@@ -42,6 +42,7 @@ import {
   ChevronUp,
   ClipboardList,
   Plus,
+  Download,
 } from "lucide-react";
 import { Link } from "wouter";
 import { Input } from "@/components/ui/input";
@@ -713,6 +714,69 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   const opportunities = allRisks.filter((r) => r.status === "active" && r.type === "opportunity");
   const deleted = allRisks.filter((r) => r.status === "deleted");
 
+  // ── Export CSV (#783) ─────────────────────────────────────────────────────
+  // Gera CSV com BOM UTF-8 (Excel detecta acentos) — mesmo padrão usado em
+  // ProjectHistoryTimeline (#777). Ordem respeita a lista visível na UI.
+  const handleExportRisksCsv = () => {
+    if (!allRisks || allRisks.length === 0) return;
+    const toCell = (v: unknown): string => {
+      if (v === null || v === undefined) return "";
+      if (typeof v === "object") {
+        try { return JSON.stringify(v); } catch { return String(v); }
+      }
+      return String(v);
+    };
+    const formatBreadcrumb = (b: RiskData["breadcrumb"]): string => {
+      if (Array.isArray(b)) return b.join(" > ");
+      return typeof b === "string" ? b : "";
+    };
+    const formatEvidence = (e: RiskData["evidence"]): string => {
+      if (Array.isArray(e)) {
+        return e.map((x: any) => `${x?.artigo ?? ""}: ${x?.trecho ?? ""}`).join(" | ");
+      }
+      return typeof e === "string" ? e : "";
+    };
+    const header = [
+      "id", "tipo", "categoria", "titulo", "descricao",
+      "artigo", "severidade", "urgencia", "status",
+      "source_priority", "breadcrumb",
+      "rag_validated", "rag_artigo_exato",
+      "evidence", "approved_at",
+    ];
+    const rows = allRisks.map((r) => [
+      r.id,
+      r.type,
+      r.categoria,
+      r.titulo,
+      r.descricao ?? "",
+      r.artigo,
+      r.severidade,
+      r.urgencia,
+      r.status,
+      r.source_priority,
+      formatBreadcrumb(r.breadcrumb),
+      r.rag_validated ? "sim" : "nao",
+      r.rag_artigo_exato ?? "",
+      formatEvidence(r.evidence),
+      r.approved_at ?? "",
+    ].map(toCell));
+
+    const csv = [header, ...rows]
+      .map((row) => row.map((c) => `"${c.replace(/"/g, '""')}"`).join(","))
+      .join("\r\n");
+    const bom = "\uFEFF"; // UTF-8 BOM para Excel
+    const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `riscos-projeto-${projectId}-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success(`${allRisks.length} ${allRisks.length === 1 ? "risco exportado" : "riscos exportados"} para CSV.`);
+  };
+
   // B-01: Auto-generate risks when arriving from briefing with empty dashboard
   // Fix: usar activeRisks.length (não allRisks.length) para ignorar riscos deletados
   // e disparar corretamente quando não há riscos ativos, mesmo que existam registros
@@ -823,9 +887,9 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
           </div>
         )}
 
-        {/* Sprint Z-17 #668: Botão "Ver Planos de Ação" condicional */}
-        {activeRisks.some((r) => r.approved_at) ? (
-          <div className="mt-2">
+        {/* Sprint Z-17 #668: Botão "Ver Planos de Ação" condicional + #783 Exportar Riscos */}
+        <div className="mt-2 flex items-center gap-2 flex-wrap">
+          {activeRisks.some((r) => r.approved_at) ? (
             <Button
               data-testid="btn-ver-planos"
               size="sm"
@@ -836,9 +900,7 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
                 ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Gerando planos e tarefas...</>
                 : "Ver Planos de Ação"}
             </Button>
-          </div>
-        ) : (
-          <div className="mt-2">
+          ) : (
             <Tooltip>
               <TooltipTrigger asChild>
                 <span>
@@ -849,8 +911,20 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
               </TooltipTrigger>
               <TooltipContent>Aprove pelo menos um risco</TooltipContent>
             </Tooltip>
-          </div>
-        )}
+          )}
+          {/* #783: Exportar Riscos (CSV) */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportRisksCsv}
+            disabled={allRisks.length === 0}
+            data-testid="btn-export-riscos-csv"
+            className="gap-1.5"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Exportar Riscos
+          </Button>
+        </div>
       </div>
 
       {/* ── Tabs ── */}
