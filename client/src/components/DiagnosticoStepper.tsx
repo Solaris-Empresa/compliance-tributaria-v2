@@ -82,6 +82,18 @@ interface DiagnosticoStepperProps {
    * o stepper deriva honestamente o estado em vez de marcar tudo como concluído (#739).
    */
   currentStep?: number;
+  /**
+   * Evidências de conclusão por etapa — usadas para promover etapas a "completed"
+   * quando o projectStatus não avançou mas há dados salvos (fix UAT 2026-04-20 bug #2:
+   * usuário respondeu tudo mas stepper mostrava "Iniciar").
+   * Regra: evidência só PROMOVE, nunca rebaixa.
+   */
+  evidence?: {
+    totalAnswers?: number;     // Onda 2: totalAnswers > 0 = completed
+    hasBriefing?: boolean;     // Briefing: true = completed
+    hasRiskMatrices?: boolean; // Matrizes: true = completed
+    hasActionPlan?: boolean;   // Plano: true = completed
+  };
   /** Se true, desabilita todos os botões (loading state) */
   isLoading?: boolean;
   /** Classe CSS adicional */
@@ -232,10 +244,23 @@ const POST_APPROVAL_STATUSES = new Set([
   "arquivado",
 ]);
 
+/**
+ * Evidências de conclusão por etapa — passadas pelo ProjetoDetalhesV2 a partir
+ * do summary do backend. Usadas para promover etapas a "completed" quando o
+ * projectStatus não avançou mas há dados salvos.
+ */
+export interface StepEvidence {
+  totalAnswers?: number;
+  hasBriefing?: boolean;
+  hasRiskMatrices?: boolean;
+  hasActionPlan?: boolean;
+}
+
 export function projectStatusToStepState(
   projectStatus: string,
   legacyState?: DiagnosticLayerState,
-  currentStep?: number
+  currentStep?: number,
+  evidence?: StepEvidence
 ): StepState {
   const base: StepState = {
     onda1: "not_started",
@@ -303,6 +328,55 @@ export function projectStatusToStepState(
     base.corporate = legacyState.corporate;
     base.operational = legacyState.operational;
     base.cnae = legacyState.cnae;
+  }
+
+  // fix UAT 2026-04-20 bug #2: promover etapas a "completed" quando há evidência
+  // de dados salvos, independente do projectStatus não ter avançado. Só PROMOVE,
+  // nunca rebaixa — se statusMap já marcou como completed, mantém.
+  if (evidence) {
+    const promoteToCompleted = (id: StepId) => {
+      if (base[id] !== "completed") base[id] = "completed";
+    };
+
+    // Onda 2 IA: se tem respostas salvas, Onda 1 também deve estar completed
+    // (o fluxo não permite chegar em Onda 2 sem passar pela Onda 1)
+    if ((evidence.totalAnswers ?? 0) > 0) {
+      promoteToCompleted("onda1");
+      promoteToCompleted("onda2");
+    }
+
+    // Briefing gerado → briefing completed (e implicitamente tudo antes)
+    if (evidence.hasBriefing) {
+      promoteToCompleted("onda1");
+      promoteToCompleted("onda2");
+      promoteToCompleted("corporate");
+      promoteToCompleted("operational");
+      promoteToCompleted("cnae");
+      promoteToCompleted("briefing");
+    }
+
+    // Matrizes geradas → até matrizes completed
+    if (evidence.hasRiskMatrices) {
+      promoteToCompleted("onda1");
+      promoteToCompleted("onda2");
+      promoteToCompleted("corporate");
+      promoteToCompleted("operational");
+      promoteToCompleted("cnae");
+      promoteToCompleted("briefing");
+      promoteToCompleted("matrizes");
+    }
+
+    // Plano gerado → tudo completed
+    if (evidence.hasActionPlan) {
+      promoteToCompleted("onda1");
+      promoteToCompleted("onda2");
+      promoteToCompleted("corporate");
+      promoteToCompleted("operational");
+      promoteToCompleted("cnae");
+      promoteToCompleted("briefing");
+      promoteToCompleted("matrizes");
+      promoteToCompleted("plano");
+    }
   }
 
   return base;
@@ -494,11 +568,12 @@ export function DiagnosticoStepper({
   onStartPlano,
   projectStatus,
   currentStep,
+  evidence,
   isLoading = false,
   className,
 }: DiagnosticoStepperProps) {
-  // Derivar stepState a partir do projectStatus (preferência) ou legacyState
-  const stepState = projectStatusToStepState(projectStatus ?? "", diagnosticStatus, currentStep);
+  // Derivar stepState: (1) statusMap baseline, (2) legacyState override, (3) evidence promotion
+  const stepState = projectStatusToStepState(projectStatus ?? "", diagnosticStatus, currentStep, evidence);
 
   const completedCount = Object.values(stepState).filter(
     (s) => s === "completed"
