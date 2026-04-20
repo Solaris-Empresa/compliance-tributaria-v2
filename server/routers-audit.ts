@@ -3,6 +3,12 @@ import { eq, and, desc } from "drizzle-orm";
 import { protectedProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
 import { auditLog, InsertAuditLog } from "../drizzle/schema";
+import {
+  getProjectTimelineEntries,
+  filterTimelineEntries,
+  type TimelineEntry,
+  type TimelineCategory,
+} from "./lib/project-timeline";
 
 // ============================================================================
 // AUDIT ROUTER - Sistema de Histórico de Auditoria
@@ -84,6 +90,62 @@ export const auditRouter = router({
         .where(eq(auditLog.userId, input.userId))
         .orderBy(desc(auditLog.timestamp))
         .limit(input.limit);
+    }),
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // #766 Trilha de Auditoria — timeline unificada (auditLog + audit_log)
+  // ───────────────────────────────────────────────────────────────────────────
+  getProjectTimeline: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      // Filtros opcionais
+      categories: z.array(z.enum([
+        "projeto", "briefing", "risco", "plano",
+        "tarefa", "pergunta", "permissao", "outro",
+      ])).optional(),
+      userIds: z.array(z.number()).optional(),
+      fromTimestamp: z.number().optional(),
+      toTimestamp: z.number().optional(),
+      searchText: z.string().max(200).optional(),
+      // Paginação
+      limit: z.number().min(1).max(500).default(300),
+    }))
+    .query(async ({ input }) => {
+      const raw = await getProjectTimelineEntries(input.projectId, input.limit);
+      const filtered = filterTimelineEntries(raw, {
+        categories: input.categories as TimelineCategory[] | undefined,
+        userIds: input.userIds,
+        fromTimestamp: input.fromTimestamp,
+        toTimestamp: input.toTimestamp,
+        searchText: input.searchText,
+      });
+
+      // Estatísticas computadas server-side (para banner)
+      const uniqueUsers = new Set(
+        filtered.map((e) => e.userId).filter((x): x is number => x !== null)
+      );
+      const byCategory: Record<string, number> = {};
+      filtered.forEach((e) => {
+        byCategory[e.category] = (byCategory[e.category] ?? 0) + 1;
+      });
+      const firstTimestamp = filtered.length > 0
+        ? filtered[filtered.length - 1].timestamp
+        : null;
+      const lastTimestamp = filtered.length > 0
+        ? filtered[0].timestamp
+        : null;
+
+      return {
+        entries: filtered,
+        stats: {
+          totalEntries: filtered.length,
+          uniqueUsers: uniqueUsers.size,
+          byCategory,
+          firstTimestamp,
+          lastTimestamp,
+        },
+        totalBeforeFilter: raw.length,
+      };
     }),
 });
 
