@@ -1479,6 +1479,22 @@ Gere o Briefing estruturado em JSON:
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // fix(UAT 2026-04-20): gate de confiança ≥85% — P.O. definiu patamar mínimo.
+      // Se confiança <85%, exige aprovação via approveBriefingWithReservation (justificativa).
+      const briefingStructuredForGate = (() => {
+        const raw = (project as any).briefingStructured;
+        if (!raw) return null;
+        try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return null; }
+      })();
+      const confidenceForGate = briefingStructuredForGate?.confidence_score?.nivel_confianca;
+      if (typeof confidenceForGate === "number" && confidenceForGate < 85) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `CONFIDENCE_BELOW_THRESHOLD:${confidenceForGate}`,
+        });
+      }
+
       // BUG-UAT-09: fluxo correto é diagnostico_cnae → briefing → matriz_riscos
       // approveBriefing aceita tanto 'diagnostico_cnae' (primeira aprovação) quanto 'briefing' (re-aprovação)
       const { assertValidTransition } = await import('./flowStateMachine');
@@ -1515,6 +1531,7 @@ Gere o Briefing estruturado em JSON:
             event: "briefing_approved",
             briefingLength: input.briefingContent.length,
             editedBeforeApproval: input.briefingContent !== ((project as any).briefingContentV3 ?? ""),
+            confidence: confidenceForGate ?? null,
           },
         });
       } catch (auditErr) {
@@ -1523,6 +1540,126 @@ Gere o Briefing estruturado em JSON:
       }
 
       return { success: true, nextStep: 4 };
+    }),
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // fix(UAT 2026-04-20): aprovação com ressalva quando confiança <85%
+  // Persiste a ressalva em briefingStructured.approval_reservation (zero schema
+  // change) e grava entry rica no audit_log para conformidade/auditoria.
+  // Badge amarelo permanece visível em todas as telas do briefing.
+  // ─────────────────────────────────────────────────────────────────────────
+  approveBriefingWithReservation: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      briefingContent: z.string(),
+      predefinedReason: z.enum([
+        "urgencia_cliente",
+        "referencia_inicial",
+        "restricao_dados",
+        "outro",
+      ]),
+      freeReason: z.string().min(20, "Justificativa deve ter ao menos 20 caracteres").max(1000),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const { assertValidTransition } = await import('./flowStateMachine');
+      assertValidTransition(project.status, 'briefing');
+      assertValidTransition('briefing', 'matriz_riscos');
+
+      const database = await db.getDb();
+      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Carrega briefingStructured para determinar fontes e persistir a ressalva
+      const briefingStructuredRaw = (project as any).briefingStructured;
+      const briefingStructured = (() => {
+        if (!briefingStructuredRaw) return {} as any;
+        try { return typeof briefingStructuredRaw === "string" ? JSON.parse(briefingStructuredRaw) : briefingStructuredRaw; } catch { return {} as any; }
+      })();
+      const currentConfidence: number = briefingStructured?.confidence_score?.nivel_confianca ?? 0;
+
+      // Identifica fontes respondidas vs faltantes (para o audit log)
+      const solarisCount = await db.countOnda1Answers(input.projectId);
+      const iagenCount = await db.countOnda2Answers(input.projectId);
+      const parseJsonArr = (raw: any): any[] => {
+        if (!raw) return [];
+        try { const p = typeof raw === "string" ? JSON.parse(raw) : raw; return Array.isArray(p) ? p : []; } catch { return []; }
+      };
+      const productAnswersLen = parseJsonArr((project as any).productAnswers).length;
+      const serviceAnswersLen = parseJsonArr((project as any).serviceAnswers).length;
+      // QCNAE answers — consultamos briefingStructured ou o flag genérico do diagnosticStatus
+      const diagStatus: any = (project as any).diagnosticStatus ?? {};
+      const cnaeAnswered = diagStatus?.cnae === "completed";
+
+      const answeredSources: string[] = [];
+      const missingSources: string[] = [];
+      (solarisCount > 0 ? answeredSources : missingSources).push("solaris_onda1");
+      (iagenCount > 0 ? answeredSources : missingSources).push("iagen_onda2");
+      (productAnswersLen > 0 ? answeredSources : missingSources).push("q_produtos_ncm");
+      (serviceAnswersLen > 0 ? answeredSources : missingSources).push("q_servicos_nbs");
+      (cnaeAnswered ? answeredSources : missingSources).push("qcnae_especializado");
+
+      // Persiste ressalva dentro de briefingStructured (nova chave) — sem schema change.
+      const reservation = {
+        confidence_at_approval: currentConfidence,
+        threshold: 85,
+        predefined_reason: input.predefinedReason,
+        free_reason: input.freeReason,
+        approver_user_id: ctx.user.id,
+        approver_user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
+        approver_role: ctx.user.role ?? null,
+        approved_at: Date.now(),
+        answered_sources: answeredSources,
+        missing_sources: missingSources,
+      };
+      const updatedStructured = {
+        ...briefingStructured,
+        approval_reservation: reservation,
+      };
+
+      const previousStatus = project.status;
+      await database
+        .update(projects)
+        .set({
+          currentStep: 4,
+          status: "matriz_riscos",
+          briefingContentV3: input.briefingContent as any,
+          briefingContent: input.briefingContent as any,
+          briefingStructured: JSON.stringify(updatedStructured) as any,
+        } as any)
+        .where(eq(projects.id, input.projectId));
+
+      try {
+        const { logAudit } = await import('./routers-audit');
+        await logAudit({
+          userId: ctx.user.id,
+          userName: ctx.user.name ?? ctx.user.email ?? "unknown",
+          projectId: input.projectId,
+          entityType: "project",
+          entityId: input.projectId,
+          action: "status_change",
+          changes: {
+            status: { old: previousStatus, new: "matriz_riscos" },
+            currentStep: { old: (project as any).currentStep ?? null, new: 4 },
+          },
+          metadata: {
+            event: "briefing_approved_with_reservation",
+            confidence_at_approval: currentConfidence,
+            threshold: 85,
+            predefined_reason: input.predefinedReason,
+            free_reason: input.freeReason,
+            answered_sources: answeredSources,
+            missing_sources: missingSources,
+            approver_role: ctx.user.role ?? null,
+            briefingLength: input.briefingContent.length,
+          },
+        });
+      } catch (auditErr) {
+        console.error("[approveBriefingWithReservation] audit log falhou:", auditErr);
+      }
+
+      return { success: true, nextStep: 4, reservation };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -2201,7 +2338,7 @@ Gere o veredito final em JSON:
       if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
 
       const bs = (project as any).briefingStructured;
-      if (!bs) return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null, structured: null };
+      if (!bs) return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null, structured: null, approvalReservation: null };
 
       try {
         const parsed = typeof bs === "string" ? JSON.parse(bs) : bs;
@@ -2229,10 +2366,14 @@ Gere o veredito final em JSON:
             recomendacoes_prioritarias: Array.isArray(parsed?.recomendacoes_prioritarias) ? parsed.recomendacoes_prioritarias : [],
             inconsistencias,
             confidence_score: confidenceScore,
+            // fix(UAT 2026-04-20): ressalva de aprovação (quando confiança <85%)
+            approval_reservation: parsed?.approval_reservation ?? null,
           },
+          // Exposto também no top level para fácil acesso pelo badge
+          approvalReservation: parsed?.approval_reservation ?? null,
         };
       } catch {
-        return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null, structured: null };
+        return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null, structured: null, approvalReservation: null };
       }
     }),
 
