@@ -1,6 +1,6 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.14 · 2026-04-20 (Sprint Z-22 Wave A.2+B — CPIE DROP completo · HEAD 94c5537)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.15 · 2026-04-20 (Sprint Z-22 carry-over fechado — 3 issues + 1 PR cobertura E2E · HEAD 56e403c)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
@@ -121,6 +121,12 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - **Bug pós-merge:** `/projetos/:id` 404 por dessincronia schema↔DB · resolvido com migration 0088 + restart dev · UAT destravada
   - **Issues abertas pós-merge:** #739 débito B-03 statusMap · #740 UAT B-04 botão Exposição · #741 badge Exposição nos cards · #742 filtro Score IA órfão · #743 escopo "página completa" (carry-over)
   - **Lição Z-22:** drop destrutivo em sprint ativa ≠ comentar código. Custo real 10× estimado (triple review · 2 empty commits · admin merge · 7.8KB→102MB backup · bloqueio UAT). Regra proposta para próximas: **comentar agora, dropar em janela dedicada pós-sprint**.
+**Sprint Z-22 (carry-over):** ✅ ENCERRADA · 3 issues fechadas + 1 PR cobertura · 2026-04-20 · HEAD 56e403c
+  - **#739 statusMap currentStep** (PR #745 → 44eace5) — projectStatusToStepState aceita currentStep opcional. Para status pós-aprovação com currentStep<8, deriva honestamente em vez de marcar tudo como completed. Cenário (admin force em_andamento + currentStep=1) agora exibe 1/8 em vez de 8/8.
+  - **#742 filtro Score IA órfão removido** (PR #746 → 80ca31b) — `<Select>` "Filtrar por Score IA" lia `projects.profileCompleteness` dropada na 0088. SCORE_FILTER_OPTIONS, matchesScoreFilter, ScoreIaBadge, sortedProjects, scoreFilter state, import Brain — todos removidos. Decisão P.O.: opção (a) remover; reintrodução com engine v4 ficou para #741.
+  - **#741 badge Exposição nos cards** (PR #747 → 56e403c) — novo componente `ExposicaoRiscoBadge` lê `projects.scoringData` (engine v4 ADR-0022, preservada na 0088). 5 estados: Crítica/Alta/Média/Baixa/Sem análise. Substitui semanticamente o CpieScoreBadge dropado, sem reintroduzir CPIE legado. Sem custo de query extra.
+  - **#720 cobertura E2E cascade** (PR #748 — aberto) — 4 `test.fixme` em `soft-delete-cascade.spec.ts` convertidos em testes executáveis. CT-1: cascata risk→action_plans · CT-2: cascata risk→tasks · CT-3: audit_log N+1+M · CT-4: restore RI-07. Validação via tRPC (não DOM). Cleanup automático.
+  - **Pendências P.O./Manus:** #740 UAT B-04 botão Exposição (P.O. testar projeto novo) · #743 escopo "página completa exposição" (P.O. especificar) · Migration 0088 produção (Manus janela manutenção bloqueada por deploy).
 **Snapshot Matriz + CPIE:** consolidação documental — base para sprints futuras tocarem risco ou CPIE
 **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06 · PIPELINE VALIDADO EM PRODUÇÃO
 **BUG-UAT-06:** ✅ CORRIGIDO (PR #352) — coluna "Descrição do Risco" no Relatório Final PDF agora exibe `r.evento` corretamente
@@ -155,8 +161,8 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 | Indicador | Valor | Status |
 |---|---|---|
-| HEAD (github/main) | `94c5537` | ✅ |
-| Baseline | **v7.14** | ✅ |
+| HEAD (github/main) | `56e403c` | ✅ |
+| Baseline | **v7.15** | ✅ |
 | Testes passando | tsc 0 erros · 61 unit + 39 E2E (6 UI refinements + cascata) | ✅ |
 | TypeScript | 0 erros | ✅ |
 | PRs mergeados (total) | **710 (sessão 16-17/abr: PRs #617–#710)** | ✅ |
@@ -175,6 +181,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 | Sprint Z-20 | **PARCIAL** — Snapshot Matriz + SPEC + CPIE doc (#716 #721 MERGED) · Suite B1 PASS (33/33 · 10/10 · Gate 7 4/4) · B2/B3/B4 canceladas (overengineered · sistema "razoável a bom" · decisão P.O. 2026-04-18) | 🟡 |
 | Sprint Z-21 | **ENCERRADA** — Cascata soft delete (#719 → PR #722 MERGED) · validação ativa comprovada pelo Manus · Issue #720 OPEN (4 fixme → executáveis) · HEAD f08dfc1 | ✅ |
 | Sprint Z-22 (A.2+B) | **ENCERRADA** — CPIE DROP completo · PR #737 MERGED (admin) · 24 deletes + 14 modifies · Migration 0088 aplicada dev · RAG 2515 preservado · 4 fixes UAT (B-01..B-04) · 5 issues abertas pós-merge (#739-#743) · HEAD 94c5537 | ✅ |
+| Sprint Z-22 (carry-over) | **ENCERRADA** — 3 issues fechadas (#739/#741/#742) via PRs #745/#746/#747 + #748 (#720 cobertura E2E) · ExposicaoRiscoBadge engine v4 · statusMap currentStep dinâmico · filtro Score IA órfão removido · HEAD 56e403c | ✅ |
 | Regras ORQ | **18** (ORQ-00..18) · RN riscos + planos + consolidação · FLOW_DICTIONARY · 4 dicionarios | ✅ |
 | Mockups HTML | **6** (Z-07: 2 + Z-15: 2 + Z-16: 2 com data-testid) no repo | ✅ |
 | CI Workflows | **20 ativos** (validate-pr + pre-close-checklist + post-merge-gate + llm-integration-gate + project-automation + taskboard-automation) | ✅ |
@@ -566,7 +573,7 @@ server/lib/decision-kernel/datasets/nbs-dataset.json
 
 ---
 
-*IA SOLARIS · DEC-007 · Atualizado em 2026-04-20 (v7.14 · Sprint Z-22 Wave A.2+B encerrada · PR #737 admin-merged · HEAD 94c5537)*  
+*IA SOLARIS · DEC-007 · Atualizado em 2026-04-20 (v7.15 · Sprint Z-22 carry-over fechado · PRs #745/#746/#747 mergeados + #748 aberto · HEAD 56e403c)*  
 *PRs mergeados total: 710 · Hot swap ADR-0022: COMPLETO · Board automation: ATIVO · E2E: 33 CTs*  
 *Novas entregas Z-18: #698 (hot swap) · #702 (PDF) · #706 (restore) · #710 (governance automation)*  
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
