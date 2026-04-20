@@ -111,6 +111,7 @@ const EVENT_LABEL: Record<string, string> = {
   briefing_generated:                 "Briefing regenerado",
   briefing_generated_from_diagnostic: "Briefing gerado (diagnóstico completo)",
   briefing_approved:                  "Briefing aprovado",
+  briefing_approved_with_reservation: "Briefing aprovado com ressalva",
   inconsistencia_dismissed:           "Inconsistência resolvida no briefing",
 };
 
@@ -157,6 +158,17 @@ function describeEntry(opts: {
         if (typeof conf === "number") parts.push(`${conf}% confiança`);
         base += ` (${parts.join(", ")})`;
       }
+    }
+    if (event === "briefing_approved_with_reservation") {
+      const conf = metadata?.confidence_at_approval;
+      const missing = Array.isArray(metadata?.missing_sources) ? metadata.missing_sources : [];
+      const freeReason = typeof metadata?.free_reason === "string" ? metadata.free_reason : "";
+      const parts: string[] = [];
+      if (typeof conf === "number") parts.push(`${conf}% de confiança`);
+      if (missing.length > 0) parts.push(`${missing.length} fonte${missing.length !== 1 ? "s" : ""} pendente${missing.length !== 1 ? "s" : ""}`);
+      const detail = parts.length > 0 ? ` — ${parts.join(", ")}` : "";
+      const reasonTail = freeReason ? `. Motivo: "${freeReason.slice(0, 120)}${freeReason.length > 120 ? "…" : ""}"` : "";
+      base += `${detail}${reasonTail}`;
     }
     return `${userName} — ${base}`;
   }
