@@ -17,7 +17,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertTriangle,
   ArrowLeft,
+  BarChart3,
   ChevronLeft,
+  ChevronRight,
   ClipboardList,
   Download,
   ExternalLink,
@@ -244,6 +246,19 @@ export default function ConsolidacaoV4() {
                 (Fórmula v4.0 · peso × max(confiança, 0,5) / n × 9 × 100)
               </span>
             </p>
+            {/* fix UAT 2026-04-20: botão "Analisar o Indicador" abre o dashboard de Exposição ao Risco (on-demand). */}
+            <Link href={`/projetos/${projectId}/compliance-dashboard`}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2 gap-2"
+                data-testid="btn-analisar-indicador-exposicao"
+              >
+                <BarChart3 className="h-4 w-4" />
+                Analisar o Indicador de Exposição ao Riscos
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </CardContent>
         </Card>
 

@@ -34,6 +34,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 import { DiagnosticoStepper, type DiagnosticLayerState } from "@/components/DiagnosticoStepper";
+import { ExposicaoRiscoBadge } from "@/components/ExposicaoRiscoBadge";
 // fix(z22) Wave A.2+B: import CpieHistoryPanel removido (componente deletado).
 import { PerfilEmpresaIntelligente, PERFIL_VAZIO } from "@/components/PerfilEmpresaIntelligente";
 
@@ -493,6 +494,35 @@ export default function ProjetoDetalhesV2() {
               />
             </CardContent>
           </Card>
+
+          {/* ── Hero: Exposição ao Risco de Compliance (fix UAT 2026-04-20 — botão antes escondido em "Acesso Rápido" no final da página) ── */}
+          <button
+            type="button"
+            onClick={() => setLocation(`/projetos/${projectId}/compliance-dashboard`)}
+            data-testid="hero-exposicao-risco"
+            className="w-full flex items-center justify-between gap-4 rounded-xl border bg-gradient-to-r from-violet-50 via-blue-50 to-cyan-50 dark:from-violet-950/30 dark:via-blue-950/30 dark:to-cyan-950/30 border-violet-200/60 dark:border-violet-800/40 p-4 transition-all hover:shadow-md hover:scale-[1.005] active:scale-[0.995]"
+          >
+            <div className="flex items-center gap-4">
+              <div className="shrink-0 rounded-lg bg-white/60 dark:bg-slate-900/40 p-3 border border-violet-200/60 dark:border-violet-800/40">
+                <BarChart3 className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+              </div>
+              <div className="text-left">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-base font-semibold text-foreground">
+                    Exposição ao Risco de Compliance
+                  </h3>
+                  <ExposicaoRiscoBadge scoringData={summary.scoringData} showScore />
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Score on-demand · 3 indicadores · dashboard completo com gráficos
+                </p>
+              </div>
+            </div>
+            <div className="shrink-0 flex items-center gap-1 text-sm text-violet-700 dark:text-violet-300 font-medium">
+              Ver dashboard
+              <ChevronRight className="w-4 h-4" />
+            </div>
+          </button>
 
           {/* ── Métricas rápidas ── */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
