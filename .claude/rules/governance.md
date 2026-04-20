@@ -248,6 +248,25 @@ Isso garante que o S3 sempre espelha o GitHub.
 Causa raiz documentada: PRs #473/#474 (Claude Code)
 criaram bifurcacao detectada na Sprint Z-12.
 
+## R-SYNC-02 — Fetch com refspec explicito (Manus apenas)
+
+Projeto tem 3 remotes: `origin` (S3 Manus), `github` e `solaris` (ambos GitHub).
+O fetch config de `origin` mapeia `refs/heads/*:refs/remotes/origin/*`,
+o que pode criar ref local ambigua `refs/heads/origin/main` quando se roda
+`git fetch github main` ou `git fetch solaris main` sem refspec explicito.
+
+Sintoma: `warning: refname 'origin/main' is ambiguous` + `webdev_save_checkpoint`
+falha com `unable to push to remote` (bloqueio historico sprint Z-22 2026-04-20).
+
+REGRA:
+  - **NUNCA** usar `git fetch github main` ou `git fetch solaris main`
+  - **SEMPRE** usar refspec completo:
+    `git fetch github refs/heads/main:refs/remotes/github/main`
+    `git fetch solaris refs/heads/main:refs/remotes/solaris/main`
+  - Se ambiguidade ocorrer: `git update-ref -d refs/heads/origin/main`
+
+Causa raiz documentada: sessao 2026-04-20, checkpoint v7.16 bloqueado por 3h.
+
 ## F7 — Deploy + Smoke test (OBRIGATORIO)
 
 Apos todo Gate 7, antes de declarar sprint encerrada:
