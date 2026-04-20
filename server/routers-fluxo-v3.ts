@@ -1086,6 +1086,8 @@ Gere as perguntas no formato:
         : `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: não informado\n- Regime Tributário: não informado`;
 
       // V60: Geração com retry + temperatura 0.2 + schema estruturado
+      // fix(UX3 UAT 2026-04-20): contador de retries para propagar ao frontend
+      let llmRetries = 0;
       const structured = await generateWithRetry(
         [
           {
@@ -1135,8 +1137,26 @@ Gere o Briefing estruturado em JSON:
         // fix(T1 UAT 2026-04-20): temperatura 0 para máximo determinismo. Variabilidade
         // observada com T=0.2 (2→1→2 inconsistências em gerações consecutivas) era
         // inaceitável no contexto jurídico. Com T=0, mesma entrada → (quase) mesma saída.
-        { temperature: 0, context: "generateBriefing" }
+        // fix(UX3): onRetry registra tentativas para propagar ao frontend.
+        {
+          temperature: 0,
+          context: "generateBriefing",
+          onRetry: (attempt: number, err: string) => {
+            llmRetries = attempt;
+            console.warn(`[generateBriefing] retry ${attempt}: ${err.substring(0, 200)}`);
+          },
+        }
       );
+
+      // fix(Fix extra UAT 2026-04-20): reclassifica impacto das inconsistências via heurística
+      // determinística server-side, tirando a decisão do LLM. Garante consistência:
+      // mesma contradição → mesmo impacto (sempre).
+      if (Array.isArray(structured.inconsistencias)) {
+        structured.inconsistencias = structured.inconsistencias.map((inc: any) => ({
+          ...inc,
+          impacto: classifyInconsistenciaImpacto(inc),
+        }));
+      }
 
       // Converter estruturado para Markdown (compatibilidade com UI existente)
       const briefingMarkdown = buildBriefingMarkdown(structured);
@@ -1154,7 +1174,7 @@ Gere o Briefing estruturado em JSON:
         } as any)
         .where(eq(projects.id, input.projectId));
 
-      return { briefing: briefingMarkdown, structured };
+      return { briefing: briefingMarkdown, structured, llmRetries };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1972,11 +1992,13 @@ Gere o veredito final em JSON:
       if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
 
       const bs = (project as any).briefingStructured;
-      if (!bs) return { inconsistencias: [], totalCount: 0, hasAlerts: false };
+      if (!bs) return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null };
 
       try {
         const parsed = typeof bs === "string" ? JSON.parse(bs) : bs;
         const inconsistencias = Array.isArray(parsed?.inconsistencias) ? parsed.inconsistencias : [];
+        // fix(UX1 UAT 2026-04-20): expor confidence_score para barra visual
+        const confidenceScore = parsed?.confidence_score ?? null;
         return {
           inconsistencias,
           totalCount: inconsistencias.length,
@@ -1987,9 +2009,10 @@ Gere o veredito final em JSON:
             medio: inconsistencias.filter((i: any) => i.impacto === "medio").length,
             baixo: inconsistencias.filter((i: any) => i.impacto === "baixo").length,
           },
+          confidenceScore,
         };
       } catch {
-        return { inconsistencias: [], totalCount: 0, hasAlerts: false };
+        return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null };
       }
     }),
 
@@ -2397,6 +2420,14 @@ Gere o Briefing estruturado em JSON:
         // fix(T1 UAT 2026-04-20): alinhado com generateBriefing — temperatura 0.
         { temperature: 0, context: "generateBriefingFromDiagnostic" }
       );
+
+      // fix(Fix extra UAT 2026-04-20): reclassifica impacto determinístico server-side
+      if (Array.isArray(structured.inconsistencias)) {
+        structured.inconsistencias = structured.inconsistencias.map((inc: any) => ({
+          ...inc,
+          impacto: classifyInconsistenciaImpacto(inc),
+        }));
+      }
 
       const { buildBriefingMarkdown } = await import("./routers-fluxo-v3").then(m => ({
         buildBriefingMarkdown: (m as any).buildBriefingMarkdown,
@@ -3301,6 +3332,56 @@ export function extractNcmNbsFromProfile(operationProfile: unknown): { ncmCodes:
     ncmCodes: profile?.principaisProdutos?.map((p) => p.ncm_code) ?? [],
     nbsCodes: profile?.principaisServicos?.map((s) => s.nbs_code) ?? [],
   };
+}
+
+/**
+ * fix(Fix extra UAT 2026-04-20): reclassifica o impacto de uma inconsistência usando
+ * heurística determinística. Tira a decisão do LLM — mesma contradição sempre recebe
+ * o mesmo impacto.
+ *
+ * Regras:
+ *   - ALTO: base de cálculo, IBS/CBS direto, fato gerador, local da operação, crédito indevido,
+ *           alíquota, NF-e, código de serviço (fiscal direto)
+ *   - MÉDIO: obrigação acessória, cadastro, declaração, EFD, Sped, sistema
+ *   - BAIXO: treinamento, documentação interna, processo, governança
+ *   - Default: MÉDIO (conservador)
+ */
+function classifyInconsistenciaImpacto(inc: any): "alto" | "medio" | "baixo" {
+  const texto = [
+    inc?.pergunta_origem ?? "",
+    inc?.resposta_declarada ?? "",
+    inc?.contradicao_detectada ?? "",
+  ].join(" ").toLowerCase();
+
+  const ALTO_KEYWORDS = [
+    "base de cálculo", "base de calculo", "ibs", "cbs", "imposto seletivo",
+    "fato gerador", "local da operação", "local da operacao",
+    "crédito", "credito", "alíquota", "aliquota",
+    "nf-e", "nfe", "nota fiscal",
+    "código de serviço", "codigo de servico", "código ncm", "codigo ncm",
+    "partilha", "interestadual",
+  ];
+  const MEDIO_KEYWORDS = [
+    "obrigação acessória", "obrigacao acessoria", "sped", "efd",
+    "cadastro", "declaração", "declaracao", "escrituração", "escrituracao",
+    "erp", "sistema", "integração", "integracao",
+  ];
+  const BAIXO_KEYWORDS = [
+    "treinamento", "capacitação", "capacitacao",
+    "documentação interna", "documentacao interna",
+    "governança", "governanca", "processo interno",
+  ];
+
+  if (ALTO_KEYWORDS.some((kw) => texto.includes(kw))) return "alto";
+  if (MEDIO_KEYWORDS.some((kw) => texto.includes(kw))) return "medio";
+  if (BAIXO_KEYWORDS.some((kw) => texto.includes(kw))) return "baixo";
+
+  // Default: manter o que LLM retornou se válido, senão médio (conservador)
+  const llmImpacto = String(inc?.impacto ?? "").toLowerCase();
+  if (llmImpacto === "alto" || llmImpacto === "medio" || llmImpacto === "baixo") {
+    return llmImpacto as "alto" | "medio" | "baixo";
+  }
+  return "medio";
 }
 
 function buildBriefingMarkdown(structured: any): string {
