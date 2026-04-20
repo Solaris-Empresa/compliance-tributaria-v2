@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { PerfilEmpresaIntelligente, PERFIL_VAZIO, calcProfileScore, type PerfilEmpresaData, type CpieV2GateResult } from "@/components/PerfilEmpresaIntelligente";
+import { PerfilEmpresaIntelligente, PERFIL_VAZIO, calcProfileScore, type PerfilEmpresaData } from "@/components/PerfilEmpresaIntelligente";
 import { searchCnaes, getCnaeByCode, type CnaeEntry } from "@/../../shared/cnae-table";
 import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
 import { ResumeBanner } from "@/components/ResumeBanner";
@@ -205,77 +205,16 @@ export default function NovoProjeto() {
 
   // v6.0: Company Profile Intelligence — estado unificado
   const [perfilData, setPerfilData] = useState<PerfilEmpresaData>(PERFIL_VAZIO);
-  // K2 v2: Gate CPIE v2 — substitui o score v1 local
-  const [cpieScore, setCpieScore] = useState<number | null>(null); // compat v1
-  const [cpieDimensions, setCpieDimensions] = useState<Array<{ name: string; score: number; weight: number; explanation: string; fieldsEvaluated: string[] }>>([]);
-  const [cpieV2Gate, setCpieV2Gate] = useState<CpieV2GateResult | null>(null);
-  const [isAnalyzingV2, setIsAnalyzingV2] = useState(false);
-  const [cpieOverrideMode, setCpieOverrideMode] = useState(false);
-  const [cpieOverrideReason, setCpieOverrideReason] = useState("");
-  // P2: checkId da análise v2 persistida — necessário para overrideSoftBlock formal
-  const [persistedCheckId, setPersistedCheckId] = useState<string | null>(null);
-  const [overrideSubmitting, setOverrideSubmitting] = useState(false);
-  // MEDIUM conflicts: painel de revisão antes de prosseguir para CNAEs
-  const [showConflictReview, setShowConflictReview] = useState(false);
-  // Flag: usuário confirmou ciência dos conflitos MEDIUM no painel de revisão
-  const [mediumAcknowledgedByUser, setMediumAcknowledgedByUser] = useState(false);
-  const CPIE_MIN_SCORE = 30; // mantido para compat v1 (fallback sem análise v2)
 
-  // D1+D2: Consistency Gate
-  // CPIE v2: analyzePreview inline no NovoProjeto — dispara automaticamente no Avançar
-  const analyzePreviewInline = trpc.cpieV2.analyzePreview.useMutation({
-    onSuccess: (data) => {
-      console.log("[CPIE v2] analyzePreview resposta recebida:", JSON.stringify({
-        completenessScore: data.completenessScore,
-        consistencyScore: data.consistencyScore,
-        diagnosticConfidence: data.diagnosticConfidence,
-        canProceed: data.canProceed,
-        blockType: data.blockType,
-        conflictsCount: data.conflicts?.length ?? 0,
-      }));
-      const gate: CpieV2GateResult = {
-        canProceed: data.canProceed,
-        blockType: data.blockType as "hard_block" | "soft_block_with_override" | undefined,
-        blockReason: data.blockReason,
-        diagnosticConfidence: data.diagnosticConfidence,
-        consistencyScore: data.consistencyScore,
-        completenessScore: data.completenessScore,
-        conflicts: (data.conflicts ?? []) as CpieV2GateResult["conflicts"],
-        reconciliationQuestions: (data.reconciliationQuestions ?? []) as CpieV2GateResult["reconciliationQuestions"],
-        analysisVersion: (data as any).analysisVersion ?? "v2",
-        persisted: (data as any).persisted ?? false,
-      };
-      setCpieV2Gate(gate);
-      setIsAnalyzingV2(false);
-      console.log("[CPIE v2] Estado final aplicado no frontend:", gate);
-      if (data.canProceed) {
-        // Verificar se há conflitos MEDIUM que exigem revisão explícita do usuário
-        const hasMediumConflicts = (data.conflicts ?? []).some(
-          (c: { severity: string }) => c.severity === "medium"
-        );
-        if (hasMediumConflicts) {
-          // Mostrar painel de revisão — não prosseguir automaticamente
-          console.log("[CPIE v2] canProceed=true mas há conflitos MEDIUM — exibindo painel de revisão");
-          setShowConflictReview(true);
-        } else {
-          // Sem conflitos MEDIUM: prosseguir diretamente para criar projeto
-          console.log("[CPIE v2] canProceed=true sem conflitos MEDIUM, prosseguindo para createProject");
-          createProject.mutate(pendingProjectPayloadRef.current);
-        }
-      } else {
-        console.log("[CPIE v2] Bloqueado:", data.blockType, data.blockReason);
-        // Não prosseguir — exibir banner de bloqueio
-      }
-    },
-    onError: (err) => {
-      console.error("[CPIE v2] Erro no analyzePreview:", err.message);
-      setIsAnalyzingV2(false);
-      toast.error("Erro na análise de consistência. Tente novamente.");
-    },
-  });
+  // fix(z22) Wave A.2+B: gate CPIE v2 removido (Errata F6.1 · EX-2 + decisão P.O. 2026-04-18).
+  // Estados removidos: cpieV2Gate, cpieScore, cpieDimensions, isAnalyzingV2, cpieOverrideMode,
+  //   cpieOverrideReason, persistedCheckId, overrideSubmitting, showConflictReview,
+  //   mediumAcknowledgedByUser, constante CPIE_MIN_SCORE.
+  // Mutations removidas: trpc.cpieV2.analyzePreview, trpc.cpieV2.analyze,
+  //   trpc.cpieV2.overrideSoftBlock, trpc.cpieV2.acknowledgeMediumConflicts.
+  // Fluxo novo: handleAvancar chama createProject.mutate direto — qualquer perfil passa
+  // (critério Bloco 7 da spec v1.1 seção "Remoção do gate").
 
-  // Ref para o payload pendente (necessário para o callback do analyzePreviewInline)
-  const pendingProjectPayloadRef = useRef<any>(null);
   // Ref para capturar description no momento do submit — evita closure stale no onSuccess
   const descriptionRef = useRef<string>("");
 
@@ -284,109 +223,11 @@ export default function NovoProjeto() {
   const createProject = trpc.fluxoV3.createProject.useMutation({
     onSuccess: (data) => {
       setProjectId(data.projectId);
-      // P2: para soft_block_with_override, NÃO chamar extractCnaes aqui —
-      // será chamado após overrideSoftBlock.onSuccess (garantia de persistência da justificativa)
-      const isSoftBlockOverride = cpieV2Gate?.blockType === "soft_block_with_override" &&
-        cpieOverrideMode && cpieOverrideReason.trim().length >= 50;
-      if (!isSoftBlockOverride) {
-        const descForExtract = descriptionRef.current || description;
-        console.log('[extractCnaes] sending', { projectId: data.projectId, descLen: descForExtract?.length, preview: descForExtract?.slice(0, 80) });
-        extractCnaes.mutate({ projectId: data.projectId, description: descForExtract });
-      }
-      // Persistir análise CPIE v2 no banco após criar o projeto
-      if (cpieV2Gate) {
-        persistCpieV2.mutate({
-          projectId: data.projectId,
-          cnpj: perfilData.cnpj || undefined,
-          companyType: perfilData.companyType || undefined,
-          companySize: perfilData.companySize || undefined,
-          annualRevenueRange: perfilData.annualRevenueRange || undefined,
-          taxRegime: perfilData.taxRegime || undefined,
-          operationType: perfilData.operationType || undefined,
-          clientType: perfilData.clientType.length > 0 ? perfilData.clientType : undefined,
-          multiState: perfilData.multiState,
-          hasMultipleEstablishments: perfilData.hasMultipleEstablishments,
-          hasImportExport: perfilData.hasImportExport,
-          hasSpecialRegimes: perfilData.hasSpecialRegimes,
-          paymentMethods: perfilData.paymentMethods.length > 0 ? perfilData.paymentMethods : undefined,
-          hasIntermediaries: perfilData.hasIntermediaries,
-          hasTaxTeam: perfilData.hasTaxTeam,
-          hasAudit: perfilData.hasAudit,
-          hasTaxIssues: perfilData.hasTaxIssues,
-          description: description || undefined,
-        });
-        // Registrar justificativa de override no console para auditoria (será salva no banco via overrideSoftBlock)
-        if (cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideReason.trim().length >= 50) {
-          console.info("[CPIE v2] Override justificativa registrada:", cpieOverrideReason.trim());
-        }
-      }
+      const descForExtract = descriptionRef.current || description;
+      console.log('[extractCnaes] sending', { projectId: data.projectId, descLen: descForExtract?.length, preview: descForExtract?.slice(0, 80) });
+      extractCnaes.mutate({ projectId: data.projectId, description: descForExtract });
     },
     onError: (err) => toast.error(`Erro ao criar projeto: ${err.message}`),
-  });
-
-  // P2: mutation para registrar override formal no banco com checkId real
-  const overrideSoftBlockMutation = trpc.cpieV2.overrideSoftBlock.useMutation({
-    onSuccess: (data) => {
-      setOverrideSubmitting(false);
-      console.info("[CPIE v2] Override persistido formalmente no banco. checkId:", data.checkId);
-      toast.success("Justificativa registrada com sucesso. Prosseguindo...");
-      // Fluxo liberado: extrair CNAEs (projeto já foi criado antes do override)
-      if (projectId) {
-        const descForExtract = descriptionRef.current || description;
-        extractCnaes.mutate({ projectId, description: descForExtract });
-      }
-    },
-    onError: (err) => {
-      setOverrideSubmitting(false);
-      console.error("[CPIE v2] Falha ao persistir override:", err.message);
-      toast.error(`Erro ao registrar justificativa: ${err.message}`);
-    },
-  });
-
-  // Aceite explícito de conflitos MEDIUM no banco (chamado após persistCpieV2.onSuccess)
-  const acknowledgeMediumMutation = trpc.cpieV2.acknowledgeMediumConflicts.useMutation({
-    onSuccess: (data) => {
-      console.info("[CPIE v2] Conflitos MEDIUM reconhecidos formalmente no banco. checkId:", data.checkId);
-    },
-    onError: (err) => {
-      // Silencioso: não bloquear o fluxo se o aceite falhar
-      console.warn("[CPIE v2] Falha ao registrar aceite de conflitos MEDIUM:", err.message);
-    },
-  });
-
-  // Persistência pós-criação: salvar análise CPIE v2 no banco com projectId real
-  const persistCpieV2 = trpc.cpieV2.analyze.useMutation({
-    onSuccess: (data) => {
-      const checkId = data.checkId;
-      setPersistedCheckId(checkId);
-      console.info("[CPIE v2] Análise persistida no banco. checkId:", checkId);
-      // P2: se era soft_block_with_override com justificativa válida, chamar override formal
-      if (
-        cpieV2Gate?.blockType === "soft_block_with_override" &&
-        cpieOverrideMode &&
-        cpieOverrideReason.trim().length >= 50 &&
-        projectId
-      ) {
-        setOverrideSubmitting(true);
-        console.info("[CPIE v2] Disparando overrideSoftBlock com checkId real:", checkId);
-        overrideSoftBlockMutation.mutate({
-          checkId,
-          projectId,
-          justification: cpieOverrideReason.trim(),
-        });
-        // NÃO chamar extractCnaes aqui — será chamado no overrideSoftBlockMutation.onSuccess
-      }
-      // Caso canProceed=true com conflitos MEDIUM: registrar aceite explícito se usuário confirmou
-      if (mediumAcknowledgedByUser && cpieV2Gate?.canProceed && projectId) {
-        console.info("[CPIE v2] Registrando aceite explícito de conflitos MEDIUM. checkId:", checkId);
-        acknowledgeMediumMutation.mutate({ checkId, projectId });
-      }
-      // Caso canProceed=true: extractCnaes já foi chamado no createProject.onSuccess
-    },
-    onError: () => {
-      // Silencioso: não bloquear o fluxo se a persistência falhar
-      console.warn("[CPIE v2] Falha ao persistir análise no banco. Análise preview já foi realizada.");
-    },
   });
 
   const extractCnaes = trpc.fluxoV3.extractCnaes.useMutation({
@@ -454,17 +295,7 @@ export default function NovoProjeto() {
       const missing = profileScore.missingRequired.join(", ");
       return toast.error(`Preencha os campos obrigatórios: ${missing}`);
     }
-    // CPIE v2: se já há gate e está bloqueado por hard_block, impedir
-    if (cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "hard_block") {
-      toast.error("⛔ Bloqueio crítico: corrija as contradições antes de prosseguir.");
-      return;
-    }
-    // CPIE v2: se soft_block sem justificativa suficiente, abrir modo override
-    if (cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && !(cpieOverrideMode && cpieOverrideReason.trim().length >= 50)) {
-      setCpieOverrideMode(true);
-      toast.info("⚠️ Informe a justificativa para prosseguir com inconsistências.");
-      return;
-    }
+    // fix(z22) Wave A.2+B: gate CPIE v2 removido. Qualquer perfil válido passa direto para createProject.
     const companyProfile = {
       cnpj: perfilData.cnpj,
       companyType: perfilData.companyType,
@@ -514,56 +345,11 @@ export default function NovoProjeto() {
       financialProfile,
       governanceProfile,
     } as any;
-    pendingProjectPayloadRef.current = payload;
     // Capturar description no momento do submit para evitar closure stale no onSuccess
     descriptionRef.current = description.trim();
 
-    // CPIE v2: se já temos gate válido e canProceed=true (ou soft_block com justificativa), pular re-análise
-    const alreadyApproved = cpieV2Gate && (
-      cpieV2Gate.canProceed ||
-      (cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideMode && cpieOverrideReason.trim().length >= 50)
-    );
-
-    if (alreadyApproved) {
-      // Se canProceed=true mas há conflitos MEDIUM não revisados, mostrar painel de revisão
-      const hasMediumConflicts = (cpieV2Gate?.conflicts ?? []).some(
-        (c: { severity: string }) => c.severity === "medium"
-      );
-      if (cpieV2Gate?.canProceed && hasMediumConflicts && !showConflictReview) {
-        console.log("[CPIE v2] Gate aprovado com conflitos MEDIUM não revisados — exibindo painel de revisão");
-        setShowConflictReview(true);
-        return;
-      }
-      console.log("[CPIE v2] Gate já aprovado, prosseguindo diretamente para createProject");
-      createProject.mutate(payload);
-      return;
-    }
-
-    // CPIE v2: disparar analyzePreview automaticamente no Avançar
-    console.log("[CPIE v2] Clique em Avançar — disparando analyzePreview automaticamente");
-    setIsAnalyzingV2(true);
-    setCpieV2Gate(null); // resetar gate anterior
-    setShowConflictReview(false); // resetar painel de revisão
-    setMediumAcknowledgedByUser(false); // resetar aceite de conflitos MEDIUM
-    analyzePreviewInline.mutate({
-      cnpj: perfilData.cnpj || undefined,
-      companyType: perfilData.companyType || undefined,
-      companySize: perfilData.companySize || undefined,
-      annualRevenueRange: perfilData.annualRevenueRange || undefined,
-      taxRegime: perfilData.taxRegime || undefined,
-      operationType: perfilData.operationType || undefined,
-      clientType: perfilData.clientType.length > 0 ? perfilData.clientType : undefined,
-      multiState: perfilData.multiState ?? undefined,
-      hasMultipleEstablishments: perfilData.hasMultipleEstablishments ?? undefined,
-      hasImportExport: perfilData.hasImportExport ?? undefined,
-      hasSpecialRegimes: perfilData.hasSpecialRegimes ?? undefined,
-      paymentMethods: perfilData.paymentMethods.length > 0 ? perfilData.paymentMethods : undefined,
-      hasIntermediaries: perfilData.hasIntermediaries ?? undefined,
-      hasTaxTeam: perfilData.hasTaxTeam ?? undefined,
-      hasAudit: perfilData.hasAudit ?? undefined,
-      hasTaxIssues: perfilData.hasTaxIssues ?? undefined,
-      description: description.trim() || undefined,
-    });
+    // fix(z22): gate CPIE v2 removido. Criação de projeto vai direto.
+    createProject.mutate(payload);
   };
 
   const handleConfirmCnaes = () => {
@@ -701,17 +487,7 @@ export default function NovoProjeto() {
                 id="description"
                 placeholder={"Descreva o negócio da empresa: principais atividades, como funciona a operação, desafios tributários atuais, regime tributário, setores de atuação, produtos/serviços oferecidos...\n\nQuanto mais detalhada a descrição, mais precisos serão os CNAEs identificados pela IA."}
                 value={description}
-                onChange={(e) => {
-                  setDescription(e.target.value);
-                  // Resetar gate ao editar descrição — permite reanálise
-                  if (cpieV2Gate !== null || showConflictReview) {
-                    setCpieV2Gate(null);
-                    setCpieOverrideMode(false);
-                    setCpieOverrideReason("");
-                    setShowConflictReview(false);
-                    setMediumAcknowledgedByUser(false);
-                  }
-                }}
+                onChange={(e) => setDescription(e.target.value)}
                 rows={7}
                 className="resize-none leading-relaxed"
               />
@@ -782,44 +558,11 @@ export default function NovoProjeto() {
         {/* v6.0: Company Profile Intelligence — componente redesenhado */}
         <PerfilEmpresaIntelligente
           value={perfilData}
-          onChange={(newPerfil) => {
-            setPerfilData(newPerfil);
-            // Resetar gate ao editar formulário após análise — permite reanálise
-            if (cpieV2Gate !== null || showConflictReview) {
-              setCpieV2Gate(null);
-              setCpieOverrideMode(false);
-              setCpieOverrideReason("");
-              setShowConflictReview(false);
-              setMediumAcknowledgedByUser(false);
-            }
-          }}
+          onChange={(newPerfil) => setPerfilData(newPerfil)}
           description={description}
           projectId={projectId ?? undefined}
           projectName={name || undefined}
-          externalCpieV2Gate={cpieV2Gate}
-          onCpieScore={({ score, dimensions, v2Gate }) => {
-            setCpieScore(score); // compat v1
-            setCpieDimensions(dimensions);
-            // Capturar gate v2 quando disponível (via botão Reexecutar análise)
-            // BUGFIX: só aplicar hard_block se o perfil estiver completo (profileValid=true)
-            // Caso contrário, o gate de bloqueio seria aplicado com dados incompletos,
-            // e ao completar os campos faltantes o botão continuaria bloqueado
-            if (v2Gate) {
-              const currentScore = calcProfileScore(perfilData);
-              const isProfileComplete = currentScore.missingRequired.length === 0;
-              if (isProfileComplete || v2Gate.canProceed) {
-                setCpieV2Gate(v2Gate);
-              } else {
-                // Perfil incompleto: ignorar gate de bloqueio para não travar o botão
-                // após o usuário completar os campos obrigatórios
-                setCpieV2Gate(null);
-              }
-            }
-            // Resetar override ao receber nova análise
-            setCpieOverrideMode(false);
-            setCpieOverrideReason("");
-            setShowConflictReview(false);
-          }}
+          /* fix(z22) Wave A.2+B: externalCpieV2Gate + onCpieScore não mais usados — gate CPIE removido. */
         />
 
         {/* Banner de análise IA */}
@@ -833,175 +576,6 @@ export default function NovoProjeto() {
           </div>
         </div>
 
-        {/* ── Gate CPIE v2: banners e CTA contextual ── */}
-
-        {/* HARD BLOCK: bloqueio crítico sem override possível */}
-        {/* BUGFIX: só mostrar bloqueio quando o perfil está completo — evita confundir o usuário */}
-        {profileValid && cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "hard_block" && (
-          <div className="rounded-xl bg-red-50 dark:bg-red-900/10 border-2 border-red-400 dark:border-red-700 p-4 space-y-3">
-            <div className="flex items-start gap-3">
-              <ShieldX className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-bold text-red-800 dark:text-red-400">⛔ BLOQUEIO — Contradições incompatíveis detectadas</p>
-                <p className="text-xs text-red-700 dark:text-red-500 mt-1 leading-relaxed">
-                  {cpieV2Gate.blockReason || "O perfil contém contradições que tornam impossível uma análise de compliance confiável."}
-                </p>
-              </div>
-            </div>
-            <div className="pl-8 space-y-1.5">
-              <p className="text-xs font-medium text-red-700 dark:text-red-400">O que fazer agora:</p>
-              <p className="text-xs text-red-600 dark:text-red-400 leading-relaxed">
-                Corrija as inconsistências no formulário de perfil acima (painel direito). Após corrigir, clique em <strong>Avançar</strong> para reanalisar automaticamente.
-              </p>
-              <p className="text-xs text-red-500 dark:text-red-500">
-                Confiança diagnóstica: <strong>{cpieV2Gate.diagnosticConfidence}%</strong> | Consistência: <strong>{cpieV2Gate.consistencyScore}%</strong>
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* SOFT BLOCK: conflitos com possibilidade de override com justificativa */}
-        {profileValid && cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && !cpieOverrideMode && (
-          <div className="rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700 p-4 space-y-3">
-            <div className="flex items-start gap-3">
-              <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-bold text-amber-800 dark:text-amber-400">⚠️ ATENÇÃO — Inconsistências moderadas detectadas</p>
-                <p className="text-xs text-amber-700 dark:text-amber-500 mt-1 leading-relaxed">
-                  {cpieV2Gate.blockReason || "Foram encontradas inconsistências no perfil. Você pode prosseguir fornecendo uma justificativa formal."}
-                </p>
-              </div>
-            </div>
-            <div className="pl-8">
-              <button
-                type="button"
-                onClick={() => setCpieOverrideMode(true)}
-                className="text-xs font-medium text-amber-700 dark:text-amber-400 underline underline-offset-2 hover:text-amber-900"
-              >
-                Justificar e continuar →
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* SOFT BLOCK override: campo de justificativa */}
-        {profileValid && cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideMode && (
-          <div className="rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-400 dark:border-amber-600 p-4 space-y-3">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-bold text-amber-800 dark:text-amber-400">Justificativa formal para prosseguir</p>
-                <p className="text-xs text-amber-700 dark:text-amber-500 mt-1">
-                  Descreva por que está prosseguindo mesmo com inconsistências. Esta decisão será registrada na trilha de auditoria.
-                </p>
-              </div>
-            </div>
-            <div className="pl-8 space-y-2">
-              <textarea
-                value={cpieOverrideReason}
-                onChange={e => setCpieOverrideReason(e.target.value)}
-                placeholder="Ex: Empresa em transição de regime, perfil será atualizado após regularização..."
-                className="w-full text-xs rounded-lg border border-amber-300 dark:border-amber-600 bg-white dark:bg-amber-950/20 p-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-amber-400"
-                rows={3}
-              />
-              <div className="flex items-center justify-between">
-                <span className={`text-xs ${cpieOverrideReason.trim().length >= 50 ? "text-emerald-600" : "text-amber-600"}`}>
-                  {cpieOverrideReason.trim().length}/50 caracteres mínimos
-                </span>
-                <button
-                  type="button"
-                  onClick={() => { setCpieOverrideMode(false); setCpieOverrideReason(""); setCpieV2Gate(null); setShowConflictReview(false); setMediumAcknowledgedByUser(false); }}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-100"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* REVISÃO DE CONFLITOS MEDIUM: painel explícito antes de prosseguir */}
-        {showConflictReview && cpieV2Gate && cpieV2Gate.canProceed && (
-          <div className="rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700 p-4 space-y-3">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-bold text-amber-800 dark:text-amber-400">Revisão de inconsistências — confirme antes de continuar</p>
-                <p className="text-xs text-amber-700 dark:text-amber-500 mt-1 leading-relaxed">
-                  A análise detectou inconsistências de severidade média no perfil. Revise os conflitos abaixo e escolha como prosseguir.
-                </p>
-              </div>
-            </div>
-
-            {/* Lista dos conflitos MEDIUM */}
-            <div className="pl-8 space-y-2">
-              {cpieV2Gate.conflicts
-                .filter(c => c.severity === "medium")
-                .map(c => (
-                  <div key={c.id} className="flex items-start gap-2 p-2.5 rounded-lg bg-amber-100/60 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
-                    <AlertCircle className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">{c.type}</p>
-                      <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">{c.description}</p>
-                    </div>
-                  </div>
-                ))
-              }
-            </div>
-
-            {/* Ações */}
-            <div className="pl-8 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowConflictReview(false);
-                  setCpieV2Gate(null);
-                  setMediumAcknowledgedByUser(false);
-                }}
-                className="text-xs px-3 py-1.5 rounded-lg border border-amber-300 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 font-medium"
-              >
-                Corrigir perfil
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  // Registrar que o usuário confirmou ciência dos conflitos MEDIUM
-                  setMediumAcknowledgedByUser(true);
-                  setShowConflictReview(false);
-                  createProject.mutate(pendingProjectPayloadRef.current);
-                }}
-                className="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white hover:bg-amber-700 font-medium flex items-center gap-1.5"
-              >
-                Estou ciente, prosseguir<ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* APROVADO: confirmação visual quando canProceed=true e não há conflitos MEDIUM pendentes */}
-        {cpieV2Gate && cpieV2Gate.canProceed && !showConflictReview && (
-          <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-300 dark:border-emerald-700 p-3 flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-            <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
-              {cpieV2Gate.conflicts.some(c => c.severity === "medium")
-                ? <>⚠️ Perfil aprovado com ressalvas — Clique em <strong>Avançar para CNAEs</strong> para continuar. <span className="font-normal text-amber-600">({cpieV2Gate.conflicts.filter(c => c.severity === "medium").length} inconsistência(s) média(s) registrada(s))</span></>
-                : <>✅ Perfil aprovado — Clique em <strong>Avançar para CNAEs</strong> para continuar.</>
-              }
-            </p>
-          </div>
-        )}
-
-        {/* Fallback v1: gate legado (quando não há análise v2) */}
-        {!cpieV2Gate && cpieScore !== null && cpieScore < CPIE_MIN_SCORE && (
-          <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-300 dark:border-amber-700">
-            <div className="flex items-start gap-3">
-              <Brain className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-              <p className="text-xs text-amber-700 dark:text-amber-400">
-                Score CPIE v1 insuficiente ({cpieScore}%). Clique em <strong>Avançar</strong> para executar a análise de consistência v2 completa.
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Gate de validação do cliente — aparece quando perfil está ok mas cliente não foi selecionado */}
         {profileValid && !clientId && (
@@ -1037,37 +611,17 @@ export default function NovoProjeto() {
         )}
 
         {/* CTA principal — contextual por estado */}
+        {/* fix(z22) Wave A.2+B: botão simplificado — sem gate CPIE v2. */}
         <div className="flex justify-end pb-4">
           <Button size="lg" onClick={handleSubmit} disabled={
             isLoading ||
-            isAnalyzingV2 ||
-            analyzePreviewInline.isPending ||
-            overrideSubmitting ||
             !name.trim() ||
             descLength < 100 ||
             !clientId ||
-            !profileValid ||
-            // Gate v2: APENAS hard_block bloqueia o botão sem possibilidade de override
-            // soft_block: botão habilitado quando justificativa >= 50 chars; caso contrário também habilitado (usuário abre o modo override ao clicar)
-            // BUGFIX: só aplicar gate quando profileValid=true — se o perfil está incompleto,
-            // o hard_block pode ter sido gerado com dados incompletos e não deve bloquear
-            // o botão após o usuário completar os campos obrigatórios
-            (profileValid && cpieV2Gate !== null && cpieV2Gate.blockType === "hard_block" && !cpieV2Gate.canProceed)
+            !profileValid
           } className="min-w-[220px]">
-            {overrideSubmitting ? (
-              <><Loader2 className="h-4 w-4 animate-spin mr-2" />Registrando justificativa...</>
-            ) : isAnalyzingV2 || analyzePreviewInline.isPending ? (
-              <><Loader2 className="h-4 w-4 animate-spin mr-2" />Analisando consistência...</>
-            ) : isLoading ? (
+            {isLoading ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />{createProject.isPending ? "Criando projeto..." : "Analisando CNAEs..."}</>
-            ) : profileValid && cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "hard_block" ? (
-              <>Corrigir inconsistências</>
-            ) : profileValid && cpieV2Gate && !cpieV2Gate.canProceed && cpieV2Gate.blockType === "soft_block_with_override" && cpieOverrideMode && cpieOverrideReason.trim().length >= 50 ? (
-              <>Justificar e continuar<ArrowRight className="h-4 w-4 ml-2" /></>
-            ) : showConflictReview && cpieV2Gate && cpieV2Gate.canProceed ? (
-              <>Revisar conflitos antes de continuar</>
-            ) : cpieV2Gate && cpieV2Gate.canProceed ? (
-              <>Avançar para CNAEs<ArrowRight className="h-4 w-4 ml-2" /></>
             ) : (
               <>Avançar<ArrowRight className="h-4 w-4 ml-2" /></>
             )}

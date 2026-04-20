@@ -142,16 +142,9 @@ export const projects = mysqlTable("projects", {
     operational: "not_started" | "in_progress" | "completed";
     cnae: "not_started" | "in_progress" | "completed";
   }>(), // { corporate, operational, cnae } — cada um: not_started | in_progress | completed
-  // v6.0 Profile Intelligence — scores, análise IA e persistência
-  profileCompleteness: int("profileCompleteness").default(0),  // 0-100: % de campos preenchidos
-  profileConfidence: int("profileConfidence").default(0),      // 0-100: score de confiança da IA
-  profileIntelligenceData: json("profileIntelligenceData").$type<{
-    dynamicQuestions: Array<{ id: string; question: string; field: string; priority: number; answered: boolean }>;
-    suggestions: Array<{ field: string; currentValue: string; suggestedValue: string; reason: string; accepted: boolean }>;
-    scoreBreakdown: Array<{ category: string; score: number; maxScore: number; issues: string[] }>;
-    analysisVersion: string;
-  }>(),  // Perguntas dinâmicas, sugestões e breakdown do score
-  profileLastAnalyzedAt: timestamp("profileLastAnalyzedAt"),   // Timestamp da última análise IA
+  // fix(z22) Wave A.2+B EX-3: profileCompleteness / profileConfidence /
+  // profileIntelligenceData / profileLastAnalyzedAt removidos (DROP COLUMN em
+  // migration 0088 · ADR-0029 D-2 · autorização P.O. 2026-04-18).
   profileVersion: varchar("profileVersion", { length: 20 }).default("1.0"), // Versão do schema de perfil
   // v6.0 Consistency Gate — status e aceitação de risco
   consistencyStatus: mysqlEnum("consistencyStatus", [
@@ -1612,52 +1605,10 @@ export type InsertConsistencyCheck = typeof consistencyChecks.$inferInsert;
 
 // ─── Sprint I: CPIE Analysis History ──────────────────────────────────────────
 /**
- * Histórico de análises CPIE por projeto.
- * Cada vez que o usuário clica em "Analisar com IA" ou "Reanalisar",
- * o resultado é salvo aqui para comparação temporal.
+ * fix(z22) Wave A.2+B EX-3: tabelas cpieAnalysisHistory / cpieSettings removidas.
+ * Dados apagados via migration 0088_drop_cpie_legado.sql (ADR-0029 D-2 · autorização
+ * P.O. 2026-04-18 "todos os dados do banco podem ser apagados, com exceção RAG").
  */
-export const cpieAnalysisHistory = mysqlTable("cpie_analysis_history", {
-  id: int("id").autoincrement().primaryKey(),
-  projectId: int("project_id").notNull(),
-  analyzedById: int("analyzed_by_id").notNull(),
-  overallScore: int("overall_score").notNull().default(0),
-  confidenceScore: int("confidence_score").notNull().default(0),
-  readinessLevel: mysqlEnum("readiness_level", ["insufficient", "basic", "good", "excellent"]).notNull().default("basic"),
-  dimensionsJson: json("dimensions_json"), // ScoreDimension[]
-  suggestionsJson: json("suggestions_json"), // ProfileSuggestion[]
-  dynamicQuestionsJson: json("dynamic_questions_json"), // DynamicQuestion[]
-  insightsJson: json("insights_json"), // ProfileInsight[]
-  readinessMessage: text("readiness_message"),
-  analysisVersion: varchar("analysis_version", { length: 32 }).default("cpie-v1.0"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-export type CpieAnalysisHistory = typeof cpieAnalysisHistory.$inferSelect;
-export type InsertCpieAnalysisHistory = typeof cpieAnalysisHistory.$inferInsert;
-
-// ─── Sprint L: CPIE Settings ───────────────────────────────────────────────────
-/**
- * Configurações globais do CPIE — threshold mínimo, limites de lote, etc.
- * Tabela singleton: sempre haverá exatamente 1 linha (id=1).
- */
-export const cpieSettings = mysqlTable("cpie_settings", {
-  id: int("id").autoincrement().primaryKey(),
-  /** Score mínimo (0-100) exigido para avançar no NovoProjeto */
-  minScoreToAdvance: int("min_score_to_advance").notNull().default(30),
-  /** Máximo de projetos por execução de batchAnalyze */
-  batchSizeLimit: int("batch_size_limit").notNull().default(50),
-  /** Habilitar/desabilitar o gate de score mínimo globalmente */
-  gateEnabled: tinyint("gate_enabled").notNull().default(1),
-  /** Dia do mês para envio automático do relatório mensal (1-28) */
-  monthlyReportDay: int("monthly_report_day").notNull().default(1),
-  /** Última execução do job de relatório mensal (timestamp ms) */
-  lastMonthlyReportAt: bigint("last_monthly_report_at", { mode: "number" }),
-  /** Log da última execução do job */
-  lastJobLog: text("last_job_log"),
-  updatedAt: bigint("updated_at", { mode: "number" }),
-  updatedById: int("updated_by_id"),
-});
-export type CpieSettings = typeof cpieSettings.$inferSelect;
-export type InsertCpieSettings = typeof cpieSettings.$inferInsert;
 
 // ─── Shadow Mode F-04: Tabela de divergências ─────────────────────────────────
 /**

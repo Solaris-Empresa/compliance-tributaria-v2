@@ -4,48 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { AlertCircle, CheckCircle2, Clock, FolderKanban, Plus, Search, Brain, ArrowRight, Activity } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, FolderKanban, Search } from "lucide-react";
 import { Link } from "wouter";
 import { PROJECT_STATUS, STATUS_COLORS } from "@shared/translations";
 import { Input } from "@/components/ui/input";
 
-// ─── Alerta de Score CPIE Baixo (B8) ─────────────────────────────────────────
-function CpieAlertBanner() {
-  const { data, isLoading } = trpc.scoringEngine.getLowScoreProjects.useQuery(
-    { threshold: 50, limit: 20 },
-    { staleTime: 5 * 60 * 1000 } // cache 5 min
-  );
-  if (isLoading || !data || data.total === 0) return null;
-  return (
-    <div className="mb-6 p-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/10 dark:border-amber-800 flex items-start gap-3">
-      <Activity className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
-          {data.total} projeto{data.total !== 1 ? 's' : ''} com Score CPIE baixo (&lt; 50)
-        </p>
-        <p className="text-xs text-amber-700 dark:text-amber-500 mt-0.5">
-          Gaps críticos e riscos não mitigados reduzem a maturidade tributária. Acesse o Score CPIE para priorizar ações.
-        </p>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {data.projects.slice(0, 3).map((p) => (
-            <Link key={p.projectId} href={`/projetos/${p.projectId}/compliance-v3/score`}>
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700 dark:text-amber-400 hover:underline">
-                <ArrowRight className="h-3 w-3" />{p.projectName}
-                <span className="font-bold">({p.cpieScore})</span>
-                <span className="text-amber-500">{p.maturityLabel}</span>
-              </span>
-            </Link>
-          ))}
-          {data.total > 3 && (
-            <Link href="/projetos">
-              <span className="text-xs text-amber-600 hover:underline">+{data.total - 3} mais</span>
-            </Link>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+// fix(z22): CpieAlertBanner removido — trpc.scoringEngine.getLowScoreProjects é legado CPIE-B (ADR-0023 · zero analisados).
+// Alerta de projetos com score baixo volta em sprint futura usando Compliance Score v4 quando P.O. aprovar.
 
 type FilterKey = "all" | "em_andamento" | "em_avaliacao" | "aprovado" | "rascunho";
 
@@ -163,9 +128,6 @@ export default function Painel() {
             </CardContent>
           </Card>
         </div>
-
-        {/* J2: Alerta proativo de Score CPIE baixo — B8 */}
-        <CpieAlertBanner />
 
         {/* Recent Projects */}
         <Card>

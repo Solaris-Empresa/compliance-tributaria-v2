@@ -192,6 +192,16 @@ export function projectStatusToStepState(
   };
 
   // Mapear status do projeto para estado das etapas
+  const ALL_COMPLETED: Partial<StepState> = {
+    onda1: "completed",
+    onda2: "completed",
+    corporate: "completed",
+    operational: "completed",
+    cnae: "completed",
+    briefing: "completed",
+    matrizes: "completed",
+    plano: "completed",
+  };
   const statusMap: Record<string, Partial<StepState>> = {
     rascunho: {},
     onda1_solaris: { onda1: "completed" },
@@ -204,7 +214,13 @@ export function projectStatusToStepState(
     diagnostico_cnae: { onda1: "completed", onda2: "completed", corporate: "completed", operational: "completed", cnae: "completed" },
     briefing: { onda1: "completed", onda2: "completed", corporate: "completed", operational: "completed", cnae: "completed", briefing: "completed" },
     matriz_riscos: { onda1: "completed", onda2: "completed", corporate: "completed", operational: "completed", cnae: "completed", briefing: "completed", matrizes: "completed" },
-    aprovado: { onda1: "completed", onda2: "completed", corporate: "completed", operational: "completed", cnae: "completed", briefing: "completed", matrizes: "completed", plano: "completed" },
+    // fix(z22) UAT B-03: status pós-aprovação marcam todas as 8 etapas como concluídas (antes exibia "1/8 etapas" para projetos em execução).
+    plano_acao: ALL_COMPLETED,
+    aprovado: ALL_COMPLETED,
+    em_avaliacao: ALL_COMPLETED,
+    em_andamento: ALL_COMPLETED,
+    concluido: ALL_COMPLETED,
+    arquivado: ALL_COMPLETED,
   };
 
   const mapped = statusMap[projectStatus];

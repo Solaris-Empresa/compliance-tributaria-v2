@@ -63,8 +63,7 @@ import { gapRouter } from "./routers/gapRouter";
 import { riskRouter } from "./routers/riskRouter";
 import { consistencyRouter } from "./routers/consistencyRouter";
 import { flowRouter } from "./routers/flowRouter";
-import { cpieRouter } from "./routers/cpieRouter";
-import { cpieV2Router } from "./routers/cpieV2Router";
+// fix(z22) Wave A.2+B: cpieRouter, cpieV2Router, scoringEngineRouter removidos (ADR-0029 D-3).
 import { shadowModeRouter } from "./routers/shadowMode";
 import { requirementEngineRouter } from "./routers/requirementEngine";
 import { questionEngineRouter } from "./routers/questionEngine";
@@ -72,7 +71,6 @@ import { gapEngineRouter } from "./routers/gapEngine";
 import { riskEngineRouter } from "./routers/riskEngine";
 import { actionEngineRouter } from "./routers/actionEngine";
 import { briefingEngineRouter } from "./routers/briefingEngine";
-import { scoringEngineRouter } from "./routers/scoringEngine";
 import { ragInventoryRouter } from "./routers/ragInventory";
 import { ragAdminRouter } from "./routers/ragAdmin";
 import { taskboardRouter } from "./routers/taskboard"; // Sprint K — Taskboard P.O. ao vivo (Issue #151)
@@ -112,8 +110,7 @@ export const appRouter = router({
   risk: riskRouter,
   consistency: consistencyRouter,
   flow: flowRouter,
-  cpie: cpieRouter,
-  cpieV2: cpieV2Router, // CPIE v2.0 — Conflict Intelligence Gate (Issue v6.0.R1)
+  // fix(z22) Wave A.2+B: cpie + cpieV2 + scoringEngine removidos do registry (ADR-0029 D-3).
   shadowMode: shadowModeRouter, // ADR-009 — Shadow Mode para F-04
   requirements: requirementEngineRouter, // ADR-010 — Requirement Engine B2 (Sprint 98%)
   questionEngine: questionEngineRouter, // ADR-010 — Question Engine B3 (Sprint 98%)
@@ -121,7 +118,6 @@ export const appRouter = router({
   riskEngine: riskEngineRouter, // ADR-010 — Risk Engine B5 (Sprint 98%)
   actionEngine: actionEngineRouter, // ADR-010 — Action Engine B6 (Sprint 98%)
   briefingEngine: briefingEngineRouter, // ADR-010 — Briefing Engine B7 (Sprint 98%)
-  scoringEngine: scoringEngineRouter, // ADR-010 — Scoring Engine B8 (Sprint 98%)
   ragInventory: ragInventoryRouter, // Sprint H — RAG Cockpit ao vivo (Issue #128)
   ragAdmin: ragAdminRouter, // Sprint J — G16 Upload CSV corpus RAG (Issue #140)
   taskboard: taskboardRouter, // Sprint K — Taskboard P.O. ao vivo (Issue #151)

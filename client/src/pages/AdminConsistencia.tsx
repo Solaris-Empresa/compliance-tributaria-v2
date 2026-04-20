@@ -25,9 +25,9 @@ import {
   ChevronRight, Info, User, Calendar, Download, Settings
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CpieReportExport } from "@/components/CpieReportExport";
-import { CpieBatchPanel } from "@/components/CpieBatchPanel";
-import { CpieSettingsPanel } from "@/components/CpieSettingsPanel";
+// fix(z22) Wave A.2+B: CpieReportExport / CpieBatchPanel / CpieSettingsPanel removidos — legado CPIE.
+// Página continua funcional para a consistência de projetos (core: trpc.projects.list + ConsistencyBadge + ScoreBar).
+// Decisão ADR-0029 D-5 + absorção do Orquestrador: MANTER página, não marcar como DROP futuro.
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -91,23 +91,7 @@ export default function AdminConsistencia() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<ConsistencyStatus | "all">("all");
   const [selectedProject, setSelectedProject] = useState<ProjectWithConsistency | null>(null);
-  const [showBatchPanel, setShowBatchPanel] = useState(false);
-  const [showSettingsPanel, setShowSettingsPanel] = useState(false);
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-
-  const generateMonthlyReport = trpc.cpie.generateMonthlyReport.useMutation({
-    onSuccess: (data) => {
-      setIsGeneratingReport(false);
-      // Abrir relatório em nova aba
-      const win = window.open("", "_blank");
-      if (win) {
-        win.document.write(data.html);
-        win.document.close();
-        setTimeout(() => win.print(), 500);
-      }
-    },
-    onError: () => setIsGeneratingReport(false),
-  });
+  // fix(z22): showBatchPanel / showSettingsPanel / isGeneratingReport + generateMonthlyReport removidos com os painéis CPIE.
 
   // Buscar projetos com dados de consistência
   const { data: projects, isLoading, isError, refetch } = trpc.projects.list.useQuery();
@@ -183,29 +167,7 @@ export default function AdminConsistencia() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {/* K1: Análise em lote */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={() => setShowBatchPanel(!showBatchPanel)}
-            >
-              <Brain className="h-4 w-4" />{showBatchPanel ? 'Ocultar Lote' : 'Analisar em Lote'}
-            </Button>
-            {/* K3: Relatório mensal */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              disabled={isGeneratingReport || generateMonthlyReport.isPending}
-              onClick={() => {
-                setIsGeneratingReport(true);
-                generateMonthlyReport.mutate({});
-              }}
-            >
-              <TrendingUp className="h-4 w-4" />
-              {generateMonthlyReport.isPending ? 'Gerando...' : 'Relatório Mensal'}
-            </Button>
+            {/* fix(z22): botões K1 "Analisar em Lote" e K3 "Relatório Mensal" removidos — CpieBatchPanel e trpc.cpie.generateMonthlyReport deletados. */}
             {/* J3: Exportar CSV consolidado */}
             <Button
               variant="outline"
@@ -234,15 +196,7 @@ export default function AdminConsistencia() {
             >
               <Download className="h-4 w-4" />Exportar CSV
             </Button>
-            {/* L1: Configurações CPIE */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={() => setShowSettingsPanel(!showSettingsPanel)}
-            >
-              <Settings className="h-4 w-4" />{showSettingsPanel ? 'Ocultar Config.' : 'Configurações'}
-            </Button>
+            {/* fix(z22): botão L1 "Configurações" removido — CpieSettingsPanel deletado. */}
             <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
               <RefreshCw className="h-4 w-4" />Atualizar
             </Button>
@@ -269,22 +223,7 @@ export default function AdminConsistencia() {
           ))}
         </div>
 
-        {/* K1: Painel de análise em lote (colapsável) */}
-        {showBatchPanel && (
-          <CpieBatchPanel
-            pendingCount={stats.pending}
-            onComplete={() => refetch()}
-          />
-        )}
-
-        {/* L1: Painel de configurações CPIE (colapsável) */}
-        {showSettingsPanel && (
-          <Card>
-            <CardContent className="pt-5">
-              <CpieSettingsPanel />
-            </CardContent>
-          </Card>
-        )}
+        {/* fix(z22): painéis CpieBatchPanel e CpieSettingsPanel removidos junto com os componentes. */}
 
         {/* Filtros */}
         <div className="flex flex-col sm:flex-row gap-3">
@@ -517,17 +456,7 @@ export default function AdminConsistencia() {
                   )}
                 </div>
               )}
-              {/* Botão Exportar PDF */}
-              {selectedProject.profileIntelligenceData && (
-                <div className="pt-2">
-                  <CpieReportExport
-                    projectId={selectedProject.id}
-                    projectName={selectedProject.name}
-                    variant="outline"
-                    size="sm"
-                  />
-                </div>
-              )}
+              {/* fix(z22): botão "Exportar PDF" (CpieReportExport) removido — legado CPIE. */}
             </div>
           )}
         </DialogContent>

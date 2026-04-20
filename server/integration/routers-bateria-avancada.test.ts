@@ -1,7 +1,7 @@
 /**
  * BATERIA AVANÇADA DE VALIDAÇÃO — 50 TESTES AUTOMATIZADOS
  * Grupos A-E: Fluxo, Coverage, Gap Engine, Risk Engine, Action+Briefing
- * Plataforma CPIE v2 — Reforma Tributária (LC 214/2025)
+ * Plataforma IA SOLARIS — Reforma Tributária (LC 214/2025)
  */
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
