@@ -57,6 +57,31 @@ interface Question {
   existingAnswer: string | null;
 }
 
+// ─── Prefix helper (fix UAT 2026-04-20 — opção A2) ───────────────────────────
+// Sugere formato Sim/Não/N.A. + justificativa sem alterar schema.
+// Backend continua aceitando qualquer texto em solaris_answers.resposta.
+
+const PREFIX_OPTIONS = [
+  { prefix: "Sim. ", label: "Sim", testId: "sim" },
+  { prefix: "Não. ", label: "Não", testId: "nao" },
+  { prefix: "N/A. ", label: "Não se aplica", testId: "na" },
+] as const;
+
+const KNOWN_PREFIXES = PREFIX_OPTIONS.map((o) => o.prefix);
+
+/**
+ * Aplica um prefixo (Sim./Não./N/A.) ao texto atual.
+ * - Se já tem um prefixo conhecido → substitui
+ * - Se não tem → prepend no início preservando o texto
+ */
+function applyPrefix(currentText: string, newPrefix: string): string {
+  const existing = KNOWN_PREFIXES.find((p) => currentText.startsWith(p));
+  if (existing) {
+    return newPrefix + currentText.slice(existing.length);
+  }
+  return newPrefix + currentText;
+}
+
 // ─── Componente principal ────────────────────────────────────────────────────
 
 export default function QuestionarioSolaris() {
@@ -396,14 +421,43 @@ export default function QuestionarioSolaris() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
+              {/* fix UAT 2026-04-20: guia de formato + botões de prefix — respostas abertas ganham
+                  consistência visual sem mudança de schema (opção A2). Backend continua aceitando
+                  qualquer texto. */}
+              <p className="text-xs text-muted-foreground">
+                💡 Formato sugerido: <strong>Sim</strong>, <strong>Não</strong> ou <strong>Não se aplica</strong> — seguido de justificativa breve.
+              </p>
+
+              <div className="flex gap-2 flex-wrap" data-testid="prefix-buttons">
+                {PREFIX_OPTIONS.map((opt) => (
+                  <Button
+                    key={opt.prefix}
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      handleAnswerChange(
+                        currentQuestion.id,
+                        applyPrefix(answers[currentQuestion.id] ?? "", opt.prefix)
+                      )
+                    }
+                    data-testid={`prefix-btn-${opt.testId}`}
+                    className="h-7 text-xs"
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+              </div>
+
               <Textarea
-                placeholder="Digite sua resposta aqui..."
+                placeholder="Ex: Sim. A empresa já implementou o regime de competência conforme art. 9º..."
                 value={answers[currentQuestion.id] ?? ""}
                 onChange={(e) =>
                   handleAnswerChange(currentQuestion.id, e.target.value)
                 }
                 rows={5}
                 className="resize-none focus-visible:ring-blue-500/50"
+                data-testid={`textarea-resposta-${currentQuestion.id}`}
               />
 
               {/* Indicador de resposta salva */}
