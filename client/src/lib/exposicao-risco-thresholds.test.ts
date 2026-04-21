@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   classifyExposicao,
   getExposicaoConfig,
+  getMetaInfo,
+  META_EXPOSICAO,
   EXPOSICAO_CONFIG,
   EXPOSICAO_TEXTOS,
 } from "./exposicao-risco-thresholds";
@@ -93,6 +95,53 @@ describe("EXPOSICAO_CONFIG — sanidade estrutural", () => {
     const classes = Object.values(EXPOSICAO_CONFIG).map((c) => c.className);
     const unique = new Set(classes);
     expect(unique.size).toBe(4);
+  });
+});
+
+describe("getMetaInfo — distância até meta (anti-reflexo)", () => {
+  it("META_EXPOSICAO = 30", () => {
+    expect(META_EXPOSICAO).toBe(30);
+  });
+
+  it("score <= 30 indica meta atingida (distancia=0)", () => {
+    const info = getMetaInfo(25);
+    expect(info.atual).toBe(25);
+    expect(info.distancia).toBe(0);
+    expect(info.distanciaLabel).toContain("meta atingida");
+  });
+
+  it("score=30 (limite) também considera meta atingida", () => {
+    expect(getMetaInfo(30).distancia).toBe(0);
+  });
+
+  it("score=66 (alta) distância = 66-55 = 11 pontos para sair da faixa", () => {
+    const info = getMetaInfo(66);
+    expect(info.atual).toBe(66);
+    expect(info.distancia).toBe(11);
+    expect(info.distanciaLabel).toContain("sair da faixa alta");
+  });
+
+  it("score=45 (moderada) distância = 45-30 = 15 pontos para meta", () => {
+    const info = getMetaInfo(45);
+    expect(info.distancia).toBe(15);
+    expect(info.distanciaLabel).toContain("baixa exposição");
+  });
+
+  it("score=85 (crítica) distância = 85-75 = 10 pontos para sair da faixa", () => {
+    const info = getMetaInfo(85);
+    expect(info.distancia).toBe(10);
+    expect(info.distanciaLabel).toContain("sair da faixa crítica");
+  });
+
+  it("clampa valores inválidos", () => {
+    expect(getMetaInfo(-5).atual).toBe(0);
+    expect(getMetaInfo(150).atual).toBe(100);
+    expect(getMetaInfo(NaN).atual).toBe(0);
+  });
+
+  it("arredonda antes de calcular", () => {
+    expect(getMetaInfo(66.4).atual).toBe(66);
+    expect(getMetaInfo(66.5).atual).toBe(67);
   });
 });
 

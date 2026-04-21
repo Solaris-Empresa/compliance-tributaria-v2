@@ -10,6 +10,8 @@ import autoTable from "jspdf-autotable";
 import {
   classifyExposicao,
   EXPOSICAO_CONFIG,
+  getMetaInfo,
+  META_EXPOSICAO,
 } from "./exposicao-risco-thresholds";
 
 export interface DiagnosticoPDFData {
@@ -124,16 +126,24 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
   // Classificação UX (fonte única de verdade — #802)
   const level = classifyExposicao(data.score);
   const cfg = EXPOSICAO_CONFIG[level];
+  const meta = getMetaInfo(data.score);
   doc.setTextColor(30, 30, 30);
+
+  const distanciaRow =
+    meta.distancia === 0
+      ? "0 pontos · meta atingida"
+      : `${meta.distancia} pontos para ${meta.distanciaLabel}`;
 
   autoTable(doc, {
     startY: y,
     head: [["Indicador", "Valor"]],
     body: [
-      ["Score (0-100)", `${data.score}`],
+      ["Exposição atual", `${data.score} / 100 pontos  ↓`],
       ["Nível", `${cfg.emoji} ${cfg.label}`],
       ["Interpretação", cfg.interpretation],
       ["Ação recomendada", cfg.action],
+      ["Meta", `≤ ${META_EXPOSICAO} pontos`],
+      ["Distância até a meta", distanciaRow],
       ["Riscos Alta Severidade", String(data.totalAlta)],
       ["Riscos Média Severidade", String(data.totalMedia)],
       ["Total Oportunidades", String(data.opportunities.length)],

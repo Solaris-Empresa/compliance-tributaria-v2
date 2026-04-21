@@ -109,6 +109,66 @@ export function getExposicaoConfig(score: number | null | undefined): ExposicaoC
   return EXPOSICAO_CONFIG[classifyExposicao(score)];
 }
 
+// ─── Meta e distância (anti-reflexo de leitura — issue #802 ajuste 2) ───────
+
+/** Teto da faixa "baixa exposição" — meta canônica do produto. */
+export const META_EXPOSICAO = 30;
+
+export interface ExposicaoMetaInfo {
+  /** Valor atual (clampado 0-100) */
+  atual: number;
+  /** Meta teto ≤ 30 */
+  meta: number;
+  /** Pontos a reduzir para sair da faixa atual (0 se já está na meta) */
+  distancia: number;
+  /** Texto humano da distância: "sair da faixa alta" / "atingir a meta" */
+  distanciaLabel: string;
+}
+
+/**
+ * Calcula a distância entre o score atual e a meta de baixa exposição.
+ * Retorna o número de pontos a reduzir + rótulo contextual.
+ */
+export function getMetaInfo(score: number): ExposicaoMetaInfo {
+  const atual = Math.max(0, Math.min(100, Math.round(Number.isFinite(score) ? score : 0)));
+  if (atual <= META_EXPOSICAO) {
+    return {
+      atual,
+      meta: META_EXPOSICAO,
+      distancia: 0,
+      distanciaLabel: "meta atingida — manter monitoramento",
+    };
+  }
+  const level = classifyExposicao(atual);
+  // Ponto-alvo: sair da faixa atual (retornar para o teto da faixa anterior)
+  let alvoSairFaixa: number;
+  let labelSair: string;
+  switch (level) {
+    case "critica":
+      alvoSairFaixa = 75;
+      labelSair = "sair da faixa crítica";
+      break;
+    case "alta":
+      alvoSairFaixa = 55;
+      labelSair = "sair da faixa alta";
+      break;
+    case "moderada":
+      alvoSairFaixa = 30;
+      labelSair = "atingir a meta de baixa exposição";
+      break;
+    default:
+      alvoSairFaixa = META_EXPOSICAO;
+      labelSair = "manter faixa";
+  }
+  const distancia = atual - alvoSairFaixa;
+  return {
+    atual,
+    meta: META_EXPOSICAO,
+    distancia,
+    distanciaLabel: labelSair,
+  };
+}
+
 // ─── Textos canônicos do indicador (fonte única) ────────────────────────────
 
 export const EXPOSICAO_TEXTOS = {

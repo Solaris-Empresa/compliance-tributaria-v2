@@ -113,12 +113,12 @@ export function ExposicaoRiscoBadge({
       )}
       data-testid="exposicao-risco-badge"
       data-level={level}
-      title={`Exposição ao Risco de Compliance: ${cfg.label} (${score}%) — ${cfg.interpretation}. Quanto menor, melhor.`}
+      title={`Exposição ao Risco de Compliance: ${cfg.label} (${score}/100 pontos) — ${cfg.interpretation}. Quanto menor, melhor.`}
     >
       <Icon className={iconSize} />
       <span>{cfg.label}</span>
       {showScore && (
-        <span className="font-mono tabular-nums opacity-80">{score}%</span>
+        <span className="font-mono tabular-nums opacity-80">{score}/100</span>
       )}
     </span>
   );

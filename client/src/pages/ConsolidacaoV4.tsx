@@ -32,6 +32,8 @@ import { toast } from "sonner";
 import {
   classifyExposicao,
   getExposicaoConfig,
+  getMetaInfo,
+  META_EXPOSICAO,
   EXPOSICAO_CONFIG,
   EXPOSICAO_TEXTOS,
 } from "@/lib/exposicao-risco-thresholds";
@@ -149,6 +151,7 @@ export default function ConsolidacaoV4() {
   const rawScore = typeof score?.score === "number" ? score.score : 0;
   const exposicaoLevel = classifyExposicao(rawScore);
   const exposicaoCfg = EXPOSICAO_CONFIG[exposicaoLevel];
+  const metaInfo = getMetaInfo(rawScore);
   // Mantido para compat com NIVEL_COLORS downstream (KpiCard Score)
   const nivel = score?.nivel ?? "baixo";
   const nivelColors = NIVEL_COLORS[nivel] ?? NIVEL_COLORS.baixo;
@@ -249,14 +252,22 @@ export default function ConsolidacaoV4() {
               </AlertDescription>
             </Alert>
 
-            {/* Score + Label */}
-            <div className="flex items-baseline gap-4">
+            {/* Score + Label + seta ↓ (anti-reflexo: indica "queremos diminuir") */}
+            <div className="flex items-baseline gap-3 flex-wrap">
               <span
                 data-testid="exposicao-score"
-                className={`text-5xl font-bold ${exposicaoCfg.className.split(" ").find((c) => c.startsWith("text-"))}`}
+                className={`text-5xl font-bold leading-none ${exposicaoCfg.className.split(" ").find((c) => c.startsWith("text-"))}`}
               >
                 {rawScore}
-                <span className="text-2xl">/100</span>
+              </span>
+              <span className="text-lg text-muted-foreground">/ 100 pontos</span>
+              <span
+                data-testid="exposicao-seta-reduzir"
+                className={`text-xl ${exposicaoCfg.className.split(" ").find((c) => c.startsWith("text-"))}`}
+                title="Queremos reduzir este número"
+                aria-label="Quanto menor, melhor"
+              >
+                ↓
               </span>
               <Badge
                 data-testid="exposicao-nivel-badge"
@@ -264,6 +275,40 @@ export default function ConsolidacaoV4() {
               >
                 {exposicaoCfg.emoji} {exposicaoCfg.label.toUpperCase()}
               </Badge>
+            </div>
+
+            {/* Meta + Distância (anti-reflexo: transforma o número numa distância a percorrer) */}
+            <div
+              data-testid="exposicao-meta-distancia"
+              className="rounded-lg border bg-card/70 px-3 py-2 space-y-1 text-sm"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex items-center gap-2 text-muted-foreground">
+                  <span aria-hidden>🎯</span>
+                  Meta
+                </span>
+                <span className="font-mono tabular-nums font-semibold">
+                  ≤ {META_EXPOSICAO} pontos
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex items-center gap-2 text-muted-foreground">
+                  <span aria-hidden>📉</span>
+                  Distância
+                </span>
+                <span
+                  data-testid="exposicao-distancia-valor"
+                  className={`font-mono tabular-nums font-semibold ${
+                    metaInfo.distancia === 0
+                      ? "text-emerald-700 dark:text-emerald-400"
+                      : exposicaoCfg.className.split(" ").find((c) => c.startsWith("text-"))
+                  }`}
+                >
+                  {metaInfo.distancia === 0
+                    ? "0 pontos · meta atingida"
+                    : `${metaInfo.distancia} pontos para ${metaInfo.distanciaLabel}`}
+                </span>
+              </div>
             </div>
 
             {/* Barra visual com marcadores de threshold */}
