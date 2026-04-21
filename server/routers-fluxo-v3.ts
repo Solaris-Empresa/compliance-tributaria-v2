@@ -1457,6 +1457,37 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         };
       }
 
+      // fix UAT 2026-04-21 V1: persistir snapshot da confiança para freshness check.
+      // Snapshot inclui breakdown completo + fingerprints (ts+hash) das 6 fontes.
+      // Ao abrir o briefing no futuro, comparamos fingerprints atuais vs snapshot
+      // para detectar divergência e exibir banner "dados mudaram".
+      const { computeAllFingerprints } = await import("./lib/briefing-fingerprint");
+      const confFingerprints = await computeAllFingerprints({
+        projectId: input.projectId,
+        projectName: project.name,
+        projectDescription: (project as any).description,
+        companyProfile: (project as any).companyProfile,
+        operationProfile: (project as any).operationProfile,
+        taxComplexity: (project as any).taxComplexity,
+        financialProfile: (project as any).financialProfile,
+        governanceProfile: (project as any).governanceProfile,
+        questionnaireAnswers: (project as any).questionnaireAnswers,
+        productAnswers: (project as any).productAnswers,
+        serviceAnswers: (project as any).serviceAnswers,
+        projectUpdatedAt: (project as any).updatedAt,
+      });
+      (structured as any).confiancaSnapshot = {
+        score: confBreakdown.score,
+        aplicabilidade: confBreakdown.aplicabilidade,
+        pilares: confBreakdown.pilares,
+        pesoTotal: confBreakdown.pesoTotal,
+        contribuicaoTotal: confBreakdown.contribuicaoTotal,
+        fingerprints: confFingerprints,
+        metadata: signalsResult.metadata,
+        geradoEm: new Date().toISOString(),
+        formulaVersion: "1.0",
+      };
+
       // Converter estruturado para Markdown (compatibilidade com UI existente)
       // fix #806: template v2 recebe metadata do projeto para cabeçalho empresarial.
       // fix #809: contador de questionários respondidos (1 por questionário com >=1 resposta).
@@ -1698,6 +1729,68 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       return {
         success: true,
         inconsistenciasRestantes: after.length,
+      };
+    }),
+
+  // fix UAT 2026-04-21 V1: freshness check — detecta se dados fonte mudaram
+  // desde a geração do briefing atual. Dispara no mount da página do briefing.
+  // Retorna breakdown do snapshot persistido + diff fonte a fonte.
+  // Zero mudança de estado (só leitura); barato o suficiente pra rodar em mount.
+  checkBriefingFreshness: protectedProcedure
+    .input(z.object({ projectId: z.number().int().positive() }))
+    .query(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+      }
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Sem acesso a este projeto" });
+      }
+
+      const { computeAllFingerprints, diffFingerprints, hasDivergence } = await import("./lib/briefing-fingerprint");
+
+      // Snapshot persistido (pode ser null se briefing ainda não foi gerado).
+      const structuredRaw = (project as any).briefingStructured;
+      const structured = (() => {
+        if (!structuredRaw) return null;
+        try { return typeof structuredRaw === "string" ? JSON.parse(structuredRaw) : structuredRaw; } catch { return null; }
+      })();
+      const snapshot = structured?.confiancaSnapshot ?? null;
+
+      // Fingerprints atuais.
+      const currentFingerprints = await computeAllFingerprints({
+        projectId: input.projectId,
+        projectName: project.name,
+        projectDescription: (project as any).description,
+        companyProfile: (project as any).companyProfile,
+        operationProfile: (project as any).operationProfile,
+        taxComplexity: (project as any).taxComplexity,
+        financialProfile: (project as any).financialProfile,
+        governanceProfile: (project as any).governanceProfile,
+        questionnaireAnswers: (project as any).questionnaireAnswers,
+        productAnswers: (project as any).productAnswers,
+        serviceAnswers: (project as any).serviceAnswers,
+        projectUpdatedAt: (project as any).updatedAt,
+      });
+
+      const snapshotFingerprints = snapshot?.fingerprints ?? null;
+      const diffs = diffFingerprints(snapshotFingerprints, currentFingerprints);
+      const diverged = hasDivergence(diffs);
+
+      return {
+        hasSnapshot: !!snapshot,
+        diverged,
+        diffs,
+        snapshot: snapshot
+          ? {
+              score: snapshot.score,
+              aplicabilidade: snapshot.aplicabilidade,
+              geradoEm: snapshot.geradoEm,
+              formulaVersion: snapshot.formulaVersion,
+            }
+          : null,
+        currentFingerprints,
       };
     }),
 
@@ -3248,6 +3341,34 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
           recomendacao: "Revisão por advogado tributarista recomendada",
         };
       }
+
+      // fix UAT 2026-04-21 V1: persistir snapshot da confiança (fingerprints).
+      const { computeAllFingerprints: computeFingerprintsFD } = await import("./lib/briefing-fingerprint");
+      const confFingerprintsFD = await computeFingerprintsFD({
+        projectId: input.projectId,
+        projectName: project.name,
+        projectDescription: p.description,
+        companyProfile: p.companyProfile,
+        operationProfile: opProfileForBriefing,
+        taxComplexity: (p as any).taxComplexity,
+        financialProfile: (p as any).financialProfile,
+        governanceProfile: (p as any).governanceProfile,
+        questionnaireAnswers: p.questionnaireAnswers,
+        productAnswers: briefingProduct,
+        serviceAnswers: briefingService,
+        projectUpdatedAt: (p as any).updatedAt,
+      });
+      (structured as any).confiancaSnapshot = {
+        score: confBreakdownFD.score,
+        aplicabilidade: confBreakdownFD.aplicabilidade,
+        pilares: confBreakdownFD.pilares,
+        pesoTotal: confBreakdownFD.pesoTotal,
+        contribuicaoTotal: confBreakdownFD.contribuicaoTotal,
+        fingerprints: confFingerprintsFD,
+        metadata: signalsResultFD.metadata,
+        geradoEm: new Date().toISOString(),
+        formulaVersion: "1.0",
+      };
 
       const { buildBriefingMarkdown } = await import("./routers-fluxo-v3").then(m => ({
         buildBriefingMarkdown: (m as any).buildBriefingMarkdown,
