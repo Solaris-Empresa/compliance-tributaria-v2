@@ -30,6 +30,7 @@ import {
 import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
 // fix #810: import estático (require dentro de sync function falha em ESM/Vitest).
 import { classifyMaturityBadge, MATURITY_BADGE_LABEL } from "./lib/briefing-quality";
+import type { ConfiancaBreakdown } from "./lib/calculate-briefing-confidence";
 import mysql from "mysql2/promise";
 import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
@@ -1422,16 +1423,30 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       const ncmCountForConf = (opProfile.principaisProdutos ?? []).filter(p => p?.ncm_code).length;
       const nbsCountForConf = (opProfile.principaisServicos ?? []).filter(s => s?.nbs_code).length;
 
-      const { calculateBriefingConfidence } = await import("./lib/calculate-briefing-confidence");
-      const deterministicConfidence = calculateBriefingConfidence({
-        solarisAnswersCount: solarisCountForConf,
-        iagenAnswersCount: iagenCountForConf,
-        productAnswersCount: Array.isArray(productAnswersForConf) ? productAnswersForConf.length : 0,
-        serviceAnswersCount: Array.isArray(serviceAnswersForConf) ? serviceAnswersForConf.length : 0,
-        cnaeAnswersCount: cnaeQuestionsCountForConf,
-        ncmCodesCount: ncmCountForConf,
-        nbsCodesCount: nbsCountForConf,
+      // fix UAT 2026-04-21: fórmula de confiança v2 — média ponderada de 6 pilares
+      // com signals dinâmicos (replica calcProfileScore + modelo composto 30/70 Q3).
+      // Ponto único de verdade: server/lib/briefing-confidence-signals.ts.
+      const { computeConfidenceSignals } = await import("./lib/briefing-confidence-signals");
+      const { calculateBriefingConfidenceWithBreakdown } = await import("./lib/calculate-briefing-confidence");
+      const cnaesConfirmadosCodes = confirmedCnaes.map((c) => c.code).filter(Boolean);
+      const signalsResult = await computeConfidenceSignals({
+        projectId: input.projectId,
+        cnaesConfirmados: cnaesConfirmadosCodes,
+        companyProfile: (project as any).companyProfile,
+        operationProfile: (project as any).operationProfile,
+        taxComplexity: (project as any).taxComplexity,
+        financialProfile: (project as any).financialProfile,
+        governanceProfile: (project as any).governanceProfile,
+        questionnaireAnswers: (project as any).questionnaireAnswers,
+        productAnswers: (project as any).productAnswers,
+        serviceAnswers: (project as any).serviceAnswers,
       });
+      const confBreakdown = calculateBriefingConfidenceWithBreakdown(signalsResult.signals);
+      const deterministicConfidence = confBreakdown.score;
+      const produtosTotalCountPre = signalsResult.signals.q3ProdutosCadastrados;
+      const servicosTotalCountPre = signalsResult.signals.q3ServicosCadastrados;
+      const productAnswersArrCountPre = signalsResult.signals.q3ProdutosTotalPerguntas;
+      const serviceAnswersArrCountPre = signalsResult.signals.q3ServicosTotalPerguntas;
       if (structured.confidence_score && typeof structured.confidence_score === "object") {
         structured.confidence_score.nivel_confianca = deterministicConfidence;
       } else {
@@ -1446,24 +1461,20 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       // fix #806: template v2 recebe metadata do projeto para cabeçalho empresarial.
       // fix #809: contador de questionários respondidos (1 por questionário com >=1 resposta).
       // fix #810: qualidade determinística das informações fornecidas.
-      const productAnswersArrCount = Array.isArray(productAnswersForConf) ? productAnswersForConf.length : 0;
-      const serviceAnswersArrCount = Array.isArray(serviceAnswersForConf) ? serviceAnswersForConf.length : 0;
       const questionariosRespondidosCount =
         (solarisCountForConf > 0 ? 1 : 0) +
         (iagenCountForConf > 0 ? 1 : 0) +
         (cnaeQuestionsCountForConf > 0 ? 1 : 0) +
-        (productAnswersArrCount > 0 ? 1 : 0) +
-        (serviceAnswersArrCount > 0 ? 1 : 0);
-      const produtosTotalCount = (opProfile.principaisProdutos ?? []).length;
-      const servicosTotalCount = (opProfile.principaisServicos ?? []).length;
+        (productAnswersArrCountPre > 0 ? 1 : 0) +
+        (serviceAnswersArrCountPre > 0 ? 1 : 0);
       const { calculateBriefingQuality } = await import("./lib/briefing-quality");
       const qualityResult = calculateBriefingQuality({
         questionariosRespondidos: questionariosRespondidosCount,
         questionariosTotal: 5,
         produtosComClassificacao: ncmCountForConf,
-        produtosTotal: produtosTotalCount,
+        produtosTotal: produtosTotalCountPre,
         servicosComClassificacao: nbsCountForConf,
-        servicosTotal: servicosTotalCount,
+        servicosTotal: servicosTotalCountPre,
         descricao: (project as any).description ?? "",
       });
       const briefingMeta: BriefingMarkdownMeta = {
@@ -1479,8 +1490,10 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         questionariosRespondidos: questionariosRespondidosCount,
         questionariosTotal: 5,
         qualidadeInformacoes: qualityResult.quality,
-        produtosTotal: produtosTotalCount,
-        servicosTotal: servicosTotalCount,
+        produtosTotal: produtosTotalCountPre,
+        servicosTotal: servicosTotalCountPre,
+        // fix UAT 2026-04-21: breakdown ponderado para tabela de transparência.
+        confiancaBreakdown: confBreakdown,
       };
       // fix #808: sanitiza markdown contra alucinação de NCM/NBS (códigos citados que
       // não estão em principaisProdutos/principaisServicos recebem disclaimer "(sugerido)").
@@ -3208,33 +3221,32 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         (structured as any).dismissed_inconsistencias = dismissedFD;
       }
 
-      // fix(#771 UAT 2026-04-20): confidence determinístico server-side — mesma heurística de generateBriefing.
-      {
-        const productAnswersCount = Array.isArray(briefingProduct) ? briefingProduct.length : 0;
-        const serviceAnswersCount = Array.isArray(briefingService) ? briefingService.length : 0;
-        const cnaeQuestionsCountForConf = cnaeAnswers.reduce((acc: number, l: any) => acc + (l.questions?.length ?? 0), 0);
-        const ncmCountForConf = (opProfileForBriefing.principaisProdutos ?? []).filter(x => x?.ncm_code).length;
-        const nbsCountForConf = (opProfileForBriefing.principaisServicos ?? []).filter(x => x?.nbs_code).length;
-
-        const { calculateBriefingConfidence } = await import("./lib/calculate-briefing-confidence");
-        const deterministicConfidence = calculateBriefingConfidence({
-          solarisAnswersCount: solarisAnswersForBriefing.length,
-          iagenAnswersCount: iagenAnswersForBriefing.length,
-          productAnswersCount,
-          serviceAnswersCount,
-          cnaeAnswersCount: cnaeQuestionsCountForConf,
-          ncmCodesCount: ncmCountForConf,
-          nbsCodesCount: nbsCountForConf,
-        });
-        if (structured.confidence_score && typeof structured.confidence_score === "object") {
-          structured.confidence_score.nivel_confianca = deterministicConfidence;
-        } else {
-          structured.confidence_score = {
-            nivel_confianca: deterministicConfidence,
-            limitacoes: [],
-            recomendacao: "Revisão por advogado tributarista recomendada",
-          };
-        }
+      // fix UAT 2026-04-21: fórmula de confiança v2 via signals module.
+      const { computeConfidenceSignals: computeSignalsFD } = await import("./lib/briefing-confidence-signals");
+      const { calculateBriefingConfidenceWithBreakdown: calcConfFD } = await import("./lib/calculate-briefing-confidence");
+      const cnaesConfirmadosCodesFD = confirmedCnaes.map((c: any) => c.code).filter(Boolean);
+      const signalsResultFD = await computeSignalsFD({
+        projectId: input.projectId,
+        cnaesConfirmados: cnaesConfirmadosCodesFD,
+        companyProfile: p.companyProfile,
+        operationProfile: opProfileForBriefing,
+        taxComplexity: (p as any).taxComplexity,
+        financialProfile: (p as any).financialProfile,
+        governanceProfile: (p as any).governanceProfile,
+        questionnaireAnswers: p.questionnaireAnswers,
+        productAnswers: briefingProduct,
+        serviceAnswers: briefingService,
+      });
+      const confBreakdownFD = calcConfFD(signalsResultFD.signals);
+      const deterministicConfidenceFD = confBreakdownFD.score;
+      if (structured.confidence_score && typeof structured.confidence_score === "object") {
+        structured.confidence_score.nivel_confianca = deterministicConfidenceFD;
+      } else {
+        structured.confidence_score = {
+          nivel_confianca: deterministicConfidenceFD,
+          limitacoes: [],
+          recomendacao: "Revisão por advogado tributarista recomendada",
+        };
       }
 
       const { buildBriefingMarkdown } = await import("./routers-fluxo-v3").then(m => ({
@@ -3284,6 +3296,8 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         qualidadeInformacoes: qualityResultFD.quality,
         produtosTotal: produtosTotalCountFD,
         servicosTotal: servicosTotalCountFD,
+        // fix UAT 2026-04-21: breakdown ponderado para transparência.
+        confiancaBreakdown: confBreakdownFD,
       };
 
       // Converter para markdown (fallback se não conseguir importar)
@@ -4349,6 +4363,9 @@ export interface BriefingMarkdownMeta {
   qualidadeInformacoes?: number;
   produtosTotal?: number;
   servicosTotal?: number;
+  // fix UAT 2026-04-21: breakdown ponderado da confiança — exibido como tabela
+  // "Como calculamos a Confiança" no briefing (requisito jurídico de transparência).
+  confiancaBreakdown?: ConfiancaBreakdown;
 }
 
 // fix #809: threshold canônico do P.O. — briefing com confiança abaixo dessa
@@ -4695,6 +4712,61 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
       for (const lim of cs.limitacoes) {
         lines.push(`- ${lim}`);
       }
+      lines.push(``);
+    }
+
+    // fix UAT 2026-04-21: tabela "Como calculamos a Confiança" — requisito
+    // jurídico de transparência. Renderizada automaticamente quando o caller
+    // fornecer meta.confiancaBreakdown. Aparece em página (Streamdown) e PDF.
+    const bd = meta.confiancaBreakdown;
+    if (bd && Array.isArray(bd.pilares) && bd.pilares.length > 0) {
+      lines.push(`---`);
+      lines.push(``);
+      lines.push(`### 🧮 Como calculamos a Confiança`);
+      lines.push(``);
+      lines.push(
+        `Média ponderada de 6 pilares de informação fornecida pela empresa.`
+      );
+      lines.push(``);
+      lines.push(
+        `**Fórmula:** confiança = Σ(peso × completude) / Σ(pesos aplicáveis) × 100`
+      );
+      lines.push(``);
+      lines.push(`| Pilar | Peso | Completude | Contribuição |`);
+      lines.push(`|---|---:|---:|---:|`);
+      for (const p of bd.pilares) {
+        const completudePct = Math.round(p.completude * 100);
+        const contribStr = (Math.round(p.contribuicao * 10) / 10).toFixed(1).replace(".", ",");
+        const detalhe = p.key === "perfil"
+          ? `${p.respostas}/${p.total ?? "?"} campos`
+          : p.total != null
+            ? `${p.respostas}/${p.total} perguntas`
+            : p.respostas > 0 ? `${p.respostas} resp.` : `sem resposta`;
+        const pesoCell = p.aplicavel ? `${p.peso}` : `${p.peso} _(n/a)_`;
+        const completudeCell = p.aplicavel
+          ? `${completudePct}% (${detalhe})`
+          : `— _(não se aplica)_`;
+        const contribCell = p.aplicavel ? `**${contribStr}**` : `—`;
+        lines.push(`| ${p.label} | ${pesoCell} | ${completudeCell} | ${contribCell} |`);
+      }
+      const totalStr = (Math.round(bd.contribuicaoTotal * 10) / 10).toFixed(1).replace(".", ",");
+      lines.push(`| **Total aplicável** | **${bd.pesoTotal}** | — | **${totalStr}** |`);
+      lines.push(``);
+      lines.push(
+        `**Confiança = ${totalStr} / ${bd.pesoTotal} = ${bd.score}%**`
+      );
+      lines.push(``);
+      const tipoLabel: Record<string, string> = {
+        produto: "Produto (exclui Q3 Serviços)",
+        servico: "Serviço (exclui Q3 Produtos)",
+        mista: "Mista (inclui Q3 Produtos + Q3 Serviços)",
+      };
+      lines.push(
+        `_Tipo de empresa: **${tipoLabel[bd.aplicabilidade] ?? bd.aplicabilidade}**._`
+      );
+      lines.push(
+        `_Para elevar a confiança, complete os questionários com maior peso (Q3 = 10 pontos cada)._`
+      );
       lines.push(``);
     }
   }
