@@ -117,7 +117,7 @@ export function ConfidenceBar({ score, className }: Props) {
         <details className="mt-1">
           <summary className={cn("text-xs cursor-pointer hover:underline flex items-center gap-1", cfg.textClass)}>
             <AlertTriangle className="h-3 w-3" />
-            Ver {score.limitacoes.length} limitação{score.limitacoes.length !== 1 ? "ões" : ""} do diagnóstico
+            Ver {score.limitacoes.length} {score.limitacoes.length === 1 ? "limitação" : "limitações"} do diagnóstico
           </summary>
           <ul className="mt-2 space-y-1 text-xs text-muted-foreground pl-4 list-disc">
             {score.limitacoes.map((lim, idx) => (

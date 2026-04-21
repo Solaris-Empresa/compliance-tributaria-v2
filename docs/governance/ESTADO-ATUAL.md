@@ -1,6 +1,30 @@
 # Estado Atual — IA SOLARIS
-> Atualizado pelo Manus ao fechar cada sprint  
-> **v7.42 · 2026-04-20 (Sprint Z-22 UAT Wave ENCERRADA — 39 PRs · HEAD ab88497 · checkpoint 9eefcf85)** · Responsavel: Orquestrador gera, Manus commita
+> Atualizado pelo Manus ao fechar cada sprint
+> **v7.54 · 2026-04-21 (V1 Confiança Ponderada — branch `feat/811-briefing-source-type-por-gap` · HEAD `8e60ad0` · 110 tests PASS · aguardando redeploy Manus para UAT final dos últimos 2 commits)**
+> **Predecessor:** v7.42 · 2026-04-20 (Sprint Z-22 UAT Wave ENCERRADA — 39 PRs · HEAD ab88497 · checkpoint 9eefcf85)
+
+## Sessão v7.54 (2026-04-21) — V1 Confiança Ponderada
+
+**Motivação:** UAT encontrou "85% de confiança com 1/5 questionário e 0 produtos cadastrados" — contradição com as Limitações listadas no próprio briefing.
+
+**Entregue em `feat/811-briefing-source-type-por-gap`:**
+- Fórmula ponderada v2 — 6 pilares (pesos 8/10/10/10/5/2) substitui bandas discretas
+- Modelo composto Q3 Produtos/Serviços: `0.3·cadastro + 0.7·respostas` (0% sem NCM/NBS)
+- Signals module dinâmico — replica `calcProfileScore` (7 obrig + 12 opc) + queries em tempo real
+- Snapshot persistido em `briefingStructured.confiancaSnapshot` (zero migration)
+- Procedure `checkBriefingFreshness` + banner UI com diff por fonte
+- Timestamp da versão (D10) na UI e no PDF `handleExportPDF`
+- 4 fixes UAT: qualidade redundante removida, perfil "7/7 obrig · 11/12 opc" honesto, Q3 sem cadastro explicativo, PDF sem "Gerado hoje"
+- Tabela → lista (fix "895%") + typo "limitaçãoões" → "limitações"
+
+**Auditoria:** `docs/governance/audits/v7.54-2026-04-21-v1-confianca-encerramento.md` (veredito 🟡 — 2 fixes cosméticos aguardando redeploy Manus).
+
+**Pendências registradas:**
+- D7 dialog cascata matriz/plano ao regerar — não implementado, follow-up se necessário
+- PDF `generateDiagnosticoPDF` (tela /consolidacao) — interface ampliada mas callers não passam os novos campos
+- Tipo empresa "Serviço" para Distribuidora Alimentos Teste (dado de entrada errado no form, não bug da fórmula)
+
+**Decisões de governança registradas na auditoria:** falhas reconhecidas (ORQ-20/ORQ-19 não aplicadas com rigor, confiança excessiva em `tsc`, iteração de spec durante implementação) + lições para próxima sessão.
 
 ---
 
