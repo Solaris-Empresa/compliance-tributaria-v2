@@ -182,6 +182,14 @@ export const BriefingStructuredSchema = z.object({
   })).min(1).max(8),
   oportunidades: z.array(z.string()).min(1).max(5),
   recomendacoes_prioritarias: z.array(z.string()).min(1).max(5), // Reduzido min de 3 para 1
+  // issue #810: Top 3 ações destiladas pelo LLM para o bloco executivo do briefing.
+  // Opcional com default [] — garante backward-compat com briefings legados e
+  // tolera LLMs que falhem em preencher o campo.
+  top_3_acoes: z.array(z.object({
+    acao: z.string(),
+    justificativa: z.string(),
+    prazo: z.enum(["imediato", "curto_prazo", "medio_prazo"]).catch("curto_prazo"),
+  })).max(3).optional().default([]),
   inconsistencias: z.array(InconsistenciaSchema).optional().default([]),
   confidence_score: z.object({
     nivel_confianca: z.number().min(0).max(100).catch(70),

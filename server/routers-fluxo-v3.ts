@@ -1311,9 +1311,17 @@ Gere o Briefing estruturado em JSON:
   "principais_gaps": [{"gap": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "urgencia": "imediata"}],
   "oportunidades": ["..."],
   "recomendacoes_prioritarias": ["..."],
+  "top_3_acoes": [{"acao": "...", "justificativa": "por que esta é prioritária agora", "prazo": "imediato"}],
   "inconsistencias": [{"pergunta_origem": "...", "resposta_declarada": "...", "contradicao_detectada": "...", "impacto": "alto"}],
   "confidence_score": {"nivel_confianca": 85, "limitacoes": ["..."], "recomendacao": "Revisão por advogado tributarista recomendada"}
-}`,
+}
+
+REGRA TOP 3 AÇÕES (issue #810, fix UAT 2026-04-21):
+- Quando houver 3 ou mais gaps, preencha "top_3_acoes" destilando as 3 AÇÕES mais críticas (ordem de prioridade decrescente).
+- Critério de priorização: severidade × urgência × amplitude do risco (quantos processos da empresa toca).
+- Cada item deve ter: "acao" (verbo no imperativo + objeto — ex.: "Parametrizar alíquotas IBS por UF de destino"), "justificativa" (1 linha explicando POR QUE esta ação é prioritária AGORA e NÃO as outras), "prazo" (imediato / curto_prazo / medio_prazo).
+- NÃO repita literalmente o texto das "recomendacoes_prioritarias" — destile e priorize.
+- Se houver menos de 3 gaps, retorne array vazio [] — o template não renderiza o bloco.`,
           },
         ],
         BriefingStructuredSchema,
@@ -1417,6 +1425,7 @@ Gere o Briefing estruturado em JSON:
       // Converter estruturado para Markdown (compatibilidade com UI existente)
       // fix #806: template v2 recebe metadata do projeto para cabeçalho empresarial.
       // fix #809: contador de questionários respondidos (1 por questionário com >=1 resposta).
+      // fix #810: qualidade determinística das informações fornecidas.
       const productAnswersArrCount = Array.isArray(productAnswersForConf) ? productAnswersForConf.length : 0;
       const serviceAnswersArrCount = Array.isArray(serviceAnswersForConf) ? serviceAnswersForConf.length : 0;
       const questionariosRespondidosCount =
@@ -1425,6 +1434,18 @@ Gere o Briefing estruturado em JSON:
         (cnaeQuestionsCountForConf > 0 ? 1 : 0) +
         (productAnswersArrCount > 0 ? 1 : 0) +
         (serviceAnswersArrCount > 0 ? 1 : 0);
+      const produtosTotalCount = (opProfile.principaisProdutos ?? []).length;
+      const servicosTotalCount = (opProfile.principaisServicos ?? []).length;
+      const { calculateBriefingQuality } = await import("./lib/briefing-quality");
+      const qualityResult = calculateBriefingQuality({
+        questionariosRespondidos: questionariosRespondidosCount,
+        questionariosTotal: 5,
+        produtosComClassificacao: ncmCountForConf,
+        produtosTotal: produtosTotalCount,
+        servicosComClassificacao: nbsCountForConf,
+        servicosTotal: servicosTotalCount,
+        descricao: (project as any).description ?? "",
+      });
       const briefingMeta: BriefingMarkdownMeta = {
         empresa: project.name,
         descricao: (project as any).description,
@@ -1437,6 +1458,9 @@ Gere o Briefing estruturado em JSON:
         nbs: (opProfile.principaisServicos ?? []).map((s) => s?.nbs_code).filter((c): c is string => !!c),
         questionariosRespondidos: questionariosRespondidosCount,
         questionariosTotal: 5,
+        qualidadeInformacoes: qualityResult.quality,
+        produtosTotal: produtosTotalCount,
+        servicosTotal: servicosTotalCount,
       };
       // fix #808: sanitiza markdown contra alucinação de NCM/NBS (códigos citados que
       // não estão em principaisProdutos/principaisServicos recebem disclaimer "(sugerido)").
@@ -3087,9 +3111,17 @@ Gere o Briefing estruturado em JSON:
   "principais_gaps": [{"gap": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "urgencia": "imediata"}],
   "oportunidades": ["..."],
   "recomendacoes_prioritarias": ["..."],
+  "top_3_acoes": [{"acao": "...", "justificativa": "por que esta é prioritária agora", "prazo": "imediato"}],
   "inconsistencias": [{"pergunta_origem": "...", "resposta_declarada": "...", "contradicao_detectada": "...", "impacto": "alto"}],
   "confidence_score": {"nivel_confianca": 85, "limitacoes": ["..."], "recomendacao": "Revisão por advogado tributária recomendada"}
-}`,
+}
+
+REGRA TOP 3 AÇÕES (issue #810, fix UAT 2026-04-21):
+- Quando houver >=3 gaps, preencha "top_3_acoes" com as 3 ações mais críticas (prioridade decrescente).
+- Critério: severidade × urgência × amplitude (processos afetados).
+- Cada item: "acao" (verbo imperativo — "Parametrizar alíquotas IBS..."), "justificativa" (1 linha — por que esta AGORA e não outras), "prazo" (imediato/curto_prazo/medio_prazo).
+- NÃO repita literalmente "recomendacoes_prioritarias" — destile.
+- Menos de 3 gaps → retorne []. Template não renderiza o bloco.`,
           },
         ],
         BriefingStructuredSchema,
@@ -3168,6 +3200,7 @@ Gere o Briefing estruturado em JSON:
 
       // fix #806: metadata para template v2 (fallback silencioso se função não disponível).
       // fix #809: contador de questionários respondidos para o banner de baixa confiança.
+      // fix #810: qualidade determinística das informações.
       const productAnswersCountFD = Array.isArray(briefingProduct) ? briefingProduct.length : 0;
       const serviceAnswersCountFD = Array.isArray(briefingService) ? briefingService.length : 0;
       const cnaeQuestionsTotalFD = cnaeAnswers.reduce((acc: number, l: any) => acc + (l.questions?.length ?? 0), 0);
@@ -3177,6 +3210,20 @@ Gere o Briefing estruturado em JSON:
         (cnaeQuestionsTotalFD > 0 ? 1 : 0) +
         (productAnswersCountFD > 0 ? 1 : 0) +
         (serviceAnswersCountFD > 0 ? 1 : 0);
+      const produtosTotalCountFD = (opProfileForBriefing.principaisProdutos ?? []).length;
+      const servicosTotalCountFD = (opProfileForBriefing.principaisServicos ?? []).length;
+      const ncmCoveredFD = (opProfileForBriefing.principaisProdutos ?? []).filter(x => x?.ncm_code).length;
+      const nbsCoveredFD = (opProfileForBriefing.principaisServicos ?? []).filter(x => x?.nbs_code).length;
+      const { calculateBriefingQuality: calculateBriefingQualityFD } = await import("./lib/briefing-quality");
+      const qualityResultFD = calculateBriefingQualityFD({
+        questionariosRespondidos: questionariosRespondidosCountFD,
+        questionariosTotal: 5,
+        produtosComClassificacao: ncmCoveredFD,
+        produtosTotal: produtosTotalCountFD,
+        servicosComClassificacao: nbsCoveredFD,
+        servicosTotal: servicosTotalCountFD,
+        descricao: p.description ?? "",
+      });
       const briefingMetaFD: BriefingMarkdownMeta = {
         empresa: project.name,
         descricao: p.description,
@@ -3191,6 +3238,9 @@ Gere o Briefing estruturado em JSON:
         nbs: (opProfileForBriefing.principaisServicos ?? []).map((x) => x?.nbs_code).filter((c): c is string => !!c),
         questionariosRespondidos: questionariosRespondidosCountFD,
         questionariosTotal: 5,
+        qualidadeInformacoes: qualityResultFD.quality,
+        produtosTotal: produtosTotalCountFD,
+        servicosTotal: servicosTotalCountFD,
       };
 
       // Converter para markdown (fallback se não conseguir importar)
@@ -4228,6 +4278,11 @@ export interface BriefingMarkdownMeta {
   // fix #809: contexto para banner de confiança e contador de questionários.
   questionariosRespondidos?: number;
   questionariosTotal?: number;
+  // fix #810: qualidade 0-100 pré-calculada (briefing-quality) + contadores crus
+  // para exibir breakdown no markdown. Opcional; quando ausente, bloco é omitido.
+  qualidadeInformacoes?: number;
+  produtosTotal?: number;
+  servicosTotal?: number;
 }
 
 // fix #809: threshold canônico do P.O. — briefing com confiança abaixo dessa
@@ -4355,9 +4410,24 @@ const URGENCIA_LABEL_V2: Record<string, string> = {
 function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): string {
   const lines: string[] = [];
 
+  // ─── Badge de maturidade (fix #810) ────────────────────────────────────
+  // Classifica o diagnóstico em 3 estágios com base na confiança.
+  // Aparece no título para comunicar imediatamente o estágio de maturidade.
+  const confiancaHdr = Number(structured.confidence_score?.nivel_confianca);
+  let maturityLabel: string | null = null;
+  {
+    const { classifyMaturityBadge, MATURITY_BADGE_LABEL } = require("./lib/briefing-quality") as typeof import("./lib/briefing-quality");
+    const badge = classifyMaturityBadge(Number.isFinite(confiancaHdr) ? confiancaHdr : null);
+    maturityLabel = MATURITY_BADGE_LABEL[badge];
+  }
+
   // ─── Cabeçalho ─────────────────────────────────────────────────────────
   lines.push(`# Briefing de Compliance — Reforma Tributária (LC 214/2025)`);
   lines.push(``);
+  if (maturityLabel) {
+    lines.push(`**Estágio do diagnóstico:** ${maturityLabel}`);
+    lines.push(``);
+  }
   if (meta.empresa) lines.push(`**Empresa:** ${meta.empresa}`);
   if (meta.cnaePrincipal) lines.push(`**CNAE Principal:** ${meta.cnaePrincipal}`);
   const perfilParts: string[] = [];
@@ -4368,6 +4438,15 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
   if (perfilParts.length > 0) lines.push(`**Perfil:** ${perfilParts.join(" · ")}`);
   if (meta.ncms && meta.ncms.length > 0) lines.push(`**NCMs:** ${meta.ncms.join(", ")}`);
   if (meta.nbs && meta.nbs.length > 0) lines.push(`**NBS:** ${meta.nbs.join(", ")}`);
+  // fix #810: indicador "Qualidade das Informações" determinístico (quando disponível).
+  if (typeof meta.qualidadeInformacoes === "number" && Number.isFinite(meta.qualidadeInformacoes)) {
+    const qR = meta.questionariosRespondidos ?? 0;
+    const qT = meta.questionariosTotal ?? 5;
+    lines.push(
+      `**Qualidade das Informações:** ${Math.round(meta.qualidadeInformacoes)}% ` +
+      `_(${qR}/${qT} questionários · ${(meta.produtosTotal ?? 0)} produto(s) · ${(meta.servicosTotal ?? 0)} serviço(s))_`
+    );
+  }
   lines.push(``);
   lines.push(`---`);
   lines.push(``);
@@ -4391,6 +4470,25 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
     lines.push(
       `> Complete os questionários para elevar a confiança e obter diagnóstico preciso.`
     );
+    lines.push(``);
+    lines.push(`---`);
+    lines.push(``);
+  }
+
+  // ─── Top 3 Ações Prioritárias (fix #810 — antes do Resumo Executivo) ───
+  // LLM destila 3 ações por severidade × urgência. Só renderiza se gaps >= 3
+  // (critério de aceitação da issue #810) e se o LLM preencheu top_3_acoes.
+  const gapsHdr = Array.isArray(structured.principais_gaps) ? structured.principais_gaps : [];
+  const top3Arr = Array.isArray(structured.top_3_acoes) ? structured.top_3_acoes : [];
+  if (gapsHdr.length >= 3 && top3Arr.length > 0) {
+    lines.push(`## 🎯 Top 3 Ações Prioritárias`);
+    lines.push(``);
+    top3Arr.slice(0, 3).forEach((item: any, i: number) => {
+      const prazoLabel = URGENCIA_LABEL_V2[item?.prazo] ?? (item?.prazo ?? "curto prazo");
+      lines.push(`${i + 1}. **${item?.acao ?? "(ação não fornecida)"}**`);
+      if (item?.justificativa) lines.push(`   - _Por quê:_ ${item.justificativa}`);
+      lines.push(`   - _Prazo:_ ${prazoLabel}`);
+    });
     lines.push(``);
     lines.push(`---`);
     lines.push(``);
