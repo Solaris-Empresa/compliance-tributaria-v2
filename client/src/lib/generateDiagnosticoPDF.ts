@@ -3,6 +3,22 @@
  * PDF client-side via jsPDF + autoTable
  * RN-CV4-11 (disclaimer) + RN-CV4-12 (jsPDF)
  * Leitura defensiva: data_fim ?? '—'
+ *
+ * ⚠️ CODIFICAÇÃO (hotfix 2026-04-21):
+ * jsPDF com fonte Helvetica padrão usa WinAnsi (Windows-1252).
+ * NÃO suporta: emojis (🟢🟡🟠🔴), setas Unicode (↑↓), ≤ ≥, e vários símbolos extendidos.
+ * Estes caracteres renderizam como lixo: "Ø=ßà" ao invés de "🟠", "d" ao invés de "≤".
+ *
+ * Regra: no PDF usar SOMENTE caracteres Latin-1 / Windows-1252:
+ *   - acentos latinos (á é í ó ú ã õ â ê ô ç ñ) ✓
+ *   - hífen regular (-) e travessão (– em Windows-1252) ✓
+ *   - aspas curvas " " ‘ ’ ✓
+ *   - NÃO USAR: emojis · ≤ ≥ · ↑ ↓ → ← · ≈ ≠ ± · ★ ● ■
+ *
+ * Substituir por: "<=" ao invés de "≤", "(reduzir)" ao invés de "↓",
+ * "[ALTA]" ao invés de "🟠 Alta", etc.
+ *
+ * HTML/web mantém emojis/Unicode extendido — apenas PDF é restrito.
  */
 
 import jsPDF from "jspdf";
@@ -138,11 +154,11 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
     startY: y,
     head: [["Indicador", "Valor"]],
     body: [
-      ["Exposição atual", `${data.score} / 100 pontos  ↓`],
-      ["Nível", `${cfg.emoji} ${cfg.label}`],
+      ["Exposição atual", `${data.score} / 100 pontos  (reduzir)`],
+      ["Nível", `[${cfg.label.toUpperCase()}]`],
       ["Interpretação", cfg.interpretation],
       ["Ação recomendada", cfg.action],
-      ["Meta", `≤ ${META_EXPOSICAO} pontos`],
+      ["Meta", `ate ${META_EXPOSICAO} pontos`],
       ["Distância até a meta", distanciaRow],
       ["Riscos Alta Severidade", String(data.totalAlta)],
       ["Riscos Média Severidade", String(data.totalMedia)],
@@ -166,10 +182,10 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
     startY: y,
     head: [["Faixa", "Nível", "Interpretação", "Ação"]],
     body: [
-      ["0–30", "🟢 Baixa exposição", "Situação controlada", "Manter monitoramento"],
-      ["31–55", "🟡 Exposição moderada", "Riscos relevantes", "Revisar aprovações"],
-      ["56–75", "🟠 Alta exposição", "Exposição significativa", "Priorizar mitigação"],
-      ["76–100", "🔴 Exposição crítica", "Alto risco de não conformidade", "Ação imediata"],
+      ["0-30", "[BAIXA]", "Situação controlada", "Manter monitoramento"],
+      ["31-55", "[MODERADA]", "Riscos relevantes", "Revisar aprovações"],
+      ["56-75", "[ALTA]", "Exposição significativa", "Priorizar mitigação"],
+      ["76-100", "[CRÍTICA]", "Alto risco de não conformidade", "Ação imediata"],
     ],
     styles: { fontSize: 8 },
     headStyles: { fillColor: [100, 100, 100] },
