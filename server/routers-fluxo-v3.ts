@@ -4490,11 +4490,19 @@ const SOURCE_TYPE_LABEL_V2: Record<string, string> = {
 function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): string {
   const lines: string[] = [];
 
-  // ─── Badge de maturidade (fix #810) ────────────────────────────────────
-  // Classifica o diagnóstico em 3 estágios com base na confiança.
-  // Aparece no título para comunicar imediatamente o estágio de maturidade.
+  // ─── Badge de maturidade (fix #810 + fix UAT 2026-04-21) ───────────────
+  // Classifica o diagnóstico em 3 estágios. "COMPLETO" exige AND de múltiplos
+  // sinais (confidence + qualidade + cadastro + questionários) — não apenas
+  // confidence, que pode retornar 85 mesmo sem produtos cadastrados.
   const confiancaHdr = Number(structured.confidence_score?.nivel_confianca);
-  const maturityBadge = classifyMaturityBadge(Number.isFinite(confiancaHdr) ? confiancaHdr : null);
+  const maturityBadge = classifyMaturityBadge({
+    nivelConfianca: Number.isFinite(confiancaHdr) ? confiancaHdr : null,
+    qualidade: meta.qualidadeInformacoes ?? null,
+    produtosCadastrados: meta.produtosTotal ?? 0,
+    servicosCadastrados: meta.servicosTotal ?? 0,
+    questionariosRespondidos: meta.questionariosRespondidos ?? 0,
+    questionariosTotal: meta.questionariosTotal ?? 5,
+  });
   const maturityLabel = MATURITY_BADGE_LABEL[maturityBadge];
 
   // ─── Cabeçalho ─────────────────────────────────────────────────────────

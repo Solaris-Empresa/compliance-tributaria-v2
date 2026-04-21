@@ -139,8 +139,8 @@ describe("calculateBriefingQuality", () => {
   });
 });
 
-describe("classifyMaturityBadge", () => {
-  it("conf<40 → MAPA_REGULATORIO", () => {
+describe("classifyMaturityBadge — assinatura legada (só confidence)", () => {
+  it("conf<40 E qualidade sem informação → MAPA_REGULATORIO", () => {
     expect(classifyMaturityBadge(0)).toBe("MAPA_REGULATORIO");
     expect(classifyMaturityBadge(30)).toBe("MAPA_REGULATORIO");
     expect(classifyMaturityBadge(39)).toBe("MAPA_REGULATORIO");
@@ -152,12 +152,13 @@ describe("classifyMaturityBadge", () => {
     expect(classifyMaturityBadge(84)).toBe("DIAGNOSTICO_PARCIAL");
   });
 
-  it(">=85 → DIAGNOSTICO_COMPLETO", () => {
-    expect(classifyMaturityBadge(85)).toBe("DIAGNOSTICO_COMPLETO");
-    expect(classifyMaturityBadge(100)).toBe("DIAGNOSTICO_COMPLETO");
+  it(">=85 SOZINHO não garante COMPLETO — exige AND com qualidade/cadastro/questionários", () => {
+    // fix UAT 2026-04-21: mudança de comportamento. Antes retornava COMPLETO.
+    expect(classifyMaturityBadge(85)).toBe("DIAGNOSTICO_PARCIAL");
+    expect(classifyMaturityBadge(100)).toBe("DIAGNOSTICO_PARCIAL");
   });
 
-  it("null/undefined/NaN → MAPA_REGULATORIO (mais conservador)", () => {
+  it("null/undefined/NaN → MAPA_REGULATORIO (conservador)", () => {
     expect(classifyMaturityBadge(null)).toBe("MAPA_REGULATORIO");
     expect(classifyMaturityBadge(undefined)).toBe("MAPA_REGULATORIO");
     expect(classifyMaturityBadge(NaN)).toBe("MAPA_REGULATORIO");
@@ -167,5 +168,126 @@ describe("classifyMaturityBadge", () => {
     expect(MATURITY_BADGE_LABEL.MAPA_REGULATORIO).toBe("🗺️ MAPA REGULATÓRIO");
     expect(MATURITY_BADGE_LABEL.DIAGNOSTICO_PARCIAL).toBe("📋 DIAGNÓSTICO PARCIAL");
     expect(MATURITY_BADGE_LABEL.DIAGNOSTICO_COMPLETO).toBe("✅ DIAGNÓSTICO COMPLETO");
+  });
+});
+
+describe("classifyMaturityBadge — assinatura multi-sinal (fix UAT 2026-04-21)", () => {
+  it("AND completo → DIAGNOSTICO_COMPLETO", () => {
+    expect(
+      classifyMaturityBadge({
+        nivelConfianca: 90,
+        qualidade: 85,
+        produtosCadastrados: 3,
+        servicosCadastrados: 0,
+        questionariosRespondidos: 5,
+        questionariosTotal: 5,
+      })
+    ).toBe("DIAGNOSTICO_COMPLETO");
+  });
+
+  it("cenário UAT 2026-04-21 (conf=85, qual=76, 0 produtos, 3/5 quest) → PARCIAL (não COMPLETO)", () => {
+    // Este é o cenário EXATO que motivou o fix — badge COMPLETO contradizia
+    // a seção de Limitações do mesmo briefing.
+    expect(
+      classifyMaturityBadge({
+        nivelConfianca: 85,
+        qualidade: 76,
+        produtosCadastrados: 0,
+        servicosCadastrados: 0,
+        questionariosRespondidos: 3,
+        questionariosTotal: 5,
+      })
+    ).toBe("DIAGNOSTICO_PARCIAL");
+  });
+
+  it("conf=90 mas sem cadastro → PARCIAL (falha no AND)", () => {
+    expect(
+      classifyMaturityBadge({
+        nivelConfianca: 90,
+        qualidade: 85,
+        produtosCadastrados: 0,
+        servicosCadastrados: 0,
+        questionariosRespondidos: 5,
+        questionariosTotal: 5,
+      })
+    ).toBe("DIAGNOSTICO_PARCIAL");
+  });
+
+  it("conf=90 mas qualidade=70 → PARCIAL", () => {
+    expect(
+      classifyMaturityBadge({
+        nivelConfianca: 90,
+        qualidade: 70,
+        produtosCadastrados: 3,
+        servicosCadastrados: 0,
+        questionariosRespondidos: 5,
+        questionariosTotal: 5,
+      })
+    ).toBe("DIAGNOSTICO_PARCIAL");
+  });
+
+  it("conf=90 mas questionários 3/5 (60%) → PARCIAL (ratio<0.8)", () => {
+    expect(
+      classifyMaturityBadge({
+        nivelConfianca: 90,
+        qualidade: 85,
+        produtosCadastrados: 3,
+        servicosCadastrados: 0,
+        questionariosRespondidos: 3,
+        questionariosTotal: 5,
+      })
+    ).toBe("DIAGNOSTICO_PARCIAL");
+  });
+
+  it("conf=30 E qualidade=20 → MAPA (ambos fracos)", () => {
+    expect(
+      classifyMaturityBadge({
+        nivelConfianca: 30,
+        qualidade: 20,
+        produtosCadastrados: 0,
+        servicosCadastrados: 0,
+        questionariosRespondidos: 0,
+        questionariosTotal: 5,
+      })
+    ).toBe("MAPA_REGULATORIO");
+  });
+
+  it("conf=30 mas qualidade=50 → PARCIAL (qualidade salva)", () => {
+    expect(
+      classifyMaturityBadge({
+        nivelConfianca: 30,
+        qualidade: 50,
+        produtosCadastrados: 0,
+        servicosCadastrados: 0,
+        questionariosRespondidos: 2,
+        questionariosTotal: 5,
+      })
+    ).toBe("DIAGNOSTICO_PARCIAL");
+  });
+
+  it("serviços ao invés de produtos também conta como cadastro", () => {
+    expect(
+      classifyMaturityBadge({
+        nivelConfianca: 90,
+        qualidade: 85,
+        produtosCadastrados: 0,
+        servicosCadastrados: 4,
+        questionariosRespondidos: 5,
+        questionariosTotal: 5,
+      })
+    ).toBe("DIAGNOSTICO_COMPLETO");
+  });
+
+  it("4/5 questionários (ratio 0.8) atinge o limite para COMPLETO", () => {
+    expect(
+      classifyMaturityBadge({
+        nivelConfianca: 90,
+        qualidade: 85,
+        produtosCadastrados: 2,
+        servicosCadastrados: 0,
+        questionariosRespondidos: 4,
+        questionariosTotal: 5,
+      })
+    ).toBe("DIAGNOSTICO_COMPLETO");
   });
 });

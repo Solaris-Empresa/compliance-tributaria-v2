@@ -92,11 +92,11 @@ describe("buildBriefingMarkdown V2 — bundle #808-#811", () => {
     });
   });
 
-  describe("#810 — Top 3 + Qualidade + Badge", () => {
-    it("renderiza badge de maturidade no header (conf<40 → MAPA)", () => {
+  describe("#810 — Top 3 + Qualidade + Badge (fix UAT 2026-04-21 multi-sinal)", () => {
+    it("conf<40 E qualidade baixa → MAPA", () => {
       const md = buildBriefingMarkdown(
         { ...STRUCTURED_BASE, confidence_score: { ...STRUCTURED_BASE.confidence_score, nivel_confianca: 30 } },
-        META_BASE
+        { ...META_BASE, qualidadeInformacoes: 30 }
       );
       expect(md).toContain("🗺️ MAPA REGULATÓRIO");
     });
@@ -109,10 +109,20 @@ describe("buildBriefingMarkdown V2 — bundle #808-#811", () => {
       expect(md).toContain("📋 DIAGNÓSTICO PARCIAL");
     });
 
-    it("conf>=85 → DIAGNOSTICO COMPLETO", () => {
+    it("conf=85 MAS sem produtos → PARCIAL (cenário UAT real)", () => {
+      // fix UAT 2026-04-21: antes era COMPLETO (bug) — agora é PARCIAL.
+      const md = buildBriefingMarkdown(
+        { ...STRUCTURED_BASE, confidence_score: { ...STRUCTURED_BASE.confidence_score, nivel_confianca: 85 } },
+        { ...META_BASE, qualidadeInformacoes: 76, produtosTotal: 0, servicosTotal: 0, questionariosRespondidos: 3 }
+      );
+      expect(md).toContain("📋 DIAGNÓSTICO PARCIAL");
+      expect(md).not.toContain("✅ DIAGNÓSTICO COMPLETO");
+    });
+
+    it("AND completo (conf>=85 + qualidade>=80 + cadastro + questionários 4/5+) → COMPLETO", () => {
       const md = buildBriefingMarkdown(
         { ...STRUCTURED_BASE, confidence_score: { ...STRUCTURED_BASE.confidence_score, nivel_confianca: 90 } },
-        META_BASE
+        { ...META_BASE, qualidadeInformacoes: 85, produtosTotal: 3, servicosTotal: 0, questionariosRespondidos: 5 }
       );
       expect(md).toContain("✅ DIAGNÓSTICO COMPLETO");
     });

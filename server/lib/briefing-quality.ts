@@ -106,17 +106,74 @@ export function calculateBriefingQuality(input: BriefingQualityInput): BriefingQ
   };
 }
 
+export interface MaturitySignals {
+  /** Output de calculateBriefingConfidence (0-100). */
+  nivelConfianca: number | null | undefined;
+  /** Output de calculateBriefingQuality (0-100). */
+  qualidade?: number | null;
+  /** Total de produtos cadastrados em principaisProdutos. */
+  produtosCadastrados?: number;
+  /** Total de serviços cadastrados em principaisServicos. */
+  servicosCadastrados?: number;
+  /** Nº de questionários com pelo menos 1 resposta (0-5 canônico). */
+  questionariosRespondidos?: number;
+  /** Total de questionários (default 5). */
+  questionariosTotal?: number;
+}
+
 /**
- * Badge de maturidade derivado da confiança (0-100).
- * Nota: maturidade ≠ qualidade. Maturidade depende da confiança
- * (que inclui RAG coverage, gaps detectados, etc).
+ * Badge de maturidade do diagnóstico (MAPA · PARCIAL · COMPLETO).
+ *
+ * fix UAT 2026-04-21: badge passa a exigir AND de múltiplos sinais para
+ * atingir "COMPLETO". Apenas confidence>=85 não é suficiente — é comum
+ * calculateBriefingConfidence retornar 85 mesmo sem produtos/serviços
+ * cadastrados (quando há muitas respostas de questionário), gerando
+ * contradição com o próprio briefing ("Diagnóstico baseado em indícios
+ * do perfil, não em evidências" + badge "COMPLETO").
+ *
+ * Regras:
+ *   COMPLETO requer AND de:
+ *     - confidence >= 85
+ *     - qualidade >= 80
+ *     - produtos OU serviços cadastrados (>=1)
+ *     - questionários respondidos >= 4/5 (80%)
+ *
+ *   MAPA quando confidence < 40 E qualidade < 40 (sinais fracos em ambas)
+ *
+ *   PARCIAL para todo o resto (maioria dos casos reais)
+ *
+ * Assinatura aceita sinal único (retrocompat) OU objeto completo (novo).
  */
-export function classifyMaturityBadge(nivelConfianca: number | null | undefined): MaturityBadge {
-  if (!Number.isFinite(nivelConfianca as number) || (nivelConfianca as number) < 40) {
+export function classifyMaturityBadge(
+  signalsOrConfidence: MaturitySignals | number | null | undefined
+): MaturityBadge {
+  // Retrocompat: chamada antiga passando só a confiança — mapeia para objeto.
+  const signals: MaturitySignals =
+    typeof signalsOrConfidence === "number" || signalsOrConfidence === null || signalsOrConfidence === undefined
+      ? { nivelConfianca: signalsOrConfidence as any }
+      : signalsOrConfidence;
+
+  const conf = Number.isFinite(signals.nivelConfianca as number) ? (signals.nivelConfianca as number) : 0;
+  const qual = Number.isFinite(signals.qualidade as number) ? (signals.qualidade as number) : 0;
+  const produtos = Math.max(0, signals.produtosCadastrados ?? 0);
+  const servicos = Math.max(0, signals.servicosCadastrados ?? 0);
+  const temCadastro = produtos + servicos > 0;
+  const questTotal = signals.questionariosTotal && signals.questionariosTotal > 0 ? signals.questionariosTotal : 5;
+  const questResp = Math.max(0, signals.questionariosRespondidos ?? 0);
+  const questRatio = Math.min(1, questResp / questTotal);
+
+  // COMPLETO — AND de todos os sinais fortes
+  if (conf >= 85 && qual >= 80 && temCadastro && questRatio >= 0.8) {
+    return "DIAGNOSTICO_COMPLETO";
+  }
+
+  // MAPA — sinais fracos em ambas as dimensões principais
+  if (conf < 40 && qual < 40) {
     return "MAPA_REGULATORIO";
   }
-  if ((nivelConfianca as number) < 85) return "DIAGNOSTICO_PARCIAL";
-  return "DIAGNOSTICO_COMPLETO";
+
+  // PARCIAL — caso real mais comum
+  return "DIAGNOSTICO_PARCIAL";
 }
 
 /** Rótulos renderizados no markdown do briefing. */
