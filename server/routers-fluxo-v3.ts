@@ -4849,16 +4849,16 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
         `**Fórmula:** confiança = Σ(peso × completude) / Σ(pesos aplicáveis) × 100`
       );
       lines.push(``);
-      lines.push(`| Pilar | Peso | Completude | Contribuição |`);
-      lines.push(`|---|---:|---:|---:|`);
+      // fix UAT 2026-04-21: substituído lista-estilo-tabela por LISTA REAL Markdown.
+      // Antes: tabela Markdown ("| col | col |") virava <table> HTML via remark-gfm.
+      // Com prose padrão as colunas ficavam visualmente coladas (bug "895%" onde
+      // peso "8" e completude "95%" pareciam o número "895%"). O PDF do briefing
+      // também renderiza pipes literais sem tabela real, então a consistência
+      // entre UI e PDF agora é preservada via lista markdown — um item por pilar
+      // com campos nomeados, legível em qualquer renderer.
       for (const p of bd.pilares) {
         const completudePct = Math.round(p.completude * 100);
         const contribStr = (Math.round(p.contribuicao * 10) / 10).toFixed(1).replace(".", ",");
-        // fix UAT 2026-04-21: display específico por tipo de pilar.
-        //   Perfil: "7/7 obrig · 11/12 opc" (usa metadata real, não "97/100 campos")
-        //   Q3 sem cadastro: "sem NCM cadastrado" (em vez de "X/Y perguntas" que confunde)
-        //   Q3 com cadastro: composto "X/Y NCM · Z/W perguntas"
-        //   Q1/Q2/Q3CNAE: "X/Y perguntas" ou "X resp." ou "sem resposta"
         let detalhe: string;
         if (p.key === "perfil") {
           const d = p.detalhe;
@@ -4883,15 +4883,21 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
             ? `${p.respostas}/${p.total} perguntas`
             : p.respostas > 0 ? `${p.respostas} resp.` : `sem resposta`;
         }
-        const pesoCell = p.aplicavel ? `${p.peso}` : `${p.peso} _(n/a)_`;
-        const completudeCell = p.aplicavel
-          ? `${completudePct}% (${detalhe})`
-          : `— _(não se aplica)_`;
-        const contribCell = p.aplicavel ? `**${contribStr}**` : `—`;
-        lines.push(`| ${p.label} | ${pesoCell} | ${completudeCell} | ${contribCell} |`);
+        if (!p.aplicavel) {
+          lines.push(
+            `- **${p.label}** — peso ${p.peso} · _não se aplica_`
+          );
+        } else {
+          lines.push(
+            `- **${p.label}** — peso **${p.peso}** · completude **${completudePct}%** (${detalhe}) · contribui **${contribStr}**`
+          );
+        }
       }
       const totalStr = (Math.round(bd.contribuicaoTotal * 10) / 10).toFixed(1).replace(".", ",");
-      lines.push(`| **Total aplicável** | **${bd.pesoTotal}** | — | **${totalStr}** |`);
+      lines.push(``);
+      lines.push(
+        `**Total aplicável:** Σ pesos = **${bd.pesoTotal}** · Σ contribuições = **${totalStr}**`
+      );
       lines.push(``);
       lines.push(
         `**Confiança = ${totalStr} / ${bd.pesoTotal} = ${bd.score}%**`
