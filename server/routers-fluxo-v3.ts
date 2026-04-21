@@ -28,6 +28,8 @@ import {
   calcularMatrizMetadata,
 } from "./ai-schemas";
 import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
+// fix #810: import estático (require dentro de sync function falha em ESM/Vitest).
+import { classifyMaturityBadge, MATURITY_BADGE_LABEL } from "./lib/briefing-quality";
 import mysql from "mysql2/promise";
 import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
@@ -4317,9 +4319,17 @@ function classifyInconsistenciaImpacto(inc: any): "alto" | "medio" | "baixo" {
 // Baseline imutável: tag `briefing-template-baseline-v1` aponta para commit pré-#806.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Controle de qual template é usado. Rollback = trocar para "v1". */
-const BRIEFING_TEMPLATE_VERSION: "v1" | "v2" =
-  (process.env.BRIEFING_TEMPLATE_VERSION as "v1" | "v2") || "v2";
+/**
+ * Controle de qual template é usado. Rollback = trocar para "v1".
+ *
+ * fix auditoria bundle #808-#811 (2026-04-21): lido DINAMICAMENTE a cada
+ * chamada de buildBriefingMarkdown — antes era const capturado no module
+ * load, o que fazia o rollback exigir restart do servidor (bug sutil não
+ * detectado nos PRs originais).
+ */
+function getBriefingTemplateVersion(): "v1" | "v2" {
+  return (process.env.BRIEFING_TEMPLATE_VERSION as "v1" | "v2") || "v2";
+}
 
 export interface BriefingMarkdownMeta {
   empresa?: string;
@@ -4349,9 +4359,12 @@ export const BRIEFING_CONFIANCA_MIN = 85;
 /**
  * Wrapper de compatibilidade — decide qual template renderizar.
  * Meta é opcional; V1 ignora, V2 usa quando presente.
+ *
+ * Exportado a partir do bundle #808-#811 para permitir testes unitários
+ * diretos do template v2 sem stand-up de tRPC/DB.
  */
-function buildBriefingMarkdown(structured: any, meta?: BriefingMarkdownMeta): string {
-  if (BRIEFING_TEMPLATE_VERSION === "v1") {
+export function buildBriefingMarkdown(structured: any, meta?: BriefingMarkdownMeta): string {
+  if (getBriefingTemplateVersion() === "v1") {
     return buildBriefingMarkdownV1(structured);
   }
   return buildBriefingMarkdownV2(structured, meta ?? {});
@@ -4481,12 +4494,8 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
   // Classifica o diagnóstico em 3 estágios com base na confiança.
   // Aparece no título para comunicar imediatamente o estágio de maturidade.
   const confiancaHdr = Number(structured.confidence_score?.nivel_confianca);
-  let maturityLabel: string | null = null;
-  {
-    const { classifyMaturityBadge, MATURITY_BADGE_LABEL } = require("./lib/briefing-quality") as typeof import("./lib/briefing-quality");
-    const badge = classifyMaturityBadge(Number.isFinite(confiancaHdr) ? confiancaHdr : null);
-    maturityLabel = MATURITY_BADGE_LABEL[badge];
-  }
+  const maturityBadge = classifyMaturityBadge(Number.isFinite(confiancaHdr) ? confiancaHdr : null);
+  const maturityLabel = MATURITY_BADGE_LABEL[maturityBadge];
 
   // ─── Cabeçalho ─────────────────────────────────────────────────────────
   lines.push(`# Briefing de Compliance — Reforma Tributária (LC 214/2025)`);
