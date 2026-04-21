@@ -35,7 +35,7 @@ Regras invioláveis:
 
 | Indicador | Valor | Última atualização |
 |---|---|---|
-| Versão do baseline | **v5.0** | 2026-04-13 (Sprint Z-13 ENCERRADA · Gate 7 PASS · PRs #485–#497) |
+| Versão do baseline | **v5.0** | 2026-04-13 (Sprint Z-13 ENCERRADA · Gate 7 PASS · PRs #485–#497) — **sem alterações de corpus desde Z-13** |
 | Total de chunks | **2.515** | Sprint Z-12 Lote D (CGIBS +6 chunks) |
 | Leis ativas | **13** | lc214 · lc227 · lc224 · ec132 · lc123 · lc87 · lc116 · cg_ibs · rfb_cbs · conv_icms · resolucao_cgibs_1 · resolucao_cgibs_2 · resolucao_cgibs_3 |
 | Confiabilidade gold set | 100% (8/8) | Sprint G |
