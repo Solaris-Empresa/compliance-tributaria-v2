@@ -67,6 +67,11 @@ export type TipoEmpresa = "produto" | "servico" | "mista";
 export interface BriefingConfidenceSignals {
   /** Perfil — completude 0..1 (use calcProfileScore/100). */
   perfilCompletude: number;
+  /** Metadata opcional do perfil — usado pelo breakdown pra exibir "7/7 + 11/12" em vez de "97/100". */
+  perfilObrigatoriosPreenchidos?: number;
+  perfilObrigatoriosTotais?: number;
+  perfilOpcionaisPreenchidos?: number;
+  perfilOpcionaisTotais?: number;
 
   /** Q1 SOLARIS — respostas do projeto vs perguntas elegíveis por CNAE. */
   q1Respostas: number;
@@ -158,10 +163,16 @@ export interface ConfiancaBreakdownPilar {
   aplicavel: boolean;
   /** Breakdown interno para Q3 (composto): cadastro + respostas separados. */
   detalhe?: {
+    // Q3 composto (produtos/serviços):
     ratioCadastro?: number;
     ratioRespostas?: number;
     cadastrados?: number;
     comClassificacao?: number;
+    // Perfil:
+    obrigatoriosPreenchidos?: number;
+    obrigatoriosTotais?: number;
+    opcionaisPreenchidos?: number;
+    opcionaisTotais?: number;
   };
 }
 
@@ -220,6 +231,14 @@ export function calculateBriefingConfidenceWithBreakdown(
       completude: cPerfil,
       contribuicao: P.perfil * cPerfil,
       aplicavel: true,
+      detalhe: (signals.perfilObrigatoriosTotais != null || signals.perfilOpcionaisTotais != null)
+        ? {
+            obrigatoriosPreenchidos: signals.perfilObrigatoriosPreenchidos ?? 0,
+            obrigatoriosTotais: signals.perfilObrigatoriosTotais ?? 0,
+            opcionaisPreenchidos: signals.perfilOpcionaisPreenchidos ?? 0,
+            opcionaisTotais: signals.perfilOpcionaisTotais ?? 0,
+          }
+        : undefined,
     },
     {
       key: "q3Produtos",
