@@ -1,9 +1,44 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint
-> **v7.54 · 2026-04-21 (V1 Confiança Ponderada — branch `feat/811-briefing-source-type-por-gap` · HEAD `8e60ad0` · 110 tests PASS · aguardando redeploy Manus para UAT final dos últimos 2 commits)**
-> **Predecessor:** v7.42 · 2026-04-20 (Sprint Z-22 UAT Wave ENCERRADA — 39 PRs · HEAD ab88497 · checkpoint 9eefcf85)
+> **v7.56 · 2026-04-21 (UAT V1 PARCIAL — Blocos 1-6 validados pelo P.O. · determinismo ✅ · correção tímida 🟡 · complemento ✅ · pendente: Blocos 7-12 + teste decisivo CT-D2)**
+> **Predecessor:** v7.55 · 2026-04-21 (merge bundle V1 em main — HEAD `b02467f`)
 
-## Sessão v7.54 (2026-04-21) — V1 Confiança Ponderada
+## Sessão v7.56 (2026-04-21) — UAT V1 parcial (Blocos 1-6)
+
+**Executor:** P.O. direto no browser em `iasolaris.manus.space`.
+**Projeto de teste:** `V1-UAT-<hora>` (novo) — Distribuidora Alimentos, CNAE 4639-7/01, tipo produto, 3 NCMs (1006.40.00 · 1507.90.11 · 2202.10.00), Q1 SOLARIS 100% (48 resp.).
+
+**Resultados consolidados:**
+| Bloco | CT | Resultado |
+|---|---|---|
+| 1 | Completude perfil 97% (7/7 obrig · 11/12 opc) | 🟢 |
+| 2 | Confiança 37% pós-Q1 (matemática valida) | 🟢 |
+| 3 | v1 gerada — 14/14 critérios (46%, PARCIAL, Top 3, Fonte, Timestamp, Qualidade removida, lista bullet) | 🟢 |
+| 4 | **Determinismo (temp=0) — 0pp de diferença em regeração** | 🟢 **CRÍTICO validado** |
+| 5 | Correção óleo vegetal (inconsistente com perfil) | 🟡 parcial — Hipótese A (filtro do LLM) ou B (regressão) — teste decisivo pendente |
+| 6 | Complemento RECOF — novo Gap 5 + múltiplas menções | 🟢 |
+
+**Pendente:** Blocos 7-12 (freshness, imutabilidade, hash desempata, PDF, cosméticos, regressão 1682096) + teste decisivo CT-D2 com correção consistente (ex: NCM farinha 1101.00.10).
+
+**Auditoria:** `docs/governance/audits/v7.56-2026-04-21-uat-v1-parcial.md`
+
+**Status produção:** HEAD `b02467f` (v7.55) em `iasolaris.manus.space` · 110 tests PASS · `pnpm check` zero errors · deploy ativo.
+
+**Próxima ação P.O.:** abrir Epic com o Orquestrador (escopo a definir — possivelmente Fase 2 V1: vencimento temporal/regulatório + outros).
+
+---
+
+## Sessão v7.55 (2026-04-21) — Merge bundle V1 em main
+
+- `feat/811-briefing-source-type-por-gap` mergeada em main via PR #815 (14 commits)
+- PR #812 mergeado separado (#808 anti-alucinação NCM)
+- PRs #813 e #814 fechados como superseded (conteúdo já em #815)
+- 4 issues (#808/#809/#810/#811) auto-fechadas
+- Main HEAD: `b02467f`
+
+---
+
+## Sessão v7.54 (2026-04-21) — V1 Confiança Ponderada (encerramento)
 
 **Motivação:** UAT encontrou "85% de confiança com 1/5 questionário e 0 produtos cadastrados" — contradição com as Limitações listadas no próprio briefing.
 
