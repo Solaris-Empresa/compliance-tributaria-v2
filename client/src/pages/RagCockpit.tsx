@@ -150,15 +150,6 @@ const SPRINTS = [
       "CORPUS-BASELINE.md v5.0 · 2.515 chunks · 13 leis · 100% anchor_id",
       "ESTADO-ATUAL.md v5.6 · Gate 7 PASS",
     ], status: "done" },
-  { id: "Sprint Z-22 — UAT ENCERRADA", date: "2026-04-21", pr: "#755–#806", commit: "839e860",
-    changes: [
-      "Auditoria 🟢 APROVADA (2026-04-20) · docs/governance/audits/v7.42-2026-04-20.md",
-      "REGRA-ORQ-19 (auditoria fim de sessão) + REGRA-ORQ-20 (risk assessment estrutural)",
-      "Hotfix P0 #792: useMemo BriefingV3 — crash /briefing-v3 corrigido",
-      "Bundle briefing feat/811 (#808–#811): source_type por gap + Top 3 Ações + sanitizer NCM/NBS",
-      "Corpus estável: 2.515 chunks · 13 leis · 100% anchor_id (sem alterações desde Z-13)",
-      "Compliance score: 66% (confidence=0.97 — issue #796 aguarda decisão P.O.)",
-    ], status: "done" },
 ];
 
 const SOURCE_FILES = [
@@ -877,8 +868,8 @@ export default function RAGCockpit() {
             background: "#1a2744", border: "1px solid #3b82f6",
             borderRadius: 8, padding: "6px 14px", textAlign: "center"
           }}>
-            <div style={{ color: "#22c55e", fontWeight: 700, fontSize: 12, letterSpacing: "0.05em" }}>✅ SPRINT Z-22 — UAT ENCERRADA · 2.515 chunks · 13 leis</div>
-            <div style={{ color: "#334155", fontSize: 10, marginTop: 2 }}>Auditoria 🟢 APROVADA · PRs #755–#806 · HEAD 839e860 · 2026-04-21</div>
+            <div style={{ color: "#22c55e", fontWeight: 700, fontSize: 12, letterSpacing: "0.05em" }}>✅ SPRINT Z-13 — Gate 7 PASS · 2.515 chunks · 13 leis</div>
+            <div style={{ color: "#334155", fontSize: 10, marginTop: 2 }}>Decision Kernel · 37 casos NCM/NBS + 1 pending · 48 testes · 2d53596</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ color: corpusConfidence >= 98 ? "#22c55e" : "#f59e0b", fontFamily: "monospace", fontWeight: 700, fontSize: 20 }}>{corpusConfidence}%</div>

@@ -251,9 +251,7 @@ Evento RAG (nova funcionalidade / alteração / RFC / incidente)
 | 2026-04-05 | Sprint V Lote 2 (PR #330): +8 casos NCM/NBS → 24 confirmados | NCM:12 · NBS:12 · Testes:34/34 · Correção S-07 (Arts.234-235) |
 | 2026-04-05 | Sprint V Lote 3 (PR #333): +13 casos + 1 pending → 37 confirmados | NCM:19 · NBS:19 · Testes:48/48 · Sprint V encerrada |
 | 2026-04-13 | Sprint Z-13 ENCERRADA · Gate 7 PASS (PRs #485–#497): fix B-Z13-004 risk_category_code, backfill project_gaps_v3, CGIBS +6 chunks | HEAD 1ea5c64 · 2.515 chunks · 13 leis · ESTADO-ATUAL v5.6 |
-| 2026-04-20 | Sprint Z-22 UAT Wave ENCERRADA (PRs #755–#797): auditoria 🟢 APROVADO · REGRA-ORQ-19 + REGRA-ORQ-20 | HEAD eee5462 · corpus estável · sem alterações de corpus |
-| 2026-04-21 | Bundle briefing feat/811 (#808–#811) + hotfix #792 (useMemo) + PRs #800–#806 | HEAD 839e860 · checkpoint v7.50 (2e9d1a3c) · corpus inalterado |
 
 ---
 
-*Documento gerado em 2026-03-30. Atualizado em 2026-04-21 (Sprint Z-22 UAT ENCERRADA · HEAD 839e860 · PRs #755–#806 · feat/811 em UAT · 2.515 chunks · 13 leis · corpus estável). Pelo implementador técnico Manus. Aprovado pelo P.O. Uires Tapajós. Fonte de verdade: [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md) e [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md).*
+*Documento gerado em 2026-03-30. Atualizado em 2026-04-13 (Sprint Z-13 ENCERRADA · Gate 7 PASS · HEAD 1ea5c64 · PRs #485–#497 · 2.515 chunks · 13 leis). Pelo implementador técnico Manus. Aprovado pelo P.O. Uires Tapajós. Fonte de verdade: [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md) e [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md).*

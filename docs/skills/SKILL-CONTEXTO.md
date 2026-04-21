@@ -25,15 +25,13 @@ Antes de qualquer trabalho, verificar via project_knowledge_search:
 
 ## Estado atual do produto
 
-- Baseline: v5.6 | HEAD: 839e860 (PR #806) | Sprint Z-22 UAT ENCERRADA
-- Corpus RAG: **2.515 chunks · 13 leis · 100% anchor_id** (Sprint Z-13 ENCERRADA · Gate 7 PASS)
+- Baseline: v1.5 | Testes: 489 | Migrations: 56
+- Corpus RAG: 2.078 chunks — 100% anchor_id
 - DIAGNOSTIC_READ_MODE: shadow (NUNCA alterar)
-- PRs mergeados: #755–#806 (52 PRs pós-Z-13) | feat/811 bundle em UAT
-- Checkpoint Manus: v7.50-bundle-briefing-uat-fix-bug1 (2e9d1a3c)
-- Auditoria Z-22: 🟢 APROVADO (2026-04-20 · docs/governance/audits/v7.42-2026-04-20.md)
+- Sprint 98% Confidence: B0 ✅ B1 ✅ B2 em andamento (PR #113)
 - Engines: server/routers/ (7 engines, 259/259 testes)
-- Compliance score: 66% (confidence=0.97 — issue #796 aguarda decisão P.O.)
-- BUG-3: badge inconsistências persiste após aprovação briefing (aberto)
+- G10/G11 implementados em routers-fluxo-v3.ts
+- G12 (fonte_acao) implementado no PR #113
 
 ## Gaps resolvidos
 
