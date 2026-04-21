@@ -28,6 +28,8 @@ import {
   calcularMatrizMetadata,
 } from "./ai-schemas";
 import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
+// fix #810: import estático (require dentro de sync function falha em ESM/Vitest).
+import { classifyMaturityBadge, MATURITY_BADGE_LABEL } from "./lib/briefing-quality";
 import mysql from "mysql2/promise";
 import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
@@ -1273,6 +1275,25 @@ Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORRE
 
 IMPORTANTE: Essas regras operam EM ADIÇÃO ao regulatoryContext. Se o RAG já trouxe o artigo, aprofunde com o texto. Se não trouxe, cite o artigo com a descrição curta acima e sinalize na limitação que a análise deve ser validada por advogado tributarista. NUNCA invente texto de artigo que não esteja no regulatoryContext — apenas cite o número e a regra curta.
 
+REGRA ANTI-ALUCINAÇÃO — NCM/NBS DE PRODUTOS (issue #808, fix UAT 2026-04-21):
+- NUNCA atribua NCM específico (ex: "arroz NCM 1006") a um produto DA EMPRESA se esse código não estiver cadastrado em "PRINCIPAIS PRODUTOS" do perfil corporativo.
+- A lista de NCMs citada nas regras acima (cesta básica, Imposto Seletivo) é REFERÊNCIA REGULATÓRIA (a LC cita esses códigos), NÃO confirmação de que a empresa comercializa exatamente esses NCMs.
+- Quando a descrição mencionar "arroz" mas o NCM 1006 NÃO estiver nos produtos cadastrados:
+  - ERRADO: "arroz (NCM 1006) tem alíquota zero"
+  - CERTO: "o arroz comercializado pela empresa PODE se enquadrar em alíquota zero se classificado no NCM 1006 da cesta básica — validar classificação fiscal com contador"
+- Quando o usuário NÃO cadastrou nenhum NCM (lista vazia): use linguagem genérica ("produtos alimentícios", "itens da cesta básica") SEM citar códigos específicos como se fossem da empresa.
+- Um sanitizer pós-LLM adiciona disclaimer automático em códigos não cadastrados, mas sua responsabilidade é gerar texto correto desde o início.
+
+REGRA DE LINGUAGEM CONDICIONAL — BAIXA CONFIANÇA (issue #809, fix UAT 2026-04-21):
+- A confiança do diagnóstico é calculada determinísticamente server-side. Se a confiança projetada for menor que 85% (o que ocorre quando o usuário NÃO respondeu todos os questionários), use OBRIGATORIAMENTE linguagem condicional nos gaps, oportunidades, recomendações e resumo_executivo.
+- Sinais de baixa confiança: poucos/nenhum dos 5 questionários respondidos (SOLARIS Onda 1, IA Gen Onda 2, CNAE, Q.Produtos, Q.Serviços), ausência de produtos/serviços cadastrados, descrição curta.
+- Substituir afirmações categóricas por formulações condicionais:
+  - ERRADO: "A empresa APRESENTA riscos elevados" · "AUSÊNCIA de parametrização do IBS" · "NÃO TEM controles de exportação"
+  - CERTO: "A empresa PODE apresentar riscos relevantes" · "RISCO POTENCIAL de ausência de parametrização do IBS — requer verificação" · "INDÍCIOS de falta de controles de exportação — validar com o cliente"
+- Termos preferenciais quando conf<85%: "indícios de", "potencial", "aparente", "sugere-se verificar", "sinaliza possível", "pode configurar", "requer avaliação".
+- Em cada gap gerado com conf<85%, a redação deve deixar claro que o gap é HIPÓTESE baseada no perfil + descrição + base legal — não FATO confirmado por evidência do cliente.
+- Quando conf>=85%: linguagem afirmativa é permitida porque há respostas suficientes para validar os gaps.
+
 ${regulatoryContext}
 
 ${OUTPUT_CONTRACT}`,
@@ -1289,12 +1310,38 @@ Gere o Briefing estruturado em JSON:
 {
   "nivel_risco_geral": "alto",
   "resumo_executivo": "...",
-  "principais_gaps": [{"gap": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "urgencia": "imediata"}],
+  "principais_gaps": [{"gap": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "urgencia": "imediata", "source_type": "rag", "source_reference": "chunk_id:LC214_art14"}],
   "oportunidades": ["..."],
   "recomendacoes_prioritarias": ["..."],
+  "top_3_acoes": [{"acao": "...", "justificativa": "por que esta é prioritária agora", "prazo": "imediato"}],
   "inconsistencias": [{"pergunta_origem": "...", "resposta_declarada": "...", "contradicao_detectada": "...", "impacto": "alto"}],
   "confidence_score": {"nivel_confianca": 85, "limitacoes": ["..."], "recomendacao": "Revisão por advogado tributarista recomendada"}
-}`,
+}
+
+REGRA TOP 3 AÇÕES (issue #810, fix UAT 2026-04-21):
+- Quando houver 3 ou mais gaps, preencha "top_3_acoes" destilando as 3 AÇÕES mais críticas (ordem de prioridade decrescente).
+- Critério de priorização: severidade × urgência × amplitude do risco (quantos processos da empresa toca).
+- Cada item deve ter: "acao" (verbo no imperativo + objeto — ex.: "Parametrizar alíquotas IBS por UF de destino"), "justificativa" (1 linha explicando POR QUE esta ação é prioritária AGORA e NÃO as outras), "prazo" (imediato / curto_prazo / medio_prazo).
+- NÃO repita literalmente o texto das "recomendacoes_prioritarias" — destile e priorize.
+- Se houver menos de 3 gaps, retorne array vazio [] — o template não renderiza o bloco.
+
+REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra #1):
+- Cada gap em "principais_gaps" DEVE vir com "source_type" e "source_reference" preenchidos.
+- "source_type" é UM dos valores exatos:
+  - "rag"           → o gap foi derivado diretamente do regulatoryContext (chunk do RAG citando o artigo/LC)
+  - "cnae"          → o gap foi derivado do CNAE principal confirmado (característica estrutural da atividade)
+  - "descricao"     → o gap foi derivado da "DESCRIÇÃO" textual do negócio (sinal lexical — ex.: "exportação", "cesta básica")
+  - "questionario"  → o gap foi derivado de uma resposta específica nos questionários (Onda 1, Onda 2, CNAE, Produtos ou Serviços)
+  - "iagen"         → o gap foi derivado de pergunta da IA Gen (Onda 2) e a resposta correlata
+  - "regra_semantica" → o gap foi derivado das REGRAS DE ARTIGOS CRÍTICOS (gatilhos semânticos declarados acima)
+- "source_reference" é uma string curta identificando a fonte:
+  - RAG: "chunk_id:XXX" ou "Art. X §Y LC 214/2025"
+  - CNAE: o código CNAE confirmado (ex.: "4632-0/03")
+  - Descrição: trecho curto entre aspas da descrição que disparou o gap (ex.: "\"exportamos para Bolívia\"")
+  - Questionário: "questao_id:ABC" ou nome curto da pergunta (ex.: "P3 Onda 1 — operação interestadual")
+  - IA Gen: "pergunta IA Gen: [título curto]"
+  - Regra semântica: número da regra acima (ex.: "Gatilho #2 — cesta básica")
+- NUNCA invente source_reference. Se o gap não tem fonte clara identificável, use source_type="rag" e source_reference="Reforma Tributária — LC 214/2025" como fallback genérico — mas ISSO reduz a qualidade do diagnóstico, evite quando houver alternativa precisa.`,
           },
         ],
         BriefingStructuredSchema,
@@ -1397,6 +1444,28 @@ Gere o Briefing estruturado em JSON:
 
       // Converter estruturado para Markdown (compatibilidade com UI existente)
       // fix #806: template v2 recebe metadata do projeto para cabeçalho empresarial.
+      // fix #809: contador de questionários respondidos (1 por questionário com >=1 resposta).
+      // fix #810: qualidade determinística das informações fornecidas.
+      const productAnswersArrCount = Array.isArray(productAnswersForConf) ? productAnswersForConf.length : 0;
+      const serviceAnswersArrCount = Array.isArray(serviceAnswersForConf) ? serviceAnswersForConf.length : 0;
+      const questionariosRespondidosCount =
+        (solarisCountForConf > 0 ? 1 : 0) +
+        (iagenCountForConf > 0 ? 1 : 0) +
+        (cnaeQuestionsCountForConf > 0 ? 1 : 0) +
+        (productAnswersArrCount > 0 ? 1 : 0) +
+        (serviceAnswersArrCount > 0 ? 1 : 0);
+      const produtosTotalCount = (opProfile.principaisProdutos ?? []).length;
+      const servicosTotalCount = (opProfile.principaisServicos ?? []).length;
+      const { calculateBriefingQuality } = await import("./lib/briefing-quality");
+      const qualityResult = calculateBriefingQuality({
+        questionariosRespondidos: questionariosRespondidosCount,
+        questionariosTotal: 5,
+        produtosComClassificacao: ncmCountForConf,
+        produtosTotal: produtosTotalCount,
+        servicosComClassificacao: nbsCountForConf,
+        servicosTotal: servicosTotalCount,
+        descricao: (project as any).description ?? "",
+      });
       const briefingMeta: BriefingMarkdownMeta = {
         empresa: project.name,
         descricao: (project as any).description,
@@ -1407,8 +1476,21 @@ Gere o Briefing estruturado em JSON:
         multiestadual: (opProfile as any)?.multiState === true || (opProfile as any)?.multiestadual === true,
         ncms: (opProfile.principaisProdutos ?? []).map((p) => p?.ncm_code).filter((c): c is string => !!c),
         nbs: (opProfile.principaisServicos ?? []).map((s) => s?.nbs_code).filter((c): c is string => !!c),
+        questionariosRespondidos: questionariosRespondidosCount,
+        questionariosTotal: 5,
+        qualidadeInformacoes: qualityResult.quality,
+        produtosTotal: produtosTotalCount,
+        servicosTotal: servicosTotalCount,
       };
-      const briefingMarkdown = buildBriefingMarkdown(structured, briefingMeta);
+      // fix #808: sanitiza markdown contra alucinação de NCM/NBS (códigos citados que
+      // não estão em principaisProdutos/principaisServicos recebem disclaimer "(sugerido)").
+      const rawMarkdown = buildBriefingMarkdown(structured, briefingMeta);
+      const { sanitizeBriefingMarkdown } = await import("./lib/briefing-sanitizer");
+      const sanitizeResult = sanitizeBriefingMarkdown(rawMarkdown, {
+        ncms: briefingMeta.ncms,
+        nbs: briefingMeta.nbs,
+      });
+      const briefingMarkdown = sanitizeResult.sanitized;
 
       // Salvar briefing no banco (markdown + estruturado)
       const database = await db.getDb();
@@ -1460,6 +1542,30 @@ Gere o Briefing estruturado em JSON:
               confidence: structured.confidence_score?.nivel_confianca ?? null,
               llm_retries: llmRetries,
             },
+            // fix #808: registra NCMs/NBS que o LLM citou sem estarem cadastrados
+            // (alucinação) — sanitizer adicionou disclaimer mas a tentativa é auditada.
+            sanitizer: {
+              enabled: sanitizeResult.enabled,
+              blocked_codes: sanitizeResult.blockedCodes,
+              blocked_total: sanitizeResult.blockedCodes.reduce((sum, b) => sum + b.occurrences, 0),
+            },
+            // fix #811: cobertura de rastreabilidade — percentual de gaps com
+            // source_type preenchido. Métrica da adesão do LLM à regra de fonte
+            // (content engine regra #1). Meta: >=80%.
+            source_coverage: (() => {
+              const all = Array.isArray(structured.principais_gaps) ? structured.principais_gaps : [];
+              const withSource = all.filter((g: any) => !!g?.source_type).length;
+              return {
+                total: all.length,
+                with_source: withSource,
+                coverage_pct: all.length > 0 ? Math.round((withSource / all.length) * 100) : 0,
+                breakdown: all.reduce((acc: Record<string, number>, g: any) => {
+                  const key = g?.source_type ?? "SEM_FONTE";
+                  acc[key] = (acc[key] ?? 0) + 1;
+                  return acc;
+                }, {}),
+              };
+            })(),
           },
         });
       } catch (auditErr) {
@@ -3010,6 +3116,19 @@ Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORRE
 
 IMPORTANTE: Essas regras operam EM ADIÇÃO ao regulatoryContext. Se RAG trouxe o artigo, aprofunde com o texto. Se não, cite número e regra curta e sinalize em limitações que validação por advogado é recomendada. NUNCA invente texto de artigo que não esteja no regulatoryContext.
 
+REGRA ANTI-ALUCINAÇÃO — NCM/NBS DE PRODUTOS (issue #808, fix UAT 2026-04-21):
+- NUNCA atribua NCM específico (ex: "arroz NCM 1006") a um produto DA EMPRESA se esse código não estiver cadastrado em "PRINCIPAIS PRODUTOS" do perfil.
+- A lista de NCMs citada nas regras acima (cesta básica, IS) é REFERÊNCIA REGULATÓRIA (a LC cita esses códigos), NÃO confirmação de que a empresa comercializa exatamente esses NCMs.
+- ERRADO: "arroz (NCM 1006) tem alíquota zero" — CERTO: "o arroz comercializado pela empresa PODE se enquadrar em alíquota zero se classificado no NCM 1006 da cesta básica — validar classificação com contador".
+- Quando nenhum NCM foi cadastrado: use linguagem genérica sem códigos específicos como se fossem da empresa. Um sanitizer pós-LLM adiciona disclaimer em códigos não cadastrados — gere texto correto desde o início.
+
+REGRA DE LINGUAGEM CONDICIONAL — BAIXA CONFIANÇA (issue #809, fix UAT 2026-04-21):
+- A confiança é calculada determinísticamente server-side. Se projetada <85% (poucos ou nenhum dos 5 questionários respondidos), use linguagem condicional em gaps, oportunidades, recomendações e resumo_executivo.
+- ERRADO: "APRESENTA riscos elevados" · "AUSÊNCIA de parametrização" · "NÃO TEM controles"
+- CERTO: "PODE apresentar riscos relevantes" · "RISCO POTENCIAL de ausência de parametrização — verificar" · "INDÍCIOS de falta de controles — validar"
+- Termos preferenciais: "indícios de", "potencial", "aparente", "sugere-se verificar", "pode configurar", "requer avaliação".
+- Cada gap deve deixar claro que é HIPÓTESE (baseada em perfil + descrição + base legal), NÃO fato confirmado. Linguagem afirmativa só com conf>=85%.
+
 ${regulatoryContext}
 
 ${OC}`,
@@ -3026,12 +3145,26 @@ Gere o Briefing estruturado em JSON:
 {
   "nivel_risco_geral": "alto",
   "resumo_executivo": "...",
-  "principais_gaps": [{"gap": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "urgencia": "imediata"}],
+  "principais_gaps": [{"gap": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "urgencia": "imediata", "source_type": "rag", "source_reference": "chunk_id:LC214_art14"}],
   "oportunidades": ["..."],
   "recomendacoes_prioritarias": ["..."],
+  "top_3_acoes": [{"acao": "...", "justificativa": "por que esta é prioritária agora", "prazo": "imediato"}],
   "inconsistencias": [{"pergunta_origem": "...", "resposta_declarada": "...", "contradicao_detectada": "...", "impacto": "alto"}],
   "confidence_score": {"nivel_confianca": 85, "limitacoes": ["..."], "recomendacao": "Revisão por advogado tributária recomendada"}
-}`,
+}
+
+REGRA TOP 3 AÇÕES (issue #810, fix UAT 2026-04-21):
+- Quando houver >=3 gaps, preencha "top_3_acoes" com as 3 ações mais críticas (prioridade decrescente).
+- Critério: severidade × urgência × amplitude (processos afetados).
+- Cada item: "acao" (verbo imperativo — "Parametrizar alíquotas IBS..."), "justificativa" (1 linha — por que esta AGORA e não outras), "prazo" (imediato/curto_prazo/medio_prazo).
+- NÃO repita literalmente "recomendacoes_prioritarias" — destile.
+- Menos de 3 gaps → retorne []. Template não renderiza o bloco.
+
+REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra #1):
+- Cada gap em "principais_gaps" DEVE vir com "source_type" + "source_reference".
+- source_type: "rag" | "cnae" | "descricao" | "questionario" | "iagen" | "regra_semantica".
+- source_reference: identificador curto (chunk_id, CNAE, trecho em aspas, nome da pergunta, gatilho semântico).
+- Fallback genérico só quando não houver alternativa: source_type="rag", source_reference="Reforma Tributária — LC 214/2025".`,
           },
         ],
         BriefingStructuredSchema,
@@ -3109,6 +3242,31 @@ Gere o Briefing estruturado em JSON:
       })).catch(() => ({ buildBriefingMarkdown: null }));
 
       // fix #806: metadata para template v2 (fallback silencioso se função não disponível).
+      // fix #809: contador de questionários respondidos para o banner de baixa confiança.
+      // fix #810: qualidade determinística das informações.
+      const productAnswersCountFD = Array.isArray(briefingProduct) ? briefingProduct.length : 0;
+      const serviceAnswersCountFD = Array.isArray(briefingService) ? briefingService.length : 0;
+      const cnaeQuestionsTotalFD = cnaeAnswers.reduce((acc: number, l: any) => acc + (l.questions?.length ?? 0), 0);
+      const questionariosRespondidosCountFD =
+        (solarisAnswersForBriefing.length > 0 ? 1 : 0) +
+        (iagenAnswersForBriefing.length > 0 ? 1 : 0) +
+        (cnaeQuestionsTotalFD > 0 ? 1 : 0) +
+        (productAnswersCountFD > 0 ? 1 : 0) +
+        (serviceAnswersCountFD > 0 ? 1 : 0);
+      const produtosTotalCountFD = (opProfileForBriefing.principaisProdutos ?? []).length;
+      const servicosTotalCountFD = (opProfileForBriefing.principaisServicos ?? []).length;
+      const ncmCoveredFD = (opProfileForBriefing.principaisProdutos ?? []).filter(x => x?.ncm_code).length;
+      const nbsCoveredFD = (opProfileForBriefing.principaisServicos ?? []).filter(x => x?.nbs_code).length;
+      const { calculateBriefingQuality: calculateBriefingQualityFD } = await import("./lib/briefing-quality");
+      const qualityResultFD = calculateBriefingQualityFD({
+        questionariosRespondidos: questionariosRespondidosCountFD,
+        questionariosTotal: 5,
+        produtosComClassificacao: ncmCoveredFD,
+        produtosTotal: produtosTotalCountFD,
+        servicosComClassificacao: nbsCoveredFD,
+        servicosTotal: servicosTotalCountFD,
+        descricao: p.description ?? "",
+      });
       const briefingMetaFD: BriefingMarkdownMeta = {
         empresa: project.name,
         descricao: p.description,
@@ -3121,6 +3279,11 @@ Gere o Briefing estruturado em JSON:
         multiestadual: (opProfileForBriefing as any)?.multiState === true || (opProfileForBriefing as any)?.multiestadual === true,
         ncms: (opProfileForBriefing.principaisProdutos ?? []).map((x) => x?.ncm_code).filter((c): c is string => !!c),
         nbs: (opProfileForBriefing.principaisServicos ?? []).map((x) => x?.nbs_code).filter((c): c is string => !!c),
+        questionariosRespondidos: questionariosRespondidosCountFD,
+        questionariosTotal: 5,
+        qualidadeInformacoes: qualityResultFD.quality,
+        produtosTotal: produtosTotalCountFD,
+        servicosTotal: servicosTotalCountFD,
       };
 
       // Converter para markdown (fallback se não conseguir importar)
@@ -3130,6 +3293,14 @@ Gere o Briefing estruturado em JSON:
       } else {
         briefingMarkdown = `# Briefing de Compliance\n\n**Nível de Risco:** ${structured.nivel_risco_geral}\n\n## Resumo Executivo\n${structured.resumo_executivo}`;
       }
+
+      // fix #808: sanitiza alucinação de NCM/NBS antes de persistir.
+      const { sanitizeBriefingMarkdown: sanitizeFD } = await import("./lib/briefing-sanitizer");
+      const sanitizeResultFD = sanitizeFD(briefingMarkdown, {
+        ncms: briefingMetaFD.ncms,
+        nbs: briefingMetaFD.nbs,
+      });
+      briefingMarkdown = sanitizeResultFD.sanitized;
 
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await database
@@ -3174,6 +3345,26 @@ Gere o Briefing estruturado em JSON:
               gaps_count: Array.isArray(structured.principais_gaps) ? structured.principais_gaps.length : 0,
               confidence: structured.confidence_score?.nivel_confianca ?? null,
             },
+            sanitizer: {
+              enabled: sanitizeResultFD.enabled,
+              blocked_codes: sanitizeResultFD.blockedCodes,
+              blocked_total: sanitizeResultFD.blockedCodes.reduce((sum, b) => sum + b.occurrences, 0),
+            },
+            // fix #811: cobertura de rastreabilidade de fonte por gap.
+            source_coverage: (() => {
+              const all = Array.isArray(structured.principais_gaps) ? structured.principais_gaps : [];
+              const withSource = all.filter((g: any) => !!g?.source_type).length;
+              return {
+                total: all.length,
+                with_source: withSource,
+                coverage_pct: all.length > 0 ? Math.round((withSource / all.length) * 100) : 0,
+                breakdown: all.reduce((acc: Record<string, number>, g: any) => {
+                  const key = g?.source_type ?? "SEM_FONTE";
+                  acc[key] = (acc[key] ?? 0) + 1;
+                  return acc;
+                }, {}),
+              };
+            })(),
           },
         });
       } catch (auditErr) {
@@ -4128,9 +4319,17 @@ function classifyInconsistenciaImpacto(inc: any): "alto" | "medio" | "baixo" {
 // Baseline imutável: tag `briefing-template-baseline-v1` aponta para commit pré-#806.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Controle de qual template é usado. Rollback = trocar para "v1". */
-const BRIEFING_TEMPLATE_VERSION: "v1" | "v2" =
-  (process.env.BRIEFING_TEMPLATE_VERSION as "v1" | "v2") || "v2";
+/**
+ * Controle de qual template é usado. Rollback = trocar para "v1".
+ *
+ * fix auditoria bundle #808-#811 (2026-04-21): lido DINAMICAMENTE a cada
+ * chamada de buildBriefingMarkdown — antes era const capturado no module
+ * load, o que fazia o rollback exigir restart do servidor (bug sutil não
+ * detectado nos PRs originais).
+ */
+function getBriefingTemplateVersion(): "v1" | "v2" {
+  return (process.env.BRIEFING_TEMPLATE_VERSION as "v1" | "v2") || "v2";
+}
 
 export interface BriefingMarkdownMeta {
   empresa?: string;
@@ -4142,14 +4341,30 @@ export interface BriefingMarkdownMeta {
   multiestadual?: boolean;
   ncms?: string[];
   nbs?: string[];
+  // fix #809: contexto para banner de confiança e contador de questionários.
+  questionariosRespondidos?: number;
+  questionariosTotal?: number;
+  // fix #810: qualidade 0-100 pré-calculada (briefing-quality) + contadores crus
+  // para exibir breakdown no markdown. Opcional; quando ausente, bloco é omitido.
+  qualidadeInformacoes?: number;
+  produtosTotal?: number;
+  servicosTotal?: number;
 }
+
+// fix #809: threshold canônico do P.O. — briefing com confiança abaixo dessa
+// faixa é considerado "diagnóstico inicial" e recebe banner de alerta no topo
+// + linguagem condicional do LLM.
+export const BRIEFING_CONFIANCA_MIN = 85;
 
 /**
  * Wrapper de compatibilidade — decide qual template renderizar.
  * Meta é opcional; V1 ignora, V2 usa quando presente.
+ *
+ * Exportado a partir do bundle #808-#811 para permitir testes unitários
+ * diretos do template v2 sem stand-up de tRPC/DB.
  */
-function buildBriefingMarkdown(structured: any, meta?: BriefingMarkdownMeta): string {
-  if (BRIEFING_TEMPLATE_VERSION === "v1") {
+export function buildBriefingMarkdown(structured: any, meta?: BriefingMarkdownMeta): string {
+  if (getBriefingTemplateVersion() === "v1") {
     return buildBriefingMarkdownV1(structured);
   }
   return buildBriefingMarkdownV2(structured, meta ?? {});
@@ -4261,12 +4476,34 @@ const URGENCIA_LABEL_V2: Record<string, string> = {
   medio_prazo: "🟡 Médio prazo",
 };
 
+// fix #811: rótulos legíveis para o campo source_type do briefing.
+// Content engine regra #1 exige fonte por item — aqui é exposto ao usuário.
+const SOURCE_TYPE_LABEL_V2: Record<string, string> = {
+  rag: "📚 RAG (base regulatória)",
+  cnae: "🏷️ CNAE confirmado",
+  descricao: "📝 Descrição do negócio",
+  questionario: "💬 Respostas do questionário",
+  iagen: "🤖 IA Generativa (Onda 2)",
+  regra_semantica: "⚙️ Regra semântica (gatilho)",
+};
+
 function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): string {
   const lines: string[] = [];
+
+  // ─── Badge de maturidade (fix #810) ────────────────────────────────────
+  // Classifica o diagnóstico em 3 estágios com base na confiança.
+  // Aparece no título para comunicar imediatamente o estágio de maturidade.
+  const confiancaHdr = Number(structured.confidence_score?.nivel_confianca);
+  const maturityBadge = classifyMaturityBadge(Number.isFinite(confiancaHdr) ? confiancaHdr : null);
+  const maturityLabel = MATURITY_BADGE_LABEL[maturityBadge];
 
   // ─── Cabeçalho ─────────────────────────────────────────────────────────
   lines.push(`# Briefing de Compliance — Reforma Tributária (LC 214/2025)`);
   lines.push(``);
+  if (maturityLabel) {
+    lines.push(`**Estágio do diagnóstico:** ${maturityLabel}`);
+    lines.push(``);
+  }
   if (meta.empresa) lines.push(`**Empresa:** ${meta.empresa}`);
   if (meta.cnaePrincipal) lines.push(`**CNAE Principal:** ${meta.cnaePrincipal}`);
   const perfilParts: string[] = [];
@@ -4277,15 +4514,69 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
   if (perfilParts.length > 0) lines.push(`**Perfil:** ${perfilParts.join(" · ")}`);
   if (meta.ncms && meta.ncms.length > 0) lines.push(`**NCMs:** ${meta.ncms.join(", ")}`);
   if (meta.nbs && meta.nbs.length > 0) lines.push(`**NBS:** ${meta.nbs.join(", ")}`);
+  // fix #810: indicador "Qualidade das Informações" determinístico (quando disponível).
+  if (typeof meta.qualidadeInformacoes === "number" && Number.isFinite(meta.qualidadeInformacoes)) {
+    const qR = meta.questionariosRespondidos ?? 0;
+    const qT = meta.questionariosTotal ?? 5;
+    lines.push(
+      `**Qualidade das Informações:** ${Math.round(meta.qualidadeInformacoes)}% ` +
+      `_(${qR}/${qT} questionários · ${(meta.produtosTotal ?? 0)} produto(s) · ${(meta.servicosTotal ?? 0)} serviço(s))_`
+    );
+  }
   lines.push(``);
   lines.push(`---`);
   lines.push(``);
 
+  // ─── Banner de confiança (fix #809 — conf<85%) ─────────────────────────
+  // Aparece ANTES do Resumo Executivo quando o diagnóstico não atingiu o
+  // limiar P.O. de 85%. Alerta visual + contador explícito de questionários.
+  const confianca = Number(structured.confidence_score?.nivel_confianca);
+  const confValido = Number.isFinite(confianca);
+  const confAbaixoMin = confValido && confianca < BRIEFING_CONFIANCA_MIN;
+  if (confAbaixoMin) {
+    const qR = meta.questionariosRespondidos ?? 0;
+    const qT = meta.questionariosTotal ?? 5;
+    lines.push(
+      `> ⚠️ **Diagnóstico inicial — confiança ${Math.round(confianca)}%**`
+    );
+    lines.push(`>`);
+    lines.push(
+      `> Baseado em perfil + CNAE + descrição. **Questionários respondidos: ${qR}/${qT}.**`
+    );
+    lines.push(
+      `> Complete os questionários para elevar a confiança e obter diagnóstico preciso.`
+    );
+    lines.push(``);
+    lines.push(`---`);
+    lines.push(``);
+  }
+
+  // ─── Top 3 Ações Prioritárias (fix #810 — antes do Resumo Executivo) ───
+  // LLM destila 3 ações por severidade × urgência. Só renderiza se gaps >= 3
+  // (critério de aceitação da issue #810) e se o LLM preencheu top_3_acoes.
+  const gapsHdr = Array.isArray(structured.principais_gaps) ? structured.principais_gaps : [];
+  const top3Arr = Array.isArray(structured.top_3_acoes) ? structured.top_3_acoes : [];
+  if (gapsHdr.length >= 3 && top3Arr.length > 0) {
+    lines.push(`## 🎯 Top 3 Ações Prioritárias`);
+    lines.push(``);
+    top3Arr.slice(0, 3).forEach((item: any, i: number) => {
+      const prazoLabel = URGENCIA_LABEL_V2[item?.prazo] ?? (item?.prazo ?? "curto prazo");
+      lines.push(`${i + 1}. **${item?.acao ?? "(ação não fornecida)"}**`);
+      if (item?.justificativa) lines.push(`   - _Por quê:_ ${item.justificativa}`);
+      lines.push(`   - _Prazo:_ ${prazoLabel}`);
+    });
+    lines.push(``);
+    lines.push(`---`);
+    lines.push(``);
+  }
+
   // ─── 1. Resumo Executivo ───────────────────────────────────────────────
   lines.push(`## ⚠️ Resumo Executivo — Decisão em 30 segundos`);
   lines.push(``);
+  // fix #809: renomear "Nível de Risco Geral" → "Nível de Exposição" para
+  // alinhar com o indicador "Exposição ao Risco de Compliance" aprovado em #803.
   lines.push(
-    `**Nível de Risco Geral:** ${RISCO_LABEL_V2[structured.nivel_risco_geral] ?? structured.nivel_risco_geral}`
+    `**Nível de Exposição:** ${RISCO_LABEL_V2[structured.nivel_risco_geral] ?? structured.nivel_risco_geral}`
   );
   lines.push(``);
   if (structured.resumo_executivo) {
@@ -4306,6 +4597,21 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
     if (g.evidencia_regulatoria) lines.push(`- **Base legal:** ${g.evidencia_regulatoria}`);
     if (g.urgencia) {
       lines.push(`- **Urgência:** ${URGENCIA_LABEL_V2[g.urgencia] ?? g.urgencia}`);
+    }
+    // fix #811: rastreabilidade de fonte (content engine regra #1).
+    // Quando o LLM preenche source_type/source_reference, expõe ao usuário
+    // para auditoria. Graceful: sem source → linha omitida (briefings legados).
+    if (g.source_type) {
+      const srcLabel = SOURCE_TYPE_LABEL_V2[g.source_type] ?? g.source_type;
+      const srcSuffix = g.source_reference ? ` · ${g.source_reference}` : "";
+      lines.push(`- **Fonte:** ${srcLabel}${srcSuffix}`);
+    }
+    // fix #809: aviso per-gap quando a confiança é baixa — lembra o leitor
+    // que a base legal citada precisa ser validada no contexto concreto da empresa.
+    if (confAbaixoMin) {
+      lines.push(
+        `- _Validação obrigatória: base legal citada requer análise do contexto específico por advogado tributarista._`
+      );
     }
     lines.push(``);
   });
