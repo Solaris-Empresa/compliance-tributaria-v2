@@ -1,209 +1,186 @@
-# Auto-Auditoria — Bundle Briefing D→A→B→C (Issues #808/#809/#810/#811)
+# AUDITORIA-FIM-DE-SESSAO — versão mais recente
 
-**Data:** 2026-04-21
-**Versão:** v7.50
-**Sessão:** continuação UAT Wave 2026-04-21
-**Escopo:** implementação + auditoria + fixes do bundle de melhorias do briefing
-**Responsável:** Claude Code (auto-auditoria) · P.O. em pausa
-**Baseado em:** ORQ-19 (auditoria fim de sessão)
+Último caso concreto executado: [v7.42-2026-04-20](./audits/v7.42-2026-04-20.md)
+
+Template canônico: [AUDITORIA-FIM-DE-SESSAO-TEMPLATE.md](./AUDITORIA-FIM-DE-SESSAO-TEMPLATE.md)
 
 ---
 
-## Resumo executivo
+# AUDITORIA-FIM-DE-SESSAO — Template canônico (REGRA-ORQ-19)
 
-Bundle de 4 issues implementado em sequência encadeada D→A→B→C. Auto-auditoria executada **antes do merge** detectou **2 bugs críticos** que passaram por `tsc`, unit tests específicos e code review manual. Corrigidos. Bundle agora validado e pronto para UAT.
-
-**Veredito:** 🟡 **amarelo** — bugs encontrados e corrigidos **antes** do impacto em produção (efetividade da auditoria). Bundle não mergeia até UAT externo.
+> Este é o template para auditorias de fim de sessão. Cada execução
+> produz um relatório arquivado em `docs/governance/audits/v7.XX-YYYY-MM-DD.md`
+> com os valores REAIS preenchidos.
+>
+> **Leitura obrigatória antes:** R-SYNC-01 + R-SYNC-02.
 
 ---
 
-## Passo 1 — Sincronia local
+## Atores
 
-| Verificação | Estado |
+| Ator | Passos sob responsabilidade |
 |---|---|
-| Branch atual | `feat/811-briefing-source-type-por-gap` |
-| Tracking | `origin/feat/811-briefing-source-type-por-gap` (up to date) |
-| Commits à frente de main | 5 (4 issues + 1 fix auditoria) |
-| Uncommitted | BASELINE.md + TODO.md (pré-existente, não meu) + arquivos Manus |
+| **Claude Code** | 0 · 2 · 3 · 5 · docs atualizadas |
+| **Manus** | 1 · 4 · 6 |
+| **P.O.** | 7 (veredito consolidado) |
 
-HEAD do bundle: `a5c1156` (fix auditoria) ← `adedd28` (#811) ← `0508bd1` (#810) ← `c729202` (#809) ← `bff380a` (#808) ← `839e860` (main).
+## Gatilhos
 
----
+Execute este template quando qualquer condição for verdadeira:
 
-## Passo 2 — Inventário de PRs
-
-| PR | Issue | Branch base | Status | HEAD |
-|---|---|---|---|---|
-| #812 | #808 (D) | `main` | 🟡 draft | `bff380a` |
-| #813 | #809 (A) | `fix/808-...` | 🟡 draft | `c729202` |
-| #814 | #810 (B) | `feat/809-...` | 🟡 draft | `0508bd1` |
-| #815 | #811 (C) | `feat/810-...` | 🟡 draft | `a5c1156` (com fix auditoria) |
-| #807 | #806 revert | `main` | 🟡 draft (fallback) | — |
+- ≥3 PRs mergeados na sessão
+- Sprint encerrada (Gate 7 PASS)
+- UAT Wave encerrada
+- Deploy de lote (múltiplos checkpoints em sequência)
+- Divergência detectada entre GitHub e S3 Manus
 
 ---
 
-## Passo 3 — Greps de artefatos esperados
+## PASSO 0 — Sincronia Defensiva (Claude Code)
 
-| Artefato | Esperado | Encontrado | Status |
+```bash
+git fetch solaris refs/heads/main:refs/remotes/solaris/main
+git status
+```
+
+| Item | Resultado |
+|---|---|
+| `git fetch` com refspec explícito | [OK/FAIL] |
+| R-SYNC-02 | [OK/FAIL] |
+| Working tree | [LIMPO/SUJO — descrever] |
+
+**Se SUJO:** PARAR antes de continuar. Reportar arquivos modificados.
+
+---
+
+## PASSO 1 — 4 HEADs Alinhados (Manus)
+
+| Artefato | HEAD esperado | HEAD real |
+|---|---|---|
+| GitHub `solaris/main` | `<sha-esperado>` | `<sha-real>` |
+| S3 Manus (`origin/main` em webdev) | `<sha-esperado>` | `<sha-real>` |
+| Checkpoint publicado (último v7.XX Online) | `<sha-esperado>` | `<sha-real>` |
+| `iasolaris.manus.space` | `<sha-esperado>` | `<sha-real>` |
+
+**Se divergente:** reportar qual camada está atrás e por quê.
+
+---
+
+## PASSO 2 — Inventário dos PRs esperados (Claude Code)
+
+```bash
+# Substituir a lista pela relevante da sessão
+PRS="744 745 746 747 ..."
+for pr in $PRS; do
+  found=$(git log <HEAD> --oneline --grep "#$pr\b" | wc -l)
+  [ "$found" -eq 0 ] && echo "❌ PR #$pr" || echo "✓ PR #$pr"
+done
+```
+
+**Esperado:** N/N ✓. Zero faltantes.
+
+---
+
+## PASSO 3 — Greps de Artefatos (Claude Code)
+
+Para cada PR novo/modificado, verificar que seu símbolo canônico existe em produção:
+
+| PR | Símbolo | Arquivo | Esperado |
 |---|---|---|---|
-| `sanitizeBriefingMarkdown` exportado | 1 | 1 em `server/lib/briefing-sanitizer.ts` | ✅ |
-| `calculateBriefingQuality` exportado | 1 | 1 em `server/lib/briefing-quality.ts` | ✅ |
-| `classifyMaturityBadge` exportado | 1 | 1 em `server/lib/briefing-quality.ts` | ✅ |
-| Import estático de briefing-quality no router | 1 | 1 (fix auditoria) | ✅ |
-| `top_3_acoes` no schema Zod | 1 | 1 em `ai-schemas.ts:185` | ✅ |
-| `source_type` no schema Zod | 1 | 1 em `ai-schemas.ts:191` | ✅ |
-| `source_reference` no schema Zod | 1 | 1 em `ai-schemas.ts:196` | ✅ |
-| REGRA ANTI-ALUCINAÇÃO em prompts | 2 | 2 (generateBriefing + FromDiagnostic) | ✅ |
-| REGRA DE LINGUAGEM CONDICIONAL | 2 | 2 | ✅ |
-| REGRA TOP 3 AÇÕES | 2 | 2 | ✅ |
-| REGRA DE RASTREABILIDADE | 2 | 2 | ✅ |
-| Audit `sanitizer` | 2 callers | 2 | ✅ |
-| Audit `source_coverage` | 2 callers | 2 | ✅ |
+| #XXX | `functionName` | `server/lib/file.ts` | ≥N matches |
+| ... | ... | ... | ... |
+
+**Reporte:** cada grep com `0` onde esperava ≥1.
 
 ---
 
-## Passo 4 — Planejado vs Implementado
+## PASSO 4 — Runtime Sanity (Manus)
 
-### Issue #808 (D) — Anti-alucinação NCM/NBS
+| Verificação | Comando | Esperado | Resultado |
+|---|---|---|---|
+| TypeScript | `pnpm check 2>&1 \| tail -3` | 0 erros | ? |
+| HTTP dev | `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000` | 200 | ? |
+| HTTP prod | `curl -s -o /dev/null -w "%{http_code}" https://iasolaris.manus.space` | 200 | ? |
 
-| Critério (Bloco 7 da issue) | Implementado | Gap |
+---
+
+## PASSO 5 — Unit Tests (Claude Code)
+
+```bash
+pnpm vitest run <arquivos-dos-módulos-novos-ou-modificados>
+```
+
+```
+✓ nome-test-1  (X tests)
+✓ nome-test-2  (Y tests)
+─────────────────────────
+Test Files  N passed (N)
+Tests       M passed (M)   ← M/M ✓
+```
+
+**Se FAIL:** listar teste + erro.
+
+---
+
+## PASSO 6 — Smoke UX 9 Fluxos (Manus)
+
+Acessar `iasolaris.manus.space` como usuário real e validar:
+
+| Fluxo | URL | Resultado |
 |---|---|---|
-| Sem NCM cadastrado + descrição "arroz" → briefing NÃO contém "NCM 1006" | Sanitizer substitui por disclaimer inline | 🟡 disclaimer difere do spec ("[NCM a confirmar]" vs "(sugerido pela lei — confirmar...)") — variação aceitável, mais pedagógica |
-| NCM 1006 cadastrado → permitido | ✅ | — |
-| NCM parcial → substituição parcial | ✅ | — |
-| `audit_log` com `action='ncm_hallucination_blocked'` | Metadata dentro do event `briefing_generated` (field `sanitizer`) | 🟡 semântica equivalente, agrupado ao invés de evento separado |
-| Unit tests — 3 cenários mínimos | 13 tests | ✅ sobre-entregue |
-| `pnpm check` zero | ✅ | — |
+| 1. Login | `/` | ? |
+| 2. Lista projetos | `/projetos` | ? |
+| 3. Criar projeto | `/projetos/novo` | ? |
+| 4. Questionários Sim/Não/N.A. | fluxo QCorp/QOp/QCNAE | ? |
+| 5. Briefing sem crash | `/projetos/:id/briefing-v3` | ? |
+| 6. ConfidenceBar | Briefing | ? |
+| 7. Compartilhar Resumo (6 tabs) | Modal `btn-compartilhar-resumo` | ? |
+| 8. Trilha de Auditoria | `/projetos/:id/historico` | ? |
+| 9. Exportar Riscos CSV | Matriz v4 `btn-export-riscos-csv` | ? |
 
-### Issue #809 (A) — Linguagem condicional + banner
-
-| Critério | Implementado | Gap |
-|---|---|---|
-| Banner amarelo topo quando conf<85% | ✅ | — |
-| Sem banner quando conf≥85% | ✅ | — |
-| "Risco Geral" → "Exposição" | ✅ | — |
-| Prompt linguagem condicional | ✅ | — |
-| Teste regex frases proibidas | ❌ não implementado | 🟡 pedido na spec, omitido — requer teste de integração LLM real |
-| Rollback `BRIEFING_TEMPLATE_VERSION=v1` funciona | ✅ após fix auditoria | ⚠️ antes do fix, exigia restart |
-
-### Issue #810 (B) — Top 3 + Qualidade + Badge
-
-| Critério | Implementado | Gap |
-|---|---|---|
-| Bloco Top 3 antes do Resumo quando gaps≥3 | ✅ | — |
-| Ação + justificativa + prazo | ✅ | — |
-| Fórmula de Qualidade determinística | ✅ | 🟡 fórmula ligeiramente diferente da spec — redistribuição mais limpa |
-| Qualidade renderizada no header | ✅ | — |
-| Badge de maturidade | ✅ | ⚠️ bug require→import corrigido na auditoria |
-| 5 casos de teste mínimos | 14 tests | ✅ sobre-entregue |
-| `pnpm check` zero | ✅ | — |
-
-### Issue #811 (C) — source_type + source_reference
-
-| Critério | Implementado | Gap |
-|---|---|---|
-| Linha **Fonte** por gap | ✅ | — |
-| Gap sem source_type → linha omitida | ✅ | — |
-| LLM instruído no prompt | ✅ | — |
-| `audit_log` com cobertura | ✅ (`source_coverage`) | 🟡 entity='project' vs spec 'briefing_coverage' — semântica equivalente |
-| Unit test do template | Faltava, **adicionado na auditoria** (18 tests) | ✅ corrigido |
-| `pnpm check` zero | ✅ | — |
+**Reporte:** ✅ ou ❌ + screenshot se falhar.
 
 ---
 
-## Passo 5 — Testes locais
+## PASSO 7 — Veredito Final (P.O.)
 
-### Unit tests do bundle (4 arquivos)
 ```
-✓ server/lib/briefing-sanitizer.test.ts (13 tests)
-✓ server/lib/briefing-quality.test.ts (14 tests)
-✓ server/ai-schemas.briefing.test.ts (6 tests)   ← adicionado na auditoria
-✓ server/briefing-markdown-v2.test.ts (18 tests) ← adicionado na auditoria
-
-Total: 51 tests PASS · zero falha
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  VEREDITO: [🟢 APROVADO | 🟡 PARCIAL | 🔴 BIFURCAÇÃO]                       │
+│  Checkpoint: vX.XX (<version-id>) | HEAD: <sha> | Data: YYYY-MM-DD           │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### tsc
+### Resumo Executivo
+
 ```
-pnpm check → zero errors
+[🟢/🟡/🔴] <status textual>
+
+HEAD:          <sha>
+PRs auditados: X/N
+Greps:         Y/Z ✓
+TypeScript:    <0 erros / N erros>
+Tests:         M/N ✓
+HTTP prod:     200 / <outros>
+Smoke UX:      K/9 fluxos ✓
+
+BUGS ABERTOS:  <lista ou "nenhum">
+BLOQUEADORES:  <lista ou "nenhum">
 ```
 
-### Full suite (server/)
-```
-Test Files  20 failed | 79 passed | 2 skipped (101)
-Tests       53 failed | 1589 passed | 103 skipped | 5 todo (1750)
-```
-**53 falhas são todas de infra/env** (DATABASE_URL ausente, OPENAI_API_KEY ausente, hardcoded Linux paths, server não rodando). **Zero regressões** causadas pelo bundle. Verificado individualmente.
+### Decisão
+
+- **🟢 APROVADO** → sessão encerra · próxima sprint liberada · arquivar relatório em `audits/`
+- **🟡 PARCIAL** → fix específico antes de encerrar · reexecutar Passos 3/4/5/6 após correção
+- **🔴 BIFURCAÇÃO** → issue de governança urgente · pausar todos os merges · não abrir nova sprint até 🟢
+
+### Próximos passos
+
+- Próxima sessão/sprint ataca: <issue ou tarefa prioritária>
+- Backlog residual: <lista de issues não resolvidas>
 
 ---
 
-## Passo 6 — Smoke UX (pendente)
-
-Smoke UX é responsabilidade de Manus + P.O. na fase UAT. Não executado nesta auditoria porque o branch ainda não está deployado.
-
-**Requisitos pós-deploy do tip de `feat/811-...`:**
-- [ ] HTTP 200 em `/api/health`
-- [ ] Gerar briefing do projeto "Distribuidora Alimentos Teste"
-- [ ] Verificar visualmente: badge, qualidade, top 3, banner conf<85%, linha Fonte
-- [ ] Rollback drill: `BRIEFING_SANITIZER_ENABLED=false` + `BRIEFING_TEMPLATE_VERSION=v1`
-
----
-
-## Passo 7 — Achados
-
-### 🔴 Bugs críticos encontrados e corrigidos antes do merge
-
-1. **`require()` dinâmico em função sync** — `buildBriefingMarkdownV2` usava `require("./lib/briefing-quality")` dentro de bloco sync. Em runtime ESM (Vitest default, Vite dev) falha com *"Cannot find module"*. TypeScript tipou corretamente → `pnpm check` passou. Produção com esbuild bundle PROVAVELMENTE resolveria via interop, mas era fragilidade inaceitável. **Fix:** import estático no topo do arquivo.
-
-2. **`BRIEFING_TEMPLATE_VERSION` estático** — declarado como `const` lido no module load. Rollback via `.env` **exigiria restart do servidor**, contradizendo o anunciado nos PRs como "rollback instantâneo". **Fix:** função `getBriefingTemplateVersion()` lê `process.env` a cada chamada.
-
-### 🟡 Gaps de cobertura preenchidos
-
-3. **Testes do template v2 inexistentes** — specs pediam validação do comportamento do template. Apenas módulos novos (sanitizer, quality) tinham testes diretos. **Fix:** `server/briefing-markdown-v2.test.ts` com 18 tests + `server/ai-schemas.briefing.test.ts` com 6 tests.
-
-### 🟡 Desvios aceitáveis da spec (documentados acima)
-
-- Formato do disclaimer em #808 (mais pedagógico)
-- Estrutura do audit log (metadata dentro do event principal ao invés de event separado)
-- Fórmula de qualidade (redistribuição de pesos mais limpa)
-- Teste de regex do LLM em #809 (omitido — requer integration test com LLM real)
-
----
-
-## Veredito consolidado
-
-🟡 **Bundle amarelo — pronto para UAT, NÃO para merge.**
-
-**Por que amarelo (não verde):**
-- Bugs críticos encontrados e corrigidos **foram responsáveis** pela coloração amarela. Se não tivesse feito a auditoria, o bundle iria pra produção com os 2 bugs.
-- Integration test com LLM real não executado (spec #809 pediu regex verification).
-- Smoke UX em ambiente deployado não executado (pendência de Manus/P.O.).
-
-**Por que não vermelho:**
-- Todos os bugs detectados foram corrigidos.
-- 51 unit tests PASS. Zero regressão.
-- Schema backward-compat validado.
-- Feature flags funcionais (ambos dinâmicos).
-
-## Próximos passos obrigatórios antes do merge
-
-1. **Deploy do tip `feat/811-briefing-source-type-por-gap` em staging** (Manus)
-2. **UAT full matrix** (usuário + Manus) — golden path, rollback drills, regression
-3. **Integration test LLM real** (opcional mas recomendado) com OPENAI_API_KEY
-4. **Se 🟢 em UAT:** converter os 4 drafts para "ready", merge sequencial D→A→B→C
-5. **Auditoria pós-merge** (ORQ-19) — arquivar em `docs/governance/audits/v7.51-*.md`
-
-## Lição aprendida
-
-Esta sessão confirma o valor da ORQ-19 (auditoria fim de sessão) **ANTES** do merge. Os 2 bugs críticos encontrados aqui não foram detectados por:
-- `tsc --noEmit` (zero errors)
-- Unit tests dos módulos isolados (sanitizer 13/13, quality 14/14)
-- Code review manual durante implementação
-
-Foi apenas ao escrever testes do template v2 integrado (que chama `buildBriefingMarkdownV2`) que o `require()` falhou. **Testes de integração mínimos entre módulos deveriam ser parte da spec padrão**, não opcionais.
-
-**Recomendação:** adicionar à regra `.claude/rules/testing.md`: *"Feature que integra 2+ módulos novos OU toca template/markdown deve ter teste que exercite a integração — não só os módulos isolados."*
-
----
-
-**Arquivado por:** Claude Code · 2026-04-21 · PR #815 commit `a5c1156`
+**Auditoria executada por:** Manus (Passos 1, 4, 6) + Claude Code (Passos 0, 2, 3, 5)
+**Veredito consolidado por:** P.O.
+**Data:** YYYY-MM-DD
