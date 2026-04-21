@@ -29,6 +29,14 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  classifyExposicao,
+  getExposicaoConfig,
+  getMetaInfo,
+  META_EXPOSICAO,
+  EXPOSICAO_CONFIG,
+  EXPOSICAO_TEXTOS,
+} from "@/lib/exposicao-risco-thresholds";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -138,6 +146,13 @@ export default function ConsolidacaoV4() {
     }
   }, [projectId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // issue #802: UX-side classification (frontend é fonte única de interpretação).
+  // Backend retorna apenas o número; thresholds aplicados aqui.
+  const rawScore = typeof score?.score === "number" ? score.score : 0;
+  const exposicaoLevel = classifyExposicao(rawScore);
+  const exposicaoCfg = EXPOSICAO_CONFIG[exposicaoLevel];
+  const metaInfo = getMetaInfo(rawScore);
+  // Mantido para compat com NIVEL_COLORS downstream (KpiCard Score)
   const nivel = score?.nivel ?? "baixo";
   const nivelColors = NIVEL_COLORS[nivel] ?? NIVEL_COLORS.baixo;
 
@@ -208,54 +223,200 @@ export default function ConsolidacaoV4() {
           <KpiCard testId="kpi-tarefas" label="Tarefas" value={allTasks.length} color="text-purple-600" />
         </div>
 
-        {/* Exposicao ao Risco de Compliance Card (RN-CV4-01..07) */}
-        <Card data-testid="compliance-score-card" className={nivelColors.bg}>
+        {/* Exposicao ao Risco de Compliance Card — issue #802
+            Arquitetura: backend calcula score (número), frontend interpreta.
+            Fonte única dos thresholds: client/src/lib/exposicao-risco-thresholds.ts */}
+        <Card data-testid="compliance-score-card" className={exposicaoCfg.className.replace(/text-\S+/g, "").trim()}>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
-              Exposição ao Risco de Compliance
+              {EXPOSICAO_TEXTOS.titulo}
             </CardTitle>
+            {/* Subtítulo educativo — fonte única de copy, não escondido em tooltip */}
+            <p
+              data-testid="exposicao-subtitulo"
+              className="text-sm text-muted-foreground whitespace-pre-line mt-1"
+            >
+              {EXPOSICAO_TEXTOS.subtitulo}
+            </p>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center gap-4">
-              <span className={`text-4xl font-bold ${nivelColors.text}`}>
-                {score?.score ?? 0}%
+          <CardContent className="space-y-4">
+            {/* Alerta anti-erro de interpretação — banner permanente (não tooltip) */}
+            <Alert
+              data-testid="exposicao-alerta-anti-erro"
+              className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30"
+            >
+              <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+              <AlertDescription className="text-xs text-amber-800 dark:text-amber-200 whitespace-pre-line leading-relaxed">
+                {EXPOSICAO_TEXTOS.alerta}
+              </AlertDescription>
+            </Alert>
+
+            {/* Score + Label + seta ↓ (anti-reflexo: indica "queremos diminuir") */}
+            <div className="flex items-baseline gap-3 flex-wrap">
+              <span
+                data-testid="exposicao-score"
+                className={`text-5xl font-bold leading-none ${exposicaoCfg.className.split(" ").find((c) => c.startsWith("text-"))}`}
+              >
+                {rawScore}
               </span>
-              <Badge className={`${nivelColors.bar} text-white`}>
-                {nivel.toUpperCase()}
+              <span className="text-lg text-muted-foreground">/ 100 pontos</span>
+              <span
+                data-testid="exposicao-seta-reduzir"
+                className={`text-xl ${exposicaoCfg.className.split(" ").find((c) => c.startsWith("text-"))}`}
+                title="Queremos reduzir este número"
+                aria-label="Quanto menor, melhor"
+              >
+                ↓
+              </span>
+              <Badge
+                data-testid="exposicao-nivel-badge"
+                className={`${exposicaoCfg.barClass} text-white`}
+              >
+                {exposicaoCfg.emoji} {exposicaoCfg.label.toUpperCase()}
               </Badge>
             </div>
-            <div className="w-full bg-muted rounded-full h-2.5">
-              <div
-                className={`h-2.5 rounded-full ${nivelColors.bar}`}
-                style={{ width: `${Math.min(score?.score ?? 0, 100)}%` }}
-              />
+
+            {/* Meta + Distância (anti-reflexo: transforma o número numa distância a percorrer) */}
+            <div
+              data-testid="exposicao-meta-distancia"
+              className="rounded-lg border bg-card/70 px-3 py-2 space-y-1 text-sm"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex items-center gap-2 text-muted-foreground">
+                  <span aria-hidden>🎯</span>
+                  Meta
+                </span>
+                <span className="font-mono tabular-nums font-semibold">
+                  ≤ {META_EXPOSICAO} pontos
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex items-center gap-2 text-muted-foreground">
+                  <span aria-hidden>📉</span>
+                  Distância
+                </span>
+                <span
+                  data-testid="exposicao-distancia-valor"
+                  className={`font-mono tabular-nums font-semibold ${
+                    metaInfo.distancia === 0
+                      ? "text-emerald-700 dark:text-emerald-400"
+                      : exposicaoCfg.className.split(" ").find((c) => c.startsWith("text-"))
+                  }`}
+                >
+                  {metaInfo.distancia === 0
+                    ? "0 pontos · meta atingida"
+                    : `${metaInfo.distancia} pontos para ${metaInfo.distanciaLabel}`}
+                </span>
+              </div>
             </div>
-            <p data-testid="score-transparencia" className="text-xs text-muted-foreground">
-              Este indicador mostra o nível de exposição ao risco de compliance com base nos riscos aprovados.
-              Ele aumenta quando a quantidade de riscos, a gravidade deles e/ou a falta de qualidade das respostas
-              (força das evidências) aumenta.
+
+            {/* Barra visual com marcadores de threshold */}
+            <div className="space-y-1" data-testid="exposicao-barra">
+              <div className="relative w-full bg-muted rounded-full h-3 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${exposicaoCfg.barClass}`}
+                  style={{ width: `${Math.min(Math.max(rawScore, 0), 100)}%` }}
+                />
+                {/* Marcadores de threshold nas posições 30, 55, 75 */}
+                {[30, 55, 75].map((t) => (
+                  <div
+                    key={t}
+                    className="absolute top-0 h-full w-px bg-background/60"
+                    style={{ left: `${t}%` }}
+                  />
+                ))}
+              </div>
+              <div className="grid grid-cols-4 text-[10px] text-muted-foreground tabular-nums">
+                <span>🟢 0</span>
+                <span className="text-center">🟡 31</span>
+                <span className="text-center">🟠 56</span>
+                <span className="text-right">🔴 76-100</span>
+              </div>
+            </div>
+
+            {/* Limites Ideais (thresholds) — tabela explicativa */}
+            <div
+              data-testid="exposicao-limites-ideais"
+              className="rounded-lg border bg-card/50 p-3 space-y-2"
+            >
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Limites Ideais (thresholds)
+              </p>
+              <div className="grid grid-cols-1 gap-1 text-xs">
+                {(Object.keys(EXPOSICAO_CONFIG) as Array<keyof typeof EXPOSICAO_CONFIG>).map((lvl) => {
+                  const c = EXPOSICAO_CONFIG[lvl];
+                  const isCurrent = lvl === exposicaoLevel;
+                  return (
+                    <div
+                      key={lvl}
+                      data-testid={`exposicao-faixa-${lvl}`}
+                      className={`flex items-center gap-2 rounded px-2 py-1 ${
+                        isCurrent ? "font-semibold ring-1 ring-border bg-background" : ""
+                      }`}
+                    >
+                      <span>{c.emoji}</span>
+                      <span className="font-mono tabular-nums w-14 text-muted-foreground">
+                        {c.range.min}–{c.range.max}
+                      </span>
+                      <span className="flex-1">{c.label}</span>
+                      <span className="text-muted-foreground text-[11px] hidden sm:inline">
+                        {c.interpretation}
+                      </span>
+                      <span className="text-muted-foreground text-[11px] italic">
+                        {c.action}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Nota pedagógica — contexto do ponto de partida */}
+            <Alert
+              data-testid="exposicao-nota-pedagogica"
+              className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30"
+            >
+              <AlertDescription className="text-xs text-blue-800 dark:text-blue-200 whitespace-pre-line leading-relaxed">
+                💡 {EXPOSICAO_TEXTOS.nota_pedagogica}
+              </AlertDescription>
+            </Alert>
+
+            {/* Metadados técnicos (menos importantes — apenas para auditoria) */}
+            <p
+              data-testid="score-transparencia"
+              className="text-[11px] text-muted-foreground"
+            >
               {(score as any)?.calculated_at && (
                 <>
-                  {" "}Calculado em{" "}
+                  Calculado em{" "}
                   {new Date((score as any).calculated_at).toLocaleString("pt-BR")}.
+                  {" "}
                 </>
               )}
-              {" "}
               <span className="font-mono text-[10px]">
-                (Fórmula v4.0 · peso × max(confiança, 0,5) / n × 9 × 100)
+                Fórmula v4.0 · peso × max(confiança, 0,5) / n × 9 × 100
               </span>
             </p>
-            {/* fix UAT 2026-04-20: botão "Analisar o Indicador" abre o dashboard de Exposição ao Risco (on-demand). */}
+
+            {/* Frase final — consolidação pedagógica */}
+            <p
+              data-testid="exposicao-frase-final"
+              className="text-sm font-medium text-center italic text-muted-foreground border-t pt-3"
+            >
+              {EXPOSICAO_TEXTOS.frase_final}
+            </p>
+
+            {/* Botão analisar — mantido */}
             <Link href={`/projetos/${projectId}/compliance-dashboard`}>
               <Button
                 variant="outline"
                 size="sm"
-                className="mt-2 gap-2"
+                className="mt-1 gap-2 w-full sm:w-auto"
                 data-testid="btn-analisar-indicador-exposicao"
               >
                 <BarChart3 className="h-4 w-4" />
-                Analisar o Indicador de Exposição ao Riscos
+                Analisar o Indicador de Exposição ao Risco
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>
