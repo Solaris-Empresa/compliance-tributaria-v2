@@ -1282,6 +1282,16 @@ REGRA ANTI-ALUCINAÇÃO — NCM/NBS DE PRODUTOS (issue #808, fix UAT 2026-04-21)
 - Quando o usuário NÃO cadastrou nenhum NCM (lista vazia): use linguagem genérica ("produtos alimentícios", "itens da cesta básica") SEM citar códigos específicos como se fossem da empresa.
 - Um sanitizer pós-LLM adiciona disclaimer automático em códigos não cadastrados, mas sua responsabilidade é gerar texto correto desde o início.
 
+REGRA DE LINGUAGEM CONDICIONAL — BAIXA CONFIANÇA (issue #809, fix UAT 2026-04-21):
+- A confiança do diagnóstico é calculada determinísticamente server-side. Se a confiança projetada for menor que 85% (o que ocorre quando o usuário NÃO respondeu todos os questionários), use OBRIGATORIAMENTE linguagem condicional nos gaps, oportunidades, recomendações e resumo_executivo.
+- Sinais de baixa confiança: poucos/nenhum dos 5 questionários respondidos (SOLARIS Onda 1, IA Gen Onda 2, CNAE, Q.Produtos, Q.Serviços), ausência de produtos/serviços cadastrados, descrição curta.
+- Substituir afirmações categóricas por formulações condicionais:
+  - ERRADO: "A empresa APRESENTA riscos elevados" · "AUSÊNCIA de parametrização do IBS" · "NÃO TEM controles de exportação"
+  - CERTO: "A empresa PODE apresentar riscos relevantes" · "RISCO POTENCIAL de ausência de parametrização do IBS — requer verificação" · "INDÍCIOS de falta de controles de exportação — validar com o cliente"
+- Termos preferenciais quando conf<85%: "indícios de", "potencial", "aparente", "sugere-se verificar", "sinaliza possível", "pode configurar", "requer avaliação".
+- Em cada gap gerado com conf<85%, a redação deve deixar claro que o gap é HIPÓTESE baseada no perfil + descrição + base legal — não FATO confirmado por evidência do cliente.
+- Quando conf>=85%: linguagem afirmativa é permitida porque há respostas suficientes para validar os gaps.
+
 ${regulatoryContext}
 
 ${OUTPUT_CONTRACT}`,
@@ -1406,6 +1416,15 @@ Gere o Briefing estruturado em JSON:
 
       // Converter estruturado para Markdown (compatibilidade com UI existente)
       // fix #806: template v2 recebe metadata do projeto para cabeçalho empresarial.
+      // fix #809: contador de questionários respondidos (1 por questionário com >=1 resposta).
+      const productAnswersArrCount = Array.isArray(productAnswersForConf) ? productAnswersForConf.length : 0;
+      const serviceAnswersArrCount = Array.isArray(serviceAnswersForConf) ? serviceAnswersForConf.length : 0;
+      const questionariosRespondidosCount =
+        (solarisCountForConf > 0 ? 1 : 0) +
+        (iagenCountForConf > 0 ? 1 : 0) +
+        (cnaeQuestionsCountForConf > 0 ? 1 : 0) +
+        (productAnswersArrCount > 0 ? 1 : 0) +
+        (serviceAnswersArrCount > 0 ? 1 : 0);
       const briefingMeta: BriefingMarkdownMeta = {
         empresa: project.name,
         descricao: (project as any).description,
@@ -1416,6 +1435,8 @@ Gere o Briefing estruturado em JSON:
         multiestadual: (opProfile as any)?.multiState === true || (opProfile as any)?.multiestadual === true,
         ncms: (opProfile.principaisProdutos ?? []).map((p) => p?.ncm_code).filter((c): c is string => !!c),
         nbs: (opProfile.principaisServicos ?? []).map((s) => s?.nbs_code).filter((c): c is string => !!c),
+        questionariosRespondidos: questionariosRespondidosCount,
+        questionariosTotal: 5,
       };
       // fix #808: sanitiza markdown contra alucinação de NCM/NBS (códigos citados que
       // não estão em principaisProdutos/principaisServicos recebem disclaimer "(sugerido)").
@@ -3040,6 +3061,13 @@ REGRA ANTI-ALUCINAÇÃO — NCM/NBS DE PRODUTOS (issue #808, fix UAT 2026-04-21)
 - ERRADO: "arroz (NCM 1006) tem alíquota zero" — CERTO: "o arroz comercializado pela empresa PODE se enquadrar em alíquota zero se classificado no NCM 1006 da cesta básica — validar classificação com contador".
 - Quando nenhum NCM foi cadastrado: use linguagem genérica sem códigos específicos como se fossem da empresa. Um sanitizer pós-LLM adiciona disclaimer em códigos não cadastrados — gere texto correto desde o início.
 
+REGRA DE LINGUAGEM CONDICIONAL — BAIXA CONFIANÇA (issue #809, fix UAT 2026-04-21):
+- A confiança é calculada determinísticamente server-side. Se projetada <85% (poucos ou nenhum dos 5 questionários respondidos), use linguagem condicional em gaps, oportunidades, recomendações e resumo_executivo.
+- ERRADO: "APRESENTA riscos elevados" · "AUSÊNCIA de parametrização" · "NÃO TEM controles"
+- CERTO: "PODE apresentar riscos relevantes" · "RISCO POTENCIAL de ausência de parametrização — verificar" · "INDÍCIOS de falta de controles — validar"
+- Termos preferenciais: "indícios de", "potencial", "aparente", "sugere-se verificar", "pode configurar", "requer avaliação".
+- Cada gap deve deixar claro que é HIPÓTESE (baseada em perfil + descrição + base legal), NÃO fato confirmado. Linguagem afirmativa só com conf>=85%.
+
 ${regulatoryContext}
 
 ${OC}`,
@@ -3139,6 +3167,16 @@ Gere o Briefing estruturado em JSON:
       })).catch(() => ({ buildBriefingMarkdown: null }));
 
       // fix #806: metadata para template v2 (fallback silencioso se função não disponível).
+      // fix #809: contador de questionários respondidos para o banner de baixa confiança.
+      const productAnswersCountFD = Array.isArray(briefingProduct) ? briefingProduct.length : 0;
+      const serviceAnswersCountFD = Array.isArray(briefingService) ? briefingService.length : 0;
+      const cnaeQuestionsTotalFD = cnaeAnswers.reduce((acc: number, l: any) => acc + (l.questions?.length ?? 0), 0);
+      const questionariosRespondidosCountFD =
+        (solarisAnswersForBriefing.length > 0 ? 1 : 0) +
+        (iagenAnswersForBriefing.length > 0 ? 1 : 0) +
+        (cnaeQuestionsTotalFD > 0 ? 1 : 0) +
+        (productAnswersCountFD > 0 ? 1 : 0) +
+        (serviceAnswersCountFD > 0 ? 1 : 0);
       const briefingMetaFD: BriefingMarkdownMeta = {
         empresa: project.name,
         descricao: p.description,
@@ -3151,6 +3189,8 @@ Gere o Briefing estruturado em JSON:
         multiestadual: (opProfileForBriefing as any)?.multiState === true || (opProfileForBriefing as any)?.multiestadual === true,
         ncms: (opProfileForBriefing.principaisProdutos ?? []).map((x) => x?.ncm_code).filter((c): c is string => !!c),
         nbs: (opProfileForBriefing.principaisServicos ?? []).map((x) => x?.nbs_code).filter((c): c is string => !!c),
+        questionariosRespondidos: questionariosRespondidosCountFD,
+        questionariosTotal: 5,
       };
 
       // Converter para markdown (fallback se não conseguir importar)
@@ -4185,7 +4225,15 @@ export interface BriefingMarkdownMeta {
   multiestadual?: boolean;
   ncms?: string[];
   nbs?: string[];
+  // fix #809: contexto para banner de confiança e contador de questionários.
+  questionariosRespondidos?: number;
+  questionariosTotal?: number;
 }
+
+// fix #809: threshold canônico do P.O. — briefing com confiança abaixo dessa
+// faixa é considerado "diagnóstico inicial" e recebe banner de alerta no topo
+// + linguagem condicional do LLM.
+export const BRIEFING_CONFIANCA_MIN = 85;
 
 /**
  * Wrapper de compatibilidade — decide qual template renderizar.
@@ -4324,11 +4372,37 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
   lines.push(`---`);
   lines.push(``);
 
+  // ─── Banner de confiança (fix #809 — conf<85%) ─────────────────────────
+  // Aparece ANTES do Resumo Executivo quando o diagnóstico não atingiu o
+  // limiar P.O. de 85%. Alerta visual + contador explícito de questionários.
+  const confianca = Number(structured.confidence_score?.nivel_confianca);
+  const confValido = Number.isFinite(confianca);
+  const confAbaixoMin = confValido && confianca < BRIEFING_CONFIANCA_MIN;
+  if (confAbaixoMin) {
+    const qR = meta.questionariosRespondidos ?? 0;
+    const qT = meta.questionariosTotal ?? 5;
+    lines.push(
+      `> ⚠️ **Diagnóstico inicial — confiança ${Math.round(confianca)}%**`
+    );
+    lines.push(`>`);
+    lines.push(
+      `> Baseado em perfil + CNAE + descrição. **Questionários respondidos: ${qR}/${qT}.**`
+    );
+    lines.push(
+      `> Complete os questionários para elevar a confiança e obter diagnóstico preciso.`
+    );
+    lines.push(``);
+    lines.push(`---`);
+    lines.push(``);
+  }
+
   // ─── 1. Resumo Executivo ───────────────────────────────────────────────
   lines.push(`## ⚠️ Resumo Executivo — Decisão em 30 segundos`);
   lines.push(``);
+  // fix #809: renomear "Nível de Risco Geral" → "Nível de Exposição" para
+  // alinhar com o indicador "Exposição ao Risco de Compliance" aprovado em #803.
   lines.push(
-    `**Nível de Risco Geral:** ${RISCO_LABEL_V2[structured.nivel_risco_geral] ?? structured.nivel_risco_geral}`
+    `**Nível de Exposição:** ${RISCO_LABEL_V2[structured.nivel_risco_geral] ?? structured.nivel_risco_geral}`
   );
   lines.push(``);
   if (structured.resumo_executivo) {
@@ -4349,6 +4423,13 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
     if (g.evidencia_regulatoria) lines.push(`- **Base legal:** ${g.evidencia_regulatoria}`);
     if (g.urgencia) {
       lines.push(`- **Urgência:** ${URGENCIA_LABEL_V2[g.urgencia] ?? g.urgencia}`);
+    }
+    // fix #809: aviso per-gap quando a confiança é baixa — lembra o leitor
+    // que a base legal citada precisa ser validada no contexto concreto da empresa.
+    if (confAbaixoMin) {
+      lines.push(
+        `- _Validação obrigatória: base legal citada requer análise do contexto específico por advogado tributarista._`
+      );
     }
     lines.push(``);
   });
