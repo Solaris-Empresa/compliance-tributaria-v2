@@ -1273,6 +1273,15 @@ Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORRE
 
 IMPORTANTE: Essas regras operam EM ADIÇÃO ao regulatoryContext. Se o RAG já trouxe o artigo, aprofunde com o texto. Se não trouxe, cite o artigo com a descrição curta acima e sinalize na limitação que a análise deve ser validada por advogado tributarista. NUNCA invente texto de artigo que não esteja no regulatoryContext — apenas cite o número e a regra curta.
 
+REGRA ANTI-ALUCINAÇÃO — NCM/NBS DE PRODUTOS (issue #808, fix UAT 2026-04-21):
+- NUNCA atribua NCM específico (ex: "arroz NCM 1006") a um produto DA EMPRESA se esse código não estiver cadastrado em "PRINCIPAIS PRODUTOS" do perfil corporativo.
+- A lista de NCMs citada nas regras acima (cesta básica, Imposto Seletivo) é REFERÊNCIA REGULATÓRIA (a LC cita esses códigos), NÃO confirmação de que a empresa comercializa exatamente esses NCMs.
+- Quando a descrição mencionar "arroz" mas o NCM 1006 NÃO estiver nos produtos cadastrados:
+  - ERRADO: "arroz (NCM 1006) tem alíquota zero"
+  - CERTO: "o arroz comercializado pela empresa PODE se enquadrar em alíquota zero se classificado no NCM 1006 da cesta básica — validar classificação fiscal com contador"
+- Quando o usuário NÃO cadastrou nenhum NCM (lista vazia): use linguagem genérica ("produtos alimentícios", "itens da cesta básica") SEM citar códigos específicos como se fossem da empresa.
+- Um sanitizer pós-LLM adiciona disclaimer automático em códigos não cadastrados, mas sua responsabilidade é gerar texto correto desde o início.
+
 ${regulatoryContext}
 
 ${OUTPUT_CONTRACT}`,
@@ -1408,7 +1417,15 @@ Gere o Briefing estruturado em JSON:
         ncms: (opProfile.principaisProdutos ?? []).map((p) => p?.ncm_code).filter((c): c is string => !!c),
         nbs: (opProfile.principaisServicos ?? []).map((s) => s?.nbs_code).filter((c): c is string => !!c),
       };
-      const briefingMarkdown = buildBriefingMarkdown(structured, briefingMeta);
+      // fix #808: sanitiza markdown contra alucinação de NCM/NBS (códigos citados que
+      // não estão em principaisProdutos/principaisServicos recebem disclaimer "(sugerido)").
+      const rawMarkdown = buildBriefingMarkdown(structured, briefingMeta);
+      const { sanitizeBriefingMarkdown } = await import("./lib/briefing-sanitizer");
+      const sanitizeResult = sanitizeBriefingMarkdown(rawMarkdown, {
+        ncms: briefingMeta.ncms,
+        nbs: briefingMeta.nbs,
+      });
+      const briefingMarkdown = sanitizeResult.sanitized;
 
       // Salvar briefing no banco (markdown + estruturado)
       const database = await db.getDb();
@@ -1459,6 +1476,13 @@ Gere o Briefing estruturado em JSON:
               gaps_count: Array.isArray(structured.principais_gaps) ? structured.principais_gaps.length : 0,
               confidence: structured.confidence_score?.nivel_confianca ?? null,
               llm_retries: llmRetries,
+            },
+            // fix #808: registra NCMs/NBS que o LLM citou sem estarem cadastrados
+            // (alucinação) — sanitizer adicionou disclaimer mas a tentativa é auditada.
+            sanitizer: {
+              enabled: sanitizeResult.enabled,
+              blocked_codes: sanitizeResult.blockedCodes,
+              blocked_total: sanitizeResult.blockedCodes.reduce((sum, b) => sum + b.occurrences, 0),
             },
           },
         });
@@ -3010,6 +3034,12 @@ Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORRE
 
 IMPORTANTE: Essas regras operam EM ADIÇÃO ao regulatoryContext. Se RAG trouxe o artigo, aprofunde com o texto. Se não, cite número e regra curta e sinalize em limitações que validação por advogado é recomendada. NUNCA invente texto de artigo que não esteja no regulatoryContext.
 
+REGRA ANTI-ALUCINAÇÃO — NCM/NBS DE PRODUTOS (issue #808, fix UAT 2026-04-21):
+- NUNCA atribua NCM específico (ex: "arroz NCM 1006") a um produto DA EMPRESA se esse código não estiver cadastrado em "PRINCIPAIS PRODUTOS" do perfil.
+- A lista de NCMs citada nas regras acima (cesta básica, IS) é REFERÊNCIA REGULATÓRIA (a LC cita esses códigos), NÃO confirmação de que a empresa comercializa exatamente esses NCMs.
+- ERRADO: "arroz (NCM 1006) tem alíquota zero" — CERTO: "o arroz comercializado pela empresa PODE se enquadrar em alíquota zero se classificado no NCM 1006 da cesta básica — validar classificação com contador".
+- Quando nenhum NCM foi cadastrado: use linguagem genérica sem códigos específicos como se fossem da empresa. Um sanitizer pós-LLM adiciona disclaimer em códigos não cadastrados — gere texto correto desde o início.
+
 ${regulatoryContext}
 
 ${OC}`,
@@ -3131,6 +3161,14 @@ Gere o Briefing estruturado em JSON:
         briefingMarkdown = `# Briefing de Compliance\n\n**Nível de Risco:** ${structured.nivel_risco_geral}\n\n## Resumo Executivo\n${structured.resumo_executivo}`;
       }
 
+      // fix #808: sanitiza alucinação de NCM/NBS antes de persistir.
+      const { sanitizeBriefingMarkdown: sanitizeFD } = await import("./lib/briefing-sanitizer");
+      const sanitizeResultFD = sanitizeFD(briefingMarkdown, {
+        ncms: briefingMetaFD.ncms,
+        nbs: briefingMetaFD.nbs,
+      });
+      briefingMarkdown = sanitizeResultFD.sanitized;
+
       if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await database
         .update(projects)
@@ -3173,6 +3211,11 @@ Gere o Briefing estruturado em JSON:
               nivel_risco: structured.nivel_risco_geral,
               gaps_count: Array.isArray(structured.principais_gaps) ? structured.principais_gaps.length : 0,
               confidence: structured.confidence_score?.nivel_confianca ?? null,
+            },
+            sanitizer: {
+              enabled: sanitizeResultFD.enabled,
+              blocked_codes: sanitizeResultFD.blockedCodes,
+              blocked_total: sanitizeResultFD.blockedCodes.reduce((sum, b) => sum + b.occurrences, 0),
             },
           },
         });
