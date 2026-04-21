@@ -175,7 +175,7 @@ O `generateDecision` produz o veredito final do diagnóstico: ação principal r
 
 ## 9. Scoring Determinístico — Cálculo do Risco Global
 
-O score de risco global é calculado **sem LLM** pela função `calculateGlobalScore()` em `ai-helpers.ts`. O cálculo usa pesos por área de risco (fiscal, trabalhista, societário, regulatório), severidade dos riscos identificados, e probabilidade de ocorrência. O resultado é um número de 0 a 100 com tradução financeira estimada. Por ser determinístico, o score é auditável e reprodutível — dois projetos com as mesmas respostas sempre produzem o mesmo score.
+O score de risco global é calculado **sem LLM** pela função `calculateComplianceScore()` em `server/lib/compliance-score-v4.ts` (hot swap Z-12 / ADR-0022). Chamada via `trpc.risksV4.calculateAndSaveScore`. Usa pesos por severidade do risco (alta=7, media=5, oportunidade=1) × confidence (com piso 0.5), sobre riscos aprovados, produzindo número de 0 a 100. Por ser determinístico, o score é auditável e reprodutível — dois projetos com as mesmas respostas sempre produzem o mesmo score. _Nota: a função anterior `calculateGlobalScore()` em `ai-helpers.ts` está deprecated (ver issue #800)._
 
 ---
 

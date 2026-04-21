@@ -1,40 +1,37 @@
 import { Shield, ShieldAlert, ShieldCheck, ShieldQuestion } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  classifyExposicao,
+  EXPOSICAO_CONFIG,
+  type ExposicaoLevel,
+} from "@/lib/exposicao-risco-thresholds";
 
 /**
- * Forma do `projects.scoringData` (engine v4 — calculateGlobalScore em server/ai-helpers.ts).
- * Mantido aqui para tipar a leitura sem importar do server (preserva isolamento client/server).
+ * Forma do `projects.scoringData`.
+ *
+ * Backend (calculateComplianceScore em server/lib/compliance-score-v4.ts) grava
+ * apenas `score` (número 0-100). Este componente classifica UX-side via
+ * `classifyExposicao` da lib `exposicao-risco-thresholds` — fonte única de verdade
+ * para thresholds (issue #802).
+ *
+ * Compat: registros legados V61 (calculateGlobalScore) ainda podem ter `score_global`.
+ * Fallback preservado — issue #800.
  */
 type ScoringData = {
-  score_global?: number;
-  nivel?: "baixo" | "medio" | "alto" | "critico";
+  score?: number;          // calculateComplianceScore (ativa)
+  score_global?: number;   // calculateGlobalScore (legada — compat)
   [k: string]: unknown;
 };
 
-const NIVEL_CONFIG = {
-  critico: {
-    label: "Crítica",
-    icon: ShieldAlert,
-    className: "text-red-700 bg-red-50 border-red-200 dark:bg-red-900/20 dark:text-red-400",
-  },
-  alto: {
-    label: "Alta",
-    icon: ShieldAlert,
-    className: "text-orange-700 bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400",
-  },
-  medio: {
-    label: "Média",
-    icon: Shield,
-    className: "text-amber-700 bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400",
-  },
-  baixo: {
-    label: "Baixa",
-    icon: ShieldCheck,
-    className: "text-emerald-700 bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400",
-  },
-} as const;
+// Ícones por nível (UX) — mapeamento local, não duplicado com a lib
+const ICONS: Record<ExposicaoLevel, typeof Shield> = {
+  critica: ShieldAlert,
+  alta: ShieldAlert,
+  moderada: Shield,
+  baixa: ShieldCheck,
+};
 
-const SEM_ANALISE_CONFIG = {
+const SEM_ANALISE = {
   label: "Sem análise",
   icon: ShieldQuestion,
   className: "text-muted-foreground bg-muted/40 border-border",
@@ -48,10 +45,15 @@ interface ExposicaoRiscoBadgeProps {
 }
 
 /**
- * Badge compacto exibindo o nível de Exposição ao Risco de Compliance do projeto,
- * lido de `projects.scoringData` (engine v4 determinístico — ADR-0022).
+ * Badge compacto exibindo o nível de Exposição ao Risco de Compliance do projeto.
  *
- * 5 estados: Crítica · Alta · Média · Baixa · Sem análise.
+ * 5 estados: Baixa · Moderada · Alta · Crítica · Sem análise.
+ *
+ * Thresholds (issue #802):
+ *   0–30  → Baixa
+ *   31–55 → Moderada
+ *   56–75 → Alta
+ *   76–100 → Crítica
  *
  * Substitui o antigo CpieScoreBadge (deletado na Sprint Z-22 Wave A.2+B · PR #737).
  */
@@ -62,15 +64,43 @@ export function ExposicaoRiscoBadge({
   className,
 }: ExposicaoRiscoBadgeProps) {
   const data = (scoringData ?? null) as ScoringData | null;
-  const nivel = data?.nivel;
-  const score = typeof data?.score_global === "number" ? data.score_global : null;
+  // Prefere `score` (ativa); fallback para `score_global` em registros legados.
+  const score =
+    typeof data?.score === "number"
+      ? data.score
+      : typeof data?.score_global === "number"
+        ? data.score_global
+        : null;
 
-  const config = nivel && nivel in NIVEL_CONFIG ? NIVEL_CONFIG[nivel] : SEM_ANALISE_CONFIG;
-  const Icon = config.icon;
+  // Sem score → estado "sem análise"
+  if (score === null) {
+    const Icon = SEM_ANALISE.icon;
+    const sizing =
+      size === "sm" ? "px-2 py-0.5 text-xs gap-1" : "px-2.5 py-1 text-sm gap-1.5";
+    const iconSize = size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5";
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center rounded-full border font-medium",
+          sizing,
+          SEM_ANALISE.className,
+          className
+        )}
+        data-testid="exposicao-risco-badge"
+        title="Exposição ao Risco de Compliance: Sem análise"
+      >
+        <Icon className={iconSize} />
+        <span>{SEM_ANALISE.label}</span>
+      </span>
+    );
+  }
 
-  const sizing = size === "sm"
-    ? "px-2 py-0.5 text-xs gap-1"
-    : "px-2.5 py-1 text-sm gap-1.5";
+  const level = classifyExposicao(score);
+  const cfg = EXPOSICAO_CONFIG[level];
+  const Icon = ICONS[level];
+
+  const sizing =
+    size === "sm" ? "px-2 py-0.5 text-xs gap-1" : "px-2.5 py-1 text-sm gap-1.5";
   const iconSize = size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5";
 
   return (
@@ -78,20 +108,17 @@ export function ExposicaoRiscoBadge({
       className={cn(
         "inline-flex items-center rounded-full border font-medium",
         sizing,
-        config.className,
+        cfg.className,
         className
       )}
       data-testid="exposicao-risco-badge"
-      title={
-        score !== null
-          ? `Exposição ao Risco de Compliance: ${config.label} (${score}%)`
-          : `Exposição ao Risco de Compliance: ${config.label}`
-      }
+      data-level={level}
+      title={`Exposição ao Risco de Compliance: ${cfg.label} (${score}/100 pontos) — ${cfg.interpretation}. Quanto menor, melhor.`}
     >
       <Icon className={iconSize} />
-      <span>{config.label}</span>
-      {showScore && score !== null && (
-        <span className="font-mono tabular-nums opacity-80">{score}%</span>
+      <span>{cfg.label}</span>
+      {showScore && (
+        <span className="font-mono tabular-nums opacity-80">{score}/100</span>
       )}
     </span>
   );

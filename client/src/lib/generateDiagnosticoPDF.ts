@@ -7,6 +7,12 @@
 
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import {
+  classifyExposicao,
+  EXPOSICAO_CONFIG,
+  getMetaInfo,
+  META_EXPOSICAO,
+} from "./exposicao-risco-thresholds";
 
 export interface DiagnosticoPDFData {
   cnpj?: string;
@@ -88,19 +94,56 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
   doc.text(disclaimerLines, margin, y);
   y += disclaimerLines.length * 3 + 6;
 
-  // ─── Score ──────────────────────────────────────────────────────────
+  // ─── Score / Exposição ao Risco (issue #802) ────────────────────────
   doc.setTextColor(30, 30, 30);
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.text("Exposição ao Risco de Compliance", margin, y);
+  y += 5;
+
+  // Subtítulo
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "italic");
+  doc.setTextColor(100, 100, 100);
+  doc.text(
+    "O objetivo não é aumentar o indicador. É reduzir a exposição ao risco.",
+    margin,
+    y
+  );
   y += 6;
+
+  // Alerta anti-erro
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(146, 64, 14); // amber-800
+  const alertaLines = doc.splitTextToSize(
+    "ATENÇÃO: Este indicador mede EXPOSIÇÃO ao risco — não o nível de compliance. Quanto MENOR o valor, MELHOR a situação.",
+    pageW - margin * 2
+  );
+  doc.text(alertaLines, margin, y);
+  y += alertaLines.length * 3.5 + 2;
+
+  // Classificação UX (fonte única de verdade — #802)
+  const level = classifyExposicao(data.score);
+  const cfg = EXPOSICAO_CONFIG[level];
+  const meta = getMetaInfo(data.score);
+  doc.setTextColor(30, 30, 30);
+
+  const distanciaRow =
+    meta.distancia === 0
+      ? "0 pontos · meta atingida"
+      : `${meta.distancia} pontos para ${meta.distanciaLabel}`;
 
   autoTable(doc, {
     startY: y,
     head: [["Indicador", "Valor"]],
     body: [
-      ["Score Global", `${data.score}%`],
-      ["Nível", data.nivel.toUpperCase()],
+      ["Exposição atual", `${data.score} / 100 pontos  ↓`],
+      ["Nível", `${cfg.emoji} ${cfg.label}`],
+      ["Interpretação", cfg.interpretation],
+      ["Ação recomendada", cfg.action],
+      ["Meta", `≤ ${META_EXPOSICAO} pontos`],
+      ["Distância até a meta", distanciaRow],
       ["Riscos Alta Severidade", String(data.totalAlta)],
       ["Riscos Média Severidade", String(data.totalMedia)],
       ["Total Oportunidades", String(data.opportunities.length)],
@@ -110,7 +153,50 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
     headStyles: { fillColor: [15, 68, 124] },
     margin: { left: margin, right: margin },
   });
-  y = (doc as any).lastAutoTable.finalY + 8;
+  y = (doc as any).lastAutoTable.finalY + 4;
+
+  // Tabela Limites Ideais (thresholds)
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(30, 30, 30);
+  doc.text("Limites Ideais (thresholds)", margin, y);
+  y += 4;
+
+  autoTable(doc, {
+    startY: y,
+    head: [["Faixa", "Nível", "Interpretação", "Ação"]],
+    body: [
+      ["0–30", "🟢 Baixa exposição", "Situação controlada", "Manter monitoramento"],
+      ["31–55", "🟡 Exposição moderada", "Riscos relevantes", "Revisar aprovações"],
+      ["56–75", "🟠 Alta exposição", "Exposição significativa", "Priorizar mitigação"],
+      ["76–100", "🔴 Exposição crítica", "Alto risco de não conformidade", "Ação imediata"],
+    ],
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [100, 100, 100] },
+    margin: { left: margin, right: margin },
+  });
+  y = (doc as any).lastAutoTable.finalY + 4;
+
+  // Nota pedagógica
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "italic");
+  doc.setTextColor(30, 64, 175); // blue-800
+  const notaLines = doc.splitTextToSize(
+    "Projetos com riscos aprovados normalmente começam com exposição entre 56 e 75. A redução ocorre conforme os riscos são tratados ou removidos.",
+    pageW - margin * 2
+  );
+  doc.text(notaLines, margin, y);
+  y += notaLines.length * 3.5 + 2;
+
+  // Frase final
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(30, 30, 30);
+  doc.text(
+    "O verde não é o ponto de partida. É o resultado do trabalho.",
+    margin,
+    y
+  );
+  y += 8;
 
   // ─── Riscos Aprovados ───────────────────────────────────────────────
   if (data.risks.length > 0) {

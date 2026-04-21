@@ -84,7 +84,7 @@ Todas as features de UX fazem parte dele.
 - `projects.scoringData` (score calculado + historico de snapshots)
 
 **EFEITOS CASCATA:**
-- Imediato: score calculado via `calculateGlobalScore(risks_v4)` + snapshot salvo em `projects.scoringData`
+- Imediato: score calculado via `calculateComplianceScore(risks_v4)` (hot swap Z-12 / ADR-0022) + snapshot salvo em `projects.scoringData`
 - Cascata: PDF gerado sob demanda (jsPDF, client-side)
 - Formato: `ConsolidacaoV4Output` (ver DATA_DICTIONARY)
 - Navegacao: 4 botoes — PDF / Ver Projetos (`/projetos`) / Voltar (`/planos-v4`) / Ver Projeto (`/projetos/:id`)
