@@ -133,18 +133,23 @@ Esta é a etapa mais refinada do pipeline: usa RAG específico por área (não c
 
 ---
 
-### Scoring — `calculateGlobalScore` (Determinístico)
+### Scoring — `calculateGlobalScore` (Determinístico) — ⚠️ HISTÓRICO
+
+> **Nota (issue #800 · 2026-04-21):** esta seção documenta o estado AS-IS da V61.
+> A função foi **substituída** pelo hot swap Z-12 (ADR-0022). Função ativa em
+> produção hoje é `calculateComplianceScore` em `server/lib/compliance-score-v4.ts`.
+> `calculateGlobalScore` permanece como `@deprecated` para compat de testes.
 
 | Campo | Valor |
 |---|---|
-| **Função** | `calculateGlobalScore` |
+| **Função** | `calculateGlobalScore` (DEPRECATED) |
 | **Arquivo** | `server/ai-helpers.ts` |
 | **LLM** | Nenhum — cálculo 100% determinístico |
 | **Pesos por área** | Contabilidade e Fiscal: 30% / Jurídico: 30% / Negócio: 25% / TI: 15% |
 | **Pesos de severidade** | Crítica=9 / Alta=6 / Média=3 / Baixa=1 |
 | **Pesos de probabilidade** | Alta=3 / Média=2 / Baixa=1 |
 
-O scoring é calculado no servidor sem chamada LLM, garantindo determinismo e rastreabilidade. O resultado alimenta o `ScoringDataSchema` com `score_global` (0-100), `nivel` (baixo/medio/alto/critico), `impacto_estimado`, `custo_inacao` e contagem de riscos por severidade.
+O scoring era calculado no servidor sem chamada LLM, garantindo determinismo e rastreabilidade. O resultado alimenta o `ScoringDataSchema` com `score_global` (0-100), `nivel` (baixo/medio/alto/critico), `impacto_estimado`, `custo_inacao` e contagem de riscos por severidade.
 
 ---
 

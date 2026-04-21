@@ -2,11 +2,21 @@ import { Shield, ShieldAlert, ShieldCheck, ShieldQuestion } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Forma do `projects.scoringData` (engine v4 — calculateGlobalScore em server/ai-helpers.ts).
- * Mantido aqui para tipar a leitura sem importar do server (preserva isolamento client/server).
+ * Forma do `projects.scoringData`.
+ *
+ * Em produção: gravado por `calculateComplianceScore` em
+ * `server/lib/compliance-score-v4.ts` (via `trpc.risksV4.calculateAndSaveScore`,
+ * hot swap Z-12 / ADR-0022) — campo principal é `score`.
+ *
+ * Compat: registros antigos gravados pela função legada `calculateGlobalScore`
+ * (ai-helpers.ts — V61, desativada) usam `score_global`. Mantemos leitura de
+ * ambos os campos para projetos que foram calculados antes do hot swap.
+ *
+ * Issue #800 documenta a inconsistência histórica.
  */
 type ScoringData = {
-  score_global?: number;
+  score?: number;          // calculateComplianceScore (ativa)
+  score_global?: number;   // calculateGlobalScore (legada — compat)
   nivel?: "baixo" | "medio" | "alto" | "critico";
   [k: string]: unknown;
 };
@@ -63,7 +73,14 @@ export function ExposicaoRiscoBadge({
 }: ExposicaoRiscoBadgeProps) {
   const data = (scoringData ?? null) as ScoringData | null;
   const nivel = data?.nivel;
-  const score = typeof data?.score_global === "number" ? data.score_global : null;
+  // issue #800: prefere `score` (calculateComplianceScore — ativa) e cai para
+  // `score_global` em registros legados calculados pela calculateGlobalScore (V61).
+  const score =
+    typeof data?.score === "number"
+      ? data.score
+      : typeof data?.score_global === "number"
+        ? data.score_global
+        : null;
 
   const config = nivel && nivel in NIVEL_CONFIG ? NIVEL_CONFIG[nivel] : SEM_ANALISE_CONFIG;
   const Icon = config.icon;
