@@ -1,6 +1,6 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint  
-> **v7.26 · 2026-04-20 (Sprint Z-22 UAT Wave — 10 PRs briefing/questionários/exposição + 2 issues backlog · HEAD 5a4ac1e)** · Responsavel: Orquestrador gera, Manus commita
+> **v7.42 · 2026-04-20 (Sprint Z-22 UAT Wave ENCERRADA — 39 PRs · HEAD ab88497 · checkpoint 9eefcf85)** · Responsavel: Orquestrador gera, Manus commita
 
 ---
 
@@ -121,7 +121,21 @@ Plataforma de compliance da Reforma Tributária brasileira.
   - **Bug pós-merge:** `/projetos/:id` 404 por dessincronia schema↔DB · resolvido com migration 0088 + restart dev · UAT destravada
   - **Issues abertas pós-merge:** #739 débito B-03 statusMap · #740 UAT B-04 botão Exposição · #741 badge Exposição nos cards · #742 filtro Score IA órfão · #743 escopo "página completa" (carry-over)
   - **Lição Z-22:** drop destrutivo em sprint ativa ≠ comentar código. Custo real 10× estimado (triple review · 2 empty commits · admin merge · 7.8KB→102MB backup · bloqueio UAT). Regra proposta para próximas: **comentar agora, dropar em janela dedicada pós-sprint**.
-**Sprint Z-22 (UAT Wave):** ✅ ENCERRADA · 10 PRs briefing/UX/exposição · 2026-04-20 · HEAD `5a4ac1e`
+**Sprint Z-22 (UAT Wave FINAL):** ✅ ENCERRADA · 39 PRs briefing/UX/risco/score · 2026-04-20 · HEAD `ab88497` · checkpoint Manus `9eefcf85` (v7.42)
+  - **Métricas da sessão:** 39 PRs mergeados (#744–#792) · 81 unit tests novos · 9 issues resolvidas · 2 hotfixes P0 (#778 projectName, #792 useMemo) · 5 issues abertas no backlog
+  - **Pacote briefing (15 PRs):** #763 (4 bugs UAT) · #764 (prefix NCM/NBS + determinismo T0) · #765 (ConfidenceBar + retry toast + classificação severidade) · #768+#770 (NCM/NBS no prompt + parse operationProfile) · #772 (audit evidência fontes) · #773 (confidence determinístico — Closes #771) · #775 (enriquecer prompt com Onda 1/2/Q.Produtos/Q.Serviços — Closes #774) · #779 (complement→RAG+prompt) · #786 (correction também antes do prompt) · #787 (BUG-1+BUG-3 dismiss/approval lifecycle) · #788 (BUG-4 generationCount regress) · #789 (regras fixas artigos críticos — #785 item F) · #790 (consolidar gaps por artigo — #780 item 1) · #791 (detector geo + RAG boost — #785 item G)
+  - **Novas features deployadas:** #776 (resumo WhatsApp 6 áreas — Closes #767) · #777 (Trilha de Auditoria UI — Closes #766) · #781 (gate ≥85% confiança + aprovação com ressalva) · #782 (Histórico versões expand) · #784 (Exportar Riscos CSV — Closes #783)
+  - **Lição estrutural:** 2 crashes P0 em 24h pela mesma causa raiz (`@ts-nocheck` em BriefingV3.tsx suprimindo ReferenceError) → issue #793 aberta para migração em snapshot→cold→hot, com decision gate pós-UAT em #794
+  - **Confidence patamar P.O.:** ≥85% é mínimo aceitável. Abaixo disso → modal de ressalva obrigatório (#781)
+  - **Issues abertas pós-encerramento:**
+    - **#796** (P HIGH) — compliance score cravado em 66% (engine v4 produz severidade homogênea — ponto fixo matemático `7·0.85/9·100=66`) · próximo alvo da próxima sessão
+    - **#795** (P low) — UX "Versão 2" em primeiro teste de projeto limpo
+    - **#793** (tech-debt alta) — migração `@ts-nocheck` de 20 arquivos · snapshot→cold→hot
+    - **#794** (governance) — decision gate pós-UAT
+    - **#785** (P3) — corpus enrichment RAG item B (Sprint dedicado)
+  - **UAT final validado em produção (v7.42):** briefing nominal com NCMs 1006.40.00/1507.90.11/2202.10.00 cita Art. 9 (cesta básica), Art. 2 (IS bebidas açucaradas), Art. 8 (exportação proativa), Art. 10/11 (fato gerador), Art. 14/15 (IBS interestadual), Art. 21 §1º (cadastral) · confiança 90% determinística · complement MT funcionando · Compartilhar Resumo OK · Histórico versões expansível OK
+
+**Sprint Z-22 (UAT Wave — snapshot histórico inicial):** 10 PRs · HEAD `5a4ac1e`
   - **#755 hero card Exposição ao Risco** (PR #755) — ProjetoDetalhesV2 ganha hero card via `ExposicaoRiscoBadge` (scoringData engine v4).
   - **#756 compliance-dashboard linkage** (PR #756) — remove banner contraproducente e restaura link do dashboard (#743).
   - **#757 docs CSV SOLARIS consultor** (PR #757) — fluxo E2E + spec CSV Onda 1 para consultor jurídico.
@@ -151,7 +165,7 @@ Plataforma de compliance da Reforma Tributária brasileira.
 
 ## Para o Manus (implementador)
 
-- **Branch base:** main · **HEAD:** `5a4ac1e`
+- **Branch base:** main · **HEAD:** `ab88497` · **checkpoint Manus:** `9eefcf85` (v7.42)
 - **Regra obrigatoria:** SEMPRE branch → PR → merge. NUNCA push direto em main.
 - **Regra de ordem (Q8):** respeitar a sequencia de lotes definida pelo Orquestrador. Se houver impedimento, reportar ANTES de alterar a sequencia.
 - **Gate 0 OBRIGATORIO:** Antes de tocar banco, consultar `docs/governance/DATA_DICTIONARY.md`. Ver CLAUDE.md secao Gate 0.
