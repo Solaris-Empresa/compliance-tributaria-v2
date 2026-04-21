@@ -1030,9 +1030,35 @@ export default function BriefingV3() {
                     Atenção necessária
                   </span>
                 </div>
-                {/* RF-3.02: Renderização com destaques de risco */}
-                <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground [&_.risk-high]:bg-red-50 [&_.risk-high]:border-l-4 [&_.risk-high]:border-red-400 [&_.risk-high]:pl-3 [&_.risk-high]:py-1 [&_.risk-medium]:bg-amber-50 [&_.risk-medium]:border-l-4 [&_.risk-medium]:border-amber-400 [&_.risk-medium]:pl-3 [&_.risk-medium]:py-1">
-                  <Streamdown className="text-sm">{displayContent}</Streamdown>
+                {/* fix UAT 2026-04-21: estilo espelhado do PDF export (handleExportPDF).
+                    Página agora tem hierarquia visual idêntica ao PDF:
+                    - H1/H2/H3 azul com border-bottom no H1
+                    - Blockquote com fundo amarelo (banner de baixa confiança)
+                    - Tabelas com bordas e header destacado
+                    - Li com bullets e espaçamento maior */}
+                <div className={[
+                  "prose prose-sm max-w-none dark:prose-invert",
+                  // Headings em azul (idêntico ao PDF)
+                  "prose-h1:text-[#1e3a8a] prose-h1:text-lg prose-h1:border-b prose-h1:border-slate-200 prose-h1:pb-2 prose-h1:mt-6",
+                  "prose-h2:text-[#1e40af] prose-h2:text-base prose-h2:mt-6",
+                  "prose-h3:text-slate-700 prose-h3:text-sm prose-h3:mt-4",
+                  "dark:prose-h1:text-blue-300 dark:prose-h2:text-blue-400 dark:prose-h3:text-slate-300",
+                  // Parágrafos e listas
+                  "prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:leading-relaxed",
+                  "prose-li:text-slate-700 dark:prose-li:text-slate-300 prose-li:my-1",
+                  "prose-strong:text-slate-900 dark:prose-strong:text-slate-100",
+                  // Blockquote (banner de baixa confiança)
+                  "prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:bg-amber-50 prose-blockquote:py-2 prose-blockquote:px-3 prose-blockquote:not-italic",
+                  "dark:prose-blockquote:bg-amber-950/30 dark:prose-blockquote:border-amber-600",
+                  // Tabelas (Como calculamos a Confiança)
+                  "prose-table:text-sm prose-th:bg-slate-50 prose-th:text-slate-900 prose-th:font-semibold",
+                  "dark:prose-th:bg-slate-800 dark:prose-th:text-slate-100",
+                  "prose-td:border-slate-200 prose-th:border-slate-200",
+                  // Destaques de risco (classes inline no markdown)
+                  "[&_.risk-high]:bg-red-50 [&_.risk-high]:border-l-4 [&_.risk-high]:border-red-400 [&_.risk-high]:pl-3 [&_.risk-high]:py-1",
+                  "[&_.risk-medium]:bg-amber-50 [&_.risk-medium]:border-l-4 [&_.risk-medium]:border-amber-400 [&_.risk-medium]:pl-3 [&_.risk-medium]:py-1",
+                ].join(" ")}>
+                  <Streamdown>{displayContent}</Streamdown>
                 </div>
               </CardContent>
             </Card>
