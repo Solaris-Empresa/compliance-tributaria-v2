@@ -62,9 +62,27 @@ export interface DiagnosticoPDFData {
       data_fim?: string | null;
     }>;
   }>;
+  /**
+   * fix UAT 2026-04-21 D10: timestamp da VERSÃO (geração do briefing),
+   * NÃO da exportação. O PDF reflete a verdade da época, não a data do download.
+   */
+  versaoNumero?: number;
+  versaoGeradaEm?: string | number | Date;
+  versaoAprovadaEm?: string | number | Date;
 }
 
 const DISCLAIMER = `AVISO LEGAL: Este diagnóstico é uma ferramenta de apoio à decisão tributária elaborada com base nas informações fornecidas pela empresa. Os resultados apresentados — incluindo a identificação de riscos, oportunidades e planos de ação — NÃO constituem parecer jurídico. Toda classificação e recomendação deve ser validada por advogado tributarista ou contador habilitado antes de qualquer ação fiscal, contábil ou de compliance. IA SOLARIS não se responsabiliza por decisões tomadas sem a devida validação profissional.`;
+
+function formatVersaoDate(ts: string | number | Date | undefined): string | null {
+  if (!ts) return null;
+  try {
+    const d = ts instanceof Date ? ts : new Date(ts);
+    if (isNaN(d.getTime())) return null;
+    return `${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+  } catch {
+    return null;
+  }
+}
 
 const CATEGORIA_LABELS: Record<string, string> = {
   imposto_seletivo: "Imposto Seletivo",
@@ -96,10 +114,17 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
   doc.setFont("helvetica", "normal");
   doc.text(`Reforma Tributária — LC 214/2025`, margin, 21);
   if (data.cnpj) doc.text(`CNPJ: ${data.cnpj}`, margin, 27);
-  doc.text(
-    `Gerado em: ${new Date().toLocaleDateString("pt-BR")}`,
-    pageW - margin, 27, { align: "right" }
-  );
+  // fix UAT 2026-04-21 D10: exibe timestamp da VERSÃO do briefing, não da exportação.
+  // "Gerado em [hoje]" era enganoso em PDFs exportados dias depois da aprovação.
+  const versaoDate = formatVersaoDate(data.versaoGeradaEm);
+  const headerRight = versaoDate
+    ? `Versão ${data.versaoNumero ?? "—"} · Gerada em ${versaoDate}`
+    : data.versaoNumero
+      ? `Versão ${data.versaoNumero}`
+      : "";
+  if (headerRight) {
+    doc.text(headerRight, pageW - margin, 27, { align: "right" });
+  }
   y = 40;
 
   // ─── Disclaimer (topo) ──────────────────────────────────────────────

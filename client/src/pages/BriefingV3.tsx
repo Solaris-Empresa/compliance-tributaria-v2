@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
 import { ResumeBanner } from "@/components/ResumeBanner";
+import { BriefingFreshnessBanner } from "@/components/BriefingFreshnessBanner";
 import { useParams, useLocation, useSearch } from "wouter";
 import { trpc } from "@/lib/trpc";
 import ComplianceLayout from "@/components/ComplianceLayout";
@@ -207,6 +208,13 @@ export default function BriefingV3() {
   // #767: structured briefing para modal compartilhar resumo WhatsApp
   const briefingStructuredForShare = (inconsistenciasData as any)?.structured ?? null;
   const [shareModalOpen, setShareModalOpen] = useState(false);
+
+  // fix UAT 2026-04-21 V1: freshness check — detecta se dados fonte mudaram
+  // desde a geração da versão atual do briefing. Se sim, exibe banner.
+  const { data: freshness } = trpc.fluxoV3.checkBriefingFreshness.useQuery(
+    { projectId },
+    { enabled: !!projectId }
+  );
 
   // fix(UAT 2026-04-20): aprovação com ressalva <85%
   const approvalReservation: ApprovalReservation | null =
@@ -550,9 +558,30 @@ export default function BriefingV3() {
               <InconsistenciaBadge count={inconsistencias.length} />
             )}
             {generationCount > 0 && (
-              <Badge variant="secondary" className="shrink-0">
-                Versão {viewingVersion ? viewingVersion.version : generationCount}
-              </Badge>
+              <div className="flex flex-col items-end gap-0.5">
+                <Badge variant="secondary" className="shrink-0">
+                  Versão {viewingVersion ? viewingVersion.version : generationCount}
+                </Badge>
+                {/* fix UAT 2026-04-21 D10: timestamp da versão (não da exportação) */}
+                {(() => {
+                  const ts = viewingVersion
+                    ? viewingVersion.timestamp
+                    : freshness?.snapshot?.geradoEm
+                      ? new Date(freshness.snapshot.geradoEm).getTime()
+                      : null;
+                  if (!ts) return null;
+                  const d = new Date(ts);
+                  return (
+                    <span
+                      className="text-xs text-muted-foreground whitespace-nowrap"
+                      data-testid="briefing-version-timestamp"
+                      title="Data e hora de geração da versão (não da consulta)"
+                    >
+                      Gerada em {d.toLocaleDateString("pt-BR")} às {d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  );
+                })()}
+              </div>
             )}
             {/* RF-3.06: Botão de histórico de versões */}
             {versionHistory.length > 0 && (
@@ -581,6 +610,15 @@ export default function BriefingV3() {
           toStepLabel={retrocessoModal.toStepLabel}
           onConfirm={() => { setRetrocessoModal(m => ({ ...m, open: false })); setLocation(retrocessoModal.targetUrl); }}
           onCancel={() => setRetrocessoModal(m => ({ ...m, open: false }))}
+        />
+
+        {/* fix UAT 2026-04-21 V1: banner de divergência de dados (freshness check).
+            Aparece apenas quando snapshot existe E hash de alguma fonte divergiu.
+            Botão "Gerar nova versão" dispara handleGenerate (mesma rotina do regerar manual). */}
+        <BriefingFreshnessBanner
+          freshness={freshness as any}
+          isRegenerating={isGenerating}
+          onRegerar={() => handleGenerate()}
         />
 
         {/* M2.1: Banner de Completude Diagnóstica (ADR-0007 Seção 12) */}
