@@ -179,6 +179,12 @@ export const BriefingStructuredSchema = z.object({
     urgencia: z.preprocess(normalizeUrgencia,
       z.enum(["imediata", "curto_prazo", "medio_prazo"]).catch("medio_prazo")
     ),
+    // issue #811 — rastreabilidade de fonte (content engine regra #1).
+    // Opcional + .catch para tolerar briefings legados e LLM que falhar em preencher.
+    source_type: z.enum(["rag", "cnae", "descricao", "questionario", "iagen", "regra_semantica"])
+      .optional()
+      .catch(undefined as any),
+    source_reference: z.string().optional().catch(undefined as any),
   })).min(1).max(8),
   oportunidades: z.array(z.string()).min(1).max(5),
   recomendacoes_prioritarias: z.array(z.string()).min(1).max(5), // Reduzido min de 3 para 1

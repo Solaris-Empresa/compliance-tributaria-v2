@@ -1308,7 +1308,7 @@ Gere o Briefing estruturado em JSON:
 {
   "nivel_risco_geral": "alto",
   "resumo_executivo": "...",
-  "principais_gaps": [{"gap": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "urgencia": "imediata"}],
+  "principais_gaps": [{"gap": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "urgencia": "imediata", "source_type": "rag", "source_reference": "chunk_id:LC214_art14"}],
   "oportunidades": ["..."],
   "recomendacoes_prioritarias": ["..."],
   "top_3_acoes": [{"acao": "...", "justificativa": "por que esta é prioritária agora", "prazo": "imediato"}],
@@ -1321,7 +1321,25 @@ REGRA TOP 3 AÇÕES (issue #810, fix UAT 2026-04-21):
 - Critério de priorização: severidade × urgência × amplitude do risco (quantos processos da empresa toca).
 - Cada item deve ter: "acao" (verbo no imperativo + objeto — ex.: "Parametrizar alíquotas IBS por UF de destino"), "justificativa" (1 linha explicando POR QUE esta ação é prioritária AGORA e NÃO as outras), "prazo" (imediato / curto_prazo / medio_prazo).
 - NÃO repita literalmente o texto das "recomendacoes_prioritarias" — destile e priorize.
-- Se houver menos de 3 gaps, retorne array vazio [] — o template não renderiza o bloco.`,
+- Se houver menos de 3 gaps, retorne array vazio [] — o template não renderiza o bloco.
+
+REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra #1):
+- Cada gap em "principais_gaps" DEVE vir com "source_type" e "source_reference" preenchidos.
+- "source_type" é UM dos valores exatos:
+  - "rag"           → o gap foi derivado diretamente do regulatoryContext (chunk do RAG citando o artigo/LC)
+  - "cnae"          → o gap foi derivado do CNAE principal confirmado (característica estrutural da atividade)
+  - "descricao"     → o gap foi derivado da "DESCRIÇÃO" textual do negócio (sinal lexical — ex.: "exportação", "cesta básica")
+  - "questionario"  → o gap foi derivado de uma resposta específica nos questionários (Onda 1, Onda 2, CNAE, Produtos ou Serviços)
+  - "iagen"         → o gap foi derivado de pergunta da IA Gen (Onda 2) e a resposta correlata
+  - "regra_semantica" → o gap foi derivado das REGRAS DE ARTIGOS CRÍTICOS (gatilhos semânticos declarados acima)
+- "source_reference" é uma string curta identificando a fonte:
+  - RAG: "chunk_id:XXX" ou "Art. X §Y LC 214/2025"
+  - CNAE: o código CNAE confirmado (ex.: "4632-0/03")
+  - Descrição: trecho curto entre aspas da descrição que disparou o gap (ex.: "\"exportamos para Bolívia\"")
+  - Questionário: "questao_id:ABC" ou nome curto da pergunta (ex.: "P3 Onda 1 — operação interestadual")
+  - IA Gen: "pergunta IA Gen: [título curto]"
+  - Regra semântica: número da regra acima (ex.: "Gatilho #2 — cesta básica")
+- NUNCA invente source_reference. Se o gap não tem fonte clara identificável, use source_type="rag" e source_reference="Reforma Tributária — LC 214/2025" como fallback genérico — mas ISSO reduz a qualidade do diagnóstico, evite quando houver alternativa precisa.`,
           },
         ],
         BriefingStructuredSchema,
@@ -1529,6 +1547,23 @@ REGRA TOP 3 AÇÕES (issue #810, fix UAT 2026-04-21):
               blocked_codes: sanitizeResult.blockedCodes,
               blocked_total: sanitizeResult.blockedCodes.reduce((sum, b) => sum + b.occurrences, 0),
             },
+            // fix #811: cobertura de rastreabilidade — percentual de gaps com
+            // source_type preenchido. Métrica da adesão do LLM à regra de fonte
+            // (content engine regra #1). Meta: >=80%.
+            source_coverage: (() => {
+              const all = Array.isArray(structured.principais_gaps) ? structured.principais_gaps : [];
+              const withSource = all.filter((g: any) => !!g?.source_type).length;
+              return {
+                total: all.length,
+                with_source: withSource,
+                coverage_pct: all.length > 0 ? Math.round((withSource / all.length) * 100) : 0,
+                breakdown: all.reduce((acc: Record<string, number>, g: any) => {
+                  const key = g?.source_type ?? "SEM_FONTE";
+                  acc[key] = (acc[key] ?? 0) + 1;
+                  return acc;
+                }, {}),
+              };
+            })(),
           },
         });
       } catch (auditErr) {
@@ -3108,7 +3143,7 @@ Gere o Briefing estruturado em JSON:
 {
   "nivel_risco_geral": "alto",
   "resumo_executivo": "...",
-  "principais_gaps": [{"gap": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "urgencia": "imediata"}],
+  "principais_gaps": [{"gap": "...", "causa_raiz": "...", "evidencia_regulatoria": "Art. X LC 214/2025", "urgencia": "imediata", "source_type": "rag", "source_reference": "chunk_id:LC214_art14"}],
   "oportunidades": ["..."],
   "recomendacoes_prioritarias": ["..."],
   "top_3_acoes": [{"acao": "...", "justificativa": "por que esta é prioritária agora", "prazo": "imediato"}],
@@ -3121,7 +3156,13 @@ REGRA TOP 3 AÇÕES (issue #810, fix UAT 2026-04-21):
 - Critério: severidade × urgência × amplitude (processos afetados).
 - Cada item: "acao" (verbo imperativo — "Parametrizar alíquotas IBS..."), "justificativa" (1 linha — por que esta AGORA e não outras), "prazo" (imediato/curto_prazo/medio_prazo).
 - NÃO repita literalmente "recomendacoes_prioritarias" — destile.
-- Menos de 3 gaps → retorne []. Template não renderiza o bloco.`,
+- Menos de 3 gaps → retorne []. Template não renderiza o bloco.
+
+REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra #1):
+- Cada gap em "principais_gaps" DEVE vir com "source_type" + "source_reference".
+- source_type: "rag" | "cnae" | "descricao" | "questionario" | "iagen" | "regra_semantica".
+- source_reference: identificador curto (chunk_id, CNAE, trecho em aspas, nome da pergunta, gatilho semântico).
+- Fallback genérico só quando não houver alternativa: source_type="rag", source_reference="Reforma Tributária — LC 214/2025".`,
           },
         ],
         BriefingStructuredSchema,
@@ -3307,6 +3348,21 @@ REGRA TOP 3 AÇÕES (issue #810, fix UAT 2026-04-21):
               blocked_codes: sanitizeResultFD.blockedCodes,
               blocked_total: sanitizeResultFD.blockedCodes.reduce((sum, b) => sum + b.occurrences, 0),
             },
+            // fix #811: cobertura de rastreabilidade de fonte por gap.
+            source_coverage: (() => {
+              const all = Array.isArray(structured.principais_gaps) ? structured.principais_gaps : [];
+              const withSource = all.filter((g: any) => !!g?.source_type).length;
+              return {
+                total: all.length,
+                with_source: withSource,
+                coverage_pct: all.length > 0 ? Math.round((withSource / all.length) * 100) : 0,
+                breakdown: all.reduce((acc: Record<string, number>, g: any) => {
+                  const key = g?.source_type ?? "SEM_FONTE";
+                  acc[key] = (acc[key] ?? 0) + 1;
+                  return acc;
+                }, {}),
+              };
+            })(),
           },
         });
       } catch (auditErr) {
@@ -4407,6 +4463,17 @@ const URGENCIA_LABEL_V2: Record<string, string> = {
   medio_prazo: "🟡 Médio prazo",
 };
 
+// fix #811: rótulos legíveis para o campo source_type do briefing.
+// Content engine regra #1 exige fonte por item — aqui é exposto ao usuário.
+const SOURCE_TYPE_LABEL_V2: Record<string, string> = {
+  rag: "📚 RAG (base regulatória)",
+  cnae: "🏷️ CNAE confirmado",
+  descricao: "📝 Descrição do negócio",
+  questionario: "💬 Respostas do questionário",
+  iagen: "🤖 IA Generativa (Onda 2)",
+  regra_semantica: "⚙️ Regra semântica (gatilho)",
+};
+
 function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): string {
   const lines: string[] = [];
 
@@ -4521,6 +4588,14 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
     if (g.evidencia_regulatoria) lines.push(`- **Base legal:** ${g.evidencia_regulatoria}`);
     if (g.urgencia) {
       lines.push(`- **Urgência:** ${URGENCIA_LABEL_V2[g.urgencia] ?? g.urgencia}`);
+    }
+    // fix #811: rastreabilidade de fonte (content engine regra #1).
+    // Quando o LLM preenche source_type/source_reference, expõe ao usuário
+    // para auditoria. Graceful: sem source → linha omitida (briefings legados).
+    if (g.source_type) {
+      const srcLabel = SOURCE_TYPE_LABEL_V2[g.source_type] ?? g.source_type;
+      const srcSuffix = g.source_reference ? ` · ${g.source_reference}` : "";
+      lines.push(`- **Fonte:** ${srcLabel}${srcSuffix}`);
     }
     // fix #809: aviso per-gap quando a confiança é baixa — lembra o leitor
     // que a base legal citada precisa ser validada no contexto concreto da empresa.
