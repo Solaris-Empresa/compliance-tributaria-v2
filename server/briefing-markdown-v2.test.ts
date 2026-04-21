@@ -127,10 +127,11 @@ describe("buildBriefingMarkdown V2 — bundle #808-#811", () => {
       expect(md).toContain("✅ DIAGNÓSTICO COMPLETO");
     });
 
-    it("exibe Qualidade das Informações no header", () => {
+    it("NÃO exibe mais 'Qualidade das Informações' no header (fix UAT 2026-04-21)", () => {
+      // Removido por inconsistência com Nível de Confiança (fórmula v2).
+      // Confiança v2 é a métrica única, com tabela 'Como calculamos' explícita.
       const md = buildBriefingMarkdown(STRUCTURED_BASE, META_BASE);
-      expect(md).toContain("**Qualidade das Informações:** 40%");
-      expect(md).toContain("0/5 questionários");
+      expect(md).not.toContain("Qualidade das Informações");
     });
 
     it("renderiza Top 3 Ações quando gaps>=3 E top_3_acoes preenchido", () => {

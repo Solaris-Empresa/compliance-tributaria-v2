@@ -337,6 +337,11 @@ export async function computeConfidenceSignals(
 
   const signals: BriefingConfidenceSignals = {
     perfilCompletude: perfil.completude,
+    // fix UAT 2026-04-21: metadata para breakdown exibir "7/7 + 11/12" no display.
+    perfilObrigatoriosPreenchidos: perfil.obrigatoriosPreenchidos,
+    perfilObrigatoriosTotais: perfil.obrigatoriosTotais,
+    perfilOpcionaisPreenchidos: perfil.opcionaisPreenchidos,
+    perfilOpcionaisTotais: perfil.opcionaisTotais,
     q1Respostas,
     q1TotalPerguntas: q1Total,
     q2Respostas,

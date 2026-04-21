@@ -4660,15 +4660,11 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
   if (perfilParts.length > 0) lines.push(`**Perfil:** ${perfilParts.join(" · ")}`);
   if (meta.ncms && meta.ncms.length > 0) lines.push(`**NCMs:** ${meta.ncms.join(", ")}`);
   if (meta.nbs && meta.nbs.length > 0) lines.push(`**NBS:** ${meta.nbs.join(", ")}`);
-  // fix #810: indicador "Qualidade das Informações" determinístico (quando disponível).
-  if (typeof meta.qualidadeInformacoes === "number" && Number.isFinite(meta.qualidadeInformacoes)) {
-    const qR = meta.questionariosRespondidos ?? 0;
-    const qT = meta.questionariosTotal ?? 5;
-    lines.push(
-      `**Qualidade das Informações:** ${Math.round(meta.qualidadeInformacoes)}% ` +
-      `_(${qR}/${qT} questionários · ${(meta.produtosTotal ?? 0)} produto(s) · ${(meta.servicosTotal ?? 0)} serviço(s))_`
-    );
-  }
+  // fix UAT 2026-04-21: removido "Qualidade das Informações" do header.
+  // Motivo: gerava inconsistência com "Nível de Confiança" (fórmula v2 ponderada)
+  // — usuário via 76% qualidade e 42% confiança e não entendia a diferença.
+  // Confiança v2 é a métrica única agora, com tabela "Como calculamos" explícita.
+  // Contador de questionários vai direto no banner de baixa confiança quando aplicável.
   lines.push(``);
   lines.push(`---`);
   lines.push(``);
@@ -4858,11 +4854,35 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
       for (const p of bd.pilares) {
         const completudePct = Math.round(p.completude * 100);
         const contribStr = (Math.round(p.contribuicao * 10) / 10).toFixed(1).replace(".", ",");
-        const detalhe = p.key === "perfil"
-          ? `${p.respostas}/${p.total ?? "?"} campos`
-          : p.total != null
+        // fix UAT 2026-04-21: display específico por tipo de pilar.
+        //   Perfil: "7/7 obrig · 11/12 opc" (usa metadata real, não "97/100 campos")
+        //   Q3 sem cadastro: "sem NCM cadastrado" (em vez de "X/Y perguntas" que confunde)
+        //   Q3 com cadastro: composto "X/Y NCM · Z/W perguntas"
+        //   Q1/Q2/Q3CNAE: "X/Y perguntas" ou "X resp." ou "sem resposta"
+        let detalhe: string;
+        if (p.key === "perfil") {
+          const d = p.detalhe;
+          if (d?.obrigatoriosTotais) {
+            detalhe = `${d.obrigatoriosPreenchidos ?? 0}/${d.obrigatoriosTotais} obrig · ${d.opcionaisPreenchidos ?? 0}/${d.opcionaisTotais ?? 0} opc`;
+          } else {
+            detalhe = `${completudePct}%`;
+          }
+        } else if (p.key === "q3Produtos" || p.key === "q3Servicos") {
+          const d = p.detalhe;
+          const codeLabel = p.key === "q3Produtos" ? "NCM" : "NBS";
+          if (d && (d.cadastrados ?? 0) === 0) {
+            detalhe = `sem ${codeLabel} cadastrado`;
+          } else if (d) {
+            const perguntasPart = p.total != null ? ` · ${p.respostas}/${p.total} perguntas` : "";
+            detalhe = `${d.comClassificacao ?? 0}/${d.cadastrados ?? 0} ${codeLabel}${perguntasPart}`;
+          } else {
+            detalhe = p.total != null ? `${p.respostas}/${p.total} perguntas` : "sem resposta";
+          }
+        } else {
+          detalhe = p.total != null
             ? `${p.respostas}/${p.total} perguntas`
             : p.respostas > 0 ? `${p.respostas} resp.` : `sem resposta`;
+        }
         const pesoCell = p.aplicavel ? `${p.peso}` : `${p.peso} _(n/a)_`;
         const completudeCell = p.aplicavel
           ? `${completudePct}% (${detalhe})`

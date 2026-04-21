@@ -427,8 +427,26 @@ export default function BriefingV3() {
     const content = viewingVersion ? viewingVersion.content : briefing;
     if (!content) return;
     const projectName = (project as any)?.name || "Briefing de Compliance";
-    const dateStr = new Date().toLocaleDateString("pt-BR");
     const versionNum = viewingVersion ? viewingVersion.version : generationCount;
+    // fix UAT 2026-04-21 D10: timestamp da VERSÃO (não da exportação).
+    // Se for versão do histórico: usa viewingVersion.timestamp.
+    // Se for versão atual: usa freshness.snapshot.geradoEm quando disponível.
+    // Se nenhum disponível: omite data — melhor que mostrar data errada.
+    const versionTs: number | null = (() => {
+      if (viewingVersion?.timestamp) return viewingVersion.timestamp;
+      const snapTs = (freshness as any)?.snapshot?.geradoEm;
+      if (snapTs) {
+        const n = new Date(snapTs).getTime();
+        return Number.isFinite(n) ? n : null;
+      }
+      return null;
+    })();
+    const dateStr = versionTs
+      ? (() => {
+          const d = new Date(versionTs);
+          return `${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+        })()
+      : null;
     const htmlContent = content
       .replace(/^### (.+)$/gm, "<h3>$1</h3>")
       .replace(/^## (.+)$/gm, "<h2>$1</h2>")
@@ -467,7 +485,7 @@ export default function BriefingV3() {
         </head><body>
         <div class="header">
           <h1>Briefing de Compliance — ${projectName} <span class="version-badge">Versão ${versionNum}</span></h1>
-          <p>Reforma Tributária 2024 · Gerado em ${dateStr}</p>
+          <p>Reforma Tributária — LC 214/2025${dateStr ? ` · Gerada em ${dateStr}` : ""}</p>
         </div>
         <div class="scope-block">
           <h2>Escopo do Diagn\u00f3stico</h2>
