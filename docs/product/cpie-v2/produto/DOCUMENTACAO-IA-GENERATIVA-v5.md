@@ -279,7 +279,7 @@ Temperatura: 0.35 (leve variação para linguagem mais natural e personalizada).
 
 ## 9. Scoring Determinístico — Cálculo do Risco Global
 
-O score de risco global é calculado **sem LLM** pela função `calculateGlobalScore()` em `server/ai-helpers.ts`. Por ser determinístico, o score é auditável e reprodutível — dois projetos com as mesmas respostas sempre produzem o mesmo score.
+O score de risco global é calculado **sem LLM** pela função `calculateComplianceScore()` em `server/lib/compliance-score-v4.ts` (hot swap Z-12 / ADR-0022). Por ser determinístico, o score é auditável e reprodutível — dois projetos com as mesmas respostas sempre produzem o mesmo score. _Nota: a função anterior `calculateGlobalScore()` em `ai-helpers.ts` está deprecated — ver issue #800 para o racional completo._
 
 O cálculo usa:
 

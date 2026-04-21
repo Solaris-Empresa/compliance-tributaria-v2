@@ -170,8 +170,25 @@ export async function generateWithRetry<T extends z.ZodTypeAny>(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCORING GLOBAL COM TRADUÇÃO FINANCEIRA (Sprint V61)
+// SCORING GLOBAL COM TRADUÇÃO FINANCEIRA (Sprint V61) — @deprecated
 // ─────────────────────────────────────────────────────────────────────────────
+//
+// AVISO (issue #800): esta função NÃO é a calculadora de compliance score
+// ativa em produção. O hot swap do Z-12 (ADR-0022) moveu o cálculo para
+// `server/lib/compliance-score-v4.ts::calculateComplianceScore`, chamada via
+// `trpc.risksV4.calculateAndSaveScore`.
+//
+// `calculateGlobalScore` segue aqui apenas para:
+//   1. Compatibilidade com testes de integração V61 (sprint-v60-v63-e2e.test.ts)
+//   2. Rollback path do bloco legado em routers-fluxo-v3.ts:1961
+//
+// NÃO USE em código novo. Use `calculateComplianceScore`.
+//
+// Diferenças das duas funções:
+//   - pesos: legada (Baixa=2..Crítica=9) vs ativa (alta=7, media=5, oportunidade=1)
+//   - strings: legada capitalizada ("Alta") vs ativa lowercase ("alta")
+//   - ponderação: legada sem conf vs ativa × max(conf, 0.5)
+//   - output: legada grava `score_global` vs ativa grava `score`
 
 const SEVERIDADE_SCORE_MAP: Record<string, number> = {
   "Baixa": 2,
@@ -188,6 +205,12 @@ const FATOR_RISCO_MAP = {
 };
 
 /**
+ * @deprecated Use `calculateComplianceScore` em `server/lib/compliance-score-v4.ts`.
+ *
+ * Função legada da Sprint V61. Substituída pelo hot swap Z-12 (ADR-0022).
+ * Preservada apenas para compatibilidade com testes de integração V61 e
+ * rollback path do bloco legado em routers-fluxo-v3.ts:1961.
+ *
  * Calcula o score global de risco de forma determinística no servidor.
  * Nunca delegado à IA — garante auditabilidade e consistência.
  */

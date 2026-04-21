@@ -160,39 +160,47 @@ SELECT JSON_KEYS([campo_json]) FROM [tabela] WHERE [campo_json] IS NOT NULL LIMI
 
 ## projects.scoringData (v4)
 
-> **Verificado em Sprint Z-16 Gate 0 (2026-04-15)**
-> **Banco atual:** `scoringData = NULL` para projetos criados no fluxo v4 (nunca calculado)
-> **Calculado por:** `calculateGlobalScore()` em `server/ai-helpers.ts`
-> **Chamado em:** APENAS `server/routers-fluxo-v3.ts` — NAO chamado no fluxo v4 ainda
+> **Atualizado em Z-22 / issue #800 (2026-04-21)**
+> **Calculado por (ativa):** `calculateComplianceScore()` em `server/lib/compliance-score-v4.ts`
+> **Chamado em:** `trpc.risksV4.calculateAndSaveScore` — Sprint Z-16 PR #634, hot swap Z-12 ADR-0022
+> **Função legada (deprecated):** `calculateGlobalScore()` em `server/ai-helpers.ts` — Sprint V61, substituída
+
+### Campos gravados pela função ativa (`calculateComplianceScore`)
 
 | Campo | Tipo | Observacao |
 |---|---|---|
-| score_global | number | 0-100 — formula: `round(sum(SEVERIDADE_SCORE_MAP[r.severidade]) / (n × 9) × 100)` |
+| score | number | 0-100 — fórmula abaixo |
 | nivel | string | `'baixo'` \| `'medio'` \| `'alto'` \| `'critico'` |
-| impacto_estimado | string | ex: `'R$ 120k/ano em risco fiscal estimado'` |
-| custo_inacao | string | descricao qualitativa |
-| prioridade | string | descricao qualitativa |
-| total_riscos | number | |
-| riscos_criticos | number | |
-| riscos_altos | number | |
+| total_riscos_aprovados | number | count de `approved_at != NULL` |
+| total_alta | number | count severidade=alta |
+| total_media | number | count severidade=media |
+| formula_version | string | `'v4.0'` — identifica versão da fórmula |
+| snapshots | array | histórico dos cálculos (RN-CV4-10) |
 
-**Formula de nivel:**
-- `score >= 70 OU riscos_criticos >= 2` → `'critico'`
-- `score >= 45 OU riscos_criticos >= 1` → `'alto'`
+**Fórmula ativa:**
+```
+score = round( Σ(peso × max(confidence, 0.5)) / (n × 9) × 100 )
+  peso = { alta: 7, media: 5, oportunidade: 1 }
+  n    = count(approved AND type != 'opportunity')
+```
+
+**Classificação de nivel:**
+- `score >= 75` → `'critico'`
+- `score >= 50` → `'alto'`
 - `score >= 25` → `'medio'`
 - else → `'baixo'`
 
-**SEVERIDADE_SCORE_MAP (deterministico — NUNCA LLM):**
+### Campos legados (gravados pela função deprecated em projetos antigos)
 
-| Severidade | Score |
-|---|---|
-| Crítica | 9 |
-| Alta | 7 |
-| Média | 5 |
-| Baixa | 3 |
-| Oportunidade | 1 |
-
-**Para Z-16:** A procedure `risksV4.calculateAndSaveScore(projectId)` deve calcular este score a partir de `risks_v4` (nao de `riskMatricesDataV3`) e persistir em `projects.scoringData`.
+| Campo | Tipo | Observacao |
+|---|---|---|
+| score_global | number | **Legado V61** — ainda presente em projetos antigos. Frontend lê este como fallback de `score` |
+| impacto_estimado | string | Legado V61 — tradução financeira |
+| custo_inacao | string | Legado V61 |
+| prioridade | string | Legado V61 |
+| total_riscos | number | Legado V61 (diferente de `total_riscos_aprovados`) |
+| riscos_criticos | number | Legado V61 |
+| riscos_altos | number | Legado V61 |
 
 ---
 
