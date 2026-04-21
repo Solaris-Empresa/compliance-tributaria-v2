@@ -1396,7 +1396,19 @@ Gere o Briefing estruturado em JSON:
       }
 
       // Converter estruturado para Markdown (compatibilidade com UI existente)
-      const briefingMarkdown = buildBriefingMarkdown(structured);
+      // fix #806: template v2 recebe metadata do projeto para cabeçalho empresarial.
+      const briefingMeta: BriefingMarkdownMeta = {
+        empresa: project.name,
+        descricao: (project as any).description,
+        cnaePrincipal: primaryCnae,
+        porte: cp?.companySize,
+        regime: cp?.taxRegime,
+        faturamento: cp?.annualRevenueRange,
+        multiestadual: (opProfile as any)?.multiState === true || (opProfile as any)?.multiestadual === true,
+        ncms: (opProfile.principaisProdutos ?? []).map((p) => p?.ncm_code).filter((c): c is string => !!c),
+        nbs: (opProfile.principaisServicos ?? []).map((s) => s?.nbs_code).filter((c): c is string => !!c),
+      };
+      const briefingMarkdown = buildBriefingMarkdown(structured, briefingMeta);
 
       // Salvar briefing no banco (markdown + estruturado)
       const database = await db.getDb();
@@ -3096,10 +3108,25 @@ Gere o Briefing estruturado em JSON:
         buildBriefingMarkdown: (m as any).buildBriefingMarkdown,
       })).catch(() => ({ buildBriefingMarkdown: null }));
 
+      // fix #806: metadata para template v2 (fallback silencioso se função não disponível).
+      const briefingMetaFD: BriefingMarkdownMeta = {
+        empresa: project.name,
+        descricao: p.description,
+        cnaePrincipal: confirmedCnaes[0]?.code
+          ? `${confirmedCnaes[0].code}${confirmedCnaes[0].description ? ` — ${confirmedCnaes[0].description}` : ""}`
+          : undefined,
+        porte: (p.companyProfile as any)?.companySize,
+        regime: (p.companyProfile as any)?.taxRegime,
+        faturamento: (p.companyProfile as any)?.annualRevenueRange,
+        multiestadual: (opProfileForBriefing as any)?.multiState === true || (opProfileForBriefing as any)?.multiestadual === true,
+        ncms: (opProfileForBriefing.principaisProdutos ?? []).map((x) => x?.ncm_code).filter((c): c is string => !!c),
+        nbs: (opProfileForBriefing.principaisServicos ?? []).map((x) => x?.nbs_code).filter((c): c is string => !!c),
+      };
+
       // Converter para markdown (fallback se não conseguir importar)
       let briefingMarkdown: string;
       if (buildBriefingMarkdown) {
-        briefingMarkdown = buildBriefingMarkdown(structured);
+        briefingMarkdown = buildBriefingMarkdown(structured, briefingMetaFD);
       } else {
         briefingMarkdown = `# Briefing de Compliance\n\n**Nível de Risco:** ${structured.nivel_risco_geral}\n\n## Resumo Executivo\n${structured.resumo_executivo}`;
       }
@@ -4090,7 +4117,49 @@ function classifyInconsistenciaImpacto(inc: any): "alto" | "medio" | "baixo" {
   return "medio";
 }
 
-function buildBriefingMarkdown(structured: any): string {
+// ─────────────────────────────────────────────────────────────────────────────
+// BRIEFING MARKDOWN — Feature flag (issue #806)
+//
+// Dois templates convivem lado a lado:
+//   V1: formato original (sprint V61+) — estável, em produção desde Z-16
+//   V2: formato novo com cabeçalho de empresa + impactos + explicação pedagógica
+//
+// Rollback instantâneo: trocar BRIEFING_TEMPLATE_VERSION para "v1".
+// Baseline imutável: tag `briefing-template-baseline-v1` aponta para commit pré-#806.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Controle de qual template é usado. Rollback = trocar para "v1". */
+const BRIEFING_TEMPLATE_VERSION: "v1" | "v2" =
+  (process.env.BRIEFING_TEMPLATE_VERSION as "v1" | "v2") || "v2";
+
+export interface BriefingMarkdownMeta {
+  empresa?: string;
+  descricao?: string;
+  cnaePrincipal?: string;
+  porte?: string;
+  regime?: string;
+  faturamento?: string;
+  multiestadual?: boolean;
+  ncms?: string[];
+  nbs?: string[];
+}
+
+/**
+ * Wrapper de compatibilidade — decide qual template renderizar.
+ * Meta é opcional; V1 ignora, V2 usa quando presente.
+ */
+function buildBriefingMarkdown(structured: any, meta?: BriefingMarkdownMeta): string {
+  if (BRIEFING_TEMPLATE_VERSION === "v1") {
+    return buildBriefingMarkdownV1(structured);
+  }
+  return buildBriefingMarkdownV2(structured, meta ?? {});
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// V1 — Template original (preservado para rollback instantâneo)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function buildBriefingMarkdownV1(structured: any): string {
   const nivelLabel: Record<string, string> = {
     baixo: "🟢 Baixo",
     medio: "🟡 Médio",
@@ -4161,6 +4230,189 @@ function buildBriefingMarkdown(structured: any): string {
       }
     }
   }
+
+  return lines.join("\n");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// V2 — Template novo (issue #806)
+//
+// Melhorias sobre V1 (sem mudar schema nem prompt):
+//   - Cabeçalho empresarial (empresa · CNAE · perfil · NCMs/NBS)
+//   - Resumo "Decisão em 30s"
+//   - Gaps numerados com separação clara
+//   - Bloco fixo "Impactos Potenciais" (3 eixos)
+//   - Inconsistências só renderizam se length > 0
+//   - "Como ler este briefing" pedagógico
+//   - Frase-chave (sem respostas / com respostas)
+//   - Rodapé técnico (fórmula v4.0, disclaimer)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const RISCO_LABEL_V2: Record<string, string> = {
+  baixo: "🟢 Baixo",
+  medio: "🟡 Médio",
+  alto: "🟠 Alto",
+  critico: "🔴 Crítico",
+};
+
+const URGENCIA_LABEL_V2: Record<string, string> = {
+  imediata: "🔴 Imediata",
+  curto_prazo: "🟠 Curto prazo",
+  medio_prazo: "🟡 Médio prazo",
+};
+
+function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): string {
+  const lines: string[] = [];
+
+  // ─── Cabeçalho ─────────────────────────────────────────────────────────
+  lines.push(`# Briefing de Compliance — Reforma Tributária (LC 214/2025)`);
+  lines.push(``);
+  if (meta.empresa) lines.push(`**Empresa:** ${meta.empresa}`);
+  if (meta.cnaePrincipal) lines.push(`**CNAE Principal:** ${meta.cnaePrincipal}`);
+  const perfilParts: string[] = [];
+  if (meta.porte) perfilParts.push(meta.porte);
+  if (meta.regime) perfilParts.push(meta.regime);
+  if (meta.faturamento) perfilParts.push(`faturamento ${meta.faturamento}`);
+  if (meta.multiestadual) perfilParts.push(`multiestadual`);
+  if (perfilParts.length > 0) lines.push(`**Perfil:** ${perfilParts.join(" · ")}`);
+  if (meta.ncms && meta.ncms.length > 0) lines.push(`**NCMs:** ${meta.ncms.join(", ")}`);
+  if (meta.nbs && meta.nbs.length > 0) lines.push(`**NBS:** ${meta.nbs.join(", ")}`);
+  lines.push(``);
+  lines.push(`---`);
+  lines.push(``);
+
+  // ─── 1. Resumo Executivo ───────────────────────────────────────────────
+  lines.push(`## ⚠️ Resumo Executivo — Decisão em 30 segundos`);
+  lines.push(``);
+  lines.push(
+    `**Nível de Risco Geral:** ${RISCO_LABEL_V2[structured.nivel_risco_geral] ?? structured.nivel_risco_geral}`
+  );
+  lines.push(``);
+  if (structured.resumo_executivo) {
+    lines.push(structured.resumo_executivo);
+    lines.push(``);
+  }
+  lines.push(`---`);
+  lines.push(``);
+
+  // ─── 2. Principais Gaps ────────────────────────────────────────────────
+  const gaps = structured.principais_gaps ?? [];
+  lines.push(`## 🎯 Principais Gaps de Compliance (${gaps.length})`);
+  lines.push(``);
+  gaps.forEach((g: any, i: number) => {
+    lines.push(`### Gap ${i + 1}. ${g.gap}`);
+    lines.push(``);
+    if (g.causa_raiz) lines.push(`- **Causa raiz:** ${g.causa_raiz}`);
+    if (g.evidencia_regulatoria) lines.push(`- **Base legal:** ${g.evidencia_regulatoria}`);
+    if (g.urgencia) {
+      lines.push(`- **Urgência:** ${URGENCIA_LABEL_V2[g.urgencia] ?? g.urgencia}`);
+    }
+    lines.push(``);
+  });
+  lines.push(`---`);
+  lines.push(``);
+
+  // ─── 3. Oportunidades ──────────────────────────────────────────────────
+  const oportunidades = structured.oportunidades ?? [];
+  lines.push(`## 💡 Oportunidades Identificadas`);
+  lines.push(``);
+  if (oportunidades.length > 0) {
+    for (const op of oportunidades) {
+      lines.push(`- ${op}`);
+    }
+  } else {
+    lines.push(`_Nenhuma oportunidade específica identificada neste diagnóstico._`);
+  }
+  lines.push(``);
+  lines.push(`---`);
+  lines.push(``);
+
+  // ─── 4. Recomendações ──────────────────────────────────────────────────
+  lines.push(`## 🔧 Recomendações Prioritárias`);
+  lines.push(``);
+  (structured.recomendacoes_prioritarias ?? []).forEach((rec: string, i: number) => {
+    lines.push(`${i + 1}. ${rec}`);
+  });
+  lines.push(``);
+  lines.push(`---`);
+  lines.push(``);
+
+  // ─── 5. Impactos (bloco fixo pedagógico) ──────────────────────────────
+  lines.push(`## 📉 Impactos Potenciais (sem intervenção)`);
+  lines.push(``);
+  lines.push(`- **Financeiro:** autuações, glosa de créditos, tributação indevida`);
+  lines.push(`- **Operacional:** erros sistêmicos recorrentes, retrabalho`);
+  lines.push(`- **Jurídico:** constituição automática de débito tributário, perda de espontaneidade`);
+  lines.push(``);
+
+  // ─── 6. Inconsistências (condicional) ─────────────────────────────────
+  const inconsistencias = structured.inconsistencias ?? [];
+  if (inconsistencias.length > 0) {
+    lines.push(`---`);
+    lines.push(``);
+    lines.push(`## ⚠️ Inconsistências Detectadas (${inconsistencias.length})`);
+    lines.push(``);
+    lines.push(
+      `> As inconsistências abaixo foram detectadas nas respostas do questionário e requerem verificação.`
+    );
+    lines.push(``);
+    for (const inc of inconsistencias) {
+      if (inc.contradicao_detectada) lines.push(`### ${inc.contradicao_detectada}`);
+      if (inc.pergunta_origem) lines.push(`- **Pergunta:** ${inc.pergunta_origem}`);
+      if (inc.resposta_declarada) lines.push(`- **Resposta declarada:** ${inc.resposta_declarada}`);
+      if (inc.impacto) lines.push(`- **Impacto:** ${inc.impacto}`);
+      lines.push(``);
+    }
+  }
+
+  // ─── 7. Limites do Diagnóstico ─────────────────────────────────────────
+  const cs = structured.confidence_score;
+  if (cs) {
+    lines.push(`---`);
+    lines.push(``);
+    lines.push(`## 📊 Limites do Diagnóstico`);
+    lines.push(``);
+    lines.push(
+      `**Nível de Confiança:** ${cs.nivel_confianca}% — ${cs.recomendacao ?? "Revisão por advogado tributarista recomendada"}`
+    );
+    lines.push(``);
+    if (cs.limitacoes && cs.limitacoes.length > 0) {
+      lines.push(`**Limitações identificadas:**`);
+      for (const lim of cs.limitacoes) {
+        lines.push(`- ${lim}`);
+      }
+      lines.push(``);
+    }
+  }
+
+  // ─── 8. Como ler este briefing (pedagógico) ────────────────────────────
+  lines.push(`---`);
+  lines.push(``);
+  lines.push(`## 🔍 Como ler este briefing`);
+  lines.push(``);
+  lines.push(`Este briefing pode ser gerado com base em:`);
+  lines.push(`- perfil da empresa (porte, regime, faturamento)`);
+  lines.push(`- CNAE(s) confirmado(s)`);
+  lines.push(`- descrição do negócio`);
+  lines.push(`- base regulatória (RAG — LC 214/2025 + correlatos)`);
+  lines.push(`- respostas aos questionários (quando disponíveis)`);
+  lines.push(``);
+  lines.push(
+    `**Sem respostas aos questionários**, a análise é inicial e menos específica — um **mapa regulatório**.`
+  );
+  lines.push(
+    `**Com respostas completas**, o briefing aproxima-se de um **diagnóstico da empresa**.`
+  );
+  lines.push(``);
+  lines.push(`> **Sem respostas: mapa regulatório. Com respostas: diagnóstico da empresa.**`);
+  lines.push(``);
+
+  // ─── Rodapé ────────────────────────────────────────────────────────────
+  lines.push(`---`);
+  lines.push(``);
+  lines.push(
+    `_Briefing gerado automaticamente · Fórmula v4.0 · Revisão por advogado tributarista recomendada · Este documento não substitui parecer jurídico individualizado._`
+  );
 
   return lines.join("\n");
 }
