@@ -48,6 +48,16 @@ const CANONIC_OPERATION_TYPES: readonly OperationType[] = [
   "financeiro",
 ] as const;
 
+// Hotfix v1.2.1 — aliases privados para valores não-canônicos observados em produção.
+// Não exportar. Escopo: normalização mínima, sem semântica jurídica nova.
+const OPERATION_TYPE_ALIASES: Record<string, OperationType> = {
+  servico: "servicos",
+};
+
+function normalizeOperationType(v: string): string {
+  return OPERATION_TYPE_ALIASES[v] ?? v;
+}
+
 /**
  * Type guard sobre OperationType.
  * Uso: if (isOperationType(v)) { // v: OperationType nesta branch
@@ -90,7 +100,7 @@ export function isCategoryAllowed(
   }
 
   // (2) operationType ausente → fallback permissivo + reason
-  const normalized = (operationType ?? "").trim();
+  const normalized = normalizeOperationType((operationType ?? "").trim());
   if (normalized === "") {
     return {
       final: suggested,
