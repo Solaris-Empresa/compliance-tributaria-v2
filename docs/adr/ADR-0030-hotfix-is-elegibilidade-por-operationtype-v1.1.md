@@ -212,3 +212,87 @@ obrigatória em todo F3 de hotfix envolvendo engine com múltiplas versões.
 - F3 pré-v2: vocabulário divergente `servico` vs `servicos` confirmado
 - Contrato v1.2.1: criado em 2026-04-22 (hash a calcular)
 - Amendment hash (este arquivo após edição): a calcular
+
+---
+
+## AMENDMENT 2 · 2026-04-22 — Correção de regressão FK (v2.1 · Opção A)
+
+### Motivação
+
+UAT P.O. imediatamente pós-deploy do Hotfix v2 (PR #840, commit `8cf303d`)
+reproduziu novo bug:
+
+```
+Erro ao analisar gaps
+Cannot add or update a child row: a foreign key constraint fails
+(risks_v4.categoria REFERENCES risk_categories.codigo)
+```
+
+Matriz de riscos fica vazia para empresas `operationType=servicos` com
+gap de `imposto_seletivo` detectado.
+
+### Causa raiz
+
+Gate v2 aplica `downgrade_to='enquadramento_geral'` quando bloqueia IS. Mas
+essa categoria **não estava registrada** em 4 locais:
+
+1. Coluna `risks_v4.categoria` (ENUM com apenas 10 valores — migration 0064)
+2. Tabela `risk_categories` (referenciada por FK `fk_risks_v4_categoria` —
+   migration 0065 seed só carregou 10 rows)
+3. Enum TS `Categoria` em `server/lib/risk-engine-v4.ts`
+4. Enum TS `CategoriaV4` em `server/lib/db-queries-risks-v4.ts` +
+   `CategoriaV4Schema` Zod em `server/routers/risks-v4.ts`
+
+INSERT em `risks_v4` falhou com FK constraint → matriz vazia em produção.
+
+### Decisão (Opção A · aprovada pelo P.O. 2026-04-22)
+
+Tornar `enquadramento_geral` uma categoria canônica registrada. Fallback
+natural — quando gate bloqueia e o sistema não tem categoria específica,
+o risco é enquadrado como "geral" com severidade média / urgência curto_prazo.
+
+### Ajustes aplicados (Hotfix IS v2.1)
+
+- **Migration 0089** (NOVO, `drizzle/0089_enquadramento_geral_categoria.sql`):
+  - `ALTER TABLE risks_v4 MODIFY COLUMN categoria ENUM(... 11 valores)`
+  - `INSERT INTO risk_categories` — 1 row (`codigo='enquadramento_geral'`,
+    `severidade='media'`, `urgencia='curto_prazo'`, `tipo='risk'`,
+    `origem='manual'`, `escopo='nacional'`)
+- **Código (3 arquivos):**
+  - `server/lib/risk-engine-v4.ts`: `Categoria` + `SEVERITY_TABLE` +
+    `TITULO_TEMPLATES` ganham entry `enquadramento_geral`
+  - `server/lib/db-queries-risks-v4.ts`: `CategoriaV4` ganha entry
+  - `server/routers/risks-v4.ts`: `CategoriaV4Schema` Zod ganha entry
+- **Teste A7 atualizado** — cobertura `SEVERITY_TABLE` passa de 10 para
+  11 categorias (10 canônicas + 1 fallback)
+
+### Preservados (invariantes do amendment)
+
+- SPEC-HOTFIX-IS-v1.2.md **intocada** (hash `80176084...`)
+- CONTRATO v1.2.1 **intocado** (hash `887dfca7...`) — comportamento do gate
+  não mudou, apenas infraestrutura DB+enum para aceitar o resultado do gate
+- `server/routers/riskEngine.ts` (v3) **intocado**
+- `server/lib/risk-eligibility.ts` **intocado** (`ELIGIBILITY_TABLE.downgrade_to='enquadramento_geral'` permanece)
+- Comportamento das 10 categorias canônicas **inalterado**
+
+### Lição de processo registrada
+
+Gate 0 de hotfix v2 rodou testes unit mockando `getCategoryByCode`. Não
+houve teste de **persist real** contra schema — bug de FK só apareceu em
+produção após deploy. Gate 0 passa a incluir:
+
+> "Quando o hotfix muda valores que vão para schema ENUM ou FK target, exigir
+> teste integration que execute INSERT contra DB real (ou schema mock fiel)
+> antes do merge."
+
+Alternativa pragmática: adicionar CI job com TiDB dockerizado para testes de
+persist — registrar como issue de tech-debt pós-hotfix.
+
+### Rastreabilidade v2.1
+
+- PR antecessor: #840 (merge 2026-04-22T18:45:10Z, commit `8cf303d`)
+- Causa raiz reportada pelo P.O.: 2026-04-22 (toast FK constraint error)
+- Diagnóstico Claude Code: 2026-04-22 (causa raiz em 4 locais)
+- Opção A aprovada pelo P.O.: 2026-04-22
+- Migration 0089: numbered após 0088 (drop CPIE legado)
+- Amendment 2 hash: a calcular

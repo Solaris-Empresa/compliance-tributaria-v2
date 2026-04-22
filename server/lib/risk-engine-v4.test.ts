@@ -83,9 +83,10 @@ describe("Bloco A — classificação determinística", () => {
     expect(r.urgency).toBe("curto_prazo");
   });
 
-  it("A7: SEVERITY_TABLE cobre exatamente 10 categorias", () => {
+  it("A7: SEVERITY_TABLE cobre 10 categorias canônicas + 1 fallback (v2.1)", () => {
     const categorias = Object.keys(SEVERITY_TABLE);
-    expect(categorias).toHaveLength(10);
+    expect(categorias).toHaveLength(11);
+    // 10 canônicas (LC 214/2025)
     expect(categorias).toContain("imposto_seletivo");
     expect(categorias).toContain("confissao_automatica");
     expect(categorias).toContain("split_payment");
@@ -96,6 +97,12 @@ describe("Bloco A — classificação determinística", () => {
     expect(categorias).toContain("aliquota_zero");
     expect(categorias).toContain("aliquota_reduzida");
     expect(categorias).toContain("credito_presumido");
+    // + fallback do gate de elegibilidade (Hotfix IS v2.1, migration 0089)
+    expect(categorias).toContain("enquadramento_geral");
+    expect(SEVERITY_TABLE.enquadramento_geral).toEqual({
+      severity: "media",
+      urgency: "curto_prazo",
+    });
   });
 });
 

@@ -25,7 +25,8 @@ export type CategoriaV4 =
   | "obrigacao_acessoria"
   | "aliquota_zero"
   | "aliquota_reduzida"
-  | "credito_presumido";
+  | "credito_presumido"
+  | "enquadramento_geral"; // Hotfix v2.1 — migration 0089
 
 export type SeveridadeV4 = "alta" | "media" | "oportunidade";
 export type UrgenciaV4 = "imediata" | "curto_prazo" | "medio_prazo";
