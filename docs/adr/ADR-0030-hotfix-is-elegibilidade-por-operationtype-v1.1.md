@@ -149,3 +149,66 @@ conforme documentado — não é falha, é escopo.
 - Fonte primária `operationType`: inalterada vs v1.0
 - Descoberta primária adicional: schema `audit_log` resolve P6 sem migration
   (Orquestrador, 2026-04-21)
+
+---
+
+## AMENDMENT 2026-04-22 — Correção de caller (política fechada: inline, não v1.2)
+
+### Motivação
+
+UAT P.O. em produção (2026-04-22) após merge do PR #826 (commit `871cbe8`)
+reproduziu o bug original: transportadora `operationType='servico'` continuou
+recebendo categoria `imposto_seletivo`.
+
+### Causa raiz identificada
+
+**Investigação D (2026-04-22):** gate `isCategoryAllowed` foi aplicado em
+`server/routers/riskEngine.ts` (engine v3 legado), mas o frontend usa
+`useNewRiskEngine=true` → `trpc.risksV4.generateRisks` →
+`server/lib/risk-engine-v4.ts` (engine v4). v3 **é caller inativo no runtime**.
+
+Adicionalmente: projeto de teste tinha `operationType='servico'` (singular),
+valor não-canônico em `OperationType`. Gate caía no caso (6)
+`operation_type_desconhecido` com `allowed: true` — warning registrado mas
+sem downgrade.
+
+### Decisão da política de amendment
+
+**Política fechada em 2026-04-22:** correções pós-aprovação de ADR entram
+como **amendment inline** em `v1.1`, **sem** criar `v1.2` separado. Hash
+do arquivo muda, mas o identificador `ADR-0030 v1.1` permanece e é tratado
+como "v1.1 amended".
+
+Motivos:
+- Evitar proliferação de versões para ADRs ainda vivos (este é o 2º amendment)
+- Simplificar rastreabilidade (um único ADR-0030 v1.1, progressivo)
+- Hash registrado em `APPROVED_SPEC-HOTFIX-IS.json` permite verificação
+
+### Ajustes aplicados (Hotfix IS v1.2.1)
+
+- **Contrato:** `docs/specs/CONTRATO-TECNICO-isCategoryAllowed-v1.2.1.ts` (NOVO)
+- **Código:**
+  - `server/lib/risk-eligibility.ts`: adicionado privado `OPERATION_TYPE_ALIASES` (1 entrada: `servico → servicos`) + `normalizeOperationType` privada, aplicada inline em `isCategoryAllowed`
+  - `server/lib/risk-engine-v4.ts`: gate aplicado em `consolidateRisks` (caller efetivo) com `.catch(() => {})` explícito no audit log (não `void`)
+- **Testes:** 4 unit (`risk-eligibility.test.ts`) + 4 integration (`risk-engine-v4.test.ts` Bloco G) obrigatórios
+- **Preservados (invariantes do amendment):**
+  - SPEC-HOTFIX-IS-v1.2.md **intocada** (hash `80176084...`)
+  - `server/routers/riskEngine.ts` **intocado** (v3 como fallback/protegido)
+  - `ELIGIBILITY_TABLE` e assinatura pública de `isCategoryAllowed` **intocadas**
+  - `OPERATION_TYPE_ALIASES` e `normalizeOperationType` **NÃO exportadas**
+
+### Lição de processo registrada
+
+Gate 0 de hotfix passa a incluir **"verificar caller efetivo em runtime, não
+apenas caller existente no código"**. F3 original rodou
+`grep -rn "categorizeRisk" server/` mas não verificou se o módulo era
+consumido pelo frontend em produção (v3 vs v4). Essa verificação agora é
+obrigatória em todo F3 de hotfix envolvendo engine com múltiplas versões.
+
+### Rastreabilidade adicional
+
+- PR anterior do hotfix: #826 (merge 2026-04-22T14:21:40Z, commit `871cbe8`)
+- Investigação D: realizada pelo Claude Code em 2026-04-22
+- F3 pré-v2: vocabulário divergente `servico` vs `servicos` confirmado
+- Contrato v1.2.1: criado em 2026-04-22 (hash a calcular)
+- Amendment hash (este arquivo após edição): a calcular

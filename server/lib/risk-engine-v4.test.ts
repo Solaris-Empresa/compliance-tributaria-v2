@@ -453,3 +453,66 @@ describe("Bloco F — consolidateRisks", () => {
     expect(results).toEqual([]);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BLOCO G — Gate de elegibilidade em consolidateRisks (Hotfix IS v1.2.1)
+// SPEC: docs/specs/CONTRATO-TECNICO-isCategoryAllowed-v1.2.1.ts
+// Cobre: v3 legado não era chamado pelo frontend; gate agora vive no v4.
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("Bloco G — gate de elegibilidade em consolidateRisks", () => {
+  const mockedGetCat = vi.mocked(getCategoryByCode);
+
+  beforeEach(() => {
+    mockedGetCat.mockReset();
+    mockedGetCat.mockResolvedValue(null);
+  });
+
+  it("G1: servicos → imposto_seletivo bloqueado, downgrade para enquadramento_geral", async () => {
+    const ctxServicos: OperationalContext = { tipoOperacao: "servicos" };
+    const gaps = [
+      makeGap({ ruleId: "R-IS-1", categoria: "imposto_seletivo", fonte: "solaris" }),
+    ];
+    const results = await consolidateRisks(42, gaps, ctxServicos, 1);
+
+    expect(results).toHaveLength(1);
+    expect(results[0].categoria).toBe("enquadramento_geral");
+    expect(results[0].risk_key).toContain("enquadramento_geral");
+    expect(results[0].risk_key).not.toContain("imposto_seletivo::");
+    expect(results[0].breadcrumb[1]).toBe("enquadramento_geral");
+  });
+
+  it("G2: servico (alias singular) → imposto_seletivo também bloqueado", async () => {
+    const ctxServico: OperationalContext = { tipoOperacao: "servico" };
+    const gaps = [
+      makeGap({ ruleId: "R-IS-2", categoria: "imposto_seletivo", fonte: "solaris" }),
+    ];
+    const results = await consolidateRisks(42, gaps, ctxServico, 1);
+
+    expect(results).toHaveLength(1);
+    expect(results[0].categoria).toBe("enquadramento_geral");
+  });
+
+  it("G3: industria → imposto_seletivo permanece (sem regressão)", async () => {
+    const ctxIndustria: OperationalContext = { tipoOperacao: "industria" };
+    const gaps = [
+      makeGap({ ruleId: "R-IS-3", categoria: "imposto_seletivo", fonte: "solaris" }),
+    ];
+    const results = await consolidateRisks(42, gaps, ctxIndustria, 1);
+
+    expect(results).toHaveLength(1);
+    expect(results[0].categoria).toBe("imposto_seletivo");
+    expect(results[0].risk_key).toContain("imposto_seletivo::");
+  });
+
+  it("G4: comercio → imposto_seletivo permanece (sem regressão)", async () => {
+    const ctxComercio: OperationalContext = { tipoOperacao: "comercio" };
+    const gaps = [
+      makeGap({ ruleId: "R-IS-4", categoria: "imposto_seletivo", fonte: "solaris" }),
+    ];
+    const results = await consolidateRisks(42, gaps, ctxComercio, 1);
+
+    expect(results).toHaveLength(1);
+    expect(results[0].categoria).toBe("imposto_seletivo");
+  });
+});
