@@ -405,3 +405,120 @@ Lição Z-18: Manus reescreveu specs 3x (#697 #701 #705) — 30+ min de retrabal
 - `docs/adr/` — Architecture Decision Records (ADR-010 content architecture, etc.)
 - `.github/CONTRIBUTING.md` — Full contribution guidelines
 - `.github/MANUS-GOVERNANCE.md` — AI implementer operational rules
+
+## REGRA-ORQ-21 — Caminho C é default (última spec é formal)
+
+A última versão aprovada de uma spec é a **última revisão formal**.
+
+Qualquer crítica pós-aprovação que **não afete correção técnica** deve ir
+como instrução operacional no prompt F3 ao implementador, **não** como
+amendment formal da spec.
+
+Critérios para crítica forçar amendment formal (v1.x+1):
+- Contradição interna da spec
+- Referência a API/tipo inexistente
+- Requisito técnico impossível de implementar como escrito
+
+Críticas sobre nomenclatura, ordem de commits, estilo de teste, JSDoc,
+observações UX e sugestões de melhoria **vão para o F3 como notas**,
+nunca regeram a spec.
+
+Objetivo: eliminar ciclos infinitos v1.0→v1.1→v1.2→v1.N.
+
+Referência narrativa: `docs/governance/SPEC-PROCESS-v2.md#regra-1`
+
+## REGRA-ORQ-22 — Crítica de spec em 3 níveis
+
+Ao Claude Code criticar uma spec do Orquestrador, a saída **DEVE** ser
+classificada em 3 níveis:
+
+**Nivel 1 — Bloqueante tecnico.** Entra em amendment formal (v1.x+1).
+- Contradicao interna
+- Tipo/API incompativel
+- Tabela/enum inexistente
+
+**Nivel 2 — Design improvement.** Vai como nota no F3 ao implementador.
+- Nomenclatura
+- Ordem de commits
+- Template/formato de teste
+- Organizacao de comentarios/JSDoc
+- Preferencia de estilo
+
+**Nivel 3 — Observacao/backlog.** NAO entra no PR; vira issue separada.
+- Refactor estrutural futuro
+- Tech debt pre-existente nao criado pelo PR
+- Sugestao de arquitetura alternativa
+- Workaround UX sem motivo tecnico
+
+Saida em formato tabular obrigatorio: ver
+`docs/governance/templates/TEMPLATE-critica-3-niveis.md`.
+
+Objetivo: P.O. decide em segundos, nao em 30 minutos lendo 13 pontos
+misturados.
+
+## REGRA-ORQ-23 — Tempo-box de aprovação (1 round)
+
+Cada spec tem direito a **1 round formal de crítica** pelo Claude Code.
+
+Fluxo:
+1. Orquestrador gera v1.0
+2. Claude Code critica uma vez (saída em 3 níveis — REGRA-ORQ-22)
+3. Orquestrador triaga com P.O., gera v1.1 com Nível 1 incorporado
+4. P.O. aprova v1.1
+
+**Não há v1.2 formal** exceto se aparecer bug técnico real durante
+implementação (Gate 0 do F3 pelo Claude Code) — nesse caso v1.2 é
+amendment mínimo, não novo round de crítica livre.
+
+Objetivo: cortar o padrão v1.0→v1.1→v1.2→v1.3 observado no hotfix IS.
+
+## REGRA-ORQ-24 — Classe de impacto determina governança
+
+Toda spec é classificada pelo Orquestrador em uma de 3 classes no ato
+de criação:
+
+**Classe A — cirurgico.**
+- Ate 50 linhas de codigo
+- Ate 2 arquivos afetados
+- 1 funcao/componente isolado
+- Bug fix ou feature pequena
+- Governanca: SPEC curta (1 pagina), Caminho C default, aprovacao
+  em 1-2 ciclos
+
+**Classe B — feature media.**
+- Ate 500 linhas de codigo
+- Ate 5 arquivos afetados
+- Modulo novo ou extensao substantiva
+- Governanca: SPEC completa, 1 round de critica, ADR opcional
+
+**Classe C — mudanca estrutural.**
+- >500 linhas de codigo OU refactor transversal OU novo subsistema
+- Multiplos modulos afetados
+- Governanca: SPEC extensa, ate 2 rounds, ADR obrigatorio,
+  consultor externo (ChatGPT) opcional
+
+A classe é declarada explicitamente no cabeçalho da spec. O Claude
+Code valida no Gate 0 se a classe declarada corresponde ao escopo
+real — divergência força reclassificação antes de prosseguir.
+
+Referência narrativa: `docs/governance/SPEC-PROCESS-v2.md#regra-4`
+
+Template de classificação: `docs/governance/templates/TEMPLATE-classe-impacto.md`
+
+## Observação operacional — contexto histórico e lição aprendida
+
+As REGRAs ORQ-21 a ORQ-24 foram motivadas pelo hotfix IS (2026-04-21),
+que passou por 3 ciclos formais de spec (v1.0, v1.1, v1.2) quando era
+Classe A cirúrgica — deveria ter passado por 1 ciclo apenas.
+
+O hotfix IS é mantido como **case de estudo narrativo** em
+`docs/governance/SPEC-PROCESS-v2.md#caso-estudo-hotfix-is` — sem
+reclassificação retroativa.
+
+**Lição operacional registrada 2026-04-22 (durante implementação do P1):**
+Antes de adicionar nova REGRA-ORQ-NN ao governance.md, o Orquestrador
+DEVE executar `grep -E "^## REGRA-ORQ-" .claude/rules/governance.md`
+para confirmar o próximo número livre. A primeira versão deste append
+(PR #829 commit 1efd36d) usou ORQ-19 a ORQ-22 indevidamente —
+colidindo com ORQ-19 e ORQ-20 já existentes. Correção via force-push
+renumerou para ORQ-21 a ORQ-24.

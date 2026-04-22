@@ -1,0 +1,63 @@
+{
+  "id": "HOTFIX-IS-v1.2",
+  "title": "Hotfix IS: Gate de Elegibilidade por operationType (trilha paralela)",
+  "approved_by": "Uires Tapajos",
+  "approved_at": "2026-04-21T00:00:00Z",
+  "approval_path": "Caminho C (SPEC delta cirurgico) + Opcao D (Q9 em auditoria) + Caminho beta (trilha paralela, sem tocar APPROVED_SPEC.json principal)",
+  "specs": [
+    {
+      "id": "HOTFIX-IS-SPEC-v1.2",
+      "title": "Hotfix IS: Gate de Elegibilidade por operationType (SPEC amendment v1.2)",
+      "spec_path": "docs/specs/SPEC-HOTFIX-IS-v1.2.md",
+      "hash": "80176084429aa615de8fa02ba1c4b096706e4172200e3093221f36a5316b70b9",
+      "status": "APPROVED",
+      "supersedes_partial": ["SPEC-HOTFIX-IS-v1.1", "SPEC-HOTFIX-IS-v1.0"],
+      "notes": "Delta cirurgico: P2 residual (cast contraditorio) + Q2 (user_id sintetico). Demais ajustes via prompt F3 ao Claude Code. Q9 registrada em artefato de auditoria separado, nao em spec."
+    },
+    {
+      "id": "HOTFIX-IS-CONTRATO-v1.2",
+      "title": "Hotfix IS: Contrato tecnico de isCategoryAllowed (v1.2)",
+      "spec_path": "docs/specs/CONTRATO-TECNICO-isCategoryAllowed-v1.2.ts",
+      "hash": "9cd96bed337eab907c46d12cedb34b90583f1d2e866dbcf1e4cb61ab0b10d64f",
+      "status": "APPROVED",
+      "supersedes_partial": ["CONTRATO-TECNICO-isCategoryAllowed-v1.1", "CONTRATO-TECNICO-isCategoryAllowed-v1.0"],
+      "notes": "Contrato normativo para implementacao pelo Claude Code. Assinaturas, tabela ELIGIBILITY_TABLE, pseudo-codigo do caller."
+    },
+    {
+      "id": "HOTFIX-IS-ADR-0030-v1.1",
+      "title": "ADR-0030 v1.1: Hotfix IS elegibilidade por operationType (amendment)",
+      "spec_path": "docs/adr/ADR-0030-hotfix-is-elegibilidade-por-operationtype-v1.1.md",
+      "hash": "262f14e178dcc99fc4751b885e2af23dbfee0cc02986858d2652f26bb4396e7e",
+      "status": "APPROVED",
+      "supersedes_partial": ["ADR-0030-hotfix-is-elegibilidade-por-operationtype"],
+      "notes": "Amendment sobre ADR v1.0: D-5 reforco trigger OBS-4, D-6 agro passa a BLOCKED, D-7 ampliado, D-8 LIM-1 a LIM-5 declaradas. v1.2 da SPEC NAO requer amendment do ADR."
+    }
+  ],
+  "history": [
+    {
+      "version": "v1.0",
+      "hash_spec": "fe3d70b991eb67a705177f41e643dc9b97d0593d55770301fec405f08a6a9da3",
+      "hash_adr": "710a1551050aee83f4c82b294b320092ab16d1bdcc30460a0313af746ca2bda5",
+      "hash_contract": "ed3bce8dc87b4f07f7fb9e9728df8a8baa746a06e56182372b28342059cfe9ec",
+      "status": "SUPERSEDED_PARTIAL",
+      "note": "Primeira versao. Substituida por v1.1 apos critica do Claude Code em 2026-04-21."
+    },
+    {
+      "version": "v1.1",
+      "hash_spec": "1c181ac0338d0604b71362ac41e5681b15c5378ab205d2d9c52d3d66b57ea13f",
+      "hash_adr": "262f14e178dcc99fc4751b885e2af23dbfee0cc02986858d2652f26bb4396e7e",
+      "hash_contract": "80b548d2aa3a24f0962d8f699108b432943f9e46d6d92592d2000137f8492185",
+      "status": "SPEC_SUPERSEDED_PARTIAL_ADR_IN_FORCE",
+      "note": "Incorpora 12 criticas do Claude Code (E1-E3, D1-D5, P1-P5). SPEC substituida parcialmente por v1.2. ADR v1.1 permanece em vigor."
+    },
+    {
+      "version": "v1.2",
+      "hash_spec": "80176084429aa615de8fa02ba1c4b096706e4172200e3093221f36a5316b70b9",
+      "hash_contract": "9cd96bed337eab907c46d12cedb34b90583f1d2e866dbcf1e4cb61ab0b10d64f",
+      "status": "APPROVED_CURRENT",
+      "note": "Delta cirurgico: P2 residual + Q2. Politica Caminho C aprovada. Ultima versao formal da SPEC. Ajustes adicionais via prompt F3 ao Claude Code."
+    }
+  ],
+  "validation_note": "Este arquivo NAO e consumido por scripts/validate-governance.sh (schema v1 le apenas governance/APPROVED_SPEC.json). Hash-lock e convencao humana e evidencia de trilha, nao gate automatizado. Migracao para validacao automatica fica em backlog (issue P2 separada).",
+  "backlog_ref": "Migrar validate-governance.sh para consumir APPROVED_SPEC-*.json ou consolidar schema v2 — backlog P2 pos-hotfix"
+}
