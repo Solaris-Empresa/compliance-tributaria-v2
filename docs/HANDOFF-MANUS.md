@@ -25,7 +25,36 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-18)
+## Estado atual do projeto (2026-04-22 — sessão parte 2)
+- BASELINE **v7.58** — Hotfix IS v2.1 em produção · Sprint Z-22 em andamento
+- **HEAD github/main: `58d490c4`** · **Checkpoint Manus:** `f6dea0ae`
+- **PRs mergeados nesta sessão:** #826 (Hotfix IS v1.2) · #840 (Hotfix IS v2) · #841 (Hotfix IS v2.1)
+- **Issues de governança criadas:** #820 (issue-mãe Padrão A) · #821 · #822 · #823 (sub-issues) · #824 (Padrão B) · #825 (Checklist)
+- **Incidente IS encerrado:** risco `imposto_seletivo` bloqueado para `servicos`/`servico` no engine v4 ✅
+- **Gate IS v2.1:** `isCategoryAllowed` em `consolidateRisks` (risk-engine-v4.ts) + normalização `servico→servicos` + fallback `enquadramento_geral`
+- **Migration 0089:** INSERT `enquadramento_geral` em `risk_categories` aplicado ✅
+- **FK risks_v4.categoria:** `enquadramento_geral` aceito pelo banco ✅
+- **eligibility_audit_log:** tabela NÃO existe no banco — `insertEligibilityAuditLog` é fire-and-forget (falha silenciosa). Backlog: criar migration.
+- **Sandbox main local:** sincronizado com github/main `58d490c4`
+- **TypeScript:** 12 erros preexistentes em `routers-fluxo-v3.ts` (briefing-quality/briefing-sanitizer) — não introduzidos nesta sessão
+- **Regra operacional vigente:** Executar somente o listado no prompt. NÃO agregar entregas adicionais. Reportar sugestões como backlog.
+- DIAGNOSTIC_READ_MODE: `shadow` (NÃO alterar)
+- Branch protection: ativa
+
+### Histórico de deploys (sessão 2026-04-22)
+| Commit | PR | Deploy ID | Status |
+|---|---|---|---|
+| `871cbe84` | #826 Hotfix IS v1.2 | `09e1c4f5` | ✅ produção |
+| `8cf303d7` | #840 Hotfix IS v2 | `60a4b089` | ✅ produção |
+| `58d490c4` | #841 Hotfix IS v2.1 | `f6dea0ae` | ✅ produção |
+
+### Backlog identificado (não agir sem autorização)
+- [ ] Criar migration para tabela `eligibility_audit_log`
+- [ ] Resolver divergência sandbox main local (tag backup `backup/main-pre-sync-20260421-230108` preservada)
+- [ ] Corrigir trigger `smoke-post-deploy.yml` (deployment_status não dispara na plataforma Manus)
+- [ ] Criar `drizzle/downs/0089_down.sql`
+
+## Estado anterior do projeto (2026-04-18)
 - BASELINE **v7.12** — Sprint Z-21 ENCERRADA · Sprint Z-22 INICIADA
 - **HEAD: `48a3dda` (github/main)** · **Checkpoint Manus:** `6e196d3c`
 - **PRs mergeados:** 726 · **TypeScript:** 0 erros · **Unit tests:** 1717 passed / 9 skipped (1 falha conhecida: b-z11-012-evidence)
