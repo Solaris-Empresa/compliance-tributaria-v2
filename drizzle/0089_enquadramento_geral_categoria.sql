@@ -1,3 +1,21 @@
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Migration 0089 — Registra enquadramento_geral como categoria canônica
+-- Origem: corrige regressão P0 do PR #840 (downgrade_to inválido)
+--
+-- IMPORTANTE — arquitetura atual de categorias:
+--   risks_v4.categoria é VARCHAR(100) com FK para risk_categories.codigo
+--   NÃO é enum DB. Statement 1 (ALTER TABLE ENUM) é defensivo/futuro:
+--   se o schema evoluir para enum DB, o comando já estará registrado.
+--   No banco atual, ALTER ENUM é no-op (silenciosamente ignorado).
+--
+--   Statement 2 (INSERT em risk_categories) é o statement FUNCIONAL
+--   deste hotfix. A FK fk_risks_v4_categoria consulta risk_categories.codigo,
+--   então basta a row existir para que INSERT com categoria='enquadramento_geral'
+--   seja aceito pela FK.
+--
+-- DOWN: drizzle/downs/0089_down.sql
+-- ═══════════════════════════════════════════════════════════════════════════
+
 -- Migration 0089 — Hotfix IS v2.1 (correcao de regressao pos-PR #840)
 -- ADR-0030 v1.1 (amendment 2026-04-22 — 2 adição Opção A)
 --
