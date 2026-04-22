@@ -25,10 +25,10 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-18)
-- BASELINE **v7.12** — Sprint Z-21 ENCERRADA · Sprint Z-22 INICIADA
-- **HEAD: `48a3dda` (github/main)** · **Checkpoint Manus:** `6e196d3c`
-- **PRs mergeados:** 726 · **TypeScript:** 0 erros · **Unit tests:** 1717 passed / 9 skipped (1 falha conhecida: b-z11-012-evidence)
+## Estado atual do projeto (2026-04-22)
+- BASELINE **v7.57** — Sprint Z-22 em andamento · Hotfix IS v1.2 em review (PR #826)
+- **HEAD: `49208cb` (github/main)** · **Checkpoint Manus:** `1f84aef0`
+- **PRs mergeados:** 826 (PR #826 = hotfix IS — aguardando merge) · **TypeScript:** 0 erros · **Unit tests:** 1717+ passed
 - **Bundle:** ~1.4MB gzipado (vendor 761KB) — redução de 63% vs baseline Z-20
 - **streamdown:** REMOVIDA (PR #726) → `MarkdownRenderer.tsx` (react-markdown + remark-gfm)
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade
@@ -45,6 +45,37 @@ Drizzle ORM / Vitest / pnpm
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
 - **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · Z-14 ✅ (16 issues) · Z-15 Lote A ✅ · Z-16 ✅ (9/9 issues) · Z-17 ✅ · Z-18 ✅ (3/3 issues) · **Z-19 ✅** · **Z-20 ✅** · **Z-21 ✅ (bundle -63% + streamdown removido)**
 - **Sprint Z-22 INICIADA:** Issue #725 · Milestone #20 · Dashboard Compliance v3 on-demand [P0] · SPEC 573 linhas
+
+### Sessão 2026-04-22 — Governança + Review PR #826
+
+**Issues de governança criadas (despacho Orquestrador 2026-04-21):**
+| Issue | Título | Labels |
+|---|---|---|
+| #820 | [BACKLOG] Padrão A estrutural — issue-mãe | backlog, padrao-a, risk-categorizer, epic:rag-arquetipo |
+| #821 | [BACKLOG] regime_diferenciado — falso positivo por keyword setorial | backlog, padrao-a, risk-categorizer |
+| #822 | [BACKLOG] aliquota_zero — falso positivo por menção a isenção sem NCM/NBS | backlog, padrao-a, risk-categorizer |
+| #823 | [BACKLOG] aliquota_reduzida — falso positivo por menção a redução sem NCM/NBS | backlog, padrao-a, risk-categorizer |
+| #824 | [BACKLOG] Padrão B estrutural — ordem posicional frágil | backlog, padrao-b, risk-categorizer |
+| #825 | [GOVERNANCE] Checklist para novas regras de categorização de risco | governance, risk-categorizer, padrao-prevencao |
+
+**Review operacional PR #826 (Hotfix IS v1.2 — autor: Claude Code):**
+- HEAD verificado: `44df7a17` ✅ (3 commits: governance → red test → fix)
+- Hashes 4 artefatos: todos batem ✅
+- Caminho β: `APPROVED_SPEC.json` e `validate-governance.sh` intocados ✅
+- tsc --noEmit: exit 0, 0 erros ✅
+- Testes: 55/55 verdes (risk-eligibility 24 · z02b 14 · riskEngine 17 · g17b 6) ✅
+- Diff: exatamente 8 arquivos esperados, zero scope violation ✅
+- Smoke assertions: todas 6 verdadeiras ✅
+- **Recomendação Manus: PASS** — aguardando decisão P.O. de marcar "Ready for review"
+
+**Higiene de sandbox:**
+- Diagnóstico: main local 143 commits ahead / 315 behind de github/main
+- Tag de backup criada: `backup/main-pre-sync-20260421-230108` → SHA `1f84aef0`
+- Decisão P.O.: ESCALATE aceito — reset destrutivo NÃO autorizado nesta etapa
+- Divergência em backlog para tratamento futuro
+
+**Regra operacional vigente (registrada pelo P.O.):**
+> "Executar somente o que está listado no prompt. NÃO agregar entregas adicionais mesmo que pareçam úteis. Se algo valioso surgir durante execução, REPORTAR ao Orquestrador como sugestão de backlog — nunca entregar sem autorização explícita."
 
 ### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |
