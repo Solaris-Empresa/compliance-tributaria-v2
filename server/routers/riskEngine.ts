@@ -16,6 +16,10 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import mysql from "mysql2/promise";
 import { categorizeRisk } from "../lib/risk-categorizer";
+import {
+  isCategoryAllowed,
+  insertEligibilityAuditLog,
+} from "../lib/risk-eligibility";
 
 // ---------------------------------------------------------------------------
 // Schemas públicos (exportados para testes)
@@ -329,7 +333,9 @@ function getPool(): mysql.Pool {
 export async function deriveRisksFromGaps(
   projectId: number,
   porte: string | null,
-  regime: string | null
+  regime: string | null,
+  operationType?: string | null,
+  ctxUser?: { id: number; name: string; role: string }
 ): Promise<DerivedRisk[]> {
   const db = getPool();
 
@@ -397,6 +403,30 @@ export async function deriveRisksFromGaps(
       : gap.gap_source === 'iagen' ? 'iagen'
       : gap.gap_source === 'engine' ? 'engine'
       : 'v1';
+    // Hotfix IS v1.2 — gate de elegibilidade por operationType
+    const categoriaSugerida = categorizeRisk({
+      description: effectiveDescription,
+      lei_ref: gap.req_source_reference || gap.gap_source_reference || null,
+      topicos: gap.topicos || null,
+      domain: effectiveDomain,
+      category: mapDomainToTaxonomy(effectiveDomain, effectiveGapType, effectiveDescription).category,
+      type: mapDomainToTaxonomy(effectiveDomain, effectiveGapType, effectiveDescription).type,
+    });
+    const eligibility = isCategoryAllowed(categoriaSugerida, operationType ?? null);
+
+    const fullAuditMode = process.env.ELIGIBILITY_AUDIT_MODE === "full";
+    if (ctxUser && (fullAuditMode || eligibility.reason !== null)) {
+      void insertEligibilityAuditLog(
+        projectId,
+        eligibility,
+        operationType ?? null,
+        ctxUser.id,
+        ctxUser.name,
+        ctxUser.role,
+        gap.gap_id != null ? String(gap.gap_id) : undefined,
+      );
+    }
+
     risks.push({
       gap_id: gap.gap_id,
       requirement_id: gap.requirement_id || null,
@@ -412,15 +442,8 @@ export async function deriveRisksFromGaps(
       description: `Risco ${score.severity} identificado: ${effectiveDescription || 'gap sem descrição'}`,
       mitigation_hint: `Regularizar ${effectiveGapType} referente a ${gap.req_source_reference || gap.gap_source_reference || 'requisito aplicável'}`,
       fonte_risco: fonteRisco,
-      // Z-02b: categoria canônica da LC 214/2025
-      categoria: categorizeRisk({
-        description: effectiveDescription,
-        lei_ref: gap.req_source_reference || gap.gap_source_reference || null,
-        topicos: gap.topicos || null,
-        domain: effectiveDomain,
-        category: mapDomainToTaxonomy(effectiveDomain, effectiveGapType, effectiveDescription).category,
-        type: mapDomainToTaxonomy(effectiveDomain, effectiveGapType, effectiveDescription).type,
-      }),
+      // Z-02b + Hotfix IS v1.2: categoria canônica com gate de elegibilidade aplicado
+      categoria: eligibility.final,
       // Z-12: rastreabilidade nível 2 — FK para risk_categories.codigo
       risk_category_code: gap.risk_category_code || null,
     });
@@ -578,7 +601,7 @@ export const riskEngineRouter = router({
 
       // Buscar dados do projeto para o scoring contextual
       const [projects] = await db.query<mysql.RowDataPacket[]>(
-        "SELECT companySize, taxRegime, confirmedCnaes FROM projects WHERE id = ?",
+        "SELECT companySize, taxRegime, confirmedCnaes, operationProfile FROM projects WHERE id = ?",
         [input.projectId]
       );
 
@@ -593,8 +616,32 @@ export const riskEngineRouter = router({
         ? project.confirmedCnaes
         : (project.confirmedCnaes ? JSON.parse(project.confirmedCnaes) : []);
 
+      // Hotfix IS v1.2 — extrair operationType do operationProfile (dual-schema: operationType | tipoOperacao)
+      const opProfile: Record<string, unknown> =
+        project.operationProfile == null
+          ? {}
+          : typeof project.operationProfile === "string"
+            ? (JSON.parse(project.operationProfile) as Record<string, unknown>)
+            : (project.operationProfile as Record<string, unknown>);
+      const operationType: string | null =
+        (opProfile.operationType as string | undefined) ??
+        (opProfile.tipoOperacao as string | undefined) ??
+        null;
+
+      const ctxUser = {
+        id: ctx.user.id,
+        name: ctx.user.name ?? ctx.user.email ?? "unknown",
+        role: ctx.user.role ?? "user",
+      };
+
       // 1. Derivar riscos dos gaps
-      const gapRisks = await deriveRisksFromGaps(input.projectId, porte, regime);
+      const gapRisks = await deriveRisksFromGaps(
+        input.projectId,
+        porte,
+        regime,
+        operationType,
+        ctxUser,
+      );
 
       // 2. Gerar riscos contextuais
       const contextualRisks = generateContextualRisks({
