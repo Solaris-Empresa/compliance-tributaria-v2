@@ -1,0 +1,86 @@
+{
+  "id": "PLATFORM-AUTOMATION-v2",
+  "title": "Platform Automation v2 — governança + automações pré-Arquetipo",
+  "approved_by": "Uires Tapajos",
+  "approved_at": "2026-04-22T00:00:00Z",
+  "approval_path": "Caminho 1 (escopo completo) + Opção Y (aplicação direta de Classe A ao P1) + Caminho 1 de correção (renumerar para ORQ-21 a ORQ-24 + force-push no PR #829)",
+  "parent_epic": null,
+  "next_epic": "Epic RAG com Arquetipo (M1-M8)",
+  "milestones_planned": [
+    {
+      "id": "P1",
+      "status": "APPROVED_CURRENT",
+      "title": "Regras 1-4 (REGRA-ORQ-21 a ORQ-24) — formalização SPEC-PROCESS-v2"
+    },
+    {
+      "id": "P2",
+      "status": "PLANNED",
+      "title": "Automação #1 — label precisa-review-operacional dispara Manus via webhook"
+    },
+    {
+      "id": "P3",
+      "status": "PLANNED",
+      "title": "Automação #4 — slash-commands /orq * em comentários GitHub"
+    }
+  ],
+  "specs": [
+    {
+      "id": "P1-APPEND-GOVERNANCE",
+      "title": "Append de REGRA-ORQ-21 a ORQ-24 ao governance.md",
+      "spec_path": ".claude/rules/governance.md",
+      "hash": "6815f768d6d1ae9f459b4fa2e33f87cd06e3acdd294762c48e5677c3d3f568a6",
+      "hash_pre_append": "026ef050012664e5bb9141c86a099d5463fe36b094d29a37b40b16db073a92da",
+      "status": "APPROVED",
+      "notes": "Hash pos-append do arquivo final. Claude Code deve: (1) reset no branch para origin/main (descartar commit anterior com numeração errada), (2) validar hash pre-append, (3) anexar conteudo de APPEND-governance-md-orq21-24.md, (4) validar hash final apos anexacao."
+    },
+    {
+      "id": "P1-SPEC-PROCESS-v2",
+      "title": "Documento narrativo SPEC-PROCESS-v2",
+      "spec_path": "docs/governance/SPEC-PROCESS-v2.md",
+      "hash": "685def973079ab7ea8d4fbccef501dfdc30c5aa31d7fef4635895f653ec04ef5",
+      "status": "APPROVED",
+      "notes": "Documento vivo com racional, exemplos, caso de estudo do hotfix IS. Referências REGRA-ORQ-21 a ORQ-24."
+    },
+    {
+      "id": "P1-TEMPLATE-CRITICA-3-NIVEIS",
+      "title": "Template de crítica em 3 níveis",
+      "spec_path": "docs/governance/templates/TEMPLATE-critica-3-niveis.md",
+      "hash": "9765632dbb48b292bdcd47075b8baf182167abd5fb4e97212c42d3e50492dcda",
+      "status": "APPROVED",
+      "notes": "Template imperativo para Claude Code usar ao criticar specs. Formato tabular obrigatorio. Referência REGRA-ORQ-22."
+    },
+    {
+      "id": "P1-TEMPLATE-CLASSE-IMPACTO",
+      "title": "Template de classificação de classe de impacto A/B/C",
+      "spec_path": "docs/governance/templates/TEMPLATE-classe-impacto.md",
+      "hash": "fa6851251ee1f41c9dbda8e79ee4314b150ac907c147fd539c58872d532db3f4",
+      "status": "APPROVED",
+      "notes": "Template para Orquestrador classificar specs no ato de criacao. Validado pelo Claude Code no Gate 0. Referência REGRA-ORQ-24."
+    }
+  ],
+  "history": [
+    {
+      "version": "1.0",
+      "applied_at": "2026-04-22T00:00:00Z",
+      "method": "Opção Y (aplicação direta de Classe A — sem spec formal prévia)",
+      "status": "SUPERSEDED_POR_COLISAO_DE_NUMERACAO",
+      "rationale": "Primeira tentativa usou ORQ-19 a ORQ-22 sem validar que ORQ-19 e ORQ-20 já existiam em main. Colisão detectada pelo Orquestrador em auditoria pós-PR #829 commit 1efd36d.",
+      "note": "Hashes descartados. Trilha preservada aqui para rastreabilidade."
+    },
+    {
+      "version": "1.1",
+      "applied_at": "2026-04-22T00:00:00Z",
+      "method": "Correção via renumeração ORQ-19→ORQ-21, ORQ-20→ORQ-22, ORQ-21→ORQ-23, ORQ-22→ORQ-24 + force-push no PR #829",
+      "status": "APPROVED_CURRENT",
+      "rationale": "Correção aprovada pelo P.O. como Caminho 1 (renumeração). Lição registrada em governance.md — validação obrigatória de próximo número livre antes de adicionar REGRA-ORQ-NN.",
+      "note": "Aplicação empírica das Regras 1-4 funcionou — erro foi detectado na auditoria pós-reporte antes do merge, não em produção. Processo de correção tomou 1 ciclo de desbloqueio."
+    }
+  ],
+  "validation_note": "Este arquivo NAO e consumido por scripts/validate-governance.sh (schema v1 le apenas governance/APPROVED_SPEC.json). Hash-lock e convencao humana e evidencia de trilha, nao gate automatizado. Padrao Caminho beta estabelecido em 2026-04-21 durante hotfix IS.",
+  "backlog_ref": [
+    "Migrar validate-governance.sh para consumir APPROVED_SPEC-*.json ou consolidar schema v2 — backlog P2 geral (não P2 deste epic)",
+    "Portabilidade Windows — adicionar .gitattributes + normalizar EOL — backlog P3"
+  ],
+  "schema_version": 2,
+  "last_updated": "2026-04-22T00:00:00Z"
+}
