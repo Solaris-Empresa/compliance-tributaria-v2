@@ -8,6 +8,7 @@
 import { describe, it, expect } from "vitest";
 import { categorizeRisk, assertCategoria } from "./lib/risk-categorizer";
 import { DerivedRiskSchema } from "./routers/riskEngine";
+import { isCategoryAllowed } from "./lib/risk-eligibility";
 
 // ---------------------------------------------------------------------------
 // Caso 1: Gap com topicos "imposto seletivo" → categoria = "imposto_seletivo"
@@ -186,5 +187,25 @@ describe("DerivedRiskSchema — Caso 5: campo categoria integrado", () => {
     expect(() => assertCategoria(null, "RISK-003")).toThrow(
       "[risk-categorizer] Risco sem categoria: RISK-003"
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// RED TEST — Hotfix IS v1.2: bug imposto_seletivo para transportadora
+// SPEC: docs/specs/SPEC-HOTFIX-IS-v1.2.md
+// ADR:  docs/adr/ADR-0030-hotfix-is-elegibilidade-por-operationtype-v1.1.md
+// ---------------------------------------------------------------------------
+describe("RED TEST — bug imposto_seletivo para transportadora (hotfix v1.2)", () => {
+  it("[LIM-1:corrigido-para-servicos] transportadora de combustível NÃO deve receber imposto_seletivo", () => {
+    const suggested = categorizeRisk({
+      description: "Gap sobre veículo e combustível identificado",
+      topicos: null,
+    });
+    expect(suggested).toBe("imposto_seletivo");
+
+    const eligibility = isCategoryAllowed(suggested, "servicos");
+    expect(eligibility.allowed).toBe(false);
+    expect(eligibility.final).toBe("enquadramento_geral");
+    expect(eligibility.reason).toBe("sujeito_passivo_incompativel");
   });
 });
