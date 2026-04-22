@@ -8,6 +8,12 @@ import {
   type RiskCategory,
 } from "./db-queries-risk-categories";
 import type { InsertRiskV4 } from "./db-queries-risks-v4";
+// Hotfix IS v1.2.1 — gate de elegibilidade por operationType no engine v4
+import {
+  isCategoryAllowed,
+  insertEligibilityAuditLog,
+} from "./risk-eligibility";
+import type { CategoriaCanonica } from "./risk-categorizer";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -324,7 +330,29 @@ export async function consolidateRisks(
   const results: InsertRiskV4[] = [];
 
   for (const [riskKey, groupGaps] of grouped) {
-    const categoria = groupGaps[0].categoria;
+    const suggestedCategoria = groupGaps[0].categoria;
+
+    // Hotfix IS v1.2.1 — gate de elegibilidade por operationType
+    const eligibility = isCategoryAllowed(
+      suggestedCategoria as CategoriaCanonica,
+      context.tipoOperacao,
+    );
+    const auditMode = process.env.ELIGIBILITY_AUDIT_MODE === "full";
+    if (auditMode || eligibility.reason !== null) {
+      insertEligibilityAuditLog(
+        projectId,
+        eligibility,
+        context.tipoOperacao,
+        actorId,
+        String(actorId),
+        "user",
+        riskKey,
+      ).catch(() => {});
+    }
+
+    const categoria = eligibility.final;
+    const effectiveRiskKey =
+      categoria === suggestedCategoria ? riskKey : buildRiskKey(categoria, context);
 
     // Try DB category first, fallback to SEVERITY_TABLE
     let catSeverity: Severity;
@@ -360,7 +388,7 @@ export async function consolidateRisks(
 
     results.push({
       project_id: projectId,
-      rule_id: riskKey,
+      rule_id: effectiveRiskKey,
       type: catTipo,
       categoria: categoria as import("./db-queries-risks-v4").CategoriaV4,
       titulo,
@@ -369,10 +397,10 @@ export async function consolidateRisks(
       severidade: maxSev as import("./db-queries-risks-v4").SeveridadeV4,
       urgencia: catUrgency as import("./db-queries-risks-v4").UrgenciaV4,
       evidence: consolidatedEvidence,
-      breadcrumb: [bestSource, categoria, catArtigo, riskKey],
+      breadcrumb: [bestSource, categoria, catArtigo, effectiveRiskKey],
       source_priority: bestSource as import("./db-queries-risks-v4").SourcePriorityV4,
       confidence,
-      risk_key: riskKey,
+      risk_key: effectiveRiskKey,
       operational_context: context,
       evidence_count: evidences.length,
       rag_validated: 0,

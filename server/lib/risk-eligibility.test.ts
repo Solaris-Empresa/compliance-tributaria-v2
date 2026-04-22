@@ -195,3 +195,36 @@ describe("EligibilityResult — forma do resultado", () => {
     expect(r.reason).toBe("operation_type_ausente");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Hotfix v1.2.1 — aliases privados (servico → servicos)
+// ---------------------------------------------------------------------------
+describe("isCategoryAllowed — aliases (hotfix v1.2.1)", () => {
+  it("servicos (canônico) → bloqueia IS com downgrade", () => {
+    const r = isCategoryAllowed("imposto_seletivo", "servicos");
+    expect(r.allowed).toBe(false);
+    expect(r.final).toBe("enquadramento_geral");
+    expect(r.reason).toBe("sujeito_passivo_incompativel");
+  });
+
+  it("servico (alias singular) → normalizado para servicos, bloqueia IS", () => {
+    const r = isCategoryAllowed("imposto_seletivo", "servico");
+    expect(r.allowed).toBe(false);
+    expect(r.final).toBe("enquadramento_geral");
+    expect(r.reason).toBe("sujeito_passivo_incompativel");
+  });
+
+  it("industria → permite IS (sem regressão)", () => {
+    const r = isCategoryAllowed("imposto_seletivo", "industria");
+    expect(r.allowed).toBe(true);
+    expect(r.final).toBe("imposto_seletivo");
+    expect(r.reason).toBe(null);
+  });
+
+  it("comercio → permite IS (sem regressão)", () => {
+    const r = isCategoryAllowed("imposto_seletivo", "comercio");
+    expect(r.allowed).toBe(true);
+    expect(r.final).toBe("imposto_seletivo");
+    expect(r.reason).toBe(null);
+  });
+});

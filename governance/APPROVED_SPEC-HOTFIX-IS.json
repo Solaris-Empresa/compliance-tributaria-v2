@@ -25,12 +25,22 @@
     },
     {
       "id": "HOTFIX-IS-ADR-0030-v1.1",
-      "title": "ADR-0030 v1.1: Hotfix IS elegibilidade por operationType (amendment)",
+      "title": "ADR-0030 v1.1: Hotfix IS elegibilidade por operationType (amendment inline 2026-04-22)",
       "spec_path": "docs/adr/ADR-0030-hotfix-is-elegibilidade-por-operationtype-v1.1.md",
-      "hash": "262f14e178dcc99fc4751b885e2af23dbfee0cc02986858d2652f26bb4396e7e",
+      "hash": "9e89bbfeebd965de5957020ec482d8e43242b039255a51076c1108211d69617c",
+      "hash_previous": "262f14e178dcc99fc4751b885e2af23dbfee0cc02986858d2652f26bb4396e7e",
       "status": "APPROVED",
       "supersedes_partial": ["ADR-0030-hotfix-is-elegibilidade-por-operationtype"],
-      "notes": "Amendment sobre ADR v1.0: D-5 reforco trigger OBS-4, D-6 agro passa a BLOCKED, D-7 ampliado, D-8 LIM-1 a LIM-5 declaradas. v1.2 da SPEC NAO requer amendment do ADR."
+      "notes": "Amendment inline 2026-04-22: correcao de caller (v3 legado -> v4 engine) + alias servico->servicos. Politica fechada: amendments entram inline no v1.1, sem criar v1.2. Hash mudou de 262f14e1... para 9e89bbfe..."
+    },
+    {
+      "id": "HOTFIX-IS-CONTRATO-v1.2.1",
+      "title": "Hotfix IS: Contrato tecnico de isCategoryAllowed (v1.2.1 - correcao de caller)",
+      "spec_path": "docs/specs/CONTRATO-TECNICO-isCategoryAllowed-v1.2.1.ts",
+      "hash": "887dfca7f385ae78fe9f073270be1c56d10c9ff24f635e5709b55067da924273",
+      "status": "APPROVED",
+      "supersedes_partial": ["HOTFIX-IS-CONTRATO-v1.2"],
+      "notes": "Contrato v1.2.1 cirurgico: (1) aliases privados OPERATION_TYPE_ALIASES {servico->servicos} em risk-eligibility.ts; (2) gate aplicado em risk-engine-v4.ts consolidateRisks (caller efetivo em runtime). SPEC v1.2 (80176084...) permanece intocada."
     }
   ],
   "history": [
@@ -54,8 +64,16 @@
       "version": "v1.2",
       "hash_spec": "80176084429aa615de8fa02ba1c4b096706e4172200e3093221f36a5316b70b9",
       "hash_contract": "9cd96bed337eab907c46d12cedb34b90583f1d2e866dbcf1e4cb61ab0b10d64f",
+      "status": "SUPERSEDED_PARTIAL",
+      "note": "Delta cirurgico: P2 residual + Q2. SPEC v1.2 permanece intocada como formal. Contrato superado por v1.2.1 apos UAT 2026-04-22 identificar caller inativo (v3 legado)."
+    },
+    {
+      "version": "v2",
+      "hash_spec": "80176084429aa615de8fa02ba1c4b096706e4172200e3093221f36a5316b70b9",
+      "hash_contract": "887dfca7f385ae78fe9f073270be1c56d10c9ff24f635e5709b55067da924273",
+      "hash_adr": "9e89bbfeebd965de5957020ec482d8e43242b039255a51076c1108211d69617c",
       "status": "APPROVED_CURRENT",
-      "note": "Delta cirurgico: P2 residual + Q2. Politica Caminho C aprovada. Ultima versao formal da SPEC. Ajustes adicionais via prompt F3 ao Claude Code."
+      "note": "Hotfix IS v2 (post-UAT 2026-04-22): correcao de caller (v3 -> v4 engine) + alias servico->servicos. SPEC v1.2 preservada (hash 80176084...). ADR v1.1 amended inline (hash 262f14e1 -> 9e89bbfe). Contrato v1.2.1 novo. 4+4 testes obrigatorios passando local."
     }
   ],
   "validation_note": "Este arquivo NAO e consumido por scripts/validate-governance.sh (schema v1 le apenas governance/APPROVED_SPEC.json). Hash-lock e convencao humana e evidencia de trilha, nao gate automatizado. Migracao para validacao automatica fica em backlog (issue P2 separada).",
