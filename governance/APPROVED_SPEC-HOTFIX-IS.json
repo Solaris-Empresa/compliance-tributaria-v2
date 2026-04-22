@@ -25,13 +25,14 @@
     },
     {
       "id": "HOTFIX-IS-ADR-0030-v1.1",
-      "title": "ADR-0030 v1.1: Hotfix IS elegibilidade por operationType (amendment inline 2026-04-22)",
+      "title": "ADR-0030 v1.1: Hotfix IS elegibilidade por operationType (2 amendments inline 2026-04-22)",
       "spec_path": "docs/adr/ADR-0030-hotfix-is-elegibilidade-por-operationtype-v1.1.md",
-      "hash": "9e89bbfeebd965de5957020ec482d8e43242b039255a51076c1108211d69617c",
-      "hash_previous": "262f14e178dcc99fc4751b885e2af23dbfee0cc02986858d2652f26bb4396e7e",
+      "hash": "620b0a0b435e11af9e6bb4212b4909eb8ad66b3252299174e2ae12846d8960bd",
+      "hash_previous_amendment_1": "9e89bbfeebd965de5957020ec482d8e43242b039255a51076c1108211d69617c",
+      "hash_original_v1.1": "262f14e178dcc99fc4751b885e2af23dbfee0cc02986858d2652f26bb4396e7e",
       "status": "APPROVED",
       "supersedes_partial": ["ADR-0030-hotfix-is-elegibilidade-por-operationtype"],
-      "notes": "Amendment inline 2026-04-22: correcao de caller (v3 legado -> v4 engine) + alias servico->servicos. Politica fechada: amendments entram inline no v1.1, sem criar v1.2. Hash mudou de 262f14e1... para 9e89bbfe..."
+      "notes": "2 amendments inline 2026-04-22: (1) correcao de caller v3->v4 + alias servico->servicos; (2) correcao de regressao FK - enquadramento_geral vira categoria canonica registrada (Opcao A). Politica: amendments inline no v1.1, sem criar v1.2. Hash progressao: 262f14e1 -> 9e89bbfe -> 620b0a0b."
     },
     {
       "id": "HOTFIX-IS-CONTRATO-v1.2.1",
@@ -72,8 +73,20 @@
       "hash_spec": "80176084429aa615de8fa02ba1c4b096706e4172200e3093221f36a5316b70b9",
       "hash_contract": "887dfca7f385ae78fe9f073270be1c56d10c9ff24f635e5709b55067da924273",
       "hash_adr": "9e89bbfeebd965de5957020ec482d8e43242b039255a51076c1108211d69617c",
+      "status": "SUPERSEDED_PARTIAL",
+      "note": "Hotfix IS v2 (post-UAT 2026-04-22): correcao de caller (v3 -> v4 engine) + alias servico->servicos. PR #840 mergeado em 8cf303d mas introduziu regressao FK (enquadramento_geral nao registrado). Corrigido em v2.1."
+    },
+    {
+      "version": "v2.1",
+      "hash_spec": "80176084429aa615de8fa02ba1c4b096706e4172200e3093221f36a5316b70b9",
+      "hash_contract": "887dfca7f385ae78fe9f073270be1c56d10c9ff24f635e5709b55067da924273",
+      "hash_adr": "620b0a0b435e11af9e6bb4212b4909eb8ad66b3252299174e2ae12846d8960bd",
+      "hash_migration_0089": "c58e6c3d8ecb884094fb57a494eeb1bba0ecab849bc0e64bc59c4965e86a9c78",
+      "hash_risk_engine_v4": "b8e3303980687b4fbdd1d6f2fbc6f4dd92840219035c4d3eb849c58eeb8c0802",
+      "hash_db_queries_risks_v4": "120bf6150fc5d54c699e5f2ac1d7d2b9f0aee9009126e1dcdf98b3047b4c4d8a",
+      "hash_routers_risks_v4": "b022213d2c1c9ac56cb57389d28bd30d9b64f74bcf49719a3e316a5f28c607fa",
       "status": "APPROVED_CURRENT",
-      "note": "Hotfix IS v2 (post-UAT 2026-04-22): correcao de caller (v3 -> v4 engine) + alias servico->servicos. SPEC v1.2 preservada (hash 80176084...). ADR v1.1 amended inline (hash 262f14e1 -> 9e89bbfe). Contrato v1.2.1 novo. 4+4 testes obrigatorios passando local."
+      "note": "Hotfix IS v2.1 (Opcao A - correcao de regressao FK): enquadramento_geral vira categoria canonica registrada. Migration 0089 (ALTER ENUM risks_v4.categoria + INSERT risk_categories). 3 enums TS atualizados: Categoria (risk-engine-v4.ts) + CategoriaV4 (db-queries-risks-v4.ts) + CategoriaV4Schema Zod (routers/risks-v4.ts). SPEC v1.2 e CONTRATO v1.2.1 intocados. ADR v1.1 amendment 2 inline. 67/67 testes passando local."
     }
   ],
   "validation_note": "Este arquivo NAO e consumido por scripts/validate-governance.sh (schema v1 le apenas governance/APPROVED_SPEC.json). Hash-lock e convencao humana e evidencia de trilha, nao gate automatizado. Migracao para validacao automatica fica em backlog (issue P2 separada).",

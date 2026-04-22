@@ -29,7 +29,8 @@ export type Categoria =
   | "obrigacao_acessoria"
   | "aliquota_zero"
   | "aliquota_reduzida"
-  | "credito_presumido";
+  | "credito_presumido"
+  | "enquadramento_geral"; // Hotfix v2.1 — fallback do gate de elegibilidade (downgrade_to)
 
 export type Severity = "alta" | "media" | "oportunidade";
 export type Urgency = "imediata" | "curto_prazo" | "medio_prazo";
@@ -87,6 +88,7 @@ export const SEVERITY_TABLE: Record<Categoria, { severity: Severity; urgency: Ur
   aliquota_zero:       { severity: "oportunidade", urgency: "curto_prazo" },
   aliquota_reduzida:   { severity: "oportunidade", urgency: "curto_prazo" },
   credito_presumido:   { severity: "oportunidade", urgency: "curto_prazo" },
+  enquadramento_geral: { severity: "media",        urgency: "curto_prazo" }, // v2.1 fallback
 };
 
 export const SOURCE_RANK: Record<Fonte, number> = {
@@ -239,6 +241,7 @@ const TITULO_TEMPLATES: Record<string, string> = {
   aliquota_zero: "Oportunidade de alíquota zero sobre produtos elegíveis nas operações de {op}",
   aliquota_reduzida: "Oportunidade de alíquota reduzida nas operações de {op}",
   credito_presumido: "Oportunidade de aproveitamento de crédito presumido nas operações de {op}",
+  enquadramento_geral: "Risco de enquadramento tributário nas operações de {op} — revisão recomendada",
 };
 
 export function buildRiskKey(categoria: string, ctx: OperationalContext): string {

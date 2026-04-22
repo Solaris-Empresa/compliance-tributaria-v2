@@ -74,6 +74,7 @@ const CategoriaV4Schema = z.enum([
   "aliquota_zero",
   "aliquota_reduzida",
   "credito_presumido",
+  "enquadramento_geral", // Hotfix v2.1 — migration 0089
 ]);
 
 const GapRuleSchema = z.object({
