@@ -1,0 +1,78 @@
+==============================================================
+  UI MATRIX VALIDATOR — Seção 2 regras vs matriz declarada
+==============================================================
+
+RESUMO POR CENÁRIO (matrix declarada vs regras derivadas)
+------------------------------------------------------------------------------
+T01 OK       Saude regulada - operadora de plano de saude
+T02 OK       Farmacia regulada - varejo de medicamentos
+T03 DIVERGE  Distribuidora de combustiveis
+T04 OK       Transporte rodoviario de produtos perigosos
+T05 OK       Instituicao de pagamento / fintech
+T06 OK       Trading importadora e exportadora
+T07 OK       Agronegocio produtor rural
+T08 OK       Industria quimica
+T09 OK       Comercio atacadista
+T10 OK       Prestadora de servicos de TI
+T11 OK       Industria metalurgica
+T12 OK       Industria na Zona Franca de Manaus
+T13 OK       Pequena empresa de comercio local
+T14 OK       Marketplace / plataforma digital
+T15 DIVERGE  Logistica integrada / operacao hibrida
+
+🔴 2 cenário(s) com divergência:
+
+▶ T03 — Distribuidora de combustiveis
+   [ext] declarado=true | derivado=false
+     importa=false, exporta=false, incentivado=false, regime_especial=true [regime_especial NÃO está em Seção 2 como trigger EXT]
+
+▶ T15 — Logistica integrada / operacao hibrida
+   [reg] declarado=false | strict=true | loose=false
+     AMBIGUIDADE RESOLVIDA POR MATRIZ: Interpretação B (user-first) prevalece — natureza setorial NÃO abre REG se setor_regulado=false. Caso: natureza=["Transporte"], setor=false
+
+
+==============================================================
+  COMBINAÇÕES / EDGE CASES (fora dos 15 do P.O.)
+==============================================================
+
+▶ E01 — Bloqueio multi-CNPJ: grupo econômico + análise não-1-CNPJ
+   Blocos derivados: ncm=false nbs=true terr=true cad=false reg_strict=true reg_loose=true ext=false regime_esp=true bloqueio=true
+   Expect note: {"bloqueio":true}
+
+▶ E02 — Grupo econômico mas análise 1 CNPJ (OK, não bloqueia)
+   Blocos derivados: ncm=false nbs=true terr=true cad=false reg_strict=true reg_loose=true ext=false regime_esp=true bloqueio=false
+   Expect note: {"bloqueio":false}
+
+▶ E03 — possui_bens=true mas ncms_principais vazio (conditional viola)
+   Blocos derivados: ncm=true nbs=false terr=false cad=false reg_strict=true reg_loose=true ext=false regime_esp=true bloqueio=false
+   Cond miss: ncms_principais
+   Expect note: {"cond_miss":["ncms_principais"]}
+
+▶ E04 — 3 setores sobrepostos: saúde + financeiro + tecnologia
+   Blocos derivados: ncm=false nbs=true terr=true cad=false reg_strict=true reg_loose=true ext=false regime_esp=true bloqueio=false
+   Expect note: Quantos órgãos reguladores? Subnatureza para qual setor?
+
+▶ E05 — Produto cartesiano: Saúde em ZFM (setor + território)
+   Blocos derivados: ncm=false nbs=true terr=true cad=false reg_strict=true reg_loose=true ext=true regime_esp=true bloqueio=false
+   Expect note: REG + EXT juntos (D9 produto cartesiano)
+
+▶ E06 — Empresa sem operação declarada (natureza_operacao_principal=[])
+   Blocos derivados: ncm=false nbs=false terr=true cad=false reg_strict=false reg_loose=false ext=false regime_esp=false bloqueio=false
+   Expect note: Nenhum campo estrutural populado — que bloco abre?
+
+▶ E07 — Transporte de produtos NÃO perigosos (par discriminante do T04)
+   Blocos derivados: ncm=true nbs=true terr=true cad=true reg_strict=true reg_loose=true ext=false regime_esp=false bloqueio=false
+   Expect note: Arquétipo DEVE sair diferente de T04 — mesmo CNAE base, subnatureza diferente
+
+▶ E08 — Regime especial monofásico SEM setor regulado nem ZFM
+   Blocos derivados: ncm=true nbs=false terr=true cad=false reg_strict=false reg_loose=false ext=false regime_esp=true bloqueio=false
+   Expect note: onde a UI mostra tipo_regime_especial se não há bloco dedicado?
+
+▶ E09 — Exportação sem importação (só export)
+   Blocos derivados: ncm=true nbs=false terr=true cad=false reg_strict=false reg_loose=false ext=true regime_esp=false bloqueio=false
+   Expect note: Só export — matrix case 7 (Agro) tem T7=✓, validar se aqui também
+
+▶ E10 — Marketplace que também tem produto físico (híbrido extremo)
+   Blocos derivados: ncm=true nbs=true terr=true cad=true reg_strict=false reg_loose=false ext=false regime_esp=false bloqueio=false
+   Expect note: Marketplace + estoque próprio
+

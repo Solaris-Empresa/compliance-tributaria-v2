@@ -25,39 +25,11 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-22 — sessão parte 2)
-- BASELINE **v7.58** — Hotfix IS v2.1 em produção · Sprint Z-22 em andamento
-- **HEAD github/main: `58d490c4`** · **Checkpoint Manus:** `f6dea0ae`
-- **PRs mergeados nesta sessão:** #826 (Hotfix IS v1.2) · #840 (Hotfix IS v2) · #841 (Hotfix IS v2.1)
-- **Issues de governança criadas:** #820 (issue-mãe Padrão A) · #821 · #822 · #823 (sub-issues) · #824 (Padrão B) · #825 (Checklist)
-- **Incidente IS encerrado:** risco `imposto_seletivo` bloqueado para `servicos`/`servico` no engine v4 ✅
-- **Gate IS v2.1:** `isCategoryAllowed` em `consolidateRisks` (risk-engine-v4.ts) + normalização `servico→servicos` + fallback `enquadramento_geral`
-- **Migration 0089:** INSERT `enquadramento_geral` em `risk_categories` aplicado ✅
-- **FK risks_v4.categoria:** `enquadramento_geral` aceito pelo banco ✅
-- **eligibility_audit_log:** tabela NÃO existe no banco — `insertEligibilityAuditLog` é fire-and-forget (falha silenciosa). Backlog: criar migration.
-- **Sandbox main local:** sincronizado com github/main `58d490c4`
-- **TypeScript:** 12 erros preexistentes em `routers-fluxo-v3.ts` (briefing-quality/briefing-sanitizer) — não introduzidos nesta sessão
-- **Regra operacional vigente:** Executar somente o listado no prompt. NÃO agregar entregas adicionais. Reportar sugestões como backlog.
-- DIAGNOSTIC_READ_MODE: `shadow` (NÃO alterar)
-- Branch protection: ativa
-
-### Histórico de deploys (sessão 2026-04-22)
-| Commit | PR | Deploy ID | Status |
-|---|---|---|---|
-| `871cbe84` | #826 Hotfix IS v1.2 | `09e1c4f5` | ✅ produção |
-| `8cf303d7` | #840 Hotfix IS v2 | `60a4b089` | ✅ produção |
-| `58d490c4` | #841 Hotfix IS v2.1 | `f6dea0ae` | ✅ produção |
-
-### Backlog identificado (não agir sem autorização)
-- [ ] Criar migration para tabela `eligibility_audit_log`
-- [ ] Resolver divergência sandbox main local (tag backup `backup/main-pre-sync-20260421-230108` preservada)
-- [ ] Corrigir trigger `smoke-post-deploy.yml` (deployment_status não dispara na plataforma Manus)
-- [ ] Criar `drizzle/downs/0089_down.sql`
-
-## Estado anterior do projeto (2026-04-18)
-- BASELINE **v7.12** — Sprint Z-21 ENCERRADA · Sprint Z-22 INICIADA
-- **HEAD: `48a3dda` (github/main)** · **Checkpoint Manus:** `6e196d3c`
-- **PRs mergeados:** 726 · **TypeScript:** 0 erros · **Unit tests:** 1717 passed / 9 skipped (1 falha conhecida: b-z11-012-evidence)
+## Estado atual do projeto (2026-04-23)
+- BASELINE **v7.13** — Sprint M1 pré-implementação · branch `docs/m1-arquetipo-exploracao`
+- **HEAD branch M1:** `03ca41e` (SPEC v3.1-rev1 + mockup v4.1-rev1) · **HEAD main:** `48a3dda`
+- **Checkpoint Manus:** `6e196d3c` (Sprint Z-21 FINAL) · **Checkpoint M1:** pendente (pré-implementação)
+- **PRs mergeados:** 726 · **TypeScript:** 0 erros (main) · **Unit tests:** 1717 passed / 9 skipped (1 falha conhecida: b-z11-012-evidence)
 - **Bundle:** ~1.4MB gzipado (vendor 761KB) — redução de 63% vs baseline Z-20
 - **streamdown:** REMOVIDA (PR #726) → `MarkdownRenderer.tsx` (react-markdown + remark-gfm)
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade
@@ -73,7 +45,49 @@ Drizzle ORM / Vitest / pnpm
 - **risk_categories:** 9 categorias ativas · 10 no banco (1 inativa)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
 - **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · Z-14 ✅ (16 issues) · Z-15 Lote A ✅ · Z-16 ✅ (9/9 issues) · Z-17 ✅ · Z-18 ✅ (3/3 issues) · **Z-19 ✅** · **Z-20 ✅** · **Z-21 ✅ (bundle -63% + streamdown removido)**
-- **Sprint Z-22 INICIADA:** Issue #725 · Milestone #20 · Dashboard Compliance v3 on-demand [P0] · SPEC 573 linhas
+- **Sprint Z-22:** ⏸ PAUSADA — aguarda conclusão da análise M1
+- **Sprint M1 — Pré-implementação:** 🔄 EM ANÁLISE — branch `docs/m1-arquetipo-exploracao` · 7 artefatos entregues
+
+### Sprint M1 — Artefatos entregues (branch `docs/m1-arquetipo-exploracao`)
+
+| Artefato | Arquivo | Commit | Status |
+|----------|---------|--------|---------|
+| Mockup HTML v3 | `MOCKUP_perfil_entidade_deterministico_v3.html` | `9da25fe` | ✅ |
+| Delta v3 | `M1-ARQUETIPO-FORM-DELTA-v3.md` | `9da25fe` | ✅ |
+| Mockup HTML v4 | `MOCKUP_perfil_entidade_deterministico_v4.html` | `ce6310c` | ✅ |
+| Delta v4 | `M1-ARQUETIPO-FORM-DELTA-v4.md` | `ce6310c` | ✅ |
+| Mockup HTML v4.1 | `MOCKUP_perfil_entidade_deterministico_v4_1.html` | `59290d7` | ✅ |
+| Delta v4.1 | `M1-ARQUETIPO-FORM-DELTA-v4.1.md` | `59290d7→05e3c7b` | ✅ rev1 |
+| ADR Painel Confiança | `ADR-M1-PAINEL-CONFIANCA-E-CNAES-v1.md` | `59290d7` | ✅ |
+| Contrato JSON | `CONTRATO-M1-PAINEL-CONFIANCA-v1.json` | `59290d7→05e3c7b` | ✅ rev1 |
+| README sprint | `README-sprint-mockup-v4.1.md` | `59290d7` | ✅ |
+| SPEC v3.1 DRAFT | `SPEC-v3.1-rev1-M1-PERFIL-ENTIDADE.md` | `03ca41e` | ✅ rev1 |
+| SPEC v3.1 JSON | `SPEC-v3.1-rev1-M1-PERFIL-ENTIDADE.json` | `03ca41e` | ✅ rev1 |
+
+### Regras invariantes M1 (não regredir)
+
+| Regra | Descrição |
+|-------|----------|
+| Gate E2E | `status_arquetipo = confirmado` AND sem HARD_BLOCKs — única condição |
+| Score ≠ gate | Score alto não libera o fluxo sem confirmação explícita |
+| PC-05 | Prévia exploratória — não é motor de riscos real |
+| Fórmula score | Exploratória — depende de SPEC aprovada pelo P.O. |
+| Termo UI | Apenas "Perfil da Entidade" — "arquétipo" é termo técnico interno |
+| `cnae_principal_input` | Removido permanentemente (desde v4) |
+
+### Backlog M1 pendente (não agir sem autorização P.O.)
+
+| Item | Status |
+|------|--------|
+| Algoritmo de cálculo do score (fórmula exata, pesos) | Exploratório — aguarda SPEC |
+| Inferência de CNAEs por `descricao_negocio` (lookup vs LLM) | Exploratório — aguarda SPEC |
+| Comportamento mobile do painel colapsável | Exploratório — aguarda SPEC |
+| Integração PC-05 com motor de riscos real | Fase futura |
+| Migration `eligibility_audit_log` | Aguarda aprovação P.O. |
+| `drizzle/downs/0089_down.sql` | Aguarda aprovação P.O. |
+| Resolver divergência sandbox main (tag `backup/main-pre-sync-20260421-230108`) | Aguarda P.O. |
+| Corrigir trigger `smoke-post-deploy.yml` | Aguarda P.O. |
+| Retomar Sprint Z-22 — Issue #725 (Dashboard Compliance v3) | Aguarda conclusão M1 |
 
 ### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |

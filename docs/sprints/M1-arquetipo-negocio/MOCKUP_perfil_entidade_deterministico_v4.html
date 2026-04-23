@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup — Perfil da Entidade Determinístico M1 · Delta v4</title>
+  <style>
+    :root {
+      --blue-50:#eff6ff; --blue-100:#dbeafe; --blue-200:#bfdbfe; --blue-500:#3b82f6; --blue-700:#1d4ed8; --blue-900:#1e3a8a;
+      --gray-50:#f9fafb; --gray-100:#f3f4f6; --gray-200:#e5e7eb; --gray-300:#d1d5db; --gray-400:#9ca3af; --gray-500:#6b7280; --gray-700:#374151; --gray-900:#111827;
+      --green-50:#ecfdf5; --green-100:#d1fae5; --green-500:#10b981; --green-700:#047857;
+      --amber-50:#fffbeb; --amber-100:#fef3c7; --amber-500:#f59e0b; --amber-700:#b45309;
+      --red-50:#fef2f2; --red-100:#fee2e2; --red-500:#ef4444; --red-700:#b91c1c;
+      --purple-50:#faf5ff; --purple-100:#f3e8ff; --purple-500:#a855f7; --purple-700:#7e22ce;
+      --teal-50:#f0fdfa; --teal-500:#14b8a6; --teal-700:#0f766e;
+      --indigo-50:#eef2ff; --indigo-100:#e0e7ff; --indigo-500:#6366f1; --indigo-700:#4338ca;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui,-apple-system,sans-serif; margin:0; padding:0; background:var(--gray-50); color:var(--gray-900); line-height:1.5; }
+    header { background:var(--gray-900); color:white; padding:1.5rem 2rem; }
+    header h1 { margin:0; font-size:1.25rem; font-weight:600; }
+    header p { margin:0.5rem 0 0; opacity:0.8; font-size:0.9rem; }
+    header code { background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-size:0.85em; }
+    .banner { background:var(--amber-100); color:var(--amber-700); padding:0.75rem 2rem; font-size:0.85rem; border-bottom:1px solid var(--amber-500); }
+    .delta-badge { display:inline-block; background:var(--blue-700); color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700; margin-left:0.5rem; vertical-align:middle; }
+    main { max-width:1400px; margin:0 auto; padding:2rem; }
+    .legenda { display:flex; gap:1.25rem; font-size:0.82rem; margin:0 0 2rem; padding:0.75rem 1rem; background:white; border-radius:8px; border:1px solid var(--gray-200); flex-wrap:wrap; }
+    .legenda-item { display:flex; align-items:center; gap:0.5rem; }
+    .legenda-swatch { width:14px; height:14px; border-radius:3px; border:1px solid var(--gray-200); }
+    .toc { background:white; padding:1rem 1.5rem; border-radius:8px; border:1px solid var(--gray-200); margin-bottom:2rem; }
+    .toc h2 { margin:0 0 0.5rem; font-size:0.9rem; color:var(--gray-500); text-transform:uppercase; letter-spacing:0.05em; }
+    .toc ol { margin:0; padding-left:1.25rem; font-size:0.9rem; }
+    .toc a { color:var(--blue-700); text-decoration:none; }
+    .toc a:hover { text-decoration:underline; }
+    section.state { background:white; border:1px solid var(--gray-200); border-radius:12px; padding:1.5rem; margin-bottom:2rem; box-shadow:0 1px 2px rgba(0,0,0,0.03); }
+    section.state > header { background:none; color:inherit; padding:0; border-bottom:2px solid var(--gray-100); margin:-1.5rem -1.5rem 1.25rem; padding:1.25rem 1.5rem; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
+    section.state > header h2 { font-size:1.1rem; margin:0; color:var(--gray-900); }
+    .state-label { background:var(--blue-50); color:var(--blue-700); padding:4px 12px; border-radius:6px; font-size:0.78rem; font-weight:600; white-space:nowrap; }
+    .state-label.ok { background:var(--green-100); color:var(--green-700); }
+    .state-label.warn { background:var(--amber-100); color:var(--amber-700); }
+    .state-label.error { background:var(--red-100); color:var(--red-700); }
+    .state-label.new { background:var(--indigo-100); color:var(--indigo-700); }
+    .layout { display:grid; grid-template-columns: minmax(0,1fr) 340px; gap:2rem; }
+    @media (max-width: 900px) { .layout { grid-template-columns:1fr; } }
+    .block { background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; padding:1rem 1.25rem; margin-bottom:0.85rem; }
+    .block.active { background:var(--blue-50); border-color:var(--blue-500); }
+    .block.valid { background:var(--green-50); border-color:var(--green-500); }
+    .block.hidden { opacity:0.4; background:var(--gray-100); border-style:dashed; }
+    .block.error { background:var(--red-50); border-color:var(--red-500); }
+    .block.info-block { background:var(--purple-50); border-color:var(--purple-500); }
+    .block.modal-block { background:var(--indigo-50); border:2px solid var(--indigo-500); border-radius:10px; }
+    .block-header { display:flex; align-items:baseline; gap:0.75rem; margin-bottom:0.75rem; flex-wrap:wrap; }
+    .block-id { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.72rem; color:var(--gray-500); font-weight:600; letter-spacing:0.02em; }
+    .block-title { font-weight:600; font-size:0.95rem; color:var(--gray-900); }
+    .block-hint { font-size:0.78rem; color:var(--gray-500); margin-left:auto; }
+    .field { margin-bottom:0.85rem; }
+    .field:last-child { margin-bottom:0; }
+    .field-id { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.7rem; color:var(--gray-400); font-weight:500; }
+    .field-label { font-weight:500; display:block; margin:0.15rem 0 0.4rem; font-size:0.9rem; color:var(--gray-700); }
+    .field-note { font-size:0.76rem; color:var(--gray-500); margin-top:0.2rem; font-style:italic; }
+    .chip-group { display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .chip { padding:5px 11px; border:1px solid var(--gray-200); border-radius:14px; font-size:0.82rem; background:white; user-select:none; cursor:default; }
+    .chip.selected { background:var(--blue-700); color:white; border-color:var(--blue-700); font-weight:500; }
+    .chip.selected-green { background:var(--green-700); color:white; border-color:var(--green-700); font-weight:500; }
+    .chip.selected-multi { background:var(--blue-500); color:white; border-color:var(--blue-500); font-weight:500; }
+    .chip.derived { background:var(--teal-50); color:var(--teal-700); border-color:var(--teal-500); font-size:0.76rem; }
+    .chip.cnae-chip { background:white; border:1px solid var(--indigo-500); border-radius:6px; padding:5px 10px; font-size:0.82rem; display:flex; align-items:center; gap:0.4rem; }
+    .chip.cnae-chip .cnae-remove { color:var(--red-500); font-weight:700; cursor:pointer; font-size:0.9rem; margin-left:2px; }
+    .chip.cnae-chip .cnae-conf { font-size:0.7rem; font-weight:700; padding:1px 5px; border-radius:3px; }
+    .chip.cnae-chip .cnae-conf.high { background:var(--green-100); color:var(--green-700); }
+    .chip.cnae-chip .cnae-conf.medium { background:var(--amber-100); color:var(--amber-700); }
+    .chip.cnae-chip .cnae-conf.low { background:var(--red-100); color:var(--red-700); }
+    .effect { font-size:0.76rem; color:var(--green-700); background:var(--green-50); border-left:3px solid var(--green-500); padding:6px 10px; margin-top:0.4rem; border-radius:2px; line-height:1.55; }
+    .effect code { background:var(--green-100); padding:1px 4px; border-radius:3px; font-size:0.94em; }
+    .derived-box { font-size:0.76rem; color:var(--teal-700); background:var(--teal-50); border-left:3px solid var(--teal-500); padding:6px 10px; margin-top:0.4rem; border-radius:2px; }
+    .derived-box code { background:rgba(20,184,166,0.1); padding:1px 4px; border-radius:3px; font-size:0.94em; }
+    .input-text, .input-select { padding:0.45rem 0.7rem; border:1px solid var(--gray-200); border-radius:6px; width:100%; font-size:0.9rem; font-family:inherit; background:white; }
+    .list-chips { display:flex; gap:0.3rem; flex-wrap:wrap; margin-top:0.3rem; }
+    .list-chip { background:white; border:1px solid var(--gray-200); padding:3px 8px; border-radius:4px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.78rem; }
+    /* Painel lateral */
+    .archetype-panel { position:sticky; top:1rem; background:var(--gray-900); color:#e5e7eb; padding:1rem 1.15rem; border-radius:8px; font-size:0.8rem; height:fit-content; }
+    .archetype-panel h3 { color:white; margin:0 0 0.6rem; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:600; opacity:0.85; }
+    .archetype-panel pre { white-space:pre-wrap; margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.75rem; line-height:1.55; color:#cbd5e1; }
+    .archetype-panel .status-row { margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.1); }
+    .archetype-panel .gate-row { margin-top:0.5rem; padding:0.5rem 0.6rem; border-radius:4px; font-size:0.76rem; font-weight:600; }
+    .gate-row.blocked { background:rgba(239,68,68,0.2); color:#fca5a5; }
+    .gate-row.open { background:rgba(16,185,129,0.2); color:#6ee7b7; }
+    .gate-row.pending { background:rgba(245,158,11,0.2); color:#fcd34d; }
+    .status-badge { display:inline-block; padding:3px 9px; border-radius:4px; font-weight:600; font-size:0.78rem; }
+    .status-badge.valido { background:var(--green-500); color:white; }
+    .status-badge.incompleto { background:var(--amber-500); color:white; }
+    .status-badge.bloqueado { background:var(--red-500); color:white; }
+    .status-badge.confirmado { background:var(--blue-700); color:white; }
+    .warn-box { background:var(--amber-50); color:var(--amber-700); border:1px solid var(--amber-500); padding:0.7rem 0.9rem; border-radius:6px; font-size:0.85rem; margin:0.5rem 0; }
+    .error-box { background:var(--red-50); color:var(--red-700); border:1px solid var(--red-500); padding:0.7rem 0.9rem; border-radius:6px; font-size:0.85rem; margin:0.5rem 0; font-weight:500; }
+    .ok-box { background:var(--green-50); color:var(--green-700); border:1px solid var(--green-500); padding:0.7rem 0.9rem; border-radius:6px; font-size:0.85rem; margin:0.5rem 0; font-weight:500; }
+    .info-box { background:var(--purple-50); color:var(--purple-700); border:1px solid var(--purple-500); padding:0.7rem 0.9rem; border-radius:6px; font-size:0.85rem; margin:0.5rem 0; }
+    .teal-box { background:var(--teal-50); color:var(--teal-700); border:1px solid var(--teal-500); padding:0.7rem 0.9rem; border-radius:6px; font-size:0.85rem; margin:0.5rem 0; }
+    .indigo-box { background:var(--indigo-50); color:var(--indigo-700); border:1px solid var(--indigo-500); padding:0.7rem 0.9rem; border-radius:6px; font-size:0.85rem; margin:0.5rem 0; }
+    .action-bar { display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--gray-100); }
+    button { padding:8px 18px; border-radius:6px; border:none; cursor:pointer; font-weight:600; font-size:0.9rem; font-family:inherit; }
+    .btn-primary { background:var(--blue-700); color:white; }
+    .btn-primary:disabled { background:var(--gray-400); cursor:not-allowed; }
+    .btn-secondary { background:var(--gray-100); color:var(--gray-900); border:1px solid var(--gray-200); }
+    .btn-briefing { background:var(--green-700); color:white; font-size:1rem; padding:10px 24px; }
+    .btn-briefing:disabled { background:var(--gray-400); cursor:not-allowed; }
+    .btn-action { background:var(--indigo-700); color:white; padding:8px 16px; border-radius:6px; font-size:0.88rem; font-weight:600; display:inline-flex; align-items:center; gap:0.4rem; }
+    .btn-action .btn-icon { font-size:1rem; }
+    .subblock { margin-top:0.75rem; padding:0.75rem 0.95rem; background:var(--purple-50); border:1px solid var(--purple-500); border-radius:6px; }
+    .subblock-header { font-size:0.78rem; color:var(--purple-700); font-weight:600; margin-bottom:0.5rem; letter-spacing:0.02em; }
+    table.validation { width:100%; border-collapse:collapse; font-size:0.85rem; margin-top:0.75rem; }
+    table.validation th, table.validation td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--gray-200); }
+    table.validation th { background:var(--gray-50); font-size:0.75rem; text-transform:uppercase; color:var(--gray-500); letter-spacing:0.05em; }
+    .v-ok { color:var(--green-700); font-weight:600; }
+    .v-warn { color:var(--amber-700); font-weight:600; }
+    .v-error { color:var(--red-700); font-weight:600; }
+    footer { background:var(--gray-900); color:#9ca3af; padding:1.5rem 2rem; text-align:center; font-size:0.82rem; margin-top:3rem; }
+    footer code { color:#d1d5db; }
+    .state-note { font-size:0.82rem; color:var(--gray-500); margin-bottom:1rem; font-style:italic; }
+    .rb-table { width:100%; border-collapse:collapse; font-size:0.82rem; margin-top:0.5rem; }
+    .rb-table th, .rb-table td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--gray-200); }
+    .rb-table th { background:var(--gray-50); font-size:0.72rem; text-transform:uppercase; color:var(--gray-500); }
+    .rb-active { background:var(--red-50); }
+    .rb-inactive { color:var(--gray-400); }
+    .rb-info { background:var(--purple-50); color:var(--purple-700); }
+    .tag-new { display:inline-block; background:var(--blue-100); color:var(--blue-700); font-size:0.68rem; font-weight:700; padding:1px 5px; border-radius:3px; margin-left:4px; vertical-align:middle; }
+    .tag-v4 { display:inline-block; background:var(--indigo-100); color:var(--indigo-700); font-size:0.68rem; font-weight:700; padding:1px 5px; border-radius:3px; margin-left:4px; vertical-align:middle; }
+    .tag-derived { display:inline-block; background:var(--teal-50); color:var(--teal-700); border:1px solid var(--teal-500); font-size:0.68rem; font-weight:700; padding:1px 5px; border-radius:3px; vertical-align:middle; }
+    .tag-removed { display:inline-block; background:var(--red-100); color:var(--red-700); font-size:0.68rem; font-weight:700; padding:1px 5px; border-radius:3px; margin-left:4px; vertical-align:middle; text-decoration:line-through; }
+    .tag-info { display:inline-block; background:var(--purple-100); color:var(--purple-700); font-size:0.68rem; font-weight:700; padding:1px 5px; border-radius:3px; margin-left:4px; vertical-align:middle; }
+    hr.section-divider { border:none; border-top:2px solid var(--gray-200); margin:2rem 0; }
+    .delta-changes { background:var(--indigo-50); border:1px solid var(--indigo-500); border-radius:8px; padding:1rem 1.25rem; margin-bottom:2rem; font-size:0.85rem; }
+    .delta-changes h3 { margin:0 0 0.75rem; font-size:0.9rem; color:var(--indigo-700); }
+    .delta-changes ul { margin:0; padding-left:1.25rem; }
+    .delta-changes li { margin-bottom:0.3rem; }
+
+    /* Modal overlay */
+    .modal-overlay { background:rgba(0,0,0,0.45); border-radius:8px; padding:1.5rem; margin:1rem 0; }
+    .modal-window { background:white; border-radius:10px; padding:1.5rem; max-width:700px; margin:0 auto; box-shadow:0 8px 32px rgba(0,0,0,0.25); }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:0.75rem; border-bottom:1px solid var(--gray-200); }
+    .modal-header h3 { margin:0; font-size:1rem; color:var(--gray-900); }
+    .modal-close { background:var(--gray-100); border:1px solid var(--gray-200); border-radius:4px; padding:4px 10px; font-size:0.85rem; cursor:pointer; }
+    .modal-search { display:flex; gap:0.5rem; margin-bottom:1rem; }
+    .modal-search input { flex:1; padding:0.5rem 0.7rem; border:1px solid var(--gray-200); border-radius:6px; font-size:0.9rem; font-family:inherit; }
+    .modal-search button { background:var(--blue-700); color:white; border:none; border-radius:6px; padding:0.5rem 1rem; font-size:0.88rem; font-weight:600; cursor:pointer; }
+    .cnae-result-list { border:1px solid var(--gray-200); border-radius:6px; overflow:hidden; }
+    .cnae-result-item { display:flex; align-items:center; gap:0.75rem; padding:0.6rem 0.85rem; border-bottom:1px solid var(--gray-100); font-size:0.85rem; }
+    .cnae-result-item:last-child { border-bottom:none; }
+    .cnae-result-item.selected { background:var(--blue-50); }
+    .cnae-code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-weight:600; color:var(--blue-700); min-width:80px; }
+    .cnae-desc { flex:1; color:var(--gray-700); }
+    .cnae-badge { font-size:0.7rem; font-weight:700; padding:2px 6px; border-radius:3px; }
+    .cnae-badge.high { background:var(--green-100); color:var(--green-700); }
+    .cnae-badge.medium { background:var(--amber-100); color:var(--amber-700); }
+    .cnae-badge.low { background:var(--red-100); color:var(--red-700); }
+    .cnae-add-btn { background:var(--blue-700); color:white; border:none; border-radius:4px; padding:3px 8px; font-size:0.78rem; font-weight:600; cursor:pointer; }
+    .cnae-add-btn.added { background:var(--green-700); }
+    .modal-footer { display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--gray-200); }
+    .modal-footer-note { font-size:0.78rem; color:var(--gray-500); }
+
+    /* Profile preview panel */
+    .profile-preview { background:var(--indigo-50); border:1px solid var(--indigo-500); border-radius:8px; padding:0.85rem 1rem; margin-top:0.75rem; font-size:0.82rem; }
+    .profile-preview-header { font-weight:600; color:var(--indigo-700); margin-bottom:0.5rem; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; }
+    .profile-preview-row { display:flex; gap:0.5rem; align-items:center; margin-bottom:0.3rem; }
+    .profile-preview-label { color:var(--gray-500); min-width:140px; font-size:0.78rem; }
+    .profile-preview-value { color:var(--indigo-700); font-weight:600; font-size:0.82rem; }
+    .profile-preview-value code { background:var(--indigo-100); padding:1px 5px; border-radius:3px; font-size:0.9em; }
+    .cnae-multi-list { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.3rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Mockup — Perfil da Entidade Determinístico M1 <span class="delta-badge">Delta v4</span></h1>
+  <p>pré-M1 · artefato de análise · sem implementação · branch <code>docs/m1-arquetipo-exploracao</code></p>
+</header>
+
+<div class="banner">
+  ⚠️ <strong>Artefato exploratório pré-M1.</strong> Não representa código em produção. Não codificar sem aprovação do P.O.
+  <span class="delta-badge">v4</span> Ajustes: (1) Remove <code>cnae_principal_input</code> · (2) Adiciona botão "Identificar CNAEs" + modal · (3) Multi-select editável de CNAEs · (4) 3 novos comportamentos automáticos
+</div>
+
+<main>
+
+<!-- Delta v4 changes summary -->
+<div class="delta-changes">
+  <h3>Mudanças Delta v4 em relação ao v3 — UX BLOCO 0</h3>
+  <ul>
+    <li><strong>remove:</strong> <code>cnae_principal_input</code> — campo de texto livre para CNAE removido</li>
+    <li><strong>add [B0-02]:</strong> botão de ação <code>action_button</code> "Identificar CNAEs" → abre modal de busca/seleção, posicionado após <code>descricao_negocio</code></li>
+    <li><strong>update [cnaes]:</strong> campo de CNAEs vira <code>multi_select</code> editável (source=modal, allow_add=true, allow_remove=true)</li>
+    <li><strong>new_behaviors:</strong>
+      <ul>
+        <li><code>auto_open_blocos_based_on_cnae</code> — CNAEs selecionados pré-abrem blocos condicionais relevantes</li>
+        <li><code>show_confidence_cnae</code> — cada CNAE exibe badge de confiança (alta/média/baixa)</li>
+        <li><code>show_detected_profile_preview</code> — painel de pré-visualização do Perfil da Entidade detectado automaticamente</li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<div class="toc">
+  <h2>Estados do Mockup</h2>
+  <ol>
+    <li><a href="#estado-a1">Estado A1</a> — BLOCO 0: campo descricao_negocio preenchido, botão "Identificar CNAEs" disponível</li>
+    <li><a href="#estado-a2">Estado A2</a> — Modal "Identificar CNAEs" aberto (busca + resultados com confidence)</li>
+    <li><a href="#estado-a3">Estado A3</a> — CNAEs selecionados no multi-select editável + profile preview automático</li>
+    <li><a href="#estado-b">Estado B</a> — auto_open_blocos_based_on_cnae: blocos condicionais pré-abertos</li>
+    <li><a href="#estado-g">Estado G</a> — Perfil da Entidade confirmado → /briefing liberado</li>
+    <li><a href="#matriz">Referência</a> — Matriz Campo → Efeito → Blocker (v4)</li>
+  </ol>
+</div>
+
+<div class="legenda">
+  <span style="font-weight:600;color:var(--gray-700)">Legenda:</span>
+  <span class="legenda-item"><span class="legenda-swatch" style="background:var(--blue-50);border-color:var(--blue-500)"></span> Bloco ativo</span>
+  <span class="legenda-item"><span class="legenda-swatch" style="background:var(--green-50);border-color:var(--green-500)"></span> Bloco válido</span>
+  <span class="legenda-item"><span class="legenda-swatch" style="background:var(--indigo-50);border-color:var(--indigo-500)"></span> Novo v4 (modal / preview)</span>
+  <span class="legenda-item"><span class="legenda-swatch" style="background:var(--gray-100);border-color:var(--gray-200)"></span> Bloco aguardando</span>
+  <span class="legenda-item"><span class="tag-v4">v4</span> Novo no Delta v4</span>
+  <span class="legenda-item"><span class="tag-removed">removido</span> Campo removido no v4</span>
+</div>
+
+<!-- =========================================================== -->
+<!-- ESTADO A1 — Botão "Identificar CNAEs" disponível -->
+<!-- =========================================================== -->
+<section class="state" id="estado-a1">
+  <header>
+    <h2>Estado A1 — BLOCO 0: descricao_negocio preenchida → botão "Identificar CNAEs" disponível</h2>
+    <span class="state-label new">v4 · novo comportamento</span>
+  </header>
+  <p class="state-note">Usuário preenche <code>project_name</code> e <code>descricao_negocio</code>. O campo <code>cnae_principal_input</code> (texto livre) foi removido. Em seu lugar, o botão de ação <strong>"Identificar CNAEs"</strong> aparece após <code>descricao_negocio</code>, habilitado assim que a descrição tem conteúdo suficiente.</p>
+
+  <div class="layout">
+    <div>
+      <div class="block active">
+        <div class="block-header">
+          <span class="block-id">BLOCO 0</span>
+          <span class="block-title">Entrada Obrigatória</span>
+          <span class="block-hint">sempre visível</span>
+        </div>
+
+        <!-- B0-00: project_name (v3) -->
+        <div class="field">
+          <span class="field-id">[B0-00]</span>
+          <label class="field-label">Nome do Projeto <span style="color:var(--red-500)">*</span></label>
+          <input class="input-text" type="text" value="Análise Compliance — Distribuidora Combustíveis SP" readonly>
+        </div>
+
+        <!-- B0-01: descricao_negocio -->
+        <div class="field">
+          <span class="field-id">[B0-01]</span>
+          <label class="field-label">Descrição do negócio <span style="color:var(--red-500)">*</span></label>
+          <div style="background:white;border:1px solid var(--gray-200);border-radius:6px;padding:0.5rem 0.7rem;font-size:0.9rem;color:var(--gray-700)">
+            Distribuidora de combustíveis com operações em SP e MG, atendendo postos revendedores (B2B) e frota própria.
+          </div>
+        </div>
+
+        <!-- B0-02: botão "Identificar CNAEs" — NOVO v4, substitui cnae_principal_input -->
+        <div class="field">
+          <span class="field-id">[B0-02]</span> <span class="tag-v4">NOVO v4</span> <span class="tag-removed">cnae_principal_input removido</span>
+          <label class="field-label">CNAEs da Empresa <span style="color:var(--red-500)">*</span></label>
+
+          <!-- Estado: nenhum CNAE selecionado ainda -->
+          <div class="indigo-box" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+            <span style="font-size:0.85rem;">Nenhum CNAE identificado. Use o botão para buscar e selecionar.</span>
+            <button class="btn-action">
+              <span class="btn-icon">🔍</span> Identificar CNAEs
+            </button>
+          </div>
+          <div class="field-note">O sistema sugere CNAEs com base na descrição do negócio. Você pode adicionar ou remover CNAEs manualmente.</div>
+        </div>
+
+        <!-- Demais campos aguardam CNAEs -->
+        <div class="block hidden" style="margin-top:0.5rem;border-radius:6px;">
+          <span style="font-size:0.82rem;color:var(--gray-500)">Campos seguintes aguardam CNAEs identificados...</span>
+        </div>
+      </div>
+    </div>
+
+    <aside class="archetype-panel">
+      <h3>Perfil da Entidade em construção</h3>
+<pre>{
+  "project_name": "Análise Compliance —
+    Distribuidora Combustíveis SP",
+  "cnaes": [],
+  "status_arquetipo": "pendente"
+}</pre>
+      <div class="status-row">
+        <span class="status-badge incompleto">pendente</span>
+      </div>
+      <div class="gate-row blocked">
+        🔒 /briefing bloqueado — CNAEs pendentes
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<!-- ESTADO A2 — Modal "Identificar CNAEs" aberto -->
+<!-- =========================================================== -->
+<section class="state" id="estado-a2">
+  <header>
+    <h2>Estado A2 — Modal "Identificar CNAEs" aberto</h2>
+    <span class="state-label new">v4 · show_confidence_cnae</span>
+  </header>
+  <p class="state-note">Usuário clica em "Identificar CNAEs". O modal abre com resultados sugeridos automaticamente com base em <code>descricao_negocio</code>. Cada resultado exibe badge de confiança (<strong>show_confidence_cnae</strong>). Usuário pode buscar manualmente, adicionar e remover CNAEs.</p>
+
+  <div class="layout">
+    <div>
+      <div class="block active">
+        <div class="block-header">
+          <span class="block-id">BLOCO 0</span>
+          <span class="block-title">Entrada Obrigatória</span>
+        </div>
+        <div class="field">
+          <span class="field-id">[B0-01]</span>
+          <label class="field-label">Descrição do negócio</label>
+          <div style="background:white;border:1px solid var(--gray-200);border-radius:6px;padding:0.5rem 0.7rem;font-size:0.9rem;color:var(--gray-700)">
+            Distribuidora de combustíveis com operações em SP e MG, atendendo postos revendedores (B2B) e frota própria.
+          </div>
+        </div>
+
+        <!-- Modal overlay -->
+        <div class="modal-overlay">
+          <div class="modal-window">
+            <div class="modal-header">
+              <h3>🔍 Identificar CNAEs <span class="tag-v4">v4</span></h3>
+              <button class="modal-close">✕ Fechar</button>
+            </div>
+
+            <div class="modal-search">
+              <input type="text" value="distribuidora combustíveis" placeholder="Buscar por descrição ou código CNAE...">
+              <button>Buscar</button>
+            </div>
+
+            <div style="font-size:0.78rem;color:var(--gray-500);margin-bottom:0.5rem;">
+              Sugestões automáticas baseadas na descrição do negócio — <strong>show_confidence_cnae</strong>
+            </div>
+
+            <div class="cnae-result-list">
+              <!-- Resultado 1 — alta confiança, já selecionado -->
+              <div class="cnae-result-item selected">
+                <span class="cnae-code">47.31-8-00</span>
+                <span class="cnae-desc">Comércio varejista de combustíveis para veículos automotores</span>
+                <span class="cnae-badge high">Alta confiança</span>
+                <button class="cnae-add-btn added">✓ Adicionado</button>
+              </div>
+              <!-- Resultado 2 — alta confiança -->
+              <div class="cnae-result-item">
+                <span class="cnae-code">46.81-8-01</span>
+                <span class="cnae-desc">Comércio atacadista de álcool carburante, biodiesel e outros biocombustíveis</span>
+                <span class="cnae-badge high">Alta confiança</span>
+                <button class="cnae-add-btn">+ Adicionar</button>
+              </div>
+              <!-- Resultado 3 — média confiança -->
+              <div class="cnae-result-item">
+                <span class="cnae-code">46.82-6-00</span>
+                <span class="cnae-desc">Comércio atacadista de lubrificantes</span>
+                <span class="cnae-badge medium">Média confiança</span>
+                <button class="cnae-add-btn">+ Adicionar</button>
+              </div>
+              <!-- Resultado 4 — média confiança -->
+              <div class="cnae-result-item">
+                <span class="cnae-code">52.21-4-00</span>
+                <span class="cnae-desc">Concessionárias de rodovias, pontes, túneis e serviços relacionados</span>
+                <span class="cnae-badge low">Baixa confiança</span>
+                <button class="cnae-add-btn">+ Adicionar</button>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <span class="modal-footer-note">1 CNAE selecionado · Você pode adicionar mais ou buscar por código</span>
+              <button class="btn-primary">Confirmar seleção →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="archetype-panel">
+      <h3>Perfil da Entidade em construção</h3>
+<pre>{
+  "project_name": "Análise Compliance —
+    Distribuidora Combustíveis SP",
+  "cnaes": [
+    {
+      "code": "47.31-8-00",
+      "confidence": "high",
+      "source": "modal"
+    }
+  ],
+  "status_arquetipo": "pendente"
+}</pre>
+      <div class="status-row">
+        <span class="status-badge incompleto">pendente</span>
+      </div>
+      <div class="gate-row blocked">
+        🔒 /briefing bloqueado — confirmar CNAEs
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<!-- ESTADO A3 — CNAEs confirmados + multi-select editável + profile preview -->
+<!-- =========================================================== -->
+<section class="state" id="estado-a3">
+  <header>
+    <h2>Estado A3 — CNAEs confirmados: multi-select editável + profile preview automático</h2>
+    <span class="state-label new">v4 · show_detected_profile_preview</span>
+  </header>
+  <p class="state-note">Usuário confirma seleção no modal. Os CNAEs aparecem como chips editáveis (<strong>multi_select</strong>, <code>allow_add=true</code>, <code>allow_remove=true</code>). O painel de pré-visualização (<strong>show_detected_profile_preview</strong>) exibe o Perfil da Entidade detectado automaticamente com base nos CNAEs.</p>
+
+  <div class="layout">
+    <div>
+      <div class="block active">
+        <div class="block-header">
+          <span class="block-id">BLOCO 0</span>
+          <span class="block-title">Entrada Obrigatória</span>
+        </div>
+
+        <div class="field">
+          <span class="field-id">[B0-00]</span>
+          <label class="field-label">Nome do Projeto</label>
+          <input class="input-text" type="text" value="Análise Compliance — Distribuidora Combustíveis SP" readonly>
+        </div>
+
+        <div class="field">
+          <span class="field-id">[B0-01]</span>
+          <label class="field-label">Descrição do negócio</label>
+          <div style="background:white;border:1px solid var(--gray-200);border-radius:6px;padding:0.5rem 0.7rem;font-size:0.9rem;color:var(--gray-700)">
+            Distribuidora de combustíveis com operações em SP e MG, atendendo postos revendedores (B2B) e frota própria.
+          </div>
+        </div>
+
+        <!-- B0-02: multi-select editável de CNAEs — NOVO v4 -->
+        <div class="field">
+          <span class="field-id">[B0-02]</span> <span class="tag-v4">multi_select editável</span>
+          <label class="field-label">CNAEs da Empresa <span style="color:var(--red-500)">*</span></label>
+
+          <!-- Chips editáveis com confiança -->
+          <div class="cnae-multi-list">
+            <span class="chip cnae-chip">
+              <span class="cnae-conf high">Alta</span>
+              <span>47.31-8-00 — Comércio varejista de combustíveis</span>
+              <span class="cnae-remove">✕</span>
+            </span>
+            <span class="chip cnae-chip">
+              <span class="cnae-conf high">Alta</span>
+              <span>46.81-8-01 — Comércio atacadista de biocombustíveis</span>
+              <span class="cnae-remove">✕</span>
+            </span>
+            <button class="btn-action" style="padding:5px 10px;font-size:0.78rem;">
+              <span class="btn-icon">+</span> Adicionar CNAE
+            </button>
+          </div>
+
+          <div class="effect">
+            → CNAE 47.31-8-00 → sinaliza <code>setor_regulado=true</code> (ANP) · ativa <code>regime_diferenciado</code> (monofasia combustíveis)<br>
+            → CNAE 46.81-8-01 → confirma <code>papel_operacional=distribuidor</code> · ativa <code>split_payment</code>
+          </div>
+        </div>
+
+        <!-- show_detected_profile_preview — NOVO v4 -->
+        <div class="profile-preview">
+          <div class="profile-preview-header">🔍 Perfil detectado automaticamente <span class="tag-v4">show_detected_profile_preview</span></div>
+          <div class="profile-preview-row">
+            <span class="profile-preview-label">Natureza da operação:</span>
+            <span class="profile-preview-value"><code>produto</code></span>
+          </div>
+          <div class="profile-preview-row">
+            <span class="profile-preview-label">Papel operacional:</span>
+            <span class="profile-preview-value"><code>distribuidor</code></span>
+          </div>
+          <div class="profile-preview-row">
+            <span class="profile-preview-label">Setor regulado:</span>
+            <span class="profile-preview-value"><code>true</code> (ANP — combustíveis)</span>
+          </div>
+          <div class="profile-preview-row">
+            <span class="profile-preview-label">Riscos detectados:</span>
+            <span class="profile-preview-value"><code>regime_diferenciado</code>, <code>split_payment</code></span>
+          </div>
+          <div class="profile-preview-row">
+            <span class="profile-preview-label">Blocos pré-abertos:</span>
+            <span class="profile-preview-value">Bloco 1, Bloco 2 (ANP)</span>
+          </div>
+          <div style="font-size:0.75rem;color:var(--indigo-500);margin-top:0.5rem;">
+            ℹ️ Pré-visualização baseada nos CNAEs. Confirme ou ajuste nos blocos abaixo.
+          </div>
+        </div>
+
+        <!-- Demais campos do Bloco 0 -->
+        <div class="field" style="margin-top:0.85rem">
+          <span class="field-id">[B0-03]</span>
+          <label class="field-label">Natureza da operação <span style="color:var(--red-500)">*</span> <span class="tag-new">pré-selecionado por CNAE</span></label>
+          <div class="chip-group">
+            <span class="chip selected-multi">Produto (bens físicos)</span>
+            <span class="chip">Serviço</span>
+            <span class="chip">Misto</span>
+          </div>
+          <div class="derived-box">
+            <code>possui_bens</code> = <strong>true</strong> <span class="tag-derived">derivado</span> · <code>possui_servicos</code> = <strong>false</strong> <span class="tag-derived">derivado</span>
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <button class="btn-primary">Avançar para Bloco 1 →</button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="archetype-panel">
+      <h3>Perfil da Entidade em construção</h3>
+<pre>{
+  "project_name": "Análise Compliance —
+    Distribuidora Combustíveis SP",
+  "cnaes": [
+    {"code": "47.31-8-00",
+     "confidence": "high",
+     "source": "modal"},
+    {"code": "46.81-8-01",
+     "confidence": "high",
+     "source": "modal"}
+  ],
+  "natureza_da_operacao": ["produto"],
+  "possui_bens": true,
+  "detected_profile": {
+    "papel_operacional": "distribuidor",
+    "setor_regulado": true,
+    "orgao": "ANP",
+    "categorias_previstas": [
+      "regime_diferenciado",
+      "split_payment"
+    ]
+  },
+  "status_arquetipo": "pendente"
+}</pre>
+      <div class="status-row">
+        <span class="status-badge incompleto">pendente</span>
+      </div>
+      <div class="gate-row blocked">
+        🔒 /briefing bloqueado — blocos 1–4 pendentes
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<!-- ESTADO B — auto_open_blocos_based_on_cnae -->
+<!-- =========================================================== -->
+<section class="state" id="estado-b">
+  <header>
+    <h2>Estado B — auto_open_blocos_based_on_cnae: blocos condicionais pré-abertos por CNAE</h2>
+    <span class="state-label new">v4 · auto_open_blocos_based_on_cnae</span>
+  </header>
+  <p class="state-note">Após confirmar CNAEs, o sistema abre automaticamente os blocos condicionais relevantes (<strong>auto_open_blocos_based_on_cnae</strong>). CNAE 47.31-8-00 (combustíveis/ANP) pré-abre Bloco 1 com <code>papel_operacional=distribuidor</code> sugerido e Bloco 2 com <code>setor_regulado=true</code> e <code>orgao=ANP</code> pré-selecionados. Usuário confirma ou ajusta.</p>
+
+  <div class="layout">
+    <div>
+      <div class="block valid" style="opacity:0.85">
+        <span class="block-id">BLOCO 0</span> · CNAEs: 47.31-8-00, 46.81-8-01 · produto · lucro_presumido ✓
+      </div>
+
+      <!-- Bloco 1 pré-aberto por CNAE -->
+      <div class="block active">
+        <div class="block-header">
+          <span class="block-id">BLOCO 1</span>
+          <span class="block-title">Cadeia de Valor</span>
+          <span class="block-hint"><span class="tag-v4">pré-aberto por CNAE</span></span>
+        </div>
+        <div class="indigo-box" style="margin-bottom:0.75rem;">
+          🔍 <strong>auto_open_blocos_based_on_cnae:</strong> CNAE 46.81-8-01 sugere <code>papel_operacional=distribuidor</code>. Confirme ou ajuste.
+        </div>
+        <div class="field">
+          <span class="field-id">[B1-01]</span>
+          <label class="field-label">Papel operacional principal <span style="color:var(--red-500)">*</span></label>
+          <div class="chip-group">
+            <span class="chip">Fabricante / Produtor</span>
+            <span class="chip selected">Distribuidor / Atacadista</span>
+            <span class="chip">Varejista</span>
+            <span class="chip">Prestador de Serviços</span>
+            <span class="chip">Misto</span>
+          </div>
+          <div class="effect">
+            → EFEITO (distribuidor): ativa <code>split_payment</code> · ativa <code>regime_diferenciado</code> (monofasia combustíveis)
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloco 2 pré-aberto por CNAE -->
+      <div class="block active">
+        <div class="block-header">
+          <span class="block-id">BLOCO 2</span>
+          <span class="block-title">Setor Regulado</span>
+          <span class="block-hint"><span class="tag-v4">pré-aberto por CNAE</span></span>
+        </div>
+        <div class="indigo-box" style="margin-bottom:0.75rem;">
+          🔍 <strong>auto_open_blocos_based_on_cnae:</strong> CNAE 47.31-8-00 sugere <code>setor_regulado=true</code> + <code>orgao=ANP</code>. Confirme ou ajuste.
+        </div>
+        <div class="field">
+          <span class="field-id">[B2-01]</span>
+          <label class="field-label">A empresa atua em setor regulado por agência federal?</label>
+          <div class="chip-group">
+            <span class="chip selected">Sim</span>
+            <span class="chip">Não</span>
+          </div>
+        </div>
+        <div class="subblock">
+          <div class="subblock-header">[B2-02] Órgão regulador principal <span class="tag-v4">pré-selecionado por CNAE</span></div>
+          <div class="chip-group">
+            <span class="chip selected-green">ANP</span>
+            <span class="chip">ANATEL</span>
+            <span class="chip">ANVISA</span>
+            <span class="chip">ANS</span>
+            <span class="chip">ANEEL</span>
+            <span class="chip">BACEN / CVM</span>
+            <span class="chip">Outro</span>
+          </div>
+          <div class="effect">
+            → EFEITO (ANP): ativa <code>obrigacao_acessoria</code> regulatória (SPED-Combustíveis, SCANC)<br>
+            → EFEITO (ANP): confirma <code>regime_diferenciado</code> (monofasia combustíveis)
+          </div>
+        </div>
+      </div>
+
+      <div class="block hidden">
+        <span class="block-id">BLOCO 3</span> · Território e Comércio Exterior — <em>aguarda confirmação Bloco 2</em>
+      </div>
+      <div class="block hidden">
+        <span class="block-id">BLOCO 4</span> · Estrutura Societária — <em>aguarda confirmação Bloco 2</em>
+      </div>
+    </div>
+
+    <aside class="archetype-panel">
+      <h3>Perfil da Entidade em construção</h3>
+<pre>{
+  "cnaes": [
+    {"code": "47.31-8-00",
+     "confidence": "high"},
+    {"code": "46.81-8-01",
+     "confidence": "high"}
+  ],
+  "natureza_da_operacao": ["produto"],
+  "possui_bens": true,
+  "papel_operacional": "distribuidor",
+  "setor_regulado": true,
+  "orgao_regulador": "ANP",
+  "dimensoes_ativas": [
+    "produto·distribuidor",
+    "regulado:ANP",
+    "is:2710.19"
+  ],
+  "categorias_ativas": [
+    "split_payment",
+    "regime_diferenciado",
+    "obrigacao_acessoria"
+  ],
+  "status_arquetipo": "pendente"
+}</pre>
+      <div class="status-row">
+        <span class="status-badge incompleto">pendente</span>
+      </div>
+      <div class="gate-row blocked">
+        🔒 /briefing bloqueado — blocos 3, 4 pendentes
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<!-- ESTADO G — Perfil confirmado (igual ao v3, atualizado) -->
+<!-- =========================================================== -->
+<section class="state" id="estado-g">
+  <header>
+    <h2>Estado G — Perfil da Entidade confirmado → gate E2E aberto → /briefing liberado</h2>
+    <span class="state-label ok">Todos RB passam · status_arquetipo = confirmado · /briefing liberado</span>
+  </header>
+  <p class="state-note">Todos os blocos preenchidos. CNAEs confirmados via modal. Blocos pré-abertos por CNAE confirmados pelo usuário. Todas as 7 regras de bloqueio passam. <code>status_arquetipo = confirmado</code>. Gate E2E aberto — depende apenas de <code>status_arquetipo</code>.</p>
+
+  <div class="layout">
+    <div>
+      <div class="block valid">
+        <div class="block-header">
+          <span class="block-id">VALIDAÇÃO FINAL</span>
+          <span class="block-title">7 Regras de Bloqueio + 1 INFO — todas passaram</span>
+          <span class="block-hint">✓ Perfil da Entidade confirmado</span>
+        </div>
+        <table class="rb-table">
+          <thead>
+            <tr><th>ID</th><th>Condição</th><th>Tipo</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RB-01</td><td>possui_bens=true AND principaisProdutos vazio</td><td>HARD BLOCK</td><td class="v-ok">✓ ok (NCM via CNAE)</td></tr>
+            <tr><td>RB-02</td><td>possui_servicos=true AND principaisServicos vazio</td><td>HARD BLOCK</td><td class="v-ok">✓ N/A (produto)</td></tr>
+            <tr><td>RB-03</td><td>comercio_exterior ≠ nenhum AND natureza vazio</td><td>HARD BLOCK</td><td class="v-ok">✓ ok</td></tr>
+            <tr><td>RB-04</td><td>setor_regulado=true AND orgao vazio</td><td>HARD BLOCK</td><td class="v-ok">✓ ok (ANP via CNAE)</td></tr>
+            <tr><td>RB-05</td><td>opera_territorio=true AND tipo vazio</td><td>HARD BLOCK</td><td class="v-ok">✓ N/A</td></tr>
+            <tr class="rb-info"><td>RB-06-INFO</td><td>isEconomicGroup=true</td><td class="tag-info" style="font-size:0.75rem">INFO</td><td class="v-ok">✓ N/A</td></tr>
+            <tr><td>RB-07</td><td>taxRegime=simples AND annualRevenue &gt; 4,8M</td><td>HARD BLOCK</td><td class="v-ok">✓ ok (presumido × 10m_50m)</td></tr>
+            <tr><td>RB-08</td><td>status_arquetipo ≠ confirmado → bloqueia /briefing</td><td>GATE E2E</td><td class="v-ok">✓ confirmado → liberado</td></tr>
+          </tbody>
+        </table>
+        <div class="ok-box">
+          ✅ <strong>Perfil da Entidade confirmado.</strong> CNAEs identificados via modal. Blocos pré-abertos por CNAE confirmados. <code>status_arquetipo = confirmado</code>. Gate E2E aberto.
+        </div>
+        <div class="action-bar">
+          <button class="btn-secondary">Voltar</button>
+          <button class="btn-primary">Confirmar Perfil da Entidade</button>
+          <button class="btn-briefing">Ir para Briefing →</button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="archetype-panel">
+      <h3>Perfil da Entidade final (snapshot)</h3>
+<pre>{
+  "project_name": "Análise Compliance —
+    Distribuidora Combustíveis SP",
+  "cnaes": [
+    {"code": "47.31-8-00",
+     "confidence": "high",
+     "source": "modal"},
+    {"code": "46.81-8-01",
+     "confidence": "high",
+     "source": "modal"}
+  ],
+  "natureza_da_operacao": ["produto"],
+  "possui_bens": true,
+  "tipoOperacao_normalizado": "produto",
+  "papel_operacional": "distribuidor",
+  "multiState": true,
+  "taxRegime": "lucro_presumido",
+  "annualRevenueRange": "10m_50m",
+  "setor_regulado": true,
+  "orgao_regulador": "ANP",
+  "opera_territorio_incentivado": false,
+  "papel_comercio_exterior": "nenhum",
+  "isEconomicGroup": false,
+  "dimensoes_ativas": [
+    "produto·distribuidor",
+    "geo:multi",
+    "regulado:ANP",
+    "is:2710.19"
+  ],
+  "categorias_ativas": [
+    "split_payment",
+    "regime_diferenciado",
+    "obrigacao_acessoria"
+  ],
+  "status_arquetipo": "confirmado",
+  "arquetipo_label":
+    "DISTRIBUIDOR_PRESUMIDO_MULTI_ANP"
+}</pre>
+      <div class="status-row">
+        <span class="status-badge confirmado">confirmado</span>
+      </div>
+      <div class="gate-row open">
+        ✅ /briefing liberado — Perfil da Entidade confirmado
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<!-- RODAPÉ — Matriz de Regras v4 -->
+<!-- =========================================================== -->
+<hr class="section-divider">
+<section class="state" id="matriz">
+  <header>
+    <h2>Referência — Matriz Campo → Efeito → Blocker (v4)</h2>
+    <span class="state-label">Delta v4 · pré-M1</span>
+  </header>
+  <table class="validation">
+    <thead>
+      <tr>
+        <th>Campo</th>
+        <th>Tipo</th>
+        <th>Efeito no Perfil da Entidade</th>
+        <th>Blocker se ausente?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>project_name</code></td><td>text</td><td>identificação do caso — sem efeito no arquétipo</td><td>NÃO</td></tr>
+      <tr style="text-decoration:line-through;color:var(--gray-400)"><td><code>cnae_principal_input</code> <span class="tag-removed">removido v4</span></td><td>—</td><td>substituído por modal multi-select</td><td>—</td></tr>
+      <tr><td><code>cnaes[]</code> <span class="tag-v4">NOVO v4</span></td><td>multi_select (modal)</td><td>pré-seleciona papel_operacional, setor_regulado, orgao · auto_open_blocos · show_confidence · show_profile_preview</td><td class="v-error">SIM — obrigatório (≥1 CNAE)</td></tr>
+      <tr><td><code>natureza_da_operacao</code></td><td>string[] (multi)</td><td>dimensão principal · deriva possui_bens/servicos · normaliza tipoOperacao para gate IS · pré-selecionado por CNAE</td><td class="v-error">SIM — absoluto</td></tr>
+      <tr><td><code>possui_bens</code></td><td><span class="tag-derived">derivado</span></td><td>abre NCM · ativa RB-01</td><td>—</td></tr>
+      <tr><td><code>possui_servicos</code></td><td><span class="tag-derived">derivado</span></td><td>abre NBS · ativa RB-02</td><td>—</td></tr>
+      <tr><td><code>principaisProdutos[].ncm</code></td><td>lista+%</td><td>lookup IS por NCM · dimensão produto</td><td class="v-warn">SIM se possui_bens=true</td></tr>
+      <tr><td><code>principaisServicos[].nbs</code></td><td>lista+%</td><td>lookup IS por NBS · dimensão serviço</td><td class="v-warn">SIM se possui_servicos=true</td></tr>
+      <tr><td><code>papel_operacional</code></td><td>enum</td><td>define split_payment, IS, regime_diferenciado · pré-selecionado por CNAE</td><td class="v-error">SIM</td></tr>
+      <tr><td><code>multiState</code></td><td>boolean</td><td>geo:mono vs geo:multi no rule_id</td><td>NÃO — default mono</td></tr>
+      <tr><td><code>taxRegime</code></td><td>enum</td><td>validação cruzada RB-07 · dimensão fiscal</td><td>NÃO — default presumido</td></tr>
+      <tr><td><code>annualRevenueRange</code></td><td>enum</td><td>validação cruzada RB-07 · dimensão porte</td><td>NÃO — default desconhecido</td></tr>
+      <tr><td><code>setor_regulado</code></td><td>boolean</td><td>ativa obrigacao_acessoria regulatória · pré-selecionado por CNAE</td><td>NÃO — default false</td></tr>
+      <tr><td><code>orgao_regulador_principal</code></td><td>enum_array</td><td>sub-categorias risco regulatório · pré-selecionado por CNAE</td><td class="v-warn">SIM se setor_regulado=true</td></tr>
+      <tr><td><code>opera_territorio_incentivado</code></td><td>boolean</td><td>modifica aliquota_zero, imunidade ZFM</td><td>NÃO — default false</td></tr>
+      <tr><td><code>tipo_territorio_incentivado</code></td><td>enum</td><td>ZFM→bloqueia IBS/CBS; RECOF/REPORTO→suspensão</td><td class="v-warn">SIM se opera_territorio=true</td></tr>
+      <tr><td><code>papel_comercio_exterior</code></td><td>enum</td><td>importador→regime_diferenciado; exportador→aliquota_zero</td><td>NÃO — default nenhum</td></tr>
+      <tr><td><code>isEconomicGroup</code></td><td>boolean</td><td>sinaliza complexidade societária · não bloqueia (RB-06-INFO)</td><td>NÃO — default false</td></tr>
+      <tr><td><code>status_arquetipo</code></td><td><span class="tag-derived">derivado</span></td><td>gate E2E único — bloqueia /briefing se ≠ confirmado</td><td class="v-error">SIM — gate obrigatório</td></tr>
+    </tbody>
+  </table>
+
+  <div class="indigo-box" style="margin-top:1rem;">
+    <strong>Novos comportamentos v4:</strong>
+    <ul style="margin:0.5rem 0 0;padding-left:1.25rem;font-size:0.85rem;">
+      <li><code>auto_open_blocos_based_on_cnae</code> — CNAEs selecionados pré-abrem e pré-preenchem blocos condicionais (Bloco 1: papel_operacional; Bloco 2: setor_regulado + orgao)</li>
+      <li><code>show_confidence_cnae</code> — cada CNAE no modal e no multi-select exibe badge de confiança (alta/média/baixa) baseado na correspondência com a descrição do negócio</li>
+      <li><code>show_detected_profile_preview</code> — painel de pré-visualização exibe Perfil da Entidade detectado automaticamente após CNAEs confirmados; é informativo, não substitui confirmação do usuário</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <code>MOCKUP_perfil_entidade_deterministico_v4.html</code> · Delta v4 · pré-M1 · artefato de análise · sem implementação
+  <br>Referência: <code>M1-ARQUETIPO-FORM-DELTA-v4.md</code> · branch <code>docs/m1-arquetipo-exploracao</code>
+  <br>Mudanças v4: remove cnae_principal_input · add botão+modal "Identificar CNAEs" · multi-select editável · 3 novos comportamentos
+</footer>
+
+</body>
+</html>

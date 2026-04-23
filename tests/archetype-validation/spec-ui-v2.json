@@ -1,0 +1,153 @@
+{
+  "version": "M1-UI-v2",
+  "goal": "deterministic_archetype_engine",
+  "mode": "STRICT_DETERMINISTIC",
+  "rules_policy": {
+    "no_inference": true,
+    "user_first_override": true,
+    "all_rules_must_be_explicit": true
+  },
+  "block_triggers": {
+    "NCM": {
+      "when": ["tipo_objeto_economico CONTAINS 'bens'"],
+      "required_fields": ["ncm"]
+    },
+    "NBS": {
+      "when": ["tipo_objeto_economico CONTAINS 'servicos'"],
+      "required_fields": ["nbs"]
+    },
+    "TERRITORIAL_EXPANDIDO": {
+      "when": ["opera_multiplos_estados == true"],
+      "required_fields": [],
+      "conditional_required": [
+        {
+          "field": "estrutura_operacao",
+          "when": "possui_filial_outra_uf == true"
+        }
+      ]
+    },
+    "REGULATORIO": {
+      "when": [
+        "setor_regulado == true"
+      ],
+      "auto_mark": {
+        "when": [
+          "natureza_operacao_principal IN ['Transporte','Agro','Saude','Financeiro','Energia/Combustiveis']"
+        ],
+        "action": "preselect_setor_regulado_true"
+      },
+      "required_fields": [
+        "orgao_regulador_principal",
+        "subnatureza_setorial",
+        "tipo_operacao_especifica",
+        "papel_operacional_especifico"
+      ]
+    },
+    "COMERCIO_EXTERIOR": {
+      "when": [
+        "atua_importacao == true",
+        "atua_exportacao == true"
+      ],
+      "required_fields": ["papel_comercio_exterior"]
+    },
+    "CADEIA_OPERACIONAL": {
+      "when": [
+        "natureza_operacao_principal IN ['Transporte','Agro','Plataforma digital']",
+        "atua_como_marketplace_plataforma == true",
+        "(natureza_operacao_principal IN ['Comercio','Energia/Combustiveis'] AND operacoes_secundarias CONTAINS 'Logistica')"
+      ],
+      "required_fields": [
+        "papel_operacional",
+        "tipo_operacao_especifica"
+      ]
+    },
+    "REGIMES_ESPECIAIS": {
+      "when": [
+        "possui_regime_especial_negocio == true"
+      ],
+      "required_fields": [
+        "tipo_regime_especial"
+      ]
+    },
+    "TERRITORIO_INCENTIVADO": {
+      "when": [
+        "opera_territorio_incentivado == true"
+      ],
+      "required_fields": [
+        "tipo_territorio_incentivado"
+      ]
+    }
+  },
+  "blocking_rules": [
+    {
+      "if": "possui_bens == true AND ncm IS EMPTY",
+      "action": "BLOCK",
+      "message": "Preencher NCM"
+    },
+    {
+      "if": "possui_servicos == true AND nbs IS EMPTY",
+      "action": "BLOCK",
+      "message": "Preencher NBS"
+    },
+    {
+      "if": "(atua_importacao == true OR atua_exportacao == true) AND papel_comercio_exterior IS EMPTY",
+      "action": "BLOCK"
+    },
+    {
+      "if": "setor_regulado == true AND subnatureza_setorial IS EMPTY",
+      "action": "BLOCK"
+    },
+    {
+      "if": "integra_grupo_economico == true AND analise_1_cnpj_operacional == false",
+      "action": "BLOCK",
+      "message": "Apenas 1 CNPJ permitido"
+    }
+  ],
+  "schema_constraints": {
+    "subnatureza_setorial": {
+      "type": "array",
+      "multi": true,
+      "reason": "multi-setor real (E04)"
+    },
+    "tipo_operacao_especifica": {
+      "type": "array",
+      "multi": true
+    },
+    "papel_operacional_especifico": {
+      "type": "array",
+      "multi": true
+    }
+  },
+  "normalization_rules": [
+    {
+      "field": "operationType",
+      "map": {
+        "servico": "servicos"
+      }
+    }
+  ],
+  "test_fixes": {
+    "T03": {
+      "fix": "remover abertura de COMERCIO_EXTERIOR sem import/export"
+    },
+    "T15": {
+      "fix": "REGULATORIO só abre se setor_regulado true (auto_mark opcional, não obrigatório)"
+    }
+  },
+  "consistency_rules": [
+    {
+      "rule": "[] treated as empty"
+    },
+    {
+      "rule": "campos multi obrigatórios devem ter pelo menos 1 valor"
+    }
+  ],
+  "go_no_go": {
+    "criteria": [
+      "15 cenarios PASS",
+      "0 blockers indevidos",
+      "0 campos obrigatorios invisiveis",
+      "0 inferencia livre"
+    ]
+  }
+}
