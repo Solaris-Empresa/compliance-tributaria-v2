@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mockup — Arquétipo Determinístico M1 (pré-implementação)</title>
+  <title>Mockup — Arquétipo Determinístico M1 · Delta v2</title>
   <style>
     :root {
       --blue-50:#eff6ff; --blue-100:#dbeafe; --blue-500:#3b82f6; --blue-700:#1d4ed8; --blue-900:#1e3a8a;
@@ -12,6 +12,7 @@
       --amber-50:#fffbeb; --amber-100:#fef3c7; --amber-500:#f59e0b; --amber-700:#b45309;
       --red-50:#fef2f2; --red-100:#fee2e2; --red-500:#ef4444; --red-700:#b91c1c;
       --purple-50:#faf5ff; --purple-100:#f3e8ff; --purple-500:#a855f7; --purple-700:#7e22ce;
+      --teal-50:#f0fdfa; --teal-500:#14b8a6; --teal-700:#0f766e;
     }
     * { box-sizing: border-box; }
     body { font-family: system-ui,-apple-system,sans-serif; margin:0; padding:0; background:var(--gray-50); color:var(--gray-900); line-height:1.5; }
@@ -20,7 +21,8 @@
     header p { margin:0.5rem 0 0; opacity:0.8; font-size:0.9rem; }
     header code { background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-size:0.85em; }
     .banner { background:var(--amber-100); color:var(--amber-700); padding:0.75rem 2rem; font-size:0.85rem; border-bottom:1px solid var(--amber-500); }
-    main { max-width:1280px; margin:0 auto; padding:2rem; }
+    .delta-badge { display:inline-block; background:var(--blue-700); color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700; margin-left:0.5rem; vertical-align:middle; }
+    main { max-width:1400px; margin:0 auto; padding:2rem; }
     .legenda { display:flex; gap:1.25rem; font-size:0.82rem; margin:0 0 2rem; padding:0.75rem 1rem; background:white; border-radius:8px; border:1px solid var(--gray-200); flex-wrap:wrap; }
     .legenda-item { display:flex; align-items:center; gap:0.5rem; }
     .legenda-swatch { width:14px; height:14px; border-radius:3px; border:1px solid var(--gray-200); }
@@ -36,14 +38,14 @@
     .state-label.ok { background:var(--green-100); color:var(--green-700); }
     .state-label.warn { background:var(--amber-100); color:var(--amber-700); }
     .state-label.error { background:var(--red-100); color:var(--red-700); }
-    .layout { display:grid; grid-template-columns: minmax(0,1fr) 320px; gap:2rem; }
+    .layout { display:grid; grid-template-columns: minmax(0,1fr) 340px; gap:2rem; }
     @media (max-width: 900px) { .layout { grid-template-columns:1fr; } }
-    .block { background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; padding:1rem 1.25rem; margin-bottom:0.85rem; transition:all 0.2s; }
+    .block { background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; padding:1rem 1.25rem; margin-bottom:0.85rem; }
     .block.active { background:var(--blue-50); border-color:var(--blue-500); }
     .block.valid { background:var(--green-50); border-color:var(--green-500); }
-    .block.hidden { opacity:0.45; background:var(--gray-100); }
+    .block.hidden { opacity:0.4; background:var(--gray-100); border-style:dashed; }
     .block.error { background:var(--red-50); border-color:var(--red-500); }
-    .block-header { display:flex; align-items:baseline; gap:0.75rem; margin-bottom:0.75rem; }
+    .block-header { display:flex; align-items:baseline; gap:0.75rem; margin-bottom:0.75rem; flex-wrap:wrap; }
     .block-id { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.72rem; color:var(--gray-500); font-weight:600; letter-spacing:0.02em; }
     .block-title { font-weight:600; font-size:0.95rem; color:var(--gray-900); }
     .block-hint { font-size:0.78rem; color:var(--gray-500); margin-left:auto; }
@@ -51,33 +53,45 @@
     .field:last-child { margin-bottom:0; }
     .field-id { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.7rem; color:var(--gray-400); font-weight:500; }
     .field-label { font-weight:500; display:block; margin:0.15rem 0 0.4rem; font-size:0.9rem; color:var(--gray-700); }
+    .field-note { font-size:0.76rem; color:var(--gray-500); margin-top:0.2rem; font-style:italic; }
     .chip-group { display:flex; gap:0.4rem; flex-wrap:wrap; }
-    .chip { padding:5px 11px; border:1px solid var(--gray-200); border-radius:14px; font-size:0.82rem; background:white; user-select:none; }
+    .chip { padding:5px 11px; border:1px solid var(--gray-200); border-radius:14px; font-size:0.82rem; background:white; user-select:none; cursor:default; }
     .chip.selected { background:var(--blue-700); color:white; border-color:var(--blue-700); font-weight:500; }
     .chip.selected-green { background:var(--green-700); color:white; border-color:var(--green-700); font-weight:500; }
-    .chip.radio-no { border-style:dashed; color:var(--gray-500); }
+    .chip.selected-multi { background:var(--blue-500); color:white; border-color:var(--blue-500); font-weight:500; }
+    .chip.derived { background:var(--teal-50); color:var(--teal-700); border-color:var(--teal-500); font-size:0.76rem; }
     .effect { font-size:0.76rem; color:var(--green-700); background:var(--green-50); border-left:3px solid var(--green-500); padding:6px 10px; margin-top:0.4rem; border-radius:2px; line-height:1.55; }
     .effect code { background:var(--green-100); padding:1px 4px; border-radius:3px; font-size:0.94em; }
+    .derived-box { font-size:0.76rem; color:var(--teal-700); background:var(--teal-50); border-left:3px solid var(--teal-500); padding:6px 10px; margin-top:0.4rem; border-radius:2px; }
+    .derived-box code { background:rgba(20,184,166,0.1); padding:1px 4px; border-radius:3px; font-size:0.94em; }
     .input-text, .input-select { padding:0.45rem 0.7rem; border:1px solid var(--gray-200); border-radius:6px; width:100%; font-size:0.9rem; font-family:inherit; background:white; }
     .list-chips { display:flex; gap:0.3rem; flex-wrap:wrap; margin-top:0.3rem; }
     .list-chip { background:white; border:1px solid var(--gray-200); padding:3px 8px; border-radius:4px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.78rem; }
     .archetype-panel { position:sticky; top:1rem; background:var(--gray-900); color:#e5e7eb; padding:1rem 1.15rem; border-radius:8px; font-size:0.8rem; height:fit-content; }
     .archetype-panel h3 { color:white; margin:0 0 0.6rem; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:600; opacity:0.85; }
-    .archetype-panel pre { white-space:pre-wrap; margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.76rem; line-height:1.55; color:#cbd5e1; }
+    .archetype-panel pre { white-space:pre-wrap; margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.75rem; line-height:1.55; color:#cbd5e1; }
     .archetype-panel .status-row { margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.1); }
+    .archetype-panel .gate-row { margin-top:0.5rem; padding:0.5rem 0.6rem; border-radius:4px; font-size:0.76rem; font-weight:600; }
+    .gate-row.blocked { background:rgba(239,68,68,0.2); color:#fca5a5; }
+    .gate-row.open { background:rgba(16,185,129,0.2); color:#6ee7b7; }
+    .gate-row.pending { background:rgba(245,158,11,0.2); color:#fcd34d; }
     .status-badge { display:inline-block; padding:3px 9px; border-radius:4px; font-weight:600; font-size:0.78rem; }
     .status-badge.valido { background:var(--green-500); color:white; }
     .status-badge.incompleto { background:var(--amber-500); color:white; }
     .status-badge.bloqueado { background:var(--red-500); color:white; }
+    .status-badge.confirmado { background:var(--blue-700); color:white; }
     .warn-box { background:var(--amber-50); color:var(--amber-700); border:1px solid var(--amber-500); padding:0.7rem 0.9rem; border-radius:6px; font-size:0.85rem; margin:0.5rem 0; }
     .error-box { background:var(--red-50); color:var(--red-700); border:1px solid var(--red-500); padding:0.7rem 0.9rem; border-radius:6px; font-size:0.85rem; margin:0.5rem 0; font-weight:500; }
     .ok-box { background:var(--green-50); color:var(--green-700); border:1px solid var(--green-500); padding:0.7rem 0.9rem; border-radius:6px; font-size:0.85rem; margin:0.5rem 0; font-weight:500; }
     .info-box { background:var(--purple-50); color:var(--purple-700); border:1px solid var(--purple-500); padding:0.7rem 0.9rem; border-radius:6px; font-size:0.85rem; margin:0.5rem 0; }
+    .teal-box { background:var(--teal-50); color:var(--teal-700); border:1px solid var(--teal-500); padding:0.7rem 0.9rem; border-radius:6px; font-size:0.85rem; margin:0.5rem 0; }
     .action-bar { display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--gray-100); }
     button { padding:8px 18px; border-radius:6px; border:none; cursor:pointer; font-weight:600; font-size:0.9rem; font-family:inherit; }
     .btn-primary { background:var(--blue-700); color:white; }
     .btn-primary:disabled { background:var(--gray-400); cursor:not-allowed; }
     .btn-secondary { background:var(--gray-100); color:var(--gray-900); border:1px solid var(--gray-200); }
+    .btn-briefing { background:var(--green-700); color:white; font-size:1rem; padding:10px 24px; }
+    .btn-briefing:disabled { background:var(--gray-400); cursor:not-allowed; }
     .subblock { margin-top:0.75rem; padding:0.75rem 0.95rem; background:var(--purple-50); border:1px solid var(--purple-500); border-radius:6px; }
     .subblock-header { font-size:0.78rem; color:var(--purple-700); font-weight:600; margin-bottom:0.5rem; letter-spacing:0.02em; }
     table.validation { width:100%; border-collapse:collapse; font-size:0.85rem; margin-top:0.75rem; }
@@ -89,39 +103,65 @@
     footer { background:var(--gray-900); color:#9ca3af; padding:1.5rem 2rem; text-align:center; font-size:0.82rem; margin-top:3rem; }
     footer code { color:#d1d5db; }
     .state-note { font-size:0.82rem; color:var(--gray-500); margin-bottom:1rem; font-style:italic; }
+    .rb-table { width:100%; border-collapse:collapse; font-size:0.82rem; margin-top:0.5rem; }
+    .rb-table th, .rb-table td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--gray-200); }
+    .rb-table th { background:var(--gray-50); font-size:0.72rem; text-transform:uppercase; color:var(--gray-500); }
+    .rb-active { background:var(--red-50); }
+    .rb-inactive { color:var(--gray-400); }
+    .tag-new { display:inline-block; background:var(--blue-100); color:var(--blue-700); font-size:0.68rem; font-weight:700; padding:1px 5px; border-radius:3px; margin-left:4px; vertical-align:middle; }
+    .tag-derived { display:inline-block; background:var(--teal-50); color:var(--teal-700); font-size:0.68rem; font-weight:700; padding:1px 5px; border-radius:3px; margin-left:4px; vertical-align:middle; }
+    .tag-removed { display:inline-block; background:var(--red-100); color:var(--red-700); font-size:0.68rem; font-weight:700; padding:1px 5px; border-radius:3px; margin-left:4px; vertical-align:middle; text-decoration:line-through; }
+    .section-divider { border:none; border-top:2px dashed var(--gray-200); margin:2.5rem 0; }
+    .delta-summary { background:var(--blue-50); border:1px solid var(--blue-200); border-radius:8px; padding:1rem 1.5rem; margin-bottom:2rem; font-size:0.85rem; }
+    .delta-summary h3 { margin:0 0 0.5rem; font-size:0.9rem; color:var(--blue-700); }
+    .delta-summary ul { margin:0; padding-left:1.25rem; }
+    .delta-summary li { margin-bottom:0.25rem; }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>Mockup — Arquétipo Determinístico (M1, pré-implementação)</h1>
-  <p>Simulação visual estática de 6 estados progressivos do formulário. Sem JavaScript, sem implementação — apenas validação de UX/fluxo para discussão P.O./consultor. Referência: <code>docs/sprints/M1-arquetipo-negocio/EXPLORACAO.md</code></p>
+  <h1>Mockup — Arquétipo Determinístico (M1, pré-implementação) <span class="delta-badge">DELTA v2</span></h1>
+  <p>Simulação visual estática de 7 estados progressivos. Sem JavaScript — apenas validação de UX/fluxo para discussão P.O./consultor. Referência: <code>M1-ARQUETIPO-FORM-DELTA-v2.md</code></p>
 </header>
 
 <div class="banner">
-  🔒 <strong>Status:</strong> F0 — exploração (pré-M1). Implementação suspensa por <code>REGRA-M1-GO-NO-GO</code>. Este mockup é artefato de análise, não produto.
+  🔒 <strong>Status:</strong> pré-M1 · exploração. Implementação suspensa até aprovação <code>REGRA-M1-GO-NO-GO</code>. Este mockup é artefato de análise, não produto.
 </div>
 
 <main>
 
+<div class="delta-summary">
+  <h3>O que mudou no Delta v2</h3>
+  <ul>
+    <li><strong>8 campos removidos</strong> (sem efeito declarado): paymentMethods, hasIntermediaries, taxCentralization, hasTaxTeam, hasAudit, hasTaxIssues, clientType, companyType</li>
+    <li><strong>8 campos novos</strong> com efeito declarado: setor_regulado, orgao_regulador_principal, papel_operacional, opera_territorio_incentivado, tipo_territorio_incentivado, papel_comercio_exterior, analise_1_cnpj_operacional, status_arquetipo</li>
+    <li><strong>2 campos derivados</strong> (não persistidos): possui_bens, possui_servicos — derivados de natureza_da_operacao[]</li>
+    <li><strong>natureza_da_operacao</strong>: multi-seleção (array) — serializado como string normalizada para gate IS v2.1 (sem quebrar produção)</li>
+    <li><strong>Gate E2E</strong>: status_arquetipo ≠ "confirmado" → bloqueia rota /briefing</li>
+    <li><strong>8 regras de bloqueio</strong> declaradas (RB-01 a RB-08)</li>
+  </ul>
+</div>
+
 <div class="legenda">
-  <div class="legenda-item"><div class="legenda-swatch" style="background:var(--blue-50);border-color:var(--blue-500)"></div>Bloco ativo (aguardando resposta)</div>
-  <div class="legenda-item"><div class="legenda-swatch" style="background:var(--green-50);border-color:var(--green-500)"></div>Bloco válido (preenchido)</div>
+  <div class="legenda-item"><div class="legenda-swatch" style="background:var(--blue-50);border-color:var(--blue-500)"></div>Bloco ativo</div>
+  <div class="legenda-item"><div class="legenda-swatch" style="background:var(--green-50);border-color:var(--green-500)"></div>Bloco válido</div>
   <div class="legenda-item"><div class="legenda-swatch" style="background:var(--red-50);border-color:var(--red-500)"></div>Bloco com erro bloqueante</div>
   <div class="legenda-item"><div class="legenda-swatch" style="background:var(--gray-100)"></div>Bloco oculto (aguarda gatilho)</div>
-  <div class="legenda-item"><div class="legenda-swatch" style="background:var(--green-50);border-color:var(--green-500)"></div>→ EFEITO declarado</div>
+  <div class="legenda-item"><div class="legenda-swatch" style="background:var(--teal-50);border-color:var(--teal-500)"></div>Campo derivado (calculado)</div>
   <div class="legenda-item"><div class="legenda-swatch" style="background:var(--purple-50);border-color:var(--purple-500)"></div>Sub-bloco condicional</div>
 </div>
 
 <div class="toc">
   <h2>Índice dos estados</h2>
   <ol>
-    <li><a href="#estado-a">Estado A — Início (só Bloco 0 visível)</a></li>
-    <li><a href="#estado-b">Estado B — operationType = industria (Bloco 1 NCM abre + 2/3/4 surgem)</a></li>
-    <li><a href="#estado-c">Estado C — operationType = misto → F0-02 aparece → NCM + NBS abrem</a></li>
-    <li><a href="#estado-d">Estado D — F4-02 true → sub-bloco regime especial (ZFM)</a></li>
-    <li><a href="#estado-e">Estado E — Validação final: HARD BLOCK (taxRegime × annualRevenue)</a></li>
-    <li><a href="#estado-f">Estado F — Validação final: ✅ sucesso (arquétipo válido)</a></li>
+    <li><a href="#estado-a">Estado A — Início: apenas Bloco 0 visível</a></li>
+    <li><a href="#estado-b">Estado B — natureza=produto → possui_bens derivado → NCM abre + Bloco 1 (papel_operacional)</a></li>
+    <li><a href="#estado-c">Estado C — natureza=misto → ambos derivados → NCM+NBS + Bloco 1 + Bloco 2 (setor_regulado)</a></li>
+    <li><a href="#estado-d">Estado D — opera_territorio_incentivado=ZFM + papel_comercio_exterior=exportador</a></li>
+    <li><a href="#estado-e">Estado E — isEconomicGroup=true + analise_1_cnpj=false → RB-06 HARD BLOCK</a></li>
+    <li><a href="#estado-f">Estado F — Validação final: RB-07 HARD BLOCK (taxRegime × annualRevenue)</a></li>
+    <li><a href="#estado-g">Estado G — Arquétipo confirmado → gate E2E aberto → botão /briefing liberado</a></li>
   </ol>
 </div>
 
@@ -130,60 +170,109 @@
 <!-- =========================================================== -->
 <section class="state" id="estado-a">
   <header>
-    <h2>Estado A — Início (só Bloco 0 visível)</h2>
-    <span class="state-label">Usuário recém-chegou · zero campo preenchido</span>
+    <h2>Estado A — Início: apenas Bloco 0 visível</h2>
+    <span class="state-label">Entrada mínima obrigatória</span>
   </header>
-  <p class="state-note">Princípio: "entrada mínima inteligente". Apenas o gatilho principal (operationType) aparece. Nada mais compete pela atenção.</p>
+  <p class="state-note">O formulário abre com apenas o Bloco 0. Todos os outros blocos estão ocultos. O primeiro campo obrigatório é <code>natureza_da_operacao</code> — multi-seleção fechada. Nenhum bloco abre antes que ele seja preenchido.</p>
 
   <div class="layout">
     <div>
+      <!-- BLOCO 0 -->
       <div class="block active">
         <div class="block-header">
           <span class="block-id">BLOCO 0</span>
-          <span class="block-title">Gatilho Principal — obrigatório</span>
-          <span class="block-hint">abre imediatamente</span>
+          <span class="block-title">Entrada Obrigatória</span>
+          <span class="block-hint">sempre visível</span>
         </div>
+
         <div class="field">
-          <span class="field-id">[F0-01]</span>
-          <label class="field-label">operationType — Qual a operação principal da empresa?</label>
+          <span class="field-id">[B0-01]</span>
+          <label class="field-label">Descrição do negócio <span class="tag-new">único campo aberto</span></label>
+          <input class="input-text" type="text" value="" placeholder="Ex: distribuidora de combustíveis com frota própria" disabled>
+        </div>
+
+        <div class="field">
+          <span class="field-id">[B0-02]</span>
+          <label class="field-label">CNAE principal</label>
+          <input class="input-text" type="text" value="" placeholder="Buscar CNAE..." disabled>
+        </div>
+
+        <div class="field">
+          <span class="field-id">[B0-03]</span>
+          <label class="field-label">Natureza da operação <span class="tag-new">multi-seleção</span></label>
           <div class="chip-group">
-            <span class="chip">industria</span>
-            <span class="chip">comercio</span>
-            <span class="chip">servicos</span>
-            <span class="chip">misto</span>
-            <span class="chip">agronegocio</span>
-            <span class="chip">financeiro</span>
+            <span class="chip">Produto (bens)</span>
+            <span class="chip">Serviço</span>
+            <span class="chip">Misto (produto + serviço)</span>
           </div>
-          <div class="effect">
-            → EFEITO: abre <code>BLOCO 1 NCM</code> se in <code>[industria, comercio, misto, agronegocio]</code><br>
-            → EFEITO: abre <code>BLOCO 1 NBS</code> se in <code>[servicos, misto, financeiro]</code><br>
-            → EFEITO: define conjunto base de categorias de risco
+          <p class="field-note">Selecione todos que se aplicam. Abre NCM (produto) e/ou NBS (serviço) automaticamente.</p>
+        </div>
+
+        <div class="field">
+          <span class="field-id">[B0-06]</span>
+          <label class="field-label">Opera em múltiplos estados?</label>
+          <div class="chip-group">
+            <span class="chip">Sim</span>
+            <span class="chip">Não</span>
           </div>
         </div>
-        <div class="field" style="opacity:0.4">
-          <span class="field-id">[F0-02]</span>
-          <label class="field-label">mixedDominance — aparece apenas se <code>operationType = misto</code></label>
+
+        <div class="field">
+          <span class="field-id">[B0-07]</span>
+          <label class="field-label">Faixa de faturamento anual</label>
+          <div class="chip-group">
+            <span class="chip">Até R$ 360k</span>
+            <span class="chip">R$ 360k – 4,8M</span>
+            <span class="chip">R$ 4,8M – 10M</span>
+            <span class="chip">R$ 10M – 50M</span>
+            <span class="chip">Acima de R$ 50M</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field-id">[B0-08]</span>
+          <label class="field-label">Regime tributário atual</label>
+          <div class="chip-group">
+            <span class="chip">Simples Nacional</span>
+            <span class="chip">Lucro Presumido</span>
+            <span class="chip">Lucro Real</span>
+            <span class="chip">Imune / Isento</span>
+          </div>
         </div>
       </div>
-      <div class="block hidden"><span class="block-id">BLOCO 1</span> Produto/Serviço — aguarda F0-01</div>
-      <div class="block hidden"><span class="block-id">BLOCO 2</span> Regime Tributário — aguarda F0-01</div>
-      <div class="block hidden"><span class="block-id">BLOCO 3</span> Operação — aguarda F0-01</div>
-      <div class="block hidden"><span class="block-id">BLOCO 4</span> Gatilhos Especiais — aguarda F0-01</div>
-      <div class="block hidden"><span class="block-id">BLOCO 5</span> Validação Final — sempre por último</div>
+
+      <!-- BLOCOS OCULTOS -->
+      <div class="block hidden">
+        <span class="block-id">BLOCO 1</span> · Posição na Cadeia — <em>aguarda natureza_da_operacao</em>
+      </div>
+      <div class="block hidden">
+        <span class="block-id">BLOCO 2</span> · Setor Regulado — <em>aguarda Bloco 0 completo</em>
+      </div>
+      <div class="block hidden">
+        <span class="block-id">BLOCO 3</span> · Território e Comércio Exterior — <em>aguarda Bloco 1</em>
+      </div>
+      <div class="block hidden">
+        <span class="block-id">BLOCO 4</span> · Estrutura Societária — <em>aguarda Bloco 0 completo</em>
+      </div>
     </div>
+
     <aside class="archetype-panel">
       <h3>Arquétipo em construção</h3>
 <pre>{
-  "operationType": null,
-  "status_arquetipo": "incompleto",
-  "blocos_ativos": ["BLOCO 0"],
-  "blocos_pendentes": 5,
-  "campos_obrigatorios_faltantes": [
-    "operationType"
-  ]
+  "natureza_da_operacao": [],
+  "possui_bens": false,
+  "possui_servicos": false,
+  "papel_operacional": null,
+  "multiState": null,
+  "taxRegime": null,
+  "annualRevenueRange": null,
+  "status_arquetipo": "pendente"
 }</pre>
       <div class="status-row">
-        <span class="status-badge incompleto">incompleto</span>
+        <span class="status-badge incompleto">pendente</span>
+      </div>
+      <div class="gate-row blocked">
+        🔒 /briefing bloqueado — arquétipo incompleto
       </div>
     </aside>
   </div>
@@ -194,209 +283,144 @@
 <!-- =========================================================== -->
 <section class="state" id="estado-b">
   <header>
-    <h2>Estado B — operationType = industria (Bloco 1 NCM + 2/3/4 abrem)</h2>
-    <span class="state-label">F0-01 respondido · cascata dispara blocos</span>
+    <h2>Estado B — natureza = produto → possui_bens derivado → NCM abre + Bloco 1</h2>
+    <span class="state-label">Derivação automática + abertura progressiva</span>
   </header>
-  <p class="state-note">Gatilho <code>operationType=industria</code> dispara efeito em cascata: Bloco 1 NCM abre (por ser in <code>[industria, comercio, misto, agro]</code>); Blocos 2, 3, 4 (obrigatórios independentes) ficam visíveis. Bloco 1 NBS permanece oculto.</p>
+  <p class="state-note">Usuário seleciona <code>Produto (bens)</code>. O sistema deriva <code>possui_bens=true</code> e <code>possui_servicos=false</code> automaticamente (sem campo adicional). O sub-bloco de NCM abre imediatamente. O Bloco 1 (papel_operacional) aparece.</p>
 
   <div class="layout">
     <div>
-      <div class="block valid">
+      <!-- BLOCO 0 parcialmente preenchido -->
+      <div class="block valid" style="opacity:0.85">
         <div class="block-header">
           <span class="block-id">BLOCO 0</span>
-          <span class="block-title">Gatilho Principal</span>
-          <span class="block-hint">✓ completo</span>
+          <span class="block-title">Entrada — parcialmente preenchido</span>
+          <span class="block-hint">continua aberto</span>
         </div>
+
         <div class="field">
-          <span class="field-id">[F0-01]</span>
-          <label class="field-label">operationType</label>
+          <span class="field-id">[B0-03]</span>
+          <label class="field-label">Natureza da operação</label>
           <div class="chip-group">
-            <span class="chip selected-green">industria</span>
-            <span class="chip">comercio</span>
-            <span class="chip">servicos</span>
-            <span class="chip">misto</span>
-            <span class="chip">agronegocio</span>
-            <span class="chip">financeiro</span>
+            <span class="chip selected-multi">✓ Produto (bens)</span>
+            <span class="chip">Serviço</span>
+            <span class="chip">Misto</span>
+          </div>
+          <div class="derived-box">
+            → <span class="tag-derived">DERIVADO</span> <code>possui_bens = true</code> · <code>possui_servicos = false</code><br>
+            → <code>tipoOperacao_normalizado = "produto"</code> (gate IS v2.1 preservado)
           </div>
         </div>
-      </div>
 
-      <div class="block active">
-        <div class="block-header">
-          <span class="block-id">BLOCO 1 · NCM</span>
-          <span class="block-title">Principais produtos (NCM)</span>
-          <span class="block-hint">abriu por F0-01 = industria</span>
-        </div>
-        <div class="field">
-          <span class="field-id">[F1-01]</span>
-          <label class="field-label">principaisProdutos[].ncm_code — lista de NCMs</label>
-          <input class="input-text" placeholder="Buscar NCM... (autocomplete controlado)" />
+        <!-- NCM abre automaticamente -->
+        <div class="subblock">
+          <div class="subblock-header">[B0-04] Principais produtos (NCM) <span class="tag-new">abre por possui_bens=true</span></div>
           <div class="list-chips">
-            <span class="list-chip">2905 (álcoois acíclicos)</span>
-            <span class="list-chip">+ adicionar</span>
+            <span class="list-chip">8517.12 · smartphones</span>
+            <span class="list-chip">+ Adicionar produto</span>
+          </div>
+          <div class="field" style="margin-top:0.6rem">
+            <label class="field-label" style="font-size:0.82rem">% faturamento por produto</label>
+            <div class="chip-group">
+              <span class="chip selected">100%</span>
+            </div>
           </div>
           <div class="effect">
-            → EFEITO: lookup <code>NCM_IS_TABLE</code> → ativa/bloqueia <code>imposto_seletivo</code> por produto
+            → EFEITO: NCM <code>8517.12</code> verificado contra lista IS (art. 393 LC 214) → <strong>não está na lista positiva</strong> → IS bloqueado para este produto
           </div>
+        </div>
+
+        <div class="field" style="margin-top:0.75rem">
+          <span class="field-id">[B0-06]</span>
+          <label class="field-label">Opera em múltiplos estados?</label>
+          <div class="chip-group">
+            <span class="chip selected">Sim</span>
+            <span class="chip">Não</span>
+          </div>
+          <div class="effect">→ EFEITO: <code>geo:multi</code> no rule_id de todos os riscos</div>
+        </div>
+
+        <div class="field">
+          <span class="field-id">[B0-07]</span>
+          <label class="field-label">Faixa de faturamento</label>
+          <div class="chip-group">
+            <span class="chip selected">R$ 10M – 50M</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field-id">[B0-08]</span>
+          <label class="field-label">Regime tributário</label>
+          <div class="chip-group">
+            <span class="chip selected">Lucro Real</span>
+          </div>
+          <div class="effect">→ EFEITO: validação cruzada V-01 (lucro_real × 10M-50M) → ✓ compatível</div>
         </div>
       </div>
 
+      <!-- BLOCO 1 abre -->
       <div class="block active">
         <div class="block-header">
-          <span class="block-id">BLOCO 2</span>
-          <span class="block-title">Regime Tributário</span>
-          <span class="block-hint">obrigatório</span>
+          <span class="block-id">BLOCO 1</span>
+          <span class="block-title">Posição na Cadeia <span class="tag-new">NOVO</span></span>
+          <span class="block-hint">abre após natureza_da_operacao</span>
         </div>
-        <div class="field">
-          <span class="field-id">[F2-01]</span>
-          <label class="field-label">taxRegime</label>
-          <div class="chip-group">
-            <span class="chip">simples_nacional</span>
-            <span class="chip">lucro_presumido</span>
-            <span class="chip">lucro_real</span>
-            <span class="chip">imune</span>
-            <span class="chip">isento</span>
-          </div>
-          <div class="effect">
-            → EFEITO: ativa/bloqueia <code>regime_diferenciado</code><br>
-            → EFEITO: valida cruzadamente com F2-02
-          </div>
-        </div>
-        <div class="field">
-          <span class="field-id">[F2-02]</span>
-          <label class="field-label">annualRevenueRange</label>
-          <div class="chip-group">
-            <span class="chip">até 360k</span>
-            <span class="chip">360k-4,8M</span>
-            <span class="chip">4,8M-10M</span>
-            <span class="chip">10M-50M</span>
-            <span class="chip">acima de 50M</span>
-          </div>
-          <div class="effect">
-            → EFEITO: valida F2-01 (Simples impossível se &gt; 4,8M)<br>
-            → EFEITO: ativa <code>aliquota_reduzida</code> para faixas específicas
-          </div>
-        </div>
-      </div>
 
-      <div class="block active">
-        <div class="block-header">
-          <span class="block-id">BLOCO 3</span>
-          <span class="block-title">Operação</span>
-          <span class="block-hint">obrigatório</span>
-        </div>
         <div class="field">
-          <span class="field-id">[F3-01]</span>
-          <label class="field-label">multiState — opera em múltiplos estados?</label>
+          <span class="field-id">[B1-01]</span>
+          <label class="field-label">Papel operacional na cadeia</label>
           <div class="chip-group">
-            <span class="chip">Sim</span>
-            <span class="chip">Não</span>
+            <span class="chip selected">Fabricante</span>
+            <span class="chip">Distribuidor</span>
+            <span class="chip">Varejista</span>
+            <span class="chip">Prestador de serviço</span>
+            <span class="chip">Misto (mais de um)</span>
           </div>
           <div class="effect">
-            → EFEITO: define <code>geo:mono</code> vs <code>geo:multi</code> em buildRiskKey
-          </div>
-        </div>
-        <div class="field">
-          <span class="field-id">[F3-02]</span>
-          <label class="field-label">clientType — tipo de cliente predominante (multi)</label>
-          <div class="chip-group">
-            <span class="chip">B2B</span>
-            <span class="chip">B2C</span>
-            <span class="chip">B2G</span>
-            <span class="chip">B2B2C</span>
-          </div>
-          <div class="effect">
-            → EFEITO: B2C → ativa <code>split_payment</code> obrigatório<br>
-            → EFEITO: B2G → ativa <code>obrigacao_acessoria</code> (NF-e governo)
-          </div>
-        </div>
-        <div class="field">
-          <span class="field-id">[F3-03]</span>
-          <label class="field-label">hasIntermediaries — possui intermediários financeiros?</label>
-          <div class="chip-group">
-            <span class="chip">Sim</span>
-            <span class="chip">Não</span>
-          </div>
-          <div class="effect">
-            → EFEITO: true → ativa <code>split_payment</code> severidade alta
-          </div>
-        </div>
-      </div>
-
-      <div class="block active">
-        <div class="block-header">
-          <span class="block-id">BLOCO 4</span>
-          <span class="block-title">Gatilhos Especiais</span>
-          <span class="block-hint">abre sub-bloco quando resposta = Sim</span>
-        </div>
-        <div class="field">
-          <span class="field-id">[F4-01]</span>
-          <label class="field-label">hasImportExport — importa ou exporta?</label>
-          <div class="chip-group">
-            <span class="chip">Sim</span>
-            <span class="chip">Não</span>
-          </div>
-          <div class="effect">
-            → EFEITO: true → ativa <code>regime_diferenciado</code> + <code>obrigacao_acessoria</code>
-          </div>
-        </div>
-        <div class="field">
-          <span class="field-id">[F4-02]</span>
-          <label class="field-label">hasSpecialRegimes — possui regime especial?</label>
-          <div class="chip-group">
-            <span class="chip">Sim</span>
-            <span class="chip">Não</span>
-          </div>
-          <div class="effect">
-            → EFEITO: true → abre sub-bloco (ZFM | RECOF | REPORTO | outro)<br>
-            → EFEITO: ZFM → bloqueia IBS/CBS (imunidade art. 92 LC 214)
-          </div>
-        </div>
-        <div class="field">
-          <span class="field-id">[F4-03]</span>
-          <label class="field-label">isEconomicGroup — integra grupo econômico?</label>
-          <div class="chip-group">
-            <span class="chip">Sim</span>
-            <span class="chip">Não</span>
-          </div>
-          <div class="effect">
-            → EFEITO: true → ativa <code>inscricao_cadastral</code> (múltiplos estabelecimentos)
+            → EFEITO (fabricante): ativa verificação <code>imposto_seletivo</code> por NCM<br>
+            → EFEITO (fabricante): ativa <code>regime_diferenciado</code> (créditos de insumos)<br>
+            → EFEITO (fabricante): ativa <code>inscricao_cadastral</code> (contribuinte IBS/CBS)
           </div>
         </div>
       </div>
 
       <div class="block hidden">
-        <span class="block-id">BLOCO 5</span> Validação Final — acessível apenas com blocos 0-4 respondidos
+        <span class="block-id">BLOCO 2</span> · Setor Regulado — <em>aguarda Bloco 1</em>
+      </div>
+      <div class="block hidden">
+        <span class="block-id">BLOCO 3</span> · Território e Comércio Exterior — <em>aguarda Bloco 1</em>
+      </div>
+      <div class="block hidden">
+        <span class="block-id">BLOCO 4</span> · Estrutura Societária — <em>aguarda Bloco 0 completo</em>
       </div>
     </div>
 
     <aside class="archetype-panel">
       <h3>Arquétipo em construção</h3>
 <pre>{
-  "operationType": "industria",
-  "status_arquetipo": "incompleto",
-  "blocos_ativos": [
-    "BLOCO 0",
-    "BLOCO 1 NCM",
-    "BLOCO 2",
-    "BLOCO 3",
-    "BLOCO 4"
+  "natureza_da_operacao": ["produto"],
+  "possui_bens": true,
+  "possui_servicos": false,
+  "tipoOperacao_normalizado": "produto",
+  "papel_operacional": "fabricante",
+  "multiState": true,
+  "taxRegime": "lucro_real",
+  "annualRevenueRange": "10m_50m",
+  "principaisProdutos": [
+    {"ncm": "8517.12", "is_lista_positiva": false}
   ],
-  "blocos_ocultos": ["BLOCO 1 NBS"],
-  "campos_faltantes": [
-    "principaisProdutos",
-    "taxRegime",
-    "annualRevenueRange",
-    "multiState",
-    "clientType",
-    "hasIntermediaries",
-    "hasImportExport",
-    "hasSpecialRegimes",
-    "isEconomicGroup"
-  ]
+  "dimensoes_ativas": [
+    "produto·fabricante",
+    "geo:multi",
+    "lucro_real"
+  ],
+  "status_arquetipo": "pendente"
 }</pre>
       <div class="status-row">
-        <span class="status-badge incompleto">incompleto</span>
+        <span class="status-badge incompleto">pendente</span>
+      </div>
+      <div class="gate-row blocked">
+        🔒 /briefing bloqueado — blocos 2, 3, 4 pendentes
       </div>
     </aside>
   </div>
@@ -407,101 +431,137 @@
 <!-- =========================================================== -->
 <section class="state" id="estado-c">
   <header>
-    <h2>Estado C — operationType = misto → F0-02 aparece → NCM + NBS abrem</h2>
-    <span class="state-label warn">Caso híbrido · mixedDominance resolve ambiguidade</span>
+    <h2>Estado C — natureza = misto → NCM + NBS abrem + Bloco 2 (setor_regulado)</h2>
+    <span class="state-label">Multi-seleção + dupla derivação</span>
   </header>
-  <p class="state-note">Gatilho <code>operationType=misto</code> dispara 3 efeitos: (a) revela F0-02 <code>mixedDominance</code> (obrigatório); (b) abre Bloco 1 NCM; (c) abre Bloco 1 NBS. Sem F0-02, os conjuntos de risco ficam ambíguos (produto vs serviço dominante).</p>
+  <p class="state-note">Usuário seleciona <code>Misto</code>. Ambos os campos derivados ficam <code>true</code>. NCM e NBS abrem simultaneamente. O Bloco 2 (setor_regulado) aparece após Bloco 1 preenchido.</p>
 
   <div class="layout">
     <div>
-      <div class="block valid">
+      <div class="block valid" style="opacity:0.85">
         <div class="block-header">
           <span class="block-id">BLOCO 0</span>
-          <span class="block-title">Gatilho Principal</span>
-          <span class="block-hint">✓ completo com 2 campos (misto dispara F0-02)</span>
+          <span class="block-title">Entrada — misto</span>
         </div>
+
         <div class="field">
-          <span class="field-id">[F0-01]</span>
-          <label class="field-label">operationType</label>
+          <span class="field-id">[B0-03]</span>
+          <label class="field-label">Natureza da operação</label>
           <div class="chip-group">
-            <span class="chip">industria</span>
-            <span class="chip">comercio</span>
-            <span class="chip">servicos</span>
-            <span class="chip selected-green">misto</span>
-            <span class="chip">agronegocio</span>
-            <span class="chip">financeiro</span>
+            <span class="chip selected-multi">✓ Misto (produto + serviço)</span>
+          </div>
+          <div class="derived-box">
+            → <span class="tag-derived">DERIVADO</span> <code>possui_bens = true</code> · <code>possui_servicos = true</code><br>
+            → <code>tipoOperacao_normalizado = "misto"</code> (gate IS: misto → allowed=true, IS avaliado por NCM)
           </div>
         </div>
-        <div class="field">
-          <span class="field-id">[F0-02]</span>
-          <label class="field-label">mixedDominance — predominância</label>
-          <div class="chip-group">
-            <span class="chip selected-green">produtos</span>
-            <span class="chip">servicos</span>
+
+        <div class="subblock">
+          <div class="subblock-header">[B0-04] Produtos NCM</div>
+          <div class="list-chips">
+            <span class="list-chip">2710.19 · combustíveis</span>
           </div>
-          <div class="effect">
-            → EFEITO: desambigua conjunto de riscos (peso maior em categorias de produto ou serviço)
+          <div class="effect">→ NCM <code>2710.19</code> verificado → <strong>está na lista IS</strong> (art. 393, §1º) → IS ativo</div>
+        </div>
+
+        <div class="subblock" style="margin-top:0.5rem">
+          <div class="subblock-header">[B0-05] Serviços NBS <span class="tag-new">abre por possui_servicos=true</span></div>
+          <div class="list-chips">
+            <span class="list-chip">1.0501 · serviços de transporte</span>
           </div>
+          <div class="effect">→ NBS <code>1.0501</code> verificado → não está na lista IS → IS bloqueado para serviço</div>
+        </div>
+
+        <div class="field" style="margin-top:0.75rem">
+          <span class="field-id">[B0-06–08]</span>
+          <label class="field-label">multiState=true · R$ 4,8M–10M · Lucro Presumido</label>
         </div>
       </div>
 
+      <div class="block valid" style="opacity:0.85">
+        <div class="block-header">
+          <span class="block-id">BLOCO 1</span>
+          <span class="block-title">Posição na Cadeia — preenchido</span>
+        </div>
+        <div class="field">
+          <span class="field-id">[B1-01]</span>
+          <label class="field-label">Papel operacional</label>
+          <div class="chip-group">
+            <span class="chip selected">Misto (mais de um)</span>
+          </div>
+          <div class="effect">→ EFEITO: ativa split_payment + regime_diferenciado + IS por NCM</div>
+        </div>
+      </div>
+
+      <!-- BLOCO 2 abre -->
       <div class="block active">
         <div class="block-header">
-          <span class="block-id">BLOCO 1 · NCM</span>
-          <span class="block-title">Principais produtos</span>
-          <span class="block-hint">aberto: misto ∈ [industria, comercio, misto, agro]</span>
+          <span class="block-id">BLOCO 2</span>
+          <span class="block-title">Setor Regulado <span class="tag-new">NOVO</span></span>
+          <span class="block-hint">abre após Bloco 1</span>
         </div>
-        <div class="field">
-          <span class="field-id">[F1-01]</span>
-          <label class="field-label">principaisProdutos[].ncm_code</label>
-          <input class="input-text" placeholder="Autocomplete NCM..." />
-        </div>
-      </div>
 
-      <div class="block active">
-        <div class="block-header">
-          <span class="block-id">BLOCO 1 · NBS</span>
-          <span class="block-title">Principais serviços</span>
-          <span class="block-hint">aberto: misto ∈ [servicos, misto, financeiro]</span>
-        </div>
         <div class="field">
-          <span class="field-id">[F1-02]</span>
-          <label class="field-label">principaisServicos[].nbs_code</label>
-          <input class="input-text" placeholder="Autocomplete NBS..." />
+          <span class="field-id">[B2-01]</span>
+          <label class="field-label">A empresa atua em setor regulado por agência federal?</label>
+          <div class="chip-group">
+            <span class="chip selected">Sim</span>
+            <span class="chip">Não</span>
+          </div>
+        </div>
+
+        <div class="subblock">
+          <div class="subblock-header">[B2-02] Órgão regulador principal <span class="tag-new">abre por setor_regulado=true</span></div>
+          <div class="chip-group">
+            <span class="chip selected-green">ANP</span>
+            <span class="chip">ANATEL</span>
+            <span class="chip">ANVISA</span>
+            <span class="chip">ANS</span>
+            <span class="chip">ANEEL</span>
+            <span class="chip">BACEN / CVM</span>
+            <span class="chip">Outro</span>
+          </div>
           <div class="effect">
-            → EFEITO: lookup <code>NBS_IS_TABLE</code> → ativa/bloqueia <code>imposto_seletivo</code>
+            → EFEITO (ANP): ativa <code>obrigacao_acessoria</code> regulatória (SPED-Combustíveis, SCANC)<br>
+            → EFEITO (ANP): ativa <code>regime_diferenciado</code> (monofasia combustíveis)
           </div>
         </div>
       </div>
 
-      <div class="block active"><span class="block-id">BLOCO 2</span> Regime Tributário — aguardando resposta</div>
-      <div class="block active"><span class="block-id">BLOCO 3</span> Operação — aguardando resposta</div>
-      <div class="block active"><span class="block-id">BLOCO 4</span> Gatilhos Especiais — aguardando resposta</div>
+      <div class="block hidden">
+        <span class="block-id">BLOCO 3</span> · Território e Comércio Exterior — <em>aguarda Bloco 2</em>
+      </div>
+      <div class="block hidden">
+        <span class="block-id">BLOCO 4</span> · Estrutura Societária — <em>aguarda Bloco 2</em>
+      </div>
     </div>
 
     <aside class="archetype-panel">
       <h3>Arquétipo em construção</h3>
 <pre>{
-  "operationType": "misto",
-  "mixedDominance": "produtos",
-  "status_arquetipo": "incompleto",
-  "blocos_ativos": [
-    "BLOCO 0",
-    "BLOCO 1 NCM",
-    "BLOCO 1 NBS",
-    "BLOCO 2",
-    "BLOCO 3",
-    "BLOCO 4"
+  "natureza_da_operacao": ["misto"],
+  "possui_bens": true,
+  "possui_servicos": true,
+  "tipoOperacao_normalizado": "misto",
+  "papel_operacional": "misto",
+  "multiState": true,
+  "taxRegime": "lucro_presumido",
+  "setor_regulado": true,
+  "orgao_regulador": "ANP",
+  "ncm_is_lista": ["2710.19"],
+  "dimensoes_ativas": [
+    "misto·produto+servico",
+    "geo:multi",
+    "regulado:ANP",
+    "is:2710.19"
   ],
-  "categorias_risco_base": [
-    "imposto_seletivo",
-    "split_payment",
-    "regime_diferenciado",
-    "aliquota_reduzida"
-  ]
+  "status_arquetipo": "pendente"
 }</pre>
       <div class="status-row">
-        <span class="status-badge incompleto">incompleto</span>
+        <span class="status-badge incompleto">pendente</span>
+      </div>
+      <div class="gate-row blocked">
+        🔒 /briefing bloqueado — blocos 3, 4 pendentes
       </div>
     </aside>
   </div>
@@ -512,106 +572,122 @@
 <!-- =========================================================== -->
 <section class="state" id="estado-d">
   <header>
-    <h2>Estado D — F4-02 = Sim → sub-bloco regime especial (ZFM)</h2>
-    <span class="state-label">Progressive disclosure: sub-bloco dentro do Bloco 4</span>
+    <h2>Estado D — opera_territorio_incentivado=ZFM + papel_comercio_exterior=exportador</h2>
+    <span class="state-label">Sub-blocos condicionais do Bloco 3</span>
   </header>
-  <p class="state-note">Quando <code>hasSpecialRegimes = true</code>, abre sub-bloco fechado com opções <code>[ZFM, RECOF, REPORTO, outro]</code>. A escolha de <code>ZFM</code> dispara efeito especial: bloqueia IBS/CBS por imunidade (art. 92 LC 214).</p>
+  <p class="state-note">Bloco 3 aberto. Usuário informa que opera em ZFM e que exporta produtos. Dois efeitos simultâneos: ZFM bloqueia IBS/CBS (imunidade art. 92 LC 214); exportador ativa <code>aliquota_zero</code> (art. 156-A §5 CF).</p>
 
   <div class="layout">
     <div>
       <div class="block valid" style="opacity:0.8">
-        <div class="block-header">
-          <span class="block-id">BLOCO 0</span>
-          <span class="block-title">Gatilho · industria</span>
-          <span class="block-hint">✓ resumido</span>
-        </div>
+        <span class="block-id">BLOCO 0</span> · produto · lucro_real · acima_50m · multiState=true ✓
       </div>
       <div class="block valid" style="opacity:0.8">
-        <span class="block-id">BLOCO 1 NCM</span> · 2 produtos cadastrados (8517, 2710)
+        <span class="block-id">BLOCO 1</span> · papel_operacional=fabricante ✓
       </div>
       <div class="block valid" style="opacity:0.8">
-        <span class="block-id">BLOCO 2</span> · lucro_real · acima de 50M
-      </div>
-      <div class="block valid" style="opacity:0.8">
-        <span class="block-id">BLOCO 3</span> · multiState=true · B2B · hasIntermediaries=false
+        <span class="block-id">BLOCO 2</span> · setor_regulado=false ✓
       </div>
 
+      <!-- BLOCO 3 ativo -->
+      <div class="block active">
+        <div class="block-header">
+          <span class="block-id">BLOCO 3</span>
+          <span class="block-title">Território e Comércio Exterior <span class="tag-new">NOVO</span></span>
+        </div>
+
+        <div class="field">
+          <span class="field-id">[B3-01]</span>
+          <label class="field-label">Opera em território incentivado? <span class="tag-new">substitui hasSpecialRegimes</span></label>
+          <div class="chip-group">
+            <span class="chip selected">Sim</span>
+            <span class="chip">Não</span>
+          </div>
+        </div>
+
+        <div class="subblock">
+          <div class="subblock-header">[B3-02] Tipo de território incentivado</div>
+          <div class="chip-group">
+            <span class="chip selected-green">ZFM (Zona Franca de Manaus)</span>
+            <span class="chip">RECOF</span>
+            <span class="chip">REPORTO</span>
+            <span class="chip">SUDAM / SUDENE</span>
+            <span class="chip">Outro</span>
+          </div>
+          <div class="effect">
+            → EFEITO (ZFM): bloqueia <code>IBS/CBS</code> — imunidade art. 92 LC 214/2025<br>
+            → EFEITO (ZFM): ativa dimensão <code>territorio_incentivado:ZFM</code>
+          </div>
+          <div class="info-box" style="margin-top:0.5rem">
+            ℹ️ ZFM implica UF = AM. Confirme que o estabelecimento principal está no Amazonas.
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:0.75rem">
+          <span class="field-id">[B3-03]</span>
+          <label class="field-label">Papel no comércio exterior <span class="tag-new">substitui hasImportExport</span></label>
+          <div class="chip-group">
+            <span class="chip">Nenhum</span>
+            <span class="chip">Importador</span>
+            <span class="chip selected">Exportador</span>
+            <span class="chip">Importador e Exportador</span>
+          </div>
+          <div class="effect">
+            → EFEITO (exportador): ativa <code>aliquota_zero</code> (imunidade exportação art. 156-A §5 CF)<br>
+            → EFEITO (exportador): ativa <code>regime_diferenciado</code> (créditos acumulados)
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOCO 4 -->
       <div class="block active">
         <div class="block-header">
           <span class="block-id">BLOCO 4</span>
-          <span class="block-title">Gatilhos Especiais</span>
-        </div>
-        <div class="field">
-          <span class="field-id">[F4-01]</span>
-          <label class="field-label">hasImportExport</label>
-          <div class="chip-group">
-            <span class="chip selected">Sim</span>
-            <span class="chip">Não</span>
-          </div>
+          <span class="block-title">Estrutura Societária <span class="tag-new">NOVO gate multi-CNPJ</span></span>
         </div>
 
         <div class="field">
-          <span class="field-id">[F4-02]</span>
-          <label class="field-label">hasSpecialRegimes — possui regime especial?</label>
-          <div class="chip-group">
-            <span class="chip selected">Sim</span>
-            <span class="chip">Não</span>
-          </div>
-          <!-- SUB-BLOCO abre -->
-          <div class="subblock">
-            <div class="subblock-header">[F4-02-sub] Tipo de regime especial</div>
-            <div class="chip-group">
-              <span class="chip selected-green">ZFM</span>
-              <span class="chip">RECOF</span>
-              <span class="chip">REPORTO</span>
-              <span class="chip">outro</span>
-            </div>
-            <div class="effect">
-              → EFEITO (ZFM): bloqueia <code>IBS/CBS</code> por imunidade (art. 92 LC 214/2025)<br>
-              → EFEITO (ZFM): ativa categoria <code>territorio_incentivado</code>
-            </div>
-            <div class="info-box" style="margin-top:0.5rem">
-              ℹ️ ZFM implica que esta empresa opera em território incentivado da Suframa. Confirme UF = AM nas respostas anteriores.
-            </div>
-          </div>
-        </div>
-
-        <div class="field">
-          <span class="field-id">[F4-03]</span>
-          <label class="field-label">isEconomicGroup</label>
+          <span class="field-id">[B4-01]</span>
+          <label class="field-label">Faz parte de grupo econômico?</label>
           <div class="chip-group">
             <span class="chip">Sim</span>
             <span class="chip selected">Não</span>
           </div>
         </div>
       </div>
-
-      <div class="block active"><span class="block-id">BLOCO 5</span> · Validação final · agora acessível (0-4 respondidos)</div>
     </div>
 
     <aside class="archetype-panel">
       <h3>Arquétipo em construção</h3>
 <pre>{
-  "operationType": "industria",
+  "natureza_da_operacao": ["produto"],
+  "possui_bens": true,
+  "papel_operacional": "fabricante",
+  "multiState": true,
   "taxRegime": "lucro_real",
   "annualRevenueRange": "acima_50m",
-  "hasImportExport": true,
-  "hasSpecialRegimes": true,
-  "specialRegimeType": "ZFM",
+  "opera_territorio_incentivado": true,
+  "tipo_territorio_incentivado": "ZFM",
+  "papel_comercio_exterior": "exportador",
+  "isEconomicGroup": false,
+  "dimensoes_ativas": [
+    "produto·fabricante",
+    "geo:multi",
+    "territorio:ZFM",
+    "exportador"
+  ],
+  "categorias_bloqueadas_ZFM": ["IBS", "CBS"],
   "categorias_ativas": [
-    "imposto_seletivo",
-    "regime_diferenciado",
-    "obrigacao_acessoria",
-    "territorio_incentivado"
+    "aliquota_zero",
+    "regime_diferenciado"
   ],
-  "categorias_bloqueadas_ZFM": [
-    "IBS",
-    "CBS"
-  ],
-  "status_arquetipo": "quase_pronto"
+  "status_arquetipo": "pendente"
 }</pre>
       <div class="status-row">
-        <span class="status-badge incompleto">aguardando validação</span>
+        <span class="status-badge incompleto">pendente</span>
+      </div>
+      <div class="gate-row blocked">
+        🔒 /briefing bloqueado — validação final pendente
       </div>
     </aside>
   </div>
@@ -622,83 +698,42 @@
 <!-- =========================================================== -->
 <section class="state" id="estado-e">
   <header>
-    <h2>Estado E — Validação final: 🔴 HARD BLOCK (taxRegime × annualRevenue)</h2>
-    <span class="state-label error">V-01 dispara · avanço bloqueado</span>
+    <h2>Estado E — isEconomicGroup=true + analise_1_cnpj=false → RB-06 HARD BLOCK</h2>
+    <span class="state-label error">RB-06 dispara · fluxo bloqueado</span>
   </header>
-  <p class="state-note">Usuário declarou <code>taxRegime=simples_nacional</code> + <code>annualRevenueRange=acima_50m</code>. A validação cruzada V-01 detecta impossibilidade legal (Simples Nacional é limitado a R$ 4,8M/ano). HARD BLOCK: impede submit; aponta o erro.</p>
+  <p class="state-note">Usuário informa que faz parte de grupo econômico e que NÃO quer analisar apenas este CNPJ. A regra RB-06 bloqueia: análise multi-CNPJ não suportada em M1. O fluxo para completamente até que o usuário mude a resposta.</p>
 
   <div class="layout">
     <div>
-      <div class="block error">
-        <div class="block-header">
-          <span class="block-id">BLOCO 2</span>
-          <span class="block-title">Regime Tributário — INCONSISTENTE</span>
-        </div>
-        <div class="field">
-          <span class="field-id">[F2-01]</span>
-          <label class="field-label">taxRegime</label>
-          <div class="chip-group">
-            <span class="chip selected" style="background:var(--red-500);border-color:var(--red-500)">simples_nacional</span>
-            <span class="chip">lucro_presumido</span>
-            <span class="chip">lucro_real</span>
-          </div>
-        </div>
-        <div class="field">
-          <span class="field-id">[F2-02]</span>
-          <label class="field-label">annualRevenueRange</label>
-          <div class="chip-group">
-            <span class="chip">até 360k</span>
-            <span class="chip">360k-4,8M</span>
-            <span class="chip">4,8M-10M</span>
-            <span class="chip">10M-50M</span>
-            <span class="chip selected" style="background:var(--red-500);border-color:var(--red-500)">acima de 50M</span>
-          </div>
-        </div>
-        <div class="error-box">
-          🚫 <strong>V-01 HARD BLOCK:</strong> Simples Nacional é incompatível com faturamento acima de R$ 4,8M/ano (LC 123/2006, art. 3º). Corrija <code>taxRegime</code> OU <code>annualRevenueRange</code> antes de continuar.
-        </div>
+      <div class="block valid" style="opacity:0.8">
+        <span class="block-id">BLOCO 0–3</span> · preenchidos ✓
       </div>
 
-      <div class="block active">
+      <div class="block error">
         <div class="block-header">
-          <span class="block-id">BLOCO 5</span>
-          <span class="block-title">Validação Final</span>
-          <span class="block-hint">bloqueado por V-01</span>
+          <span class="block-id">BLOCO 4</span>
+          <span class="block-title">Estrutura Societária — BLOQUEADO</span>
         </div>
-        <table class="validation">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Regra</th>
-              <th>Resultado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>V-01</td>
-              <td>Consistência taxRegime × annualRevenueRange</td>
-              <td class="v-error">🔴 HARD BLOCK</td>
-            </tr>
-            <tr>
-              <td>V-02</td>
-              <td>Consistência operationType × NCM/NBS</td>
-              <td class="v-ok">✓ ok</td>
-            </tr>
-            <tr>
-              <td>V-03</td>
-              <td>Consistência companySize × taxRegime</td>
-              <td class="v-warn">⚠ warn pendente (companySize ausente)</td>
-            </tr>
-            <tr>
-              <td>V-04</td>
-              <td>Todos os campos com EFEITO preenchidos</td>
-              <td class="v-ok">✓ ok</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="action-bar">
-          <button class="btn-secondary">Voltar para corrigir</button>
-          <button class="btn-primary" disabled>Avançar (bloqueado)</button>
+
+        <div class="field">
+          <span class="field-id">[B4-01]</span>
+          <label class="field-label">Faz parte de grupo econômico?</label>
+          <div class="chip-group">
+            <span class="chip selected" style="background:var(--amber-500);border-color:var(--amber-500)">Sim</span>
+            <span class="chip">Não</span>
+          </div>
+        </div>
+
+        <div class="subblock" style="background:var(--red-50);border-color:var(--red-500)">
+          <div class="subblock-header" style="color:var(--red-700)">[B4-02] Escopo da análise <span class="tag-new">abre por isEconomicGroup=true</span></div>
+          <div class="chip-group">
+            <span class="chip">Sim, analisar apenas este CNPJ</span>
+            <span class="chip selected" style="background:var(--red-500);border-color:var(--red-500)">Não, quero analisar o grupo</span>
+          </div>
+        </div>
+
+        <div class="error-box">
+          🚫 <strong>RB-06 HARD BLOCK:</strong> Análise multi-CNPJ não suportada nesta versão. Selecione "Sim, analisar apenas este CNPJ" para continuar, ou entre em contato para análise de grupo econômico.
         </div>
       </div>
     </div>
@@ -706,21 +741,23 @@
     <aside class="archetype-panel">
       <h3>Arquétipo bloqueado</h3>
 <pre>{
-  "operationType": "comercio",
-  "taxRegime": "simples_nacional",
-  "annualRevenueRange": "acima_50m",
+  "isEconomicGroup": true,
+  "analise_1_cnpj": false,
   "status_arquetipo": "bloqueado",
   "blockers": [
     {
-      "id": "V-01",
+      "id": "RB-06",
       "severity": "HARD_BLOCK",
-      "message": "Simples Nacional × acima_50m é legalmente impossível",
-      "fields": ["taxRegime", "annualRevenueRange"]
+      "message": "Análise multi-CNPJ não suportada em M1",
+      "fields": ["analise_1_cnpj_operacional"]
     }
   ]
 }</pre>
       <div class="status-row">
         <span class="status-badge bloqueado">bloqueado</span>
+      </div>
+      <div class="gate-row blocked">
+        🔒 /briefing bloqueado — RB-06 ativo
       </div>
     </aside>
   </div>
@@ -731,40 +768,136 @@
 <!-- =========================================================== -->
 <section class="state" id="estado-f">
   <header>
-    <h2>Estado F — Validação final: ✅ sucesso (arquétipo válido)</h2>
-    <span class="state-label ok">Todos V-0X passam · avanço liberado</span>
+    <h2>Estado F — Validação final: 🔴 RB-07 HARD BLOCK (taxRegime × annualRevenue)</h2>
+    <span class="state-label error">RB-07 dispara · submit bloqueado</span>
   </header>
-  <p class="state-note">Cenário completo coerente: <code>industria</code>, <code>lucro_real</code>, faturamento compatível, NCMs cadastrados, sem regime especial, sem grupo econômico. V-01 a V-04 todos passam. Arquétipo final montado determinísticamente a partir das respostas.</p>
+  <p class="state-note">Todos os blocos preenchidos, mas <code>taxRegime=simples_nacional</code> + <code>annualRevenueRange=acima_50m</code> é legalmente impossível. RB-07 bloqueia o submit. O painel lateral mostra o arquétipo como <code>bloqueado</code>.</p>
+
+  <div class="layout">
+    <div>
+      <div class="block error">
+        <div class="block-header">
+          <span class="block-id">BLOCO 0</span>
+          <span class="block-title">Regime Tributário — INCONSISTENTE</span>
+        </div>
+        <div class="field">
+          <span class="field-id">[B0-08]</span>
+          <label class="field-label">Regime tributário</label>
+          <div class="chip-group">
+            <span class="chip selected" style="background:var(--red-500);border-color:var(--red-500)">Simples Nacional</span>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-id">[B0-07]</span>
+          <label class="field-label">Faixa de faturamento</label>
+          <div class="chip-group">
+            <span class="chip selected" style="background:var(--red-500);border-color:var(--red-500)">Acima de R$ 50M</span>
+          </div>
+        </div>
+        <div class="error-box">
+          🚫 <strong>RB-07 HARD BLOCK:</strong> Simples Nacional é incompatível com faturamento acima de R$ 4,8M/ano (LC 123/2006, art. 3º). Corrija <code>taxRegime</code> ou <code>annualRevenueRange</code>.
+        </div>
+      </div>
+
+      <!-- Tabela de todas as 8 regras -->
+      <div class="block active">
+        <div class="block-header">
+          <span class="block-id">VALIDAÇÃO FINAL</span>
+          <span class="block-title">8 Regras de Bloqueio</span>
+          <span class="block-hint">bloqueado por RB-07</span>
+        </div>
+        <table class="rb-table">
+          <thead>
+            <tr><th>ID</th><th>Condição</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr class="rb-inactive"><td>RB-01</td><td>possui_bens=true AND principaisProdutos vazio</td><td class="v-ok">✓ ok</td></tr>
+            <tr class="rb-inactive"><td>RB-02</td><td>possui_servicos=true AND principaisServicos vazio</td><td class="v-ok">✓ ok (N/A)</td></tr>
+            <tr class="rb-inactive"><td>RB-03</td><td>comercio_exterior ≠ nenhum AND natureza vazio</td><td class="v-ok">✓ ok</td></tr>
+            <tr class="rb-inactive"><td>RB-04</td><td>setor_regulado=true AND orgao vazio</td><td class="v-ok">✓ ok</td></tr>
+            <tr class="rb-inactive"><td>RB-05</td><td>opera_territorio=true AND tipo vazio</td><td class="v-ok">✓ ok</td></tr>
+            <tr class="rb-inactive"><td>RB-06</td><td>isEconomicGroup=true AND analise_1_cnpj=false</td><td class="v-ok">✓ ok (N/A)</td></tr>
+            <tr class="rb-active"><td>RB-07</td><td>taxRegime=simples AND annualRevenue &gt; 4,8M</td><td class="v-error">🔴 HARD BLOCK</td></tr>
+            <tr class="rb-inactive"><td>RB-08</td><td>status_arquetipo ≠ confirmado → bloqueia /briefing</td><td class="v-warn">⚠ pendente RB-07</td></tr>
+          </tbody>
+        </table>
+        <div class="action-bar">
+          <button class="btn-secondary">Voltar para corrigir</button>
+          <button class="btn-primary" disabled>Confirmar arquétipo (bloqueado)</button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="archetype-panel">
+      <h3>Arquétipo bloqueado</h3>
+<pre>{
+  "natureza_da_operacao": ["servico"],
+  "possui_servicos": true,
+  "papel_operacional": "prestador",
+  "taxRegime": "simples_nacional",
+  "annualRevenueRange": "acima_50m",
+  "status_arquetipo": "bloqueado",
+  "blockers": [
+    {
+      "id": "RB-07",
+      "severity": "HARD_BLOCK",
+      "message": "Simples × acima_50m é legalmente impossível",
+      "fields": ["taxRegime", "annualRevenueRange"]
+    }
+  ]
+}</pre>
+      <div class="status-row">
+        <span class="status-badge bloqueado">bloqueado</span>
+      </div>
+      <div class="gate-row blocked">
+        🔒 /briefing bloqueado — RB-07 ativo
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<!-- ESTADO G -->
+<!-- =========================================================== -->
+<section class="state" id="estado-g">
+  <header>
+    <h2>Estado G — Arquétipo confirmado → gate E2E aberto → botão /briefing liberado</h2>
+    <span class="state-label ok">Todos RB passam · status_arquetipo = confirmado · /briefing liberado</span>
+  </header>
+  <p class="state-note">Cenário completo coerente: <code>serviço</code>, <code>prestador</code>, <code>lucro_presumido</code>, NBS cadastrado, sem território incentivado, sem grupo econômico. Todas as 8 regras de bloqueio passam. <code>status_arquetipo = confirmado</code>. Gate E2E abre — botão /briefing habilitado.</p>
 
   <div class="layout">
     <div>
       <div class="block valid">
         <div class="block-header">
-          <span class="block-id">BLOCO 5</span>
-          <span class="block-title">Validação Final</span>
-          <span class="block-hint">✓ todos os checks passaram</span>
+          <span class="block-id">VALIDAÇÃO FINAL</span>
+          <span class="block-title">8 Regras de Bloqueio — todas passaram</span>
+          <span class="block-hint">✓ arquétipo confirmado</span>
         </div>
-        <table class="validation">
+        <table class="rb-table">
           <thead>
-            <tr>
-              <th>ID</th>
-              <th>Regra</th>
-              <th>Resultado</th>
-            </tr>
+            <tr><th>ID</th><th>Condição</th><th>Status</th></tr>
           </thead>
           <tbody>
-            <tr><td>V-01</td><td>taxRegime × annualRevenueRange</td><td class="v-ok">✓ ok</td></tr>
-            <tr><td>V-02</td><td>operationType × NCM/NBS</td><td class="v-ok">✓ ok</td></tr>
-            <tr><td>V-03</td><td>companySize × taxRegime</td><td class="v-ok">✓ ok</td></tr>
-            <tr><td>V-04</td><td>Campos com EFEITO preenchidos</td><td class="v-ok">✓ ok</td></tr>
+            <tr><td>RB-01</td><td>possui_bens=true AND principaisProdutos vazio</td><td class="v-ok">✓ N/A (serviço)</td></tr>
+            <tr><td>RB-02</td><td>possui_servicos=true AND principaisServicos vazio</td><td class="v-ok">✓ ok (NBS preenchido)</td></tr>
+            <tr><td>RB-03</td><td>comercio_exterior ≠ nenhum AND natureza vazio</td><td class="v-ok">✓ ok</td></tr>
+            <tr><td>RB-04</td><td>setor_regulado=true AND orgao vazio</td><td class="v-ok">✓ N/A (não regulado)</td></tr>
+            <tr><td>RB-05</td><td>opera_territorio=true AND tipo vazio</td><td class="v-ok">✓ N/A (não incentivado)</td></tr>
+            <tr><td>RB-06</td><td>isEconomicGroup=true AND analise_1_cnpj=false</td><td class="v-ok">✓ N/A (não grupo)</td></tr>
+            <tr><td>RB-07</td><td>taxRegime=simples AND annualRevenue &gt; 4,8M</td><td class="v-ok">✓ ok (presumido × 4,8M-10M)</td></tr>
+            <tr><td>RB-08</td><td>status_arquetipo ≠ confirmado → bloqueia /briefing</td><td class="v-ok">✓ confirmado → liberado</td></tr>
           </tbody>
         </table>
+
         <div class="ok-box">
-          ✅ <strong>Arquétipo válido.</strong> Todos os campos com EFEITO declarado estão preenchidos. Todas as validações cruzadas passaram. Avanço liberado para próxima etapa (Questionário Q1).
+          ✅ <strong>Arquétipo confirmado.</strong> Todos os campos com EFEITO declarado estão preenchidos. Todas as 8 regras de bloqueio passaram. <code>status_arquetipo = confirmado</code>. Gate E2E aberto.
         </div>
+
         <div class="action-bar">
           <button class="btn-secondary">Voltar</button>
-          <button class="btn-primary">Confirmar arquétipo e avançar →</button>
+          <button class="btn-primary">Confirmar arquétipo</button>
+          <button class="btn-briefing">Ir para Briefing →</button>
         </div>
       </div>
     </div>
@@ -772,58 +905,92 @@
     <aside class="archetype-panel">
       <h3>Arquétipo final (snapshot)</h3>
 <pre>{
-  "operationType": "industria",
-  "taxRegime": "lucro_real",
-  "annualRevenueRange": "10m_50m",
-  "companySize": "media",
-  "principaisProdutos": [
-    {"ncm_code": "2905", "descricao": "alcoois aciclicos"},
-    {"ncm_code": "7308", "descricao": "estruturas metalicas"}
-  ],
-  "multiState": true,
-  "clientType": ["B2B"],
-  "hasIntermediaries": false,
-  "hasImportExport": false,
-  "hasSpecialRegimes": false,
+  "natureza_da_operacao": ["servico"],
+  "possui_bens": false,
+  "possui_servicos": true,
+  "tipoOperacao_normalizado": "servicos",
+  "papel_operacional": "prestador",
+  "multiState": false,
+  "taxRegime": "lucro_presumido",
+  "annualRevenueRange": "4.8m_10m",
+  "setor_regulado": false,
+  "opera_territorio_incentivado": false,
+  "papel_comercio_exterior": "nenhum",
   "isEconomicGroup": false,
-  "categorias_ativas": [
-    "imposto_seletivo",
-    "aliquota_reduzida",
-    "inscricao_cadastral"
+  "principaisServicos": [
+    {"nbs": "1.0501.14.51", "is_lista_positiva": false}
   ],
-  "status_arquetipo": "valido"
+  "dimensoes_ativas": [
+    "servico·prestador",
+    "geo:mono",
+    "lucro_presumido"
+  ],
+  "categorias_ativas": [
+    "inscricao_cadastral",
+    "split_payment",
+    "obrigacao_acessoria"
+  ],
+  "categorias_bloqueadas": [
+    "imposto_seletivo"
+  ],
+  "status_arquetipo": "confirmado",
+  "arquetipo_label": "PRESTADOR_PRESUMIDO_LOCAL"
 }</pre>
       <div class="status-row">
-        <span class="status-badge valido">valido</span>
+        <span class="status-badge confirmado">confirmado</span>
+      </div>
+      <div class="gate-row open">
+        ✅ /briefing liberado — arquétipo confirmado
       </div>
     </aside>
   </div>
 </section>
 
 <!-- =========================================================== -->
-<!-- RODAPÉ -->
+<!-- RODAPÉ — Matriz de Regras -->
 <!-- =========================================================== -->
+<hr class="section-divider">
 <section class="state">
   <header>
-    <h2>Notas de design e limites deste mockup</h2>
-    <span class="state-label">Anexo</span>
+    <h2>Referência — Matriz Campo → Efeito → Blocker</h2>
+    <span class="state-label">Delta v2 · pré-M1</span>
   </header>
-  <ul style="font-size:0.9rem; line-height:1.7;">
-    <li><strong>O mockup cobre o contrato de UX do arquétipo determinístico proposto pelo P.O.</strong> — 5 blocos + validação final. Não cobre a descrição livre + LLM de CNAE (restrição #3 preserva fluxo atual de CNAE inferido antes do arquétipo).</li>
-    <li><strong>Cada campo tem declaração visível de EFEITO</strong> (caixa verde). Nenhum campo aparece sem efeito — satisfaz o axioma "cada campo deve ter pelo menos uma regra de efeito declarada".</li>
-    <li><strong>Sub-bloco F4-02-sub (regime especial)</strong> demonstra progressive disclosure com cauda: regime especial é binário <code>Sim/Não</code>, e o <code>Sim</code> abre um campo fechado enumerado (não texto livre).</li>
-    <li><strong>Bloco 5 Validação</strong> tem 2 severidades explícitas: HARD BLOCK (V-01) e WARN (V-02, V-03). Mockup mostra ambos em estados distintos (E = HARD, F = todos OK).</li>
-    <li><strong>Painel lateral</strong> expõe o <em>arquétipo em construção</em> como JSON vivo — dá feedback contínuo ao user e cria âncora mental do "resultado sendo construído".</li>
-    <li><strong>Pontos não resolvidos no modelo</strong> (ver <code>CRITIQUE-UI-SPEC.md</code> e <code>DECISAO-GO-NO-GO-M1.md</code>): regras de precedência CNAE × respostas do user (B4), fallback para CNAEs não-mapeados (R4), multi-setor com subnatureza array (R5), 7 P0 pendentes para v3.</li>
-    <li><strong>O que o mockup NÃO mostra ainda:</strong> (a) fluxo de descrição livre + confirmação de CNAE no início (preservado do atual); (b) campos de identificação (CNPJ, natureza jurídica, nome — ficam antes do Bloco 0 na UX real); (c) casos de natureza multi-setor (saúde+financeiro).</li>
-  </ul>
+  <table class="validation">
+    <thead>
+      <tr>
+        <th>Campo</th>
+        <th>Tipo</th>
+        <th>Efeito no Arquétipo</th>
+        <th>Blocker se ausente?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>natureza_da_operacao</code></td><td>string[] (multi)</td><td>dimensão principal · deriva possui_bens/servicos · normaliza tipoOperacao para gate IS</td><td class="v-error">SIM — absoluto</td></tr>
+      <tr><td><code>possui_bens</code></td><td><span class="tag-derived">derivado</span></td><td>abre NCM · ativa RB-01</td><td>—</td></tr>
+      <tr><td><code>possui_servicos</code></td><td><span class="tag-derived">derivado</span></td><td>abre NBS · ativa RB-02</td><td>—</td></tr>
+      <tr><td><code>principaisProdutos[].ncm</code></td><td>lista+%</td><td>lookup IS por NCM · dimensão produto</td><td class="v-warn">SIM se possui_bens=true</td></tr>
+      <tr><td><code>principaisServicos[].nbs</code></td><td>lista+%</td><td>lookup IS por NBS · dimensão serviço</td><td class="v-warn">SIM se possui_servicos=true</td></tr>
+      <tr><td><code>papel_operacional</code></td><td>enum</td><td>define split_payment, IS, regime_diferenciado</td><td class="v-error">SIM — sem isso split_payment ambíguo</td></tr>
+      <tr><td><code>multiState</code></td><td>boolean</td><td>geo:mono vs geo:multi no rule_id</td><td>NÃO — default mono</td></tr>
+      <tr><td><code>taxRegime</code></td><td>enum</td><td>validação cruzada RB-07 · dimensão fiscal</td><td>NÃO — default presumido</td></tr>
+      <tr><td><code>annualRevenueRange</code></td><td>enum</td><td>validação cruzada RB-07 · dimensão porte</td><td>NÃO — default desconhecido</td></tr>
+      <tr><td><code>setor_regulado</code></td><td>boolean</td><td>ativa obrigacao_acessoria regulatória</td><td>NÃO — default false</td></tr>
+      <tr><td><code>orgao_regulador_principal</code></td><td>enum_array</td><td>sub-categorias risco regulatório</td><td class="v-warn">SIM se setor_regulado=true</td></tr>
+      <tr><td><code>opera_territorio_incentivado</code></td><td>boolean</td><td>modifica aliquota_zero, imunidade ZFM</td><td>NÃO — default false</td></tr>
+      <tr><td><code>tipo_territorio_incentivado</code></td><td>enum</td><td>ZFM→bloqueia IBS/CBS; RECOF/REPORTO→suspensão</td><td class="v-warn">SIM se opera_territorio=true</td></tr>
+      <tr><td><code>papel_comercio_exterior</code></td><td>enum</td><td>importador→regime_diferenciado; exportador→aliquota_zero</td><td>NÃO — default nenhum</td></tr>
+      <tr><td><code>isEconomicGroup</code></td><td>boolean</td><td>abre B4-02 · inscricao_cadastral multi-estab</td><td>NÃO — default false</td></tr>
+      <tr><td><code>analise_1_cnpj_operacional</code></td><td>boolean</td><td>false → RB-06 HARD BLOCK</td><td class="v-warn">SIM se isEconomicGroup=true</td></tr>
+      <tr><td><code>status_arquetipo</code></td><td><span class="tag-derived">derivado</span></td><td>gate E2E — bloqueia /briefing se ≠ confirmado</td><td class="v-error">SIM — gate obrigatório</td></tr>
+    </tbody>
+  </table>
 </section>
 
 </main>
 
 <footer>
-  <p>Mockup estático · gerado 2026-04-23 · sem JavaScript · sem dados reais · <code>docs/sprints/M1-arquetipo-negocio/MOCKUP_arquetipo_deterministico.html</code></p>
-  <p>Implementação M1 suspensa por <code>REGRA-M1-GO-NO-GO</code>. Este artefato é ferramenta de análise, não deliverable de produto.</p>
+  <code>MOCKUP_arquetipo_deterministico.html</code> · Delta v2 · pré-M1 · artefato de análise · sem implementação
+  <br>Referência: <code>M1-ARQUETIPO-FORM-DELTA-v2.md</code> · branch <code>docs/m1-arquetipo-exploracao</code>
 </footer>
 
 </body>
