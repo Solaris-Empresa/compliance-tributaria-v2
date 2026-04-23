@@ -423,6 +423,8 @@ Formulário ──┬──► calcularLimitePerguntas  (questionário Q3)
 |---|---|---|
 | 2026-04-23 | Claude Code | Versão inicial: escopo + AS-IS + TO-BE + fluxo mermaid + pontos críticos P1–P6 + decisões D1–D6 |
 | 2026-04-23 | Claude Code | **Pivot:** adicionada Seção 11 (Validação de Hipótese) por decisão do P.O. · status muda de "pré-spec" para "validação de hipótese" · Seção 9 suspensa até testes validarem |
+| 2026-04-23 | Claude Code | Rodada 2 de requisitos do P.O.: adicionada Seção 12 (7 requisitos adicionais) · clarificação que "sem alteração no fluxo" = E2E preservado MAS UX dentro do form muda com progressive disclosure |
+| 2026-04-23 | Claude Code | Clarificação P.O. §12.3: modelo mental da UX on-the-fly atual é "NCM/NBS só aparecem se serviço OU produto OU misto" — código implementa via subtipos (industria/comercio/agro para produto; servicos/financeiro para serviço) |
 
 ---
 
@@ -525,3 +527,202 @@ Quando o P.O. enviar:
 5. Relata: quantos passam T1–T5, onde refutam, onde validam
 
 **Não há próximo passo de implementação M1 enquanto esta seção não fechar.**
+
+---
+
+## 12. Rodada 2 — Requisitos adicionais do P.O. (2026-04-23)
+
+> Pacote de 7 requisitos enviados pelo P.O. após a Seção 11, refinando o escopo e a UX do arquétipo. Nenhum deles desbloqueia a validação — todos ficam subordinados à Seção 11.
+
+### 12.1 KPI de cobertura — 95% dos casos blindados
+
+**Requisito:** o arquétipo deve cobrir **95% dos casos reais**. Os 5% restantes precisam rota de escape (fallback / auditoria manual).
+
+**Implicações operacionais:**
+- Define **critério numérico de sucesso** da bateria de testes da Seção 11
+- A bateria precisa ter **N ≥ 20 casos** para que 95% tenha significado estatístico (1 em 20 é o teto aceitável de falha)
+- Casos que caem nos 5% precisam ser catalogados (não descartados) — viram input para evolução futura do arquétipo
+- Saída do arquétipo precisa de estado `"inconclusivo"` ou `"fallback"` quando atinge borda — não só `valido`/`incompleto`
+
+**Pergunta aberta (D7):** o que acontece com os 5% na UX? Bloqueia o usuário, libera com "baixa confiança", ou aciona revisão manual?
+
+### 12.2 Fluxo E2E preservado
+
+**Clarificação da restrição #2 (Seção 1):** "sem alteração no fluxo" refere-se ao **fluxo E2E**, não à UX interna do formulário.
+
+Fluxo preservado:
+```
+NovoProjeto → Form → CNAE (LLM+RAG) → Questionário → Briefing → Matriz → Plano
+```
+
+**O que muda:** apenas os campos dentro do Form + experiência visual do preenchimento. Nenhuma etapa E2E nova, nenhuma removida.
+
+### 12.3 UX on-the-fly (progressive disclosure inline) — o grande desafio
+
+**Modelo mental do padrão atual** (confirmado pelo P.O. 2026-04-23):
+
+> Os campos NCM e NBS só aparecem se o usuário escolher **serviço OU produto OU misto**.
+
+**Implementação atual** (já em `PerfilEmpresaIntelligente.tsx`):
+
+| Linha | Condição técnica | Modelo mental | Efeito |
+|---|---|---|---|
+| 1005 | `operationType ∈ {industria, comercio, misto, agronegocio}` | "tem produto" | Revela bloco NCM |
+| 1111 | `operationType ∈ {servicos, misto, financeiro}` | "tem serviço" | Revela bloco NBS |
+
+Na prática: **se o tipo de operação envolve produto → NCM aparece; se envolve serviço → NBS aparece; misto → ambos aparecem.** O detalhe `industria/comercio/agronegocio` são subtipos de "tem produto"; `servicos/financeiro` são subtipos de "tem serviço".
+
+Isso é **2 blocos condicionais** seguindo o modelo "produto/serviço/misto". M1 escala esse mesmo padrão para **N contextos setoriais e territoriais**.
+
+**Meta M1 — gatilhos que revelam blocos novos:**
+
+| Gatilho | Bloco revelado |
+|---|---|
+| `territorio_incentivado = ZFM` | Campos específicos ZFM (regime monofásico, Suframa, tipo de mercadoria incentivada) |
+| `territorio_incentivado = ALC` | Campos Área de Livre Comércio |
+| `setor = Saúde` | Subnatureza (clínica/hospital/lab/...) + órgão regulador (ANVISA/ANS) |
+| `setor = Financeiro` | Subnatureza (banco/fintech/IP/SCD/seguradora) + órgão (BACEN/SUSEP) |
+| `setor = Combustíveis` | Subnatureza (refinaria/distribuidora/revendedora) + ANP |
+| `setor = Transporte` | Tipo de carga (geral/perigosos/passageiros) + ANAC/ANTT |
+| `setor = Agro` | Subnatureza (produtor/agroindústria/cooperativa) + MAPA |
+| `setor = Aviação` | Subnatureza (passageiros/carga/manutenção) + ANAC |
+| `importa OR exporta = sim` | Papel no comércio exterior + tipo de operação |
+| `multiEstado = sim` | Filial em outra UF + estrutura operacional |
+| `regime_especial = sim` | Tipo de regime especial (multi) |
+| `integra_grupo + não_unico_cnpj` | **BLOQUEIO** multi-CNPJ |
+
+**Consequência de engenharia:** a matriz acima tem ~12+ gatilhos independentes, com **combinações possíveis**. If-spaghetti inline no JSX é inviável — precisa de **registro declarativo** (JSON/TS) lido por uma função de render.
+
+**Proposta provisória (a validar pós-testes):**
+
+```ts
+// shared/archetype-disclosure-rules.ts
+type DisclosureRule = {
+  id: string;
+  trigger: (state: Partial<Archetype>) => boolean;
+  fields: FieldDef[];  // campos a revelar
+  blocker?: boolean;   // se true, bloqueia avanço quando ativo
+};
+
+const rules: DisclosureRule[] = [
+  { id: "bloco_ncm", trigger: (s) => hasIntersection(s.tipo_objeto_economico, ["bens", "combustiveis", "saude_medicamentos"]), fields: [...] },
+  { id: "bloco_zfm", trigger: (s) => s.territorio_incentivado === "ZFM", fields: [...] },
+  ...
+];
+```
+
+Vantagem: mesma fonte alimenta (a) render condicional no front, (b) validação server-side, (c) teste declarativo de cada regra.
+
+### 12.4 Exploração contínua de testes
+
+Reforça Seção 11. P.O. enviará casos; Claude Code aguarda.
+
+### 12.5 Diff de campos — entradas e saídas (revisitar após testes)
+
+**O que ENTRA** (consolidado da spec):
+- Natureza da operação (multi)
+- Operações secundárias
+- Fontes de receita (multi)
+- Tipo de objeto econômico (multi)
+- Posição na cadeia econômica
+- Possui bens? / Possui serviços? (gatilhos)
+- Abrangência operacional (multi)
+- UF principal
+- Papel no comércio exterior
+- Território incentivado + tipo
+- Regime especial + tipo
+- Setor regulado + órgão + subnatureza + papel + tipo de operação específica
+- Nível da análise (CNPJ único / estabelecimento único)
+
+**O que SAI do arquétipo (vai para "fase 2" ou deleção):**
+- paymentMethods
+- hasIntermediaries
+- taxCentralization
+- hasTaxTeam
+- hasAudit
+- hasTaxIssues
+
+**A revalidar após testes da Seção 11:** quais destes "o que entra" são de fato **discriminantes** para o RAG? Testes podem indicar que alguns são ruído.
+
+### 12.6 Catálogo de setores com campos especiais (a completar com P.O.)
+
+**Candidatos iniciais** (da spec do P.O. + exploração):
+
+| Setor | Subnatureza | Órgão regulador | Papel operacional típico |
+|---|---|---|---|
+| Saúde | Clínica, Hospital, Laboratório, Farmácia, Operadora, Diagnóstico | ANVISA, ANS | Prestador, Operadora |
+| Financeiro | Banco, Fintech, Instituição de pagamento, SCD, Seguradora, Administradora | BACEN, SUSEP, CVM | Intermediador, Operadora |
+| Combustíveis | Refinaria, Distribuidora, Revendedora, Transportadora, Armazenadora | ANP | Produtor, Distribuidor, Varejista |
+| Transporte | Carga, Passageiros, Produtos perigosos, Internacional, Logística integrada | ANAC, ANTT | Transportador |
+| Agro | Produtor rural, Agroindústria, Cerealista, Trading, Cooperativa | MAPA | Produtor, Distribuidor |
+| Aviação | Passageiros, Carga, Manutenção, Táxi aéreo, Escola | ANAC | Prestador |
+| Telecom | Operadora fixa/móvel, provedor, SVA | ANATEL | Operadora |
+| Energia | Geradora, Distribuidora, Comercializadora | ANEEL | Produtor, Distribuidor |
+| Educação | EaD, Presencial, Corporativa | MEC | Prestador |
+| Construção | Incorporadora, Construtora, Empreiteira | CAU/CREA | Prestador, Produtor |
+| Tecnologia | SaaS, PaaS, IaaS, Marketplace | — | Prestador, Intermediador |
+
+**Territórios especiais** (ortogonal a setor):
+- Zona Franca de Manaus (ZFM) — Suframa
+- Área de Livre Comércio (ALC)
+- Amazônia Ocidental
+- Zona de Processamento de Exportação (ZPE)
+- Outros (a catalogar com P.O.)
+
+**Pergunta aberta (D8):** esse catálogo é completo ou faltam setores? P.O. precisa fechar a lista antes do F1.
+
+**Pergunta aberta (D9):** setor × território formam **produto cartesiano** (uma empresa de saúde em ZFM precisa dos dois conjuntos de campos)?
+
+### 12.7 UX anti-abandono — regra de produto
+
+**Princípio:** se o usuário desiste de preencher, não há arquétipo. Sem arquétipo, sem produto.
+
+**Regras operacionais derivadas:**
+
+| Regra | Implementação |
+|---|---|
+| Máximo de campos fechados | chips, radio, select, autocomplete — nunca texto livre obrigatório |
+| Texto livre só como apoio | descrição do negócio é única exceção e não-estrutural |
+| Exibição progressiva | só mostra o que for relevante ao contexto atual |
+| Micro-etapas digeríveis | agrupar em blocos pequenos, revelar um por vez |
+| Painel lateral "arquétipo em construção" | feedback contínuo de progresso — motivacional |
+| Microcopy curta e não-jurídica | evitar jargão fiscal |
+| Defaults inteligentes | CNAE já sugere CNAE; aproveitar para sugerir setor, regime, etc. |
+| Salvamento contínuo (auto-save) | usuário não perde progresso se sair |
+
+**Métrica de produto a instrumentar** (fora do escopo M1, mas a registrar):
+- **Taxa de conclusão do formulário** (abandono = perda de produto)
+- **Tempo médio de preenchimento**
+- **Campo mais abandonado** (heatmap de frustração)
+
+**Implicação cross-frente:**
+- UX → não pode ter 40 campos visíveis de uma vez (viola 12.7)
+- Regras → precisa motor declarativo escalável (12.3)
+- Testes → precisam incluir métrica de "carga cognitiva" (número de campos ativos no estado final)
+
+---
+
+## 13. Decisões em aberto — atualizadas após rodadas 1+2
+
+| # | Pergunta | Origem | Status |
+|---|---|---|---|
+| D1 | Shape: 3 JSONs reshaped OU 1 coluna `archetypeProfile`? | Rodada 1 | aberto |
+| D2 | Threshold 85% literal OU recalibrar pós-UAT? | Rodada 1 | aberto |
+| D3 | Campos fase-2: deletar OU mover p/ tabela separada? | Rodada 1 | aberto |
+| D4 | M1 é Etapa 1 Epic RAG OU standalone? | Rodada 1 | aberto |
+| D5 | Lista canônica de campos é final? | Rodada 1 | aberto |
+| D6 | Campos novos exigem CNAE antes OU valem sempre? | Rodada 1 | aberto |
+| **D7** | O que acontece com os 5% não-cobertos na UX? (bloqueia / libera com flag / revisão manual) | **Rodada 2 §12.1** | **aberto** |
+| **D8** | Catálogo de setores especiais (§12.6) está completo? | **Rodada 2 §12.6** | **aberto** |
+| **D9** | Setor × Território formam produto cartesiano? (saúde em ZFM → soma campos) | **Rodada 2 §12.6** | **aberto** |
+
+---
+
+## 14. O que mudou no entendimento anterior (registro de correções)
+
+| Antes eu disse... | Correção |
+|---|---|
+| "Sem wizard de 8 telas — mantém formulário em 1 tela" (Seção 1 restrição #2) | **Correto.** Mas **a UX dentro do form muda** com progressive disclosure on-the-fly |
+| "Elimina necessidade de rule engine" (Análise pós-clarificações) | **Incorreto.** Rule engine declarativo é necessário para escalar o padrão atual (2 blocos) para N contextos setoriais+territoriais (~12+ gatilhos) |
+| "Regras condicionais são spaghetti de ifs no componente" (risco citado) | **Reforçado.** Rule engine declarativo é mandatório para viabilizar 12.7 (anti-abandono) sem código explodir |
+| "6 regras hard só na Revisão, não no form" (P6) | **Parcialmente correto.** Bloqueios cruzados ficam na Revisão; mas sinalização durante preenchimento é necessária (12.7) para evitar frustração |
