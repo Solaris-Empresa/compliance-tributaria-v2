@@ -7,7 +7,7 @@ REGRA-M1-GO-NO-GO exige 15/15 cenários de negócio com
 
 ## Cenários planejados
 
-1. [ ] Transportadora de combustível perigoso
+1. [ ] Transportadora de combustível perigoso (caso canônico — testado no PDF)
 2. [ ] Varejista simples
 3. [ ] Fabricante indústria
 4. [ ] Banco / instituição financeira
@@ -28,7 +28,14 @@ REGRA-M1-GO-NO-GO exige 15/15 cenários de negócio com
 Cada cenário em arquivo separado `cenario-NN-<nome-curto>.md` contendo:
 - Descrição da empresa
 - Inputs que o usuário preencheria no form
-- Arquétipo esperado (JSON)
-- Regras que devem disparar
+- Arquétipo esperado (JSON com os 5 eixos dimensionais)
+- Regras que devem disparar por eixo
 - Blocos que devem abrir
 - Resultado: valido | bloqueado (com motivo)
+
+## Critério de sucesso
+
+- 15/15 cenários com arquétipo derivado corretamente
+- Zero ambiguidade em qual eixo dispara qual regra
+- Zero inferência por LLM em nenhuma derivação
+- Suite de testes que simule o preenchimento de cada cenário
