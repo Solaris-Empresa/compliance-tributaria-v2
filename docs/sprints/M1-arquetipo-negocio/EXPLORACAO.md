@@ -429,6 +429,7 @@ Formulário ──┬──► calcularLimitePerguntas  (questionário Q3)
 | 2026-04-23 | Claude Code | **Rodada B — crítica da spec UI**: matriz P.O. × regras Seção 2 + 10 edge cases. **🟡 AMARELO** · 2 divergências matriz (T03, T15) · 1 regra faltando (regime_especial) · 4 ambiguidades · 10 recomendações (R1-R10) · ver `tests/archetype-validation/CRITIQUE-UI-SPEC.md` |
 | 2026-04-23 | Claude Code | **Rodada C — spec UI v2 recebida do consultor** · 8 das 10 recomendações endereçadas · simulação mental sob v2 identifica 15 red flags (N1-N15) · spec-ui-v2.json salva localmente (não commitada) |
 | 2026-04-23 | Claude Code | **Decisão REGRA-M1-GO-NO-GO: 🔴 NO-GO** · C1 FAIL · C2 PARCIAL · C3 FAIL · 7 P0 pendentes · 6 P1 · 2 P2 backlog · 4 de 4 regras de bloqueio disparam · implementação M1 segue suspensa · ver `DECISAO-GO-NO-GO-M1.md` |
+| 2026-04-23 | Consultor | **Decisão B — REVISE_SPEC** · P.O. deve corrigir P0 e enviar v3 antes de nova validação · 5 P0 selecionados: N1, N5, N14, N15, R8 · 2 P0 da lista Claude Code NÃO selecionados (ver nota abaixo) · aguardando v3 |
 
 ---
 
