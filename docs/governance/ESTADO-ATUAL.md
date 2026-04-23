@@ -1,7 +1,54 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint
-> **v7.56 · 2026-04-21 (UAT V1 PARCIAL — Blocos 1-6 validados pelo P.O. · determinismo ✅ · correção tímida 🟡 · complemento ✅ · pendente: Blocos 7-12 + teste decisivo CT-D2)**
-> **Predecessor:** v7.55 · 2026-04-21 (merge bundle V1 em main — HEAD `b02467f`)
+> **v7.58 · 2026-04-22 (Hotfix IS v2 + v2.1 MERGEADOS — HEAD `58d490c` · SPEC v1.2 intocada · ADR-0030 amendments 1+2 inline · Epic #830 desbloqueado pós-deploy)**
+> **Predecessor:** v7.57 · 2026-04-22 (Hotfix IS v1.2 entregue — PR #828 OPEN, documentou v1.2 antes do UAT identificar caller inativo)
+
+## Sessão v7.58 (2026-04-22) — Hotfix IS v2 + v2.1 (ciclo completo)
+
+**HEAD main:** `58d490c48619b6b3b86d6cbaea029b5b26621064` (merge PR #841, 21:08:50Z)
+
+**Gatilho:** UAT P.O. pós-deploy v1.2 (PR #826) reproduziu o bug original — transportadora continuou recebendo `imposto_seletivo`.
+
+**Descobertas da Investigação D:**
+1. Gate v1.2 aplicado em `server/routers/riskEngine.ts` (engine v3 legado) — frontend usa `useNewRiskEngine=true` → engine v4 (caller ativo)
+2. Projeto de teste tinha `operationType='servico'` (singular não-canônico) — caía no caso (6) warning sem bloquear
+
+**PRs fechados nesta sessão:**
+
+| PR | Entrega | Merge |
+|---|---|---|
+| #840 | Hotfix v2 — gate no engine v4 `consolidateRisks` + alias `servico`→`servicos` (privado) | `8cf303d` (18:45:10Z) |
+| #841 | Hotfix v2.1 — `enquadramento_geral` registrado como 11ª categoria canônica (corrige FK constraint P0 do v2) + DOWN migration + comentário no-op ALTER ENUM | `58d490c` (21:08:50Z) |
+
+**Ressalvas atravessadas:**
+- `db:migration` label faltava no PR #841 — identificado via `Guard critical` + `Governance gate` failures, adicionado pelo P.O.
+- `gh run rerun --failed` usa payload antigo (sem label nova) — **empty commit** foi a via para disparar `synchronize` event e forçar Structural Fix Gate reavaliar
+
+**Hashes registrados em `governance/APPROVED_SPEC-HOTFIX-IS.json`:**
+| Artefato | Hash |
+|---|---|
+| SPEC v1.2 (intocada desde 2026-04-21) | `80176084...` |
+| CONTRATO v1.2.1 (NOVO v2) | `887dfca7...` |
+| ADR v1.1 amendment 1 (v2) | `9e89bbfe...` |
+| ADR v1.1 amendment 2 (v2.1) | `620b0a0b...` |
+| Migration 0089 UP | `30608bcd...` |
+| Migration 0089 DOWN | `f9b18537...` |
+
+**Lições de Gate 0 registradas no ADR-0030 v1.1:**
+1. "Verificar caller efetivo em runtime, não apenas caller existente no código" (v2)
+2. "Quando hotfix toca valores de schema ENUM ou FK target, exigir teste integration com persist real" (v2.1)
+
+**Auditoria:** `docs/governance/audits/v7.58-2026-04-22-hotfix-is-v2-v2.1.md`
+
+**Estado dos checkpoints:**
+- v7.57 (PR #828) — **OPEN** (não-mergeado, documentou v1.2)
+- v7.58 (este) — docs branch preparado
+
+**Próxima ação:** Etapa 5 v2.1 — Deploy em produção pelo Manus (inclui migration 0089) + Etapa 6 validação funcional pelo P.O.
+
+**Tech-debt registrada:** CI com DATABASE_URL para desbloquear `Run Unit Tests` + `TypeScript + Vitest` (pré-existente em 7+ merges). Teste integration com `persistRiskV4` real (gap que deixou bug FK do v2 escapar).
+
+---
 
 ## Sessão v7.56 (2026-04-21) — UAT V1 parcial (Blocos 1-6)
 
