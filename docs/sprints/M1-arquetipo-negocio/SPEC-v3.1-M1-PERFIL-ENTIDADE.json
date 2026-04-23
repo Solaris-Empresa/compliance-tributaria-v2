@@ -1,0 +1,242 @@
+{
+  "spec": "M1-PERFIL-ENTIDADE-v3.1",
+  "phase": "PRE_M1",
+  "status": "DRAFT_FOR_PO_APPROVAL",
+  "previous_version": "v3 — rejeitada para 8 correções (ver VALIDACAO-SPEC-v3.md)",
+  "issued_at": "2026-04-23",
+
+  "principios": [
+    "Perfil da Entidade é resultado determinístico (zero LLM no cálculo)",
+    "Sem elegibilidade → não segue no E2E",
+    "Reaproveitamento sem ruptura (AS-IS preservado durante migração)",
+    "Separação em 3 camadas: AS-IS / Transitional / Target",
+    "Separar medir (score), validar (inconsistências), decidir (eligibility)"
+  ],
+
+  "three_layer_model": {
+    "AS_IS": {
+      "descricao": "Existe no código hoje · reaproveitado sem alteração",
+      "origens_json": ["companyProfile", "operationProfile", "taxComplexity", "financialProfile", "governanceProfile"],
+      "tipo_client": "PerfilEmpresaData (client/src/components/PerfilEmpresaIntelligente.tsx:31-78)",
+      "funcoes_reaproveitaveis": [
+        "calcProfileScore()",
+        "consistencyEngine.runDeterministicChecks()",
+        "consistencyRouter.acceptRisk()",
+        "extractProjectProfile()",
+        "softDeleteRiskWithCascade()",
+        "calculate-briefing-confidence (6 pilares)"
+      ]
+    },
+    "TRANSITIONAL": {
+      "descricao": "Adapters para coexistência AS-IS ↔ Target · sem ruptura",
+      "adapters": [
+        {"name": "buildPerfilEntidade(project)", "shape": "6 JSONs → objeto unificado (view TS, sem DDL)"},
+        {"name": "operationTypeToNatureza(operationType)", "shape": "singular → array"},
+        {"name": "naturezaToOperationType(natureza[])", "shape": "array → singular (inverso)"},
+        {"name": "checkPossuiBensConsistency(profile)", "shape": "warning se campo user divergir da derivação"},
+        {"name": "mapDETToEligibility(detFinding)", "shape": "tabela de tradução determinística"}
+      ],
+      "decisao_possui_bens_servicos": "mantidos como campos independentes do usuário + derivação redundante com checker de divergência (warning, não bloqueia)",
+      "dual_read_legado": "extractProjectProfile mantém fallback camelCase/snake_case até migração final"
+    },
+    "TARGET": {
+      "descricao": "Visão final do arquétipo · não reduzida ao estado atual",
+      "campos_novos": [
+        {"nome": "natureza_da_operacao", "tipo": "array multi", "substitui_AS_IS": "operationType singular"},
+        {"nome": "papel_operacional", "tipo": "array multi", "origem": "AS-IS: não existe"},
+        {"nome": "setor_regulado", "tipo": "boolean", "pre_seleciona_por": "natureza ∈ {saude, financeiro, energia, transporte, agro}"},
+        {"nome": "orgao_regulador", "tipo": "array multi enum", "valores": ["ANVISA", "ANS", "BACEN", "SUSEP", "ANATEL", "ANP", "ANEEL", "ANAC", "MAPA"]},
+        {"nome": "opera_territorio_incentivado", "tipo": "boolean"},
+        {"nome": "tipo_territorio_incentivado", "tipo": "enum", "valores": ["ZFM", "ALC", "Amazonia Ocidental", "ZPE", "Outro"]},
+        {"nome": "papel_comercio_exterior", "tipo": "enum", "valores": ["Importador", "Exportador", "Ambos", "Trading", "Por conta e ordem", "Encomendante"]}
+      ],
+      "gate_novo": "STOP_IF_NOT_ELIGIBLE (middleware tRPC em 5 routers + 1 frontend)",
+      "rastreabilidade_risco_estendida": {
+        "AS_IS": "[fonte, categoria, artigo, ruleId]",
+        "TARGET": "[fonte, categoria, artigo, ruleId, gap_id, lei_referencia, justificativa_sistema]"
+      },
+      "procedures_novos": ["addRiskManual", "updateRisk", "bulkDelete"],
+      "governanca_source": "campo 'source' em risks_v4: 'system' | 'user'"
+    }
+  },
+
+  "canonical_enum": {
+    "status_arquetipo": {
+      "valores": ["pendente", "inconsistente", "bloqueado", "confirmado"],
+      "semantica": {
+        "pendente": "dados faltando; usuário ainda preenche",
+        "inconsistente": "conflito detectado mas corrigível com justificativa (warnings HIGH/MEDIUM)",
+        "bloqueado": "HARD BLOCK (DET CRITICAL) ou multi-CNPJ",
+        "confirmado": "completude 100% + zero blockers + zero inconsistências não-justificadas"
+      },
+      "migracao_bateria_v2": {
+        "valido": "confirmado",
+        "incompleto": "pendente",
+        "bloqueado": "bloqueado"
+      }
+    }
+  },
+
+  "derivacoes": {
+    "possui_bens_derivado": "natureza_da_operacao ∩ {Producao, Comercio, Agro, Construcao} ≠ ∅ OR tipo_objeto_economico ∋ 'bens'",
+    "possui_servicos_derivado": "natureza_da_operacao ∩ {Servico, Tecnologia, Plataforma digital, Financeiro, Saude, Educacao} ≠ ∅ OR tipo_objeto_economico ∋ 'servicos'",
+    "tipo_operacao_normalizado": "operationType com alias table (ADR-0030: 'servico' → 'servicos')",
+    "completeness": "campos_preenchidos_com_efeito / campos_obrigatorios",
+    "confidence": "calculate-briefing-confidence.ts fórmula 6 pilares"
+  },
+
+  "eligibility": {
+    "contract": {
+      "overall": "allowed | denied | pending",
+      "reasons": "string[]",
+      "failed_rules": "string[] (IDs DET/V)",
+      "missing_fields": "string[]",
+      "timestamp": "ISO 8601"
+    },
+    "definicao": {
+      "allowed": [
+        "status_arquetipo === 'confirmado'",
+        "zero hard blocks (DET CRITICAL)",
+        "zero multi-CNPJ (V-05)"
+      ],
+      "denied": [
+        "violação de regra legal (DET-001, DET-004 CRITICAL)",
+        "multi-CNPJ (V-05)",
+        "conflito lógico crítico"
+      ],
+      "pending": [
+        "completeness < 100",
+        "inconsistência não-justificada (DET-002/003/005)",
+        "dados insuficientes"
+      ]
+    },
+    "mudanca_comportamento_intencional": "DET-002/003/005 passam de 'warning permitido proceed' para 'pending bloqueia E2E'. Justificativa: produto maduro exige 100% antes de LLM. Warnings eram concessões de beta.",
+    "exit_pending_to_allowed": "Somente corrigir dados (justificativa NÃO eleva pending para allowed no gate global)"
+  },
+
+  "stop_if_not_eligible": {
+    "tipo": "regra de produto (não apenas técnica)",
+    "rule_id": "STOP_IF_NOT_ELIGIBLE",
+    "scope": "E2E",
+    "condition": "status_arquetipo != 'confirmado' OR eligibility.overall != 'allowed'",
+    "action": [
+      "STOP_PIPELINE",
+      "DO_NOT_RUN_RAG",
+      "DO_NOT_GENERATE_QUESTIONS",
+      "DO_NOT_BUILD_BRIEFING",
+      "DO_NOT_GENERATE_RISKS",
+      "DO_NOT_GENERATE_PLAN"
+    ],
+    "ui": {
+      "state": "BLOCKED",
+      "message": "Arquétipo inválido ou não elegível. Complete/corrija os dados para continuar.",
+      "show_missing_fields": true,
+      "show_conflicts": true
+    },
+    "audit": {
+      "log": true,
+      "fields": ["arquetipo_snapshot", "failed_rules", "missing_fields", "timestamp"]
+    },
+    "injection_points": [
+      {"id": "A", "where": "server/routers/questionEngine (ou equivalente)", "antes_de": "gerar Q1/Q2/Q3"},
+      {"id": "B", "where": "server/routers-fluxo-v3.ts", "antes_de": "generateBriefing"},
+      {"id": "C", "where": "server/routers/risks-v4.ts", "antes_de": "generateRisks"},
+      {"id": "D", "where": "server/lib/action-plan-engine-v4.ts", "antes_de": "buildActionPlans"},
+      {"id": "E", "where": "server/_core/llm.ts via invokeLLM", "antes_de": "toda chamada RAG archetype_dependent"},
+      {"id": "F", "where": "frontend global banner", "componente": "GlobalEligibilityBanner (novo)"}
+    ],
+    "funcao_central": "shared/eligibility.ts → isEligible(project): Eligibility"
+  },
+
+  "fluxo": [
+    "input_formulario",
+    "construir_perfil_entidade (buildPerfilEntidade)",
+    "calcular_inconsistencias (consistencyEngine)",
+    "calcular_completude (calcProfileScore)",
+    "derivar_arquetipo (computeStatusArquetipo)",
+    "calcular_eligibilidade (isEligible)",
+    "if NOT allowed → STOP",
+    "else → RAG → perguntas → briefing → riscos → plano"
+  ],
+
+  "ux": {
+    "label_projeto": "Perfil da Entidade (substitui 'Perfil da Empresa')",
+    "painel_lateral": {
+      "tipo": "live",
+      "mostra": [
+        "status_arquetipo",
+        "eligibility.overall",
+        "campos_faltantes",
+        "inconsistencias_ativas",
+        "bloqueios_ativos",
+        "confidence (%)",
+        "completeness (%)"
+      ]
+    },
+    "bloqueio_visual": {
+      "componente": "GlobalEligibilityBanner",
+      "triggered_by": "eligibility.overall !== 'allowed'",
+      "acao_usuario": "CTA para campo ofensor / seção pendente"
+    }
+  },
+
+  "riscos": {
+    "regra_geracao": "risksV4.generateRisks() requer isEligible() === 'allowed'",
+    "rastreabilidade_target": {
+      "breadcrumb": ["fonte", "categoria", "artigo", "ruleId", "gap_id", "lei_referencia", "justificativa_sistema"],
+      "gap_id": "nova coluna em risks_v4 (FK para tabela gaps)",
+      "lei_referencia": "string (ex: 'LC 214/2025 art. 92')",
+      "justificativa_sistema": "text — placeholder 'Não informado' aceitável em M1; LLM em M1.1+"
+    },
+    "governanca": {
+      "source": {
+        "valores": ["system", "user"],
+        "default": "system",
+        "separacao_obrigatoria": true
+      },
+      "campos_auditoria": ["created_by_user_id", "reviewed_by_user_id"],
+      "procedures_novos": ["addRiskManual", "updateRisk", "bulkDelete"]
+    }
+  },
+
+  "integracao_codigo_reuso": {
+    "consistencyEngine": "fonte primária de inconsistências · sem alteração",
+    "calcProfileScore": "fonte de completude · sem alteração",
+    "consistencyRouter.acceptRisk": "justificativa (não eleva eligibility)",
+    "risksV4.deleteRisk": "adicionar filtro por source",
+    "softDeleteRiskWithCascade": "sem alteração",
+    "audit_log": "adicionar entidades archetype_gate, eligibility_change",
+    "risk_categories": "sem alteração (cache TTL 1h)"
+  },
+
+  "criterio_go_m1": {
+    "condicoes_todas_obrigatorias": [
+      {"id": "GO-1", "desc": "7 P0 da crítica v3 resolvidos nesta v3.1", "status": "ENDEREÇADO"},
+      {"id": "GO-2", "desc": "Bateria 50 cenários re-rodada com vocabulário novo", "resultado_esperado": "49 PASS + 1 BLOCKED (S27 controle negativo) + 0 FAIL"},
+      {"id": "GO-3", "desc": "Rodada D (v3.1 contra código) validada por Claude Code"},
+      {"id": "GO-4", "desc": "isEligible() com 100% cobertura de branches (testes unitários)"},
+      {"id": "GO-5", "desc": "STOP_IF_NOT_ELIGIBLE ativo nos 6 injection points (A-F)"}
+    ],
+    "explicitamente_fora_de_M1": [
+      "LLM para justificativa_sistema (placeholder 'Não informado' aceitável)",
+      "Mapeamento exaustivo CNAE → papel_operacional (manual OK)",
+      "Campo discriminante marketplace + estoque (R9 crítica)",
+      "UI modal vs banner vs tela do bloqueio (R10 crítica)",
+      "Versioning do arquétipo (M1.1+)"
+    ]
+  },
+
+  "riscos_spec_e_mitigacoes": [
+    {"risco": "mudança warning→pending confunde usuário", "prob": "alta", "mit": "UX clara com CTA para campo ofensor"},
+    {"risco": "migração vocabulário status_arquetipo quebra bateria v2", "prob": "alta", "mit": "adapter no runner + commit único"},
+    {"risco": "gate E2E em 6 pontos exige refator amplo", "prob": "media", "mit": "middleware tRPC único compartilhado"},
+    {"risco": "eligibility stateless vs state-machine", "prob": "media", "mit": "v3.1 escolhe stateless; cache em M1.1"},
+    {"risco": "campos Target sem mapeamento CNAE completo", "prob": "media", "mit": "default 'Outros' com motivo obrigatório"}
+  ],
+
+  "aprovacao": {
+    "requer": "P.O.",
+    "antes_de": "rodada D (Claude Code) + F1 (SPEC formal com Bloco 9)",
+    "bloqueia": "Implementação M1 (permanece suspensa)"
+  }
+}
