@@ -1,7 +1,7 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint
 > **v7.58 · 2026-04-22 (Hotfix IS v2 + v2.1 MERGEADOS — HEAD `58d490c` · SPEC v1.2 intocada · ADR-0030 amendments 1+2 inline · Epic #830 desbloqueado pós-deploy)**
-> **Predecessor:** v7.57 · 2026-04-22 (Hotfix IS v1.2 entregue — PR #828 OPEN, documentou v1.2 antes do UAT identificar caller inativo)
+> **Predecessor:** v7.57 · 2026-04-22 (Hotfix IS v1.2 entregue — PR #828 mergeado pós-v7.58, documentou v1.2 antes do UAT identificar caller inativo)
 
 ## Sessão v7.58 (2026-04-22) — Hotfix IS v2 + v2.1 (ciclo completo)
 
@@ -41,12 +41,38 @@
 **Auditoria:** `docs/governance/audits/v7.58-2026-04-22-hotfix-is-v2-v2.1.md`
 
 **Estado dos checkpoints:**
-- v7.57 (PR #828) — **OPEN** (não-mergeado, documentou v1.2)
+- v7.57 (PR #828) — mergeado pós-v7.58 (documentou v1.2)
 - v7.58 (este) — docs branch preparado
 
 **Próxima ação:** Etapa 5 v2.1 — Deploy em produção pelo Manus (inclui migration 0089) + Etapa 6 validação funcional pelo P.O.
 
 **Tech-debt registrada:** CI com DATABASE_URL para desbloquear `Run Unit Tests` + `TypeScript + Vitest` (pré-existente em 7+ merges). Teste integration com `persistRiskV4` real (gap que deixou bug FK do v2 escapar).
+
+---
+
+## Sessão v7.57 (2026-04-22) — Hotfix IS v1.2 entregue + Backlog Epic
+
+**HEAD main:** `49208cb` (último merge: PR #818 — Epic backlog docs; Hotfix IS ainda em draft)
+
+**Frentes fechadas:**
+
+| Frente | Executor | Resultado |
+|---|---|---|
+| Hotfix IS v1.2 (PR #826 draft) | Claude Code | 3 commits · 8 arquivos · 60/60 testes · tsc 0 erros · hashes SPEC/Contrato/ADR/APPROVED_SPEC-HOTFIX-IS conferidos |
+| Backlog Padrão A/B (#820-#825) | Manus | 5 issues + 1 Epic · zero código · checkpoint v7.56 `1f84aef0` |
+| Aprovação pre-deploy v1.2 | Orquestrador | 3 artefatos hash-locked entregues via Caminho β |
+| Issue #827 (Hotfix IS) | Claude Code | Aberta · labels `hotfix`+`risk-categorizer`+`epic:rag-arquetipo:etapa0` |
+
+**Decisão Caminho β:** `governance/APPROVED_SPEC.json` e `scripts/validate-governance.sh` NÃO tocados. Trilha paralela via `APPROVED_SPEC-HOTFIX-IS.json` (schema v1 do validator preservado). Migração do validator = backlog P2.
+
+**Regra operacional registrada:** "Executar somente o que está listado no prompt. NÃO agregar entregas adicionais mesmo que pareçam úteis. Se algo valioso surgir durante execução, REPORTAR ao Orquestrador como sugestão de backlog — nunca entregar sem autorização explícita."
+
+**Pendências ativas:**
+- PR #826 review operacional do Manus (build TS OK · testes em andamento)
+- Erros TS em `server/routers-fluxo-v3.ts` (módulos `briefing-quality`/`briefing-sanitizer`) — pré-existentes, candidato a issue própria
+- Blocos 7-12 da UAT V1 (v7.56) + teste decisivo CT-D2 — ainda pendentes
+
+**Auditoria:** `docs/governance/audits/v7.57-2026-04-22-hotfix-is-entregue.md`
 
 ---
 
