@@ -433,6 +433,9 @@ Formulário ──┬──► calcularLimitePerguntas  (questionário Q3)
 | 2026-04-23 | Consultor | **Confirmação:** N12 (CONTAINS case_insensitive) e RULE_MULTI_CNPJ_TEST incluídos na v3 · "ambos são P0 reais, não podem ser rebaixados nem ignorados" · **7/7 P0 confirmados para v3** |
 | 2026-04-23 | Claude Code | **Pesquisa de mercado executada** · 9 áreas cobertas (OSS BR, DDD archetypes, tax-tech global, form engines, structured RAG, KYC/AML, rule engines, taxonomias BR, UX progressive disclosure) · validação ao vivo 2026-04-23 confirma design alinhado com padrões maduros · **descoberta:** LC 227/2026 publicada (gap no RAG) + cClassTrib IBS/CBS oficial · arxiv 2510.24402 (Meta-RAG financeiro) é caso análogo · ver `PESQUISA-MERCADO.md` |
 | 2026-04-23 | Claude Code | **Mockups HTML produzidos** · 6 estados progressivos do fluxo (A início, B industria, C misto, D ZFM sub-bloco, E HARD BLOCK validação, F sucesso) · cada campo com EFEITO visível · painel lateral mostra arquétipo em construção como JSON vivo · ver `MOCKUP_arquetipo_deterministico.html` |
+| 2026-04-23 | Claude Code | **Bateria 50 cenários v1** · 0 PASS · 1 BLOCKED (S27 controle negativo ok) · 49 AMBIGUOUS por seeds parciais · verdict NO-GO inicial (seeds precisam enriquecimento) · 8 must_cover_rules todas acionadas |
+| 2026-04-23 | Claude Code | **Bateria v2 enriquecida** · 49 PASS · 1 BLOCKED (S27) · 0 FAIL · 0 AMBIGUOUS · PASS rate 98% · confidence média 0.619 (vs 0.200 na v1) · max 82% (casos regulados completos) · ver `RESULT-50-casos-brasil-v2.json` |
+| 2026-04-23 | P.O. | **🟢 GO (restrito):** "GO para avançar para SPEC v3 (pré-M1) · NÃO é GO para implementação ainda" · escopo autorizado: produção da spec v3 pelo consultor resolvendo os 7 P0 · implementação **segue suspensa** · REGRA-M1-GO-NO-GO permanece em vigor · próxima validação: rodar a bateria v2 contra a spec v3 quando consultor entregar |
 
 ---
 
