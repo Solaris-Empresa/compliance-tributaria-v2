@@ -1,0 +1,343 @@
+{
+  "_meta": {
+    "artefato": "CONTRATO-M1-PAINEL-CONFIANCA-v1",
+    "versao": "1.0.0",
+    "data": "2026-04-23",
+    "branch": "docs/m1-arquetipo-exploracao",
+    "status": "PROPOSTO — pré-M1 — sem implementação",
+    "descricao": "Contrato de estados e dados exibidos no Painel de Confiança do formulário de Perfil da Entidade",
+    "referencias": [
+      "M1-ARQUETIPO-FORM-DELTA-v4.1.md",
+      "ADR-M1-PAINEL-CONFIANCA-E-CNAES-v1.md",
+      "MOCKUP_perfil_entidade_deterministico_v4_1.html"
+    ]
+  },
+
+  "ConfidencePanelState": {
+    "_descricao": "Estado completo do Painel de Confiança em um dado momento do preenchimento",
+
+    "score_total": {
+      "tipo": "number",
+      "range": "0–100",
+      "descricao": "Score de confiança do caso, calculado como média ponderada das 3 dimensões",
+      "formula_visual": "(completude * 0.4) + (inferencia_validada * 0.3) + (coerencia * 0.3)",
+      "nota": "Score é informativo. Não substitui o gate do fluxo E2E."
+    },
+
+    "score_faixa": {
+      "tipo": "enum",
+      "valores": ["baixa", "media", "alta"],
+      "regras": {
+        "baixa": "score_total < 60",
+        "media": "score_total >= 60 AND score_total < 85",
+        "alta": "score_total >= 85"
+      }
+    },
+
+    "status_visual": {
+      "tipo": "enum",
+      "valores": ["em_construcao", "pendente", "bloqueado", "confirmado"],
+      "label_ui": {
+        "em_construcao": "Em construção",
+        "pendente": "Pendente",
+        "bloqueado": "Bloqueado",
+        "confirmado": "Confirmado"
+      },
+      "regras": {
+        "em_construcao": "caso iniciado com dados insuficientes (score < 20)",
+        "pendente": "faltam confirmações ou campos obrigatórios (sem HARD_BLOCK)",
+        "bloqueado": "existe ao menos um HARD_BLOCK ativo",
+        "confirmado": "status_arquetipo = confirmado AND issues.HARD_BLOCK.length = 0"
+      }
+    },
+
+    "breakdown": {
+      "_descricao": "Decomposição do score em 3 dimensões",
+
+      "completude": {
+        "tipo": "number",
+        "range": "0–100",
+        "peso": 0.4,
+        "o_que_mede": "percentual de campos obrigatórios preenchidos, incluindo campos condicionais efetivamente abertos",
+        "display": {
+          "barra_individual": true,
+          "percentual": true,
+          "preenchidos_vs_esperados": true,
+          "exemplo": "3 de 9 campos obrigatórios preenchidos"
+        }
+      },
+
+      "inferencia_validada": {
+        "tipo": "number",
+        "range": "0–100",
+        "peso": 0.3,
+        "o_que_mede": "se os CNAEs foram identificados, confirmados e se o Perfil da Entidade foi confirmado pelo usuário",
+        "sub_estados": {
+          "cnaes_nao_identificados": 0,
+          "cnaes_sugeridos_nao_confirmados": 33,
+          "cnaes_confirmados_perfil_nao_confirmado": 67,
+          "cnaes_confirmados_perfil_confirmado": 100
+        },
+        "display": {
+          "estado_cnaes": true,
+          "estado_confirmacao_perfil": true,
+          "mensagens_orientativas": true
+        }
+      },
+
+      "coerencia": {
+        "tipo": "number",
+        "range": "0–100",
+        "peso": 0.3,
+        "o_que_mede": "consistência entre os dados preenchidos e as regras cruzadas do caso",
+        "calculo": "100 - (penalidade_por_inconsistencia_critica * n_criticas) - (penalidade_por_aviso * n_avisos)",
+        "display": {
+          "quantidade_de_inconsistencias": true,
+          "separacao_criticas_vs_avisos": true
+        }
+      }
+    },
+
+    "issues": {
+      "_descricao": "Lista priorizada de pendências e bloqueios",
+      "ordenacao": ["HARD_BLOCK", "PENDENTE_CRITICO", "PENDENTE", "INFO"],
+
+      "IssueCard": {
+        "_schema": {
+          "id": {
+            "tipo": "string",
+            "exemplo": "RB-01",
+            "descricao": "Identificador único da issue"
+          },
+          "tipo": {
+            "tipo": "enum",
+            "valores": ["HARD_BLOCK", "PENDENTE_CRITICO", "PENDENTE", "INFO"]
+          },
+          "titulo_curto": {
+            "tipo": "string",
+            "max_chars": 60,
+            "exemplo": "Informe pelo menos um NCM principal"
+          },
+          "por_que_importa": {
+            "tipo": "string",
+            "descricao": "Explicação do impacto no Perfil da Entidade"
+          },
+          "impacto_no_fluxo": {
+            "tipo": "string",
+            "descricao": "Consequência no gate E2E ou na confiança"
+          },
+          "acao_recomendada": {
+            "tipo": "string",
+            "descricao": "O que o usuário deve fazer"
+          },
+          "target_field": {
+            "tipo": "string",
+            "descricao": "ID do campo para navegação direta (ex: B0-02A, B0-04)",
+            "usado_para": "botão 'Ir para campo' no card"
+          }
+        },
+
+        "exemplos": [
+          {
+            "id": "CNAE-PENDENTE",
+            "tipo": "PENDENTE_CRITICO",
+            "titulo_curto": "Identifique e confirme os CNAEs do caso",
+            "por_que_importa": "Os CNAEs influenciam a abertura dos blocos e a composição inicial do Perfil da Entidade.",
+            "impacto_no_fluxo": "Sem CNAEs confirmados, a confiança do caso permanece reduzida.",
+            "acao_recomendada": "Clique em Identificar CNAEs e confirme os CNAEs adequados.",
+            "target_field": "B0-02"
+          },
+          {
+            "id": "RB-01",
+            "tipo": "HARD_BLOCK",
+            "titulo_curto": "Informe pelo menos um NCM principal",
+            "por_que_importa": "A entidade declarou operação com bens e precisa detalhar os produtos principais.",
+            "impacto_no_fluxo": "O Perfil da Entidade não pode ser confirmado.",
+            "acao_recomendada": "Adicionar NCM principal",
+            "target_field": "B0-04"
+          },
+          {
+            "id": "RB-06-INFO",
+            "tipo": "INFO",
+            "titulo_curto": "Grupo econômico identificado",
+            "por_que_importa": "A análise atual considera apenas este CNPJ.",
+            "impacto_no_fluxo": "Não bloqueia esta versão.",
+            "acao_recomendada": "Nenhuma",
+            "target_field": "B4-01"
+          }
+        ]
+      }
+    },
+
+    "snapshot": {
+      "_descricao": "Leitura em tempo real dos campos-chave do Perfil da Entidade",
+
+      "natureza_da_operacao": {
+        "tipo": "array",
+        "valores_possiveis": ["produto", "servico", "misto"],
+        "vazio": null
+      },
+      "cnaes": {
+        "tipo": "array",
+        "item_schema": {
+          "code": "string",
+          "description": "string | undefined",
+          "confidence": "high | medium | low",
+          "source": "modal | manual"
+        },
+        "vazio": []
+      },
+      "papel_operacional": {
+        "tipo": "string | null",
+        "valores_possiveis": ["fabricante", "distribuidor", "varejista", "prestador_servicos", "misto"],
+        "vazio": null
+      },
+      "setor_regulado": {
+        "tipo": "boolean | null",
+        "vazio": null
+      },
+      "orgao_regulador": {
+        "tipo": "string | array | null",
+        "valores_possiveis": ["ANP", "ANATEL", "ANVISA", "ANS", "ANEEL", "BACEN", "CVM", "outro"],
+        "vazio": null
+      },
+      "abrangencia_geografica": {
+        "tipo": "string | null",
+        "valores_possiveis": ["mono", "multi"],
+        "vazio": null
+      },
+      "territorio_incentivado": {
+        "tipo": "string | boolean | null",
+        "valores_possiveis": [false, "ZFM", "RECOF", "REPORTO", "outro"],
+        "vazio": null
+      },
+      "comercio_exterior": {
+        "tipo": "string | null",
+        "valores_possiveis": ["nenhum", "importador", "exportador", "ambos"],
+        "vazio": null
+      },
+
+      "leitura_textual": {
+        "tipo": "string | null",
+        "descricao": "Frase gerada pelo sistema resumindo o perfil detectado",
+        "exemplo": "DISTRIBUIDOR_PRESUMIDO_MULTI_ANP — split_payment, regime_diferenciado, obrigacao_acessoria",
+        "vazio": "Dados insuficientes para inferir o Perfil da Entidade."
+      }
+    },
+
+    "gate_e2e": {
+      "_descricao": "Estado do gate de liberação do fluxo E2E",
+
+      "can_continue": {
+        "tipo": "boolean",
+        "descricao": "true somente quando status_arquetipo = confirmado AND sem HARD_BLOCKs",
+        "formula": "status_arquetipo === 'confirmado' && issues.filter(i => i.tipo === 'HARD_BLOCK').length === 0"
+      },
+      "status_badge": {
+        "tipo": "enum",
+        "valores": ["bloqueado", "aguardando_confirmacao", "liberado"],
+        "label_ui": {
+          "bloqueado": "🔒 Bloqueado",
+          "aguardando_confirmacao": "⏳ Aguardando confirmação",
+          "liberado": "✅ Liberado"
+        },
+        "regras": {
+          "bloqueado": "HARD_BLOCK ativo OR status_arquetipo = bloqueado",
+          "aguardando_confirmacao": "sem HARD_BLOCK AND status_arquetipo != confirmado",
+          "liberado": "can_continue = true"
+        }
+      },
+      "reason": {
+        "tipo": "string",
+        "descricao": "Motivo do bloqueio ou liberação",
+        "exemplos": {
+          "bloqueado": "HARD_BLOCK ativo: NCM ausente (RB-01)",
+          "aguardando_confirmacao": "Perfil da Entidade ainda não confirmado pelo usuário",
+          "liberado": "Perfil da Entidade confirmado. Sem bloqueios críticos."
+        }
+      }
+    },
+
+    "cta_state": {
+      "_descricao": "Estado dos botões de ação do painel",
+
+      "confirmar_perfil": {
+        "habilitado_quando": "status_visual != bloqueado AND campos_obrigatorios_preenchidos = true",
+        "label": "Confirmar Perfil da Entidade",
+        "tooltip_desabilitado": "Complete os campos obrigatórios e resolva os bloqueios antes de confirmar."
+      },
+      "corrigir_perfil": {
+        "habilitado_quando": "status_arquetipo = confirmado",
+        "label": "Corrigir Perfil da Entidade"
+      },
+      "continuar_briefing": {
+        "habilitado_quando": "gate_e2e.can_continue = true",
+        "label": "Continuar para o briefing",
+        "tooltip_desabilitado": "Complete e confirme o Perfil da Entidade para liberar o próximo passo."
+      }
+    }
+  },
+
+  "copy_obrigatoria": {
+    "painel_titulo": "Confiança do Caso",
+    "painel_subtitulo": "Entenda o que falta para liberar a análise",
+    "dimensao_completude": "Completude",
+    "dimensao_inferencia": "Inferência validada",
+    "dimensao_coerencia": "Coerência",
+    "snapshot_titulo": "Perfil da Entidade em construção",
+    "cta_confirmar_perfil": "Confirmar Perfil da Entidade",
+    "cta_corrigir_perfil": "Corrigir Perfil da Entidade",
+    "cta_avancar": "Continuar para o briefing",
+    "tooltip_bloqueado": "Este caso ainda não pode seguir. Revise as pendências do painel.",
+    "regra_gate_permanente": "O fluxo só é liberado quando o Perfil da Entidade estiver confirmado e não houver bloqueios críticos.",
+    "nota_score": "Score alto sozinho não libera o fluxo — é necessário confirmar o Perfil da Entidade."
+  },
+
+  "comportamentos_dinamicos": [
+    {
+      "evento": "descricao_negocio_preenchida",
+      "efeito": ["habilitar botão Identificar CNAEs", "recalcular completude"]
+    },
+    {
+      "evento": "cnaes_sugeridos_nao_confirmados",
+      "efeito": ["mostrar pendência inferencia_validada = 33%", "criar issue PENDENTE_CRITICO"]
+    },
+    {
+      "evento": "cnaes_confirmados",
+      "efeito": [
+        "atualizar multi_select de CNAEs",
+        "atualizar preview do perfil",
+        "pré-abrir blocos condicionais (auto_open_blocos_based_on_cnae)",
+        "recalcular inferencia_validada = 67%",
+        "recalcular score_total"
+      ]
+    },
+    {
+      "evento": "campo_critico_ausente",
+      "efeito": ["criar card HARD_BLOCK com CTA ir para campo", "status_visual = bloqueado"]
+    },
+    {
+      "evento": "campo_critico_preenchido",
+      "efeito": ["remover card HARD_BLOCK correspondente", "recalcular status_visual"]
+    },
+    {
+      "evento": "perfil_confirmado",
+      "efeito": [
+        "status_visual = confirmado",
+        "inferencia_validada = 100%",
+        "gate_e2e.can_continue = true (se sem HARD_BLOCKs)",
+        "habilitar CTA Continuar para o briefing"
+      ]
+    }
+  ],
+
+  "red_flags": [
+    "Não transformar o painel em card pequeno ou secundário.",
+    "Não mostrar somente percentual sem breakdown.",
+    "Não esconder o motivo do bloqueio em rodapé discreto.",
+    "Não liberar visualmente o CTA principal com HARD_BLOCK ativo.",
+    "Não usar CNAE principal na UI nova.",
+    "Não regredir o modal de CNAEs para input livre.",
+    "Não apresentar o painel como estética; ele é parte do controle do fluxo."
+  ]
+}

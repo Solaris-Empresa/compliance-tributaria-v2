@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup — Perfil da Entidade M1 · Delta v4.1 · Painel de Confiança</title>
+  <style>
+    :root {
+      --blue-50:#eff6ff;--blue-100:#dbeafe;--blue-200:#bfdbfe;--blue-500:#3b82f6;--blue-600:#2563eb;--blue-700:#1d4ed8;--blue-900:#1e3a8a;
+      --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-300:#d1d5db;--gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;--gray-700:#374151;--gray-800:#1f2937;--gray-900:#111827;
+      --green-50:#ecfdf5;--green-100:#d1fae5;--green-200:#a7f3d0;--green-500:#10b981;--green-600:#059669;--green-700:#047857;
+      --amber-50:#fffbeb;--amber-100:#fef3c7;--amber-200:#fde68a;--amber-500:#f59e0b;--amber-600:#d97706;--amber-700:#b45309;
+      --red-50:#fef2f2;--red-100:#fee2e2;--red-200:#fecaca;--red-500:#ef4444;--red-600:#dc2626;--red-700:#b91c1c;
+      --purple-50:#faf5ff;--purple-100:#f3e8ff;--purple-500:#a855f7;--purple-700:#7e22ce;
+      --teal-50:#f0fdfa;--teal-100:#ccfbf1;--teal-500:#14b8a6;--teal-700:#0f766e;
+      --indigo-50:#eef2ff;--indigo-100:#e0e7ff;--indigo-200:#c7d2fe;--indigo-500:#6366f1;--indigo-600:#4f46e5;--indigo-700:#4338ca;
+      --slate-50:#f8fafc;--slate-800:#1e293b;--slate-900:#0f172a;
+    }
+    *{box-sizing:border-box;}
+    body{font-family:system-ui,-apple-system,sans-serif;margin:0;padding:0;background:var(--gray-100);color:var(--gray-900);line-height:1.5;font-size:14px;}
+    /* ── HEADER ── */
+    .app-header{background:var(--slate-900);color:white;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+    .app-header h1{margin:0;font-size:1rem;font-weight:600;letter-spacing:-0.01em;}
+    .app-header p{margin:0;font-size:0.78rem;opacity:0.6;}
+    .header-badges{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;}
+    .hbadge{padding:3px 8px;border-radius:4px;font-size:0.72rem;font-weight:700;}
+    .hbadge-blue{background:var(--blue-600);color:white;}
+    .hbadge-amber{background:var(--amber-600);color:white;}
+    /* ── BANNER ── */
+    .banner{background:var(--amber-100);color:var(--amber-700);padding:0.6rem 1.5rem;font-size:0.8rem;border-bottom:1px solid var(--amber-200);}
+    /* ── MAIN LAYOUT ── */
+    .page-wrap{max-width:1440px;margin:0 auto;padding:1.5rem;}
+    .two-col{display:grid;grid-template-columns:1fr 380px;gap:1.5rem;align-items:start;}
+    @media(max-width:1024px){.two-col{grid-template-columns:1fr;}}
+    /* ── FORM AREA ── */
+    .form-area{display:flex;flex-direction:column;gap:1rem;}
+    .state-card{background:white;border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+    .state-card-header{padding:1rem 1.25rem;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;}
+    .state-card-header h2{margin:0;font-size:0.95rem;font-weight:600;color:var(--gray-900);}
+    .state-card-body{padding:1.25rem;}
+    .state-note{font-size:0.8rem;color:var(--gray-500);font-style:italic;margin-bottom:1rem;}
+    /* ── BLOCKS ── */
+    .block{border:1px solid var(--gray-200);border-radius:8px;padding:1rem;margin-bottom:0.85rem;background:var(--gray-50);}
+    .block.active{background:var(--blue-50);border-color:var(--blue-300);}
+    .block.valid{background:var(--green-50);border-color:var(--green-200);}
+    .block.locked{opacity:0.45;background:var(--gray-100);border-style:dashed;}
+    .block.modal-open{background:var(--indigo-50);border:2px solid var(--indigo-500);}
+    .block-hd{display:flex;align-items:baseline;gap:0.6rem;margin-bottom:0.75rem;flex-wrap:wrap;}
+    .block-id{font-family:ui-monospace,monospace;font-size:0.68rem;color:var(--gray-400);font-weight:700;letter-spacing:0.05em;}
+    .block-title{font-weight:600;font-size:0.9rem;}
+    .block-hint{margin-left:auto;font-size:0.75rem;color:var(--gray-400);}
+    /* ── FIELDS ── */
+    .field{margin-bottom:0.8rem;}
+    .field:last-child{margin-bottom:0;}
+    .fid{font-family:ui-monospace,monospace;font-size:0.67rem;color:var(--gray-400);font-weight:600;}
+    .flabel{display:block;font-weight:500;font-size:0.85rem;color:var(--gray-700);margin:0.15rem 0 0.35rem;}
+    .fnote{font-size:0.73rem;color:var(--gray-400);margin-top:0.2rem;font-style:italic;}
+    .input-text,.input-ta{padding:0.4rem 0.65rem;border:1px solid var(--gray-200);border-radius:6px;width:100%;font-size:0.88rem;font-family:inherit;background:white;}
+    .input-ta{resize:vertical;min-height:70px;}
+    /* ── CHIPS ── */
+    .chip-row{display:flex;gap:0.35rem;flex-wrap:wrap;}
+    .chip{padding:4px 10px;border:1px solid var(--gray-200);border-radius:12px;font-size:0.8rem;background:white;cursor:default;}
+    .chip.sel{background:var(--blue-700);color:white;border-color:var(--blue-700);font-weight:500;}
+    .chip.sel-green{background:var(--green-700);color:white;border-color:var(--green-700);font-weight:500;}
+    /* ── CNAE CHIPS ── */
+    .cnae-chips{display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.3rem;}
+    .cnae-chip{background:white;border:1px solid var(--indigo-300);border-radius:6px;padding:4px 9px;font-size:0.8rem;display:flex;align-items:center;gap:0.35rem;}
+    .cnae-chip .cc-conf{font-size:0.67rem;font-weight:700;padding:1px 5px;border-radius:3px;}
+    .cc-high{background:var(--green-100);color:var(--green-700);}
+    .cc-medium{background:var(--amber-100);color:var(--amber-700);}
+    .cc-low{background:var(--red-100);color:var(--red-700);}
+    .cnae-chip .cc-rm{color:var(--red-500);font-weight:700;cursor:pointer;font-size:0.85rem;}
+    /* ── EFFECT / DERIVED ── */
+    .effect{font-size:0.74rem;color:var(--green-700);background:var(--green-50);border-left:3px solid var(--green-500);padding:5px 9px;margin-top:0.35rem;border-radius:2px;line-height:1.5;}
+    .derived-box{font-size:0.74rem;color:var(--teal-700);background:var(--teal-50);border-left:3px solid var(--teal-500);padding:5px 9px;margin-top:0.35rem;border-radius:2px;}
+    .info-box{background:var(--indigo-50);color:var(--indigo-700);border:1px solid var(--indigo-200);padding:0.6rem 0.8rem;border-radius:6px;font-size:0.82rem;margin:0.4rem 0;}
+    .warn-box{background:var(--amber-50);color:var(--amber-700);border:1px solid var(--amber-200);padding:0.6rem 0.8rem;border-radius:6px;font-size:0.82rem;margin:0.4rem 0;}
+    .ok-box{background:var(--green-50);color:var(--green-700);border:1px solid var(--green-200);padding:0.6rem 0.8rem;border-radius:6px;font-size:0.82rem;margin:0.4rem 0;font-weight:500;}
+    /* ── MODAL ── */
+    .modal-overlay{background:rgba(15,23,42,0.55);border-radius:8px;padding:1.25rem;margin:0.75rem 0;}
+    .modal-win{background:white;border-radius:10px;padding:1.25rem;max-width:640px;margin:0 auto;box-shadow:0 12px 40px rgba(0,0,0,0.22);}
+    .modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.85rem;padding-bottom:0.75rem;border-bottom:1px solid var(--gray-100);}
+    .modal-hd h3{margin:0;font-size:0.95rem;}
+    .modal-close{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:4px;padding:3px 9px;font-size:0.8rem;cursor:pointer;}
+    .modal-search{display:flex;gap:0.4rem;margin-bottom:0.75rem;}
+    .modal-search input{flex:1;padding:0.4rem 0.65rem;border:1px solid var(--gray-200);border-radius:6px;font-size:0.88rem;font-family:inherit;}
+    .modal-search button{background:var(--blue-700);color:white;border:none;border-radius:6px;padding:0.4rem 0.9rem;font-size:0.82rem;font-weight:600;cursor:pointer;}
+    .cnae-list{border:1px solid var(--gray-200);border-radius:6px;overflow:hidden;}
+    .cnae-row{display:flex;align-items:center;gap:0.65rem;padding:0.55rem 0.8rem;border-bottom:1px solid var(--gray-100);font-size:0.82rem;}
+    .cnae-row:last-child{border-bottom:none;}
+    .cnae-row.added{background:var(--blue-50);}
+    .cnae-code{font-family:ui-monospace,monospace;font-weight:700;color:var(--blue-700);min-width:82px;}
+    .cnae-desc{flex:1;color:var(--gray-700);}
+    .cnae-badge{font-size:0.67rem;font-weight:700;padding:2px 6px;border-radius:3px;}
+    .cnae-badge.high{background:var(--green-100);color:var(--green-700);}
+    .cnae-badge.medium{background:var(--amber-100);color:var(--amber-700);}
+    .cnae-badge.low{background:var(--red-100);color:var(--red-700);}
+    .cnae-add{background:var(--blue-700);color:white;border:none;border-radius:4px;padding:3px 8px;font-size:0.75rem;font-weight:600;cursor:pointer;}
+    .cnae-add.done{background:var(--green-700);}
+    .modal-ft{display:flex;justify-content:space-between;align-items:center;margin-top:0.85rem;padding-top:0.75rem;border-top:1px solid var(--gray-100);}
+    .modal-ft-note{font-size:0.75rem;color:var(--gray-400);}
+    /* ── PROFILE PREVIEW ── */
+    .profile-preview{background:var(--indigo-50);border:1px solid var(--indigo-200);border-radius:8px;padding:0.85rem 1rem;margin-top:0.75rem;}
+    .pp-hd{font-weight:600;color:var(--indigo-700);font-size:0.77rem;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem;}
+    .pp-row{display:flex;gap:0.5rem;align-items:baseline;margin-bottom:0.25rem;font-size:0.8rem;}
+    .pp-label{color:var(--gray-500);min-width:150px;}
+    .pp-val{color:var(--indigo-700);font-weight:600;}
+    .pp-val code{background:var(--indigo-100);padding:1px 4px;border-radius:3px;font-size:0.9em;}
+    .pp-note{font-size:0.72rem;color:var(--indigo-400);margin-top:0.4rem;}
+    /* ── BUTTONS ── */
+    button{font-family:inherit;cursor:pointer;}
+    .btn-primary{background:var(--blue-700);color:white;border:none;border-radius:6px;padding:8px 16px;font-weight:600;font-size:0.88rem;}
+    .btn-primary:disabled{background:var(--gray-300);cursor:not-allowed;color:var(--gray-500);}
+    .btn-secondary{background:var(--gray-100);color:var(--gray-700);border:1px solid var(--gray-200);border-radius:6px;padding:8px 14px;font-weight:500;font-size:0.85rem;}
+    .btn-action{background:var(--indigo-600);color:white;border:none;border-radius:6px;padding:7px 14px;font-size:0.85rem;font-weight:600;display:inline-flex;align-items:center;gap:0.35rem;}
+    .btn-briefing{background:var(--green-700);color:white;border:none;border-radius:6px;padding:10px 22px;font-weight:700;font-size:0.95rem;}
+    .btn-briefing:disabled{background:var(--gray-300);cursor:not-allowed;color:var(--gray-500);}
+    .btn-confirm-profile{background:var(--blue-700);color:white;border:none;border-radius:6px;padding:8px 16px;font-weight:600;font-size:0.88rem;}
+    .btn-fix-profile{background:white;color:var(--amber-700);border:1px solid var(--amber-400);border-radius:6px;padding:8px 14px;font-weight:600;font-size:0.85rem;}
+    .action-bar{display:flex;justify-content:flex-end;gap:0.65rem;margin-top:1rem;padding-top:0.85rem;border-top:1px solid var(--gray-100);}
+    /* ── TAGS ── */
+    .tag{display:inline-block;font-size:0.65rem;font-weight:700;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:3px;}
+    .tag-v4{background:var(--indigo-100);color:var(--indigo-700);}
+    .tag-v41{background:var(--purple-100);color:var(--purple-700);}
+    .tag-new{background:var(--blue-100);color:var(--blue-700);}
+    .tag-derived{background:var(--teal-100);color:var(--teal-700);border:1px solid var(--teal-300);}
+    .tag-removed{background:var(--red-100);color:var(--red-700);text-decoration:line-through;}
+    .tag-info{background:var(--purple-100);color:var(--purple-700);}
+    .tag-block{background:var(--red-100);color:var(--red-700);font-weight:700;}
+    /* ── STATUS BADGES ── */
+    .sbadge{display:inline-block;padding:3px 9px;border-radius:4px;font-weight:700;font-size:0.75rem;}
+    .sbadge-em-construcao{background:var(--gray-200);color:var(--gray-700);}
+    .sbadge-pendente{background:var(--amber-100);color:var(--amber-700);}
+    .sbadge-bloqueado{background:var(--red-100);color:var(--red-700);}
+    .sbadge-confirmado{background:var(--blue-700);color:white;}
+    .gate-badge{display:inline-block;padding:4px 10px;border-radius:4px;font-weight:700;font-size:0.75rem;}
+    .gate-blocked{background:rgba(239,68,68,0.15);color:var(--red-700);border:1px solid var(--red-200);}
+    .gate-pending{background:rgba(245,158,11,0.15);color:var(--amber-700);border:1px solid var(--amber-200);}
+    .gate-open{background:rgba(16,185,129,0.15);color:var(--green-700);border:1px solid var(--green-200);}
+    /* ── PAINEL DE CONFIANÇA ── */
+    .conf-panel{position:sticky;top:1rem;background:var(--slate-900);color:#e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.18);}
+    .cp-header{padding:1rem 1.15rem;border-bottom:1px solid rgba(255,255,255,0.07);}
+    .cp-header h2{margin:0 0 0.2rem;font-size:0.88rem;font-weight:700;color:white;letter-spacing:-0.01em;}
+    .cp-header p{margin:0;font-size:0.73rem;color:#94a3b8;}
+    .cp-section{padding:0.9rem 1.15rem;border-bottom:1px solid rgba(255,255,255,0.06);}
+    .cp-section:last-child{border-bottom:none;}
+    .cp-section-title{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:0.65rem;}
+    /* Score anel */
+    .score-ring-wrap{display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem;}
+    .score-ring{position:relative;width:72px;height:72px;flex-shrink:0;}
+    .score-ring svg{transform:rotate(-90deg);}
+    .score-ring .sr-bg{fill:none;stroke:#1e293b;stroke-width:8;}
+    .score-ring .sr-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 0.4s;}
+    .score-ring .sr-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;color:white;}
+    .score-meta{flex:1;}
+    .score-meta .sm-val{font-size:1.5rem;font-weight:800;color:white;line-height:1;}
+    .score-meta .sm-label{font-size:0.72rem;color:#94a3b8;margin-top:0.1rem;}
+    .score-meta .sm-faixa{font-size:0.75rem;font-weight:600;margin-top:0.3rem;}
+    .faixa-low{color:#f87171;}
+    .faixa-medium{color:#fbbf24;}
+    .faixa-high{color:#34d399;}
+    /* Breakdown bars */
+    .breakdown-item{margin-bottom:0.6rem;}
+    .breakdown-item:last-child{margin-bottom:0;}
+    .bd-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.25rem;}
+    .bd-label{font-size:0.75rem;color:#cbd5e1;}
+    .bd-pct{font-size:0.75rem;font-weight:700;color:white;}
+    .bd-bar-bg{background:#1e293b;border-radius:4px;height:6px;overflow:hidden;}
+    .bd-bar-fill{height:100%;border-radius:4px;transition:width 0.4s;}
+    .bd-bar-fill.completude{background:linear-gradient(90deg,#3b82f6,#6366f1);}
+    .bd-bar-fill.inferencia{background:linear-gradient(90deg,#10b981,#14b8a6);}
+    .bd-bar-fill.coerencia{background:linear-gradient(90deg,#f59e0b,#f97316);}
+    .bd-sub{font-size:0.68rem;color:#64748b;margin-top:0.15rem;}
+    /* Status rows */
+    .status-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;}
+    .sr-label{font-size:0.75rem;color:#94a3b8;}
+    /* Issue cards */
+    .issue-card{background:#1e293b;border-radius:6px;padding:0.65rem 0.75rem;margin-bottom:0.5rem;border-left:3px solid;}
+    .issue-card:last-child{margin-bottom:0;}
+    .issue-card.hard-block{border-left-color:#ef4444;}
+    .issue-card.pendente-critico{border-left-color:#f59e0b;}
+    .issue-card.pendente{border-left-color:#3b82f6;}
+    .issue-card.info{border-left-color:#6366f1;}
+    .ic-type{font-size:0.65rem;font-weight:700;letter-spacing:0.06em;margin-bottom:0.3rem;}
+    .ic-type.hard-block{color:#f87171;}
+    .ic-type.pendente-critico{color:#fbbf24;}
+    .ic-type.pendente{color:#60a5fa;}
+    .ic-type.info{color:#a5b4fc;}
+    .ic-title{font-size:0.8rem;font-weight:600;color:white;margin-bottom:0.3rem;line-height:1.35;}
+    .ic-why{font-size:0.72rem;color:#94a3b8;margin-bottom:0.3rem;line-height:1.4;}
+    .ic-impact{font-size:0.7rem;color:#64748b;margin-bottom:0.35rem;}
+    .ic-cta{background:#0f172a;color:#60a5fa;border:1px solid #1e3a5f;border-radius:4px;padding:3px 9px;font-size:0.72rem;font-weight:600;cursor:pointer;width:100%;text-align:left;}
+    /* Snapshot */
+    .snapshot-row{display:flex;gap:0.5rem;align-items:baseline;margin-bottom:0.3rem;font-size:0.77rem;}
+    .sn-label{color:#64748b;min-width:130px;}
+    .sn-val{color:#e2e8f0;font-weight:500;}
+    .sn-val code{background:#1e293b;padding:1px 4px;border-radius:3px;font-size:0.9em;color:#93c5fd;}
+    .sn-empty{color:#334155;font-style:italic;}
+    .snapshot-preview{background:#1e293b;border-radius:6px;padding:0.6rem 0.75rem;margin-top:0.5rem;font-size:0.72rem;color:#64748b;font-style:italic;line-height:1.5;}
+    /* CTA panel */
+    .cp-cta-area{padding:0.9rem 1.15rem;}
+    .cp-cta-msg{font-size:0.75rem;color:#94a3b8;margin-bottom:0.65rem;line-height:1.45;}
+    .cp-cta-btns{display:flex;flex-direction:column;gap:0.5rem;}
+    .cp-btn-confirm{background:var(--blue-600);color:white;border:none;border-radius:6px;padding:9px 14px;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;}
+    .cp-btn-confirm:disabled{background:#1e293b;color:#475569;cursor:not-allowed;}
+    .cp-btn-fix{background:transparent;color:#fbbf24;border:1px solid #78350f;border-radius:6px;padding:7px 14px;font-weight:600;font-size:0.82rem;cursor:pointer;width:100%;}
+    .cp-btn-briefing{background:var(--green-600);color:white;border:none;border-radius:6px;padding:10px 14px;font-weight:700;font-size:0.9rem;cursor:pointer;width:100%;}
+    .cp-btn-briefing:disabled{background:#1e293b;color:#475569;cursor:not-allowed;}
+    .cp-rule{font-size:0.7rem;color:#475569;text-align:center;margin-top:0.5rem;line-height:1.4;}
+    .cp-tooltip{font-size:0.7rem;color:#f87171;text-align:center;margin-top:0.3rem;}
+    /* Risk preview */
+    .risk-item{font-size:0.75rem;color:#94a3b8;padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;gap:0.4rem;align-items:baseline;}
+    .risk-item:last-child{border-bottom:none;}
+    .risk-dot{width:6px;height:6px;border-radius:50%;background:#6366f1;flex-shrink:0;margin-top:5px;}
+    .risk-nota{font-size:0.7rem;color:#334155;margin-top:0.5rem;font-style:italic;line-height:1.4;}
+    /* TOC / nav */
+    .toc-bar{background:white;border:1px solid var(--gray-200);border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;}
+    .toc-bar h3{margin:0 0 0.4rem;font-size:0.75rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;}
+    .toc-links{display:flex;gap:0.5rem;flex-wrap:wrap;}
+    .toc-link{padding:3px 10px;border-radius:12px;background:var(--gray-100);color:var(--blue-700);font-size:0.78rem;text-decoration:none;border:1px solid var(--gray-200);}
+    .toc-link:hover{background:var(--blue-50);}
+    /* Divider */
+    hr.div{border:none;border-top:2px solid var(--gray-200);margin:1.5rem 0;}
+    /* Validation table */
+    table.vt{width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:0.5rem;}
+    table.vt th,table.vt td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--gray-100);}
+    table.vt th{background:var(--gray-50);font-size:0.7rem;text-transform:uppercase;color:var(--gray-400);letter-spacing:0.05em;}
+    .v-ok{color:var(--green-700);font-weight:600;}
+    .v-warn{color:var(--amber-700);font-weight:600;}
+    .v-err{color:var(--red-700);font-weight:600;}
+    footer{background:var(--slate-900);color:#475569;padding:1.25rem 1.5rem;text-align:center;font-size:0.75rem;margin-top:2rem;}
+    footer code{color:#64748b;}
+    /* Delta summary */
+    .delta-box{background:var(--purple-50);border:1px solid var(--purple-100);border-radius:8px;padding:0.85rem 1rem;margin-bottom:1rem;font-size:0.82rem;}
+    .delta-box h3{margin:0 0 0.5rem;font-size:0.85rem;color:var(--purple-700);}
+    .delta-box ul{margin:0;padding-left:1.15rem;}
+    .delta-box li{margin-bottom:0.2rem;}
+    /* Subblock */
+    .subblock{background:var(--purple-50);border:1px solid var(--purple-100);border-radius:6px;padding:0.7rem 0.85rem;margin-top:0.6rem;}
+    .subblock-hd{font-size:0.75rem;color:var(--purple-700);font-weight:600;margin-bottom:0.4rem;}
+  </style>
+</head>
+<body>
+
+<div class="app-header">
+  <div>
+    <h1>Perfil da Entidade — Formulário Determinístico M1</h1>
+    <p>pré-M1 · artefato de análise · branch <code>docs/m1-arquetipo-exploracao</code></p>
+  </div>
+  <div class="header-badges">
+    <span class="hbadge hbadge-blue">Delta v4.1</span>
+    <span class="hbadge hbadge-amber">Painel de Confiança</span>
+  </div>
+</div>
+
+<div class="banner">
+  ⚠️ <strong>Artefato exploratório pré-M1.</strong> Não representa código em produção. Não codificar além do mockup e da documentação sem aprovação do P.O.
+</div>
+
+<div class="page-wrap">
+
+  <div class="delta-box">
+    <h3>Delta v4.1 — O que mudou em relação ao v4</h3>
+    <ul>
+      <li><strong>Painel de Confiança lateral persistente</strong> (PC-01 a PC-06): score total, breakdown 3 dimensões, pendências/bloqueios, snapshot do Perfil da Entidade, CTA de confirmação e gate do briefing</li>
+      <li>Painel substitui o painel JSON técnico anterior — é a interface de controle do fluxo</li>
+      <li>Todos os elementos do v4 preservados: botão "Identificar CNAEs", modal, multi-select editável, confidence por CNAE, auto_open_blocos, profile preview</li>
+      <li>Nenhum texto da UI usa "Arquétipo" — apenas "Perfil da Entidade"</li>
+    </ul>
+  </div>
+
+  <div class="toc-bar">
+    <h3>Estados do Mockup</h3>
+    <div class="toc-links">
+      <a class="toc-link" href="#s1">S1 — Início</a>
+      <a class="toc-link" href="#s2">S2 — Modal CNAEs</a>
+      <a class="toc-link" href="#s3">S3 — CNAEs confirmados</a>
+      <a class="toc-link" href="#s4">S4 — Blocos pré-abertos</a>
+      <a class="toc-link" href="#s5">S5 — Bloqueio ativo</a>
+      <a class="toc-link" href="#s6">S6 — Confirmado</a>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- S1 — Início: descricao_negocio preenchida, botão habilitado -->
+  <!-- ======================================================= -->
+  <div id="s1" class="state-card" style="margin-bottom:1.5rem;">
+    <div class="state-card-header">
+      <h2>S1 — BLOCO 0: descricao_negocio preenchida → botão "Identificar CNAEs" habilitado</h2>
+      <span class="sbadge sbadge-em-construcao">Em construção</span>
+    </div>
+    <div class="state-card-body">
+      <p class="state-note">Usuário preencheu project_name e descricao_negocio. Botão "Identificar CNAEs" fica habilitado. Painel de Confiança mostra score baixo com pendência crítica de CNAEs.</p>
+      <div class="two-col">
+        <div class="form-area">
+          <div class="block active">
+            <div class="block-hd"><span class="block-id">BLOCO 0</span><span class="block-title">Entrada Obrigatória</span><span class="block-hint">sempre visível</span></div>
+            <div class="field">
+              <span class="fid">[B0-00]</span>
+              <label class="flabel">Nome do Projeto <span style="color:var(--red-500)">*</span></label>
+              <input class="input-text" type="text" value="Análise Compliance — Distribuidora Combustíveis SP" readonly>
+            </div>
+            <div class="field">
+              <span class="fid">[B0-01]</span>
+              <label class="flabel">Descrição do negócio <span style="color:var(--red-500)">*</span></label>
+              <div style="background:white;border:1px solid var(--gray-200);border-radius:6px;padding:0.45rem 0.65rem;font-size:0.88rem;color:var(--gray-700);">
+                Distribuidora de combustíveis com operações em SP e MG, atendendo postos revendedores (B2B) e frota própria.
+              </div>
+            </div>
+            <div class="field">
+              <span class="fid">[B0-02]</span> <span class="tag tag-v4">v4</span>
+              <label class="flabel">CNAEs da Empresa <span style="color:var(--red-500)">*</span></label>
+              <div class="info-box" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
+                <span>Nenhum CNAE identificado. Use o botão para buscar e selecionar.</span>
+                <button class="btn-action">🔍 Identificar CNAEs</button>
+              </div>
+              <div class="fnote">O sistema sugere CNAEs com base na descrição do negócio. Revise e confirme os CNAEs adequados.</div>
+            </div>
+            <div class="block locked" style="margin-top:0.5rem;">
+              <span style="font-size:0.8rem;color:var(--gray-400);">Campos seguintes aguardam CNAEs identificados…</span>
+            </div>
+          </div>
+        </div>
+        <!-- Painel de Confiança — S1 -->
+        <div class="conf-panel">
+          <div class="cp-header">
+            <h2>Confiança do Caso</h2>
+            <p>Entenda o que falta para liberar a análise</p>
+          </div>
+          <!-- PC-01: Resumo executivo -->
+          <div class="cp-section">
+            <div class="cp-section-title">PC-01 · Resumo Executivo</div>
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg viewBox="0 0 72 72" width="72" height="72">
+                  <circle class="sr-bg" cx="36" cy="36" r="30"/>
+                  <circle class="sr-fill" cx="36" cy="36" r="30" stroke="#ef4444"
+                    stroke-dasharray="188.5" stroke-dashoffset="169.6"/><!-- 10% -->
+                </svg>
+                <div class="sr-text">10</div>
+              </div>
+              <div class="score-meta">
+                <div class="sm-val">10%</div>
+                <div class="sm-label">Confiança do Caso</div>
+                <div class="sm-faixa faixa-low">● Baixa confiança</div>
+              </div>
+            </div>
+            <div class="status-row">
+              <span class="sr-label">Status do Perfil da Entidade</span>
+              <span class="sbadge sbadge-em-construcao">Em construção</span>
+            </div>
+            <div class="status-row">
+              <span class="sr-label">Fluxo E2E</span>
+              <span class="gate-badge gate-blocked">🔒 Bloqueado</span>
+            </div>
+            <div style="font-size:0.75rem;color:#94a3b8;margin-top:0.4rem;line-height:1.45;">O caso ainda não pode seguir para o briefing. Identifique e confirme os CNAEs para avançar.</div>
+          </div>
+          <!-- PC-02: Breakdown -->
+          <div class="cp-section">
+            <div class="cp-section-title">PC-02 · Como a confiança é composta</div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Completude</span><span class="bd-pct">15%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill completude" style="width:15%"></div></div>
+              <div class="bd-sub">2 de 9 campos obrigatórios preenchidos</div>
+            </div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Inferência validada</span><span class="bd-pct">0%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill inferencia" style="width:0%"></div></div>
+              <div class="bd-sub">CNAEs não identificados · Perfil não confirmado</div>
+            </div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Coerência</span><span class="bd-pct">—</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill coerencia" style="width:0%"></div></div>
+              <div class="bd-sub">Aguarda dados para validar regras cruzadas</div>
+            </div>
+            <div style="font-size:0.68rem;color:#334155;margin-top:0.5rem;font-style:italic;">Score alto sozinho não libera o fluxo — é necessário confirmar o Perfil da Entidade.</div>
+          </div>
+          <!-- PC-03: Pendências -->
+          <div class="cp-section">
+            <div class="cp-section-title">PC-03 · Pendências e bloqueios</div>
+            <div class="issue-card pendente-critico">
+              <div class="ic-type pendente-critico">PENDENTE CRÍTICO</div>
+              <div class="ic-title">Identifique e confirme os CNAEs do caso</div>
+              <div class="ic-why">Os CNAEs influenciam a abertura dos blocos e a composição inicial do Perfil da Entidade.</div>
+              <div class="ic-impact">Sem CNAEs confirmados, a confiança permanece reduzida.</div>
+              <button class="ic-cta">→ Identificar CNAEs</button>
+            </div>
+            <div class="issue-card pendente">
+              <div class="ic-type pendente">PENDENTE</div>
+              <div class="ic-title">Natureza da operação não informada</div>
+              <div class="ic-why">Determina se a análise envolve bens, serviços ou ambos.</div>
+              <div class="ic-impact">Bloqueia abertura dos campos de NCM e NBS.</div>
+              <button class="ic-cta">→ Ir para Natureza da operação</button>
+            </div>
+          </div>
+          <!-- PC-04: Snapshot -->
+          <div class="cp-section">
+            <div class="cp-section-title">PC-04 · Snapshot do Perfil da Entidade</div>
+            <div class="snapshot-row"><span class="sn-label">Natureza da operação</span><span class="sn-empty">—</span></div>
+            <div class="snapshot-row"><span class="sn-label">CNAEs</span><span class="sn-empty">—</span></div>
+            <div class="snapshot-row"><span class="sn-label">Papel operacional</span><span class="sn-empty">—</span></div>
+            <div class="snapshot-row"><span class="sn-label">Setor regulado</span><span class="sn-empty">—</span></div>
+            <div class="snapshot-preview">Leitura atual do sistema: dados insuficientes para inferir o Perfil da Entidade.</div>
+          </div>
+          <!-- PC-06: CTA -->
+          <div class="cp-cta-area">
+            <div class="cp-cta-msg">Complete e confirme o Perfil da Entidade para liberar o próximo passo.</div>
+            <div class="cp-cta-btns">
+              <button class="cp-btn-confirm" disabled>Confirmar Perfil da Entidade</button>
+              <button class="cp-btn-briefing" disabled>Continuar para o briefing</button>
+              <div class="cp-tooltip">⚠ Este caso ainda não pode seguir. Revise as pendências do painel.</div>
+            </div>
+            <div class="cp-rule">O fluxo só é liberado quando o Perfil da Entidade estiver confirmado e não houver bloqueios críticos.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- S2 — Modal CNAEs aberto -->
+  <!-- ======================================================= -->
+  <div id="s2" class="state-card" style="margin-bottom:1.5rem;">
+    <div class="state-card-header">
+      <h2>S2 — Modal "Identificar CNAEs" aberto · show_confidence_cnae</h2>
+      <span class="sbadge sbadge-em-construcao">Em construção</span>
+    </div>
+    <div class="state-card-body">
+      <div class="two-col">
+        <div class="form-area">
+          <div class="block modal-open">
+            <div class="block-hd"><span class="block-id">BLOCO 0</span><span class="block-title">Entrada Obrigatória</span></div>
+            <div class="field">
+              <span class="fid">[B0-01]</span>
+              <label class="flabel">Descrição do negócio</label>
+              <div style="background:white;border:1px solid var(--gray-200);border-radius:6px;padding:0.45rem 0.65rem;font-size:0.88rem;color:var(--gray-700);">Distribuidora de combustíveis com operações em SP e MG, atendendo postos revendedores (B2B) e frota própria.</div>
+            </div>
+            <!-- Modal -->
+            <div class="modal-overlay">
+              <div class="modal-win">
+                <div class="modal-hd">
+                  <h3>🔍 Identificar CNAEs <span class="tag tag-v4">v4</span></h3>
+                  <button class="modal-close">✕ Fechar</button>
+                </div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin-bottom:0.5rem;">Sugestões com base na descrição do negócio</div>
+                <div class="modal-search">
+                  <input type="text" value="distribuidora combustíveis" placeholder="Buscar por descrição ou código CNAE…">
+                  <button>Buscar</button>
+                </div>
+                <div class="cnae-list">
+                  <div class="cnae-row added">
+                    <span class="cnae-code">47.31-8-00</span>
+                    <span class="cnae-desc">Comércio varejista de combustíveis para veículos automotores</span>
+                    <span class="cnae-badge high">Alta confiança</span>
+                    <button class="cnae-add done">✓ Adicionado</button>
+                  </div>
+                  <div class="cnae-row">
+                    <span class="cnae-code">46.81-8-01</span>
+                    <span class="cnae-desc">Comércio atacadista de álcool carburante, biodiesel e outros biocombustíveis</span>
+                    <span class="cnae-badge high">Alta confiança</span>
+                    <button class="cnae-add">+ Adicionar</button>
+                  </div>
+                  <div class="cnae-row">
+                    <span class="cnae-code">46.82-6-00</span>
+                    <span class="cnae-desc">Comércio atacadista de lubrificantes</span>
+                    <span class="cnae-badge medium">Média confiança</span>
+                    <button class="cnae-add">+ Adicionar</button>
+                  </div>
+                  <div class="cnae-row">
+                    <span class="cnae-code">52.21-4-00</span>
+                    <span class="cnae-desc">Concessionárias de rodovias, pontes, túneis e serviços relacionados</span>
+                    <span class="cnae-badge low">Baixa confiança</span>
+                    <button class="cnae-add">+ Adicionar</button>
+                  </div>
+                </div>
+                <div style="font-size:0.73rem;color:var(--gray-400);margin-top:0.5rem;">As sugestões são baseadas na descrição do negócio. Revise e confirme os CNAEs adequados para a entidade.</div>
+                <div class="modal-ft">
+                  <span class="modal-ft-note">1 CNAE selecionado</span>
+                  <button class="btn-primary">Confirmar seleção →</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Painel — S2 -->
+        <div class="conf-panel">
+          <div class="cp-header"><h2>Confiança do Caso</h2><p>Entenda o que falta para liberar a análise</p></div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-01 · Resumo Executivo</div>
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg viewBox="0 0 72 72" width="72" height="72">
+                  <circle class="sr-bg" cx="36" cy="36" r="30"/>
+                  <circle class="sr-fill" cx="36" cy="36" r="30" stroke="#f59e0b"
+                    stroke-dasharray="188.5" stroke-dashoffset="141.4"/><!-- 25% -->
+                </svg>
+                <div class="sr-text">25</div>
+              </div>
+              <div class="score-meta">
+                <div class="sm-val">25%</div>
+                <div class="sm-label">Confiança do Caso</div>
+                <div class="sm-faixa faixa-low">● Baixa confiança</div>
+              </div>
+            </div>
+            <div class="status-row"><span class="sr-label">Status</span><span class="sbadge sbadge-pendente">Pendente</span></div>
+            <div class="status-row"><span class="sr-label">Fluxo E2E</span><span class="gate-badge gate-blocked">🔒 Bloqueado</span></div>
+            <div style="font-size:0.75rem;color:#94a3b8;margin-top:0.4rem;">Faltam confirmações para liberar a análise. Confirme os CNAEs selecionados.</div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-02 · Composição</div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Completude</span><span class="bd-pct">22%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill completude" style="width:22%"></div></div>
+            </div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Inferência validada</span><span class="bd-pct">33%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill inferencia" style="width:33%"></div></div>
+              <div class="bd-sub">CNAEs sugeridos mas não confirmados</div>
+            </div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Coerência</span><span class="bd-pct">—</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill coerencia" style="width:0%"></div></div>
+            </div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-03 · Pendências</div>
+            <div class="issue-card pendente-critico">
+              <div class="ic-type pendente-critico">PENDENTE CRÍTICO</div>
+              <div class="ic-title">Confirme os CNAEs selecionados no modal</div>
+              <div class="ic-why">CNAEs sugeridos mas ainda não confirmados não ativam os blocos condicionais.</div>
+              <button class="ic-cta">→ Confirmar seleção no modal</button>
+            </div>
+          </div>
+          <div class="cp-cta-area">
+            <div class="cp-cta-btns">
+              <button class="cp-btn-confirm" disabled>Confirmar Perfil da Entidade</button>
+              <button class="cp-btn-briefing" disabled>Continuar para o briefing</button>
+              <div class="cp-tooltip">⚠ Confirme os CNAEs para avançar.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- S3 — CNAEs confirmados: multi-select + profile preview + painel atualizado -->
+  <!-- ======================================================= -->
+  <div id="s3" class="state-card" style="margin-bottom:1.5rem;">
+    <div class="state-card-header">
+      <h2>S3 — CNAEs confirmados: multi-select editável + profile preview + Painel atualizado</h2>
+      <span class="sbadge sbadge-pendente">Pendente</span>
+    </div>
+    <div class="state-card-body">
+      <div class="two-col">
+        <div class="form-area">
+          <div class="block active">
+            <div class="block-hd"><span class="block-id">BLOCO 0</span><span class="block-title">Entrada Obrigatória</span></div>
+            <div class="field">
+              <span class="fid">[B0-00]</span>
+              <label class="flabel">Nome do Projeto</label>
+              <input class="input-text" type="text" value="Análise Compliance — Distribuidora Combustíveis SP" readonly>
+            </div>
+            <div class="field">
+              <span class="fid">[B0-01]</span>
+              <label class="flabel">Descrição do negócio</label>
+              <div style="background:white;border:1px solid var(--gray-200);border-radius:6px;padding:0.45rem 0.65rem;font-size:0.88rem;color:var(--gray-700);">Distribuidora de combustíveis com operações em SP e MG, atendendo postos revendedores (B2B) e frota própria.</div>
+            </div>
+            <!-- Multi-select editável de CNAEs -->
+            <div class="field">
+              <span class="fid">[B0-02A]</span> <span class="tag tag-v4">multi_select</span>
+              <label class="flabel">CNAEs da Empresa <span style="color:var(--red-500)">*</span></label>
+              <div class="cnae-chips">
+                <span class="cnae-chip"><span class="cc-conf cc-high">Alta</span>47.31-8-00 — Comércio varejista de combustíveis<span class="cc-rm">✕</span></span>
+                <span class="cnae-chip"><span class="cc-conf cc-high">Alta</span>46.81-8-01 — Comércio atacadista de biocombustíveis<span class="cc-rm">✕</span></span>
+                <button class="btn-action" style="padding:4px 9px;font-size:0.75rem;">+ Adicionar CNAE</button>
+              </div>
+              <div class="effect">→ 47.31-8-00 → <code>setor_regulado=true</code> (ANP) · <code>regime_diferenciado</code><br>→ 46.81-8-01 → <code>papel_operacional=distribuidor</code> · <code>split_payment</code></div>
+            </div>
+            <!-- Profile preview -->
+            <div class="field">
+              <span class="fid">[B0-02B]</span> <span class="tag tag-v4">show_detected_profile_preview</span>
+              <div class="profile-preview">
+                <div class="pp-hd">🔍 Perfil da Entidade detectado automaticamente</div>
+                <div class="pp-row"><span class="pp-label">Natureza da operação</span><span class="pp-val"><code>produto</code></span></div>
+                <div class="pp-row"><span class="pp-label">Papel operacional</span><span class="pp-val"><code>distribuidor</code></span></div>
+                <div class="pp-row"><span class="pp-label">Setor regulado</span><span class="pp-val"><code>true</code> (ANP)</span></div>
+                <div class="pp-row"><span class="pp-label">Riscos detectados</span><span class="pp-val"><code>regime_diferenciado</code>, <code>split_payment</code></span></div>
+                <div class="pp-row"><span class="pp-label">Blocos pré-abertos</span><span class="pp-val">Bloco 1, Bloco 2</span></div>
+                <div class="pp-note">ℹ️ Pré-visualização baseada nos CNAEs. Confirme ou ajuste nos blocos abaixo.</div>
+              </div>
+            </div>
+            <!-- B0-03 pré-selecionado -->
+            <div class="field">
+              <span class="fid">[B0-03]</span> <span class="tag tag-new">pré-selecionado por CNAE</span>
+              <label class="flabel">Natureza da operação <span style="color:var(--red-500)">*</span></label>
+              <div class="chip-row">
+                <span class="chip sel">Produto (bens físicos)</span>
+                <span class="chip">Serviço</span>
+                <span class="chip">Misto</span>
+              </div>
+              <div class="derived-box"><code>possui_bens</code> = <strong>true</strong> <span class="tag tag-derived">derivado</span> · <code>possui_servicos</code> = <strong>false</strong> <span class="tag tag-derived">derivado</span></div>
+            </div>
+            <div class="action-bar">
+              <button class="btn-secondary">Voltar</button>
+              <button class="btn-primary">Avançar para Bloco 1 →</button>
+            </div>
+          </div>
+        </div>
+        <!-- Painel — S3 -->
+        <div class="conf-panel">
+          <div class="cp-header"><h2>Confiança do Caso</h2><p>Entenda o que falta para liberar a análise</p></div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-01 · Resumo Executivo</div>
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg viewBox="0 0 72 72" width="72" height="72">
+                  <circle class="sr-bg" cx="36" cy="36" r="30"/>
+                  <circle class="sr-fill" cx="36" cy="36" r="30" stroke="#f59e0b"
+                    stroke-dasharray="188.5" stroke-dashoffset="113.1"/><!-- 40% -->
+                </svg>
+                <div class="sr-text">40</div>
+              </div>
+              <div class="score-meta">
+                <div class="sm-val">40%</div>
+                <div class="sm-label">Confiança do Caso</div>
+                <div class="sm-faixa faixa-low">● Baixa confiança</div>
+              </div>
+            </div>
+            <div class="status-row"><span class="sr-label">Status</span><span class="sbadge sbadge-pendente">Pendente</span></div>
+            <div class="status-row"><span class="sr-label">Fluxo E2E</span><span class="gate-badge gate-pending">⏳ Aguardando confirmação</span></div>
+            <div style="font-size:0.75rem;color:#94a3b8;margin-top:0.4rem;">CNAEs confirmados. Faltam confirmações nos blocos para liberar a análise.</div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-02 · Composição</div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Completude</span><span class="bd-pct">33%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill completude" style="width:33%"></div></div>
+              <div class="bd-sub">3 de 9 campos obrigatórios preenchidos</div>
+            </div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Inferência validada</span><span class="bd-pct">67%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill inferencia" style="width:67%"></div></div>
+              <div class="bd-sub">CNAEs confirmados · Perfil ainda não confirmado</div>
+            </div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Coerência</span><span class="bd-pct">80%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill coerencia" style="width:80%"></div></div>
+              <div class="bd-sub">Sem inconsistências detectadas</div>
+            </div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-03 · Pendências</div>
+            <div class="issue-card pendente">
+              <div class="ic-type pendente">PENDENTE</div>
+              <div class="ic-title">Informe pelo menos um NCM principal</div>
+              <div class="ic-why">A entidade declarou operação com bens e precisa detalhar os produtos principais.</div>
+              <div class="ic-impact">O Perfil da Entidade não pode ser confirmado sem NCM.</div>
+              <button class="ic-cta">→ Ir para NCM</button>
+            </div>
+            <div class="issue-card pendente">
+              <div class="ic-type pendente">PENDENTE</div>
+              <div class="ic-title">Confirme o papel operacional no Bloco 1</div>
+              <div class="ic-why">O papel foi inferido pelos CNAEs mas ainda aguarda confirmação do usuário.</div>
+              <button class="ic-cta">→ Ir para Bloco 1</button>
+            </div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-04 · Snapshot do Perfil da Entidade</div>
+            <div class="snapshot-row"><span class="sn-label">Natureza da operação</span><span class="sn-val"><code>produto</code></span></div>
+            <div class="snapshot-row"><span class="sn-label">CNAEs</span><span class="sn-val">47.31-8-00, 46.81-8-01</span></div>
+            <div class="snapshot-row"><span class="sn-label">Papel operacional</span><span class="sn-val" style="color:#fbbf24;"><code>distribuidor</code> (inferido)</span></div>
+            <div class="snapshot-row"><span class="sn-label">Setor regulado</span><span class="sn-val"><code>true</code> · ANP</span></div>
+            <div class="snapshot-row"><span class="sn-label">Abrangência geo.</span><span class="sn-empty">—</span></div>
+            <div class="snapshot-preview">Leitura atual: distribuidora de combustíveis, setor regulado ANP, regime diferenciado previsto. Aguarda confirmação dos blocos.</div>
+          </div>
+          <div class="cp-cta-area">
+            <div class="cp-cta-btns">
+              <button class="cp-btn-confirm" disabled>Confirmar Perfil da Entidade</button>
+              <button class="cp-btn-briefing" disabled>Continuar para o briefing</button>
+              <div class="cp-tooltip">⚠ Complete os blocos pendentes para confirmar o Perfil da Entidade.</div>
+            </div>
+            <div class="cp-rule">O fluxo só é liberado quando o Perfil da Entidade estiver confirmado e não houver bloqueios críticos.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- S4 — auto_open_blocos_based_on_cnae -->
+  <!-- ======================================================= -->
+  <div id="s4" class="state-card" style="margin-bottom:1.5rem;">
+    <div class="state-card-header">
+      <h2>S4 — auto_open_blocos_based_on_cnae: Blocos 1 e 2 pré-abertos e pré-preenchidos</h2>
+      <span class="sbadge sbadge-pendente">Pendente</span>
+    </div>
+    <div class="state-card-body">
+      <div class="two-col">
+        <div class="form-area">
+          <div class="block valid" style="opacity:0.85;font-size:0.82rem;padding:0.6rem 0.85rem;">
+            <span class="block-id">BLOCO 0</span> · CNAEs: 47.31-8-00, 46.81-8-01 · produto · lucro_presumido ✓
+          </div>
+          <div class="block active">
+            <div class="block-hd"><span class="block-id">BLOCO 1</span><span class="block-title">Cadeia de Valor</span><span class="block-hint"><span class="tag tag-v4">pré-aberto por CNAE</span></span></div>
+            <div class="info-box" style="margin-bottom:0.65rem;">🔍 <strong>auto_open_blocos_based_on_cnae:</strong> CNAE 46.81-8-01 sugere <code>papel_operacional=distribuidor</code>. Confirme ou ajuste.</div>
+            <div class="field">
+              <span class="fid">[B1-01]</span>
+              <label class="flabel">Papel operacional principal <span style="color:var(--red-500)">*</span></label>
+              <div class="chip-row">
+                <span class="chip">Fabricante / Produtor</span>
+                <span class="chip sel">Distribuidor / Atacadista</span>
+                <span class="chip">Varejista</span>
+                <span class="chip">Prestador de Serviços</span>
+                <span class="chip">Misto</span>
+              </div>
+              <div class="effect">→ <code>split_payment</code> ativo · <code>regime_diferenciado</code> (monofasia combustíveis)</div>
+            </div>
+          </div>
+          <div class="block active">
+            <div class="block-hd"><span class="block-id">BLOCO 2</span><span class="block-title">Setor Regulado</span><span class="block-hint"><span class="tag tag-v4">pré-aberto por CNAE</span></span></div>
+            <div class="info-box" style="margin-bottom:0.65rem;">🔍 <strong>auto_open_blocos_based_on_cnae:</strong> CNAE 47.31-8-00 sugere <code>setor_regulado=true</code> + <code>orgao=ANP</code>.</div>
+            <div class="field">
+              <span class="fid">[B2-01]</span>
+              <label class="flabel">A empresa atua em setor regulado?</label>
+              <div class="chip-row"><span class="chip sel">Sim</span><span class="chip">Não</span></div>
+            </div>
+            <div class="subblock">
+              <div class="subblock-hd">[B2-02] Órgão regulador <span class="tag tag-v4">pré-selecionado por CNAE</span></div>
+              <div class="chip-row">
+                <span class="chip sel-green">ANP</span>
+                <span class="chip">ANATEL</span><span class="chip">ANVISA</span>
+                <span class="chip">ANS</span><span class="chip">ANEEL</span>
+                <span class="chip">BACEN / CVM</span><span class="chip">Outro</span>
+              </div>
+              <div class="effect">→ <code>obrigacao_acessoria</code> regulatória (SPED-Combustíveis, SCANC)<br>→ confirma <code>regime_diferenciado</code></div>
+            </div>
+          </div>
+          <div class="block locked"><span class="block-id">BLOCO 3</span> · Território — aguarda Bloco 2</div>
+          <div class="block locked"><span class="block-id">BLOCO 4</span> · Estrutura Societária — aguarda Bloco 2</div>
+        </div>
+        <!-- Painel — S4 -->
+        <div class="conf-panel">
+          <div class="cp-header"><h2>Confiança do Caso</h2><p>Entenda o que falta para liberar a análise</p></div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-01 · Resumo Executivo</div>
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg viewBox="0 0 72 72" width="72" height="72">
+                  <circle class="sr-bg" cx="36" cy="36" r="30"/>
+                  <circle class="sr-fill" cx="36" cy="36" r="30" stroke="#f59e0b"
+                    stroke-dasharray="188.5" stroke-dashoffset="75.4"/><!-- 60% -->
+                </svg>
+                <div class="sr-text">60</div>
+              </div>
+              <div class="score-meta">
+                <div class="sm-val">60%</div>
+                <div class="sm-label">Confiança do Caso</div>
+                <div class="sm-faixa faixa-medium">● Confiança média</div>
+              </div>
+            </div>
+            <div class="status-row"><span class="sr-label">Status</span><span class="sbadge sbadge-pendente">Pendente</span></div>
+            <div class="status-row"><span class="sr-label">Fluxo E2E</span><span class="gate-badge gate-pending">⏳ Aguardando confirmação</span></div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-02 · Composição</div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Completude</span><span class="bd-pct">55%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill completude" style="width:55%"></div></div>
+            </div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Inferência validada</span><span class="bd-pct">67%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill inferencia" style="width:67%"></div></div>
+              <div class="bd-sub">CNAEs confirmados · Perfil ainda não confirmado</div>
+            </div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Coerência</span><span class="bd-pct">85%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill coerencia" style="width:85%"></div></div>
+            </div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-03 · Pendências</div>
+            <div class="issue-card pendente">
+              <div class="ic-type pendente">PENDENTE</div>
+              <div class="ic-title">Confirme o papel operacional no Bloco 1</div>
+              <div class="ic-why">Papel inferido por CNAE, aguarda confirmação do usuário.</div>
+              <button class="ic-cta">→ Ir para Bloco 1</button>
+            </div>
+            <div class="issue-card pendente">
+              <div class="ic-type pendente">PENDENTE</div>
+              <div class="ic-title">Complete os Blocos 3 e 4</div>
+              <div class="ic-why">Território e estrutura societária ainda não preenchidos.</div>
+              <button class="ic-cta">→ Ir para Bloco 3</button>
+            </div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-04 · Snapshot</div>
+            <div class="snapshot-row"><span class="sn-label">Natureza</span><span class="sn-val"><code>produto</code></span></div>
+            <div class="snapshot-row"><span class="sn-label">CNAEs</span><span class="sn-val">47.31-8-00, 46.81-8-01</span></div>
+            <div class="snapshot-row"><span class="sn-label">Papel operacional</span><span class="sn-val"><code>distribuidor</code></span></div>
+            <div class="snapshot-row"><span class="sn-label">Setor regulado</span><span class="sn-val"><code>true</code> · ANP</span></div>
+            <div class="snapshot-row"><span class="sn-label">Abrangência geo.</span><span class="sn-empty">—</span></div>
+          </div>
+          <div class="cp-cta-area">
+            <div class="cp-cta-btns">
+              <button class="cp-btn-confirm" disabled>Confirmar Perfil da Entidade</button>
+              <button class="cp-btn-briefing" disabled>Continuar para o briefing</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- S5 — HARD_BLOCK ativo (NCM ausente) -->
+  <!-- ======================================================= -->
+  <div id="s5" class="state-card" style="margin-bottom:1.5rem;">
+    <div class="state-card-header">
+      <h2>S5 — HARD_BLOCK ativo: NCM ausente bloqueia confirmação do Perfil da Entidade</h2>
+      <span class="sbadge sbadge-bloqueado">Bloqueado</span>
+    </div>
+    <div class="state-card-body">
+      <div class="two-col">
+        <div class="form-area">
+          <div class="block valid" style="opacity:0.85;font-size:0.82rem;padding:0.6rem 0.85rem;"><span class="block-id">BLOCO 0</span> · CNAEs: 47.31-8-00, 46.81-8-01 · produto ✓</div>
+          <div class="block valid" style="opacity:0.85;font-size:0.82rem;padding:0.6rem 0.85rem;"><span class="block-id">BLOCO 1</span> · papel_operacional: distribuidor ✓</div>
+          <div class="block valid" style="opacity:0.85;font-size:0.82rem;padding:0.6rem 0.85rem;"><span class="block-id">BLOCO 2</span> · setor_regulado: true · ANP ✓</div>
+          <div class="block" style="background:var(--red-50);border-color:var(--red-300);">
+            <div class="block-hd"><span class="block-id">BLOCO 0</span><span class="block-title">Principais Produtos (NCM)</span><span class="tag tag-block">HARD BLOCK</span></div>
+            <div style="background:var(--red-50);border:1px solid var(--red-200);border-radius:6px;padding:0.6rem 0.8rem;font-size:0.82rem;color:var(--red-700);margin-bottom:0.5rem;">
+              ❌ <strong>RB-01 HARD BLOCK:</strong> A entidade declarou operação com bens. É obrigatório informar pelo menos um NCM principal.
+            </div>
+            <div class="field">
+              <span class="fid">[B0-04]</span>
+              <label class="flabel">Principais produtos (NCM) <span style="color:var(--red-500)">*</span></label>
+              <div style="border:2px dashed var(--red-300);border-radius:6px;padding:0.75rem;text-align:center;color:var(--red-400);font-size:0.82rem;">
+                + Adicionar NCM principal
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Painel — S5 HARD BLOCK -->
+        <div class="conf-panel">
+          <div class="cp-header"><h2>Confiança do Caso</h2><p>Entenda o que falta para liberar a análise</p></div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-01 · Resumo Executivo</div>
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg viewBox="0 0 72 72" width="72" height="72">
+                  <circle class="sr-bg" cx="36" cy="36" r="30"/>
+                  <circle class="sr-fill" cx="36" cy="36" r="30" stroke="#ef4444"
+                    stroke-dasharray="188.5" stroke-dashoffset="56.6"/><!-- 70% mas bloqueado -->
+                </svg>
+                <div class="sr-text" style="color:#f87171;">70</div>
+              </div>
+              <div class="score-meta">
+                <div class="sm-val">70%</div>
+                <div class="sm-label">Confiança do Caso</div>
+                <div class="sm-faixa faixa-medium">● Confiança média</div>
+              </div>
+            </div>
+            <div class="status-row"><span class="sr-label">Status</span><span class="sbadge sbadge-bloqueado">Bloqueado</span></div>
+            <div class="status-row"><span class="sr-label">Fluxo E2E</span><span class="gate-badge gate-blocked">🔒 Bloqueado</span></div>
+            <div style="font-size:0.75rem;color:#f87171;margin-top:0.4rem;font-weight:600;">Score alto não libera o fluxo com HARD_BLOCK ativo.</div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-02 · Composição</div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Completude</span><span class="bd-pct">70%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill completude" style="width:70%"></div></div>
+            </div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Inferência validada</span><span class="bd-pct">67%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill inferencia" style="width:67%"></div></div>
+            </div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Coerência</span><span class="bd-pct">90%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill coerencia" style="width:90%"></div></div>
+            </div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-03 · Pendências e bloqueios</div>
+            <div class="issue-card hard-block">
+              <div class="ic-type hard-block">HARD BLOCK — RB-01</div>
+              <div class="ic-title">Informe pelo menos um NCM principal</div>
+              <div class="ic-why">A entidade declarou operação com bens e precisa detalhar os produtos principais.</div>
+              <div class="ic-impact">O Perfil da Entidade não pode ser confirmado.</div>
+              <button class="ic-cta">→ Ir para NCM</button>
+            </div>
+            <div class="issue-card info">
+              <div class="ic-type info">INFO</div>
+              <div class="ic-title">Grupo econômico identificado</div>
+              <div class="ic-why">A análise atual considera apenas este CNPJ.</div>
+              <div class="ic-impact">Não bloqueia esta versão.</div>
+              <button class="ic-cta">→ Ver contexto societário</button>
+            </div>
+          </div>
+          <div class="cp-cta-area">
+            <div class="cp-cta-btns">
+              <button class="cp-btn-confirm" disabled>Confirmar Perfil da Entidade</button>
+              <button class="cp-btn-briefing" disabled>Continuar para o briefing</button>
+              <div class="cp-tooltip">⚠ Resolva o HARD BLOCK antes de confirmar o Perfil da Entidade.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- S6 — Perfil da Entidade confirmado -->
+  <!-- ======================================================= -->
+  <div id="s6" class="state-card" style="margin-bottom:1.5rem;">
+    <div class="state-card-header">
+      <h2>S6 — Perfil da Entidade confirmado → Gate E2E aberto → /briefing liberado</h2>
+      <span class="sbadge sbadge-confirmado">Confirmado</span>
+    </div>
+    <div class="state-card-body">
+      <div class="two-col">
+        <div class="form-area">
+          <div class="block valid" style="font-size:0.82rem;padding:0.6rem 0.85rem;"><span class="block-id">BLOCO 0</span> · CNAEs ✓ · produto · lucro_presumido · 10m–50m</div>
+          <div class="block valid" style="font-size:0.82rem;padding:0.6rem 0.85rem;"><span class="block-id">BLOCO 1</span> · distribuidor ✓</div>
+          <div class="block valid" style="font-size:0.82rem;padding:0.6rem 0.85rem;"><span class="block-id">BLOCO 2</span> · setor_regulado=true · ANP ✓</div>
+          <div class="block valid" style="font-size:0.82rem;padding:0.6rem 0.85rem;"><span class="block-id">BLOCO 3</span> · multiState=true · sem território incentivado ✓</div>
+          <div class="block valid" style="font-size:0.82rem;padding:0.6rem 0.85rem;"><span class="block-id">BLOCO 4</span> · isEconomicGroup=false ✓</div>
+          <div class="block valid">
+            <div class="block-hd"><span class="block-id">VALIDAÇÃO FINAL</span><span class="block-title">8 regras — todas passam</span></div>
+            <table class="vt">
+              <thead><tr><th>ID</th><th>Condição</th><th>Tipo</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>RB-01</td><td>possui_bens=true AND NCM vazio</td><td>HARD BLOCK</td><td class="v-ok">✓ NCM informado</td></tr>
+                <tr><td>RB-02</td><td>possui_servicos=true AND NBS vazio</td><td>HARD BLOCK</td><td class="v-ok">✓ N/A (produto)</td></tr>
+                <tr><td>RB-03</td><td>comercio_exterior ≠ nenhum AND natureza vazio</td><td>HARD BLOCK</td><td class="v-ok">✓ ok</td></tr>
+                <tr><td>RB-04</td><td>setor_regulado=true AND orgao vazio</td><td>HARD BLOCK</td><td class="v-ok">✓ ANP via CNAE</td></tr>
+                <tr><td>RB-05</td><td>opera_territorio=true AND tipo vazio</td><td>HARD BLOCK</td><td class="v-ok">✓ N/A</td></tr>
+                <tr><td>RB-06-INFO</td><td>isEconomicGroup=true</td><td style="color:var(--purple-700);">INFO</td><td class="v-ok">✓ N/A</td></tr>
+                <tr><td>RB-07</td><td>taxRegime=simples AND revenue &gt; 4,8M</td><td>HARD BLOCK</td><td class="v-ok">✓ presumido</td></tr>
+                <tr><td>RB-08</td><td>status_arquetipo ≠ confirmado</td><td>GATE E2E</td><td class="v-ok">✓ confirmado</td></tr>
+              </tbody>
+            </table>
+            <div class="ok-box" style="margin-top:0.75rem;">✅ <strong>Perfil da Entidade confirmado.</strong> Todos os blocos preenchidos. Sem HARD_BLOCKs ativos. Gate E2E aberto.</div>
+          </div>
+        </div>
+        <!-- Painel — S6 CONFIRMADO -->
+        <div class="conf-panel">
+          <div class="cp-header"><h2>Confiança do Caso</h2><p>Entenda o que falta para liberar a análise</p></div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-01 · Resumo Executivo</div>
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg viewBox="0 0 72 72" width="72" height="72">
+                  <circle class="sr-bg" cx="36" cy="36" r="30"/>
+                  <circle class="sr-fill" cx="36" cy="36" r="30" stroke="#10b981"
+                    stroke-dasharray="188.5" stroke-dashoffset="18.85"/><!-- 90% -->
+                </svg>
+                <div class="sr-text" style="color:#34d399;">90</div>
+              </div>
+              <div class="score-meta">
+                <div class="sm-val">90%</div>
+                <div class="sm-label">Confiança do Caso</div>
+                <div class="sm-faixa faixa-high">● Alta confiança</div>
+              </div>
+            </div>
+            <div class="status-row"><span class="sr-label">Status</span><span class="sbadge sbadge-confirmado">Confirmado</span></div>
+            <div class="status-row"><span class="sr-label">Fluxo E2E</span><span class="gate-badge gate-open">✅ Liberado</span></div>
+            <div style="font-size:0.75rem;color:#34d399;margin-top:0.4rem;font-weight:600;">O Perfil da Entidade está confirmado e o fluxo pode seguir.</div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-02 · Composição</div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Completude</span><span class="bd-pct">100%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill completude" style="width:100%"></div></div>
+            </div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Inferência validada</span><span class="bd-pct">100%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill inferencia" style="width:100%"></div></div>
+              <div class="bd-sub">CNAEs confirmados · Perfil confirmado pelo usuário</div>
+            </div>
+            <div class="breakdown-item">
+              <div class="bd-row"><span class="bd-label">Coerência</span><span class="bd-pct">95%</span></div>
+              <div class="bd-bar-bg"><div class="bd-bar-fill coerencia" style="width:95%"></div></div>
+              <div class="bd-sub">Sem inconsistências críticas</div>
+            </div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-03 · Pendências</div>
+            <div style="font-size:0.78rem;color:#334155;font-style:italic;text-align:center;padding:0.5rem;">Nenhum bloqueio ou pendência crítica.</div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-04 · Snapshot do Perfil da Entidade</div>
+            <div class="snapshot-row"><span class="sn-label">Natureza</span><span class="sn-val"><code>produto</code></span></div>
+            <div class="snapshot-row"><span class="sn-label">CNAEs</span><span class="sn-val">47.31-8-00, 46.81-8-01</span></div>
+            <div class="snapshot-row"><span class="sn-label">Papel operacional</span><span class="sn-val"><code>distribuidor</code></span></div>
+            <div class="snapshot-row"><span class="sn-label">Setor regulado</span><span class="sn-val"><code>true</code> · ANP</span></div>
+            <div class="snapshot-row"><span class="sn-label">Abrangência geo.</span><span class="sn-val"><code>multi</code></span></div>
+            <div class="snapshot-row"><span class="sn-label">Território incentivado</span><span class="sn-val"><code>false</code></span></div>
+            <div class="snapshot-row"><span class="sn-label">Comércio exterior</span><span class="sn-val"><code>nenhum</code></span></div>
+            <div class="snapshot-preview">DISTRIBUIDOR_PRESUMIDO_MULTI_ANP — split_payment, regime_diferenciado, obrigacao_acessoria (SPED-Combustíveis, SCANC)</div>
+          </div>
+          <div class="cp-section">
+            <div class="cp-section-title">PC-05 · Como isso impactará os riscos</div>
+            <div class="risk-item"><span class="risk-dot"></span><span>Setor regulado (ANP) pode acionar obrigações acessórias específicas.</span></div>
+            <div class="risk-item"><span class="risk-dot"></span><span>Operação com bens exige classificação por NCM.</span></div>
+            <div class="risk-item"><span class="risk-dot"></span><span>Atuação multiestadual impacta territorialidade do caso.</span></div>
+            <div class="risk-nota">Na etapa de riscos, o sistema mostrará por que cada risco foi apontado, com base nos dados do Perfil da Entidade, na regra aplicada e na base legal correspondente.</div>
+          </div>
+          <div class="cp-cta-area">
+            <div class="cp-cta-btns">
+              <button class="cp-btn-confirm">Confirmar Perfil da Entidade</button>
+              <button class="cp-btn-fix">Corrigir Perfil da Entidade</button>
+              <button class="cp-btn-briefing">Continuar para o briefing</button>
+            </div>
+            <div class="cp-rule">Perfil da Entidade confirmado. Sem bloqueios críticos. Fluxo liberado.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<footer>
+  <code>MOCKUP_perfil_entidade_deterministico_v4_1.html</code> · Delta v4.1 · Painel de Confiança enterprise · pré-M1 · artefato de análise · sem implementação<br>
+  Referência: <code>M1-ARQUETIPO-FORM-DELTA-v4.1.md</code> · <code>ADR-M1-PAINEL-CONFIANCA-E-CNAES-v1.md</code> · branch <code>docs/m1-arquetipo-exploracao</code>
+</footer>
+
+</body>
+</html>
