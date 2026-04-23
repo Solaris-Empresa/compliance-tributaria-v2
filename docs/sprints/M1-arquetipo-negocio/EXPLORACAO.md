@@ -427,6 +427,8 @@ Formulário ──┬──► calcularLimitePerguntas  (questionário Q3)
 | 2026-04-23 | Claude Code | Clarificação P.O. §12.3: modelo mental da UX on-the-fly atual é "NCM/NBS só aparecem se serviço OU produto OU misto" — código implementa via subtipos (industria/comercio/agro para produto; servicos/financeiro para serviço) |
 | 2026-04-23 | Claude Code | **Suite 1 executada — rodada A**: `M1-arquetipo-go-no-go-brasil-v1` · 15 cenários · **🟢 GO 15/15** · zero gap de campo · 6 findings de desalinhamento `expected_open_blocks` (não-bloqueantes) · ver `tests/archetype-validation/REPORT-*.md` |
 | 2026-04-23 | Claude Code | **Rodada B — crítica da spec UI**: matriz P.O. × regras Seção 2 + 10 edge cases. **🟡 AMARELO** · 2 divergências matriz (T03, T15) · 1 regra faltando (regime_especial) · 4 ambiguidades · 10 recomendações (R1-R10) · ver `tests/archetype-validation/CRITIQUE-UI-SPEC.md` |
+| 2026-04-23 | Claude Code | **Rodada C — spec UI v2 recebida do consultor** · 8 das 10 recomendações endereçadas · simulação mental sob v2 identifica 15 red flags (N1-N15) · spec-ui-v2.json salva localmente (não commitada) |
+| 2026-04-23 | Claude Code | **Decisão REGRA-M1-GO-NO-GO: 🔴 NO-GO** · C1 FAIL · C2 PARCIAL · C3 FAIL · 7 P0 pendentes · 6 P1 · 2 P2 backlog · 4 de 4 regras de bloqueio disparam · implementação M1 segue suspensa · ver `DECISAO-GO-NO-GO-M1.md` |
 
 ---
 
