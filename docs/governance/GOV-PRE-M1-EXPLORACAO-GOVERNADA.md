@@ -127,6 +127,16 @@ Regras mínimas durante PRÉ-M1:
 5. **Contratos entre milestones devem ser definidos antes da implementação**
 6. **Blockers conhecidos não podem ficar fora do primeiro commit útil**
    (se já identificado, documenta imediatamente — estrutura vazia é antipadrão)
+7. **Contratos entre milestones devem ser atualizados quando decisões
+   de modelo os impactem.** Se ADR altera schema do arquétipo ou modelo,
+   `CONTRATOS-ENTRE-MILESTONES.md` é atualizado no mesmo commit ou no
+   commit imediatamente seguinte. Contrato estagnado vira tech-debt
+   silenciosa.
+8. **Modelo produzido na PRÉ-M1 tem versão base registrada.** O ADR que
+   formaliza o modelo canônico inclui `versao_modelo: "1.0"` (ou
+   equivalente). Modelos evoluem em versões subsequentes (v1.1, v2.0,
+   etc.) — modelo original permanece imutável. Compatível com princípio
+   de imutabilidade adotado no Epic #830 (ver seção 10 como exemplo).
 
 ## 9. Checkpoints (tags Git)
 
@@ -161,6 +171,8 @@ Primeira aplicação de GOV-PRE-M1. Referência para futuros Epics.
 
 PRÉ-M1 termina quando **todos** os itens abaixo forem verdadeiros:
 
+- **Modelo canônico definido** (formalizado em ADR, não apenas em
+  discussão ou `decisions/`)
 - Blockers críticos resolvidos ou aceitos formalmente
 - Contratos mínimos definidos (M1→M2 no mínimo)
 - Cenários mínimos aprovados
