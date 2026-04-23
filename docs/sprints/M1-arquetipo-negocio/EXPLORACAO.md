@@ -1,9 +1,11 @@
 # M1 — Arquétipo de Negócio · Documento de Exploração
 
 > Documento vivo · iniciado 2026-04-23 · mantido pelo Orquestrador + Claude Code
-> **Status:** pré-spec (F0 — exploração)
+> **Status:** F0 — **validação de hipótese** (suspenso pré-spec até testes validarem o arquétipo)
 
 Este documento consolida o trabalho exploratório antes da abertura formal da spec M1. Não substitui a SPEC (F1) nem o ADR; é o lugar onde acumulamos o entendimento do escopo, dependências, decisões em aberto e riscos antes de congelar um plano de implementação.
+
+> ⛔ **PARADA DE PRODUÇÃO (2026-04-23):** P.O. declarou que **não avançaremos para implementação até testes com casos reais comprovarem que o arquétipo é a abstração correta** para orientar o RAG. O arquétipo é uma hipótese do P.O. — pode estar errada. Ver Seção 11.
 
 ---
 
@@ -392,24 +394,26 @@ Formulário ──┬──► calcularLimitePerguntas  (questionário Q3)
 
 ---
 
-## 9. Próximos passos (a debater com P.O.)
+## 9. Próximos passos — SUSPENSOS
 
-### Opção A — ADR rascunho primeiro (baixo custo, descartável)
-1. Claude Code produz ADR de 1 página respondendo D1/D3/D4
-2. P.O. revisa direção antes de código
-3. Se OK → SPEC F1
+> **Status 2026-04-23:** todas as opções abaixo ficam **congeladas** até a Seção 11 (Validação de Hipótese) concluir com veredito "arquétipo é a abstração certa" OU "arquétipo precisa ser revisto".
 
-### Opção B — SPEC v1.0 com decisões em aberto
-1. Orquestrador gera SPEC listando D1–D6 como "decisões pendentes" no topo
-2. Claude Code produz 1 round de crítica 3-níveis (REGRA-ORQ-22)
-3. P.O. trava decisões e aprova v1.1
+### ~~Opção A — ADR rascunho primeiro~~ (aguarda validação)
+1. ~~Claude Code produz ADR de 1 página respondendo D1/D3/D4~~
+2. ~~P.O. revisa direção antes de código~~
+3. ~~Se OK → SPEC F1~~
 
-### Opção C — Responder D1–D6 agora
-1. P.O. responde as 6 decisões
-2. Orquestrador gera SPEC final v1.0 já travada
-3. Aprovação direta
+### ~~Opção B — SPEC v1.0 com decisões em aberto~~ (aguarda validação)
+1. ~~Orquestrador gera SPEC listando D1–D6 como "decisões pendentes" no topo~~
+2. ~~Claude Code produz 1 round de crítica 3-níveis (REGRA-ORQ-22)~~
+3. ~~P.O. trava decisões e aprova v1.1~~
 
-**Recomendação Claude Code:** Opção A → Opção C. O ADR força clarificar D1/D3/D4 antes de entrar em spec detalhada, e é descartável se algo não fizer sentido.
+### ~~Opção C — Responder D1–D6 agora~~ (aguarda validação)
+1. ~~P.O. responde as 6 decisões~~
+2. ~~Orquestrador gera SPEC final v1.0 já travada~~
+3. ~~Aprovação direta~~
+
+**Fluxo real agora:** Seção 11 → testes passam → **aí sim** retomamos A/B/C.
 
 ---
 
@@ -418,3 +422,106 @@ Formulário ──┬──► calcularLimitePerguntas  (questionário Q3)
 | Data | Autor | O que mudou |
 |---|---|---|
 | 2026-04-23 | Claude Code | Versão inicial: escopo + AS-IS + TO-BE + fluxo mermaid + pontos críticos P1–P6 + decisões D1–D6 |
+| 2026-04-23 | Claude Code | **Pivot:** adicionada Seção 11 (Validação de Hipótese) por decisão do P.O. · status muda de "pré-spec" para "validação de hipótese" · Seção 9 suspensa até testes validarem |
+
+---
+
+## 11. Validação da hipótese "arquétipo" (P.O., 2026-04-23)
+
+### 11.1 A hipótese
+
+O P.O. propõe que o problema central do RAG e de toda a plataforma é **ausência de estrutura determinística do negócio do cliente**. A hipótese é:
+
+> Se extrairmos de cada empresa um **arquétipo** (conjunto estruturado de dimensões: natureza da operação, objetos econômicos, posição na cadeia, subnatureza setorial, papel operacional, territorialidade, regime, etc.), então o RAG e os motores a jusante (risk-categorizer, briefing, plano de ação) produzirão saídas corretas e auditáveis — eliminando a "inferência por adivinhação" que ocorre hoje.
+
+### 11.2 Declaração do P.O. (verbatim)
+
+> "não avançar até ter os testes simulando casos reais, o arquetipo é uma criação minha, uma necessidade para o rag. mas eu posso estar errado, vamos explorar testes, aguarde as instruções para os testes. Os testes precisam gerar o arquetipo, sem o arquetipo certo, não vamos continuar errando no rag, ou seja, em toda a plataforma."
+
+### 11.3 Implicações imediatas
+
+1. **Todo o plano M1 (A/B/C da Seção 9) está congelado** até a validação concluir
+2. A hipótese precisa ser **falsificável** — precisa existir um cenário de teste que, se falhar, descarta o arquétipo como abstração
+3. Os testes precisam **gerar o arquétipo** a partir de casos reais de empresas — não só validar o schema
+4. O arquétipo só é "o correto" se casos reais produzirem saídas coerentes no RAG
+
+### 11.4 O que o teste precisa demonstrar
+
+Um teste é **aprovador da hipótese** se satisfizer todas as condições:
+
+| # | Condição | Como medir |
+|---|---|---|
+| T1 | Caso real de empresa produz um arquétipo **determinístico** (mesmos inputs → mesmo arquétipo) | executar N vezes, comparar JSONs |
+| T2 | O arquétipo gerado **bate com o julgamento de especialista** para aquele caso | comparar com gabarito manual |
+| T3 | O arquétipo alimenta o RAG e a saída RAG é **correta** para aquele caso | comparar categorias/riscos produzidos com esperado |
+| T4 | Casos **fronteiriços** (empresa híbrida, multi-setor, regime especial) produzem arquétipo coerente, não "genérico" | bateria específica de edge cases |
+| T5 | O arquétipo **discrimina entre dois negócios parecidos** (ex: transportadora comum × transportadora de produtos perigosos) | par de casos com gabaritos diferentes |
+
+Um teste é **refutador** se:
+- Dois casos reais diferentes produzem arquétipo idêntico mas comportamento RAG diferente (arquétipo não carrega informação suficiente)
+- Mesmo caso produz arquétipos inconsistentes (arquétipo é ambíguo)
+- Arquétipo bate com gabarito mas RAG erra do mesmo jeito (arquétipo não é o gargalo)
+
+### 11.5 O que estamos esperando do P.O.
+
+Aguardamos do P.O.:
+
+1. **Casos reais** (ou sintéticos realistas) a servir de entrada:
+   - descrição do negócio (texto livre como usuário digitaria)
+   - metadados conhecidos (CNPJ, porte, regime, etc.)
+   - CNAE esperado (gabarito)
+2. **Gabaritos** (arquétipo esperado + saídas RAG esperadas) de cada caso
+3. **Instruções específicas** sobre como os testes devem rodar:
+   - Fixtures em arquivo? tabela? JSON?
+   - Onde ficam os arquivos de teste? (`tests/archetype-validation/`?)
+   - Executados via Vitest? Script à parte?
+   - Integração com LLM real (via `OPENAI_API_KEY`) ou mock?
+
+### 11.6 Sugestão preliminar de estrutura de testes (a validar com P.O.)
+
+**Proposta provisória** (aguarda instruções do P.O. para virar definição):
+
+```
+tests/archetype-validation/
+├── fixtures/
+│   ├── caso-01-transportadora-carga-simples.json
+│   ├── caso-02-transportadora-produtos-perigosos.json
+│   ├── caso-03-industria-farmaceutica.json
+│   ├── caso-04-marketplace-b2c.json
+│   ├── caso-05-clinica-medica.json
+│   └── ... (N casos do P.O.)
+├── gabaritos/
+│   ├── caso-01-expected-archetype.json
+│   ├── caso-01-expected-rag-output.json
+│   └── ...
+├── buildArchetype.test.ts         # T1, T2, T4, T5 — testa a geração
+├── ragOutputFromArchetype.test.ts # T3 — testa o fluxo arquétipo → RAG
+└── README.md                      # como rodar, como adicionar caso novo
+```
+
+**Por que essa estrutura (preliminar):**
+- Separação fixture vs gabarito permite evoluir casos sem tocar código
+- Vitest já é o runner do projeto (`pnpm test`)
+- Integration test com LLM real exige `OPENAI_API_KEY` (convenção `testing.md`)
+- README permite P.O. adicionar caso novo sem passar pelo Claude Code
+
+### 11.7 O que NÃO pode acontecer
+
+- ❌ Abrir PR de implementação do formulário novo antes dos testes passarem
+- ❌ Tocar schema DB (`drizzle/`) antes dos testes passarem
+- ❌ Mudar `risk-categorizer` antes dos testes passarem
+- ❌ Rodar teste só com casos sintéticos gerados pelo Claude Code — tem que vir do P.O.
+- ❌ Declarar "hipótese validada" sem refutador explícito testado
+
+### 11.8 Próxima ação (Claude Code)
+
+**Status:** AGUARDANDO instruções do P.O. sobre os testes.
+
+Quando o P.O. enviar:
+1. Claude Code revisa o conjunto de casos/gabaritos
+2. Propõe estrutura final de fixtures
+3. Implementa apenas a camada de **teste** (sem tocar em produção)
+4. Roda a bateria
+5. Relata: quantos passam T1–T5, onde refutam, onde validam
+
+**Não há próximo passo de implementação M1 enquanto esta seção não fechar.**
