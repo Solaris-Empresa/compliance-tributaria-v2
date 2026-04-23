@@ -373,7 +373,7 @@
               <div class="bd-bar-bg"><div class="bd-bar-fill coerencia" style="width:0%"></div></div>
               <div class="bd-sub">Aguarda dados para validar regras cruzadas</div>
             </div>
-            <div style="font-size:0.68rem;color:#334155;margin-top:0.5rem;font-style:italic;">Score alto sozinho não libera o fluxo — é necessário confirmar o Perfil da Entidade.</div>
+            <div style="font-size:0.68rem;color:#334155;margin-top:0.5rem;font-style:italic;">Score alto sozinho não libera o fluxo — é necessário confirmar o Perfil da Entidade. Fórmula exploratória: depende de SPEC aprovada.</div>
           </div>
           <!-- PC-03: Pendências -->
           <div class="cp-section">
@@ -862,7 +862,7 @@
             </div>
             <div class="status-row"><span class="sr-label">Status</span><span class="sbadge sbadge-bloqueado">Bloqueado</span></div>
             <div class="status-row"><span class="sr-label">Fluxo E2E</span><span class="gate-badge gate-blocked">🔒 Bloqueado</span></div>
-            <div style="font-size:0.75rem;color:#f87171;margin-top:0.4rem;font-weight:600;">Score alto não libera o fluxo com HARD_BLOCK ativo.</div>
+            <div style="font-size:0.75rem;color:#f87171;margin-top:0.4rem;font-weight:600;">⚠ Score alto não libera o fluxo com HARD_BLOCK ativo. O gate depende de <code style="background:#1e293b;padding:1px 4px;border-radius:3px;">status_arquetipo = confirmado</code> + ausência de HARD_BLOCKs.</div>
           </div>
           <div class="cp-section">
             <div class="cp-section-title">PC-02 · Composição</div>
@@ -965,6 +965,7 @@
             <div class="status-row"><span class="sr-label">Status</span><span class="sbadge sbadge-confirmado">Confirmado</span></div>
             <div class="status-row"><span class="sr-label">Fluxo E2E</span><span class="gate-badge gate-open">✅ Liberado</span></div>
             <div style="font-size:0.75rem;color:#34d399;margin-top:0.4rem;font-weight:600;">O Perfil da Entidade está confirmado e o fluxo pode seguir.</div>
+            <div style="font-size:0.72rem;color:#64748b;margin-top:0.35rem;line-height:1.45;">ℹ️ O score é 90% e não 100% porque a fórmula reserva margem para campos opcionais não preenchidos (ex.: comércio exterior, território incentivado). 100% exigiria preenchimento de todos os campos possíveis, inclusive os não obrigatórios. A fórmula exata é exploratória e depende de SPEC aprovada.</div>
           </div>
           <div class="cp-section">
             <div class="cp-section-title">PC-02 · Composição</div>
@@ -999,11 +1000,12 @@
             <div class="snapshot-preview">DISTRIBUIDOR_PRESUMIDO_MULTI_ANP — split_payment, regime_diferenciado, obrigacao_acessoria (SPED-Combustíveis, SCANC)</div>
           </div>
           <div class="cp-section">
-            <div class="cp-section-title">PC-05 · Como isso impactará os riscos</div>
+            <div class="cp-section-title">PC-05 · Prévia exploratória de riscos <span style="font-size:0.65rem;font-weight:700;background:#7e22ce;color:white;padding:1px 5px;border-radius:3px;margin-left:4px;">EXPLORATÓRIO</span></div>
+            <div style="font-size:0.72rem;color:#f87171;background:#1e293b;border-radius:4px;padding:5px 8px;margin-bottom:0.5rem;line-height:1.4;">⚠ Esta seção é uma prévia exploratória. Não representa o motor de riscos real. Os itens abaixo são ilustrativos e dependem de SPEC aprovada.</div>
             <div class="risk-item"><span class="risk-dot"></span><span>Setor regulado (ANP) pode acionar obrigações acessórias específicas.</span></div>
             <div class="risk-item"><span class="risk-dot"></span><span>Operação com bens exige classificação por NCM.</span></div>
             <div class="risk-item"><span class="risk-dot"></span><span>Atuação multiestadual impacta territorialidade do caso.</span></div>
-            <div class="risk-nota">Na etapa de riscos, o sistema mostrará por que cada risco foi apontado, com base nos dados do Perfil da Entidade, na regra aplicada e na base legal correspondente.</div>
+            <div class="risk-nota">Na etapa de riscos real, o sistema mostrará por que cada risco foi apontado, com base nos dados do Perfil da Entidade, na regra aplicada e na base legal correspondente. Esta integração é fase futura.</div>
           </div>
           <div class="cp-cta-area">
             <div class="cp-cta-btns">
@@ -1011,7 +1013,7 @@
               <button class="cp-btn-fix">Corrigir Perfil da Entidade</button>
               <button class="cp-btn-briefing">Continuar para o briefing</button>
             </div>
-            <div class="cp-rule">Perfil da Entidade confirmado. Sem bloqueios críticos. Fluxo liberado.</div>
+            <div class="cp-rule">Gate liberado quando: <code>status_arquetipo = confirmado</code> AND sem HARD_BLOCKs ativos.</div>
           </div>
         </div>
       </div>

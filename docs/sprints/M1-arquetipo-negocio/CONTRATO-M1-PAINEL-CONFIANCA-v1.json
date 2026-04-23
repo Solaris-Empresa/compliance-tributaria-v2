@@ -20,8 +20,9 @@
       "tipo": "number",
       "range": "0–100",
       "descricao": "Score de confiança do caso, calculado como média ponderada das 3 dimensões",
-      "formula_visual": "(completude * 0.4) + (inferencia_validada * 0.3) + (coerencia * 0.3)",
-      "nota": "Score é informativo. Não substitui o gate do fluxo E2E."
+      "formula_visual_EXPLORATORIO": "(completude * 0.4) + (inferencia_validada * 0.3) + (coerencia * 0.3)",
+      "status_formula": "EXPLORATORIO — pesos e calculo dependem de SPEC aprovada. Nao implementar sem aprovacao do P.O.",
+      "nota": "Score e informativo. Nao substitui o gate do fluxo E2E. Formula exploratoria: depende de SPEC aprovada pelo P.O. Valores do mockup sao ilustrativos."
     },
 
     "score_faixa": {
@@ -230,8 +231,9 @@
 
       "can_continue": {
         "tipo": "boolean",
-        "descricao": "true somente quando status_arquetipo = confirmado AND sem HARD_BLOCKs",
-        "formula": "status_arquetipo === 'confirmado' && issues.filter(i => i.tipo === 'HARD_BLOCK').length === 0"
+        "descricao": "true somente quando status_arquetipo = confirmado AND sem HARD_BLOCKs. Score alto NAO e condicao.",
+        "formula": "status_arquetipo === 'confirmado' && issues.filter(i => i.tipo === 'HARD_BLOCK').length === 0",
+        "nota_critica": "Score alto nao libera o gate. Um caso com score 70% e HARD_BLOCK ativo permanece bloqueado. Gate depende EXCLUSIVAMENTE de status_arquetipo + ausencia de HARD_BLOCKs."
       },
       "status_badge": {
         "tipo": "enum",
@@ -290,7 +292,8 @@
     "cta_avancar": "Continuar para o briefing",
     "tooltip_bloqueado": "Este caso ainda não pode seguir. Revise as pendências do painel.",
     "regra_gate_permanente": "O fluxo só é liberado quando o Perfil da Entidade estiver confirmado e não houver bloqueios críticos.",
-    "nota_score": "Score alto sozinho não libera o fluxo — é necessário confirmar o Perfil da Entidade."
+    "nota_score": "Score alto sozinho nao libera o fluxo. Gate depende de status_arquetipo=confirmado AND sem HARD_BLOCKs. Formula do score e exploratoria ate SPEC aprovada.",
+    "nota_pc05": "PC-05 e previa exploratoria. Nao representa o motor de riscos real. Integracao com riscos e fase futura dependente de SPEC aprovada pelo P.O."
   },
 
   "comportamentos_dinamicos": [

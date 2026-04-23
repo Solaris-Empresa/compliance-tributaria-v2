@@ -131,33 +131,36 @@ O CTA duplo no PC-04 oferece:
 
 ---
 
-## 7. Integração futura com riscos
+## 7. Integração futura com riscos (PC-05 — prévia exploratória)
 
-A seção PC-05 ("Como isso impactará os riscos") exibe um preview informativo dos riscos previstos com base no perfil atual. Esta seção é exploratória nesta fase e não representa o motor de riscos.
+A seção PC-05 (“Prévia exploratória de riscos”) exibe itens ilustrativos com base no perfil atual. **Esta seção é exclusivamente exploratória e não representa o motor de riscos real.** Os itens exibidos no mockup são exemplos de intenção de design e dependem de SPEC aprovada pelo P.O.
 
-Exemplos de itens exibidos:
-- "Setor regulado pode acionar obrigações acessórias específicas."
-- "Operação com bens exige classificação por NCM."
-- "Atuação multiestadual impacta territorialidade do caso."
+> **PC-05 não é risco real.** A integração com o motor de riscos é fase futura. Nenhum dado desta seção deve ser tratado como output do sistema de compliance.
 
-A nota obrigatória desta seção: "Na etapa de riscos, o sistema mostrará por que cada risco foi apontado, com base nos dados do Perfil da Entidade, na regra aplicada e na base legal correspondente."
+Exemplos ilustrativos exibidos no mockup:
+- “Setor regulado pode acionar obrigações acessórias específicas.”
+- “Operação com bens exige classificação por NCM.”
+- “Atuação multiestadual impacta territorialidade do caso.”
+
+A nota obrigatória desta seção: “Na etapa de riscos real, o sistema mostrará por que cada risco foi apontado, com base nos dados do Perfil da Entidade, na regra aplicada e na base legal correspondente. Esta integração é fase futura.”
 
 ---
 
 ## 8. Impacto no gate E2E
 
-O gate E2E é controlado exclusivamente por `status_arquetipo`. O painel torna este gate visível e explicado:
+O gate E2E depende **exclusivamente** da combinação de duas condições:
 
 ```
-status_arquetipo = confirmado
-  AND sem HARD_BLOCKs ativos
-  → "Continuar para o briefing" habilitado
-  → gate_e2e.can_continue = true
+gate_e2e.can_continue = true
+  ← status_arquetipo = "confirmado"
+  AND issues.filter(tipo = "HARD_BLOCK").length = 0
 ```
+
+**Score alto não é condição para liberação do gate.** Um caso com score 70% e sem HARD_BLOCKs ainda permanece bloqueado enquanto `status_arquetipo ≠ confirmado`. O estado S5 do mockup ilustra exatamente este cenário: score 70%, HARD_BLOCK ativo, fluxo bloqueado.
 
 O botão "Continuar para o briefing" (PC-06) é o único CTA principal do painel. Quando bloqueado, exibe tooltip: "Complete e confirme o Perfil da Entidade para liberar o próximo passo."
 
-A regra explícita sempre visível no rodapé do painel: "O fluxo só é liberado quando o Perfil da Entidade estiver confirmado e não houver bloqueios críticos."
+A regra explícita sempre visível no rodapé do painel: "Gate liberado quando: `status_arquetipo = confirmado` AND sem HARD_BLOCKs ativos."
 
 ---
 
