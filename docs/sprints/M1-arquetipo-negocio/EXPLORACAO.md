@@ -425,6 +425,7 @@ Formulário ──┬──► calcularLimitePerguntas  (questionário Q3)
 | 2026-04-23 | Claude Code | **Pivot:** adicionada Seção 11 (Validação de Hipótese) por decisão do P.O. · status muda de "pré-spec" para "validação de hipótese" · Seção 9 suspensa até testes validarem |
 | 2026-04-23 | Claude Code | Rodada 2 de requisitos do P.O.: adicionada Seção 12 (7 requisitos adicionais) · clarificação que "sem alteração no fluxo" = E2E preservado MAS UX dentro do form muda com progressive disclosure |
 | 2026-04-23 | Claude Code | Clarificação P.O. §12.3: modelo mental da UX on-the-fly atual é "NCM/NBS só aparecem se serviço OU produto OU misto" — código implementa via subtipos (industria/comercio/agro para produto; servicos/financeiro para serviço) |
+| 2026-04-23 | Claude Code | **Suite 1 executada — rodada A**: `M1-arquetipo-go-no-go-brasil-v1` · 15 cenários · **🟢 GO 15/15** · zero gap de campo · 6 findings de desalinhamento `expected_open_blocks` (não-bloqueantes) · ver `tests/archetype-validation/REPORT-*.md` |
 
 ---
 
