@@ -1,0 +1,2485 @@
+{
+  "suite_name": "M1-arquetipo-50-casos-brasil-v2",
+  "phase": "PRE_M1_EXPLORACAO",
+  "executed_at": "2026-04-23T12:20:18.674Z",
+  "summary": {
+    "total": 50,
+    "by_status": {
+      "PASS": 49,
+      "FAIL": 0,
+      "BLOCKED": 1,
+      "AMBIGUOUS": 0
+    },
+    "by_macro_setor": {
+      "servicos": 30,
+      "industria": 13,
+      "agro": 7
+    },
+    "coverage_rules_hit": {
+      "bens -> NCM": 30,
+      "servicos -> NBS": 28,
+      "multiestado -> TERRITORIAL_EXPANDIDO": 34,
+      "setor_regulado -> REGULATORIO": 15,
+      "import|export -> COMERCIO_EXTERIOR": 2,
+      "territorio_incentivado -> TERRITORIO_INCENTIVADO": 1,
+      "regime_especial -> REGIMES_ESPECIAIS": 5,
+      "multi_cnpj -> BLOCK": 1,
+      "CADEIA_OPERACIONAL": 12
+    },
+    "confidence_stats": {
+      "mean": 0.619,
+      "min": 0.529,
+      "max": 0.824
+    }
+  },
+  "verdict": {
+    "decision": "GO",
+    "rationale": [
+      "PASS rate ≥ 85% (98.0%)",
+      "zero FAIL"
+    ]
+  },
+  "results": [
+    {
+      "id": "S01",
+      "scenario_name": "Supermercado de bairro",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Comercio"
+        ],
+        "fontes_de_receita": [
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Varejista",
+        "cnae_principal_confirmado": "4711-3/02",
+        "ncm_produtos": [
+          "1905",
+          "2105",
+          "2202"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Apenas municipal"
+        ],
+        "regime_tributario": "Lucro Presumido",
+        "porte_empresa": "Pequena",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "S02",
+      "scenario_name": "Atacadista de alimentos",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Comercio"
+        ],
+        "fontes_de_receita": [
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Atacadista",
+        "cnae_principal_confirmado": "4637-1/07",
+        "ncm_produtos": [
+          "1905",
+          "2105"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Interestadual"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Media",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "S03",
+      "scenario_name": "E-commerce de moda",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Comercio",
+          "Tecnologia"
+        ],
+        "fontes_de_receita": [
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Varejista",
+        "cnae_principal_confirmado": "4781-4/00",
+        "ncm_produtos": [
+          "6204",
+          "6205"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Media",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    },
+    {
+      "id": "S04",
+      "scenario_name": "Marketplace de sellers terceiros",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS",
+        "TERRITORIAL_EXPANDIDO",
+        "CADEIA_OPERACIONAL"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Plataforma digital",
+          "Tecnologia"
+        ],
+        "fontes_de_receita": [
+          "Comissao/intermediacao",
+          "Assinatura/mensalidade"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos",
+          "Direitos/licencas"
+        ],
+        "posicao_na_cadeia_economica": "Marketplace/plataforma",
+        "cnae_principal_confirmado": "6319-4/00",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.1501.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor",
+        "marketplace dispara CADEIA_OPERACIONAL; arquétipo não distingue marketplace-puro de marketplace-com-estoque (R9 aberto)"
+      ]
+    },
+    {
+      "id": "S05",
+      "scenario_name": "Oficina mecanica com venda de pecas",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "NBS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Servico"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "4520-0/01",
+        "ncm_produtos": [
+          "8708"
+        ],
+        "nbs_servicos": [
+          "1.1101.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Apenas municipal"
+        ],
+        "regime_tributario": "Simples Nacional",
+        "porte_empresa": "Pequena",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.588,
+      "notes": []
+    },
+    {
+      "id": "S06",
+      "scenario_name": "Rede de oficinas franqueadas",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "NBS",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Servico"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "4520-0/01",
+        "ncm_produtos": [
+          "8708"
+        ],
+        "nbs_servicos": [
+          "1.1101.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.588,
+      "notes": []
+    },
+    {
+      "id": "S07",
+      "scenario_name": "Transportadora de cargas gerais",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS",
+        "TERRITORIAL_EXPANDIDO",
+        "REGULATORIO",
+        "CADEIA_OPERACIONAL"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Transporte"
+        ],
+        "fontes_de_receita": [
+          "Frete"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Transportador",
+        "cnae_principal_confirmado": "4930-2/02",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.0501.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Interestadual"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "ANTT"
+        ],
+        "subnatureza_setorial": [
+          "Carga geral"
+        ],
+        "papel_operacional": [
+          "Transportador"
+        ],
+        "tipo_operacao_especifica": [
+          "Frete rodoviario"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.765,
+      "notes": []
+    },
+    {
+      "id": "S08",
+      "scenario_name": "Transportadora de combustiveis perigosos",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS",
+        "TERRITORIAL_EXPANDIDO",
+        "REGULATORIO",
+        "CADEIA_OPERACIONAL"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Transporte"
+        ],
+        "fontes_de_receita": [
+          "Frete"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos",
+          "Energia/combustiveis"
+        ],
+        "posicao_na_cadeia_economica": "Transportador",
+        "cnae_principal_confirmado": "4930-2/03",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.0501.14.51"
+        ],
+        "abrangencia_territorial": [
+          "Interestadual"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "ANTT",
+          "ANP"
+        ],
+        "subnatureza_setorial": [
+          "Produtos perigosos"
+        ],
+        "papel_operacional": [
+          "Transportador"
+        ],
+        "tipo_operacao_especifica": [
+          "Frete rodoviario de perigosos"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.765,
+      "notes": []
+    },
+    {
+      "id": "S09",
+      "scenario_name": "Operador logistico integrado",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "NBS",
+        "TERRITORIAL_EXPANDIDO",
+        "CADEIA_OPERACIONAL"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Transporte"
+        ],
+        "fontes_de_receita": [
+          "Frete",
+          "Prestacao de servico",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Operadora",
+        "cnae_principal_confirmado": "5250-8/04",
+        "ncm_produtos": [
+          "3923"
+        ],
+        "nbs_servicos": [
+          "1.0501.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.588,
+      "notes": []
+    },
+    {
+      "id": "S10",
+      "scenario_name": "Software house B2B",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Servico",
+          "Tecnologia"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos",
+          "Direitos/licencas"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "6201-5/01",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.1501.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Presumido",
+        "porte_empresa": "Media",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    },
+    {
+      "id": "S11",
+      "scenario_name": "SaaS por assinatura",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Tecnologia",
+          "Servico"
+        ],
+        "fontes_de_receita": [
+          "Assinatura/mensalidade"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos",
+          "Direitos/licencas"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "6202-3/00",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.1501.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Media",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    },
+    {
+      "id": "S12",
+      "scenario_name": "Call center terceirizado",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Servico"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "8220-2/00",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.1801.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Media",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "S13",
+      "scenario_name": "Hospital com farmacia e 10 especialidades",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "NBS",
+        "REGULATORIO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Saude"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos",
+          "Saude/medicamentos",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "8610-1/01",
+        "ncm_produtos": [
+          "3004"
+        ],
+        "nbs_servicos": [
+          "1.2102.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Apenas municipal"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "ANVISA"
+        ],
+        "subnatureza_setorial": [
+          "Hospital"
+        ],
+        "papel_operacional": [
+          "Prestador"
+        ],
+        "tipo_operacao_especifica": [
+          "Atendimento hospitalar"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.824,
+      "notes": []
+    },
+    {
+      "id": "S14",
+      "scenario_name": "Clinica de diagnostico por imagem",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS",
+        "REGULATORIO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Saude"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "8640-2/05",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.2102.20.00"
+        ],
+        "abrangencia_territorial": [
+          "Apenas municipal"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Media",
+        "orgao_regulador": [
+          "ANVISA"
+        ],
+        "subnatureza_setorial": [
+          "Diagnostico por imagem"
+        ],
+        "papel_operacional": [
+          "Prestador"
+        ],
+        "tipo_operacao_especifica": [
+          "Servicos diagnosticos"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.765,
+      "notes": []
+    },
+    {
+      "id": "S15",
+      "scenario_name": "Operadora de plano de saude",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS",
+        "TERRITORIAL_EXPANDIDO",
+        "REGULATORIO",
+        "REGIMES_ESPECIAIS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Saude"
+        ],
+        "fontes_de_receita": [
+          "Assinatura/mensalidade"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Operadora",
+        "cnae_principal_confirmado": "6550-2/00",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.2201.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "ANS"
+        ],
+        "subnatureza_setorial": [
+          "Operadora"
+        ],
+        "papel_operacional": [
+          "Operadora"
+        ],
+        "tipo_operacao_especifica": [
+          "Plano de saude"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": [
+          "Saude"
+        ],
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.824,
+      "notes": []
+    },
+    {
+      "id": "S16",
+      "scenario_name": "Escola basica privada",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Educacao"
+        ],
+        "fontes_de_receita": [
+          "Assinatura/mensalidade"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "8513-9/00",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.2001.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Apenas municipal"
+        ],
+        "regime_tributario": "Lucro Presumido",
+        "porte_empresa": "Media",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "S17",
+      "scenario_name": "Universidade privada com EAD",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Educacao"
+        ],
+        "fontes_de_receita": [
+          "Assinatura/mensalidade"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "8532-5/00",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.2001.20.00",
+          "1.2001.30.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "S18",
+      "scenario_name": "Banco digital",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS",
+        "TERRITORIAL_EXPANDIDO",
+        "REGULATORIO",
+        "REGIMES_ESPECIAIS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Financeiro",
+          "Tecnologia"
+        ],
+        "fontes_de_receita": [
+          "Juros/tarifas"
+        ],
+        "tipo_de_objeto_economico": [
+          "Ativos financeiros",
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Operadora",
+        "cnae_principal_confirmado": "6422-1/00",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.1401.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "BACEN"
+        ],
+        "subnatureza_setorial": [
+          "Banco"
+        ],
+        "papel_operacional": [
+          "Operadora"
+        ],
+        "tipo_operacao_especifica": [
+          "Operacoes bancarias digitais"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": [
+          "Financeiro"
+        ],
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.824,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    },
+    {
+      "id": "S19",
+      "scenario_name": "Corretora de seguros",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS",
+        "REGULATORIO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Financeiro"
+        ],
+        "fontes_de_receita": [
+          "Comissao/intermediacao"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Intermediador",
+        "cnae_principal_confirmado": "6622-3/00",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.1401.20.00"
+        ],
+        "abrangencia_territorial": [
+          "Apenas municipal"
+        ],
+        "regime_tributario": "Lucro Presumido",
+        "porte_empresa": "Media",
+        "orgao_regulador": [
+          "SUSEP"
+        ],
+        "subnatureza_setorial": [
+          "Corretora"
+        ],
+        "papel_operacional": [
+          "Intermediador"
+        ],
+        "tipo_operacao_especifica": [
+          "Intermediacao de seguros"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.765,
+      "notes": []
+    },
+    {
+      "id": "S20",
+      "scenario_name": "Imobiliaria de locacao e administracao",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Servico"
+        ],
+        "fontes_de_receita": [
+          "Aluguel/locacao",
+          "Comissao/intermediacao"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos",
+          "Direitos/licencas"
+        ],
+        "posicao_na_cadeia_economica": "Intermediador",
+        "cnae_principal_confirmado": "6822-6/00",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.1601.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Apenas municipal"
+        ],
+        "regime_tributario": "Lucro Presumido",
+        "porte_empresa": "Media",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "S21",
+      "scenario_name": "Construtora com incorporacao",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "NBS",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Construcao"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "4120-4/00",
+        "ncm_produtos": [
+          "6810"
+        ],
+        "nbs_servicos": [
+          "1.1801.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Interestadual"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.588,
+      "notes": []
+    },
+    {
+      "id": "S22",
+      "scenario_name": "Rede hoteleira",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Servico"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico",
+          "Outras receitas operacionais"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "5510-8/01",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.2202.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "S23",
+      "scenario_name": "Restaurante com delivery",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "NBS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Servico",
+          "Comercio"
+        ],
+        "fontes_de_receita": [
+          "Venda de mercadoria",
+          "Prestacao de servico"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias",
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Varejista",
+        "cnae_principal_confirmado": "5611-2/01",
+        "ncm_produtos": [
+          "2105"
+        ],
+        "nbs_servicos": [
+          "1.1101.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Apenas municipal"
+        ],
+        "regime_tributario": "Simples Nacional",
+        "porte_empresa": "Pequena",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.588,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    },
+    {
+      "id": "S24",
+      "scenario_name": "Telecom / provedor de internet",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS",
+        "TERRITORIAL_EXPANDIDO",
+        "REGULATORIO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Tecnologia",
+          "Servico"
+        ],
+        "fontes_de_receita": [
+          "Assinatura/mensalidade"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Operadora",
+        "cnae_principal_confirmado": "6110-8/03",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.1401.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "ANATEL"
+        ],
+        "subnatureza_setorial": [
+          "Provedor"
+        ],
+        "papel_operacional": [
+          "Operadora"
+        ],
+        "tipo_operacao_especifica": [
+          "Banda larga"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.765,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    },
+    {
+      "id": "S25",
+      "scenario_name": "Geradora/comercializadora de energia",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO",
+        "REGULATORIO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Energia/Combustiveis"
+        ],
+        "fontes_de_receita": [
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Energia/combustiveis",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "3511-5/01",
+        "ncm_produtos": [
+          "2716"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "ANEEL"
+        ],
+        "subnatureza_setorial": [
+          "Geradora"
+        ],
+        "papel_operacional": [
+          "Produtor"
+        ],
+        "tipo_operacao_especifica": [
+          "Geracao e comercializacao"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.765,
+      "notes": []
+    },
+    {
+      "id": "S26",
+      "scenario_name": "Concessionaria de agua e esgoto",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Servico"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "3600-6/01",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.2301.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Interestadual"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "S27",
+      "scenario_name": "Holding consolidada de 3 CNPJs (controle negativo)",
+      "status": "BLOCKED",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [
+        {
+          "id": "V-05",
+          "rule": "integra_grupo_economico=true AND analise_1_cnpj_operacional=false",
+          "severity": "BLOCK_FLOW"
+        }
+      ],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Servico"
+        ],
+        "fontes_de_receita": [
+          "Outras receitas operacionais"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "6462-0/00",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.1601.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "bloqueado"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": [
+        "BLOCKED: empresa integra grupo econômico + análise consolidada — fora do escopo M1 (1 CNPJ)"
+      ]
+    },
+    {
+      "id": "S28",
+      "scenario_name": "Cooperativa de servicos medicos",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS",
+        "REGULATORIO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Saude"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "8650-0/99",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.2102.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Interestadual"
+        ],
+        "regime_tributario": "Regime especifico",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "ANS",
+          "ANVISA"
+        ],
+        "subnatureza_setorial": [
+          "Cooperativa medica"
+        ],
+        "papel_operacional": [
+          "Prestador"
+        ],
+        "tipo_operacao_especifica": [
+          "Prestacao medica cooperada"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.765,
+      "notes": []
+    },
+    {
+      "id": "S29",
+      "scenario_name": "Escritorio juridico empresarial",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Servico"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "6911-7/01",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.1601.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Apenas municipal"
+        ],
+        "regime_tributario": "Simples Nacional",
+        "porte_empresa": "Pequena",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "S30",
+      "scenario_name": "Empresa de limpeza e facilities",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NBS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Servico"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "8121-4/00",
+        "ncm_produtos": null,
+        "nbs_servicos": [
+          "1.1801.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Interestadual"
+        ],
+        "regime_tributario": "Lucro Presumido",
+        "porte_empresa": "Media",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "I31",
+      "scenario_name": "Industria textil",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "1741-9/02",
+        "ncm_produtos": [
+          "5208"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Media",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "I32",
+      "scenario_name": "Industria de alimentos",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "1091-1/01",
+        "ncm_produtos": [
+          "1905"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "I33",
+      "scenario_name": "Industria de bebidas",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO",
+        "REGIMES_ESPECIAIS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "1113-5/01",
+        "ncm_produtos": [
+          "2202"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": [
+          "Monofasico"
+        ],
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.588,
+      "notes": []
+    },
+    {
+      "id": "I34",
+      "scenario_name": "Industria farmaceutica",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO",
+        "REGULATORIO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Producao",
+          "Saude"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Saude/medicamentos",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "2121-1/01",
+        "ncm_produtos": [
+          "3004"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "ANVISA"
+        ],
+        "subnatureza_setorial": [
+          "Industria farmaceutica"
+        ],
+        "papel_operacional": [
+          "Produtor"
+        ],
+        "tipo_operacao_especifica": [
+          "Fabricacao de medicamentos"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.765,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    },
+    {
+      "id": "I35",
+      "scenario_name": "Industria quimica",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "2029-1/00",
+        "ncm_produtos": [
+          "2905"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "I36",
+      "scenario_name": "Metalurgica",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "2599-3/99",
+        "ncm_produtos": [
+          "7308"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "I37",
+      "scenario_name": "Montadora de autopecas",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "2941-7/00",
+        "ncm_produtos": [
+          "8708"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "I38",
+      "scenario_name": "Industria de eletroeletronicos na ZFM",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO",
+        "COMERCIO_EXTERIOR",
+        "TERRITORIO_INCENTIVADO",
+        "REGIMES_ESPECIAIS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "2632-9/00",
+        "ncm_produtos": [
+          "8517"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": "Importador",
+        "tipo_territorio_incentivado": "Zona Franca de Manaus",
+        "tipo_regime_especial": [
+          "ZFM"
+        ],
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.706,
+      "notes": [
+        "território incentivado + regime especial simultâneos: verificar produto cartesiano (D9)"
+      ]
+    },
+    {
+      "id": "I39",
+      "scenario_name": "Refinaria",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO",
+        "REGULATORIO",
+        "REGIMES_ESPECIAIS"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Energia/Combustiveis",
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Energia/combustiveis",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "1921-7/00",
+        "ncm_produtos": [
+          "2710"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "ANP"
+        ],
+        "subnatureza_setorial": [
+          "Refinaria"
+        ],
+        "papel_operacional": [
+          "Produtor"
+        ],
+        "tipo_operacao_especifica": [
+          "Refino de petroleo"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": [
+          "Monofasico"
+        ],
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.824,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    },
+    {
+      "id": "I40",
+      "scenario_name": "Usina sucroenergetica",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO",
+        "REGULATORIO",
+        "CADEIA_OPERACIONAL"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Agro",
+          "Producao",
+          "Energia/Combustiveis"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias",
+          "Energia/combustiveis"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "1071-6/00",
+        "ncm_produtos": [
+          "1701",
+          "2207"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "ANP"
+        ],
+        "subnatureza_setorial": [
+          "Usina sucroenergetica"
+        ],
+        "papel_operacional": [
+          "Produtor"
+        ],
+        "tipo_operacao_especifica": [
+          "Producao de acucar e etanol"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.765,
+      "notes": [
+        "multi-setor (3 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    },
+    {
+      "id": "I41",
+      "scenario_name": "Construcao pesada / infraestrutura",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "NBS",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Construcao"
+        ],
+        "fontes_de_receita": [
+          "Prestacao de servico"
+        ],
+        "tipo_de_objeto_economico": [
+          "Servicos",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "4213-8/00",
+        "ncm_produtos": [
+          "6810"
+        ],
+        "nbs_servicos": [
+          "1.1801.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.588,
+      "notes": []
+    },
+    {
+      "id": "I42",
+      "scenario_name": "Industria moveleira",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "3101-2/00",
+        "ncm_produtos": [
+          "9403"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Media",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "I43",
+      "scenario_name": "Industria de plasticos",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "2222-6/00",
+        "ncm_produtos": [
+          "3923"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Media",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "A44",
+      "scenario_name": "Produtor de soja",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "CADEIA_OPERACIONAL"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Agro"
+        ],
+        "fontes_de_receita": [
+          "Producao propria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Producao agropecuaria",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "0115-6/00",
+        "ncm_produtos": [
+          "1201"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Regime especifico",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "A45",
+      "scenario_name": "Produtor de soja com frete para terceiros",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "NBS",
+        "TERRITORIAL_EXPANDIDO",
+        "CADEIA_OPERACIONAL"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Agro"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Frete"
+        ],
+        "tipo_de_objeto_economico": [
+          "Producao agropecuaria",
+          "Servicos",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "0115-6/00",
+        "ncm_produtos": [
+          "1201"
+        ],
+        "nbs_servicos": [
+          "1.0501.10.00"
+        ],
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Regime especifico",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.588,
+      "notes": []
+    },
+    {
+      "id": "A46",
+      "scenario_name": "Cooperativa agricola",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO",
+        "CADEIA_OPERACIONAL"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Agro"
+        ],
+        "fontes_de_receita": [
+          "Venda de mercadoria",
+          "Outras receitas operacionais"
+        ],
+        "tipo_de_objeto_economico": [
+          "Producao agropecuaria",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "0115-6/00",
+        "ncm_produtos": [
+          "1005"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Regime especifico",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": []
+    },
+    {
+      "id": "A47",
+      "scenario_name": "Trading agricola exportadora",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO",
+        "COMERCIO_EXTERIOR",
+        "CADEIA_OPERACIONAL"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Agro",
+          "Comercio"
+        ],
+        "fontes_de_receita": [
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Producao agropecuaria",
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Atacadista",
+        "cnae_principal_confirmado": "4632-0/01",
+        "ncm_produtos": [
+          "1201"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Exportacao",
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": "Exportador",
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.588,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    },
+    {
+      "id": "A48",
+      "scenario_name": "Agroindustria de carnes",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO",
+        "REGULATORIO",
+        "CADEIA_OPERACIONAL"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Agro",
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias",
+          "Producao agropecuaria"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "1011-2/01",
+        "ncm_produtos": [
+          "0201",
+          "0207"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "MAPA"
+        ],
+        "subnatureza_setorial": [
+          "Agroindustria"
+        ],
+        "papel_operacional": [
+          "Produtor"
+        ],
+        "tipo_operacao_especifica": [
+          "Abate e processamento"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.765,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    },
+    {
+      "id": "A49",
+      "scenario_name": "Laticinios",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO",
+        "REGULATORIO",
+        "CADEIA_OPERACIONAL"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Agro",
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias",
+          "Producao agropecuaria"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "1052-0/00",
+        "ncm_produtos": [
+          "0402",
+          "0405"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": [
+          "MAPA"
+        ],
+        "subnatureza_setorial": [
+          "Laticinios"
+        ],
+        "papel_operacional": [
+          "Produtor"
+        ],
+        "tipo_operacao_especifica": [
+          "Industrializacao de leite"
+        ],
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.765,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    },
+    {
+      "id": "A50",
+      "scenario_name": "Florestal e celulose",
+      "status": "PASS",
+      "missing_fields": [],
+      "opened_blocks": [
+        "NCM",
+        "TERRITORIAL_EXPANDIDO",
+        "CADEIA_OPERACIONAL"
+      ],
+      "blocking_rules_triggered": [],
+      "arquetipo_output": {
+        "natureza_da_operacao": [
+          "Agro",
+          "Producao"
+        ],
+        "fontes_de_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_de_objeto_economico": [
+          "Bens/mercadorias",
+          "Producao agropecuaria"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "0210-1/01",
+        "ncm_produtos": [
+          "4703"
+        ],
+        "nbs_servicos": null,
+        "abrangencia_territorial": [
+          "Nacional"
+        ],
+        "regime_tributario": "Lucro Real",
+        "porte_empresa": "Grande",
+        "orgao_regulador": null,
+        "subnatureza_setorial": null,
+        "papel_operacional": null,
+        "tipo_operacao_especifica": null,
+        "papel_comercio_exterior": null,
+        "tipo_territorio_incentivado": null,
+        "tipo_regime_especial": null,
+        "status_arquetipo": "valido"
+      },
+      "confidence_on_archetype_structure": 0.529,
+      "notes": [
+        "multi-setor (2 naturezas): subnatureza_setorial precisaria ser array por setor"
+      ]
+    }
+  ]
+}
