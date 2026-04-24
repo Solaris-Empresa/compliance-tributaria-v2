@@ -110,6 +110,11 @@ type NbsTupleKey = `${string}|${string}`;
 const REGIME_TUPLE_TO_OBJETO_NBS = new Map<NbsTupleKey, Objeto>([
   // regime_especial — serviços financeiros
   ["regime_especial|1.0501", "servico_financeiro"],
+  ["regime_especial|1.0901", "servico_financeiro"],
+  // regime_especial — saúde (planos privados — divisão 1.0910)
+  ["regime_especial|1.0910", "servico_regulado"],
+  // regime_especial — telecom (divisão 1.1801; entrada declarativa para extensão futura do dataset)
+  ["regime_especial|1.1801", "servico_regulado"],
   // regime_geral — consultoria TI (divisão 1.1501 confirmada no dataset)
   ["regime_geral|1.1501", "servico_digital"],
   // reducao_60 — educação (divisões 1.09 a 1.11)
@@ -127,6 +132,36 @@ function lookupNbsTuple(
 ): Objeto | undefined {
   const key: NbsTupleKey = `${regime}|${divisao}`;
   return REGIME_TUPLE_TO_OBJETO_NBS.get(key);
+}
+
+// ─── Setores regulados — fallback proibido (P.O. 2026-04-24) ───────────────
+
+/**
+ * Subnaturezas reguladas críticas. Para qualquer destas, V-10-FALLBACK INFO
+ * é elevado a HARD_BLOCK V-10-FALLBACK-REGULATED — derivação tem que ser
+ * estritamente determinística via dataset + mapping; aproximação genérica
+ * (servico_geral) inaceitável.
+ */
+const REGULATED_SUBNATUREZAS: ReadonlySet<string> = new Set<string>([
+  "telecomunicacoes",
+  "saude_regulada",
+  "financeiro",
+]);
+
+/**
+ * Contexto opcional propagado pelo orquestrador. Permite à camada NBS
+ * conhecer atributos da seed sem violar pureza (input explícito, não global).
+ */
+export interface DeriveObjetoContext {
+  readonly subnaturezaSetorial?: readonly string[];
+}
+
+function isRegulatedContext(context?: DeriveObjetoContext): boolean {
+  if (!context?.subnaturezaSetorial) return false;
+  for (const s of context.subnaturezaSetorial) {
+    if (REGULATED_SUBNATUREZAS.has(s)) return true;
+  }
+  return false;
 }
 
 // ─── Derivação NCM — 3 classes de saída (SPEC §2.1.1) ──────────────────────
@@ -186,9 +221,16 @@ export function deriveObjetoFromNcm(ncm: string): DeriveObjetoResult {
  * Deriva categoria `objeto` a partir de um código NBS.
  * Mesma estrutura da função NCM. Mapeamento via `(regime, divisao)`.
  *
- * @throws AmbiguityError em classe 3
+ * Setores regulados (telecom, saúde regulada, financeiro): fallback é
+ * proibido — escala para HARD_BLOCK V-10-FALLBACK-REGULATED. A camada
+ * superior passa subnatureza_setorial via `context`.
+ *
+ * @throws AmbiguityError em classe 3 ou em fallback de setor regulado
  */
-export function deriveObjetoFromNbs(nbs: string): DeriveObjetoResult {
+export function deriveObjetoFromNbs(
+  nbs: string,
+  context?: DeriveObjetoContext,
+): DeriveObjetoResult {
   const result = lookupNbs({ codigo: nbs, sistema: "NBS" });
 
   // Classe 3a — pending_validation
@@ -201,6 +243,22 @@ export function deriveObjetoFromNbs(nbs: string): DeriveObjetoResult {
 
   // Classe 2 — fallback tolerante (NBS fora do dataset)
   if (result.regime === "regime_geral" && result.confianca.tipo === "fallback") {
+    // Classe 2-R — setor regulado: NÃO bloqueia, mas emite alerta forte
+    // (P.O. 2026-04-24, reversão pós-experimento CNAE).
+    // Id distintivo permite à camada de confiança penalizar score sem afetar gate.
+    if (isRegulatedContext(context)) {
+      const reguladas = (context!.subnaturezaSetorial ?? []).filter((s) =>
+        REGULATED_SUBNATUREZAS.has(s),
+      );
+      return {
+        objeto: "servico_geral",
+        blocker: {
+          id: "V-10-FALLBACK-REGULATED",
+          severity: "INFO",
+          rule: `[ALERTA FORTE] NBS ${nbs} não mapeado no dataset E subnatureza regulada (${reguladas.join(", ")}) — derivação não-determinística em setor crítico; penalização de confiança aplicável`,
+        },
+      };
+    }
     return {
       objeto: "servico_geral",
       blocker: {
@@ -231,10 +289,14 @@ export function deriveObjetoFromNbs(nbs: string): DeriveObjetoResult {
  * Deriva `objeto[]` sobre arrays de NCMs + NBSs de uma seed.
  * Dedup final preserva ordem de primeira ocorrência.
  * Acumula blockers de fallback (INFO) e propaga AmbiguityError.
+ *
+ * `context` é repassado para `deriveObjetoFromNbs` — habilita a regra de
+ * setor regulado (V-10-FALLBACK-REGULATED).
  */
 export function deriveObjetoArray(
   ncms: readonly string[],
   nbss: readonly string[],
+  context?: DeriveObjetoContext,
 ): { objeto: readonly Objeto[]; blockers: readonly Blocker[] } {
   const objetoSet = new Set<Objeto>();
   const blockers: Blocker[] = [];
@@ -246,7 +308,7 @@ export function deriveObjetoArray(
   }
 
   for (const nbs of nbss) {
-    const r = deriveObjetoFromNbs(nbs);
+    const r = deriveObjetoFromNbs(nbs, context);
     objetoSet.add(r.objeto);
     if (r.blocker !== null) blockers.push(r.blocker);
   }

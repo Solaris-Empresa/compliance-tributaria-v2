@@ -72,6 +72,10 @@ function deriveObjetoForSeed(seed: Seed): DeriveObjetoArrayResult {
   const objetoSet = new Set<Objeto>();
   const blockers: Blocker[] = [];
 
+  // Contexto propagado para a camada NBS — habilita V-10-FALLBACK-REGULATED
+  // quando subnatureza ∈ {telecomunicacoes, saude_regulada, financeiro}.
+  const objetoCtx = { subnaturezaSetorial: seed.subnatureza_setorial };
+
   try {
     for (const ncm of seed.ncms_principais) {
       const r = deriveObjetoFromNcm(ncm);
@@ -79,7 +83,7 @@ function deriveObjetoForSeed(seed: Seed): DeriveObjetoArrayResult {
       if (r.blocker !== null) blockers.push(r.blocker);
     }
     for (const nbs of seed.nbss_principais) {
-      const r = deriveObjetoFromNbs(nbs);
+      const r = deriveObjetoFromNbs(nbs, objetoCtx);
       objetoSet.add(r.objeto);
       if (r.blocker !== null) blockers.push(r.blocker);
     }

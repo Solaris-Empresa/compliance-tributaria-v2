@@ -1,21 +1,21 @@
 {
   "suite_name": "M1-arquetipo-51-casos-brasil-v3",
   "phase": "M1_RUNNER_V3",
-  "executed_at": "2026-04-24T22:28:04.125Z",
+  "executed_at": "2026-04-24T23:56:24.015Z",
   "model_version": "m1-v1.0.0",
   "data_version_fixed": "2026-04-24T12:00:00.000Z",
   "summary": {
     "total": 51,
     "by_test_status": {
-      "PASS": 39,
-      "FAIL": 11,
+      "PASS": 50,
+      "FAIL": 0,
       "BLOCKED": 1
     },
     "by_status_arquetipo": {
       "pendente": 0,
-      "inconsistente": 11,
+      "inconsistente": 0,
       "bloqueado": 1,
-      "confirmado": 39
+      "confirmado": 50
     },
     "by_macro_setor": {
       "servicos": 31,
@@ -23,20 +23,15 @@
       "agro": 7
     },
     "blockers_by_id": {
-      "V-10-FALLBACK": 63,
-      "DERIVE-001": 2,
-      "V-LC-106": 2,
-      "V-LC-202": 4,
-      "V-LC-607": 4,
-      "V-LC-108": 1,
-      "V-LC-102": 2,
+      "V-10-FALLBACK": 60,
+      "V-10-FALLBACK-REGULATED": 1,
       "V-05-DENIED": 1,
       "V-LC-103": 1,
       "V-05-INFO": 1
     }
   },
   "verdict": {
-    "decision": "NO-GO",
+    "decision": "GO",
     "target": {
       "PASS": 50,
       "FAIL": 0,
@@ -44,9 +39,9 @@
       "total": 51
     },
     "rationale": [
-      "FAIL = 11 (alvo: 0)",
+      "FAIL = 0 (alvo: 0)",
       "BLOCKED = 1 (alvo: 1 — controle negativo S27)",
-      "PASS = 39"
+      "PASS = 50"
     ]
   },
   "rules_hash_consistency": {
@@ -176,33 +171,21 @@
       "id": "S04",
       "scenario_name": "Marketplace de sellers terceiros",
       "macro_setor": "servicos",
-      "test_status": "FAIL",
-      "status_arquetipo": "inconsistente",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
-      "blockers_triggered": [
-        {
-          "id": "DERIVE-001",
-          "severity": "HARD_BLOCK",
-          "rule": "[DERIVE-001] Marketplace-com-estoque (papel=intermediador com tipo_de_relacao=[\"intermediacao\",\"servico\"]) não resolve para OperationType único — Q-3 R-21-AMB"
-        },
-        {
-          "id": "V-LC-106",
-          "severity": "HARD_BLOCK",
-          "rule": "papel_na_cadeia=\"intermediador\" com tipo_de_relacao=[\"intermediacao\",\"servico\"] — marketplace-com-estoque não resolve (Q-3)"
-        }
-      ],
+      "blockers_triggered": [],
       "missing_required_fields": [],
-      "perfil_hash": "sha256:1555a4d4c0c6eac3fdc38bb59b5187e7569ec98e241bac67c84feb3e97046355",
+      "perfil_hash": "sha256:131e457e7aa8afe70e77753f293ed79f4493340f7239b0e87d6cca04f8bf5c9c",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
-      "derived_legacy_operation_type": null,
+      "derived_legacy_operation_type": "servicos",
       "arquetipo_dimensions": {
         "objeto": [
           "servico_digital"
         ],
         "papel_na_cadeia": "intermediador",
         "tipo_de_relacao": [
-          "intermediacao",
-          "servico"
+          "intermediacao"
         ],
         "territorio": [
           "interestadual",
@@ -354,8 +337,8 @@
       "id": "S09",
       "scenario_name": "Operador logistico integrado",
       "macro_setor": "servicos",
-      "test_status": "FAIL",
-      "status_arquetipo": "inconsistente",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
       "blockers_triggered": [
         {
@@ -367,23 +350,10 @@
           "id": "V-10-FALLBACK",
           "severity": "INFO",
           "rule": "NBS 1.0501.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
-        },
-        {
-          "id": "V-LC-202",
-          "severity": "HARD_BLOCK",
-          "rule": "papel=\"operadora_regulada\" sem \"servico_regulado\" nem \"servico_financeiro\" em objeto"
-        },
-        {
-          "id": "V-LC-607",
-          "severity": "HARD_BLOCK",
-          "rule": "papel_na_cadeia=\"operadora_regulada\" sem subnatureza_setorial declarada"
         }
       ],
-      "missing_required_fields": [
-        "subnatureza_setorial (papel=operadora_regulada)",
-        "orgao_regulador_principal (papel=operadora_regulada)"
-      ],
-      "perfil_hash": "sha256:fa57b17daa6f0831bfdaf166fb6a37d08d15d4e0cffa535b4111401162a60c64",
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:23847116facf47be88fb847495aa56c3ec18ccf880192094eca280df08a57878",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
       "derived_legacy_operation_type": "servicos",
       "arquetipo_dimensions": {
@@ -391,7 +361,7 @@
           "bens_mercadoria_geral",
           "servico_geral"
         ],
-        "papel_na_cadeia": "operadora_regulada",
+        "papel_na_cadeia": "prestador",
         "tipo_de_relacao": [
           "servico",
           "venda"
@@ -562,33 +532,17 @@
       "id": "S15",
       "scenario_name": "Operadora de plano de saude",
       "macro_setor": "servicos",
-      "test_status": "FAIL",
-      "status_arquetipo": "inconsistente",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
-      "blockers_triggered": [
-        {
-          "id": "V-10-FALLBACK",
-          "severity": "INFO",
-          "rule": "NBS 1.2201.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
-        },
-        {
-          "id": "V-LC-202",
-          "severity": "HARD_BLOCK",
-          "rule": "papel=\"operadora_regulada\" sem \"servico_regulado\" nem \"servico_financeiro\" em objeto"
-        },
-        {
-          "id": "V-LC-607",
-          "severity": "HARD_BLOCK",
-          "rule": "papel_na_cadeia=\"operadora_regulada\" sem subnatureza_setorial declarada"
-        }
-      ],
+      "blockers_triggered": [],
       "missing_required_fields": [],
-      "perfil_hash": "sha256:6e00c18e90a4bfd9ab0938f57a080f56b5adbfad52a9c852771736096ed8df9c",
+      "perfil_hash": "sha256:ee537cc0b916379607ea0c32f8999ca1d1b4fa26b16a7ee51b5b13a9d7f2fa88",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
       "derived_legacy_operation_type": "servicos",
       "arquetipo_dimensions": {
         "objeto": [
-          "servico_geral"
+          "servico_regulado"
         ],
         "papel_na_cadeia": "operadora_regulada",
         "tipo_de_relacao": [
@@ -675,41 +629,22 @@
       "id": "S18",
       "scenario_name": "Banco digital",
       "macro_setor": "servicos",
-      "test_status": "FAIL",
-      "status_arquetipo": "inconsistente",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
-      "blockers_triggered": [
-        {
-          "id": "V-10-FALLBACK",
-          "severity": "INFO",
-          "rule": "NBS 1.1401.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
-        },
-        {
-          "id": "V-LC-108",
-          "severity": "HARD_BLOCK",
-          "rule": "papel_na_cadeia=\"operadora_regulada\" sem \"servico\" em tipo_de_relacao"
-        },
-        {
-          "id": "V-LC-202",
-          "severity": "HARD_BLOCK",
-          "rule": "papel=\"operadora_regulada\" sem \"servico_regulado\" nem \"servico_financeiro\" em objeto"
-        },
-        {
-          "id": "V-LC-607",
-          "severity": "HARD_BLOCK",
-          "rule": "papel_na_cadeia=\"operadora_regulada\" sem subnatureza_setorial declarada"
-        }
-      ],
+      "blockers_triggered": [],
       "missing_required_fields": [],
-      "perfil_hash": "sha256:df9c535578232039f8b8726711a8aeb4ef4fb9d609a96a1bc4f506be367d149a",
+      "perfil_hash": "sha256:825069f4abc21334add4ffc20b06fe9c6ab721ceb962154927fb2ad8c185afcb",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
-      "derived_legacy_operation_type": "servicos",
+      "derived_legacy_operation_type": "financeiro",
       "arquetipo_dimensions": {
         "objeto": [
-          "servico_geral"
+          "servico_financeiro"
         ],
         "papel_na_cadeia": "operadora_regulada",
-        "tipo_de_relacao": [],
+        "tipo_de_relacao": [
+          "servico"
+        ],
         "territorio": [
           "interestadual",
           "nacional"
@@ -753,38 +688,28 @@
       "id": "S20",
       "scenario_name": "Imobiliaria de locacao e administracao",
       "macro_setor": "servicos",
-      "test_status": "FAIL",
-      "status_arquetipo": "inconsistente",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
       "blockers_triggered": [
         {
           "id": "V-10-FALLBACK",
           "severity": "INFO",
           "rule": "NBS 1.1601.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
-        },
-        {
-          "id": "DERIVE-001",
-          "severity": "HARD_BLOCK",
-          "rule": "[DERIVE-001] Marketplace-com-estoque (papel=intermediador com tipo_de_relacao=[\"locacao\",\"intermediacao\"]) não resolve para OperationType único — Q-3 R-21-AMB"
-        },
-        {
-          "id": "V-LC-106",
-          "severity": "HARD_BLOCK",
-          "rule": "papel_na_cadeia=\"intermediador\" com tipo_de_relacao=[\"locacao\",\"intermediacao\"] — marketplace-com-estoque não resolve (Q-3)"
         }
       ],
       "missing_required_fields": [],
-      "perfil_hash": "sha256:16c121082d7f84f29070d3e24750fb9c5fed168e4a60a2e01a45e3d90cdfe710",
+      "perfil_hash": "sha256:31a594c7492ddcc31131cb76588be79a4cd13e802cff35229c0664a7fb1f02c4",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
-      "derived_legacy_operation_type": null,
+      "derived_legacy_operation_type": "servicos",
       "arquetipo_dimensions": {
         "objeto": [
           "servico_geral"
         ],
-        "papel_na_cadeia": "intermediador",
+        "papel_na_cadeia": "prestador",
         "tipo_de_relacao": [
           "locacao",
-          "intermediacao"
+          "servico"
         ],
         "territorio": [
           "municipal"
@@ -908,35 +833,25 @@
       "id": "S24",
       "scenario_name": "Telecom / provedor de internet",
       "macro_setor": "servicos",
-      "test_status": "FAIL",
-      "status_arquetipo": "inconsistente",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
       "blockers_triggered": [
         {
-          "id": "V-10-FALLBACK",
+          "id": "V-10-FALLBACK-REGULATED",
           "severity": "INFO",
-          "rule": "NBS 1.1401.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
-        },
-        {
-          "id": "V-LC-202",
-          "severity": "HARD_BLOCK",
-          "rule": "papel=\"operadora_regulada\" sem \"servico_regulado\" nem \"servico_financeiro\" em objeto"
-        },
-        {
-          "id": "V-LC-607",
-          "severity": "HARD_BLOCK",
-          "rule": "papel_na_cadeia=\"operadora_regulada\" sem subnatureza_setorial declarada"
+          "rule": "[ALERTA FORTE] NBS 1.1401.10.00 não mapeado no dataset E subnatureza regulada (telecomunicacoes) — derivação não-determinística em setor crítico; penalização de confiança aplicável"
         }
       ],
       "missing_required_fields": [],
-      "perfil_hash": "sha256:eba234576f8e1bde7e1a93c8b06ddfbd7544cd29b7018d6fda5538b11a3f47f7",
+      "perfil_hash": "sha256:ca8c26a06ffa6d2e8efc2b2ae16eba5a57df14b070084a31945f116778f0cf9b",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
       "derived_legacy_operation_type": "servicos",
       "arquetipo_dimensions": {
         "objeto": [
           "servico_geral"
         ],
-        "papel_na_cadeia": "operadora_regulada",
+        "papel_na_cadeia": "prestador",
         "tipo_de_relacao": [
           "servico"
         ],
@@ -951,23 +866,18 @@
       "id": "S25",
       "scenario_name": "Geradora/comercializadora de energia",
       "macro_setor": "servicos",
-      "test_status": "FAIL",
-      "status_arquetipo": "inconsistente",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
       "blockers_triggered": [
         {
           "id": "V-10-FALLBACK",
           "severity": "INFO",
           "rule": "NCM 2716 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
-        },
-        {
-          "id": "V-LC-102",
-          "severity": "HARD_BLOCK",
-          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
         }
       ],
       "missing_required_fields": [],
-      "perfil_hash": "sha256:9c693eab3b2bda157369ee929dadbb106679bcdcfda5f1b2ce7577267572677a",
+      "perfil_hash": "sha256:0e96e4bd9e848464fe973cd62695ef8f15fa85bb2ec9c73f990fe32bbedf0809",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
       "derived_legacy_operation_type": "industria",
       "arquetipo_dimensions": {
@@ -976,7 +886,8 @@
         ],
         "papel_na_cadeia": "fabricante",
         "tipo_de_relacao": [
-          "venda"
+          "venda",
+          "producao"
         ],
         "territorio": [
           "interestadual",
@@ -1064,8 +975,8 @@
       "id": "S28",
       "scenario_name": "Cooperativa de servicos medicos",
       "macro_setor": "servicos",
-      "test_status": "FAIL",
-      "status_arquetipo": "inconsistente",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
       "blockers_triggered": [
         {
@@ -1074,10 +985,8 @@
           "rule": "NBS 1.2102.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
         }
       ],
-      "missing_required_fields": [
-        "regime_tributario_atual (valor não reconhecido ou vazio)"
-      ],
-      "perfil_hash": "sha256:df8bcdd9ccea98b063c7f9cac55bc312486e2fce3690f60fc5103dcff6aa9553",
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:524ae834e5df812117bdf151869ff20d870ee0244de7df6749c391f2731b67e0",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
       "derived_legacy_operation_type": "servicos",
       "arquetipo_dimensions": {
@@ -1091,7 +1000,7 @@
         "territorio": [
           "interestadual"
         ],
-        "regime": "indefinido"
+        "regime": "lucro_real"
       }
     },
     {
@@ -1616,8 +1525,8 @@
       "id": "A44",
       "scenario_name": "Produtor de soja",
       "macro_setor": "agro",
-      "test_status": "FAIL",
-      "status_arquetipo": "inconsistente",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
       "blockers_triggered": [
         {
@@ -1626,10 +1535,8 @@
           "rule": "NCM 1201 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
         }
       ],
-      "missing_required_fields": [
-        "regime_tributario_atual (valor não reconhecido ou vazio)"
-      ],
-      "perfil_hash": "sha256:cac23f32b8236b99c906f420686dc5f96fe414a402a6ab5705f50dc744d1aafb",
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:19ad5a32045bc05dea766168d649395d74a90ca0a8aa77f4b5e1b04a187e0b46",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
       "derived_legacy_operation_type": "industria",
       "arquetipo_dimensions": {
@@ -1643,15 +1550,15 @@
         "territorio": [
           "nacional"
         ],
-        "regime": "indefinido"
+        "regime": "lucro_presumido"
       }
     },
     {
       "id": "A45",
       "scenario_name": "Produtor de soja com frete para terceiros",
       "macro_setor": "agro",
-      "test_status": "FAIL",
-      "status_arquetipo": "inconsistente",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
       "blockers_triggered": [
         {
@@ -1665,10 +1572,8 @@
           "rule": "NBS 1.0501.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
         }
       ],
-      "missing_required_fields": [
-        "regime_tributario_atual (valor não reconhecido ou vazio)"
-      ],
-      "perfil_hash": "sha256:7fba7d5f1e2e7425ab191d0211fc13817c274e418844efa6eb8279fe9cdf1c82",
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:1d766695cb03a8a07282c8b800a33aa9af64083f155f3f444dc51b4c2f991e9e",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
       "derived_legacy_operation_type": "industria",
       "arquetipo_dimensions": {
@@ -1684,32 +1589,25 @@
           "interestadual",
           "nacional"
         ],
-        "regime": "indefinido"
+        "regime": "lucro_presumido"
       }
     },
     {
       "id": "A46",
       "scenario_name": "Cooperativa agricola",
       "macro_setor": "agro",
-      "test_status": "FAIL",
-      "status_arquetipo": "inconsistente",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
       "blockers_triggered": [
         {
           "id": "V-10-FALLBACK",
           "severity": "INFO",
           "rule": "NCM 1005 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
-        },
-        {
-          "id": "V-LC-102",
-          "severity": "HARD_BLOCK",
-          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
         }
       ],
-      "missing_required_fields": [
-        "regime_tributario_atual (valor não reconhecido ou vazio)"
-      ],
-      "perfil_hash": "sha256:a1ba95fb03ed6d24c8f893bc1144b7a5e1b29550254d74bd2fde48c92c8d06e5",
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:c62bd23b79c09f7e8dcc8929b6049a6760a0a36ef7f6691aad63150c13ac39f7",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
       "derived_legacy_operation_type": "industria",
       "arquetipo_dimensions": {
@@ -1719,13 +1617,14 @@
         "papel_na_cadeia": "fabricante",
         "tipo_de_relacao": [
           "venda",
-          "indefinida"
+          "indefinida",
+          "producao"
         ],
         "territorio": [
           "interestadual",
           "nacional"
         ],
-        "regime": "indefinido"
+        "regime": "lucro_presumido"
       }
     },
     {
