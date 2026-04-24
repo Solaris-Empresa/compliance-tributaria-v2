@@ -177,3 +177,68 @@ Todo Bloco 1 de issue de frontend DEVE conter:
 - [ ] Trigger automatico (se aplicavel) documentado?
 - [ ] Efeitos cascata documentados no Bloco 1? (REGRA-ORQ-14)
 - [ ] Criterio de aceite para cada efeito cascata no Bloco 7?
+
+---
+
+## FLUXO M1 — Confirmação do Perfil da Entidade (Epic #830)
+
+**Status:** DRAFT — implementação bloqueada por REGRA-M1-GO-NO-GO.
+**Referências:** ADR-0031 (modelo dimensional), ADR-0032 (imutabilidade), SPEC-RUNNER-RODADA-D.md, DE-PARA-CAMPOS-PERFIL-ENTIDADE.md.
+
+### Novos STEPs (inseridos no fluxo principal após GO M1)
+
+#### STEP 1.1: NovoProjeto — ajustes M1 (decisão P.O. 2026-04-24)
+
+**Rota:** `/projetos/novo` (mesmo path atual)
+**Componente:** `NovoProjeto.tsx` (ajustado, não novo)
+**Mudanças:**
+- Remove campo "Cliente Vinculado" do form (permanece em `projects.clientId` gravado via contexto)
+- Adiciona botão **"Identificar CNAEs"** após campo `descricao_negocio_livre`
+- Botão "Avançar" **não** abre modal CNAE (apenas valida `cnaes[]` confirmados + descrição)
+- Modal CNAE reusa RAG/LLM existente — **código NÃO é tocado**
+
+**Saída:** projeto com `confirmedCnaes` (múltiplos, editáveis) + `description`.
+
+#### STEP 1.5: Confirmação do Perfil (NOVO)
+
+**Rota:** `/projetos/:id/perfil` (a definir)
+**Componente:** `ConfirmacaoPerfil.tsx` (novo)
+**Quando aparece:** entre Assessment Fase 2 e Briefing, após derivação dimensional completa
+**Saída:** snapshot imutável do arquétipo com `status_arquetipo = confirmado`
+
+**Estados exibidos:**
+| status_arquetipo | UI | Avança para Briefing? |
+|---|---|---|
+| pendente | Preview read-only + botão "Confirmar perfil" | ❌ (exige confirmação) |
+| inconsistente | Lista de blockers (missing fields, conflitos lógicos, AmbiguityError) | ❌ (exige correção) |
+| bloqueado | `motivo_bloqueio` + orientação terminal | ❌ (terminal) |
+| confirmado | Resumo imutável + opção "Iniciar nova versão" | ✅ |
+
+**Integração upstream:** questionário dimensional (a definir)
+**Integração downstream:** Briefing — só avança se `status_arquetipo = confirmado`
+**Triggers automáticos:**
+- Clique em "Confirmar perfil" → escreve snapshot com `perfil_hash`, `rules_hash`, `data_version`, `archetype_version='m1-v1.0.0'`, `imutavel=true`
+- Edição após confirmado → cria **novo snapshot** em `status=pendente` (anterior preservado por ADR-0032 §1)
+
+### Efeitos cascata obrigatórios (REGRA-ORQ-14)
+
+| Ação | Efeito imediato | Efeito cascata | Formato dos dados | Navegação |
+|---|---|---|---|---|
+| Clica "Confirmar perfil" (pendente→confirmado) | Snapshot imutável gravado + **`projects.status = perfil_confirmado`** | M2 RAG filtro disponível para Briefing | `archetype` JSON + 4 colunas metadata em `projects` | Redireciona para `/projetos/:id/briefing-v3` |
+| Edita projeto após confirmado | **Novo** snapshot `pendente` + **`projects.status = perfil_pendente`**; antigo preservado read-only | Briefing antigo **não regenera** (ADR-0032 §3) | Novo registro `archetype` com `data_version` incrementada | Volta a `/projetos/:id/perfil` (novo preview) |
+
+### Mapping `status_arquetipo` → `projects.status` (Q-8 RESOLVIDA 2026-04-24)
+
+4 valores novos no enum `projects.status` entre `cnaes_confirmados` e `assessment_fase1`:
+
+| status_arquetipo | projects.status | Tela renderizada |
+|---|---|---|
+| (sem snapshot) | `cnaes_confirmados` ou anterior | NovoProjeto / CNAE modal |
+| `pendente` | `perfil_pendente` | Formulário dimensional ou preview |
+| `inconsistente` | `perfil_inconsistente` | Lista de blockers para corrigir |
+| `bloqueado` | `perfil_bloqueado` | Mensagem terminal (ex.: V-05-DENIED) |
+| `confirmado` | `perfil_confirmado` | Resumo read-only + botão "Próximo passo" |
+
+### Integração M1 → M2 (filtro RAG)
+
+Formaliza no contrato `docs/epic-830-rag-arquetipo/specs/CONTRATOS-ENTRE-MILESTONES.md`. M2 consome snapshot imutável via `archetype_version` + `perfil_hash` para filtro pré-RAG determinístico.

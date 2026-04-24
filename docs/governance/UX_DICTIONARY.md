@@ -188,3 +188,62 @@ Spec HIBRIDA obrigatoria:
 > Campos JSON podem ser retornados como objetos ja parseados pelo mysql2.
 > Usar `safeParseObject()` e `safeParseArray()` — nunca `JSON.parse()` direto.
 > Funcoes em: `server/lib/project-profile-extractor.ts`
+
+---
+
+## TELAS M1 — Epic #830 (DRAFT, pós-GO M1)
+
+**Status:** DRAFT — implementação bloqueada por REGRA-M1-GO-NO-GO.
+**Mockups HTML obrigatórios (a criar):** `docs/epic-830-rag-arquetipo/mockups/MOCKUP_novo-projeto.html` + `MOCKUP_perfil-confirmacao.html`.
+
+### TELA M1.1 — NovoProjeto (ajustes)
+
+**Componente:** `client/src/pages/NovoProjeto.tsx` (modificado)
+**Rota:** `/projetos/novo`
+**Spec:** `docs/epic-830-rag-arquetipo/specs/DE-PARA-CAMPOS-PERFIL-ENTIDADE.md` §9.1.1
+**Mudanças (decisão P.O. 2026-04-24):**
+- **Remove** campo "Cliente Vinculado" do form M1 (permanece em DB via contexto)
+- **Adiciona** botão `[data-testid="btn-identificar-cnaes"]` após textarea `descricao_negocio_livre`
+- Modal CNAE existente é reusado (`data-testid="modal-cnae-rag"`) — não alterado
+- Botão `[data-testid="btn-avancar"]` não abre modal — apenas valida
+
+**Invariantes:**
+- `cnaes[]` não-vazio ao clicar em Avançar
+- `descricao_negocio_livre` preenchida (min 50 caracteres sugerido)
+- Zero alteração em `server/` ou lógica RAG/LLM de CNAE
+
+**Procedures chamadas:** idênticas ao fluxo atual (intactas)
+
+### TELA M1.2 — Confirmação do Perfil (NOVA)
+
+**Componente:** `client/src/pages/ConfirmacaoPerfil.tsx` (a criar)
+**Rota:** `/projetos/:id/perfil` (definitiva TBD)
+**Spec:** `SPEC-RUNNER-RODADA-D.md` §4.8 (requisitos mínimos)
+**Mockup:** `docs/epic-830-rag-arquetipo/mockups/MOCKUP_perfil-confirmacao.html` (a criar — pré-requisito Gate UX REGRA-ORQ-09)
+
+**Elementos / data-testids:**
+| Element | data-testid | Quando visível |
+|---|---|---|
+| Preview 5 dimensões read-only | `perfil-dimensions-preview` | sempre |
+| Preview `derived_legacy_operation_type` | `perfil-legacy-optype` | sempre |
+| Lista de blockers | `perfil-blockers-list` | apenas se `inconsistente` ou `bloqueado` |
+| `motivo_bloqueio` destacado | `perfil-motivo-bloqueio` | apenas se `bloqueado` |
+| Botão "Confirmar perfil" | `btn-confirmar-perfil` | apenas se `pendente` sem issues |
+| Botão "Voltar e editar" | `btn-voltar-editar` | apenas se `pendente`/`inconsistente` |
+| Botão "Iniciar nova versão" | `btn-nova-versao` | apenas se `confirmado` (cria novo snapshot) |
+
+**Estados visuais (invariante IS-1 a IS-9 da SPEC §8.1):**
+- `pendente`: card azul/neutro com preview + botão Confirmar primário
+- `inconsistente`: card amarelo com lista de blockers legíveis (reason descritivo)
+- `bloqueado`: card vermelho terminal com orientação
+- `confirmado`: card verde read-only + opção "Iniciar nova versão"
+
+**Procedures chamadas (a criar):**
+- `archetype.derivePerfilDimensional(projectId)` → retorna arquétipo derivado (sem persistir)
+- `archetype.confirmPerfil(projectId)` → persiste snapshot imutável com `confirmed_at`
+- `archetype.startNewVersion(projectId)` → cria novo registro em `pendente`
+
+**Invariantes:**
+- Snapshot confirmado é imutável (ADR-0032 §1) — validado server-side
+- Edição após confirmação cria novo `archetype` row; antigo **preservado**
+- `status_arquetipo = confirmado` é pré-requisito de avançar para Briefing (Gate E2E SPEC §4.6)
