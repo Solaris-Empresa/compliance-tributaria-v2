@@ -177,3 +177,55 @@ Todo Bloco 1 de issue de frontend DEVE conter:
 - [ ] Trigger automatico (se aplicavel) documentado?
 - [ ] Efeitos cascata documentados no Bloco 1? (REGRA-ORQ-14)
 - [ ] Criterio de aceite para cada efeito cascata no Bloco 7?
+
+---
+
+## STEP M1: Perfil da Entidade (Sprint M1 · 2026-04-24)
+
+> **REGRA:** Este step é introduzido pelo milestone M1. Não implementar sem aprovação P.O. e prompt do Orquestrador. Artefato pré-M1.
+
+### Posição no fluxo principal
+
+```
+STEP 1 (NovoProjeto) → STEP M1 (Perfil da Entidade) → STEP 2 (QuestionarioV3) → ...
+```
+
+**Rota:** `/projetos/:id/perfil-entidade`  
+**Componente:** `ConfirmacaoPerfil.tsx` (a criar em M1+)  
+**Integração upstream:** STEP 1 — `NovoProjeto.tsx` — saída: `confirmedCnaes[]` + `descricao_negocio_livre`  
+**Integração downstream:** STEP 2 — `QuestionarioV3.tsx` — entrada: `status_arquetipo = 'confirmado'`  
+**Gate de saída:** `status_arquetipo === 'confirmado'` AND `erros_estruturais.length === 0` AND `hard_blocks.length === 0`  
+**Saída:** snapshot imutável em `projects.archetype` + `archetype_version = 'm1-v1.0.0'`
+
+### Diagrama de transições de status_arquetipo
+
+```
+[pendente] ──── campos ausentes / conflito / AmbiguityError ──→ [inconsistente]
+[pendente] ──── V-05-DENIED (multi-CNPJ) ──────────────────→ [bloqueado]
+[pendente] ──── user_confirmed = true ─────────────────────→ [confirmado] ✓ gate liberado
+[inconsistente] ── correção dos dados ─────────────────────→ [pendente]
+[bloqueado] ──── terminal (sem saída) ─────────────────────→ [bloqueado]
+[confirmado] ─── terminal (snapshot imutável) ─────────────→ [confirmado]
+```
+
+### Efeitos cascata do STEP M1
+
+| Ação | Efeito imediato | Efeito cascata | Formato obrigatório | Navegação |
+|---|---|---|---|---|
+| Usuário confirma perfil | `status_arquetipo = 'confirmado'` | Snapshot imutável gravado em `projects.archetype` | JSON com 5 dimensões + metadata ADR-0032 | redirect → STEP 2 |
+| Usuário edita após confirmação | Novo snapshot criado | Snapshot anterior preservado (ADR-0032 §4) | `archetype_version` incrementado | permanecer no STEP M1 |
+| HARD_BLOCK ativo | `status_arquetipo = 'bloqueado'` | Botão "Confirmar" desabilitado | `motivo_bloqueio` preenchido | permanecer no STEP M1 |
+
+### Regras invariantes do STEP M1
+
+1. Estado `inconsistente` exige correção dos dados — sem override, sem `acknowledgeInconsistency`
+2. `acceptRisk()` é mecanismo AS-IS (gate pré-diagnóstico) — não se aplica ao gate M1
+3. Score/confiança NÃO libera o gate
+4. Botão "Identificar CNAEs" abre modal existente (reuso — não reimplementar RAG/LLM)
+5. Botão "Avançar" NÃO abre modal CNAE — apenas valida e avança
+6. "Cliente Vinculado" não aparece nesta tela
+7. Snapshot é imutável após confirmação (ADR-0032)
+
+### Referência de mockup
+
+`docs/sprints/M1-arquetipo-negocio/MOCKUP_perfil_entidade_v5_1.html` (branch `docs/m1-arquetipo-exploracao`)

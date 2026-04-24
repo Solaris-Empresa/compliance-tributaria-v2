@@ -188,3 +188,66 @@ Spec HIBRIDA obrigatoria:
 > Campos JSON podem ser retornados como objetos ja parseados pelo mysql2.
 > Usar `safeParseObject()` e `safeParseArray()` — nunca `JSON.parse()` direto.
 > Funcoes em: `server/lib/project-profile-extractor.ts`
+
+---
+
+## TELA M1 — Confirmação do Perfil da Entidade (Sprint M1 · 2026-04-24)
+
+> **REGRA:** Esta tela é introduzida pelo milestone M1. Não implementar sem aprovação P.O. e prompt do Orquestrador. Artefato pré-M1.
+
+**Componente:** `client/src/pages/ConfirmacaoPerfil.tsx` (a criar)  
+**Rota:** `/projetos/:id/perfil-entidade`  
+**Mockup baseline:** `docs/sprints/M1-arquetipo-negocio/MOCKUP_perfil_entidade_v5_1.html` (branch `docs/m1-arquetipo-exploracao`)  
+**Status:** A IMPLEMENTAR (M1+)
+
+### Estados visuais
+
+| Estado | ID | Cenário | `status_arquetipo` | Botão "Confirmar" |
+|---|---|---|---|---|
+| Início | S1 | Sem CNAEs confirmados | `pendente` | `disabled` |
+| Modal CNAE | S2 | Modal de identificação aberto | `pendente` | `disabled` |
+| CNAEs confirmados | S3 | 5 dimensões com conflito | `inconsistente` | `disabled` |
+| Blocos pré-abertos | S4 | Auto-open por CNAE | `inconsistente` | `disabled` |
+| Campos faltantes | C1 | Campos obrigatórios ausentes | `pendente` | `disabled` |
+| Conflito ativo | C2 | Erro estrutural — exige correção | `inconsistente` | `disabled` |
+| HARD_BLOCK | C3 | V-05-DENIED ativo | `bloqueado` | `disabled` |
+| Confirmado | C4 | Gate liberado | `confirmado` | habilitado → redirect STEP 2 |
+
+### Componentes da tela
+
+| Componente | Descrição | Regras |
+|---|---|---|
+| Botão "Identificar CNAEs" | Abre modal de sugestão de CNAEs (reuso do modal existente) | NÃO reimplementar RAG/LLM. Acionado explicitamente pelo usuário. |
+| Modal de CNAEs | Lista de CNAEs sugeridos com badges de confiança (Alta/Média/Baixa) | LLM sugere — usuário confirma. LLM não é fonte de verdade (ADR-0031 §Princípio 5). |
+| Lista de CNAEs confirmados | Multi-select editável (chips com ✕ e "+ Adicionar CNAE") | Editável antes de avançar. Alimenta `projects.confirmedCnaes[]`. |
+| Botão "Avançar" | Valida `confirmedCnaes[]` e `descricao_negocio_livre` | NÃO abre modal CNAE. Apenas valida e avança. |
+| 5 Dimensões | Cards com `objeto`, `papel_na_cadeia`, `tipo_de_relacao`, `territorio`, `regime` | Derivadas deterministicamente. Não editáveis diretamente pelo usuário. |
+| Separador Erro Estrutural vs Risco Aceito | Duas colunas explicativas | Erro estrutural = exige correção. Risco aceito (`acceptRisk()`) = mecanismo AS-IS, fora do gate M1. |
+| Painel de Confiança (PC-01 a PC-06) | Score de completude, composição, issues, snapshot, PC-05 (exploratório), gate | PC-05 é prévia exploratória. Score NÃO libera gate. |
+| Botão "Confirmar Perfil da Entidade" | CTA final — dispara congelamento do snapshot (ADR-0032) | Habilitado APENAS quando gate liberado (ver abaixo). |
+
+### Gate visual — fórmula canônica (instrução P.O. 2026-04-24)
+
+```
+gateLiberated = status_arquetipo === 'confirmado'
+             AND erros_estruturais.length === 0
+             AND hard_blocks.length === 0
+```
+
+### Regras de UX obrigatórias
+
+1. **"Cliente Vinculado" não aparece nesta tela** — campo permanece em `projects.clientId` como dado legado/sistêmico
+2. **"Perfil da Entidade" na UI** — "arquétipo" é termo técnico interno
+3. **Estado `inconsistente` exige correção** — sem override, sem `acknowledgeInconsistency`
+4. **Score alto NÃO libera o gate** — nota vermelha explícita no Painel de Confiança
+5. **PC-05 é prévia exploratória** — badge "EXPLORATÓRIO" obrigatório
+6. **Fórmula do score é exploratória** — badge "fórmula exploratória" em PC-02
+7. **Snapshot imutável após confirmação** — mensagem explícita no estado C4
+
+### Procedures necessárias (a criar em M1+)
+
+| Procedure | Descrição |
+|---|---|
+| `perfil.buildPerfilEntidade(projectId)` | Deriva as 5 dimensões + metadata e retorna `PerfilEntidade` |
+| `perfil.confirmPerfilEntidade(projectId)` | Grava snapshot imutável em `projects.archetype` e seta `archetype_version` |
+| `perfil.getPerfilEntidade(projectId)` | Retorna snapshot atual ou `null` se não confirmado |

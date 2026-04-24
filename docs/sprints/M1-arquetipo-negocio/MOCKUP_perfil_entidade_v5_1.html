@@ -261,6 +261,7 @@
           <button class="btn btn-primary" disabled>Avançar para Dimensões →</button>
         </div>
         <div style="font-size:11px;color:#475569;text-align:right;margin-top:6px">⚠ Preencha os campos obrigatórios e confirme os CNAEs para avançar</div>
+        <div style="font-size:10px;color:#334155;text-align:right;margin-top:2px">🔒 Regra A-06: Botão "Avançar" NÃO abre modal CNAE — apenas valida e avança para as 5 dimensões</div>
       </div>
     </div>
 
@@ -273,6 +274,7 @@
       <div class="content">
         <div class="section-title">Identificar CNAEs</div>
         <div class="section-subtitle">LLM sugere CNAEs com base na descrição. Usuário confirma — LLM não é fonte de verdade (ADR-0031 §Princípios).</div>
+        <div style="font-size:10px;color:#334155;margin-bottom:8px">🔒 Regra A-05: Este modal reutiliza o fluxo/modal existente de identificação de CNAEs — NÃO reimplementar RAG/LLM CNAE. LLM sugere, usuário confirma.</div>
         <div class="modal-overlay-sim">
           <div class="modal-header">
             <div class="modal-title">🔍 Identificar CNAEs</div>
@@ -459,7 +461,7 @@
                   <div class="score-bar-label"><span>Score de Confiança</span><span class="score-val yellow">62%</span></div>
                   <div class="score-bar"><div class="score-fill yellow" style="width:62%"></div></div>
                 </div>
-                <div class="score-note">⚠ Score alto NÃO libera o fluxo. Gate: <code>status_arquetipo = 'confirmado'</code> AND <code>erros_estruturais.length === 0</code>. Fórmula exploratória — não implementar sem SPEC aprovada.</div>
+                <div class="score-note">⚠ Score alto NÃO libera o fluxo. Gate: <code>status_arquetipo = 'confirmado'</code> AND <code>erros_estruturais.length === 0</code> AND <code>hard_blocks.length === 0</code>. Fórmula exploratória — não implementar sem SPEC aprovada.</div>
               </div>
               <div style="display:flex;flex-direction:column;gap:8px">
                 <div><div style="font-size:10px;color:#475569;margin-bottom:4px">Status</div><span class="badge badge-inconsistente">● inconsistente</span></div>
@@ -539,7 +541,7 @@
               ⚠ <strong>Erro estrutural ativo.</strong> O snapshot não pode ser confirmado enquanto houver erros estruturais. Corrija o dado e retorne.
             </div>
             <div class="gate-box gate-blocked" style="margin-top:12px">
-              <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span></div>
+              <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span> AND <span>hard_blocks.length === 0</span></div>
               <div class="gate-actions">
                 <button class="btn btn-primary" disabled>Confirmar Perfil da Entidade</button>
                 <button class="btn btn-secondary" onclick="showState('s3')">← Voltar e Corrigir</button>
@@ -561,7 +563,7 @@
           <div class="painel-section">
             <div class="painel-section-label"><span class="pc-id">PC-06</span> Liberação do Próximo Passo</div>
             <div class="gate-box gate-blocked">
-              <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span></div>
+              <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span> AND <span>hard_blocks.length === 0</span></div>
               <div style="font-size:12px;color:#f87171;margin-bottom:12px">✗ Erro estrutural ativo. Corrija antes de continuar.</div>
               <div class="gate-actions">
                 <button class="btn btn-primary" disabled>Continuar para o Briefing →</button>
@@ -600,7 +602,7 @@
           </div>
         </div>
         <div class="gate-box">
-          <div class="gate-rule">Gate: <span>completeness === 100%</span> AND <span>erros_estruturais.length === 0</span> AND <span>CTA acionado</span></div>
+          <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span> AND <span>hard_blocks.length === 0</span></div>
           <div class="gate-actions">
             <button class="btn btn-primary" disabled>Confirmar Perfil da Entidade</button>
             <button class="btn btn-secondary" onclick="showState('s1')">← Voltar</button>
@@ -656,7 +658,7 @@
         </div>
 
         <div class="gate-box gate-blocked">
-          <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span></div>
+          <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span> AND <span>hard_blocks.length === 0</span></div>
           <div style="font-size:12px;color:#f87171;margin-bottom:12px">✗ Erro estrutural ativo. Corrija os dados para habilitar a confirmação.</div>
           <div class="gate-actions">
             <button class="btn btn-primary" disabled>Confirmar Perfil da Entidade</button>
@@ -679,7 +681,7 @@
           <div class="section-subtitle" style="max-width:520px;margin:8px auto 0">HARD BLOCK ativo. O perfil não pode ser confirmado. Score alto não libera este estado.</div>
           <span class="badge badge-bloqueado" style="margin-top:12px;display:inline-flex">● status_arquetipo: bloqueado · eligibility: denied</span>
         </div>
-        <div class="warn-box">⚠ <strong>Score alto NÃO libera o fluxo com HARD_BLOCK ativo.</strong> Gate: <code>status_arquetipo = 'confirmado'</code> AND <code>erros_estruturais.length === 0</code>.</div>
+        <div class="warn-box">⚠ <strong>Score alto NÃO libera o fluxo com HARD_BLOCK ativo.</strong> Gate: <code>status_arquetipo = 'confirmado'</code> AND <code>erros_estruturais.length === 0</code> AND <code>hard_blocks.length === 0</code>.</div>
         <div class="card">
           <div class="card-header"><div class="card-title">Bloqueadores ativos</div></div>
           <div class="issue-item">
@@ -702,7 +704,7 @@
           </div>
         </div>
         <div class="gate-box gate-blocked">
-          <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span></div>
+          <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span> AND <span>hard_blocks.length === 0</span></div>
           <div style="font-size:12px;color:#f87171;margin-bottom:12px">✗ 2 HARD_BLOCKs ativos. Resolva todos para habilitar a confirmação.</div>
           <div class="gate-actions">
             <button class="btn btn-primary" disabled>Confirmar Perfil da Entidade</button>
@@ -749,7 +751,7 @@
         </div>
 
         <div class="gate-box gate-ready">
-          <div class="gate-rule">Gate liberado: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span></div>
+          <div class="gate-rule">Gate liberado: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span> AND <span>hard_blocks.length === 0</span></div>
           <div class="gate-actions">
             <button class="btn btn-success">Continuar para o Briefing →</button>
             <button class="btn btn-secondary">Iniciar Nova Versão do Perfil</button>

@@ -69,19 +69,15 @@ O `buildPerfilEntidade` é o **adaptador Transitional** que transforma o modelo 
 
 ```typescript
 interface PerfilEntidade {
-  // Identificação
+  // Identificação (campos de contexto — NÃO entram em perfil_hash)
   project_id: string;
   cnpj: string;
   project_name: string;
-  company_type: string;
-  company_size: string;
-  annual_revenue_range: string;
-  tax_regime: TaxRegime;
 
   // CNAEs
   cnaes: Array<{ code: string; description: string; confidence: 'alta' | 'media' | 'baixa'; source: 'cnae' | 'user' | 'infer'; }>;
 
-  // 5 Dimensões (ADR-0031)
+  // 5 Dimensões (ADR-0031) — entram em perfil_hash
   dim_objeto: string[];
   dim_papel_na_cadeia: string[];
   dim_tipo_de_relacao: string[];
@@ -92,10 +88,21 @@ interface PerfilEntidade {
   status_arquetipo: StatusArquetipo;   // enum canônico — ver seção 5
   eligibility: EligibilityResult;
 
+  // Contextuais fora do arquétipo (NÃO entram em perfil_hash — instrução P.O. 2026-04-24)
+  // Estes campos são atributos de identificação/porte, não dimensões do modelo dimensional.
+  // Podem alimentar briefing/UX mas não afetam status_arquetipo nem o gate M1.
+  context?: {
+    company_type?: string;          // tipo jurídico (SA, LTDA, etc.)
+    company_size?: string;          // porte (micro, pequena, média, grande)
+    annual_revenue_range?: string;  // faixa de receita anual
+    tax_regime?: TaxRegime;         // regime tributário (contextual — dim_regime é a dimensão)
+    client_type?: string[];         // clientType[] — decisão P.O. Q-1 2026-04-24
+  };
+
   // Versionamento (ADR-0032)
   model_version: string;               // ex: 'm1-v1.0.0'
   data_version: string;                // timestamp ISO
-  perfil_hash: string;                 // hash do conteúdo
+  perfil_hash: string;                 // hash das 5 dimensões + cnaes (NÃO inclui context)
   rules_hash: string;                  // hash das regras aplicadas
 
   // Auditoria
@@ -103,6 +110,8 @@ interface PerfilEntidade {
   confirmed_by?: string;               // user_id
 }
 ```
+
+> **Nota (instrução P.O. 2026-04-24):** `company_type`, `company_size`, `annual_revenue_range` e `tax_regime` são campos de identificação/porte. Não são dimensões do modelo dimensional (ADR-0031 não os elenca nas 5 dimensões). Foram movidos para `context?` para deixar explícito que não entram em `perfil_hash` e não afetam `status_arquetipo`. `clientType[]` também é contextual (Q-1 RESOLVIDA).
 
 ### 4.4 Localização no código (a criar)
 
@@ -192,20 +201,27 @@ export const archetypeProfiles = mysqlTable('archetype_profiles', {
 
 ```typescript
 // Condição necessária e suficiente para liberar o gate do Perfil da Entidade
+// (instrução P.O. 2026-04-24 — 3 condições explícitas obrigatórias)
 const gateLiberated =
   status_arquetipo === 'confirmado' &&
-  erros_estruturais.length === 0;
+  erros_estruturais.length === 0 &&
+  hard_blocks.length === 0;
 
-// Condição de eligibility
+// Nota técnica: status_arquetipo = 'confirmado' implica hard_blocks.length === 0
+// pela SPEC-RUNNER §4.7 IS-8, mas a representação explícita é obrigatória
+// por instrução do P.O. para rastreabilidade e para evitar otimizações incorretas.
+
+// Condição de eligibility (gate E2E downstream)
 const eligibilityAllowed =
   status_arquetipo === 'confirmado' &&
+  erros_estruturais.length === 0 &&
   hard_blocks.length === 0 &&
   multi_cnpj === false;
 ```
 
 **Regras invariantes (não regredir):**
 
-1. Score alto NÃO libera o fluxo — gate depende exclusivamente de `status_arquetipo = 'confirmado'` AND `erros_estruturais.length === 0`
+1. Score alto NÃO libera o fluxo — gate depende de `status_arquetipo = 'confirmado'` AND `erros_estruturais.length === 0` AND `hard_blocks.length === 0`
 2. `status_arquetipo = 'inconsistente'` exige correção dos dados — sem override, sem `acknowledgeInconsistency`
 3. DET-001 CRITICAL → `denied` sem override no E2E (mudança intencional v3.1 vs AS-IS)
 4. PC-05 é prévia exploratória — não representa motor de riscos real; não bloqueia nem libera gate
@@ -213,6 +229,8 @@ const eligibilityAllowed =
 6. Snapshot imutável após confirmação (ADR-0032)
 7. `cnae_principal_input` removido — substituído por modal `open_cnae_modal` (herdado v4)
 8. "Perfil da Entidade" na UI — "arquétipo" é termo técnico interno
+9. Botão "Identificar CNAEs" reusa o modal existente — NÃO reimplementar RAG/LLM CNAE; LLM sugere, usuário confirma (ADR-0031 §Princípio 5)
+10. Botão "Avançar" NÃO abre modal CNAE — apenas valida `confirmedCnaes[]` e `descricao_negocio_livre` e avança para as 5 dimensões
 
 ---
 

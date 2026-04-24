@@ -268,3 +268,100 @@ score = round( Σ(peso × max(confidence, 0.5)) / (n × 9) × 100 )
 |---|---|---|
 | conteudo | text | coluna de texto (NAO `content`, NAO `text`) |
 | lei | enum | `'lc214'` \| `'ec132'` \| etc |
+
+---
+
+## Perfil da Entidade — M1 (Sprint M1 · 2026-04-24)
+
+> **REGRA:** Esta seção cobre os campos e tipos introduzidos pelo milestone M1. Não implementar sem aprovação P.O. e prompt do Orquestrador. Artefato pré-M1.
+
+### status_arquetipo — enum canônico (4 estados)
+
+Campo derivado. Nunca preenchido diretamente pelo usuário. Calculado pelo pipeline de validação dimensional em `buildPerfilEntidade(project)`. Fica dentro do JSON `archetype` (não é coluna separada).
+
+| Valor | Semântica | Condição de entrada |
+|---|---|---|
+| `pendente` | Estado inicial — dados válidos, sem issues, aguarda confirmação do usuário | Default; nenhuma das regras abaixo disparou |
+| `inconsistente` | Qualquer issue detectada: campo obrigatório ausente, conflito lógico entre dimensões, ou `AmbiguityError` em `deriveOperationType()` | `missing_required_fields != empty` OU conflito lógico OU AmbiguityError |
+| `bloqueado` | HARD_BLOCK de negócio ativo — `V-05-DENIED` (multi-CNPJ sem análise por CNPJ) | `BLOCK_FLOW` emitido pelo pipeline |
+| `confirmado` | Usuário confirmou o perfil via CTA. Estado terminal. Snapshot imutável (ADR-0032) | `user_confirmed = true` E nenhuma das regras acima disparou |
+
+**Tabela de transições (primeira regra que bate vence — SPEC-RUNNER §4.2.1):**
+
+| # | Condição | `status_arquetipo` |
+|---|---|---|
+| 1 | HARD_BLOCK de negócio (V-05-DENIED) | `bloqueado` |
+| 2 | AmbiguityError em `deriveOperationType()` | `inconsistente` |
+| 3 | Conflito lógico entre dimensões | `inconsistente` |
+| 4 | `missing_required_fields != empty` | `inconsistente` |
+| 5 | `user_confirmed = true` (e nenhuma acima disparou) | `confirmado` |
+| 6 | default | `pendente` |
+
+### Campos novos da tabela `projects` (a adicionar em M1+)
+
+| Campo | Tipo SQL | Semântica |
+|---|---|---|
+| `archetype` | `JSON NULL` | Snapshot imutável do Perfil da Entidade (ADR-0031 + ADR-0032). Contém as 5 dimensões + contextuais + metadata |
+| `archetype_version` | `VARCHAR(20) NULL` | Versão do modelo. Ex: `m1-v1.0.0`. Escrito apenas na primeira confirmação |
+| `archetype_perfil_hash` | `CHAR(64) NULL` | SHA-256 do conteúdo das dimensões + contextuais (ADR-0032 §2) |
+| `archetype_rules_hash` | `CHAR(64) NULL` | SHA-256 do manifesto declarativo de regras (ADR-0032 §2 · Opção C aprovada P.O.) |
+| `archetype_confirmed_at` | `TIMESTAMP NULL` | Quando usuário confirmou — marca imutabilidade (ADR-0032 §1) |
+
+**Regra crítica:** `DROP COLUMN` proibido (ADR-0032 §4). Colunas legadas permanecem indefinidamente.
+
+**Detecção de versão:**
+```
+isProjetoM1(p)     ≡ p.archetype_version !== null
+isProjetoLegado(p) ≡ p.archetype_version === null
+```
+
+### buildPerfilEntidade(project) — função pura (a criar em M1+)
+
+Não é coluna de banco. É a função de derivação do Perfil da Entidade.
+
+| Aspecto | Valor |
+|---|---|
+| **Localização futura** | `server/lib/perfil-entidade.ts` |
+| **Característica** | Função pura e determinística — sem LLM, sem fallback silencioso |
+| **Regra** | Ambiguidade lança erro (não warning) — lição Z-17 |
+
+### 5 Dimensões canônicas (ADR-0031)
+
+| Dimensão | Tipo | Valores do enum fechado |
+|---|---|---|
+| `objeto[]` | `string[]` | produto, serviço, misto, imóvel, financeiro, intangível, energia, resíduo |
+| `papel_na_cadeia` | `string` | transportador, distribuidor, fabricante, varejista, intermediador, prestador, importador, exportador, produtor |
+| `tipo_de_relacao[]` | `string[]` | venda, serviço, produção, intermediação, locação |
+| `territorio[]` | `string[]` | municipal, interestadual, internacional, ZFM, ALC, incentivado |
+| `regime` | `string` | simples_nacional, lucro_presumido, lucro_real, mei, regime_específico_setorial |
+
+**Nota:** `marketplace` não é enum próprio — é composição `papel_na_cadeia = 'intermediador'` + `tipo_de_relacao = ['intermediação']` (decisão P.O. 2026-04-24 Q-3).
+
+### Gate E2E — regra canônica (instrução P.O. 2026-04-24)
+
+```
+gateLiberated = status_arquetipo === 'confirmado'
+             AND erros_estruturais.length === 0
+             AND hard_blocks.length === 0
+```
+
+**Nota:** Score/confiança NÃO libera o gate. `acceptRisk()` é mecanismo AS-IS (gate pré-diagnóstico) e não se aplica ao gate M1.
+
+### Campos contextuais fora do arquétipo (não entram em perfil_hash)
+
+| Campo | Localização | Uso |
+|---|---|---|
+| `clientType[]` | `operationProfile.clientType[]` | Contextual fora do arquétipo. Pode alimentar briefing/UX. Decisão P.O. 2026-04-24 (Q-1) |
+| `companySize` | `projects.companySize` | Atributo não-dimensional |
+| `company_type` | contexto do projeto | Identificação — não entra em `perfil_hash` |
+| `annual_revenue_range` | contexto do projeto | Identificação — não entra em `perfil_hash` |
+
+### Referências cruzadas M1
+
+| Artefato | Branch | Conteúdo |
+|---|---|---|
+| `ADR-0031` | `docs/epic-830-rag-arquetipo` | Modelo dimensional canônico |
+| `ADR-0032` | `docs/epic-830-rag-arquetipo` | Imutabilidade e versionamento |
+| `DE-PARA-CAMPOS-PERFIL-ENTIDADE.md` | `docs/epic-830-rag-arquetipo/specs/` | Mapeamento AS-IS → Target |
+| `SPEC-RUNNER-RODADA-D.md` | `docs/epic-830-rag-arquetipo/specs/` | Suite de testes e invariantes IS-1 a IS-8 |
+| `MOCKUP_perfil_entidade_v5_1.html` | `docs/m1-arquetipo-exploracao` | Mockup baseline aprovado P.O. |
