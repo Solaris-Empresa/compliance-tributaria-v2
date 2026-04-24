@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IA SOLARIS — Mockup M1 Perfil da Entidade v5.1</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; font-size: 14px; line-height: 1.6; }
+  .app { display: flex; min-height: 100vh; }
+  .sidebar { width: 260px; background: #161b27; border-right: 1px solid #1e2535; padding: 20px 0; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .main { flex: 1; overflow-x: hidden; }
+  .sidebar-logo { padding: 0 20px 20px; border-bottom: 1px solid #1e2535; }
+  .sidebar-logo .brand { font-size: 16px; font-weight: 700; color: #6366f1; }
+  .sidebar-logo .version { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .sidebar-section { padding: 16px 20px 8px; font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 1px; }
+  .sidebar-item { display: flex; align-items: center; gap: 8px; padding: 8px 20px; cursor: pointer; color: #94a3b8; font-size: 13px; transition: all 0.15s; border-left: 3px solid transparent; }
+  .sidebar-item:hover { background: #1e2535; color: #e2e8f0; }
+  .sidebar-item.active { background: #1e2535; color: #6366f1; border-left-color: #6366f1; }
+  .sidebar-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-gray { background: #475569; } .dot-yellow { background: #f59e0b; } .dot-red { background: #ef4444; } .dot-green { background: #22c55e; }
+  .page-header { background: #161b27; border-bottom: 1px solid #1e2535; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748b; }
+  .breadcrumb .sep { color: #334155; } .breadcrumb .current { color: #e2e8f0; font-weight: 500; }
+  .header-badges { display: flex; gap: 8px; align-items: center; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-pendente { background: #1e3a5f; color: #60a5fa; border: 1px solid #1d4ed8; }
+  .badge-inconsistente { background: #422006; color: #fb923c; border: 1px solid #c2410c; }
+  .badge-bloqueado { background: #3b0a0a; color: #f87171; border: 1px solid #b91c1c; }
+  .badge-confirmado { background: #052e16; color: #4ade80; border: 1px solid #15803d; }
+  .badge-info { background: #1e1b4b; color: #a5b4fc; border: 1px solid #4338ca; }
+  .badge-exploratorio { background: #1a1a2e; color: #c084fc; border: 1px solid #7c3aed; }
+  .badge-adr { background: #0c1a0c; color: #86efac; border: 1px solid #166534; font-family: monospace; }
+  .content { padding: 24px 32px; max-width: 1100px; }
+  .section-title { font-size: 18px; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; }
+  .section-subtitle { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+  .card { background: #161b27; border: 1px solid #1e2535; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .card-title { font-size: 14px; font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 8px; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .form-label .required { color: #ef4444; margin-left: 2px; }
+  .form-input { width: 100%; background: #0f1117; border: 1px solid #1e2535; border-radius: 6px; padding: 8px 12px; color: #e2e8f0; font-size: 13px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-row-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-primary { background: #6366f1; color: #fff; }
+  .btn-primary:disabled { background: #1e2535; color: #475569; cursor: not-allowed; }
+  .btn-secondary { background: #1e2535; color: #94a3b8; border: 1px solid #334155; }
+  .btn-danger { background: #3b0a0a; color: #f87171; border: 1px solid #b91c1c; }
+  .btn-success { background: #052e16; color: #4ade80; border: 1px solid #15803d; }
+  .btn-cnae { background: #1e1b4b; color: #a5b4fc; border: 1px solid #4338ca; }
+  .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+  .chip-cnae { background: #1e1b4b; color: #a5b4fc; border: 1px solid #4338ca; }
+  .chip-cnae .remove { color: #6366f1; cursor: pointer; font-size: 14px; }
+  .chip-confidence-alta { background: #052e16; color: #4ade80; }
+  .chip-confidence-media { background: #422006; color: #fb923c; }
+  .chip-confidence-baixa { background: #3b0a0a; color: #f87171; }
+  .chip-add { background: transparent; border: 1px dashed #334155; color: #64748b; cursor: pointer; }
+  .dim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .dim-card { background: #0f1117; border: 1px solid #1e2535; border-radius: 6px; padding: 14px; }
+  .dim-card.dim-filled { border-color: #1e3a5f; }
+  .dim-card.dim-conflict { border-color: #c2410c; background: #1a0a00; }
+  .dim-label { font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+  .dim-value { font-size: 13px; color: #e2e8f0; font-weight: 500; }
+  .dim-value.empty { color: #475569; font-style: italic; }
+  .dim-source { font-size: 10px; color: #475569; margin-top: 4px; }
+  .dim-source .src-cnae { color: #a5b4fc; } .dim-source .src-user { color: #4ade80; }
+  .dim-conflict-msg { font-size: 11px; color: #fb923c; margin-top: 6px; }
+  .painel { background: #161b27; border: 1px solid #1e2535; border-radius: 8px; overflow: hidden; }
+  .painel-section { padding: 16px 20px; border-bottom: 1px solid #1e2535; }
+  .painel-section:last-child { border-bottom: none; }
+  .painel-section-label { font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .painel-section-label .pc-id { background: #1e2535; padding: 1px 6px; border-radius: 4px; font-size: 9px; }
+  .score-bar-wrap { margin-bottom: 8px; }
+  .score-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
+  .score-val { font-size: 20px; font-weight: 800; }
+  .score-val.yellow { color: #f59e0b; } .score-val.green { color: #22c55e; }
+  .score-bar { height: 8px; background: #1e2535; border-radius: 4px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 4px; }
+  .score-fill.yellow { background: linear-gradient(90deg, #f59e0b, #d97706); }
+  .score-fill.green { background: linear-gradient(90deg, #22c55e, #16a34a); }
+  .score-note { font-size: 11px; color: #ef4444; background: #3b0a0a; border: 1px solid #b91c1c; border-radius: 4px; padding: 6px 10px; margin-top: 8px; }
+  .breakdown-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .breakdown-label { font-size: 12px; color: #94a3b8; width: 160px; flex-shrink: 0; }
+  .breakdown-bar { flex: 1; height: 6px; background: #1e2535; border-radius: 3px; overflow: hidden; }
+  .breakdown-fill { height: 100%; border-radius: 3px; }
+  .breakdown-fill.c1 { background: #6366f1; } .breakdown-fill.c2 { background: #8b5cf6; } .breakdown-fill.c3 { background: #a78bfa; }
+  .breakdown-pct { font-size: 11px; color: #64748b; width: 36px; text-align: right; }
+  .issue-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #1e2535; }
+  .issue-item:last-child { border-bottom: none; }
+  .issue-type { flex-shrink: 0; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; min-width: 120px; text-align: center; }
+  .issue-hard-block { background: #3b0a0a; color: #f87171; border: 1px solid #b91c1c; }
+  .issue-erro-estrutural { background: #422006; color: #fb923c; border: 1px solid #c2410c; }
+  .issue-pendente { background: #1e3a5f; color: #60a5fa; border: 1px solid #1d4ed8; }
+  .issue-info { background: #1e1b4b; color: #a5b4fc; border: 1px solid #4338ca; }
+  .issue-content { flex: 1; }
+  .issue-title { font-size: 13px; color: #e2e8f0; font-weight: 500; }
+  .issue-desc { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .issue-rule { font-size: 10px; color: #475569; margin-top: 2px; font-family: monospace; }
+  .issue-cta { flex-shrink: 0; }
+  .snapshot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .snapshot-item { background: #0f1117; border: 1px solid #1e2535; border-radius: 4px; padding: 10px; }
+  .snapshot-key { font-size: 10px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .snapshot-val { font-size: 13px; color: #e2e8f0; font-weight: 500; }
+  .gate-box { background: #0f1117; border: 1px solid #1e2535; border-radius: 6px; padding: 16px; }
+  .gate-box.gate-blocked { border-color: #b91c1c; background: #1a0505; }
+  .gate-box.gate-ready { border-color: #15803d; background: #051a0e; }
+  .gate-rule { font-size: 11px; color: #64748b; font-family: monospace; margin-bottom: 12px; }
+  .gate-rule span { color: #a5b4fc; }
+  .gate-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .modal-overlay-sim { background: #0f1117; border: 1px solid #6366f1; border-radius: 10px; padding: 0; overflow: hidden; max-width: 580px; margin: 0 auto; box-shadow: 0 0 40px rgba(99,102,241,0.3); }
+  .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid #1e2535; display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 16px; font-weight: 700; color: #e2e8f0; }
+  .modal-close { background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer; }
+  .modal-body { padding: 20px 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid #1e2535; display: flex; justify-content: flex-end; gap: 10px; }
+  .modal-cnae-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #1e2535; cursor: pointer; }
+  .modal-cnae-item:last-child { border-bottom: none; }
+  .modal-cnae-check { width: 18px; height: 18px; border: 2px solid #334155; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .modal-cnae-check.checked { background: #6366f1; border-color: #6366f1; color: #fff; font-size: 12px; }
+  .modal-cnae-code { font-size: 12px; font-family: monospace; color: #a5b4fc; min-width: 80px; }
+  .modal-cnae-desc { font-size: 13px; color: #e2e8f0; flex: 1; }
+  .state-nav { background: #161b27; border-bottom: 1px solid #1e2535; padding: 12px 32px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .state-nav-label { font-size: 11px; color: #475569; font-weight: 700; text-transform: uppercase; margin-right: 4px; }
+  .state-btn { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid #334155; background: #0f1117; color: #64748b; transition: all 0.15s; }
+  .state-btn.active { background: #6366f1; border-color: #6366f1; color: #fff; }
+  .info-box { background: #1e1b4b; border: 1px solid #4338ca; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #a5b4fc; margin-bottom: 12px; }
+  .warn-box { background: #3b0a0a; border: 1px solid #b91c1c; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #f87171; margin-bottom: 12px; }
+  .success-box { background: #052e16; border: 1px solid #15803d; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #4ade80; margin-bottom: 12px; }
+  .adr-ref { background: #0c1a0c; border: 1px solid #166534; border-radius: 4px; padding: 6px 10px; font-size: 11px; color: #86efac; font-family: monospace; margin-bottom: 8px; display: inline-block; }
+  .separador-conceitual { background: #161b27; border: 1px solid #334155; border-radius: 6px; padding: 14px; margin-bottom: 12px; }
+  .separador-conceitual .sc-title { font-size: 12px; font-weight: 700; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .separador-conceitual .sc-row { display: flex; gap: 12px; }
+  .separador-conceitual .sc-col { flex: 1; background: #0f1117; border-radius: 4px; padding: 10px; }
+  .separador-conceitual .sc-col-label { font-size: 10px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; }
+  .separador-conceitual .sc-col-label.erro { color: #fb923c; }
+  .separador-conceitual .sc-col-label.risco { color: #60a5fa; }
+  .separador-conceitual .sc-col-desc { font-size: 12px; color: #94a3b8; }
+  .separador-conceitual .sc-col-action { font-size: 11px; margin-top: 6px; font-weight: 600; }
+  .separador-conceitual .sc-col-action.erro { color: #fb923c; }
+  .separador-conceitual .sc-col-action.risco { color: #60a5fa; }
+  .state-view { display: none; }
+  .state-view.visible { display: block; }
+  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0f1117; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand">IA SOLARIS</div>
+      <div class="version">Compliance Tributária · Mockup M1 v5.1</div>
+    </div>
+    <div class="sidebar-section">Ajustes v5.1</div>
+    <div class="sidebar-item" style="font-size:11px;color:#475569">A1: Sem acknowledgeInconsistency</div>
+    <div class="sidebar-item" style="font-size:11px;color:#475569">A2: ADR-0031 + ADR-0032 referenciados</div>
+    <div class="sidebar-item" style="font-size:11px;color:#475569">A3: buildPerfilEntidade como contrato</div>
+    <div class="sidebar-item" style="font-size:11px;color:#475569">A4: Erro estrutural ≠ risco aceito</div>
+    <div class="sidebar-section">Estados</div>
+    <div class="sidebar-item" onclick="showState('s1')"><span class="dot dot-yellow"></span> S1 — Início</div>
+    <div class="sidebar-item" onclick="showState('s2')"><span class="dot dot-yellow"></span> S2 — Modal CNAEs</div>
+    <div class="sidebar-item" onclick="showState('s3')"><span class="dot dot-yellow"></span> S3 — Dimensões</div>
+    <div class="sidebar-item" onclick="showState('s4')"><span class="dot dot-yellow"></span> S4 — Painel Confiança</div>
+    <div class="sidebar-item" onclick="showState('c1')"><span class="dot dot-gray"></span> C1 — Pendente</div>
+    <div class="sidebar-item" onclick="showState('c2')"><span class="dot dot-red"></span> C2 — Inconsistente (exige correção)</div>
+    <div class="sidebar-item" onclick="showState('c3')"><span class="dot dot-red"></span> C3 — Bloqueado</div>
+    <div class="sidebar-item" onclick="showState('c4')"><span class="dot dot-green"></span> C4 — Confirmado</div>
+  </nav>
+
+  <div class="main">
+    <div class="state-nav">
+      <span class="state-nav-label">Estado:</span>
+      <button class="state-btn active" id="btn-s1" onclick="showState('s1')">S1 Início</button>
+      <button class="state-btn" id="btn-s2" onclick="showState('s2')">S2 Modal CNAEs</button>
+      <button class="state-btn" id="btn-s3" onclick="showState('s3')">S3 Dimensões</button>
+      <button class="state-btn" id="btn-s4" onclick="showState('s4')">S4 Painel</button>
+      <button class="state-btn" id="btn-c1" onclick="showState('c1')">C1 Pendente</button>
+      <button class="state-btn" id="btn-c2" onclick="showState('c2')">C2 Inconsistente</button>
+      <button class="state-btn" id="btn-c3" onclick="showState('c3')">C3 Bloqueado</button>
+      <button class="state-btn" id="btn-c4" onclick="showState('c4')">C4 Confirmado</button>
+    </div>
+
+    <!-- ==================== S1: INÍCIO ==================== -->
+    <div class="state-view visible" id="state-s1">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Projetos</span><span class="sep">/</span><span>Empresa Exemplo Ltda</span><span class="sep">/</span><span class="current">Perfil da Entidade</span></div>
+        <div class="header-badges"><span class="badge badge-pendente">● pendente</span></div>
+      </div>
+      <div class="content">
+        <div class="section-title">Perfil da Entidade</div>
+        <div class="section-subtitle">Preencha os dados para habilitar o diagnóstico tributário. Campos marcados com * são obrigatórios.</div>
+
+        <!-- ADR refs -->
+        <div style="margin-bottom:16px">
+          <span class="adr-ref">ADR-0031 · Modelo Dimensional</span>
+          <span class="adr-ref" style="margin-left:8px">ADR-0032 · Imutabilidade e Versionamento</span>
+          <span style="font-size:11px;color:#475569;margin-left:8px">branch: docs/epic-830-rag-arquetipo</span>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🏢 BLOCO 0 — Identificação</div>
+            <span class="badge badge-pendente">incompleto</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nome do Projeto <span class="required">*</span></label>
+            <input class="form-input" type="text" value="Empresa Exemplo — Diagnóstico 2026">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">CNPJ <span class="required">*</span></label>
+              <input class="form-input" type="text" value="12.345.678/0001-90">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo de Empresa <span class="required">*</span></label>
+              <select class="form-input"><option>Ltda</option></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Porte <span class="required">*</span></label>
+              <select class="form-input"><option>Média empresa</option></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Faturamento Anual <span class="required">*</span></label>
+              <select class="form-input"><option>R$ 4,8M – R$ 78M</option></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Regime Tributário <span class="required">*</span></label>
+            <select class="form-input"><option>Lucro Presumido</option></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descrição do Negócio <span class="required">*</span></label>
+            <textarea class="form-input" rows="3" placeholder="Descreva brevemente as atividades da empresa para identificação automática de CNAEs..."></textarea>
+          </div>
+          <div style="margin-bottom:16px">
+            <button class="btn btn-cnae" onclick="showState('s2')">🔍 Identificar CNAEs</button>
+            <span style="font-size:11px;color:#475569;margin-left:10px">LLM+RAG sobre descrição do negócio — usuário confirma</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">CNAEs Confirmados <span class="required">*</span></label>
+            <div style="background:#0f1117;border:1px dashed #334155;border-radius:6px;padding:16px;text-align:center;color:#475569;font-size:13px">
+              Nenhum CNAE confirmado. Use "Identificar CNAEs" para começar.
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Integra Grupo Econômico?</label>
+            <div style="display:flex;gap:12px">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#94a3b8"><input type="radio" name="grupo" checked> Não</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#94a3b8"><input type="radio" name="grupo"> Sim</label>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px">
+          <button class="btn btn-secondary">← Voltar</button>
+          <button class="btn btn-primary" disabled>Avançar para Dimensões →</button>
+        </div>
+        <div style="font-size:11px;color:#475569;text-align:right;margin-top:6px">⚠ Preencha os campos obrigatórios e confirme os CNAEs para avançar</div>
+      </div>
+    </div>
+
+    <!-- ==================== S2: MODAL CNAEs ==================== -->
+    <div class="state-view" id="state-s2">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Projetos</span><span class="sep">/</span><span>Empresa Exemplo Ltda</span><span class="sep">/</span><span class="current">Perfil da Entidade — Modal CNAEs</span></div>
+        <div class="header-badges"><span class="badge badge-pendente">● pendente</span></div>
+      </div>
+      <div class="content">
+        <div class="section-title">Identificar CNAEs</div>
+        <div class="section-subtitle">LLM sugere CNAEs com base na descrição. Usuário confirma — LLM não é fonte de verdade (ADR-0031 §Princípios).</div>
+        <div class="modal-overlay-sim">
+          <div class="modal-header">
+            <div class="modal-title">🔍 Identificar CNAEs</div>
+            <button class="modal-close" onclick="showState('s1')">✕</button>
+          </div>
+          <div class="modal-body">
+            <div style="font-size:12px;color:#64748b;margin-bottom:12px">Baseado em: <em style="color:#a5b4fc">"Empresa de distribuição de alimentos e bebidas para o varejo, com operações em 5 estados..."</em></div>
+            <div class="info-box">ℹ️ LLM pode auxiliar o usuário, mas não pode ser fonte de verdade do modelo. Confirme os CNAEs antes de avançar. (ADR-0031 §Princípio 5)</div>
+            <div class="modal-cnae-item">
+              <div class="modal-cnae-check checked">✓</div>
+              <div class="modal-cnae-code">4639-7/01</div>
+              <div class="modal-cnae-desc">Comércio atacadista de produtos alimentícios em geral</div>
+              <div><span class="chip chip-confidence-alta">Alta</span></div>
+            </div>
+            <div class="modal-cnae-item">
+              <div class="modal-cnae-check checked">✓</div>
+              <div class="modal-cnae-code">4635-4/99</div>
+              <div class="modal-cnae-desc">Comércio atacadista de bebidas não especificadas</div>
+              <div><span class="chip chip-confidence-alta">Alta</span></div>
+            </div>
+            <div class="modal-cnae-item">
+              <div class="modal-cnae-check"></div>
+              <div class="modal-cnae-code">5211-7/01</div>
+              <div class="modal-cnae-desc">Armazéns gerais — emissão de warrant</div>
+              <div><span class="chip chip-confidence-media">Média</span></div>
+            </div>
+            <div style="margin-top:12px;padding-top:12px;border-top:1px solid #1e2535">
+              <button class="btn btn-secondary" style="font-size:12px">+ Adicionar CNAE manualmente</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="showState('s1')">Cancelar</button>
+            <button class="btn btn-primary" onclick="showState('s3')">Confirmar CNAEs selecionados (2)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== S3: DIMENSÕES ==================== -->
+    <div class="state-view" id="state-s3">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Projetos</span><span class="sep">/</span><span>Empresa Exemplo Ltda</span><span class="sep">/</span><span class="current">Perfil da Entidade — Dimensões</span></div>
+        <div class="header-badges"><span class="badge badge-inconsistente">● inconsistente</span></div>
+      </div>
+      <div class="content">
+        <div class="section-title">5 Dimensões do Perfil da Entidade</div>
+        <div class="section-subtitle">Modelo dimensional canônico (ADR-0031). Cada dimensão é independente — não há produto cartesiano.</div>
+
+        <!-- ADR refs -->
+        <div style="margin-bottom:16px">
+          <span class="adr-ref">ADR-0031 · Modelo Dimensional · branch: docs/epic-830-rag-arquetipo</span>
+        </div>
+
+        <!-- SEPARADOR CONCEITUAL: Erro Estrutural vs Risco Aceito -->
+        <div class="separador-conceitual">
+          <div class="sc-title">⚠ Separação de Conceitos — Ajuste A4 (P.O.)</div>
+          <div class="sc-row">
+            <div class="sc-col">
+              <div class="sc-col-label erro">ERRO ESTRUTURAL (inconsistente)</div>
+              <div class="sc-col-desc">Conflito lógico detectado pelo motor de consistência (DET-001 a DET-005). Dado incoerente com as regras do sistema.</div>
+              <div class="sc-col-action erro">→ Exige correção dos dados. Não há override.</div>
+            </div>
+            <div class="sc-col">
+              <div class="sc-col-label risco">RISCO ACEITO (acceptRisk)</div>
+              <div class="sc-col-desc">Usuário está ciente de uma inconsistência de negócio e registra justificativa. Não é erro do sistema — é decisão consciente.</div>
+              <div class="sc-col-action risco">→ Registra ciência. NÃO libera gate. NÃO confirma perfil.</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:#475569;margin-top:10px">
+            <strong style="color:#fb923c">Regra:</strong> Estado "inconsistente" exige sempre correção dos dados. Não existe "aceitar inconsistência" para liberar o gate. O mecanismo <code>acceptRisk()</code> existe para o gate de consistência pré-diagnóstico (AS-IS), mas NÃO se aplica ao gate do Perfil da Entidade (M1 Target).
+          </div>
+        </div>
+
+        <!-- BLOCO 0 resumido -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🏢 BLOCO 0 — Identificação</div>
+            <span class="badge badge-confirmado">✓ completo</span>
+          </div>
+          <div class="form-row-4" style="margin-bottom:12px">
+            <div><span style="font-size:11px;color:#475569">CNPJ</span><br><span style="font-size:13px">12.345.678/0001-90</span></div>
+            <div><span style="font-size:11px;color:#475569">Regime</span><br><span style="font-size:13px">Lucro Presumido</span></div>
+            <div><span style="font-size:11px;color:#475569">Porte</span><br><span style="font-size:13px">Média empresa</span></div>
+            <div><span style="font-size:11px;color:#475569">Faturamento</span><br><span style="font-size:13px">R$ 4,8M – R$ 78M</span></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">CNAEs Confirmados <span class="required">*</span></label>
+            <div class="chip-group">
+              <span class="chip chip-cnae">4639-7/01 <span class="chip-confidence-alta" style="font-size:10px;margin-left:4px">Alta</span> <span class="remove">✕</span></span>
+              <span class="chip chip-cnae">4635-4/99 <span class="chip-confidence-alta" style="font-size:10px;margin-left:4px">Alta</span> <span class="remove">✕</span></span>
+              <span class="chip chip-add" onclick="showState('s2')">+ Adicionar CNAE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 DIMENSÕES -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🔷 5 Dimensões — ADR-0031</div>
+            <span class="badge badge-inconsistente">1 erro estrutural</span>
+          </div>
+
+          <div class="dim-grid">
+            <!-- DIM 1: objeto -->
+            <div class="dim-card dim-filled">
+              <div class="dim-label">objeto <span class="badge badge-confirmado" style="font-size:9px">preenchido</span></div>
+              <div class="dim-value">Alimento · Bebida</div>
+              <div class="dim-source">Fonte: <span class="src-cnae">CNAE 4639-7/01 + 4635-4/99</span></div>
+            </div>
+
+            <!-- DIM 2: papel_na_cadeia — ERRO ESTRUTURAL -->
+            <div class="dim-card dim-conflict">
+              <div class="dim-label">papel_na_cadeia <span class="badge badge-inconsistente" style="font-size:9px">erro estrutural</span></div>
+              <div class="dim-value" style="color:#fb923c">Distribuidor · Varejista ⚠</div>
+              <div class="dim-source">Fonte: <span class="src-cnae">CNAE</span> + usuário</div>
+              <div class="dim-conflict-msg">⚠ ERRO ESTRUTURAL: "Varejista" é incompatível com CNAE atacadista (4639-7/01). Corrija o papel_na_cadeia para prosseguir. (DET-002)</div>
+              <div style="margin-top:8px">
+                <button class="btn btn-danger" style="font-size:11px;padding:4px 10px">Corrigir papel_na_cadeia</button>
+              </div>
+            </div>
+
+            <!-- DIM 3: tipo_de_relacao -->
+            <div class="dim-card dim-filled">
+              <div class="dim-label">tipo_de_relacao <span class="badge badge-confirmado" style="font-size:9px">preenchido</span></div>
+              <div class="dim-value">Venda · Serviço</div>
+              <div class="dim-source">Fonte: usuário</div>
+            </div>
+
+            <!-- DIM 4: territorio -->
+            <div class="dim-card dim-filled">
+              <div class="dim-label">territorio <span class="badge badge-confirmado" style="font-size:9px">preenchido</span></div>
+              <div class="dim-value">Interestadual (5 UFs)</div>
+              <div class="dim-source">Fonte: usuário</div>
+            </div>
+
+            <!-- DIM 5: regime (span 2) -->
+            <div class="dim-card dim-filled" style="grid-column:span 2">
+              <div class="dim-label">regime <span class="badge badge-confirmado" style="font-size:9px">preenchido</span></div>
+              <div style="display:flex;gap:24px;flex-wrap:wrap">
+                <div>
+                  <div style="font-size:10px;color:#475569;margin-bottom:2px">regime_tributario</div>
+                  <div class="dim-value">Lucro Presumido</div>
+                </div>
+                <div>
+                  <div style="font-size:10px;color:#475569;margin-bottom:2px">regime_especifico[]</div>
+                  <div class="chip-group">
+                    <span class="chip chip-cnae" style="font-size:11px">Substituição Tributária</span>
+                    <span class="chip chip-add" style="font-size:11px">+ Adicionar</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="warn-box" style="margin-top:12px">
+            ⚠ <strong>Estado "inconsistente" exige correção dos dados.</strong> Não existe mecanismo de "aceitar inconsistência" para o gate do Perfil da Entidade. Corrija o erro estrutural acima para avançar.
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px">
+          <button class="btn btn-secondary">← Voltar</button>
+          <button class="btn btn-primary" onclick="showState('s4')">Ver Painel de Confiança →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== S4: PAINEL DE CONFIANÇA ==================== -->
+    <div class="state-view" id="state-s4">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Projetos</span><span class="sep">/</span><span>Empresa Exemplo Ltda</span><span class="sep">/</span><span class="current">Painel de Confiança</span></div>
+        <div class="header-badges"><span class="badge badge-inconsistente">● inconsistente</span></div>
+      </div>
+      <div class="content">
+        <div class="section-title">Painel de Confiança</div>
+        <div class="section-subtitle">Score é explicabilidade — não libera o fluxo. Gate depende de status_arquetipo = confirmado + zero erros estruturais.</div>
+
+        <div class="painel">
+          <!-- PC-01 -->
+          <div class="painel-section">
+            <div class="painel-section-label"><span class="pc-id">PC-01</span> Resumo Executivo</div>
+            <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+              <div style="flex:1;min-width:200px">
+                <div class="score-bar-wrap">
+                  <div class="score-bar-label"><span>Score de Confiança</span><span class="score-val yellow">62%</span></div>
+                  <div class="score-bar"><div class="score-fill yellow" style="width:62%"></div></div>
+                </div>
+                <div class="score-note">⚠ Score alto NÃO libera o fluxo. Gate: <code>status_arquetipo = 'confirmado'</code> AND <code>erros_estruturais.length === 0</code>. Fórmula exploratória — não implementar sem SPEC aprovada.</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div><div style="font-size:10px;color:#475569;margin-bottom:4px">Status</div><span class="badge badge-inconsistente">● inconsistente</span></div>
+                <div><div style="font-size:10px;color:#475569;margin-bottom:4px">Gate E2E</div><span class="badge badge-bloqueado">✗ não liberado</span></div>
+                <div><div style="font-size:10px;color:#475569;margin-bottom:4px">Elegibilidade</div><span class="badge badge-pendente">⏳ pending</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PC-02 -->
+          <div class="painel-section">
+            <div class="painel-section-label"><span class="pc-id">PC-02</span> Composição da Confiança <span class="badge badge-exploratorio" style="font-size:9px">fórmula exploratória</span></div>
+            <div class="breakdown-row">
+              <div class="breakdown-label">Completude (40%)</div>
+              <div class="breakdown-bar"><div class="breakdown-fill c1" style="width:75%"></div></div>
+              <div class="breakdown-pct">75%</div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-label">Inferência validada (30%)</div>
+              <div class="breakdown-bar"><div class="breakdown-fill c2" style="width:60%"></div></div>
+              <div class="breakdown-pct">60%</div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-label">Coerência (30%)</div>
+              <div class="breakdown-bar"><div class="breakdown-fill c3" style="width:40%"></div></div>
+              <div class="breakdown-pct">40%</div>
+            </div>
+            <div style="font-size:11px;color:#475569;margin-top:8px">Pesos e cálculo dependem de SPEC aprovada. Não implementar sem aprovação do P.O.</div>
+          </div>
+
+          <!-- PC-03 -->
+          <div class="painel-section">
+            <div class="painel-section-label"><span class="pc-id">PC-03</span> Erros Estruturais e Pendências</div>
+
+            <div class="issue-item">
+              <div class="issue-type issue-erro-estrutural">ERRO ESTRUTURAL</div>
+              <div class="issue-content">
+                <div class="issue-title">papel_na_cadeia × CNAE: conflito lógico</div>
+                <div class="issue-desc">Papel "Varejista" é incompatível com CNAE atacadista (4639-7/01). Corrija o dado.</div>
+                <div class="issue-rule">DET-002 · HIGH · consistencyEngine.ts:138-154 · Exige correção — sem override</div>
+              </div>
+              <div class="issue-cta"><button class="btn btn-danger" style="font-size:11px">Corrigir</button></div>
+            </div>
+
+            <div class="issue-item">
+              <div class="issue-type issue-pendente">PENDENTE</div>
+              <div class="issue-content">
+                <div class="issue-title">opera_territorio_incentivado não preenchido</div>
+                <div class="issue-desc">Campo obrigatório para completude 100%. Preencha ou confirme que não se aplica.</div>
+                <div class="issue-rule">completeness &lt; 100%</div>
+              </div>
+              <div class="issue-cta"><button class="btn btn-secondary" style="font-size:11px">Ir ao campo</button></div>
+            </div>
+
+            <div class="issue-item">
+              <div class="issue-type issue-info">INFO</div>
+              <div class="issue-content">
+                <div class="issue-title">Grupo econômico detectado</div>
+                <div class="issue-desc">isEconomicGroup=true sem tentativa de consolidação. Informativo — não bloqueia.</div>
+                <div class="issue-rule">V-05 nível A · INFO</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PC-04 -->
+          <div class="painel-section">
+            <div class="painel-section-label"><span class="pc-id">PC-04</span> Snapshot do Perfil</div>
+            <div class="snapshot-grid">
+              <div class="snapshot-item"><div class="snapshot-key">objeto</div><div class="snapshot-val">Alimento · Bebida</div></div>
+              <div class="snapshot-item"><div class="snapshot-key">papel_na_cadeia</div><div class="snapshot-val" style="color:#fb923c">Distribuidor · Varejista ⚠</div></div>
+              <div class="snapshot-item"><div class="snapshot-key">tipo_de_relacao</div><div class="snapshot-val">Venda · Serviço</div></div>
+              <div class="snapshot-item"><div class="snapshot-key">territorio</div><div class="snapshot-val">Interestadual (5 UFs)</div></div>
+              <div class="snapshot-item"><div class="snapshot-key">regime</div><div class="snapshot-val">Lucro Presumido</div></div>
+              <div class="snapshot-item"><div class="snapshot-key">cnaes[]</div><div class="snapshot-val">4639-7/01 · 4635-4/99</div></div>
+            </div>
+            <div class="warn-box" style="margin-top:12px">
+              ⚠ <strong>Erro estrutural ativo.</strong> O snapshot não pode ser confirmado enquanto houver erros estruturais. Corrija o dado e retorne.
+            </div>
+            <div class="gate-box gate-blocked" style="margin-top:12px">
+              <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span></div>
+              <div class="gate-actions">
+                <button class="btn btn-primary" disabled>Confirmar Perfil da Entidade</button>
+                <button class="btn btn-secondary" onclick="showState('s3')">← Voltar e Corrigir</button>
+              </div>
+              <div style="font-size:11px;color:#475569;margin-top:8px">Botão desabilitado: erro estrutural ativo (papel_na_cadeia × CNAE).</div>
+            </div>
+          </div>
+
+          <!-- PC-05 -->
+          <div class="painel-section">
+            <div class="painel-section-label"><span class="pc-id">PC-05</span> Prévia de Riscos <span class="badge badge-exploratorio" style="font-size:9px">EXPLORATÓRIO</span></div>
+            <div class="warn-box">⚠ <strong>Prévia exploratória.</strong> Não representa o motor de riscos real. Não bloqueia nem libera gate.</div>
+            <div style="background:#0f1117;border:1px solid #1e2535;border-radius:6px;padding:10px;font-size:12px;color:#64748b">
+              Riscos serão gerados automaticamente após confirmação do Perfil da Entidade e aprovação do Briefing (STEP 5).
+            </div>
+          </div>
+
+          <!-- PC-06 -->
+          <div class="painel-section">
+            <div class="painel-section-label"><span class="pc-id">PC-06</span> Liberação do Próximo Passo</div>
+            <div class="gate-box gate-blocked">
+              <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span></div>
+              <div style="font-size:12px;color:#f87171;margin-bottom:12px">✗ Erro estrutural ativo. Corrija antes de continuar.</div>
+              <div class="gate-actions">
+                <button class="btn btn-primary" disabled>Continuar para o Briefing →</button>
+                <button class="btn btn-secondary" onclick="showState('s3')">← Corrigir Dados</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== C1: PENDENTE ==================== -->
+    <div class="state-view" id="state-c1">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Projetos</span><span class="sep">/</span><span>Empresa Exemplo Ltda</span><span class="sep">/</span><span class="current">Confirmação do Perfil</span></div>
+        <div class="header-badges"><span class="badge badge-pendente">● pendente</span></div>
+      </div>
+      <div class="content">
+        <div style="text-align:center;padding:32px 0 24px">
+          <div style="font-size:48px;margin-bottom:12px">⏳</div>
+          <div class="section-title">Perfil Pendente</div>
+          <div class="section-subtitle" style="max-width:480px;margin:8px auto 0">Campos obrigatórios ainda não preenchidos. Complete o formulário para prosseguir.</div>
+          <span class="badge badge-pendente" style="margin-top:12px;display:inline-flex">● status_arquetipo: pendente</span>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Campos faltantes</div></div>
+          <div class="issue-item">
+            <div class="issue-type issue-pendente">PENDENTE</div>
+            <div class="issue-content"><div class="issue-title">cnaes[] vazio</div><div class="issue-desc">Nenhum CNAE confirmado.</div></div>
+            <div class="issue-cta"><button class="btn btn-secondary" style="font-size:11px" onclick="showState('s2')">Identificar CNAEs</button></div>
+          </div>
+          <div class="issue-item">
+            <div class="issue-type issue-pendente">PENDENTE</div>
+            <div class="issue-content"><div class="issue-title">papel_na_cadeia não preenchido</div><div class="issue-desc">Dimensão obrigatória (ADR-0031).</div></div>
+            <div class="issue-cta"><button class="btn btn-secondary" style="font-size:11px">Ir ao campo</button></div>
+          </div>
+        </div>
+        <div class="gate-box">
+          <div class="gate-rule">Gate: <span>completeness === 100%</span> AND <span>erros_estruturais.length === 0</span> AND <span>CTA acionado</span></div>
+          <div class="gate-actions">
+            <button class="btn btn-primary" disabled>Confirmar Perfil da Entidade</button>
+            <button class="btn btn-secondary" onclick="showState('s1')">← Voltar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== C2: INCONSISTENTE — EXIGE CORREÇÃO ==================== -->
+    <div class="state-view" id="state-c2">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Projetos</span><span class="sep">/</span><span>Empresa Exemplo Ltda</span><span class="sep">/</span><span class="current">Confirmação do Perfil</span></div>
+        <div class="header-badges"><span class="badge badge-inconsistente">● inconsistente</span></div>
+      </div>
+      <div class="content">
+        <div style="text-align:center;padding:32px 0 24px">
+          <div style="font-size:48px;margin-bottom:12px">⚠️</div>
+          <div class="section-title">Perfil Inconsistente — Exige Correção</div>
+          <div class="section-subtitle" style="max-width:520px;margin:8px auto 0">
+            Erro estrutural detectado. <strong>O estado "inconsistente" exige sempre correção dos dados.</strong> Não há mecanismo de "aceitar inconsistência" para liberar o gate do Perfil da Entidade.
+          </div>
+          <span class="badge badge-inconsistente" style="margin-top:12px;display:inline-flex">● status_arquetipo: inconsistente · eligibility: pending</span>
+        </div>
+
+        <!-- SEPARADOR CONCEITUAL em destaque -->
+        <div class="separador-conceitual">
+          <div class="sc-title">Erro Estrutural ≠ Risco Aceito (Ajuste A4)</div>
+          <div class="sc-row">
+            <div class="sc-col">
+              <div class="sc-col-label erro">ESTE ESTADO: Erro Estrutural</div>
+              <div class="sc-col-desc">Conflito lógico entre dados declarados e regras do sistema. O dado está errado — não é uma escolha de negócio.</div>
+              <div class="sc-col-action erro">→ Único caminho: corrigir o dado.</div>
+            </div>
+            <div class="sc-col">
+              <div class="sc-col-label risco">NÃO SE APLICA AQUI: Risco Aceito</div>
+              <div class="sc-col-desc">O mecanismo <code>acceptRisk()</code> (consistencyRouter.ts) existe para o gate de consistência pré-diagnóstico (AS-IS). Não se aplica ao gate M1.</div>
+              <div class="sc-col-action risco">→ Fora do escopo desta tela.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Erros estruturais a corrigir</div></div>
+          <div class="issue-item">
+            <div class="issue-type issue-erro-estrutural">ERRO ESTRUTURAL</div>
+            <div class="issue-content">
+              <div class="issue-title">papel_na_cadeia × CNAE: conflito lógico</div>
+              <div class="issue-desc">Papel "Varejista" é incompatível com CNAE atacadista (4639-7/01). Corrija o papel para "Distribuidor".</div>
+              <div class="issue-rule">DET-002 · HIGH · Exige correção — sem override no gate M1</div>
+            </div>
+            <div class="issue-cta"><button class="btn btn-danger" style="font-size:11px" onclick="showState('s3')">Corrigir dados</button></div>
+          </div>
+        </div>
+
+        <div class="gate-box gate-blocked">
+          <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span></div>
+          <div style="font-size:12px;color:#f87171;margin-bottom:12px">✗ Erro estrutural ativo. Corrija os dados para habilitar a confirmação.</div>
+          <div class="gate-actions">
+            <button class="btn btn-primary" disabled>Confirmar Perfil da Entidade</button>
+            <button class="btn btn-secondary" onclick="showState('s3')">← Corrigir Dados</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== C3: BLOQUEADO ==================== -->
+    <div class="state-view" id="state-c3">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Projetos</span><span class="sep">/</span><span>Empresa Exemplo Ltda</span><span class="sep">/</span><span class="current">Confirmação do Perfil</span></div>
+        <div class="header-badges"><span class="badge badge-bloqueado">● bloqueado</span></div>
+      </div>
+      <div class="content">
+        <div style="text-align:center;padding:32px 0 24px">
+          <div style="font-size:48px;margin-bottom:12px">🚫</div>
+          <div class="section-title">Perfil Bloqueado</div>
+          <div class="section-subtitle" style="max-width:520px;margin:8px auto 0">HARD BLOCK ativo. O perfil não pode ser confirmado. Score alto não libera este estado.</div>
+          <span class="badge badge-bloqueado" style="margin-top:12px;display:inline-flex">● status_arquetipo: bloqueado · eligibility: denied</span>
+        </div>
+        <div class="warn-box">⚠ <strong>Score alto NÃO libera o fluxo com HARD_BLOCK ativo.</strong> Gate: <code>status_arquetipo = 'confirmado'</code> AND <code>erros_estruturais.length === 0</code>.</div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Bloqueadores ativos</div></div>
+          <div class="issue-item">
+            <div class="issue-type issue-hard-block">HARD_BLOCK</div>
+            <div class="issue-content">
+              <div class="issue-title">Regime tributário × faturamento: incompatível</div>
+              <div class="issue-desc">MEI com faturamento acima do limite legal. Corrija o regime ou o faturamento.</div>
+              <div class="issue-rule">DET-001 · CRITICAL · eligibility = denied · sem override no E2E (mudança intencional v3.1)</div>
+            </div>
+            <div class="issue-cta"><button class="btn btn-danger" style="font-size:11px">Corrigir</button></div>
+          </div>
+          <div class="issue-item">
+            <div class="issue-type issue-hard-block">HARD_BLOCK</div>
+            <div class="issue-content">
+              <div class="issue-title">V-LC: CNPJ inválido</div>
+              <div class="issue-desc">O CNPJ não passou na validação (checksum). Corrija antes de prosseguir.</div>
+              <div class="issue-rule">V-LC · validação local</div>
+            </div>
+            <div class="issue-cta"><button class="btn btn-danger" style="font-size:11px">Corrigir</button></div>
+          </div>
+        </div>
+        <div class="gate-box gate-blocked">
+          <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span></div>
+          <div style="font-size:12px;color:#f87171;margin-bottom:12px">✗ 2 HARD_BLOCKs ativos. Resolva todos para habilitar a confirmação.</div>
+          <div class="gate-actions">
+            <button class="btn btn-primary" disabled>Confirmar Perfil da Entidade</button>
+            <button class="btn btn-secondary" onclick="showState('s3')">← Voltar e Corrigir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== C4: CONFIRMADO ==================== -->
+    <div class="state-view" id="state-c4">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Projetos</span><span class="sep">/</span><span>Empresa Exemplo Ltda</span><span class="sep">/</span><span class="current">Confirmação do Perfil</span></div>
+        <div class="header-badges"><span class="badge badge-confirmado">● confirmado</span></div>
+      </div>
+      <div class="content">
+        <div style="text-align:center;padding:32px 0 24px">
+          <div style="font-size:48px;margin-bottom:12px">✅</div>
+          <div class="section-title">Perfil da Entidade Confirmado</div>
+          <div class="section-subtitle" style="max-width:520px;margin:8px auto 0">Completude 100% · Zero erros estruturais · Confirmado pelo usuário via CTA. Gate E2E liberado.</div>
+          <span class="badge badge-confirmado" style="margin-top:12px;display:inline-flex">● status_arquetipo: confirmado · eligibility: allowed</span>
+        </div>
+
+        <div class="success-box">✓ Perfil confirmado. <code>status_arquetipo = 'confirmado'</code> AND <code>eligibility.overall = 'allowed'</code>.</div>
+
+        <!-- ADR-0032: snapshot imutável -->
+        <div class="info-box">
+          <span class="adr-ref">ADR-0032 · Imutabilidade</span>
+          Perfil confirmado é imutável. Qualquer alteração gera novo snapshot (nova versão). Histórico preservado. Briefing gerado a partir deste snapshot é imutável.
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Snapshot confirmado (imutável — ADR-0032)</div></div>
+          <div class="snapshot-grid">
+            <div class="snapshot-item"><div class="snapshot-key">objeto</div><div class="snapshot-val">Alimento · Bebida</div></div>
+            <div class="snapshot-item"><div class="snapshot-key">papel_na_cadeia</div><div class="snapshot-val">Distribuidor</div></div>
+            <div class="snapshot-item"><div class="snapshot-key">tipo_de_relacao</div><div class="snapshot-val">Venda · Serviço</div></div>
+            <div class="snapshot-item"><div class="snapshot-key">territorio</div><div class="snapshot-val">Interestadual (5 UFs)</div></div>
+            <div class="snapshot-item"><div class="snapshot-key">regime</div><div class="snapshot-val">Lucro Presumido</div></div>
+            <div class="snapshot-item"><div class="snapshot-key">cnaes[]</div><div class="snapshot-val">4639-7/01 · 4635-4/99</div></div>
+            <div class="snapshot-item"><div class="snapshot-key">model_version</div><div class="snapshot-val" style="font-family:monospace;font-size:12px">m1-v1.0.0</div></div>
+            <div class="snapshot-item"><div class="snapshot-key">data_version</div><div class="snapshot-val" style="font-family:monospace;font-size:12px">2026-04-24T...</div></div>
+          </div>
+        </div>
+
+        <div class="gate-box gate-ready">
+          <div class="gate-rule">Gate liberado: <span>status_arquetipo === 'confirmado'</span> AND <span>erros_estruturais.length === 0</span></div>
+          <div class="gate-actions">
+            <button class="btn btn-success">Continuar para o Briefing →</button>
+            <button class="btn btn-secondary">Iniciar Nova Versão do Perfil</button>
+            <button class="btn btn-secondary" onclick="showState('s4')">← Ver Painel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function showState(id) {
+    document.querySelectorAll('.state-view').forEach(el => el.classList.remove('visible'));
+    document.querySelectorAll('.state-btn').forEach(el => el.classList.remove('active'));
+    const target = document.getElementById('state-' + id);
+    if (target) target.classList.add('visible');
+    const btn = document.getElementById('btn-' + id);
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.sidebar-item').forEach(el => {
+      el.classList.remove('active');
+      if (el.getAttribute('onclick') && el.getAttribute('onclick').includes("'" + id + "'")) el.classList.add('active');
+    });
+  }
+</script>
+</body>
+</html>
