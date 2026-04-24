@@ -144,6 +144,7 @@ function derivePapel(seed: Seed): PapelNaCadeia {
 
 const FONTE_RECEITA_TO_RELACAO: ReadonlyMap<string, TipoDeRelacao> = new Map([
   ["Venda de mercadoria", "venda"],
+  ["Producao propria", "producao"],
   ["Prestacao de servico", "servico"],
   ["Assinatura/mensalidade", "servico"],
   ["Comissao/intermediacao", "intermediacao"],

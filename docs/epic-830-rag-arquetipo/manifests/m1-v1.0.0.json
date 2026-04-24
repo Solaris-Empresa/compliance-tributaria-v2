@@ -128,5 +128,5 @@
     "Q-D3: regime dimensional (simples|presumido|real|mei|indefinido) ortogonal a regime_especifico[] contextual — regime principal NUNCA substituido por regime especial setorial",
     "Q-D3 + D-LC-4: C4-01 (operadora_regulada + simples_nacional) NAO dispara se regime_especifico.length > 0 (excecao legal pode aplicar)"
   ],
-  "version": "m1-v1.0.0"
+  "version": "m1-v1.1.0"
 }
