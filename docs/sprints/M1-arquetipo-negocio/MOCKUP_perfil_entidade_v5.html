@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IA SOLARIS — Mockup M1 Perfil da Entidade v5</title>
+<style>
+  /* ===================== RESET & BASE ===================== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; font-size: 14px; line-height: 1.6; }
+
+  /* ===================== LAYOUT ===================== */
+  .app { display: flex; min-height: 100vh; }
+  .sidebar { width: 260px; background: #161b27; border-right: 1px solid #1e2535; padding: 20px 0; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .main { flex: 1; overflow-x: hidden; }
+
+  /* ===================== SIDEBAR ===================== */
+  .sidebar-logo { padding: 0 20px 20px; border-bottom: 1px solid #1e2535; }
+  .sidebar-logo .brand { font-size: 16px; font-weight: 700; color: #6366f1; }
+  .sidebar-logo .version { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .sidebar-section { padding: 16px 20px 8px; font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 1px; }
+  .sidebar-item { display: flex; align-items: center; gap: 8px; padding: 8px 20px; cursor: pointer; color: #94a3b8; font-size: 13px; transition: all 0.15s; border-left: 3px solid transparent; }
+  .sidebar-item:hover { background: #1e2535; color: #e2e8f0; }
+  .sidebar-item.active { background: #1e2535; color: #6366f1; border-left-color: #6366f1; }
+  .sidebar-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-gray { background: #475569; }
+  .dot-yellow { background: #f59e0b; }
+  .dot-red { background: #ef4444; }
+  .dot-green { background: #22c55e; }
+
+  /* ===================== HEADER ===================== */
+  .page-header { background: #161b27; border-bottom: 1px solid #1e2535; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748b; }
+  .breadcrumb .sep { color: #334155; }
+  .breadcrumb .current { color: #e2e8f0; font-weight: 500; }
+  .header-badges { display: flex; gap: 8px; align-items: center; }
+
+  /* ===================== BADGES & STATUS ===================== */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-pendente { background: #1e3a5f; color: #60a5fa; border: 1px solid #1d4ed8; }
+  .badge-inconsistente { background: #422006; color: #fb923c; border: 1px solid #c2410c; }
+  .badge-bloqueado { background: #3b0a0a; color: #f87171; border: 1px solid #b91c1c; }
+  .badge-confirmado { background: #052e16; color: #4ade80; border: 1px solid #15803d; }
+  .badge-info { background: #1e1b4b; color: #a5b4fc; border: 1px solid #4338ca; }
+  .badge-exploratorio { background: #1a1a2e; color: #c084fc; border: 1px solid #7c3aed; }
+  .badge-gap { background: #2d1b00; color: #fbbf24; border: 1px solid #d97706; }
+
+  /* ===================== CONTENT AREA ===================== */
+  .content { padding: 24px 32px; max-width: 1100px; }
+  .section-title { font-size: 18px; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; }
+  .section-subtitle { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+
+  /* ===================== CARDS ===================== */
+  .card { background: #161b27; border: 1px solid #1e2535; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .card-title { font-size: 14px; font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 8px; }
+  .card-title .icon { font-size: 16px; }
+
+  /* ===================== FORM ELEMENTS ===================== */
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .form-label .required { color: #ef4444; margin-left: 2px; }
+  .form-input { width: 100%; background: #0f1117; border: 1px solid #1e2535; border-radius: 6px; padding: 8px 12px; color: #e2e8f0; font-size: 13px; }
+  .form-input:focus { outline: none; border-color: #6366f1; }
+  .form-input.filled { border-color: #1e3a5f; }
+  .form-input.error { border-color: #ef4444; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* ===================== BUTTONS ===================== */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-primary { background: #6366f1; color: #fff; }
+  .btn-primary:hover { background: #4f46e5; }
+  .btn-primary:disabled { background: #1e2535; color: #475569; cursor: not-allowed; }
+  .btn-secondary { background: #1e2535; color: #94a3b8; border: 1px solid #334155; }
+  .btn-secondary:hover { background: #2d3748; color: #e2e8f0; }
+  .btn-danger { background: #3b0a0a; color: #f87171; border: 1px solid #b91c1c; }
+  .btn-success { background: #052e16; color: #4ade80; border: 1px solid #15803d; }
+  .btn-cnae { background: #1e1b4b; color: #a5b4fc; border: 1px solid #4338ca; }
+  .btn-cnae:hover { background: #2e2b5b; }
+
+  /* ===================== CHIPS / TAGS ===================== */
+  .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+  .chip-cnae { background: #1e1b4b; color: #a5b4fc; border: 1px solid #4338ca; }
+  .chip-cnae .remove { color: #6366f1; cursor: pointer; font-size: 14px; line-height: 1; }
+  .chip-confidence-alta { background: #052e16; color: #4ade80; }
+  .chip-confidence-media { background: #422006; color: #fb923c; }
+  .chip-confidence-baixa { background: #3b0a0a; color: #f87171; }
+  .chip-add { background: transparent; border: 1px dashed #334155; color: #64748b; cursor: pointer; }
+  .chip-add:hover { border-color: #6366f1; color: #6366f1; }
+
+  /* ===================== DIMENSÕES ===================== */
+  .dim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .dim-card { background: #0f1117; border: 1px solid #1e2535; border-radius: 6px; padding: 14px; }
+  .dim-card.dim-filled { border-color: #1e3a5f; }
+  .dim-card.dim-conflict { border-color: #c2410c; background: #1a0a00; }
+  .dim-card.dim-fallback { border-color: #334155; background: #0f1117; opacity: 0.7; }
+  .dim-label { font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+  .dim-value { font-size: 13px; color: #e2e8f0; font-weight: 500; }
+  .dim-value.empty { color: #475569; font-style: italic; }
+  .dim-source { font-size: 10px; color: #475569; margin-top: 4px; }
+  .dim-source .src-cnae { color: #a5b4fc; }
+  .dim-source .src-user { color: #4ade80; }
+  .dim-source .src-infer { color: #fb923c; }
+  .dim-conflict-msg { font-size: 11px; color: #fb923c; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+  .dim-fallback-msg { font-size: 11px; color: #64748b; margin-top: 6px; font-style: italic; }
+
+  /* ===================== PAINEL DE CONFIANÇA ===================== */
+  .painel { background: #161b27; border: 1px solid #1e2535; border-radius: 8px; overflow: hidden; }
+  .painel-header { padding: 16px 20px; border-bottom: 1px solid #1e2535; display: flex; align-items: center; justify-content: space-between; }
+  .painel-title { font-size: 13px; font-weight: 700; color: #e2e8f0; }
+  .painel-section { padding: 16px 20px; border-bottom: 1px solid #1e2535; }
+  .painel-section:last-child { border-bottom: none; }
+  .painel-section-label { font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .painel-section-label .pc-id { background: #1e2535; padding: 1px 6px; border-radius: 4px; font-size: 9px; }
+
+  /* Score bar */
+  .score-bar-wrap { margin-bottom: 8px; }
+  .score-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
+  .score-bar-label .score-val { font-size: 20px; font-weight: 800; }
+  .score-bar-label .score-val.red { color: #ef4444; }
+  .score-bar-label .score-val.yellow { color: #f59e0b; }
+  .score-bar-label .score-val.green { color: #22c55e; }
+  .score-bar { height: 8px; background: #1e2535; border-radius: 4px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+  .score-fill.red { background: linear-gradient(90deg, #ef4444, #dc2626); }
+  .score-fill.yellow { background: linear-gradient(90deg, #f59e0b, #d97706); }
+  .score-fill.green { background: linear-gradient(90deg, #22c55e, #16a34a); }
+  .score-note { font-size: 11px; color: #ef4444; background: #3b0a0a; border: 1px solid #b91c1c; border-radius: 4px; padding: 6px 10px; margin-top: 8px; }
+
+  /* Breakdown */
+  .breakdown-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .breakdown-label { font-size: 12px; color: #94a3b8; width: 140px; flex-shrink: 0; }
+  .breakdown-bar { flex: 1; height: 6px; background: #1e2535; border-radius: 3px; overflow: hidden; }
+  .breakdown-fill { height: 100%; border-radius: 3px; }
+  .breakdown-fill.c1 { background: #6366f1; }
+  .breakdown-fill.c2 { background: #8b5cf6; }
+  .breakdown-fill.c3 { background: #a78bfa; }
+  .breakdown-pct { font-size: 11px; color: #64748b; width: 36px; text-align: right; }
+
+  /* Issues list */
+  .issue-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #1e2535; }
+  .issue-item:last-child { border-bottom: none; }
+  .issue-type { flex-shrink: 0; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; min-width: 110px; text-align: center; }
+  .issue-hard-block { background: #3b0a0a; color: #f87171; border: 1px solid #b91c1c; }
+  .issue-pendente-critico { background: #422006; color: #fb923c; border: 1px solid #c2410c; }
+  .issue-pendente { background: #1e3a5f; color: #60a5fa; border: 1px solid #1d4ed8; }
+  .issue-info { background: #1e1b4b; color: #a5b4fc; border: 1px solid #4338ca; }
+  .issue-content { flex: 1; }
+  .issue-title { font-size: 13px; color: #e2e8f0; font-weight: 500; }
+  .issue-desc { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .issue-rule { font-size: 10px; color: #475569; margin-top: 2px; font-family: monospace; }
+  .issue-cta { flex-shrink: 0; }
+
+  /* Snapshot */
+  .snapshot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .snapshot-item { background: #0f1117; border: 1px solid #1e2535; border-radius: 4px; padding: 10px; }
+  .snapshot-key { font-size: 10px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .snapshot-val { font-size: 13px; color: #e2e8f0; font-weight: 500; }
+  .snapshot-val.empty { color: #475569; font-style: italic; }
+
+  /* Gate CTA */
+  .gate-box { background: #0f1117; border: 1px solid #1e2535; border-radius: 6px; padding: 16px; }
+  .gate-box.gate-blocked { border-color: #b91c1c; background: #1a0505; }
+  .gate-box.gate-ready { border-color: #15803d; background: #051a0e; }
+  .gate-rule { font-size: 11px; color: #64748b; font-family: monospace; margin-bottom: 12px; }
+  .gate-rule span { color: #a5b4fc; }
+  .gate-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* ===================== MODAL ===================== */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .modal { background: #161b27; border: 1px solid #1e2535; border-radius: 10px; width: 560px; max-height: 80vh; overflow-y: auto; }
+  .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid #1e2535; display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 16px; font-weight: 700; color: #e2e8f0; }
+  .modal-close { background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer; }
+  .modal-body { padding: 20px 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid #1e2535; display: flex; justify-content: flex-end; gap: 10px; }
+  .modal-cnae-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #1e2535; cursor: pointer; }
+  .modal-cnae-item:hover { background: #1e2535; margin: 0 -24px; padding: 10px 24px; }
+  .modal-cnae-item:last-child { border-bottom: none; }
+  .modal-cnae-check { width: 18px; height: 18px; border: 2px solid #334155; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .modal-cnae-check.checked { background: #6366f1; border-color: #6366f1; color: #fff; font-size: 12px; }
+  .modal-cnae-code { font-size: 12px; font-family: monospace; color: #a5b4fc; min-width: 80px; }
+  .modal-cnae-desc { font-size: 13px; color: #e2e8f0; flex: 1; }
+  .modal-cnae-confidence { flex-shrink: 0; }
+
+  /* ===================== TABS ===================== */
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid #1e2535; margin-bottom: 24px; }
+  .tab { padding: 10px 20px; font-size: 13px; font-weight: 500; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .tab:hover { color: #94a3b8; }
+  .tab.active { color: #6366f1; border-bottom-color: #6366f1; }
+
+  /* ===================== CONFIRMAÇÃO TELA ===================== */
+  .confirm-screen { min-height: 100vh; display: flex; flex-direction: column; }
+  .confirm-hero { padding: 32px; text-align: center; border-bottom: 1px solid #1e2535; }
+  .confirm-status-icon { font-size: 48px; margin-bottom: 12px; }
+  .confirm-title { font-size: 22px; font-weight: 800; color: #f1f5f9; margin-bottom: 8px; }
+  .confirm-desc { font-size: 14px; color: #64748b; max-width: 520px; margin: 0 auto; }
+  .confirm-body { padding: 24px 32px; display: grid; grid-template-columns: 1fr 360px; gap: 24px; }
+  .confirm-blockers { }
+  .confirm-sidebar { }
+
+  /* ===================== RASTREABILIDADE ===================== */
+  .trace-item { background: #0f1117; border: 1px solid #1e2535; border-radius: 6px; padding: 12px; margin-bottom: 8px; }
+  .trace-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .trace-type { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+  .trace-type-error { background: #3b0a0a; color: #f87171; }
+  .trace-type-risk { background: #422006; color: #fb923c; }
+  .trace-type-infer { background: #1e1b4b; color: #a5b4fc; }
+  .trace-rule { font-size: 11px; font-family: monospace; color: #64748b; }
+  .trace-msg { font-size: 13px; color: #e2e8f0; }
+  .trace-source { font-size: 11px; color: #475569; margin-top: 4px; }
+  .trace-source .src { font-family: monospace; color: #a5b4fc; }
+
+  /* ===================== STATE NAVIGATOR ===================== */
+  .state-nav { background: #161b27; border-bottom: 1px solid #1e2535; padding: 12px 32px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .state-nav-label { font-size: 11px; color: #475569; font-weight: 700; text-transform: uppercase; margin-right: 4px; }
+  .state-btn { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid #334155; background: #0f1117; color: #64748b; transition: all 0.15s; }
+  .state-btn:hover { border-color: #6366f1; color: #a5b4fc; }
+  .state-btn.active { background: #6366f1; border-color: #6366f1; color: #fff; }
+
+  /* ===================== DIVIDER ===================== */
+  .divider { border: none; border-top: 1px solid #1e2535; margin: 20px 0; }
+  .info-box { background: #1e1b4b; border: 1px solid #4338ca; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #a5b4fc; margin-bottom: 12px; }
+  .warn-box { background: #3b0a0a; border: 1px solid #b91c1c; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #f87171; margin-bottom: 12px; }
+  .success-box { background: #052e16; border: 1px solid #15803d; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #4ade80; margin-bottom: 12px; }
+
+  /* ===================== HIDDEN STATES ===================== */
+  .state-view { display: none; }
+  .state-view.visible { display: block; }
+
+  /* ===================== SCROLLBAR ===================== */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #0f1117; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ===================== APP LAYOUT ===================== -->
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand">IA SOLARIS</div>
+      <div class="version">Compliance Tributária · Mockup M1 v5</div>
+    </div>
+    <div class="sidebar-section">Fluxo Principal</div>
+    <div class="sidebar-item">
+      <span class="dot dot-green"></span> STEP 1 — Formulário
+    </div>
+    <div class="sidebar-item active">
+      <span class="dot dot-yellow"></span> M1 — Perfil da Entidade
+    </div>
+    <div class="sidebar-item" style="opacity:0.4">
+      <span class="dot dot-gray"></span> STEP 2 — Questionário SOLARIS
+    </div>
+    <div class="sidebar-item" style="opacity:0.4">
+      <span class="dot dot-gray"></span> STEP 3 — Questionário IA Gen
+    </div>
+    <div class="sidebar-item" style="opacity:0.4">
+      <span class="dot dot-gray"></span> STEP 4 — Briefing
+    </div>
+    <div class="sidebar-item" style="opacity:0.4">
+      <span class="dot dot-gray"></span> STEP 5 — Matriz de Riscos
+    </div>
+    <div class="sidebar-item" style="opacity:0.4">
+      <span class="dot dot-gray"></span> STEP 6 — Plano de Ação
+    </div>
+    <div class="sidebar-item" style="opacity:0.4">
+      <span class="dot dot-gray"></span> STEP 7 — Consolidação
+    </div>
+    <div class="sidebar-section">Artefatos v5</div>
+    <div class="sidebar-item" onclick="showState('s1')">
+      <span class="dot dot-gray"></span> S1 — Início (sem CNAEs)
+    </div>
+    <div class="sidebar-item" onclick="showState('s2')">
+      <span class="dot dot-gray"></span> S2 — Modal CNAEs
+    </div>
+    <div class="sidebar-item" onclick="showState('s3')">
+      <span class="dot dot-gray"></span> S3 — CNAEs + 5 Dimensões
+    </div>
+    <div class="sidebar-item" onclick="showState('s4')">
+      <span class="dot dot-gray"></span> S4 — Painel Confiança
+    </div>
+    <div class="sidebar-item" onclick="showState('c1')">
+      <span class="dot dot-gray"></span> C1 — Confirmação: Pendente
+    </div>
+    <div class="sidebar-item" onclick="showState('c2')">
+      <span class="dot dot-gray"></span> C2 — Confirmação: Inconsistente
+    </div>
+    <div class="sidebar-item" onclick="showState('c3')">
+      <span class="dot dot-gray"></span> C3 — Confirmação: Bloqueado
+    </div>
+    <div class="sidebar-item" onclick="showState('c4')">
+      <span class="dot dot-gray"></span> C4 — Confirmação: Confirmado
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- STATE NAVIGATOR -->
+    <div class="state-nav">
+      <span class="state-nav-label">Estado:</span>
+      <button class="state-btn active" id="btn-s1" onclick="showState('s1')">S1 Início</button>
+      <button class="state-btn" id="btn-s2" onclick="showState('s2')">S2 Modal CNAEs</button>
+      <button class="state-btn" id="btn-s3" onclick="showState('s3')">S3 Dimensões</button>
+      <button class="state-btn" id="btn-s4" onclick="showState('s4')">S4 Painel</button>
+      <button class="state-btn" id="btn-c1" onclick="showState('c1')">C1 Pendente</button>
+      <button class="state-btn" id="btn-c2" onclick="showState('c2')">C2 Inconsistente</button>
+      <button class="state-btn" id="btn-c3" onclick="showState('c3')">C3 Bloqueado</button>
+      <button class="state-btn" id="btn-c4" onclick="showState('c4')">C4 Confirmado</button>
+    </div>
+
+    <!-- ==================== S1: INÍCIO ==================== -->
+    <div class="state-view visible" id="state-s1">
+      <div class="page-header">
+        <div class="breadcrumb">
+          <span>Projetos</span><span class="sep">/</span>
+          <span>Empresa Exemplo Ltda</span><span class="sep">/</span>
+          <span class="current">Perfil da Entidade</span>
+        </div>
+        <div class="header-badges">
+          <span class="badge badge-pendente">● pendente</span>
+          <span style="font-size:11px;color:#475569">STEP M1</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="section-title">Perfil da Entidade</div>
+        <div class="section-subtitle">Preencha os dados para habilitar o diagnóstico tributário. Campos marcados com * são obrigatórios.</div>
+
+        <!-- BLOCO 0: IDENTIFICAÇÃO -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">🏢</span> BLOCO 0 — Identificação</div>
+            <span class="badge badge-pendente">incompleto</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nome do Projeto <span class="required">*</span></label>
+            <input class="form-input" type="text" placeholder="Ex: Diagnóstico Tributário 2026" value="Empresa Exemplo — Diagnóstico 2026">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">CNPJ <span class="required">*</span></label>
+              <input class="form-input filled" type="text" value="12.345.678/0001-90">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo de Empresa <span class="required">*</span></label>
+              <select class="form-input filled">
+                <option>Ltda</option>
+                <option>S.A.</option>
+                <option>MEI</option>
+                <option>Eireli</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Porte <span class="required">*</span></label>
+              <select class="form-input filled">
+                <option>Média empresa</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Faturamento Anual <span class="required">*</span></label>
+              <select class="form-input filled">
+                <option>R$ 4,8M – R$ 78M</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Regime Tributário <span class="required">*</span></label>
+            <select class="form-input filled">
+              <option>Lucro Presumido</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Descrição do Negócio <span class="required">*</span></label>
+            <textarea class="form-input" rows="3" placeholder="Descreva brevemente as atividades da empresa para identificação automática de CNAEs..."></textarea>
+          </div>
+
+          <!-- B0-02: Botão Identificar CNAEs — após descricao_negocio -->
+          <div style="margin-bottom:16px">
+            <button class="btn btn-cnae" onclick="showState('s2')">
+              🔍 Identificar CNAEs
+            </button>
+            <span style="font-size:11px;color:#475569;margin-left:10px">Baseado na descrição do negócio (LLM+RAG)</span>
+          </div>
+
+          <!-- CNAEs: estado vazio -->
+          <div class="form-group">
+            <label class="form-label">CNAEs Confirmados <span class="required">*</span></label>
+            <div style="background:#0f1117;border:1px dashed #334155;border-radius:6px;padding:16px;text-align:center;color:#475569;font-size:13px">
+              Nenhum CNAE confirmado. Use "Identificar CNAEs" para começar.
+            </div>
+          </div>
+
+          <!-- Grupo Econômico -->
+          <div class="form-group">
+            <label class="form-label">Integra Grupo Econômico?</label>
+            <div style="display:flex;gap:12px">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#94a3b8">
+                <input type="radio" name="grupo" value="nao" checked> Não
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#94a3b8">
+                <input type="radio" name="grupo" value="sim"> Sim
+              </label>
+            </div>
+            <div class="info-box" style="margin-top:8px">
+              ℹ️ Grupo econômico sem tentativa de consolidação é <strong>informativo</strong> — não bloqueia o fluxo. Apenas a tentativa de consolidação multi-CNPJ dispara bloqueio (V-05).
+            </div>
+          </div>
+        </div>
+
+        <!-- Botão Avançar — NÃO abre modal CNAE -->
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+          <button class="btn btn-secondary">← Voltar</button>
+          <button class="btn btn-primary" disabled>Avançar para Dimensões →</button>
+        </div>
+        <div style="font-size:11px;color:#475569;text-align:right;margin-top:6px">
+          ⚠ Preencha os campos obrigatórios e confirme os CNAEs para avançar
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== S2: MODAL CNAEs ==================== -->
+    <div class="state-view" id="state-s2">
+      <div class="page-header">
+        <div class="breadcrumb">
+          <span>Projetos</span><span class="sep">/</span>
+          <span>Empresa Exemplo Ltda</span><span class="sep">/</span>
+          <span class="current">Perfil da Entidade — Modal CNAEs</span>
+        </div>
+        <div class="header-badges">
+          <span class="badge badge-pendente">● pendente</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="section-title">Perfil da Entidade</div>
+        <div class="section-subtitle">Modal de identificação de CNAEs aberto.</div>
+
+        <!-- MODAL OVERLAY SIMULADO -->
+        <div style="background:#0f1117;border:1px solid #6366f1;border-radius:10px;padding:0;overflow:hidden;max-width:580px;margin:0 auto;box-shadow:0 0 40px rgba(99,102,241,0.3)">
+          <div class="modal-header">
+            <div class="modal-title">🔍 Identificar CNAEs</div>
+            <button class="modal-close" onclick="showState('s1')">✕</button>
+          </div>
+          <div class="modal-body">
+            <div style="font-size:12px;color:#64748b;margin-bottom:12px">
+              Baseado em: <em style="color:#a5b4fc">"Empresa de distribuição de alimentos e bebidas para o varejo, com operações em 5 estados..."</em>
+            </div>
+            <div style="font-size:11px;color:#475569;margin-bottom:16px">
+              Selecione os CNAEs que se aplicam à empresa. Você pode adicionar manualmente se necessário.
+            </div>
+
+            <!-- CNAE items com confidence -->
+            <div class="modal-cnae-item">
+              <div class="modal-cnae-check checked">✓</div>
+              <div class="modal-cnae-code">4639-7/01</div>
+              <div class="modal-cnae-desc">Comércio atacadista de produtos alimentícios em geral</div>
+              <div class="modal-cnae-confidence"><span class="chip chip-confidence-alta">Alta</span></div>
+            </div>
+            <div class="modal-cnae-item">
+              <div class="modal-cnae-check checked">✓</div>
+              <div class="modal-cnae-code">4635-4/99</div>
+              <div class="modal-cnae-desc">Comércio atacadista de bebidas não especificadas</div>
+              <div class="modal-cnae-confidence"><span class="chip chip-confidence-alta">Alta</span></div>
+            </div>
+            <div class="modal-cnae-item">
+              <div class="modal-cnae-check"></div>
+              <div class="modal-cnae-code">4911-6/00</div>
+              <div class="modal-cnae-desc">Transporte ferroviário de carga</div>
+              <div class="modal-cnae-confidence"><span class="chip chip-confidence-baixa">Baixa</span></div>
+            </div>
+            <div class="modal-cnae-item">
+              <div class="modal-cnae-check"></div>
+              <div class="modal-cnae-code">5211-7/01</div>
+              <div class="modal-cnae-desc">Armazéns gerais — emissão de warrant</div>
+              <div class="modal-cnae-confidence"><span class="chip chip-confidence-media">Média</span></div>
+            </div>
+
+            <div style="margin-top:12px;padding-top:12px;border-top:1px solid #1e2535">
+              <button class="btn btn-secondary" style="font-size:12px">+ Adicionar CNAE manualmente</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="showState('s1')">Cancelar</button>
+            <button class="btn btn-primary" onclick="showState('s3')">Confirmar CNAEs selecionados (2)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== S3: CNAEs CONFIRMADOS + 5 DIMENSÕES ==================== -->
+    <div class="state-view" id="state-s3">
+      <div class="page-header">
+        <div class="breadcrumb">
+          <span>Projetos</span><span class="sep">/</span>
+          <span>Empresa Exemplo Ltda</span><span class="sep">/</span>
+          <span class="current">Perfil da Entidade — Dimensões</span>
+        </div>
+        <div class="header-badges">
+          <span class="badge badge-inconsistente">● inconsistente</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="section-title">Perfil da Entidade</div>
+        <div class="section-subtitle">CNAEs confirmados. Preencha as 5 dimensões do perfil.</div>
+
+        <!-- BLOCO 0 resumido com CNAEs chips -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">🏢</span> BLOCO 0 — Identificação</div>
+            <span class="badge badge-confirmado">✓ completo</span>
+          </div>
+          <div class="form-row" style="margin-bottom:12px">
+            <div><span style="font-size:11px;color:#475569">CNPJ</span><br><span style="font-size:13px;color:#e2e8f0">12.345.678/0001-90</span></div>
+            <div><span style="font-size:11px;color:#475569">Regime</span><br><span style="font-size:13px;color:#e2e8f0">Lucro Presumido</span></div>
+            <div><span style="font-size:11px;color:#475569">Porte</span><br><span style="font-size:13px;color:#e2e8f0">Média empresa</span></div>
+            <div><span style="font-size:11px;color:#475569">Faturamento</span><br><span style="font-size:13px;color:#e2e8f0">R$ 4,8M – R$ 78M</span></div>
+          </div>
+
+          <!-- CNAEs multi-select editável -->
+          <div class="form-group">
+            <label class="form-label">CNAEs Confirmados <span class="required">*</span></label>
+            <div class="chip-group">
+              <span class="chip chip-cnae">4639-7/01 <span class="chip-confidence-alta" style="font-size:10px;margin-left:4px">Alta</span> <span class="remove" onclick="void(0)">✕</span></span>
+              <span class="chip chip-cnae">4635-4/99 <span class="chip-confidence-alta" style="font-size:10px;margin-left:4px">Alta</span> <span class="remove" onclick="void(0)">✕</span></span>
+              <span class="chip chip-add" onclick="showState('s2')">+ Adicionar CNAE</span>
+            </div>
+            <div style="font-size:11px;color:#475569;margin-top:6px">Remover um CNAE recalcula o score e as issues automaticamente.</div>
+          </div>
+        </div>
+
+        <!-- 5 DIMENSÕES DO PERFIL -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">🔷</span> 5 Dimensões do Perfil da Entidade</div>
+            <span class="badge badge-inconsistente">2 inconsistências</span>
+          </div>
+
+          <div class="dim-grid">
+
+            <!-- DIMENSÃO 1: objeto -->
+            <div class="dim-card dim-filled">
+              <div class="dim-label">
+                objeto
+                <span class="badge badge-confirmado" style="font-size:9px">preenchido</span>
+              </div>
+              <div class="dim-value">Comércio atacadista · Distribuição</div>
+              <div class="dim-source">Fonte: <span class="src-cnae">CNAE 4639-7/01</span> + <span class="src-user">usuário</span></div>
+            </div>
+
+            <!-- DIMENSÃO 2: papel_na_cadeia -->
+            <div class="dim-card dim-conflict">
+              <div class="dim-label">
+                papel_na_cadeia
+                <span class="badge badge-inconsistente" style="font-size:9px">conflito</span>
+              </div>
+              <div class="dim-value">Distribuidor · Varejista</div>
+              <div class="dim-source">Fonte: <span class="src-cnae">CNAE</span> + <span class="src-user">usuário</span></div>
+              <div class="dim-conflict-msg">⚠ Conflito: "Varejista" diverge do CNAE atacadista (DET-002)</div>
+            </div>
+
+            <!-- DIMENSÃO 3: tipo_de_relacao -->
+            <div class="dim-card dim-filled">
+              <div class="dim-label">
+                tipo_de_relacao
+                <span class="badge badge-confirmado" style="font-size:9px">preenchido</span>
+              </div>
+              <div class="dim-value">B2B · B2C</div>
+              <div class="dim-source">Fonte: <span class="src-user">usuário</span></div>
+            </div>
+
+            <!-- DIMENSÃO 4: territorio -->
+            <div class="dim-card dim-filled">
+              <div class="dim-label">
+                territorio
+                <span class="badge badge-confirmado" style="font-size:9px">preenchido</span>
+              </div>
+              <div class="dim-value">Multi-estado (5 UFs) · Nacional</div>
+              <div class="dim-source">Fonte: <span class="src-user">usuário</span></div>
+            </div>
+
+            <!-- DIMENSÃO 5: regime -->
+            <div class="dim-card dim-filled" style="grid-column:span 2">
+              <div class="dim-label">
+                regime
+                <span class="badge badge-confirmado" style="font-size:9px">preenchido</span>
+              </div>
+              <div style="display:flex;gap:24px;flex-wrap:wrap">
+                <div>
+                  <div style="font-size:10px;color:#475569;margin-bottom:2px">regime_tributario</div>
+                  <div class="dim-value">Lucro Presumido</div>
+                </div>
+                <div>
+                  <div style="font-size:10px;color:#475569;margin-bottom:2px">regime_especifico[]</div>
+                  <div class="chip-group">
+                    <span class="chip chip-cnae" style="font-size:11px">Substituição Tributária</span>
+                    <span class="chip chip-add" style="font-size:11px">+ Adicionar</span>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:10px;color:#475569;margin-bottom:2px">subnatureza_setorial[]</div>
+                  <div class="chip-group">
+                    <span class="chip chip-cnae" style="font-size:11px">Alimentos e Bebidas</span>
+                    <span class="chip chip-add" style="font-size:11px">+ Adicionar</span>
+                  </div>
+                </div>
+              </div>
+              <div class="dim-source" style="margin-top:8px">Fonte: <span class="src-user">usuário</span> + <span class="src-cnae">CNAE</span></div>
+            </div>
+
+          </div>
+
+          <!-- Fallback: campo com baixa confiança -->
+          <div style="margin-top:12px">
+            <div class="dim-card dim-fallback">
+              <div class="dim-label">
+                opera_territorio_incentivado
+                <span class="badge badge-info" style="font-size:9px">fallback</span>
+              </div>
+              <div class="dim-value empty">Não informado</div>
+              <div class="dim-fallback-msg">⚠ Baixa confiança — campo não foi inferido pelos CNAEs. Preencha manualmente se aplicável.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RASTREABILIDADE -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">🔍</span> Rastreabilidade</div>
+          </div>
+
+          <div class="trace-item">
+            <div class="trace-header">
+              <span class="trace-type trace-type-error">CONFLITO LÓGICO</span>
+              <span class="trace-rule">DET-002 · papel_na_cadeia × CNAE</span>
+            </div>
+            <div class="trace-msg">Papel "Varejista" é incompatível com CNAE atacadista (4639-7/01). Porte "Média empresa" com faturamento declarado excede limite do regime.</div>
+            <div class="trace-source">Origem: <span class="src">consistencyEngine.runDeterministicChecks()</span> · Regra: DET-002 HIGH warning</div>
+          </div>
+
+          <div class="trace-item">
+            <div class="trace-header">
+              <span class="trace-type trace-type-infer">INFERÊNCIA</span>
+              <span class="trace-rule">CNAE → objeto</span>
+            </div>
+            <div class="trace-msg">Dimensão "objeto" inferida como "Comércio atacadista · Distribuição" a partir do CNAE 4639-7/01 (confiança: Alta).</div>
+            <div class="trace-source">Origem: <span class="src">modal CNAEs (LLM+RAG sobre descricao_negocio)</span></div>
+          </div>
+
+          <div class="trace-item">
+            <div class="trace-header">
+              <span class="trace-type trace-type-risk">RISCO PREVISTO</span>
+              <span class="trace-rule">regime × operação multi-estado</span>
+            </div>
+            <div class="trace-msg">Lucro Presumido + operações em 5 UFs + Substituição Tributária → risco de apuração ICMS-ST por estado.</div>
+            <div class="trace-source">Origem: <span class="src">risk-engine-v4 (preview exploratório — não representa motor de riscos real)</span></div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+          <button class="btn btn-secondary">← Voltar</button>
+          <button class="btn btn-primary" onclick="showState('s4')">Ver Painel de Confiança →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== S4: PAINEL DE CONFIANÇA ==================== -->
+    <div class="state-view" id="state-s4">
+      <div class="page-header">
+        <div class="breadcrumb">
+          <span>Projetos</span><span class="sep">/</span>
+          <span>Empresa Exemplo Ltda</span><span class="sep">/</span>
+          <span class="current">Perfil da Entidade — Painel de Confiança</span>
+        </div>
+        <div class="header-badges">
+          <span class="badge badge-inconsistente">● inconsistente</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="section-title">Painel de Confiança</div>
+        <div class="section-subtitle">Visão consolidada do estado do Perfil da Entidade. Score é explicabilidade — não libera o fluxo.</div>
+
+        <div class="painel">
+
+          <!-- PC-01: Resumo Executivo -->
+          <div class="painel-section">
+            <div class="painel-section-label"><span class="pc-id">PC-01</span> Resumo Executivo <span class="badge badge-info" style="font-size:9px">informativo</span></div>
+            <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+              <div style="flex:1;min-width:200px">
+                <div class="score-bar-wrap">
+                  <div class="score-bar-label">
+                    <span>Score de Confiança</span>
+                    <span class="score-val yellow">62%</span>
+                  </div>
+                  <div class="score-bar"><div class="score-fill yellow" style="width:62%"></div></div>
+                </div>
+                <div class="score-note">⚠ Score alto NÃO libera o fluxo. O gate depende exclusivamente de <code>status_arquetipo = confirmado</code> + ausência de HARD_BLOCKs. Fórmula: Completude 40% · Inferência validada 30% · Coerência 30% — <strong>EXPLORATÓRIA</strong> até SPEC aprovada.</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div>
+                  <div style="font-size:10px;color:#475569;margin-bottom:4px">Status do Perfil</div>
+                  <span class="badge badge-inconsistente">● inconsistente</span>
+                </div>
+                <div>
+                  <div style="font-size:10px;color:#475569;margin-bottom:4px">Gate E2E</div>
+                  <span class="badge badge-bloqueado">✗ não liberado</span>
+                </div>
+                <div>
+                  <div style="font-size:10px;color:#475569;margin-bottom:4px">Elegibilidade</div>
+                  <span class="badge badge-pendente">⏳ pending</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PC-02: Composição da Confiança -->
+          <div class="painel-section">
+            <div class="painel-section-label"><span class="pc-id">PC-02</span> Composição da Confiança <span class="badge badge-info" style="font-size:9px">informativo</span></div>
+            <div class="breakdown-row">
+              <div class="breakdown-label">Completude (40%)</div>
+              <div class="breakdown-bar"><div class="breakdown-fill c1" style="width:75%"></div></div>
+              <div class="breakdown-pct">75%</div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-label">Inferência validada (30%)</div>
+              <div class="breakdown-bar"><div class="breakdown-fill c2" style="width:60%"></div></div>
+              <div class="breakdown-pct">60%</div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-label">Coerência (30%)</div>
+              <div class="breakdown-bar"><div class="breakdown-fill c3" style="width:40%"></div></div>
+              <div class="breakdown-pct">40%</div>
+            </div>
+            <div style="font-size:11px;color:#475569;margin-top:8px">Fórmula exploratória — pesos e cálculo dependem de SPEC aprovada. Não implementar sem aprovação do P.O.</div>
+          </div>
+
+          <!-- PC-03: Pendências e Bloqueios -->
+          <div class="painel-section">
+            <div class="painel-section-label"><span class="pc-id">PC-03</span> Pendências e Bloqueios <span class="badge badge-bloqueado" style="font-size:9px">gating</span></div>
+
+            <div class="issue-item">
+              <div class="issue-type issue-pendente-critico">PENDENTE_CRITICO</div>
+              <div class="issue-content">
+                <div class="issue-title">Conflito: papel_na_cadeia × CNAE atacadista</div>
+                <div class="issue-desc">Papel "Varejista" é incompatível com CNAE 4639-7/01 (atacadista). Corrija ou registre ciência.</div>
+                <div class="issue-rule">DET-002 · HIGH warning · consistencyEngine.ts:138-154</div>
+              </div>
+              <div class="issue-cta">
+                <button class="btn btn-secondary" style="font-size:11px">Ir ao campo</button>
+              </div>
+            </div>
+
+            <div class="issue-item">
+              <div class="issue-type issue-pendente">PENDENTE</div>
+              <div class="issue-content">
+                <div class="issue-title">opera_territorio_incentivado não preenchido</div>
+                <div class="issue-desc">Campo obrigatório para completude 100%. Preencha ou confirme que não se aplica.</div>
+                <div class="issue-rule">completeness &lt; 100%</div>
+              </div>
+              <div class="issue-cta">
+                <button class="btn btn-secondary" style="font-size:11px">Ir ao campo</button>
+              </div>
+            </div>
+
+            <div class="issue-item">
+              <div class="issue-type issue-info">INFO</div>
+              <div class="issue-content">
+                <div class="issue-title">Grupo econômico detectado</div>
+                <div class="issue-desc">isEconomicGroup=true sem tentativa de consolidação. Informativo — não bloqueia o fluxo.</div>
+                <div class="issue-rule">V-05 nível A · INFO (não bloqueia)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PC-04: Snapshot do Perfil -->
+          <div class="painel-section">
+            <div class="painel-section-label"><span class="pc-id">PC-04</span> Snapshot do Perfil <span class="badge badge-bloqueado" style="font-size:9px">gating via CTA</span></div>
+            <div class="snapshot-grid">
+              <div class="snapshot-item">
+                <div class="snapshot-key">objeto</div>
+                <div class="snapshot-val">Comércio atacadista · Distribuição</div>
+              </div>
+              <div class="snapshot-item">
+                <div class="snapshot-key">papel_na_cadeia</div>
+                <div class="snapshot-val" style="color:#fb923c">Distribuidor · Varejista ⚠</div>
+              </div>
+              <div class="snapshot-item">
+                <div class="snapshot-key">tipo_de_relacao</div>
+                <div class="snapshot-val">B2B · B2C</div>
+              </div>
+              <div class="snapshot-item">
+                <div class="snapshot-key">territorio</div>
+                <div class="snapshot-val">Multi-estado (5 UFs)</div>
+              </div>
+              <div class="snapshot-item">
+                <div class="snapshot-key">regime</div>
+                <div class="snapshot-val">Lucro Presumido</div>
+              </div>
+              <div class="snapshot-item">
+                <div class="snapshot-key">regime_especifico[]</div>
+                <div class="snapshot-val">Substituição Tributária</div>
+              </div>
+              <div class="snapshot-item">
+                <div class="snapshot-key">subnatureza_setorial[]</div>
+                <div class="snapshot-val">Alimentos e Bebidas</div>
+              </div>
+              <div class="snapshot-item">
+                <div class="snapshot-key">cnaes[]</div>
+                <div class="snapshot-val">4639-7/01 · 4635-4/99</div>
+              </div>
+            </div>
+            <div class="warn-box" style="margin-top:12px">
+              ⚠ Ciência registrada ≠ confirmação. Registrar ciência da inconsistência (acknowledgeInconsistency) NÃO eleva o status para "confirmado" nem libera o gate E2E. Corrija os dados para liberar o fluxo.
+            </div>
+            <div class="gate-box" style="margin-top:12px">
+              <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>HARD_BLOCKs.length === 0</span></div>
+              <div class="gate-actions">
+                <button class="btn btn-primary" disabled>Confirmar Perfil da Entidade</button>
+                <button class="btn btn-secondary" onclick="showState('s3')">← Voltar e Ajustar</button>
+              </div>
+              <div style="font-size:11px;color:#475569;margin-top:8px">Botão desabilitado: completude &lt; 100% ou inconsistências pendentes.</div>
+            </div>
+          </div>
+
+          <!-- PC-05: Impacto nos Riscos (EXPLORATÓRIO) -->
+          <div class="painel-section">
+            <div class="painel-section-label"><span class="pc-id">PC-05</span> Prévia de Riscos <span class="badge badge-exploratorio" style="font-size:9px">EXPLORATÓRIO</span></div>
+            <div class="warn-box">
+              ⚠ <strong>Esta seção é uma prévia exploratória.</strong> Não representa o motor de riscos real. Decisões de gate NÃO dependem desta seção. Na etapa de riscos, o sistema mostrará por que cada risco foi apontado, com base nos dados do Perfil da Entidade, na regra aplicada e na base legal correspondente.
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="background:#0f1117;border:1px solid #1e2535;border-radius:6px;padding:10px;display:flex;align-items:center;gap:10px">
+                <span style="font-size:18px">⚠</span>
+                <div>
+                  <div style="font-size:13px;color:#e2e8f0">ICMS-ST por estado (multi-estado + Substituição Tributária)</div>
+                  <div style="font-size:11px;color:#64748b">Baseado em: territorio + regime_especifico[] · Exploratório</div>
+                </div>
+              </div>
+              <div style="background:#0f1117;border:1px solid #1e2535;border-radius:6px;padding:10px;display:flex;align-items:center;gap:10px">
+                <span style="font-size:18px">📋</span>
+                <div>
+                  <div style="font-size:13px;color:#e2e8f0">CBS/IBS sobre distribuição atacadista (LC 214/2025)</div>
+                  <div style="font-size:11px;color:#64748b">Baseado em: objeto + CNAE 4639-7/01 · Exploratório</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PC-06: Liberação do Próximo Passo -->
+          <div class="painel-section">
+            <div class="painel-section-label"><span class="pc-id">PC-06</span> Liberação do Próximo Passo <span class="badge badge-bloqueado" style="font-size:9px">gate final</span></div>
+            <div class="gate-box gate-blocked">
+              <div class="gate-rule">Gate liberado quando: <span>status_arquetipo = 'confirmado'</span> AND <span>HARD_BLOCKs.length === 0</span></div>
+              <div style="font-size:12px;color:#f87171;margin-bottom:12px">✗ Gate não liberado — corrija as pendências acima.</div>
+              <div class="gate-actions">
+                <button class="btn btn-primary" disabled>Continuar para o Briefing →</button>
+                <button class="btn btn-secondary" onclick="showState('s3')">← Voltar e Ajustar</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== C1: CONFIRMAÇÃO — PENDENTE ==================== -->
+    <div class="state-view" id="state-c1">
+      <div class="page-header">
+        <div class="breadcrumb">
+          <span>Projetos</span><span class="sep">/</span>
+          <span>Empresa Exemplo Ltda</span><span class="sep">/</span>
+          <span class="current">Confirmação do Perfil</span>
+        </div>
+        <div class="header-badges">
+          <span class="badge badge-pendente">● pendente</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div style="text-align:center;padding:32px 0 24px">
+          <div style="font-size:48px;margin-bottom:12px">⏳</div>
+          <div class="section-title">Perfil Pendente</div>
+          <div class="section-subtitle" style="max-width:480px;margin:8px auto 0">
+            Campos obrigatórios ainda não preenchidos. Complete o formulário para prosseguir.
+          </div>
+          <span class="badge badge-pendente" style="margin-top:12px;display:inline-flex">● status_arquetipo: pendente</span>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Campos faltantes</div>
+          </div>
+          <div class="issue-item">
+            <div class="issue-type issue-pendente">PENDENTE</div>
+            <div class="issue-content">
+              <div class="issue-title">descricao_negocio não preenchida</div>
+              <div class="issue-desc">Necessário para identificação de CNAEs.</div>
+            </div>
+            <div class="issue-cta"><button class="btn btn-secondary" style="font-size:11px">Ir ao campo</button></div>
+          </div>
+          <div class="issue-item">
+            <div class="issue-type issue-pendente">PENDENTE</div>
+            <div class="issue-content">
+              <div class="issue-title">cnaes[] vazio</div>
+              <div class="issue-desc">Nenhum CNAE confirmado. Use "Identificar CNAEs".</div>
+            </div>
+            <div class="issue-cta"><button class="btn btn-secondary" style="font-size:11px" onclick="showState('s2')">Identificar CNAEs</button></div>
+          </div>
+          <div class="issue-item">
+            <div class="issue-type issue-pendente">PENDENTE</div>
+            <div class="issue-content">
+              <div class="issue-title">papel_na_cadeia não preenchido</div>
+              <div class="issue-desc">Dimensão obrigatória do perfil.</div>
+            </div>
+            <div class="issue-cta"><button class="btn btn-secondary" style="font-size:11px">Ir ao campo</button></div>
+          </div>
+        </div>
+
+        <div class="gate-box">
+          <div class="gate-rule">Gate: <span>completeness === 100%</span> AND <span>HARD_BLOCKs.length === 0</span> AND <span>CTA acionado</span></div>
+          <div class="gate-actions">
+            <button class="btn btn-primary" disabled>Confirmar Perfil da Entidade</button>
+            <button class="btn btn-secondary" onclick="showState('s1')">← Voltar e Ajustar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== C2: CONFIRMAÇÃO — INCONSISTENTE ==================== -->
+    <div class="state-view" id="state-c2">
+      <div class="page-header">
+        <div class="breadcrumb">
+          <span>Projetos</span><span class="sep">/</span>
+          <span>Empresa Exemplo Ltda</span><span class="sep">/</span>
+          <span class="current">Confirmação do Perfil</span>
+        </div>
+        <div class="header-badges">
+          <span class="badge badge-inconsistente">● inconsistente</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div style="text-align:center;padding:32px 0 24px">
+          <div style="font-size:48px;margin-bottom:12px">⚠️</div>
+          <div class="section-title">Perfil Inconsistente</div>
+          <div class="section-subtitle" style="max-width:520px;margin:8px auto 0">
+            Conflitos detectados. Você pode registrar ciência e continuar, mas isso <strong>não libera o gate</strong>. Para confirmar o perfil, corrija os dados.
+          </div>
+          <span class="badge badge-inconsistente" style="margin-top:12px;display:inline-flex">● status_arquetipo: inconsistente</span>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Inconsistências detectadas</div>
+          </div>
+          <div class="issue-item">
+            <div class="issue-type issue-pendente-critico">PENDENTE_CRITICO</div>
+            <div class="issue-content">
+              <div class="issue-title">papel_na_cadeia × CNAE: conflito detectável</div>
+              <div class="issue-desc">Papel "Varejista" diverge do CNAE atacadista. Corrija ou registre ciência.</div>
+              <div class="issue-rule">DET-002 · acknowledgeInconsistency disponível</div>
+            </div>
+            <div class="issue-cta"><button class="btn btn-secondary" style="font-size:11px">Ir ao campo</button></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Registrar Ciência da Inconsistência</div>
+          </div>
+          <div class="warn-box">
+            ⚠ <strong>Registrar ciência NÃO confirma o perfil nem libera o gate E2E.</strong> O status permanece "inconsistente". Para elevar para "confirmado", corrija os dados até zero inconsistências.
+          </div>
+          <div class="form-group">
+            <label class="form-label">Justificativa (mín. 10 caracteres) <span class="required">*</span></label>
+            <textarea class="form-input" rows="3" placeholder="Descreva por que a inconsistência é conhecida e aceitável..."></textarea>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-secondary">Registrar Ciência (acknowledgeInconsistency)</button>
+            <button class="btn btn-secondary" onclick="showState('s3')">← Corrigir dados</button>
+          </div>
+          <div style="font-size:11px;color:#475569;margin-top:8px">Após registrar ciência: status = "inconsistente" (não "confirmado"). Gate permanece fechado.</div>
+        </div>
+
+        <div class="gate-box">
+          <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>HARD_BLOCKs.length === 0</span></div>
+          <div class="gate-actions">
+            <button class="btn btn-primary" disabled>Confirmar Perfil da Entidade</button>
+            <button class="btn btn-secondary" onclick="showState('s3')">← Voltar e Ajustar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== C3: CONFIRMAÇÃO — BLOQUEADO ==================== -->
+    <div class="state-view" id="state-c3">
+      <div class="page-header">
+        <div class="breadcrumb">
+          <span>Projetos</span><span class="sep">/</span>
+          <span>Empresa Exemplo Ltda</span><span class="sep">/</span>
+          <span class="current">Confirmação do Perfil</span>
+        </div>
+        <div class="header-badges">
+          <span class="badge badge-bloqueado">● bloqueado</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div style="text-align:center;padding:32px 0 24px">
+          <div style="font-size:48px;margin-bottom:12px">🚫</div>
+          <div class="section-title">Perfil Bloqueado</div>
+          <div class="section-subtitle" style="max-width:520px;margin:8px auto 0">
+            HARD BLOCK ativo. O perfil não pode ser confirmado até que o bloqueio seja resolvido. Score alto não libera este estado.
+          </div>
+          <span class="badge badge-bloqueado" style="margin-top:12px;display:inline-flex">● status_arquetipo: bloqueado · eligibility: denied</span>
+        </div>
+
+        <div class="warn-box">
+          ⚠ <strong>Score alto NÃO libera o fluxo com HARD_BLOCK ativo.</strong> Um caso com 85% de confiança e um HARD_BLOCK permanece bloqueado. O gate depende de <code>status_arquetipo = confirmado</code> + ausência de HARD_BLOCKs.
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Bloqueadores ativos</div>
+          </div>
+          <div class="issue-item">
+            <div class="issue-type issue-hard-block">HARD_BLOCK</div>
+            <div class="issue-content">
+              <div class="issue-title">Regime tributário × faturamento: incompatível</div>
+              <div class="issue-desc">MEI com faturamento declarado acima do limite legal (R$ 81.000/ano). Corrija o regime ou o faturamento.</div>
+              <div class="issue-rule">DET-001 · CRITICAL · eligibility = denied · sem override no E2E</div>
+            </div>
+            <div class="issue-cta"><button class="btn btn-danger" style="font-size:11px">Corrigir</button></div>
+          </div>
+          <div class="issue-item">
+            <div class="issue-type issue-hard-block">HARD_BLOCK</div>
+            <div class="issue-content">
+              <div class="issue-title">V-LC: CNPJ inválido</div>
+              <div class="issue-desc">O CNPJ informado não passou na validação (checksum). Corrija antes de prosseguir.</div>
+              <div class="issue-rule">V-LC · validação local · bloqueia confirmação</div>
+            </div>
+            <div class="issue-cta"><button class="btn btn-danger" style="font-size:11px">Corrigir</button></div>
+          </div>
+        </div>
+
+        <div class="gate-box gate-blocked">
+          <div class="gate-rule">Gate: <span>status_arquetipo === 'confirmado'</span> AND <span>HARD_BLOCKs.length === 0</span></div>
+          <div style="font-size:12px;color:#f87171;margin-bottom:12px">✗ 2 HARD_BLOCKs ativos. Resolva todos para habilitar a confirmação.</div>
+          <div class="gate-actions">
+            <button class="btn btn-primary" disabled>Confirmar Perfil da Entidade</button>
+            <button class="btn btn-secondary" onclick="showState('s3')">← Voltar e Ajustar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== C4: CONFIRMAÇÃO — CONFIRMADO ==================== -->
+    <div class="state-view" id="state-c4">
+      <div class="page-header">
+        <div class="breadcrumb">
+          <span>Projetos</span><span class="sep">/</span>
+          <span>Empresa Exemplo Ltda</span><span class="sep">/</span>
+          <span class="current">Confirmação do Perfil</span>
+        </div>
+        <div class="header-badges">
+          <span class="badge badge-confirmado">● confirmado</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div style="text-align:center;padding:32px 0 24px">
+          <div style="font-size:48px;margin-bottom:12px">✅</div>
+          <div class="section-title">Perfil da Entidade Confirmado</div>
+          <div class="section-subtitle" style="max-width:520px;margin:8px auto 0">
+            Completude 100% · Zero HARD_BLOCKs · Confirmado pelo usuário via CTA. Gate E2E liberado.
+          </div>
+          <span class="badge badge-confirmado" style="margin-top:12px;display:inline-flex">● status_arquetipo: confirmado · eligibility: allowed</span>
+        </div>
+
+        <div class="success-box">
+          ✓ Perfil confirmado. O diagnóstico tributário pode ser iniciado. <code>status_arquetipo = 'confirmado'</code> AND <code>eligibility.overall = 'allowed'</code>.
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Snapshot confirmado (imutável)</div>
+          </div>
+          <div class="snapshot-grid">
+            <div class="snapshot-item">
+              <div class="snapshot-key">objeto</div>
+              <div class="snapshot-val">Comércio atacadista · Distribuição</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-key">papel_na_cadeia</div>
+              <div class="snapshot-val">Distribuidor</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-key">tipo_de_relacao</div>
+              <div class="snapshot-val">B2B · B2C</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-key">territorio</div>
+              <div class="snapshot-val">Multi-estado (5 UFs)</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-key">regime</div>
+              <div class="snapshot-val">Lucro Presumido</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-key">cnaes[]</div>
+              <div class="snapshot-val">4639-7/01 · 4635-4/99</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-key">regime_especifico[]</div>
+              <div class="snapshot-val">Substituição Tributária</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-key">subnatureza_setorial[]</div>
+              <div class="snapshot-val">Alimentos e Bebidas</div>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px">
+            ℹ️ Snapshot imutável após confirmação (ADR-0032 — imutabilidade/versionamento). Para alterar, use "Iniciar Nova Versão".
+          </div>
+        </div>
+
+        <div class="gate-box gate-ready">
+          <div class="gate-rule">Gate liberado: <span>status_arquetipo === 'confirmado'</span> AND <span>HARD_BLOCKs.length === 0</span></div>
+          <div class="gate-actions">
+            <button class="btn btn-success">Continuar para o Briefing →</button>
+            <button class="btn btn-secondary">Iniciar Nova Versão do Perfil</button>
+            <button class="btn btn-secondary" onclick="showState('s4')">← Ver Painel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ===================== JAVASCRIPT ===================== -->
+<script>
+  function showState(id) {
+    // Hide all
+    document.querySelectorAll('.state-view').forEach(el => el.classList.remove('visible'));
+    document.querySelectorAll('.state-btn').forEach(el => el.classList.remove('active'));
+    // Show target
+    const target = document.getElementById('state-' + id);
+    if (target) target.classList.add('visible');
+    const btn = document.getElementById('btn-' + id);
+    if (btn) btn.classList.add('active');
+    // Update sidebar
+    document.querySelectorAll('.sidebar-item').forEach(el => {
+      el.classList.remove('active');
+      if (el.getAttribute('onclick') && el.getAttribute('onclick').includes("'" + id + "'")) {
+        el.classList.add('active');
+      }
+    });
+  }
+</script>
+</body>
+</html>
