@@ -55,9 +55,9 @@ SELECT JSON_KEYS([campo_json]) FROM [tabela] WHERE [campo_json] IS NOT NULL LIMI
 
 | Campo JSON | Tipo | Observacao |
 |---|---|---|
-| operationType | string | `'comercio'` \| `'servicos'` \| `'industria'` |
+| operationType | string | `'comercio'` \| `'servicos'` \| `'industria'`. **Q-2 RESOLVIDA 2026-04-24:** em projetos M1+ é valor **derivado** das 5 dimensões (não entrada direta) |
 | multiState | boolean | true/false |
-| clientType | string[] | `['B2B']` \| `['B2C']` |
+| clientType | string[] | `['B2B']` \| `['B2C']`. **Q-1 RESOLVIDA 2026-04-24:** campo **contextual fora do arquétipo** — não entra em `perfil_hash` nem afeta `status_arquetipo`/gate E2E. Preservado aqui para consumo por briefing/UX |
 | paymentMethods | string[] | `['cartao','pix']` |
 | hasIntermediaries | boolean | true/false |
 
@@ -268,3 +268,77 @@ score = round( Σ(peso × max(confidence, 0.5)) / (n × 9) × 100 )
 |---|---|---|
 | conteudo | text | coluna de texto (NAO `content`, NAO `text`) |
 | lei | enum | `'lc214'` \| `'ec132'` \| etc |
+
+---
+
+## Perfil da Entidade M1 (Epic #830 · ADR-0031 + ADR-0032)
+
+**Status:** DRAFT — aguardando implementação pós-GO M1. Decisões P.O. consolidadas em `docs/epic-830-rag-arquetipo/specs/DE-PARA-CAMPOS-PERFIL-ENTIDADE.md`.
+
+**Motivação:** modelo dimensional substitui `operationType` direto por 5 dimensões canônicas. Política de não-migração (ADR-0032 §4) — projetos legados `profileVersion='1.0'` preservados.
+
+### Colunas novas em `projects` (a implementar pós-GO M1)
+
+| Campo | Tipo | Observacao |
+|---|---|---|
+| archetype | JSON nullable | Snapshot imutável (`status_arquetipo=confirmado` → imutável). Shape em SPEC-RUNNER-RODADA-D §6.1 |
+| archetype_version | VARCHAR(20) | Ex.: `"m1-v1.0.0"` |
+| archetype_perfil_hash | CHAR(64) | SHA-256 das dimensões + contextuais via CANONICAL-JSON-SPEC |
+| archetype_rules_hash | CHAR(64) | SHA-256 do manifesto declarativo (CANONICAL-RULES-MANIFEST.md) |
+| archetype_confirmed_at | TIMESTAMP nullable | Quando usuário confirmou (marca imutabilidade) |
+
+### Shape do JSON `archetype` (quando `model_version='m1-v1.0.0'`)
+
+| Campo | Tipo | Enum | Observacao |
+|---|---|---|---|
+| objeto | json array string | enum fechado (14 valores) | Categorias: combustivel, bebida, tabaco, alimento, medicamento, energia_eletrica, servico_financeiro, servico_digital, servico_regulado, bens_industrializados, bens_mercadoria_geral, servico_geral, agricola, pecuario |
+| papel_na_cadeia | string | enum fechado (12 valores) | fabricante, distribuidor, varejista, prestador, transportador, importador, exportador, comercio_exterior_misto, intermediador, produtor, operadora_regulada, indefinido |
+| tipo_de_relacao | json array string | enum fechado (6 valores) | venda, servico, producao, intermediacao, locacao, indefinida |
+| territorio | json array string | enum fechado (8 valores) | municipal, estadual, interestadual, nacional, internacional, ZFM, ALC, incentivado_outro |
+| regime | string | enum fechado (5 valores) | simples_nacional, lucro_presumido, lucro_real, mei, indefinido. **Q-D3 RESOLVIDA 2026-04-24:** `regime_especifico_setorial` removido do enum — agora é campo contextual separado `regime_especifico[]` |
+| regime_especifico | json array string | enum aberto v1 | **Q-D3 RESOLVIDA 2026-04-24:** modificador ortogonal ao regime principal. Ex.: `["combustivel_monofasico"]`. Pode ser vazio. Extensível |
+| subnatureza_setorial | json array string | enum v1 (7 valores) | Q-D4 RESOLVIDA: sempre array. `[]` = não-regulado; `["telecomunicacoes"]`, `["saude","saude_regulada"]`, etc. Obrigatório >=1 valor se `papel=operadora_regulada`. Enum v1: telecomunicacoes, saude, saude_regulada, energia, financeiro, combustiveis, transporte |
+| orgao_regulador | json array string | livre | Ex.: `["ANATEL", "ANVISA"]`; enum aberto (ANATEL, ANVISA, ANS, ANEEL, BCB, CVM, SUSEP, ANP, ANTT, ANTAQ, ANAC, ...) |
+| derived_legacy_operation_type | string (OperationType) | industria, comercio, servicos, misto, agronegocio, financeiro | Campo derivado obrigatório (Q-2 Opção A) — consumido por `risk-eligibility.ts` |
+| status_arquetipo | string | enum fechado (4 valores) | pendente, inconsistente, bloqueado, confirmado |
+| motivo_bloqueio | string nullable | livre | Preenchido apenas quando status=bloqueado |
+| model_version | string | semver | Ex.: `"m1-v1.0.0"` |
+| data_version | string | ISO-8601 UTC | Ex.: `"2026-04-24T12:00:00.000Z"` |
+| perfil_hash | string | `sha256:[64 hex]` | Hash das dimensões + contextuais |
+| rules_hash | string | `sha256:[64 hex]` | Hash do manifesto de regras |
+| imutavel | boolean | sempre `true` | Marker de política |
+
+### Convivência com legado (ADR-0032 §4 + Q-7 RESOLVIDA 2026-04-24)
+
+**Coexistência dual `profileVersion` × `archetype_version`:**
+
+| Campo | Origem | Projetos que têm valor | Política de escrita |
+|---|---|---|---|
+| `profileVersion` (existente, VARCHAR 20) | legado | todos os projetos pré-M1 (valor `"1.0"`) | **IMUTÁVEL** em projetos M1+ — sistema NUNCA altera (P-7) |
+| `archetype_version` (NOVA, VARCHAR 20 nullable) | M1+ | apenas projetos que confirmaram arquétipo | Escrita UMA VEZ na primeira confirmação; bumps aditivos preservam snapshots antigos |
+
+**Detecção determinística:**
+```
+isProjetoM1(p)     ≡ p.archetype_version IS NOT NULL
+isProjetoLegado(p) ≡ p.archetype_version IS NULL
+```
+
+**Consequências práticas:**
+- Projetos `profileVersion='1.0'` **não recalculam** — `operationProfile.operationType` preservado
+- Projetos `m1-v1.0.0+` escrevem `archetype` + atualizam `operationProfile.operationType` como valor **derivado** (ver Q-2). `profileVersion` continua no valor original (pode ser `"1.0"` mesmo em projeto M1+ — `archetype_version` é a fonte de verdade)
+- Gate Hotfix IS (`risk-eligibility.ts`) continua consumindo `OperationType` — intocado
+- Queries de auditoria: `WHERE archetype_version IS NOT NULL` identifica todos os projetos M1+
+- Rollback seguro: DROP `archetype_version` volta projetos M1+ a ficarem indistinguíveis de legados (mas snapshots JSON em `archetype` persistem)
+
+### Estados novos em `projects.status` (Q-8 RESOLVIDA 2026-04-24)
+
+Enum `projects.status` recebe **4 valores novos** via ALTER TABLE em M1-F2, inseridos entre `cnaes_confirmados` e `assessment_fase1`:
+
+| Valor novo | Significado | Mapping com status_arquetipo |
+|---|---|---|
+| `perfil_pendente` | User preenchendo form dimensional M1 | `status_arquetipo = "pendente"` |
+| `perfil_inconsistente` | Validação dimensional detectou issues | `status_arquetipo = "inconsistente"` |
+| `perfil_bloqueado` | HARD_BLOCK terminal (V-05-DENIED) | `status_arquetipo = "bloqueado"` |
+| `perfil_confirmado` | User confirmou perfil; próximo passo briefing | `status_arquetipo = "confirmado"` |
+
+Total enum após migração: **26 → 30 valores**. Projetos legados `profileVersion='1.0'` permanecem em estados pré-existentes (não migram automaticamente).
