@@ -239,6 +239,35 @@ Todo Bloco 1 de issue de frontend DEVE conter:
 | `bloqueado` | `perfil_bloqueado` | Mensagem terminal (ex.: V-05-DENIED) |
 | `confirmado` | `perfil_confirmado` | Resumo read-only + botão "Próximo passo" |
 
+### Saída terminal — estado `bloqueado` / V-05-DENIED (Q-4 + Q-6)
+
+**Origem:** blocker `V-05-DENIED` com `severity="BLOCK_FLOW"` dispara `status_arquetipo = "bloqueado"` (SPEC-RUNNER §4.2.1 regra 1).
+
+**Condição de entrada:**
+- `seed.integra_grupo_economico == true` **E** `seed.analise_1_cnpj_operacional == false`
+- Empresa pertence a grupo econômico **E** escopo solicitado é análise consolidada (>1 CNPJ)
+
+**Consequências operacionais:**
+- `projects.status` = `perfil_bloqueado` (mapping Q-8)
+- Snapshot emitido com `status_arquetipo = "bloqueado"` + `motivo_bloqueio = "empresa integra grupo econômico E análise consolidada solicitada — fora do escopo M1 (1 CNPJ)"`
+- Snapshot **imutável** (ADR-0032 §1) — IS-1 garante `motivo_bloqueio != null`
+- **Fluxo E2E terminal:** usuário **não pode** avançar para briefing (gate §4.6 bloqueia)
+- **Edição não desbloqueia** — resolver exige **criar novo projeto** por CNPJ individual
+
+**UX esperada (TELA M1.2 estado bloqueado — ver UX_DICTIONARY):**
+- Card vermelho com `motivo_bloqueio` literal
+- Orientação: "Este projeto precisa ser dividido em projetos separados por CNPJ operacional para prosseguir"
+- Link secundário: documentação sobre escopo M1 (1 CNPJ)
+- SEM botão "Voltar e editar" (não resolve — é escopo, não dado)
+- SEM botão "Iniciar nova versão" (terminal absoluto)
+
+**Diferença vs V-05-INFO (3 estados NONE/INFO/DENIED — Q-4):**
+- NONE (`integra_grupo_economico=false`): não emite blocker; fluxo normal
+- INFO (`integra_grupo_economico=true` + `analise_1_cnpj_operacional=true`): emite `V-05-INFO` severity INFO; **não altera** `status_arquetipo` (IS-7); fluxo normal segue
+- DENIED (`integra_grupo_economico=true` + `analise_1_cnpj_operacional=false`): este estado terminal — perfil bloqueado
+
+**Auditoria:** snapshot `bloqueado` fica persistido imutável em `projects.archetype` JSON (ADR-0032 §1). Pode ser consultado posteriormente para decisão de desmembramento do projeto.
+
 ### Integração M1 → M2 (filtro RAG)
 
 Formaliza no contrato `docs/epic-830-rag-arquetipo/specs/CONTRATOS-ENTRE-MILESTONES.md`. M2 consome snapshot imutável via `archetype_version` + `perfil_hash` para filtro pré-RAG determinístico.

@@ -60,6 +60,8 @@ SELECT JSON_KEYS([campo_json]) FROM [tabela] WHERE [campo_json] IS NOT NULL LIMI
 | clientType | string[] | `['B2B']` \| `['B2C']`. **Q-1 RESOLVIDA 2026-04-24:** campo **contextual fora do arquétipo** — não entra em `perfil_hash` nem afeta `status_arquetipo`/gate E2E. Preservado aqui para consumo por briefing/UX |
 | paymentMethods | string[] | `['cartao','pix']` |
 | hasIntermediaries | boolean | true/false |
+| integra_grupo_economico | boolean | **Q-4 RESOLVIDA 2026-04-24:** empresa integra grupo econômico (holdings, empresas ligadas). Input para multi-CNPJ detection |
+| analise_1_cnpj_operacional | boolean | **Q-4 RESOLVIDA 2026-04-24:** escopo da análise é 1 CNPJ operacional (true) ou consolidado (false). Combina com `integra_grupo_economico` para produzir 3 estados: NONE / V-05-INFO / V-05-DENIED |
 
 ### operationProfile — sub-campos (schema legado, projetos antigos)
 
