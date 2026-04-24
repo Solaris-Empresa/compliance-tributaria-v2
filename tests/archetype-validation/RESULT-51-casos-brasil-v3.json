@@ -1,0 +1,1981 @@
+{
+  "suite_name": "M1-arquetipo-51-casos-brasil-v3",
+  "phase": "M1_RUNNER_V3",
+  "executed_at": "2026-04-24T21:03:16.153Z",
+  "model_version": "m1-v1.0.0",
+  "data_version_fixed": "2026-04-24T12:00:00.000Z",
+  "summary": {
+    "total": 51,
+    "by_test_status": {
+      "PASS": 23,
+      "FAIL": 27,
+      "BLOCKED": 1
+    },
+    "by_status_arquetipo": {
+      "pendente": 0,
+      "inconsistente": 27,
+      "bloqueado": 1,
+      "confirmado": 23
+    },
+    "by_macro_setor": {
+      "servicos": 31,
+      "industria": 13,
+      "agro": 7
+    },
+    "blockers_by_id": {
+      "V-10-FALLBACK": 63,
+      "DERIVE-001": 3,
+      "V-LC-106": 1,
+      "V-LC-202": 4,
+      "V-LC-607": 4,
+      "V-LC-108": 1,
+      "V-LC-102": 19,
+      "V-05-DENIED": 1,
+      "V-LC-103": 1,
+      "V-05-INFO": 1
+    }
+  },
+  "verdict": {
+    "decision": "NO-GO",
+    "target": {
+      "PASS": 50,
+      "FAIL": 0,
+      "BLOCKED": 1,
+      "total": 51
+    },
+    "rationale": [
+      "FAIL = 27 (alvo: 0)",
+      "BLOCKED = 1 (alvo: 1 — controle negativo S27)",
+      "PASS = 23"
+    ]
+  },
+  "rules_hash_consistency": {
+    "unique_rules_hashes": 1,
+    "expected": 1,
+    "ok": true
+  },
+  "results": [
+    {
+      "id": "S01",
+      "scenario_name": "Supermercado de bairro",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 1905 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 2105 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 2202 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:192b4f6c3b5707597eb108b40aae2599914cde61f72630d0473d1034060e583a",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "comercio",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "varejista",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "municipal"
+        ],
+        "regime": "lucro_presumido"
+      }
+    },
+    {
+      "id": "S02",
+      "scenario_name": "Atacadista de alimentos",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 1905 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 2105 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:17dccf9620e1e73ff30333ed1cf50a7d1d33fc3f2c177312a1bc620441c4fe74",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "comercio",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "distribuidor",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S03",
+      "scenario_name": "E-commerce de moda",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 6204 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 6205 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:475f2f64138e9b273e787fdf527213aa7860b7a06bb1580582cc6c92ea7aa7fd",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "comercio",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "varejista",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S04",
+      "scenario_name": "Marketplace de sellers terceiros",
+      "macro_setor": "servicos",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "DERIVE-001",
+          "severity": "HARD_BLOCK",
+          "rule": "[DERIVE-001] Marketplace-com-estoque (papel=intermediador com tipo_de_relacao=[\"intermediacao\",\"servico\"]) não resolve para OperationType único — Q-3 R-21-AMB"
+        },
+        {
+          "id": "V-LC-106",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"intermediador\" com tipo_de_relacao=[\"intermediacao\",\"servico\"] — marketplace-com-estoque não resolve (Q-3)"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:1555a4d4c0c6eac3fdc38bb59b5187e7569ec98e241bac67c84feb3e97046355",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": null,
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_digital"
+        ],
+        "papel_na_cadeia": "intermediador",
+        "tipo_de_relacao": [
+          "intermediacao",
+          "servico"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S05",
+      "scenario_name": "Oficina mecanica com venda de pecas",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 8708 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1101.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:b8d51c209d8702344cd3091e5de462ab878468a0f8f3b4111f16bc9ceb99fa20",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral",
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico",
+          "venda"
+        ],
+        "territorio": [
+          "municipal"
+        ],
+        "regime": "simples_nacional"
+      }
+    },
+    {
+      "id": "S06",
+      "scenario_name": "Rede de oficinas franqueadas",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 8708 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1101.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:23847116facf47be88fb847495aa56c3ec18ccf880192094eca280df08a57878",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral",
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico",
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S07",
+      "scenario_name": "Transportadora de cargas gerais",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.0501.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:0b98acf9630eb6cd98b1418d9381d8872f2317401d23180b632956942ec7558b",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "transportador",
+        "tipo_de_relacao": [],
+        "territorio": [
+          "interestadual"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S08",
+      "scenario_name": "Transportadora de combustiveis perigosos",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.0501.14.51 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:9ce14578f6a7ed4a28c3f019d225037dd002d40ead35b233823461bf7a6a04f7",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "transportador",
+        "tipo_de_relacao": [],
+        "territorio": [
+          "interestadual"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S09",
+      "scenario_name": "Operador logistico integrado",
+      "macro_setor": "servicos",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 3923 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.0501.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-202",
+          "severity": "HARD_BLOCK",
+          "rule": "papel=\"operadora_regulada\" sem \"servico_regulado\" nem \"servico_financeiro\" em objeto"
+        },
+        {
+          "id": "V-LC-607",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"operadora_regulada\" sem subnatureza_setorial declarada"
+        }
+      ],
+      "missing_required_fields": [
+        "subnatureza_setorial (papel=operadora_regulada)",
+        "orgao_regulador_principal (papel=operadora_regulada)"
+      ],
+      "perfil_hash": "sha256:fa57b17daa6f0831bfdaf166fb6a37d08d15d4e0cffa535b4111401162a60c64",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral",
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "operadora_regulada",
+        "tipo_de_relacao": [
+          "servico",
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S10",
+      "scenario_name": "Software house B2B",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:76b914f5cd9dbe98a1e08395d243d0f279a543131ad364c2171e664630ddf60e",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_digital"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "nacional"
+        ],
+        "regime": "lucro_presumido"
+      }
+    },
+    {
+      "id": "S11",
+      "scenario_name": "SaaS por assinatura",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:32ec1f561597e4c2eda6c9c1c61490f653db8535c63a65b24b0c920dcc98859e",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_digital"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S12",
+      "scenario_name": "Call center terceirizado",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1801.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:10b8c607f44d3a98e7966b0eaba88a8d841c5f880d57ed4efded2f3a102d0699",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S13",
+      "scenario_name": "Hospital com farmacia e 10 especialidades",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 3004 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.2102.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:9db886daa47965277d5a56eb0dd7a06a34f28b0c84f8f751bbd4852311bb48aa",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral",
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico",
+          "venda"
+        ],
+        "territorio": [
+          "municipal"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S14",
+      "scenario_name": "Clinica de diagnostico por imagem",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.2102.20.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:158d4dea4a6ce25f1e768d6b084afc6565c0c6a9a0760bd60aa33872a92e3827",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "municipal"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S15",
+      "scenario_name": "Operadora de plano de saude",
+      "macro_setor": "servicos",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.2201.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-202",
+          "severity": "HARD_BLOCK",
+          "rule": "papel=\"operadora_regulada\" sem \"servico_regulado\" nem \"servico_financeiro\" em objeto"
+        },
+        {
+          "id": "V-LC-607",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"operadora_regulada\" sem subnatureza_setorial declarada"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:6e00c18e90a4bfd9ab0938f57a080f56b5adbfad52a9c852771736096ed8df9c",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "operadora_regulada",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S16",
+      "scenario_name": "Escola basica privada",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.2001.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:6835df0b87b49e0c1a19941ad77bd30eefc1350af204dab87e7b8176be424aa1",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "municipal"
+        ],
+        "regime": "lucro_presumido"
+      }
+    },
+    {
+      "id": "S17",
+      "scenario_name": "Universidade privada com EAD",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.2001.20.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.2001.30.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:03a25db5d2bfc9d69e1f7c0e92736324a1f853749a67bcf9c90b95c164d89bba",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S18",
+      "scenario_name": "Banco digital",
+      "macro_setor": "servicos",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1401.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-108",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"operadora_regulada\" sem \"servico\" em tipo_de_relacao"
+        },
+        {
+          "id": "V-LC-202",
+          "severity": "HARD_BLOCK",
+          "rule": "papel=\"operadora_regulada\" sem \"servico_regulado\" nem \"servico_financeiro\" em objeto"
+        },
+        {
+          "id": "V-LC-607",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"operadora_regulada\" sem subnatureza_setorial declarada"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:df9c535578232039f8b8726711a8aeb4ef4fb9d609a96a1bc4f506be367d149a",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "operadora_regulada",
+        "tipo_de_relacao": [],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S19",
+      "scenario_name": "Corretora de seguros",
+      "macro_setor": "servicos",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1401.20.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "DERIVE-001",
+          "severity": "HARD_BLOCK",
+          "rule": "[DERIVE-001] papel_na_cadeia=indefinido — derivação de OperationType exige papel definido"
+        }
+      ],
+      "missing_required_fields": [
+        "papel_na_cadeia (indefinido — preencher posicao_na_cadeia_economica ou flags CEx)"
+      ],
+      "perfil_hash": "sha256:adb588e48dbeb80a124b148d5ab48069fc5518b1d9f07f40850e41657e940b53",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": null,
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "indefinido",
+        "tipo_de_relacao": [
+          "intermediacao"
+        ],
+        "territorio": [
+          "municipal"
+        ],
+        "regime": "lucro_presumido"
+      }
+    },
+    {
+      "id": "S20",
+      "scenario_name": "Imobiliaria de locacao e administracao",
+      "macro_setor": "servicos",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1601.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "DERIVE-001",
+          "severity": "HARD_BLOCK",
+          "rule": "[DERIVE-001] papel_na_cadeia=indefinido — derivação de OperationType exige papel definido"
+        }
+      ],
+      "missing_required_fields": [
+        "papel_na_cadeia (indefinido — preencher posicao_na_cadeia_economica ou flags CEx)"
+      ],
+      "perfil_hash": "sha256:d2e98764499da641cedc75472a3d88c3c4a3e7b07354d5b8124c3d4146691a57",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": null,
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "indefinido",
+        "tipo_de_relacao": [
+          "locacao",
+          "intermediacao"
+        ],
+        "territorio": [
+          "municipal"
+        ],
+        "regime": "lucro_presumido"
+      }
+    },
+    {
+      "id": "S21",
+      "scenario_name": "Construtora com incorporacao",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 6810 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1801.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:b139dfe8f1b375be0136838d88fab7b8032445742db300fddae1528cddf2c95e",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral",
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico",
+          "venda"
+        ],
+        "territorio": [
+          "interestadual"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S22",
+      "scenario_name": "Rede hoteleira",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.2202.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:5797cfaf18658a033dc0aad69e7f7b653e8243cf08285c3741565d16e202ea2c",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico",
+          "indefinida"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S23",
+      "scenario_name": "Restaurante com delivery",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 2105 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1101.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:f0dba180f7efb86465b094fb4797d7eddae1aecea1bb4e27dbcf23c20a5a190c",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "comercio",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral",
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "varejista",
+        "tipo_de_relacao": [
+          "venda",
+          "servico"
+        ],
+        "territorio": [
+          "municipal"
+        ],
+        "regime": "simples_nacional"
+      }
+    },
+    {
+      "id": "S24",
+      "scenario_name": "Telecom / provedor de internet",
+      "macro_setor": "servicos",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1401.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-202",
+          "severity": "HARD_BLOCK",
+          "rule": "papel=\"operadora_regulada\" sem \"servico_regulado\" nem \"servico_financeiro\" em objeto"
+        },
+        {
+          "id": "V-LC-607",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"operadora_regulada\" sem subnatureza_setorial declarada"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:eba234576f8e1bde7e1a93c8b06ddfbd7544cd29b7018d6fda5538b11a3f47f7",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "operadora_regulada",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S25",
+      "scenario_name": "Geradora/comercializadora de energia",
+      "macro_setor": "servicos",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 2716 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:9c693eab3b2bda157369ee929dadbb106679bcdcfda5f1b2ce7577267572677a",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S26",
+      "scenario_name": "Concessionaria de agua e esgoto",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.2301.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:923ba0c197981c6a026dd51f17b608674c5ce04ebd8ef6a13e46095e23863ec0",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "interestadual"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S27",
+      "scenario_name": "Holding consolidada de 3 CNPJs (controle negativo)",
+      "macro_setor": "servicos",
+      "test_status": "BLOCKED",
+      "status_arquetipo": "bloqueado",
+      "motivo_bloqueio": "[V-05-DENIED] empresa integra grupo econômico E análise consolidada solicitada — fora do escopo M1 (1 CNPJ)",
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1601.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-05-DENIED",
+          "severity": "BLOCK_FLOW",
+          "rule": "empresa integra grupo econômico E análise consolidada solicitada — fora do escopo M1 (1 CNPJ)"
+        },
+        {
+          "id": "V-LC-103",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"prestador\" sem \"servico\" em tipo_de_relacao — contradição direta"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:2192454e7dc9b0393ee795232ae601652bdf860e761d947055326ab50a8f799c",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "indefinida"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S28",
+      "scenario_name": "Cooperativa de servicos medicos",
+      "macro_setor": "servicos",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.2102.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [
+        "regime_tributario_atual (valor não reconhecido ou vazio)"
+      ],
+      "perfil_hash": "sha256:df8bcdd9ccea98b063c7f9cac55bc312486e2fce3690f60fc5103dcff6aa9553",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "interestadual"
+        ],
+        "regime": "indefinido"
+      }
+    },
+    {
+      "id": "S29",
+      "scenario_name": "Escritorio juridico empresarial",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1601.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:d1962086c1b466cce2c48c1bea8f00b7a2e53c6277031d3de58acf4608602bf8",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "municipal"
+        ],
+        "regime": "simples_nacional"
+      }
+    },
+    {
+      "id": "S30",
+      "scenario_name": "Empresa de limpeza e facilities",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1801.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:3450df8f1eeb3d227f3d107121fa0b4e11d716e31d3b970535102b92b5d9d904",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "interestadual"
+        ],
+        "regime": "lucro_presumido"
+      }
+    },
+    {
+      "id": "I31",
+      "scenario_name": "Industria textil",
+      "macro_setor": "industria",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 5208 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:25442c0335eec328e37471b3676919fa856f4dea96cdfdab94e8ab253a2968d4",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "I32",
+      "scenario_name": "Industria de alimentos",
+      "macro_setor": "industria",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 1905 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:25442c0335eec328e37471b3676919fa856f4dea96cdfdab94e8ab253a2968d4",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "I33",
+      "scenario_name": "Industria de bebidas",
+      "macro_setor": "industria",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 2202 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:d480a4a5c8b8f5e2328f1d629eefcae5613b79c9f5f2e78f965a3a77265a33eb",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "I34",
+      "scenario_name": "Industria farmaceutica",
+      "macro_setor": "industria",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 3004 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:3bc98121146e5bb3b80f9529441b93882e7b90268da7d942712297b56b8dfa44",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "I35",
+      "scenario_name": "Industria quimica",
+      "macro_setor": "industria",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 2905 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:25442c0335eec328e37471b3676919fa856f4dea96cdfdab94e8ab253a2968d4",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "I36",
+      "scenario_name": "Metalurgica",
+      "macro_setor": "industria",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 7308 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:25442c0335eec328e37471b3676919fa856f4dea96cdfdab94e8ab253a2968d4",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "I37",
+      "scenario_name": "Montadora de autopecas",
+      "macro_setor": "industria",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 8708 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:25442c0335eec328e37471b3676919fa856f4dea96cdfdab94e8ab253a2968d4",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "I38",
+      "scenario_name": "Industria de eletroeletronicos na ZFM",
+      "macro_setor": "industria",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 8517 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:0bdc8638727ac1d38e2cd5f538600891ba11b867fc298a226424d6cf8d60ed84",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional",
+          "internacional",
+          "incentivado_outro"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "I39",
+      "scenario_name": "Refinaria",
+      "macro_setor": "industria",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 2710 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:0312b897d47517da5dd9ccd18b146f86b37309c8c01d71648de07261e3ea516d",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "I40",
+      "scenario_name": "Usina sucroenergetica",
+      "macro_setor": "industria",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 1701 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 2207 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:5e86f2fd92519fbe22b63049875a75cf7e3034e18baae6cd2f03cc8eff93e13c",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "I41",
+      "scenario_name": "Construcao pesada / infraestrutura",
+      "macro_setor": "industria",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 6810 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1801.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:cd09fee1a90d60f523da5565f1329505e5ef93587a8387b62cf022b880ba6f62",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral",
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "I42",
+      "scenario_name": "Industria moveleira",
+      "macro_setor": "industria",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 9403 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:25442c0335eec328e37471b3676919fa856f4dea96cdfdab94e8ab253a2968d4",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "I43",
+      "scenario_name": "Industria de plasticos",
+      "macro_setor": "industria",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 3923 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:25442c0335eec328e37471b3676919fa856f4dea96cdfdab94e8ab253a2968d4",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "A44",
+      "scenario_name": "Produtor de soja",
+      "macro_setor": "agro",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 1201 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [
+        "regime_tributario_atual (valor não reconhecido ou vazio)"
+      ],
+      "perfil_hash": "sha256:a60c2d598e3601b6d0699d06bd3c1e9a102110c9dc07fffb1ac6d71d4db3c362",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [],
+        "territorio": [
+          "nacional"
+        ],
+        "regime": "indefinido"
+      }
+    },
+    {
+      "id": "A45",
+      "scenario_name": "Produtor de soja com frete para terceiros",
+      "macro_setor": "agro",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 1201 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.0501.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [
+        "regime_tributario_atual (valor não reconhecido ou vazio)"
+      ],
+      "perfil_hash": "sha256:39537ea6fccdf9a072c3f44c7444ec0a2d865c6b1988c1a4cb35329d45a738c1",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral",
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "indefinido"
+      }
+    },
+    {
+      "id": "A46",
+      "scenario_name": "Cooperativa agricola",
+      "macro_setor": "agro",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 1005 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [
+        "regime_tributario_atual (valor não reconhecido ou vazio)"
+      ],
+      "perfil_hash": "sha256:a1ba95fb03ed6d24c8f893bc1144b7a5e1b29550254d74bd2fde48c92c8d06e5",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda",
+          "indefinida"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "indefinido"
+      }
+    },
+    {
+      "id": "A47",
+      "scenario_name": "Trading agricola exportadora",
+      "macro_setor": "agro",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 1201 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:4ccd694103c03caea9d24ca0c2af30c046a873f572257f4f6ea0437d3ecb1475",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "comercio",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "distribuidor",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional",
+          "internacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "A48",
+      "scenario_name": "Agroindustria de carnes",
+      "macro_setor": "agro",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 0201 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 0207 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:85048afcb8c4ec74159b6ef893c95253f4ba447e035cde200c9844644114987f",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "A49",
+      "scenario_name": "Laticinios",
+      "macro_setor": "agro",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 0402 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 0405 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:85048afcb8c4ec74159b6ef893c95253f4ba447e035cde200c9844644114987f",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "A50",
+      "scenario_name": "Florestal e celulose",
+      "macro_setor": "agro",
+      "test_status": "FAIL",
+      "status_arquetipo": "inconsistente",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 4703 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-LC-102",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"fabricante\" sem \"producao\" em tipo_de_relacao — fabricante, por definição, produz"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:25442c0335eec328e37471b3676919fa856f4dea96cdfdab94e8ab253a2968d4",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "S51",
+      "scenario_name": "Empresa de grupo econômico — análise de 1 CNPJ operacional (controle V-05-INFO)",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-05-INFO",
+          "severity": "INFO",
+          "rule": "empresa integra grupo econômico — análise neste projeto é de 1 CNPJ operacional; consolidação requer projetos adicionais"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:060dac29136fa87f84f92ee8ec379f293575b0ad388995a23d5c03dc045752db",
+      "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_digital"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    }
+  ]
+}
