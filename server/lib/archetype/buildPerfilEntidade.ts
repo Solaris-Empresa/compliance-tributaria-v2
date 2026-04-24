@@ -109,15 +109,20 @@ function derivePapel(seed: Seed): PapelNaCadeia {
   if (seed.atua_importacao) sinaisCex.add("Importador");
   if (seed.atua_exportacao) sinaisCex.add("Exportador");
 
-  // Tabela de decisão §2.2 (ordem importa)
+  // Tabela de decisão §2.2 (ordem importa — primeira condição que bate vence)
   const posicao = seed.posicao_na_cadeia_economica;
   if (posicao === "Produtor/fabricante") return "fabricante";
   if (posicao === "Atacadista") return "distribuidor";
   if (posicao === "Varejista") return "varejista";
   if (posicao === "Prestador de servico") return "prestador";
   if (posicao === "Operadora") return "operadora_regulada";
+  // Intermediador declarado explicitamente (cobre: corretoras, imobiliárias,
+  // plataformas de intermediação, representantes comerciais).
+  // Q-3 downstream: C1-06 valida consistência com tipo_de_relacao;
+  // derivação de OperationType (R-21) requer tipo_de_relacao=["intermediacao"] puro.
+  if (posicao === "Intermediador") return "intermediador";
 
-  // Marketplace (Q-3) — intermediador
+  // Marketplace (Q-3) — flag dedicada equivale a papel=intermediador (alias de `posicao=Intermediador`)
   if (seed.atua_como_marketplace_plataforma === true) return "intermediador";
 
   // Transportador

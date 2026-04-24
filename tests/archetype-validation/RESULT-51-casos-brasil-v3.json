@@ -1,21 +1,21 @@
 {
   "suite_name": "M1-arquetipo-51-casos-brasil-v3",
   "phase": "M1_RUNNER_V3",
-  "executed_at": "2026-04-24T21:03:16.153Z",
+  "executed_at": "2026-04-24T21:10:22.060Z",
   "model_version": "m1-v1.0.0",
   "data_version_fixed": "2026-04-24T12:00:00.000Z",
   "summary": {
     "total": 51,
     "by_test_status": {
-      "PASS": 23,
-      "FAIL": 27,
+      "PASS": 24,
+      "FAIL": 26,
       "BLOCKED": 1
     },
     "by_status_arquetipo": {
       "pendente": 0,
-      "inconsistente": 27,
+      "inconsistente": 26,
       "bloqueado": 1,
-      "confirmado": 23
+      "confirmado": 24
     },
     "by_macro_setor": {
       "servicos": 31,
@@ -24,8 +24,8 @@
     },
     "blockers_by_id": {
       "V-10-FALLBACK": 63,
-      "DERIVE-001": 3,
-      "V-LC-106": 1,
+      "DERIVE-001": 2,
+      "V-LC-106": 2,
       "V-LC-202": 4,
       "V-LC-607": 4,
       "V-LC-108": 1,
@@ -44,9 +44,9 @@
       "total": 51
     },
     "rationale": [
-      "FAIL = 27 (alvo: 0)",
+      "FAIL = 26 (alvo: 0)",
       "BLOCKED = 1 (alvo: 1 — controle negativo S27)",
-      "PASS = 23"
+      "PASS = 24"
     ]
   },
   "rules_hash_consistency": {
@@ -721,32 +721,25 @@
       "id": "S19",
       "scenario_name": "Corretora de seguros",
       "macro_setor": "servicos",
-      "test_status": "FAIL",
-      "status_arquetipo": "inconsistente",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
       "blockers_triggered": [
         {
           "id": "V-10-FALLBACK",
           "severity": "INFO",
           "rule": "NBS 1.1401.20.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
-        },
-        {
-          "id": "DERIVE-001",
-          "severity": "HARD_BLOCK",
-          "rule": "[DERIVE-001] papel_na_cadeia=indefinido — derivação de OperationType exige papel definido"
         }
       ],
-      "missing_required_fields": [
-        "papel_na_cadeia (indefinido — preencher posicao_na_cadeia_economica ou flags CEx)"
-      ],
-      "perfil_hash": "sha256:adb588e48dbeb80a124b148d5ab48069fc5518b1d9f07f40850e41657e940b53",
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:e0ab2c20b78ffe2d37cad6c8b0ca75f6bfc29fa459d88c7434c8072ae8ce935b",
       "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
-      "derived_legacy_operation_type": null,
+      "derived_legacy_operation_type": "servicos",
       "arquetipo_dimensions": {
         "objeto": [
           "servico_geral"
         ],
-        "papel_na_cadeia": "indefinido",
+        "papel_na_cadeia": "intermediador",
         "tipo_de_relacao": [
           "intermediacao"
         ],
@@ -772,20 +765,23 @@
         {
           "id": "DERIVE-001",
           "severity": "HARD_BLOCK",
-          "rule": "[DERIVE-001] papel_na_cadeia=indefinido — derivação de OperationType exige papel definido"
+          "rule": "[DERIVE-001] Marketplace-com-estoque (papel=intermediador com tipo_de_relacao=[\"locacao\",\"intermediacao\"]) não resolve para OperationType único — Q-3 R-21-AMB"
+        },
+        {
+          "id": "V-LC-106",
+          "severity": "HARD_BLOCK",
+          "rule": "papel_na_cadeia=\"intermediador\" com tipo_de_relacao=[\"locacao\",\"intermediacao\"] — marketplace-com-estoque não resolve (Q-3)"
         }
       ],
-      "missing_required_fields": [
-        "papel_na_cadeia (indefinido — preencher posicao_na_cadeia_economica ou flags CEx)"
-      ],
-      "perfil_hash": "sha256:d2e98764499da641cedc75472a3d88c3c4a3e7b07354d5b8124c3d4146691a57",
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:16c121082d7f84f29070d3e24750fb9c5fed168e4a60a2e01a45e3d90cdfe710",
       "rules_hash": "sha256:13daa2a7c47b63706355143882e6f56eb9738a086d2c65e4efaa6c5b8df7a9f1",
       "derived_legacy_operation_type": null,
       "arquetipo_dimensions": {
         "objeto": [
           "servico_geral"
         ],
-        "papel_na_cadeia": "indefinido",
+        "papel_na_cadeia": "intermediador",
         "tipo_de_relacao": [
           "locacao",
           "intermediacao"
