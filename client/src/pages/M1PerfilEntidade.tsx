@@ -187,6 +187,7 @@ export default function M1PerfilEntidade() {
   const [result, setResult] = useState<RunResult | null>(null);
   const [showBlockers, setShowBlockers] = useState(false);
   const [logLimit] = useState(50);
+  const [confirming, setConfirming] = useState(false);
 
   const runMutation = trpc.m1Monitor.runAndLog.useMutation({
     onSuccess: (data) => setResult(data as unknown as RunResult),
@@ -220,6 +221,44 @@ export default function M1PerfilEntidade() {
         : [...current, value];
       return { ...prev, natureza_operacao_principal: next };
     });
+  }
+
+  // ── Condição para habilitar o botão de confirmação ──────────────────────────
+  // Regras: sem missing_required_fields, sem HARD_BLOCK, sem BLOCK_FLOW
+  const canConfirm = result !== null
+    && result.status_arquetipo !== "confirmado"
+    && result.missing_required_fields.length === 0
+    && result.hard_block_count === 0
+    && !result.blockers_triggered.some((b) => b.severity === "BLOCK_FLOW");
+
+  function handleConfirm() {
+    const projectId = parseInt(form.projectId, 10);
+    if (isNaN(projectId) || projectId <= 0) return;
+    setConfirming(true);
+    const seed = {
+      nome_empresa: form.nome_empresa || undefined,
+      cnpj: form.cnpj || undefined,
+      ncms_principais: form.ncms_principais
+        ? form.ncms_principais.split(",").map((s) => s.trim()).filter(Boolean)
+        : undefined,
+      nbss_principais: form.nbss_principais
+        ? form.nbss_principais.split(",").map((s) => s.trim()).filter(Boolean)
+        : undefined,
+      natureza_operacao_principal: form.natureza_operacao_principal.length > 0
+        ? form.natureza_operacao_principal
+        : undefined,
+      papel_na_cadeia_input: form.papel_na_cadeia_input || undefined,
+      tipo_de_relacao_input: form.tipo_de_relacao_input || undefined,
+      territorio_input: form.territorio_input || undefined,
+      regime_tributario_input: form.regime_tributario_input || undefined,
+      cnae_principal_confirmado: form.cnae_principal_confirmado || undefined,
+      // flag determinística: solicita transição pendente → confirmado
+      user_confirmed: true,
+    };
+    runMutation.mutate(
+      { projectId, seed },
+      { onSettled: () => setConfirming(false) },
+    );
   }
 
   function handleRun() {
@@ -617,6 +656,43 @@ export default function M1PerfilEntidade() {
                   <div className="text-xs text-slate-500 text-right">
                     Executado em {result.duration_ms}ms
                   </div>
+
+                  {/* ── Botão de Confirmação do Perfil ── */}
+                  {result.status_arquetipo === "confirmado" ? (
+                    <div className="flex items-center gap-2 text-xs bg-emerald-500/10 border border-emerald-500/20 rounded p-3 text-emerald-300">
+                      <CheckCircle2 className="h-4 w-4 shrink-0" />
+                      <span><strong>Perfil confirmado.</strong> status_arquetipo = confirmado.</span>
+                    </div>
+                  ) : canConfirm ? (
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2 text-xs bg-indigo-500/10 border border-indigo-500/20 rounded p-2 text-indigo-300">
+                        <ShieldCheck className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                        <span>
+                          Sem campos faltantes, sem HARD_BLOCK e sem BLOCK_FLOW.
+                          Clique para confirmar o perfil e transicionar para <strong>confirmado</strong>.
+                        </span>
+                      </div>
+                      <Button
+                        onClick={handleConfirm}
+                        disabled={confirming || runMutation.isPending}
+                        className="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-sm h-9"
+                      >
+                        {confirming ? (
+                          <><RefreshCw className="h-3.5 w-3.5 mr-2 animate-spin" />Confirmando...</>
+                        ) : (
+                          <><CheckCircle2 className="h-3.5 w-3.5 mr-2" />Confirmar Perfil da Entidade</>
+                        )}
+                      </Button>
+                    </div>
+                  ) : result.status_arquetipo !== "confirmado" ? (
+                    <div className="flex items-start gap-2 text-xs bg-slate-700/40 border border-slate-600/30 rounded p-2 text-slate-400">
+                      <XCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                      <span>
+                        Confirmação bloqueada: resolva os campos obrigatórios ausentes, HARD_BLOCKs ou BLOCK_FLOWs antes de confirmar.
+                      </span>
+                    </div>
+                  ) : null}
+
                 </div>
               )}
             </CardContent>
