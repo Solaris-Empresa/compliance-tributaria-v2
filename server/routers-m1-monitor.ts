@@ -145,27 +145,30 @@ export const m1MonitorRouter = router({
       // Fix: buildPerfilEntidade usa for...of em ncms_principais/nbss_principais —
       // se undefined, lança "seed.ncms_principais is not iterable"
 
-      // Mapeamento de labels da UI para snake_case aceito pelo runner
-      const REGIME_MAP: Record<string, string> = {
-        "Lucro Real": "lucro_real",
-        "Lucro Presumido": "lucro_presumido",
-        "Simples Nacional": "simples_nacional",
-        "Simples": "simples_nacional",
-        "MEI": "mei",
-        "Regime Geral": "regime_geral",
-        // snake_case já correto — passthrough
-        "lucro_real": "lucro_real",
-        "lucro_presumido": "lucro_presumido",
-        "simples_nacional": "simples_nacional",
-        "mei": "mei",
-        "regime_geral": "regime_geral",
+      // O runner (buildPerfilEntidade.deriveRegime) usa REGIME_TRIBUTARIO_TO_REGIME
+      // que mapeia os labels originais da UI: "Lucro Real", "Lucro Presumido",
+      // "Simples Nacional", "MEI". Portanto o router deve passar o valor da UI
+      // diretamente, sem converter para snake_case.
+      //
+      // Normalização necessária: snake_case → label UI (para seeds programáticas)
+      const SNAKE_TO_LABEL: Record<string, string> = {
+        "lucro_real": "Lucro Real",
+        "lucro_presumido": "Lucro Presumido",
+        "simples_nacional": "Simples Nacional",
+        "simples": "Simples Nacional",
+        "mei": "MEI",
+        "regime_geral": "Lucro Real", // fallback razoável para regime_geral
       };
       const rawRegime = (
         (input.seed as Record<string, unknown>).regime_tributario_atual as string ??
         (input.seed as Record<string, unknown>).regime_tributario_input as string ??
-        "regime_geral"
+        ""
       );
-      const normalizedRegime = REGIME_MAP[rawRegime] ?? rawRegime.toLowerCase().replace(/ /g, "_");
+      // Se já é um label válido da UI, usa diretamente; se é snake_case, converte
+      const VALID_LABELS = new Set(["Lucro Real", "Lucro Presumido", "Simples Nacional", "MEI"]);
+      const normalizedRegime = VALID_LABELS.has(rawRegime)
+        ? rawRegime
+        : (SNAKE_TO_LABEL[rawRegime] ?? rawRegime);
 
       const normalizedSeed: Seed = {
         // Campos com defaults seguros para o formulário M1
@@ -207,6 +210,12 @@ export const m1MonitorRouter = router({
       };
 
       // Executar runner v3
+      // LOG DE DIAGNÓSTICO: rastrear regime antes do runner
+      console.log("[M1-RUNNER] regime_tributario_atual enviado ao runner:", JSON.stringify({
+        rawRegime,
+        normalizedRegime,
+        regime_tributario_atual: normalizedSeed.regime_tributario_atual,
+      }));
       const snapshot = buildSnapshot(normalizedSeed, dataVersion);
       const durationMs = Date.now() - startMs;
 
