@@ -203,11 +203,33 @@ export const m1MonitorRouter = router({
       const normalizedPosicao = POSICAO_ALIASES[rawPosicao] ?? rawPosicao;
       console.log("[M1-RUNNER] posicao_na_cadeia_economica:", JSON.stringify({ rawPosicao, normalizedPosicao }));
 
+      // Mapeamento natureza_operacao_principal → fontes_receita
+      // O runner (§2.3) deriva tipo_de_relacao exclusivamente de fontes_receita.
+      // O formulário M1 usa natureza_operacao_principal (multi-select UI).
+      // Quando fontes_receita estiver vazio, derivamos a partir de natureza_operacao_principal
+      // para evitar tipo_de_relacao=[] e o consequente HARD_BLOCK V-LC-102.
+      const NATUREZA_TO_FONTES: Record<string, string> = {
+        "Produção própria":    "Producao propria",
+        "Comércio":            "Venda de mercadoria",
+        "Prestação de serviço": "Prestacao de servico",
+        "Transporte":          "Prestacao de servico",
+        "Intermediação":       "Comissao/intermediacao",
+        "Locação":             "Aluguel/locacao",
+      };
+      const rawNatureza = (input.seed as Record<string, unknown>).natureza_operacao_principal as string[] ?? [];
+      const rawFontes   = (input.seed as Record<string, unknown>).fontes_receita as string[] ?? [];
+      const derivedFontes: string[] = rawFontes.length > 0
+        ? rawFontes
+        : rawNatureza
+            .map((n) => NATUREZA_TO_FONTES[n])
+            .filter((v): v is string => v !== undefined);
+      console.log("[M1-RUNNER] fontes_receita:", JSON.stringify({ rawFontes, rawNatureza, derivedFontes }));
+
       const normalizedSeed: Seed = {
         // Campos com defaults seguros para o formulário M1
-        natureza_operacao_principal: (input.seed as Record<string, unknown>).natureza_operacao_principal as readonly string[] ?? [],
+        natureza_operacao_principal: rawNatureza,
         operacoes_secundarias: (input.seed as Record<string, unknown>).operacoes_secundarias as readonly string[] ?? [],
-        fontes_receita: (input.seed as Record<string, unknown>).fontes_receita as readonly string[] ?? [],
+        fontes_receita: derivedFontes,
         tipo_objeto_economico: (input.seed as Record<string, unknown>).tipo_objeto_economico as readonly string[] ?? [],
         posicao_na_cadeia_economica: normalizedPosicao,
         ncms_principais: (input.seed as Record<string, unknown>).ncms_principais as readonly string[] ?? [],
