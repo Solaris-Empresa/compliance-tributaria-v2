@@ -89,7 +89,7 @@ type SeedForm = {
   ncms_principais: string; // CSV
   nbss_principais: string; // CSV
   natureza_operacao_principal: string[]; // multi-select
-  papel_na_cadeia_input: string;
+  posicao_na_cadeia_economica: string; // valor direto para o runner (ex: "Produtor/fabricante")
   tipo_de_relacao_input: string;
   territorio_input: string;
   regime_tributario_input: string;
@@ -103,7 +103,7 @@ const INITIAL_FORM: SeedForm = {
   ncms_principais: "",
   nbss_principais: "",
   natureza_operacao_principal: [],
-  papel_na_cadeia_input: "",
+  posicao_na_cadeia_economica: "",
   tipo_de_relacao_input: "",
   territorio_input: "",
   regime_tributario_input: "",
@@ -247,7 +247,7 @@ export default function M1PerfilEntidade() {
       natureza_operacao_principal: form.natureza_operacao_principal.length > 0
         ? form.natureza_operacao_principal
         : undefined,
-      papel_na_cadeia_input: form.papel_na_cadeia_input || undefined,
+      posicao_na_cadeia_economica: form.posicao_na_cadeia_economica || undefined,
       tipo_de_relacao_input: form.tipo_de_relacao_input || undefined,
       territorio_input: form.territorio_input || undefined,
       regime_tributario_input: form.regime_tributario_input || undefined,
@@ -280,7 +280,7 @@ export default function M1PerfilEntidade() {
       natureza_operacao_principal: form.natureza_operacao_principal.length > 0
         ? form.natureza_operacao_principal
         : undefined,
-      papel_na_cadeia_input: form.papel_na_cadeia_input || undefined,
+      posicao_na_cadeia_economica: form.posicao_na_cadeia_economica || undefined,
       tipo_de_relacao_input: form.tipo_de_relacao_input || undefined,
       territorio_input: form.territorio_input || undefined,
       regime_tributario_input: form.regime_tributario_input || undefined,
@@ -433,19 +433,21 @@ export default function M1PerfilEntidade() {
                 <div>
                   <Label className="text-xs text-slate-400">Papel na Cadeia</Label>
                   <Select
-                    value={form.papel_na_cadeia_input}
-                    onValueChange={(v) => handleChange("papel_na_cadeia_input", v)}
+                    value={form.posicao_na_cadeia_economica}
+                    onValueChange={(v) => handleChange("posicao_na_cadeia_economica", v)}
                   >
                     <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-100 text-sm h-8">
                       <SelectValue placeholder="Selecione..." />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700">
-                      <SelectItem value="fabricante">Fabricante</SelectItem>
-                      <SelectItem value="importador">Importador</SelectItem>
-                      <SelectItem value="distribuidor">Distribuidor</SelectItem>
-                      <SelectItem value="varejista">Varejista</SelectItem>
-                      <SelectItem value="prestador_servico">Prestador de Serviço</SelectItem>
-                      <SelectItem value="misto">Misto</SelectItem>
+                      {/* Valores exatos aceitos pelo runner (buildPerfilEntidade.ts §2.2) */}
+                      <SelectItem value="Produtor/fabricante">Fabricante / Indústria</SelectItem>
+                      <SelectItem value="Produtor">Produtor Rural / Agro</SelectItem>
+                      <SelectItem value="Atacadista">Atacadista / Distribuidor</SelectItem>
+                      <SelectItem value="Varejista">Varejista</SelectItem>
+                      <SelectItem value="Prestador de servico">Prestador de Serviço</SelectItem>
+                      <SelectItem value="Intermediador">Intermediador / Marketplace</SelectItem>
+                      <SelectItem value="Operadora">Operadora Regulada</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

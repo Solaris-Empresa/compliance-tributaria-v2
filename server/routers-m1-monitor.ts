@@ -141,8 +141,115 @@ export const m1MonitorRouter = router({
       const dataVersion =
         input.dataVersion ?? new Date().toISOString();
 
+      // Normalizar seed: arrays opcionais do formulário devem ser [] quando undefined
+      // Fix: buildPerfilEntidade usa for...of em ncms_principais/nbss_principais —
+      // se undefined, lança "seed.ncms_principais is not iterable"
+
+      // O runner (buildPerfilEntidade.deriveRegime) usa REGIME_TRIBUTARIO_TO_REGIME
+      // que mapeia os labels originais da UI: "Lucro Real", "Lucro Presumido",
+      // "Simples Nacional", "MEI". Portanto o router deve passar o valor da UI
+      // diretamente, sem converter para snake_case.
+      //
+      // Normalização necessária: snake_case → label UI (para seeds programáticas)
+      const SNAKE_TO_LABEL: Record<string, string> = {
+        "lucro_real": "Lucro Real",
+        "lucro_presumido": "Lucro Presumido",
+        "simples_nacional": "Simples Nacional",
+        "simples": "Simples Nacional",
+        "mei": "MEI",
+        "regime_geral": "Lucro Real", // fallback razoável para regime_geral
+      };
+      const rawRegime = (
+        (input.seed as Record<string, unknown>).regime_tributario_atual as string ??
+        (input.seed as Record<string, unknown>).regime_tributario_input as string ??
+        ""
+      );
+      // Se já é um label válido da UI, usa diretamente; se é snake_case, converte
+      const VALID_LABELS = new Set(["Lucro Real", "Lucro Presumido", "Simples Nacional", "MEI"]);
+      const normalizedRegime = VALID_LABELS.has(rawRegime)
+        ? rawRegime
+        : (SNAKE_TO_LABEL[rawRegime] ?? rawRegime);
+
+      // Normalização de posicao_na_cadeia_economica:
+      // O runner (buildPerfilEntidade.ts §2.2) aceita valores exatos como
+      // "Produtor/fabricante", "Prestador de servico", "Atacadista", etc.
+      // O formulário M1 envia os valores diretamente, mas aliases históricos
+      // (snake_case, labels antigos) são normalizados aqui para não alterar o runner.
+      const POSICAO_ALIASES: Record<string, string> = {
+        // snake_case legado
+        "fabricante":          "Produtor/fabricante",
+        "produtor":            "Produtor/fabricante",
+        "distribuidor":        "Atacadista",
+        "atacadista":          "Atacadista",
+        "varejista":           "Varejista",
+        "prestador_servico":   "Prestador de servico",
+        "prestador de serviço": "Prestador de servico",
+        "intermediador":       "Intermediador",
+        "operadora":           "Operadora",
+        "operadora_regulada":  "Operadora",
+        "importador":          "Importador",
+        // Alias especial: "Produtor" (agro) → "Produtor/fabricante" (runner)
+        "Produtor":            "Produtor/fabricante",
+        // Alias especial: "Fabricante" (indústria) → "Produtor/fabricante" (runner)
+        "Fabricante":          "Produtor/fabricante",
+        // Alias: "Prestador de Serviço" (com acento) → "Prestador de servico"
+        "Prestador de Serviço": "Prestador de servico",
+        "Transportador":       "Transportador", // pass-through (runner usa natureza_op)
+        "Comerciante":         "Varejista",     // alias razoável
+        "Importador":          "Importador",    // pass-through (runner usa atua_importacao)
+        "Intermediador":       "Intermediador", // pass-through
+      };
+      const rawPosicao = (input.seed as Record<string, unknown>).posicao_na_cadeia_economica as string ?? "";
+      const normalizedPosicao = POSICAO_ALIASES[rawPosicao] ?? rawPosicao;
+      console.log("[M1-RUNNER] posicao_na_cadeia_economica:", JSON.stringify({ rawPosicao, normalizedPosicao }));
+
+      const normalizedSeed: Seed = {
+        // Campos com defaults seguros para o formulário M1
+        natureza_operacao_principal: (input.seed as Record<string, unknown>).natureza_operacao_principal as readonly string[] ?? [],
+        operacoes_secundarias: (input.seed as Record<string, unknown>).operacoes_secundarias as readonly string[] ?? [],
+        fontes_receita: (input.seed as Record<string, unknown>).fontes_receita as readonly string[] ?? [],
+        tipo_objeto_economico: (input.seed as Record<string, unknown>).tipo_objeto_economico as readonly string[] ?? [],
+        posicao_na_cadeia_economica: normalizedPosicao,
+        ncms_principais: (input.seed as Record<string, unknown>).ncms_principais as readonly string[] ?? [],
+        nbss_principais: (input.seed as Record<string, unknown>).nbss_principais as readonly string[] ?? [],
+        abrangencia_operacional: (input.seed as Record<string, unknown>).abrangencia_operacional as readonly string[] ?? [],
+        opera_multiplos_estados: (input.seed as Record<string, unknown>).opera_multiplos_estados as boolean ?? false,
+        atua_importacao: (input.seed as Record<string, unknown>).atua_importacao as boolean ?? false,
+        atua_exportacao: (input.seed as Record<string, unknown>).atua_exportacao as boolean ?? false,
+        papel_comercio_exterior: (input.seed as Record<string, unknown>).papel_comercio_exterior as readonly string[] ?? [],
+        opera_territorio_incentivado: (input.seed as Record<string, unknown>).opera_territorio_incentivado as boolean ?? false,
+        tipo_territorio_incentivado: (input.seed as Record<string, unknown>).tipo_territorio_incentivado as readonly string[] ?? [],
+        regime_tributario_atual: normalizedRegime,
+        possui_regime_especial_negocio: (input.seed as Record<string, unknown>).possui_regime_especial_negocio as boolean ?? false,
+        tipo_regime_especial: (input.seed as Record<string, unknown>).tipo_regime_especial as readonly string[] ?? [],
+        setor_regulado: (input.seed as Record<string, unknown>).setor_regulado as boolean ?? false,
+        orgao_regulador_principal: (input.seed as Record<string, unknown>).orgao_regulador_principal as readonly string[] ?? [],
+        subnatureza_setorial: (input.seed as Record<string, unknown>).subnatureza_setorial as readonly string[] ?? [],
+        tipo_operacao_especifica: (input.seed as Record<string, unknown>).tipo_operacao_especifica as readonly string[] ?? [],
+        papel_operacional_especifico: (input.seed as Record<string, unknown>).papel_operacional_especifico as readonly string[] ?? [],
+        integra_grupo_economico: (input.seed as Record<string, unknown>).integra_grupo_economico as boolean ?? false,
+        analise_1_cnpj_operacional: (input.seed as Record<string, unknown>).analise_1_cnpj_operacional as boolean ?? true,
+        user_confirmed: (input.seed as Record<string, unknown>).user_confirmed as boolean ?? false,
+        // Campos opcionais passados diretamente
+        cnae_principal_confirmado: (input.seed as Record<string, unknown>).cnae_principal_confirmado as string | undefined,
+        descricao_negocio_livre: (input.seed as Record<string, unknown>).descricao_negocio_livre as string | undefined,
+        uf_principal_operacao: (input.seed as Record<string, unknown>).uf_principal_operacao as string | undefined,
+        possui_filial_outra_uf: (input.seed as Record<string, unknown>).possui_filial_outra_uf as boolean | undefined,
+        estrutura_operacao: (input.seed as Record<string, unknown>).estrutura_operacao as string | undefined,
+        porte_empresa: (input.seed as Record<string, unknown>).porte_empresa as string | undefined,
+        atua_como_marketplace_plataforma: (input.seed as Record<string, unknown>).atua_como_marketplace_plataforma as boolean | undefined,
+        nivel_analise: (input.seed as Record<string, unknown>).nivel_analise as string | undefined,
+        realiza_operacao_propria_terceiros: (input.seed as Record<string, unknown>).realiza_operacao_propria_terceiros as string | undefined,
+      };
+
       // Executar runner v3
-      const snapshot = buildSnapshot(input.seed as unknown as Seed, dataVersion);
+      // LOG DE DIAGNÓSTICO: rastrear regime antes do runner
+      console.log("[M1-RUNNER] regime_tributario_atual enviado ao runner:", JSON.stringify({
+        rawRegime,
+        normalizedRegime,
+        regime_tributario_atual: normalizedSeed.regime_tributario_atual,
+      }));
+      const snapshot = buildSnapshot(normalizedSeed, dataVersion);
       const durationMs = Date.now() - startMs;
 
       const fallbackCount = snapshot.blockers_triggered.filter(
