@@ -112,6 +112,7 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
     navItems.push({ href: "/admin/rag-cockpit", icon: Database, label: "RAG Cockpit" });
     navItems.push({ href: "/admin/solaris-questions", icon: Upload, label: "Upload Perguntas SOLARIS" }); // Sprint L — DEC-002
     navItems.push({ href: "/admin/categorias", icon: Database, label: "Categorias de Risco" }); // Sprint Z-09 — ADR-0025
+    navItems.push({ href: "/admin/m1-perfil", icon: Activity, label: "M1 Perfil Entidade" }); // M1 — Runner v3 (feat/m1-archetype-runner-v3)
   }
 
   if (user?.role === "cliente") {
