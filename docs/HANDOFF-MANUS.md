@@ -311,3 +311,73 @@ Gate 7: PASS 5/5
 **Checkpoint:** `ba7e7af2` · HEAD `b387bbb` · tsc 0 erros · E2E 37 CTs · Gate 7 5/5 PASS · Deploy iasolaris.manus.space ✅
 
 *Atualizado em 2026-04-17 · v2.4 · Sprint Z-18 · Aprovador: P.O. Uires Tapajós*
+
+---
+
+## Sprint M1 — Arquétipo de Negócio / Runner v3 — Estado atual (2026-04-25)
+
+### Objetivo
+Deploy controlado do Runner v3 com feature flag `M1_ARCHETYPE_ENABLED=false`, tela de Perfil da Entidade (`/admin/m1-perfil`), Painel de Confiança e persistência em `m1_runner_logs`.
+
+### Entregáveis concluídos
+
+| Artefato | Localização | Status |
+|---|---|---|
+| Feature flag M1 | `server/config/feature-flags.ts` | ✅ ativo (`false` por default) |
+| Router tRPC M1 | `server/routers-m1-monitor.ts` | ✅ 5 procedures |
+| Tabela `m1_runner_logs` | `drizzle/schema.ts` (20 colunas) | ✅ criada no banco |
+| Tela `/admin/m1-perfil` | `client/src/pages/M1PerfilEntidade.tsx` | ✅ em produção |
+| Botão "Confirmar Perfil" | `M1PerfilEntidade.tsx` | ✅ `user_confirmed=true` |
+| Testes Vitest | `server/m1-feature-flag.test.ts` | ✅ 12/12 PASS |
+| Relatório de validação | `docs/sprints/M1-arquetipo-negocio/RELATORIO-VALIDACAO-CAMADA-CONFIANCA-v1.1.md` | ✅ PASS em produção |
+| Guia de teste P.O. | `docs/sprints/M1-arquetipo-negocio/GUIA-TESTE-PO-TRANSPORTADORA-COMBUSTIVEIS.md` | ✅ executado |
+
+### Validação em produção — PASS (2026-04-25)
+
+Caso real: **Transportadora de Combustíveis Perigosos** — `natureza_operacao_principal=[Transporte]`, `regime=Lucro Real`, `user_confirmed=true`.
+
+| Métrica | Resultado |
+|---|---|
+| `status_arquetipo` | `confirmado` ✅ |
+| `score_confianca` | 100% ✅ |
+| `fallback_count` | 0 ✅ |
+| `hard_block_count` | 0 ✅ |
+| `lc_conflict_count` | 0 ✅ |
+| Fluxo `pendente → confirmado` | Validado ✅ |
+| Gravação `m1_runner_logs` | OK ✅ |
+| IS indevido | Não disparado ✅ |
+
+**Veredito: PASS 9/9 — Runner v3 validado em produção controlada.**
+
+### Commits na branch `feat/m1-archetype-runner-v3`
+
+| Hash | Mensagem |
+|---|---|
+| `639937d` | feat(m1): deploy controlado Runner v3 — feature flag + monitor + tabela m1_runner_logs |
+| `f4fea13` | feat(m1): adicionar confirmação explícita do Perfil da Entidade |
+
+### Estado do git
+
+- Branch `main` local: `10396d7` (sincronizado com `origin/main`)
+- Branch `feat/m1-archetype-runner-v3` remota: `f4fea136` no GitHub
+- `drizzle/schema.ts`: `perfil_hash`/`rules_hash` corrigidos para `varchar(80)` no working tree (aguarda commit autorizado — P3)
+
+### Pendências abertas (pós M1 validação)
+
+| Prioridade | Ação | Responsável | Bloqueio |
+|---|---|---|---|
+| P2 | Ativar piloto via secret `M1_ARCHETYPE_ALLOWED_PROJECTS=<project_id>` | P.O. | Decisão de produto |
+| P2 | Adicionar `posicao_na_cadeia_economica` ao formulário M1 | Manus | Aguarda autorização P.O. |
+| P3 | Commit `drizzle/schema.ts` com `varchar(80)` (divergência banco vs schema) | Manus | Aguarda autorização P.O. |
+| P3 | Ratificar ADR-0031 e ADR-0032 (PROPOSED → ACCEPTED) | P.O. | — |
+
+### Regras invariantes (M1)
+
+- **NÃO alterar** `server/lib/archetype/` (runner)
+- **NÃO alterar** `server/lib/decision-kernel/` (dataset NCM/NBS)
+- **NÃO alterar** `validateConflicts.ts` (regras C1-C6)
+- **NÃO fazer rollout global** — `M1_ARCHETYPE_ENABLED=false` por default
+- **NÃO commitar** sem aprovação explícita do P.O.
+
+**Checkpoint:** `10396d7e` · tsc 0 erros · Vitest 12/12 PASS · Runner v3 PASS em produção ✅  
+*Atualizado em 2026-04-25 · v7.59 · Sprint M1 · Aprovador: P.O. Uires Tapajós*
