@@ -1888,3 +1888,51 @@ export const riskCategories = mysqlTable("risk_categories", {
 
 export type RiskCategory = typeof riskCategories.$inferSelect;
 export type InsertRiskCategory = typeof riskCategories.$inferInsert;
+
+/**
+ * M1 — Logs do Runner v3 do Perfil da Entidade (deploy controlado)
+ *
+ * Rastreabilidade por project_id para monitoramento de:
+ *   - status_arquetipo (confirmado | inconsistente | bloqueado_terminal | pendente)
+ *   - blockers_triggered (V-10-FALLBACK, V-LC-NNN, HARD_BLOCK)
+ *   - fallback_count (ocorrências de V-10-FALLBACK)
+ *   - divergência entre arquétipo e risco gerado
+ *
+ * Governança: feat/m1-archetype-runner-v3 · SPEC-RUNNER-RODADA-D.md
+ * Retenção: 90 dias (purge automático via cron)
+ */
+export const m1RunnerLogs = mysqlTable("m1_runner_logs", {
+  id:               int("id").autoincrement().primaryKey(),
+  projectId:        int("project_id").notNull(),
+  userId:           int("user_id").notNull(),
+  userRole:         varchar("user_role", { length: 32 }).notNull(),
+  // Saída do runner
+  statusArquetipo:  varchar("status_arquetipo", { length: 32 }).notNull(),
+  testStatus:       varchar("test_status", { length: 16 }).notNull(), // PASS | FAIL | BLOCKED
+  fallbackCount:    int("fallback_count").notNull().default(0),
+  hardBlockCount:   int("hard_block_count").notNull().default(0),
+  lcConflictCount:  int("lc_conflict_count").notNull().default(0),
+  missingFieldCount: int("missing_field_count").notNull().default(0),
+  // Payload completo (blockers + missing_required_fields)
+  blockersJson:     json("blockers_json").$type<Array<{ id: string; severity: string; rule?: string }>>()
+                    .default([]),
+  missingFieldsJson: json("missing_fields_json").$type<string[]>().default([]),
+  // Score calculado pelo Painel de Confiança (0–100)
+  scoreConfianca:   int("score_confianca"),
+  // Divergência com risco gerado (preenchido em fase 2)
+  riskDivergence:   boolean("risk_divergence").default(false),
+  riskDivergenceNote: text("risk_divergence_note"),
+  // Metadados
+  dataVersion:      varchar("data_version", { length: 32 }).notNull(),
+  perfilHash:       varchar("perfil_hash", { length: 64 }),
+  rulesHash:        varchar("rules_hash", { length: 64 }),
+  durationMs:       int("duration_ms"),
+  createdAt:        timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdx:  index("idx_m1_runner_logs_project").on(table.projectId),
+  statusIdx:   index("idx_m1_runner_logs_status").on(table.statusArquetipo),
+  createdIdx:  index("idx_m1_runner_logs_created").on(table.createdAt),
+  userIdx:     index("idx_m1_runner_logs_user").on(table.userId),
+}));
+export type M1RunnerLog = typeof m1RunnerLogs.$inferSelect;
+export type InsertM1RunnerLog = typeof m1RunnerLogs.$inferInsert;

@@ -2,10 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 7.13 — 2026-04-23 (Sprint M1 pré-implementação · artefatos de análise · branch `docs/m1-arquetipo-exploracao`)
-> **Commit HEAD:** `03ca41e` (branch `docs/m1-arquetipo-exploracao` — SPEC v3.1-rev1 + mockup v4.1-rev1)
-> **Commit main:** `48a3dda` (pós-PR #726 — streamdown removido)
-> **Checkpoint Manus:** `6e196d3c` (Sprint Z-21 FINAL — 2026-04-18) · **Checkpoint M1:** pendente (pré-implementação)
+> **Versão:** 7.12 — 2026-04-18 (Sprint Z-21 ENCERRADA · streamdown removido via PR #726 · bundle −63% · Issue #725 CPIE v3)
+> **Commit HEAD:** `48a3dda` (pós-PR #726 mergeado — streamdown removido)
+> **Checkpoint Manus:** `6e196d3c` (Sprint Z-21 FINAL — 2026-04-18)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -55,8 +54,7 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z-19** | **Inventário Matriz Riscos v4 + nota sessão · PRs #715–#716 · 2026-04-18.** | **✅ ENCERRADA 2026-04-18** |
 | **Sprint Z-20** | **Suite Matriz de Riscos v4 [#717] · PR #718 · 2026-04-18.** | **✅ ENCERRADA 2026-04-18** |
 | **Sprint Z-21** | **Bundle −63% (21MB→7.8MB) · vendor chunk −44% (1,346KB→761KB) · streamdown removido → MarkdownRenderer (react-markdown+remark-gfm) · React.lazy()+Suspense 60+ páginas · PRs #720–#724 + #726 · Checkpoint 6e196d3c · 2026-04-18.** | **✅ ENCERRADA 2026-04-18** |
-| **Sprint Z-22** | **Issue #725 criada: feat(compliance): Dashboard de Compliance v3 on-demand [P0] · Milestone #20 · SPEC-CPIE-V3-DASHBOARD-COMPLIANCE-v1.md (573 linhas) · 2026-04-18.** | **⏸ PAUSADA — aguarda M1** |
-| **Sprint M1 — Pré-implementação** | **branch `docs/m1-arquetipo-exploracao` · 7 artefatos · mockup v3→v4.1-rev1 · SPEC v3.1-rev1 · ADR-M1-PAINEL-CONFIANCA · CONTRATO JSON · Painel de Confiança enterprise · 5 ajustes revisão P.O. aplicados · 2026-04-23.** | **🔄 EM ANÁLISE** |
+| **Sprint Z-22** | **Issue #725 criada: feat(compliance): Dashboard de Compliance v3 on-demand [P0] · Milestone #20 · SPEC-CPIE-V3-DASHBOARD-COMPLIANCE-v1.md (573 linhas) · 2026-04-18.** | **🔄 INICIADA** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **88** (última: tasks.data_inicio + data_fim NOT NULL — Opção C) | ✅ |

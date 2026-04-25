@@ -37,5 +37,8 @@ export const systemRouter = router({
     g17SolarisGapEngine: FEATURE_FLAGS['g17-solaris-gap-engine'] ?? false,
     g11FonteRisco: FEATURE_FLAGS['g11-fonte-risco'] ?? false,
     g15FontePerguntas: FEATURE_FLAGS['g15-fonte-perguntas'] ?? false,
+    // M1 — Runner v3 Perfil da Entidade (deploy controlado)
+    // Valor global da flag. Rollout por role/project é avaliado em isM1ArchetypeEnabled().
+    m1ArchetypeEnabled: FEATURE_FLAGS['m1-archetype-enabled'] ?? false,
   })),
 });

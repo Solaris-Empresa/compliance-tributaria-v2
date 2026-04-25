@@ -1,0 +1,132 @@
+{
+  "derivations": {
+    "canonical_json": "CANONICAL-JSON-SPEC.md@canonical-json-v1.0.0",
+    "logical_conflicts": "LOGICAL-CONFLICTS-v1.0.md@logical-conflicts-v1.0.0",
+    "objeto_from_nbs": "NBS-OBJETO-LOOKUP.md@nbs-objeto-v1.0.0",
+    "objeto_from_ncm": "NCM-OBJETO-LOOKUP.md@ncm-objeto-v1.0.0",
+    "operationType": "DERIVATION-OPERATIONTYPE.md@derivation-v1.0.0",
+    "papel_na_cadeia": "SPEC-RUNNER-RODADA-D.md#2.2@v1.0.0",
+    "regime": "SPEC-RUNNER-RODADA-D.md#2.5@v1.0.0",
+    "territorio": "SPEC-RUNNER-RODADA-D.md#2.4@v1.0.0",
+    "tipo_de_relacao": "SPEC-RUNNER-RODADA-D.md#2.3@v1.0.0"
+  },
+  "dimensions": [
+    "objeto",
+    "papel_na_cadeia",
+    "tipo_de_relacao",
+    "territorio",
+    "regime"
+  ],
+  "enums": {
+    "objeto": [
+      "combustivel",
+      "bebida",
+      "tabaco",
+      "alimento",
+      "medicamento",
+      "energia_eletrica",
+      "servico_financeiro",
+      "servico_digital",
+      "servico_regulado",
+      "bens_industrializados",
+      "bens_mercadoria_geral",
+      "servico_geral",
+      "agricola",
+      "pecuario"
+    ],
+    "papel_na_cadeia": [
+      "fabricante",
+      "distribuidor",
+      "varejista",
+      "prestador",
+      "transportador",
+      "importador",
+      "exportador",
+      "comercio_exterior_misto",
+      "intermediador",
+      "produtor",
+      "operadora_regulada",
+      "indefinido"
+    ],
+    "regime": [
+      "simples_nacional",
+      "lucro_presumido",
+      "lucro_real",
+      "mei",
+      "indefinido"
+    ],
+    "status_arquetipo": [
+      "pendente",
+      "inconsistente",
+      "bloqueado",
+      "confirmado"
+    ],
+    "subnatureza_setorial": [
+      "telecomunicacoes",
+      "saude",
+      "saude_regulada",
+      "energia",
+      "financeiro",
+      "combustiveis",
+      "transporte"
+    ],
+    "territorio": [
+      "municipal",
+      "estadual",
+      "interestadual",
+      "nacional",
+      "internacional",
+      "ZFM",
+      "ALC",
+      "incentivado_outro"
+    ],
+    "tipo_de_relacao": [
+      "venda",
+      "servico",
+      "producao",
+      "intermediacao",
+      "locacao",
+      "indefinida"
+    ],
+    "tipo_objeto_economico": [
+      "Bens/mercadorias",
+      "Servicos",
+      "Energia/combustiveis",
+      "Digital",
+      "Financeiro",
+      "Agricola",
+      "Pecuario",
+      "Misto"
+    ]
+  },
+  "rules": [
+    "papel=transportador → not_contribuinte_IS",
+    "papel=fabricante AND objeto IN [combustivel, bebida, tabaco] → contribuinte_IS",
+    "papel=distribuidor AND objeto IN [combustivel, bebida, tabaco] → contribuinte_IS",
+    "papel=varejista AND objeto IN [combustivel, bebida, tabaco] → contribuinte_IS",
+    "papel IN [prestador, operadora_regulada] → not_contribuinte_IS",
+    "objeto IN [agricola, pecuario] → BLOCKED_IS (ADR-0030 v1.1 D-6)",
+    "papel=intermediador AND tipo_de_relacao=[intermediacao] → marketplace_canonico (servicos)",
+    "papel=intermediador AND tipo_de_relacao CONTAINS venda → AmbiguityError (marketplace-com-estoque)",
+    "status_arquetipo=confirmado → snapshot_imutavel",
+    "profileVersion=1.0 AND archetype_version IS NULL → legado_nao_recalcula",
+    "Q-7: coexistencia dual — profileVersion (legado, imutavel em M1+) vs archetype_version (M1+, escrito na primeira confirmacao)",
+    "Q-7: isProjetoM1(p) = (p.archetype_version !== null)",
+    "Q-7 P-7: sistema PROIBIDO de alterar profileVersion em projetos legados (ADR-0032 §4)",
+    "integra_grupo_economico=false → NONE (nenhum blocker, nenhum efeito)",
+    "integra_grupo_economico=true AND analise_1_cnpj_operacional=true → INFO (V-05-INFO severity=INFO)",
+    "integra_grupo_economico=true AND analise_1_cnpj_operacional=false → DENIED (V-05-DENIED severity=BLOCK_FLOW → status_arquetipo=bloqueado)",
+    "objeto_from_ncm: lookupNcm(ncm) → tupla (regime, imposto_seletivo, chapter) → REGIME_TUPLE_TO_OBJETO_NCM[tupla]",
+    "objeto_from_nbs: lookupNbs(nbs) → tupla (regime, imposto_seletivo, divisao) → REGIME_TUPLE_TO_OBJETO_NBS[tupla]",
+    "chapter = primeiros 2 digitos do NCM (extracao deterministica)",
+    "divisao = primeiros 4 digitos do NBS apos '1.' (extracao deterministica)",
+    "regime=regime_geral AND confianca.tipo=fallback → objeto generico (bens_mercadoria_geral para NCM, servico_geral para NBS) + V-10-FALLBACK severity=INFO",
+    "status=pending_validation → AmbiguityError → V-10-PENDING severity=HARD_BLOCK → status_arquetipo=inconsistente",
+    "tupla (regime, IS, chapter|divisao) sem regra na tabela → AmbiguityError → V-10-UNMAPPED-TUPLE severity=HARD_BLOCK → status_arquetipo=inconsistente",
+    "conflito logico C1-C6 detectado → V-LC-NNN severity=HARD_BLOCK → status_arquetipo=inconsistente",
+    "Q-D2: uniao deterministica de sinais_cex (papel_comercio_exterior ∪ atua_importacao ∪ atua_exportacao) → escalar papel_na_cadeia + territorio.add(internacional)",
+    "Q-D3: regime dimensional (simples|presumido|real|mei|indefinido) ortogonal a regime_especifico[] contextual — regime principal NUNCA substituido por regime especial setorial",
+    "Q-D3 + D-LC-4: C4-01 (operadora_regulada + simples_nacional) NAO dispara se regime_especifico.length > 0 (excecao legal pode aplicar)"
+  ],
+  "version": "m1-v1.1.0"
+}
