@@ -88,6 +88,7 @@ type SeedForm = {
   cnpj: string;
   ncms_principais: string; // CSV
   nbss_principais: string; // CSV
+  natureza_operacao_principal: string[]; // multi-select
   papel_na_cadeia_input: string;
   tipo_de_relacao_input: string;
   territorio_input: string;
@@ -101,6 +102,7 @@ const INITIAL_FORM: SeedForm = {
   cnpj: "",
   ncms_principais: "",
   nbss_principais: "",
+  natureza_operacao_principal: [],
   papel_na_cadeia_input: "",
   tipo_de_relacao_input: "",
   territorio_input: "",
@@ -108,6 +110,15 @@ const INITIAL_FORM: SeedForm = {
   cnae_principal_confirmado: "",
   projectId: "",
 };
+
+const NATUREZA_OPTIONS = [
+  { value: "Transporte", label: "Transporte" },
+  { value: "Produção própria", label: "Produção própria" },
+  { value: "Prestação de serviço", label: "Prestação de serviço" },
+  { value: "Comércio", label: "Comércio" },
+  { value: "Intermediação", label: "Intermediação" },
+  { value: "Locação", label: "Locação" },
+];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -201,6 +212,16 @@ export default function M1PerfilEntidade() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  function toggleNatureza(value: string) {
+    setForm((prev) => {
+      const current = prev.natureza_operacao_principal;
+      const next = current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value];
+      return { ...prev, natureza_operacao_principal: next };
+    });
+  }
+
   function handleRun() {
     const projectId = parseInt(form.projectId, 10);
     if (isNaN(projectId) || projectId <= 0) {
@@ -215,6 +236,10 @@ export default function M1PerfilEntidade() {
         : undefined,
       nbss_principais: form.nbss_principais
         ? form.nbss_principais.split(",").map((s) => s.trim()).filter(Boolean)
+        : undefined,
+      // natureza_operacao_principal: passado como array — o router normaliza para a Seed
+      natureza_operacao_principal: form.natureza_operacao_principal.length > 0
+        ? form.natureza_operacao_principal
         : undefined,
       papel_na_cadeia_input: form.papel_na_cadeia_input || undefined,
       tipo_de_relacao_input: form.tipo_de_relacao_input || undefined,
@@ -330,6 +355,39 @@ export default function M1PerfilEntidade() {
                   onChange={(e) => handleChange("nbss_principais", e.target.value)}
                   className="bg-slate-800 border-slate-700 text-slate-100 text-sm h-8"
                 />
+              </div>
+
+              {/* ── Natureza da Operação Principal (multi-select) ── */}
+              <div>
+                <Label className="text-xs text-slate-400">
+                  Natureza da Operação Principal
+                  <span className="ml-1 text-indigo-400 text-xs">(selecione uma ou mais)</span>
+                </Label>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {NATUREZA_OPTIONS.map((opt) => {
+                    const selected = form.natureza_operacao_principal.includes(opt.value);
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => toggleNatureza(opt.value)}
+                        className={[
+                          "px-3 py-1 rounded-full text-xs font-medium border transition-colors",
+                          selected
+                            ? "bg-indigo-600 border-indigo-500 text-white"
+                            : "bg-slate-800 border-slate-600 text-slate-400 hover:border-indigo-500 hover:text-slate-200",
+                        ].join(" ")}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {form.natureza_operacao_principal.length > 0 && (
+                  <p className="text-xs text-slate-500 mt-1">
+                    Selecionado: {form.natureza_operacao_principal.join(", ")}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
