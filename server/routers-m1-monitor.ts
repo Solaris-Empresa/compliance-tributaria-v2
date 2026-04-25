@@ -170,13 +170,46 @@ export const m1MonitorRouter = router({
         ? rawRegime
         : (SNAKE_TO_LABEL[rawRegime] ?? rawRegime);
 
+      // Normalização de posicao_na_cadeia_economica:
+      // O runner (buildPerfilEntidade.ts §2.2) aceita valores exatos como
+      // "Produtor/fabricante", "Prestador de servico", "Atacadista", etc.
+      // O formulário M1 envia os valores diretamente, mas aliases históricos
+      // (snake_case, labels antigos) são normalizados aqui para não alterar o runner.
+      const POSICAO_ALIASES: Record<string, string> = {
+        // snake_case legado
+        "fabricante":          "Produtor/fabricante",
+        "produtor":            "Produtor/fabricante",
+        "distribuidor":        "Atacadista",
+        "atacadista":          "Atacadista",
+        "varejista":           "Varejista",
+        "prestador_servico":   "Prestador de servico",
+        "prestador de serviço": "Prestador de servico",
+        "intermediador":       "Intermediador",
+        "operadora":           "Operadora",
+        "operadora_regulada":  "Operadora",
+        "importador":          "Importador",
+        // Alias especial: "Produtor" (agro) → "Produtor/fabricante" (runner)
+        "Produtor":            "Produtor/fabricante",
+        // Alias especial: "Fabricante" (indústria) → "Produtor/fabricante" (runner)
+        "Fabricante":          "Produtor/fabricante",
+        // Alias: "Prestador de Serviço" (com acento) → "Prestador de servico"
+        "Prestador de Serviço": "Prestador de servico",
+        "Transportador":       "Transportador", // pass-through (runner usa natureza_op)
+        "Comerciante":         "Varejista",     // alias razoável
+        "Importador":          "Importador",    // pass-through (runner usa atua_importacao)
+        "Intermediador":       "Intermediador", // pass-through
+      };
+      const rawPosicao = (input.seed as Record<string, unknown>).posicao_na_cadeia_economica as string ?? "";
+      const normalizedPosicao = POSICAO_ALIASES[rawPosicao] ?? rawPosicao;
+      console.log("[M1-RUNNER] posicao_na_cadeia_economica:", JSON.stringify({ rawPosicao, normalizedPosicao }));
+
       const normalizedSeed: Seed = {
         // Campos com defaults seguros para o formulário M1
         natureza_operacao_principal: (input.seed as Record<string, unknown>).natureza_operacao_principal as readonly string[] ?? [],
         operacoes_secundarias: (input.seed as Record<string, unknown>).operacoes_secundarias as readonly string[] ?? [],
         fontes_receita: (input.seed as Record<string, unknown>).fontes_receita as readonly string[] ?? [],
         tipo_objeto_economico: (input.seed as Record<string, unknown>).tipo_objeto_economico as readonly string[] ?? [],
-        posicao_na_cadeia_economica: (input.seed as Record<string, unknown>).posicao_na_cadeia_economica as string ?? "",
+        posicao_na_cadeia_economica: normalizedPosicao,
         ncms_principais: (input.seed as Record<string, unknown>).ncms_principais as readonly string[] ?? [],
         nbss_principais: (input.seed as Record<string, unknown>).nbss_principais as readonly string[] ?? [],
         abrangencia_operacional: (input.seed as Record<string, unknown>).abrangencia_operacional as readonly string[] ?? [],

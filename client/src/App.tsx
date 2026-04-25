@@ -76,7 +76,7 @@ import QuestionarioSolaris from "./pages/QuestionarioSolaris"; // K-4-B: Onda 1 
 import QuestionarioIaGen from "./pages/QuestionarioIaGen"; // K-4-C: Onda 2 IA Generativa
 import AdminSolarisQuestions from "./pages/AdminSolarisQuestions"; // Sprint L — DEC-002 Issue #191
 import AdminCategorias from "./pages/AdminCategorias"; // Sprint Z-09 — Categorias configuráveis (ADR-0025)
-import M1PerfilEntidade from "./pages/M1PerfilEntidade"; // M1 — Runner v3 Perfil da Entidade (feat/m1-archetype-runner-v3)
+import M1PerfilEntidade from "./pages/M1PerfilEntidade"; // Sprint M1 — Runner v3 Arquétipo de Negócio
 import QuestionarioProduto from "./pages/QuestionarioProduto"; // Z-02: DEC-M3-05 v3 · ADR-0010
 import QuestionarioServico from "./pages/QuestionarioServico"; // Z-02: DEC-M3-05 v3 · ADR-0010
 
@@ -143,7 +143,7 @@ function Router() {
       <Route path="/admin/taskboard" component={TaskBoard} /> {/* Sprint K — Issue #151 */}
       <Route path="/admin/solaris-questions" component={AdminSolarisQuestions} /> {/* Sprint L — DEC-002 Issue #191 */}
       <Route path="/admin/categorias" component={AdminCategorias} /> {/* Sprint Z-09 — ADR-0025 */}
-      <Route path="/admin/m1-perfil" component={M1PerfilEntidade} /> {/* M1 — Runner v3 Perfil da Entidade (feat/m1-archetype-runner-v3) */}
+      <Route path="/admin/m1-perfil" component={M1PerfilEntidade} /> {/* Sprint M1 — Runner v3 */}
       {/* fix(z22) UAT B-02b: rotas /compliance-v3/* removidas — dashboard legado v3 lia agregados zerados (project_risks_v3 vazia pós hot swap ADR-0022). Substituído por /compliance-dashboard (v4). */}
       {/* Demo standalone — sem login */}
       <Route path="/demo" component={DemoLanding} />
