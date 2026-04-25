@@ -144,6 +144,29 @@ export const m1MonitorRouter = router({
       // Normalizar seed: arrays opcionais do formulário devem ser [] quando undefined
       // Fix: buildPerfilEntidade usa for...of em ncms_principais/nbss_principais —
       // se undefined, lança "seed.ncms_principais is not iterable"
+
+      // Mapeamento de labels da UI para snake_case aceito pelo runner
+      const REGIME_MAP: Record<string, string> = {
+        "Lucro Real": "lucro_real",
+        "Lucro Presumido": "lucro_presumido",
+        "Simples Nacional": "simples_nacional",
+        "Simples": "simples_nacional",
+        "MEI": "mei",
+        "Regime Geral": "regime_geral",
+        // snake_case já correto — passthrough
+        "lucro_real": "lucro_real",
+        "lucro_presumido": "lucro_presumido",
+        "simples_nacional": "simples_nacional",
+        "mei": "mei",
+        "regime_geral": "regime_geral",
+      };
+      const rawRegime = (
+        (input.seed as Record<string, unknown>).regime_tributario_atual as string ??
+        (input.seed as Record<string, unknown>).regime_tributario_input as string ??
+        "regime_geral"
+      );
+      const normalizedRegime = REGIME_MAP[rawRegime] ?? rawRegime.toLowerCase().replace(/ /g, "_");
+
       const normalizedSeed: Seed = {
         // Campos com defaults seguros para o formulário M1
         natureza_operacao_principal: (input.seed as Record<string, unknown>).natureza_operacao_principal as readonly string[] ?? [],
@@ -160,7 +183,7 @@ export const m1MonitorRouter = router({
         papel_comercio_exterior: (input.seed as Record<string, unknown>).papel_comercio_exterior as readonly string[] ?? [],
         opera_territorio_incentivado: (input.seed as Record<string, unknown>).opera_territorio_incentivado as boolean ?? false,
         tipo_territorio_incentivado: (input.seed as Record<string, unknown>).tipo_territorio_incentivado as readonly string[] ?? [],
-        regime_tributario_atual: (input.seed as Record<string, unknown>).regime_tributario_atual as string ?? (input.seed as Record<string, unknown>).regime_tributario_input as string ?? "regime_geral",
+        regime_tributario_atual: normalizedRegime,
         possui_regime_especial_negocio: (input.seed as Record<string, unknown>).possui_regime_especial_negocio as boolean ?? false,
         tipo_regime_especial: (input.seed as Record<string, unknown>).tipo_regime_especial as readonly string[] ?? [],
         setor_regulado: (input.seed as Record<string, unknown>).setor_regulado as boolean ?? false,
