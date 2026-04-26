@@ -1016,9 +1016,9 @@ A implementação do IQG segue **6 fases** com critérios objetivos para cada tr
 
 **Saída para Fase 1:**
 - ✅ SPEC `INPUT-QUALITY-GATE-M2.md` aprovada (v1.1.0 ou superior)
-- ⏳ SPEC `GOLD-SET-ARCHETYPE-SPEC-v1.md` aprovada (a criar)
+- ⏳ SPEC `GOLD-SET-ARCHETYPE-SPEC-v1.md` aprovada (definido em `docs/data-quality/` via PR #848 DRAFT)
 - ⏳ Gold set smoke v0 com **mínimo 5 casos** entregue
-- ⏳ SPEC `CORPUS-MUTATION-PROTOCOL-v1.md` aprovada (a criar)
+- ⏳ SPEC `CORPUS-MUTATION-PROTOCOL-v1.md` aprovada (definido em `docs/data-quality/` via PR #848 DRAFT)
 - ⏳ **Nenhum SQL/dataset executado** até aqui
 
 ### 17.2 Fase 1 — Observe-only (sem enforcement)
@@ -1128,7 +1128,7 @@ metadata:
 
 ### 18.5 Spec separada
 
-Gold set tem spec própria: `GOLD-SET-ARCHETYPE-SPEC-v1.md` (a criar). Esta SPEC apenas referencia volumes, famílias e estrutura mínima.
+Gold set tem spec própria: `GOLD-SET-ARCHETYPE-SPEC-v1.md` (definido em `docs/data-quality/` via PR #848 DRAFT). Esta SPEC apenas referencia volumes, famílias e estrutura mínima.
 
 ---
 
