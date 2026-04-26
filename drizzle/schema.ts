@@ -1924,8 +1924,8 @@ export const m1RunnerLogs = mysqlTable("m1_runner_logs", {
   riskDivergenceNote: text("risk_divergence_note"),
   // Metadados
   dataVersion:      varchar("data_version", { length: 32 }).notNull(),
-  perfilHash:       varchar("perfil_hash", { length: 64 }),
-  rulesHash:        varchar("rules_hash", { length: 64 }),
+  perfilHash:       varchar("perfil_hash", { length: 80 }),
+  rulesHash:        varchar("rules_hash", { length: 80 }),
   durationMs:       int("duration_ms"),
   createdAt:        timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
