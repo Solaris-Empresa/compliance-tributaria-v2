@@ -1296,8 +1296,8 @@ Mesmo sem trigger, calibração formal **mínimo a cada 6 meses** após Fase 4 a
 | `docs/epic-830-rag-arquetipo/specs/CONTRATOS-ENTRE-MILESTONES.md` | contrato M1→M2 que este gate materializa |
 | `docs/governance/RN_GERACAO_RISCOS_V4.md` | invariantes RN-RISK-05, RN-AP-02, RN-AP-09 que o gate verifica |
 | `docs/governance/FLOW_DICTIONARY.md` | atualização a fazer — adicionar G-1..G-5 às integrações críticas |
-| `docs/epic-830-rag-arquetipo/specs/GOLD-SET-ARCHETYPE-SPEC-v1.md` | a criar — instrumento de calibração (§18) |
-| `docs/epic-830-rag-arquetipo/specs/CORPUS-MUTATION-PROTOCOL-v1.md` | a criar — protocolo de mudança no corpus (Fase 0) |
+| `docs/data-quality/GOLD-SET-ARCHETYPE-SPEC-v1.md` | a criar — instrumento de calibração (§18) |
+| `docs/data-quality/CORPUS-MUTATION-PROTOCOL-v1.md` | a criar — protocolo de mudança no corpus (Fase 0) |
 | `docs/adr/ADR-0030-hotfix-is-elegibilidade-por-operationtype-v1.1.md` | base do hard gate em §8 |
 
 ---
