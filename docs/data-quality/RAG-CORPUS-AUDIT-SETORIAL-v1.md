@@ -307,15 +307,122 @@ Problema sistêmico: todos os conv_icms têm cnaeGroups vazio
 
 ---
 
-## 9. Estimativa de Esforço — Fase 0 (P0 + P1)
+## 9. Estimativa de Esforço — Fase 0 (Detalhada)
+## Versão: v1.2 · Rodada 3.2 (Prompt 2) · 2026-04-26
 
-| Fase | Escopo | Registros | Tipo de Correção | Estimativa |
-|---|---|---|---|---|
-| **Fase 0-A (P0)** | Agro (7 registros) + Combustíveis (4 registros) | 11 | SQL UPDATE + smoke test | 1 sprint |
-| **Fase 0-B (P1)** | Saúde (2 registros) + Telecom (1 registro + ampliação) | 3 + ampliação | SQL UPDATE + ingestão | 1 sprint |
-| **Fase 1 (P2)** | Transporte Conv. ICMS (6 registros) + Financeiro (monitoramento) | 6 | Script automatizado | 1 sprint |
+> **Nota metodológica:** As estimativas abaixo são em **dias úteis** e separam três tipos de
+> esforço: (T) técnico/Manus, (J) jurídico/P.O., (R) revisão/Orquestrador. Os cenários
+> otimista/realista/pessimista refletem variação de disponibilidade de stakeholders, complexidade
+> jurídica e número de iterações de revisão.
 
-**Total Fase 0:** 14 registros · 2 sprints · `corpus_tag_confidence` esperado após Fase 0: ≥ 85% para agro e combustíveis.
+---
+
+### 9.1 Tabela de Esforço por Artefato
+
+| # | Artefato | Esforço Técnico (ot/re/pe) | Esforço Jurídico/P.O. (ot/re/pe) | Esforço Revisão Orquestrador (ot/re/pe) | Quem executa |
+|---|---|---|---|---|---|
+| 1 | `INPUT-QUALITY-GATE-M2.md` revisão | 0,5d / 1d / 2d | 0,5d / 1d / 2d | 0,5d / 1d / 1,5d | Claude Code + P.O. |
+| 2 | `GOLD-SET-ARCHETYPE-SPEC-v1.md` | 0,5d / 1d / 2d | 1d / 2d / 3d | 0,5d / 1d / 2d | Manus + jurídico |
+| 3 | `CORPUS-MUTATION-PROTOCOL-v1.md` | 0d / 0d / 0d | 0,5d / 1d / 2d | 0,5d / 1d / 1d | Manus (pronto) + P.O. |
+| 4 | `RAG-CORPUS-QUALITY-PATCH-AGRO-v1.md` | 0,5d / 1d / 2d | 0,5d / 1d / 2d | 0,5d / 1d / 1,5d | Manus + P.O. |
+| 5 | `NCM-DATASET-CANDIDATE-AGRO-1201-90-00-v1.md` | 0d / 0d / 0d | 1d / 2d / 4d | 1d / 2d / 3d | Manus (pronto) + jurídico |
+| 6 | `RAG-CORPUS-AUDIT-SETORIAL-v1.md` | 0d / 0d / 0d | 0,5d / 1d / 1,5d | 0,5d / 1d / 1d | Manus (pronto) + P.O. |
+| 7 | `AGRO-SOJA-RAG-AB-TEST-PLAN-v1.md` | 0d / 0d / 0d | 0,5d / 1d / 1,5d | 0,5d / 1d / 1d | Manus (pronto) + P.O. |
+| 8 | Gold set smoke v0 (5 casos) | 1d / 2d / 3d | 1d / 2d / 3d | 1d / 2d / 3d | jurídico + Manus |
+
+> **Legenda:** ot = otimista · re = realista · pe = pessimista · d = dias úteis
+
+---
+
+### 9.2 Estimativa Total — Fase 0
+
+A Fase 0 compreende os artefatos 1–8 acima. O total é calculado pelo **caminho crítico** (não
+pela soma simples), pois vários artefatos podem rodar em paralelo.
+
+| Cenário | Dias Úteis | Semanas | Premissas |
+|---|---|---|---|
+| **Otimista** | **7 dias úteis** | **~1,5 semanas** | P.O. e jurídico disponíveis em 24h; 0 iterações de revisão; NCM aprovado sem ressalvas; smoke test passa na 1ª execução |
+| **Realista** | **15 dias úteis** | **~3 semanas** | P.O. disponível em 48h; 1 iteração de revisão por artefato; NCM exige 1 consulta jurídica adicional; smoke test com 1 ajuste |
+| **Pessimista** | **28 dias úteis** | **~5,5 semanas** | P.O. com agenda restrita (>3 dias de espera); NCM exige 2+ consultas jurídicas; Gold Set smoke falha e exige retrabalho; novo Change Request para `archetype_family` |
+
+---
+
+### 9.3 Caminho Crítico
+
+A sequência que define o tempo total da Fase 0 é:
+
+```
+[1] INPUT-QUALITY-GATE-M2 revisão
+    ↓
+[3] CORPUS-MUTATION-PROTOCOL aprovação P.O.
+    ↓
+[4] RAG-CORPUS-QUALITY-PATCH-AGRO aprovação P.O. + execução SQL
+    ↓
+[5] NCM-DATASET-CANDIDATE aprovação jurídica + promoção
+    ↓
+[8] Gold set smoke v0 (5 casos) — execução + validação
+```
+
+**Bloqueio externo principal:** A aprovação jurídica do NCM 1201.90.00 (artefato 5) é o
+bloqueio de maior variância. No cenário pessimista, uma consulta jurídica sobre alíquota zero
+para soja in natura (Art. 128 I da LC 214) pode levar até 4 dias úteis de espera.
+
+---
+
+### 9.4 Paralelismo Possível
+
+Os seguintes artefatos são **independentes entre si** e podem ser executados em paralelo:
+
+| Grupo Paralelo | Artefatos | Pré-requisito |
+|---|---|---|
+| **Grupo A** (docs prontos) | 3, 6, 7 | Apenas aprovação P.O. (sem dependência técnica) |
+| **Grupo B** (revisão técnica) | 1, 2 | Disponibilidade Claude Code + P.O. |
+| **Grupo C** (jurídico) | 5 | Disponibilidade jurídico externo |
+| **Grupo D** (execução) | 4, 8 | Depende de 3 (protocolo aprovado) e 5 (NCM aprovado) |
+
+Com paralelismo máximo (Grupos A + B + C simultâneos), o caminho crítico cai para ~7 dias
+(cenário otimista). No cenário realista, o Grupo C (jurídico) é o gargalo.
+
+---
+
+### 9.5 Dependências Externas
+
+| Dependência | Artefatos afetados | Variância | Mitigação |
+|---|---|---|---|
+| **Jurídico externo** (validação NCM 1201.90.00) | 5, 8 | Alta (1–4 dias úteis) | Iniciar consulta jurídica em paralelo com aprovação do protocolo |
+| **Dataset oficial Receita Federal** (alíquotas IBS/CBS 2026) | 5 | Média (pode não estar publicado) | Usar LC 214 Art. 128 I como referência provisória |
+| **Disponibilidade P.O.** | 1, 2, 3, 4, 6, 7 | Média (1–3 dias úteis por artefato) | Agrupar aprovações em sessão única |
+| **Corpus RAG atualizado** (após PATCH-AGRO-001) | 8 | Baixa (técnico) | Executar smoke test imediatamente após SQL aprovado |
+
+---
+
+### 9.6 Riscos de Cronograma
+
+| Risco | Probabilidade | Impacto | Mitigação |
+|---|---|---|---|
+| **P0** — NCM 1201.90.00 rejeitado juridicamente (alíquota incorreta) | Média | Alto (+5 dias) | Usar `status=pending_validation` e bloquear apenas o smoke test do GS-001 |
+| **P0** — SQL PATCH-AGRO-001 falha no smoke test (cnaeGroups incorreto) | Baixa | Alto (+3 dias) | Rollback automático + re-análise dos IDs afetados |
+| **P1** — P.O. solicita Change Request para novo `archetype_family` | Média | Médio (+2 dias) | Manter `*(a definir)*` nos 14 casos DRAFT até curadoria explícita |
+| **P1** — Gold set smoke v0 falha em > 2 dos 5 casos | Baixa | Médio (+3 dias) | Reduzir smoke v0 para 2 casos ACTIVE (GS-001 + GS-013) |
+| **P2** — Dataset oficial IBS/CBS não publicado até fim da Fase 0 | Alta | Baixo | Usar alíquotas provisórias da LC 214 e marcar como `pending_official_dataset` |
+
+---
+
+### 9.7 Recomendação Final
+
+| Cenário | Prazo Fase 0 | Premissa principal |
+|---|---|---|
+| **Otimista** | **7 dias úteis (~1,5 semanas)** | Aprovações em 24h, sem iterações jurídicas |
+| **Realista** | **15 dias úteis (~3 semanas)** | 1 iteração por artefato, NCM com 1 consulta jurídica |
+| **Pessimista** | **28 dias úteis (~5,5 semanas)** | NCM bloqueado, P.O. com agenda restrita, retrabalho no smoke test |
+
+**Recomendação:** Planejar a Fase 0 com **prazo realista de 3 semanas** (15 dias úteis), com
+gate de revisão ao final da semana 1 (artefatos 1–7 aprovados) e gate de execução ao final
+da semana 2 (SQL executado + smoke test passando). O smoke v0 do Gold Set fecha a semana 3.
+
+O risco P0 de rejeição jurídica do NCM deve ser mitigado iniciando a consulta jurídica
+imediatamente após aprovação do `CORPUS-MUTATION-PROTOCOL-v1.md`, em paralelo com os
+demais artefatos.
 
 ---
 
@@ -337,6 +444,7 @@ de texto, mas a filtragem por setor não funciona.
 |---|---|---|
 | v1.0 | 2026-04-25 | Criação inicial — auditoria setorial mapeada |
 | v1.1 | 2026-04-25 | Rodada 3.1 — status NOT_APPROVED_FOR_EXECUTION, `corpus_tag_confidence` por setor, escala de triggers, estimativa Fase 0, meta de qualidade ≥ 85% |
+| v1.2 | 2026-04-26 | Rodada 3.2 (Prompt 2) — Seção 9 reescrita com estimativa detalhada: 8 artefatos, 3 cenários (ot/re/pe), caminho crítico, paralelismo, dependências externas e riscos de cronograma |
 
 ---
 
