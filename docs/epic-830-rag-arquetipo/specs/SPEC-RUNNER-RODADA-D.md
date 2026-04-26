@@ -225,6 +225,7 @@ Motivação: marketplace-com-estoque (intermediador que também vende produtos p
 | `fontes_receita` valor | `tipo_de_relacao` valor |
 |---|---|
 | `"Venda de mercadoria"` | `venda` |
+| `"Producao propria"` | `producao` |
 | `"Prestacao de servico"` | `servico` |
 | `"Assinatura/mensalidade"` | `servico` |
 | `"Comissao/intermediacao"` | `intermediacao` |
@@ -233,6 +234,8 @@ Motivação: marketplace-com-estoque (intermediador que também vende produtos p
 | `"Outras receitas operacionais"` | `indefinida` (dispara nota, não bloqueia) |
 
 Deduplicar resultado final. Ex.: fontes = `["Prestacao de servico","Assinatura/mensalidade"]` → `tipo_de_relacao = ["servico"]`.
+
+**Gap fechado 2026-04-24 (ratificação P.O.):** mapeamento `"Producao propria" → "producao"` adicionado para cobrir cenários de fabricantes/agros (papel=fabricante ou produtor) que declaram produção própria como fonte de receita. Regra C1-02 (LOGICAL-CONFLICTS §4) permanece inalterada e agora é alcançável via esta fonte declarativa. Mapping incluído no manifesto m1-v1.0.0 e sujeito a bump de versão se alterado no futuro.
 
 ### §2.4. `territorio[]` — dimensão territorial
 
