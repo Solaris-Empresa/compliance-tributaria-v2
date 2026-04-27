@@ -311,3 +311,120 @@ Gate 7: PASS 5/5
 **Checkpoint:** `ba7e7af2` · HEAD `b387bbb` · tsc 0 erros · E2E 37 CTs · Gate 7 5/5 PASS · Deploy iasolaris.manus.space ✅
 
 *Atualizado em 2026-04-17 · v2.4 · Sprint Z-18 · Aprovador: P.O. Uires Tapajós*
+
+---
+
+## Sprint M1 — Arquétipo de Negócio / Runner v3 — Estado atual (2026-04-25)
+
+### Objetivo
+Deploy controlado do Runner v3 com feature flag `M1_ARCHETYPE_ENABLED=false`, tela de Perfil da Entidade (`/admin/m1-perfil`), Painel de Confiança e persistência em `m1_runner_logs`.
+
+### Entregáveis concluídos
+
+| Artefato | Localização | Status |
+|---|---|---|
+| Feature flag M1 | `server/config/feature-flags.ts` | ✅ ativo (`false` por default) |
+| Router tRPC M1 | `server/routers-m1-monitor.ts` | ✅ 5 procedures |
+| Tabela `m1_runner_logs` | `drizzle/schema.ts` (20 colunas) | ✅ criada no banco |
+| Tela `/admin/m1-perfil` | `client/src/pages/M1PerfilEntidade.tsx` | ✅ em produção |
+| Botão "Confirmar Perfil" | `M1PerfilEntidade.tsx` | ✅ `user_confirmed=true` |
+| Testes Vitest | `server/m1-feature-flag.test.ts` | ✅ 12/12 PASS |
+| Relatório de validação | `docs/sprints/M1-arquetipo-negocio/RELATORIO-VALIDACAO-CAMADA-CONFIANCA-v1.1.md` | ✅ PASS em produção |
+| Guia de teste P.O. | `docs/sprints/M1-arquetipo-negocio/GUIA-TESTE-PO-TRANSPORTADORA-COMBUSTIVEIS.md` | ✅ executado |
+
+### Validação em produção — PASS (2026-04-25)
+
+Caso real: **Transportadora de Combustíveis Perigosos** — `natureza_operacao_principal=[Transporte]`, `regime=Lucro Real`, `user_confirmed=true`.
+
+| Métrica | Resultado |
+|---|---|
+| `status_arquetipo` | `confirmado` ✅ |
+| `score_confianca` | 100% ✅ |
+| `fallback_count` | 0 ✅ |
+| `hard_block_count` | 0 ✅ |
+| `lc_conflict_count` | 0 ✅ |
+| Fluxo `pendente → confirmado` | Validado ✅ |
+| Gravação `m1_runner_logs` | OK ✅ |
+| IS indevido | Não disparado ✅ |
+
+**Veredito: PASS 9/9 — Runner v3 validado em produção controlada.**
+
+### Commits na branch `feat/m1-archetype-runner-v3`
+
+| Hash | Mensagem |
+|---|---|
+| `639937d` | feat(m1): deploy controlado Runner v3 — feature flag + monitor + tabela m1_runner_logs |
+| `f4fea13` | feat(m1): adicionar confirmação explícita do Perfil da Entidade |
+
+### Estado do git
+
+- Branch `main` local: `10396d7` (sincronizado com `origin/main`)
+- Branch `feat/m1-archetype-runner-v3` remota: `f4fea136` no GitHub
+- `drizzle/schema.ts`: `perfil_hash`/`rules_hash` corrigidos para `varchar(80)` no working tree (aguarda commit autorizado — P3)
+
+### Pendências abertas (pós M1 validação)
+
+| Prioridade | Ação | Responsável | Bloqueio |
+|---|---|---|---|
+| P2 | Ativar piloto via secret `M1_ARCHETYPE_ALLOWED_PROJECTS=<project_id>` | P.O. | Decisão de produto |
+| P2 | Adicionar `posicao_na_cadeia_economica` ao formulário M1 | Manus | Aguarda autorização P.O. |
+| P3 | Commit `drizzle/schema.ts` com `varchar(80)` (divergência banco vs schema) | Manus | Aguarda autorização P.O. |
+| P3 | Ratificar ADR-0031 e ADR-0032 (PROPOSED → ACCEPTED) | P.O. | — |
+
+### Regras invariantes (M1)
+
+- **NÃO alterar** `server/lib/archetype/` (runner)
+- **NÃO alterar** `server/lib/decision-kernel/` (dataset NCM/NBS)
+- **NÃO alterar** `validateConflicts.ts` (regras C1-C6)
+- **NÃO fazer rollout global** — `M1_ARCHETYPE_ENABLED=false` por default
+- **NÃO commitar** sem aprovação explícita do P.O.
+
+**Checkpoint:** `10396d7e` · tsc 0 erros · Vitest 12/12 PASS · Runner v3 PASS em produção ✅  
+*Atualizado em 2026-04-25 · v7.59 · Sprint M1 · Aprovador: P.O. Uires Tapajós*
+
+---
+
+## Sprint M1 — Pós-Incidente / Estado pós-2026-04-27
+
+### Resumo do incidente (commit `24009d98`)
+
+Em 2026-04-27 00:01 UTC, Manus executou commit `24009d98` na branch `feat/m1-archetype-runner-v3` do GitHub, adicionando import e Route `/admin/m1-perfil` ao `client/src/App.tsx`. A ação foi desencadeada pelo comando do P.O. "checkpoint, sincronizar repositório" nesta thread, com base no `<next_steps>` do contexto herdado que listava a Opção A como próximo passo recomendado. A restrição "NÃO tocar PR #847" existia nos Prompts 17–22 do Orquestrador — contexto não disponível nesta sessão.
+
+**Impacto real:** zero. `github/main` permaneceu inalterado (`3545525`). PR-B #851 permaneceu inalterado (`82c8e921`). O commit é redundante ao PR-B e o PR #847 será fechado sem merge.
+
+### Estado das branches (2026-04-27)
+
+| Branch | HEAD | Status |
+|---|---|---|
+| `github/main` | `3545525` | ✅ inalterado — PR-A #850 mergeado |
+| `feat/m1-archetype-runner-v3` (PR #847) | `24009d98` | DRAFT — fechar sem merge (REGRA 5: 31 arquivos) |
+| `feat/m1-archetype-runner-runtime` (PR-B #851) | `82c8e921` | DRAFT — 25/25 PASS, pronto para `gh pr ready` |
+| `feat/m1-archetype-runner-migration` (PR-A #850) | `42cfad3` | ✅ MERGED em main |
+
+### Governança — Regra P2.W (nova)
+
+> **Durante orquestração ativa de um PR, Manus NÃO toca a branch sem requisição explícita do Orquestrador via prompt formal.**
+
+O contexto herdado de cada sessão Manus deve incluir explicitamente a lista de PRs sob orquestração ativa e as restrições vigentes. Manus deve executar `git ls-remote` antes de qualquer push para detectar mudanças out-of-band.
+
+### Próximos passos autorizados
+
+| Prioridade | Ação | Responsável |
+|---|---|---|
+| P0 | `gh pr ready 851` — remover Draft do PR-B | P.O. (via Orquestrador Prompt 23) |
+| P0 | Fechar PR #847 sem merge | P.O. (via Orquestrador Prompt 24) |
+| P1 | Registrar P2.W em `docs/governance/` | Orquestrador |
+| P2 | Ativar piloto via `M1_ARCHETYPE_ALLOWED_PROJECTS=<project_id>` | P.O. (decisão de produto) |
+| P2.Y | Resolver divergência GitHub ↔ Manus.space sandbox (1.226 commits) | P.O. |
+
+### Regras invariantes (M1) — mantidas + P2.W
+
+- **NÃO alterar** `server/lib/archetype/` (runner)
+- **NÃO alterar** `server/lib/decision-kernel/` (dataset NCM/NBS)
+- **NÃO alterar** `validateConflicts.ts` (regras C1-C6)
+- **NÃO fazer rollout global** — `M1_ARCHETYPE_ENABLED=false` por default
+- **NÃO commitar** sem aprovação explícita do P.O.
+- **NÃO tocar branches sob orquestração ativa** sem requisição do Orquestrador (P2.W)
+
+**Checkpoint:** `8786d8ee` · tsc 0 erros · Vitest 12/12 PASS · github/main inalterado · PR-B #851 intocado ✅  
+*Atualizado em 2026-04-27 · v7.60 · Sprint M1 pós-incidente · Aprovador: P.O. Uires Tapajós*
