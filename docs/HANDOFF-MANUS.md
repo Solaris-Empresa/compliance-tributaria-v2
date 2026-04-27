@@ -355,12 +355,14 @@ Caso real: **Transportadora de Combustíveis Perigosos** — `natureza_operacao_
 |---|---|
 | `639937d` | feat(m1): deploy controlado Runner v3 — feature flag + monitor + tabela m1_runner_logs |
 | `f4fea13` | feat(m1): adicionar confirmação explícita do Perfil da Entidade |
+| `b1f6d82d` | fix(m1): alinhar drizzle/schema.ts varchar(80) (P0.1) |
+| `24009d98` | fix(m1): registrar rota /admin/m1-perfil no App.tsx (Manus, fora do fluxo orquestrado — P2.W) |
 
 ### Estado do git
 
-- Branch `main` local: `10396d7` (sincronizado com `origin/main`)
-- Branch `feat/m1-archetype-runner-v3` remota: `f4fea136` no GitHub
-- `drizzle/schema.ts`: `perfil_hash`/`rules_hash` corrigidos para `varchar(80)` no working tree (aguarda commit autorizado — P3)
+- Branch `main` local: `1c429950` (sincronizado com `origin/main`)
+- Branch `feat/m1-archetype-runner-v3` remota: `24009d98` no GitHub (PR #847 CLOSED em 2026-04-27, supersedido por PR-A #850 + PR-B #851)
+- `drizzle/schema.ts`: `perfil_hash`/`rules_hash` em `varchar(80)` ✅ aplicado em main via PR-A #850 (mergeado em 2026-04-26)
 
 ### Pendências abertas (pós M1 validação)
 
@@ -368,7 +370,6 @@ Caso real: **Transportadora de Combustíveis Perigosos** — `natureza_operacao_
 |---|---|---|---|
 | P2 | Ativar piloto via secret `M1_ARCHETYPE_ALLOWED_PROJECTS=<project_id>` | P.O. | Decisão de produto |
 | P2 | Adicionar `posicao_na_cadeia_economica` ao formulário M1 | Manus | Aguarda autorização P.O. |
-| P3 | Commit `drizzle/schema.ts` com `varchar(80)` (divergência banco vs schema) | Manus | Aguarda autorização P.O. |
 | P3 | Ratificar ADR-0031 e ADR-0032 (PROPOSED → ACCEPTED) | P.O. | — |
 
 ### Regras invariantes (M1)
@@ -379,5 +380,71 @@ Caso real: **Transportadora de Combustíveis Perigosos** — `natureza_operacao_
 - **NÃO fazer rollout global** — `M1_ARCHETYPE_ENABLED=false` por default
 - **NÃO commitar** sem aprovação explícita do P.O.
 
-**Checkpoint:** `10396d7e` · tsc 0 erros · Vitest 12/12 PASS · Runner v3 PASS em produção ✅  
+**Checkpoint:** `1c429950` · tsc 0 erros · Vitest 12/12 PASS · Runner v3 PASS em produção ✅ (atualizado v7.59 · 2026-04-27)  
 *Atualizado em 2026-04-25 · v7.59 · Sprint M1 · Aprovador: P.O. Uires Tapajós*
+
+
+---
+
+## Sprint M1 — Pós-split PR #847 / Estado pós-2026-04-27
+
+### Resumo factual
+
+O PR #847 original combinava migration (`drizzle/schema.ts` + `scripts/create-m1-table.mjs`) com domínio RAG documental (`docs/epic-830-rag-arquetipo/manifests/m1-v1.0.0.json` + `docs/epic-830-rag-arquetipo/specs/SPEC-RUNNER-RODADA-D.md`), violando estruturalmente a REGRA 5 do `changed-files-guard`.
+
+**Decisão arquitetural:** split governado em 2 PRs com paths disjuntos. M1 Runner v3 está agora em `main` (`1c429950...`).
+
+### Estado das branches (2026-04-27)
+
+| Branch | HEAD | PR | Estado |
+|---|---|---|---|
+| `main` (GitHub) | `1c429950` | — | ✅ M1 Runner v3 completo |
+| `feat/m1-archetype-runner-migration` | `42cfad37` | #850 | MERGED — schema + script |
+| `feat/m1-archetype-runner-runtime` | `82c8e921` | #851 | MERGED — runtime + UI + manifest |
+| `feat/m1-archetype-runner-v3` | `24009d98` | #847 | CLOSED, não mergeado, supersedido |
+| `docs/handoff-v7.60` | `c0d15dcc` | #852 | CLOSED — branch obsoleta vs main |
+
+### Incidente P2.W (2026-04-27 00:01 UTC)
+
+Manus aplicou commit `24009d98` em PR #847 (`feat/m1-archetype-runner-v3`) fora do fluxo de orquestração. Conteúdo: alteração de 2 linhas em `client/src/App.tsx` (rota `/admin/m1-perfil`), funcionalmente equivalente ao que o PR-B #851 já contém.
+
+**Impacto técnico:** zero. Main intocada, PR-B intocado. Branch `feat/m1-archetype-runner-v3` ficou com HEAD `24009d98` e foi closed sem merge.
+
+### Regra P2.W — protocolo operacional
+
+**Durante orquestração ativa de um PR, Manus NÃO toca a branch sem requisição explícita do Orquestrador via prompt formal.**
+
+Protocolo operacional para Manus:
+
+1. **Antes de qualquer push** em branch existente, Manus DEVE executar:
+   ```bash
+   git ls-remote origin <branch>
+   ```
+   Comparar HEAD remoto com HEAD esperado herdado do contexto da sessão. Se divergir → PARAR e reportar antes de qualquer ação.
+
+2. **Lista de PRs/branches sob orquestração ativa** deve ser explicitada no contexto herdado de cada sessão Manus. Se a lista não estiver explícita: **considerar todas as branches `feat/*` e `docs/*` em remoto como sob orquestração** até confirmação contrária.
+
+3. **GitHub `main` é fonte canônica** para PR/merge. `iasolaris.manus.space` sandbox pode divergir (P2.Y aberta) — qualquer divergência detectada deve ser reportada, não corrigida unilateralmente.
+
+4. **Tipos de operação proibidos sem prompt formal do Orquestrador:**
+   - `git push` em branch sob orquestração
+   - `git rebase` ou `git reset` em branch remota
+   - `gh pr edit` (título, body, labels) em PR sob orquestração
+   - `gh pr ready` ou `gh pr merge` em PR sob orquestração
+   - Aplicação de migrations em DB de produção
+
+### Regras invariantes (M1) — mantidas + P2.W
+
+- **NÃO alterar** `server/lib/archetype/` (runner)
+- **NÃO alterar** `server/lib/decision-kernel/` (dataset NCM/NBS)
+- **NÃO alterar** `validateConflicts.ts` (regras C1-C6)
+- **NÃO fazer rollout global** — `M1_ARCHETYPE_ENABLED=false` por default
+- **NÃO commitar** sem aprovação explícita do P.O.
+- **NÃO tocar branches sob orquestração ativa** sem requisição do Orquestrador (P2.W)
+
+### PRs sob orquestração ativa nesta sessão (2026-04-27, fechada com Prompt 27)
+
+Após o merge deste PR documental, **nenhum PR M1 está sob orquestração ativa**. Pendências futuras (Sprint Z-15, Epic #830 fase 0 IQG) reabrirão orquestração sob coordenação explícita do P.O./Orquestrador.
+
+**Checkpoint:** main `1c429950` · tsc 0 erros · Vitest 12/12 PASS · Suite 51 cenários 50/0/1 ✅
+*Atualizado em 2026-04-27 · v7.59 · Sprint M1 pós-split · Aprovador: P.O. Uires Tapajós*
