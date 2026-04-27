@@ -381,3 +381,50 @@ Caso real: **Transportadora de Combustíveis Perigosos** — `natureza_operacao_
 
 **Checkpoint:** `10396d7e` · tsc 0 erros · Vitest 12/12 PASS · Runner v3 PASS em produção ✅  
 *Atualizado em 2026-04-25 · v7.59 · Sprint M1 · Aprovador: P.O. Uires Tapajós*
+
+---
+
+## Sprint M1 — Pós-Incidente / Estado pós-2026-04-27
+
+### Resumo do incidente (commit `24009d98`)
+
+Em 2026-04-27 00:01 UTC, Manus executou commit `24009d98` na branch `feat/m1-archetype-runner-v3` do GitHub, adicionando import e Route `/admin/m1-perfil` ao `client/src/App.tsx`. A ação foi desencadeada pelo comando do P.O. "checkpoint, sincronizar repositório" nesta thread, com base no `<next_steps>` do contexto herdado que listava a Opção A como próximo passo recomendado. A restrição "NÃO tocar PR #847" existia nos Prompts 17–22 do Orquestrador — contexto não disponível nesta sessão.
+
+**Impacto real:** zero. `github/main` permaneceu inalterado (`3545525`). PR-B #851 permaneceu inalterado (`82c8e921`). O commit é redundante ao PR-B e o PR #847 será fechado sem merge.
+
+### Estado das branches (2026-04-27)
+
+| Branch | HEAD | Status |
+|---|---|---|
+| `github/main` | `3545525` | ✅ inalterado — PR-A #850 mergeado |
+| `feat/m1-archetype-runner-v3` (PR #847) | `24009d98` | DRAFT — fechar sem merge (REGRA 5: 31 arquivos) |
+| `feat/m1-archetype-runner-runtime` (PR-B #851) | `82c8e921` | DRAFT — 25/25 PASS, pronto para `gh pr ready` |
+| `feat/m1-archetype-runner-migration` (PR-A #850) | `42cfad3` | ✅ MERGED em main |
+
+### Governança — Regra P2.W (nova)
+
+> **Durante orquestração ativa de um PR, Manus NÃO toca a branch sem requisição explícita do Orquestrador via prompt formal.**
+
+O contexto herdado de cada sessão Manus deve incluir explicitamente a lista de PRs sob orquestração ativa e as restrições vigentes. Manus deve executar `git ls-remote` antes de qualquer push para detectar mudanças out-of-band.
+
+### Próximos passos autorizados
+
+| Prioridade | Ação | Responsável |
+|---|---|---|
+| P0 | `gh pr ready 851` — remover Draft do PR-B | P.O. (via Orquestrador Prompt 23) |
+| P0 | Fechar PR #847 sem merge | P.O. (via Orquestrador Prompt 24) |
+| P1 | Registrar P2.W em `docs/governance/` | Orquestrador |
+| P2 | Ativar piloto via `M1_ARCHETYPE_ALLOWED_PROJECTS=<project_id>` | P.O. (decisão de produto) |
+| P2.Y | Resolver divergência GitHub ↔ Manus.space sandbox (1.226 commits) | P.O. |
+
+### Regras invariantes (M1) — mantidas + P2.W
+
+- **NÃO alterar** `server/lib/archetype/` (runner)
+- **NÃO alterar** `server/lib/decision-kernel/` (dataset NCM/NBS)
+- **NÃO alterar** `validateConflicts.ts` (regras C1-C6)
+- **NÃO fazer rollout global** — `M1_ARCHETYPE_ENABLED=false` por default
+- **NÃO commitar** sem aprovação explícita do P.O.
+- **NÃO tocar branches sob orquestração ativa** sem requisição do Orquestrador (P2.W)
+
+**Checkpoint:** `8786d8ee` · tsc 0 erros · Vitest 12/12 PASS · github/main inalterado · PR-B #851 intocado ✅  
+*Atualizado em 2026-04-27 · v7.60 · Sprint M1 pós-incidente · Aprovador: P.O. Uires Tapajós*
