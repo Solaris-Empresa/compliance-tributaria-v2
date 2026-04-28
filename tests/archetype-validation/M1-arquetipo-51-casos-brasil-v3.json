@@ -1,7 +1,7 @@
 {
   "suite_name": "M1-arquetipo-51-casos-brasil-v3",
   "phase": "M1_RUNNER_V3",
-  "version_notes": "Q-D6 RESOLVIDA: 50 cenários v2 + S51 V-05-INFO. Q-C1: user_confirmed=true. Fields normalizadas conforme Seed (types.ts). Q-D1 ajuste A aceita V-10-FALLBACK como INFO.",
+  "version_notes": "Q-D6 RESOLVIDA: 50 cenários v2 + S51 V-05-INFO. Q-C1: user_confirmed=true. Fields normalizadas conforme Seed (types.ts). Q-D1 ajuste A aceita V-10-FALLBACK como INFO.\n\n[2026-04-28 robustecimento-multi-camada] D1: A44-A50 NCMs truncados -> completos (8 dig). D4: +7 cases M52-C58 (mineracao, tabaco, midia, eventos, reciclagem, autarquia, cosmeticos). D5: S24/S25 com juridico_humano=PENDENTE. Total: 51 -> 58 cases.",
   "derived_from": "M1-arquetipo-50-casos-brasil-v2.json (tmp-m1-50push @ a6452ac)",
   "economic_basis": {
     "reference_2024": {
@@ -17,10 +17,10 @@
     }
   },
   "target": {
-    "PASS": 50,
-    "FAIL": 0,
-    "BLOCKED": 1,
-    "total": 51
+    "total_tests": 58,
+    "pass_target": 57,
+    "blocked_target": 1,
+    "fail_target": 0
   },
   "enrichment_rules_applied": [
     "ncms_principais quando possui_bens=true OU tipo_objeto_economico contem 'bens'",
@@ -1331,7 +1331,9 @@
         "tipo_territorio_incentivado": [],
         "tipo_regime_especial": [],
         "user_confirmed": true
-      }
+      },
+      "juridico_humano": "PENDENTE",
+      "nota_juridico": "S24 Telecom: avaliar se papel deveria ser operadora_regulada via subnatureza_setorial=['telecomunicacoes']"
     },
     {
       "id": "S25",
@@ -1392,7 +1394,9 @@
         "tipo_territorio_incentivado": [],
         "tipo_regime_especial": [],
         "user_confirmed": true
-      }
+      },
+      "juridico_humano": "PENDENTE",
+      "nota_juridico": "S25 Energia: avaliar se geradora/comercializadora deveria ser servicos quando concessionaria pura"
     },
     {
       "id": "S26",
@@ -2350,7 +2354,7 @@
         "posicao_na_cadeia_economica": "Produtor/fabricante",
         "cnae_principal_confirmado": "0115-6/00",
         "ncms_principais": [
-          "1201"
+          "1201.90.00"
         ],
         "abrangencia_operacional": [
           "Nacional"
@@ -2403,7 +2407,7 @@
         "posicao_na_cadeia_economica": "Produtor/fabricante",
         "cnae_principal_confirmado": "0115-6/00",
         "ncms_principais": [
-          "1201"
+          "1201.90.00"
         ],
         "nbss_principais": [
           "1.0501.10.00"
@@ -2459,7 +2463,7 @@
         "posicao_na_cadeia_economica": "Produtor/fabricante",
         "cnae_principal_confirmado": "0115-6/00",
         "ncms_principais": [
-          "1005"
+          "1005.90.10"
         ],
         "abrangencia_operacional": [
           "Nacional"
@@ -2510,7 +2514,7 @@
         "posicao_na_cadeia_economica": "Atacadista",
         "cnae_principal_confirmado": "4632-0/01",
         "ncms_principais": [
-          "1201"
+          "1201.90.00"
         ],
         "abrangencia_operacional": [
           "Exportacao",
@@ -2565,8 +2569,8 @@
         "posicao_na_cadeia_economica": "Produtor/fabricante",
         "cnae_principal_confirmado": "1011-2/01",
         "ncms_principais": [
-          "0201",
-          "0207"
+          "0201.30.00",
+          "0207.14.00"
         ],
         "abrangencia_operacional": [
           "Nacional"
@@ -2603,7 +2607,9 @@
         "tipo_territorio_incentivado": [],
         "tipo_regime_especial": [],
         "user_confirmed": true
-      }
+      },
+      "expected_fallback": true,
+      "fallback_reason": "chapter NCM nao mapeado em REGIME_TUPLE_TO_OBJETO_NCM (server/lib/archetype/deriveObjeto.ts) - backlog para mapping futuro"
     },
     {
       "id": "A49",
@@ -2627,8 +2633,8 @@
         "posicao_na_cadeia_economica": "Produtor/fabricante",
         "cnae_principal_confirmado": "1052-0/00",
         "ncms_principais": [
-          "0402",
-          "0405"
+          "0402.10.10",
+          "0405.10.00"
         ],
         "abrangencia_operacional": [
           "Nacional"
@@ -2689,7 +2695,7 @@
         "posicao_na_cadeia_economica": "Produtor/fabricante",
         "cnae_principal_confirmado": "0210-1/01",
         "ncms_principais": [
-          "4703"
+          "4703.21.10"
         ],
         "abrangencia_operacional": [
           "Nacional"
@@ -2717,7 +2723,9 @@
         "tipo_operacao_especifica": [],
         "papel_operacional_especifico": [],
         "user_confirmed": true
-      }
+      },
+      "expected_fallback": true,
+      "fallback_reason": "chapter NCM nao mapeado em REGIME_TUPLE_TO_OBJETO_NCM (server/lib/archetype/deriveObjeto.ts) - backlog para mapping futuro"
     },
     {
       "id": "S51",
@@ -2763,6 +2771,382 @@
         "integra_grupo_economico": true,
         "analise_1_cnpj_operacional": true,
         "nivel_analise": "CNPJ operacional único (parte de grupo)",
+        "user_confirmed": true
+      }
+    },
+    {
+      "id": "M52",
+      "macro_setor": "industria",
+      "scenario_name": "Mineracao extrativa - minerio de ferro",
+      "juridico_humano": "PENDENTE",
+      "nota_juridico": "M52: validar CNAE 0710-3/01 + NCM 2601.11.00 com tributarista; mineracao tem regimes especificos (CFEM, royalties)",
+      "seed_data": {
+        "descricao_negocio_livre": "extracao e beneficiamento de minerio de ferro",
+        "natureza_operacao_principal": [
+          "Producao propria"
+        ],
+        "operacoes_secundarias": [],
+        "fontes_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "0710-3/01",
+        "ncms_principais": [
+          "2601.11.00"
+        ],
+        "abrangencia_operacional": [
+          "Nacional"
+        ],
+        "opera_multiplos_estados": true,
+        "uf_principal_operacao": "MG",
+        "regime_tributario_atual": "Lucro Real",
+        "porte_empresa": "Grande",
+        "setor_regulado": true,
+        "atua_importacao": false,
+        "atua_exportacao": true,
+        "opera_territorio_incentivado": false,
+        "possui_regime_especial_negocio": false,
+        "integra_grupo_economico": false,
+        "analise_1_cnpj_operacional": true,
+        "nivel_analise": "CNPJ operacional unico",
+        "nbss_principais": [],
+        "papel_comercio_exterior": [
+          "Exportador"
+        ],
+        "tipo_territorio_incentivado": [],
+        "tipo_regime_especial": [],
+        "orgao_regulador_principal": [
+          "ANM"
+        ],
+        "subnatureza_setorial": [
+          "mineracao"
+        ],
+        "tipo_operacao_especifica": [],
+        "papel_operacional_especifico": [],
+        "user_confirmed": true
+      }
+    },
+    {
+      "id": "T53",
+      "macro_setor": "industria",
+      "scenario_name": "Industria de tabaco / cigarros",
+      "juridico_humano": "PENDENTE",
+      "nota_juridico": "T53: tabaco sujeito a IS (LC 214/2025); validar NCM 2402.20.00 e selo IPI",
+      "seed_data": {
+        "descricao_negocio_livre": "fabricacao de cigarros e produtos de tabaco",
+        "natureza_operacao_principal": [
+          "Producao propria"
+        ],
+        "operacoes_secundarias": [],
+        "fontes_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "1220-4/01",
+        "ncms_principais": [
+          "2402.20.00"
+        ],
+        "abrangencia_operacional": [
+          "Nacional"
+        ],
+        "opera_multiplos_estados": true,
+        "uf_principal_operacao": "RS",
+        "regime_tributario_atual": "Lucro Real",
+        "porte_empresa": "Grande",
+        "setor_regulado": true,
+        "atua_importacao": false,
+        "atua_exportacao": false,
+        "opera_territorio_incentivado": false,
+        "possui_regime_especial_negocio": false,
+        "integra_grupo_economico": false,
+        "analise_1_cnpj_operacional": true,
+        "nivel_analise": "CNPJ operacional unico",
+        "nbss_principais": [],
+        "papel_comercio_exterior": [],
+        "tipo_territorio_incentivado": [],
+        "tipo_regime_especial": [],
+        "orgao_regulador_principal": [
+          "ANVISA"
+        ],
+        "subnatureza_setorial": [
+          "tabaco"
+        ],
+        "tipo_operacao_especifica": [],
+        "papel_operacional_especifico": [],
+        "user_confirmed": true
+      }
+    },
+    {
+      "id": "E54",
+      "macro_setor": "servicos",
+      "scenario_name": "Midia / publicidade",
+      "juridico_humano": "PENDENTE",
+      "nota_juridico": "E54: validar NBS 1.1102.10.00 com tributarista; publicidade tem regimes especificos",
+      "seed_data": {
+        "descricao_negocio_livre": "agencia de publicidade e producao de midia",
+        "natureza_operacao_principal": [
+          "Prestação de serviço"
+        ],
+        "operacoes_secundarias": [],
+        "fontes_receita": [
+          "Prestacao de servico"
+        ],
+        "tipo_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "7311-4/00",
+        "ncms_principais": [],
+        "abrangencia_operacional": [
+          "Nacional"
+        ],
+        "opera_multiplos_estados": true,
+        "uf_principal_operacao": "SP",
+        "regime_tributario_atual": "Lucro Real",
+        "porte_empresa": "Medio",
+        "setor_regulado": false,
+        "atua_importacao": false,
+        "atua_exportacao": false,
+        "opera_territorio_incentivado": false,
+        "possui_regime_especial_negocio": false,
+        "integra_grupo_economico": false,
+        "analise_1_cnpj_operacional": true,
+        "nivel_analise": "CNPJ operacional unico",
+        "nbss_principais": [
+          "1.1102.10.00"
+        ],
+        "papel_comercio_exterior": [],
+        "tipo_territorio_incentivado": [],
+        "tipo_regime_especial": [],
+        "orgao_regulador_principal": [],
+        "subnatureza_setorial": [],
+        "tipo_operacao_especifica": [],
+        "papel_operacional_especifico": [],
+        "user_confirmed": true
+      }
+    },
+    {
+      "id": "V55",
+      "macro_setor": "servicos",
+      "scenario_name": "Eventos / entretenimento",
+      "juridico_humano": "PENDENTE",
+      "nota_juridico": "V55: validar NBS 1.1601.20.00 com tributarista",
+      "seed_data": {
+        "descricao_negocio_livre": "organizacao de eventos corporativos e shows",
+        "natureza_operacao_principal": [
+          "Prestação de serviço"
+        ],
+        "operacoes_secundarias": [],
+        "fontes_receita": [
+          "Prestacao de servico"
+        ],
+        "tipo_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "9001-9/01",
+        "ncms_principais": [],
+        "abrangencia_operacional": [
+          "Nacional"
+        ],
+        "opera_multiplos_estados": true,
+        "uf_principal_operacao": "RJ",
+        "regime_tributario_atual": "Lucro Real",
+        "porte_empresa": "Medio",
+        "setor_regulado": false,
+        "atua_importacao": false,
+        "atua_exportacao": false,
+        "opera_territorio_incentivado": false,
+        "possui_regime_especial_negocio": false,
+        "integra_grupo_economico": false,
+        "analise_1_cnpj_operacional": true,
+        "nivel_analise": "CNPJ operacional unico",
+        "nbss_principais": [
+          "1.1601.20.00"
+        ],
+        "papel_comercio_exterior": [],
+        "tipo_territorio_incentivado": [],
+        "tipo_regime_especial": [],
+        "orgao_regulador_principal": [],
+        "subnatureza_setorial": [],
+        "tipo_operacao_especifica": [],
+        "papel_operacional_especifico": [],
+        "user_confirmed": true
+      }
+    },
+    {
+      "id": "R56",
+      "macro_setor": "industria",
+      "scenario_name": "Reciclagem - sucata metalica",
+      "juridico_humano": "PENDENTE",
+      "nota_juridico": "R56: reciclagem com regime especial (Art. 169 paragrafo 8 LC 214); validar NCM 7204.10.00 + NBS 1.0501.50.00",
+      "seed_data": {
+        "descricao_negocio_livre": "coleta e reciclagem de sucata metalica",
+        "natureza_operacao_principal": [
+          "Produção própria",
+          "Comércio",
+          "Prestação de serviço"
+        ],
+        "operacoes_secundarias": [],
+        "fontes_receita": [
+          "Producao propria",
+          "Venda de mercadoria",
+          "Prestacao de servico"
+        ],
+        "tipo_objeto_economico": [
+          "Bens/mercadorias",
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "3811-4/00",
+        "ncms_principais": [
+          "7204.10.00"
+        ],
+        "abrangencia_operacional": [
+          "Nacional"
+        ],
+        "opera_multiplos_estados": false,
+        "uf_principal_operacao": "SP",
+        "regime_tributario_atual": "Lucro Real",
+        "porte_empresa": "Medio",
+        "setor_regulado": true,
+        "atua_importacao": false,
+        "atua_exportacao": false,
+        "opera_territorio_incentivado": false,
+        "possui_regime_especial_negocio": false,
+        "integra_grupo_economico": false,
+        "analise_1_cnpj_operacional": true,
+        "nivel_analise": "CNPJ operacional unico",
+        "nbss_principais": [
+          "1.0501.50.00"
+        ],
+        "papel_comercio_exterior": [],
+        "tipo_territorio_incentivado": [],
+        "tipo_regime_especial": [],
+        "orgao_regulador_principal": [
+          "IBAMA"
+        ],
+        "subnatureza_setorial": [
+          "reciclagem"
+        ],
+        "tipo_operacao_especifica": [],
+        "papel_operacional_especifico": [],
+        "user_confirmed": true
+      }
+    },
+    {
+      "id": "P57",
+      "macro_setor": "servicos",
+      "scenario_name": "Autarquia / servico publico",
+      "juridico_humano": "PENDENTE",
+      "nota_juridico": "P57: imunidade reciproca CF Art. 150 VI a; NBS placeholder; eligibility especial",
+      "seed_data": {
+        "descricao_negocio_livre": "autarquia federal prestadora de servicos publicos",
+        "natureza_operacao_principal": [
+          "Prestação de serviço"
+        ],
+        "operacoes_secundarias": [],
+        "fontes_receita": [
+          "Prestacao de servico"
+        ],
+        "tipo_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Prestador de servico",
+        "cnae_principal_confirmado": "8411-6/00",
+        "ncms_principais": [],
+        "abrangencia_operacional": [
+          "Nacional"
+        ],
+        "opera_multiplos_estados": false,
+        "uf_principal_operacao": "DF",
+        "regime_tributario_atual": "Lucro Real",
+        "porte_empresa": "Grande",
+        "setor_regulado": true,
+        "atua_importacao": false,
+        "atua_exportacao": false,
+        "opera_territorio_incentivado": false,
+        "possui_regime_especial_negocio": false,
+        "integra_grupo_economico": false,
+        "analise_1_cnpj_operacional": true,
+        "nivel_analise": "CNPJ operacional unico",
+        "nbss_principais": [
+          "1.1102.40.00"
+        ],
+        "papel_comercio_exterior": [],
+        "tipo_territorio_incentivado": [],
+        "tipo_regime_especial": [],
+        "orgao_regulador_principal": [
+          "MPOG"
+        ],
+        "subnatureza_setorial": [
+          "servico_publico"
+        ],
+        "tipo_operacao_especifica": [],
+        "papel_operacional_especifico": [],
+        "user_confirmed": true
+      }
+    },
+    {
+      "id": "C58",
+      "macro_setor": "industria",
+      "scenario_name": "Cosmeticos / perfumaria",
+      "juridico_humano": "PENDENTE",
+      "nota_juridico": "C58: cosmeticos com ANVISA; validar NCM 3304.99.90",
+      "seed_data": {
+        "descricao_negocio_livre": "fabricacao de cosmeticos e produtos de perfumaria",
+        "natureza_operacao_principal": [
+          "Producao propria",
+          "Comércio"
+        ],
+        "operacoes_secundarias": [],
+        "fontes_receita": [
+          "Producao propria",
+          "Venda de mercadoria"
+        ],
+        "tipo_objeto_economico": [
+          "Bens/mercadorias"
+        ],
+        "posicao_na_cadeia_economica": "Produtor/fabricante",
+        "cnae_principal_confirmado": "2063-1/00",
+        "ncms_principais": [
+          "3304.99.90"
+        ],
+        "abrangencia_operacional": [
+          "Nacional"
+        ],
+        "opera_multiplos_estados": true,
+        "uf_principal_operacao": "SP",
+        "regime_tributario_atual": "Lucro Real",
+        "porte_empresa": "Medio",
+        "setor_regulado": true,
+        "atua_importacao": false,
+        "atua_exportacao": false,
+        "opera_territorio_incentivado": false,
+        "possui_regime_especial_negocio": false,
+        "integra_grupo_economico": false,
+        "analise_1_cnpj_operacional": true,
+        "nivel_analise": "CNPJ operacional unico",
+        "nbss_principais": [],
+        "papel_comercio_exterior": [],
+        "tipo_territorio_incentivado": [],
+        "tipo_regime_especial": [],
+        "orgao_regulador_principal": [
+          "ANVISA"
+        ],
+        "subnatureza_setorial": [
+          "cosmeticos"
+        ],
+        "tipo_operacao_especifica": [],
+        "papel_operacional_especifico": [],
         "user_confirmed": true
       }
     }

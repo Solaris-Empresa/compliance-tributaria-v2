@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "patch_id": "PATCH-AGRO-002",
+  "patch_type": "CNAE_FIX",
+  "executor": "Manus",
+  "approved_by": ["P.O. Uires Tapajós", "Orquestrador Claude"],
+  "rule_invoked": "REGRA-ORQ-11 fast-track P0",
+  "execution_timestamp_iso": "2026-04-28T22:12:00Z",
+  "verify_pre_patch": "PASS — 2 rows com cnaeGroups='64,65,66'",
+  "verify_post_patch": "PASS — 2 rows com cnaeGroups='49,50,51,52,53,64,65,66'",
+  "rows_affected": 2,
+  "rows_affected_por_id": {
+    "215": {"artigo": "Art. 169", "chunkIndex": 0, "before": "64,65,66", "after": "49,50,51,52,53,64,65,66"},
+    "216": {"artigo": "Art. 169 (parte 2)", "chunkIndex": 1, "before": "64,65,66", "after": "49,50,51,52,53,64,65,66"}
+  },
+  "snapshot_path": "docs/data-quality/snapshots/snapshot-art169-2026-04-28T22-14-12Z.snapshot.txt",
+  "snapshot_sha256": "8e0b5c290f2d1b9ae2ec541106cb1b8fb28fdc8adb747d2a67bb9c8a242f4172",
+  "rollback_path": "docs/data-quality/snapshots/rollback-art169-2026-04-28T22-14-12Z.rollback.txt",
+  "rollback_sha256": "2dce39c02c7fd110a8f74e6da117b3c4ff8c1e2a95bc55cf0a6b3986f034aefe",
+  "schema_column_real": "cnaeGroups (camelCase)",
+  "lei_column": "lei (enum, not leiId — no laws table exists)",
+  "lei_value": "lc214",
+  "not_touched": {
+    "id": 1041,
+    "lei": "lc227",
+    "artigo": "Art. 169",
+    "cnaeGroups": "10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+    "reason": "Escopo diferente — LC 227 Art. 169 é sobre Simples Nacional (indústria), não transporte autônomo"
+  },
+  "fonte_canonica": "LC 214/2025 Art. 169 — crédito presumido contratante de transportador autônomo. CNAEs 49-53 (transporte) + 64-66 (financeiro contratante)."
+}

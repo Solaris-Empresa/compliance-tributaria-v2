@@ -1,0 +1,12 @@
+-- SNAPSHOT PRE-PATCH: PATCH-AGRO-002 Art. 169 LC 214 cnaeGroups
+-- Timestamp: 2026-04-28T21:50:00Z
+-- Query: SELECT id, artigo, chunkIndex, cnaeGroups, lei, titulo FROM ragDocuments WHERE artigo LIKE 'Art. 169%' ORDER BY lei, chunkIndex
+
+-- RESULTS:
+-- id=215 | lei=lc214 | artigo=Art. 169       | chunkIndex=0 | cnaeGroups=64,65,66
+-- id=216 | lei=lc214 | artigo=Art. 169 (parte 2) | chunkIndex=1 | cnaeGroups=64,65,66
+-- id=1041 | lei=lc227 | artigo=Art. 169      | chunkIndex=0 | cnaeGroups=10,11,12,...,33 (DO NOT TOUCH)
+
+-- TARGET ROWS: id=215, id=216 (lei=lc214 only)
+-- CURRENT VALUE: cnaeGroups = '64,65,66'
+-- EXPECTED AFTER PATCH: cnaeGroups = '49,50,51,52,53,64,65,66'

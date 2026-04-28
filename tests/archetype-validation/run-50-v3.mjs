@@ -38,12 +38,15 @@ const FIXED_DATA_VERSION = "2026-04-24T12:00:00.000Z";
 /**
  * Alvo do gate GO conforme SPEC §5.1 (Q-C3 RESOLVIDA — AMBIGUOUS removido).
  * GO ⟺ (FAIL == 0) ∧ (BLOCKED == 1)
+ *
+ * 2026-04-28 hotfix-suite-robustecimento: total 51 → 58 (D4: +7 setores M52-C58).
+ * BLOCKED continua = 1 (S27 controle negativo).
  */
 const GATE_TARGET = Object.freeze({
-  PASS: 50,
+  PASS: 57,
   FAIL: 0,
   BLOCKED: 1,
-  total: 51,
+  total: 58,
 });
 
 // ─── Carga da suite ────────────────────────────────────────────────────────

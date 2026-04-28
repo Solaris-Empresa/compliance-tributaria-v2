@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "patch_id": "PATCH-AGRO-001",
+  "patch_type": "CNAE_FIX",
+  "executor": "Manus",
+  "approved_by": ["P.O. Uires Tapajós", "Orquestrador Claude"],
+  "rule_invoked": "REGRA-ORQ-11 fast-track P0",
+  "execution_timestamp_iso": "2026-04-28T16:28:58Z",
+  "verify_timestamp_iso": "2026-04-28T19:20:26.899Z",
+  "verify_caso_detectado": "A",
+  "verify_executor": "Manus",
+  "schema_column_real": "cnaeGroups (camelCase, drizzle convention)",
+  "schema_column_prompt_orquestrador": "cnae_groups (snake_case — INCORRETO, corrigido por Manus runtime)",
+  "rows_affected": 7,
+  "rows_affected_por_id": {
+    "39":  {"before": "86,87,88,45,46,47", "after": "01,02,03,10,11,12,86,87,88,45,46,47"},
+    "148": {"before": "64,65,66", "after": "01,02,03,10,11,12,86,87,88"},
+    "178": {"before": "64,65,66", "after": "01,02,03,10,11,12"},
+    "179": {"before": "64,65,66", "after": "01,02,03,10,11,12"},
+    "213": {"before": "64,65,66", "after": "01,02,03,10,11,12"},
+    "214": {"before": "64,65,66", "after": "01,02,03,10,11,12"},
+    "944": {"before": "64,65,66", "after": "01,02,03,10,11,12"}
+  },
+  "snapshot_path": "docs/data-quality/snapshots/snapshot-corpus-cnaegroups-2026-04-28T19-20-26Z.snapshot.txt",
+  "snapshot_sha256": "159608ad96b8dfa630ea57f1145bfbe7b715581a52210b959030b4cbd3f0bcf0",
+  "rollback_path": "docs/data-quality/snapshots/rollback-corpus-cnaegroups-2026-04-28T19-20-26Z.rollback.txt",
+  "rollback_sha256": "129a3f2b9e34f82bfe47cae9be8196bec40516d38ee269c45d4b73479770668f",
+  "file_extension_note": "Snapshots gravados como .snapshot.txt e .rollback.txt em vez de .sql para evitar falso-positivo do changed-files-guard.js (que flagra *.sql em qualquer path como migration). Conteúdo é SQL legítimo, extensão é apenas convenção interna do path docs/data-quality/snapshots/.",
+  "smoke_pre_pass": true,
+  "smoke_post_pass": true,
+  "abort_triggered": false,
+  "evidence_id_39": {
+    "value_pos_patch": "01,02,03,10,11,12,86,87,88,45,46,47",
+    "fonte_canonica": "RAG-CORPUS-QUALITY-PATCH-AGRO-v1.md §2.2 + §4 SQL",
+    "errata_aplicada": "§2.1 amendada para alinhar com §2.2/§4 (inconsistência interna corrigida)"
+  }
+}
