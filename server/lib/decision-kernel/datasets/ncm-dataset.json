@@ -542,5 +542,129 @@
       "anexo": "Anexo I — cesta básica nacional ampliada (oleaginosas e cereais)",
       "versao_texto": "original_lcp214_2025"
     }
+  },
+  {
+    "ncm_code": "0901.21.00",
+    "descricao": "Café em grão torrado, não-descafeinado — commodity agrícola da cesta básica nacional ampliada",
+    "setor_economico": "Agronegócio · cafeicultura · torrefação · varejo alimentício",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "ICMS diferido em algumas UFs · PIS/COFINS regime cumulativo · imune em exportação (CF/88 Art. 155 §2 X 'a')",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Torrefadora pode não verificar que café em grão verde (0901.11.00) e café torrado (0901.21.00) estão ambos na posição 09.01 — ambos com alíquota zero. Empresa aplica regime geral por não consultar listagem do Anexo I LC 214/2025.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "condicionante": "EC 132/2023 Art. 153 VIII confirma que IS NÃO incide sobre café (não enquadrado como produto prejudicial à saúde/meio ambiente).",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "128",
+      "paragrafo": "caput",
+      "incisos": [
+        "I"
+      ],
+      "paragrafo_unico": null,
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos produtos da cesta básica nacional ampliada constantes do Anexo I.",
+      "anexo": "Anexo I — cesta básica nacional ampliada",
+      "versao_texto": "original_lcp214_2025"
+    },
+    "status": "approved_candidate",
+    "checklist_juridico_humano": "PENDENTE — verificar listagem explícita de café no Anexo I LC 214",
+    "data_inclusao": "2026-04-28",
+    "fonte_aprovacao": "REGRA-ORQ-11 fast-track P0 — classe agro commodity"
+  },
+  {
+    "ncm_code": "1005.90.10",
+    "descricao": "Milho em grão, exceto para semeadura — commodity agrícola da cesta básica nacional ampliada",
+    "setor_economico": "Agronegócio · cultivo de milho · ração animal · esmagamento · exportação",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "ICMS diferido/isento (Conv. 100/97) · PIS/COFINS suspensão (Lei 10.925/2004) · imune em exportação (CF/88 Art. 155 §2 X 'a')",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Produtor rural pode não aplicar suspensão Lei 10.925/2004 corretamente durante transição 2026-2032; risco de bitributação na cadeia produtor → cooperativa → indústria de ração ou de alimentos derivados.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "condicionante": "EC 132/2023 Art. 153 VIII confirma que IS NÃO incide sobre milho (commodity agrícola, não enquadrado como produto prejudicial à saúde/meio ambiente). Crédito presumido aplicável conforme LC 214/2025 Art. 168.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "128",
+      "paragrafo": "caput",
+      "incisos": [
+        "I"
+      ],
+      "paragrafo_unico": null,
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos produtos da cesta básica nacional ampliada constantes do Anexo I.",
+      "anexo": "Anexo I — cesta básica nacional ampliada (cereais e grãos)",
+      "versao_texto": "original_lcp214_2025"
+    },
+    "status": "approved_candidate",
+    "checklist_juridico_humano": "PENDENTE",
+    "data_inclusao": "2026-04-28",
+    "fonte_aprovacao": "REGRA-ORQ-11 fast-track P0 — classe agro commodity"
+  },
+  {
+    "ncm_code": "2710.12.59",
+    "descricao": "Gasolina automotiva — combustível fóssil sujeito a Imposto Seletivo (LC 214/2025)",
+    "setor_economico": "Energia · refino de petróleo · distribuição de combustíveis · postos revendedores",
+    "regime": "regime_geral",
+    "aliquota": null,
+    "imposto_seletivo": true,
+    "regime_anterior": "ICMS-ST (substituição tributária) · PIS/COFINS regime monofásico · CIDE-Combustíveis",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Distribuidora pode não diferenciar a base de cálculo de IS (sobre quantidade ou valor) da base de IBS/CBS (sobre receita). Risco de bitributação ou erro de classe de tributação durante transição 2026-2032.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "condicionante": "EC 132/2023 Art. 153 VIII estabelece que IS incide sobre produtos prejudiciais ao meio ambiente — combustíveis fósseis enquadram-se. LC 214/2025 regula incidência. Sujeito passivo: produtor/importador (não transportador).",
+    "fonte": {
+      "lei": "EC 132/2023",
+      "artigo": "153",
+      "paragrafo": "VIII",
+      "incisos": [],
+      "paragrafo_unico": null,
+      "texto_caput": "Compete à União instituir imposto sobre: VIII — produção, extração, comercialização ou importação de bens e serviços prejudiciais à saúde ou ao meio ambiente, nos termos de lei complementar.",
+      "anexo": null,
+      "versao_texto": "ec132_2023"
+    },
+    "status": "approved_candidate",
+    "checklist_juridico_humano": "PENDENTE — confirmar artigo específico LC 214/2025 que regula IS sobre gasolina",
+    "data_inclusao": "2026-04-28",
+    "fonte_aprovacao": "REGRA-ORQ-11 fast-track P0 — classe combustíveis fósseis"
+  },
+  {
+    "ncm_code": "2710.19.21",
+    "descricao": "Óleo diesel — combustível fóssil sujeito a Imposto Seletivo (LC 214/2025)",
+    "setor_economico": "Energia · refino de petróleo · distribuição de combustíveis · transporte rodoviário",
+    "regime": "regime_geral",
+    "aliquota": null,
+    "imposto_seletivo": true,
+    "regime_anterior": "ICMS-ST (substituição tributária) · PIS/COFINS regime monofásico · CIDE-Combustíveis",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Distribuidora pode aplicar IS sobre operação isolada de transporte (que é serviço, não comércio do bem) ou esquecer de IS quando atua simultaneamente como distribuidora vendendo o combustível.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "condicionante": "EC 132/2023 Art. 153 VIII estabelece que IS incide sobre produtos prejudiciais ao meio ambiente — combustíveis fósseis enquadram-se. Sujeito passivo: produtor/importador/distribuidor (não transportador puro).",
+    "fonte": {
+      "lei": "EC 132/2023",
+      "artigo": "153",
+      "paragrafo": "VIII",
+      "incisos": [],
+      "paragrafo_unico": null,
+      "texto_caput": "Compete à União instituir imposto sobre: VIII — produção, extração, comercialização ou importação de bens e serviços prejudiciais à saúde ou ao meio ambiente, nos termos de lei complementar.",
+      "anexo": null,
+      "versao_texto": "ec132_2023"
+    },
+    "status": "approved_candidate",
+    "checklist_juridico_humano": "PENDENTE — confirmar artigo específico LC 214/2025 que regula IS sobre diesel",
+    "data_inclusao": "2026-04-28",
+    "fonte_aprovacao": "REGRA-ORQ-11 fast-track P0 — classe combustíveis fósseis"
   }
 ]
