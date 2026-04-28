@@ -3527,7 +3527,7 @@ sobre o valor da operação de que trata o inciso III do § 2º deste artigo. §
 do IBS, e entrarão em vigor a partir de primeiro de janeiro do ano subsequente. § 5º A definição dos percentuais de que trata o § 4º:
 I - será realizada, nos termos do regulamento, com base nas informações fiscais disponíveis;`,
     topicos: "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade, serviços, prestação de serviços",
-    cnaeGroups: "64,65,66",
+    cnaeGroups: "49,50,51,52,53,64,65,66",
     chunkIndex: 0,
   },
   {
@@ -3546,7 +3546,7 @@ opção pelo regime específico de que trata o art. 271 desta Lei Complementar. 
 DOS RESÍDUOS E DEMAIS MATERIAIS DESTINADOS À RECICLAGEM, REUTILIZAÇÃO OU LOGÍSTICA REVERSA ADQUIRIDOS DE PESSOA FÍSICA,
 COOPERATIVA OU OUTRA FORMA DE ORGANIZAÇÃO POPULAR`,
     topicos: "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade, serviços, prestação de serviços",
-    cnaeGroups: "64,65,66",
+    cnaeGroups: "49,50,51,52,53,64,65,66",
     chunkIndex: 1,
   },
   {

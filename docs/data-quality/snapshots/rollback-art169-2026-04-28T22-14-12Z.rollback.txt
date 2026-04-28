@@ -1,0 +1,12 @@
+-- ROLLBACK: PATCH-AGRO-002 Art. 169 LC 214 cnaeGroups
+-- Reverts cnaeGroups from '49,50,51,52,53,64,65,66' back to '64,65,66'
+-- Target rows: id=215 (Art. 169 chunkIndex 0) and id=216 (Art. 169 parte 2 chunkIndex 1)
+
+UPDATE ragDocuments 
+SET cnaeGroups = '64,65,66'
+WHERE id IN (215, 216)
+  AND lei = 'lc214';
+
+-- Verify after rollback:
+-- SELECT id, artigo, chunkIndex, cnaeGroups, lei FROM ragDocuments WHERE id IN (215, 216);
+-- Expected: both rows with cnaeGroups = '64,65,66'
