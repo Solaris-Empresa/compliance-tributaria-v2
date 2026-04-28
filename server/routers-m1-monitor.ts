@@ -23,6 +23,7 @@ import { TRPCError } from "@trpc/server";
 import { isM1ArchetypeEnabled } from "./config/feature-flags";
 import { buildSnapshot } from "./lib/archetype/buildSnapshot";
 import type { Seed, Blocker } from "./lib/archetype/types";
+import { validateM1Seed, deriveTipoObjetoEconomico } from "./lib/archetype/validateM1Input";
 
 // ─── Schema de entrada do log ─────────────────────────────────────────────
 const BlockerSchema = z.object({
@@ -137,6 +138,20 @@ export const m1MonitorRouter = router({
         });
       }
 
+      // ── P0 Gate: validar input fiscal (CNAE/NCM/NBS) antes de executar runner ──
+      // Decisão P.O. C2: validação simétrica backend (fonte de verdade)
+      validateM1Seed({
+        cnae_principal_confirmado: (input.seed as Record<string, unknown>).cnae_principal_confirmado as string | undefined,
+        natureza_operacao_principal: (input.seed as Record<string, unknown>).natureza_operacao_principal as string[] | undefined,
+        ncms_principais: (input.seed as Record<string, unknown>).ncms_principais as string[] | undefined,
+        nbss_principais: (input.seed as Record<string, unknown>).nbss_principais as string[] | undefined,
+      });
+
+      // P0-BE-1: derivar tipo_objeto_economico a partir de natureza_operacao_principal
+      const derivedTipoObjetoEconomico = deriveTipoObjetoEconomico(
+        ((input.seed as Record<string, unknown>).natureza_operacao_principal as string[]) ?? [],
+      );
+
       const startMs = Date.now();
       const dataVersion =
         input.dataVersion ?? new Date().toISOString();
@@ -230,7 +245,7 @@ export const m1MonitorRouter = router({
         natureza_operacao_principal: rawNatureza,
         operacoes_secundarias: (input.seed as Record<string, unknown>).operacoes_secundarias as readonly string[] ?? [],
         fontes_receita: derivedFontes,
-        tipo_objeto_economico: (input.seed as Record<string, unknown>).tipo_objeto_economico as readonly string[] ?? [],
+        tipo_objeto_economico: derivedTipoObjetoEconomico,
         posicao_na_cadeia_economica: normalizedPosicao,
         ncms_principais: (input.seed as Record<string, unknown>).ncms_principais as readonly string[] ?? [],
         nbss_principais: (input.seed as Record<string, unknown>).nbss_principais as readonly string[] ?? [],

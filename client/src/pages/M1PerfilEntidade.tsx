@@ -120,6 +120,57 @@ const NATUREZA_OPTIONS = [
   { value: "Locação", label: "Locação" },
 ];
 
+// ─── P0 Gate: validação de input fiscal (CNAE/NCM/NBS) ────────────────────────
+// Decisão P.O. C2: validação simétrica frontend (UX) — backend é fonte de verdade
+// Decisão P.O. C3: P0 valida formato apenas (regex); existência no dataset = P1
+
+const CNAE_REGEX = /^\d{4}-\d\/\d{2}$/;
+const NCM_REGEX = /^\d{4}\.\d{2}\.\d{2}$/;
+const NBS_REGEX = /^\d\.\d{4}\.\d{2}\.\d{2}$/;
+
+const NATUREZA_TO_TIPO: Record<string, string[]> = {
+  "Produção própria": ["Bens/mercadorias"],
+  "Comércio": ["Bens/mercadorias"],
+  "Transporte": ["Servicos"],
+  "Prestação de serviço": ["Servicos"],
+  "Locação": ["Servicos"],
+  "Intermediação": ["Bens/mercadorias", "Servicos"], // Decisão P.O. C1: MISTO
+};
+
+function validateInputs(f: SeedForm): string[] {
+  const errors: string[] = [];
+  const cnae = f.cnae_principal_confirmado?.trim() ?? "";
+  if (!cnae) errors.push("Informe o CNAE principal.");
+  else if (cnae.toLowerCase().startsWith("ex:")) errors.push("CNAE inválido — texto de exemplo. Informe o CNAE real (0000-0/00).");
+  else if (!CNAE_REGEX.test(cnae)) errors.push("CNAE inválido. Use o formato 0000-0/00, exemplo 0115-6/00.");
+
+  const tipo = new Set<string>();
+  for (const nat of f.natureza_operacao_principal ?? []) {
+    for (const t of NATUREZA_TO_TIPO[nat] ?? []) tipo.add(t);
+  }
+  const requerNcm = tipo.has("Bens/mercadorias");
+  const requerNbs = tipo.has("Servicos");
+
+  const ncms = (f.ncms_principais ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  if (requerNcm) {
+    if (ncms.length === 0) errors.push("Operação envolve bens/produtos. Informe ao menos um NCM.");
+    else for (const ncm of ncms) {
+      if (NBS_REGEX.test(ncm)) errors.push(`'${ncm}' parece NBS. Use o campo NBS para 0.0000.00.00.`);
+      else if (!NCM_REGEX.test(ncm)) errors.push(`NCM inválido: '${ncm}'. Formato 0000.00.00 (ex: 1201.90.00).`);
+    }
+  }
+
+  const nbss = (f.nbss_principais ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  if (requerNbs) {
+    if (nbss.length === 0) errors.push("Operação envolve serviços. Informe ao menos um NBS.");
+    else for (const nbs of nbss) {
+      if (!NBS_REGEX.test(nbs)) errors.push(`NBS inválido: '${nbs}'. Formato 0.0000.00.00 (ex: 1.0501.14.59).`);
+    }
+  }
+
+  return errors;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function statusColor(status: string) {
@@ -188,6 +239,7 @@ export default function M1PerfilEntidade() {
   const [showBlockers, setShowBlockers] = useState(false);
   const [logLimit] = useState(50);
   const [confirming, setConfirming] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const runMutation = trpc.m1Monitor.runAndLog.useMutation({
     onSuccess: (data) => setResult(data as unknown as RunResult),
@@ -232,6 +284,14 @@ export default function M1PerfilEntidade() {
     && !result.blockers_triggered.some((b) => b.severity === "BLOCK_FLOW");
 
   function handleConfirm() {
+    // P0 Gate: validar input fiscal antes de confirmar
+    const inputErrors = validateInputs(form);
+    if (inputErrors.length > 0) {
+      setValidationErrors(inputErrors);
+      return;
+    }
+    setValidationErrors([]);
+
     const projectId = parseInt(form.projectId, 10);
     if (isNaN(projectId) || projectId <= 0) return;
     setConfirming(true);
@@ -262,6 +322,14 @@ export default function M1PerfilEntidade() {
   }
 
   function handleRun() {
+    // P0 Gate: validar input fiscal antes de executar
+    const inputErrors = validateInputs(form);
+    if (inputErrors.length > 0) {
+      setValidationErrors(inputErrors);
+      return;
+    }
+    setValidationErrors([]);
+
     const projectId = parseInt(form.projectId, 10);
     if (isNaN(projectId) || projectId <= 0) {
       alert("Informe um Project ID válido (inteiro positivo).");
@@ -505,6 +573,18 @@ export default function M1PerfilEntidade() {
                   </Select>
                 </div>
               </div>
+
+              {/* P0 Gate: erros de validação de input fiscal */}
+              {validationErrors.length > 0 && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded p-3 space-y-1" data-testid="m1-validation-errors">
+                  {validationErrors.map((err, i) => (
+                    <p key={i} className="text-red-400 text-xs flex items-start gap-1">
+                      <span className="shrink-0">⚠</span>
+                      <span>{err}</span>
+                    </p>
+                  ))}
+                </div>
+              )}
 
               <Button
                 onClick={handleRun}
