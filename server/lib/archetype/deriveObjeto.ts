@@ -88,6 +88,10 @@ const REGIME_TUPLE_TO_OBJETO_NCM = new Map<NcmTupleKey, Objeto>([
   ["aliquota_zero|false|96", "bens_mercadoria_geral"],
   // condicional — fertilizantes (chapter 31)
   ["condicional|false|31", "agricola"],
+  // aliquota_zero — soja em grão e demais oleaginosas/cereais cesta básica (chapter 12)
+  // LC 214/2025 Art. 128 I (Anexo I — cesta básica nacional ampliada)
+  // EC 132/2023 Art. 153 VIII confirma: IS NÃO incide sobre commodities agrícolas
+  ["aliquota_zero|false|12", "agricola"],
 ]);
 
 function lookupNcmTuple(
