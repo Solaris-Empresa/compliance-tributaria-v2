@@ -1,13 +1,13 @@
 {
   "suite_name": "M1-arquetipo-51-casos-brasil-v3",
   "phase": "M1_RUNNER_V3",
-  "executed_at": "2026-04-24T23:56:24.015Z",
+  "executed_at": "2026-04-28T22:40:05.617Z",
   "model_version": "m1-v1.0.0",
   "data_version_fixed": "2026-04-24T12:00:00.000Z",
   "summary": {
-    "total": 51,
+    "total": 58,
     "by_test_status": {
-      "PASS": 50,
+      "PASS": 57,
       "FAIL": 0,
       "BLOCKED": 1
     },
@@ -15,15 +15,15 @@
       "pendente": 0,
       "inconsistente": 0,
       "bloqueado": 1,
-      "confirmado": 50
+      "confirmado": 57
     },
     "by_macro_setor": {
-      "servicos": 31,
-      "industria": 13,
+      "servicos": 34,
+      "industria": 17,
       "agro": 7
     },
     "blockers_by_id": {
-      "V-10-FALLBACK": 60,
+      "V-10-FALLBACK": 62,
       "V-10-FALLBACK-REGULATED": 1,
       "V-05-DENIED": 1,
       "V-LC-103": 1,
@@ -33,15 +33,15 @@
   "verdict": {
     "decision": "GO",
     "target": {
-      "PASS": 50,
+      "PASS": 57,
       "FAIL": 0,
       "BLOCKED": 1,
-      "total": 51
+      "total": 58
     },
     "rationale": [
       "FAIL = 0 (alvo: 0)",
       "BLOCKED = 1 (alvo: 1 — controle negativo S27)",
-      "PASS = 50"
+      "PASS = 57"
     ]
   },
   "rules_hash_consistency": {
@@ -1528,20 +1528,14 @@
       "test_status": "PASS",
       "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
-      "blockers_triggered": [
-        {
-          "id": "V-10-FALLBACK",
-          "severity": "INFO",
-          "rule": "NCM 1201 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
-        }
-      ],
+      "blockers_triggered": [],
       "missing_required_fields": [],
-      "perfil_hash": "sha256:19ad5a32045bc05dea766168d649395d74a90ca0a8aa77f4b5e1b04a187e0b46",
+      "perfil_hash": "sha256:9cf8c31166b9cd538110f17dd5d551a0b661d4c46eda77d5eed75a94b1faf4e3",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
-      "derived_legacy_operation_type": "industria",
+      "derived_legacy_operation_type": "agronegocio",
       "arquetipo_dimensions": {
         "objeto": [
-          "bens_mercadoria_geral"
+          "agricola"
         ],
         "papel_na_cadeia": "fabricante",
         "tipo_de_relacao": [
@@ -1564,21 +1558,16 @@
         {
           "id": "V-10-FALLBACK",
           "severity": "INFO",
-          "rule": "NCM 1201 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
-        },
-        {
-          "id": "V-10-FALLBACK",
-          "severity": "INFO",
           "rule": "NBS 1.0501.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
         }
       ],
       "missing_required_fields": [],
-      "perfil_hash": "sha256:1d766695cb03a8a07282c8b800a33aa9af64083f155f3f444dc51b4c2f991e9e",
+      "perfil_hash": "sha256:60dcaaf6cac9b7681afa3c492deef64c3f554894c178a172c96da9e7a5e8ca02",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
-      "derived_legacy_operation_type": "industria",
+      "derived_legacy_operation_type": "agronegocio",
       "arquetipo_dimensions": {
         "objeto": [
-          "bens_mercadoria_geral",
+          "agricola",
           "servico_geral"
         ],
         "papel_na_cadeia": "fabricante",
@@ -1599,20 +1588,14 @@
       "test_status": "PASS",
       "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
-      "blockers_triggered": [
-        {
-          "id": "V-10-FALLBACK",
-          "severity": "INFO",
-          "rule": "NCM 1005 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
-        }
-      ],
+      "blockers_triggered": [],
       "missing_required_fields": [],
-      "perfil_hash": "sha256:c62bd23b79c09f7e8dcc8929b6049a6760a0a36ef7f6691aad63150c13ac39f7",
+      "perfil_hash": "sha256:fbe4bae3c5350c436dd584ed776986a1edd8c4116b6e0a25b270ecea294154b6",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
-      "derived_legacy_operation_type": "industria",
+      "derived_legacy_operation_type": "agronegocio",
       "arquetipo_dimensions": {
         "objeto": [
-          "bens_mercadoria_geral"
+          "agricola"
         ],
         "papel_na_cadeia": "fabricante",
         "tipo_de_relacao": [
@@ -1634,20 +1617,14 @@
       "test_status": "PASS",
       "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
-      "blockers_triggered": [
-        {
-          "id": "V-10-FALLBACK",
-          "severity": "INFO",
-          "rule": "NCM 1201 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
-        }
-      ],
+      "blockers_triggered": [],
       "missing_required_fields": [],
-      "perfil_hash": "sha256:4ccd694103c03caea9d24ca0c2af30c046a873f572257f4f6ea0437d3ecb1475",
+      "perfil_hash": "sha256:a69309adaac95bb81ea727baee5c656af66b4a2c22e38131eddf5343ce89243f",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
-      "derived_legacy_operation_type": "comercio",
+      "derived_legacy_operation_type": "agronegocio",
       "arquetipo_dimensions": {
         "objeto": [
-          "bens_mercadoria_geral"
+          "agricola"
         ],
         "papel_na_cadeia": "distribuidor",
         "tipo_de_relacao": [
@@ -1672,12 +1649,12 @@
         {
           "id": "V-10-FALLBACK",
           "severity": "INFO",
-          "rule": "NCM 0201 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+          "rule": "NCM 0201.30.00 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
         },
         {
           "id": "V-10-FALLBACK",
           "severity": "INFO",
-          "rule": "NCM 0207 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+          "rule": "NCM 0207.14.00 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
         }
       ],
       "missing_required_fields": [],
@@ -1707,25 +1684,14 @@
       "test_status": "PASS",
       "status_arquetipo": "confirmado",
       "motivo_bloqueio": null,
-      "blockers_triggered": [
-        {
-          "id": "V-10-FALLBACK",
-          "severity": "INFO",
-          "rule": "NCM 0402 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
-        },
-        {
-          "id": "V-10-FALLBACK",
-          "severity": "INFO",
-          "rule": "NCM 0405 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
-        }
-      ],
+      "blockers_triggered": [],
       "missing_required_fields": [],
-      "perfil_hash": "sha256:26f6464b14e070668382dd655c4f77842ecbd7ff5519b420eca2410032526b1f",
+      "perfil_hash": "sha256:2710e85c2d2463a85b34accbf0d1f0257e2adc201144d836274e34fd901710d5",
       "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
-      "derived_legacy_operation_type": "industria",
+      "derived_legacy_operation_type": "agronegocio",
       "arquetipo_dimensions": {
         "objeto": [
-          "bens_mercadoria_geral"
+          "pecuario"
         ],
         "papel_na_cadeia": "fabricante",
         "tipo_de_relacao": [
@@ -1750,7 +1716,7 @@
         {
           "id": "V-10-FALLBACK",
           "severity": "INFO",
-          "rule": "NCM 4703 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+          "rule": "NCM 4703.21.10 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
         }
       ],
       "missing_required_fields": [],
@@ -1798,6 +1764,247 @@
         "papel_na_cadeia": "prestador",
         "tipo_de_relacao": [
           "servico"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "M52",
+      "scenario_name": "Mineracao extrativa - minerio de ferro",
+      "macro_setor": "industria",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 2601.11.00 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:8e29a613d957e5d2e1443bde8d01cca7da529f8c38a052a11f6acb9269193757",
+      "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "producao",
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional",
+          "internacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "T53",
+      "scenario_name": "Industria de tabaco / cigarros",
+      "macro_setor": "industria",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 2402.20.00 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:9334e3e3e6d49295f5c9a85245be8b379064385c486bbb7b826155a87b5aeb67",
+      "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "producao",
+          "venda"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "E54",
+      "scenario_name": "Midia / publicidade",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1102.10.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:03a25db5d2bfc9d69e1f7c0e92736324a1f853749a67bcf9c90b95c164d89bba",
+      "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "V55",
+      "scenario_name": "Eventos / entretenimento",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1601.20.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:03a25db5d2bfc9d69e1f7c0e92736324a1f853749a67bcf9c90b95c164d89bba",
+      "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "interestadual",
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "R56",
+      "scenario_name": "Reciclagem - sucata metalica",
+      "macro_setor": "industria",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 7204.10.00 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        },
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.0501.50.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:b0887318a12e8b3bb48d0ac2d11bfcbc5552a80bf7ca4b245222cea80bf9b21d",
+      "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral",
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "producao",
+          "venda",
+          "servico"
+        ],
+        "territorio": [
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "P57",
+      "scenario_name": "Autarquia / servico publico",
+      "macro_setor": "servicos",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NBS 1.1102.40.00 não mapeado no dataset — categoria genérica servico_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:7cabf452efe1b3b9f79a1e8ac0ec96cb8fd62ab07cb60dbfa99af47a7fc53506",
+      "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
+      "derived_legacy_operation_type": "servicos",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "servico_geral"
+        ],
+        "papel_na_cadeia": "prestador",
+        "tipo_de_relacao": [
+          "servico"
+        ],
+        "territorio": [
+          "nacional"
+        ],
+        "regime": "lucro_real"
+      }
+    },
+    {
+      "id": "C58",
+      "scenario_name": "Cosmeticos / perfumaria",
+      "macro_setor": "industria",
+      "test_status": "PASS",
+      "status_arquetipo": "confirmado",
+      "motivo_bloqueio": null,
+      "blockers_triggered": [
+        {
+          "id": "V-10-FALLBACK",
+          "severity": "INFO",
+          "rule": "NCM 3304.99.90 não mapeado no dataset — categoria genérica bens_mercadoria_geral aplicada com confiança baixa"
+        }
+      ],
+      "missing_required_fields": [],
+      "perfil_hash": "sha256:9334e3e3e6d49295f5c9a85245be8b379064385c486bbb7b826155a87b5aeb67",
+      "rules_hash": "sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272",
+      "derived_legacy_operation_type": "industria",
+      "arquetipo_dimensions": {
+        "objeto": [
+          "bens_mercadoria_geral"
+        ],
+        "papel_na_cadeia": "fabricante",
+        "tipo_de_relacao": [
+          "producao",
+          "venda"
         ],
         "territorio": [
           "interestadual",
