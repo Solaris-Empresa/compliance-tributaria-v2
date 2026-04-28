@@ -514,5 +514,41 @@
     "status": "confirmado",
     "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
     "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "1201.90.00",
+    "descricao": "Soja em grão, exceto para semeadura",
+    "setor_economico": "Agropecuária · produção rural · exportação de grãos",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "PIS/COFINS suspensão (Lei 10.925/2004 Art. 8º e 9º) · ICMS isento (Conv. ICMS 100/97)",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Produtor rural ou trading company não verifica se a soja em grão atende aos requisitos da cesta básica nacional (Art. 128 I) para fruição da alíquota zero. Aplicação incorreta de IS (Imposto Seletivo) por derivação equivocada de operationType como 'industria' em vez de 'agronegocio'.",
+    "confianca": {
+      "valor": 95,
+      "tipo": "regra"
+    },
+    "nota_confianca": "NCM 1201.90.00 listado no Anexo I (cesta básica nacional). IS não aplicável conforme EC 132 Art. 153 VIII (soja não é bem mineral, tabaco, bebida alcoólica, açucarada ou veículo). Checklist jurídico AI: 8/8.",
+    "condicionante": "Produto destinado à alimentação humana ou animal, conforme requisitos da cesta básica nacional (Art. 128 I LC 214/2025)",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "128",
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos produtos que compõem a cesta básica nacional de alimentos, nos termos do Anexo I desta Lei Complementar",
+      "texto_anexo": "Soja em grão — NCM 1201.90.00",
+      "anexo": "Anexo I — cesta básica nacional",
+      "leis_complementares": [
+        "LC 214/2025 Art. 138 (redução 60% insumos agro)",
+        "LC 214/2025 Art. 168 (crédito presumido produtor rural)",
+        "EC 132/2023 Art. 153 VIII (IS não aplicável a alimentos)",
+        "Lei 10.925/2004 Art. 8º e 9º (suspensão PIS/COFINS — regime anterior)",
+        "Conv. ICMS 100/97 (isenção ICMS — regime anterior)"
+      ]
+    },
+    "status": "approved_candidate",
+    "validado_por": "Orquestrador Claude (checklist jurídico AI 8/8) + REGRA-ORQ-11 fast-track",
+    "data_validacao": "2026-04-28",
+    "checklist_juridico_humano": "PENDENTE (cross-check tributarista posterior)",
+    "fonte_aprovacao": "REGRA-ORQ-11 fast-track hotfix P0"
   }
 ]

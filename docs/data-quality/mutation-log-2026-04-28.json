@@ -1,0 +1,49 @@
+{
+  "mutation_id": "HOTFIX-IS-SOJA-2026-04-28",
+  "timestamp": "2026-04-28T15:30:00Z",
+  "executor": "Manus (implementador técnico)",
+  "autoridade": "REGRA-ORQ-11 fast-track hotfix P0 — invocada pelo P.O. em 2026-04-28",
+  "root_cause": "NCM 1201.90.00 ausente de ncm-dataset.json → V-10-FALLBACK → operationType=industria → IS permitido para soja (categoricamente errado conforme EC 132 Art. 153 VIII). 7 ragDocuments com cnaeGroups financeiro (64,65,66) em vez de agro (01,02,03,10,11,12).",
+  "mutations": [
+    {
+      "type": "sql_update",
+      "target": "ragDocuments",
+      "description": "Corrigir cnaeGroups de 7 registros: financeiro → agro",
+      "records": [
+        {"id": 39,  "before": "86,87,88,45,46,47", "after": "01,02,03,10,11,12,86,87,88,45,46,47"},
+        {"id": 148, "before": "64,65,66",           "after": "01,02,03,10,11,12,86,87,88"},
+        {"id": 178, "before": "64,65,66",           "after": "01,02,03,10,11,12"},
+        {"id": 179, "before": "64,65,66",           "after": "01,02,03,10,11,12"},
+        {"id": 213, "before": "64,65,66",           "after": "01,02,03,10,11,12"},
+        {"id": 214, "before": "64,65,66",           "after": "01,02,03,10,11,12"},
+        {"id": 944, "before": "64,65,66",           "after": "01,02,03,10,11,12"}
+      ],
+      "rows_affected": 7,
+      "status": "executed"
+    },
+    {
+      "type": "file_insert",
+      "target": "server/lib/decision-kernel/datasets/ncm-dataset.json",
+      "description": "Inserir NCM 1201.90.00 (Soja em grão) com status approved_candidate",
+      "ncm_code": "1201.90.00",
+      "status": "approved_candidate",
+      "checklist_juridico_ai": "8/8",
+      "checklist_juridico_humano": "PENDENTE"
+    }
+  ],
+  "snapshots": {
+    "pre_mutation_ragdocs": "/tmp/snapshot-ragdocs-2026-04-28.json",
+    "pre_mutation_ragdocs_sha256": "ce89afe6f46b9a7dbd3fa4d4bbe01ab3bb039401aef09cbd8b5fea1fd3d328c8",
+    "pre_mutation_ncm_dataset": "/tmp/snapshot-ncm-dataset-2026-04-28.json",
+    "pre_mutation_ncm_dataset_sha256": "0ba5cd71a756aaa41a9888991c61578cdfdad1b469ba8c589e64f68b215e3623",
+    "post_mutation_ncm_dataset_sha256": "c4b7d60b0541ee3ccc13f96d3ee6bb065e8c13546cdc1e1a463363bcd97c0bda"
+  },
+  "rollback": {
+    "nivel_1_sql": "UPDATE ragDocuments SET cnaeGroups = '64,65,66' WHERE id IN (148,178,179,213,214,944); UPDATE ragDocuments SET cnaeGroups = '86,87,88,45,46,47' WHERE id = 39;",
+    "nivel_2_dataset": "git revert <commit_hash>"
+  },
+  "validacao_pos_deploy": {
+    "project_3020": "retest — esperado: fallbackCount=0, derived_legacy_operation_type=agronegocio, IS bloqueado",
+    "project_3015": "regression — esperado: SEM REGRESSÃO, operationType=servicos"
+  }
+}
