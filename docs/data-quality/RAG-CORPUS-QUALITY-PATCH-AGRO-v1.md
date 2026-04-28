@@ -4,10 +4,16 @@
 
 ---
 
-**Status:** NOT_APPROVED_FOR_EXECUTION
-**Mutação produtiva:** BLOQUEADA até protocolo aprovado pelo P.O.
-**Aprovação necessária:** P.O. (Uires Tapajós) + revisão anti-regressão pelo Orquestrador (Claude)
+**Status:** APPROVED_AND_EXECUTED
+**Executado em:** 2026-04-28T16:28:58Z por Manus (REGRA-ORQ-11 fast-track P0)
+**Verificado em:** 2026-04-28T19:20:26.899Z — Caso A (valores pós-patch confirmados)
+**Aprovação:** P.O. (Uires Tapajós) + Orquestrador (Claude)
 **Referência ao protocolo:** `docs/data-quality/CORPUS-MUTATION-PROTOCOL-v1.md`
+**Mutation-log:** `docs/data-quality/mutation-log-corpus-2026-04-28.json`
+
+> **Histórico de status:**
+> - v1.1 (2026-04-25): NOT_APPROVED_FOR_EXECUTION
+> - v1.2 (2026-04-28): APPROVED_AND_EXECUTED (REGRA-ORQ-11)
 
 ---
 
@@ -36,10 +42,12 @@ rural (Art. 165), ao crédito presumido (Art. 168) e à alíquota reduzida de in
 | 179 | LC 214/2025 | Art. 138 (parte 2) | Alíquota reduzida 60% — insumos agropecuários (parte 2) | `64,65,66` | `01,02,03,10,11,12` | **CRÍTICA** |
 | 213 | LC 214/2025 | Art. 168 | Crédito presumido — regime regular (produtor rural) | `64,65,66` | `01,02,03,10,11,12` | **CRÍTICA** |
 | 214 | LC 214/2025 | Art. 168 (parte 2) | Crédito presumido — Simples Nacional (produtor rural) | `64,65,66` | `01,02,03,10,11,12` | **CRÍTICA** |
-| 39 | LC 214/2025 | Art. 26 | Não contribuintes IBS/CBS — produtor rural abaixo do limiar | `86,87,88,45,46,47` | `01,02,03,10,11,12,86,87,88` | **ALTA** |
+| 39 | LC 214/2025 | Art. 26 | Não contribuintes IBS/CBS — produtor rural abaixo do limiar | `86,87,88,45,46,47` | `01,02,03,10,11,12,86,87,88,45,46,47` | **ALTA** |
 | 944 | LC 227/2025 | Art. 108 | Distribuição de receita IBS — impacto no produtor rural | `64,65,66` | `01,02,03,10,11,12` | **MÉDIA** |
 
 > **Nota:** O Art. 138 (parte 3) — ID 180 — já está correto (`01,02,03,10,11,12,13,14,15,16`). Não requer correção.
+
+> **Errata §2.1 (v1.2, 2026-04-28):** O valor proposto para ID 39 foi corrigido de `01,02,03,10,11,12,86,87,88` para `01,02,03,10,11,12,86,87,88,45,46,47`. A versão v1.1 omitia os CNAEs 45,46,47 (construção civil) que são legítimos para o Art. 26 LC 214 (cross-sector: agro+saúde+construção). O §2.2 e o §4 SQL já continham o valor correto com 45,46,47. Esta errata alinha §2.1 com §2.2/§4.
 
 ### 2.2 Artigos Legitimamente Cross-Sector (NÃO remover de financeiro)
 
