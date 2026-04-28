@@ -209,12 +209,12 @@ export const m1MonitorRouter = router({
       // Quando fontes_receita estiver vazio, derivamos a partir de natureza_operacao_principal
       // para evitar tipo_de_relacao=[] e o consequente HARD_BLOCK V-LC-102.
       const NATUREZA_TO_FONTES: Record<string, string> = {
-        "Produção própria":     "Producao propria",
-        "Comércio":             "Venda de mercadoria",
+        "Produção própria":    "Producao propria",
+        "Comércio":            "Venda de mercadoria",
         "Prestação de serviço": "Prestacao de servico",
-        "Transporte":           "Prestacao de servico",
-        "Intermediação":        "Comissao/intermediacao",
-        "Locação":              "Aluguel/locacao",
+        "Transporte":          "Prestacao de servico",
+        "Intermediação":       "Comissao/intermediacao",
+        "Locação":             "Aluguel/locacao",
       };
       const rawNatureza = (input.seed as Record<string, unknown>).natureza_operacao_principal as string[] ?? [];
       const rawFontes   = (input.seed as Record<string, unknown>).fontes_receita as string[] ?? [];

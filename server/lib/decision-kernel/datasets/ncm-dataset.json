@@ -514,5 +514,33 @@
     "status": "confirmado",
     "validado_por": "Dr. Rodrigues (simulado) + Orquestrador Claude",
     "data_validacao": "2026-04-05"
+  },
+  {
+    "ncm_code": "1201.90.00",
+    "descricao": "Soja em grão, exceto para semeadura — commodity agrícola da cesta básica nacional ampliada",
+    "setor_economico": "Agronegócio · cultivo de soja · cooperativas · esmagamento · exportação",
+    "regime": "aliquota_zero",
+    "aliquota": 0,
+    "imposto_seletivo": false,
+    "regime_anterior": "ICMS diferido/isento (Conv. 100/97) · PIS/COFINS suspensão (Lei 10.925/2004 Art. 8º e 9º) · imune em exportação (CF/88 Art. 155 §2 X 'a')",
+    "impacto_compliance": "alto",
+    "gap_tipico": "Produtor rural pode não aplicar suspensão Lei 10.925/2004 corretamente durante transição 2026-2032 (LC 214/2025 Arts. 413+); risco de bitributação na cadeia produtor → cooperativa → esmagadora, ou perda do crédito presumido (LC 214/2025 Art. 168) por não-conformidade documental.",
+    "confianca": {
+      "valor": 100,
+      "tipo": "deterministico"
+    },
+    "condicionante": "EC 132/2023 Art. 153 VIII confirma que IS NÃO incide sobre soja em grão (não enquadrada como produto prejudicial à saúde/meio ambiente). Crédito presumido aplicável conforme LC 214/2025 Art. 168 ao produtor rural.",
+    "fonte": {
+      "lei": "LC 214/2025",
+      "artigo": "128",
+      "paragrafo": "caput",
+      "incisos": [
+        "I"
+      ],
+      "paragrafo_unico": null,
+      "texto_caput": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos produtos da cesta básica nacional ampliada constantes do Anexo I.",
+      "anexo": "Anexo I — cesta básica nacional ampliada (oleaginosas e cereais)",
+      "versao_texto": "original_lcp214_2025"
+    }
   }
 ]

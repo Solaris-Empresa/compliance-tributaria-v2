@@ -1,7 +1,85 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint
-> **v7.58 · 2026-04-22 (Hotfix IS v2 + v2.1 MERGEADOS — HEAD `58d490c` · SPEC v1.2 intocada · ADR-0030 amendments 1+2 inline · Epic #830 desbloqueado pós-deploy)**
-> **Predecessor:** v7.57 · 2026-04-22 (Hotfix IS v1.2 entregue — PR #828 mergeado pós-v7.58, documentou v1.2 antes do UAT identificar caller inativo)
+> **v7.59 · 2026-04-27 (Split PR #847 concluído — HEAD `1c429950` · M1 Runner v3 em main · PRs #850/#851 MERGED · #847 CLOSED · #852 CLOSED · feature flag default OFF · audit ORQ-19 🟡 parcial)**
+> **Predecessor:** v7.58 · 2026-04-22 (Hotfix IS v2 + v2.1 MERGEADOS — HEAD `58d490c`)
+
+## Sessão v7.59 (2026-04-27) — Split do PR #847 concluído (M1 Runner v3 em main)
+
+**HEAD main:** `1c429950d166cd70fd4666bef6f171b739f2b312` (merge PR #851)
+**Predecessor pós-v7.58:** `354552535...` (merge PR #850, PR-A do split)
+
+**Gatilho:** PR #847 original combinava migration + domínio RAG documental, violando REGRA 5 do `changed-files-guard`.
+
+**Decisão arquitetural:** split governado em 2 PRs com paths disjuntos.
+
+**PRs fechados nesta sessão:**
+
+| PR | Tipo | Estado | Hash |
+|---|---|---|---|
+| #848 | data-quality (Rodada 3.1/3.2) | MERGED | `1628277b` |
+| #849 | IQG SPEC (1326 linhas) | MERGED | `d629edf8` |
+| #850 (PR-A) | Migration only — schema + script | MERGED | `354552535` |
+| #851 (PR-B) | Runtime only — 29 arquivos | MERGED | `1c429950` |
+| #847 (original) | Supersedido | CLOSED, não mergeado | comentário `#issuecomment-4326872398` |
+| #852 (handoff stale) | Branch obsoleta vs main | CLOSED, não mergeado | comentário `#issuecomment-4328336416` |
+
+**Conteúdo do M1 Runner v3 em main pós-split:**
+
+| Componente | PR | Localização |
+|---|---|---|
+| Schema `m1_runner_logs` (varchar 80) + script | PR-A #850 | `drizzle/schema.ts`, `scripts/create-m1-table.mjs` |
+| Runner core (11 arquivos puros, zero LLM, zero I/O, hashes SHA-256) | PR-B #851 | `server/lib/archetype/` |
+| Procedure tRPC `m1Monitor.runAndLog` (Drizzle único) | PR-B #851 | `server/routers-m1-monitor.ts` |
+| UI admin acessível em `/admin/m1-perfil` | PR-B #851 | `client/src/pages/M1PerfilEntidade.tsx` + `client/src/App.tsx` |
+| Manifesto v1.0.0 + SPEC-RUNNER-RODADA-D | PR-B #851 | `docs/epic-830-rag-arquetipo/` |
+| Suite 51 cenários (50/0/1) + Vitest M1 (12/12 PASS) | PR-B #851 | `tests/archetype-validation/`, `server/m1-feature-flag.test.ts` |
+| Feature flag `m1-archetype-enabled=false` default OFF + 4 portas | PR-B #851 | `server/config/feature-flags.ts` |
+
+**Validações em main pós-split:**
+- `pnpm tsc --noEmit`: 0 erros
+- Suite 51 cenários: 50 PASS / 0 FAIL / 1 BLOCKED (S27 controle negativo)
+- Vitest M1: 12/12 PASS
+- Validação Transportadora Combustíveis Perigosos: PASS 9/9 (v1.1 2026-04-25)
+
+**Branches preservadas em remoto (auditoria histórica):**
+- `feat/m1-archetype-runner-v3` (HEAD `24009d98`, PR #847 closed)
+- `feat/m1-archetype-runner-runtime` (HEAD `82c8e921`, PR #851 merged)
+- `feat/m1-archetype-runner-migration` (HEAD `42cfad37`, PR #850 merged)
+- `docs/handoff-v7.60` (HEAD `c0d15dcc`, PR #852 closed sem merge)
+
+### Audit ORQ-19 (inline) — Veredito 🟡 PARCIAL
+
+**Gatilho:** 4 PRs mergeados (#848, #849, #850, #851) + 2 PRs closed sem merge (#847, #852).
+
+**Passos executados pelo Claude Code (via Orquestrador):**
+1. ✅ Pré-validação de HEADs em todos os despachos (zero violação detectada)
+2. ✅ Guard local executado antes de cada commit (REGRA 5 nunca disparou em fluxo legítimo)
+3. ✅ tsc + Vitest + Suite 51 verificados localmente
+4. ✅ Body de PRs validado contra `validate-pr-body.js` antes de `gh pr create`
+5. ✅ Branch protection respeitada (zero `--admin`, zero push direto em main)
+
+**Passos pendentes (exigem Manus):**
+1. ⏳ Verificação S3 ↔ GitHub (sincronização de artefatos)
+2. ⏳ HTTP probe em produção (`iasolaris.manus.space`)
+3. ⏳ Smoke test UX `/admin/m1-perfil` em produção controlada
+
+**Veredito:** 🟡 **PARCIAL** — passos do Claude Code 5/5 PASS; passos do Manus 0/3 (não executados nesta sessão por decisão P.O. de não envolver Manus durante incidente P2.W). **Completar próximos passos em sessão futura, antes de qualquer rollout global do M1.**
+
+**Estatísticas:**
+- 27 prompts atômicos despachados ao Claude Code (incluindo este)
+- Zero violações de REGRA 5 no fluxo legítimo
+- Zero uso de `--admin` ou bypass
+- 1 incidente Manus tolerado (P2.W formalizado em `HANDOFF-MANUS.md`)
+
+**Backlog P2 aberto:**
+- **P2.W** — Coordenação inter-agentes (Manus ↔ Orquestrador ↔ Claude Code) — formalizada em `HANDOFF-MANUS.md` v7.59
+- **P2.X** — Workflow `rag-quality-gate.yml` com path muito amplo (não disparou para PR-B; problema só em PRs que tocam `drizzle/schema.ts`)
+- **P2.Y** — Investigar divergência GitHub main vs Manus.space sandbox
+- **P2.Z** — Documentar padrão `--label rag:review` na criação para PRs RAG (evita empty commit re-trigger)
+
+**Próxima ação P.O.:** decisão sobre próxima Sprint. Epic #830 fase 0 IQG continua bloqueada por REGRA-M1-GO-NO-GO até go formal.
+
+---
 
 ## Sessão v7.58 (2026-04-22) — Hotfix IS v2 + v2.1 (ciclo completo)
 
