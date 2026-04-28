@@ -1,0 +1,30 @@
+{
+  "patch_id": "PATCH-AGRO-001",
+  "executor": "Manus",
+  "timestamp": "2026-04-28T13:55:00Z",
+  "approved_by": ["P.O. via REGRA-ORQ-11"],
+  "snapshot_path": "/tmp/snapshot-corpus-2026-04-28.sql",
+  "rollback_path": "/tmp/rollback-corpus-2026-04-28.sql",
+  "snapshot_hash": "be4c8cff7c363baf",
+  "rollback_hash": "a5da5b4e4dfd1322",
+  "rows_affected": 7,
+  "details": {
+    "id_39": {"before": "86,87,88,45,46,47", "after": "01,02,03,10,11,12,86,87,88,45,46,47", "note": "Art. 26 LC 214"},
+    "id_148": {"before": "64,65,66", "after": "01,02,03,10,11,12,86,87,88", "note": "Art. 110 LC 214"},
+    "id_178": {"before": "64,65,66", "after": "01,02,03,10,11,12", "note": "Art. 138 LC 214"},
+    "id_179": {"before": "64,65,66", "after": "01,02,03,10,11,12", "note": "Art. 138 LC 214 (parte 2)"},
+    "id_213": {"before": "64,65,66", "after": "01,02,03,10,11,12", "note": "Art. 168 LC 214"},
+    "id_214": {"before": "64,65,66", "after": "01,02,03,10,11,12", "note": "Art. 168 LC 214 (parte 2)"},
+    "id_944": {"before": "64,65,66", "after": "01,02,03,10,11,12", "note": "Art. 108 LC 227"}
+  },
+  "id_39_value": "01,02,03,10,11,12,86,87,88,45,46,47",
+  "smoke_pre_pass": true,
+  "smoke_post_pass": true,
+  "pv_results": {
+    "PV1_working_tree": "limpo",
+    "PV2_main_head": "af5d1a58",
+    "PV3_ragDocs_exist": "7/7",
+    "PV4_tsc": "0 erros",
+    "PV4_vitest_m1": "12/12 PASS"
+  }
+}
