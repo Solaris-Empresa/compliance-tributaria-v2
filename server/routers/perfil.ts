@@ -71,7 +71,7 @@ function assertM2Enabled(ctx: { user?: { role?: string } }, projectId?: number):
  * Constrói Seed a partir das colunas legacy do projeto (companyProfile +
  * operationProfile + confirmedCnaes). Mapping mínimo — Sprint M3 expandirá.
  */
-function buildSeedFromProject(project: Record<string, unknown>): Seed {
+export function buildSeedFromProject(project: Record<string, unknown>): Seed {
   const cp = (project.companyProfile ?? {}) as Record<string, unknown>;
   const op = (project.operationProfile ?? {}) as Record<string, unknown>;
   const confirmedCnaes = ((project.confirmedCnaes ?? []) as Array<{
@@ -104,16 +104,48 @@ function buildSeedFromProject(project: Record<string, unknown>): Seed {
   if (operationType === "financeiro")
     naturezaFromLegacy.push("Prestação de serviço");
 
-  // posicao_na_cadeia_economica derivado do operationType
+  // PR-D BUG-1 fix: posicao_na_cadeia_economica derivado do operationType.
+  // derivePapel (buildPerfilEntidade.ts:117-127) espera literais EXATOS:
+  //   "Produtor/fabricante" → fabricante
+  //   "Atacadista"          → distribuidor
+  //   "Varejista"           → varejista
+  //   "Prestador de servico"→ prestador
+  //   "Operadora"           → operadora_regulada
+  //   "Intermediador"       → intermediador
+  // Versão anterior usava "Produtor" para agro (sem case match → indefinido) e
+  // não cobria misto/financeiro (vazio → indefinido). Resolve bug funcional
+  // que bloqueava CTA "Confirmar Perfil da Entidade".
+  // Refs: routers-m1-monitor.ts:193-216 (POSICAO_ALIASES canônicos).
   let posicaoCadeia = "";
   if (operationType === "industria") posicaoCadeia = "Produtor/fabricante";
   else if (operationType === "comercio") posicaoCadeia = "Atacadista";
   else if (operationType === "servicos") posicaoCadeia = "Prestador de servico";
-  else if (operationType === "agronegocio") posicaoCadeia = "Produtor";
+  else if (operationType === "agronegocio") posicaoCadeia = "Produtor/fabricante"; // FIX-1
+  else if (operationType === "misto") posicaoCadeia = "Atacadista"; // FIX-1: misto é predominantemente comércio (decisão P.O.)
+  else if (operationType === "financeiro") posicaoCadeia = "Operadora"; // FIX-1: financeiro → operadora_regulada via derivePapel
 
-  // Resolver tax_regime: form M1 (operationProfile) tem precedência sobre companyProfile
-  const taxRegime =
+  // PR-D BUG-2 fix: normalizar taxRegime snake_case → title case.
+  // PerfilEmpresaIntelligente.tsx:911-913 grava companyProfile.taxRegime em
+  // snake_case ("simples_nacional", "lucro_presumido", "lucro_real").
+  // deriveRegime (buildPerfilEntidade.ts:205-210) espera title case
+  // ("Simples Nacional", etc). Sem normalização: regime sempre "indefinido".
+  // Aliases idempotentes (aceita ambos formatos).
+  // Refs: routers-m1-monitor.ts:170-184 (REGIME_ALIASES canônicos).
+  const taxRegimeRaw =
     (op.taxRegime as string) ?? (cp.taxRegime as string) ?? "Lucro Real";
+  const TAX_REGIME_ALIASES: Record<string, string> = {
+    // snake_case (formato salvo pelo client form)
+    simples_nacional: "Simples Nacional",
+    lucro_presumido: "Lucro Presumido",
+    lucro_real: "Lucro Real",
+    mei: "MEI",
+    // title case (passthrough idempotente)
+    "Simples Nacional": "Simples Nacional",
+    "Lucro Presumido": "Lucro Presumido",
+    "Lucro Real": "Lucro Real",
+    MEI: "MEI",
+  };
+  const taxRegime = TAX_REGIME_ALIASES[taxRegimeRaw] ?? taxRegimeRaw;
 
   return {
     natureza_operacao_principal: naturezaFromLegacy,
