@@ -73,6 +73,7 @@ import ShadowMonitor from "./pages/ShadowMonitor";
 import RagCockpit from "./pages/RagCockpit";
 import TaskBoard from "./pages/TaskBoard"; // Sprint K — Taskboard P.O. ao vivo (Issue #151)
 import QuestionarioSolaris from "./pages/QuestionarioSolaris"; // K-4-B: Onda 1 SOLARIS
+import ConfirmacaoPerfil from "./pages/ConfirmacaoPerfil"; // M2 PR-B: Perfil da Entidade (flag m2-perfil-entidade-enabled)
 import QuestionarioIaGen from "./pages/QuestionarioIaGen"; // K-4-C: Onda 2 IA Generativa
 import AdminSolarisQuestions from "./pages/AdminSolarisQuestions"; // Sprint L — DEC-002 Issue #191
 import AdminCategorias from "./pages/AdminCategorias"; // Sprint Z-09 — Categorias configuráveis (ADR-0025)
@@ -120,6 +121,7 @@ function Router() {
       <Route path="/matriz-riscos-session" component={MatrizRiscosSession} />
       <Route path="/consolidacao" component={Consolidacao} />
       {/* Diagnóstico v2.1 — 3 camadas sequenciais */}
+      <Route path="/projetos/:id/perfil-entidade" component={ConfirmacaoPerfil} /> {/* M2 PR-B */}
       <Route path="/projetos/:id/questionario-solaris" component={QuestionarioSolaris} />
       <Route path="/projetos/:id/questionario-iagen" component={QuestionarioIaGen} /> {/* K-4-C: Onda 2 */}
       <Route path="/projetos/:id/questionario-corporativo-v2" component={QuestionarioCorporativoV2} />
