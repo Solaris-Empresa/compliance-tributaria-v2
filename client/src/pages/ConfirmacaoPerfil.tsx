@@ -334,19 +334,41 @@ export default function ConfirmacaoPerfil() {
                       : "—"}
                   </p>
                 </div>
-                {painelData.snapshot.ncms.length > 0 && (
-                  <div data-field="ncms_principais">
+                {/* G-A5 fix (PR-C): conditional rendering explícito por natureza_operacao_principal,
+                    não mais por .length > 0. Mostra a seção mesmo se array vazio (orienta usuário a preencher) */}
+                {shouldShowNCM(painelData.snapshot.natureza_operacao_principal) && (
+                  <div data-field="ncms_principais" data-testid="campo-ncms">
                     <p className="text-xs text-slate-400 mb-1">NCMs (Produtos)</p>
-                    <p className="text-slate-200 font-mono text-xs">
-                      {painelData.snapshot.ncms.join(", ")}
-                    </p>
+                    {painelData.snapshot.ncms.length > 0 ? (
+                      <p className="text-slate-200 font-mono text-xs">
+                        {painelData.snapshot.ncms.join(", ")}
+                      </p>
+                    ) : (
+                      <p className="text-amber-300 text-xs" data-testid="ncm-missing-warning">
+                        Esta operação envolve bens/produtos. Informe pelo menos um NCM principal.
+                      </p>
+                    )}
                   </div>
                 )}
-                {painelData.snapshot.nbss.length > 0 && (
-                  <div data-field="nbss_principais">
+                {shouldShowNBS(painelData.snapshot.natureza_operacao_principal) && (
+                  <div data-field="nbss_principais" data-testid="campo-nbss">
                     <p className="text-xs text-slate-400 mb-1">NBSs (Serviços)</p>
-                    <p className="text-slate-200 font-mono text-xs">
-                      {painelData.snapshot.nbss.join(", ")}
+                    {painelData.snapshot.nbss.length > 0 ? (
+                      <p className="text-slate-200 font-mono text-xs">
+                        {painelData.snapshot.nbss.join(", ")}
+                      </p>
+                    ) : (
+                      <p className="text-amber-300 text-xs" data-testid="nbs-missing-warning">
+                        Esta operação envolve serviços. Informe pelo menos um NBS principal.
+                      </p>
+                    )}
+                  </div>
+                )}
+                {/* G-A10 fix: aviso específico se algum NCM digitado for na verdade um NBS */}
+                {painelData.snapshot.ncms.some(isNbsInNcmField) && (
+                  <div data-testid="nbs-in-ncm-warning" className="rounded border border-rose-500/40 bg-rose-500/10 p-2">
+                    <p className="text-xs text-rose-300">
+                      O código informado parece ser NBS. Use o campo NBS para serviços.
                     </p>
                   </div>
                 )}
@@ -423,4 +445,51 @@ export function inferOrigemFromBlockers(
   blockerId: string,
 ): DimensaoOrigem {
   return blockers.some((b) => b.id === blockerId) ? "fallback" : "infer";
+}
+
+// ─── G-A5 (PR-C): conditional rendering por natureza_operacao_principal ───
+// Resolve gap COSMÉTICO da auditoria Manus PR #867 A5.
+// Substituição de filtro `.length > 0` por mapping explícito com tipo_operacao.
+//
+// Reusa semântica do NATUREZA_TO_TIPO_OBJETO de validateM1Input.ts (PR #859):
+//   - "Produção própria" / "Comércio" / "Intermediação" → exige NCM
+//   - "Transporte" / "Prestação de serviço" / "Locação" / "Intermediação" → exige NBS
+// (Intermediação aparece em ambos pois é Misto)
+
+const NATUREZA_REQUER_NCM = new Set([
+  "Produção própria",
+  "Comércio",
+  "Intermediação",
+]);
+
+const NATUREZA_REQUER_NBS = new Set([
+  "Transporte",
+  "Prestação de serviço",
+  "Locação",
+  "Intermediação",
+]);
+
+export function shouldShowNCM(natureza: readonly string[]): boolean {
+  return natureza.some((n) => NATUREZA_REQUER_NCM.has(n));
+}
+
+export function shouldShowNBS(natureza: readonly string[]): boolean {
+  return natureza.some((n) => NATUREZA_REQUER_NBS.has(n));
+}
+
+/**
+ * G-A10 fix (PR-C): detecta NBS digitado em campo NCM.
+ * NBS tem formato `1.XXXX.XX.XX` (prefixo "1." opcional). NCM é `XXXX.XX.XX`.
+ * Se string de NCM começa com "1." e tem mais de um ponto → provavelmente é NBS.
+ */
+export function isNbsInNcmField(value: string): boolean {
+  const trimmed = value.trim();
+  return /^1\.\d{4}\.\d{2}\.\d{2}$/.test(trimmed);
+}
+
+/**
+ * G-A10 fix: validação de formato NCM (regex 8 dígitos com pontos)
+ */
+export function isValidNcmFormat(value: string): boolean {
+  return /^\d{4}\.\d{2}\.\d{2}$/.test(value.trim());
 }

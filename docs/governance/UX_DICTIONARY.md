@@ -247,3 +247,58 @@ Spec HIBRIDA obrigatoria:
 - Snapshot confirmado é imutável (ADR-0032 §1) — validado server-side
 - Edição após confirmação cria novo `archetype` row; antigo **preservado**
 - `status_arquetipo = confirmado` é pré-requisito de avançar para Briefing (Gate E2E SPEC §4.6)
+
+---
+
+## Perfil da Entidade (M2 — `/projetos/:id/perfil-entidade`)
+
+> **Origem:** M2 PR-A (#865) + PR-B (#867) + PR-C (este). Tela cliente entre `confirmCnaes` e `Questionário SOLARIS`.
+> **Termo canônico UI:** "Perfil da Entidade" (interno: `archetype` / `archetype_version`). **Proibido:** "Arquétipo" em strings visíveis.
+
+**8 estados visuais** (atributo `data-state` no root):
+
+| Estado | Semântica |
+|---|---|
+| `s1` | Início — sem dados, formulário não tocado |
+| `s2` | Modal CNAE recém-fechado, build pendente |
+| `s3` | CNAEs confirmados, dimensões sendo derivadas |
+| `s4` | Painel completo, status_arquetipo = confirmado |
+| `c1` | Pendente — campos obrigatórios faltando |
+| `c2` | Inconsistente — exige correção (sem override) |
+| `c3` | Bloqueado — HARD_BLOCK ativo |
+| `c4` | Confirmado — snapshot imutável persistido |
+
+**6 seções do Painel de Confiança:**
+
+| ID | Conteúdo |
+|---|---|
+| PC-01 | Resumo Executivo — score_total + status_arquetipo + eligibility + mensagem |
+| PC-02 | Composição da Confiança — Completude (40%) + Inferência (30%) + Coerência (30%) com nota explícita "Score alto não libera fluxo sozinho" |
+| PC-03 | Pendências e Bloqueios priorizados (HARD_BLOCK > PENDENTE_CRITICO > PENDENTE > INFO) com CTA "Ir para campo" |
+| PC-04 | Snapshot do Perfil — CNAEs, natureza, dimensões M1, NCMs, NBSs, perfil_hash, rules_hash |
+| PC-05 | Prévia de Riscos com badge **EXPLORATÓRIO** (não bloqueia gate) |
+| PC-06 | CTA "Continuar para o Questionário SOLARIS" — disabled exceto se `gate_liberated === true` |
+
+**Conditional rendering NCM/NBS** (PR-C G-A5):
+
+| Natureza inclui | Mostra |
+|---|---|
+| Produção própria, Comércio, Intermediação | Campo NCM (com warning se array vazio) |
+| Transporte, Prestação de serviço, Locação, Intermediação | Campo NBS (com warning se array vazio) |
+| Apenas serviços | NCM oculto |
+| Apenas bens | NBS oculto |
+
+**Invariantes (M2):**
+- Score alto **não** libera fluxo sozinho — gate exige `status_arquetipo = "perfil_confirmado"` AND zero `HARD_BLOCK`
+- Estado `inconsistente` exige correção; **não** existe `acceptInconsistency`
+- Erro estrutural ≠ risco aceito; risco aceito não confirma Perfil da Entidade
+- PC-05 é **exploratório** — não bloqueia, não libera
+- Snapshot imutável após `confirm` (ADR-0031); alteração gera nova versão (ADR-0032)
+- NCM truncado (regex `/^\d{4}\.\d{2}\.\d{2}$/`) bloqueia confirmação
+- NBS digitado em campo NCM (`/^1\.\d{4}\.\d{2}\.\d{2}$/`) bloqueia com mensagem específica
+
+**Procedures (PR-A `server/routers/perfil.ts`):**
+- `perfil.build(projectId)` — read-only, computa snapshot via `buildSnapshot`
+- `perfil.confirm(projectId)` — write-once, persiste em `projects.archetype*`
+- `perfil.get(projectId)` — retorna snapshot ou null
+- Todas guardadas por `assertM2Enabled(ctx, projectId)` — feature flag `m2-perfil-entidade-enabled`

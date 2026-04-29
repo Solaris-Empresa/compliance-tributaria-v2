@@ -18,6 +18,10 @@ import {
   mapStatusToFsm,
   deriveVisualState,
   inferOrigemFromBlockers,
+  shouldShowNCM,
+  shouldShowNBS,
+  isNbsInNcmField,
+  isValidNcmFormat,
 } from "../ConfirmacaoPerfil";
 
 describe("mapStatusToFsm — engine sem prefixo → FSM com prefixo perfil_", () => {
@@ -151,5 +155,73 @@ describe("Termo proibido — 'Arquétipo' NÃO aparece em strings da UI cliente"
   it("T20: ConfirmacaoPerfil.tsx contém o termo canônico 'Perfil da Entidade'", () => {
     const src = readSource("pages/ConfirmacaoPerfil.tsx");
     expect(src).toMatch(/Perfil da Entidade/);
+  });
+});
+
+// ─── PR-C: G-A10 + G-A5 fixes ────────────────────────────────────────────
+
+describe("G-A5 (PR-C) — conditional rendering por natureza_operacao_principal", () => {
+  it("T21: shouldShowNCM true para 'Produção própria'", () => {
+    expect(shouldShowNCM(["Produção própria"])).toBe(true);
+  });
+
+  it("T22: shouldShowNCM true para 'Comércio'", () => {
+    expect(shouldShowNCM(["Comércio"])).toBe(true);
+  });
+
+  it("T23: shouldShowNCM false para 'Prestação de serviço' isolado", () => {
+    expect(shouldShowNCM(["Prestação de serviço"])).toBe(false);
+  });
+
+  it("T24: shouldShowNBS true para 'Transporte'", () => {
+    expect(shouldShowNBS(["Transporte"])).toBe(true);
+  });
+
+  it("T25: shouldShowNBS true para 'Locação'", () => {
+    expect(shouldShowNBS(["Locação"])).toBe(true);
+  });
+
+  it("T26: shouldShowNBS false para 'Comércio' isolado", () => {
+    expect(shouldShowNBS(["Comércio"])).toBe(false);
+  });
+
+  it("T27: 'Intermediação' (Misto) ativa AMBOS NCM e NBS", () => {
+    expect(shouldShowNCM(["Intermediação"])).toBe(true);
+    expect(shouldShowNBS(["Intermediação"])).toBe(true);
+  });
+
+  it("T28: natureza vazia → ambos false", () => {
+    expect(shouldShowNCM([])).toBe(false);
+    expect(shouldShowNBS([])).toBe(false);
+  });
+});
+
+describe("G-A10 (PR-C) — validação inline NCM/NBS", () => {
+  it("T29: isValidNcmFormat aceita NCM completo '1201.90.00'", () => {
+    expect(isValidNcmFormat("1201.90.00")).toBe(true);
+  });
+
+  it("T30: isValidNcmFormat rejeita NCM truncado '1201'", () => {
+    expect(isValidNcmFormat("1201")).toBe(false);
+  });
+
+  it("T31: isValidNcmFormat rejeita formato inválido '12019000'", () => {
+    expect(isValidNcmFormat("12019000")).toBe(false);
+  });
+
+  it("T32: isNbsInNcmField detecta NBS '1.0501.14.59' digitado em campo NCM", () => {
+    expect(isNbsInNcmField("1.0501.14.59")).toBe(true);
+  });
+
+  it("T33: isNbsInNcmField rejeita NCM legítimo '1201.90.00'", () => {
+    expect(isNbsInNcmField("1201.90.00")).toBe(false);
+  });
+
+  it("T34: isNbsInNcmField com whitespace ainda detecta NBS", () => {
+    expect(isNbsInNcmField("  1.0501.14.59  ")).toBe(true);
+  });
+
+  it("T35: isValidNcmFormat insensível a espaços nas pontas", () => {
+    expect(isValidNcmFormat("  1201.90.00  ")).toBe(true);
   });
 });
