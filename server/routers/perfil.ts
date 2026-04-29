@@ -36,9 +36,34 @@ import {
 } from "../lib/archetype/perfilHash";
 import { MODEL_VERSION, DATA_VERSION } from "../lib/archetype/versioning";
 import { assertValidTransition } from "../flowStateMachine";
+import { isM2PerfilEntidadeEnabled } from "../config/feature-flags";
 import type { Seed } from "../lib/archetype/types";
 
 const ARCHETYPE_VERSION_INITIAL = "v1.0.0"; // ADR-0032 — versão inicial
+
+/**
+ * Guard de feature flag — corrige BUG-1 da review Manus PR #865.
+ * Sem este guard, as procedures eram acessíveis a qualquer usuário autenticado
+ * mesmo com flag=false em produção, anulando a política de rollout em 5 etapas.
+ *
+ * E2E_TEST_MODE=true → sempre passa (suite Playwright opera em CI sem auth real).
+ * Cliente externo com flag=false → HTTP 403 FORBIDDEN.
+ * equipe_solaris → passa apenas com M2_PERFIL_ENTIDADE_INTERNAL_ROLES=true (Step 3).
+ */
+function assertM2Enabled(ctx: { user?: { role?: string } }, projectId?: number): void {
+  if (
+    !isM2PerfilEntidadeEnabled({
+      role: ctx.user?.role,
+      projectId,
+    })
+  ) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message:
+        "M2_PERFIL_ENTIDADE_DISABLED: feature flag m2-perfil-entidade-enabled está desativada para este contexto. Aguarda rollout (5 etapas — ver server/config/feature-flags.ts:isM2PerfilEntidadeEnabled).",
+    });
+  }
+}
 
 // ─── Helpers privados ──────────────────────────────────────────────────────
 
@@ -130,7 +155,8 @@ export const perfilRouter = router({
    */
   build: protectedProcedure
     .input(z.object({ projectId: z.number().int().positive() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      assertM2Enabled(ctx, input.projectId);
       const db = await getDb();
       if (!db)
         throw new TRPCError({
@@ -207,6 +233,7 @@ export const perfilRouter = router({
   confirm: protectedProcedure
     .input(z.object({ projectId: z.number().int().positive() }))
     .mutation(async ({ input, ctx }) => {
+      assertM2Enabled(ctx, input.projectId);
       const db = await getDb();
       if (!db)
         throw new TRPCError({
@@ -361,7 +388,8 @@ export const perfilRouter = router({
    */
   get: protectedProcedure
     .input(z.object({ projectId: z.number().int().positive() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      assertM2Enabled(ctx, input.projectId);
       const db = await getDb();
       if (!db)
         throw new TRPCError({
