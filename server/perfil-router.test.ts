@@ -290,3 +290,185 @@ describe("validateM1Seed reuse — input gate compartilhado", () => {
     ).not.toThrow();
   });
 });
+
+// ─── PR-D fix — buildSeedFromProject normalizers (Bug 1 + Bug 2) ───────────
+
+describe("PR-D — buildSeedFromProject mapeia legacy → Seed corretamente", () => {
+  // Teste de integração que reproduz cenário real:
+  // PerfilEmpresaIntelligente.tsx grava taxRegime em snake_case
+  // /projetos/novo cria projects.companyProfile + operationProfile
+  // perfil.build → buildSeedFromProject → buildSnapshot
+  // Antes do PR-D: status="inconsistente" (papel + regime indefinidos)
+  // Depois do PR-D: status="confirmado" se Seed válido
+
+  // Import dinâmico para evitar problemas de mock (testes deste arquivo
+  // usam vi.mock no PR-A; aqui é leitura literal de buildSeedFromProject)
+  let buildSeedFromProject: typeof import("./routers/perfil").buildSeedFromProject;
+
+  beforeEach(async () => {
+    const mod = await import("./routers/perfil");
+    buildSeedFromProject = mod.buildSeedFromProject;
+  });
+
+  it("T26: Bug-1 fix — agronegocio mapeia para 'Produtor/fabricante' (não 'Produtor')", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_presumido", companySize: "Grande" },
+      operationProfile: {
+        operationType: "agronegocio",
+        principaisProdutos: [{ ncm_code: "1201.90.00" }],
+      },
+      confirmedCnaes: [{ code: "0115-6/00" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.posicao_na_cadeia_economica).toBe("Produtor/fabricante");
+  });
+
+  it("T27: Bug-1 fix — misto mapeia para 'Atacadista' (decisão P.O.)", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: { operationType: "misto" },
+      confirmedCnaes: [{ code: "4711-3/02" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.posicao_na_cadeia_economica).toBe("Atacadista");
+  });
+
+  it("T28: Bug-1 fix — financeiro mapeia para 'Operadora' (operadora_regulada)", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: { operationType: "financeiro" },
+      confirmedCnaes: [{ code: "6422-1/00" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.posicao_na_cadeia_economica).toBe("Operadora");
+  });
+
+  it("T29: Bug-1 regressão — industria continua 'Produtor/fabricante'", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: { operationType: "industria" },
+      confirmedCnaes: [{ code: "1091-1/01" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.posicao_na_cadeia_economica).toBe("Produtor/fabricante");
+  });
+
+  it("T30: Bug-1 regressão — comercio continua 'Atacadista'", () => {
+    const project = {
+      companyProfile: { taxRegime: "simples_nacional" },
+      operationProfile: { operationType: "comercio" },
+      confirmedCnaes: [{ code: "4711-3/02" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.posicao_na_cadeia_economica).toBe("Atacadista");
+  });
+
+  it("T31: Bug-1 regressão — servicos continua 'Prestador de servico'", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_presumido" },
+      operationProfile: { operationType: "servicos" },
+      confirmedCnaes: [{ code: "6201-5/01" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.posicao_na_cadeia_economica).toBe("Prestador de servico");
+  });
+
+  it("T32: Bug-2 fix — taxRegime snake_case 'simples_nacional' → 'Simples Nacional'", () => {
+    const project = {
+      companyProfile: { taxRegime: "simples_nacional" },
+      operationProfile: { operationType: "comercio" },
+      confirmedCnaes: [{ code: "4711-3/02" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.regime_tributario_atual).toBe("Simples Nacional");
+  });
+
+  it("T33: Bug-2 fix — taxRegime snake_case 'lucro_presumido' → 'Lucro Presumido'", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_presumido" },
+      operationProfile: { operationType: "agronegocio" },
+      confirmedCnaes: [{ code: "0115-6/00" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.regime_tributario_atual).toBe("Lucro Presumido");
+  });
+
+  it("T34: Bug-2 fix — taxRegime snake_case 'lucro_real' → 'Lucro Real'", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: { operationType: "industria" },
+      confirmedCnaes: [{ code: "1091-1/01" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.regime_tributario_atual).toBe("Lucro Real");
+  });
+
+  it("T35: Bug-2 fix — taxRegime snake_case 'mei' → 'MEI'", () => {
+    const project = {
+      companyProfile: { taxRegime: "mei" },
+      operationProfile: { operationType: "servicos" },
+      confirmedCnaes: [{ code: "6201-5/01" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.regime_tributario_atual).toBe("MEI");
+  });
+
+  it("T36: Bug-2 idempotência — taxRegime title case 'Lucro Real' → 'Lucro Real'", () => {
+    const project = {
+      companyProfile: { taxRegime: "Lucro Real" }, // já em title case
+      operationProfile: { operationType: "industria" },
+      confirmedCnaes: [{ code: "1091-1/01" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.regime_tributario_atual).toBe("Lucro Real");
+  });
+
+  it("T37: Bug-2 idempotência — taxRegime title case 'Simples Nacional' → 'Simples Nacional'", () => {
+    const project = {
+      companyProfile: { taxRegime: "Simples Nacional" },
+      operationProfile: { operationType: "comercio" },
+      confirmedCnaes: [{ code: "4711-3/02" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.regime_tributario_atual).toBe("Simples Nacional");
+  });
+
+  it("T38: Bug-2 fallback — taxRegime desconhecido passa direto (deriveRegime resolverá)", () => {
+    const project = {
+      companyProfile: { taxRegime: "regime_inexistente_qualquer" },
+      operationProfile: { operationType: "servicos" },
+      confirmedCnaes: [{ code: "6201-5/01" }],
+    };
+    const seed = buildSeedFromProject(project);
+    // Sem alias match, retorna o valor original (deriveRegime resolverá como "indefinido")
+    expect(seed.regime_tributario_atual).toBe("regime_inexistente_qualquer");
+  });
+
+  it("T39: Cenário Soja real — agronegocio + lucro_presumido + NCM válido = Seed completa", () => {
+    // Reproduz o cenário do projeto 2100001 que estava bloqueado
+    const project = {
+      companyProfile: {
+        cnpj: "00.000.000/0001-00",
+        taxRegime: "lucro_presumido",
+        companySize: "Grande",
+      },
+      operationProfile: {
+        operationType: "agronegocio",
+        principaisProdutos: [{ ncm_code: "1201.90.00" }],
+      },
+      confirmedCnaes: [{ code: "0115-6/00" }],
+    };
+    const seed = buildSeedFromProject(project);
+
+    // Bug 1 fix
+    expect(seed.posicao_na_cadeia_economica).toBe("Produtor/fabricante");
+    // Bug 2 fix
+    expect(seed.regime_tributario_atual).toBe("Lucro Presumido");
+    // NCMs corretamente extraídos
+    expect(seed.ncms_principais).toEqual(["1201.90.00"]);
+    // Natureza derivada
+    expect(seed.natureza_operacao_principal).toEqual(["Produção própria"]);
+    // Tipo objeto derivado para "Bens/mercadorias"
+    expect(seed.tipo_objeto_economico).toContain("Bens/mercadorias");
+  });
+});
