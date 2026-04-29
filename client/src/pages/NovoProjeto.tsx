@@ -269,16 +269,30 @@ export default function NovoProjeto() {
     });
   };
 
+  // M2 PR-B: utils tRPC para query imperativa da feature flag pós-confirmCnaes
+  const trpcUtils = trpc.useUtils();
+
   const confirmCnaes = trpc.fluxoV3.confirmCnaes.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       clearTempData(DRAFT_PROJECT_ID, 'etapa1');
       setShowCnaeModal(false);
-      // M2 PR-B: redirect para Perfil da Entidade (confirmação dimensional)
-      // Feature flag avaliada server-side; se flag=false, ConfirmacaoPerfil
-      // mostrará fallback com botão "Pular para Questionário SOLARIS".
-      // Quando flag=true global (Step 4 rollout), este é o caminho padrão.
-      toast.success("CNAEs confirmados! Avançando para Perfil da Entidade...");
-      setLocation(`/projetos/${projectId}/perfil-entidade`);
+      // M2 PR-B: redirect condicional baseado na feature flag m2-perfil-entidade-enabled
+      // - flag true (Step 3+): vai para /perfil-entidade (rota nova)
+      // - flag false (default): mantém comportamento legado /questionario-solaris
+      let m2Enabled = false;
+      try {
+        m2Enabled = await trpcUtils.featureFlags.isM2Enabled.fetch({ projectId: projectId ?? undefined });
+      } catch {
+        m2Enabled = false; // fail-safe: rota legada
+      }
+      if (m2Enabled) {
+        toast.success("CNAEs confirmados! Confirme o Perfil da Entidade...");
+        setLocation(`/projetos/${projectId}/perfil-entidade`);
+      } else {
+        toast.success("CNAEs confirmados! Iniciando Questionário SOLARIS...");
+        // K-4-B: navegar para Onda 1 (QuestionarioSolaris) antes do Corporativo
+        setLocation(`/projetos/${projectId}/questionario-solaris`);
+      }
     },
     onError: (err) => toast.error(`Erro: ${err.message}`),
   });

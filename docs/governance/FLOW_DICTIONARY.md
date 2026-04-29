@@ -271,3 +271,67 @@ Todo Bloco 1 de issue de frontend DEVE conter:
 ### Integração M1 → M2 (filtro RAG)
 
 Formaliza no contrato `docs/epic-830-rag-arquetipo/specs/CONTRATOS-ENTRE-MILESTONES.md`. M2 consome snapshot imutável via `archetype_version` + `perfil_hash` para filtro pré-RAG determinístico.
+
+---
+
+## Fluxo M2 — Perfil da Entidade (PR-A #865 + PR-B #867 + PR-C)
+
+> **Branch dual-path** controlado por feature flag `m2-perfil-entidade-enabled` (default false após merges).
+
+### Sequência canônica (flag = true)
+
+```
+/projetos/novo
+  ↓ handleSubmit + createProject
+  ↓ extractCnaes (LLM) → modal CNAE
+  ↓ confirmCnaes (mutation) — projects.confirmedCnaes persistido
+  ↓ trpcUtils.featureFlags.isM2Enabled.fetch({projectId})
+  ↓ flag === true →
+/projetos/:id/perfil-entidade  (ConfirmacaoPerfil.tsx)
+  ↓ perfil.build (auto, read-only)
+  ↓ usuário revisa dimensões + Painel de Confiança PC-01..PC-06
+  ↓ CTA "Confirmar Perfil da Entidade" (gate: status==='confirmado' AND 0 HARD_BLOCK)
+  ↓ perfil.confirm (mutation)
+  ↓ projects.archetype* persistido (write-once ADR-0031)
+  ↓ FSM transition: cnaes_confirmados → perfil_entidade_confirmado
+  ↓ CTA PC-06 habilitado
+/projetos/:id/questionario-solaris  (Onda 1 — comportamento legado)
+```
+
+### Sequência legada (flag = false — default produção)
+
+```
+/projetos/novo
+  ↓ confirmCnaes
+  ↓ flag === false →
+/projetos/:id/questionario-solaris  (sem passar por /perfil-entidade)
+```
+
+### Gate de entrada `/questionario-solaris` (frontend useEffect)
+
+| flag | perfil.confirmed | Ação |
+|---|---|---|
+| `false` | qualquer | render normal (legado preservado) |
+| `true` | `true` | render normal |
+| `true` | `false` | redirect para `/perfil-entidade` (replace) |
+
+### FSM transitions (server/flowStateMachine.ts)
+
+```
+cnaes_confirmados → onda1_solaris             (legado, preservado para flag=false)
+cnaes_confirmados → perfil_entidade_confirmado (M2, ativada por flag=true)
+perfil_entidade_confirmado → onda1_solaris    (NOVA, M2 PR-A)
+```
+
+### Procedures envolvidas
+
+| Procedure | Tipo | Persiste? | Idempotente? | Guard |
+|---|---|---|---|---|
+| `featureFlags.isM2Enabled` | query | não | sim | `protectedProcedure` |
+| `perfil.build` | query | não | sim | `assertM2Enabled` |
+| `perfil.confirm` | mutation | sim (write-once) | não (409 se 2ª chamada) | `assertM2Enabled` |
+| `perfil.get` | query | não | sim | `assertM2Enabled` |
+
+### Trilha paralela `/admin/m1-perfil` — preservada (regressão E2E C8)
+
+Tela admin do Runner v3 (M1 Monitor) **não conectada** ao fluxo cliente. Persiste em `m1_runner_logs` (monitoring). PR-C confirma via teste Playwright que `/admin/m1-perfil` continua acessível e funcional.

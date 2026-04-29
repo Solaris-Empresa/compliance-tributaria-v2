@@ -1,422 +1,495 @@
 /**
- * ConfirmacaoPerfil.tsx — Página M2 PR-B · Confirmação do Perfil da Entidade
+ * ConfirmacaoPerfil.tsx — M2 PR-B
  *
- * Rota: /projetos/:id/perfil-entidade
- * Layout: 2 colunas (formulário progressivo + Painel de Confiança sticky)
+ * Página /projetos/:id/perfil-entidade.
+ * Inserida entre confirmCnaes (NovoProjeto) e Questionário SOLARIS.
  *
- * Estados visuais (8):
- *   S1_inicio     — loading do build
- *   S2_modal_cnaes — (handled by NovoProjeto, not here)
- *   S3_cnaes_confirmados — entry point desta página
- *   S4_painel     — snapshot computado, painel visível
- *   C1_pendente   — status_arquetipo === "pendente"
- *   C2_inconsistente — status_arquetipo === "inconsistente"
- *   C3_bloqueado  — status_arquetipo === "bloqueado" (hard_blocks > 0)
- *   C4_confirmado — imutável (write-once ADR-0031)
+ * Layout 2 colunas (desktop ≥1024px):
+ *   - Esquerda: revisão dimensional (cards) + CTA "Confirmar Perfil da Entidade"
+ *   - Direita: PainelConfianca sticky (PC-01..PC-06)
  *
- * Decisão P.O.: Score alto NÃO libera fluxo.
- * Apenas status_arquetipo === "confirmado" + zero hard_blocks libera.
+ * 8 estados visuais via data-state no root (S1..S4 + C1..C4).
  *
- * Ref: feat/m2-pr-b-frontend-perfil · PROMPT-M2-v3-FINAL.json §B1
+ * Decisões P.O.:
+ * - Termo "Perfil da Entidade" — NUNCA "Arquétipo".
+ * - CTA Confirmar habilitado apenas se status === "perfil_confirmado" + 0 hard_blocks.
+ * - Snapshot imutável após confirmação (ADR-0031).
+ * - Score alto NÃO libera fluxo (PC-02 nota explícita).
+ *
+ * Reusa procedures PR-A:
+ *   - perfil.build (read-only)
+ *   - perfil.confirm (write-once, HTTP 409 se já confirmado)
+ *   - perfil.get (consulta snapshot persistido)
  */
-import React from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useLocation } from "wouter";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
-import { usePerfilEntidade } from "@/hooks/usePerfilEntidade";
-import PainelConfianca from "@/components/PainelConfianca";
-import ComplianceLayout from "@/components/ComplianceLayout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
-import {
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle2,
-  Loader2,
-  Lock,
-  ShieldCheck,
-  ShieldAlert,
-  ShieldX,
-  AlertTriangle,
-  RefreshCw,
-  Layers,
-  Building2,
-  Globe,
-  Scale,
-  Network,
-  Briefcase,
-} from "lucide-react";
-import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
-import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, CheckCircle2, AlertCircle, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
+import {
+  PainelConfianca,
+  type PainelConfiancaData,
+  type StatusArquetipo,
+  type EligibilityOverall,
+  type BlockerItem,
+} from "@/components/perfil/PainelConfianca";
+import { DimensaoCard, type DimensaoOrigem } from "@/components/perfil/DimensaoCard";
 
-// ─── Labels para exibição das dimensões ─────────────────────────────────────
-const DIMENSION_DISPLAY: Record<string, { label: string; icon: React.ComponentType<{ className?: string }> }> = {
-  objeto: { label: "Objeto Econômico", icon: Building2 },
-  papel_na_cadeia: { label: "Papel na Cadeia", icon: Network },
-  tipo_de_relacao: { label: "Tipo de Relação", icon: Briefcase },
-  territorio: { label: "Território", icon: Globe },
-  regime: { label: "Regime Tributário", icon: Scale },
-};
+type VisualState = "s1" | "s2" | "s3" | "s4" | "c1" | "c2" | "c3" | "c4";
 
-// ─── Seções contextuais ─────────────────────────────────────────────────────
-const CONTEXTUAL_SECTIONS: Record<string, string> = {
-  subnatureza_setorial: "Subnatureza Setorial",
-  orgao_regulador: "Órgão Regulador",
-  regime_especifico: "Regime Específico",
-};
+// ─── Mappers do output do engine para enum FSM (com prefixo perfil_) ───────
+
+export function mapStatusToFsm(engineStatus: string | undefined): StatusArquetipo {
+  if (engineStatus === "confirmado") return "perfil_confirmado";
+  if (engineStatus === "inconsistente") return "perfil_inconsistente";
+  if (engineStatus === "bloqueado") return "perfil_bloqueado";
+  return "perfil_pendente";
+}
+
+export function deriveVisualState(
+  perfilGetData: { confirmed?: boolean } | null | undefined,
+  buildData: { status_arquetipo?: string; blockers?: readonly { severity: string }[] } | null | undefined,
+  formStarted: boolean,
+): VisualState {
+  if (perfilGetData?.confirmed) return "c4";
+  if (!buildData) return formStarted ? "s2" : "s1";
+  const status = buildData.status_arquetipo;
+  const hardBlocks = buildData.blockers?.filter((b) => b.severity === "HARD_BLOCK").length ?? 0;
+  if (status === "bloqueado" || hardBlocks > 0) return "c3";
+  if (status === "inconsistente") return "c2";
+  if (status === "pendente") return "c1";
+  if (status === "confirmado") return "s4";
+  return "s3";
+}
+
+// ─── Componente principal ──────────────────────────────────────────────────
 
 export default function ConfirmacaoPerfil() {
   const params = useParams<{ id: string }>();
-  const [, setLocation] = useLocation();
-  const { user, loading: authLoading } = useAuth();
-  const projectId = params.id ? parseInt(params.id, 10) : null;
+  const projectId = parseInt(params.id ?? "0", 10);
+  const [, navigate] = useLocation();
 
-  const perfil = usePerfilEntidade(projectId);
+  const [confirming, setConfirming] = useState(false);
+  const [formStarted, setFormStarted] = useState(false);
 
-  // Auth guard
-  if (authLoading) {
-    return (
-      <ComplianceLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </ComplianceLayout>
-    );
-  }
-
-  if (!user) {
-    window.location.href = getLoginUrl();
-    return null;
-  }
-
-  // ─── Handlers ───────────────────────────────────────────────────────────────
-  const handleConfirm = async () => {
-    if (!projectId) return;
-    if (!perfil.canConfirm) {
-      toast.error("Não é possível confirmar: existem bloqueios ou campos faltantes.");
-      return;
-    }
-    try {
-      await perfil.confirmPerfil.mutateAsync({ projectId });
-      toast.success("Perfil da Entidade confirmado com sucesso! Avançando para o Questionário SOLARIS...");
-      // Redirect para próxima etapa (Onda 1 SOLARIS)
-      setTimeout(() => {
-        setLocation(`/projetos/${projectId}/questionario-solaris`);
-      }, 1500);
-    } catch (err: any) {
-      const msg = err?.message ?? "Erro ao confirmar perfil";
-      if (msg.includes("CONFLICT") || msg.includes("409")) {
-        toast.error("Perfil já foi confirmado anteriormente (imutável — ADR-0031).");
-      } else if (msg.includes("M2_PERFIL_ENTIDADE_DISABLED")) {
-        toast.error("Feature M2 desabilitada para este contexto. Contate o administrador.");
-      } else {
-        toast.error(msg);
-      }
-    }
-  };
-
-  const handleBack = () => {
-    if (projectId) {
-      setLocation(`/projetos/${projectId}`);
-    }
-  };
-
-  const handleSkipToSolaris = () => {
-    if (projectId) {
-      setLocation(`/projetos/${projectId}/questionario-solaris`);
-    }
-  };
-
-  // ─── Render ─────────────────────────────────────────────────────────────────
-  return (
-    <ComplianceLayout>
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={handleBack}>
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Voltar
-            </Button>
-            <Separator orientation="vertical" className="h-6" />
-            <div>
-              <h1 className="text-xl font-semibold flex items-center gap-2">
-                <Layers className="h-5 w-5 text-primary" />
-                Perfil da Entidade
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Etapa de confirmação — Projeto #{projectId}
-              </p>
-            </div>
-          </div>
-          {/* Stepper indicator */}
-          <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground">
-            <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
-              <CheckCircle2 className="h-3 w-3 mr-1" />
-              CNAEs Confirmados
-            </Badge>
-            <ArrowRight className="h-3 w-3" />
-            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-semibold">
-              Perfil da Entidade
-            </Badge>
-            <ArrowRight className="h-3 w-3" />
-            <Badge variant="outline">Questionário SOLARIS</Badge>
-          </div>
-        </div>
-
-        {/* Main 2-column layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-          {/* Left: Formulário / Snapshot Display */}
-          <div className="space-y-6">
-            {/* Loading state */}
-            {perfil.isLoading && (
-              <Card>
-                <CardContent className="py-12 flex flex-col items-center gap-3">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <p className="text-sm text-muted-foreground">Computando Perfil da Entidade...</p>
-                  <p className="text-xs text-muted-foreground/70">Analisando dimensões canônicas a partir dos dados do projeto</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Error state (feature flag disabled) */}
-            {perfil.error && (
-              <Card className="border-destructive/30">
-                <CardContent className="py-8">
-                  <div className="flex flex-col items-center gap-3 text-center">
-                    <ShieldX className="h-10 w-10 text-destructive/70" />
-                    <h3 className="font-medium text-destructive">Perfil da Entidade Indisponível</h3>
-                    <p className="text-sm text-muted-foreground max-w-md">
-                      {perfil.error.includes("M2_PERFIL_ENTIDADE_DISABLED")
-                        ? "Esta funcionalidade está em rollout controlado. Contate o administrador para ativação."
-                        : perfil.error}
-                    </p>
-                    <Button variant="outline" size="sm" onClick={handleSkipToSolaris}>
-                      Pular para Questionário SOLARIS
-                      <ArrowRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Confirmed (immutable) state */}
-            {perfil.isConfirmed && perfil.snapshot && (
-              <Card className="border-emerald-200 bg-emerald-50/30">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-emerald-700">
-                    <Lock className="h-5 w-5" />
-                    Perfil Confirmado (Imutável)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Este perfil foi confirmado em{" "}
-                    <strong>{perfil.confirmedAt ? new Date(perfil.confirmedAt).toLocaleString("pt-BR") : "—"}</strong>{" "}
-                    e não pode ser alterado (ADR-0031).
-                  </p>
-                  <SnapshotDisplay snapshot={perfil.snapshot} />
-                  <div className="pt-4">
-                    <Button onClick={handleSkipToSolaris}>
-                      Continuar para Questionário SOLARIS
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Active state: snapshot computed, not yet confirmed */}
-            {!perfil.isLoading && !perfil.error && !perfil.isConfirmed && perfil.snapshot && (
-              <>
-                {/* Status banner */}
-                <StatusBanner status={perfil.status} />
-
-                {/* Snapshot display */}
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-base">Dimensões Identificadas</CardTitle>
-                      <Button variant="ghost" size="sm" onClick={() => perfil.refetchBuild()}>
-                        <RefreshCw className="h-3.5 w-3.5 mr-1" />
-                        Recalcular
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <SnapshotDisplay snapshot={perfil.snapshot} />
-                  </CardContent>
-                </Card>
-
-                {/* Confirm button */}
-                <Card>
-                  <CardContent className="py-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-medium text-sm">Confirmar Perfil da Entidade</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {perfil.canConfirm
-                            ? "Todas as condições atendidas. Ao confirmar, o perfil se torna imutável."
-                            : "Resolva os bloqueios e campos faltantes antes de confirmar."}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={handleSkipToSolaris}>
-                          Pular
-                        </Button>
-                        <Button
-                          size="sm"
-                          disabled={!perfil.canConfirm || perfil.confirmPerfil.isPending}
-                          onClick={handleConfirm}
-                        >
-                          {perfil.confirmPerfil.isPending ? (
-                            <><Loader2 className="h-4 w-4 animate-spin mr-1" />Confirmando...</>
-                          ) : (
-                            <><ShieldCheck className="h-4 w-4 mr-1" />Confirmar e Avançar</>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
-            )}
-          </div>
-
-          {/* Right: Painel de Confiança (sticky) */}
-          <div className="hidden lg:block">
-            <div className="sticky top-6">
-              <PainelConfianca state={perfil} />
-            </div>
-          </div>
-        </div>
-      </div>
-    </ComplianceLayout>
+  // Procedures M2 PR-A
+  const perfilGet = trpc.perfil.get.useQuery(
+    { projectId },
+    { enabled: projectId > 0, refetchOnWindowFocus: false },
   );
-}
 
-// ─── Sub-components ─────────────────────────────────────────────────────────
+  const perfilBuild = trpc.perfil.build.useQuery(
+    { projectId },
+    {
+      enabled: projectId > 0 && !perfilGet.data?.confirmed,
+      refetchOnWindowFocus: false,
+    },
+  );
 
-function StatusBanner({ status }: { status: string }) {
-  if (status === "pendente") {
+  const confirmMutation = trpc.perfil.confirm.useMutation({
+    onSuccess: () => {
+      toast.success("Perfil da Entidade confirmado.");
+      perfilGet.refetch();
+      setConfirming(false);
+    },
+    onError: (err) => {
+      toast.error(err.message ?? "Erro ao confirmar Perfil da Entidade.");
+      setConfirming(false);
+    },
+  });
+
+  // Detectar quando usuário começa interação
+  useEffect(() => {
+    if (perfilBuild.data && !formStarted) setFormStarted(true);
+  }, [perfilBuild.data, formStarted]);
+
+  const visualState = deriveVisualState(perfilGet.data, perfilBuild.data, formStarted);
+
+  // ─── Composição do PainelConfianca data ──────────────────────────────────
+
+  const painelData: PainelConfiancaData = useMemo(() => {
+    const isConfirmed = perfilGet.data?.confirmed === true;
+    const snapshotPersisted = isConfirmed
+      ? (perfilGet.data?.snapshot as Record<string, unknown> | null)
+      : null;
+
+    const buildPerfil = perfilBuild.data?.snapshot;
+    const buildBlockers = perfilBuild.data?.blockers ?? [];
+
+    const completude = buildPerfil ? 100 - (perfilBuild.data?.missing_required_fields?.length ?? 0) * 10 : 0;
+    const inferenciaValidada = buildBlockers.filter((b) => b.id === "V-10-FALLBACK").length === 0 ? 100 : 0;
+    const coerencia = buildBlockers.filter((b) => b.id.startsWith("V-LC-")).length === 0 ? 100 : 0;
+    const scoreTotal = Math.floor(completude * 0.4 + inferenciaValidada * 0.3 + coerencia * 0.3);
+
+    const fsmStatus = mapStatusToFsm(buildPerfil?.status_arquetipo);
+    const hardBlockCount = buildBlockers.filter((b) => b.severity === "HARD_BLOCK").length;
+
+    const eligibility: EligibilityOverall = isConfirmed
+      ? "allowed"
+      : hardBlockCount > 0
+      ? "denied"
+      : "pending";
+
+    const blockers: BlockerItem[] = buildBlockers.map((b) => ({
+      id: b.id,
+      severity: b.severity as BlockerItem["severity"],
+      titulo_curto: b.id,
+      por_que_importa: b.rule,
+      acao_recomendada:
+        b.severity === "HARD_BLOCK"
+          ? "Resolva este bloqueio para continuar."
+          : b.severity === "INFO"
+          ? "Item informativo — não bloqueia o gate."
+          : "Revise para melhorar a confiança.",
+    }));
+
+    let mensagem: string;
+    if (isConfirmed) {
+      mensagem = "Perfil da Entidade confirmado. Você pode continuar para o Questionário SOLARIS.";
+    } else if (hardBlockCount > 0) {
+      mensagem = `Resolva ${hardBlockCount} bloqueio(s) crítico(s) antes de confirmar.`;
+    } else if (fsmStatus === "perfil_pendente") {
+      mensagem = "Faltam confirmações obrigatórias para liberar a análise.";
+    } else if (fsmStatus === "perfil_inconsistente") {
+      mensagem = "Existem inconsistências que precisam ser corrigidas.";
+    } else {
+      mensagem = "Revise as dimensões abaixo e clique em Confirmar Perfil da Entidade.";
+    }
+
+    const buildSnapshot = perfilBuild.data;
+    const persistedSnap = snapshotPersisted as Record<string, unknown> | null;
+
+    return {
+      score_total: isConfirmed ? 100 : scoreTotal,
+      completude: isConfirmed ? 100 : completude,
+      inferencia_validada: isConfirmed ? 100 : inferenciaValidada,
+      coerencia: isConfirmed ? 100 : coerencia,
+      status_arquetipo: isConfirmed ? "perfil_confirmado" : fsmStatus,
+      eligibility,
+      mensagem_executiva: mensagem,
+      blockers,
+      snapshot: {
+        confirmedCnaes: (persistedSnap?.confirmedCnaes as string[]) ?? [],
+        natureza_operacao_principal:
+          (persistedSnap?.natureza_operacao_principal as string[]) ??
+          ((buildSnapshot as { natureza_operacao_principal?: string[] } | null)?.natureza_operacao_principal ?? []),
+        ncms: (persistedSnap?.ncms_canonicos as string[]) ?? [],
+        nbss: (persistedSnap?.nbss_canonicos as string[]) ?? [],
+        dimensoes: {
+          objeto: (buildPerfil?.objeto as string[]) ?? (persistedSnap?.dim_objeto as string[]) ?? [],
+          papel_na_cadeia:
+            (buildPerfil?.papel_na_cadeia as string) ?? (persistedSnap?.dim_papel_na_cadeia as string) ?? "",
+          tipo_de_relacao:
+            (buildPerfil?.tipo_de_relacao as string[]) ?? (persistedSnap?.dim_tipo_de_relacao as string[]) ?? [],
+          territorio:
+            (buildPerfil?.territorio as string[]) ?? (persistedSnap?.dim_territorio as string[]) ?? [],
+          regime: (buildPerfil?.regime as string) ?? (persistedSnap?.dim_regime as string) ?? "",
+        },
+        perfil_hash: perfilBuild.data?.perfil_hash ?? perfilGet.data?.perfil_hash ?? "",
+        rules_hash: perfilBuild.data?.rules_hash ?? perfilGet.data?.rules_hash ?? "",
+      },
+      preview_riscos: [],
+      gate_liberated: isConfirmed,
+      gate_motivo: isConfirmed
+        ? undefined
+        : hardBlockCount > 0
+        ? `${hardBlockCount} bloqueio(s) crítico(s) ativo(s).`
+        : "Confirme o Perfil da Entidade para liberar.",
+    };
+  }, [perfilGet.data, perfilBuild.data]);
+
+  // ─── Handlers ────────────────────────────────────────────────────────────
+
+  const canConfirm =
+    !confirming &&
+    !perfilGet.data?.confirmed &&
+    perfilBuild.data?.status_arquetipo === "confirmado" &&
+    (perfilBuild.data?.blockers ?? []).filter((b) => b.severity === "HARD_BLOCK").length === 0;
+
+  const handleConfirmar = () => {
+    setConfirming(true);
+    confirmMutation.mutate({ projectId });
+  };
+
+  const handleContinuarSolaris = () => {
+    navigate(`/projetos/${projectId}/questionario-solaris`);
+  };
+
+  const handleIrParaCampo = (target: string) => {
+    const el = document.querySelector(`[data-field="${target}"]`);
+    if (el instanceof HTMLElement) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.focus();
+    }
+  };
+
+  // ─── Render ──────────────────────────────────────────────────────────────
+
+  if (projectId <= 0) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
-        <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-        <div>
-          <h4 className="text-sm font-medium text-amber-800">Perfil Pendente</h4>
-          <p className="text-xs text-amber-700 mt-0.5">
-            O perfil dimensional foi computado mas ainda não foi confirmado. Revise as dimensões abaixo e confirme para avançar.
-          </p>
-        </div>
+      <div className="p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>Projeto inválido.</AlertDescription>
+        </Alert>
       </div>
     );
   }
-  if (status === "inconsistente") {
+
+  if (perfilGet.isLoading || perfilBuild.isLoading) {
     return (
-      <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 flex items-start gap-3">
-        <ShieldAlert className="h-5 w-5 text-orange-600 shrink-0 mt-0.5" />
-        <div>
-          <h4 className="text-sm font-medium text-orange-800">Perfil Inconsistente</h4>
-          <p className="text-xs text-orange-700 mt-0.5">
-            Foram detectadas inconsistências nos dados do projeto. Revise os campos do formulário de criação e recalcule.
-          </p>
-        </div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-6 w-6 animate-spin text-indigo-400" />
       </div>
     );
   }
-  if (status === "bloqueado") {
+
+  if (perfilGet.error || perfilBuild.error) {
+    const err = perfilGet.error ?? perfilBuild.error;
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 flex items-start gap-3">
-        <ShieldX className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-        <div>
-          <h4 className="text-sm font-medium text-red-800">Perfil Bloqueado</h4>
-          <p className="text-xs text-red-700 mt-0.5">
-            Existem bloqueios críticos que impedem a confirmação. Verifique o painel de confiança à direita para detalhes.
-          </p>
-        </div>
+      <div className="p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{err?.message ?? "Erro ao carregar Perfil da Entidade."}</AlertDescription>
+        </Alert>
       </div>
     );
   }
-  return null;
-}
 
-function SnapshotDisplay({ snapshot }: { snapshot: Record<string, unknown> }) {
-  // Pre-compute dimension data to avoid TS issues with Object.entries in JSX
-  const dimensionKeys = ["objeto", "papel_na_cadeia", "tipo_de_relacao", "territorio", "regime"] as const;
-  const contextualKeys = ["subnatureza_setorial", "orgao_regulador", "regime_especifico"] as const;
-
-  function getDisplayVal(val: unknown): string {
-    if (Array.isArray(val) && val.length > 0) return (val as string[]).join(", ");
-    if (typeof val === "string" && val.length > 0) return val;
-    return "—";
-  }
+  const isConfirmed = perfilGet.data?.confirmed === true;
 
   return (
-    <div className="space-y-4">
-      {/* 5 Dimensões Canônicas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {dimensionKeys.map((key) => {
-          const config = DIMENSION_DISPLAY[key];
-          const Icon = config.icon;
-          const displayVal = getDisplayVal(snapshot[key]);
-          const filled = displayVal !== "—";
-          return (
-            <div
-              key={key}
-              className={cn(
-                "rounded-lg border p-3 transition-colors",
-                filled ? "border-primary/20 bg-primary/5" : "border-border bg-muted/30"
-              )}
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <Icon className={cn("h-4 w-4", filled ? "text-primary" : "text-muted-foreground")} />
-                <span className="text-xs font-medium text-muted-foreground">{config.label}</span>
-              </div>
-              <p className={cn(
-                "text-sm font-medium",
-                filled ? "text-foreground" : "text-muted-foreground/60"
-              )}>
-                {displayVal}
-              </p>
-            </div>
-          );
-        })}
-      </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100" data-state={visualState} data-testid="confirmacao-perfil-page">
+      <div className="p-6 max-w-7xl mx-auto">
+        {/* Cabeçalho */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 rounded-lg bg-indigo-500/10">
+            <ShieldCheck className="h-6 w-6 text-indigo-400" />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-xl font-semibold text-slate-100">Perfil da Entidade</h1>
+            <p className="text-sm text-slate-400">
+              Confirme as dimensões antes de avançar para o Questionário SOLARIS.
+            </p>
+          </div>
+          {isConfirmed && (
+            <Badge className="bg-emerald-500/15 text-emerald-300 border-emerald-500/30">
+              <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+              Confirmado
+            </Badge>
+          )}
+        </div>
 
-      {/* Seções contextuais */}
-      <Separator />
-      <div className="space-y-2">
-        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Contextuais</h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-          {contextualKeys.map((key) => {
-            const label = CONTEXTUAL_SECTIONS[key];
-            const val = snapshot[key];
-            const items: string[] = Array.isArray(val) ? (val as string[]) : [];
-            return (
-              <div key={key} className="text-xs">
-                <span className="text-muted-foreground">{label}:</span>{" "}
-                <span className="font-medium">
-                  {items.length > 0 ? items.join(", ") : "—"}
-                </span>
-              </div>
-            );
-          })}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Coluna principal */}
+          <div className="lg:col-span-2 space-y-4">
+            <Card className="bg-slate-900/50 border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-base text-slate-100">Dimensões do Perfil da Entidade</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <DimensaoCard
+                  tipo="objeto"
+                  valor={painelData.snapshot.dimensoes.objeto}
+                  origem={inferOrigemFromBlockers(perfilBuild.data?.blockers ?? [], "V-10-FALLBACK")}
+                  onIrParaCampo={() => handleIrParaCampo("objeto")}
+                />
+                <DimensaoCard
+                  tipo="papel_na_cadeia"
+                  valor={painelData.snapshot.dimensoes.papel_na_cadeia}
+                  origem="user"
+                />
+                <DimensaoCard
+                  tipo="tipo_de_relacao"
+                  valor={painelData.snapshot.dimensoes.tipo_de_relacao}
+                  origem="user"
+                />
+                <DimensaoCard
+                  tipo="territorio"
+                  valor={painelData.snapshot.dimensoes.territorio}
+                  origem="cnae"
+                />
+                <DimensaoCard
+                  tipo="regime"
+                  valor={painelData.snapshot.dimensoes.regime}
+                  origem="user"
+                />
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-900/50 border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-base text-slate-100">CNAEs e Códigos Fiscais</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div data-field="confirmedCnaes">
+                  <p className="text-xs text-slate-400 mb-1">CNAEs confirmados (em /projetos/novo)</p>
+                  <p className="text-slate-200">
+                    {painelData.snapshot.confirmedCnaes.length > 0
+                      ? painelData.snapshot.confirmedCnaes.join(", ")
+                      : "—"}
+                  </p>
+                </div>
+                {/* G-A5 fix (PR-C): conditional rendering explícito por natureza_operacao_principal,
+                    não mais por .length > 0. Mostra a seção mesmo se array vazio (orienta usuário a preencher) */}
+                {shouldShowNCM(painelData.snapshot.natureza_operacao_principal) && (
+                  <div data-field="ncms_principais" data-testid="campo-ncms">
+                    <p className="text-xs text-slate-400 mb-1">NCMs (Produtos)</p>
+                    {painelData.snapshot.ncms.length > 0 ? (
+                      <p className="text-slate-200 font-mono text-xs">
+                        {painelData.snapshot.ncms.join(", ")}
+                      </p>
+                    ) : (
+                      <p className="text-amber-300 text-xs" data-testid="ncm-missing-warning">
+                        Esta operação envolve bens/produtos. Informe pelo menos um NCM principal.
+                      </p>
+                    )}
+                  </div>
+                )}
+                {shouldShowNBS(painelData.snapshot.natureza_operacao_principal) && (
+                  <div data-field="nbss_principais" data-testid="campo-nbss">
+                    <p className="text-xs text-slate-400 mb-1">NBSs (Serviços)</p>
+                    {painelData.snapshot.nbss.length > 0 ? (
+                      <p className="text-slate-200 font-mono text-xs">
+                        {painelData.snapshot.nbss.join(", ")}
+                      </p>
+                    ) : (
+                      <p className="text-amber-300 text-xs" data-testid="nbs-missing-warning">
+                        Esta operação envolve serviços. Informe pelo menos um NBS principal.
+                      </p>
+                    )}
+                  </div>
+                )}
+                {/* G-A10 fix: aviso específico se algum NCM digitado for na verdade um NBS */}
+                {painelData.snapshot.ncms.some(isNbsInNcmField) && (
+                  <div data-testid="nbs-in-ncm-warning" className="rounded border border-rose-500/40 bg-rose-500/10 p-2">
+                    <p className="text-xs text-rose-300">
+                      O código informado parece ser NBS. Use o campo NBS para serviços.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* CTA principal */}
+            <Card className="bg-slate-900/50 border-slate-700">
+              <CardContent className="p-4">
+                {isConfirmed ? (
+                  <div className="space-y-3">
+                    <Alert className="bg-emerald-500/10 border-emerald-500/30">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                      <AlertDescription className="text-emerald-200 text-sm">
+                        Perfil da Entidade confirmado em{" "}
+                        {perfilGet.data?.confirmed_at
+                          ? new Date(perfilGet.data.confirmed_at).toLocaleString("pt-BR")
+                          : "—"}
+                        . Snapshot imutável (ADR-0031).
+                      </AlertDescription>
+                    </Alert>
+                    <Button
+                      className="w-full"
+                      onClick={handleContinuarSolaris}
+                      data-testid="cta-continuar-solaris"
+                    >
+                      Continuar para o Questionário SOLARIS
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    className="w-full"
+                    disabled={!canConfirm}
+                    onClick={handleConfirmar}
+                    data-testid="cta-confirmar-perfil"
+                  >
+                    {confirming ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Confirmando…
+                      </>
+                    ) : (
+                      "Confirmar Perfil da Entidade"
+                    )}
+                  </Button>
+                )}
+                {!isConfirmed && !canConfirm && (
+                  <p className="text-xs text-slate-500 mt-2 text-center">
+                    Resolva pendências e bloqueios no painel ao lado para habilitar a confirmação.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Coluna painel — sticky desktop */}
+          <div className="lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+            <PainelConfianca
+              data={painelData}
+              onIrParaCampo={handleIrParaCampo}
+              onContinuarBriefing={handleContinuarSolaris}
+            />
+          </div>
         </div>
       </div>
-
-      {/* Metadata */}
-      {snapshot.derived_legacy_operation_type != null && (
-        <div className="text-xs text-muted-foreground">
-          <span>Tipo de operação derivado: </span>
-          <Badge variant="outline" className="text-[10px]">
-            {String(snapshot.derived_legacy_operation_type)}
-          </Badge>
-        </div>
-      )}
     </div>
   );
+}
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+
+export function inferOrigemFromBlockers(
+  blockers: readonly { id: string }[],
+  blockerId: string,
+): DimensaoOrigem {
+  return blockers.some((b) => b.id === blockerId) ? "fallback" : "infer";
+}
+
+// ─── G-A5 (PR-C): conditional rendering por natureza_operacao_principal ───
+// Resolve gap COSMÉTICO da auditoria Manus PR #867 A5.
+// Substituição de filtro `.length > 0` por mapping explícito com tipo_operacao.
+//
+// Reusa semântica do NATUREZA_TO_TIPO_OBJETO de validateM1Input.ts (PR #859):
+//   - "Produção própria" / "Comércio" / "Intermediação" → exige NCM
+//   - "Transporte" / "Prestação de serviço" / "Locação" / "Intermediação" → exige NBS
+// (Intermediação aparece em ambos pois é Misto)
+
+const NATUREZA_REQUER_NCM = new Set([
+  "Produção própria",
+  "Comércio",
+  "Intermediação",
+]);
+
+const NATUREZA_REQUER_NBS = new Set([
+  "Transporte",
+  "Prestação de serviço",
+  "Locação",
+  "Intermediação",
+]);
+
+export function shouldShowNCM(natureza: readonly string[]): boolean {
+  return natureza.some((n) => NATUREZA_REQUER_NCM.has(n));
+}
+
+export function shouldShowNBS(natureza: readonly string[]): boolean {
+  return natureza.some((n) => NATUREZA_REQUER_NBS.has(n));
+}
+
+/**
+ * G-A10 fix (PR-C): detecta NBS digitado em campo NCM.
+ * NBS tem formato `1.XXXX.XX.XX` (prefixo "1." opcional). NCM é `XXXX.XX.XX`.
+ * Se string de NCM começa com "1." e tem mais de um ponto → provavelmente é NBS.
+ */
+export function isNbsInNcmField(value: string): boolean {
+  const trimmed = value.trim();
+  return /^1\.\d{4}\.\d{2}\.\d{2}$/.test(trimmed);
+}
+
+/**
+ * G-A10 fix: validação de formato NCM (regex 8 dígitos com pontos)
+ */
+export function isValidNcmFormat(value: string): boolean {
+  return /^\d{4}\.\d{2}\.\d{2}$/.test(value.trim());
 }

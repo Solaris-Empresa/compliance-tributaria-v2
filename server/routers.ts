@@ -80,6 +80,7 @@ import { adminCategoriesRouter } from "./routers/adminCategoriesRouter"; // Spri
 import { complianceRouter } from "./routers/complianceRouter"; // Sprint Z-22 — CPIE v3 Dashboard on-demand (#725)
 import { m1MonitorRouter } from "./routers-m1-monitor"; // M1 — Runner v3 deploy controlado (feat/m1-archetype-runner-v3)
 import { perfilRouter } from "./routers/perfil"; // M2 PR-A — Perfil da Entidade (feat/m2-pr-a-schema-backend)
+import { featureFlagsRouter } from "./routers/feature-flags"; // M2 PR-B — exposição read-only de flags ao frontend
 
 export const appRouter = router({
   system: systemRouter,
@@ -129,6 +130,7 @@ export const appRouter = router({
   compliance: complianceRouter, // Sprint Z-22 — CPIE v3 Dashboard on-demand (#725)
   m1Monitor: m1MonitorRouter, // M1 — Runner v3 deploy controlado (flag m1-archetype-enabled)
   perfil: perfilRouter, // M2 PR-A — Perfil da Entidade (flag m2-perfil-entidade-enabled)
+  featureFlags: featureFlagsRouter, // M2 PR-B — read-only flags para frontend
 
   // ==========================================================================
   // AUTH

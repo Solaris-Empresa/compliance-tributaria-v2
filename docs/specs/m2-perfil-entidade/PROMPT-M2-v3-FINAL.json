@@ -1,0 +1,625 @@
+{
+  "version": "v3",
+  "supersedes": "v1 (bloqueada por gaps), v2 (intermediária com dual-gate)",
+  "diff_v2_to_v3": [
+    "DECISÃO-1 (dual-gate vs backfill) RESOLVIDA pelo P.O. em 2026-04-29: 'legado não é problema, devemos limpar os projetos legados'. Dual-gate REMOVIDO — single-gate canônico.",
+    "Adicionada seção legacy_cleanup_options com 3 estratégias para P.O. escolher.",
+    "Reforçada proteção do RAG: instrução P.O. 2026-04-29 'o rag não pode ser apagado' agora é guardrail explícito top-level."
+  ],
+  "to": "Orquestrador",
+  "title": "M2 — Substituir /projetos/novo pelo fluxo oficial de Perfil da Entidade (3 PRs sequenciais)",
+  "mode": "IMPLEMENTATION_DISPATCH_FOR_CLAUDE_CODE",
+  "priority": "P0",
+  "classe_orq_24": "C",
+  "regra_orq_23_round": "1 (round único — v1+v2 bloqueadas e consolidadas em v3)",
+
+  "po_directives_2026_04_29": {
+    "directive_1_legacy": "legado não é problema, devemos limpar os projetos legados",
+    "directive_2_rag": "o rag não pode ser apagado",
+    "interpretacao": "Sem dual-gate. Limpeza legacy é uma das 3 opções a escolher. RAG é guardrail absoluto: corpus, dataset, ragDocuments, retriever — TUDO preservado."
+  },
+
+  "rag_preservation_guardrail": {
+    "comentario": "GUARDRAIL ABSOLUTO — diretriz P.O. 2026-04-29.",
+    "imutavel_neste_escopo": [
+      "server/rag-corpus.ts (NÃO deletar, NÃO renomear, NÃO mover)",
+      "server/rag-corpus-lcs-novas.ts (NÃO deletar, NÃO renomear, NÃO mover, NÃO alterar 1305 entries)",
+      "server/rag-retriever.ts (NÃO deletar, NÃO mudar assinaturas retrieveArticles/retrieveArticlesFast)",
+      "drizzle/schema.ts → ragDocuments table (NÃO drop, NÃO drop column cnaeGroups, NÃO alter)",
+      "server/lib/decision-kernel/datasets/ncm-dataset.json (NÃO deletar, NÃO drop entries dos PRs #855 e #858)",
+      "docs/data-quality/snapshots/ (NÃO deletar — auditoria histórica)",
+      "docs/data-quality/mutation-log-corpus-2026-04-28.json (NÃO deletar)",
+      "docs/data-quality/mutation-log-art169-2026-04-28.json (NÃO deletar)",
+      "Saneamentos PR #856 (7 ragDocs) e PR #860 (Art. 169) PRESERVADOS",
+      "Nenhuma SQL UPDATE/DELETE em ragDocuments neste PR",
+      "Nenhuma alteração em cnaeGroups de qualquer ragDocument"
+    ],
+    "verificacao_obrigatoria_no_PR": [
+      "git diff origin/main -- server/rag-corpus.ts → DEVE retornar vazio",
+      "git diff origin/main -- server/rag-corpus-lcs-novas.ts → DEVE retornar vazio",
+      "git diff origin/main -- server/rag-retriever.ts → DEVE retornar vazio",
+      "git diff origin/main -- server/lib/decision-kernel/datasets/ncm-dataset.json → DEVE retornar vazio",
+      "Se qualquer um destes retornar diff: ROLLBACK imediato do PR"
+    ]
+  },
+
+  "legacy_cleanup_options": {
+    "comentario": "P.O. autorizou limpeza. Escolher UMA das 3 opções antes de PR-A.",
+    "opcao_A_DELETE_total": {
+      "descricao": "DELETE FROM projects WHERE status IN (...) — limpar todos os projetos legados sem snapshot M1.",
+      "complexidade": "baixa",
+      "irreversivel": true,
+      "risco": "MUITO ALTO — perda de dados de produção, briefings, riscos, planos de ação dos 9.802 projetos.",
+      "recomendacao": "NÃO RECOMENDADO sem backup completo + auditoria explícita do P.O.",
+      "se_escolhida": "Exigir snapshot completo de projects + projects_audit_log + briefings + risks_v4 + action_plans_v4 antes do DELETE. Rollback SQL completo pré-aprovado."
+    },
+    "opcao_B_BACKFILL_NULL": {
+      "descricao": "Manter projetos legados intactos. Não rodar engine M1 retroativamente. Coluna projects.archetype = NULL para legacy. FSM aceita ambos status (perfil_confirmado novo OU cnaes_confirmados legacy) sem flag — apenas via campo archetype IS NULL.",
+      "complexidade": "média",
+      "irreversivel": false,
+      "risco": "BAIXO",
+      "recomendacao": "RECOMENDADA — preserva dados, simplifica FSM, permite migração gradual em M3."
+    },
+    "opcao_C_MIGRATE_AUTO": {
+      "descricao": "Para cada projeto legado com status >= cnaes_confirmados: rodar perfil.computeFromProject automaticamente em background job, persistir archetype derivado. Usuário não precisa re-confirmar.",
+      "complexidade": "alta",
+      "irreversivel": true,
+      "risco": "MÉDIO — engine M1 v3 pode produzir status_arquetipo='perfil_inconsistente' para muitos legacy, gerando alertas em massa.",
+      "recomendacao": "NÃO RECOMENDADA neste momento — requer UAT prévio com sample de 50 projetos legacy."
+    },
+    "decisao_pendente_P_O": "Escolher entre A (DELETE), B (BACKFILL_NULL), ou C (MIGRATE_AUTO). Default sugerido: Opção B."
+  },
+
+  "context": {
+    "decisao_po": "O fluxo real do produto começa em /projetos/novo. Esta página deve ser EVOLUÍDA (não substituída na URL) para criar projeto, identificar CNAEs pela descrição do negócio, confirmar CNAEs, gerar Perfil da Entidade em página dedicada, e só então liberar Questionário SOLARIS.",
+    "admin_m1_perfil": {
+      "url": "/admin/m1-perfil",
+      "purpose": "Tela interna de QA do Runner v3",
+      "keep": true,
+      "do_not_replace": true,
+      "do_not_remove": true,
+      "rationale": "Trilha de monitoring/QA paralela. Saída em m1_runner_logs (não consumida pelo fluxo cliente). Manter intacta."
+    },
+    "legacy_flow_current": {
+      "entry": "/projetos/novo",
+      "component": "client/src/pages/NovoProjeto.tsx (788 linhas, USA PerfilEmpresaIntelligente.tsx 744+ linhas)",
+      "current_behavior_validado_em_codigo": [
+        "Linha ~616: clicar 'Avançar' → handleSubmit() valida campos básicos.",
+        "Linha ~340: chama fluxoV3.createProject (atomic — cria projeto + persiste companyProfile + operationProfile + taxComplexity + financialProfile + governanceProfile).",
+        "onSuccess de createProject → chama fluxoV3.extractCnaes (procedure SEPARADA — confirmado por Manus IMP-2).",
+        "onSuccess de extractCnaes → setShowCnaeModal(true) abre modal in-page (linhas 680-779).",
+        "Modal: revisar/editar/refinar CNAEs (linhas 246 refineCnaes, 272 confirmCnaes).",
+        "Linha 278: onSuccess de confirmCnaes → setLocation(`/projetos/${id}/questionario-solaris`)."
+      ],
+      "problem_identificado_v7_60": "Auditoria v7.60 Seção 7.1: M1 Runner v3 está DESACOPLADO do fluxo cliente. Snapshot M1 vai para m1_runner_logs (monitoring) sem ser lido pelo retriever, briefing, riscos ou plano de ação. Caminho real continua via companyProfile/operationProfile (legado).",
+      "fsm_atual_validado": "server/flowStateMachine.ts define transição rígida cnaes_confirmados → onda1_solaris. Não existe perfil_entidade_confirmado no FSM."
+    },
+    "to_be_flow": {
+      "entry": "/projetos/novo (URL inalterada)",
+      "no_url_breaking_change": true,
+      "new_sequence_atomic": [
+        "1. Usuário em /projetos/novo: preenche BLOCO 0 (nome, descrição ≥100 chars, cliente, perfil empresa via PerfilEmpresaIntelligente — INALTERADO).",
+        "2. Usuário clica 'Avançar' (botão atual).",
+        "3. fluxoV3.createProject (INALTERADO) cria projeto.",
+        "4. fluxoV3.extractCnaes (INALTERADO) extrai CNAEs via LLM/RAG (RAG IMUTÁVEL).",
+        "5. Modal CNAE in-page (INALTERADO) — confirmar/editar/refinar.",
+        "6. fluxoV3.confirmCnaes (INALTERADO no comportamento) — apenas redirect alterado.",
+        "7. Redirect ALTERA: era /projetos/:id/questionario-solaris → passa a ser /projetos/:id/perfil-entidade.",
+        "8. NOVA página /projetos/:id/perfil-entidade (ConfirmacaoPerfil.tsx): usuário completa dimensões M1.",
+        "9. Painel de Confiança PC-01 a PC-06 (snapshot, score, pendências, gate).",
+        "10. Usuário clica 'Confirmar Perfil da Entidade' → perfil.confirmPerfilEntidade(projectId) — persiste snapshot imutável + atualiza FSM para perfil_entidade_confirmado.",
+        "11. CTA PC-06 'Continuar para Questionário SOLARIS' habilitado → setLocation /projetos/:id/questionario-solaris.",
+        "12. QuestionarioSolaris adiciona gate frontend: redireciona para /perfil-entidade se status_arquetipo !== 'perfil_entidade_confirmado'."
+      ]
+    },
+    "authoritative_documents": [
+      {"path": "7-Perfil-Empresa-ARQUETIPO/RAG/M1/mockup/IA SOLARIS — Mockup M1 Perfil da Entidade v5.1.html", "status": "EXISTS"},
+      {"path": "7-Perfil-Empresa-ARQUETIPO/RAG/M1/mockup/M1-ARQUETIPO-FORM-DELTA-v5.1.md.txt", "status": "EXISTS"},
+      {"path": "7-Perfil-Empresa-ARQUETIPO/RAG/M1/mockup/regras---CONFIANCA/confianca-mockup.txt", "status": "EXISTS"},
+      {"path": "7-Perfil-Empresa-ARQUETIPO/RAG/M1/mockup/consistencia/consistencia.docx", "status": "EXISTS"},
+      {"path": "7-Perfil-Empresa-ARQUETIPO/RAG/M1/mockup/spec/critica--json/Crítica Técnica — Prompt M2_ Substituir _projetos_novo pelo Fluxo Oficial de Perfil da Entidade.md", "status": "EXISTS", "tipo": "critica_manus"},
+      {"path": "docs/governance/UX_DICTIONARY.md", "status": "EXISTS"},
+      {"path": "docs/governance/DATA_DICTIONARY.md", "status": "EXISTS"},
+      {"path": "docs/governance/FLOW_DICTIONARY.md", "status": "EXISTS"},
+      {"path": "docs/governance/audits/v7.60-2026-04-28-bundle-m1-corpus-gate.md", "status": "EXISTS"},
+      {"path": "docs/adr/ADR-0031-imutabilidade-snapshot.md", "status": "TO_BE_CREATED_IN_PR_A"},
+      {"path": "docs/adr/ADR-0032-versionamento-perfil-entidade.md", "status": "TO_BE_CREATED_IN_PR_A"}
+    ]
+  },
+
+  "objective": "Implementar EVOLUÇÃO de /projetos/novo (sem mudar URL) para inserir, entre confirmCnaes e Questionário SOLARIS, a página /projetos/:id/perfil-entidade. Persistir snapshot M1 imutável em colunas novas de projects (camelCase). Limpar legacy via opção escolhida pelo P.O. PROTEGER RAG INTEIRO (corpus, dataset, retriever, ragDocuments) com guardrail absoluto.",
+
+  "regra_orq_20_avaliacao_risco": {
+    "amplitude": "~1.100 a 1.400 LOC novos/editados em 8-9 arquivos",
+    "tier": 2,
+    "reversibilidade": {
+      "PR_A": "alta — drop column nullable + revert FSM",
+      "PR_B": "média — revert UI",
+      "PR_C": "alta — revert tests"
+    },
+    "gatilhos_orq20": [
+      "Schema DB (5 colunas novas em projects)",
+      "Cross-file (≥3 arquivos em módulos diferentes)",
+      "Amplitude (≥200 linhas)",
+      "Runtime crítico (QuestionarioSolaris gate)",
+      "Engine determinística (criação novo router perfil.*)"
+    ],
+    "estrategia_rollout": "snapshot→cold→hot via 3 PRs sequenciais com feature flag m2-perfil-entidade-enabled",
+    "rollback_4_niveis": {
+      "nivel_1_CI": "Revert do PR via gh pr revert.",
+      "nivel_2_tela_branca": "Toggle feature flag m2-perfil-entidade-enabled=false → frontend volta a redirecionar para questionario-solaris diretamente.",
+      "nivel_3_cascata": "Se snapshot inválido em projetos novos: UPDATE projects SET archetype = NULL WHERE id IN (...).",
+      "nivel_4_catastrofico": "DROP COLUMN archetype, archetypeVersion, archetypePerfilHash, archetypeRulesHash, archetypeConfirmedAt em projects."
+    },
+    "abort_criteria": [
+      "Mais de 5% dos novos projetos travando em status_arquetipo !== confirmado por bug do engine",
+      "Suite oficial 58 casos quebrar (rules_hash mudar)",
+      "Regressão em testes m1-feature-flag, hotfix-is-soja, hotfix-classe-erro, hotfix-p0-input-gate, hotfix-suite-ncm-truncado, hotfix-suite-is-gate",
+      "Qualquer alteração detectada em arquivos rag_preservation_guardrail.imutavel_neste_escopo"
+    ]
+  },
+
+  "feature_flag": {
+    "name": "m2-perfil-entidade-enabled",
+    "default": false,
+    "config_file": "server/config/feature-flags.ts",
+    "rollout_policy_5_steps": [
+      "Step 1 (PR-A merged): flag false. Schema deployado. Backend disponível mas não consumido.",
+      "Step 2 (PR-B merged): flag false. Frontend deployado mas redirect antigo.",
+      "Step 3 (P.O. ativa): flag true para equipe_solaris (validar internamente).",
+      "Step 4 (UAT OK): flag true global.",
+      "Step 5 (sprint estável): remover flag em PR de chore."
+    ],
+    "single_gate_logic_v3": "SEM DUAL-GATE (resolução P.O. 2026-04-29). Lógica simples: se flag true E projeto criado APÓS limpeza legacy → exige perfil_entidade_confirmado. Projetos novos seguem único caminho. Legacy tratado conforme legacy_cleanup_options escolhida."
+  },
+
+  "ux_baseline": {
+    "must_follow": "MOCKUP_perfil_entidade_v5.1.html",
+    "ui_term": "Perfil da Entidade",
+    "forbidden_ui_term": "Arquétipo (admin/m1-perfil pode usar pois é interno)",
+    "visual_style": "Enterprise corporativo, 2 colunas (formulário esquerda, painel direita sticky), claridade > densidade.",
+    "states_required_8": [
+      "S1_inicio_sem_dados",
+      "S2_modal_cnaes_aberto",
+      "S3_cnaes_confirmados_dimensoes",
+      "S4_painel_confianca_completo",
+      "C1_pendente_campos_faltando",
+      "C2_inconsistente_exige_correcao",
+      "C3_bloqueado_HARD_BLOCK_ativo",
+      "C4_confirmado_snapshot_imutavel"
+    ]
+  },
+
+  "must_include_fields_novo_projeto": {
+    "comentario": "INALTERADOS — já existem em PerfilEmpresaIntelligente.tsx. NÃO mover para /perfil-entidade.",
+    "campos_BLOCO_0": [
+      "nome_projeto",
+      "descricao_negocio",
+      "cliente_vinculado",
+      "cnpj",
+      "tipo_juridico",
+      "porte_empresa",
+      "regime_tributario",
+      "faturamento_anual",
+      "tipo_operacao_principal",
+      "tipo_cliente",
+      "multi_estado",
+      "complexidade_tributaria",
+      "perfil_financeiro",
+      "estrutura_societaria",
+      "governanca_tributaria",
+      "principais_produtos_NCM_basico",
+      "principais_servicos_NBS_basico"
+    ]
+  },
+
+  "must_include_fields_perfil_entidade": {
+    "comentario": "Página NOVA /projetos/:id/perfil-entidade. Coleta dimensões M1 + NCM/NBS canônicos. NÃO duplica campos de /projetos/novo.",
+    "campos_dimensionais_5": [
+      "dim_objeto",
+      "dim_papel_na_cadeia",
+      "dim_tipo_de_relacao",
+      "dim_territorio",
+      "dim_regime"
+    ],
+    "campos_input_canonicos": [
+      "natureza_operacao_principal_M1",
+      "papel_na_cadeia_M1",
+      "tipo_de_relacao_M1",
+      "territorio_M1",
+      "regime_M1",
+      "ncms_principais_canonicos (formato 0000.00.00)",
+      "nbss_principais_canonicos (formato 0.0000.00.00)"
+    ],
+    "natureza_operacao_values_6": [
+      "Transporte",
+      "Produção própria",
+      "Prestação de serviço",
+      "Comércio",
+      "Intermediação",
+      "Locação"
+    ],
+    "tipo_objeto_economico_values_8": [
+      "Bens/mercadorias",
+      "Servicos",
+      "Energia/combustiveis",
+      "Digital",
+      "Financeiro",
+      "Agricola",
+      "Pecuario",
+      "Misto"
+    ],
+    "explicacao_relacao": "natureza_operacao_principal é INPUT do usuário (6 valores). tipo_objeto_economico é DERIVADO (8 valores) via NATUREZA_TO_TIPO_OBJETO mapping (existe em validateM1Input.ts no PR #859)."
+  },
+
+  "cnae_flow": {
+    "source": "descricao_negocio",
+    "trigger_atual_preservado": "Botão 'Avançar' em /projetos/novo (linha 626 NovoProjeto.tsx).",
+    "must_reuse_existing_mechanism": true,
+    "rag_imutavel": true,
+    "existing_mechanisms_inalterados": [
+      "fluxoV3.createProject",
+      "fluxoV3.extractCnaes",
+      "fluxoV3.refineCnaes",
+      "fluxoV3.confirmCnaes",
+      "modal CNAE in-page em NovoProjeto.tsx (linhas 680-779)"
+    ],
+    "modal_required_behavior_inalterado": [
+      "CNAEs com confiança Alta/Média/Baixa",
+      "Editar/remover/adicionar manual",
+      "Refinamento com feedback",
+      "Confirmação obrigatória"
+    ],
+    "post_confirmation_NOVO": [
+      "Atualizar confirmedCnaes[] (INALTERADO).",
+      "FSM: nova transição cnaes_confirmados → perfil_entidade_confirmado (após confirmar perfil).",
+      "Redirect: era /questionario-solaris, vira /perfil-entidade (controlado por feature flag)."
+    ]
+  },
+
+  "m1_step": {
+    "route": "/projetos/:id/perfil-entidade",
+    "position": "Entre confirmCnaes (modal) e /projetos/:id/questionario-solaris",
+    "component_to_create": "client/src/pages/ConfirmacaoPerfil.tsx",
+    "component_estimate_LOC": "500-800",
+    "server_router_to_create": "server/routers/perfil.ts (NOVO)",
+    "required_procedures_4": [
+      {
+        "name": "perfil.computeFromProject",
+        "rationale": "Nome diferente de buildPerfilEntidade (função pura existente) para evitar colisão.",
+        "input": "{ projectId: number }",
+        "behavior": [
+          "Carrega project com companyProfile + operationProfile + confirmedCnaes",
+          "Constrói Seed mapeando campos legacy → schema Seed",
+          "Chama buildSnapshot(seed, dataVersion) — função pura existente",
+          "Retorna { perfil, blockers, missing_required_fields, status_arquetipo, eligibility_overall, perfil_hash, rules_hash } SEM persistir"
+        ]
+      },
+      {
+        "name": "perfil.confirmPerfilEntidade",
+        "input": "{ projectId: number, dimensoesUserConfirmed: PerfilDimensional }",
+        "behavior": [
+          "Re-roda perfil.computeFromProject internamente",
+          "Valida status_arquetipo === 'perfil_confirmado' (com prefixo)",
+          "Persiste em projects.archetype (JSON), archetypeVersion, archetypePerfilHash, archetypeRulesHash, archetypeConfirmedAt = NOW()",
+          "Atualiza projects.status para 'perfil_entidade_confirmado'",
+          "Retorna { snapshot, perfil_hash, immutable: true }"
+        ]
+      },
+      {
+        "name": "perfil.getPerfilEntidade",
+        "input": "{ projectId: number }",
+        "behavior": [
+          "Lê projects.archetype",
+          "Se vazio: retorna { confirmed: false, snapshot: null }",
+          "Se preenchido: retorna { confirmed: true, snapshot, perfil_hash, rules_hash, confirmed_at }"
+        ]
+      },
+      {
+        "name": "perfil.getOverallEligibility",
+        "rationale": "B5 v1 — eligibility 'overall' não existe. Esta função compõe ELIGIBILITY_TABLE atual em enum global.",
+        "input": "{ projectId: number }",
+        "behavior": [
+          "Lê snapshot do projeto",
+          "Para cada categoria em ELIGIBILITY_TABLE: roda isCategoryAllowed",
+          "Agrega: HARD_BLOCK ativo → 'denied'; completude < 100 ou inconsistência → 'pending'; senão → 'allowed'",
+          "Retorna 'allowed' | 'denied' | 'pending' + reason por categoria"
+        ]
+      }
+    ],
+    "gate_to_next_step": {
+      "next_url": "/projetos/:id/questionario-solaris",
+      "condition_strict": "status === 'perfil_entidade_confirmado' AND blockers.HARD_BLOCK.length === 0",
+      "blocked_if": [
+        "status_arquetipo === 'perfil_pendente'",
+        "status_arquetipo === 'perfil_inconsistente'",
+        "status_arquetipo === 'perfil_bloqueado'",
+        "confirmedCnaes[] vazio",
+        "NCM obrigatório ausente (operação com bens)",
+        "NBS obrigatório ausente (operação com serviços)",
+        "CNAE/CNPJ/regime obrigatório ausente",
+        "HARD_BLOCK ativo"
+      ],
+      "gate_implementation_dual_layer": [
+        "Frontend: ConfirmacaoPerfil.tsx desabilita CTA PC-06 se gate não liberado.",
+        "Frontend: QuestionarioSolaris.tsx adiciona useEffect que redireciona para /perfil-entidade se status !== 'perfil_entidade_confirmado'.",
+        "Backend: assertValidTransition rejeita transição cnaes_confirmados → onda1_solaris se feature_flag === true."
+      ]
+    }
+  },
+
+  "flow_state_machine": {
+    "comentario": "v3 — single-gate (legacy limpo conforme P.O. 2026-04-29).",
+    "novo_status_fsm": "perfil_entidade_confirmado (com prefixo perfil_, alinhado computeStatus.ts)",
+    "transicoes_atuais": "cnaes_confirmados → onda1_solaris (REMOVIDA quando feature flag true)",
+    "transicoes_novas": [
+      "cnaes_confirmados → perfil_entidade_confirmado (única quando flag true)",
+      "perfil_entidade_confirmado → onda1_solaris"
+    ],
+    "legacy_handling": "Conforme legacy_cleanup_options escolhida pelo P.O. (Opção A/B/C). Não há dual-gate."
+  },
+
+  "confidence_panel": {
+    "must_implement": true,
+    "must_follow_doc": "confianca-mockup.txt",
+    "sections_PC01_a_PC06": [
+      {"id": "PC-01", "name": "Resumo Executivo", "content": ["score_total", "status_arquetipo (prefixo perfil_)", "eligibility_overall", "gate_e2e_status", "mensagem_executiva"]},
+      {"id": "PC-02", "name": "Composição da Confiança", "content": ["Completude_40pct", "Inferencia_validada_30pct", "Coerencia_30pct"], "note": "Score alto NÃO libera fluxo."},
+      {"id": "PC-03", "name": "Pendências e Bloqueios", "priority": ["HARD_BLOCK", "PENDENTE_CRITICO", "PENDENTE", "INFO"], "must_have_cta_ir_para_campo": true},
+      {"id": "PC-04", "name": "Snapshot do Perfil", "content": ["confirmedCnaes", "natureza_operacao_principal", "papel_na_cadeia", "tipo_de_relacao", "territorio", "regime", "ncms_canonicos", "nbss_canonicos", "perfil_hash", "rules_hash"]},
+      {"id": "PC-05", "name": "Prévia de Riscos", "badge": "EXPLORATÓRIO", "rule": "Não bloqueia nem libera gate."},
+      {"id": "PC-06", "name": "Liberação do Próximo Passo", "cta": "Continuar para o Questionário SOLARIS", "enabled_only_if": "status === 'perfil_entidade_confirmado' AND HARD_BLOCK.length === 0"}
+    ]
+  },
+
+  "business_rules": {
+    "status_arquetipo_enum_FSM_com_prefixo": [
+      "perfil_pendente",
+      "perfil_inconsistente",
+      "perfil_bloqueado",
+      "perfil_confirmado"
+    ],
+    "status_arquetipo_enum_engine_sem_prefixo": [
+      "pendente",
+      "inconsistente",
+      "bloqueado",
+      "confirmado"
+    ],
+    "rationale_dual_enum": "computeStatus.ts retorna sem prefixo (uso interno do engine puro). FSM persiste com prefixo (perfil_*) para diferenciar de outros enums.",
+    "eligibility_enum_OVERALL": ["allowed", "denied", "pending"],
+    "eligibility_enum_per_category_inalterado": "EligibilityResult em risk-eligibility.ts continua boolean — não tocar.",
+    "blockers_enum_canonico": ["V-LC-*", "V-05-*", "V-10-*"],
+    "blockers_legacy_DET_NAO_TOCAR": "DET-001/002/003/004/005 do consistencyEngine.ts são trilha paralela.",
+    "invariants": [
+      "Score alto nunca libera fluxo sozinho.",
+      "Estado inconsistente exige correção; não existe aceitar inconsistência.",
+      "Erro estrutural ≠ risco aceito.",
+      "Risco aceito não confirma Perfil da Entidade.",
+      "PC-05 é exploratório.",
+      "Perfil confirmado gera snapshot imutável (ADR-0032).",
+      "Alteração após confirmação gera nova versão (versionamento via archetypeVersion).",
+      "CNAE é obrigatório.",
+      "NCM obrigatório se operação com bens.",
+      "NBS obrigatório se operação com serviços.",
+      "NCM + NBS ambos obrigatórios se Misto ou Intermediação.",
+      "NCM truncado bloqueia — REUTILIZAR validateM1Seed do PR #859.",
+      "NBS digitado em campo NCM bloqueia — REUTILIZAR validateM1Seed do PR #859.",
+      "RAG TOTALMENTE IMUTÁVEL neste PR (rag_preservation_guardrail)."
+    ]
+  },
+
+  "data_persistence": {
+    "current_tables_inalteradas": [
+      "projects.companyProfile (JSON)",
+      "projects.operationProfile (JSON)",
+      "projects.taxComplexity (JSON)",
+      "projects.financialProfile (JSON)",
+      "projects.governanceProfile (JSON)",
+      "projects.confirmedCnaes (JSON)"
+    ],
+    "new_project_columns_camelCase": [
+      {"name": "archetype", "type": "JSON", "nullable": true, "default": "NULL"},
+      {"name": "archetypeVersion", "type": "VARCHAR(20)", "nullable": true, "default": "NULL"},
+      {"name": "archetypePerfilHash", "type": "CHAR(64)", "nullable": true, "default": "NULL"},
+      {"name": "archetypeRulesHash", "type": "CHAR(64)", "nullable": true, "default": "NULL"},
+      {"name": "archetypeConfirmedAt", "type": "TIMESTAMP", "nullable": true, "default": "NULL"}
+    ],
+    "naming_convention": "camelCase (alinhado com Drizzle padrão do projeto)",
+    "snapshot_contract": {
+      "must_include": [
+        "project_id", "cnpj", "project_name",
+        "company_type", "company_size", "annual_revenue_range", "tax_regime",
+        "confirmedCnaes_array", "ncms_canonicos_array", "nbss_canonicos_array",
+        "dim_objeto", "dim_papel_na_cadeia", "dim_tipo_de_relacao", "dim_territorio", "dim_regime",
+        "subnatureza_setorial", "orgao_regulador", "regime_especifico",
+        "status_arquetipo (com prefixo perfil_)", "eligibility_overall",
+        "model_version", "data_version",
+        "perfil_hash", "rules_hash",
+        "confirmed_at", "confirmed_by_user_id"
+      ],
+      "immutability_policy": "ADR-0032 (TO_BE_CREATED). Após confirmPerfilEntidade: archetype é write-once."
+    },
+    "rollback_sql_pre_aprovado": [
+      "-- Nível 4 catastrófico — DROP COLUMN",
+      "ALTER TABLE projects DROP COLUMN archetype;",
+      "ALTER TABLE projects DROP COLUMN archetypeVersion;",
+      "ALTER TABLE projects DROP COLUMN archetypePerfilHash;",
+      "ALTER TABLE projects DROP COLUMN archetypeRulesHash;",
+      "ALTER TABLE projects DROP COLUMN archetypeConfirmedAt;",
+      "-- Nível 3 cascata — Zerar snapshots inválidos",
+      "UPDATE projects SET archetype = NULL, archetypeVersion = NULL, archetypePerfilHash = NULL, archetypeRulesHash = NULL, archetypeConfirmedAt = NULL WHERE id IN (...);"
+    ]
+  },
+
+  "rag_downstream_contract": {
+    "goal": "Preparar terreno para RAG/briefing/risk-engine consumirem snapshot M1 — sem reescrever RAG agora.",
+    "must_not_fully_rewrite_rag_now": true,
+    "rag_imutavel_neste_PR": true,
+    "minimum_required_now": [
+      "Persistir snapshot M1 em projects.archetype (PR-A).",
+      "Documentar contrato de leitura: ler projects.archetype no briefing futuro vs companyProfile/operationProfile.",
+      "NÃO alterar retrieveArticles/retrieveArticlesFast.",
+      "NÃO alterar rag-corpus.ts ou rag-corpus-lcs-novas.ts.",
+      "NÃO alterar ncm-dataset.json.",
+      "NÃO alterar ragDocuments table.",
+      "Criar issue separada (M3) para refactor de retrieveArticles aceitar PerfilDimensional opcional."
+    ]
+  },
+
+  "implementation_plan_three_PRs": {
+    "comentario": "Resolve RISCO-4 — escopo de epic dividido em 3 PRs sequenciais.",
+    "PR_A_schema_backend_FSM": {
+      "branch": "feat/m2-pr-a-schema-backend",
+      "title": "feat(m2-a): schema archetype + router perfil + FSM single-gate",
+      "scope_LOC_estimate": 280,
+      "files": [
+        "drizzle/schema.ts (+5 colunas em projects, ~20 linhas)",
+        "server/flowStateMachine.ts (+1 status perfil_entidade_confirmado + transição, ~15 linhas)",
+        "server/routers/perfil.ts (NOVO router, ~200 linhas)",
+        "server/routers.ts (+1 linha import perfilRouter)",
+        "server/config/feature-flags.ts (+1 entry, ~3 linhas)",
+        "docs/adr/ADR-0031-imutabilidade-snapshot.md (NOVO, ~30 linhas)",
+        "docs/adr/ADR-0032-versionamento-perfil-entidade.md (NOVO, ~30 linhas)",
+        "server/perfil-router.test.ts (NOVO, ~150 linhas)"
+      ],
+      "risk_level": "medium",
+      "validation": [
+        "pnpm tsc --noEmit",
+        "pnpm vitest run server/perfil-router.test.ts (NOVO)",
+        "pnpm vitest run server/m1-feature-flag.test.ts (regressão)",
+        "pnpm vitest run server/hotfix-p0-input-gate-2026-04-28.test.ts (regressão)",
+        "pnpm vitest run server/hotfix-suite-ncm-truncado-2026-04-28.test.ts (regressão)",
+        "pnpm vitest run server/hotfix-suite-is-gate-2026-04-28.test.ts (regressão)",
+        "pnpm exec tsx tests/archetype-validation/run-50-v3.mjs (suite 58 — GO)",
+        "pnpm db:push (em horário baixo tráfego)",
+        "git diff origin/main -- server/rag-corpus*.ts → DEVE retornar vazio",
+        "git diff origin/main -- server/rag-retriever.ts → DEVE retornar vazio",
+        "git diff origin/main -- server/lib/decision-kernel/datasets/ncm-dataset.json → DEVE retornar vazio"
+      ],
+      "deploy": "feature flag false em produção. Schema deployado mas inerte."
+    },
+    "PR_B_frontend_perfil_entidade": {
+      "branch": "feat/m2-pr-b-frontend-perfil",
+      "title": "feat(m2-b): página /perfil-entidade + Painel de Confiança PC-01..PC-06",
+      "scope_LOC_estimate": 700,
+      "files": [
+        "client/src/pages/ConfirmacaoPerfil.tsx (NOVO, ~600 linhas)",
+        "client/src/App.tsx (+1 rota, ~2 linhas)",
+        "client/src/pages/NovoProjeto.tsx (linha 278: redirect condicional, ~5 linhas)",
+        "client/src/pages/QuestionarioSolaris.tsx (gate frontend, ~10 linhas)",
+        "client/src/components/PainelConfiancaPC.tsx (NOVO opcional, ~200 linhas)"
+      ],
+      "depends_on": "PR_A merged + feature flag adicionada",
+      "risk_level": "high",
+      "validation": [
+        "pnpm tsc --noEmit",
+        "pnpm build",
+        "Smoke: /projetos/novo → criar projeto → confirmar CNAE → DEVE redirecionar para /perfil-entidade (com flag true)",
+        "Smoke: completar dimensões → painel PC-01..PC-06 visível → confirmar → DEVE redirecionar para /questionario-solaris",
+        "Smoke: tentar acessar /questionario-solaris diretamente sem confirmar perfil → DEVE redirecionar para /perfil-entidade",
+        "git diff origin/main -- server/rag-* → DEVE retornar vazio (RAG protegido)"
+      ],
+      "deploy": "feature flag false em produção. UI deployada mas só visível com flag true por role."
+    },
+    "PR_C_e2e_polish": {
+      "branch": "feat/m2-pr-c-e2e-polish",
+      "title": "test(m2-c): E2E Playwright + suite integração + polish UX",
+      "scope_LOC_estimate": 350,
+      "files": [
+        "tests/e2e/m2-perfil-entidade-fluxo.spec.ts (NOVO, ~200 linhas — 8 cenários)",
+        "server/m2-integration.test.ts (NOVO, ~100 linhas)",
+        "client/src/pages/ConfirmacaoPerfil.tsx (polish, ~50 linhas edits)",
+        "docs/governance/UX_DICTIONARY.md (atualização, ~20 linhas)",
+        "docs/governance/FLOW_DICTIONARY.md (atualização, ~15 linhas)"
+      ],
+      "depends_on": "PR_B merged + smoke OK em staging",
+      "risk_level": "low",
+      "validation": [
+        "pnpm test:e2e tests/e2e/m2-perfil-entidade-fluxo.spec.ts",
+        "pnpm vitest run server/m2-integration.test.ts",
+        "Suite oficial 58: GO 57/0/1 (sem regressão)",
+        "67/67 testes M1 anteriores PASS"
+      ],
+      "deploy": "Após UAT P.O. com flag true para equipe_solaris: ativar flag global."
+    }
+  },
+
+  "do_not": [
+    "Não remover /admin/m1-perfil.",
+    "Não usar /admin/m1-perfil como UX final cliente.",
+    "Não mover métricas M1 ou logs recentes para /projetos/novo ou /perfil-entidade.",
+    "Não reimplementar modal CNAE — reutilizar in-page atual em NovoProjeto.tsx.",
+    "Não chamar Questionário SOLARIS antes de Perfil da Entidade confirmado.",
+    "Não usar termo 'Arquétipo' na UI cliente.",
+    "Não liberar fluxo por score.",
+    "Não permitir override de inconsistente.",
+    "Não unificar enums DET-* (legado) com V-* (M1 v3).",
+    "🔴 NÃO ALTERAR server/rag-corpus.ts (RAG GUARDRAIL).",
+    "🔴 NÃO ALTERAR server/rag-corpus-lcs-novas.ts (1305 entries protegidas).",
+    "🔴 NÃO ALTERAR server/rag-retriever.ts (assinaturas imutáveis).",
+    "🔴 NÃO DROP/ALTER ragDocuments table.",
+    "🔴 NÃO ALTERAR ncm-dataset.json.",
+    "🔴 NÃO DELETAR docs/data-quality/snapshots/ ou mutation logs.",
+    "🔴 NÃO TOCAR saneamentos PR #856 (7 ragDocs) ou PR #860 (Art. 169).",
+    "Não criar PR único — dividir em PR-A + PR-B + PR-C.",
+    "Não force-push em main.",
+    "Não usar --admin em gh pr merge.",
+    "Não mergear sem aprovação P.O. + Orquestrador para PR-A e PR-B.",
+    "Não aplicar legacy_cleanup_options sem P.O. escolher Opção A/B/C explicitamente."
+  ],
+
+  "required_tests": [
+    "pnpm tsc --noEmit",
+    "pnpm vitest run server/m1-feature-flag.test.ts",
+    "pnpm vitest run server/hotfix-is-soja-ncm1201.test.ts",
+    "pnpm vitest run server/hotfix-classe-erro-2026-04-28.test.ts",
+    "pnpm vitest run server/hotfix-p0-input-gate-2026-04-28.test.ts",
+    "pnpm vitest run server/hotfix-suite-ncm-truncado-2026-04-28.test.ts",
+    "pnpm vitest run server/hotfix-suite-is-gate-2026-04-28.test.ts",
+    "pnpm exec tsx tests/archetype-validation/run-50-v3.mjs (suite 58 — GO determinístico)",
+    "pnpm vitest run server/perfil-router.test.ts (NOVO — PR-A)",
+    "pnpm test:e2e tests/e2e/m2-perfil-entidade-fluxo.spec.ts (NOVO — PR-C)",
+    "pnpm build",
+    "Verificação git diff em arquivos rag_preservation_guardrail.imutavel_neste_escopo (DEVE retornar vazio)"
+  ],
+
+  "acceptance_criteria": [
+    "/projetos/novo continua sendo entrada (URL inalterada).",
+    "Descrição/contexto alimenta extração de CNAEs (mecanismo existente preservado).",
+    "Modal CNAE in-page atual funciona inalterado.",
+    "Após confirmCnaes (com feature flag): redirect para /perfil-entidade.",
+    "Página /projetos/:id/perfil-entidade contém campos do mockup v5.1.",
+    "Painel de Confiança PC-01..PC-06 presente e funcional.",
+    "Status com prefixo perfil_ aparece.",
+    "Eligibility overall (allowed|denied|pending) aparece em PC-01.",
+    "Confirmar Perfil da Entidade persiste snapshot imutável + atualiza FSM.",
+    "Questionário SOLARIS só abre se status === 'perfil_entidade_confirmado'.",
+    "Legacy projetos limpos conforme legacy_cleanup_options escolhida pelo P.O.",
+    "/admin/m1-perfil permanece funcional para QA.",
+    "Suite oficial 58 casos: GO 57/0/1 (rules_hash preservado).",
+    "67/67 testes M1 anteriores PASS sem regressão.",
+    "TypeScript: 0 erros.",
+    "Build: OK.",
+    "🔴 RAG TOTALMENTE PRESERVADO: zero diff em rag-corpus.ts, rag-corpus-lcs-novas.ts, rag-retriever.ts, ncm-dataset.json, ragDocuments schema.",
+    "Feature flag controla rollout em 5 etapas."
+  ],
+
+  "expected_output_from_orchestrator": [
+    "P.O. escolhe legacy_cleanup_options (Opção A DELETE, B BACKFILL_NULL, C MIGRATE_AUTO).",
+    "Despacho de PR-A para Claude Code (schema + backend + FSM + ADRs).",
+    "Após PR-A merged: despacho de PR-B (frontend ConfirmacaoPerfil.tsx).",
+    "Após PR-B merged + smoke OK: despacho de PR-C (E2E + polish).",
+    "Confirmação de que /admin/m1-perfil é preservado em todos os 3 PRs.",
+    "Confirmação de que RAG é preservado em todos os 3 PRs (guardrail absoluto).",
+    "Rollback SQL pré-aprovado pelo P.O. antes de PR-A db:push."
+  ],
+
+  "po_instruction_v3": [
+    "Executar como M2 de produto em 3 PRs sequenciais.",
+    "Risk level high reconhecido.",
+    "Suite oficial 58 casos é gate principal de regressão — qualquer mudança no rules_hash bloqueia merge.",
+    "Feature flag m2-perfil-entidade-enabled controla rollout escalonado em 5 etapas.",
+    "🔴 RAG é IMUTÁVEL neste escopo (diretiva P.O. 2026-04-29).",
+    "🟢 Legacy pode ser limpo (diretiva P.O. 2026-04-29) — escolher Opção A/B/C antes de PR-A."
+  ]
+}
