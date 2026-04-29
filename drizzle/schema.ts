@@ -36,6 +36,8 @@ export const projects = mysqlTable("projects", {
     "rascunho",
     "consistencia_pendente",
     "cnaes_confirmados",
+    // M2 PR-A — novo status (com prefixo perfil_) — flag m2-perfil-entidade-enabled
+    "perfil_entidade_confirmado",
     "assessment_fase1",
     "assessment_fase2",
     // K-4-A: Ondas 1 e 2 do questionário SOLARIS (inseridas antes do diagnóstico)
@@ -153,6 +155,15 @@ export const projects = mysqlTable("projects", {
   consistencyAcceptedRiskBy: int("consistencyAcceptedRiskBy"),  // userId que aceitou o risco
   consistencyAcceptedRiskAt: timestamp("consistencyAcceptedRiskAt"),  // Timestamp da aceitação
   consistencyAcceptedRiskReason: varchar("consistencyAcceptedRiskReason", { length: 500 }), // Justificativa (mín. 20 chars)
+  // M2 PR-A — Snapshot imutável do Perfil da Entidade (ADR-0031 + ADR-0032)
+  // 6 colunas nullable. Default false na feature flag m2-perfil-entidade-enabled.
+  // archetype: snapshot canonical completo (objeto + dimensões + meta)
+  archetype: json("archetype"),
+  archetypeVersion: varchar("archetypeVersion", { length: 20 }), // semver — ADR-0032
+  archetypePerfilHash: varchar("archetypePerfilHash", { length: 64 }), // sha256 do canonical
+  archetypeRulesHash: varchar("archetypeRulesHash", { length: 64 }),  // sha256 do model_version
+  archetypeConfirmedAt: timestamp("archetypeConfirmedAt"), // momento da confirmação write-once
+  archetypeConfirmedBy: int("archetypeConfirmedBy"), // userId que confirmou (null se ctx.user ausente)
 });
 
 export type Project = typeof projects.$inferSelect;
