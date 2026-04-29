@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "patch_id": "HOTFIX-P0-PROJECTS-ARCHETYPE-COLUMNS",
+  "patch_type": "SCHEMA_SYNC",
+  "executor": "Manus",
+  "approved_by": ["P.O. Uires Tapajós"],
+  "rule_invoked": "REGRA-HOTFIX-1 a 5",
+  "execution_timestamp_iso": "2026-04-29T19:35:12Z",
+
+  "causa": "PR #865 mergeado (47da35c) sem aplicar migration. Schema TS define 6 colunas archetype* em projects; DB produção não tinha. Drizzle ORM gerava INSERT incluindo essas colunas → MySQL rejeitava → /projetos/novo quebrado para todos os usuários.",
+
+  "acao": {
+    "tipo": "ALTER TABLE direto via SQL (db:push bloqueado por guard NODE_ENV=production)",
+    "sql": "ALTER TABLE projects ADD COLUMN archetype JSON NULL, ADD COLUMN archetypeVersion VARCHAR(20) NULL, ADD COLUMN archetypePerfilHash VARCHAR(64) NULL, ADD COLUMN archetypeRulesHash VARCHAR(64) NULL, ADD COLUMN archetypeConfirmedAt TIMESTAMP NULL DEFAULT NULL, ADD COLUMN archetypeConfirmedBy INT NULL;",
+    "estrategia": "DDL auto-commit no MySQL/TiDB — sem START TRANSACTION envolvendo ALTER"
+  },
+
+  "evidencia": {
+    "backup_path": "docs/data-quality/snapshots/hotfix-projects-backup-2026-04-29T19-33-34Z.snapshot.txt",
+    "backup_sha256": "4496b10a1d952ae2162ad9793f7f3f877ce0ebf866ce448ed1810bf15d23719e",
+    "backup_bytes": 70384,
+    "backup_rows_preserved": 83,
+    "verify_pre_alter": { "archetype_columns": 0, "total_columns": 57 },
+    "verify_post_alter": { "archetype_columns": 6, "total_columns": 63, "fks_preserved": 3 },
+    "incident_window": {
+      "start": "2026-04-29T14:10:51Z",
+      "end": "2026-04-29T20:05:24Z",
+      "users_affected": "0 INSERTs sucesso na janela",
+      "data_corruption": "NONE"
+    }
+  },
+
+  "resultado": {
+    "cenario_A_insert_manual": { "result": "PASS", "test_id": 2070603 },
+    "cenario_A_plus_drizzle_orm": { "result": "PASS", "test_id": 2070604 },
+    "cenario_B_app_e2e": { "result": "PASS", "test_id": 2070605, "http_status": 200, "modal_cnae": true, "error_toast": false },
+    "cenario_C_rag_intacto": { "result": "PASS", "rag_count_baseline": 2515, "rag_count_post": 2515, "sentinels_match": true }
+  },
+
+  "rollback_sql": "ALTER TABLE projects DROP COLUMN archetype, DROP COLUMN archetypeVersion, DROP COLUMN archetypePerfilHash, DROP COLUMN archetypeRulesHash, DROP COLUMN archetypeConfirmedAt, DROP COLUMN archetypeConfirmedBy;",
+
+  "tables_intact_critical": ["ragDocuments"]
+}
