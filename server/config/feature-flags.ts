@@ -34,6 +34,13 @@ export const FEATURE_FLAGS: Record<string, boolean> = {
   // Rollout global: aguarda aprovação P.O. após validação interna
   // Ref: feat/m1-archetype-runner-v3 · SPEC-RUNNER-RODADA-D.md
   'm1-archetype-enabled': false,
+
+  // M2 — Perfil da Entidade no fluxo /projetos/novo (PR-A schema+backend)
+  // false = redirect legado preservado (cnaes_confirmados → onda1_solaris)
+  // true  = redirect novo (cnaes_confirmados → perfil_entidade_confirmado → onda1_solaris)
+  // Rollout em 5 etapas (ver docs/specs/m2-perfil-entidade/PROMPT-M2-v3-FINAL.json)
+  // Ref: feat/m2-pr-a-schema-backend
+  'm2-perfil-entidade-enabled': false,
 };
 
 /**
@@ -90,4 +97,53 @@ export function isM1ArchetypeEnabled(
 
   // Flag global — false por padrão (rollout global não iniciado)
   return FEATURE_FLAGS["m1-archetype-enabled"] ?? false;
+}
+
+/**
+ * M2 — Verifica se o Perfil da Entidade no fluxo /projetos/novo está habilitado.
+ *
+ * Política de rollout (5 etapas — docs/specs/m2-perfil-entidade/PROMPT-M2-v3-FINAL.json):
+ *   1. PR-A merged: flag false. Schema deployado mas inerte.
+ *   2. PR-B merged: flag false. Frontend deployado mas redirect antigo.
+ *   3. P.O. ativa para equipe_solaris (validar internamente).
+ *   4. UAT OK: flag true global.
+ *   5. Sprint estável: remover flag em PR de chore.
+ *
+ * Override via env var M2_PERFIL_ENTIDADE_ENABLED ("true" | "false") tem precedência.
+ *
+ * @param ctx - Contexto opcional com role e/ou projectId
+ * @returns true se o redirect novo deve ser ativado
+ */
+export function isM2PerfilEntidadeEnabled(ctx: {
+  role?: string;
+  projectId?: number;
+} = {}): boolean {
+  // Override explícito via env (CI / staging / debug)
+  if (process.env.M2_PERFIL_ENTIDADE_ENABLED === "false") return false;
+  if (process.env.M2_PERFIL_ENTIDADE_ENABLED === "true") return true;
+
+  // Ambiente de teste E2E — sempre ativo (paridade com isM1ArchetypeEnabled)
+  if (process.env.E2E_TEST_MODE === "true") return true;
+
+  // Usuários internos — opt-in via env adicional (rollout step 3)
+  const INTERNAL_ROLES = ["equipe_solaris", "advogado_senior"];
+  if (
+    ctx.role &&
+    INTERNAL_ROLES.includes(ctx.role) &&
+    process.env.M2_PERFIL_ENTIDADE_INTERNAL_ROLES === "true"
+  ) {
+    return true;
+  }
+
+  // Whitelist de projetos (rollout step 3 alternativo)
+  if (ctx.projectId !== undefined) {
+    const allowedProjects = (process.env.M2_PERFIL_ENTIDADE_ALLOWED_PROJECTS ?? "")
+      .split(",")
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => !isNaN(n));
+    if (allowedProjects.includes(ctx.projectId)) return true;
+  }
+
+  // Default: false (rollout global não iniciado)
+  return FEATURE_FLAGS["m2-perfil-entidade-enabled"] ?? false;
 }
