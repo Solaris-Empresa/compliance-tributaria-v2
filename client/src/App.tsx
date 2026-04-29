@@ -77,6 +77,7 @@ import QuestionarioIaGen from "./pages/QuestionarioIaGen"; // K-4-C: Onda 2 IA G
 import AdminSolarisQuestions from "./pages/AdminSolarisQuestions"; // Sprint L — DEC-002 Issue #191
 import AdminCategorias from "./pages/AdminCategorias"; // Sprint Z-09 — Categorias configuráveis (ADR-0025)
 import M1PerfilEntidade from "./pages/M1PerfilEntidade"; // M1 — Runner v3 deploy controlado (#830)
+import ConfirmacaoPerfil from "./pages/ConfirmacaoPerfil"; // M2 PR-B — Confirmação Perfil da Entidade
 import QuestionarioProduto from "./pages/QuestionarioProduto"; // Z-02: DEC-M3-05 v3 · ADR-0010
 import QuestionarioServico from "./pages/QuestionarioServico"; // Z-02: DEC-M3-05 v3 · ADR-0010
 
@@ -87,6 +88,7 @@ function Router() {
       <Route path="/projetos" component={Projetos} />
       <Route path="/projetos/novo" component={NovoProjeto} />
       <Route path="/projetos/:id" component={ProjetoDetalhesV2} />
+      <Route path="/projetos/:id/perfil-entidade" component={ConfirmacaoPerfil} /> {/* M2 PR-B — Confirmação Perfil da Entidade */}
       <Route path="/projetos/:id/historico" component={ProjectHistoryTimeline} />
       <Route path="/clientes" component={Clientes} />
       <Route path="/clientes/novo" component={NovoCliente} />

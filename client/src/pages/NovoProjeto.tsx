@@ -272,10 +272,13 @@ export default function NovoProjeto() {
   const confirmCnaes = trpc.fluxoV3.confirmCnaes.useMutation({
     onSuccess: () => {
       clearTempData(DRAFT_PROJECT_ID, 'etapa1');
-      toast.success("CNAEs confirmados! Iniciando Questionário SOLARIS...");
       setShowCnaeModal(false);
-      // K-4-B: navegar para Onda 1 (QuestionarioSolaris) antes do Corporativo
-      setLocation(`/projetos/${projectId}/questionario-solaris`);
+      // M2 PR-B: redirect para Perfil da Entidade (confirmação dimensional)
+      // Feature flag avaliada server-side; se flag=false, ConfirmacaoPerfil
+      // mostrará fallback com botão "Pular para Questionário SOLARIS".
+      // Quando flag=true global (Step 4 rollout), este é o caminho padrão.
+      toast.success("CNAEs confirmados! Avançando para Perfil da Entidade...");
+      setLocation(`/projetos/${projectId}/perfil-entidade`);
     },
     onError: (err) => toast.error(`Erro: ${err.message}`),
   });
