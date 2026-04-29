@@ -36,6 +36,8 @@ export type ProjectStatus =
   | "rascunho"
   | "consistencia_pendente"
   | "cnaes_confirmados"
+  // M2 PR-A — novo status (com prefixo perfil_) — controlado por feature flag m2-perfil-entidade-enabled
+  | "perfil_entidade_confirmado"
   | "diagnostico_corporativo"
   | "diagnostico_operacional"
   // Z-02 TO-BE — ADR-0010 — Q.Produtos (NCM) e Q.Serviços (NBS)
@@ -434,7 +436,10 @@ export const VALID_TRANSITIONS: Record<string, string[]> = {
   'aprovado':                  ['matriz_riscos'],
   // Status legados — mantidos para compatibilidade com projetos existentes
   'consistencia_pendente':     ['cnaes_confirmados', 'rascunho'],
-  'cnaes_confirmados':         ['onda1_solaris', 'consistencia_pendente'],  // K-4-B fix: Onda 1 antes do Corporativo
+  // M2 PR-A — dual-path: legado (onda1_solaris) preservado para flag=false; novo path para flag=true
+  // (Manus Nota #1 — não remover transição legada para evitar quebra de fluxo cliente atual)
+  'cnaes_confirmados':         ['onda1_solaris', 'perfil_entidade_confirmado', 'consistencia_pendente'],
+  'perfil_entidade_confirmado': ['onda1_solaris'],
   'assessment_fase1':          ['assessment_fase2', 'cnaes_confirmados'],
   'assessment_fase2':          ['onda1_solaris', 'assessment_fase1'],  // legado: também passa por Onda 1
   'riscos':                    ['plano', 'briefing'],

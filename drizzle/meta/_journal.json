@@ -463,6 +463,13 @@
       "when": 1775951316853,
       "tag": "0065_spicy_tag",
       "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "5",
+      "when": 1777472148015,
+      "tag": "0066_flawless_yellowjacket",
+      "breakpoints": true
     }
   ]
 }

@@ -79,6 +79,7 @@ import { risksV4Router } from "./routers/risks-v4"; // Sprint Z-07 PR #C — eng
 import { adminCategoriesRouter } from "./routers/adminCategoriesRouter"; // Sprint Z-09 — Categorias configuráveis RAG sensor (ADR-0025)
 import { complianceRouter } from "./routers/complianceRouter"; // Sprint Z-22 — CPIE v3 Dashboard on-demand (#725)
 import { m1MonitorRouter } from "./routers-m1-monitor"; // M1 — Runner v3 deploy controlado (feat/m1-archetype-runner-v3)
+import { perfilRouter } from "./routers/perfil"; // M2 PR-A — Perfil da Entidade (feat/m2-pr-a-schema-backend)
 
 export const appRouter = router({
   system: systemRouter,
@@ -127,6 +128,7 @@ export const appRouter = router({
   adminCategories: adminCategoriesRouter, // Sprint Z-09 — Categorias configuráveis RAG sensor (ADR-0025)
   compliance: complianceRouter, // Sprint Z-22 — CPIE v3 Dashboard on-demand (#725)
   m1Monitor: m1MonitorRouter, // M1 — Runner v3 deploy controlado (flag m1-archetype-enabled)
+  perfil: perfilRouter, // M2 PR-A — Perfil da Entidade (flag m2-perfil-entidade-enabled)
 
   // ==========================================================================
   // AUTH

@@ -1,7 +1,57 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint
-> **v7.59 · 2026-04-27 (Split PR #847 concluído — HEAD `1c429950` · M1 Runner v3 em main · PRs #850/#851 MERGED · #847 CLOSED · #852 CLOSED · feature flag default OFF · audit ORQ-19 🟡 parcial)**
-> **Predecessor:** v7.58 · 2026-04-22 (Hotfix IS v2 + v2.1 MERGEADOS — HEAD `58d490c`)
+> **v7.60 · 2026-04-28 (Bundle M1 + Corpus + Gate Input + Suite — HEAD `0a59c8c` · 6 PRs mergeados · #855/#856/#858/#859/#860/#861 · #852/#854 CLOSED · suite oficial 51→58 · GO 57/0/1 · audit ORQ-19 🟢)**
+> **Predecessor:** v7.59 · 2026-04-27 (Split PR #847 — M1 Runner v3 em main, HEAD `1c429950`, audit 🟡 parcial)
+
+## Sessão v7.60 (2026-04-28) — Bundle M1 + Corpus RAG + Gate Input M1 + Suite 51→58
+
+**HEAD main:** `0a59c8ceaee9a6047755822709a91f41282bc653` (merge PR #861)
+**Predecessor pós-v7.59:** `1c429950` (merge PR #851)
+
+### PRs mergeados (6)
+
+| PR | Commit | Conteúdo |
+|---|---|---|
+| #855 | `af5d1a5` | Hotfix IS soja — NCM 1201.90.00 + tupla agricola |
+| #858 | `52c79da` | Expansão dataset 4 NCMs (milho, café, diesel, gasolina) — classe de erro |
+| #856 | `0331939` | Saneamento corpus 7 ragDocs (cnaeGroups financeiro→agro) + snapshot/rollback/log |
+| #859 | `9b0cb67` | Gate input M1 — `validateM1Seed` (CNAE/NCM/NBS obrigatório + regex) |
+| #860 | `593e04c` | PATCH-AGRO-002 — Art. 169 LC 214 cnaeGroups += 49-53 (transportador autônomo) |
+| #861 | `0a59c8c` | Robustecimento suite 51→58 + 2 suites paralelas + 7 setores faltantes |
+
+### PRs fechados (orphan cleanup)
+- #852 (já estava CLOSED) · #854 (superseded por #855)
+
+### Estado da suite oficial M1
+- **58 casos · GO 57 PASS / 0 FAIL / 1 BLOCKED** (S27 controle negativo)
+- `rules_hash`: `sha256:4929516b...e272` (preservado byte-a-byte)
+- 5 casos derivam `agronegocio` (vs 0 antes)
+- 9 casos `juridico_humano: PENDENTE` (S24, S25, M52, T53, E54, V55, R56, P57, C58)
+
+### Testes (67/67 PASS)
+- `m1-feature-flag` 12/12
+- `hotfix-is-soja-ncm1201` 3/3
+- `hotfix-classe-erro` 8/8
+- `hotfix-p0-input-gate` 28/28
+- `hotfix-suite-ncm-truncado` 9/9 (NEW PR #861)
+- `hotfix-suite-is-gate` 7/7 (NEW PR #861)
+
+### Achado estrutural identificado (auditoria)
+🔴 **M1 v3 está DESACOPLADO do RAG retriever** — `retrieveArticles(cnaes, contextQuery, topK)` recebe apenas CNAEs + string livre. NÃO consome `objeto`/`papel`/`derived_legacy_operation_type` do M1. Snapshot M1 vai para `m1_runner_logs` (monitoring) sem ser lido downstream. Caminho real continua via `companyProfile`/`operationProfile` legado. **Define escopo Sprint M2.**
+
+### Backlog técnico ativo
+- P1: integração M1 v3 → RAG/briefing/risk-engine (Sprint M2)
+- P1: mapping NCM chapters 02 (carnes), 47 (celulose) — A48, A50 fallback documentado
+- P1: auditoria 373 docs corpus `cnaeGroups="64,65,66"` indevido
+- P2: etanol NCM 2207.10.10 com `objeto_override`
+- P2: revisão jurídica 9 casos `juridico_humano: PENDENTE`
+- P2: `derivePapel()` promover automaticamente para `operadora_regulada` quando subnatureza+orgao
+- P2: E2E Playwright + DB para hotfixes #855-#861
+
+**Auditoria completa em:** `docs/governance/audits/v7.60-2026-04-28-bundle-m1-corpus-gate.md`
+**Veredito ORQ-19:** 🟢 (zero regressão, determinismo preservado, todos critérios atingidos)
+
+---
 
 ## Sessão v7.59 (2026-04-27) — Split do PR #847 concluído (M1 Runner v3 em main)
 
