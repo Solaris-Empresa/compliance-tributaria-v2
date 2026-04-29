@@ -99,6 +99,26 @@ export default function QuestionarioSolaris() {
   const { data: featureFlags } = trpc.system.getFeatureFlags.useQuery();
   const showOndaBadge = featureFlags?.g15FontePerguntas ?? false;
 
+  // ── M2 PR-B gate: redirecionar para /perfil-entidade se flag ativa e perfil ainda não confirmado ─
+  const m2EnabledQuery = trpc.featureFlags.isM2Enabled.useQuery(
+    { projectId },
+    { enabled: !!projectId && !isNaN(projectId) },
+  );
+  const perfilGetQuery = trpc.perfil.get.useQuery(
+    { projectId },
+    {
+      enabled: !!projectId && !isNaN(projectId) && m2EnabledQuery.data === true,
+      retry: false,
+    },
+  );
+  useEffect(() => {
+    if (!m2EnabledQuery.data) return; // flag false: comportamento legado preservado
+    if (perfilGetQuery.isLoading) return;
+    if (perfilGetQuery.data && perfilGetQuery.data.confirmed === false) {
+      setLocation(`/projetos/${projectId}/perfil-entidade`, { replace: true });
+    }
+  }, [m2EnabledQuery.data, perfilGetQuery.data, perfilGetQuery.isLoading, projectId, setLocation]);
+
   // ── Buscar perguntas ──────────────────────────────────────────────────────
   const { data, isLoading, error } = trpc.fluxoV3.getOnda1Questions.useQuery(
     { projectId },
