@@ -51,6 +51,13 @@ export interface M1SeedInput {
   natureza_operacao_principal?: string[];
   ncms_principais?: string[];
   nbss_principais?: string[];
+  // PR-FIN-NBS: campos opcionais para isenção NBS_REQUIRED em setor financeiro.
+  // Quando setor_regulado=true E subnatureza_setorial⊇["financeiro"], NBS é
+  // dispensado (regime BCB-específico LC 214/2025 Art. 202-220).
+  // Callers M1 antigos que não passam esses campos: comportamento inalterado
+  // (default undefined → guard isFinanceiro retorna false → exige NBS como antes).
+  setor_regulado?: boolean;
+  subnatureza_setorial?: string[];
 }
 
 /**
@@ -94,13 +101,28 @@ export function validateM1Seed(seed: M1SeedInput): void {
 
   // NBS (idem)
   const nbss = (seed.nbss_principais ?? []).map((n) => n?.trim()).filter(Boolean) as string[];
+
+  // PR-FIN-NBS: setor regulado financeiro é classificado por BCB, não por NBS.
+  // LC 214/2025 Art. 202-220 define regime específico por regulador.
+  // Isenção: setor_regulado=true E subnatureza_setorial⊇["financeiro"].
+  // Detectado em Smoke Cenário 6 (financeiro) 2026-04-30 — clientes BCB
+  // (banco/fintech/factoring) não têm NBS aplicável.
+  const isFinanceiro =
+    seed.setor_regulado === true &&
+    Array.isArray(seed.subnatureza_setorial) &&
+    seed.subnatureza_setorial.includes("financeiro");
+
   if (requerNbs) {
-    if (nbss.length === 0) {
+    // NBS_REQUIRED isento para financeiro (LC 214/2025 BCB regime específico).
+    // Outros casos: NBS obrigatório quando tipoObjeto inclui "Servicos".
+    if (nbss.length === 0 && !isFinanceiro) {
       throw new TRPCError({
         code: "BAD_REQUEST",
         message: "NBS_REQUIRED: operação envolve serviços. Informe ao menos um NBS principal.",
       });
     }
+    // Validação de formato sempre aplica (mesmo financeiro): se cliente
+    // fornecer NBS, deve estar em formato válido — evita lixo persistido.
     for (const nbs of nbss) {
       if (!NBS_REGEX.test(nbs)) {
         throw new TRPCError({

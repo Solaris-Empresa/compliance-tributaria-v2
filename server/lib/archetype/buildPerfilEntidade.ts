@@ -98,6 +98,29 @@ function deriveObjetoForSeed(seed: Seed): DeriveObjetoArrayResult {
     throw e;
   }
 
+  // PR-FIN-OBJETO-V2 (Mudança 1): cliente financeiro sem NBS canonical.
+  // Caso real: bancos/fintechs/factoring (BCB-regulamentado) não classificam
+  // por NBS — loop acima nunca itera quando nbss=[] e ncms=[].
+  // PR-F #880 garante seed.subnatureza_setorial=["financeiro"] para
+  // operationType=financeiro. Engine deriva objeto canonical via subnatureza
+  // sem depender de NBS. Coerente com PR-FIN-NBS #884 (gate input isenta) e
+  // PR-FIN-OBJETO #885 (deriveObjetoFromNbs eleva fallback no path NBS).
+  // Smoke R3-A 2026-04-30 detectou empiricamente: nbss=[] -> objeto=[] ->
+  // V-LC-202 HARD_BLOCK -> CTA "Confirmar Perfil" desabilitado.
+  // Pré-análise V2: ZERO cenários da suite oficial afetados (S18 + S59 ambos
+  // têm nbss preenchido; nenhum cenário tem subnatureza=financeiro + nbss=[]).
+  if (
+    objetoSet.size === 0 &&
+    seed.subnatureza_setorial.includes("financeiro")
+  ) {
+    objetoSet.add("servico_financeiro");
+    blockers.push({
+      id: "V-10-FALLBACK-REGULATED-NO-NBS",
+      severity: "INFO",
+      rule: "Sem NBS fornecido; objeto inferido via subnatureza_setorial=financeiro (BCB-regulado)",
+    });
+  }
+
   return {
     objeto: Array.from(objetoSet),
     blockers,
@@ -259,7 +282,20 @@ function computeMissingRequiredFields(
   if (hasObjetoBens(seed) && seed.ncms_principais.length === 0) {
     missing.push("ncms_principais (possui_bens derivado=true)");
   }
-  if (hasObjetoServicos(seed) && seed.nbss_principais.length === 0) {
+  // PR-FIN-OBJETO-V2 (Mudança 2): setor financeiro regulado pelo BCB não é
+  // classificado por NBS. Cliente bancário/fintech típico não fornece NBS.
+  // Sem esta isenção, missing_required_fields inclui "nbss_principais" ->
+  // computeStatus.ts:92-94 força status_arquetipo="inconsistente" mesmo
+  // após Mudança 1 derivar objeto=["servico_financeiro"] e V-LC-202 não
+  // disparar. Coerente com PR-FIN-NBS #884 (isenção gate input) e
+  // PR-FIN-OBJETO #885 (deriveObjeto fallback elevado).
+  // Para outros serviços (não-financeiro), missing field continua aplicando.
+  const isFinanceiroIsento = seed.subnatureza_setorial.includes("financeiro");
+  if (
+    hasObjetoServicos(seed) &&
+    seed.nbss_principais.length === 0 &&
+    !isFinanceiroIsento
+  ) {
     missing.push("nbss_principais (possui_servicos derivado=true)");
   }
 

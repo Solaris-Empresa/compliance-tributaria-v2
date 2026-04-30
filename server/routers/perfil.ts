@@ -233,12 +233,16 @@ export const perfilRouter = router({
       const project = projectRows[0] as Record<string, unknown>;
       const seed = buildSeedFromProject(project);
 
-      // Reusa gate de input PR #859 (NCM/NBS regex + CNAE obrigatório)
+      // Reusa gate de input PR #859 (NCM/NBS regex + CNAE obrigatório).
+      // PR-FIN-NBS: passar setor_regulado + subnatureza_setorial para isenção
+      // NBS_REQUIRED de financeiro (LC 214/2025 BCB regime específico).
       validateM1Seed({
         cnae_principal_confirmado: seed.cnae_principal_confirmado,
         natureza_operacao_principal: [...seed.natureza_operacao_principal],
         ncms_principais: [...seed.ncms_principais],
         nbss_principais: [...seed.nbss_principais],
+        setor_regulado: seed.setor_regulado,
+        subnatureza_setorial: [...seed.subnatureza_setorial],
       });
 
       const snapshot = buildSnapshot(seed, DATA_VERSION);
@@ -320,12 +324,16 @@ export const perfilRouter = router({
 
       const seed = buildSeedFromProject(project);
 
-      // Gate de input (reusa PR #859)
+      // Gate de input (reusa PR #859).
+      // PR-FIN-NBS: passar setor_regulado + subnatureza_setorial para isenção
+      // NBS_REQUIRED de financeiro (LC 214/2025 BCB regime específico).
       validateM1Seed({
         cnae_principal_confirmado: seed.cnae_principal_confirmado,
         natureza_operacao_principal: [...seed.natureza_operacao_principal],
         ncms_principais: [...seed.ncms_principais],
         nbss_principais: [...seed.nbss_principais],
+        setor_regulado: seed.setor_regulado,
+        subnatureza_setorial: [...seed.subnatureza_setorial],
       });
 
       const snapshot = buildSnapshot(seed, DATA_VERSION);

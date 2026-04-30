@@ -258,12 +258,26 @@ export function deriveObjetoFromNbs(
       const reguladas = (context!.subnaturezaSetorial ?? []).filter((s) =>
         REGULATED_SUBNATUREZAS.has(s),
       );
+      // PR-FIN-OBJETO (2026-04-30): financeiro tem objeto canonical mesmo em
+      // fallback. Razão: PR-F garante seed.subnatureza_setorial=["financeiro"]
+      // para operationType=financeiro. Engine pode inferir objeto correto sem
+      // depender de NBS canonical mapeado. V-LC-202 deixa de disparar porque
+      // objeto contém servico_financeiro.
+      // Smoke R3-A 2026-04-30 detectou: NBS 1.0301.10.00 (Bancos Comerciais)
+      // não está mapeado → fallback retornava servico_geral → V-LC-202 HARD_BLOCK.
+      // Pré-análise rules_hash impact: ZERO cenários da suite oficial afetados
+      // (S18 usa NBS canonical 1.0901.33.00 mapeado, sem fallback).
+      // Outras subnaturezas reguladas (saude_regulada, telecomunicacoes) mantêm
+      // comportamento atual até backlog M3 detectar caso análogo empiricamente.
+      const isFinanceiro = reguladas.includes("financeiro");
       return {
-        objeto: "servico_geral",
+        objeto: isFinanceiro ? "servico_financeiro" : "servico_geral",
         blocker: {
           id: "V-10-FALLBACK-REGULATED",
           severity: "INFO",
-          rule: `[ALERTA FORTE] NBS ${nbs} não mapeado no dataset E subnatureza regulada (${reguladas.join(", ")}) — derivação não-determinística em setor crítico; penalização de confiança aplicável`,
+          rule: isFinanceiro
+            ? `NBS ${nbs} não mapeado no dataset; objeto inferido como servico_financeiro via subnatureza_setorial=financeiro (PR-FIN-OBJETO)`
+            : `[ALERTA FORTE] NBS ${nbs} não mapeado no dataset E subnatureza regulada (${reguladas.join(", ")}) — derivação não-determinística em setor crítico; penalização de confiança aplicável`,
         },
       };
     }
