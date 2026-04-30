@@ -522,3 +522,102 @@ para confirmar o próximo número livre. A primeira versão deste append
 (PR #829 commit 1efd36d) usou ORQ-19 a ORQ-22 indevidamente —
 colidindo com ORQ-19 e ORQ-20 já existentes. Correção via force-push
 renumerou para ORQ-21 a ORQ-24.
+
+## REGRA-ORQ-25 — Anti-drift SHA Manus.space sandbox
+
+**Vigência:** permanente, a partir de 2026-04-30
+**Origem:** 6+ incidentes de drift documentados em sessão R3-A SOJA + smoke
+**Severidade:** governança crítica — auditoria comprometida
+
+### Regra
+
+Manus.space mantém checkpoints internos (S3 IDs como `597552e2`, `e1ffc00`,
+`8e49abe8`, `f44fea1b`) que NÃO existem como commits git válidos. Esses
+identificadores não devem ser confundidos com SHAs git ou serem usados
+como referência de auditoria source-controlled.
+
+### Aplicação
+
+1. Reportes de SHA pós-deploy/merge devem incluir AMBOS:
+   - SHA git real (`git rev-parse origin/main` ou similar)
+   - Checkpoint Manus.space (S3 ID, se houver)
+
+   Formato: `git=10b1a24 / checkpoint=f44fea1b`
+
+2. Validação cruzada obrigatória pré-merge:
+   - `git cat-file -t <SHA>` deve retornar `commit`
+   - Se retorna `fatal: Not a valid object name` → SHA é fictício/checkpoint
+
+3. Reportes que mencionam apenas checkpoint Manus.space (sem git SHA) devem
+   ser rejeitados ou esclarecidos antes de qualquer decisão downstream.
+
+4. Drift estrutural Manus.space (cherry-pick em sandbox vs pull origin/main)
+   é backlog M3 — esta regra mitiga sintomas até fix arquitetural.
+
+### Histórico de incidentes
+
+- 2026-04-29: hotfix-P0 #869 reportou checkpoint sandbox
+- 2026-04-30: smoke SOJA SHA `e1ffc00` + checkpoint `8e49abe8` (não-git)
+- 2026-04-30: PR #872 reportou `597552e2` (não-git)
+- 2026-04-30: PR #876 reportou `f44fea1b` (não-git)
+- (e outros)
+
+### Vinculadas
+
+- REGRA-ORQ-26 (branch obrigatória source-controlled)
+- REGRA-HOTFIX-1 a 5
+- Backlog M3: drift arquitetural Manus.space (fix definitivo)
+
+## REGRA-ORQ-26 — Branch obrigatória para arquivos source-controlled
+
+**Vigência:** permanente, a partir de 2026-04-30
+**Origem:** P1 incidente Manus 0f53dd0 (commit direto em main local)
+**Severidade:** governança crítica — equiparada à REGRA-HOTFIX-1/3 (Gate 0 + backup)
+
+### Regra
+
+Toda alteração em arquivos rastreados pelo git (`server/`, `client/`, `docs/`,
+`.github/`, `drizzle/`, qualquer caminho versionado) segue fluxo obrigatório:
+
+  branch → edit → commit → push → PR → CI → review → merge
+
+Commits diretos em `main` local (mesmo sem `push`) são proibidos. Mesmo que
+o working tree não vá para `origin/main`, o ato de commitar em main local
+cria estado divergente difícil de auditar e foi causa raiz documentada
+do incidente P1 0f53dd0 em 2026-04-30.
+
+### Aplicação obrigatória
+
+1. Anti-contamination procedure SEMPRE inclui `git checkout -B <branch>`
+   ANTES de qualquer edit.
+
+2. Edit em main local descoberto = remediar via:
+   - `git reset --soft origin/main`
+   - `git checkout -B <branch-nova>`
+   - Re-commit + push + PR
+
+3. Hooks pre-commit recomendados para bloquear commits em main local
+   (não obrigatório enquanto disciplina manual funcionar).
+
+### Validação
+
+Procedimento de auditoria pré-push:
+- `git rev-parse HEAD` ≠ `git rev-parse origin/main` (deve estar em branch)
+- `git branch --show-current` ≠ `main` nem `master`
+
+### Não-bloqueia
+
+Commits em outras branches locais (feature/fix/chore/etc.) sem push imediato
+são permitidos — só `main` local é proibido.
+
+### Vinculadas
+
+- REGRA-ORQ-25 (anti-drift SHA Manus.space) — em formalização futura
+- REGRA-HOTFIX-1 a 5 (Gate 0 + backup + 3h SLA)
+- REGRA-ORQ-12 SPRINT_FAST_TRACK
+
+**Caso concreto referenciado:**
+PR #877 (`chore/spec-ci-isolation-camada5`, commit 408025e) é o exemplo
+canônico de remediação correta após violação: soft reset para `origin/main`,
+branch nova, stage seletivo, commit + push + PR. Manter como case de estudo
+em `docs/governance/SPEC-PROCESS-v2.md` se houver futura compilação narrativa.
