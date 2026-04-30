@@ -79,8 +79,25 @@ export function isM1ArchetypeEnabled(
   userRole: string,
   projectId?: number,
 ): boolean {
-  // Ambiente de teste E2E — sempre ativo
-  if (process.env.E2E_TEST_MODE === "true") return true;
+  // PR defesa em profundidade (P.O. 2026-04-30): E2E_TEST_MODE só vale fora de prod.
+  // Detecta produção por NODE_ENV ou hostname canonico do deploy ativo.
+  // Bug histórico: bypass ativo em prod desde commit 639937d (2026-04-24)
+  // permitiu que isM2PerfilEntidadeEnabled retornasse true para qualquer role.
+  // Detectado em smoke R3-A Cenário 5 (Issue #874).
+  if (process.env.E2E_TEST_MODE === "true") {
+    const databaseUrl = process.env.DATABASE_URL ?? "";
+    const isProd =
+      process.env.NODE_ENV === "production" ||
+      databaseUrl.includes("iasolaris.manus.space");
+    if (isProd) {
+      console.warn(
+        "[SECURITY] E2E_TEST_MODE=true ignored in production env (potential misconfig)",
+      );
+      // continua para checks normais — NÃO retorna true
+    } else {
+      return true;
+    }
+  }
 
   // Usuários internos (equipe_solaris e advogado_senior) — sempre ativo
   const INTERNAL_ROLES = ["equipe_solaris", "advogado_senior"];
@@ -122,8 +139,25 @@ export function isM2PerfilEntidadeEnabled(ctx: {
   if (process.env.M2_PERFIL_ENTIDADE_ENABLED === "false") return false;
   if (process.env.M2_PERFIL_ENTIDADE_ENABLED === "true") return true;
 
-  // Ambiente de teste E2E — sempre ativo (paridade com isM1ArchetypeEnabled)
-  if (process.env.E2E_TEST_MODE === "true") return true;
+  // PR defesa em profundidade (P.O. 2026-04-30): E2E_TEST_MODE só vale fora de prod.
+  // Detecta produção por NODE_ENV ou hostname canonico do deploy ativo.
+  // Bug histórico: bypass ativo em prod desde commit 639937d (2026-04-24)
+  // permitiu que isM2PerfilEntidadeEnabled retornasse true para qualquer role.
+  // Detectado em smoke R3-A Cenário 5 (Issue #874).
+  if (process.env.E2E_TEST_MODE === "true") {
+    const databaseUrl = process.env.DATABASE_URL ?? "";
+    const isProd =
+      process.env.NODE_ENV === "production" ||
+      databaseUrl.includes("iasolaris.manus.space");
+    if (isProd) {
+      console.warn(
+        "[SECURITY] E2E_TEST_MODE=true ignored in production env (potential misconfig)",
+      );
+      // continua para checks normais — NÃO retorna true
+    } else {
+      return true;
+    }
+  }
 
   // Usuários internos — opt-in via env adicional (rollout step 3)
   const INTERNAL_ROLES = ["equipe_solaris", "advogado_senior"];
