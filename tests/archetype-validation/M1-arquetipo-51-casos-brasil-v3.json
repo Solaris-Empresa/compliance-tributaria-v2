@@ -3207,6 +3207,62 @@
         "tipo_territorio_incentivado": [],
         "user_confirmed": true
       }
+    },
+    {
+      "id": "S60",
+      "macro_setor": "servicos",
+      "scenario_name": "Banco varejo SEM NBS (PR-FIN-OBJETO-V2)",
+      "seed_data": {
+        "descricao_negocio_livre": "banco varejo BCB-regulado, cliente nao classifica por NBS",
+        "natureza_operacao_principal": [
+          "Financeiro"
+        ],
+        "operacoes_secundarias": [],
+        "fontes_receita": [
+          "Prestacao de servico"
+        ],
+        "tipo_objeto_economico": [
+          "Servicos"
+        ],
+        "posicao_na_cadeia_economica": "Operadora",
+        "cnae_principal_confirmado": "6422-1/00",
+        "nbss_principais": [],
+        "abrangencia_operacional": [
+          "Nacional"
+        ],
+        "opera_multiplos_estados": true,
+        "uf_principal_operacao": "SP",
+        "possui_filial_outra_uf": false,
+        "regime_tributario_atual": "Lucro Real",
+        "porte_empresa": "Grande",
+        "setor_regulado": true,
+        "orgao_regulador_principal": [
+          "BCB"
+        ],
+        "subnatureza_setorial": [
+          "financeiro"
+        ],
+        "tipo_operacao_especifica": [
+          "Operacoes bancarias"
+        ],
+        "papel_operacional_especifico": [
+          "Operadora"
+        ],
+        "atua_importacao": false,
+        "atua_exportacao": false,
+        "opera_territorio_incentivado": false,
+        "possui_regime_especial_negocio": true,
+        "tipo_regime_especial": [
+          "Financeiro"
+        ],
+        "integra_grupo_economico": false,
+        "analise_1_cnpj_operacional": true,
+        "nivel_analise": "CNPJ operacional unico",
+        "ncms_principais": [],
+        "papel_comercio_exterior": [],
+        "tipo_territorio_incentivado": [],
+        "user_confirmed": true
+      }
     }
   ]
 }
