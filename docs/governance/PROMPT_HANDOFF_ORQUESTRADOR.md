@@ -115,7 +115,7 @@ FASE 6 — Implementação (somente após F1+F2+F3+F4+F5+F5.5)
 
 ---
 
-## REGRAS ORQ ATIVAS (16 total — ORQ-00 a ORQ-15)
+## REGRAS ORQ ATIVAS (18 total — ORQ-00 a ORQ-26)
 
 ```
 ORQ-00: Ler RN_GERACAO_RISCOS_V4.md e RN_PLANOS_TAREFAS_V4.md
@@ -147,6 +147,15 @@ ORQ-15 ADENDO: risk_level obrigatório em inglês:
   "low"    — não "baixo"
   "medium" — não "médio"
   "high"   — não "alto"
+
+ORQ-25: Anti-drift SHA — nunca commitar direto em main local
+        sem push. Verificar SHA github/main antes de criar branch.
+        (formalizada em PR #879, 2026-04-30)
+
+ORQ-26: Branch obrigatória para qualquer mudança source-controlled.
+        Fluxo: branch → commit → push → PR → CI → review → merge.
+        Sem exceções, mesmo para docs-only.
+        (formalizada em PR #878, 2026-04-30)
 ```
 
 ---
@@ -257,6 +266,89 @@ Se você não souber o estado atual do projeto:
 
 5. NÃO assumir nada. NÃO agir sem contexto.
    Preferir perguntar a agir errado.
+```
+
+---
+
+## Sessão 2026-04-30 — Smoke R3-A + Hotfix retroativo + 2 regras + Bypass remediado
+
+### PRs mergeados
+
+```
+#871  PR-E fontes_receita (V-LC-102 fix)
+#872  hotfix retroativo enum + archetype + migration .sql
+#876  defense-in-depth E2E_TEST_MODE guard
+#877  SPEC isolamento CI Camada 5 (escala real Classe C)
+#878  REGRA-ORQ-26 branch obrigatória
+#879  REGRA-ORQ-25 anti-drift Manus.space SHA
+#880  PR-F BUG-4 financeiro V-LC-607 (Claude Code)
+#881  PR-G PC-04 backlog M3 + cancelamento (Claude Code)
+```
+
+### Smoke R3-A 5/5 PASS prod
+
+```
+Cenário 1: SOJA agronegocio — PASS
+Cenário 2: TRANSPORTADORA servicos — PASS
+Cenário 3: NCM truncado (gate funcional OK) — PASS
+Cenário 4: NBS em campo NCM (gate funcional OK) — PASS
+Cenário 5: regressão user comum — PASS (dev + parcial prod)
+```
+
+### Achados críticos resolvidos
+
+```
+- 3 bugs adapter consecutivos: BUG-1 posicaoCadeia, BUG-2 taxRegime, BUG-3 fontes_receita
+- BUG-SCHEMA enum status sem perfil_entidade_confirmado (hotfix retroativo #872)
+- E2E_TEST_MODE=true em prod bypassava feature flags M1+M2
+  (Issue #874, removido + defense-in-depth #876)
+- CI rodando contra DB prod (Issue #873 + cleanup retroativo Issue #875)
+- BUG-4 financeiro V-LC-607 (PR #880 — Claude Code)
+```
+
+### Diagnóstico exposição bypass (Manus 2026-04-30)
+
+```
+Janela: 2026-04-24 (commit 639937d) → 2026-04-30 ~15:30Z (~6 dias)
+E1 archetypes confirmados por users não-internos: 0
+E2 projetos criados na janela: 406
+E3 archetypes ativos atualmente: 0
+Impacto real: ZERO — bypass nunca exercido por users externos
+```
+
+### Pendente sessão futura
+
+```
+- Smoke financeiro pós-PR-F (plano em /tmp/PLANO_SMOKE_FINANCEIRO.md)
+- Step 4 GO efetivo (rollout flag global) pós-smoke financeiro
+- PR-G PC-04 tela branca (backlog M3 — Classe C com SPEC formal)
+  → docs/governance/BACKLOG_M3.md registra pré-requisitos
+- Issue #873 fix CI prod isolation (sprint dedicada)
+- Issue #875 cleanup retroativo 268+15.908 sintéticos (pós-#873)
+- cpie_analysis_history migration conflict (pré próximo PR schema)
+- Drift Manus.space arquitetural (REGRA-ORQ-25 mitiga, fix M3)
+```
+
+### Estado DB pós-sessão
+
+```
+projects: 536 (era 471 — +65 CI bursts contínuos, Issue #873)
+users: 16.367 (15.908 sintéticos CI + ~459 reais)
+ragDocuments: 2.515 (intacto)
+archetype confirmados: 0 (cleanup smoke OK)
+main HEAD: 9ef3244
+```
+
+### Lições arquiteturais acumuladas (sessão 2026-04-30)
+
+```
+32. E2E_TEST_MODE em prod é vetor de bypass — sempre guardar com NODE_ENV check
+33. Feature flags devem ter defense-in-depth: env var + role check + prod guard
+34. CI escrevendo em DB prod é dívida técnica Classe B — isolar antes de escalar
+35. Cleanup retroativo em escala (15k+ rows) requer DRY-RUN + backup TiDB
+36. Smoke tests devem cobrir caso negativo (user sem permissão) além de positivos
+37. Commits diretos em main local causam drift — branch obrigatória sem exceção
+38. Validação NCM/NBS via throw TRPCError causa UX tela branca — preferir blockers
 ```
 
 ---
