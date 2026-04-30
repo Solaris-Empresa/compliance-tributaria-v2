@@ -472,3 +472,207 @@ describe("PR-D — buildSeedFromProject mapeia legacy → Seed corretamente", ()
     expect(seed.tipo_objeto_economico).toContain("Bens/mercadorias");
   });
 });
+
+// ─── PR-E fix — fontes_receita derivado de naturezaFromLegacy (V-LC-102) ──
+
+describe("PR-E — fontes_receita derivado de naturezaFromLegacy via NATUREZA_TO_FONTES", () => {
+  let buildSeedFromProject: typeof import("./routers/perfil").buildSeedFromProject;
+
+  beforeEach(async () => {
+    const mod = await import("./routers/perfil");
+    buildSeedFromProject = mod.buildSeedFromProject;
+  });
+
+  it("T40: agronegocio gera fontes_receita=['Producao propria']", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_presumido" },
+      operationProfile: { operationType: "agronegocio" },
+      confirmedCnaes: [{ code: "0115-6/00" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.fontes_receita).toEqual(["Producao propria"]);
+  });
+
+  it("T41: industria gera fontes_receita=['Producao propria']", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: { operationType: "industria" },
+      confirmedCnaes: [{ code: "1091-1/01" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.fontes_receita).toEqual(["Producao propria"]);
+  });
+
+  it("T42: comercio gera fontes_receita=['Venda de mercadoria']", () => {
+    const project = {
+      companyProfile: { taxRegime: "simples_nacional" },
+      operationProfile: { operationType: "comercio" },
+      confirmedCnaes: [{ code: "4711-3/02" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.fontes_receita).toEqual(["Venda de mercadoria"]);
+  });
+
+  it("T43: servicos gera fontes_receita=['Prestacao de servico']", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_presumido" },
+      operationProfile: { operationType: "servicos" },
+      confirmedCnaes: [{ code: "6201-5/01" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.fontes_receita).toEqual(["Prestacao de servico"]);
+  });
+
+  it("T44: misto gera fontes_receita=['Venda de mercadoria','Prestacao de servico']", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: { operationType: "misto" },
+      confirmedCnaes: [{ code: "4711-3/02" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.fontes_receita).toEqual(
+      expect.arrayContaining(["Venda de mercadoria", "Prestacao de servico"]),
+    );
+    expect(seed.fontes_receita).toHaveLength(2);
+  });
+
+  it("T45: financeiro gera fontes_receita=['Prestacao de servico']", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: { operationType: "financeiro" },
+      confirmedCnaes: [{ code: "6422-1/00" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.fontes_receita).toEqual(["Prestacao de servico"]);
+  });
+});
+
+// ─── PR-E fix — fluxo completo adapter→engine→tipo_de_relacao ─────────────
+
+describe("PR-E — fluxo completo: projects row → buildSeedFromProject → buildSnapshot", () => {
+  let buildSeedFromProject: typeof import("./routers/perfil").buildSeedFromProject;
+  let buildSnapshot: typeof import("./lib/archetype/buildSnapshot").buildSnapshot;
+  const FIXED_DV = "2026-04-24T12:00:00.000Z";
+
+  beforeEach(async () => {
+    const mod = await import("./routers/perfil");
+    buildSeedFromProject = mod.buildSeedFromProject;
+    const snap = await import("./lib/archetype/buildSnapshot");
+    buildSnapshot = snap.buildSnapshot;
+  });
+
+  it("T46: agronegocio + lucro_presumido → tipo_de_relacao contém 'producao', V-LC-102 NÃO dispara", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_presumido", companySize: "Grande" },
+      operationProfile: {
+        operationType: "agronegocio",
+        principaisProdutos: [{ ncm_code: "1201.90.00" }],
+      },
+      confirmedCnaes: [{ code: "0115-6/00" }],
+    };
+    const seed = buildSeedFromProject(project);
+    const out = buildSnapshot(seed, FIXED_DV);
+
+    expect(out.perfil.tipo_de_relacao).toContain("producao");
+    expect(out.perfil.papel_na_cadeia).toBe("fabricante");
+    const vlc102 = out.blockers_triggered.find((b) => b.id === "V-LC-102");
+    expect(vlc102).toBeUndefined();
+  });
+
+  it("T47: industria + lucro_real → tipo_de_relacao contém 'producao', papel='fabricante'", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: {
+        operationType: "industria",
+        principaisProdutos: [{ ncm_code: "1901.20.00" }],
+      },
+      confirmedCnaes: [{ code: "1091-1/01" }],
+    };
+    const seed = buildSeedFromProject(project);
+    const out = buildSnapshot(seed, FIXED_DV);
+
+    expect(out.perfil.tipo_de_relacao).toContain("producao");
+    expect(out.perfil.papel_na_cadeia).toBe("fabricante");
+    expect(
+      out.blockers_triggered.find((b) => b.id === "V-LC-102"),
+    ).toBeUndefined();
+  });
+
+  it("T48: comercio + simples_nacional → tipo_de_relacao=['venda'], papel='distribuidor'", () => {
+    const project = {
+      companyProfile: { taxRegime: "simples_nacional" },
+      operationProfile: {
+        operationType: "comercio",
+        principaisProdutos: [{ ncm_code: "1901.20.00" }],
+      },
+      confirmedCnaes: [{ code: "4711-3/02" }],
+    };
+    const seed = buildSeedFromProject(project);
+    const out = buildSnapshot(seed, FIXED_DV);
+
+    expect(out.perfil.tipo_de_relacao).toContain("venda");
+    expect(out.perfil.papel_na_cadeia).toBe("distribuidor");
+    expect(
+      out.blockers_triggered.find((b) => b.id === "V-LC-102"),
+    ).toBeUndefined();
+  });
+
+  it("T49: servicos + lucro_presumido + NBS → tipo_de_relacao=['servico'], papel='prestador'", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_presumido" },
+      operationProfile: {
+        operationType: "servicos",
+        principaisServicos: [{ nbs_code: "1.1310.10.00" }],
+      },
+      confirmedCnaes: [{ code: "6201-5/01" }],
+    };
+    const seed = buildSeedFromProject(project);
+    const out = buildSnapshot(seed, FIXED_DV);
+
+    expect(out.perfil.tipo_de_relacao).toContain("servico");
+    expect(out.perfil.papel_na_cadeia).toBe("prestador");
+    expect(
+      out.blockers_triggered.find((b) => b.id === "V-LC-102"),
+    ).toBeUndefined();
+  });
+
+  it("T50: misto + lucro_presumido → tipo_de_relacao contém 'venda' e 'servico'", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_presumido" },
+      operationProfile: {
+        operationType: "misto",
+        principaisProdutos: [{ ncm_code: "1901.20.00" }],
+        principaisServicos: [{ nbs_code: "1.1310.10.00" }],
+      },
+      confirmedCnaes: [{ code: "4711-3/02" }],
+    };
+    const seed = buildSeedFromProject(project);
+    const out = buildSnapshot(seed, FIXED_DV);
+
+    expect(out.perfil.tipo_de_relacao).toEqual(
+      expect.arrayContaining(["venda", "servico"]),
+    );
+    expect(
+      out.blockers_triggered.find((b) => b.id === "V-LC-102"),
+    ).toBeUndefined();
+  });
+
+  it("T51: financeiro + lucro_real → tipo_de_relacao=['servico'], papel='operadora_regulada'", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: {
+        operationType: "financeiro",
+        principaisServicos: [{ nbs_code: "1.1310.10.00" }],
+      },
+      confirmedCnaes: [{ code: "6422-1/00" }],
+    };
+    const seed = buildSeedFromProject(project);
+    const out = buildSnapshot(seed, FIXED_DV);
+
+    expect(out.perfil.tipo_de_relacao).toContain("servico");
+    expect(out.perfil.papel_na_cadeia).toBe("operadora_regulada");
+    expect(
+      out.blockers_triggered.find((b) => b.id === "V-LC-102"),
+    ).toBeUndefined();
+  });
+});

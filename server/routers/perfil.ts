@@ -147,10 +147,28 @@ export function buildSeedFromProject(project: Record<string, unknown>): Seed {
   };
   const taxRegime = TAX_REGIME_ALIASES[taxRegimeRaw] ?? taxRegimeRaw;
 
+  // PR-E BUG-3 fix: fontes_receita estava hardcoded [] em PR-A.
+  // Engine FONTE_RECEITA_TO_RELACAO (buildPerfilEntidade.ts:149-158) deriva
+  // tipo_de_relacao a partir desses valores. Array vazio → tipo_de_relacao=[]
+  // → V-LC-102 dispara quando papel=fabricante (regra de coerência).
+  // Mapping idêntico ao NATUREZA_TO_FONTES de routers-m1-monitor.ts:226-233.
+  // PR-F backlog: extrair seedNormalizers.ts compartilhado.
+  const NATUREZA_TO_FONTES: Record<string, string> = {
+    "Produção própria": "Producao propria",
+    "Comércio": "Venda de mercadoria",
+    "Prestação de serviço": "Prestacao de servico",
+    "Transporte": "Prestacao de servico",
+    "Intermediação": "Comissao/intermediacao",
+    "Locação": "Aluguel/locacao",
+  };
+  const fontesReceitaFromLegacy = naturezaFromLegacy
+    .map((n) => NATUREZA_TO_FONTES[n])
+    .filter((v): v is string => v !== undefined);
+
   return {
     natureza_operacao_principal: naturezaFromLegacy,
     operacoes_secundarias: [],
-    fontes_receita: [],
+    fontes_receita: fontesReceitaFromLegacy,
     tipo_objeto_economico: deriveTipoObjetoEconomico(naturezaFromLegacy),
     posicao_na_cadeia_economica: posicaoCadeia,
     cnae_principal_confirmado: confirmedCnaes[0],
