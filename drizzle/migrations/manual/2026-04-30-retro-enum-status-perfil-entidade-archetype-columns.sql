@@ -32,8 +32,14 @@ ALTER TABLE `projects`
   ADD COLUMN IF NOT EXISTS `archetypeConfirmedBy` INT DEFAULT NULL;
 
 -- 2. Enum status com perfil_entidade_confirmado (aplicado manualmente 2026-04-30)
---    NOTA: MODIFY COLUMN não suporta IF NOT EXISTS — é idempotente por natureza
---    (re-executar com mesma definição não causa efeito colateral).
+--
+-- IMPORTANTE: MODIFY COLUMN substitui definição inteira do enum.
+-- NÃO é idempotente para enum values fora desta lista — qualquer valor
+-- existente no enum que não esteja listado abaixo será REMOVIDO.
+-- Esta lista reflete schema TS canônico em commit 98a5ea5 (github/main)
+-- validado por snapshot SHA256 538148b97f5c0be84c5a57a9f1a0087f5ce4bdcd94c08d7bcff7b60df5bd26fd
+-- Risco real: baixo — schema TS é fonte canônica e snapshot confirma exatamente
+-- os 24 valores listados abaixo.
 ALTER TABLE `projects`
   MODIFY COLUMN `status` ENUM(
     'rascunho',
