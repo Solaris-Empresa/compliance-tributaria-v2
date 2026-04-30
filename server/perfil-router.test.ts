@@ -777,3 +777,82 @@ describe("PR-F — BUG-4 financeiro V-LC-607 fix", () => {
     }
   });
 });
+
+// ─── PR-FIN-NBS — isenção NBS_REQUIRED para setor financeiro ──────────────
+
+describe("PR-FIN-NBS — isenção NBS para financeiro (LC 214/2025 BCB)", () => {
+  let validateM1Seed: typeof import("./lib/archetype/validateM1Input").validateM1Seed;
+
+  beforeEach(async () => {
+    const mod = await import("./lib/archetype/validateM1Input");
+    validateM1Seed = mod.validateM1Seed;
+  });
+
+  it("T62: financeiro (setor_regulado=true + subnatureza=['financeiro']) sem NBS → não dispara NBS_REQUIRED", () => {
+    expect(() =>
+      validateM1Seed({
+        cnae_principal_confirmado: "6422-1/00",
+        natureza_operacao_principal: ["Prestação de serviço"],
+        ncms_principais: [],
+        nbss_principais: [],
+        setor_regulado: true,
+        subnatureza_setorial: ["financeiro"],
+      }),
+    ).not.toThrow();
+  });
+
+  it("T63: serviço genérico (setor_regulado=false) sem NBS → continua disparando NBS_REQUIRED (regressão preservada)", () => {
+    expect(() =>
+      validateM1Seed({
+        cnae_principal_confirmado: "6201-5/01",
+        natureza_operacao_principal: ["Prestação de serviço"],
+        ncms_principais: [],
+        nbss_principais: [],
+        setor_regulado: false,
+        subnatureza_setorial: [],
+      }),
+    ).toThrow(/NBS_REQUIRED/);
+  });
+
+  it("T64: financeiro COM NBS válido → aceita normalmente (formato ainda validado)", () => {
+    expect(() =>
+      validateM1Seed({
+        cnae_principal_confirmado: "6422-1/00",
+        natureza_operacao_principal: ["Prestação de serviço"],
+        ncms_principais: [],
+        nbss_principais: ["1.0301.10.00"],
+        setor_regulado: true,
+        subnatureza_setorial: ["financeiro"],
+      }),
+    ).not.toThrow();
+  });
+
+  it("T65: financeiro COM NBS formato inválido → ainda valida formato (NBS_INVALID_FORMAT)", () => {
+    // Mesmo isento de NBS_REQUIRED, formato lixo é rejeitado para evitar
+    // persistência de valores inválidos.
+    expect(() =>
+      validateM1Seed({
+        cnae_principal_confirmado: "6422-1/00",
+        natureza_operacao_principal: ["Prestação de serviço"],
+        ncms_principais: [],
+        nbss_principais: ["NBS_LIXO_FORMAT"],
+        setor_regulado: true,
+        subnatureza_setorial: ["financeiro"],
+      }),
+    ).toThrow(/NBS_INVALID_FORMAT/);
+  });
+
+  it("T66: caller legado sem setor_regulado/subnatureza (m1-monitor) → comportamento inalterado (NBS_REQUIRED dispara)", () => {
+    // M1SeedInput tem campos opcionais; callers antigos não passam → guard
+    // isFinanceiro=false → NBS_REQUIRED comportamento anterior preservado.
+    expect(() =>
+      validateM1Seed({
+        cnae_principal_confirmado: "6201-5/01",
+        natureza_operacao_principal: ["Prestação de serviço"],
+        ncms_principais: [],
+        nbss_principais: [],
+        // setor_regulado e subnatureza_setorial OMITIDOS (caller legado)
+      }),
+    ).toThrow(/NBS_REQUIRED/);
+  });
+});
