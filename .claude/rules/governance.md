@@ -523,6 +523,51 @@ para confirmar o próximo número livre. A primeira versão deste append
 colidindo com ORQ-19 e ORQ-20 já existentes. Correção via force-push
 renumerou para ORQ-21 a ORQ-24.
 
+## REGRA-ORQ-25 — Anti-drift SHA Manus.space sandbox
+
+**Vigência:** permanente, a partir de 2026-04-30
+**Origem:** 6+ incidentes de drift documentados em sessão R3-A SOJA + smoke
+**Severidade:** governança crítica — auditoria comprometida
+
+### Regra
+
+Manus.space mantém checkpoints internos (S3 IDs como `597552e2`, `e1ffc00`,
+`8e49abe8`, `f44fea1b`) que NÃO existem como commits git válidos. Esses
+identificadores não devem ser confundidos com SHAs git ou serem usados
+como referência de auditoria source-controlled.
+
+### Aplicação
+
+1. Reportes de SHA pós-deploy/merge devem incluir AMBOS:
+   - SHA git real (`git rev-parse origin/main` ou similar)
+   - Checkpoint Manus.space (S3 ID, se houver)
+
+   Formato: `git=10b1a24 / checkpoint=f44fea1b`
+
+2. Validação cruzada obrigatória pré-merge:
+   - `git cat-file -t <SHA>` deve retornar `commit`
+   - Se retorna `fatal: Not a valid object name` → SHA é fictício/checkpoint
+
+3. Reportes que mencionam apenas checkpoint Manus.space (sem git SHA) devem
+   ser rejeitados ou esclarecidos antes de qualquer decisão downstream.
+
+4. Drift estrutural Manus.space (cherry-pick em sandbox vs pull origin/main)
+   é backlog M3 — esta regra mitiga sintomas até fix arquitetural.
+
+### Histórico de incidentes
+
+- 2026-04-29: hotfix-P0 #869 reportou checkpoint sandbox
+- 2026-04-30: smoke SOJA SHA `e1ffc00` + checkpoint `8e49abe8` (não-git)
+- 2026-04-30: PR #872 reportou `597552e2` (não-git)
+- 2026-04-30: PR #876 reportou `f44fea1b` (não-git)
+- (e outros)
+
+### Vinculadas
+
+- REGRA-ORQ-26 (branch obrigatória source-controlled)
+- REGRA-HOTFIX-1 a 5
+- Backlog M3: drift arquitetural Manus.space (fix definitivo)
+
 ## REGRA-ORQ-26 — Branch obrigatória para arquivos source-controlled
 
 **Vigência:** permanente, a partir de 2026-04-30
