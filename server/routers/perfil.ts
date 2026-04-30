@@ -185,9 +185,17 @@ export function buildSeedFromProject(project: Record<string, unknown>): Seed {
     possui_regime_especial_negocio: false,
     tipo_regime_especial: [],
     porte_empresa: (cp.companySize as string) ?? "Medio",
-    setor_regulado: false,
-    orgao_regulador_principal: [],
-    subnatureza_setorial: [],
+    // PR-F BUG-4 fix: operationType=financeiro implica setor regulado pelo BCB.
+    // Sem isso, V-LC-607 dispara HARD_BLOCK (regulado_sem_orgao) para clientes
+    // financeiros pós-rollout step 4. Mantém defaults para outros operationTypes.
+    // Refs: routers-m1-monitor.ts (mesmo padrão para casos regulados).
+    // Decisão P.O. 2026-04-30: BCB nomenclatura oficial (Banco Central mudou de
+    // BACEN para BCB em 2020). Subnaturezas granulares (CVM/SUSEP) são spec M3.
+    setor_regulado: operationType === "financeiro",
+    orgao_regulador_principal:
+      operationType === "financeiro" ? ["BCB"] : [],
+    subnatureza_setorial:
+      operationType === "financeiro" ? ["financeiro"] : [],
     tipo_operacao_especifica: [],
     papel_operacional_especifico: [],
     integra_grupo_economico: Boolean(cp.isEconomicGroup),

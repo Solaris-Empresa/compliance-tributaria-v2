@@ -676,3 +676,104 @@ describe("PR-E — fluxo completo: projects row → buildSeedFromProject → bui
     ).toBeUndefined();
   });
 });
+
+// ─── PR-F fix — financeiro setor_regulado/subnatureza/orgao (V-LC-607) ────
+
+describe("PR-F — BUG-4 financeiro V-LC-607 fix", () => {
+  let buildSeedFromProject: typeof import("./routers/perfil").buildSeedFromProject;
+  let buildSnapshot: typeof import("./lib/archetype/buildSnapshot").buildSnapshot;
+  const FIXED_DV = "2026-04-24T12:00:00.000Z";
+
+  beforeEach(async () => {
+    const mod = await import("./routers/perfil");
+    buildSeedFromProject = mod.buildSeedFromProject;
+    const snap = await import("./lib/archetype/buildSnapshot");
+    buildSnapshot = snap.buildSnapshot;
+  });
+
+  it("T52: financeiro → setor_regulado=true", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: { operationType: "financeiro" },
+      confirmedCnaes: [{ code: "6422-1/00" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.setor_regulado).toBe(true);
+  });
+
+  it("T53: financeiro → subnatureza_setorial=['financeiro']", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: { operationType: "financeiro" },
+      confirmedCnaes: [{ code: "6422-1/00" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.subnatureza_setorial).toEqual(["financeiro"]);
+  });
+
+  it("T54: financeiro → orgao_regulador_principal=['BCB']", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: { operationType: "financeiro" },
+      confirmedCnaes: [{ code: "6422-1/00" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.orgao_regulador_principal).toEqual(["BCB"]);
+  });
+
+  it("T55: fluxo completo financeiro → papel='operadora_regulada', V-LC-607 NÃO dispara", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real", companySize: "Grande" },
+      operationProfile: {
+        operationType: "financeiro",
+        principaisServicos: [{ nbs_code: "1.1310.10.00" }],
+      },
+      confirmedCnaes: [{ code: "6422-1/00" }],
+    };
+    const seed = buildSeedFromProject(project);
+    const out = buildSnapshot(seed, FIXED_DV);
+
+    expect(out.perfil.papel_na_cadeia).toBe("operadora_regulada");
+    expect(
+      out.blockers_triggered.find((b) => b.id === "V-LC-607"),
+    ).toBeUndefined();
+    // missing_required_fields não deve listar subnatureza/orgao para operadora_regulada
+    expect(
+      out.missing_required_fields.find((f) =>
+        f.includes("subnatureza_setorial"),
+      ),
+    ).toBeUndefined();
+    expect(
+      out.missing_required_fields.find((f) =>
+        f.includes("orgao_regulador_principal"),
+      ),
+    ).toBeUndefined();
+  });
+
+  it("T56: regressão — industria continua setor_regulado=false", () => {
+    const project = {
+      companyProfile: { taxRegime: "lucro_real" },
+      operationProfile: { operationType: "industria" },
+      confirmedCnaes: [{ code: "1091-1/01" }],
+    };
+    const seed = buildSeedFromProject(project);
+    expect(seed.setor_regulado).toBe(false);
+    expect(seed.subnatureza_setorial).toEqual([]);
+    expect(seed.orgao_regulador_principal).toEqual([]);
+  });
+
+  it("T57: regressão — agronegocio/comercio/servicos/misto continuam setor_regulado=false", () => {
+    const operationTypes = ["agronegocio", "comercio", "servicos", "misto"] as const;
+    for (const op of operationTypes) {
+      const project = {
+        companyProfile: { taxRegime: "lucro_real" },
+        operationProfile: { operationType: op },
+        confirmedCnaes: [{ code: "0115-6/00" }],
+      };
+      const seed = buildSeedFromProject(project);
+      expect(seed.setor_regulado).toBe(false);
+      expect(seed.subnatureza_setorial).toEqual([]);
+      expect(seed.orgao_regulador_principal).toEqual([]);
+    }
+  });
+});
