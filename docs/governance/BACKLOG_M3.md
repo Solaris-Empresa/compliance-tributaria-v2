@@ -94,6 +94,110 @@ Backlog estruturado de itens identificados em sessões anteriores que requerem s
 
 ---
 
+## PR-H — Fix 3 bugs latentes ALTOS adapter buildSeedFromProject
+
+**Severidade:** Qualidade (não bloqueador funcional)
+**Detectado:** Auditoria T4 paralela 2026-04-30 (Claude Code)
+**Bugs cobertos:**
+- BUG-5: `abrangencia_operacional` hardcoded `["Nacional"]` (afeta empresas regionais/UF única)
+- BUG-6: `atua_importacao` hardcoded `false` (afeta importadores CNAE 4632/4623)
+- BUG-7: `atua_exportacao` hardcoded `false` (afeta exportadores CNAE 4632/4623)
+
+**Classificação:** Classe C (>500 LOC com decisão de produto, ~10-13h)
+**Decisão P.O. 2026-04-30:** sprint M3 dedicada (não pré-step 4)
+
+### Justificativa do adiamento
+
+Engine produz fallback gracioso (não crash, não HARD_BLOCK). Smoke R3-A 5/5 PASS validou path principal. Fix completo requer decisão de produto (UX form vs whitelist CNAE), não fix puro adapter como BUG-1/2/3/4 anteriores. Step 4 não bloqueado.
+
+### Decisão de produto necessária pré-implementação
+
+| Opção | Trade-off |
+|---|---|
+| Adicionar perguntas no form M2 (UF atendimento + atua import/export) | UX change, mais preciso, ~13h |
+| Whitelist CNAE para import/export (4632, 4623, etc.) | Fix puro adapter, ~6h, heurística pode errar |
+| Híbrido: form + whitelist como fallback | ~10h, mais robusto |
+
+P.O. decide pré-implementação.
+
+### Pré-requisitos para implementação
+
+1. **SPEC formal source-controlled:** `docs/governance/SPEC_PR_H_BUGS_LATENTES.md`
+   - Decisão de produto formalizada
+   - Engine compatibility com novos campos
+   - Estratégia de migração de projetos existentes (com `abrangencia_operacional=["Nacional"]` legacy)
+   - Form schema update (se Opção 1 ou 3)
+2. Crítica SPEC em 3 níveis (REGRA-ORQ-22)
+3. ADR registrado (REGRA-ORQ-24 Classe C)
+
+### Escopo técnico (preliminar — sujeito a SPEC formal)
+
+| Arquivo | Mudança | LOC estimado |
+|---|---|---|
+| `server/routers/perfil.ts` (`buildSeedFromProject`) | Mapeamento campos | ~30 |
+| `server/routers-m1-monitor.ts` (caller) | Atualização | ~20 |
+| `client/src/pages/PerfilEmpresaIntelligente.tsx` (form) | Novos campos UF + import/export (se Opção 1) | ~80 |
+| `drizzle/schema.ts` | Novos campos `companyProfile.uf_atendimento`, `operationProfile.atua_importacao/exportacao` | ~15 |
+| Migration | Schema update + backfill | ~30 |
+| `server/perfil-router.test.ts` | T62-T70 (3 bugs × 3 cenários) | ~120 |
+| Tests engine | Cobertura completa território + import/export | ~80 |
+| **Total estimado** | **7 arquivos** | **~375 LOC + decisão produto** |
+
+### Não bloqueia
+
+- Step 4 efetivo (rollout flag global M2)
+- PR-G PC-04 (já adiado para M3 também)
+
+---
+
+## PR-I — Fix campos médios (regime especial + ZFM)
+
+**Severidade:** Qualidade (casos edge)
+**Bugs cobertos:**
+- `opera_territorio_incentivado` (ZFM, ZPE, áreas incentivadas)
+- `tipo_territorio_incentivado` (dependente)
+- `possui_regime_especial_negocio` (deriveRegime casos especiais)
+- `tipo_regime_especial` (dependente)
+- `papel_comercio_exterior` (dependente de PR-H)
+
+**Classificação:** Classe B (~4h)
+**Sprint:** M3 pós-PR-H
+
+---
+
+## PR-J — Refactor arquitetural seedNormalizers compartilhado
+
+**Severidade:** Estrutural — endereça lição arquitetural #32
+**Objetivo:** extrair `seedNormalizers.ts` compartilhado entre `routers/perfil.ts` e `routers-m1-monitor.ts`
+
+Hoje os dois caminhos duplicam lógica de normalização (PR-D fixou m1-monitor, PR-A escreveu perfil-router separadamente, sequência de bugs em adapter resultou). Refactor estrutural elimina classe inteira de bugs futuros.
+
+**Classificação:** Classe A-B (~3h)
+**Sprint:** M3 pós-PR-H/PR-I
+
+---
+
+## Smoke regressivo M3 — Cenários 8-10
+
+Após PR-H + PR-I + PR-J mergeados, adicionar ao smoke:
+
+| # | Cenário | Setor/Caso | CNAE de referência |
+|---|---|---|---|
+| 8 | Importador | comércio importador | 4632-0/01 (atacado de gêneros alim. importados) |
+| 9 | Exportador | comércio exportador | 4623-1/06 (atacado exportador agrícola) |
+| 10 | Empresa estadual única | regional/UF única | qualquer + UF restrita |
+
+**Sprint:** M3 pós-PR-H/PR-I/PR-J
+
+### Vinculadas (PR-H/I/J + Smokes)
+
+- Auditoria T4 paralela 2026-04-30 (Claude Code, documento `/tmp/T4_AUDITORIA_5O_BUG.md` untracked)
+- Lição arquitetural #32 (adapter sem cobertura completa)
+- Lição arquitetural #39 (spec sub-dimensionado leva a Classe C)
+- REGRA-ORQ-22, REGRA-ORQ-24, REGRA-ORQ-26
+
+---
+
 ## (Outros itens backlog M3 a registrar em sessões futuras)
 
 - Drift arquitetural Manus.space (cherry-pick → pull origin/main)
