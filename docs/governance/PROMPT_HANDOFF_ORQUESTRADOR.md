@@ -391,6 +391,98 @@ suite oficial: 60 cenários (S59 + S60 adicionados em #885 + #886)
 
 ---
 
+## Sessão 2026-05-01 — Sprint M3 abertura + PR-J refactor + paliativos CI
+
+### PRs mergeados (7)
+
+```
+#890  docs LICOES_ARQUITETURAIS.md (#41-#45 + placeholder #1-#40)
+#891  docs cpie_analysis_history decision doc (BACKLOG_M3 — Opção A recomendada)
+#892  docs PR-J Fase 1 pré-análise reduzida (Análises C+D)
+#893  test PR-J Fase 2a snapshots behavior + invariant (gates de regressão)
+#894  refactor PR-J Fase 2b extract seedNormalizers (perfil + m1-monitor)
+#895  test PR-FIX-1 SEVERITY_TABLE snapshot defensivo (era 10, agora 11)
+#896  test PR-FIX-2 graceful skip DB tests (Estratégia A — CI_HAS_TEST_DB)
+```
+
+### Smoke regressivo PR-J Fase 2b (2026-05-01)
+
+```
+Cenário equipe_solaris pós-extract — comportamento equivalente confirmado
+Snapshots Fase 2a preservados byte-a-byte SEM --update
+rules_hash sha256:4929516b...e272 invariante em 60 cenários da suite
+178/178 baselines preservados local + CI
+```
+
+### Achados desta sessão
+
+```
+- M3-PROMPT-0-BIS PASS empírico (projeto 2460001 financeiro SEM NBS)
+  → step 4 GO efetivo confirmado em prod
+- Premissa "apenas adicionar export" do PR-J refutada empiricamente
+  → constantes em escopo de função não exportáveis sem mover
+  → Estratégia: snapshot tests behavior (Fase 2a) gate forte
+- BUG-listClients descoberto durante M3-PROMPT-0
+  → role=cliente não consegue criar projeto pela UI (FORBIDDEN no dropdown)
+  → backlog M3 pré-requisito UX
+- CI red recorrente em PRs M3 (#890-#894): 213 testes vermelhos por causa
+  comum: SEVERITY_TABLE outdated (10→11) + DB integration sem TEST DB
+  → PR-FIX-1 + PR-FIX-2 reduziram para 47-183 fails residuais (não-DB)
+  → 463 graceful skips em TypeScript+Vitest workflow
+- Crítica Manus identificou cláusula redundante na minha proposta inicial
+  (`!process.env.DATABASE_URL` cosmético — DATABASE_URL está como secret)
+  → Estratégia A do Manus (CI_HAS_TEST_DB) future-proof adotada
+```
+
+### Estado pós-sessão
+
+```
+main HEAD: 50afed6 (pós-#896)
+rules_hash canonical: sha256:4929516b...e272 (invariante 20+ PRs)
+suite oficial: 60 cenários (S59 + S60 desde sessão 2026-04-30)
+178/178 baselines preservados (62 perfil-router + 7 outros + 10 seed-normalizers
+  + 22 m1-monitor invariant + 14 risk-engine-v4 + 63 fixtures)
+seedNormalizers.ts: 4 constantes exportadas (TAX_REGIME_ALIASES,
+  SNAKE_TO_LABEL, POSICAO_ALIASES, NATUREZA_TO_FONTES)
+CI status: paliativo aplicado, fails residuais não-DB (LLM, fetch externo)
+```
+
+### Pendente sessão futura
+
+```
+- PR-LISTCLIENTS-FIX (BUG descoberto M3-PROMPT-0)
+  → Decisão produto: cliente vincula 1 projeto ou N? (auto-vincular vs dropdown)
+- Issue #873 abordagem A+C (Manus) — CI prod isolation Camadas 1-4
+  → Habilita secret CI_HAS_TEST_DB=true → guard PR-FIX-2 desativa sozinho
+- Issue #875 cleanup retroativo 16k+ users sintéticos (pós-#873)
+- cpie_analysis_history fix Opção A (registrar 0088 no journal)
+  → Pré-check Manus: SHOW TABLES LIKE 'cpie_%' em prod
+  → Se existe: rodar 0088 manual + Opção A. Se não: Opção A direto.
+- PR-H 3 bugs latentes ALTOS (BUG-5/6/7 abrangencia/atua_imp/atua_exp)
+  → Agora em base limpa pós PR-J (fix em UM lugar via seedNormalizers.ts)
+  → Reclassificar Classe B (não C) — REGRA-ORQ-24 (~6h, sem ADR obrigatório)
+- PR-I 5 bugs MÉDIOS regime/ZFM (Classe B)
+- PR-G PC-04 tela branca (Classe C — aguarda SPEC formal Manus + crítica ORQ-22)
+- LLM tests fail residual em CI (OPENAI_API_KEY ausente) — escopo separado
+- Sprint M3-Agro use-case-driven (relatório v3 em docs/governance/)
+  → Trigger: cliente real do escritório (PR-AGRO-1 pode começar sem jurídico)
+```
+
+### Lições arquiteturais — atualização (#46 nova)
+
+```
+46. Validar empiricamente o estado de ambiente antes de propor guard
+    Antes de afirmar "guard X resolve cenário Y", confirmar variáveis de
+    ambiente reais no contexto-alvo (CI, dev, prod) + secrets configurados +
+    estado de infra. Sem isso, guard pode ser cosmético ou ineficaz.
+    Validada empiricamente: Claude Code propôs guard com cláusula
+    !process.env.DATABASE_URL redundante porque não tinha visibilidade dos
+    secrets GitHub. Manus corrigiu via auditoria AUTH-4. Estratégia A
+    (CI_HAS_TEST_DB) future-proof adotada (PR #896).
+```
+
+---
+
 ## LEMBRETE FINAL
 
 ```
