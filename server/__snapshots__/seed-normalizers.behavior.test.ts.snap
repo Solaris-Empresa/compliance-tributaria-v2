@@ -1,0 +1,248 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PR-J Fase 2a — buildSeedFromProject behavior snapshots > agronegocio (BUG-1 fix: posicao=Produtor/fabricante) 1`] = `
+{
+  "abrangencia_operacional": [
+    "Nacional",
+  ],
+  "analise_1_cnpj_operacional": true,
+  "atua_exportacao": false,
+  "atua_importacao": false,
+  "cnae_principal_confirmado": "0115-6/00",
+  "fontes_receita": [
+    "Producao propria",
+  ],
+  "integra_grupo_economico": false,
+  "natureza_operacao_principal": [
+    "Produção própria",
+  ],
+  "nbss_principais": [],
+  "ncms_principais": [],
+  "opera_multiplos_estados": false,
+  "opera_territorio_incentivado": false,
+  "operacoes_secundarias": [],
+  "orgao_regulador_principal": [],
+  "papel_comercio_exterior": [],
+  "papel_operacional_especifico": [],
+  "porte_empresa": "Grande",
+  "posicao_na_cadeia_economica": "Produtor/fabricante",
+  "possui_regime_especial_negocio": false,
+  "regime_tributario_atual": "Lucro Presumido",
+  "setor_regulado": false,
+  "subnatureza_setorial": [],
+  "tipo_objeto_economico": [
+    "Bens/mercadorias",
+  ],
+  "tipo_operacao_especifica": [],
+  "tipo_regime_especial": [],
+  "tipo_territorio_incentivado": [],
+  "user_confirmed": true,
+}
+`;
+
+exports[`PR-J Fase 2a — buildSeedFromProject behavior snapshots > comercio com fontes_receita derivada via NATUREZA_TO_FONTES 1`] = `
+{
+  "abrangencia_operacional": [
+    "Nacional",
+  ],
+  "analise_1_cnpj_operacional": true,
+  "atua_exportacao": false,
+  "atua_importacao": false,
+  "cnae_principal_confirmado": "4711-3/02",
+  "fontes_receita": [
+    "Venda de mercadoria",
+  ],
+  "integra_grupo_economico": false,
+  "natureza_operacao_principal": [
+    "Comércio",
+  ],
+  "nbss_principais": [],
+  "ncms_principais": [],
+  "opera_multiplos_estados": false,
+  "opera_territorio_incentivado": false,
+  "operacoes_secundarias": [],
+  "orgao_regulador_principal": [],
+  "papel_comercio_exterior": [],
+  "papel_operacional_especifico": [],
+  "porte_empresa": "Medio",
+  "posicao_na_cadeia_economica": "Atacadista",
+  "possui_regime_especial_negocio": false,
+  "regime_tributario_atual": "Lucro Presumido",
+  "setor_regulado": false,
+  "subnatureza_setorial": [],
+  "tipo_objeto_economico": [
+    "Bens/mercadorias",
+  ],
+  "tipo_operacao_especifica": [],
+  "tipo_regime_especial": [],
+  "tipo_territorio_incentivado": [],
+  "user_confirmed": true,
+}
+`;
+
+exports[`PR-J Fase 2a — buildSeedFromProject behavior snapshots > financeiro com NBS vazio (cenário PR #886 BUG-FIN-OBJETO V2) 1`] = `
+{
+  "abrangencia_operacional": [
+    "Nacional",
+  ],
+  "analise_1_cnpj_operacional": true,
+  "atua_exportacao": false,
+  "atua_importacao": false,
+  "cnae_principal_confirmado": "6422-1/00",
+  "fontes_receita": [
+    "Prestacao de servico",
+  ],
+  "integra_grupo_economico": false,
+  "natureza_operacao_principal": [
+    "Prestação de serviço",
+  ],
+  "nbss_principais": [],
+  "ncms_principais": [],
+  "opera_multiplos_estados": false,
+  "opera_territorio_incentivado": false,
+  "operacoes_secundarias": [],
+  "orgao_regulador_principal": [
+    "BCB",
+  ],
+  "papel_comercio_exterior": [],
+  "papel_operacional_especifico": [],
+  "porte_empresa": "Grande",
+  "posicao_na_cadeia_economica": "Operadora",
+  "possui_regime_especial_negocio": false,
+  "regime_tributario_atual": "Lucro Real",
+  "setor_regulado": true,
+  "subnatureza_setorial": [
+    "financeiro",
+  ],
+  "tipo_objeto_economico": [
+    "Servicos",
+  ],
+  "tipo_operacao_especifica": [],
+  "tipo_regime_especial": [],
+  "tipo_territorio_incentivado": [],
+  "user_confirmed": true,
+}
+`;
+
+exports[`PR-J Fase 2a — buildSeedFromProject behavior snapshots > industria com posicao Produtor/fabricante 1`] = `
+{
+  "abrangencia_operacional": [
+    "Nacional",
+  ],
+  "analise_1_cnpj_operacional": true,
+  "atua_exportacao": false,
+  "atua_importacao": false,
+  "cnae_principal_confirmado": "1011-2/01",
+  "fontes_receita": [
+    "Producao propria",
+  ],
+  "integra_grupo_economico": false,
+  "natureza_operacao_principal": [
+    "Produção própria",
+  ],
+  "nbss_principais": [],
+  "ncms_principais": [],
+  "opera_multiplos_estados": false,
+  "opera_territorio_incentivado": false,
+  "operacoes_secundarias": [],
+  "orgao_regulador_principal": [],
+  "papel_comercio_exterior": [],
+  "papel_operacional_especifico": [],
+  "porte_empresa": "Grande",
+  "posicao_na_cadeia_economica": "Produtor/fabricante",
+  "possui_regime_especial_negocio": false,
+  "regime_tributario_atual": "Lucro Real",
+  "setor_regulado": false,
+  "subnatureza_setorial": [],
+  "tipo_objeto_economico": [
+    "Bens/mercadorias",
+  ],
+  "tipo_operacao_especifica": [],
+  "tipo_regime_especial": [],
+  "tipo_territorio_incentivado": [],
+  "user_confirmed": true,
+}
+`;
+
+exports[`PR-J Fase 2a — buildSeedFromProject behavior snapshots > misto com naturezas múltiplas + posicao=Atacadista (decisão P.O. BUG-1) 1`] = `
+{
+  "abrangencia_operacional": [
+    "Nacional",
+  ],
+  "analise_1_cnpj_operacional": true,
+  "atua_exportacao": false,
+  "atua_importacao": false,
+  "cnae_principal_confirmado": "4711-3/02",
+  "fontes_receita": [
+    "Venda de mercadoria",
+    "Prestacao de servico",
+  ],
+  "integra_grupo_economico": false,
+  "natureza_operacao_principal": [
+    "Comércio",
+    "Prestação de serviço",
+  ],
+  "nbss_principais": [],
+  "ncms_principais": [],
+  "opera_multiplos_estados": false,
+  "opera_territorio_incentivado": false,
+  "operacoes_secundarias": [],
+  "orgao_regulador_principal": [],
+  "papel_comercio_exterior": [],
+  "papel_operacional_especifico": [],
+  "porte_empresa": "Grande",
+  "posicao_na_cadeia_economica": "Atacadista",
+  "possui_regime_especial_negocio": false,
+  "regime_tributario_atual": "Lucro Real",
+  "setor_regulado": false,
+  "subnatureza_setorial": [],
+  "tipo_objeto_economico": [
+    "Bens/mercadorias",
+    "Servicos",
+  ],
+  "tipo_operacao_especifica": [],
+  "tipo_regime_especial": [],
+  "tipo_territorio_incentivado": [],
+  "user_confirmed": true,
+}
+`;
+
+exports[`PR-J Fase 2a — buildSeedFromProject behavior snapshots > servicos com posicao Prestador de servico 1`] = `
+{
+  "abrangencia_operacional": [
+    "Nacional",
+  ],
+  "analise_1_cnpj_operacional": true,
+  "atua_exportacao": false,
+  "atua_importacao": false,
+  "cnae_principal_confirmado": "6201-5/01",
+  "fontes_receita": [
+    "Prestacao de servico",
+  ],
+  "integra_grupo_economico": false,
+  "natureza_operacao_principal": [
+    "Prestação de serviço",
+  ],
+  "nbss_principais": [],
+  "ncms_principais": [],
+  "opera_multiplos_estados": false,
+  "opera_territorio_incentivado": false,
+  "operacoes_secundarias": [],
+  "orgao_regulador_principal": [],
+  "papel_comercio_exterior": [],
+  "papel_operacional_especifico": [],
+  "porte_empresa": "Pequeno",
+  "posicao_na_cadeia_economica": "Prestador de servico",
+  "possui_regime_especial_negocio": false,
+  "regime_tributario_atual": "Simples Nacional",
+  "setor_regulado": false,
+  "subnatureza_setorial": [],
+  "tipo_objeto_economico": [
+    "Servicos",
+  ],
+  "tipo_operacao_especifica": [],
+  "tipo_regime_especial": [],
+  "tipo_territorio_incentivado": [],
+  "user_confirmed": true,
+}
+`;

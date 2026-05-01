@@ -1,0 +1,76 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PR-J Fase 2a — invariantes cross-file (gates Fase 2b) > Snapshot byte-a-byte (gate forte — Fase 2b deve atualizar) > m1-monitor.ts NATUREZA_TO_FONTES literal preservado 1`] = `
+"{
+        "Produção própria":    "Producao propria",
+        "Comércio":            "Venda de mercadoria",
+        "Prestação de serviço": "Prestacao de servico",
+        "Transporte":          "Prestacao de servico",
+        "Intermediação":       "Comissao/intermediacao",
+        "Locação":             "Aluguel/locacao",
+      }"
+`;
+
+exports[`PR-J Fase 2a — invariantes cross-file (gates Fase 2b) > Snapshot byte-a-byte (gate forte — Fase 2b deve atualizar) > m1-monitor.ts POSICAO_ALIASES literal preservado 1`] = `
+"{
+        // snake_case legado
+        "fabricante":          "Produtor/fabricante",
+        "produtor":            "Produtor/fabricante",
+        "distribuidor":        "Atacadista",
+        "atacadista":          "Atacadista",
+        "varejista":           "Varejista",
+        "prestador_servico":   "Prestador de servico",
+        "prestador de serviço": "Prestador de servico",
+        "intermediador":       "Intermediador",
+        "operadora":           "Operadora",
+        "operadora_regulada":  "Operadora",
+        "importador":          "Importador",
+        // Alias especial: "Produtor" (agro) → "Produtor/fabricante" (runner)
+        "Produtor":            "Produtor/fabricante",
+        // Alias especial: "Fabricante" (indústria) → "Produtor/fabricante" (runner)
+        "Fabricante":          "Produtor/fabricante",
+        // Alias: "Prestador de Serviço" (com acento) → "Prestador de servico"
+        "Prestador de Serviço": "Prestador de servico",
+        "Transportador":       "Transportador", // pass-through (runner usa natureza_op)
+        "Comerciante":         "Varejista",     // alias razoável
+        "Importador":          "Importador",    // pass-through (runner usa atua_importacao)
+        "Intermediador":       "Intermediador", // pass-through
+      }"
+`;
+
+exports[`PR-J Fase 2a — invariantes cross-file (gates Fase 2b) > Snapshot byte-a-byte (gate forte — Fase 2b deve atualizar) > m1-monitor.ts SNAKE_TO_LABEL literal preservado 1`] = `
+"{
+        "lucro_real": "Lucro Real",
+        "lucro_presumido": "Lucro Presumido",
+        "simples_nacional": "Simples Nacional",
+        "simples": "Simples Nacional",
+        "mei": "MEI",
+        "regime_geral": "Lucro Real", // fallback razoável para regime_geral
+      }"
+`;
+
+exports[`PR-J Fase 2a — invariantes cross-file (gates Fase 2b) > Snapshot byte-a-byte (gate forte — Fase 2b deve atualizar) > perfil.ts NATUREZA_TO_FONTES literal preservado 1`] = `
+"{
+    "Produção própria": "Producao propria",
+    "Comércio": "Venda de mercadoria",
+    "Prestação de serviço": "Prestacao de servico",
+    "Transporte": "Prestacao de servico",
+    "Intermediação": "Comissao/intermediacao",
+    "Locação": "Aluguel/locacao",
+  }"
+`;
+
+exports[`PR-J Fase 2a — invariantes cross-file (gates Fase 2b) > Snapshot byte-a-byte (gate forte — Fase 2b deve atualizar) > perfil.ts TAX_REGIME_ALIASES literal preservado 1`] = `
+"{
+    // snake_case (formato salvo pelo client form)
+    simples_nacional: "Simples Nacional",
+    lucro_presumido: "Lucro Presumido",
+    lucro_real: "Lucro Real",
+    mei: "MEI",
+    // title case (passthrough idempotente)
+    "Simples Nacional": "Simples Nacional",
+    "Lucro Presumido": "Lucro Presumido",
+    "Lucro Real": "Lucro Real",
+    MEI: "MEI",
+  }"
+`;
