@@ -37,6 +37,10 @@ import {
 import { MODEL_VERSION, DATA_VERSION } from "../lib/archetype/versioning";
 import { assertValidTransition } from "../flowStateMachine";
 import { isM2PerfilEntidadeEnabled } from "../config/feature-flags";
+import {
+  TAX_REGIME_ALIASES,
+  NATUREZA_TO_FONTES,
+} from "../lib/archetype/seedNormalizers";
 import type { Seed } from "../lib/archetype/types";
 
 const ARCHETYPE_VERSION_INITIAL = "v1.0.0"; // ADR-0032 — versão inicial
@@ -133,34 +137,14 @@ export function buildSeedFromProject(project: Record<string, unknown>): Seed {
   // Refs: routers-m1-monitor.ts:170-184 (REGIME_ALIASES canônicos).
   const taxRegimeRaw =
     (op.taxRegime as string) ?? (cp.taxRegime as string) ?? "Lucro Real";
-  const TAX_REGIME_ALIASES: Record<string, string> = {
-    // snake_case (formato salvo pelo client form)
-    simples_nacional: "Simples Nacional",
-    lucro_presumido: "Lucro Presumido",
-    lucro_real: "Lucro Real",
-    mei: "MEI",
-    // title case (passthrough idempotente)
-    "Simples Nacional": "Simples Nacional",
-    "Lucro Presumido": "Lucro Presumido",
-    "Lucro Real": "Lucro Real",
-    MEI: "MEI",
-  };
+  // PR-J Fase 2b: TAX_REGIME_ALIASES extraído para seedNormalizers.ts
   const taxRegime = TAX_REGIME_ALIASES[taxRegimeRaw] ?? taxRegimeRaw;
 
   // PR-E BUG-3 fix: fontes_receita estava hardcoded [] em PR-A.
   // Engine FONTE_RECEITA_TO_RELACAO (buildPerfilEntidade.ts:149-158) deriva
   // tipo_de_relacao a partir desses valores. Array vazio → tipo_de_relacao=[]
   // → V-LC-102 dispara quando papel=fabricante (regra de coerência).
-  // Mapping idêntico ao NATUREZA_TO_FONTES de routers-m1-monitor.ts:226-233.
-  // PR-F backlog: extrair seedNormalizers.ts compartilhado.
-  const NATUREZA_TO_FONTES: Record<string, string> = {
-    "Produção própria": "Producao propria",
-    "Comércio": "Venda de mercadoria",
-    "Prestação de serviço": "Prestacao de servico",
-    "Transporte": "Prestacao de servico",
-    "Intermediação": "Comissao/intermediacao",
-    "Locação": "Aluguel/locacao",
-  };
+  // PR-J Fase 2b: NATUREZA_TO_FONTES extraído para seedNormalizers.ts (compartilhado com m1-monitor.ts).
   const fontesReceitaFromLegacy = naturezaFromLegacy
     .map((n) => NATUREZA_TO_FONTES[n])
     .filter((v): v is string => v !== undefined);
