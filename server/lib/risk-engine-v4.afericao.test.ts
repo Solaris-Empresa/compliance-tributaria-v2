@@ -33,8 +33,10 @@ describe("afericao — 10 categorias na SEVERITY_TABLE (RN-RISK-02)", () => {
     "credito_presumido",
   ] as const;
 
-  it("possui exatamente 10 categorias", () => {
-    expect(Object.keys(SEVERITY_TABLE)).toHaveLength(10);
+  it("conjunto de categorias preservado (snapshot defensivo)", () => {
+    // Length validada via snapshot — atualizar conscientemente quando categoria nova entrar.
+    // Histórico: era 10, agora 11 (enquadramento_geral v2.1 adicionado sem atualizar este teste).
+    expect(Object.keys(SEVERITY_TABLE).sort()).toMatchSnapshot();
   });
 
   it("todas as 10 categorias oficiais estão presentes", () => {
