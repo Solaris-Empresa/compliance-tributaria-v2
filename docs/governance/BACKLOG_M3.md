@@ -198,6 +198,85 @@ Após PR-H + PR-I + PR-J mergeados, adicionar ao smoke:
 
 ---
 
+## Decisão pendente: cpie_analysis_history migration conflict
+
+### Contexto
+
+`pnpm db:push` falhava silenciosamente em sessões anteriores por conflito relacionado à tabela `cpie_analysis_history`. Bloqueia próximos PRs que tocam schema (Drizzle).
+
+### Grep empírico — uso da tabela
+
+```
+grep -rEln "cpie_analysis_history|cpieAnalysisHistory" server/ client/ shared/
+```
+
+**Resultado:** 0 matches.
+
+A tabela não tem nenhum caller em `server/`, `client/` ou `shared/`.
+
+### Estado empírico do schema
+
+- `drizzle/schema.ts` linha 1619: **comentário** documentando remoção (Sprint Z-22 Wave A.2+B EX-3, ADR-0029 D-2). Tabela já foi removida do schema TypeScript.
+- `drizzle/0049_cold_mephisto.sql`: migration original de **CRIAÇÃO** da tabela.
+- `drizzle/0088_drop_cpie_legado.sql`: migration de **DROP** já existe no disco (Sprint Z-22 Wave B, P.O. autorização 2026-04-18, "todos os dados do banco podem ser apagados, com exceção RAG").
+- `drizzle/meta/_journal.json`: contém entries até `0065_spicy_tag`. **NÃO tem entry para `0088_drop_cpie_legado`**.
+
+### Diagnóstico do conflito
+
+A migration de DROP foi escrita no disco mas **não foi registrada no journal Drizzle**. Quando `pnpm db:push` executa:
+
+1. Lê schema.ts → tabela ausente
+2. Detecta tabela em prod (se ainda existe) → drift
+3. Tenta gerar nova migration sintética → conflita com 0088 já no disco
+4. Falha silenciosamente
+
+### Opção A — Registrar 0088 no journal Drizzle (recomendada)
+
+- Atualizar `drizzle/meta/_journal.json` adicionando entry para `0088_drop_cpie_legado`
+- "Fecha" a migration órfã sem reescrita
+- Pré-requisito: confirmar com Manus que 0088 já foi executada em prod (caso contrário, executar antes)
+- Risco: baixo (apenas metadata + verificação prod)
+- Esforço: ~30min Classe A
+- **Aplicação:** ZERO callers no código + schema.ts já removeu + DROP migration já existe → fechar journal é o único passo restante
+
+### Opção B — Recriar migration com nome novo via `drizzle-kit generate`
+
+- Apagar `drizzle/0088_drop_cpie_legado.sql` (se inexecutada em prod)
+- Rodar `pnpm drizzle-kit generate` para criar nova migration sintética com tag fresh
+- Risco: médio (perde rastro auditável da Sprint Z-22 + ADR-0029)
+- Esforço: ~1h Classe A-B
+
+### Opção C — Investigar se 0088 já rodou em prod e ajustar conforme
+
+- Manus executa em prod: `SELECT * FROM information_schema.tables WHERE table_name='cpie_analysis_history'`
+- Se tabela ainda existe em prod: rodar 0088 manualmente + Opção A
+- Se tabela já não existe em prod: Opção A direta (apenas registrar journal)
+- Risco: baixo
+- Esforço: ~1h (~20min investigação Manus + ~30min Opção A)
+
+### Recomendação Orquestrador
+
+**Opção A** após pré-check Manus do estado da tabela em prod (Opção C como sub-passo de Opção A).
+
+Razão: tabela 100% órfã no código + schema.ts já removeu + DROP migration já escrita → único passo lógico é registrar no journal. Recriar (Opção B) perde rastro auditável da Sprint Z-22.
+
+### Próximo passo
+
+1. P.O. autoriza Opção A
+2. Manus reporta estado da tabela em prod (`SHOW TABLES LIKE 'cpie_%'`)
+3. Se tabela existe: Manus executa 0088 manualmente
+4. Claude Code abre PR registrando 0088 no `_journal.json`
+5. Validar: `pnpm db:push` deixa de falhar
+
+### Vinculadas
+
+- ADR-0029 (CPIE v3 drop estratégia + exceções)
+- Sprint Z-22 Wave A.2+B EX-3
+- `drizzle/0088_drop_cpie_legado.sql`
+- `drizzle/schema.ts:1619` (comentário de remoção)
+
+---
+
 ## (Outros itens backlog M3 a registrar em sessões futuras)
 
 - Drift arquitetural Manus.space (cherry-pick → pull origin/main)
