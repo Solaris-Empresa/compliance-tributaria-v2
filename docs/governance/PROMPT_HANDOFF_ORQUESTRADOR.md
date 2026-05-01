@@ -483,6 +483,54 @@ CI status: paliativo aplicado, fails residuais não-DB (LLM, fetch externo)
 
 ---
 
+## Estado atual (handoff 2026-05-01 pós sessão histórica)
+
+```
+HEAD: 8dd0268 (pós PR #898)
+Sprint M3: abertura completa (10 PRs mergeados, incluindo handoffs Manus + Claude Code)
+Versão: v2.6
+Próximo marco principal: M3 RAG consome arquétipo (Prioridade 2 do backlog)
+```
+
+### Validações Step 4 GO efetivo (3 empíricas independentes)
+
+```
+✅ Smoke 6c financeiro SEM NBS (2026-04-30) — PASS 10/10 + 8/8
+✅ M3-PROMPT-0-BIS Caminho B JWT (2026-04-30) — PASS HTTP 200
+✅ Smoke regressivo PR-J Fase 2 (2026-05-01) — PASS 10/10 + 8/8
+```
+
+### Pendência crítica próxima sessão
+
+**PR-LISTCLIENTS-FIX** — Classe A ~30min — destrava `role=cliente` para validação ponta-a-ponta real. Decisão de produto pendente: cliente vincula a 1 OU N projetos? Define forma do `clientId` auto-vinculado.
+
+### Documento canônico criado nesta sessão
+
+`docs/produto/PERFIL-DA-ENTIDADE-FONTE-DA-VERDADE.md` (659 linhas) — fonte única da verdade sobre por que o Perfil da Entidade existe (consolidação tripla: P.O. + Manus + Consultor). Substitui rascunhos dispersos em `docs/governance/audits/`, `docs/epic-830-rag-arquetipo/` e contextos de chat.
+
+### Backlog priorizado
+
+Ver `docs/governance/BACKLOG_M3.md` (reorganizado em 7 prioridades + roadmap 8 marcos):
+
+```
+P1: PR-LISTCLIENTS-FIX (destrava cliente real)
+P2: M3-RAG-01..04 (consumo arquétipo no RAG) ⭐ MARCO PRINCIPAL
+P3: Issue #873/#875 + cpie Opção A (operacional crítica)
+P4: PR-H/I/PR-FIN-OBJETO-V3 (bugs latentes M2)
+P5: PR-G PC-04 (UX/cosméticos)
+P6: Smokes 7-10 + Lições #1-#40 + decisões pendentes
+P7: Governança + Lições #46-#49 a registrar
+```
+
+### Lições novas a registrar (#47-#49 — pendentes)
+
+- #46 ✅ já registrada (PR #898) — Validar empiricamente estado de ambiente antes de propor guard
+- #47 — Validações P.O. devem ser explicitamente mapeadas no plano de sprint
+- #48 — Issue #873 bloqueia cobertura runtime efetiva
+- #49 — Análise de duplicação deve verificar escopo lexical, não só similaridade textual
+
+---
+
 ## LEMBRETE FINAL
 
 ```
