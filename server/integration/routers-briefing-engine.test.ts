@@ -17,6 +17,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 import {
   BRIEFING_SECTIONS,
   BriefingSectionSchema,
@@ -169,7 +170,7 @@ afterAll(async () => {
 // T-B7-01: Template obrigatório com 8 seções fixas
 // ===========================================================================
 
-describe("T-B7-01: Template obrigatório — 8 seções fixas", () => {
+dbDescribe("T-B7-01: Template obrigatório — 8 seções fixas", () => {
   it("BRIEFING_SECTIONS tem exatamente 8 seções", () => {
     expect(BRIEFING_SECTIONS).toHaveLength(8);
   });
@@ -225,7 +226,7 @@ describe("T-B7-01: Template obrigatório — 8 seções fixas", () => {
 // T-B7-02: Coverage = 100% obrigatório
 // ===========================================================================
 
-describe("T-B7-02: Coverage = 100% obrigatório", () => {
+dbDescribe("T-B7-02: Coverage = 100% obrigatório", () => {
   it("briefing com seção faltando tem coverage < 100%", () => {
     const partial: Partial<CompleteBriefing> = {
       section_escopo: {
@@ -298,7 +299,7 @@ describe("T-B7-02: Coverage = 100% obrigatório", () => {
 // T-B7-03: Consistency obrigatório — sem conflito crítico
 // ===========================================================================
 
-describe("T-B7-03: Consistency obrigatório — sem conflito crítico", () => {
+dbDescribe("T-B7-03: Consistency obrigatório — sem conflito crítico", () => {
   it("resumo 'adequada' com riscos críticos gera conflito crítico", () => {
     const briefing: Partial<CompleteBriefing> = {
       section_resumo_executivo: {
@@ -391,7 +392,7 @@ describe("T-B7-03: Consistency obrigatório — sem conflito crítico", () => {
 // T-B7-04: Multi-input real
 // ===========================================================================
 
-describe("T-B7-04: Multi-input real — perfil + gaps + riscos + ações", () => {
+dbDescribe("T-B7-04: Multi-input real — perfil + gaps + riscos + ações", () => {
   it("generateBriefing usa dados reais do banco (não inventa)", async () => {
     const briefing = await generateBriefing(testProjectId, pool);
 
@@ -434,7 +435,7 @@ describe("T-B7-04: Multi-input real — perfil + gaps + riscos + ações", () =>
 // T-B7-05: Grounding normativo
 // ===========================================================================
 
-describe("T-B7-05: Grounding normativo — LC/EC + requirement_id", () => {
+dbDescribe("T-B7-05: Grounding normativo — LC/EC + requirement_id", () => {
   it("section_escopo tem normas_cobertas com LC/EC reais", async () => {
     const briefing = await generateBriefing(testProjectId, pool);
     expect(briefing.section_escopo.normas_cobertas.length).toBeGreaterThan(0);
@@ -482,7 +483,7 @@ describe("T-B7-05: Grounding normativo — LC/EC + requirement_id", () => {
 // T-B7-06: Rastreabilidade — toda afirmação com origem
 // ===========================================================================
 
-describe("T-B7-06: Rastreabilidade — toda afirmação com origem", () => {
+dbDescribe("T-B7-06: Rastreabilidade — toda afirmação com origem", () => {
   it("briefing gerado tem rastreabilidade completa", async () => {
     const briefing = await generateBriefing(testProjectId, pool);
     const result = checkTraceability(briefing);
@@ -525,7 +526,7 @@ describe("T-B7-06: Rastreabilidade — toda afirmação com origem", () => {
 // T-B7-07: Consistência cross-section
 // ===========================================================================
 
-describe("T-B7-07: Consistência cross-section", () => {
+dbDescribe("T-B7-07: Consistência cross-section", () => {
   it("resumo não contradiz riscos — situacao_geral coerente", async () => {
     const briefing = await generateBriefing(testProjectId, pool);
     const result = checkConsistency(briefing);
@@ -558,7 +559,7 @@ describe("T-B7-07: Consistência cross-section", () => {
 // T-B7-08: Sem alucinação — nada além dos dados
 // ===========================================================================
 
-describe("T-B7-08: Sem alucinação — nada além dos dados", () => {
+dbDescribe("T-B7-08: Sem alucinação — nada além dos dados", () => {
   it("section_resumo_executivo.fonte_dados não pode ser vazio", () => {
     const result = SectionResumoExecutivoSchema.safeParse({
       situacao_geral: "critica",
@@ -600,7 +601,7 @@ describe("T-B7-08: Sem alucinação — nada além dos dados", () => {
 // T-B7-09: Qualidade executiva
 // ===========================================================================
 
-describe("T-B7-09: Qualidade executiva — claro, direto, útil", () => {
+dbDescribe("T-B7-09: Qualidade executiva — claro, direto, útil", () => {
   it("section_proximos_passos tem passos com prazo e responsável definidos", async () => {
     const briefing = await generateBriefing(testProjectId, pool);
     expect(briefing.section_proximos_passos.passos_imediatos.length).toBeGreaterThan(0);
@@ -641,7 +642,7 @@ describe("T-B7-09: Qualidade executiva — claro, direto, útil", () => {
 // T-B7-10: 4 cenários obrigatórios
 // ===========================================================================
 
-describe("T-B7-10: 4 cenários obrigatórios", () => {
+dbDescribe("T-B7-10: 4 cenários obrigatórios", () => {
   it("Cenário 1 — Multi-CNAE: briefing com múltiplos CNAEs tem cnaes_secundarios", async () => {
     const briefing = await generateBriefing(testProjectId, pool);
     // cnaes_secundarios pode ser vazio (projeto de teste), mas deve ser array
@@ -804,7 +805,7 @@ function buildCompleteBriefing(): CompleteBriefing {
 // M2 COMPONENTE A — Testes obrigatórios (TO-BE v3 aprovado 2026-04-06)
 // Q5: 5 testes mínimos conforme prompt do Orquestrador
 // ===========================================================================
-describe("M2-A: engine_gaps + source enum + ordenação por confidence", () => {
+dbDescribe("M2-A: engine_gaps + source enum + ordenação por confidence", () => {
   let m2aPool: mysql.Pool;
   let m2aProjectId: number;
   let m2aUserId: number;

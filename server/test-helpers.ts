@@ -2,7 +2,28 @@
  * Test Helpers for Vitest
  */
 
+import { describe } from "vitest";
 import type { TrpcContext } from "./_core/context";
+
+// ─── PR-FIX-2: graceful skip de testes integration que requerem DB real ───
+//
+// Skipa quando rodando em CI sem TEST DB acessível.
+// Pós Issue #873 (CI prod isolation): Manus seta secret CI_HAS_TEST_DB=true
+// → guard desativa sozinho sem mudança de código.
+//
+// Vinculadas: PR #889 (CI_SECRETS_GAP_ANALYSIS.md), Lição #46 emergente
+//   (validar empiricamente o estado de ambiente antes de propor guard).
+export const SKIP_DB_TESTS =
+  process.env.CI === "true" && !process.env.CI_HAS_TEST_DB;
+
+/**
+ * Use em vez de `describe` em testes que requerem `mysql.createConnection` real.
+ *
+ * Em CI sem TEST DB provisionado: testes são skipados graciosamente.
+ * Localmente (sem CI=true): testes rodam normalmente se DB disponível.
+ * Pós Issue #873 + secret CI_HAS_TEST_DB=true: testes voltam a rodar em CI.
+ */
+export const dbDescribe = SKIP_DB_TESTS ? describe.skip : describe;
 
 export function createMockContext(
   userId: number = 1,

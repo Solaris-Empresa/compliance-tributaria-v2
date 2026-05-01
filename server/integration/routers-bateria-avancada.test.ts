@@ -6,6 +6,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 
 let conn: mysql.Connection;
 
@@ -21,7 +22,7 @@ afterAll(async () => {
 // GRUPO A — FLUXO (10 testes)
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("GRUPO A — Fluxo", () => {
+dbDescribe("GRUPO A — Fluxo", () => {
   it("A-01: fluxo simples 1 CNAE — projeto piloto P1 tem dados completos", async () => {
     const [rows] = await conn.execute<mysql.RowDataPacket[]>(
       `SELECT p.id, p.name,
@@ -114,7 +115,7 @@ describe("GRUPO A — Fluxo", () => {
 // GRUPO B — COVERAGE E REGRAS (10 testes)
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("GRUPO B — Coverage e Regras", () => {
+dbDescribe("GRUPO B — Coverage e Regras", () => {
   it("B-11: coverage completo — 138/138 requisitos v3 mapeados no D7", async () => {
     const [rows] = await conn.execute<mysql.RowDataPacket[]>(
       `SELECT COUNT(DISTINCT requirement_code) as mapped FROM req_v3_to_canonical`
@@ -202,7 +203,7 @@ describe("GRUPO B — Coverage e Regras", () => {
 // GRUPO C — GAP ENGINE (10 testes)
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("GRUPO C — Gap Engine", () => {
+dbDescribe("GRUPO C — Gap Engine", () => {
   it("C-21: gap atende — P1 tem gaps com compliance_status=atendido", async () => {
     const [rows] = await conn.execute<mysql.RowDataPacket[]>(
       `SELECT COUNT(*) as atendidos FROM project_gaps_v3 g
@@ -295,7 +296,7 @@ describe("GRUPO C — Gap Engine", () => {
 // GRUPO D — RISK ENGINE (10 testes)
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("GRUPO D — Risk Engine", () => {
+dbDescribe("GRUPO D — Risk Engine", () => {
   it("D-31: risco direto — todos os riscos têm origin definido", async () => {
     const [rows] = await conn.execute<mysql.RowDataPacket[]>(
       `SELECT COUNT(*) as no_origin FROM project_risks_v3 WHERE origin IS NULL`
@@ -385,7 +386,7 @@ describe("GRUPO D — Risk Engine", () => {
 // GRUPO E — ACTION + BRIEFING (10 testes)
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("GRUPO E — Action + Briefing", () => {
+dbDescribe("GRUPO E — Action + Briefing", () => {
   it("E-41: ação executável — todas as ações têm action_description ou action_desc", async () => {
     const [rows] = await conn.execute<mysql.RowDataPacket[]>(
       `SELECT COUNT(*) as no_desc FROM project_actions_v3

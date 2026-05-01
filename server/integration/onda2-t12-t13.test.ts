@@ -11,6 +11,7 @@
  */
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 
 const TEST_USER_ID = 1;
 const TEST_CLIENT_ID = 1;
@@ -50,7 +51,7 @@ async function saveAnswer(pool: mysql.Pool, projectId: number, cnaeCode: string,
 
 // ─── Suite T12: Resiliência a Timeout de IA ───────────────────────────────────
 
-describe("T12 — Resiliência a Timeout de IA", () => {
+dbDescribe("T12 — Resiliência a Timeout de IA", () => {
   let projectId: number;
 
   beforeAll(async () => {
@@ -132,7 +133,7 @@ describe("T12 — Resiliência a Timeout de IA", () => {
 
 // ─── Suite T13: 7 CNAEs Simultâneos (Máximo) ─────────────────────────────────
 
-describe("T13 — 7 CNAEs Simultâneos (máximo permitido)", () => {
+dbDescribe("T13 — 7 CNAEs Simultâneos (máximo permitido)", () => {
   let projectId: number;
   const SEVEN_CNAES = [
     "1113-5/02", // Fabricação de Cervejas e Chopes
