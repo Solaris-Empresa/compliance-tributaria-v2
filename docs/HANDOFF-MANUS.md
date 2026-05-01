@@ -25,26 +25,27 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-04-18)
-- BASELINE **v7.12** — Sprint Z-21 ENCERRADA · Sprint Z-22 INICIADA
-- **HEAD: `48a3dda` (github/main)** · **Checkpoint Manus:** `6e196d3c`
-- **PRs mergeados:** 726 · **TypeScript:** 0 erros · **Unit tests:** 1717 passed / 9 skipped (1 falha conhecida: b-z11-012-evidence)
-- **Bundle:** ~1.4MB gzipado (vendor 761KB) — redução de 63% vs baseline Z-20
-- **streamdown:** REMOVIDA (PR #726) → `MarkdownRenderer.tsx` (react-markdown + remark-gfm)
+## Estado atual do projeto (2026-05-01)
+- BASELINE **v8.0** — Sprint M3 ABERTO · Smoke Regressivo PASS
+- **HEAD: `50afed6` (github/main)** · **Checkpoint Manus:** `89c4581e`
+- **PRs mergeados:** 679 (closed) · **TypeScript:** 0 erros · **Open PRs:** 0
+- **Bundle:** ~1.5MB (dist/index.js) + 5.2MB frontend
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade
 - **Skill solaris-contexto:** v4.7 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
-- **Pipeline E2E:** T1 ✅ T2 ✅ validados em produção · Suite E2E automatizada 21 casos ✅ (Z-17)
+- **Schema:** 69 exports · 89 migrations (última: 0089_enquadramento_geral_categoria)
 - **Contratos M1:** CNT-01a/01b/02/03 em `docs/contracts/`
-- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + REGRA-ORQ-12/13 + ORQ-17
-- **Datasets:** `nbs-2-0-utf8.csv` no repo · `lc214-2025.pdf` no sandbox
+- **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + REGRA-ORQ-12/13 + ORQ-17/25/26
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
+- M2_PERFIL_ENTIDADE_ENABLED: `true` (global — ativo para TODOS os roles)
 - Branch protection: ativa (ruleset `main-protection`)
-- **UAT E2E:** ✅ COMPLETO — projeto 2851328 (Distribuidora Alimentos Teste) · 2026-04-06
 - **risk_categories:** 9 categorias ativas · 10 no banco (1 inativa)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
-- **Sprints encerradas:** Z-07 ✅ · Z-08 ✅ · Z-09 ✅ · Z-10 ✅ · Z-11 ✅ · Z-12 ✅ · Z-13 ✅ · Z-14 ✅ (16 issues) · Z-15 Lote A ✅ · Z-16 ✅ (9/9 issues) · Z-17 ✅ · Z-18 ✅ (3/3 issues) · **Z-19 ✅** · **Z-20 ✅** · **Z-21 ✅ (bundle -63% + streamdown removido)**
-- **Sprint Z-22 INICIADA:** Issue #725 · Milestone #20 · Dashboard Compliance v3 on-demand [P0] · SPEC 573 linhas
+- **ADR-0031:** ✅ VIGENTE — Snapshot imutável Perfil da Entidade
+- **DB limpo:** 0 projetos · 0 archetypes · ragDocuments 2515 preservado
+- **GitHub Secrets CI:** 7 configurados (DATABASE_URL, OPENAI_API_KEY, JWT_SECRET, 4×VITE_*)
+- **Sprints encerradas:** Z-07→Z-22 ✅ · M1 ✅ · **M2 ✅ (Perfil da Entidade — 6 dimensões + engine + flag global)**
+- **Sprint M3 ABERTO:** Issue #873 (CI prod isolation) · PR-LISTCLIENTS-FIX pendente · LICOES_ARQUITETURAIS.md (#890) · CPIE decision doc (#891) · PR-J refactor (#892+#893+#894) · PR-FIX-1 (#895) · PR-FIX-2 (#896)
 
 ### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |
@@ -448,3 +449,69 @@ Após o merge deste PR documental, **nenhum PR M1 está sob orquestração ativa
 
 **Checkpoint:** main `1c429950` · tsc 0 erros · Vitest 12/12 PASS · Suite 51 cenários 50/0/1 ✅
 *Atualizado em 2026-04-27 · v7.59 · Sprint M1 pós-split · Aprovador: P.O. Uires Tapajós*
+
+## Sprint M2 — Perfil da Entidade — Estado final (2026-05-01)
+
+### Resumo
+
+Módulo Perfil da Entidade implementado e validado end-to-end. Engine de 6 dimensões (objeto, papel_na_cadeia, tipo_de_relacao, território, regime, subnatureza_setorial) com inferência LLM+RAG, validação de conflitos, e confirmação imutável (ADR-0031).
+
+### PRs mergeados (M2)
+
+| PR | Título | Tipo |
+|---|---|---|
+| #876 | defense-in-depth E2E_TEST_MODE | security |
+| #880 | PR-F BUG-4 financeiro | fix |
+| #884 | PR-FIN-NBS gate input isenção | fix |
+| #885 | PR-FIN-OBJETO deriveObjeto fallback | fix |
+| #886 | PR-FIN-OBJETO-V2 deriveObjetoForSeed + computeMissingRequiredFields | fix |
+
+### PRs mergeados (M3 — refactor + CI)
+
+| PR | Título | Tipo |
+|---|---|---|
+| #889 | docs(investigation): CI_SECRETS_GAP_ANALYSIS | docs |
+| #890 | docs(m3-t1): LICOES_ARQUITETURAIS | docs |
+| #891 | docs(m3-t2): CPIE decision doc | docs |
+| #892 | docs(pr-j): Fase 1 pré-análise (C+D) | docs |
+| #893 | test(pr-j): Fase 2a snapshot behavior gates | test |
+| #894 | refactor(pr-j): extract seedNormalizers | refactor |
+| #895 | test(risk-engine-v4): snapshot defensivo SEVERITY_TABLE | test |
+| #896 | test(ci): graceful skip DB tests via CI_HAS_TEST_DB | test |
+
+### Smoke validados
+
+| Smoke | Cenário | Resultado | Data |
+|---|---|---|---|
+| M3-PROMPT-0 | Financeiro sem NBS (equipe_solaris) | 10/10 PASS | 2026-05-01 |
+| M3-PROMPT-0-BIS | Validação definitiva JSON real | PASS | 2026-05-01 |
+| Smoke Regressivo Fase 2 | Pós PR-J refactor (equipe_solaris) | 10/10 PASS | 2026-05-01 |
+| Caminho B (tRPC) | role=cliente programmático | HTTP 200 PASS | 2026-05-01 |
+
+### Feature flags
+
+| Flag | Valor | Desde |
+|---|---|---|
+| M2_PERFIL_ENTIDADE_ENABLED | `true` (global) | 2026-05-01 |
+| E2E_TEST_MODE | `false` (prod) | 2026-04-30 |
+| DIAGNOSTIC_READ_MODE | `shadow` | 2026-04-18 |
+
+### Pendentes Sprint M3
+
+| Item | Status | Bloqueador |
+|---|---|---|
+| Issue #873 (CI prod isolation) | Pronto para iniciar | Nenhum |
+| PR-LISTCLIENTS-FIX (BUG dropdown role=cliente) | Aguardando despacho | Nenhum |
+| CI_HAS_TEST_DB secret | Criar quando #873 mergear | Depende de #873 |
+| E2E Playwright suite | Adiado | Depende de E2E_TEST_SECRET |
+
+### Regras invariantes (M2/M3) — mantidas
+
+- **NÃO alterar** `server/lib/archetype/buildPerfilEntidade.ts` sem smoke regressivo
+- **NÃO desativar** `M2_PERFIL_ENTIDADE_ENABLED` sem aprovação P.O.
+- **NÃO executar** DROP COLUMN sem aprovação P.O.
+- **NÃO ativar** `DIAGNOSTIC_READ_MODE=new` sem aprovação P.O.
+- **Regra P2.W** permanece ativa (não tocar branches sob orquestração)
+
+**Checkpoint:** main `50afed6` · Manus `89c4581e` · tsc 0 erros · Deploy iasolaris.manus.space ✅
+*Atualizado em 2026-05-01 · v8.0 · Sprint M3 aberto · Aprovador: P.O. Uires Tapajós*
