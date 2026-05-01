@@ -10,6 +10,7 @@
  */
 import { describe, it, expect } from "vitest";
 import * as db from "./db";
+import { dbDescribe } from "./test-helpers";
 
 // Helper: executar SQL raw via mysql2
 async function sql(query: string, params: any[] = []) {
@@ -20,7 +21,7 @@ async function sql(query: string, params: any[] = []) {
   return rows as any[];
 }
 
-describe("Z-12 migration 0072 — risk_category_code em regulatory_requirements_v3", () => {
+dbDescribe("Z-12 migration 0072 — risk_category_code em regulatory_requirements_v3", () => {
 
   it("Coluna risk_category_code existe na tabela", async () => {
     const rows = await sql("SHOW COLUMNS FROM regulatory_requirements_v3 LIKE 'risk_category_code'");

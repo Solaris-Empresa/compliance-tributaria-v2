@@ -17,6 +17,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 import {
   DerivedActionSchema,
   ActionTemplateSchema,
@@ -132,7 +133,7 @@ afterAll(async () => {
 // T-B6-01: Vínculo obrigatório (CRÍTICO)
 // ===========================================================================
 
-describe("T-B6-01: Vínculo obrigatório — risk_id + gap_id + requirement_id", () => {
+dbDescribe("T-B6-01: Vínculo obrigatório — risk_id + gap_id + requirement_id", () => {
   it("ação sem risk_id é inválida", () => {
     const result = validateAction({
       gap_id: 1,
@@ -207,7 +208,7 @@ describe("T-B6-01: Vínculo obrigatório — risk_id + gap_id + requirement_id",
 // T-B6-02: Estrutura mínima da ação
 // ===========================================================================
 
-describe("T-B6-02: Estrutura mínima — descrição, prioridade, prazo, responsável, evidência", () => {
+dbDescribe("T-B6-02: Estrutura mínima — descrição, prioridade, prazo, responsável, evidência", () => {
   it("schema DerivedAction exige todos os campos obrigatórios", () => {
     // Ação completa deve ser válida
     const validAction = {
@@ -290,7 +291,7 @@ describe("T-B6-02: Estrutura mínima — descrição, prioridade, prazo, respons
 // T-B6-03: Ação executável — não genérica, não acadêmica, não vaga
 // ===========================================================================
 
-describe("T-B6-03: Ação executável — não genérica, não acadêmica, não vaga", () => {
+dbDescribe("T-B6-03: Ação executável — não genérica, não acadêmica, não vaga", () => {
   it("ação genérica 'revisar processos' é inválida (< 20 chars úteis)", () => {
     const result = validateAction({
       risk_id: 1, gap_id: 1, requirement_id: 1,
@@ -349,7 +350,7 @@ describe("T-B6-03: Ação executável — não genérica, não acadêmica, não 
 // T-B6-04: Template correto por domínio
 // ===========================================================================
 
-describe("T-B6-04: Template correto por domínio", () => {
+dbDescribe("T-B6-04: Template correto por domínio", () => {
   it("domínio fiscal tem templates específicos", () => {
     const tmpl = getTemplateByType("split_payment", "fiscal");
     expect(tmpl).not.toBeNull();
@@ -406,7 +407,7 @@ describe("T-B6-04: Template correto por domínio", () => {
 // T-B6-05: Prazo determinístico por severidade
 // ===========================================================================
 
-describe("T-B6-05: Prazo determinístico — crítico 15–30d, alto 30–90d", () => {
+dbDescribe("T-B6-05: Prazo determinístico — crítico 15–30d, alto 30–90d", () => {
   it("risco crítico gera ação com prazo ≤ 30 dias", async () => {
     const actions = await deriveActionsFromRisks(testProjectId);
     const criticalActions = actions.filter(a => {
@@ -465,7 +466,7 @@ describe("T-B6-05: Prazo determinístico — crítico 15–30d, alto 30–90d", 
 // T-B6-06: Responsável correto por domínio
 // ===========================================================================
 
-describe("T-B6-06: Responsável correto por domínio", () => {
+dbDescribe("T-B6-06: Responsável correto por domínio", () => {
   it("template fiscal tem responsável fiscal/contábil", () => {
     const tmpl = getTemplateByType("split_payment", "fiscal");
     expect(tmpl!.responsible.length).toBeGreaterThan(0);
@@ -504,7 +505,7 @@ describe("T-B6-06: Responsável correto por domínio", () => {
 // T-B6-07: Evidência obrigatória e específica
 // ===========================================================================
 
-describe("T-B6-07: Evidência obrigatória e específica", () => {
+dbDescribe("T-B6-07: Evidência obrigatória e específica", () => {
   it("ação sem evidence_required é inválida", () => {
     const result = validateAction({
       risk_id: 1, gap_id: 1, requirement_id: 1,
@@ -550,7 +551,7 @@ describe("T-B6-07: Evidência obrigatória e específica", () => {
 // T-B6-08: Prioridade coerente com score do risco
 // ===========================================================================
 
-describe("T-B6-08: Prioridade coerente com score do risco", () => {
+dbDescribe("T-B6-08: Prioridade coerente com score do risco", () => {
   it("risco crítico gera ação com prioridade imediata", async () => {
     const actions = await deriveActionsFromRisks(testProjectId);
     // O risco de teste é crítico — deve gerar ação imediata
@@ -580,7 +581,7 @@ describe("T-B6-08: Prioridade coerente com score do risco", () => {
 // T-B6-09: Nenhuma ação sem risco
 // ===========================================================================
 
-describe("T-B6-09: Nenhuma ação sem risco", () => {
+dbDescribe("T-B6-09: Nenhuma ação sem risco", () => {
   it("deriveActionsFromRisks só gera ações para riscos com gap_id rastreável", async () => {
     const actions = await deriveActionsFromRisks(testProjectId);
     for (const action of actions) {
@@ -618,7 +619,7 @@ describe("T-B6-09: Nenhuma ação sem risco", () => {
 // T-B6-10: 4 cenários obrigatórios
 // ===========================================================================
 
-describe("T-B6-10: 4 cenários obrigatórios — alto, médio, contextual, gap oculto", () => {
+dbDescribe("T-B6-10: 4 cenários obrigatórios — alto, médio, contextual, gap oculto", () => {
   it("Cenário 1 — Risco alto: ação com priority=curto_prazo e deadline ≤ 90 dias", () => {
     // Simular risco alto
     const action = {

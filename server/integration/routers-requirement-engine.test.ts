@@ -13,6 +13,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -30,7 +31,7 @@ afterAll(async () => {
 // ---------------------------------------------------------------------------
 // T-B2-01: Estrutura obrigatória de cada requisito
 // ---------------------------------------------------------------------------
-describe("T-B2-01: Estrutura obrigatória dos requisitos", () => {
+dbDescribe("T-B2-01: Estrutura obrigatória dos requisitos", () => {
   it("todos os requisitos ativos têm id único (code)", async () => {
     const [rows] = await pool.query<mysql.RowDataPacket[]>(
       "SELECT code, COUNT(*) as cnt FROM regulatory_requirements_v3 WHERE active=1 GROUP BY code HAVING cnt > 1"
@@ -82,7 +83,7 @@ describe("T-B2-01: Estrutura obrigatória dos requisitos", () => {
 // ---------------------------------------------------------------------------
 // T-B2-02: Filtragem correta por perfil
 // ---------------------------------------------------------------------------
-describe("T-B2-02: Filtragem correta por perfil (varejo, Lucro Presumido, SP)", () => {
+dbDescribe("T-B2-02: Filtragem correta por perfil (varejo, Lucro Presumido, SP)", () => {
   it("requisitos com tag 'marketplace' não aparecem sem paymentMethods=marketplace", async () => {
     const [rows] = await pool.query<mysql.RowDataPacket[]>(
       "SELECT code, tags FROM regulatory_requirements_v3 WHERE active=1 AND JSON_CONTAINS(tags, '\"marketplace\"')"
@@ -122,7 +123,7 @@ describe("T-B2-02: Filtragem correta por perfil (varejo, Lucro Presumido, SP)", 
 // ---------------------------------------------------------------------------
 // T-B2-03: Regra CNAE condicional
 // ---------------------------------------------------------------------------
-describe("T-B2-03: Regra CNAE condicional", () => {
+dbDescribe("T-B2-03: Regra CNAE condicional", () => {
   it("requisitos com layer=cnae têm source_reference (não são genéricos)", async () => {
     const [rows] = await pool.query<mysql.RowDataPacket[]>(
       "SELECT code, source_reference FROM regulatory_requirements_v3 WHERE active=1 AND layer='cnae'"
@@ -147,7 +148,7 @@ describe("T-B2-03: Regra CNAE condicional", () => {
 // ---------------------------------------------------------------------------
 // T-B2-04: Cobertura inicial pré-questionário
 // ---------------------------------------------------------------------------
-describe("T-B2-04: Cobertura inicial pré-questionário", () => {
+dbDescribe("T-B2-04: Cobertura inicial pré-questionário", () => {
   it("payload de cobertura inicial tem estrutura correta {total, corporativo, operacional, cnae}", async () => {
     const [rows] = await pool.query<mysql.RowDataPacket[]>(
       "SELECT layer, COUNT(*) as total FROM regulatory_requirements_v3 WHERE active=1 GROUP BY layer"
@@ -188,7 +189,7 @@ describe("T-B2-04: Cobertura inicial pré-questionário", () => {
 // ---------------------------------------------------------------------------
 // T-B2-05: Consistência entre CNAEs múltiplos
 // ---------------------------------------------------------------------------
-describe("T-B2-05: Consistência entre CNAEs múltiplos", () => {
+dbDescribe("T-B2-05: Consistência entre CNAEs múltiplos", () => {
   it("requisitos corporativos aparecem uma única vez (sem duplicação por CNAE)", async () => {
     const [rows] = await pool.query<mysql.RowDataPacket[]>(
       "SELECT code, COUNT(*) as cnt FROM regulatory_requirements_v3 WHERE active=1 AND layer='corporativo' GROUP BY code HAVING cnt > 1"
@@ -219,7 +220,7 @@ describe("T-B2-05: Consistência entre CNAEs múltiplos", () => {
 // ---------------------------------------------------------------------------
 // T-B2-06: Integração com RAG — todos os requisitos têm fonte normativa real
 // ---------------------------------------------------------------------------
-describe("T-B2-06: Integração com RAG — fonte normativa real", () => {
+dbDescribe("T-B2-06: Integração com RAG — fonte normativa real", () => {
   it("todos os requisitos ativos têm source_reference com referência a EC/LC", async () => {
     const [rows] = await pool.query<mysql.RowDataPacket[]>(
       "SELECT code, source_reference FROM regulatory_requirements_v3 WHERE active=1"

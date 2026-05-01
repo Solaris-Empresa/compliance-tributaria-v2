@@ -270,9 +270,9 @@ Se você não souber o estado atual do projeto:
 
 ---
 
-## Sessão 2026-04-30 — Smoke R3-A + Hotfix retroativo + 2 regras + Bypass remediado
+## Sessão 2026-04-30 — 13 PRs + 4 bugs financeiro + ORQ-25/26 + Lições #41-#44
 
-### PRs mergeados
+### PRs mergeados (13)
 
 ```
 #871  PR-E fontes_receita (V-LC-102 fix)
@@ -283,6 +283,11 @@ Se você não souber o estado atual do projeto:
 #879  REGRA-ORQ-25 anti-drift Manus.space SHA
 #880  PR-F BUG-4 financeiro V-LC-607 (Claude Code)
 #881  PR-G PC-04 backlog M3 + cancelamento (Claude Code)
+#882  docs handoff (Manus)
+#883  BACKLOG_M3 expand PR-H/I/J + Smokes 8-10
+#884  PR-FIN-NBS isenção gate input financeiro sem NBS
+#885  PR-FIN-OBJETO deriveObjeto fallback elevado servico_financeiro
+#886  PR-FIN-OBJETO-V2 financeiro sem NBS via deriveObjetoForSeed default
 ```
 
 ### Smoke R3-A 5/5 PASS prod
@@ -304,6 +309,11 @@ Cenário 5: regressão user comum — PASS (dev + parcial prod)
   (Issue #874, removido + defense-in-depth #876)
 - CI rodando contra DB prod (Issue #873 + cleanup retroativo Issue #875)
 - BUG-4 financeiro V-LC-607 (PR #880 — Claude Code)
+- BUG-FIN-NBS financeiro sem NBS quebrava gate input (PR #884)
+- BUG-FIN-OBJETO deriveObjeto fallback errado para regulado (PR #885)
+- BUG-V3 missing_required_fields forçava status=inconsistente
+  para financeiro pós-correções (PR #886, exemption no
+  computeMissingRequiredFields)
 ```
 
 ### Diagnóstico exposição bypass (Manus 2026-04-30)
@@ -319,14 +329,24 @@ Impacto real: ZERO — bypass nunca exercido por users externos
 ### Pendente sessão futura
 
 ```
-- Smoke financeiro pós-PR-F (plano em /tmp/PLANO_SMOKE_FINANCEIRO.md)
-- Step 4 GO efetivo (rollout flag global) pós-smoke financeiro
+- Smoke 6c financeiro SEM NBS pós-PR-FIN-OBJETO-V2 (#886)
+  → Manus republicar com SHA 7eccae1 + smoke browser
+- Step 4 GO efetivo (rollout flag global) pós-smoke 6c PASS
+- Sprint M3-Agro (cobertura cadeia agronegócio)
+  → relatório v2 em 5-backlog/00----CADEIA VALOR --- AGRO
+  → estratégia use-case-driven (não dataset-first)
+  → Fase 1 crítica: bug 1.0501 + NCM combustível + NBS transporte
+  → 10 PRs Classe A planejados (~10h CC + lotes Dr. José sob demanda)
 - PR-G PC-04 tela branca (backlog M3 — Classe C com SPEC formal)
-  → docs/governance/BACKLOG_M3.md registra pré-requisitos
+- PR-J refactor seedNormalizers (~3h Classe A-B, quick win M3)
+- PR-H 3 bugs latentes ALTOS (BUG-5/6/7 abrangencia + atua_imp/exp)
+  → SQL Q1+Q5 pré-execução para quantificar severidade
 - Issue #873 fix CI prod isolation (sprint dedicada)
 - Issue #875 cleanup retroativo 268+15.908 sintéticos (pós-#873)
 - cpie_analysis_history migration conflict (pré próximo PR schema)
 - Drift Manus.space arquitetural (REGRA-ORQ-25 mitiga, fix M3)
+- RESULT-51-casos-brasil-v3.json drift (58 vs 60 cenários)
+  → PR docs-only Classe A regenera (~10min, não-bloqueante)
 ```
 
 ### Estado DB pós-sessão
@@ -336,7 +356,9 @@ projects: 536 (era 471 — +65 CI bursts contínuos, Issue #873)
 users: 16.367 (15.908 sintéticos CI + ~459 reais)
 ragDocuments: 2.515 (intacto)
 archetype confirmados: 0 (cleanup smoke OK)
-main HEAD: 9ef3244
+main HEAD: 7eccae1 (pós-#886)
+rules_hash canonical: sha256:4929516b...e272 (invariante 13 PRs)
+suite oficial: 60 cenários (S59 + S60 adicionados em #885 + #886)
 ```
 
 ### Lições arquiteturais acumuladas (sessão 2026-04-30)
@@ -349,6 +371,22 @@ main HEAD: 9ef3244
 36. Smoke tests devem cobrir caso negativo (user sem permissão) além de positivos
 37. Commits diretos em main local causam drift — branch obrigatória sem exceção
 38. Validação NCM/NBS via throw TRPCError causa UX tela branca — preferir blockers
+39. Reportes pós-merge devem incluir SHA git + checkpoint Manus (REGRA-ORQ-25)
+40. Pré-análise rules_hash impact ANTES de engine touch evita 2x retrabalho
+41. Smoke real é gate de release efetivo — não confiar em suite sintética
+    sem validação por cliente real (validada 3x na sessão: BUG-FIN-NBS,
+    BUG-FIN-OBJETO, BUG-V3 — todos descobertos via smoke real)
+42. Reporte de smoke deve explicitar caso testado vs caso real esperado
+    (smoke financeiro COM NBS != smoke financeiro SEM NBS — ambos necessários)
+43. Fixes em engine multi-camada (deriveObjeto → buildPerfilEntidade →
+    validateConflicts → computeStatus) exigem callgraph completo antes
+    de aprovar PR; cada camada pode ter validação independente que
+    quebra o cenário (caso BUG-V3 missing_required_fields pós-#885)
+44. Pré-análise é diagnóstico onde há lacuna, não ritual obrigatório
+    (pulamos pré-análise frontend V2 #886 porque PDFs já cobriam)
+45. Estratégia de cobertura deve ser use-case-driven, não dataset-first
+    (relatório AGRO v1 inflado em 3 semanas Classe C virou v2 incremental
+    com PR-AGRO-1 começando em 30min sem dependência jurídica)
 ```
 
 ---

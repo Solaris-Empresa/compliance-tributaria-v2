@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`afericao — 10 categorias na SEVERITY_TABLE (RN-RISK-02) > conjunto de categorias preservado (snapshot defensivo) 1`] = `
+[
+  "aliquota_reduzida",
+  "aliquota_zero",
+  "confissao_automatica",
+  "credito_presumido",
+  "enquadramento_geral",
+  "imposto_seletivo",
+  "inscricao_cadastral",
+  "obrigacao_acessoria",
+  "regime_diferenciado",
+  "split_payment",
+  "transicao_iss_ibs",
+]
+`;

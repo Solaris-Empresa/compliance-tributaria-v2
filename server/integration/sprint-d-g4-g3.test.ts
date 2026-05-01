@@ -8,6 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createRequire } from "module";
+import { dbDescribe } from "../test-helpers";
 
 // ---------------------------------------------------------------------------
 // Importar normalizeAnchorSegment e buildAnchorId diretamente do módulo
@@ -164,7 +165,7 @@ function rankChunksByQuery(corpus: MockChunk[], queryTopics: string[]): MockChun
 // BLOCO 4 — Testes
 // ---------------------------------------------------------------------------
 
-describe("Sprint D — G4 + G3 — Corpus RAG LC 214/2025 e EC 132/2023", () => {
+dbDescribe("Sprint D — G4 + G3 — Corpus RAG LC 214/2025 e EC 132/2023", () => {
 
   // ── normalizeAnchorSegment ───────────────────────────────────────────────
 

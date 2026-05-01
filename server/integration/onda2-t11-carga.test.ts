@@ -5,6 +5,7 @@
  */
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 
 const TEST_USER_ID = 1;
 const TEST_CLIENT_ID = 1;
@@ -42,7 +43,7 @@ async function getProject(id: number): Promise<any> {
 
 // ─── Suite T11 ────────────────────────────────────────────────────────────────
 
-describe("T11 — Carga: 50 projetos em paralelo", () => {
+dbDescribe("T11 — Carga: 50 projetos em paralelo", () => {
   beforeAll(async () => {
     pool = mysql.createPool({ uri: process.env.DATABASE_URL!, connectionLimit: 20 });
     // Limpar runs anteriores
