@@ -24,6 +24,11 @@ import { isM1ArchetypeEnabled } from "./config/feature-flags";
 import { buildSnapshot } from "./lib/archetype/buildSnapshot";
 import type { Seed, Blocker } from "./lib/archetype/types";
 import { validateM1Seed, deriveTipoObjetoEconomico } from "./lib/archetype/validateM1Input";
+import {
+  SNAKE_TO_LABEL,
+  POSICAO_ALIASES,
+  NATUREZA_TO_FONTES,
+} from "./lib/archetype/seedNormalizers";
 
 // ─── Schema de entrada do log ─────────────────────────────────────────────
 const BlockerSchema = z.object({
@@ -166,14 +171,7 @@ export const m1MonitorRouter = router({
       // diretamente, sem converter para snake_case.
       //
       // Normalização necessária: snake_case → label UI (para seeds programáticas)
-      const SNAKE_TO_LABEL: Record<string, string> = {
-        "lucro_real": "Lucro Real",
-        "lucro_presumido": "Lucro Presumido",
-        "simples_nacional": "Simples Nacional",
-        "simples": "Simples Nacional",
-        "mei": "MEI",
-        "regime_geral": "Lucro Real", // fallback razoável para regime_geral
-      };
+      // PR-J Fase 2b: SNAKE_TO_LABEL extraído para seedNormalizers.ts
       const rawRegime = (
         (input.seed as Record<string, unknown>).regime_tributario_atual as string ??
         (input.seed as Record<string, unknown>).regime_tributario_input as string ??
@@ -190,30 +188,7 @@ export const m1MonitorRouter = router({
       // "Produtor/fabricante", "Prestador de servico", "Atacadista", etc.
       // O formulário M1 envia os valores diretamente, mas aliases históricos
       // (snake_case, labels antigos) são normalizados aqui para não alterar o runner.
-      const POSICAO_ALIASES: Record<string, string> = {
-        // snake_case legado
-        "fabricante":          "Produtor/fabricante",
-        "produtor":            "Produtor/fabricante",
-        "distribuidor":        "Atacadista",
-        "atacadista":          "Atacadista",
-        "varejista":           "Varejista",
-        "prestador_servico":   "Prestador de servico",
-        "prestador de serviço": "Prestador de servico",
-        "intermediador":       "Intermediador",
-        "operadora":           "Operadora",
-        "operadora_regulada":  "Operadora",
-        "importador":          "Importador",
-        // Alias especial: "Produtor" (agro) → "Produtor/fabricante" (runner)
-        "Produtor":            "Produtor/fabricante",
-        // Alias especial: "Fabricante" (indústria) → "Produtor/fabricante" (runner)
-        "Fabricante":          "Produtor/fabricante",
-        // Alias: "Prestador de Serviço" (com acento) → "Prestador de servico"
-        "Prestador de Serviço": "Prestador de servico",
-        "Transportador":       "Transportador", // pass-through (runner usa natureza_op)
-        "Comerciante":         "Varejista",     // alias razoável
-        "Importador":          "Importador",    // pass-through (runner usa atua_importacao)
-        "Intermediador":       "Intermediador", // pass-through
-      };
+      // PR-J Fase 2b: POSICAO_ALIASES extraído para seedNormalizers.ts
       const rawPosicao = (input.seed as Record<string, unknown>).posicao_na_cadeia_economica as string ?? "";
       const normalizedPosicao = POSICAO_ALIASES[rawPosicao] ?? rawPosicao;
       console.log("[M1-RUNNER] posicao_na_cadeia_economica:", JSON.stringify({ rawPosicao, normalizedPosicao }));
@@ -223,14 +198,7 @@ export const m1MonitorRouter = router({
       // O formulário M1 usa natureza_operacao_principal (multi-select UI).
       // Quando fontes_receita estiver vazio, derivamos a partir de natureza_operacao_principal
       // para evitar tipo_de_relacao=[] e o consequente HARD_BLOCK V-LC-102.
-      const NATUREZA_TO_FONTES: Record<string, string> = {
-        "Produção própria":    "Producao propria",
-        "Comércio":            "Venda de mercadoria",
-        "Prestação de serviço": "Prestacao de servico",
-        "Transporte":          "Prestacao de servico",
-        "Intermediação":       "Comissao/intermediacao",
-        "Locação":             "Aluguel/locacao",
-      };
+      // PR-J Fase 2b: NATUREZA_TO_FONTES extraído para seedNormalizers.ts
       const rawNatureza = (input.seed as Record<string, unknown>).natureza_operacao_principal as string[] ?? [];
       const rawFontes   = (input.seed as Record<string, unknown>).fontes_receita as string[] ?? [];
       const derivedFontes: string[] = rawFontes.length > 0
