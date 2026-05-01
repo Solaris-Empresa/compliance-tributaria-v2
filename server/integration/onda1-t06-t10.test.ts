@@ -13,6 +13,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 
 let conn: mysql.Connection;
 
@@ -103,7 +104,7 @@ async function saveQuestionnaireAnswer(projectId: number, cnaeCode: string, ques
 
 // ─── T06 — Regressão de rotas legadas ────────────────────────────────────────
 
-describe("T06 — Regressão de rotas legadas (regression suite)", () => {
+dbDescribe("T06 — Regressão de rotas legadas (regression suite)", () => {
 
   it("T06.1 — rota /questionario-v3 não deve ser o destino após confirmação de CNAEs", () => {
     // K-4-B alterou o fluxo: após confirmar CNAEs, navega para /questionario-solaris (Onda 1)
@@ -185,7 +186,7 @@ describe("T06 — Regressão de rotas legadas (regression suite)", () => {
 
 // ─── T07 — Consistência de status e stepper ──────────────────────────────────
 
-describe("T07 — Consistência de status e stepper (state machine)", () => {
+dbDescribe("T07 — Consistência de status e stepper (state machine)", () => {
   let projectId: number;
 
   const STATE_TRANSITIONS = [
@@ -278,7 +279,7 @@ describe("T07 — Consistência de status e stepper (state machine)", () => {
 
 // ─── T08 — Geração de IA (estrutura e coerência) ─────────────────────────────
 
-describe("T08 — Geração de IA (estrutura e coerência)", () => {
+dbDescribe("T08 — Geração de IA (estrutura e coerência)", () => {
   let projectId: number;
 
   beforeAll(async () => {
@@ -391,7 +392,7 @@ describe("T08 — Geração de IA (estrutura e coerência)", () => {
 
 // ─── T09 — Shadow Mode ────────────────────────────────────────────────────────
 
-describe("T09 — Shadow Mode (observabilidade)", () => {
+dbDescribe("T09 — Shadow Mode (observabilidade)", () => {
 
   it("T09.1 — DIAGNOSTIC_READ_MODE está configurado como shadow ou legacy", () => {
     const mode = process.env.DIAGNOSTIC_READ_MODE;
@@ -478,7 +479,7 @@ describe("T09 — Shadow Mode (observabilidade)", () => {
 
 // ─── T10 — Alteração do projeto (reentrada) ───────────────────────────────────
 
-describe("T10 — Alteração do projeto (reentrada completa)", () => {
+dbDescribe("T10 — Alteração do projeto (reentrada completa)", () => {
   let projectId: number;
 
   beforeAll(async () => {

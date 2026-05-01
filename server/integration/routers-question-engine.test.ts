@@ -17,6 +17,7 @@
 
 import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -79,7 +80,7 @@ function mockApprovedQuestion(overrides: Partial<any> = {}): any {
 // ---------------------------------------------------------------------------
 // T-B3-01: Fonte obrigatória
 // ---------------------------------------------------------------------------
-describe("T-B3-01: Fonte obrigatória em cada pergunta", () => {
+dbDescribe("T-B3-01: Fonte obrigatória em cada pergunta", () => {
   it("pergunta aprovada tem requirement_id não vazio", () => {
     const q = mockApprovedQuestion();
     expect(q.requirement_id).toBeTruthy();
@@ -118,7 +119,7 @@ describe("T-B3-01: Fonte obrigatória em cada pergunta", () => {
 // ---------------------------------------------------------------------------
 // T-B3-02: Pergunta não repete o perfil
 // ---------------------------------------------------------------------------
-describe("T-B3-02: Pergunta não repete dados do perfil", () => {
+dbDescribe("T-B3-02: Pergunta não repete dados do perfil", () => {
   it("pergunta de exemplo não contém 'qual seu regime tributário'", () => {
     const q = mockApprovedQuestion();
     const lower = q.question_text.toLowerCase();
@@ -151,7 +152,7 @@ describe("T-B3-02: Pergunta não repete dados do perfil", () => {
 // ---------------------------------------------------------------------------
 // T-B3-03: Deduplicação semântica
 // ---------------------------------------------------------------------------
-describe("T-B3-03: Deduplicação semântica", () => {
+dbDescribe("T-B3-03: Deduplicação semântica", () => {
   it("perguntas idênticas têm similaridade 1.0", () => {
     const q = "Sua empresa formalizou o mapeamento de incidência do IBS/CBS conforme EC 132?";
     expect(jaccardSimilarity(q, q)).toBe(1.0);
@@ -195,7 +196,7 @@ describe("T-B3-03: Deduplicação semântica", () => {
 // ---------------------------------------------------------------------------
 // T-B3-04: Quality Gate
 // ---------------------------------------------------------------------------
-describe("T-B3-04: Quality Gate (score ≥ 3.5, até 2 retries, fallback NO_QUESTION)", () => {
+dbDescribe("T-B3-04: Quality Gate (score ≥ 3.5, até 2 retries, fallback NO_QUESTION)", () => {
   it("pergunta com score 4.2 é aprovada (≥ 3.5)", () => {
     const q = mockApprovedQuestion({ quality_gate_score: 4.2, quality_gate_status: "approved" });
     expect(q.quality_gate_score).toBeGreaterThanOrEqual(3.5);
@@ -243,7 +244,7 @@ describe("T-B3-04: Quality Gate (score ≥ 3.5, até 2 retries, fallback NO_QUES
 // ---------------------------------------------------------------------------
 // T-B3-05: Relação direta com requisito
 // ---------------------------------------------------------------------------
-describe("T-B3-05: Relação direta com requisito (específica, não genérica)", () => {
+dbDescribe("T-B3-05: Relação direta com requisito (específica, não genérica)", () => {
   it("pergunta boa menciona fonte normativa específica", () => {
     const goodQ = "Sua empresa apura CBS conforme LC 214 Art. 45 separadamente do ICMS/ISS?";
     const hasRef = /LC 214|EC 132|Art\.|§|IBS|CBS|split/i.test(goodQ);
@@ -272,7 +273,7 @@ describe("T-B3-05: Relação direta com requisito (específica, não genérica)"
 // ---------------------------------------------------------------------------
 // T-B3-06: Evidência esperada
 // ---------------------------------------------------------------------------
-describe("T-B3-06: Evidência esperada em cada pergunta", () => {
+dbDescribe("T-B3-06: Evidência esperada em cada pergunta", () => {
   it("pergunta aprovada tem evidence_type não vazio", () => {
     const q = mockApprovedQuestion();
     expect(q.evidence_type).toBeTruthy();
@@ -302,7 +303,7 @@ describe("T-B3-06: Evidência esperada em cada pergunta", () => {
 // ---------------------------------------------------------------------------
 // T-B3-07: Protocolo NO_QUESTION
 // ---------------------------------------------------------------------------
-describe("T-B3-07: Protocolo NO_QUESTION", () => {
+dbDescribe("T-B3-07: Protocolo NO_QUESTION", () => {
   it("status no_valid_question_generated é registrado quando esgota tentativas", () => {
     const log = {
       requirement_id: "REQ-GOV-010",
@@ -338,7 +339,7 @@ describe("T-B3-07: Protocolo NO_QUESTION", () => {
 // ---------------------------------------------------------------------------
 // T-B3-08: Loop por CNAE
 // ---------------------------------------------------------------------------
-describe("T-B3-08: Loop por CNAE (perguntas próprias por CNAE)", () => {
+dbDescribe("T-B3-08: Loop por CNAE (perguntas próprias por CNAE)", () => {
   it("pergunta com cnae_code tem o código registrado", () => {
     const q = mockApprovedQuestion({ cnae_code: "47.11-3-01", layer: "cnae" });
     expect(q.cnae_code).toBe("47.11-3-01");
@@ -370,7 +371,7 @@ describe("T-B3-08: Loop por CNAE (perguntas próprias por CNAE)", () => {
 // ---------------------------------------------------------------------------
 // T-B3-09: Logs de decisão
 // ---------------------------------------------------------------------------
-describe("T-B3-09: Logs de decisão completos", () => {
+dbDescribe("T-B3-09: Logs de decisão completos", () => {
   it("log de pergunta aprovada tem todos os campos obrigatórios", () => {
     const log = {
       requirement_id: "REQ-GOV-001",
@@ -435,7 +436,7 @@ describe("T-B3-09: Logs de decisão completos", () => {
 // ---------------------------------------------------------------------------
 // T-B3-10: Testes obrigatórios completos (integração)
 // ---------------------------------------------------------------------------
-describe("T-B3-10: Testes obrigatórios completos", () => {
+dbDescribe("T-B3-10: Testes obrigatórios completos", () => {
   it("fonte ✔ — toda pergunta aprovada tem requirement_id + source_reference + source_type + confidence", () => {
     const questions = [
       mockApprovedQuestion({ requirement_id: "REQ-GOV-001", source_reference: "EC 132/2023", source_type: "EC", confidence: 0.88 }),

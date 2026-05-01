@@ -15,6 +15,7 @@
  */
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 import { fluxoV3Router } from "../routers-fluxo-v3";
 
 let conn: mysql.Connection;
@@ -130,7 +131,7 @@ afterAll(async () => {
   await conn.end();
 }, 30000);
 
-describe("ADR-0018 — Validação E2E com LLM Real", () => {
+dbDescribe("ADR-0018 — Validação E2E com LLM Real", () => {
   it("ADR0018-E2E-01: briefing menciona Imposto Seletivo, Art. 2, alíquota zero e Art. 14", async () => {
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
 

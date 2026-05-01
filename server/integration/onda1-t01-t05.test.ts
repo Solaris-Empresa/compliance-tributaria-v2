@@ -13,6 +13,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 
 let conn: mysql.Connection;
 
@@ -124,7 +125,7 @@ async function countAnswers(projectId: number) {
 
 // ─── T01 — Fluxo feliz simples (1 CNAE) ──────────────────────────────────────
 
-describe("T01 — Fluxo feliz simples (1 CNAE)", () => {
+dbDescribe("T01 — Fluxo feliz simples (1 CNAE)", () => {
   let projectId: number;
 
   beforeAll(async () => {
@@ -228,7 +229,7 @@ describe("T01 — Fluxo feliz simples (1 CNAE)", () => {
 
 // ─── T02 — Loop com 3 CNAEs ───────────────────────────────────────────────────
 
-describe("T02 — Loop com 3 CNAEs (múltiplos setores)", () => {
+dbDescribe("T02 — Loop com 3 CNAEs (múltiplos setores)", () => {
   let projectId: number;
   const TEST_CNAES = ["1113-5/02", "4635-4/02", "4723-7/00"];
 
@@ -298,7 +299,7 @@ describe("T02 — Loop com 3 CNAEs (múltiplos setores)", () => {
 
 // ─── T03 — Bloqueio por incompletude ─────────────────────────────────────────
 
-describe("T03 — Bloqueio por incompletude (hard block)", () => {
+dbDescribe("T03 — Bloqueio por incompletude (hard block)", () => {
   let projectId: number;
 
   beforeAll(async () => {
@@ -362,7 +363,7 @@ describe("T03 — Bloqueio por incompletude (hard block)", () => {
 
 // ─── T04 — Persistência e retomada ───────────────────────────────────────────
 
-describe("T04 — Persistência e retomada (session recovery)", () => {
+dbDescribe("T04 — Persistência e retomada (session recovery)", () => {
   let projectId: number;
 
   beforeAll(async () => {
@@ -439,7 +440,7 @@ describe("T04 — Persistência e retomada (session recovery)", () => {
 
 // ─── T05 — Retrocesso controlado ─────────────────────────────────────────────
 
-describe("T05 — Retrocesso controlado (step regression)", () => {
+dbDescribe("T05 — Retrocesso controlado (step regression)", () => {
   let projectId: number;
 
   beforeAll(async () => {

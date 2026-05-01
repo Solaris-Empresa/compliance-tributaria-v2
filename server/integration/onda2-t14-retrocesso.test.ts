@@ -9,6 +9,7 @@
  */
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 
 const TEST_USER_ID = 1;
 const TEST_CLIENT_ID = 1;
@@ -82,7 +83,7 @@ async function retrocede(id: number, toStatus: string, toStep: number, reason: s
 
 // ─── Suite T14 ────────────────────────────────────────────────────────────────
 
-describe("T14 — Retrocesso Múltiplo Acumulado", () => {
+dbDescribe("T14 — Retrocesso Múltiplo Acumulado", () => {
   let projectId: number;
   let projectId2: number;
   let projectId3: number;

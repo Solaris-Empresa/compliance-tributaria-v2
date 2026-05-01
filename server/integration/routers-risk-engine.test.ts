@@ -17,6 +17,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 import {
   calculateRiskScore as _calculateRiskScore,
   deriveRisksFromGaps,
@@ -95,7 +96,7 @@ afterAll(async () => {
 // ---------------------------------------------------------------------------
 // T-B5-01: Todo risco tem gap_id rastreável (exceto contextual)
 // ---------------------------------------------------------------------------
-describe("T-B5-01: Rastreabilidade gap_id obrigatória", () => {
+dbDescribe("T-B5-01: Rastreabilidade gap_id obrigatória", () => {
   it("risco direto tem gap_id não nulo", () => {
     const risk: DerivedRisk = {
       gap_id: 42,
@@ -154,7 +155,7 @@ describe("T-B5-01: Rastreabilidade gap_id obrigatória", () => {
 // ---------------------------------------------------------------------------
 // T-B5-02: Taxonomia 3 níveis obrigatória
 // ---------------------------------------------------------------------------
-describe("T-B5-02: Taxonomia hierárquica 3 níveis", () => {
+dbDescribe("T-B5-02: Taxonomia hierárquica 3 níveis", () => {
   it("schema RiskTaxonomy exige domain, category e type", () => {
     const valid = RiskTaxonomySchema.safeParse({
       domain: "fiscal",
@@ -193,7 +194,7 @@ describe("T-B5-02: Taxonomia hierárquica 3 níveis", () => {
 // ---------------------------------------------------------------------------
 // T-B5-03: Hybrid scoring correto
 // ---------------------------------------------------------------------------
-describe("T-B5-03: Hybrid scoring base_criticality × gap_classification × porte × regime", () => {
+dbDescribe("T-B5-03: Hybrid scoring base_criticality × gap_classification × porte × regime", () => {
   it("criticidade critica + ausencia + grande + lucro_real = score máximo (≥ 90)", () => {
     // Simular o cálculo: 90 × 1.0 × 1.15 × 1.20 × 1.0 = ~124 → cap 100
     const baseScore = 90;
@@ -248,7 +249,7 @@ describe("T-B5-03: Hybrid scoring base_criticality × gap_classification × port
 // ---------------------------------------------------------------------------
 // T-B5-04: Campo origin obrigatório
 // ---------------------------------------------------------------------------
-describe("T-B5-04: Campo origin obrigatório e válido", () => {
+dbDescribe("T-B5-04: Campo origin obrigatório e válido", () => {
   it("schema RiskOrigin aceita direto, derivado e contextual", () => {
     expect(RiskOriginSchema.safeParse("direto").success).toBe(true);
     expect(RiskOriginSchema.safeParse("derivado").success).toBe(true);
@@ -275,7 +276,7 @@ describe("T-B5-04: Campo origin obrigatório e válido", () => {
 // ---------------------------------------------------------------------------
 // T-B5-05: Contextual Risk Layer
 // ---------------------------------------------------------------------------
-describe("T-B5-05: Contextual Risk Layer — riscos do perfil da empresa", () => {
+dbDescribe("T-B5-05: Contextual Risk Layer — riscos do perfil da empresa", () => {
   it("empresa grande com lucro_real gera riscos contextuais", async () => {
     // Verificar que o projeto de teste tem porte e regime configurados
     const [projs] = await pool.query<mysql.RowDataPacket[]>(
@@ -319,7 +320,7 @@ describe("T-B5-05: Contextual Risk Layer — riscos do perfil da empresa", () =>
 // ---------------------------------------------------------------------------
 // T-B5-06: Risco crítico com confidence ≥ 0.85
 // ---------------------------------------------------------------------------
-describe("T-B5-06: Risco crítico tem confidence ≥ 0.85", () => {
+dbDescribe("T-B5-06: Risco crítico tem confidence ≥ 0.85", () => {
   it("risco direto com criticidade critica tem confidence ≥ 0.85", () => {
     // origin=direto, dados completos → confidence = 0.92
     const confidence = 0.92;
@@ -350,7 +351,7 @@ describe("T-B5-06: Risco crítico tem confidence ≥ 0.85", () => {
 // ---------------------------------------------------------------------------
 // T-B5-07: Scoring não é binário (range 0-100)
 // ---------------------------------------------------------------------------
-describe("T-B5-07: Scoring não é binário — range contínuo 0-100", () => {
+dbDescribe("T-B5-07: Scoring não é binário — range contínuo 0-100", () => {
   it("scores são valores contínuos entre 0 e 100", () => {
     const scores = [
       Math.min(100, Math.round(90 * 1.0 * 1.15 * 1.20)), // critico, grande, lucro_real
@@ -383,7 +384,7 @@ describe("T-B5-07: Scoring não é binário — range contínuo 0-100", () => {
 // ---------------------------------------------------------------------------
 // T-B5-08: Nenhum risco sem source_reference (exceto contextual com justificativa)
 // ---------------------------------------------------------------------------
-describe("T-B5-08: source_reference obrigatório para riscos direto/derivado", () => {
+dbDescribe("T-B5-08: source_reference obrigatório para riscos direto/derivado", () => {
   it("risco direto sem source_reference é inválido", () => {
     const validate = (r: Partial<DerivedRisk>) => {
       if (r.origin !== "contextual" && !r.source_reference) return false;
@@ -406,7 +407,7 @@ describe("T-B5-08: source_reference obrigatório para riscos direto/derivado", (
 // ---------------------------------------------------------------------------
 // T-B5-09: Logs de decisão auditáveis
 // ---------------------------------------------------------------------------
-describe("T-B5-09: Logs de decisão auditáveis (scoring_factors)", () => {
+dbDescribe("T-B5-09: Logs de decisão auditáveis (scoring_factors)", () => {
   it("scoring_factors é um array não vazio", () => {
     const factors = [
       "base_criticality=alta(70)",
@@ -448,7 +449,7 @@ describe("T-B5-09: Logs de decisão auditáveis (scoring_factors)", () => {
 // ---------------------------------------------------------------------------
 // T-B5-10: 3 cenários obrigatórios do checklist
 // ---------------------------------------------------------------------------
-describe("T-B5-10: 3 cenários obrigatórios — direto, derivado, contextual", () => {
+dbDescribe("T-B5-10: 3 cenários obrigatórios — direto, derivado, contextual", () => {
   it("Cenário 1 — Risco direto: gap_id não nulo, origin=direto, confidence ≥ 0.85", async () => {
     // Derivar riscos do projeto de teste (tem 1 gap inserido no beforeAll)
     const risks = await deriveRisksFromGaps(testProjectId, "grande", "lucro_real");

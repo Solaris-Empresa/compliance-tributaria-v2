@@ -33,6 +33,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 import { z } from "zod";
 
 // ─── Conexão banco (padrão ondas) ─────────────────────────────────────────────
@@ -78,7 +79,7 @@ function walkTsx(dir: string): string[] {
 // ─────────────────────────────────────────────────────────────────────────────
 // BLOCO G5 — Art. 45 LC 214 — confissão de dívida no corpus
 // ─────────────────────────────────────────────────────────────────────────────
-describe("G5 — LC 214 Art. 45 — confissão de dívida no corpus", () => {
+dbDescribe("G5 — LC 214 Art. 45 — confissão de dívida no corpus", () => {
   it("T-G5-01: chunk id=65 contém 'confissão de dívida' no topicos", async () => {
     const [rows] = await conn.execute(
       "SELECT id, lei, artigo, topicos FROM ragDocuments WHERE id = 65"
@@ -107,7 +108,7 @@ describe("G5 — LC 214 Art. 45 — confissão de dívida no corpus", () => {
 // BLOCO G6 — LC 224 Art. 4° — cobertura universal
 // C-03: LIKE "Art. 4%" sem % inicial (evita chunk espúrio Art. 48)
 // ─────────────────────────────────────────────────────────────────────────────
-describe("G6 — LC 224 Art. 4° — cnaeGroups cobertura universal", () => {
+dbDescribe("G6 — LC 224 Art. 4° — cnaeGroups cobertura universal", () => {
   it("T-G6-01: todos os chunks LC 224 Art. 4 e Art. 4 (parte N) têm cnaeGroups='01-96'", async () => {
     // C-03: WHERE artigo LIKE 'Art. 4%' — sem % no início
     const [rows] = await conn.execute(
@@ -130,7 +131,7 @@ describe("G6 — LC 224 Art. 4° — cnaeGroups cobertura universal", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 // BLOCO G1+G2 — Labels corretos no rag-retriever
 // ─────────────────────────────────────────────────────────────────────────────
-describe("G1+G2 — Labels corretos no rag-retriever", () => {
+dbDescribe("G1+G2 — Labels corretos no rag-retriever", () => {
   it("T-G1-01: label lc224 = 'LC 224/2026' (não ausente)", () => {
     const fs = require("fs");
     const content = fs.readFileSync("server/rag-retriever.ts", "utf-8");
@@ -155,7 +156,7 @@ describe("G1+G2 — Labels corretos no rag-retriever", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 // BLOCO G12 — Labels solaris/ia_gen no formatContextText
 // ─────────────────────────────────────────────────────────────────────────────
-describe("G12 — Labels solaris/ia_gen no formatContextText", () => {
+dbDescribe("G12 — Labels solaris/ia_gen no formatContextText", () => {
   it("T-G12-01: rag-retriever contém label 'Equipe Jurídica SOLARIS'", () => {
     const fs = require("fs");
     const content = fs.readFileSync("server/rag-retriever.ts", "utf-8");
@@ -173,7 +174,7 @@ describe("G12 — Labels solaris/ia_gen no formatContextText", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 // BLOCO G13-UI — Ausência de placeholders [QC-XX-PY] no frontend
 // ─────────────────────────────────────────────────────────────────────────────
-describe("G13-UI — Ausência de placeholders [QC-XX-PY] no frontend", () => {
+dbDescribe("G13-UI — Ausência de placeholders [QC-XX-PY] no frontend", () => {
   it("T-G13-01: nenhum arquivo .tsx contém padrão [QC-XX-PY]", () => {
     const fs = require("fs");
     const tsxFiles = walkTsx("client/src");
@@ -190,7 +191,7 @@ describe("G13-UI — Ausência de placeholders [QC-XX-PY] no frontend", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 // BLOCO G14 — Label "Contabilidade e Fiscal" no frontend
 // ─────────────────────────────────────────────────────────────────────────────
-describe("G14 — Label 'Contabilidade e Fiscal' no frontend", () => {
+dbDescribe("G14 — Label 'Contabilidade e Fiscal' no frontend", () => {
   it("T-G14-01: label 'Contabilidade e Fiscal' presente em pelo menos 3 arquivos .tsx", () => {
     const fs = require("fs");
     const tsxFiles = walkTsx("client/src");
@@ -221,7 +222,7 @@ describe("G14 — Label 'Contabilidade e Fiscal' no frontend", () => {
 // C-02: Assertions corrigidas — refletem o que foi implementado
 // DÉBITO TÉCNICO: default genérico "Reforma Tributária — EC 132/2023" permanece
 // ─────────────────────────────────────────────────────────────────────────────
-describe("G9+G10 — Schema Zod: validateRagOutput + fonte_risco", () => {
+dbDescribe("G9+G10 — Schema Zod: validateRagOutput + fonte_risco", () => {
   it("T-G9-01: validateRagOutput implementado com safeParse em ai-schemas.ts", () => {
     const fs = require("fs");
     const content = fs.readFileSync("server/ai-schemas.ts", "utf-8");
@@ -259,7 +260,7 @@ describe("G9+G10 — Schema Zod: validateRagOutput + fonte_risco", () => {
 // BLOCO G4 — Anexos LC 214 no corpus RAG
 // A-02: threshold >= 50 + verificação de anchor_id (coluna: anchor_id)
 // ─────────────────────────────────────────────────────────────────────────────
-describe("G4 — Anexos LC 214 no corpus RAG", () => {
+dbDescribe("G4 — Anexos LC 214 no corpus RAG", () => {
   it("T-G4-01: corpus tem pelo menos 50 chunks dos Anexos da LC 214", async () => {
     const [rows] = await conn.execute(
       "SELECT COUNT(*) as total FROM ragDocuments WHERE lei='lc214' AND artigo LIKE '%Anexo%'"
@@ -280,7 +281,7 @@ describe("G4 — Anexos LC 214 no corpus RAG", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 // BLOCO G3 — EC 132 no corpus RAG
 // ─────────────────────────────────────────────────────────────────────────────
-describe("G3 — EC 132 no corpus RAG", () => {
+dbDescribe("G3 — EC 132 no corpus RAG", () => {
   it("T-G3-01: corpus tem exatamente 18 chunks EC 132", async () => {
     const [rows] = await conn.execute(
       "SELECT COUNT(*) as total FROM ragDocuments WHERE lei='ec132'"
@@ -299,7 +300,7 @@ describe("G3 — EC 132 no corpus RAG", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 // BLOCO G16 — CsvRowSchema (C-01: replicado localmente)
 // ─────────────────────────────────────────────────────────────────────────────
-describe("G16 — CsvRowSchema (replicado localmente — C-01)", () => {
+dbDescribe("G16 — CsvRowSchema (replicado localmente — C-01)", () => {
   it("T-G16-schema-01: CsvRowSchema valida linha válida", () => {
     const validRow = {
       lei: "lc214" as const,

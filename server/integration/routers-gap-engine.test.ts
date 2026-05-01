@@ -16,6 +16,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
+import { dbDescribe } from "../test-helpers";
 
 // ---------------------------------------------------------------------------
 // Setup
@@ -123,7 +124,7 @@ function classifyGapForTest(
 // T-B4-01: Gap definido por regra determinística (não IA)
 // ---------------------------------------------------------------------------
 
-describe("T-B4-01: Gap definido por regra determinística", () => {
+dbDescribe("T-B4-01: Gap definido por regra determinística", () => {
   it("resposta 'nao' → gap ausencia com confidence ≥ 0.90 (determinístico)", () => {
     const result = classifyGapForTest("nao", "nao_atendido", "ausente");
     expect(result.classification).toBe("ausencia");
@@ -157,7 +158,7 @@ describe("T-B4-01: Gap definido por regra determinística", () => {
 // T-B4-02: Todos os requisitos geram gap_status (nenhum sem avaliação)
 // ---------------------------------------------------------------------------
 
-describe("T-B4-02: Todos os requisitos geram gap_status", () => {
+dbDescribe("T-B4-02: Todos os requisitos geram gap_status", () => {
   it("requisitos ativos no banco têm source_reference (pré-requisito B2)", async () => {
     const [reqs] = await pool.query<mysql.RowDataPacket[]>(
       "SELECT COUNT(*) as total FROM regulatory_requirements_v3 WHERE active = 1 AND source_reference IS NOT NULL"
@@ -191,7 +192,7 @@ describe("T-B4-02: Todos os requisitos geram gap_status", () => {
 // T-B4-03: Estados de gap corretos
 // ---------------------------------------------------------------------------
 
-describe("T-B4-03: Estados de gap corretos", () => {
+dbDescribe("T-B4-03: Estados de gap corretos", () => {
   it("estado 'ausencia' gerado corretamente para resposta negativa", () => {
     const r = classifyGapForTest("nao", "nao_atendido", "ausente");
     expect(GapClassificationSchema.safeParse(r.classification).success).toBe(true);
@@ -238,7 +239,7 @@ describe("T-B4-03: Estados de gap corretos", () => {
 // T-B4-04: Evidência obrigatória em todo gap
 // ---------------------------------------------------------------------------
 
-describe("T-B4-04: Evidência obrigatória em todo gap", () => {
+dbDescribe("T-B4-04: Evidência obrigatória em todo gap", () => {
   it("gap gerado sempre tem evidence_status definido", () => {
     const scenarios = [
       { answer: "nao", compliance: "nao_atendido", evidence: "ausente" },
@@ -269,7 +270,7 @@ describe("T-B4-04: Evidência obrigatória em todo gap", () => {
 // T-B4-05: evaluation_confidence calculado por regra
 // ---------------------------------------------------------------------------
 
-describe("T-B4-05: evaluation_confidence calculado por regra", () => {
+dbDescribe("T-B4-05: evaluation_confidence calculado por regra", () => {
   it("confidence alto (≥ 0.90) para casos determinísticos claros", () => {
     const cases = [
       { a: "sim", c: "atendido", e: "completa", expectedMin: 0.95 },
@@ -314,7 +315,7 @@ describe("T-B4-05: evaluation_confidence calculado por regra", () => {
 // T-B4-06: Evidência insuficiente tratada como gap oculto
 // ---------------------------------------------------------------------------
 
-describe("T-B4-06: Evidência insuficiente não passa como ok", () => {
+dbDescribe("T-B4-06: Evidência insuficiente não passa como ok", () => {
   it("resposta vazia → gap ausencia (não passa como atendido)", () => {
     const r = classifyGapForTest("", "nao_atendido", "ausente");
     expect(r.classification).toBe("ausencia");
@@ -349,7 +350,7 @@ describe("T-B4-06: Evidência insuficiente não passa como ok", () => {
 // T-B4-07: LLM controlado — só em ambiguidade
 // ---------------------------------------------------------------------------
 
-describe("T-B4-07: LLM controlado", () => {
+dbDescribe("T-B4-07: LLM controlado", () => {
   it("casos determinísticos não mencionam LLM na razão", () => {
     const deterministicCases = [
       ["nao", "nao_atendido", "ausente"],
@@ -378,7 +379,7 @@ describe("T-B4-07: LLM controlado", () => {
 // T-B4-08: Logs de decisão auditáveis
 // ---------------------------------------------------------------------------
 
-describe("T-B4-08: Logs de decisão auditáveis", () => {
+dbDescribe("T-B4-08: Logs de decisão auditáveis", () => {
   it("toda classificação retorna reason não vazia", () => {
     const cases = [
       ["nao", "nao_atendido", "ausente"],
@@ -413,7 +414,7 @@ describe("T-B4-08: Logs de decisão auditáveis", () => {
 // T-B4-09: Consistência gap ↔ pergunta
 // ---------------------------------------------------------------------------
 
-describe("T-B4-09: Consistência gap ↔ resposta", () => {
+dbDescribe("T-B4-09: Consistência gap ↔ resposta", () => {
   it("resposta 'sim' completa nunca gera gap (não contradiz resposta positiva)", () => {
     const r = classifyGapForTest("sim", "atendido", "completa");
     expect(r.classification).toBeNull();
@@ -441,7 +442,7 @@ describe("T-B4-09: Consistência gap ↔ resposta", () => {
 // T-B4-10: 4 cenários obrigatórios
 // ---------------------------------------------------------------------------
 
-describe("T-B4-10: 4 cenários obrigatórios do checklist", () => {
+dbDescribe("T-B4-10: 4 cenários obrigatórios do checklist", () => {
   it("Cenário 1 — Resposta positiva: sem gap, confidence ≥ 0.95", () => {
     const r = classifyGapForTest("sim", "atendido", "completa");
     expect(r.classification).toBeNull();
