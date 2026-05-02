@@ -1814,11 +1814,20 @@ Retorne APENAS JSON válido no formato:
     }),
 
     listClients: protectedProcedure.query(async ({ ctx }) => {
-      if (ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
-        throw new TRPCError({ code: "FORBIDDEN" });
+      // PR-LISTCLIENTS-FIX (M3 pré-condição C4 Manus):
+      // role=cliente recebe APENAS o próprio user (auto-vínculo) → destrava criação de projeto pela UI.
+      // equipe_solaris/advogado_senior preservam comportamento (lista completa de clientes).
+      // Outras roles → FORBIDDEN explícito.
+      if (ctx.user.role === "cliente") {
+        const self = await db.getUserById(ctx.user.id);
+        return self ? [self] : [];
       }
 
-      return await db.getUsersByRole("cliente");
+      if (ctx.user.role === "equipe_solaris" || ctx.user.role === "advogado_senior") {
+        return await db.getUsersByRole("cliente");
+      }
+
+      throw new TRPCError({ code: "FORBIDDEN", message: "Role não autorizada" });
     }),
 
     createClient: protectedProcedure
