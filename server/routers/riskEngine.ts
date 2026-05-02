@@ -600,8 +600,9 @@ export const riskEngineRouter = router({
       const db = getPool();
 
       // Buscar dados do projeto para o scoring contextual
+      // M3 NOVA-05: SELECT estendido com `archetype` para drop-in replacement de operationType.
       const [projects] = await db.query<mysql.RowDataPacket[]>(
-        "SELECT companySize, taxRegime, confirmedCnaes, operationProfile FROM projects WHERE id = ?",
+        "SELECT companySize, taxRegime, confirmedCnaes, operationProfile, archetype FROM projects WHERE id = ?",
         [input.projectId]
       );
 
@@ -623,7 +624,19 @@ export const riskEngineRouter = router({
           : typeof project.operationProfile === "string"
             ? (JSON.parse(project.operationProfile) as Record<string, unknown>)
             : (project.operationProfile as Record<string, unknown>);
+
+      // M3 NOVA-05: archetype.derived_legacy_operation_type é drop-in replacement do operationType.
+      // Foi PROJETADO para preservar buildRiskKey() (mesma chave → mesmo agrupamento → rules_hash invariante).
+      // Backward-compat: arch=null → cadeia `??` cai no legado naturalmente.
+      const arch: Record<string, unknown> | null =
+        project.archetype == null
+          ? null
+          : typeof project.archetype === "string"
+            ? (JSON.parse(project.archetype) as Record<string, unknown>)
+            : (project.archetype as Record<string, unknown>);
+
       const operationType: string | null =
+        (arch?.derived_legacy_operation_type as string | undefined) ??
         (opProfile.operationType as string | undefined) ??
         (opProfile.tipoOperacao as string | undefined) ??
         null;
