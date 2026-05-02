@@ -6,6 +6,7 @@ import { consolidateRisks, type GapRule, type OperationalContext } from "./risk-
 import { inferNormativeRisks } from "./normative-inference";
 import { enrichRiskWithRag } from "./rag-risk-validator";
 import { extractProjectProfile } from "./project-profile-extractor";
+import { getArchetypeContext } from "./archetype/getArchetypeContext";
 import type { InsertRiskV4 } from "./db-queries-risks-v4";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -85,7 +86,17 @@ export async function generateRisksV4Pipeline(
     : {};
 
   // 3. Consolidar gaps em riscos
-  const consolidated = await consolidateRisks(projectId, gaps, context, actorId);
+  // M3 NOVA-06: enriquecer evidência com contexto do arquétipo (formato: "Objeto: X | Papel: Y | ...")
+  const archetypeContext = profile
+    ? getArchetypeContext(profile.archetype as Parameters<typeof getArchetypeContext>[0])
+    : "";
+  const consolidated = await consolidateRisks(
+    projectId,
+    gaps,
+    context,
+    actorId,
+    archetypeContext || undefined,
+  );
 
   // 4. Inferir riscos normativos independentes
   let inferred: InsertRiskV4[] = [];

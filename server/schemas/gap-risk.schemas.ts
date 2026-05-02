@@ -84,6 +84,11 @@ export const GapInputSchema = z.object({
   sourceReference: z.string().optional(),
   domain: z.string().optional(),
   layer: z.string().optional(),
+  // M3 NOVA-06: rastreabilidade end-to-end (opcionais — backward-compat)
+  questionId: z.number().int().nullable().optional(),
+  answerValue: z.string().nullable().optional(),
+  gapId: z.number().int().nullable().optional(),
+  questionSource: z.enum(["solaris", "iagen", "qa_v3", "engine", "cnae", "v1"]).nullable().optional(),
 });
 
 export type GapInput = z.infer<typeof GapInputSchema>;
@@ -110,6 +115,11 @@ export const GapRuleSchema = z.object({
   requirementId: z.string(),
   sourceReference: z.string(),
   domain: z.string(),
+  // M3 NOVA-06: rastreabilidade end-to-end (opcionais — backward-compat)
+  questionId: z.number().int().nullable().optional(),
+  answerValue: z.string().nullable().optional(),
+  gapId: z.number().int().nullable().optional(),
+  questionSource: z.enum(["solaris", "iagen", "qa_v3", "engine", "cnae", "v1"]).nullable().optional(),
 });
 
 export type GapRuleOutput = z.infer<typeof GapRuleSchema>;
