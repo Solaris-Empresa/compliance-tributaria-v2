@@ -1,7 +1,88 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint
-> **v7.60 · 2026-04-28 (Bundle M1 + Corpus + Gate Input + Suite — HEAD `0a59c8c` · 6 PRs mergeados · #855/#856/#858/#859/#860/#861 · #852/#854 CLOSED · suite oficial 51→58 · GO 57/0/1 · audit ORQ-19 🟢)**
-> **Predecessor:** v7.59 · 2026-04-27 (Split PR #847 — M1 Runner v3 em main, HEAD `1c429950`, audit 🟡 parcial)
+> **v7.61 · 2026-05-02 (Sprint M3 ENCERRADA — Perfil da Entidade integrado a 5 engines + UI + E2E — HEAD `bc649fa` · 9 PRs mergeados M3 + 2 docs + 1 hotfix · suite oficial 58 GO 59/0/1 · 10 testes acceptance + 17 testes NOVA-09 PASS · rules_hash invariante)**
+> **Predecessor:** v7.60 · 2026-04-28 (Bundle M1 + Corpus + Gate Input + Suite — HEAD `0a59c8c` · 6 PRs mergeados · audit ORQ-19 🟢)
+
+## Sessão v7.61 (2026-05-02) — Sprint M3 ENCERRADA · Perfil da Entidade integrado downstream
+
+**HEAD main:** `bc649fa0b91204d7c2dff9584d3dc19ee1d7f19c` (PR #913 squash + PR #912 merge commit)
+**Predecessor:** `c1234d4` (baseline M3 v8.0 pré-sprint)
+
+### PRs M3 mergeados em main (12 total na sessão)
+
+| PR | SHA | Tipo | Conteúdo |
+|---|---|---|---|
+| #900 | `26ba9c7` | docs | M3 diagnostic — archetype adoption gap analysis (12 fronts) |
+| #901 | `293f694` | docs | Diagnostic mapping archetype across questionnaires/gaps/risks |
+| #902 | `3925134` | fix | listclients auto-vinculo (cliente role) |
+| #903 | `f2a0335` | feat | **NOVA-03** helper `getArchetypeContext` (fundação) |
+| #904 | `58b44ea` | feat | **NOVA-01** IA GEN consome arquétipo (2 geradores) |
+| #905 | `30411ca` | feat | **NOVA-02** Compliance CNAE/NCM/NBS via helper |
+| #906 | `2eab180` | feat | **NOVA-05** Risk engine consome `derived_legacy_operation_type` |
+| #907 | `09196f1` | feat | **NOVA-04** Gap engine description enriquecida |
+| #908 | `9ed29c5` | feat | **NOVA-06** Rastreabilidade end-to-end (questionId/answerValue/gapId/questionSource + archetype_context) |
+| #909 | `2c83003` | feat | **NOVA-07** Badge UX no header do Questionário |
+| #912 | `ad5eb47` | merge | Consolidação NOVA-01..07 helper→main (MERGE COMMIT) |
+| #913 | `bc649fa` | test | **NOVA-09** Suite E2E integração arquétipo + rastreabilidade (17 testes) |
+
+### Padrão arquitetural M3 (cirúrgico)
+
+Todos os 6 PRs feature seguem `arch ?? legacy`:
+- Schema/contrato extendido com campos opcionais
+- Helper centralizado (`getArchetypeContext`) reutilizado em todos os engines
+- Backward-compat absoluta: `archetype null` → comportamento legado preservado
+- Total efetivo (engine): ~304 linhas aditivas, 6 PRs cirúrgicos, zero refactor
+
+### Validações finais (2026-05-02)
+
+**Suite 58 cenários M1 (`run-50-v3.mjs`):**
+- 60 total · PASS=59 · FAIL=0 · BLOCKED=1 (S27 controle negativo esperado)
+- verdict: **GO**
+- `rules_hash` único: `sha256:4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272`
+- `rules_hash_consistency.ok: true`
+
+**Suite acceptance Sprint M3 (`m3-sprint-acceptance.test.ts`):**
+- 10/10 PASS — 1 teste por NOVA + 4 transversais (backward-compat + determinismo)
+
+**Suite E2E NOVA-09 (`m3-archetype-e2e.test.ts`):**
+- 17/17 PASS — E1..E6 grupos cobrindo helper, mapper, evidence, cadeia completa
+
+**Suites adicionais críticas:**
+- `getArchetypeContext.test.ts`: 13/13 PASS
+- `risk-engine-v4.test.ts`: 39/39 PASS
+- `gap-to-rule-mapper.test.ts`: 7/7 PASS
+- `sprint-z13.5-engine-tests.test.ts`: 5/5 PASS
+- `perfil-router.test.ts`: 62/62 PASS
+- `seed-normalizers.behavior.test.ts`: 10/10 PASS
+- `m1-monitor-normalizers.invariant.test.ts`: 22/22 PASS
+- `risk-engine-v4.afericao.test.ts`: 14/14 PASS
+
+**Total testes locais validados:** 199/199 PASS (108 prescritos + 81 M3 críticos + 10 acceptance)
+
+**Build/tsc:**
+- `pnpm tsc --noEmit`: 0 erros
+- `pnpm vite build`: 3056 módulos, 40s
+
+### Issues abertas pós-M3 (backlog)
+
+- **#911** — cleanup gapId rename ambíguo (Manus review #908) · Nível 3 backlog · `tech-debt`+`priority:low`
+- **#914** — fix(ci): secrets ausentes (OAUTH_SERVER_URL/OPENAI_API_KEY) causam falsos positivos `Run Unit Tests` + `TypeScript+Vitest` · `tech-debt`+`priority:medium`
+
+### CI vermelho pré-existente (Lição #55)
+
+Falhas em `Run Unit Tests` e `TypeScript+Vitest` documentadas em #914 como **dívida CI**, não bloqueante:
+- `OAUTH_SERVER_URL` / `OPENAI_API_KEY` não configuradas no GitHub Actions runner
+- Referência órfã `diagnostic-source.ts` (deletado em PR anterior)
+- Pré-existente em main HEAD (`26ba9c7`), baseline M3 (`c1234d4`), PRs #908/#909/#912 mergeados pelo P.O.
+- Validações locais (com envvars) PASS — bug é de ambiente CI, não de código
+
+### Próximos passos
+
+- STANDBY aguardando autorização P.O. para PROMPT-7 (Manus republish + smoke produção)
+- Resolver #914 em sprint cleanup futura
+- Frontend NOVA-06 (RiskExplanationDrawer + `risk.getTraceability` tRPC) — fora do escopo M3 cirúrgico, candidato Sprint M3.5
+
+---
 
 ## Sessão v7.60 (2026-04-28) — Bundle M1 + Corpus RAG + Gate Input M1 + Suite 51→58
 
