@@ -45,6 +45,12 @@ export interface GapRule {
   requirementId: string;
   sourceReference: string;
   domain: string;
+  // M3 NOVA-06: rastreabilidade end-to-end (campos opcionais — backward-compat)
+  // Habilitam navegação Risco → Pergunta → Resposta → Gap no frontend.
+  questionId?: number | null;
+  answerValue?: string | null;
+  gapId?: number | null;
+  questionSource?: "solaris" | "iagen" | "qa_v3" | "engine" | "cnae" | "v1" | null;
 }
 
 export interface RiskV4 {
@@ -210,6 +216,11 @@ export interface EvidenceItem {
   artigo: string;
   confidence: number;
   weight: number;
+  // M3 NOVA-06: rastreabilidade end-to-end (campos opcionais — backward-compat)
+  questionId?: number | null;
+  answerValue?: string | null;
+  gapId?: number | null;
+  questionSource?: "solaris" | "iagen" | "qa_v3" | "engine" | "cnae" | "v1" | null;
 }
 
 export interface ConsolidatedEvidence {
@@ -220,6 +231,8 @@ export interface ConsolidatedEvidence {
   rag_trecho_legal?: string;
   rag_query?: string;
   rag_validation_note?: string;
+  // M3 NOVA-06: contexto do arquétipo (opcional — backward-compat)
+  archetype_context?: string;
 }
 
 export interface OperationalContext {
@@ -260,6 +273,11 @@ function mapGapToEvidence(gap: GapRule): EvidenceItem {
     artigo: gap.artigo,
     confidence: 1.0,
     weight: 1 / sourceWeight,
+    // M3 NOVA-06: rastreabilidade end-to-end
+    questionId: gap.questionId ?? null,
+    answerValue: gap.answerValue ?? null,
+    gapId: gap.gapId ?? null,
+    questionSource: gap.questionSource ?? null,
   };
 }
 
@@ -319,6 +337,7 @@ export async function consolidateRisks(
   gaps: GapRule[],
   context: OperationalContext,
   actorId: number,
+  archetypeContext?: string,
 ): Promise<InsertRiskV4[]> {
   // 1. Agrupar por risk_key
   const grouped = new Map<string, GapRule[]>();
@@ -387,6 +406,8 @@ export async function consolidateRisks(
       gaps: evidences,
       rag_validated: false,
       rag_confidence: 0,
+      // M3 NOVA-06: contexto do arquétipo (passthrough opcional)
+      ...(archetypeContext ? { archetype_context: archetypeContext } : {}),
     };
 
     results.push({

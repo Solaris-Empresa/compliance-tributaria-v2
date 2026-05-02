@@ -34,6 +34,7 @@ import type { ConfiancaBreakdown } from "./lib/calculate-briefing-confidence";
 import mysql from "mysql2/promise";
 import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
+import { getArchetypeContext } from "./lib/archetype/getArchetypeContext";
 import { analyzeIagenAnswers } from "./lib/iagen-gap-analyzer";
 import { listActiveCategories, type RiskCategory } from "./lib/db-queries-risk-categories";
 
@@ -3826,6 +3827,11 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         if (governanceProfile?.hasTaxTeam !== undefined) profileFields.push(`Equipe tributária interna: ${governanceProfile.hasTaxTeam ? 'Sim' : 'Não'}`);
         if (governanceProfile?.hasTaxIssues !== undefined) profileFields.push(`Passivo tributário: ${governanceProfile.hasTaxIssues ? 'Sim' : 'Não'}`);
         if (governanceProfile?.hasAudit !== undefined) profileFields.push(`Auditoria fiscal: ${governanceProfile.hasAudit ? 'Sim' : 'Não'}`);
+
+        // M3 NOVA-01: injetar arquétipo (Perfil da Entidade) como contexto adicional.
+        // Backward-compat: arch=null → string vazia → comportamento atual preservado.
+        const archCtx = getArchetypeContext(project.archetype as any);
+        if (archCtx) profileFields.push(`Perfil da Entidade (arquétipo M1): ${archCtx}`);
 
         const prompt = `Você é um gerador de perguntas diagnósticas tributárias para a Reforma Tributária brasileira (LC 214/2025).
 

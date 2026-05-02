@@ -35,6 +35,25 @@ Aplicação adicional: paths absolutos em prompts devem confirmar OS de destino 
 
 Validada empiricamente esta sessão via crítica Claude Code do despacho M3 paralelo V1 antes de execução.
 
+### #46 — Validar empiricamente o estado de ambiente antes de propor guard
+
+Antes de afirmar "guard X resolve cenário Y", confirmar:
+
+- Variáveis de ambiente reais no contexto-alvo (CI, dev, prod)
+- Secrets configurados (visibilidade limitada — pedir Manus auditar quando necessário)
+- Estado de infra (DB acessível? firewall? timeout?)
+
+Sem isso, guard pode ser **cosmético** (não disparar pelo critério que se imagina) ou **ineficaz** (não cobrir o cenário real).
+
+Validada empiricamente em PR #896 (graceful skip DB tests):
+
+- Claude Code propôs `SKIP_DB_TESTS = !process.env.DATABASE_URL || process.env.CI === "true"`
+- Manus auditou AUTH-4 e mostrou que `DATABASE_URL` está configurado como secret no CI — primeiro check do Claude Code era cosmético (sempre falso)
+- Estratégia A do Manus adotada: `process.env.CI === "true" && !process.env.CI_HAS_TEST_DB`
+- Future-proof: pós Issue #873, secret `CI_HAS_TEST_DB=true` desativa guard sem PR
+
+Aplicação direta de Lição #43 (callgraph completo) ao domínio de variáveis de ambiente. Subordinada à Lição #44: validação empírica é diagnóstico onde há lacuna de visibilidade entre agentes (Claude Code não vê secrets GitHub; Manus vê).
+
 ## Trigger PR-FIN-OBJETO-V3 (reativo)
 
 PR-FIN-OBJETO-V3 (generalização Mudança 1 + Mudança 2 V2 para outros setores regulados) é REATIVO, não preemptivo.
@@ -62,7 +81,8 @@ Sprint dedicado futuro deve varrer:
 | #33-#38 | placeholder | git log + handoffs |
 | #39 | [referenciada governance.md] | governance.md |
 | #40 | placeholder | git log + handoffs |
-| #41-#45 | consolidadas acima | esta sessão |
+| #41-#45 | consolidadas acima | sessão 2026-04-30 (mergeada via PR #890) |
+| #46 | Validar empiricamente o estado de ambiente antes de propor guard | sessão 2026-05-01 (PR #896) |
 
 ## Próximas lições
 

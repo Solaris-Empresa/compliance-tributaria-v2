@@ -288,8 +288,9 @@ export const questionEngineRouter = router({
 
       try {
         // 1. Buscar projeto e contexto
+        // M3 NOVA-02: SELECT estendido com `archetype` para consumo do helper.
         const [[project]] = await pool.query<mysql.RowDataPacket[]>(
-          "SELECT id, name, regime, uf, porte, confirmedCnaes FROM projects WHERE id = ? AND userId = ?",
+          "SELECT id, name, regime, uf, porte, confirmedCnaes, archetype FROM projects WHERE id = ? AND userId = ?",
           [input.project_id, ctx.user.id]
         ) as any;
 
@@ -306,11 +307,17 @@ export const questionEngineRouter = router({
           } catch { return []; }
         })();
 
+        // M3 NOVA-02: archetype context formatado via helper compartilhado.
+        // Backward-compat: arch=null → string vazia → projectContext.archetype_context = ''.
+        const { getArchetypeContext } = await import("../lib/archetype/getArchetypeContext");
+        const archetypeContext = getArchetypeContext(project.archetype);
+
         const projectContext = {
           cnae_codes: cnaeCodes,
           regime: project.regime || "Não informado",
           uf: project.uf || "Não informado",
           porte: project.porte || "Não informado",
+          archetype_context: archetypeContext,
         };
 
         // 2. Buscar requisitos aplicáveis
