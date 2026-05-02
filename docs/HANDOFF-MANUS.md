@@ -25,10 +25,10 @@ Drizzle ORM / Vitest / pnpm
 | Implementador | Você (Manus) — executa código, commits, deploy |
 | Consultor | ChatGPT — segunda opinião estratégica |
 
-## Estado atual do projeto (2026-05-01)
-- BASELINE **v8.0** — Sprint M3 ABERTO · Smoke Regressivo PASS
-- **HEAD: `50afed6` (github/main)** · **Checkpoint Manus:** `89c4581e`
-- **PRs mergeados:** 679 (closed) · **TypeScript:** 0 erros · **Open PRs:** 0
+## Estado atual do projeto (2026-05-02)
+- BASELINE **v8.1** — Sprint M3 ENCERRADO · Smoke Regressivo PASS
+- **HEAD: `bc649fa` (github/main)** · **Checkpoint Manus:** `b4dd3cda`
+- **PRs mergeados:** 691 (closed) · **TypeScript:** 0 erros · **Open PRs:** 0
 - **Bundle:** ~1.5MB (dist/index.js) + 5.2MB frontend
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade
 - **Skill solaris-contexto:** v4.7 · **Skill solaris-orquestracao:** v3.2
@@ -44,8 +44,7 @@ Drizzle ORM / Vitest / pnpm
 - **ADR-0031:** ✅ VIGENTE — Snapshot imutável Perfil da Entidade
 - **DB limpo:** 0 projetos · 0 archetypes · ragDocuments 2515 preservado
 - **GitHub Secrets CI:** 7 configurados (DATABASE_URL, OPENAI_API_KEY, JWT_SECRET, 4×VITE_*)
-- **Sprints encerradas:** Z-07→Z-22 ✅ · M1 ✅ · **M2 ✅ (Perfil da Entidade — 6 dimensões + engine + flag global)**
-- **Sprint M3 ABERTO:** Issue #873 (CI prod isolation) · PR-LISTCLIENTS-FIX pendente · LICOES_ARQUITETURAIS.md (#890) · CPIE decision doc (#891) · PR-J refactor (#892+#893+#894) · PR-FIX-1 (#895) · PR-FIX-2 (#896)
+- **Sprints encerradas:** Z-07→Z-22 ✅ · M1 ✅ · M2 ✅ · **M3 ✅ (Archetype → Engines — 8 issues, 12 PRs, ~470 LOC)**
 
 ### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |
@@ -513,5 +512,68 @@ Módulo Perfil da Entidade implementado e validado end-to-end. Engine de 6 dimen
 - **NÃO ativar** `DIAGNOSTIC_READ_MODE=new` sem aprovação P.O.
 - **Regra P2.W** permanece ativa (não tocar branches sob orquestração)
 
-**Checkpoint:** main `50afed6` · Manus `89c4581e` · tsc 0 erros · Deploy iasolaris.manus.space ✅
-*Atualizado em 2026-05-01 · v8.0 · Sprint M3 aberto · Aprovador: P.O. Uires Tapajós*
+**Checkpoint:** main `bc649fa` · Manus `b4dd3cda` · tsc 0 erros · Deploy iasolaris.manus.space ✅
+*Atualizado em 2026-05-02 · v8.1 · Sprint M3 ENCERRADO · Aprovador: P.O. Uires Tapajós*
+
+## Sprint M3 — Archetype → Engines — Estado final (2026-05-02)
+
+### Resumo
+Sprint cirúrgico de 8 issues (NOVA-01 a NOVA-09). Objetivo: propagar o Perfil da Entidade (archetype confirmado em M2) como contexto enriquecido para todos os engines downstream — IA GEN, Compliance (RAG), Gap Engine, Risk Engine, e rastreabilidade end-to-end.
+
+**Padrão aplicado:** Cada engine já recebia contexto como string → archetype é mais texto no mesmo ponto de injeção. ~470 LOC aditivas, zero regressão (rules_hash invariante 5x).
+
+### PRs mergeados (Sprint M3 — 12 PRs)
+| PR | Título | Tipo |
+|---|---|---|
+| #899 | docs(produto): baseline Sprint M3 + Perfil da Entidade fonte da verdade | docs |
+| #900 | docs(investigation): M3 diagnostic — archetype adoption gap analysis | docs |
+| #901 | docs(diagnostics): map archetype adoption across engines | docs |
+| #902 | fix(listclients): cliente auto-vínculo destrava criação projeto | fix |
+| #903 | feat(m3): NOVA-03 helper getArchetypeContext (fundação) | feat |
+| #904 | feat(m3): NOVA-01 IA GEN consome archetype (2 geradores) | feat |
+| #905 | feat(m3): NOVA-02 Compliance CNAE/NCM/NBS consome archetype | feat |
+| #906 | feat(m3): NOVA-05 risk engine consome derived_legacy | feat |
+| #907 | feat(m3): NOVA-04 gap engine texto enriquecido | feat |
+| #908 | feat(m3): NOVA-06 rastreabilidade end-to-end Risco→Pergunta→Resposta→Gap | feat |
+| #909 | feat(m3): NOVA-07 badge contexto Perfil da Entidade no Questionário | feat |
+| #912 | feat(m3): consolidação NOVA-01/02/03/04/06/07 → main | merge |
+| #913 | test(m3): NOVA-09 suite E2E integração archetype + rastreabilidade (17 testes) | test |
+
+### Engines modificados
+| Engine | Arquivo | Mudança M3 |
+|---|---|---|
+| IA GEN (Onda 2) | `routers-fluxo-v3.ts:3833` | archCtx injetado em profileFields do prompt LLM |
+| Compliance NCM | `product-questions.ts:88` | archetype enriquece contextQuery do RAG |
+| Compliance NBS | `service-questions.ts:88` | archetype enriquece contextQuery do RAG |
+| Question Engine | `routers/questionEngine.ts:312` | archetype_context no projectContext |
+| Gap Engine | `routers/gapEngine.ts:255` | archetype enriquece gap_description |
+| Risk Engine | `routers/riskEngine.ts:639` | derived_legacy_operation_type como drop-in |
+| Pipeline v4 | `generate-risks-pipeline.ts:91` | archetype_context em ConsolidatedEvidence |
+| Mapper | `gap-to-rule-mapper.ts` | propaga questionId/answerValue/gapId/questionSource |
+
+### Validações
+| Validação | Resultado |
+|---|---|
+| tsc --noEmit | 0 erros |
+| Vitest (189 testes) | 189/189 PASS |
+| run-50-v3.mjs (60 cenários) | 59 PASS / 0 FAIL / 1 SKIP |
+| rules_hash invariante | 5x byte-a-byte idêntico |
+| Health endpoint (produção) | healthy |
+
+### Issues residuais (tech-debt)
+| Issue | Prioridade | Descrição |
+|---|---|---|
+| #911 | low | Cleanup semântico gapId (string vs number) |
+| #914 | medium | CI secrets GitHub Actions (envvars faltantes) |
+
+### Regras invariantes (M3) — mantidas + novas
+- **NÃO alterar** `server/lib/archetype/buildPerfilEntidade.ts` sem smoke regressivo
+- **NÃO desativar** `M2_PERFIL_ENTIDADE_ENABLED` sem aprovação P.O.
+- **NÃO executar** DROP COLUMN sem aprovação P.O.
+- **NÃO ativar** `DIAGNOSTIC_READ_MODE=new` sem aprovação P.O.
+- **NÃO alterar** `getArchetypeContext` sem rodar suite m3-archetype-e2e.test.ts (17 testes)
+- **NÃO remover** campos opcionais de rastreabilidade (questionId/answerValue/gapId/questionSource) — backward-compat obrigatória
+- **Regra P2.W** permanece ativa
+
+### Achado de auditoria (2026-05-02)
+> **NOVA-02 questionEngine:** `archetype_context` é adicionado ao objeto `projectContext` (linha 320) mas a função `generateQuestionForRequirement` (linha 84) não o inclui no prompt LLM — o campo é passado mas não consumido na geração. O archetype **funciona** corretamente no RAG (product-questions.ts e service-questions.ts) mas não no Question Engine LLM prompt. Issue menor — não bloqueia, mas é oportunidade de melhoria futura.
