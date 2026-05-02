@@ -47,6 +47,8 @@ export interface ProjectProfile {
   intermediarios: string[] | null;
   /** NCMs dos produtos comercializados (extraídos de product_answers) */
   productNcms: string[];
+  /** M3 NOVA-06: arquétipo dimensional bruto (JSON string ou objeto) — passthrough */
+  archetype: unknown | null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -60,6 +62,7 @@ interface ProjectRow {
   product_answers: string | null;      // snake_case no banco (migration posterior)
   taxRegime: string | null;            // camelCase no banco
   companySize: string | null;          // camelCase no banco
+  archetype: string | null;            // M3 NOVA-06: JSON column (PerfilDimensional)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -118,7 +121,8 @@ export async function extractProjectProfile(
        operationProfile,
        product_answers,
        taxRegime,
-       companySize
+       companySize,
+       archetype
      FROM projects
      WHERE id = ?
      LIMIT 1`,
@@ -200,5 +204,7 @@ export async function extractProjectProfile(
       return null;
     })(),
     productNcms,
+    // M3 NOVA-06: arquétipo bruto (JSON string ou null) — formatado downstream via getArchetypeContext
+    archetype: row.archetype ?? null,
   };
 }

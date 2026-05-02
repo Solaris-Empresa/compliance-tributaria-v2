@@ -64,7 +64,7 @@ function buildProductFallback(): TrackedQuestion[] {
 export async function generateProductQuestions(
   ncmCodes: string[],
   cnaeCodes: string[],
-  companyProfile: { operationType?: string },
+  companyProfile: { operationType?: string; archetype?: unknown },
   queryRagFn: typeof queryRag = queryRag,
   querySolarisFn: typeof querySolarisByCnaes = querySolarisByCnaes
 ): Promise<QuestionResult> {
@@ -83,11 +83,18 @@ export async function generateProductQuestions(
     };
   }
 
+  // M3 NOVA-02: archetype context formatado para enriquecer contextQuery do RAG.
+  // Backward-compat: arch=null → string vazia → contextQuery idêntico ao legado.
+  const { getArchetypeContext } = await import("./archetype/getArchetypeContext");
+  const archetypeContext = getArchetypeContext(companyProfile.archetype as never);
+
   const allQuestions: TrackedQuestion[] = [];
 
   // ─── Perguntas RAG por NCM ────────────────────────────────────────────────
   for (const ncm of ncmCodes) {
-    const contextQuery = `IBS CBS alíquota produto NCM ${ncm} reforma tributária`;
+    const contextQuery = archetypeContext
+      ? `IBS CBS alíquota produto NCM ${ncm} reforma tributária ${archetypeContext}`
+      : `IBS CBS alíquota produto NCM ${ncm} reforma tributária`;
     let chunks: RagChunk[] = [];
     try {
       chunks = await queryRagFn([ncm, ...cnaeCodes], contextQuery, 3);

@@ -40,15 +40,27 @@ interface BranchAnswer {
 /**
  * Gera 6-8 perguntas adaptativas para um ramo específico usando IA
  * Considera o contexto da empresa para personalizar as perguntas
+ *
+ * M3 NOVA-01: parâmetro opcional `archetypeContext` injetado quando a sessão
+ * está vinculada a um projeto com archetype confirmado. Backward-compat:
+ * se ausente, prompt segue idêntico ao comportamento legado.
+ *
+ * Nota: sessões frequentemente são pré-projeto (sem `projects.archetype`),
+ * por isso o parâmetro é opcional. Os callers atuais ainda não buscam
+ * archetype — apenas a assinatura está preparada para extensão futura.
  */
 async function generateQuestionsForBranch(
   branchCode: string,
   branchName: string,
-  companyDescription: string
+  companyDescription: string,
+  archetypeContext?: string,
 ): Promise<GeneratedQuestion[]> {
+  const archLine = archetypeContext
+    ? `\nPerfil da Entidade (arquétipo M1): ${archetypeContext}`
+    : "";
   const prompt = `Você é um especialista em compliance tributário da Reforma Tributária Brasileira (IBS, CBS, IS).
 
-Empresa: ${companyDescription}
+Empresa: ${companyDescription}${archLine}
 Ramo de Atividade: ${branchName} (${branchCode})
 
 Gere exatamente ${IAGEN_QUESTIONS_COUNT} perguntas de diagnóstico de compliance tributário para este ramo específico.

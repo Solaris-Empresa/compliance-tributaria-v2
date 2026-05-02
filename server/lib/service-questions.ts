@@ -64,7 +64,7 @@ function buildServiceFallback(): TrackedQuestion[] {
 export async function generateServiceQuestions(
   nbsCodes: string[],
   cnaeCodes: string[],
-  companyProfile: { operationType?: string },
+  companyProfile: { operationType?: string; archetype?: unknown },
   queryRagFn: typeof queryRag = queryRag,
   querySolarisFn: typeof querySolarisByCnaes = querySolarisByCnaes
 ): Promise<QuestionResult> {
@@ -83,11 +83,18 @@ export async function generateServiceQuestions(
     };
   }
 
+  // M3 NOVA-02: archetype context formatado para enriquecer contextQuery do RAG.
+  // Backward-compat: arch=null → string vazia → contextQuery idêntico ao legado.
+  const { getArchetypeContext } = await import("./archetype/getArchetypeContext");
+  const archetypeContext = getArchetypeContext(companyProfile.archetype as never);
+
   const allQuestions: TrackedQuestion[] = [];
 
   // ─── Perguntas RAG por NBS ────────────────────────────────────────────────
   for (const nbs of nbsCodes) {
-    const contextQuery = `IBS CBS alíquota serviço NBS ${nbs} reforma tributária`;
+    const contextQuery = archetypeContext
+      ? `IBS CBS alíquota serviço NBS ${nbs} reforma tributária ${archetypeContext}`
+      : `IBS CBS alíquota serviço NBS ${nbs} reforma tributária`;
     let chunks: RagChunk[] = [];
     try {
       chunks = await queryRagFn([nbs, ...cnaeCodes], contextQuery, 3);
