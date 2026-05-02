@@ -48,6 +48,7 @@ import {
   buildCnaePrefill,
   getPrefilledSectionsCnae as getPrefilledSectionsCnaeShared,
 } from "@shared/questionario-prefill";
+import { ArchetypeBadge } from "@/components/ArchetypeBadge";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Estrutura oficial das 5 seções do Questionário Setorial CNAE
@@ -249,6 +250,8 @@ export default function QuestionarioCNAE() {
               <Badge variant="outline" className="text-xs">
                 {totalSecoes} seções
               </Badge>
+              {/* M3 NOVA-07: contexto do arquétipo (Perfil da Entidade) */}
+              <ArchetypeBadge archetype={(projeto as any)?.archetype} />
               {concluido && (
                 <Badge className="bg-emerald-500 text-white text-xs">
                   <CheckCircle2 className="h-3 w-3 mr-1" />
