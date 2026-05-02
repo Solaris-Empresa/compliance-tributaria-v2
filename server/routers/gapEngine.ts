@@ -240,14 +240,20 @@ export const gapEngineRouter = router({
 
       try {
         // 1. Buscar projeto
+        // M3 NOVA-04: SELECT estendido com `archetype` para enriquecer gap_description.
         const [[project]] = await pool.query<mysql.RowDataPacket[]>(
-          "SELECT id, name, status, clientId FROM projects WHERE id = ? AND createdById = ?",
+          "SELECT id, name, status, clientId, archetype FROM projects WHERE id = ? AND createdById = ?",
           [input.project_id, ctx.user.id]
         );
 
         if (!project) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
         }
+
+        // M3 NOVA-04 (Opção A): formatar archetype context UMA vez antes do loop.
+        // Backward-compat: arch=null → string vazia → gap_description idêntico ao legado.
+        const { getArchetypeContext } = await import("../lib/archetype/getArchetypeContext");
+        const archetypeContext = getArchetypeContext(project.archetype as never);
 
         // 2. Buscar requisitos aplicáveis com fonte
         const [requirements] = await pool.query<mysql.RowDataPacket[]>(
@@ -347,7 +353,11 @@ export const gapEngineRouter = router({
             compliance_status: complianceStatus as Gap["compliance_status"],
             criticality: criticality as Gap["criticality"],
             evidence_status: evidenceStatus as Gap["evidence_status"],
-            gap_description: `Gap identificado em ${req.name}: ${reason}`,
+            // M3 NOVA-04: enriquecer descrição com contexto do archetype quando disponível.
+            // Sem mudança na lógica de classificação (texto cosmético — Opção A).
+            gap_description: archetypeContext
+              ? `Gap identificado em ${req.name}: ${reason} (contexto: ${archetypeContext})`
+              : `Gap identificado em ${req.name}: ${reason}`,
             deterministic_reason: reason,
             evaluation_confidence: confidence,         // OBRIGATÓRIO
             evaluation_confidence_reason: reason,      // OBRIGATÓRIO
