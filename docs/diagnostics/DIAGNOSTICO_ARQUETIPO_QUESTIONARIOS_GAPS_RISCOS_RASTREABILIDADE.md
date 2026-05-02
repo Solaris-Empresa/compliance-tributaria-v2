@@ -834,3 +834,188 @@ Resumo executável (assertion empírica por issue):
 **Próximo passo recomendado:**
 
 P.O. revisa este diagnóstico → seleciona quais issues abrir (sugestão: as 6 issues P1) → despacha criação no GitHub Project Board.
+
+---
+
+## 12. Análise comparativa com diagnóstico Manus PR #900
+
+### 12.1 Estrutura dos dois diagnósticos
+
+Em paralelo a este diagnóstico (PR #901), o Manus produziu PR #900 — `docs/investigation/M3-DIAG-ARCHETYPE-ADOPTION.md` (273 linhas). Os dois investigaram a mesma questão central via grep/inspeção empírica, mas com **eixos de organização diferentes**:
+
+| Aspecto | Manus (PR #900) | Claude Code (PR #901, este doc) |
+|---|---|---|
+| Eixo de organização | 12 **engines** (unidades de código) | 12 **frentes temáticas** (cadeia de produto) |
+| Tamanho | 273 linhas | 836 linhas |
+| Foco | "Quem lê archetype hoje? Quem deveria ler?" | "Como a cadeia Perfil→Risco→Rastreabilidade está conectada?" |
+| Cobertura específica | Engines não cobertos por mim: Briefing, Action Plan, Decision Kernel, RAG isolado, filtrarCategoriasPorPerfil, Diagnostic Consolidator | Frentes não cobertas por Manus: Rastreabilidade FK, modelo dados, UI/UX, audit causal, testes E2E, orquestrador |
+| Recomendação | Snippets de código ilustrativos | Issues fatiadas com critério de aceite executável |
+| Frente "consumidores reais hoje" | ✅ Tem (Frente 12 do Manus) | ❌ **GAP MEU** — incorporo abaixo |
+
+### 12.2 Convergências fortes (validação cruzada)
+
+Dois diagnósticos independentes chegaram à **mesma conclusão central**:
+
+1. ✅ **Achado central idêntico:** `projects.archetype` persistido (M2 OK) mas **0/12 engines downstream consomem**. Validação empírica forte por dois agentes.
+2. ✅ **RAG retrieval:** Manus cita assinatura exata `retrieveArticles(cnaes, contextQuery, topK)` em `server/rag-retriever.ts:259`. Eu cito comportamento (não recebe `PerfilDimensional`). Mesma constatação.
+3. ✅ **`filtrarCategoriasPorPerfil`:** Manus cita trecho de código em `server/routers-fluxo-v3.ts:104` que usa `operationType` legado. Eu cito o gate de hotfix IS v1.2 (semântica). Mesmo gate, ângulos complementares.
+4. ✅ **Backward-compatibility necessária:** archetype opcional + fallback legado. Ambos diagnósticos.
+5. ✅ **Auditoria v7.60 §7.1 confirmada empíricamente:** ambos diagnósticos referenciam o mesmo achado fonte.
+
+### 12.3 Engines adicionais identificados pelo Manus (incorporo aqui)
+
+O Manus identificou 6 engines que eu não cobri explicitamente (porque organizei por frente temática, não por unidade de código). São complementares e devem entrar como issues separadas:
+
+| # (Manus) | Engine | Arquivo (citado por Manus) | Por que importa |
+|---|---|---|---|
+| Frente 7 (Manus) | **Briefing Engine** | `server/routers-fluxo-v3.ts:~1100-1250` | LLM gera narrativa final do briefing. Sem archetype, LLM não sabe que cliente é "operadora regulada BCB" → narrativa genérica. Quick win alto impacto + baixo risco (apenas adiciona campo no contexto). |
+| Frente 8 (Manus) | **RAG Retrieval** | `server/rag-retriever.ts:259` | Assinatura confirmada não aceita `PerfilDimensional`. Re-ranking via LLM não pode priorizar artigos por dimensão. Crítico para qualidade do RAG. |
+| Frente 9 (Manus) | **`filtrarCategoriasPorPerfil`** | `server/routers-fluxo-v3.ts:104` | Função decide quais categorias de risco aparecem por `operationType` plano. Ex: `"imposto_seletivo"` aparece para `"industria"` ou `"comercio"` — não considera papel ou objeto. Trecho de código exato citado por Manus. |
+| Frente 10 (Manus) | **Decision Kernel** | `server/lib/decision-kernel/` | Engine de decisão NCM/NBS. Não referencia archetype em nenhum ponto. |
+| Frente 11 (Manus) | **Diagnostic Consolidator** | `server/diagnostic-consolidator.ts` | Consolida estado do diagnóstico cliente. Não referencia archetype. |
+| Frente 13 (Manus) | **Action Plan Engine** | `server/routers-session-action-plan.ts` | Gera plano de ação a partir de riscos. Sem archetype, plano não considera papel/objeto/regime do cliente. |
+
+### 12.4 Consumidores reais do archetype hoje (Frente 12 do Manus — gap meu)
+
+Manus identificou explicitamente os ÚNICOS 3 consumidores atuais do `projects.archetype`:
+
+1. **`server/routers/perfil.ts`** — build + confirm + read (write-once + leitura de snapshot)
+2. **`server/_core/systemRouter.ts`** — expõe flag `m1ArchetypeEnabled` (boolean)
+3. **`server/routers-m1-monitor.ts`** — M1 Runner v3 (deploy controlado, flag desativada)
+
+**Importância:** essa lista define o **escopo de mudança real** — qualquer issue que faça engine downstream consumir archetype precisa garantir que esses 3 consumidores existentes continuem funcionando. Boa baseline para regressão.
+
+### 12.5 Frentes só do Claude Code (não cobertas pelo Manus)
+
+As frentes 8-12 deste documento (rastreabilidade FK + modelo de dados + UI drawer + audit causal + testes E2E) não foram cobertas pelo Manus. Manus focou em "quem lê archetype" — não em "como auditamos a cadeia que produziu o risco". As duas vertentes são complementares:
+
+- **Manus responde:** "como melhorar a qualidade da decisão?" (engines consomem archetype)
+- **Eu respondo:** "como provar a decisão para o advogado?" (rastreabilidade + audit + UI)
+
+Para 98% confiabilidade jurídica, **as duas vertentes são necessárias.**
+
+### 12.6 Divergência de priorização — não é conflito
+
+| Item | Manus (P1) | Eu (P1) |
+|---|---|---|
+| Briefing | ✅ P1 (alto impacto, baixo risco) | (não tinha como frente separada) |
+| RAG Retrieval | ✅ P1 | (não tinha como engine separado) |
+| Q.NCM | 🟡 P3 (filtro CNAE já funciona) | 🔴 P1 (importadora perde drawback/RECOF) |
+| Q.NBS | 🟡 P3 | 🔴 P1 (transportadora regulada vs serviço comum) |
+| Gap engine | 🟠 não-explícito | 🔴 P1 (gaps inaplicáveis) |
+| Risk engine | 🟠 P2 | 🔴 P1 (transportadora não recebe IS) |
+| Rastreabilidade FK | (não cobre) | 🔴 P1 |
+
+**Divergência de produto, não de código:**
+- **Manus prioriza por facilidade de implementação:** Briefing/RAG são aditivos (recebem novo parâmetro opcional). Quick win.
+- **Eu priorizo por valor jurídico crítico:** Q.NCM/NBS/Gap/Risk corrigem entradas erradas que contaminam toda a cadeia. Importador sem drawback é **erro real para o advogado**, não apenas qualidade.
+
+**Síntese recomendada:** **dual-track P1** rodando em paralelo:
+
+```
+Track A — Quick wins de qualidade (Manus): Briefing + RAG
+   └─ Aditivo, fallback automático, zero risco regressão
+   └─ Impacto: LLM e RAG passam a saber o perfil
+   └─ Esforço: ~3h cada (Classe A-B)
+
+Track B — Cadeia de produto correta (eu): Q.NCM/NBS + Gap + Risk + Trace
+   └─ Estrutural, requer testes byte-a-byte
+   └─ Impacto: gaps/riscos jurídicamente corretos para o cliente
+   └─ Esforço: 4-6h cada (Classe B)
+```
+
+Tracks são independentes — podem rodar em sprints paralelas ou intercaladas conforme capacidade.
+
+### 12.7 Snippet de implementação proposto pelo Manus (referência)
+
+Manus já formulou o padrão de injeção do archetype no Briefing (cito como referência arquitetural — não-implementação):
+
+```typescript
+// Padrão proposto por Manus (PR #900) para Briefing
+const arch = project.archetype ? JSON.parse(project.archetype) : null;
+const archetypeBlock = arch ? `
+## Perfil Dimensional (Arquétipo M1)
+- Objeto Econômico: ${arch.dim_objeto?.join(', ')}
+- Papel na Cadeia: ${arch.dim_papel_na_cadeia}
+- Subnatureza Setorial: ${arch.subnatureza_setorial?.join(', ')}
+- Órgão Regulador: ${arch.orgao_regulador?.join(', ')}
+- Território: ${arch.dim_territorio?.join(', ')}
+- Regime: ${arch.dim_regime}
+` : '';
+```
+
+E para RAG (Fase 2):
+
+```typescript
+// Padrão proposto por Manus para RAG retrieval
+export async function retrieveArticles(
+  cnaes: string[],
+  contextQuery: string,
+  topK = 5,
+  usageOpts: RAGUsageOptions = {},
+  perfilDimensional?: PerfilDimensional // NOVO — opcional, backward-compatible
+): Promise<RAGContext>
+```
+
+Padrão alinhado com REGRA-ORQ-21 (caminho C — última spec é formal). Ambos diagnósticos convergem nessa abordagem aditiva.
+
+### 12.8 Tabela consolidada atualizada (24 itens — 12 frentes minhas + 6 engines Manus + 6 frentes minhas únicas que Manus não cobre)
+
+| # | Origem | Frente/Engine | Arquivo principal | Prioridade consolidada | Issue futura |
+|---|---|---|---|---|---|
+| 1 | C+M | IA GEN Onda 2 | `routers-fluxo-v3.ts:~800-1000` | 🔴 P1 (Track B) | M3-Q-IAGEN |
+| 2 | C | Q.CNAE | `client/src/pages/QuestionarioCNAE.tsx` | 🟠 P2 (Track B) | M3-Q-CNAE |
+| 3 | C+M | Q.NCM (Q.Produtos) | `server/lib/product-questions.ts` | 🔴 P1 (Track B) | M3-Q-NCM |
+| 4 | C+M | Q.NBS (Q.Serviços) | `server/lib/service-questions.ts` | 🔴 P1 (Track B) | M3-Q-NBS |
+| 5 | C | Orquestrador | (refactor cross-cutting) | 🟠 P2 (após 1/3/4) | M3-Q-ORCHESTRATOR |
+| 6 | C+M | Gap engine | `server/routers/gapEngine.ts` | 🔴 P1 (Track B) | M3-GAP-01 |
+| 7 | C+M | Risk engine v4 | `server/lib/risk-engine-v4.ts` | 🔴 P1 (Track B) | M3-RISK-01 |
+| 8 | C | Rastreabilidade FK | `risks_v4` schema | 🔴 P1 (Track B) | M3-TRACE-01 |
+| 9 | C | Modelo dados | `drizzle/schema.ts` | 🟠 P2 | M3-TRACE-02 |
+| 10 | C | UI matriz drawer | `client/src/pages/RiskDashboardV4.tsx` | 🟠 P2 | M3-UI-01 |
+| 11 | C | Logs/auditoria causal | `auditLog` schema | 🟠 P2 | M3-AUDIT-01 |
+| 12 | C | Testes E2E rastreabilidade | `tests/e2e/` | 🟠 P2 | M3-TEST-01 |
+| 13 | **M** | **Briefing Engine** | `routers-fluxo-v3.ts:~1100-1250` | 🔴 **P1 (Track A — quick win)** | **M3-BRIEFING-01** |
+| 14 | **M** | **RAG Retrieval** | `server/rag-retriever.ts:259` | 🔴 **P1 (Track A — quick win)** | **M3-RAG-01** (já no BACKLOG_M3) |
+| 15 | **M** | **`filtrarCategoriasPorPerfil`** | `routers-fluxo-v3.ts:104` | 🟠 P2 (componente do Risk engine) | absorvido em M3-RISK-01 |
+| 16 | **M** | **Decision Kernel** | `server/lib/decision-kernel/` | 🟡 P3 (não-implementado completamente) | M3-DECISION-01 (futuro) |
+| 17 | **M** | **Diagnostic Consolidator** | `server/diagnostic-consolidator.ts` | 🟡 P3 | M3-CONSOLIDATOR-01 |
+| 18 | **M** | **Action Plan Engine** | `server/routers-session-action-plan.ts` | 🟠 P2 (Track A) | M3-ACTIONPLAN-01 |
+| 19 | **M** | Solaris Onda 1 | `server/db.ts:1263` | 🟡 P3 (filtro CNAE já funciona) | M3-Q-SOLARIS-01 (Manus avalia baixa prioridade) |
+| 20 | C | (este documento) | — | meta | — |
+
+Legenda Origem: **C** = Claude Code (PR #901), **M** = Manus (PR #900), **C+M** = ambos.
+
+### 12.9 Recomendação consolidada para o P.O.
+
+**Sprint M3 — abertura sugerida (dual-track P1):**
+
+```
+Semana 1 — Track A (quick wins de qualidade)
+├─ M3-BRIEFING-01 — injetar archetypeBlock no prompt do briefing (snippet Manus)
+└─ M3-RAG-01 — retrieveArticles aceitar PerfilDimensional opcional (snippet Manus)
+
+Semana 1 — Track B (cadeia de produto + rastreabilidade)
+├─ M3-TRACE-01 — FKs primary_question_id + primary_gap_id em risks_v4
+└─ Frentes Q.NCM + Q.NBS + Q.IAGEN (3 paralelos, snippet padrão consolidado)
+
+Semana 2 — Track B (continuação)
+├─ M3-GAP-01 (depende de Q.* concluídos)
+└─ M3-RISK-01 (depende de M3-TRACE-01 + M3-GAP-01)
+
+Semana 3 — Track A complementar
+├─ M3-ACTIONPLAN-01 (Action Plan recebe archetype)
+└─ M3-Q-CNAE (depende de padrão estabelecido)
+
+Semana 4 — Cobertura, UI, audit
+├─ M3-UI-01, M3-AUDIT-01, M3-TEST-01 (3 paralelos)
+└─ M3-Q-ORCHESTRATOR (refactor extract padrão comum)
+```
+
+Issues Manus-only baixa prioridade ficam como backlog M4: M3-DECISION-01, M3-CONSOLIDATOR-01, M3-Q-SOLARIS-01.
+
+### 12.10 Validação metodológica cruzada
+
+Dois agentes independentes (Claude Code + Manus) chegaram ao **mesmo achado central** (archetype não-consumido) por **caminhos diferentes** (frentes temáticas vs engines), sem terem se coordenado durante a investigação. Isso é validação empírica forte de que o gap arquitetural existe e não é viés de um único investigador.
+
+A divergência de priorização é **divergência de prioridade de produto**, não de fato técnico. Os dois diagnósticos são **complementares e consistentes**.
