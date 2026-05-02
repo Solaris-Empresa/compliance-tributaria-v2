@@ -178,6 +178,19 @@ Isso elimina dependência de labels manuais que podem ser esquecidas.
 
 ---
 
+### PC-6 — Validação de consumo (REGRA-ORQ-27 / Lição #59)
+
+Se o PR afirma que engine X consome dado Y, existe:
+
+- [ ] Teste com `vi.spyOn` no caller final (LLM/RAG) validando valor dinâmico, OU
+- [ ] Citação arquivo:linha do prompt LLM final / contextQuery RAG final no PR body
+
+Se PC-6 falha → **remover `Closes #N` do PR body**. PR de wiring incompleto NÃO fecha issue de "engine consome".
+
+Origem: Sprint M3 (caso EMPRESA TRANSPORTE COMBUSTÍVEL) — 3 engines em dead code passaram PC-1..5.
+
+---
+
 ## Integração no fluxo do Orquestrador
 
 ### Quando executar
@@ -192,7 +205,7 @@ F6 (implementação) → PR criado → F4.5 (integration checkpoint)
 
 ```
 Antes de mergear qualquer PR com "Closes #N":
-executar PRE-CLOSE-CHECKLIST gates PC-1..PC-5.
+executar PRE-CLOSE-CHECKLIST gates PC-1..PC-6.
 Se qualquer gate FALHA: remover "Closes #N" do PR body
 e reportar ao Orquestrador.
 ```
