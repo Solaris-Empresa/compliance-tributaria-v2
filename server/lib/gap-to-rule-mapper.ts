@@ -273,5 +273,10 @@ function toGapRule(
     requirementId: gap.requirementId ?? gap.canonicalId,
     sourceReference: gap.sourceReference ?? "N/A",
     domain: gap.domain ?? "geral",
+    // M3 NOVA-06: rastreabilidade end-to-end (passthrough — backward-compat)
+    questionId: gap.questionId ?? null,
+    answerValue: gap.answerValue ?? null,
+    gapId: gap.gapId ?? null,
+    questionSource: gap.questionSource ?? null,
   };
 }
