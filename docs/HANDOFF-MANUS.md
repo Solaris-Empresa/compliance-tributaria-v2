@@ -26,14 +26,16 @@ Drizzle ORM / Vitest / pnpm
 | Consultor | ChatGPT — segunda opinião estratégica |
 
 ## Estado atual do projeto (2026-05-02)
-- BASELINE **v8.1** — Sprint M3 ENCERRADO · Smoke Regressivo PASS
+- BASELINE **v8.1** — **Sprint M3 ENCERRADA** · 9 PRs M3 mergeados · suite 58 GO 59/0/1 · 10 testes acceptance + 17 NOVA-09 PASS · Smoke Regressivo PASS
 - **HEAD: `bc649fa` (github/main)** · **Checkpoint Manus:** `b4dd3cda`
-- **PRs mergeados:** 691 (closed) · **TypeScript:** 0 erros · **Open PRs:** 0
-- **Bundle:** ~1.5MB (dist/index.js) + 5.2MB frontend
+- **PRs mergeados M3 (9):** #903 NOVA-03 · #904 NOVA-01 · #905 NOVA-02 · #906 NOVA-05 · #907 NOVA-04 · #908 NOVA-06 · #909 NOVA-07 · #912 consolidação · #913 NOVA-09
+- **PRs docs/fix mergeados (3):** #900 M3-DIAG · #901 archetype-mapping · #902 fix listclients
+- **PRs totais:** 691 (closed) · **TypeScript:** 0 erros local · **Open PRs M3:** 0
+- **Bundle:** ~1.5MB (dist/index.js) + 5.2MB frontend (3056 módulos)
 - **Corpus RAG:** 2.515 chunks · 13 leis · 100% confiabilidade
 - **Skill solaris-contexto:** v4.7 · **Skill solaris-orquestracao:** v3.2
 - **Perguntas SOLARIS ativas:** 24 (SOL-013..036)
-- **Schema:** 69 exports · 89 migrations (última: 0089_enquadramento_geral_categoria)
+- **Schema:** 69 exports · 89 migrations (última: 0089_enquadramento_geral_categoria) · zero DDL na M3 (campos M3 vivem em `evidence` JSON)
 - **Contratos M1:** CNT-01a/01b/02/03 em `docs/contracts/`
 - **Governança:** CODEOWNERS (15 entradas) + branch-scope + file-declaration + autoaudit + REGRA-ORQ-12/13 + ORQ-17/25/26
 - DIAGNOSTIC_READ_MODE: `shadow` (ativo — NÃO alterar)
@@ -42,9 +44,16 @@ Drizzle ORM / Vitest / pnpm
 - **risk_categories:** 9 categorias ativas · 10 no banco (1 inativa)
 - **ADR-0025:** ✅ VIGENTE — FK risks_v4.categoria → risk_categories.codigo
 - **ADR-0031:** ✅ VIGENTE — Snapshot imutável Perfil da Entidade
+- **ADR-0032:** ✅ VIGENTE — Versionamento Perfil da Entidade
+- **Helper centralizado M3:** `server/lib/archetype/getArchetypeContext.ts` (NOVA-03 fundação)
+- **Pattern arquitetural M3:** `arch ?? legacy` em todos os 6 engines (IA gen, compliance, gap, risk, evidence, badge)
+- **Rastreabilidade end-to-end:** `risks_v4.evidence.gaps[].{questionId,answerValue,gapId,questionSource}` + `evidence.archetype_context` (NOVA-06)
 - **DB limpo:** 0 projetos · 0 archetypes · ragDocuments 2515 preservado
-- **GitHub Secrets CI:** 7 configurados (DATABASE_URL, OPENAI_API_KEY, JWT_SECRET, 4×VITE_*)
-- **Sprints encerradas:** Z-07→Z-22 ✅ · M1 ✅ · M2 ✅ · **M3 ✅ (Archetype → Engines — 8 issues, 12 PRs, ~470 LOC)**
+- **GitHub Secrets CI:** 7 configurados (DATABASE_URL, OPENAI_API_KEY, JWT_SECRET, 4×VITE_*) — **OAUTH_SERVER_URL ainda faltando** (issue #914)
+- **Sprints encerradas:** Z-07→Z-22 ✅ · M1 ✅ · M2 ✅ · **M3 ✅ (Perfil da Entidade integrado downstream — 5 engines + UI + E2E · 8 issues, 12 PRs, ~470 LOC)**
+- **Issues abertas pós-M3 (backlog):**
+  - **#911** cleanup gapId rename ambíguo (Manus review #908) · `tech-debt`+`priority:low`
+  - **#914** fix(ci) secrets ausentes causam Run Unit Tests + TypeScript+Vitest FAIL · `tech-debt`+`priority:medium`
 
 ### Sprint Z-15 Lote A — Estado final (2026-04-15)
 | Issue | Título | Status |
