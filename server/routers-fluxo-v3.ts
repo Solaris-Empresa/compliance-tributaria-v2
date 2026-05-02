@@ -4109,7 +4109,8 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
       const op = (project as any).operationProfile ?? {};
       const ncmCodes: string[] = (op.principaisProdutos ?? []).map((p: any) => p.ncm_code).filter(Boolean);
       const cnaeCodes: string[] = Array.isArray((project as any).cnaes) ? (project as any).cnaes : [];
-      const companyProfile = { operationType: op.operationType };
+      // M3 hotfix NOVA-02: passar archetype para enriquecer RAG contextQuery
+      const companyProfile = { operationType: op.operationType, archetype: (project as any).archetype ?? null };
 
       const result: QuestionResult = await generateProductQuestions(ncmCodes, cnaeCodes, companyProfile);
 
@@ -4152,7 +4153,8 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
       const op = (project as any).operationProfile ?? {};
       const nbsCodes: string[] = (op.principaisServicos ?? []).map((s: any) => s.nbs_code).filter(Boolean);
       const cnaeCodes: string[] = Array.isArray((project as any).cnaes) ? (project as any).cnaes : [];
-      const companyProfile = { operationType: op.operationType };
+      // M3 hotfix NOVA-02: passar archetype para enriquecer RAG contextQuery
+      const companyProfile = { operationType: op.operationType, archetype: (project as any).archetype ?? null };
 
       const result: QuestionResult = await generateServiceQuestions(nbsCodes, cnaeCodes, companyProfile);
 
