@@ -650,11 +650,13 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         : contextNoteSection ? `\n${contextNoteSection}\nGere perguntas considerando este contexto adicional.` : "";
 
       // V65: RAG híbrido — busca artigos relevantes para o CNAE (versão rápida sem re-ranking para perguntas)
+      // M3.5 RAG-COVERAGE: enriquecer query com Perfil da Entidade (archetype M1) — backward-compat por construção
+      const archCtxQCnae = getArchetypeContext((project as any).archetype);
       let ragCtx;
       try {
         ragCtx = await retrieveArticlesFast(
           [input.cnaeCode],
-          `${input.cnaeCode} ${input.cnaeDescription} ${projectDescription}`,
+          `${input.cnaeCode} ${input.cnaeDescription} ${projectDescription}${archCtxQCnae ? ` ${archCtxQCnae}` : ""}`,
           5
         );
       } catch (ragErr) {
@@ -1094,12 +1096,15 @@ Gere as perguntas no formato:
         input.correction,
         input.complement,
       ]);
+      // M3.5 RAG-COVERAGE: enriquecer briefingQueryCtx com Perfil da Entidade (archetype M1)
+      const archCtxBriefingV3 = getArchetypeContext((project as any).archetype);
       const briefingQueryCtx = [
         (project as any).description || "",
         input.correction || "",
         input.complement || "",
         exportSignalGB.suffix,
         answersText.substring(0, 500),
+        archCtxBriefingV3,
       ].filter(Boolean).join(" ");
       const ragCtxBriefing = await retrieveArticles(cnaeCodesForRag, briefingQueryCtx, 7);
       const regulatoryContext = ragCtxBriefing.contextText;
@@ -2089,9 +2094,12 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         juridico: "responsabilidade tributária sanção penalidade confissão de dívida prazo decadencial auto de infração",
       };
 
+      // M3.5 RAG-COVERAGE: extrair archetype UMA vez antes do loop (eficiência + consistência entre áreas)
+      const archCtxMatrix = getArchetypeContext((project as any).archetype);
+
       // V70.3 + G7: Paralelizar as 4 áreas com Promise.all + RAG específico por área
       const matrixResults = await Promise.all(areas.map(async (area) => {
-        const areaQuery = `${input.briefingContent?.substring(0, 300) ?? ""} ${areaRagQueries[area] ?? ""}`;
+        const areaQuery = `${input.briefingContent?.substring(0, 300) ?? ""} ${areaRagQueries[area] ?? ""}${archCtxMatrix ? ` ${archCtxMatrix}` : ""}`;
         const ragCtxArea = await retrieveArticlesFast(cnaeCodesMatrix, areaQuery, 7);
         const regulatoryContext = ragCtxArea.contextText;
         const adjustmentContext = input.adjustment ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}` : "";
@@ -2262,6 +2270,9 @@ Formato:
       const cnaeCodesAction = confirmedCnaes.map((c: any) => c.code);
       const cnaeDescriptions = confirmedCnaes.map((c: any) => `${c.code} — ${c.description || c.code}`).join(", ");
 
+      // M3.5 RAG-COVERAGE: extrair archetype UMA vez antes do loop
+      const archCtxActionPlan = getArchetypeContext((project as any).archetype);
+
       // V70.3: Paralelizar as 4 áreas com Promise.all (reduz ~3min sequencial para ~45s paralelo)
       const areaResults = await Promise.all(areas.map(async (area) => {
         const areaRisks = input.matrices[area] || [];
@@ -2271,7 +2282,8 @@ Formato:
         const adjustmentContext = input.adjustment ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}` : "";
 
         // V70.2: RAG específico por área (query inclui nome da área + top riscos)
-        const areaQuery = `${areaNames[area]} ${cnaeDescriptions} ${areaRisks.slice(0, 3).map((r: any) => r.evento || "").join(" ")}`;
+        // M3.5 RAG-COVERAGE: archetype concatenado para enriquecer ranking
+        const areaQuery = `${areaNames[area]} ${cnaeDescriptions} ${areaRisks.slice(0, 3).map((r: any) => r.evento || "").join(" ")}${archCtxActionPlan ? ` ${archCtxActionPlan}` : ""}`;
         const ragCtxArea = await retrieveArticlesFast(cnaeCodesAction, areaQuery, 10);
         const regulatoryContext = ragCtxArea.contextText;
 
@@ -2566,8 +2578,14 @@ Gere o plano de ação em JSON:
       ].join("\n");
 
       // V65: RAG híbrido — busca artigos para decisão final (com re-ranking LLM para máxima precisão)
+      // M3.5 RAG-COVERAGE: enriquecer query com Perfil da Entidade (archetype M1)
       const cnaeCodesDecisao = confirmedCnaes.map((c: any) => c.code);
-      const ragCtxDecisao = await retrieveArticles(cnaeCodesDecisao, `${project.name} ${riscosSummary}`, 5);
+      const archCtxDecisao = getArchetypeContext((project as any).archetype);
+      const ragCtxDecisao = await retrieveArticles(
+        cnaeCodesDecisao,
+        `${project.name} ${riscosSummary}${archCtxDecisao ? ` ${archCtxDecisao}` : ""}`,
+        5
+      );
       const regulatoryContext = ragCtxDecisao.contextText;
 
       const result = await generateWithRetry(
@@ -3134,12 +3152,15 @@ Gere o veredito final em JSON:
         input.correction,
         input.complement,
       ]);
+      // M3.5 RAG-COVERAGE: enriquecer briefingQueryCtx com Perfil da Entidade (archetype M1)
+      const archCtxBriefingFD = getArchetypeContext((p as any).archetype);
       const briefingQueryCtx = [
         p.description || "",
         input.correction || "",
         input.complement || "",
         exportSignalFD.suffix,
         answersText.substring(0, 500),
+        archCtxBriefingFD,
       ].filter(Boolean).join(" ");
       const ragCtxBriefing = await retrieveArticles(cnaeCodesForRag, briefingQueryCtx, 7);
       const regulatoryContext = ragCtxBriefing.contextText;
