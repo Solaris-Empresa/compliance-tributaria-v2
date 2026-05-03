@@ -86,6 +86,8 @@ async function generateQuestionForRequirement(
     regime: string;
     uf: string;
     porte: string;
+    // M3.5 RAG-COVERAGE / Issue #926: archetype_context (Perfil da Entidade M1) — opcional, backward-compat
+    archetype_context?: string;
   },
   cnaeCode: string | null,
   attempt: number
@@ -119,7 +121,7 @@ PERFIL DA EMPRESA:
 - CNAEs: ${projectContext.cnae_codes.join(", ")}
 - Regime tributário: ${projectContext.regime}
 - UF: ${projectContext.uf}
-- Porte: ${projectContext.porte}
+- Porte: ${projectContext.porte}${projectContext.archetype_context ? `\n- Perfil da Entidade (arquétipo M1): ${projectContext.archetype_context}` : ""}
 
 REGRAS OBRIGATÓRIAS:
 1. A pergunta NÃO pode repetir dados do perfil (regime, UF, porte já são conhecidos)
