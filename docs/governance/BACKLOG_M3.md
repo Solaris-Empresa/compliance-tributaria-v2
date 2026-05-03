@@ -1,29 +1,54 @@
 # Backlog M3 — IA SOLARIS Compliance Tributária
 
-**Atualizado:** 2026-05-01 pós-sessão histórica (21 PRs mergeados)
-**HEAD:** `8dd0268` (pós-merge #898)
-**Próximo marco principal:** M3 RAG consome arquétipo
+**Atualizado:** 2026-05-02 pós-encerramento Sprint M3 (12 PRs mergeados — 9 features M3 + 2 docs + 1 fix)
+**HEAD:** `bc649fa` (pós PR #913 NOVA-09)
+**Status marco principal:** ✅ M3 ENCERRADA — Perfil da Entidade integrado a 5 engines + UI + E2E
 
 ---
 
 ## Prioridade 1 — Destravar cliente real
 
-1. **PR-LISTCLIENTS-FIX** (Classe A ~30min)
-   Destrava `role=cliente` para criação de projeto pela UI. Decisão de produto pendente: cliente vincula a 1 projeto OU N projetos? Define forma do `clientId` auto-vinculado.
+1. ✅ **PR-LISTCLIENTS-FIX** — **ENTREGUE (#902 — `3925134`)**
+   Destrava `role=cliente` para criação de projeto pela UI. `listClients` procedure auto-vincula `role=cliente` ao próprio user.
 
-## Prioridade 2 — M3 Consumo arquétipo no RAG ⭐ MARCO PRINCIPAL
+## Prioridade 2 — M3 Consumo arquétipo no RAG ⭐ MARCO PRINCIPAL — ✅ ENCERRADO
 
-2. **M3-RAG-01** — `retrieveArticles` aceitar `PerfilDimensional` opcional (Classe B ~4h)
-   Hoje recebe apenas CNAEs + texto livre. Adicionar parâmetro dimensional para boost por `objeto`/`papel`/`tipo_de_relacao`.
+Implementação seguiu padrão cirúrgico `arch ?? legacy` (não substituição) — todos os engines mantêm leitura legado e adicionam camada dimensional opcional via helper centralizado `getArchetypeContext` (NOVA-03 fundação, PR #903).
 
-3. **M3-RAG-02** — `briefingEngine` lê `projects.archetype` (Classe B ~3h)
-   Substituir leitura legada (`companyProfile` + `operationProfile`) por leitura dimensional canônica.
+2. ✅ **M3-RAG-01** — RAG/contextQuery dimensional — **ENTREGUE via NOVA-02 (#905)**
+   `product-questions.ts` e `service-questions.ts` enriquecem `contextQuery` com `getArchetypeContext(archetype)` antes de chamar RAG. Backward-compat: archetype null → query original.
 
-4. **M3-RAG-03** — `gap-engine` consome dimensões (Classe B ~4h)
-   Análise de gaps usa eixos do arquétipo, não classificação plana.
+3. ✅ **M3-RAG-02** — IA GEN consome archetype — **ENTREGUE via NOVA-01 (#904)**
+   `routers-fluxo-v3.ts` (briefing) e `routers-session-questionnaire.ts` (perguntas adaptativas) injetam `Perfil da Entidade (arquétipo M1): {ctx}` no prompt LLM. 6 LOC aditivas por gerador.
 
-5. **M3-RAG-04** — Smoke E2E dimensional completo (P.O. + Manus ~30min)
-   Cliente real → arquétipo confirmado → RAG dimensional → briefing → riscos → ações. Validação ponta-a-ponta.
+4. ✅ **M3-RAG-03** — Gap engine consome archetype — **ENTREGUE via NOVA-04 (#907)**
+   `gapEngine.ts` enriquece `gap_description` com sufixo `(contexto: {archCtx})` quando archetype presente. 1 query SELECT extendida + 1 ternário.
+
+5. ✅ **M3-RAG-04 + bonus** — Smoke E2E + suite acceptance — **ENTREGUE via NOVA-09 (#913) + acceptance (sessão)**
+   17 testes E2E integração (`server/lib/m3-archetype-e2e.test.ts`) + 10 testes acceptance (`server/lib/m3-sprint-acceptance.test.ts`). Suite oficial 58 cenários M1: GO 59/0/1.
+
+### Entregas adicionais não previstas no backlog original (escopo expandido pelo P.O.)
+
+5a. ✅ **NOVA-05 (#906)** — Risk engine usa `derived_legacy_operation_type`
+   `riskEngine.ts` cadeia `archetype.derived_legacy ?? operationType ?? tipoOperacao ?? null`. Preserva `buildRiskKey` + `rules_hash` invariante.
+
+5b. ✅ **NOVA-06 (#908)** — Rastreabilidade end-to-end Risco→Pergunta→Resposta→Gap
+   4 campos opcionais (`questionId`, `answerValue`, `gapId`, `questionSource`) propagados de `GapInput` → `GapRule` → `EvidenceItem` → `risks_v4.evidence.gaps[]`. `archetype_context` top-level em `ConsolidatedEvidence`. Habilita drawer de rastreabilidade no frontend (futuro M3.5).
+
+5c. ✅ **NOVA-07 (#909)** — Badge UX no header do Questionário
+   `client/src/components/ArchetypeBadge.tsx` (95 LOC) renderiza badge violet com tooltip de 7 dimensões. Integrado em `QuestionarioCNAE.tsx`. Backward-compat: archetype null → componente retorna null.
+
+## Issues abertas pós-M3 (backlog técnico residual)
+
+- **#911** — cleanup gapId rename ambíguo (Manus review #908) · Nível 3 backlog · `tech-debt`+`priority:low`
+- **#914** — fix(ci) secrets ausentes (OAUTH_SERVER_URL/OPENAI_API_KEY) causam Run Unit Tests + TypeScript+Vitest FAIL · `tech-debt`+`priority:medium`
+
+## Próximas frentes candidatas (M3.5 ou Sprint dedicado)
+
+- **NOVA-06 frontend:** `RiskExplanationDrawer.tsx` + `risk.getTraceability(riskId)` tRPC procedure — consome `evidence.gaps[].questionId` etc.
+- **Replicar `<ArchetypeBadge>`:** Operacional, Produto, Serviço, IaGen (NOVA-07 só cobriu QuestionarioCNAE)
+- **NCM mapping chapters 02 (carnes), 47 (celulose):** A48, A50 fallback documentado
+- **373 docs corpus `cnaeGroups="64,65,66"`:** auditoria de uso indevido financeiro→outros
 
 ## Prioridade 3 — Operacional crítica
 

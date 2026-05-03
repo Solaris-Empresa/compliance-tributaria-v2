@@ -621,3 +621,72 @@ PR #877 (`chore/spec-ci-isolation-camada5`, commit 408025e) é o exemplo
 canônico de remediação correta após violação: soft reset para `origin/main`,
 branch nova, stage seletivo, commit + push + PR. Manter como case de estudo
 em `docs/governance/SPEC-PROCESS-v2.md` se houver futura compilação narrativa.
+
+## REGRA-ORQ-27 — Validação de consumo (Lição #59)
+
+Toda afirmação de "engine X consome dado Y" em audit, PR body, sprint closure 
+ou relatório DEVE ser comprovada por uma das duas formas:
+
+### (a) Teste com spy no caller final
+
+- Spy em `invokeLLM` / `retrieveArticles` / `queryRag` / função análoga
+- Asserção: argumento de prompt/queryCtx CONTÉM o valor dinâmico de Y
+- `expect(prompt).toContain("label fixa")` NÃO basta — precisa testar valor dinâmico
+
+Exemplo correto:
+```typescript
+const spyLLM = vi.spyOn(llmModule, 'invokeLLM');
+await caller({ ..., dynamicValue: "transportador" });
+const promptArg = spyLLM.mock.calls[0][0];
+expect(promptArg).toContain("transportador");  // valor dinâmico
+```
+
+Exemplo INCORRETO (assemble, não consumption):
+```typescript
+expect(montagemUpstream).toContain("Perfil da Entidade:");  // string fixa montada upstream
+```
+
+### (b) Citação arquivo:linha
+
+- Linha exata do prompt LLM final OU contextQuery RAG final onde Y é concatenado
+- Assemble point upstream NÃO conta
+
+### NÃO basta:
+
+- Grep por nome da função (mostra chamada, não consumo)
+- Verificar type signature (structural typing TypeScript oculta dead code)
+- Aparência de output (campo no PDF não prova consumo do dado)
+
+### Cosméticos vs ATIVO:
+
+| Estado | Critério | Marcação |
+|---|---|---|
+| ✅ ATIVO | Provado por (a) ou (b) | Conta como engine ativo |
+| 🟡 Cosmético | Texto em campo não consumido por inferência downstream | NUNCA marcar como ATIVO |
+| 🟡 Rastreio | Gravação em schema sem leitura downstream | NUNCA marcar como ATIVO |
+| ❌ Dead code | Campo passado mas nunca lido (structural typing) | Bug — abrir issue |
+| ⚠️ Não verificado | Sem prova (a) nem (b) disponível | Default — nunca ✅ |
+
+### Aplicação:
+
+- PR sem prova ao afirmar consumo → validate-pr FALHA (Camada B futura)
+- Audit sem prova → orquestrador rejeita F1/F2
+- Score "engines com X" só conta provas arquivadas
+
+### Aplicação prospectiva
+
+PRs abertos antes do merge desta REGRA-ORQ-27 não exigem retroativamente. PRs criados após o merge devem cumprir.
+
+### Origem
+
+- Lição #59 capturada Sprint M3 (caso EMPRESA TRANSPORTE COMBUSTÍVEL)
+- 3 engines (Q.CNAE, Q.NBS, Q.NCM) passaram tests + CI + APPROVE em dead code
+- E2E P.O. revelou que código existia mas não alterava prompt LLM final
+
+### Vinculadas
+
+- Lição #59 (assemble ≠ consumption)
+- Lição #60 (score técnico ≠ produto)
+- ORQ-08 (spec aprovada)
+- ORQ-15 (PR body template)
+- ORQ-20 (Avaliação de Risco)

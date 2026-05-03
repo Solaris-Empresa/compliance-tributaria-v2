@@ -232,6 +232,25 @@ Risk score (herdado Gate 0): [ low | medium | high ]
 Resultado: [ APTO | BLOQUEADO — motivo ]
 ```
 
+## Provas de consumo (REGRA-ORQ-27)
+
+> Preencher SE este PR afirma que algum engine passou a consumir um dado novo.
+
+| Engine | Tipo prova | Arquivo:linha ou teste |
+|---|---|---|
+| <engine> | spy / arquivo:linha | <evidência> |
+
+OU
+
+- [ ] N/A — PR não toca consumption path
+
+> Tipos de prova válidos:
+> - **spy**: nome do teste com `vi.spyOn` no caller final que valida valor dinâmico
+> - **arquivo:linha**: citação exata do prompt LLM final ou contextQuery RAG final
+>
+> NÃO basta: grep, type signature, aparência de output, `toContain` de string fixa.
+> Ver REGRA-ORQ-27 em `.claude/rules/governance.md`.
+
 ## Checklist final
 - [ ] Código revisado pelo próprio autor
 - [ ] Evidência JSON preenchida e verdadeira
