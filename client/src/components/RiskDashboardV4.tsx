@@ -62,6 +62,29 @@ interface EvidenceItem {
   [key: string]: unknown;
 }
 
+/** Backend ConsolidatedEvidence shape (risk-engine-v4.ts) */
+interface ConsolidatedEvidenceGap {
+  ruleId?: string;
+  fonte?: string;
+  gapClassification?: string;
+  sourceReference?: string;
+  artigo?: string;
+  confidence?: number;
+  weight?: number;
+  questionId?: number | null;
+  answerValue?: string | null;
+  gapId?: number | null;
+  questionSource?: string | null;
+}
+interface ConsolidatedEvidence {
+  gaps?: ConsolidatedEvidenceGap[];
+  rag_validated?: boolean;
+  rag_confidence?: number;
+  rag_artigo_exato?: string;
+  rag_trecho_legal?: string;
+  archetype_context?: string;
+}
+
 interface RiskData {
   id: string;
   project_id: number;
@@ -75,7 +98,7 @@ interface RiskData {
   urgencia: string;
   status: string;
   source_priority: string;
-  evidence: EvidenceItem[] | string;
+  evidence: EvidenceItem[] | string | ConsolidatedEvidence;
   breadcrumb: [string, string, string, string] | string;
   confidence: number;
   approved_at?: string | null;
@@ -149,9 +172,32 @@ const SOURCE_LABELS: Record<string, string> = {
   iagen: "IA Gen",
 };
 
-function parseEvidence(raw: EvidenceItem[] | string): EvidenceItem[] {
+function parseEvidence(raw: EvidenceItem[] | string | ConsolidatedEvidence): EvidenceItem[] {
+  // Case 1: already an array of EvidenceItem
   if (Array.isArray(raw)) return raw;
-  try { return JSON.parse(raw as string) as EvidenceItem[]; } catch { return []; }
+
+  // Case 2: JSON string — parse first, then re-evaluate
+  let parsed: unknown = raw;
+  if (typeof raw === "string") {
+    try { parsed = JSON.parse(raw); } catch { return []; }
+    if (Array.isArray(parsed)) return parsed as EvidenceItem[];
+  }
+
+  // Case 3: ConsolidatedEvidence object with .gaps[]
+  const obj = parsed as ConsolidatedEvidence;
+  if (obj && typeof obj === "object" && Array.isArray(obj.gaps)) {
+    return obj.gaps.map((gap) => ({
+      fonte: gap.fonte ?? undefined,
+      prioridade: gap.gapClassification ?? undefined,
+      pergunta: gap.sourceReference
+        ? `[${gap.ruleId ?? "regra"}] ${gap.sourceReference}`
+        : (gap.ruleId ?? undefined),
+      resposta: gap.answerValue ?? undefined,
+      confianca: gap.confidence ?? undefined,
+    }));
+  }
+
+  return [];
 }
 
 function parseBreadcrumb(raw: [string, string, string, string] | string): [string, string, string, string] {
@@ -733,6 +779,10 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
     const formatEvidence = (e: RiskData["evidence"]): string => {
       if (Array.isArray(e)) {
         return e.map((x: any) => `${x?.artigo ?? ""}: ${x?.trecho ?? ""}`).join(" | ");
+      }
+      if (typeof e === "object" && e !== null && "gaps" in e) {
+        const gaps = (e as ConsolidatedEvidence).gaps ?? [];
+        return gaps.map((g) => `[${g.fonte ?? ""}] ${g.ruleId ?? ""}: ${g.sourceReference ?? ""}`).join(" | ");
       }
       return typeof e === "string" ? e : "";
     };
