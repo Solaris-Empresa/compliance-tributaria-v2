@@ -3837,6 +3837,8 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         profileFields.push(`Regime tributário: ${regime}`);
         profileFields.push(`Porte: ${porte}`);
         profileFields.push(`CNAEs: ${cnaes.join(', ') || 'não informado'}`);
+        // M3.6 (Issue #932) — descrição livre do negócio enriquece o prompt LLM (P1-1)
+        if (project.description) profileFields.push(`Descrição do negócio: ${project.description}`);
         if (opProfile?.operationType) profileFields.push(`Tipo operação: ${opProfile.operationType}`);
         if (opProfile?.clientType) profileFields.push(`Tipo cliente: ${Array.isArray(opProfile.clientType) ? opProfile.clientType.join(', ') : opProfile.clientType}`);
         if (opProfile?.multiState !== undefined) profileFields.push(`Multiestadual: ${opProfile.multiState ? 'Sim' : 'Não'}`);

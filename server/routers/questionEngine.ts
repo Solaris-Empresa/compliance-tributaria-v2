@@ -88,6 +88,8 @@ async function generateQuestionForRequirement(
     porte: string;
     // M3.5 RAG-COVERAGE / Issue #926: archetype_context (Perfil da Entidade M1) — opcional, backward-compat
     archetype_context?: string;
+    // M3.6 (Issue #932): descrição livre do negócio (P1-1) — opcional, backward-compat
+    description?: string | null;
   },
   cnaeCode: string | null,
   attempt: number
@@ -121,7 +123,7 @@ PERFIL DA EMPRESA:
 - CNAEs: ${projectContext.cnae_codes.join(", ")}
 - Regime tributário: ${projectContext.regime}
 - UF: ${projectContext.uf}
-- Porte: ${projectContext.porte}${projectContext.archetype_context ? `\n- Perfil da Entidade (arquétipo M1): ${projectContext.archetype_context}` : ""}
+- Porte: ${projectContext.porte}${projectContext.archetype_context ? `\n- Perfil da Entidade (arquétipo M1): ${projectContext.archetype_context}` : ""}${projectContext.description ? `\n- Descrição do negócio: ${projectContext.description}` : ""}
 
 REGRAS OBRIGATÓRIAS:
 1. A pergunta NÃO pode repetir dados do perfil (regime, UF, porte já são conhecidos)
@@ -292,7 +294,7 @@ export const questionEngineRouter = router({
         // 1. Buscar projeto e contexto
         // M3 NOVA-02: SELECT estendido com `archetype` para consumo do helper.
         const [[project]] = await pool.query<mysql.RowDataPacket[]>(
-          "SELECT id, name, regime, uf, porte, confirmedCnaes, archetype FROM projects WHERE id = ? AND userId = ?",
+          "SELECT id, name, description, regime, uf, porte, confirmedCnaes, archetype FROM projects WHERE id = ? AND userId = ?",
           [input.project_id, ctx.user.id]
         ) as any;
 
@@ -320,6 +322,8 @@ export const questionEngineRouter = router({
           uf: project.uf || "Não informado",
           porte: project.porte || "Não informado",
           archetype_context: archetypeContext,
+          // M3.6 (Issue #932) — descrição livre do negócio (P1-1) — backward-compat: null/undefined
+          description: project.description ?? null,
         };
 
         // 2. Buscar requisitos aplicáveis

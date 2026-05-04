@@ -690,3 +690,90 @@ PRs abertos antes do merge desta REGRA-ORQ-27 não exigem retroativamente. PRs c
 - ORQ-08 (spec aprovada)
 - ORQ-15 (PR body template)
 - ORQ-20 (Avaliação de Risco)
+
+## REGRA-ORQ-28 — Triade de Garantia para Bugs/Features Técnicas
+
+Vigência: permanente, a partir de 2026-05-04
+Origem: Sprint M3.6 — padrão estabelecido para evitar "documenta e esquece"
+Severidade: governança operacional — define artefatos obrigatórios pré-implementação
+
+### Regra
+
+Toda issue de **bug** ou **feature técnica** que envolva mudanças em código de produção (server/, client/, drizzle/) DEVE produzir **3 artefatos** antes que a implementação seja iniciada. Cada artefato é um PR distinto, mergeado em ordem.
+
+### Artefato 1 — Issue ultra-detalhada (8 seções)
+
+Issue no GitHub seguindo template fixo:
+
+1. **Contexto** — caso de teste, screenshots, sintomas observados, HEAD analisado
+2. **Diagnóstico empírico** — causa-raiz com `arquivo:linha` exato + fluxo do bug
+3. **Spec técnica** — diff exato (antes/depois), arquivos tocados, LOC estimado
+4. **ADR mínimo** — decisões arquiteturais + justificativa
+5. **Critério de aceite empírico** — checkboxes verificáveis com comandos reproduzíveis
+6. **Test contracts** — lista de `it.todo()` com asserts mapeados aos critérios
+7. **Não-implementar** — escopo explicitamente excluído (anti scope creep)
+8. **Vinculadas** — PRs anteriores, REGRAs aplicáveis, screenshots, análises
+
+### Artefato 2 — PR docs-only com test contracts skeleton
+
+PR commitando arquivos `.test.ts` com `it.todo()` em `server/lib/{issue-id}-*.test.ts` ou caminho equivalente.
+
+- Garantia média: testes ficam visíveis no repo até serem implementados
+- `it.todo()` aparece como pending no CI (não falha)
+- Implementação propriamente dita transforma `it.todo()` em `it()` com código real
+- Cada test contract mapeia 1:1 a um critério de aceite da Seção 5 da issue
+
+### Artefato 3 — PR docs-only com workflow CI gate específico
+
+PR commitando `.github/workflows/validate-spec-{issue-id}.yml` que:
+
+- Dispara apenas em PRs com label `{issue-id}-impl` (escape hatch — outros PRs imunes)
+- Executa **greps** contra arquivos esperados pela Spec Técnica (Seção 3 da issue)
+- Verifica que **todos os `it.todo()` foram convertidos** para `it()` no PR de implementação
+- Executa os testes via vitest e exige **100% PASS**
+- Diff size guard — warning se LOC do PR exceder 2x estimativa do spec
+
+### Hierarquia de garantias (ser honesto)
+
+- 🟢 **Garantia REAL:** Artefato 2 (test contracts executados via vitest)
+- 🟡 **Complemento útil:** Artefato 3 (CI greps — frágil a renames/comentários, mas detecta ausências grosseiras)
+- 🟦 **Documentação:** Artefato 1 (referência permanente)
+
+Artefato 3 NÃO é "garantia máxima" — é camada adicional de segurança. Test contracts (Artefato 2) é o gate real.
+
+### Aplicação
+
+- Implementação só inicia após Artefato 1 mergeado + Artefatos 2 e 3 mergeados
+- PR de implementação **deve receber label `{issue-id}-impl`**, disparando Artefato 3
+- Artefato 3 verde + branch protection = merge somente com conformidade
+- Reviewer (Manus ou Claude Code, quem não implementou) confirma que cada gate corresponde ao critério da issue
+
+### Casos onde NÃO se aplica
+
+- Hotfix P0 (REGRA-ORQ-11) — fast-track sem triade completa, mas mantém PR body com critério de aceite
+- PRs docs-only sem mudança de código — apenas Artefato 1 se necessário
+- Mudanças triviais (≤5 LOC, sem lógica) — exigir triade completa é overhead injustificado
+
+### Limitações conhecidas
+
+- **Greps frágeis:** rename de identificadores quebra grep. Mitigação: complementar com test contracts em vez de substituir.
+- **`it.todo()` não falha CI:** apenas pending. Mitigação: Artefato 3 verifica que `it.todo()` foi convertido para `it()` no PR de implementação.
+- **Nem tudo cabe em template:** features de UI ou refactor podem precisar adaptar Seções 3 e 6.
+
+### Origem
+
+Sprint M3.6 (Issue #932 + PR #933 + PR #934) estabeleceu padrão. Manus + Claude Code documentaram falhas de "documenta e esquece" em sprints anteriores (M3 dead code, mislabeling Q.CNAE 4 vezes, score 10/10 inflado).
+
+### Vinculadas
+
+- REGRA-ORQ-15 (PR body template)
+- REGRA-ORQ-17 (PRE-CLOSE-CHECKLIST)
+- REGRA-ORQ-27 (Validação de consumo / Lição #59)
+- Lição #59 (assemble ≠ consumption)
+- Lição #60 (score técnico ≠ produto)
+
+### Refinamento futuro
+
+- AST-based check (substituir greps por análise de árvore TypeScript via `ts-morph`) — mais robusto contra renames e comentários
+- Script `scripts/spec-gate-init.sh {issue-id} {file-paths}` — gera Artefatos 2 e 3 a partir de template
+- Spec hash invariance — capturar SHA da issue no PR body, detectar drift se issue for editada
