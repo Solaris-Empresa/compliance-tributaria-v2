@@ -30,7 +30,9 @@ export type CategoriaV4 =
 
 export type SeveridadeV4 = "alta" | "media" | "oportunidade";
 export type UrgenciaV4 = "imediata" | "curto_prazo" | "medio_prazo";
-export type SourcePriorityV4 = "cnae" | "ncm" | "nbs" | "solaris" | "iagen";
+// M3.8.1 Bug C followup: alinhamento com type Fonte (risk-engine-v4.ts:37)
+// e migration 0091 (ENUM risks_v4.source_priority).
+export type SourcePriorityV4 = "cnae" | "ncm" | "nbs" | "solaris" | "iagen" | "regulatorio";
 export type RiskStatusV4 = "active" | "deleted";
 
 export type PrazoActionPlan = "30_dias" | "60_dias" | "90_dias" | "180_dias";
