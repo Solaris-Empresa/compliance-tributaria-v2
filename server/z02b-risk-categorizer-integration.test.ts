@@ -98,10 +98,12 @@ describe("categorizeRisk — Caso 3: Split Payment", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Caso 4: Gap sem topicos, sem lei_ref → fallback "enquadramento_geral"
+// Caso 4: Gap sem topicos, sem lei_ref → fallback "unmapped" (M3.8-3 PR #970)
+// ANTES: fallback retornava "enquadramento_geral" (gap fantasma com base legal "N/A")
+// DEPOIS: fallback retorna "unmapped" → handler em risk-engine-v4 skip o risco
 // ---------------------------------------------------------------------------
-describe("categorizeRisk — Caso 4: Fallback enquadramento_geral", () => {
-  it("deve retornar enquadramento_geral quando não há dados suficientes", () => {
+describe("categorizeRisk — Caso 4: Fallback unmapped (M3.8-3)", () => {
+  it("deve retornar unmapped quando não há dados suficientes", () => {
     const result = categorizeRisk({
       description: "",
       lei_ref: null,
@@ -110,12 +112,12 @@ describe("categorizeRisk — Caso 4: Fallback enquadramento_geral", () => {
       category: "apuracao",
       type: "geral",
     });
-    expect(result).toBe("enquadramento_geral");
+    expect(result).toBe("unmapped");
   });
 
-  it("deve retornar enquadramento_geral para input completamente vazio", () => {
+  it("deve retornar unmapped para input completamente vazio", () => {
     const result = categorizeRisk({});
-    expect(result).toBe("enquadramento_geral");
+    expect(result).toBe("unmapped");
   });
 });
 
@@ -205,7 +207,8 @@ describe("RED TEST — bug imposto_seletivo para transportadora (hotfix v1.2)", 
 
     const eligibility = isCategoryAllowed(suggested, "servicos");
     expect(eligibility.allowed).toBe(false);
-    expect(eligibility.final).toBe("enquadramento_geral");
+    // M3.8-3 (PR #970): downgrade_to mudou de "enquadramento_geral" → "unmapped"
+    expect(eligibility.final).toBe("unmapped");
     expect(eligibility.reason).toBe("sujeito_passivo_incompativel");
   });
 });
