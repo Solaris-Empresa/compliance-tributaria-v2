@@ -83,7 +83,7 @@ describe("Z-01 Q.Produtos (NCM)", () => {
 
     expect(Array.isArray(result)).toBe(true);
     const perguntas = result as TrackedQuestion[];
-    const ragQ = perguntas.find(q => q.fonte === "rag");
+    const ragQ = perguntas.find(q => q.fonte === "regulatorio");
     expect(ragQ).toBeDefined();
     expect(ragQ!.fonte_ref).toBe("LC214-art45-ncm220210");
     expect(ragQ!.ncm).toBe("2202.10.00");

@@ -25,7 +25,10 @@ export interface RagChunk {
 
 // ─── Tipos de rastreabilidade ─────────────────────────────────────────────────
 
-export type QuestionFonte = "rag" | "solaris" | "engine" | "fallback";
+// M3.7 Item 4: "regulatorio" é o valor canônico da Onda 3 (E2E-3-ONDAS-QUESTIONARIOS-v1.md:79).
+// "rag" mantido como legado para riscos antigos no banco (backward-compat); novos retornos usam "regulatorio".
+// "fallback" será removido na Sprint M3.7 Item 5 (NO_QUESTION protocol substitui fallbacks hardcoded).
+export type QuestionFonte = "regulatorio" | "rag" | "solaris" | "engine" | "fallback" | "ia_gen";
 
 export interface TrackedQuestion {
   id:         string;
