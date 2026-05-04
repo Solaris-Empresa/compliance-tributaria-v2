@@ -373,6 +373,18 @@ export async function consolidateRisks(
     }
 
     const categoria = eligibility.final;
+
+    // M3.8-3 (REGRA-ORQ-29 + Lição #62): skip riscos com categoria "unmapped".
+    // "unmapped" indica gap não-categorizável (categorizer fallback) ou archetype
+    // não elegível (eligibility downgrade). Em ambos os casos, NÃO gerar risco —
+    // gap vai para reviewQueue do GapToRuleMapper para revisão humana.
+    if (categoria === "unmapped" as CategoriaCanonica) {
+      console.warn(
+        `[risk-engine-v4] skip risco unmapped — projeto=${projectId} riskKey=${riskKey} sugerido=${suggestedCategoria} reason=${eligibility.reason}`,
+      );
+      continue;
+    }
+
     const effectiveRiskKey =
       categoria === suggestedCategoria ? riskKey : buildRiskKey(categoria, context);
 
