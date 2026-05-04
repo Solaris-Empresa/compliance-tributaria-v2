@@ -799,11 +799,13 @@ Proibido:
 CI gate sugerido em `.github/workflows/invariant-check.yml` (INV-06):
 
 ```bash
-grep -rE "fonte.*['\"]fallback['\"]|fonte.*['\"]ia_gen['\"][\s,].*confidence_score:\s*0\.5" \
+grep -rP "fonte.*['\"]fallback['\"]|fonte.*['\"]ia_gen['\"][\s,].*confidence_score:\s*0\.5" \
   server/ --include="*.ts" --exclude="*.test.ts"
 ```
 
 Se match > 0 → FAIL.
+
+**Nota técnica:** usar `grep -rP` (Perl regex), não `grep -rE` (POSIX ERE). Razão: `\s` é extensão Perl. POSIX equivalente seria `[[:space:]]`. Verificado empiricamente em 2026-05-04 (review Manus do PR #939) — `grep -E` com `\s` não captura nenhum dos 5 casos de `FALLBACK_QUESTIONS:3826-3832`.
 
 ### Vinculadas
 
@@ -844,13 +846,15 @@ Exceções requerem aprovação explícita do P.O. com justificativa documentada
 CI gate sugerido em `.github/workflows/invariant-check.yml` (INV-07):
 
 ```bash
-grep -rnE "temperature:\s*0?\.[2-9]" server/ --include="*.ts" \
+grep -rnP "temperature:\s*0\.(1[1-9]|[2-9])" server/ --include="*.ts" \
   | grep -v "test\|voiceTranscription"
 ```
 
 (Excluir `*.test.ts` para permitir testes simularem cenários; excluir `voiceTranscription.ts:44` que é definição de tipo, não valor.)
 
 Se match > 0 → FAIL.
+
+**Nota técnica:** o regex captura `0.11`-`0.19` via `1[1-9]` e `0.2`-`0.9` via `[2-9]`. NÃO captura `0.1` (valor válido) nem `0.10` (idem). Verificado empiricamente em 2026-05-04 (review Manus do PR #939) — regex anterior `temperature:\s*0?\.[2-9]` deixava `0.15` (`routers-fluxo-v3.ts:2356` `generateActionPlan`) escapar do gate. Usar `grep -P` (Perl) — `grep -E` não suporta `\s`.
 
 ### Origem documentada
 
