@@ -1184,3 +1184,39 @@ Se algum check falhar: spec precisa ser **dividida em fases** (Fase 1 = código 
 - REGRA-ORQ-28 (Triade de garantia — test contracts dependem de viabilidade real)
 - Sprint M3.8 (M3.8-2 escopo reduzido para 1 fonte funcional + M3.9 backlog curadoria)
 - Análise técnica Manus 2026-05-04 — "Crítica Técnica — Spec M3.8-2 do Consultor"
+
+## Lição #64 — Audit-greps insuficientes vs runtime tests
+
+Origem: Sprint M3.8.1 — diagnóstico Manus 2026-05-05 (post-deploy M3.8)
+
+### Texto
+
+PRs docs-only de audit baseados em **grep estático** são insuficientes para detectar contratos quebrados em runtime quando uma função muda seus retornos sem que os consumidores downstream sejam atualizados. Mudanças que alteram o **valor retornado** (não apenas a assinatura) por uma função consumida por outros módulos exigem **test contract runtime** que valide o comportamento end-to-end, não apenas que a string foi removida do código.
+
+### Caso canônico
+
+Sprint M3.8-1B (PR #968) mudou `inferFonte` em `gap-to-rule-mapper.ts:258,262` para retornar `"regulatorio"` (era `"solaris"`). O audit v7.62 validou via grep que o hardcode `"solaris"` foi removido — gate passou. Mas:
+
+- `risk-engine-v4.ts:37` `type Fonte` não foi atualizado → mismatch silencioso
+- `risk-engine-v4.ts:100-106` `SOURCE_RANK` não incluiu `"regulatorio"` → loop de `getBestSourcePriority` retornou rank 99 para todos os gaps → initial value `"iagen"` foi retornado em 100% dos casos
+- `risks_v4.source_priority` ENUM no banco não incluiu `"regulatorio"` → INSERT falhou com `Data truncated`
+
+3 bugs em cascata, 1 P0 (perda de dados em `gapEngine.ts:459` exposto pelo cenário), 1 P1 (UI mostrando "iagen" para todos os riscos), 1 P2 (type mismatch). Detectados apenas em smoke E2E pós-deploy (Manus 2026-05-05).
+
+### Aplicação prospectiva
+
+A partir de 2026-05-05, qualquer PR que altere o valor de retorno de função pública consumida por outros módulos DEVE incluir:
+
+1. **Test contract runtime** que valida o consumo downstream (não apenas grep da string nova)
+2. **Atualização explícita de tipos correlatos** quando o domínio é union string ou ENUM
+3. **Migration SQL alinhada** quando o domínio é ENUM persistido em coluna do banco
+
+PRs docs-only de audit podem usar grep, mas **não substituem** test contracts runtime para mudanças em retornos consumidos.
+
+### Vinculadas
+
+- REGRA-ORQ-27 (Lição #59 — assemble ≠ consumption) — esta lição é manifestação concreta em runtime
+- REGRA-ORQ-28 (Triade) — test contracts são o gate primário, greps são complemento
+- Sprint M3.8.1 (caso canônico) — PRs #973 + #974
+- PR #968 (M3.8-1B) — origem dos 3 bugs A/B/C
+- Audit v7.62 (`docs/governance/audits/v7.62-2026-05-04-sprint-m3.8-encerrada.md`) — exemplo de audit que passou apesar dos bugs latentes
