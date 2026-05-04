@@ -6,7 +6,7 @@ name: Validate M3.6 Spec Compliance
 #
 # OBJETIVO: garantir que o PR de implementação efetivamente cumpre o spec
 # da issue #932. Faz grep contra arquivos esperados + verifica test contracts
-# convertidos + executa os 9 testes obrigatórios.
+# convertidos + executa os 10 testes obrigatórios.
 #
 # Vinculadas:
 # - Issue #932 (M3.6 spec)
@@ -137,22 +137,22 @@ jobs:
         run: |
           if grep -E '^\s*it\.todo\(' server/lib/m3.6-rag-filter-by-lei.test.ts server/lib/m3.6-iagen-description.test.ts; then
             echo "❌ FALHOU: ainda há it.todo() nos arquivos de test contracts M3.6"
-            echo "   Implementação deve transformar todos os 9 it.todo() em it() com código real"
+            echo "   Implementação deve transformar todos os 10 it.todo() em it() com código real"
             exit 1
           fi
-          echo "✅ Test contracts — todos os 9 it.todo convertidos"
+          echo "✅ Test contracts — todos os 10 it.todo convertidos"
 
-      - name: Test contracts — exatamente 9 testes presentes
+      - name: Test contracts — exatamente 10 testes presentes
         run: |
           COUNT=$(grep -cE '^\s*it\(' server/lib/m3.6-rag-filter-by-lei.test.ts server/lib/m3.6-iagen-description.test.ts | awk -F: '{sum+=$2} END {print sum}')
-          if [ "$COUNT" -ne 9 ]; then
-            echo "❌ FALHOU: esperado 9 it() nos arquivos de test contracts M3.6, encontrado $COUNT"
+          if [ "$COUNT" -ne 10 ]; then
+            echo "❌ FALHOU: esperado 10 it() nos arquivos de test contracts M3.6, encontrado $COUNT"
             echo "   it() count: $COUNT"
             exit 1
           fi
-          echo "✅ Test contracts — exatamente 9 it() presentes"
+          echo "✅ Test contracts — exatamente 10 it() presentes"
 
-      # ─── Execução dos 9 testes M3.6 — todos devem passar ─────────────────
+      # ─── Execução dos 10 testes M3.6 — todos devem passar ────────────────
 
       - name: Run M3.6 test contracts — todos devem passar
         run: |
@@ -212,7 +212,7 @@ jobs:
           echo "  ✅ Prompt interpola description condicionalmente"
           echo ""
           echo "Test contracts:"
-          echo "  ✅ 9 it.todo() convertidos para it()"
-          echo "  ✅ Todos os 9 testes passam"
+          echo "  ✅ 10 it.todo() convertidos para it()"
+          echo "  ✅ Todos os 10 testes passam"
           echo ""
           echo "PR conforme com Issue #932. Apto para merge."
