@@ -1,0 +1,204 @@
+name: Validate M3.6 Spec Compliance
+
+# Hard gate de conformidade com Issue #932 (M3.6 — RAG filter por lei + IA Gen description).
+#
+# DISPARO: apenas em PRs com label `m3.6-impl` (escape hatch — outros PRs não são afetados).
+#
+# OBJETIVO: garantir que o PR de implementação efetivamente cumpre o spec
+# da issue #932. Faz grep contra arquivos esperados + verifica test contracts
+# convertidos + executa os 9 testes obrigatórios.
+#
+# Vinculadas:
+# - Issue #932 (M3.6 spec)
+# - PR #933 (test contracts skeleton it.todo)
+# - REGRA-ORQ-27 (Lição #59 — assemble ≠ consumption)
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled]
+
+jobs:
+  validate-spec-compliance:
+    name: Validate M3.6 spec compliance
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'm3.6-impl')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ─── P0 — RAG filter por lei ──────────────────────────────────────────
+
+      - name: P0.1 — fetchCandidates aceita leiFilter
+        run: |
+          if ! grep -qE 'leiFilter\??:\s*string\[\]' server/rag-retriever.ts; then
+            echo "❌ P0.1 FALHOU: server/rag-retriever.ts não declara parâmetro leiFilter?: string[]"
+            echo "   Esperado em fetchCandidates (linha ~113), retrieveArticles (~261), retrieveArticlesFast (~289)"
+            exit 1
+          fi
+          echo "✅ P0.1 — leiFilter declarado em rag-retriever.ts"
+
+      - name: P0.2 — fetchCandidates aplica inArray no SQL
+        run: |
+          if ! grep -qE 'inArray\(ragDocuments\.lei,\s*leiFilter\)' server/rag-retriever.ts; then
+            echo "❌ P0.2 FALHOU: server/rag-retriever.ts não aplica inArray(ragDocuments.lei, leiFilter)"
+            echo "   Esperado em fetchCandidates ~linha 142-147"
+            exit 1
+          fi
+          echo "✅ P0.2 — inArray aplicado em fetchCandidates"
+
+      - name: P0.3 — queryRag propaga leiFilter
+        run: |
+          if ! grep -qE 'leiFilter\??:\s*string\[\]' server/lib/rag-query.ts; then
+            echo "❌ P0.3 FALHOU: server/lib/rag-query.ts não propaga leiFilter"
+            echo "   Esperado em assinatura de queryRag (linha 14)"
+            exit 1
+          fi
+          echo "✅ P0.3 — leiFilter propagado em queryRag"
+
+      - name: P0.4 — Q.NBS passa whitelist ["lc214","lc227"]
+        run: |
+          if ! grep -qE '\["lc214",\s*"lc227"\]' server/lib/service-questions.ts; then
+            echo "❌ P0.4 FALHOU: server/lib/service-questions.ts não passa [\"lc214\",\"lc227\"]"
+            echo "   Esperado em chamada queryRagFn (linha ~100)"
+            exit 1
+          fi
+          echo "✅ P0.4 — Q.NBS passa whitelist correta"
+
+      # ─── P1-1 — IA Gen + questionEngine consomem description ──────────────
+
+      - name: P1-1.1 — IA Gen Onda 2 injeta description em profileFields
+        run: |
+          if ! grep -qE 'profileFields\.push\(.*Descrição do negócio' server/routers-fluxo-v3.ts; then
+            echo "❌ P1-1.1 FALHOU: server/routers-fluxo-v3.ts não injeta 'Descrição do negócio' em profileFields"
+            echo "   Esperado em generateOnda2Questions ~linha 3839"
+            exit 1
+          fi
+          echo "✅ P1-1.1 — Descrição do negócio injetada em profileFields"
+
+      - name: P1-1.2 — questionEngine SELECT inclui description
+        run: |
+          # Verifica que SELECT em getProjectById inclui campo description
+          # Padrão tolerante a quebras de linha e espaços
+          if ! grep -qE 'SELECT\s+id.*description.*FROM projects' server/routers/questionEngine.ts; then
+            echo "❌ P1-1.2 FALHOU: server/routers/questionEngine.ts SELECT não inclui campo description"
+            echo "   Esperado em linha ~293"
+            exit 1
+          fi
+          echo "✅ P1-1.2 — SELECT inclui description"
+
+      - name: P1-1.3 — projectContext popula description
+        run: |
+          if ! grep -qE 'description:\s*project\.description' server/routers/questionEngine.ts; then
+            echo "❌ P1-1.3 FALHOU: server/routers/questionEngine.ts não popula projectContext.description"
+            echo "   Esperado em ~linha 320"
+            exit 1
+          fi
+          echo "✅ P1-1.3 — projectContext.description populado"
+
+      - name: P1-1.4 — prompt LLM interpola description condicionalmente
+        run: |
+          if ! grep -qE 'projectContext\.description\s*\?' server/routers/questionEngine.ts; then
+            echo "❌ P1-1.4 FALHOU: server/routers/questionEngine.ts não interpola description condicionalmente no prompt"
+            echo "   Esperado em ~linha 122 (prompt template literal)"
+            exit 1
+          fi
+          echo "✅ P1-1.4 — Prompt interpola description condicionalmente"
+
+      # ─── Test contracts: it.todo() devem virar it() ───────────────────────
+
+      - name: Test contracts — todos it.todo convertidos para it()
+        run: |
+          if grep -E '^\s*it\.todo\(' server/lib/m3.6-rag-filter-by-lei.test.ts server/lib/m3.6-iagen-description.test.ts; then
+            echo "❌ FALHOU: ainda há it.todo() nos arquivos de test contracts M3.6"
+            echo "   Implementação deve transformar todos os 9 it.todo() em it() com código real"
+            exit 1
+          fi
+          echo "✅ Test contracts — todos os 9 it.todo convertidos"
+
+      - name: Test contracts — exatamente 9 testes presentes
+        run: |
+          COUNT=$(grep -cE '^\s*it\(' server/lib/m3.6-rag-filter-by-lei.test.ts server/lib/m3.6-iagen-description.test.ts | awk -F: '{sum+=$2} END {print sum}')
+          if [ "$COUNT" -ne 9 ]; then
+            echo "❌ FALHOU: esperado 9 it() nos arquivos de test contracts M3.6, encontrado $COUNT"
+            echo "   it() count: $COUNT"
+            exit 1
+          fi
+          echo "✅ Test contracts — exatamente 9 it() presentes"
+
+      # ─── Execução dos 9 testes M3.6 — todos devem passar ─────────────────
+
+      - name: Run M3.6 test contracts — todos devem passar
+        run: |
+          pnpm vitest run \
+            server/lib/m3.6-rag-filter-by-lei.test.ts \
+            server/lib/m3.6-iagen-description.test.ts \
+            --reporter=default
+
+      # ─── Diff size guard — alerta se PR exceder estimativa ───────────────
+
+      - name: Diff size guard — alertar se exceder estimativa do spec
+        run: |
+          # Spec da issue #932 estima ~27 LOC produção em 5 arquivos
+          # Tolerância: 50 LOC (margem para testes inline + comments)
+          ESTIMATED_LOC=27
+          TOLERANCE=50
+          ACTUAL_LOC=$(git diff --stat origin/main..HEAD -- \
+            server/rag-retriever.ts \
+            server/lib/rag-query.ts \
+            server/lib/service-questions.ts \
+            server/routers-fluxo-v3.ts \
+            server/routers/questionEngine.ts \
+            | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
+
+          echo "Estimated LOC (issue #932): $ESTIMATED_LOC"
+          echo "Tolerance: $TOLERANCE"
+          echo "Actual LOC (PR diff): $ACTUAL_LOC"
+
+          if [ "$ACTUAL_LOC" -gt "$TOLERANCE" ]; then
+            echo "⚠️  WARNING: PR excedeu estimativa do spec ($ACTUAL_LOC LOC > tolerância $TOLERANCE)"
+            echo "   Possível scope creep. Revisar contra issue #932 seção 7 (Não-Implementar)."
+            # Warning, não falha — scope creep deve ser detectado pelo reviewer
+          else
+            echo "✅ Diff size dentro da estimativa do spec"
+          fi
+
+      # ─── Sumário final ──────────────────────────────────────────────────
+
+      - name: Validation summary
+        if: success()
+        run: |
+          echo "════════════════════════════════════════════════════════════"
+          echo "✅ M3.6 SPEC COMPLIANCE — TODOS OS GATES PASSARAM"
+          echo "════════════════════════════════════════════════════════════"
+          echo ""
+          echo "P0 (RAG filter por lei):"
+          echo "  ✅ leiFilter declarado em rag-retriever.ts"
+          echo "  ✅ inArray aplicado em fetchCandidates"
+          echo "  ✅ leiFilter propagado em queryRag"
+          echo "  ✅ Q.NBS passa whitelist [\"lc214\",\"lc227\"]"
+          echo ""
+          echo "P1-1 (IA Gen description):"
+          echo "  ✅ Descrição injetada em profileFields"
+          echo "  ✅ SELECT inclui description"
+          echo "  ✅ projectContext.description populado"
+          echo "  ✅ Prompt interpola description condicionalmente"
+          echo ""
+          echo "Test contracts:"
+          echo "  ✅ 9 it.todo() convertidos para it()"
+          echo "  ✅ Todos os 9 testes passam"
+          echo ""
+          echo "PR conforme com Issue #932. Apto para merge."
