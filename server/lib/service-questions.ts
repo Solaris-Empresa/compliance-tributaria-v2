@@ -19,41 +19,21 @@ import { queryRag } from "./rag-query";
 import { querySolarisByCnaes } from "./solaris-query";
 import { inferCompanyType } from "./completeness";
 
-// ─── Fallback para empresa de serviço sem NBS cadastrados ────────────────────
-
-function buildServiceFallback(): TrackedQuestion[] {
-  return [
-    {
-      id:         "fallback-servico-001",
-      fonte:      "fallback",
-      fonte_ref:  "fallback-servico-001",
-      lei_ref:    "LC 214/2025 (genérico)",
-      texto:      "A empresa possui códigos NBS cadastrados para os serviços que presta?",
-      categoria:  "cadastro_fiscal",
-      confidence: 0.5,
-    },
-    {
-      id:         "fallback-servico-002",
-      fonte:      "fallback",
-      fonte_ref:  "fallback-servico-002",
-      lei_ref:    "LC 214/2025 (genérico)",
-      texto:      "A empresa já avaliou o enquadramento dos seus serviços nas alíquotas do IBS e CBS previstas na Reforma Tributária?",
-      categoria:  "enquadramento_geral",
-      confidence: 0.5,
-    },
-  ];
-}
-
 // ─── Função principal ─────────────────────────────────────────────────────────
 
 /**
  * Gera perguntas diagnósticas rastreadas para empresas de serviço (NBS).
  *
  * Fluxo:
- * 1. Se não é empresa de serviço → { nao_aplicavel: true }
- * 2. Se não tem NBS → buildServiceFallback() com alerta
+ * 1. Se não é empresa de serviço → { nao_aplicavel: true, motivo: "not_service_company" }
+ * 2. Se não tem NBS → { nao_aplicavel: true, motivo: "no_nbs_codes", alerta }
  * 3. Para cada NBS: busca RAG + perguntas SOLARIS filtradas por CNAE
  * 4. Deduplica e retorna TrackedQuestion[]
+ * 5. Se zero perguntas geradas → { nao_aplicavel: true, motivo: "no_applicable_requirements", alerta }
+ *
+ * M3.7 Item 5 (REGRA-ORQ-29): NO_QUESTION protocol — sem requisito = sem pergunta.
+ * Fallbacks hardcoded `buildServiceFallback` removidos (violavam Content Engine Rule #1).
+ * Em falha de RAG/LLM/SOLARIS, retorna `nao_aplicavel: true` com motivo + alerta UI.
  *
  * @param nbsCodes    Códigos NBS da empresa (ex: ['1.01.01.00.00', '1.09.01.00.00'])
  * @param cnaeCodes   CNAEs da empresa para filtrar perguntas SOLARIS
@@ -75,10 +55,11 @@ export async function generateServiceQuestions(
     return { nao_aplicavel: true };
   }
 
-  // Sem NBS: fallback com alerta
+  // M3.7 Item 5: sem NBS → NO_QUESTION protocol (era buildServiceFallback hardcoded)
   if (nbsCodes.length === 0) {
     return {
-      perguntas: buildServiceFallback(),
+      nao_aplicavel: true,
+      motivo: "no_nbs_codes",
       alerta: "Adicione códigos NBS para diagnóstico mais preciso sobre IBS/CBS em serviços.",
     };
   }
@@ -143,11 +124,13 @@ export async function generateServiceQuestions(
     });
   }
 
-  // Fallback se nenhuma pergunta foi gerada
+  // M3.7 Item 5: nenhuma pergunta gerada → NO_QUESTION protocol (era buildServiceFallback hardcoded)
+  // ADR-010 Regra 5: registrar como skipped com motivo no_applicable_requirements
   if (allQuestions.length === 0) {
     return {
-      perguntas: buildServiceFallback(),
-      alerta: "Diagnóstico parcial: nenhuma fonte retornou perguntas para os NBS informados.",
+      nao_aplicavel: true,
+      motivo: "no_applicable_requirements",
+      alerta: "Diagnóstico parcial: nenhuma fonte retornou perguntas para os NBS informados. Equipe SOLARIS notificada.",
     };
   }
 

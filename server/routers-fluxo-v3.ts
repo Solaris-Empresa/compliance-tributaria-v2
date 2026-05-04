@@ -3781,7 +3781,8 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
 
   /**
    * Gera 5–10 perguntas combinatórias via LLM com base no perfil da empresa.
-   * Timeout 30s com fallback obrigatório (5 perguntas hardcoded).
+   * Timeout 30s. M3.7 Item 5: NO_QUESTION protocol em falha (era 5 perguntas
+   * hardcoded — REGRA-ORQ-29 proíbe fallbacks com conteúdo inventado).
    * Seção 9 do contrato FLUXO-3-ONDAS v1.1.
    */
   generateOnda2Questions: protectedProcedure
@@ -3822,14 +3823,10 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         : 'Usar categorias gerais da LC 214/2025';
       const activeCodigos = new Set(activeCategories.map((c) => c.codigo));
 
-      // Fallback hardcoded (Seção 9 — perguntas genéricas sem risk_category_code)
-      const FALLBACK_QUESTIONS = [
-        { id: 'ia-gen-001', texto: 'A empresa possui operações com substituição tributária no contexto da Reforma Tributária?', objetivo_diagnostico: 'Identificar impacto da ST no novo regime', combinacao_gatilho: 'Qualquer regime', fonte: 'ia_gen' as const, confidence_score: 0.5 },
-        { id: 'ia-gen-002', texto: 'Qual o percentual estimado de receita sujeita ao IBS/CBS após a transição?', objetivo_diagnostico: 'Dimensionar exposição ao novo tributo', combinacao_gatilho: 'Qualquer regime', fonte: 'ia_gen' as const, confidence_score: 0.5 },
-        { id: 'ia-gen-003', texto: 'A empresa tem créditos acumulados de PIS/COFINS que precisam ser aproveitados antes da transição?', objetivo_diagnostico: 'Gestão de créditos no período de transição', combinacao_gatilho: 'Lucro Real ou Presumido', fonte: 'ia_gen' as const, confidence_score: 0.5 },
-        { id: 'ia-gen-004', texto: 'Existem contratos de longo prazo que precisam de cláusulas de reequilíbrio tributário?', objetivo_diagnostico: 'Risco contratual na transição', combinacao_gatilho: 'Qualquer porte', fonte: 'ia_gen' as const, confidence_score: 0.5 },
-        { id: 'ia-gen-005', texto: 'A empresa possui benefícios fiscais estaduais que podem ser impactados pela unificação do ICMS no IBS?', objetivo_diagnostico: 'Impacto de benefícios fiscais', combinacao_gatilho: 'Operação interestadual', fonte: 'ia_gen' as const, confidence_score: 0.5 },
-      ];
+      // M3.7 Item 5 (REGRA-ORQ-29): FALLBACK_QUESTIONS hardcoded REMOVIDO.
+      // Em falha de LLM ou < 3 perguntas válidas, retorna NO_QUESTION protocol
+      // ({ questions: [], source: 'unavailable', motivo, alerta }) em vez de
+      // perguntas inventadas. Princípio: sem requisito no RAG/LLM = sem pergunta.
 
       try {
         // ── Z-11: Prompt enriquecido com 5 JSONs + categorias do banco ──
@@ -3955,17 +3952,28 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
             used_profile_fields: p.used_profile_fields as string[],
           }));
 
-        // Fallback se menos de 3 válidas
+        // M3.7 Item 5: NO_QUESTION protocol — sem requisito = sem pergunta
+        // (era FALLBACK_QUESTIONS hardcoded; viola REGRA-ORQ-29 + Content Engine Rule #1)
         if (perguntasValidas.length < 3) {
-          console.warn(`[Z11-ONDA2] Apenas ${perguntasValidas.length} perguntas válidas — ativando fallback`);
-          return { questions: FALLBACK_QUESTIONS, source: 'fallback' as const };
+          console.warn(`[M3.7-ONDA2] Apenas ${perguntasValidas.length} perguntas válidas — NO_QUESTION protocol ativado`);
+          return {
+            questions: [],
+            source: 'unavailable' as const,
+            motivo: 'insufficient_valid_questions',
+            alerta: 'Geração Onda 2 retornou abaixo do mínimo (3 perguntas válidas). Tente novamente.',
+          };
         }
 
         return { questions: perguntasValidas, source: 'llm' as const };
       } catch (err: any) {
-        // Fallback obrigatório (Seção 9 — logar, não silenciar)
-        console.error('[K-4-C] generateOnda2Questions fallback ativado:', err?.message ?? err);
-        return { questions: FALLBACK_QUESTIONS, source: 'fallback' as const };
+        // M3.7 Item 5: NO_QUESTION protocol em falha de LLM (era FALLBACK_QUESTIONS hardcoded)
+        console.error('[M3.7-ONDA2] generateOnda2Questions LLM error — NO_QUESTION protocol:', err?.message ?? err);
+        return {
+          questions: [],
+          source: 'unavailable' as const,
+          motivo: 'llm_failure',
+          alerta: 'Geração de perguntas Onda 2 indisponível no momento. Tente novamente em instantes.',
+        };
       }
     }),
 
