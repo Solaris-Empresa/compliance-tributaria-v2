@@ -240,12 +240,12 @@ export default function QuestionarioIaGen() {
 
       {/* Conteúdo */}
       <div className="max-w-3xl mx-auto px-4 py-8">
-        {/* Aviso de fallback */}
-        {source === "fallback" && (
+        {/* M3.7 Item 5: aviso NO_QUESTION protocol (era "fallback hardcoded") */}
+        {source === "unavailable" && (
           <div className="mb-6 p-3 rounded-lg border border-amber-200 bg-amber-50 flex items-start gap-2">
             <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
             <p className="text-sm text-amber-700">
-              As perguntas foram geradas com base em um modelo padrão (IA indisponível temporariamente).
+              {(data as { alerta?: string })?.alerta ?? "Geração de perguntas Onda 2 indisponível no momento. Tente novamente em instantes."}
             </p>
           </div>
         )}

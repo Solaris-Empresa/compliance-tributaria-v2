@@ -116,8 +116,8 @@ describe("Z-01 Q.Produtos (NCM)", () => {
     expect(queryRag).not.toHaveBeenCalled();
   });
 
-  // Caso 4: empresa de produto sem NCM → fallback com alerta
-  it("Caso 4: empresa de produto sem NCM → fallback com alerta", async () => {
+  // Caso 4: empresa de produto sem NCM → NO_QUESTION protocol (M3.7 Item 5)
+  it("Caso 4: empresa de produto sem NCM → NO_QUESTION protocol com motivo + alerta", async () => {
     const result = await generateProductQuestions(
       [],
       ["15.1"],
@@ -126,10 +126,11 @@ describe("Z-01 Q.Produtos (NCM)", () => {
       vi.mocked(querySolarisByCnaes)
     );
 
-    expect(result).toHaveProperty("perguntas");
+    // M3.7 Item 5: era { perguntas: hardcoded[], alerta }, agora é NO_QUESTION protocol
+    expect(result).toHaveProperty("nao_aplicavel", true);
+    expect(result).toHaveProperty("motivo", "no_ncm_codes");
     expect(result).toHaveProperty("alerta");
-    const r = result as { perguntas: TrackedQuestion[]; alerta: string };
-    expect(r.perguntas.length).toBeGreaterThan(0);
+    const r = result as { nao_aplicavel: true; motivo: string; alerta: string };
     expect(r.alerta).toContain("NCM");
     expect(queryRag).not.toHaveBeenCalled();
   });

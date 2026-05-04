@@ -102,8 +102,8 @@ describe("Z-01 Q.Serviços (NBS)", () => {
     expect(queryRag).not.toHaveBeenCalled();
   });
 
-  // Caso 9: empresa de serviço sem NBS → fallback com alerta
-  it("Caso 9: empresa de serviço sem NBS → fallback com alerta", async () => {
+  // Caso 9: empresa de serviço sem NBS → NO_QUESTION protocol (M3.7 Item 5)
+  it("Caso 9: empresa de serviço sem NBS → NO_QUESTION protocol com motivo + alerta", async () => {
     const result = await generateServiceQuestions(
       [],
       ["62.01"],
@@ -112,10 +112,11 @@ describe("Z-01 Q.Serviços (NBS)", () => {
       vi.mocked(querySolarisByCnaes)
     );
 
-    expect(result).toHaveProperty("perguntas");
+    // M3.7 Item 5: era { perguntas: hardcoded[], alerta }, agora é NO_QUESTION protocol
+    expect(result).toHaveProperty("nao_aplicavel", true);
+    expect(result).toHaveProperty("motivo", "no_nbs_codes");
     expect(result).toHaveProperty("alerta");
-    const r = result as { perguntas: TrackedQuestion[]; alerta: string };
-    expect(r.perguntas.length).toBeGreaterThan(0);
+    const r = result as { nao_aplicavel: true; motivo: string; alerta: string };
     expect(r.alerta).toContain("NBS");
     expect(queryRag).not.toHaveBeenCalled();
   });

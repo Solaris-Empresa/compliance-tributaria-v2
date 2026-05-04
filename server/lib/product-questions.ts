@@ -19,31 +19,6 @@ import { queryRag } from "./rag-query";
 import { querySolarisByCnaes } from "./solaris-query";
 import { inferCompanyType } from "./completeness";
 
-// ─── Fallback para empresa de produto sem NCMs cadastrados ───────────────────
-
-function buildProductFallback(): TrackedQuestion[] {
-  return [
-    {
-      id:         "fallback-produto-001",
-      fonte:      "fallback",
-      fonte_ref:  "fallback-produto-001",
-      lei_ref:    "LC 214/2025 (genérico)",
-      texto:      "A empresa possui NCMs cadastrados para os produtos que comercializa ou industrializa?",
-      categoria:  "cadastro_fiscal",
-      confidence: 0.5,
-    },
-    {
-      id:         "fallback-produto-002",
-      fonte:      "fallback",
-      fonte_ref:  "fallback-produto-002",
-      lei_ref:    "LC 214/2025 (genérico)",
-      texto:      "A empresa já avaliou o enquadramento dos seus produtos nas alíquotas do IBS e CBS previstas na Reforma Tributária?",
-      categoria:  "enquadramento_geral",
-      confidence: 0.5,
-    },
-  ];
-}
-
 // ─── Função principal ─────────────────────────────────────────────────────────
 
 /**
@@ -51,9 +26,13 @@ function buildProductFallback(): TrackedQuestion[] {
  *
  * Fluxo:
  * 1. Se não é empresa de produto → { nao_aplicavel: true }
- * 2. Se não tem NCMs → buildProductFallback() com alerta
+ * 2. Se não tem NCMs → { nao_aplicavel: true, motivo: "no_ncm_codes", alerta }
  * 3. Para cada NCM: busca RAG + perguntas SOLARIS filtradas por CNAE
  * 4. Deduplica e retorna TrackedQuestion[]
+ * 5. Se zero perguntas → { nao_aplicavel: true, motivo: "no_applicable_requirements", alerta }
+ *
+ * M3.7 Item 5 (REGRA-ORQ-29): NO_QUESTION protocol — sem requisito = sem pergunta.
+ * Fallback hardcoded `buildProductFallback` removido (violava Content Engine Rule #1).
  *
  * @param ncmCodes   Códigos NCM da empresa (ex: ['2202.10.00', '2106.90.10'])
  * @param cnaeCodes  CNAEs da empresa para filtrar perguntas SOLARIS
@@ -75,10 +54,11 @@ export async function generateProductQuestions(
     return { nao_aplicavel: true };
   }
 
-  // Sem NCMs: fallback com alerta
+  // M3.7 Item 5: sem NCMs → NO_QUESTION protocol (era buildProductFallback hardcoded)
   if (ncmCodes.length === 0) {
     return {
-      perguntas: buildProductFallback(),
+      nao_aplicavel: true,
+      motivo: "no_ncm_codes",
       alerta: "Adicione códigos NCM para diagnóstico mais preciso sobre IBS/CBS em produtos.",
     };
   }
@@ -142,11 +122,13 @@ export async function generateProductQuestions(
     });
   }
 
-  // Fallback se nenhuma pergunta foi gerada
+  // M3.7 Item 5: nenhuma pergunta gerada → NO_QUESTION protocol (era buildProductFallback hardcoded)
+  // ADR-010 Regra 5: registrar como skipped com motivo no_applicable_requirements
   if (allQuestions.length === 0) {
     return {
-      perguntas: buildProductFallback(),
-      alerta: "Diagnóstico parcial: nenhuma fonte retornou perguntas para os NCMs informados.",
+      nao_aplicavel: true,
+      motivo: "no_applicable_requirements",
+      alerta: "Diagnóstico parcial: nenhuma fonte retornou perguntas para os NCMs informados. Equipe SOLARIS notificada.",
     };
   }
 

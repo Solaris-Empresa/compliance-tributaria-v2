@@ -49,12 +49,22 @@ export interface TrackedAnswer {
 }
 
 /**
- * QuestionResult — union dos 3 casos possíveis de retorno das funções de geração.
+ * QuestionResult — union dos casos possíveis de retorno das funções de geração.
  * O handler em routers-fluxo-v3.ts DEVE fazer narrowing explícito (sem `as any`).
+ *
+ * M3.7 Item 5 (REGRA-ORQ-29): NO_QUESTION protocol — adiciona motivo + alerta opcionais
+ * para substituir fallbacks hardcoded eliminados.
  */
+export type NoQuestionMotivo =
+  | "not_service_company"
+  | "not_product_company"
+  | "no_nbs_codes"
+  | "no_ncm_codes"
+  | "no_applicable_requirements";
+
 export type QuestionResult =
   | TrackedQuestion[]
-  | { nao_aplicavel: true }
+  | { nao_aplicavel: true; motivo?: NoQuestionMotivo; alerta?: string }
   | { perguntas: TrackedQuestion[]; alerta: string };
 
 // ─── Função de geração via LLM ────────────────────────────────────────────────
