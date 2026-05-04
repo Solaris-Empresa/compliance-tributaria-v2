@@ -718,6 +718,21 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   const analyzeGapsMutation = trpc.gapEngine.analyzeGaps.useMutation({
     onError: (err) => toast.error("Erro ao analisar gaps", { description: err.message }),
     onSuccess: async (result) => {
+      // M3.8-1B (Lição #62 Contexto vs Evidência): derivar sourceOrigin de
+      // question_source (M3.8-1A) em vez de hardcoded "solaris".
+      // Mapeamento: question_source → sourceOrigin canônico do schema GapInput.
+      const deriveSourceOrigin = (questionSource: string | undefined): "cnae" | "ncm" | "nbs" | "solaris" | "iagen" | "regulatorio" | "inferred" => {
+        switch (questionSource) {
+          case "qnbs_regulatorio": return "regulatorio";
+          case "qnbs_solaris":     return "solaris";
+          case "solaris_onda1":    return "solaris";
+          case "iagen_onda2":      return "iagen";
+          case "qcnae_onda3":      return "cnae";
+          case "regulatory_only":  return "regulatorio"; // gap por ausência de resposta
+          default:                 return "regulatorio"; // fallback default = origem normativa
+        }
+      };
+
       const gapInputs = (result.gaps ?? []).map((g: any) => ({
         id: g.requirement_id,
         canonicalId: g.requirement_id,
@@ -733,7 +748,8 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
         descricao: g.gap_description ?? "",
         // B-Z13-004: risk_category_code → categoria para o GapToRuleMapper (Caso A)
         categoria: g.risk_category_code ?? undefined,
-        sourceOrigin: "solaris" as const,
+        // M3.8-1B: derivado de question_source (era hardcoded "solaris" — REGRA-ORQ-32)
+        sourceOrigin: deriveSourceOrigin(g.question_source),
         requirementId: g.requirement_id,
         sourceReference: g.source_reference ?? "",
         domain: g.domain ?? "",

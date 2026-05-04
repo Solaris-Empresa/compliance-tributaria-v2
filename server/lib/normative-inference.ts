@@ -126,8 +126,11 @@ function makeInferredRisk(
     severidade: severidade as any,
     urgencia: urgencia as any,
     evidence,
-    breadcrumb: ["solaris", categoria, artigo, riskKey],
-    source_priority: "solaris" as any,
+    // M3.8-1B: riscos inferidos por gatilho semântico (CNAE + regime + payment trigger)
+    // não são da Onda 1 SOLARIS — fonte real é "inferred" (regra hardcoded no engine,
+    // mas com base normativa rastreável em artigo). REGRA-ORQ-32 exige fonte determinística.
+    breadcrumb: ["inferred", categoria, artigo, riskKey],
+    source_priority: "inferred" as any,
     confidence,
     risk_key: riskKey,
     operational_context: context,
