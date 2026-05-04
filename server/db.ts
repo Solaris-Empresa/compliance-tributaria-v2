@@ -1,4 +1,4 @@
-import { eq, desc, and, sql, ne, lt, like } from "drizzle-orm";
+import { eq, desc, and, sql, ne, lt, like, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   users, InsertUser,
@@ -1346,10 +1346,19 @@ export async function getOnda1Questions(cnaeCode?: string): Promise<SolarisQuest
   const db = await getDb();
   if (!db) return [];
 
+  // M3.7 Item 12 (REGRA-ORQ-29 + Lição #61) — gate determinístico:
+  // perguntas com mappingReviewStatus = 'pending_legal' não são exibidas
+  // até a equipe jurídica SOLARIS preencher lei_ref + artigo_ref + cnaeGroups
+  // e mover para 'approved_legal'. Default 'curated_internal' (SOL-001..007 LC 214) passa.
   const rows = await db
     .select()
     .from(solarisQuestions)
-    .where(eq(solarisQuestions.ativo, 1))
+    .where(
+      and(
+        eq(solarisQuestions.ativo, 1),
+        inArray(solarisQuestions.mappingReviewStatus, ['curated_internal', 'approved_legal'])
+      )
+    )
     .orderBy(solarisQuestions.id);
 
   return rows;

@@ -1727,6 +1727,14 @@ export const solarisQuestions = mysqlTable("solaris_questions", {
   riskCategoryCode: varchar("risk_category_code", { length: 64 }),
   classificationScope: mysqlEnum("classification_scope", ["risk_engine", "diagnostic_only"]).notNull().default("risk_engine"),
   mappingReviewStatus: mysqlEnum("mapping_review_status", ["curated_internal", "pending_legal", "approved_legal"]).notNull().default("curated_internal"),
+  // Sprint M3.7 Item 3 — paridade arquitetural com ragDocuments.lei
+  // Permite filtro determinístico de perguntas SOLARIS por lei (REGRA-ORQ-29).
+  // Nullable para backward-compat (perguntas legadas sem metadado).
+  // VARCHAR (não enum) para flexibilidade — leis futuras sem migration.
+  /** Código da lei estruturado: "lc214" | "lc227" | "lc224" | etc. — null = legado pré-M3.7 */
+  leiRef: varchar("lei_ref", { length: 20 }),
+  /** Artigo específico — ex: "Art. 14-A" — null se desconhecido */
+  artigoRef: varchar("artigo_ref", { length: 50 }),
 });
 
 export type SolarisQuestion = typeof solarisQuestions.$inferSelect;
