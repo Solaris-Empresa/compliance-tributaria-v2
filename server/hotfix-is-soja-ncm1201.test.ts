@@ -89,7 +89,8 @@ describe("Hotfix P0 — IS indevido na soja (NCM 1201.90.00)", () => {
     // Gate IS: agronegocio NÃO ELEGÍVEL (ADR-0030 v1.1 D-6)
     const elig = isCategoryAllowed("imposto_seletivo", "agronegocio");
     expect(elig.allowed).toBe(false);
-    expect(elig.final).toBe("enquadramento_geral");
+    // M3.8-3 (PR #970): downgrade_to mudou de "enquadramento_geral" → "unmapped"
+    expect(elig.final).toBe("unmapped");
     expect(elig.reason).toBe("sujeito_passivo_incompativel");
 
     // rules_hash inalterado (manifesto m1-v1.0.0 não muda com dataset)
@@ -122,7 +123,8 @@ describe("Hotfix P0 — IS indevido na soja (NCM 1201.90.00)", () => {
     // Gate IS continua bloqueado para servicos (Hotfix v1.2 inalterado)
     const elig = isCategoryAllowed("imposto_seletivo", "servicos");
     expect(elig.allowed).toBe(false);
-    expect(elig.final).toBe("enquadramento_geral");
+    // M3.8-3 (PR #970): downgrade_to mudou de "enquadramento_geral" → "unmapped"
+    expect(elig.final).toBe("unmapped");
   });
 
   it("Tupla aliquota_zero|false|12 → agricola: regra determinística sem fallback", () => {
