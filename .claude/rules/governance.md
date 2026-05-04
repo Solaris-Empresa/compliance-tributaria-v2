@@ -777,3 +777,228 @@ Sprint M3.6 (Issue #932 + PR #933 + PR #934) estabeleceu padrão. Manus + Claude
 - AST-based check (substituir greps por análise de árvore TypeScript via `ts-morph`) — mais robusto contra renames e comentários
 - Script `scripts/spec-gate-init.sh {issue-id} {file-paths}` — gera Artefatos 2 e 3 a partir de template
 - Spec hash invariance — capturar SHA da issue no PR body, detectar drift se issue for editada
+
+## REGRA-ORQ-29 — Sem Requisito = Sem Pergunta = Sem Gap
+
+Vigência: permanente, a partir de 2026-05-04
+Origem: Decisão P.O. Sprint M3.6 + ADR-010 Regra 5 + Lição #61
+Severidade: bloqueante — viola integridade do diagnóstico
+
+### Regra
+
+Se não existe requisito normativo verificável no corpus RAG (ou metadado equivalente em fonte curada com `lei_ref` + `artigo_ref` + `cnaeGroups` validado) para o CNAE/NBS/NCM do projeto, o sistema NÃO DEVE gerar perguntas. O protocolo NO_QUESTION deve ser ativado com motivo `no_applicable_requirements`.
+
+Proibido:
+- Perguntas sem `source_reference` verificável no corpus
+- Fallbacks genéricos com `confidence < 0.8`
+- Hardcode de perguntas em código TypeScript (arrays de objetos com `texto: "..."` e `confidence: 0.5`)
+- Mascaramento de fallback como `fonte: "ia_gen"` (disfarça hardcode como conteúdo gerado)
+
+### Aplicação
+
+CI gate sugerido em `.github/workflows/invariant-check.yml` (INV-06):
+
+```bash
+grep -rE "fonte.*['\"]fallback['\"]|fonte.*['\"]ia_gen['\"][\s,].*confidence_score:\s*0\.5" \
+  server/ --include="*.ts" --exclude="*.test.ts"
+```
+
+Se match > 0 → FAIL.
+
+### Vinculadas
+
+- ADR-010 Regra 1 (`source_required`) e Regra 5 (CNAE condicionado)
+- Content Engine Rule #1 (`.claude/rules/backend.md:18`)
+- NO_QUESTION protocol
+- Test T-B3-07 (`server/integration/routers-question-engine.test.ts:306-331`)
+- REGRA-ORQ-32 (meta-regra "no hardcode")
+- Lição #61
+
+### Origem documentada
+
+Sprint M3.6 — auditoria E2E identificou 9 perguntas hardcoded em código:
+- `server/lib/service-questions.ts:24-43` `buildServiceFallback` (2 perguntas, `fonte:"fallback"`)
+- `server/lib/product-questions.ts:24-43` `buildProductFallback` (2 perguntas)
+- `server/routers-fluxo-v3.ts:3826-3832` `FALLBACK_QUESTIONS` (5 perguntas, `fonte:'ia_gen'` mascarado)
+
+Comentário em `routers-fluxo-v3.ts:3784` declara intencional ("fallback obrigatório (5 perguntas hardcoded)") — prova que sem regra explícita + CI gate, atalhos foram introduzidos deliberadamente.
+
+## REGRA-ORQ-30 — Temperature Máxima 0.1
+
+Vigência: permanente, a partir de 2026-05-04
+Origem: Decisão P.O. Sprint M3.6 — determinismo > criatividade em compliance
+Severidade: bloqueante — temperature > 0.1 compromete reprodutibilidade
+
+### Regra
+
+Todo `invokeLLM()` ou chamada equivalente em código de produção (`server/`) DEVE usar `temperature <= 0.1`.
+
+- Extração / classificação / re-ranking → `temperature: 0` (preferencial)
+- Geração textual (perguntas, riscos, ações, briefings) → `temperature: 0.1` (máximo)
+- `temperature > 0.1` é **proibido** em código de produção
+
+Exceções requerem aprovação explícita do P.O. com justificativa documentada em ADR.
+
+### Aplicação
+
+CI gate sugerido em `.github/workflows/invariant-check.yml` (INV-07):
+
+```bash
+grep -rnE "temperature:\s*0?\.[2-9]" server/ --include="*.ts" \
+  | grep -v "test\|voiceTranscription"
+```
+
+(Excluir `*.test.ts` para permitir testes simularem cenários; excluir `voiceTranscription.ts:44` que é definição de tipo, não valor.)
+
+Se match > 0 → FAIL.
+
+### Origem documentada
+
+Sprint M3.6 — auditoria identificou 8 violações em produção:
+
+| Arquivo:linha | Função | Temp | Comentário no código |
+|---|---|---|---|
+| `routers-fluxo-v3.ts:308` | refineCnaes inicial | 0.1 | (manter) |
+| `routers-fluxo-v3.ts:466` | refineCnaes iter | 0.1 | (manter) |
+| `routers-fluxo-v3.ts:709` | generateQuestions | **0.2** | reduzir a 0.1 |
+| `routers-fluxo-v3.ts:2140` | generateRiskMatrices | **0.2** | reduzir a 0.1 |
+| `routers-fluxo-v3.ts:2356` | generateActionPlan | **0.15** | reduzir a 0.1 |
+| `routers-fluxo-v3.ts:2636` | generateDecision | **0.35** | *"Temperatura ligeiramente maior para insight criativo"* — viola princípio |
+| `routers-fluxo-v3.ts:3891` | Onda 2 IA Gen | **0.1** | *"Z-11: determinístico"* (contradição: comentário diz determinístico mas valor não é zero) |
+| `task-generator-v4.ts:134` | task generator | **0.3** | reduzir a 0.1 |
+
+Caso canônico: linha 3891 prova que comentário de intenção ("determinístico") sem CI gate é ignorado.
+
+### Vinculadas
+
+- REGRA-ORQ-31 (Meta 98% — determinismo é pré-requisito)
+- REGRA-ORQ-32 (no hardcode — temperature > 0 é "atalho de criatividade" sem rastreabilidade)
+
+## REGRA-ORQ-31 — Meta de Confiança 98%
+
+Vigência: permanente, a partir de 2026-05-04
+Origem: ADR-010 + DEC-06 §13.5 + Decisão P.O. Sprint M3.6
+Severidade: gate de qualidade — outputs abaixo de 98% não são entregues ao cliente
+
+### Regra
+
+Todo output do pipeline de diagnóstico (perguntas, gaps, riscos, ações) DEVE atingir confiança >= 98% medida pelos 10 critérios de DEC-06 §13.5. Outputs com confiança < 98% devem ser marcados como `draft` e não exibidos ao advogado até revisão.
+
+A métrica é calculada como: `(critérios atendidos / 10 critérios totais) * 100`.
+
+### Os 10 critérios (ref `docs/governance/MATRIZ_RISCOS_SNAPSHOT_2026-04-18.md` §13.5)
+
+1. Fonte normativa rastreável (artigo + lei).
+2. CNAE-condicionado (não universal sem justificativa).
+3. Confidence score >= 0.8.
+4. Sem alucinação (anti-hallucination check).
+5. Cadeia completa (Requisito → Gap → Risco → Ação).
+6. Determinístico (mesma entrada = mesma classificação).
+7. Coverage >= 100% dos requisitos aplicáveis.
+8. Consistência cross-stage (sem contradições).
+9. Evidência suficiente (não "genérico").
+10. Prazo determinístico (não "em breve").
+
+### Aplicação
+
+Gate de release: nenhum deploy para produção com critérios < 10/10 PASS para o projeto de referência (definido em `docs/governance/ESTADO-ATUAL.md`).
+
+### Vinculadas
+
+- DEC-06 (`MATRIZ_RISCOS_SNAPSHOT_2026-04-18.md` §13.5)
+- ADR-010 Content Architecture 98%
+- ADR-0025 Risk Categories Configurable
+- `docs/governance/GOVERNANCA-E2E-IA-SOLARIS.md`
+- REGRA-ORQ-29 (sem requisito = sem pergunta — pré-requisito da meta 98%)
+- REGRA-ORQ-30 (determinismo — pré-requisito do critério 6)
+
+### Origem documentada
+
+DEC-06 (P.O., 2026-04-18) consolidou os 10 critérios. ADR-010 (título "Content Architecture 98%"), GOVERNANCA-E2E-IA-SOLARIS.md ("Meta do produto: 98% de confiabilidade jurídica") e ADR-0025 referenciam a meta. Esta REGRA-ORQ-31 formaliza como gate hard-enforced.
+
+## REGRA-ORQ-32 — Proibição de Hardcode (Visão Sistêmica)
+
+Vigência: permanente, a partir de 2026-05-04
+Origem: Decisão P.O. Sprint M3.6 — *"não aceito hardcode, precisamos pensar na visão sistêmica (holística)"*
+Severidade: arquitetural — viola princípio de manutenibilidade e escalabilidade
+
+### Regra (meta-regra)
+
+Toda decisão do sistema que depende de dados mutáveis (leis aplicáveis, CNAEs elegíveis, thresholds de confiança, listas de fontes, perguntas/riscos/ações) DEVE ser configurável via:
+
+- Banco de dados (tabela com campos estruturados)
+- Variável de ambiente
+- Tabela de configuração com CRUD admin
+
+Hardcode de valores que podem mudar é **proibido**:
+
+- ❌ `if (lei === "lc224") skip()`
+- ❌ `const FALLBACK_QUESTIONS = [{ texto: "A empresa possui...", confidence: 0.5 }]`
+- ❌ `temperature: 0.35 // criativo`
+
+### Exceções permitidas
+
+- Constantes verdadeiramente imutáveis (nome do produto, versão de API)
+- Valores que mudam apenas com release (schema version)
+- Whitelists temporárias com tech debt registrado e issue de migração para tabela de config
+
+### Caminho correto
+
+| Decisão hoje hardcoded | Caminho data-driven |
+|---|---|
+| Leis aplicáveis | Campo `lei_ref` no banco + query dinâmica |
+| CNAEs elegíveis | Campo `cnaeGroups` no banco + filtro genérico |
+| Thresholds de confiança | Variável de ambiente ou tabela `system_config` |
+| Whitelists de fonte | Tabela de configuração com CRUD admin |
+| Perguntas curadas | Tabela `solaris_questions` (já data-driven, mas falta `lei_ref`) |
+| Aprovação jurídica | Campo `mappingReviewStatus` (já existe, falta gate em query) |
+
+### Natureza desta regra
+
+REGRA-ORQ-32 é **meta-regra**: princípio orientador que justifica e sustenta REGRA-ORQ-29 (no_question), REGRA-ORQ-30 (determinismo) e REGRA-ORQ-31 (meta 98%). Não tem regex CI direto — serve como critério de decisão em code review e priorização de scope de PR.
+
+### Tech debt registrado
+
+A whitelist `["lc214", "lc227"]` em `server/lib/service-questions.ts:101` (PR #937) é hardcode tolerado para a Sprint M3.6 (funcional, scope cirúrgico). **Migração para tabela de configuração** é tech debt vinculado a esta REGRA-ORQ-32 — issue de tracking deve referenciá-la.
+
+### Vinculadas
+
+- REGRA-ORQ-29 (operacional: sem requisito = sem pergunta)
+- REGRA-ORQ-30 (operacional: temperature ≤ 0.1)
+- REGRA-ORQ-31 (operacional: meta 98%)
+- ADR-0025 (categorias configuráveis — exemplo de aplicação correta)
+- Lição #61
+
+### Origem documentada
+
+Princípio declarado pelo P.O. em 2026-05-04 após auditoria E2E identificar 18 atalhos acumulados em produção (9 hardcode + 8 temperature > 0 + 1 badge null). Sem regra explícita anti-atalho, pressão de velocidade venceu qualidade — regra-meta fecha esta porta.
+
+## Lição #61 — Metadado determinístico antes da pergunta
+
+Origem: Sprint M3.6 — smoke test E2E + análise de LC 224 no Q.NBS
+
+### Texto
+
+Perguntas sem metadado determinístico (`lei_ref` + `artigo_ref` + `cnaeGroups` validado) NÃO devem entrar no questionário. O campo `mappingReviewStatus` no schema `solaris_questions` (`drizzle/schema.ts:1729`) é o gate correto — data-driven, sem hardcode, reversível.
+
+Antes de afirmar tema ou escopo de uma lei, VERIFICAR conteúdo real no corpus RAG:
+
+```bash
+grep "<lei>" server/rag-corpus-lcs-novas.ts | head -5
+# ou
+sed -n '/lei: "<lei>"/,/conteudo:/p' server/rag-corpus-lcs-novas.ts | head -10
+```
+
+Correlação empresa↔lei ≠ causalidade — não inferir tema da lei a partir de sample de empresas testadas.
+
+### Caso canônico
+
+Sprint M3.6, sessão 2026-05-04: Claude Code rotulou LC 224 como *"lei de combustíveis"* baseado em correlação com 2 transportadoras testadas (#2880001 e #3120001). Verificação em `server/rag-corpus-lcs-novas.ts:13784-13800` (Art. 1 LC 224) levaria 5 segundos e desmistificaria: LC 224 trata de **redução linear de incentivos fiscais federais + alterações na LRF**, não combustíveis.
+
+A solução técnica não é remover perguntas SOL-008 a SOL-012 — é exigir que toda pergunta tenha (a) `lei_ref` estruturado, (b) `artigo_ref` rastreável, (c) `cnaeGroups` validado pela equipe jurídica. Sem isso, a pergunta fica em `mappingReviewStatus = 'pending_legal'` e não é exibida.
+
+### Vinculadas
+
+- REGRA-ORQ-29 (operacionaliza esta lição como regra)
+- REGRA-ORQ-32 (meta-regra "no hardcode" — solução é data-driven, não `if/else`)
+- Sprint M3.6 (PR #937 + smoke test + análise profunda do Manus)
