@@ -1006,3 +1006,77 @@ A solução técnica não é remover perguntas SOL-008 a SOL-012 — é exigir q
 - REGRA-ORQ-29 (operacionaliza esta lição como regra)
 - REGRA-ORQ-32 (meta-regra "no hardcode" — solução é data-driven, não `if/else`)
 - Sprint M3.6 (PR #937 + smoke test + análise profunda do Manus)
+
+## REGRA-ORQ-33 — Matriz RACI Operacional
+
+Vigência: permanente, a partir de 2026-05-04
+Origem: Decisão P.O. Sprint M3.7 — definição formal de papéis
+Severidade: governança operacional — define ownership de cada etapa do fluxo
+
+### Matriz de papéis
+
+| Papel | Pessoa/Sistema | Atribuição |
+|---|---|---|
+| **R** — Responsible | Claude Code | Implementar código (escreve PRs, aplica REGRA-ORQ-28 quando aplicável) |
+| **A** — Accountable | P.O. (Uires Tapajós) | Aprovação final de specs e merges |
+| **C** — Consulted | Consultor (ChatGPT) | Análise crítica, sugestão de design, parecer técnico |
+| **I** — Informed (executor) | Manus | Review pós-implementação + deploy em produção |
+
+### Aplicação operacional
+
+#### Fluxo padrão de uma frente técnica
+
+```
+1. Issue criada com spec (P.O. aprova)
+2. Claude Code implementa (PR aberto)
+3. Manus revisa (comenta APROVADO/GAPS no PR)
+4. P.O. autoriza merge
+5. Claude Code mergeia
+6. Manus deploya em produção
+```
+
+#### Fluxo de governança (REGRAs ORQ, ADRs, Lições)
+
+```
+1. Claude Code propõe (rascunho/análise técnica)
+2. Manus + Consultor revisam em paralelo
+3. P.O. aprova
+4. Claude Code documenta no governance.md
+5. Manus deploya (se aplicável)
+```
+
+#### Autonomia do Implementador
+
+Claude Code **pode implementar autonomamente**:
+- Sem perguntar a cada passo dentro de uma issue aprovada pelo P.O.
+- Aplicando julgamento sobre triade ORQ-28 (clausulas de não-aplicação para mudanças triviais)
+- Despachando PRs em sequência respeitando dependências técnicas
+- Corrigindo bugs detectados durante implementação (ex: regex INV-06/INV-07 review Manus)
+
+Claude Code **NÃO pode autonomamente**:
+- Mergear PRs sem autorização explícita do P.O. (ações irreversíveis)
+- Modificar specs aprovadas sem reconfirmar com P.O.
+- Saltar review do Manus para frentes Médio/Alto risco
+- Deployar em produção (escopo do Manus)
+
+#### Critério de escalação
+
+| Situação | Encaminhar para |
+|---|---|
+| Bug técnico durante impl | Decisão autônoma do Claude Code |
+| Decisão de domínio jurídico | P.O. + equipe SOLARIS jurídica |
+| Conflito entre 2 specs aprovadas | P.O. (decisão A) |
+| Sugestão de melhoria fora do escopo da issue | Backlog (issue separada) — não inflar scope |
+| Architectural decision (ADR-level) | P.O. + Consultor (parecer ChatGPT) |
+| Hotfix P0 produção | REGRA-ORQ-11 (fast-track, P.O. aprova diretamente) |
+
+### Vinculadas
+
+- REGRA-ORQ-11 (Fast-track hotfix P0)
+- REGRA-ORQ-12 (Manus sempre em paralelo)
+- REGRA-ORQ-21 (Caminho C — última spec é formal)
+- REGRA-ORQ-28 (Triade de garantia)
+
+### Origem documentada
+
+P.O. declarou matriz RACI em 2026-05-04 após Sprint M3.6 + Sprint M3.7 governance. Antes desta regra, papéis eram implícitos — risco de overlap (Manus implementando + Claude Code implementando paralelamente = bifurcação documentada na sessão M3.7 quando Manus foi pausado e Claude Code assumiu impl). Esta REGRA-ORQ-33 cristaliza a decisão e remove ambiguidade.
