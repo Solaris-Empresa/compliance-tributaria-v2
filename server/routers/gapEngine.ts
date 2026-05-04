@@ -15,6 +15,15 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import mysql from "mysql2/promise";
+// M3.8-2: estrutura UnifiedAnswer + extractRequirementId determinístico para service_answers padrão idN
+import {
+  normalizeServiceAnswers,
+  groupByRequirement,
+  resolveAnswer,
+  type UnifiedAnswer,
+  type ServiceAnswerInput,
+} from "../lib/unified-answer";
+import { getServiceAnswersForProject } from "../db";
 
 // ---------------------------------------------------------------------------
 // Tipos e schemas
@@ -298,10 +307,24 @@ export const gapEngineRouter = router({
           [input.project_id]
         );
 
+        // 3.5. M3.8-2 — Buscar service_answers (Q.NBS) e normalizar via UnifiedAnswer
+        // Lição #62 (Contexto vs Evidência): service_answers é EVIDÊNCIA — alimenta Gap Engine.
+        // Lição #63 (Spec ≠ Viável): em M3.8 Fase 1, apenas service_answers padrão idN é mapeável.
+        // Outros padrões (SOL-XXX) e outras fontes (iagen, solaris_answers, qcnae_onda3 LLM)
+        // ficam stubs até M3.9 (curadoria SOLARIS jurídica).
+        const serviceAnswersRaw = await getServiceAnswersForProject(input.project_id);
+        // Cast: getServiceAnswersForProject retorna Record<string,unknown>[]; normalizeServiceAnswers
+        // tolera campos ausentes (filtra via Regra de Integridade).
+        const unifiedFromService: UnifiedAnswer[] = normalizeServiceAnswers(
+          serviceAnswersRaw as unknown as ServiceAnswerInput[]
+        );
+        // Build map por requirement.id (numérico) para resolver via resolveAnswer
+        const unifiedByReqId = groupByRequirement(unifiedFromService);
+
         // 4. Mapear respostas por requirement_id
         // M3.8-1A: registrar question_source para cada resposta (preparação M3.8-1B + M3.8-2)
-        // Em M3.8 Fase 1A, a única fonte é questionnaireAnswersV3 (Q.CNAE Onda 3 LLM).
-        // M3.8-2 expandirá com normalização de service_answers, iagen_answers, solaris_answers.
+        // M3.8-2: também consome unifiedFromService (service_answers padrão idN) — única fonte ATIVA
+        //   além de questionnaireAnswersV3. Outros normalizers em unified-answer.ts são stubs M3.9.
         const answerMap = new Map<string, {
           answer: string;
           questionId: number | null;
@@ -325,7 +348,34 @@ export const gapEngineRouter = router({
 
         for (const req of requirements) {
           const reqId = req.code;
-          const answerData = answerMap.get(reqId);
+          let answerData = answerMap.get(reqId);
+
+          // M3.8-2: consultar service_answers (Q.NBS) via UnifiedAnswer
+          // Match por requirement.id numérico (extractRequirementId derivou de fonte_ref idN).
+          // Apenas aplica se answerData ainda não foi populado por questionnaireAnswersV3.
+          if (!answerData && req.id !== undefined) {
+            const reqIdNumeric = typeof req.id === "number" ? req.id : parseInt(String(req.id), 10);
+            if (!Number.isNaN(reqIdNumeric)) {
+              const unifiedMatches = unifiedByReqId.get(reqIdNumeric);
+              if (unifiedMatches && unifiedMatches.length > 0) {
+                const resolvedValue = resolveAnswer(unifiedMatches);
+                if (resolvedValue !== null) {
+                  // Map "Não" → "nao", "Sim" → "sim" (compatibilidade com classifyGap downstream)
+                  const answerStr = resolvedValue === "Não" ? "nao"
+                    : resolvedValue === "Sim" ? "sim"
+                    : "parcial";
+                  const evidenceStatusFromUnified = resolvedValue === "Sim" ? "parcial" : "ausente";
+                  answerData = {
+                    answer: answerStr,
+                    questionId: null, // service_answers JSON não tem questionId numérico
+                    evidenceStatus: evidenceStatusFromUnified,
+                    questionSource: unifiedMatches[0].source as QuestionSource, // "qnbs_regulatorio"
+                  };
+                }
+              }
+            }
+          }
+
           const answerValue = answerData?.answer ?? null;
           const evidenceStatus = answerData?.evidenceStatus ?? "ausente";
 
