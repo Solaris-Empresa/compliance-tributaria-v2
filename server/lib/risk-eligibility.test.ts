@@ -33,25 +33,28 @@ describe("isCategoryAllowed — imposto_seletivo eligible", () => {
 });
 
 describe("isCategoryAllowed — imposto_seletivo blocked", () => {
-  it("servicos bloqueia com downgrade para enquadramento_geral (cenário transportadora)", () => {
+  // M3.8-3 (PR #970, REGRA-ORQ-29 + Lição #62):
+  // downgrade_to mudou de "enquadramento_geral" → "unmapped" para evitar gap fantasma.
+  // Handler em risk-engine-v4 faz skip da categoria "unmapped" (não gera risco).
+  it("servicos bloqueia com downgrade para unmapped (cenário transportadora)", () => {
     const r = isCategoryAllowed("imposto_seletivo", "servicos");
     expect(r.allowed).toBe(false);
-    expect(r.final).toBe("enquadramento_geral");
+    expect(r.final).toBe("unmapped");
     expect(r.suggested).toBe("imposto_seletivo");
     expect(r.reason).toBe("sujeito_passivo_incompativel");
   });
 
-  it("financeiro bloqueia com downgrade para enquadramento_geral", () => {
+  it("financeiro bloqueia com downgrade para unmapped", () => {
     const r = isCategoryAllowed("imposto_seletivo", "financeiro");
     expect(r.allowed).toBe(false);
-    expect(r.final).toBe("enquadramento_geral");
+    expect(r.final).toBe("unmapped");
     expect(r.reason).toBe("sujeito_passivo_incompativel");
   });
 
   it("agronegocio bloqueia com downgrade (ADR-0030 v1.1 D-6 — agro não-elegível)", () => {
     const r = isCategoryAllowed("imposto_seletivo", "agronegocio");
     expect(r.allowed).toBe(false);
-    expect(r.final).toBe("enquadramento_geral");
+    expect(r.final).toBe("unmapped");
     expect(r.reason).toBe("sujeito_passivo_incompativel");
   });
 });
@@ -121,7 +124,8 @@ describe("isCategoryAllowed — resultado estrutural", () => {
   it("downgrade muda final mas mantém suggested", () => {
     const r = isCategoryAllowed("imposto_seletivo", "servicos");
     expect(r.suggested).toBe("imposto_seletivo");
-    expect(r.final).toBe("enquadramento_geral");
+    // M3.8-3: downgrade_to agora "unmapped" (era "enquadramento_geral")
+    expect(r.final).toBe("unmapped");
     expect(r.suggested).not.toBe(r.final);
   });
 
@@ -203,14 +207,14 @@ describe("isCategoryAllowed — aliases (hotfix v1.2.1)", () => {
   it("servicos (canônico) → bloqueia IS com downgrade", () => {
     const r = isCategoryAllowed("imposto_seletivo", "servicos");
     expect(r.allowed).toBe(false);
-    expect(r.final).toBe("enquadramento_geral");
+    expect(r.final).toBe("unmapped"); // M3.8-3 PR #970
     expect(r.reason).toBe("sujeito_passivo_incompativel");
   });
 
   it("servico (alias singular) → normalizado para servicos, bloqueia IS", () => {
     const r = isCategoryAllowed("imposto_seletivo", "servico");
     expect(r.allowed).toBe(false);
-    expect(r.final).toBe("enquadramento_geral");
+    expect(r.final).toBe("unmapped"); // M3.8-3 PR #970
     expect(r.reason).toBe("sujeito_passivo_incompativel");
   });
 

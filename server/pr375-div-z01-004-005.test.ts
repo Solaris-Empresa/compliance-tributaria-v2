@@ -107,7 +107,8 @@ describe("Regressão — 10 categorias canônicas aprovadas", () => {
     ["inscrição no cadastro fiscal", "cadastro_fiscal"],
     ["entrega de NF-e e SPED", "obrigacao_acessoria"],
     ["período de transição 2026-2032", "transicao"],
-    ["risco genérico sem categoria", "enquadramento_geral"],
+    // M3.8-3 (PR #970): fallback retorna "unmapped" (era "enquadramento_geral")
+    ["risco genérico sem categoria", "unmapped"],
   ];
 
   casos.forEach(([desc, expected]) => {

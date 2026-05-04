@@ -80,7 +80,11 @@ export const ELIGIBILITY_TABLE: Partial<
     eligible: ["industria", "comercio", "misto"] as const,
     conditional: [] as const,
     conditional_reason: "agro_requer_revisao",
-    downgrade_to: "enquadramento_geral",
+    // M3.8-3 (REGRA-ORQ-29 + Lição #62): archetype não elegível → "unmapped"
+    // (supressão via reviewQueue), em vez de "enquadramento_geral" (gap fantasma).
+    // ANTES: "enquadramento_geral" — gerava risco genérico sem rastreabilidade.
+    // DEPOIS: "unmapped" — handler downstream em risk-engine-v4 skip o risco.
+    downgrade_to: "unmapped",
   },
 };
 

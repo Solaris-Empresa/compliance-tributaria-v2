@@ -79,7 +79,9 @@ export const GapInputSchema = z.object({
   area: z.string().optional(),
   descricao: z.string().optional(),
   categoria: z.string().optional(),
-  sourceOrigin: z.enum(["cnae", "ncm", "nbs", "solaris", "iagen"]).optional(),
+  // M3.8-1B: ampliado com "regulatorio" (gap por requisito sem resposta) e "inferred"
+  // (riscos por gatilho semântico em normative-inference.ts).
+  sourceOrigin: z.enum(["cnae", "ncm", "nbs", "solaris", "iagen", "regulatorio", "inferred"]).optional(),
   requirementId: z.string().optional(),
   sourceReference: z.string().optional(),
   domain: z.string().optional(),

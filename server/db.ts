@@ -204,6 +204,27 @@ export async function getProjectById(id: number) {
   return result[0] ? normalizeProject(result[0]) : undefined;
 }
 
+/**
+ * M3.8-2 — Recupera service_answers (Q.NBS) JSON do projeto.
+ * Retorna array vazio se projeto não tem respostas Q.NBS.
+ */
+export async function getServiceAnswersForProject(projectId: number): Promise<Array<Record<string, unknown>>> {
+  const project = await getProjectById(projectId);
+  if (!project) return [];
+  const raw = (project as any).serviceAnswers ?? (project as any).service_answers;
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw as Array<Record<string, unknown>>;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 // ─── K-4-E: Auditoria jurídica de transições de status ───────────────────────
 /**
  * Insere um registro de auditoria na tabela project_status_log.

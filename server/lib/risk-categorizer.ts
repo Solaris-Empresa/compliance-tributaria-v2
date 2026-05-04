@@ -31,7 +31,10 @@ export type CategoriaCanonica =
   | "split_payment"
   | "obrigacao_acessoria"
   | "transicao"
-  | "enquadramento_geral";
+  | "enquadramento_geral"
+  // M3.8-3: status para gap não-categorizável → não gera risco, vai para reviewQueue
+  // Substitui fallback silencioso "enquadramento_geral" (REGRA-ORQ-29 + Lição #62)
+  | "unmapped";
 
 /**
  * Input mínimo necessário para categorizar um risco.
@@ -166,8 +169,12 @@ export function categorizeRisk(input: RiskCategorizationInput): CategoriaCanonic
     return "obrigacao_acessoria";
   }
 
-  // ── 10. Fallback ─────────────────────────────────────────────────────────────
-  return "enquadramento_geral";
+  // ── 10. Fallback final (M3.8-3, REGRA-ORQ-29 + Lição #62) ────────────────────
+  // ANTES: return "enquadramento_geral" — gerava risco fantasma sem rastreabilidade.
+  // DEPOIS: "unmapped" — gap vai para reviewQueue (revisão humana), NÃO gera risco.
+  // A categoria "enquadramento_geral" permanece válida quando explicitamente atribuída
+  // por LLM ou curadoria humana (preservada nos demais 11 contextos do código).
+  return "unmapped";
 }
 
 /**

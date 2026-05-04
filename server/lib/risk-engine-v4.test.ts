@@ -475,18 +475,20 @@ describe("Bloco G — gate de elegibilidade em consolidateRisks", () => {
     mockedGetCat.mockResolvedValue(null);
   });
 
-  it("G1: servicos → imposto_seletivo bloqueado, downgrade para enquadramento_geral", async () => {
+  // M3.8-3 (PR #970, REGRA-ORQ-29 + Lição #62):
+  // downgrade_to mudou de "enquadramento_geral" → "unmapped".
+  // Handler em risk-engine-v4 faz skip da categoria "unmapped" (não gera risco).
+  // Antes: gerava risco fantasma com base legal "N/A".
+  // Depois: gap não-elegível vai para reviewQueue, NÃO gera risco.
+  it("G1: servicos → imposto_seletivo bloqueado, skip via unmapped (sem risco)", async () => {
     const ctxServicos: OperationalContext = { tipoOperacao: "servicos" };
     const gaps = [
       makeGap({ ruleId: "R-IS-1", categoria: "imposto_seletivo", fonte: "solaris" }),
     ];
     const results = await consolidateRisks(42, gaps, ctxServicos, 1);
 
-    expect(results).toHaveLength(1);
-    expect(results[0].categoria).toBe("enquadramento_geral");
-    expect(results[0].risk_key).toContain("enquadramento_geral");
-    expect(results[0].risk_key).not.toContain("imposto_seletivo::");
-    expect(results[0].breadcrumb[1]).toBe("enquadramento_geral");
+    // Risco fantasma eliminado — gap vai para reviewQueue
+    expect(results).toHaveLength(0);
   });
 
   it("G2: servico (alias singular) → imposto_seletivo também bloqueado", async () => {
@@ -496,8 +498,7 @@ describe("Bloco G — gate de elegibilidade em consolidateRisks", () => {
     ];
     const results = await consolidateRisks(42, gaps, ctxServico, 1);
 
-    expect(results).toHaveLength(1);
-    expect(results[0].categoria).toBe("enquadramento_geral");
+    expect(results).toHaveLength(0); // M3.8-3: skip em vez de downgrade
   });
 
   it("G3: industria → imposto_seletivo permanece (sem regressão)", async () => {
