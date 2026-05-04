@@ -34,7 +34,9 @@ export type Categoria =
 
 export type Severity = "alta" | "media" | "oportunidade";
 export type Urgency = "imediata" | "curto_prazo" | "medio_prazo";
-export type Fonte = "cnae" | "ncm" | "nbs" | "solaris" | "iagen";
+// M3.8.1 Bug C: "regulatorio" adicionado — inferFonte (gap-to-rule-mapper.ts) já retorna
+// este valor desde M3.8-1B (PR #968), mas o tipo e SOURCE_RANK não foram atualizados.
+export type Fonte = "cnae" | "ncm" | "nbs" | "solaris" | "iagen" | "regulatorio";
 
 export interface GapRule {
   ruleId: string;
@@ -103,6 +105,9 @@ export const SOURCE_RANK: Record<Fonte, number> = {
   nbs: 3,
   solaris: 4,
   iagen: 5,
+  // M3.8.1 Bug C: rank 6 (menor prioridade) — regulatorio é fallback genérico
+  // quando inferFonte não consegue mapear para fonte específica.
+  regulatorio: 6,
 };
 
 const SEVERITY_ORDER: Record<Severity, number> = {
@@ -281,8 +286,13 @@ function mapGapToEvidence(gap: GapRule): EvidenceItem {
   };
 }
 
-function getBestSourcePriority(gaps: GapRule[]): Fonte {
-  let best: Fonte = "iagen";
+// M3.8.1: exportado para test contracts unitários (Bug B + Bug C cobertura runtime).
+export function getBestSourcePriority(gaps: GapRule[]): Fonte {
+  // M3.8.1 Bug B: default "regulatorio" (era "iagen", causava UI mostrar "iagen"
+  // em todos os riscos quando gaps tinham fonte="regulatorio" — fonte ausente do
+  // SOURCE_RANK em M3.8-1B). Com Bug C resolvido, default só importa para
+  // gaps.length === 0 (caso degenerado).
+  let best: Fonte = "regulatorio";
   let bestRank = 99;
   for (const g of gaps) {
     const rank = SOURCE_RANK[g.fonte as Fonte] ?? 99;
