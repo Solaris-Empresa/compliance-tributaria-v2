@@ -101,10 +101,12 @@ export async function generateProductQuestions(
     }
   }
 
-  // ─── Perguntas SOLARIS filtradas por CNAE ────────────────────────────────
+  // ─── Perguntas SOLARIS filtradas por CNAE + lei (paridade RAG) ───────────
+  // M3.7 Item 11: whitelist Q.NCM limita SOLARIS a LC 214/2025 e LC 227/2026
+  // (Q.NCM ainda usa queryRagFn sem leiFilter — não é escopo desta issue ampliar)
   let solarisQuestions: SolarisQuestion[] = [];
   try {
-    solarisQuestions = await querySolarisFn(cnaeCodes);
+    solarisQuestions = await querySolarisFn(cnaeCodes, ["lc214", "lc227"]);
   } catch {
     // SOLARIS indisponível: continua sem perguntas SOLARIS
   }
