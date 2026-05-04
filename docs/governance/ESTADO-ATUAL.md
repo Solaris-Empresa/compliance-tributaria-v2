@@ -1,7 +1,50 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint
-> **v7.62 · 2026-05-04 (Sprint M3.8 ENCERRADA — Eliminar hardcode `solaris` + ativar `service_answers idN` + eliminar fallback `enquadramento_geral` — HEAD `a528257` · 5 PRs mergeados M3.8 · 56/56 tests PASS · 0 erros tsc · audit ORQ-19 🟢)**
-> **Predecessor:** v7.61 · 2026-05-02 (Sprint M3 ENCERRADA — Perfil da Entidade integrado a 5 engines + UI + E2E — HEAD `bc649fa`)
+> **v7.63 · 2026-05-05 (Sprint M3.8.1 HOTFIX ENCERRADA — 3 bugs A/B/C + ENUM migration + audit 🟢 — HEAD pós-#974 · smoke E2E 5/5 PASS em ambos #3480001 e #3270001 · 139/139 tests PASS · 0 erros tsc)**
+> **Predecessor:** v7.62 · 2026-05-04 (Sprint M3.8 ENCERRADA — HEAD `a528257`)
+
+## Sessão v7.63 (2026-05-05) — Sprint M3.8.1 HOTFIX ENCERRADA · 3 bugs P0/P1/P2 corrigidos
+
+**HEAD main pré-closure:** `5d94c9c` (PR #973 hotfix consolidado)
+
+### PRs Sprint M3.8.1 (2 total)
+
+| PR | SHA | Tipo | Conteúdo |
+|---|---|---|---|
+| #973 | `5d94c9c` | fix | **M3.8.1** Hotfix A+B+C consolidado + 16 tests + script retrigger |
+| #974 | TBD | chore | **Followup** Migration 0091 ENUM `risks_v4.source_priority` + audit v7.63 + ESTADO-ATUAL + Lição #64 |
+
+### Bugs corrigidos
+
+| Bug | Severidade | Origem | Fix |
+|---|---|---|---|
+| A | P0 perda dados | Z-11 pré-existente, exposto por M3.8 | `gapEngine.ts:464` scoped DELETE `AND source = 'v1'` |
+| B | P1 UI errada | M3.8-1B (PR #968) | `risk-engine-v4.ts:289` default `"regulatorio"` |
+| C | P2 type mismatch | M3.8-1B (PR #968) | `risk-engine-v4.ts:37,100-110` Fonte += regulatorio + SOURCE_RANK.regulatorio = 6 |
+| Bug schema | Aplicado em prod via ALTER manual | M3.8.1 não incluiu migration | `drizzle/0091_*.sql` ENUM source_priority += `'regulatorio'` |
+
+### Smoke E2E final (Manus, evidência de banco)
+
+| Critério | #3480001 | #3270001 | Status |
+|---|---|---|---|
+| Riscos (era 9, agora 8) | 8 | 8 | ✅ |
+| `enquadramento_geral` removido | 0 | 0 | ✅ |
+| `source_priority` correto | 100% `"regulatorio"` | 100% `"regulatorio"` | ✅ |
+| Multi-fonte preservado (Bug A) | v1:138 + solaris:28 + iagen:7 | v1:138 + solaris:32 + iagen:9 | ✅ |
+| `answer_value` preenchido (M3.8-2) | 38 gaps | 44 gaps | ✅ |
+
+### Lição NOVA capturada (#64)
+
+PR docs-only audit-greps são insuficientes para detectar contratos quebrados em runtime. Bug B/C foram introduzidos por PR #968 (M3.8-1B) e o audit v7.62 validou apenas remoção de hardcode `"solaris"`, não cobertura runtime do consumo downstream. Reforça REGRA-ORQ-27 (assemble ≠ consumption).
+
+### Auditoria ORQ-19
+
+- Arquivada: `docs/governance/audits/v7.63-2026-05-05-sprint-m3.8.1-hotfix-encerrada.md`
+- Veredito: 🟢 (sincronia + greps + tsc + tests + HTTP prod smoke + Manus deploy verdes)
+
+---
+
+## Sessão v7.62 (2026-05-04) — Sprint M3.8 ENCERRADA · Hardcode eliminado + UnifiedAnswer ativo
 
 ## Sessão v7.62 (2026-05-04) — Sprint M3.8 ENCERRADA · Hardcode eliminado + UnifiedAnswer ativo
 
