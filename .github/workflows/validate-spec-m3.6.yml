@@ -78,6 +78,19 @@ jobs:
           fi
           echo "✅ P0.4 — Q.NBS passa whitelist correta"
 
+      - name: P0.5 — retrieveArticlesFast propaga leiFilter (Manus review)
+        run: |
+          # Manus review 2026-05-04: sem este check, implementador pode propagar
+          # leiFilter em retrieveArticles mas esquecer retrieveArticlesFast
+          # → bug parcial em callsites que usam a versão "fast".
+          # Verifica que a assinatura da função inclui leiFilter.
+          if ! awk '/export async function retrieveArticlesFast/,/^}/' server/rag-retriever.ts | grep -qE 'leiFilter'; then
+            echo "❌ P0.5 FALHOU: retrieveArticlesFast não declara/propaga leiFilter"
+            echo "   Esperado em assinatura de retrieveArticlesFast (linha ~289 de server/rag-retriever.ts)"
+            exit 1
+          fi
+          echo "✅ P0.5 — retrieveArticlesFast propaga leiFilter"
+
       # ─── P1-1 — IA Gen + questionEngine consomem description ──────────────
 
       - name: P1-1.1 — IA Gen Onda 2 injeta description em profileFields
@@ -190,6 +203,7 @@ jobs:
           echo "  ✅ inArray aplicado em fetchCandidates"
           echo "  ✅ leiFilter propagado em queryRag"
           echo "  ✅ Q.NBS passa whitelist [\"lc214\",\"lc227\"]"
+          echo "  ✅ retrieveArticlesFast propaga leiFilter"
           echo ""
           echo "P1-1 (IA Gen description):"
           echo "  ✅ Descrição injetada em profileFields"
