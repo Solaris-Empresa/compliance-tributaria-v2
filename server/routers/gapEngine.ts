@@ -23,6 +23,18 @@ import mysql from "mysql2/promise";
 export const GapClassificationSchema = z.enum(["ausencia", "parcial", "inadequado"]);
 export type GapClassification = z.infer<typeof GapClassificationSchema>;
 
+// M3.8-1A — fontes possíveis de uma resposta que origina o gap
+// "regulatory_only" = sem resposta (gap criado pela ausência do requisito ser atendido)
+export const QuestionSourceSchema = z.enum([
+  "qnbs_regulatorio",   // service_answers padrão idN (Q.NBS regulatório)
+  "qnbs_solaris",       // service_answers padrão SOL-XXX (Q.NBS solaris)
+  "solaris_onda1",      // solaris_answers (Onda 1)
+  "iagen_onda2",        // iagen_answers (Onda 2)
+  "qcnae_onda3",        // questionnaireAnswersV3 (Q.CNAE Onda 3 LLM)
+  "regulatory_only",    // sem resposta — gap por ausência
+]);
+export type QuestionSource = z.infer<typeof QuestionSourceSchema>;
+
 export const GapSchema = z.object({
   requirement_id: z.string().min(1),          // OBRIGATÓRIO — ADR-010 ponto inviolável
   requirement_name: z.string().min(1),
@@ -48,6 +60,8 @@ export const GapSchema = z.object({
   recommended_actions: z.string(),
   // B-Z13-004: risk_category_code propagado do regulatory_requirements_v3
   risk_category_code: z.string().nullable().optional(),
+  // M3.8-1A: fonte da resposta que originou o gap (ou "regulatory_only" para gap sem resposta)
+  question_source: QuestionSourceSchema,
 });
 
 export type Gap = z.infer<typeof GapSchema>;
@@ -285,7 +299,15 @@ export const gapEngineRouter = router({
         );
 
         // 4. Mapear respostas por requirement_id
-        const answerMap = new Map<string, { answer: string; questionId: number | null; evidenceStatus: string }>();
+        // M3.8-1A: registrar question_source para cada resposta (preparação M3.8-1B + M3.8-2)
+        // Em M3.8 Fase 1A, a única fonte é questionnaireAnswersV3 (Q.CNAE Onda 3 LLM).
+        // M3.8-2 expandirá com normalização de service_answers, iagen_answers, solaris_answers.
+        const answerMap = new Map<string, {
+          answer: string;
+          questionId: number | null;
+          evidenceStatus: string;
+          questionSource: QuestionSource;
+        }>();
         for (const a of answers) {
           const reqId = a.requirement_id ?? `Q${a.questionIndex}`;
           const evidenceStatus = a.answerValue && a.answerValue !== "nao" ? "parcial" : "ausente";
@@ -293,6 +315,7 @@ export const gapEngineRouter = router({
             answer: a.answerValue ?? "",
             questionId: a.id,
             evidenceStatus,
+            questionSource: "qcnae_onda3", // questionnaireAnswersV3 = Q.CNAE Onda 3 LLM
           });
         }
 
@@ -371,6 +394,9 @@ export const gapEngineRouter = router({
             recommended_actions: `Regularizar ${req.name} conforme ${req.source_reference}`,
             // B-Z13-004: propagar risk_category_code para o GapToRuleMapper (Caso A)
             risk_category_code: req.risk_category_code ?? null,
+            // M3.8-1A: fonte da resposta que originou o gap
+            // Se sem resposta (answerData undefined), gap é por ausência → "regulatory_only"
+            question_source: answerData?.questionSource ?? "regulatory_only",
           };
 
           gaps.push(gap);
