@@ -251,11 +251,15 @@ export class GapToRuleMapper {
 // ---------------------------------------------------------------------------
 
 function inferFonte(gap: GapInput, allowLayerInference: boolean): string {
+  // M3.8-1B (Lição #62 Contexto vs Evidência): priorizar sourceOrigin explícito
+  // quando fornecido pelo frontend (derivado de gap.question_source de M3.8-1A)
   if (gap.sourceOrigin) return gap.sourceOrigin;
-  if (!allowLayerInference) return "solaris";
+  // Fallback default: gap por requisito sem resposta = origem normativa, não "solaris"
+  if (!allowLayerInference) return "regulatorio";
   if (gap.layer === "onda2") return "iagen";
-  if (gap.layer === "onda1") return "solaris";
-  return "solaris";
+  if (gap.layer === "onda1") return "solaris"; // preservado: Onda 1 = SOLARIS curado (semanticamente correto)
+  // Fallback final: gap sem layer identificada → origem normativa, não "solaris" hardcoded
+  return "regulatorio";
 }
 
 function toGapRule(
