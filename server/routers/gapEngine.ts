@@ -454,9 +454,13 @@ export const gapEngineRouter = router({
 
         // 6. Persistir gaps no banco (se não for dry_run)
         if (!input.dry_run && gaps.length > 0) {
-          // Limpar gaps anteriores desta versão de análise
+          // M3.8.1 Bug A (P0): scoped DELETE com `AND source = 'v1'` — preserva gaps
+          // inseridos por solaris-gap-analyzer (source='solaris') e iagen-gap-analyzer
+          // (source='iagen'). DELETE original wipeava analysis_version=3 inteiro,
+          // destruindo gaps de outras fontes a cada chamada (race com fire-and-forget).
+          // Outros 3 analyzers já usam `AND source = ?` corretamente.
           await pool.query(
-            "DELETE FROM project_gaps_v3 WHERE project_id = ? AND analysis_version = 3",
+            "DELETE FROM project_gaps_v3 WHERE project_id = ? AND analysis_version = 3 AND source = 'v1'",
             [input.project_id]
           );
 
