@@ -34,8 +34,9 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
+        # version omitida deliberadamente — action lê packageManager do package.json
+        # (pnpm@10.4.1 ao tempo deste fix). Especificar version: aqui causa
+        # ERR_PNPM_BAD_PM_VERSION (incidente diagnosticado em PR #937).
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
