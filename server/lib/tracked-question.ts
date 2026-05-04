@@ -122,6 +122,19 @@ export function inferCategoria(chunk: RagChunk): string {
 }
 
 export function extractLeiRefFromSolaris(sq: SolarisQuestion): string {
+  // M3.7 Item 3 (REGRA-ORQ-29 + REGRA-ORQ-32): priorizar metadado estruturado
+  // Substitui inferência frágil por regex em texto livre (legado pré-M3.7).
+  if (sq.leiRef) {
+    // Formata como "LC 214/2025 Art. 9" se ambos definidos, senão apenas a lei normalizada
+    const leiNormalizada = sq.leiRef
+      .toUpperCase()
+      .replace(/^LC/, "LC ")
+      .replace(/^EC/, "EC ");
+    return sq.artigoRef ? `${leiNormalizada} ${sq.artigoRef}` : leiNormalizada;
+  }
+
+  // Fallback legado: regex em topicos (mantido para perguntas pré-M3.7 sem leiRef)
+  // Será descontinuado quando 100% das perguntas tiverem leiRef preenchido pela equipe SOLARIS.
   if (sq.topicos) {
     const match = sq.topicos.match(/LC\s*\d+\/\d+|Art\.\s*\d+/i);
     if (match) return match[0];
