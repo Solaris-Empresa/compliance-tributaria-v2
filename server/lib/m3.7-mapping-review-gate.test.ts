@@ -51,15 +51,41 @@ describe("M3.7 Item 12 — Gate mappingReviewStatus em getOnda1Questions", () =>
   });
 });
 
-describe("M3.7 Item 12 — SQL UPDATE marca SOL-008..012 como pending_legal", () => {
-  it("script SQL existe e marca os 5 códigos corretos", () => {
+describe("M3.7 Item 12 — SQL UPDATE marca SOL-026..037 (12 codes LC 224 ativos)", () => {
+  // Atualizado 2026-05-04: query empírica em produção retornou 12 codes ativos
+  // (SOL-026..037), não os 5 documentados em E2E-3-ONDAS:
+  //   - SOL-008, SOL-009: NÃO EXISTEM no banco
+  //   - SOL-010..012: existem mas ativo=0 (já filtradas pelo getOnda1Questions)
+  //   - SOL-026..037: as 12 perguntas LC 224 reais ativas (smoke E2E confirmado)
+
+  it("script SQL existe e contém UPDATE para pending_legal", () => {
     expect(SQL_SCRIPT).toMatch(/UPDATE solaris_questions/);
     expect(SQL_SCRIPT).toMatch(/SET mapping_review_status\s*=\s*'pending_legal'/);
-    expect(SQL_SCRIPT).toMatch(/SOL-008/);
-    expect(SQL_SCRIPT).toMatch(/SOL-009/);
-    expect(SQL_SCRIPT).toMatch(/SOL-010/);
-    expect(SQL_SCRIPT).toMatch(/SOL-011/);
-    expect(SQL_SCRIPT).toMatch(/SOL-012/);
+  });
+
+  it("script SQL marca os 12 códigos LC 224 ativos (SOL-026..037)", () => {
+    const codigosEsperados = [
+      "SOL-026", "SOL-027", "SOL-028", "SOL-029", "SOL-030",
+      "SOL-031", "SOL-032", "SOL-033", "SOL-034", "SOL-035",
+      "SOL-036", "SOL-037",
+    ];
+    for (const codigo of codigosEsperados) {
+      expect(SQL_SCRIPT).toContain(`'${codigo}'`);
+    }
+  });
+
+  it("script SQL NÃO inclui SOL-008, SOL-009 (não existem no banco)", () => {
+    // Verificar apenas no UPDATE, não em comentários explicativos
+    const updateSection = SQL_SCRIPT.split("-- Verificação:")[0];
+    expect(updateSection).not.toMatch(/'SOL-008'/);
+    expect(updateSection).not.toMatch(/'SOL-009'/);
+  });
+
+  it("script SQL NÃO inclui SOL-010..012 no UPDATE (já estão ativo=0)", () => {
+    const updateSection = SQL_SCRIPT.split("-- Verificação:")[0];
+    expect(updateSection).not.toMatch(/'SOL-010'/);
+    expect(updateSection).not.toMatch(/'SOL-011'/);
+    expect(updateSection).not.toMatch(/'SOL-012'/);
   });
 
   it("script SQL inclui query de verificação", () => {
@@ -69,5 +95,11 @@ describe("M3.7 Item 12 — SQL UPDATE marca SOL-008..012 como pending_legal", ()
   it("script SQL inclui reversão documentada (após curadoria)", () => {
     expect(SQL_SCRIPT).toMatch(/approved_legal/);
     expect(SQL_SCRIPT).toMatch(/lei_ref IS NOT NULL/);
+  });
+
+  it("script SQL documenta investigações pendentes (issues separadas)", () => {
+    expect(SQL_SCRIPT).toMatch(/Investigações pendentes/);
+    expect(SQL_SCRIPT).toMatch(/cnae_groups\s*=\s*\["\[\]"\]/);
+    expect(SQL_SCRIPT).toMatch(/E2E-3-ONDAS-QUESTIONARIOS-v1\.md/);
   });
 });
