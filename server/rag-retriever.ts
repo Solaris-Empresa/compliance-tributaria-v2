@@ -16,7 +16,7 @@
 
 import { getDb } from "./db";
 import { ragDocuments, ragUsageLog } from "../drizzle/schema";
-import { or, like } from "drizzle-orm";
+import { or, like, inArray, and } from "drizzle-orm";
 import { invokeLLM } from "./_core/llm";
 
 export interface RetrievedArticle {
@@ -113,7 +113,8 @@ function extractKeywords(context: string): string[] {
 async function fetchCandidates(
   cnaes: string[],
   keywords: string[],
-  limit = 20
+  limit = 20,
+  leiFilter?: string[]
 ): Promise<RetrievedArticle[]> {
   const cnaeGroups = extractCnaeGroups(cnaes);
 
@@ -129,27 +130,43 @@ async function fetchCandidates(
     like(ragDocuments.cnaeGroups, `%${g}%`)
   );
 
+  // M3.6 (Issue #932) — filtro por documento-fonte (lei) quando definido.
+  // ts-expect-error: drizzle ragDocuments.lei é um MySqlEnum estreito; leiFilter
+  // é tipado como string[] na API pública para flexibilidade — valores são
+  // validados no callsite (Q.NBS passa whitelist literal ["lc214","lc227"]).
+  const leiCond = (leiFilter && leiFilter.length > 0)
+    // @ts-expect-error enum-narrowing
+    ? inArray(ragDocuments.lei, leiFilter)
+    : undefined;
+
   let rows: typeof ragDocuments.$inferSelect[] = [];
 
   try {
     const dbConn = await getDb();
     if (!dbConn) return [];
-    if (keywordConditions.length > 0 || cnaeConditions.length > 0) {
-      const allConditions = [...keywordConditions, ...cnaeConditions];
+    const baseCond = (keywordConditions.length > 0 || cnaeConditions.length > 0)
+      ? or(...keywordConditions, ...cnaeConditions)
+      : undefined;
+    const finalCond = baseCond && leiCond ? and(baseCond, leiCond) : (leiCond ?? baseCond);
+    if (finalCond) {
       rows = await dbConn
         .select()
         .from(ragDocuments)
-        .where(or(...allConditions))
+        .where(finalCond)
         .limit(limit);
     } else {
       // Fallback: retornar todos os documentos (corpus pequeno)
       rows = await dbConn.select().from(ragDocuments).limit(limit);
     }
   } catch {
-    // Fallback silencioso: retornar corpus completo
+    // Fallback silencioso: retornar corpus completo (respeitando leiFilter se definido)
     try {
       const dbConn = await getDb();
-      if (dbConn) rows = await dbConn.select().from(ragDocuments).limit(limit);
+      if (dbConn) {
+        rows = leiCond
+          ? await dbConn.select().from(ragDocuments).where(leiCond).limit(limit)
+          : await dbConn.select().from(ragDocuments).limit(limit);
+      }
     } catch { /* silencioso */ }
   }
 
@@ -260,12 +277,13 @@ export async function retrieveArticles(
   cnaes: string[],
   contextQuery: string,
   topK = 5,
+  leiFilter?: string[],
   usageOpts: RAGUsageOptions = {}
 ): Promise<RAGContext> {
   const keywords = extractKeywords(contextQuery);
 
-  // 1. Buscar candidatos
-  const candidates = await fetchCandidates(cnaes, keywords, 20);
+  // 1. Buscar candidatos (M3.6 #932: leiFilter limita corpus quando definido)
+  const candidates = await fetchCandidates(cnaes, keywords, 20, leiFilter);
 
   // 2. Re-ranking via LLM
   const topArticles = await rerankWithLLM(candidates, contextQuery, topK);
@@ -290,10 +308,11 @@ export async function retrieveArticlesFast(
   cnaes: string[],
   contextQuery: string,
   topK = 5,
+  leiFilter?: string[],
   usageOpts: RAGUsageOptions = {}
 ): Promise<RAGContext> {
   const keywords = extractKeywords(contextQuery);
-  const candidates = await fetchCandidates(cnaes, keywords, topK);
+  const candidates = await fetchCandidates(cnaes, keywords, topK, leiFilter);
   const topArticles = candidates.slice(0, topK);
 
   // L-RAG-01 — Telemetria async non-blocking
