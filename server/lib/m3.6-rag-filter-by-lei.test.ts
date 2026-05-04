@@ -35,4 +35,11 @@ describe("M3.6 P0 — RAG filter por documento-fonte (lei)", () => {
   it.todo(
     "backward-compat: leiFilter undefined → comportamento idêntico ao legado (sem filtro lei na query SQL)"
   );
+
+  // M3.6 Manus review (2026-05-04): test contract adicional para fechar coverage
+  // do P0. Sem este teste, implementador pode propagar leiFilter em retrieveArticles
+  // mas esquecer retrieveArticlesFast — bug persiste em callsites que usam a versão "fast".
+  it.todo(
+    "retrieveArticlesFast aceita e propaga leiFilter para fetchCandidates — server/rag-retriever.ts:~289"
+  );
 });
