@@ -107,7 +107,7 @@ export async function generateProductQuestions(
         const texto = await generateQuestionFromChunk(chunk, ncm);
         allQuestions.push({
           id:         `rag-ncm-${ncm}-${chunk.anchor_id}`,
-          fonte:      "rag",
+          fonte:      "regulatorio",
           fonte_ref:  chunk.anchor_id,
           lei_ref:    extractLeiRef(chunk),
           texto,

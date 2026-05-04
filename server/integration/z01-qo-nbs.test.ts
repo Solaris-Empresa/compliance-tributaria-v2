@@ -80,7 +80,8 @@ describe("Z-01 Q.Serviços (NBS)", () => {
 
     expect(Array.isArray(result)).toBe(true);
     const perguntas = result as TrackedQuestion[];
-    const ragQ = perguntas.find(q => q.fonte === "rag");
+    // M3.7 Item 4: fonte canônica "regulatorio" (era "rag" antes do PR M3.7-Item-4)
+    const ragQ = perguntas.find(q => q.fonte === "regulatorio");
     expect(ragQ).toBeDefined();
     expect(ragQ!.fonte_ref).toBe("LC214-art67-nbs101010000");
     expect(ragQ!.nbs).toBe("1.01.01.00.00");

@@ -59,8 +59,10 @@ interface Risk {
   severidade: "Baixa" | "Média" | "Alta" | "Crítica";
   plano_acao: string;
   manual?: boolean; // RF-4.03: indica risco adicionado manualmente
-  // G11 — fonte_risco: origem do pipeline que gerou o risco
-  fonte_risco?: 'solaris' | 'cnae' | 'iagen' | 'v1';
+  // G11 — fonte_risco: origem do pipeline que gerou o risco (texto livre, ex: "LC 214/2025, Art. X")
+  fonte_risco?: string;
+  // M3.7 Item 4: enum estruturado da fonte (canônico — solaris/regulatorio/ia_gen)
+  fonte_risco_tipo?: 'solaris' | 'regulatorio' | 'ia_gen' | 'cnae' | 'iagen' | 'v1';
 }
 
 const AREAS = [
@@ -71,11 +73,18 @@ const AREAS = [
 ] as const;
 
 // G11 — Badge de origem do risco
+// M3.7 Item 4: padronização canônica conforme E2E-3-ONDAS-QUESTIONARIOS-v1.md:79
+//   solaris → Onda 1 (Equipe Jurídica)
+//   regulatorio → Onda 3 (Legislação via RAG)
+//   ia_gen → Onda 2 (Perfil da empresa)
+// Entradas legadas (cnae, iagen, v1) preservadas para backward-compat com riscos antigos no banco.
 const FONTE_BADGE: Record<string, { label: string; className: string }> = {
-  solaris: { label: 'Equipe técnica SOLARIS', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  cnae:    { label: 'Análise setorial',        className: 'bg-green-100 text-green-800 border-green-200' },
-  iagen:   { label: 'IA Generativa',            className: 'bg-orange-100 text-orange-800 border-orange-200' },
-  v1:      { label: 'Diagnóstico V1',          className: 'bg-gray-100 text-gray-600 border-gray-200' },
+  solaris:     { label: 'Equipe técnica SOLARIS', className: 'bg-blue-100 text-blue-800 border-blue-200' },
+  regulatorio: { label: 'Legislação',             className: 'bg-green-100 text-green-800 border-green-200' },
+  ia_gen:      { label: 'IA Generativa',          className: 'bg-orange-100 text-orange-800 border-orange-200' },
+  cnae:        { label: 'Análise setorial',       className: 'bg-green-100 text-green-800 border-green-200' },
+  iagen:       { label: 'IA Generativa',          className: 'bg-orange-100 text-orange-800 border-orange-200' },
+  v1:          { label: 'Diagnóstico V1',         className: 'bg-gray-100 text-gray-600 border-gray-200' },
 };
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -141,7 +150,8 @@ function RiskTable({ risks, onEdit, onDelete, locked }: {
               <td className="py-3 px-3 text-center">
                 {/* G11 — badge de origem do risco */}
                 {(() => {
-                  const fonte = risk.fonte_risco ?? 'v1';
+                  // M3.7 Item 4: ler enum estruturado fonte_risco_tipo (não texto livre fonte_risco)
+                  const fonte = risk.fonte_risco_tipo ?? 'v1';
                   const b = FONTE_BADGE[fonte] ?? FONTE_BADGE['v1'];
                   return (
                     <span className={`text-[10px] px-2 py-0.5 rounded-full border ${b.className}`}>
