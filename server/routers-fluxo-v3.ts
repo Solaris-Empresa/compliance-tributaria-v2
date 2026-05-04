@@ -706,7 +706,7 @@ Gere as perguntas no formato:
           },
         ],
           QuestionsResponseSchema,
-          { temperature: 0.2, context: "generateQuestions" }
+          { temperature: 0.1, context: "generateQuestions" }  // REGRA-ORQ-30: max 0.1 (M3.7 Item 6)
         );
       } catch (llmErr) {
         console.error(`[generateQuestions] LLM error for cnae=${input.cnaeCode}:`, llmErr);
@@ -2137,7 +2137,7 @@ Formato:
             },
           ],
           RisksResponseSchema,
-          { temperature: 0.2, context: `generateRiskMatrices:${area}` }
+          { temperature: 0.1, context: `generateRiskMatrices:${area}` }  // REGRA-ORQ-30: max 0.1 (M3.7 Item 6)
         );
 
         // G9: safeParse adicional para capturar falhas estruturais sem propagar exceção
@@ -2353,7 +2353,7 @@ Gere o plano de ação em JSON:
             },
           ],
           TasksResponseSchema,
-          { temperature: 0.15, context: `generateActionPlan:${area}` }
+          { temperature: 0.1, context: `generateActionPlan:${area}` }  // REGRA-ORQ-30: max 0.1 (M3.7 Item 6)
         );
 
         // B2 — G12: log de auditoria de fonte_acao por área
@@ -2633,7 +2633,7 @@ Gere o veredito final em JSON:
           },
         ],
         DecisaoResponseSchema,
-        { temperature: 0.35, context: "generateDecision" } // Temperatura ligeiramente maior para insight criativo
+        { temperature: 0.1, context: "generateDecision" }  // REGRA-ORQ-30: max 0.1 (M3.7 Item 6 — compliance > criatividade)
       );
 
       // Salvar decisão no banco
@@ -3888,7 +3888,7 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
             { role: 'system', content: 'Você é um especialista em compliance tributário da Reforma Tributária brasileira. Responda sempre em JSON válido.' },
             { role: 'user', content: prompt },
           ],
-          temperature: 0.1, // Z-11: determinístico
+          temperature: 0.1, // REGRA-ORQ-30: max 0.1 (M3.7 Item 6 — Onda 2 IA Gen, geração textual)
           response_format: {
             type: 'json_schema',
             json_schema: {
