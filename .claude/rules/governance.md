@@ -1080,3 +1080,107 @@ Claude Code **NÃO pode autonomamente**:
 ### Origem documentada
 
 P.O. declarou matriz RACI em 2026-05-04 após Sprint M3.6 + Sprint M3.7 governance. Antes desta regra, papéis eram implícitos — risco de overlap (Manus implementando + Claude Code implementando paralelamente = bifurcação documentada na sessão M3.7 quando Manus foi pausado e Claude Code assumiu impl). Esta REGRA-ORQ-33 cristaliza a decisão e remove ambiguidade.
+
+## Lição #62 — Separação Contexto vs Evidência
+
+Origem: Sprint M3.8 — auditoria do pipeline de gaps (P.O. + Manus + Consultor)
+
+### Texto
+
+Dados de classificação do negócio (`projects.cnaeAnswers`, `companyProfile`, `operationProfile`, archetype) são **CONTEXTO** — alimentam filtros, priorização, interpretação LLM. Dados de resposta a obrigações (`questionnaireAnswersV3`, `service_answers`, `solaris_answers`, `iagen_answers`) são **EVIDÊNCIA** — alimentam Gap Engine na cadeia REQUISITO → EVIDÊNCIA → GAP.
+
+Misturar as camadas leva a falso positivo + violação REGRA-ORQ-29 (gap sem requisito).
+
+### Princípio orientador
+
+> **"CNAE diz o que a empresa É. NBS diz o que ela FAZ ERRADO."** — Consultor, Sprint M3.8
+
+| Camada | Conteúdo | Função | Onde alimenta |
+|---|---|---|---|
+| **CONTEXTO** | `cnaeAnswers`, `companyProfile`, archetype | Atributos do negócio | LLM briefing (`routers-fluxo-v3.ts:3100-3103`), filtros de elegibilidade, priorização |
+| **EVIDÊNCIA** | `questionnaireAnswersV3`, `service_answers`, `solaris_answers`, `iagen_answers` | Respostas a obrigações | Gap Engine (`gapEngine.analyzeGaps`) — cadeia REQUISITO → EVIDÊNCIA → GAP |
+
+### Caso canônico
+
+Sprint M3.8, sessão 2026-05-04: Manus inicialmente sugeriu D5.A "incluir `cnaeAnswers` como 5a fonte no Gap Engine" (resposta às 12 perguntas Q.CNAE Fixo do P.O.). Consultor identificou que isso seria **violação de camada** — `qcnae*` são atributos (ST, IS, regime especial, imunidade) sem estrutura "atendido/não-atendido". Manus reformulou para D5.B: 4 fontes de EVIDÊNCIA apenas, `cnaeAnswers` permanece em CONTEXTO (já implementado em `routers-fluxo-v3.ts:3100`).
+
+### Aplicação prática
+
+Antes de adicionar nova fonte ao Gap Engine, validar:
+
+1. As respostas têm estrutura "atendido/não-atendido/parcial"? (evidência)
+2. Ou são atributos do negócio (setor, regime, classificação)? (contexto)
+3. Se contexto: alimenta LLM briefing/filtros, NÃO Gap Engine.
+
+### Vinculadas
+
+- REGRA-ORQ-29 (Sem Requisito = Sem Pergunta = Sem Gap)
+- REGRA-ORQ-32 (No Hardcode — visão sistêmica)
+- Sprint M3.8 (issues a serem abertas)
+- Análise consultor 2026-05-04
+
+## Lição #63 — Spec arquiteturalmente correta ≠ implementável
+
+Origem: Sprint M3.8 — verificação empírica do banco antes de implementar (Manus + Consultor)
+
+### Texto
+
+Spec arquiteturalmente correta **NÃO É** automaticamente implementável. Mapeamento determinístico exige metadado preexistente no banco. Antes de propor expansão de pipeline (ex: "Gap Engine consome 4 fontes"), verificar empiricamente:
+
+1. Os campos de mapeamento existem no schema?
+2. Estão populados nos dados reais?
+3. As fontes são redundantes entre si?
+4. A curadoria humana necessária está disponível?
+
+Sem essa verificação, spec implementada literalmente pode entregar **muito menos** do que prometido.
+
+### Princípio orientador
+
+> **"Você não está corrigindo código — está corrigindo a maturidade dos dados."** — P.O., Sprint M3.8
+
+### Caso canônico
+
+Sprint M3.8, M3.8-2 — Spec V5 do consultor propôs Gap Engine consumir 4 fontes (`questionnaireAnswersV3`, `service_answers`, `solaris_answers`, `iagen_answers`). Manus auditou banco e descobriu:
+
+| Fonte | Spec promete | Realidade no banco | % funcional |
+|---|---|---|---|
+| `questionnaireAnswersV3` | Mapear via `mapQuestionIndexToRequirement` | Sem coluna `requirement_id`. `requirement_question_mapping` vazia (0 registros) | 0% |
+| `service_answers` padrão `idN` | `extractRequirementId` parsing | Determinístico. **3 de 15 respostas** mapeáveis em #3270001 | 100% das aplicáveis |
+| `service_answers` padrão `SOL-XXX` | `mapSolarisToRequirement` | `solaris_questions.risk_category_code = NULL` em todos | 0% |
+| `solaris_answers` | Idem | Sem metadados + **100% redundante com service_answers** (overlap total em 2 projetos auditados) | 0% — exclusão definitiva |
+| `iagen_answers` | `mapCategoryToRequirement` | `risk_category_code = NULL` em 100% das respostas | 0% |
+
+**Resultado se V5 fosse implementado literalmente:** 3/138 requirements (2.2%) com evidência real. Outros 135 continuariam falso positivo.
+
+### Aplicação prática
+
+Antes de spec de expansão de pipeline:
+
+```bash
+# Verificar campos de mapeamento existem
+SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = '<tabela>';
+
+# Verificar dados populados
+SELECT COUNT(*) FROM <tabela_mapping>;
+SELECT <campo_mapping>, COUNT(*) FROM <tabela> GROUP BY <campo_mapping>;
+
+# Verificar redundância entre fontes candidatas
+SELECT a.codigo FROM source_a a INNER JOIN source_b b ON a.codigo = b.codigo;
+```
+
+Se algum check falhar: spec precisa ser **dividida em fases** (Fase 1 = código que funciona com dados atuais; Fase 2 = curadoria + ativação após dados maduros).
+
+### Princípio operacional
+
+> **"Spec correta na direção" ≠ "Spec viável agora".**
+>
+> Implementar versão mínima funcional + planejar curadoria = decisão honesta.
+> Implementar literalmente sem verificar dados = entrega 2.2% e cria dívida técnica oculta.
+
+### Vinculadas
+
+- Lição #61 (Metadado determinístico antes da pergunta)
+- Lição #62 (Contexto vs Evidência)
+- REGRA-ORQ-28 (Triade de garantia — test contracts dependem de viabilidade real)
+- Sprint M3.8 (M3.8-2 escopo reduzido para 1 fonte funcional + M3.9 backlog curadoria)
+- Análise técnica Manus 2026-05-04 — "Crítica Técnica — Spec M3.8-2 do Consultor"
