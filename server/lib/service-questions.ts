@@ -97,7 +97,8 @@ export async function generateServiceQuestions(
       : `IBS CBS alíquota serviço NBS ${nbs} reforma tributária`;
     let chunks: RagChunk[] = [];
     try {
-      chunks = await queryRagFn([nbs, ...cnaeCodes], contextQuery, 3);
+      // M3.6 (Issue #932) — whitelist Q.NBS limita RAG a LC 214/2025 e LC 227/2026
+      chunks = await queryRagFn([nbs, ...cnaeCodes], contextQuery, 3, ["lc214", "lc227"]);
     } catch {
       // RAG indisponível: continua sem perguntas RAG para este NBS
     }
