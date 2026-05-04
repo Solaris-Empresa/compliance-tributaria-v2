@@ -1,7 +1,49 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint
-> **v7.61 · 2026-05-02 (Sprint M3 ENCERRADA — Perfil da Entidade integrado a 5 engines + UI + E2E — HEAD `bc649fa` · 9 PRs mergeados M3 + 2 docs + 1 hotfix · suite oficial 58 GO 59/0/1 · 10 testes acceptance + 17 testes NOVA-09 PASS · rules_hash invariante)**
-> **Predecessor:** v7.60 · 2026-04-28 (Bundle M1 + Corpus + Gate Input + Suite — HEAD `0a59c8c` · 6 PRs mergeados · audit ORQ-19 🟢)
+> **v7.62 · 2026-05-04 (Sprint M3.8 ENCERRADA — Eliminar hardcode `solaris` + ativar `service_answers idN` + eliminar fallback `enquadramento_geral` — HEAD `a528257` · 5 PRs mergeados M3.8 · 56/56 tests PASS · 0 erros tsc · audit ORQ-19 🟢)**
+> **Predecessor:** v7.61 · 2026-05-02 (Sprint M3 ENCERRADA — Perfil da Entidade integrado a 5 engines + UI + E2E — HEAD `bc649fa`)
+
+## Sessão v7.62 (2026-05-04) — Sprint M3.8 ENCERRADA · Hardcode eliminado + UnifiedAnswer ativo
+
+**HEAD main:** `a528257ab2261f41dcc76ff3e74a9381342330b1` (PR #970 squash)
+**Predecessor:** `bc649fa` (baseline pós-M3)
+
+### PRs M3.8 mergeados em main (5 total)
+
+| PR | SHA | Tipo | Conteúdo |
+|---|---|---|---|
+| #956 | `062edb3` | docs | Lições #62 (Contexto vs Evidência) + #63 (Spec ≠ Viável) |
+| #967 | `bc64f37` | feat | **M3.8-1A** gapEngine retorna `question_source` por gap |
+| #968 | `0d86dca` | fix | **M3.8-1B** Eliminar hardcode `"solaris"` em 4 pontos (REGRA-ORQ-32) |
+| #969 | `b0af231` | feat | **M3.8-2** UnifiedAnswer + ativar `service_answers idN` no Gap Engine |
+| #970 | `a528257` | fix | **M3.8-3** Eliminar `enquadramento_geral` fallback silencioso (3 contextos) |
+
+### Resultado prático projeto #3270001 (esperado)
+
+| Métrica | Antes M3.8 | Após M3.8 |
+|---|---|---|
+| Total riscos | 9 | ~8 (1 fallback elimina) |
+| Riscos com origem hardcoded `"solaris"` | 9/9 | 0/9 (origem real derivada) |
+| Gaps com `answer_value` real | 0/138 | 3/138 (req IDs 3, 4, 20) |
+| Cobertura evidência | 0% | 2.2% (Lição #63 — escopo reduzido honesto) |
+
+### Backlog M3.9 (curadoria + ativação stubs)
+
+- #961 — Curadoria SOLARIS `risk_category_code` (24 perguntas)
+- #962 — Curadoria + automação `iagen_answers.risk_category_code`
+- #963 — Curadoria pesada `requirement_question_mapping` (138+)
+- #964 — Formalizar exclusão `solaris_answers`
+- #965 — Ativar `normalizeIagenAnswers` (depende #962)
+- #966 — Ativar `normalizeQcnaeOnda3Answers` (depende #963)
+
+### Auditoria ORQ-19
+
+- Arquivada: `docs/governance/audits/v7.62-2026-05-04-sprint-m3.8-encerrada.md`
+- Veredito: 🟢 (sincronia + greps + tsc + tests verdes; HTTP prod e smoke UX pendentes Manus republish)
+
+---
+
+## Sessão v7.61 (2026-05-02) — Sprint M3 ENCERRADA · Perfil da Entidade integrado downstream
 
 ## Sessão v7.61 (2026-05-02) — Sprint M3 ENCERRADA · Perfil da Entidade integrado downstream
 
