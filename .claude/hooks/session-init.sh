@@ -1,6 +1,27 @@
 #!/bin/bash
 # Session init — verifica arquivos de governança (AVISO, não bloqueio)
 # ORQ-00: leitura obrigatória pré-sprint
+#
+# Sprint M3.10 Fase 3b: também captura session_id do JSON stdin para
+# /tmp/claude-session-id.txt — usado por SKILLs (investigate-deep) para
+# nomear arquivos de evidência consumidos pelo hook require-investigation.sh.
+
+# Captura session_id do JSON stdin (não bloquear se ausente)
+INPUT=$(cat 2>/dev/null || true)
+if [ -n "$INPUT" ]; then
+  SID=$(echo "$INPUT" | node -e "
+let d='';
+process.stdin.on('data',c=>d+=c);
+process.stdin.on('end',()=>{
+  try { const j = JSON.parse(d); process.stdout.write(j.session_id || ''); }
+  catch (e) { /* sem session_id */ }
+});
+" 2>/dev/null || true)
+  if [ -n "$SID" ]; then
+    mkdir -p .claude/.investigate-cache 2>/dev/null
+    echo "$SID" > .claude/.investigate-cache/current-session.txt
+  fi
+fi
 
 FILES=(
   "docs/governance/DATA_DICTIONARY.md"

@@ -64,6 +64,72 @@ Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `db`
 
 Prettier with: double quotes, semicolons, trailing commas (es5), 2-space indent, 80 char width, LF line endings.
 
+## Enforcement Mecânico
+
+PreToolUse hook bloqueia Edit em arquivos críticos do pipeline sem evidência de investigação prévia. Implementado Sprint M3.10 Fase 3b para fechar a porta que produziu 4 PRs consecutivos errados em M3.10.
+
+### Arquivos protegidos
+
+- `server/lib/db-queries-*.ts` — writers/readers do pipeline gaps/riscos
+- `server/routers/*.ts` — procedures tRPC que orquestram pipeline
+- `server/_core/trpc.ts` — infraestrutura tRPC compartilhada
+
+Edits em qualquer outro path passam direto. Read/Write/Bash não são afetados (matcher é apenas `Edit`).
+
+### Como funciona
+
+1. Edit em arquivo crítico dispara `.claude/hooks/require-investigation.sh` (PreToolUse, matcher `Edit`).
+2. Hook extrai `session_id` e `file_path` do JSON stdin que o Claude Code envia.
+3. Hook procura evidência em `.claude/.investigate-cache/${SESSION_ID}-${BASENAME}.md` (ou fallback session-less `.claude/.investigate-cache/${BASENAME}.md`).
+4. Se evidência existe → exit 0, Edit prossegue.
+5. Se ausente → exit 2, Edit BLOQUEADO com mensagem em stderr instruindo `/investigate-deep`.
+
+### Como desbloquear
+
+Invoque a skill `investigate-deep`:
+
+```
+/investigate-deep <basename>
+```
+
+A skill instrui o Claude a:
+- Ler o arquivo-alvo + imports + callers + tests
+- Mapear writers/readers da tabela tocada (Lição #65)
+- Documentar findings em `.claude/.investigate-cache/${SESSION_ID}-${BASENAME}.md` (path relativo ao cwd, criado automaticamente; gitignored)
+
+Após a evidência existir, o próximo Edit no mesmo arquivo passa pelo hook.
+
+Para o pipeline completo (investigate → plan → implement → verify), use `safe-fix-pipeline`.
+
+### Bypass legítimo
+
+- **Edits em paths não-críticos:** automático, sem ação necessária
+- **Hotfix P0 (REGRA-ORQ-11):** evidência ainda obrigatória, mas pode ser mínima (5 min é o piso); skill aceita evidence enxuta
+- **Bug no hook (parse falha):** fallback gracioso → exit 0, edit prossegue
+
+### Fallback gracioso
+
+- Parse JSON do stdin falha → exit 0 (não trava o usuário)
+- `session_id` ausente → usa fallback session-less
+- Node não disponível → exit 0 (mesmo padrão de poc-edit-detector.sh)
+
+### Achados empíricos Sprint M3.10 Fase 3a/3b (gotchas Windows)
+
+- `CLAUDE_SESSION_ID` **NÃO** é env var — chega no JSON stdin como `session_id`
+- `tool_input.file_path` chega Windows-style (`\path\to\file`) mesmo em paths originalmente forward-slash; hook normaliza com `tr '\\' '/'`
+- `jq` não instalado no ambiente Windows do projeto; hook usa Node como parser JSON
+- stderr de PreToolUse só é surfaceado ao assistant em `exit ≠ 0`; em `exit 0` o stderr é silencioso para o modelo (mas usuário pode ver)
+- Mudanças em `settings.local.json` exigem reload de sessão (gotcha PoC Fase 3a); `settings.json` recarrega mid-session (validado Fase 3b)
+- `/tmp` em Git Bash mapeia para `C:/Users/<user>/AppData/Local/Temp` mas Node (Write tool) resolve `/tmp` como `D:\tmp` — paths divergentes. Por isso o cache de evidência usa `.claude/.investigate-cache/` (path relativo, consistente entre bash e Node)
+
+### Vinculadas
+
+- REGRA-ORQ-34 — Pipeline de Dados Bugfix Protocol
+- Lições #65/#66 — fluxo end-to-end + spec sem dados
+- Hook script: `.claude/hooks/require-investigation.sh`
+- Skills: `.claude/skills/investigate-deep/`, `.claude/skills/safe-fix-pipeline/`
+- Post-mortem: `docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md`
+
 ## Important Constraints
 
 - **DIAGNOSTIC_READ_MODE** is currently `shadow` — do NOT change to `new`

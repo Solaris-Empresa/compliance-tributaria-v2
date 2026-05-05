@@ -126,3 +126,6 @@ reports/battery-smoke/
 reports/battery-*/results/
 reports/battery-*/*.xml
 reports/battery-*/e2e-screenshots/
+
+# Sprint M3.10 Fase 3b — investigation cache (efêmero, por sessão)
+.claude/.investigate-cache/
