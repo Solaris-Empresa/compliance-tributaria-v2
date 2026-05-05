@@ -1548,3 +1548,253 @@ Pull request review check: `grep -r "risk\.source_priority" client/` deve retorn
 - Sprint M3.10 Fix C-bis (PR #979) — caso canônico
 - Lição #66 (spec sem dados = ilusão) — extensão para output: spec pode ter JSON rico, mas se UI lê só da coluna, info se perde
 - REGRA-ORQ-34 (Pipeline de Dados Bugfix Protocol) — Protocolo 3 (DoD negativo) deve incluir validação de exibição multi-valor
+
+## REGRA-ORQ-35 — NUNCA ASSUMA (Read Before Write Enforcement)
+
+Vigência: permanente, a partir de 2026-05-05
+Origem: Sprint M3.10 — auto-avaliação Claude Code após 4 fixes consecutivos errados em variações do mesmo bug
+Severidade: governança fundamental — declarativa (Fase 1); enforcement mecânico via hooks na Fase 3
+
+POSIÇÃO: Esta regra tem PRIORIDADE sobre velocidade de entrega.
+
+### Threshold de Leitura por LOC
+
+Antes de qualquer Edit/Write, leitura mínima exigida:
+
+| Tamanho do arquivo | Estratégia |
+|---|---|
+| ≤ 300 LOC | Ler arquivo inteiro antes de editar |
+| 300-1000 LOC | Ler: declaração do alvo + 2 call sites + testes relacionados |
+| > 1000 LOC | Ler arquivo inteiro SE for o alvo do fix; senão, 3 trechos ortogonais (declaração + 2 usos diferentes) |
+
+**Fallback para arquivos extremos (>3000 LOC):** leitura por seções de 500 linhas com índice (`grep -n "^export\|^function"`) para navegação cirúrgica.
+
+### Checklist Obrigatório (4 perguntas antes de QUALQUER Edit)
+
+1. Li o arquivo inteiro (ou trechos conforme threshold)?
+2. Identifiquei TODOS os consumers/importers com `rg -l "import.*<Modulo>"`?
+3. Verifiquei se existe procedure similar que já resolve o problema?
+4. Formulei hipótese E tenho evidência (query SQL ou leitura de código) que a suporta?
+
+Se qualquer resposta for NÃO → PARE, investigue mais.
+
+### Gatilho de Ativação
+
+- Qualquer PR que modifica lógica de negócio
+- Qualquer fix em pipeline de dados (REGRA-ORQ-34 também ativa)
+- Qualquer refactor que altera assinaturas
+- Qualquer mudança em procedure tRPC consumida por frontend
+
+### Enforcement (Fases sequenciais)
+
+| Fase | Mecanismo | Status |
+|------|-----------|--------|
+| Atual (declarativa) | Checklist no PR template — reviewer valida evidência de leitura | Ativo |
+| Fase 3 (mecânica) | Hook PreToolUse bloqueia Edit sem evidência de investigação | Pendente implementação |
+
+> **Honestidade:** Esta REGRA é declarativa até Fase 3 ser implementada.
+> Sem hook, depende de disciplina voluntária — historicamente insuficiente (4 sprints com falha).
+> Enforcement real virá via `.claude/hooks/require-investigation.sh` (exit 2 = bloqueio mecânico).
+
+### Vinculadas
+
+- REGRA-ORQ-27 (Lição #59 — assemble ≠ consumption) — esta REGRA endereça falha repetida
+- REGRA-ORQ-28 (Triade) — checklist obrigatório complementa
+- REGRA-ORQ-34 (Pipeline de Dados Bugfix Protocol) — combinada para PRs de pipeline
+- REGRA-ORQ-36 (Técnicas de Investigação Profunda) — define COMO ler/investigar
+- Sprint M3.10 — 4 fixes consecutivos sem leitura completa do contexto
+
+## REGRA-ORQ-36 — Técnicas de Investigação Profunda
+
+Vigência: permanente, a partir de 2026-05-05
+Origem: Sprint M3.10 — 5 técnicas que descobriram bugs invisíveis para grep raso
+Severidade: governança operacional — define COMO investigar antes de fixar
+
+### Matriz de Aplicação (T1-T5)
+
+| Técnica | Quando usar | Caso canônico (Sprint M3.10) |
+|---|---|---|
+| **T1 — Tracing transversal** | Bug em pipeline multi-camada (input → transformação → persistência → output) | G17-B em `routers-fluxo-v3.ts:3711-3744` — caminho paralelo `deriveRisksFromGaps` → `project_risks_v3` (legado) |
+| **T2 — Comparação cirúrgica** | Procedures "similares" com bugs (mesmo objetivo, comportamento divergente) | `gapEngine.analyzeGaps:268` (`WHERE createdById = ?`) vs `risksV4.generateRisksAllSources` (sem filtro) — assimetria de auth |
+| **T3 — Hipótese-refutação SQL** | Antes de implementar qualquer fix em pipeline | Dry-run Manus 2026-05-05: 36 gaps órfãos em memória → provou diagnóstico antes de Fix C-bis |
+| **T4 — Mapa writers/readers** | Fix em tabela compartilhada (multi-writer ou multi-reader) | `project_gaps_v3`: 3 writers (gapEngine, solaris-analyzer, iagen-analyzer) × 1 reader (UI listagem). 0 readers no caminho de risco — bug arquitetural óbvio quando visualizado |
+| **T5 — Análise contrastiva** | Validação pós-fix (testar em N≥2 estados) | #3570002 (gaps v1 pré-existentes — passou) vs #3690001 (greenfield — falhou) — exposição da regressão simétrica |
+
+### Regra de Ouro
+
+- Bug em **1 camada** → T2 + T3 bastam
+- Bug em **pipeline multi-camada** → T1 + T4 obrigatórios
+- Bug **intermitente** → T5 obrigatório (testar em N≥2 estados ortogonais)
+- Bug **recorrente** (2+ PRs prévios) → T1 + T2 + T3 + T4 + T5 todos obrigatórios (REGRA-ORQ-34 Protocolo 2)
+
+### Ferramentas Preferidas (em ordem de preferência)
+
+1. **`ast-grep`** — busca semântica (assinaturas, tipos, estrutura de código). Ideal para refactor, comparação cirúrgica, detecção de assimetrias estruturais. Instalação: `npm install -g @ast-grep/cli` (autorizada Sprint M3.10 Fase 4)
+2. **`rg -C 10 "TERMO"`** — busca textual com contexto amplo (10 linhas antes/depois). Default para análise de código existente
+3. **`rg -l "import.*<Modulo>"`** — mapeamento de consumers (quem importa o módulo). Aplicar antes de qualquer mudança em assinatura pública
+4. **`grep -rn "INSERT INTO\|SELECT.*FROM"`** — mapeamento de writers/readers em tabelas (T4)
+5. **Query SQL direta** — validação empírica de hipótese (T3). Read-only sempre que possível
+
+### Comandos auxiliares para cada técnica
+
+**T1 — Tracing transversal:**
+```bash
+# Mapear writers de uma tabela
+grep -rn "INSERT INTO <tabela>\|insert<Tipo>" server/ --include="*.ts" | grep -v "\.test\."
+
+# Mapear readers
+grep -rn "FROM <tabela>\|SELECT.*<tabela>" server/ --include="*.ts" | grep -v "\.test\."
+
+# Mapear callers de função
+grep -rn "<funcaoNome>\s*(" server/ client/src --include="*.ts" --include="*.tsx" | grep -v "\.test\."
+```
+
+**T2 — Comparação cirúrgica:**
+```bash
+# Listar 2+ procedures similares
+ast-grep --pattern '<procedureName>: protectedProcedure.input($$$).mutation($$$)' --lang typescript
+
+# Comparar manualmente: input schemas, queries SQL, validações de auth, return types
+```
+
+**T3 — Hipótese-refutação SQL:**
+```sql
+-- Pattern: "Se hipótese H é verdadeira, query Q deve retornar resultado R"
+-- Se Q retorna ≠R → H refutada → reabrir investigação
+-- Se Q retorna =R → H confirmada → autorizar fix
+```
+
+**T4 — Mapa writers/readers:**
+- Tabela em coluna A: writer (quem chama INSERT/UPDATE)
+- Tabela em coluna B: reader (quem chama SELECT/FROM)
+- Visualização explícita expõe órfãos (writer sem reader = dead write; reader sem writer = leitura vazia)
+
+**T5 — Análise contrastiva:**
+- Cenário A: greenfield (zero estado pré-existente)
+- Cenário B: pré-existente (estado de execuções anteriores)
+- Cenário C (opcional): edge case (input vazio, malformado, condição limite)
+- Validar em N≥2 cenários antes de declarar fix completo
+
+### Vinculadas
+
+- REGRA-ORQ-34 (Pipeline de Dados Bugfix Protocol) — protocolos 1-4 são manifestações concretas de T5
+- REGRA-ORQ-35 (NUNCA ASSUMA) — define QUANDO investigar; ORQ-36 define COMO
+- Lição #65 (rastrear fluxo end-to-end) — T1 é manifestação operacional
+- Lição #70 (assimetria auth em procedures) — T2 é manifestação operacional
+- Sprint M3.10 — todos os casos canônicos vêm da resolução do bug mono-fonte
+
+## Lição #69 — Multi-fonte agregado vs multi-fonte por risco
+
+Origem: Sprint M3.10 Fix C-bis — DoD do projeto #3780001 (Manus 2026-05-05)
+
+### Texto
+
+Distinguir 2 conceitos diferentes de "multi-fonte" em matrizes consolidadas:
+
+| Conceito | Definição | Quando importa |
+|---|---|---|
+| **Multi-fonte AGREGADO** | Matriz exibe ≥2 valores de fonte distribuídos entre N riscos diferentes (ex: risco A=solaris, risco B=iagen, risco C=regulatorio) | Suficiente quando cada categoria tem 1 vencedora clara no rank |
+| **Multi-fonte POR RISCO** | Cada risco individual exibe múltiplas fontes que contribuíram para ele (ex: risco A=Solaris+IA Gen+Regulatório) | Necessário quando categoria tem gaps de N fontes simultâneas — `getBestSourcePriority` esconde N-1 |
+
+### Caso canônico
+
+Sprint M3.10 #3780001 (Manus DoD 2026-05-05):
+
+```
+8 riscos:
+  6 com source_priority='regulatorio'
+  2 com source_priority='iagen'
+  → 2 fontes distintas no AGREGADO ✅ (Critério Positivo 1 atendido)
+
+evidence.gaps[*].fonte = [] em todos os riscos
+  → multi-fonte POR RISCO está vazio ⚠️
+```
+
+A matriz exibiu multi-fonte agregado satisfatoriamente — 2 fontes diferentes em riscos diferentes. Mas se uma única categoria tivesse 3 fontes simultâneas (solaris+iagen+regulatorio), `source_priority` exibiria só 1 (winner-takes-all do rank), e a Frente 2 do Fix C-bis (que extrai de `evidence.gaps[*].fonte`) cairia no fallback `[source_priority]` = 1 badge.
+
+### Implicação operacional
+
+**Spec UX deve declarar explicitamente qual conceito está sendo entregue:**
+
+- "Matriz exibe múltiplas fontes" → ambíguo
+- "Matriz exibe ao menos 2 fontes diferentes entre os riscos" → multi-fonte agregado
+- "Cada risco exibe todas as fontes contribuintes" → multi-fonte por risco
+
+DoD deve incluir **ambos os critérios** quando relevante:
+- Critério agregado: `COUNT(DISTINCT source_priority) >= 2` em `risks_v4`
+- Critério por risco: pelo menos 1 risco com `LENGTH(evidence.gaps) >= 2 fontes únicas`
+
+### Aplicação prospectiva
+
+Antes de declarar bug "mono-fonte" resolvido, validar AMBOS conceitos. Se apenas agregado for atendido, documentar como tech debt o que ainda falta para multi-fonte por risco.
+
+### Vinculadas
+
+- Sprint M3.10 #3780001 (caso canônico — Manus DoD 2026-05-05)
+- Lição #66 (spec sem dados = ilusão) — extensão: spec sem clareza UX = ilusão de cobertura
+- Lição #68 (coluna mono + JSON multi) — Fix C-bis previu multi-fonte por risco mas evidence.gaps[].fonte vazio expôs gap de implementação no `mapGapToEvidence`
+- REGRA-ORQ-34 Protocolo 3 (DoD com critério NEGATIVO) — agora deve incluir distinção agregado vs por risco
+
+## Lição #70 — Assimetria de auth em procedures aparentemente similares
+
+Origem: Sprint M3.10 deep research — diagnóstico do silent fail em #3690001 (Claude Code 2026-05-05)
+
+### Texto
+
+Procedures que fazem "a mesma coisa" frequentemente têm filtros de autenticação/autorização DIFERENTES. Quando uma procedure A é mais restritiva que procedure B no mesmo fluxo, e ambas são chamadas em sequência (try/catch absorvendo falha de A), o resultado é silent fail seletivo: B roda com estado parcial, sem erro visível ao usuário.
+
+### Caso canônico
+
+Sprint M3.10 — comparação cirúrgica entre 2 procedures do pipeline de risco:
+
+| Procedure | Filtro de ownership | Comportamento se P.O. ≠ criador |
+|---|---|---|
+| `gapEngine.analyzeGaps` (gapEngine.ts:268) | `WHERE id = ? AND createdById = ?` | Retorna `NOT_FOUND` 404 |
+| `risksV4.generateRisksAllSources` | Apenas `validateProjectAccess()` | Roda normalmente |
+
+No `RiskDashboardV4.tsx` Fix C-bis, ambas são chamadas em sequência:
+```typescript
+try {
+  await ensureV1GapsMutation.mutateAsync({...});  // = gapEngine.analyzeGaps
+} catch (err) {
+  console.warn(...);  // ABSORVE 404 silenciosamente
+}
+generateAllSourcesMutation.mutate({...});  // RODA sem ownership check
+```
+
+**Resultado em projeto #3690001:** se P.O. não é `createdById` (ex: criado por outra conta, seed automático), `ensureV1Gaps` retorna 404 → catch absorve → `generateAllSources` roda só com gaps solaris pré-existentes → matriz mono-solaris (NÃO multi-fonte).
+
+### Aplicação prospectiva
+
+**Antes de fix em pipeline com 2+ procedures sequenciais:**
+
+1. Comparar filtros de auth entre procedures (técnica T2 da REGRA-ORQ-36)
+2. Documentar assimetrias em comentário inline
+3. Decidir explicitamente: alinhar (relaxar mais restritiva) ou divergir (com justificativa)
+4. Se try/catch absorve falha de procedure restritiva, garantir que erro chegue ao usuário (toast, log de auditoria)
+
+### Pattern do anti-fix
+
+❌ **Não fazer:** try/catch absorvendo silenciosamente sem distinguir tipos de erro
+✅ **Fazer:** try/catch que distingue 404 (auth) de 500 (server error) e age diferente
+
+```typescript
+try {
+  await procA.mutateAsync({...});
+} catch (err) {
+  if (err.code === "NOT_FOUND") {
+    toast.warning("Você não é o criador deste projeto — gaps regulatórios não serão atualizados");
+  } else {
+    console.warn("[contexto] procA falhou — degradando", err);
+  }
+}
+await procB.mutateAsync({...});  // continua mesmo após auth fail
+```
+
+### Vinculadas
+
+- Sprint M3.10 deep research (caso canônico) — `gapEngine.ts:268` vs `risks-v4.ts:generateRisksAllSources`
+- REGRA-ORQ-36 T2 (Comparação cirúrgica) — esta lição é manifestação concreta
+- Lição #65 (rastrear fluxo end-to-end) — complementa: além de mapear writers/readers, mapear filtros de auth
+- Lição #67 (try/catch graceful) — refinamento: catch graceful precisa distinguir tipos de erro
+- Tech debt declarado: relaxar `WHERE createdById = ?` em `gapEngine.ts:268` para `validateProjectAccess()` (Sprint M3.11 backlog)
