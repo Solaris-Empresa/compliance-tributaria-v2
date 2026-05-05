@@ -49,6 +49,8 @@ import {
   deleteRisksByProject,
   softDeleteRiskWithCascade,
   restoreRiskWithCascade,
+  // M3.10 Fix A1: leitura multi-source de project_gaps_v3 (post-mortem #975)
+  getAllGapsForProject,
 } from "../lib/db-queries-risks-v4";
 import type {
   CategoriaV4,
@@ -831,6 +833,128 @@ export const risksV4Router = router({
       }
 
       return { inserted: riskIds.length, summary };
+    }),
+
+  /**
+   * 14. generateRisksAllSources — Sprint M3.10 Fix A1
+   *
+   * Pipeline unificado que consome TODOS os sources de project_gaps_v3
+   * (v1 + solaris + iagen) e gera matriz de riscos multi-fonte.
+   *
+   * Antes desta procedure, o frontend chamava:
+   *   1. gapEngine.analyzeGaps → result.gaps (somente v1)
+   *   2. mapGapsToRules(gaps)
+   *   3. generateRisksFromGaps(mappedRules)
+   *
+   * Os gaps solaris/iagen ficavam órfãos no banco — escritas sem leitura.
+   * Causa raiz documentada em
+   * docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md
+   * (validada por dry-run Manus 2026-05-05).
+   *
+   * Pré-requisito: Fix B (PR #976) já mergeado — sem ele, gaps solaris/iagen
+   * têm risk_category_code = NULL e cairiam em "unmapped" no GapToRuleMapper.
+   *
+   * Fluxo interno:
+   *   1. getAllGapsForProject → GapInput[] de TODOS os sources
+   *   2. GapToRuleMapper.mapMany → MappedRule[]
+   *   3. deleteRisksByProject → limpa snapshot anterior
+   *   4. generateRisksV4Pipeline → InsertRiskV4[]
+   *   5. insertRiskV4WithAudit (loop)
+   *
+   * Definition of Done (validador Manus pós-merge):
+   *   SELECT COUNT(DISTINCT source_priority) FROM risks_v4
+   *   WHERE project_id = ? AND status = 'active'
+   *   → deve retornar >= 2 (não pode ser mono-fonte)
+   *
+   * As procedures legadas (analyzeGaps, mapGapsToRules, generateRisksFromGaps)
+   * permanecem intactas para compat e uso direto em testes.
+   */
+  generateRisksAllSources: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const actor = {
+        user_id: ctx.user.id,
+        user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
+        user_role: ctx.user.role ?? "user",
+      };
+
+      // 1. Carregar TODOS os gaps do projeto (consumer único dos 3 writers).
+      const gaps = await getAllGapsForProject(input.projectId);
+
+      if (gaps.length === 0) {
+        return {
+          inserted: 0,
+          gapsLoaded: 0,
+          gapsBySource: {},
+          mappedRules: 0,
+          reviewQueue: [],
+          stats: null,
+          summary: null,
+        };
+      }
+
+      // 2. Aggregate counts by source (instrumentação para Definition of Done).
+      const gapsBySource: Record<string, number> = {};
+      for (const g of gaps) {
+        const s = g.sourceOrigin ?? "unknown";
+        gapsBySource[s] = (gapsBySource[s] ?? 0) + 1;
+      }
+
+      // 3. Mapper (mesma config que mapGapsToRules — allowLayerInference: false)
+      const resolver: CategoryResolver = {
+        async findByCodigo(codigo: string): Promise<CategoryACL | undefined> {
+          const cat = await getCategoryByCodigo(codigo);
+          if (!cat || cat.status !== "ativo") return undefined;
+          return {
+            codigo: cat.codigo,
+            nome: cat.nome,
+            severidade: cat.severidade as CategoryACL["severidade"],
+            urgencia: cat.urgencia as CategoryACL["urgencia"],
+            tipo: cat.tipo as CategoryACL["tipo"],
+            status: cat.status as CategoryACL["status"],
+            allowedDomains: cat.allowedDomains ?? null,
+            allowedGapTypes: cat.allowedGapTypes ?? null,
+            ruleCode: cat.ruleCode ?? null,
+          };
+        },
+        async findByArticle(normalizedArticle: string): Promise<CategoryACL[]> {
+          const all = await getActiveCategories();
+          return all.filter((c) =>
+            c.allowedGapTypes?.some((t) =>
+              t.toLowerCase().includes(normalizedArticle.toLowerCase()),
+            ) ?? false,
+          );
+        },
+      };
+      const mapper = new GapToRuleMapper(resolver, { allowLayerInference: false });
+      const mapResult = await mapper.mapMany(gaps);
+
+      // 4. Limpar snapshot anterior (idempotente — re-execução substitui matriz).
+      await deleteRisksByProject(input.projectId);
+
+      // 5. Pipeline de consolidação (mesmo de generateRisksFromGaps).
+      const { risks, summary } = await generateRisksV4Pipeline(
+        input.projectId,
+        mapResult.mappedRules as GapRule[],
+        ctx.user.id,
+      );
+
+      // 6. Persistir riscos com auditoria.
+      const riskIds: string[] = [];
+      for (const risk of risks) {
+        const id = await insertRiskV4WithAudit(risk, actor);
+        riskIds.push(id);
+      }
+
+      return {
+        inserted: riskIds.length,
+        gapsLoaded: gaps.length,
+        gapsBySource,
+        mappedRules: mapResult.mappedRules.length,
+        reviewQueue: mapResult.reviewQueue,
+        stats: mapResult.stats,
+        summary,
+      };
     }),
 
   /**
