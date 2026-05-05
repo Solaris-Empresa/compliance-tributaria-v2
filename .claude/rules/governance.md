@@ -1220,3 +1220,119 @@ PRs docs-only de audit podem usar grep, mas **não substituem** test contracts r
 - Sprint M3.8.1 (caso canônico) — PRs #973 + #974
 - PR #968 (M3.8-1B) — origem dos 3 bugs A/B/C
 - Audit v7.62 (`docs/governance/audits/v7.62-2026-05-04-sprint-m3.8-encerrada.md`) — exemplo de audit que passou apesar dos bugs latentes
+
+## Lição #65 — Sempre rastrear o fluxo de DADOS end-to-end antes de diagnosticar
+
+Origem: Sprint M3.10 — post-mortem `docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md`
+
+### Texto
+
+Antes de propor qualquer fix em pipeline de dados, o diagnóstico DEVE rastrear o caminho completo do dado: **de onde vem o input** (não apenas o que a função faz com ele) → quem o transforma → onde é persistido → quem o consome → como aparece no output final ao usuário. Função pura testada isoladamente com input simulado pode passar em 100% dos cenários sintéticos enquanto o sistema real nunca produz aquele input.
+
+Para pipelines de dados (caminhos `input → transformação → output`), test contracts unitários cobrem **transformação** mas não **caminho real do input**. PRs que tocam pipelines de dados DEVEM incluir teste E2E que dispare o caminho real (UI → banco → UI) com evidência observável (screenshot, count exibido na UI, query SQL pós-execução).
+
+### Caso canônico
+
+Sprint M3.8.1 Bug B teve 7 tests unitários PASS cobrindo `getBestSourcePriority` com gaps multi-fonte simulados — mas o sistema real nunca chama com multi-fonte (entrada é sempre mono-fonte do `result.gaps` do frontend, que só passa gaps `v1`). Tests passaram em prova de função isolada, não de comportamento real do sistema.
+
+```
+Hipótese errada (Sprint M3.8.1):
+  "getBestSourcePriority retorna 'iagen' como default → fix: trocar para 'regulatorio'"
+
+Tests escritos para validar a hipótese:
+  buildGap("regulatorio") × 10  →  espera retornar "regulatorio"  ✅ PASS
+  buildGap("solaris") + buildGap("iagen") →  espera "solaris" (rank menor)  ✅ PASS
+  16/16 tests PASS, sprint encerrada 🟢
+
+Realidade do sistema:
+  getBestSourcePriority sempre recebe 138 gaps mono-fonte ('regulatorio') do
+  result.gaps do gapEngine. Os cenários multi-fonte testados nunca acontecem
+  no caminho real porque a entrada é mono-fonte upstream.
+
+O que Lição #65 teria forçado:
+  Antes de propor fix, mapear:
+    INPUT real para getBestSourcePriority?
+      → vem de risk-engine-v4.consolidateRisks
+      → recebe gaps consolidados via groupBy(categoria)
+      → vem de generateRisksV4Pipeline(gaps)
+      → input.gaps recebido via tRPC do frontend
+      → frontend passa result.gaps de gapEngine.analyzeGaps
+      → gapEngine.analyzeGaps retorna apenas gaps v1 ❌ MONO-FONTE NA ORIGEM
+
+  Conclusão da lição: o fix NÃO está em getBestSourcePriority. Está em quem
+  alimenta o pipeline upstream. Esta cadeia de 6 saltos toma 5 minutos para
+  rastrear e teria evitado 3 sprints de fixes errados.
+```
+
+### Aplicação prospectiva
+
+Antes de qualquer PR de pipeline de dados, o diagnóstico DEVE produzir um **mapa "writers vs readers"** da tabela crítica:
+
+1. Liste todas as funções que ESCREVEM na tabela (com source/discriminador)
+2. Liste todas as funções que LÊEM da tabela (com filtro)
+3. Verifique: existe consumer que lê tudo o que cada writer escreve?
+4. Se algum writer não tem consumer correspondente → escrita órfã (dead write)
+
+Sem esse mapa, falta evidência de que a entrada do pipeline é o que se assume.
+
+### Vinculadas
+
+- REGRA-ORQ-27 (Lição #59 — assemble ≠ consumption) — esta lição estende para o caso de **escritas órfãs**
+- Lição #64 (audit-greps insuficientes vs runtime tests) — complementa
+- Sprint M3.10 (caso canônico) — Post-mortem #975 + Fix B (#976) + Fix A1
+- PRs com diagnóstico equivocado: #968 (M3.8-1B), #969 (M3.8-2), #973 (M3.8.1)
+- Dry-run Manus 2026-05-05 (validou diagnóstico empiricamente antes da implementação)
+
+## Lição #66 — Spec arquitetural sem dados reais é ilusão
+
+Origem: Sprint M3.10 — post-mortem `docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md`
+
+### Texto
+
+Spec que descreve "como o sistema DEVERIA funcionar" sem verificar **qual é o estado dos dados reais no banco** entrega ilusão arquitetural. Sprint pode declarar "engine X consome dado Y" e tests unitários podem validar essa asserção em isolamento — mas se os dados reais em produção têm Y nulo, não-mapeável, ou ausente, o consumo nunca acontece e o produto entrega valor parcial silenciosamente.
+
+Para pipelines que dependem de metadados (categoria, classificação, mapeamento), o diagnóstico DEVE verificar empiricamente:
+
+1. **Dados existem?** `SELECT COUNT(*) FROM tabela WHERE filtro` — quantas linhas atendem aos critérios?
+2. **Metadados estão preenchidos?** `SELECT COUNT(*), SUM(metadado IS NOT NULL) FROM tabela` — qual % está populado?
+3. **Mapeamento é único ou ambíguo?** Se há mapping curado de N→M, qual o coverage?
+4. **Curadoria humana necessária?** Se algum metadado depende de juízo (jurídico, semântico), há volume tratável?
+
+### Caso canônico
+
+Sprint M3.8 declarou que `gapEngine.analyzeGaps` consumia 4 fontes (questionnaireAnswersV3, service_answers, solaris_answers, iagen_answers) — assertiva arquiteturalmente correta. Implementação literal entregou 2 fontes ativas (Q.CNAE + Q.NBS idN) e 2 stubs documentados (Q.SOLARIS + Q.IA Gen). Stubs nunca foram ativados porque:
+
+- `solaris_questions.risk_category_code = NULL` em 100% das perguntas (curadoria pendente)
+- `service_answers.fonte_ref` com padrão SOL-XXX (não-mapeável por `extractRequirementId` que só captura `idN`)
+
+Resultado: 2.2% de coverage real (3/138 requirements) entregue como se fosse 100% — assemble passou (código existe), consumption falhou (dados não suportam).
+
+### Caso canônico complementar (M3.10)
+
+Pipeline de risco (`risksV4.generateRisksFromGaps`) declarava aceitar gaps de qualquer source via input. Tests de função isolada confirmavam multi-fonte. Mas em runtime:
+
+- Frontend só enviava gaps v1 (138)
+- Gaps solaris (28) e iagen (8) eram escritas órfãs (Lição #65)
+- Mesmo se incluídos: `risk_category_code = NULL` → cairiam em "unmapped"
+
+Manus diagnosticou via queries de banco em 5 minutos o que 3 sprints de leitura de código não viram.
+
+### Aplicação prospectiva
+
+Antes de aprovar spec de pipeline:
+
+1. **Bloco "Verificação de dados" obrigatório:** spec inclui queries SQL que comprovem que dados necessários existem com metadados preenchidos
+2. **Phaseamento honesto:** se dados não estão prontos, dividir em fases (Fase 1: código que funciona com dados atuais; Fase 2: ativar após curadoria)
+3. **Coverage explícito:** se 2.2% dos requirements têm dados, declarar 2.2% no PR — não 100%
+4. **Curadoria como dependência declarada:** issues separadas para curadoria (não escondidas em "TODO")
+
+> **"Você não está corrigindo código — está corrigindo a maturidade dos dados."** — P.O., Sprint M3.8
+
+### Vinculadas
+
+- Lição #63 (Spec arquiteturalmente correta ≠ implementável) — esta lição reforça e estende
+- Lição #61 (Metadado determinístico antes da pergunta)
+- Lição #65 (rastrear fluxo end-to-end) — complemento
+- REGRA-ORQ-32 (no hardcode — visão sistêmica)
+- Sprint M3.10 (caso canônico) — Post-mortem #975
+- Diagnóstico Manus 2026-05-05 (validação por queries de banco antes de fix)
