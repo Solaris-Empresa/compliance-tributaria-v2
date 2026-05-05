@@ -1336,3 +1336,215 @@ Antes de aprovar spec de pipeline:
 - REGRA-ORQ-32 (no hardcode — visão sistêmica)
 - Sprint M3.10 (caso canônico) — Post-mortem #975
 - Diagnóstico Manus 2026-05-05 (validação por queries de banco antes de fix)
+
+## REGRA-ORQ-34 — Pipeline de Dados Bugfix Protocol
+
+Vigência: permanente, a partir de 2026-05-05
+Origem: Sprint M3.10 — 4 fixes consecutivos (#968 M3.8-1B, #973 M3.8.1, #976+#977 Fix B/A1, #979 Fix C-bis) para o mesmo bug arquitetural ("matriz mono-fonte")
+Severidade: governança crítica — perenização de técnicas que evitariam reincidência
+
+### Regra
+
+Todo PR que altera **pipeline de dados** (definição abaixo) DEVE seguir 4 protocolos obrigatórios. Falha em qualquer um → `validate-pr` reprova e merge bloqueado.
+
+### Definição de "pipeline de dados"
+
+Funções/procedures que orquestram fluxo `input → transformação → persistência → output`. No projeto atual:
+
+| Camada | Exemplos |
+|---|---|
+| Writers | `gapEngine.analyzeGaps`, `solaris-gap-analyzer.ts`, `iagen-gap-analyzer.ts`, `analyzeGapsFromQuestionnaires` |
+| Readers | `getAllGapsForProject`, `result.gaps` em frontend |
+| Engine | `consolidateRisks`, `getBestSourcePriority`, `GapToRuleMapper.mapMany`, `generateRisksV4Pipeline` |
+| Procedures | `risksV4.generateRisks`, `risksV4.generateRisksFromGaps`, `risksV4.generateRisksAllSources`, `risksV4.mapGapsToRules` |
+| Tabelas | `project_gaps_v3`, `risks_v4`, `action_plans`, `tasks` |
+
+**Disparo do protocolo:** PR toca esses arquivos OU adiciona/altera procedure tRPC em `server/routers/*` que orquestra escrita+leitura. Frontend que muda chamada a procedures de pipeline também dispara (caso M3.10 Fix C-bis).
+
+### Protocolo 1 — Validação Greenfield Obrigatória
+
+**Definição greenfield:** projeto criado APÓS o deploy do PR (zero estado pré-existente). Critério SQL: `SELECT created_at FROM projects WHERE id = <X>` deve ser maior que timestamp de deploy.
+
+**Aplicação:** validador (Manus ou outro) NÃO PODE testar apenas em projeto pré-existente. Pelo menos 1 cenário deve ser greenfield.
+
+**Justificativa:** projetos antigos podem ter dados de execuções pré-deploy que mascaram regressão. Greenfield expõe o caminho real do código novo. Caso canônico: PR #977 validado em #3570002 (gaps v1 pré-existentes mascararam regressão); falhou em #3690001 greenfield onde 0 gaps v1 foram escritos.
+
+### Protocolo 2 — Dry-run pré-implementação para bugs recorrentes
+
+**Definição "bug recorrente":** mesmo sintoma com 2+ PRs de fix prévios mal-sucedidos. Marcar PR/issue com label `incident-recurrent` + listar PRs vinculados no body.
+
+**Aplicação:** nenhuma implementação inicia sem dry-run empírico do diagnóstico. Dry-run é:
+- Queries SQL ao banco real (read-only)
+- Simulação em memória do pipeline com gaps reais
+- Output observável (counts, distribuições, JSON parseado)
+
+P.O. pode autorizar pular dry-run em situações excepcionais — mas exceção deve ser registrada em PR body com justificativa.
+
+**Justificativa:** após 2 fixes errados, hipótese de causa raiz tem alta probabilidade de estar incorreta. Dry-run move risco de "implementar com hipótese" para "implementar com prova". Caso canônico: dry-run Manus 2026-05-05 confirmou diagnóstico antes de Fix C-bis.
+
+### Protocolo 3 — DoD com critério NEGATIVO SQL bloqueante
+
+**Definição:** PR DEVE declarar tanto:
+
+| Tipo | Função | Exemplo |
+|---|---|---|
+| **POSITIVO** | Query SQL retorna estado esperado pós-fix | `SELECT COUNT(DISTINCT source_priority) >= 2` |
+| **NEGATIVO** | Query SQL DEVE retornar 0 linhas (estado proibido) | `SELECT 'BUG' FROM ... HAVING COUNT(DISTINCT) = 1` |
+
+**Aplicação:** ambas obrigatórias no PR body, executáveis em staging pelo validador.
+
+**Justificativa:** critério positivo simples pode ser satisfeito por sorte de dados (caso M3.10 #3570002 passou DoD positivo mas bug latente persistia em greenfield). Critério negativo impede que estado-bug reapareça mascarado.
+
+### Protocolo 4 — Validação em 3 cenários ortogonais
+
+**Definição:** Validador (≠ Implementador, REGRA-ORQ-33) deve testar em pelo menos 3 cenários:
+
+1. **Greenfield** (Protocolo 1) — projeto novo
+2. **Pré-existente** com estado válido — regression check
+3. **Edge case** explícito do bug — input vazio, malformado, ou condição limite
+
+**Aplicação:** PR body declara os 3 cenários no campo "Validação obrigatória do Validador". DoD verde requer screenshot/output de cada um.
+
+**Justificativa:** validar 1 cenário = sorte de coverage. Validar 3 ortogonais = cobertura razoável. Caso canônico: M3.10 Fix C-bis (greenfield + pré-existente + edge evidence vazio).
+
+### Consequências
+
+- PR sem evidência dos 4 protocolos → `validate-pr` FALHA (Camada B futura — implementar gate)
+- Audit/sprint encerrado sem 4 protocolos → 🟡 retroativo
+- Bug que se manifesta em greenfield após PR mergeado → revert obrigatório, reabrir Sprint
+- Repetição (3+ fixes consecutivos no mesmo bug sem aplicar protocolos) → escalar para P.O. + consultor externo
+
+### Exceções
+
+- **Hotfix P0** (REGRA-ORQ-11) — Protocolo 2 (dry-run) pode ser pulado se janela de impacto > 1h. Outros 3 protocolos mantidos.
+- **Mudanças triviais** (≤5 LOC, sem lógica) — Protocolos 1+4 (greenfield + 3 cenários) opcionais. Protocolos 2+3 (dry-run + DoD negativo) obrigatórios.
+- **Docs-only** — protocolos não se aplicam (docs não tocam pipeline).
+
+### Origem documentada
+
+Sprint M3.10 (2026-05-04 a 2026-05-05) — 4 fixes consecutivos para o mesmo bug arquitetural "matriz mono-fonte":
+
+| PR | Hipótese | Resultado |
+|---|---|---|
+| #968 (M3.8-1B) | Hardcode no client | Trocou string fixa, bug persistiu |
+| #973 (M3.8.1) | Default ranking | Trocou nome do mascarador, bug persistiu |
+| #976 + #977 (Fix B + A1) | Gaps órfãos | Conectou pipeline; validado em pré-existente, regredido em greenfield |
+| #979 (Fix C-bis) | Regressão write + UI mono-valor | Fix duplo + DoD em 3 cenários — caso canônico desta REGRA |
+
+Lições #65 (rastrear fluxo end-to-end) + #66 (spec sem dados = ilusão) + #67 (try/catch graceful) + #68 (coluna mono + JSON multi) capturadas. Esta REGRA consolida os 4 protocolos que evitariam reincidência futura.
+
+### Vinculadas
+
+- REGRA-ORQ-19 (auditoria fim-de-sessão) — protocolos integram com audit verde
+- REGRA-ORQ-20 (avaliação risco estrutural) — pipeline de dados sempre Tier 2-3
+- REGRA-ORQ-27 (Lição #59 — assemble ≠ consumption) — estendida pelos protocolos
+- REGRA-ORQ-28 (Triade) — DoD com critério NEGATIVO complementa test contracts
+- REGRA-ORQ-33 (RACI Implementador ≠ Validador) — Protocolo 4 reforça com 3 cenários
+- Lição #59, #62, #63, #64, #65, #66, #67, #68
+- Sprint M3.10 (caso canônico) — Post-mortem #975
+- Post-mortem 2026-05-05 (`docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md`)
+
+## Lição #67 — Try/catch + degradação graciosa em sequências assíncronas
+
+Origem: Sprint M3.10 Fix C-bis — auto-trigger com 2 mutations sequenciais (PR #979)
+
+### Texto
+
+Em pipelines com sequência `await Step1 → Step2`, falha de Step1 NÃO deve bloquear Step2 quando este pode operar com estado parcial. Pattern obrigatório:
+
+```typescript
+try {
+  await step1Mutation.mutateAsync(...);  // pode falhar (timeout, rate limit, network)
+} catch (err) {
+  console.warn("[contexto] step1 falhou — degradando para estado parcial", err);
+  // Não relança. Toast/log já exibido via onError. Continua para Step2.
+}
+step2Mutation.mutate(...);  // sempre executa
+```
+
+**Princípio:** matriz parcial é sempre melhor que zero. Usuário vendo "alguns riscos exibidos" beat usuário vendo "spinner infinito".
+
+### Decisão antes de aplicar
+
+Quando dois mutations sequenciais são acoplados via `await`, sempre considerar 2 perguntas:
+
+1. **Step1 pode falhar de forma recuperável?** (timeout LLM, rate limit, falha temporária de rede)
+2. **Step2 pode operar sem o resultado de Step1?** (state parcial é útil ao usuário?)
+
+Se ambas SIM → try/catch + console.warn + continuar Step2 (degradação graciosa)
+Se NÃO → falha de Step1 deve bloquear Step2 (relançar erro, deixar useEffect órfão é pior que estado errado)
+
+### Caso canônico
+
+`RiskDashboardV4.tsx` Fix C-bis:
+
+- Step1 (`ensureV1GapsMutation`): pode falhar (LLM timeout em ~138 requirements)
+- Step2 (`generateAllSourcesMutation`): consome todos os gaps disponíveis no banco — funciona com solaris/iagen mesmo sem v1
+
+Aplicação: try/catch absorve falha do Step1 + Passo 2 ainda gera matriz parcial. Sem isso, useEffect ficaria órfão e usuário veria spinner infinito (critério A6 de abortar).
+
+### Vinculadas
+
+- Sprint M3.10 Fix C-bis (PR #979) — caso canônico
+- REGRA-ORQ-34 (Pipeline de Dados Bugfix Protocol) — try/catch é mitigação de race condition em sequências assíncronas
+- Lição #65 (rastrear fluxo end-to-end) — complementa: além de mapear writers/readers, mapear failure modes em sequências
+
+## Lição #68 — Coluna mono-valor + JSON multi-valor: ler do JSON na UI
+
+Origem: Sprint M3.10 Fix C-bis — `risks_v4.source_priority` vs `evidence.gaps[*].fonte` (PR #979)
+
+### Texto
+
+Quando schema do banco persiste:
+
+| Tipo | Coluna mono-valor | JSON multi-valor |
+|---|---|---|
+| Conteúdo | 1 vencedor de ranking | Todos os contribuintes |
+| Função | Query, ordenação, index | Representação fiel ao usuário |
+| Exemplo no projeto | `risks_v4.source_priority` | `risks_v4.evidence.gaps[*].fonte` |
+
+**UI DEVE ler do JSON multi-valor**, não da coluna mono-valor. Coluna mono-valor é otimização de DB (índice, ORDER BY, GROUP BY) — não é representação fiel ao domínio.
+
+### Pattern obrigatório
+
+Helper que extrai do JSON com fallback para coluna quando JSON ausente/malformado:
+
+```typescript
+function getMultiValueField(record): string[] {
+  const json = record.jsonField;
+  if (!json) return [record.monoColumn];                    // fallback 1: ausente
+  if (Array.isArray(json)) return [record.monoColumn];      // fallback 2: formato legado
+  if (typeof json !== "object") return [record.monoColumn]; // fallback 3: malformado
+  const items = json.items;                                 // tipo correto
+  if (!items?.length) return [record.monoColumn];           // fallback 4: vazio
+  const valores = items.map(i => i.field).filter(Boolean);
+  if (!valores.length) return [record.monoColumn];          // fallback 5: nenhum válido
+  return [...new Set(valores)].sort();                      // dedup + determinismo
+}
+```
+
+### Caso canônico
+
+`risks_v4` schema:
+- Coluna `source_priority`: 1 valor — fonte vencedora do `getBestSourcePriority` (rank menor)
+- JSON `evidence.gaps[*].fonte`: N valores — todas as fontes que contribuíram
+
+**Antes (bug):** UI exibia 1 badge baseado em `source_priority`. Multi-fonte real ofuscado em 3/6 riscos do projeto #3690001.
+
+**Depois (Fix C-bis):** helper `getSourceContributors(risk)` extrai do JSON com fallback. UI exibe `Solaris + IA Gen + Regulatório` quando aplicável; 1 badge quando mono-fonte real.
+
+### Aplicação prospectiva
+
+Antes de aprovar PR de UI que exibe campo persistido:
+
+1. **Há JSON correlato com info mais rica que a coluna?** Verificar schema do banco
+2. **Se sim, UI deve ler do JSON com fallback para coluna** — pattern acima
+3. **Se não, ler da coluna está OK**
+
+Pull request review check: `grep -r "risk\.source_priority" client/` deve retornar apenas usos em fallback (`?? risk.source_priority`), nunca como fonte primária.
+
+### Vinculadas
+
+- Sprint M3.10 Fix C-bis (PR #979) — caso canônico
+- Lição #66 (spec sem dados = ilusão) — extensão para output: spec pode ter JSON rico, mas se UI lê só da coluna, info se perde
+- REGRA-ORQ-34 (Pipeline de Dados Bugfix Protocol) — Protocolo 3 (DoD negativo) deve incluir validação de exibição multi-valor
