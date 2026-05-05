@@ -1,7 +1,65 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint
-> **v7.63 · 2026-05-05 (Sprint M3.8.1 HOTFIX ENCERRADA — 3 bugs A/B/C + ENUM migration + audit 🟢 — HEAD pós-#974 · smoke E2E 5/5 PASS em ambos #3480001 e #3270001 · 139/139 tests PASS · 0 erros tsc)**
-> **Predecessor:** v7.62 · 2026-05-04 (Sprint M3.8 ENCERRADA — HEAD `a528257`)
+> **v7.64 · 2026-05-05 (Sprint M3.10 — AUDIT DUAL 🟢 PIPELINE / 🟡 FEATURE — HEAD pré-PR docs `35ad0cc` · multi-fonte agregado e por risco validados em produção · errata Lições #69/#70 + novas #71/#72 + adendo ORQ-19 audit dual)**
+> **Predecessor:** v7.63 · 2026-05-05 (Sprint M3.8.1 HOTFIX ENCERRADA — HEAD pós-#974)
+
+## Sessão v7.64 (2026-05-05) — Sprint M3.10 AUDIT DUAL · Pipeline 🟢 / Feature 🟡
+
+**HEAD main pré-audit:** `35ad0cc` (PR #981 merged — perenização governance M3.10)
+**Audit arquivado:** `docs/governance/audits/v7.64-2026-05-05-audit-m3.10-multi-fonte.md`
+
+### Achado central
+
+DoD M3.10 inicial reportou `evidence.gaps[*].fonte = []` em todos os riscos do #3780001 — afirmação propagou para Lição #69. Investigação subsequente (relatório Manus 2026-05-05 com queries TiDB diretas) revelou que era **falso negativo do script DoD** (`scripts/dod-3780001.ts` não commitado, bug `JSON.parse` em coluna mysql2 já parseada).
+
+**Estado real do banco:**
+
+| Projeto | Multi-fonte agregado | Multi-fonte por risco |
+|---|---|---|
+| #3780001 (greenfield) | ✅ 2 fontes (iagen + regulatorio) | ✅ 2/8 riscos com 2 fontes |
+| #3570002 (retrigger) | ✅ 2 fontes (solaris + regulatorio) | ✅ 5/9 riscos com 2-3 fontes |
+| #3750060 (pré-existente) | ✅ 2 fontes (solaris + regulatorio) | ✅ 6/9 riscos com 2-3 fontes |
+
+### Veredito DUAL
+
+| Dimensão | Status | Justificativa |
+|---|---|---|
+| Pipeline de dados | 🟢 | Multi-fonte agregado e por risco entregues e validados por query SQL direta |
+| Feature completa (UX) | 🟡 | Auto-trigger guard `activeRisks.length === 0` não reconsolida em pré-existentes; tests runtime do helper ausentes |
+
+### PRs M3.10 mergeados (escopo completo)
+
+| PR | SHA | Tipo | Conteúdo |
+|---|---|---|---|
+| #975 | (post-mortem) | docs | post-mortem mono-fonte matriz de riscos |
+| #976 | (parte de #977) | fix | Fix B — `risk_category_code` populado em solaris/iagen analyzers |
+| #977 | `37b6b0e` | fix | Fix A1 — pipeline unificado lê `project_gaps_v3` multi-fonte |
+| #979 | `7a6f172` | fix | Fix C-bis — restaurar gaps v1 + UI multi-fonte (frontend-only) |
+| #980 | `8ff980f` | docs | REGRA-ORQ-34 + Lições #67/#68 |
+| #981 | `35ad0cc` | docs | REGRA-ORQ-35/36 + Lições #69/#70 (declarativos) |
+| #982 | `3ee5bf6` | feat | Fase 3b — enforcement mecânico (hook `require-investigation.sh`) |
+| (este PR) | TBD | docs | M3.10 governance closure — erratas + Lições #71/#72 + adendo ORQ-19 + audit v7.64 |
+
+### Governance entregue nesta sessão (PR docs-only)
+
+- Errata Lição #69 — caso canônico tinha falso-negativo do script DoD bugado; estado real documentado
+- Errata Lição #70 — caso canônico era hipotético, não reproduzido (assimetria de auth permanece como técnica T2 ORQ-36)
+- Lição #71 (nova) — Scripts DoD commitados + autor valida o parser
+- Lição #72 (nova) — Driver mysql2 auto-parseia JSON: NÃO usar `JSON.parse` sobre coluna JSON
+- Adendo REGRA-ORQ-19 — audit dual (pipeline 🟢 / feature 🟡) formalizado, caso canônico M3.10
+- Audit `v7.64-2026-05-05-audit-m3.10-multi-fonte.md` arquivado
+
+### Tech debt residual M3.10 (issues abrir pós-merge)
+
+- **P2:** auto-trigger reconsolidação multi-source em projetos pré-existentes (guard `activeRisks.length === 0` em `RiskDashboardV4.tsx:975`)
+- **P3:** tests runtime do helper `getSourceContributors` (atuais são source-static via regex)
+- **P3:** recuperar e commitar scripts DoD M3.10 produzidos pelo Manus (`dod-3780001.ts`, `dod-queries-3750060.ts`, `inspect-all-risks-3780001.ts`, `evidence-format-proof.ts`)
+
+### Bloqueio temporário
+
+Implementação de código nos arquivos pipeline M3.10 (`client/src/components/RiskDashboardV4.tsx`, `server/routers/risks-v4.ts`, `server/lib/gap-to-rule-mapper.ts`, `server/gapEngine.ts`, `server/routers/gapEngine.ts`) está bloqueada até este PR docs-only ser mergeado. Frentes não relacionadas seguem normalmente.
+
+---
 
 ## Sessão v7.63 (2026-05-05) — Sprint M3.8.1 HOTFIX ENCERRADA · 3 bugs P0/P1/P2 corrigidos
 
