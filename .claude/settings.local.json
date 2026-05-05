@@ -74,7 +74,6 @@
       "Bash(rm -rf /:*)",
       "Bash(rm -rf ~:*)",
       "Bash(rm -rf /*)",
-      "Bash(:(){ :|:& };:)",
       "Bash(dd if=*)",
       "Bash(mkfs:*)",
       "Bash(shutdown:*)",
