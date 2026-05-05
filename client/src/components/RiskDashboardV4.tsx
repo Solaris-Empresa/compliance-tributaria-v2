@@ -764,7 +764,22 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       }
     },
   });
-  const isGenerating = analyzeGapsMutation.isPending || mapGapsMutation.isPending || generateFromGapsMutation.isPending;
+  // M3.10 Fix A1 (post-mortem #975): pipeline unificado que consome TODOS os
+  // sources de project_gaps_v3 (v1 + solaris + iagen). Substitui a orquestração
+  // antiga de 3 chamadas (analyzeGaps + mapGapsToRules + generateRisksFromGaps),
+  // que só lia gaps v1 e deixava solaris/iagen órfãos. As mutations antigas
+  // permanecem para compat (botão manual e fluxos de teste).
+  const generateAllSourcesMutation = trpc.risksV4.generateRisksAllSources.useMutation({
+    onSuccess: (result) => {
+      setReviewQueue(result.reviewQueue ?? []);
+      setPipelineStats(result.stats ?? null);
+      utils.risksV4.listRisks.invalidate({ projectId });
+    },
+    onError: (err) => toast.error("Erro ao gerar matriz de riscos", { description: err.message }),
+  });
+
+  const isGenerating = analyzeGapsMutation.isPending || mapGapsMutation.isPending
+    || generateFromGapsMutation.isPending || generateAllSourcesMutation.isPending;
 
   // ── Auto-generate on first load (B-01: trigger pos-briefing) ────────────
   const hasAutoTriggered = useRef(false);
@@ -855,7 +870,9 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       !isGenerating
     ) {
       hasAutoTriggered.current = true;
-      analyzeGapsMutation.mutate({ project_id: projectId, dry_run: false });
+      // M3.10 Fix A1: usa pipeline unificado multi-fonte em vez do legado
+      // (analyzeGaps → mapGapsToRules → generateRisksFromGaps que só lia v1).
+      generateAllSourcesMutation.mutate({ projectId });
     }
   }, [isLoading, activeRisks.length, isGenerating]);
 
@@ -1085,12 +1102,13 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
                     size="sm"
                     variant="outline"
                     disabled={isGenerating}
-                    onClick={() => analyzeGapsMutation.mutate({ project_id: projectId, dry_run: false })}
+                    onClick={() => generateAllSourcesMutation.mutate({ projectId })}
                   >
                     {isGenerating ? (
                       <>
                         <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                        {analyzeGapsMutation.isPending ? "Analisando gaps…"
+                        {generateAllSourcesMutation.isPending ? "Carregando gaps multi-fonte…"
+                          : analyzeGapsMutation.isPending ? "Analisando gaps…"
                           : mapGapsMutation.isPending ? "Mapeando regras…"
                           : "Gerando riscos…"}
                       </>

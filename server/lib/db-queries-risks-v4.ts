@@ -10,6 +10,10 @@
 
 import { drizzle } from "drizzle-orm/mysql2";
 import { v4 as uuidv4 } from "uuid";
+// M3.10 Fix A1: getAllGapsForProject lê project_gaps_v3 (todos sources)
+// e retorna GapInput[] — usado por generateRisksAllSources para
+// consolidar matriz multi-fonte. Ver post-mortem #975.
+import type { GapInput } from "../schemas/gap-risk.schemas";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tipos — espelham exatamente o schema 0064_risks_v4.sql
@@ -900,5 +904,135 @@ export async function restoreRiskWithCascade(
       cascaded_plans: plans.length,
     },
     reason,
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// project_gaps_v3 — leitura multi-source (M3.10 Fix A1)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Mapeia source de project_gaps_v3 para sourceOrigin do GapInput schema.
+ * - 'v1' (gapEngine.analyzeGaps) → 'regulatorio'
+ * - 'solaris' (solaris-gap-analyzer) → 'solaris'
+ * - 'iagen' (iagen-gap-analyzer) → 'iagen'
+ *
+ * Outros valores (raros) caem em 'regulatorio' como fallback semântico.
+ */
+function mapSourceToOrigin(
+  source: string | null | undefined,
+): GapInput["sourceOrigin"] {
+  switch ((source ?? "").toLowerCase()) {
+    case "v1":
+      return "regulatorio";
+    case "solaris":
+      return "solaris";
+    case "iagen":
+      return "iagen";
+    default:
+      return "regulatorio";
+  }
+}
+
+/**
+ * Mapeia compliance_status do banco para gapStatus do GapInput schema.
+ */
+function mapComplianceStatusToGapStatus(
+  cs: string | null | undefined,
+): GapInput["gapStatus"] {
+  switch ((cs ?? "").toLowerCase()) {
+    case "atendido":
+      return "compliant";
+    case "parcialmente_atendido":
+      return "parcial";
+    case "nao_aplicavel":
+      return "nao_aplicavel";
+    case "nao_atendido":
+    default:
+      return "nao_compliant";
+  }
+}
+
+/**
+ * Mapeia criticality do banco para gapSeverity do GapInput schema.
+ */
+function mapCriticalityToSeverity(
+  c: string | null | undefined,
+): GapInput["gapSeverity"] {
+  const v = (c ?? "").toLowerCase();
+  if (v === "critica" || v === "alta" || v === "media" || v === "baixa") {
+    return v;
+  }
+  return "media";
+}
+
+/**
+ * M3.10 Fix A1: lê TODOS os gaps de um projeto (v1 + solaris + iagen) e retorna
+ * no formato GapInput[] esperado pelo GapToRuleMapper.
+ *
+ * Antes do Fix A1, o pipeline de risco consumia apenas gaps v1 (via
+ * gapEngine.analyzeGaps → result.gaps no client). Gaps solaris/iagen ficavam
+ * órfãos no banco — escritas sem leitura. Causa raiz documentada em
+ * docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md.
+ *
+ * Esta função é o consumer único que conecta os 3 writers ao pipeline de risco.
+ *
+ * Pré-requisito: Fix B (PR #976) já mergeado — sem ele, gaps solaris/iagen
+ * têm risk_category_code = NULL e cairiam em "unmapped" no mapper.
+ */
+export async function getAllGapsForProject(
+  projectId: number,
+): Promise<GapInput[]> {
+  const rows = await query<{
+    id: number | string;
+    project_id: number;
+    source: string | null;
+    requirement_id: string | null;
+    requirement_code: string | null;
+    compliance_status: string | null;
+    criticality: string | null;
+    gap_type: string | null;
+    domain: string | null;
+    gap_description: string | null;
+    risk_category_code: string | null;
+    source_reference: string | null;
+    gap_level: string | null;
+    question_id: number | null;
+    answer_value: string | null;
+    analysis_version: number | null;
+  }>(
+    `SELECT id, project_id, source,
+            requirement_id, requirement_code,
+            compliance_status, criticality, gap_type, domain,
+            gap_description, risk_category_code, source_reference,
+            gap_level, question_id, answer_value, analysis_version
+     FROM project_gaps_v3
+     WHERE project_id = ? AND analysis_version = 3`,
+    [projectId],
+  );
+
+  return rows.map((row): GapInput => {
+    const requirementId =
+      row.requirement_id ?? row.requirement_code ?? String(row.id);
+    return {
+      id: String(row.id),
+      canonicalId: requirementId,
+      gapStatus: mapComplianceStatusToGapStatus(row.compliance_status),
+      gapSeverity: mapCriticalityToSeverity(row.criticality),
+      gapType: row.gap_type ?? "normativo",
+      area: row.domain ?? "",
+      descricao: row.gap_description ?? "",
+      // Fix B (PR #976) preencheu risk_category_code para gaps solaris/iagen.
+      // Ainda pode ser null para tópicos fora do mapping curado.
+      categoria: row.risk_category_code ?? undefined,
+      sourceOrigin: mapSourceToOrigin(row.source),
+      requirementId,
+      sourceReference: row.source_reference ?? "",
+      domain: row.domain ?? "",
+      layer: row.gap_level ?? "operacional",
+      questionId: row.question_id ?? null,
+      answerValue: row.answer_value ?? null,
+      gapId: typeof row.id === "number" ? row.id : null,
+    };
   });
 }
