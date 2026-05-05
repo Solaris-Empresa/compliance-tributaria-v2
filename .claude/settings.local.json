@@ -1,0 +1,97 @@
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(pnpm:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(tsx:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(echo:*)",
+      "Bash(printf:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(pwd)",
+      "Bash(cd:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(awk:*)",
+      "Bash(sed:*)",
+      "Bash(cut:*)",
+      "Bash(xargs:*)",
+      "Bash(sort:*)",
+      "Bash(uniq:*)",
+      "Bash(tr:*)",
+      "Bash(jq:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(ln:*)",
+      "Bash(chmod:*)",
+      "Bash(diff:*)",
+      "Bash(test:*)",
+      "Bash(true)",
+      "Bash(false)",
+      "Bash(sleep:*)",
+      "Bash(until *)",
+      "Bash(while *)",
+      "Bash(for *)",
+      "Bash(if *)",
+      "Bash(:)",
+      "Bash(command:*)",
+      "Bash(which:*)",
+      "Bash(type:*)",
+      "Bash(env)",
+      "Bash(env:*)",
+      "Bash(date:*)",
+      "Bash(basename:*)",
+      "Bash(dirname:*)",
+      "Bash(realpath:*)",
+      "Bash(readlink:*)",
+      "Bash(tee:*)",
+      "Bash(yes:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:iasolaris.manus.space)",
+      "WebFetch(domain:manus.space)",
+      "Read(//tmp/**)",
+      "Read(//d/rag--uires/**)",
+      "Read(//c/Users/uires/**)"
+    ],
+    "deny": [
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf ~:*)",
+      "Bash(rm -rf /*)",
+      "Bash(:(){ :|:& };:)",
+      "Bash(dd if=*)",
+      "Bash(mkfs:*)",
+      "Bash(shutdown:*)",
+      "Bash(reboot:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/poc-edit-detector.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
