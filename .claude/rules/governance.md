@@ -265,6 +265,24 @@ antes de liberar próxima sprint.
   auditoria formal teria pego antes de produção
 - Primeiro caso concreto arquivado: `docs/governance/audits/v7.42-2026-04-20.md`
 
+### Adendo (2026-05-05) — Audit dual quando pipeline ≠ feature
+
+Para sprints onde escopo de pipeline (dados, engine, persistência) e UX/feature (auto-trigger, testes runtime, cobertura observável ao usuário) divergem em maturidade, o veredito ORQ-19 pode ser **dual**:
+
+- **Pipeline 🟢:** dados corretos, engine funcional, evidência reproduzível por query SQL
+- **Feature 🟡:** UX/automação incompleta, cobertura de testes parcial, ações manuais ainda exigidas do usuário
+
+Este formato substitui o veredito único 🟢/🟡/🔴 apenas quando ambas as dimensões precisam ser comunicadas separadamente para evitar:
+
+- (a) Falso 🟢 (pipeline funciona, mas UX cobre só metade dos casos)
+- (b) Falso 🟡 (UX incompleta esconde que dados estão corretos e prontos para produção)
+
+**Quando usar:** sprint produz fix de pipeline com regressão funcional residual em UX, OU feature nova com pipeline completo mas testes runtime ausentes. Quando em dúvida, prefira veredito único — dual exige justificativa explícita no audit.
+
+**Caso canônico:** Sprint M3.10 — ver `docs/governance/audits/v7.64-2026-05-05-audit-m3.10-multi-fonte.md`. Pipeline multi-fonte (agregado e por risco) entregue e validado por query direta; auto-trigger guard `activeRisks.length === 0` e testes runtime do helper `getSourceContributors` permanecem como tech debt P2/P3.
+
+**Convenção de path para audit dual:** `vX.XX-YYYY-MM-DD-audit-mX.XX-DESCRIPTOR.md` (em vez de `-sprint-mX.XX-encerrada.md`), refletindo que sprint não está totalmente encerrada — apenas o pipeline.
+
 ## REGRA-ORQ-20 — Avaliação de risco estrutural obrigatória
 
 Antes de QUALQUER alteração com sinais de risco estrutural, a issue
@@ -1735,6 +1753,40 @@ Antes de declarar bug "mono-fonte" resolvido, validar AMBOS conceitos. Se apenas
 - Lição #68 (coluna mono + JSON multi) — Fix C-bis previu multi-fonte por risco mas evidence.gaps[].fonte vazio expôs gap de implementação no `mapGapToEvidence`
 - REGRA-ORQ-34 Protocolo 3 (DoD com critério NEGATIVO) — agora deve incluir distinção agregado vs por risco
 
+### Errata (2026-05-05)
+
+A afirmação `evidence.gaps[*].fonte = [] em todos os riscos` no caso canônico acima é **factualmente incorreta** — artefato de bug no script DoD `scripts/dod-3780001.ts` (não commitado, criado em sandbox Manus 2026-05-05).
+
+**Estado real do banco** (queries executadas em produção 2026-05-05 ~20:50 UTC, conexão TiDB direta):
+
+| Projeto | source_priority distintos | evidence.gaps[*].fonte multi-fonte por risco |
+|---|---|---|
+| #3780001 (greenfield) | 2 (iagen + regulatorio) | 2/8 riscos (`confissao_automatica` e `regime_diferenciado` = `[iagen, regulatorio]`) |
+| #3570002 (retrigger) | 2 (solaris + regulatorio) | 5/9 riscos com 2-3 fontes |
+| #3750060 (pré-existente) | 2 (solaris + regulatorio) | 6/9 riscos com 2-3 fontes |
+
+**Mecanismo do bug no script DoD:**
+
+```typescript
+// BUGADO (dod-3780001.ts):
+const ev = JSON.parse(row.evidence || '{}');
+```
+
+O driver `mysql2` retorna colunas JSON do TiDB já parseadas como objetos JavaScript. `JSON.parse(object)` invoca `.toString()` → `"[object Object]"` → throws `TypeError` → `catch {}` silencia → `fontes` permanece `[]`.
+
+**Pattern correto** (aplicado em `dod-queries-3750060.ts` e em `RiskDashboardV4.tsx:204` — helper `getSourceContributors`):
+
+```typescript
+const ev = typeof row.evidence === "string" ? JSON.parse(row.evidence) : row.evidence;
+```
+
+**Conclusão:** a Frente 2 do Fix C-bis (multi-fonte POR RISCO) **funciona corretamente em produção**. A distinção conceitual agregado vs por risco permanece válida e útil — apenas o exemplo numérico estava errado. Ver Lição #72 (mysql2 JSON auto-parse) e Lição #71 (scripts DoD commitados).
+
+**Vinculadas à errata:**
+- Audit `docs/governance/audits/v7.64-2026-05-05-audit-m3.10-multi-fonte.md` (evidência reproduzível)
+- Lição #71 (scripts DoD commitados — previne recorrência)
+- Lição #72 (mysql2 auto-parse JSON — antipattern)
+
 ## Lição #70 — Assimetria de auth em procedures aparentemente similares
 
 Origem: Sprint M3.10 deep research — diagnóstico do silent fail em #3690001 (Claude Code 2026-05-05)
@@ -1798,3 +1850,157 @@ await procB.mutateAsync({...});  // continua mesmo após auth fail
 - Lição #65 (rastrear fluxo end-to-end) — complementa: além de mapear writers/readers, mapear filtros de auth
 - Lição #67 (try/catch graceful) — refinamento: catch graceful precisa distinguir tipos de erro
 - Tech debt declarado: relaxar `WHERE createdById = ?` em `gapEngine.ts:268` para `validateProjectAccess()` (Sprint M3.11 backlog)
+
+### Errata (2026-05-05)
+
+O caso canônico acima descreve cenário **hipotético** baseado em leitura de código, não reproduzido em produção. Query executada em 2026-05-05 nos 4 projetos auditados na Sprint M3.10 (#3690001, #3780001, #3570002, #3750060) confirmou que **todos têm `createdById = 1` (P.O., Uires Tapajós)** — o cenário "P.O. ≠ criador" não ocorreu.
+
+**Status revisado:**
+
+- ✅ **FATO:** assimetria de auth entre `gapEngine.analyzeGaps` (`AND createdById = ?`) e `risksV4.generateRisksAllSources` (sem filtro) existe no código (verificável em `server/routers/gapEngine.ts:268` vs `server/routers/risks-v4.ts:872-881`)
+- ❌ **REFUTADO:** este padrão NÃO causou silent fail no #3690001. A causa real do mono-fonte percebido foi o bug do script DoD (Lição #69 errata) somado ao auto-trigger guard `activeRisks.length === 0`
+- ⚠️ **HIPOTÉTICO:** o cenário "ensureV1Gaps retorna 404 → catch absorve → mono-solaris" permanece **possível teoricamente** mas **não reproduzido** em nenhum projeto auditado em produção
+
+A lição permanece **conceitualmente válida** como técnica de investigação (T2 da REGRA-ORQ-36 — comparação cirúrgica) e padrão prospectivo de defesa em depth para procedures sequenciais. O pattern do anti-fix (catch que distingue 404 de 500) continua recomendado.
+
+**Vinculadas à errata:**
+- Q5 do relatório Manus 2026-05-05 (refutação por query)
+- Audit `docs/governance/audits/v7.64-2026-05-05-audit-m3.10-multi-fonte.md`
+- Tech debt em `gapEngine.ts:268` permanece válido para investigação prospectiva, mas **não é causa raiz documentada** de incidente real
+
+## Lição #71 — Scripts de validação DoD devem ser commitados + autor valida o parser
+
+Origem: Sprint M3.10 — bug em `scripts/dod-3780001.ts` (não commitado) propagou erro factual para Lição #69 e atrasou fechamento da sprint
+
+### Texto
+
+Scripts que produzem evidência DoD (Definition of Done) DEVEM:
+
+1. **Ser commitados** ao repositório (`scripts/dod-*.ts`, `scripts/audit-*.ts` ou similar)
+2. **Ter teste unitário do parser** quando consumirem dados estruturados (JSON, CSV, output de query)
+3. **Ser executados pelo autor com validação cruzada** antes de reportar PASS/FAIL
+
+A regra é dupla: o autor do script é responsável por validar o próprio parser **antes** de reportar resultado downstream. Reportar "DoD PASS" baseado em script não testado equivale a confiar em ferramenta de medição não calibrada.
+
+### Caso canônico
+
+Sprint M3.10 fechamento (2026-05-05). Manus produziu `scripts/dod-3780001.ts` em sandbox isolada para validar critério de DoD do PR #979 (multi-fonte). Script:
+
+- **Não foi commitado** ao repositório
+- **Não tinha teste unitário** do parser de `evidence` (coluna JSON do TiDB)
+- **Continha bug** de `JSON.parse(row.evidence)` em coluna mysql2 já parseada → `[object Object]` → throws → catch silencia → reporta `fontes=[]` (falso negativo)
+
+Resultado: `fontes_evidence=[]` foi propagado para o relatório DoD → consumido pelo Orquestrador → registrado na Lição #69 como caso canônico → publicado em main via PR #981 → afirmação factualmente incorreta no governance permanente. Cascata de governance dependeu de ferramenta de medição cega.
+
+Apenas com queries SQL diretas (executadas independentemente do script bugado) o estado real do banco foi confirmado: 2/8 riscos do #3780001 têm multi-fonte real em `evidence.gaps[*].fonte`.
+
+### Aplicação prospectiva
+
+CI gate sugerido em `.github/workflows/dod-scripts-tracked.yml`:
+
+```bash
+# Falha se PR menciona "DoD PASS" no body sem referência a script commitado em scripts/
+grep -E "DoD.*PASS|DoD.*✅" PR_BODY \
+  && ! grep -E "scripts/(dod|audit)-[a-z0-9-]+\.ts" PR_BODY \
+  && exit 1
+```
+
+Para audits ORQ-19: relatório arquivado em `docs/governance/audits/` deve referenciar SHA git + caminho dos scripts executados. Sem isso, evidência é narrativa, não reproduzível.
+
+### Conflito RACI a observar
+
+Quando o autor do script e o validador da implementação são a mesma entidade (caso M3.10: Manus implementou solaris/iagen analyzers + Manus escreveu DoD script + Manus reportou PASS), o checks-and-balances quebra. Em sprints pequenas pode ser inevitável — nesse caso, **commitar o script** vira a única salvaguarda residual: outro implementador ou o Orquestrador podem re-executar e detectar discrepância.
+
+### Vinculadas
+
+- REGRA-ORQ-19 (auditoria fim-de-sessão) — agora exige referência a scripts commitados
+- REGRA-ORQ-27 (Lição #59 — assemble ≠ consumption) — manifestação meta: script "consome" do banco mas parser corrompe leitura
+- REGRA-ORQ-33 (RACI Implementador ≠ Validador) — backlog: refinar para casos de validador-autor-de-ferramenta
+- Lição #69 errata (caso canônico do bug propagado)
+- Lição #72 (mysql2 auto-parse JSON — antipattern do parser específico)
+- Sprint M3.10 (caso canônico)
+
+## Lição #72 — Driver mysql2 auto-parseia colunas JSON: NÃO usar `JSON.parse`
+
+Origem: Sprint M3.10 — bug em `scripts/dod-3780001.ts` que mascarou multi-fonte como `[]`
+
+### Texto
+
+O driver `mysql2` (versão Node.js usada no projeto) **auto-parseia colunas do tipo JSON** do TiDB/MySQL, retornando objetos JavaScript já estruturados. Aplicar `JSON.parse(row.jsonColumn)` sobre um objeto:
+
+1. Invoca `Object.prototype.toString()` → `"[object Object]"`
+2. `JSON.parse("[object Object]")` lança `SyntaxError: Unexpected token o in JSON`
+3. Se houver `try/catch` ao redor, o erro é silenciado e o output cai em fallback (geralmente `[]` ou `{}`)
+4. Resultado é falso negativo silencioso
+
+### Antipattern
+
+```typescript
+// ❌ NÃO FAZER:
+const ev = JSON.parse(row.evidence || '{}');
+
+// Mecanismo da falha:
+//   row.evidence === { gaps: [...] }  (objeto, não string)
+//   JSON.parse({...}) → toString → "[object Object]" → throws
+//   catch silenciado → ev permanece undefined ou {} → consumer reporta []
+```
+
+### Pattern correto
+
+```typescript
+// ✅ FAZER:
+const ev = typeof row.evidence === "string" ? JSON.parse(row.evidence) : row.evidence;
+
+// Variante defensiva (3 fallbacks):
+function safeParseJson<T>(raw: unknown, fallback: T): T {
+  if (raw == null) return fallback;
+  if (typeof raw === "object") return raw as T;
+  if (typeof raw === "string") {
+    try { return JSON.parse(raw) as T; } catch { return fallback; }
+  }
+  return fallback;
+}
+```
+
+### Caso canônico em runtime de produção
+
+`client/src/components/RiskDashboardV4.tsx:194-220` — helper `getSourceContributors`:
+
+```typescript
+function getSourceContributors(risk: RiskData): string[] {
+  const evidence = risk.evidence;
+  if (!evidence) return [risk.source_priority];
+  if (Array.isArray(evidence)) return [risk.source_priority];
+  if (typeof evidence === "object" && "gaps" in evidence) {
+    // ← trata como objeto SEM JSON.parse
+    const gaps = (evidence as ConsolidatedEvidence).gaps;
+    // ...
+  }
+  return [risk.source_priority];
+}
+```
+
+tRPC + superjson preservam o tipo objeto end-to-end (banco → backend → frontend). Por isso o helper de produção funciona — só o script DoD em sandbox isolada caiu na armadilha.
+
+### Aplicação prospectiva
+
+CI gate sugerido em `.github/workflows/invariant-check.yml` (INV-08):
+
+```bash
+# Detectar JSON.parse direto sobre coluna JSON em scripts/ e server/
+grep -rnE "JSON\.parse\(\s*row\.(evidence|gaps|metadata|profile|payload)" \
+  scripts/ server/ --include="*.ts" --include="*.tsx" \
+  | grep -v "test\|\.d\.ts"
+```
+
+Se match > 0 → FAIL com mensagem direcionando para Lição #72.
+
+**Nota técnica:** o regex captura nomes específicos de colunas JSON conhecidas no schema (lista expansível). Listar campos JSON em variável de configuração permite manutenção centralizada.
+
+### Vinculadas
+
+- Lição #71 (scripts DoD commitados — esta lição é o antipattern específico que motivou Lição #71)
+- Lição #69 errata (caso canônico do bug propagado)
+- Sprint M3.10 (caso canônico)
+- `client/src/components/RiskDashboardV4.tsx:204` (pattern correto em produção)
+- `scripts/dod-queries-3750060.ts` (pattern correto em script de validação — não commitado em sandbox Manus, recuperação tracked como issue P3)
