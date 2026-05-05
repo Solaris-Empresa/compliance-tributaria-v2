@@ -265,6 +265,24 @@ antes de liberar próxima sprint.
   auditoria formal teria pego antes de produção
 - Primeiro caso concreto arquivado: `docs/governance/audits/v7.42-2026-04-20.md`
 
+### Adendo (2026-05-05) — Audit dual quando pipeline ≠ feature
+
+Para sprints onde escopo de pipeline (dados, engine, persistência) e UX/feature (auto-trigger, testes runtime, cobertura observável ao usuário) divergem em maturidade, o veredito ORQ-19 pode ser **dual**:
+
+- **Pipeline 🟢:** dados corretos, engine funcional, evidência reproduzível por query SQL
+- **Feature 🟡:** UX/automação incompleta, cobertura de testes parcial, ações manuais ainda exigidas do usuário
+
+Este formato substitui o veredito único 🟢/🟡/🔴 apenas quando ambas as dimensões precisam ser comunicadas separadamente para evitar:
+
+- (a) Falso 🟢 (pipeline funciona, mas UX cobre só metade dos casos)
+- (b) Falso 🟡 (UX incompleta esconde que dados estão corretos e prontos para produção)
+
+**Quando usar:** sprint produz fix de pipeline com regressão funcional residual em UX, OU feature nova com pipeline completo mas testes runtime ausentes. Quando em dúvida, prefira veredito único — dual exige justificativa explícita no audit.
+
+**Caso canônico:** Sprint M3.10 — ver `docs/governance/audits/v7.64-2026-05-05-audit-m3.10-multi-fonte.md`. Pipeline multi-fonte (agregado e por risco) entregue e validado por query direta; auto-trigger guard `activeRisks.length === 0` e testes runtime do helper `getSourceContributors` permanecem como tech debt P2/P3.
+
+**Convenção de path para audit dual:** `vX.XX-YYYY-MM-DD-audit-mX.XX-DESCRIPTOR.md` (em vez de `-sprint-mX.XX-encerrada.md`), refletindo que sprint não está totalmente encerrada — apenas o pipeline.
+
 ## REGRA-ORQ-20 — Avaliação de risco estrutural obrigatória
 
 Antes de QUALQUER alteração com sinais de risco estrutural, a issue
@@ -1336,3 +1354,653 @@ Antes de aprovar spec de pipeline:
 - REGRA-ORQ-32 (no hardcode — visão sistêmica)
 - Sprint M3.10 (caso canônico) — Post-mortem #975
 - Diagnóstico Manus 2026-05-05 (validação por queries de banco antes de fix)
+
+## REGRA-ORQ-34 — Pipeline de Dados Bugfix Protocol
+
+Vigência: permanente, a partir de 2026-05-05
+Origem: Sprint M3.10 — 4 fixes consecutivos (#968 M3.8-1B, #973 M3.8.1, #976+#977 Fix B/A1, #979 Fix C-bis) para o mesmo bug arquitetural ("matriz mono-fonte")
+Severidade: governança crítica — perenização de técnicas que evitariam reincidência
+
+### Regra
+
+Todo PR que altera **pipeline de dados** (definição abaixo) DEVE seguir 4 protocolos obrigatórios. Falha em qualquer um → `validate-pr` reprova e merge bloqueado.
+
+### Definição de "pipeline de dados"
+
+Funções/procedures que orquestram fluxo `input → transformação → persistência → output`. No projeto atual:
+
+| Camada | Exemplos |
+|---|---|
+| Writers | `gapEngine.analyzeGaps`, `solaris-gap-analyzer.ts`, `iagen-gap-analyzer.ts`, `analyzeGapsFromQuestionnaires` |
+| Readers | `getAllGapsForProject`, `result.gaps` em frontend |
+| Engine | `consolidateRisks`, `getBestSourcePriority`, `GapToRuleMapper.mapMany`, `generateRisksV4Pipeline` |
+| Procedures | `risksV4.generateRisks`, `risksV4.generateRisksFromGaps`, `risksV4.generateRisksAllSources`, `risksV4.mapGapsToRules` |
+| Tabelas | `project_gaps_v3`, `risks_v4`, `action_plans`, `tasks` |
+
+**Disparo do protocolo:** PR toca esses arquivos OU adiciona/altera procedure tRPC em `server/routers/*` que orquestra escrita+leitura. Frontend que muda chamada a procedures de pipeline também dispara (caso M3.10 Fix C-bis).
+
+### Protocolo 1 — Validação Greenfield Obrigatória
+
+**Definição greenfield:** projeto criado APÓS o deploy do PR (zero estado pré-existente). Critério SQL: `SELECT created_at FROM projects WHERE id = <X>` deve ser maior que timestamp de deploy.
+
+**Aplicação:** validador (Manus ou outro) NÃO PODE testar apenas em projeto pré-existente. Pelo menos 1 cenário deve ser greenfield.
+
+**Justificativa:** projetos antigos podem ter dados de execuções pré-deploy que mascaram regressão. Greenfield expõe o caminho real do código novo. Caso canônico: PR #977 validado em #3570002 (gaps v1 pré-existentes mascararam regressão); falhou em #3690001 greenfield onde 0 gaps v1 foram escritos.
+
+### Protocolo 2 — Dry-run pré-implementação para bugs recorrentes
+
+**Definição "bug recorrente":** mesmo sintoma com 2+ PRs de fix prévios mal-sucedidos. Marcar PR/issue com label `incident-recurrent` + listar PRs vinculados no body.
+
+**Aplicação:** nenhuma implementação inicia sem dry-run empírico do diagnóstico. Dry-run é:
+- Queries SQL ao banco real (read-only)
+- Simulação em memória do pipeline com gaps reais
+- Output observável (counts, distribuições, JSON parseado)
+
+P.O. pode autorizar pular dry-run em situações excepcionais — mas exceção deve ser registrada em PR body com justificativa.
+
+**Justificativa:** após 2 fixes errados, hipótese de causa raiz tem alta probabilidade de estar incorreta. Dry-run move risco de "implementar com hipótese" para "implementar com prova". Caso canônico: dry-run Manus 2026-05-05 confirmou diagnóstico antes de Fix C-bis.
+
+### Protocolo 3 — DoD com critério NEGATIVO SQL bloqueante
+
+**Definição:** PR DEVE declarar tanto:
+
+| Tipo | Função | Exemplo |
+|---|---|---|
+| **POSITIVO** | Query SQL retorna estado esperado pós-fix | `SELECT COUNT(DISTINCT source_priority) >= 2` |
+| **NEGATIVO** | Query SQL DEVE retornar 0 linhas (estado proibido) | `SELECT 'BUG' FROM ... HAVING COUNT(DISTINCT) = 1` |
+
+**Aplicação:** ambas obrigatórias no PR body, executáveis em staging pelo validador.
+
+**Justificativa:** critério positivo simples pode ser satisfeito por sorte de dados (caso M3.10 #3570002 passou DoD positivo mas bug latente persistia em greenfield). Critério negativo impede que estado-bug reapareça mascarado.
+
+### Protocolo 4 — Validação em 3 cenários ortogonais
+
+**Definição:** Validador (≠ Implementador, REGRA-ORQ-33) deve testar em pelo menos 3 cenários:
+
+1. **Greenfield** (Protocolo 1) — projeto novo
+2. **Pré-existente** com estado válido — regression check
+3. **Edge case** explícito do bug — input vazio, malformado, ou condição limite
+
+**Aplicação:** PR body declara os 3 cenários no campo "Validação obrigatória do Validador". DoD verde requer screenshot/output de cada um.
+
+**Justificativa:** validar 1 cenário = sorte de coverage. Validar 3 ortogonais = cobertura razoável. Caso canônico: M3.10 Fix C-bis (greenfield + pré-existente + edge evidence vazio).
+
+### Consequências
+
+- PR sem evidência dos 4 protocolos → `validate-pr` FALHA (Camada B futura — implementar gate)
+- Audit/sprint encerrado sem 4 protocolos → 🟡 retroativo
+- Bug que se manifesta em greenfield após PR mergeado → revert obrigatório, reabrir Sprint
+- Repetição (3+ fixes consecutivos no mesmo bug sem aplicar protocolos) → escalar para P.O. + consultor externo
+
+### Exceções
+
+- **Hotfix P0** (REGRA-ORQ-11) — Protocolo 2 (dry-run) pode ser pulado se janela de impacto > 1h. Outros 3 protocolos mantidos.
+- **Mudanças triviais** (≤5 LOC, sem lógica) — Protocolos 1+4 (greenfield + 3 cenários) opcionais. Protocolos 2+3 (dry-run + DoD negativo) obrigatórios.
+- **Docs-only** — protocolos não se aplicam (docs não tocam pipeline).
+
+### Origem documentada
+
+Sprint M3.10 (2026-05-04 a 2026-05-05) — 4 fixes consecutivos para o mesmo bug arquitetural "matriz mono-fonte":
+
+| PR | Hipótese | Resultado |
+|---|---|---|
+| #968 (M3.8-1B) | Hardcode no client | Trocou string fixa, bug persistiu |
+| #973 (M3.8.1) | Default ranking | Trocou nome do mascarador, bug persistiu |
+| #976 + #977 (Fix B + A1) | Gaps órfãos | Conectou pipeline; validado em pré-existente, regredido em greenfield |
+| #979 (Fix C-bis) | Regressão write + UI mono-valor | Fix duplo + DoD em 3 cenários — caso canônico desta REGRA |
+
+Lições #65 (rastrear fluxo end-to-end) + #66 (spec sem dados = ilusão) + #67 (try/catch graceful) + #68 (coluna mono + JSON multi) capturadas. Esta REGRA consolida os 4 protocolos que evitariam reincidência futura.
+
+### Vinculadas
+
+- REGRA-ORQ-19 (auditoria fim-de-sessão) — protocolos integram com audit verde
+- REGRA-ORQ-20 (avaliação risco estrutural) — pipeline de dados sempre Tier 2-3
+- REGRA-ORQ-27 (Lição #59 — assemble ≠ consumption) — estendida pelos protocolos
+- REGRA-ORQ-28 (Triade) — DoD com critério NEGATIVO complementa test contracts
+- REGRA-ORQ-33 (RACI Implementador ≠ Validador) — Protocolo 4 reforça com 3 cenários
+- Lição #59, #62, #63, #64, #65, #66, #67, #68
+- Sprint M3.10 (caso canônico) — Post-mortem #975
+- Post-mortem 2026-05-05 (`docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md`)
+
+## Lição #67 — Try/catch + degradação graciosa em sequências assíncronas
+
+Origem: Sprint M3.10 Fix C-bis — auto-trigger com 2 mutations sequenciais (PR #979)
+
+### Texto
+
+Em pipelines com sequência `await Step1 → Step2`, falha de Step1 NÃO deve bloquear Step2 quando este pode operar com estado parcial. Pattern obrigatório:
+
+```typescript
+try {
+  await step1Mutation.mutateAsync(...);  // pode falhar (timeout, rate limit, network)
+} catch (err) {
+  console.warn("[contexto] step1 falhou — degradando para estado parcial", err);
+  // Não relança. Toast/log já exibido via onError. Continua para Step2.
+}
+step2Mutation.mutate(...);  // sempre executa
+```
+
+**Princípio:** matriz parcial é sempre melhor que zero. Usuário vendo "alguns riscos exibidos" beat usuário vendo "spinner infinito".
+
+### Decisão antes de aplicar
+
+Quando dois mutations sequenciais são acoplados via `await`, sempre considerar 2 perguntas:
+
+1. **Step1 pode falhar de forma recuperável?** (timeout LLM, rate limit, falha temporária de rede)
+2. **Step2 pode operar sem o resultado de Step1?** (state parcial é útil ao usuário?)
+
+Se ambas SIM → try/catch + console.warn + continuar Step2 (degradação graciosa)
+Se NÃO → falha de Step1 deve bloquear Step2 (relançar erro, deixar useEffect órfão é pior que estado errado)
+
+### Caso canônico
+
+`RiskDashboardV4.tsx` Fix C-bis:
+
+- Step1 (`ensureV1GapsMutation`): pode falhar (LLM timeout em ~138 requirements)
+- Step2 (`generateAllSourcesMutation`): consome todos os gaps disponíveis no banco — funciona com solaris/iagen mesmo sem v1
+
+Aplicação: try/catch absorve falha do Step1 + Passo 2 ainda gera matriz parcial. Sem isso, useEffect ficaria órfão e usuário veria spinner infinito (critério A6 de abortar).
+
+### Vinculadas
+
+- Sprint M3.10 Fix C-bis (PR #979) — caso canônico
+- REGRA-ORQ-34 (Pipeline de Dados Bugfix Protocol) — try/catch é mitigação de race condition em sequências assíncronas
+- Lição #65 (rastrear fluxo end-to-end) — complementa: além de mapear writers/readers, mapear failure modes em sequências
+
+## Lição #68 — Coluna mono-valor + JSON multi-valor: ler do JSON na UI
+
+Origem: Sprint M3.10 Fix C-bis — `risks_v4.source_priority` vs `evidence.gaps[*].fonte` (PR #979)
+
+### Texto
+
+Quando schema do banco persiste:
+
+| Tipo | Coluna mono-valor | JSON multi-valor |
+|---|---|---|
+| Conteúdo | 1 vencedor de ranking | Todos os contribuintes |
+| Função | Query, ordenação, index | Representação fiel ao usuário |
+| Exemplo no projeto | `risks_v4.source_priority` | `risks_v4.evidence.gaps[*].fonte` |
+
+**UI DEVE ler do JSON multi-valor**, não da coluna mono-valor. Coluna mono-valor é otimização de DB (índice, ORDER BY, GROUP BY) — não é representação fiel ao domínio.
+
+### Pattern obrigatório
+
+Helper que extrai do JSON com fallback para coluna quando JSON ausente/malformado:
+
+```typescript
+function getMultiValueField(record): string[] {
+  const json = record.jsonField;
+  if (!json) return [record.monoColumn];                    // fallback 1: ausente
+  if (Array.isArray(json)) return [record.monoColumn];      // fallback 2: formato legado
+  if (typeof json !== "object") return [record.monoColumn]; // fallback 3: malformado
+  const items = json.items;                                 // tipo correto
+  if (!items?.length) return [record.monoColumn];           // fallback 4: vazio
+  const valores = items.map(i => i.field).filter(Boolean);
+  if (!valores.length) return [record.monoColumn];          // fallback 5: nenhum válido
+  return [...new Set(valores)].sort();                      // dedup + determinismo
+}
+```
+
+### Caso canônico
+
+`risks_v4` schema:
+- Coluna `source_priority`: 1 valor — fonte vencedora do `getBestSourcePriority` (rank menor)
+- JSON `evidence.gaps[*].fonte`: N valores — todas as fontes que contribuíram
+
+**Antes (bug):** UI exibia 1 badge baseado em `source_priority`. Multi-fonte real ofuscado em 3/6 riscos do projeto #3690001.
+
+**Depois (Fix C-bis):** helper `getSourceContributors(risk)` extrai do JSON com fallback. UI exibe `Solaris + IA Gen + Regulatório` quando aplicável; 1 badge quando mono-fonte real.
+
+### Aplicação prospectiva
+
+Antes de aprovar PR de UI que exibe campo persistido:
+
+1. **Há JSON correlato com info mais rica que a coluna?** Verificar schema do banco
+2. **Se sim, UI deve ler do JSON com fallback para coluna** — pattern acima
+3. **Se não, ler da coluna está OK**
+
+Pull request review check: `grep -r "risk\.source_priority" client/` deve retornar apenas usos em fallback (`?? risk.source_priority`), nunca como fonte primária.
+
+### Vinculadas
+
+- Sprint M3.10 Fix C-bis (PR #979) — caso canônico
+- Lição #66 (spec sem dados = ilusão) — extensão para output: spec pode ter JSON rico, mas se UI lê só da coluna, info se perde
+- REGRA-ORQ-34 (Pipeline de Dados Bugfix Protocol) — Protocolo 3 (DoD negativo) deve incluir validação de exibição multi-valor
+
+## REGRA-ORQ-35 — NUNCA ASSUMA (Read Before Write Enforcement)
+
+Vigência: permanente, a partir de 2026-05-05
+Origem: Sprint M3.10 — auto-avaliação Claude Code após 4 fixes consecutivos errados em variações do mesmo bug
+Severidade: governança fundamental — declarativa (Fase 1); enforcement mecânico via hooks na Fase 3
+
+POSIÇÃO: Esta regra tem PRIORIDADE sobre velocidade de entrega.
+
+### Threshold de Leitura por LOC
+
+Antes de qualquer Edit/Write, leitura mínima exigida:
+
+| Tamanho do arquivo | Estratégia |
+|---|---|
+| ≤ 300 LOC | Ler arquivo inteiro antes de editar |
+| 300-1000 LOC | Ler: declaração do alvo + 2 call sites + testes relacionados |
+| > 1000 LOC | Ler arquivo inteiro SE for o alvo do fix; senão, 3 trechos ortogonais (declaração + 2 usos diferentes) |
+
+**Fallback para arquivos extremos (>3000 LOC):** leitura por seções de 500 linhas com índice (`grep -n "^export\|^function"`) para navegação cirúrgica.
+
+### Checklist Obrigatório (4 perguntas antes de QUALQUER Edit)
+
+1. Li o arquivo inteiro (ou trechos conforme threshold)?
+2. Identifiquei TODOS os consumers/importers com `rg -l "import.*<Modulo>"`?
+3. Verifiquei se existe procedure similar que já resolve o problema?
+4. Formulei hipótese E tenho evidência (query SQL ou leitura de código) que a suporta?
+
+Se qualquer resposta for NÃO → PARE, investigue mais.
+
+### Gatilho de Ativação
+
+- Qualquer PR que modifica lógica de negócio
+- Qualquer fix em pipeline de dados (REGRA-ORQ-34 também ativa)
+- Qualquer refactor que altera assinaturas
+- Qualquer mudança em procedure tRPC consumida por frontend
+
+### Enforcement (Fases sequenciais)
+
+| Fase | Mecanismo | Status |
+|------|-----------|--------|
+| Atual (declarativa) | Checklist no PR template — reviewer valida evidência de leitura | Ativo |
+| Fase 3 (mecânica) | Hook PreToolUse bloqueia Edit sem evidência de investigação | Pendente implementação |
+
+> **Honestidade:** Esta REGRA é declarativa até Fase 3 ser implementada.
+> Sem hook, depende de disciplina voluntária — historicamente insuficiente (4 sprints com falha).
+> Enforcement real virá via `.claude/hooks/require-investigation.sh` (exit 2 = bloqueio mecânico).
+
+### Vinculadas
+
+- REGRA-ORQ-27 (Lição #59 — assemble ≠ consumption) — esta REGRA endereça falha repetida
+- REGRA-ORQ-28 (Triade) — checklist obrigatório complementa
+- REGRA-ORQ-34 (Pipeline de Dados Bugfix Protocol) — combinada para PRs de pipeline
+- REGRA-ORQ-36 (Técnicas de Investigação Profunda) — define COMO ler/investigar
+- Sprint M3.10 — 4 fixes consecutivos sem leitura completa do contexto
+
+## REGRA-ORQ-36 — Técnicas de Investigação Profunda
+
+Vigência: permanente, a partir de 2026-05-05
+Origem: Sprint M3.10 — 5 técnicas que descobriram bugs invisíveis para grep raso
+Severidade: governança operacional — define COMO investigar antes de fixar
+
+### Matriz de Aplicação (T1-T5)
+
+| Técnica | Quando usar | Caso canônico (Sprint M3.10) |
+|---|---|---|
+| **T1 — Tracing transversal** | Bug em pipeline multi-camada (input → transformação → persistência → output) | G17-B em `routers-fluxo-v3.ts:3711-3744` — caminho paralelo `deriveRisksFromGaps` → `project_risks_v3` (legado) |
+| **T2 — Comparação cirúrgica** | Procedures "similares" com bugs (mesmo objetivo, comportamento divergente) | `gapEngine.analyzeGaps:268` (`WHERE createdById = ?`) vs `risksV4.generateRisksAllSources` (sem filtro) — assimetria de auth |
+| **T3 — Hipótese-refutação SQL** | Antes de implementar qualquer fix em pipeline | Dry-run Manus 2026-05-05: 36 gaps órfãos em memória → provou diagnóstico antes de Fix C-bis |
+| **T4 — Mapa writers/readers** | Fix em tabela compartilhada (multi-writer ou multi-reader) | `project_gaps_v3`: 3 writers (gapEngine, solaris-analyzer, iagen-analyzer) × 1 reader (UI listagem). 0 readers no caminho de risco — bug arquitetural óbvio quando visualizado |
+| **T5 — Análise contrastiva** | Validação pós-fix (testar em N≥2 estados) | #3570002 (gaps v1 pré-existentes — passou) vs #3690001 (greenfield — falhou) — exposição da regressão simétrica |
+
+### Regra de Ouro
+
+- Bug em **1 camada** → T2 + T3 bastam
+- Bug em **pipeline multi-camada** → T1 + T4 obrigatórios
+- Bug **intermitente** → T5 obrigatório (testar em N≥2 estados ortogonais)
+- Bug **recorrente** (2+ PRs prévios) → T1 + T2 + T3 + T4 + T5 todos obrigatórios (REGRA-ORQ-34 Protocolo 2)
+
+### Ferramentas Preferidas (em ordem de preferência)
+
+1. **`ast-grep`** — busca semântica (assinaturas, tipos, estrutura de código). Ideal para refactor, comparação cirúrgica, detecção de assimetrias estruturais. Instalação: `npm install -g @ast-grep/cli` (autorizada Sprint M3.10 Fase 4)
+2. **`rg -C 10 "TERMO"`** — busca textual com contexto amplo (10 linhas antes/depois). Default para análise de código existente
+3. **`rg -l "import.*<Modulo>"`** — mapeamento de consumers (quem importa o módulo). Aplicar antes de qualquer mudança em assinatura pública
+4. **`grep -rn "INSERT INTO\|SELECT.*FROM"`** — mapeamento de writers/readers em tabelas (T4)
+5. **Query SQL direta** — validação empírica de hipótese (T3). Read-only sempre que possível
+
+### Comandos auxiliares para cada técnica
+
+**T1 — Tracing transversal:**
+```bash
+# Mapear writers de uma tabela
+grep -rn "INSERT INTO <tabela>\|insert<Tipo>" server/ --include="*.ts" | grep -v "\.test\."
+
+# Mapear readers
+grep -rn "FROM <tabela>\|SELECT.*<tabela>" server/ --include="*.ts" | grep -v "\.test\."
+
+# Mapear callers de função
+grep -rn "<funcaoNome>\s*(" server/ client/src --include="*.ts" --include="*.tsx" | grep -v "\.test\."
+```
+
+**T2 — Comparação cirúrgica:**
+```bash
+# Listar 2+ procedures similares
+ast-grep --pattern '<procedureName>: protectedProcedure.input($$$).mutation($$$)' --lang typescript
+
+# Comparar manualmente: input schemas, queries SQL, validações de auth, return types
+```
+
+**T3 — Hipótese-refutação SQL:**
+```sql
+-- Pattern: "Se hipótese H é verdadeira, query Q deve retornar resultado R"
+-- Se Q retorna ≠R → H refutada → reabrir investigação
+-- Se Q retorna =R → H confirmada → autorizar fix
+```
+
+**T4 — Mapa writers/readers:**
+- Tabela em coluna A: writer (quem chama INSERT/UPDATE)
+- Tabela em coluna B: reader (quem chama SELECT/FROM)
+- Visualização explícita expõe órfãos (writer sem reader = dead write; reader sem writer = leitura vazia)
+
+**T5 — Análise contrastiva:**
+- Cenário A: greenfield (zero estado pré-existente)
+- Cenário B: pré-existente (estado de execuções anteriores)
+- Cenário C (opcional): edge case (input vazio, malformado, condição limite)
+- Validar em N≥2 cenários antes de declarar fix completo
+
+### Vinculadas
+
+- REGRA-ORQ-34 (Pipeline de Dados Bugfix Protocol) — protocolos 1-4 são manifestações concretas de T5
+- REGRA-ORQ-35 (NUNCA ASSUMA) — define QUANDO investigar; ORQ-36 define COMO
+- Lição #65 (rastrear fluxo end-to-end) — T1 é manifestação operacional
+- Lição #70 (assimetria auth em procedures) — T2 é manifestação operacional
+- Sprint M3.10 — todos os casos canônicos vêm da resolução do bug mono-fonte
+
+## Lição #69 — Multi-fonte agregado vs multi-fonte por risco
+
+Origem: Sprint M3.10 Fix C-bis — DoD do projeto #3780001 (Manus 2026-05-05)
+
+### Texto
+
+Distinguir 2 conceitos diferentes de "multi-fonte" em matrizes consolidadas:
+
+| Conceito | Definição | Quando importa |
+|---|---|---|
+| **Multi-fonte AGREGADO** | Matriz exibe ≥2 valores de fonte distribuídos entre N riscos diferentes (ex: risco A=solaris, risco B=iagen, risco C=regulatorio) | Suficiente quando cada categoria tem 1 vencedora clara no rank |
+| **Multi-fonte POR RISCO** | Cada risco individual exibe múltiplas fontes que contribuíram para ele (ex: risco A=Solaris+IA Gen+Regulatório) | Necessário quando categoria tem gaps de N fontes simultâneas — `getBestSourcePriority` esconde N-1 |
+
+### Caso canônico
+
+Sprint M3.10 #3780001 (Manus DoD 2026-05-05):
+
+```
+8 riscos:
+  6 com source_priority='regulatorio'
+  2 com source_priority='iagen'
+  → 2 fontes distintas no AGREGADO ✅ (Critério Positivo 1 atendido)
+
+evidence.gaps[*].fonte = [] em todos os riscos
+  → multi-fonte POR RISCO está vazio ⚠️
+```
+
+A matriz exibiu multi-fonte agregado satisfatoriamente — 2 fontes diferentes em riscos diferentes. Mas se uma única categoria tivesse 3 fontes simultâneas (solaris+iagen+regulatorio), `source_priority` exibiria só 1 (winner-takes-all do rank), e a Frente 2 do Fix C-bis (que extrai de `evidence.gaps[*].fonte`) cairia no fallback `[source_priority]` = 1 badge.
+
+### Implicação operacional
+
+**Spec UX deve declarar explicitamente qual conceito está sendo entregue:**
+
+- "Matriz exibe múltiplas fontes" → ambíguo
+- "Matriz exibe ao menos 2 fontes diferentes entre os riscos" → multi-fonte agregado
+- "Cada risco exibe todas as fontes contribuintes" → multi-fonte por risco
+
+DoD deve incluir **ambos os critérios** quando relevante:
+- Critério agregado: `COUNT(DISTINCT source_priority) >= 2` em `risks_v4`
+- Critério por risco: pelo menos 1 risco com `LENGTH(evidence.gaps) >= 2 fontes únicas`
+
+### Aplicação prospectiva
+
+Antes de declarar bug "mono-fonte" resolvido, validar AMBOS conceitos. Se apenas agregado for atendido, documentar como tech debt o que ainda falta para multi-fonte por risco.
+
+### Vinculadas
+
+- Sprint M3.10 #3780001 (caso canônico — Manus DoD 2026-05-05)
+- Lição #66 (spec sem dados = ilusão) — extensão: spec sem clareza UX = ilusão de cobertura
+- Lição #68 (coluna mono + JSON multi) — Fix C-bis previu multi-fonte por risco mas evidence.gaps[].fonte vazio expôs gap de implementação no `mapGapToEvidence`
+- REGRA-ORQ-34 Protocolo 3 (DoD com critério NEGATIVO) — agora deve incluir distinção agregado vs por risco
+
+### Errata (2026-05-05)
+
+A afirmação `evidence.gaps[*].fonte = [] em todos os riscos` no caso canônico acima é **factualmente incorreta** — artefato de bug no script DoD `scripts/dod-3780001.ts` (não commitado, criado em sandbox Manus 2026-05-05).
+
+**Estado real do banco** (queries executadas em produção 2026-05-05 ~20:50 UTC, conexão TiDB direta):
+
+| Projeto | source_priority distintos | evidence.gaps[*].fonte multi-fonte por risco |
+|---|---|---|
+| #3780001 (greenfield) | 2 (iagen + regulatorio) | 2/8 riscos (`confissao_automatica` e `regime_diferenciado` = `[iagen, regulatorio]`) |
+| #3570002 (retrigger) | 2 (solaris + regulatorio) | 5/9 riscos com 2-3 fontes |
+| #3750060 (pré-existente) | 2 (solaris + regulatorio) | 6/9 riscos com 2-3 fontes |
+
+**Mecanismo do bug no script DoD:**
+
+```typescript
+// BUGADO (dod-3780001.ts):
+const ev = JSON.parse(row.evidence || '{}');
+```
+
+O driver `mysql2` retorna colunas JSON do TiDB já parseadas como objetos JavaScript. `JSON.parse(object)` invoca `.toString()` → `"[object Object]"` → throws `TypeError` → `catch {}` silencia → `fontes` permanece `[]`.
+
+**Pattern correto** (aplicado em `dod-queries-3750060.ts` e em `RiskDashboardV4.tsx:204` — helper `getSourceContributors`):
+
+```typescript
+const ev = typeof row.evidence === "string" ? JSON.parse(row.evidence) : row.evidence;
+```
+
+**Conclusão:** a Frente 2 do Fix C-bis (multi-fonte POR RISCO) **funciona corretamente em produção**. A distinção conceitual agregado vs por risco permanece válida e útil — apenas o exemplo numérico estava errado. Ver Lição #72 (mysql2 JSON auto-parse) e Lição #71 (scripts DoD commitados).
+
+**Vinculadas à errata:**
+- Audit `docs/governance/audits/v7.64-2026-05-05-audit-m3.10-multi-fonte.md` (evidência reproduzível)
+- Lição #71 (scripts DoD commitados — previne recorrência)
+- Lição #72 (mysql2 auto-parse JSON — antipattern)
+
+## Lição #70 — Assimetria de auth em procedures aparentemente similares
+
+Origem: Sprint M3.10 deep research — diagnóstico do silent fail em #3690001 (Claude Code 2026-05-05)
+
+### Texto
+
+Procedures que fazem "a mesma coisa" frequentemente têm filtros de autenticação/autorização DIFERENTES. Quando uma procedure A é mais restritiva que procedure B no mesmo fluxo, e ambas são chamadas em sequência (try/catch absorvendo falha de A), o resultado é silent fail seletivo: B roda com estado parcial, sem erro visível ao usuário.
+
+### Caso canônico
+
+Sprint M3.10 — comparação cirúrgica entre 2 procedures do pipeline de risco:
+
+| Procedure | Filtro de ownership | Comportamento se P.O. ≠ criador |
+|---|---|---|
+| `gapEngine.analyzeGaps` (gapEngine.ts:268) | `WHERE id = ? AND createdById = ?` | Retorna `NOT_FOUND` 404 |
+| `risksV4.generateRisksAllSources` | Apenas `validateProjectAccess()` | Roda normalmente |
+
+No `RiskDashboardV4.tsx` Fix C-bis, ambas são chamadas em sequência:
+```typescript
+try {
+  await ensureV1GapsMutation.mutateAsync({...});  // = gapEngine.analyzeGaps
+} catch (err) {
+  console.warn(...);  // ABSORVE 404 silenciosamente
+}
+generateAllSourcesMutation.mutate({...});  // RODA sem ownership check
+```
+
+**Resultado em projeto #3690001:** se P.O. não é `createdById` (ex: criado por outra conta, seed automático), `ensureV1Gaps` retorna 404 → catch absorve → `generateAllSources` roda só com gaps solaris pré-existentes → matriz mono-solaris (NÃO multi-fonte).
+
+### Aplicação prospectiva
+
+**Antes de fix em pipeline com 2+ procedures sequenciais:**
+
+1. Comparar filtros de auth entre procedures (técnica T2 da REGRA-ORQ-36)
+2. Documentar assimetrias em comentário inline
+3. Decidir explicitamente: alinhar (relaxar mais restritiva) ou divergir (com justificativa)
+4. Se try/catch absorve falha de procedure restritiva, garantir que erro chegue ao usuário (toast, log de auditoria)
+
+### Pattern do anti-fix
+
+❌ **Não fazer:** try/catch absorvendo silenciosamente sem distinguir tipos de erro
+✅ **Fazer:** try/catch que distingue 404 (auth) de 500 (server error) e age diferente
+
+```typescript
+try {
+  await procA.mutateAsync({...});
+} catch (err) {
+  if (err.code === "NOT_FOUND") {
+    toast.warning("Você não é o criador deste projeto — gaps regulatórios não serão atualizados");
+  } else {
+    console.warn("[contexto] procA falhou — degradando", err);
+  }
+}
+await procB.mutateAsync({...});  // continua mesmo após auth fail
+```
+
+### Vinculadas
+
+- Sprint M3.10 deep research (caso canônico) — `gapEngine.ts:268` vs `risks-v4.ts:generateRisksAllSources`
+- REGRA-ORQ-36 T2 (Comparação cirúrgica) — esta lição é manifestação concreta
+- Lição #65 (rastrear fluxo end-to-end) — complementa: além de mapear writers/readers, mapear filtros de auth
+- Lição #67 (try/catch graceful) — refinamento: catch graceful precisa distinguir tipos de erro
+- Tech debt declarado: relaxar `WHERE createdById = ?` em `gapEngine.ts:268` para `validateProjectAccess()` (Sprint M3.11 backlog)
+
+### Errata (2026-05-05)
+
+O caso canônico acima descreve cenário **hipotético** baseado em leitura de código, não reproduzido em produção. Query executada em 2026-05-05 nos 4 projetos auditados na Sprint M3.10 (#3690001, #3780001, #3570002, #3750060) confirmou que **todos têm `createdById = 1` (P.O., Uires Tapajós)** — o cenário "P.O. ≠ criador" não ocorreu.
+
+**Status revisado:**
+
+- ✅ **FATO:** assimetria de auth entre `gapEngine.analyzeGaps` (`AND createdById = ?`) e `risksV4.generateRisksAllSources` (sem filtro) existe no código (verificável em `server/routers/gapEngine.ts:268` vs `server/routers/risks-v4.ts:872-881`)
+- ❌ **REFUTADO:** este padrão NÃO causou silent fail no #3690001. A causa real do mono-fonte percebido foi o bug do script DoD (Lição #69 errata) somado ao auto-trigger guard `activeRisks.length === 0`
+- ⚠️ **HIPOTÉTICO:** o cenário "ensureV1Gaps retorna 404 → catch absorve → mono-solaris" permanece **possível teoricamente** mas **não reproduzido** em nenhum projeto auditado em produção
+
+A lição permanece **conceitualmente válida** como técnica de investigação (T2 da REGRA-ORQ-36 — comparação cirúrgica) e padrão prospectivo de defesa em depth para procedures sequenciais. O pattern do anti-fix (catch que distingue 404 de 500) continua recomendado.
+
+**Vinculadas à errata:**
+- Q5 do relatório Manus 2026-05-05 (refutação por query)
+- Audit `docs/governance/audits/v7.64-2026-05-05-audit-m3.10-multi-fonte.md`
+- Tech debt em `gapEngine.ts:268` permanece válido para investigação prospectiva, mas **não é causa raiz documentada** de incidente real
+
+## Lição #71 — Scripts de validação DoD devem ser commitados + autor valida o parser
+
+Origem: Sprint M3.10 — bug em `scripts/dod-3780001.ts` (não commitado) propagou erro factual para Lição #69 e atrasou fechamento da sprint
+
+### Texto
+
+Scripts que produzem evidência DoD (Definition of Done) DEVEM:
+
+1. **Ser commitados** ao repositório (`scripts/dod-*.ts`, `scripts/audit-*.ts` ou similar)
+2. **Ter teste unitário do parser** quando consumirem dados estruturados (JSON, CSV, output de query)
+3. **Ser executados pelo autor com validação cruzada** antes de reportar PASS/FAIL
+
+A regra é dupla: o autor do script é responsável por validar o próprio parser **antes** de reportar resultado downstream. Reportar "DoD PASS" baseado em script não testado equivale a confiar em ferramenta de medição não calibrada.
+
+### Caso canônico
+
+Sprint M3.10 fechamento (2026-05-05). Manus produziu `scripts/dod-3780001.ts` em sandbox isolada para validar critério de DoD do PR #979 (multi-fonte). Script:
+
+- **Não foi commitado** ao repositório
+- **Não tinha teste unitário** do parser de `evidence` (coluna JSON do TiDB)
+- **Continha bug** de `JSON.parse(row.evidence)` em coluna mysql2 já parseada → `[object Object]` → throws → catch silencia → reporta `fontes=[]` (falso negativo)
+
+Resultado: `fontes_evidence=[]` foi propagado para o relatório DoD → consumido pelo Orquestrador → registrado na Lição #69 como caso canônico → publicado em main via PR #981 → afirmação factualmente incorreta no governance permanente. Cascata de governance dependeu de ferramenta de medição cega.
+
+Apenas com queries SQL diretas (executadas independentemente do script bugado) o estado real do banco foi confirmado: 2/8 riscos do #3780001 têm multi-fonte real em `evidence.gaps[*].fonte`.
+
+### Aplicação prospectiva
+
+CI gate sugerido em `.github/workflows/dod-scripts-tracked.yml`:
+
+```bash
+# Falha se PR menciona "DoD PASS" no body sem referência a script commitado em scripts/
+grep -E "DoD.*PASS|DoD.*✅" PR_BODY \
+  && ! grep -E "scripts/(dod|audit)-[a-z0-9-]+\.ts" PR_BODY \
+  && exit 1
+```
+
+Para audits ORQ-19: relatório arquivado em `docs/governance/audits/` deve referenciar SHA git + caminho dos scripts executados. Sem isso, evidência é narrativa, não reproduzível.
+
+### Conflito RACI a observar
+
+Quando o autor do script e o validador da implementação são a mesma entidade (caso M3.10: Manus implementou solaris/iagen analyzers + Manus escreveu DoD script + Manus reportou PASS), o checks-and-balances quebra. Em sprints pequenas pode ser inevitável — nesse caso, **commitar o script** vira a única salvaguarda residual: outro implementador ou o Orquestrador podem re-executar e detectar discrepância.
+
+### Vinculadas
+
+- REGRA-ORQ-19 (auditoria fim-de-sessão) — agora exige referência a scripts commitados
+- REGRA-ORQ-27 (Lição #59 — assemble ≠ consumption) — manifestação meta: script "consome" do banco mas parser corrompe leitura
+- REGRA-ORQ-33 (RACI Implementador ≠ Validador) — backlog: refinar para casos de validador-autor-de-ferramenta
+- Lição #69 errata (caso canônico do bug propagado)
+- Lição #72 (mysql2 auto-parse JSON — antipattern do parser específico)
+- Sprint M3.10 (caso canônico)
+
+## Lição #72 — Driver mysql2 auto-parseia colunas JSON: NÃO usar `JSON.parse`
+
+Origem: Sprint M3.10 — bug em `scripts/dod-3780001.ts` que mascarou multi-fonte como `[]`
+
+### Texto
+
+O driver `mysql2` (versão Node.js usada no projeto) **auto-parseia colunas do tipo JSON** do TiDB/MySQL, retornando objetos JavaScript já estruturados. Aplicar `JSON.parse(row.jsonColumn)` sobre um objeto:
+
+1. Invoca `Object.prototype.toString()` → `"[object Object]"`
+2. `JSON.parse("[object Object]")` lança `SyntaxError: Unexpected token o in JSON`
+3. Se houver `try/catch` ao redor, o erro é silenciado e o output cai em fallback (geralmente `[]` ou `{}`)
+4. Resultado é falso negativo silencioso
+
+### Antipattern
+
+```typescript
+// ❌ NÃO FAZER:
+const ev = JSON.parse(row.evidence || '{}');
+
+// Mecanismo da falha:
+//   row.evidence === { gaps: [...] }  (objeto, não string)
+//   JSON.parse({...}) → toString → "[object Object]" → throws
+//   catch silenciado → ev permanece undefined ou {} → consumer reporta []
+```
+
+### Pattern correto
+
+```typescript
+// ✅ FAZER:
+const ev = typeof row.evidence === "string" ? JSON.parse(row.evidence) : row.evidence;
+
+// Variante defensiva (3 fallbacks):
+function safeParseJson<T>(raw: unknown, fallback: T): T {
+  if (raw == null) return fallback;
+  if (typeof raw === "object") return raw as T;
+  if (typeof raw === "string") {
+    try { return JSON.parse(raw) as T; } catch { return fallback; }
+  }
+  return fallback;
+}
+```
+
+### Caso canônico em runtime de produção
+
+`client/src/components/RiskDashboardV4.tsx:194-220` — helper `getSourceContributors`:
+
+```typescript
+function getSourceContributors(risk: RiskData): string[] {
+  const evidence = risk.evidence;
+  if (!evidence) return [risk.source_priority];
+  if (Array.isArray(evidence)) return [risk.source_priority];
+  if (typeof evidence === "object" && "gaps" in evidence) {
+    // ← trata como objeto SEM JSON.parse
+    const gaps = (evidence as ConsolidatedEvidence).gaps;
+    // ...
+  }
+  return [risk.source_priority];
+}
+```
+
+tRPC + superjson preservam o tipo objeto end-to-end (banco → backend → frontend). Por isso o helper de produção funciona — só o script DoD em sandbox isolada caiu na armadilha.
+
+### Aplicação prospectiva
+
+CI gate sugerido em `.github/workflows/invariant-check.yml` (INV-08):
+
+```bash
+# Detectar JSON.parse direto sobre coluna JSON em scripts/ e server/
+grep -rnE "JSON\.parse\(\s*row\.(evidence|gaps|metadata|profile|payload)" \
+  scripts/ server/ --include="*.ts" --include="*.tsx" \
+  | grep -v "test\|\.d\.ts"
+```
+
+Se match > 0 → FAIL com mensagem direcionando para Lição #72.
+
+**Nota técnica:** o regex captura nomes específicos de colunas JSON conhecidas no schema (lista expansível). Listar campos JSON em variável de configuração permite manutenção centralizada.
+
+### Vinculadas
+
+- Lição #71 (scripts DoD commitados — esta lição é o antipattern específico que motivou Lição #71)
+- Lição #69 errata (caso canônico do bug propagado)
+- Sprint M3.10 (caso canônico)
+- `client/src/components/RiskDashboardV4.tsx:204` (pattern correto em produção)
+- `scripts/dod-queries-3750060.ts` (pattern correto em script de validação — não commitado em sandbox Manus, recuperação tracked como issue P3)

@@ -22,6 +22,8 @@ export default defineConfig({
       "client/src/lib/**/*.test.ts",
       // M2 PR-B — testes unitários de helpers de páginas client
       "client/src/pages/__tests__/**/*.test.ts",
+      // M3.10 #987 — testes de scripts DoD (Lição #71)
+      "scripts/**/*.test.ts",
     ],
     testTimeout: 180000, // 180 segundos (3 minutos) para acomodar operações com LLM
     hookTimeout: 180000, // 180 segundos (3 minutos) para hooks (beforeEach, afterEach)

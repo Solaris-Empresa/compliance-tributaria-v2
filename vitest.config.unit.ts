@@ -21,6 +21,7 @@ export default defineConfig({
       "server/**/*.test.ts",
       "server/**/*.spec.ts",
       "client/src/lib/**/*.test.ts",
+      "scripts/**/*.test.ts",
     ],
     exclude: ["server/integration/**"],
     testTimeout: 180000, // 180 segundos (3 minutos) para acomodar operações com LLM
