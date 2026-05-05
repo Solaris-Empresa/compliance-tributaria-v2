@@ -170,7 +170,54 @@ const SOURCE_LABELS: Record<string, string> = {
   nbs: "NBS",
   solaris: "Solaris",
   iagen: "IA Gen",
+  // M3.10 Fix C-bis: ampliação para refletir Fonte expandida (M3.8.1 Bug C +
+  // PR #968 introduziram "regulatorio"; "inferred" vem de normative-inference).
+  regulatorio: "Regulatório",
+  inferred: "Inferido",
 };
+
+/**
+ * M3.10 Fix C-bis (post-mortem #975): extrai TODAS as fontes contribuintes do
+ * risco, lendo evidence.gaps[*].fonte (preservado pelo backend desde Z-13.5).
+ *
+ * Antes: UI exibia apenas risk.source_priority — fonte vencedora do ranking
+ * (winner-takes-all em consolidateRisks). Multi-fonte real ficava ofuscada.
+ * Em projeto greenfield (#3690001), 3/6 riscos tinham contribuição de iagen
+ * mas exibiam só "Solaris".
+ *
+ * Estratégia: ler evidence.gaps[*].fonte (todas as fontes que contribuíram) e
+ * fazer dedup. Fallback para [risk.source_priority] quando evidence é null,
+ * malformado, ou gaps[] está vazio (preserva compat com riscos legados).
+ *
+ * Ordem alfabética para determinismo (evita ordem variável dependente do banco).
+ */
+function getSourceContributors(risk: RiskData): string[] {
+  const evidence = risk.evidence;
+
+  // Fallback 1: evidence ausente
+  if (!evidence) return [risk.source_priority];
+
+  // Fallback 2: evidence é array (formato legado EvidenceItem[]) — usa source_priority
+  if (Array.isArray(evidence)) return [risk.source_priority];
+
+  // Caso esperado: evidence é ConsolidatedEvidence com gaps[]
+  if (typeof evidence === "object" && "gaps" in evidence) {
+    const gaps = (evidence as ConsolidatedEvidence).gaps;
+    if (!gaps || gaps.length === 0) return [risk.source_priority];
+
+    const fontes = gaps
+      .map((g) => g.fonte)
+      .filter((f): f is string => typeof f === "string" && f.length > 0);
+
+    if (fontes.length === 0) return [risk.source_priority];
+
+    // Dedup + ordem alfabética (determinística)
+    return [...new Set(fontes)].sort();
+  }
+
+  // Fallback 3: evidence em formato inesperado (ex: string JSON ainda não parseada)
+  return [risk.source_priority];
+}
 
 function parseEvidence(raw: EvidenceItem[] | string | ConsolidatedEvidence): EvidenceItem[] {
   // Case 1: already an array of EvidenceItem
@@ -207,20 +254,56 @@ function parseBreadcrumb(raw: [string, string, string, string] | string): [strin
 
 // ─── Sub-componente: Breadcrumb4 ─────────────────────────────────────────────
 
-function Breadcrumb4({ breadcrumb }: { breadcrumb: [string, string, string, string] }) {
+/**
+ * M3.10 Fix C-bis: assinatura ampliada para receber fontes contribuintes do
+ * risco (array). Compat preservada — quando recebe apenas breadcrumb, deriva
+ * fontes = [breadcrumb[0]] (1 elemento, comportamento idêntico ao anterior).
+ *
+ * Quando `fontes` array é fornecido com N elementos, exibe N badges de fonte
+ * antes do separador "›" para a categoria. Caso multi-fonte real do greenfield
+ * (#3690001): "Solaris IA Gen Regulatório › Confissão Automática › Art. ... › ..."
+ */
+function Breadcrumb4({
+  breadcrumb,
+  fontes,
+}: {
+  breadcrumb: [string, string, string, string];
+  fontes?: string[];
+}) {
   const [fonte, categoria, artigo, ruleId] = breadcrumb;
-  const chips: { label: string; value: string; color: string; tooltip: string }[] = [
-    { label: SOURCE_LABELS[fonte] ?? fonte, value: fonte, color: "bg-blue-100 text-blue-700", tooltip: `Fonte: ${fonte}` },
-    { label: CATEGORIA_LABELS[categoria] ?? categoria, value: categoria, color: "bg-purple-100 text-purple-700", tooltip: `Categoria: ${CATEGORIA_LABELS[categoria] ?? categoria}` },
-    { label: `Art. ${artigo}`, value: artigo, color: "bg-green-100 text-green-700", tooltip: `Artigo: ${artigo}` },
-    { label: ruleId, value: ruleId, color: "bg-gray-100 text-gray-600", tooltip: `Rule ID: ${ruleId}` },
-  ];
+  // Se fontes não fornecidas, usar a fonte do breadcrumb (1 elemento — compat)
+  const fontesExibidas = fontes && fontes.length > 0 ? fontes : [fonte];
 
   return (
     <div className="flex items-center gap-1 flex-wrap">
-      {chips.map((chip, i) => (
-        <span key={i} className="flex items-center gap-1">
-          {i > 0 && <span className="text-muted-foreground text-[10px]">›</span>}
+      {/* Fontes (M3.10 Fix C-bis: 1+ badges) */}
+      <span className="flex items-center gap-1">
+        {fontesExibidas.map((f, i) => (
+          <span key={`fonte-${f}-${i}`} className="flex items-center gap-1">
+            {i > 0 && <span className="text-muted-foreground text-[10px]">+</span>}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-700"
+                  data-testid={`risk-source-badge-${f}`}
+                >
+                  {SOURCE_LABELS[f] ?? f}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Fonte: {SOURCE_LABELS[f] ?? f}</TooltipContent>
+            </Tooltip>
+          </span>
+        ))}
+      </span>
+
+      {/* Categoria, artigo, ruleId — separadores › */}
+      {[
+        { label: CATEGORIA_LABELS[categoria] ?? categoria, value: categoria, color: "bg-purple-100 text-purple-700", tooltip: `Categoria: ${CATEGORIA_LABELS[categoria] ?? categoria}` },
+        { label: `Art. ${artigo}`, value: artigo, color: "bg-green-100 text-green-700", tooltip: `Artigo: ${artigo}` },
+        { label: ruleId, value: ruleId, color: "bg-gray-100 text-gray-600", tooltip: `Rule ID: ${ruleId}` },
+      ].map((chip, i) => (
+        <span key={`chip-${i}`} className="flex items-center gap-1">
+          <span className="text-muted-foreground text-[10px]">›</span>
           <Tooltip>
             <TooltipTrigger asChild>
               <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${chip.color}`}>
@@ -351,7 +434,7 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, onNewPlan,
           <p className="mt-1.5 text-sm font-medium text-foreground line-clamp-2" data-testid="risk-title">{risk.titulo}</p>
           {/* Breadcrumb 4 nós */}
           <div className="mt-1" data-testid="risk-legal-basis">
-            <Breadcrumb4 breadcrumb={breadcrumb} />
+            <Breadcrumb4 breadcrumb={breadcrumb} fontes={getSourceContributors(risk)} />
           </div>
           {/* Plans preview inline — #601 */}
           {risk.type !== "opportunity" && (risk.actionPlans?.length ?? 0) > 0 && (
@@ -538,7 +621,7 @@ function NewPlanModal({
         </DialogHeader>
 
         <div className="mb-3">
-          <Breadcrumb4 breadcrumb={breadcrumb} />
+          <Breadcrumb4 breadcrumb={breadcrumb} fontes={getSourceContributors(risk)} />
         </div>
 
         <div className="space-y-3">
@@ -715,7 +798,15 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   const generateFromGapsMutation = trpc.risksV4.generateRisksFromGaps.useMutation({
     onSuccess: () => utils.risksV4.listRisks.invalidate({ projectId }),
   });
-  const analyzeGapsMutation = trpc.gapEngine.analyzeGaps.useMutation({
+  /**
+   * @deprecated M3.10 Fix C-bis: para auto-trigger e botão manual, usar
+   * `ensureV1GapsMutation` (write-only, sem cadeia onSuccess). Esta mutation
+   * permanece declarada para compat com chamadas externas que dependem da
+   * cadeia legada (mapGaps + generateRisksFromGaps), e para o display de
+   * `isPending` no botão de geração ("Analisando gaps…").
+   * NÃO chamar diretamente em fluxos novos — usar generateAllSourcesMutation.
+   */
+  const _legacyAnalyzeGapsMutation = trpc.gapEngine.analyzeGaps.useMutation({
     onError: (err) => toast.error("Erro ao analisar gaps", { description: err.message }),
     onSuccess: async (result) => {
       // M3.8-1B (Lição #62 Contexto vs Evidência): derivar sourceOrigin de
@@ -764,6 +855,20 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       }
     },
   });
+
+  // M3.10 Fix C-bis (post-mortem #975 + #3690001): variant write-only de
+  // analyzeGaps SEM onSuccess. Usado para popular project_gaps_v3 com gaps v1
+  // (regulatorio) ANTES de generateRisksAllSources. Sem este passo, projetos
+  // greenfield (criados pós-deploy M3.10) ficam com 0 gaps v1 — ninguém
+  // escrevia, porque PR #977 substituiu o auto-trigger sem manter o writer.
+  // DELETE scoped (Bug A fix M3.8.1, gapEngine.ts:459) garante idempotência —
+  // re-execução não duplica gaps v1.
+  const ensureV1GapsMutation = trpc.gapEngine.analyzeGaps.useMutation({
+    onError: (err) => toast.error("Erro ao gerar gaps regulatórios", { description: err.message }),
+    // SEM onSuccess: este path é write-only. Consolidação de riscos é
+    // responsabilidade de generateAllSourcesMutation (chamado em sequência).
+  });
+
   // M3.10 Fix A1 (post-mortem #975): pipeline unificado que consome TODOS os
   // sources de project_gaps_v3 (v1 + solaris + iagen). Substitui a orquestração
   // antiga de 3 chamadas (analyzeGaps + mapGapsToRules + generateRisksFromGaps),
@@ -778,8 +883,9 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
     onError: (err) => toast.error("Erro ao gerar matriz de riscos", { description: err.message }),
   });
 
-  const isGenerating = analyzeGapsMutation.isPending || mapGapsMutation.isPending
-    || generateFromGapsMutation.isPending || generateAllSourcesMutation.isPending;
+  const isGenerating = _legacyAnalyzeGapsMutation.isPending || mapGapsMutation.isPending
+    || generateFromGapsMutation.isPending || generateAllSourcesMutation.isPending
+    || ensureV1GapsMutation.isPending;
 
   // ── Auto-generate on first load (B-01: trigger pos-briefing) ────────────
   const hasAutoTriggered = useRef(false);
@@ -870,9 +976,25 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       !isGenerating
     ) {
       hasAutoTriggered.current = true;
-      // M3.10 Fix A1: usa pipeline unificado multi-fonte em vez do legado
-      // (analyzeGaps → mapGapsToRules → generateRisksFromGaps que só lia v1).
-      generateAllSourcesMutation.mutate({ projectId });
+      // M3.10 Fix C-bis (post-mortem #975 + #3690001): sequência write→read.
+      // PASSO 1: ensureV1Gaps escreve gaps v1 (regulatorio) em project_gaps_v3.
+      //          Idempotente via DELETE scoped (Bug A fix M3.8.1).
+      // PASSO 2: generateAllSources lê TODOS os sources e consolida riscos.
+      // try/catch: se Passo 1 falhar (timeout LLM, rate limit), Passo 2 ainda
+      // roda com gaps existentes (degradação graciosa: matriz parcial é melhor
+      // que zero riscos).
+      (async () => {
+        try {
+          await ensureV1GapsMutation.mutateAsync({ project_id: projectId, dry_run: false });
+        } catch (err) {
+          console.warn(
+            "[M3.10 Fix C-bis] ensureV1GapsMutation falhou — degradando para gaps existentes",
+            err,
+          );
+          // Não relança. Toast já foi exibido via onError. Continua para Passo 2.
+        }
+        generateAllSourcesMutation.mutate({ projectId });
+      })();
     }
   }, [isLoading, activeRisks.length, isGenerating]);
 
@@ -1102,13 +1224,25 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
                     size="sm"
                     variant="outline"
                     disabled={isGenerating}
-                    onClick={() => generateAllSourcesMutation.mutate({ projectId })}
+                    onClick={async () => {
+                      // M3.10 Fix C-bis: mesma sequência write→read do auto-trigger.
+                      try {
+                        await ensureV1GapsMutation.mutateAsync({ project_id: projectId, dry_run: false });
+                      } catch (err) {
+                        console.warn(
+                          "[M3.10 Fix C-bis] ensureV1GapsMutation falhou no botão manual — degradando",
+                          err,
+                        );
+                      }
+                      generateAllSourcesMutation.mutate({ projectId });
+                    }}
                   >
                     {isGenerating ? (
                       <>
                         <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                        {generateAllSourcesMutation.isPending ? "Carregando gaps multi-fonte…"
-                          : analyzeGapsMutation.isPending ? "Analisando gaps…"
+                        {ensureV1GapsMutation.isPending ? "Gerando gaps regulatórios…"
+                          : generateAllSourcesMutation.isPending ? "Carregando gaps multi-fonte…"
+                          : _legacyAnalyzeGapsMutation.isPending ? "Analisando gaps…"
                           : mapGapsMutation.isPending ? "Mapeando regras…"
                           : "Gerando riscos…"}
                       </>
