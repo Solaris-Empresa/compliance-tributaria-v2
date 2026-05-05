@@ -194,16 +194,21 @@ describe("M3.10 Fix A1 — frontend RiskDashboardV4 usa pipeline unificado", () 
     );
   });
 
-  it("auto-trigger (useEffect com hasAutoTriggered) chama generateAllSourcesMutation", () => {
-    // Match: hasAutoTriggered.current = true; ... generateAllSourcesMutation.mutate({ projectId })
+  it("auto-trigger (useEffect com hasAutoTriggered) chama generateAllSourcesMutation (após Fix C-bis: dentro de IIFE async)", () => {
+    // M3.10 Fix C-bis (PR posterior): auto-trigger agora chama
+    // ensureV1GapsMutation primeiro (write), depois generateAllSourcesMutation
+    // (read+consolidate). Janela ampla cobre comentários inline + try/catch.
     expect(FRONTEND_SRC).toMatch(
-      /hasAutoTriggered\.current\s*=\s*true[\s\S]{0,500}generateAllSourcesMutation\.mutate\(\s*\{\s*projectId\s*\}/,
+      /hasAutoTriggered\.current\s*=\s*true[\s\S]{0,1500}generateAllSourcesMutation\.mutate\(\s*\{\s*projectId\s*\}/,
     );
   });
 
-  it("botão 'Gerar Riscos v4' chama generateAllSourcesMutation", () => {
+  it("botão 'Gerar Riscos v4' chama generateAllSourcesMutation (após Fix C-bis: dentro de onClick async)", () => {
+    // M3.10 Fix C-bis: onClick agora é async, com try/catch para ensureV1Gaps
+    // antes de generateAllSources. A chamada a generateAllSourcesMutation.mutate
+    // continua presente — apenas dentro de uma função async.
     expect(FRONTEND_SRC).toMatch(
-      /onClick=\{\s*\(\)\s*=>\s*generateAllSourcesMutation\.mutate\(\s*\{\s*projectId\s*\}\s*\)\s*\}/,
+      /onClick=\{\s*async\s*\(\)[\s\S]{0,800}generateAllSourcesMutation\.mutate\(\s*\{\s*projectId\s*\}\s*\)/,
     );
   });
 
@@ -218,9 +223,10 @@ describe("M3.10 Fix A1 — frontend RiskDashboardV4 usa pipeline unificado", () 
     expect(FRONTEND_SRC).toMatch(/setPipelineStats\(\s*result\.stats/);
   });
 
-  it("mantém analyzeGapsMutation/mapGapsMutation/generateFromGapsMutation para compat", () => {
-    // Não removeu — apenas o auto-trigger mudou
-    expect(FRONTEND_SRC).toMatch(/analyzeGapsMutation\s*=\s*trpc\.gapEngine\.analyzeGaps/);
+  it("mantém mutations legadas para compat (renomeada para _legacyAnalyzeGapsMutation em Fix C-bis)", () => {
+    // M3.10 Fix C-bis: analyzeGapsMutation foi renomeada para _legacyAnalyzeGapsMutation
+    // (com JSDoc @deprecated). mapGapsMutation e generateFromGapsMutation preservadas.
+    expect(FRONTEND_SRC).toMatch(/_legacyAnalyzeGapsMutation\s*=\s*trpc\.gapEngine\.analyzeGaps/);
     expect(FRONTEND_SRC).toMatch(/mapGapsMutation\s*=\s*trpc\.risksV4\.mapGapsToRules/);
     expect(FRONTEND_SRC).toMatch(
       /generateFromGapsMutation\s*=\s*trpc\.risksV4\.generateRisksFromGaps/,
