@@ -21,6 +21,7 @@
  * - Lição #72 (.claude/rules/governance.md) — antipattern JSON.parse em coluna mysql2
  * - Issue #987 — recuperação dos scripts DoD originais
  */
+import { fileURLToPath } from "node:url";
 import mysql from "mysql2/promise";
 import { safeParseJsonColumn } from "./safe-parse-json-column";
 
@@ -155,8 +156,14 @@ function formatReport(result: DoDResult): string {
   return lines.join("\n");
 }
 
-// Entry point
-if (require.main === module) {
+// Entry point ESM-compatível.
+// Em projeto com `"type": "module"` + `tsconfig.module: ESNext`, `require` é
+// undefined. Usar `fileURLToPath(import.meta.url)` para detectar invocação direta.
+const isMainModule =
+  typeof import.meta.url === "string" &&
+  process.argv[1] === fileURLToPath(import.meta.url);
+
+if (isMainModule) {
   const projectIdArg = process.argv[2];
   if (!projectIdArg || isNaN(Number(projectIdArg))) {
     console.error("Uso: npx tsx scripts/dod/m3.10/dod-multi-fonte-template.ts <projectId>");

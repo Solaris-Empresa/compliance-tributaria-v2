@@ -9,12 +9,13 @@ Scripts de validação DoD (Definition of Done) para o pipeline multi-fonte da S
 | `safe-parse-json-column.ts` | Helper canônico — parse defensivo de coluna JSON do TiDB/MySQL |
 | `safe-parse-json-column.test.ts` | Test unit do helper (9 cenários cobrindo o caso canônico do bug) |
 | `dod-multi-fonte-template.ts` | Template de DoD reproduzindo Q1 (agregado) + Q2 (por risco) do audit v7.64 |
+| `dod-multi-fonte-template.test.ts` | Test unit de `formatReport` (3 cenários: vazio, mono, multi) |
 | `README.md` | Este arquivo |
 
 ## Status (issue #987)
 
-- [x] Helper `safeParseJsonColumn` commitado e testado
-- [x] Template DoD multi-fonte commitado (queries Q1 e Q2 derivadas do audit v7.64)
+- [x] Helper `safeParseJsonColumn` commitado e testado (9/9 unit tests PASS)
+- [x] Template DoD multi-fonte criado e validado em runtime (CLI args + formatReport unit-tested; **integração com TiDB ainda não exercitada end-to-end** — depende de DATABASE_URL real)
 - [ ] Scripts originais Manus exportados (`dod-3780001.ts`, `dod-queries-3750060.ts`, `inspect-all-risks-3780001.ts`, `evidence-format-proof.ts`) — **bloqueado: dependem de Manus exportar da sandbox**
 - [ ] Audit v7.64 atualizado substituindo "não commitado" por path real — **bloqueado: depende do anterior**
 
