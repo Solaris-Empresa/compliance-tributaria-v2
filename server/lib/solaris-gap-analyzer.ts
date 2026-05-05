@@ -14,6 +14,10 @@
 
 import mysql from 'mysql2/promise';
 import { SOLARIS_GAPS_MAP } from '../config/solaris-gaps-map';
+// M3.10 Fix B: mapping topico → risk_category_code para evitar NULL em project_gaps_v3.
+// Sem isso, gaps SOLARIS cairiam em "unmapped" no GapToRuleMapper.
+// Ver post-mortem: docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md
+import { mapTopicToCategory } from '../config/topico-to-categoria';
 
 export async function analyzeSolarisAnswers(
   projectId: number
@@ -89,6 +93,11 @@ export async function analyzeSolarisAnswers(
       const now = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
 
       for (const gap of gapsToInsert) {
+        // M3.10 Fix B: derivar risk_category_code a partir do tópico.
+        // Tópicos não mapeados → null (gap fica sem categoria, será tratado como
+        // "unmapped" downstream). Curadoria deve expandir TOPICO_TO_CATEGORIA.
+        const riskCategoryCode = mapTopicToCategory(gap.topico_trigger);
+
         await conn.execute(
           `INSERT INTO project_gaps_v3
              (project_id, gap_description, domain, criticality, analysis_version,
@@ -100,7 +109,8 @@ export async function analyzeSolarisAnswers(
               deterministic_reason, ai_reason, unmet_criteria,
               recommended_actions, requirement_id, gap_classification,
               evaluation_confidence, evaluation_confidence_reason,
-              question_id, answer_value, source_reference)
+              question_id, answer_value, source_reference,
+              risk_category_code)
            VALUES
              (?, ?, ?, ?, 3,
               'solaris', ?, ?,
@@ -112,7 +122,8 @@ export async function analyzeSolarisAnswers(
               'Critério não atendido: resposta negativa na Onda 1 SOLARIS',
               'Implementar controle conforme LC 214/2025', 0, NULL,
               0.9, 'Detectado por resposta negativa SOLARIS',
-              0, 'não', ?)`,
+              0, 'não', ?,
+              ?)`,
           [
             projectId,
             gap.gap_descricao,
@@ -121,6 +132,7 @@ export async function analyzeSolarisAnswers(
             now, now,
             gap.gap_descricao,
             gap.topico_trigger,
+            riskCategoryCode, // M3.10 Fix B: pode ser null se tópico não mapeado
           ]
         );
       }

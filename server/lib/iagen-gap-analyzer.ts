@@ -16,6 +16,11 @@
  */
 import mysql from 'mysql2/promise';
 import { SOLARIS_GAPS_MAP } from '../config/solaris-gaps-map';
+// M3.10 Fix B: para tópicos derivados de KEYWORD_TO_TOPIC ou risco_sistemico,
+// derivar categoria via mapping. Quando riskCategoryCode (de iagen_answers) já
+// existe, usar direto (já é categoria canônica por contrato Z-11).
+// Ver post-mortem: docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md
+import { mapTopicToCategory } from '../config/topico-to-categoria';
 
 // Mapeamento de palavras-chave do question_text → tópicos do SOLARIS_GAPS_MAP
 const KEYWORD_TO_TOPIC: Record<string, string> = {
@@ -115,11 +120,14 @@ export async function analyzeIagenAnswers(
     }
 
     // 2. Mapear respostas incertas → gaps via SOLARIS_GAPS_MAP
+    // M3.10 Fix B: campo `risk_category_code` (categoria canônica) propagado
+    // separadamente de `topico_trigger` (rastreabilidade do tópico de origem).
     const gapsToInsert: Array<{
       gap_descricao: string;
       area: string;
       severidade: string;
       topico_trigger: string;
+      risk_category_code: string | null; // M3.10 Fix B: categoria canônica derivada
       question_text: string;
       resposta: string;
     }> = [];
@@ -132,12 +140,14 @@ export async function analyzeIagenAnswers(
       if (!isNonCompliantAnswer(resposta)) continue;
 
       // Z-11 DEC-Z11-ARCH-03: risk_category_code preenchido → usar diretamente
+      // M3.10 Fix B: riskCategoryCode já é categoria canônica por contrato Z-11.
       if (riskCategoryCode) {
         gapsToInsert.push({
           gap_descricao: `Gap na categoria ${riskCategoryCode} — resposta Onda 2`,
           area: 'compliance',
           severidade: 'alta',
           topico_trigger: riskCategoryCode,
+          risk_category_code: riskCategoryCode, // M3.10 Fix B: persistir
           question_text: questionText,
           resposta,
         });
@@ -151,9 +161,12 @@ export async function analyzeIagenAnswers(
         // Fallback: gap genérico de risco sistêmico
         const fallbackGaps = SOLARIS_GAPS_MAP['risco_sistemico'];
         if (fallbackGaps) {
+          // M3.10 Fix B: derivar categoria do tópico fallback
+          const fallbackCategoria = mapTopicToCategory('risco_sistemico');
           gapsToInsert.push(...fallbackGaps.map(g => ({
             ...g,
             topico_trigger: 'risco_sistemico',
+            risk_category_code: fallbackCategoria,
             question_text: questionText,
             resposta,
           })));
@@ -164,9 +177,12 @@ export async function analyzeIagenAnswers(
       for (const topic of topics) {
         const gaps = SOLARIS_GAPS_MAP[topic];
         if (!gaps) continue;
+        // M3.10 Fix B: derivar categoria do tópico extraído
+        const topicCategoria = mapTopicToCategory(topic);
         gapsToInsert.push(...gaps.map(g => ({
           ...g,
           topico_trigger: topic,
+          risk_category_code: topicCategoria,
           question_text: questionText,
           resposta,
         })));
@@ -202,7 +218,8 @@ export async function analyzeIagenAnswers(
               deterministic_reason, ai_reason, unmet_criteria,
               recommended_actions, requirement_id, gap_classification,
               evaluation_confidence, evaluation_confidence_reason,
-              question_id, answer_value, source_reference)
+              question_id, answer_value, source_reference,
+              risk_category_code)
            VALUES
              (?, ?, ?, ?, 3,
               'iagen', ?, ?,
@@ -214,7 +231,8 @@ export async function analyzeIagenAnswers(
               'Critério não confirmado: resposta com baixa confiança na Onda 2',
               'Revisar e confirmar conformidade conforme LC 214/2025', 0, NULL,
               0.7, 'Detectado por resposta incerta na Onda 2 iagen',
-              0, ?, ?)`,
+              0, ?, ?,
+              ?)`,
           [
             projectId,
             gap.gap_descricao,
@@ -224,6 +242,7 @@ export async function analyzeIagenAnswers(
             gap.gap_descricao,
             gap.resposta?.substring(0, 200) ?? 'incerto',
             gap.topico_trigger,
+            gap.risk_category_code, // M3.10 Fix B: pode ser null se tópico não mapeado
           ]
         );
       }
