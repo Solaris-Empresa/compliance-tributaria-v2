@@ -63,7 +63,11 @@ export type NoQuestionMotivo =
   | "not_product_company"
   | "no_nbs_codes"
   | "no_ncm_codes"
-  | "no_applicable_requirements";
+  | "no_applicable_requirements"
+  // Issue #997: Q.NCM Quality Gate — corpus retornou apenas chunks genéricos
+  // (Art. < 128 LC 214) e SOLARIS não cobre o NCM. Bloqueia geração para
+  // não emitir perguntas com falsa autoridade legal (REGRA-ORQ-31 meta 98%).
+  | "corpus_gap_setorial";
 
 export type QuestionResult =
   | TrackedQuestion[]
