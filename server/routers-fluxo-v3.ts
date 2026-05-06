@@ -55,6 +55,8 @@ import { computeCompleteness, inferCompanyType } from "./lib/completeness";
 import { generateProductQuestions } from "./lib/product-questions";
 import { generateServiceQuestions } from "./lib/service-questions";
 import type { QuestionResult, TrackedQuestion } from "./lib/tracked-question";
+// Hotfix #1004 — observabilidade pós-deploy de cnaeCodes resolution
+import { logAudit } from "./routers-audit";
 
 const CnaeSchema = z.object({
   code: z.string(),
@@ -3803,7 +3805,26 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       const governanceProfile = project.governanceProfile as any;
       const regime = companyProfile?.taxRegime ?? 'lucro_presumido';
       const porte = companyProfile?.companySize ?? 'media';
-      const cnaes: string[] = Array.isArray(project.confirmedCnaes) ? project.confirmedCnaes : [];
+      // Hotfix #1004: confirmedCnaes é Array<{code,description,confidence}>, não string[].
+      // Antes do fix, cnaes.join(', ') produzia "[object Object], [object Object]" no prompt LLM.
+      const cnaes: string[] = ((project.confirmedCnaes as Array<{ code: string }> | null) ?? [])
+        .map((c) => c.code)
+        .filter(Boolean);
+      await logAudit({
+        userId: ctx.user.id,
+        userName: ctx.user.name ?? "system",
+        projectId: input.projectId,
+        entityType: "project",
+        entityId: input.projectId,
+        action: "update",
+        metadata: {
+          subType: "onda2-iagen-cnae-resolution",
+          confirmedCnaes_count: ((project.confirmedCnaes as unknown[]) ?? []).length,
+          cnaeCodes_extracted: cnaes,
+          has_legacy_cnaes_field: "cnaes" in (project as object),
+          cnaes_join_preview: cnaes.join(", ").slice(0, 100),
+        },
+      });
 
       // ── Z-11: Categorias ativas do banco ──────────────────────────────
       let activeCategories: RiskCategory[] = [];
@@ -4139,7 +4160,25 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
 
       const op = (project as any).operationProfile ?? {};
       const ncmCodes: string[] = (op.principaisProdutos ?? []).map((p: any) => p.ncm_code).filter(Boolean);
-      const cnaeCodes: string[] = Array.isArray((project as any).cnaes) ? (project as any).cnaes : [];
+      // Hotfix #1004: campo `cnaes` não existe — projeto usa `confirmedCnaes` (Array<{code,...}>).
+      // Bug original: leitura de campo inexistente sempre retornava []; filtro CNAE virava código morto.
+      const cnaeCodes: string[] = (((project as any).confirmedCnaes as Array<{ code: string }> | null) ?? [])
+        .map((c) => c.code)
+        .filter(Boolean);
+      await logAudit({
+        userId: ctx.user.id,
+        userName: ctx.user.name ?? "system",
+        projectId: input.projectId,
+        entityType: "project",
+        entityId: input.projectId,
+        action: "update",
+        metadata: {
+          subType: "qncm-cnae-resolution",
+          confirmedCnaes_count: (((project as any).confirmedCnaes as unknown[]) ?? []).length,
+          cnaeCodes_extracted: cnaeCodes,
+          has_legacy_cnaes_field: "cnaes" in (project as object),
+        },
+      });
       // M3 hotfix NOVA-02: passar archetype para enriquecer RAG contextQuery
       const companyProfile = { operationType: op.operationType, archetype: (project as any).archetype ?? null };
 
@@ -4183,7 +4222,25 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
 
       const op = (project as any).operationProfile ?? {};
       const nbsCodes: string[] = (op.principaisServicos ?? []).map((s: any) => s.nbs_code).filter(Boolean);
-      const cnaeCodes: string[] = Array.isArray((project as any).cnaes) ? (project as any).cnaes : [];
+      // Hotfix #1004: campo `cnaes` não existe — projeto usa `confirmedCnaes` (Array<{code,...}>).
+      // Bug original: leitura de campo inexistente sempre retornava []; filtro CNAE virava código morto.
+      const cnaeCodes: string[] = (((project as any).confirmedCnaes as Array<{ code: string }> | null) ?? [])
+        .map((c) => c.code)
+        .filter(Boolean);
+      await logAudit({
+        userId: ctx.user.id,
+        userName: ctx.user.name ?? "system",
+        projectId: input.projectId,
+        entityType: "project",
+        entityId: input.projectId,
+        action: "update",
+        metadata: {
+          subType: "qnbs-cnae-resolution",
+          confirmedCnaes_count: (((project as any).confirmedCnaes as unknown[]) ?? []).length,
+          cnaeCodes_extracted: cnaeCodes,
+          has_legacy_cnaes_field: "cnaes" in (project as object),
+        },
+      });
       // M3 hotfix NOVA-02: passar archetype para enriquecer RAG contextQuery
       const companyProfile = { operationType: op.operationType, archetype: (project as any).archetype ?? null };
 
