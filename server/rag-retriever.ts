@@ -16,7 +16,7 @@
 
 import { getDb } from "./db";
 import { ragDocuments, ragUsageLog } from "../drizzle/schema";
-import { or, like, inArray, and } from "drizzle-orm";
+import { or, like, inArray, and, eq, sql } from "drizzle-orm";
 import { invokeLLM } from "./_core/llm";
 
 export interface RetrievedArticle {
@@ -179,6 +179,148 @@ async function fetchCandidates(
   }));
 }
 
+// ─── Issue #997: Two-Pass Retrieval CNAE-aware ─────────────────────────────────
+//
+// Decisão F1 P.O. 2026-05-06 (Síntese Final v2). Resolve ranking gap
+// identificado pela auditoria Manus: chunks setoriais (Art. 128-260 LC 214 +
+// Anexos) existem no corpus mas o LIMIT 20 + LIKE genérico de fetchCandidates
+// nunca os entregava ao LLM re-ranker.
+//
+// Pass 1 (genérico): fetchCandidates com LIMIT 10 (mantém comportamento atual,
+//                    apenas reduzido de 20 → 10 para dividir o pool).
+// Pass 2 (setorial CNAE-aware): fetchSetorialCandidates com LIMIT 10.
+//   - Filtro artigo: REGEXP_SUBSTR(artigo, '[0-9]+') BETWEEN 128 AND 260 OR Anexo%
+//   - Filtro cnaeGroups boundary-aware (evita falso-positivo universais)
+// Merge dedup por anchor_id → até 20 candidatos → LLM re-rank → topK.
+
+/**
+ * Detecta se um chunk pertence à faixa setorial (regimes diferenciados).
+ *
+ * Boundary-aware: extrai apenas o PRIMEIRO número via match não-greedy.
+ * "Art. 544 (parte 10)" → 544 (NÃO 54410 — anti-violação Issue #997 AC1).
+ *
+ * Retorna true para:
+ *   - Anexos (artigo LIKE 'Anexo%')
+ *   - Artigos LC 214 com número >= 128 e <= 260 (Título IV regimes diferenciados)
+ */
+export function isSetorialArtigo(artigo: string | undefined | null): boolean {
+  if (!artigo) return false;
+  if (/^Anexo/i.test(artigo)) return true;
+  const match = artigo.match(/(\d+)/);
+  if (!match) return false;
+  const num = parseInt(match[1]!, 10);
+  return num >= 128 && num <= 260;
+}
+
+/**
+ * Detecta se cnaeGroups do chunk casa com o grupo CNAE do projeto via
+ * boundary-aware match.
+ *
+ * SQL pattern emitido (boundary-aware — Issue #997 AC1):
+ *   cnaeGroups LIKE 'XX,%'   (begin)
+ *   cnaeGroups LIKE '%,XX,%' (middle)
+ *   cnaeGroups LIKE '%,XX'   (end)
+ *   cnaeGroups = 'XX'        (único)
+ *   LENGTH(cnaeGroups) < 50  (fallback chunk setorial sem cnae restrito)
+ *
+ * Evita falso-positivo do PROIBIDO `cnaeGroups LIKE '%XX%'` que casaria
+ * 414 chunks universais com cnaeGroups "01,02,...,96".
+ */
+export function matchesCnaeBoundary(chunkCnaeGroups: string, group: string): boolean {
+  if (!chunkCnaeGroups) {
+    // Chunk setorial sem cnaeGroups restrito → fallback (LENGTH < 50 trivialmente)
+    return true;
+  }
+  if (!group) return chunkCnaeGroups.length < 50;
+  const parts = chunkCnaeGroups.split(",").map((s) => s.trim());
+  if (parts.includes(group)) return true;
+  // Fallback length-aware: chunks setoriais sem cnaeGroups restrito (< 50 chars)
+  return chunkCnaeGroups.length < 50;
+}
+
+/**
+ * Pass 2 do Two-Pass Retrieval — busca chunks setoriais CNAE-aware.
+ *
+ * Independente do Pass 1 (LIKE keywords). Roda em paralelo, depois mescla.
+ * Falha silenciosa: se Pass 2 dá erro, retorna [] (Pass 1 ainda funciona).
+ */
+async function fetchSetorialCandidates(
+  cnaeGroups: string[],
+  limit = 10,
+  leiFilter?: string[],
+): Promise<RetrievedArticle[]> {
+  if (cnaeGroups.length === 0) return [];
+
+  const dbConn = await getDb();
+  if (!dbConn) return [];
+
+  // Filtro artigo: faixa setorial 128-260 OU Anexo%
+  const artigoSetorialCond = or(
+    sql`CAST(REGEXP_SUBSTR(artigo, '[0-9]+') AS UNSIGNED) BETWEEN 128 AND 260`,
+    like(ragDocuments.artigo, "Anexo%"),
+  );
+
+  // Filtro cnaeGroups boundary-aware
+  const cnaeBoundaryCond = or(
+    ...cnaeGroups.flatMap((g) => [
+      like(ragDocuments.cnaeGroups, `${g},%`),
+      like(ragDocuments.cnaeGroups, `%,${g},%`),
+      like(ragDocuments.cnaeGroups, `%,${g}`),
+      eq(ragDocuments.cnaeGroups, g),
+    ]),
+    sql`LENGTH(cnaeGroups) < 50`,
+  );
+
+  const leiCond = (leiFilter && leiFilter.length > 0)
+    // @ts-expect-error enum-narrowing
+    ? inArray(ragDocuments.lei, leiFilter)
+    : undefined;
+
+  const finalCond = leiCond
+    ? and(artigoSetorialCond, cnaeBoundaryCond, leiCond)
+    : and(artigoSetorialCond, cnaeBoundaryCond);
+
+  let rows: typeof ragDocuments.$inferSelect[] = [];
+  try {
+    rows = finalCond
+      ? await dbConn.select().from(ragDocuments).where(finalCond).limit(limit)
+      : [];
+  } catch {
+    // Falha silenciosa: Pass 2 é enrichment, não bloqueia Pass 1
+    return [];
+  }
+
+  return rows.map((r) => ({
+    lei: r.lei,
+    artigo: r.artigo,
+    titulo: r.titulo,
+    conteudo: r.conteudo,
+    anchorId: r.anchor_id ?? undefined,
+  }));
+}
+
+/**
+ * Merge Pass 1 + Pass 2 com dedup por anchor_id (preserva ordem do primeiro).
+ *
+ * Chunks com anchor_id idêntico aparecendo em ambos passes só entram uma vez.
+ * Chunks sem anchor_id (legacy) são deduplicados por chave composta
+ * `lei-artigo-titulo[:50]`.
+ */
+export function mergeAndDedup(
+  pass1: RetrievedArticle[],
+  pass2: RetrievedArticle[],
+): RetrievedArticle[] {
+  const seen = new Set<string>();
+  const merged: RetrievedArticle[] = [];
+  for (const art of [...pass1, ...pass2]) {
+    const key = art.anchorId ?? `${art.lei}-${art.artigo}-${art.titulo.slice(0, 50)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push(art);
+  }
+  return merged;
+}
+
 /**
  * Re-ranking via LLM: seleciona os top-5 candidatos mais relevantes
  */
@@ -268,30 +410,54 @@ function formatContextText(articles: RetrievedArticle[]): string {
 /**
  * Função principal: recupera artigos relevantes para um contexto empresarial
  *
- * @param cnaes        - Lista de CNAEs da empresa
- * @param contextQuery - Texto descrevendo o contexto (regime, operações, etc.)
- * @param topK         - Número máximo de artigos a retornar (padrão: 5)
- * @param usageOpts    - Opções de telemetria (L-RAG-01)
+ * Issue #997 (Two-Pass Retrieval CNAE-aware):
+ *   Pass 1 genérico (LIMIT 10) + Pass 2 setorial CNAE-aware (LIMIT 10)
+ *   → merge dedup → até 20 candidatos → LLM re-rank → topK.
+ *
+ * Backward-compat: quando `skipSetorialPass=true` (default `false`), o Pass 2
+ * é pulado e o comportamento equivale ao retriever pré-Issue #997 (LIMIT 10
+ * em vez de LIMIT 20). Útil quando archetype está ausente — não há grupos
+ * CNAE para filtrar setorialmente. Caller pode optar por preservar LIMIT 20
+ * em chamadas legadas via `skipSetorialPass=true` + ajuste manual do limit.
+ *
+ * @param cnaes             - Lista de CNAEs da empresa
+ * @param contextQuery      - Texto descrevendo o contexto (regime, operações, etc.)
+ * @param topK              - Número máximo de artigos a retornar (padrão: 5)
+ * @param leiFilter         - Whitelist opcional de leis
+ * @param usageOpts         - Opções de telemetria (L-RAG-01)
+ * @param skipSetorialPass  - Issue #997: pular Pass 2 setorial (backward-compat
+ *                            quando archetype ausente). Default `false`.
  */
 export async function retrieveArticles(
   cnaes: string[],
   contextQuery: string,
   topK = 5,
   leiFilter?: string[],
-  usageOpts: RAGUsageOptions = {}
+  usageOpts: RAGUsageOptions = {},
+  skipSetorialPass = false,
 ): Promise<RAGContext> {
   const keywords = extractKeywords(contextQuery);
+  const cnaeGroups = extractCnaeGroups(cnaes);
 
-  // 1. Buscar candidatos (M3.6 #932: leiFilter limita corpus quando definido)
-  const candidates = await fetchCandidates(cnaes, keywords, 20, leiFilter);
+  // Pass 1 genérico (LIMIT 10) — comportamento atual reduzido para deixar
+  // espaço para Pass 2 setorial.
+  const pass1Candidates = await fetchCandidates(cnaes, keywords, 10, leiFilter);
 
-  // 2. Re-ranking via LLM
+  // Pass 2 setorial CNAE-aware (LIMIT 10) — Issue #997 AC1.
+  const pass2Candidates = skipSetorialPass
+    ? []
+    : await fetchSetorialCandidates(cnaeGroups, 10, leiFilter);
+
+  // Merge dedup por anchor_id → até 20 candidatos mistos.
+  const candidates = mergeAndDedup(pass1Candidates, pass2Candidates);
+
+  // Re-ranking via LLM
   const topArticles = await rerankWithLLM(candidates, contextQuery, topK);
 
-  // 3. Formatar contexto
+  // Formatar contexto
   const contextText = formatContextText(topArticles);
 
-  // 4. L-RAG-01 — Telemetria async non-blocking (não aguarda, não bloqueia)
+  // L-RAG-01 — Telemetria async non-blocking (não aguarda, não bloqueia)
   void logUsage(contextQuery, topArticles, usageOpts);
 
   return {

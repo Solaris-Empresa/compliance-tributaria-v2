@@ -13,14 +13,18 @@ import type { RagChunk } from "./tracked-question";
  *
  * M3.6 (Issue #932): leiFilter opcional limita o corpus consultado a um conjunto
  * de leis (ex.: ["lc214","lc227"] para Q.NBS). Backward-compat: undefined → legado.
+ *
+ * Issue #997 (Two-Pass Retrieval): skipSetorialPass opcional permite ao caller
+ * desabilitar Pass 2 quando archetype ausente (backward-compat). Default false.
  */
 export async function queryRag(
   codes: string[],
   contextQuery: string,
   topK = 5,
-  leiFilter?: string[]
+  leiFilter?: string[],
+  skipSetorialPass = false,
 ): Promise<RagChunk[]> {
-  const result = await retrieveArticles(codes, contextQuery, topK, leiFilter);
+  const result = await retrieveArticles(codes, contextQuery, topK, leiFilter, {}, skipSetorialPass);
   return result.articles.map(a => ({
     anchor_id: a.anchorId ?? `fallback-${Math.random().toString(36).slice(2, 8)}`,
     conteudo:  a.conteudo,
