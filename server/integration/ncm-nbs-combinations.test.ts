@@ -172,6 +172,30 @@ describe("generateProductQuestions — Combinações NCM × operationType", () =
     }
   });
 
+  /**
+   * C-P-10 (bug agronegocio 2026-05-06): empresa de agronegócio com NCM válido
+   * NÃO deve ser bloqueada pelo curto-circuito `companyType === "servico"`.
+   *
+   * Antes do fix: inferCompanyType("agronegocio") = "servico" → linha 53 de
+   * product-questions.ts retornava { nao_aplicavel: true } imediatamente,
+   * sem sequer consultar RAG ou SOLARIS. NCM cadastrado pelo usuário ignorado.
+   *
+   * Depois do fix: agronegocio → "misto" → segue até consultar RAG + SOLARIS.
+   * Asserto runtime contract: o spy `querySolarisFn` foi invocado, prova de
+   * que o código passou da linha 53 (Lição #59 — assemble vs consumption).
+   */
+  it("C-P-10: operationType=agronegocio, NCM=válido → consulta RAG/SOLARIS (não curto-circuita por tipo)", async () => {
+    const spyRag = vi.fn(async (): Promise<RagChunk[]> => []);
+    const spySolaris = vi.fn(async () => []);
+    await generateProductQuestions(
+      NCM_VALIDO, CNAE_VAZIO, { operationType: "agronegocio" }, spyRag, spySolaris
+    );
+    // Bug regression guard: se o curto-circuito de tipo voltar, nenhum spy
+    // seria chamado (retornaria nao_aplicavel:true antes de consultar fontes).
+    expect(spyRag).toHaveBeenCalled();
+    expect(spySolaris).toHaveBeenCalled();
+  });
+
 });
 
 // ─── SUITE 2: generateServiceQuestions ───────────────────────────────────────
