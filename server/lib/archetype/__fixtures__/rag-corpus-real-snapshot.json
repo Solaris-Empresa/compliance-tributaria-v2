@@ -1,0 +1,1901 @@
+{
+  "generated_at": "2026-05-06T17:07:45.899Z",
+  "db_total_chunks": 2515,
+  "issue": "#997",
+  "dataset_1_cnae_groups_distribution": [
+    {
+      "cnaeGroups": "",
+      "chunks": 1202,
+      "leis_amostra": "cg_ibs,conv_icms,lc116,lc214,lc227,lc87,resolucao_cgibs_1,resolucao_cgibs_2,resolucao_cgibs_3,rfb_cbs"
+    },
+    {
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "chunks": 414,
+      "leis_amostra": "lc123,lc214,lc224,lc227"
+    },
+    {
+      "cnaeGroups": "64,65,66",
+      "chunks": 362,
+      "leis_amostra": "lc123,lc214,lc224,lc227"
+    },
+    {
+      "cnaeGroups": "10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "chunks": 107,
+      "leis_amostra": "lc123,lc214,lc224,lc227"
+    },
+    {
+      "cnaeGroups": "49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "chunks": 85,
+      "leis_amostra": "lc123,lc214,lc224,lc227"
+    },
+    {
+      "cnaeGroups": "41,42,43,68",
+      "chunks": 71,
+      "leis_amostra": "lc214,lc227"
+    },
+    {
+      "cnaeGroups": "COM,IND,SER,AGR",
+      "chunks": 55,
+      "leis_amostra": "lc87"
+    },
+    {
+      "cnaeGroups": "86,87,88,45,46,47",
+      "chunks": 52,
+      "leis_amostra": "lc214,lc224,lc227"
+    },
+    {
+      "cnaeGroups": "62,63,61",
+      "chunks": 42,
+      "leis_amostra": "lc123,lc214,lc224,lc227"
+    },
+    {
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "chunks": 28,
+      "leis_amostra": "lc214,lc227"
+    },
+    {
+      "cnaeGroups": "35,36,37,38,39,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "chunks": 27,
+      "leis_amostra": "lc214,lc227"
+    },
+    {
+      "cnaeGroups": "45,46,47",
+      "chunks": 19,
+      "leis_amostra": "lc214,lc227"
+    },
+    {
+      "cnaeGroups": "COM,IND,SER",
+      "chunks": 18,
+      "leis_amostra": "ec132"
+    },
+    {
+      "cnaeGroups": "68,41,42,43",
+      "chunks": 10,
+      "leis_amostra": "lc214,lc227"
+    },
+    {
+      "cnaeGroups": "85",
+      "chunks": 8,
+      "leis_amostra": "lc214"
+    },
+    {
+      "cnaeGroups": "01-96",
+      "chunks": 6,
+      "leis_amostra": "lc224"
+    },
+    {
+      "cnaeGroups": "01,02,03,10,11,12",
+      "chunks": 5,
+      "leis_amostra": "lc214,lc227"
+    },
+    {
+      "cnaeGroups": "49,50,51,52,53,64,65,66",
+      "chunks": 2,
+      "leis_amostra": "lc214"
+    },
+    {
+      "cnaeGroups": "01,02,03,10,11,12,86,87,88,45,46,47",
+      "chunks": 1,
+      "leis_amostra": "lc214"
+    },
+    {
+      "cnaeGroups": "01,02,03,10,11,12,86,87,88",
+      "chunks": 1,
+      "leis_amostra": "lc214"
+    }
+  ],
+  "dataset_2_art_128_180_lc214": [
+    {
+      "id": 168,
+      "anchor_id": "lc214-art-art-128-id168",
+      "artigo": "Art. 128",
+      "titulo_preview": "Desde que observadas as definições e demais disposições deste Capítulo, ficam reduzidas em 60% (sess",
+      "conteudo_preview": "Art. 128. Desde que observadas as definições e demais disposições deste Capítulo, ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da\nCBS incidentes sobre operações com:\nI - serviços ",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, educação, ensino, escola, saúde, medicamento, hospital, farmacêutico, serviços, prestação de serviços",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 128
+    },
+    {
+      "id": 30526,
+      "anchor_id": "lc214-anexo-xiv-item-128-128",
+      "artigo": "Anexo XIV, item 128",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 128: DICLORIDRATO DE DACLATASVIR 3004.",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 128
+    },
+    {
+      "id": 169,
+      "anchor_id": "lc214-art-art-129-id169",
+      "artigo": "Art. 129",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "Art. 129. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos serviços de educação relacionados\nno Anexo II desta Lei Complementar, com a espec",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, educação, ensino, escola, saúde, medicamento, hospital, farmacêutico, serviços, prestação de serviços",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 129
+    },
+    {
+      "id": 30527,
+      "anchor_id": "lc214-anexo-xiv-item-129-129",
+      "artigo": "Anexo XIV, item 129",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 129: DICLORIDRATO DE PRAMIPEXOL MONOID",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 129
+    },
+    {
+      "id": 170,
+      "anchor_id": "lc214-art-art-130-id170",
+      "artigo": "Art. 130",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "Art. 130. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos serviços de saúde relacionados no\nAnexo III desta Lei Complementar, com a especif",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, base de cálculo, valor tributável, saúde, medicamento, hospital, farmacêutico, serviços, prestação de serviços",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 130
+    },
+    {
+      "id": 30528,
+      "anchor_id": "lc214-anexo-xiv-item-130-130",
+      "artigo": "Anexo XIV, item 130",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 130: DICLORIDRATO DE QUININA 3004.49.9",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 130
+    },
+    {
+      "id": 171,
+      "anchor_id": "lc214-art-art-131-id171",
+      "artigo": "Art. 131",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "Art. 131. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos dispositivos médicos relacionados\nno Anexo IV desta Lei Complementar, com a espec",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, saúde, medicamento, hospital, farmacêutico",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 131
+    },
+    {
+      "id": 30529,
+      "anchor_id": "lc214-anexo-xiv-item-131-131",
+      "artigo": "Anexo XIV, item 131",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 131: DICLORIDRATO DE SAPROPTERINA 3004",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 131
+    },
+    {
+      "id": 172,
+      "anchor_id": "lc214-art-art-132-id172",
+      "artigo": "Art. 132",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "Art. 132. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos dispositivos de acessibilidade\npróprios para pessoas com deficiência relacionados",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 132
+    },
+    {
+      "id": 30530,
+      "anchor_id": "lc214-anexo-xiv-item-132-132",
+      "artigo": "Anexo XIV, item 132",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 132: DIDANOSINA 3004.90.79",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 132
+    },
+    {
+      "id": 173,
+      "anchor_id": "lc214-art-art-133-id173",
+      "artigo": "Art. 133",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "Art. 133. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos medicamentos registrados na\nAnvisa ou produzidos por farmácias de manipulação, re",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 133
+    },
+    {
+      "id": 30531,
+      "anchor_id": "lc214-anexo-xiv-item-133-133",
+      "artigo": "Anexo XIV, item 133",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 133: DIETILESTILBESTROL 3004.90.95",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 133
+    },
+    {
+      "id": 174,
+      "anchor_id": "lc214-art-art-134-id174",
+      "artigo": "Art. 134",
+      "titulo_preview": "Sem prejuízo da avaliação quinquenal de que trata o Capítulo I do Título III do Livro III desta Lei ",
+      "conteudo_preview": "Art. 134. Sem prejuízo da avaliação quinquenal de que trata o Capítulo I do Título III do Livro III desta Lei Complementar, o Ministro de Estado da Fazenda e o\nComitê Gestor do IBS, ouvido o Ministéri",
+      "topicos": "Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, saúde, medicamento, hospital, farmacêutico",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 134
+    },
+    {
+      "id": 30532,
+      "anchor_id": "lc214-anexo-xiv-item-134-134",
+      "artigo": "Anexo XIV, item 134",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 134: DIFOSFATO DE CLOROQUINA 3004.90.6",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 134
+    },
+    {
+      "id": 175,
+      "anchor_id": "lc214-art-art-135-id175",
+      "artigo": "Art. 135",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "Art. 135. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos alimentos destinados ao consumo\nhumano relacionados no Anexo VII desta Lei Comple",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "artigo_num": 135
+    },
+    {
+      "id": 30533,
+      "anchor_id": "lc214-anexo-xiv-item-135-135",
+      "artigo": "Anexo XIV, item 135",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 135: DIMALEATO DE AFATINIBE 3004.90.79",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 135
+    },
+    {
+      "id": 176,
+      "anchor_id": "lc214-art-art-136-id176",
+      "artigo": "Art. 136",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "Art. 136. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos produtos de higiene pessoal e\nlimpeza relacionados no Anexo VIII desta Lei Comple",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "artigo_num": 136
+    },
+    {
+      "id": 30534,
+      "anchor_id": "lc214-anexo-xiv-item-136-136",
+      "artigo": "Anexo XIV, item 136",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 136: DIMETILSULFÓXIDO DE TRAMETINIBE 3",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 136
+    },
+    {
+      "id": 177,
+      "anchor_id": "lc214-art-art-137-id177",
+      "artigo": "Art. 137",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "Art. 137. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento de produtos agropecuários, aquícolas,\npesqueiros, florestais e extrativistas vegetais",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, Simples Nacional, regime simplificado, alíquota, alíquota reduzida, alíquota zero, serviços, prestação de serviços",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "artigo_num": 137
+    },
+    {
+      "id": 30535,
+      "anchor_id": "lc214-anexo-xiv-item-137-137",
+      "artigo": "Anexo XIV, item 137",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 137: DITARTARATO DE VINORELBINA 3004.4",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 137
+    },
+    {
+      "id": 178,
+      "anchor_id": "lc214-art-art-138-id178",
+      "artigo": "Art. 138",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "Art. 138. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos insumos agropecuários e aquícolas\nrelacionados no Anexo IX desta Lei Complementar",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade, diferimento, suspensão, importação, importador, produtor rural, agropecuário",
+      "cnaeGroups": "01,02,03,10,11,12",
+      "artigo_num": 138
+    },
+    {
+      "id": 179,
+      "anchor_id": "lc214-art-art-138-parte-2-id179",
+      "artigo": "Art. 138 (parte 2)",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "§ 5º Nas hipóteses previstas na alínea “a” do inciso I e na alínea “a” do inciso II, ambas do § 2º deste artigo, o diferimento será encerrado caso:\nI - o fornecimento do insumo agropecuário e aquícola",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade, diferimento, suspensão",
+      "cnaeGroups": "01,02,03,10,11,12",
+      "artigo_num": 138
+    },
+    {
+      "id": 180,
+      "anchor_id": "lc214-art-art-138-parte-3-id180",
+      "artigo": "Art. 138 (parte 3)",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "Sem prejuízo da avaliação quinquenal de que trata o Capítulo I do Título III do Livro III desta Lei Complementar, o Ministro de Estado da Fazenda e o\nComitê Gestor do IBS, ouvido o Ministério da Agric",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "artigo_num": 138
+    },
+    {
+      "id": 30536,
+      "anchor_id": "lc214-anexo-xiv-item-138-138",
+      "artigo": "Anexo XIV, item 138",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 138: DOCETAXEL 3004.90.59",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 138
+    },
+    {
+      "id": 181,
+      "anchor_id": "lc214-art-art-139-id181",
+      "artigo": "Art. 139",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "Art. 139. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos bens e serviços listados no Anexo X\ndesta Lei Complementar, com a especificação d",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, serviços, prestação de serviços",
+      "cnaeGroups": "41,42,43,68",
+      "artigo_num": 139
+    },
+    {
+      "id": 30537,
+      "anchor_id": "lc214-anexo-xiv-item-139-139",
+      "artigo": "Anexo XIV, item 139",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 139: DOCETAXEL TRI-HIDRATADO 3004.90.5",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 139
+    },
+    {
+      "id": 182,
+      "anchor_id": "lc214-art-art-140-id182",
+      "artigo": "Art. 140",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecim",
+      "conteudo_preview": "Art. 140. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos seguintes serviços de comunicação\ninstitucional à administração pública direta, a",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, serviços, prestação de serviços",
+      "cnaeGroups": "10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "artigo_num": 140
+    },
+    {
+      "id": 30538,
+      "anchor_id": "lc214-anexo-xiv-item-140-140",
+      "artigo": "Anexo XIV, item 140",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 140: DOLUTEGRAVIR SÓDICO 3004.90.79",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 140
+    },
+    {
+      "id": 183,
+      "anchor_id": "lc214-art-art-141-id183",
+      "artigo": "Art. 141",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre as seguint",
+      "conteudo_preview": "Art. 141. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre as seguintes operações relacionadas a atividades\ndesportivas:\nI - fornecimento de serviço de educaçã",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, educação, ensino, escola, serviços, prestação de serviços",
+      "cnaeGroups": "85",
+      "artigo_num": 141
+    },
+    {
+      "id": 30539,
+      "anchor_id": "lc214-anexo-xiv-item-141-141",
+      "artigo": "Anexo XIV, item 141",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 141: DOXICICLINA MONOIDRATADA 3004.20.",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 141
+    },
+    {
+      "id": 184,
+      "anchor_id": "lc214-art-art-142-id184",
+      "artigo": "Art. 142",
+      "titulo_preview": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS sobre:",
+      "conteudo_preview": "Art. 142. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS sobre:\nI - fornecimento à administração pública direta, autarquias e fundações púbicas dos serviços e dos bens relati",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, serviços, prestação de serviços",
+      "cnaeGroups": "64,65,66",
+      "artigo_num": 142
+    },
+    {
+      "id": 30540,
+      "anchor_id": "lc214-anexo-xiv-item-142-142",
+      "artigo": "Anexo XIV, item 142",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 142: DURVALUMABE 3002.15.90",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 142
+    },
+    {
+      "id": 185,
+      "anchor_id": "lc214-art-art-143-id185",
+      "artigo": "Art. 143",
+      "titulo_preview": "Desde que observadas as definições e demais disposições deste Capítulo, ficam reduzidas a zero as al",
+      "conteudo_preview": "Art. 143. Desde que observadas as definições e demais disposições deste Capítulo, ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre\noperações com os seguintes bens e serviços:\nI - d",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, saúde, medicamento, hospital, farmacêutico, serviços, prestação de serviços",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 143
+    },
+    {
+      "id": 30541,
+      "anchor_id": "lc214-anexo-xiv-item-143-143",
+      "artigo": "Anexo XIV, item 143",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 143: ECULIZUMABE 3002.15.90",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 143
+    },
+    {
+      "id": 186,
+      "anchor_id": "lc214-art-art-144-id186",
+      "artigo": "Art. 144",
+      "titulo_preview": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos dispositivos",
+      "conteudo_preview": "Art. 144. Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos dispositivos médicos relacionados:\nI - no Anexo XII desta Lei Complementar, com a especificação das re",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, saúde, medicamento, hospital, farmacêutico, serviços, prestação de serviços",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 144
+    },
+    {
+      "id": 30542,
+      "anchor_id": "lc214-anexo-xiv-item-144-144",
+      "artigo": "Anexo XIV, item 144",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 144: EFAVIRENZ 3004.90.78",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 144
+    },
+    {
+      "id": 187,
+      "anchor_id": "lc214-art-art-145-id187",
+      "artigo": "Art. 145",
+      "titulo_preview": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos dispositivos",
+      "conteudo_preview": "Art. 145. Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos dispositivos de acessibilidade próprios para pessoas com\ndeficiência relacionados:\nI - no Anexo XIII d",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, saúde, medicamento, hospital, farmacêutico, serviços, prestação de serviços",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 145
+    },
+    {
+      "id": 30543,
+      "anchor_id": "lc214-anexo-xiv-item-145-145",
+      "artigo": "Anexo XIV, item 145",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 145: ELEXACAFTOR 3004.90.69",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 145
+    },
+    {
+      "id": 188,
+      "anchor_id": "lc214-art-art-146-id188",
+      "artigo": "Art. 146",
+      "titulo_preview": "Ficam reduzidas a zero as alíquotas do IBS e da CBS sobre o fornecimento dos medicamentos relacionad",
+      "conteudo_preview": "Art. 146. Ficam reduzidas a zero as alíquotas do IBS e da CBS sobre o fornecimento dos medicamentos relacionados no Anexo XIV desta Lei Complementar,\ncom a especificação das respectivas classificações",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, saúde, medicamento, hospital, farmacêutico, serviços, prestação de serviços",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 146
+    },
+    {
+      "id": 189,
+      "anchor_id": "lc214-art-art-146-parte-2-id189",
+      "artigo": "Art. 146 (parte 2)",
+      "titulo_preview": "Ficam reduzidas a zero as alíquotas do IBS e da CBS sobre o fornecimento dos medicamentos relacionad",
+      "conteudo_preview": "§ 4º Em caso de emergência de saúde pública reconhecida pelo Poder Legislativo federal, estadual, distrital ou municipal competente, ato conjunto do Ministro\nde Estado da Fazenda e do Comitê Gestor do",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, saúde, medicamento, hospital, farmacêutico",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 146
+    },
+    {
+      "id": 30544,
+      "anchor_id": "lc214-anexo-xiv-item-146-146",
+      "artigo": "Anexo XIV, item 146",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 146: ELOTUZUMABE 3002.15.90",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 146
+    },
+    {
+      "id": 190,
+      "anchor_id": "lc214-art-art-147-id190",
+      "artigo": "Art. 147",
+      "titulo_preview": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos seguintes pr",
+      "conteudo_preview": "Art. 147. Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos seguintes produtos de cuidados básicos à saúde menstrual:\nI - tampões higiênicos classificados no códi",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, saúde, medicamento, hospital, farmacêutico",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 147
+    },
+    {
+      "id": 30545,
+      "anchor_id": "lc214-anexo-xiv-item-147-147",
+      "artigo": "Anexo XIV, item 147",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 147: ELTROMBOPAGUE OLAMINA 3004.90.69",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 147
+    },
+    {
+      "id": 191,
+      "anchor_id": "lc214-art-art-148-id191",
+      "artigo": "Art. 148",
+      "titulo_preview": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos produtos hor",
+      "conteudo_preview": "Art. 148. Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos produtos hortícolas, frutas e ovos relacionados no Anexo\nXV desta Lei Complementar, com a especificaçã",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "68,41,42,43",
+      "artigo_num": 148
+    },
+    {
+      "id": 30546,
+      "anchor_id": "lc214-anexo-xiv-item-148-148",
+      "artigo": "Anexo XIV, item 148",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 148: EMBONATO DE TRIPTORRELINA 3004.39",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 148
+    },
+    {
+      "id": 192,
+      "anchor_id": "lc214-art-art-149-id192",
+      "artigo": "Art. 149",
+      "titulo_preview": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre a venda de automóveis de passag",
+      "conteudo_preview": "Art. 149. Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre a venda de automóveis de passageiros de fabricação nacional de, no mínimo,\n4 (quatro) portas, inclusive a de acesso ao ba",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "35,36,37,38,39,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "artigo_num": 149
+    },
+    {
+      "id": 193,
+      "anchor_id": "lc214-art-art-149-parte-2-id193",
+      "artigo": "Art. 149 (parte 2)",
+      "titulo_preview": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre a venda de automóveis de passag",
+      "conteudo_preview": "e\nII - na hipótese do inciso II do caput deste artigo, a automóvel cujo preço de venda ao consumidor, incluídos os tributos incidentes caso não houvesse as\nreduções e não incluídos os custos necessári",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "artigo_num": 149
+    },
+    {
+      "id": 30547,
+      "anchor_id": "lc214-anexo-xiv-item-149-149",
+      "artigo": "Anexo XIV, item 149",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 149: EMICIZUMABE 3002.15.90",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 149
+    },
+    {
+      "id": 194,
+      "anchor_id": "lc214-art-art-150-id194",
+      "artigo": "Art. 150",
+      "titulo_preview": "Para fins de reconhecimento do direito às reduções de alíquotas de que trata esta Seção, considera-s",
+      "conteudo_preview": "Art. 150. Para fins de reconhecimento do direito às reduções de alíquotas de que trata esta Seção, considera-se pessoa com deficiência aquela que se\nenquadrar em, no mínimo, uma das seguintes categori",
+      "topicos": "IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "artigo_num": 150
+    },
+    {
+      "id": 195,
+      "anchor_id": "lc214-art-art-150-parte-2-id195",
+      "artigo": "Art. 150 (parte 2)",
+      "titulo_preview": "Para fins de reconhecimento do direito às reduções de alíquotas de que trata esta Seção, considera-s",
+      "conteudo_preview": "IV - deficiência mental: funcionamento intelectual significativamente inferior à média, com manifestação antes dos 18 (dezoito) anos de idade e limitações\nassociadas a duas ou mais áreas de habilidade",
+      "topicos": "IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, saúde, medicamento, hospital, farmacêutico",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 150
+    },
+    {
+      "id": 30548,
+      "anchor_id": "lc214-anexo-xiv-item-150-150",
+      "artigo": "Anexo XIV, item 150",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 150: EMTRICITABINA 3004.90.78",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 150
+    },
+    {
+      "id": 196,
+      "anchor_id": "lc214-art-art-151-id196",
+      "artigo": "Art. 151",
+      "titulo_preview": "Para fins de concessão das reduções de alíquotas de que trata esta Seção, a comprovação da deficiênc",
+      "conteudo_preview": "Art. 151. Para fins de concessão das reduções de alíquotas de que trata esta Seção, a comprovação da deficiência e da condição de pessoa com transtorno do\nespectro autista será realizada por meio de l",
+      "topicos": "Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, saúde, medicamento, hospital, farmacêutico, serviços, prestação de serviços",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 151
+    },
+    {
+      "id": 30549,
+      "anchor_id": "lc214-anexo-xiv-item-151-151",
+      "artigo": "Anexo XIV, item 151",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 151: ENANTATO DE NORETISTERONA + VALER",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 151
+    },
+    {
+      "id": 197,
+      "anchor_id": "lc214-art-art-152-id197",
+      "artigo": "Art. 152",
+      "titulo_preview": "As reduções de alíquotas de que trata o art. 149 desta Lei Complementar poderão ser usufruídas:",
+      "conteudo_preview": "Art. 152. As reduções de alíquotas de que trata o art. 149 desta Lei Complementar poderão ser usufruídas:\nI - na hipótese do inciso I do caput do art. 149 desta Lei Complementar, em intervalos não inf",
+      "topicos": "LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "artigo_num": 152
+    },
+    {
+      "id": 30550,
+      "anchor_id": "lc214-anexo-xiv-item-152-152",
+      "artigo": "Anexo XIV, item 152",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 152: ENFLURANO 3004.90.99",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 152
+    },
+    {
+      "id": 198,
+      "anchor_id": "lc214-art-art-153-id198",
+      "artigo": "Art. 153",
+      "titulo_preview": "O direito às reduções de alíquotas de que trata o art. 149 desta Lei Complementar será reconhecido p",
+      "conteudo_preview": "Art. 153. O direito às reduções de alíquotas de que trata o art. 149 desta Lei Complementar será reconhecido pela administração tributária estadual ou distrital\nde domicílio do requerente e pela RFB, ",
+      "topicos": "LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "artigo_num": 153
+    },
+    {
+      "id": 30551,
+      "anchor_id": "lc214-anexo-xiv-item-153-153",
+      "artigo": "Anexo XIV, item 153",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 153: ENFUVIRTIDA 3004.90.68",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 153
+    },
+    {
+      "id": 199,
+      "anchor_id": "lc214-art-art-154-id199",
+      "artigo": "Art. 154",
+      "titulo_preview": "Os tributos incidirão normalmente sobre quaisquer acessórios opcionais que não sejam equipamentos or",
+      "conteudo_preview": "Art. 154. Os tributos incidirão normalmente sobre quaisquer acessórios opcionais que não sejam equipamentos originais do automóvel adquirido.",
+      "topicos": "IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "artigo_num": 154
+    },
+    {
+      "id": 30552,
+      "anchor_id": "lc214-anexo-xiv-item-154-154",
+      "artigo": "Anexo XIV, item 154",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 154: ENTRICITABINA 3004.90.78",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 154
+    },
+    {
+      "id": 200,
+      "anchor_id": "lc214-art-art-155-id200",
+      "artigo": "Art. 155",
+      "titulo_preview": "A alienação do automóvel adquirido nos termos desta Seção que ocorrer em intervalos inferiores aos d",
+      "conteudo_preview": "Art. 155. A alienação do automóvel adquirido nos termos desta Seção que ocorrer em intervalos inferiores aos definidos no art. 152, contados da data de sua\naquisição, a pessoas que não tenham o reconh",
+      "topicos": "LC 214/2025, IBS, CBS, IS, Imposto Seletivo, serviços, prestação de serviços",
+      "cnaeGroups": "49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "artigo_num": 155
+    },
+    {
+      "id": 30553,
+      "anchor_id": "lc214-anexo-xiv-item-155-155",
+      "artigo": "Anexo XIV, item 155",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 155: ENTRICITABINA + FUMARATO TENOFOVI",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 155
+    },
+    {
+      "id": 201,
+      "anchor_id": "lc214-art-art-156-id201",
+      "artigo": "Art. 156",
+      "titulo_preview": "Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre a prestação de serviços de pesq",
+      "conteudo_preview": "Art. 156. Ficam reduzidas a zero as alíquotas do IBS e da CBS incidentes sobre a prestação de serviços de pesquisa e desenvolvimento por Instituição\nCientífica, Tecnológica e de Inovação (ICT) sem fin",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, contribuinte, responsável tributário, sujeito passivo, educação, ensino, escola, serviços, prestação de serviços",
+      "cnaeGroups": "85",
+      "artigo_num": 156
+    },
+    {
+      "id": 30554,
+      "anchor_id": "lc214-anexo-xiv-item-156-156",
+      "artigo": "Anexo XIV, item 156",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 156: ENZALUTAMIDA 3004.90.69",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 156
+    },
+    {
+      "id": 202,
+      "anchor_id": "lc214-art-art-157-id202",
+      "artigo": "Art. 157",
+      "titulo_preview": "Fica isento do IBS e da CBS o fornecimento de serviços de transporte público coletivo de passageiros",
+      "conteudo_preview": "Art. 157. Fica isento do IBS e da CBS o fornecimento de serviços de transporte público coletivo de passageiros rodoviário e metroviário de caráter urbano,\nsemiurbano e metropolitano, sob regime de aut",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, serviços, prestação de serviços",
+      "cnaeGroups": "41,42,43,68",
+      "artigo_num": 157
+    },
+    {
+      "id": 30555,
+      "anchor_id": "lc214-anexo-xiv-item-157-157",
+      "artigo": "Anexo XIV, item 157",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 157: ERDAFITINIBE 3004.90.69",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 157
+    },
+    {
+      "id": 203,
+      "anchor_id": "lc214-art-art-158-id203",
+      "artigo": "Art. 158",
+      "titulo_preview": "Observado o disposto neste Capítulo, ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS",
+      "conteudo_preview": "Art. 158. Observado o disposto neste Capítulo, ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS sobre operações relacionadas a\nprojetos de reabilitação urbana de zonas históric",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "68,41,42,43",
+      "artigo_num": 158
+    },
+    {
+      "id": 30556,
+      "anchor_id": "lc214-anexo-xiv-item-158-158",
+      "artigo": "Anexo XIV, item 158",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 158: ESILATO DE NINTEDANIBE 3004.90.69",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 158
+    },
+    {
+      "id": 204,
+      "anchor_id": "lc214-art-art-159-id204",
+      "artigo": "Art. 159",
+      "titulo_preview": "A reabilitação urbana de zonas históricas e de áreas críticas de recuperação e reconversão urbanísti",
+      "conteudo_preview": "Art. 159. A reabilitação urbana de zonas históricas e de áreas críticas de recuperação e reconversão urbanística dos Municípios tem por objetivo a preservação\npatrimonial, a qualificação de espaços pú",
+      "topicos": "IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo",
+      "cnaeGroups": "64,65,66",
+      "artigo_num": 159
+    },
+    {
+      "id": 30557,
+      "anchor_id": "lc214-anexo-xiv-item-159-159",
+      "artigo": "Anexo XIV, item 159",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 159: ESPIRONOLACTONA 3004.32.20",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 159
+    },
+    {
+      "id": 205,
+      "anchor_id": "lc214-art-art-160-id205",
+      "artigo": "Art. 160",
+      "titulo_preview": "Para concessão do benefício de que trata o art. 158, os Municípios devem apresentar à Comissão Tripa",
+      "conteudo_preview": "Art. 160. Para concessão do benefício de que trata o art. 158, os Municípios devem apresentar à Comissão Tripartite de que trata o art. 161 desta Lei\nComplementar projetos de desenvolvimento econômico",
+      "topicos": "LC 214/2025, IBS, CBS, IS, Imposto Seletivo",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "artigo_num": 160
+    },
+    {
+      "id": 30558,
+      "anchor_id": "lc214-anexo-xiv-item-160-160",
+      "artigo": "Anexo XIV, item 160",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 160: ESTAVUDINA 3004.90.79",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 160
+    },
+    {
+      "id": 206,
+      "anchor_id": "lc214-art-art-161-id206",
+      "artigo": "Art. 161",
+      "titulo_preview": "A Comissão Tripartite responsável pela análise dos projetos de que trata o art. 160 desta Lei Comple",
+      "conteudo_preview": "Art. 161. A Comissão Tripartite responsável pela análise dos projetos de que trata o art. 160 desta Lei Complementar será composta de:\nI - 2 (dois) representantes do Ministério das Cidades;\nII - 2 (do",
+      "topicos": "Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "artigo_num": 161
+    },
+    {
+      "id": 30559,
+      "anchor_id": "lc214-anexo-xiv-item-161-161",
+      "artigo": "Anexo XIV, item 161",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 161: ETINILESTRADIOL + LEVONORGESTREL ",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 161
+    },
+    {
+      "id": 207,
+      "anchor_id": "lc214-art-art-162-id207",
+      "artigo": "Art. 162",
+      "titulo_preview": "O benefício de que trata o art. 158 restringir-se-á aos projetos aprovados conforme o art. 163 desta",
+      "conteudo_preview": "Art. 162. O benefício de que trata o art. 158 restringir-se-á aos projetos aprovados conforme o art. 163 desta Lei Complementar e alcançará as seguintes\noperações:\nI - prestação de serviços de elabora",
+      "topicos": "IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, construção civil, obra, empreitada, serviços, prestação de serviços",
+      "cnaeGroups": "41,42,43,68",
+      "artigo_num": 162
+    },
+    {
+      "id": 30560,
+      "anchor_id": "lc214-anexo-xiv-item-162-162",
+      "artigo": "Anexo XIV, item 162",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 162: ETOMIDATO 3004.90.69",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 162
+    },
+    {
+      "id": 208,
+      "anchor_id": "lc214-art-art-163-id208",
+      "artigo": "Art. 163",
+      "titulo_preview": "Lei ordinária federal estabelecerá:",
+      "conteudo_preview": "Art. 163. Lei ordinária federal estabelecerá:\nI - os conceitos de preservação, recuperação, reconversão e reabilitação urbana;\nII - a vinculação institucional e as competências da Comissão Tripartite;",
+      "topicos": "LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, produtor rural, agropecuário",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "artigo_num": 163
+    },
+    {
+      "id": 30561,
+      "anchor_id": "lc214-anexo-xiv-item-163-163",
+      "artigo": "Anexo XIV, item 163",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 163: ETOPOSIDEO 3004.90.78",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 163
+    },
+    {
+      "id": 209,
+      "anchor_id": "lc214-art-art-164-id209",
+      "artigo": "Art. 164",
+      "titulo_preview": "O produtor rural pessoa física ou jurídica que auferir receita inferior a R$ 3.600.000,00 (três milh",
+      "conteudo_preview": "Art. 164. O produtor rural pessoa física ou jurídica que auferir receita inferior a R$ 3.600.000,00 (três milhões e seiscentos mil reais) no ano-calendário e o\nprodutor rural integrado não serão consi",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, produtor rural, agropecuário, serviços, prestação de serviços",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "artigo_num": 164
+    },
+    {
+      "id": 30562,
+      "anchor_id": "lc214-anexo-xiv-item-164-164",
+      "artigo": "Anexo XIV, item 164",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 164: ETRAVIRINA 3004.90.69",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 164
+    },
+    {
+      "id": 210,
+      "anchor_id": "lc214-art-art-165-id210",
+      "artigo": "Art. 165",
+      "titulo_preview": "O produtor rural ou o produtor rural integrado poderão optar, a qualquer tempo, por se inscrever com",
+      "conteudo_preview": "Art. 165. O produtor rural ou o produtor rural integrado poderão optar, a qualquer tempo, por se inscrever como contribuinte do IBS e da CBS no regime regular.\n§ 1º Os efeitos da opção prevista no cap",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, produtor rural, agropecuário",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "artigo_num": 165
+    },
+    {
+      "id": 30563,
+      "anchor_id": "lc214-anexo-xiv-item-165-165",
+      "artigo": "Anexo XIV, item 165",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 165: EVEROLIMO 3004.90.78",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 165
+    },
+    {
+      "id": 211,
+      "anchor_id": "lc214-art-art-166-id211",
+      "artigo": "Art. 166",
+      "titulo_preview": "O produtor rural ou o produtor rural integrado poderão renunciar à opção de que trata o art. 165 na ",
+      "conteudo_preview": "Art. 166. O produtor rural ou o produtor rural integrado poderão renunciar à opção de que trata o art. 165 na forma do regulamento, observado o disposto no §\n5º do art. 41 desta Lei Complementar.\nPará",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, produtor rural, agropecuário",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "artigo_num": 166
+    },
+    {
+      "id": 30564,
+      "anchor_id": "lc214-anexo-xiv-item-166-166",
+      "artigo": "Anexo XIV, item 166",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 166: EXEMESTANO 3004.39.94",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 166
+    },
+    {
+      "id": 212,
+      "anchor_id": "lc214-art-art-167-id212",
+      "artigo": "Art. 167",
+      "titulo_preview": "O valor estabelecido no caput do art. 164 desta Lei Complementar será atualizado anualmente com base",
+      "conteudo_preview": "Art. 167. O valor estabelecido no caput do art. 164 desta Lei Complementar será atualizado anualmente com base na variação do IPCA.",
+      "topicos": "LC 214/2025, IBS, CBS, IS, Imposto Seletivo",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "artigo_num": 167
+    },
+    {
+      "id": 30565,
+      "anchor_id": "lc214-anexo-xiv-item-167-167",
+      "artigo": "Anexo XIV, item 167",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 167: FATOR IX DE COAGULAÇÃO 3002.12.39",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 167
+    },
+    {
+      "id": 213,
+      "anchor_id": "lc214-art-art-168-id213",
+      "artigo": "Art. 168",
+      "titulo_preview": "O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar créditos presumidos dos re",
+      "conteudo_preview": "Art. 168. O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar créditos presumidos dos referidos tributos relativos às aquisições de bens e\nserviços de produtor rural ou de produt",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade, produtor rural, agropecuário, serviços, prestação de serviços",
+      "cnaeGroups": "01,02,03,10,11,12",
+      "artigo_num": 168
+    },
+    {
+      "id": 214,
+      "anchor_id": "lc214-art-art-168-parte-2-id214",
+      "artigo": "Art. 168 (parte 2)",
+      "titulo_preview": "O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar créditos presumidos dos re",
+      "conteudo_preview": "e\nIII - tomará por base a média dos percentuais anuais relativos às operações realizadas nos 5 (cinco) anos-calendário anteriores ao do prazo da divulgação\nprevisto no § 4º. § 6º Os percentuais de que",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, Simples Nacional, MEI, microempresa, Simples Nacional, regime simplificado, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade, produtor rural, agropecuário, serviços, prestação de serviços",
+      "cnaeGroups": "01,02,03,10,11,12",
+      "artigo_num": 168
+    },
+    {
+      "id": 30566,
+      "anchor_id": "lc214-anexo-xiv-item-168-168",
+      "artigo": "Anexo XIV, item 168",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 168: FATOR VII DE COAGULAÇÃO ATIVADO R",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 168
+    },
+    {
+      "id": 215,
+      "anchor_id": "lc214-art-art-169-id215",
+      "artigo": "Art. 169",
+      "titulo_preview": "O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar créditos presumidos dos re",
+      "conteudo_preview": "Art. 169. O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar créditos presumidos dos referidos tributos relativos às aquisições de serviço\nde transporte de carga de transportado",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade, serviços, prestação de serviços",
+      "cnaeGroups": "49,50,51,52,53,64,65,66",
+      "artigo_num": 169
+    },
+    {
+      "id": 216,
+      "anchor_id": "lc214-art-art-169-parte-2-id216",
+      "artigo": "Art. 169 (parte 2)",
+      "titulo_preview": "O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar créditos presumidos dos re",
+      "conteudo_preview": "II - resultará da proporção entre:\na) montante do IBS e da CBS cobrados em relação ao valor total das aquisições realizadas pelos transportadores referidos no caput deste artigo; e\nb) valor total a qu",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade, serviços, prestação de serviços",
+      "cnaeGroups": "49,50,51,52,53,64,65,66",
+      "artigo_num": 169
+    },
+    {
+      "id": 30567,
+      "anchor_id": "lc214-anexo-xiv-item-169-169",
+      "artigo": "Anexo XIV, item 169",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 169: FATOR VIII DE COAGULAÇÃO 3002.12.",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 169
+    },
+    {
+      "id": 217,
+      "anchor_id": "lc214-art-art-170-id217",
+      "artigo": "Art. 170",
+      "titulo_preview": "O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar créditos presumidos dos re",
+      "conteudo_preview": "Art. 170. O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar créditos presumidos dos referidos tributos relativos às aquisições de\nresíduos sólidos de coletores incentivados par",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade, tecnologia, software, digital",
+      "cnaeGroups": "64,65,66",
+      "artigo_num": 170
+    },
+    {
+      "id": 218,
+      "anchor_id": "lc214-art-art-170-parte-2-id218",
+      "artigo": "Art. 170 (parte 2)",
+      "titulo_preview": "O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar créditos presumidos dos re",
+      "conteudo_preview": "§ 2º Os créditos presumidos de que trata o caput deste artigo somente poderão ser utilizados para dedução, respectivamente, do valor do IBS e da CBS\ndevidos pelo contribuinte e serão calculados median",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade",
+      "cnaeGroups": "86,87,88,45,46,47",
+      "artigo_num": 170
+    },
+    {
+      "id": 30568,
+      "anchor_id": "lc214-anexo-xiv-item-170-170",
+      "artigo": "Anexo XIV, item 170",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 170: FATOR VIII DE COAGULAÇÃO CONTENDO",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 170
+    },
+    {
+      "id": 219,
+      "anchor_id": "lc214-art-art-171-id219",
+      "artigo": "Art. 171",
+      "titulo_preview": "O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar créditos presumidos dos re",
+      "conteudo_preview": "Art. 171. O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar créditos presumidos dos referidos tributos relativos às aquisições, para\nrevenda, de bem móvel usado de pessoa físic",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade",
+      "cnaeGroups": "64,65,66",
+      "artigo_num": 171
+    },
+    {
+      "id": 220,
+      "anchor_id": "lc214-art-art-171-parte-2-id220",
+      "artigo": "Art. 171 (parte 2)",
+      "titulo_preview": "O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar créditos presumidos dos re",
+      "conteudo_preview": "§ 4º Para fins do disposto neste artigo, considera-se bem móvel usado aquele que tenha sido objeto de fornecimento para consumo final de pessoa física e\ntenha voltado à comercialização. TÍTULO V\nDOS R",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade",
+      "cnaeGroups": "64,65,66",
+      "artigo_num": 171
+    },
+    {
+      "id": 30569,
+      "anchor_id": "lc214-anexo-xiv-item-171-171",
+      "artigo": "Anexo XIV, item 171",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 171: FATOR VIII DE COAGULAÇÃO RECOMBIN",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 171
+    },
+    {
+      "id": 221,
+      "anchor_id": "lc214-art-art-172-id221",
+      "artigo": "Art. 172",
+      "titulo_preview": "O IBS e a CBS incidirão uma única vez sobre as operações, ainda que iniciadas no exterior, com os se",
+      "conteudo_preview": "Art. 172. O IBS e a CBS incidirão uma única vez sobre as operações, ainda que iniciadas no exterior, com os seguintes combustíveis, qualquer que seja a sua\nfinalidade:\nI - gasolina;\nII - etanol anidro",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, base de cálculo, valor tributável",
+      "cnaeGroups": "35,36,37,38,39,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "artigo_num": 172
+    },
+    {
+      "id": 30570,
+      "anchor_id": "lc214-anexo-xiv-item-172-172",
+      "artigo": "Anexo XIV, item 172",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 172: FENTANILA 3004.90.69",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 172
+    },
+    {
+      "id": 222,
+      "anchor_id": "lc214-art-art-173-id222",
+      "artigo": "Art. 173",
+      "titulo_preview": "A base de cálculo do IBS e da CBS será a quantidade de combustível objeto da operação.",
+      "conteudo_preview": "Art. 173. A base de cálculo do IBS e da CBS será a quantidade de combustível objeto da operação.\n§ 1º A quantidade de combustível será aferida de acordo com a unidade de medida própria de cada combust",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, base de cálculo, valor tributável",
+      "cnaeGroups": "35,36,37,38,39,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "artigo_num": 173
+    },
+    {
+      "id": 30571,
+      "anchor_id": "lc214-anexo-xiv-item-173-173",
+      "artigo": "Anexo XIV, item 173",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 173: FILGRASTIM 3002.15.90",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 173
+    },
+    {
+      "id": 223,
+      "anchor_id": "lc214-art-art-174-id223",
+      "artigo": "Art. 174",
+      "titulo_preview": "As alíquotas do IBS e da CBS para os combustíveis de que trata o art. 172 desta Lei Complementar ser",
+      "conteudo_preview": "Art. 174. As alíquotas do IBS e da CBS para os combustíveis de que trata o art. 172 desta Lei Complementar serão:\nI - uniformes em todo o território nacional, específicas por unidade de medida e difer",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, importação, importador",
+      "cnaeGroups": "10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "artigo_num": 174
+    },
+    {
+      "id": 224,
+      "anchor_id": "lc214-art-art-174-parte-2-id224",
+      "artigo": "Art. 174 (parte 2)",
+      "titulo_preview": "As alíquotas do IBS e da CBS para os combustíveis de que trata o art. 172 desta Lei Complementar ser",
+      "conteudo_preview": "e\nII - a carga tributária indireta decorrente das contribuições referidas no inciso I deste parágrafo, do imposto de que trata o inciso IV do caput do art. 153 da\nConstituição Federal e do imposto de ",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, crédito tributário, creditamento, não cumulatividade, importação, importador, serviços, prestação de serviços",
+      "cnaeGroups": "64,65,66",
+      "artigo_num": 174
+    },
+    {
+      "id": 225,
+      "anchor_id": "lc214-art-art-174-parte-3-id225",
+      "artigo": "Art. 174 (parte 3)",
+      "titulo_preview": "As alíquotas do IBS e da CBS para os combustíveis de que trata o art. 172 desta Lei Complementar ser",
+      "conteudo_preview": "§ 4º As alíquotas do IBS serão fixadas:\nI - em 2029 de forma a não exceder a 10% (dez por cento) da carga tributária incidente sobre os combustíveis dos tributos estaduais e municipais extintos ou\nred",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, importação, importador",
+      "cnaeGroups": "10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "artigo_num": 174
+    },
+    {
+      "id": 226,
+      "anchor_id": "lc214-art-art-174-parte-4-id226",
+      "artigo": "Art. 174 (parte 4)",
+      "titulo_preview": "As alíquotas do IBS e da CBS para os combustíveis de que trata o art. 172 desta Lei Complementar ser",
+      "conteudo_preview": "c) o valor apurado nos termos da alínea “b” deste inciso será atualizado a preços de 2029 por meio do acréscimo de percentual equivalente à meta para a\ninflação relativa a 2029, fixada pelo Conselho M",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, crédito tributário, creditamento, não cumulatividade, importação, importador, serviços, prestação de serviços",
+      "cnaeGroups": "64,65,66",
+      "artigo_num": 174
+    },
+    {
+      "id": 227,
+      "anchor_id": "lc214-art-art-174-parte-5-id227",
+      "artigo": "Art. 174 (parte 5)",
+      "titulo_preview": "As alíquotas do IBS e da CBS para os combustíveis de que trata o art. 172 desta Lei Complementar ser",
+      "conteudo_preview": "§ 7º A metodologia de cálculo da carga tributária para a fixação das alíquotas nos termos dos §§ 1º e 4º deste artigo será aprovada por ato conjunto do Ministro\nde Estado da Fazenda e do Comitê Gestor",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, Comitê Gestor do IBS, CG-IBS, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "35,36,37,38,39,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "artigo_num": 174
+    },
+    {
+      "id": 30572,
+      "anchor_id": "lc214-anexo-xiv-item-174-174",
+      "artigo": "Anexo XIV, item 174",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 174: FLUORURACILA 3004.90.69",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 174
+    },
+    {
+      "id": 228,
+      "anchor_id": "lc214-art-art-175-id228",
+      "artigo": "Art. 175",
+      "titulo_preview": "Fica assegurada aos biocombustíveis e ao hidrogênio de baixa emissão de carbono tributação inferior ",
+      "conteudo_preview": "Art. 175. Fica assegurada aos biocombustíveis e ao hidrogênio de baixa emissão de carbono tributação inferior à incidente sobre os combustíveis fósseis, de\nforma a garantir o diferencial competitivo e",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero, serviços, prestação de serviços",
+      "cnaeGroups": "35,36,37,38,39,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "artigo_num": 175
+    },
+    {
+      "id": 229,
+      "anchor_id": "lc214-art-art-175-parte-2-id229",
+      "artigo": "Art. 175 (parte 2)",
+      "titulo_preview": "Fica assegurada aos biocombustíveis e ao hidrogênio de baixa emissão de carbono tributação inferior ",
+      "conteudo_preview": "§ 4º O cálculo da carga tributária de que trata o § 3º deste artigo será realizado a partir das alíquotas vigentes em 1º de julho de 2024, ponderadas pelo volume\nde venda dos respectivos produtos em c",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, alíquota, alíquota reduzida, alíquota zero",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "artigo_num": 175
+    },
+    {
+      "id": 30573,
+      "anchor_id": "lc214-anexo-xiv-item-175-175",
+      "artigo": "Anexo XIV, item 175",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 175: FOLINATO DE CÁLCIO 3004.50.10",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 175
+    },
+    {
+      "id": 230,
+      "anchor_id": "lc214-art-art-176-id230",
+      "artigo": "Art. 176",
+      "titulo_preview": "São contribuintes do regime específico de IBS e de CBS de que trata este Capítulo:",
+      "conteudo_preview": "Art. 176. São contribuintes do regime específico de IBS e de CBS de que trata este Capítulo:\nI - o produtor nacional de biocombustíveis;\nII - a refinaria de petróleo e suas bases;\nIII - a central de m",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo",
+      "cnaeGroups": "35,36,37,38,39,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "artigo_num": 176
+    },
+    {
+      "id": 30574,
+      "anchor_id": "lc214-anexo-xiv-item-176-176",
+      "artigo": "Anexo XIV, item 176",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 176: FOSAMPRENAVIR CÁLCICO 3004.90.78",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 176
+    },
+    {
+      "id": 231,
+      "anchor_id": "lc214-art-art-177-id231",
+      "artigo": "Art. 177",
+      "titulo_preview": "Nas operações realizadas diretamente com os contribuintes de que trata o art. 176 desta Lei Compleme",
+      "conteudo_preview": "Art. 177. Nas operações realizadas diretamente com os contribuintes de que trata o art. 176 desta Lei Complementar, o adquirente fica solidariamente\nresponsável pelo pagamento do IBS e da CBS incident",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, split payment, pagamento dividido",
+      "cnaeGroups": "35,36,37,38,39,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "artigo_num": 177
+    },
+    {
+      "id": 30575,
+      "anchor_id": "lc214-anexo-xiv-item-177-177",
+      "artigo": "Anexo XIV, item 177",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 177: FOSFATO DE FLUDARABINA 3004.90.78",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 177
+    },
+    {
+      "id": 232,
+      "anchor_id": "lc214-art-art-178-id232",
+      "artigo": "Art. 178",
+      "titulo_preview": "Fica atribuída à refinaria de petróleo ou suas bases, à CPQ, ao formulador de combustíveis e ao impo",
+      "conteudo_preview": "Art. 178. Fica atribuída à refinaria de petróleo ou suas bases, à CPQ, ao formulador de combustíveis e ao importador, relativamente ao percentual de\nbiocombustível utilizado na mistura, nas operações ",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo",
+      "cnaeGroups": "35,36,37,38,39,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33",
+      "artigo_num": 178
+    },
+    {
+      "id": 30576,
+      "anchor_id": "lc214-anexo-xiv-item-178-178",
+      "artigo": "Anexo XIV, item 178",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 178: FOSFATO DE OSELTAMIVIR 3004.90.49",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 178
+    },
+    {
+      "id": 233,
+      "anchor_id": "lc214-art-art-179-id233",
+      "artigo": "Art. 179",
+      "titulo_preview": "Nas operações com EAC:",
+      "conteudo_preview": "Art. 179. Nas operações com EAC:\nI - o adquirente de EAC destinado à mistura com gasolina A que realizar a saída dos biocombustíveis com destinação diversa fica obrigado a recolher o IBS e a\nCBS incid",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, crédito tributário, creditamento, não cumulatividade",
+      "cnaeGroups": "64,65,66",
+      "artigo_num": 179
+    },
+    {
+      "id": 30577,
+      "anchor_id": "lc214-anexo-xiv-item-179-179",
+      "artigo": "Anexo XIV, item 179",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 179: FOSFATO DE RUXOLITINIBE 3004.90.6",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 179
+    },
+    {
+      "id": 234,
+      "anchor_id": "lc214-art-art-180-id234",
+      "artigo": "Art. 180",
+      "titulo_preview": "É vedada a apropriação de créditos em relação às aquisições de combustíveis sujeitos à incidência ún",
+      "conteudo_preview": "Art. 180. É vedada a apropriação de créditos em relação às aquisições de combustíveis sujeitos à incidência única do IBS e da CBS, quando destinadas à\ndistribuição, à comercialização ou à revenda.\n§ 1",
+      "topicos": "CBS, Contribuição sobre Bens e Serviços, IBS, Imposto sobre Bens e Serviços, IS, Imposto Seletivo, LC 214/2025, IBS, CBS, IS, Imposto Seletivo, contribuinte, responsável tributário, sujeito passivo, crédito tributário, creditamento, não cumulatividade, serviços financeiros, banco, seguro, serviços, prestação de serviços",
+      "cnaeGroups": "64,65,66",
+      "artigo_num": 180
+    },
+    {
+      "id": 30578,
+      "anchor_id": "lc214-anexo-xiv-item-180-180",
+      "artigo": "Anexo XIV, item 180",
+      "titulo_preview": "MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO XIV — MEDICAMENTOS SUBMETIDOS À REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: aliquota_zero | Redução: 100%\nReferência: LC 214/2025, Anexo XIV\n\nItem 180: FOSFATO DE SITAGLIPTINA 3004.90.6",
+      "topicos": "Anexo XIV, aliquota zero, redução 100%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": "",
+      "artigo_num": 180
+    }
+  ],
+  "dataset_3_anexo_ix_full": [
+    {
+      "id": 30286,
+      "anchor_id": "lc214-anexo-ix-item-10-10",
+      "artigo": "Anexo IX, item 10",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 10: Semente genética, semente básica, semente nativa in natura, semente certificada de primeira geração (C1), semente certi",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30287,
+      "anchor_id": "lc214-anexo-ix-item-11-11",
+      "artigo": "Anexo IX, item 11",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 11: Mudas de plantas e demais materiais propagativos de plantas e fungos, inclusive 06.01 plantas e fungos nativos de espéc",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30288,
+      "anchor_id": "lc214-anexo-ix-item-12-12",
+      "artigo": "Anexo IX, item 12",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 12: Vacinas, soros e medicamentos, de uso veterinário, exceto de animais domésticos 3002.12 3002.15 3002.42 3002.90.00 30.0",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30289,
+      "anchor_id": "lc214-anexo-ix-item-13-13",
+      "artigo": "Anexo IX, item 13",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 13: Aves de um dia, exceto as ornamentais 0105.1",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30290,
+      "anchor_id": "lc214-anexo-ix-item-14-14",
+      "artigo": "Anexo IX, item 14",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 14: Embriões e sêmen, congelado ou resfriado 0511.10.00 0511.9",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30291,
+      "anchor_id": "lc214-anexo-ix-item-15-15",
+      "artigo": "Anexo IX, item 15",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 15: Reprodutores de raça pura, inclusive matrizes de animais puros de origem com registro genealógico; em conformidade com ",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30292,
+      "anchor_id": "lc214-anexo-ix-item-16-16",
+      "artigo": "Anexo IX, item 16",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 16: Ovos fertilizados 0407.1",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30293,
+      "anchor_id": "lc214-anexo-ix-item-17-17",
+      "artigo": "Anexo IX, item 17",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 17: Girinos e alevinos 0106.90.00",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30294,
+      "anchor_id": "lc214-anexo-ix-item-18-18",
+      "artigo": "Anexo IX, item 18",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 18: Rações para animais, concentrados, suplementos, aditivos, premix ou núcleo, exceto para animais domésticos 2309.90",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30295,
+      "anchor_id": "lc214-anexo-ix-item-19-19",
+      "artigo": "Anexo IX, item 19",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 19: Sementes e cereais, mesmo triturados, em grãos esmagados ou trabalhados de outro modo; todos destinados diretamente à f",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30279,
+      "anchor_id": "lc214-anexo-ix-item-2-2",
+      "artigo": "Anexo IX, item 2",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 2: Fertilizantes (adubos), em conformidade com as definições e demais requisitos da legislação específica Capítulo 31 3824.",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30296,
+      "anchor_id": "lc214-anexo-ix-item-21-21",
+      "artigo": "Anexo IX, item 21",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 21: Alho em pó, sal mineralizado, farinhas de peixe, de ostra, de carne, de osso, de pena, de sangue e de víscera, calcário",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30297,
+      "anchor_id": "lc214-anexo-ix-item-22-22",
+      "artigo": "Anexo IX, item 22",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 22: Serviços agronômicos 1.1410.90.00",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30298,
+      "anchor_id": "lc214-anexo-ix-item-23-23",
+      "artigo": "Anexo IX, item 23",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 23: Serviços de técnico agrícola, agropecuário ou em agroecologia 1.1410.90.00",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30299,
+      "anchor_id": "lc214-anexo-ix-item-24-24",
+      "artigo": "Anexo IX, item 24",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 24: Serviços veterinários para produção animal 1.1405.21.00 1.1405.22.00 1.1405.90.00",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30300,
+      "anchor_id": "lc214-anexo-ix-item-25-25",
+      "artigo": "Anexo IX, item 25",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 25: Serviços de zootecnistas 1.1410.90.00",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30301,
+      "anchor_id": "lc214-anexo-ix-item-26-26",
+      "artigo": "Anexo IX, item 26",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 26: Serviços de inseminação e fertilização de animais de criação 1.1405.22.00",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30302,
+      "anchor_id": "lc214-anexo-ix-item-27-27",
+      "artigo": "Anexo IX, item 27",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 27: Serviços de engenharia florestal 1.1403.10.00",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30303,
+      "anchor_id": "lc214-anexo-ix-item-28-28",
+      "artigo": "Anexo IX, item 28",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 28: Serviços de pulverização e controle de pragas 1.1901.10.00",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30304,
+      "anchor_id": "lc214-anexo-ix-item-29-29",
+      "artigo": "Anexo IX, item 29",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 29: Serviços de semeadura, adubação, inclusive mistura de adubos, reparação de solo, plantio e colheita 1.1901.10.00",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30280,
+      "anchor_id": "lc214-anexo-ix-item-3-3",
+      "artigo": "Anexo IX, item 3",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 3: Corretivos de solo (inclusive condicionadores), remineralizadores e substratos para plantas; em conformidade com as defi",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30305,
+      "anchor_id": "lc214-anexo-ix-item-30-30",
+      "artigo": "Anexo IX, item 30",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 30: Serviços de projetos para irrigação e fertirrigação 1.1403.29.00",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30306,
+      "anchor_id": "lc214-anexo-ix-item-31-31",
+      "artigo": "Anexo IX, item 31",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 31: Serviços de análise laboratorial de solos, sementes e outros materiais propagativos, 1.1404.41.00 fitossanitários, água",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30307,
+      "anchor_id": "lc214-anexo-ix-item-32-32",
+      "artigo": "Anexo IX, item 32",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 32: Licenciamento de direitos sobre cultivares 1.1105.10.00",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30308,
+      "anchor_id": "lc214-anexo-ix-item-33-33",
+      "artigo": "Anexo IX, item 33",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 33: Cessão definitiva de direitos sobre cultivares 1.1109.10.00",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30309,
+      "anchor_id": "lc214-anexo-ix-item-34-34",
+      "artigo": "Anexo IX, item 34",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 34: Melhoramento genético de animais e plantas e biotecnologia, inclusive seus royalties",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30310,
+      "anchor_id": "lc214-anexo-ix-item-35-35",
+      "artigo": "Anexo IX, item 35",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 35: Vinhaça",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30281,
+      "anchor_id": "lc214-anexo-ix-item-4-4",
+      "artigo": "Anexo IX, item 4",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 4: Inoculantes, meios de cultura e outros microorganismos para uso agrícola; em conformidade com as definições e demais req",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30282,
+      "anchor_id": "lc214-anexo-ix-item-5-5",
+      "artigo": "Anexo IX, item 5",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 5: 38.24 Bioestimulantes e bioinsumos para controle fitossanitário, em conformidade com as 3807.00.00 definições e demais r",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30283,
+      "anchor_id": "lc214-anexo-ix-item-6-6",
+      "artigo": "Anexo IX, item 6",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 6: Inseticidas, fungicidas, formicidas, herbicidas, parasiticidas, germicidas, acaricidas, nematicidas, raticidas, desfolha",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30284,
+      "anchor_id": "lc214-anexo-ix-item-8-8",
+      "artigo": "Anexo IX, item 8",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 8: Ácido nítrico, ácido sulfúrico, ácido fosfórico, fosfatos de cálcio naturais, enxofre, ácido clorídrico, ácido fosforoso",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    },
+    {
+      "id": 30285,
+      "anchor_id": "lc214-anexo-ix-item-9-9",
+      "artigo": "Anexo IX, item 9",
+      "titulo_preview": "INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS",
+      "conteudo_preview": "ANEXO IX — INSUMOS AGROPECUÁRIOS E AQUÍCOLAS SUBMETIDOS À REDUÇÃO DE 60% DAS ALÍQUOTAS DO IBS E DA CBS\nRegime: reducao_60 | Redução: 60%\nReferência: LC 214/2025, Anexo IX\n\nItem 9: Enzimas preparadas para decomposição de matéria orgânica animal e vegetal 3507.90.4",
+      "topicos": "Anexo IX, reducao 60, redução 60%, LC 214/2025, reforma tributária, IBS, CBS",
+      "cnaeGroups": ""
+    }
+  ],
+  "dataset_4_two_pass_pass2_simulated": [
+    {
+      "artigo": "Art. 133",
+      "titulo": "A partir de 1º de fevereiro de 2033, os saldos credores a que se refere o art. 1",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 135",
+      "titulo": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS inciden",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 136",
+      "titulo": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS inciden",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 137",
+      "titulo": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS inciden",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 138",
+      "titulo": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS inciden",
+      "cnaeGroups": "01,02,03,10,11,12",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 138 (parte 2)",
+      "titulo": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS inciden",
+      "cnaeGroups": "01,02,03,10,11,12",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 138 (parte 3)",
+      "titulo": "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS inciden",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 139",
+      "titulo": "Na impossibilidade de compensação, alternativamente às hipóteses previstas no ar",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 140",
+      "titulo": "A transferência e o pagamento das parcelas do ressarcimento de que tratam os art",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 141",
+      "titulo": "O CGIBS deduzirá do produto da arrecadação do IBS devido ao respectivo Estado ou",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 142",
+      "titulo": "O contribuinte que possuir em estoque, ao final do dia 31 de dezembro de 2032, m",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 143",
+      "titulo": "O valor a que se refere o art. 142 desta Lei Complementar corresponderá ao monta",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 144",
+      "titulo": "Observados a forma e os prazos estabelecidos no regulamento único do IBS:",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 145",
+      "titulo": "A compensação prevista no art. 144 desta Lei Complementar não se aplica ao contr",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 146",
+      "titulo": "Este Livro dispõe sobre o Imposto sobre Transmissão Causa mortis e Doação de Qua",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 147 (parte 3)",
+      "titulo": "Para os fins deste Livro, considera-se:",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 148",
+      "titulo": "O ITCMD incide sobre a transmissão de quaisquer bens ou direitos para os quais s",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 149",
+      "titulo": "................................................................................",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 150",
+      "titulo": "Para fins de reconhecimento do direito às reduções de alíquotas de que trata est",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 151",
+      "titulo": "Considera-se ocorrido o fato gerador:",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 151 (parte 2)",
+      "titulo": "Considera-se ocorrido o fato gerador:",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 152",
+      "titulo": "A base de cálculo do ITCMD é o valor de mercado do bem ou do direito transmitido",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 152",
+      "titulo": "As reduções de alíquotas de que trata o art. 149 desta Lei Complementar poderão ",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 152",
+      "titulo": "................................................................................",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 153",
+      "titulo": "O direito às reduções de alíquotas de que trata o art. 149 desta Lei Complementa",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 154",
+      "titulo": "Os tributos incidirão normalmente sobre quaisquer acessórios opcionais que não s",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 155",
+      "titulo": "Na hipótese de sucessivas doações entre o mesmo doador e o mesmo donatário:",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 156",
+      "titulo": "As alíquotas do ITCMD:",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 157",
+      "titulo": "São contribuintes do ITCMD:",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 160",
+      "titulo": "Para concessão do benefício de que trata o art. 158, os Municípios devem apresen",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 160",
+      "titulo": "A homologação do cálculo do ITCMD compete privativamente à administração tributá",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 161",
+      "titulo": "A Comissão Tripartite responsável pela análise dos projetos de que trata o art. ",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 161",
+      "titulo": "O Conselho Nacional de Justiça, os Tribunais de Justiça e as administrações trib",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 162",
+      "titulo": "A RFB deverá disponibilizar, mediante convênio, acesso controlado e rastreável a",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 163",
+      "titulo": "Lei ordinária federal estabelecerá:",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 164",
+      "titulo": "O produtor rural pessoa física ou jurídica que auferir receita inferior a R$ 3.6",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 164",
+      "titulo": "Os Estados e o Distrito Federal poderão, mediante convênio, promover a padroniza",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 165",
+      "titulo": "A Lei nº 5.172, de 25 de outubro de 1966 (Código Tributário Nacional), passa a v",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 165",
+      "titulo": "O produtor rural ou o produtor rural integrado poderão optar, a qualquer tempo, ",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 166",
+      "titulo": "O produtor rural ou o produtor rural integrado poderão renunciar à opção de que ",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 166",
+      "titulo": "A Lei Complementar nº 63, de 11 de janeiro de 1990, passa a vigorar com as segui",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 167",
+      "titulo": "O valor estabelecido no caput do art. 164 desta Lei Complementar será atualizado",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 167",
+      "titulo": "O § 1º do art. 13 da Lei Complementar nº 87, de 13 de setembro de 1996 (Lei Kand",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 168",
+      "titulo": "A Lei Complementar nº 123, de 14 de dezembro de 2006, passa a vigorar com as seg",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 168",
+      "titulo": "O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar crédit",
+      "cnaeGroups": "01,02,03,10,11,12",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 168",
+      "titulo": "................................................................................",
+      "cnaeGroups": "01,02,03,10,11,12,13,14,15,16",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 168 (parte 2)",
+      "titulo": "O contribuinte de IBS e de CBS sujeito ao regime regular poderá apropriar crédit",
+      "cnaeGroups": "01,02,03,10,11,12",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 170",
+      "titulo": "A Lei Complementar nº 141, de 13 de janeiro de 2012, passa a vigorar com as segu",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 171",
+      "titulo": "O caput do art. 3º da Lei nº 14.113, de 25 de dezembro de 2020, passa a vigorar ",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    },
+    {
+      "artigo": "Art. 173",
+      "titulo": "O Decreto nº 70.235, de 6 de março de 1972, passa a vigorar com as seguintes alt",
+      "cnaeGroups": "01,02,03,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,41,42,43,45,46,47,49,50,51,52,53,55,56,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,75,77,78,79,80,81,82,84,85,86,87,88,90,91,92,93,94,95,96",
+      "classificacao": "agro_match"
+    }
+  ]
+}
