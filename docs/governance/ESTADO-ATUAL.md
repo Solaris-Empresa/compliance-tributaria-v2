@@ -1,7 +1,67 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint
-> **v7.64 · 2026-05-05 (Sprint M3.10 — AUDIT DUAL 🟢 PIPELINE / 🟡 FEATURE — HEAD pré-PR docs `35ad0cc` · multi-fonte agregado e por risco validados em produção · errata Lições #69/#70 + novas #71/#72 + adendo ORQ-19 audit dual)**
-> **Predecessor:** v7.63 · 2026-05-05 (Sprint M3.8.1 HOTFIX ENCERRADA — HEAD pós-#974)
+> **v7.65 · 2026-05-05 (Encerramento de sessão M3.10 — HEAD `5725a89` · 3 PRs mergeados · E2E Q.Servico produção 🟢 confirmado · 3 issues abertas tech debt · próxima sessão: Q.Produto soja)**
+> **Predecessor:** v7.64 · 2026-05-05 (Sprint M3.10 AUDIT DUAL — HEAD `1a31ed1`)
+
+## Sessão v7.65 (2026-05-05) — Encerramento M3.10 + E2E Q.Servico · próxima Q.Produto
+
+**HEAD main:** `5725a89` (PR #988 merged)
+**Audit arquivado:** `docs/governance/audits/v7.65-2026-05-05-end-of-session.md`
+
+### Trigger REGRA-ORQ-19
+
+≥3 PRs mergeados na sessão:
+- #983 — `1a31ed1` — docs(m3.10): erratas Lições #69/#70 + Lições #71/#72 + audit dual v7.64
+- #984 — `64be27b` — chore(claude): remover deny rule fork-bomb inválida (/doctor)
+- #988 — `5725a89` — chore(#987): scripts/dod/m3.10/ — helper Lição #72 + template DoD
+
+### E2E em produção (Q.Servico) — 🟢 PASS
+
+Projeto greenfield #4080001 validado em `https://iasolaris.manus.space`:
+
+| Risco | Badges multi-fonte exibidos |
+|---|---|
+| Confissão Automática | IA Gen + Regulatório + Solaris (3) |
+| Regime Diferenciado | IA Gen + Regulatório + Solaris (3) |
+| Inscrição Cadastral | Regulatório + Solaris (2) |
+| Split Payment | Regulatório + Solaris (2) |
+| Obrigação Acessória | Regulatório + Solaris (2) |
+| Transição ISS/IBS | Regulatório (mono) |
+| enquadramento_geral | Solaris (mono) |
+
+**5/7 multi-fonte por risco** + 3 fontes distintas no agregado → audit DUAL v7.64 reproduzido em greenfield real.
+
+### Observação sutil (não regressão)
+
+`enquadramento_geral` aparece como risco com fonte Solaris explícita + breadcrumb `Art. N/A (categoria fallback)` + sem RAG validation. Distinto do bug eliminado pelo PR #970 (M3.8-3) — aquele era fallback silencioso sem fonte. Este caso tem fonte real Solaris e foi aprovado, então é caminho legítimo. Vale flag para curadoria futura (M3.9 #961 já tracking).
+
+### Tech debt residual M3.10 (issues abertas)
+
+- **#985 (P2)** — Auto-trigger não reconsolida matriz multi-source em projetos pré-existentes
+- **#986 (P3)** — Tests runtime ausentes para `getSourceContributors` helper
+- **#987 (P3 parcial)** — Recuperar e commitar scripts DoD M3.10 — PR #988 entregou 50% (helper + template + tests + README); pendente: Manus exportar 4 scripts da sandbox
+
+### Eventos não-bloqueantes desta sessão
+
+- **TS2307 false positive em `topico-to-categoria`:** investigado em paralelo — race condition do `git reset --hard` capturada por health check. Arquivo presente, tsc clean (EXIT=0), 6 importadores válidos. Sem ação no código.
+- **Self-review PR #988:** detectou blocker `require.main === module` em ESM. Fix-up `ae52d0c` aplicou padrão `fileURLToPath(import.meta.url)` + 3 testes runtime de `formatReport` + correção de overclaim no README. Mergeado.
+
+### Próxima sessão — Q.Produto (soja)
+
+Sessão de hoje validou Q.Servico (#4080001 = serviços). Próxima sessão (amanhã) validará Q.Produto com archetype "produção de soja". Pipeline multi-fonte deve replicar comportamento — diferenças esperadas:
+- Operação: `produto` (não `servico`)
+- NCM codes preenchidos (ao invés de NBS codes)
+- Q.Produto ativo + Q.Servico não aplicável (per Decision Table SOLARIS — `solaris-contexto` SKILL)
+- Fontes esperadas: Solaris + Regulatório + IA Gen (mesmo conjunto, contexto diferente)
+
+### Sincronização P0/P1 + Skills
+
+- [x] `docs/governance/ESTADO-ATUAL.md` — atualizado (este bloco)
+- [ ] `docs/BASELINE-PRODUTO.md` — não atualizado (M3.10 fecha em DUAL, baseline aguarda 🟢 completo)
+- [ ] `docs/HANDOFF-MANUS.md` — não atualizado (Manus em standby para issue #987 export de scripts)
+- [ ] Skills — não atualizadas (sem novas regras emergiram nesta sessão)
+
+---
 
 ## Sessão v7.64 (2026-05-05) — Sprint M3.10 AUDIT DUAL · Pipeline 🟢 / Feature 🟡
 
