@@ -80,8 +80,8 @@ interface ParsedOperationProfile {
  *
  * Regras determinísticas (DEC-M3-01 — sem heurística livre):
  * - operationType 'produto' | 'industria' | 'comercio' | 'product' → 'produto'
- * - operationType 'servico' | 'servicos' | 'agronegocio' | 'financeiro' | 'service' → 'servico'
- * - operationType 'misto' | 'mixed' → 'misto'
+ * - operationType 'servico' | 'servicos' | 'financeiro' | 'service' → 'servico'
+ * - operationType 'misto' | 'mixed' | 'agronegocio' → 'misto'
  * - operationProfile null/undefined: inferir por CNAE
  *   - CNAEs com prefixo 1x, 2x, 3x, 4x → 'produto'
  *   - CNAEs com prefixo 6x, 7x, 8x, 9x → 'servico'
@@ -101,11 +101,13 @@ export function inferCompanyType(
       return "produto";
     }
     // Serviço (inclui variantes PT e EN)
-    if (["servico", "servicos", "agronegocio", "financeiro", "service"].includes(opType)) {
+    if (["servico", "servicos", "financeiro", "service"].includes(opType)) {
       return "servico";
     }
-    // Misto (inclui variante EN)
-    if (["misto", "mixed"].includes(opType)) {
+    // Misto (inclui variante EN). Agronegócio entra aqui — vende NCM (commodities)
+    // mas pode também prestar serviços; deixar a decisão para a presença real de
+    // NCMs/NBS evita esconder Q.Produtos de produtor rural com NCM cadastrado.
+    if (["misto", "mixed", "agronegocio"].includes(opType)) {
       return "misto";
     }
   }

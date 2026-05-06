@@ -86,6 +86,18 @@ describe("inferCompanyType", () => {
   it("fallback conservador: operationProfile null + sem CNAEs → 'misto'", () => {
     expect(inferCompanyType(null, [])).toBe("misto");
   });
+
+  // Bug agronegocio (2026-05-06): produtor rural com NCM era classificado como
+  // "servico", o que retornava nao_aplicavel em generateProductQuestions e
+  // bloqueava o questionário de produtos. Decisão (P.O.): agronegocio → "misto"
+  // — delega aplicabilidade real à presença de NCMs/NBS nos dados do projeto.
+  it("agronegocio → 'misto' (não 'servico')", () => {
+    expect(inferCompanyType({ operationType: "agronegocio" })).toBe("misto");
+  });
+
+  it("financeiro → 'servico' (regressão — não afetado pelo fix do agronegocio)", () => {
+    expect(inferCompanyType({ operationType: "financeiro" })).toBe("servico");
+  });
 });
 
 // ─── evaluateSourceStatus ─────────────────────────────────────────────────────
