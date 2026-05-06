@@ -18,6 +18,7 @@ import {
 import { queryRag } from "./rag-query";
 import { querySolarisByCnaes } from "./solaris-query";
 import { inferCompanyType } from "./completeness";
+import { isSetorialArtigo } from "../rag-retriever";
 
 // ─── Função principal ─────────────────────────────────────────────────────────
 
@@ -68,21 +69,67 @@ export async function generateProductQuestions(
   const { getArchetypeContext } = await import("./archetype/getArchetypeContext");
   const archetypeContext = getArchetypeContext(companyProfile.archetype as never);
 
-  const allQuestions: TrackedQuestion[] = [];
-
-  // ─── Perguntas RAG por NCM ────────────────────────────────────────────────
+  // ─── Coleta RAG (Pass 1 + Pass 2 via queryRagFn) ─────────────────────────
+  // Issue #997: separar coleta da geração para permitir quality gate
+  // corpus_gap_setorial ANTES de invocar LLM (REGRA-ORQ-31 meta 98%).
+  const ragChunksByNcm: Array<{ ncm: string; chunk: RagChunk }> = [];
   for (const ncm of ncmCodes) {
     const contextQuery = archetypeContext
       ? `IBS CBS alíquota produto NCM ${ncm} reforma tributária ${archetypeContext}`
       : `IBS CBS alíquota produto NCM ${ncm} reforma tributária`;
     let chunks: RagChunk[] = [];
     try {
-      chunks = await queryRagFn([ncm, ...cnaeCodes], contextQuery, 3);
+      // Issue #997: skipSetorialPass quando archetype ausente (backward-compat).
+      const skipSetorialPass = archetypeContext === "";
+      chunks = await queryRagFn([ncm, ...cnaeCodes], contextQuery, 3, undefined, skipSetorialPass);
     } catch {
       // RAG indisponível: continua sem perguntas RAG para este NCM
     }
-
     for (const chunk of chunks) {
+      ragChunksByNcm.push({ ncm, chunk });
+    }
+  }
+
+  // ─── Coleta SOLARIS ───────────────────────────────────────────────────────
+  // M3.7 Item 11: whitelist Q.NCM limita SOLARIS a LC 214/2025 e LC 227/2026
+  let solarisQuestions: SolarisQuestion[] = [];
+  try {
+    solarisQuestions = await querySolarisFn(cnaeCodes, ["lc214", "lc227"]);
+  } catch {
+    // SOLARIS indisponível: continua sem perguntas SOLARIS
+  }
+
+  // ─── Issue #997: Quality gate corpus_gap_setorial ────────────────────────
+  // Filtra chunks setoriais (Art. >= 128 LC 214 ou Anexo%). Se zero setoriais
+  // E zero SOLARIS → bloqueia geração com motivo "corpus_gap_setorial"
+  // (REGRA-ORQ-31: gerar perguntas com base apenas em Parte Geral viola meta
+  // 98% de confiança — é "falsa autoridade legal").
+  //
+  // Skip do gate se archetype ausente (backward-compat — retriever não rodou Pass 2).
+  const setorialChunks = ragChunksByNcm.filter(({ chunk }) => isSetorialArtigo(chunk.artigo));
+  const corpusGapSetorial = archetypeContext !== "" && setorialChunks.length === 0;
+
+  if (corpusGapSetorial && solarisQuestions.length === 0) {
+    return {
+      nao_aplicavel: true,
+      motivo: "corpus_gap_setorial",
+      alerta:
+        "Não foi possível recuperar legislação setorial específica para os NCMs informados " +
+        "com o nível de confiança exigido pela plataforma (meta 98%). " +
+        "Equipe SOLARIS notificada — questionário ficará disponível assim que a cobertura legal for validada.",
+    };
+  }
+
+  // ─── Geração de perguntas ─────────────────────────────────────────────────
+  const allQuestions: TrackedQuestion[] = [];
+
+  // Quando há corpus_gap_setorial parcial (sem setorial RAG mas com SOLARIS),
+  // pulamos geração via LLM dos chunks genéricos para não criar perguntas
+  // com falsa autoridade. Apenas SOLARIS é emitido com alerta na resposta.
+  const skipRagGeneration = corpusGapSetorial; // setoriais==0 e solaris>0 (já validado acima)
+
+  if (!skipRagGeneration) {
+    for (const { ncm, chunk } of ragChunksByNcm) {
       try {
         const texto = await generateQuestionFromChunk(chunk, ncm);
         allQuestions.push({
@@ -101,16 +148,6 @@ export async function generateProductQuestions(
     }
   }
 
-  // ─── Perguntas SOLARIS filtradas por CNAE + lei (paridade RAG) ───────────
-  // M3.7 Item 11: whitelist Q.NCM limita SOLARIS a LC 214/2025 e LC 227/2026
-  // (Q.NCM ainda usa queryRagFn sem leiFilter — não é escopo desta issue ampliar)
-  let solarisQuestions: SolarisQuestion[] = [];
-  try {
-    solarisQuestions = await querySolarisFn(cnaeCodes, ["lc214", "lc227"]);
-  } catch {
-    // SOLARIS indisponível: continua sem perguntas SOLARIS
-  }
-
   for (const sq of solarisQuestions) {
     allQuestions.push({
       id:         `solaris-${sq.id}`,
@@ -124,8 +161,18 @@ export async function generateProductQuestions(
     });
   }
 
+  // Issue #997: corpus_gap_parcial — RAG setorial vazio mas SOLARIS cobre.
+  // Retorna apenas SOLARIS com alerta explicativo (terceiro caso do union QuestionResult).
+  if (corpusGapSetorial && solarisQuestions.length > 0) {
+    return {
+      perguntas: deduplicateById(allQuestions),
+      alerta:
+        "Diagnóstico parcial: legislação setorial específica não recuperada para os NCMs " +
+        "informados. Análise baseada apenas em perguntas SOLARIS curadas. Equipe notificada.",
+    };
+  }
+
   // M3.7 Item 5: nenhuma pergunta gerada → NO_QUESTION protocol (era buildProductFallback hardcoded)
-  // ADR-010 Regra 5: registrar como skipped com motivo no_applicable_requirements
   if (allQuestions.length === 0) {
     return {
       nao_aplicavel: true,

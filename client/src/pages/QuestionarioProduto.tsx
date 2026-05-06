@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Package, SkipForward, AlertTriangle } from "lucide-react";
 import NaoAplicavelBanner from "@/components/NaoAplicavelBanner";
+import CorpusGapBanner from "@/components/CorpusGapBanner";
 import {
   Dialog,
   DialogContent,
@@ -99,6 +100,21 @@ export default function QuestionarioProduto() {
   }
 
   if (data.nao_aplicavel) {
+    // Issue #997: distinguir motivo "corpus_gap_setorial" do nao_aplicavel padrão.
+    // Backend retorna esse motivo quando 0 chunks setoriais E 0 SOLARIS cobrem o NCM.
+    // V1: bloqueio total — sem botão de bypass (decisão P.O. 2026-05-06 AC3).
+    // V2 (backlog): bypass com audit_log.
+    if ((data as { motivo?: string }).motivo === "corpus_gap_setorial") {
+      const ncms = (projectData?.operationProfile?.principaisProdutos ?? [])
+        .map((p: any) => p.ncm_code)
+        .filter(Boolean);
+      return (
+        <CorpusGapBanner
+          ncms={ncms}
+          alerta={data.alerta ?? null}
+        />
+      );
+    }
     return (
       <NaoAplicavelBanner
         tipo="servico"
