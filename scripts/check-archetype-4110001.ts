@@ -1,17 +1,34 @@
-import mysql from 'mysql2/promise';
+import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
+import { eq } from "drizzle-orm";
+import { projects } from "../drizzle/schema";
+
 async function main() {
   const conn = await mysql.createConnection(process.env.DATABASE_URL!);
-  const [rows] = await conn.execute('SELECT archetype FROM projects WHERE id = 4110001');
-  const row = (rows as any)[0];
-  const arch = row?.archetype;
-  if (!arch) { console.log('archetype: NULL'); await conn.end(); return; }
-  const parsed = typeof arch === 'string' ? JSON.parse(arch) : arch;
-  console.log('archetype.derived_legacy_operation_type:', parsed?.arquetipo_partial?.derived_legacy_operation_type ?? parsed?.derived_legacy_operation_type ?? 'NOT FOUND');
-  console.log('archetype.papel_na_cadeia:', parsed?.arquetipo_partial?.papel_na_cadeia ?? parsed?.perfil?.papel_na_cadeia ?? 'NOT FOUND');
-  console.log('archetype.objeto:', JSON.stringify(parsed?.arquetipo_partial?.objeto ?? parsed?.perfil?.objeto ?? 'NOT FOUND'));
-  console.log('archetype keys (top-level):', Object.keys(parsed));
-  if (parsed.perfil) console.log('archetype.perfil keys:', Object.keys(parsed.perfil));
-  if (parsed.arquetipo_partial) console.log('archetype.arquetipo_partial keys:', Object.keys(parsed.arquetipo_partial));
+  const db = drizzle(conn);
+  const [p] = await db.select({ archetype: projects.archetype }).from(projects).where(eq(projects.id, 4110001));
+  console.log("=== TOP-LEVEL KEYS ===");
+  if (p.archetype && typeof p.archetype === "object") {
+    console.log(Object.keys(p.archetype));
+    const arch = p.archetype as any;
+    console.log("\n=== KEY FIELDS ===");
+    console.log("Has 'objeto':", "objeto" in arch);
+    console.log("Has 'dim_objeto':", "dim_objeto" in arch);
+    console.log("Has 'papel_na_cadeia':", "papel_na_cadeia" in arch);
+    console.log("Has 'dim_papel_na_cadeia':", "dim_papel_na_cadeia" in arch);
+    console.log("\n=== VALUES ===");
+    console.log("objeto:", arch.objeto);
+    console.log("dim_objeto:", arch.dim_objeto);
+    console.log("papel_na_cadeia:", arch.papel_na_cadeia);
+    console.log("dim_papel_na_cadeia:", arch.dim_papel_na_cadeia);
+    console.log("territorio:", arch.territorio);
+    console.log("dim_territorio:", arch.dim_territorio);
+    console.log("regime:", arch.regime);
+    console.log("dim_regime:", arch.dim_regime);
+    console.log("derived_legacy_operation_type:", arch.derived_legacy_operation_type);
+  } else {
+    console.log("archetype is NULL or not object:", p.archetype);
+  }
   await conn.end();
 }
-main().catch(console.error);
+main();
