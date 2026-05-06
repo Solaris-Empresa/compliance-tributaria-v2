@@ -17,6 +17,37 @@ import type { PerfilDimensional } from "./types";
  * - ADR-0032 (versionamento)
  * - Sprint M3 cirúrgico
  */
+/**
+ * Bug B fix (Issue #992): writer `server/routers/perfil.ts:391-395` persiste
+ * o snapshot com prefixo `dim_*` em 5 dimensões; reader histórico esperava
+ * sem prefixo, retornando string vazia para 100% dos projetos com archetype
+ * confirmado em produção (matriz dry-run 2026-05-06: 14/15 projetos com
+ * before="").
+ *
+ * Estratégia aprovada P.O.: reader normalization (Opção A) — aceitar ambos
+ * formatos via fallback `?? raw.dim_*`, mantendo writer backward-compatible
+ * (sem migration de dados existentes).
+ *
+ * Cobre apenas as 5 dimensões com mismatch confirmado em runtime
+ * (`objeto`, `papel_na_cadeia`, `tipo_de_relacao`, `territorio`, `regime`).
+ * Os campos `subnatureza_setorial` e `orgao_regulador` já são persistidos
+ * sem prefixo pelo writer (perfil.ts:397-398) e não precisam de fallback.
+ *
+ * Backward-compat absoluta: fixtures canônicas (formato sem prefixo) continuam
+ * resolvendo via `r.objeto ?? undefined` → comportamento idêntico ao legado.
+ */
+function normalizeArchetype(arch: PerfilDimensional): PerfilDimensional {
+  const r = arch as PerfilDimensional & Record<string, unknown>;
+  return {
+    ...arch,
+    objeto: (r.objeto ?? r.dim_objeto) as PerfilDimensional["objeto"],
+    papel_na_cadeia: (r.papel_na_cadeia ?? r.dim_papel_na_cadeia) as PerfilDimensional["papel_na_cadeia"],
+    tipo_de_relacao: (r.tipo_de_relacao ?? r.dim_tipo_de_relacao) as PerfilDimensional["tipo_de_relacao"],
+    territorio: (r.territorio ?? r.dim_territorio) as PerfilDimensional["territorio"],
+    regime: (r.regime ?? r.dim_regime) as PerfilDimensional["regime"],
+  };
+}
+
 export function getArchetypeContext(
   archetype: PerfilDimensional | string | null | undefined,
 ): string {
@@ -37,6 +68,10 @@ export function getArchetypeContext(
   }
 
   if (!arch || typeof arch !== "object") return "";
+
+  // Bug B fix: aceitar tanto formato canônico (fixtures sintéticas) quanto
+  // formato persistido com prefixo dim_* (snapshot real do banco).
+  arch = normalizeArchetype(arch);
 
   const parts: string[] = [];
 

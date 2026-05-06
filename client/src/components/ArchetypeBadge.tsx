@@ -24,7 +24,28 @@ interface PerfilDimensional {
   orgao_regulador?: string[];
 }
 
-function parseArchetype(raw: unknown): PerfilDimensional | null {
+/**
+ * Bug B fix (Issue #992): writer `server/routers/perfil.ts:391-395` persiste
+ * o snapshot com prefixo `dim_*` em 5 dimensões. Este reader paralelo (UI)
+ * sofria o mesmo mismatch silencioso do reader server `getArchetypeContext`,
+ * resultando em badge vazio para todos os 15 projetos com archetype
+ * confirmado em produção.
+ *
+ * Estratégia aprovada P.O.: aceitar ambos formatos via fallback `?? r.dim_*`.
+ * Backward-compat absoluta: fixtures canônicas continuam funcionando idênticas.
+ */
+export function normalizeArchetype(arch: PerfilDimensional & Record<string, unknown>): PerfilDimensional {
+  return {
+    ...arch,
+    objeto: (arch.objeto ?? arch.dim_objeto) as string[] | undefined,
+    papel_na_cadeia: (arch.papel_na_cadeia ?? arch.dim_papel_na_cadeia) as string | undefined,
+    tipo_de_relacao: (arch.tipo_de_relacao ?? arch.dim_tipo_de_relacao) as string[] | undefined,
+    territorio: (arch.territorio ?? arch.dim_territorio) as string[] | undefined,
+    regime: (arch.regime ?? arch.dim_regime) as string | undefined,
+  };
+}
+
+export function parseArchetype(raw: unknown): PerfilDimensional | null {
   if (!raw) return null;
   let arch: unknown = raw;
   if (typeof raw === "string") {
@@ -35,7 +56,7 @@ function parseArchetype(raw: unknown): PerfilDimensional | null {
     }
   }
   if (!arch || typeof arch !== "object" || Array.isArray(arch)) return null;
-  return arch as PerfilDimensional;
+  return normalizeArchetype(arch as PerfilDimensional & Record<string, unknown>);
 }
 
 function buildSummary(arch: PerfilDimensional): string {
