@@ -96,9 +96,14 @@ export default function QuestionarioServico() {
   }
 
   if (data.nao_aplicavel) {
+    // Issue #1008: consumir motivo para texto adaptativo (paridade com Q.NCM).
+    // Tech debt P3 mantido: CorpusGapBanner V1.5 NÃO implementado em Q.NBS
+    // (escopo Issue #997 V2 — gate corpus_gap_setorial em generateServiceQuestions).
+    const motivo = (data as { motivo?: string | null }).motivo ?? null;
     return (
       <NaoAplicavelBanner
         tipo="produto"
+        motivo={motivo as "no_nbs_codes" | "no_applicable_requirements" | null}
         onAvancar={() => completeMutation.mutate({ projectId, respostas: [] })}
         isLoading={completeMutation.isPending}
       />

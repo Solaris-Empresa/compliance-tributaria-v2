@@ -1,21 +1,22 @@
 /**
- * CorpusGapBanner — Issue #997 Q.NCM Quality Gate (V1: Bloqueio total)
+ * CorpusGapBanner — Issue #997 Q.NCM Quality Gate
  *
  * Exibido quando `getProductQuestions` retorna `motivo: "corpus_gap_setorial"`,
  * indicando que o corpus RAG não cobre legislação setorial específica para
  * o NCM informado E SOLARIS também não cobre o CNAE do projeto.
  *
- * V1 (Issue #997 AC3): bloqueio total — sem botão de bypass. Usuário fica
- * bloqueado nesta etapa até que equipe SOLARIS valide cobertura legal.
- * Decisão P.O. 2026-05-06: rigor com meta 98% prevalece sobre UX nesta versão.
+ * V1 (PR #1003): bloqueio total — sem botão de bypass. Usuário ficava
+ * bloqueado nesta etapa até equipe SOLARIS validar cobertura legal.
  *
- * V2 (backlog, sem data): bypass com audit_log de override. Aguarda demanda
- * operacional real para priorizar.
+ * V1.5 (Issue #1008): bypass com audit trail. Mensagem 98% preservada
+ * integralmente; botão "Continuar com diagnóstico parcial" só renderiza
+ * quando `onAvancar` é fornecido. Sem `onAvancar`, comportamento V1
+ * (bloqueio total) é preservado para casos onde bypass não faz sentido.
  *
- * Mensagem é deliberadamente honesta (não dizer "legislação em definição" —
- * a legislação existe, está promulgada). O sistema reconhece que não conseguiu
- * recuperar legislação setorial com confiança suficiente para gerar perguntas
- * com base legal específica (REGRA-ORQ-31 meta 98%).
+ * Decisão P.O. 2026-05-06: rigor com meta 98% prevalece, MAS não pode
+ * criar dead-end no fluxo. Botão registra `corpus_gap_bypass` em audit_log
+ * para que a equipe SOLARIS possa medir frequência de gap e priorizar
+ * curadoria de cobertura legal por NCM.
  *
  * Diferente do `NaoAplicavelBanner` (empresa não opera com produto):
  * `CorpusGapBanner` significa que a empresa COULD operar com NCM mas o
@@ -23,23 +24,41 @@
  *
  * Refs:
  * - Issue #997 — Q.NCM Quality Gate (AC3 V1)
+ * - Issue #1008 — V1.5 bypass com audit
  * - REGRA-ORQ-31 (meta 98% de confiança)
  * - REGRA-ORQ-29 (no_question protocol)
- * - REGRA-ORQ-21 (última spec é formal — V1 não inclui bypass)
  */
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ArrowRight, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 interface CorpusGapBannerProps {
   /** Lista de NCMs do projeto que dispararam o gate. */
   ncms?: string[];
   /** Mensagem específica vinda do backend (se diferente da default). */
   alerta?: string | null;
+  /**
+   * V1.5 (Issue #1008): callback opcional para bypass com audit trail.
+   * Quando ausente → comportamento V1 (bloqueio total, sem botão).
+   * Quando presente → botão "Continuar com diagnóstico parcial" renderiza.
+   */
+  onAvancar?: () => void;
+  /**
+   * V1.5: label do próximo passo, derivado do operationType pelo caller.
+   * Ex: "Questionário de Serviços" | "Questionário CNAE".
+   * Se omitido → label genérico.
+   */
+  nextStepLabel?: string;
+  /** V1.5: spinner no botão durante mutation. */
+  isLoading?: boolean;
 }
 
 export default function CorpusGapBanner({
   ncms,
   alerta,
+  onAvancar,
+  nextStepLabel,
+  isLoading = false,
 }: CorpusGapBannerProps) {
   const ncmList = ncms && ncms.length > 0 ? ncms.join(", ") : "informado(s)";
 
@@ -48,6 +67,10 @@ export default function CorpusGapBanner({
     `com o nível de confiança exigido pela plataforma. ` +
     `Nossa equipe foi notificada automaticamente — o questionário ficará disponível ` +
     `assim que a cobertura legal for validada.`;
+
+  const buttonLabel = nextStepLabel
+    ? `Continuar para ${nextStepLabel} →`
+    : "Continuar com diagnóstico parcial →";
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">
@@ -70,10 +93,30 @@ export default function CorpusGapBanner({
       </div>
 
       {/*
-        V1: bloqueio total — sem botão "Avançar".
-        Usuário aguarda equipe SOLARIS validar cobertura legal.
-        V2 (backlog): bypass com audit_log de override.
+        V1.5 (Issue #1008): botão de bypass condicional.
+        Renderiza apenas quando `onAvancar` é fornecido pelo caller — preserva
+        compatibilidade com chamadas V1 que não passam o callback.
+        Click registra `corpus_gap_bypass` no audit_log via caller (telemetria
+        para curadoria SOLARIS priorizar cobertura legal por NCM).
       */}
+      {onAvancar && (
+        <div className="mt-6 flex justify-end">
+          <Button
+            variant="outline"
+            onClick={onAvancar}
+            disabled={isLoading}
+            className="gap-2"
+            data-testid="corpus-gap-bypass"
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ArrowRight className="h-4 w-4" />
+            )}
+            {buttonLabel}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

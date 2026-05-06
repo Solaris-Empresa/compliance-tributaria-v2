@@ -79,6 +79,10 @@ export default function QuestionarioProduto() {
     },
   });
 
+  // Issue #1008: telemetria do bypass V1.5. Não bloqueia o fluxo se falhar
+  // (audit_log é fire-and-forget — usuário avança independentemente).
+  const auditBypassMutation = trpc.fluxoV3.auditCorpusGapBypass.useMutation();
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -100,24 +104,38 @@ export default function QuestionarioProduto() {
   }
 
   if (data.nao_aplicavel) {
-    // Issue #997: distinguir motivo "corpus_gap_setorial" do nao_aplicavel padrão.
-    // Backend retorna esse motivo quando 0 chunks setoriais E 0 SOLARIS cobrem o NCM.
-    // V1: bloqueio total — sem botão de bypass (decisão P.O. 2026-05-06 AC3).
-    // V2 (backlog): bypass com audit_log.
-    if ((data as { motivo?: string }).motivo === "corpus_gap_setorial") {
+    const motivo = (data as { motivo?: string | null }).motivo ?? null;
+    // Issue #997 + #1008: distinguir motivo "corpus_gap_setorial" do nao_aplicavel padrão.
+    // V1.5 (Issue #1008): bypass com audit trail. Botão "Continuar" preserva mensagem
+    // 98% e avança via getNextStateAfterProductQ (operationType decide próxima etapa).
+    if (motivo === "corpus_gap_setorial") {
       const ncms = (projectData?.operationProfile?.principaisProdutos ?? [])
         .map((p: any) => p.ncm_code)
         .filter(Boolean);
+      const operationType = (projectData?.operationProfile?.operationType ?? "")
+        .toString()
+        .toLowerCase();
+      const nextStepLabel = ["produto", "comercio"].includes(operationType)
+        ? "Questionário CNAE"
+        : "Questionário de Serviços";
       return (
         <CorpusGapBanner
           ncms={ncms}
           alerta={data.alerta ?? null}
+          nextStepLabel={nextStepLabel}
+          isLoading={completeMutation.isPending}
+          onAvancar={() => {
+            // Issue #1008: telemetria do bypass — fire-and-forget (não bloqueia avanço)
+            auditBypassMutation.mutate({ projectId, ncmCodes: ncms, operationType });
+            completeMutation.mutate({ projectId, respostas: [] });
+          }}
         />
       );
     }
     return (
       <NaoAplicavelBanner
         tipo="servico"
+        motivo={motivo as "no_ncm_codes" | "no_applicable_requirements" | null}
         onAvancar={() => completeMutation.mutate({ projectId, respostas: [] })}
         isLoading={completeMutation.isPending}
       />
