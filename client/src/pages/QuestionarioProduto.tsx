@@ -102,6 +102,8 @@ export default function QuestionarioProduto() {
   if (data.nao_aplicavel) {
     // Issue #997: distinguir motivo "corpus_gap_setorial" do nao_aplicavel padrão.
     // Backend retorna esse motivo quando 0 chunks setoriais E 0 SOLARIS cobrem o NCM.
+    // V1: bloqueio total — sem botão de bypass (decisão P.O. 2026-05-06 AC3).
+    // V2 (backlog): bypass com audit_log.
     if ((data as { motivo?: string }).motivo === "corpus_gap_setorial") {
       const ncms = (projectData?.operationProfile?.principaisProdutos ?? [])
         .map((p: any) => p.ncm_code)
@@ -110,8 +112,6 @@ export default function QuestionarioProduto() {
         <CorpusGapBanner
           ncms={ncms}
           alerta={data.alerta ?? null}
-          onAvancar={() => completeMutation.mutate({ projectId, respostas: [] })}
-          isLoading={completeMutation.isPending}
         />
       );
     }
