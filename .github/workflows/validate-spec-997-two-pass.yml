@@ -1,0 +1,274 @@
+name: Validate Issue #997 Spec Compliance (Two-Pass Retrieval CNAE-aware)
+
+# Hard gate de conformidade com Issue #997 (Q.NCM Quality Gate — Two-Pass
+# Retrieval CNAE-aware). Aprovado P.O. em Síntese Final v2 (2026-05-06).
+#
+# DISPARO: apenas em PRs com label `997-impl` (escape hatch — outros PRs
+# não são afetados).
+#
+# OBJETIVO: garantir que o PR de implementação efetivamente cumpre o spec
+# da Issue #997 e a decisão F1 do P.O. (Two-Pass com SQL boundary-aware):
+#   - Pass 1 genérico mantido (LIMIT 10)
+#   - Pass 2 setorial CNAE-aware (LIMIT 10)
+#     - REGEXP_SUBSTR(artigo, '[0-9]+') BETWEEN 128 AND 260
+#     - cnaeGroups boundary-aware (LIKE 'XX,%' OR '%,XX,%' OR '%,XX' OR = 'XX')
+#     - LENGTH(cnaeGroups) < 50 fallback
+#   - Merge dedup por anchor_id → 20 candidatos → LLM re-rank → topK
+#   - Quality gate corpus_gap_setorial (0 chunks setoriais → bloqueia)
+#
+# Vinculadas:
+# - Issue #997 (Q.NCM Quality Gate spec)
+# - PR #1000 (Artefato 2 — test contracts skeleton it.todo)
+# - PR #998  (fixtures reais do corpus em __fixtures__/)
+# - PR #999  (RAG Corpus Inventory — discrepância 1317 vs 2515 resolvida)
+# - REGRA-ORQ-27 (Lição #59 — assemble ≠ consumption)
+# - REGRA-ORQ-28 (Triade de garantia)
+# - REGRA-ORQ-31 (meta 98% de confiança — quality gate impede falsa autoridade)
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled]
+
+jobs:
+  validate-997-compliance:
+    name: Validate Issue #997 spec compliance
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, '997-impl')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        # version omitida deliberadamente — action lê packageManager do package.json
+        # (pnpm@10.4.1 ao tempo deste fix). Especificar version: aqui causa
+        # ERR_PNPM_BAD_PM_VERSION (incidente diagnosticado em PR #937).
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ─── A1 — Anti-violação SQL: REGEXP_REPLACE PROIBIDO ───────────────────
+      #
+      # Justificativa (Issue #997 AC1 anti-violação):
+      #   REGEXP_REPLACE(artigo, '[^0-9]', '') extrai TODOS os dígitos.
+      #   "Art. 544 (parte 10)" → "54410" → fora da faixa setorial 128-260.
+      #   PROIBIDO em código de produção.
+
+      - name: A1 — REGEXP_REPLACE em ragRetriever PROIBIDO
+        run: |
+          if grep -nE 'REGEXP_REPLACE\s*\(\s*artigo' server/rag-retriever.ts server/lib/ 2>&1 | grep -v 'test\|\.md'; then
+            echo "❌ A1 FALHOU: REGEXP_REPLACE(artigo,...) detectado em código de produção"
+            echo ""
+            echo "Razão: REGEXP_REPLACE(artigo, '[^0-9]', '') extrai todos os dígitos e"
+            echo "produz '54410' para 'Art. 544 (parte 10)' — fora da faixa setorial 128-260."
+            echo ""
+            echo "Substituir por: CAST(REGEXP_SUBSTR(artigo, '[0-9]+') AS UNSIGNED)"
+            echo "Ver Issue #997 AC1 anti-violação."
+            exit 1
+          fi
+          echo "✅ A1 — REGEXP_REPLACE não detectado em código de produção"
+
+      # ─── A2 — REGEXP_SUBSTR no retriever (boundary-aware artigo number) ───
+
+      - name: A2 — REGEXP_SUBSTR(artigo) usado em rag-retriever
+        run: |
+          if ! grep -qE 'REGEXP_SUBSTR\s*\(\s*artigo' server/rag-retriever.ts; then
+            echo "❌ A2 FALHOU: server/rag-retriever.ts não usa REGEXP_SUBSTR(artigo,...)"
+            echo ""
+            echo "Esperado: implementação do Pass 2 deve extrair primeiro número via"
+            echo "  CAST(REGEXP_SUBSTR(artigo, '[0-9]+') AS UNSIGNED) BETWEEN 128 AND 260"
+            echo ""
+            echo "Ver Issue #997 AC1."
+            exit 1
+          fi
+          echo "✅ A2 — REGEXP_SUBSTR(artigo) detectado em rag-retriever.ts"
+
+      # ─── A3 — Anti-violação cnaeGroups: LIKE %XX% sem boundary PROIBIDO ───
+      #
+      # Justificativa: cnaeGroups LIKE '%01%' casa 414 chunks universais
+      # ("01,02,...,96"), poluindo o Pass 2 com chunks NÃO setoriais.
+
+      - name: A3 — cnaeGroups LIKE sem boundary PROIBIDO em Pass 2
+        run: |
+          # Detectar pattern LIKE '%01%' ou similar SEM boundaries em rag-retriever.ts.
+          # Padrão proibido: LIKE seguido de string que começa OU termina com %
+          # SEM ser precedido/seguido por vírgula. Heurística:
+          #   match: cnaeGroups LIKE '%[0-9][0-9]%' (sem , antes ou depois do dígito)
+          #   ok:    cnaeGroups LIKE '%,[0-9][0-9],%' OR LIKE '[0-9][0-9],%' OR LIKE '%,[0-9][0-9]'
+          if grep -nE "cnaeGroups\s+LIKE\s+'%[0-9]+%'" server/rag-retriever.ts; then
+            echo "❌ A3 FALHOU: cnaeGroups LIKE '%XX%' (sem boundaries) detectado"
+            echo ""
+            echo "Razão: 414 chunks têm cnaeGroups com todos os 96 grupos ('01,02,...,96')."
+            echo "LIKE '%01%' casa todos eles — falso-positivo agro."
+            echo ""
+            echo "Usar boundary-aware:"
+            echo "  cnaeGroups LIKE 'XX,%'   (começo)"
+            echo "  cnaeGroups LIKE '%,XX,%' (meio)"
+            echo "  cnaeGroups LIKE '%,XX'   (fim)"
+            echo "  cnaeGroups = 'XX'        (único)"
+            echo "  LENGTH(cnaeGroups) < 50  (fallback chunk setorial sem cnae restrito)"
+            echo ""
+            echo "Ver Issue #997 AC1 anti-violação."
+            exit 1
+          fi
+          echo "✅ A3 — cnaeGroups LIKE sem boundaries não detectado"
+
+      # ─── A4 — cnaeGroups boundary-aware presente ──────────────────────────
+
+      - name: A4 — cnaeGroups boundary-aware presente em Pass 2
+        run: |
+          # Verifica que pelo menos UM dos 4 padrões boundary-aware aparece
+          # em rag-retriever.ts (não importa qual SQL builder, basta existir
+          # a string indicando intenção).
+          MATCH_BEGIN=$(grep -cE "cnaeGroups.*'\\\$\\{.*\\}?,%'|cnaeGroups.*'.*,%'" server/rag-retriever.ts || echo 0)
+          MATCH_MIDDLE=$(grep -cE "cnaeGroups.*'%,.*,%'" server/rag-retriever.ts || echo 0)
+          MATCH_END=$(grep -cE "cnaeGroups.*'%,.*'|cnaeGroups.*'%,\\\$" server/rag-retriever.ts || echo 0)
+          MATCH_LENGTH=$(grep -cE "LENGTH\\s*\\(\\s*cnaeGroups" server/rag-retriever.ts || echo 0)
+
+          TOTAL=$((MATCH_BEGIN + MATCH_MIDDLE + MATCH_END + MATCH_LENGTH))
+          echo "Boundary-aware patterns:"
+          echo "  begin (XX,%):   $MATCH_BEGIN"
+          echo "  middle (%,XX,%): $MATCH_MIDDLE"
+          echo "  end (%,XX):     $MATCH_END"
+          echo "  LENGTH < 50:    $MATCH_LENGTH"
+
+          if [ "$TOTAL" -lt 1 ]; then
+            echo "❌ A4 FALHOU: nenhum padrão boundary-aware detectado em rag-retriever.ts"
+            echo ""
+            echo "Esperado pelo menos 1 dos:"
+            echo "  cnaeGroups LIKE 'XX,%'"
+            echo "  cnaeGroups LIKE '%,XX,%'"
+            echo "  cnaeGroups LIKE '%,XX'"
+            echo "  LENGTH(cnaeGroups) < 50 (fallback)"
+            exit 1
+          fi
+          echo "✅ A4 — cnaeGroups boundary-aware presente ($TOTAL padrões)"
+
+      # ─── W1 — Writer perfil.ts NÃO foi alterado ───────────────────────────
+
+      - name: W1 — perfil.ts zero alterações (escopo Issue #997 não toca writer)
+        run: |
+          if git diff --name-only origin/main..HEAD | grep -q 'server/routers/perfil.ts'; then
+            echo "❌ W1 FALHOU: server/routers/perfil.ts foi modificado"
+            echo "   Issue #997 escopo aprovado: Two-Pass NÃO toca writer (perfil.ts)."
+            echo "   Se intencional, este PR está fora do escopo aprovado."
+            exit 1
+          fi
+          echo "✅ W1 — perfil.ts não tocado"
+
+      # ─── M1 — Sem migration SQL nova ──────────────────────────────────────
+
+      - name: M1 — Sem migration de schema
+        run: |
+          NEW_MIGRATIONS=$(git diff --name-only --diff-filter=A origin/main..HEAD -- 'drizzle/*.sql' || true)
+          if [ -n "$NEW_MIGRATIONS" ]; then
+            echo "❌ M1 FALHOU: PR adiciona migrations novas:"
+            echo "$NEW_MIGRATIONS"
+            echo "   Issue #997 Two-Pass não requer mudança de schema (campo NCM/setor não criado)."
+            exit 1
+          fi
+          echo "✅ M1 — Sem migrations novas"
+
+      # ─── T1 — Test contracts: it.todo() devem virar it() ─────────────────
+
+      - name: T1.1 — Todos os it.todo convertidos para it()
+        run: |
+          if grep -E '^\s*it\.todo\(' server/lib/rag-two-pass-retrieval.test.ts; then
+            echo "❌ T1.1 FALHOU: ainda há it.todo() em rag-two-pass-retrieval.test.ts"
+            echo "   Implementação deve transformar todos os 10 it.todo() em it() com asserções reais"
+            exit 1
+          fi
+          echo "✅ T1.1 — Todos os it.todo convertidos"
+
+      - name: T1.2 — Mínimo 10 it() presentes (cobertura completa do skeleton)
+        run: |
+          COUNT=$(grep -cE '^\s*it\(' server/lib/rag-two-pass-retrieval.test.ts)
+          if [ "$COUNT" -lt 10 ]; then
+            echo "❌ T1.2 FALHOU: esperado >=10 it() em rag-two-pass-retrieval.test.ts, encontrado $COUNT"
+            echo "   Skeleton (Artefato 2 / PR #1000) declarou 10 contratos. PR de impl não pode reduzir cobertura."
+            exit 1
+          fi
+          echo "✅ T1.2 — $COUNT it() presentes (>= 10)"
+
+      # ─── T2 — Execução dos testes do skeleton — todos devem passar ───────
+
+      - name: T2 — Run rag-two-pass-retrieval.test.ts — todos devem passar
+        run: |
+          pnpm vitest run \
+            server/lib/rag-two-pass-retrieval.test.ts \
+            --reporter=default
+
+      # ─── T3 — Tests legados de RAG e archetype continuam verdes ───────────
+
+      - name: T3 — Backward-compat — tests legados continuam verdes
+        run: |
+          # Não pode quebrar tests existentes:
+          #   - getArchetypeContext.test.ts (Bug B fix #996)
+          #   - m3-hotfix-archetype-consumption.test.ts (REGRA-ORQ-27 prova de consumo)
+          #   - getArchetypeContext-dim-format.test.ts (Bug B test contracts implementados)
+          # Não inclui rag-retriever em si pois pode mudar comportamento.
+          pnpm vitest run \
+            server/lib/archetype/getArchetypeContext.test.ts \
+            server/lib/m3-hotfix-archetype-consumption.test.ts \
+            server/lib/archetype/getArchetypeContext-dim-format.test.ts \
+            --reporter=default
+
+      # ─── D1 — Diff size guard — alerta se exceder estimativa ─────────────
+
+      - name: D1 — Diff size guard — alertar se exceder estimativa do spec
+        run: |
+          # Issue #997 estima ~50-80 LOC produção em rag-retriever.ts (Two-Pass)
+          # + ~30-50 LOC em product-questions.ts (quality gate corpus_gap_setorial)
+          # + ~20 LOC em QuestionarioProduto.tsx (UI banner)
+          # Tolerância total: 250 LOC (margem para tests inline + comments)
+          ESTIMATED_LOC=150
+          TOLERANCE=250
+          ACTUAL_LOC=$(git diff --stat origin/main..HEAD -- \
+            server/rag-retriever.ts \
+            server/lib/product-questions.ts \
+            client/src/pages/QuestionarioProduto.tsx \
+            | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
+
+          echo "Estimated LOC (Issue #997): $ESTIMATED_LOC"
+          echo "Tolerance: $TOLERANCE"
+          echo "Actual LOC (PR diff): $ACTUAL_LOC"
+
+          if [ "$ACTUAL_LOC" -gt "$TOLERANCE" ]; then
+            echo "⚠️  WARNING: PR excedeu estimativa do spec ($ACTUAL_LOC LOC > tolerância $TOLERANCE)"
+            echo "   Possível scope creep. Revisar contra Issue #997 seção 'Anti scope creep'."
+          else
+            echo "✅ Diff size dentro da estimativa do spec"
+          fi
+
+      # ─── Sumário final ────────────────────────────────────────────────────
+
+      - name: Validation summary
+        if: success()
+        run: |
+          echo "════════════════════════════════════════════════════════════"
+          echo "✅ ISSUE #997 SPEC COMPLIANCE — TODOS OS GATES PASSARAM"
+          echo "════════════════════════════════════════════════════════════"
+          echo ""
+          echo "A — SQL boundary-aware (anti-violação):"
+          echo "  ✅ A1 — REGEXP_REPLACE não detectado (proibido)"
+          echo "  ✅ A2 — REGEXP_SUBSTR(artigo) usado"
+          echo "  ✅ A3 — cnaeGroups LIKE sem boundaries não detectado"
+          echo "  ✅ A4 — cnaeGroups boundary-aware presente"
+          echo ""
+          echo "W/M (escopo):"
+          echo "  ✅ W1 — perfil.ts zero alterações"
+          echo "  ✅ M1 — Sem migrations novas"
+          echo ""
+          echo "Test contracts:"
+          echo "  ✅ T1.1 — 10 it.todo convertidos para it()"
+          echo "  ✅ T1.2 — >= 10 it() presentes"
+          echo "  ✅ T2  — Todos os tests passam"
+          echo "  ✅ T3  — Tests legados continuam verdes"
+          echo ""
+          echo "PR conforme com Issue #997 e decisão P.O. 2026-05-06. Apto para merge."
