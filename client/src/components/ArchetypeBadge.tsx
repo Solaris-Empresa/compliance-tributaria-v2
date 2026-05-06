@@ -34,7 +34,7 @@ interface PerfilDimensional {
  * Estratégia aprovada P.O.: aceitar ambos formatos via fallback `?? r.dim_*`.
  * Backward-compat absoluta: fixtures canônicas continuam funcionando idênticas.
  */
-function normalizeArchetype(arch: PerfilDimensional & Record<string, unknown>): PerfilDimensional {
+export function normalizeArchetype(arch: PerfilDimensional & Record<string, unknown>): PerfilDimensional {
   return {
     ...arch,
     objeto: (arch.objeto ?? arch.dim_objeto) as string[] | undefined,
@@ -45,7 +45,7 @@ function normalizeArchetype(arch: PerfilDimensional & Record<string, unknown>): 
   };
 }
 
-function parseArchetype(raw: unknown): PerfilDimensional | null {
+export function parseArchetype(raw: unknown): PerfilDimensional | null {
   if (!raw) return null;
   let arch: unknown = raw;
   if (typeof raw === "string") {
