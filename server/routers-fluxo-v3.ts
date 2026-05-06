@@ -4188,7 +4188,18 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
       // DIV-Z02-001 aplicada: assinatura real (ncmCodes, cnaeCodes, companyProfile)
       if ('nao_aplicavel' in result) {
         await db.updateProject(input.projectId, { status: 'q_produto' } as any);
-        return { nao_aplicavel: true as const, perguntas: [] as TrackedQuestion[], alerta: null };
+        // Hotfix #1006: propagar motivo + alerta para que o frontend distinga
+        // corpus_gap_setorial (CorpusGapBanner V1) de nao_aplicavel padrão
+        // (NaoAplicavelBanner). Antes do fix, ambos campos eram descartados,
+        // forçando todo nao_aplicavel a renderizar NaoAplicavelBanner — bug
+        // que mascarou Issue #997 V1 nos cenários 2 e 3 do E2E hotfix #1004.
+        const naoAplicavel = result as Extract<QuestionResult, { nao_aplicavel: true }>;
+        return {
+          nao_aplicavel: true as const,
+          perguntas: [] as TrackedQuestion[],
+          motivo: naoAplicavel.motivo ?? null,
+          alerta: naoAplicavel.alerta ?? null,
+        };
       }
       if ('perguntas' in result) {
         await db.updateProject(input.projectId, {
@@ -4249,7 +4260,17 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
       // Z-02: grava em serviceAnswers (corrige BUG-MANUAL-02 — era operationalAnswers)
       if ('nao_aplicavel' in result) {
         await db.updateProject(input.projectId, { status: 'q_servico' } as any);
-        return { nao_aplicavel: true as const, perguntas: [] as TrackedQuestion[], alerta: null };
+        // Hotfix #1006: propagar motivo + alerta — paridade arquitetural com Q.NCM.
+        // Tech debt P3 registrado: QuestionarioServico.tsx ainda não consome motivo
+        // (ignora corpus_gap_setorial). Backend pronto; alinhar frontend em sprint
+        // futura quando Issue #997 V1 for ampliada para Q.NBS.
+        const naoAplicavel = result as Extract<QuestionResult, { nao_aplicavel: true }>;
+        return {
+          nao_aplicavel: true as const,
+          perguntas: [] as TrackedQuestion[],
+          motivo: naoAplicavel.motivo ?? null,
+          alerta: naoAplicavel.alerta ?? null,
+        };
       }
       if ('perguntas' in result) {
         await db.updateProject(input.projectId, {
