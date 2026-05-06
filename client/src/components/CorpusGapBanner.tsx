@@ -1,9 +1,16 @@
 /**
- * CorpusGapBanner — Issue #997 Q.NCM Quality Gate
+ * CorpusGapBanner — Issue #997 Q.NCM Quality Gate (V1: Bloqueio total)
  *
  * Exibido quando `getProductQuestions` retorna `motivo: "corpus_gap_setorial"`,
  * indicando que o corpus RAG não cobre legislação setorial específica para
  * o NCM informado E SOLARIS também não cobre o CNAE do projeto.
+ *
+ * V1 (Issue #997 AC3): bloqueio total — sem botão de bypass. Usuário fica
+ * bloqueado nesta etapa até que equipe SOLARIS valide cobertura legal.
+ * Decisão P.O. 2026-05-06: rigor com meta 98% prevalece sobre UX nesta versão.
+ *
+ * V2 (backlog, sem data): bypass com audit_log de override. Aguarda demanda
+ * operacional real para priorizar.
  *
  * Mensagem é deliberadamente honesta (não dizer "legislação em definição" —
  * a legislação existe, está promulgada). O sistema reconhece que não conseguiu
@@ -15,12 +22,12 @@
  * sistema reconhece sua própria limitação de cobertura legal.
  *
  * Refs:
- * - Issue #997 — Q.NCM Quality Gate
+ * - Issue #997 — Q.NCM Quality Gate (AC3 V1)
  * - REGRA-ORQ-31 (meta 98% de confiança)
  * - REGRA-ORQ-29 (no_question protocol)
+ * - REGRA-ORQ-21 (última spec é formal — V1 não inclui bypass)
  */
-import { AlertTriangle, ArrowRight, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface CorpusGapBannerProps {
@@ -28,17 +35,11 @@ interface CorpusGapBannerProps {
   ncms?: string[];
   /** Mensagem específica vinda do backend (se diferente da default). */
   alerta?: string | null;
-  /** Callback ao clicar em "Avançar para próxima etapa" */
-  onAvancar: () => void;
-  /** Se true, exibe spinner no botão */
-  isLoading?: boolean;
 }
 
 export default function CorpusGapBanner({
   ncms,
   alerta,
-  onAvancar,
-  isLoading = false,
 }: CorpusGapBannerProps) {
   const ncmList = ncms && ncms.length > 0 ? ncms.join(", ") : "informado(s)";
 
@@ -68,21 +69,11 @@ export default function CorpusGapBanner({
         </p>
       </div>
 
-      <div className="mt-6 flex justify-end">
-        <Button
-          onClick={onAvancar}
-          disabled={isLoading}
-          className="gap-2"
-          data-testid="btn-avancar-corpus-gap"
-        >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <ArrowRight className="h-4 w-4" />
-          )}
-          Avançar para próxima etapa
-        </Button>
-      </div>
+      {/*
+        V1: bloqueio total — sem botão "Avançar".
+        Usuário aguarda equipe SOLARIS validar cobertura legal.
+        V2 (backlog): bypass com audit_log de override.
+      */}
     </div>
   );
 }
