@@ -1,0 +1,232 @@
+name: Validate Bug B Spec Compliance (Archetype dim_* normalization)
+
+# Hard gate de conformidade com Issue #992 (Bug B — Archetype runtime
+# normalization, dim_* ↔ canonical fields).
+#
+# DISPARO: apenas em PRs com label `bug-b-impl` (escape hatch — outros PRs
+# não são afetados).
+#
+# OBJETIVO: garantir que o PR de implementação efetivamente cumpre o spec
+# da issue #992 e a decisão do P.O. (2026-05-06):
+#   - estratégia reader normalization (Opção A)
+#   - manter writer backward-compatible (NÃO alterar perfil.ts:391-395)
+#   - sem migration de dados existentes
+#   - converter os 29 it.todo() em it() reais
+#   - cobrir 13 callers server + 1 client (ArchetypeBadge)
+#
+# Vinculadas:
+# - Issue #992 (Bug B spec)
+# - PR #993 (Artefato 2 — test contracts skeleton it.todo)
+# - REGRA-ORQ-27 (Lição #59 — assemble ≠ consumption)
+# - REGRA-ORQ-28 (Triade de garantia)
+# - REGRA-ORQ-34 (Pipeline de Dados Bugfix Protocol)
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled]
+
+jobs:
+  validate-bug-b-compliance:
+    name: Validate Bug B spec compliance
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'bug-b-impl')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        # version omitida deliberadamente — action lê packageManager do package.json
+        # (pnpm@10.4.1 ao tempo deste fix). Especificar version: aqui causa
+        # ERR_PNPM_BAD_PM_VERSION (incidente diagnosticado em PR #937).
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ─── R1 — Reader server: normaliza dim_* ↔ canonical ──────────────────
+
+      - name: R1.1 — getArchetypeContext.ts referencia ambos dim_objeto e objeto
+        run: |
+          if ! grep -qE 'dim_objeto' server/lib/archetype/getArchetypeContext.ts; then
+            echo "❌ R1.1 FALHOU: server/lib/archetype/getArchetypeContext.ts não referencia 'dim_objeto'"
+            echo "   Esperado: helper de normalização aceitar tanto raw.objeto quanto raw.dim_objeto"
+            echo "   Vide proposta em Issue #992 (estratégia reader normalization, Opção A)"
+            exit 1
+          fi
+          if ! grep -qE '\barch\.objeto\b|\.objeto\b' server/lib/archetype/getArchetypeContext.ts; then
+            echo "❌ R1.1 FALHOU: server/lib/archetype/getArchetypeContext.ts não referencia 'objeto' canônico"
+            echo "   Backward-compat: deve continuar aceitando formato canônico (sem prefixo)"
+            exit 1
+          fi
+          echo "✅ R1.1 — getArchetypeContext.ts referencia ambos dim_objeto e objeto"
+
+      - name: R1.2 — getArchetypeContext.ts referencia ambos dim_papel_na_cadeia e papel_na_cadeia
+        run: |
+          if ! grep -qE 'dim_papel_na_cadeia' server/lib/archetype/getArchetypeContext.ts; then
+            echo "❌ R1.2 FALHOU: getArchetypeContext.ts não referencia 'dim_papel_na_cadeia'"
+            exit 1
+          fi
+          if ! grep -qE 'papel_na_cadeia' server/lib/archetype/getArchetypeContext.ts; then
+            echo "❌ R1.2 FALHOU: getArchetypeContext.ts não referencia 'papel_na_cadeia' canônico"
+            exit 1
+          fi
+          echo "✅ R1.2 — getArchetypeContext.ts referencia ambos formatos de papel_na_cadeia"
+
+      - name: R1.3 — getArchetypeContext.ts cobre dim_tipo_de_relacao, dim_territorio, dim_regime
+        run: |
+          MISSING=""
+          for FIELD in "dim_tipo_de_relacao" "dim_territorio" "dim_regime"; do
+            if ! grep -qE "$FIELD" server/lib/archetype/getArchetypeContext.ts; then
+              MISSING="$MISSING $FIELD"
+            fi
+          done
+          if [ -n "$MISSING" ]; then
+            echo "❌ R1.3 FALHOU: getArchetypeContext.ts não referencia:$MISSING"
+            echo "   Esperado: 5 dimensões dim_* normalizadas (objeto, papel_na_cadeia, tipo_de_relacao, territorio, regime)"
+            exit 1
+          fi
+          echo "✅ R1.3 — getArchetypeContext.ts referencia as 5 dimensões dim_*"
+
+      # ─── R2 — Reader client: ArchetypeBadge normaliza dim_* ↔ canonical ───
+
+      - name: R2 — ArchetypeBadge.tsx referencia ambos formatos
+        run: |
+          if ! grep -qE 'dim_objeto|dim_papel_na_cadeia|dim_regime' client/src/components/ArchetypeBadge.tsx; then
+            echo "❌ R2 FALHOU: client/src/components/ArchetypeBadge.tsx não referencia formato dim_*"
+            echo "   Esperado: parseArchetype() aceitar tanto raw.objeto quanto raw.dim_objeto"
+            echo "   Decisão P.O. exige validar ArchetypeBadge"
+            exit 1
+          fi
+          echo "✅ R2 — ArchetypeBadge.tsx referencia formato dim_*"
+
+      # ─── W1 — Writer NÃO foi alterado (anti-violação decisão P.O.) ────────
+
+      - name: W1 — Writer perfil.ts MANTÉM formato dim_* (decisão P.O.)
+        run: |
+          # P.O. 2026-05-06: NÃO alterar formato persistido. Writer mantém dim_*.
+          # Se este PR remove o prefixo, viola escopo aprovado e exige migration.
+          if ! grep -qE 'dim_objeto:' server/routers/perfil.ts; then
+            echo "❌ W1 FALHOU: server/routers/perfil.ts removeu 'dim_objeto:' do snapshot"
+            echo "   Decisão P.O. (2026-05-06): manter writer backward-compatible — NÃO migrar."
+            echo "   Se intencional, este PR está fora do escopo aprovado de #992."
+            exit 1
+          fi
+          if ! grep -qE 'dim_papel_na_cadeia:' server/routers/perfil.ts; then
+            echo "❌ W1 FALHOU: perfil.ts removeu 'dim_papel_na_cadeia:' do snapshot"
+            echo "   Violação de escopo — vide Issue #992 anti scope creep"
+            exit 1
+          fi
+          echo "✅ W1 — Writer perfil.ts mantém prefixo dim_* (sem migration)"
+
+      # ─── M1 — Sem migration SQL nova ──────────────────────────────────────
+
+      - name: M1 — Sem migration de dados existentes
+        run: |
+          # P.O. 2026-05-06: NÃO fazer migration. Detecta arquivos novos em drizzle/
+          NEW_MIGRATIONS=$(git diff --name-only --diff-filter=A origin/main..HEAD -- 'drizzle/*.sql' || true)
+          if [ -n "$NEW_MIGRATIONS" ]; then
+            echo "❌ M1 FALHOU: PR adiciona migrations novas:"
+            echo "$NEW_MIGRATIONS"
+            echo "   Decisão P.O.: estratégia reader normalization NÃO requer migration."
+            exit 1
+          fi
+          echo "✅ M1 — Sem migrations novas (escopo respeitado)"
+
+      # ─── T1 — Test contracts: it.todo() devem virar it() ──────────────────
+
+      - name: T1.1 — Todos os it.todo convertidos para it()
+        run: |
+          if grep -E '^\s*it\.todo\(' server/lib/archetype/getArchetypeContext-dim-format.test.ts; then
+            echo "❌ T1.1 FALHOU: ainda há it.todo() em getArchetypeContext-dim-format.test.ts"
+            echo "   Implementação deve transformar todos os 29 it.todo() em it() com asserções reais"
+            exit 1
+          fi
+          echo "✅ T1.1 — Todos os it.todo convertidos"
+
+      - name: T1.2 — Exatamente 29 it() presentes (cobertura completa do skeleton)
+        run: |
+          COUNT=$(grep -cE '^\s*it\(' server/lib/archetype/getArchetypeContext-dim-format.test.ts)
+          if [ "$COUNT" -ne 29 ]; then
+            echo "❌ T1.2 FALHOU: esperado 29 it() em getArchetypeContext-dim-format.test.ts, encontrado $COUNT"
+            echo "   Skeleton (Artefato 2 / PR #993) declarou 29 contratos. PR de impl não pode reduzir cobertura."
+            exit 1
+          fi
+          echo "✅ T1.2 — Exatamente 29 it() presentes"
+
+      # ─── T2 — Execução dos testes do skeleton — todos devem passar ───────
+
+      - name: T2 — Run getArchetypeContext-dim-format.test.ts — todos devem passar
+        run: |
+          pnpm vitest run \
+            server/lib/archetype/getArchetypeContext-dim-format.test.ts \
+            --reporter=default
+
+      # ─── T3 — Tests legados de archetype continuam verdes ────────────────
+
+      - name: T3 — Backward-compat — tests existentes continuam verdes
+        run: |
+          # Não pode quebrar fixtures canônicas existentes (REGRA-ORQ-28)
+          pnpm vitest run \
+            server/lib/archetype/getArchetypeContext.test.ts \
+            server/lib/m3-hotfix-archetype-consumption.test.ts \
+            --reporter=default
+
+      # ─── D1 — Diff size guard — alerta se exceder estimativa ─────────────
+
+      - name: D1 — Diff size guard — alertar se exceder estimativa do spec
+        run: |
+          # Issue #992 estima ~30-40 LOC produção em 2 arquivos (reader server + client)
+          # Tolerância: 100 LOC (margem para tests inline + helper de normalização)
+          ESTIMATED_LOC=40
+          TOLERANCE=100
+          ACTUAL_LOC=$(git diff --stat origin/main..HEAD -- \
+            server/lib/archetype/getArchetypeContext.ts \
+            client/src/components/ArchetypeBadge.tsx \
+            | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
+
+          echo "Estimated LOC (issue #992): $ESTIMATED_LOC"
+          echo "Tolerance: $TOLERANCE"
+          echo "Actual LOC (PR diff): $ACTUAL_LOC"
+
+          if [ "$ACTUAL_LOC" -gt "$TOLERANCE" ]; then
+            echo "⚠️  WARNING: PR excedeu estimativa do spec ($ACTUAL_LOC LOC > tolerância $TOLERANCE)"
+            echo "   Possível scope creep. Revisar contra Issue #992 seção 'Anti scope creep'."
+          else
+            echo "✅ Diff size dentro da estimativa do spec"
+          fi
+
+      # ─── Sumário final ────────────────────────────────────────────────────
+
+      - name: Validation summary
+        if: success()
+        run: |
+          echo "════════════════════════════════════════════════════════════"
+          echo "✅ BUG B SPEC COMPLIANCE — TODOS OS GATES PASSARAM"
+          echo "════════════════════════════════════════════════════════════"
+          echo ""
+          echo "R1 (Reader server normalization):"
+          echo "  ✅ getArchetypeContext.ts referencia ambos dim_objeto e objeto"
+          echo "  ✅ getArchetypeContext.ts referencia ambos dim_papel_na_cadeia e papel_na_cadeia"
+          echo "  ✅ getArchetypeContext.ts cobre 5 dimensões dim_*"
+          echo ""
+          echo "R2 (Reader client normalization):"
+          echo "  ✅ ArchetypeBadge.tsx referencia formato dim_*"
+          echo ""
+          echo "W1 (Writer backward-compat):"
+          echo "  ✅ perfil.ts MANTÉM prefixo dim_* (sem migration)"
+          echo ""
+          echo "M1 (Sem migration):"
+          echo "  ✅ Nenhuma migration nova adicionada"
+          echo ""
+          echo "Test contracts:"
+          echo "  ✅ 29 it.todo() convertidos para it()"
+          echo "  ✅ Todos os 29 testes passam"
+          echo "  ✅ Tests legados continuam verdes (backward-compat)"
+          echo ""
+          echo "PR conforme com Issue #992 e decisão P.O. 2026-05-06. Apto para merge."
