@@ -126,7 +126,13 @@ function Router() {
       <Route path="/projetos/:id/questionario-iagen" component={QuestionarioIaGen} /> {/* K-4-C: Onda 2 */}
       <Route path="/projetos/:id/questionario-corporativo-v2" component={QuestionarioCorporativoV2} />
       <Route path="/projetos/:id/questionario-operacional" component={QuestionarioOperacional} />
-      <Route path="/projetos/:id/questionario-cnae" component={QuestionarioCNAE} />
+      {/* Issue #1010 (Wave 2): rota /questionario-cnae agora serve QuestionarioV3
+          (pipeline RAG+LLM+Archetype dinâmico multi-CNAE com gate hasGap +
+          CnaeGapBanner). QuestionarioCNAE legado (template hardcoded SECOES_CNAE
+          com 17 perguntas fixas) preservado em rota separada para retrocompat
+          até validação E2E. */}
+      <Route path="/projetos/:id/questionario-cnae" component={QuestionarioV3} />
+      <Route path="/projetos/:id/questionario-cnae-legacy" component={QuestionarioCNAE} />
       {/* Z-02 TO-BE: DEC-M3-05 v3 · ADR-0010 — Questionários NCM/NBS */}
       <Route path="/projetos/:id/questionario-produto" component={QuestionarioProduto} />
       <Route path="/projetos/:id/questionario-servico" component={QuestionarioServico} />
