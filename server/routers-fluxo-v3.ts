@@ -4288,6 +4288,42 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
     }),
 
   // ───────────────────────────────────────────────────────────────────────────
+  // Issue #1008: auditCorpusGapBypass — telemetria do bypass V1.5
+  //
+  // Registra em audit_log quando usuário clica "Continuar com diagnóstico
+  // parcial" no CorpusGapBanner V1.5. Permite que equipe SOLARIS meça
+  // frequência de gap por NCM e priorize curadoria de cobertura legal.
+  //
+  // Não bloqueia o fluxo — frontend pode chamar e prosseguir mesmo se falhar.
+  // ───────────────────────────────────────────────────────────────────────────
+  auditCorpusGapBypass: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      ncmCodes: z.array(z.string()).default([]),
+      operationType: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+      await logAudit({
+        userId: ctx.user.id,
+        userName: ctx.user.name ?? "system",
+        projectId: input.projectId,
+        entityType: "project",
+        entityId: input.projectId,
+        action: "update",
+        metadata: {
+          subType: "corpus_gap_bypass",
+          ncmCodes: input.ncmCodes,
+          operationType: input.operationType ?? null,
+        },
+      });
+      return { ok: true as const };
+    }),
+
+  // ───────────────────────────────────────────────────────────────────────────
   // Z-02: completeProductQuestionnaire — DEC-M3-05 v3 · ADR-0010
   // Persiste respostas do usuário em productAnswers e avança o status
   // ───────────────────────────────────────────────────────────────────────────
