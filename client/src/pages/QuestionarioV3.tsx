@@ -15,6 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import FlowStepper from "@/components/FlowStepper";
 import { statusToCompletedStep } from "@/lib/flowStepperUtils";
+// Issue #1010 (Wave 2): banner para CNAEs sem cobertura legal específica
+import CnaeGapBanner from "@/components/CnaeGapBanner";
 import {
   ArrowLeft, ArrowRight, ChevronRight, Loader2, Sparkles,
   CheckCircle2, Clock, SkipForward, MessageSquare, BarChart2,
@@ -272,6 +274,10 @@ export default function QuestionarioV3() {
   const [confirmPrevCnae, setConfirmPrevCnae] = useState(false); // RF-2.07: confirmação ao retornar a CNAE concluído
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
   const [questionsError, setQuestionsError] = useState<string | null>(null);
+  // Issue #1010 (Wave 2): flag de gap por CNAE — true quando backend retorna
+  // hasGap (RAG=0 + SOLARIS=0). Disparado em loadQuestions; consumido na
+  // renderização para exibir CnaeGapBanner em vez do bloco de perguntas.
+  const [hasGapForCurrentCnae, setHasGapForCurrentCnae] = useState(false);
   const [isTimeoutError, setIsTimeoutError] = useState(false); // true quando o erro é LLM_TIMEOUT
   const [retryCountdown, setRetryCountdown] = useState<number | null>(null); // countdown 10→0 ou null
   const retryCountdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -331,6 +337,16 @@ export default function QuestionarioV3() {
   const saveAnswer = trpc.fluxoV3.saveAnswer.useMutation();
   const validateContextNoteMutation = trpc.fluxoV3.validateContextNote.useMutation();
   const saveQuestionsCacheMutation = trpc.fluxoV3.saveQuestionsCache.useMutation();
+  // Issue #1010 (Wave 2 — risco 9): paridade arquitetural com QuestionarioCNAE.
+  // saveQuestionnaireProgress atualiza status do projeto, mas NÃO atualiza
+  // diagnosticStatus.cnae = "completed" nem popula cnaeAnswers.
+  // completeDiagnosticLayer({layer:'cnae'}) garante que consumers downstream
+  // (generateBriefingFromDiagnostic, flowStateMachine, diagnostic-source)
+  // veem a camada CNAE como concluída — comportamento idêntico ao QuestionarioCNAE
+  // legado que está sendo substituído na rota /questionario-cnae.
+  const completeDiagnosticLayer = trpc.diagnostic.completeDiagnosticLayer.useMutation();
+  // Issue #1010 (Wave 2): telemetria do skip de CNAE sem cobertura legal.
+  const auditCnaeGapSkipMutation = trpc.fluxoV3.auditCnaeGapSkip.useMutation();
   // MAX_DEEP_DIVE_ROUNDS: limite máximo de rounds de aprofundamento por CNAE
   const MAX_DEEP_DIVE_ROUNDS = 5;
 
@@ -343,7 +359,14 @@ export default function QuestionarioV3() {
   // Inicializar CNAEs do projeto (apenas uma vez — não resetar ao invalidar savedProgress)
   useEffect(() => {
     if (project?.confirmedCnaes && Array.isArray(project.confirmedCnaes)) {
-      const cnaeList = project.confirmedCnaes as { code: string; description: string }[];
+      // Issue #1010 (Wave 2): ordenar por confidence DESC. Schema confirmedCnaes
+      // é JSON [{code, description, confidence, justification?}] sem flag isPrimary.
+      // Confidence DESC ordena CNAE mais provável primeiro — UX natural ao usuário
+      // (responde do mais relevante ao menos relevante; gaps tendem a aparecer
+      // nos secundários, onde já tem contexto dos primários).
+      const cnaeList = (project.confirmedCnaes as { code: string; description: string; confidence?: number }[])
+        .slice()
+        .sort((a, b) => (b.confidence ?? 0) - (a.confidence ?? 0));
       // Só define cnaes uma vez: evita reset quando savedProgress é invalidado pelo saveAnswer
       if (!initializedRef.current) {
         setCnaes(cnaeList);
@@ -394,6 +417,8 @@ export default function QuestionarioV3() {
     setQuestionsError(null);
     setAnswers({});
     setQuestions([]);
+    // Issue #1010 (Wave 2): resetar flag de gap antes de cada novo load
+    setHasGapForCurrentCnae(false);
     // Iniciar contador de tempo
     setGenerationElapsed(0);
     if (generationTimerRef.current) clearInterval(generationTimerRef.current);
@@ -411,6 +436,13 @@ export default function QuestionarioV3() {
         contextNote: contextNoteParam,
       });
       const qs = result.questions || [];
+      // Issue #1010 (Wave 2): backend retorna hasGap=true quando o CNAE não
+      // tem cobertura RAG nem SOLARIS Onda 1. Exibimos CnaeGapBanner em vez
+      // de tratar como erro — usuário avança ao próximo CNAE com 1 clique.
+      if ((result as any).hasGap === true) {
+        setHasGapForCurrentCnae(true);
+        return;
+      }
       if (qs.length === 0) {
         setQuestionsError("A IA não retornou perguntas. Tente novamente.");
         toast.error("Erro ao gerar perguntas. Tente novamente.");
@@ -725,6 +757,35 @@ export default function QuestionarioV3() {
         allAnswers: [...allAnswers, ...withNivel2],
         completed: true,
       });
+      // Issue #1010 (Wave 2 — risco 9): após saveQuestionnaireProgress, marcar
+      // explicitamente a camada CNAE como concluída via completeDiagnosticLayer.
+      // Garante diagnosticStatus.cnae = "completed" — comportamento idêntico ao
+      // QuestionarioCNAE legado que está sendo substituído na rota
+      // /questionario-cnae. Briefing e outros consumers downstream dependem
+      // dessa flag.
+      const cnaeAnswersAggregated = cnaeProgress.reduce((acc, c) => {
+        acc[c.code] = {
+          description: c.description,
+          nivel1Done: c.nivel1Done,
+          nivel2Done: c.nivel2Done,
+          skipped: c.skipped ?? false,
+          answers: c.answers ?? [],
+          nivel2Answers: c.nivel2Answers ?? [],
+        };
+        return acc;
+      }, {} as Record<string, any>);
+      try {
+        await completeDiagnosticLayer.mutateAsync({
+          projectId,
+          layer: "cnae",
+          answers: cnaeAnswersAggregated,
+        });
+      } catch (err) {
+        // Não bloquear avanço — saveQuestionnaireProgress já salvou as respostas;
+        // diagnosticStatus pode ser reconciliado por consumers downstream.
+        // eslint-disable-next-line no-console
+        console.warn("[QuestionarioV3] completeDiagnosticLayer falhou (não-bloqueante):", err);
+      }
       toast.success("Questionário concluído! Gerando briefing...");
       setLocation(`/projetos/${projectId}/briefing-v3`);
     } catch {
@@ -1274,8 +1335,29 @@ export default function QuestionarioV3() {
               </div>
             )}
 
-            {/* Loading e perguntas: apenas quando o CNAE foi iniciado pelo usuário */}
-            {currentCnae && startedCnaes.has(currentCnae.code) && isLoadingQuestions ? (
+            {/* Issue #1010 (Wave 2): CnaeGapBanner — quando backend retorna
+                hasGap=true (RAG=0 + SOLARIS=0). Exibido em vez do bloco de
+                perguntas. Click no botão dispara auditCnaeGapSkip + advanceToNextCnae. */}
+            {currentCnae && startedCnaes.has(currentCnae.code) && hasGapForCurrentCnae ? (
+              <CnaeGapBanner
+                cnaeCode={currentCnae.code}
+                cnaeDescription={currentCnae.description}
+                isLastCnae={currentCnaeIdx >= cnaes.length - 1}
+                isLoading={auditCnaeGapSkipMutation.isPending || isSaving}
+                onAvancar={() => {
+                  // Fire-and-forget — não bloqueia avanço se audit falhar
+                  auditCnaeGapSkipMutation.mutate({
+                    projectId,
+                    cnaeCode: currentCnae.code,
+                    cnaeDescription: currentCnae.description,
+                    operationType:
+                      ((project as any)?.operationProfile?.operationType as string | undefined) ?? undefined,
+                  });
+                  setHasGapForCurrentCnae(false);
+                  advanceToNextCnae(cnaes.length);
+                }}
+              />
+            ) : currentCnae && startedCnaes.has(currentCnae.code) && isLoadingQuestions ? (
               (() => {
                 // Tempo estimado por nível (em segundos)
                 const estimatedSeconds = currentLevel === "nivel2" ? 60 : 45;
