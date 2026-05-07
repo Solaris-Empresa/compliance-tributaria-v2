@@ -42,7 +42,7 @@ const ONDA2_PROMPT_VERSION = "Z11-v1";
 import { analyzeEngineGaps } from "./lib/engine-gap-analyzer";
 // fix(z22) Wave A.2+B EX-2: persistCpieScoreForProject removido (scoringEngine.ts deletado · ADR-0029 D-3).
 import { deriveRisksFromGaps, persistRisks } from "./routers/riskEngine";
-import { injectOnda1IntoQuestions } from "./routers/onda1Injector";
+import { injectOnda1IntoQuestions, getOnda1Questions } from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
 // v2.1 T3: Adaptador de consolidação do diagnóstico em 3 camadas
@@ -668,6 +668,23 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
       const regulatoryContext = ragCtx?.contextText ?? "";
       console.log(`[generateQuestions] RAG ok, articles=${ragCtx?.articles?.length ?? 0}`);
 
+      // Issue #1010 (Wave 1): gate hasGap análogo ao corpus_gap_setorial em Q.NCM.
+      // Quando RAG não retorna chunks E SOLARIS Onda 1 não cobre o CNAE, retornamos
+      // hasGap=true em vez de invocar LLM com contexto vazio (que cairia em ia_gen).
+      // Frontend QuestionarioV3 consome hasGap para renderizar CnaeGapBanner +
+      // disparar auditCnaeGapSkip (telemetria para curadoria SOLARIS).
+      // REGRA-ORQ-31 meta 98%: sem base regulatória + sem SOLARIS = sem pergunta.
+      const onda1ForGapCheck = await getOnda1Questions(input.cnaeCode);
+      const ragArticlesCount = ragCtx?.articles?.length ?? 0;
+      if (ragArticlesCount === 0 && onda1ForGapCheck.length === 0) {
+        console.log(`[generateQuestions] hasGap=true cnae=${input.cnaeCode} (RAG=0 + SOLARIS=0)`);
+        return {
+          questions: [],
+          hasGap: true as const,
+          motivo: 'cnae_sem_legislacao_especifica' as const,
+        };
+      }
+
       let result;
       try {
         result = await generateWithRetry(
@@ -723,7 +740,7 @@ Gere as perguntas no formato:
       );
       console.log(`[generateQuestions] Onda1 injected: onda1=${questionsWithOnda1.filter(q => q.fonte === 'solaris').length} regulatorio=${questionsWithOnda1.filter(q => q.fonte !== 'solaris').length} total=${questionsWithOnda1.length}`);
 
-      return { questions: questionsWithOnda1 };
+      return { questions: questionsWithOnda1, hasGap: false as const };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -4285,6 +4302,43 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
         status: 'q_servico',
       } as any);
       return { nao_aplicavel: false as const, perguntas: result as TrackedQuestion[], alerta: null };
+    }),
+  // Issue #1010: auditCnaeGapSkip — telemetria do skip de CNAE sem cobertura
+  //
+  // Registra em audit_log quando o usuário avança um CNAE que retornou
+  // hasGap=true em generateQuestions (RAG=0 + SOLARIS=0). Permite que equipe
+  // SOLARIS meça frequência de gap por CNAE e priorize curadoria de cobertura
+  // legal — análogo a auditCorpusGapBypass (Issue #1008) mas no nível de CNAE.
+  //
+  // Não bloqueia o fluxo — frontend pode chamar e prosseguir mesmo se falhar.
+  // ───────────────────────────────────────────────────────────────────────────
+  auditCnaeGapSkip: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      cnaeCode: z.string(),
+      cnaeDescription: z.string().optional(),
+      operationType: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+      await logAudit({
+        userId: ctx.user.id,
+        userName: ctx.user.name ?? "system",
+        projectId: input.projectId,
+        entityType: "project",
+        entityId: input.projectId,
+        action: "update",
+        metadata: {
+          subType: "cnae_gap_skip",
+          cnaeCode: input.cnaeCode,
+          cnaeDescription: input.cnaeDescription ?? null,
+          operationType: input.operationType ?? null,
+        },
+      });
+      return { ok: true as const };
     }),
 
   // ───────────────────────────────────────────────────────────────────────────
