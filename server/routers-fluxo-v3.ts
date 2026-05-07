@@ -4303,6 +4303,8 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
       } as any);
       return { nao_aplicavel: false as const, perguntas: result as TrackedQuestion[], alerta: null };
     }),
+
+  // ───────────────────────────────────────────────────────────────────────────
   // Issue #1010: auditCnaeGapSkip — telemetria do skip de CNAE sem cobertura
   //
   // Registra em audit_log quando o usuário avança um CNAE que retornou
