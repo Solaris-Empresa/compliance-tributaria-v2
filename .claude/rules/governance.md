@@ -1701,6 +1701,102 @@ ast-grep --pattern '<procedureName>: protectedProcedure.input($$$).mutation($$$)
 - Lição #70 (assimetria auth em procedures) — T2 é manifestação operacional
 - Sprint M3.10 — todos os casos canônicos vêm da resolução do bug mono-fonte
 
+## REGRA-ORQ-37 — Empirismo Proibido / Manus Executa Queries
+
+Vigência: permanente, a partir de 2026-05-07
+Origem: Decisão P.O. — sessão 2026-05-07, diagnóstico Q.CNAE projeto 4710060
+Severidade: governança crítica — define o que vale como evidência em relatórios
+
+### Regra
+
+Claude Code **NÃO PODE** apresentar inferência por leitura de código como
+"evidência empírica". Verificação de runtime, contagem de rows, conteúdo
+real de campo no banco e comportamento de procedure com input específico
+exigem **query SQL executada pelo Manus no TiDB de produção**.
+
+Frase canônica do P.O. (2026-05-07):
+> "sempre peça para o manus executar as queries, não posso trabalhar
+>  com impirismo"
+
+### Rotulagem obrigatória de evidência
+
+Todo relatório, audit, PR body ou diagnóstico produzido pelo Claude Code
+deve classificar cada achado em **um dos 3 tipos**:
+
+| Tipo | Rótulo correto | Como obter | Quando usar |
+|---|---|---|---|
+| **Documental** | "Evidência documental do código (`arquivo:linha`)" | Read / Grep / ast-grep | Confirma que código existe e diz X |
+| **Inferência** | "Inferência forte — não verificada em runtime" | Leitura + análise lógica | Lógica do código sugere Y, mas não há prova de runtime |
+| **Empírica** | "Evidência empírica (Manus executou)" | SQL via Manus | Confirma N rows, valor real X, comportamento observado |
+
+**Proibido:**
+- Misturar os 3 tipos sob o rótulo "empírico"
+- Apresentar inferência como prova
+- Usar "verificado" ou "confirmado" sem evidência empírica de runtime
+
+### Procedimento operacional
+
+Quando Claude Code precisa de evidência de runtime/dados reais:
+
+```
+1. Claude Code identifica hipótese a verificar
+2. Claude Code escreve query SQL pronta (formato copy-paste)
+   — com comentário explicando o que cada query verifica
+   — incluindo projectId/CNAE/parâmetros relevantes
+3. Claude Code apresenta queries ao P.O. no relatório/turno
+4. P.O. encaminha ao Manus
+5. Manus executa no TiDB de produção + retorna outputs
+6. Claude Code refaz relatório com evidência empírica de runtime
+```
+
+**Não substituir SQL por:**
+- Leitura do código que produz o dado
+- Leitura de tests fixtures
+- Suposição baseada em comentários TODO/FIXME
+- Inferência por contexto de issues abertas
+
+### Casos canônicos onde aplicar
+
+- Verificação de cobertura SOLARIS Onda 1 por CNAE (`solaris_questions`)
+- Verificação de gaps em `project_gaps_v3` para projeto específico
+- Verificação de respostas em `iagen_answers` / `solaris_answers`
+- Verificação de riscos em `risks_v4` / `audit_log`
+- Verificação de archetype/seed real persistido em `projects`
+- Verificação de cobertura RAG (`ragDocuments`) por cnaeGroups/lei
+- Validação E2E pós-deploy (R-SYNC-01 + smoke + queries)
+
+### Aplicação
+
+- Relatório/audit Claude Code SEM rotulagem dos 3 tipos → P.O. rejeita
+- PR body com afirmação "verificado empiricamente" sem SQL anexado → REGRA-ORQ-37 violação
+- Diagnóstico que mistura inferência com prova → solicitar refazer com rotulagem correta
+
+### Exceções
+
+Nenhuma. Mesmo para diagnóstico inicial com dados parciais, Claude Code
+deve rotular cada achado e listar queries pendentes para Manus.
+
+### Origem documentada
+
+Sessão 2026-05-07 — diagnóstico Q.CNAE 0 perguntas + matriz 7 riscos
+para projeto 4710060 (Transportadora de Combustíveis):
+
+- Claude Code apresentou relatório intitulado "diagnóstico empírico"
+- Conteúdo era leitura de código + lógica + inferência
+- P.O. apontou: *"não entendo por que é imperico, pois vc tem acesso ao repositorio"*
+- Distinção: acesso ao repositório = código; **acesso ao banco = empírico**
+- Claude Code reconheceu erro de framing e propôs queries SQL ao Manus
+- P.O. estabeleceu regra permanente: SEMPRE pedir Manus, sem exceção
+
+### Vinculadas
+
+- Lição #65 (rastrear fluxo end-to-end com dados reais)
+- Lição #66 (spec sem dados = ilusão) — caso canônico Sprint M3.10
+- REGRA-ORQ-27 (validação de consumo — citação `arquivo:linha` é documental, não empírica)
+- REGRA-ORQ-31 (meta 98% confiança — inferência ≠ prova para meta jurídica)
+- REGRA-ORQ-33 (RACI — Manus é validator com acesso a infra de dados)
+- REGRA-ORQ-36 T3 (hipótese-refutação SQL — é técnica empírica, não documental)
+
 ## Lição #69 — Multi-fonte agregado vs multi-fonte por risco
 
 Origem: Sprint M3.10 Fix C-bis — DoD do projeto #3780001 (Manus 2026-05-05)
