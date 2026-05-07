@@ -801,7 +801,10 @@ describe("PR-FIN-NBS — isenção NBS para financeiro (LC 214/2025 BCB)", () =>
     ).not.toThrow();
   });
 
-  it("T63: serviço genérico (setor_regulado=false) sem NBS → continua disparando NBS_REQUIRED (regressão preservada)", () => {
+  // Issue #1014 (Decisão P.O. 2026-05-07): NBS é opcional independente do
+  // setor_regulado. NBS_REQUIRED removido — isenção financeira fica obsoleta
+  // pois TODOS os casos aceitam NBS vazio.
+  it("T63: serviço genérico (setor_regulado=false) sem NBS → passa (Issue #1014: NBS opcional)", () => {
     expect(() =>
       validateM1Seed({
         cnae_principal_confirmado: "6201-5/01",
@@ -811,7 +814,7 @@ describe("PR-FIN-NBS — isenção NBS para financeiro (LC 214/2025 BCB)", () =>
         setor_regulado: false,
         subnatureza_setorial: [],
       }),
-    ).toThrow(/NBS_REQUIRED/);
+    ).not.toThrow();
   });
 
   it("T64: financeiro COM NBS válido → aceita normalmente (formato ainda validado)", () => {
@@ -842,9 +845,9 @@ describe("PR-FIN-NBS — isenção NBS para financeiro (LC 214/2025 BCB)", () =>
     ).toThrow(/NBS_INVALID_FORMAT/);
   });
 
-  it("T66: caller legado sem setor_regulado/subnatureza (m1-monitor) → comportamento inalterado (NBS_REQUIRED dispara)", () => {
-    // M1SeedInput tem campos opcionais; callers antigos não passam → guard
-    // isFinanceiro=false → NBS_REQUIRED comportamento anterior preservado.
+  // Issue #1014 (Decisão P.O. 2026-05-07): caller legado sem setor_regulado
+  // também passa — NBS_REQUIRED removido para todos os callers.
+  it("T66: caller legado sem setor_regulado/subnatureza (m1-monitor) sem NBS → passa (Issue #1014)", () => {
     expect(() =>
       validateM1Seed({
         cnae_principal_confirmado: "6201-5/01",
@@ -853,6 +856,6 @@ describe("PR-FIN-NBS — isenção NBS para financeiro (LC 214/2025 BCB)", () =>
         nbss_principais: [],
         // setor_regulado e subnatureza_setorial OMITIDOS (caller legado)
       }),
-    ).toThrow(/NBS_REQUIRED/);
+    ).not.toThrow();
   });
 });
