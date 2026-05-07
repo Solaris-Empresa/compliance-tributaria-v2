@@ -356,6 +356,19 @@ export default function QuestionarioV3() {
     { enabled: !!projectId }
   );
 
+  // Fix #1028 (FASE 1 — autorizado P.O. 2026-05-07): isViewMode movido pra cá
+  // (antes dos useEffects) e refatorado de OR para AND. Antes era
+  // `currentStep>=3 OR statusList`, o que bloqueava auto-start em projetos pós-PR
+  // #1012 que avançaram para "matriz_riscos" sem ter feito Q.CNAE. Agora exige
+  // hasExistingAnswers AND status downstream — projeto sem respostas nunca
+  // entra em modo visualização, garantindo que auto-start dispare.
+  const hasExistingAnswers = (savedProgress?.answers?.length ?? 0) > 0;
+  const isViewMode = hasExistingAnswers && [
+    "briefing", "riscos", "plano", "dashboard",
+    "aprovado", "em_andamento", "concluido", "arquivado",
+    "em_avaliacao", "parado", "plano_acao", "matriz_riscos"
+  ].includes(project?.status ?? "");
+
   // Inicializar CNAEs do projeto (apenas uma vez — não resetar ao invalidar savedProgress)
   useEffect(() => {
     if (project?.confirmedCnaes && Array.isArray(project.confirmedCnaes)) {
@@ -566,6 +579,41 @@ export default function QuestionarioV3() {
       loadQuestions(idx, "nivel1");
     }
   };
+
+  // Fix #1028 (FASE 1 — autorizado P.O. 2026-05-07): Auto-start Q.CNAE ao montar.
+  // Restaura comportamento do QuestionarioCNAE legacy (rota /questionario-cnae
+  // pré-PR #1012). Sem este useEffect, generateQuestions nunca é invocado pelo
+  // frontend — causa raiz da Issue #1028 confirmada empiricamente
+  // (questionnaireQuestionsCache global = 0 rows). REGRA-ORQ-37.
+  // Refinamento técnico: handleStartCnae é idempotente via loadedQuestionsRef
+  // (linha 577-579), portanto não precisa setTimeout escalonado para evitar
+  // race entre múltiplos CNAEs.
+  // savedAnswersReady evita race com tRPC getProgress assíncrono — sem este
+  // guard, projetos com respostas existentes poderiam acionar regeneração
+  // antes de savedProgress carregar.
+  const [autoStarted, setAutoStarted] = useState(false);
+  const savedAnswersReady = savedProgress?.answers !== undefined;
+
+  useEffect(() => {
+    if (
+      cnaes.length > 0 &&
+      !autoStarted &&
+      !isViewMode &&
+      startedCnaes.size === 0 &&
+      savedAnswersReady
+    ) {
+      setAutoStarted(true);
+      cnaes.forEach((cnae) => {
+        handleStartCnae(cnae.code);
+      });
+    }
+    return () => {
+      // Cleanup defensive: este effect não cria timers/subscriptions ativos.
+      // handleStartCnae usa loadedQuestionsRef para idempotência; race em
+      // unmount durante loadQuestions é gerenciada no callback do mutateAsync.
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cnaes, autoStarted, isViewMode, savedAnswersReady]);
 
   const handleAnswer = (questionId: string, value: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
@@ -807,11 +855,6 @@ export default function QuestionarioV3() {
       </ComplianceLayout>
     );
   }
-
-  // Modo visualização: projeto já passou da etapa 2 (questionario concluído)
-  // Exibe as respostas salvas no banco sem precisar regenerar perguntas pela IA
-  const isViewMode = (project?.currentStep ?? 1) >= 3 || 
-    ["aprovado", "em_andamento", "concluido", "arquivado", "em_avaliacao", "parado", "plano_acao", "matriz_riscos"].includes(project?.status ?? "");
 
   // V70.2: Modo Revisão substitui o isViewMode quando ?revisao=true
   // O usuário pode editar respostas sem regredir o status do projeto
