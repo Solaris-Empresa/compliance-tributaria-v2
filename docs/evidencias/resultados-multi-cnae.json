@@ -1,0 +1,110 @@
+{
+  "experiment": "compare-multi-cnae",
+  "date": "2026-05-06T08:16:00Z",
+  "empresa": {
+    "nome": "AgroSul Commodities S.A.",
+    "descricao": "Grupo agrícola de grande porte, produtor de soja e milho para exportação e mercado interno, com armazéns próprios e frota de pulverização. Opera em Mato Grosso, Goiás e Mato Grosso do Sul. Faturamento anual ~R$180M.",
+    "cnaes": [
+      { "code": "0115-6/00", "description": "Cultivo de soja", "tipo": "Principal" },
+      { "code": "4623-1/06", "description": "Comércio atacadista de soja", "tipo": "Secundário" },
+      { "code": "5211-7/99", "description": "Depósitos de mercadorias para terceiros", "tipo": "Secundário" },
+      { "code": "0161-0/01", "description": "Serviço de pulverização e controle de pragas agrícolas", "tipo": "Secundário" }
+    ]
+  },
+  "archetype_bug_b": {
+    "dim_objeto": ["agricola", "commodities"],
+    "dim_papel_na_cadeia": "produtor_primario",
+    "dim_tipo_relacao": "b2b_e_b2g",
+    "dim_territorio": "nacional_com_exportacao",
+    "dim_regime": "lucro_real",
+    "dim_subnatureza": "agronegocio_commodities",
+    "dim_regulador": "MAPA"
+  },
+  "archetype_normalizado": {
+    "objeto": ["agricola", "commodities"],
+    "papel_na_cadeia": "produtor_primario",
+    "tipo_relacao": "b2b_e_b2g",
+    "territorio": "nacional_com_exportacao",
+    "regime": "lucro_real",
+    "subnatureza": "agronegocio_commodities",
+    "regulador": "MAPA"
+  },
+  "resultados": {
+    "cenario_a_hardcoded": {
+      "mecanismo": "SECOES_CNAE constante em QuestionarioCNAE.tsx:56-114",
+      "total_perguntas": 17,
+      "secoes": ["QCNAE-01 (3 campos)", "QCNAE-02 (4 campos)", "QCNAE-03 (3 campos)", "QCNAE-04 (3 campos)", "QCNAE-05 (4 campos)"],
+      "fundamentacao_legal": "0%",
+      "perguntas_ia_gen": 0,
+      "peso_critico": 0,
+      "operacoes_setoriais_detectadas": 0,
+      "artigos_lc214_cobertos": 0,
+      "especificidade_por_cnae": false,
+      "nota": "Mesmas 17 perguntas para qualquer empresa. Nenhuma menção a soja, armazenagem, pulverização, exportação, barter, trading, cooperativas, FUNRURAL ou MAPA."
+    },
+    "cenario_b_rag_llm_bug_b": {
+      "mecanismo": "generateQuestions com getArchetypeContext(dim_*) → retorna ''",
+      "total_perguntas": 40,
+      "perguntas_por_cnae": 10,
+      "fundamentacao_legal": "85%",
+      "fonte_regulatorio": 34,
+      "fonte_ia_gen": 4,
+      "fonte_solaris": 2,
+      "peso_critico": 1,
+      "peso_alto": 35,
+      "peso_medio": 4,
+      "operacoes_setoriais_detectadas": 4,
+      "artigos_lc214_cobertos": 10,
+      "problemas": [
+        "4 perguntas sem fundamentação legal (ia_gen) — 10%",
+        "2 perguntas com fonte 'solaris' sem referência — 5%",
+        "Apenas 1 pergunta 'crítico' — sem gradação dimensional",
+        "Todas as perguntas do CNAE principal são 'alto' — sem diferenciação",
+        "Não detecta operações cross-CNAE (ex: armazenagem + exportação)"
+      ],
+      "por_cnae": {
+        "0115-6/00": { "regulatorio": 10, "ia_gen": 0, "solaris": 0, "critico": 0, "alto": 10, "medio": 0 },
+        "4623-1/06": { "regulatorio": 10, "ia_gen": 0, "solaris": 0, "critico": 1, "alto": 9, "medio": 0 },
+        "5211-7/99": { "regulatorio": 8, "ia_gen": 2, "solaris": 0, "critico": 0, "alto": 9, "medio": 1 },
+        "0161-0/01": { "regulatorio": 6, "ia_gen": 2, "solaris": 2, "critico": 0, "alto": 8, "medio": 2 }
+      }
+    },
+    "cenario_c_rag_llm_archetype": {
+      "mecanismo": "generateQuestions com getArchetypeContext(normalizado) → retorna string completa",
+      "total_perguntas": 40,
+      "perguntas_por_cnae": 10,
+      "fundamentacao_legal": "100%",
+      "fonte_regulatorio": 40,
+      "fonte_ia_gen": 0,
+      "fonte_solaris": 0,
+      "peso_critico": 9,
+      "peso_alto": 31,
+      "peso_medio": 0,
+      "operacoes_setoriais_detectadas": 8,
+      "artigos_lc214_cobertos": 13,
+      "operacoes_exclusivas": [
+        "Barter (troca soja/insumos) — 2 CNAEs, peso crítico",
+        "Partes relacionadas / preço de transferência — 2 CNAEs",
+        "Transporte próprio para terceiros",
+        "Armazenagem remunerada para terceiros",
+        "Exportação de serviços de pulverização",
+        "Fornecimento não oneroso a partes relacionadas — peso crítico",
+        "Contratos a termo / CPRs",
+        "Energia/água na armazenagem"
+      ],
+      "por_cnae": {
+        "0115-6/00": { "regulatorio": 10, "ia_gen": 0, "solaris": 0, "critico": 3, "alto": 7, "medio": 0 },
+        "4623-1/06": { "regulatorio": 10, "ia_gen": 0, "solaris": 0, "critico": 2, "alto": 8, "medio": 0 },
+        "5211-7/99": { "regulatorio": 10, "ia_gen": 0, "solaris": 0, "critico": 0, "alto": 10, "medio": 0 },
+        "0161-0/01": { "regulatorio": 10, "ia_gen": 0, "solaris": 0, "critico": 3, "alto": 7, "medio": 0 }
+      }
+    }
+  },
+  "delta_bug_b_vs_fix": {
+    "perguntas_sem_fundamentacao": { "com_bug": "6/40 (15%)", "sem_bug": "0/40 (0%)", "delta": "-15pp" },
+    "peso_critico": { "com_bug": "1/40 (2.5%)", "sem_bug": "9/40 (22.5%)", "delta": "+20pp" },
+    "operacoes_setoriais": { "com_bug": 4, "sem_bug": 8, "delta": "+100%" },
+    "artigos_lc214": { "com_bug": 10, "sem_bug": 13, "delta": "+30%" }
+  },
+  "conclusao": "O archetype normalizado na entrada do RAG+LLM elimina 100% das perguntas sem fundamentação (ia_gen → 0), aumenta 9x a detecção de riscos críticos (1 → 9), dobra a detecção de operações setoriais típicas (4 → 8), e expande 30% a cobertura de artigos da LC 214."
+}
