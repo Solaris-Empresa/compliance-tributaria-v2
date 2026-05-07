@@ -2004,3 +2004,236 @@ Se match > 0 → FAIL com mensagem direcionando para Lição #72.
 - Sprint M3.10 (caso canônico)
 - `client/src/components/RiskDashboardV4.tsx:204` (pattern correto em produção)
 - `scripts/dod-queries-3750060.ts` (pattern correto em script de validação — não commitado em sandbox Manus, recuperação tracked como issue P3)
+
+## Lição #74 — Fix downstream incompleto (caso canônico: PR #1015)
+
+Origem: Issue #1014 (NCM/NBS opcional) — PR #1015 mergeado 2026-05-07
+Severidade: governança crítica — gate de processo para fixes de validação
+
+### Padrão de erro
+
+Remover/alterar um gate de validação sem rastrear todos os gates downstream
+que consomem o mesmo campo ou produzem o mesmo status.
+
+### Sintoma
+
+Fix resolve o erro visível (crash/throw) mas revela bloqueio silencioso
+downstream (botão desabilitado, status inconsistente sem mensagem clara).
+Usuário deixa de ver o erro técnico mas não consegue avançar — UX
+contraditória ("0 pendências" + botão bloqueado).
+
+### Caso canônico — PR #1015 (cadeia completa)
+
+| Gate | Localização | Status pós-#1015 | Bloqueia? |
+|---|---|---|---|
+| 1 | `validateM1Input.ts:115-123` (`NBS_REQUIRED` throw) | ✅ removido | Não |
+| 2 | `buildPerfilEntidade.ts:294-300` (`computeMissingRequiredFields`) | ❌ ativo | Sim — adiciona ao missing |
+| 3 | `computeStatus.ts:93-102` (gate `inconsistente` se missing > 0) | ❌ ativo | Sim — força status inconsistente |
+
+PR #1015 cobriu apenas Gate 1. Gates 2 e 3 continuam impedindo confirmação.
+Sintoma reportado pelo P.O.: "botão Confirmar Perfil da Entidade desabilitado".
+
+### Regras violadas
+
+- **REGRA-ORQ-35** (NUNCA ASSUMA / Read Before Write Enforcement) —
+  checklist obrigatório Q2 ("identifiquei TODOS os consumers/importers")
+  foi aplicado parcialmente: 3 callsites de `validateM1Seed` listados,
+  mas consumers downstream em `buildSnapshot → computeStatus` ignorados.
+- **Lição #59** (assemble vs consumption) — test `T73` em
+  `build-perfil-entidade-pr-fin-objeto-v2.test.ts:137-146` documenta
+  literalmente `status_arquetipo === "inconsistente"` como regressão
+  preservada. Test passou pós-fix porque comportamento foi mantido,
+  mas autor interpretou "passar" como "resolvido".
+- **Lição #65** (rastrear fluxo de DADOS end-to-end) — autor parou em
+  "input → validateM1Seed throw removido" sem rastrear "→ buildSnapshot
+  → status_arquetipo → frontend gate".
+- **Lição #66** (spec sem dados = ilusão) — spec do P.O. era literal
+  ("somente validateM1Input.ts"), correta como direção mas insuficiente
+  para resolver o sintoma reportado.
+
+### Por que falhou — falha de processo colaborativo
+
+Não foi falha individual. **4 atores tiveram oportunidade de detectar:**
+
+| Ator | Oportunidade |
+|---|---|
+| Claude Code (autor) | Investigação read-only pré-implementação |
+| Spec do P.O. | Definição de escopo cirúrgico |
+| Manus (review) | Auditoria pré-merge |
+| P.O. (autorização) | Decisão de merge |
+
+Nenhum dos 4 detectou. Cada ator confiou que outro tinha verificado os
+gates downstream.
+
+### Contramedida obrigatória
+
+Antes de qualquer fix de validação, autor responde por escrito as 5
+perguntas do **CHECKLIST-VAL-01** (ver abaixo).
+
+Antes de aprovar PR de fix de validação, revisor (Manus) responde por
+escrito as 4 perguntas do **CHECKLIST-REVIEW-01** (ver abaixo).
+
+### Vinculadas
+
+- PR #1015 (caso canônico — fix incompleto)
+- Issue #1014 (regressão diagnóstica que motivou)
+- Issue #1016 (este PR de governança)
+- REGRA-ORQ-35 (NUNCA ASSUMA)
+- Lições #59, #65, #66 (regras violadas)
+- CHECKLIST-VAL-01 (contramedida autor)
+- CHECKLIST-REVIEW-01 (contramedida revisor)
+
+## CHECKLIST-VAL-01 — Rastreamento end-to-end obrigatório para fixes de validação
+
+Vigência: permanente, a partir de 2026-05-07
+Origem: Lição #74 (caso canônico PR #1015)
+Severidade: bloqueante — fix não pode ser implementado sem checklist respondido
+
+### Quando aplicar
+
+SEMPRE que o fix tocar um dos seguintes arquivos/funções:
+
+- `validateM1Input.ts` (e variantes `validateM1Seed*`)
+- `computeMissing*` (qualquer função que produza `missing_required_fields`)
+- `computeStatus.ts` (qualquer função que derive `status_arquetipo`)
+- `buildSnapshot` (composição final do snapshot)
+- `buildPerfilEntidade.ts` (engine principal)
+- Qualquer função que produza ou consuma `status_arquetipo`,
+  `missing_required_fields` ou `blockers_triggered`
+
+### 5 perguntas obrigatórias antes de codar
+
+**Q1.** Qual é o sintoma exato reportado pelo P.O. **na UI**?
+(Não o erro técnico — o que o usuário **vê**.)
+
+> Exemplo PR #1015: "Botão 'Confirmar Perfil da Entidade' desabilitado"
+> NÃO: "validateM1Seed lança NBS_REQUIRED"
+
+**Q2.** Mapa completo do fluxo end-to-end:
+
+```
+campo no form → mutation → DB → query → snapshot →
+JSON de resposta → componente → estado UI → indicador visual
+```
+
+Listar **todos** os arquivos e funções no caminho. Citar `arquivo:linha`
+para cada nó (REGRA-ORQ-27).
+
+**Q3.** Para cada arquivo no caminho Q2: existe validação/gate que também
+verifica o campo que estou alterando?
+
+Listar `arquivo:linha` de **cada** gate encontrado. Verificar:
+- Throws (TRPCError, Error customizado)
+- Adições a arrays de erro/missing/blockers
+- Branches condicionais que afetam status downstream
+- Filtros que descartam dado
+
+**Q4.** Se eu aplicar meu fix e simular mentalmente o cenário do P.O.,
+qual é o valor de `status_arquetipo` retornado ao frontend?
+
+É `"confirmado"`? Se não — **por quê?** Detalhar a função e linha que
+força o valor não-confirmado.
+
+> Exemplo PR #1015: pós-fix, `status_arquetipo === "inconsistente"`
+> porque `computeStatus.ts:96-102` força quando
+> `missing_required_fields.length > 0`.
+
+**Q5.** Existe test existente que documenta o comportamento que estou
+alterando?
+
+Se sim:
+- O test vai **FALHAR** após meu fix (comportamento mudou) **OU**
+- O test vai **PASSAR** (comportamento preservado)?
+
+Se passar: **confirmar explicitamente** que "passar" significa
+"problema resolvido" e não "comportamento bloqueante preservado"
+(Lição #59 — assemble vs consumption).
+
+> Exemplo PR #1015: test `T73` em `build-perfil-entidade-pr-fin-objeto-v2.test.ts:137-146`
+> documenta `status_arquetipo === "inconsistente"`. Pós-fix #1015 o test
+> ainda passa **porque o comportamento bloqueante foi preservado**.
+> Sinal de fix incompleto, não de fix correto.
+
+### Aplicação
+
+- Respostas Q1-Q5 devem estar **no PR body** antes de abrir
+- Sem CHECKLIST-VAL-01 respondido → PR rejeitado em review
+- Respostas vagas ou inferidas (sem `arquivo:linha`) → autor solicitado
+  a refazer antes de avançar
+
+### Vinculadas
+
+- Lição #74 (motivação — fix downstream incompleto)
+- REGRA-ORQ-27 (validação de consumo — citação `arquivo:linha`)
+- REGRA-ORQ-35 (NUNCA ASSUMA — checklist Read Before Write)
+- Lição #59 (assemble vs consumption)
+- Lição #65 (fluxo end-to-end)
+- CHECKLIST-REVIEW-01 (contramedida revisor)
+
+## CHECKLIST-REVIEW-01 — Revisão obrigatória de PR que toca validação
+
+Vigência: permanente, a partir de 2026-05-07
+Origem: Lição #74 (caso canônico PR #1015)
+Severidade: bloqueante — PR não pode ser mergeado sem checklist do revisor
+
+### Quando aplicar
+
+Aplicar pelo revisor (Manus) **antes de aprovar** qualquer PR que toque
+os arquivos listados em CHECKLIST-VAL-01.
+
+### 4 perguntas obrigatórias para revisor
+
+**R1.** O PR body inclui as respostas ao CHECKLIST-VAL-01 (Q1 a Q5)?
+
+Se não → solicitar antes de aprovar. PR sem CHECKLIST-VAL-01 respondido
+**não pode ser mergeado**.
+
+**R2.** A resposta Q4 do autor confirma `status_arquetipo === "confirmado"`
+para o cenário reportado pelo P.O.?
+
+Se não → **PR não resolve o sintoma**. Não aprovar. Solicitar autor
+ampliar escopo para cobrir gates downstream.
+
+> Caso canônico negativo: se autor responde Q4 com
+> `"status_arquetipo === 'inconsistente'"` e justifica como
+> "comportamento preservado por test T73", revisor deve **bloquear**.
+> Comportamento preservado bloqueante = fix não resolve sintoma.
+
+**R3.** Existe test E2E ou de integração que cobre o cenário completo
+(form → `perfil.build` → `status_arquetipo === "confirmado"`)?
+
+Se não → solicitar inclusão **OU** registrar como tech debt **explícito**
+no PR body com:
+- Justificativa de por que o test não foi incluído
+- Issue de tracking para sprint futura
+- Risco aceito declarado pelo P.O.
+
+Tech debt sem justificativa explícita não é aceitável — solicitar antes
+de aprovar.
+
+**R4.** O diff toca apenas os arquivos declarados no escopo do fix?
+
+Se sim **e** o sintoma envolve múltiplos gates (R2 negativo) → questionar
+se o escopo está completo. Possível indicador de spec do P.O. cirúrgica
+demais que não cobre o problema real.
+
+> Caso canônico PR #1015: diff tocou apenas `validateM1Input.ts` (escopo
+> declarado da spec) — mas sintoma "botão bloqueado" é controlado por
+> `computeStatus.ts`. Diff cirúrgico não cobre o sintoma. R4 negativo
+> → ampliar escopo OU bloquear merge.
+
+### Aplicação
+
+- Revisor responde R1-R4 **no comentário de review do PR**
+- Respostas R1-R4 são **gate de aprovação** (não advisório)
+- Se R1 ausente → bloquear merge sem fricção
+- Se R2 negativo → bloquear merge mesmo com testes verdes
+- Se R4 indica escopo insuficiente → escalar para P.O. (decisão de produto
+  sobre ampliar spec ou aceitar fix parcial com tech debt declarado)
+
+### Vinculadas
+
+- Lição #74 (motivação)
+- CHECKLIST-VAL-01 (autor produz respostas; revisor verifica)
+- REGRA-ORQ-33 (RACI — Manus é o Validador)
+- REGRA-ORQ-15 (PR body template — base para incluir CHECKLIST-VAL-01)
