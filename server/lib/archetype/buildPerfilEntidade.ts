@@ -278,26 +278,29 @@ function computeMissingRequiredFields(
     missing.push("papel_na_cadeia (indefinido — preencher posicao_na_cadeia_economica ou flags CEx)");
   }
 
-  // Objetos condicionais §2.7
-  if (hasObjetoBens(seed) && seed.ncms_principais.length === 0) {
-    missing.push("ncms_principais (possui_bens derivado=true)");
-  }
-  // PR-FIN-OBJETO-V2 (Mudança 2): setor financeiro regulado pelo BCB não é
-  // classificado por NBS. Cliente bancário/fintech típico não fornece NBS.
-  // Sem esta isenção, missing_required_fields inclui "nbss_principais" ->
-  // computeStatus.ts:92-94 força status_arquetipo="inconsistente" mesmo
-  // após Mudança 1 derivar objeto=["servico_financeiro"] e V-LC-202 não
-  // disparar. Coerente com PR-FIN-NBS #884 (isenção gate input) e
-  // PR-FIN-OBJETO #885 (deriveObjeto fallback elevado).
-  // Para outros serviços (não-financeiro), missing field continua aplicando.
+  // Objetos condicionais §2.7 — Issue #1018 (Decisão P.O. 2026-05-07):
+  // NCM e NBS são opcionais para todos os 5 operationTypes (industria,
+  // comercio, servicos, misto, agronegocio). Financeiro já tinha isenção
+  // própria via isFinanceiroIsento (PR-FIN-OBJETO-V2 #885) — preservada.
+  //
+  // ANTES (gates ativos pós-PR #1015):
+  //   if (hasObjetoBens(seed) && seed.ncms_principais.length === 0) {
+  //     missing.push("ncms_principais (possui_bens derivado=true)");
+  //   }
+  //   if (hasObjetoServicos(seed) && seed.nbss_principais.length === 0 && !isFinanceiroIsento) {
+  //     missing.push("nbss_principais (possui_servicos derivado=true)");
+  //   }
+  //
+  // DEPOIS (Issue #1018): blocos removidos. Lição #74 (caso canônico PR #1015):
+  // PR #1015 removeu apenas o gate 1 (validateM1Input.ts NBS_REQUIRED/NCM_REQUIRED).
+  // Esses blocos eram o gate 2 que continuava bloqueando confirmação via
+  // computeStatus.ts:96-102 (hasMissingFields=true → status="inconsistente").
+  //
+  // Variável isFinanceiroIsento preservada para compatibilidade arquitetural —
+  // futuras isenções por subnatureza poderão reusar o pattern.
   const isFinanceiroIsento = seed.subnatureza_setorial.includes("financeiro");
-  if (
-    hasObjetoServicos(seed) &&
-    seed.nbss_principais.length === 0 &&
-    !isFinanceiroIsento
-  ) {
-    missing.push("nbss_principais (possui_servicos derivado=true)");
-  }
+  // Referência mantida sem efeito no missing (suporta extensões futuras):
+  void isFinanceiroIsento;
 
   // Contextuais obrigatórios para operadora regulada
   if (papel === "operadora_regulada") {

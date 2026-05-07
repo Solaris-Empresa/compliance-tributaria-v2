@@ -134,15 +134,21 @@ describe("PR-FIN-OBJETO-V2 — financeiro sem NBS via deriveObjetoForSeed defaul
     ).toBeUndefined();
   });
 
-  it("T73: regressão — servico genérico + nbss=[] → AINDA inclui nbss_principais (não-financeiro mantém missing)", () => {
+  // Issue #1018 (Decisão P.O. 2026-05-07): NCM/NBS são opcionais para todos
+  // os 5 operationTypes (industria, comercio, servicos, misto, agronegocio).
+  // Bloco que adicionava nbss_principais ao missing foi removido em
+  // buildPerfilEntidade.ts. Test ajustado de "AINDA inclui" para "NÃO inclui"
+  // e status_arquetipo "inconsistente" → "confirmado".
+  // Lição #74 — caso canônico: PR #1015 era fix incompleto (gate 1 apenas).
+  it("T73: servico genérico + nbss=[] → NÃO inclui nbss_principais (Issue #1018: NBS opcional)", () => {
     const seed = makeSeedServicoGenerico({ nbss_principais: [] });
     const out = buildSnapshot(seed, FIXED_DV);
 
     expect(
       out.missing_required_fields.some((f) => f.includes("nbss_principais")),
-    ).toBe(true);
-    // status="inconsistente" porque tem missing field (regressão preservada)
-    expect(out.perfil.status_arquetipo).toBe("inconsistente");
+    ).toBe(false);
+    // status="confirmado" — campo opcional não bloqueia mais (Issue #1018)
+    expect(out.perfil.status_arquetipo).toBe("confirmado");
   });
 
   it("T74: fluxo end-to-end — financeiro + nbss=[] → status='confirmado' CTA habilitável + V-LC-202 não dispara", () => {
