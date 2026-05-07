@@ -88,14 +88,18 @@ describe("Hotfix P0 — Input Gate M1 (CNAE)", () => {
 // ─── validateM1Seed — NCM ─────────────────────────────────────────────────────
 
 describe("Hotfix P0 — Input Gate M1 (NCM)", () => {
-  it("Operação Comércio sem NCM bloqueia", () => {
+  // Issue #1014 (Decisão P.O. 2026-05-07): NCM é opcional independente do
+  // operationType. Test ajustado de "bloqueia" para "passa" — NCM_REQUIRED
+  // foi removido de validateM1Input.ts. Validação de FORMAT permanece (testes
+  // abaixo continuam exercitando NCM_INVALID_FORMAT).
+  it("Operação Comércio sem NCM passa (Issue #1014: NCM opcional)", () => {
     expect(() =>
       validateM1Seed({
         cnae_principal_confirmado: "0115-6/00",
         natureza_operacao_principal: ["Comércio"],
         ncms_principais: [],
       }),
-    ).toThrow(/NCM_REQUIRED/);
+    ).not.toThrow();
   });
 
   it("Operação Produção própria com NCM truncado '1201' bloqueia (Decisão C3: formato)", () => {
@@ -132,14 +136,16 @@ describe("Hotfix P0 — Input Gate M1 (NCM)", () => {
 // ─── validateM1Seed — NBS ─────────────────────────────────────────────────────
 
 describe("Hotfix P0 — Input Gate M1 (NBS)", () => {
-  it("Operação Prestação de serviço sem NBS bloqueia", () => {
+  // Issue #1014 (Decisão P.O. 2026-05-07): NBS é opcional independente do
+  // operationType. NBS_REQUIRED removido de validateM1Input.ts.
+  it("Operação Prestação de serviço sem NBS passa (Issue #1014: NBS opcional)", () => {
     expect(() =>
       validateM1Seed({
         cnae_principal_confirmado: "4930-2/02",
         natureza_operacao_principal: ["Prestação de serviço"],
         nbss_principais: [],
       }),
-    ).toThrow(/NBS_REQUIRED/);
+    ).not.toThrow();
   });
 
   it("Operação Transporte com NBS formato errado '105011459' bloqueia", () => {
@@ -167,7 +173,8 @@ describe("Hotfix P0 — Input Gate M1 (NBS)", () => {
 // ─── validateM1Seed — Mista ───────────────────────────────────────────────────
 
 describe("Hotfix P0 — Input Gate M1 (operação mista)", () => {
-  it("Comércio + Prestação de serviço sem NCM bloqueia", () => {
+  // Issue #1014: NCM e NBS opcionais — testes ajustados para `not.toThrow()`.
+  it("Comércio + Prestação de serviço sem NCM passa (Issue #1014: NCM opcional)", () => {
     expect(() =>
       validateM1Seed({
         cnae_principal_confirmado: "4711-3/02",
@@ -175,10 +182,10 @@ describe("Hotfix P0 — Input Gate M1 (operação mista)", () => {
         ncms_principais: [],
         nbss_principais: ["1.0501.14.59"],
       }),
-    ).toThrow(/NCM_REQUIRED/);
+    ).not.toThrow();
   });
 
-  it("Comércio + Prestação de serviço sem NBS bloqueia", () => {
+  it("Comércio + Prestação de serviço sem NBS passa (Issue #1014: NBS opcional)", () => {
     expect(() =>
       validateM1Seed({
         cnae_principal_confirmado: "4711-3/02",
@@ -186,14 +193,16 @@ describe("Hotfix P0 — Input Gate M1 (operação mista)", () => {
         ncms_principais: ["1201.90.00"],
         nbss_principais: [],
       }),
-    ).toThrow(/NBS_REQUIRED/);
+    ).not.toThrow();
   });
 });
 
 // ─── validateM1Seed — Intermediação MISTO (C1) ───────────────────────────────
 
 describe("Hotfix P0 — Input Gate M1 (Intermediação MISTO — Decisão C1)", () => {
-  it("Intermediação isolada sem NBS bloqueia (exige NCM E NBS)", () => {
+  // Issue #1014: Intermediação MISTO continua válida arquiteturalmente
+  // (mapeia para NCM E NBS), mas NCM/NBS ausentes não bloqueiam mais.
+  it("Intermediação isolada sem NBS passa (Issue #1014: NBS opcional)", () => {
     expect(() =>
       validateM1Seed({
         cnae_principal_confirmado: "4929-9/04",
@@ -201,10 +210,10 @@ describe("Hotfix P0 — Input Gate M1 (Intermediação MISTO — Decisão C1)", 
         ncms_principais: ["1201.90.00"],
         nbss_principais: [],
       }),
-    ).toThrow(/NBS_REQUIRED/);
+    ).not.toThrow();
   });
 
-  it("Intermediação isolada sem NCM bloqueia", () => {
+  it("Intermediação isolada sem NCM passa (Issue #1014: NCM opcional)", () => {
     expect(() =>
       validateM1Seed({
         cnae_principal_confirmado: "4929-9/04",
@@ -212,7 +221,7 @@ describe("Hotfix P0 — Input Gate M1 (Intermediação MISTO — Decisão C1)", 
         ncms_principais: [],
         nbss_principais: ["1.0501.14.59"],
       }),
-    ).toThrow(/NCM_REQUIRED/);
+    ).not.toThrow();
   });
 
   it("Intermediação com NCM + NBS válidos passa", () => {
