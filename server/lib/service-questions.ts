@@ -86,7 +86,14 @@ export async function generateServiceQuestions(
 
     for (const chunk of chunks) {
       try {
-        const texto = await generateQuestionFromChunk(chunk, nbs);
+        // Issue #1037 D3+D2 — Template NBS especializado + perfil M1
+        // kind='nbs' aciona prompt especializado em prestação de serviços
+        // (sem termos "venda/locação/licenciamento" inadequados a serviços).
+        // perfilOperacional injeta archetype M1 como filtro de contexto.
+        const texto = await generateQuestionFromChunk(chunk, nbs, {
+          kind: "nbs",
+          perfilOperacional: archetypeContext || undefined,
+        });
         allQuestions.push({
           id:         `rag-nbs-${nbs}-${chunk.anchor_id}`,
           fonte:      "regulatorio",

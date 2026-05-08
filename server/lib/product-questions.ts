@@ -141,7 +141,12 @@ export async function generateProductQuestions(
   if (!skipRagGeneration) {
     for (const { ncm, chunk } of ragChunksByNcm) {
       try {
-        const texto = await generateQuestionFromChunk(chunk, ncm);
+        // Issue #1037 D2 — perfilOperacional do M1 archetype como contexto LLM.
+        // kind padrão 'ncm' preserva template NCM byte-a-byte (apenas adiciona
+        // linha extra de perfil se archetypeContext disponível).
+        const texto = await generateQuestionFromChunk(chunk, ncm, {
+          perfilOperacional: archetypeContext || undefined,
+        });
         allQuestions.push({
           id:         `rag-ncm-${ncm}-${chunk.anchor_id}`,
           fonte:      "regulatorio",
