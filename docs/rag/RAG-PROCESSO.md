@@ -1,9 +1,13 @@
 # RAG-PROCESSO.md — Processos de Governança do Corpus RAG
 
-> **Versão:** 1.3 | **Data:** 2026-04-13
+> **Versão:** 1.4 | **Data:** 2026-05-08
 > **Escopo:** Todos os processos que envolvem leitura, escrita ou expansão do corpus RAG da IA SOLARIS
 > **Audiência:** P.O. · Orquestrador (Claude) · Implementador (Manus) · Equipe Jurídica
 > **Repositório:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
+>
+> **Histórico:**
+> - v1.3 (2026-04-13) — Processos P-01 a P-05
+> - v1.4 (2026-05-08) — Adicionado P-06 (Ingestão de pacote regulamentar — 3 estratégias) baseado em diagnóstico empírico Manus 2026-05-06 (17 gaps de atualidade)
 
 ---
 
@@ -24,6 +28,7 @@
 | **P-03** | Expansão de cobertura (nova lei no enum) | RFC de expansão aprovada | 1 sprint |
 | **P-04** | Revisão periódica do gold set | Semestral ou após mudança legislativa | 0,5 sprint |
 | **P-05** | Abertura de sessão do Orquestrador | Início de qualquer sessão RAG | 10 minutos |
+| **P-06** | Ingestão de pacote regulamentar (3 estratégias) | Lote de docs pós-evento legislativo | 1-16 semanas |
 
 ---
 
@@ -262,16 +267,131 @@ DECISÃO ESTRATÉGICA (P.O.)
 
 ---
 
+## P-06 — Ingestão de pacote regulamentar (3 estratégias)
+
+**Gatilho:** lote de documentos pós-evento legislativo (ex: pacote infralegal CBS/IBS abr/2026 — 17 documentos identificados pelo inventário Manus 2026-05-06).
+
+**Contexto:** quando o backbone legal (Leis Complementares + EC) está coberto mas a camada regulamentar/operacional fica defasada (decretos, resoluções, NTs técnicas), aplicar as 3 estratégias **em sequência** (não escolher uma):
+
+### Estratégia 1 — Tactical Sprint (1-3 semanas)
+
+Cobre os gaps **críticos imediatos** via scripts ad-hoc.
+
+```
+Onda 1.1 → Decreto regulamentar core (~150 chunks, 3 dias)
+Onda 1.2 → Resoluções + Portarias correlatas (~200 chunks, 5 dias)
+Onda 1.3 → Notas Técnicas (NF-e, NFS-e) (~80 chunks, 3 dias)
+Onda 1.4 → Páginas-pai consolidadas (~50 chunks, 2 dias)
+```
+
+**Pattern:** criar script único `scripts/ingest-pacote-<periodo>.mjs` baseado em `server/rag-ingest-lcs-novas.mjs`. Chunking hierárquico (livro → título → cap → seção → artigo → §). Anchor pattern: `<tipo>-<id>-art-<n>`.
+
+**Aprovação:** Manus executa em staging → validação SQL Manus → deploy production via PR.
+
+### Estratégia 2 — Sustainable Watcher (4-8 semanas)
+
+Pipeline automatizado de **detecção + ingestão**. Elimina gaps **futuros**.
+
+```
+[Cron semanal]
+  → [Scrapers por portal: RFB, CGIBS, CONFAZ, ENCAT, NF-e, NFS-e, SPED, Planalto]
+  → [Hash diff detector — SHA256 por URL/conteúdo]
+  → [Fila ingestão: rag_ingest_queue (status: pending/approved/ingested)]
+  → [Validação humana spot-check via /admin/rag-queue]
+  → [INSERT em ragDocuments]
+```
+
+**Componentes:**
+- Scrapers (Playwright + cheerio) — 2 semanas
+- Hash diff + tabela `rag_watchlist` — 3 dias
+- Fila + admin UI — 1 semana
+- Spot-check + bulk actions — 1 semana
+- Notificação Slack/webhook — 2 dias
+
+**Aprovação:** Equipe jurídica revisa lote antes de approve no admin UI. SLA: ≤7 dias entre publicação e ingestão.
+
+### Estratégia 3 — Architectural Refactor (8-16 semanas)
+
+Schema RAG com **taxonomia + vigência + versionamento** primeiro-classe.
+
+**Migration proposta:**
+
+```sql
+ALTER TABLE ragDocuments ADD COLUMN tipo_documento ENUM(
+  'lei', 'lei_complementar', 'emenda_constitucional',
+  'decreto', 'medida_provisoria',
+  'resolucao', 'portaria', 'ato_conjunto',
+  'nota_tecnica', 'ajuste_sinief', 'convenio_icms',
+  'manual', 'cartilha', 'faq', 'guia_pratico',
+  'layout_xsd', 'orientacao'
+);
+ALTER TABLE ragDocuments ADD COLUMN versao VARCHAR(50);
+ALTER TABLE ragDocuments ADD COLUMN vigencia_inicio DATE;
+ALTER TABLE ragDocuments ADD COLUMN vigencia_fim DATE;  -- NULL = vigente
+ALTER TABLE ragDocuments ADD COLUMN orgao_emissor VARCHAR(100);
+ALTER TABLE ragDocuments ADD COLUMN url_oficial TEXT;
+ALTER TABLE ragDocuments ADD COLUMN hash_conteudo CHAR(64);
+ALTER TABLE ragDocuments ADD COLUMN superseded_by INT;  -- FK chunk substituto
+ALTER TABLE ragDocuments ADD COLUMN reviewed_by INT;
+ALTER TABLE ragDocuments ADD COLUMN reviewed_at TIMESTAMP;
+```
+
+**Funcionalidades habilitadas:**
+- Filtrar `retrieveArticles` por vigência (`WHERE vigencia_fim IS NULL OR vigencia_fim > NOW()`)
+- Detectar versões obsoletas (`superseded_by IS NULL`)
+- Auditoria de aprovação por chunk (compliance jurídico)
+- Métricas por tipo de documento
+- Anti-alucinação reforçada (LLM não cita doc revogado)
+
+### Roadmap sequencial recomendado (16 semanas)
+
+```
+Semana  1-3:  Estratégia 1 — Tactical Sprint
+              → Cobre risco compliance imediato
+
+Semana  4-9:  Estratégia 2 — Watcher (paralelo ao fim do Tactical)
+              → Após watcher live, ingestão dos gaps secundários
+                vira tarefa rotineira do pipeline
+
+Semana 10-16: Estratégia 3 — Architectural Refactor
+              → Backfill heurístico aproveita metadados que
+                Estratégia 2 já capturou (orgao_emissor, versao)
+```
+
+### Métricas de sucesso por etapa
+
+| Métrica | Baseline | Pós-E1 | Pós-E2 | Pós-E3 |
+|---|---|---|---|---|
+| Cobertura gaps críticos | atual | +parcial | 100% | 100% |
+| TTL médio de gap (dias) | ∞ | ~30 | ≤7 | ≤7 |
+| Chunks com `vigencia_fim` validado | 0% | 0% | 0% | ≥80% |
+| Chunks com `reviewed_by` | 0% | 0% | ~30% | ≥90% |
+| Confiança briefing (REGRA-ORQ-31) | ~71-85% | ~85-90% | ~90-95% | ≥95% |
+
+### Decisões P.O. necessárias antes de iniciar P-06
+
+1. Aprovar roadmap sequencial 16 semanas?
+2. Bandwidth jurídico para validação spot-check em E2?
+3. Janela de manutenção para migration em E3?
+
+### Aplicação atual — pacote 2026-04/05
+
+Os 17 documentos identificados pelo inventário Manus 2026-05-06 (gap table) são o **caso canônico de uso do P-06**. Onda 1 (Tactical) cobre os 6 críticos (Decreto 12.955, Resoluções CGIBS 4/5/6, Portaria 7, NTs NF-e/NFS-e). Detalhamento operacional em `docs/rag/E2E-RAG-FLUXO.md` e `docs/governance/RAG_CORPUS_INVENTORY.md` (seção "Atualização 2026-05-08").
+
+---
+
 ## Referências
 
 - `docs/rag/RAG-GOVERNANCE.md` — regras de governança
 - `docs/rag/CORPUS-BASELINE.md` — estado atual do corpus
 - `docs/rag/RAG-RESPONSABILIDADES.md` — RACI completa
+- `docs/rag/E2E-RAG-FLUXO.md` — fluxo end-to-end E1→E5
 - `docs/rag/RFC/CORPUS-RFC-TEMPLATE.md` — template de RFC
 - `docs/rag/gold-set-queries.sql` — gold set canônico
+- `docs/governance/RAG_CORPUS_INVENTORY.md` — inventário 2026-05-06 + gaps
 - `/admin/rag-cockpit` — painel de monitoramento ao vivo
 
 ---
 
-*RAG-PROCESSO.md v1.4 · 2026-04-05 (Sprint V encerrada Lote 3: 37 casos NCM/NBS confirmados, NCM:19 · NBS:19 · Testes:48/48, PR #333)*
+*RAG-PROCESSO.md v1.4 · 2026-05-08 (adicionado P-06 — Ingestão de pacote regulamentar com 3 estratégias baseado em inventário Manus 2026-05-06 + gap table)*
 *Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
