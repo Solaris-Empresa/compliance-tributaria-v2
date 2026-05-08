@@ -262,6 +262,12 @@ export default function QuestionarioV3() {
   const isRevisaoMode = new URLSearchParams(search).get("revisao") === "true";
   const perguntaInconsistente = new URLSearchParams(search).get("pergunta") ?? "";
 
+  // Issue #1035 UX — Botão "Aprofundar" oculto temporariamente.
+  // Perguntas geradas estão fora de contexto. Reativar quando houver
+  // mais requisitos regulatórios mapeados. NÃO DELETAR componente nem lógica
+  // — apenas pular a transição para showDeepDivePrompt (auto-skip).
+  const HIDE_DEEPDIVE_PROMPT = true;
+
   const [cnaes, setCnaes] = useState<{ code: string; description: string }[]>([]);
   const initializedRef = useRef(false); // Evita reset de cnaes após primeira carga (bug closure stale)
   const cnaeProgressInitializedRef = useRef(false); // Evita reset de cnaeProgress durante sessão ativa
@@ -660,6 +666,11 @@ export default function QuestionarioV3() {
         nivel1AnswersMap: { ...answers }, // cache do mapa id→valor
       } : c
     ));
+    // Issue #1035 UX — pular prompt de aprofundamento (oculto temporariamente).
+    if (HIDE_DEEPDIVE_PROMPT) {
+      handleSkipDeepDive();
+      return;
+    }
     setShowDeepDivePrompt(true);
   };
 
@@ -1644,7 +1655,12 @@ export default function QuestionarioV3() {
                           }
                           setCurrentLevel("nivel1");
                           setCurrentRound(0);
-                          setShowDeepDivePrompt(true); // Mostrar o prompt de aprofundamento (nível 1 já concluído)
+                          // Issue #1035 UX — pular prompt de aprofundamento (oculto temporariamente).
+                          if (HIDE_DEEPDIVE_PROMPT) {
+                            handleSkipDeepDive();
+                          } else {
+                            setShowDeepDivePrompt(true); // Mostrar o prompt de aprofundamento (nível 1 já concluído)
+                          }
                           setShowNextRoundPrompt(false);
                         }}
                       >
