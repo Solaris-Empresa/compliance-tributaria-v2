@@ -585,9 +585,15 @@ export default function QuestionarioV3() {
   // pré-PR #1012). Sem este useEffect, generateQuestions nunca é invocado pelo
   // frontend — causa raiz da Issue #1028 confirmada empiricamente
   // (questionnaireQuestionsCache global = 0 rows). REGRA-ORQ-37.
-  // Refinamento técnico: handleStartCnae é idempotente via loadedQuestionsRef
-  // (linha 577-579), portanto não precisa setTimeout escalonado para evitar
-  // race entre múltiplos CNAEs.
+  //
+  // Fix Issue #1031 (race condition — autorizado P.O. 2026-05-08):
+  // Auto-start dispara APENAS para o primeiro CNAE (cnaes[0]). Demais CNAEs
+  // são carregados sob-demanda pelo useEffect existente (linha 553-557)
+  // quando o usuário navegar (currentCnaeIdx muda). Isso elimina o race
+  // condition em que N loadQuestions paralelos sobrescrevem o state global
+  // `questions`, deixando CNAEs ≠ currentCnaeIdx com tela "0/0 respondidas"
+  // mesmo com cache populado.
+  //
   // savedAnswersReady evita race com tRPC getProgress assíncrono — sem este
   // guard, projetos com respostas existentes poderiam acionar regeneração
   // antes de savedProgress carregar.
@@ -603,15 +609,16 @@ export default function QuestionarioV3() {
       savedAnswersReady
     ) {
       setAutoStarted(true);
-      cnaes.forEach((cnae) => {
-        handleStartCnae(cnae.code);
-      });
+      // Issue #1031 — dispara handleStartCnae APENAS para cnaes[0] (sem race).
+      // Marca TODOS os cnaes como "iniciados" em startedCnaes para que
+      // useEffect [currentLevel, currentCnaeIdx] (linha 547) dispare
+      // loadQuestions sob-demanda quando usuário navegar entre CNAEs.
+      // Demais CNAEs não são pré-marcados no loadedQuestionsRef — só cnaes[0]
+      // (via handleStartCnae) — garantindo que useEffect 547 carregue cada um
+      // ao navegar pela primeira vez.
+      setStartedCnaes(new Set(cnaes.map((c) => c.code)));
+      handleStartCnae(cnaes[0].code);
     }
-    return () => {
-      // Cleanup defensive: este effect não cria timers/subscriptions ativos.
-      // handleStartCnae usa loadedQuestionsRef para idempotência; race em
-      // unmount durante loadQuestions é gerenciada no callback do mutateAsync.
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cnaes, autoStarted, isViewMode, savedAnswersReady]);
 
