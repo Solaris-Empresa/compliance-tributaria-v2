@@ -179,3 +179,68 @@ A discrepância "1.317 source vs 2.515 produção" está **100% explicada** e **
 4. A deduplicação por `anchor_id` UNIQUE garante integridade
 
 **Nenhuma ação bloqueante necessária.** Two-Pass Retrieval pode avançar imediatamente.
+
+---
+
+## Atualização 2026-05-08 — Gaps de Atualidade Identificados
+
+> **Adendo após análise comparativa "Gap table Atualidade x Plataforma RAG da Solaris IA" (2026-05-06).**
+> O backbone legal está completo e íntegro. **17 documentos pós-abril/2026 ainda não foram ingeridos** — gap operacional, não estrutural.
+
+### Resumo dos gaps por severidade
+
+| Categoria | Itens | Severidade | Tipo |
+|---|---|---|---|
+| 🔴 **Gap crítico — não no LLM** | 6 | P0 | Decreto 12.955 (CBS), Res. CGIBS 4/5/6, Portaria 7, NTs NF-e/NFS-e |
+| 🟠 **Gap secundário** | 9 | P1-P2 | DeRE pacote, Manuais RTC, Cartilhas IBS, GT-08, Guia EFD v3.2.2, FAQs piloto/prazos, NTs 011/012 EFD-Contribuições |
+| ⚠️ **Parcial no RAG** | 2 | P2 | Ajuste SINIEF 49/2025 com alterações abr/2026, Ato Conjunto RFB/CGIBS 1/2025 |
+| ✅ **Presente no RAG** | 8 | OK | EC 132, LC 214 (+ Anexos), LC 227/224/123/116/87 |
+
+**Total: 17 itens pendentes (15 gap + 2 parcial) vs 8 presentes.**
+
+### Pacote de atualização emergencial (Onda 1)
+
+| Documento | Data | Impacto operacional |
+|---|---|---|
+| **Decreto 12.955/2026** | 29/04/2026 | Regulamento federal CBS — split payment, créditos, obrigações |
+| **Resolução CGIBS 6/2026** | 30/04/2026 | Regulamento infralegal nuclear do IBS |
+| **Portaria Conjunta MF/CGIBS 7/2026** | 30/04/2026 | Disposições comuns CBS/IBS |
+| **Resolução CGIBS 4/2026** | 08/04/2026 | Regimento Interno CGIBS |
+| **Resolução CGIBS 5/2026** | 30/04/2026 | Estrutura institucional CGIBS |
+| **NT 2025.002 v1.36** (NF-e/NFC-e) | 24/04/2026 | Leiautes IBS/CBS/IS |
+| **NT 008/2026** (NFS-e DANFSe) | 05/05/2026 | Padrão nacional DANFSe |
+| **Página "Orientações 2026"** RFB | 06/05/2026 | Documento-pai operacional |
+
+### Risco principal
+
+🔴 **Alucinação operacional por falta de corpus novo** — não erro de backbone legal.
+
+Cliente perguntando sobre **leiautes, APIs, documentos fiscais eletrônicos, DeRE, marcos 2026** pode receber respostas potencialmente desatualizadas porque os documentos infralegais de abril/maio não estão no corpus.
+
+### Roadmap de ingestão (4 ondas priorizadas)
+
+| Onda | Documentos | Justificativa |
+|---|---|---|
+| **1ª** | Decreto 12.955 + Res. CGIBS 4/5/6 + Portaria 7 | Núcleo infralegal pós-LC |
+| **2ª** | NT 2025.002 v1.36 + pacote NFS-e (NT 008) | Layouts técnicos para ERPs |
+| **3ª** | Ato RFB/CGIBS 1/2025 + Orientações 2026 + DeRE + Manuais RTC + Cartilhas + FAQ piloto | Suporte operacional/onboarding |
+| **4ª** | Ajustes SINIEF + Guia EFD v3.2.2 + FAQ prazos LC 227 + NTs EFD-Contribuições | Transição/legado/conformidade processual |
+
+### 3 ajustes de engenharia recomendados
+
+1. **Taxonomia explícita** no schema: `tipo_documento ENUM(lei, lei_complementar, decreto, resolucao, portaria, ato_conjunto, nota_tecnica, ajuste_sinief, manual, cartilha, faq, guia_pratico, layout_xsd)`
+2. **Versão + vigência** como metadados de primeira classe (`versao VARCHAR`, `vigencia_inicio DATE`, `vigencia_fim DATE`)
+3. **Watcher semanal** dos portais oficiais (RFB, CGIBS, CONFAZ, ENCAT, NF-e, NFS-e, SPED, Planalto) com detecção de hash/versão
+
+### Limitações declaradas
+
+- Famílias agregadas (`conv_icms`, `cg_ibs`, `rfb_cbs`) impedem confirmar edição exata → marcação "Parcial" conservadora
+- Alguns portais SPED não expõem link direto estável → uso de página de listagem
+- **Sem evidência de nova LC federal IBS/CBS** publicada na janela recente — o que mudou foi camada **regulamentar e operacional**
+
+### Vinculadas
+
+- Documento fonte: `docs/0-RAG/0-acervo-v3-06mai26/Gap table Atualidade x Plataforma RAG da Solaris IA.md`
+- Resumo executivo: `docs/0-RAG/0-acervo-v3-06mai26/resumo/Resumo_RAG_—_Inventário_e_Gaps.docx`
+- Estratégias de remediação: `docs/rag/RAG-PROCESSO.md` (ver "3 Estratégias")
+- Fluxo end-to-end: `docs/rag/E2E-RAG-FLUXO.md`
