@@ -10,6 +10,10 @@ import * as db from "./db";
 import { isToBeFlowState } from "./flowStateMachine";
 import { isDiagnosticComplete } from "./diagnostic-consolidator";
 
+// CI hygiene: este teste requer DATABASE_URL + projeto id=1 no banco.
+// Skip automático quando DB não está disponível (CI sem TiDB).
+const HAS_DB = !!process.env.DATABASE_URL;
+
 // ─── helpers inline (espelha a lógica do handler) ───────────────────────────
 async function simulateCompleteDiagnosticLayer(
   projectId: number,
@@ -52,7 +56,7 @@ async function simulateCompleteDiagnosticLayer(
 }
 
 // ─── Testes ─────────────────────────────────────────────────────────────────
-describe("B-Z11-012 — completeDiagnosticLayer transição TO-BE", () => {
+describe.skipIf(!HAS_DB)("B-Z11-012 — completeDiagnosticLayer transição TO-BE", () => {
   const PROJECT_ID = 1;
   let statusAntes: string;
   let diagnosticAntes: any;

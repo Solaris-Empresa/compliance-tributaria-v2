@@ -18,20 +18,21 @@ describe("Hotfix Suite — Gate isCategoryAllowed por categoria x setor", () => 
     it("agronegocio BLOCKED (downgrade enquadramento_geral)", () => {
       const r = isCategoryAllowed("imposto_seletivo", "agronegocio");
       expect(r.allowed).toBe(false);
-      expect(r.final).toBe("enquadramento_geral");
+      // M3.8-3 (PR #970): downgrade_to alterado para 'unmapped' (REGRA-ORQ-29)
+      expect(r.final).toBe("unmapped");
       expect(r.reason).toBe("sujeito_passivo_incompativel");
     });
 
     it("servicos BLOCKED", () => {
       const r = isCategoryAllowed("imposto_seletivo", "servicos");
       expect(r.allowed).toBe(false);
-      expect(r.final).toBe("enquadramento_geral");
+      expect(r.final).toBe("unmapped");
     });
 
     it("financeiro BLOCKED", () => {
       const r = isCategoryAllowed("imposto_seletivo", "financeiro");
       expect(r.allowed).toBe(false);
-      expect(r.final).toBe("enquadramento_geral");
+      expect(r.final).toBe("unmapped");
     });
 
     it("industria ALLOWED (combustivel, bebida, tabaco etc.)", () => {
