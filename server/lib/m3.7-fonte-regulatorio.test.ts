@@ -96,8 +96,45 @@ describe("M3.7 Item 4 — Backend: fonte canônica 'regulatorio' (Onda 3)", () =
     expect(ragLegado).toBeUndefined();
   });
 
-  it("perguntas SOLARIS continuam com fonte='solaris' (não afetado)", async () => {
+  it("Issue #1035 V1 — SOLARIS bloqueado em Q.NBS pelo airbag (retorna nao_aplicavel)", async () => {
+    // Pós-PR #1036: querySolarisByCnaes com contextType='q_nbs' é bloqueado pelo airbag V1.
+    // Mesmo que o caller passe um querySolarisFn que retornaria perguntas,
+    // o mock global (vi.mock) retorna [] — simulando o airbag.
+    // Com RAG também vazio, resultado = { nao_aplicavel: true, motivo: 'no_applicable_requirements' }
     const queryRagSpy = vi.fn().mockResolvedValue([]);
+    // querySolarisFn injetado retorna perguntas, mas o vi.mock global
+    // de solaris-query já retorna [] (airbag). O parâmetro querySolarisFn
+    // é passado diretamente à função, então usamos um spy que simula
+    // o comportamento real do airbag (retorna []).
+    const querySolarisSpy = vi.fn().mockResolvedValue([]);
+
+    const result = await generateServiceQuestions(
+      ["1.0501.14.51"],
+      ["4930-2/02"],
+      { operationType: "servico", archetype: null },
+      queryRagSpy,
+      querySolarisSpy,
+    );
+
+    // Pós-Issue #1035: sem RAG e sem SOLARIS → NO_QUESTION protocol
+    expect(Array.isArray(result)).toBe(false);
+    const naoAplicavel = result as { nao_aplicavel: boolean; motivo?: string };
+    expect(naoAplicavel.nao_aplicavel).toBe(true);
+    expect(naoAplicavel.motivo).toBe("no_applicable_requirements");
+  });
+
+  it("Issue #1035 V1 — SOLARIS NÃO é injetado em Q.NBS mesmo com querySolarisFn retornando dados", async () => {
+    // Cenário: querySolarisFn retorna perguntas (simulando bypass do airbag no mock),
+    // mas o código em service-questions.ts NÃO injeta SOLARIS no resultado (bloco comentado).
+    // Resultado: apenas perguntas RAG aparecem no output.
+    const mockChunk = {
+      anchor_id: "lc214-art1-nbs-solaris-test",
+      conteudo: "Conteúdo RAG para teste",
+      lei: "lc214",
+      score: 0.85,
+    };
+    const queryRagSpy = vi.fn().mockResolvedValue([mockChunk]);
+    // Mesmo retornando SOLARIS, o código não injeta (bloco comentado pós-PR #1036)
     const querySolarisSpy = vi.fn().mockResolvedValue([
       {
         id: 1,
@@ -116,9 +153,15 @@ describe("M3.7 Item 4 — Backend: fonte canônica 'regulatorio' (Onda 3)", () =
       querySolarisSpy,
     );
 
+    // Resultado é array de perguntas (apenas RAG, sem SOLARIS)
+    expect(Array.isArray(result)).toBe(true);
     const perguntas = result as Array<{ fonte: string }>;
+    // Nenhuma pergunta SOLARIS no resultado
     const solarisQ = perguntas.find(q => q.fonte === "solaris");
-    expect(solarisQ).toBeDefined();
+    expect(solarisQ).toBeUndefined();
+    // Apenas perguntas regulatórias (RAG)
+    const ragQ = perguntas.find(q => q.fonte === "regulatorio");
+    expect(ragQ).toBeDefined();
   });
 });
 

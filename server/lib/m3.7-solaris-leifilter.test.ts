@@ -57,7 +57,7 @@ describe("M3.7 Item 11 — querySolarisByCnaes com leiFilter", () => {
     ];
     vi.mocked(getOnda1Questions).mockResolvedValue(all as never);
 
-    const result = await querySolarisByCnaes([]);
+    const result = await querySolarisByCnaes([], undefined, { contextType: "q_solaris" });
 
     expect(result.length).toBe(3);
   });
@@ -70,7 +70,7 @@ describe("M3.7 Item 11 — querySolarisByCnaes com leiFilter", () => {
     ];
     vi.mocked(getOnda1Questions).mockResolvedValue(all as never);
 
-    const result = await querySolarisByCnaes([], ["lc214", "lc227"]);
+    const result = await querySolarisByCnaes([], ["lc214", "lc227"], { contextType: "q_solaris" });
 
     expect(result.length).toBe(2);
     expect(result.map(q => q.leiRef)).toEqual(["lc214", "lc227"]);
@@ -85,7 +85,7 @@ describe("M3.7 Item 11 — querySolarisByCnaes com leiFilter", () => {
     ];
     vi.mocked(getOnda1Questions).mockResolvedValue(all as never);
 
-    const result = await querySolarisByCnaes([], ["lc214", "lc227"]);
+    const result = await querySolarisByCnaes([], ["lc214", "lc227"], { contextType: "q_solaris" });
 
     expect(result.length).toBe(2);
     expect(result.map(q => q.id).sort()).toEqual([1, 2]);
@@ -97,7 +97,7 @@ describe("M3.7 Item 11 — querySolarisByCnaes com leiFilter", () => {
     ];
     vi.mocked(getOnda1Questions).mockResolvedValue(all as never);
 
-    const result = await querySolarisByCnaes([], []);
+    const result = await querySolarisByCnaes([], [], { contextType: "q_solaris" });
 
     expect(result.length).toBe(1);
   });
@@ -110,7 +110,7 @@ describe("M3.7 Item 11 — querySolarisByCnaes com leiFilter", () => {
     ];
     vi.mocked(getOnda1Questions).mockResolvedValue(all as never);
 
-    const result = await querySolarisByCnaes(["49.30"], ["lc214", "lc227"]);
+    const result = await querySolarisByCnaes(["49.30"], ["lc214", "lc227"], { contextType: "q_solaris" });
 
     expect(result.length).toBe(1);
     expect(result[0].id).toBe(1);
