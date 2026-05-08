@@ -79,22 +79,78 @@ export type QuestionResult =
 /**
  * Gera uma pergunta diagnóstica a partir de um chunk RAG.
  * Usa o mesmo invokeLLM do briefingEngine.
+ *
+ * Issue #1037 (P.O. autorizado 2026-05-08):
+ *   D3 — fork de template por tipo de operação. NCM (kind='ncm', default)
+ *        preserva comportamento byte-a-byte. NBS (kind='nbs') usa template
+ *        especializado em prestação de serviços (sem termos "venda/locação/
+ *        licenciamento" inadequados a serviços).
+ *   D2 — `perfilOperacional` opcional (do M1 archetype) injetado como
+ *        contexto adicional para o LLM filtrar perguntas inaplicáveis.
+ *        Se não fornecido, comportamento idêntico ao legado.
+ *
+ * @param chunk RAG chunk com conteúdo legal
+ * @param context Código NCM ou NBS
+ * @param options.kind Tipo de operação: 'ncm' (produto, default) ou 'nbs' (serviço)
+ * @param options.perfilOperacional Perfil M1 do contribuinte (string formatada)
  */
 export async function generateQuestionFromChunk(
   chunk: RagChunk,
-  context: string // NCM ou NBS de contexto
+  context: string, // NCM ou NBS de contexto
+  options: {
+    kind?: "ncm" | "nbs";
+    perfilOperacional?: string;
+  } = {}
 ): Promise<string> {
-  const prompt = [
-    `Você é especialista em compliance tributário da Reforma Tributária brasileira.`,
-    `Com base no trecho legal abaixo, gere UMA pergunta diagnóstica objetiva`,
-    `para verificar se a empresa está em conformidade com este dispositivo.`,
-    `Contexto: produto/serviço com código ${context}.`,
-    ``,
-    `Trecho (${chunk.lei?.toUpperCase() ?? "LC 214/2025"} · ${chunk.artigo ?? ""}):`,
-    chunk.conteudo.slice(0, 800),
-    ``,
-    `Responda APENAS com o texto da pergunta, sem numeração ou prefixo.`,
-  ].join("\n");
+  const { kind = "ncm", perfilOperacional } = options;
+
+  // Linha de contexto do perfil — D2 (Issue #1037).
+  // Vazia se perfilOperacional indefinido para preservar comportamento legado.
+  const perfilLine = perfilOperacional && perfilOperacional.trim().length > 0
+    ? `Perfil operacional do contribuinte: ${perfilOperacional}. ` +
+      `Gere perguntas relevantes APENAS para este perfil. ` +
+      `Ignore obrigações que não se aplicam a ${perfilOperacional}.`
+    : "";
+
+  // D3 (Issue #1037) — Fork de template por tipo de operação.
+  let prompt: string;
+  if (kind === "nbs") {
+    // Template NBS especializado em prestação de serviços.
+    prompt = [
+      `Você é especialista em compliance tributário da Reforma Tributária brasileira (LC 214/2025).`,
+      `O contribuinte PRESTA SERVIÇOS classificados sob o código NBS: ${context}.`,
+      perfilLine,
+      ``,
+      `Com base no trecho legal abaixo, gere UMA pergunta diagnóstica objetiva`,
+      `sobre obrigações tributárias DE PRESTAÇÃO DE SERVIÇOS.`,
+      ``,
+      `RESTRIÇÕES de terminologia:`,
+      `- NÃO usar: "venda", "locação de bem físico", "licenciamento de software"`,
+      `  a menos que sejam diretamente relevantes ao código NBS ${context}.`,
+      `- FOQUE em: prestação de serviços, IBS/CBS sobre serviços, retenções na fonte,`,
+      `  emissão de NFS-e, contraprestação por serviços executados, regime de incidência.`,
+      ``,
+      `Trecho (${chunk.lei?.toUpperCase() ?? "LC 214/2025"} · ${chunk.artigo ?? ""}):`,
+      chunk.conteudo.slice(0, 800),
+      ``,
+      `Responda APENAS com o texto da pergunta, sem numeração ou prefixo.`,
+    ].filter(line => line !== "").join("\n");
+  } else {
+    // Template NCM (default) — preservado byte-a-byte do legado.
+    // Issue #1037 D2: adiciona perfilLine se fornecido (sem alterar template base).
+    prompt = [
+      `Você é especialista em compliance tributário da Reforma Tributária brasileira.`,
+      `Com base no trecho legal abaixo, gere UMA pergunta diagnóstica objetiva`,
+      `para verificar se a empresa está em conformidade com este dispositivo.`,
+      `Contexto: produto/serviço com código ${context}.`,
+      perfilLine,
+      ``,
+      `Trecho (${chunk.lei?.toUpperCase() ?? "LC 214/2025"} · ${chunk.artigo ?? ""}):`,
+      chunk.conteudo.slice(0, 800),
+      ``,
+      `Responda APENAS com o texto da pergunta, sem numeração ou prefixo.`,
+    ].filter(line => line !== "").join("\n");
+  }
 
   const response = await invokeLLM({
     messages: [{ role: "user", content: prompt }],
