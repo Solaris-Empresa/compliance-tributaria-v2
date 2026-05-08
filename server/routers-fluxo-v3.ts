@@ -701,13 +701,14 @@ REGRAS OBRIGATÓRIAS:
 4. Perguntas de nível 1: diagnóstico essencial (máximo 10 perguntas)
 5. Perguntas de nível 2: aprofundamento baseado nas respostas anteriores (máximo 10 perguntas)
 6. Nunca seja genérico — cada pergunta deve ser específica para o CNAE informado
-7. Cada pergunta deve ter rastreabilidade de origem (G15):
-   - "fonte": "regulatorio" se baseada em legislação (LC 214, EC 132, LC 227, LC 224, LC 116, LC 87),
-              "solaris" se baseada em orientação jurídica SOLARIS interna,
-              "ia_gen" se inferida sem base documental explícita no contexto RAG
-   - "requirement_id": identificador do requisito (ex: "RF-045") ou "" se não aplicável
-   - "source_reference": referência normativa (ex: "LC 214/2025 Art. 9°") ou "" se ia_gen
-   Se não houver base documental no contexto RAG, usar fonte: "ia_gen" e campos vazios.
+7. Cada pergunta deve ter rastreabilidade de origem (G15) — Issue #1028:
+   - "fonte": SEMPRE "regulatorio" — toda pergunta DEVE ter base documental explícita no contexto RAG.
+   - "requirement_id": OBRIGATÓRIO — identificador do requisito (ex: "RF-045").
+   - "source_reference": OBRIGATÓRIO — referência normativa exata extraída do contexto RAG
+                        (ex: "LC 214/2025 Art. 9°"). NÃO INVENTE referências.
+
+   Se o contexto RAG não contiver base documental suficiente para gerar perguntas com
+   source_reference válido, RETORNE ARRAY VAZIO em vez de inventar perguntas conceituais.
 
 ${regulatoryContext}
 
@@ -733,14 +734,21 @@ Gere as perguntas no formato:
       }
       console.log(`[generateQuestions] OK questions=${result.questions.length}`);
 
-      // K-2: Injetar perguntas Onda 1 (SOLARIS) antes das regulatórias (Onda 3)
-      const questionsWithOnda1 = await injectOnda1IntoQuestions(
-        input.cnaeCode,
-        result.questions as any
+      // Issue #1028 M3 — Filter pós-LLM: enforce REGRA-ORQ-29.
+      // Toda pergunta DEVE ter fonte=regulatorio + source_reference não-vazio.
+      // Defesa em profundidade caso LLM ignore instruções do prompt M2.
+      const validQuestions = result.questions.filter(q =>
+        q.fonte === "regulatorio" &&
+        typeof q.source_reference === "string" &&
+        q.source_reference.trim().length > 0
       );
-      console.log(`[generateQuestions] Onda1 injected: onda1=${questionsWithOnda1.filter(q => q.fonte === 'solaris').length} regulatorio=${questionsWithOnda1.filter(q => q.fonte !== 'solaris').length} total=${questionsWithOnda1.length}`);
+      console.log(`[generateQuestions] M3 filter: ok=${result.questions.length} valid=${validQuestions.length} filtered=${result.questions.length - validQuestions.length}`);
 
-      return { questions: questionsWithOnda1, hasGap: false as const };
+      // Issue #1028 M1 — Não injetar SOLARIS Onda 1 no Q.CNAE.
+      // Q.CNAE = APENAS perguntas regulatórias (RAG+LLM).
+      // SOLARIS Onda 1 continua disponível em Q.SOLARIS dedicado (rota /questionario-solaris).
+      // injectOnda1IntoQuestions preservada no codebase para outros pipelines/usos futuros.
+      return { questions: validQuestions, hasGap: false as const };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
