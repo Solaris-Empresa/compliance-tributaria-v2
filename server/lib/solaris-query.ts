@@ -2,6 +2,15 @@
  * solaris-query.ts — Sprint Z Z-01
  * Função querySolarisByCnaes isolada — extrai lógica inline de routers-fluxo-v3.ts
  * DEC-M3-05 v3 · ADR-0009
+ *
+ * ARQUITETURA SOLARIS — REGRA ABSOLUTA (Issue #1035 / P.O. confirmado)
+ * querySolarisByCnaes() → EXCLUSIVO para contextType='q_solaris' (Q1)
+ * Q3 NCM  → RAG only. PROIBIDO injetar SOLARIS.
+ * Q3 NBS  → RAG only. PROIBIDO injetar SOLARIS.
+ * Q3 CNAE → RAG only. PROIBIDO injetar SOLARIS. (já fixado Issue #1028)
+ * Q2 IA Gen → LLM direto OpenAI. PROIBIDO injetar SOLARIS.
+ * Se RAG retorna 0 chunks → EmptyState + botão avançar (QuestionarioV3.tsx)
+ * NÃO usar SOLARIS como fallback. NÃO inventar perguntas.
  */
 
 import { getOnda1Questions } from "../db";
@@ -21,11 +30,31 @@ import type { SolarisQuestion } from "../../drizzle/schema";
  * quando metadado estruturado for preenchido pela equipe SOLARIS (Issue #946).
  *
  * Retorna todas as perguntas ativas se cnaes estiver vazio (comportamento conservador).
+ *
+ * ## Issue #1035 V1 — Airbag anti-duplicação (P.O. autorizado 2026-05-08)
+ *
+ * Adiciona `options.contextType` para garantir que SOLARIS Onda 1 só seja
+ * injetada no Q1 SOLARIS (contextType='q_solaris'). Qualquer outro contextType
+ * recebe `[]` + warning no console — defesa em profundidade contra regressão
+ * caso alguém re-introduza chamada em Q3 NCM/NBS/CNAE no futuro.
  */
 export async function querySolarisByCnaes(
   cnaes: string[],
-  leiFilter?: string[]
+  leiFilter?: string[],
+  options: { contextType?: string } = {}
 ): Promise<SolarisQuestion[]> {
+  // Issue #1035 V1 — invariante anti-duplicação
+  // querySolarisByCnaes() SOMENTE para Q1 Solaris (contextType='q_solaris')
+  const { contextType = "unknown" } = options;
+  if (contextType !== "q_solaris") {
+    console.warn(
+      `[solaris-query] BLOQUEADO: contextType='${contextType}' ` +
+      `tentou injetar SOLARIS em questionário downstream. Retornando []. ` +
+      `Issue #1035 — SOLARIS é EXCLUSIVO do Q1.`
+    );
+    return [];
+  }
+
   const all = await getOnda1Questions();
 
   // ─── Filtro por CNAE (lógica existente) ──────────────────────────────────

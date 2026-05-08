@@ -90,11 +90,21 @@ export async function generateProductQuestions(
     }
   }
 
-  // ─── Coleta SOLARIS ───────────────────────────────────────────────────────
-  // M3.7 Item 11: whitelist Q.NCM limita SOLARIS a LC 214/2025 e LC 227/2026
+  // ─── Issue #1035 M1-NCM — Q.NCM = APENAS perguntas regulatórias (RAG+LLM) ──
+  // SOLARIS Onda 1 fica exclusivamente no Q1 Solaris.
+  // Análogo ao PR #1030 (Issue #1028 M1 para Q.CNAE).
+  //
+  // Mantemos a chamada com contextType='q_ncm' que aciona o airbag V1
+  // em solaris-query.ts → retorna [] sempre. Isso preserva a estrutura
+  // do gate corpus_gap_setorial abaixo (que checa solarisQuestions.length).
+  //
+  // ARQUITETURA SOLARIS — REGRA ABSOLUTA (Issue #1035 / P.O. confirmado)
+  // Q3 NCM → RAG only. PROIBIDO injetar SOLARIS.
   let solarisQuestions: SolarisQuestion[] = [];
   try {
-    solarisQuestions = await querySolarisFn(cnaeCodes, ["lc214", "lc227"]);
+    solarisQuestions = await querySolarisFn(cnaeCodes, ["lc214", "lc227"], {
+      contextType: "q_ncm", // Issue #1035 V1 — airbag bloqueia injeção
+    });
   } catch {
     // SOLARIS indisponível: continua sem perguntas SOLARIS
   }
@@ -148,18 +158,18 @@ export async function generateProductQuestions(
     }
   }
 
-  for (const sq of solarisQuestions) {
-    allQuestions.push({
-      id:         `solaris-${sq.id}`,
-      fonte:      "solaris",
-      fonte_ref:  sq.codigo ?? `SOL-${String(sq.id).padStart(3, "0")}`,
-      lei_ref:    extractLeiRefFromSolaris(sq),
-      texto:      sq.texto,
-      categoria:  sq.categoria ?? "enquadramento_geral",
-      nbs:        undefined, // perguntas SOLARIS são por CNAE, não por NBS
-      confidence: 1.0,
-    });
-  }
+  // Issue #1035 M1-NCM — Bloco de injeção SOLARIS REMOVIDO.
+  // Q.NCM = APENAS perguntas regulatórias (RAG+LLM).
+  // SOLARIS Onda 1 fica exclusivamente no Q1 Solaris.
+  // O airbag V1 em solaris-query.ts garante que solarisQuestions === [] aqui;
+  // este bloco é redundante mas removido por clareza arquitetural.
+  // Para reativar: ver histórico git pre-Issue #1035.
+  //
+  // for (const sq of solarisQuestions) {
+  //   allQuestions.push({ id: `solaris-${sq.id}`, fonte: "solaris", ... });
+  // }
+  void solarisQuestions; // referência preservada para gate corpus_gap_setorial abaixo
+  void extractLeiRefFromSolaris; // import preservado para reativação futura
 
   // Issue #997: corpus_gap_parcial — RAG setorial vazio mas SOLARIS cobre.
   // Retorna apenas SOLARIS com alerta explicativo (terceiro caso do union QuestionResult).

@@ -103,28 +103,35 @@ export async function generateServiceQuestions(
     }
   }
 
-  // ─── Perguntas SOLARIS filtradas por CNAE + lei (paridade RAG) ───────────
-  // M3.7 Item 11: whitelist Q.NBS limita SOLARIS a LC 214/2025 e LC 227/2026
-  // (mesmo padrão do queryRagFn em service-questions.ts:101)
+  // ─── Issue #1035 M1-NBS — Q.NBS = APENAS perguntas regulatórias (RAG+LLM) ──
+  // SOLARIS Onda 1 fica exclusivamente no Q1 Solaris.
+  // Análogo ao PR #1030 (Issue #1028 M1 para Q.CNAE).
+  //
+  // Mantemos a chamada com contextType='q_nbs' que aciona o airbag V1
+  // em solaris-query.ts → retorna [] sempre. Isso preserva a estrutura
+  // do código (mock points em tests, gate de fluxo).
+  //
+  // ARQUITETURA SOLARIS — REGRA ABSOLUTA (Issue #1035 / P.O. confirmado)
+  // Q3 NBS → RAG only. PROIBIDO injetar SOLARIS.
   let solarisQuestions: SolarisQuestion[] = [];
   try {
-    solarisQuestions = await querySolarisFn(cnaeCodes, ["lc214", "lc227"]);
+    solarisQuestions = await querySolarisFn(cnaeCodes, ["lc214", "lc227"], {
+      contextType: "q_nbs", // Issue #1035 V1 — airbag bloqueia injeção
+    });
   } catch {
     // SOLARIS indisponível: continua sem perguntas SOLARIS
   }
 
-  for (const sq of solarisQuestions) {
-    allQuestions.push({
-      id:         `solaris-${sq.id}`,
-      fonte:      "solaris",
-      fonte_ref:  sq.codigo ?? `SOL-${String(sq.id).padStart(3, "0")}`,
-      lei_ref:    extractLeiRefFromSolaris(sq),
-      texto:      sq.texto,
-      categoria:  sq.categoria ?? "enquadramento_geral",
-      ncm:        undefined, // perguntas SOLARIS são por CNAE, não por NCM
-      confidence: 1.0,
-    });
-  }
+  // Issue #1035 M1-NBS — Bloco de injeção SOLARIS REMOVIDO.
+  // O airbag V1 em solaris-query.ts garante que solarisQuestions === [] aqui;
+  // este bloco é redundante mas removido por clareza arquitetural.
+  // Para reativar: ver histórico git pre-Issue #1035.
+  //
+  // for (const sq of solarisQuestions) {
+  //   allQuestions.push({ id: `solaris-${sq.id}`, fonte: "solaris", ... });
+  // }
+  void solarisQuestions; // referência preservada para futuras decisões
+  void extractLeiRefFromSolaris; // import preservado para reativação futura
 
   // M3.7 Item 5: nenhuma pergunta gerada → NO_QUESTION protocol (era buildServiceFallback hardcoded)
   // ADR-010 Regra 5: registrar como skipped com motivo no_applicable_requirements
