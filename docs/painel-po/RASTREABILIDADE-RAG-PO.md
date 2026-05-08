@@ -253,7 +253,55 @@ Evento RAG (nova funcionalidade / alteração / RFC / incidente)
 | 2026-04-13 | Sprint Z-13 ENCERRADA · Gate 7 PASS (PRs #485–#497): fix B-Z13-004 risk_category_code, backfill project_gaps_v3, CGIBS +6 chunks | HEAD 1ea5c64 · 2.515 chunks · 13 leis · ESTADO-ATUAL v5.6 |
 | 2026-04-20 | Sprint Z-22 UAT Wave ENCERRADA (PRs #755–#797): auditoria 🟢 APROVADO · REGRA-ORQ-19 + REGRA-ORQ-20 | HEAD eee5462 · corpus estável · sem alterações de corpus |
 | 2026-04-21 | Bundle briefing feat/811 (#808–#811) + hotfix #792 (useMemo) + PRs #800–#806 | HEAD 839e860 · checkpoint v7.50 (2e9d1a3c) · corpus inalterado |
+| 2026-05-06 | Inventário Manus 2026-05-06 — reconciliação source vs produção (Issue #997 AC6) | Discrepância 1.317→2.515 explicada · 0 chunks fantasma |
+| 2026-05-06 | Gap table Atualidade x Plataforma RAG identifica 17 documentos pós-abr/2026 não-ingeridos | 6 gaps críticos (P0) + 9 secundários (P1-P2) + 2 parciais |
+| 2026-05-08 | Issue #1028 FASE 1 (PR #1029) — auto-start Q.CNAE | questionnaireQuestionsCache deixa de ser global=0 |
+| 2026-05-08 | Issue #1028 Opção C (PR #1030 ab549ed) — Q.CNAE fonte única regulatório | M1+M2+M3: remove SOLARIS+ia_gen do Q.CNAE · validado em projeto 4800062 |
+| 2026-05-08 | Issue #1031 fix race (PR #1032) — auto-start serial + lazy navigation | CNAEs ≠ currentCnaeIdx deixam de exibir 0/0 |
+| 2026-05-08 | E2E-RAG-FLUXO documento criado | Fluxo end-to-end E1→E5 mapeado |
 
 ---
 
-*Documento gerado em 2026-03-30. Atualizado em 2026-04-21 (Sprint Z-22 UAT ENCERRADA · HEAD 839e860 · PRs #755–#806 · feat/811 em UAT · 2.515 chunks · 13 leis · corpus estável). Pelo implementador técnico Manus. Aprovado pelo P.O. Uires Tapajós. Fonte de verdade: [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md) e [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md).*
+## 17. Gaps de atualidade — Estado 2026-05-08
+
+> **Fonte:** análise comparativa `docs/0-RAG/0-acervo-v3-06mai26/Gap table Atualidade x Plataforma RAG da Solaris IA.md`
+> **Diagnóstico em 1 frase:** o RAG cobre bem a **camada legal**, mas está defasado na **camada regulamentar/operacional** publicada entre abril e maio de 2026.
+
+### Resumo
+
+| Status | Itens | Severidade |
+|---|---|---|
+| 🔴 Gap crítico — não no LLM | **6** | P0 |
+| 🟠 Gap secundário | **9** | P1-P2 |
+| ⚠️ Parcial no RAG | **2** | P2 |
+| ✅ Presente no RAG | 8 | OK |
+
+**Total: 17 itens pendentes vs 8 presentes.**
+
+### Pacote crítico (Onda 1 — emergencial)
+
+| Documento | Data | Por que importa |
+|---|---|---|
+| Decreto 12.955/2026 | 29/04/2026 | Regulamento CBS (split payment, créditos) |
+| Resolução CGIBS 6/2026 | 30/04/2026 | Regulamento infralegal nuclear do IBS |
+| Portaria Conjunta MF/CGIBS 7/2026 | 30/04/2026 | Disposições comuns CBS/IBS |
+| Resoluções CGIBS 4 e 5/2026 | 08-30/04/2026 | Estrutura institucional CGIBS |
+| NT 2025.002 v1.36 (NF-e) | 24/04/2026 | Leiautes IBS/CBS/IS |
+| NT 008/2026 (NFS-e DANFSe) | 05/05/2026 | Padrão nacional DANFSe |
+| Página "Orientações 2026" RFB | 06/05/2026 | Documento-pai operacional |
+
+### Risco principal
+
+🔴 **Alucinação operacional por falta de corpus novo** — não erro de backbone legal.
+
+### Estratégias de remediação (ver `docs/rag/RAG-PROCESSO.md`)
+
+- **Estratégia 1 (Tactical Sprint, 1-3 sem):** ingerir 6 críticos via scripts ad-hoc
+- **Estratégia 2 (Sustainable Watcher, 4-8 sem):** automatizar detecção + ingestão
+- **Estratégia 3 (Architectural Refactor, 8-16 sem):** taxonomia + versionamento + vigência
+
+**Recomendação:** combinar as 3 em sequência (16 semanas roadmap).
+
+---
+
+*Documento gerado em 2026-03-30. Atualizado em 2026-05-08 (atualidade vs RAG · 17 gaps identificados · PRs #1029/#1030/#1032 · 2.515 chunks). Pelo implementador técnico Manus + Claude Code (orquestrador). Aprovado pelo P.O. Uires Tapajós. Fonte de verdade: [ESTADO-ATUAL.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/ESTADO-ATUAL.md), [BASELINE-PRODUTO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/BASELINE-PRODUTO.md), [RAG_CORPUS_INVENTORY.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/governance/RAG_CORPUS_INVENTORY.md), [E2E-RAG-FLUXO.md](https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/rag/E2E-RAG-FLUXO.md).*

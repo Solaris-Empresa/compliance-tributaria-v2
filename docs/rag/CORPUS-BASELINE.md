@@ -1,12 +1,16 @@
 # CORPUS BASELINE — IA SOLARIS RAG
 
-> **Versão:** v5.0
-> **Data:** 2026-04-13
-> **Commit HEAD:** 1ea5c64
-> **Sprint de referência:** Sprint Z-13 ENCERRADA · Gate 7 PASS (PRs #485–#497)
-> **Autor:** Manus AI
+> **Versão:** v5.1
+> **Data:** 2026-05-08
+> **Commit HEAD:** ab549ed (pós-merge PR #1030 — Issue #1028 Opção C)
+> **Sprint de referência:** Issue #1028 (Q.CNAE fonte única regulatório) ENCERRADA + Issue #1031 (race condition) em validação
+> **Autor:** Manus AI + Claude Code (orquestrador)
 > **Aprovado por:** Uires Tapajós (P.O.)
 > **Revisão externa:** Consultor (ChatGPT) — parecer de 2026-03-30
+>
+> **Histórico:**
+> - v5.0 (2026-04-13) — Sprint Z-13 · 2.515 chunks · 13 leis · gates 7 PASS
+> - v5.1 (2026-05-08) — Adendo gaps de atualidade 2026-05-06 (17 docs pós-abr/2026 pendentes) · Q.CNAE 100% regulatório (PR #1030)
 >
 > **Instrução de atualização:** a cada ingestão, RFC, incidente ou correção de corpus,
 > incrementar a versão, registrar data/commit e atualizar as seções 1–8.
@@ -325,6 +329,39 @@ INGESTÃO → VALIDAÇÃO → USO → MELHORIA
 | **v4.4** | **2026-04-05** | **1c42774** | **Sprint V Lote 2 (PR #330): +8 casos NCM/NBS → 24 confirmados. NCM:12 · NBS:12 · Testes:34/34. Correção S-07 (planos saúde: Arts.234-235).** |
 | **v4.5** | **2026-04-05** | **2d53596** | **Sprint V Lote 3 (PR #333): +13 casos NCM/NBS + 1 pending → 37 confirmados. NCM:19 · NBS:19 · Testes:48/48. Sprint V encerrada. Meta 38 casos atingida com margem de segurança jurídica.** |
 | **v5.0** | **2026-04-13** | **1ea5c64** | **Sprint Z-13 ENCERRADA · Gate 7 PASS (PRs #485–#497): Lote D CGIBS (resolucao_cgibs_1=4, resolucao_cgibs_2=1, resolucao_cgibs_3=1 → +6 chunks). fix B-Z13-004 risk_category_code. backfill project_gaps_v3. Corpus: 2.515 chunks · 13 leis · 100% anchor_id.** |
+| **v5.1** | **2026-05-08** | **ab549ed** | **Adendo gaps de atualidade 2026-05-06: 17 documentos pós-abr/2026 identificados como pendentes (6 críticos P0 + 9 secundários + 2 parciais). Q.CNAE refatorado para fonte única regulatório (Issue #1028 Opção C — PR #1030 M1+M2+M3). Race condition auto-start em fix (Issue #1031 — PR #1032). Corpus inalterado: 2.515 chunks · 13 leis. E2E-RAG-FLUXO documento criado.** |
+
+---
+
+## 12. Adendo 2026-05-08 — Gaps de atualidade
+
+### Diagnóstico
+
+🔴 **Backbone legal completo, camada regulamentar/operacional defasada.**
+
+Análise comparativa "Atualidade x Plataforma RAG da Solaris IA" (2026-05-06) identificou **17 documentos pós-abril/2026 ainda não ingeridos**. Detalhamento completo em `docs/governance/RAG_CORPUS_INVENTORY.md` (seção "Atualização 2026-05-08").
+
+### Pacote crítico (Onda 1)
+
+- Decreto 12.955/2026 (CBS) — 29/04/2026
+- Resoluções CGIBS 4, 5, 6/2026 — abr/2026
+- Portaria Conjunta MF/CGIBS 7/2026 — 30/04/2026
+- NT 2025.002 v1.36 (NF-e) — 24/04/2026
+- NT 008/2026 (NFS-e DANFSe) — 05/05/2026
+- Página "Orientações 2026" RFB — 06/05/2026
+
+### Risco
+
+🔴 **Alucinação operacional por falta de corpus novo** — não erro de backbone legal. Cliente perguntando sobre leiautes, APIs, DeRE, marcos 2026 pode receber respostas desatualizadas.
+
+### Próximos passos (autorizados pendentes P.O.)
+
+- [ ] Estratégia 1 (Tactical Sprint, 1-3 sem) — ingerir Onda 1 emergencial
+- [ ] Estratégia 2 (Watcher, 4-8 sem) — pipeline automatizado anti-gap-futuro
+- [ ] Estratégia 3 (Refactor, 8-16 sem) — taxonomia + vigência + versionamento
+- [ ] Skill custom `/ingest-rag-batch` para 98% de confiabilidade na ingestão
+
+Detalhes em `docs/rag/RAG-PROCESSO.md` (3 estratégias) e `docs/rag/E2E-RAG-FLUXO.md` (fluxo end-to-end).
 
 ---
 
