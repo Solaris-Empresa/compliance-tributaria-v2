@@ -395,6 +395,22 @@ export async function consolidateRisks(
       continue;
     }
 
+    // Issue #1045 (REGRA-ORQ-29 / NO_QUESTION protocol):
+    // "enquadramento_geral" é categoria fallback genérica sem base normativa
+    // rastreável (artigo="N/A (categoria fallback)", rag_validated=false).
+    // Caminho típico: iagen-gap-analyzer fallback "risco_sistemico" →
+    // mapTopicToCategory → "enquadramento_geral" → risco órfão de fundamentação.
+    // Solução: gap permanece em project_gaps_v3 (auditoria preservada),
+    // mas risco NÃO é gerado em risks_v4. Re-categorização explícita
+    // (LLM/curadoria) atribuindo enquadramento_geral também é bloqueada
+    // — categoria não tem artigo principal definido na LC 214/2025.
+    if (categoria === "enquadramento_geral") {
+      console.warn(
+        `[risk-engine-v4] skip risco enquadramento_geral (NO_QUESTION protocol — REGRA-ORQ-29 / Issue #1045) — projeto=${projectId} riskKey=${riskKey} sugerido=${suggestedCategoria} reason=no_normative_base`,
+      );
+      continue;
+    }
+
     const effectiveRiskKey =
       categoria === suggestedCategoria ? riskKey : buildRiskKey(categoria, context);
 
