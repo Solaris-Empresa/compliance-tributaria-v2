@@ -1,10 +1,21 @@
 // rag-risk-validator.ts — Sprint Z-13.5 Tarefa 3
 // Valida riscos contra o corpus RAG (ragDocuments).
 // FULLTEXT/LIKE match — sem embeddings (simplifica).
+//
+// Issue #1044 (Opção B, P.O. 2026-05-09):
+//   rag_artigo_exato = chunks
+//     .filter(c => articleMatches(c.artigo, risk.artigo))
+//     [0]?.artigo
+//     ?? risk.artigo  // fallback nunca null
 
 import { drizzle } from "drizzle-orm/mysql2";
 import type { InsertRiskV4 } from "./db-queries-risks-v4";
 import type { ConsolidatedEvidence } from "./risk-engine-v4";
+
+// ─── Constantes ──────────────────────────────────────────────────────────────
+
+// Aplicada quando LIKE não retorna chunks (no result).
+const CONFIDENCE_DEGRADATION_NO_MATCH = 0.75;
 
 // ─── DB ──────────────────────────────────────────────────────────────────────
 
@@ -51,12 +62,103 @@ const RAG_QUERIES: Record<string, string> = {
   aliquota_reduzida:    "alíquota reduzida",       // 8 hits
 };
 
+// ─── Normalização e match de artigos (Issue #1044 Opção B) ───────────────────
+
+/**
+ * Normaliza string de artigo para comparação:
+ * - lowercase
+ * - remove sufixo de lei ("LC 214/2025", "lc214")
+ * - remove sufixo de parte ("(parte 2)")
+ * - colapsa espaços
+ *
+ * Exemplos:
+ *   "Art. 9 LC 214/2025"   → "art. 9"
+ *   "Art. 22 (parte 2)"    → "art. 22"
+ *   "Arts. 6-12 LC214"     → "arts. 6-12"
+ */
+export function normalizeArtigo(s: string): string {
+  if (!s) return "";
+  return s
+    .toLowerCase()
+    .replace(/\s+lc\s*\d+(\/\d+)?/g, "")
+    .replace(/\s*\(parte\s*\d+\)/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Verifica se um artigo de chunk corresponde ao artigo principal da categoria.
+ *
+ * Casos cobertos:
+ *   1. Match exato após normalização: "Art. 9 LC 214/2025" === "Art. 9"
+ *   2. Range no risk.artigo: "Arts. 6-12 LC 214/2025" inclui "Art. 9"
+ *
+ * Issue #1044 Opção B (P.O. 2026-05-09).
+ */
+export function articleMatches(chunkArtigo: string, riskArtigo: string): boolean {
+  const chunkN = normalizeArtigo(chunkArtigo);
+  const riskN = normalizeArtigo(riskArtigo);
+
+  if (!chunkN || !riskN) return false;
+
+  if (chunkN === riskN) return true;
+
+  // Range "arts. 6-12" ou "art. 6-12" no riskArtigo
+  const rangeMatch = riskN.match(/arts?\.\s*(\d+)\s*-\s*(\d+)/);
+  if (rangeMatch) {
+    const start = parseInt(rangeMatch[1], 10);
+    const end = parseInt(rangeMatch[2], 10);
+    const chunkNum = chunkN.match(/art\.?\s*(\d+)/);
+    if (chunkNum) {
+      const n = parseInt(chunkNum[1], 10);
+      return n >= start && n <= end;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Seleciona o artigo "exato" do RAG conforme spec do Issue #1044 (Opção B):
+ *   1. Filtra chunks com articleMatches(c.artigo, riskArtigo) === true
+ *   2. Se houver match: retorna primeiro filtrado (ordem natural ≈ score)
+ *   3. Se não: fallback para riskArtigo (nunca null), conteudo=null
+ *
+ * Função pura — test seam para Issue #1044.
+ */
+export function selectBestArtigo(
+  docs: Array<{ artigo: string; conteudo: string }>,
+  riskArtigo: string | null | undefined,
+): { artigo: string; conteudo: string | null; usedFallback: boolean } {
+  const principalArtigo = riskArtigo ?? "";
+
+  const matching = docs.filter((d) => articleMatches(d.artigo, principalArtigo));
+
+  if (matching.length > 0) {
+    return {
+      artigo: matching[0].artigo,
+      conteudo: matching[0].conteudo,
+      usedFallback: false,
+    };
+  }
+
+  // Fallback Opção B: nunca retorna null. Se riskArtigo vazio, usa docs[0]?.artigo.
+  return {
+    artigo: principalArtigo || docs[0]?.artigo || "",
+    conteudo: null,
+    usedFallback: true,
+  };
+}
+
 // ─── Função principal ────────────────────────────────────────────────────────
 
 /**
  * Enriquece um risco com validação RAG.
  * Busca no corpus ragDocuments por LIKE match.
- * Mutates the risk in-place and returns it.
+ *
+ * Issue #1044 Opção B: filtra chunks pelo artigo principal da categoria
+ * (risk.artigo) antes de selecionar best chunk. Se nenhum chunk match,
+ * fallback para risk.artigo (rag_artigo_exato nunca null).
  */
 export async function enrichRiskWithRag(risk: InsertRiskV4): Promise<InsertRiskV4> {
   const ragQuery = RAG_QUERIES[risk.categoria] ?? risk.categoria;
@@ -77,7 +179,7 @@ export async function enrichRiskWithRag(risk: InsertRiskV4): Promise<InsertRiskV
       `SELECT id, lei, artigo, titulo, conteudo
        FROM ragDocuments
        WHERE ${likeClauses}
-       LIMIT 5`,
+       LIMIT 50`,
       likeParams
     );
   } catch {
@@ -88,8 +190,14 @@ export async function enrichRiskWithRag(risk: InsertRiskV4): Promise<InsertRiskV
     return applyNoResult(risk, ragQuery);
   }
 
-  // Use the first (best) match
-  const best = docs[0];
+  // Issue #1044 Opção B: filtra pelo artigo principal antes de selecionar best.
+  const selected = selectBestArtigo(docs, risk.artigo);
+  const bestArtigo = selected.artigo;
+  const bestConteudo = selected.conteudo !== null ? selected.conteudo.slice(0, 500) : null;
+  const validationNote = selected.usedFallback
+    ? "Artigo principal não localizado — usando fallback da categoria"
+    : null;
+
   const ragConfidence = 0.85;
   const baseConfidence = risk.confidence ?? 1.0;
   const blendedConfidence = baseConfidence * 0.8 + ragConfidence * 0.2;
@@ -101,18 +209,27 @@ export async function enrichRiskWithRag(risk: InsertRiskV4): Promise<InsertRiskV
 
   evidence.rag_validated = true;
   evidence.rag_confidence = ragConfidence;
-  evidence.rag_artigo_exato = best.artigo;
-  evidence.rag_trecho_legal = best.conteudo.slice(0, 500);
+  evidence.rag_artigo_exato = bestArtigo;
+  if (bestConteudo !== null) {
+    evidence.rag_trecho_legal = bestConteudo;
+  } else {
+    delete evidence.rag_trecho_legal;
+  }
   evidence.rag_query = ragQuery;
+  if (validationNote !== null) {
+    evidence.rag_validation_note = validationNote;
+  } else {
+    delete evidence.rag_validation_note;
+  }
 
   risk.evidence = evidence;
   risk.confidence = Math.round(blendedConfidence * 100) / 100;
   risk.rag_validated = 1;
   risk.rag_confidence = ragConfidence;
-  risk.rag_artigo_exato = best.artigo;
-  risk.rag_trecho_legal = best.conteudo.slice(0, 500);
+  risk.rag_artigo_exato = bestArtigo;
+  risk.rag_trecho_legal = bestConteudo;
   risk.rag_query = ragQuery;
-  risk.rag_validation_note = null;
+  risk.rag_validation_note = validationNote;
 
   return risk;
 }
@@ -130,7 +247,7 @@ function applyNoResult(risk: InsertRiskV4, ragQuery: string): InsertRiskV4 {
   evidence.rag_query = ragQuery;
 
   risk.evidence = evidence;
-  risk.confidence = Math.round(baseConfidence * 0.75 * 100) / 100;
+  risk.confidence = Math.round(baseConfidence * CONFIDENCE_DEGRADATION_NO_MATCH * 100) / 100;
   risk.rag_validated = 0;
   risk.rag_confidence = 0;
   risk.rag_query = ragQuery;
