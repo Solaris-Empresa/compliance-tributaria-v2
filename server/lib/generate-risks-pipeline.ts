@@ -82,6 +82,9 @@ export async function generateRisksV4Pipeline(
         multiestadual: profile.multiestadual ?? undefined,
         meiosPagamento: profile.meiosPagamento ?? undefined,
         intermediarios: profile.intermediarios ?? undefined,
+        // Issue #1046 — filtro de IS por NCM/CNAE (Art. 393 §1º LC 214/2025)
+        ncmCodes: profile.productNcms ?? undefined,
+        confirmedCnaes: profile.cnaes ?? undefined,
       }
     : {};
 

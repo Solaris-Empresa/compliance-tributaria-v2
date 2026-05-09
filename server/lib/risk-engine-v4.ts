@@ -14,6 +14,8 @@ import {
   insertEligibilityAuditLog,
 } from "./risk-eligibility";
 import type { CategoriaCanonica } from "./risk-categorizer";
+// Issue #1046 — filtro de IS por elegibilidade NCM/CNAE (Art. 393 §1º LC 214/2025)
+import { isImpostoSeletivoEligible } from "./risk-eligibility-is-ncm-cnae";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -246,6 +248,9 @@ export interface OperationalContext {
   multiestadual?: boolean;
   meiosPagamento?: string[];
   intermediarios?: string[];
+  // Issue #1046 — filtro de IS por elegibilidade NCM/CNAE (Art. 393 §1º LC 214/2025)
+  ncmCodes?: string[];
+  confirmedCnaes?: string[];
 }
 
 const TITULO_TEMPLATES: Record<string, string> = {
@@ -409,6 +414,24 @@ export async function consolidateRisks(
         `[risk-engine-v4] skip risco enquadramento_geral (NO_QUESTION protocol — REGRA-ORQ-29 / Issue #1045) — projeto=${projectId} riskKey=${riskKey} sugerido=${suggestedCategoria} reason=no_normative_base`,
       );
       continue;
+    }
+
+    // Issue #1046 (REGRA-ORQ-29 / Art. 393 §1º LC 214/2025):
+    // IS só incide sobre NCM/CNAE da lista taxativa (tabaco, bebidas,
+    // veículos, embarcações, aeronaves, minerais, apostas). Empresas fora
+    // da lista NÃO devem receber risco IS — mesmo padrão do Hotfix IS #827.
+    // Caso canônico: projeto #5040001 com NCMs 2306/2304 (farelos de soja).
+    if (categoria === "imposto_seletivo") {
+      const isElig = isImpostoSeletivoEligible(
+        context.ncmCodes ?? [],
+        context.confirmedCnaes ?? [],
+      );
+      if (!isElig.eligible) {
+        console.warn(
+          `[risk-engine-v4] skip risco IS (Issue #1046 / Art. 393 §1º) — projeto=${projectId} ncms=[${(context.ncmCodes ?? []).join(",")}] cnaes=[${(context.confirmedCnaes ?? []).join(",")}] reason=${isElig.reason}`,
+        );
+        continue;
+      }
     }
 
     const effectiveRiskKey =
