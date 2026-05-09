@@ -1,7 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { it, expect } from "vitest";
 import { invokeLLM } from "./_core/llm";
+// CI hygiene 2026-05-08 (PR ci/hygiene): openaiDescribe skipa quando OPENAI_API_KEY ausente.
+import { openaiDescribe } from "./test-helpers";
 
-describe("Briefing Generation", () => {
+openaiDescribe("Briefing Generation", () => {
   it("should generate briefing content via LLM", async () => {
     const prompt = `Você é um consultor tributário especializado em Reforma Tributária brasileira.
 

@@ -15,23 +15,26 @@ import { isCategoryAllowed } from "./lib/risk-eligibility";
 
 describe("Hotfix Suite — Gate isCategoryAllowed por categoria x setor", () => {
   describe("imposto_seletivo (ELIGIBILITY_TABLE v1.2)", () => {
-    it("agronegocio BLOCKED (downgrade enquadramento_geral)", () => {
+    // CI hygiene (Issue ci/hygiene 2026-05-08): downgrade_to alterado de
+    // "enquadramento_geral" → "unmapped" pelo PR #970 (M3.8-3, REGRA-ORQ-29 +
+    // Lição #62). Asserções atualizadas para refletir comportamento atual.
+    it("agronegocio BLOCKED (downgrade unmapped)", () => {
       const r = isCategoryAllowed("imposto_seletivo", "agronegocio");
       expect(r.allowed).toBe(false);
-      expect(r.final).toBe("enquadramento_geral");
+      expect(r.final).toBe("unmapped");
       expect(r.reason).toBe("sujeito_passivo_incompativel");
     });
 
     it("servicos BLOCKED", () => {
       const r = isCategoryAllowed("imposto_seletivo", "servicos");
       expect(r.allowed).toBe(false);
-      expect(r.final).toBe("enquadramento_geral");
+      expect(r.final).toBe("unmapped");
     });
 
     it("financeiro BLOCKED", () => {
       const r = isCategoryAllowed("imposto_seletivo", "financeiro");
       expect(r.allowed).toBe(false);
-      expect(r.final).toBe("enquadramento_geral");
+      expect(r.final).toBe("unmapped");
     });
 
     it("industria ALLOWED (combustivel, bebida, tabaco etc.)", () => {

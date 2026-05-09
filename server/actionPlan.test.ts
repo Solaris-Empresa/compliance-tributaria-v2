@@ -1,7 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { it, expect } from "vitest";
 import { invokeLLM } from "./_core/llm";
+// CI hygiene 2026-05-08 (PR ci/hygiene): openaiDescribe skipa quando OPENAI_API_KEY ausente.
+import { openaiDescribe } from "./test-helpers";
 
-describe("Action Plan Generation", () => {
+openaiDescribe("Action Plan Generation", () => {
   it("should generate action plan from briefing recommendations", async () => {
     const mockBriefing = {
       summaryText: "Empresa de tecnologia no Lucro Presumido precisa se adequar à reforma tributária.",

@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { it, expect, beforeAll } from "vitest";
 import { appRouter } from "./routers";
-import { createTestContext, generateFakeClient, generateFakeProject } from "./test-helpers";
+// CI hygiene 2026-05-08 (PR ci/hygiene): dbDescribe skipa quando DATABASE_URL ausente.
+import { createTestContext, generateFakeClient, generateFakeProject, dbDescribe } from "./test-helpers";
 
-describe("Risk Matrix Endpoints", () => {
+dbDescribe("Risk Matrix Endpoints", () => {
   let caller: any;
   let clientId: number;
   let projectId: number;

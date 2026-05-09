@@ -32,6 +32,8 @@ import { sessions, sessionBranchAnswers, sessionActionPlans } from "../drizzle/s
 import { eq, and } from "drizzle-orm";
 import * as fs from "fs";
 import * as path from "path";
+// CI hygiene 2026-05-08 (PR ci/hygiene): dbDescribe skipa quando DATABASE_URL ausente.
+import { dbDescribe } from "./test-helpers";
 
 // ─── Setup ─────────────────────────────────────────────────────────────────────
 
@@ -85,6 +87,8 @@ const MOCK_PLAN_ITEMS = [
 ];
 
 beforeAll(async () => {
+  // CI hygiene 2026-05-08 (PR ci/hygiene): early return quando DATABASE_URL ausente.
+  if (!process.env.DATABASE_URL) return;
   database = await db.getDb();
   if (!database) throw new Error("Database not available");
 
@@ -125,7 +129,7 @@ beforeAll(async () => {
 
 // ─── Testes de Banco de Dados ──────────────────────────────────────────────────
 
-describe("Fase 3 — Banco de Dados", () => {
+dbDescribe("Fase 3 — Banco de Dados", () => {
   it("1. Tabela sessionActionPlans existe no banco", async () => {
     const result = await database!
       .select()

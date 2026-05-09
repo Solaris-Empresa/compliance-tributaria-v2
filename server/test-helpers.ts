@@ -11,19 +11,33 @@ import type { TrpcContext } from "./_core/context";
 // Pós Issue #873 (CI prod isolation): Manus seta secret CI_HAS_TEST_DB=true
 // → guard desativa sozinho sem mudança de código.
 //
+// CI hygiene 2026-05-08 (PR ci/hygiene): expandido para skipar também quando
+// `DATABASE_URL` ausente (ex: dev local sem TiDB, CI sem secret configurado).
+// Cobertura ampliada para 11 testes adicionais que falhavam silenciosamente.
+//
 // Vinculadas: PR #889 (CI_SECRETS_GAP_ANALYSIS.md), Lição #46 emergente
 //   (validar empiricamente o estado de ambiente antes de propor guard).
+export const HAS_DB = !!process.env.DATABASE_URL;
 export const SKIP_DB_TESTS =
-  process.env.CI === "true" && !process.env.CI_HAS_TEST_DB;
+  (process.env.CI === "true" && !process.env.CI_HAS_TEST_DB) ||
+  !HAS_DB;
 
 /**
  * Use em vez de `describe` em testes que requerem `mysql.createConnection` real.
  *
  * Em CI sem TEST DB provisionado: testes são skipados graciosamente.
- * Localmente (sem CI=true): testes rodam normalmente se DB disponível.
+ * Em ambiente sem DATABASE_URL: testes são skipados (CI hygiene 2026-05-08).
+ * Localmente com DATABASE_URL: testes rodam normalmente.
  * Pós Issue #873 + secret CI_HAS_TEST_DB=true: testes voltam a rodar em CI.
  */
 export const dbDescribe = SKIP_DB_TESTS ? describe.skip : describe;
+
+// CI hygiene 2026-05-08 (PR ci/hygiene): testes que invocam OpenAI real
+// sem mock devem skipar quando OPENAI_API_KEY ausente. Cobre llm-timeout
+// e openai-key-validation que falhavam com "OPENAI_API_KEY is not configured".
+export const HAS_OPENAI = !!process.env.OPENAI_API_KEY;
+export const SKIP_OPENAI_TESTS = !HAS_OPENAI;
+export const openaiDescribe = SKIP_OPENAI_TESTS ? describe.skip : describe;
 
 export function createMockContext(
   userId: number = 1,

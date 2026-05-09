@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { appRouter } from "./routers";
-import { createMockContext, generateFakeClient, generateFakeProject } from "./test-helpers";
+// CI hygiene 2026-05-08 (PR ci/hygiene): dbDescribe skipa quando DATABASE_URL ausente.
+import { createMockContext, generateFakeClient, generateFakeProject, dbDescribe } from "./test-helpers";
 
-describe("Projects Router", () => {
+dbDescribe("Projects Router", () => {
   let mockContext: ReturnType<typeof createMockContext>;
   let caller: ReturnType<typeof appRouter.createCaller>;
   let testClientId: number;

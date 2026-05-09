@@ -7,11 +7,13 @@
  * 3. O modelo gpt-4.1 está acessível com a chave fornecida
  * 4. A resposta retorna no formato esperado pelo invokeLLM
  */
-import { describe, it, expect } from "vitest";
+import { it, expect } from "vitest";
+// CI hygiene 2026-05-08 (PR ci/hygiene): openaiDescribe skipa quando OPENAI_API_KEY ausente.
+import { openaiDescribe } from "./test-helpers";
 
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
-describe("OpenAI API Key Validation", () => {
+openaiDescribe("OpenAI API Key Validation", () => {
   it("deve ter OPENAI_API_KEY configurada no ambiente", () => {
     const key = process.env.OPENAI_API_KEY;
     expect(key, "OPENAI_API_KEY não está configurada").toBeTruthy();

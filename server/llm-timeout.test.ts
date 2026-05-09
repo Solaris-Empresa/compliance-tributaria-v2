@@ -2,8 +2,10 @@
  * Testes unitários para o mecanismo de timeout do invokeLLM
  * Verifica que AbortController cancela a chamada após timeoutMs
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { it, expect, vi, beforeEach, afterEach } from "vitest";
 import { DEFAULT_LLM_TIMEOUT_MS } from "./_core/llm";
+// CI hygiene 2026-05-08 (PR ci/hygiene): openaiDescribe skipa quando OPENAI_API_KEY ausente.
+import { openaiDescribe } from "./test-helpers";
 
 // ─── Mock do fetch global ────────────────────────────────────────────────────
 const originalFetch = global.fetch;
@@ -20,7 +22,7 @@ afterEach(() => {
 });
 
 // ─── Testes de configuração ──────────────────────────────────────────────────
-describe("DEFAULT_LLM_TIMEOUT_MS", () => {
+openaiDescribe("DEFAULT_LLM_TIMEOUT_MS", () => {
   it("deve ser 180000ms (3 minutos)", () => {
     expect(DEFAULT_LLM_TIMEOUT_MS).toBe(180_000);
   });
@@ -31,7 +33,7 @@ describe("DEFAULT_LLM_TIMEOUT_MS", () => {
 });
 
 // ─── Testes de comportamento do timeout ─────────────────────────────────────
-describe("invokeLLM timeout behavior", () => {
+openaiDescribe("invokeLLM timeout behavior", () => {
   it("deve lançar LLM_TIMEOUT quando o fetch demora mais que timeoutMs", async () => {
     // Simula fetch que nunca resolve (demora infinitamente)
     global.fetch = vi.fn().mockImplementation((_url: string, options: RequestInit) => {
@@ -144,7 +146,7 @@ describe("invokeLLM timeout behavior", () => {
 });
 
 // ─── Testes do generateWithRetry com timeout ────────────────────────────────
-describe("generateWithRetry com timeoutMs", () => {
+openaiDescribe("generateWithRetry com timeoutMs", () => {
   it("deve propagar o timeoutMs para o invokeLLM", async () => {
     // Verifica que o parâmetro timeoutMs é aceito sem erros de tipo
     const { generateWithRetry } = await import("./ai-helpers");

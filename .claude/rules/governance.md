@@ -2237,3 +2237,89 @@ demais que não cobre o problema real.
 - CHECKLIST-VAL-01 (autor produz respostas; revisor verifica)
 - REGRA-ORQ-33 (RACI — Manus é o Validador)
 - REGRA-ORQ-15 (PR body template — base para incluir CHECKLIST-VAL-01)
+
+## REGRA-ORQ-CI-01 — CI verde como pré-requisito de merge
+
+**Vigência:** permanente, a partir de 2026-05-08
+**Origem:** PR #970 mergeou com CI vermelho — propagou 4 assertions desatualizadas
+detectadas só 16 dias depois. Issue ci/hygiene 2026-05-08 identificou 13 test
+files failing por causa raiz não-funcional (DB ausente no CI + assertions stale
+do M3.8-3).
+**Severidade:** governança crítica — blocker estrutural de merge
+
+### Regra
+
+Nenhum PR pode ser mergeado em `main` com os checks `Run Unit Tests` ou
+`TypeScript + Vitest` em estado FAILURE. Admin override permitido apenas com
+justificativa documentada no PR body (campo "Admin override reason") + issue
+de follow-up obrigatória antes do merge.
+
+### Aplicação
+
+#### Passo 1 — Branch protection no GitHub (configurar uma vez)
+
+```
+GitHub → Settings → Branches → Branch protection rules → main
+[x] Require status checks to pass before merging
+    [x] Require branches to be up to date before merging
+    Required status checks:
+      [x] Run Unit Tests
+      [x] TypeScript + Vitest
+```
+
+Verificação via CLI:
+```bash
+gh api repos/Solaris-Empresa/compliance-tributaria-v2/branches/main/protection
+# Esperado: 200 com required_status_checks contendo "Run Unit Tests" e "TypeScript + Vitest"
+# Se 404 "Branch not protected": ativar via Settings > Branches
+```
+
+**Estado em 2026-05-08:** branch protection AUSENTE (404). Pendente de
+configuração pelo P.O. ou Manus com permissão admin.
+
+#### Passo 2 — Padrão de skipIf em testes ambientais
+
+Tests que dependem de recursos externos (DB, OpenAI, network) DEVEM usar
+o padrão `dbDescribe` / `openaiDescribe` de `server/test-helpers.ts`:
+
+```typescript
+import { dbDescribe, openaiDescribe } from "./test-helpers";
+
+dbDescribe("Suite que requer DATABASE_URL", () => {
+  // tests que precisam de DB
+});
+
+openaiDescribe("Suite que requer OPENAI_API_KEY", () => {
+  // tests que precisam de chave OpenAI
+});
+```
+
+#### Passo 3 — Quando alterar comportamento testado
+
+Ao alterar comportamento de função coberta por testes, atualizar **TODOS**
+os arquivos de teste que asseram o valor antigo no MESMO PR. Caso contrário,
+CI vermelho e merge bloqueado pelo Passo 1.
+
+### Exceções permitidas
+
+- **Hotfix P0** (REGRA-ORQ-11) — admin override permitido, mas:
+  - Documentar no PR body: `## Admin Override\nMotivo: <descrição>\nFollow-up: <issue para fix CI>`
+  - Issue de follow-up obrigatória, criada antes do merge
+- **Tests pré-existentes failing por infra** (DB ausente no CI, OpenAI key
+  ausente) — usar `dbDescribe`/`openaiDescribe`, não bypass de CI
+
+### Origem documentada
+
+- PR #970 (commit `a528257`, 2026-05-04, autor utapajos): alterou `downgrade_to`
+  de `"enquadramento_geral"` → `"unmapped"` em `risk-eligibility.ts`. Não
+  atualizou 4 assertions em `hotfix-classe-erro-2026-04-28.test.ts` e
+  `hotfix-suite-is-gate-2026-04-28.test.ts`. CI ficou vermelho mas branch
+  protection ausente permitiu merge. Bug latente até 2026-05-08 (16 dias).
+
+### Vinculadas
+
+- Issue ci/hygiene 2026-05-08 — fix das 4 assertions + skipIf nos 13 tests
+  failing identificados (com expansão para outros via padrão `dbDescribe`)
+- REGRA-ORQ-11 (Hotfix P0) — única exceção permitida ao gate
+- REGRA-ORQ-26 (branch obrigatória) — fluxo upstream desta regra
+- `server/test-helpers.ts` — implementação dos helpers `dbDescribe`/`openaiDescribe`
