@@ -1,7 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { it, expect } from "vitest";
 import { appRouter } from "./routers";
+// CI hygiene 2026-05-08 (PR ci/hygiene): dbDescribe skipa quando DATABASE_URL ausente.
+import { dbDescribe } from "./test-helpers";
 
-describe("Corporate Assessment Router", () => {
+dbDescribe("Corporate Assessment Router", () => {
   const caller = appRouter.createCaller({
     user: { id: 1, email: "test@test.com", role: "equipe_solaris" },
   } as any);
@@ -12,7 +14,7 @@ describe("Corporate Assessment Router", () => {
   });
 });
 
-describe("Branch Assessment Router", () => {
+dbDescribe("Branch Assessment Router", () => {
   const caller = appRouter.createCaller({
     user: { id: 1, email: "test@test.com", role: "equipe_solaris" },
   } as any);
@@ -24,7 +26,7 @@ describe("Branch Assessment Router", () => {
   });
 });
 
-describe("Action Plans Router", () => {
+dbDescribe("Action Plans Router", () => {
   const caller = appRouter.createCaller({
     user: { id: 1, email: "test@test.com", role: "equipe_solaris" },
   } as any);
@@ -41,7 +43,7 @@ describe("Action Plans Router", () => {
   });
 });
 
-describe("Tasks Router (tasksV2)", () => {
+dbDescribe("Tasks Router (tasksV2)", () => {
   const caller = appRouter.createCaller({
     user: { id: 1, email: "test@test.com", role: "equipe_solaris" },
   } as any);
@@ -60,7 +62,7 @@ describe("Tasks Router (tasksV2)", () => {
 
 // Comments Router - procedures não implementadas ainda
 
-describe("Notifications Router (notificationsV2)", () => {
+dbDescribe("Notifications Router (notificationsV2)", () => {
   const caller = appRouter.createCaller({
     user: { id: 1, email: "test@test.com", role: "equipe_solaris" },
   } as any);

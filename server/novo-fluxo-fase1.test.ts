@@ -8,6 +8,8 @@ import * as db from "./db";
 import { sessions, branchSuggestions } from "../drizzle/schema";
 import { eq, and, gt } from "drizzle-orm";
 import crypto from "crypto";
+// CI hygiene 2026-05-08 (PR ci/hygiene): dbDescribe skipa quando DATABASE_URL ausente.
+import { dbDescribe } from "./test-helpers";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -31,7 +33,7 @@ function pastDate(): Date {
 
 // ─── Testes ───────────────────────────────────────────────────────────────────
 
-describe("Fase 1 — Novo Fluxo v2.0: Sessões e Briefing Inteligente", () => {
+dbDescribe("Fase 1 — Novo Fluxo v2.0: Sessões e Briefing Inteligente", () => {
   let database: Awaited<ReturnType<typeof db.getDb>>;
   let testToken: string;
 

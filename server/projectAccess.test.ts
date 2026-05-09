@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { TRPCError } from "@trpc/server";
 import { appRouter } from "./routers";
-import { createMockContext, generateFakeClient, generateFakeProject } from "./test-helpers";
+// CI hygiene 2026-05-08 (PR ci/hygiene): dbDescribe substitui describe para
+// skipar gracefully quando DATABASE_URL ausente.
+import { createMockContext, generateFakeClient, generateFakeProject, dbDescribe } from "./test-helpers";
 
 /**
  * Testes de Validação de Acesso a Projetos
@@ -10,7 +12,7 @@ import { createMockContext, generateFakeClient, generateFakeProject } from "./te
  * garantindo que apenas usuários autorizados possam acessar os dados.
  */
 
-describe("Project Access Validation", () => {
+dbDescribe("Project Access Validation", () => {
   let mockContext: ReturnType<typeof createMockContext>;
   let caller: ReturnType<typeof appRouter.createCaller>;
   let testClientId: number;

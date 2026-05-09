@@ -10,11 +10,13 @@
  * - Fluxo completo: sessão → plano → consolidação → exportação
  */
 
-import { describe, it, expect, beforeAll } from "vitest";
+import { it, expect, beforeAll } from "vitest";
 import * as db from "./db";
 import { sessions, sessionActionPlans, sessionConsolidations } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { appRouter } from "./routers";
+// CI hygiene 2026-05-08 (PR ci/hygiene): dbDescribe skipa quando DATABASE_URL ausente.
+import { dbDescribe } from "./test-helpers";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -24,7 +26,7 @@ function randomToken() {
 
 // ─── Testes de Schema ─────────────────────────────────────────────────────────
 
-describe("Fase 4 - Schema: sessionConsolidations", () => {
+dbDescribe("Fase 4 - Schema: sessionConsolidations", () => {
   it("tabela sessionConsolidations existe no schema", () => {
     expect(sessionConsolidations).toBeDefined();
     expect(sessionConsolidations[Symbol.for("drizzle:Name")]).toBe("sessionConsolidations");
@@ -83,7 +85,7 @@ describe("Fase 4 - Schema: sessionConsolidations", () => {
 
 // ─── Testes de Router ─────────────────────────────────────────────────────────
 
-describe("Fase 4 - Router: sessionConsolidation registrado", () => {
+dbDescribe("Fase 4 - Router: sessionConsolidation registrado", () => {
   it("appRouter tem sessionConsolidation", () => {
     const keys = Object.keys(appRouter._def.procedures);
     const hasConsolidation = keys.some(k => k.startsWith("sessionConsolidation"));
@@ -117,7 +119,7 @@ describe("Fase 4 - Router: sessionConsolidation registrado", () => {
 
 // ─── Testes de Banco de Dados ─────────────────────────────────────────────────
 
-describe("Fase 4 - Banco: operações CRUD em sessionConsolidations", () => {
+dbDescribe("Fase 4 - Banco: operações CRUD em sessionConsolidations", () => {
   let database: Awaited<ReturnType<typeof db.getDb>>;
   let testToken: string;
 
@@ -205,7 +207,7 @@ describe("Fase 4 - Banco: operações CRUD em sessionConsolidations", () => {
 
 // ─── Testes de Integração Frontend ───────────────────────────────────────────
 
-describe("Fase 4 - Frontend: rota /consolidacao registrada", () => {
+dbDescribe("Fase 4 - Frontend: rota /consolidacao registrada", () => {
   it("App.tsx contém rota /consolidacao", async () => {
     const fs = await import("fs");
     const appContent = fs.readFileSync(
@@ -267,7 +269,7 @@ describe("Fase 4 - Frontend: rota /consolidacao registrada", () => {
 
 // ─── Testes de Fluxo Completo ─────────────────────────────────────────────────
 
-describe("Fase 4 - Fluxo: validação do fluxo completo v2.0", () => {
+dbDescribe("Fase 4 - Fluxo: validação do fluxo completo v2.0", () => {
   it("fluxo completo: 4 fases implementadas", async () => {
     const fs = await import("fs");
     // Fase 1: ModoUso + BriefingInteligente

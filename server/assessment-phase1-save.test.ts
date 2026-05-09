@@ -1,9 +1,11 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { it, expect, beforeAll, afterAll } from "vitest";
 import { getDb } from "./db";
 import { assessmentPhase1, projects } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+// CI hygiene 2026-05-08 (PR ci/hygiene): dbDescribe skipa quando DATABASE_URL ausente.
+import { dbDescribe } from "./test-helpers";
 
-describe("Assessment Phase 1 - Save Functionality", () => {
+dbDescribe("Assessment Phase 1 - Save Functionality", () => {
   let testProjectId: number;
 
   beforeAll(async () => {

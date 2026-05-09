@@ -1,8 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { it, expect } from "vitest";
 import { appRouter } from "./routers";
-import { createTestContext } from "./test-helpers";
+// CI hygiene 2026-05-08 (PR ci/hygiene): dbDescribe skipa quando DATABASE_URL ausente.
+import { createTestContext, dbDescribe } from "./test-helpers";
 
-describe("Notifications Router", () => {
+dbDescribe("Notifications Router", () => {
   it("should list notifications for user", async () => {
     const ctx = createTestContext();
     const caller = appRouter.createCaller(ctx);

@@ -1,12 +1,13 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { it, expect, beforeEach } from "vitest";
 import { appRouter } from "./routers";
-import { createTestContext } from "./test-helpers";
+// CI hygiene 2026-05-08 (PR ci/hygiene): dbDescribe skipa quando DATABASE_URL ausente.
+import { createTestContext, dbDescribe } from "./test-helpers";
 import * as db from "./db";
 
 // Prefixo único por execução para evitar colisões em testes paralelos
 const RUN_ID = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-describe("projects.updateStatus", () => {
+dbDescribe("projects.updateStatus", () => {
   let projectId: number;
   let equipeUserId: number;
   let advogadoUserId: number;

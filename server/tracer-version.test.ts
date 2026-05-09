@@ -9,11 +9,14 @@
  * Sprint v5.5.0
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { it, expect, vi, beforeEach, afterEach } from "vitest";
+// CI hygiene 2026-05-08 (PR ci/hygiene): openaiDescribe skipa quando OPENAI_API_KEY ausente
+// (tracer faz HTTP fetch interno que falha sem chave configurada).
+import { openaiDescribe } from "./test-helpers";
 
 // ─── Testes: createTrace ──────────────────────────────────────────────────────
 
-describe("createTrace — Tracing estruturado", () => {
+openaiDescribe("createTrace — Tracing estruturado", () => {
   beforeEach(() => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -142,7 +145,7 @@ describe("createTrace — Tracing estruturado", () => {
 
 // ─── Testes: getBuildVersionInfo ──────────────────────────────────────────────
 
-describe("getBuildVersionInfo — Versão do build", () => {
+openaiDescribe("getBuildVersionInfo — Versão do build", () => {
   it("deve retornar objeto com todos os campos obrigatórios", async () => {
     const { getBuildVersionInfo } = await import("./build-version");
     const info = getBuildVersionInfo();
@@ -225,7 +228,7 @@ describe("getBuildVersionInfo — Versão do build", () => {
 
 // ─── Testes: endpoint GET /api/version ───────────────────────────────────────
 
-describe("GET /api/version — Endpoint de versão", () => {
+openaiDescribe("GET /api/version — Endpoint de versão", () => {
   it("deve retornar JSON com campo version via curl local", async () => {
     // Teste de integração leve: verifica que o servidor responde ao endpoint
     const response = await fetch("http://localhost:3000/api/version");

@@ -5,10 +5,12 @@
  * Este teste NÃO usa tRPC diretamente — chama a lógica de negócio via db helpers
  * para gerar evidência SQL auditável antes/depois.
  */
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { it, expect, beforeAll, afterAll } from "vitest";
 import * as db from "./db";
 import { isToBeFlowState } from "./flowStateMachine";
 import { isDiagnosticComplete } from "./diagnostic-consolidator";
+// CI hygiene 2026-05-08 (PR ci/hygiene): dbDescribe skipa quando DATABASE_URL ausente.
+import { dbDescribe } from "./test-helpers";
 
 // ─── helpers inline (espelha a lógica do handler) ───────────────────────────
 async function simulateCompleteDiagnosticLayer(
@@ -52,7 +54,7 @@ async function simulateCompleteDiagnosticLayer(
 }
 
 // ─── Testes ─────────────────────────────────────────────────────────────────
-describe("B-Z11-012 — completeDiagnosticLayer transição TO-BE", () => {
+dbDescribe("B-Z11-012 — completeDiagnosticLayer transição TO-BE", () => {
   const PROJECT_ID = 1;
   let statusAntes: string;
   let diagnosticAntes: any;

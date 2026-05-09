@@ -77,6 +77,10 @@ describe("Hotfix Classe de Erro — Dataset Expansion 2026-04-28 (Opção A, 4 N
   it("isCategoryAllowed('imposto_seletivo','agronegocio') === BLOCKED para milho/café/soja produtor", () => {
     const elig = isCategoryAllowed("imposto_seletivo", "agronegocio");
     expect(elig.allowed).toBe(false);
-    expect(elig.final).toBe("enquadramento_geral");
+    // CI hygiene (Issue ci/hygiene 2026-05-08): downgrade_to alterado de
+    // "enquadramento_geral" → "unmapped" pelo PR #970 (M3.8-3, REGRA-ORQ-29 +
+    // Lição #62: archetype não elegível → "unmapped" via reviewQueue, não
+    // "enquadramento_geral" como gap fantasma).
+    expect(elig.final).toBe("unmapped");
   });
 });

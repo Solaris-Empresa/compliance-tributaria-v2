@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { appRouter } from "./routers";
 import * as db from "./db";
+// CI hygiene 2026-05-08 (PR ci/hygiene): dbDescribe skipa quando DATABASE_URL ausente.
+import { dbDescribe } from "./test-helpers";
 
-describe("Action Plans Router", () => {
+dbDescribe("Action Plans Router", () => {
   let testUserId: number;
   let testProjectId: number;
   let testBranchId: number;
