@@ -307,7 +307,9 @@ function Breadcrumb4({
       {/* Categoria, artigo, ruleId — separadores › */}
       {[
         { label: CATEGORIA_LABELS[categoria] ?? categoria, value: categoria, color: "bg-purple-100 text-purple-700", tooltip: `Categoria: ${CATEGORIA_LABELS[categoria] ?? categoria}` },
-        { label: `Art. ${artigo}`, value: artigo, color: "bg-green-100 text-green-700", tooltip: `Artigo: ${artigo}` },
+        // Issue #1060: artigo já vem com prefixo "Art. " do backend (ex: "Art. 45 LC 214/2025")
+        // — não prepender "Art. " novamente para evitar duplicação ("Art. Art. 45 ...").
+        { label: artigo, value: artigo, color: "bg-green-100 text-green-700", tooltip: `Artigo: ${artigo}` },
         { label: ruleId, value: ruleId, color: "bg-gray-100 text-gray-600", tooltip: `Rule ID: ${ruleId}` },
       ].map((chip, i) => (
         <span key={`chip-${i}`} className="flex items-center gap-1">
@@ -1392,7 +1394,12 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
                           {CATEGORIA_LABELS[cat] ?? cat}
                         </span>
                         <span className="text-muted-foreground">·</span>
-                        <span className="text-muted-foreground">{CATEGORIA_ARTIGOS[cat] ?? ""}</span>
+                        {/* Issue #1059: artigo do primeiro risco do grupo (vem do rag_artigo_exato
+                            após Issue #1044). CATEGORIA_ARTIGOS mantido como fallback defensivo
+                            para riscos legados sem campo artigo preenchido. */}
+                        <span className="text-muted-foreground">
+                          {grouped[cat][0]?.artigo ?? CATEGORIA_ARTIGOS[cat] ?? ""}
+                        </span>
                         <span className="text-muted-foreground">·</span>
                         <span data-testid="cat-divider-count">
                           {grouped[cat].length} risco{grouped[cat].length > 1 ? "s" : ""}
@@ -1580,7 +1587,8 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
             <div className="rounded border border-border bg-muted/40 p-3 my-2">
               <p className="text-sm font-medium">{approveTarget.titulo}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                {CATEGORIA_LABELS[approveTarget.categoria] ?? approveTarget.categoria} · Art. {approveTarget.artigo}
+                {/* Issue #1060: artigo já vem com prefixo "Art. " do backend */}
+                {CATEGORIA_LABELS[approveTarget.categoria] ?? approveTarget.categoria} · {approveTarget.artigo}
               </p>
             </div>
           )}
@@ -1609,7 +1617,8 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
             <div className="rounded border border-border bg-muted/40 p-3 my-2">
               <p className="text-sm font-medium">{deleteTarget.titulo}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                {CATEGORIA_LABELS[deleteTarget.categoria] ?? deleteTarget.categoria} · Art. {deleteTarget.artigo}
+                {/* Issue #1060: artigo já vem com prefixo "Art. " do backend */}
+                {CATEGORIA_LABELS[deleteTarget.categoria] ?? deleteTarget.categoria} · {deleteTarget.artigo}
               </p>
             </div>
           )}
