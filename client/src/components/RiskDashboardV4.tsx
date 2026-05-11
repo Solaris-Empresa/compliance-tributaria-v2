@@ -107,6 +107,8 @@ interface RiskData {
   actionPlans?: { id: string; titulo: string; status: string; responsavel?: string }[];
   rag_validated?: number;
   rag_artigo_exato?: string | null;
+  // Issue #1047 — badge visual inerente vs gap detectado
+  gap_detected?: boolean;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -412,6 +414,25 @@ function RiskCard({ risk, canApprove, onDelete, onRestore, onApprove, onNewPlan,
             <Badge variant="secondary" className="text-xs">
               {URGENCIA_LABELS[risk.urgencia] ?? risk.urgencia}
             </Badge>
+            {risk.type !== "opportunity" && (
+              risk.gap_detected ? (
+                <span
+                  data-testid="gap-detected-badge"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200"
+                  title="Não-conformidade declarada pelo cliente em questionário — ação imediata"
+                >
+                  ⚠️ Gap detectado
+                </span>
+              ) : (
+                <span
+                  data-testid="inerente-badge"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200"
+                  title="Risco inerente ao perfil — cliente declarou compliance, vigilância contínua"
+                >
+                  🛡️ Risco inerente
+                </span>
+              )
+            )}
             {risk.type !== "opportunity" && (
               risk.rag_validated === 1 ? (
                 <span

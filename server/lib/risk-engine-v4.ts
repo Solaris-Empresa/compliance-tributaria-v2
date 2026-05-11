@@ -112,6 +112,29 @@ export const SOURCE_RANK: Record<Fonte, number> = {
   regulatorio: 6,
 };
 
+// Issue #1047 — fontes que indicam resposta do usuário em questionário.
+// Se gap tem essas fontes → risco vem de não-conformidade declarada (gap detectado).
+// Se gap tem fonte 'regulatorio' → risco é inerente ao perfil (inferido por arquétipo).
+const USER_QUESTIONNAIRE_FONTES: ReadonlySet<Fonte> = new Set([
+  "solaris",
+  "iagen",
+  "cnae",
+  "ncm",
+  "nbs",
+]);
+
+/**
+ * Issue #1047: determina se o risco foi gerado a partir de evidência de
+ * não-conformidade declarada pelo usuário (resposta "Não"/"Parcial" em
+ * questionário) ou se é inerente ao perfil (inferido por arquétipo).
+ *
+ * Retorna TRUE se PELO MENOS UM gap tem fonte de questionário do usuário.
+ * Retorna FALSE quando TODOS os gaps são 'regulatorio' (inferência por perfil).
+ */
+export function isGapDetected(gaps: ReadonlyArray<{ fonte: string }>): boolean {
+  return gaps.some((g) => USER_QUESTIONNAIRE_FONTES.has(g.fonte as Fonte));
+}
+
 const SEVERITY_ORDER: Record<Severity, number> = {
   alta: 0,
   media: 1,
@@ -462,6 +485,8 @@ export async function consolidateRisks(
     const confidence = calcWeightedConfidence(evidences);
     const titulo = buildLegalTitle(categoria, context);
     const bestSource = getBestSourcePriority(groupGaps);
+    // Issue #1047: gap_detected = TRUE se algum gap vem de questionário do usuário.
+    const gapDetected = isGapDetected(groupGaps);
 
     const consolidatedEvidence: ConsolidatedEvidence = {
       gaps: evidences,
@@ -490,6 +515,7 @@ export async function consolidateRisks(
       evidence_count: evidences.length,
       rag_validated: 0,
       rag_confidence: 0,
+      gap_detected: gapDetected,
       created_by: actorId,
       updated_by: actorId,
     });
