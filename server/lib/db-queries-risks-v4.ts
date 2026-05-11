@@ -86,6 +86,8 @@ export interface RiskV4Row {
   updated_at: Date;
   rag_validated: number;
   rag_artigo_exato: string | null;
+  // Issue #1047 — distinção entre risco inerente ao perfil e gap detectado
+  gap_detected: boolean;
 }
 
 export interface InsertRiskV4 {
@@ -114,6 +116,9 @@ export interface InsertRiskV4 {
   rag_trecho_legal?: string | null;
   rag_query?: string | null;
   rag_validation_note?: string | null;
+  // Issue #1047 — gap_detected: TRUE se algum gap tem fonte de questionário
+  // do usuário (solaris/iagen/cnae/ncm/nbs); FALSE se TODOS são 'regulatorio'.
+  gap_detected?: boolean;
 }
 
 export interface ActionPlanRow {
@@ -250,9 +255,11 @@ export async function insertRiskV4(data: InsertRiskV4): Promise<string> {
        created_by, updated_by,
        risk_key, operational_context, evidence_count,
        rag_validated, rag_confidence, rag_artigo_exato,
-       rag_trecho_legal, rag_query, rag_validation_note)
+       rag_trecho_legal, rag_query, rag_validation_note,
+       gap_detected)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-             ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             ?, ?, ?, ?, ?, ?, ?, ?, ?,
+             ?)`,
     [
       id,
       data.project_id,
@@ -279,6 +286,7 @@ export async function insertRiskV4(data: InsertRiskV4): Promise<string> {
       data.rag_trecho_legal ?? null,
       data.rag_query ?? null,
       data.rag_validation_note ?? null,
+      data.gap_detected ?? false,
     ]
   );
   return id;

@@ -458,7 +458,30 @@ export default function ConsolidacaoV4() {
                 <tbody>
                   {approvedRisks.map((risk: any) => (
                     <tr key={risk.id} data-testid="risk-row" className="border-b last:border-0">
-                      <td className="py-2 pr-3 font-medium max-w-[200px] truncate">{risk.titulo}</td>
+                      <td className="py-2 pr-3 font-medium max-w-[200px] truncate">
+                        <div className="flex items-center gap-1.5">
+                          <span className="truncate">{risk.titulo}</span>
+                          {risk.type !== "opportunity" && (
+                            risk.gap_detected ? (
+                              <span
+                                data-testid="gap-detected-badge"
+                                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-50 text-red-700 border border-red-200 shrink-0"
+                                title="Gap detectado — não-conformidade declarada"
+                              >
+                                ⚠️
+                              </span>
+                            ) : (
+                              <span
+                                data-testid="inerente-badge"
+                                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200 shrink-0"
+                                title="Risco inerente ao perfil"
+                              >
+                                🛡️
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </td>
                       <td className="py-2 pr-3">{CATEGORIA_LABELS[risk.categoria] ?? risk.categoria}</td>
                       <td className="py-2 pr-3">
                         <Badge variant="outline" className={SEVERITY_COLORS[risk.severidade] ?? ""}>
