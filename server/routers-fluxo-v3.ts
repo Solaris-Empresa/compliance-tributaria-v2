@@ -31,6 +31,8 @@ import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-h
 // fix #810: import estático (require dentro de sync function falha em ESM/Vitest).
 import { classifyMaturityBadge, MATURITY_BADGE_LABEL } from "./lib/briefing-quality";
 import type { ConfiancaBreakdown } from "./lib/calculate-briefing-confidence";
+// Issue #1048: detalhe de pilar Q3 (NCM/NBS) extraído para função pura testável
+import { formatQ3PilarDetalhe } from "./lib/format-confidence-breakdown";
 import mysql from "mysql2/promise";
 import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
@@ -5085,16 +5087,11 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
             detalhe = `${completudePct}%`;
           }
         } else if (p.key === "q3Produtos" || p.key === "q3Servicos") {
-          const d = p.detalhe;
+          // Issue #1048: lógica extraída para format-confidence-breakdown.ts
+          // (função pura testável). Resolve "30% (2/2 NCM)" confuso quando
+          // corpus_gap_setorial ativo — explica o motivo da baixa completude.
           const codeLabel = p.key === "q3Produtos" ? "NCM" : "NBS";
-          if (d && (d.cadastrados ?? 0) === 0) {
-            detalhe = `sem ${codeLabel} cadastrado`;
-          } else if (d) {
-            const perguntasPart = p.total != null ? ` · ${p.respostas}/${p.total} perguntas` : "";
-            detalhe = `${d.comClassificacao ?? 0}/${d.cadastrados ?? 0} ${codeLabel}${perguntasPart}`;
-          } else {
-            detalhe = p.total != null ? `${p.respostas}/${p.total} perguntas` : "sem resposta";
-          }
+          detalhe = formatQ3PilarDetalhe(p, codeLabel);
         } else {
           detalhe = p.total != null
             ? `${p.respostas}/${p.total} perguntas`
