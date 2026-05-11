@@ -12,10 +12,13 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 // Issue #1049 — fonte groups e contadores extraídos para função pura testável
+// Issue #1064 — substitui filtro multi-fonte (countRisksByFonteGroup) por filtro
+// baseado em source_priority (cada risco conta em apenas 1 grupo)
 import {
+  FONTE_GROUPS,
   type FonteGroup,
-  riskHasFonteGroup,
-  countRisksByFonteGroup,
+  countRisksBySourcePriority,
+  riskMatchesSourcePriority,
 } from "@/lib/fonte-groups";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -282,9 +285,18 @@ function Breadcrumb4({
   // Se fontes não fornecidas, usar a fonte do breadcrumb (1 elemento — compat)
   const fontesExibidas = fontes && fontes.length > 0 ? fontes : [fonte];
 
+  // Issue #1064 — cores por grupo de fonte (consistente com filtros do header).
+  // Outras fontes (cnae/ncm/nbs/inferred) mantém o azul padrão.
+  const fonteCorPorGrupo = (f: string): string => {
+    if (FONTE_GROUPS.solaris.has(f)) return "bg-purple-100 text-purple-700";
+    if (FONTE_GROUPS.regulatorio.has(f)) return "bg-blue-100 text-blue-700";
+    if (FONTE_GROUPS.iagen.has(f)) return "bg-amber-100 text-amber-700";
+    return "bg-blue-100 text-blue-700";
+  };
+
   return (
     <div className="flex items-center gap-1 flex-wrap">
-      {/* Fontes (M3.10 Fix C-bis: 1+ badges) */}
+      {/* Fontes (M3.10 Fix C-bis: 1+ badges; Issue #1064: cores por grupo) */}
       <span className="flex items-center gap-1">
         {fontesExibidas.map((f, i) => (
           <span key={`fonte-${f}-${i}`} className="flex items-center gap-1">
@@ -292,7 +304,7 @@ function Breadcrumb4({
             <Tooltip>
               <TooltipTrigger asChild>
                 <span
-                  className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-700"
+                  className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${fonteCorPorGrupo(f)}`}
                   data-testid={`risk-source-badge-${f}`}
                 >
                   {SOURCE_LABELS[f] ?? f}
@@ -1045,17 +1057,21 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
     return activeRisks
       .filter((r) => filterSeveridade === "todos" || r.severidade === filterSeveridade)
       .filter((r) => filterCategoria === "todos" || r.categoria === filterCategoria)
-      // Issue #1049 — filtro de fonte (qualquer 1 fonte do risco bate com o grupo)
+      // Issue #1064 — filtro de fonte usa source_priority (1 fonte por risco)
+      // — substitui comportamento multi-fonte da Issue #1049 / PR #1058.
+      // Soma dos contadores = total de riscos (sem dupla contagem).
       .filter((r) => {
         if (filterFonte === "todos") return true;
-        return riskHasFonteGroup(getSourceContributors(r), filterFonte);
+        return riskMatchesSourcePriority(r.source_priority, filterFonte);
       });
   }, [activeRisks, filterSeveridade, filterCategoria, filterFonte]);
 
-  // Issue #1049 — contagem de riscos por grupo de fonte (multi-fonte conta em
-  // múltiplos grupos: risco com solaris+regulatorio incrementa ambos contadores)
+  // Issue #1064 — contagem por source_priority (fonte primária, 1 por risco).
+  // Substitui countRisksByFonteGroup que olhava todos os gaps (multi-fonte).
+  // Cada risco conta em APENAS UM grupo. Para projeto #5340031:
+  //   SOLARIS(5) + Regulatório(1) + IA Gen(0) = 6 (= total de riscos) ✅
   const fonteCounts = useMemo(
-    () => countRisksByFonteGroup(activeRisks.map((r) => getSourceContributors(r))),
+    () => countRisksBySourcePriority(activeRisks),
     [activeRisks],
   );
 
