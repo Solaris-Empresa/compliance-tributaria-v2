@@ -19,6 +19,9 @@ import {
   FONTE_GROUPS,
   riskHasFonteGroup,
   countRisksByFonteGroup,
+  countRisksBySourcePriority,
+  getSourcePriorityGroup,
+  riskMatchesSourcePriority,
 } from "./fonte-groups";
 
 describe("Issue #1049 — FONTE_GROUPS mapping", () => {
@@ -187,5 +190,172 @@ describe("Issue #1049 — DoD POSITIVO + NEGATIVO", () => {
     const counts = countRisksByFonteGroup(fontes);
     // Conta como 1 risco solaris, não 2 (some retorna após 1ª match)
     expect(counts.solaris).toBe(1);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Issue #1064 — filtro por source_priority (substitui multi-fonte)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("Issue #1064 — getSourcePriorityGroup", () => {
+  it("mapeia source_priority para grupo correto", () => {
+    expect(getSourcePriorityGroup("solaris")).toBe("solaris");
+    expect(getSourcePriorityGroup("regulatorio")).toBe("regulatorio");
+    expect(getSourcePriorityGroup("iagen")).toBe("iagen");
+  });
+
+  it("reconhece aliases legados", () => {
+    expect(getSourcePriorityGroup("solaris_hardcode")).toBe("solaris");
+    expect(getSourcePriorityGroup("rag")).toBe("regulatorio");
+    expect(getSourcePriorityGroup("rag_validated")).toBe("regulatorio");
+    expect(getSourcePriorityGroup("ia_gen")).toBe("iagen");
+  });
+
+  it("retorna null para source_priority fora dos 3 grupos exibidos", () => {
+    expect(getSourcePriorityGroup("cnae")).toBeNull();
+    expect(getSourcePriorityGroup("ncm")).toBeNull();
+    expect(getSourcePriorityGroup("nbs")).toBeNull();
+    expect(getSourcePriorityGroup("inferred")).toBeNull();
+  });
+
+  it("retorna null para null/undefined/string vazia", () => {
+    expect(getSourcePriorityGroup(null)).toBeNull();
+    expect(getSourcePriorityGroup(undefined)).toBeNull();
+    expect(getSourcePriorityGroup("")).toBeNull();
+  });
+});
+
+describe("Issue #1064 — riskMatchesSourcePriority", () => {
+  it("true quando source_priority pertence ao grupo", () => {
+    expect(riskMatchesSourcePriority("solaris", "solaris")).toBe(true);
+    expect(riskMatchesSourcePriority("regulatorio", "regulatorio")).toBe(true);
+    expect(riskMatchesSourcePriority("iagen", "iagen")).toBe(true);
+  });
+
+  it("false quando source_priority pertence a outro grupo", () => {
+    expect(riskMatchesSourcePriority("solaris", "regulatorio")).toBe(false);
+    expect(riskMatchesSourcePriority("regulatorio", "iagen")).toBe(false);
+    expect(riskMatchesSourcePriority("iagen", "solaris")).toBe(false);
+  });
+
+  it("false quando source_priority é cnae/ncm/nbs (fora dos 3 grupos)", () => {
+    expect(riskMatchesSourcePriority("cnae", "solaris")).toBe(false);
+    expect(riskMatchesSourcePriority("ncm", "regulatorio")).toBe(false);
+    expect(riskMatchesSourcePriority("nbs", "iagen")).toBe(false);
+  });
+
+  it("reconhece aliases (rag → regulatorio, ia_gen → iagen)", () => {
+    expect(riskMatchesSourcePriority("rag", "regulatorio")).toBe(true);
+    expect(riskMatchesSourcePriority("rag_validated", "regulatorio")).toBe(true);
+    expect(riskMatchesSourcePriority("ia_gen", "iagen")).toBe(true);
+    expect(riskMatchesSourcePriority("solaris_hardcode", "solaris")).toBe(true);
+  });
+});
+
+describe("Issue #1064 — countRisksBySourcePriority", () => {
+  it("array vazio retorna contadores zerados", () => {
+    expect(countRisksBySourcePriority([])).toEqual({
+      solaris: 0,
+      regulatorio: 0,
+      iagen: 0,
+    });
+  });
+
+  it("cada risco conta em apenas 1 grupo (sem dupla contagem)", () => {
+    const counts = countRisksBySourcePriority([
+      { source_priority: "solaris" },
+      { source_priority: "solaris" },
+      { source_priority: "regulatorio" },
+    ]);
+    expect(counts).toEqual({ solaris: 2, regulatorio: 1, iagen: 0 });
+  });
+
+  it("caso canônico #5340031 — soma dos contadores = total de riscos", () => {
+    // 6 riscos: 5 solaris + 1 regulatorio + 0 iagen
+    const risks = [
+      { source_priority: "solaris" },
+      { source_priority: "solaris" },
+      { source_priority: "solaris" },
+      { source_priority: "solaris" },
+      { source_priority: "solaris" },
+      { source_priority: "regulatorio" },
+    ];
+    const counts = countRisksBySourcePriority(risks);
+    expect(counts).toEqual({ solaris: 5, regulatorio: 1, iagen: 0 });
+    // Soma = total
+    expect(counts.solaris + counts.regulatorio + counts.iagen).toBe(risks.length);
+  });
+
+  it("riscos com source_priority fora dos 3 grupos NÃO entram nos contadores", () => {
+    const risks = [
+      { source_priority: "solaris" },
+      { source_priority: "cnae" },     // fora
+      { source_priority: "ncm" },      // fora
+      { source_priority: "nbs" },      // fora
+      { source_priority: "inferred" }, // fora
+    ];
+    const counts = countRisksBySourcePriority(risks);
+    expect(counts).toEqual({ solaris: 1, regulatorio: 0, iagen: 0 });
+    // Total dos 3 grupos < total de riscos quando há fontes fora
+    expect(counts.solaris + counts.regulatorio + counts.iagen).toBeLessThan(risks.length);
+  });
+
+  it("aliases legados são contados corretamente", () => {
+    const counts = countRisksBySourcePriority([
+      { source_priority: "solaris_hardcode" },
+      { source_priority: "rag" },
+      { source_priority: "rag_validated" },
+      { source_priority: "ia_gen" },
+    ]);
+    expect(counts).toEqual({ solaris: 1, regulatorio: 2, iagen: 1 });
+  });
+
+  it("null/undefined em source_priority não infla contadores", () => {
+    const counts = countRisksBySourcePriority([
+      { source_priority: null },
+      { source_priority: undefined },
+      { source_priority: "solaris" },
+    ]);
+    expect(counts).toEqual({ solaris: 1, regulatorio: 0, iagen: 0 });
+  });
+});
+
+describe("Issue #1064 — DoD POSITIVO + NEGATIVO", () => {
+  it("DoD POSITIVO: soma dos contadores nunca excede total de riscos", () => {
+    const cenarios = [
+      [{ source_priority: "solaris" }],
+      [{ source_priority: "regulatorio" }, { source_priority: "iagen" }],
+      [
+        { source_priority: "solaris" },
+        { source_priority: "solaris" },
+        { source_priority: "regulatorio" },
+      ],
+    ];
+    for (const risks of cenarios) {
+      const counts = countRisksBySourcePriority(risks);
+      const total = counts.solaris + counts.regulatorio + counts.iagen;
+      expect(total).toBeLessThanOrEqual(risks.length);
+    }
+  });
+
+  it("DoD NEGATIVO: regressão proibida — multi-fonte NÃO conta em múltiplos grupos", () => {
+    // Cenário onde o comportamento ANTIGO contaria errado:
+    // 1 risco com source_priority='solaris' (mas tem gaps regulatorio + iagen
+    // em evidence.gaps[*].fonte).
+    // Comportamento NOVO: conta APENAS em solaris.
+    const counts = countRisksBySourcePriority([{ source_priority: "solaris" }]);
+    expect(counts.solaris).toBe(1);
+    expect(counts.regulatorio).toBe(0);
+    expect(counts.iagen).toBe(0);
+  });
+
+  it("DoD POSITIVO: caso canônico #5340031 — 5+1+0 = 6 (total)", () => {
+    const risks = Array.from({ length: 5 }, () => ({ source_priority: "solaris" }))
+      .concat([{ source_priority: "regulatorio" }]);
+    const counts = countRisksBySourcePriority(risks);
+    expect(counts.solaris).toBe(5);
+    expect(counts.regulatorio).toBe(1);
+    expect(counts.iagen).toBe(0);
+    expect(counts.solaris + counts.regulatorio + counts.iagen).toBe(6);
   });
 });
