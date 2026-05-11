@@ -25,6 +25,7 @@ import {
   solarisQuestions, InsertSolarisQuestion, SolarisQuestion,
   solarisAnswers, InsertSolarisAnswer, SolarisAnswer,
   iagenAnswers, InsertIagenAnswer, IagenAnswer,
+  questionnaireAnswersV3,
   projectStatusLog, InsertProjectStatusLog,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -1510,5 +1511,28 @@ export async function countOnda2Answers(projectId: number): Promise<number> {
     .select({ count: sql<number>`COUNT(*)` })
     .from(iagenAnswers)
     .where(eq(iagenAnswers.projectId, projectId));
+  return Number(result[0]?.count ?? 0);
+}
+
+/**
+ * Issue #1062 — COUNT real de respostas QCNAE em questionnaireAnswersV3.
+ *
+ * Substitui leitura do flag `projects.diagnosticStatus.cnae` (que ficava
+ * dessincronizado pelo gate de progressão do stepper legado em
+ * completeDiagnosticLayer — regra que não se aplica ao fluxo V3).
+ *
+ * Schema questionnaireAnswersV3 (drizzle/schema.ts:1209) só armazena
+ * respostas CNAE especializadas (cnaeCode obrigatório). Sem coluna
+ * `source` — filtrar por projectId é suficiente.
+ *
+ * Padrão idêntico a countOnda1Answers / countOnda2Answers.
+ */
+export async function countCnaeAnswersV3(projectId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(questionnaireAnswersV3)
+    .where(eq(questionnaireAnswersV3.projectId, projectId));
   return Number(result[0]?.count ?? 0);
 }
