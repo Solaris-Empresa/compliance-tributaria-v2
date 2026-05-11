@@ -11,6 +11,12 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+// Issue #1049 — fonte groups e contadores extraídos para função pura testável
+import {
+  type FonteGroup,
+  riskHasFonteGroup,
+  countRisksByFonteGroup,
+} from "@/lib/fonte-groups";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -732,6 +738,8 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   // ── State ─────────────────────────────────────────────────────────────────
   const [filterSeveridade, setFilterSeveridade] = useState<string>("todos");
   const [filterCategoria, setFilterCategoria] = useState<string>("todos");
+  // Issue #1049 — filtro/contador por fonte (toggle: clique repetido volta a "todos")
+  const [filterFonte, setFilterFonte] = useState<"todos" | "solaris" | "regulatorio" | "iagen">("todos");
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [approveTarget, setApproveTarget] = useState<RiskData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<RiskData | null>(null);
@@ -1034,8 +1042,20 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   const filteredRisks = useMemo(() => {
     return activeRisks
       .filter((r) => filterSeveridade === "todos" || r.severidade === filterSeveridade)
-      .filter((r) => filterCategoria === "todos" || r.categoria === filterCategoria);
-  }, [activeRisks, filterSeveridade, filterCategoria]);
+      .filter((r) => filterCategoria === "todos" || r.categoria === filterCategoria)
+      // Issue #1049 — filtro de fonte (qualquer 1 fonte do risco bate com o grupo)
+      .filter((r) => {
+        if (filterFonte === "todos") return true;
+        return riskHasFonteGroup(getSourceContributors(r), filterFonte);
+      });
+  }, [activeRisks, filterSeveridade, filterCategoria, filterFonte]);
+
+  // Issue #1049 — contagem de riscos por grupo de fonte (multi-fonte conta em
+  // múltiplos grupos: risco com solaris+regulatorio incrementa ambos contadores)
+  const fonteCounts = useMemo(
+    () => countRisksByFonteGroup(activeRisks.map((r) => getSourceContributors(r))),
+    [activeRisks],
+  );
 
   // KPI summary
   const byCategory = activeRisks.reduce<Record<string, number>>((acc, r) => {
@@ -1217,6 +1237,51 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
                     {showAllCategories ? "−menos" : `+${categoryDistribution.length - 5} mais`}
                   </button>
                 )}
+              </div>
+            )}
+            {/* Issue #1049 — Filtro/contador por fonte (toggle) */}
+            {(fonteCounts.solaris + fonteCounts.regulatorio + fonteCounts.iagen) > 0 && (
+              <div
+                className="flex items-center gap-1.5 flex-wrap"
+                data-testid={filterFonte === "todos" ? undefined : "fonte-filter-active"}
+              >
+                <span className="text-xs text-muted-foreground mr-1">Fonte:</span>
+                {(["solaris", "regulatorio", "iagen"] as const).map((grupo) => {
+                  const count = fonteCounts[grupo];
+                  if (count === 0) return null;
+                  const active = filterFonte === grupo;
+                  const label =
+                    grupo === "solaris"
+                      ? "SOLARIS"
+                      : grupo === "regulatorio"
+                        ? "Regulatório"
+                        : "IA Gen";
+                  const activeColor =
+                    grupo === "solaris"
+                      ? "bg-purple-600 text-white border-purple-600"
+                      : grupo === "regulatorio"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-amber-600 text-white border-amber-600";
+                  return (
+                    <button
+                      key={grupo}
+                      data-testid={`fonte-filter-${grupo}`}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                        active
+                          ? activeColor
+                          : "bg-background text-muted-foreground border-border hover:border-foreground/50"
+                      }`}
+                      title={
+                        active
+                          ? `Clique para limpar filtro (mostrando apenas ${label})`
+                          : `Filtrar por fonte ${label}`
+                      }
+                      onClick={() => setFilterFonte(active ? "todos" : grupo)}
+                    >
+                      {label} ({count})
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
