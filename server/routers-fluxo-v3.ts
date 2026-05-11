@@ -1982,9 +1982,13 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       };
       const productAnswersLen = parseJsonArr((project as any).productAnswers).length;
       const serviceAnswersLen = parseJsonArr((project as any).serviceAnswers).length;
-      // QCNAE answers — consultamos briefingStructured ou o flag genérico do diagnosticStatus
-      const diagStatus: any = (project as any).diagnosticStatus ?? {};
-      const cnaeAnswered = diagStatus?.cnae === "completed";
+      // Issue #1062: COUNT real em questionnaireAnswersV3 (fonte da verdade).
+      // ANTES: lia diagnosticStatus.cnae === "completed" — flag dessincronizado
+      // pelo gate de progressão do stepper legado em completeDiagnosticLayer.
+      // Resultado bugado: 12 respostas CNAE persistidas mas modal exibia ❌.
+      // Agora uniforme com solarisCount / iagenCount (COUNT real do banco).
+      const cnaeCount = await db.countCnaeAnswersV3(input.projectId);
+      const cnaeAnswered = cnaeCount > 0;
 
       const answeredSources: string[] = [];
       const missingSources: string[] = [];
