@@ -1,4 +1,4 @@
-# Auditoria de Fim de Sessão — v7.66 (Sprint P2 encerramento)
+# Auditoria de Fim de Sessão — v7.67 (Sprint P2 encerramento)
 
 **Data:** 2026-05-12
 **Sessão:** P2 pós-incidente projeto #5040001 (2026-05-09 → 2026-05-12)

@@ -1,12 +1,12 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint
-> **v7.66 · 2026-05-12 (Sprint P2 ENCERRADA — HEAD `14d70a4` · 11 PRs mergeados · E2E #5490001 🟢 confirmado P.O. 2026-05-11 · QCNAE/IS/badges/payload todos validados · próxima: curadoria corpus setorial Capítulo 23)**
+> **v7.67 · 2026-05-12 (Sprint P2 ENCERRADA — HEAD `14d70a4` · 11 PRs mergeados · E2E #5490001 🟢 confirmado P.O. 2026-05-11 · QCNAE/IS/badges/payload todos validados · próxima: curadoria corpus setorial Capítulo 23)**
 > **Predecessor:** v7.65 · 2026-05-05 (Encerramento sessão M3.10 — HEAD `5725a89`)
 
-## Sessão v7.66 (2026-05-09 → 2026-05-12) — Sprint P2 encerrada · validação E2E #5490001 🟢
+## Sessão v7.67 (2026-05-09 → 2026-05-12) — Sprint P2 encerrada · validação E2E #5490001 🟢
 
 **HEAD main:** `14d70a4` (PR #1067 merged)
-**Audit arquivado:** `docs/governance/audits/v7.66-2026-05-12-sprint-p2-encerramento.md`
+**Audit arquivado:** `docs/governance/audits/v7.67-2026-05-12-sprint-p2-encerramento.md`
 
 ### Trigger REGRA-ORQ-19
 
@@ -72,8 +72,8 @@ Sugestões de prioridade:
 ### Sincronização P0/P1 + Skills
 
 - [x] `docs/governance/ESTADO-ATUAL.md` — atualizado (este bloco)
-- [x] `docs/governance/AUDITORIA-FIM-DE-SESSAO-LATEST.md` — atualizado (link para v7.66)
-- [x] `docs/governance/audits/v7.66-2026-05-12-sprint-p2-encerramento.md` — criado
+- [x] `docs/governance/AUDITORIA-FIM-DE-SESSAO-LATEST.md` — atualizado (link para v7.67)
+- [x] `docs/governance/audits/v7.67-2026-05-12-sprint-p2-encerramento.md` — criado
 - [ ] `docs/BASELINE-PRODUTO.md` — não atualizado (aguarda Manus passos 1/4/6 do audit)
 - [ ] Skills — não atualizadas (sem novas REGRAs emergiram; lições aprendidas registradas no audit)
 
