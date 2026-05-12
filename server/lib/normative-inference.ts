@@ -39,15 +39,38 @@ interface NormativeRule {
 }
 
 // CNAEs do setor alimentar (atacado/distribuição)
-const CNAES_ALIMENTAR = new Set([
+// CORPUS-RFC-006 A4: adicionado "4623-1/09" (Comércio Atacadista de Alimentos
+// para Animais — farelos de soja, rações). Caso canônico #5040001/#5460001.
+// Exportado para teste isolado (CORPUS-RFC-006 — função pura).
+export const CNAES_ALIMENTAR: ReadonlySet<string> = new Set([
   "4639-7/01", "4632-0/01", "4631-1/00", "4634-6/01", "4635-4/01",
+  "4623-1/09",
 ]);
 
 // CNAEs atacadistas
-const CNAES_ATACADISTA = new Set([
+// CORPUS-RFC-006 A4: adicionado "4623-1/09" (consistência com CNAES_ALIMENTAR).
+// Exportado para teste isolado (CORPUS-RFC-006 — função pura).
+export const CNAES_ATACADISTA: ReadonlySet<string> = new Set([
   "4639-7/01", "4632-0/01", "4631-1/00", "4634-6/01", "4635-4/01",
   "4637-1/07", "4633-8/01", "4636-2/02",
+  "4623-1/09",
 ]);
+
+/**
+ * CORPUS-RFC-006 A4 — exportado para teste isolado (função pura).
+ * Verifica se algum CNAE do projeto está na lista de alimentares.
+ */
+export function hasAlimentarCnaeFn(cnaes: string[]): boolean {
+  return cnaes.some((c) => CNAES_ALIMENTAR.has(c));
+}
+
+/**
+ * CORPUS-RFC-006 A4 — exportado para teste isolado (função pura).
+ * Verifica se algum CNAE do projeto está na lista de atacadistas.
+ */
+export function hasAtacadistaCnaeFn(cnaes: string[]): boolean {
+  return cnaes.some((c) => CNAES_ATACADISTA.has(c));
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

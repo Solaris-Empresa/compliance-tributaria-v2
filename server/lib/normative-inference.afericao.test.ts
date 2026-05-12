@@ -21,18 +21,20 @@ const source = readFileSync(
 );
 
 describe("afericao — CNAES hardcoded (snapshot §18.4)", () => {
-  it("CNAES_ALIMENTAR tem exatamente 5 CNAEs", () => {
+  // CORPUS-RFC-006 A4 (2026-05-12): adicionado "4623-1/09" em ambos os Sets.
+  // Tamanhos esperados: ALIMENTAR=6 (5+1), ATACADISTA=9 (8+1).
+  it("CNAES_ALIMENTAR tem exatamente 6 CNAEs (5 originais + 4623-1/09 [A4])", () => {
     const match = source.match(/CNAES_ALIMENTAR[\s\S]*?new Set\(\[([\s\S]*?)\]\)/);
     expect(match).toBeTruthy();
     const ids = (match?.[1] ?? "").match(/"[\d\-\/]+"/g) ?? [];
-    expect(ids).toHaveLength(5);
+    expect(ids).toHaveLength(6);
   });
 
-  it("CNAES_ATACADISTA tem 8 CNAEs (5 alimentar + 3 adicionais)", () => {
+  it("CNAES_ATACADISTA tem 9 CNAEs (8 originais + 4623-1/09 [A4])", () => {
     const match = source.match(/CNAES_ATACADISTA[\s\S]*?new Set\(\[([\s\S]*?)\]\)/);
     expect(match).toBeTruthy();
     const ids = (match?.[1] ?? "").match(/"[\d\-\/]+"/g) ?? [];
-    expect(ids).toHaveLength(8);
+    expect(ids).toHaveLength(9);
   });
 
   it("RI-08: CNAES_ALIMENTAR ⊂ CNAES_ATACADISTA", () => {

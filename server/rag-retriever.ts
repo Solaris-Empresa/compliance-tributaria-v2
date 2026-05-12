@@ -179,19 +179,27 @@ async function fetchCandidates(
   }));
 }
 
-// ─── Issue #997: Two-Pass Retrieval CNAE-aware ─────────────────────────────────
+// ─── Issue #997 + CORPUS-RFC-006: Three-Pass Retrieval CNAE-aware + NCM ────────
 //
-// Decisão F1 P.O. 2026-05-06 (Síntese Final v2). Resolve ranking gap
-// identificado pela auditoria Manus: chunks setoriais (Art. 128-260 LC 214 +
-// Anexos) existem no corpus mas o LIMIT 20 + LIKE genérico de fetchCandidates
-// nunca os entregava ao LLM re-ranker.
+// Issue #997 (2026-05-06): Two-Pass com LIMIT 10 cada → max 20 candidatos.
+// CORPUS-RFC-006 Sprint 0 (2026-05-12): ampliação para Three-Pass + LIMIT 20.
 //
-// Pass 1 (genérico): fetchCandidates com LIMIT 10 (mantém comportamento atual,
-//                    apenas reduzido de 20 → 10 para dividir o pool).
-// Pass 2 (setorial CNAE-aware): fetchSetorialCandidates com LIMIT 10.
+// Root cause endereçado: chunks setoriais (Art. 128-260 LC 214 + Anexos) e
+// Anexo IX (NCMs exatos) existiam no corpus mas o LIMIT 10 por pass + LIKE
+// genérico do Pass 1 nunca os entregavam ao LLM re-ranker quando boundary CNAE
+// trazia outros chunks setoriais à frente. Caso #5040001: CNAE 4623-1/09 +
+// NCM 2304/2306 → Art. 128-134 (saúde) ocupavam slots 1-7, Art. 138 (insumos
+// agropecuários) em posição 11 era excluído → corpus_gap_setorial.
+//
+// Pass 1 (genérico): fetchCandidates LIMIT 20 (CORPUS-RFC-006 D4 — era 10).
+// Pass 2 (setorial CNAE-aware): fetchSetorialCandidates LIMIT 20 (D4 — era 10).
 //   - Filtro artigo: REGEXP_SUBSTR(artigo, '[0-9]+') BETWEEN 128 AND 260 OR Anexo%
 //   - Filtro cnaeGroups boundary-aware (evita falso-positivo universais)
-// Merge dedup por anchor_id → até 20 candidatos → LLM re-rank → topK.
+// Pass 3 (NCM-targeted — CORPUS-RFC-006 P3): fetchNcmCandidates LIMIT 5/NCM × 3 NCMs.
+//   - Extrai NCMs do contextQuery (regex \b\d{4}(?:\.\d{2})?\b)
+//   - LIKE em conteudo + topicos
+//   - Respeita leiFilter (consistência com Pass 1 e Pass 2)
+// Merge dedup por anchor_id → até 55 candidatos únicos → LLM re-rank → topK.
 
 /**
  * Detecta se um chunk pertence à faixa setorial (regimes diferenciados).
@@ -300,25 +308,107 @@ async function fetchSetorialCandidates(
 }
 
 /**
- * Merge Pass 1 + Pass 2 com dedup por anchor_id (preserva ordem do primeiro).
+ * Merge Pass 1 + Pass 2 + Pass 3 com dedup por anchor_id (preserva ordem do primeiro).
  *
- * Chunks com anchor_id idêntico aparecendo em ambos passes só entram uma vez.
+ * Chunks com anchor_id idêntico aparecendo em múltiplos passes só entram uma vez.
  * Chunks sem anchor_id (legacy) são deduplicados por chave composta
  * `lei-artigo-titulo[:50]`.
+ *
+ * CORPUS-RFC-006: pass3 é opcional para retrocompat com callers existentes.
  */
 export function mergeAndDedup(
   pass1: RetrievedArticle[],
   pass2: RetrievedArticle[],
+  pass3: RetrievedArticle[] = [],
 ): RetrievedArticle[] {
   const seen = new Set<string>();
   const merged: RetrievedArticle[] = [];
-  for (const art of [...pass1, ...pass2]) {
+  for (const art of [...pass1, ...pass2, ...pass3]) {
     const key = art.anchorId ?? `${art.lei}-${art.artigo}-${art.titulo.slice(0, 50)}`;
     if (seen.has(key)) continue;
     seen.add(key);
     merged.push(art);
   }
   return merged;
+}
+
+/**
+ * Extrai códigos NCM do contextQuery via regex.
+ *
+ * NCM é numérico de 4-8 dígitos. Aceita:
+ *   - 4 dígitos: "2304" (heading)
+ *   - 6 dígitos com ponto: "2304.00" (subheading)
+ *   - 8 dígitos: "23040010" ou "2304.00.10" (item completo)
+ *
+ * Boundary `\b` evita capturar anos ("2026") ou parte de outros números.
+ * Padrão deliberadamente conservador: \d{4}(?:\.\d{2})? — 4 dígitos +
+ * subheading opcional. Coincide com convenção interna do projeto.
+ *
+ * CORPUS-RFC-006 P3 — exportada para teste isolado.
+ */
+export function extractNcmsFromContext(contextQuery: string): string[] {
+  const matches = contextQuery.match(/\b\d{4}(?:\.\d{2})?\b/g) ?? [];
+  // Dedup mantendo ordem de primeira ocorrência
+  return Array.from(new Set(matches));
+}
+
+/**
+ * Pass 3 NCM-Targeted: garante que chunks com NCMs exatos (Anexo IX)
+ * entrem no pool de candidatos.
+ *
+ * Estratégia: extrai NCMs do contextQuery, faz LIKE em `conteudo` e `topicos`
+ * para cada NCM (até 3 primeiros), limite 5 chunks por NCM = até 15 candidatos
+ * totais. Respeita leiFilter para consistência com Pass 1 e Pass 2.
+ *
+ * Falha silenciosa: erro de DB retorna [] (Pass 3 é enrichment).
+ *
+ * CORPUS-RFC-006 P3 — Sprint 0.
+ */
+async function fetchNcmCandidates(
+  contextQuery: string,
+  leiFilter?: string[],
+): Promise<RetrievedArticle[]> {
+  const ncms = extractNcmsFromContext(contextQuery).slice(0, 3);
+  if (ncms.length === 0) return [];
+
+  const dbConn = await getDb();
+  if (!dbConn) return [];
+
+  const leiCond = (leiFilter && leiFilter.length > 0)
+    // @ts-expect-error enum-narrowing
+    ? inArray(ragDocuments.lei, leiFilter)
+    : undefined;
+
+  const results: RetrievedArticle[] = [];
+
+  for (const ncm of ncms) {
+    try {
+      const ncmCond = or(
+        like(ragDocuments.conteudo, `%${ncm}%`),
+        like(ragDocuments.topicos, `%${ncm}%`),
+      );
+      const finalCond = leiCond ? and(ncmCond, leiCond) : ncmCond;
+      const rows = await dbConn
+        .select()
+        .from(ragDocuments)
+        .where(finalCond)
+        .limit(5);
+      for (const r of rows) {
+        results.push({
+          lei: r.lei,
+          artigo: r.artigo,
+          titulo: r.titulo,
+          conteudo: r.conteudo,
+          anchorId: r.anchor_id ?? undefined,
+        });
+      }
+    } catch {
+      // Pass 3 é enrichment — falha de um NCM não bloqueia os outros
+      continue;
+    }
+  }
+
+  return results;
 }
 
 /**
@@ -410,15 +500,15 @@ function formatContextText(articles: RetrievedArticle[]): string {
 /**
  * Função principal: recupera artigos relevantes para um contexto empresarial
  *
- * Issue #997 (Two-Pass Retrieval CNAE-aware):
- *   Pass 1 genérico (LIMIT 10) + Pass 2 setorial CNAE-aware (LIMIT 10)
- *   → merge dedup → até 20 candidatos → LLM re-rank → topK.
+ * Issue #997 + CORPUS-RFC-006 (Three-Pass Retrieval CNAE-aware + NCM):
+ *   Pass 1 genérico (LIMIT 20) + Pass 2 setorial CNAE-aware (LIMIT 20)
+ *   + Pass 3 NCM-targeted (até 15) → merge dedup → até 55 candidatos
+ *   → LLM re-rank → topK.
  *
  * Backward-compat: quando `skipSetorialPass=true` (default `false`), o Pass 2
- * é pulado e o comportamento equivale ao retriever pré-Issue #997 (LIMIT 10
- * em vez de LIMIT 20). Útil quando archetype está ausente — não há grupos
- * CNAE para filtrar setorialmente. Caller pode optar por preservar LIMIT 20
- * em chamadas legadas via `skipSetorialPass=true` + ajuste manual do limit.
+ * é pulado. Pass 3 NCM-targeted continua ativo (não depende de archetype CNAE).
+ * Útil quando archetype está ausente — não há grupos CNAE para filtrar
+ * setorialmente, mas NCMs podem estar no contextQuery.
  *
  * @param cnaes             - Lista de CNAEs da empresa
  * @param contextQuery      - Texto descrevendo o contexto (regime, operações, etc.)
@@ -439,17 +529,27 @@ export async function retrieveArticles(
   const keywords = extractKeywords(contextQuery);
   const cnaeGroups = extractCnaeGroups(cnaes);
 
-  // Pass 1 genérico (LIMIT 10) — comportamento atual reduzido para deixar
-  // espaço para Pass 2 setorial.
-  const pass1Candidates = await fetchCandidates(cnaes, keywords, 10, leiFilter);
+  // CORPUS-RFC-006 D4: Pass 1 e Pass 2 ampliados de LIMIT 10 → LIMIT 20 cada.
+  // Motivação: Art. 138 (insumos agropecuários) aparecia na posição 11 quando
+  // boundary CNAE "46" trazia Art. 128-134 (saúde) consumindo slots 1-7. Com
+  // LIMIT 10 o chunk era excluído antes do rerank → corpus_gap_setorial.
+  // Pool pós-dedup passa de até 20 para até 40 candidatos antes do Pass 3.
 
-  // Pass 2 setorial CNAE-aware (LIMIT 10) — Issue #997 AC1.
+  // Pass 1 genérico — LIMIT 20 (CORPUS-RFC-006 D4).
+  const pass1Candidates = await fetchCandidates(cnaes, keywords, 20, leiFilter);
+
+  // Pass 2 setorial CNAE-aware — LIMIT 20 (CORPUS-RFC-006 D4) — Issue #997 AC1.
   const pass2Candidates = skipSetorialPass
     ? []
-    : await fetchSetorialCandidates(cnaeGroups, 10, leiFilter);
+    : await fetchSetorialCandidates(cnaeGroups, 20, leiFilter);
 
-  // Merge dedup por anchor_id → até 20 candidatos mistos.
-  const candidates = mergeAndDedup(pass1Candidates, pass2Candidates);
+  // CORPUS-RFC-006 P3: Pass 3 NCM-Targeted — garante que chunks Anexo IX (com
+  // NCMs exatos embutidos) entrem no pool. Extrai até 3 NCMs do contextQuery
+  // (4 dígitos com sub-classificação opcional) e busca via LIKE em conteudo/topicos.
+  const pass3Candidates = await fetchNcmCandidates(contextQuery, leiFilter);
+
+  // Merge dedup por anchor_id → até 55 candidatos únicos (20 + 20 + 15).
+  const candidates = mergeAndDedup(pass1Candidates, pass2Candidates, pass3Candidates);
 
   // Re-ranking via LLM
   const topArticles = await rerankWithLLM(candidates, contextQuery, topK);
