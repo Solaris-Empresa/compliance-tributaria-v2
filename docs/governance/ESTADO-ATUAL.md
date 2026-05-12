@@ -1,7 +1,90 @@
 # Estado Atual — IA SOLARIS
 > Atualizado pelo Manus ao fechar cada sprint
-> **v7.65 · 2026-05-05 (Encerramento de sessão M3.10 — HEAD `5725a89` · 3 PRs mergeados · E2E Q.Servico produção 🟢 confirmado · 3 issues abertas tech debt · próxima sessão: Q.Produto soja)**
-> **Predecessor:** v7.64 · 2026-05-05 (Sprint M3.10 AUDIT DUAL — HEAD `1a31ed1`)
+> **v7.67 · 2026-05-12 (Sprint P2 ENCERRADA — HEAD `14d70a4` · 11 PRs mergeados · E2E #5490001 🟢 confirmado P.O. 2026-05-11 · QCNAE/IS/badges/payload todos validados · próxima: curadoria corpus setorial Capítulo 23)**
+> **Predecessor:** v7.65 · 2026-05-05 (Encerramento sessão M3.10 — HEAD `5725a89`)
+
+## Sessão v7.67 (2026-05-09 → 2026-05-12) — Sprint P2 encerrada · validação E2E #5490001 🟢
+
+**HEAD main:** `14d70a4` (PR #1067 merged)
+**Audit arquivado:** `docs/governance/audits/v7.67-2026-05-12-sprint-p2-encerramento.md`
+
+### Trigger REGRA-ORQ-19
+
+**11 PRs mergeados** na sessão (≥3 — gatilho atendido):
+- #1051/#1052/#1053 — Triade ORQ-28 do #1044 (rag_artigo_exato Opção B)
+- #1054 — `c608fde` — fix(#1045): NO_QUESTION protocol enquadramento_geral
+- #1055 — `eb408aa` — fix(#1046): IS condicionado a Art. 393 §1º LC 214/2025
+- #1056 — `2509e53` — feat(#1047): gap_detected + badge Inerente vs Gap detectado
+- #1057 — `a5395fe` — fix(#1048): label briefing corpus_gap_setorial
+- #1058 — `967647f` — feat(#1049): filtro fonte /riscos (substituído pelo #1065)
+- #1061 — `e1c8438` — fix(#1059,#1060): header artigo hardcoded + double Art. prefix
+- #1063 — `c12a28e` — fix(#1062): QCNAE modal COUNT real
+- #1065 — `4083827` — feat(#1064): filtro source_priority + badges (substitui #1058)
+- #1067 — `14d70a4` — fix(#1066): QuestionarioV3 reconcilia cnaeProgress (causa raiz)
+
+### E2E em produção (projeto #5490001) — 🟢 PASS
+
+Validação completa pelo P.O. (Uires Tapajós) em 2026-05-11:
+
+| Componente | Resultado |
+|---|---|
+| QCNAE modal | "respondido" ✅ |
+| QCNAE confidence | 17/17 perguntas (100%) — 10+7 nos 2 CNAEs |
+| Confiança briefing | 84% (38/45 — fórmula correta) |
+| Perfil da Entidade | Confirmado · 100/100 · E2E Liberado |
+| Riscos gerados | 6 (3 Alta + 3 Média) — todos RAG ✓ |
+| Oportunidades | 2 (Alíquota Reduzida Art. 24 + Crédito Presumido Art. 58) |
+| Planos de ação | 6 aprovados · 19 tarefas |
+| Consolidação | Score 65/100 (Alta Exposição) |
+| **IS ausente** (NCMs 2306/2304) | ✅ Fix #1046 — nenhum risco IS gerado |
+| Artigos corretos | Art. 45, 213, 9, 6-12, 102, 29 — Fix #1044 |
+| Badges multi-fonte | "IA Gen + Regulatório + Solaris" — Fix #1064 |
+| corpus_gap_setorial UX | "Diagnóstico setorial em validação" — Fix #1048 |
+| V-10-FALLBACK | 3 informativos (não-bloqueantes) |
+
+### Tests locais — 🟢 179/179 PASS
+
+8 novas suites de teste (REGRA-ORQ-28 Artefato 2 para Triade #1044, + 7 issues subsequentes com função pura testada):
+
+- `rag-risk-validator-artigo-principal.test.ts` (33 tests — Triade #1044)
+- `issue-1045-no-question-enquadramento-geral.test.ts` (11 tests)
+- `issue-1046-is-filtro-art393.test.ts` (27 tests)
+- `issue-1047-gap-detected.test.ts` (20 tests)
+- `issue-1048-corpus-gap-setorial-label.test.ts` (16 tests)
+- `issue-1062-cnae-count.test.ts` (11 tests)
+- `client/src/lib/fonte-groups.test.ts` (43 tests — #1049/#1064)
+- `client/src/lib/cnae-progress-reconciliation.test.ts` (18 tests — #1066)
+
+### Tech debt residual (não-bloqueante)
+
+- **Curadoria corpus setorial Capítulo 23** — confiança máxima 91% para empresas com NCMs in natura (farelos de soja). Requer advogado tributarista para criar perguntas operacionais com `lei_ref + artigo_ref` validados (REGRA-ORQ-29).
+- **Score de exposição com peso diferenciado** para `gap_detected = false` (Issue #1047 deixou campo pronto — needs-po-decision)
+- **Filtro `inferred` em source_priority** — riscos inferidos por normative-inference ficam fora dos 3 grupos do filtro de fonte. Pode ser intencional ou backlog.
+- **`completeDiagnosticLayer` (L2947) gate de progressão obsoleto** + try/catch silencioso (L850) — fix arquitetural separado, tech debt registrado em #1062
+
+### Próxima sessão (decisão P.O.)
+
+Sugestões de prioridade:
+1. Curadoria corpus setorial Capítulo 23 (impacto maior — destrava 84% → 91% para clientes de farelos)
+2. Score de exposição (impacto médio — refinamento da UX da matriz)
+3. Tech debts arquiteturais (impacto baixo — limpeza de código)
+
+### Sincronização P0/P1 + Skills
+
+- [x] `docs/governance/ESTADO-ATUAL.md` — atualizado (este bloco)
+- [x] `docs/governance/AUDITORIA-FIM-DE-SESSAO-LATEST.md` — atualizado (link para v7.67)
+- [x] `docs/governance/audits/v7.67-2026-05-12-sprint-p2-encerramento.md` — criado
+- [ ] `docs/BASELINE-PRODUTO.md` — não atualizado (aguarda Manus passos 1/4/6 do audit)
+- [ ] Skills — não atualizadas (sem novas REGRAs emergiram; lições aprendidas registradas no audit)
+
+### Padrões validados nesta sessão
+
+- **Triade ORQ-28** — funciona para P0, overhead alto para P2 (3 PRs para 1 fix)
+- **Função pura extraída para teste** — replicado 8x sem regressões
+- **REGRA-ORQ-35** com Q1-Q4 no PR body — evita retrabalho
+- **`git diff origin/main...HEAD --name-only` antes de push** — pegou escopo errado em PR #1050 → recriação limpa #1051
+
+---
 
 ## Sessão v7.65 (2026-05-05) — Encerramento M3.10 + E2E Q.Servico · próxima Q.Produto
 
