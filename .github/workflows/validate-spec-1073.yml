@@ -1,0 +1,30 @@
+name: Validate Spec — Jina Reranker (CORPUS-RFC-007 / Issue #1073)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+jobs:
+  validate-contracts:
+    # Gate: só executa quando PR tem label 1073-impl
+    # (padrão do projeto — mesmo mecanismo de validate-spec-1044.yml)
+    if: contains(github.event.pull_request.labels.*.name, '1073-impl')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - name: Run Jina Reranker contracts
+        run: npx vitest run server/lib/__tests__/jina-reranker.test.ts --forceExit
+      - name: Verify zero it.todo remaining
+        run: |
+          TODO_COUNT=$(grep -c "it\.todo" server/lib/__tests__/jina-reranker.test.ts || true)
+          if [ "$TODO_COUNT" -gt "0" ]; then
+            echo "❌ $TODO_COUNT it.todo() ainda presentes — implementação incompleta"
+            exit 1
+          fi
+          echo "✅ Zero it.todo() — todos os contratos implementados"
