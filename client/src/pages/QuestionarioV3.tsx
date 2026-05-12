@@ -17,6 +17,11 @@ import FlowStepper from "@/components/FlowStepper";
 import { statusToCompletedStep } from "@/lib/flowStepperUtils";
 // Issue #1010 (Wave 2): banner para CNAEs sem cobertura legal específica
 import CnaeGapBanner from "@/components/CnaeGapBanner";
+// Issue #1066: reconciliação cnaeProgress.answers com tabela granular
+import {
+  extractAnswersForCnae,
+  shouldReconcile,
+} from "@/lib/cnae-progress-reconciliation";
 import {
   ArrowLeft, ArrowRight, ChevronRight, Loader2, Sparkles,
   CheckCircle2, Clock, SkipForward, MessageSquare, BarChart2,
@@ -782,6 +787,30 @@ export default function QuestionarioV3() {
   // Recebe totalCnaes como parâmetro para evitar closure stale
   // Chamadores devem passar o valor correto (não depender do estado do closure)
   const advanceToNextCnae = (totalCnaes?: number) => {
+    // Issue #1066: reconciliação com tabela granular antes de avançar.
+    // saveAnswer.mutate (L636) já persistiu cada resposta em
+    // questionnaireAnswersV3, mas cnaeProgress[i].answers só é populado em
+    // handleFinishLevel1. Quando hasGap=true ou sequência interrompida, o
+    // payload final (handleFinishQuestionnaire) carregaria questions: []
+    // mesmo com respostas no banco. Esta reconciliação é idempotente —
+    // só popula se atual estiver vazio/incompleto.
+    const currentCode = cnaeProgress[currentCnaeIdx]?.code;
+    if (currentCode) {
+      const savedForCurrent = extractAnswersForCnae(
+        savedProgress?.answers ?? [],
+        currentCode,
+        "nivel1",
+      );
+      const currentAnswers = cnaeProgress[currentCnaeIdx]?.answers ?? [];
+      if (shouldReconcile(currentAnswers, savedForCurrent)) {
+        setCnaeProgress(prev => prev.map((c, i) =>
+          i === currentCnaeIdx && shouldReconcile(c.answers ?? [], savedForCurrent)
+            ? { ...c, answers: savedForCurrent }
+            : c
+        ));
+      }
+    }
+
     const total = totalCnaes ?? (cnaeProgress.length || cnaes.length);
     // BUGFIX V70.1: sempre resetar o DeepDivePrompt ao avançar de CNAE.
     // Sem isso, se showDeepDivePrompt estava true no CNAE anterior,
