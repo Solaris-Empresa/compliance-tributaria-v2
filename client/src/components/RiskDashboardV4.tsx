@@ -20,6 +20,9 @@ import {
   countRisksBySourcePriority,
   riskMatchesSourcePriority,
 } from "@/lib/fonte-groups";
+// Issue #1069 — mapa categoria→artigo correto + resolver com fallback defensivo.
+// Substitui mapa local que tinha 4 valores incorretos (Art. 29/21/258/88).
+import { CATEGORIA_ARTIGOS, resolveArtigoForHeader } from "@/lib/categoria-artigos";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -162,18 +165,10 @@ const CATEGORIA_LABELS: Record<string, string> = {
   credito_presumido: "Crédito Presumido",
 };
 
-const CATEGORIA_ARTIGOS: Record<string, string> = {
-  imposto_seletivo: "Art. 393 LC 214/2025",
-  confissao_automatica: "Art. 45 LC 214/2025",
-  split_payment: "Art. 29 LC 214/2025",
-  inscricao_cadastral: "Art. 21 LC 214/2025",
-  regime_diferenciado: "Art. 258 LC 214/2025",
-  transicao_iss_ibs: "Arts. 6-12 LC 214/2025",
-  obrigacao_acessoria: "Art. 88 LC 214/2025",
-  aliquota_zero: "Art. 125 LC 214/2025",
-  aliquota_reduzida: "Art. 120 LC 214/2025",
-  credito_presumido: "Art. 185 LC 214/2025",
-};
+// Issue #1069: CATEGORIA_ARTIGOS movido para client/src/lib/categoria-artigos.ts
+// com valores CORRETOS (4 valores estavam errados: split_payment, inscricao_cadastral,
+// regime_diferenciado, obrigacao_acessoria). Usa resolveArtigoForHeader como fallback
+// defensivo no header de grupo (linha 1417 abaixo).
 
 const SOURCE_LABELS: Record<string, string> = {
   cnae: "CNAE",
@@ -1410,11 +1405,12 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
                           {CATEGORIA_LABELS[cat] ?? cat}
                         </span>
                         <span className="text-muted-foreground">·</span>
-                        {/* Issue #1059: artigo do primeiro risco do grupo (vem do rag_artigo_exato
-                            após Issue #1044). CATEGORIA_ARTIGOS mantido como fallback defensivo
-                            para riscos legados sem campo artigo preenchido. */}
+                        {/* Issue #1069: fix completa para Issue #1059 — resolveArtigoForHeader
+                            trata string vazia como falsy (não só null/undefined). Fallback usa
+                            CATEGORIA_ARTIGOS corrigido em client/src/lib/categoria-artigos.ts
+                            (4 valores estavam errados na versão original do mapa). */}
                         <span className="text-muted-foreground">
-                          {grouped[cat][0]?.artigo ?? CATEGORIA_ARTIGOS[cat] ?? ""}
+                          {resolveArtigoForHeader(grouped[cat][0]?.artigo, cat)}
                         </span>
                         <span className="text-muted-foreground">·</span>
                         <span data-testid="cat-divider-count">

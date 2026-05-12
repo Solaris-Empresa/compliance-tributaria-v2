@@ -125,7 +125,9 @@ function TraceabilityBanner({ risk, projectId }: { risk: RiskParent; projectId: 
   const chips: { label: string; color: string; tooltip: string }[] = [
     { label: SOURCE_LABELS[bc[0]] ?? bc[0], color: "bg-blue-100 text-blue-700", tooltip: `Fonte: ${bc[0]}` },
     { label: CATEGORIA_LABELS[bc[1]] ?? bc[1], color: "bg-purple-100 text-purple-700", tooltip: `Categoria: ${CATEGORIA_LABELS[bc[1]] ?? bc[1]}` },
-    { label: `Art. ${bc[2]}`, color: "bg-green-100 text-green-700", tooltip: `Artigo: ${bc[2]}` },
+    // Issue #1069: artigo já vem do backend com prefixo "Art. " (convenção desde Sprint Z-13.5).
+    // PR #1061 corrigiu o mesmo padrão em RiskDashboardV4.tsx mas não tocou este arquivo.
+    { label: bc[2], color: "bg-green-100 text-green-700", tooltip: `Artigo: ${bc[2]}` },
     { label: bc[3], color: "bg-gray-100 text-gray-600", tooltip: `Rule ID: ${bc[3]}` },
     { label: risk.titulo.length > 40 ? risk.titulo.slice(0, 40) + "…" : risk.titulo, color: "bg-amber-100 text-amber-700", tooltip: risk.titulo },
   ];
