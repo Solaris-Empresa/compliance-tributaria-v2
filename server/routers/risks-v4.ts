@@ -47,6 +47,7 @@ import {
   softDeleteTaskV4,
   getProjectAuditLog,
   deleteRisksByProject,
+  deleteRisksByIds,
   softDeleteRiskWithCascade,
   restoreRiskWithCascade,
   // M3.10 Fix A1: leitura multi-source de project_gaps_v3 (post-mortem #975)
@@ -94,6 +95,11 @@ const GapRuleSchema = z.object({
   gapId: z.number().int().nullable().optional(),
   questionSource: z.enum(["solaris", "iagen", "qa_v3", "engine", "cnae", "v1"]).nullable().optional(),
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Fix #1072-v2: Mutex por projeto — impede chamadas concorrentes destrutivas
+// ─────────────────────────────────────────────────────────────────────────────
+const riskGenerationLocks = new Map<number, { startedAt: number; userId: number }>();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Router
@@ -872,11 +878,44 @@ export const risksV4Router = router({
   generateRisksAllSources: protectedProcedure
     .input(z.object({ projectId: z.number() }))
     .mutation(async ({ input, ctx }) => {
+      // Fix #1072-v2: Mutex por projeto — impede race condition destrutiva
+      const existingLock = riskGenerationLocks.get(input.projectId);
+      if (existingLock) {
+        const elapsedMs = Date.now() - existingLock.startedAt;
+        // Timeout de segurança: lock > 5 min é stale (processo morreu)
+        if (elapsedMs < 300_000) {
+          console.warn(
+            `[Fix#1072-v2] MUTEX BLOCK — projectId=${input.projectId} ` +
+            `lockedBy=${existingLock.userId} elapsed=${Math.round(elapsedMs / 1000)}s ` +
+            `requestedBy=${ctx.user.id}`,
+          );
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Geração de riscos já em andamento para este projeto (iniciada há ${Math.round(elapsedMs / 1000)}s). Aguarde a conclusão.`,
+          });
+        }
+        // Lock stale — limpar e prosseguir
+        console.warn(
+          `[Fix#1072-v2] STALE LOCK CLEARED — projectId=${input.projectId} ` +
+          `elapsed=${Math.round(elapsedMs / 1000)}s (>300s)`,
+        );
+        riskGenerationLocks.delete(input.projectId);
+      }
+
+      // Adquirir lock
+      riskGenerationLocks.set(input.projectId, {
+        startedAt: Date.now(),
+        userId: ctx.user.id,
+      });
+
+      try {
       const actor = {
         user_id: ctx.user.id,
         user_name: ctx.user.name ?? ctx.user.email ?? "unknown",
         user_role: ctx.user.role ?? "user",
       };
+
+      console.log(`[Fix#1072-v2] ▶ generateRisksAllSources START — projectId=${input.projectId} userId=${ctx.user.id} ts=${new Date().toISOString()}`);
 
       // 1. Carregar TODOS os gaps do projeto (consumer único dos 3 writers).
       const gaps = await getAllGapsForProject(input.projectId);
@@ -968,9 +1007,11 @@ export const risksV4Router = router({
       const insertedIds: string[] = [];
       try {
         // 4b. Limpar snapshot anterior (idempotente).
+        console.log(`[Bug#1072-DIAG] Step 4b: deleteRisksByProject — projectId=${input.projectId}`);
         await deleteRisksByProject(input.projectId);
 
         // 5. Pipeline de consolidação (mesmo de generateRisksFromGaps).
+        console.log(`[Bug#1072-DIAG] Step 5: generateRisksV4Pipeline — mappedRules=${mapResult.mappedRules.length}`);
         const { risks, summary } = await generateRisksV4Pipeline(
           input.projectId,
           mapResult.mappedRules as GapRule[],
@@ -978,15 +1019,18 @@ export const risksV4Router = router({
         );
 
         // 6. Persistir riscos com auditoria.
+        console.log(`[Bug#1072-DIAG] Step 6: inserting ${risks.length} risks`);
         for (const risk of risks) {
           const id = await insertRiskV4WithAudit(risk, actor);
           insertedIds.push(id);
         }
+        console.log(`[Bug#1072-DIAG] Step 6 DONE: inserted ${insertedIds.length} risks`);
 
         // 7. Snapshot da NOVA versão pós-insert.
         //    auto_generation     = primeira geração do projeto
         //    manual_regeneration = regeneração de matriz preexistente
         const newVersion = (archivedVersion ?? 0) + 1;
+        console.log(`[Bug#1072-DIAG] Step 7: saveRiskMatrixVersion — newVersion=${newVersion} riskCount=${risks.length} triggerType=${hasExistingMatrix ? "manual_regeneration" : "auto_generation"}`);
         await saveRiskMatrixVersion({
           projectId: input.projectId,
           versionNumber: newVersion,
@@ -998,6 +1042,7 @@ export const risksV4Router = router({
             ? "manual_regeneration"
             : "auto_generation",
         });
+        console.log(`[Bug#1072-DIAG] ✅ SUCCESS — projectId=${input.projectId} inserted=${insertedIds.length} version=${newVersion}`);
 
         return {
           inserted: insertedIds.length,
@@ -1011,24 +1056,29 @@ export const risksV4Router = router({
           archivedPreviousVersion: archivedVersion,
         };
       } catch (err) {
-        // Fix #1072 — rollback lógico: estado parcial é inaceitável.
-        // Se inserts já aconteceram, remover para garantir "tudo ou nada"
-        // do ponto de vista do client. Snapshot da v.anterior (4a) permanece
-        // em riskMatrixVersions para recuperação manual se necessário.
+        console.error(`[Fix#1072-v2] ❌ CATCH BLOCK — projectId=${input.projectId} insertedIds=${insertedIds.length} error=`, err);
+        // Fix #1072-v2 — rollback cirúrgico: apaga APENAS os riscos inseridos
+        // nesta chamada (por ID), não todos os riscos do projeto.
+        // Isso evita que uma chamada concorrente (que passou antes do mutex)
+        // destrua riscos de outra chamada.
         if (insertedIds.length > 0) {
           try {
-            await deleteRisksByProject(input.projectId);
+            await deleteRisksByIds(insertedIds);
             console.warn(
-              `[Fix #1072] rollback parcial projeto ${input.projectId}: ${insertedIds.length} riscos removidos após erro`,
+              `[Fix#1072-v2] rollback cirúrgico projeto ${input.projectId}: ${insertedIds.length} riscos removidos por ID`,
             );
           } catch (rollbackErr) {
             console.error(
-              `[Fix #1072] FALHA no rollback projeto ${input.projectId}:`,
+              `[Fix#1072-v2] FALHA no rollback projeto ${input.projectId}:`,
               rollbackErr,
             );
           }
         }
         throw err;
+      }
+      } finally {
+        // Fix #1072-v2: Liberar mutex
+        riskGenerationLocks.delete(input.projectId);
       }
     }),
 

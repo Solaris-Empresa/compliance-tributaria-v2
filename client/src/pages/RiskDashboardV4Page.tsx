@@ -52,7 +52,7 @@ export default function RiskDashboardV4Page() {
         <div>
           <h1 className="text-xl font-bold text-foreground">Análise de Riscos — v4</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Engine determinístico · 10 categorias LC 214/2025 · Sprint Z-07
+            Engine determinístico · 10 categorias LC 214/2025
           </p>
         </div>
         {/* Sprint Z-17 #668: botão "Ver Planos" movido para RiskDashboardV4 (condicional) */}

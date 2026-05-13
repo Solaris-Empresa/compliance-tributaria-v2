@@ -918,17 +918,37 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       setPipelineStats(result.stats ?? null);
       utils.risksV4.listRisks.invalidate({ projectId });
     },
-    onError: (err) => toast.error("Erro ao gerar matriz de riscos", { description: err.message }),
+    onError: (err) => {
+      // Fix #1072-v2: CONFLICT = mutex block (geração já em andamento)
+      if (err.message.includes("já em andamento")) {
+        toast.info("Geração já em andamento", {
+          description: "Aguarde a conclusão da geração atual antes de tentar novamente.",
+        });
+      } else {
+        toast.error("Erro ao gerar matriz de riscos", { description: err.message });
+      }
+    },
   });
 
   const isGenerating = _legacyAnalyzeGapsMutation.isPending || mapGapsMutation.isPending
     || generateFromGapsMutation.isPending || generateAllSourcesMutation.isPending
     || ensureV1GapsMutation.isPending;
 
-  // ── Auto-generate on first load (B-01: trigger pos-briefing) ────────────
-  const hasAutoTriggered = useRef(false);
+  // ── Auto-generate on first load (B-01: trigger pos-briefing) ────────────────────
+  // Fix #1072-v2: sessionStorage persiste across remounts (navegação away/back).
+  // Expira após 5 min (mesmo timeout do mutex server-side).
+  const autoTriggerKey = `risk_auto_trigger_${projectId}`;
+  const hasAutoTriggered = useRef(() => {
+    const stored = sessionStorage.getItem(autoTriggerKey);
+    if (stored) {
+      const ts = parseInt(stored, 10);
+      if (Date.now() - ts < 300_000) return true;
+      sessionStorage.removeItem(autoTriggerKey);
+    }
+    return false;
+  });
 
-  // ── Derived data ──────────────────────────────────────────────────────────
+  // ── Derived data ──────────────────────────────────────────────────────────────────────
   const allRisks = (data?.risks ?? []) as unknown as RiskData[];
 
   const activeRisks = allRisks.filter((r) => r.status === "active" && r.type === "risk");
@@ -1009,11 +1029,12 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
   useEffect(() => {
     if (
       !isLoading &&
-      !hasAutoTriggered.current &&
+      !hasAutoTriggered.current() &&
       activeRisks.length === 0 &&
       !isGenerating
     ) {
-      hasAutoTriggered.current = true;
+      // Fix #1072-v2: Marcar em sessionStorage para sobreviver a remounts
+      sessionStorage.setItem(autoTriggerKey, String(Date.now()));
       // M3.10 Fix C-bis (post-mortem #975 + #3690001): sequência write→read.
       // PASSO 1: ensureV1Gaps escreve gaps v1 (regulatorio) em project_gaps_v3.
       //          Idempotente via DELETE scoped (Bug A fix M3.8.1).

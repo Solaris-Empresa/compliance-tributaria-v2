@@ -84,18 +84,18 @@ describe("Fix #1072 — atomicidade lógica via try/catch + rollback", () => {
     );
   });
 
-  it("rollback chama deleteRisksByProject no catch se insertedIds.length > 0", () => {
+  it("rollback chama deleteRisksByIds no catch se insertedIds.length > 0 (v2: cirúrgico)", () => {
     expect(PROC_SRC).toMatch(
-      /catch\s*\([\s\S]*?\)\s*\{[\s\S]*?if\s*\(\s*insertedIds\.length\s*>\s*0\s*\)[\s\S]*?deleteRisksByProject/,
+      /catch\s*\([\s\S]*?\)\s*\{[\s\S]*?if\s*\(\s*insertedIds\.length\s*>\s*0\s*\)[\s\S]*?deleteRisksByIds/,
     );
   });
 
-  it("rollback emite warn com tag [Fix #1072]", () => {
-    expect(PROC_SRC).toContain("[Fix #1072] rollback parcial projeto");
+  it("rollback emite warn com tag [Fix#1072-v2] (rollback cirúrgico)", () => {
+    expect(PROC_SRC).toContain("[Fix#1072-v2] rollback cirúrgico projeto");
   });
 
-  it("rollback emite error com tag [Fix #1072] se rollback falha", () => {
-    expect(PROC_SRC).toContain("[Fix #1072] FALHA no rollback projeto");
+  it("rollback emite error com tag [Fix#1072-v2] se rollback falha", () => {
+    expect(PROC_SRC).toContain("[Fix#1072-v2] FALHA no rollback projeto");
   });
 
   it("re-throw do erro original após rollback", () => {

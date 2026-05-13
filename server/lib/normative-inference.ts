@@ -153,7 +153,7 @@ function makeInferredRisk(
     // não são da Onda 1 SOLARIS — fonte real é "inferred" (regra hardcoded no engine,
     // mas com base normativa rastreável em artigo). REGRA-ORQ-32 exige fonte determinística.
     breadcrumb: ["inferred", categoria, artigo, riskKey],
-    source_priority: "inferred" as any,
+    source_priority: "inferred",
     confidence,
     risk_key: riskKey,
     operational_context: context,
