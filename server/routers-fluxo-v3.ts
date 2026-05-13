@@ -4590,6 +4590,48 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
       const confidenceWarning = `Questionário ${input.questionnaire === 'solaris' ? 'SOLARIS (Onda 1)' : 'IA Gen (Onda 2)'} foi pulado — diagnóstico com confiança reduzida. Recomenda-se revisão manual antes da aprovação do briefing.`;
       return { success: true, nextState, confidenceWarning };
     }),
+
+  /**
+   * getLiveBriefingSources — Issue #1072-modal
+   *
+   * Retorna o status LIVE das fontes do diagnóstico para o modal de aprovação
+   * com ressalva. Antes, o modal lia do audit entry estático (gravado na geração
+   * do briefing), que ficava desatualizado quando o usuário respondia questionários
+   * DEPOIS de gerar o briefing.
+   *
+   * Agora faz COUNT real no banco — mesma lógica de approveBriefingWithReservation
+   * (linhas 1990-1999) mas exposta como query separada.
+   */
+  getLiveBriefingSources: protectedProcedure
+    .input(z.object({ projectId: z.number().int().positive() }))
+    .query(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
+      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      }
+
+      const solarisCount = await db.countOnda1Answers(input.projectId);
+      const iagenCount = await db.countOnda2Answers(input.projectId);
+      const parseJsonArr = (raw: any): any[] => {
+        if (!raw) return [];
+        try { const p = typeof raw === "string" ? JSON.parse(raw) : raw; return Array.isArray(p) ? p : []; } catch { return []; }
+      };
+      const productAnswersLen = parseJsonArr((project as any).productAnswers).length;
+      const serviceAnswersLen = parseJsonArr((project as any).serviceAnswers).length;
+      const cnaeCount = await db.countCnaeAnswersV3(input.projectId);
+
+      const answered: string[] = [];
+      const missing: string[] = [];
+      (solarisCount > 0 ? answered : missing).push("solaris_onda1");
+      (iagenCount > 0 ? answered : missing).push("iagen_onda2");
+      (productAnswersLen > 0 ? answered : missing).push("q_produtos_ncm");
+      (serviceAnswersLen > 0 ? answered : missing).push("q_servicos_nbs");
+      (cnaeCount > 0 ? answered : missing).push("qcnae_especializado");
+
+      return { answered, missing };
+    }),
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

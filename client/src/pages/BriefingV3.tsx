@@ -227,22 +227,21 @@ export default function BriefingV3() {
   const [reservationModalOpen, setReservationModalOpen] = useState(false);
   const { user: currentUser } = useAuth();
 
-  // Fontes respondidas vs faltantes (para modal) — usa contagens via query do audit do último briefing
-  const { data: lastBriefingAudit } = trpc.audit.getProjectTimeline.useQuery(
-    { projectId, categories: ["briefing"], limit: 10 },
+  // Issue #1072-modal: fontes respondidas vs faltantes (para modal) — query LIVE no banco.
+  // Antes: lia do audit entry estático (gravado na geração do briefing), que ficava
+  // desatualizado quando o usuário respondia questionários DEPOIS de gerar o briefing.
+  // Agora: getLiveBriefingSources faz COUNT real no banco (mesma lógica de
+  // approveBriefingWithReservation) — sempre reflete o estado atual.
+  const { data: liveSources } = trpc.fluxoV3.getLiveBriefingSources.useQuery(
+    { projectId },
     { enabled: projectId > 0 && reservationModalOpen }
   );
   const lastBriefingSources = useMemo(() => {
-    const entry = (lastBriefingAudit?.entries ?? [])
-      .find((e: any) => e.event === "briefing_generated" || e.event === "briefing_generated_from_diagnostic");
-    const sources = (entry as any)?.metadata?.sources ?? {};
-    const answered: string[] = [];
-    const missing: string[] = [];
-    Object.entries(sources).forEach(([key, v]: any) => {
-      if (v?.used) answered.push(key); else missing.push(key);
-    });
-    return { answered, missing };
-  }, [lastBriefingAudit]);
+    return {
+      answered: liveSources?.answered ?? [],
+      missing: liveSources?.missing ?? [],
+    };
+  }, [liveSources]);
 
   // fix(B2 UAT 2026-04-20): resolver inconsistência sem regerar briefing (LLM-free)
   const dismissInconsistencia = trpc.fluxoV3.dismissInconsistencia.useMutation();

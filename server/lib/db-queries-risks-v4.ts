@@ -36,7 +36,7 @@ export type SeveridadeV4 = "alta" | "media" | "oportunidade";
 export type UrgenciaV4 = "imediata" | "curto_prazo" | "medio_prazo";
 // M3.8.1 Bug C followup: alinhamento com type Fonte (risk-engine-v4.ts:37)
 // e migration 0091 (ENUM risks_v4.source_priority).
-export type SourcePriorityV4 = "cnae" | "ncm" | "nbs" | "solaris" | "iagen" | "regulatorio";
+export type SourcePriorityV4 = "cnae" | "ncm" | "nbs" | "solaris" | "iagen" | "regulatorio" | "inferred";
 export type RiskStatusV4 = "active" | "deleted";
 
 export type PrazoActionPlan = "30_dias" | "60_dias" | "90_dias" | "180_dias";
@@ -305,6 +305,18 @@ export async function deleteRisksByProject(projectId: number): Promise<number> {
   const result = await query<{ affectedRows?: number }>(
     `DELETE FROM risks_v4 WHERE project_id = ?`, [projectId]);
   // MySQL2 returns ResultSetHeader with affectedRows — extract safely
+  return (result as any)?.affectedRows ?? 0;
+}
+
+/**
+ * Fix #1072-v2: Rollback cirúrgico — apaga apenas riscos específicos por ID.
+ * Não faz cascade em action_plans/tasks (riscos recém-inseridos não têm planos).
+ */
+export async function deleteRisksByIds(riskIds: string[]): Promise<number> {
+  if (riskIds.length === 0) return 0;
+  const placeholders = riskIds.map(() => "?").join(",");
+  const result = await query<{ affectedRows?: number }>(
+    `DELETE FROM risks_v4 WHERE id IN (${placeholders})`, riskIds);
   return (result as any)?.affectedRows ?? 0;
 }
 
