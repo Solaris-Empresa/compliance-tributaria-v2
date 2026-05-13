@@ -121,6 +121,29 @@ function deriveObjetoForSeed(seed: Seed): DeriveObjetoArrayResult {
     });
   }
 
+  // PR-FAB-OBJETO (Decisão P.O. 2026-05-13, projeto 5910003):
+  // Cliente fabricante sem NCM/NBS. derivePapel só retorna "fabricante" quando
+  // posicao_na_cadeia_economica === "Produtor/fabricante" (linha 141). Sem
+  // fallback, objeto=[] → V-LC-201 HARD_BLOCK → CTA "Confirmar Perfil"
+  // desabilitado (Issue #5910003). Análogo ao fallback financeiro acima:
+  // emite V-10 INFO (não bloqueia) e infere objeto canonical não-vazio.
+  // Comparação por igualdade estrita em literal já canônico (seedNormalizers
+  // §93 mapeia "fabricante"/"produtor" → "Produtor/fabricante") — preserva
+  // I-LC-1 (zero substring/regex) e ADR-0031 Princípio 2.
+  if (
+    objetoSet.size === 0 &&
+    seed.posicao_na_cadeia_economica === "Produtor/fabricante"
+  ) {
+    objetoSet.add("bens_mercadoria_geral");
+    blockers.push({
+      id: "V-10-FALLBACK-NO-NCM",
+      severity: "INFO",
+      rule:
+        "Sem NCM fornecido; objeto inferido como bens_mercadoria_geral. " +
+        "Informe NCMs para análise mais precisa.",
+    });
+  }
+
   return {
     objeto: Array.from(objetoSet),
     blockers,
