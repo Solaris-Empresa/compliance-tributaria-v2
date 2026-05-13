@@ -20,7 +20,22 @@
 import { RAG_CORPUS_LCS_NOVAS } from './rag-corpus-lcs-novas';
 
 export interface CorpusEntry {
-  lei: "lc214" | "ec132" | "lc227" | "lc224" | "lc116" | "lc87" | "cg_ibs" | "rfb_cbs" | "conv_icms";
+  // CORPUS-RFC-008 (Issue #1074): adicionados decreto12955, resolucao_cgibs_6,
+  // portaria_mf_cgibs_7 em alinhamento com o enum `lei` de drizzle/schema.ts
+  // (migration 0094_corpus_freshness_lei_enum.sql).
+  lei:
+    | "lc214"
+    | "ec132"
+    | "lc227"
+    | "lc224"
+    | "lc116"
+    | "lc87"
+    | "cg_ibs"
+    | "rfb_cbs"
+    | "conv_icms"
+    | "decreto12955"
+    | "resolucao_cgibs_6"
+    | "portaria_mf_cgibs_7";
   artigo: string;
   titulo: string;
   conteudo: string;
