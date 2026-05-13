@@ -19,7 +19,7 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - name: Run Jina Reranker contracts
-        run: npx vitest run server/lib/__tests__/jina-reranker.test.ts --forceExit
+        run: npx vitest run server/lib/__tests__/jina-reranker.test.ts
       - name: Verify zero it.todo remaining
         run: |
           TODO_COUNT=$(grep -c "it\.todo" server/lib/__tests__/jina-reranker.test.ts || true)
