@@ -18,6 +18,7 @@ import { getDb } from "./db";
 import { ragDocuments, ragUsageLog } from "../drizzle/schema";
 import { or, like, inArray, and, eq, sql } from "drizzle-orm";
 import { invokeLLM } from "./_core/llm";
+import { rerankWithJina, isJinaRerankerEnabled } from "./lib/jina-reranker";
 
 export interface RetrievedArticle {
   lei: string;
@@ -551,8 +552,20 @@ export async function retrieveArticles(
   // Merge dedup por anchor_id → até 55 candidatos únicos (20 + 20 + 15).
   const candidates = mergeAndDedup(pass1Candidates, pass2Candidates, pass3Candidates);
 
+  // CORPUS-RFC-007 — Jina Reranker v3 dual pipeline:
+  //   - JINA_RERANKER_ENABLED=false (default): pipeline idêntico ao anterior
+  //   - JINA_RERANKER_ENABLED=true: Jina pré-filtra/ordena antes do GPT-4.1
+  //
+  // rerankWithJina NUNCA lança; em qualquer falha devolve `candidates`
+  // inalterado (Lição #67 — degradação graciosa). Pool passado para o
+  // GPT é reduzido a até 20 quando Jina opera com sucesso, mantendo as
+  // 55 entradas originais em caso de fallback.
+  const prerankedCandidates = isJinaRerankerEnabled()
+    ? await rerankWithJina(contextQuery, candidates, 20)
+    : candidates;
+
   // Re-ranking via LLM
-  const topArticles = await rerankWithLLM(candidates, contextQuery, topK);
+  const topArticles = await rerankWithLLM(prerankedCandidates, contextQuery, topK);
 
   // Formatar contexto
   const contextText = formatContextText(topArticles);
