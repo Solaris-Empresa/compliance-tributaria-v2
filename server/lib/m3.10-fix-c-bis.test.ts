@@ -77,16 +77,16 @@ describe("M3.10 Fix C-bis — Frente 1: ensureV1GapsMutation no fluxo", () => {
   });
 
   it("auto-trigger usa try/catch + sequência ensureV1Gaps → generateAllSources", () => {
-    // Match com janela ampla (até 800 chars) — comentários inline aumentam tamanho
+    // Fix #1072-v2: sessionStorage.setItem substitui hasAutoTriggered.current = true
     expect(FRONTEND_SRC).toMatch(
-      /hasAutoTriggered\.current\s*=\s*true[\s\S]{0,800}try\s*\{[\s\S]{0,300}await\s+ensureV1GapsMutation\.mutateAsync/,
+      /sessionStorage\.setItem\(autoTriggerKey[\s\S]{0,800}try\s*\{[\s\S]{0,300}await\s+ensureV1GapsMutation\.mutateAsync/,
     );
   });
 
   it("auto-trigger: catch absorve falha (não relança) e Passo 2 ainda roda", () => {
-    // Janela ampla cobre comentários inline + try/catch + Passo 2
+    // Fix #1072-v2: sessionStorage.setItem substitui hasAutoTriggered.current = true
     const trigger = FRONTEND_SRC.match(
-      /hasAutoTriggered\.current\s*=\s*true[\s\S]{0,1500}generateAllSourcesMutation\.mutate\(\s*\{\s*projectId\s*\}\s*\)/,
+      /sessionStorage\.setItem\(autoTriggerKey[\s\S]{0,1500}generateAllSourcesMutation\.mutate\(\s*\{\s*projectId\s*\}\s*\)/,
     );
     expect(trigger).toBeTruthy();
     expect(trigger![0]).toMatch(/catch\s*\(\s*err\s*\)/);
@@ -142,8 +142,9 @@ describe("M3.10 Fix C-bis — _legacyAnalyzeGapsMutation preservada para compat"
   });
 
   it("auto-trigger NÃO chama _legacyAnalyzeGapsMutation (apenas display de isPending)", () => {
+    // Fix #1072-v2: sessionStorage.setItem substitui hasAutoTriggered.current = true
     const trigger = FRONTEND_SRC.match(
-      /hasAutoTriggered\.current\s*=\s*true[\s\S]{0,1000}generateAllSourcesMutation\.mutate\(\s*\{\s*projectId\s*\}\s*\)/,
+      /sessionStorage\.setItem\(autoTriggerKey[\s\S]{0,1000}generateAllSourcesMutation\.mutate\(\s*\{\s*projectId\s*\}\s*\)/,
     );
     expect(trigger).toBeTruthy();
     expect(trigger![0]).not.toMatch(/_legacyAnalyzeGapsMutation\.mutate/);

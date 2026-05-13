@@ -202,8 +202,9 @@ describe("M3.10 Fix A1 — frontend RiskDashboardV4 usa pipeline unificado", () 
     // M3.10 Fix C-bis (PR posterior): auto-trigger agora chama
     // ensureV1GapsMutation primeiro (write), depois generateAllSourcesMutation
     // (read+consolidate). Janela ampla cobre comentários inline + try/catch.
+    // Fix #1072-v2: sessionStorage.setItem substitui hasAutoTriggered.current = true
     expect(FRONTEND_SRC).toMatch(
-      /hasAutoTriggered\.current\s*=\s*true[\s\S]{0,1500}generateAllSourcesMutation\.mutate\(\s*\{\s*projectId\s*\}/,
+      /sessionStorage\.setItem\(autoTriggerKey[\s\S]{0,1500}generateAllSourcesMutation\.mutate\(\s*\{\s*projectId\s*\}/,
     );
   });
 
