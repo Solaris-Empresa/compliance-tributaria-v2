@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- Migration 0092 — Adiciona 'inferred' ao ENUM risks_v4.source_priority
+-- Migration 0093 — Adiciona 'inferred' ao ENUM risks_v4.source_priority
 -- Origem: Fix #1072-v2 — causa raiz do bug de riscos desaparecendo
 --
 -- Motivação:
