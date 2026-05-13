@@ -147,13 +147,17 @@ describe("M3.10 Fix A1 — procedure generateRisksAllSources (risks-v4 router)",
 
   it("procedure chama deleteRisksByProject (limpa snapshot anterior)", () => {
     expect(RISKS_V4_SRC).toMatch(
-      /generateRisksAllSources[\s\S]{0,3000}await\s+deleteRisksByProject\(\s*input\.projectId\s*\)/,
+      /generateRisksAllSources[\s\S]{0,6000}await\s+deleteRisksByProject\(\s*input\.projectId\s*\)/,
+      // Limit ampliado para 6000 chars após Fix #1072: novo bloco
+      // de versionamento (saveRiskMatrixVersion pré-delete + snapshot da
+      // matriz anterior) adicionou ~1300 chars antes do deleteRisksByProject.
     );
   });
 
   it("procedure chama generateRisksV4Pipeline", () => {
     expect(RISKS_V4_SRC).toMatch(
-      /generateRisksAllSources[\s\S]{0,4000}await\s+generateRisksV4Pipeline\(/,
+      /generateRisksAllSources[\s\S]{0,6000}await\s+generateRisksV4Pipeline\(/,
+      // Limit ampliado pelo Fix #1072 (vide comentário acima).
     );
   });
 

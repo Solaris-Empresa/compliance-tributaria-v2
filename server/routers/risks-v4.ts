@@ -890,6 +890,8 @@ export const risksV4Router = router({
           reviewQueue: [],
           stats: null,
           summary: null,
+          versionNumber: null,
+          archivedPreviousVersion: null,
         };
       }
 
@@ -929,32 +931,105 @@ export const risksV4Router = router({
       const mapper = new GapToRuleMapper(resolver, { allowLayerInference: false });
       const mapResult = await mapper.mapMany(gaps);
 
-      // 4. Limpar snapshot anterior (idempotente — re-execução substitui matriz).
-      await deleteRisksByProject(input.projectId);
-
-      // 5. Pipeline de consolidação (mesmo de generateRisksFromGaps).
-      const { risks, summary } = await generateRisksV4Pipeline(
-        input.projectId,
-        mapResult.mappedRules as GapRule[],
-        ctx.user.id,
+      // Fix #1072 — versionamento + atomicidade lógica.
+      // Engine v4 historicamente não chamava saveRiskMatrixVersion (queries
+      // Manus 12/05/2026 mostraram riskMatrixVersions=0 em todos os projetos
+      // pós-engine v4). Auto-trigger pós-aprovação ficava sem rastro de versão
+      // e, em caso de falha parcial no loop de insert, deixava banco em estado
+      // inconsistente. Rollback é lógico (delete dos inseridos), não transação
+      // MySQL — `insertRiskV4WithAudit` faz 2 statements em conexões distintas
+      // do pool. Tech debt: refactor para transação real registrado.
+      const { saveRiskMatrixVersion, getLatestVersionNumber } = await import(
+        "../db"
       );
 
-      // 6. Persistir riscos com auditoria.
-      const riskIds: string[] = [];
-      for (const risk of risks) {
-        const id = await insertRiskV4WithAudit(risk, actor);
-        riskIds.push(id);
+      // 4a. Snapshot da matriz atual (se houver) antes de qualquer write.
+      //     Garante audit trail mesmo se erro no insert subsequente.
+      const previousRisks = await getRisksV4ByProject(input.projectId);
+      const hasExistingMatrix = previousRisks.length > 0;
+      let archivedVersion: number | null = null;
+
+      if (hasExistingMatrix) {
+        const latestVersion = await getLatestVersionNumber(input.projectId);
+        archivedVersion = latestVersion + 1;
+        await saveRiskMatrixVersion({
+          projectId: input.projectId,
+          versionNumber: archivedVersion,
+          snapshotData: JSON.stringify(previousRisks),
+          riskCount: previousRisks.length,
+          createdBy: ctx.user.id,
+          createdByName: ctx.user.name ?? "Sistema",
+          triggerType: "manual_regeneration",
+        });
       }
 
-      return {
-        inserted: riskIds.length,
-        gapsLoaded: gaps.length,
-        gapsBySource,
-        mappedRules: mapResult.mappedRules.length,
-        reviewQueue: mapResult.reviewQueue,
-        stats: mapResult.stats,
-        summary,
-      };
+      // 4b-7. Bloco atômico — qualquer erro dispara rollback manual (delete
+      //       parcial dos riscos inseridos) antes de re-throw ao client.
+      const insertedIds: string[] = [];
+      try {
+        // 4b. Limpar snapshot anterior (idempotente).
+        await deleteRisksByProject(input.projectId);
+
+        // 5. Pipeline de consolidação (mesmo de generateRisksFromGaps).
+        const { risks, summary } = await generateRisksV4Pipeline(
+          input.projectId,
+          mapResult.mappedRules as GapRule[],
+          ctx.user.id,
+        );
+
+        // 6. Persistir riscos com auditoria.
+        for (const risk of risks) {
+          const id = await insertRiskV4WithAudit(risk, actor);
+          insertedIds.push(id);
+        }
+
+        // 7. Snapshot da NOVA versão pós-insert.
+        //    auto_generation     = primeira geração do projeto
+        //    manual_regeneration = regeneração de matriz preexistente
+        const newVersion = (archivedVersion ?? 0) + 1;
+        await saveRiskMatrixVersion({
+          projectId: input.projectId,
+          versionNumber: newVersion,
+          snapshotData: JSON.stringify(risks),
+          riskCount: risks.length,
+          createdBy: ctx.user.id,
+          createdByName: ctx.user.name ?? "Sistema",
+          triggerType: hasExistingMatrix
+            ? "manual_regeneration"
+            : "auto_generation",
+        });
+
+        return {
+          inserted: insertedIds.length,
+          gapsLoaded: gaps.length,
+          gapsBySource,
+          mappedRules: mapResult.mappedRules.length,
+          reviewQueue: mapResult.reviewQueue,
+          stats: mapResult.stats,
+          summary,
+          versionNumber: newVersion,
+          archivedPreviousVersion: archivedVersion,
+        };
+      } catch (err) {
+        // Fix #1072 — rollback lógico: estado parcial é inaceitável.
+        // Se inserts já aconteceram, remover para garantir "tudo ou nada"
+        // do ponto de vista do client. Snapshot da v.anterior (4a) permanece
+        // em riskMatrixVersions para recuperação manual se necessário.
+        if (insertedIds.length > 0) {
+          try {
+            await deleteRisksByProject(input.projectId);
+            console.warn(
+              `[Fix #1072] rollback parcial projeto ${input.projectId}: ${insertedIds.length} riscos removidos após erro`,
+            );
+          } catch (rollbackErr) {
+            console.error(
+              `[Fix #1072] FALHA no rollback projeto ${input.projectId}:`,
+              rollbackErr,
+            );
+          }
+        }
+        throw err;
+      }
     }),
 
   /**
