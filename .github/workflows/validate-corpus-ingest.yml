@@ -1,0 +1,40 @@
+name: Validate Corpus Ingest Evidence (REGRA-ORQ-37)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+jobs:
+  check-ingest-evidence:
+    name: "REGRA-ORQ-37 — Evidência de ingestão obrigatória"
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'corpus-ingest') ||
+      contains(github.event.pull_request.title, 'corpus') ||
+      contains(github.event.pull_request.title, 'ingest')
+
+    steps:
+      - name: Verificar evidência SQL no PR body (REGRA-ORQ-37)
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          echo "🔍 REGRA-ORQ-37 — Verificando evidência de ingestão..."
+
+          if echo "$PR_BODY" | grep -q "EVIDÊNCIA DE INGESTÃO"; then
+            echo "✅ Bloco de evidência encontrado"
+          else
+            echo "❌ FALHA REGRA-ORQ-37: PR body não contém bloco obrigatório"
+            echo "   Adicione: ## ✅ EVIDÊNCIA DE INGESTÃO — Query executada em produção"
+            echo "   Com o resultado literal da query SELECT lei, COUNT(*) FROM ragDocuments"
+            exit 1
+          fi
+
+          if echo "$PR_BODY" | grep -qE "\| [a-z_]+ +\| [0-9]+ +\|"; then
+            echo "✅ Resultado numérico literal encontrado"
+          else
+            echo "❌ FALHA REGRA-ORQ-37: Bloco presente mas sem resultado numérico literal"
+            echo "   Inclua a tabela com o resultado real (ex: | decreto12955 | 831 |)"
+            exit 1
+          fi
+
+          echo "✅ REGRA-ORQ-37 — Evidência validada"
