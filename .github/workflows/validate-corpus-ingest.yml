@@ -29,7 +29,10 @@ jobs:
             exit 1
           fi
 
-          if echo "$PR_BODY" | grep -qE "\| [a-z_]+ +\| [0-9]+ +\|"; then
+          # Aceita enum lei com dígitos (lc214, ec132, decreto12955, resolucao_cgibs_6 etc).
+          # Regex anterior `[a-z_]+` rejeitava o próprio exemplo canônico do doc — bug
+          # detectado em teste local (Cenário C) e log CI desta PR (PR #1084 run 25863315697).
+          if echo "$PR_BODY" | grep -qE "\| [a-z0-9_]+ +\| [0-9]+ +\|"; then
             echo "✅ Resultado numérico literal encontrado"
           else
             echo "❌ FALHA REGRA-ORQ-37: Bloco presente mas sem resultado numérico literal"
