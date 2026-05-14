@@ -2238,6 +2238,14 @@ demais que não cobre o problema real.
 - REGRA-ORQ-33 (RACI — Manus é o Validador)
 - REGRA-ORQ-15 (PR body template — base para incluir CHECKLIST-VAL-01)
 
+## REGRA-ORQ-37 — Evidência Obrigatória de Ingestão de Corpus
+
+Nenhuma ingestão de corpus será reportada como "executada" sem que o PR body
+contenha o resultado literal da query SQL executada no banco de produção.
+O PR body é especificação — não é evidência de execução.
+Detalhes: docs/governance/REGRA-ORQ-37-corpus-ingest-evidence.md
+Gate: .github/workflows/validate-corpus-ingest.yml (label: corpus-ingest)
+
 ## REGRA-ORQ-CI-01 — CI verde como pré-requisito de merge
 
 **Vigência:** permanente, a partir de 2026-05-08
