@@ -8,10 +8,7 @@ jobs:
   check-ingest-evidence:
     name: "REGRA-ORQ-37 — Evidência de ingestão obrigatória"
     runs-on: ubuntu-latest
-    if: |
-      contains(github.event.pull_request.labels.*.name, 'corpus-ingest') ||
-      contains(github.event.pull_request.title, 'corpus') ||
-      contains(github.event.pull_request.title, 'ingest')
+    if: contains(github.event.pull_request.labels.*.name, 'corpus-ingest')
 
     steps:
       - name: Verificar evidência SQL no PR body (REGRA-ORQ-37)
