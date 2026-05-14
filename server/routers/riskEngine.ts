@@ -492,7 +492,8 @@ export async function persistRisks(
             risk.score.severity,
             JSON.stringify(risk.score.scoring_factors),
             risk.score.confidence, risk.score.confidence_reason,
-            risk.source_reference, risk.origin_justification,
+            // source_reference é nullable em DerivedRiskSchema → coalesce explícito
+            risk.source_reference ?? null, risk.origin_justification,
             risk.description, risk.mitigation_hint,
             projectId, risk.gap_id,
           ]
@@ -516,7 +517,9 @@ export async function persistRisks(
               created_at, updated_at)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
           [
-            clientId, projectId, risk.gap_id, risk.requirement_id,
+            // Coalesce nullable fields para null explícito — mysql2 rejeita undefined
+            // em prepared statements (erro: Incorrect ? value: '?' for column ...).
+            clientId, projectId, risk.gap_id, risk.requirement_id ?? null,
             `RISK-${projectId}-${risk.gap_id}`,
             risk.requirement_id ? `REQ-${risk.requirement_id}` : "CONTEXTUAL",
             risk.description?.substring(0, 255) || "Risco identificado",
@@ -531,7 +534,7 @@ export async function persistRisks(
             risk.score.base_score, risk.score.adjusted_score,
             JSON.stringify(risk.score.scoring_factors),
             risk.score.confidence, risk.score.confidence_reason,
-            risk.source_reference, risk.origin_justification,
+            risk.source_reference ?? null, risk.origin_justification,
             risk.description, risk.mitigation_hint,
             risk.fonte_risco ?? 'v1',
           ]
@@ -571,7 +574,8 @@ export async function persistRisks(
           risk.score.base_score, risk.score.adjusted_score,
           JSON.stringify(risk.score.scoring_factors),
           risk.score.confidence, risk.score.confidence_reason,
-          risk.source_reference, risk.origin_justification,
+          // source_reference é nullable em DerivedRiskSchema → coalesce explícito
+          risk.source_reference ?? null, risk.origin_justification,
           risk.description, risk.mitigation_hint,
           risk.fonte_risco ?? 'v1',
         ]
