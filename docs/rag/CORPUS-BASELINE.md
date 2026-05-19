@@ -1,9 +1,9 @@
 # CORPUS BASELINE — IA SOLARIS RAG
 
-> **Versão:** v5.1
-> **Data:** 2026-05-08
-> **Commit HEAD:** ab549ed (pós-merge PR #1030 — Issue #1028 Opção C)
-> **Sprint de referência:** Issue #1028 (Q.CNAE fonte única regulatório) ENCERRADA + Issue #1031 (race condition) em validação
+> **Versão:** v6.0
+> **Data:** 2026-05-19
+> **Commit HEAD:** eda2e259 (pós-merge PR #1099 leiFilter + PR #1097 labels Cockpit)
+> **Sprint de referência:** Onda 2 completa — lc123 + resolucao_cgsn_140 + moc_cte_v4 + moc_mdfe_v3
 > **Autor:** Manus AI + Claude Code (orquestrador)
 > **Aprovado por:** Uires Tapajós (P.O.)
 > **Revisão externa:** Consultor (ChatGPT) — parecer de 2026-03-30
@@ -11,6 +11,8 @@
 > **Histórico:**
 > - v5.0 (2026-04-13) — Sprint Z-13 · 2.515 chunks · 13 leis · gates 7 PASS
 > - v5.1 (2026-05-08) — Adendo gaps de atualidade 2026-05-06 (17 docs pós-abr/2026 pendentes) · Q.CNAE 100% regulatório (PR #1030)
+> - v5.3 (2026-05-14) — Onda 1 completa · 3.585 chunks · 20 leis
+> - v6.0 (2026-05-19) — Onda 2 completa · 4.852 chunks · 23 leis · leiFilter simples_nacional · Drizzle journal reconciliado
 >
 > **Instrução de atualização:** a cada ingestão, RFC, incidente ou correção de corpus,
 > incrementar a versão, registrar data/commit e atualizar as seções 1–8.
@@ -41,30 +43,57 @@ mas "**está funcionando?**"
 
 | Indicador | Valor |
 |---|---|
-| Total de chunks | **2.515** |
-| Chunks com `anchor_id` | 2.515 (100%) |
+| Total de chunks | **4.852** |
+| Chunks com `anchor_id` | 4.852 (100%) |
 | Chunks sem `anchor_id` | 0 |
-| Leis ativas no corpus | **13** (10 leis + 3 CGIBS) |
-| Anomalias abertas | 0 ✅ Sprint G concluída |
+| Leis ativas no corpus | **23** |
+| Anomalias abertas | 0 ✅ |
 | Anomalias críticas (P0) | 0 |
 
 ### 1.1 Distribuição por lei
 
-| Lei | Total chunks | Com anchor_id | Sem anchor_id | Status |
+| Lei | Total chunks | Tipo | cnaeGroups | Status |
 |---|---|---|---|---|
-| lc214 | 1.573 | 1.573 | 0 | ✅ Íntegro |
-| lc227 | 434 | 434 | 0 | ✅ RFC-001 executada |
-| conv_icms | 278 | 278 | 0 | ✅ Sprint S · PR #296 |
-| lc116 | 60 | 60 | 0 | ✅ Sprint S · PR #296 |
-| lc87 | 60 | 60 | 0 | ✅ Sprint S · PR #296 |
-| lc224 | 28 | 28 | 0 | ✅ Íntegro |
-| cg_ibs | 26 | 26 | 0 | ✅ Sprint S · PR #296 |
-| lc123 | 25 | 25 | 0 | ✅ RFC-002 executada |
-| ec132 | 18 | 18 | 0 | ✅ Íntegro |
-| rfb_cbs | 7 | 7 | 0 | ✅ Sprint S · PR #296 |
-| resolucao_cgibs_1 | 4 | 4 | 0 | ✅ Sprint Z-12 · Lote D |
-| resolucao_cgibs_2 | 1 | 1 | 0 | ✅ Sprint Z-12 · Lote D |
-| resolucao_cgibs_3 | 1 | 1 | 0 | ✅ Sprint Z-12 · Lote D |
+| lc214 | 1.574 | Legislação complementar | "" (universal) | ✅ Íntegro |
+| decreto12955 | 831 | Decreto regulamentador | "" (universal) | ✅ Onda 1 |
+| lc227 | 434 | Legislação complementar | "" (universal) | ✅ RFC-001 |
+| moc_mdfe_v3 | 393 | Manual operacional SEFAZ | "49" (transporte) | ✅ Onda 2 |
+| moc_cte_v4 | 318 | Manual operacional SEFAZ | "49" (transporte) | ✅ Onda 2 |
+| resolucao_cgsn_140 | 302 | Resolução Simples Nacional | "" (universal) | ✅ Onda 2 |
+| lc123 | 279 | Lei do Simples Nacional | "" (universal) | ✅ Onda 2 |
+| conv_icms | 278 | Convênio ICMS | "" (universal) | ✅ Sprint S |
+| resolucao_cgibs_6 | 187 | Resolução CGIBS | "" (universal) | ✅ Onda 1 |
+| lc116 | 60 | Lei complementar ISS | "" (universal) | ✅ Sprint S |
+| lc87 | 60 | Lei Kandir (ICMS) | "" (universal) | ✅ Sprint S |
+| lc224 | 28 | Legislação complementar | "" (universal) | ✅ Íntegro |
+| cg_ibs | 26 | Comitê Gestor IBS | "" (universal) | ✅ Sprint S |
+| resolucao_cgibs_4 | 23 | Resolução CGIBS | "" (universal) | ✅ Onda 1 |
+| ec132 | 18 | Emenda Constitucional | "" (universal) | ✅ Íntegro |
+| nt_2025_002 | 12 | Nota Técnica | "" (universal) | ✅ Onda 1 |
+| nt_008_2026 | 10 | Nota Técnica | "" (universal) | ✅ Onda 1 |
+| rfb_cbs | 7 | RFB/CBS | "" (universal) | ✅ Sprint S |
+| resolucao_cgibs_5 | 4 | Resolução CGIBS | "" (universal) | ✅ Onda 1 |
+| resolucao_cgibs_1 | 4 | Resolução CGIBS | "" (universal) | ✅ Lote D |
+| portaria_mf_cgibs_7 | 2 | Portaria MF | "" (universal) | ✅ Onda 1 |
+| resolucao_cgibs_3 | 1 | Resolução CGIBS | "" (universal) | ✅ Lote D |
+| resolucao_cgibs_2 | 1 | Resolução CGIBS | "" (universal) | ✅ Lote D |
+| **TOTAL** | **4.852** | **23 leis** | | |
+
+### 1.2 Segmentação por cnaeGroups
+
+| cnaeGroups | Leis | Chunks | Descrição |
+|---|---|---|---|
+| "" (universal) | 21 | 4.141 | Aplicável a todos os CNAEs |
+| "49" (transporte) | 2 | 711 | MOC CT-e v4 + MDF-e v3 (transporte rodoviário) |
+
+### 1.3 Evolução do Corpus
+
+| Marco | Chunks | Leis | Data |
+|---|---|---|---|
+| Sprint Z-13 (v5.0) | 2.515 | 13 | 13/04/2026 |
+| Onda 1 Completa (v5.3) | 3.585 | 20 | 14/05/2026 |
+| + lc123 + resolucao_cgsn_140 | 4.141 | 22 | 19/05/2026 |
+| + moc_cte_v4 + moc_mdfe_v3 (v6.0) | **4.852** | **23** | **19/05/2026** |
 
 ---
 
@@ -147,14 +176,17 @@ Ver: `docs/rag/gold-set-queries.sql` para queries completas.
 
 | Lei | Artigos críticos | Presença no corpus | Cobertura estimada |
 |---|---|---|---|
-| **lc214** | Arts. 1–500 (IBS/CBS/IS) | 1.573 chunks | ~98% |
+| **lc214** | Arts. 1–500 (IBS/CBS/IS) | 1.574 chunks | ~98% |
 | **ec132** | Arts. 1–18 (Comitê Gestor) | 18 chunks | 100% |
 | **lc227** | Arts. 1–200 (IBS complementar) | 434 chunks | ~95% |
 | **lc224** | Arts. 1–50 (transição) | 28 chunks | ~90% |
-| **lc123** | Arts. 1–100 (Simples Nacional) | 25 chunks | ~60% ⚠️ |
+| **lc123** | Arts. 1–179 (Simples Nacional) | 279 chunks | ~95% ✅ |
+| **resolucao_cgsn_140** | Arts. 1–147 (Regulamentação SN) | 302 chunks | ~95% ✅ |
+| **decreto12955** | Arts. 1–600 (CBS regulamentação) | 831 chunks | ~95% |
+| **moc_cte_v4** | Seções 1–9 (Manual CT-e) | 318 chunks | ~98% |
+| **moc_mdfe_v3** | Seções 1–9 (Manual MDF-e) | 393 chunks | ~98% |
 
-> **Alerta:** lc123 com ~60% de cobertura estimada. RFC-004 propõe expansão.
-> Ver: `docs/RFC-004-expansao-corpus-lc116-lc87-cgibs-rfbcbs.md`
+> **Nota:** lc123 expandida de 25 para 279 chunks na Onda 2 (cobertura ~60% → ~95%).
 
 ### 4.1 Leis candidatas para ingestão futura
 
@@ -263,7 +295,7 @@ Score = (Integridade × 0,20) + (Cobertura × 0,20) + (Uso real × 0,30) + (Qual
 | Situação | Severidade | Ação prescrita | Status |
 |---|---|---|---|
 | Chunk nunca usado | P2 | Revisar relevância — candidato a remoção | ⏳ aguarda telemetria |
-| Cobertura lc123 < 70% | P1 | Ingestão imediata — RFC-004 | 🔴 ativo |
+| Cobertura lc123 < 70% | P1 | Ingestão imediata — RFC-004 | ✅ resolvido Onda 2 (279 chunks) |
 | Gold set com falha | P0 | Parar diagnósticos — investigar corpus | ✅ 8/8 verde |
 | RFC aprovada sem ingestão > 7 dias | P1 | Escalar para P.O. | ✅ nenhuma pendente |
 | Chunk duplicado detectado | P2 | RFC de limpeza | ⏳ aguarda Sprint L |
@@ -311,7 +343,7 @@ INGESTÃO → VALIDAÇÃO → USO → MELHORIA
 | L-RAG-02 | P1 | Implementar `rag_chunk_risk_map` — rastreabilidade chunk→risco | ⏳ pendente |
 | L-RAG-03 | P1 | Dashboard de score no cockpit (Seção 7 — "Saúde do Corpus") | ✅ **implementado** — PR #233 |
 | L-RAG-04 | P2 | Detector automático de chunks duplicados (similaridade coseno) | ⏳ pendente |
-| L-RAG-05 | P2 | Ingestão lc123 completa (RFC-004) — cobertura de ~60% → 95% | ⏳ pendente |
+| L-RAG-05 | P2 | Ingestão lc123 completa (RFC-004) — cobertura de ~60% → 95% | ✅ **resolvido** Onda 2 (279 chunks) |
 
 ---
 
@@ -330,6 +362,8 @@ INGESTÃO → VALIDAÇÃO → USO → MELHORIA
 | **v4.5** | **2026-04-05** | **2d53596** | **Sprint V Lote 3 (PR #333): +13 casos NCM/NBS + 1 pending → 37 confirmados. NCM:19 · NBS:19 · Testes:48/48. Sprint V encerrada. Meta 38 casos atingida com margem de segurança jurídica.** |
 | **v5.0** | **2026-04-13** | **1ea5c64** | **Sprint Z-13 ENCERRADA · Gate 7 PASS (PRs #485–#497): Lote D CGIBS (resolucao_cgibs_1=4, resolucao_cgibs_2=1, resolucao_cgibs_3=1 → +6 chunks). fix B-Z13-004 risk_category_code. backfill project_gaps_v3. Corpus: 2.515 chunks · 13 leis · 100% anchor_id.** |
 | **v5.1** | **2026-05-08** | **ab549ed** | **Adendo gaps de atualidade 2026-05-06: 17 documentos pós-abr/2026 identificados como pendentes (6 críticos P0 + 9 secundários + 2 parciais). Q.CNAE refatorado para fonte única regulatório (Issue #1028 Opção C — PR #1030 M1+M2+M3). Race condition auto-start em fix (Issue #1031 — PR #1032). Corpus inalterado: 2.515 chunks · 13 leis. E2E-RAG-FLUXO documento criado.** |
+| **v5.3** | **2026-05-14** | **5b91966e** | **Onda 1 completa: +1.070 chunks (decreto12955=831, resolucao_cgibs_4=23, resolucao_cgibs_5=4, resolucao_cgibs_6=187, portaria_mf_cgibs_7=2, nt_2025_002=12, nt_008_2026=10, lc214+1). Corpus: 3.585 chunks · 20 leis.** |
+| **v6.0** | **2026-05-19** | **eda2e259** | **Onda 2 completa: +1.267 chunks (+35%). Adicionados: lc123 re-chunked (25→279), resolucao_cgsn_140 (302), moc_cte_v4 (318), moc_mdfe_v3 (393). leiFilter simples_nacional implementado (PR #1099). Drizzle journal reconciliado — nuclear reset (PR #1095). Labels RAG Cockpit atualizados (PR #1097). Corpus: 4.852 chunks · 23 leis.** |
 
 ---
 
