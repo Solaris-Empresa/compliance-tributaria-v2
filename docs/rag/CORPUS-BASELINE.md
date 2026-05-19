@@ -1,16 +1,22 @@
 # CORPUS BASELINE — IA SOLARIS RAG
 
-> **Versão:** v5.1
-> **Data:** 2026-05-08
-> **Commit HEAD:** ab549ed (pós-merge PR #1030 — Issue #1028 Opção C)
-> **Sprint de referência:** Issue #1028 (Q.CNAE fonte única regulatório) ENCERRADA + Issue #1031 (race condition) em validação
+> **Versão:** v6.0
+> **Data:** 2026-05-19
+> **Commit HEAD:** 6f909fe (Onda 2 — chunking lc123/cgsn_140/MOC)
+> **Sprint de referência:** Corpus Onda 2 (PRs #1090 lc123/cgsn_140 MERGED · #1092 MOC aberto · #1096 leiFilter simples_nacional)
 > **Autor:** Manus AI + Claude Code (orquestrador)
 > **Aprovado por:** Uires Tapajós (P.O.)
 > **Revisão externa:** Consultor (ChatGPT) — parecer de 2026-03-30
 >
+> ⚠️ **Totais numéricos do DB são PLACEHOLDER nesta v6.0** — o estado real do
+> `ragDocuments` será confirmado pelo Manus após o Nuclear Reset da issue #1091
+> (Drizzle journal stale). Esta revisão entrega estrutura + narrativa Onda 2;
+> os números marcados `[DB_TOTAL]` serão preenchidos em PR de atualização.
+>
 > **Histórico:**
 > - v5.0 (2026-04-13) — Sprint Z-13 · 2.515 chunks · 13 leis · gates 7 PASS
 > - v5.1 (2026-05-08) — Adendo gaps de atualidade 2026-05-06 (17 docs pós-abr/2026 pendentes) · Q.CNAE 100% regulatório (PR #1030)
+> - v6.0 (2026-05-19) — Onda 2 · +lc123/+resolucao_cgsn_140 (#1090) · +moc_cte_v4/+moc_mdfe_v3 (#1092 aberto) · totais DB pendentes #1091
 >
 > **Instrução de atualização:** a cada ingestão, RFC, incidente ou correção de corpus,
 > incrementar a versão, registrar data/commit e atualizar as seções 1–8.
@@ -65,6 +71,48 @@ mas "**está funcionando?**"
 | resolucao_cgibs_1 | 4 | 4 | 0 | ✅ Sprint Z-12 · Lote D |
 | resolucao_cgibs_2 | 1 | 1 | 0 | ✅ Sprint Z-12 · Lote D |
 | resolucao_cgibs_3 | 1 | 1 | 0 | ✅ Sprint Z-12 · Lote D |
+
+> Tabela acima = último snapshot DB **confirmado** (v5.1, 2.515 chunks · 13 leis).
+> NÃO sobrescrita com números não verificados (Lição #71). Os totais agregados
+> da v6.0 (`[DB_TOTAL]`) serão fornecidos pelo Manus pós-#1091.
+
+### 1.2 Onda 2 — em andamento (2026-05-19 · totais DB pendentes Manus pós-#1091)
+
+Chunking determinístico (verbatim do `.txt`, sem autoria — REGRA-ORQ-29). Contagens
+**geradas localmente** (módulo `.ts`); ingestão em produção + `SELECT COUNT(*)`
+literal é responsabilidade do Manus (REGRA-ORQ-37).
+
+| Lei | Chunks (módulo `.ts`, projeção) | Chunks no DB | Estratégia | Status |
+|---|---|---|---|---|
+| lc123 (re-chunk Onda 2) | 250 | `[DB_TOTAL]` | article-chunker normalizado | PR #1090 ✅ MERGED — aguarda ingestão Manus |
+| resolucao_cgsn_140 | 294 | `[DB_TOTAL]` | article-chunker normalizado | PR #1090 ✅ MERGED — aguarda ingestão Manus |
+| moc_cte_v4 | 318 | `[DB_TOTAL]` | section-chunker (#1089) | PR #1092 aberto |
+| moc_mdfe_v3 | 393 | `[DB_TOTAL]` | section-chunker (#1089) | PR #1092 aberto |
+
+> `lc123` já tinha 25 chunks legados (RFC-002, migração lc214→lc123). A Onda 2
+> re-processou a íntegra (250 chunks). O número final no DB pós-ingestão será
+> reconciliado pelo Manus — daí o placeholder.
+
+**Evolução (placeholder até confirmação DB):**
+
+| Marco | Total chunks | Δ |
+|---|---|---|
+| v5.1 (confirmado) | 2.515 | — |
+| Onda 2 (v6.0) | `[DB_TOTAL]` | `[DB_DELTA]` (projeção módulos: +1.255 lc123/cgsn/MOC; reconciliar lc123 legado) |
+
+### 1.3 Issues abertas (Onda 2)
+
+| Issue | Tema | Status |
+|---|---|---|
+| #1091 | Drizzle journal stale (Nuclear Reset) | Em reconciliação — **bloqueia migrations e totais DB** |
+| #1094 | leiFilter simples_nacional | PR #1096 aberto (briefing/decisão routers-fluxo-v3.ts) |
+| #1089 | section-chunker — 4 Anexos MOC (XML/DACTE/DAMDFE) | Backlog — precisa field-table parser (não section/artigo) |
+
+### 1.4 Pendências Onda 3
+
+- `lc214` re-chunking (revisão da maior lei do corpus)
+- `decreto_12955` (re-chunk/auditoria)
+- NCM/NBS row-chunker — **bloqueado até #1091** (slugs `tabela_ncm_completa`/`nbs_completa` ausentes do enum; expandir = migration, proibida enquanto journal stale)
 
 ---
 
