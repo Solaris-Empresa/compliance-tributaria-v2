@@ -1,0 +1,7574 @@
+/**
+ * Corpus RAG — MOC MDF-e v3.00a (Visão Geral)
+ * Corpus Onda 2 / issue #1089 — section-chunker, verbatim do .txt.
+ *
+ * Gerado por scripts/build-corpus-moc-mdfe-v3.ts
+ * (corpus-section-chunker — seções, não artigos).
+ * Total: 393 chunks (247 seções).
+ * NÃO editar manualmente — re-gerar via script (determinístico).
+ */
+
+import type { CorpusEntry } from './rag-corpus';
+
+export const RAG_CORPUS_MOC_MDFE_V3: CorpusEntry[] = [
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.3",
+    titulo: "Aplicação de Uso Indevido para rejeições relacionadas ao não encerramento do MDF-e 91",
+    conteudo: `9.3        Aplicação de Uso Indevido para rejeições relacionadas ao não encerramento do MDF-e 91
+
+                                                                                                                                           Página 4 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+
+
+
+
+                                                                                                                                              Página 5 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+
+  Controle de Versões
+
+ Versão      Publicação       Descrição
+
+ 3.00        10/2016          Versão inicial do MOC 3.00
+
+ 3.00a       04/2019          Revisão do MOC 3.00 (Consolidação de NT´s)
+
+
+
+
+                                                                           Página 6 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+
+  Histórico de Alterações / Cronograma
+
+  Versão                            Histórico de atualizações                           Implantação   Implantação
+                                                                                       Homologação     Produção`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.3",
+    titulo: "Aplicação de Uso Indevido para rejeições relacionadas ao não encerramento do MDF-e 91",
+    conteudo: `Consolidação das Notas Técnicas 2017-2018
+  3.00a      Alteração da validação de chave de acesso unificando as regras:             06/2019        07/2019
+                622-626, 674 e 589 => 604
+                650-654, 679 e 590 => 649
+                617-621, 670 e 588 => 601
+             Criação do Evento Inclusão de DF-e
+             Criação do Web Service síncrono de autorização
+             Novas regras de validação para Carregamento posterior (grifadas no MOC)
+             Regras de validação do QR Code (grifadas no MOC)
+             Novas regras da integração ANTT (grifadas no MOC)
+             Regras de validação de CNPJ/CPF para proprietário, contratante e
+             responsável pelo CIOT no modal rodoviário (grifadas no MOC)
+             Disciplina as regras para Uso Indevido
+             Definição dos padrões do QR Code
+             Definição da Consulta Pública resumida e consulta completa para atores
+             do MDF-e identificados pelo certificado digital
+             Regras de validação para o grupo do responsável técnico (grifadas no
+             MOC)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.3",
+    titulo: "Aplicação de Uso Indevido para rejeições relacionadas ao não encerramento do MDF-e 91",
+    conteudo: `Página 7 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 1",
+    titulo: "Introdução",
+    conteudo: `1        Introdução
+
+  Este Manual tem por objetivo a definição das especificações e critérios técnicos necessários para a
+  integração entre os Portais das Secretarias de Fazendas das Unidades Federadas, Receita
+  Federal do Brasil – RFB, Superintendência da Zona Franca de Manaus - SUFRAMA e os sistemas
+  das empresas emissoras do Manifesto Eletrônico de Documentos Fiscais – MDF-e.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2",
+    titulo: "Considerações Iniciais",
+    conteudo: `2 Considerações Iniciais
+
+  O Manifesto Eletrônico de Documentos Fiscais (MDF-e) está sendo desenvolvido de forma
+  integrada pelas Secretarias de Fazenda das Unidades Federadas, Receita Federal do Brasil - RFB,
+  Superintendência da Zona Franca de Manaus – SUFRAMA e representantes das transportadoras e
+  Agências Reguladoras do segmento de transporte, a partir da assinatura do Protocolo ENAT, que
+  atribuiu ao Encontro Nacional de Coordenadores e Administradores Tributários Estaduais (ENCAT)
+  a coordenação e a responsabilidade pelo desenvolvimento e implantação do Projeto MDF-e.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2.1.1",
+    titulo: "MDF-e (modelo 58)",
+    conteudo: `2.1.1 MDF-e (modelo 58)
+
+  Manifesto Eletrônico de Documentos Fiscais (MDF-e) é o documento emitido e armazenado
+  eletronicamente, de existência apenas digital, para vincular os documentos fiscais utilizados na
+  operação e/ou prestação, à unidade de carga utilizada no transporte, cuja validade jurídica é
+  garantida pela assinatura digital do emitente e autorização de uso pela administração tributária da
+  unidade federada do contribuinte.
+
+  O MDF-e deverá ser emitido por empresas prestadoras de serviço de transporte para prestações
+  com conhecimento de transporte ou pelas demais empresas nas operações, cujo transporte seja
+  realizado em veículos próprios, arrendados, ou mediante contratação de transportador autônomo
+  de cargas.
+
+  A finalidade do MDF-e é agilizar o registro em lote de documentos fiscais em trânsito e identificar a
+  unidade de carga utilizada e demais características do transporte.
+
+  Autorização de uso do MDF-e implicará em registro posterior dos eventos, nos documentos fiscais
+  eletrônicos nele relacionados.
+
+
+
+
+                                                                                          Página 8 / 102
+ Projeto`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2.1.1",
+    titulo: "MDF-e (modelo 58)",
+    conteudo: `MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2.1.2",
+    titulo: "DAMDFE",
+    conteudo: `2.1.2 DAMDFE
+
+  O DAMDFE (Documento Auxiliar do Manifesto Eletrônico de Documentos Fiscais) é um documento
+  auxiliar impresso em papel e sua especificação/modelos de leiaute encontram-se disponíveis no
+  documento Anexo II: Manual de Orientações do Contribuinte – DAMDFE.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2.1.3",
+    titulo: "Chave de Acesso do MDF-e",
+    conteudo: `2.1.3 Chave de Acesso do MDF-e
+
+  A Chave de Acesso do MDF-e é composta pelos seguintes campos que se encontram dispersos no
+  leiaute do MDF-e (vide Anexo I):
+
+                  Código   AAMM da   CNPJ/CPF    Modelo     Série     Número    Forma de    Código       DV
+                  da UF    emissão      do       (mod)     (serie)   do MDF-e   emissão    Numérico
+                                     Emitente                                   do MDF-e
+   Quantidade      02        04         14        02         03        09         01         08          01
+       de
+   caracteres
+
+
+            cUF - Código da UF do emitente do Documento Fiscal
+            AAMM - Ano e Mês de emissão do MDF-e
+            CNPJ/CPF- CNPJ ou CPF do emitente
+            mod - Modelo do Documento Fiscal
+            serie - Série do Documento Fiscal
+            nMDFe - Número do Documento Fiscal
+            tpEmis - forma de emissão do MDF-e
+            cMDFe - Código Numérico que compõe a Chave de Acesso
+            cDV - Dígito Verificador da Chave de Acesso
+
+  O Dígito Verificador (DV) irá garantir a integridade da chave de acesso, protegendo-a
+  principalmente contra digitações erradas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2.1.4",
+    titulo: "Chave Natural do MDF-e",
+    conteudo: `2.1.4 Chave Natural do MDF-e
+
+  A Chave Natural do MDF-e é composta pelos campos de UF, CNPJ/CPF do Emitente, Série e
+  Número do MDF-e, além do modelo do documento fiscal eletrônico. O Sistema de Autorização de
+  Uso do Ambiente Nacional Autorizador das SEFAZ valida a existência de um MDF-e previamente
+  autorizado e rejeita novos pedidos de autorização para MDF-e com duplicidade da Chave Natural.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2.1.5",
+    titulo: "Emitentes do MDF-e",
+    conteudo: `2.1.5 Emitentes do MDF-e
+
+  O emitente do MDF-e pode ser uma empresa transportadora de cargas emitente de Conhecimento
+  de Transportes com CNPJ e inscrição estadual ou um emitente de NF-e, na hipótese de transporte
+  de carga própria, podendo este ser uma pessoa jurídica ou pessoa física com inscrição estadual.
+
+                                                                                                  Página 9 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  No caso do Emitente Pessoa Jurídica:
+
+            O CNPJ deverá constar na Chave de Acesso, precedido por zeros, completando 14
+             posições quando necessário;
+
+            Série em faixa distinta da reservada à pessoa física;
+
+            O MDF-e deverá ser assinado com o Certificado Digital do Emitente, do tipo “e-CNPJ”.
+
+  No caso do Emitente Pessoa Física:
+
+            O CPF deverá constar na Chave de Acesso, precedido por zeros, completando 14 posições;
+
+            Será reservada uma faixa do campo Série do MDF-e (920-969), como forma de
+             identificação da Emitente pessoa física (CPF) com inscrição estadual;`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2.1.5",
+    titulo: "Emitentes do MDF-e",
+    conteudo: `     O MDF-e deverá ser assinado com o Certificado Digital do Emitente, do tipo “e-CPF”.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2.1.6",
+    titulo: "Série reservada",
+    conteudo: `2.1.6 Série reservada
+
+  O MDF-e emitido por pessoa física com inscrição deverá ser autorizado utilizando uma faixa
+  especial de série reservada para esta finalidade entre 920 e 969. Desta forma, as regras de
+  validação considerarão emissão por CPF quando na chave de acesso for identificada utilização
+  destas séries.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2.1.7",
+    titulo: "Encerramento do MDF-e",
+    conteudo: `2.1.7 Encerramento do MDF-e
+
+  Entende-se como encerramento do MDF-e o ato de informar ao fisco, através de Web Service de
+  registro de eventos o fim de sua vigência, que poderá ocorrer pelo término do trajeto acobertado ou
+  pela alteração das informações do MDF-e através da emissão de um novo.
+
+  O emitente deverá encerrar o MDF-e no final do percurso. Enquanto houver MDF-e pendente de
+  encerramento diferentes de regras de validação poderão impedir a emissão de novos MDF-e.
+
+  Se no decorrer do transporte houver qualquer alteração nas informações do MDF-e (veículos,
+  carga, documentação, etc.), este deverá ser encerrado e ser emitido um novo MDF-e com a nova
+  configuração.
+
+
+
+
+                                                                                          Página 10 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2.1.8",
+    titulo: "MDF-e com carregamento posterior",
+    conteudo: `2.1.8 MDF-e com carregamento posterior
+
+  É permitida a emissão do MDF-e quando, por ocasião do início da viagem, o emitente do MDF-e de
+  carga própria não tiver acesso aos documentos fiscais transportados e tratar-se de operação
+  interna na UF.
+
+  Nesses casos, o emitente poderá optar pela modalidade de emissão do MDF-e com indicação de
+  tag específica do XML, intitulado indicador de carregamento posterior. Uma vez identificada essa
+  modalidade de emissão, a inclusão de documentos fiscais será permitida em momento posterior à
+  emissão do MDF-e, por meio do evento de inclusão de documento fiscal que deverá ser autorizado.
+  Assim, os documentos passarão a compor a carga à medida em que ocorrerem os carregamentos
+  no percurso da viagem.
+
+
+
+
+                                                                                     Página 11 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.1",
+    titulo: "Modelo Conceitual",
+    conteudo: `3.1 Modelo Conceitual
+  O ambiente autorizador de MDF-e irá disponibilizar os seguintes serviços:
+
+       a) Recepção de MDF-e (Modelo 58) – Modelo assíncrono;
+             1) Recepção;
+             2) Consulta Processamento;
+       b) Recepção de MDF-e (Modelo 58) – Modelo síncrono;
+       c) Consulta da Situação Atual do MDF-e;
+       d) Consulta do status do serviço.
+       e) Registro de Eventos
+       f) Consulta MDF-e não encerrados
+
+  Para cada serviço oferecido existirá um Web Service específico. O fluxo de comunicação é sempre
+  iniciado pelo aplicativo do contribuinte através do envio de uma mensagem ao Web Service com a
+  solicitação do serviço desejado.
+
+  O Web Service sempre devolve uma mensagem de resposta confirmando o recebimento da
+  solicitação de serviço ao aplicativo do contribuinte na mesma conexão.
+
+  A solicitação de serviço poderá ser atendida na mesma conexão ou ser armazenada em filas de
+  processamento nos serviços mais críticos para um melhor aproveitamento dos recursos de
+  comunicação e de processamento das Secretarias de Fazenda Estaduais.
+
+  Os serviços podem ser síncronos ou assíncronos, em função da forma de processamento da`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.1",
+    titulo: "Modelo Conceitual",
+    conteudo: `solicitação de serviços:
+
+       a) Serviços síncronos – o processamento da solicitação de serviço é concluído na mesma
+             conexão, com a devolução de uma mensagem contendo o resultado do processamento do
+             serviço solicitado;
+
+       b) Serviços assíncronos – o processamento da solicitação de serviço não é concluído na
+             mesma conexão, havendo a devolução de uma mensagem de resposta contendo recibo
+             que tão somente confirma a recepção da solicitação de serviço. O aplicativo do contribuinte
+             deverá realizar uma nova conexão para consultar o resultado do processamento do serviço
+             solicitado anteriormente.
+
+
+
+
+                                                                                           Página 12 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  O diagrama a seguir ilustra o fluxo conceitual de comunicação entre o aplicativo do contribuinte e o
+  Ambiente Autorizador:
+
+     Arquitetura de Comunicação – Visão Conceitual
+
+      Contribuinte                                            Ambiente Autorizador`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.1",
+    titulo: "Modelo Conceitual",
+    conteudo: `Web Services        Transações
+                                          HTTPS
+                 Client MDF-e                                   Serviços
+                                              Fluxo de         Síncronos
+      (    ERP ou software específico )
+                                            Comunicação                                      Aplicação MDF-e
+                                                               Serviços
+                                                              Assíncronos
+                    MDF-e
+                                                                             Filas de Msgs
+
+
+          Aplicativo de Faturamento
+      (    ERP ou software específico )                                                          MDF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.1",
+    titulo: "Padrão de documento XML",
+    conteudo: `3.2.1 Padrão de documento XML
+
+  a) Padrão de Codificação
+
+  A especificação do documento XML adotada é a recomendação W3C para XML 1.0, disponível em
+  www.w3.org/TR/REC-xml e a codificação dos caracteres será em UTF-8, assim todos os
+  documentos XML serão iniciados com a seguinte declaração:
+
+  <?xml version="1.0" encoding="UTF-8"?>
+
+
+  OBS: Lembrando que cada arquivo XML somente poderá ter uma única declaração <?xml
+  version="1.0" encoding="UTF-8"?>.
+
+  Cada arquivo de MDF-e terá apenas um MDF-e, dada a quantidade de documentos fiscais que um
+  MDF-e poderá conter.
+
+  b) Declaração namespace
+
+  O documento XML deverá ter uma única declaração de namespace no elemento raiz do
+  documento com o seguinte padrão:
+
+  <MDFe xmlns=”http://www.portalfiscal.inf.br/mdfe” > (exemplo para o XML do MDF-e)
+
+
+  O uso de declaração namespace diferente do padrão estabelecido para o Projeto é vedado.
+
+
+
+                                                                                                         Página 13 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  A declaração do namespace da assinatura digital deverá ser realizada na própria tag <Signature>,`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.1",
+    titulo: "Padrão de documento XML",
+    conteudo: `conforme exemplo abaixo.
+
+  Veja exemplo a seguir:
+  <?xml version="1.0" encoding="UTF-8"?>
+  <enviMDFe xmlns="http://www.portalfiscal.inf.br/mdfe" versao="3.00">
+     <idLote>200602220000001</idLote>
+     <MDFe xmlns="http://www.portalfiscal.inf.br/mdfe">
+             <infMDFe Id="MDFe31060243816719000108650000000010001234567890" versao="3.00">
+                           ...
+             <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+                           …
+     </MDFe>
+  </enviMDFe>
+
+
+
+
+  c) Prefixo de namespace
+  Não é permitida a utilização de prefixos de namespace. Essa restrição visa otimizar o tamanho do
+  arquivo XML.
+
+  Assim, ao invés da declaração:
+
+  <mdfe:MDFe xmlns:mdfe=”http://www.portalfiscal.inf.br/mdfe”> (exemplo para o XML do MDF-e
+
+  com prefixo mdfe) deverá ser adotada a declaração:
+
+  <MDFe xmlns =”http://www.portalfiscal.inf.br/mdfe” >
+
+
+
+  d) Otimização na montagem do arquivo
+
+  Na geração do arquivo XML do MDF-e, excetuados os campos identificados como obrigatórios no
+  modelo (primeiro dígito da coluna de ocorrências do leiaute iniciada com 1, ex.: 1-1, 1-2, 1-N), não`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.1",
+    titulo: "Padrão de documento XML",
+    conteudo: `deverão ser incluídas as TAGs de campos com conteúdo zero (para campos tipo numérico) ou
+  vazio (para campos tipo caractere).
+
+  Na geração do arquivo XML do MDF-e, deverão ser preenchidos no modelo apenas as TAGs de
+  campos identificados como obrigatórios no leiaute ou os campos obrigatórios por força da
+  legislação pertinente. Os campos obrigatórios no leiaute são identificados pelo primeiro dígito da
+  coluna ocorrência (“Ocorr”) que inicie com 1, ex.: 1-1, 1-2, 1-N. Os campos obrigatórios por força da
+  legislação pertinente devem ser informados, mesmo que no leiaute seu preenchimento seja
+  facultativo.
+
+  A regra constante do parágrafo anterior deverá estender-se para os campos onde não há indicação
+  de obrigatoriedade e que, no entanto, seu preenchimento torna-se obrigatório por estar
+
+
+
+                                                                                         Página 14 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  condicionado à legislação específica ou ao negócio do contribuinte. Neste caso, deverá constar a
+  TAG com o valor correspondente e, para os demais campos, deverão ser eliminadas as TAGs.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.1",
+    titulo: "Padrão de documento XML",
+    conteudo: `Para reduzir o tamanho final do arquivo XML do MDF-e alguns cuidados de programação deverão
+  ser assumidos:
+
+            Não incluir "zeros não significativos" para campos numéricos;
+            Não incluir "espaços" ("line-feed", "carriage return", "tab", caractere de "espaço" entre as
+             TAGs) no início ou no final de campos numéricos e alfanuméricos;
+            Não incluir comentários no arquivo XML;
+            Não incluir anotação e documentação no arquivo XML (TAG annotation e TAG
+             documentation);
+            Não incluir caracteres de formatação no arquivo XML ("line-feed", "carriage return", "tab",
+             caractere de "espaço" entre as TAGs).
+
+
+  e) Validação de Schema
+
+  Para garantir minimamente a integridade das informações prestadas e a correta formação dos
+  arquivos XML, o contribuinte deverá submeter o arquivo do MDF-e e as demais mensagens XML
+  para validação pelo Schema (XSD – XML Schema Definition), disponibilizado pelo Ambiente
+  Autorizador, antes de seu envio.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.2",
+    titulo: "Padrão de Comunicação",
+    conteudo: `3.2.2 Padrão de Comunicação
+
+  A comunicação entre o contribuinte e a Secretaria de Fazenda Estadual será baseada em Web
+  Services disponíveis no ambiente autorizador da SEFAZ Virtual Rio Grande do Sul.
+
+  O meio físico de comunicação utilizado será a Internet, com o uso do protocolo TLS versão 1.2,
+  com autenticação mútua, que além de garantir um duto de comunicação seguro na Internet,
+  permite a identificação do servidor e do cliente através de certificados digitais, eliminando a
+  necessidade de identificação do usuário através de nome ou código de usuário e senha.
+
+  O modelo de comunicação segue o padrão de Web Services definido pelo WS-I Basic Profile.
+
+  A troca de mensagens entre os Web Services do Ambiente Autorizador e o aplicativo do
+  contribuinte será realizada no padrão SOAP versão 1.2, com troca de mensagens XML no padrão
+  Style/Enconding: Document/Literal.
+
+
+
+
+                                                                                            Página 15 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  A chamada dos diferentes Web Services do Projeto MDF-e é realizada com o envio de uma
+  mensagem através do campo mdfeDadosMsg.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.2",
+    titulo: "Padrão de Comunicação",
+    conteudo: `A versão do leiaute da mensagem XML contida no campo mdfeDadosMsg e o código da UF
+  requisitada serão informados nos campos versaoDados e cUF, ambos do tipo string localizados no
+  elemento mdfeCabecMsg do SOAP header.
+
+  O SOAP header é um elemento que será descontinuado na próxima versão do MDF-e, devendo o
+  Ambiente Autorizador disponibilizar novos endereços alternativos para os Web Services sem a
+  necessidade de informar essa estrutura quando ocorrera próxima troca da versão do XML.
+
+  Exemplo de uma mensagem requisição padrão SOAP:
+
+  <?xml version="1.0" encoding="utf-8"?>
+  <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+    <soap12:Header>
+      <mdfeCabecMsg xmlns="http://www.portalfiscal.inf.br/mdfe/wsdl/MDFeRecepcao">
+        <cUF>string</cUF>
+        <versaoDados>string</versaoDados>
+      </mdfeCabecMsg>
+    </soap12:Header>
+    <soap12:Body>
+      <mdfeDadosMsg xmlns="http://www.portalfiscal.inf.br/mdfe/wsdl/MDFeRecepcao">xml</mdfeDadosMsg>
+    </soap12:Body>
+  </soap12:Envelope>`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.2",
+    titulo: "Padrão de Comunicação",
+    conteudo: `Exemplo de uma mensagem de retorno padrão SOAP:
+
+  <?xml version="1.0" encoding="utf-8"?>
+  <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+    <soap12:Header>
+      <mdfeCabecMsg xmlns="http://www.portalfiscal.inf.br/mdfe/wsdl/MDFeRecepcao">
+        <cUF>string</cUF>
+        <versaoDados>string</versaoDados>
+      </mdfeCabecMsg>
+    </soap12:Header>
+    <soap12:Body>
+      <mdfeRecepcaoLoteResult
+             xmlns="http://www.portalfiscal.inf.br/mdfe/wsdl/MDFeRecepcao">xml</mdfeRecepcaoLoteResult>
+    </soap12:Body>
+  </soap12:Envelope>`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.3",
+    titulo: "Padrão de Certificado Digital",
+    conteudo: `3.2.3 Padrão de Certificado Digital
+
+  O certificado digital utilizado no Projeto do MDF-e será emitido por Autoridade Certificadora
+  credenciada pela Infraestrutura de Chaves Públicas Brasileira – ICP-Brasil, tipo A1 ou A3, devendo
+  conter o CNPJ da pessoa jurídica titular do certificado digital no campo otherName OID =`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2.16.76.1.3.3",
+    titulo: "ou CPF da pessoa física na mesma extensão do certificado, com o OID =",
+    conteudo: `2.16.76.1.3.3 ou CPF da pessoa física na mesma extensão do certificado, com o OID =
+  2.16.76.1.3.1.
+
+
+                                                                                          Página 16 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  Os certificados digitais serão exigidos em 2 (dois) momentos distintos para o projeto:
+
+       a) Assinatura de Mensagens: O certificado digital utilizado para essa função deverá conter o
+             CNPJ de um dos estabelecimentos da empresa emissora do MDF-e ou o CPF do emitente
+             pessoa física. Por mensagens, entenda-se: o Pedido de Autorização de Uso (Arquivo MDF-
+             e), o Registro de Eventos de MDF-e e demais arquivos XML que necessitem de assinatura.
+             O certificado digital deverá ter o “uso da chave” previsto para a função de assinatura digital,
+             respeitando a Política do Certificado.
+
+       b) Transmissão (durante a transmissão das mensagens entre o servidor do contribuinte e o
+             Ambiente Autorizador): O certificado digital utilizado para identificação do aplicativo do`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2.16.76.1.3.3",
+    titulo: "ou CPF da pessoa física na mesma extensão do certificado, com o OID =",
+    conteudo: `contribuinte deverá conter o CNPJ ou CPF do responsável pela transmissão das
+             mensagens, que não necessita ser o mesmo do emissor do MDF-e, devendo ter a extensão
+             Extended Key Usage com permissão de "Autenticação Cliente".`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.4",
+    titulo: "Padrão da Assinatura Digital",
+    conteudo: `3.2.4 Padrão da Assinatura Digital
+
+  As mensagens enviadas ao Ambiente Autorizador são documentos eletrônicos elaborados no
+  padrão XML e devem ser assinados digitalmente com um certificado digital que contenha o CPF do
+  emitente pessoa física ou CNPJ do estabelecimento (matriz ou filial) emissor do MDF-e objeto do
+  pedido.
+
+  Os elementos abaixo estão presentes dentro do Certificado do contribuinte tornando desnecessária a
+  sua representação individualizada no arquivo XML. Portanto, o arquivo XML não deve conter os
+  elementos:
+  <X509SubjectName>
+  <X509IssuerSerial>
+  <X509IssuerName>
+  <X509SerialNumber>
+  <X509SKI>
+
+  Deve-se evitar o uso das TAGs relacionadas a seguir, pois as informações serão obtidas a partir do
+  Certificado do emitente:
+  <KeyValue>
+  <RSAKeyValue>
+  <Modulus>
+  <Exponent>
+
+
+
+  O Projeto MDF-e utiliza um subconjunto do padrão de assinatura XML definido pelo
+  http://www.w3.org/TR/xmldsig-core/, que tem o seguinte leiaute:
+
+
+                                                                                              Página 17 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.4",
+    titulo: "Padrão da Assinatura Digital",
+    conteudo: `#             Campo             Ele    Pai    Tipo   Ocor.                 Descrição/Observação
+  XS01     Signature                Raiz   -      -      -
+  XS02     SignedInfo               G      XS01   -      1-1     Grupo da Informação da assinatura
+  XS03     CanonicalizationMethod   G      XS02   -      1-1     Grupo do Método de Canonicalização
+  XS04     Algorithm                A      XS03   C      1-1     Atributo Algorithm de CanonicalizationMethod:
+                                                                 http://www.w3.org/TR/2001/REC-xml-c14n-20010315
+  XS05     SignatureMethod          G      XS02   -      1-1     Grupo do Método de Assinatura
+  XS06     Algorithm                A      XS05   C      1-1     Atributo Algorithm de SignedMethod:
+                                                                 http://www.w3.org/2000/09/xmldsig#rsa-sha1
+  XS07     Reference                G      XS02   -      1-1     Grupo de Reference
+  XS08     URI                      A      XS07   C      1-1     Atributo URI da tag Reference
+  XS10     Transforms               G      XS07   -      1-1     Grupo do algorithm de Transform`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.4",
+    titulo: "Padrão da Assinatura Digital",
+    conteudo: `XS11     unique_Transf_Alg        RC     XS10   -      1-1     Regra para o atributo Algorithm do Transform ser
+                                                                 único.
+  XS12     Transform                G      XS10   -      2-2     Grupo de Transform
+  XS13     Algorithm                A      XS12   C      1-1     Atributos válidos Algorithm do Transform:
+                                                                 http://www.w3.org/TR/2001/REC-xml-c14n-20010315
+                                                                 http://www.w3.org/2000/09/xmldsig#enveloped-signature
+  XS14     XPath                    E      XS12   C      0-N     XPath
+  XS15     DigestMethod             G      XS07   -      1-1     Grupo do Método de DigestMethod
+  XS16     Algorithm                A      XS15   C      1-1     Atributo Algorithm de DigestMethod:
+                                                                 http://www.w3.org/2000/09/xmldsig#sha1
+  XS17     DigestValue              E      XS07   C      1-1     Digest Value (Hash SHA-1 – Base64)
+  XS18     SignatureValue           G      XS01   -      1-1     Grupo do Signature Value`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.4",
+    titulo: "Padrão da Assinatura Digital",
+    conteudo: `XS19     KeyInfo                  G      XS01   -      1-1     Grupo do KeyInfo
+  XS20     X509Data                 G      XS19   -      1-1     Grupo X509
+  XS21     X509Certificate          E      XS20   C      1-1     Certificado Digital x509 em Base64
+
+
+  A assinatura do Contribuinte no MDF-e será feita na TAG <infMDFe> identificada pelo atributo Id,
+  cujo conteúdo deverá ser um identificador único (chave de acesso) precedido do literal ‘MDFe’ para
+  o MDF-e, conforme leiaute descrito no Anexo I. O identificador único precedido do literal ‘#MDFe’
+  deverá ser informado no atributo URI da TAG <Reference>. Para as demais mensagens a serem
+  assinadas, o processo será o mesmo mantendo sempre um identificador único para o atributo Id na
+  TAG a ser assinada. Segue um exemplo:
+  <MDFe xmlns="http://www.portalfiscal.inf.br/mdfe" >
+    <infMDFe Id="MDFe31060243816719000108650000000010001234567897" versao="3.00">
+      ...
+    </infMDFe>
+    <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+      <SignedInfo>
+        <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.4",
+    titulo: "Padrão da Assinatura Digital",
+    conteudo: `<SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+        <Reference URI="#MDFe31060243816719000108650000000010001234567897">
+          <Transforms>
+            <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+            <Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+          </Transforms>
+          <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+          <DigestValue>vFL68WETQ+mvj1aJAMDx+oVi928=</DigestValue>
+        </Reference>
+      </SignedInfo>
+      <SignatureValue>IhXNhbdL1F9UGb2ydVc5v/gTB/y6r0KIFaf5evUi1i ...</SignatureValue>
+      <KeyInfo>
+        <X509Data>
+          <X509Certificate>MIIFazCCBFOgAwIBAgIQaHEfNaxSeOEvZGlVDANB ... </X509Certificate>
+        </X509Data>
+      </KeyInfo>
+    </Signature>
+  </MDFe>
+
+
+
+                                                                                                          Página 18 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  Para o processo de assinatura, o contribuinte não deve fornecer a Lista de Certificados Revogados,`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 4,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.4",
+    titulo: "Padrão da Assinatura Digital",
+    conteudo: `já que a mesma será montada e validada no Ambiente Autorizador no momento da conferência da
+  assinatura digital.
+
+  A assinatura digital do documento eletrônico deverá atender aos seguintes padrões adotados:
+
+      Padrão      de   assinatura:     “XML    Digital    Signature”,   utilizando   o   formato   “Enveloped”
+       (http://www.w3.org/TR/xmldsig-core/);
+      Certificado         digital:      Emitido      por        AC        credenciada       no        ICP-Brasil
+       (http://www.w3.org/2000/09/xmldsig#X509Data);
+      Cadeia de Certificação: EndCertOnly (Incluir na assinatura apenas o certificado do usuário
+       final);
+      Tipo do certificado: A1 ou A3 (o uso de HSM é recomendado);
+      Tamanho da Chave Criptográfica: Compatível com os certificados A1 e A3 (1024 bits);
+      Função criptográfica assimétrica: RSA (http://www.w3.org/2000/09/xmldsig#rsa-sha1);
+      Função de “message digest”: SHA-1 (http://www.w3.org/2000/09/xmldsig#sha1);
+      Codificação: Base64 (http://www.w3.org/2000/09/xmldsig#base64);
+      Transformações exigidas: Útil para realizar a canonicalização do XML enviado para realizar a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 5,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.4",
+    titulo: "Padrão da Assinatura Digital",
+    conteudo: `validação correta da Assinatura Digital. São elas:
+             (1) Enveloped (http://www.w3.org/2000/09/xmldsig#enveloped-signature)
+             (2) C14N (http://www.w3.org/TR/2001/REC-xml-c14n-20010315)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 6,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.5",
+    titulo: "Validação da Assinatura Digital pelo Ambiente Autorizador",
+    conteudo: `3.2.5 Validação da Assinatura Digital pelo Ambiente Autorizador
+
+  Para a validação da assinatura digital, seguem as regras que serão adotadas pelo Ambiente
+  Autorizador:
+             (1) Extrair a chave pública do certificado;
+             (2) Verificar o prazo de validade do certificado utilizado;
+             (3) Montar e validar a cadeia de confiança dos certificados validando também a LCR (Lista
+                 de Certificados Revogados) de cada certificado da cadeia;
+             (4) Validar o uso da chave utilizada (Assinatura Digital) de tal forma a aceitar certificados
+                 somente do tipo A (não serão aceitos certificados do tipo S);
+             (5) Garantir que o certificado utilizado é de um usuário final e não de uma Autoridade
+                 Certificadora;
+             (6) Adotar as regras definidas pelo RFC 3280 para LCRs e cadeia de confiança;
+             (7) Validar a integridade de todas as LCR utilizadas pelo sistema;
+             (8) Prazo de validade de cada LCR utilizada (verificar data inicial e final).
+
+                                                                                                    Página 19 / 102
+ Projeto`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.5",
+    titulo: "Validação da Assinatura Digital pelo Ambiente Autorizador",
+    conteudo: `MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  A forma de conferência da LCR pode ser feita de 2 (duas) maneiras: On-line ou Download
+  periódico. As assinaturas digitais das mensagens serão verificadas considerando a lista de
+  certificados revogados disponível no momento da conferência da assinatura.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.6",
+    titulo: "Resumo dos Padrões Técnicos",
+    conteudo: `3.2.6 Resumo dos Padrões Técnicos
+
+             Característica                                                   Descrição
+  Web Services                          Padrão definido pelo WS-I Basic Profile 1.1 (http://www.ws-i.org/Profiles/BasicProfile-
+                                        1.1-2004-08-24.html).
+  Meio lógico de comunicação            Web Services, disponibilizados pelo AMBIENTE AUTORIZADOR
+  Meio físico de comunicação            Internet
+  Protocolo Internet                    TLS versão 1.2, com autenticação mútua através de certificados digitais.
+  Padrão de troca de mensagens          SOAP versão 1.2
+  Padrão da mensagem                    XML no padrão Style/Encoding: Document/Literal.
+  Padrão de certificado digital         X.509 versão 3, emitido por Autoridade Certificadora credenciada pela Infra-estrutura
+                                        de Chaves Públicas Brasileira – ICP-Brasil, do tipo A1 ou A3, devendo conter o
+                                        CNPJ/CPF do proprietário do certificado digital.
+                                        Para assinatura de mensagens, utilizar o certificado digital do emitente pessoa física`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.6",
+    titulo: "Resumo dos Padrões Técnicos",
+    conteudo: `ou um dos estabelecimentos da empresa emissora do MDF-e.
+                                        Para transmissão, utilizar o certificado digital do responsável pela transmissão.
+  Padrão de assinatura digital          XML Digital Signature, Enveloped, com certificado digital X.509 versão 3, com chave
+                                        privada de 1024 bits, com padrões de criptografia assimétrica RSA, algoritmo
+                                        message digest SHA-1 e utilização das transformações Enveloped e C14N.
+  Validação de assinatura digital       Será validada além da integridade e autoria, a cadeia de confiança com a validação
+                                        das LCRs.
+  Padrões de preenchimento              Campos não obrigatórios do Schema que não possuam conteúdo terão suas tags
+  XML                                   suprimidas no arquivo XML.
+                                        Máscara de números decimais e datas estão definidas no Schema XML.
+                                        Nos campos numéricos inteiro, não incluir a vírgula ou ponto decimal.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.2.6",
+    titulo: "Resumo dos Padrões Técnicos",
+    conteudo: `Nos campos numéricos com casas decimais, utilizar o “ponto decimal” na separação
+                                        da parte inteira.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.3",
+    titulo: "Modelo Operacional",
+    conteudo: `3.3 Modelo Operacional
+  A forma de processamento das solicitações de serviços no MDF-e pode ser síncrona, caso o
+  atendimento da solicitação de serviço seja realizado na mesma conexão; ou assíncrona, quando o
+  processamento do serviço solicitado não é atendido na mesma conexão, nesta situação, torna-se
+  necessária a realização de mais uma conexão para a obtenção do resultado do processamento.
+
+  As solicitações de serviços que exigem processamento intenso serão executadas de forma
+  assíncrona e as demais solicitações de serviços de forma síncrona.
+
+  Assim, os serviços do MDF-e serão implementados da seguinte forma:
+
+                              Serviço                                     Implementação
+  Recepção do MDF-e (com envelope enviMDFe)                                  Assíncrona
+  Recepção do MDF-e                                                           Síncrona
+  Consulta Situação atual do MDF-e                                            Síncrona
+  Registro de Evento de MDF-e                                                 Síncrona
+
+
+
+                                                                                                               Página 20 / 102`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.3",
+    titulo: "Modelo Operacional",
+    conteudo: `Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  Consulta Status do Serviço                                                     Síncrona
+  Consulta MDF-e não encerrados                                                  Síncrona`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.3.1",
+    titulo: "Serviços Síncronos",
+    conteudo: `3.3.1 Serviços Síncronos
+
+  As solicitações de serviços de implementação síncrona são processadas imediatamente e o
+  resultado do processamento é obtido em uma única conexão.
+
+  A seguir, o fluxo simplificado de funcionamento:
+
+   Serviço de Implementação Síncrona
+
+     Contribuinte                                        Secretaria de Fazenda Estadual
+
+                            (1) Solicitação de serviço                    (2) Solicitação de serviço
+                                                                                                       Processamento
+           Aplicativo                                      Web Service                                   de Serviços
+            Cliente               (4) Resultado                                  (3) Resultado
+
+
+
+
+  Etapas do processo ideal:
+
+             (1) O aplicativo do contribuinte inicia a conexão enviando uma mensagem de solicitação de
+                 serviço para o Web Service;
+             (2) O Web Service recebe a mensagem de solicitação de serviço e encaminha ao aplicativo
+                 do MDF-e que irá processar o serviço solicitado;`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.3.1",
+    titulo: "Serviços Síncronos",
+    conteudo: `(3) O aplicativo do MDF-e recebe a mensagem de solicitação de serviço e realiza o
+                 processamento, devolvendo uma mensagem de resultado do processamento ao Web
+                 Service;
+             (4) O Web Service recebe a mensagem de resultado do processamento e o encaminha ao
+                 aplicativo do contribuinte;
+             (5) O aplicativo do contribuinte recebe a mensagem de resultado do processamento e, caso
+                 não exista outra mensagem, encerra a conexão.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.3.2",
+    titulo: "Serviços Assíncronos",
+    conteudo: `3.3.2 Serviços Assíncronos
+
+  As solicitações de serviços de implementação assíncrona são processadas de forma distribuída por
+  vários processos e o resultado do processamento somente é obtido na segunda conexão.
+
+  A seguir o fluxo simplificado de funcionamento:
+
+
+
+
+                                                                                                                Página 21 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+
+
+  Etapas do processo ideal:
+
+             (1) O aplicativo do contribuinte inicia a conexão enviando uma mensagem de solicitação de
+                serviço para o Web Service de recepção de solicitação de serviços;
+             (2) O Web Service de recepção de solicitação de serviços recebe a mensagem de
+                solicitação de serviço e a coloca na fila de serviços solicitados, acrescentando o
+                CNPJ/CPF do transmissor obtido do certificado digital do transmissor;
+             (3) O Web Service de recepção de solicitação de serviços retorna o recibo da solicitação de
+                serviço e a data e hora de recebimento da mensagem no Web Service;`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.3.2",
+    titulo: "Serviços Assíncronos",
+    conteudo: `(4) O aplicativo do contribuinte recebe o recibo e o coloca na fila de recibos de serviços
+                solicitados e ainda não processados e, caso não exista outra mensagem, encerra a
+                conexão;
+             (5) Na Secretaria de Fazenda Estadual a solicitação de serviços é retirada da fila de
+                serviços solicitados pelo aplicativo do MDF-e;
+             (6) O serviço solicitado é processado pelo aplicativo do MDF-e e o resultado do
+                processamento é colocado na fila de serviços processados;
+             (7) O aplicativo do contribuinte retira um recibo da fila de recibos de serviços solicitados;
+             (8) O aplicativo do contribuinte envia uma consulta de recibo, iniciando uma conexão com o
+                Web Service “Consulta Recibo (MDFeRetRecepcao)”
+
+                                                                                                Página 22 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+             (9) O Web Service “Consulta Recibo” recebe a mensagem de consulta recibo e localiza o
+                resultado de processamento da solicitação de serviço;`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.3.2",
+    titulo: "Serviços Assíncronos",
+    conteudo: `(10)   O Web Service “Consulta Recibo (MDFeRetRecepcao)” devolve o resultado do
+                processamento ao aplicativo contribuinte;
+             (11)   O aplicativo do contribuinte recebe a mensagem de resultado do processamento e,
+                caso não exista outra mensagem, encerra a conexão.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.3.3",
+    titulo: "Filas e Mensagens",
+    conteudo: `3.3.3 Filas e Mensagens
+
+  As filas de mensagens de solicitação de serviços são necessárias para a implementação do
+  processamento assíncrono das solicitações de serviços.
+
+  As mensagens de solicitações de serviços no processamento assíncrono são armazenadas em
+  uma fila de entrada.
+
+  Para ilustrar como as filas armazenam as informações, apresenta-se o diagrama a seguir:
+
+   Estrutura de um item da fila:
+
+
+                           CNPJ/CPF do    Número      data e hora
+                                                                        XML de Dados
+                           Transmissor   do Recibo   recebimento
+
+                                     Área de controle               Área de mensagem
+
+  A estrutura de um item é composta pela área de controle (identificador) e pela área de detalhe que
+  contém a mensagem XML. As seguintes informações são adotadas como atributos de controle:
+
+  CNPJ/CPF do transmissor: identificação do cliente que enviou a mensagem que não necessita
+  estar vinculado ao estabelecimento emissor do MDF-e. Somente o transmissor da mensagem terá
+  acesso ao resultado do processamento das mensagens de solicitação de serviços;`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.3.3",
+    titulo: "Filas e Mensagens",
+    conteudo: `Recibo de entrega: Número sequencial único atribuído para a mensagem pelo ambiente
+  autorizador. Este atributo identifica a mensagem de solicitação de serviços na fila de mensagens;
+
+  Data e hora de recebimento da mensagem: Data e hora local do instante de recebimento da
+  mensagem atribuída pelo Secretaria ambiente autorizador. Este atributo é importante como
+  parâmetro de desempenho do sistema, eliminação de mensagens, adoção do regime de
+  contingência, etc. O tempo médio de resposta é calculado com base neste atributo;
+
+
+
+
+                                                                                        Página 23 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  Para processar as mensagens de solicitações de serviços, a aplicação do MDF-e irá retirar a
+  mensagem da fila de entrada de acordo com a ordem de chegada, devendo armazenar o resultado
+  do processamento da solicitação de serviço em uma fila de saída.
+
+  A fila de saída terá a mesma estrutura da fila de entrada, a única diferença será o conteúdo do
+  detalhe da mensagem que contém o resultado do processamento da solicitação de serviço em
+  formato XML.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.3.3",
+    titulo: "Filas e Mensagens",
+    conteudo: `O tempo médio de resposta que mede a performance do serviço de processamento do arquivo é
+  calculado com base no tempo decorrido entre o momento de recebimento da mensagem e o
+  momento de armazenamento do resultado do processamento da solicitação de serviço na fila de
+  saída.
+
+  Nota: O termo fila é utilizado apenas para designar um repositório de recibos emitidos. A
+  implementação da fila poderá ser feita por meio de Banco de Dados ou qualquer outra forma,
+  sendo transparente para o contribuinte que realizará a consulta do processamento efetuado
+  (processos assíncronos).`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.4",
+    titulo: "Padrão de Mensagens dos Web Services",
+    conteudo: `3.4 Padrão de Mensagens dos Web Services
+  As chamadas dos Web Services disponibilizados pelo Ambiente Autorizador e os respectivos
+  resultados do processamento são realizadas através das mensagens com o seguinte padrão:
+
+
+    Padrão de Mensagem de chamada/retorno de Web Service
+
+           cUF      versaoDados     Estrutura XML definida na documentação do Web Service
+
+    Elemento mdfeCabecMsg (SOAP Header)       Área de dados (SOAP Body)
+
+
+
+   cUF – código da UF de origem da mensagem.
+   versaoDados - versão do leiaute da estrutura XML informado na área de dados.
+   Área de Dados – estrutura XML variável definida na documentação do Web Service acessado.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.4.1",
+    titulo: "Informações de controle e área de dados das mensagens",
+    conteudo: `3.4.1 Informações de controle e área de dados das mensagens
+
+  As informações de controle das chamadas dos Web Services são armazenadas no elemento
+  mdfeCabecMsg do SOAP Header e servem para identificar a UF de origem do emissor e a versão
+  do leiaute da estrutura XML armazenada na área de dados da mensagem:
+
+
+
+
+                                                                                     Página 24 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  <soap12:Header>
+      <mdfeCabecMsg xmlns="http://www.portalfiscal.inf.br/mdfe/wsdl/MDFeRecepcao">
+        <cUF>string</cUF>
+        <versaoDados>string</versaoDados>
+      </mdfeCabecMsg>
+  </soap12:Header>
+
+
+  A informação armazenada na área de dados é um documento XML que deve atender o leiaute
+  definido na documentação do Web Service acessado:
+
+  <soap12:Body>
+      <mdfeDadosMsg xmlns="http://www.portalfiscal.inf.br/mdfe/wsdl/MDFeRecepcao">xml</mdfeDadosMsg>
+  </soap12:Body>
+
+
+  Para o serviço de recepção síncrono de MDF-e, a mensagem deverá ser compactada no padrão
+  GZip, onde o resultado da compactação é convertido para Base64, reduzindo o tamanho da`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.4.1",
+    titulo: "Informações de controle e área de dados das mensagens",
+    conteudo: `mensagem em aproximadamente 70%, conforme abaixo:
+
+  <soap12:Body>
+      <mdfeDadosMsg
+                xmlns="http://www.portalfiscal.inf.br/mdfe/wsdl/MDFeRecepcaoSinc">string</mdfeDadosMsg>
+  </soap12:Body>
+
+
+  A área referente ao SOAP Header será descontinuada na próxima versão de MDF-e e não está
+  presente no Web Service síncrono de recepção deste Manual.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.4.2",
+    titulo: "Validação da estrutura XML das Mensagens dos Web Services",
+    conteudo: `3.4.2 Validação da estrutura XML das Mensagens dos Web Services
+
+  As informações são enviadas ou recebidas dos Web Services através de mensagens no padrão
+  XML definido na documentação de cada Web Service.
+
+  As alterações de leiaute e da estrutura de dados XML realizadas nas mensagens são controladas
+  através da atribuição de um número de versão para a mensagem.
+
+  Um Schema XML é uma linguagem que define o conteúdo do documento XML, descrevendo os
+  seus elementos e a sua organização, além de estabelecer regras de preenchimento de conteúdo e
+  de obrigatoriedade de cada elemento ou grupo de informação.
+
+  A validação da estrutura XML da mensagem é realizada por um analisador sintático (parser) que
+  verifica se a mensagem atende as definições e regras de seu Schema XML.
+
+  Qualquer divergência da estrutura XML da mensagem em relação ao seu Schema XML provoca
+  um erro de validação do Schema XML.
+
+  A primeira condição para que a mensagem seja validada com sucesso é que ela seja submetida ao
+  Schema XML correto.
+
+
+                                                                                           Página 25 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.4.2",
+    titulo: "Validação da estrutura XML das Mensagens dos Web Services",
+    conteudo: `MOC 3.00a
+
+
+  Assim, o aplicativo do contribuinte deve estar preparado para gerar as mensagens no leiaute em
+  vigor, devendo ainda informar a versão do leiaute da estrutura XML da mensagem no campo
+  versaoDados do elemento mdfeCabecMsg do SOAP Header.
+
+  <soap12:Header>
+      <mdfeCabecMsg xmlns="http://www.portalfiscal.inf.br/mdfe/wsdl/mdfeRecepcao">
+        <cUF>35</cUF>
+        <versaoDados>3.00</versaoDados>
+      </mdfeCabecMsg>
+  </soap12:Header>`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.4.3",
+    titulo: "Schemas XML das Mensagens dos Web Services",
+    conteudo: `3.4.3 Schemas XML das Mensagens dos Web Services
+
+  Toda mudança de leiaute das mensagens dos Web Services implica na atualização do seu
+  respectivo Schema XML.
+
+  A identificação da versão dos Schemas será realizada com o acréscimo do número da versão no
+  nome do arquivo precedida da literal ‘_v’, como segue:
+
+  mdfe_v3.00.xsd (Schema XML do MDF-e, versão 3.00);
+  tiposGeral_v3.00.xsd (Schema XML dos tipos do MDF-e, versão 3.00).
+
+
+  A maioria dos Schemas XML do MDF-e utilizam as definições de tipos básicos ou tipos complexos
+  que estão definidos em outros Schemas XML (ex.: tiposGeralMDFe_v3.00.xsd, etc.), nestes casos,
+  a modificação de versão do Schema básico será repercutida no Schema principal.
+
+  Por exemplo, o tipo numérico de 15 posições com 2 decimais é definido no Schema
+  tiposGeralMDFe_v3.00.xsd, caso ocorra alguma modificação na definição deste tipo, todos os
+  Schemas que utilizam este tipo básico devem ter a sua versão atualizada e as declarações “import”
+  ou “include” devem ser atualizadas com o nome do Schema básico atualizado.
+
+  As modificações de leiaute das mensagens dos Web Services podem ser causadas por`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.4.3",
+    titulo: "Schemas XML das Mensagens dos Web Services",
+    conteudo: `necessidades técnicas ou em razão da modificação de alguma legislação. As modificações
+  decorrentes de alteração da legislação deverão ser implementadas nos prazos previstos na norma
+  que introduziu a alteração. As modificações de ordem técnica serão divulgadas pela Coordenação
+  Técnica do ENCAT e poderão ocorrer sempre que se fizerem necessárias.
+
+
+
+
+                                                                                      Página 26 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.5.1",
+    titulo: "Liberação das versões dos schemas para o MDF-e",
+    conteudo: `3.5.1 Liberação das versões dos schemas para o MDF-e
+
+  Os schemas válidos para o MDF-e serão disponibilizados no sitio nacional do Projeto (dfe-
+  portal.sefaz.rs.gov.br/MDFe), e serão liberados após autorização da equipe de Gestão do Projeto
+  formada pelos Líderes dos Projetos nos Estados e representante das Empresas.
+
+  A cada nova liberação de schema será disponibilizado um arquivo compactado contendo o
+  conjunto de schemas a serem utilizados pelos contribuintes para a geração dos arquivos XML. Este
+  arquivo será denominado “Pacote de Liberação” e terá a mesma numeração da versão do Manual
+  de Orientações que lhe é compatível. Os pacotes de liberação serão identificados pelas letras
+  “PL_MDFe”, seguida do número da versão do Manual de Orientações correspondente.
+  Exemplificando: O pacote PL_MDFe_3.00.zip representa o “Pacote de Liberação” de schemas do
+  MDF-e compatíveis com o Manual de Orientações do Contribuinte – versão 3.00.
+
+  Os schemas XML das mensagens XML são identificados pelo seu nome, seguido da versão do
+  respectivo schema.
+
+  Assim, para o schema XML de “mdfe”, corresponderá um arquivo com a extensão “.xsd”, que terá o`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.5.1",
+    titulo: "Liberação das versões dos schemas para o MDF-e",
+    conteudo: `nome de “mdfe_v9.99.xsd”, onde v9.99, corresponde a versão do respectivo schema.
+
+  Para identificar quais os schemas que sofreram alteração em um determinado pacote liberado,
+  deve-se comparar o número da versão do schema deste pacote com o do pacote anterior.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.5.2",
+    titulo: "Correção de Pacote de Liberação",
+    conteudo: `3.5.2 Correção de Pacote de Liberação
+
+  Em alguma situação pode surgir a necessidade de correção de um Schema XML por um erro de
+  implementação de regra de validação, obrigatoriedade de campo, nome de tag divergente do
+  definido no leiaute da mensagem, que não modifica a estrutura do Schema XML e nem exige a
+  alteração dos aplicativos da SEFAZ ou dos contribuintes.
+
+  Nesta situação, divulgaremos um novo pacote de liberação com o Schema XML corrigido, sem
+  modificar o número da versão do PL para manter a compatibilidade com o Manual de Orientações
+  do Contribuinte vigente.
+
+  A identificação dos pacotes mais recentes se dará com o acréscimo de letras minúscula do
+  alfabeto, como por exemplo: MDFe_PL_3.00a.ZIP, indicando que se trata da primeira versão
+  corrigida do MDFe_PL_3.00.ZIP.
+
+
+
+                                                                                     Página 27 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.5.3",
+    titulo: "Divulgação de novos Pacotes de Liberação",
+    conteudo: `3.5.3 Divulgação de novos Pacotes de Liberação
+
+  A divulgação de novos pacotes de liberação ou atualizações de pacote de liberação será realizada
+  através da publicação de Notas Técnicas no Portal Nacional do MDF-e com as informações
+  necessárias para a implementação dos novos pacotes de liberação.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.5.4",
+    titulo: "Controle de Versão",
+    conteudo: `3.5.4 Controle de Versão
+
+  O controle de versão de cada um dos schemas válidos do MDF-e compreende uma definição
+  nacional sobre:
+
+  Qual a versão vigente (versão mais atualizada)?
+  Quais são as versões anteriores ainda suportadas por todas as SEFAZ?
+  Quais são as versões da parte específica de cada modal suportadas pela parte genérica?
+
+  Este controle de versão permite a adaptação dos sistemas de informática dos contribuintes
+  participantes do Projeto em diferentes datas. Ou seja, alguns contribuintes poderão estar com uma
+  versão de leiaute mais atualizada, enquanto outros poderão ainda estar operando com mensagens
+  em um leiaute anterior.
+
+  Não estão previstas mudanças frequentes de leiaute de mensagens e os contribuintes deverão ter
+  um prazo razoável para implementar as mudanças necessárias, conforme acordo operacional a ser
+  estabelecido.
+
+  Mensagens recebidas com uma versão de leiaute não suportada serão rejeitadas com uma
+  mensagem de erro específica na versão do leiaute de resposta mais recente em uso.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.6",
+    titulo: "Schema XML – estrutura genérica e estrutura específica do modal",
+    conteudo: `3.6 Schema XML – estrutura genérica e estrutura específica do modal
+  A estrutura do Schema XML do MDF-e foi criada como sendo composta de uma parte genérica do
+  schema e uma parte específica para cada modal, com o objetivo de criar uma maior independência
+  entre os modais, onde uma alteração no leiaute específico para um modal não repercuta nos
+  demais.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.6.1",
+    titulo: "Parte Genérica",
+    conteudo: `3.6.1 Parte Genérica
+
+  A estrutura genérica é a parte que possui os campos (tags) de uso comum a serem utilizados por
+  todos os modais.
+
+
+
+
+                                                                                      Página 28 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  Para alcançar este objetivo foi criada no schema XML do MDF-e uma estrutura genérica com um
+  elemento do tipo any que permite a inserção do XML específico do modal, conforme demonstrado
+  na figura a seguir:
+
+
+
+
+  A versão do schema XML a ser utilizada na parte específica do modal será identificada com um
+  atributo de versão próprio (tag versaoModal), conforme figura a seguir:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.6.2",
+    titulo: "Parte Específica para cada Modal",
+    conteudo: `3.6.2 Parte Específica para cada Modal
+
+  A estrutura específica é a parte que possui os campos (tags) exclusivos do modal.
+
+  A parte específica do schema XML para cada modal será distribuída no mesmo pacote de
+  liberação em arquivo separado para cada um deles.
+
+
+
+
+                                                                                      Página 29 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  A identificação do modal se dará no nome do arquivo, como segue:
+
+  mdfeModalXXXXXXXXXXXX_v9.99.xsd
+
+  Onde XXXXXXXXXXXX é a identificação do modal, e v9.99 é a identificação da versão.
+
+  Segue exemplo de nomes de arquivos de schema XML da parte específica de cada modal:
+
+   mdfeModalRodoviario_v3.00.xsd (modal rodoviário, versão 3.00);
+   mdfeModalAereo_v3.00.xsd (modal aéreo, versão 3.00);
+   mdfeModalFerroviario_v3.00.xsd (modal ferroviário, versão 3.00);
+   mdfeModalAquaviario_v3.00.xsd (modal aquaviário, versão 3.00).`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.6.3",
+    titulo: "Parte Genérica e Parte Específica para cada Modal - Versões",
+    conteudo: `3.6.3 Parte Genérica e Parte Específica para cada Modal - Versões
+
+  Uma versão da parte genérica deverá suportar mais de uma versão da parte específica de cada
+  modal. Normalmente esta relação deve ser de uma para uma (1:1). Apenas em momentos de
+  transição poderemos ter empresas de um modal utilizando uma versão mais atualizada, enquanto
+  outras empresas poderão ainda estar operando com um leiaute anterior da parte específica.
+
+  O Ambiente autorizador deverá manter na sua aplicação o controle de versões da parte específica
+  suportadas pela parte genérica.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.7",
+    titulo: "Sistema de Registro de Eventos",
+    conteudo: `3.7 Sistema de Registro de Eventos
+  O Sistema de Registro de Eventos do MDF-e – SRE é o modelo genérico que permite o registro de
+  evento de interesse do MDF-e originado a partir do próprio contribuinte ou da administração
+  tributária.
+
+  Um evento é o registro de um fato relacionado com o documento fiscal eletrônico, esse evento
+  pode ou não modificar a situação do documento (por exemplo: cancelamento) ou até mesmo
+  substituí-lo por outro (por exemplo: substituição).
+
+  O serviço para registro de eventos será disponibilizado pelo Ambiente Autorizador através de Web
+  Service de processamento síncrono e será propagado para os demais órgãos interessados pelo
+  mecanismo de compartilhamento de documentos fiscais eletrônicos. As mensagens de evento
+  utilizarão o padrão XML já definido para o projeto MDF-e contendo a assinatura digital do emissor
+  do evento (seja ele contribuinte ou fisco).
+
+
+
+
+                                                                                      Página 30 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  O registro do evento requer a existência do MDF-e vinculada no Ambiente Autorizador, contudo`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.7",
+    titulo: "Sistema de Registro de Eventos",
+    conteudo: `alguns tipos de eventos poderão ser registrados sem que exista o MDF-e na base de dados do
+  autorizador em conformidade com as regras de negócio estabelecidas para este tipo de evento.
+
+  O modelo de mensagem do evento deverá ter um conjunto mínimo de informações comuns, a
+  saber:
+            Identificação do autor da mensagem;
+            Identificação do evento;
+            Identificação do MDF-e vinculado;
+            Informações específicas do evento;
+            Assinatura digital da mensagem;
+
+
+  O Web Service será único com a funcionalidade de tratar eventos de forma genérica para facilitar a
+  criação de novos eventos sem a necessidade de criação de novos serviços e com poucas
+  alterações na aplicação de Registro de Eventos do Ambiente Autorizador.
+
+  O leiaute da mensagem de Registro de Evento seguirá o modelo adotado para o documento MDF-
+  e, contendo uma parte genérica (comum a todos os tipos de evento) e uma parte específica onde
+  será inserido o XML correspondente a cada tipo de evento em uma tag do tipo any.
+
+  As regras de validação referentes à parte genérica dos eventos estarão descritas no item 6 deste
+  manual.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.7",
+    titulo: "Sistema de Registro de Eventos",
+    conteudo: `As validações específicas de cada tipo de evento estarão descritas no item 7 deste Manual,
+  originando um novo subitem para cada tipo de evento especificado.
+
+  O Pacote de Liberação de schemas do MDF-e deverá conter o leiaute da parte genérica do
+  Registro de Eventos e um schema para cada leiaute específico dos eventos definidos neste
+  manual.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.7.1",
+    titulo: "Relação dos Tipos de Evento",
+    conteudo: `3.7.1 Relação dos Tipos de Evento
+
+  Os eventos identificados abaixo serão construídos gradativamente pelo ambiente autorizador,
+  assim como novos eventos poderão ser identificados e acrescentados nesta tabela em futuras
+  versões deste MOC.
+
+
+
+
+                                                                                       Página 31 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+    Tipo de                                             Tipo de               Tipo de          MDF-e deve
+     Evento            Descrição Evento            Autor do Evento        Meio Informação          existir?
+  *** Evento: Empresa Emitente`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 110111",
+    titulo: "Cancelamento                   1- Emitente            1=via WS Evento         Sim",
+    conteudo: `110111       Cancelamento                   1- Emitente            1=via WS Evento         Sim`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 110112",
+    titulo: "Encerramento                   1- Emitente            1=via WS Evento         Sim",
+    conteudo: `110112       Encerramento                   1- Emitente            1=via WS Evento         Sim`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 110114",
+    titulo: "Inclusão de Condutor           1- Emitente            1=via WS Evento         Sim",
+    conteudo: `110114       Inclusão de Condutor           1- Emitente            1=via WS Evento         Sim`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 110115",
+    titulo: "Inclusão de DF-e               1- Emitente            1=via WS Evento         Sim",
+    conteudo: `110115       Inclusão de DF-e               1- Emitente            1=via WS Evento         Sim
+  *** Evento: Fisco / Outros`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 310620",
+    titulo: "Registro de Passagem           3-Fisco                1=via WS Evento         Não",
+    conteudo: `310620       Registro de Passagem           3-Fisco                1=via WS Evento         Não`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 510620",
+    titulo: "Registro de Passagem Automático 5-Outros (ONE)        1=via WS Evento         Não",
+    conteudo: `510620       Registro de Passagem Automático 5-Outros (ONE)        1=via WS Evento         Não
+  *** Evento: Fisco Emitente`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 240170",
+    titulo: "Liberação Prazo Cancelamento   2-Fisco Emitente       1=via WS Evento;        Sim",
+    conteudo: `240170       Liberação Prazo Cancelamento   2-Fisco Emitente       1=via WS Evento;        Sim
+                                                                     2=via Extranet MDF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.7.2",
+    titulo: "Eventos de Marcação",
+    conteudo: `3.7.2 Eventos de Marcação
+
+  Serão gerados eventos de marcação a partir do MDF-e para os casos em que o documento
+  referenciar outro, seja CT-e, NF-e ou outro MDF-e.
+
+  Eventos dessa natureza ocorrem por necessidade de marcação dos documentos relacionados na
+  carga de um MDF-e, para evitar seu cancelamento e dar ciência as administrações tributárias da
+  efetiva prestação do serviço de transporte.
+
+  Esses eventos serão gerados automaticamente pelo Fisco no momento da autorização dos
+  documentos e assinados digitalmente com certificado digital do ambiente autorizador do MDF-e.
+
+  São exemplos de eventos de marcação:
+
+   Evento MDF-e autorizado/cancelado no CT-e e nas NF-e
+   Evento registro de passagem posto fiscal/automático no CT-e e NF-e
+
+  Os eventos de marcação serão propagados nos documentos fiscais transportados à medida que
+  estes forem inseridos pelo evento de Inclusão de DF-e (110115) no MDF-e com indicação de
+  carregamento posterior (ver item 2.1.8).`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.8",
+    titulo: "Data e hora de emissão e outros horários",
+    conteudo: `3.8 Data e hora de emissão e outros horários
+  Todos os campos que representam Data e Hora no leiaute das mensagens do MDF-e seguem o
+  formato UTC completo com a informação do TimeZone. Este tipo de representação de dados é
+  tecnicamente adequado para a representação do horário para um País com dimensões
+  continentais como o Brasil.
+
+                                                                                            Página 32 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  Serão aceitos os horários de qualquer região do mundo (faixa de horário UTC de -11 a +12) e não
+  apenas as faixas de horário do Brasil.
+
+  Exemplo: no formato UTC para os campos de Data-Hora, "TZD" pode ser -02:00 (Fernando de
+  Noronha), -03:00 (Brasília) ou -04:00 (Manaus), no horário de verão serão -01:00, -02:00 e -03:00.
+  Exemplo: "2010-08-19T13:00:15-03:00".`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 3.9",
+    titulo: "SEFAZ virtual",
+    conteudo: `3.9 SEFAZ virtual
+  Os serviços de autorização serão providos pelo Ambiente Autorizador da SEFAZ Virtual RS, que
+  prestará o serviço para todos os Estados, mediante Protocolo de Cooperação assinado entre as
+  SEFAZ e/ou entre a SEFAZ e a RFB.
+
+  Os serviços deste ambiente compreendem os Web Services descritos no Modelo Conceitual da
+  Arquitetura de Comunicação, conforme consta deste manual.
+
+  A responsabilidade sobre o credenciamento e sobre a autorização para o contribuinte usar os
+  serviços do Ambiente Autorizador é da SEFAZ de circunscrição do contribuinte.
+
+
+
+
+                                                                                       Página 33 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4",
+    titulo: "Web Services",
+    conteudo: `4 Web Services
+
+  Os Web Services disponibilizam os serviços que serão utilizados pelos aplicativos dos
+  contribuintes. O mecanismo de utilização dos Web Services segue as seguintes premissas:
+
+           a) Será disponibilizado um Web Service por serviço, existindo um método para cada tipo de
+                serviço;
+           b) Para os serviços assíncronos, o método de envio retorna uma mensagem de confirmação
+                de recebimento da solicitação de serviço com o recibo e a data e hora local de
+                recebimento da solicitação ou retorna uma mensagem de erro.
+           c) No recibo de recepção do lote será informado o tempo médio de resposta do serviço nos
+                últimos 5 (cinco) minutos.
+           d) Para os serviços síncronos, o envio da solicitação e a obtenção do retorno serão
+                realizados na mesma conexão por meio de um único método.
+           e) As URLs dos Web Services encontram-se no Portal Nacional do MDF-e (dfe-
+                portal.svrs.rs.gov.br/MDFe). Acessando a URL pode ser obtido o WSDL (Web Services
+                Description Language) de cada Web Service.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4",
+    titulo: "Web Services",
+    conteudo: `f)   O processo de utilização dos Web Services sempre é iniciado pelo contribuinte enviando
+                uma mensagem nos padrões XML e SOAP, através do protocolo TLS com autenticação
+                mútua.
+           g) A ocorrência de qualquer erro na validação dos dados recebidos interrompe o processo
+                com a disponibilização de uma mensagem contendo o código e a descrição do erro.
+
+
+
+
+                                                                                         Página 34 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1",
+    titulo: "Serviço de Recepção Assíncrono",
+    conteudo: `4.1 Serviço de Recepção Assíncrono
+  O Serviço de Recepção assíncrono de MDF-e é o serviço oferecido pelo ambiente autorizador para
+  recepção de MDF-e emitidos pelos contribuintes credenciados que optam pelo envio e posterior
+  obtenção da resposta da autorização.
+
+  Esse serviço deverá ser descontinuado em futura versão do MDF-e e substituído pelo serviço
+  síncrono especificado no próximo capítulo deste manual.
+
+  O contribuinte deve transmitir o MDF-e através do Web Service de recepção assíncrono e buscar o
+  resultado do processamento no Web Service de consulta resultado de processamento.
+
+  Função: serviço destinado à recepção de mensagens de envio de MDF-e.
+
+  Processo: assíncrono.
+
+  Método: mdfeRecepcaoLote
+
+  Parâmetro da Mensagem da área de dados: XML sem compactação`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `4.1.1 Leiaute Mensagem de Entrada
+
+  Entrada: Estrutura XML do MDF-e assíncrono
+  Schema XML: enviMDFe_v9.99.xsd
+     #         Campo       Ele    Pai    Tipo   Ocor.   Tam.                   Descrição/Observação
+   AP01      enviMDFe      Raiz    -      -       -      -     TAG raiz
+   AP02      versao         A     AP01    N      1-1    2v2    Versão do leiaute
+   AP03      idLote         E     AP01    N      1-1    1-15   Identificador de controle do envio do lote.
+                                                               Número sequencial auto incremental, de controle
+                                                               correspondente ao identificador único do lote enviado. A
+                                                               responsabilidade de gerar e controlar esse número é
+                                                               exclusiva do contribuinte.
+   AP04      MDFe           G     AP01   XML     1-1     -     MDF-e transmitido (apenas um MDF-e) seguindo
+                                                               definição do Anexo I – Leiaute do MDF-e. O tamanho`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `máximo do arquivo não deverá ultrapassar 2048 KB.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `4.1.2 Leiaute Mensagem de Retorno
+
+  Retorno: Estrutura XML com a mensagem do resultado do envio da transmissão assíncrona
+  Schema XML: retEnviMDFe_v9.99.xsd
+     #         Campo        Ele    Pai   Tipo   Ocor.   Tam.                   Descrição/Observação
+   AR01      retEnviMDFe   Raiz     -      -      -      -     TAG raiz da Resposta
+   AR02      versao         A     AR01    N      1-1    2v2    Versão do leiaute
+   AR03      tpAmb          E     AR01    N      1-1     1     Identificação do Ambiente:
+                                                               1 – Produção / 2 - Homologação
+   AR04      cUF            E     AR01    N      1-1     2     Código da UF que atendeu à solicitação.
+   AR05      verAplic       E     AR01    C      1-1    1-20   Versão do Aplicativo que recebeu o Lote.
+   AR06      cStat          E     AR01    N      1-1     3     Código do status da resposta
+
+
+                                                                                                       Página 35 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `AR07      xMotivo          E    AR01      C      1-1     1-255   Descrição literal do status da resposta
+   AR08      infRec           G    AR01      -      0-1       -     Dados do Recibo do Lote (Só é gerado se o Lote for
+                                                                    aceito)
+   AR09      nRec             E    AR08      N      1-1      15     Número do Recibo gerado pelo Portal da Secretaria de
+                                                                    Fazenda Estadual, composto por duas posições com o
+                                                                    Código da UF (codificação do IBGE) onde foi entregue o
+                                                                    Lote, uma posição para o Tipo de Autorizador e doze
+                                                                    posições numéricas sequenciais
+   AR10      dhRecbto         E    AR08      D      1-1       -     Data e Hora do Recebimento
+                                                                    Formato = AAAA-MM-DDTHH:MM:SS TZD
+                                                                    Preenchido com data e hora do recebimento do lote.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `AR11      tMed             E    AR08      N      1-1       N     Tempo médio de resposta do serviço (em segundos)
+                                                                    dos últimos 5 minutos.
+                                                                    Nota: Caso o tempo médio de resposta fique abaixo de
+                                                                    1 (um) segundo o tempo será informado como 1
+                                                                    segundo. Arredondar as frações de segundos para
+                                                                    cima.
+
+  As mensagens recebidas com erro geram uma mensagem de erro. Nas demais hipóteses, retornar-
+  se-á um recibo com número, data, hora local de recebimento e tempo médio de resposta do serviço
+  nos últimos 5 (cinco) minutos.
+
+  O número do recibo gerado pelo ambiente autorizador será a chave de acesso do serviço de
+  consulta ao resultado do processamento.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.3",
+    titulo: "Processo de Recepção Assíncrona de MDF-e",
+    conteudo: `4.1.3 Processo de Recepção Assíncrona de MDF-e
+
+  Este método será responsável por receber as mensagens de envio de MDF-e na modalidade
+  assíncrona e colocá-las na fila de entrada.
+
+  O tamanho máximo da mensagem é limitado em 2048Kb, assim o contribuinte deve gerar um XML
+  que não ultrapasse este limite.
+
+  Deverão ser realizadas as validações e procedimentos que seguem.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `4.1.4 Regras de Validação Básicas do Serviço
+
+                              Validação do Certificado Digital do Transmissor (protocolo TLS)
+    #                                     Regra de Validação                                  Crítica       Msg    Efeito
+  A01      Certificado de Transmissor Inválido:                                                  Obrig.    280     Rej.
+           - Certificado de Transmissor inexistente na mensagem
+           - Versão difere "3"
+           - Se informado, Basic Constraint deve ser true (não pode ser Certificado de AC)
+           - KeyUsage não define "Autenticação Cliente"
+  A02      Validade do Certificado (data início e data fim)                                      Obrig.    281     Rej.
+  A03      Verifica a Cadeia de Certificação:                                                    Obrig.    283     Rej.
+           - Certificado da AC emissora não cadastrado na SEFAZ
+           - Certificado de AC revogado
+           - Certificado não assinado pela AC emissora do Certificado
+  A04      LCR do Certificado de Transmissor                                                     Obrig.    286     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `- Falta o endereço da LCR (CRL DistributionPoint)
+           - LCR indisponível
+           - LCR inválida
+
+                                                                                                          Página 36 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  A05      Certificado do Transmissor revogado                                                   Obrig.    284     Rej.
+  A06      Certificado Raiz difere da "ICP-Brasil"                                               Obrig.    285     Rej.
+  A07      Falta a extensão de CNPJ no Certificado (OtherName - OID=2.16.76.1.3.3 ou a           Obrig.    282     Rej.
+           extensão de CPF (OtherName - OID=2.16.76.1.3.1).
+
+  As validações de A01, A02, A03, A04 e A05 são realizadas pelo protocolo TLS e não precisam ser
+  implementadas. A validação A06 também pode ser realizada pelo protocolo, mas pode falhar se
+  existirem outros certificados digitais de Autoridade Certificadora Raiz que não sejam “ICP-Brasil” no
+  repositório de certificados digitais do servidor de Web Service da SEFAZ.
+                                     Validação Inicial da Mensagem no Web Service`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `#                                    Regra de Validação                                      Crítica    Msg    Efeito
+  B01      Tamanho do XML de Dados superior a 2048 Kbytes                                        Obrig.    214     Rej.
+  B02      XML de Dados Mal Formado                                                              Obrig.    243     Rej.
+  B03      Verifica se o Serviço de processamento está Paralisado Momentaneamente                Obrig.    108     Rej.
+  B04      Verifica se o Serviço de processamento está Paralisado sem Previsão                   Obrig.    109     Rej.
+
+
+  A mensagem será descartada se o tamanho exceder o limite previsto (2048 KB) A aplicação do
+  contribuinte não poderá permitir a geração de mensagem com tamanho superior a 2048 KB. Caso
+  isto ocorra, a conexão poderá ser interrompida sem mensagem de erro se o controle do tamanho
+  da mensagem for implementado por configurações do ambiente de autorização (ex.: controle no
+  firewall). No caso de o controle de tamanho ser implementado por aplicativo teremos a devolução
+  da mensagem de erro 214.
+  O Ambiente Autorizador que mantêm o Web Service disponível, mesmo quando o serviço estiver`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `paralisado, deverá implementar as verificações 108 e 109. Estas validações poderão ser
+  dispensadas se o Web Service não ficar disponível quando o serviço estiver paralisado.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.5",
+    titulo: "Validação das informações de controle da chamada ao Web Service",
+    conteudo: `4.1.5 Validação das informações de controle da chamada ao Web Service
+
+                                   Validações de controle da chamada ao Web Service
+    #                                     Regra de Validação                                     Crítica    Msg    Efeito
+  C01      Elemento mdfeCabecMsg inexistente no SOAP Header                                      Obrig.    242     Rej.
+  C02      Campo cUF inexistente no elemento mdfeCabecMsg do SOAP Header                         Obrig.    409     Rej.
+  C03      Verificar se a UF informada no cUF é atendida pelo WebService                         Obrig.    410     Rej.
+  C04      Campo versaoDados inexistente no elemento mdfeCabecMsg do SOAP Header                 Obrig.    411     Rej.
+  C05      Versão dos Dados informada é superior à versão vigente                                Obrig.    238     Rej.
+  C06      Versão dos dados não suportada                                                        Obrig.    239     Rej.
+                         Este grupo de validações deverá ser descontinuado em futura versão do MDF-e
+
+
+  A informação da versão do leiaute do MDF-e e a UF de origem do emissor de MDF-e são`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.5",
+    titulo: "Validação das informações de controle da chamada ao Web Service",
+    conteudo: `informadas no elemento mdfeCabecMsg do SOAP Header.
+
+  A aplicação deverá validar os campos cUF e versaoDados, rejeitando o arquivo recebido em caso
+  de informações inexistentes ou inválidas.
+
+
+
+                                                                                                           Página 37 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.6",
+    titulo: "Validação da área de dados da mensagem",
+    conteudo: `4.1.6 Validação da área de dados da mensagem
+
+                                          Validações de Forma Aplicadas ao MDF-e
+    #                                       Regra de Validação                                     Crítica    Msg    Efeito
+  D01       Verificar Schema XML da Área de Dados (Verifica o schema do lote)                      Obrig.    225     Rej.
+  D02       Verificar a existência de qualquer namespace diverso do namespace padrão do            Obrig.    598     Rej.
+            projeto (http://www.portalfiscal.inf.br/mdfe)
+  D03       Verificar a existência de caracteres de edição no início ou fim da mensagem ou entre   Obrig.    599     Rej.
+            as tags
+  D04       Verificar o uso de prefixo no namespace                                                Obrig.    404     Rej.
+  D05       Verificar se o XML utiliza codificação diferente de UTF-8                              Obrig.    402     Rej.
+
+  A existência de qualquer erro na validação de forma da área de dados implica a rejeição do
+  arquivo.
+
+  A validação do schema XML do MDF-e pelo Ambiente Autorizador deverá ser feita em duas
+  etapas:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.6",
+    titulo: "Validação da área de dados da mensagem",
+    conteudo: ` A primeira etapa deve validar a estrutura genérica do arquivo, submetendo a mensagem contra
+        o schema XML definido para o mesmo. Em caso de erro, retornar o código 225;
+   A segunda etapa (definida no item 5 do MOC) deve validar a estrutura específica do modal. Em
+        caso de erro, retornar o código 580.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.7",
+    titulo: "Geração da Resposta com o Recibo",
+    conteudo: `4.1.7 Geração da Resposta com o Recibo
+
+  Não existindo qualquer problema nas validações, o aplicativo deverá gerar um número de recibo e
+  gravar a mensagem juntamente com o CNPJ do transmissor, versão da mensagem e o código da
+  UF de origem.
+
+  Após a gravação da mensagem na fila de entrada, será retornada uma mensagem de confirmação
+  de recebimento para o transmissor, com as seguintes informações:
+
+
+            Identificação do ambiente;
+            Versão do aplicativo;
+            O código 103 e o literal “Arquivo recebido com Sucesso”;
+            O código da UF que atendeu à solicitação;
+            O número do recibo, com data, hora e local de recebimento da mensagem;
+            Tempo médio de resposta do serviço de processamento dos arquivos nos últimos 5
+             minutos.
+
+
+
+
+                                                                                                             Página 38 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  Caso ocorra algum problema de validação, o aplicativo deverá retornar uma mensagem com as
+  seguintes informações:
+            A identificação do ambiente;
+            A versão do aplicativo;`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.7",
+    titulo: "Geração da Resposta com o Recibo",
+    conteudo: `     O código e a respectiva mensagem de erro;
+            O código da UF que atendeu à solicitação;`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.8",
+    titulo: "Descrição do Processamento Assíncrono do MDF-e",
+    conteudo: `4.1.8 Descrição do Processamento Assíncrono do MDF-e
+
+  O processamento do arquivo de MDF-e recepcionado é realizado pelo Servidor de Processamento
+  de MDF-e, que consome as mensagens armazenadas na fila de entrada pelo método
+  MDFeRecepcaoLote. Este método faz a validação de forma e das regras de negócio e armazena o
+  resultado do processamento na fila de saída.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.9",
+    titulo: "Validação das regras de negócio do MDF-e",
+    conteudo: `4.1.9 Validação das regras de negócio do MDF-e
+
+  As regras de negócio que serão aplicadas ao MDF-e estão descritas no item 5 deste Manual.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.1.10",
+    titulo: "Resultado do Processamento Assíncrono de MDF-e",
+    conteudo: `4.1.10 Resultado do Processamento Assíncrono de MDF-e
+
+  O resultado do processamento do arquivo estará disponível na fila de saída e conterá o resultado
+  da validação do MDF-e. O resultado do processamento deve ficar disponível na fila de saída por
+  um período mínimo de 24 (vinte e quatro) horas.
+
+
+
+
+                                                                                     Página 39 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2",
+    titulo: "Serviço de Recepção Síncrono",
+    conteudo: `4.2 Serviço de Recepção Síncrono
+  O Serviço de Recepção de MDF-e é o serviço oferecido pelo Ambiente autorizador para recepção
+  dos MDF-e emitidos pelos contribuintes credenciados para emissão deste documento.
+
+  A forma de processamento do serviço de recepção de MDF-e é síncrona sem a formação de lotes.
+  O contribuinte deve transmitir um MDF-e através do Web Service de recepção de MDF-e e
+  receberá o resultado do processamento na mesma conexão.
+
+  Função: serviço destinado à recepção de mensagens de envio de MDF-e.
+
+  Processo: síncrono.
+
+  Método: mdfeRecepcao
+
+  Parâmetro da Mensagem da área de dados: Compactada utilizando GZip (Base64)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `4.2.1 Leiaute Mensagem de Entrada
+
+  Entrada: Estrutura XML do MDF-e está definido no documento Anexo I: Manual de Orientações do
+  Contribuinte – Layout.
+  Schema XML: MDFe_v9.99.xsd`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `4.2.2 Leiaute Mensagem de Retorno
+
+  Retorno: Estrutura XML com a mensagem do resultado do envio do MDF-e
+  Schema XML: retMDFe_v9.99.xsd
+      #           Campo   Ele         Pai   Tipo    Ocor.     Tam.                     Descrição/Observação
+   BR01      retMDFe      Raiz         -        -        -         -    TAG raiz da Resposta
+   BR02      versao           A   BR01          N       1-1       2v2   Versão do leiaute
+   BR03      tpAmb            E   BR01          N       1-1       1     Identificação do Ambiente:
+                                                                        1 – Produção / 2 - Homologação
+   BR04      cUF              E   BR01          N       1-1     2       Código da UF que atendeu à solicitação.
+   BR05      verAplic         E   BR01          C       1-1    1-20     Versão do Aplicativo que recebeu o MDF-e.
+   BR06      cStat            E   BR01          N       1-1     3       Código do status da resposta
+   BR07      xMotivo          E   BR01          C       1-1   1-255     Descrição literal do status da resposta
+   BR08      protMDFe         E   BR01          G       0-1   XML       Resposta ao processamento do MDF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.3",
+    titulo: "Leiaute do MDF-e processado",
+    conteudo: `4.2.3 Leiaute do MDF-e processado
+  #          Campo        Ele     Pai       Tipo    Ocor.     Tam.      Descrição/Observação
+  PR01       protMDFe     Raiz    -         -       -         -         TAG raiz da resposta processamento
+  PR02       versao       A       PR01      N       1-1       2v2       Versão do leiaute
+  PR03       infProt      G       PR01      -       1-1       -         Informações do protocolo de resposta
+  PR04       Id           A       PR03      C       0-1       -         Identificador da TAG a ser assinada, somente precisa
+                                                                        ser informado se a UF assinar a resposta.
+                                                                        Em caso de assinatura da resposta pela SEFAZ
+                                                                        preencher o campo com o Nro do Protocolo, precedido
+                                                                        com o literal “ID”
+
+                                                                                                               Página 40 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.3",
+    titulo: "Leiaute do MDF-e processado",
+    conteudo: `PR05       tpAmb          E       PR03    N      1-1     1        Identificação do Ambiente:
+                                                                    1 – Produção / 2 - Homologação
+  PR06       verAplic       E       PR03    C      1-1     1-20     Versão do Aplicativo que recebeu o MDF-e.
+  PR07       chMDFe         E       PR03    N      1-1     44       Chave de acesso do MDF-e
+  PR08       dhRecbto       E       PR03    D      1-1     -        Data e Hora do Processamento
+                                                                    Formato = AAAA-MM-DDTHH:MM:SS TZD
+                                                                    Preenchido com data e hora da gravação do MDF-e no
+                                                                    Banco de Dados.
+                                                                    Em caso de Rejeição, com data e hora do recebimento do
+                                                                    Arquivo de MDF-e enviado.
+  PR09       nProt          E       PR03    N      0-1     15       Número do protocolo de autorização do MDF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.3",
+    titulo: "Leiaute do MDF-e processado",
+    conteudo: `PR10       digVal         E       PR03    C      0-1     28       Digest Value do MDF-e processado, utilizado para
+                                                                    conferir a integridade com o MDF-e original
+  PR11       cStat          E       PR03    N      1-1     3        Código do status da resposta para o MDF-e
+  PR12       xMotivo        E       PR03    C      1-1     1-255    Descrição literal do status da resposta para o MDF-e
+  PR13       infFisco       G       PR01    -      0-1     -        Grupo reservado para envio de mensagem do Fisco
+                                                                    para o contribuinte
+  PR14       cMsg           E       PR13    N      1-1     3        Código de status da mensagem do fisco
+  PR15       xMsg           E       PR13    C      1-1     1-255    Mensagem do Fisco para o contribuinte
+  PR16       Signature      G       PR01    XML    0-1     -        Assinatura XML do grupo identificado pelo atributo “ID”
+                                                                    A decisão de assinar a mensagem fica a critério da UF
+                                                                    interessada.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `4.2.4 Regras de Validação Básicas do Serviço
+
+                                Validação do Certificado Digital do Transmissor (protocolo TLS)
+    #                                       Regra de Validação                                     Crítica    Msg     Efeito
+  A01      Certificado de Transmissor Inválido:                                                   Obrig.     280     Rej.
+           - Certificado de Transmissor inexistente na mensagem
+           - Versão difere "3"
+           - Se informado, Basic Constraint deve ser true (não pode ser Certificado de AC)
+           - KeyUsage não define "Autenticação Cliente"
+  A02      Validade do Certificado (data início e data fim)                                       Obrig.     281     Rej.
+  A03      Verificar a Cadeia de Certificação:                                                    Obrig.     283     Rej.
+           - Certificado da AC emissora não cadastrado na SEFAZ
+           - Certificado de AC revogado
+           - Certificado não assinado pela AC emissora do Certificado
+  A04      LCR do Certificado de Transmissor                                                      Obrig.     286     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `- Falta o endereço da LCR (CRL DistributionPoint)
+           - LCR indisponível
+           - LCR inválida
+  A05      Certificado do Transmissor revogado                                                    Obrig.     284     Rej.
+  A06      Certificado Raiz difere da "ICP-Brasil"                                                Obrig.     285     Rej.
+  A07      Falta a extensão de CNPJ no Certificado (OtherName - OID=2.16.76.1.3.3 ou a            Obrig.     282     Rej.
+           extensão de CPF (OtherName - OID=2.16.76.1.3.1).
+
+  As validações de A01, A02, A03, A04 e A05 são realizadas pelo protocolo TLS e não precisam ser
+  implementadas. A validação A06 também pode ser realizada pelo protocolo, mas pode falhar se
+  existirem outros certificados digitais de Autoridade Certificadora Raiz que não sejam “ICP-Brasil” no
+  repositório de certificados digitais do servidor de Web Service da SEFAZ.
+
+
+
+
+                                                                                                             Página 41 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+                                       Validação Inicial da Mensagem no Web Service`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `#                                      Regra de Validação                                     Crítica    Msg    Efeito
+           Verificar compactação da mensagem da área de dados
+  B00                                                                                             Obrig.    244     Rej.
+           OBS: O sistema do autorizador deverá descompactar mensagem da área de Dados.
+           Todas as validações seguintes serão aplicadas sobre o XML já descompactado
+  B01      Tamanho do XML de Dados superior a 2048 Kbytes                                         Obrig.    214     Rej.
+  B02      XML de Dados Mal Formado                                                               Obrig.    243     Rej.
+  B03      Verificar se o Serviço de processamento está Paralisado Momentaneamente                Obrig.    108     Rej.
+  B04      Verificar se o Serviço de processamento está Paralisado sem Previsão                   Obrig.    109     Rej.
+
+
+  A mensagem será descartada se o tamanho exceder o limite previsto (2048 KB) A aplicação do
+  contribuinte não poderá permitir a geração de mensagem com tamanho superior a 2048 KB. Caso`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `isto ocorra, a conexão poderá ser interrompida sem mensagem de erro se o controle do tamanho
+  da mensagem for implementado por configurações do ambiente de autorização (ex.: controle no
+  firewall). No caso de o controle de tamanho ser implementado por aplicativo teremos a devolução
+  da mensagem de erro 214.
+  O Ambiente Autorizador que mantêm o Web Service disponível, mesmo quando o serviço estiver
+  paralisado, deverá implementar as verificações 108 e 109. Estas validações poderão ser
+  dispensadas se o Web Service não ficar disponível quando o serviço estiver paralisado.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.5",
+    titulo: "Validação da área de dados da mensagem",
+    conteudo: `4.2.5 Validação da área de dados da mensagem
+
+                                         Validações de Forma Aplicadas ao MDF-e
+    #                                      Regra de Validação                                     Crítica    Msg    Efeito
+  D01      Verificar Schema XML da Área de Dados                                                  Obrig.    225     Rej.
+  D02      Verificar a existência de qualquer namespace diverso do namespace padrão do            Obrig.    598     Rej.
+           projeto (http://www.portalfiscal.inf.br/mdfe)
+  D03      Verificar a existência de caracteres de edição no início ou fim da mensagem ou entre   Obrig.    599     Rej.
+           as tags
+  D04      Verificar o uso de prefixo no namespace                                                Obrig.    404     Rej.
+  D05      Verificar se o XML utiliza codificação diferente de UTF-8                              Obrig.    402     Rej.
+  D06      Verificar se a versão do XML é suportada                                               Obrig.    239     Rej.
+
+
+
+  A validação do schema XML do MDF-e pelo Ambiente Autorizador deverá ser feita em duas
+  etapas:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.5",
+    titulo: "Validação da área de dados da mensagem",
+    conteudo: ` A primeira etapa deve validar a estrutura genérica do arquivo, submetendo a mensagem contra
+        o schema XML definido para o mesmo. Em caso de erro, retornar o código 225;
+   A segunda etapa (definida no item 5 do MOC) deve validar a estrutura específica do modal. Em
+        caso de erro, retornar o código 580.
+
+
+
+
+                                                                                                            Página 42 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.6",
+    titulo: "Validação das regras de negócio do MDF-e",
+    conteudo: `4.2.6 Validação das regras de negócio do MDF-e
+
+  As regras de negócio que serão aplicadas ao MDF-e estão descritas no item 5 deste Manual.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.2.7",
+    titulo: "Final do Processamento do MDF-e",
+    conteudo: `4.2.7 Final do Processamento do MDF-e
+
+  A validação do MDF-e poderá resultar em:
+
+             Rejeição – o MDF-e será descartado, não sendo armazenada no Banco de Dados podendo
+              ser corrigido e novamente transmitido;
+             Autorização de uso – o MDF-e será armazenado no Banco de Dados;
+  Ou seja:
+
+             Validação                                   Consequência
+   De forma       Situação do
+                                   Para o contribuinte                  Banco de Dados
+   do MDF-e          MDF-e
+
+    Inválida       Rejeição          Corrigir MDF-e                       Não gravar
+
+                  Autorização
+     Válida                       Prestação Autorizada                      Gravar
+                    de uso
+
+
+  Para cada MDF-e será atribuído um número de protocolo do Ambiente Autorizador.
+
+
+
+
+                                                                                         Página 43 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3",
+    titulo: "Serviço de Retorno Recepção",
+    conteudo: `4.3 Serviço de Retorno Recepção
+  Serviço que deverá ser utilizado pelo emitente para obter o resultado do processamento do arquivo
+  de MDF-e enviado ao serviço de recepção assíncrono (item 4.1).
+
+  Esse serviço deverá ser descontinuado em futura versão do MDF-e.
+
+  Função: serviço destinado a devolver o resultado do processamento do MDF-e.
+
+  Processo: síncrono.
+
+  Método: mdfeRetRecepcao
+
+  Parâmetro da Mensagem da área de dados: XML sem compactação`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `4.3.1 Leiaute Mensagem de Entrada
+
+  Entrada: Estrutura XML contendo o número do recibo que identifica a mensagem de envio do MDF-e.
+  Schema XML: consReciMDFe_v9.99.xsd
+     #          Campo        Ele      Pai        Tipo     Ocor.       Tam.                     Descrição/Observação
+  CP01       consReciMDFe    Raiz      -          -         -          -         TAG raiz
+  CP02       versao           A       CP01        N        1-1        2v2        Versão do leiaute
+  CP03       tpAmb            E       CP01        N        1-1         1         Identificação do Ambiente:
+                                                                                 1 – Produção / 2 - Homologação
+  CP04       nRec             E       CP01        N        1-1         15        Número do Recibo
+                                                                                 Número gerado pelo Ambiente Autorizador, composto
+                                                                                 por: duas posições com código do autorizador onde foi
+                                                                                 entregue o arquivo, codificação de UF do IBGE, e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `treze posições numéricas sequenciais.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `4.3.2 Leiaute Mensagem de Retorno
+
+  Retorno: Estrutura XML com o resultado do processamento do arquivo de MDF-e.
+  Schema XML: retConsReciMDFe_v9.99.xsd
+     #              Campo      Ele         Pai    Tipo     Ocor.       Tam.                     Descrição/Observação
+  CR01     retConsReciMDFe    Raiz          -         -          -          -      TAG raiz da Resposta
+  CR02     versao                 A    CR01           N         1-1        2v2     Versão do leiaute
+  CR03     tpAmb                  E    CR01           N         1-1         1      Identificação do Ambiente:
+                                                                                   1 – Produção / 2 - Homologação
+  CR04     verAplic               E    CR01           C         1-1    1-20        Versão do Aplicativo que recebeu o lote
+  CR05     nRec                   E    CR01           N         1-1     15         Número do Recibo consultado
+  CR06     cStat                  E    CR01           N         1-1     3          Código do status da resposta
+  CR07     xMotivo                E    CR01           C         1-1     1-         Descrição literal do status da resposta`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `255
+  CR08     protMDFe               G    CR01       XML           0-1      -         Resultado de processamento do MDF-e
+
+
+
+
+                                                                                                                      Página 44 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.3",
+    titulo: "Descrição do Processo de Web Service",
+    conteudo: `4.3.3 Descrição do Processo de Web Service
+
+  Este método oferece a consulta do resultado do processamento do arquivo de MDF-e enviado ao
+  serviço de recepção assíncrono.
+
+  O aplicativo do Contribuinte deve ser construído de forma a aguardar um tempo mínimo de 15
+  segundos entre o envio do MDF-e para processamento e a consulta do resultado deste
+  processamento, evitando a obtenção desnecessária do status de erro 105 – “Arquivo em
+  Processamento”.
+
+  Deverão ser realizadas as validações e procedimentos que seguem:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `4.3.4 Regras de Validação Básicas do Serviço
+
+                              Validação do Certificado Digital do Transmissor (protocolo TLS)
+    #                                      Regra de Validação                                   Crítica    Msg    Efeito
+  A01      Certificado de Transmissor Inválido:                                                 Obrig.    280     Rej.
+           - Certificado de Transmissor inexistente na mensagem
+           - Versão difere "3"
+           - Se informado, Basic Constraint deve ser true (não pode ser Certificado de AC)
+           - KeyUsage não define "Autenticação Cliente"
+  A02      Validade do Certificado (data início e data fim)                                     Obrig.    281     Rej.
+  A03      Verificar a Cadeia de Certificação:                                                  Obrig.    283     Rej.
+           - Certificado da AC emissora não cadastrado na SEFAZ
+           - Certificado de AC revogado
+           - Certificado não assinado pela AC emissora do Certificado
+  A04      LCR do Certificado de Transmissor                                                    Obrig.    286     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `- Falta o endereço da LCR (CRL DistributionPoint)
+           - LCR indisponível
+           - LCR inválida
+  A05      Certificado do Transmissor revogado                                                  Obrig.    284     Rej.
+  A06      Certificado Raiz difere da "ICP-Brasil"                                              Obrig.    285     Rej.
+  A07      Falta a extensão de CNPJ no Certificado (OtherName - OID=2.16.76.1.3.3 ou a          Obrig.    282     Rej.
+           extensão de CPF (OtherName - OID=2.16.76.1.3.1).
+
+  As validações de A01, A02, A03, A04 e A05 são realizadas pelo protocolo TLS e não precisam ser
+  implementadas. A validação A06 também pode ser realizada pelo protocolo, mas pode falhar se
+  existirem outros certificados digitais de Autoridade Certificadora Raiz que não sejam “ICP-Brasil” no
+  repositório de certificados digitais do servidor de Web Service da SEFAZ.
+
+                                       Validação Inicial da Mensagem no Web Service
+    #                                      Regra de Validação                                   Crítica    Msg    Efeito`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `B01      Tamanho do XML de Dados superior a 2048 Kbytes                                       Obrig.    214     Rej.
+  B02      XML de Dados Mal Formado                                                             Obrig.    243     Rej.
+  B03      Verificar se o Serviço de processamento está Paralisado Momentaneamente              Obrig.    108     Rej.
+  B04      Verificar se o Serviço de processamento está Paralisado sem Previsão                 Obrig.    109     Rej.
+
+
+
+
+                                                                                                          Página 45 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  A mensagem será descartada se o tamanho exceder o limite previsto (2048 Kb). A aplicação do
+  contribuinte não poderá permitir a geração de mensagem com tamanho superior a 2048 Kb. Caso
+  isto ocorra, a conexão poderá ser interrompida sem mensagem de erro se o controle do tamanho
+  da mensagem for implementado por configurações do ambiente de rede da SEFAZ (ex.: controle
+  no firewall). No caso de controle de tamanho ter sido implementado por aplicativo, teremos a
+  devolução da mensagem de erro 214.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `O Ambiente Autorizador que mantêm o Web Service disponível mesmo quando o serviço esteja
+  paralisado, deverá implementar as validações 108 e 109. Estas validações poderão ser
+  dispensadas caso o Web Service não fique disponível quando o serviço estiver paralisado.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.5",
+    titulo: "Validação das informações de controle da chamada ao Web Service",
+    conteudo: `4.3.5 Validação das informações de controle da chamada ao Web Service
+
+                                    Validações de controle da chamada ao Web Service
+    #                                      Regra de Validação                                     Crítica    Msg    Efeito
+  C01      Elemento mdfeCabecMsg inexistente no SOAP Header                                       Obrig.    242     Rej.
+  C02      Campo cUF inexistente no elemento mdfeCabecMsg do SOAP Header                          Obrig.    409     Rej.
+  C03      Verificar se a UF informada no cUF é atendida pelo WebService                          Obrig.    410     Rej.
+  C04      Campo versaoDados inexistente no elemento mdfeCabecMsg do SOAP Header                  Obrig.    411     Rej.
+  C05      Versão dos Dados informada é superior à versão vigente                                 Obrig.    238     Rej.
+                          Este grupo de validações deverá ser descontinuado em futura versão do MDF-e
+
+
+  A informação da versão do leiaute do MDF-e e a UF de origem do emissor do manifesto são
+  informadas no elemento mdfeCabecMsg do SOAP Header.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.5",
+    titulo: "Validação das informações de controle da chamada ao Web Service",
+    conteudo: `A aplicação deverá validar os campos cUF e versaoDados, rejeitando a mensagem recebida em
+  caso de informações inexistentes ou inválidas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.6",
+    titulo: "Validação da área de dados da mensagem",
+    conteudo: `4.3.6 Validação da área de dados da mensagem
+
+                                      Validações de Forma Aplicadas a área de dados
+    #                                      Regra de Validação                                     Crítica    Msg    Efeito
+  D01      Verificar Schema XML da Área de Dados                                                  Obrig.    215     Rej.
+  D02      Verificar a existência de qualquer namespace diverso do namespace padrão do            Obrig.    598     Rej.
+           projeto (http://www.portalfiscal.inf.br/mdfe)
+  D03      Verificar a existência de caracteres de edição no início ou fim da mensagem ou entre   Obrig.    599     Rej.
+           as tags
+  D04      Verificar o uso de prefixo no namespace                                                Obrig.    404     Rej.
+  D05      Verificar se o XML utiliza codificação diferente de UTF-8                              Obrig.    402     Rej.
+  D06      Verificar se a versão do XML é suportada                                               Obrig.    239     Rej.
+
+
+
+
+                                                                                                            Página 46 / 102
+ Projeto`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.6",
+    titulo: "Validação da área de dados da mensagem",
+    conteudo: `MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.7",
+    titulo: "Validação das Regras de Negócio do Retorno Recepção",
+    conteudo: `4.3.7 Validação das Regras de Negócio do Retorno Recepção
+
+                                  Validações das Regras de Negócio da Consulta Recibo
+    #                                      Regra de Validação                             Crítica    Msg    Efeito
+  H01       Tipo do ambiente informado difere do ambiente do Web Service                  Obrig.    252     Rej.
+  H02       UF do recibo difere da UF do Web Service                                      Obrig.    248     Rej.
+            Tipo de Autorizador do recibo não compatível com o órgão autorizador
+  H03                                                                                     Obrig     473     Rej.
+            (9=Ambiente Nacional MDF-e)
+  H04       Verificar se o arquivo não está na fila                                       Obrig.    106     Rej.
+  H05       Verificar se o arquivo já foi processado                                      Obrig.    105     Rej.
+            CNPJ / CPF do transmissor do arquivo difere do CNPJ / CPF do transmissor da
+  H06                                                                                     Obrig.    223     Rej.
+            consulta`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.3.8",
+    titulo: "Final do Processamento",
+    conteudo: `4.3.8 Final do Processamento
+
+  A mensagem de retorno poderá ser:
+            Arquivo processado – cStat = 104, com o resultado do processamento do MDF-e;
+            Arquivo em processamento – cStat = 105, contribuinte deverá fazer uma nova consulta;
+            Arquivo não localizado – cStat = 106, contribuinte deverá providenciar o reenvio da
+             mensagem;
+            Recibo ou CNPJ/CPF do requisitante com problemas – cStat = 248 ou 223, contribuinte
+             deverá sanar o problema;
+
+
+
+
+                                                                                                    Página 47 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4",
+    titulo: "Serviço de Consulta Situação do MDF-e",
+    conteudo: `4.4 Serviço de Consulta Situação do MDF-e
+  Função: serviço destinado ao atendimento de solicitações de consulta da situação atual do MDF-e
+  na Base de Dados do Ambiente Autorizador.
+
+  Processo: síncrono.
+
+  Método: mdfeConsultaMDF
+
+  Parâmetro da Mensagem da área de dados: XML sem compactação`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `4.4.1 Leiaute Mensagem de Entrada
+
+  Entrada: Estrutura XML contendo a consulta por chave de acesso do MDF-e
+  Schema XML: consSitMDFe_v9.99.xsd
+     #         Campo        Ele        Pai        Tipo     Ocor.       Tam.                       Descrição/Observação
+   DP01      consSitMDFe    Raiz        -          -         -          -          TAG raiz
+   DP02      versao          A         DP01        N        1-1        2v2         Versão do leiaute
+   DP03      tpAmb           E         DP01        N        1-1         1          Identificação do Ambiente:
+                                                                                   1 – Produção / 2 - Homologação
+   DP04      xServ           E         DP01        C        1-1         9          Serviço solicitado: ‘CONSULTAR’
+   DP05      chMDFe          E         DP01        N        1-1         44         Chave de acesso do MDF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `4.4.2 Leiaute Mensagem de Retorno
+
+  Retorno: Estrutura XML com o resultado da consulta situação.
+  Schema XML: retConsSitMDFe_v9.99.xsd
+     #          Campo            Ele        Pai     Tipo     Ocor.       Tam.                      Descrição/Observação
+  DR01     retConsSitMDFe     Raiz           -         -          -          -       TAG raiz da Resposta
+  DR02     versao                 A     DR01           N         1-1        2v2      Versão do leiaute
+  DR03     tpAmb                  E     DR01           N         1-1         1       Identificação do Ambiente:
+                                                                                     1 – Produção / 2 - Homologação
+  DR04     verAplic               E     DR01           C         1-1        1-20     Versão do Aplicativo que processou a consulta
+  DR05     cStat                  E     DR01           N         1-1         3       Código do status da resposta
+  DR06     xMotivo                E     DR01           C         1-1         1-      Descrição literal do status da resposta
+                                                                            255`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `DR07     cUF                    E     DR01         N           1-1         2       Código da UF que atendeu à solicitação
+  DR08     protMDFe               G     DR01        XML          0-1          -      Protocolo de autorização de uso do MDF-e
+  DR09     procEventoMDFe         G     DR01        XML          0-N          -      Informações dos eventos e respectivo protocolo de
+                                                                                     registro de evento.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.3",
+    titulo: "Descrição do Processo de Web Service",
+    conteudo: `4.4.3 Descrição do Processo de Web Service
+
+  Este método será responsável por receber as solicitações referentes à consulta de situação de
+  MDF-e enviados para o Ambiente Autorizador. Seu acesso é permitido apenas pela chave única de
+  identificação do manifesto eletrônico de documentos fiscais.
+
+
+
+
+                                                                                                                         Página 48 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  O aplicativo do contribuinte envia a solicitação para o Web Service do Ambiente Autorizador. Ao
+  receber a solicitação a aplicação do Ambiente Autorizador processará a solicitação de consulta,
+  validando a Chave de Acesso do MDF-e, e retornará mensagem contendo a situação atual do
+  MDF-e na Base de Dados, o respectivo Protocolo (mensagem de Autorização de uso) e os eventos
+  que estiverem associados ao MDF-e (informações do evento e protocolo de registro de evento).
+
+  O processamento da requisição das consultas deste Web Service será limitado no período de
+  consulta para 180 dias da data de emissão do MDF-e.
+
+  Deverão ser realizadas as validações e procedimentos que seguem:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `4.4.4 Regras de Validação Básicas do Serviço
+
+                              Validação do Certificado Digital do Transmissor (protocolo TLS)
+    #                                      Regra de Validação                                   Crítica    Msg    Efeito
+  A01      Certificado de Transmissor Inválido:                                                 Obrig.    280     Rej.
+           - Certificado de Transmissor inexistente na mensagem
+           - Versão difere "3"
+           - Se informado, Basic Constraint deve ser true (não pode ser Certificado de AC)
+           - KeyUsage não define "Autenticação Cliente"
+  A02      Validade do Certificado (data início e data fim)                                     Obrig.    281     Rej.
+  A03      Verificar a Cadeia de Certificação:                                                  Obrig.    283     Rej.
+           - Certificado da AC emissora não cadastrado na SEFAZ
+           - Certificado de AC revogado
+           - Certificado não assinado pela AC emissora do Certificado
+  A04      LCR do Certificado de Transmissor                                                    Obrig.    286     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `- Falta o endereço da LCR (CRL DistributionPoint)
+           - LCR indisponível
+           - LCR inválida
+  A05      Certificado do Transmissor revogado                                                  Obrig.    284     Rej.
+  A06      Certificado Raiz difere da "ICP-Brasil"                                              Obrig.    285     Rej.
+  A07      Falta a extensão de CNPJ no Certificado (OtherName - OID=2.16.76.1.3.3 ou a          Obrig.    282     Rej.
+           extensão de CPF (OtherName - OID=2.16.76.1.3.1).
+
+  As validações de A01, A02, A03, A04 e A05 são realizadas pelo protocolo TLS e não precisam ser
+  implementadas. A validação A06 também pode ser realizada pelo protocolo, mas pode falhar se
+  existirem outros certificados digitais de Autoridade Certificadora Raiz que não sejam “ICP-Brasil” no
+  repositório de certificados digitais do servidor de Web Service da SEFAZ.
+
+                                       Validação Inicial da Mensagem no Web Service
+    #                                      Regra de Validação                                   Crítica    Msg    Efeito`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `B01      Tamanho do XML de Dados superior a 2048 Kbytes                                       Obrig.    214     Rej.
+  B02      XML de Dados Mal Formado                                                             Obrig.    243     Rej.
+  B03      Verificar se o Serviço de processamento está Paralisado Momentaneamente              Obrig.    108     Rej.
+  B04      Verificar se o Serviço de processamento está Paralisado sem Previsão                 Obrig.    109     Rej.
+
+
+  A mensagem será descartada se o tamanho exceder o limite previsto (2048 Kb). A aplicação do
+  contribuinte não poderá permitir a geração de mensagem com tamanho superior a 2048 Kb. Caso
+
+                                                                                                          Página 49 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  isto ocorra, a conexão poderá ser interrompida sem mensagem de erro se o controle do tamanho
+  da mensagem for implementado por configurações do ambiente de rede da SEFAZ (ex.: controle
+  no firewall). No caso de controle de tamanho ter sido implementado por aplicativo, teremos a
+  devolução da mensagem de erro 214.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `O Ambiente Autorizador que mantêm o Web Service disponível mesmo quando o serviço esteja
+  paralisado, deverá implementar as validações 108 e 109. Estas validações poderão ser
+  dispensadas caso o Web Service não fique disponível quando o serviço estiver paralisado.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.5",
+    titulo: "Validação das informações de controle da chamada ao Web Service",
+    conteudo: `4.4.5 Validação das informações de controle da chamada ao Web Service
+
+                                     Validações de controle da chamada ao Web Service
+    #                                       Regra de Validação                                    Crítica    Msg    Efeito
+  C01      Elemento mdfeCabecMsg inexistente no SOAP Header                                       Obrig.    242     Rej.
+  C02      Campo cUF inexistente no elemento mdfeCabecMsg do SOAP Header                          Obrig.    409     Rej.
+  C03      Verificar se a UF informada no cUF é atendida pelo WebService                          Obrig.    410     Rej.
+  C04      Campo versaoDados inexistente no elemento mdfeCabecMsg do SOAP Header                  Obrig.    411     Rej.
+  C05      Versão dos Dados informada é superior à versão vigente                                 Obrig.    238     Rej.
+  Este grupo de validações deverá ser descontinuado em futura versão do MDF-e
+
+  A informação da versão do leiaute do MDF-e e a UF de origem do emissor do manifesto são
+  informadas no elemento mdfeCabecMsg do SOAP Header.
+
+  A aplicação deverá validar os campos cUF e versaoDados, rejeitando a mensagem recebida em`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.5",
+    titulo: "Validação das informações de controle da chamada ao Web Service",
+    conteudo: `caso de informações inexistentes ou inválidas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.6",
+    titulo: "Validação da área de dados da mensagem",
+    conteudo: `4.4.6 Validação da área de dados da mensagem
+
+                                       Validações de Forma Aplicadas a área de dados
+    #                                       Regra de Validação                                    Crítica    Msg    Efeito
+  D01      Verificar Schema XML da Área de Dados                                                  Obrig.    215     Rej.
+
+  D02      Verificar a existência de qualquer namespace diverso do namespace padrão do            Obrig.    598     Rej.
+           projeto (http://www.portalfiscal.inf.br/mdfe)
+  D03      Verificar a existência de caracteres de edição no início ou fim da mensagem ou entre   Obrig.    599     Rej.
+           as tags
+  D04      Verificar o uso de prefixo no namespace                                                Obrig.    404     Rej.
+
+  D05      Verificar se o XML utiliza codificação diferente de UTF-8                              Obrig.    402     Rej.
+
+  D06      Verificar se a versão do XML é suportada                                               Obrig.    239     Rej.
+
+
+
+
+                                                                                                            Página 50 / 102
+ Projeto`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.6",
+    titulo: "Validação da área de dados da mensagem",
+    conteudo: `MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.7",
+    titulo: "Validação das Regras de Negócio da Consulta Situação",
+    conteudo: `4.4.7 Validação das Regras de Negócio da Consulta Situação
+
+                                 Validações das Regras de Negócio da Consulta Situação
+    #                                     Regra de Validação                                   Crítica    Msg    Efeito
+  I01      Tipo do ambiente informado difere do ambiente do Web Service                        Obrig.    252     Rej.
+  I02      UF da chave de acesso difere da UF do Web Service                                   Obrig.    226     Rej.
+           Verificar se o ano – mês da chave de acesso está com atraso superior a 6 meses em
+  I03                                                                                          Obrig     460     Rej.
+           relação ao ano – mês atual
+           - Validar chave de acesso
+           Retornar motivo da rejeição da Chave de Acesso: CNPJ / CPF zerado ou
+           inválido, Ano < 2012 ou maior que atual, Mês inválido (0 ou > 12), Modelo
+  I04                                                                                          Obrig.    236     Rej.
+           diferente de 58, Número zerado, Tipo de emissão inválido, UF inválida ou DV
+           inválido)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.7",
+    titulo: "Validação das Regras de Negócio da Consulta Situação",
+    conteudo: `[Motivo: XXXXXXXXXXXX]
+           Acesso BD MDF-e (Chave: CNPJ / CPF Emit, Modelo, Série, Nro):
+  I05                                                                                          Obrig.    217     Rej.
+           - Verificar se MDF-e não existe
+           Verificar se campo “Código Numérico” informado na Chave de Acesso é
+  I06                                                                                          Obrig.    216     Rej.
+           diferente do existente no BD
+           Chave de Acesso difere da existente em BD (opcionalmente a descrição do erro,
+  I07      campo xMotivo, tem concatenada a Chave de Acesso, quando o autor da                 Obrig.    600     Rej.
+           consulta for o emissor)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.4.8",
+    titulo: "Final do Processamento",
+    conteudo: `4.4.8 Final do Processamento
+
+  No processamento do pedido de consulta situação de MDF-e pode resultar em uma mensagem de
+  erro, caso o MDF-e não seja localizado. Ou, caso localizado, retornar à situação atual do MDF-e
+  consultado, retornando o cStat com um dos valores, 100 (“Autorizado o Uso do MDF-e”), 101
+  (“Cancelamento de MDF-e homologado”), 132 (“Encerramento de MDF-e homologado”) e também
+  o respectivo protocolo de autorização de uso e registro de eventos.
+
+
+
+
+                                                                                                         Página 51 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5",
+    titulo: "Serviço de Consulta MDF-e não encerrados",
+    conteudo: `4.5 Serviço de Consulta MDF-e não encerrados
+  Função: serviço destinado à consulta MDF-e não encerrados na base de dados do ambiente
+  autorizador
+
+  Processo: síncrono.
+
+  Método: mdfeConsNaoEnc
+
+  Parâmetro da Mensagem da área de dados: XML sem compactação`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `4.5.1 Leiaute Mensagem de Entrada
+
+  Entrada: Estrutura XML contendo a consulta de MDF-e não encerrados do emitente
+  Schema XML: consMDFeNaoEnc_v9.99.xsd
+     #             Campo       Ele        Pai        Tipo     Ocor.     Tam.                  Descrição/Observação
+  EP01     consMDFeNaoEnc      Raiz        -          -         -        -       TAG raiz
+  EP02     versao               A         EP01        N        1-1      2v2      Versão do leiaute
+  EP03     tpAmb                E         EP01        N        1-1       1       Identificação do Ambiente:
+                                                                                 1 – Produção / 2 - Homologação
+  EP04     xServ                E         EP01        C        1-1       24      Serviço solicitado: ‘CONSULTAR NÃO
+                                                                                 ENCERRADOS’
+  EP05     CNPJ                CE         EP01        N        1-1       14      Informar zeros não significativos
+  EP06     CPF                 CE         EP01        N        1-1       11      Informar zeros não significativos`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `Apenas para emitente pessoa física com inscrição
+                                                                                 estadual`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `4.5.2 Leiaute Mensagem de Retorno
+
+  Retorno: Estrutura XML com o resultado da consulta status serviço.
+  Schema XML: retConsMDFeNaoEnc_v9.99.xsd
+     #              Campo           Ele        Pai     Tipo     Ocor.     Tam.                 Descrição/Observação
+  ER01     retConsMDFeNaoEnc     Raiz      -           -        -         -        TAG raiz da Resposta
+  ER02     versao                A         ER01        N        1-1       2v2      Versão do leiaute
+  ER03     tpAmb                 E         ER01        N        1-1       1        Identificação do Ambiente:
+                                                                                   1 – Produção / 2 - Homologação
+  ER04     verAplic              E         ER01        C        1-1      1-20      Versão do Aplicativo que processou a consulta
+  ER05     cStat                 E         ER01        N        1-1      3         Código do status da resposta
+  ER06     xMotivo               E         ER01        C        1-1      1-        Descrição literal do status da resposta
+                                                                         255`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `ER07     cUF                   E         ER01        N        1-1      2         Código da UF que atendeu à solicitação
+  ER08     infMDFe               G         ER01                 0-N      -         Grupo da relação de MDF-e não encerrados
+  ER09     chMDFe                E         ER08        N        1-1      44        Chave de acesso do MDF-e não encerrado
+  ER10     NProt                 E         ER08        N        1-1      15        Protocolo de autorização do MDF-e não
+                                                                                   encerrado`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.3",
+    titulo: "Descrição do Processo de Web Service",
+    conteudo: `4.5.3 Descrição do Processo de Web Service
+
+  Este método será responsável por receber as solicitações referentes à consulta de MDF-e não
+  encerrados pelo emitente (Situação Autorizado). Seu acesso é permitido apenas pelo CNPJ / CPF
+  do emitente do MDF-e.
+                                                                                                                  Página 52 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+
+
+  O aplicativo do contribuinte envia a solicitação para o Web Service do Ambiente Autorizador. Ao
+  receber a solicitação a aplicação do Ambiente Autorizador processará a solicitação de consulta,
+  validando o CNPJ / CPF do emitente, e retornará mensagem contendo a relação de chaves de
+  acesso e número de protocolo dos MDF-e não encerrados na Base de Dados
+
+  Deverão ser realizadas as validações e procedimentos que seguem:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `4.5.4 Regras de Validação Básicas do Serviço
+
+                              Validação do Certificado Digital do Transmissor (protocolo TLS)
+    #                                      Regra de Validação                                   Crítica    Msg    Efeito
+  A01      Certificado de Transmissor Inválido:                                                 Obrig.    280     Rej.
+           - Certificado de Transmissor inexistente na mensagem
+           - Versão difere "3"
+           - Se informado, Basic Constraint deve ser true (não pode ser Certificado de AC)
+           - KeyUsage não define "Autenticação Cliente"
+  A02      Validade do Certificado (data início e data fim)                                     Obrig.    281     Rej.
+  A03      Verificar a Cadeia de Certificação:                                                  Obrig.    283     Rej.
+           - Certificado da AC emissora não cadastrado na SEFAZ
+           - Certificado de AC revogado
+           - Certificado não assinado pela AC emissora do Certificado
+  A04      LCR do Certificado de Transmissor                                                    Obrig.    286     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `- Falta o endereço da LCR (CRL DistributionPoint)
+           - LCR indisponível
+           - LCR inválida
+  A05      Certificado do Transmissor revogado                                                  Obrig.    284     Rej.
+  A06      Certificado Raiz difere da "ICP-Brasil"                                              Obrig.    285     Rej.
+  A07      Falta a extensão de CNPJ no Certificado (OtherName - OID=2.16.76.1.3.3 ou a          Obrig.    282     Rej.
+           extensão de CPF (OtherName - OID=2.16.76.1.3.1).
+
+  As validações de A01, A02, A03, A04 e A05 são realizadas pelo protocolo TLS e não precisam ser
+  implementadas. A validação A06 também pode ser realizada pelo protocolo, mas pode falhar se
+  existirem outros certificados digitais de Autoridade Certificadora Raiz que não sejam “ICP-Brasil” no
+  repositório de certificados digitais do servidor de Web Service da SEFAZ.
+
+                                       Validação Inicial da Mensagem no Web Service
+    #                                      Regra de Validação                                   Crítica    Msg    Efeito`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `B01      Tamanho do XML de Dados superior a 2048 Kbytes                                       Obrig.    214     Rej.
+  B02      XML de Dados Mal Formado                                                             Obrig.    243     Rej.
+  B03      Verificar se o Serviço de processamento está Paralisado Momentaneamente              Obrig.    108     Rej.
+  B04      Verificar se o Serviço de processamento está Paralisado sem Previsão                 Obrig.    109     Rej.
+
+
+  A mensagem será descartada se o tamanho exceder o limite previsto (2048 Kb). A aplicação do
+  contribuinte não poderá permitir a geração de mensagem com tamanho superior a 2048 Kb. Caso
+  isto ocorra, a conexão poderá ser interrompida sem mensagem de erro se o controle do tamanho
+  da mensagem for implementado por configurações do ambiente de rede da SEFAZ (ex.: controle
+
+
+                                                                                                          Página 53 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  no firewall). No caso de controle de tamanho ter sido implementado por aplicativo, teremos a
+  devolução da mensagem de erro 214.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `O Ambiente Autorizador que mantêm o Web Service disponível mesmo quando o serviço esteja
+  paralisado, deverá implementar as validações 108 e 109. Estas validações poderão ser
+  dispensadas caso o Web Service não fique disponível quando o serviço estiver paralisado.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.5",
+    titulo: "Validação das informações de controle da chamada ao Web Service",
+    conteudo: `4.5.5 Validação das informações de controle da chamada ao Web Service
+
+                                    Validações de controle da chamada ao Web Service
+    #                                      Regra de Validação                                     Crítica    Msg    Efeito
+  C01      Elemento mdfeCabecMsg inexistente no SOAP Header                                       Obrig.    242     Rej.
+  C02      Campo cUF inexistente no elemento mdfeCabecMsg do SOAP Header                          Obrig.    409     Rej.
+  C03      Verificar se a UF informada no cUF é atendida pelo WebService                          Obrig.    410     Rej.
+  C04      Campo versaoDados inexistente no elemento mdfeCabecMsg do SOAP Header                  Obrig.    411     Rej.
+  C05      Versão dos Dados informada é superior à versão vigente                                 Obrig.    238     Rej.
+                          Este grupo de validações deverá ser descontinuado em futura versão do MDF-e
+
+  A informação da versão do leiaute do MDF-e e a UF de origem do emissor do manifesto são
+  informadas no elemento mdfeCabecMsg do SOAP Header.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.5",
+    titulo: "Validação das informações de controle da chamada ao Web Service",
+    conteudo: `A aplicação deverá validar os campos cUF e versaoDados, rejeitando a mensagem recebida em
+  caso de informações inexistentes ou inválidas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.6",
+    titulo: "Validação da área de dados da mensagem",
+    conteudo: `4.5.6 Validação da área de dados da mensagem
+
+                                      Validações de Forma Aplicadas a área de dados
+    #                                      Regra de Validação                                     Crítica    Msg    Efeito
+  D01      Verificar Schema XML da Área de Dados                                                  Obrig.    215     Rej.
+  D02      Verificar a existência de qualquer namespace diverso do namespace padrão do            Obrig.    598     Rej.
+           projeto (http://www.portalfiscal.inf.br/mdfe)
+  D03      Verificar a existência de caracteres de edição no início ou fim da mensagem ou entre   Obrig.    599     Rej.
+           as tags
+  D04      Verificar o uso de prefixo no namespace                                                Obrig.    404     Rej.
+  D05      Verificar se o XML utiliza codificação diferente de UTF-8                              Obrig.    402     Rej.
+  D06      Verificar se a versão do XML é suportada                                               Obrig.    239     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.7",
+    titulo: "Validação das Regras de Negócio da Consulta Status Serviço",
+    conteudo: `4.5.7 Validação das Regras de Negócio da Consulta Status Serviço
+
+                                   Validações das Regras de Negócio da Consulta Status
+    #                                      Regra de Validação                                     Crítica    Msg    Efeito
+           Tipo do ambiente informado difere do ambiente do Web Service
+  J01                                                                                             Obrig.    252     Rej.
+           Se informado CNPJ do emitente:                                                         Obrig.    207     Rej.
+  J02
+           Validar CNPJ Emitente (dígito controle, zeros ou nulo).
+           Se informado CPF do emitente:                                                          Obrig.    210     Rej.
+  J03
+           Validar CPF Emitente (dígito controle, zeros ou nulo).
+           Se Certificado for do tipo e-CNPJ:                                                     Obrig.    213     Rej.
+  J04
+           CNPJ-Base do Emitente difere do CNPJ-Base do Certificado Digital.
+
+
+                                                                                                            Página 54 / 102
+ Projeto`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.7",
+    titulo: "Validação das Regras de Negócio da Consulta Status Serviço",
+    conteudo: `MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+           Se Certificado for do tipo e-CPF:                       Obrig.   202     Rej.
+  J05
+           CPF do Emitente difere do CPF do Certificado Digital.
+  J06      Emitente não credenciado a emissão de MDF-e             Obrig.   203     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.5.8",
+    titulo: "Final do Processamento",
+    conteudo: `4.5.8 Final do Processamento
+
+  A mensagem de retorno poderá ser:
+
+   MDF-e não encerrados localizados – cStat=111, com a relação de chaves de acesso e
+      protocolos de autorização dos manifestos não encerrados;
+   MDF-e não encerrados não localizados – cStat=112
+
+
+
+
+                                                                            Página 55 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6",
+    titulo: "Serviço de Consulta Status do Serviço de Autorização",
+    conteudo: `4.6 Serviço de Consulta Status do Serviço de Autorização
+  Função: serviço destinado à consulta do status do serviço prestado pelo Ambiente Autorizador.
+
+  Processo: síncrono.
+
+  Método: mdfeStatusServicoMDF
+
+  Parâmetro da Mensagem da área de dados: XML sem compactação`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `4.6.1 Leiaute Mensagem de Entrada
+
+  Entrada: Estrutura XML contendo a consulta do status do serviço
+  Schema XML: consStatServMDFe_v9.99.xsd
+    #              Campo         Ele     Pai        Tipo    Ocor.     Tam.                Descrição/Observação
+  FP01     consStatServMDFe      Raiz     -          -        -        -      TAG raiz
+  FP02     versao                 A      FP01        N       1-1      2v2     Versão do leiaute
+  FP03     tpAmb                  E      FP01        N       1-1       1      Identificação do Ambiente:
+                                                                              1 – Produção / 2 - Homologação
+  FP04     xServ                  E      FP01        C       1-1       6      Serviço solicitado: ‘STATUS’`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `4.6.2 Leiaute Mensagem de Retorno
+
+  Retorno: Estrutura XML com o resultado da consulta status serviço.
+  Schema XML: retConsStatServMDFe_v9.99.xsd
+     #              Campo          Ele        Pai    Tipo     Ocor.    Tam.                 Descrição/Observação
+  FR01     retConsStatServMDFe    Raiz    -          -        -        -        TAG raiz da Resposta
+  FR02     versao                 A       FR01       N        1-1      2v2      Versão do leiaute
+  FR03     tpAmb                  E       FR01       N        1-1      1        Identificação do Ambiente:
+                                                                                1 – Produção / 2 - Homologação
+  FR04     verAplic               E       FR01       C        1-1      1-20     Versão do Aplicativo que processou a consulta
+  FR05     cStat                  E       FR01       N        1-1      3        Código do status da resposta
+  FR06     xMotivo                E       FR01       C        1-1      1-       Descrição literal do status da resposta
+                                                                       255`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `FR07     cUF                    E       FR01       N        1-1      2        Código da UF que atendeu à solicitação
+  FR08     dhRecbto               E       FR01       D        1-1      -        Data e hora de recebimento do pedido
+                                                                                Formato = AAAA-MM-DDTHH:MM:SS TZD
+  FR09     tMed                   E       FR01       N        0-1      1-4      Tempo médio de resposta do serviço (em
+                                                                                segundos) dos últimos 5 minutos
+  FR10     dhRetorno              E       FR01       D        0-1      -        Preencher com data e hora previstas para o
+                                                                                retorno do Web Service, no formato AAA-MM-
+                                                                                DDTHH:MM:SS
+  FR11     xObs                   E       FR01       C        0-1      1-       Informações adicionais ao contribuinte
+                                                                       255`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.3",
+    titulo: "Descrição do Processo de Web Service",
+    conteudo: `4.6.3 Descrição do Processo de Web Service
+
+  Este método será responsável por receber as solicitações referentes à consulta do status do
+  serviço do Ambiente Autorizador.
+
+
+
+                                                                                                               Página 56 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  O aplicativo do contribuinte envia a solicitação para o Web Service do Ambiente Autorizador. Ao
+  receber a solicitação a aplicação do Ambiente Autorizador processará a solicitação de consulta, e
+  retornará mensagem contendo o status do serviço.
+
+  A empresa que construir aplicativo que se mantenha em permanente "loop" de consulta a este Web
+  Service, deverá aguardar um tempo mínimo de 3 minutos entre uma consulta e outra, evitando
+  sobrecarga desnecessária dos servidores do Ambiente Autorizador.
+
+  Deverão ser realizadas as validações e procedimentos que seguem:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `4.6.4 Regras de Validação Básicas do Serviço
+
+                              Validação do Certificado Digital do Transmissor (protocolo TLS)
+    #                                      Regra de Validação                                   Crítica    Msg    Efeito
+  A01      Certificado de Transmissor Inválido:                                                 Obrig.    280     Rej.
+           - Certificado de Transmissor inexistente na mensagem
+           - Versão difere "3"
+           - Se informado, Basic Constraint deve ser true (não pode ser Certificado de AC)
+           - KeyUsage não define "Autenticação Cliente"
+  A02      Validade do Certificado (data início e data fim)                                     Obrig.    281     Rej.
+  A03      Verificar a Cadeia de Certificação:                                                  Obrig.    283     Rej.
+           - Certificado da AC emissora não cadastrado na SEFAZ
+           - Certificado de AC revogado
+           - Certificado não assinado pela AC emissora do Certificado
+  A04      LCR do Certificado de Transmissor                                                    Obrig.    286     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `- Falta o endereço da LCR (CRL DistributionPoint)
+           - LCR indisponível
+           - LCR inválida
+  A05      Certificado do Transmissor revogado                                                  Obrig.    284     Rej.
+  A06      Certificado Raiz difere da "ICP-Brasil"                                              Obrig.    285     Rej.
+  A07      Falta a extensão de CNPJ no Certificado (OtherName - OID=2.16.76.1.3.3 ou a          Obrig.    282     Rej.
+           extensão de CPF (OtherName - OID=2.16.76.1.3.1).
+
+  As validações de A01, A02, A03, A04 e A05 são realizadas pelo protocolo TLS e não precisam ser
+  implementadas. A validação A06 também pode ser realizada pelo protocolo, mas pode falhar se
+  existirem outros certificados digitais de Autoridade Certificadora Raiz que não sejam “ICP-Brasil” no
+  repositório de certificados digitais do servidor de Web Service da SEFAZ.
+
+                                       Validação Inicial da Mensagem no Web Service
+    #                                      Regra de Validação                                   Crítica    Msg    Efeito`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `B01      Tamanho do XML de Dados superior a 2048 Kbytes                                       Obrig.    214     Rej.
+  B02      XML de Dados Mal Formado                                                             Obrig.    243     Rej.
+  B03      Verificar se o Serviço de processamento está Paralisado Momentaneamente              Obrig.    108     Rej.
+  B04      Verificar se o Serviço de processamento está Paralisado sem Previsão                 Obrig.    109     Rej.
+
+
+  A mensagem será descartada se o tamanho exceder o limite previsto (2048 Kb). A aplicação do
+  contribuinte não poderá permitir a geração de mensagem com tamanho superior a 2048 Kb. Caso
+  isto ocorra, a conexão poderá ser interrompida sem mensagem de erro se o controle do tamanho
+
+                                                                                                          Página 57 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  da mensagem for implementado por configurações do ambiente de rede da SEFAZ (ex.: controle
+  no firewall). No caso de controle de tamanho ter sido implementado por aplicativo, teremos a
+  devolução da mensagem de erro 214.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `O Ambiente Autorizador que mantêm o Web Service disponível mesmo quando o serviço esteja
+  paralisado, deverá implementar as validações 108 e 109. Estas validações poderão ser
+  dispensadas caso o Web Service não fique disponível quando o serviço estiver paralisado.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.5",
+    titulo: "Validação das informações de controle da chamada ao Web Service",
+    conteudo: `4.6.5 Validação das informações de controle da chamada ao Web Service
+
+                                    Validações de controle da chamada ao Web Service
+    #                                      Regra de Validação                                     Crítica    Msg    Efeito
+  C01      Elemento mdfeCabecMsg inexistente no SOAP Header                                       Obrig.    242     Rej.
+  C02      Campo cUF inexistente no elemento mdfeCabecMsg do SOAP Header                          Obrig.    409     Rej.
+  C03      Verificar se a UF informada no cUF é atendida pelo WebService                          Obrig.    410     Rej.
+  C04      Campo versaoDados inexistente no elemento mdfeCabecMsg do SOAP Header                  Obrig.    411     Rej.
+  C05      Versão dos Dados informada é superior à versão vigente                                 Obrig.    238     Rej.
+                          Este grupo de validações deverá ser descontinuado em futura versão do MDF-e
+
+
+  A informação da versão do leiaute do MDF-e e a UF de origem do emissor do manifesto são
+  informadas no elemento mdfeCabecMsg do SOAP Header.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.5",
+    titulo: "Validação das informações de controle da chamada ao Web Service",
+    conteudo: `A aplicação deverá validar os campos cUF e versaoDados, rejeitando a mensagem recebida em
+  caso de informações inexistentes ou inválidas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.6",
+    titulo: "Validação da área de dados da mensagem",
+    conteudo: `4.6.6 Validação da área de dados da mensagem
+
+                                      Validações de Forma Aplicadas a área de dados
+    #                                      Regra de Validação                                     Crítica    Msg    Efeito
+  D01      Verificar Schema XML da Área de Dados                                                  Obrig.    215     Rej.
+  D02      Verificar a existência de qualquer namespace diverso do namespace padrão do            Obrig.    598     Rej.
+           projeto (http://www.portalfiscal.inf.br/mdfe)
+  D03      Verificar a existência de caracteres de edição no início ou fim da mensagem ou entre   Obrig.    599     Rej.
+           as tags
+  D04      Verificar o uso de prefixo no namespace                                                Obrig.    404     Rej.
+  D05      Verificar se o XML utiliza codificação diferente de UTF-8                              Obrig.    402     Rej.
+  D06      Verificar se a versão do XML é suportada                                               Obrig.    239     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.7",
+    titulo: "Validação das Regras de Negócio da Consulta Status Serviço",
+    conteudo: `4.6.7 Validação das Regras de Negócio da Consulta Status Serviço
+
+                                   Validações das Regras de Negócio da Consulta Status
+    #                                      Regra de Validação                                     Crítica    Msg    Efeito
+  K01      Tipo do ambiente informado difere do ambiente do Web Service                           Obrig.    252     Rej.
+  K02      Verifica se o Servidor de Processamento está Paralisado Momentaneamente                Obrig.    108     -
+  K03      Verifica se o Servidor de Processamento está Paralisado sem Previsão                   Obrig.    109     -
+
+
+
+
+                                                                                                            Página 58 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.6.8",
+    titulo: "Final do Processamento",
+    conteudo: `4.6.8 Final do Processamento
+
+  O processamento do pedido de consulta de status de Serviço pode resultar em uma mensagem de
+  erro ou retornar à situação atual do Servidor de Processamento, códigos de situação 107 (“Serviço
+  em Operação”), 108 (“Serviço Paralisado Momentaneamente”) e 109 (“Serviço Paralisado sem
+  Previsão”).
+
+   A critério da UF o campo xObs pode ser utilizado para fornecer maiores informações ao
+  contribuinte, como por exemplo: “manutenção programada”, “modificação de versão do aplicativo”,
+  “previsão de retorno”, etc.
+
+
+
+
+                                                                                      Página 59 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.7",
+    titulo: "Serviço de Consulta Cadastro (NFeConsultaCadastro)",
+    conteudo: `4.7 Serviço de Consulta Cadastro (NFeConsultaCadastro)
+  Função: Serviço para consultar o cadastro de contribuintes do ICMS da unidade federada.
+  Processo: síncrono.
+  Método: consultaCadastro
+
+  Esse Web Service oferece a consulta pública do cadastro de contribuintes do ICMS de uma
+  unidade federada.
+
+  Qualquer UF poderá oferecer o Web Service, sendo obrigatório para as UFs que autorizam a
+  emissão de qualquer espécie de Documento Fiscal eletrônico - DF-e.
+
+  Apenas as empresas autorizadas a emitir Documentos Fiscais eletrônicos utilizarão esse serviço. A
+  UF que oferecer o Web Service verificará se o CNPJ da empresa solicitante consta no cadastro
+  nacional de emissores de Documentos Fiscais eletrônicos - DF-e.
+
+  A identificação da empresa solicitante do serviço será realizada através do CNPJ contido na
+  extensão otherName – OID=2.16.76.1.3.3 do certificado digital utilizado na conexão TLS.
+
+  Importante ressaltar que esse Web Service não tem a mesma disponibilidade dos demais Web
+  Services do MDF-e, em razão disto, sugere-se que não se implemente esse serviço dentro do fluxo
+  normal de emissão do MDF-e e sim como um serviço alternativo.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.7",
+    titulo: "Serviço de Consulta Cadastro (NFeConsultaCadastro)",
+    conteudo: `O aplicativo do contribuinte envia a solicitação para o Web Service da Secretaria de Fazenda
+  Estadual. Ao recebê-la, a aplicação do Portal da Secretaria de Fazenda Estadual processará a
+  solicitação de consulta, validando o argumento de pesquisa informado (CNPJ ou CPF ou IE), e
+  retornará mensagem contendo a situação cadastral atual do contribuinte no cadastro de
+  contribuintes do ICMS.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.7.1",
+    titulo: "Onde obter as Definições deste Web Service",
+    conteudo: `4.7.1 Onde obter as Definições deste Web Service
+
+  As definições do Web Service de Consulta Cadastro encontram-se centralizadas no manual da
+  Nota Fiscal Eletrônica. Para informações mais detalhadas, consultar o Manual de Orientações do
+  Contribuinte da NF-e, disponível em http://www.nfe.fazenda.gov.br.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 4.7.2",
+    titulo: "Onde obter os Schemas XML deste Web Service",
+    conteudo: `4.7.2 Onde obter os Schemas XML deste Web Service
+
+  Os schemas XML utilizados pelo Web Service de Consulta Cadastro encontram-se disponíveis no
+  endereço http://www.nfe.fazenda.gov.br.
+
+
+
+
+                                                                                      Página 60 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5",
+    titulo: "Regras de Validação do MDF-e",
+    conteudo: `5 Regras de Validação do MDF-e
+
+  As validações descritas a seguir aplicam-se ao MDF-e transmitido ao serviço de recepção de
+  assíncrono (item 4.1) e recepção síncrono (item 4.2).`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.1",
+    titulo: "Validações do Certificado de Assinatura",
+    conteudo: `5.1 Validações do Certificado de Assinatura
+                              Validações do Certificado utilizado na Assinatura Digital do MDF-e
+    #                                        Regra de Validação                                  Crítica    Msg    Efeito
+           Certificado de Assinatura Inválido:
+           - Certificado de Assinatura inexistente na mensagem
+  E01      - Versão difere “3”                                                                  Obrig.     290     Rej.
+           - Basic Constraint = true (não pode ser Certificado de AC)
+           - KeyUsage não define “Autenticação Cliente”
+  E02      Validade do Certificado (data início e data fim)                                     Obrig.     291     Rej.
+           Falta a extensão de CNPJ no Certificado (OtherName - OID=2.16.76.1.3.3 ou a
+  E03                                                                                           Obrig.     292     Rej.
+           extensão de CPF (OtherName - OID=2.16.76.1.3.1).
+           Verificar a Cadeia de Certificação:
+           - Certificado da AC emissora não cadastrado na SEFAZ`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.1",
+    titulo: "Validações do Certificado de Assinatura",
+    conteudo: `E04                                                                                           Obrig.     293     Rej.
+           - Certificado de AC revogado
+           - Certificado não assinado pela AC emissora do Certificado
+           LCR do Certificado de Assinatura
+  E05      - Falta o endereço da LCR (CRL DistributionPoint)                                    Obrig.     296     Rej.
+           - Erro no acesso à LCR
+  E06      Certificado de Assinatura revogado                                                   Obrig.     294     Rej.
+                                                                                                                   Rej
+  E07      Certificado Raiz difere da “ICP-Brasil”                                              Obrig.     295
+                                                                                                                   .`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.2",
+    titulo: "Validação da Assinatura Digital",
+    conteudo: `5.2 Validação da Assinatura Digital
+                                          Validações da Assinatura Digital do MDF-e
+    #                                        Regra de Validação                                  Crítica    Msg    Efeito
+           Assinatura difere do padrão do Projeto:
+           - Não assinado o atributo “ID” (falta “Reference URI” na assinatura)
+  F01      (*validado também pelo Schema)                                                       Obrig.     298     Rej.
+            - Faltam os “Transform Algorithm” previstos na assinatura (“C14N” e “Enveloped”)
+           Estas validações são implementadas pelo Schema XML da Signature
+  F02      Valor da assinatura (SignatureValue) difere do valor calculado                       Obrig.     297     Rej.
+           Se Certificado for do tipo e-CNPJ:
+  F03                                                                                           Obrig.     213     Rej.
+           CNPJ-Base do Emitente difere do CNPJ-Base do Certificado Digital
+           Se Certificado for do tipo e-CPF:
+  F04                                                                                           Obrig.     202     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.2",
+    titulo: "Validação da Assinatura Digital",
+    conteudo: `CPF do Emitente difere do CPF do Certificado Digital`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `5.3 Regras de negócio do MDF-e
+                                           Validações das Regras de Negócio MDF-e
+     #                                       Regra de Validação                                  Crítica    Msg    Efeito
+                                                      Validações Gerais
+  G001      Tipo do ambiente do MDF-e difere do ambiente do Web Service                         Obrig.     252     Rej.
+  G002      Código da UF do Emitente difere da UF do Web Service                                Obrig.     226     Rej.
+  G003       Sigla da UF do Emitente difere da UF do Web Service                                Obrig.     247     Rej.
+            Campo "ID" inválido:
+            - Falta literal "MDFe"
+  G004                                                                                          Obrig.     227     Rej.
+            - Chave de acesso do campo ID difere da concatenação dos campos
+            correspondentes
+
+                                                                                                           Página 61 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `G005     Verificar se Ano da chave de acesso é inferior a 2012                                  Obrig.   666     Rej.
+           Dígito Verificador inválido da Chave de acesso resultante da concatenação dos
+  G006                                                                                            Obrig.   253     Rej.
+           campos correspondentes
+  G007     Verificar se a Versão do Modal é suportada                                             Obrig    579     Rej
+  G008     Verificar Schema XML conforme o modal (parte específica do modal)                      Obrig.   580     Rej.
+           Município de Carregamento do MDF-e diverge da UF (verificar se as 2 posições da        Obrig.   456     Rej.
+  G009     esquerda do código de município que identifica o código da UF estão de acordo com
+           a sigla da UF informada)
+  G010     Código do Município de Carregamento inexistente (Tabela Municípios do IBGE)            Obrig.   405     Rej.
+  G011     Rejeitar Município de carregamento duplicado no MDF-e                                  Obrig.   685     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Município de descarregamento diverge da UF de descarregamento (verificar se as 2       Obrig.   612     Rej.
+           posições da esquerda do código de município de descarregamento que identifica o
+  G012     código da UF de descarga estão de acordo com a sigla da UF informada)
+
+           Retornar o código do município de descarga inválido.
+  G013     Código do Município de Descarregamento inexistente (Tabela Municípios do IBGE)         Obrig.   406     Rej.
+  G014     Rejeitar Município de descarregamento duplicado no MDF-e                               Obrig.   680     Rej.
+                                              Validações do Tipo de Emitente
+           Se tipo emitente informado for igual a Prestador de Serviço de Transporte
+  G015     (tpEmit=1):                                                                            Obrig.   638     Rej.
+           O grupo de documentos NF-e não pode ser preenchido
+           Se tipo emitente informado for igual a Transportador de Carga Própria (tpEmit=2):
+  G016                                                                                            Obrig.   639     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `O grupo de documentos CTe não pode ser preenchido
+           Se tipo emitente informado for igual a Transportador que emitirá CT-e globalizado
+  G017     (tpEmit=3):                                                                            Obrig.   540     Rej.
+             O grupo de documentos CT-e não pode ser preenchido
+           Rejeitar se tipo emitente informado for igual a Transportador que emitirá CT-e
+  G018                                                                                            Obrig.   541     Rej.
+           Globalizado (tpEmit=3) e operação interestadual ou com exterior
+           Se tipo emitente informado for igual a Prestador de Serviço de Transporte (tpEmit=1)   Obrig.   457     Rej.
+           ou transportador que emitirá CT-e globalizado (tpEmit=3), modal = Rodoviário e
+  G019     CNPJ do proprietário do veículo não for informado ou for igual ao CNPJ do Emitente
+           do MDF-e:
+             A informação do tipo de transportador (tpTransp) deverá ser diferente de TAC (2)
+           Se tipo emitente informado for igual a Transportador de Carga Própria (tpEmit=2),      Obrig.   458     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `modal = Rodoviário e CNPJ do proprietário do veículo não for informado ou for igual
+  G020
+           ao CNPJ do Emitente do MDF-e:
+             A informação do tipo de transportador (tpTransp) não deverá ser preenchida
+           Se tipo emitente informado for igual a Transportador de Carga Própria (tpEmit=2),      Obrig.   454     Rej.
+           modal = Rodoviário e CNPJ do proprietário do veículo for informado diferente do
+  G021     CNPJ do Emitente do MDF-e:
+             A informação do tipo de transportador (tpTransp) deverá ser preenchida com TAC
+           (2)
+                                          Validações do Carregamento Posterior
+
+           Se informado indicador de carregamento posterior (indCarregaPosterior=1), deve         Obrig.   703     Rej.
+  G022     ser informado apenas um município de carregamento e um município de
+           descarregamento que devem ser iguais.
+           Se informado indicador de carregamento posterior (indCarregaPosterior=1), UF de        Obrig.   704     Rej.
+  G023
+           Carregamento deve ser igual a UF de descarregamento e diferentes de EX`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 4,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Se informado indicador de carregamento posterior (indCarregaPosterior=1), modal        Obrig.   705     Rej.
+  G024
+           deve ser Rodoviário
+           Se informado indicador de carregamento posterior (indCarregaPosterior=1), o tipo       Obrig.   707     Rej.
+  G025
+           do emitente deve ser transporte próprio (2)
+           Verificar se existe MDF-e com indicação de carregamento posterior                      Obrig.   712     Rej.
+  G026     (indCarregaPosterior=1) sem evento de inclusão de DF-e há mais de 168 horas para
+           o mesmo CNPJ / CPF do emitente
+                                        Validações dos Documentos Transportados
+           Pelo menos um dos grupos de documentos deverá ser informado (CT-e, NF-e e/ou           Obrig.   616     Rej.
+           MDF-e)
+  G027     Observação: Retornar Município sem DF-e vinculado
+           Exceção: Regra não deve ser aplicada em caso de indicação de carregamento
+           posterior (indCarregaPosterior=1)
+
+
+                                                                                                           Página 62 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 5,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Se informado indicador de carregamento posterior (indCarregaPosterior=1), os          Obrig.    706     Rej.
+  G028     grupos de documentos transportados não devem ser informados (CT-e, NF-e e
+           MDF-e)
+           Se informado grupo CT-e e a Operação for:
+           Transporte Interestadual:
+                Verificar se existe alguma chave de acesso duplicada no MDF-e
+           Interna:
+  G029                                                                                           Obrig.    668     Rej
+                Verificar se existe alguma chave de acesso duplicada no município de
+           descarregamento
+
+           Retornar a chave duplicada
+           Se informado grupo NF-e e a Operação for:
+           Transporte Interestadual:
+                Verificar se existe alguma chave de acesso duplicada no MDF-e
+  G030     Interna:                                                                              Obrig.    669     Rej
+                Verificar se existe alguma chave de acesso duplicada no município de
+           descarregamento
+           Retornar a chave duplicada
+           Se informado grupo CT-e, para cada um dos CT-e relacionados:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 6,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `- Validar chave de acesso
+           Retornar chave inválida e o motivo da rejeição da Chave de Acesso: CNPJ / CPF
+           zerado ou inválido, Ano < 2008 ou maior que atual, Mês inválido (0 ou > 12), Modelo
+  G031                                                                                           Obrig.    601     Rej.
+           diferente de 57, Número zerado, Tipo de emissão inválido, UF inválida ou DV
+           inválido)
+           [chCTe: 99999999999999999999999999999999999999999999]
+           [Motivo: XXXXXXXXXXXX]
+           Se informado grupo CT-e, para cada um dos CT-e relacionados:                          Obrig.    671     Rej.
+           Acesso BD CT-e da SEFAZ Autorizadora (Chave: CNPJ Emit, Modelo, Serie, Nro.)
+           com as informações da chave chCTe indicado.
+  G032        - Verificar se CT-e existe
+
+           Observação: Retornar a chave do CT-e inexistente
+           Exceção: CT-e em contingência fica dispensado dessa validação
+           Se informado grupo CT-e, para cada um dos CT-e relacionados:                          Obrig.    672     Rej.
+           - CT-e não pode existir com diferença de chave de acesso Observação: Retornar a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 7,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `G033     chave de acesso de CT-e com diferença na chave.
+
+           Exceção: CT-e em contingência fica dispensado dessa validação
+           Se informado grupo CT-e, para cada um dos CT-e relacionados:                          Facult.   673     Rej.
+           - Verificar se CT-e indicado está cancelado ou denegado
+  G034
+           Observação: Retornar a chave do CT-e com situação irregular
+           Exceção: CT-e em contingência fica dispensado dessa validação
+           Se modal for diferente de aéreo e informado grupo CT-e, para cada um dos CT-e         Obrig.    702     Rej.
+           relacionados:
+  G035     Rejeitar se foi informado grupo de entrega parcial (infEntregaParcial).
+
+           Observação: Retornar a chave do CT-e.
+           Se o tipo de emissão do CT-e informado for FS-DA, o campo SegCodBarra deverá          Obrig.    602     Rej.
+           ser informado
+  G036
+           Observação: Retornar a chave do CT-e em contingência
+           Se o tipo de emissão do CT-e informado for diferente de FS-DA, o campo                Obrig.    603     Rej.
+           SegCodBarra não deverá ser informado
+  G037
+           Observação: Retornar a chave do CT-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 8,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Se informado grupo NF-e, para cada uma das NF-e relacionadas:
+           - Validar chave de acesso
+           Retornar chave inválida e o motivo da rejeição da Chave de Acesso: CNPJ / CPF
+           zerado ou inválido, Ano < 2006 ou maior que atual, Mês inválido (0 ou > 12), Modelo
+  G038                                                                                           Obrig.    604     Rej.
+           diferente de 55, Número zerado, Tipo de emissão inválido, UF inválida ou DV
+           inválido)
+           [chNFe: 99999999999999999999999999999999999999999999]
+           [Motivo: XXXXXXXXXXXX]
+
+
+                                                                                                           Página 63 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+           Se informado grupo NF-e, para cada uma das NF-e relacionadas:                         Facult.   675     Rej.
+           Acesso BD NF-e da SEFAZ Autorizadora (Chave: CNPJ / CPF Emit, Modelo, Serie,
+           Nro.) com as informações da chave chNFe indicada.
+  G039       - Verificar se NF-e existe
+
+           Observação: Retornar a chave da NF-e inexistente`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 9,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Exceção: NF-e em contingência fica dispensada dessa validação
+           Se informado grupo NF-e, para cada uma das NF-e relacionadas:                         Facult.   676     Rej.
+           - NF-e não pode existir com diferença de chave de acesso
+  G040
+           Observação: Retornar a chave de acesso de NF-e com diferença na chave.
+           Exceção: NF-e em contingência fica dispensada dessa validação
+           Se informado grupo NF-e, para cada uma das NF-e relacionadas:                         Facult.   677     Rej.
+           - Verificar se NF-e indicada está cancelada ou denegada
+  G041
+           Observação: Retornar a chave da NF-e com situação irregular
+           Exceção: NF-e em contingência fica dispensada dessa validação
+           Se o tipo de emissão da NF-e informada for FS-DA, o campo SegCodBarra deverá          Obrig.    606     Rej.
+           ser informado
+  G042
+           Observação: Retornar a chave da NF-e em contingência
+           Se o tipo de emissão da NF-e informada for diferente de FS-DA, o campo                Obrig.    607     Rej.
+           SegCodBarra não deverá ser informado
+  G043
+           Observação: Retornar a chave da NF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 10,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Se informado o grupo MDFeTransp:                                                      Obrig.    647     Rej
+  G044
+            - Verificar se o MDF-e é do modal Aquaviário
+           Se informado o grupo MDFeTransp, para cada um dos MDF-e relacionados:
+  G045      - Verificar se UF de carregamento ou UF de descarregamento = Amazonas (AM) ou        Obrig.    648     Rej.
+           Amapá (AP)
+           Se informado o grupo MDFeTransp, para cada um dos MDF-e relacionados:
+           - Validar chave de acesso
+           Retornar chave inválida e o motivo da rejeição da Chave de Acesso: CNPJ / CPF
+           zerado ou inválido, Ano < 2012 ou maior que atual, Mês inválido (0 ou > 12), Modelo
+  G046                                                                                           Obrig.    649     Rej.
+           diferente de 58, Número zerado, Tipo de emissão inválido, UF inválida ou DV
+           inválido)
+           [chMDFe: 99999999999999999999999999999999999999999999]
+           [Motivo: XXXXXXXXXXXX]
+           Se informado o grupo MDFeTransp, para cada um dos MDF-e relacionados:                 Obrig.    655     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 11,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Acesso BD MDF-e (Chave: CNPJ / CPF Emit, Modelo, Serie, Nro.) com as
+           informações da chave chMDFe indicada.
+  G047        - Verificar se MDF-e existe
+
+           Observação: Retornar a chave do MDF-e inexistente
+           Exceção: MDF-e em contingência fica dispensado dessa validação
+           Se informado o grupo MDFeTransp, para cada um dos MDF-e relacionados:                 Obrig.    656     Rej.
+           - MDF-e não pode existir com diferença de chave de acesso
+  G048
+           Observação: Retornar a chave de acesso de MDF-e com diferença na chave.
+           Exceção: MDF-e em contingência fica dispensado dessa validação
+           Se informado o grupo MDFeTransp, para cada um dos MDF-e relacionados:                 Obrig.    657     Rej.
+           - Verificar se MDF-e indicado está cancelado
+  G049
+           Observação: Retornar a chave do MDF-e cancelado
+           Exceção: MDF-e em contingência fica dispensado dessa validação
+           Se informado o grupo MDFeTransp, para cada um dos MDF-e relacionados:                 Obrig.    658     Rej.
+  G050     Modal do MDF-e indicado diferente de Rodoviário
+           Observação: Retornar a chave do MDF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 12,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Se informado grupo MDFeTransp e tipo emitente informado for igual a Transportador     Obrig.    659     Rej.
+           de Carga Própria (tpEmit=2):
+           Verificar se tipo do emitente do MDF-e referenciado é igual a Transportador de
+  G051
+           Carga Própria
+
+           Observação: Retornar a chave do MDF-e
+
+
+                                                                                                           Página 64 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+           Verificar se o valor informado nos campos totalizadores de documentos (qCTe,
+  G052     qNFe, qMDFe) está de acordo com o número de documentos relacionados no MDF-          Obrig.    667     Rej.
+           e.
+                                                    Validações do Emitente
+           Se informado CNPJ do Emitente:
+  G053                                                                                          Obrig.    207     Rej.
+           Validar CNPJ Emitente (dígito controle, zeros ou nulo)
+           Se informado CPF do Emitente:
+  G054                                                                                          Obrig.    210     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 13,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Validar CPF Emitente (dígito controle, zeros ou nulo)
+           Se informado CNPJ do Emitente:
+  G055                                                                                          Obrig.    232     Rej.
+           Série informada não pode estar na faixa 920-969
+           Se informado CPF do Emitente:
+  G056                                                                                          Obrig.    233     Rej.
+           Série informada deve estar na faixa 920-969
+           Se informado CPF do Emitente:
+  G057                                                                                          Obrig.    234     Rej.
+           O tipo de emitente deve ser Transporte Próprio (tpEmit=2)
+  G058     IE Emitente deve ser informada (zeros ou nulo)                                       Obrig.    229     Rej.
+           Validar IE Emitente (erro no dígito de controle)
+           Obs.: Antes da validação, a IE deverá ser normalizada, na aplicação da SEFAZ, com
+           o acréscimo de zeros não significativos previstos na definição do formato da IE se`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 14,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `G059     necessário.                                                                          Obrig.    209     Rej.
+           Exemplo.: IE informada 130000019, formato da IE: NNNNNNNNNND, a IE deve ser
+           padronizada para 00130000019, com o acréscimo dos zeros não significativos
+           necessários para a validação do dígito verificador.
+  G060     Emitente deve estar habilitado na base de dados para emissão do MDF-e                Obrig.    203     Rej.
+           Acessar Cadastro de Emitentes (Chave: UF, IE):
+  G061                                                                                          Facult.   230     Rej.
+           - IE emitente não cadastrada
+           IE Emitente deve estar vinculada ao CNPJ / CPF (tratar Regime Especial de IE
+  G062                                                                                          Obrig.    231     Rej.
+           única)
+           Município do Emitente diverge da UF (verificar se as 2 posições da esquerda do
+  G063     código de município que identifica o código da UF é compatível com a sigla da UF     Obrig.    407     Rej
+           informada)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 15,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `G064     Código do Município Emitente inexistente (Tabela Municípios do IBGE)                 Obrig.    408     Rej.
+                                                Validações da Data de Emissão
+           Data/Hora de Emissão posterior a Data/Hora de Recebimento (o Ambiente                Obrig.    212     Rej.
+           Autorizador deve considerar a hora local do emissor para a validação). A SEFAZ
+           deve tolerar uma diferença máxima de 5 minutos quando a data/hora de emissão for
+           maior que a data de recebimento, em função da sincronização de horário de
+  G065
+           servidores.
+
+           Observação: Essa Validação deve considerar o novo formato de datas UTC com
+           indicação do timezone.
+           Se tipo de emissão for normal (tpEmis=1):                                            Obrig.    228     Rej.
+  G066     Data-Hora de Emissão com atraso superior a 24 horas em relação ao horário de
+           recepção na SEFAZ Autorizadora.
+                                              Validações do Banco de Dados
+           Acessar BD MDF-e (Chave: CNPJ / CPF Emit, Modelo, Série, Nro):                       Obrig     539     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 16,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `- Verificar duplicidade de MDF-e com diferença na Chave de Acesso
+           (Campo de Código Numérico difere)
+           Retornar a chave de acesso já autorizada, o número do protocolo e data de
+  G067
+           autorização do MDF-e:
+           [chMDFe: 99999999999999999999999999999999999999999999]
+           [nProt:999999999999999]
+           [dhAut: AAAA-MM-DDTHH:MM:SS TZD]
+           Acesso BD MDF-e (Chave: CNPJ / CPF Emit, Modelo, Serie, Nro.)
+           - Verificar duplicidade de MDF-e
+  G068     Retornar o número do protocolo e data de autorização do MDF-e:                       Obrig.    204     Rej.
+           [nProt:999999999999999]
+           [dhAut: AAAA-MM-DDTHH:MM:SS TZD].
+           - Verificar se o MDF-e está cancelado.
+           Retornar o número do protocolo e data de cancelamento do MDF-e:
+  G069     [nProt:999999999999999]                                                              Obrig.    218     Rej.
+           [dhCanc: AAAA-MM-DDTHH:MM:SS TZD].
+
+
+
+                                                                                                          Página 65 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 17,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `- Verificar se o MDF-e está encerrado
+           Retornar o número do protocolo e data de encerramento do MDF-e:
+  G070                                                                                           Obrig.   609     Rej.
+           [nProt:999999999999999]
+           [dhEnc: AAAA-MM-DDTHH:MM:SS TZD].
+                                              Validações do Modal Rodoviário
+           Se modal rodoviário:
+           - Verificar se existe MDF-e não encerrado, para a placa principal (mesmo CNPJ
+           base / CPF do emitente do MDF-e, mesma placa, mesmo tipo de emitente e mesma
+  G071                                                                                           Obrig.   611     Rej.
+           UF descarregamento).
+           Observação: retornar chave de acesso e protocolo de autorização mais antigo que
+           causa o bloqueio
+           Verificar se existe MDF-e não encerrado para o CNPJ / CPF do emitente com mais
+           de 30 dias desde a autorização.
+  G072                                                                                           Obrig.   686     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 18,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Observação: retornar chave de acesso e protocolo de autorização mais antigo que
+           causa o bloqueio.
+           Se modal rodoviário:
+           Verificar se existe MDF-e não encerrado para a placa do veículo com o mesmo
+           CNPJ Base / CPF do emitente com mais de 5 dias desde a autorização indicando no
+  G073                                                                                           Obrig.   462     Rej.
+           máximo duas UF de percurso além do carregamento e descarregamento.
+           Observação: retornar chave de acesso e protocolo de autorização mais antigo que
+           causa o bloqueio.
+           Se modal rodoviário:
+           - Verificar se existe MDF-e não encerrado, para a placa principal (mesmo CNPJ
+           base / CPF do emitente do MDF-e, mesma placa, mesmo tipo de emitente e
+  G074     contendo o par UF de Carregamento/ UF de Descarregamento no sentido oposto ao         Obrig.   662     Rej.
+           MDF-e que está sendo autorizado).
+           Observação: retornar chave de acesso e protocolo de autorização mais antigo que
+           causa o bloqueio`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 19,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Se modal rodoviário, UF Carregamento e Descarregamento forem diferentes de
+           Exterior:
+  G075                                                                                           Obrig.   646     Rej.
+           Verificar se as placas informadas (veículo Tração e Reboques) encontram-se
+           diferentes do formato nacional
+           Se modal Rodoviário, o grupo de informações de UF de percurso deverá ser
+           preenchido na ordem Origem – Destino sempre que existir pelo menos uma UF
+  G076     entre a UF de carregamento e UF de descarregamento.                                   Obrig.   663     Rej.
+           Observação: A regra será aplicada considerando as divisas possíveis na ordem
+           definida para o percurso.
+           Se modal Rodoviário e Tipo Emitente for igual a Prestador de Serviço de Transporte
+  G077     (tpEmit=1) ou transportador que emitirá CT-e globalizado (tpEmit=3):                  Obrig.   698     Rej
+           -Rejeitar se o grupo de informações do seguro da carga não estiver informado
+           Se modal Rodoviário e Tipo Emitente for igual a Prestador de Serviço de transporte`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 20,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `(tpEmit=1) ou transportador que emitirá CT-e globalizado (tpEmit=3) e informado
+           grupo de seguro da carga:
+  G078                                                                                           Obrig.   699     Rej
+           -Rejeitar se alguma informação do grupo seguro não estiver informada
+           Observação: Verificar preenchimento de CNPJ da seguradora, infSeg, nApol e
+           nAver
+           Se modal Rodoviário e Tipo Emitente for igual a Prestador de Serviço de Transporte
+           (tpEmit=1) ou transportador que emitirá CT-e globalizado (tpEmit=3), informado
+  G079     grupo de seguro da carga e indicado responsável pelo seguro contratante               Obrig.   542     Rej.
+           (tpResp=2):
+           - Rejeitar se não estiver informado CNPJ ou CPF do responsável pelo seguro
+           Se modal Rodoviário e Tipo Emitente for igual a Prestador de Serviço de Transporte
+           (tpEmit=1) ou transportador que emitirá CT-e globalizado (tpEmit=3) e não estiverem
+           preenchidos:
+             1. Responsável pela Geração do CIOT`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 21,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `G080        Ou                                                                                 Obrig.   578     Rej.
+             2. Responsável pelo pagamento do Vale-pedágio
+           Então:
+           - Rejeitar se não estiver informado pelo menos um tomador de serviço (grupo
+           infContratante)
+           Se modal Rodoviário:
+  G081     Rejeitar se existir CPF de condutor informado em duplicidade no grupo veículo         Obrig.   577     Rej.
+           tração
+
+                                                                                                          Página 66 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+          Se modal Rodoviário: Rejeitar se algum CPF de Condutor estiver inválido entre os
+  G082                                                                                          Obrig.    645     Rej.
+          relacionados (dígito de controle, zeros)
+          Se modal Rodoviário e informado grupo do CIOT (grupo: infCIOT):
+  G083 Rejeitar se o CPF ou CNPJ do responsável pela geração do CIOT informado estiver          Obrig.    716
+          inválido (dígito de controle, zeros)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 22,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Se modal Rodoviário e informado grupo do Contratante (grupo: infContratante):
+  G084 Rejeitar se o CPF ou CNPJ informado para o contratante estiver inválido (dígito de       Obrig.    717
+          controle, zeros)
+          Se modal Rodoviário e informado grupo do proprietário do veículo de tração (grupo:
+          veicTracao/prop):
+  G085                                                                                          Obrig.    718
+          Rejeitar se o CPF ou CNPJ informado para o proprietário estiver inválido (dígito de
+          controle, zeros)
+          Se modal Rodoviário e informado grupo do proprietário do veículo reboque (grupo:
+          veicReboque/prop):
+  G086 Rejeitar se o CPF ou CNPJ informado para o proprietário estiver inválido (dígito de      Obrig.    719
+          controle, zeros)
+          Observação: Verificar em todos os reboques informados
+                                        Validações dos Autorizados ao XML do MDF-e
+          Se informada autorização download XML com CNPJ:
+  G087                                                                                          Obrig.    660     Rej.
+          CNPJ com zeros ou dígito inválido`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 23,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Se informada autorização download do XML com CPF:
+  G088 CPF com zeros, nulo, números repetidos (111, 222, etc.), ou dígito de controle           Obrig.    661     Rej.
+          inválido.
+          Se informada autorização download XML:
+  G089                                                                                          Obrig.    459     Rej
+          - Verificar se existe duplicidade de CPF/CNPJ informado no MDF-e
+                                                     Validações da ANTT
+          Se modal rodoviário, operação interestadual e tipo de emitente for Prestador de
+  G090 Serviço de Transporte (tpEmit=1) ou Globalizado (tpEmit=3):                              Facult.   688     Rej.
+          RNTRC deve ser informado
+          Se modal rodoviário e informado RNTRC
+  G091                                                                                          Facult.   681     Rej.
+          Verificar se o RNTRC existe
+          Se modal rodoviário e informado RNTRC
+  G092                                                                                          Facult.   682     Rej.
+          Verificar situação do RNTRC`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 24,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `Se modal rodoviário e informado RNTRC
+  G093 Verificar se o RNTRC está associado ao transportador                                     Facult.   687     Rej.
+          Observação: verificar pelo CNPJ-Base
+          Se modal rodoviário e informado RNTRC
+  G094                                                                                          Facult.   683     Rej.
+          Verificar se a placa do veículo de tração está associada ao RNTRC
+          Se modal rodoviário, UF Carregamento e Descarregamento forem diferentes de
+  G095 Exterior e informado RNTRC                                                               Facult.   684     Rej
+          Verificar se foi informado CIOT quando este for obrigatório para o RNTRC
+   As validações da ANTT são aplicadas com base na integração entre os sistemas da agência e do ambiente autorizador
+    do MDF-e, em caso de indisponibilidade do serviço de integração, as regras serão desabilitadas até a normalização.
+       Em caso de rejeição, entre em contato com a ANTT nos canais de atendimento para solucionar as pendências.
+     As regras serão aplicadas aos RNTRC do transportador emitente do MDF-e e ao RNTRC do proprietário quando o`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 25,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `veículo não pertencer ao emitente do MDF-e
+                                                   Validações do QR Code
+  G096 O grupo de informações do QRCode (infMDFeSupl) deve ser informado                         Obrig.   480     Rej.
+          Endereço do site do Portal Nacional para a Consulta via QR Code difere do previsto.
+          Nota: O uso diferenciado de maiúsculas ou minúsculas não deve ser considerado na
+  G097 validação.                                                                                Obrig.   479     Rej.
+          Observação: Para consultar as URLs utilizadas no QR Code, acesse: https://dfe-
+          portal.svrs.rs.gov.br/MDFe/Servicos
+  G098 Parâmetro Chave de Acesso no QR Code diverge da Chave de Acesso do MDF-e                  Obrig.    481     Rej.
+          Se tipo de emissão for igual a Contingência:
+  G099                                                                                           Obrig.    482     Rej.
+          O parâmetro sign deve informado no QR-Code
+          Se tipo de emissão for igual a Normal:
+  G100                                                                                           Obrig.    488     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 26,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `O parâmetro sign não deve ser informado no QR-Code
+          Se tipo de emissão for igual a Contingência:
+  G101                                                                                           Obrig.    496     Rej.
+          Valor da assinatura (sign) do QR-Code difere do valor calculado
+  As validações referentes ao QR Code serão aplicadas somente após data previamente acertada entre Fisco e empresas,
+  podendo essa data ser de prazo distinto e superior à data de entrada em produção deste MOC, devendo acompanhar as
+                                          datas do MOC Anexo do Documento Auxiliar.
+
+
+                                                                                                        Página 67 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+                                             Validações do Responsável Técnico
+  G102     Não informado o grupo de informações do responsável técnico                     Facul.   720     Rej.
+           Observação: Implementação à critério da UF
+           Se informado grupo do responsável técnico (infRespTec):`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 27,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 5.3",
+    titulo: "Regras de negócio do MDF-e",
+    conteudo: `G103                                                                                     Facul.   713     Rej.
+           - Validar CNPJ (dígito controle, zeros ou nulo).
+           Obrigatória a informação do identificador do CSRT (tag:idCSRT) e Hash do CSRT
+  G104     (tag: hashCSRT)                                                                 Facul.   721     Rej.
+           Observação: Implementação futura
+
+
+
+
+                                                                                                    Página 68 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 28,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6",
+    titulo: "Sistema de Registro de Eventos (Parte Geral)",
+    conteudo: `6 Sistema de Registro de Eventos (Parte Geral)
+
+  Função: serviço destinado à recepção de mensagem de evento de MDF-e.
+
+  Processo: síncrono.
+
+  Método: mdfeRecepcaoEvento
+
+  Parâmetro da Mensagem da área de dados: XML sem compactação`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `6.1.1 Leiaute Mensagem de Entrada
+
+  Entrada: Estrutura XML contendo a consulta do status do serviço
+  Schema XML: eventoMDFe_v9.99.xsd
+  #        Campo                   Ele        Pai       Tipo      Ocor.       Tam.   Descrição/Observação
+  GP01     eventoMDFe              Raiz       -         -         -           -      TAG raiz
+  GP02     versao                  A          GP01      N         1-1         2v2    Versão do leiaute
+  GP03     infEvento               G          GP01      -         1-1                Grupo de informações do registro de eventos
+
+  GP04     Id                      ID         GP03      C         1-1         54     Identificador da TAG a ser assinada, a regra de
+                                                                                     formação do Id é:
+                                                                                     “ID” + tpEvento+ chave do MDF-e+ nSeqEvento
+  GP05     cOrgao                  E          GP03      N         1-1         2      Código do órgão de recepção do Evento. Utilizar a
+                                                                                     Tabela do IBGE estendida`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `GP06     tpAmb                   E          GP03      N         1-1         1      Identificação do Ambiente:
+                                                                                     1 – Produção 2 – Homologação
+  GP07     CNPJ                    CE         GP03      N         1-1         14     Informar o CNPJ do autor do Evento
+  GP08     CPF                     CE         GP03      N         1-1         11     Informar o CPF do autor do Evento
+  GP09     chMDFe                  E          GP03      N         1-1         44     Chave de Acesso do MDF-e vinculado ao Evento
+  GP10     dhEvento                E          GP03      D         1-1         -      Data e Hora do Evento
+                                                                                     Formato = AAAA-MM-DDTHH:MM:SS TZD.
+  GP11     tpEvento                E          GP03      N         1-1         6      Tipo do Evento (ver tabela de tipos de evento)
+  GP12     nSeqEvento              E          GP03      N         1-1         1-2    Sequencial do evento para o mesmo tipo de`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `evento. Para maioria dos eventos será 1, nos
+                                                                                     casos em que possa existir mais de um evento o
+                                                                                     autor do evento deve numerar de forma
+                                                                                     sequencial.
+  GP13     detEvento               G          GP03      -         1-1         -      Informações do evento específico.
+  GP14     versaoEvento            A          GP12      N         1-1         2v2    Versão do leiaute específico do evento.
+  GP15     any                     E          GP12      XML       1-1         -      XML do evento
+                                                                                     Insira neste local o XML específico do tipo de
+                                                                                     evento (cancelamento, encerramento, inclusão de
+                                                                                     condutor, etc)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.1",
+    titulo: "Leiaute Mensagem de Entrada",
+    conteudo: `GP16     Signature               G          GP01      XML       1-1         -      Assinatura XML do grupo identificado pelo atributo
+                                                                                     “Id”`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `6.1.2 Leiaute Mensagem de Retorno
+
+  Retorno: Estrutura XML com o resultado do pedido de evento.
+  Schema XML: retEventoMDFe_v9.99.xsd
+  #          Campo           Ele        Pai         Tipo    Ocor.       Tam.         Descrição/Observação
+  GR01       retEventoMDFe   Raiz       -           -       -           -            TAG raiz do Resultado do Envio do Evento
+  GR02       versao          A          GR01        N       1-1         1-4          Versão do leiaute
+
+
+                                                                                                                        Página 69 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  GR03       infEvento        G      GR01            1-1                  Grupo de informações do registro do Evento
+  GR04       Id               ID     GR03     C      0-1      17          Identificador da TAG a ser assinada, somente
+                                                                          deve ser informado se o órgão de registro assinar
+                                                                          a resposta.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `Em caso de assinatura da resposta pelo órgão de
+                                                                          registro, preencher com o número do protocolo,
+                                                                          precedido pela literal “ID”
+  GR05       tpAmb            E      GR03     N      1-1      1           Identificação do Ambiente:
+                                                                          1 – Produção / 2 – Homologação
+  GR06       verAplic         E      GR03     C      1-1      1-20        Versão da aplicação que registrou o Evento,
+                                                                          utilizar literal que permita a identificação do órgão,
+                                                                          como a sigla da UF ou do órgão.
+  GR07       cOrgao           E      GR03     N      1-1      2           Código da UF que registrou o Evento.
+  GR08       cStat            E      GR03     N      1-1      3           Código do status da resposta
+  GR09       xMotivo          E      GR03     C      1-1      1-255       Descrição do status da resposta`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `Os campos a seguir são obrigatórios no caso de homologação do evento cStat=135, 134 ou cStat=136.
+                         Os campos de dhRegEvento e nProt não serão preenchidos em caso de erro
+  GR10       chMDFe          E       GR03 N          0-1     44        Chave de Acesso do MDF-e vinculado ao evento
+  GR11       tpEvento        E       GR03 N          0-1            6 Código do Tipo do Evento
+  GR12       xEvento         E       GR03 C          0-1     5-60      Descrição do Evento
+  GR13       nSeqEvento      E       GR03 N          0-1     1-2       Sequencial do evento para o mesmo tipo de evento.
+                                                                       Para maioria dos eventos será 1, nos casos em que
+                                                                       possa existir mais de um evento o autor do evento
+                                                                       deve numerar de forma sequencial.
+  GR14       dhRegEvento     E       GR03 D          0-1               Data e Hora do Evento Formato = AAAA-MM-
+                                                                       DDTHH:MM:SS TZD`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.2",
+    titulo: "Leiaute Mensagem de Retorno",
+    conteudo: `GR15       nProt           E       GR15 N          0-1     15        Número do protocolo de registro do evento
+  GR16       Signature       G       GR01 XML 0-1                      Assinatura Digital do documento XML, a assinatura
+                                                                       deverá ser aplicada no elemento infEvento. A
+                                                                       decisão de assinar a mensagem fica a critério do
+                                                                       Ambiente Autorizador`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.3",
+    titulo: "Descrição do Processo de Web Service",
+    conteudo: `6.1.3 Descrição do Processo de Web Service
+
+  Este método é responsável por receber as solicitações referentes ao registro de eventos de MDF-e.
+  Ao receber a solicitação do transmissor, a aplicação do Ambiente Autorizador realiza o
+  processamento da solicitação e devolve o resultado do processamento para o aplicativo do mesmo.
+
+  O WS de Eventos é acionado pelo interessado (emissor ou órgão público) que deve enviar
+  mensagem de registro de evento.
+
+  Deverão ser realizadas as validações e procedimentos que seguem:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `6.1.4 Regras de Validação Básicas do Serviço
+                              Validação do Certificado Digital do Transmissor (protocolo TLS)
+    #                                       Regra de Validação                                       Crítica    Msg     Efeito
+  A01      Certificado de Transmissor Inválido:                                                     Obrig.     280      Rej.
+           - Certificado de Transmissor inexistente na mensagem
+           - Versão difere "3"
+           - Se informado, Basic Constraint deve ser true (não pode ser Certificado de AC)
+           - KeyUsage não define "Autenticação Cliente"
+  A02      Validade do Certificado (data início e data fim)                                         Obrig.     281      Rej.
+  A03      Verificar a Cadeia de Certificação:                                                      Obrig.     283      Rej.
+           - Certificado da AC emissora não cadastrado na SEFAZ
+           - Certificado de AC revogado
+           - Certificado não assinado pela AC emissora do Certificado
+
+
+                                                                                                               Página 70 / 102
+ Projeto`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  A04      LCR do Certificado de Transmissor                                             Obrig.    286     Rej.
+           - Falta o endereço da LCR (CRL DistributionPoint)
+           - LCR indisponível
+           - LCR inválida
+  A05      Certificado do Transmissor revogado                                           Obrig.    284     Rej.
+  A06      Certificado Raiz difere da "ICP-Brasil"                                       Obrig.    285     Rej.
+  A07      Falta a extensão de CNPJ no Certificado (OtherName - OID=2.16.76.1.3.3 ou a   Obrig.    282     Rej.
+           extensão de CPF (OtherName - OID=2.16.76.1.3.1).
+
+  As validações de A01, A02, A03, A04 e A05 são realizadas pelo protocolo TLS e não precisam ser
+  implementadas. A validação A06 também pode ser realizada pelo protocolo, mas pode falhar se
+  existirem outros certificados digitais de Autoridade Certificadora Raiz que não sejam “ICP-Brasil” no
+  repositório de certificados digitais do servidor de Web Service da SEFAZ.
+
+                                     Validação Inicial da Mensagem no Web Service`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `#                                     Regra de Validação                             Crítica    Msg    Efeito
+  B01      Tamanho do XML de Dados superior a 2048 Kbytes                                Obrig.    214     Rej.
+  B02      XML de Dados Mal Formado                                                      Obrig.    243     Rej.
+  B03      Verificar se o Serviço de processamento está Paralisado Momentaneamente       Obrig.    108     Rej.
+  B04      Verificar se o Serviço de processamento está Paralisado sem Previsão          Obrig.    109     Rej.
+
+
+  A mensagem será descartada se o tamanho exceder o limite previsto (2048 Kb). A aplicação do
+  contribuinte não poderá permitir a geração de mensagem com tamanho superior a 2048 Kb. Caso
+  isto ocorra, a conexão poderá ser interrompida sem mensagem de erro se o controle do tamanho
+  da mensagem for implementado por configurações do ambiente de rede da SEFAZ (ex.: controle
+  no firewall). No caso de controle de tamanho ter sido implementado por aplicativo, teremos a
+  devolução da mensagem de erro 214.
+
+  O Ambiente Autorizador que mantêm o Web Service disponível mesmo quando o serviço esteja`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.4",
+    titulo: "Regras de Validação Básicas do Serviço",
+    conteudo: `paralisado, deverá implementar as validações 108 e 109. Estas validações poderão ser
+  dispensadas caso o Web Service não fique disponível quando o serviço estiver paralisado.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.5",
+    titulo: "Validação das informações de controle da chamada ao Web Service",
+    conteudo: `6.1.5 Validação das informações de controle da chamada ao Web Service
+
+                                   Validações de controle da chamada ao Web Service
+    #                                     Regra de Validação                             Crítica    Msg    Efeito
+  C01      Elemento mdfeCabecMsg inexistente no SOAP Header                              Obrig.    242     Rej.
+  C02      Campo cUF inexistente no elemento mdfeCabecMsg do SOAP Header                 Obrig.    409     Rej.
+  C03      Verificar se a UF informada no cUF é atendida pelo WebService                 Obrig.    410     Rej.
+  C04      Campo versaoDados inexistente no elemento mdfeCabecMsg do SOAP Header         Obrig.    411     Rej.
+  C05      Versão dos Dados informada é superior à versão vigente                        Obrig.    238     Rej.
+  Este grupo de validações deverá ser descontinuado em futura versão do MDF-e
+
+  A informação da versão do leiaute do MDF-e e a UF de origem do emissor do manifesto são
+  informadas no elemento mdfeCabecMsg do SOAP Header.
+
+                                                                                                   Página 71 / 102
+ Projeto`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.5",
+    titulo: "Validação das informações de controle da chamada ao Web Service",
+    conteudo: `MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  A aplicação deverá validar os campos cUF e versaoDados, rejeitando a mensagem recebida em
+  caso de informações inexistentes ou inválidas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.6",
+    titulo: "Validação da área de dados da mensagem",
+    conteudo: `6.1.6 Validação da área de dados da mensagem
+
+                                      Validações de Forma Aplicadas a área de dados
+    #                                      Regra de Validação                                     Crítica    Msg    Efeito
+  D01      Verificar Schema XML da Área de Dados                                                  Obrig.    215     Rej.
+  D02      Verificar a existência de qualquer namespace diverso do namespace padrão do            Obrig.    598     Rej.
+           projeto (http://www.portalfiscal.inf.br/mdfe)
+  D03      Verificar a existência de caracteres de edição no início ou fim da mensagem ou entre   Obrig.    599     Rej.
+           as tags
+  D04      Verificar o uso de prefixo no namespace                                                Obrig.    404     Rej.
+  D05      Verificar se o XML utiliza codificação diferente de UTF-8                              Obrig.    402     Rej.
+  D06      Verificar se a versão do XML é suportada                                               Obrig.    239     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.7",
+    titulo: "Validações do Certificado de Assinatura",
+    conteudo: `6.1.7 Validações do Certificado de Assinatura
+
+                        Validações do Certificado utilizado na Assinatura Digital do evento de MDF-e
+   #                                         Regra de Validação                                 Crítica      Msg    Efeito
+  E01      Certificado de Assinatura Inválido:
+           - Certificado de Assinatura inexistente na mensagem
+           - Versão difere “3”                                                                 Obrig.       290     Rej.
+           - Basic Constraint = true (não pode ser Certificado de AC)
+           - KeyUsage não define “Autenticação Cliente”
+  E02      Validade do Certificado (data início e data fim)                                    Obrig.       291     Rej.
+  E03      Falta a extensão de CNPJ no Certificado (OtherName - OID=2.16.76.1.3.3 ou a
+                                                                                               Obrig.       292     Rej.
+           extensão de CPF (OtherName - OID=2.16.76.1.3.1).
+  E04      Verificar a Cadeia de Certificação:
+           - Certificado da AC emissora não cadastrado na SEFAZ`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.7",
+    titulo: "Validações do Certificado de Assinatura",
+    conteudo: `Obrig.       293     Rej.
+           - Certificado de AC revogado
+           - Certificado não assinado pela AC emissora do Certificado
+  E05      LCR do Certificado de Assinatura
+           - Falta o endereço da LCR (CRL DistributionPoint)                                   Obrig.       296     Rej.
+           - Erro no acesso à LCR
+  E06      Certificado de Assinatura revogado                                                  Obrig.       294     Rej.
+  E07      Certificado Raiz difere da “ICP-Brasil”                                             Obrig.       295     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.8",
+    titulo: "Validação da Assinatura Digital",
+    conteudo: `6.1.8 Validação da Assinatura Digital
+
+                                         Validações da Assinatura Digital do MDF-e
+    #                                      Regra de Validação                                     Crítica    Msg    Efeito
+           Assinatura difere do padrão do Projeto:
+           - Não assinado o atributo “ID” (falta “Reference URI” na assinatura)
+  F01      (*validado também pelo Schema)                                                         Obrig.    298     Rej.
+            - Faltam os “Transform Algorithm” previstos na assinatura (“C14N” e “Enveloped”)
+           Estas validações são implementadas pelo Schema XML da Signature
+  F02      Valor da assinatura (SignatureValue) difere do valor calculado                         Obrig.    297     Rej.
+           Se Certificado for do tipo e-CNPJ:
+  F03                                                                                             Obrig.    213     Rej.
+           CNPJ-Base do Autor difere do CNPJ-Base do Certificado Digital
+           Se Certificado for do tipo e-CPF:
+  F04                                                                                             Obrig,    202     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.8",
+    titulo: "Validação da Assinatura Digital",
+    conteudo: `CPF do Autor difere do CPF do Certificado Digital
+
+
+
+
+                                                                                                            Página 72 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.9",
+    titulo: "Validação das Regras de Negócio do Serviço de Registro de Eventos",
+    conteudo: `6.1.9 Validação das Regras de Negócio do Serviço de Registro de Eventos
+
+                                Validações das Regras de Negócio dos Eventos – Parte Geral
+    #                                         Regra de Validação                                  Crítica    Msg    Efeito
+           Tipo do ambiente informado difere do ambiente do Web Service
+  L01                                                                                             Obrig.    252     Rej.
+  L02      Verificar se o código do órgão de recepção do Evento diverge do solicitado             Obrig.    226     Rej.
+  L03      Se informado CNPJ:                                                                     Obrig.    627     Rej.
+           Validar CNPJ do autor do evento (DV ou zeros)
+  L04      Se informado CPF:                                                                      Obrig.    700     Rej.
+           Validar CPF do autor do evento (DV ou zeros)
+  L05      Validar se atributo Id corresponde à concatenação dos campos evento (“ID” +            Obrig.    628     Rej.
+           tpEvento + chMDFe + nSeqEvento)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.9",
+    titulo: "Validação das Regras de Negócio do Serviço de Registro de Eventos",
+    conteudo: `L06      Verificar se o tpEvento é válido                                                       Obrig.    629     Rej.
+
+  L07      Verificar Schema da parte específica do Evento                                         Obrig.    630     Rej.
+           OBS: Utilizar o tpEvento + o atributo versaoEvento para identificar qual schema deve
+           ser validado.
+  L07      - Validar chave de acesso do MDF-e                                                     Obrig.    236     Rej.
+           Retornar motivo da rejeição da Chave de Acesso: CNPJ/ CPF zerado ou
+           inválido, Ano < 2012 ou maior que atual, Mês inválido (0 ou > 12), Modelo
+           diferente de 58, Número zerado, Tipo de emissão inválido, UF inválida ou DV
+           inválido)
+           [Motivo: XXXXXXXXXXXX]
+  L08      Verificar duplicidade do evento (cOrgao + tpEvento + chMDFe + nSeqEvento)              Obrig.    631     Rej.
+  L09      Se evento do emissor verificar se CNPJ / CPF do Autor diferente do CNPJ / CPF da       Obrig.    632     Rej.
+           chave de acesso do MDF-e
+
+           Observação: Verificar CPF apenas se a série estiver na faixa 920-969, para todas as
+           demais verificar como CNPJ`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.9",
+    titulo: "Validação das Regras de Negócio do Serviço de Registro de Eventos",
+    conteudo: `L10      Se evento Fisco / RFB / Outros:                                                        Obrig.    701     Rej.
+           Rejeitar se informado CPF do autor
+  L11      Se evento do Fisco/Outros órgãos, verificar se CNPJ do Autor consta da tabela de       Obrig.    633     Rej.
+           órgãos autorizados a gerar evento.
+  L12      Se evento exige MDF-e:                                                                 Obrig.    217     Rej.
+           Acesso BD MDF-e (Chave: CNP / CPF Emit, Modelo, Série, Nº):
+           - Verificar se MDF-e não existe
+  L13      Se existir a MDF-e: (Independente do evento exigir)                                    Obrig.    600     Rej.
+           Verificar se a Chave de Acesso difere da existente em BD (opcionalmente a
+           descrição do erro, campo xMotivo, tem concatenada a Chave de Acesso)
+  L14      Data do evento não pode ser menor que a data de emissão do MDF-e, se existir.          Obrig.    634     Rej.
+           A SEFAZ deve tolerar uma diferença máxima de 5 minutos em função da
+           sincronização de horário de servidores.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.9",
+    titulo: "Validação das Regras de Negócio do Serviço de Registro de Eventos",
+    conteudo: `L15      Data do evento não pode ser menor que a data de autorização do MDF-e, se existir       Obrig.    637     Rej.
+           A SEFAZ deve tolerar uma diferença máxima de 5 minutos em função da
+           sincronização de horário de servidores.
+  L16      Data do evento não pode ser maior que a data de processamento.                         Obrig.    635     Rej.
+           A SEFAZ deve tolerar uma diferença máxima de 5 minutos em função da
+           sincronização de horário de servidores.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.10",
+    titulo: "Processamento das validações específicas de cada evento",
+    conteudo: `6.1.10 Processamento das validações específicas de cada evento
+
+  Serão definidas no item 7 deste Manual correspondentes a cada evento.
+
+
+
+
+                                                                                                            Página 73 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.11",
+    titulo: "Final do Processamento do Evento",
+    conteudo: `6.1.11 Final do Processamento do Evento
+
+  O processamento do evento pode resultar em:
+
+            Rejeição – o Evento será descartado, com retorno do código do status do motivo da
+             rejeição;
+            Recebido pelo Sistema de Registro de Eventos, com vinculação do evento no
+             respetivo MDF-e, o Evento será armazenado no repositório do Sistema de Registro de
+             Eventos com a vinculação do Evento no respectivo MDF-e (cStat=135);
+            Recebido pelo Sistema de Registro de Eventos – vinculação do evento ao respectivo
+             MDF-e prejudicado – o Evento será armazenado no repositório do Sistema de Registro de
+             Eventos, a vinculação do evento ao respectivo MDF-e fica prejudicada face a inexistência
+             do MDF-e no momento do recebimento do Evento (cStat=136);
+            Recebido pelo Sistema de Registro de Eventos, com vinculação do evento no respectivo
+             MDF-e com situação diferente de Autorizada, o Evento será armazenado no repositório do
+             Sistema de Registro de Eventos com a vinculação do Evento no respectivo MDF-e retornando
+             um alerta com a situação de MDF-e (cStat=134);`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 6.1.11",
+    titulo: "Final do Processamento do Evento",
+    conteudo: `O Ambiente Autorizador deverá compartilhar os eventos autorizados no Sistema de Registro de
+  Eventos com os órgãos interessados.
+
+
+
+
+                                                                                        Página 74 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.1",
+    titulo: "Evento de Cancelamento",
+    conteudo: `7.1 Evento de Cancelamento
+  Função: evento destinado ao atendimento de solicitações de cancelamento de MDF-e.
+
+  Autor do Evento: O autor do evento é o emissor do MDF-e. A mensagem XML do evento será
+  assinada com o certificado digital que tenha o CNPJ base / CPF do Emissor do MDF-e.
+
+  Código do Tipo de Evento: 110111
+
+  Schema XML: evCancMDFe_v9.99.xsd
+
+      #            Campo          Ele        Pai   Tipo   Ocor.   Tam.                Descrição/Observação
+  HP01     evCancMDFe             G      -         -      -       -       TAG raiz
+  HP02     descEvento             E      GP01      C      1-1     12      Descrição do Evento: ‘Cancelamento’
+  HP03     nProt                  E      GP01      N      1-1     15      Informar o número do protocolo de autorização do
+                                                                          MDF-e a ser cancelado
+  HP04     xJust                  E      GP01      C      1-1     1-      Informar a justificativa do cancelamento
+                                                                  255`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.1.1",
+    titulo: "Validação das Regras Específicas do Evento",
+    conteudo: `7.1.1 Validação das Regras Específicas do Evento
+
+                                               Validações das Regras Específicas
+    #                                        Regra de Validação                                    Crítica    Msg    Efeito
+  M01      Verificar se a UF da Chave de Acesso difere da UF do Web Service                       Obrig.     249     Rej.
+  M02      Verificar se o nSeqEvento é maior que o valor permitido (=1)                           Obrig.     636     Rej.
+  M03      Emitente deve estar habilitado na base de dados para emissão do MDF-e                  Obrig.     203     Rej.
+  M04      Verificar se MDF-e já está cancelado                                                   Obrig.     218     Rej.
+  M05      Verificar MDF-e autorizado há mais de 24 horas                                         Obrig.     220     Rej.
+
+           Observação: Exceto se existir evento de Manifestação do Fisco do tipo
+           “Liberação do Prazo de Cancelamento”
+
+           Exceção: Não aplicar validação para MDF-e emitido com a indicação de
+           carregamento posterior (indCarregaPosterior=1) e não possuir evento de inclusão de
+           DF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.1.1",
+    titulo: "Validação das Regras Específicas do Evento",
+    conteudo: `M06      Verificar se número do Protocolo informado difere do número do Protocolo do            Obrig.     222     Rej.
+           MDF-e
+  M07      Verificar se houve encerramento do manifesto                                           Obrig.     609     Rej.
+  M08      Verificar se houve registro de circulação do MDF-e                                     Obrig.     219     Rej.
+  M09      Se MDF-e emitido com indicador de carregamento posterior (indCarregaPosterior=1):      Obrig.     710     Rej.
+           - Verificar se existe evento de inclusão de DF-e associado com município de
+           carregamento diferente do município de carregamento do MDF-e
+
+  O Fisco poderá liberar o cancelamento fora de prazo através do evento de Manifestação do Fisco
+  do tipo “Liberação do Prazo de Cancelamento”
+
+
+
+
+                                                                                                             Página 75 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.1.2",
+    titulo: "Final do Processamento",
+    conteudo: `7.1.2 Final do Processamento
+
+  Se o evento de cancelamento for homologado, a situação do MDF-e para efeito de
+  consulta situação passará para “101 – Cancelamento homologado”
+
+
+
+
+                                                                     Página 76 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.2",
+    titulo: "Evento de Encerramento",
+    conteudo: `7.2 Evento de Encerramento
+  Função: evento destinado ao atendimento de solicitações de encerramento de MDF-e.
+
+  Autor do Evento: O autor do evento é o emissor do MDF-e. A mensagem XML do evento será
+  assinada com o certificado digital que tenha o CNPJ base / CPF do Emissor do MDF-e.
+
+  Código do Tipo de Evento: 110112
+
+  Schema XML: evEncMDFe_v9.99.xsd
+
+     #             Campo          Ele        Pai   Tipo   Ocor.   Tam.                Descrição/Observação
+  HP01     evEncMDFe              G      -         -      -       -       TAG raiz
+  HP02     descEvento             E      HP01      C      1-1     12      Descrição do Evento: ‘Encerramento’
+  HP03     nProt                  E      HP01      N      1-1     15      Informar o número do protocolo de autorização do
+                                                                          MDF-e a ser encerrado
+  HP04     dtEnc                  E      HP01      D      1-1     -       Data que o MDF-e foi encerrado
+  HP05     cUF                    E      HP01      N      1-1     2       Informar a UF de encerramento do manifesto`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.2",
+    titulo: "Evento de Encerramento",
+    conteudo: `HP06     cMUn                   E      HP01      N      1-1     7       Informar o código do município de encerramento
+                                                                          do manifesto`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.2.1",
+    titulo: "Validação das Regras Específicas do Evento",
+    conteudo: `7.2.1 Validação das Regras Específicas do Evento
+
+                                               Validações das Regras Específicas
+    #                                        Regra de Validação                                    Crítica    Msg    Efeito
+  M01      Verificar se a UF da Chave de Acesso difere da UF do Web Service                       Obrig.     249     Rej.
+  M02      Verificar se o nSeqEvento é maior que o valor permitido (=1)                           Obrig.     636     Rej.
+  M03      Código do município de encerramento inexistente (tabela de municípios do IBGE)         Obrig.     714     Rej.
+  M04      Município de encerramento diverge da UF (verificar se as 2 posições da                 Obrig.             Rej.
+           esquerda do código de município que identifica o código da UF estão de acordo                     614
+           com a UF informada)
+  M05      Se UF de encerramento for Exterior (cUF=99), o município de encerramento               Obrig.             Rej.
+                                                                                                             689
+           deve ser 9999999`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.2.1",
+    titulo: "Validação das Regras Específicas do Evento",
+    conteudo: `M06      Emitente deve estar habilitado na base de dados para emissão do MDF-e                  Obrig.     203     Rej.
+  M07      Verificar se MDF-e já está cancelado                                                   Obrig.     218     Rej.
+  M08      Verificar se a data de encerramento é anterior à data de emissão do manifesto.         Obrig.     615     Rej.
+  M09      Verificar se número do Protocolo informado difere do número do Protocolo do            Obrig.     222     Rej.
+           MDF-e
+  M10      Verificar se já houve encerramento do manifesto                                        Obrig.     609     Rej.
+  M11      Verificar se o MDF-e possui a indicação de carregamento posterior                      Obrig.     715     Rej.
+           (indCarregaPosterior=1) sem evento de inclusão de DF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.2.2",
+    titulo: "Final do Processamento",
+    conteudo: `7.2.2 Final do Processamento
+
+  Se o evento de encerramento for homologado, a situação do MDF-e para efeito de
+  consulta situação passará para “132 – Encerramento homologado”
+
+
+
+
+                                                                                                             Página 77 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.3",
+    titulo: "Evento de Inclusão de Condutor",
+    conteudo: `7.3 Evento de Inclusão de Condutor
+  Função: evento destinado ao atendimento de solicitações de inclusão de condutor do veículo de
+  MDF-e rodoviário.
+
+  Autor do Evento: O autor do evento é o emissor do MDF-e. A mensagem XML do evento será
+  assinada com o certificado digital que tenha o CNPJ base / CPF do Emissor do MDF-e.
+
+  Código do Tipo de Evento: 110114
+
+  Schema XML: evIncCondutorMDFe_v9.99.xsd
+
+     #            Campo            Ele        Pai   Tipo   Ocor.   Tam.                Descrição/Observação
+  HP01     evIncCondutorMDFe       G      -         -      -       -       TAG raiz
+  HP02     descEvento              E      HP01      C      1-1     12      Descrição do Evento: ‘Inclusão Condutor’
+  HP03     condutor                G      HP01      -      1-1             Informações do condutor do veículo
+
+  HP04     xNome                   E      HP03      C      1-1     2-60    Nome do condutor
+  HP05     CPF                     E      HP03      N      1-1     11      CPF do condutor`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.3.1",
+    titulo: "Validação das Regras Específicas do Evento",
+    conteudo: `7.3.1 Validação das Regras Específicas do Evento
+
+                                               Validações das Regras Específicas
+    #                                         Regra de Validação                                   Crítica      Msg   Efeito
+  M01      Verificar se a UF da Chave de Acesso difere da UF do Web Service                       Obrig.     249      Rej.
+  M02      Verificar se o nSeqEvento é maior que o valor permitido (=99)                          Obrig.     636      Rej.
+  M03      Emitente deve estar habilitado na base de dados para emissão do MDF-e                  Obrig.     203      Rej.
+  M04      Verificar se MDF-e já está cancelado                                                   Obrig.     218      Rej.
+  M05      Verificar se MDF-e já está encerrado                                                   Obrig.     609      Rej.
+  M06      Verificar se MDF-e é do modal rodoviário                                               Obrig.     644      Rej.
+  M07      CPF do condutor: CPF inválido (dígito de controle, zeros)                              Obrig.     645      Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.3.2",
+    titulo: "Final do Processamento",
+    conteudo: `7.3.2 Final do Processamento
+
+  Se o evento de inclusão de condutor for homologado, a situação de retorno será “135 –
+  Evento vinculado a MDF-e”
+
+
+
+
+                                                                                                             Página 78 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.4",
+    titulo: "Evento de Inclusão de DF-e",
+    conteudo: `7.4 Evento de Inclusão de DF-e
+  Função: evento destinado à inclusão de documentos fiscais no MDF-e com a indicação de
+  carregamento posterior (indCarregaPosterior=1) indicando as coletas realizadas ao longo do
+  percurso.
+
+  Autor do Evento: O autor do evento é o emissor do MDF-e. A mensagem XML do evento será
+  assinada com o certificado digital que tenha o CNPJ base / CPF do Emissor do MDF-e.
+
+  Código do Tipo de Evento: 110115
+
+  Schema XML: evInclusaoDFeMDFe_v9.99.xsd
+
+     #             Campo           Ele       Pai   Tipo   Ocor.   Tam.               Descrição/Observação
+  HP01     evIncDFeMDFe           G      -         -      1-1            Schema XML de validação do evento de inclusão
+                                                                         de DF-e
+  HP02     descEvento             E      HP01      C      1-1     13     Descrição do Evento: “Inclusão DF-e” ou “Inclusao
+                                                                         DF-e”
+  HP03     nProt                  E      HP01      N      1-1     15     Informar o nº do Protocolo de Autorização do
+                                                                         MDF-e.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.4",
+    titulo: "Evento de Inclusão de DF-e",
+    conteudo: `HP04     cMunCarrega            E      HP01      N      1-1     7      Código do Município de Carregamento
+  HP05     xMunCarrega            E      HP01      C      1-1     2-60   Nome do Município de Carregamento
+  HP06     infDoc                 G      HP01      -      1-n     -      Grupo de informações dos documentos que serão
+                                                                         inseridos no MDF-e
+  HP07     cMunDescarga           E      HP06      N      1-1     7      Código do Município de Descarregamento
+  HP08     xMunDescarga           E      HP06      C      1-1     2-60   Nome do Município de Descarregamento
+  HP09     chNFe                  E      HP06      N      1-1     44     Chave de acesso da NF-e incluída no MDF-e com
+                                                                         indicação de carregamento posterior`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.4.1",
+    titulo: "Validação das Regras Específicas do Evento",
+    conteudo: `7.4.1 Validação das Regras Específicas do Evento
+
+                                              Validações das Regras Específicas
+    #                                        Regra de Validação                                  Crítica    Msg    Efeito
+  M01      UF da chave de acesso difere da UF do Webservice                                      Obrig.    249     Rej.
+  M02      Verificar se o nSeqEvento é maior que o valor permitido (=99)                         Obrig.    636     Rej.
+  M03      Emitente deve estar habilitado na base de dados para emissão de MDF-e                 Obrig.    203     Rej.
+  M04      Verificar se MDF-e já está cancelado                                                  Obrig.    218     Rej.
+  M05      Verificar se MDF-e já está encerrado                                                  Obrig.    609     Rej.
+  M06      Verificar se o MDF-e possui a indicação de carregamento posterior                     Obrig.    708     Rej.
+           (indCarregaPosterior=1)
+  M07      Município de carregamento diverge da UF de carregamento do MDF-e (verificar se as     Obrig.    456     Rej.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2",
+    titulo: "posições da esquerda do código do município que identifica o código da UF estão",
+    conteudo: `2 posições da esquerda do código do município que identifica o código da UF estão
+           de acordo com a UF informada)
+  M08      Código do município de carregamento inexistente (Tabela de Municípios do IBGE)        Obrig.    405     Rej.
+  M09      Município de descarregamento diverge da UF de descarregamento do MDF-e                Obrig.    612     Rej.
+           (verificar se as 2 posições da esquerda do código do município que identifica o
+           código da UF estão de acordo com a UF informada)
+  M10      Código do município de descarregamento inexistente (Tabela de Municípios do IBGE)     Obrig.    406     Rej.
+  M11      Para cada NF-e relacionada:                                                           Obrig.    709     Rej.
+           - Validar chave de acesso
+           Retornar motivo da rejeição da Chave de Acesso: CNPJ/CPF zerado ou inválido, Ano
+           < 2006 ou maior que atual, Mês inválido (0 ou > 12), Modelo diferente de 55, Número
+           zerado, Tipo de emissão inválido, UF inválida ou DV inválido)
+           [Motivo: XXXXXXXXXXXX]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2",
+    titulo: "posições da esquerda do código do município que identifica o código da UF estão",
+    conteudo: `M12      Para cada NF-e relacionada:                                                           Obrig.    675     Rej.
+           Acesso BD NF-e da SEFAZ Autorizadora (Chave: CNPJ / CPF Emit, Modelo, Serie,
+
+
+                                                                                                           Página 79 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+           Nro.) com as informações da chave chNFe indicada.
+             - Verificar se NF-e existe
+
+           Observação: Retornar a chave do NF-e inexistente
+           NF-e em contingência fica dispensada dessa validação
+  M13      Para cada NF-e relacionada:                                                       Obrig.   676     Rej.
+           - NF-e não pode existir com diferença de chave de acesso
+
+           Observação: Retornar a chave de acesso de NF-e com diferença na chave.
+           NF-e em contingência fica dispensada dessa validação
+  M14      Para cada NF-e relacionada:                                                       Obrig.   677     Rej.
+           - Verificar se NF-e indicada está cancelada ou denegada`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 2",
+    titulo: "posições da esquerda do código do município que identifica o código da UF estão",
+    conteudo: `Observação: Retornar a chave da NF-e com situação irregular
+           NF-e em contingência fica dispensada dessa validação
+  M15      Para cada NF-e relacionada:                                                       Obrig.   711     Rej.
+           - Verificar se a chave de acesso da NF-e já existe vinculada ao MDF-e por outro
+           evento de inclusão de DF-e
+
+           Observação: retornar o número do protocolo do evento autorizado`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 7.4.2",
+    titulo: "Final do Processamento",
+    conteudo: `7.4.2 Final do Processamento
+
+  Se o evento de inclusão de condutor for homologado, a situação de retorno será “135 –
+  Evento vinculado a MDF-e”
+
+
+
+
+                                                                                                      Página 80 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 8.1",
+    titulo: "Ambiente de Homologação / Produção",
+    conteudo: `8.1 Ambiente de Homologação / Produção
+  O Ambiente Autorizador Nacional deverá manter dois ambientes para recepção de MDF-e. O
+  ambiente de homologação é específico para a realização de testes e integração das aplicações do
+  contribuinte durante a fase de implementação e adequação do sistema de emissão de MDF-e do
+  contribuinte.
+
+  A emissão de MDF-e no ambiente de produção fica condicionada à prévia aprovação das equipes
+  de TI e de negócios da própria empresa, que deverá avaliar a adequação, comportamento e
+  performance de seu sistema de emissão de MDF-e no ambiente de homologação. Uma vez
+  aprovados os testes em homologação, pode o contribuinte habilitar-se ao ambiente de produção.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 8.1.1",
+    titulo: "Sobre as condições de teste para as empresas",
+    conteudo: `8.1.1 Sobre as condições de teste para as empresas
+
+  O ambiente de homologação deve ser usado para que as empresas possam efetuar os testes
+  necessários nas suas aplicações, antes de passar a consumir os serviços no ambiente de
+  produção.
+
+  Em relação à massa de dados para que os testes possam ser efetuados, lembramos que podem
+  ser gerados MDF-e no ambiente de homologação à critério da empresa (MDF-e sem valor fiscal).
+
+  Testes no ambiente de produção, quando liberado este ambiente, por falha da aplicação da
+  empresa podem disparar os mecanismos de controle de uso indevido, causando bloqueios
+  administrativos na utilização dos serviços.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 8.2",
+    titulo: "Mensagens de Erro",
+    conteudo: `8.2 Mensagens de Erro
+  Tabela de códigos de erros e descrições das mensagens de erro específicas do MDF-e
+
+  CÓDIGO RESULTADO DO PROCESSAMENTO DA SOLICITAÇÃO`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 111",
+    titulo: "Consulta Não Encerrados localizou MDF-e nessa situação",
+    conteudo: `111     Consulta Não Encerrados localizou MDF-e nessa situação
+
+
+                                                                                     Página 81 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 136",
+    titulo: "Evento registrado, mas não vinculado a MDF-e",
+    conteudo: `136    Evento registrado, mas não vinculado a MDF-e
+   CÓDIGO    MOTIVOS DE NÃO ATENDIMENTO DA SOLICITAÇÃO`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 204",
+    titulo: "Rejeição: Duplicidade de MDF-e",
+    conteudo: `204    Rejeição: Duplicidade de MDF-e
+             [nProt:999999999999999][dhAut: AAAA-MM-DDTHH:MM:SS TZD].`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 212",
+    titulo: "Rejeição: Data/hora de emissão MDF-e posterior a data/hora de recebimento",
+    conteudo: `212    Rejeição: Data/hora de emissão MDF-e posterior a data/hora de recebimento`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 213",
+    titulo: "Rejeição: CNPJ-Base do Emitente difere do CNPJ-Base do Certificado Digital",
+    conteudo: `213    Rejeição: CNPJ-Base do Emitente difere do CNPJ-Base do Certificado Digital`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 218",
+    titulo: "Rejeição: MDF-e já está cancelado na base de dados da SEFAZ.",
+    conteudo: `218    Rejeição: MDF-e já está cancelado na base de dados da SEFAZ.
+             [nProt:999999999999999][dhCanc: AAAA-MM-DDTHH:MM:SS TZD].`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 223",
+    titulo: "Rejeição: CNPJ / CPF do transmissor do arquivo difere do CNPJ / CPF do transmissor da consulta",
+    conteudo: `223    Rejeição: CNPJ / CPF do transmissor do arquivo difere do CNPJ / CPF do transmissor da consulta`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 293",
+    titulo: "Rejeição: Certificado Assinatura - erro Cadeia de Certificação",
+    conteudo: `293    Rejeição: Certificado Assinatura - erro Cadeia de Certificação
+
+                                                                                                    Página 82 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 411",
+    titulo: "Rejeição: Campo versaoDados inexistente no elemento mdfeCabecMsg do SOAP Header",
+    conteudo: `411    Rejeição: Campo versaoDados inexistente no elemento mdfeCabecMsg do SOAP Header`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 454",
+    titulo: "Rejeição: Tipo de Transportador para Carga Própria e Proprietário do veículo diferente do emitente deve ser",
+    conteudo: `454    Rejeição: Tipo de Transportador para Carga Própria e Proprietário do veículo diferente do emitente deve ser
+             TAC`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 458",
+    titulo: "Rejeição: Tipo de Transportador não deve ser informado para Emitente de Carga Própria proprietário do",
+    conteudo: `458    Rejeição: Tipo de Transportador não deve ser informado para Emitente de Carga Própria proprietário do
+             veículo`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 462",
+    titulo: "Rejeição: Existe MDF-e não encerrado há mais de 5 dias para placa com até 2 UF de percurso informadas",
+    conteudo: `462    Rejeição: Existe MDF-e não encerrado há mais de 5 dias para placa com até 2 UF de percurso informadas
+             [chMDFe: 99999999999999999999999999999999999999999999][nProt:999999999999999]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 479",
+    titulo: "Rejeição: Endereço do site da UF da Consulta via QR Code diverge do previsto",
+    conteudo: `479    Rejeição: Endereço do site da UF da Consulta via QR Code diverge do previsto`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 482",
+    titulo: "Rejeição: Parâmetro sign não informado no QR Code para emissão em contingência",
+    conteudo: `482    Rejeição: Parâmetro sign não informado no QR Code para emissão em contingência`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 488",
+    titulo: "Rejeição: Parâmetro sign não deve ser informado no QR Code para emissão Normal",
+    conteudo: `488    Rejeição: Parâmetro sign não deve ser informado no QR Code para emissão Normal`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 539",
+    titulo: "Rejeição: Duplicidade de MDF-e, com diferença na Chave de Acesso",
+    conteudo: `539    Rejeição: Duplicidade de MDF-e, com diferença na Chave de Acesso
+             [chMDFe: 99999999999999999999999999999999999999999999]
+             [nProt:999999999999999]
+             [dhAut: AAAA-MM-DDTHH:MM:SS TZD].`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 540",
+    titulo: "Rejeição: Não deve ser informado Conhecimento de Transporte para tipo de emitente Prestador Serviço de",
+    conteudo: `540    Rejeição: Não deve ser informado Conhecimento de Transporte para tipo de emitente Prestador Serviço de
+             Transporte que emitirá CT-e Globalizado`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 541",
+    titulo: "Rejeição: Tipo de emitente inválido para operações interestaduais ou com exterior",
+    conteudo: `541    Rejeição: Tipo de emitente inválido para operações interestaduais ou com exterior`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 542",
+    titulo: "Rejeição: CNPJ/CPF do responsável pelo seguro deve ser informado para o tipo de responsável informado",
+    conteudo: `542    Rejeição: CNPJ/CPF do responsável pelo seguro deve ser informado para o tipo de responsável informado`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 599",
+    titulo: "Rejeição: Não é permitida a presença de caracteres de edição no início/fim da mensagem ou entre as tags da",
+    conteudo: `599    Rejeição: Não é permitida a presença de caracteres de edição no início/fim da mensagem ou entre as tags da
+             mensagem`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 601",
+    titulo: "Rejeição: Chave de acesso do CT-e informado inválida",
+    conteudo: `601    Rejeição: Chave de acesso do CT-e informado inválida
+             [chCTe: 99999999999999999999999999999999999999999999]
+             [Motivo: XXXXXXXXXXXX]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 602",
+    titulo: "Rejeição: Segundo Código de Barras deve ser informado para CT-e em contingência FS-DA",
+    conteudo: `602    Rejeição: Segundo Código de Barras deve ser informado para CT-e em contingência FS-DA`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 603",
+    titulo: "Rejeição: Segundo Código de Barras não deve ser informado para CT-e com este tipo de emissão",
+    conteudo: `603    Rejeição: Segundo Código de Barras não deve ser informado para CT-e com este tipo de emissão`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 604",
+    titulo: "Rejeição: Chave de acesso da NF-e informada inválida",
+    conteudo: `604    Rejeição: Chave de acesso da NF-e informada inválida
+             [chNFe: 99999999999999999999999999999999999999999999]
+             [Motivo: XXXXXXXXXXXX]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 606",
+    titulo: "Rejeição: Segundo Código de Barras deve ser informado para NF-e em contingência (FS-DA e FS-IA)",
+    conteudo: `606    Rejeição: Segundo Código de Barras deve ser informado para NF-e em contingência (FS-DA e FS-IA)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 607",
+    titulo: "Rejeição: Segundo Código de Barras não deve ser informado para NF-e com este tipo de emissão",
+    conteudo: `607    Rejeição: Segundo Código de Barras não deve ser informado para NF-e com este tipo de emissão`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 609",
+    titulo: "Rejeição: MDF-e já está encerrado na base de dados da SEFAZ",
+    conteudo: `609    Rejeição: MDF-e já está encerrado na base de dados da SEFAZ
+             [nProt:999999999999999][dhEnc: AAAA-MM-DDTHH:MM:SS TZD].`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 611",
+    titulo: "Rejeição: Existe MDF-e não encerrado para esta placa, tipo de emitente e UF descarregamento",
+    conteudo: `611    Rejeição: Existe MDF-e não encerrado para esta placa, tipo de emitente e UF descarregamento
+
+
+                                                                                                      Página 83 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+             [chMDFe: 99999999999999999999999999999999999999999999][nProt:999999999999999]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 616",
+    titulo: "Rejeição: Nenhum grupo de documentos foi informado (CT-e, CT, NF-e, MDF-e)",
+    conteudo: `616    Rejeição: Nenhum grupo de documentos foi informado (CT-e, CT, NF-e, MDF-e)
+             Retornar Município de Descarregamento sem DF-e vinculado`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 628",
+    titulo: "Rejeição: Erro Atributo ID do evento não corresponde à concatenação dos campos (“ID” + tpEvento + chMDFe",
+    conteudo: `628    Rejeição: Erro Atributo ID do evento não corresponde à concatenação dos campos (“ID” + tpEvento + chMDFe
+             + nSeqEvento)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 631",
+    titulo: "Rejeição: Duplicidade de evento",
+    conteudo: `631    Rejeição: Duplicidade de evento
+              [nProt:999999999999999][dhRegEvento: AAAA-MM-DDTHH:MM:SS TZD]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 634",
+    titulo: "Rejeição: A data do evento não pode ser menor que a data de emissão do MDF-e",
+    conteudo: `634    Rejeição: A data do evento não pode ser menor que a data de emissão do MDF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 635",
+    titulo: "Rejeição: A data do evento não pode ser maior que a data do processamento",
+    conteudo: `635    Rejeição: A data do evento não pode ser maior que a data do processamento`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 637",
+    titulo: "Rejeição: A data do evento não pode ser menor que a data de autorização do MDF-e",
+    conteudo: `637    Rejeição: A data do evento não pode ser menor que a data de autorização do MDF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 638",
+    titulo: "Rejeição: Não deve ser informada Nota Fiscal para tipo de emitente Prestador Serviço de Transporte",
+    conteudo: `638    Rejeição: Não deve ser informada Nota Fiscal para tipo de emitente Prestador Serviço de Transporte`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 639",
+    titulo: "Rejeição: Não deve ser informado Conhecimento de Transporte Eletrônico para tipo de emitente Transporte de",
+    conteudo: `639    Rejeição: Não deve ser informado Conhecimento de Transporte Eletrônico para tipo de emitente Transporte de
+             Carga Própria.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 644",
+    titulo: "Rejeição: Evento de inclusão de condutor só pode ser registrado para o modal rodoviário",
+    conteudo: `644    Rejeição: Evento de inclusão de condutor só pode ser registrado para o modal rodoviário`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 646",
+    titulo: "Rejeição: Placa de veículo formato inválido (UF Carregamento e Descarregamento <> ‘EX’)",
+    conteudo: `646    Rejeição: Placa de veículo formato inválido (UF Carregamento e Descarregamento <> ‘EX’)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 647",
+    titulo: "Rejeição: MDF-e só pode ser referenciado por manifesto do modal aquaviário",
+    conteudo: `647    Rejeição: MDF-e só pode ser referenciado por manifesto do modal aquaviário`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 648",
+    titulo: "Rejeição: MDF-e só pode ser referenciado quando UF de Carregamento/Descarregamento for igual a AM ou",
+    conteudo: `648    Rejeição: MDF-e só pode ser referenciado quando UF de Carregamento/Descarregamento for igual a AM ou
+             AP`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 649",
+    titulo: "Rejeição: Chave de acesso de MDF-e informada inválida",
+    conteudo: `649    Rejeição: Chave de acesso de MDF-e informada inválida
+             [chMDFe: 99999999999999999999999999999999999999999999]
+             [Motivo: XXXXXXXXXXXX]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 656",
+    titulo: "Rejeição: Chave de Acesso do MDF-e referenciado difere da existente em BD",
+    conteudo: `656    Rejeição: Chave de Acesso do MDF-e referenciado difere da existente em BD`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 659",
+    titulo: "Rejeição: Tipo do Emitente do MDF-e referenciado difere de Transportador de Carga Própria",
+    conteudo: `659    Rejeição: Tipo do Emitente do MDF-e referenciado difere de Transportador de Carga Própria`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 662",
+    titulo: "Rejeição: Existe MDF-e não encerrado para esta placa, tipo de emitente no sentido oposto da viagem",
+    conteudo: `662    Rejeição: Existe MDF-e não encerrado para esta placa, tipo de emitente no sentido oposto da viagem`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 667",
+    titulo: "Rejeição: Quantidade informada no grupo de totalizadores não confere com a quantidade de documentos",
+    conteudo: `667    Rejeição: Quantidade informada no grupo de totalizadores não confere com a quantidade de documentos
+             relacionada`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 668",
+    titulo: "Rejeição: Chave de Acesso de CT-e duplicada",
+    conteudo: `668    Rejeição: Chave de Acesso de CT-e duplicada
+             [chCTe: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 669",
+    titulo: "Rejeição: Chave de Acesso de NF-e duplicada",
+    conteudo: `669    Rejeição: Chave de Acesso de NF-e duplicada
+             [chNFe: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 671",
+    titulo: "Rejeição: CT-e informado não existe na base de dados da SEFAZ",
+    conteudo: `671    Rejeição: CT-e informado não existe na base de dados da SEFAZ
+             [chCTe: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 672",
+    titulo: "Rejeição: CT-e informado com diferença de chave de acesso",
+    conteudo: `672    Rejeição: CT-e informado com diferença de chave de acesso
+             [chCTe: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 673",
+    titulo: "Rejeição: CT-e informado não pode estar cancelado/denegado na base da SEFAZ",
+    conteudo: `673    Rejeição: CT-e informado não pode estar cancelado/denegado na base da SEFAZ
+             [chCTe: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 675",
+    titulo: "Rejeição: NF-e informada não existe na base de dados da SEFAZ",
+    conteudo: `675    Rejeição: NF-e informada não existe na base de dados da SEFAZ
+             [chNFe: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 676",
+    titulo: "Rejeição: NF-e informada com diferença de chave de acesso",
+    conteudo: `676    Rejeição: NF-e informada com diferença de chave de acesso
+             [chNFe: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 677",
+    titulo: "Rejeição: NF-e informada não pode estar cancelada/denegada na base da SEFAZ",
+    conteudo: `677    Rejeição: NF-e informada não pode estar cancelada/denegada na base da SEFAZ
+             [chNFe: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 680",
+    titulo: "Rejeição: Município de descarregamento duplicado no MDF-e",
+    conteudo: `680    Rejeição: Município de descarregamento duplicado no MDF-e
+
+                                                                                                     Página 84 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 686",
+    titulo: "Rejeição: Existe MDF-e não encerrado há mais de 30 dias para o emitente",
+    conteudo: `686     Rejeição: Existe MDF-e não encerrado há mais de 30 dias para o emitente
+              [chMDFe: 99999999999999999999999999999999999999999999][nProt:999999999999999]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 688",
+    titulo: "Rejeição: RNTRC deve ser informado para Prestador de Serviço de Transporte",
+    conteudo: `688     Rejeição: RNTRC deve ser informado para Prestador de Serviço de Transporte`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 689",
+    titulo: "Rejeição: Município de encerramento deve ser 9999999 para encerramento no exterior",
+    conteudo: `689     Rejeição: Município de encerramento deve ser 9999999 para encerramento no exterior`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 698",
+    titulo: "Rejeição: Seguro da carga é obrigatório para modal Prestador de Serviço de Transporte no modal rodoviário",
+    conteudo: `698     Rejeição: Seguro da carga é obrigatório para modal Prestador de Serviço de Transporte no modal rodoviário`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 703",
+    titulo: "Rejeição: Carregamento e Descarregamento inválidos para MDF-e com indicação de carregamento posterior",
+    conteudo: `703     Rejeição: Carregamento e Descarregamento inválidos para MDF-e com indicação de carregamento posterior`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 704",
+    titulo: "Rejeição: MDF-e com indicação de carregamento posterior não permitido para operações interestaduais ou",
+    conteudo: `704     Rejeição: MDF-e com indicação de carregamento posterior não permitido para operações interestaduais ou
+              com o exterior`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 705",
+    titulo: "Rejeição: Modal inválido para MDF-e com indicação de carregamento posterior (apenas modal rodoviário)",
+    conteudo: `705     Rejeição: Modal inválido para MDF-e com indicação de carregamento posterior (apenas modal rodoviário)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 706",
+    titulo: "Rejeição: Não informar documentos transportados para MDF-e com indicação de carregamento posterior (usar",
+    conteudo: `706     Rejeição: Não informar documentos transportados para MDF-e com indicação de carregamento posterior (usar
+              evento inclusão de DF-e)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 707",
+    titulo: "Rejeição: MDF-e com indicação de carregamento posterior com tipo de emitente diferente de transporte",
+    conteudo: `707     Rejeição: MDF-e com indicação de carregamento posterior com tipo de emitente diferente de transporte
+              próprio`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 708",
+    titulo: "Rejeição: MDF-e deve possui indicação de carregamento posterior para inclusão de DF-e",
+    conteudo: `708     Rejeição: MDF-e deve possui indicação de carregamento posterior para inclusão de DF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 709",
+    titulo: "Rejeição: Chave de acesso de NF-e inválida no evento de inclusão",
+    conteudo: `709     Rejeição: Chave de acesso de NF-e inválida no evento de inclusão
+              [Motivo: CNPJ/CPF inválido / Modelo diferente de 55 / Ano inválido (< 2006) / Mês inválido (0 ou > 12) / Tipo
+              de emissão inválido / UF inválida / Número zerado / DV inválido]`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 710",
+    titulo: "Rejeição: Cancelamento não é permitido para MDF-e com indicação de carregamento posterior que já realizou",
+    conteudo: `710     Rejeição: Cancelamento não é permitido para MDF-e com indicação de carregamento posterior que já realizou
+              inserção de DF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 712",
+    titulo: "Rejeição: Existe MDF-e com indicação de carregamento posterior sem inclusão de DF-e para o emitente há",
+    conteudo: `712     Rejeição: Existe MDF-e com indicação de carregamento posterior sem inclusão de DF-e para o emitente há
+              mais de 168 horas`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 713",
+    titulo: "Rejeição: CNPJ do desenvolvedor do sistema inválido (zerado ou dígito inválido)",
+    conteudo: `713     Rejeição: CNPJ do desenvolvedor do sistema inválido (zerado ou dígito inválido)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 715",
+    titulo: "Rejeição: Não é permitido encerrar MDF-e com indicação de carregamento posterior sem inclusão de DF-e",
+    conteudo: `715     Rejeição: Não é permitido encerrar MDF-e com indicação de carregamento posterior sem inclusão de DF-e
+              associada`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 721",
+    titulo: "Rejeição: Obrigatória a informação do identificador do CSRT e do Hash do CSRT",
+    conteudo: `721     Rejeição: Obrigatória a informação do identificador do CSRT e do Hash do CSRT`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 997",
+    titulo: "Rejeição: XML do MDF-e referenciado indisponível no momento da validação (Existem situações em que o",
+    conteudo: `997     Rejeição: XML do MDF-e referenciado indisponível no momento da validação (Existem situações em que o
+              ambiente de autorização trabalha com um banco de dados separado para o arquivo XML)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 999",
+    titulo: "Rejeição: Erro não catalogado (informar a msg de erro capturado no tratamento da exceção)",
+    conteudo: `999     Rejeição: Erro não catalogado (informar a msg de erro capturado no tratamento da exceção)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 8.3",
+    titulo: "Tratamento de caracteres especiais no texto de XML",
+    conteudo: `8.3 Tratamento de caracteres especiais no texto de XML
+  Todos os textos de um documento XML passam por uma análise do “parser” específico da
+  linguagem. Alguns caracteres afetam o funcionamento deste “parser”, não podendo aparecer no
+  texto de uma forma não controlada.
+
+  Os caracteres que afetam o “parser” são:
+
+        (Sinal de maior),
+
+
+                                                                                                        Página 85 / 102
+  Projeto
+MManifesto Eletrônico de Documentos Fiscais
+  MOC 3.00a
+
+
+             < (Sinal de menor),
+             & (e-comercial),
+             “ (aspas),
+             ‘ (sinal de apóstrofe).
+    Alguns destes caracteres podem aparecer especialmente nos campos de Razão Social, Endereço
+    e Informação Adicional. Para resolver o problema, é recomendável o uso de uma sequência de
+    “escape” em substituição ao respectivo caractere.
+
+    Ex. a denominação: DIAS & DIAS LTDA deve ser informada como: DIAS &amp; DIAS LTDA no
+    XML para não afetar o funcionamento do "parser".
+
+    Caractere         Sequência de escape
+    <                 &lt;
+    >                 &gt;
+    &                 &amp;`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 8.3",
+    titulo: "Tratamento de caracteres especiais no texto de XML",
+    conteudo: `"                 &quot;
+    '                 &#39;`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 8.4",
+    titulo: "Cálculo do dígito verificador da chave de acesso do MDF-e",
+    conteudo: `8.4 Cálculo do dígito verificador da chave de acesso do MDF-e
+    O dígito verificador da chave de acesso do MDF-e é baseado em um cálculo do módulo 11. O
+    módulo 11 de um número é calculado multiplicando-se cada algarismo pela sequência de
+    multiplicadores 2,3,4,5,6,7,8,9,2,3, ... posicionados da direita para a esquerda.
+
+    A somatória dos resultados das ponderações dos algarismos é dividida por 11 e o DV (dígito
+    verificador) será a diferença entre o divisor (11) e o resto da divisão:
+
+    DV = 11 - (resto da divisão)
+
+    Quando o resto da divisão for 0 (zero) ou 1 (um), o DV deverá ser igual a 0 (zero).
+
+    Exemplo: consideremos que a chave de acesso tem a seguinte sequência de caracteres:
+A CHAVE DE ACESSO     520 60 4 3 300 9 911002 50 6 5 5012000000 7 8 00 2 6 7 301 6 1
+B PESOS               432 98 7 6 543 2 987654 32 9 8 7654329876 5 4 32 9 8 7 654 3 2
+C PONDERAÇÃO (A*B)   20 6 0 54 0 28 18 15 0 0 18 81 8 7 0 0 8 15 0 54 40 35 0 5 8 0 0 0 0 0 0 35 32 0 0 18 48 49 18 0 4 18 2
+
+
+
+    Somatória das ponderações = 644
+    Dividindo a somatória das ponderações por 11 teremos, 644 /11 = 58 restando 6.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 8.4",
+    titulo: "Cálculo do dígito verificador da chave de acesso do MDF-e",
+    conteudo: `Como o dígito verificador DV = 11 - (resto da divisão), portando 11 - 6 = 5
+    Neste caso o DV da chave de acesso do MDF-e é igual a "5", valor este que deverá compor a
+    chave de acesso totalizando a uma sequência de 44 caracteres.
+
+                                                                                                             Página 86 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 8.5",
+    titulo: "Número do Recibo de Lote",
+    conteudo: `8.5 Número do Recibo de Lote
+  O número do Recibo do Lote será gerado pelo Ambiente Autorizador, com a seguinte regra de
+  formação:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 12",
+    titulo: "posições numéricas sequenciais.",
+    conteudo: `12 posições numéricas sequenciais.
+
+                 Campo                    Código da UF                   Tipo Autorizador                  Sequencial
+             Quantidade de
+                                                02                              01                              12
+              caracteres
+
+
+  O projeto utiliza a codificação da UF definida pelo IBGE:
+
+     Região Norte            Região Nordeste         Região Sudeste               Região Sul            Região Centro-Oeste
+  11-Rondônia            21-Maranhão                 31-Minas Gerais         41-Paraná                  50-Mato Grosso do Sul
+  12-Acre                22-Piauí                    32-Espírito Santo       42-Santa Catarina          51-Mato Grosso
+  13-Amazonas            23-Ceará                    33-Rio de Janeiro       43-Rio Grande do Sul       52-Goiás
+  14-Roraima             24-Rio Grande do Norte      35-São Paulo                                       53-Distrito Federal
+  15-Pará                25-Paraíba
+  16-Amapá               26-Pernambuco
+  17-Tocantins           27-Alagoas
+                         28-Sergipe
+                         29-Bahia`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 8.6",
+    titulo: "Número do protocolo",
+    conteudo: `8.6 Número do protocolo
+  O número do protocolo é gerado pelo Ambiente Autorizador para identificar univocamente as
+  transações realizadas de autorização de uso e registro de eventos do MDF-e.
+
+  A regra de formação do número do protocolo é:
+       9             9     9          9         9     9       9          9       9       9          9      9         9       9      9
+   Tipo de          Código da
+                                          Ano                                Sequencial de 10 posições
+  Autorizador          UF
+
+            1 posição com o Tipo de Autorizador (9 = Ambiente Nacional do MDF-e);
+            2 posições para o código da UF do IBGE;
+            2 posições para o ano;
+            10 posições numéricas sequenciais no ano.
+
+  A geração do número de protocolo deverá ser única, sendo utilizada por todos os Web Services
+  que precisam atribuir um número de protocolo para o resultado do processamento.
+
+  Juntamente ao protocolo, no DAMDFE aparecerá a data (DD/MM/AAAA) e hora (hh:mm:ss).
+
+
+
+
+                                                                                                                         Página 87 / 102
+ Projeto`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 8.6",
+    titulo: "Número do protocolo",
+    conteudo: `MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 8.7",
+    titulo: "Tempo médio de resposta",
+    conteudo: `8.7 Tempo médio de resposta
+  O tempo médio de resposta é um indicador que mede a performance do serviço de processamento
+  nos últimos 5 minutos.
+
+  O tempo médio de processamento de um MDF-e é obtido pela divisão do tempo decorrido entre o
+  recebimento da mensagem e o momento de armazenamento da mensagem de processamento do
+  arquivo.
+
+  O tempo médio de resposta é a média dos tempos médios de processamento de um MDF-e dos
+  últimos 5 minutos.
+
+  Caso o tempo médio de resposta fique abaixo de 1 (um) segundo o tempo será informado como 1
+  segundo. As frações de segundos serão arredondados para cima.
+
+
+
+
+                                                                                 Página 88 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9",
+    titulo: "Uso Indevido",
+    conteudo: `9 Uso Indevido
+
+  A análise do comportamento atual das aplicações das empresas (“aplicação cliente”) permite
+  identificar algumas situações de “uso indevido” nos ambientes autorizadores.
+
+  Como exemplo maior do mau uso do ambiente, ressalta-se a falta de controle de algumas
+  aplicações que entram em “loop”, consumindo recursos de forma indevida, sobrecarregando
+  principalmente o canal de comunicação com a Internet.
+
+  Para evitar esses problemas serão mantidos controles para identificar as situações de uso indevido
+  de sucessivas tentativas de busca de registros já disponibilizados anteriormente.
+
+  As novas tentativas serão rejeitadas com o erro “678–Rejeição: Consumo Indevido”.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.1",
+    titulo: "Erros e problemas comuns",
+    conteudo: `9.1 Erros e problemas comuns
+  O erro e problema mais comum encontrado nos ambientes de autorização é o envio repetido (em
+  looping) de requisições para os Web Services dos sistemas autorizadores de documentos fiscais
+  eletrônicos. Normalmente isso ocorre devido algum erro na aplicação do emissor de documentos
+  fiscais eletrônicos ou má utilização do usuário.
+
+  Após o envio de uma requisição para o sistema autorizador, essa requisição pode ser autorizada
+  ou rejeitada. Caso ela seja rejeitada, o usuário do sistema deverá verificar o motivo da rejeição e
+  corrigi-la, se assim desejar, ou caso a rejeição seja indevida (o sistema autorizador rejeitou de
+  forma equivocada) deverá entrar em contato com a SEFAZ autorizadora.
+
+  Seguem alguns exemplos de “Consumo Indevido” que podem ocorrer nos Web Services:
+
+  Web Service                 Aplicação com erro/problema
+
+  Envio de MDF-e              Aplicação da empresa em “looping” enviando o mesmo MDF-e rejeitado por erro de
+                              Schema, ou em “loop” com MDF-e rejeitado por um erro específico.
+                              Usuário do sistema fica enviando manualmente o mesmo MDF-e (efeito pica-pau).`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.1",
+    titulo: "Erros e problemas comuns",
+    conteudo: `Consulta Resultado do       Aplicação da empresa efetua “looping” consultando os números de Recibo em sequência,
+  Processamento assíncrono    mesmo para Número de Recibo que não foram gerados para sua empresa.
+                              Usuário do sistema fica enviando manualmente a mesma consulta (efeito pica-pau).
+  Registro de Evento do       Aplicação da empresa em “looping” enviando o mesmo Pedido Evento (exemplo:
+  MDF-e                       cancelamento), que sempre é rejeitado.
+                              Usuário do sistema fica enviando manualmente o mesmo evento (efeito pica-pau).
+  Consulta Situação do MDF-   Algumas empresas utilizam esta consulta para verificar a disponibilidade dos serviços da
+  e                           SEFAZ Autorizadora, consultando a mesma Chave de Acesso, em “looping”.
+                              Usuário do sistema fica enviando manualmente o mesmo pedido de consulta do MDF-e
+                              durante meses (efeito pica-pau).
+  Consulta Status Serviço     Aplicação em “loop” consumindo o Web Service em uma frequência maior do que a
+                              prevista.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.1",
+    titulo: "Erros e problemas comuns",
+    conteudo: `Página 89 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.2",
+    titulo: "Regras de Validação de Consumo Indevido",
+    conteudo: `9.2 Regras de Validação de Consumo Indevido
+                                                    Autorização de MDF-e
+     #                                      Regra de Validação                                    Crítica     Msg    Efeito
+           MDF-e enviado com mais de 30* rejeições iguais:
+           - Contribuinte ficará com o WS de autorização recebendo a rejeição 678 por até 1
+           (uma) * hora para todas as requisições.
+           Observação 1: Caso após o tempo de 1 (uma) * hora o contribuinte envie
+           novamente o mesmo MDF-e e tenha a mesma rejeição, ele poderá voltar a receber
+           a rejeição 678 por até 1 (uma) * hora, e isso se repetirá até ele parar de enviar o
+           MDF-e com a mesma rejeição.
+  CI01     Observação 2: A verificação do contribuinte para receber a rejeição 678 poderá ser     Facult..   678     Rej.
+           feita em tempo de conexão pela identificação do CNPJ / CPF do certificado digital de
+           transmissão mais o endereço IP (CNPJ/CPF + IP) ou pela identificação do CNP/CPF
+           do emitente.
+           Observação 3: A critério da UF, após 50* bloqueios o contribuinte poderá receber a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.2",
+    titulo: "Regras de Validação de Consumo Indevido",
+    conteudo: `rejeição 678 permanentemente, até entrar em contato com a UF autorizadora.
+
+           (*) Critérios preferenciais, parametrizáveis por ambiente autorizador.
+                                             Retorno Recepção (Consulta Recibo)
+           Recibo consultado mais de 40* vezes em 1 (uma) * hora:
+           - Contribuinte ficará com o WS de Retorno Recepção recebendo a rejeição 678 por
+           até 1 (uma) * hora para todas as requisições.
+           Observação 1: Após o tempo de 1 (uma) * hora o contribuinte poderá fazer
+           novamente mais 40* consultas do número do recibo.
+  CI02     Observação 2: A verificação do contribuinte para receber a rejeição 678 será feita     Facult.    678     Rej.
+           em tempo de conexão pela identificação do CNPJ / CPF do certificado digital de
+           transmissão mais o endereço IP (CNPJ / CPF + IP) ou pela identificação do CNPJ /
+           CPF do emitente.
+
+           (*) Critérios preferenciais, parametrizáveis por ambiente autorizador.
+                                                        Consulta Situação
+           MDF-e consultado mais de 10* vezes em 1 (uma) * hora:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.2",
+    titulo: "Regras de Validação de Consumo Indevido",
+    conteudo: `- Contribuinte ficará com o WS de Consulta Protocolo recebendo a rejeição 678 por
+           até 1 (uma) * hora para todas as requisições.
+           Observação 1: Após o tempo de 1 (uma) * hora o contribuinte poderá fazer
+           novamente mais 10* consultas da mesma chave de acesso.
+  CI03     Observação 2: A verificação do contribuinte para receber a rejeição 678 poderá ser     Facult.    678     Rej.
+           feita em tempo de conexão pela identificação do CNPJ / CPF do certificado digital de
+           transmissão mais o endereço IP (CNPJ / CPF + IP) ou pela identificação do CNPJ /
+           CPF do emitente.
+
+           (*) Critérios preferenciais, parametrizáveis por ambiente autorizador.
+                                                       Registro de Eventos
+           Evento enviado com mais de 20 * rejeições iguais:
+           - Contribuinte ficará com o WS de Eventos recebendo a rejeição 678 por até 1 (uma)
+           * hora para todas as requisições.
+           Observação 1: Caso após o tempo de 1 (uma) * hora o contribuinte envie
+           novamente o mesmo Evento e tenha a mesma rejeição, ele poderá voltar a receber`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.2",
+    titulo: "Regras de Validação de Consumo Indevido",
+    conteudo: `a rejeição 678 por até 1 (uma) * hora, e isso se repetirá até ele parar de enviar o
+           Evento com a mesma rejeição.
+           Observação 2: A verificação do contribuinte para receber a rejeição 678 poderá ser
+  CI04                                                                                            Facult.    678     Rej.
+           feita em tempo de conexão pela identificação do CNPJ / CPF do certificado digital de
+           transmissão mais o endereço IP (CNPJ / CPF + IP) ou pela identificação do CNPJ /
+           CPF do autor.
+           Observação 3: A critério da UF, após 50* bloqueios o contribuinte poderá receber a
+           rejeição 678 permanentemente, até entrar em contato com a UF autorizadora.
+
+           (*) Critérios preferenciais, parametrizáveis por ambiente autorizador.
+
+
+
+                                                                                                             Página 90 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+                                                       Outros Serviços
+           Se for verificado algum tipo de envio em looping (mais de 60* envios repetidos) no`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 3,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.2",
+    titulo: "Regras de Validação de Consumo Indevido",
+    conteudo: `período de 5 minutos em outro Web Service que gere erro ou onere o sistema
+           autorizador:
+           - Contribuinte ficará com o Web Service recebendo a rejeição 678 por até 1 (uma) *
+           hora para todas as requisições.
+  CI05     Observação 1: A verificação do contribuinte para receber a rejeição 678 poderá ser     Facult.   678     Rej.
+           feita em tempo de conexão pela identificação do CNPJ / CPF do certificado digital de
+           transmissão mais o endereço IP (CNPJ / CPF + IP) ou pela identificação do CNPJ /
+           CPFdo emitente (emit/CNPJ).
+
+           (*) Critérios preferenciais, parametrizáveis por ambiente autorizador.
+
+
+  * A parametrização dos valores definidos como referência para a rejeição 678 poderão ser alterados a
+  qualquer tempo, a critério do sistema autorizador, de acordo com o comportamento identificado no sistema.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 4,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.3",
+    titulo: "Aplicação de Uso Indevido para rejeições relacionadas ao não",
+    conteudo: `9.3 Aplicação de Uso Indevido para rejeições relacionadas ao não
+      encerramento do MDF-e
+  O não encerramento do MDF-e no momento em que é concluído o descarregamento acarreta uma
+  série de problemas operacionais para os controles de trânsito das Secretarias de Fazenda.
+  Percebe-se que algumas aplicações de contribuintes estão programadas para encerrar o MDF-e
+  somente quando recebem uma das seguintes rejeições de bloqueio:
+
+   462 - Existe MDF-e não encerrado há mais de 5 dias para placa com até 2 UF de percurso
+      informadas
+   610 - Rejeição: Existe MDF-e não encerrado para esta placa, UF carregamento e UF
+      descarregamento em data de emissão diferente
+   611 - Rejeição: Existe MDF-e não encerrado para esta placa, tipo de emirtente e UF
+      descarregamento
+   686 - Rejeição: Existe MDF-e não encerrado há mais de 30 dias para o emitente
+
+
+  Essa prática é facilitada pela devolução da chave de acesso e protocolo causadores do bloqueio no
+  retorno das rejeições.
+
+  O sistema de autorização irá suprimir esse complemento indicativo de chave e protocolo na
+  mensagem de retorno para o CNPJ que receber mais de 5 rejeições de um destes tipos`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 9.3",
+    titulo: "Aplicação de Uso Indevido para rejeições relacionadas ao não",
+    conteudo: `(462,610,611,686) dentro do intervalo de uma hora.
+
+  Cada vez que a empresa ultrapassar a cota de 5 rejeições desta natureza, terá aplicada a punição
+  pelo período de uma hora a partir da sexta rejeição.
+
+
+
+
+                                                                                                            Página 91 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 10",
+    titulo: "QR Code",
+    conteudo: `10 QR Code
+
+  O QR Code é um código de barras bidimensional que foi criado em 1994 pela empresa japonesa
+  Denso-Wave. QR significa "quick response" devido à capacidade de ser interpretado rapidamente.
+
+  Esse tipo de codificação permite que possa ser armazenada uma quantidade significativa de
+  caracteres:
+
+  Numéricos: 7.089
+  Alfanumérico: 4.296
+  Binário (8 bits): 2.953
+
+  O QR Code a ser impresso no MDF-e seguirá o padrão internacional ISO/IEC 18004.
+
+
+
+
+  Padrão da imagem do QR Code – Fonte: Wikipédia
+
+
+
+  O QR Code deverá existir no DAMDFE relativo à emissão em operação normal ou em
+  contingência, seja ele impresso ou virtual (DAMDFE em meio eletrônico).
+
+  A impressão do QR Code no DAMDFE tem a finalidade de facilitar a consulta dos dados do
+  documento fiscal eletrônico pela fiscalização e demais atores do processo, mediante leitura com o
+  uso de aplicativo leitor de QR Code, instalado em smartphones ou tablets. Atualmente existem no
+  mercado, inúmeros aplicativos gratuitos para smartphones que possibilitam a leitura de QR Code.
+
+  Esta tecnologia tem sido amplamente difundida e é de crescente utilização como forma de
+  comunicação.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 10",
+    titulo: "QR Code",
+    conteudo: `Processo de leitura do QR Code (adaptado)
+
+                                                                                      Página 92 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 10.1",
+    titulo: "Licença",
+    conteudo: `10.1 Licença
+  O uso do código QR é livre, sendo definido e publicado como um padrão ISO. Os direitos de
+  patente pertencem a Denso Wave, mas a empresa escolheu não os exercer, sendo que o termo
+  QR Code é uma marca registrada da Denso WaveIncorporated.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 10.2",
+    titulo: "Imagem do QR Code para MDF-e",
+    conteudo: `10.2 Imagem do QR Code para MDF-e
+  A imagem do QR Code, que será impressa no DAMDFE conterá uma URL composta com as
+  seguintes informações:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 10.2.1",
+    titulo: "Para MDF-e com tipo de emissão Normal:",
+    conteudo: `10.2.1 Para MDF-e com tipo de emissão Normal:
+
+  1ª parte - Endereço do site da Portal Nacional do MDF-e, seguido do caractere “?”; exemplo:
+  http://dfe-portal.svrs.rs.gov.br/mdfe/QRCode
+
+  Os endereços de consulta a serem utilizados no QR Code em ambiente de produção e ambiente
+  de       homologação     estão     disponíveis     no    Portal     Nacional     do     MDF-e      (http://dfe-
+  portal.svrs.rs.gov.br/mdfe).
+
+  Observação: O portal do ambiente nacional do MDF-e utiliza o mesmo endereço para consulta no
+  ambiente de produção e ambiente de homologação. Neste caso, a distinção entre os ambientes de
+  consulta será feita diretamente pela aplicação, a partir do conteúdo do parâmetro de identificação
+  do ambiente (tpAmb), constante do QR Code.
+
+  2ª parte – Parâmetros para consultar a chave de acesso de MDF-e separados pelo caractere “&”;
+
+            chMDFe: chave de acesso do MDF-e (44 caracteres)
+            tpAmb: Identificação do ambiente (1 – Produção; 2 – Homologação)
+
+
+  Exemplo:
+  http://dfe-portal.svrs.rs.gov.br/mdfe/QRCode?chMDFe=43181207312871000190580010000334041421310776&tpAmb=1`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 10.2.2",
+    titulo: "Para MDF-e com tipo de emissão Contingência:",
+    conteudo: `10.2.2 Para MDF-e com tipo de emissão Contingência:
+
+  Documentos emitidos em contingência demandam um conjunto de informações adicionais às
+  informadas no MDF-e normal para garantia de autoria do documento fiscal que pode não ter sido
+  transmitido para a base do Ambiente Autorizador. Neste caso, o QR Code deverá conter:
+
+
+
+
+                                                                                                  Página 93 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  1ª parte - URL para acessar o MDF-e, seguido do caractere “?”
+
+  2ª parte - parâmetros chMDFe e tpAmb da mesma forma como na forma de emissão normal
+  separados pelo caractere “&”;
+
+  3ª parte – sign assinatura digital no padrão RSA SHA-1 (Base64) do valor do parâmetro chMDFe
+  (chave de acesso com 44 caracteres) a partir do certificado digital que assina o MDF-e, este
+  parâmetro deve ser adicionado aos demais usando um caractere “&” como separador.
+
+  1ª parte: URL            http://dfe-portal.svrs.rs.gov.br/mdfe/QRCode
+  2ª parte : parâmetros    chMDFe=43181207312871000190580010000334041421310776&tpAmb=1`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 10.2.2",
+    titulo: "Para MDF-e com tipo de emissão Contingência:",
+    conteudo: `3ª parte: assinatura     &sign=ZZSKiypy7fkg22MUv6TUh71EI+wLYWr/fUHJy3PyWnL7d5mzEqtxu6bVbhE7AeNiDTirh1u9
+                           gVfC2Hw+Lsno2XNL5FRUc5NcuMTT2hA6E9HYC9gryvtWAIgiCZUNG5cWWLCh0G62QdnNe8iSr
+                           lSooQu9Z5g1vbGaTFMxaugzzvo=
+
+
+
+  Gerar o QR Code com as concatenações das três partes (URL + parâmetros + assinatura):`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 10.3",
+    titulo: "Configurações para QR Code",
+    conteudo: `10.3 Configurações para QR Code
+  O QR Code permite algumas configurações adicionais conforme descrito a seguir:`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 10.3.1",
+    titulo: "Capacidade de armazenamento",
+    conteudo: `10.3.1 Capacidade de armazenamento
+
+  As configurações para capacidade de armazenamento de caracteres do QR Code:
+
+             1 - Numérica - máx. 7089 caracteres
+             2 - Alfanumérica - máx. 4296 caracteres
+             3 - Binário (8 bits) - máx. 2953 bytes
+             4 - Kanji/Kana - máx. 1817 caracteres
+  Fonte: http://en.wikipedia.org/wiki/QR_code
+
+
+
+                                                                                          Página 94 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 10.3.2",
+    titulo: "Capacidade de correção de erros",
+    conteudo: `10.3.2 Capacidade de correção de erros
+
+  Seguem as configurações para correções de erros do QR Code:
+
+            Nível L (Low) 7% das palavras do código podem ser recuperadas;
+            Nível M (Medium) 15% das palavras de código podem ser restauradas;
+            Nível Q (Quartil) 25% das palavras de código podem ser restauradas;
+            Nível H (High) 30% das palavras de código podem ser restauradas.
+  Fonte: http://en.wikipedia.org/wiki/QR_code
+
+  Para o QR Code do DAMDFE será utilizado Nível M.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 10.3.3",
+    titulo: "Tipo de caracteres",
+    conteudo: `10.3.3 Tipo de caracteres
+
+  Existem dois padrões de caracteres que podem ser configurados na geração do QR Code,
+  conforme visto abaixo:
+
+  1 – ISSO-8859-1
+  2 – UTF-8
+  Fonte: http://en.wikipedia.org/wiki/QR_code
+
+  Para o QR Code do DAMDFE será utilizada a opção 2 – UTF-8.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 10.4",
+    titulo: "URL da Consulta do MDF-e via QR Code no XML",
+    conteudo: `10.4 URL da Consulta do MDF-e via QR Code no XML
+
+  A URL da Consulta do MDF-e via QR Code deve constar do arquivo do MDF-e (XML) em
+  infMDFeSupl/qrCodMDFe (Informações Suplementares do MDF-e).
+
+
+
+
+                                                                                   Página 95 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 11",
+    titulo: "Consulta Pública MDF-e",
+    conteudo: `11 Consulta Pública MDF-e
+  Para que o usuário ou agente de fiscalização possa verificar a validade e autenticidade do MDF-e,
+  o Ambiente Nacional do MDF-e deverá disponibilizar o serviço de consulta pública resumida de
+  MDF-e.
+
+  Na consulta resumida serão exibidos apenas dados gerais do MDF-e (Chave de acesso, série,
+  número, data de emissão, modal, UF de início, UF de Fim e tipo de emissão), do emitente (CNPJ /
+  CPF, IE e Nome / Razão Social), relação de condutores, placa do veículo (apenas rodoviário) e os
+  eventos de Cancelamento / Encerramento / Inclusão de Condutor.
+
+  Esta consulta poderá ser efetuada pelo usuário do serviço de duas formas: pela digitação em
+  página web dos 44 caracteres numéricos da chave de acesso constantes impressos no DAMDFE
+  ou consulta via leitura do QR Code impresso ou disponibilizado em meio eletrônico, utilizando
+  aplicativos gratuitos de leitura de QR Code, disponíveis em dispositivos móveis como smartphones
+  e tablets.
+
+  A consulta completa do MDF-e, contendo todas as informações, com navegação em abas, será
+  disponibilizada pelo Portal Nacional do MDF-e e deverá solicitar, além da digitação da chave de`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 11",
+    titulo: "Consulta Pública MDF-e",
+    conteudo: `acesso do MDF-e, um certificado digital do tipo e-CNPJ ou e-CPF, que obrigatoriamente deve estar
+  figurando entre um dos atores relacionados no arquivo XML do MDF-e (emitente ou relacionados
+  no grupo autXML).`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 11.1",
+    titulo: "Consulta Pública Resumida de MDF-e via Digitação de Chave de",
+    conteudo: `11.1 Consulta Pública Resumida de MDF-e via Digitação de Chave de
+       Acesso
+  O endereço que deve estar impresso no DAMDFE destinado à consulta utilizando a chave de
+  acesso, está indicado no Portal Nacional MDF-e (http://dfe-portal.svrs.rs.gov.br/MDFe).
+
+  Nesta hipótese o usuário deverá acessá-los pela internet e digitar a chave de acesso composta por`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 44",
+    titulo: "caracteres numéricos.",
+    conteudo: `44 caracteres numéricos.
+
+  Como resultado da consulta pública, deverá ser apresentado ao usuário na tela o MDF-e com
+  informações resumidas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 11.2",
+    titulo: "Consulta Pública Resumida de MDF-e via QR Code",
+    conteudo: `11.2 Consulta Pública Resumida de MDF-e via QR Code
+  A aplicação de consulta pública resumida de MDF-e via QR Code será disponibilizada pelo Portal
+  Nacional do MDF-e e efetuará validações do conteúdo de informações constantes do QR Code
+  versus o conteúdo do respectivo MDF-e.
+
+                                                                                        Página 96 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+  Nesta hipótese, o usuário deverá apontar o seu dispositivo móvel (smartphone ou tablet) para a
+  imagem do QR Code gerada na tela ou impressa no DAMDFE. O leitor de QR Code se encarregará
+  de interpretar a imagem e efetuar a consulta do MDF-e da URL recuperada no Portal da SEFAZ da
+  Unidade Federada da emissão do documento.
+
+
+
+
+                                          Figura 7: Processo de leitura do QR Code
+
+
+  Como resultado da consulta QR Code, deverá ser apresentado ao usuário do serviço na tela do
+  dispositivo móvel o MDF-e resumido.
+
+  Eventuais divergências encontradas entre as informações do MDF-e constantes dos parâmetros do
+  QR Code deverão ser informadas em área de mensagem a ser disponibilizada na tela de resposta`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 11.2",
+    titulo: "Consulta Pública Resumida de MDF-e via QR Code",
+    conteudo: `da consulta pública sem, todavia, um detalhamento excessivo do erro identificado, que será de
+  pouco interesse e apenas poderá acabar por gerar dúvidas e inseguranças.
+
+  Assim, será apresentado na tela ao usuário o código do erro e uma mensagem de aviso mais
+  genérica.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 11.3",
+    titulo: "Tabela padronizada com os códigos e mensagens na consulta do",
+    conteudo: `11.3 Tabela padronizada com os códigos e mensagens na consulta do
+       MDF-e
+  A tabela a seguir relaciona todas as mensagens de validações utilizadas na consulta de MDF-e
+  seja por digitação em tela ou via QR Code. Estas mensagens somente serão utilizadas na
+  implementação da consulta pelo Portal Nacional do MDF-e.
+
+                                    Relação de mensagens de validações na consulta de MDF-e
+
+      Código   Regra de Validação                                                    Exibir na Consulta`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 201",
+    titulo: "Se a Chave de Acesso do MDF-e não preenchida ou com menos             Problemas no preenchimento da Chave",
+    conteudo: `201      Se a Chave de Acesso do MDF-e não preenchida ou com menos             Problemas no preenchimento da Chave
+               de 44 caracteres.                                                     de Acesso do MDF-e`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 202",
+    titulo: "Se dígito verificador da Chave de Acesso do MDF-e inválido            Problemas na Chave de Acesso do MDF-",
+    conteudo: `202      Se dígito verificador da Chave de Acesso do MDF-e inválido            Problemas na Chave de Acesso do MDF-
+                                                                                     e (dígito verificador inválido)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 203",
+    titulo: "Se o modelo constante da Chave de Acesso difere de 58 (MDF-           Problemas na Chave de Acesso do MDF-",
+    conteudo: `203      Se o modelo constante da Chave de Acesso difere de 58 (MDF-           Problemas na Chave de Acesso do MDF-
+               e) ou CNPJ / CPF do emitente constante na Chave de Acesso             e (modelo ou CNPJ/CPF ou UF inválido)
+               com dígito verificador inválido ou UF da chave de acesso
+               diferente do código da UF da consulta.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 204",
+    titulo: "Se o parâmetro tpAmb (Identificação do ambiente) não                  Inconsistência de Informações no QR",
+    conteudo: `204      Se o parâmetro tpAmb (Identificação do ambiente) não                  Inconsistência de Informações no QR
+               preenchido ou difere de 1 ou 2 no QRCODE.                             Code (tipo ambiente)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 205",
+    titulo: "Se a forma de emissão for 1 (normal) e o MDF-e da chave de            O MDF-e não consta na nossa base de",
+    conteudo: `205      Se a forma de emissão for 1 (normal) e o MDF-e da chave de            O MDF-e não consta na nossa base de
+               acesso não encontrado na base de dados.                               dados
+
+                                                                                                          Página 97 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 206",
+    titulo: "Se a forma de emissão for 2 (contingência) e o MDF-e não for   O MDF-e foi emitido em contingência e",
+    conteudo: `206    Se a forma de emissão for 2 (contingência) e o MDF-e não for   O MDF-e foi emitido em contingência e
+             encontrado na base de dados.                                   não consta na nossa base de dados.
+                                                                            Volte a consultar após 24h.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 207",
+    titulo: "Se MDF-e possuir evento de cancelamento.                       O MDF-e foi Cancelada - Documento",
+    conteudo: `207    Se MDF-e possuir evento de cancelamento.                       O MDF-e foi Cancelada - Documento
+                                                                            Inválido – Sem Valor Fiscal
+                                                                            Exibir a consulta`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 208",
+    titulo: "Se MDF-e possuir evento de encerramento.                       O MDF-e foi encerrado",
+    conteudo: `208    Se MDF-e possuir evento de encerramento.                       O MDF-e foi encerrado
+                                                                             Exibir a consulta`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 11.4",
+    titulo: "Padronização dos endereços das consultas públicas",
+    conteudo: `11.4 Padronização dos endereços das consultas públicas
+  Os endereços de consulta pública resumida e completa por chave de acesso e a consulta QR Code
+  deverão seguir uma padronização visando facilitar seu acesso pelo contribuinte.
+
+  Os endereços disponibilizados deverão seguir a seguinte estrutura:
+
+  http(s)://dfe-portal.svrs.rs.gov.br/MDFe/consulta
+  http(s):// dfe-portal.svrs.rs.gov.br/MDFe/qrcode
+
+  A relação de endereços dos serviços de consulta encontra-se no Portal Nacional do MDF-e
+  (https://dfe-portal.svrs.rs.gov.br/MDFe/Servicos)
+
+
+
+
+                                                                                                  Página 98 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 12",
+    titulo: "Contingência para MDF-e",
+    conteudo: `12 Contingência para MDF-e
+
+  O modelo operacional atual do MDF-e prevê a utilização de tipo de emissão “Contingência”.
+
+  Nesta modalidade, o contribuinte que estiver com problemas técnicos para autorização do MDF-e
+  poderá emiti-lo em contingência, imprimir o DAMDFE e depois de superado o problema técnico,
+  transmitir o arquivo XML do MDF-e para autorização.
+
+  A decisão pela entrada em contingência é exclusiva do contribuinte, devendo ser utilizada nas
+  situações em que ocorram problemas técnicos de comunicação ou processamento de informações
+  que impeçam a autorização do MDF-e em tempo real. Não existe exigência de obtenção, pelo
+  contribuinte, de autorização prévia do Fisco para entrada em contingência.
+
+  Todavia, alertamos que os MDF-e devem ser autorizadas, preferencialmente, em tempo real ou
+  previstos em legislação, e que as alternativas de contingência somente devem ser acionadas em
+  situações extremas, que interfiram de forma significativa na atividade operacional do
+  estabelecimento.
+
+  Assim, a emissão do MDF-e em contingência deve ser tratada como exceção, sendo que a regra
+  deve ser a emissão com autorização normal.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 12",
+    titulo: "Contingência para MDF-e",
+    conteudo: `O Fisco poderá solicitar esclarecimentos, e até mesmo restringir ao contribuinte a utilização da
+  modalidade de contingência, caso seja identificado que o emissor do MDF-e utiliza a contingência
+  em demasia e sem justificativa aceitável, quando comparado a outros contribuintes em situação
+  similar.
+
+  É importante ressaltar ainda que a utilização de contingência deve se restringir às situações de
+  efetiva impossibilidade de autorização do MDF-e, haja vista que pode vir a representar custos e
+  riscos adicionais ao contribuinte, em especial, pelos seguintes aspectos:
+
+            Os MDF-e emitidos em contingência deverão ser posteriormente encaminhados para
+             autorização, podendo virem a serem rejeitados, gerando possíveis retrabalhos e problemas
+             operacionais, uma vez que a carga já está em circulação no trânsito;
+            Os MDF-e emitidos em contingência estarão disponíveis para consulta pública pelos
+             usuários no portal do ambiente nacional ou via consulta QR Code apenas em momento
+             posterior, quando forem autorizadas, havendo risco de ocorrências nas fiscalizações de
+             trânsito;`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 12",
+    titulo: "Contingência para MDF-e",
+    conteudo: `Página 99 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+            Na utilização de contingência, o contribuinte assume o risco de perda da informação dos
+             MDF-e emitidos em contingência, até que os mesmos constem da base de dados do Fisco.
+             Na autorização online do MDF-e a informação já está segura na base de dados do Fisco;`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 2,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 12.1",
+    titulo: "Detalhes técnicos da Contingência",
+    conteudo: `12.1 Detalhes técnicos da Contingência
+  Ao emitir um MDF-e em contingência, algumas modificações deverão ser realizadas no arquivo
+  XML, caracterizando esse tipo de emissão.
+
+  A primeira providência é selecionar a forma de emissão correta no campo tpEmis com a opção
+  Contingência (2).
+
+  Na escolha de contingência do MDF-e (tpEmis = 2) não é necessária a adoção de série específica
+  ou a utilização de papel especial. Todavia, deve ser observado o prazo de envio para autorização
+  do MDF-e até 168 horas contadas a partir de sua emissão em contingência.
+
+  Outro ponto importante é a recomendação de que se avance um número na sequência da
+  numeração quando da entrada em contingência a fim de evitar que o MDF-e emitido em
+  contingência seja posteriormente rejeitado por duplicidade.
+
+  Também cabe alertar que, superado o problema técnico, na transmissão do MDF-e emitido em
+  contingência, deve-se manter a mesma chave de acesso, inclusive com a manutenção do mesmo
+  código numérico original (campo cMDF).
+
+  O DAMDFE do MDF-e emitido em contingência deverá conter a informação impressa “EMISSÂO
+  EM CONTINGÊNCIA”, sendo que nesse documento obrigatoriamente conterá a chave de acesso`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 12.1",
+    titulo: "Detalhes técnicos da Contingência",
+    conteudo: `dos documentos eletrônicos que o manifesto agrega ou informações pertinentes aos documentos
+  em papel.
+
+  Além disso, o QR Code impresso no DAMDFE do MDF-e emitido em contingência conterá o
+  parâmetro sign assinando a chave de acesso com o certificado digital que efetuou a assinatura do
+  MDF-e. Isto possibilita que na consulta via QR Code, pelo usuário, a SEFAZ retorne a informação
+  de que se trata de emissão em contingência, além de garantir a autoria do emitente do MDF-e pelo
+  certificado digital.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 12.2",
+    titulo: "Resumo das ações para entrada em contingência",
+    conteudo: `12.2 Resumo das ações para entrada em contingência
+            Alterar XML do MDF-e com tpEmis = 2 (Contingência);
+            Gerar nova chave de acesso com o tpEmis = 2, mantendo o mesmo cMDF;
+
+
+                                                                                       Página 100 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+            Gerar o QR Code do DAMDFE adicionando parâmetro sign (conforme especificado no item
+             10.2.2);
+            Emitir o DAMDFE com a mensagem “EMISSÃO EM CONTINGÊNCIA”;
+            Transmitir o arquivo assim que superada a dificuldade técnica que demandou a
+             contingência;
+
+
+
+
+                                                                                   Página 101 / 102
+ Projeto
+MManifesto Eletrônico de Documentos Fiscais
+ MOC 3.00a
+
+
+
+
+  WS disponíveis
+
+  Os endereços dos Web Services disponíveis podem ser obtidos no sítio nacional do projeto no
+  endereço https://dfe-portal.svrs.rs.gov.br/MDFe
+
+  Obtenção do WSDL:
+
+  A documentação do WSDL pode ser obtida na internet acessando o endereço do Web Service
+  desejado.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 0,
+  },
+  {
+    lei: "moc_mdfe_v3",
+    artigo: "Seção 12.2",
+    titulo: "Resumo das ações para entrada em contingência",
+    conteudo: `Exemplificando, para obter o WSDL de cada um dos Web Service acione o navegador Web (Internet
+  Explorer, por exemplo) e digite o endereço desejado seguido do literal ‘?WSDL’.
+
+
+
+
+                                                                                    Página 102 / 102`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49",
+    chunkIndex: 1,
+  },
+];
