@@ -1,0 +1,66 @@
+NT 2025.002 v1.36 — Adequações NF-e/NFC-e para Reforma Tributária (IBS/CBS/IS)
+Emenda Constitucional 132/2023 | Lei Complementar 214/2025
+
+CRONOGRAMA DE IMPLANTAÇÃO
+CRT 3 (Regime Normal): Julho/2025 homologação facultativo. Outubro/2025 produção facultativo. Janeiro/2026 obrigatório com valor jurídico pleno.
+CRT 1 (Simples Nacional), 2 (Excesso de Sublimite) e 4 (MEI): Tributação IBS/CBS/IS inicia apenas em 2027 conforme Art. 348 da LC 214/25.
+
+ALTERAÇÕES ESTRUTURAIS
+Código de Status (cStat): expandido para 4 posições para rejeições exclusivas de IBS/CBS/IS.
+Número do Protocolo (nProt): pode conter 15 ou 17 posições.
+cClassTrib: Código de Classificação Tributária do IBS/CBS vinculado a dispositivos da LC 214/2025.
+
+NOVAS FINALIDADES DE EMISSÃO (finNFe)
+finNFe 5 = Nota de Crédito: documenta redução no imposto devido pelo emitente. Subtipos: multa e juros, crédito presumido ZFM, retorno por recusa, redução de valores, transferência por sucessão.
+finNFe 6 = Nota de Débito: documenta aumento no imposto devido pelo emitente. Subtipos: transferência para cooperativas, anulação de crédito imunes/isentas, débitos não processados, multa e juros, sucessão, pagamento antecipado, perda em estoque.
+Notas de débito/crédito não podem conter campos de ICMS, IPI, PIS ou COFINS (RV B25-80).
+
+GRUPO UB — IBS, CBS E IS POR ITEM
+vBC (UB16): Base de cálculo comum IBS/CBS = vProd + vFrete + vSeg + vOutro + vII + vIS - vDesc - PIS/COFINS/ICMS/ISSQN.
+IBS Estadual (gIBSUF): alíquota pIBSUF, diferimento pDif/vDif, devolução/cashback vDevTrib, redução pRedAliq, alíquota efetiva pAliqEfet.
+IBS Municipal (gIBSMun): estrutura idêntica ao estadual para competência municipal.
+CBS (gCBS): alíquota pCBS, diferimento, devolução e redução.
+
+ALÍQUOTAS TRANSITÓRIAS (Regras de Validação)
+UB18-10/UB37-10: Alíquotas IBS (UF e Municipal) fixadas em 0,1% e 0% para 2025-2026; 0,05% e 0,05% para 2027-2028.
+UB56-10: Alíquota CBS fixada em 0,9% para 2025-2026. Permite alíquota zero em operações ZFM/ALC.
+UB28-10/UB47-10/UB66-10: Alíquota Efetiva deve considerar reduções e redutor de compra governamental.
+
+TRIBUTAÇÃO MONOFÁSICA — COMBUSTÍVEIS
+gIBSCBSMono (UB84): grupo específico para operações com combustíveis.
+gMonoPadrao: quantidade qBCMono, alíquotas ad rem e valores.
+gMonoReten: retenção sobre biocombustíveis na mistura.
+gMonoRet: tributação retida anteriormente na cadeia.
+gMonoDif: diferimento monofásico de combustíveis.
+
+CRÉDITO PRESUMIDO
+gCredPresOper (UB120): crédito presumido na operação — aquisição de produtor rural ou transportador autônomo.
+gCredPresIBSZFM (UB131): crédito presumido sobre saldo devedor na ZFM conforme Art. 450 LC 214/25. Permitido apenas a partir de janeiro/2029 (RV B25.2-30).
+
+COMPRAS GOVERNAMENTAIS
+gCompraGov (B31): tipo de ente (União, Estado, DF, Município) e percentual de redução de alíquota pRedutor.
+cMunFGIBS (B12a): município de ocorrência do fato gerador do IBS/CBS em operações presenciais fora do estabelecimento.
+
+16 NOVOS EVENTOS DA REFORMA TRIBUTÁRIA
+Eventos do Emitente:
+112110 - Pagamento Integral: informa quitação para liberar crédito presumido ao adquirente.
+112120 - Importação ALC/ZFM: informa que importação não se converteu em isenção por descumprimento.
+112130 - Perda no Transporte (Fornecedor): roubo/perecimento em frete CIF — exige estorno de crédito.
+112140 - Fornecimento não realizado: pagamento antecipado sem entrega do bem.
+112150 - Atualização de Previsão de Entrega: altera dPrevEntrega para ajustar período de apuração.
+Eventos do Destinatário:
+211110 - Solicitação de Crédito Presumido: gerado na aquisição de terceiros com direito a crédito presumido.
+211120 - Consumo Pessoal: informa uso pessoal — impede o crédito.
+211124 - Perda no Transporte (Adquirente): roubo/perecimento em frete FOB.
+211128 - Aceite de Débito: concordância com nota de crédito do fornecedor.
+211130 - Imobilização de Item: entrada no ativo imobilizado — afeta prazos de ressarcimento.
+211140 - Crédito de Combustível: solicitação de crédito por adquirente da cadeia produtiva.
+211150 - Crédito por Atividade: bens/serviços cujo crédito depende da atividade do adquirente.
+Eventos de Sucessão e Fisco:
+212110/212120: manifestação da sucessora sobre transferência de crédito IBS/CBS.
+412120/412130: manifestação do Fisco sobre transferências em sucessão.
+110001: cancelamento de qualquer evento acima.
+
+OBRIGAÇÕES ACESSÓRIAS E CUMPRIMENTO
+O cumprimento correto das obrigações acessórias em 2026 é condição para dispensa do recolhimento do IBS/CBS no período de transição conforme Art. 348 §1º da EC 132/2023.
+Tabelas externas: cClassTrib, CST, NCM do IS e cCredPres são mantidos em tabelas dinâmicas no Portal Nacional da NF-e.

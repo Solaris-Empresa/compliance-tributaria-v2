@@ -1,0 +1,48 @@
+NT 008/2026 — Especificações Técnicas do DANFSe (Documento Auxiliar da NFS-e)
+Secretaria-Executiva do Comitê Gestor da NFS-e (SE/CGNFS-e) | Publicação: 05/05/2026
+
+PRAZO CRÍTICO
+A API de geração do DANFSe atual será suspensa em 1º de julho de 2026. A partir desta data, todos os sistemas (emissores, ERP, sistemas fiscais) devem gerar o DANFSe seguindo as especificações desta Nota Técnica.
+Novos fatos geradores enquadrados no IBS e CBS que não eram formalizados anteriormente por documento fiscal terão nota técnica específica futuramente.
+
+DEFINIÇÃO E FINALIDADE
+O DANFSe é a representação impressa da NFS-e. Objetivos: facilitar consulta resumida dos dados da nota; auxiliar processos administrativos e financeiros de destinatários não credenciados como emissores.
+
+REGRAS GERAIS DE IMPRESSÃO
+Papel: qualquer tipo exceto papel jornal. Via única (salvo disposição contrária).
+Ambiente de homologação (tpAmb=2): obrigatório exibir "NFS-e SEM VALIDADE JURÍDICA" em vermelho.
+Tributos: totais aproximados Lei 12.741/2012 devem constar no campo Informações Complementares.
+
+ESTRUTURA DE CAMPOS
+Chave de Acesso: bloco único de 50 dígitos.
+Dados Básicos: número da NFS-e, competência, data/hora emissão, número/série/data da DPS, emitente, situação e finalidade.
+Prestador/Fornecedor: CNPJ/CPF/NIF, inscrição municipal, razão social, endereço, telefone, e-mail, Simples Nacional.
+Tomador/Adquirente: dados de identificação similares ao prestador.
+Destinatário da Operação: identificação de quem recebe o serviço se diferente do tomador.
+Intermediário: identificação de eventual intermediário.
+
+TRIBUTAÇÃO NO DANFSe
+Tributação Municipal (ISSQN): tipo de tributação, local de incidência, regime especial, imunidade, suspensão, benefícios, base de cálculo, alíquota e valor do ISSQN retido ou apurado.
+Tributação Federal: IRRF, Contribuição Previdenciária, PIS e COFINS débito próprio, retenções de contribuições sociais.
+Tributação IBS/CBS: CST, localidade de incidência, exclusões/reduções de BC, alíquotas efetivas e valores apurados para IBS Municipal, IBS Estadual e CBS.
+Linha PIS/COFINS: impressa apenas para notas com competência até fim de 2026.
+
+VALORES TOTAIS
+Valor da Operação/Serviço, descontos condicionado e incondicionado, total de retenções, valor líquido da NFS-e, total de IBS/CBS, Valor Líquido Final (NFS-e + IBS/CBS).
+
+FORMATAÇÃO E LAYOUT
+Tamanho mínimo: A4 (210x297mm), modo retrato, impressão em página única obrigatória.
+Margens: entre 0,15 cm e 0,20 cm em todas as laterais.
+Fontes: títulos de blocos Arial 7pt negrito caixa alta; títulos de campos Arial 6pt negrito; conteúdo Microsoft Sans Serif 7pt.
+QR Code: dimensões mínimas 1,52x1,52 cm. URL: https://www.nfse.gov.br/ConsultaPublica/?tpc=1&chave=[CHAVE].
+
+SITUAÇÕES ESPECIAIS
+Cancelamento: marca d'água "CANCELADA" na diagonal (Arial 50+ pontos, cinza K35).
+Substituição: marca d'água "SUBSTITUÍDA" no mesmo padrão. Campo Informações Complementares deve informar: "NFS-e Subst.: [CHAVE_DE_ACESSO]".
+Blocos vazios: se não houver Tomador, Destinatário ou Intermediário, bloco reduzido a uma linha com "[NOME DO BLOCO] NÃO IDENTIFICADO NA NFS-e".
+Destinatário = Tomador: substituir bloco por "O DESTINATÁRIO É O PRÓPRIO TOMADOR/ADQUIRENTE DA OPERAÇÃO".
+
+IDENTIFICAÇÕES ESPECIAIS NAS INFORMAÇÕES COMPLEMENTARES
+Cod. Obra: [código] — quando obrigatório no XML.
+Insc. Imob.: [inscrição] — quando obrigatório no XML.
+Cod. Evt.: [código] — quando obrigatório no XML.
