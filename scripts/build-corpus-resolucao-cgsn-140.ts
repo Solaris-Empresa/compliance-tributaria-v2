@@ -22,9 +22,10 @@ import { buildCorpus } from "./lib/corpus-chunker";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const LEI_SLUG = "resolucao_cgsn_140";
+// M4-REVISED: usa o .txt normalizado (de-indent + ordinal) — canônico intacto.
 const SOURCE_FILE = resolve(
   root,
-  "scripts/corpus-source/resolucao_cgsn_140.txt"
+  "scripts/corpus-source/resolucao_cgsn_140_normalized.txt"
 );
 const OUTPUT_FILE = resolve(root, "server/rag-corpus-resolucao-cgsn-140.ts");
 

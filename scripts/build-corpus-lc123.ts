@@ -26,7 +26,8 @@ import { buildCorpus } from "./lib/corpus-chunker";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const LEI_SLUG = "lc123";
-const SOURCE_FILE = resolve(root, "scripts/corpus-source/lc123.txt");
+// M4-REVISED: usa o .txt normalizado (de-indent + ordinal) — canônico intacto.
+const SOURCE_FILE = resolve(root, "scripts/corpus-source/lc123_normalized.txt");
 const OUTPUT_FILE = resolve(root, "server/rag-corpus-lc123.ts");
 
 // TODO(Corpus Onda 2): aguarda extração de texto canônico pelo Manus.
