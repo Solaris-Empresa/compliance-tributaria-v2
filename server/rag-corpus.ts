@@ -24,6 +24,7 @@ export interface CorpusEntry {
   // portaria_mf_cgibs_7 em alinhamento com o enum `lei` de drizzle/schema.ts
   // (migration 0094_corpus_freshness_lei_enum.sql).
   // Corpus Onda 2 M4-REVISED: lc123 + resolucao_cgsn_140 (chunking normalizado).
+  // Corpus Onda 2 #1089: moc_cte_v4 + moc_mdfe_v3 (section-chunker).
   // DB enum já coberto por migration 0095 (#1087). Sync do mysqlEnum em
   // drizzle/schema.ts permanece deferido (evita RAG Quality Gate espúrio) —
   // tech debt rastreado; aqui só o tipo TS que os módulos gerados consomem.
@@ -41,7 +42,9 @@ export interface CorpusEntry {
     | "resolucao_cgibs_6"
     | "portaria_mf_cgibs_7"
     | "lc123"
-    | "resolucao_cgsn_140";
+    | "resolucao_cgsn_140"
+    | "moc_cte_v4"
+    | "moc_mdfe_v3";
   artigo: string;
   titulo: string;
   conteudo: string;
