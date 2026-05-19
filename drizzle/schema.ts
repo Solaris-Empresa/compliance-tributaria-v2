@@ -1,4 +1,18 @@
-import { mysqlTable, int, varchar, text, boolean, timestamp, mysqlEnum, decimal, json, bigint, tinyint, index, float } from "drizzle-orm/mysql-core";
+import {
+  mysqlTable,
+  int,
+  varchar,
+  text,
+  boolean,
+  timestamp,
+  mysqlEnum,
+  decimal,
+  json,
+  bigint,
+  tinyint,
+  index,
+  float,
+} from "drizzle-orm/mysql-core";
 
 /**
  * Tabela de usuários - IA SOLARIS
@@ -10,7 +24,14 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["cliente", "equipe_solaris", "advogado_senior", "advogado_junior"]).default("cliente").notNull(),
+  role: mysqlEnum("role", [
+    "cliente",
+    "equipe_solaris",
+    "advogado_senior",
+    "advogado_junior",
+  ])
+    .default("cliente")
+    .notNull(),
   companyName: varchar("companyName", { length: 255 }),
   cnpj: varchar("cnpj", { length: 20 }),
   cpf: varchar("cpf", { length: 14 }),
@@ -59,11 +80,16 @@ export const projects = mysqlTable("projects", {
     "aprovado",
     "em_andamento",
     "concluido",
-    "arquivado"
-  ]).default("rascunho").notNull(),
+    "arquivado",
+  ])
+    .default("rascunho")
+    .notNull(),
   planPeriodMonths: int("planPeriodMonths"), // 12 ou 24 meses - obrigatório antes de gerar plano
   createdById: int("createdById").notNull(),
-  createdByRole: mysqlEnum("createdByRole", ["cliente", "equipe_solaris"]).notNull(),
+  createdByRole: mysqlEnum("createdByRole", [
+    "cliente",
+    "equipe_solaris",
+  ]).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   completedAt: timestamp("completedAt"),
@@ -72,24 +98,38 @@ export const projects = mysqlTable("projects", {
     "semanal",
     "apenas_atrasos",
     "marcos_importantes",
-    "personalizada"
-  ]).default("semanal").notNull(),
+    "personalizada",
+  ])
+    .default("semanal")
+    .notNull(),
   notificationEmail: varchar("notificationEmail", { length: 320 }),
   // Novo Fluxo v2.0: Modo de uso e sessão
-  mode: mysqlEnum("mode", ["temporario", "historico"]).default("historico").notNull(),
+  mode: mysqlEnum("mode", ["temporario", "historico"])
+    .default("historico")
+    .notNull(),
   sessionToken: varchar("sessionToken", { length: 128 }), // referência à sessão temporária de origem
   // Etapa 1 — Criação do Projeto (novo fluxo v3.0)
-  description: text("description"),                    // Campo descrição longo (negócio, desafios, operação)
-  confirmedCnaes: json("confirmedCnaes"),               // Array de CNAEs confirmados: [{code, description, confidence}]
+  description: text("description"), // Campo descrição longo (negócio, desafios, operação)
+  confirmedCnaes: json("confirmedCnaes"), // Array de CNAEs confirmados: [{code, description, confidence}]
   currentStep: int("currentStep").default(1).notNull(), // Etapa atual do fluxo: 1-9 (v2.3)
-  currentStepName: varchar("currentStepName", { length: 64 }).default("perfil_empresa"), // Nome semântico da etapa atual v2.3
+  currentStepName: varchar("currentStepName", { length: 64 }).default(
+    "perfil_empresa"
+  ), // Nome semântico da etapa atual v2.3
   stepUpdatedAt: timestamp("stepUpdatedAt").defaultNow(), // Quando a etapa foi atualizada pela última vez
-  stepHistory: json("stepHistory").$type<Array<{ step: number; stepName: string; timestamp: string; userId?: number }>>(), // Histórico de transições
+  stepHistory:
+    json("stepHistory").$type<
+      Array<{
+        step: number;
+        stepName: string;
+        timestamp: string;
+        userId?: number;
+      }>
+    >(), // Histórico de transições
   // Campos do Assessment
   taxRegime: mysqlEnum("taxRegime", [
     "simples_nacional",
     "lucro_presumido",
-    "lucro_real"
+    "lucro_real",
   ]),
   businessType: varchar("businessType", { length: 255 }),
   companySize: mysqlEnum("companySize", [
@@ -97,47 +137,47 @@ export const projects = mysqlTable("projects", {
     "micro",
     "pequena",
     "media",
-    "grande"
+    "grande",
   ]),
   // Fluxo V3 — conteúdo gerado por IA (armazenado como JSON/texto no projeto)
-  questionnaireAnswers: json("questionnaireAnswers"),     // Respostas do questionário V3: [{cnaeCode, cnaeDescription, level, questions:[{question,answer}]}]
-  briefingContent: text("briefingContent"),              // Briefing gerado pela IA (markdown) — coluna legada (lida por getDiagnosticSource)
-  briefingStructured: json("briefingStructured"),        // V61: Briefing estruturado com confidence_score e inconsistencias
-  riskMatricesData: json("riskMatricesData"),            // Matrizes de riscos: { [cnaeCode]: Risk[] } — coluna legada
-  actionPlansData: json("actionPlansData"),              // Plano de ação: { [area]: Task[] } — coluna legada
+  questionnaireAnswers: json("questionnaireAnswers"), // Respostas do questionário V3: [{cnaeCode, cnaeDescription, level, questions:[{question,answer}]}]
+  briefingContent: text("briefingContent"), // Briefing gerado pela IA (markdown) — coluna legada (lida por getDiagnosticSource)
+  briefingStructured: json("briefingStructured"), // V61: Briefing estruturado com confidence_score e inconsistencias
+  riskMatricesData: json("riskMatricesData"), // Matrizes de riscos: { [cnaeCode]: Risk[] } — coluna legada
+  actionPlansData: json("actionPlansData"), // Plano de ação: { [area]: Task[] } — coluna legada
   // F-04: Separação física V1/V3 — Fase 1 (ADD COLUMN) — Fase 2 (cópia) em execução
-  briefingContentV1: text("briefingContentV1"),          // F-04: Briefing V1 (fluxo corporativo/operacional)
-  briefingContentV3: text("briefingContentV3"),          // F-04: Briefing V3 (fluxo questionnaireAnswers)
-  riskMatricesDataV1: json("riskMatricesDataV1"),        // F-04: Matrizes V1
-  riskMatricesDataV3: json("riskMatricesDataV3"),        // F-04: Matrizes V3
-  actionPlansDataV1: json("actionPlansDataV1"),          // F-04: Plano de ação V1
-  actionPlansDataV3: json("actionPlansDataV3"),          // F-04: Plano de ação V3
+  briefingContentV1: text("briefingContentV1"), // F-04: Briefing V1 (fluxo corporativo/operacional)
+  briefingContentV3: text("briefingContentV3"), // F-04: Briefing V3 (fluxo questionnaireAnswers)
+  riskMatricesDataV1: json("riskMatricesDataV1"), // F-04: Matrizes V1
+  riskMatricesDataV3: json("riskMatricesDataV3"), // F-04: Matrizes V3
+  actionPlansDataV1: json("actionPlansDataV1"), // F-04: Plano de ação V1
+  actionPlansDataV3: json("actionPlansDataV3"), // F-04: Plano de ação V3
   // V61: Scoring financeiro global (calculado no servidor)
-  scoringData: json("scoringData"),                      // { score_global, nivel, impacto_estimado, custo_inacao, prioridade }
-  faturamentoAnual: int("faturamentoAnual"),             // V61: Faturamento anual para tradução financeira do risco
+  scoringData: json("scoringData"), // { score_global, nivel, impacto_estimado, custo_inacao, prioridade }
+  faturamentoAnual: int("faturamentoAnual"), // V61: Faturamento anual para tradução financeira do risco
   // V63: Motor de decisão explícito
-  decisaoData: json("decisaoData"),                      // { acao_principal, prazo_dias, risco_se_nao_fazer, momento_wow }
+  decisaoData: json("decisaoData"), // { acao_principal, prazo_dias, risco_se_nao_fazer, momento_wow }
   // v2.1: Company Profile Layer — dados corporativos estruturados para IA
-  companyProfile: json("companyProfile"),               // { cnpj, companyType, companySize, taxRegime, annualRevenueRange }
-  operationProfile: json("operationProfile"),           // { operationType, clientType: string[], multiState }
-  taxComplexity: json("taxComplexity"),                 // { hasInternationalOps, usesTaxIncentives, usesMarketplace }
-  financialProfile: json("financialProfile"),           // { paymentMethods: string[], hasIntermediaries }
-  governanceProfile: json("governanceProfile"),         // { hasTaxTeam, hasAudit, hasTaxIssues }
+  companyProfile: json("companyProfile"), // { cnpj, companyType, companySize, taxRegime, annualRevenueRange }
+  operationProfile: json("operationProfile"), // { operationType, clientType: string[], multiState }
+  taxComplexity: json("taxComplexity"), // { hasInternationalOps, usesTaxIncentives, usesMarketplace }
+  financialProfile: json("financialProfile"), // { paymentMethods: string[], hasIntermediaries }
+  governanceProfile: json("governanceProfile"), // { hasTaxTeam, hasAudit, hasTaxIssues }
   // v2.1 Diagnostic Flow — respostas das 3 camadas de diagnóstico
-  corporateAnswers: json("corporateAnswers"),   // Respostas do Questionário Corporativo (QC-01..QC-10) — LEGADO
+  corporateAnswers: json("corporateAnswers"), // Respostas do Questionário Corporativo (QC-01..QC-10) — LEGADO
   operationalAnswers: json("operationalAnswers"), // Respostas do Questionário Operacional (QO-01..QO-10) — LEGADO
   // Z-02 TO-BE — ADR-0010 — Q.Produtos (NCM) e Q.Serviços (NBS)
   // ADD COLUMN IF NOT EXISTS — não-destrutivo — tabela vazia pós-Z06
   // Reversível: DROP COLUMN product_answers, DROP COLUMN service_answers
-  productAnswers: json("product_answers"),   // Respostas Q.Produtos NCM (ProductAnswer[]) — ADR-0010
-  serviceAnswers: json("service_answers"),   // Respostas Q.Serviços NBS (ServiceAnswer[]) — ADR-0010
+  productAnswers: json("product_answers"), // Respostas Q.Produtos NCM (ProductAnswer[]) — ADR-0010
+  serviceAnswers: json("service_answers"), // Respostas Q.Serviços NBS (ServiceAnswer[]) — ADR-0010
   // ADR-0016: Modelo de Completude e Confiança — arrays de IDs pulados (Z-03)
   // Reversível: DROP COLUMN não quebra respostas existentes em solaris_answers/iagen_answers
-  solarisSkippedIds: text("solaris_skipped_ids"),   // JSON: string[] — IDs de perguntas SOLARIS puladas individualmente
-  iagenSkippedIds:   text("iagen_skipped_ids"),     // JSON: string[] — IDs de perguntas IA Gen puladas individualmente
-  solarisSkippedAll: boolean("solaris_skipped_all").default(false),  // true = usuário pulou o questionário SOLARIS inteiro
-  iagenSkippedAll:   boolean("iagen_skipped_all").default(false),    // true = usuário pulou o questionário IA Gen inteiro
-  cnaeAnswers: json("cnaeAnswers"),              // Respostas do Questionário Especializado por CNAE (QCNAE-01..QCNAE-05)
+  solarisSkippedIds: text("solaris_skipped_ids"), // JSON: string[] — IDs de perguntas SOLARIS puladas individualmente
+  iagenSkippedIds: text("iagen_skipped_ids"), // JSON: string[] — IDs de perguntas IA Gen puladas individualmente
+  solarisSkippedAll: boolean("solaris_skipped_all").default(false), // true = usuário pulou o questionário SOLARIS inteiro
+  iagenSkippedAll: boolean("iagen_skipped_all").default(false), // true = usuário pulou o questionário IA Gen inteiro
+  cnaeAnswers: json("cnaeAnswers"), // Respostas do Questionário Especializado por CNAE (QCNAE-01..QCNAE-05)
   // v2.1 Diagnostic Flow — rastreamento das 3 camadas de diagnóstico
   diagnosticStatus: json("diagnosticStatus").$type<{
     corporate: "not_started" | "in_progress" | "completed";
@@ -150,18 +190,24 @@ export const projects = mysqlTable("projects", {
   profileVersion: varchar("profileVersion", { length: 20 }).default("1.0"), // Versão do schema de perfil
   // v6.0 Consistency Gate — status e aceitação de risco
   consistencyStatus: mysqlEnum("consistencyStatus", [
-    "pending", "analyzing", "ok", "warning", "blocked"
-  ]).default("pending"),  // Estado do gate de consistência
-  consistencyAcceptedRiskBy: int("consistencyAcceptedRiskBy"),  // userId que aceitou o risco
-  consistencyAcceptedRiskAt: timestamp("consistencyAcceptedRiskAt"),  // Timestamp da aceitação
-  consistencyAcceptedRiskReason: varchar("consistencyAcceptedRiskReason", { length: 500 }), // Justificativa (mín. 20 chars)
+    "pending",
+    "analyzing",
+    "ok",
+    "warning",
+    "blocked",
+  ]).default("pending"), // Estado do gate de consistência
+  consistencyAcceptedRiskBy: int("consistencyAcceptedRiskBy"), // userId que aceitou o risco
+  consistencyAcceptedRiskAt: timestamp("consistencyAcceptedRiskAt"), // Timestamp da aceitação
+  consistencyAcceptedRiskReason: varchar("consistencyAcceptedRiskReason", {
+    length: 500,
+  }), // Justificativa (mín. 20 chars)
   // M2 PR-A — Snapshot imutável do Perfil da Entidade (ADR-0031 + ADR-0032)
   // 6 colunas nullable. Default false na feature flag m2-perfil-entidade-enabled.
   // archetype: snapshot canonical completo (objeto + dimensões + meta)
   archetype: json("archetype"),
   archetypeVersion: varchar("archetypeVersion", { length: 20 }), // semver — ADR-0032
   archetypePerfilHash: varchar("archetypePerfilHash", { length: 64 }), // sha256 do canonical
-  archetypeRulesHash: varchar("archetypeRulesHash", { length: 64 }),  // sha256 do model_version
+  archetypeRulesHash: varchar("archetypeRulesHash", { length: 64 }), // sha256 do model_version
   archetypeConfirmedAt: timestamp("archetypeConfirmedAt"), // momento da confirmação write-once
   archetypeConfirmedBy: int("archetypeConfirmedBy"), // userId que confirmou (null se ctx.user ausente)
 });
@@ -176,7 +222,11 @@ export const projectParticipants = mysqlTable("projectParticipants", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
   userId: int("userId").notNull(),
-  role: mysqlEnum("role", ["responsavel", "membro_equipe", "observador"]).notNull(),
+  role: mysqlEnum("role", [
+    "responsavel",
+    "membro_equipe",
+    "observador",
+  ]).notNull(),
   addedAt: timestamp("addedAt").defaultNow().notNull(),
   addedBy: int("addedBy").notNull(),
 });
@@ -215,9 +265,14 @@ export const projectBranches = mysqlTable("projectBranches", {
     "plano_gerado",
     "plano_aprovado",
     "riscos_gerados",
-    "concluido"
-  ]).default("pendente").notNull(),
-  questionnaireDepth: mysqlEnum("questionnaireDepth", ["sintetico", "abrangente"]).default("sintetico"),
+    "concluido",
+  ])
+    .default("pendente")
+    .notNull(),
+  questionnaireDepth: mysqlEnum("questionnaireDepth", [
+    "sintetico",
+    "abrangente",
+  ]).default("sintetico"),
   order: int("order").default(0), // ordem de processamento no loop
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
@@ -232,8 +287,18 @@ export type InsertProjectBranch = typeof projectBranches.$inferInsert;
 export const assessmentPhase1 = mysqlTable("assessmentPhase1", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull().unique(),
-  taxRegime: mysqlEnum("taxRegime", ["simples_nacional", "lucro_presumido", "lucro_real", "mei"]).notNull(),
-  companySize: mysqlEnum("companySize", ["mei", "pequena", "media", "grande"]).notNull(),
+  taxRegime: mysqlEnum("taxRegime", [
+    "simples_nacional",
+    "lucro_presumido",
+    "lucro_real",
+    "mei",
+  ]).notNull(),
+  companySize: mysqlEnum("companySize", [
+    "mei",
+    "pequena",
+    "media",
+    "grande",
+  ]).notNull(),
   annualRevenue: decimal("annualRevenue", { precision: 15, scale: 2 }),
   businessSector: varchar("businessSector", { length: 100 }),
   mainActivity: text("mainActivity"),
@@ -275,7 +340,12 @@ export const assessmentTemplates = mysqlTable("assessmentTemplates", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  taxRegime: mysqlEnum("taxRegime", ["simples_nacional", "lucro_presumido", "lucro_real", "mei"]),
+  taxRegime: mysqlEnum("taxRegime", [
+    "simples_nacional",
+    "lucro_presumido",
+    "lucro_real",
+    "mei",
+  ]),
   businessType: varchar("businessType", { length: 100 }),
   companySize: mysqlEnum("companySize", ["mei", "pequena", "media", "grande"]),
   questions: text("questions").notNull(), // JSON
@@ -295,7 +365,12 @@ export const briefings = mysqlTable("briefings", {
   projectId: int("projectId").notNull().unique(),
   summaryText: text("summaryText").notNull(),
   gapsAnalysis: text("gapsAnalysis").notNull(),
-  riskLevel: mysqlEnum("riskLevel", ["baixo", "medio", "alto", "critico"]).notNull(),
+  riskLevel: mysqlEnum("riskLevel", [
+    "baixo",
+    "medio",
+    "alto",
+    "critico",
+  ]).notNull(),
   priorityAreas: text("priorityAreas"),
   generatedAt: timestamp("generatedAt").defaultNow().notNull(),
   generatedBy: int("generatedBy").notNull(),
@@ -314,7 +389,12 @@ export const briefingVersions = mysqlTable("briefingVersions", {
   briefingId: int("briefingId").notNull(),
   summaryText: text("summaryText").notNull(),
   gapsAnalysis: text("gapsAnalysis").notNull(),
-  riskLevel: mysqlEnum("riskLevel", ["baixo", "medio", "alto", "critico"]).notNull(),
+  riskLevel: mysqlEnum("riskLevel", [
+    "baixo",
+    "medio",
+    "alto",
+    "critico",
+  ]).notNull(),
   priorityAreas: text("priorityAreas"),
   version: int("version").notNull(),
   generatedAt: timestamp("generatedAt").notNull(),
@@ -334,8 +414,20 @@ export const riskMatrix = mysqlTable("riskMatrix", {
   title: varchar("title", { length: 500 }).notNull(), // Título do risco (simplificado)
   description: text("description"), // Descrição detalhada (opcional)
   riskDescription: text("riskDescription"), // Mantido para compatibilidade com IA
-  probability: mysqlEnum("probability", ["muito_baixa", "baixa", "media", "alta", "muito_alta"]), // Opcional agora
-  impact: mysqlEnum("impact", ["muito_baixo", "baixo", "medio", "alto", "muito_alto"]), // Opcional agora
+  probability: mysqlEnum("probability", [
+    "muito_baixa",
+    "baixa",
+    "media",
+    "alta",
+    "muito_alta",
+  ]), // Opcional agora
+  impact: mysqlEnum("impact", [
+    "muito_baixo",
+    "baixo",
+    "medio",
+    "alto",
+    "muito_alto",
+  ]), // Opcional agora
   treatmentStrategy: text("treatmentStrategy"),
   suggestedControls: text("suggestedControls"),
   expectedEvidence: text("expectedEvidence"),
@@ -361,8 +453,10 @@ export const riskMatrixPromptHistory = mysqlTable("riskMatrixPromptHistory", {
   createdBy: int("createdBy").notNull(),
 });
 
-export type RiskMatrixPromptHistory = typeof riskMatrixPromptHistory.$inferSelect;
-export type InsertRiskMatrixPromptHistory = typeof riskMatrixPromptHistory.$inferInsert;
+export type RiskMatrixPromptHistory =
+  typeof riskMatrixPromptHistory.$inferSelect;
+export type InsertRiskMatrixPromptHistory =
+  typeof riskMatrixPromptHistory.$inferInsert;
 
 /**
  * Histórico de Versões da Matriz de Riscos
@@ -377,7 +471,11 @@ export const riskMatrixVersions = mysqlTable("riskMatrixVersions", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   createdBy: int("createdBy").notNull(),
   createdByName: varchar("createdByName", { length: 255 }), // Nome do usuário para exibição
-  triggerType: mysqlEnum("triggerType", ["auto_generation", "manual_regeneration", "prompt_edit"]).notNull(),
+  triggerType: mysqlEnum("triggerType", [
+    "auto_generation",
+    "manual_regeneration",
+    "prompt_edit",
+  ]).notNull(),
 });
 
 export type RiskMatrixVersion = typeof riskMatrixVersions.$inferSelect;
@@ -398,14 +496,16 @@ export const actionPlans = mysqlTable("actionPlans", {
   generatedAt: timestamp("generatedAt").defaultNow().notNull(),
   generatedBy: int("generatedBy").notNull(),
   generatedByAI: boolean("generatedByAI").default(true).notNull(),
-  
+
   // Workflow de aprovação
   status: mysqlEnum("status", [
     "em_avaliacao",
     "aprovado",
     "reprovado",
-    "em_ajuste"
-  ]).default("em_avaliacao").notNull(),
+    "em_ajuste",
+  ])
+    .default("em_avaliacao")
+    .notNull(),
   approvedAt: timestamp("approvedAt"),
   approvedBy: int("approvedBy"), // Advogado Sênior
   rejectionReason: text("rejectionReason"),
@@ -431,7 +531,7 @@ export const actionPlanVersions = mysqlTable("actionPlanVersions", {
     "em_avaliacao",
     "aprovado",
     "reprovado",
-    "em_ajuste"
+    "em_ajuste",
   ]).notNull(),
   approvedAt: timestamp("approvedAt"),
   approvedBy: int("approvedBy"),
@@ -455,8 +555,10 @@ export const actionPlanPromptHistory = mysqlTable("actionPlanPromptHistory", {
   createdBy: int("createdBy").notNull(),
 });
 
-export type ActionPlanPromptHistory = typeof actionPlanPromptHistory.$inferSelect;
-export type InsertActionPlanPromptHistory = typeof actionPlanPromptHistory.$inferInsert;
+export type ActionPlanPromptHistory =
+  typeof actionPlanPromptHistory.$inferSelect;
+export type InsertActionPlanPromptHistory =
+  typeof actionPlanPromptHistory.$inferInsert;
 
 /**
  * Templates de Plano de Ação
@@ -465,7 +567,12 @@ export const actionPlanTemplates = mysqlTable("actionPlanTemplates", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  taxRegime: mysqlEnum("taxRegime", ["simples_nacional", "lucro_presumido", "lucro_real", "mei"]),
+  taxRegime: mysqlEnum("taxRegime", [
+    "simples_nacional",
+    "lucro_presumido",
+    "lucro_real",
+    "mei",
+  ]),
   businessType: varchar("businessType", { length: 100 }),
   companySize: mysqlEnum("companySize", ["mei", "pequena", "media", "grande"]),
   templateData: text("templateData").notNull(), // JSON
@@ -487,7 +594,9 @@ export const phases = mysqlTable("phases", {
   description: text("description"),
   startDate: timestamp("startDate"),
   endDate: timestamp("endDate"),
-  status: mysqlEnum("status", ["planejada", "ativa", "concluida", "cancelada"]).default("planejada").notNull(),
+  status: mysqlEnum("status", ["planejada", "ativa", "concluida", "cancelada"])
+    .default("planejada")
+    .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
@@ -501,61 +610,65 @@ export type InsertPhase = typeof phases.$inferInsert;
 export const actions = mysqlTable("actions", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
-  
+
   // CAMADA 4.2-4.3: Origem da tarefa
   category: mysqlEnum("category", ["corporate", "branch"]).notNull(), // Corporativo ou Ramo
   branchId: int("branchId"), // Obrigatório se category = branch
-  
+
   // Campos básicos
   title: varchar("title", { length: 500 }).notNull(),
   description: text("description"),
-  
+
   // CAMADA 4.4: Área Responsável
   responsibleArea: mysqlEnum("responsibleArea", [
-    "TI",           // Tecnologia da Informação
-    "CONT",         // Contabilidade
-    "FISC",         // Fiscal/Tributário
-    "JUR",          // Jurídico
-    "OPS",          // Operações
-    "COM",          // Comercial
-    "ADM"           // Administrativo/Governança
+    "TI", // Tecnologia da Informação
+    "CONT", // Contabilidade
+    "FISC", // Fiscal/Tributário
+    "JUR", // Jurídico
+    "OPS", // Operações
+    "COM", // Comercial
+    "ADM", // Administrativo/Governança
   ]).notNull(),
-  
+
   // CAMADA 4.5: Tipo de Tarefa
   taskType: mysqlEnum("taskType", [
-    "STRATEGIC",    // Estratégica
-    "OPERATIONAL",  // Operacional
-    "COMPLIANCE"    // Compliance
+    "STRATEGIC", // Estratégica
+    "OPERATIONAL", // Operacional
+    "COMPLIANCE", // Compliance
   ]).notNull(),
-  
+
   // CAMADA 4.6: Prioridade
-  priority: mysqlEnum("priority", ["baixa", "media", "alta", "critica"]).default("media").notNull(),
-  
+  priority: mysqlEnum("priority", ["baixa", "media", "alta", "critica"])
+    .default("media")
+    .notNull(),
+
   // CAMADA 4.7: Status
   status: mysqlEnum("status", [
-    "SUGGESTED",     // Sugerido (gerado pela IA)
-    "IN_PROGRESS",   // Em execução
-    "COMPLETED",     // Concluído
-    "OVERDUE"        // Atrasado
-  ]).default("SUGGESTED").notNull(),
-  
+    "SUGGESTED", // Sugerido (gerado pela IA)
+    "IN_PROGRESS", // Em execução
+    "COMPLETED", // Concluído
+    "OVERDUE", // Atrasado
+  ])
+    .default("SUGGESTED")
+    .notNull(),
+
   // CAMADA 4.8: Owner (Dono da tarefa)
   ownerId: int("ownerId").notNull(), // Usuário responsável
-  
+
   // CAMADA 4.9: Datas
   startDate: timestamp("startDate").notNull(),
   deadline: timestamp("deadline").notNull(),
   completedAt: timestamp("completedAt"),
-  
+
   // CAMADA 4.11: Dependência (opcional)
   dependsOn: int("dependsOn"), // FK para outra tarefa
-  
+
   // Campos legados (manter compatibilidade)
   phaseId: int("phaseId"),
   riskId: int("riskId"),
   estimatedHours: int("estimatedHours"),
   actualHours: int("actualHours"),
-  
+
   // Auditoria
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   createdBy: int("createdBy").notNull(),
@@ -603,17 +716,24 @@ export const cosoControls = mysqlTable("cosoControls", {
     "avaliacao_riscos",
     "atividades_controle",
     "informacao_comunicacao",
-    "monitoramento"
+    "monitoramento",
   ]).notNull(),
   controlName: varchar("controlName", { length: 255 }).notNull(),
   description: text("description"),
-  riskLevel: mysqlEnum("riskLevel", ["baixo", "medio", "alto", "critico"]).notNull(),
+  riskLevel: mysqlEnum("riskLevel", [
+    "baixo",
+    "medio",
+    "alto",
+    "critico",
+  ]).notNull(),
   implementationStatus: mysqlEnum("implementationStatus", [
     "nao_implementado",
     "em_implementacao",
     "implementado",
-    "necessita_melhoria"
-  ]).default("nao_implementado").notNull(),
+    "necessita_melhoria",
+  ])
+    .default("nao_implementado")
+    .notNull(),
   responsible: int("responsible"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -632,7 +752,9 @@ export const milestones = mysqlTable("milestones", {
   description: text("description"),
   dueDate: timestamp("dueDate").notNull(),
   completedAt: timestamp("completedAt"),
-  status: mysqlEnum("status", ["pendente", "concluido", "atrasado"]).default("pendente").notNull(),
+  status: mysqlEnum("status", ["pendente", "concluido", "atrasado"])
+    .default("pendente")
+    .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
@@ -652,7 +774,7 @@ export const notifications = mysqlTable("notifications", {
     "lembrete",
     "aprovacao_pendente",
     "aprovado",
-    "reprovado"
+    "reprovado",
   ]).notNull(),
   subject: varchar("subject", { length: 255 }).notNull(),
   message: text("message").notNull(),
@@ -669,28 +791,40 @@ export type InsertNotification = typeof notifications.$inferInsert;
 export const corporateAssessments = mysqlTable("corporateAssessments", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull().unique(), // 1:1 com projeto
-  
+
   // Dados cadastrais (migrados de assessmentPhase1)
-  taxRegime: mysqlEnum("taxRegime", ["simples_nacional", "lucro_presumido", "lucro_real", "mei"]).notNull(),
-  companySize: mysqlEnum("companySize", ["mei", "pequena", "media", "grande"]).notNull(),
+  taxRegime: mysqlEnum("taxRegime", [
+    "simples_nacional",
+    "lucro_presumido",
+    "lucro_real",
+    "mei",
+  ]).notNull(),
+  companySize: mysqlEnum("companySize", [
+    "mei",
+    "pequena",
+    "media",
+    "grande",
+  ]).notNull(),
   annualRevenue: varchar("annualRevenue", { length: 50 }),
   employeeCount: int("employeeCount"),
-  hasInternationalOperations: boolean("hasInternationalOperations").default(false),
-  
+  hasInternationalOperations: boolean("hasInternationalOperations").default(
+    false
+  ),
+
   // Estrutura organizacional
   hasAccountingDept: boolean("hasAccountingDept").default(false),
   hasTaxDept: boolean("hasTaxDept").default(false),
   hasLegalDept: boolean("hasLegalDept").default(false),
   hasITDept: boolean("hasITDept").default(false),
-  
+
   // Sistemas e tecnologia
   erpSystem: varchar("erpSystem", { length: 255 }),
   hasIntegratedSystems: boolean("hasIntegratedSystems").default(false),
-  
+
   // Questionário dinâmico (gerado por IA)
   generatedQuestions: text("generatedQuestions"), // JSON: array de perguntas
   answers: text("answers"), // JSON: respostas do cliente
-  
+
   // Metadados
   generatedAt: timestamp("generatedAt").defaultNow().notNull(),
   completedAt: timestamp("completedAt"),
@@ -699,7 +833,8 @@ export const corporateAssessments = mysqlTable("corporateAssessments", {
 });
 
 export type CorporateAssessment = typeof corporateAssessments.$inferSelect;
-export type InsertCorporateAssessment = typeof corporateAssessments.$inferInsert;
+export type InsertCorporateAssessment =
+  typeof corporateAssessments.$inferInsert;
 
 /**
  * Questionários por Ramo de Atividade
@@ -709,14 +844,14 @@ export const branchAssessments = mysqlTable("branchAssessments", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
   branchId: int("branchId").notNull(), // FK para activityBranches
-  
+
   // Questionário específico do ramo (gerado por IA)
   generatedQuestions: text("generatedQuestions").notNull(), // JSON: perguntas específicas do ramo
   answers: text("answers"), // JSON: respostas do cliente
-  
+
   // Contexto para geração
   usedTemplateId: int("usedTemplateId"), // Template base (se houver)
-  
+
   // Metadados
   generatedAt: timestamp("generatedAt").defaultNow().notNull(),
   completedAt: timestamp("completedAt"),
@@ -731,43 +866,53 @@ export type InsertBranchAssessment = typeof branchAssessments.$inferInsert;
  * Templates de questionários por ramo
  * Base para geração de perguntas específicas
  */
-export const branchAssessmentTemplates = mysqlTable("branchAssessmentTemplates", {
-  id: int("id").autoincrement().primaryKey(),
-  branchId: int("branchId").notNull(), // FK para activityBranches
-  name: varchar("name", { length: 255 }).notNull(),
-  description: text("description"),
-  questions: text("questions").notNull(), // JSON: array de perguntas padrão
-  
-  // Metadados
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  createdBy: int("createdBy").notNull(),
-  usageCount: int("usageCount").default(0).notNull(),
-  active: boolean("active").default(true).notNull(),
-});
+export const branchAssessmentTemplates = mysqlTable(
+  "branchAssessmentTemplates",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    branchId: int("branchId").notNull(), // FK para activityBranches
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    questions: text("questions").notNull(), // JSON: array de perguntas padrão
 
-export type BranchAssessmentTemplate = typeof branchAssessmentTemplates.$inferSelect;
-export type InsertBranchAssessmentTemplate = typeof branchAssessmentTemplates.$inferInsert;
+    // Metadados
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    createdBy: int("createdBy").notNull(),
+    usageCount: int("usageCount").default(0).notNull(),
+    active: boolean("active").default(true).notNull(),
+  }
+);
+
+export type BranchAssessmentTemplate =
+  typeof branchAssessmentTemplates.$inferSelect;
+export type InsertBranchAssessmentTemplate =
+  typeof branchAssessmentTemplates.$inferInsert;
 
 /**
  * Histórico de versões - Questionário Corporativo
  */
-export const corporateAssessmentVersions = mysqlTable("corporateAssessmentVersions", {
-  id: int("id").autoincrement().primaryKey(),
-  assessmentId: int("assessmentId").notNull(),
-  projectId: int("projectId").notNull(),
-  
-  // Snapshot dos dados
-  generatedQuestions: text("generatedQuestions"),
-  answers: text("answers"),
-  version: int("version").notNull(),
-  
-  // Metadados
-  archivedAt: timestamp("archivedAt").defaultNow().notNull(),
-  archivedBy: int("archivedBy").notNull(),
-});
+export const corporateAssessmentVersions = mysqlTable(
+  "corporateAssessmentVersions",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    assessmentId: int("assessmentId").notNull(),
+    projectId: int("projectId").notNull(),
 
-export type CorporateAssessmentVersion = typeof corporateAssessmentVersions.$inferSelect;
-export type InsertCorporateAssessmentVersion = typeof corporateAssessmentVersions.$inferInsert;
+    // Snapshot dos dados
+    generatedQuestions: text("generatedQuestions"),
+    answers: text("answers"),
+    version: int("version").notNull(),
+
+    // Metadados
+    archivedAt: timestamp("archivedAt").defaultNow().notNull(),
+    archivedBy: int("archivedBy").notNull(),
+  }
+);
+
+export type CorporateAssessmentVersion =
+  typeof corporateAssessmentVersions.$inferSelect;
+export type InsertCorporateAssessmentVersion =
+  typeof corporateAssessmentVersions.$inferInsert;
 
 /**
  * Histórico de versões - Questionários por Ramo
@@ -777,23 +922,25 @@ export const branchAssessmentVersions = mysqlTable("branchAssessmentVersions", {
   assessmentId: int("assessmentId").notNull(),
   projectId: int("projectId").notNull(),
   branchId: int("branchId").notNull(),
-  
+
   // Snapshot dos dados
   generatedQuestions: text("generatedQuestions"),
   answers: text("answers"),
   version: int("version").notNull(),
-  
+
   // Metadados
   archivedAt: timestamp("archivedAt").defaultNow().notNull(),
   archivedBy: int("archivedBy").notNull(),
 });
 
-export type BranchAssessmentVersion = typeof branchAssessmentVersions.$inferSelect;
-export type InsertBranchAssessmentVersion = typeof branchAssessmentVersions.$inferInsert;
+export type BranchAssessmentVersion =
+  typeof branchAssessmentVersions.$inferSelect;
+export type InsertBranchAssessmentVersion =
+  typeof branchAssessmentVersions.$inferInsert;
 
 /**
  * CAMADA 3 - PLANOS DE AÇÃO
- * 
+ *
  * Nova arquitetura:
  * - 1 Plano Corporativo por projeto
  * - N Planos por Ramo de Atividade (um para cada ramo selecionado)
@@ -808,27 +955,30 @@ export type InsertBranchAssessmentVersion = typeof branchAssessmentVersions.$inf
 export const corporateActionPlans = mysqlTable("corporateActionPlans", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull().unique(), // 1:1 com projeto
-  
+
   // Relacionamento com questionário
   corporateAssessmentId: int("corporateAssessmentId").notNull(),
-  
+
   // Conteúdo do plano (JSON com estrutura de tarefas)
   planContent: text("planContent").notNull(), // JSON: array de tarefas
-  
+
   // Prompt usado para geração
   generationPrompt: text("generationPrompt"), // Prompt customizável
-  
+
   // Metadados
   generatedAt: timestamp("generatedAt").defaultNow().notNull(),
   generatedBy: int("generatedBy").notNull(),
   version: int("version").default(1).notNull(),
-  
+
   // Status
-  status: mysqlEnum("status", ["draft", "active", "archived"]).default("draft").notNull(),
+  status: mysqlEnum("status", ["draft", "active", "archived"])
+    .default("draft")
+    .notNull(),
 });
 
 export type CorporateActionPlan = typeof corporateActionPlans.$inferSelect;
-export type InsertCorporateActionPlan = typeof corporateActionPlans.$inferInsert;
+export type InsertCorporateActionPlan =
+  typeof corporateActionPlans.$inferInsert;
 
 /**
  * Planos de Ação por Ramo
@@ -838,23 +988,25 @@ export const branchActionPlans = mysqlTable("branchActionPlans", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
   branchId: int("branchId").notNull(), // FK para activityBranches
-  
+
   // Relacionamento com questionário
   branchAssessmentId: int("branchAssessmentId").notNull(),
-  
+
   // Conteúdo do plano (JSON com estrutura de tarefas)
   planContent: text("planContent").notNull(), // JSON: array de tarefas
-  
+
   // Prompt usado para geração
   generationPrompt: text("generationPrompt"), // Prompt customizável
-  
+
   // Metadados
   generatedAt: timestamp("generatedAt").defaultNow().notNull(),
   generatedBy: int("generatedBy").notNull(),
   version: int("version").default(1).notNull(),
-  
+
   // Status
-  status: mysqlEnum("status", ["draft", "active", "archived"]).default("draft").notNull(),
+  status: mysqlEnum("status", ["draft", "active", "archived"])
+    .default("draft")
+    .notNull(),
 });
 
 export type BranchActionPlan = typeof branchActionPlans.$inferSelect;
@@ -863,24 +1015,29 @@ export type InsertBranchActionPlan = typeof branchActionPlans.$inferInsert;
 /**
  * Histórico de Versões - Plano Corporativo
  */
-export const corporateActionPlanVersions = mysqlTable("corporateActionPlanVersions", {
-  id: int("id").autoincrement().primaryKey(),
-  planId: int("planId").notNull(),
-  projectId: int("projectId").notNull(),
-  
-  // Snapshot do conteúdo
-  planContent: text("planContent").notNull(),
-  generationPrompt: text("generationPrompt"),
-  version: int("version").notNull(),
-  
-  // Metadados
-  archivedAt: timestamp("archivedAt").defaultNow().notNull(),
-  archivedBy: int("archivedBy").notNull(),
-  archivedReason: varchar("archivedReason", { length: 255 }), // "regenerated", "edited", "manual"
-});
+export const corporateActionPlanVersions = mysqlTable(
+  "corporateActionPlanVersions",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    planId: int("planId").notNull(),
+    projectId: int("projectId").notNull(),
 
-export type CorporateActionPlanVersion = typeof corporateActionPlanVersions.$inferSelect;
-export type InsertCorporateActionPlanVersion = typeof corporateActionPlanVersions.$inferInsert;
+    // Snapshot do conteúdo
+    planContent: text("planContent").notNull(),
+    generationPrompt: text("generationPrompt"),
+    version: int("version").notNull(),
+
+    // Metadados
+    archivedAt: timestamp("archivedAt").defaultNow().notNull(),
+    archivedBy: int("archivedBy").notNull(),
+    archivedReason: varchar("archivedReason", { length: 255 }), // "regenerated", "edited", "manual"
+  }
+);
+
+export type CorporateActionPlanVersion =
+  typeof corporateActionPlanVersions.$inferSelect;
+export type InsertCorporateActionPlanVersion =
+  typeof corporateActionPlanVersions.$inferInsert;
 
 /**
  * Histórico de Versões - Planos por Ramo
@@ -890,20 +1047,22 @@ export const branchActionPlanVersions = mysqlTable("branchActionPlanVersions", {
   planId: int("planId").notNull(),
   projectId: int("projectId").notNull(),
   branchId: int("branchId").notNull(),
-  
+
   // Snapshot do conteúdo
   planContent: text("planContent").notNull(),
   generationPrompt: text("generationPrompt"),
   version: int("version").notNull(),
-  
+
   // Metadados
   archivedAt: timestamp("archivedAt").defaultNow().notNull(),
   archivedBy: int("archivedBy").notNull(),
   archivedReason: varchar("archivedReason", { length: 255 }),
 });
 
-export type BranchActionPlanVersion = typeof branchActionPlanVersions.$inferSelect;
-export type InsertBranchActionPlanVersion = typeof branchActionPlanVersions.$inferInsert;
+export type BranchActionPlanVersion =
+  typeof branchActionPlanVersions.$inferSelect;
+export type InsertBranchActionPlanVersion =
+  typeof branchActionPlanVersions.$inferInsert;
 
 /**
  * Prompts Customizáveis para Geração de Planos
@@ -911,19 +1070,24 @@ export type InsertBranchActionPlanVersion = typeof branchActionPlanVersions.$inf
  */
 export const actionPlanPrompts = mysqlTable("actionPlanPrompts", {
   id: int("id").autoincrement().primaryKey(),
-  
+
   // Tipo de plano
   planType: mysqlEnum("planType", ["corporate", "branch"]).notNull(),
-  
+
   // Contexto específico (opcional)
   branchId: int("branchId"), // Apenas para planType = "branch"
-  taxRegime: mysqlEnum("taxRegime", ["simples_nacional", "lucro_presumido", "lucro_real", "mei"]),
-  
+  taxRegime: mysqlEnum("taxRegime", [
+    "simples_nacional",
+    "lucro_presumido",
+    "lucro_real",
+    "mei",
+  ]),
+
   // Prompt
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   promptTemplate: text("promptTemplate").notNull(), // Template com variáveis {{var}}
-  
+
   // Metadados
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   createdBy: int("createdBy").notNull(),
@@ -942,7 +1106,7 @@ export type InsertActionPlanPrompt = typeof actionPlanPrompts.$inferInsert;
 export const notificationPreferences = mysqlTable("notificationPreferences", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(), // 1:1 com usuário
-  
+
   // Eventos de tarefas
   taskCreated: boolean("taskCreated").default(true).notNull(),
   taskStarted: boolean("taskStarted").default(true).notNull(),
@@ -950,17 +1114,19 @@ export const notificationPreferences = mysqlTable("notificationPreferences", {
   taskOverdue: boolean("taskOverdue").default(true).notNull(),
   taskCompleted: boolean("taskCompleted").default(false).notNull(),
   taskCommented: boolean("taskCommented").default(true).notNull(),
-  
+
   // Configurações gerais
   emailEnabled: boolean("emailEnabled").default(true).notNull(),
   inAppEnabled: boolean("inAppEnabled").default(true).notNull(),
-  
+
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-export type NotificationPreference = typeof notificationPreferences.$inferSelect;
-export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
+export type NotificationPreference =
+  typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreference =
+  typeof notificationPreferences.$inferInsert;
 
 /**
  * Permissões de usuários em projetos
@@ -970,7 +1136,12 @@ export const projectPermissions = mysqlTable("projectPermissions", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   projectId: int("projectId").notNull(),
-  permissionLevel: mysqlEnum("permissionLevel", ["view", "edit", "approve", "admin"]).notNull(),
+  permissionLevel: mysqlEnum("permissionLevel", [
+    "view",
+    "edit",
+    "approve",
+    "admin",
+  ]).notNull(),
   areas: json("areas").$type<string[]>(), // ["TI", "CONT", "FISC"] ou null para todas
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   createdBy: int("createdBy").notNull(),
@@ -997,10 +1168,15 @@ export const auditLog = mysqlTable("auditLog", {
     "corporate_question",
     "branch_question",
     "project",
-    "permission"
+    "permission",
   ]).notNull(),
   entityId: int("entityId").notNull(),
-  action: mysqlEnum("action", ["create", "update", "delete", "status_change"]).notNull(),
+  action: mysqlEnum("action", [
+    "create",
+    "update",
+    "delete",
+    "status_change",
+  ]).notNull(),
   changes: json("changes").$type<Record<string, { old: any; new: any }>>(), // { field: { old: value, new: value } }
   metadata: json("metadata").$type<Record<string, any>>(), // Dados adicionais contextuais
   timestamp: timestamp("timestamp").defaultNow().notNull(),
@@ -1008,7 +1184,6 @@ export const auditLog = mysqlTable("auditLog", {
 
 export type AuditLog = typeof auditLog.$inferSelect;
 export type InsertAuditLog = typeof auditLog.$inferInsert;
-
 
 /**
  * Aprovações de Planos de Ação
@@ -1019,7 +1194,14 @@ export const planApprovals = mysqlTable("planApprovals", {
   planType: mysqlEnum("planType", ["corporate", "branch"]).notNull(),
   planId: int("planId").notNull(), // ID do corporateActionPlans ou branchActionPlans
   projectId: int("projectId").notNull(),
-  status: mysqlEnum("status", ["pending", "approved", "rejected", "needs_revision"]).default("pending").notNull(),
+  status: mysqlEnum("status", [
+    "pending",
+    "approved",
+    "rejected",
+    "needs_revision",
+  ])
+    .default("pending")
+    .notNull(),
   requestedBy: int("requestedBy").notNull(), // Quem solicitou aprovação
   requestedAt: timestamp("requestedAt").defaultNow().notNull(),
   reviewedBy: int("reviewedBy"), // Quem aprovou/rejeitou
@@ -1040,7 +1222,12 @@ export const planReviews = mysqlTable("planReviews", {
   approvalId: int("approvalId").notNull(), // FK para planApprovals
   reviewerId: int("reviewerId").notNull(), // Quem fez o comentário
   comment: text("comment").notNull(),
-  reviewType: mysqlEnum("reviewType", ["comment", "suggestion", "concern", "approval"]).notNull(),
+  reviewType: mysqlEnum("reviewType", [
+    "comment",
+    "suggestion",
+    "concern",
+    "approval",
+  ]).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
 });
@@ -1059,11 +1246,13 @@ export type InsertPlanReview = typeof planReviews.$inferInsert;
 export const sessions = mysqlTable("sessions", {
   id: int("id").autoincrement().primaryKey(),
   sessionToken: varchar("sessionToken", { length: 128 }).notNull().unique(),
-  mode: mysqlEnum("mode", ["temporario", "historico"]).default("temporario").notNull(),
+  mode: mysqlEnum("mode", ["temporario", "historico"])
+    .default("temporario")
+    .notNull(),
   // Dados coletados no briefing inicial (modo temporário)
   companyDescription: text("companyDescription"), // texto livre do usuário
   suggestedBranches: json("suggestedBranches"), // JSON: [{code, name, justification}]
-  confirmedBranches: json("confirmedBranches"),  // JSON: [{code, name}] após confirmação
+  confirmedBranches: json("confirmedBranches"), // JSON: [{code, name}] após confirmação
   currentStep: mysqlEnum("currentStep", [
     "modo_uso",
     "briefing",
@@ -1072,8 +1261,10 @@ export const sessions = mysqlTable("sessions", {
     "plano_acao",
     "matriz_riscos",
     "consolidacao",
-    "concluido"
-  ]).default("modo_uso").notNull(),
+    "concluido",
+  ])
+    .default("modo_uso")
+    .notNull(),
   projectId: int("projectId"), // preenchido quando converte para modo histórico
   expiresAt: timestamp("expiresAt").notNull(), // 24h após criação
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -1090,10 +1281,10 @@ export type InsertSession = typeof sessions.$inferInsert;
 export const branchSuggestions = mysqlTable("branchSuggestions", {
   id: int("id").autoincrement().primaryKey(),
   sessionToken: varchar("sessionToken", { length: 128 }), // null se modo histórico
-  projectId: int("projectId"),                             // null se modo temporário
+  projectId: int("projectId"), // null se modo temporário
   companyDescription: text("companyDescription").notNull(),
-  suggestedBranches: json("suggestedBranches").notNull(),  // JSON: [{code, name, justification, confidence}]
-  confirmedBranches: json("confirmedBranches"),            // preenchido após confirmação
+  suggestedBranches: json("suggestedBranches").notNull(), // JSON: [{code, name, justification, confidence}]
+  confirmedBranches: json("confirmedBranches"), // preenchido após confirmação
   llmModel: varchar("llmModel", { length: 100 }),
   promptTokens: int("promptTokens"),
   completionTokens: int("completionTokens"),
@@ -1110,17 +1301,19 @@ export type InsertBranchSuggestion = typeof branchSuggestions.$inferInsert;
 export const sessionBranchAnswers = mysqlTable("sessionBranchAnswers", {
   id: int("id").autoincrement().primaryKey(),
   sessionToken: varchar("sessionToken", { length: 128 }), // null se modo histórico
-  projectId: int("projectId"),                             // null se modo temporário
+  projectId: int("projectId"), // null se modo temporário
   branchCode: varchar("branchCode", { length: 20 }).notNull(), // ex: "COM", "IND", "SER"
   branchName: varchar("branchName", { length: 100 }).notNull(),
   // Perguntas geradas pela IA para este ramo (JSON)
   generatedQuestions: json("generatedQuestions"), // [{id, question, type, options?}]
   // Respostas do usuário (JSON)
-  answers: json("answers"),                        // [{questionId, answer}]
+  answers: json("answers"), // [{questionId, answer}]
   // Status do questionário deste ramo
-  status: mysqlEnum("status", ["pendente", "em_andamento", "concluido"]).default("pendente").notNull(),
+  status: mysqlEnum("status", ["pendente", "em_andamento", "concluido"])
+    .default("pendente")
+    .notNull(),
   // Análise da IA após respostas
-  aiAnalysis: text("aiAnalysis"),                  // texto de análise gerado pela IA
+  aiAnalysis: text("aiAnalysis"), // texto de análise gerado pela IA
   riskLevel: mysqlEnum("riskLevel", ["baixo", "medio", "alto", "critico"]),
   completedAt: timestamp("completedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -1128,7 +1321,8 @@ export const sessionBranchAnswers = mysqlTable("sessionBranchAnswers", {
 });
 
 export type SessionBranchAnswer = typeof sessionBranchAnswers.$inferSelect;
-export type InsertSessionBranchAnswer = typeof sessionBranchAnswers.$inferInsert;
+export type InsertSessionBranchAnswer =
+  typeof sessionBranchAnswers.$inferInsert;
 
 /**
  * Plano de Ação Consolidado por Sessão (Fase 3 - Novo Fluxo v2.0)
@@ -1142,11 +1336,18 @@ export const sessionActionPlans = mysqlTable("sessionActionPlans", {
   // Resumo executivo gerado pela IA
   executiveSummary: text("executiveSummary"),
   // Nível de risco global da empresa
-  overallRiskLevel: mysqlEnum("overallRiskLevel", ["baixo", "medio", "alto", "critico"]),
+  overallRiskLevel: mysqlEnum("overallRiskLevel", [
+    "baixo",
+    "medio",
+    "alto",
+    "critico",
+  ]),
   // Pontuação de compliance (0-100)
   complianceScore: int("complianceScore"),
   // Status do plano
-  status: mysqlEnum("status", ["gerando", "gerado", "aprovado", "em_execucao"]).default("gerando").notNull(),
+  status: mysqlEnum("status", ["gerando", "gerado", "aprovado", "em_execucao"])
+    .default("gerando")
+    .notNull(),
   // Metadados
   totalActions: int("totalActions").default(0),
   criticalActions: int("criticalActions").default(0),
@@ -1172,23 +1373,30 @@ export const sessionConsolidations = mysqlTable("sessionConsolidations", {
   sessionToken: varchar("sessionToken", { length: 255 }).notNull(),
 
   // Dados consolidados
-  executiveSummary: text("executiveSummary"),          // Resumo executivo final
-  keyFindings: json("keyFindings"),                    // Array de achados principais
-  topRecommendations: json("topRecommendations"),      // Top 5 recomendações
-  branchSummaries: json("branchSummaries"),            // Resumo por ramo
-  timeline: json("timeline"),                          // Cronograma sugerido (30/60/90 dias)
-  estimatedBudget: json("estimatedBudget"),            // Estimativa de custo por fase
+  executiveSummary: text("executiveSummary"), // Resumo executivo final
+  keyFindings: json("keyFindings"), // Array de achados principais
+  topRecommendations: json("topRecommendations"), // Top 5 recomendações
+  branchSummaries: json("branchSummaries"), // Resumo por ramo
+  timeline: json("timeline"), // Cronograma sugerido (30/60/90 dias)
+  estimatedBudget: json("estimatedBudget"), // Estimativa de custo por fase
 
   // Métricas finais
-  complianceScore: int("complianceScore"),             // 0-100
+  complianceScore: int("complianceScore"), // 0-100
   overallRiskLevel: varchar("overallRiskLevel", { length: 50 }),
   totalActions: int("totalActions").default(0),
   criticalActions: int("criticalActions").default(0),
-  estimatedDays: int("estimatedDays"),                 // Prazo total estimado
+  estimatedDays: int("estimatedDays"), // Prazo total estimado
 
   // Controle
-  status: mysqlEnum("status", ["gerando", "gerado", "exportado", "salvo_historico"]).default("gerando").notNull(),
-  convertedToProjectId: int("convertedToProjectId"),  // ID do projeto criado ao salvar no histórico
+  status: mysqlEnum("status", [
+    "gerando",
+    "gerado",
+    "exportado",
+    "salvo_historico",
+  ])
+    .default("gerando")
+    .notNull(),
+  convertedToProjectId: int("convertedToProjectId"), // ID do projeto criado ao salvar no histórico
   exportedAt: timestamp("exportedAt"),
   savedToHistoryAt: timestamp("savedToHistoryAt"),
   generatedAt: timestamp("generatedAt").defaultNow().notNull(),
@@ -1196,7 +1404,8 @@ export const sessionConsolidations = mysqlTable("sessionConsolidations", {
 });
 
 export type SessionConsolidation = typeof sessionConsolidations.$inferSelect;
-export type InsertSessionConsolidation = typeof sessionConsolidations.$inferInsert;
+export type InsertSessionConsolidation =
+  typeof sessionConsolidations.$inferInsert;
 
 // =============================================================================
 // FLUXO V3 — QUESTIONÁRIO ADAPTATIVO (PERSISTÊNCIA DE RESPOSTAS)
@@ -1209,19 +1418,20 @@ export type InsertSessionConsolidation = typeof sessionConsolidations.$inferInse
 export const questionnaireAnswersV3 = mysqlTable("questionnaireAnswersV3", {
   id: int("id").primaryKey().autoincrement(),
   projectId: int("projectId").notNull(),
-  cnaeCode: varchar("cnaeCode", { length: 20 }).notNull(),   // Código do CNAE (ex: "47.11-3")
+  cnaeCode: varchar("cnaeCode", { length: 20 }).notNull(), // Código do CNAE (ex: "47.11-3")
   cnaeDescription: varchar("cnaeDescription", { length: 255 }), // Descrição do CNAE
   level: mysqlEnum("level", ["nivel1", "nivel2"]).notNull().default("nivel1"),
-  roundIndex: int("roundIndex").notNull().default(0),         // Round de aprofundamento: 0=primeiro nivel2, 1=segundo, etc.
-  questionIndex: int("questionIndex").notNull(),              // Índice da pergunta (0-based)
-  questionText: text("questionText").notNull(),               // Texto da pergunta
-  questionType: varchar("questionType", { length: 50 }),      // "yesno", "scale", "multiple", "text", "slider"
-  answerValue: text("answerValue").notNull(),                 // Valor da resposta (serializado como string)
+  roundIndex: int("roundIndex").notNull().default(0), // Round de aprofundamento: 0=primeiro nivel2, 1=segundo, etc.
+  questionIndex: int("questionIndex").notNull(), // Índice da pergunta (0-based)
+  questionText: text("questionText").notNull(), // Texto da pergunta
+  questionType: varchar("questionType", { length: 50 }), // "yesno", "scale", "multiple", "text", "slider"
+  answerValue: text("answerValue").notNull(), // Valor da resposta (serializado como string)
   answeredAt: timestamp("answeredAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 export type QuestionnaireAnswerV3 = typeof questionnaireAnswersV3.$inferSelect;
-export type InsertQuestionnaireAnswerV3 = typeof questionnaireAnswersV3.$inferInsert;
+export type InsertQuestionnaireAnswerV3 =
+  typeof questionnaireAnswersV3.$inferInsert;
 
 /**
  * questionnaireProgressV3
@@ -1232,16 +1442,22 @@ export const questionnaireProgressV3 = mysqlTable("questionnaireProgressV3", {
   id: int("id").primaryKey().autoincrement(),
   projectId: int("projectId").notNull().unique(),
   currentCnaeIndex: int("currentCnaeIndex").notNull().default(0),
-  currentLevel: mysqlEnum("currentLevel", ["nivel1", "nivel2"]).notNull().default("nivel1"),
-  completedCnaes: json("completedCnaes"),                    // Array de códigos CNAE concluídos
-  level2Decisions: json("level2Decisions"),                  // { [cnaeCode]: boolean } — aceitou aprofundar?
-  status: mysqlEnum("status", ["em_andamento", "concluido"]).notNull().default("em_andamento"),
+  currentLevel: mysqlEnum("currentLevel", ["nivel1", "nivel2"])
+    .notNull()
+    .default("nivel1"),
+  completedCnaes: json("completedCnaes"), // Array de códigos CNAE concluídos
+  level2Decisions: json("level2Decisions"), // { [cnaeCode]: boolean } — aceitou aprofundar?
+  status: mysqlEnum("status", ["em_andamento", "concluido"])
+    .notNull()
+    .default("em_andamento"),
   startedAt: timestamp("startedAt").defaultNow().notNull(),
   completedAt: timestamp("completedAt"),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
-export type QuestionnaireProgressV3 = typeof questionnaireProgressV3.$inferSelect;
-export type InsertQuestionnaireProgressV3 = typeof questionnaireProgressV3.$inferInsert;
+export type QuestionnaireProgressV3 =
+  typeof questionnaireProgressV3.$inferSelect;
+export type InsertQuestionnaireProgressV3 =
+  typeof questionnaireProgressV3.$inferInsert;
 
 /**
  * clientMembers — RF-1.03 / RF-5.17
@@ -1250,10 +1466,12 @@ export type InsertQuestionnaireProgressV3 = typeof questionnaireProgressV3.$infe
  */
 export const clientMembers = mysqlTable("clientMembers", {
   id: int("id").autoincrement().primaryKey(),
-  clientId: int("clientId").notNull(),          // ID do usuário-cliente dono da conta
+  clientId: int("clientId").notNull(), // ID do usuário-cliente dono da conta
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 320 }).notNull(),
-  memberRole: mysqlEnum("memberRole", ["admin", "colaborador", "visualizador"]).notNull().default("colaborador"),
+  memberRole: mysqlEnum("memberRole", ["admin", "colaborador", "visualizador"])
+    .notNull()
+    .default("colaborador"),
   active: boolean("active").notNull().default(true),
   invitedAt: timestamp("invitedAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -1271,24 +1489,24 @@ export type InsertClientMember = typeof clientMembers.$inferInsert;
  */
 export const taskHistory = mysqlTable("taskHistory", {
   id: int("id").autoincrement().primaryKey(),
-  projectId: int("projectId").notNull(),           // ID do projeto
+  projectId: int("projectId").notNull(), // ID do projeto
   taskId: varchar("taskId", { length: 100 }).notNull(), // ID da tarefa (string UUID do PlanoAcaoV3)
-  userId: int("userId"),                            // ID do usuário que fez a alteração (null = sistema)
-  userName: varchar("userName", { length: 255 }),  // Nome do usuário (snapshot)
+  userId: int("userId"), // ID do usuário que fez a alteração (null = sistema)
+  userName: varchar("userName", { length: 255 }), // Nome do usuário (snapshot)
   eventType: mysqlEnum("eventType", [
-    "criacao",        // Tarefa criada
-    "status",         // Mudança de status
-    "responsavel",    // Mudança de responsável
-    "prazo",          // Mudança de prazo
-    "progresso",      // Mudança de progresso (%)
-    "titulo",         // Mudança de título
-    "prioridade",     // Mudança de prioridade
-    "notificacao",    // Mudança de configuração de notificação
-    "comentario",     // Novo comentário adicionado
+    "criacao", // Tarefa criada
+    "status", // Mudança de status
+    "responsavel", // Mudança de responsável
+    "prazo", // Mudança de prazo
+    "progresso", // Mudança de progresso (%)
+    "titulo", // Mudança de título
+    "prioridade", // Mudança de prioridade
+    "notificacao", // Mudança de configuração de notificação
+    "comentario", // Novo comentário adicionado
   ]).notNull(),
-  field: varchar("field", { length: 100 }),        // Campo alterado (ex: "status", "responsavel")
-  oldValue: text("oldValue"),                      // Valor anterior (serializado)
-  newValue: text("newValue"),                      // Novo valor (serializado)
+  field: varchar("field", { length: 100 }), // Campo alterado (ex: "status", "responsavel")
+  oldValue: text("oldValue"), // Valor anterior (serializado)
+  newValue: text("newValue"), // Novo valor (serializado)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type TaskHistory = typeof taskHistory.$inferSelect;
@@ -1308,7 +1526,12 @@ export const stepComments = mysqlTable("stepComments", {
   step: mysqlEnum("step", ["briefing", "matrizes", "plano_acao"]).notNull(),
   userId: int("userId").notNull(),
   userName: varchar("userName", { length: 255 }).notNull(),
-  userRole: mysqlEnum("userRole", ["cliente", "equipe_solaris", "advogado_senior", "advogado_junior"]).notNull(),
+  userRole: mysqlEnum("userRole", [
+    "cliente",
+    "equipe_solaris",
+    "advogado_senior",
+    "advogado_junior",
+  ]).notNull(),
   content: text("content").notNull(),
   isEdited: boolean("isEdited").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -1346,20 +1569,45 @@ export const ragDocuments = mysqlTable("ragDocuments", {
   // lc123 adicionado em Sprint H (feat/rag-inventory-live) — resolve débito técnico migration 0055
   // resolucao_cgibs_1/2/3 adicionados em Sprint Z-12 (migration 0074 — Lote D)
   // decreto12955, resolucao_cgibs_6, portaria_mf_cgibs_7 adicionados em CORPUS-RFC-008 (Issue #1074, P0 fast-track ORQ-11)
-  lei: mysqlEnum("lei", ["lc214", "ec132", "lc227", "lc224", "lc116", "lc87", "cg_ibs", "rfb_cbs", "conv_icms", "lc123", "resolucao_cgibs_1", "resolucao_cgibs_2", "resolucao_cgibs_3", "decreto12955", "resolucao_cgibs_6", "portaria_mf_cgibs_7"]).notNull(),
+  // moc_cte_*/moc_mdfe_*/resolucao_cgsn_140 adicionados em Corpus Onda 2 (migration 0095) — scaffold infra, conteúdo aguarda extração .txt pelo Manus
+  lei: mysqlEnum("lei", [
+    "lc214",
+    "ec132",
+    "lc227",
+    "lc224",
+    "lc116",
+    "lc87",
+    "cg_ibs",
+    "rfb_cbs",
+    "conv_icms",
+    "lc123",
+    "resolucao_cgibs_1",
+    "resolucao_cgibs_2",
+    "resolucao_cgibs_3",
+    "decreto12955",
+    "resolucao_cgibs_6",
+    "portaria_mf_cgibs_7",
+    "moc_cte_v4",
+    "moc_cte_anexo1_v4",
+    "moc_cte_anexo2_v4",
+    "moc_mdfe_v3",
+    "moc_mdfe_anexo1_v3",
+    "moc_mdfe_anexo2_v3",
+    "resolucao_cgsn_140",
+  ]).notNull(),
   // Ampliado de varchar(100) → varchar(300) para NCMs com descrição longa (Sprint D)
   // Reversível: ALTER COLUMN artigo varchar(100) — sem perda se nenhum valor > 100 chars
   artigo: varchar("artigo", { length: 300 }).notNull(),
   titulo: varchar("titulo", { length: 500 }).notNull(),
   conteudo: text("conteudo").notNull(),
-  topicos: text("topicos").notNull(),          // palavras-chave para FULLTEXT
+  topicos: text("topicos").notNull(), // palavras-chave para FULLTEXT
   cnaeGroups: varchar("cnaeGroups", { length: 500 }).notNull().default(""),
   chunkIndex: int("chunkIndex").notNull().default(0),
   // DEC-002 (Sprint D): rastreabilidade de autoria e revisão — todos nullable
   // Reversível: DROP COLUMN autor, DROP COLUMN revisado_por, DROP COLUMN data_revisao
   autor: text("autor"),
   revisado_por: text("revisado_por"),
-  data_revisao: varchar("data_revisao", { length: 30 }),  // ISO 8601
+  data_revisao: varchar("data_revisao", { length: 30 }), // ISO 8601
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type RagDocument = typeof ragDocuments.$inferSelect;
@@ -1379,7 +1627,9 @@ export const onboardingProgress = mysqlTable("onboardingProgress", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(),
   currentStep: int("currentStep").notNull().default(0),
-  completedSteps: varchar("completedSteps", { length: 500 }).notNull().default(""), // JSON array serializado
+  completedSteps: varchar("completedSteps", { length: 500 })
+    .notNull()
+    .default(""), // JSON array serializado
   skipped: boolean("skipped").notNull().default(false),
   completedAt: timestamp("completedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -1396,19 +1646,24 @@ export type InsertOnboardingProgress = typeof onboardingProgress.$inferInsert;
  * Persiste as perguntas geradas pela IA por projeto/CNAE/nível/round.
  * Permite restaurar o Nível 1 sem rechamar a IA mesmo em sessões diferentes ou outros dispositivos.
  */
-export const questionnaireQuestionsCache = mysqlTable("questionnaireQuestionsCache", {
-  id: int("id").autoincrement().primaryKey(),
-  projectId: int("projectId").notNull(),
-  cnaeCode: varchar("cnaeCode", { length: 20 }).notNull(),
-  level: mysqlEnum("level", ["nivel1", "nivel2"]).notNull().default("nivel1"),
-  roundIndex: int("roundIndex").notNull().default(0),
-  questionsJson: text("questionsJson").notNull(), // JSON array de Question[]
-  contextNote: text("contextNote"), // Contexto adicional usado na geração deste round (null = sem contexto)
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type QuestionnaireQuestionsCache = typeof questionnaireQuestionsCache.$inferSelect;
-export type InsertQuestionnaireQuestionsCache = typeof questionnaireQuestionsCache.$inferInsert;
+export const questionnaireQuestionsCache = mysqlTable(
+  "questionnaireQuestionsCache",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    projectId: int("projectId").notNull(),
+    cnaeCode: varchar("cnaeCode", { length: 20 }).notNull(),
+    level: mysqlEnum("level", ["nivel1", "nivel2"]).notNull().default("nivel1"),
+    roundIndex: int("roundIndex").notNull().default(0),
+    questionsJson: text("questionsJson").notNull(), // JSON array de Question[]
+    contextNote: text("contextNote"), // Contexto adicional usado na geração deste round (null = sem contexto)
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  }
+);
+export type QuestionnaireQuestionsCache =
+  typeof questionnaireQuestionsCache.$inferSelect;
+export type InsertQuestionnaireQuestionsCache =
+  typeof questionnaireQuestionsCache.$inferInsert;
 
 // =============================================================================
 // V71 — Embeddings Vetoriais de CNAEs (OpenAI text-embedding-3-small)
@@ -1429,7 +1684,6 @@ export const cnaeEmbeddings = mysqlTable("cnaeEmbeddings", {
 export type CnaeEmbedding = typeof cnaeEmbeddings.$inferSelect;
 export type InsertCnaeEmbedding = typeof cnaeEmbeddings.$inferInsert;
 
-
 // =============================================================================
 // V73 — Histórico de Rebuilds de Embeddings (Cron + Manual)
 // =============================================================================
@@ -1440,9 +1694,13 @@ export type InsertCnaeEmbedding = typeof cnaeEmbeddings.$inferInsert;
  */
 export const embeddingRebuildLogs = mysqlTable("embeddingRebuildLogs", {
   id: int("id").autoincrement().primaryKey(),
-  triggeredBy: mysqlEnum("triggeredBy", ["manual", "cron"]).notNull().default("manual"),
+  triggeredBy: mysqlEnum("triggeredBy", ["manual", "cron"])
+    .notNull()
+    .default("manual"),
   triggeredByUserId: int("triggeredByUserId"), // null = cron automático
-  status: mysqlEnum("status", ["running", "completed", "failed"]).notNull().default("running"),
+  status: mysqlEnum("status", ["running", "completed", "failed"])
+    .notNull()
+    .default("running"),
   totalCnaes: int("totalCnaes").notNull().default(0),
   processedCnaes: int("processedCnaes").notNull().default(0),
   errorCount: int("errorCount").notNull().default(0),
@@ -1452,7 +1710,8 @@ export const embeddingRebuildLogs = mysqlTable("embeddingRebuildLogs", {
   finishedAt: timestamp("finishedAt"),
 });
 export type EmbeddingRebuildLog = typeof embeddingRebuildLogs.$inferSelect;
-export type InsertEmbeddingRebuildLog = typeof embeddingRebuildLogs.$inferInsert;
+export type InsertEmbeddingRebuildLog =
+  typeof embeddingRebuildLogs.$inferInsert;
 
 // ============================================================================
 // GAP ENGINE — TASK 4
@@ -1468,7 +1727,9 @@ export const complianceSessions = mysqlTable("compliance_sessions", {
   sessionUuid: varchar("session_uuid", { length: 36 }).notNull().unique(),
   projectId: int("project_id").notNull(),
   userId: int("user_id").notNull(),
-  status: mysqlEnum("status", ["in_progress", "completed", "cancelled"]).notNull().default("in_progress"),
+  status: mysqlEnum("status", ["in_progress", "completed", "cancelled"])
+    .notNull()
+    .default("in_progress"),
   totalQuestions: int("total_questions").notNull().default(0),
   answeredQuestions: int("answered_questions").notNull().default(0),
   complianceScore: decimal("compliance_score", { precision: 5, scale: 2 }),
@@ -1489,12 +1750,18 @@ export const questionnaireResponses = mysqlTable("questionnaire_responses", {
   sessionId: int("session_id").notNull(),
   mappingId: varchar("mapping_id", { length: 20 }).notNull(),
   canonicalId: varchar("canonical_id", { length: 20 }).notNull(),
-  answerValue: mysqlEnum("answer_value", ["sim", "nao", "parcial", "nao_aplicavel"]).notNull(),
+  answerValue: mysqlEnum("answer_value", [
+    "sim",
+    "nao",
+    "parcial",
+    "nao_aplicavel",
+  ]).notNull(),
   answerNote: text("answer_note"),
   answeredAt: timestamp("answered_at").defaultNow().notNull(),
 });
 export type QuestionnaireResponse = typeof questionnaireResponses.$inferSelect;
-export type InsertQuestionnaireResponse = typeof questionnaireResponses.$inferInsert;
+export type InsertQuestionnaireResponse =
+  typeof questionnaireResponses.$inferInsert;
 
 /**
  * gap_analysis
@@ -1505,10 +1772,20 @@ export const gapAnalysis = mysqlTable("gap_analysis", {
   sessionId: int("session_id").notNull(),
   mappingId: varchar("mapping_id", { length: 20 }).notNull(),
   canonicalId: varchar("canonical_id", { length: 20 }).notNull(),
-  gapStatus: mysqlEnum("gap_status", ["compliant", "nao_compliant", "parcial", "nao_aplicavel"]).notNull(),
+  gapStatus: mysqlEnum("gap_status", [
+    "compliant",
+    "nao_compliant",
+    "parcial",
+    "nao_aplicavel",
+  ]).notNull(),
   gapSeverity: mysqlEnum("gap_severity", ["critica", "alta", "media", "baixa"]),
   gapType: varchar("gap_type", { length: 100 }),
-  answerValue: mysqlEnum("answer_value", ["sim", "nao", "parcial", "nao_aplicavel"]).notNull(),
+  answerValue: mysqlEnum("answer_value", [
+    "sim",
+    "nao",
+    "parcial",
+    "nao_aplicavel",
+  ]).notNull(),
   answerNote: text("answer_note"),
   recommendation: text("recommendation"),
   evidenceRef: varchar("evidence_ref", { length: 255 }),
@@ -1547,17 +1824,49 @@ export const riskAnalysis = mysqlTable("risk_analysis", {
   sessionId: int("session_id").notNull(),
   canonicalId: varchar("canonical_id", { length: 50 }).notNull(),
   mappingId: varchar("mapping_id", { length: 50 }).notNull(),
-  gapStatus: mysqlEnum("gap_status", ["compliant", "nao_compliant", "parcial", "nao_aplicavel"]).notNull(),
-  riskLevel: mysqlEnum("risk_level", ["baixo", "medio", "alto", "critico"]).notNull(),
+  gapStatus: mysqlEnum("gap_status", [
+    "compliant",
+    "nao_compliant",
+    "parcial",
+    "nao_aplicavel",
+  ]).notNull(),
+  riskLevel: mysqlEnum("risk_level", [
+    "baixo",
+    "medio",
+    "alto",
+    "critico",
+  ]).notNull(),
   riskScore: int("risk_score").notNull().default(0),
-  impactType: mysqlEnum("impact_type", ["financeiro", "operacional", "legal", "reputacional"]).notNull(),
-  severityBase: mysqlEnum("severity_base", ["critica", "alta", "media", "baixa"]).notNull(),
-  normativeType: mysqlEnum("normative_type", ["obrigacao", "vedacao", "direito", "opcao"]).notNull(),
-  gapMultiplier: varchar("gap_multiplier", { length: 10 }).notNull().default("0"),
+  impactType: mysqlEnum("impact_type", [
+    "financeiro",
+    "operacional",
+    "legal",
+    "reputacional",
+  ]).notNull(),
+  severityBase: mysqlEnum("severity_base", [
+    "critica",
+    "alta",
+    "media",
+    "baixa",
+  ]).notNull(),
+  normativeType: mysqlEnum("normative_type", [
+    "obrigacao",
+    "vedacao",
+    "direito",
+    "opcao",
+  ]).notNull(),
+  gapMultiplier: varchar("gap_multiplier", { length: 10 })
+    .notNull()
+    .default("0"),
   baseScore: int("base_score").notNull().default(0),
   domain: varchar("domain", { length: 100 }),
   requirementName: varchar("requirement_name", { length: 255 }),
-  mitigationPriority: mysqlEnum("mitigation_priority", ["imediata", "curto_prazo", "medio_prazo", "monitoramento"]).notNull(),
+  mitigationPriority: mysqlEnum("mitigation_priority", [
+    "imediata",
+    "curto_prazo",
+    "medio_prazo",
+    "monitoramento",
+  ]).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 export type RiskAnalysis = typeof riskAnalysis.$inferSelect;
@@ -1580,7 +1889,12 @@ export const riskSessionSummary = mysqlTable("risk_session_summary", {
   financialRisk: int("financial_risk").notNull().default(0),
   operationalRisk: int("operational_risk").notNull().default(0),
   legalRisk: int("legal_risk").notNull().default(0),
-  overallRiskLevel: mysqlEnum("overall_risk_level", ["baixo", "medio", "alto", "critico"]).notNull(),
+  overallRiskLevel: mysqlEnum("overall_risk_level", [
+    "baixo",
+    "medio",
+    "alto",
+    "critico",
+  ]).notNull(),
   calculatedAt: timestamp("calculated_at").defaultNow().notNull(),
 });
 export type RiskSessionSummary = typeof riskSessionSummary.$inferSelect;
@@ -1591,8 +1905,18 @@ export type InsertRiskSessionSummary = typeof riskSessionSummary.$inferInsert;
 export const consistencyChecks = mysqlTable("consistency_checks", {
   id: varchar("id", { length: 36 }).primaryKey(),
   projectId: int("project_id").notNull(),
-  status: mysqlEnum("status", ["pending", "running", "completed", "failed"]).notNull().default("pending"),
-  overallLevel: mysqlEnum("overall_level", ["none", "low", "medium", "high", "critical"]).notNull().default("none"),
+  status: mysqlEnum("status", ["pending", "running", "completed", "failed"])
+    .notNull()
+    .default("pending"),
+  overallLevel: mysqlEnum("overall_level", [
+    "none",
+    "low",
+    "medium",
+    "high",
+    "critical",
+  ])
+    .notNull()
+    .default("none"),
   findings: text("findings"), // JSON: ConsistencyFinding[]
   acceptedRisk: tinyint("accepted_risk").notNull().default(0), // 0=false, 1=true
   acceptedRiskAt: bigint("accepted_risk_at", { mode: "number" }),
@@ -1726,8 +2050,19 @@ export const solarisQuestions = mysqlTable("solaris_questions", {
   vigencia_inicio: varchar("vigencia_inicio", { length: 10 }),
   // Sprint Z-11 — Migration 0068
   riskCategoryCode: varchar("risk_category_code", { length: 64 }),
-  classificationScope: mysqlEnum("classification_scope", ["risk_engine", "diagnostic_only"]).notNull().default("risk_engine"),
-  mappingReviewStatus: mysqlEnum("mapping_review_status", ["curated_internal", "pending_legal", "approved_legal"]).notNull().default("curated_internal"),
+  classificationScope: mysqlEnum("classification_scope", [
+    "risk_engine",
+    "diagnostic_only",
+  ])
+    .notNull()
+    .default("risk_engine"),
+  mappingReviewStatus: mysqlEnum("mapping_review_status", [
+    "curated_internal",
+    "pending_legal",
+    "approved_legal",
+  ])
+    .notNull()
+    .default("curated_internal"),
   // Sprint M3.7 Item 3 — paridade arquitetural com ragDocuments.lei
   // Permite filtro determinístico de perguntas SOLARIS por lei (REGRA-ORQ-29).
   // Nullable para backward-compat (perguntas legadas sem metadado).
@@ -1750,18 +2085,20 @@ export type InsertSolarisQuestion = typeof solarisQuestions.$inferInsert;
  * Issue: K-4-A | Milestone: M2 — Sprint K | Seção 7 do contrato FLUXO-3-ONDAS v1.1
  */
 export const solarisAnswers = mysqlTable("solaris_answers", {
-  id:         int("id").autoincrement().primaryKey(),
-  projectId:  int("project_id").notNull()
-              .references(() => projects.id),
-  questionId: int("question_id").notNull()
-              .references(() => solarisQuestions.id),
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("project_id")
+    .notNull()
+    .references(() => projects.id),
+  questionId: int("question_id")
+    .notNull()
+    .references(() => solarisQuestions.id),
   /** Código canônico da pergunta (SOL-001..SOL-NNN) — desnormalizado para auditoria */
-  codigo:     varchar("codigo", { length: 10 }).notNull(),
-  resposta:   text("resposta").notNull(),
+  codigo: varchar("codigo", { length: 10 }).notNull(),
+  resposta: text("resposta").notNull(),
   /** Sempre 'solaris' — identifica Onda 1 no diagnóstico */
-  fonte:      varchar("fonte", { length: 20 }).default("solaris"),
-  createdAt:  bigint("created_at", { mode: "number" }).notNull(),
-  updatedAt:  bigint("updated_at", { mode: "number" }).notNull(),
+  fonte: varchar("fonte", { length: 20 }).default("solaris"),
+  createdAt: bigint("created_at", { mode: "number" }).notNull(),
+  updatedAt: bigint("updated_at", { mode: "number" }).notNull(),
 });
 
 export type SolarisAnswer = typeof solarisAnswers.$inferSelect;
@@ -1776,26 +2113,30 @@ export type InsertSolarisAnswer = typeof solarisAnswers.$inferInsert;
  * Issue: K-4-A | Milestone: M2 — Sprint K | Seção 7 do contrato FLUXO-3-ONDAS v1.1
  */
 export const iagenAnswers = mysqlTable("iagen_answers", {
-  id:              int("id").autoincrement().primaryKey(),
-  projectId:       int("project_id").notNull()
-                   .references(() => projects.id),
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("project_id")
+    .notNull()
+    .references(() => projects.id),
   /** Texto completo da pergunta gerada pela IA (não há FK — gerada dinamicamente) */
-  questionText:    text("question_text").notNull(),
-  resposta:        text("resposta").notNull(),
+  questionText: text("question_text").notNull(),
+  resposta: text("resposta").notNull(),
   /**
    * Score de confiança da IA ao gerar a pergunta (0.00–1.00).
    * Obrigatório para rastreabilidade — ver Seção 9 do contrato.
    */
   confidenceScore: decimal("confidence_score", { precision: 3, scale: 2 }),
   /** Sempre 'ia_gen' — identifica Onda 2 no diagnóstico */
-  fonte:           varchar("fonte", { length: 20 }).default("ia_gen"),
-  createdAt:       bigint("created_at", { mode: "number" }).notNull(),
-  updatedAt:       bigint("updated_at", { mode: "number" }).notNull(),
+  fonte: varchar("fonte", { length: 20 }).default("ia_gen"),
+  createdAt: bigint("created_at", { mode: "number" }).notNull(),
+  updatedAt: bigint("updated_at", { mode: "number" }).notNull(),
   // Sprint Z-11 — Migration 0069
-  riskCategoryCode:      varchar("risk_category_code", { length: 64 }),
-  categoryAssignmentMode: mysqlEnum("category_assignment_mode", ["llm_assigned", "human_validated"]),
-  usedProfileFields:     json("used_profile_fields"),
-  promptVersion:         varchar("prompt_version", { length: 20 }),
+  riskCategoryCode: varchar("risk_category_code", { length: 64 }),
+  categoryAssignmentMode: mysqlEnum("category_assignment_mode", [
+    "llm_assigned",
+    "human_validated",
+  ]),
+  usedProfileFields: json("used_profile_fields"),
+  promptVersion: varchar("prompt_version", { length: 20 }),
 });
 
 export type IagenAnswer = typeof iagenAnswers.$inferSelect;
@@ -1811,17 +2152,25 @@ export type InsertIagenAnswer = typeof iagenAnswers.$inferInsert;
  * Tabela de auditoria jurídica de transições de status do diagnóstico.
  * Definida no contrato FLUXO-3-ONDAS v1.1, Seção 11.
  */
-export const projectStatusLog = mysqlTable("project_status_log", {
-  id:          int("id").autoincrement().primaryKey(),
-  projectId:   int("project_id").notNull().references(() => projects.id),
-  fromStatus:  text("from_status"),                                // null na criação do projeto
-  toStatus:    text("to_status").notNull(),
-  changedBy:   varchar("changed_by", { length: 255 }).notNull(),  // ctx.user.id ou "system" — nunca undefined
-  reason:      text("reason"),
-  createdAt:   timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  projectIdIdx: index("idx_project_status_log_project_id").on(table.projectId),
-}));
+export const projectStatusLog = mysqlTable(
+  "project_status_log",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    projectId: int("project_id")
+      .notNull()
+      .references(() => projects.id),
+    fromStatus: text("from_status"), // null na criação do projeto
+    toStatus: text("to_status").notNull(),
+    changedBy: varchar("changed_by", { length: 255 }).notNull(), // ctx.user.id ou "system" — nunca undefined
+    reason: text("reason"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  table => ({
+    projectIdIdx: index("idx_project_status_log_project_id").on(
+      table.projectId
+    ),
+  })
+);
 
 export type ProjectStatusLog = typeof projectStatusLog.$inferSelect;
 export type InsertProjectStatusLog = typeof projectStatusLog.$inferInsert;
@@ -1849,22 +2198,26 @@ export type InsertProjectStatusLog = typeof projectStatusLog.$inferInsert;
  *
  * Reversível: DROP TABLE rag_usage_log (sem FK obrigatória)
  */
-export const ragUsageLog = mysqlTable("rag_usage_log", {
-  id:          int("id").autoincrement().primaryKey(),
-  query:       text("query").notNull(),
-  anchor_id:   varchar("anchor_id", { length: 255 }).notNull(),
-  lei:         varchar("lei", { length: 20 }),
-  score:       decimal("score", { precision: 6, scale: 4 }),
-  position:    int("position"),
-  retrieved_at: timestamp("retrieved_at").defaultNow().notNull(),
-  source:      varchar("source", { length: 20 }).default("rag"),
-  project_id:  int("project_id"),
-  session_id:  varchar("session_id", { length: 50 }),
-}, (table) => ({
-  anchorIdx:    index("idx_rag_usage_anchor").on(table.anchor_id),
-  queryIdx:     index("idx_rag_usage_query").on(table.query),
-  timeIdx:      index("idx_rag_usage_time").on(table.retrieved_at),
-}));
+export const ragUsageLog = mysqlTable(
+  "rag_usage_log",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    query: text("query").notNull(),
+    anchor_id: varchar("anchor_id", { length: 255 }).notNull(),
+    lei: varchar("lei", { length: 20 }),
+    score: decimal("score", { precision: 6, scale: 4 }),
+    position: int("position"),
+    retrieved_at: timestamp("retrieved_at").defaultNow().notNull(),
+    source: varchar("source", { length: 20 }).default("rag"),
+    project_id: int("project_id"),
+    session_id: varchar("session_id", { length: 50 }),
+  },
+  table => ({
+    anchorIdx: index("idx_rag_usage_anchor").on(table.anchor_id),
+    queryIdx: index("idx_rag_usage_query").on(table.query),
+    timeIdx: index("idx_rag_usage_time").on(table.retrieved_at),
+  })
+);
 export type RagUsageLog = typeof ragUsageLog.$inferSelect;
 export type InsertRagUsageLog = typeof ragUsageLog.$inferInsert;
 
@@ -1874,37 +2227,64 @@ export type InsertRagUsageLog = typeof ragUsageLog.$inferInsert;
 // Os 3 campos de ACL (allowed_domains, allowed_gap_types, rule_code) foram
 // adicionados pela migration 0067b (Sprint Z-10).
 // ─────────────────────────────────────────────────────────────────────────────
-export const riskCategories = mysqlTable("risk_categories", {
-  id:              int("id").autoincrement().primaryKey(),
-  codigo:          varchar("codigo", { length: 64 }).notNull(),
-  nome:            varchar("nome", { length: 255 }).notNull(),
-  severidade:      mysqlEnum("severidade", ["alta", "media", "oportunidade"]).notNull(),
-  urgencia:        mysqlEnum("urgencia", ["imediata", "curto_prazo", "medio_prazo"]).notNull(),
-  tipo:            mysqlEnum("tipo", ["risk", "opportunity"]).notNull(),
-  artigoBase:      varchar("artigo_base", { length: 255 }).notNull(),
-  leiCodigo:       varchar("lei_codigo", { length: 64 }).notNull(),
-  vigenciaInicio:  timestamp("vigencia_inicio").notNull(),
-  vigenciaFim:     timestamp("vigencia_fim"),
-  status:          mysqlEnum("status", ["ativo", "sugerido", "pendente_revisao", "inativo", "legado"]).default("ativo").notNull(),
-  origem:          mysqlEnum("origem", ["lei_federal", "regulamentacao", "rag_sensor", "manual"]).notNull(),
-  escopo:          mysqlEnum("escopo", ["nacional", "estadual", "setorial"]).default("nacional").notNull(),
-  sugeridoPor:     varchar("sugerido_por", { length: 100 }),
-  aprovadoPor:     varchar("aprovado_por", { length: 100 }),
-  aprovadoAt:      timestamp("aprovado_at"),
-  chunkOrigemId:   int("chunk_origem_id"),
-  createdAt:       timestamp("created_at").defaultNow().notNull(),
-  updatedAt:       timestamp("updated_at").defaultNow().notNull(),
-  // Sprint Z-10 PR #A — GAP-ACL (migration 0067b)
-  allowedDomains:  json("allowed_domains").$type<string[] | null>(),
-  allowedGapTypes: json("allowed_gap_types").$type<string[] | null>(),
-  ruleCode:        varchar("rule_code", { length: 64 }),
-  // Sprint Z-12 — migration 0073: descrição jurídica da categoria
-  descricao:       text("descricao"),
-}, (table) => ({
-  codigoIdx:  index("idx_risk_categories_codigo").on(table.codigo),
-  statusIdx:  index("idx_risk_categories_status").on(table.status),
-  origemIdx:  index("idx_risk_categories_origem").on(table.origem),
-}));
+export const riskCategories = mysqlTable(
+  "risk_categories",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    codigo: varchar("codigo", { length: 64 }).notNull(),
+    nome: varchar("nome", { length: 255 }).notNull(),
+    severidade: mysqlEnum("severidade", [
+      "alta",
+      "media",
+      "oportunidade",
+    ]).notNull(),
+    urgencia: mysqlEnum("urgencia", [
+      "imediata",
+      "curto_prazo",
+      "medio_prazo",
+    ]).notNull(),
+    tipo: mysqlEnum("tipo", ["risk", "opportunity"]).notNull(),
+    artigoBase: varchar("artigo_base", { length: 255 }).notNull(),
+    leiCodigo: varchar("lei_codigo", { length: 64 }).notNull(),
+    vigenciaInicio: timestamp("vigencia_inicio").notNull(),
+    vigenciaFim: timestamp("vigencia_fim"),
+    status: mysqlEnum("status", [
+      "ativo",
+      "sugerido",
+      "pendente_revisao",
+      "inativo",
+      "legado",
+    ])
+      .default("ativo")
+      .notNull(),
+    origem: mysqlEnum("origem", [
+      "lei_federal",
+      "regulamentacao",
+      "rag_sensor",
+      "manual",
+    ]).notNull(),
+    escopo: mysqlEnum("escopo", ["nacional", "estadual", "setorial"])
+      .default("nacional")
+      .notNull(),
+    sugeridoPor: varchar("sugerido_por", { length: 100 }),
+    aprovadoPor: varchar("aprovado_por", { length: 100 }),
+    aprovadoAt: timestamp("aprovado_at"),
+    chunkOrigemId: int("chunk_origem_id"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    // Sprint Z-10 PR #A — GAP-ACL (migration 0067b)
+    allowedDomains: json("allowed_domains").$type<string[] | null>(),
+    allowedGapTypes: json("allowed_gap_types").$type<string[] | null>(),
+    ruleCode: varchar("rule_code", { length: 64 }),
+    // Sprint Z-12 — migration 0073: descrição jurídica da categoria
+    descricao: text("descricao"),
+  },
+  table => ({
+    codigoIdx: index("idx_risk_categories_codigo").on(table.codigo),
+    statusIdx: index("idx_risk_categories_status").on(table.status),
+    origemIdx: index("idx_risk_categories_origem").on(table.origem),
+  })
+);
 
 export type RiskCategory = typeof riskCategories.$inferSelect;
 export type InsertRiskCategory = typeof riskCategories.$inferInsert;
@@ -1921,38 +2301,45 @@ export type InsertRiskCategory = typeof riskCategories.$inferInsert;
  * Governança: feat/m1-archetype-runner-v3 · SPEC-RUNNER-RODADA-D.md
  * Retenção: 90 dias (purge automático via cron)
  */
-export const m1RunnerLogs = mysqlTable("m1_runner_logs", {
-  id:               int("id").autoincrement().primaryKey(),
-  projectId:        int("project_id").notNull(),
-  userId:           int("user_id").notNull(),
-  userRole:         varchar("user_role", { length: 32 }).notNull(),
-  // Saída do runner
-  statusArquetipo:  varchar("status_arquetipo", { length: 32 }).notNull(),
-  testStatus:       varchar("test_status", { length: 16 }).notNull(), // PASS | FAIL | BLOCKED
-  fallbackCount:    int("fallback_count").notNull().default(0),
-  hardBlockCount:   int("hard_block_count").notNull().default(0),
-  lcConflictCount:  int("lc_conflict_count").notNull().default(0),
-  missingFieldCount: int("missing_field_count").notNull().default(0),
-  // Payload completo (blockers + missing_required_fields)
-  blockersJson:     json("blockers_json").$type<Array<{ id: string; severity: string; rule?: string }>>()
-                    .default([]),
-  missingFieldsJson: json("missing_fields_json").$type<string[]>().default([]),
-  // Score calculado pelo Painel de Confiança (0–100)
-  scoreConfianca:   int("score_confianca"),
-  // Divergência com risco gerado (preenchido em fase 2)
-  riskDivergence:   boolean("risk_divergence").default(false),
-  riskDivergenceNote: text("risk_divergence_note"),
-  // Metadados
-  dataVersion:      varchar("data_version", { length: 32 }).notNull(),
-  perfilHash:       varchar("perfil_hash", { length: 80 }),
-  rulesHash:        varchar("rules_hash", { length: 80 }),
-  durationMs:       int("duration_ms"),
-  createdAt:        timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  projectIdx:  index("idx_m1_runner_logs_project").on(table.projectId),
-  statusIdx:   index("idx_m1_runner_logs_status").on(table.statusArquetipo),
-  createdIdx:  index("idx_m1_runner_logs_created").on(table.createdAt),
-  userIdx:     index("idx_m1_runner_logs_user").on(table.userId),
-}));
+export const m1RunnerLogs = mysqlTable(
+  "m1_runner_logs",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    projectId: int("project_id").notNull(),
+    userId: int("user_id").notNull(),
+    userRole: varchar("user_role", { length: 32 }).notNull(),
+    // Saída do runner
+    statusArquetipo: varchar("status_arquetipo", { length: 32 }).notNull(),
+    testStatus: varchar("test_status", { length: 16 }).notNull(), // PASS | FAIL | BLOCKED
+    fallbackCount: int("fallback_count").notNull().default(0),
+    hardBlockCount: int("hard_block_count").notNull().default(0),
+    lcConflictCount: int("lc_conflict_count").notNull().default(0),
+    missingFieldCount: int("missing_field_count").notNull().default(0),
+    // Payload completo (blockers + missing_required_fields)
+    blockersJson: json("blockers_json")
+      .$type<Array<{ id: string; severity: string; rule?: string }>>()
+      .default([]),
+    missingFieldsJson: json("missing_fields_json")
+      .$type<string[]>()
+      .default([]),
+    // Score calculado pelo Painel de Confiança (0–100)
+    scoreConfianca: int("score_confianca"),
+    // Divergência com risco gerado (preenchido em fase 2)
+    riskDivergence: boolean("risk_divergence").default(false),
+    riskDivergenceNote: text("risk_divergence_note"),
+    // Metadados
+    dataVersion: varchar("data_version", { length: 32 }).notNull(),
+    perfilHash: varchar("perfil_hash", { length: 80 }),
+    rulesHash: varchar("rules_hash", { length: 80 }),
+    durationMs: int("duration_ms"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  table => ({
+    projectIdx: index("idx_m1_runner_logs_project").on(table.projectId),
+    statusIdx: index("idx_m1_runner_logs_status").on(table.statusArquetipo),
+    createdIdx: index("idx_m1_runner_logs_created").on(table.createdAt),
+    userIdx: index("idx_m1_runner_logs_user").on(table.userId),
+  })
+);
 export type M1RunnerLog = typeof m1RunnerLogs.$inferSelect;
 export type InsertM1RunnerLog = typeof m1RunnerLogs.$inferInsert;
