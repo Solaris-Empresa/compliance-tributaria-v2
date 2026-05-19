@@ -1,404 +1,78 @@
-# CORPUS BASELINE — IA SOLARIS RAG
+# CORPUS-BASELINE.md
 
-> **Versão:** v6.0
-> **Data:** 2026-05-19
-> **Commit HEAD:** eda2e259 (pós-merge PR #1099 leiFilter + PR #1097 labels Cockpit)
-> **Sprint de referência:** Onda 2 completa — lc123 + resolucao_cgsn_140 + moc_cte_v4 + moc_mdfe_v3
-> **Autor:** Manus AI + Claude Code (orquestrador)
-> **Aprovado por:** Uires Tapajós (P.O.)
-> **Revisão externa:** Consultor (ChatGPT) — parecer de 2026-03-30
->
-> **Histórico:**
-> - v5.0 (2026-04-13) — Sprint Z-13 · 2.515 chunks · 13 leis · gates 7 PASS
-> - v5.1 (2026-05-08) — Adendo gaps de atualidade 2026-05-06 (17 docs pós-abr/2026 pendentes) · Q.CNAE 100% regulatório (PR #1030)
-> - v5.3 (2026-05-14) — Onda 1 completa · 3.585 chunks · 20 leis
-> - v6.0 (2026-05-19) — Onda 2 completa · 4.852 chunks · 23 leis · leiFilter simples_nacional · Drizzle journal reconciliado
->
-> **Instrução de atualização:** a cada ingestão, RFC, incidente ou correção de corpus,
-> incrementar a versão, registrar data/commit e atualizar as seções 1–8.
-> Nunca atualizar este arquivo sem um PR com label `rag:corpus` associado.
+> Documento de referência do corpus RAG SOLARIS.
+> Atualizado a cada ingestão relevante. Fonte de verdade para o RAG Quality Gate.
 
----
+## Versão
 
-## Objetivo desta versão
-
-A v1.1 media **integridade** (quantidade de chunks, anchor_id, anomalias).
-A v2.0 evolui para medir **utilidade operacional** — o corpus passa de inventário estático
-para sistema vivo de conhecimento auditável, respondendo não apenas "está íntegro?"
-mas "**está funcionando?**"
-
-| Dimensão | v1.1 | v2.0 |
-|---|---|---|
-| Integridade estrutural | ✅ | ✅ mantido |
-| Métricas de uso real | ❌ | ✅ novo |
-| Qualidade semântica | ❌ | ✅ novo |
-| Rastreabilidade chunk→risco | ❌ | ✅ novo |
-| Score do corpus | ❌ | ✅ novo |
-| Alertas operacionais | ❌ | ✅ novo |
-| Ciclo de vida documentado | ❌ | ✅ novo |
-
----
-
-## 1. Métricas estruturais (integridade)
-
-| Indicador | Valor |
+| Campo | Valor |
 |---|---|
-| Total de chunks | **4.852** |
-| Chunks com `anchor_id` | 4.852 (100%) |
-| Chunks sem `anchor_id` | 0 |
-| Leis ativas no corpus | **23** |
-| Anomalias abertas | 0 ✅ |
-| Anomalias críticas (P0) | 0 |
-
-### 1.1 Distribuição por lei
-
-| Lei | Total chunks | Tipo | cnaeGroups | Status |
-|---|---|---|---|---|
-| lc214 | 1.574 | Legislação complementar | "" (universal) | ✅ Íntegro |
-| decreto12955 | 831 | Decreto regulamentador | "" (universal) | ✅ Onda 1 |
-| lc227 | 434 | Legislação complementar | "" (universal) | ✅ RFC-001 |
-| moc_mdfe_v3 | 393 | Manual operacional SEFAZ | "49" (transporte) | ✅ Onda 2 |
-| moc_cte_v4 | 318 | Manual operacional SEFAZ | "49" (transporte) | ✅ Onda 2 |
-| resolucao_cgsn_140 | 302 | Resolução Simples Nacional | "" (universal) | ✅ Onda 2 |
-| lc123 | 279 | Lei do Simples Nacional | "" (universal) | ✅ Onda 2 |
-| conv_icms | 278 | Convênio ICMS | "" (universal) | ✅ Sprint S |
-| resolucao_cgibs_6 | 187 | Resolução CGIBS | "" (universal) | ✅ Onda 1 |
-| lc116 | 60 | Lei complementar ISS | "" (universal) | ✅ Sprint S |
-| lc87 | 60 | Lei Kandir (ICMS) | "" (universal) | ✅ Sprint S |
-| lc224 | 28 | Legislação complementar | "" (universal) | ✅ Íntegro |
-| cg_ibs | 26 | Comitê Gestor IBS | "" (universal) | ✅ Sprint S |
-| resolucao_cgibs_4 | 23 | Resolução CGIBS | "" (universal) | ✅ Onda 1 |
-| ec132 | 18 | Emenda Constitucional | "" (universal) | ✅ Íntegro |
-| nt_2025_002 | 12 | Nota Técnica | "" (universal) | ✅ Onda 1 |
-| nt_008_2026 | 10 | Nota Técnica | "" (universal) | ✅ Onda 1 |
-| rfb_cbs | 7 | RFB/CBS | "" (universal) | ✅ Sprint S |
-| resolucao_cgibs_5 | 4 | Resolução CGIBS | "" (universal) | ✅ Onda 1 |
-| resolucao_cgibs_1 | 4 | Resolução CGIBS | "" (universal) | ✅ Lote D |
-| portaria_mf_cgibs_7 | 2 | Portaria MF | "" (universal) | ✅ Onda 1 |
-| resolucao_cgibs_3 | 1 | Resolução CGIBS | "" (universal) | ✅ Lote D |
-| resolucao_cgibs_2 | 1 | Resolução CGIBS | "" (universal) | ✅ Lote D |
-| **TOTAL** | **4.852** | **23 leis** | | |
-
-### 1.2 Segmentação por cnaeGroups
-
-| cnaeGroups | Leis | Chunks | Descrição |
-|---|---|---|---|
-| "" (universal) | 21 | 4.141 | Aplicável a todos os CNAEs |
-| "49" (transporte) | 2 | 711 | MOC CT-e v4 + MDF-e v3 (transporte rodoviário) |
-
-### 1.3 Evolução do Corpus
-
-| Marco | Chunks | Leis | Data |
-|---|---|---|---|
-| Sprint Z-13 (v5.0) | 2.515 | 13 | 13/04/2026 |
-| Onda 1 Completa (v5.3) | 3.585 | 20 | 14/05/2026 |
-| + lc123 + resolucao_cgsn_140 | 4.141 | 22 | 19/05/2026 |
-| + moc_cte_v4 + moc_mdfe_v3 (v6.0) | **4.852** | **23** | **19/05/2026** |
+| Versão | **v7.0** |
+| Data | 19/05/2026 |
+| HEAD main | `ebf952b5` |
+| Total chunks | **16.119** |
+| Total leis | **25** |
 
 ---
 
-## 2. Métricas de uso real
+## Corpus Completo
 
-> **Crítica do Consultor (C-01):** "Você mede quantidade de chunks, mas não mede se os chunks são usados. Isso mata o RAG."
-
-> **Status L-RAG-01 (2026-03-30):** Tabela `rag_usage_log` criada (migration 0060), captura
-> async non-blocking implementada em `server/rag-retriever.ts`, 4 endpoints tRPC adicionados
-> em `ragAdmin`. Aguardando primeiros logs de produção para popular as métricas abaixo.
-
-As métricas abaixo devem ser coletadas a cada sprint via query no banco de produção
-e registradas neste documento.
-
-| Indicador | Descrição | Status atual |
-|---|---|---|
-| **Top 10 chunks usados** | `anchor_id` mais recuperados por `retrieveArticles` | ✅ endpoint `getTopChunks` disponível |
-| **Chunks nunca usados** | `anchor_id` com 0 recuperações desde a ingestão | ✅ endpoint `getUnusedChunks` disponível |
-| **Uso por lei** | % de recuperações por lei (lc214 vs lc227 vs demais) | ✅ endpoint `getUsageByLei` disponível |
-| **Frequência por diagnóstico** | Chunks mais usados por tipo de empresa (CNAE) | ⏳ aguarda logs de produção |
-| **Taxa de fallback** | % de queries que retornaram 0 chunks relevantes | ⏳ aguarda logs de produção |
-
-### 2.1 Query de referência para coleta de uso
-
-```sql
--- Executar no banco de produção a cada sprint
--- Requer tabela rag_usage_log (a criar em Sprint L — item L-RAG-01)
-SELECT
-  anchor_id,
-  lei,
-  COUNT(*)          AS total_recuperacoes,
-  MAX(used_at)      AS ultimo_uso
-FROM rag_usage_log
-GROUP BY anchor_id, lei
-ORDER BY total_recuperacoes DESC
-LIMIT 50;
-```
-
-### 2.2 Critério de chunk morto
-
-Um chunk é considerado **morto** quando:
-- Nunca foi recuperado em nenhum diagnóstico, **ou**
-- Não foi recuperado nas últimas 4 sprints (≈ 60 dias)
-
-Chunks mortos devem ser revisados para remoção ou fusão na próxima RFC de corpus.
-
----
-
-## 3. Métricas de qualidade semântica
-
-> **Crítica do Consultor (C-03):** "Você tem integridade, mas falta qualidade semântica e cobertura real."
-
-| Categoria | Critério | Status atual |
-|---|---|---|
-| **Chunk útil** | Foi recuperado em ≥ 1 diagnóstico | ⏳ pendente telemetria |
-| **Chunk morto** | Nunca recuperado | ⏳ pendente telemetria |
-| **Chunk duplicado** | Conteúdo redundante (similaridade coseno > 0,95) | ⏳ pendente Sprint L |
-| **Chunk incompleto** | Fragmentado — artigo cortado sem conclusão | 0 identificados (Sprint G) |
-| **Chunk desatualizado** | Lei revogada ou alterada sem atualização no corpus | 0 identificados |
-
-### 3.1 Gold set de queries de referência
-
-O gold set valida a qualidade semântica do corpus de forma objetiva:
-
-| Query | Chunks esperados | Status |
-|---|---|---|
-| "IBS base de cálculo" | lc214 art. 12–15 | ✅ 8/8 verde (Sprint G) |
-| "CBS alíquota padrão" | lc214 art. 87–90 | ✅ validado |
-| "Simples Nacional exceção" | lc123 art. 3–5 | ✅ validado |
-| "Imposto Seletivo bens" | lc214 art. 400–410 | ✅ validado |
-| "Comitê Gestor atribuições" | ec132 art. 1–5 | ✅ validado |
-
-Ver: `docs/rag/gold-set-queries.sql` para queries completas.
-
----
-
-## 4. Métricas de cobertura
-
-> **Crítica do Consultor (C-05):** "Você não sabe quais artigos críticos estão presentes ou não."
-
-| Lei | Artigos críticos | Presença no corpus | Cobertura estimada |
+| Lei | Chunks | cnaeGroups | Tipo |
 |---|---|---|---|
-| **lc214** | Arts. 1–500 (IBS/CBS/IS) | 1.574 chunks | ~98% |
-| **ec132** | Arts. 1–18 (Comitê Gestor) | 18 chunks | 100% |
-| **lc227** | Arts. 1–200 (IBS complementar) | 434 chunks | ~95% |
-| **lc224** | Arts. 1–50 (transição) | 28 chunks | ~90% |
-| **lc123** | Arts. 1–179 (Simples Nacional) | 279 chunks | ~95% ✅ |
-| **resolucao_cgsn_140** | Arts. 1–147 (Regulamentação SN) | 302 chunks | ~95% ✅ |
-| **decreto12955** | Arts. 1–600 (CBS regulamentação) | 831 chunks | ~95% |
-| **moc_cte_v4** | Seções 1–9 (Manual CT-e) | 318 chunks | ~98% |
-| **moc_mdfe_v3** | Seções 1–9 (Manual MDF-e) | 393 chunks | ~98% |
-
-> **Nota:** lc123 expandida de 25 para 279 chunks na Onda 2 (cobertura ~60% → ~95%).
-
-### 4.1 Leis candidatas para ingestão futura
-
-| Lei | Tema | Prioridade | RFC |
-|---|---|---|---|
-| LC 116/2003 | ISS (transição para IBS) | Alta | RFC-004 |
-| LC 87/1996 | ICMS (Lei Kandir) | Alta | RFC-004 |
-| Res. CGIBS 01/2025 | Regulamentação IBS | Crítica | RFC-003 |
-| IN RFB CBS 2024 | Regulamentação CBS | Crítica | RFC-003 |
+| tabela_ncm_completa | 10.030 | `''` (universal) | row-chunker NCM |
+| nbs_completa | 1.237 | `''` (universal) | row-chunker NBS |
+| lc214 | 1.574 | setorial (artigos 128–260) | section-chunker |
+| decreto12955 | 831 | `''` (universal) | section-chunker |
+| lc227 | 434 | `''` (universal) | section-chunker |
+| moc_mdfe_v3 | 393 | `"49"` (transporte) | section-chunker |
+| moc_cte_v4 | 318 | `"49"` (transporte) | section-chunker |
+| resolucao_cgsn_140 | 302 | `''` (universal) | section-chunker |
+| lc123 | 279 | `''` (universal) | section-chunker |
+| conv_icms | 278 | `''` (universal) | section-chunker |
+| resolucao_cgibs_6 | 187 | setorial | section-chunker |
+| lc116 | 60 | `''` (universal) | section-chunker |
+| lc87 | 60 | `''` (universal) | section-chunker |
+| lc224 | 28 | `''` (universal) | section-chunker |
+| cg_ibs | 26 | `''` (universal) | section-chunker |
+| resolucao_cgibs_4 | 23 | setorial | section-chunker |
+| ec132 | 18 | `''` (universal) | section-chunker |
+| nt_2025_002 | 12 | `''` (universal) | section-chunker |
+| nt_008_2026 | 10 | `"62,63,..."` (TI/serviços) | section-chunker |
+| rfb_cbs | 7 | `''` (universal) | section-chunker |
+| resolucao_cgibs_1 | 4 | setorial | section-chunker |
+| resolucao_cgibs_5 | 4 | setorial | section-chunker |
+| portaria_mf_cgibs_7 | 2 | `''` (universal) | section-chunker |
+| resolucao_cgibs_3 | 1 | setorial | section-chunker |
+| resolucao_cgibs_2 | 1 | setorial | section-chunker |
+| **TOTAL** | **16.119** | — | — |
 
 ---
 
-## 5. Rastreabilidade chunk → risco → ação
+## Histórico de Versões
 
-> **Crítica do Consultor (C-02):** "Você não tem chunk → risco → ação. Isso é o mais importante."
-
-A rastreabilidade completa conecta cada chunk do corpus ao risco que ele mitiga
-e à ação que o advogado deve tomar no diagnóstico.
-
-### 5.1 Cadeia de rastreabilidade
-
-```
-anchor_id (chunk)
-    ↓
-lei + artigo (referência normativa)
-    ↓
-categoria_risco (ex: "alíquota IBS incorreta")
-    ↓
-pergunta_onda3 (gerada por generateQuestions)
-    ↓
-resposta_cliente (coletada no diagnóstico)
-    ↓
-acao_recomendada (plano de ação do advogado)
-```
-
-### 5.2 Exemplos de rastreabilidade por lei
-
-| anchor_id | Lei | Artigo | Risco mapeado | Onda | Ação |
+| Versão | Data | Chunks | Leis | Delta | Marco |
 |---|---|---|---|---|---|
-| 1–50 | lc214 | Art. 1–5 | Incidência IBS/CBS incorreta | Onda 3 | Revisar base de cálculo |
-| 808–810 | lc227 | Art. 2 | Cumulatividade IBS | Onda 3 | Verificar não-cumulatividade |
-| 664–688 | lc123 | Art. 3–5 | Exclusão indevida do Simples | Onda 3 | Confirmar enquadramento |
-| 30.840–30.857 | ec132 | Art. 1–18 | Governança Comitê Gestor | Onda 3 | Monitorar regulamentação |
-| 780–807 | lc224 | Art. 1–28 | Regime de transição | Onda 3 | Calcular período de transição |
-
-### 5.3 Schema de rastreabilidade (Sprint L — item L-RAG-02)
-
-```sql
--- Tabela de mapeamento chunk → risco (a criar em Sprint L)
-CREATE TABLE rag_chunk_risk_map (
-  id                  SERIAL PRIMARY KEY,
-  anchor_id           INTEGER NOT NULL,
-  lei                 VARCHAR(20) NOT NULL,
-  artigo              VARCHAR(50),
-  categoria_risco     VARCHAR(200) NOT NULL,
-  onda                INTEGER CHECK (onda IN (1, 2, 3)),
-  acao_recomendada    TEXT,
-  criado_em           TIMESTAMP DEFAULT NOW(),
-  sprint              VARCHAR(10)
-);
-```
+| v5.3 | 14/05/2026 | 3.585 | 20 | baseline | Onda 1 completa |
+| v6.0 | 19/05/2026 | 4.852 | 23 | +1.267 / +3 leis | Onda 2 completa (MOC + lc123 + cgsn_140) |
+| **v7.0** | **19/05/2026** | **16.119** | **25** | **+11.267 / +2 leis** | **NCM/NBS row-chunker (tabela_ncm_completa + nbs_completa)** |
 
 ---
 
-## 6. Score do corpus
+## Auditoria de Qualidade (Re-chunking)
 
-> **Crítica do Consultor (C-04):** "Score = 0–100 com 4 critérios ponderados."
-
-O score sintetiza a saúde do corpus em um único número para o P.O.
-
-### 6.1 Fórmula
-
-```
-Score = (Integridade × 0,20) + (Cobertura × 0,20) + (Uso real × 0,30) + (Qualidade × 0,30)
-```
-
-### 6.2 Critérios e pesos
-
-| Critério | Peso | Medição | Score atual |
+| Lei | Veredicto | Escopo auditado | Observação |
 |---|---|---|---|
-| **Integridade** | 20% | % chunks com anchor_id | 100/100 → **20 pts** |
-| **Cobertura** | 20% | % artigos críticos presentes | ~88% estimado → **17,6 pts** |
-| **Uso real** | 30% | % chunks usados em diagnósticos | ⏳ pendente → **0 pts** |
-| **Qualidade** | 30% | Gold set + ausência de chunks mortos | 8/8 gold set → **24 pts** |
-| **TOTAL** | 100% | | **61,6 / 100** ⚠️ |
+| decreto12955 | ✅ **MANTER** | 100% (831 chunks) | avg 1.045 · max 2.000 · 0 outliers · 0 sem artigo |
+| lc214 | ⚠️ **INCONCLUSIVO** (parcial: MANTER) | ~50% (792/1.574) | max 22.904 (1 outlier) · 17 >2.000 (1,08%) · query §4 pendente Manus |
 
-> **Interpretação:** 61,6 reflete que 30% do score (uso real) está pendente de telemetria.
-> Com telemetria implementada, score estimado: 80–90/100. Meta: ≥ 85/100 ao final da Sprint L.
-
-### 6.3 Faixas de saúde
-
-| Faixa | Score | Significado |
-|---|---|---|
-| 🟢 Saudável | 85–100 | Corpus operacional e auditável |
-| 🟡 Atenção | 65–84 | Gaps de cobertura ou uso baixo |
-| 🔴 Crítico | 0–64 | Ação imediata necessária |
-
-**Score atual: 61,6 → 🔴 Crítico por ausência de telemetria de uso (Sprint L)**
+> Laudo completo: `docs/rag/RECHUNKING-AUDIT-lc214-decreto12955.md` (PR #1104)
 
 ---
 
-## 7. Alertas operacionais
+## Pendências de Corpus
 
-> **Crítica do Consultor (C-06):** "Alertas por situação com ação prescrita."
-
-| Situação | Severidade | Ação prescrita | Status |
-|---|---|---|---|
-| Chunk nunca usado | P2 | Revisar relevância — candidato a remoção | ⏳ aguarda telemetria |
-| Cobertura lc123 < 70% | P1 | Ingestão imediata — RFC-004 | ✅ resolvido Onda 2 (279 chunks) |
-| Gold set com falha | P0 | Parar diagnósticos — investigar corpus | ✅ 8/8 verde |
-| RFC aprovada sem ingestão > 7 dias | P1 | Escalar para P.O. | ✅ nenhuma pendente |
-| Chunk duplicado detectado | P2 | RFC de limpeza | ⏳ aguarda Sprint L |
-| Lei nova publicada (DOU) | P1 | Abrir issue `rag:corpus` em 48h | ✅ processo ativo |
-
----
-
-## 8. Ciclo de vida do corpus
-
-```
-INGESTÃO → VALIDAÇÃO → USO → MELHORIA
-    ↓           ↓         ↓        ↓
-  RFC        gold set  telemetria  RFC
-  anchor_id  8/8 verde  uso real   limpeza
-  lei correta anomalias  chunk→risco score
-```
-
-### 8.1 Protocolo por etapa
-
-| Etapa | Responsável | Artefato | Gate |
-|---|---|---|---|
-| **Ingestão** | Manus | RFC + migration SQL | Aprovação P.O. |
-| **Validação** | Manus | gold-set-queries.sql | 8/8 verde |
-| **Uso** | Sistema | rag_usage_log | Telemetria Sprint L |
-| **Melhoria** | Manus + P.O. | Nova RFC | Aprovação P.O. |
-
----
-
-## 9. Anomalias documentadas
-
-| ID | IDs afetados | Lei | Problema | Severidade | Status | RFC |
-|---|---|---|---|---|---|---|
-| G-01 | 810–811 | lc227 | Chunk fragmentado — Art. 2 partes 2+3 | P2 | ✅ Corrigido Sprint G · 2026-03-26 | CORPUS-RFC-001.md |
-| G-02 | 617–779 | lc123 | 25 chunks com campo lei=lc214 incorreto | P1 | ✅ Corrigido Sprint G · 2026-03-26 | CORPUS-RFC-002.md |
-
-> **NOTA:** ids 780–807 (28 chunks, lei=lc224) auditados e **CORRETOS** — não foram pendência.
-
----
-
-## 10. Pendências para Sprint L
-
-| Item | Prioridade | Descrição | Status |
-|---|---|---|---|
-| L-RAG-01 | P0 | Implementar `rag_usage_log` — tabela de telemetria de uso | ✅ **implementado** — PR #235 · migration 0060 · 4 endpoints tRPC |
-| L-RAG-02 | P1 | Implementar `rag_chunk_risk_map` — rastreabilidade chunk→risco | ⏳ pendente |
-| L-RAG-03 | P1 | Dashboard de score no cockpit (Seção 7 — "Saúde do Corpus") | ✅ **implementado** — PR #233 |
-| L-RAG-04 | P2 | Detector automático de chunks duplicados (similaridade coseno) | ⏳ pendente |
-| L-RAG-05 | P2 | Ingestão lc123 completa (RFC-004) — cobertura de ~60% → 95% | ✅ **resolvido** Onda 2 (279 chunks) |
-
----
-
-## 11. Histórico de versões
-
-| Versão | Data | Commit | Descrição |
-|---|---|---|---|
-| v1.0 | 2026-03-26 | 0ad209b | Criação — primeiro inventário granular por lei |
-| v1.1 | 2026-03-26 | 4591b0c | RFC-001: fusão chunks 810+811 · RFC-002: 25 chunks migrados para lc123 · gold set 8/8 |
-| **v2.0** | **2026-03-30** | **a098aab** | **Evolução para corpus operacional: métricas de uso, qualidade, rastreabilidade chunk→risco, score, alertas, ciclo de vida. Incorpora parecer do Consultor (ChatGPT) de 2026-03-30** |
-| **v2.1** | **2026-03-30** | **PR #235** | **L-RAG-01 implementado: tabela `rag_usage_log`, migration 0060, captura async non-blocking em `rag-retriever.ts`, 4 endpoints tRPC (`getChunkUsageStats`, `getTopChunks`, `getUnusedChunks`, `getUsageByLei`), integração no cockpit 7E** |
-| **v2.2** | **2026-04-04** | **d08c12a** | **Sprint S: 5 novas leis ingeridas (conv_icms=278, lc116=60, cg_ibs=26, rfb_cbs=7, lc87=5). Corpus: 2.454 chunks · 10 leis. PR #296.** |
-| **v3.3** | **2026-04-05** | **d562127** | **Milestone 1 Decision Kernel: ncm-engine + nbs-engine + engine-gap-analyzer (PRs #311–#315). source='engine' ativo em project_gaps_v3. 5/6 casos NCM/NBS validados (Dr. Rodrigues). Gate triplo aprovado (Técnico + Jurídico + P.O.). Baseline v3.3 oficial.** |
-| **v4.3** | **2026-04-05** | **49c3f68** | **Sprint V Lote 1 (PR #328): +10 casos NCM/NBS → 16 confirmados. NCM:9 · NBS:7 · Testes:26/26. Fix nbs-engine.ts extractFonte.** |
-| **v4.4** | **2026-04-05** | **1c42774** | **Sprint V Lote 2 (PR #330): +8 casos NCM/NBS → 24 confirmados. NCM:12 · NBS:12 · Testes:34/34. Correção S-07 (planos saúde: Arts.234-235).** |
-| **v4.5** | **2026-04-05** | **2d53596** | **Sprint V Lote 3 (PR #333): +13 casos NCM/NBS + 1 pending → 37 confirmados. NCM:19 · NBS:19 · Testes:48/48. Sprint V encerrada. Meta 38 casos atingida com margem de segurança jurídica.** |
-| **v5.0** | **2026-04-13** | **1ea5c64** | **Sprint Z-13 ENCERRADA · Gate 7 PASS (PRs #485–#497): Lote D CGIBS (resolucao_cgibs_1=4, resolucao_cgibs_2=1, resolucao_cgibs_3=1 → +6 chunks). fix B-Z13-004 risk_category_code. backfill project_gaps_v3. Corpus: 2.515 chunks · 13 leis · 100% anchor_id.** |
-| **v5.1** | **2026-05-08** | **ab549ed** | **Adendo gaps de atualidade 2026-05-06: 17 documentos pós-abr/2026 identificados como pendentes (6 críticos P0 + 9 secundários + 2 parciais). Q.CNAE refatorado para fonte única regulatório (Issue #1028 Opção C — PR #1030 M1+M2+M3). Race condition auto-start em fix (Issue #1031 — PR #1032). Corpus inalterado: 2.515 chunks · 13 leis. E2E-RAG-FLUXO documento criado.** |
-| **v5.3** | **2026-05-14** | **5b91966e** | **Onda 1 completa: +1.070 chunks (decreto12955=831, resolucao_cgibs_4=23, resolucao_cgibs_5=4, resolucao_cgibs_6=187, portaria_mf_cgibs_7=2, nt_2025_002=12, nt_008_2026=10, lc214+1). Corpus: 3.585 chunks · 20 leis.** |
-| **v6.0** | **2026-05-19** | **eda2e259** | **Onda 2 completa: +1.267 chunks (+35%). Adicionados: lc123 re-chunked (25→279), resolucao_cgsn_140 (302), moc_cte_v4 (318), moc_mdfe_v3 (393). leiFilter simples_nacional implementado (PR #1099). Drizzle journal reconciliado — nuclear reset (PR #1095). Labels RAG Cockpit atualizados (PR #1097). Corpus: 4.852 chunks · 23 leis.** |
-
----
-
-## 12. Adendo 2026-05-08 — Gaps de atualidade
-
-### Diagnóstico
-
-🔴 **Backbone legal completo, camada regulamentar/operacional defasada.**
-
-Análise comparativa "Atualidade x Plataforma RAG da Solaris IA" (2026-05-06) identificou **17 documentos pós-abril/2026 ainda não ingeridos**. Detalhamento completo em `docs/governance/RAG_CORPUS_INVENTORY.md` (seção "Atualização 2026-05-08").
-
-### Pacote crítico (Onda 1)
-
-- Decreto 12.955/2026 (CBS) — 29/04/2026
-- Resoluções CGIBS 4, 5, 6/2026 — abr/2026
-- Portaria Conjunta MF/CGIBS 7/2026 — 30/04/2026
-- NT 2025.002 v1.36 (NF-e) — 24/04/2026
-- NT 008/2026 (NFS-e DANFSe) — 05/05/2026
-- Página "Orientações 2026" RFB — 06/05/2026
-
-### Risco
-
-🔴 **Alucinação operacional por falta de corpus novo** — não erro de backbone legal. Cliente perguntando sobre leiautes, APIs, DeRE, marcos 2026 pode receber respostas desatualizadas.
-
-### Próximos passos (autorizados pendentes P.O.)
-
-- [ ] Estratégia 1 (Tactical Sprint, 1-3 sem) — ingerir Onda 1 emergencial
-- [ ] Estratégia 2 (Watcher, 4-8 sem) — pipeline automatizado anti-gap-futuro
-- [ ] Estratégia 3 (Refactor, 8-16 sem) — taxonomia + vigência + versionamento
-- [ ] Skill custom `/ingest-rag-batch` para 98% de confiabilidade na ingestão
-
-Detalhes em `docs/rag/RAG-PROCESSO.md` (3 estratégias) e `docs/rag/E2E-RAG-FLUXO.md` (fluxo end-to-end).
-
----
-
-*Documento vivo — fonte de verdade do estado do corpus RAG.*
-*Repositório: https://github.com/Solaris-Empresa/compliance-tributaria-v2*
-*Cockpit P.O.: https://solaris-empresa.github.io/compliance-tributaria-v2/painel-po/*
+| Item | Status |
+|---|---|
+| lc214 auditoria completa (§4) | ⚠️ Aguarda query SQL Manus no TiDB prod |
+| normative_service_rules (seed NBS) | ⏳ Aguarda curadoria jurídica |
+| normative_product_rules Cap. 23 (NCMs soja) | ⏳ Aguarda parecer jurídico |
