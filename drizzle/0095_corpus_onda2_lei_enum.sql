@@ -20,6 +20,12 @@
 -- Padrão seguido: drizzle/0094_corpus_freshness_lei_enum.sql (CORPUS-RFC-008).
 -- Migration cirúrgica: emite SOMENTE o ALTER da coluna.
 --
+-- NOTA DE SINCRONIA: o enum correspondente em drizzle/schema.ts NÃO é alterado
+-- neste PR (infra/scaffold). A sincronização do schema.ts com estes 7 valores
+-- é deferida para o PR de ingestão (onde há chunks e o RAG Quality Gate é
+-- legitimamente respondível). Drift temporário schema.ts↔DB é aceito e
+-- documentado — consistente com o débito de meta journal já citado em 0094.
+--
 -- Aplicação em produção: Manus executa este arquivo diretamente.
 -- Rollback: ALTER COLUMN para remover os 7 valores (requer 0 chunks com esses slugs).
 
