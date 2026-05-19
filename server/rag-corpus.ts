@@ -44,7 +44,11 @@ export interface CorpusEntry {
     | "lc123"
     | "resolucao_cgsn_140"
     | "moc_cte_v4"
-    | "moc_mdfe_v3";
+    | "moc_mdfe_v3"
+    // Corpus Onda 3 #A2: tabelas de referência NCM/NBS (row-chunker). DB enum
+    // pendente migration aprovada pelo P.O. (código-only nesta sprint).
+    | "tabela_ncm_completa"
+    | "nbs_completa";
   artigo: string;
   titulo: string;
   conteudo: string;
