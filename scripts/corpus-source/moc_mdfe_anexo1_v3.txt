@@ -1,0 +1,1068 @@
+Projeto Manifesto
+Eletrônico de Documentos
+Fiscais
+Manual de Orientação do Contribuinte
+Anexo I – Leiaute do MDF-e
+
+Versão 3.00a - abril 2019
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+      Sumário
+
+      Controle de Versões ..................................................................................................... 3
+      Histórico de Alterações / Cronograma .......................................................................... 4
+      1     Introdução ............................................................................................................. 5
+      2     Leiaute do MDF-e .................................................................................................. 6
+          2.1     Leiaute do Modal Rodoviário ........................................................................ 19
+          2.2     Leiaute do Modal Aéreo ................................................................................ 24
+          2.3     Leiaute do Modal Ferroviário ........................................................................ 25
+          2.4     Leiaute do Modal Aquaviário ........................................................................ 26
+          2.5     Expressões regulares ................................................................................... 28
+          2.6     Valores de domínio ....................................................................................... 31
+
+
+
+
+                                                                                                                                    2
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+      Controle de Versões
+
+      Versão   Publicação     Descrição
+
+      3.00a    04/2019        Criação deste manual como documento anexo do MOC. Corresponde ao
+                              Anexo I do MOC 3.00a, que trata do leiaute do MDF-e.
+
+
+
+
+                                                                                                 3
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+      Histórico de Alterações / Cronograma
+
+      Versão                        Histórico de atualizações                   Implantação   Implantação
+                                                                               Homologação     Produção
+                     Consolidação das Notas Técnicas e schemas originando a
+          3.00a                                                                  06/2019        07/2019
+                      versão 3.00a
+
+
+
+
+                                                                                                            4
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+      1 Introdução
+
+      Este documento é parte integrante do Manual de Orientação do Contribuinte (MOC) e
+      por objetivo a definição do leiaute do MDF-e, modelo 58.
+
+      O Manual de Orientação do Contribuinte 3.00a é composto pelos seguintes documentos:
+
+       MOC – Visão Geral
+
+       MOC – Anexo I – Leiaute MDF-e
+
+       MOC – Anexo II – Manual de Especificações Técnicas do DAMDFE
+
+
+
+
+                                                                                       5
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+
+      2 Leiaute do MDF-e
+
+          #   Campo            Nível Descrição                            Ele Tipo Ocorr. Tamanho Domínio Exp.Reg. Observações
+          1   infMDFe           0   Informações do MDF-e                  G         1-1
+          2    versao           1   Versão do leiaute                     A    N    1-1                    ER51   Ex: "3.00"
+          3    Id               1   Identificador da tag a ser assinada   A    C    1-1     48             ER46   Informar a chave de acesso do MDF-e e
+                                                                                                                  precedida do literal "MDFe"
+          4    ide              1   Identificação do MDF-e                G         1-1
+          5         cUF         2   Código da UF do emitente do MDF-e     E    N    1-1      2      D1            Código da UF do emitente do Documento
+                                                                                                                  Fiscal. Utilizar a
+                                                                                                                  Tabela do IBGE de código de unidades
+                                                                                                                  da federação.
+          6         tpAmb       2   Tipo do Ambiente                      E    N    1-1      1      D6            1 - Produção
+                                                                                                                  2 - Homologação
+          7         tpEmit      2   Tipo do Emitente                      E    N    1-1      1      D7            1 - Prestador de serviço de transporte
+                                                                                                                  2 - Transportador de Carga Própria
+                                                                                                                  3 - Prestador de serviço de transporte
+                                                                                                                  que emitirá CT-e Globalizado
+
+                                                                                                                  OBS: Deve ser preenchido com 2 para
+                                                                                                                  emitentes de NF-e e pelas
+                                                                                                                  transportadoras quando estiverem
+                                                                                                                  fazendo transporte de carga própria.
+                                                                                                                  Deve ser preenchido com 3 para
+                                                                                                                  transportador de carga que emitirá à
+                                                                                                                  posteriori CT-e Globalizado relacionando
+                                                                                                                  as NF-e.
+          8         tpTransp    2   Tipo do Transportador                 E    N    0-1      1      D7            1 - ETC
+                                                                                                                  2 - TAC
+                                                                                                                  3 - CTC
+          9         mod         2   Modelo do Manifesto Eletrônico        E    N    1-1      2      D4            Utilizar o código 58 para identificação do
+                                                                                                                  MDF-e
+
+
+
+                                                                                                                                                 Página 6 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          10   serie            2   Série do Manifesto                         E   N   1-1   1-3            ER32   Informar a série do documento fiscal
+                                                                                                                   (informar zero se inexistente).
+                                                                                                                   Série na faixa [920-969]: Reservada para
+                                                                                                                   emissão por contribuinte pessoa física
+                                                                                                                   com inscrição estadual.
+          11   nMDF             2   Número do Manifesto                        E   N   1-1   1-9            ER31   Número que identifica o Manifesto. 1 a
+                                                                                                                   999999999.
+          12   cMDF             2   Código numérico que compõe a Chave         E   N   1-1     8            ER41   Código aleatório gerado pelo emitente,
+                                    de Acesso.                                                                     com o objetivo de evitar acessos
+                                                                                                                   indevidos ao documento.
+          13   cDV              2   Digito verificador da chave de acesso do   E   N   1-1     1            ER42   Informar o dígito de controle da chave de
+                                    Manifesto                                                                      acesso do MDF-e, que deve ser
+                                                                                                                   calculado com a aplicação do algoritmo
+                                                                                                                   módulo 11 (base 2,9) da chave de
+                                                                                                                   acesso.
+          14   modal            2   Modalidade de transporte                   E   N   1-1     1      D9           1 - Rodoviário;
+                                                                                                                   2 - Aéreo;
+                                                                                                                   3 - Aquaviário;
+                                                                                                                   4 - Ferroviário.
+          15   dhEmi            2   Data e hora de emissão do Manifesto        E   C   1-1    21            ER1    Formato AAAA-MM-DDTHH:MM:DD TZD
+          16   tpEmis           2   Forma de emissão do Manifesto (Normal      E   N   1-1     1      D6           1 - Normal
+                                    ou Contingência)                                                               2 - Contingência
+          17   procEmi          2   Identificação do processo de emissão do    E   N   1-1     1      D12          0 - emissão de MDF-e com aplicativo do
+                                    Manifesto                                                                      contribuinte;
+          18   verProc          2   Versão do processo de emissão              E   C   1-1   1 - 20         ER35   Informar a versão do aplicativo emissor
+                                                                                                                   de MDF-e.
+          19   UFIni            2   Sigla da UF do Carregamento                E   C   1-1     2      D5           Utilizar a Tabela do IBGE de código de
+                                                                                                                   unidades da federação.
+                                                                                                                   Informar 'EX' para operações com o
+                                                                                                                   exterior.
+          20   UFFim            2   Sigla da UF do Descarregamento             E   C   1-1     2      D5           Utilizar a Tabela do IBGE de código de
+                                                                                                                   unidades da federação.
+                                                                                                                   Informar 'EX' para operações com o
+                                                                                                                   exterior.
+
+
+                                                                                                                                                 Página 7 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          21    infMunCarrega         2   Informações dos Municípios de               G        1 - 50
+                                          Carregamento
+          22      cMunCarrega         3   Código do Município de Carregamento         E    N   1-1        7            ER2
+          23      xMunCarrega         3   Nome do Município de Carregamento           E    C   1-1      2 - 60         ER35
+          24    infPercurso           2   Informações do Percurso do MDF-e            G        0 - 25
+          25      UFPer               3   Sigla das Unidades da Federação do          E    C   1-1        2      D5           Não é necessário repetir as UF de Início
+                                          percurso do veículo.                                                                e Fim
+          26    dhIniViagem           2   Data e hora previstos de início da viagem   E    C   0-1       21            ER1    Formato AAAA-MM-DDTHH:MM:DD TZD
+          27    indCanalVerde         2   Indicador de participação do Canal Verde    E    N   0-1        1      D10
+          28    indCarregaPosterior   2   Indicador de MDF-e com inclusão da          E    N   0-1        1      D10
+                                          Carga posterior a emissão por evento de
+                                          inclusão de DF-e
+          29   emit                   1   Identificação do Emitente do Manifesto      G        1-1
+          30    CNPJ                  2   CNPJ do emitente                            CE   N   1-1       14            ER7    Informar zeros não significativos
+          31    CPF                   2   CPF do emitente                             CE   N   1-1       11            ER10   Informar zeros não significativos
+                                                                                                                              Usar com série específica 920-969 para
+                                                                                                                              emitente pessoa física com inscrição
+                                                                                                                              estadual
+          32    IE                    2   Inscrição Estadual do emitente              E    N   1-1      2 - 14         ER30
+          33    xNome                 2   Razão social ou Nome do emitente            E    C   1-1      2 - 60         ER35
+          34    xFant                 2   Nome fantasia do emitente                   E    C   0-1      1 - 60         ER35
+          35    enderEmit             2   Endereço do emitente                        G        1-1
+          36      xLgr                3   Logradouro                                  E    C   1-1      2 - 60         ER35
+          37      nro                 3   Número                                      E    C   1-1      1 - 60         ER35
+          38      xCpl                3   Complemento                                 E    C   0-1      1 - 60         ER35
+          39      xBairro             3   Bairro                                      E    C   1-1      2 - 60         ER35
+          40      cMun                3   Código do município (utilizar a tabela do   E    N   1-1        7            ER2
+                                          IBGE), informar 9999999 para operações
+                                          com o exterior.
+
+
+                                                                                                                                                             Página 8 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          41      xMun             3   Nome do município, , informar              E   C     1-1     2 - 60         ER35
+                                       EXTERIOR para operações com o
+                                       exterior.
+          42      CEP              3   CEP                                        E   N     0-1       8            ER41   Informar zeros não significativos
+          43      UF               3   Sigla da UF, , informar EX para            E   C     1-1       2      D5
+                                       operações com o exterior.
+          44      fone             3   Telefone                                   E   N     0-1     7 - 12         ER48
+          45      email            3   Endereço de E-mail                         E   C     0-1     6 - 60         ER55
+          46   infModal            1   Informações do modal                       G         1-1
+          47    versaoModal        2   Versão do leiaute específico para o        A   N     1-1       4            ER43
+                                       Modal
+          48    xs:any             2   XML do modal                               E   XML   1-1                           Insira neste local o XML específico do
+                                                                                                                          modal (rodoviário, aéreo, ferroviário ou
+                                                                                                                          Aquaviário).
+          49   infDoc              1   Informações dos Documentos fiscais         G         1-1
+                                       vinculados ao manifesto
+          50    infMunDescarga     2   Informações dos Municípios de              G          1-
+                                       descarregamento                                       100
+          51      cMunDescarga     3   Código do Município de                     E   N     1-1       7            ER2
+                                       Descarregamento
+          52      xMunDescarga     3   Nome do Município de Descarregamento       E   C     1-1     2 - 60         ER35
+          53      infCTe           3   Conhecimentos de Transporte - usar este    G          0-
+                                       grupo quando for prestador de serviço de             10000
+                                       transporte
+          54       chCTe           4   Conhecimento Eletrônico - Chave de         E   N     1-1      44            ER3
+                                       Acesso
+          55       SegCodBarra     4   Segundo código de barras                   E   N     0-1      36            ER4
+          56       indReentrega    4   Indicador de Reentrega                     E   N     0-1       1      D10
+          57       infUnidTransp   4   Informações das Unidades de Transporte     G         0-n                           Deve ser preenchido com as informações
+                                       (Carreta/Reboque/Vagão)                                                            das unidades de transporte utilizadas.
+
+
+
+                                                                                                                                                         Página 9 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          58      tpUnidTransp    5   Tipo da Unidade de Transporte            E   N   1-1     1      D8          1 - Rodoviário Tração;
+                                                                                                                  2 - Rodoviário Reboque;
+                                                                                                                  3 - Navio;
+                                                                                                                  4 - Balsa;
+                                                                                                                  5 - Aeronave;
+                                                                                                                  6 - Vagão;
+                                                                                                                  7 - Outros
+          59      idUnidTransp    5   Identificação da Unidade de Transporte   E   C   1-1   1 - 20        ER54   Informar a identificação conforme o tipo
+                                                                                                                  de unidade de transporte.
+                                                                                                                  Por exemplo: para rodoviário tração ou
+                                                                                                                  reboque deverá preencher com a placa
+                                                                                                                  do veículo.
+          60      lacUnidTransp   5   Lacres das Unidades de Transporte        G       0-n
+          61       nLacre         6   Número do lacre                          E   C   1-1   1 - 20        ER35
+          62      infUnidCarga    5   Informações das Unidades de Carga        G       0-n                        Dispositivo de carga utilizada (Unit Load
+                                      (Containeres/ULD/Outros)                                                    Device - ULD) significa todo tipo de
+                                                                                                                  contêiner de carga, vagão, contêiner de
+                                                                                                                  avião, palete de aeronave com rede ou
+                                                                                                                  palete de aeronave com rede sobre um
+                                                                                                                  iglu.
+          63       tpUnidCarga    6   Tipo da Unidade de Carga                 E   N   1-1     1      D9          1 - Container;
+                                                                                                                  2 - ULD;
+                                                                                                                  3 - Pallet;
+                                                                                                                  4 - Outros;
+          64       idUnidCarga    6   Identificação da Unidade de Carga        E   C   1-1   1 - 20        ER54   Informar a identificação da unidade de
+                                                                                                                  carga, por exemplo: número do container.
+          65       lacUnidCarga   6   Lacres das Unidades de Carga             G       0-n
+          66           nLacre     7   Número do lacre                          E   C   1-1   1 - 20        ER35
+          67       qtdRat         6   Quantidade rateada (Peso,Volume)         E   N   0-1    3, 2         ER15   5 posições, sendo 3 inteiras e 2 decimais.
+          68      qtdRat          5   Quantidade rateada (Peso,Volume)         E   N   0-1    3, 2         ER15   5 posições, sendo 3 inteiras e 2 decimais.
+          69    peri              4   Preenchido quando for transporte de      G       0-n
+                                      produtos classificados pela ONU como
+                                      perigosos.
+
+
+
+                                                                                                                                               Página 10 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          70      nONU              5   Número ONU/UN                             E   C   1-1       4             ER44   Ver a legislação de transporte de
+                                                                                                                         produtos perigosos aplicadas ao modal
+          71      xNomeAE           5   Nome apropriado para embarque do          E   C   0-1     1 - 150         ER35   Ver a legislação de transporte de
+                                        produto                                                                          produtos perigosos aplicada ao modo de
+                                                                                                                         transporte
+          72      xClaRisco         5   Classe ou subclasse/divisão, e risco      E   C   0-1     1 - 40          ER35   Ver a legislação de transporte de
+                                        subsidiário/risco secundário                                                     produtos perigosos aplicadas ao modal
+          73      grEmb             5   Grupo de Embalagem                        E   C   0-1      1-6            ER35   Ver a legislação de transporte de
+                                                                                                                         produtos perigosos aplicadas ao modal
+                                                                                                                         Preenchimento obrigatório para o modal
+                                                                                                                         aéreo.
+                                                                                                                         A legislação para o modal rodoviário e
+                                                                                                                         ferroviário não atribui grupo de
+                                                                                                                         embalagem para todos os produtos,
+                                                                                                                         portanto haverá casos de não
+                                                                                                                         preenchimento desse campo.
+          74      qTotProd          5   Quantidade total por produto              E   C   1-1     1 - 20          ER35   Preencher conforme a legislação de
+                                                                                                                         transporte de produtos perigosos
+                                                                                                                         aplicada ao modal
+          75      qVolTipo          5   Quantidade e Tipo de volumes              E   C   0-1     1 - 60          ER35   Preencher conforme a legislação de
+                                                                                                                         transporte de produtos perigosos
+                                                                                                                         aplicada ao modal
+          76    infEntregaParcial   4   Grupo de informações da Entrega Parcial   G       0-1
+                                        (Corte de Voo)
+          77      qtdTotal          5   Quantidade total de volumes               E   N   1-1     11, 4           ER21   15 posições, sendo 11 inteiras e 4
+                                                                                                                         decimais.
+          78      qtdParcial        5   Quantidade de volumes enviados no         E   N   1-1     11, 4           ER21   15 posições, sendo 11 inteiras e 4
+                                        MDF-e                                                                            decimais.
+          79   infNFe               3   Nota Fiscal Eletronica                    G        0-
+                                                                                          10000
+          80    chNFe               4   Nota Fiscal Eletrônica                    E   N   1-1       44            ER3
+          81    SegCodBarra         4   Segundo código de barras                  E   N   0-1       36            ER4
+          82    indReentrega        4   Indicador de Reentrega                    E   N   0-1       1       D10
+
+
+                                                                                                                                                      Página 11 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          83    infUnidTransp     4   Informações das Unidades de Transporte   G       0-n                        Deve ser preenchido com as informações
+                                      (Carreta/Reboque/Vagão)                                                     das unidades de transporte utilizadas.
+          84      tpUnidTransp    5   Tipo da Unidade de Transporte            E   N   1-1     1      D8          1 - Rodoviário Tração;
+                                                                                                                  2 - Rodoviário Reboque;
+                                                                                                                  3 - Navio;
+                                                                                                                  4 - Balsa;
+                                                                                                                  5 - Aeronave;
+                                                                                                                  6 - Vagão;
+                                                                                                                  7 - Outros
+          85      idUnidTransp    5   Identificação da Unidade de Transporte   E   C   1-1   1 - 20        ER54   Informar a identificação conforme o tipo
+                                                                                                                  de unidade de transporte.
+                                                                                                                  Por exemplo: para rodoviário tração ou
+                                                                                                                  reboque deverá preencher com a placa
+                                                                                                                  do veículo.
+          86      lacUnidTransp   5   Lacres das Unidades de Transporte        G       0-n
+          87       nLacre         6   Número do lacre                          E   C   1-1   1 - 20        ER35
+          88      infUnidCarga    5   Informações das Unidades de Carga        G       0-n                        Dispositivo de carga utilizada (Unit Load
+                                      (Containeres/ULD/Outros)                                                    Device - ULD) significa todo tipo de
+                                                                                                                  contêiner de carga, vagão, contêiner de
+                                                                                                                  avião, palete de aeronave com rede ou
+                                                                                                                  palete de aeronave com rede sobre um
+                                                                                                                  iglu.
+          89       tpUnidCarga    6   Tipo da Unidade de Carga                 E   N   1-1     1      D9          1 - Container;
+                                                                                                                  2 - ULD;
+                                                                                                                  3 - Pallet;
+                                                                                                                  4 - Outros;
+          90       idUnidCarga    6   Identificação da Unidade de Carga        E   C   1-1   1 - 20        ER54   Informar a identificação da unidade de
+                                                                                                                  carga, por exemplo: número do container.
+          91       lacUnidCarga   6   Lacres das Unidades de Carga             G       0-n
+          92         nLacre       7   Número do lacre                          E   C   1-1   1 - 20        ER35
+          93       qtdRat         6   Quantidade rateada (Peso,Volume)         E   N   0-1    3, 2         ER15   5 posições, sendo 3 inteiras e 2 decimais.
+          94      qtdRat          5   Quantidade rateada (Peso,Volume)         E   N   0-1    3, 2         ER15   5 posições, sendo 3 inteiras e 2 decimais.
+
+
+
+
+                                                                                                                                               Página 12 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          95     peri            4   Preenchido quando for transporte de      G       0-n
+                                     produtos classificados pela ONU como
+                                     perigosos.
+          96       nONU          5   Número ONU/UN                            E   C   1-1       4             ER44   Ver a legislação de transporte de
+                                                                                                                     produtos perigosos aplicadas ao modal
+          97       xNomeAE       5   Nome apropriado para embarque do         E   C   0-1     1 - 150         ER35   Ver a legislação de transporte de
+                                     produto                                                                         produtos perigosos aplicada ao modo de
+                                                                                                                     transporte
+          98       xClaRisco     5   Classe ou subclasse/divisão, e risco     E   C   0-1     1 - 40          ER35   Ver a legislação de transporte de
+                                     subsidiário/risco secundário                                                    produtos perigosos aplicadas ao modal
+          99       grEmb         5   Grupo de Embalagem                       E   C   0-1      1-6            ER35   Ver a legislação de transporte de
+                                                                                                                     produtos perigosos aplicadas ao modal
+                                                                                                                     Preenchimento obrigatório para o modal
+                                                                                                                     aéreo.
+                                                                                                                     A legislação para o modal rodoviário e
+                                                                                                                     ferroviário não atribui grupo de
+                                                                                                                     embalagem para todos os produtos,
+                                                                                                                     portanto haverá casos de não
+                                                                                                                     preenchimento desse campo.
+          100      qTotProd      5   Quantidade total por produto             E   C   1-1     1 - 20          ER35   Preencher conforme a legislação de
+                                                                                                                     transporte de produtos perigosos
+                                                                                                                     aplicada ao modal
+          101      qVolTipo      5   Quantidade e Tipo de volumes             E   C   0-1     1 - 60          ER35   Preencher conforme a legislação de
+                                                                                                                     transporte de produtos perigosos
+                                                                                                                     aplicada ao modal
+          102   infMDFeTransp    3   Manifesto Eletrônico de Documentos       G        0-
+                                     Fiscais. Somente para modal Aquaviário           10000
+                                     (vide regras MOC)
+          103    chMDFe          4   Manifesto Eletrônico de Documentos       E   N   1-1       44            ER3
+                                     Fiscais
+          104    indReentrega    4   Indicador de Reentrega                   E   N   0-1       1       D10
+          105    infUnidTransp   4   Informações das Unidades de Transporte   G       0-n                            Dispositivo de carga utilizada (Unit Load
+                                     (Carreta/Reboque/Vagão)                                                         Device - ULD) significa todo tipo de
+                                                                                                                     contêiner de carga, vagão, contêiner de
+                                                                                                                     avião, palete de aeronave com rede ou
+
+                                                                                                                                                  Página 13 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+                                                                                                                  palete de aeronave com rede sobre um
+                                                                                                                  iglu.
+          106     tpUnidTransp    5   Tipo da Unidade de Transporte            E   N   1-1     1      D8          1 - Rodoviário Tração;
+                                                                                                                  2 - Rodoviário Reboque;
+                                                                                                                  3 - Navio;
+                                                                                                                  4 - Balsa;
+                                                                                                                  5 - Aeronave;
+                                                                                                                  6 - Vagão;
+                                                                                                                  7 - Outros
+          107     idUnidTransp    5   Identificação da Unidade de Transporte   E   C   1-1   1 - 20        ER54   Informar a identificação conforme o tipo
+                                                                                                                  de unidade de transporte.
+                                                                                                                  Por exemplo: para rodoviário tração ou
+                                                                                                                  reboque deverá preencher com a placa
+                                                                                                                  do veículo.
+          108     lacUnidTransp   5   Lacres das Unidades de Transporte        G       0-n
+          109      nLacre         6   Número do lacre                          E   C   1-1   1 - 20        ER35
+          110     infUnidCarga    5   Informações das Unidades de Carga        G       0-n                        Dispositivo de carga utilizada (Unit Load
+                                      (Containeres/ULD/Outros)                                                    Device - ULD) significa todo tipo de
+                                                                                                                  contêiner de carga, vagão, contêiner de
+                                                                                                                  avião, palete de aeronave com rede ou
+                                                                                                                  palete de aeronave com rede sobre um
+                                                                                                                  iglu.
+          111      tpUnidCarga    6   Tipo da Unidade de Carga                 E   N   1-1     1      D9          1 - Container;
+                                                                                                                  2 - ULD;
+                                                                                                                  3 - Pallet;
+                                                                                                                  4 - Outros;
+          112      idUnidCarga    6   Identificação da Unidade de Carga        E   C   1-1   1 - 20        ER54   Informar a identificação da unidade de
+                                                                                                                  carga, por exemplo: número do container.
+          113      lacUnidCarga   6   Lacres das Unidades de Carga             G       0-n
+          114        nLacre       7   Número do lacre                          E   C   1-1   1 - 20        ER35
+          115      qtdRat         6   Quantidade rateada (Peso,Volume)         E   N   0-1    3, 2         ER15   5 posições, sendo 3 inteiras e 2 decimais.
+          116     qtdRat          5   Quantidade rateada (Peso,Volume)         E   N   0-1    3, 2         ER15   5 posições, sendo 3 inteiras e 2 decimais.
+
+
+
+
+                                                                                                                                               Página 14 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          117         peri         4   Preenchido quando for transporte de      G       0-n
+                                       produtos classificados pela ONU como
+                                       perigosos.
+          118          nONU        5   Número ONU/UN                            E   C   1-1     4            ER44   Ver a legislação de transporte de
+                                                                                                                    produtos perigosos aplicadas ao modal
+          119          xNomeAE     5   Nome apropriado para embarque do         E   C   0-1   1 - 150        ER35   Ver a legislação de transporte de
+                                       produto                                                                      produtos perigosos aplicada ao modo de
+                                                                                                                    transporte
+          120          xClaRisco   5   Classe ou subclasse/divisão, e risco     E   C   0-1   1 - 40         ER35   Ver a legislação de transporte de
+                                       subsidiário/risco secundário                                                 produtos perigosos aplicadas ao modal
+          121          grEmb       5   Grupo de Embalagem                       E   C   0-1    1-6           ER35   Ver a legislação de transporte de
+                                                                                                                    produtos perigosos aplicadas ao modal
+                                                                                                                    Preenchimento obrigatório para o modal
+                                                                                                                    aéreo.
+                                                                                                                    A legislação para o modal rodoviário e
+                                                                                                                    ferroviário não atribui grupo de
+                                                                                                                    embalagem para todos os produtos,
+                                                                                                                    portanto haverá casos de não
+                                                                                                                    preenchimento desse campo.
+          122          qTotProd    5   Quantidade total por produto             E   C   1-1   1 - 20         ER35   Preencher conforme a legislação de
+                                                                                                                    transporte de produtos perigosos
+                                                                                                                    aplicada ao modal
+          123          qVolTipo    5   Quantidade e Tipo de volumes             E   C   0-1   1 - 60         ER35   Preencher conforme a legislação de
+                                                                                                                    transporte de produtos perigosos
+                                                                                                                    aplicada ao modal
+          124   seg                1   Informações de Seguro da Carga           G       0-n
+          125    infResp           2   Informações do responsável pelo seguro   G       1-1
+                                       da carga
+          126     respSeg          3   Responsável pelo seguro                  E   N   1-1    1-1      D6          Preencher com:
+                                                                                                                    1- Emitente do MDF-e;
+                                                                                                                    2 - Responsável pela contratação do
+                                                                                                                    serviço de transporte (contratante)
+
+                                                                                                                    Dados obrigatórios apenas no modal
+                                                                                                                    Rodoviário, depois da lei 11.442/07. Para
+
+
+                                                                                                                                                Página 15 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+                                                                                                                    os demais modais esta informação é
+                                                                                                                    opcional.
+          #           -- X --   3   Sequencia XML                              -    -   0-1
+          127         CNPJ      3   Número do CNPJ do responsável pelo         CE   N   1-1    14            ER7    Obrigatório apenas se responsável pelo
+                                    seguro                                                                          seguro for (2) responsável pela
+                                                                                                                    contratação do transporte - pessoa
+                                                                                                                    jurídica
+          128         CPF       3   Número do CPF do responsável pelo          CE   N   1-1    11            ER10   Obrigatório apenas se responsável pelo
+                                    seguro                                                                          seguro for (2) responsável pela
+                                                                                                                    contratação do transporte - pessoa física
+          129    infSeg         2   Informações da seguradora                  G        0-1
+          130         xSeg      3   Nome da Seguradora                         E    C   1-1   1 - 30         ER35
+          131         CNPJ      3   Número do CNPJ da seguradora               E    N   1-1    14            ER9    Obrigatório apenas se responsável pelo
+                                                                                                                    seguro for (2) responsável pela
+                                                                                                                    contratação do transporte - pessoa
+                                                                                                                    jurídica
+          132    nApol          2   Número da Apólice                          E    C   0-1   1 - 20         ER35   Obrigatório pela lei 11.442/07 (RCTRC)
+          133    nAver          2   Número da Averbação                        E    C   0-n   1 - 40         ER35   Informar as averbações do seguro
+          134   tot             1   Totalizadores da carga transportada e      G        1-1
+                                    seus documentos fiscais
+          135    qCTe           2   Quantidade total de CT-e relacionados no   E    N   0-1   1-6            ER45
+                                    Manifesto
+          136    qNFe           2   Quantidade total de NF-e relacionadas no   E    N   0-1   1-6            ER45
+                                    Manifesto
+          137    qMDFe          2   Quantidade total de MDF-e relacionados     E    N   0-1   1-6            ER45
+                                    no Manifesto Aquaviário
+          138    vCarga         2   Valor total da carga / mercadorias         E    N   1-1   13, 2          ER27   15 posições, sendo 13 inteiras e 2
+                                    transportadas                                                                   decimais.
+          139    cUnid          2   Código da unidade de medida do Peso        E    N   1-1     2      D11          01 – KG;
+                                    Bruto da Carga / Mercadorias                                                    02 - TON
+                                    transportadas
+
+
+
+                                                                                                                                                 Página 16 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          140    qCarga         2   Peso Bruto Total da Carga / Mercadorias       E    N   1-1       11, 4     ER21   15 posições, sendo 11 inteiras e 4
+                                    transportadas                                                                     decimais.
+          141   lacres          1   Lacres do MDF-e                               G        0-n                        Preenchimento opcional para os
+                                                                                                                      modais Rodoviário e Ferroviário
+          142    nLacre         2   número do lacre                               E    C   1-1       1 - 60    ER35
+          143   autXML          1   Autorizados para download do XML do           G        0 - 10                     Informar CNPJ ou CPF. Preencher os
+                                    DF-e                                                                              zeros não significativos.
+          144    CNPJ           2   CNPJ do autorizado                            CE   N   1-1        14       ER7    Informar zeros não significativos
+          145    CPF            2   CPF do autorizado                             CE   N   1-1        11       ER10   Informar zeros não significativos
+          146   infAdic         1   Informações Adicionais                        G        0-1
+          147    infAdFisco     2   Informações adicionais de interesse do        E    C   0-1      1 - 2000   ER35   Norma referenciada, informações
+                                    Fisco                                                                             complementares, etc
+          148    infCpl         2   Informações complementares de                 E    C   0-1      1 - 5000   ER35
+                                    interesse do Contribuinte
+          149   infRespTec      1   Informações do Responsável Técnico            G        0-1
+                                    pela emissão do DF-e
+          150    CNPJ           2   CNPJ da pessoa jurídica responsável           E    N   1-1        14       ER7    Informar o CNPJ da pessoa jurídica
+                                    técnica pelo sistema utilizado na emissão                                         desenvolvedora do sistema utilizado na
+                                    do documento fiscal eletrônico                                                    emissão do documento fiscal eletrônico.
+          151    xContato       2   Nome da pessoa a ser contatada                E    C   1-1       2 - 60    ER35   Informar o nome da pessoa a ser
+                                                                                                                      contatada na empresa desenvolvedora do
+                                                                                                                      sistema utilizado na emissão do
+                                                                                                                      documento fiscal eletrônico. No caso de
+                                                                                                                      pessoa física, informar o respectivo nome.
+          152    email          2   E-mail da pessoa jurídica a ser contatada     E    C   1-1       1 - 60    ER55
+          153    fone           2   Telefone da     pessoa   jurídica   a   ser   E    N   1–1       7 - 12    ER48   Preencher com o Código DDD + número
+                                    contatada                                                                         do telefone.
+          #      --- X ---      2   Sequencia XML                                 -    -   0–1
+          154    idCSRT         2   Identificador do código de segurança do       E    N   1-1         3       ER6    Identificador do CSRT utilizado para
+                                    responsável técnico                                                               geração do hash
+
+
+
+
+                                                                                                                                                   Página 17 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          155    hashCSRT       2   Hash do token do código de segurança   E   C   1-1    28           O hashCSRT é o resultado das funções
+                                    do responsável técnico                                             SHA-1 e base64 do token CSRT
+                                                                                                       fornecido pelo fisco + chave de acesso
+                                                                                                       do DF-e. (Implementação em futura NT)
+
+                                                                                                       Observação: 28 caracteres são
+                                                                                                       representados no schema como 20 bytes
+                                                                                                       do tipo base64Binary
+          156 infMDFeSupl       0   Informações suplementares do MDF-e     G       0-1
+          157   qrCodMDFe       1   Texto com o QR-Code para consulta do   E   C   1-1   50 -   ER62
+                                    MDF-e                                                1000
+          158                   0   ds:Signature                           E   C   1-1
+
+
+
+
+                                                                                                                                  Página 18 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+      2.1 Leiaute do Modal Rodoviário
+
+          #    Campo              Nível Descrição                             Ele Tipo Ocorr. Tamanho Domínio Exp.Reg. Observações
+          1    rodo                0   Informações do modal Rodoviário        G         1-1
+          2     infANTT            1   Grupo de informações para Agência      G         0-1
+                                       Reguladora
+          3      RNTRC             2   Registro Nacional de Transportadores   E    N    0-1      8             ER41   Registro obrigatório do emitente do MDF-
+                                       Rodoviários de Carga                                                           e junto à ANTT para exercer a atividade
+                                                                                                                      de transportador rodoviário de cargas por
+                                                                                                                      conta de terceiros e mediante
+                                                                                                                      remuneração.
+          4      infCIOT           2   Dados do CIOT                          G         0-n
+          5           CIOT         3   Código Identificador da Operação de    E    N    1-1     12             ER56   Também Conhecido como conta frete
+                                       Transporte
+          6           CPF          3   Número do CPF responsável pela         CE   N    1-1     11             ER10   Informar os zeros não significativos.
+                                       geração do CIOT
+          7           CNPJ         3   Número do CNPJ responsável pela        CE   N    1-1     14             ER9    Informar os zeros não significativos.
+                                       geração do CIOT
+          8      valePed           2   Informações de Vale Pedágio            G         0-1                           Outras informações sobre Vale-Pedágio
+                                                                                                                      obrigatório que não tenham campos
+                                                                                                                      específicos devem ser informadas no
+                                                                                                                      campo de observações gerais de uso
+                                                                                                                      livre pelo contribuinte, visando atender as
+                                                                                                                      determinações legais vigentes.
+          9           disp         3   Informações dos dispositivos do Vale   G         1-n
+                                       Pedágio
+          10           CNPJForn    4   CNPJ da empresa fornecedora do Vale-   E    N    1-1     14             ER7    - CNPJ da Empresa Fornecedora do
+                                       Pedágio                                                                        Vale-Pedágio, ou seja, empresa que
+                                                                                                                      fornece ao Responsável pelo Pagamento
+                                                                                                                      do Vale-Pedágio os dispositivos do Vale-
+                                                                                                                      Pedágio.
+                                                                                                                      - Informar os zeros não significativos.
+          #            -- X --     4   Sequencia XML                           -   -    0–1
+
+
+                                                                                                                                                    Página 19 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          11           CNPJPg     4   CNPJ do responsável pelo pagamento do CE     N   1-1    14      ER9    - Responsável pelo pagamento do Vale
+                                      Vale-Pedágio                                                           Pedágio. Informar somente quando o
+                                                                                                             responsável não for o emitente do MDF-
+                                                                                                             e.
+                                                                                                             - Informar os zeros não significativos.
+          12           CPFPg      4   CNPJ do responsável pelo pagamento do CE     N   1-1    11      ER10   Informar os zeros não significativos.
+                                      Vale-Pedágio
+          13           nCompra    4   Número do comprovante de compra         E    N   1-1   1 - 20   ER57   Número de ordem do comprovante de
+                                                                                                             compra do Vale-Pedágio fornecido para
+                                                                                                             cada veículo ou combinação veicular, por
+                                                                                                             viagem.
+          14           vValePed   4   Valor do Vale-Pedagio                   E    N   1-1   13, 2    ER27   15 posições, sendo 13 inteiras e 2
+                                                                                                             decimais.
+                                                                                                             Número de ordem do comprovante de
+                                                                                                             compra do Vale-Pedágio fornecido para
+                                                                                                             cada veículo ou combinação veicular, por
+                                                                                                             viagem.
+          15    infContratante    2   Grupo de informações dos contratantes   G        0-n
+                                      do serviço de transporte
+          16      CPF             3   Número do CPF do contratente do         CE   N   1-1    11      ER10   Informar os zeros não significativos.
+                                      serviço
+          17      CNPJ            3   Número do CNPJ do contratante do        CE   N   1-1    14      ER9    Informar os zeros não significativos.
+                                      serviço
+          18   veicTracao         1   Dados do Veículo com a Tração           G        1-1
+          19    cInt              2   Código interno do veículo               E    C   0-1   1 - 10   ER35
+          20    placa             2   Placa do veículo                        E    C   1-1     4      ER40
+          21    RENAVAM           2   RENAVAM do veículo                      E    C   0-1   9 - 11   ER35
+          22    tara              2   Tara em KG                              E    N   1-1   1-6      ER58
+          23    capKG             2   Capacidade em KG                        E    N   0-1   1-6      ER58
+          24    capM3             2   Capacidade em M3                        E    N   0-1   1-3      ER32
+
+
+
+
+                                                                                                                                           Página 20 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          25   prop             2   Proprietários do Veículo.               G        0-1
+                                    Só preenchido quando o veículo não
+                                    pertencer à empresa emitente do MDF-e
+          26    CPF             3   Número do CPF                           CE   N   1-1       11            ER10   Informar os zeros não significativos.
+          27    CNPJ            3   Número do CNPJ                          CE   N   1-1       14            ER9    Informar os zeros não significativos.
+          28    RNTRC           3   Registro Nacional dos Transportadores   E    N   1-1        8            ER41   Registro obrigatório do proprietário,
+                                    Rodoviários de Carga                                                            coproprietário ou arrendatário do veículo
+                                                                                                                    junto à ANTT para exercer a atividade de
+                                                                                                                    transportador rodoviário de cargas por
+                                                                                                                    conta de terceiros e mediante
+                                                                                                                    remuneração.
+          29    xNome           3   Razão Social ou Nome do proprietário    E    C   1-1      2 - 60         ER35
+          #     -- X --         3   Sequencia XML                           -    -   0–1
+          30    IE              3   Inscrição Estadual                      E    C   1-1      0 - 14         ER29
+          31    UF              3   UF                                      E    C   1-1        2      D5
+          32    tpProp          3   Tipo Proprietário                       E    N   1-1        1      D14          Preencher com:
+                                                                                                                    0-TAC – Agregado;
+                                                                                                                    1-TAC Independente; ou
+                                                                                                                    2 – Outros.
+          33   condutor         2   Informações do(s) Condutor(es) do       G        1 - 10
+                                    veículo
+          34    xNome           3   Nome do Condutor                        E    C   1-1      2 - 60         ER35
+          35    CPF             3   CPF do Condutor                         E    N   1-1       11            ER10
+          36   tpRod            2   Tipo de Rodado                          E    N   1-1        2      D15          Preencher com:
+                                                                                                                    01 - Truck;
+                                                                                                                    02 - Toco;
+                                                                                                                    03 - Cavalo Mecânico;
+                                                                                                                    04 - VAN;
+                                                                                                                    05 - Utilitário;
+                                                                                                                    06 - Outros.
+          37   tpCar            2   Tipo de Carroceria                      E    N   1-1        2      D16          Preencher com:
+                                                                                                                    00 - não aplicável;
+                                                                                                                    01 - Aberta;
+
+
+                                                                                                                                                  Página 21 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+                                                                                                                 02 - Fechada/Baú;
+                                                                                                                 03 - Granelera;
+                                                                                                                 04 - Porta Container;
+                                                                                                                 05 - Sider
+          38    UF              2   UF em que veículo está licenciado       E    C   1-1     2      D5           Sigla da UF de licenciamento do veículo.
+          39   veicReboque      1   Dados dos reboques                      G        0-3
+          40    cInt            2   Código interno do veículo               E    C   0-1   1 - 10         ER35
+          41    placa           2   Placa do veículo                        E    C   1-1     4            ER40
+          42    RENAVAM         2   RENAVAM do veículo                      E    C   0-1   9 - 11         ER35
+          43    tara            2   Tara em KG                              E    N   1-1   1-6            ER58
+          44    capKG           2   Capacidade em KG                        E    N   1-1   1-6            ER58
+          45    capM3           2   Capacidade em M3                        E    N   0-1   1-3            ER32
+          46    prop            2   Proprietários do Veículo.               G        0-1
+                                    Só preenchido quando o veículo não
+                                    pertencer à empresa emitente do MDF-e
+          47      CPF           3   Número do CPF                           CE   N   1-1    11            ER10   Informar os zeros não significativos.
+          48      CNPJ          3   Número do CNPJ                          CE   N   1-1    14            ER9    Informar os zeros não significativos.
+          49      RNTRC         3   Registro Nacional dos Transportadores   E    N   1-1     8            ER41   Registro obrigatório do proprietário,
+                                    Rodoviários de Carga                                                         coproprietário ou arrendatário do veículo
+                                                                                                                 junto à ANTT para exercer a atividade de
+                                                                                                                 transportador rodoviário de cargas por
+                                                                                                                 conta de terceiros e mediante
+                                                                                                                 remuneração.
+          50      xNome         3   Razão Social ou Nome do proprietário    E    C   1-1   1 - 60         ER35
+          #       -- X --       3   Sequencia XML                           -    -   0–1
+          51      IE            3   Inscrição Estadual                      E    C   1-1   0 - 14         ER29
+          52      UF            3   UF                                      E    C   1-1     2      D5
+          53      tpProp        3   Tipo Proprietário                       E    N   1-1     1      D14          Preencher com:
+                                                                                                                 0-TAC Agregado;
+                                                                                                                 1-TAC Independente;
+                                                                                                                 2 – Outros.
+
+                                                                                                                                               Página 22 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          54    tpCar           2   Tipo de Carroceria                  E   N   1-1     2      D16          Preencher com:
+                                                                                                            00 - não aplicável;
+                                                                                                            01 - Aberta;
+                                                                                                            02 - Fechada/Baú;
+                                                                                                            03 - Granelera;
+                                                                                                            04 - Porta Container;
+                                                                                                            05 - Sider
+          55    UF              2   UF em que veículo está licenciado   E   C   1-1     2      D5           Sigla da UF de licenciamento do veículo.
+          56   codAgPorto       1   Código de Agendamento no porto      E   C   0-1   0 - 16         ER35
+          57   lacRodo          1   Lacres                              G       0-n
+          58    nLacre          2   Número do Lacre                     E   C   1-1   1 - 20         ER35
+
+
+
+
+                                                                                                                                        Página 23 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+      2.2 Leiaute do Modal Aéreo
+
+          #   Campo            Nível Descrição                           Ele Tipo Ocorr. Tamanho Domínio Exp.Reg. Observações
+          1   aereo             0   Informações do modal Aéreo           G         1-1
+          2    nac              1   Marca da Nacionalidade da aeronave   E    C    1-1    1-4             ER35
+          3    matr             1   Marca de Matrícula da aeronave       E    C    1-1    1-6             ER35
+          4    nVoo             1   Número do Voo                        E    C    1-1    5-9             ER35   Formato = AB1234, sendo AB a
+                                                                                                                 designação da empresa e 1234 o número
+                                                                                                                 do voo. Quando não for possível incluir
+                                                                                                                 as marcas de nacionalidade e matrícula
+                                                                                                                 sem hífen.
+          5    cAerEmb          1   Aeródromo de Embarque                E    C    1-1    3-4             ER35   O código de três letras IATA do aeroporto
+                                                                                                                 de partida deverá ser incluído como
+                                                                                                                 primeira anotação. Quando não for
+                                                                                                                 possível, utilizar a sigla OACI.
+          6    cAerDes          1   Aeródromo de Destino                 E    C    1-1    3-4             ER35   O código de três letras IATA do aeroporto
+                                                                                                                 de destino deverá ser incluído como
+                                                                                                                 primeira anotação. Quando não for
+                                                                                                                 possível, utilizar a sigla OACI.
+          7    dVoo             1   Data do Voo                          E    D    1-1     10             ER36   Formato AAAA-MM-DD
+
+
+
+
+                                                                                                                                             Página 24 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+      2.3 Leiaute do Modal Ferroviário
+
+          #    Campo           Nível Descrição                            Ele Tipo Ocorr. Tamanho Domínio Exp.Reg. Observações
+          1    ferrov           0   Informações do modal Ferroviário      G         1-1
+          2     trem            1   Informações da composição do trem     G         1-1
+          3       xPref         2   Prefixo do Trem                       E    C    1-1    1 - 10          ER35
+          4       dhTrem        2   Data e hora de liberação do trem na   E    C    0-1     21             ER1
+                                    origem
+          5       xOri          2   Origem do Trem                        E    C    1-1    1-3             ER35   Sigla da estação de origem
+          6       xDest         2   Destino do Trem                       E    C    1-1    1-3             ER35   Sigla da estação de destino
+          7       qVag          2   Quantidade de vagões carregados       E    N    1-1    1-3             ER59
+          8     vag             1   informações dos Vagões                G         1-n
+          9       pesoBC        2   Peso Base de Cálculo de Frete em      E    N    1-1     3, 3           ER13   6 posições, sendo 3 inteiras e 3 decimais.
+                                    Toneladas
+          10      pesoR         2   Peso Real em Toneladas                E    N    1-1     3, 3           ER13   6 posições, sendo 3 inteiras e 3 decimais.
+          11      tpVag         2   Tipo de Vagão                         E    C    0-1      3             ER35
+          12      serie         2   Serie de Identificação do vagão       E    C    1-1      3             ER35
+          13      nVag          2   Número de Identificação do vagão      E    N    1-1    1-8             ER60
+          14      nSeq          2   Sequência do vagão na composição      E    N    0-1    1-3             ER59
+          15      TU            2   Tonelada Útil                         E    N    1-1     3, 3           ER13   6 posições, sendo 3 inteiras e 3 decimais.
+                                                                                                                  Unidade de peso referente à carga útil
+                                                                                                                  (apenas o peso da carga transportada),
+                                                                                                                  expressa em toneladas.
+
+
+
+
+                                                                                                                                                Página 25 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+      2.4 Leiaute do Modal Aquaviário
+
+          #    Campo               Nível Descrição                           Ele Tipo Ocorr. Tamanho Domínio Exp.Reg. Observações
+          1    aquav                0   Informações do modal Aquaviário      G         1-1
+          2     irin                1   Irin do navio sempre deverá ser      E    C    1-1    1 - 10
+                                        informado
+          3     tpEmb               1   Código do tipo de embarcação         E    N    1-1      2             ER33   Preencher com código da Tabela de Tipo
+                                                                                                                     de Embarcação definida no Ministério dos
+                                                                                                                     Transportes
+          4     cEmbar              1   Código da embarcação                 E    C    1-1    1 - 10          ER35
+          5     xEmbar              1   Nome da embarcação                   E    C    1-1    1 - 60          ER35
+          6     nViag               1   Número da Viagem                     E    N    1-1    1 - 10          ER61
+          7     cPrtEmb             1   Código do Porto de Embarque          E    C    1-1    1-5             ER35   Preencher de acordo com Tabela de
+                                                                                                                     Portos definida no Ministério dos
+                                                                                                                     Transportes
+          8     cPrtDest            1   Código do Porto de Destino           E    C    1-1    1-5             ER35   Preencher de acordo com Tabela de
+                                                                                                                     Portos definida no Ministério dos
+                                                                                                                     Transportes
+          9     prtTrans            1   Porto de Transbordo                  E    C    0-1    1 - 60          ER35
+          10    tpNav               1   Tipo de Navegação                    E    N    0-1      1      D17           Preencher com:
+                                                                                                                     0 - Interior;
+                                                                                                                     1 - Cabotagem
+          11    infTermCarreg       1   Grupo de informações dos terminais   G         0-5
+                                        de carregamento.
+          12      cTermCarreg       2   Código do Terminal de Carregamento   E    C    1-1    1-8             ER35   Preencher de acordo com a Tabela de
+                                                                                                                     Terminais de Carregamento. O código de
+                                                                                                                     cada Porto está definido no Ministério de
+                                                                                                                     Transportes.
+          13      xTermCarreg       2   Nome do Terminal de Carregamento     E    C    1-1    1 - 60          ER35
+          14    infTermDescarreg    1   Grupo de informações dos terminais   G         0-5
+                                        de descarregamento.
+
+
+                                                                                                                                                 Página 26 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+          15    cTermDescarreg      2   Código do Terminal de Descarregamento      E   C   1-1      1-8           ER35   Preencher de acordo com a Tabela de
+                                                                                                                         Terminais de Descarregamento. O código
+                                                                                                                         de cada Porto está definido no Ministério
+                                                                                                                         de Transportes.
+          16    xTermDescarreg      2   Nome do Terminal de Descarregamento        E   C   1-1      1 - 60        ER35
+          17   infEmbComb           1   Informações das Embarcações do             G       0 - 30
+                                        Comboio
+          18    cEmbComb            2   Código da embarcação do comboio            E   C   1-1      1 - 10        ER35
+          19    xBalsa              2   Identificador da Balsa                     E   C   1-1      1 - 60        ER35
+          20   infUnidCargaVazia    1   Informações das Undades de Carga           G       0-n
+                                        vazias
+          21    idUnidCargaVazia    2   Identificação da unidades de carga vazia   E   C   1-1      1 - 20        ER54
+          22    tpUnidCargaVazia    2   Tipo da unidade de carga vazia             E   N   1-1        1      D9   ER35   1 - Container;
+                                                                                                                         2 - ULD;
+                                                                                                                         3 - Pallet;
+                                                                                                                         4 - Outros;
+          23   infUnidTranspVazia   1   Informações das Undades de                 G       0-n
+                                        Transporte vazias
+          24    idUnidTranspVazia   2   Identificação da unidades de transporte    E   C   1-1      1 - 20        ER54
+                                        vazia
+          25    tpUnidTranspVazia   2   Tipo da unidade de transporte vazia        E   N   1-1        1      D6   ER35   Deve ser preenchido com “1” para
+                                                                                                                         Rodoviário Tração do tipo caminhão ou
+                                                                                                                         “2” para Rodoviário reboque do tipo
+                                                                                                                         carreta
+
+
+
+
+                                                                                                                                                     Página 27 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+      2.5 Expressões regulares
+
+                                                                                  Expressões Regulares
+            ER1    (((20(([02468][048])|([13579][26]))-02-29))|(20[0-9][0-9])-((((0[1-9])|(1[0-2]))-((0[1-9])|(1\d)|(2[0-8])))|((((0[13578])|(1[02]))-31)|(((0[1,3-9])|(1[0-2]))-
+                   (29|30)))))T(20|21|22|23|[0-1]\d):[0-5]\d:[0-5]\d([\-,\+](0[0-9]|10|11):00|([\+](12):00))
+            ER2    [0-9]{7}
+            ER3    [0-9]{44}
+            ER4    [0-9]{36}
+            ER5    [0-9]{15}
+            ER6    [0-9]{3}
+            ER7    [0-9]{14}
+            ER8    [0-9]{3,14}
+            ER9    [0-9]{0}|[0-9]{14}
+            ER10   [0-9]{11}
+            ER11   [0-9]{3,11}
+            ER12   0|0\.[0-9]{2}|[1-9]{1}[0-9]{0,2}(\.[0-9]{2})?
+            ER13   0|0\.[0-9]{2}|[1-9]{1}[0-9]{0,2}(\.[0-9]{3})?
+            ER14   0\.[0-9]{1}[1-9]{1}|0\.[1-9]{1}[0-9]{1}|[1-9]{1}[0-9]{0,2}(\.[0-9]{2})?
+            ER15   [0-9]{1,3}(\.[0-9]{2,3})?
+            ER16   0|0\.[0-9]{3}|[1-9]{1}[0-9]{0,7}(\.[0-9]{3})?
+            ER17   0\.[1-9]{1}[0-9]{2}|0\.[0-9]{2}[1-9]{1}|0\.[0-9]{1}[1-9]{1}[0-9]{1}|[1-9]{1}[0-9]{0,7}(\.[0-9]{3})?
+            ER18   0|0\.[0-9]{4}|[1-9]{1}[0-9]{0,7}(\.[0-9]{4})?
+            ER19   0\.[1-9]{1}[0-9]{3}|0\.[0-9]{3}[1-9]{1}|0\.[0-9]{2}[1-9]{1}[0-9]{1}|0\.[0-9]{1}[1-9]{1}[0-9]{2}|[1-9]{1}[0-9]{0,7}(\.[0-9]{4})?
+            ER20   0\.[1-9]{1}[0-9]{5}|0\.[0-9]{1}[1-9]{1}[0-9]{4}|0\.[0-9]{2}[1-9]{1}[0-9]{3}|0\.[0-9]{3}[1-9]{1}[0-9]{2}|0\.[0-9]{4}[1-9]{1}[0-9]{1}|0\.[0-9]{5}[1-9]{1}|[1-9]{1}[0-
+                   9]{0,8}(\.[0-9]{6})?
+            ER21   0|0\.[0-9]{4}|[1-9]{1}[0-9]{0,10}(\.[0-9]{4})?
+            ER22   0\.[1-9]{1}[0-9]{3}|0\.[0-9]{3}[1-9]{1}|0\.[0-9]{2}[1-9]{1}[0-9]{1}|0\.[0-9]{1}[1-9]{1}[0-9]{2}|[1-9]{1}[0-9]{0,10}(\.[0-9]{4})?
+
+                                                                                                                                                                                  Página 28 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+            ER23   0|0\.[0-9]{3}|[1-9]{1}[0-9]{0,11}(\.[0-9]{3})?
+            ER24   0\.[1-9]{1}[0-9]{2}|0\.[0-9]{2}[1-9]{1}|0\.[0-9]{1}[1-9]{1}[0-9]{1}|[1-9]{1}[0-9]{0,11}(\.[0-9]{3})?
+            ER25   0|0\.[0-9]{4}|[1-9]{1}[0-9]{0,11}(\.[0-9]{4})?
+            ER26   0\.[1-9]{1}[0-9]{3}|0\.[0-9]{3}[1-9]{1}|0\.[0-9]{2}[1-9]{1}[0-9]{1}|0\.[0-9]{1}[1-9]{1}[0-9]{2}|[1-9]{1}[0-9]{0,11}(\.[0-9]{4})?
+            ER27   0|0\.[0-9]{2}|[1-9]{1}[0-9]{0,12}(\.[0-9]{2})?
+            ER28   0\.[0-9]{1}[1-9]{1}|0\.[1-9]{1}[0-9]{1}|[1-9]{1}[0-9]{0,12}(\.[0-9]{2})?
+            ER29   [0-9]{0,14}|ISENTO|PR[0-9]{4,8}
+            ER30   [0-9]{2,14}
+            ER31   [1-9]{1}[0-9]{0,8}
+            ER32   0|[1-9]{1}[0-9]{0,2}
+            ER33   [0-9]{2}
+            ER34   [0-9]{1,4}
+            ER35   [!-ÿ]{1}[ -ÿ]{0,}[!-ÿ]{1}|[!-ÿ]{1}
+            ER36   (((20(([02468][048])|([13579][26]))-02-29))|(20[0-9][0-9])-((((0[1-9])|(1[0-2]))-((0[1-9])|(1\d)|(2[0-8])))|((((0[13578])|(1[02]))-31)|(((0[1,3-9])|(1[0-2]))-(29|30)))))
+            ER37   [0-9]\.[0-9]{6}|[1-8][0-9]\.[0-9]{6}|90\.[0-9]{6}|-[0-9]\.[0-9]{6}|-[1-8][0-9]\.[0-9]{6}|-90\.[0-9]{6}
+            ER38   [0-9]\.[0-9]{6}|[1-9][0-9]\.[0-9]{6}|1[0-7][0-9]\.[0-9]{6}|180\.[0-9]{6}|-[0-9]\.[0-9]{6}|-[1-9][0-9]\.[0-9]{6}|-1[0-7][0-9]\.[0-9]{6}|-180\.[0-9]{6}
+            ER39   (([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])
+            ER40   [A-Z]{2,3}[0-9]{4}|[A-Z]{3,4}[0-9]{3}|[A-Z0-9]{7}
+            ER41   [0-9]{8}
+            ER42   [0-9]{1}
+            ER43   3\.(0[0-9]|[1-9][0-9])
+            ER44   [0-9]{4}|ND
+            ER45   [0-9]{1,6}
+            ER46   MDFe[0-9]{44}
+            ER47   ((HTTPS?|https?)://.*\?chNF3e=[0-9]{44}&tpAmb=[1-2](&sign=[!-ÿ]{1}[ -ÿ]{0,}[!-ÿ]{1}|[!-ÿ]{1})?)
+            ER48   [0-9]{7,12}
+
+
+                                                                                                                                                                               Página 29 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+            ER49   [0-9]{7,10}
+            ER50   [0-9]{1,15}
+            ER51   3\.00
+            ER52   (([0-1][0-9])|([2][0-3])):([0-5][0-9]):([0-5][0-9])
+            ER53   [1-9]{1}[0-9]{1,8}
+            ER54   [A-Z0-9]+
+            ER55   [^@]+@[^\.]+\..+
+            ER56   [0-9]{12}
+            ER57   [0-9]{1,20}
+            ER58   0|[1-9]{1}[0-9]{0,5}
+            ER59   [1-9]{1}[0-9]{0,2}
+            ER60   [1-9]{1}[0-9]{0,7}
+            ER61   [1-9]{1}[0-9]{0,9}
+            ER62   ((HTTPS?|https?)://.*\?chMDFe=[0-9]{44}&tpAmb=[1-2](&sign=[!-ÿ]{1}[ -ÿ]{0,}[!-ÿ]{1}|[!-ÿ]{1})?)
+
+
+
+
+                                                                                                                     Página 30 / 31
+Projeto
+Manifesto Eletrônico de Documentos Fiscais
+MOC 3.00a
+
+
+
+      2.6 Valores de domínio
+
+                                                                                      Domínio
+            D1     11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42, 43, 50, 51, 52, 53
+            D2     11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42, 43, 50, 51, 52, 53, 90, 91, 92, 93
+            D3     11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42, 43, 50, 51, 52, 53, 99
+            D4     58
+            D5     AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MG, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP, TO, EX
+            D6     1, 2
+            D7     1, 2, 3
+            D8     1, 2, 3, 4, 5, 6, 7
+            D9     1, 2, 3, 4
+            D10    1
+            D11    01, 02
+            D12    0, 3
+            D13    01, 1B, 02, 2D, 2E, 04, 06, 07, 08, 8B, 09, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 55
+            D14    0, 1, 2
+            D15    01, 02, 03, 04, 05, 06
+            D16    00, 01, 02, 03, 04, 05
+            D17    0, 1
+
+
+
+
+                                                                                                                                                Página 31 / 31
+

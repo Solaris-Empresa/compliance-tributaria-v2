@@ -1,0 +1,1523 @@
+Projeto Conhecimento de
+Transporte Eletrônico
+Manual de Orientação do Contribuinte
+Anexo II – Manual de Especificações Técnicas do DACTE
+
+Versão 4.00 – agosto (2022)
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+  Sumário
+
+  Controle de Versões ......................................................................................................................... 4
+  Histórico de Alterações / Cronograma .............................................................................................. 5
+  1.      Introdução ................................................................................................................................. 6
+  2.      Documento Auxiliar de CT-e – DACTE ...................................................................................... 7
+       2.1.     Leiaute de geração/impressão DACTE ............................................................................... 7
+       2.2.     Possibilidade da apresentação do DACTE e DACTE OS em meio eletrônico ..................... 8
+       2.3.     Campos do DACTE .............................................................................................................8
+       2.4.     Chave de Acesso ................................................................................................................ 8
+       2.5.     Dados do CT-e .................................................................................................................... 9
+       2.6.     Dados do Emitente .............................................................................................................. 9
+       2.7.     Quadros do Expedidor e Recebedor ................................................................................... 9
+       2.8. Quadro Componentes do Valor da Prestação de Serviço, Informações Relativas ao Imposto,
+       Documentos Originários e Observações. .......................................................................................9
+       2.9.     Reservado ao Fisco .......................................................................................................... 10
+       2.10.        Bloco de Canhoto .......................................................................................................... 10
+       2.11.        Verso do DACTE ........................................................................................................... 10
+       2.12.        Folhas Adicionais........................................................................................................... 10
+       2.13.        Formulário ..................................................................................................................... 11
+       2.14.        Tamanho do Papel ........................................................................................................ 11
+       2.15.        Modelos de DACTE Permitidos ..................................................................................... 11
+       2.16.        DACTE em Modo Paisagem .......................................................................................... 11
+       2.17.        Código de Barras ........................................................................................................... 12
+  2.17.1.              Cálculo do dígito verificador do CODE-128C ............................................................................ 13
+  2.17.2.              Representação simbólica do código .......................................................................................... 13
+       2.18.        Informações da consulta via QR Code ........................................................................... 14
+  2.18.1.              Dimensões mínimas do QR Code ............................................................................................. 14
+       2.19.        Campos de Conteúdo Variável ...................................................................................... 14
+  2.19.1.              CT-e emissão Normal ................................................................................................................ 15
+  2.19.2.              CT-e emissão em contingência – FS-DA .................................................................................. 15
+       2.20.        CT-e emitido em ambiente de homologação.................................................................. 17
+       2.21.        Outros............................................................................................................................ 17
+  2.21.1.              Marca d’Água ............................................................................................................................. 17
+  2.21.2.              Impressão do Número da Folha ................................................................................................ 17
+  2.21.3.              Código de Barras ....................................................................................................................... 17
+  2.21.4.              Casos Específicos ..................................................................................................................... 18
+  2.21.5.              Canhoto ..................................................................................................................................... 19
+  3.      Correlação dos campos do XML do CT-e x DACTE ................................................................ 20
+  4.      Correlação dos campos do XML do CT-e OS x DACTE OS .................................................... 25
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+  5.      Modelos de geração/impressão do DACTE ............................................................................. 27
+       5.1.    Modal Rodoviário (emissão normal) .................................................................................. 27
+       5.2.    Modal Rodoviário (emissão em contingência) ................................................................... 29
+       5.3.    Modal Aéreo (emissão normal).......................................................................................... 31
+       5.4.    Modal Aéreo (emissão em contingência) ........................................................................... 33
+       5.5.    Modal Aquaviário (emissão normal) .................................................................................. 35
+       5.6.    Modal Aquaviário (emissão em contingência) ................................................................... 37
+       5.7.    Modal Ferroviário (emissão normal) .................................................................................. 39
+       5.8.    Modal Ferroviário (emissão em contingência) ................................................................... 41
+       5.9.    Modal Dutoviário (emissão normal) ................................................................................... 43
+       5.10.      Modal Dutoviário (emissão em contingência) ................................................................. 45
+       5.11.      Multimodal (emissão normal) ......................................................................................... 47
+       5.12.      Multimodal (emissão em contingência) .......................................................................... 49
+  6.      Modelo de geração/impressão do DACTE OS ........................................................................ 51
+       6.1.    CT-e OS (emissão normal) ................................................................................................ 51
+       6.2.    CT-e OS (emissão em contingência) ................................................................................. 52
+  7.      Conjunto de caracteres Código de Barras CODE-128C .......................................................... 53
+
+
+
+
+                                                                                                                                         3
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  Controle de Versões
+
+   Versão   Publicação        Descrição
+
+   4.00     04/2022           Criação deste manual como documento anexo do MOC. Corresponde ao Anexo II
+                              do MOC 4.00, que trata das especificações técnicas do DACTE.
+
+
+
+
+                                                                                                          4
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  Histórico de Alterações / Cronograma
+
+   Versão                    Histórico de atualizações    Implantação   Implantação
+                                                         Homologação     Produção
+            Alteração do MOC DACTE
+     4.00                                                  04/2023      06/2023
+
+
+
+
+                                                                                      5
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  1. Introdução
+
+  Este documento é parte integrante do Manual de Orientação do Contribuinte (MOC) e por objetivo a
+  definição das especificações técnicas do Documento Auxiliar do Conhecimento de Transporte
+  Eletrônico - DACTE.
+
+  O Manual de Orientação do Contribuinte 4.00 é composto pelos seguintes documentos:
+
+   MOC – Visão Geral
+
+   MOC – Anexo I – Leiaute e Regras de Validação CT-e
+
+   MOC – Anexo II – Manual de Especificações Técnicas do DACTE
+
+
+
+
+                                                                                                6
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+  2. Documento Auxiliar de CT-e – DACTE
+
+  O DACTE é uma representação gráfica resumida do CT-e, podendo ser impresso em papel comum
+  ou disponibilizado em meio eletrônico, com objetivo de:
+
+          Acompanhar a prestação do serviço de transporte de mercadorias;
+
+          Colher a firma do destinatário/tomador para comprovação de entrega das mercadorias e/ou
+           prestação de serviços;
+
+          Auxiliar a escrituração do CT-e para tomadores de serviços não emissores de documentos
+           fiscais eletrônicos.
+
+
+  2.1.     Leiaute de geração/impressão DACTE
+
+  Este capítulo descreve o leiaute de geração/impressão do Documento Auxiliar do CT-e pelo
+  contribuinte, chamado de DACTE, assim como os requisitos mínimos do que poderá constar do
+  DACTE.
+
+  Algumas considerações acerca da geração/impressão do DACTE:
+
+              O DACTE é um documento fiscal auxiliar, sendo apenas uma representação simplificada
+               do CT-e, de forma a acompanhar a carga durante o transporte e facilitar a consulta do
+               documento fiscal eletrônico, no ambiente da SEFAZ;
+
+              A impressão do DACTE é efetuada diretamente pelo aplicativo do contribuinte em
+               impressora comum (não fiscal), com base nas informações do arquivo eletrônico XML do
+               CT-e;
+
+              No DACTE não devem ser inseridas informações que não constem do respectivo arquivo
+               eletrônico XML do CT-e, exceto o protocolo de autorização do CT-e;
+
+              O DACTE poderá ser emitido em mais de uma folha, assim um DACTE poderá ter tantas
+               folhas quantas forem necessárias para a discriminação dos Documentos Originários e
+               Documentos de Transporte Anterior se houver, conforme leiaute dos modelos de DACTE
+               presentes neste Manual;
+
+
+
+
+                                                                                         Página 7 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+              Sempre que o verso do DACTE for utilizado, a informação “CONTINUA NO VERSO”
+               deverá constar no anverso, ao final do quadro “Observação”;
+
+              O número do Protocolo de Autorização de Uso recebido da SEFAZ deverá ser impresso
+               no DACTE.
+
+
+  2.2.  Possibilidade da apresentação do DACTE e DACTE OS em meio
+  eletrônico
+
+  Conforme determina a legislação tributária, exceto no caso de contingência com uso de Formulário
+  de Segurança, ou quando solicitado pelo tomador, o DACTE poderá ser apresentado em meio
+  eletrônico, desde que tenha sido emitido o MDF-e.
+
+  O DACTE OS poderá ser apresentado em meio eletrônico, exceto no caso de contingência com uso
+  de Formulário de Segurança, ou quando solicitado pelo tomador.
+
+  O DACTE/DACTE OS em meio eletrônico deverá ser gerado pelo aplicativo do contribuinte e sua
+  apresentação deverá seguir as especificações técnicas previstas neste MOC.
+
+
+  2.3.     Campos do DACTE
+
+  O conteúdo dos campos do DACTE deverá ter a sua origem nas respectivas TAG XML do CT-e,
+  quando conhecidos no momento da solicitação de autorização de uso. Não poderão ser impressas
+  informações que não constem do arquivo do CT-e.
+  O conteúdo dos campos poderá ser impresso em mais de uma linha desde que a leitura possa ser
+  feita de forma clara.
+  O DACTE deverá conter todos os campos previstos no modelo adotado, com exceção dos campos
+  não obrigatórios, os quais serão definidos pelas empresas e homologados, pelo fisco, quando
+  possível.
+  As regras estabelecidas para a impressão dos campos aplicam-se também para a impressão das
+  folhas adicionais do DACTE.
+
+
+  2.4.     Chave de Acesso
+
+  A chave de acesso será impressa em onze blocos de quatro dígitos cada, com a seguinte máscara:
+
+
+  9999 9999 9999 9999 9999 9999 9999 9999 9999 9999 9999
+
+
+
+
+                                                                                       Página 8 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  2.5.     Dados do CT-e
+
+  Em caso de contingência com a impressão do DACTE em FS-DA, os dados adicionais do CT-e serão
+  impressos em nove blocos de quatro dígitos cada, com a seguinte máscara:
+
+
+  9999 9999 9999 9999 9999 9999 9999 9999 9999
+
+
+  2.6.     Dados do Emitente
+
+  Deverá conter a identificação do emitente, composta no mínimo por:
+
+
+          Nome ou razão social;
+          Endereço completo (logradouro, número, complemento, bairro, município, UF, CEP);
+          Telefone.
+
+
+  Opcionalmente poderá conter logotipo, desde que sua inclusão não prejudique a exibição das
+  informações obrigatórias.
+
+
+  2.7.     Quadros do Expedidor e Recebedor
+
+  Caso não haja informações no arquivo do CT-e de Expedidor ou de Recebedor, os respectivos
+  quadros poderão ser dispensados de impressão no DACTE e, caso inexista informação para apenas
+  um deles, o quadro do Tomador do Serviço pode, nesse caso, ser posicionado no lugar do quadro a
+  ser suprimido.
+
+
+  2.8. Quadro Componentes do Valor da Prestação de Serviço,
+  Informações Relativas ao Imposto, Documentos Originários e
+  Observações.
+
+  Sempre que o conteúdo de um mesmo item for gerado/impresso utilizando-se mais de uma linha,
+  deverá ser aplicado um destaque divisório que identifique quais linhas foram utilizadas para cada
+  item, a fim de distinguir com clareza um item do outro. Pode-se, para tanto, utilizar uma linha
+  tracejada ou pontilhada. Essa exigência também se aplica no caso da utilização de uma mesma
+  coluna para aposição de outro campo.
+
+
+
+
+                                                                                        Página 9 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  2.9.     Reservado ao Fisco
+  O contribuinte não deverá preencher esse quadro, sendo seu preenchimento de uso exclusivo do
+  fisco. Em caso de utilização de formulário de segurança provido de estampa fiscal, esse quadro não
+  estará presente.
+
+
+  2.10. Bloco de Canhoto
+  Para a impressão de DACTE que não utilizar formulário de segurança, ou geração do DACTE em
+  meio eletrônico, o bloco de canhoto poderá ser deslocado para a extremidade inferior do papel, sem
+  alterações nas demais dimensões e disposições de campos e quadros. Essas alterações serão
+  admitidas somente no formato retrato.
+
+
+
+  2.11. Verso do DACTE
+
+  O verso de qualquer folha do DACTE poderá ser utilizado para continuação dos dados dos quadros
+  do DACTE ou exclusivamente para outras informações de interesse da empresa.
+
+
+  Sempre que o verso do DACTE for utilizado, a informação “CONTINUA NO VERSO” deverá constar
+  no anverso, ao final dos quadros que foram continuados, conforme a utilização.
+
+
+  2.12. Folhas Adicionais
+
+  O DACTE poderá ser emitido em mais de uma folha. Cada uma das folhas adicionais deverá conter,
+  na parte superior, no mínimo as seguintes informações, impressas na mesma disposição e tamanhos
+  definidos para a primeira folha:
+
+
+          Dados de Identificação do Emitente;
+          As descrições “DACTE” em destaque, e “Documento Auxiliar do Conhecimento de Transporte
+           Eletrônico”;
+          O número e a série da CT-e, além do número total de folhas e o número de ordem de cada
+           folha;
+          Código (s) de Barras;
+          Campos Natureza da Operação e Chave de Acesso; e
+          Demais campos de identificação do Emitente: Inscrição Estadual e CNPJ.
+
+
+  A área restante das folhas adicionais poderá ser utilizada exclusivamente para apor:
+
+
+
+                                                                                         Página 10 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+          Os demais itens do CT-e que não couberem na primeira folha do DACTE, mantendo-se as
+           mesmas colunas com a mesma disposição e largura utilizadas na primeira folha; e/ou
+          As demais informações complementares do CT-e que não couberem no campo próprio da
+           primeira folha do DACTE.
+
+
+  2.13. Formulário
+
+  Para a impressão do DACTE poderá ser utilizado qualquer tipo de papel, com exceção de papel
+  jornal, desde que seja garantido o contraste necessário para assegurar leitura dos códigos de barras.
+
+
+
+  2.14. Tamanho do Papel
+
+  A impressão do DACTE poderá ser efetuada tanto em modo retrato quanto em paisagem, utilizando-
+  se formulários de tamanho mínimo A-5 (210mmX148mm) e máximo Ofício II (230x330 mm).
+  Em caso de uso de folha de tamanho superior ao tamanho A-4 o espaço excedente deverá ser
+  alocado da seguinte maneira:
+          Na horizontal, para aumentar a largura dos campos; e
+          Na vertical, somente para aumentar a altura dos quadros Componentes do valor da prestação
+           de serviço, informações relativas ao imposto, documentos originários e observações”.
+
+
+  2.15. Modelos de DACTE Permitidos
+
+  É opção do contribuinte a utilização em folhas soltas ou formulário contínuo, pré-impresso ou em
+  branco. Poderão ser utilizados os formatos a seguir, devendo a disposição de campos
+  obrigatoriamente obedecer ao disposto neste anexo:
+          Tamanho A5 em modo paisagem;
+          Tamanho A4 em modo retrato ou paisagem;
+          Tamanho oficio em modo retrato ou paisagem.
+
+
+  2.16. DACTE em Modo Paisagem
+
+  A disposição dos quadros do DACTE na orientação paisagem, quando de preferência do contribuinte,
+  deverá obedecer a mesma disposição do formato retrato, com os consequentes e proporcionais
+  aumento da largura e redução da altura dos campos, exceção feita à área destinada aos códigos de
+  barras cujas alturas não poderão ser reduzidas, observados os limites mínimos dos tamanhos dos
+  caracteres.
+
+
+
+                                                                                          Página 11 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  2.17. Código de Barras
+
+  O padrão de código de barras a ser impresso no DACTE é o CODE-128C. O código de barras deverá
+  representar a chave de acesso do CT-e em emissão normal ou contingência.
+
+  A impressão do código de barras no DACTE tem a finalidade de facilitar e agilizar a captura de dados
+  para consulta nos portais estaduais e da Receita Federal do Brasil. Com a chave de acesso é
+  possível realizar a consulta integral ou resumida de um CT-e e sua situação, bem como visualizar a
+  autorização de uso do mesmo.
+
+  O conjunto de caracteres representativos do Código de Barras CODE-128C segue ao final deste
+  manual.
+  O código de barras deverá representar apenas a chave de acesso do CT-e de 44 posições. Para a
+  impressão do mesmo será considerada a seguinte estrutura de simbolização:
+
+
+
+
+  Margem Clara: Espaço claro, que não contém nenhuma marca legível por máquina, existente à
+  esquerda e à direita do código para evitar interferência na decodificação da simbologia. A margem
+  clara também é chamada de "área livre", "zona de silêncio" ou "margem de silêncio".
+
+  Start C: inicia a codificação dos dados CODE-128C de acordo com o conjunto de caracteres. O Start
+  C não representa nenhum caractere.
+
+  Chave de acesso do CT-e: representa conjunto de 44 caracteres da chave de acesso do CT-e.
+  DV: dígito verificador da simbologia.
+  Stop: caractere de parada, indica o final do código ao leitor óptico.
+
+
+  O código de barras deverá ser impresso com resolução mínima de 300 dpi, devendo ser observada
+  a área reservada no DACTE de 3 x 9 cm.
+  Altura da barra: no intuito de propiciar melhor área de leitura, a altura da barra não poderá ser inferior
+  a 1,5 cm e nem superior a 2,5 cm.
+  Largura da barra: considerando que para cada símbolo da barra são codificados dois caracteres,
+  então teremos:
+
+
+          Tamanho do campo chave de acesso = 44 (caracteres) / 2 = 22 (símbolos)
+
+
+                                                                                               Página 12 / 53
+   Projeto
+   Conhecimento de Transporte Eletrônico
+   MOC 4.00
+
+
+              Considerando que cada símbolo possui 11 (módulos) * 22 (símbolos) = 242 posições
+              Margem clara = deve ter no mínimo a dimensão de 10 (módulos) * 2 = 20 posições
+              Start C = 11 (módulos) = 11 posições
+              DV = 11 (módulos) = 11 posições
+              Stop = 13 (módulos) = 13 posições
+              Tamanho total da simbologia = 242 + 20 + 11 + 11 + 13 = 297 (posições)
+              Largura máxima de cada módulo da barra = 9 cm / 297 (posições) = 0,03 cm
+
+     2.17.1. Cálculo do dígito verificador do CODE-128C
+
+
+     O dígito verificador é baseado em um cálculo do módulo 103 considerando a soma ponderada dos
+     valores de cada um dos dígitos na mensagem que está sendo codificada, incluindo o valor do
+     caractere de início (start).
+     Exemplo: consideremos que a chave de acesso fosse apenas de oito caracteres e contivesse o
+     seguinte número: 09758364
+
+                  Chave de acesso                   START       09         75     83      64
+                  Sequência                     A                1          2      3       4
+                  Valor do caractere            B     105        9         75     83      64
+                  Valor Ponderado (A X B)       C     105        9         150    249     256
+
+              Na linha valor do caractere foi incluso o valor 105 que corresponde ao valor do caractere de
+               início (start) para o padrão Code C.
+              Excetuando o caractere de start, os demais valores dos caracteres coincidem com os valores
+               da chave de acesso, isto porque estamos utilizando o padrão Code C de codificação que é
+               exclusivamente numérico.
+              O dígito verificador do código será o resto da divisão da somatória dos valores ponderados
+               dividido por 103 (módulo 103).
+               Assim o dígito verificador será:
+
+                     Valor da soma ponderada = (1x105) +(1x9) +(2x75) +(3x83) +(4x64) = 769
+                     769/103 = 7 resta 48, assim o DV é 48
+
+
+
+     2.17.2. Representação simbólica do código
+   START               09             75              83              64            DV = 48             STOP
+
+B S B S B S B S B S B S B S B S B S B S B S B S B S B S B S B S B S B S B S B S B S B
+
+2 1 1 2 3 2 2 2 1 2 1 3 2 4 1 2 1 1 1 1 4 2 1 2 1 1 1 4 2 2 3 1 3 1 2 1 2 3 3 1 1 1 2
+
+
+     B = barra preta
+     S = espaço ou barra branca
+     A numeração acima indica quantas vezes a barra deverá ser impressa no símbolo.
+
+
+
+
+                                                                                                Página 13 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  2.18. Informações da consulta via QR Code
+
+  A imagem do QR Code gerada/impressa no DACTE deve ter tamanho mínimo 25 mm x 25 mm,
+  sendo 22mm de conteúdo para 3mm de margem segura (quiet zone), para dimensões superiores a
+  25mm, considerar a margem segura de 10% da dimensão total.
+
+  O conteúdo QR Code deverá ser informado no arquivo XML do conhecimento em campo específico,
+  conforme descrito no MOC (tag: qrCodCTe), levando em consideração as especificações para a
+  geração do QR Code para CT-e com emissão normal e as modificações necessárias para a emissão
+  em contingência.
+
+
+
+
+  2.18.1. Dimensões mínimas do QR Code
+
+
+  A dimensão mínima para a imagem do QR Code será 25mm X 25mm (sendo 22mm de conteúdo
+  para 3 mm de margem segura (quiet zone)), tendo em vista ter sido a menor dimensão que se
+  conseguiu leitura em dispositivos móveis que não possuem zoom (aproximação de imagem). Para
+  dimensões superiores a 25mm, considerar a margem segura de 10% da dimensão total.
+
+  A margem de segurança é necessária para a melhor leitura do QR Code, caso ela não seja respeitada
+  podem ocorrer erros de leitura.
+
+
+  2.19. Campos de Conteúdo Variável
+
+  O leiaute de geração/impressão do DACTE prevê três campos de conteúdo variável logo abaixo do
+  local onde é impressa a chave de acesso, de acordo com a seguinte disposição:
+
+
+
+
+                                                                                       Página 14 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+  2.19.1. CT-e emissão Normal
+
+
+  A emissão de CT-e normal é forma conclusiva de emissão do CT-e, contendo a autorização de uso
+  para o CT-e. Nesse caso, após a obtenção da autorização de uso do CT-e o emissor poderá imprimir
+  o DACTE em papel comum ou gerar o DACTE em meio eletrônico, informando:
+
+
+          No campo 1: informará a URL onde pode ser consultada a autenticidade do CT-e a partir do
+           valor da chave de acesso;
+          No campo 2: informará o número do protocolo de autorização de uso, a data e a hora de
+           autorização;
+          No campo 3: informará o QR Code, conforme definido no MOC para a emissão Normal.
+
+
+
+
+  2.19.2. CT-e emissão em contingência – FS-DA
+
+
+  O uso do formulário de segurança FS-DA, para impressão do DACTE, é a forma de contingência
+  mais simples. Os CT-e devem ser transmitidos posteriormente para a SEFAZ quando cessados os
+  problemas técnicos que impediam a transmissão.
+  Nesse caso, o emissor deverá gerar o Código de Barras Adicional no Campo 1 e a representação
+  numérica desse Código de Barras Adicional no Campo 2.
+
+                                                                                       Página 15 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+  No campo 3 deverá gerar o QR Code conforme as regras do MOC para geração de QR Code em
+  contingência.
+
+
+
+
+  Observação: O DACTE emitido em contingência na modalidade de impressão em FS-DA deverá
+  conter impresso o Código de Barras Adicional dos Dados do CT-e e será formado pelo seguinte
+  conteúdo, em um total de 36 caracteres:
+
+
+
+
+  cUF = Código da UF do destinatário ou remetente do Documento Fiscal, informar 99 quando a
+  operação for de comércio exterior;
+
+  tpEmis = Forma de Emissão do CT-e, informar 5-Contingência FS-DA;
+
+  CNPJ = CNPJ do destinatário ou do remetente, informar zeros no caso de operação com o exterior
+  ou o CPF caso o destinatário ou remetente seja pessoa física;
+
+  vCT = Valor Total da CT-e (sem ponto decimal, informar sempre os centavos), correspondendo à tag
+  vTPrest, de vPrest;
+
+  ICMSp = Destaque de ICMS próprio no CT-e no seguinte formato:
+
+           1 = há destaque de ICMS próprio. Este caso ocorre quando se tiver a tag vICMS, a qual
+           aparece quando esta é tag de:
+
+                 ICMS00 (Prestação sujeito à tributação normal do ICMS), ou;
+                 ICMS20 (Prestação sujeito à tributação com redução de BC do ICMS), ou ;
+                 ICMS90 (ICMS Outros)
+
+           2 = não há destaque de ICMS próprio. Esse caso ocorre quando não se tiver a tag vICMS, o
+           que acontece quando se tem tag de:
+
+                 ICMSOutraUF (ICMS devido à UF de origem da prestação, quando diferente da UF
+                  do emitente), ou;
+                 ICMS45 (ICMS Isento, não Tributado ou diferido), ou;
+                 ICMSSN (Simples Nacional) e demais casos em que não haja destaque do ICMS
+                  próprio.
+
+                                                                                         Página 16 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+  ICMSs = Destaque de ICMS por substituição tributária no CT-e, no seguinte formato:
+
+           1 = há destaque de ICMS por substituição tributária. Neste caso se terá a tag vICMSSTRet,
+           de ICMS60 (Tributação pelo ICMS60 – ICMS cobrado por substituição tributária.
+           Responsabilidade do recolhimento do ICMS atribuído ao tomador ou 3º por ST);
+
+           2 = não há destaque de ICMS por substituição tributária. Nos demais casos, que não se
+           tenha ICMS60;
+
+  DD = Dia da emissão do CT-e;
+
+  DV = Dígito Verificador, calculado de forma igual ao DV da Chave de Acesso.
+
+  Observação: Todos os campos que formam o código de barras devem ser preenchidos com
+  alinhamento à direita, sem formatação e com os zeros não significativos necessários para alcançar
+  o tamanho do campo.
+
+
+  2.20. CT-e emitido em ambiente de homologação
+
+  Já na hipótese de se tratar de um CT-e emitido em ambiente de homologação é obrigatório
+  gerar/imprimir nesta área, de forma centralizada e em caixa alta, o seguinte texto: “EMITIDO EM
+  AMBIENTE DE HOMOLOGAÇÃO – SEM VALOR FISCAL”.
+
+
+  2.21. Outros
+
+  2.21.1. Marca d’Água
+
+
+  O formulário poderá conter marca d’água desde que não prejudique a legibilidade dos dados
+  impressos.
+
+
+  2.21.2. Impressão do Número da Folha
+
+
+  O número de ordem e o número total de folhas deverão ser impressos na parte superior de cada
+  uma das folhas do DACTE, inclusive na primeira, mesmo que se utilize uma única folha.
+
+
+  2.21.3. Código de Barras
+
+
+  É permitida a impressão de código de barras de informações existentes no CT-e de interesse do
+  emissor no quadro observações, no rodapé ou no verso do DACTE.
+
+
+
+
+                                                                                         Página 17 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+  2.21.4. Casos Específicos
+
+
+  Os casos específicos complementam informações sobre o transporte e/ou mercadoria transportada
+  devendo ser informados no verso ou na continuação das folhas em diminuição ou substituição ao
+  campo de documentação originária, nesse último caso, quando a documentação originária já tiver
+  sido informada em páginas anteriores, conforme abaixo e os DACTE a seguir apresentados nos
+  quais foram inseridos a título de exemplo.
+
+
+
+
+  No caso de veículos novos transportados, informar com os campos, conforme exemplo abaixo.
+
+
+
+
+  No caso de produto perigoso, informar com os campos, conforme exemplo abaixo.
+
+
+
+
+  No caso de modal aquaviário, fica dispensada a geração/impressão do quadro DOCUMENTOS
+  ORIGINÁRIOS, no que se refere às informações advindas do grupo infNF – informações das NF ou,
+  infNFe – informações das NF-e ou, infOutros – informações dos demais documentos, desde que, em
+  sua substituição, seja impresso na parte do DACTE que trata especificamente do modal aquaviário
+  o conteúdo das informações requeridas no grupo detCont – Grupo de informações de detalhamento
+  dos contêiner, conforme quadro exemplificativo abaixo.
+
+
+
+
+                                                                                     Página 18 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+  2.21.5. Canhoto
+
+
+  O canhoto não é obrigatório e poderá ser gerado/impresso nas extremidades da folha, observado o
+  leiaute dos modelos de DACTE presentes neste Manual.
+
+  Devem ser feitos os ajustes necessários para que não existam campos impressos no verso do
+  DACTE na região do canhoto.
+
+  O leiaute das informações geradas/impressas no canhoto é de livre escolha e disposição da
+  empresa, sendo que os modelos apresentados neste Anexo são a título de exemplo.
+
+
+
+
+                                                                                     Página 19 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  3. Correlação dos campos do XML do CT-e x DACTE
+ Quadro do DACTE                   Campo do DACTE                     Tag XML, do CT e
+ Identificação do Emitente         Nome ou razão social               xNome ou xFant, de emit
+                                   CNPJ                               CNPJ, de emit
+                                   Inscrição Estadual                 IE, de emit
+                                   Endereço                           xLgr -nro -xCpl, de enderEmit
+                                   Bairro                             xBairro, de enderEmit
+                                   Município                          xMun, de enderEmit
+                                   UF                                 UF, de enderEmit
+                                   Telefone                           fone, de enderEmit
+                                   CEP                                CEP, de enderEmit
+                                                                      Caso o modal, de ide, seja: 01: Rodoviário;
+ Modal                             Modal                              02: Aéreo; 03: Aquaviário; 04: Ferroviário;
+                                                                      05: Dutoviário; 06: Multimodal
+ Modelo                            Modelo                             mod, de ide
+ Série                             Série                              serie, de ide
+ Número                            Número                             nCT, de ide
+ Data e hora de emissão            Data e hora de emissão             dhEmi, de ide (HH.MM.SS) MOC 4.00
+ Inscrição SUFRAMA Destinatário    Inscrição SUFRAMA Destinatário     ISUF, de dest
+ Chave de acesso                   Chave de acesso                    Id, de infCte, sem as 3 primeiras letras
+                                                                      Quando com cStat = 100 (uso autorizado),
+ Protocolo de Autorização de Uso   Protocolo de Autorização de Uso    nProt + " " + dhRecbto, de infProt, em
+                                                                      protCTe
+ Tipo do CT-e                      Tipo do CT-e                       tpCTe, de ide
+ Tipo do Serviço                   Tipo do Serviço                    tpServ, de ide
+                                                                      Se toma, de toma4 (CNPJ, CPF, IE, xNome,
+ Tomador do Serviço                Tomador do Serviço                 xFant, fone) Se tom, de toma3 informado
+                                                                      pegar estes campos da pessoa referenciada
+ CT-e Globalizado                  Indicador do CT-e Globalizado      indGlobalizado, de ide
+                                   Inform. do CT-e Globalizado        xObs, de infGlobalizado
+                                   Código Fiscal de Operações e
+ CFOP - Natureza da Operação                                         CFOP - natOp, de ide
+                                   Prestações - Natureza da Operação
+ Início da Prestação               Início da prestação                UFIni -xMunIni, de ide
+ Término da Prestação              Término da prestação               UFFim -cMunFim – xMunFim, de ide
+ Remetente                         Remetente                          xNome, de rem
+                                   Endereço                           xLgr -nro -xCpl -xBairro, de enderReme
+                                   Município                          xMun, de enderReme
+                                   CEP                                CEP, de enderReme
+                                   CNPJ/CPF                           CNPJ/CPF de rem
+                                   Inscrição Estadual                 IE , de rem
+                                   UF                                 UF, de enderReme
+                                   País                               xPais, de enderReme
+                                   Fone                               fone, de rem
+
+
+
+                                                                                                   Página 20 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+ Destinatário                  Destinatário         xNome, de dest
+                               Endereço             xLgr -nro -xCpl -xBairro, de enderDest
+                               Município            xMun, de enderDest
+                               CEP                  CEP, de enderDest
+                               CNPJ/CPF             CNPJ/ CPF, de dest
+                               Inscrição Estadual   IE, de dest
+                               UF                   UF, de enderDest
+                               País                 xPais, de enderDest
+                               Fone                 Fone, de dest
+ Expedidor                     Expedidor            xNome, de exped
+                               Endereço             xLgr -nro -xCpl -xBairro, de enderExped
+                               Município            xMun, de enderExped
+                               CEP                  CEP, de enderExped
+                               CNPJ/CPF             CNPJ/ CPF, de exped
+                               Inscrição Estadual   IE, de exped
+                               UF                   UF, de enderExped
+                               País                 xPais, de enderExped
+                               Fone                 Fone, de exped
+ Recebedor                     Recebedor            xNome, de receb
+                               Endereço             xLgr -nro -xCpl -xBairro, de enderReceb
+                               Município            xMun, de enderReceb
+                               CEP                  CEP , de enderReceb
+                               CNPJ/CPF             CNPJ/ CPF,de receb
+                               Inscrição Estadual   IE ,de receb
+                               UF                   UF , de enderReceb
+                               País                 xPais, de enderReceb
+                               Fone                 Fone, de receb
+ Tomador do Serviço                                 Se toma, de toma4 (CNPJ, CPF, IE, xNome
+                               Tomador do Serviço   ou xFant). Se toma, de toma3 informado
+                                                    pegar estes campos da pessoa referenciada
+                                                    Se existir toma4, xLgr – nro -xCpl -xBairro,
+                               Endereço             de enderToma, ou dos campos da pessoa
+                                                    referenciada
+                                                    XMun, de enderToma, ou dos campos da
+                               Município
+                                                    pessoa referenciada
+
+                               CEP                  CEP, de enderToma
+                                                    CNPJ/ CPF, de toma4, ou dos campos da
+                               CNPJ/CPF
+                                                    pessoa referenciada
+                                                    IE, de toma4, ou dos campos da pessoa
+                               Inscrição Estadual
+                                                    referenciada
+
+                               UF                   UF, de enderToma
+
+                                                    xPais, de toma4 ou dos campos da pessoa
+                               País
+                                                    referenciada
+
+
+
+                                                                                Página 21 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+                                                                             Fone, de Toma4 ou dos campos da pessoa
+                                    Fone
+                                                                             referenciada
+
+ Produto Predominante               Produto Predominante                     proPred, de infCarga
+
+
+ Outras características da carga    Outras características da carga          xOutCat, de infCarga
+
+
+ Valor total da carga               Valor total da carga                     vCarga, em infCarga
+
+                                                                             qCarga x fator de conversão para KG,
+ Peso Bruto (KG)                    Peso Bruto (KG)                          quando Peso Bruto, onde o fator = 1, para
+                                                                             cUnid=01, fator = 1000, para cUnid=02
+                                                                             qCarga x fator de conversão para KG,
+                                                                             quando Peso Base de Cálculo, onde o fator
+ Peso Base Cálculo (Kg)             Peso Base Cálculo (Kg)
+                                                                             = 1, para cUnid=01, fator = 1000, para
+                                                                             cUnid=02
+                                                                             qCarga x fator de conversão para KG,
+ Peso Aferido (Kg)                  Peso Aferido (Kg)                        quando for peso auferido, onde o fator = 1,
+                                                                             para cUnid=01, fator = 1000, para cUnid=02
+
+ Cubagem (m3)                       Cubagem (m3)                             qCarga, quando cUnid = 00
+
+
+ Quantidade de Volumes (und)        Quantidade de Volumes (und)              qCarga
+
+ Componentes do valor da
+ prestação de serviço               Nome                                     xNome, de Comp
+
+
+                                    Valor                                    vComp, de Comp
+
+
+                                    Valor Total da Prestação do Serviço      vTPrest, de vPrest
+
+
+                                    Valor a receber                          vRec, de vPrest
+
+ Informações relativas ao imposto
+                                    Classificação Tributária do Serviço      CST, em ICMS
+
+
+                                    Base de Cálculo                          vBC, vBCSTRet ou vBCOutraUF, em ICMS
+
+                                                                             pICMS, pICMSSTRet ou pICMSOutraUF,
+                                    Alíquota do ICMS
+                                                                             em ICMS
+                                                                             vICMS, vICMSSTRet ou vICMSOutraUF, em
+                                    Valor do ICMS
+                                                                             ICMS
+
+                                    % RED BC. CALC.                          pRedBC ou pRedBCOutraUF, em ICMS
+
+ Documentos Originários
+                                    Tp Doc.                                  mod, de infNF
+
+
+                                    CNPJ/CPF Emitente                        CNPJ/ CPF, em rem
+
+
+                                    Série/N° Documento                       serie, em infNF
+
+ Previsão do fluxo da carga         Sigla     ou     código   interno     da
+                                    Filial/Porto/Estação/ Aeroporto       de xOrig, em fluxo
+                                    Origem
+                                    Sigla     ou     código   interno     da
+                                    Filial/Porto/Estação/Aeroporto        de xPass, em pass
+                                    Passagem
+
+
+
+                                                                                                         Página 22 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+                               Sigla     ou     código   interno     da
+                               Filial/Porto/Estação/Aeroporto        de xDest, em fluxo
+                               Destino
+
+ Observações Gerais            Observações Gerais                         xObs, de compl
+
+ INFORMAÇÕES ESPECÍFICAS DO
+                            RNTRC da Empresa                              RNTRC, em rodo
+ MODAL RODOVIÁRIO
+ INFORMAÇÕES ESPECÍFICAS DO    Número Operacional do Conhecimento
+ MODAL AÉREO                                                      nOCA, em aereo
+                               Aéreo
+
+                               Classe                                     CL, em Tarifa
+
+
+                               Código da Tarifa                           cTar, em Tarifa
+
+
+                               Valor da Tarifa                            vTar, em Tarifa
+
+
+                               Número da Minuta                           nMinu, em aereo
+
+
+                               Retira( SIM NÃO )                          retira, em ide
+
+
+                               Dados Relativos a Retirada da Carga        xDetRetira, em ide
+
+
+                               Característica Adicional do Serviço        xCaracSer
+
+
+                               Data Prevista de Entrega                   dPrevAereo, de aéreo
+
+ Natureza da carga (AÉREO)
+                               Dimensão                                   xDime, de natCarga
+
+
+                               Informações do Manuseio                    cInfManu, de natCarga
+
+ INFORMAÇÕES ESPECÍFICAS DO
+ MODAL AQUAVIÁRIO              Identificação do Navio/Rebocador           xNavio, em aquav
+
+
+                               VLR. DO AFRMM                              vAFRMM, em aquav
+
+
+                               Identificação da Balsa                     xBalsa, em Balsa
+
+
+                               Lacre                                      nLacre, em detCont
+
+
+                               Identificação do Container                 nCont, em detCont
+
+ INFORMAÇÕES ESPECÍFICAS DO
+ MODAL FERROVIÁRIO             Tipo de tráfego                            tpTraf, em ferrov
+
+
+                               Fluxo Ferroviário                          fluxo, em ferrov
+
+                                                                          Preencher com: 1-Ferrovia de origem se
+                               Ferrovia          Responsável       pelo
+                                                                          respFat = 1 ou 2Ferrovia de destino se
+                               Faturamento
+                                                                          respFat = 2
+
+                               Ferrovia Emitente do CT-e                  ferrEmi, em trafMut
+
+
+                               Valor do Frete                             vFrete, em ferrov
+
+
+
+                                                                                                  Página 23 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+ INFORMAÇÕES DAS FERROVIAS
+ ENVOLVIDAS                        CNPJ                                      CNPJ, em ferroEnv
+
+
+                                   Inscrição Estadual                        IE, em ferroEnv
+
+
+                                   Cod. Interno                              cInt, em ferroEnv
+
+
+                                   Razão Social                              xNome, em ferroEnv
+
+ INFORMAÇÕES ESPECÍFICAS DO        Valor Unitário não ficou clara a
+ DUTOVIÁRIO                        expressão a ser utilizado no futuro para (A ser utilizado no futuro)
+                                   os campos do dutoviário
+
+                                   Valor do Frete                            (A ser utilizado no futuro)
+
+
+                                   Outros                                    (A ser utilizado no futuro)
+
+
+                                   Base de Cálculo                           vBC
+
+
+                                   Alíquota                                  pICMS
+
+
+                                   Valor do Imposto                          vICMS
+
+
+                                   Valor Total do Frete                      (A ser utilizado no futuro)
+
+
+                                   Observações                               xObs
+
+
+                                   Emitente                                  CNPJ/ CPF, em rem
+
+
+                                   Série                                     Serie, em infNF
+
+                                   Número                                    Num, em infNF
+
+ INFORMAÇÕES ESPECÍFICAS DO        Número do Certificado do Operador de
+ TRANSPORTE MULTIMODAL DE                                               COTM, em multimodal
+                                   Transporte Multimodal
+ CARGAS
+                                   Indicador Negociável                      indNegociavel, em multimodal
+
+ Informações de Seguro do
+ Multimodal                        Nome da Seguradora
+                                                                             xSeg, em infSeg
+
+                                   CNPJ da seguradora                        CNPJ, em infSeg
+
+
+                                   Número da Apólice                         nApol, em seg
+
+
+                                   Número da Averbação
+                                                                             nAver, em seg
+
+ Uso Exclusivo do Emissor de CT-e Uso Exclusivo do Emissor de CT-e
+                                                                             xTexto, em ObsCont
+
+ Reservado ao Fisco                Reservado ao Fisco                        xTexto, em ObsFisco
+
+
+
+
+                                                                                                           Página 24 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  4. Correlação dos campos do XML do CT-e OS x DACTE OS
+
+   Quadro do DACTE OS                     Campo do DACTE OS                       Tag XML, do CT-e OS
+   Identificação do Emitente              Nome ou razão social                    xNome ou xFant, de emit
+                                          CNPJ                                    CNPJ, de emit
+                                          Inscrição Estadual                      IE, de emit
+                                          Endereço                                xLgr -nro -xCpl, de enderEmit
+                                          Bairro                                  xBairro, de enderEmit
+                                          Município                               xMun, de enderEmit
+                                          UF                                      UF, de enderEmit
+                                          Telefone                                fone, de enderEmit
+                                          CEP                                     CEP, de enderEmit
+   Modal                                  Modal                                   01-Rodoviário, de ide
+   Modelo                                 Modelo                                  mod, de ide
+   Série                                  Série                                   serie, de ide
+   Número                                 Número                                  nCT, de ide
+   Data e hora de emissão                 Data e hora de emissão                  dhEmi, de ide (HH.MM.SS)
+   Chave de acesso                        Chave de acesso                         Id, de infCte, sem as 3 primeiras letras
+                                                                                  Quando com cStat = 100 (uso
+   Protocolo de Autorização de Uso        Protocolo de Autorização de Uso         autorizado), nProt + " " + dhRecbto, de
+                                                                                  infProt, em protCTe
+   Tipo do CT-e                           Tipo do CT-e                            tpCTe, de ide
+   Tipo do Serviço                        Tipo do Serviço                         tpServ, de ide
+                                          Código Fiscal de Operações e Prestações
+   CFOP - Natureza da Operação                                                    CFOP - natOp, de ide
+                                          - Natureza da Operação
+   Início da Prestação                    UF do início da prestação               UFIni -xMunIni, de ide
+   Percurso do veículo                    UF do percurso do veículo               UFPer, de infPercurso
+   Término da Prestação                   UF do término da prestação              UFFim -cMunFim – xMunFim, de ide
+   Tomador/ Usuário do Serviço            Tomador/Usuário do Serviço              xNome ou xFant, de toma
+                                          CNPJ/CPF                                CNPJ/ CPF, de toma
+                                          Inscrição Estadual                      IE, de toma
+                                          Endereço                                xLgr – nro -xCpl -xBairro, de enderToma
+                                          Município                               xMun, de enderToma
+                                          UF                                      UF, de enderToma
+                                          Fone                                    Fone, de toma
+   Informações    da     Prestação   do
+                                          Descrição do Serviço prestado           xDescServ, de infServico
+   Serviço
+   Informações da quantidade         do                                           qCarga, de qCarga
+                                          Quantidade
+   Serviço
+   Componentes do valor da
+   prestação de serviço                   Nome                                    xNome, de Comp
+
+                                          Valor                                   vComp, de Comp
+                                          Valor Total da Prestação do Serviço     vTPrest, de vPrest
+                                          Valor a receber                         vRec, de vPrest
+
+                                                                                                        Página 25 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+   Informações relativas ao imposto   Classificação Tributária do Serviço   CST, em ICMS
+                                                                            vBC, vBCSTRet ou vBCOutraUF, em
+                                      Base de Cálculo
+                                                                            ICMS
+                                                                            pICMS,        pICMSSTRet        ou
+                                      Alíquota do ICMS
+                                                                            pICMSOutraUF, em ICMS
+                                                                            vICMS, vICMSSTRet ou vICMSOutraUF,
+                                      Valor do ICMS
+                                                                            em ICMS, em ICMS
+                                      % RED BC. CALC.                       pRedBC ou pRedBCOutraUF, em ICMS
+   Observações Gerais                 Observações Gerais                    xObs, de compl
+   Seguro da viagem                                                         Caso respSeg , de seg seja: 4 -Emitente
+                                      Responsável
+                                                                            do CT-e; 5 -Tomador de Serviço.
+                                      Nome da Seguradora                    xSeg, de seg
+                                      Número da Apólice                     nApol, de seg
+   INFORMAÇÕES ESPECÍFICAS DO         Termo de Autorização de Fretamento –
+                                                                           TAF, de rodoOS
+   MODAL RODOVIÁRIO                   TAF
+                                      Número do Registro Estadual           NroRegEstadualm, de rodoOS
+                                      Placa do veículo                      placa, em veic
+                                      RENAVAM do veículo                    RENAVAM, em veic
+                                      CPF                                   CPF, em prop
+                                      CNPJ                                  CNPJ, de prop
+                                      Termo de Autorização de Fretamento –
+                                                                           TAF, de prop
+                                      TAF
+                                      Número do Registro Estadual           NroRegEstadual, de prop
+   Uso Exclusivo do Emissor de CT-e   Uso Exclusivo do Emissor de CT-e      xTexto, em ObsCont
+   Reservado ao Fisco                 Reservado ao Fisco                    xTexto, em ObsFisco
+
+
+
+
+                                                                                                  Página 26 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  5. Modelos de geração/impressão do DACTE
+
+  5.1.     Modal Rodoviário (emissão normal)
+
+
+
+
+                                               Página 27 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+                                        Página 28 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  5.2.     Modal Rodoviário (emissão em contingência)
+
+
+
+
+                                                        Página 29 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+                                        Página 30 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  5.3.     Modal Aéreo (emissão normal)
+
+
+
+
+                                          Página 31 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+                                        Página 32 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  5.4.     Modal Aéreo (emissão em contingência)
+
+
+
+
+                                                   Página 33 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+                                        Página 34 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  5.5.     Modal Aquaviário (emissão normal)
+
+
+
+
+                                               Página 35 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+                                        Página 36 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  5.6.     Modal Aquaviário (emissão em contingência)
+
+
+
+
+                                                        Página 37 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+                                        Página 38 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  5.7.     Modal Ferroviário (emissão normal)
+
+
+
+
+                                                Página 39 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+                                        Página 40 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  5.8.     Modal Ferroviário (emissão em contingência)
+
+
+
+
+                                                         Página 41 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+                                        Página 42 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  5.9.     Modal Dutoviário (emissão normal)
+
+
+
+
+                                               Página 43 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+                                        Página 44 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  5.10. Modal Dutoviário (emissão em contingência)
+
+
+
+
+                                                     Página 45 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+                                        Página 46 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  5.11. Multimodal (emissão normal)
+
+
+
+
+                                        Página 47 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+                                        Página 48 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  5.12. Multimodal (emissão em contingência)
+
+
+
+
+                                               Página 49 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+
+                                        Página 50 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  6. Modelo de geração/impressão do DACTE OS
+
+  6.1.     CT-e OS (emissão normal)
+
+
+
+
+                                               Página 51 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  6.2.     CT-e OS (emissão em contingência)
+
+
+
+
+                                               Página 52 / 53
+Projeto
+Conhecimento de Transporte Eletrônico
+MOC 4.00
+
+
+
+  7. Conjunto de caracteres Código de Barras CODE-128C
+         Conjunto de caracteres representativos do Código de Barras CODE-128C
+      Combinação de barras: B = barra preta e S = espaço (barra branca)
+        Valor     Combinação de Barras                Valor      Combinação de Barras    Valor       Combinação de Barras
+       CODE C B       S   B    S    B     S         CODE C B         S   B  S    B S    CODE C     B   S   B   S    B     S
+              00  2    1    2    2    2     2              50    2     3  1   1   3 1        100    1   1   4    1    3    1
+              01  2    2    2    1    2     2              51    2     1  3   1   1 3        101    3   1   1    1    4    1
+              02  2    2    2    2    2     1              52    2     1  3   3   1 1        102    4   1   1    1    3    1
+              03  1    2    1    2    2     3              53    2     1  3   1   3 1        103    2   1   1    4    1    2
+              04  1    2    1    3    2     2              54    3     1  1   1   2 3        104    2   1   1    2    1    4
+              05  1    3    1    2    2     2              55    3     1  1   3   2 1
+              06  1    2    2    2    1     3              56    3     3  1   1   2 1
+              07  1    2    2    3    1     2              57    3     1  2   1   1 3
+              08  1    3    2    2    1     2              58    3     1  2   3   1 1
+              09  2    2    1    2    1     3              59    3     3  2   1   1 1
+              10  2    2    1    3    1     2              60    3     1  4   1   1 1
+              11  2    3    1    2    1     2              61    2     2  1   4   1 1
+              12  1    1    2    2    3     2              62    4     3  1   1   1 1
+              13  1    2    2    1    3     2              63    1     1  1   2   2 4
+              14  1    2    2    2    3     1              64    1     1  1   4   2 2
+              15  1    1    3    2    2     2              65    1     2  1   1   2 4
+              16  1    2    3    1    2     2              66    1     2  1   4   2 1
+              17  1    2    3    2    2     1              67    1     4  1   1   2 2
+              18  2    2    3    2    1     1              68    1     4  1   2   2 1
+              19  2    2    1    1    3     2              69    1     1  2   2   1 4
+              20  2    2    1    2    3     1              70    1     1  2   4   1 2
+              21  2    1    3    2    1     2              61    1     2  2   1   1 4
+              22  2    2    3    1    1     2              72    1     2  2   4   1 1
+              23  3    1    2    1    3     1              73    1     4  2   1   1 2
+              24  3    1    1    2    2     2              74    1     4  2   2   1 1
+              25  3    2    1    1    2     2              75    2     4  1   2   1 1
+              26  3    2    1    2    2     1              76    2     2  1   1   1 4
+              27  3    1    2    2    1     2              77    4     1  3   1   1 1
+              28  3    2    2    1    1     2              78    2     4  1   1   1 2
+              29  3    2    2    2    1     1              79    1     3  4   1   1 1
+              30  2    1    2    1    2     3              80    1     1  1   2   4 2
+              31  2    1    2    3    2     1              81    1     2  1   1   4 2
+              32  2    3    2    1    2     1              82    1     2  1   2   4 1
+              33  1    1    1    3    2     3              83    1     1  4   2   1 2
+              34  1    3    1    1    2     3              84    1     2  4   1   1 2
+              35  1    3    1    3    2     1              85    1     2  4   2   1 1
+              36  1    1    2    3    1     3              86    4     1  1   2   1 2
+              37  1    3    2    1    1     3              87    4     2  1   1   1 2
+              38  1    3    2    3    1     1              88    4     2  1   2   1 1
+              39  2    1    1    3    1     3              89    2     1  2   1   4 1
+              40  2    3    1    1    1     3              90    2     1  4   1   2 1
+              41  2    3    1    3    1     1              91    4     1  2   1   2 1
+              42  1    1    2    1    3     3              92    1     1  1   1   4 3
+              43  1    1    2    3    3     1              93    1     1  1   3   4 1
+              44  1    3    2    1    3     1              94    1     3  1   1   4 1
+              45  1    1    3    1    2     3              95    1     1  4   1   1 3
+              46  1    1    3    3    2     1              96    1     1  4   3   1 1
+              47  1    3    3    1    2     1              97    4     1  1   1   1 3
+              48  3    1    3    1    2     1              98    4     1  1   3   1 1
+              49  2    1    1    3    3     1              99    1     1  3   1   4 1
+
+          Valor   Caractere de Início (START)          Caractere de Fim (STOP)
+                   B   S    B     S    B   S            B S      B    S   B   S B
+           105
+                    2    1    1    2    3    2          2    3    3    1   1   1 2
+
+
+
+
+                                                                                                                    Página 53 / 53
+
