@@ -12,7 +12,12 @@ import { protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import * as db from "./db";
 import { createTrace } from "./tracer";
-import { projects, questionnaireAnswersV3, questionnaireProgressV3, questionnaireQuestionsCache } from "../drizzle/schema";
+import {
+  projects,
+  questionnaireAnswersV3,
+  questionnaireProgressV3,
+  questionnaireQuestionsCache,
+} from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
 // Importações dos novos módulos V60-V63
@@ -27,28 +32,52 @@ import {
   calcularFundamentacao,
   calcularMatrizMetadata,
 } from "./ai-schemas";
-import { generateWithRetry, calculateGlobalScore, OUTPUT_CONTRACT } from "./ai-helpers";
+import {
+  generateWithRetry,
+  calculateGlobalScore,
+  OUTPUT_CONTRACT,
+} from "./ai-helpers";
 // fix #810: import estático (require dentro de sync function falha em ESM/Vitest).
-import { classifyMaturityBadge, MATURITY_BADGE_LABEL } from "./lib/briefing-quality";
+import {
+  classifyMaturityBadge,
+  MATURITY_BADGE_LABEL,
+} from "./lib/briefing-quality";
 import type { ConfiancaBreakdown } from "./lib/calculate-briefing-confidence";
 // Issue #1048: detalhe de pilar Q3 (NCM/NBS) extraído para função pura testável
 import { formatQ3PilarDetalhe } from "./lib/format-confidence-breakdown";
 import mysql from "mysql2/promise";
-import { SOLARIS_GAPS_MAP, type SolarisGapDefinition } from "./config/solaris-gaps-map";
+import {
+  SOLARIS_GAPS_MAP,
+  type SolarisGapDefinition,
+} from "./config/solaris-gaps-map";
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
 import { getArchetypeContext } from "./lib/archetype/getArchetypeContext";
 import { analyzeIagenAnswers } from "./lib/iagen-gap-analyzer";
-import { listActiveCategories, type RiskCategory } from "./lib/db-queries-risk-categories";
+import {
+  listActiveCategories,
+  type RiskCategory,
+} from "./lib/db-queries-risk-categories";
 
 const ONDA2_PROMPT_VERSION = "Z11-v1";
 import { analyzeEngineGaps } from "./lib/engine-gap-analyzer";
 // fix(z22) Wave A.2+B EX-2: persistCpieScoreForProject removido (scoringEngine.ts deletado · ADR-0029 D-3).
 import { deriveRisksFromGaps, persistRisks } from "./routers/riskEngine";
-import { injectOnda1IntoQuestions, getOnda1Questions } from "./routers/onda1Injector";
+import {
+  injectOnda1IntoQuestions,
+  getOnda1Questions,
+} from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
+import { deriveLeiFilterForRegime } from "./lib/lei-filter";
 // v2.1 T3: Adaptador de consolidação do diagnóstico em 3 camadas
-import { consolidateDiagnosticLayers, isDiagnosticComplete, getNextDiagnosticLayer, getDiagnosticProgress, resolveProjectAnswers, buildProductServiceLayers } from "./diagnostic-consolidator";
+import {
+  consolidateDiagnosticLayers,
+  isDiagnosticComplete,
+  getNextDiagnosticLayer,
+  getDiagnosticProgress,
+  resolveProjectAnswers,
+  buildProductServiceLayers,
+} from "./diagnostic-consolidator";
 // ADR-005 F-02A: Adaptador centralizado de leitura de diagnóstico (leitura via getDiagnosticSource)
 import { getDiagnosticSource, assertFlowVersion } from "./diagnostic-source";
 // M3 Fase 1: Completude diagnóstica expandida (DEC-M3-01 + DEC-M3-02)
@@ -85,7 +114,7 @@ function calcularLimitePerguntas(
   operationProfile: any,
   taxComplexity: any,
   financialProfile: any,
-  governanceProfile: any,
+  governanceProfile: any
 ): number {
   let limite = 3;
   if (taxComplexity?.hasInternationalOps) limite += 2;
@@ -108,18 +137,18 @@ function calcularLimitePerguntas(
 
 function filtrarCategoriasPorPerfil(
   categorias: RiskCategory[],
-  profile: ProjectProfile,
+  profile: ProjectProfile
 ): RiskCategory[] {
   const fin = profile.financialProfile;
   const tax = profile.taxComplexity;
   const op = profile.operationProfile;
 
-  return categorias.filter((cat) => {
+  return categorias.filter(cat => {
     switch (cat.codigo) {
       case "split_payment":
         return (
           fin?.paymentMethods?.some((m: string) =>
-            ["cartao", "marketplace", "cartão", "pix"].includes(m),
+            ["cartao", "marketplace", "cartão", "pix"].includes(m)
           ) || !!fin?.hasIntermediaries
         );
       case "imposto_seletivo":
@@ -135,66 +164,124 @@ function filtrarCategoriasPorPerfil(
 }
 
 export const fluxoV3Router = router({
-
   // ─────────────────────────────────────────────────────────────────────────
   // ETAPA 1: Criar projeto
   // ─────────────────────────────────────────────────────────────────────────
   createProject: protectedProcedure
-    .input(z.object({
-      name: z.string().min(1, "Nome é obrigatório"),
-      description: z.string().min(50, "Descrição deve ter pelo menos 50 caracteres"),
-      clientId: z.number({ message: "Cliente é obrigatório" }),
-      faturamentoAnual: z.number().optional(), // V61: para tradução financeira do risco
-      // v2.1: Company Profile Layer — OBRIGATÓRIO (fix/v2.1-company-profile-required)
-      companyProfile: z.object({
-        cnpj: z.string().min(14, "CNPJ é obrigatório"),
-        companyType: z.enum(["ltda", "sa", "mei", "eireli", "scp", "cooperativa", "outro", "slu", "outros"]),
-        companySize: z.enum(["mei", "micro", "pequena", "media", "grande"]),
-        taxRegime: z.enum(["simples_nacional", "lucro_presumido", "lucro_real"]),
-        foundingYear: z.number().optional(),
-        stateUF: z.string().optional(),
-        employeeCount: z.string().optional(),
-        annualRevenueRange: z.enum(["ate_360k", "360k_4_8m", "4_8m_78m", "acima_78m", "0-360000", "360000-4800000", "4800000-78000000", "78000000+"]).optional(),
-        // ISSUE-001: QC-02 — Estrutura Societária (Prefill Contract Fase 1 Final)
-        isEconomicGroup: z.boolean().optional().nullable(),
-        taxCentralization: z.enum(["centralized", "decentralized", "partial"]).optional().nullable(),
-      }),
-      operationProfile: z.object({
-        operationType: z.enum(["produto", "servico", "misto", "industria", "comercio", "servicos", "agronegocio", "financeiro"]),
-        clientType: z.array(z.string()).min(1, "Selecione pelo menos 1 tipo de cliente"),
-        multiState: z.boolean(),
-        geographicScope: z.string().optional(),
-        // Bloco E (CNT-01c): NCM/NBS persistidos no operationProfile — sem colunas soltas
-        principaisProdutos: z.array(z.object({
-          ncm_code: z.string(),
-          descricao: z.string(),
-          percentualFaturamento: z.number().optional(),
-        })).optional().default([]),
-        principaisServicos: z.array(z.object({
-          nbs_code: z.string(),
-          descricao: z.string(),
-          percentualFaturamento: z.number().optional(),
-        })).optional().default([]),
-      }),
-      taxComplexity: z.object({
-        hasInternationalOps: z.boolean().optional(),
-        usesTaxIncentives: z.boolean().optional(),
-        usesMarketplace: z.boolean().optional(),
-        hasMultipleEstablishments: z.boolean().optional(),
-        hasImportExport: z.boolean().optional(),
-        hasSpecialRegimes: z.boolean().optional(),
-      }).optional(),
-      financialProfile: z.object({
-        paymentMethods: z.array(z.string()).optional(),
-        paymentMethodsOther: z.string().optional(),
-        hasIntermediaries: z.boolean().optional(),
-      }).optional(),
-      governanceProfile: z.object({
-        hasTaxTeam: z.boolean().optional(),
-        hasAudit: z.boolean().optional(),
-        hasTaxIssues: z.boolean().optional(),
-      }).optional(),
-    }))
+    .input(
+      z.object({
+        name: z.string().min(1, "Nome é obrigatório"),
+        description: z
+          .string()
+          .min(50, "Descrição deve ter pelo menos 50 caracteres"),
+        clientId: z.number({ message: "Cliente é obrigatório" }),
+        faturamentoAnual: z.number().optional(), // V61: para tradução financeira do risco
+        // v2.1: Company Profile Layer — OBRIGATÓRIO (fix/v2.1-company-profile-required)
+        companyProfile: z.object({
+          cnpj: z.string().min(14, "CNPJ é obrigatório"),
+          companyType: z.enum([
+            "ltda",
+            "sa",
+            "mei",
+            "eireli",
+            "scp",
+            "cooperativa",
+            "outro",
+            "slu",
+            "outros",
+          ]),
+          companySize: z.enum(["mei", "micro", "pequena", "media", "grande"]),
+          taxRegime: z.enum([
+            "simples_nacional",
+            "lucro_presumido",
+            "lucro_real",
+          ]),
+          foundingYear: z.number().optional(),
+          stateUF: z.string().optional(),
+          employeeCount: z.string().optional(),
+          annualRevenueRange: z
+            .enum([
+              "ate_360k",
+              "360k_4_8m",
+              "4_8m_78m",
+              "acima_78m",
+              "0-360000",
+              "360000-4800000",
+              "4800000-78000000",
+              "78000000+",
+            ])
+            .optional(),
+          // ISSUE-001: QC-02 — Estrutura Societária (Prefill Contract Fase 1 Final)
+          isEconomicGroup: z.boolean().optional().nullable(),
+          taxCentralization: z
+            .enum(["centralized", "decentralized", "partial"])
+            .optional()
+            .nullable(),
+        }),
+        operationProfile: z.object({
+          operationType: z.enum([
+            "produto",
+            "servico",
+            "misto",
+            "industria",
+            "comercio",
+            "servicos",
+            "agronegocio",
+            "financeiro",
+          ]),
+          clientType: z
+            .array(z.string())
+            .min(1, "Selecione pelo menos 1 tipo de cliente"),
+          multiState: z.boolean(),
+          geographicScope: z.string().optional(),
+          // Bloco E (CNT-01c): NCM/NBS persistidos no operationProfile — sem colunas soltas
+          principaisProdutos: z
+            .array(
+              z.object({
+                ncm_code: z.string(),
+                descricao: z.string(),
+                percentualFaturamento: z.number().optional(),
+              })
+            )
+            .optional()
+            .default([]),
+          principaisServicos: z
+            .array(
+              z.object({
+                nbs_code: z.string(),
+                descricao: z.string(),
+                percentualFaturamento: z.number().optional(),
+              })
+            )
+            .optional()
+            .default([]),
+        }),
+        taxComplexity: z
+          .object({
+            hasInternationalOps: z.boolean().optional(),
+            usesTaxIncentives: z.boolean().optional(),
+            usesMarketplace: z.boolean().optional(),
+            hasMultipleEstablishments: z.boolean().optional(),
+            hasImportExport: z.boolean().optional(),
+            hasSpecialRegimes: z.boolean().optional(),
+          })
+          .optional(),
+        financialProfile: z
+          .object({
+            paymentMethods: z.array(z.string()).optional(),
+            paymentMethodsOther: z.string().optional(),
+            hasIntermediaries: z.boolean().optional(),
+          })
+          .optional(),
+        governanceProfile: z
+          .object({
+            hasTaxTeam: z.boolean().optional(),
+            hasAudit: z.boolean().optional(),
+            hasTaxIssues: z.boolean().optional(),
+          })
+          .optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const projectId = await db.createProject({
         name: input.name,
@@ -220,10 +307,12 @@ export const fluxoV3Router = router({
   // ETAPA 1: Extrair CNAEs via IA (V60: retry + temperatura 0.2)
   // ─────────────────────────────────────────────────────────────────────────
   extractCnaes: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      description: z.string().min(1),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        description: z.string().min(1),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       // ── TRACE: inicializa rastreamento detalhado por requisição ─────────────────────────
       const trace = createTrace("extractCnaes", {
@@ -236,7 +325,10 @@ export const fluxoV3Router = router({
       const project = await db.getProjectById(input.projectId);
       if (!project) {
         trace.error("Projeto não encontrado", { projectId: input.projectId });
-        throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       }
       trace.step("project_loaded", { projectName: (project as any).name });
 
@@ -244,32 +336,48 @@ export const fluxoV3Router = router({
       const { buildSemanticCnaeContext } = await import("./cnae-embeddings");
       // v2.1: Enriquecer busca semântica com dados do Company Profile (se disponível)
       const projectAny = project as any;
-      const companyContext = (projectAny.companyProfile || projectAny.operationProfile) ? {
-        taxRegime: projectAny.companyProfile?.taxRegime,
-        operationType: projectAny.operationProfile?.operationType,
-        clientType: projectAny.operationProfile?.clientType,
-        annualRevenueRange: projectAny.companyProfile?.annualRevenueRange,
-      } : undefined;
+      const companyContext =
+        projectAny.companyProfile || projectAny.operationProfile
+          ? {
+              taxRegime: projectAny.companyProfile?.taxRegime,
+              operationType: projectAny.operationProfile?.operationType,
+              clientType: projectAny.operationProfile?.clientType,
+              annualRevenueRange: projectAny.companyProfile?.annualRevenueRange,
+            }
+          : undefined;
 
-      trace.step("embedding_context_start", { hasCompanyProfile: !!companyContext });
+      trace.step("embedding_context_start", {
+        hasCompanyProfile: !!companyContext,
+      });
       let ragContext: string;
       try {
-        ragContext = await buildSemanticCnaeContext(input.description, 20, companyContext);
+        ragContext = await buildSemanticCnaeContext(
+          input.description,
+          20,
+          companyContext
+        );
         trace.step("embedding_context_done", {
           ragContextLen: ragContext.length,
           ragContextLines: ragContext.split("\n").length,
         });
       } catch (embCtxErr) {
-        const embCtxMsg = embCtxErr instanceof Error ? embCtxErr.message : String(embCtxErr);
+        const embCtxMsg =
+          embCtxErr instanceof Error ? embCtxErr.message : String(embCtxErr);
         trace.error(`buildSemanticCnaeContext falhou: ${embCtxMsg}`);
         // Se o contexto RAG falhar completamente, usa string vazia (LLM terá menos contexto)
         ragContext = "";
-        trace.step("embedding_context_failed_using_empty", { error: embCtxMsg });
+        trace.step("embedding_context_failed_using_empty", {
+          error: embCtxMsg,
+        });
       }
 
       let result: z.infer<typeof CnaesResponseSchema>;
       try {
-        trace.step("llm_call_start", { model: "gpt-4.1", temperature: 0.1, timeoutMs: 25000 });
+        trace.step("llm_call_start", {
+          model: "gpt-4.1",
+          temperature: 0.1,
+          timeoutMs: 25000,
+        });
         result = await generateWithRetry(
           [
             {
@@ -317,11 +425,15 @@ Responda em JSON:
         );
         trace.step("llm_call_done", { cnaesCount: result.cnaes.length });
       } catch (aiError) {
-        const errMsg = aiError instanceof Error ? aiError.message : String(aiError);
-        const isTimeout = errMsg.toLowerCase().includes("timed out") ||
+        const errMsg =
+          aiError instanceof Error ? aiError.message : String(aiError);
+        const isTimeout =
+          errMsg.toLowerCase().includes("timed out") ||
           errMsg.toLowerCase().includes("timeout") ||
           errMsg.toLowerCase().includes("abort");
-        const descPreview = input.description.substring(0, 120).replace(/\n/g, " ");
+        const descPreview = input.description
+          .substring(0, 120)
+          .replace(/\n/g, " ");
 
         // Trace detalhado do erro LLM
         trace.step(isTimeout ? "llm_timeout" : "llm_error", {
@@ -329,10 +441,10 @@ Responda em JSON:
           isTimeout,
           ragContextEmpty: ragContext.length === 0,
         });
-        trace.error(
-          `[${isTimeout ? "TIMEOUT" : "ERROR"}] ${errMsg}`,
-          { descPreview, ragContextLen: ragContext.length }
-        );
+        trace.error(`[${isTimeout ? "TIMEOUT" : "ERROR"}] ${errMsg}`, {
+          descPreview,
+          ragContextLen: ragContext.length,
+        });
 
         // Log legado mantido para compatibilidade com grep existente
         console.error(
@@ -348,23 +460,34 @@ Responda em JSON:
               : "⚠️ extractCnaes falhou — fallback ativado",
             content: `Projeto #${input.projectId} | requestId=${trace.requestId}\nDescrição: "${descPreview}"\nRAG context len: ${ragContext.length}\nErro: ${errMsg}`,
           });
-        } catch { /* notificação é best-effort */ }
+        } catch {
+          /* notificação é best-effort */
+        }
 
         // Fallback: usar os top-5 candidatos por similaridade semântica
         trace.step("fallback_start");
-        const { findSimilarCnaes, getFallbackCandidates } = await import("./cnae-embeddings");
+        const { findSimilarCnaes, getFallbackCandidates } = await import(
+          "./cnae-embeddings"
+        );
         let candidates;
         try {
           candidates = await findSimilarCnaes(input.description, 5);
-          trace.step("fallback_embedding_done", { candidatesCount: candidates.length });
+          trace.step("fallback_embedding_done", {
+            candidatesCount: candidates.length,
+          });
         } catch (embeddingError) {
-          const embErrMsg = embeddingError instanceof Error ? embeddingError.message : String(embeddingError);
+          const embErrMsg =
+            embeddingError instanceof Error
+              ? embeddingError.message
+              : String(embeddingError);
           trace.step("fallback_embedding_error", { error: embErrMsg });
           console.error(
             `[extractCnaes][FALLBACK_ERROR] projectId=${input.projectId} | requestId=${trace.requestId} | embedding também falhou: ${embErrMsg}`
           );
           candidates = getFallbackCandidates(5);
-          trace.step("fallback_hardcoded", { candidatesCount: candidates.length });
+          trace.step("fallback_hardcoded", {
+            candidatesCount: candidates.length,
+          });
         }
         if (candidates.length === 0) {
           trace.error("FATAL: nenhum candidato disponível");
@@ -381,13 +504,14 @@ Responda em JSON:
             code: c.code,
             description: c.description,
             confidence: Math.max(40, 70 - i * 8),
-            justification: "Sugerido com base na similaridade semântica da descrição do negócio.",
+            justification:
+              "Sugerido com base na similaridade semântica da descrição do negócio.",
           })),
         };
       }
 
       // Serialização explícita
-      const safeCnaes = result.cnaes.map((c) => ({
+      const safeCnaes = result.cnaes.map(c => ({
         code: String(c.code ?? ""),
         description: String(c.description ?? ""),
         confidence: Number(c.confidence ?? 0),
@@ -396,7 +520,9 @@ Responda em JSON:
 
       trace.finish("ok", {
         cnaesReturned: safeCnaes.length,
-        isFallback: safeCnaes[0]?.justification?.includes("similaridade semântica") ?? false,
+        isFallback:
+          safeCnaes[0]?.justification?.includes("similaridade semântica") ??
+          false,
       });
 
       return { cnaes: safeCnaes, requestId: trace.requestId };
@@ -406,49 +532,67 @@ Responda em JSON:
   // ETAPA 1: Refinar CNAEs via feedback (V60: retry + temperatura 0.2)
   // ─────────────────────────────────────────────────────────────────────────
   refineCnaes: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      description: z.string().min(1),
-      feedback: z.string().min(5, "Descreva o que precisa ser ajustado"),
-      currentCnaes: z.array(CnaeSchema),
-      iteration: z.number().default(1),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        description: z.string().min(1),
+        feedback: z.string().min(5, "Descreva o que precisa ser ajustado"),
+        currentCnaes: z.array(CnaeSchema),
+        iteration: z.number().default(1),
+      })
+    )
     .mutation(async ({ input }) => {
       const trace = createTrace("refineCnaes");
-      trace.step("start", { projectId: input.projectId, iteration: input.iteration, feedbackLen: input.feedback.length, currentCnaesCount: input.currentCnaes.length });
+      trace.step("start", {
+        projectId: input.projectId,
+        iteration: input.iteration,
+        feedbackLen: input.feedback.length,
+        currentCnaesCount: input.currentCnaes.length,
+      });
 
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       trace.step("project_loaded", { projectName: project.name });
 
-      const currentList = input.currentCnaes.map(c =>
-        `- ${c.code}: ${c.description} (confiança: ${c.confidence}%)`
-      ).join("\n");
+      const currentList = input.currentCnaes
+        .map(c => `- ${c.code}: ${c.description} (confiança: ${c.confidence}%)`)
+        .join("\n");
 
       // Embeddings semânticos: busca por similaridade de cosseno (OpenAI text-embedding-3-small)
-      trace.step("embedding_context_start", { query: `${input.description.substring(0, 60)} ${input.feedback.substring(0, 40)}` });
+      trace.step("embedding_context_start", {
+        query: `${input.description.substring(0, 60)} ${input.feedback.substring(0, 40)}`,
+      });
       const { buildSemanticCnaeContext } = await import("./cnae-embeddings");
-      const ragContext = await buildSemanticCnaeContext(`${input.description} ${input.feedback}`);
+      const ragContext = await buildSemanticCnaeContext(
+        `${input.description} ${input.feedback}`
+      );
       trace.step("embedding_context_done", { contextLen: ragContext.length });
 
       let result: z.infer<typeof CnaesResponseSchema>;
       try {
-        trace.step("llm_call_start", { temperature: 0.1, iteration: input.iteration });
-       result = await generateWithRetry(
-        [
-          {
-            role: "system",
-            content: `Você é um Classificador Tributário Especialista em CNAE e Reforma Tributária brasileira.
+        trace.step("llm_call_start", {
+          temperature: 0.1,
+          iteration: input.iteration,
+        });
+        result = await generateWithRetry(
+          [
+            {
+              role: "system",
+              content: `Você é um Classificador Tributário Especialista em CNAE e Reforma Tributária brasileira.
 Revise a lista de CNAEs com base no feedback do usuário.
 MANTENHA os corretos, AJUSTE os que precisam de correção, ADICIONE os que estão faltando.
 Se o feedback mencionar uma atividade não coberta (ex: transporte, insumos agrícolas), ADICIONE o CNAE correspondente.
 USE APENAS códigos da lista CNAE OFICIAL fornecida. NUNCA invente códigos.
 Mínimo 2, máximo 6 CNAEs. Nunca retorne lista vazia.
 Responda APENAS com JSON válido.`,
-          },
-          {
-            role: "user",
-            content: `CNAEs sugeridos (iteração ${input.iteration}):
+            },
+            {
+              role: "user",
+              content: `CNAEs sugeridos (iteração ${input.iteration}):
 ${currentList}
 
 Feedback do usuário: "${input.feedback}"
@@ -464,16 +608,21 @@ ${ragContext}
 
 Retorne entre 2 e 6 CNAEs revisados com base no feedback.
 {"cnaes": [{"code": "XXXX-X/XX", "description": "...", "confidence": 95, "justification": "..."}]}`,
-          },
-        ],
-        CnaesResponseSchema,
-        { temperature: 0.1, context: "refineCnaes" }
-      );
+            },
+          ],
+          CnaesResponseSchema,
+          { temperature: 0.1, context: "refineCnaes" }
+        );
         trace.step("llm_call_done", { cnaesReturned: result.cnaes.length });
       } catch (refineError) {
         // ── Trace + Monitoramento: log estruturado do erro LLM no refineCnaes ───
-        const errMsg = refineError instanceof Error ? refineError.message : String(refineError);
-        const descPreview = input.description.substring(0, 80).replace(/\n/g, " ");
+        const errMsg =
+          refineError instanceof Error
+            ? refineError.message
+            : String(refineError);
+        const descPreview = input.description
+          .substring(0, 80)
+          .replace(/\n/g, " ");
         trace.step("llm_call_error", { error: errMsg });
         trace.finish("error");
         console.error(
@@ -485,14 +634,16 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
             title: "⚠️ refineCnaes falhou",
             content: `Projeto #${input.projectId} | Iteração ${input.iteration}\nFeedback: "${input.feedback.substring(0, 100)}"\nErro: ${errMsg}`,
           });
-        } catch { /* best-effort */ }
+        } catch {
+          /* best-effort */
+        }
         // ─────────────────────────────────────────────────────────────────────────
         throw refineError;
       }
 
       // Serialização explícita: garante objetos planos para evitar [Max Depth] no Superjson/tRPC
       trace.step("serialize_start");
-      const safeRefinedCnaes = result.cnaes.map((c) => ({
+      const safeRefinedCnaes = result.cnaes.map(c => ({
         code: String(c.code ?? ""),
         description: String(c.description ?? ""),
         confidence: Number(c.confidence ?? 0),
@@ -507,25 +658,31 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
   // ETAPA 1: Confirmar CNAEs e avançar para Etapa 2
   // ─────────────────────────────────────────────────────────────────────────
   confirmCnaes: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      cnaes: z.array(CnaeSchema).min(1, "Selecione pelo menos 1 CNAE"),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        cnaes: z.array(CnaeSchema).min(1, "Selecione pelo menos 1 CNAE"),
+      })
+    )
     .mutation(async ({ input }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       // BUG-E2E-01: transição atômica rascunho → consistencia_pendente → cnaes_confirmados
       // Mesma lógica do approveBriefing (BUG-UAT-09): se o projeto ainda está em rascunho,
       // valida as duas transições em sequência antes de persistir o status final.
-      const { assertValidTransition } = await import('./flowStateMachine');
-      if (project.status === 'rascunho') {
-        assertValidTransition(project.status, 'consistencia_pendente');
-        assertValidTransition('consistencia_pendente', 'cnaes_confirmados');
+      const { assertValidTransition } = await import("./flowStateMachine");
+      if (project.status === "rascunho") {
+        assertValidTransition(project.status, "consistencia_pendente");
+        assertValidTransition("consistencia_pendente", "cnaes_confirmados");
       } else {
-        assertValidTransition(project.status, 'cnaes_confirmados');
+        assertValidTransition(project.status, "cnaes_confirmados");
       }
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       await database
         .update(projects)
         .set({
@@ -543,23 +700,35 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
   // ETAPA 1: Criar cliente on the fly
   // ─────────────────────────────────────────────────────────────────────────
   createClientOnTheFly: protectedProcedure
-    .input(z.object({
-      companyName: z.string().min(1, "Razão Social é obrigatória"),
-      cnpj: z.string().optional(),
-      email: z.string().email("E-mail inválido").optional(),
-      phone: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        companyName: z.string().min(1, "Razão Social é obrigatória"),
+        cnpj: z.string().optional(),
+        email: z.string().email("E-mail inválido").optional(),
+        phone: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
-      if (ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "Apenas a equipe SOLARIS pode criar clientes" });
+      if (
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Apenas a equipe SOLARIS pode criar clientes",
+        });
       }
 
       const rawCnpjDigits = (input.cnpj || "").replace(/\D/g, "");
-      const formattedCnpj = rawCnpjDigits.length === 14
-        ? rawCnpjDigits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5")
-        : rawCnpjDigits.length > 0
-          ? rawCnpjDigits.slice(0, 18)
-          : undefined;
+      const formattedCnpj =
+        rawCnpjDigits.length === 14
+          ? rawCnpjDigits.replace(
+              /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+              "$1.$2.$3/$4-$5"
+            )
+          : rawCnpjDigits.length > 0
+            ? rawCnpjDigits.slice(0, 18)
+            : undefined;
 
       const userId = await db.createUser({
         name: input.companyName,
@@ -585,7 +754,9 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       // Buscar dados do cliente para exibir no formulário
-      const client = project.clientId ? await db.getUserById(project.clientId) : null;
+      const client = project.clientId
+        ? await db.getUserById(project.clientId)
+        : null;
       return {
         id: project.id,
         name: project.name,
@@ -601,8 +772,8 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         briefingContent: diagSource.briefingContentV3 ?? null,
         riskMatricesData: diagSource.riskMatricesDataV3 ?? null,
         actionPlansData: diagSource.actionPlansDataV3 ?? null,
-        scoringData: (project as any).scoringData ?? null,      // V61
-        decisaoData: (project as any).decisaoData ?? null,      // V63
+        scoringData: (project as any).scoringData ?? null, // V61
+        decisaoData: (project as any).decisaoData ?? null, // V63
         faturamentoAnual: (project as any).faturamentoAnual ?? null, // V61
         // ── 3 camadas de diagnóstico (v2.2) ────────────────────────────────────
         corporateAnswers: diagSource.corporateAnswers ?? null,
@@ -617,8 +788,12 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
           iagenAnswersCount: await db.countOnda2Answers(input.projectId),
           diagnosticStatus: (project as any).diagnosticStatus ?? null,
           operationProfile: (project as any).operationProfile ?? null,
-          ncmCodesCount: ((project as any).operationProfile as any)?.principaisProdutos?.length ?? 0,
-          nbsCodesCount: ((project as any).operationProfile as any)?.principaisServicos?.length ?? 0,
+          ncmCodesCount:
+            ((project as any).operationProfile as any)?.principaisProdutos
+              ?.length ?? 0,
+          nbsCodesCount:
+            ((project as any).operationProfile as any)?.principaisServicos
+              ?.length ?? 0,
         }),
       };
     }),
@@ -627,31 +802,45 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
   // ETAPA 2: Gerar perguntas do questionário (V60: retry + temperatura 0.2 + metadata)
   // ─────────────────────────────────────────────────────────────────────────
   generateQuestions: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      cnaeCode: z.string(),
-      cnaeDescription: z.string(),
-      level: z.enum(["nivel1", "nivel2"]),
-      roundIndex: z.number().optional().default(0), // 0=primeiro aprofundamento, 1=segundo, etc.
-      previousAnswers: z.array(z.object({
-        question: z.string(),
-        answer: z.string(),
-      })).optional(),
-      contextNote: z.string().optional(), // Campo livre de contexto adicional do usuário
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        cnaeCode: z.string(),
+        cnaeDescription: z.string(),
+        level: z.enum(["nivel1", "nivel2"]),
+        roundIndex: z.number().optional().default(0), // 0=primeiro aprofundamento, 1=segundo, etc.
+        previousAnswers: z
+          .array(
+            z.object({
+              question: z.string(),
+              answer: z.string(),
+            })
+          )
+          .optional(),
+        contextNote: z.string().optional(), // Campo livre de contexto adicional do usuário
+      })
+    )
     .mutation(async ({ input }) => {
-      console.log(`[generateQuestions] START projectId=${input.projectId} cnae=${input.cnaeCode} level=${input.level} round=${input.roundIndex}`);
+      console.log(
+        `[generateQuestions] START projectId=${input.projectId} cnae=${input.cnaeCode} level=${input.level} round=${input.roundIndex}`
+      );
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
       const projectDescription = (project as any).description || "";
-      const roundLabel = (input.roundIndex ?? 0) > 0 ? ` (Round ${(input.roundIndex ?? 0) + 1})` : "";
+      const roundLabel =
+        (input.roundIndex ?? 0) > 0
+          ? ` (Round ${(input.roundIndex ?? 0) + 1})`
+          : "";
       const contextNoteSection = input.contextNote?.trim()
         ? `\nCONTEXTO ADICIONAL FORNECIDO PELO USUÁRIO:\n${input.contextNote.trim()}\n`
         : "";
-      const nivel2Context = input.level === "nivel2" && input.previousAnswers?.length
-        ? `\nRESPOSTAS ANTERIORES:\n${input.previousAnswers.map(a => `P: ${a.question}\nR: ${a.answer}`).join("\n\n")}\n${contextNoteSection}\nGere perguntas de APROFUNDAMENTO${roundLabel} baseadas nessas respostas e no contexto adicional.`
-        : contextNoteSection ? `\n${contextNoteSection}\nGere perguntas considerando este contexto adicional.` : "";
+      const nivel2Context =
+        input.level === "nivel2" && input.previousAnswers?.length
+          ? `\nRESPOSTAS ANTERIORES:\n${input.previousAnswers.map(a => `P: ${a.question}\nR: ${a.answer}`).join("\n\n")}\n${contextNoteSection}\nGere perguntas de APROFUNDAMENTO${roundLabel} baseadas nessas respostas e no contexto adicional.`
+          : contextNoteSection
+            ? `\n${contextNoteSection}\nGere perguntas considerando este contexto adicional.`
+            : "";
 
       // V65: RAG híbrido — busca artigos relevantes para o CNAE (versão rápida sem re-ranking para perguntas)
       // M3.5 RAG-COVERAGE: enriquecer query com Perfil da Entidade (archetype M1) — backward-compat por construção
@@ -668,7 +857,9 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         ragCtx = { articles: [], contextText: "", totalCandidates: 0 };
       }
       const regulatoryContext = ragCtx?.contextText ?? "";
-      console.log(`[generateQuestions] RAG ok, articles=${ragCtx?.articles?.length ?? 0}`);
+      console.log(
+        `[generateQuestions] RAG ok, articles=${ragCtx?.articles?.length ?? 0}`
+      );
 
       // Issue #1010 (Wave 1): gate hasGap análogo ao corpus_gap_setorial em Q.NCM.
       // Quando RAG não retorna chunks E SOLARIS Onda 1 não cobre o CNAE, retornamos
@@ -679,21 +870,23 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
       const onda1ForGapCheck = await getOnda1Questions(input.cnaeCode);
       const ragArticlesCount = ragCtx?.articles?.length ?? 0;
       if (ragArticlesCount === 0 && onda1ForGapCheck.length === 0) {
-        console.log(`[generateQuestions] hasGap=true cnae=${input.cnaeCode} (RAG=0 + SOLARIS=0)`);
+        console.log(
+          `[generateQuestions] hasGap=true cnae=${input.cnaeCode} (RAG=0 + SOLARIS=0)`
+        );
         return {
           questions: [],
           hasGap: true as const,
-          motivo: 'cnae_sem_legislacao_especifica' as const,
+          motivo: "cnae_sem_legislacao_especifica" as const,
         };
       }
 
       let result;
       try {
         result = await generateWithRetry(
-        [
-          {
-            role: "system",
-            content: `Você é um Auditor de Diagnóstico Tributário especializado na Reforma Tributária brasileira (LC 214/2025, IBS, CBS, IS).
+          [
+            {
+              role: "system",
+              content: `Você é um Auditor de Diagnóstico Tributário especializado na Reforma Tributária brasileira (LC 214/2025, IBS, CBS, IS).
 Sua função é gerar perguntas de diagnóstico precisas e acionáveis para identificar gaps de compliance.
 
 REGRAS OBRIGATÓRIAS:
@@ -715,36 +908,44 @@ REGRAS OBRIGATÓRIAS:
 ${regulatoryContext}
 
 ${OUTPUT_CONTRACT}`,
-          },
-          {
-            role: "user",
-            content: `CNAE: ${input.cnaeCode} — ${input.cnaeDescription}
+            },
+            {
+              role: "user",
+              content: `CNAE: ${input.cnaeCode} — ${input.cnaeDescription}
 DESCRIÇÃO DA EMPRESA: ${projectDescription}
 NÍVEL: ${input.level === "nivel1" ? "1 (perguntas essenciais)" : `2 (aprofundamento${roundLabel})`}
 ${nivel2Context}
 
 Gere as perguntas no formato:
 {"questions": [{"id": "q1", "text": "...", "objetivo_diagnostico": "...", "impacto_reforma": "...", "type": "sim_nao", "peso_risco": "alto", "required": true, "options": [], "scale_labels": {"min": "Nunca", "max": "Sempre"}, "placeholder": "...", "fonte": "regulatorio", "requirement_id": "RF-045", "source_reference": "LC 214/2025 Art. 9°"}]}`,
-          },
-        ],
+            },
+          ],
           QuestionsResponseSchema,
-          { temperature: 0.1, context: "generateQuestions" }  // REGRA-ORQ-30: max 0.1 (M3.7 Item 6)
+          { temperature: 0.1, context: "generateQuestions" } // REGRA-ORQ-30: max 0.1 (M3.7 Item 6)
         );
       } catch (llmErr) {
-        console.error(`[generateQuestions] LLM error for cnae=${input.cnaeCode}:`, llmErr);
+        console.error(
+          `[generateQuestions] LLM error for cnae=${input.cnaeCode}:`,
+          llmErr
+        );
         throw llmErr;
       }
-      console.log(`[generateQuestions] OK questions=${result.questions.length}`);
+      console.log(
+        `[generateQuestions] OK questions=${result.questions.length}`
+      );
 
       // Issue #1028 M3 — Filter pós-LLM: enforce REGRA-ORQ-29.
       // Toda pergunta DEVE ter fonte=regulatorio + source_reference não-vazio.
       // Defesa em profundidade caso LLM ignore instruções do prompt M2.
-      const validQuestions = result.questions.filter(q =>
-        q.fonte === "regulatorio" &&
-        typeof q.source_reference === "string" &&
-        q.source_reference.trim().length > 0
+      const validQuestions = result.questions.filter(
+        q =>
+          q.fonte === "regulatorio" &&
+          typeof q.source_reference === "string" &&
+          q.source_reference.trim().length > 0
       );
-      console.log(`[generateQuestions] M3 filter: ok=${result.questions.length} valid=${validQuestions.length} filtered=${result.questions.length - validQuestions.length}`);
+      console.log(
+        `[generateQuestions] M3 filter: ok=${result.questions.length} valid=${validQuestions.length} filtered=${result.questions.length - validQuestions.length}`
+      );
 
       // Issue #1028 M1 — Não injetar SOLARIS Onda 1 no Q.CNAE.
       // Q.CNAE = APENAS perguntas regulatórias (RAG+LLM).
@@ -757,20 +958,26 @@ Gere as perguntas no formato:
   // ETAPA 2: Salvar resposta individual
   // ─────────────────────────────────────────────────────────────────────────
   saveAnswer: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      cnaeCode: z.string(),
-      cnaeDescription: z.string().optional(),
-      level: z.enum(["nivel1", "nivel2"]),
-      roundIndex: z.number().optional().default(0),
-      questionIndex: z.number(),
-      questionText: z.string(),
-      questionType: z.string().optional(),
-      answerValue: z.string(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        cnaeCode: z.string(),
+        cnaeDescription: z.string().optional(),
+        level: z.enum(["nivel1", "nivel2"]),
+        roundIndex: z.number().optional().default(0),
+        questionIndex: z.number(),
+        questionText: z.string(),
+        questionType: z.string().optional(),
+        answerValue: z.string(),
+      })
+    )
     .mutation(async ({ input }) => {
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const roundIdx = input.roundIndex ?? 0;
       const existing = await database
@@ -815,7 +1022,11 @@ Gere as perguntas no formato:
     .input(z.object({ projectId: z.number() }))
     .query(async ({ input }) => {
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [progress] = await database
         .select()
@@ -835,11 +1046,13 @@ Gere as perguntas no formato:
   // ETAPA 2: Validar nota de contexto adicional (Feature 2: campo livre)
   // ─────────────────────────────────────────────────────────────────────────
   validateContextNote: protectedProcedure
-    .input(z.object({
-      cnaeCode: z.string(),
-      cnaeDescription: z.string(),
-      contextNote: z.string(),
-    }))
+    .input(
+      z.object({
+        cnaeCode: z.string(),
+        cnaeDescription: z.string(),
+        contextNote: z.string(),
+      })
+    )
     .mutation(async ({ input }) => {
       const text = input.contextNote.trim();
       if (!text || text.length < 10) {
@@ -850,7 +1063,8 @@ Gere as perguntas no formato:
           messages: [
             {
               role: "system",
-              content: "Você é um especialista em compliance tributário. Avalie se o texto fornecido tem relevância para o CNAE informado. Responda APENAS com JSON válido.",
+              content:
+                "Você é um especialista em compliance tributário. Avalie se o texto fornecido tem relevância para o CNAE informado. Responda APENAS com JSON válido.",
             },
             {
               role: "user",
@@ -875,13 +1089,24 @@ Gere as perguntas no formato:
           } as any,
         });
         const content = response.choices?.[0]?.message?.content;
-        if (!content) return { relevant: true, reason: "Não foi possível validar, prosseguindo." };
-        const parsed = typeof content === "string" ? JSON.parse(content) : content;
-        return { relevant: parsed.relevant as boolean, reason: parsed.reason as string };
+        if (!content)
+          return {
+            relevant: true,
+            reason: "Não foi possível validar, prosseguindo.",
+          };
+        const parsed =
+          typeof content === "string" ? JSON.parse(content) : content;
+        return {
+          relevant: parsed.relevant as boolean,
+          reason: parsed.reason as string,
+        };
       } catch (err) {
         console.error("[validateContextNote] erro:", err);
         // Em caso de erro, deixar passar (não bloquear o usuário)
-        return { relevant: true, reason: "Validação indisponível, prosseguindo." };
+        return {
+          relevant: true,
+          reason: "Validação indisponível, prosseguindo.",
+        };
       }
     }),
 
@@ -889,17 +1114,23 @@ Gere as perguntas no formato:
   // ETAPA 2: Cache de perguntas geradas (persistência cross-device)
   // ─────────────────────────────────────────────────────────────────────────
   saveQuestionsCache: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      cnaeCode: z.string(),
-      level: z.enum(["nivel1", "nivel2"]),
-      roundIndex: z.number().default(0),
-      questionsJson: z.string(),
-      contextNote: z.string().optional(), // Contexto adicional usado na geração deste round
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        cnaeCode: z.string(),
+        level: z.enum(["nivel1", "nivel2"]),
+        roundIndex: z.number().default(0),
+        questionsJson: z.string(),
+        contextNote: z.string().optional(), // Contexto adicional usado na geração deste round
+      })
+    )
     .mutation(async ({ input }) => {
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       const existing = await database
         .select({ id: questionnaireQuestionsCache.id })
         .from(questionnaireQuestionsCache)
@@ -915,7 +1146,10 @@ Gere as perguntas no formato:
       if (existing.length > 0) {
         await database
           .update(questionnaireQuestionsCache)
-          .set({ questionsJson: input.questionsJson, contextNote: input.contextNote ?? null })
+          .set({
+            questionsJson: input.questionsJson,
+            contextNote: input.contextNote ?? null,
+          })
           .where(eq(questionnaireQuestionsCache.id, existing[0].id));
       } else {
         await database.insert(questionnaireQuestionsCache).values({
@@ -947,13 +1181,16 @@ Gere as perguntas no formato:
         .where(eq(questionnaireAnswersV3.projectId, input.projectId));
 
       // Agregar por CNAE: contar rounds de aprofundamento (nivel2)
-      const byCnae: Record<string, {
-        cnaeCode: string;
-        cnaeDescription: string;
-        nivel1Done: boolean;
-        roundsCompleted: number; // quantos rounds de nivel2 foram feitos
-        maxRoundIndex: number;   // índice do round mais alto (0-based)
-      }> = {};
+      const byCnae: Record<
+        string,
+        {
+          cnaeCode: string;
+          cnaeDescription: string;
+          nivel1Done: boolean;
+          roundsCompleted: number; // quantos rounds de nivel2 foram feitos
+          maxRoundIndex: number; // índice do round mais alto (0-based)
+        }
+      > = {};
 
       for (const a of answers) {
         if (!byCnae[a.cnaeCode]) {
@@ -977,7 +1214,7 @@ Gere as perguntas no formato:
         }
       }
 
-       // Buscar contextNotes por CNAE/round da tabela de cache de perguntas
+      // Buscar contextNotes por CNAE/round da tabela de cache de perguntas
       const cacheRows = await database
         .select({
           cnaeCode: questionnaireQuestionsCache.cnaeCode,
@@ -1008,12 +1245,14 @@ Gere as perguntas no formato:
     }),
 
   getQuestionsCache: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      cnaeCode: z.string(),
-      level: z.enum(["nivel1", "nivel2"]),
-      roundIndex: z.number().default(0),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        cnaeCode: z.string(),
+        level: z.enum(["nivel1", "nivel2"]),
+        roundIndex: z.number().default(0),
+      })
+    )
     .query(async ({ input }) => {
       const database = await db.getDb();
       if (!database) return { questionsJson: null };
@@ -1030,29 +1269,42 @@ Gere as perguntas no formato:
         )
         .limit(1);
       if (rows.length === 0) return { questionsJson: null, contextNote: null };
-      return { questionsJson: rows[0].questionsJson, contextNote: rows[0].contextNote ?? null };
+      return {
+        questionsJson: rows[0].questionsJson,
+        contextNote: rows[0].contextNote ?? null,
+      };
     }),
 
   // ─────────────────────────────────────────────────────────────────────────
   // ETAPA 2: Salvar progresso e avançar para Etapa 3
   // ─────────────────────────────────────────────────────────────────────────
   saveQuestionnaireProgress: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      allAnswers: z.array(z.object({
-        cnaeCode: z.string(),
-        cnaeDescription: z.string(),
-        level: z.string(),
-        questions: z.array(z.object({
-          question: z.string(),
-          answer: z.string(),
-        })),
-      })),
-      completed: z.boolean().default(false),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        allAnswers: z.array(
+          z.object({
+            cnaeCode: z.string(),
+            cnaeDescription: z.string(),
+            level: z.string(),
+            questions: z.array(
+              z.object({
+                question: z.string(),
+                answer: z.string(),
+              })
+            ),
+          })
+        ),
+        completed: z.boolean().default(false),
+      })
+    )
     .mutation(async ({ input }) => {
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       const updateData: any = {
         questionnaireAnswers: input.allAnswers as any,
       };
@@ -1075,30 +1327,43 @@ Gere as perguntas no formato:
   // V62: injeção de contexto regulatório CNAE→artigos
   // ─────────────────────────────────────────────────────────────────────────
   generateBriefing: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      allAnswers: z.array(z.object({
-        cnaeCode: z.string(),
-        cnaeDescription: z.string(),
-        level: z.string(),
-        questions: z.array(z.object({
-          question: z.string(),
-          answer: z.string(),
-        })),
-      })),
-      correction: z.string().optional(),
-      complement: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        allAnswers: z.array(
+          z.object({
+            cnaeCode: z.string(),
+            cnaeDescription: z.string(),
+            level: z.string(),
+            questions: z.array(
+              z.object({
+                question: z.string(),
+                answer: z.string(),
+              })
+            ),
+          })
+        ),
+        correction: z.string().optional(),
+        complement: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
-      const answersText = input.allAnswers.map(cnae =>
-        `## CNAE: ${cnae.cnaeCode} — ${cnae.cnaeDescription} (${cnae.level})\n` +
-        cnae.questions.map(q => `**P:** ${q.question}\n**R:** ${q.answer}`).join("\n\n")
-      ).join("\n\n---\n\n");
+      const answersText = input.allAnswers
+        .map(
+          cnae =>
+            `## CNAE: ${cnae.cnaeCode} — ${cnae.cnaeDescription} (${cnae.level})\n` +
+            cnae.questions
+              .map(q => `**P:** ${q.question}\n**R:** ${q.answer}`)
+              .join("\n\n")
+        )
+        .join("\n\n---\n\n");
 
-      const correctionContext = input.correction ? `\n\nCORREÇÃO SOLICITADA PELO USUÁRIO:\n${input.correction}` : "";
+      const correctionContext = input.correction
+        ? `\n\nCORREÇÃO SOLICITADA PELO USUÁRIO:\n${input.correction}`
+        : "";
       // fix(UAT 2026-04-20): "INFORMAÇÕES ADICIONAIS" renomeadas para "FATOS ADICIONAIS SOBRE A EMPRESA"
       // e marcadas com instrução explícita de que são fatos declarados pelo usuário, para
       // obrigar o LLM a tratar como informação de primeira classe (equivalente ao perfil).
@@ -1113,13 +1378,16 @@ Gere as perguntas no formato:
       // relacionados a fatos declarados (ex: "fazemos exportação" → Art. 8 LC 214/2025)
       // sejam recuperados.
       const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
-      const cnaeCodesForRag = confirmedCnaes.length > 0
-        ? confirmedCnaes.map((c: any) => c.code)
-        : input.allAnswers.map(a => a.cnaeCode);
+      const cnaeCodesForRag =
+        confirmedCnaes.length > 0
+          ? confirmedCnaes.map((c: any) => c.code)
+          : input.allAnswers.map(a => a.cnaeCode);
       // fix(#785 item G UAT 2026-04-20): detector geo/export injeta sufixo jurídico
       // no briefingQueryCtx para forçar RAG a recuperar chunks de Art. 8 LC 214/2025
       // quando usuário menciona país estrangeiro ou termo de exportação.
-      const { detectExportSignal: detectExportGB } = await import("./lib/detect-export-signal");
+      const { detectExportSignal: detectExportGB } = await import(
+        "./lib/detect-export-signal"
+      );
       const exportSignalGB = detectExportGB([
         (project as any).description,
         input.correction,
@@ -1134,13 +1402,28 @@ Gere as perguntas no formato:
         exportSignalGB.suffix,
         answersText.substring(0, 500),
         archCtxBriefingV3,
-      ].filter(Boolean).join(" ");
-      const ragCtxBriefing = await retrieveArticles(cnaeCodesForRag, briefingQueryCtx, 7);
+      ]
+        .filter(Boolean)
+        .join(" ");
+      // #1094: projetos simples_nacional priorizam LC 123 / Resolução CGSN 140
+      // (sem leiFilter o re-ranker GPT-4.1 descarta a Onda 2 — smoke test M2).
+      const leiFilter = deriveLeiFilterForRegime(
+        (project as any).companyProfile?.taxRegime
+      );
+      const ragCtxBriefing = await retrieveArticles(
+        cnaeCodesForRag,
+        briefingQueryCtx,
+        7,
+        leiFilter
+      );
       const regulatoryContext = ragCtxBriefing.contextText;
 
       // G8: Montar bloco de perfil da empresa para personalização do briefing
       const projectAnyBriefing = project as any;
-      const cp = projectAnyBriefing.companyProfile as Record<string, string> | null | undefined;
+      const cp = projectAnyBriefing.companyProfile as
+        | Record<string, string>
+        | null
+        | undefined;
       const primaryCnae = confirmedCnaes[0]
         ? `${confirmedCnaes[0].code} — ${(confirmedCnaes[0] as any).description || confirmedCnaes[0].code}`
         : (input.allAnswers[0]?.cnaeCode ?? "não informado");
@@ -1158,8 +1441,14 @@ Gere as perguntas no formato:
         if (typeof opProfileRaw === "string") {
           try {
             const parsed = JSON.parse(opProfileRaw);
-            return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
-          } catch { return {}; }
+            return parsed &&
+              typeof parsed === "object" &&
+              !Array.isArray(parsed)
+              ? parsed
+              : {};
+          } catch {
+            return {};
+          }
         }
         if (typeof opProfileRaw === "object" && !Array.isArray(opProfileRaw)) {
           return opProfileRaw as any;
@@ -1167,15 +1456,23 @@ Gere as perguntas no formato:
         return {};
       })();
       const produtosList = (opProfile?.principaisProdutos ?? [])
-        .filter((p) => p?.ncm_code)
-        .map((p) => `  - NCM ${p.ncm_code}${p.descricao ? ` — ${p.descricao}` : ""}`)
+        .filter(p => p?.ncm_code)
+        .map(
+          p => `  - NCM ${p.ncm_code}${p.descricao ? ` — ${p.descricao}` : ""}`
+        )
         .join("\n");
       const servicosList = (opProfile?.principaisServicos ?? [])
-        .filter((s) => s?.nbs_code)
-        .map((s) => `  - NBS ${s.nbs_code}${s.descricao ? ` — ${s.descricao}` : ""}`)
+        .filter(s => s?.nbs_code)
+        .map(
+          s => `  - NBS ${s.nbs_code}${s.descricao ? ` — ${s.descricao}` : ""}`
+        )
         .join("\n");
-      const produtosBlock = produtosList ? `\n- Principais Produtos (NCM):\n${produtosList}` : "";
-      const servicosBlock = servicosList ? `\n- Principais Serviços (NBS):\n${servicosList}` : "";
+      const produtosBlock = produtosList
+        ? `\n- Principais Produtos (NCM):\n${produtosList}`
+        : "";
+      const servicosBlock = servicosList
+        ? `\n- Principais Serviços (NBS):\n${servicosList}`
+        : "";
 
       const companyProfileBlock = cp
         ? `## Perfil da Empresa\n- Razão Social: ${project.name}\n- CNAE Principal: ${primaryCnae}\n- Porte: ${cp.companySize ?? "não informado"}\n- Regime Tributário: ${cp.taxRegime ?? "não informado"}\n- Faturamento Anual: ${cp.annualRevenueRange ?? "não informado"}${produtosBlock}${servicosBlock}`
@@ -1189,64 +1486,99 @@ Gere as perguntas no formato:
       const additionalSourcesContext: string[] = [];
 
       const solarisAnswersForPrompt = await db.getOnda1Answers(input.projectId);
-      if (Array.isArray(solarisAnswersForPrompt) && solarisAnswersForPrompt.length > 0) {
-        additionalSourcesContext.push('<respostas_solaris_onda1>');
+      if (
+        Array.isArray(solarisAnswersForPrompt) &&
+        solarisAnswersForPrompt.length > 0
+      ) {
+        additionalSourcesContext.push("<respostas_solaris_onda1>");
         solarisAnswersForPrompt
           .filter((a: any) => a?.resposta)
           .forEach((a: any) => {
             additionalSourcesContext.push(`${a.codigo}: ${a.resposta}`);
           });
-        additionalSourcesContext.push('</respostas_solaris_onda1>');
+        additionalSourcesContext.push("</respostas_solaris_onda1>");
       }
 
       const iagenAnswersForPrompt = await db.getOnda2Answers(input.projectId);
-      if (Array.isArray(iagenAnswersForPrompt) && iagenAnswersForPrompt.length > 0) {
-        additionalSourcesContext.push('<respostas_iagen_onda2>');
+      if (
+        Array.isArray(iagenAnswersForPrompt) &&
+        iagenAnswersForPrompt.length > 0
+      ) {
+        additionalSourcesContext.push("<respostas_iagen_onda2>");
         iagenAnswersForPrompt
           .filter((a: any) => a?.resposta)
           .forEach((a: any) => {
-            additionalSourcesContext.push(`Q: ${a.questionText ?? a.question ?? ''}\nR: ${a.resposta}`);
+            additionalSourcesContext.push(
+              `Q: ${a.questionText ?? a.question ?? ""}\nR: ${a.resposta}`
+            );
           });
-        additionalSourcesContext.push('</respostas_iagen_onda2>');
+        additionalSourcesContext.push("</respostas_iagen_onda2>");
       }
 
       const productAnswersArr = (() => {
         const raw = projectAnyBriefing.productAnswers;
         if (!raw) return [];
-        try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return []; }
+        try {
+          return typeof raw === "string" ? JSON.parse(raw) : raw;
+        } catch {
+          return [];
+        }
       })();
       if (Array.isArray(productAnswersArr) && productAnswersArr.length > 0) {
-        additionalSourcesContext.push('<respostas_q_produtos_ncm>');
+        additionalSourcesContext.push("<respostas_q_produtos_ncm>");
         productAnswersArr
-          .filter((a: any) => a && (a.pergunta_texto || a.pergunta) && a.resposta !== undefined && a.resposta !== null && a.resposta !== '')
+          .filter(
+            (a: any) =>
+              a &&
+              (a.pergunta_texto || a.pergunta) &&
+              a.resposta !== undefined &&
+              a.resposta !== null &&
+              a.resposta !== ""
+          )
           .forEach((a: any) => {
-            const codePrefix = a.ncm_code ? `[NCM ${a.ncm_code}] ` : '';
-            const text = a.pergunta_texto ?? a.pergunta ?? '';
-            additionalSourcesContext.push(`${codePrefix}P: ${text}\nR: ${a.resposta}`);
+            const codePrefix = a.ncm_code ? `[NCM ${a.ncm_code}] ` : "";
+            const text = a.pergunta_texto ?? a.pergunta ?? "";
+            additionalSourcesContext.push(
+              `${codePrefix}P: ${text}\nR: ${a.resposta}`
+            );
           });
-        additionalSourcesContext.push('</respostas_q_produtos_ncm>');
+        additionalSourcesContext.push("</respostas_q_produtos_ncm>");
       }
 
       const serviceAnswersArr = (() => {
         const raw = projectAnyBriefing.serviceAnswers;
         if (!raw) return [];
-        try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return []; }
+        try {
+          return typeof raw === "string" ? JSON.parse(raw) : raw;
+        } catch {
+          return [];
+        }
       })();
       if (Array.isArray(serviceAnswersArr) && serviceAnswersArr.length > 0) {
-        additionalSourcesContext.push('<respostas_q_servicos_nbs>');
+        additionalSourcesContext.push("<respostas_q_servicos_nbs>");
         serviceAnswersArr
-          .filter((a: any) => a && (a.pergunta_texto || a.pergunta) && a.resposta !== undefined && a.resposta !== null && a.resposta !== '')
+          .filter(
+            (a: any) =>
+              a &&
+              (a.pergunta_texto || a.pergunta) &&
+              a.resposta !== undefined &&
+              a.resposta !== null &&
+              a.resposta !== ""
+          )
           .forEach((a: any) => {
-            const codePrefix = a.nbs_code ? `[NBS ${a.nbs_code}] ` : '';
-            const text = a.pergunta_texto ?? a.pergunta ?? '';
-            additionalSourcesContext.push(`${codePrefix}P: ${text}\nR: ${a.resposta}`);
+            const codePrefix = a.nbs_code ? `[NBS ${a.nbs_code}] ` : "";
+            const text = a.pergunta_texto ?? a.pergunta ?? "";
+            additionalSourcesContext.push(
+              `${codePrefix}P: ${text}\nR: ${a.resposta}`
+            );
           });
-        additionalSourcesContext.push('</respostas_q_servicos_nbs>');
+        additionalSourcesContext.push("</respostas_q_servicos_nbs>");
       }
 
-      const additionalSourcesText = additionalSourcesContext.length > 0
-        ? `\n\nDADOS ADICIONAIS DO CLIENTE:\n${additionalSourcesContext.join('\n')}\n`
-        : '';
+      const additionalSourcesText =
+        additionalSourcesContext.length > 0
+          ? `\n\nDADOS ADICIONAIS DO CLIENTE:\n${additionalSourcesContext.join("\n")}\n`
+          : "";
 
       // V60: Geração com retry + temperatura 0.2 + schema estruturado
       // fix(UX3 UAT 2026-04-20): contador de retries para propagar ao frontend
@@ -1390,7 +1722,9 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
           context: "generateBriefing",
           onRetry: (attempt: number, err: string) => {
             llmRetries = attempt;
-            console.warn(`[generateBriefing] retry ${attempt}: ${err.substring(0, 200)}`);
+            console.warn(
+              `[generateBriefing] retry ${attempt}: ${err.substring(0, 200)}`
+            );
           },
         }
       );
@@ -1399,17 +1733,23 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       // determinística server-side, tirando a decisão do LLM. Garante consistência:
       // mesma contradição → mesmo impacto (sempre).
       if (Array.isArray(structured.inconsistencias)) {
-        structured.inconsistencias = structured.inconsistencias.map((inc: any) => ({
-          ...inc,
-          impacto: classifyInconsistenciaImpacto(inc),
-        }));
+        structured.inconsistencias = structured.inconsistencias.map(
+          (inc: any) => ({
+            ...inc,
+            impacto: classifyInconsistenciaImpacto(inc),
+          })
+        );
       }
 
       // fix(#780 item 1 UAT 2026-04-20): consolida gaps com mesmo artigo+parágrafo
       // (LLM fragmentava em 3+ gaps para Art. 21 §1º). Pós-processamento determinístico.
       if (Array.isArray(structured.principais_gaps)) {
-        const { consolidateGapsByArticle } = await import("./lib/consolidate-gaps");
-        structured.principais_gaps = consolidateGapsByArticle(structured.principais_gaps) as any;
+        const { consolidateGapsByArticle } = await import(
+          "./lib/consolidate-gaps"
+        );
+        structured.principais_gaps = consolidateGapsByArticle(
+          structured.principais_gaps
+        ) as any;
       }
 
       // fix(BUG-1 UAT 2026-04-20): preservar inconsistências dismissed entre regenerações.
@@ -1418,21 +1758,36 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       const priorStructuredRaw = (project as any).briefingStructured;
       const priorStructured = (() => {
         if (!priorStructuredRaw) return null;
-        try { return typeof priorStructuredRaw === "string" ? JSON.parse(priorStructuredRaw) : priorStructuredRaw; } catch { return null; }
+        try {
+          return typeof priorStructuredRaw === "string"
+            ? JSON.parse(priorStructuredRaw)
+            : priorStructuredRaw;
+        } catch {
+          return null;
+        }
       })();
-      const dismissedInconsistencias: any[] = Array.isArray(priorStructured?.dismissed_inconsistencias)
+      const dismissedInconsistencias: any[] = Array.isArray(
+        priorStructured?.dismissed_inconsistencias
+      )
         ? priorStructured.dismissed_inconsistencias
         : [];
       const normalizePerguntaOrigem = (s: string): string =>
-        String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+        String(s ?? "")
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, " ");
       const dismissedKeys = new Set(
-        dismissedInconsistencias.map((d: any) => normalizePerguntaOrigem(d?.pergunta_origem ?? ""))
+        dismissedInconsistencias.map((d: any) =>
+          normalizePerguntaOrigem(d?.pergunta_origem ?? "")
+        )
       );
       if (Array.isArray(structured.inconsistencias)) {
-        structured.inconsistencias = structured.inconsistencias.filter((inc: any) => {
-          const key = normalizePerguntaOrigem(inc?.pergunta_origem ?? "");
-          return !key || !dismissedKeys.has(key);
-        });
+        structured.inconsistencias = structured.inconsistencias.filter(
+          (inc: any) => {
+            const key = normalizePerguntaOrigem(inc?.pergunta_origem ?? "");
+            return !key || !dismissedKeys.has(key);
+          }
+        );
       }
       // Preserva a dismissed list para próxima regeneração / auditoria.
       (structured as any).dismissed_inconsistencias = dismissedInconsistencias;
@@ -1445,25 +1800,45 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       const productAnswersForConf = (() => {
         const raw = (project as any).productAnswers;
         if (!raw) return [];
-        try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return []; }
+        try {
+          return typeof raw === "string" ? JSON.parse(raw) : raw;
+        } catch {
+          return [];
+        }
       })();
       const serviceAnswersForConf = (() => {
         const raw = (project as any).serviceAnswers;
         if (!raw) return [];
-        try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return []; }
+        try {
+          return typeof raw === "string" ? JSON.parse(raw) : raw;
+        } catch {
+          return [];
+        }
       })();
       const cnaeQuestionsCountForConf = input.allAnswers
-        .filter(l => l.cnaeCode !== "CORPORATIVO" && l.cnaeCode !== "OPERACIONAL")
+        .filter(
+          l => l.cnaeCode !== "CORPORATIVO" && l.cnaeCode !== "OPERACIONAL"
+        )
         .reduce((acc, l) => acc + (l.questions?.length ?? 0), 0);
-      const ncmCountForConf = (opProfile.principaisProdutos ?? []).filter(p => p?.ncm_code).length;
-      const nbsCountForConf = (opProfile.principaisServicos ?? []).filter(s => s?.nbs_code).length;
+      const ncmCountForConf = (opProfile.principaisProdutos ?? []).filter(
+        p => p?.ncm_code
+      ).length;
+      const nbsCountForConf = (opProfile.principaisServicos ?? []).filter(
+        s => s?.nbs_code
+      ).length;
 
       // fix UAT 2026-04-21: fórmula de confiança v2 — média ponderada de 6 pilares
       // com signals dinâmicos (replica calcProfileScore + modelo composto 30/70 Q3).
       // Ponto único de verdade: server/lib/briefing-confidence-signals.ts.
-      const { computeConfidenceSignals } = await import("./lib/briefing-confidence-signals");
-      const { calculateBriefingConfidenceWithBreakdown } = await import("./lib/calculate-briefing-confidence");
-      const cnaesConfirmadosCodes = confirmedCnaes.map((c) => c.code).filter(Boolean);
+      const { computeConfidenceSignals } = await import(
+        "./lib/briefing-confidence-signals"
+      );
+      const { calculateBriefingConfidenceWithBreakdown } = await import(
+        "./lib/calculate-briefing-confidence"
+      );
+      const cnaesConfirmadosCodes = confirmedCnaes
+        .map(c => c.code)
+        .filter(Boolean);
       const signalsResult = await computeConfidenceSignals({
         projectId: input.projectId,
         cnaesConfirmados: cnaesConfirmadosCodes,
@@ -1476,13 +1851,20 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         productAnswers: (project as any).productAnswers,
         serviceAnswers: (project as any).serviceAnswers,
       });
-      const confBreakdown = calculateBriefingConfidenceWithBreakdown(signalsResult.signals);
+      const confBreakdown = calculateBriefingConfidenceWithBreakdown(
+        signalsResult.signals
+      );
       const deterministicConfidence = confBreakdown.score;
       const produtosTotalCountPre = signalsResult.signals.q3ProdutosCadastrados;
       const servicosTotalCountPre = signalsResult.signals.q3ServicosCadastrados;
-      const productAnswersArrCountPre = signalsResult.signals.q3ProdutosTotalPerguntas;
-      const serviceAnswersArrCountPre = signalsResult.signals.q3ServicosTotalPerguntas;
-      if (structured.confidence_score && typeof structured.confidence_score === "object") {
+      const productAnswersArrCountPre =
+        signalsResult.signals.q3ProdutosTotalPerguntas;
+      const serviceAnswersArrCountPre =
+        signalsResult.signals.q3ServicosTotalPerguntas;
+      if (
+        structured.confidence_score &&
+        typeof structured.confidence_score === "object"
+      ) {
         structured.confidence_score.nivel_confianca = deterministicConfidence;
       } else {
         structured.confidence_score = {
@@ -1496,7 +1878,9 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       // Snapshot inclui breakdown completo + fingerprints (ts+hash) das 6 fontes.
       // Ao abrir o briefing no futuro, comparamos fingerprints atuais vs snapshot
       // para detectar divergência e exibir banner "dados mudaram".
-      const { computeAllFingerprints } = await import("./lib/briefing-fingerprint");
+      const { computeAllFingerprints } = await import(
+        "./lib/briefing-fingerprint"
+      );
       const confFingerprints = await computeAllFingerprints({
         projectId: input.projectId,
         projectName: project.name,
@@ -1533,7 +1917,9 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         (cnaeQuestionsCountForConf > 0 ? 1 : 0) +
         (productAnswersArrCountPre > 0 ? 1 : 0) +
         (serviceAnswersArrCountPre > 0 ? 1 : 0);
-      const { calculateBriefingQuality } = await import("./lib/briefing-quality");
+      const { calculateBriefingQuality } = await import(
+        "./lib/briefing-quality"
+      );
       const qualityResult = calculateBriefingQuality({
         questionariosRespondidos: questionariosRespondidosCount,
         questionariosTotal: 5,
@@ -1550,9 +1936,15 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         porte: cp?.companySize,
         regime: cp?.taxRegime,
         faturamento: cp?.annualRevenueRange,
-        multiestadual: (opProfile as any)?.multiState === true || (opProfile as any)?.multiestadual === true,
-        ncms: (opProfile.principaisProdutos ?? []).map((p) => p?.ncm_code).filter((c): c is string => !!c),
-        nbs: (opProfile.principaisServicos ?? []).map((s) => s?.nbs_code).filter((c): c is string => !!c),
+        multiestadual:
+          (opProfile as any)?.multiState === true ||
+          (opProfile as any)?.multiestadual === true,
+        ncms: (opProfile.principaisProdutos ?? [])
+          .map(p => p?.ncm_code)
+          .filter((c): c is string => !!c),
+        nbs: (opProfile.principaisServicos ?? [])
+          .map(s => s?.nbs_code)
+          .filter((c): c is string => !!c),
         questionariosRespondidos: questionariosRespondidosCount,
         questionariosTotal: 5,
         qualidadeInformacoes: qualityResult.quality,
@@ -1564,7 +1956,9 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       // fix #808: sanitiza markdown contra alucinação de NCM/NBS (códigos citados que
       // não estão em principaisProdutos/principaisServicos recebem disclaimer "(sugerido)").
       const rawMarkdown = buildBriefingMarkdown(structured, briefingMeta);
-      const { sanitizeBriefingMarkdown } = await import("./lib/briefing-sanitizer");
+      const { sanitizeBriefingMarkdown } = await import(
+        "./lib/briefing-sanitizer"
+      );
       const sanitizeResult = sanitizeBriefingMarkdown(rawMarkdown, {
         ncms: briefingMeta.ncms,
         nbs: briefingMeta.nbs,
@@ -1573,7 +1967,11 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
 
       // Salvar briefing no banco (markdown + estruturado)
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       await database
         .update(projects)
         .set({
@@ -1594,7 +1992,9 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         const iagenAnswersCount = iagenCountForConf;
         const productAnswersArr = productAnswersForConf;
         const serviceAnswersArr = serviceAnswersForConf;
-        const cnaeLayers = input.allAnswers.filter(l => l.cnaeCode !== "CORPORATIVO" && l.cnaeCode !== "OPERACIONAL");
+        const cnaeLayers = input.allAnswers.filter(
+          l => l.cnaeCode !== "CORPORATIVO" && l.cnaeCode !== "OPERACIONAL"
+        );
         const cnaeQuestionsCount = cnaeQuestionsCountForConf;
         const ncmCodesCount = ncmCountForConf;
         const nbsCodesCount = nbsCountForConf;
@@ -1609,15 +2009,45 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
           metadata: {
             event: "briefing_generated",
             sources: {
-              solaris_onda1: { answers: solarisAnswersCount, used: solarisAnswersCount > 0 },
-              iagen_onda2: { answers: iagenAnswersCount, used: iagenAnswersCount > 0 },
-              q_produtos_ncm: { answers: Array.isArray(productAnswersArr) ? productAnswersArr.length : 0, ncm_codes: ncmCodesCount, used: ncmCodesCount > 0 || (Array.isArray(productAnswersArr) && productAnswersArr.length > 0) },
-              q_servicos_nbs: { answers: Array.isArray(serviceAnswersArr) ? serviceAnswersArr.length : 0, nbs_codes: nbsCodesCount, used: nbsCodesCount > 0 || (Array.isArray(serviceAnswersArr) && serviceAnswersArr.length > 0) },
-              qcnae_especializado: { question_count: cnaeQuestionsCount, layer_count: cnaeLayers.length, used: cnaeQuestionsCount > 0 },
+              solaris_onda1: {
+                answers: solarisAnswersCount,
+                used: solarisAnswersCount > 0,
+              },
+              iagen_onda2: {
+                answers: iagenAnswersCount,
+                used: iagenAnswersCount > 0,
+              },
+              q_produtos_ncm: {
+                answers: Array.isArray(productAnswersArr)
+                  ? productAnswersArr.length
+                  : 0,
+                ncm_codes: ncmCodesCount,
+                used:
+                  ncmCodesCount > 0 ||
+                  (Array.isArray(productAnswersArr) &&
+                    productAnswersArr.length > 0),
+              },
+              q_servicos_nbs: {
+                answers: Array.isArray(serviceAnswersArr)
+                  ? serviceAnswersArr.length
+                  : 0,
+                nbs_codes: nbsCodesCount,
+                used:
+                  nbsCodesCount > 0 ||
+                  (Array.isArray(serviceAnswersArr) &&
+                    serviceAnswersArr.length > 0),
+              },
+              qcnae_especializado: {
+                question_count: cnaeQuestionsCount,
+                layer_count: cnaeLayers.length,
+                used: cnaeQuestionsCount > 0,
+              },
             },
             output: {
               nivel_risco: structured.nivel_risco_geral,
-              gaps_count: Array.isArray(structured.principais_gaps) ? structured.principais_gaps.length : 0,
+              gaps_count: Array.isArray(structured.principais_gaps)
+                ? structured.principais_gaps.length
+                : 0,
               confidence: structured.confidence_score?.nivel_confianca ?? null,
               llm_retries: llmRetries,
             },
@@ -1626,18 +2056,28 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
             sanitizer: {
               enabled: sanitizeResult.enabled,
               blocked_codes: sanitizeResult.blockedCodes,
-              blocked_total: sanitizeResult.blockedCodes.reduce((sum, b) => sum + b.occurrences, 0),
+              blocked_total: sanitizeResult.blockedCodes.reduce(
+                (sum, b) => sum + b.occurrences,
+                0
+              ),
             },
             // fix #811: cobertura de rastreabilidade — percentual de gaps com
             // source_type preenchido. Métrica da adesão do LLM à regra de fonte
             // (content engine regra #1). Meta: >=80%.
             source_coverage: (() => {
-              const all = Array.isArray(structured.principais_gaps) ? structured.principais_gaps : [];
-              const withSource = all.filter((g: any) => !!g?.source_type).length;
+              const all = Array.isArray(structured.principais_gaps)
+                ? structured.principais_gaps
+                : [];
+              const withSource = all.filter(
+                (g: any) => !!g?.source_type
+              ).length;
               return {
                 total: all.length,
                 with_source: withSource,
-                coverage_pct: all.length > 0 ? Math.round((withSource / all.length) * 100) : 0,
+                coverage_pct:
+                  all.length > 0
+                    ? Math.round((withSource / all.length) * 100)
+                    : 0,
                 breakdown: all.reduce((acc: Record<string, number>, g: any) => {
                   const key = g?.source_type ?? "SEM_FONTE";
                   acc[key] = (acc[key] ?? 0) + 1;
@@ -1648,7 +2088,10 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
           },
         });
       } catch (auditErr) {
-        console.warn("[generateBriefing] logAudit falhou (não bloqueia):", auditErr);
+        console.warn(
+          "[generateBriefing] logAudit falhou (não bloqueia):",
+          auditErr
+        );
       }
 
       return { briefing: briefingMarkdown, structured, llmRetries };
@@ -1668,43 +2111,68 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
    * Zero mudança de schema — apenas UPDATE em coluna JSON existente.
    */
   dismissInconsistencia: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      perguntaOrigem: z.string(),  // chave para identificar qual inconsistência remover
-      motivo: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        perguntaOrigem: z.string(), // chave para identificar qual inconsistência remover
+        motivo: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
       const userId = ctx.user.id;
-      const isOwner = (project as any).clientId === userId || (project as any).createdById === userId;
-      const isTeam = ["equipe_solaris", "advogado_senior", "advogado_junior"].includes(ctx.user.role);
+      const isOwner =
+        (project as any).clientId === userId ||
+        (project as any).createdById === userId;
+      const isTeam = [
+        "equipe_solaris",
+        "advogado_senior",
+        "advogado_junior",
+      ].includes(ctx.user.role);
       if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
 
       const bs = (project as any).briefingStructured;
       if (!bs) {
-        return { success: false, reason: "Briefing estruturado não existe para este projeto." };
+        return {
+          success: false,
+          reason: "Briefing estruturado não existe para este projeto.",
+        };
       }
 
       let parsed: any;
       try {
         parsed = typeof bs === "string" ? JSON.parse(bs) : bs;
       } catch {
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "briefingStructured JSON inválido" });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "briefingStructured JSON inválido",
+        });
       }
 
-      const before: any[] = Array.isArray(parsed?.inconsistencias) ? parsed.inconsistencias : [];
-      const after = before.filter((i: any) => i?.pergunta_origem !== input.perguntaOrigem);
+      const before: any[] = Array.isArray(parsed?.inconsistencias)
+        ? parsed.inconsistencias
+        : [];
+      const after = before.filter(
+        (i: any) => i?.pergunta_origem !== input.perguntaOrigem
+      );
 
       if (after.length === before.length) {
-        return { success: false, reason: "Inconsistência não encontrada (já resolvida ou removida?)." };
+        return {
+          success: false,
+          reason: "Inconsistência não encontrada (já resolvida ou removida?).",
+        };
       }
 
       // fix(BUG-1 UAT 2026-04-20): adiciona à dismissed list para que regenerações futuras
       // filtrem a mesma inconsistência ao invés de recriarem.
-      const removedItem = before.find((i: any) => i?.pergunta_origem === input.perguntaOrigem);
-      const priorDismissed: any[] = Array.isArray(parsed?.dismissed_inconsistencias)
+      const removedItem = before.find(
+        (i: any) => i?.pergunta_origem === input.perguntaOrigem
+      );
+      const priorDismissed: any[] = Array.isArray(
+        parsed?.dismissed_inconsistencias
+      )
         ? parsed.dismissed_inconsistencias
         : [];
       const alreadyDismissed = priorDismissed.some(
@@ -1732,16 +2200,22 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       };
 
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       await database
         .update(projects)
-        .set({ briefingStructured: JSON.stringify(updatedStructured) as any } as any)
+        .set({
+          briefingStructured: JSON.stringify(updatedStructured) as any,
+        } as any)
         .where(eq(projects.id, input.projectId));
 
       // Audit trail (best-effort)
       try {
-        const { logAudit } = await import('./routers-audit');
+        const { logAudit } = await import("./routers-audit");
         await logAudit({
           userId: ctx.user.id,
           userName: ctx.user.name ?? ctx.user.email ?? "unknown",
@@ -1776,20 +2250,37 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
     .query(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       }
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== "equipe_solaris" && ctx.user.role !== "advogado_senior") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "Sem acesso a este projeto" });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
 
-      const { computeAllFingerprints, diffFingerprints, hasDivergence } = await import("./lib/briefing-fingerprint");
+      const { computeAllFingerprints, diffFingerprints, hasDivergence } =
+        await import("./lib/briefing-fingerprint");
 
       // Snapshot persistido (pode ser null se briefing ainda não foi gerado).
       const structuredRaw = (project as any).briefingStructured;
       const structured = (() => {
         if (!structuredRaw) return null;
-        try { return typeof structuredRaw === "string" ? JSON.parse(structuredRaw) : structuredRaw; } catch { return null; }
+        try {
+          return typeof structuredRaw === "string"
+            ? JSON.parse(structuredRaw)
+            : structuredRaw;
+        } catch {
+          return null;
+        }
       })();
       const snapshot = structured?.confiancaSnapshot ?? null;
 
@@ -1830,10 +2321,12 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
     }),
 
   approveBriefing: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      briefingContent: z.string(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        briefingContent: z.string(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
@@ -1843,9 +2336,14 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       const briefingStructuredForGate = (() => {
         const raw = (project as any).briefingStructured;
         if (!raw) return null;
-        try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return null; }
+        try {
+          return typeof raw === "string" ? JSON.parse(raw) : raw;
+        } catch {
+          return null;
+        }
       })();
-      const confidenceForGate = briefingStructuredForGate?.confidence_score?.nivel_confianca;
+      const confidenceForGate =
+        briefingStructuredForGate?.confidence_score?.nivel_confianca;
       if (typeof confidenceForGate === "number" && confidenceForGate < 85) {
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -1855,14 +2353,18 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
 
       // BUG-UAT-09: fluxo correto é diagnostico_cnae → briefing → matriz_riscos
       // approveBriefing aceita tanto 'diagnostico_cnae' (primeira aprovação) quanto 'briefing' (re-aprovação)
-      const { assertValidTransition } = await import('./flowStateMachine');
+      const { assertValidTransition } = await import("./flowStateMachine");
       // BUG-UAT-09 fix (DEC-produto): transição atômica diagnostico_cnae → briefing → matriz_riscos
       // Dois asserts garantem integridade da state machine; um único db.update = UX limpa (1 clique)
       // 'briefing' como status intermediário permanece válido para retrocesso (matriz_riscos → briefing)
-      assertValidTransition(project.status, 'briefing');       // valida diagnostico_cnae → briefing
-      assertValidTransition('briefing', 'matriz_riscos');      // valida briefing → matriz_riscos
+      assertValidTransition(project.status, "briefing"); // valida diagnostico_cnae → briefing
+      assertValidTransition("briefing", "matriz_riscos"); // valida briefing → matriz_riscos
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       const previousStatus = project.status;
 
       // fix(BUG-3 UAT 2026-04-20): arquiva inconsistências ativas ao aprovar briefing.
@@ -1870,10 +2372,14 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       // naturalmente porque lista ativa fica vazia. Audit preservado para compliance.
       let briefingStructuredUpdated: any = null;
       if (briefingStructuredForGate) {
-        const activeIncs: any[] = Array.isArray(briefingStructuredForGate?.inconsistencias)
+        const activeIncs: any[] = Array.isArray(
+          briefingStructuredForGate?.inconsistencias
+        )
           ? briefingStructuredForGate.inconsistencias
           : [];
-        const priorDismissed: any[] = Array.isArray(briefingStructuredForGate?.dismissed_inconsistencias)
+        const priorDismissed: any[] = Array.isArray(
+          briefingStructuredForGate?.dismissed_inconsistencias
+        )
           ? briefingStructuredForGate.dismissed_inconsistencias
           : [];
         const approvedArchive = activeIncs.map((inc: any) => ({
@@ -1900,7 +2406,11 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
           briefingContentV3: input.briefingContent as any,
           briefingContent: input.briefingContent as any,
           ...(briefingStructuredUpdated
-            ? { briefingStructured: JSON.stringify(briefingStructuredUpdated) as any }
+            ? {
+                briefingStructured: JSON.stringify(
+                  briefingStructuredUpdated
+                ) as any,
+              }
             : {}),
         } as any)
         .where(eq(projects.id, input.projectId));
@@ -1909,7 +2419,7 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       // Usa tabela auditLog (camelCase) com entityType='project' + metadata indicando
       // event=briefing_approved. Não altera schema — tabela já aceita 'project' no enum.
       try {
-        const { logAudit } = await import('./routers-audit');
+        const { logAudit } = await import("./routers-audit");
         await logAudit({
           userId: ctx.user.id,
           userName: ctx.user.name ?? ctx.user.email ?? "unknown",
@@ -1924,7 +2434,9 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
           metadata: {
             event: "briefing_approved",
             briefingLength: input.briefingContent.length,
-            editedBeforeApproval: input.briefingContent !== ((project as any).briefingContentV3 ?? ""),
+            editedBeforeApproval:
+              input.briefingContent !==
+              ((project as any).briefingContentV3 ?? ""),
             confidence: confidenceForGate ?? null,
           },
         });
@@ -1943,45 +2455,70 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
   // Badge amarelo permanece visível em todas as telas do briefing.
   // ─────────────────────────────────────────────────────────────────────────
   approveBriefingWithReservation: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      briefingContent: z.string(),
-      predefinedReason: z.enum([
-        "urgencia_cliente",
-        "referencia_inicial",
-        "restricao_dados",
-        "outro",
-      ]),
-      freeReason: z.string().min(20, "Justificativa deve ter ao menos 20 caracteres").max(1000),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        briefingContent: z.string(),
+        predefinedReason: z.enum([
+          "urgencia_cliente",
+          "referencia_inicial",
+          "restricao_dados",
+          "outro",
+        ]),
+        freeReason: z
+          .string()
+          .min(20, "Justificativa deve ter ao menos 20 caracteres")
+          .max(1000),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
-      const { assertValidTransition } = await import('./flowStateMachine');
-      assertValidTransition(project.status, 'briefing');
-      assertValidTransition('briefing', 'matriz_riscos');
+      const { assertValidTransition } = await import("./flowStateMachine");
+      assertValidTransition(project.status, "briefing");
+      assertValidTransition("briefing", "matriz_riscos");
 
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Carrega briefingStructured para determinar fontes e persistir a ressalva
       const briefingStructuredRaw = (project as any).briefingStructured;
       const briefingStructured = (() => {
         if (!briefingStructuredRaw) return {} as any;
-        try { return typeof briefingStructuredRaw === "string" ? JSON.parse(briefingStructuredRaw) : briefingStructuredRaw; } catch { return {} as any; }
+        try {
+          return typeof briefingStructuredRaw === "string"
+            ? JSON.parse(briefingStructuredRaw)
+            : briefingStructuredRaw;
+        } catch {
+          return {} as any;
+        }
       })();
-      const currentConfidence: number = briefingStructured?.confidence_score?.nivel_confianca ?? 0;
+      const currentConfidence: number =
+        briefingStructured?.confidence_score?.nivel_confianca ?? 0;
 
       // Identifica fontes respondidas vs faltantes (para o audit log)
       const solarisCount = await db.countOnda1Answers(input.projectId);
       const iagenCount = await db.countOnda2Answers(input.projectId);
       const parseJsonArr = (raw: any): any[] => {
         if (!raw) return [];
-        try { const p = typeof raw === "string" ? JSON.parse(raw) : raw; return Array.isArray(p) ? p : []; } catch { return []; }
+        try {
+          const p = typeof raw === "string" ? JSON.parse(raw) : raw;
+          return Array.isArray(p) ? p : [];
+        } catch {
+          return [];
+        }
       };
-      const productAnswersLen = parseJsonArr((project as any).productAnswers).length;
-      const serviceAnswersLen = parseJsonArr((project as any).serviceAnswers).length;
+      const productAnswersLen = parseJsonArr(
+        (project as any).productAnswers
+      ).length;
+      const serviceAnswersLen = parseJsonArr(
+        (project as any).serviceAnswers
+      ).length;
       // Issue #1062: COUNT real em questionnaireAnswersV3 (fonte da verdade).
       // ANTES: lia diagnosticStatus.cnae === "completed" — flag dessincronizado
       // pelo gate de progressão do stepper legado em completeDiagnosticLayer.
@@ -1992,11 +2529,19 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
 
       const answeredSources: string[] = [];
       const missingSources: string[] = [];
-      (solarisCount > 0 ? answeredSources : missingSources).push("solaris_onda1");
+      (solarisCount > 0 ? answeredSources : missingSources).push(
+        "solaris_onda1"
+      );
       (iagenCount > 0 ? answeredSources : missingSources).push("iagen_onda2");
-      (productAnswersLen > 0 ? answeredSources : missingSources).push("q_produtos_ncm");
-      (serviceAnswersLen > 0 ? answeredSources : missingSources).push("q_servicos_nbs");
-      (cnaeAnswered ? answeredSources : missingSources).push("qcnae_especializado");
+      (productAnswersLen > 0 ? answeredSources : missingSources).push(
+        "q_produtos_ncm"
+      );
+      (serviceAnswersLen > 0 ? answeredSources : missingSources).push(
+        "q_servicos_nbs"
+      );
+      (cnaeAnswered ? answeredSources : missingSources).push(
+        "qcnae_especializado"
+      );
 
       // Persiste ressalva dentro de briefingStructured (nova chave) — sem schema change.
       const reservation = {
@@ -2013,10 +2558,14 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       };
 
       // fix(BUG-3 UAT 2026-04-20): arquiva inconsistências ativas ao aprovar (mesmo com ressalva).
-      const activeIncs: any[] = Array.isArray(briefingStructured?.inconsistencias)
+      const activeIncs: any[] = Array.isArray(
+        briefingStructured?.inconsistencias
+      )
         ? briefingStructured.inconsistencias
         : [];
-      const priorDismissed: any[] = Array.isArray(briefingStructured?.dismissed_inconsistencias)
+      const priorDismissed: any[] = Array.isArray(
+        briefingStructured?.dismissed_inconsistencias
+      )
         ? briefingStructured.dismissed_inconsistencias
         : [];
       const approvedArchive = activeIncs.map((inc: any) => ({
@@ -2049,7 +2598,7 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         .where(eq(projects.id, input.projectId));
 
       try {
-        const { logAudit } = await import('./routers-audit');
+        const { logAudit } = await import("./routers-audit");
         await logAudit({
           userId: ctx.user.id,
           userName: ctx.user.name ?? ctx.user.email ?? "unknown",
@@ -2074,7 +2623,10 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
           },
         });
       } catch (auditErr) {
-        console.error("[approveBriefingWithReservation] audit log falhou:", auditErr);
+        console.error(
+          "[approveBriefingWithReservation] audit log falhou:",
+          auditErr
+        );
       }
 
       return { success: true, nextStep: 4, reservation };
@@ -2087,12 +2639,14 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
   // V62: injeção de contexto regulatório
   // ─────────────────────────────────────────────────────────────────────────
   generateRiskMatrices: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      briefingContent: z.string(),
-      area: z.enum(["contabilidade", "negocio", "ti", "juridico"]).optional(),
-      adjustment: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        briefingContent: z.string(),
+        area: z.enum(["contabilidade", "negocio", "ti", "juridico"]).optional(),
+        adjustment: z.string().optional(),
+      })
+    )
     .mutation(async ({ input: _input }) => {
       // ── Sprint Z-12 · Hot Swap Final (ADR-0022 · feat/z12-hot-swap-final) ──────────────
       // Endpoint legado desativado. O frontend usa useNewRiskEngine=true → /risk-dashboard-v4
@@ -2231,21 +2785,32 @@ Formato:
   // ETAPA 4: Aprovar todas as matrizes
   // ─────────────────────────────────────────────────────────────────────────
   approveMatrices: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      matrices: z.record(z.string(), z.array(z.any())),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        matrices: z.record(z.string(), z.array(z.any())),
+      })
+    )
     .mutation(async ({ input }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       // BUG-UAT-08: assertValidTransition universal
-      const { assertValidTransition } = await import('./flowStateMachine');
-      assertValidTransition(project.status, 'plano_acao');
+      const { assertValidTransition } = await import("./flowStateMachine");
+      assertValidTransition(project.status, "plano_acao");
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       await database
         .update(projects)
-        .set({ currentStep: 5, status: "plano_acao", riskMatricesDataV3: input.matrices as any, riskMatricesData: input.matrices as any } as any)
+        .set({
+          currentStep: 5,
+          status: "plano_acao",
+          riskMatricesDataV3: input.matrices as any,
+          riskMatricesData: input.matrices as any,
+        } as any)
         .where(eq(projects.id, input.projectId));
       return { success: true, nextStep: 5 };
     }),
@@ -2256,19 +2821,23 @@ Formato:
   // V62: injeção de contexto regulatório
   // ─────────────────────────────────────────────────────────────────────────
   generateActionPlan: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      matrices: z.record(z.string(), z.array(z.any())),
-      area: z.enum(["contabilidade", "negocio", "ti", "juridico"]).optional(),
-      adjustment: z.string().optional(),
-      // V70.2: Briefing context para enriquecer o plano de ação
-      briefingContent: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        matrices: z.record(z.string(), z.array(z.any())),
+        area: z.enum(["contabilidade", "negocio", "ti", "juridico"]).optional(),
+        adjustment: z.string().optional(),
+        // V70.2: Briefing context para enriquecer o plano de ação
+        briefingContent: z.string().optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
-      const areas = input.area ? [input.area] : ["contabilidade", "negocio", "ti", "juridico"];
+      const areas = input.area
+        ? [input.area]
+        : ["contabilidade", "negocio", "ti", "juridico"];
       const plans: Record<string, any[]> = {};
       const areaNames: Record<string, string> = {
         contabilidade: "Contabilidade e Fiscal",
@@ -2292,44 +2861,62 @@ Formato:
             if (!byCnae[a.cnaeCode]) byCnae[a.cnaeCode] = [];
             byCnae[a.cnaeCode].push(a);
           }
-          questionnaireContext = Object.entries(byCnae).map(([cnae, ans]) =>
-            `CNAE ${cnae}:\n` + (ans as any[]).map((a: any) => `  P: ${a.questionText}\n  R: ${a.answer}`).join("\n")
-          ).join("\n\n");
+          questionnaireContext = Object.entries(byCnae)
+            .map(
+              ([cnae, ans]) =>
+                `CNAE ${cnae}:\n` +
+                (ans as any[])
+                  .map((a: any) => `  P: ${a.questionText}\n  R: ${a.answer}`)
+                  .join("\n")
+            )
+            .join("\n\n");
         }
       }
 
       // V70.2: CNAEs confirmados com descrições
       const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
       const cnaeCodesAction = confirmedCnaes.map((c: any) => c.code);
-      const cnaeDescriptions = confirmedCnaes.map((c: any) => `${c.code} — ${c.description || c.code}`).join(", ");
+      const cnaeDescriptions = confirmedCnaes
+        .map((c: any) => `${c.code} — ${c.description || c.code}`)
+        .join(", ");
 
       // M3.5 RAG-COVERAGE: extrair archetype UMA vez antes do loop
       const archCtxActionPlan = getArchetypeContext((project as any).archetype);
 
       // V70.3: Paralelizar as 4 áreas com Promise.all (reduz ~3min sequencial para ~45s paralelo)
-      const areaResults = await Promise.all(areas.map(async (area) => {
-        const areaRisks = input.matrices[area] || [];
-        if (areaRisks.length === 0) {
-          return { area, tasks: [] as any[] };
-        }
-        const adjustmentContext = input.adjustment ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}` : "";
+      const areaResults = await Promise.all(
+        areas.map(async area => {
+          const areaRisks = input.matrices[area] || [];
+          if (areaRisks.length === 0) {
+            return { area, tasks: [] as any[] };
+          }
+          const adjustmentContext = input.adjustment
+            ? `\n\nAJUSTE SOLICITADO: ${input.adjustment}`
+            : "";
 
-        // V70.2: RAG específico por área (query inclui nome da área + top riscos)
-        // M3.5 RAG-COVERAGE: archetype concatenado para enriquecer ranking
-        const areaQuery = `${areaNames[area]} ${cnaeDescriptions} ${areaRisks.slice(0, 3).map((r: any) => r.evento || "").join(" ")}${archCtxActionPlan ? ` ${archCtxActionPlan}` : ""}`;
-        const ragCtxArea = await retrieveArticlesFast(cnaeCodesAction, areaQuery, 10);
-        const regulatoryContext = ragCtxArea.contextText;
+          // V70.2: RAG específico por área (query inclui nome da área + top riscos)
+          // M3.5 RAG-COVERAGE: archetype concatenado para enriquecer ranking
+          const areaQuery = `${areaNames[area]} ${cnaeDescriptions} ${areaRisks
+            .slice(0, 3)
+            .map((r: any) => r.evento || "")
+            .join(" ")}${archCtxActionPlan ? ` ${archCtxActionPlan}` : ""}`;
+          const ragCtxArea = await retrieveArticlesFast(
+            cnaeCodesAction,
+            areaQuery,
+            10
+          );
+          const regulatoryContext = ragCtxArea.contextText;
 
-        // V70.2: Briefing context (resumo dos gaps identificados)
-        const briefingCtx = input.briefingContent
-          ? `\n\nBRIEFING DO PROJETO (gaps identificados):\n${input.briefingContent.substring(0, 1500)}`
-          : "";
+          // V70.2: Briefing context (resumo dos gaps identificados)
+          const briefingCtx = input.briefingContent
+            ? `\n\nBRIEFING DO PROJETO (gaps identificados):\n${input.briefingContent.substring(0, 1500)}`
+            : "";
 
-        const result = await generateWithRetry(
-          [
-            {
-              role: "system",
-              content: `Você é um Gestor Sênior de Compliance Tributário especializado na Reforma Tributária brasileira (LC 214/2025, LC 224/2025, LC 227/2025).
+          const result = await generateWithRetry(
+            [
+              {
+                role: "system",
+                content: `Você é um Gestor Sênior de Compliance Tributário especializado na Reforma Tributária brasileira (LC 214/2025, LC 224/2025, LC 227/2025).
 
 Sua missão é criar um Plano de Ação CONCRETO, ESPECÍFICO e EXECUTÁVEL para a área de ${areaNames[area]}.
 
@@ -2357,13 +2944,19 @@ REGRAS CRÍTICAS — NUNCA VIOLE:
 9. campo gap_especifico: descreva o gap de compliance em uma frase objetiva
 10. campo acao_concreta: descreva a ação imediata (primeira coisa a fazer)
 ${OUTPUT_CONTRACT}`,
-            },
-            {
-              role: "user",
-              content: `ÁREA: ${areaNames[area]}
+              },
+              {
+                role: "user",
+                content: `ÁREA: ${areaNames[area]}
 
 RISCOS IDENTIFICADOS NA MATRIZ (ordenados por severidade):
-${JSON.stringify(areaRisks.sort((a: any, b: any) => (b.severidade_score || 0) - (a.severidade_score || 0)), null, 2)}
+${JSON.stringify(
+  areaRisks.sort(
+    (a: any, b: any) => (b.severidade_score || 0) - (a.severidade_score || 0)
+  ),
+  null,
+  2
+)}
 ${adjustmentContext}
 
 Gere o plano de ação em JSON:
@@ -2383,44 +2976,52 @@ Gere o plano de ação em JSON:
     "acao_concreta": "[Primeira ação imediata a executar]"
   }
 ]}`,
-            },
-          ],
-          TasksResponseSchema,
-          { temperature: 0.1, context: `generateActionPlan:${area}` }  // REGRA-ORQ-30: max 0.1 (M3.7 Item 6)
-        );
+              },
+            ],
+            TasksResponseSchema,
+            { temperature: 0.1, context: `generateActionPlan:${area}` } // REGRA-ORQ-30: max 0.1 (M3.7 Item 6)
+          );
 
-        // B2 — G12: log de auditoria de fonte_acao por área
-        // Guard defensivo: ragCtxArea pode ser array (mock) ou objeto { articles, contextText }
-        const _articles: any[] = Array.isArray(ragCtxArea)
-          ? ragCtxArea
-          : (ragCtxArea as any).articles ?? [];
-        const _firstArticle = _articles[0];
-        const fonteAcaoBase = _firstArticle
-          ? {
-              lei: _firstArticle.lei ?? "não identificado",
-              artigo: _firstArticle.artigo ?? "não identificado",
-              anchor_id: _firstArticle.anchorId ?? "",
-              tipo_obrigacao: "recomendacao",
-              descricao: `Chunk RAG: ${_firstArticle.anchorId ?? "sem anchor"}`,
-            }
-          : undefined;
-        console.log(`[AUDIT-FONTE-ACAO] area=${area} chunks=${_articles.length} anchor_id=${fonteAcaoBase?.anchor_id ?? "none"}`);
-        return {
-          area,
-          tasks: result.tasks.map((t: any) => ({
-            ...t,
-            status: "nao_iniciado",
-            progress: 0,
-            startDate: null,
-            endDate: null,
-            responsible: null,
-            comments: [],
-            notifications: { beforeDays: 7, onStatusChange: true, onProgressUpdate: false, onComment: false },
-            // B2 — G12: rastreabilidade normativa da ação
-            fonte_acao: t.fonte_acao ?? fonteAcaoBase,
-          })),
-        };
-      }));
+          // B2 — G12: log de auditoria de fonte_acao por área
+          // Guard defensivo: ragCtxArea pode ser array (mock) ou objeto { articles, contextText }
+          const _articles: any[] = Array.isArray(ragCtxArea)
+            ? ragCtxArea
+            : ((ragCtxArea as any).articles ?? []);
+          const _firstArticle = _articles[0];
+          const fonteAcaoBase = _firstArticle
+            ? {
+                lei: _firstArticle.lei ?? "não identificado",
+                artigo: _firstArticle.artigo ?? "não identificado",
+                anchor_id: _firstArticle.anchorId ?? "",
+                tipo_obrigacao: "recomendacao",
+                descricao: `Chunk RAG: ${_firstArticle.anchorId ?? "sem anchor"}`,
+              }
+            : undefined;
+          console.log(
+            `[AUDIT-FONTE-ACAO] area=${area} chunks=${_articles.length} anchor_id=${fonteAcaoBase?.anchor_id ?? "none"}`
+          );
+          return {
+            area,
+            tasks: result.tasks.map((t: any) => ({
+              ...t,
+              status: "nao_iniciado",
+              progress: 0,
+              startDate: null,
+              endDate: null,
+              responsible: null,
+              comments: [],
+              notifications: {
+                beforeDays: 7,
+                onStatusChange: true,
+                onProgressUpdate: false,
+                onComment: false,
+              },
+              // B2 — G12: rastreabilidade normativa da ação
+              fonte_acao: t.fonte_acao ?? fonteAcaoBase,
+            })),
+          };
+        })
+      );
 
       // Montar o objeto plans a partir dos resultados paralelos
       for (const { area, tasks } of areaResults) {
@@ -2434,31 +3035,38 @@ Gere o plano de ação em JSON:
   // ETAPA 5: Atualizar tarefa do plano de ação
   // ─────────────────────────────────────────────────────────────────────────
   updateTask: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      area: z.enum(["contabilidade", "negocio", "ti", "juridico"]),
-      taskId: z.string(),
-      updates: z.object({
-        titulo: z.string().optional(),
-        descricao: z.string().optional(),
-        status: z.enum(["nao_iniciado", "em_andamento", "parado", "concluido"]).optional(),
-        progress: z.number().min(0).max(100).optional(),
-        startDate: z.string().nullable().optional(),
-        endDate: z.string().nullable().optional(),
-        responsible: z.string().nullable().optional(),
-        notifications: z.object({
-          beforeDays: z.number().optional(),
-          onStatusChange: z.boolean().optional(),
-          onProgressUpdate: z.boolean().optional(),
-          onComment: z.boolean().optional(),
-        }).optional(),
-      }),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        area: z.enum(["contabilidade", "negocio", "ti", "juridico"]),
+        taskId: z.string(),
+        updates: z.object({
+          titulo: z.string().optional(),
+          descricao: z.string().optional(),
+          status: z
+            .enum(["nao_iniciado", "em_andamento", "parado", "concluido"])
+            .optional(),
+          progress: z.number().min(0).max(100).optional(),
+          startDate: z.string().nullable().optional(),
+          endDate: z.string().nullable().optional(),
+          responsible: z.string().nullable().optional(),
+          notifications: z
+            .object({
+              beforeDays: z.number().optional(),
+              onStatusChange: z.boolean().optional(),
+              onProgressUpdate: z.boolean().optional(),
+              onComment: z.boolean().optional(),
+            })
+            .optional(),
+        }),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       // ADR-005 F-02A: leitura via adaptador centralizado
       const diagSource = await getDiagnosticSource(input.projectId);
       assertFlowVersion(diagSource, "v3", "fluxoV3.updateTask");
-      const currentPlans = (diagSource.actionPlansDataV3 as Record<string, any[]>) || {};
+      const currentPlans =
+        (diagSource.actionPlansDataV3 as Record<string, any[]>) || {};
       const areaTasks = currentPlans[input.area] || [];
       const currentTask = areaTasks.find((t: any) => t.id === input.taskId);
       const updatedTasks = areaTasks.map((task: any) =>
@@ -2466,7 +3074,11 @@ Gere o plano de ação em JSON:
       );
       currentPlans[input.area] = updatedTasks;
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       await database
         .update(projects)
         .set({ actionPlansData: currentPlans as any } as any)
@@ -2479,34 +3091,49 @@ Gere o plano de ação em JSON:
           userId: ctx.user.id,
           userName: ctx.user.name || ctx.user.email || "Usuário",
         };
-        const fieldMap: Array<{ key: string; eventType: any; label: string }> = [
-          { key: "status",      eventType: "status",      label: "status" },
-          { key: "responsible", eventType: "responsavel", label: "responsável" },
-          { key: "endDate",     eventType: "prazo",        label: "prazo" },
-          { key: "progress",    eventType: "progresso",    label: "progresso" },
-          { key: "titulo",      eventType: "titulo",       label: "título" },
-        ];
+        const fieldMap: Array<{ key: string; eventType: any; label: string }> =
+          [
+            { key: "status", eventType: "status", label: "status" },
+            {
+              key: "responsible",
+              eventType: "responsavel",
+              label: "responsável",
+            },
+            { key: "endDate", eventType: "prazo", label: "prazo" },
+            { key: "progress", eventType: "progresso", label: "progresso" },
+            { key: "titulo", eventType: "titulo", label: "título" },
+          ];
         const ups = input.updates as Record<string, any>;
         const promises: Promise<any>[] = [];
         for (const { key, eventType, label } of fieldMap) {
           if (ups[key] !== undefined && ups[key] !== currentTask[key]) {
-            promises.push(db.insertTaskHistory({
-              ...histBase,
-              eventType,
-              field: label,
-              oldValue: currentTask[key] != null ? String(currentTask[key]) : null,
-              newValue: ups[key] != null ? String(ups[key]) : null,
-            }));
+            promises.push(
+              db.insertTaskHistory({
+                ...histBase,
+                eventType,
+                field: label,
+                oldValue:
+                  currentTask[key] != null ? String(currentTask[key]) : null,
+                newValue: ups[key] != null ? String(ups[key]) : null,
+              })
+            );
           }
         }
         if (ups.notifications !== undefined) {
-          promises.push(db.insertTaskHistory({
-            ...histBase,
-            eventType: "notificacao",
-            field: "notificações",
-            oldValue: currentTask.notifications ? JSON.stringify(currentTask.notifications) : null,
-            newValue: JSON.stringify({ ...currentTask.notifications, ...ups.notifications }),
-          }));
+          promises.push(
+            db.insertTaskHistory({
+              ...histBase,
+              eventType: "notificacao",
+              field: "notificações",
+              oldValue: currentTask.notifications
+                ? JSON.stringify(currentTask.notifications)
+                : null,
+              newValue: JSON.stringify({
+                ...currentTask.notifications,
+                ...ups.notifications,
+              }),
+            })
+          );
         }
         Promise.allSettled(promises).catch(() => {});
       }
@@ -2515,10 +3142,12 @@ Gere o plano de ação em JSON:
 
   // RF-HIST: Consultar histórico de alterações de uma tarefa
   getTaskHistory: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      taskId: z.string(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        taskId: z.string(),
+      })
+    )
     .query(async ({ input }) => {
       return db.getTaskHistory(input.taskId, input.projectId);
     }),
@@ -2528,17 +3157,26 @@ Gere o plano de ação em JSON:
   // Chamado automaticamente após geração pela IA para garantir persistência
   // ─────────────────────────────────────────────────────────────────────────
   saveDraftActionPlan: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      plans: z.record(z.string(), z.array(z.any())),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        plans: z.record(z.string(), z.array(z.any())),
+      })
+    )
     .mutation(async ({ input }) => {
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       // Apenas persiste actionPlansData — não altera status nem currentStep
       await database
         .update(projects)
-        .set({ actionPlansDataV3: input.plans as any, actionPlansData: input.plans as any } as any)
+        .set({
+          actionPlansDataV3: input.plans as any,
+          actionPlansData: input.plans as any,
+        } as any)
         .where(eq(projects.id, input.projectId));
       return { success: true };
     }),
@@ -2547,23 +3185,34 @@ Gere o plano de ação em JSON:
   // ETAPA 5: Aprovar plano de ação + gerar decisão (V63)
   // ─────────────────────────────────────────────────────────────────────────
   approveActionPlan: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      plans: z.record(z.string(), z.array(z.any())),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        plans: z.record(z.string(), z.array(z.any())),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       // BUG-UAT-08: assertValidTransition universal
-      const { assertValidTransition } = await import('./flowStateMachine');
-      assertValidTransition(project.status, 'aprovado');
+      const { assertValidTransition } = await import("./flowStateMachine");
+      assertValidTransition(project.status, "aprovado");
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Salvar plano aprovado
       await database
         .update(projects)
-        .set({ currentStep: 5, status: "aprovado", actionPlansDataV3: input.plans as any, actionPlansData: input.plans as any } as any)
+        .set({
+          currentStep: 5,
+          status: "aprovado",
+          actionPlansDataV3: input.plans as any,
+          actionPlansData: input.plans as any,
+        } as any)
         .where(eq(projects.id, input.projectId));
 
       // fix(z22) Wave A.2+B EX-2: chamada fire-and-forget persistCpieScoreForProject removida.
@@ -2578,9 +3227,11 @@ Gere o plano de ação em JSON:
   // Consolida briefing + matrizes + scoring → veredito final
   // ─────────────────────────────────────────────────────────────────────────
   generateDecision: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+      })
+    )
     .mutation(async ({ input }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
@@ -2589,20 +3240,26 @@ Gere o plano de ação em JSON:
       const diagSource = await getDiagnosticSource(input.projectId);
       assertFlowVersion(diagSource, "v3", "fluxoV3.generateDecision");
       const briefingContent = diagSource.briefingContentV3;
-      const riskMatricesData = diagSource.riskMatricesDataV3 as Record<string, any[]> | null;
+      const riskMatricesData = diagSource.riskMatricesDataV3 as Record<
+        string,
+        any[]
+      > | null;
       const scoringData = (project as any).scoringData as any | null;
       const confirmedCnaes = ((project as any).confirmedCnaes as any[]) || [];
 
       if (!briefingContent || !riskMatricesData) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Briefing e matrizes de risco devem estar gerados antes da decisão",
+          message:
+            "Briefing e matrizes de risco devem estar gerados antes da decisão",
         });
       }
 
       // Resumo dos riscos críticos
       const allRisks = Object.values(riskMatricesData).flat();
-      const riscoCriticos = allRisks.filter((r: any) => r.severidade === "Crítica");
+      const riscoCriticos = allRisks.filter(
+        (r: any) => r.severidade === "Crítica"
+      );
       const riscoAltos = allRisks.filter((r: any) => r.severidade === "Alta");
 
       const riscosSummary = [
@@ -2614,10 +3271,15 @@ Gere o plano de ação em JSON:
       // M3.5 RAG-COVERAGE: enriquecer query com Perfil da Entidade (archetype M1)
       const cnaeCodesDecisao = confirmedCnaes.map((c: any) => c.code);
       const archCtxDecisao = getArchetypeContext((project as any).archetype);
+      // #1094: leiFilter simples_nacional também na decisão final (idem briefing).
+      const leiFilter = deriveLeiFilterForRegime(
+        (project as any).companyProfile?.taxRegime
+      );
       const ragCtxDecisao = await retrieveArticles(
         cnaeCodesDecisao,
         `${project.name} ${riscosSummary}${archCtxDecisao ? ` ${archCtxDecisao}` : ""}`,
-        5
+        5,
+        leiFilter
       );
       const regulatoryContext = ragCtxDecisao.contextText;
 
@@ -2666,12 +3328,16 @@ Gere o veredito final em JSON:
           },
         ],
         DecisaoResponseSchema,
-        { temperature: 0.1, context: "generateDecision" }  // REGRA-ORQ-30: max 0.1 (M3.7 Item 6 — compliance > criatividade)
+        { temperature: 0.1, context: "generateDecision" } // REGRA-ORQ-30: max 0.1 (M3.7 Item 6 — compliance > criatividade)
       );
 
       // Salvar decisão no banco
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       await database
         .update(projects)
         .set({ decisaoData: result.decisao_recomendada as any } as any)
@@ -2687,7 +3353,11 @@ Gere o veredito final em JSON:
     .input(z.object({ projectId: z.number() }))
     .query(async ({ input }) => {
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
@@ -2696,21 +3366,33 @@ Gere o veredito final em JSON:
 
       const answers = diagSource.questionnaireAnswersV3 ?? [];
 
-      const actionPlansData = diagSource.actionPlansDataV3 as Record<string, any[]> | null;
+      const actionPlansData = diagSource.actionPlansDataV3 as Record<
+        string,
+        any[]
+      > | null;
       let totalTasks = 0;
       let completedTasks = 0;
-      let tasksByArea: { area: string; count: number; completed: number }[] = [];
+      let tasksByArea: { area: string; count: number; completed: number }[] =
+        [];
       if (actionPlansData) {
         for (const [area, tasks] of Object.entries(actionPlansData)) {
           const activeTasks = (tasks as any[]).filter(t => !t.deleted);
           const done = activeTasks.filter(t => t.status === "concluido").length;
           totalTasks += activeTasks.length;
           completedTasks += done;
-          if (activeTasks.length > 0) tasksByArea.push({ area, count: activeTasks.length, completed: done });
+          if (activeTasks.length > 0)
+            tasksByArea.push({
+              area,
+              count: activeTasks.length,
+              completed: done,
+            });
         }
       }
 
-      const riskMatricesData = diagSource.riskMatricesDataV3 as Record<string, any[]> | null;
+      const riskMatricesData = diagSource.riskMatricesDataV3 as Record<
+        string,
+        any[]
+      > | null;
       let totalRisks = 0;
       if (riskMatricesData) {
         for (const risks of Object.values(riskMatricesData)) {
@@ -2737,18 +3419,24 @@ Gere o veredito final em JSON:
         totalRisks,
         tasksByArea,
         hasBriefing: !!diagSource.briefingContentV3,
-        hasRiskMatrices: !!riskMatricesData && Object.keys(riskMatricesData).length > 0,
-        hasActionPlan: !!actionPlansData && Object.keys(actionPlansData).length > 0,
-        scoringData: (project as any).scoringData ?? null,   // V61
-        decisaoData: (project as any).decisaoData ?? null,   // V63
+        hasRiskMatrices:
+          !!riskMatricesData && Object.keys(riskMatricesData).length > 0,
+        hasActionPlan:
+          !!actionPlansData && Object.keys(actionPlansData).length > 0,
+        scoringData: (project as any).scoringData ?? null, // V61
+        decisaoData: (project as any).decisaoData ?? null, // V63
         // V64: inconsistencias do briefing estruturado
         inconsistencias: (() => {
           const bs = (project as any).briefingStructured;
           if (!bs) return [];
           try {
             const parsed = typeof bs === "string" ? JSON.parse(bs) : bs;
-            return Array.isArray(parsed?.inconsistencias) ? parsed.inconsistencias : [];
-          } catch { return []; }
+            return Array.isArray(parsed?.inconsistencias)
+              ? parsed.inconsistencias
+              : [];
+          } catch {
+            return [];
+          }
         })(),
       };
     }),
@@ -2758,22 +3446,40 @@ Gere o veredito final em JSON:
     .input(z.object({ projectId: z.number() }))
     .query(async ({ input, ctx }) => {
       const database = await db.getDb();
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
       // Verificar acesso: dono, criador ou membro da equipe Solaris/advogado
       const userId = ctx.user.id;
-      const isOwner = project.clientId === userId || (project as any).createdById === userId;
-      const isTeam = ctx.user.role === "equipe_solaris" || ctx.user.role === "advogado_senior" || ctx.user.role === "advogado_junior";
+      const isOwner =
+        project.clientId === userId || (project as any).createdById === userId;
+      const isTeam =
+        ctx.user.role === "equipe_solaris" ||
+        ctx.user.role === "advogado_senior" ||
+        ctx.user.role === "advogado_junior";
       if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
 
       const bs = (project as any).briefingStructured;
-      if (!bs) return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null, structured: null, approvalReservation: null };
+      if (!bs)
+        return {
+          inconsistencias: [],
+          totalCount: 0,
+          hasAlerts: false,
+          confidenceScore: null,
+          structured: null,
+          approvalReservation: null,
+        };
 
       try {
         const parsed = typeof bs === "string" ? JSON.parse(bs) : bs;
-        const inconsistencias = Array.isArray(parsed?.inconsistencias) ? parsed.inconsistencias : [];
+        const inconsistencias = Array.isArray(parsed?.inconsistencias)
+          ? parsed.inconsistencias
+          : [];
         // fix(UX1 UAT 2026-04-20): expor confidence_score para barra visual
         const confidenceScore = parsed?.confidence_score ?? null;
         return {
@@ -2782,9 +3488,12 @@ Gere o veredito final em JSON:
           hasAlerts: inconsistencias.length > 0,
           // Contagem por impacto
           countByImpact: {
-            alto: inconsistencias.filter((i: any) => i.impacto === "alto").length,
-            medio: inconsistencias.filter((i: any) => i.impacto === "medio").length,
-            baixo: inconsistencias.filter((i: any) => i.impacto === "baixo").length,
+            alto: inconsistencias.filter((i: any) => i.impacto === "alto")
+              .length,
+            medio: inconsistencias.filter((i: any) => i.impacto === "medio")
+              .length,
+            baixo: inconsistencias.filter((i: any) => i.impacto === "baixo")
+              .length,
           },
           confidenceScore,
           // fix(#767 UAT 2026-04-20): expor briefing estruturado completo para
@@ -2792,9 +3501,17 @@ Gere o veredito final em JSON:
           structured: {
             nivel_risco_geral: parsed?.nivel_risco_geral ?? null,
             resumo_executivo: parsed?.resumo_executivo ?? null,
-            principais_gaps: Array.isArray(parsed?.principais_gaps) ? parsed.principais_gaps : [],
-            oportunidades: Array.isArray(parsed?.oportunidades) ? parsed.oportunidades : [],
-            recomendacoes_prioritarias: Array.isArray(parsed?.recomendacoes_prioritarias) ? parsed.recomendacoes_prioritarias : [],
+            principais_gaps: Array.isArray(parsed?.principais_gaps)
+              ? parsed.principais_gaps
+              : [],
+            oportunidades: Array.isArray(parsed?.oportunidades)
+              ? parsed.oportunidades
+              : [],
+            recomendacoes_prioritarias: Array.isArray(
+              parsed?.recomendacoes_prioritarias
+            )
+              ? parsed.recomendacoes_prioritarias
+              : [],
             inconsistencias,
             confidence_score: confidenceScore,
             // fix(UAT 2026-04-20): ressalva de aprovação (quando confiança <85%)
@@ -2804,7 +3521,14 @@ Gere o veredito final em JSON:
           approvalReservation: parsed?.approval_reservation ?? null,
         };
       } catch {
-        return { inconsistencias: [], totalCount: 0, hasAlerts: false, confidenceScore: null, structured: null, approvalReservation: null };
+        return {
+          inconsistencias: [],
+          totalCount: 0,
+          hasAlerts: false,
+          confidenceScore: null,
+          structured: null,
+          approvalReservation: null,
+        };
       }
     }),
 
@@ -2820,8 +3544,12 @@ Gere o veredito final em JSON:
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       const userId = ctx.user.id;
-      const isOwner = project.clientId === userId || (project as any).createdById === userId;
-      const isTeam = ctx.user.role === "equipe_solaris" || ctx.user.role === "advogado_senior" || ctx.user.role === "advogado_junior";
+      const isOwner =
+        project.clientId === userId || (project as any).createdById === userId;
+      const isTeam =
+        ctx.user.role === "equipe_solaris" ||
+        ctx.user.role === "advogado_senior" ||
+        ctx.user.role === "advogado_junior";
       if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
       return {
         canEdit: true,
@@ -2840,8 +3568,14 @@ Gere o veredito final em JSON:
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       const userId = ctx.user.id;
-      const isOwner = (project as any).clientId === userId || (project as any).createdById === userId;
-      const isTeam = ["equipe_solaris", "advogado_senior", "advogado_junior"].includes(ctx.user.role);
+      const isOwner =
+        (project as any).clientId === userId ||
+        (project as any).createdById === userId;
+      const isTeam = [
+        "equipe_solaris",
+        "advogado_senior",
+        "advogado_junior",
+      ].includes(ctx.user.role);
       if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
 
       const p = project as any;
@@ -2861,7 +3595,15 @@ Gere o veredito final em JSON:
           .where(eq(questionnaireAnswersV3.projectId, input.projectId));
 
         // Agrupar por CNAE
-        const byCnae: Record<string, { cnaeCode: string; cnaeDescription: string; level: string; questions: { question: string; answer: string }[] }> = {};
+        const byCnae: Record<
+          string,
+          {
+            cnaeCode: string;
+            cnaeDescription: string;
+            level: string;
+            questions: { question: string; answer: string }[];
+          }
+        > = {};
         for (const a of rawAnswers) {
           const key = `${a.cnaeCode}-${a.level}`;
           if (!byCnae[key]) {
@@ -2891,9 +3633,18 @@ Gere o veredito final em JSON:
       });
 
       // ADR-0011: Camadas 4+5 — Q.Produtos (NCM) e Q.Serviços (NBS) com fallback V1/V2
-      const { productAnswers: resolvedProduct, serviceAnswers: resolvedService } = resolveProjectAnswers(p);
-      const productServiceLayers = buildProductServiceLayers(resolvedProduct, resolvedService);
-      const aggregatedDiagnosticAnswers = [...baseLayers, ...productServiceLayers];
+      const {
+        productAnswers: resolvedProduct,
+        serviceAnswers: resolvedService,
+      } = resolveProjectAnswers(p);
+      const productServiceLayers = buildProductServiceLayers(
+        resolvedProduct,
+        resolvedService
+      );
+      const aggregatedDiagnosticAnswers = [
+        ...baseLayers,
+        ...productServiceLayers,
+      ];
 
       const progress = getDiagnosticProgress(diagnosticStatus);
       const nextLayer = getNextDiagnosticLayer(diagnosticStatus);
@@ -2909,12 +3660,22 @@ Gere o veredito final em JSON:
         // Metadados para o frontend
         meta: {
           totalLayers: 3 + productServiceLayers.length,
-          completedLayers: Object.values(diagnosticStatus).filter(s => s === "completed").length,
-          corporateAnswersCount: aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "CORPORATIVO")?.questions.length ?? 0,
-          operationalAnswersCount: aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "OPERACIONAL")?.questions.length ?? 0,
+          completedLayers: Object.values(diagnosticStatus).filter(
+            s => s === "completed"
+          ).length,
+          corporateAnswersCount:
+            aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "CORPORATIVO")
+              ?.questions.length ?? 0,
+          operationalAnswersCount:
+            aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "OPERACIONAL")
+              ?.questions.length ?? 0,
           cnaeLayersCount: cnaeAnswers.length,
-          productLayerCount: productServiceLayers.filter(l => l.level === "q_produto").length,
-          serviceLayerCount: productServiceLayers.filter(l => l.level === "q_servico").length,
+          productLayerCount: productServiceLayers.filter(
+            l => l.level === "q_produto"
+          ).length,
+          serviceLayerCount: productServiceLayers.filter(
+            l => l.level === "q_servico"
+          ).length,
         },
       };
     }),
@@ -2923,16 +3684,24 @@ Gere o veredito final em JSON:
   // v2.1 T3: Completar camada do diagnóstico e avançar status do projeto
   // ───────────────────────────────────────────────────────────────────────────
   completeDiagnosticLayer: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      layer: z.enum(["corporate", "operational", "cnae"]),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        layer: z.enum(["corporate", "operational", "cnae"]),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       const userId = ctx.user.id;
-      const isOwner = (project as any).clientId === userId || (project as any).createdById === userId;
-      const isTeam = ["equipe_solaris", "advogado_senior", "advogado_junior"].includes(ctx.user.role);
+      const isOwner =
+        (project as any).clientId === userId ||
+        (project as any).createdById === userId;
+      const isTeam = [
+        "equipe_solaris",
+        "advogado_senior",
+        "advogado_junior",
+      ].includes(ctx.user.role);
       if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
 
       const current = (project as any).diagnosticStatus ?? {
@@ -2945,13 +3714,15 @@ Gere o veredito final em JSON:
       if (input.layer === "operational" && current.corporate !== "completed") {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "O Diagnóstico Corporativo deve ser concluído antes do Operacional.",
+          message:
+            "O Diagnóstico Corporativo deve ser concluído antes do Operacional.",
         });
       }
       if (input.layer === "cnae" && current.operational !== "completed") {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "O Diagnóstico Operacional deve ser concluído antes do CNAE.",
+          message:
+            "O Diagnóstico Operacional deve ser concluído antes do CNAE.",
         });
       }
 
@@ -2965,7 +3736,7 @@ Gere o veredito final em JSON:
       };
 
       // BL-01 (Sprint Y): assertValidTransition — mesmo padrão de completeOnda1/Onda2
-      const { assertValidTransition } = await import('./flowStateMachine');
+      const { assertValidTransition } = await import("./flowStateMachine");
       assertValidTransition(project.status, layerToStatus[input.layer]);
 
       await db.updateProject(input.projectId, {
@@ -2994,17 +3765,25 @@ Gere o veredito final em JSON:
   // Wrapper que agrega as 3 camadas e chama o generateBriefing existente
   // ───────────────────────────────────────────────────────────────────────────
   generateBriefingFromDiagnostic: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      correction: z.string().optional(),
-      complement: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        correction: z.string().optional(),
+        complement: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       const userId = ctx.user.id;
-      const isOwner = (project as any).clientId === userId || (project as any).createdById === userId;
-      const isTeam = ["equipe_solaris", "advogado_senior", "advogado_junior"].includes(ctx.user.role);
+      const isOwner =
+        (project as any).clientId === userId ||
+        (project as any).createdById === userId;
+      const isTeam = [
+        "equipe_solaris",
+        "advogado_senior",
+        "advogado_junior",
+      ].includes(ctx.user.role);
       if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
 
       const p = project as any;
@@ -3025,11 +3804,26 @@ Gere o veredito final em JSON:
       // BUG-MANUAL-01: verificar Onda 1 SOLARIS antes de gerar briefing V3
       // diagnosticStatus cobre apenas QC/QO/CNAE — não inclui solarisAnswers
       const solarisCount = await db.countOnda1Answers(input.projectId);
-      const statusesThatImplySolarisDone = ['onda1_solaris','onda2_iagen','diagnostico_corporativo','diagnostico_operacional','diagnostico_cnae','q_produto','q_servico','briefing','matriz_riscos','aprovado'];
-      if (solarisCount === 0 && !statusesThatImplySolarisDone.includes(p.status ?? '')) {
+      const statusesThatImplySolarisDone = [
+        "onda1_solaris",
+        "onda2_iagen",
+        "diagnostico_corporativo",
+        "diagnostico_operacional",
+        "diagnostico_cnae",
+        "q_produto",
+        "q_servico",
+        "briefing",
+        "matriz_riscos",
+        "aprovado",
+      ];
+      if (
+        solarisCount === 0 &&
+        !statusesThatImplySolarisDone.includes(p.status ?? "")
+      ) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "O Questionário SOLARIS (Onda 1) deve ser concluído antes de gerar o Briefing V3. Acesse /projetos/:id/questionario-solaris para iniciar.",
+          message:
+            "O Questionário SOLARIS (Onda 1) deve ser concluído antes de gerar o Briefing V3. Acesse /projetos/:id/questionario-solaris para iniciar.",
         });
       }
 
@@ -3053,7 +3847,10 @@ Gere o veredito final em JSON:
               questions: [],
             };
           }
-          byCnae[key].questions.push({ question: a.questionText, answer: a.answerValue });
+          byCnae[key].questions.push({
+            question: a.questionText,
+            answer: a.answerValue,
+          });
         }
         cnaeAnswers = Object.values(byCnae);
       }
@@ -3069,20 +3866,37 @@ Gere o veredito final em JSON:
       });
 
       // ADR-0011: Camadas 4+5 — Q.Produtos (NCM) e Q.Serviços (NBS) com fallback V1/V2
-      const { productAnswers: briefingProduct, serviceAnswers: briefingService } = resolveProjectAnswers(p);
-      const productServiceLayers = buildProductServiceLayers(briefingProduct, briefingService);
-      const aggregatedDiagnosticAnswers = [...baseLayers, ...productServiceLayers];
+      const {
+        productAnswers: briefingProduct,
+        serviceAnswers: briefingService,
+      } = resolveProjectAnswers(p);
+      const productServiceLayers = buildProductServiceLayers(
+        briefingProduct,
+        briefingService
+      );
+      const aggregatedDiagnosticAnswers = [
+        ...baseLayers,
+        ...productServiceLayers,
+      ];
 
       // ADR-0018: Camadas 6+7+8 — Fontes ausentes: QCNAE especializado, SOLARIS (Onda 1), IA Gen (Onda 2)
       // Fonte A: QCNAE especializado (IS, alíquota zero, ST, regime especial, prioridade)
       const specializedCnaeAnswers = p.cnaeAnswers
-        ? (typeof p.cnaeAnswers === 'string'
-            ? (() => { try { return JSON.parse(p.cnaeAnswers as string); } catch { return null; } })()
-            : p.cnaeAnswers)
+        ? typeof p.cnaeAnswers === "string"
+          ? (() => {
+              try {
+                return JSON.parse(p.cnaeAnswers as string);
+              } catch {
+                return null;
+              }
+            })()
+          : p.cnaeAnswers
         : null;
 
       // Fonte B: Respostas SOLARIS (Onda 1)
-      const solarisAnswersForBriefing = await db.getOnda1Answers(input.projectId);
+      const solarisAnswersForBriefing = await db.getOnda1Answers(
+        input.projectId
+      );
 
       // Fonte C: Respostas IA Gen (Onda 2)
       const iagenAnswersForBriefing = await db.getOnda2Answers(input.projectId);
@@ -3102,71 +3916,98 @@ Gere o veredito final em JSON:
         if (typeof opProfileRawFB === "string") {
           try {
             const parsed = JSON.parse(opProfileRawFB);
-            return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
-          } catch { return {}; }
+            return parsed &&
+              typeof parsed === "object" &&
+              !Array.isArray(parsed)
+              ? parsed
+              : {};
+          } catch {
+            return {};
+          }
         }
-        if (typeof opProfileRawFB === "object" && !Array.isArray(opProfileRawFB)) {
+        if (
+          typeof opProfileRawFB === "object" &&
+          !Array.isArray(opProfileRawFB)
+        ) {
           return opProfileRawFB as any;
         }
         return {};
       })();
-      const ncmItens = (opProfileForBriefing?.principaisProdutos ?? []).filter((p) => p?.ncm_code);
-      const nbsItens = (opProfileForBriefing?.principaisServicos ?? []).filter((s) => s?.nbs_code);
+      const ncmItens = (opProfileForBriefing?.principaisProdutos ?? []).filter(
+        p => p?.ncm_code
+      );
+      const nbsItens = (opProfileForBriefing?.principaisServicos ?? []).filter(
+        s => s?.nbs_code
+      );
       if (ncmItens.length > 0 || nbsItens.length > 0) {
-        additionalContext.push('<perfil_produtos_servicos>');
+        additionalContext.push("<perfil_produtos_servicos>");
         if (ncmItens.length > 0) {
-          additionalContext.push('Principais Produtos (NCM):');
-          ncmItens.forEach((p) => {
-            additionalContext.push(`- NCM ${p.ncm_code}${p.descricao ? ` — ${p.descricao}` : ''}`);
+          additionalContext.push("Principais Produtos (NCM):");
+          ncmItens.forEach(p => {
+            additionalContext.push(
+              `- NCM ${p.ncm_code}${p.descricao ? ` — ${p.descricao}` : ""}`
+            );
           });
         }
         if (nbsItens.length > 0) {
-          additionalContext.push('Principais Serviços (NBS):');
-          nbsItens.forEach((s) => {
-            additionalContext.push(`- NBS ${s.nbs_code}${s.descricao ? ` — ${s.descricao}` : ''}`);
+          additionalContext.push("Principais Serviços (NBS):");
+          nbsItens.forEach(s => {
+            additionalContext.push(
+              `- NBS ${s.nbs_code}${s.descricao ? ` — ${s.descricao}` : ""}`
+            );
           });
         }
-        additionalContext.push('</perfil_produtos_servicos>');
+        additionalContext.push("</perfil_produtos_servicos>");
       }
 
       if (specializedCnaeAnswers) {
-        additionalContext.push('<qcnae_especializado>');
+        additionalContext.push("<qcnae_especializado>");
         additionalContext.push(JSON.stringify(specializedCnaeAnswers, null, 2));
-        additionalContext.push('</qcnae_especializado>');
+        additionalContext.push("</qcnae_especializado>");
       }
 
       if (solarisAnswersForBriefing.length > 0) {
-        additionalContext.push('<respostas_solaris>');
+        additionalContext.push("<respostas_solaris>");
         solarisAnswersForBriefing
           .filter((a: any) => a.resposta)
           .forEach((a: any) => {
             additionalContext.push(`${a.codigo}: ${a.resposta}`);
           });
-        additionalContext.push('</respostas_solaris>');
+        additionalContext.push("</respostas_solaris>");
       }
 
       if (iagenAnswersForBriefing.length > 0) {
-        additionalContext.push('<respostas_iagen>');
+        additionalContext.push("<respostas_iagen>");
         iagenAnswersForBriefing
           .filter((a: any) => a.answer)
           .forEach((a: any) => {
-            additionalContext.push(`Q: ${a.question || a.questionId}\nR: ${a.answer}`);
+            additionalContext.push(
+              `Q: ${a.question || a.questionId}\nR: ${a.answer}`
+            );
           });
-        additionalContext.push('</respostas_iagen>');
+        additionalContext.push("</respostas_iagen>");
       }
 
-      const additionalContextText = additionalContext.length > 0
-        ? `DADOS ADICIONAIS DO CLIENTE:\n${additionalContext.join('\n')}\n\n`
-        : '';
+      const additionalContextText =
+        additionalContext.length > 0
+          ? `DADOS ADICIONAIS DO CLIENTE:\n${additionalContext.join("\n")}\n\n`
+          : "";
 
       // Usar o generateBriefing existente com o payload consolidado
       // (sem alterar a lógica interna do generateBriefing)
-      const answersText = aggregatedDiagnosticAnswers.map(layer =>
-        `## ${layer.cnaeCode} — ${layer.cnaeDescription} (${layer.level})\n` +
-        layer.questions.map(q => `**P:** ${q.question}\n**R:** ${q.answer}`).join("\n\n")
-      ).join("\n\n---\n\n");
+      const answersText = aggregatedDiagnosticAnswers
+        .map(
+          layer =>
+            `## ${layer.cnaeCode} — ${layer.cnaeDescription} (${layer.level})\n` +
+            layer.questions
+              .map(q => `**P:** ${q.question}\n**R:** ${q.answer}`)
+              .join("\n\n")
+        )
+        .join("\n\n---\n\n");
 
-      const correctionContext = input.correction ? `\n\nCORREÇÃO SOLICITADA PELO USUÁRIO:\n${input.correction}` : "";
+      const correctionContext = input.correction
+        ? `\n\nCORREÇÃO SOLICITADA PELO USUÁRIO:\n${input.correction}`
+        : "";
       // fix(UAT 2026-04-20): alinhado com generateBriefing — complement como FATO da empresa.
       const complementContext = input.complement
         ? `\n\nFATOS ADICIONAIS SOBRE A EMPRESA (declarados pelo usuário — trate como parte do perfil corporativo):\n${input.complement}`
@@ -3175,11 +4016,18 @@ Gere o veredito final em JSON:
       // RAG para o briefing
       // fix(UAT 2026-04-20): RAG query inclui correction+complement.
       const confirmedCnaes = (p.confirmedCnaes as any[]) || [];
-      const cnaeCodesForRag = confirmedCnaes.length > 0
-        ? confirmedCnaes.map((c: any) => c.code)
-        : cnaeAnswers.map((a: any) => a.cnaeCode).filter((c: string) => c !== "CORPORATIVO" && c !== "OPERACIONAL");
+      const cnaeCodesForRag =
+        confirmedCnaes.length > 0
+          ? confirmedCnaes.map((c: any) => c.code)
+          : cnaeAnswers
+              .map((a: any) => a.cnaeCode)
+              .filter(
+                (c: string) => c !== "CORPORATIVO" && c !== "OPERACIONAL"
+              );
       // fix(#785 item G UAT 2026-04-20): detector geo/export no generateBriefingFromDiagnostic.
-      const { detectExportSignal: detectExportFD } = await import("./lib/detect-export-signal");
+      const { detectExportSignal: detectExportFD } = await import(
+        "./lib/detect-export-signal"
+      );
       const exportSignalFD = detectExportFD([
         p.description,
         input.correction,
@@ -3194,12 +4042,25 @@ Gere o veredito final em JSON:
         exportSignalFD.suffix,
         answersText.substring(0, 500),
         archCtxBriefingFD,
-      ].filter(Boolean).join(" ");
-      const ragCtxBriefing = await retrieveArticles(cnaeCodesForRag, briefingQueryCtx, 7);
+      ]
+        .filter(Boolean)
+        .join(" ");
+      // #1094: leiFilter simples_nacional (idem briefing V3) — caminho FD.
+      const leiFilter = deriveLeiFilterForRegime(
+        (p as any).companyProfile?.taxRegime
+      );
+      const ragCtxBriefing = await retrieveArticles(
+        cnaeCodesForRag,
+        briefingQueryCtx,
+        7,
+        leiFilter
+      );
       const regulatoryContext = ragCtxBriefing.contextText;
 
       const { BriefingStructuredSchema } = await import("./ai-schemas");
-      const { generateWithRetry: genRetry, OUTPUT_CONTRACT: OC } = await import("./ai-helpers");
+      const { generateWithRetry: genRetry, OUTPUT_CONTRACT: OC } = await import(
+        "./ai-helpers"
+      );
 
       const structured = await genRetry(
         [
@@ -3335,16 +4196,22 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
 
       // fix(Fix extra UAT 2026-04-20): reclassifica impacto determinístico server-side
       if (Array.isArray(structured.inconsistencias)) {
-        structured.inconsistencias = structured.inconsistencias.map((inc: any) => ({
-          ...inc,
-          impacto: classifyInconsistenciaImpacto(inc),
-        }));
+        structured.inconsistencias = structured.inconsistencias.map(
+          (inc: any) => ({
+            ...inc,
+            impacto: classifyInconsistenciaImpacto(inc),
+          })
+        );
       }
 
       // fix(#780 item 1 UAT 2026-04-20): consolida gaps com mesmo artigo+parágrafo
       if (Array.isArray(structured.principais_gaps)) {
-        const { consolidateGapsByArticle } = await import("./lib/consolidate-gaps");
-        structured.principais_gaps = consolidateGapsByArticle(structured.principais_gaps) as any;
+        const { consolidateGapsByArticle } = await import(
+          "./lib/consolidate-gaps"
+        );
+        structured.principais_gaps = consolidateGapsByArticle(
+          structured.principais_gaps
+        ) as any;
       }
 
       // fix(BUG-1 UAT 2026-04-20): preserva dismissed_inconsistencias entre regenerações.
@@ -3352,27 +4219,47 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         const priorStructuredRawFD = p.briefingStructured;
         const priorStructuredFD = (() => {
           if (!priorStructuredRawFD) return null;
-          try { return typeof priorStructuredRawFD === "string" ? JSON.parse(priorStructuredRawFD) : priorStructuredRawFD; } catch { return null; }
+          try {
+            return typeof priorStructuredRawFD === "string"
+              ? JSON.parse(priorStructuredRawFD)
+              : priorStructuredRawFD;
+          } catch {
+            return null;
+          }
         })();
-        const dismissedFD: any[] = Array.isArray(priorStructuredFD?.dismissed_inconsistencias)
+        const dismissedFD: any[] = Array.isArray(
+          priorStructuredFD?.dismissed_inconsistencias
+        )
           ? priorStructuredFD.dismissed_inconsistencias
           : [];
         const normalize = (s: string): string =>
-          String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
-        const dismissedKeysFD = new Set(dismissedFD.map((d: any) => normalize(d?.pergunta_origem ?? "")));
+          String(s ?? "")
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, " ");
+        const dismissedKeysFD = new Set(
+          dismissedFD.map((d: any) => normalize(d?.pergunta_origem ?? ""))
+        );
         if (Array.isArray(structured.inconsistencias)) {
-          structured.inconsistencias = structured.inconsistencias.filter((inc: any) => {
-            const key = normalize(inc?.pergunta_origem ?? "");
-            return !key || !dismissedKeysFD.has(key);
-          });
+          structured.inconsistencias = structured.inconsistencias.filter(
+            (inc: any) => {
+              const key = normalize(inc?.pergunta_origem ?? "");
+              return !key || !dismissedKeysFD.has(key);
+            }
+          );
         }
         (structured as any).dismissed_inconsistencias = dismissedFD;
       }
 
       // fix UAT 2026-04-21: fórmula de confiança v2 via signals module.
-      const { computeConfidenceSignals: computeSignalsFD } = await import("./lib/briefing-confidence-signals");
-      const { calculateBriefingConfidenceWithBreakdown: calcConfFD } = await import("./lib/calculate-briefing-confidence");
-      const cnaesConfirmadosCodesFD = confirmedCnaes.map((c: any) => c.code).filter(Boolean);
+      const { computeConfidenceSignals: computeSignalsFD } = await import(
+        "./lib/briefing-confidence-signals"
+      );
+      const { calculateBriefingConfidenceWithBreakdown: calcConfFD } =
+        await import("./lib/calculate-briefing-confidence");
+      const cnaesConfirmadosCodesFD = confirmedCnaes
+        .map((c: any) => c.code)
+        .filter(Boolean);
       const signalsResultFD = await computeSignalsFD({
         projectId: input.projectId,
         cnaesConfirmados: cnaesConfirmadosCodesFD,
@@ -3387,7 +4274,10 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       });
       const confBreakdownFD = calcConfFD(signalsResultFD.signals);
       const deterministicConfidenceFD = confBreakdownFD.score;
-      if (structured.confidence_score && typeof structured.confidence_score === "object") {
+      if (
+        structured.confidence_score &&
+        typeof structured.confidence_score === "object"
+      ) {
         structured.confidence_score.nivel_confianca = deterministicConfidenceFD;
       } else {
         structured.confidence_score = {
@@ -3398,7 +4288,9 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       }
 
       // fix UAT 2026-04-21 V1: persistir snapshot da confiança (fingerprints).
-      const { computeAllFingerprints: computeFingerprintsFD } = await import("./lib/briefing-fingerprint");
+      const { computeAllFingerprints: computeFingerprintsFD } = await import(
+        "./lib/briefing-fingerprint"
+      );
       const confFingerprintsFD = await computeFingerprintsFD({
         projectId: input.projectId,
         projectName: project.name,
@@ -3425,27 +4317,45 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         formulaVersion: "1.0",
       };
 
-      const { buildBriefingMarkdown } = await import("./routers-fluxo-v3").then(m => ({
-        buildBriefingMarkdown: (m as any).buildBriefingMarkdown,
-      })).catch(() => ({ buildBriefingMarkdown: null }));
+      const { buildBriefingMarkdown } = await import("./routers-fluxo-v3")
+        .then(m => ({
+          buildBriefingMarkdown: (m as any).buildBriefingMarkdown,
+        }))
+        .catch(() => ({ buildBriefingMarkdown: null }));
 
       // fix #806: metadata para template v2 (fallback silencioso se função não disponível).
       // fix #809: contador de questionários respondidos para o banner de baixa confiança.
       // fix #810: qualidade determinística das informações.
-      const productAnswersCountFD = Array.isArray(briefingProduct) ? briefingProduct.length : 0;
-      const serviceAnswersCountFD = Array.isArray(briefingService) ? briefingService.length : 0;
-      const cnaeQuestionsTotalFD = cnaeAnswers.reduce((acc: number, l: any) => acc + (l.questions?.length ?? 0), 0);
+      const productAnswersCountFD = Array.isArray(briefingProduct)
+        ? briefingProduct.length
+        : 0;
+      const serviceAnswersCountFD = Array.isArray(briefingService)
+        ? briefingService.length
+        : 0;
+      const cnaeQuestionsTotalFD = cnaeAnswers.reduce(
+        (acc: number, l: any) => acc + (l.questions?.length ?? 0),
+        0
+      );
       const questionariosRespondidosCountFD =
         (solarisAnswersForBriefing.length > 0 ? 1 : 0) +
         (iagenAnswersForBriefing.length > 0 ? 1 : 0) +
         (cnaeQuestionsTotalFD > 0 ? 1 : 0) +
         (productAnswersCountFD > 0 ? 1 : 0) +
         (serviceAnswersCountFD > 0 ? 1 : 0);
-      const produtosTotalCountFD = (opProfileForBriefing.principaisProdutos ?? []).length;
-      const servicosTotalCountFD = (opProfileForBriefing.principaisServicos ?? []).length;
-      const ncmCoveredFD = (opProfileForBriefing.principaisProdutos ?? []).filter(x => x?.ncm_code).length;
-      const nbsCoveredFD = (opProfileForBriefing.principaisServicos ?? []).filter(x => x?.nbs_code).length;
-      const { calculateBriefingQuality: calculateBriefingQualityFD } = await import("./lib/briefing-quality");
+      const produtosTotalCountFD = (
+        opProfileForBriefing.principaisProdutos ?? []
+      ).length;
+      const servicosTotalCountFD = (
+        opProfileForBriefing.principaisServicos ?? []
+      ).length;
+      const ncmCoveredFD = (
+        opProfileForBriefing.principaisProdutos ?? []
+      ).filter(x => x?.ncm_code).length;
+      const nbsCoveredFD = (
+        opProfileForBriefing.principaisServicos ?? []
+      ).filter(x => x?.nbs_code).length;
+      const { calculateBriefingQuality: calculateBriefingQualityFD } =
+        await import("./lib/briefing-quality");
       const qualityResultFD = calculateBriefingQualityFD({
         questionariosRespondidos: questionariosRespondidosCountFD,
         questionariosTotal: 5,
@@ -3464,9 +4374,15 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         porte: (p.companyProfile as any)?.companySize,
         regime: (p.companyProfile as any)?.taxRegime,
         faturamento: (p.companyProfile as any)?.annualRevenueRange,
-        multiestadual: (opProfileForBriefing as any)?.multiState === true || (opProfileForBriefing as any)?.multiestadual === true,
-        ncms: (opProfileForBriefing.principaisProdutos ?? []).map((x) => x?.ncm_code).filter((c): c is string => !!c),
-        nbs: (opProfileForBriefing.principaisServicos ?? []).map((x) => x?.nbs_code).filter((c): c is string => !!c),
+        multiestadual:
+          (opProfileForBriefing as any)?.multiState === true ||
+          (opProfileForBriefing as any)?.multiestadual === true,
+        ncms: (opProfileForBriefing.principaisProdutos ?? [])
+          .map(x => x?.ncm_code)
+          .filter((c): c is string => !!c),
+        nbs: (opProfileForBriefing.principaisServicos ?? [])
+          .map(x => x?.nbs_code)
+          .filter((c): c is string => !!c),
         questionariosRespondidos: questionariosRespondidosCountFD,
         questionariosTotal: 5,
         qualidadeInformacoes: qualityResultFD.quality,
@@ -3485,14 +4401,20 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       }
 
       // fix #808: sanitiza alucinação de NCM/NBS antes de persistir.
-      const { sanitizeBriefingMarkdown: sanitizeFD } = await import("./lib/briefing-sanitizer");
+      const { sanitizeBriefingMarkdown: sanitizeFD } = await import(
+        "./lib/briefing-sanitizer"
+      );
       const sanitizeResultFD = sanitizeFD(briefingMarkdown, {
         ncms: briefingMetaFD.ncms,
         nbs: briefingMetaFD.nbs,
       });
       briefingMarkdown = sanitizeResultFD.sanitized;
 
-      if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!database)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       await database
         .update(projects)
         .set({
@@ -3507,11 +4429,22 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       // fix(UAT 2026-04-20): registra evidência das fontes usadas (Histórico).
       try {
         const { logAudit } = await import("./routers-audit");
-        const productAnswersArr = Array.isArray(briefingProduct) ? briefingProduct : [];
-        const serviceAnswersArr = Array.isArray(briefingService) ? briefingService : [];
-        const cnaeQuestionsCount = cnaeAnswers.reduce((acc: number, l: any) => acc + (l.questions?.length ?? 0), 0);
-        const ncmCodesCount = (opProfileForBriefing.principaisProdutos ?? []).filter(x => x?.ncm_code).length;
-        const nbsCodesCount = (opProfileForBriefing.principaisServicos ?? []).filter(x => x?.nbs_code).length;
+        const productAnswersArr = Array.isArray(briefingProduct)
+          ? briefingProduct
+          : [];
+        const serviceAnswersArr = Array.isArray(briefingService)
+          ? briefingService
+          : [];
+        const cnaeQuestionsCount = cnaeAnswers.reduce(
+          (acc: number, l: any) => acc + (l.questions?.length ?? 0),
+          0
+        );
+        const ncmCodesCount = (
+          opProfileForBriefing.principaisProdutos ?? []
+        ).filter(x => x?.ncm_code).length;
+        const nbsCodesCount = (
+          opProfileForBriefing.principaisServicos ?? []
+        ).filter(x => x?.nbs_code).length;
 
         await logAudit({
           userId: ctx.user.id,
@@ -3523,31 +4456,61 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
           metadata: {
             event: "briefing_generated_from_diagnostic",
             sources: {
-              solaris_onda1: { answers: solarisAnswersForBriefing.length, used: solarisAnswersForBriefing.length > 0 },
-              iagen_onda2: { answers: iagenAnswersForBriefing.length, used: iagenAnswersForBriefing.length > 0 },
-              q_produtos_ncm: { answers: productAnswersArr.length, ncm_codes: ncmCodesCount, used: ncmCodesCount > 0 || productAnswersArr.length > 0 },
-              q_servicos_nbs: { answers: serviceAnswersArr.length, nbs_codes: nbsCodesCount, used: nbsCodesCount > 0 || serviceAnswersArr.length > 0 },
-              qcnae_especializado: { question_count: cnaeQuestionsCount, layer_count: cnaeAnswers.length, used: cnaeQuestionsCount > 0 },
+              solaris_onda1: {
+                answers: solarisAnswersForBriefing.length,
+                used: solarisAnswersForBriefing.length > 0,
+              },
+              iagen_onda2: {
+                answers: iagenAnswersForBriefing.length,
+                used: iagenAnswersForBriefing.length > 0,
+              },
+              q_produtos_ncm: {
+                answers: productAnswersArr.length,
+                ncm_codes: ncmCodesCount,
+                used: ncmCodesCount > 0 || productAnswersArr.length > 0,
+              },
+              q_servicos_nbs: {
+                answers: serviceAnswersArr.length,
+                nbs_codes: nbsCodesCount,
+                used: nbsCodesCount > 0 || serviceAnswersArr.length > 0,
+              },
+              qcnae_especializado: {
+                question_count: cnaeQuestionsCount,
+                layer_count: cnaeAnswers.length,
+                used: cnaeQuestionsCount > 0,
+              },
               qcnae_especializado_struct: { used: !!specializedCnaeAnswers },
             },
             output: {
               nivel_risco: structured.nivel_risco_geral,
-              gaps_count: Array.isArray(structured.principais_gaps) ? structured.principais_gaps.length : 0,
+              gaps_count: Array.isArray(structured.principais_gaps)
+                ? structured.principais_gaps.length
+                : 0,
               confidence: structured.confidence_score?.nivel_confianca ?? null,
             },
             sanitizer: {
               enabled: sanitizeResultFD.enabled,
               blocked_codes: sanitizeResultFD.blockedCodes,
-              blocked_total: sanitizeResultFD.blockedCodes.reduce((sum, b) => sum + b.occurrences, 0),
+              blocked_total: sanitizeResultFD.blockedCodes.reduce(
+                (sum, b) => sum + b.occurrences,
+                0
+              ),
             },
             // fix #811: cobertura de rastreabilidade de fonte por gap.
             source_coverage: (() => {
-              const all = Array.isArray(structured.principais_gaps) ? structured.principais_gaps : [];
-              const withSource = all.filter((g: any) => !!g?.source_type).length;
+              const all = Array.isArray(structured.principais_gaps)
+                ? structured.principais_gaps
+                : [];
+              const withSource = all.filter(
+                (g: any) => !!g?.source_type
+              ).length;
               return {
                 total: all.length,
                 with_source: withSource,
-                coverage_pct: all.length > 0 ? Math.round((withSource / all.length) * 100) : 0,
+                coverage_pct:
+                  all.length > 0
+                    ? Math.round((withSource / all.length) * 100)
+                    : 0,
                 breakdown: all.reduce((acc: Record<string, number>, g: any) => {
                   const key = g?.source_type ?? "SEM_FONTE";
                   acc[key] = (acc[key] ?? 0) + 1;
@@ -3558,7 +4521,10 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
           },
         });
       } catch (auditErr) {
-        console.warn("[generateBriefingFromDiagnostic] logAudit falhou (não bloqueia):", auditErr);
+        console.warn(
+          "[generateBriefingFromDiagnostic] logAudit falhou (não bloqueia):",
+          auditErr
+        );
       }
 
       return {
@@ -3566,9 +4532,16 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         structured,
         aggregatedPayloadSummary: {
           totalLayers: aggregatedDiagnosticAnswers.length,
-          corporateQuestions: aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "CORPORATIVO")?.questions.length ?? 0,
-          operationalQuestions: aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "OPERACIONAL")?.questions.length ?? 0,
-          cnaeQuestions: cnaeAnswers.reduce((acc: number, l: any) => acc + (l.questions?.length ?? 0), 0),
+          corporateQuestions:
+            aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "CORPORATIVO")
+              ?.questions.length ?? 0,
+          operationalQuestions:
+            aggregatedDiagnosticAnswers.find(l => l.cnaeCode === "OPERACIONAL")
+              ?.questions.length ?? 0,
+          cnaeQuestions: cnaeAnswers.reduce(
+            (acc: number, l: any) => acc + (l.questions?.length ?? 0),
+            0
+          ),
         },
       };
     }),
@@ -3582,8 +4555,14 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       const userId = ctx.user.id;
-      const isOwner = (project as any).clientId === userId || (project as any).createdById === userId;
-      const isTeam = ["equipe_solaris", "advogado_senior", "advogado_junior"].includes(ctx.user.role);
+      const isOwner =
+        (project as any).clientId === userId ||
+        (project as any).createdById === userId;
+      const isTeam = [
+        "equipe_solaris",
+        "advogado_senior",
+        "advogado_junior",
+      ].includes(ctx.user.role);
       if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
       // Retorna diagnosticStatus ou default (tudo not_started)
       const diagnosticStatus = (project as any).diagnosticStatus ?? {
@@ -3591,8 +4570,14 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         operational: "not_started",
         cnae: "not_started",
       };
-      const ds = diagnosticStatus as { corporate: string; operational: string; cnae: string };
-      const completedCount = [ds.corporate, ds.operational, ds.cnae].filter(s => s === "completed").length;
+      const ds = diagnosticStatus as {
+        corporate: string;
+        operational: string;
+        cnae: string;
+      };
+      const completedCount = [ds.corporate, ds.operational, ds.cnae].filter(
+        s => s === "completed"
+      ).length;
       const progress = Math.round((completedCount / 3) * 100);
       const isComplete = completedCount === 3;
       return {
@@ -3608,17 +4593,25 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
     }),
 
   updateDiagnosticStatus: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      layer: z.enum(["corporate", "operational", "cnae"]),
-      status: z.enum(["not_started", "in_progress", "completed"]),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        layer: z.enum(["corporate", "operational", "cnae"]),
+        status: z.enum(["not_started", "in_progress", "completed"]),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       const userId = ctx.user.id;
-      const isOwner = (project as any).clientId === userId || (project as any).createdById === userId;
-      const isTeam = ["equipe_solaris", "advogado_senior", "advogado_junior"].includes(ctx.user.role);
+      const isOwner =
+        (project as any).clientId === userId ||
+        (project as any).createdById === userId;
+      const isTeam = [
+        "equipe_solaris",
+        "advogado_senior",
+        "advogado_junior",
+      ].includes(ctx.user.role);
       if (!isOwner && !isTeam) throw new TRPCError({ code: "FORBIDDEN" });
       // Merge com estado atual
       const current = (project as any).diagnosticStatus ?? {
@@ -3628,20 +4621,32 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       };
       const updated = { ...current, [input.layer]: input.status };
       // Validar regra de progressao: operational só pode avançar se corporate estiver completed
-      if (input.layer === "operational" && input.status !== "not_started" && updated.corporate !== "completed") {
+      if (
+        input.layer === "operational" &&
+        input.status !== "not_started" &&
+        updated.corporate !== "completed"
+      ) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "O Diagnóstico Corporativo deve ser concluído antes de iniciar o Operacional.",
+          message:
+            "O Diagnóstico Corporativo deve ser concluído antes de iniciar o Operacional.",
         });
       }
       // Validar regra de progressao: cnae só pode avançar se operational estiver completed
-      if (input.layer === "cnae" && input.status !== "not_started" && updated.operational !== "completed") {
+      if (
+        input.layer === "cnae" &&
+        input.status !== "not_started" &&
+        updated.operational !== "completed"
+      ) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "O Diagnóstico Operacional deve ser concluído antes de iniciar o CNAE.",
+          message:
+            "O Diagnóstico Operacional deve ser concluído antes de iniciar o CNAE.",
         });
       }
-      await db.updateProject(input.projectId, { diagnosticStatus: updated } as any);
+      await db.updateProject(input.projectId, {
+        diagnosticStatus: updated,
+      } as any);
       return {
         projectId: input.projectId,
         diagnosticStatus: updated as {
@@ -3667,24 +4672,37 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
     .input(z.object({ projectId: z.number().int().positive() }))
     .query(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
 
       // Verificar acesso ao projeto
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
 
       const questions = await db.getOnda1Questions();
       const existingAnswers = await db.getOnda1Answers(input.projectId);
 
       // Mapear respostas existentes por questionId
-      const answersMap = new Map(existingAnswers.map(a => [a.questionId, a.resposta]));
+      const answersMap = new Map(
+        existingAnswers.map(a => [a.questionId, a.resposta])
+      );
 
       return {
         questions: questions.map(q => ({
           id: q.id,
-          codigo: q.codigo ?? `SOL-${String(q.id).padStart(3, '0')}`,
+          codigo: q.codigo ?? `SOL-${String(q.id).padStart(3, "0")}`,
           texto: q.texto,
           categoria: q.categoria,
           cnaeGroups: q.cnaeGroups,
@@ -3702,43 +4720,63 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
    * Seção 8 do contrato: backend é a fonte de verdade.
    */
   completeOnda1: protectedProcedure
-    .input(z.object({
-      projectId: z.number().int().positive(),
-      // ADR-0016 Opção B: sem perguntas obrigatórias — array pode ser vazio, respostas podem ser string vazia
-      answers: z.array(z.object({
-        questionId: z.number().int().positive(),
-        codigo: z.string().min(1).max(10),
-        resposta: z.string(), // ADR-0016 MASP: removido .min(1) — resposta vazia permitida
-      })),
-    }))
+    .input(
+      z.object({
+        projectId: z.number().int().positive(),
+        // ADR-0016 Opção B: sem perguntas obrigatórias — array pode ser vazio, respostas podem ser string vazia
+        answers: z.array(
+          z.object({
+            questionId: z.number().int().positive(),
+            codigo: z.string().min(1).max(10),
+            resposta: z.string(), // ADR-0016 MASP: removido .min(1) — resposta vazia permitida
+          })
+        ),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
 
       // Verificar acesso ao projeto
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
 
       // Enforcement: validar transição de status (Seção 8 + Seção 10)
-      const { assertValidTransition } = await import('./flowStateMachine');
+      const { assertValidTransition } = await import("./flowStateMachine");
       try {
-        assertValidTransition(project.status, 'onda1_solaris'); // BUG-UAT-07 fix: BUG-UAT-04 havia pulado onda1_solaris incorretamente
+        assertValidTransition(project.status, "onda1_solaris"); // BUG-UAT-07 fix: BUG-UAT-04 havia pulado onda1_solaris incorretamente
       } catch (err: any) {
         throw new TRPCError({
-          code: 'FORBIDDEN',
+          code: "FORBIDDEN",
           message: `Transição inválida: ${err.message}. Etapa indisponível. Conclua a etapa anterior.`,
         });
       }
       // Salvar respostas (upsert idempotente)
       await db.saveOnda1Answers(input.projectId, input.answers);
       // Avançar status do projeto para onda1_solaris (BUG-UAT-07 fix: restaura semântica correta)
-      await db.updateProject(input.projectId, { status: 'onda1_solaris' as any });
+      await db.updateProject(input.projectId, {
+        status: "onda1_solaris" as any,
+      });
 
       // G17 — Fire-and-forget: gerar gaps SOLARIS sem bloquear resposta ao frontend
-      void analyzeSolarisAnswers(input.projectId).catch((err) => {
-        console.error('[G17] analyzeSolarisAnswers falhou — pipeline V1 não afetado:', err);
+      void analyzeSolarisAnswers(input.projectId).catch(err => {
+        console.error(
+          "[G17] analyzeSolarisAnswers falhou — pipeline V1 não afetado:",
+          err
+        );
       });
 
       // G17-B — Trigger síncrono: derivar riscos a partir dos gaps SOLARIS
@@ -3747,13 +4785,13 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       // Erro no riskEngine NÃO bloqueia o fluxo — logar e continuar.
       try {
         // Buscar porte/regime do projeto para o score correto
-        const pool = mysql.createPool(process.env.DATABASE_URL ?? '');
-        const [projRows] = await pool.query<import('mysql2').RowDataPacket[]>(
-          'SELECT porte, regime FROM projects WHERE id = ?',
+        const pool = mysql.createPool(process.env.DATABASE_URL ?? "");
+        const [projRows] = await pool.query<import("mysql2").RowDataPacket[]>(
+          "SELECT porte, regime FROM projects WHERE id = ?",
           [input.projectId]
         );
         await pool.end();
-        const projData = (projRows as import('mysql2').RowDataPacket[])[0];
+        const projData = (projRows as import("mysql2").RowDataPacket[])[0];
         const gaps = await deriveRisksFromGaps(
           input.projectId,
           projData?.porte ?? null,
@@ -3762,24 +4800,28 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         if (gaps.length > 0) {
           await persistRisks(input.projectId, gaps);
         }
-        console.log(JSON.stringify({
-          event: 'g17b_risks_derived',
-          projectId: input.projectId,
-          risksCount: gaps.length,
-        }));
+        console.log(
+          JSON.stringify({
+            event: "g17b_risks_derived",
+            projectId: input.projectId,
+            risksCount: gaps.length,
+          })
+        );
       } catch (err) {
         // NÃO bloquear o fluxo — logar e continuar
-        console.log(JSON.stringify({
-          event: 'g17b_risk_engine_error',
-          projectId: input.projectId,
-          error: String(err),
-        }));
+        console.log(
+          JSON.stringify({
+            event: "g17b_risk_engine_error",
+            projectId: input.projectId,
+            error: String(err),
+          })
+        );
       }
 
       return {
         success: true,
         projectId: input.projectId,
-        newStatus: 'onda1_solaris', // BUG-UAT-07 fix
+        newStatus: "onda1_solaris", // BUG-UAT-07 fix
         answersCount: input.answers.length,
       };
     }),
@@ -3790,24 +4832,39 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
    * de status (não avança o projeto — isso é responsabilidade do completeOnda1).
    */
   saveSolarisAnswer: protectedProcedure
-    .input(z.object({
-      projectId: z.number().int().positive(),
-      questionId: z.number().int().positive(),
-      codigo: z.string().min(1).max(10),
-      answer: z.string(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number().int().positive(),
+        questionId: z.number().int().positive(),
+        codigo: z.string().min(1).max(10),
+        answer: z.string(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
-      await db.saveOnda1Answers(input.projectId, [{
-        questionId: input.questionId,
-        codigo: input.codigo,
-        resposta: input.answer,
-      }]);
+      await db.saveOnda1Answers(input.projectId, [
+        {
+          questionId: input.questionId,
+          codigo: input.codigo,
+          resposta: input.answer,
+        },
+      ]);
       return { saved: true };
     }),
   // ─── K-4-C: Onda 2 IA Generativa ──────────────────────────────────────────
@@ -3822,10 +4879,21 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
     .input(z.object({ projectId: z.number().int().positive() }))
     .query(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
 
       // ── Z-11: Ler todos os 5 JSONs do projeto ──────────────────────────
@@ -3834,12 +4902,14 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       const taxComplexity = project.taxComplexity as any;
       const financialProfile = project.financialProfile as any;
       const governanceProfile = project.governanceProfile as any;
-      const regime = companyProfile?.taxRegime ?? 'lucro_presumido';
-      const porte = companyProfile?.companySize ?? 'media';
+      const regime = companyProfile?.taxRegime ?? "lucro_presumido";
+      const porte = companyProfile?.companySize ?? "media";
       // Hotfix #1004: confirmedCnaes é Array<{code,description,confidence}>, não string[].
       // Antes do fix, cnaes.join(', ') produzia "[object Object], [object Object]" no prompt LLM.
-      const cnaes: string[] = ((project.confirmedCnaes as Array<{ code: string }> | null) ?? [])
-        .map((c) => c.code)
+      const cnaes: string[] = (
+        (project.confirmedCnaes as Array<{ code: string }> | null) ?? []
+      )
+        .map(c => c.code)
         .filter(Boolean);
       await logAudit({
         userId: ctx.user.id,
@@ -3850,7 +4920,8 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         action: "update",
         metadata: {
           subType: "onda2-iagen-cnae-resolution",
-          confirmedCnaes_count: ((project.confirmedCnaes as unknown[]) ?? []).length,
+          confirmedCnaes_count: ((project.confirmedCnaes as unknown[]) ?? [])
+            .length,
           cnaeCodes_extracted: cnaes,
           has_legacy_cnaes_field: "cnaes" in (project as object),
           cnaes_join_preview: cnaes.join(", ").slice(0, 100),
@@ -3862,18 +4933,29 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
       try {
         activeCategories = await listActiveCategories();
       } catch {
-        console.warn('[Z11-ONDA2] listActiveCategories falhou — usando todas');
+        console.warn("[Z11-ONDA2] listActiveCategories falhou — usando todas");
       }
       const relevantCats = filtrarCategoriasPorPerfil(activeCategories, {
-        companyProfile, operationProfile: opProfile, taxComplexity, financialProfile, governanceProfile,
+        companyProfile,
+        operationProfile: opProfile,
+        taxComplexity,
+        financialProfile,
+        governanceProfile,
       });
       const limitePerguntas = calcularLimitePerguntas(
-        companyProfile, opProfile, taxComplexity, financialProfile, governanceProfile,
+        companyProfile,
+        opProfile,
+        taxComplexity,
+        financialProfile,
+        governanceProfile
       );
-      const categoryList = relevantCats.length > 0
-        ? relevantCats.map((c) => `${c.codigo}: ${c.nome} (${c.artigo_base})`).join('\n')
-        : 'Usar categorias gerais da LC 214/2025';
-      const activeCodigos = new Set(activeCategories.map((c) => c.codigo));
+      const categoryList =
+        relevantCats.length > 0
+          ? relevantCats
+              .map(c => `${c.codigo}: ${c.nome} (${c.artigo_base})`)
+              .join("\n")
+          : "Usar categorias gerais da LC 214/2025";
+      const activeCodigos = new Set(activeCategories.map(c => c.codigo));
 
       // M3.7 Item 5 (REGRA-ORQ-29): FALLBACK_QUESTIONS hardcoded REMOVIDO.
       // Em falha de LLM ou < 3 perguntas válidas, retorna NO_QUESTION protocol
@@ -3885,30 +4967,63 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         const profileFields: string[] = [];
         profileFields.push(`Regime tributário: ${regime}`);
         profileFields.push(`Porte: ${porte}`);
-        profileFields.push(`CNAEs: ${cnaes.join(', ') || 'não informado'}`);
+        profileFields.push(`CNAEs: ${cnaes.join(", ") || "não informado"}`);
         // M3.6 (Issue #932) — descrição livre do negócio enriquece o prompt LLM (P1-1)
-        if (project.description) profileFields.push(`Descrição do negócio: ${project.description}`);
-        if (opProfile?.operationType) profileFields.push(`Tipo operação: ${opProfile.operationType}`);
-        if (opProfile?.clientType) profileFields.push(`Tipo cliente: ${Array.isArray(opProfile.clientType) ? opProfile.clientType.join(', ') : opProfile.clientType}`);
-        if (opProfile?.multiState !== undefined) profileFields.push(`Multiestadual: ${opProfile.multiState ? 'Sim' : 'Não'}`);
-        if (taxComplexity?.hasInternationalOps !== undefined) profileFields.push(`Operações internacionais: ${taxComplexity.hasInternationalOps ? 'Sim' : 'Não'}`);
-        if (taxComplexity?.usesTaxIncentives !== undefined) profileFields.push(`Usa incentivos fiscais: ${taxComplexity.usesTaxIncentives ? 'Sim' : 'Não'}`);
-        if (taxComplexity?.usesMarketplace !== undefined) profileFields.push(`Opera marketplace: ${taxComplexity.usesMarketplace ? 'Sim' : 'Não'}`);
-        if (financialProfile?.paymentMethods) profileFields.push(`Meios pagamento: ${Array.isArray(financialProfile.paymentMethods) ? financialProfile.paymentMethods.join(', ') : financialProfile.paymentMethods}`);
-        if (financialProfile?.hasIntermediaries !== undefined) profileFields.push(`Intermediários financeiros: ${financialProfile.hasIntermediaries ? 'Sim' : 'Não'}`);
-        if (governanceProfile?.hasTaxTeam !== undefined) profileFields.push(`Equipe tributária interna: ${governanceProfile.hasTaxTeam ? 'Sim' : 'Não'}`);
-        if (governanceProfile?.hasTaxIssues !== undefined) profileFields.push(`Passivo tributário: ${governanceProfile.hasTaxIssues ? 'Sim' : 'Não'}`);
-        if (governanceProfile?.hasAudit !== undefined) profileFields.push(`Auditoria fiscal: ${governanceProfile.hasAudit ? 'Sim' : 'Não'}`);
+        if (project.description)
+          profileFields.push(`Descrição do negócio: ${project.description}`);
+        if (opProfile?.operationType)
+          profileFields.push(`Tipo operação: ${opProfile.operationType}`);
+        if (opProfile?.clientType)
+          profileFields.push(
+            `Tipo cliente: ${Array.isArray(opProfile.clientType) ? opProfile.clientType.join(", ") : opProfile.clientType}`
+          );
+        if (opProfile?.multiState !== undefined)
+          profileFields.push(
+            `Multiestadual: ${opProfile.multiState ? "Sim" : "Não"}`
+          );
+        if (taxComplexity?.hasInternationalOps !== undefined)
+          profileFields.push(
+            `Operações internacionais: ${taxComplexity.hasInternationalOps ? "Sim" : "Não"}`
+          );
+        if (taxComplexity?.usesTaxIncentives !== undefined)
+          profileFields.push(
+            `Usa incentivos fiscais: ${taxComplexity.usesTaxIncentives ? "Sim" : "Não"}`
+          );
+        if (taxComplexity?.usesMarketplace !== undefined)
+          profileFields.push(
+            `Opera marketplace: ${taxComplexity.usesMarketplace ? "Sim" : "Não"}`
+          );
+        if (financialProfile?.paymentMethods)
+          profileFields.push(
+            `Meios pagamento: ${Array.isArray(financialProfile.paymentMethods) ? financialProfile.paymentMethods.join(", ") : financialProfile.paymentMethods}`
+          );
+        if (financialProfile?.hasIntermediaries !== undefined)
+          profileFields.push(
+            `Intermediários financeiros: ${financialProfile.hasIntermediaries ? "Sim" : "Não"}`
+          );
+        if (governanceProfile?.hasTaxTeam !== undefined)
+          profileFields.push(
+            `Equipe tributária interna: ${governanceProfile.hasTaxTeam ? "Sim" : "Não"}`
+          );
+        if (governanceProfile?.hasTaxIssues !== undefined)
+          profileFields.push(
+            `Passivo tributário: ${governanceProfile.hasTaxIssues ? "Sim" : "Não"}`
+          );
+        if (governanceProfile?.hasAudit !== undefined)
+          profileFields.push(
+            `Auditoria fiscal: ${governanceProfile.hasAudit ? "Sim" : "Não"}`
+          );
 
         // M3 NOVA-01: injetar arquétipo (Perfil da Entidade) como contexto adicional.
         // Backward-compat: arch=null → string vazia → comportamento atual preservado.
         const archCtx = getArchetypeContext(project.archetype as any);
-        if (archCtx) profileFields.push(`Perfil da Entidade (arquétipo M1): ${archCtx}`);
+        if (archCtx)
+          profileFields.push(`Perfil da Entidade (arquétipo M1): ${archCtx}`);
 
         const prompt = `Você é um gerador de perguntas diagnósticas tributárias para a Reforma Tributária brasileira (LC 214/2025).
 
 PERFIL DA EMPRESA:
-${profileFields.map(f => `- ${f}`).join('\n')}
+${profileFields.map(f => `- ${f}`).join("\n")}
 
 CATEGORIAS DE RISCO ATIVAS (use APENAS estas para risk_category_code):
 ${categoryList}
@@ -3934,38 +5049,54 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
 
         const llmPromise = invokeLLM({
           messages: [
-            { role: 'system', content: 'Você é um especialista em compliance tributário da Reforma Tributária brasileira. Responda sempre em JSON válido.' },
-            { role: 'user', content: prompt },
+            {
+              role: "system",
+              content:
+                "Você é um especialista em compliance tributário da Reforma Tributária brasileira. Responda sempre em JSON válido.",
+            },
+            { role: "user", content: prompt },
           ],
           temperature: 0.1, // REGRA-ORQ-30: max 0.1 (M3.7 Item 6 — Onda 2 IA Gen, geração textual)
           response_format: {
-            type: 'json_schema',
+            type: "json_schema",
             json_schema: {
-              name: 'onda2_questions',
+              name: "onda2_questions",
               strict: true,
               schema: {
-                type: 'object',
+                type: "object",
                 properties: {
                   perguntas: {
-                    type: 'array',
+                    type: "array",
                     items: {
-                      type: 'object',
+                      type: "object",
                       properties: {
-                        id: { type: 'string' },
-                        texto: { type: 'string' },
-                        objetivo_diagnostico: { type: 'string' },
-                        combinacao_gatilho: { type: 'string' },
-                        fonte: { type: 'string' },
-                        confidence_score: { type: 'number' },
-                        risk_category_code: { type: 'string' },
-                        used_profile_fields: { type: 'array', items: { type: 'string' } },
+                        id: { type: "string" },
+                        texto: { type: "string" },
+                        objetivo_diagnostico: { type: "string" },
+                        combinacao_gatilho: { type: "string" },
+                        fonte: { type: "string" },
+                        confidence_score: { type: "number" },
+                        risk_category_code: { type: "string" },
+                        used_profile_fields: {
+                          type: "array",
+                          items: { type: "string" },
+                        },
                       },
-                      required: ['id', 'texto', 'objetivo_diagnostico', 'combinacao_gatilho', 'fonte', 'confidence_score', 'risk_category_code', 'used_profile_fields'],
+                      required: [
+                        "id",
+                        "texto",
+                        "objetivo_diagnostico",
+                        "combinacao_gatilho",
+                        "fonte",
+                        "confidence_score",
+                        "risk_category_code",
+                        "used_profile_fields",
+                      ],
                       additionalProperties: false,
                     },
                   },
                 },
-                required: ['perguntas'],
+                required: ["perguntas"],
                 additionalProperties: false,
               },
             },
@@ -3974,31 +5105,36 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
 
         // Timeout 30s (Seção 9)
         const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('LLM timeout 30s')), 30_000)
+          setTimeout(() => reject(new Error("LLM timeout 30s")), 30_000)
         );
 
         const response = await Promise.race([llmPromise, timeoutPromise]);
         const content = (response as any).choices?.[0]?.message?.content;
-        if (!content) throw new Error('LLM retornou resposta vazia');
+        if (!content) throw new Error("LLM retornou resposta vazia");
 
         const parsed = JSON.parse(content);
         const perguntas = parsed.perguntas;
-        if (!Array.isArray(perguntas) || perguntas.length < 3) throw new Error('LLM retornou menos de 3 perguntas');
+        if (!Array.isArray(perguntas) || perguntas.length < 3)
+          throw new Error("LLM retornou menos de 3 perguntas");
 
         // Z-11: Validação pós-LLM
         const perguntasValidas = perguntas
           .filter((p: any) => {
-            if (activeCodigos.size > 0 && !activeCodigos.has(p.risk_category_code)) return false;
+            if (
+              activeCodigos.size > 0 &&
+              !activeCodigos.has(p.risk_category_code)
+            )
+              return false;
             if ((p.used_profile_fields?.length ?? 0) < 2) return false;
             return true;
           })
           .slice(0, limitePerguntas)
           .map((p: any, i: number) => ({
-            id: p.id ?? `ia-gen-${String(i + 1).padStart(3, '0')}`,
+            id: p.id ?? `ia-gen-${String(i + 1).padStart(3, "0")}`,
             texto: p.texto,
             objetivo_diagnostico: p.objetivo_diagnostico,
             combinacao_gatilho: p.combinacao_gatilho,
-            fonte: 'ia_gen' as const,
+            fonte: "ia_gen" as const,
             confidence_score: Number(p.confidence_score ?? 0.5),
             risk_category_code: p.risk_category_code as string,
             used_profile_fields: p.used_profile_fields as string[],
@@ -4007,24 +5143,31 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
         // M3.7 Item 5: NO_QUESTION protocol — sem requisito = sem pergunta
         // (era FALLBACK_QUESTIONS hardcoded; viola REGRA-ORQ-29 + Content Engine Rule #1)
         if (perguntasValidas.length < 3) {
-          console.warn(`[M3.7-ONDA2] Apenas ${perguntasValidas.length} perguntas válidas — NO_QUESTION protocol ativado`);
+          console.warn(
+            `[M3.7-ONDA2] Apenas ${perguntasValidas.length} perguntas válidas — NO_QUESTION protocol ativado`
+          );
           return {
             questions: [],
-            source: 'unavailable' as const,
-            motivo: 'insufficient_valid_questions',
-            alerta: 'Geração Onda 2 retornou abaixo do mínimo (3 perguntas válidas). Tente novamente.',
+            source: "unavailable" as const,
+            motivo: "insufficient_valid_questions",
+            alerta:
+              "Geração Onda 2 retornou abaixo do mínimo (3 perguntas válidas). Tente novamente.",
           };
         }
 
-        return { questions: perguntasValidas, source: 'llm' as const };
+        return { questions: perguntasValidas, source: "llm" as const };
       } catch (err: any) {
         // M3.7 Item 5: NO_QUESTION protocol em falha de LLM (era FALLBACK_QUESTIONS hardcoded)
-        console.error('[M3.7-ONDA2] generateOnda2Questions LLM error — NO_QUESTION protocol:', err?.message ?? err);
+        console.error(
+          "[M3.7-ONDA2] generateOnda2Questions LLM error — NO_QUESTION protocol:",
+          err?.message ?? err
+        );
         return {
           questions: [],
-          source: 'unavailable' as const,
-          motivo: 'llm_failure',
-          alerta: 'Geração de perguntas Onda 2 indisponível no momento. Tente novamente em instantes.',
+          source: "unavailable" as const,
+          motivo: "llm_failure",
+          alerta:
+            "Geração de perguntas Onda 2 indisponível no momento. Tente novamente em instantes.",
         };
       }
     }),
@@ -4034,50 +5177,73 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
    * Enforcement: assertValidTransition (Seção 8 + Seção 10).
    */
   completeOnda2: protectedProcedure
-    .input(z.object({
-      projectId: z.number().int().positive(),
-      // ADR-0016 Opção B: sem perguntas obrigatórias — array pode ser vazio, respostas podem ser string vazia
-      answers: z.array(z.object({
-        questionText: z.string(), // ADR-0016 MASP: removido .min(1) — consistência com resposta
-        resposta: z.string(), // ADR-0016 MASP: removido .min(1) — resposta vazia permitida
-        confidenceScore: z.number().min(0).max(1),
-        // Z-11: campos opcionais — compatíveis com frontend legado
-        risk_category_code: z.string().optional().nullable(),
-        used_profile_fields: z.array(z.string()).optional(),
-      })),
-      // Bloco D (Opção A): NCM/NBS como parâmetro temporário até Bloco E (schema de projetos)
-      // DECISÃO ARQUITETURAL: não persistidos no schema de projetos neste PR
-      ncmCodes: z.array(z.string()).optional().default([]),
-      nbsCodes: z.array(z.string()).optional().default([]),
-    }))
+    .input(
+      z.object({
+        projectId: z.number().int().positive(),
+        // ADR-0016 Opção B: sem perguntas obrigatórias — array pode ser vazio, respostas podem ser string vazia
+        answers: z.array(
+          z.object({
+            questionText: z.string(), // ADR-0016 MASP: removido .min(1) — consistência com resposta
+            resposta: z.string(), // ADR-0016 MASP: removido .min(1) — resposta vazia permitida
+            confidenceScore: z.number().min(0).max(1),
+            // Z-11: campos opcionais — compatíveis com frontend legado
+            risk_category_code: z.string().optional().nullable(),
+            used_profile_fields: z.array(z.string()).optional(),
+          })
+        ),
+        // Bloco D (Opção A): NCM/NBS como parâmetro temporário até Bloco E (schema de projetos)
+        // DECISÃO ARQUITETURAL: não persistidos no schema de projetos neste PR
+        ncmCodes: z.array(z.string()).optional().default([]),
+        nbsCodes: z.array(z.string()).optional().default([]),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
-      const { assertValidTransition } = await import('./flowStateMachine');
+      const { assertValidTransition } = await import("./flowStateMachine");
       try {
-        assertValidTransition(project.status, 'onda2_iagen'); // BUG-UAT-07 fix: BUG-UAT-05 havia pulado onda2_iagen incorretamente
+        assertValidTransition(project.status, "onda2_iagen"); // BUG-UAT-07 fix: BUG-UAT-05 havia pulado onda2_iagen incorretamente
       } catch (err: any) {
         throw new TRPCError({
-          code: 'FORBIDDEN',
+          code: "FORBIDDEN",
           message: `Transição inválida: ${err.message}. Conclua a Onda 2 antes de avançar.`,
         });
       }
-      await db.saveOnda2Answers(input.projectId, input.answers.map((a) => ({
-        questionText: a.questionText,
-        resposta: a.resposta,
-        confidenceScore: a.confidenceScore,
-        risk_category_code: a.risk_category_code ?? null,
-        used_profile_fields: a.used_profile_fields,
-        prompt_version: a.risk_category_code ? ONDA2_PROMPT_VERSION : undefined,
-      })));
-      await db.updateProject(input.projectId, { status: 'onda2_iagen' as any }); // BUG-UAT-07 fix: restaura semântica onda2_iagen
+      await db.saveOnda2Answers(
+        input.projectId,
+        input.answers.map(a => ({
+          questionText: a.questionText,
+          resposta: a.resposta,
+          confidenceScore: a.confidenceScore,
+          risk_category_code: a.risk_category_code ?? null,
+          used_profile_fields: a.used_profile_fields,
+          prompt_version: a.risk_category_code
+            ? ONDA2_PROMPT_VERSION
+            : undefined,
+        }))
+      );
+      await db.updateProject(input.projectId, { status: "onda2_iagen" as any }); // BUG-UAT-07 fix: restaura semântica onda2_iagen
       // Lote A (AUDIT-C-002): fire-and-forget — gera gaps a partir das respostas iagen
-      void analyzeIagenAnswers(input.projectId).catch((err) => {
-        console.error('[IAGEN-GAP] analyzeIagenAnswers falhou — pipeline não afetado:', err);
+      void analyzeIagenAnswers(input.projectId).catch(err => {
+        console.error(
+          "[IAGEN-GAP] analyzeIagenAnswers falhou — pipeline não afetado:",
+          err
+        );
       });
       // Lote B (Bloco E / CNT-01c): fire-and-forget — Decision Kernel engine (source='engine')
       // Bloco E: NCM/NBS lidos do operationProfile persistido (principaisProdutos/principaisServicos)
@@ -4087,17 +5253,30 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
         principaisServicos?: Array<{ nbs_code: string; descricao: string }>;
       } | null;
       const ncmFromProfile = extractNcmNbsFromProfile(opProfile);
-      const finalNcmCodes = ncmFromProfile.ncmCodes.length > 0 ? ncmFromProfile.ncmCodes : input.ncmCodes;
-      const finalNbsCodes = ncmFromProfile.nbsCodes.length > 0 ? ncmFromProfile.nbsCodes : input.nbsCodes;
+      const finalNcmCodes =
+        ncmFromProfile.ncmCodes.length > 0
+          ? ncmFromProfile.ncmCodes
+          : input.ncmCodes;
+      const finalNbsCodes =
+        ncmFromProfile.nbsCodes.length > 0
+          ? ncmFromProfile.nbsCodes
+          : input.nbsCodes;
       if (finalNcmCodes.length > 0 || finalNbsCodes.length > 0) {
-        void analyzeEngineGaps(input.projectId, finalNcmCodes, finalNbsCodes).catch((err) => {
-          console.error('[ENGINE-GAP] analyzeEngineGaps falhou — pipeline não afetado:', err);
+        void analyzeEngineGaps(
+          input.projectId,
+          finalNcmCodes,
+          finalNbsCodes
+        ).catch(err => {
+          console.error(
+            "[ENGINE-GAP] analyzeEngineGaps falhou — pipeline não afetado:",
+            err
+          );
         });
       }
       return {
         success: true,
         projectId: input.projectId,
-        newStatus: 'onda2_iagen', // BUG-UAT-07 fix
+        newStatus: "onda2_iagen", // BUG-UAT-07 fix
         answersCount: input.answers.length,
       };
     }),
@@ -4106,33 +5285,47 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
   // CODEOWNERS: exige aprovação do P.O. (Uires Tapajos)
   // ─────────────────────────────────────────────────────────────────────────
   updateOperationProfile: protectedProcedure
-    .input(z.object({
-      projectId: z.number(),
-      principaisProdutos: z.array(z.object({
-        ncm_code: z.string(),
-        descricao: z.string(),
-        percentualFaturamento: z.number().optional(),
-      })).optional(),
-      principaisServicos: z.array(z.object({
-        nbs_code: z.string(),
-        descricao: z.string(),
-        percentualFaturamento: z.number().optional(),
-      })).optional(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number(),
+        principaisProdutos: z
+          .array(
+            z.object({
+              ncm_code: z.string(),
+              descricao: z.string(),
+              percentualFaturamento: z.number().optional(),
+            })
+          )
+          .optional(),
+        principaisServicos: z
+          .array(
+            z.object({
+              nbs_code: z.string(),
+              descricao: z.string(),
+              percentualFaturamento: z.number().optional(),
+            })
+          )
+          .optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       const { projectId, principaisProdutos, principaisServicos } = input;
 
       // 1. Buscar projeto atual
       const projeto = await db.getProjectById(projectId);
-      if (!projeto) throw new TRPCError({ code: 'NOT_FOUND' });
+      if (!projeto) throw new TRPCError({ code: "NOT_FOUND" });
 
       // 2. Parse seguro do operationProfile
       let perfilAtual: Record<string, unknown> = {};
       const raw = (projeto as any).operationProfile;
       if (raw !== null && raw !== undefined) {
-        if (typeof raw === 'string') {
-          try { perfilAtual = JSON.parse(raw); } catch { perfilAtual = {}; }
-        } else if (typeof raw === 'object') {
+        if (typeof raw === "string") {
+          try {
+            perfilAtual = JSON.parse(raw);
+          } catch {
+            perfilAtual = {};
+          }
+        } else if (typeof raw === "object") {
           perfilAtual = raw as Record<string, unknown>;
         }
       }
@@ -4152,7 +5345,7 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
       // 5. Fire-and-forget engine APENAS se change material
       const produtosAntes = (perfilAtual.principaisProdutos as any[]) ?? [];
       const produtosDepois = (merged.principaisProdutos as any[]) ?? [];
-      const servicosAntes  = (perfilAtual.principaisServicos as any[]) ?? [];
+      const servicosAntes = (perfilAtual.principaisServicos as any[]) ?? [];
       const servicosDepois = (merged.principaisServicos as any[]) ?? [];
 
       const houveChangeMaterial =
@@ -4164,10 +5357,12 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
         const { ncmCodes, nbsCodes } = extractNcmNbsFromProfile(merged);
         if (ncmCodes.length > 0 || nbsCodes.length > 0) {
           // analyzeEngineGaps requer 3 parâmetros obrigatórios — NUNCA chamar com apenas projectId
-          void analyzeEngineGaps(projectId, ncmCodes, nbsCodes)
-            .catch(err =>
-              console.error('[ENGINE-GAP] falhou após updateOperationProfile:', err)
-            );
+          void analyzeEngineGaps(projectId, ncmCodes, nbsCodes).catch(err =>
+            console.error(
+              "[ENGINE-GAP] falhou após updateOperationProfile:",
+              err
+            )
+          );
         }
       }
 
@@ -4183,18 +5378,34 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
     .input(z.object({ projectId: z.number().int().positive() }))
     .query(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
 
       const op = (project as any).operationProfile ?? {};
-      const ncmCodes: string[] = (op.principaisProdutos ?? []).map((p: any) => p.ncm_code).filter(Boolean);
+      const ncmCodes: string[] = (op.principaisProdutos ?? [])
+        .map((p: any) => p.ncm_code)
+        .filter(Boolean);
       // Hotfix #1004: campo `cnaes` não existe — projeto usa `confirmedCnaes` (Array<{code,...}>).
       // Bug original: leitura de campo inexistente sempre retornava []; filtro CNAE virava código morto.
-      const cnaeCodes: string[] = (((project as any).confirmedCnaes as Array<{ code: string }> | null) ?? [])
-        .map((c) => c.code)
+      const cnaeCodes: string[] = (
+        ((project as any).confirmedCnaes as Array<{ code: string }> | null) ??
+        []
+      )
+        .map(c => c.code)
         .filter(Boolean);
       await logAudit({
         userId: ctx.user.id,
@@ -4205,26 +5416,38 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
         action: "update",
         metadata: {
           subType: "qncm-cnae-resolution",
-          confirmedCnaes_count: (((project as any).confirmedCnaes as unknown[]) ?? []).length,
+          confirmedCnaes_count: (
+            ((project as any).confirmedCnaes as unknown[]) ?? []
+          ).length,
           cnaeCodes_extracted: cnaeCodes,
           has_legacy_cnaes_field: "cnaes" in (project as object),
         },
       });
       // M3 hotfix NOVA-02: passar archetype para enriquecer RAG contextQuery
-      const companyProfile = { operationType: op.operationType, archetype: (project as any).archetype ?? null };
+      const companyProfile = {
+        operationType: op.operationType,
+        archetype: (project as any).archetype ?? null,
+      };
 
-      const result: QuestionResult = await generateProductQuestions(ncmCodes, cnaeCodes, companyProfile);
+      const result: QuestionResult = await generateProductQuestions(
+        ncmCodes,
+        cnaeCodes,
+        companyProfile
+      );
 
       // Z-02: grava em productAnswers (corrige BUG-MANUAL-02 — era corporateAnswers)
       // DIV-Z02-001 aplicada: assinatura real (ncmCodes, cnaeCodes, companyProfile)
-      if ('nao_aplicavel' in result) {
-        await db.updateProject(input.projectId, { status: 'q_produto' } as any);
+      if ("nao_aplicavel" in result) {
+        await db.updateProject(input.projectId, { status: "q_produto" } as any);
         // Hotfix #1006: propagar motivo + alerta para que o frontend distinga
         // corpus_gap_setorial (CorpusGapBanner V1) de nao_aplicavel padrão
         // (NaoAplicavelBanner). Antes do fix, ambos campos eram descartados,
         // forçando todo nao_aplicavel a renderizar NaoAplicavelBanner — bug
         // que mascarou Issue #997 V1 nos cenários 2 e 3 do E2E hotfix #1004.
-        const naoAplicavel = result as Extract<QuestionResult, { nao_aplicavel: true }>;
+        const naoAplicavel = result as Extract<
+          QuestionResult,
+          { nao_aplicavel: true }
+        >;
         return {
           nao_aplicavel: true as const,
           perguntas: [] as TrackedQuestion[],
@@ -4232,19 +5455,27 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
           alerta: naoAplicavel.alerta ?? null,
         };
       }
-      if ('perguntas' in result) {
+      if ("perguntas" in result) {
         await db.updateProject(input.projectId, {
           productAnswers: JSON.stringify(result.perguntas),
-          status: 'q_produto',
+          status: "q_produto",
         } as any);
-        return { nao_aplicavel: false as const, perguntas: result.perguntas, alerta: result.alerta };
+        return {
+          nao_aplicavel: false as const,
+          perguntas: result.perguntas,
+          alerta: result.alerta,
+        };
       }
       // result é TrackedQuestion[]
       await db.updateProject(input.projectId, {
         productAnswers: JSON.stringify(result),
-        status: 'q_produto',
+        status: "q_produto",
       } as any);
-      return { nao_aplicavel: false as const, perguntas: result as TrackedQuestion[], alerta: null };
+      return {
+        nao_aplicavel: false as const,
+        perguntas: result as TrackedQuestion[],
+        alerta: null,
+      };
     }),
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -4256,18 +5487,34 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
     .input(z.object({ projectId: z.number().int().positive() }))
     .query(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
 
       const op = (project as any).operationProfile ?? {};
-      const nbsCodes: string[] = (op.principaisServicos ?? []).map((s: any) => s.nbs_code).filter(Boolean);
+      const nbsCodes: string[] = (op.principaisServicos ?? [])
+        .map((s: any) => s.nbs_code)
+        .filter(Boolean);
       // Hotfix #1004: campo `cnaes` não existe — projeto usa `confirmedCnaes` (Array<{code,...}>).
       // Bug original: leitura de campo inexistente sempre retornava []; filtro CNAE virava código morto.
-      const cnaeCodes: string[] = (((project as any).confirmedCnaes as Array<{ code: string }> | null) ?? [])
-        .map((c) => c.code)
+      const cnaeCodes: string[] = (
+        ((project as any).confirmedCnaes as Array<{ code: string }> | null) ??
+        []
+      )
+        .map(c => c.code)
         .filter(Boolean);
       await logAudit({
         userId: ctx.user.id,
@@ -4278,24 +5525,36 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
         action: "update",
         metadata: {
           subType: "qnbs-cnae-resolution",
-          confirmedCnaes_count: (((project as any).confirmedCnaes as unknown[]) ?? []).length,
+          confirmedCnaes_count: (
+            ((project as any).confirmedCnaes as unknown[]) ?? []
+          ).length,
           cnaeCodes_extracted: cnaeCodes,
           has_legacy_cnaes_field: "cnaes" in (project as object),
         },
       });
       // M3 hotfix NOVA-02: passar archetype para enriquecer RAG contextQuery
-      const companyProfile = { operationType: op.operationType, archetype: (project as any).archetype ?? null };
+      const companyProfile = {
+        operationType: op.operationType,
+        archetype: (project as any).archetype ?? null,
+      };
 
-      const result: QuestionResult = await generateServiceQuestions(nbsCodes, cnaeCodes, companyProfile);
+      const result: QuestionResult = await generateServiceQuestions(
+        nbsCodes,
+        cnaeCodes,
+        companyProfile
+      );
 
       // Z-02: grava em serviceAnswers (corrige BUG-MANUAL-02 — era operationalAnswers)
-      if ('nao_aplicavel' in result) {
-        await db.updateProject(input.projectId, { status: 'q_servico' } as any);
+      if ("nao_aplicavel" in result) {
+        await db.updateProject(input.projectId, { status: "q_servico" } as any);
         // Hotfix #1006: propagar motivo + alerta — paridade arquitetural com Q.NCM.
         // Tech debt P3 registrado: QuestionarioServico.tsx ainda não consome motivo
         // (ignora corpus_gap_setorial). Backend pronto; alinhar frontend em sprint
         // futura quando Issue #997 V1 for ampliada para Q.NBS.
-        const naoAplicavel = result as Extract<QuestionResult, { nao_aplicavel: true }>;
+        const naoAplicavel = result as Extract<
+          QuestionResult,
+          { nao_aplicavel: true }
+        >;
         return {
           nao_aplicavel: true as const,
           perguntas: [] as TrackedQuestion[],
@@ -4303,19 +5562,27 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
           alerta: naoAplicavel.alerta ?? null,
         };
       }
-      if ('perguntas' in result) {
+      if ("perguntas" in result) {
         await db.updateProject(input.projectId, {
           serviceAnswers: JSON.stringify(result.perguntas),
-          status: 'q_servico',
+          status: "q_servico",
         } as any);
-        return { nao_aplicavel: false as const, perguntas: result.perguntas, alerta: result.alerta };
+        return {
+          nao_aplicavel: false as const,
+          perguntas: result.perguntas,
+          alerta: result.alerta,
+        };
       }
       // result é TrackedQuestion[]
       await db.updateProject(input.projectId, {
         serviceAnswers: JSON.stringify(result),
-        status: 'q_servico',
+        status: "q_servico",
       } as any);
-      return { nao_aplicavel: false as const, perguntas: result as TrackedQuestion[], alerta: null };
+      return {
+        nao_aplicavel: false as const,
+        perguntas: result as TrackedQuestion[],
+        alerta: null,
+      };
     }),
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -4329,16 +5596,25 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
   // Não bloqueia o fluxo — frontend pode chamar e prosseguir mesmo se falhar.
   // ───────────────────────────────────────────────────────────────────────────
   auditCnaeGapSkip: protectedProcedure
-    .input(z.object({
-      projectId: z.number().int().positive(),
-      cnaeCode: z.string(),
-      cnaeDescription: z.string().optional(),
-      operationType: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number().int().positive(),
+        cnaeCode: z.string(),
+        cnaeDescription: z.string().optional(),
+        operationType: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
       await logAudit({
         userId: ctx.user.id,
@@ -4367,15 +5643,24 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
   // Não bloqueia o fluxo — frontend pode chamar e prosseguir mesmo se falhar.
   // ───────────────────────────────────────────────────────────────────────────
   auditCorpusGapBypass: protectedProcedure
-    .input(z.object({
-      projectId: z.number().int().positive(),
-      ncmCodes: z.array(z.string()).default([]),
-      operationType: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        projectId: z.number().int().positive(),
+        ncmCodes: z.array(z.string()).default([]),
+        operationType: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
       await logAudit({
         userId: ctx.user.id,
@@ -4398,35 +5683,58 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
   // Persiste respostas do usuário em productAnswers e avança o status
   // ───────────────────────────────────────────────────────────────────────────
   completeProductQuestionnaire: protectedProcedure
-    .input(z.object({
-      projectId: z.number().int().positive(),
-      respostas: z.array(z.object({
-        pergunta_id: z.string(),
-        // fix(briefing 2026-04-20): texto da pergunta + NCM agora persistidos para alimentar buildProductServiceLayers/briefing LLM.
-        pergunta_texto: z.string().optional(),
-        ncm_code: z.string().optional(),
-        resposta: z.union([z.string(), z.boolean(), z.number()]),
-        fonte_ref: z.string().min(1, 'fonte_ref obrigatório — Contrato DEC-M3-05 Parte 1'),
-        lei_ref:   z.string().min(1, 'lei_ref obrigatório — Contrato DEC-M3-05 Parte 1'),
-      })),
-    }))
+    .input(
+      z.object({
+        projectId: z.number().int().positive(),
+        respostas: z.array(
+          z.object({
+            pergunta_id: z.string(),
+            // fix(briefing 2026-04-20): texto da pergunta + NCM agora persistidos para alimentar buildProductServiceLayers/briefing LLM.
+            pergunta_texto: z.string().optional(),
+            ncm_code: z.string().optional(),
+            resposta: z.union([z.string(), z.boolean(), z.number()]),
+            fonte_ref: z
+              .string()
+              .min(1, "fonte_ref obrigatório — Contrato DEC-M3-05 Parte 1"),
+            lei_ref: z
+              .string()
+              .min(1, "lei_ref obrigatório — Contrato DEC-M3-05 Parte 1"),
+          })
+        ),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
       // Invariante: fonte_ref e lei_ref não podem ser vazios (Contrato DEC-M3-05 Parte 1)
       for (const r of input.respostas) {
         if (!r.fonte_ref || !r.lei_ref) {
-          throw new TRPCError({ code: 'BAD_REQUEST', message: 'fonte_ref e lei_ref são obrigatórios em todas as respostas' });
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "fonte_ref e lei_ref são obrigatórios em todas as respostas",
+          });
         }
       }
       // Determinar próximo status (DIV-Z02-003: usar português)
       const op = (project as any).operationProfile ?? {};
-      const operationType: string = op.operationType ?? 'misto';
-      const { getNextStateAfterProductQ } = await import('./flowStateMachine');
+      const operationType: string = op.operationType ?? "misto";
+      const { getNextStateAfterProductQ } = await import("./flowStateMachine");
       const nextStatus = getNextStateAfterProductQ(operationType);
       await db.updateProject(input.projectId, {
         productAnswers: JSON.stringify(input.respostas),
@@ -4440,33 +5748,56 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
   // Persiste respostas do usuário em serviceAnswers e avança o status
   // ───────────────────────────────────────────────────────────────────────────
   completeServiceQuestionnaire: protectedProcedure
-    .input(z.object({
-      projectId: z.number().int().positive(),
-      respostas: z.array(z.object({
-        pergunta_id: z.string(),
-        // fix(briefing 2026-04-20): texto da pergunta + NBS agora persistidos para alimentar buildProductServiceLayers/briefing LLM.
-        pergunta_texto: z.string().optional(),
-        nbs_code: z.string().optional(),
-        resposta: z.union([z.string(), z.boolean(), z.number()]),
-        fonte_ref: z.string().min(1, 'fonte_ref obrigatório — Contrato DEC-M3-05 Parte 1'),
-        lei_ref:   z.string().min(1, 'lei_ref obrigatório — Contrato DEC-M3-05 Parte 1'),
-      })),
-    }))
+    .input(
+      z.object({
+        projectId: z.number().int().positive(),
+        respostas: z.array(
+          z.object({
+            pergunta_id: z.string(),
+            // fix(briefing 2026-04-20): texto da pergunta + NBS agora persistidos para alimentar buildProductServiceLayers/briefing LLM.
+            pergunta_texto: z.string().optional(),
+            nbs_code: z.string().optional(),
+            resposta: z.union([z.string(), z.boolean(), z.number()]),
+            fonte_ref: z
+              .string()
+              .min(1, "fonte_ref obrigatório — Contrato DEC-M3-05 Parte 1"),
+            lei_ref: z
+              .string()
+              .min(1, "lei_ref obrigatório — Contrato DEC-M3-05 Parte 1"),
+          })
+        ),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
       // Invariante: fonte_ref e lei_ref não podem ser vazios (Contrato DEC-M3-05 Parte 1)
       for (const r of input.respostas) {
         if (!r.fonte_ref || !r.lei_ref) {
-          throw new TRPCError({ code: 'BAD_REQUEST', message: 'fonte_ref e lei_ref são obrigatórios em todas as respostas' });
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "fonte_ref e lei_ref são obrigatórios em todas as respostas",
+          });
         }
       }
       // Sempre avança para diagnostico_cnae (DIV-Z02-003 não se aplica aqui)
-      const { getNextStateAfterServiceQ } = await import('./flowStateMachine');
+      const { getNextStateAfterServiceQ } = await import("./flowStateMachine");
       const nextStatus = getNextStateAfterServiceQ();
       await db.updateProject(input.projectId, {
         serviceAnswers: JSON.stringify(input.respostas),
@@ -4485,23 +5816,38 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
    * Adiciona questionId ao array solarisSkippedIds (JSON) se não presente.
    */
   skipSolarisQuestion: protectedProcedure
-    .input(z.object({
-      projectId: z.number().int().positive(),
-      questionId: z.string().min(1),
-    }))
+    .input(
+      z.object({
+        projectId: z.number().int().positive(),
+        questionId: z.string().min(1),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
       const currentSkipped: string[] = (() => {
         try {
           const raw = (project as any).solarisSkippedIds;
-          const parsed = JSON.parse(raw ?? '[]');
+          const parsed = JSON.parse(raw ?? "[]");
           return Array.isArray(parsed) ? parsed : [];
-        } catch { return []; }
+        } catch {
+          return [];
+        }
       })();
       if (!currentSkipped.includes(input.questionId)) {
         currentSkipped.push(input.questionId);
@@ -4518,23 +5864,38 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
    * Adiciona questionId ao array iagenSkippedIds (JSON) se não presente.
    */
   skipIagenQuestion: protectedProcedure
-    .input(z.object({
-      projectId: z.number().int().positive(),
-      questionId: z.string().min(1),
-    }))
+    .input(
+      z.object({
+        projectId: z.number().int().positive(),
+        questionId: z.string().min(1),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
       const currentSkipped: string[] = (() => {
         try {
           const raw = (project as any).iagenSkippedIds;
-          const parsed = JSON.parse(raw ?? '[]');
+          const parsed = JSON.parse(raw ?? "[]");
           return Array.isArray(parsed) ? parsed : [];
-        } catch { return []; }
+        } catch {
+          return [];
+        }
       })();
       if (!currentSkipped.includes(input.questionId)) {
         currentSkipped.push(input.questionId);
@@ -4552,42 +5913,55 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
    * Retorna { success, nextState, confidenceWarning }.
    */
   skipQuestionnaire: protectedProcedure
-    .input(z.object({
-      projectId: z.number().int().positive(),
-      questionnaire: z.enum(['solaris', 'iagen']),
-    }))
+    .input(
+      z.object({
+        projectId: z.number().int().positive(),
+        questionnaire: z.enum(["solaris", "iagen"]),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
       // Determinar próximo status com base no questionário pulado
-      const nextStateMap: Record<'solaris' | 'iagen', string> = {
-        solaris: 'onda1_solaris',  // pular SOLARIS → avança para onda1_solaris (marcado como completo)
-        iagen:   'onda2_iagen',   // pular IA Gen → avança para onda2_iagen (marcado como completo)
+      const nextStateMap: Record<"solaris" | "iagen", string> = {
+        solaris: "onda1_solaris", // pular SOLARIS → avança para onda1_solaris (marcado como completo)
+        iagen: "onda2_iagen", // pular IA Gen → avança para onda2_iagen (marcado como completo)
       };
       const nextState = nextStateMap[input.questionnaire];
       // Validar transição antes de persistir
-      const { assertValidTransition } = await import('./flowStateMachine');
+      const { assertValidTransition } = await import("./flowStateMachine");
       try {
         assertValidTransition(project.status, nextState);
       } catch (err: any) {
         throw new TRPCError({
-          code: 'FORBIDDEN',
+          code: "FORBIDDEN",
           message: `Transição inválida ao pular ${input.questionnaire}: ${err.message}`,
         });
       }
       // Persistir skip + avançar status
       const updateData: Record<string, unknown> = { status: nextState };
-      if (input.questionnaire === 'solaris') {
+      if (input.questionnaire === "solaris") {
         updateData.solarisSkippedAll = true;
       } else {
         updateData.iagenSkippedAll = true;
       }
       await db.updateProject(input.projectId, updateData as any);
-      const confidenceWarning = `Questionário ${input.questionnaire === 'solaris' ? 'SOLARIS (Onda 1)' : 'IA Gen (Onda 2)'} foi pulado — diagnóstico com confiança reduzida. Recomenda-se revisão manual antes da aprovação do briefing.`;
+      const confidenceWarning = `Questionário ${input.questionnaire === "solaris" ? "SOLARIS (Onda 1)" : "IA Gen (Onda 2)"} foi pulado — diagnóstico com confiança reduzida. Recomenda-se revisão manual antes da aprovação do briefing.`;
       return { success: true, nextState, confidenceWarning };
     }),
 
@@ -4606,20 +5980,40 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
     .input(z.object({ projectId: z.number().int().positive() }))
     .query(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
-      if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Projeto não encontrado' });
+      if (!project)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Projeto não encontrado",
+        });
       const hasAccess = await db.isUserInProject(ctx.user.id, input.projectId);
-      if (!hasAccess && ctx.user.role !== 'equipe_solaris' && ctx.user.role !== 'advogado_senior') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Sem acesso a este projeto' });
+      if (
+        !hasAccess &&
+        ctx.user.role !== "equipe_solaris" &&
+        ctx.user.role !== "advogado_senior"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Sem acesso a este projeto",
+        });
       }
 
       const solarisCount = await db.countOnda1Answers(input.projectId);
       const iagenCount = await db.countOnda2Answers(input.projectId);
       const parseJsonArr = (raw: any): any[] => {
         if (!raw) return [];
-        try { const p = typeof raw === "string" ? JSON.parse(raw) : raw; return Array.isArray(p) ? p : []; } catch { return []; }
+        try {
+          const p = typeof raw === "string" ? JSON.parse(raw) : raw;
+          return Array.isArray(p) ? p : [];
+        } catch {
+          return [];
+        }
       };
-      const productAnswersLen = parseJsonArr((project as any).productAnswers).length;
-      const serviceAnswersLen = parseJsonArr((project as any).serviceAnswers).length;
+      const productAnswersLen = parseJsonArr(
+        (project as any).productAnswers
+      ).length;
+      const serviceAnswersLen = parseJsonArr(
+        (project as any).serviceAnswers
+      ).length;
       const cnaeCount = await db.countCnaeAnswersV3(input.projectId);
 
       const answered: string[] = [];
@@ -4647,14 +6041,17 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
  * Usado em completeOnda2 para alimentar o Decision Kernel engine.
  * Projetos legados (sem principaisProdutos/principaisServicos) retornam arrays vazios.
  */
-export function extractNcmNbsFromProfile(operationProfile: unknown): { ncmCodes: string[]; nbsCodes: string[] } {
+export function extractNcmNbsFromProfile(operationProfile: unknown): {
+  ncmCodes: string[];
+  nbsCodes: string[];
+} {
   const profile = operationProfile as {
     principaisProdutos?: Array<{ ncm_code: string; descricao: string }>;
     principaisServicos?: Array<{ nbs_code: string; descricao: string }>;
   } | null;
   return {
-    ncmCodes: profile?.principaisProdutos?.map((p) => p.ncm_code) ?? [],
-    nbsCodes: profile?.principaisServicos?.map((s) => s.nbs_code) ?? [],
+    ncmCodes: profile?.principaisProdutos?.map(p => p.ncm_code) ?? [],
+    nbsCodes: profile?.principaisServicos?.map(s => s.nbs_code) ?? [],
   };
 }
 
@@ -4675,34 +6072,70 @@ function classifyInconsistenciaImpacto(inc: any): "alto" | "medio" | "baixo" {
     inc?.pergunta_origem ?? "",
     inc?.resposta_declarada ?? "",
     inc?.contradicao_detectada ?? "",
-  ].join(" ").toLowerCase();
+  ]
+    .join(" ")
+    .toLowerCase();
 
   const ALTO_KEYWORDS = [
-    "base de cálculo", "base de calculo", "ibs", "cbs", "imposto seletivo",
-    "fato gerador", "local da operação", "local da operacao",
-    "crédito", "credito", "alíquota", "aliquota",
-    "nf-e", "nfe", "nota fiscal",
-    "código de serviço", "codigo de servico", "código ncm", "codigo ncm",
-    "partilha", "interestadual",
+    "base de cálculo",
+    "base de calculo",
+    "ibs",
+    "cbs",
+    "imposto seletivo",
+    "fato gerador",
+    "local da operação",
+    "local da operacao",
+    "crédito",
+    "credito",
+    "alíquota",
+    "aliquota",
+    "nf-e",
+    "nfe",
+    "nota fiscal",
+    "código de serviço",
+    "codigo de servico",
+    "código ncm",
+    "codigo ncm",
+    "partilha",
+    "interestadual",
   ];
   const MEDIO_KEYWORDS = [
-    "obrigação acessória", "obrigacao acessoria", "sped", "efd",
-    "cadastro", "declaração", "declaracao", "escrituração", "escrituracao",
-    "erp", "sistema", "integração", "integracao",
+    "obrigação acessória",
+    "obrigacao acessoria",
+    "sped",
+    "efd",
+    "cadastro",
+    "declaração",
+    "declaracao",
+    "escrituração",
+    "escrituracao",
+    "erp",
+    "sistema",
+    "integração",
+    "integracao",
   ];
   const BAIXO_KEYWORDS = [
-    "treinamento", "capacitação", "capacitacao",
-    "documentação interna", "documentacao interna",
-    "governança", "governanca", "processo interno",
+    "treinamento",
+    "capacitação",
+    "capacitacao",
+    "documentação interna",
+    "documentacao interna",
+    "governança",
+    "governanca",
+    "processo interno",
   ];
 
-  if (ALTO_KEYWORDS.some((kw) => texto.includes(kw))) return "alto";
-  if (MEDIO_KEYWORDS.some((kw) => texto.includes(kw))) return "medio";
-  if (BAIXO_KEYWORDS.some((kw) => texto.includes(kw))) return "baixo";
+  if (ALTO_KEYWORDS.some(kw => texto.includes(kw))) return "alto";
+  if (MEDIO_KEYWORDS.some(kw => texto.includes(kw))) return "medio";
+  if (BAIXO_KEYWORDS.some(kw => texto.includes(kw))) return "baixo";
 
   // Default: manter o que LLM retornou se válido, senão médio (conservador)
   const llmImpacto = String(inc?.impacto ?? "").toLowerCase();
-  if (llmImpacto === "alto" || llmImpacto === "medio" || llmImpacto === "baixo") {
+  if (
+    llmImpacto === "alto" ||
+    llmImpacto === "medio" ||
+    llmImpacto === "baixo"
+  ) {
     return llmImpacto as "alto" | "medio" | "baixo";
   }
   return "medio";
@@ -4766,7 +6199,10 @@ export const BRIEFING_CONFIANCA_MIN = 85;
  * Exportado a partir do bundle #808-#811 para permitir testes unitários
  * diretos do template v2 sem stand-up de tRPC/DB.
  */
-export function buildBriefingMarkdown(structured: any, meta?: BriefingMarkdownMeta): string {
+export function buildBriefingMarkdown(
+  structured: any,
+  meta?: BriefingMarkdownMeta
+): string {
   if (getBriefingTemplateVersion() === "v1") {
     return buildBriefingMarkdownV1(structured);
   }
@@ -4798,7 +6234,7 @@ function buildBriefingMarkdownV1(structured: any): string {
     ``,
   ];
 
-  for (const gap of (structured.principais_gaps ?? [])) {
+  for (const gap of structured.principais_gaps ?? []) {
     lines.push(`### ${gap.gap}`);
     lines.push(`- **Causa Raiz:** ${gap.causa_raiz}`);
     lines.push(`- **Base Legal:** ${gap.evidencia_regulatoria}`);
@@ -4808,23 +6244,27 @@ function buildBriefingMarkdownV1(structured: any): string {
 
   lines.push(`## 3. Oportunidades`);
   lines.push(``);
-  for (const op of (structured.oportunidades ?? [])) {
+  for (const op of structured.oportunidades ?? []) {
     lines.push(`- ${op}`);
   }
   lines.push(``);
 
   lines.push(`## 4. Recomendações Prioritárias`);
   lines.push(``);
-  (structured.recomendacoes_prioritarias ?? []).forEach((rec: string, i: number) => {
-    lines.push(`${i + 1}. ${rec}`);
-  });
+  (structured.recomendacoes_prioritarias ?? []).forEach(
+    (rec: string, i: number) => {
+      lines.push(`${i + 1}. ${rec}`);
+    }
+  );
   lines.push(``);
 
   // V61: Alertas de inconsistência (condicional)
   if (structured.inconsistencias && structured.inconsistencias.length > 0) {
     lines.push(`## 5. Alertas de Inconsistência`);
     lines.push(``);
-    lines.push(`> ⚠️ As inconsistências abaixo foram detectadas nas respostas do questionário e requerem verificação.`);
+    lines.push(
+      `> ⚠️ As inconsistências abaixo foram detectadas nas respostas do questionário e requerem verificação.`
+    );
     lines.push(``);
     for (const inc of structured.inconsistencias) {
       lines.push(`### ${inc.contradicao_detectada}`);
@@ -4837,9 +6277,13 @@ function buildBriefingMarkdownV1(structured: any): string {
   // V61: Confidence score / Limites do diagnóstico
   const cs = structured.confidence_score;
   if (cs) {
-    lines.push(`## ${structured.inconsistencias?.length > 0 ? "6" : "5"}. Limites do Diagnóstico Automatizado`);
+    lines.push(
+      `## ${structured.inconsistencias?.length > 0 ? "6" : "5"}. Limites do Diagnóstico Automatizado`
+    );
     lines.push(``);
-    lines.push(`> **Nível de Confiança:** ${cs.nivel_confianca}% — ${cs.recomendacao}`);
+    lines.push(
+      `> **Nível de Confiança:** ${cs.nivel_confianca}% — ${cs.recomendacao}`
+    );
     lines.push(``);
     if (cs.limitacoes?.length > 0) {
       lines.push(`**Limitações identificadas:**`);
@@ -4890,7 +6334,10 @@ const SOURCE_TYPE_LABEL_V2: Record<string, string> = {
   regra_semantica: "⚙️ Regra semântica (gatilho)",
 };
 
-function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): string {
+function buildBriefingMarkdownV2(
+  structured: any,
+  meta: BriefingMarkdownMeta
+): string {
   const lines: string[] = [];
 
   // ─── Badge de maturidade (fix #810 + fix UAT 2026-04-21) ───────────────
@@ -4916,15 +6363,19 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
     lines.push(``);
   }
   if (meta.empresa) lines.push(`**Empresa:** ${meta.empresa}`);
-  if (meta.cnaePrincipal) lines.push(`**CNAE Principal:** ${meta.cnaePrincipal}`);
+  if (meta.cnaePrincipal)
+    lines.push(`**CNAE Principal:** ${meta.cnaePrincipal}`);
   const perfilParts: string[] = [];
   if (meta.porte) perfilParts.push(meta.porte);
   if (meta.regime) perfilParts.push(meta.regime);
   if (meta.faturamento) perfilParts.push(`faturamento ${meta.faturamento}`);
   if (meta.multiestadual) perfilParts.push(`multiestadual`);
-  if (perfilParts.length > 0) lines.push(`**Perfil:** ${perfilParts.join(" · ")}`);
-  if (meta.ncms && meta.ncms.length > 0) lines.push(`**NCMs:** ${meta.ncms.join(", ")}`);
-  if (meta.nbs && meta.nbs.length > 0) lines.push(`**NBS:** ${meta.nbs.join(", ")}`);
+  if (perfilParts.length > 0)
+    lines.push(`**Perfil:** ${perfilParts.join(" · ")}`);
+  if (meta.ncms && meta.ncms.length > 0)
+    lines.push(`**NCMs:** ${meta.ncms.join(", ")}`);
+  if (meta.nbs && meta.nbs.length > 0)
+    lines.push(`**NBS:** ${meta.nbs.join(", ")}`);
   // fix UAT 2026-04-21: removido "Qualidade das Informações" do header.
   // Motivo: gerava inconsistência com "Nível de Confiança" (fórmula v2 ponderada)
   // — usuário via 76% qualidade e 42% confiança e não entendia a diferença.
@@ -4961,15 +6412,21 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
   // ─── Top 3 Ações Prioritárias (fix #810 — antes do Resumo Executivo) ───
   // LLM destila 3 ações por severidade × urgência. Só renderiza se gaps >= 3
   // (critério de aceitação da issue #810) e se o LLM preencheu top_3_acoes.
-  const gapsHdr = Array.isArray(structured.principais_gaps) ? structured.principais_gaps : [];
-  const top3Arr = Array.isArray(structured.top_3_acoes) ? structured.top_3_acoes : [];
+  const gapsHdr = Array.isArray(structured.principais_gaps)
+    ? structured.principais_gaps
+    : [];
+  const top3Arr = Array.isArray(structured.top_3_acoes)
+    ? structured.top_3_acoes
+    : [];
   if (gapsHdr.length >= 3 && top3Arr.length > 0) {
     lines.push(`## 🎯 Top 3 Ações Prioritárias`);
     lines.push(``);
     top3Arr.slice(0, 3).forEach((item: any, i: number) => {
-      const prazoLabel = URGENCIA_LABEL_V2[item?.prazo] ?? (item?.prazo ?? "curto prazo");
+      const prazoLabel =
+        URGENCIA_LABEL_V2[item?.prazo] ?? item?.prazo ?? "curto prazo";
       lines.push(`${i + 1}. **${item?.acao ?? "(ação não fornecida)"}**`);
-      if (item?.justificativa) lines.push(`   - _Por quê:_ ${item.justificativa}`);
+      if (item?.justificativa)
+        lines.push(`   - _Por quê:_ ${item.justificativa}`);
       lines.push(`   - _Prazo:_ ${prazoLabel}`);
     });
     lines.push(``);
@@ -5001,9 +6458,12 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
     lines.push(`### Gap ${i + 1}. ${g.gap}`);
     lines.push(``);
     if (g.causa_raiz) lines.push(`- **Causa raiz:** ${g.causa_raiz}`);
-    if (g.evidencia_regulatoria) lines.push(`- **Base legal:** ${g.evidencia_regulatoria}`);
+    if (g.evidencia_regulatoria)
+      lines.push(`- **Base legal:** ${g.evidencia_regulatoria}`);
     if (g.urgencia) {
-      lines.push(`- **Urgência:** ${URGENCIA_LABEL_V2[g.urgencia] ?? g.urgencia}`);
+      lines.push(
+        `- **Urgência:** ${URGENCIA_LABEL_V2[g.urgencia] ?? g.urgencia}`
+      );
     }
     // fix #811: rastreabilidade de fonte (content engine regra #1).
     // Quando o LLM preenche source_type/source_reference, expõe ao usuário
@@ -5034,7 +6494,9 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
       lines.push(`- ${op}`);
     }
   } else {
-    lines.push(`_Nenhuma oportunidade específica identificada neste diagnóstico._`);
+    lines.push(
+      `_Nenhuma oportunidade específica identificada neste diagnóstico._`
+    );
   }
   lines.push(``);
   lines.push(`---`);
@@ -5043,9 +6505,11 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
   // ─── 4. Recomendações ──────────────────────────────────────────────────
   lines.push(`## 🔧 Recomendações Prioritárias`);
   lines.push(``);
-  (structured.recomendacoes_prioritarias ?? []).forEach((rec: string, i: number) => {
-    lines.push(`${i + 1}. ${rec}`);
-  });
+  (structured.recomendacoes_prioritarias ?? []).forEach(
+    (rec: string, i: number) => {
+      lines.push(`${i + 1}. ${rec}`);
+    }
+  );
   lines.push(``);
   lines.push(`---`);
   lines.push(``);
@@ -5053,9 +6517,13 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
   // ─── 5. Impactos (bloco fixo pedagógico) ──────────────────────────────
   lines.push(`## 📉 Impactos Potenciais (sem intervenção)`);
   lines.push(``);
-  lines.push(`- **Financeiro:** autuações, glosa de créditos, tributação indevida`);
+  lines.push(
+    `- **Financeiro:** autuações, glosa de créditos, tributação indevida`
+  );
   lines.push(`- **Operacional:** erros sistêmicos recorrentes, retrabalho`);
-  lines.push(`- **Jurídico:** constituição automática de débito tributário, perda de espontaneidade`);
+  lines.push(
+    `- **Jurídico:** constituição automática de débito tributário, perda de espontaneidade`
+  );
   lines.push(``);
 
   // ─── 6. Inconsistências (condicional) ─────────────────────────────────
@@ -5070,9 +6538,12 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
     );
     lines.push(``);
     for (const inc of inconsistencias) {
-      if (inc.contradicao_detectada) lines.push(`### ${inc.contradicao_detectada}`);
-      if (inc.pergunta_origem) lines.push(`- **Pergunta:** ${inc.pergunta_origem}`);
-      if (inc.resposta_declarada) lines.push(`- **Resposta declarada:** ${inc.resposta_declarada}`);
+      if (inc.contradicao_detectada)
+        lines.push(`### ${inc.contradicao_detectada}`);
+      if (inc.pergunta_origem)
+        lines.push(`- **Pergunta:** ${inc.pergunta_origem}`);
+      if (inc.resposta_declarada)
+        lines.push(`- **Resposta declarada:** ${inc.resposta_declarada}`);
       if (inc.impacto) lines.push(`- **Impacto:** ${inc.impacto}`);
       lines.push(``);
     }
@@ -5123,7 +6594,9 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
       // com campos nomeados, legível em qualquer renderer.
       for (const p of bd.pilares) {
         const completudePct = Math.round(p.completude * 100);
-        const contribStr = (Math.round(p.contribuicao * 10) / 10).toFixed(1).replace(".", ",");
+        const contribStr = (Math.round(p.contribuicao * 10) / 10)
+          .toFixed(1)
+          .replace(".", ",");
         let detalhe: string;
         if (p.key === "perfil") {
           const d = p.detalhe;
@@ -5139,21 +6612,24 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
           const codeLabel = p.key === "q3Produtos" ? "NCM" : "NBS";
           detalhe = formatQ3PilarDetalhe(p, codeLabel);
         } else {
-          detalhe = p.total != null
-            ? `${p.respostas}/${p.total} perguntas`
-            : p.respostas > 0 ? `${p.respostas} resp.` : `sem resposta`;
+          detalhe =
+            p.total != null
+              ? `${p.respostas}/${p.total} perguntas`
+              : p.respostas > 0
+                ? `${p.respostas} resp.`
+                : `sem resposta`;
         }
         if (!p.aplicavel) {
-          lines.push(
-            `- **${p.label}** — peso ${p.peso} · _não se aplica_`
-          );
+          lines.push(`- **${p.label}** — peso ${p.peso} · _não se aplica_`);
         } else {
           lines.push(
             `- **${p.label}** — peso **${p.peso}** · completude **${completudePct}%** (${detalhe}) · contribui **${contribStr}**`
           );
         }
       }
-      const totalStr = (Math.round(bd.contribuicaoTotal * 10) / 10).toFixed(1).replace(".", ",");
+      const totalStr = (Math.round(bd.contribuicaoTotal * 10) / 10)
+        .toFixed(1)
+        .replace(".", ",");
       lines.push(``);
       lines.push(
         `**Total aplicável:** Σ pesos = **${bd.pesoTotal}** · Σ contribuições = **${totalStr}**`
@@ -5197,7 +6673,9 @@ function buildBriefingMarkdownV2(structured: any, meta: BriefingMarkdownMeta): s
     `**Com respostas completas**, o briefing aproxima-se de um **diagnóstico da empresa**.`
   );
   lines.push(``);
-  lines.push(`> **Sem respostas: mapa regulatório. Com respostas: diagnóstico da empresa.**`);
+  lines.push(
+    `> **Sem respostas: mapa regulatório. Com respostas: diagnóstico da empresa.**`
+  );
   lines.push(``);
 
   // ─── Rodapé ────────────────────────────────────────────────────────────
