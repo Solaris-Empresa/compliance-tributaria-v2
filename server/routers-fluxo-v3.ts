@@ -69,6 +69,9 @@ import {
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
 import { deriveLeiFilterForRegime } from "./lib/lei-filter";
+// BUG-G1 (Sprint BUG-FIX 20/05/2026): artigos do prompt do briefing vêm de
+// risk_categories.artigo_base (decisão P.O. 18:16 — zero hard code).
+import { getArticleByCategory } from "./lib/riskCategoriesCache";
 // v2.1 T3: Adaptador de consolidação do diagnóstico em 3 camadas
 import {
   consolidateDiagnosticLayers,
@@ -1580,6 +1583,14 @@ Gere as perguntas no formato:
           ? `\n\nDADOS ADICIONAIS DO CLIENTE:\n${additionalSourcesContext.join("\n")}\n`
           : "";
 
+      // BUG-G1 (Sprint BUG-FIX 20/05/2026): artigos do prompt vêm de
+      // risk_categories.artigo_base (cache TTL 1h). Decisão P.O. 18:16.
+      // Fallback hardcoded mantido apenas como last-resort para DB indisponível.
+      const artigoIS_brief = await getArticleByCategory("imposto_seletivo");
+      const artigoCadastro_brief = await getArticleByCategory("inscricao_cadastral");
+      const artigoISCit_brief = artigoIS_brief ?? "Art. 2 LC 214/2025";
+      const artigoCadastroCit_brief = artigoCadastro_brief ?? "Art. 21 §1º LC 214/2025";
+
       // V60: Geração com retry + temperatura 0.2 + schema estruturado
       // fix(UX3 UAT 2026-04-20): contador de retries para propagar ao frontend
       let llmRetries = 0;
@@ -1619,25 +1630,30 @@ REGRA DE ARTIGOS CRÍTICOS — GATILHOS SEMÂNTICOS (issue #785 item F, fix UAT 
 Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORREÇÃO ou respostas, você DEVE gerar OPORTUNIDADE OU GAP citando o artigo específico listado, MESMO QUE o regulatoryContext acima não contenha o texto exato do artigo:
 
 1. EXPORTAÇÃO INTERNACIONAL (Art. 8 LC 214/2025 — imunidade):
+   - [BUG-G1 TODO: criar categoria 'exportacao' em risk_categories — artigo dinâmico]
    - Menções a países estrangeiros: Bolívia, Argentina, Paraguai, Uruguai, Chile, Peru, Colômbia, Venezuela, EUA, Estados Unidos, Canadá, México, Portugal, Espanha, Alemanha, França, Itália, Reino Unido, China, Japão, Coreia, Angola, Moçambique, qualquer país não-Brasil.
    - Termos: "exportação", "exportamos", "exporto", "mercado externo", "exterior", "cross-border", "operação internacional", "venda para fora", "transporte internacional", "importação" (para gap de crédito).
    - AÇÃO: gerar OPORTUNIDADE "Aplicação da imunidade tributária nas operações de exportação (Art. 8 LC 214/2025)" + GAP sobre controles e documentação fiscal de comprovação de exportação.
 
 2. CESTA BÁSICA / ALÍQUOTA ZERO (Art. 9 LC 214/2025):
+   - [BUG-G1 TODO: aliquota_zero — artigo pendente validação jurídica
+     (Art. 125 c/c Anexo I é candidato para cesta básica NCM-específica;
+      risk_categories.artigo_base atual = "Art. 14" — divergência semântica)]
    - NCMs explícitos na lista de cesta básica nacional: 1006 (arroz), 0713 (feijão), 0401 (leite), 0901 (café), 0802 (castanha), 1701 (açúcar), 1507 (óleo de soja), 0713.33 (feijão preto), 1101 (farinha de trigo), 0407 (ovos), 1104 (cereais processados).
    - Termos genéricos: "cesta básica", "alimentos básicos", "gêneros alimentícios essenciais".
    - AÇÃO: gerar OPORTUNIDADE "Enquadramento em alíquota zero / cesta básica nacional (Art. 9 LC 214/2025)" citando o(s) NCM(s) específico(s).
 
-3. IMPOSTO SELETIVO (Art. 2 LC 214/2025):
+3. IMPOSTO SELETIVO (${artigoISCit_brief}):
    - NCMs com potencial IS: 2202.10 (bebidas açucaradas), 2401-2403 (tabaco), 2710 (combustíveis fósseis), 2203-2208 (bebidas alcoólicas), 8703 (veículos).
    - Termos: "combustível", "álcool", "cigarro", "tabaco", "bebida açucarada", "refrigerante".
-   - AÇÃO: gerar GAP sobre avaliação de incidência do Imposto Seletivo (Art. 2 LC 214/2025) nos produtos comercializados.
+   - AÇÃO: gerar GAP sobre avaliação de incidência do Imposto Seletivo (${artigoISCit_brief}) nos produtos comercializados.
 
 4. IBS INTERESTADUAL (Art. 14 e 15 LC 214/2025):
+   - [BUG-G1 TODO: criar categoria 'ibs_interestadual' em risk_categories — artigo dinâmico]
    - Termos: "multiestadual", "interestadual", "outros estados", operação em mais de 1 UF (SP+RJ+MG etc).
    - AÇÃO: gerar GAP sobre parametrização de alíquotas IBS por UF/município de destino.
 
-5. INSCRIÇÃO CADASTRAL IBS/CBS (Art. 21 §1º LC 214/2025):
+5. INSCRIÇÃO CADASTRAL IBS/CBS (${artigoCadastroCit_brief}):
    - Sempre relevante para empresas com operação multiestadual ou porte médio/grande.
    - AÇÃO: gerar GAP sobre atualização cadastral no novo regime.
 
@@ -4062,6 +4078,13 @@ Gere o veredito final em JSON:
         "./ai-helpers"
       );
 
+      // BUG-G1 (Sprint BUG-FIX 20/05/2026): artigos vêm de risk_categories.
+      // Mesma estratégia da procedure generateBriefing (linha ~1583).
+      const artigoIS_fromDiag = await getArticleByCategory("imposto_seletivo");
+      const artigoCadastro_fromDiag = await getArticleByCategory("inscricao_cadastral");
+      const artigoISCit_fromDiag = artigoIS_fromDiag ?? "Art. 2 LC 214/2025";
+      const artigoCadastroCit_fromDiag = artigoCadastro_fromDiag ?? "Art. 21 §1º LC 214/2025";
+
       const structured = await genRetry(
         [
           {
@@ -4076,12 +4099,12 @@ RESPONSABILIDADES:
 5. Gerar confidence score honesto com limitações declaradas
 
 REGRA OBRIGATÓRIA — IMPOSTO SELETIVO (BUG-MANUAL-03 fix):
-- Quando identificar risco de Imposto Seletivo (IS), citar EXCLUSIVAMENTE Art. 2 da LC 214/2025.
+- Quando identificar risco de Imposto Seletivo (IS), citar EXCLUSIVAMENTE ${artigoISCit_fromDiag}.
 - O Art. 57 da LC 214/2025 trata de bens de uso/consumo pessoal — NÃO está relacionado ao IS.
 - NUNCA associar Art. 57 a riscos de IS. Se o contexto RAG trouxer Art. 57 em busca sobre IS, ignorar essa associação.
 
 REGRA OBRIGATÓRIA — QCNAE ESPECIALIZADO (ADR-0018):
-- Se os dados do cliente (tag <qcnae_especializado>) confirmam sujeição ao IS → incluir gap sobre IS e citar Art. 2 LC 214/2025.
+- Se os dados do cliente (tag <qcnae_especializado>) confirmam sujeição ao IS → incluir gap sobre IS e citar ${artigoISCit_fromDiag}.
 - Se os dados do cliente confirmam alíquota zero → incluir gap sobre alíquota zero e citar Art. 14 LC 214/2025.
 - Se os dados do cliente confirmam ST (substituição tributária) → incluir gap sobre transição ST e citar Art. 28 LC 214/2025.
 - Priorizar dados estruturados do cliente sobre inferências do LLM.
@@ -4114,25 +4137,30 @@ REGRA DE ARTIGOS CRÍTICOS — GATILHOS SEMÂNTICOS (issue #785 item F, fix UAT 
 Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORREÇÃO, QCNAE ou respostas de Onda 1/2/Q.Produtos/Q.Serviços, você DEVE gerar OPORTUNIDADE OU GAP citando o artigo específico, MESMO QUE o regulatoryContext acima não contenha o texto exato:
 
 1. EXPORTAÇÃO INTERNACIONAL (Art. 8 LC 214/2025 — imunidade):
+   - [BUG-G1 TODO: criar categoria 'exportacao' em risk_categories — artigo dinâmico]
    - Países estrangeiros: Bolívia, Argentina, Paraguai, Uruguai, Chile, Peru, Colômbia, Venezuela, EUA, Canadá, México, Portugal, Espanha, Alemanha, França, Itália, Reino Unido, China, Japão, Coreia, Angola, Moçambique, qualquer país não-Brasil.
    - Termos: "exportação", "exportamos", "mercado externo", "exterior", "operação internacional", "transporte internacional", "importação".
    - AÇÃO: gerar OPORTUNIDADE "Aplicação da imunidade em exportação (Art. 8 LC 214/2025)" + GAP de controles/documentação de comprovação.
 
 2. CESTA BÁSICA / ALÍQUOTA ZERO (Art. 9 LC 214/2025):
+   - [BUG-G1 TODO: aliquota_zero — artigo pendente validação jurídica
+     (Art. 125 c/c Anexo I é candidato para cesta básica NCM-específica;
+      risk_categories.artigo_base atual = "Art. 14" — divergência semântica)]
    - NCMs: 1006 (arroz), 0713 (feijão), 0401 (leite), 0901 (café), 0802 (castanha), 1701 (açúcar), 1507 (óleo de soja), 1101 (farinha de trigo), 0407 (ovos), 1104 (cereais processados).
    - Termos: "cesta básica", "alimentos básicos", "gêneros alimentícios essenciais".
    - AÇÃO: gerar OPORTUNIDADE "Enquadramento em alíquota zero / cesta básica (Art. 9 LC 214/2025)" citando o(s) NCM(s).
 
-3. IMPOSTO SELETIVO (Art. 2 LC 214/2025):
+3. IMPOSTO SELETIVO (${artigoISCit_fromDiag}):
    - NCMs: 2202.10 (bebidas açucaradas), 2401-2403 (tabaco), 2710 (combustíveis), 2203-2208 (bebidas alcoólicas), 8703 (veículos).
    - Termos: "combustível", "álcool", "cigarro", "bebida açucarada", "refrigerante".
-   - AÇÃO: gerar GAP sobre avaliação de IS (Art. 2 LC 214/2025).
+   - AÇÃO: gerar GAP sobre avaliação de IS (${artigoISCit_fromDiag}).
 
 4. IBS INTERESTADUAL (Art. 14 e 15 LC 214/2025):
+   - [BUG-G1 TODO: criar categoria 'ibs_interestadual' em risk_categories — artigo dinâmico]
    - Termos: "multiestadual", "interestadual", "outros estados", mais de 1 UF.
    - AÇÃO: gerar GAP sobre parametrização de alíquotas IBS por UF/município de destino.
 
-5. INSCRIÇÃO CADASTRAL IBS/CBS (Art. 21 §1º LC 214/2025):
+5. INSCRIÇÃO CADASTRAL IBS/CBS (${artigoCadastroCit_fromDiag}):
    - Relevante para multiestadual ou porte médio/grande.
    - AÇÃO: gerar GAP sobre atualização cadastral.
 
