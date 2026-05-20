@@ -479,9 +479,41 @@ export async function generateBriefing(
     [projectId]
   );
 
-  // 3. Buscar riscos
+  // 3. Buscar riscos — migrado de project_risks_v3 para risks_v4
+  // Issue BUG-A1 (#1124): risks_v4 é fonte de verdade desde Sprint Z-12 (ADR-0022).
+  // project_risks_v3 preservada read-only para projetos legados pré-migração.
+  // Aliases mantêm compatibilidade com filtros JS existentes no briefingEngine.
   const [risks] = await pool.query<mysql.RowDataPacket[]>(
-    `SELECT * FROM project_risks_v3 WHERE project_id = ? ORDER BY hybrid_score DESC`,
+    `SELECT
+       id,
+       rule_id              AS requirement_id,
+       rule_id              AS risk_code,
+       categoria            AS risk_dimension,
+       titulo,
+       descricao            AS description,
+       artigo,
+       CASE severidade
+         WHEN 'alta'         THEN 'alto'
+         WHEN 'media'        THEN 'medio'
+         WHEN 'oportunidade' THEN 'baixo'
+       END                  AS risk_level,
+       confidence           AS hybrid_score,
+       confidence           AS risk_score,
+       source_priority      AS origin,
+       COALESCE(rag_artigo_exato, artigo) AS source_reference,
+       NULL                 AS gap_id,
+       gap_detected,
+       rag_validated,
+       rag_confidence,
+       rag_trecho_legal,
+       evidence,
+       evidence_count
+     FROM risks_v4
+     WHERE project_id = ?
+       AND status = 'active'
+     ORDER BY
+       FIELD(severidade, 'alta', 'media', 'oportunidade'),
+       confidence DESC`,
     [projectId]
   );
 
@@ -566,7 +598,10 @@ export async function generateBriefing(
   const gapsOcultos = gaps.filter((g: any) => g.gap_classification === "oculto").length;
 
   const totalRisks = risks.length;
-  const risksCriticos = risks.filter((r: any) => r.risk_level === "critico").length;
+  // Issue BUG-A1: domínio v4 não tem 'critico'. Decisão P.O. (Opção A 2026-05-20 15:38):
+  // risksCriticos = severidade='alta' (mesma base de risksAltos — colapso intencional).
+  // Consequência: situacaoGeral será 'critica' para qualquer projeto com risco alto.
+  const risksCriticos = risks.filter((r: any) => r.risk_level === "alto").length;
   const risksAltos = risks.filter((r: any) => r.risk_level === "alto").length;
   const risksMedios = risks.filter((r: any) => r.risk_level === "medio").length;
   const risksBaixos = risks.filter((r: any) => r.risk_level === "baixo").length;
@@ -719,7 +754,7 @@ export async function generateBriefing(
         a.action_name || a.description || "Ação prioritária"
       ),
       prazo_critico_dias: prazoCritico,
-      fonte_dados: `project_gaps_v3 (${totalGaps} gaps) + project_risks_v3 (${totalRisks} riscos) + project_actions_v3 (${totalActions} ações)`,  // T-B7-08: nome real da tabela (não alias ORM)
+      fonte_dados: `project_gaps_v3 (${totalGaps} gaps) + risks_v4 (${totalRisks} riscos) + actionPlans (${totalActions} ações)`,  // BUG-A1: risks_v4 substitui project_risks_v3 (Sprint Z-12 ADR-0022)
     },
 
     section_perfil_regulatorio: {
@@ -794,8 +829,9 @@ export async function generateBriefing(
         source_reference: r.source_reference || "LC 214/2024",
         origin: r.origin || "direto",
       })),
-      financial_exposure_total: risks.reduce((sum: number, r: any) =>
-        sum + (Number(r.financial_impact_percent) || 0), 0),
+      // Issue BUG-A1: campo financial_impact_percent descontinuado em risks_v4.
+      // Decisão P.O. (Opção A 2026-05-20 15:38): manter chave do schema com valor 0.
+      financial_exposure_total: 0,
     },
 
     section_plano_acao: {
@@ -857,13 +893,14 @@ export async function persistBriefing(
 
   const traceabilityMap = {
     identificacao: ["projects", "clients"],
-    escopo: ["project_gaps_v3", "project_risks_v3", "project_actions_v3", "requirements_v3"],
-    resumo_executivo: ["project_risks_v3", "project_gaps_v3", "project_actions_v3"],
+    // Issue BUG-A1: project_risks_v3 substituída por risks_v4 (Sprint Z-12 ADR-0022)
+    escopo: ["project_gaps_v3", "risks_v4", "actionPlans", "requirements_v3"],
+    resumo_executivo: ["risks_v4", "project_gaps_v3", "actionPlans"],
     perfil_regulatorio: ["projects", "requirements_v3"],
     gaps: ["project_gaps_v3"],
-    riscos: ["project_risks_v3"],
-    plano_acao: ["project_actions_v3"],  // T-B7-10: nome real da tabela (não alias ORM)
-    proximos_passos: ["project_actions_v3"],
+    riscos: ["risks_v4"],
+    plano_acao: ["actionPlans"],
+    proximos_passos: ["actionPlans"],
   };
 
   const [result] = await pool.query<mysql.OkPacket>(
