@@ -2331,3 +2331,18 @@ CI vermelho e merge bloqueado pelo Passo 1.
 - REGRA-ORQ-11 (Hotfix P0) — única exceção permitida ao gate
 - REGRA-ORQ-26 (branch obrigatória) — fluxo upstream desta regra
 - `server/test-helpers.ts` — implementação dos helpers `dbDescribe`/`openaiDescribe`
+
+## REGRA-INGEST-01 — Contrato de Ingestão (19/05/2026)
+
+**Origem:** Lição #79 — incidente 12.577 chunks sem anchor_id/autor (sessão 19/05/2026)
+
+Todo INSERT em `ragDocuments` DEVE:
+1. Chamar `validateChunkBeforeInsert()` de `server/lib/ingest-validator.ts`
+2. Popular `anchor_id` no formato `{lei}-{artigo_slug}-id{id}`
+3. Popular `autor` no formato `{pipeline}-{sprint}-{data}`
+4. Garantir `conteudo` entre 10 e 5.000 chars (REGRA-ORQ-40)
+
+Scripts que violem esta regra são bloqueados pelo CI (`rag-quality-gate`) e
+rejeitados no code review.
+
+Ver contrato completo: `docs/governance/INGEST-CONTRACT.md`
