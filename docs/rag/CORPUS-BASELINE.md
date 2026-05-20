@@ -7,11 +7,13 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | **v7.0** |
+| Versão | **v8.0** |
 | Data | 19/05/2026 |
-| HEAD main | `ebf952b5` |
-| Total chunks | **16.119** |
+| HEAD main | `141b0821` |
+| Total chunks | **16.132** |
 | Total leis | **25** |
+| normative_service_rules (NBS) | **27 regras** (PR #1108) |
+| normative_product_rules Cap. 23 | **5 definitivas + 1 conservador** (PRs #1108/#1110) |
 
 ---
 
@@ -21,7 +23,7 @@
 |---|---|---|---|
 | tabela_ncm_completa | 10.030 | `''` (universal) | row-chunker NCM |
 | nbs_completa | 1.237 | `''` (universal) | row-chunker NBS |
-| lc214 | 1.574 | setorial (artigos 128–260) | section-chunker |
+| lc214 | 1.587 | setorial (artigos 128–260) | section-chunker (pós-surgery Art. 544 — PR #1109) |
 | decreto12955 | 831 | `''` (universal) | section-chunker |
 | lc227 | 434 | `''` (universal) | section-chunker |
 | moc_mdfe_v3 | 393 | `"49"` (transporte) | section-chunker |
@@ -44,7 +46,7 @@
 | portaria_mf_cgibs_7 | 2 | `''` (universal) | section-chunker |
 | resolucao_cgibs_3 | 1 | setorial | section-chunker |
 | resolucao_cgibs_2 | 1 | setorial | section-chunker |
-| **TOTAL** | **16.119** | — | — |
+| **TOTAL** | **16.132** | — | — |
 
 ---
 
@@ -54,7 +56,8 @@
 |---|---|---|---|---|---|
 | v5.3 | 14/05/2026 | 3.585 | 20 | baseline | Onda 1 completa |
 | v6.0 | 19/05/2026 | 4.852 | 23 | +1.267 / +3 leis | Onda 2 completa |
-| **v7.0** | **19/05/2026** | **16.119** | **25** | **+11.267 / +2 leis** | **NCM/NBS row-chunker** |
+| v7.0 | 19/05/2026 | 16.119 | 25 | +11.267 / +2 leis | NCM/NBS row-chunker |
+| **v8.0** | **19/05/2026** | **16.132** | **25** | **+13 / 0 leis** | **lc214 Art. 544 surgery (#1109) + normative_*_rules seed (#1108/#1110)** |
 
 ---
 
@@ -63,9 +66,23 @@
 | Lei | Veredicto | Escopo auditado | Observação |
 |---|---|---|---|
 | decreto12955 | ✅ **MANTER** | 100% (831 chunks) | avg 1.045 · max 2.000 · 0 outliers |
-| lc214 | ⚠️ **INCONCLUSIVO** (parcial: MANTER) | ~50% (792/1.574) | max 22.904 (1 outlier) · query §4 pendente Manus |
+| lc214 | ✅ **SURGERY APLICADA** | parte 15 (Anexo XI) deletada + 4 oversize split em 18 sub-chunks | net +13 chunks (1.574→1.587); PR #1109 |
 
 > Laudo completo: `docs/rag/RECHUNKING-AUDIT-lc214-decreto12955.md` (PR #1104)
+> Surgery executada per laudo §4: `scripts/fix-lc214-art544-chunks.ts` (PR #1109)
+
+---
+
+## Regras Normativas (normative_*_rules)
+
+| Tabela | Linhas | Origem |
+|---|---|---|
+| `normative_service_rules` (NBS) | **27** | curadoria jurídica 19/05/2026 (PR #1108) |
+| `normative_product_rules` Cap. 23 | **5 definitivas + 1 conservador** | base: Art. 138 LC 214 + Anexo IX + Art. 213 Decreto 12.955 (PRs #1108 conservador → #1110 definitivos) |
+
+Cap. 23 detalhe:
+- ✅ `aliquota_reduzida_60`: 2304.00.10, 2306.10.00, 2302.*, 2303.*, 2309.* (Anexo IX itens 6 e 18)
+- ⏸️ `tratamento_agropecuario_especifico_pendente` (conservador): 2301.* (NÃO está em Anexo IX — inconclusivo per anti-alucinação REGRA-ORQ-29)
 
 ---
 
@@ -74,5 +91,5 @@
 | Item | Status |
 |---|---|
 | lc214 auditoria completa (§4) | ⚠️ Aguarda query SQL Manus no TiDB prod |
-| normative_service_rules (seed NBS) | ⏳ Aguarda curadoria jurídica |
-| normative_product_rules Cap. 23 (NCMs soja) | ⏳ Aguarda parecer jurídico |
+| normative_product_rules — 2301.* | ⏸️ Conservador definitivo (não está em Anexo IX) |
+| `rag-corpus-lcs-novas.ts` sync com surgery PR #1109 | 🟠 Tech debt — re-ingest restauraria bug (PR follow-up planejado) |
