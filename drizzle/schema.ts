@@ -1908,6 +1908,13 @@ export const riskCategories = mysqlTable("risk_categories", {
   ruleCode:        varchar("rule_code", { length: 64 }),
   // Sprint Z-12 — migration 0073: descrição jurídica da categoria
   descricao:       text("descricao"),
+  // Sprint BUG-FIX 20/05/2026 — migration 0099 (Issue BUG-D1+L1)
+  // Governança normativa: bundle de artigos + natureza + confiança + status + leis-fonte
+  normativeBundle: json("normative_bundle").$type<string[] | null>(),
+  natureType:      varchar("nature_type", { length: 50 }),
+  legalConfidence: varchar("legal_confidence", { length: 10 }),
+  normativeStatus: varchar("normative_status", { length: 30 }).default("pending_document"),
+  sourceBasis:     json("source_basis").$type<string[] | null>(),
 }, (table) => ({
   codigoIdx:  index("idx_risk_categories_codigo").on(table.codigo),
   statusIdx:  index("idx_risk_categories_status").on(table.status),
