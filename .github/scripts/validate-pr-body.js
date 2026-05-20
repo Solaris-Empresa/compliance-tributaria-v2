@@ -6,6 +6,40 @@
 const body = process.env.PR_BODY || '';
 const errors = [];
 
+// ─── 0. Exceção docs-only — skip integral ─────────────────────────────────
+// Tech debt: PRs documentais (laudos, auditorias, CORPUS-BASELINE) tinham que
+// preencher template completo (## Objetivo, JSON evidence, Q1–Q5) — overhead
+// desproporcional para diff exclusivo em docs/**. Workaround estabelecido era
+// admin-override (PRs #1106, #1107, #1109, #1110, #1111).
+//
+// Critério: PR tem label `docs` E todos os arquivos alterados estão em
+// `docs/**`. Qualquer arquivo fora de docs/** → gate normal.
+// Sem label `docs` → comportamento inalterado.
+//
+// Requer env vars do workflow:
+//   PR_LABELS         — JSON array de objetos { name } (toJson da API)
+//   ALL_CHANGED_FILES — lista space-separated (tj-actions/changed-files)
+let isDocsPR = false;
+try {
+  const labels = JSON.parse(process.env.PR_LABELS || '[]')
+    .map(l => (typeof l === 'string' ? l : l.name))
+    .filter(Boolean);
+  const changedFiles = (process.env.ALL_CHANGED_FILES || '')
+    .split(/\s+/)
+    .filter(Boolean);
+  isDocsPR =
+    labels.includes('docs') &&
+    changedFiles.length > 0 &&
+    changedFiles.every(f => f.startsWith('docs/'));
+} catch (_e) {
+  // fallback silencioso: env malformada → comportamento normal
+  isDocsPR = false;
+}
+if (isDocsPR) {
+  console.log('✅ PR docs-only (label=docs + diff exclusivo em docs/**) — template completo dispensado.');
+  process.exit(0);
+}
+
 // ─── 1. Seções obrigatórias do template ───────────────────────────────────
 const requiredSections = [
   '## Objetivo',

@@ -216,6 +216,8 @@ jobs:
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels) }}
+          ALL_CHANGED_FILES: ${{ steps.files.outputs.all_changed_files }}
         run: node .github/scripts/validate-pr-body.js
       - name: Guard critical files
         env:

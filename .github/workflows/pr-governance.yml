@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Get changed files
+        id: files
+        uses: tj-actions/changed-files@v44
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -17,6 +20,8 @@ jobs:
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels) }}
+          ALL_CHANGED_FILES: ${{ steps.files.outputs.all_changed_files }}
         run: node .github/scripts/validate-pr-body.js
 
   guard-critical-files:
