@@ -143,3 +143,24 @@ jobs:
             } else {
               core.info('✅ Artefato de evidência referenciado no PR.');
             }
+
+      - name: Validate ingest scripts use REGRA-INGEST-01
+        run: |
+          echo "Verificando scripts de ingestão para campos obrigatórios..."
+          SCRIPTS=$(find scripts/ server/ -name "ingest-*.mjs" -o -name "ingest-*.ts" -o -name "rag-ingest-*.mjs" 2>/dev/null || true)
+          FAIL=0
+          for f in $SCRIPTS; do
+            if ! grep -q "anchor_id" "$f"; then
+              echo "::error file=$f::REGRA-INGEST-01: script sem anchor_id"
+              FAIL=1
+            fi
+            if ! grep -q "autor" "$f"; then
+              echo "::error file=$f::REGRA-INGEST-01: script sem autor"
+              FAIL=1
+            fi
+          done
+          if [ "$FAIL" -eq 1 ]; then
+            echo "Scripts de ingestão violam REGRA-INGEST-01. Ver docs/governance/INGEST-CONTRACT.md"
+            exit 1
+          fi
+          echo "✅ Todos os scripts de ingestão satisfazem REGRA-INGEST-01"
