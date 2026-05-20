@@ -1443,6 +1443,35 @@ export default function QuestionarioV3() {
                     operationType:
                       ((project as any)?.operationProfile?.operationType as string | undefined) ?? undefined,
                   });
+
+                  // BUG-Q1 (Sprint BUG-FIX 20/05/2026): quando hasGap=true e o usuário
+                  // clica "Avançar", o CNAE foi processado (mesmo sem perguntas) e
+                  // precisa ser marcado como tal — caso contrário cnaeProgress[i] sai
+                  // com {answers: [], nivel1Done: false}, fazendo o consumer downstream
+                  // (cálculo de confiança, briefing) tratar o CNAE como "pendente".
+                  //
+                  // Caso edge: se o usuário começou a responder ANTES do hasGap virar
+                  // true (ex: re-render assíncrono pós-saveAnswer), as respostas já
+                  // estão em questionnaireAnswersV3. Reconciliamos via helper idempotente
+                  // (extractAnswersForCnae) — se houver respostas salvas, popula state.
+                  const savedForCurrent = extractAnswersForCnae(
+                    savedProgress?.answers ?? [],
+                    currentCnae.code,
+                    "nivel1",
+                  );
+                  setCnaeProgress(prev => prev.map((c, i) =>
+                    i === currentCnaeIdx
+                      ? {
+                          ...c,
+                          nivel1Done: true,                                  // BUG-Q1: CNAE processado
+                          skipped: true,                                     // BUG-Q1: skipped por hasGap
+                          answers: savedForCurrent.length > 0
+                            ? savedForCurrent                                // caso edge: respostas pré-existentes
+                            : (c.answers ?? []),                             // caso normal: array vazio (correto)
+                        }
+                      : c
+                  ));
+
                   setHasGapForCurrentCnae(false);
                   advanceToNextCnae(cnaes.length);
                 }}
