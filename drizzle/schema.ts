@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, text, boolean, timestamp, mysqlEnum, decimal, json, bigint, tinyint, index, float } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, varchar, text, boolean, timestamp, mysqlEnum, decimal, json, bigint, tinyint, index, uniqueIndex, float } from "drizzle-orm/mysql-core";
 
 /**
  * Tabela de usuários - IA SOLARIS
@@ -1764,7 +1764,13 @@ export const solarisAnswers = mysqlTable("solaris_answers", {
   fonte:      varchar("fonte", { length: 20 }).default("solaris"),
   createdAt:  bigint("created_at", { mode: "number" }).notNull(),
   updatedAt:  bigint("updated_at", { mode: "number" }).notNull(),
-});
+}, (table) => ({
+  // Migration 0098 — UNIQUE INDEX (project_id, codigo)
+  // Habilita o ON DUPLICATE KEY UPDATE de saveOnda1Answers (db.ts:1416-1421)
+  // que sem a constraint cria duplicatas silenciosamente.
+  uqProjectCodigo: uniqueIndex("idx_solaris_answers_project_codigo")
+    .on(table.projectId, table.codigo),
+}));
 
 export type SolarisAnswer = typeof solarisAnswers.$inferSelect;
 export type InsertSolarisAnswer = typeof solarisAnswers.$inferInsert;
