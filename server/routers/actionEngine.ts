@@ -1,4 +1,17 @@
 /**
+ * @deprecated v3 legacy engine — zero callers em produção.
+ * Pipeline canônico: risksV4.bulkGenerateActionPlans (server/routers/risks-v4.ts:1107)
+ * Frontend: RiskDashboardV4.tsx:803,1176
+ * Mantido apenas para histórico/auditoria. NÃO usar em código novo.
+ * Deprecated em: 2026-05-20 (TECH-A1) — Issue #XXXX
+ *
+ * Motivação da deprecação:
+ *   - Lê `project_risks_v3` (tabela zerada após PR #1125 BUG-A1)
+ *   - Escreve em `project_actions_v3` (legacy — frontend não consome)
+ *   - Pipeline v4 (`bulkGenerateActionPlans`) já cobre o caso de uso desde Sprint Z-14 Fix B-02
+ *   - Frontend já consome v4 exclusivamente via `trpc.risksV4.bulkGenerateActionPlans`
+ *
+ * ─── Histórico original ─────────────────────────────────────────────────────
  * Action Engine — B6 (Sprint 98% Confidence)
  * ADR-010 — Arquitetura canônica de conteúdo diagnóstico
  *

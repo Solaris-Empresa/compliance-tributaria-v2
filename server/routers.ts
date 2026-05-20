@@ -69,7 +69,10 @@ import { requirementEngineRouter } from "./routers/requirementEngine";
 import { questionEngineRouter } from "./routers/questionEngine";
 import { gapEngineRouter } from "./routers/gapEngine";
 import { riskEngineRouter } from "./routers/riskEngine";
-import { actionEngineRouter } from "./routers/actionEngine";
+// TECH-A1 2026-05-20: actionEngine v3 deprecated. Pipeline canônico: risksV4.bulkGenerateActionPlans.
+// Import preservado para que `pnpm check` continue validando o módulo, mas registro no router removido (ver L122).
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { actionEngineRouter as _actionEngineRouter_DEPRECATED } from "./routers/actionEngine";
 import { briefingEngineRouter } from "./routers/briefingEngine";
 import { ragInventoryRouter } from "./routers/ragInventory";
 import { ragAdminRouter } from "./routers/ragAdmin";
@@ -119,7 +122,10 @@ export const appRouter = router({
   questionEngine: questionEngineRouter, // ADR-010 — Question Engine B3 (Sprint 98%)
   gapEngine: gapEngineRouter, // ADR-010 — Gap Engine B4 (Sprint 98%)
   riskEngine: riskEngineRouter, // ADR-010 — Risk Engine B5 (Sprint 98%)
-  actionEngine: actionEngineRouter, // ADR-010 — Action Engine B6 (Sprint 98%)
+  // DEPRECATED 2026-05-20 (TECH-A1): actionEngine v3 removido do router.
+  // Pipeline canônico: risksV4.bulkGenerateActionPlans (risks-v4.ts:1107)
+  // Frontend já consome v4 exclusivamente — sem callers do v3 em produção.
+  // actionEngine: _actionEngineRouter_DEPRECATED,
   briefingEngine: briefingEngineRouter, // ADR-010 — Briefing Engine B7 (Sprint 98%)
   ragInventory: ragInventoryRouter, // Sprint H — RAG Cockpit ao vivo (Issue #128)
   ragAdmin: ragAdminRouter, // Sprint J — G16 Upload CSV corpus RAG (Issue #140)
