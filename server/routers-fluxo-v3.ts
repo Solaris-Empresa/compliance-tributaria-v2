@@ -4779,44 +4779,32 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         );
       });
 
-      // G17-B — Trigger síncrono: derivar riscos a partir dos gaps SOLARIS
-      // Executado APÓS analyzeSolarisAnswers (fire-and-forget) para garantir que
-      // os gaps já estejam gravados antes de chamar o riskEngine.
-      // Erro no riskEngine NÃO bloqueia o fluxo — logar e continuar.
-      try {
-        // Buscar porte/regime do projeto para o score correto
-        const pool = mysql.createPool(process.env.DATABASE_URL ?? "");
-        const [projRows] = await pool.query<import("mysql2").RowDataPacket[]>(
-          "SELECT porte, regime FROM projects WHERE id = ?",
-          [input.projectId]
-        );
-        await pool.end();
-        const projData = (projRows as import("mysql2").RowDataPacket[])[0];
-        const gaps = await deriveRisksFromGaps(
-          input.projectId,
-          projData?.porte ?? null,
-          projData?.regime ?? null
-        );
-        if (gaps.length > 0) {
-          await persistRisks(input.projectId, gaps);
-        }
-        console.log(
-          JSON.stringify({
-            event: "g17b_risks_derived",
-            projectId: input.projectId,
-            risksCount: gaps.length,
-          })
-        );
-      } catch (err) {
-        // NÃO bloquear o fluxo — logar e continuar
-        console.log(
-          JSON.stringify({
-            event: "g17b_risk_engine_error",
-            projectId: input.projectId,
-            error: String(err),
-          })
-        );
-      }
+      // G17-B DESATIVADO — Issue BUG-A1 (#1124) Sprint BUG-FIX 20/05/2026
+      // ─────────────────────────────────────────────────────────────────
+      // Histórico: este bloco invocava `deriveRisksFromGaps` → `persistRisks`
+      // que escrevia em `project_risks_v3` (engine v1). Desde Sprint Z-12
+      // (ADR-0022 Hot Swap Risk Engine v4), o pipeline canônico é `risks_v4`
+      // populado por `risksV4.generateRisks*` consumidos pelo frontend via
+      // `risks-v4.listRisks` → `RiskDashboardV4`. O briefingEngine também
+      // foi migrado para ler `risks_v4` neste mesmo PR.
+      //
+      // Auditoria empírica (Bloco A, 2026-05-20T14:55Z):
+      //   - project_risks_v3: 39 rows, 3 projetos, sem FKs externas
+      //   - risks_v4: 163 rows, 19 projetos (95% dos casos)
+      //   - Único reader em produção pós-BUG-A1: actionEngine.ts:348
+      //     (será migrado em sprint futura — fora do escopo deste PR)
+      //
+      // Imports preservados (L64) porque testes em g17b-solaris-pipeline.test.ts
+      // e routers-risk-engine.test.ts ainda compilam com a função.
+      // ─────────────────────────────────────────────────────────────────
+      console.log(
+        JSON.stringify({
+          event: "g17b_deactivated",
+          issue: "BUG-A1 #1124",
+          projectId: input.projectId,
+          note: "project_risks_v3 write desativado — risks_v4 é fonte de verdade desde Z-12",
+        })
+      );
 
       return {
         success: true,
