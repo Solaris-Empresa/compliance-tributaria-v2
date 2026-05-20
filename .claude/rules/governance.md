@@ -2368,3 +2368,17 @@ Toda referência a "step X" em specs de CI DEVE:
 
 **Violação detectada:** Spec do PR #1114 referenciou step "chunk-size" inexistente.
 **Resolução:** Claude Code adaptou corretamente (Lição #80).
+
+## REGRA-ORQ-FILENAME-01 — Migrations em tabelas com "rag" no nome (20/05/2026)
+
+**Origem:** PR #1116 Gate 0 — achado empírico
+
+O guard `touchesRag` usa regex `f.toLowerCase().includes('rag')` (case-insensitive substring).
+Qualquer arquivo `.sql` numerado com "rag" no nome dispara `REGRA 5 hard-block` quando
+combinado com `touchesMigration` (.sql numerado, schema.ts, drizzle/).
+
+**Regra:** Migrations DDL em tabelas cujo nome contém "rag" (ex: `ragDocuments`) DEVEM
+omitir a substring "rag" do filename da migration.
+
+✅ Correto:  `0097_anchor_id_autor_not_null.sql`
+❌ Bloqueado: `0097_ragdocuments_anchor_autor_not_null.sql`
