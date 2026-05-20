@@ -2382,3 +2382,115 @@ omitir a substring "rag" do filename da migration.
 
 ✅ Correto:  `0097_anchor_id_autor_not_null.sql`
 ❌ Bloqueado: `0097_ragdocuments_anchor_autor_not_null.sql`
+
+## Lição #83 — Verificar issues pré-existentes antes de criar nova
+
+**Origem:** Sprint BUG-Q1 (20/05/2026) — Issue #1134 criada por Claude Code sem detectar que Issue #1131 já cobria o mesmo escopo (criada anteriormente pelo P.O.). Duplicata identificada no checkpoint da sessão e fechada com link cruzado.
+
+**Custo:** rastreabilidade fragmentada — discussões espalhadas entre 2 issues; 1 issue fechada como "not planned" apenas após o PR mergeado; tempo de reconciliação no audit fim-de-sessão.
+
+**Caso canônico complementar:** Sprint BUG-G1 (mesmo dia, ~1h antes) — eu mesmo abri Issue #1129 (refactor deduplicação de prompts) durante o trabalho do PR #1130. Quando o despacho seguinte solicitou "TECH-D1" com escopo idêntico, fui forçado a comentar em #1129 confirmando equivalência em vez de criar duplicata. Padrão repetido 2 vezes no mesmo dia.
+
+### Regra
+
+Antes de `gh issue create`, executar busca prévia:
+
+```bash
+# Por arquivo + função/conceito:
+gh issue list --search "<arquivo> <função>" --state all
+
+# Por título aproximado:
+gh issue list --search "<palavra-chave-do-titulo>" --state all
+
+# Pelo escopo de afected files:
+gh issue list --search "<bug-id-ou-rotulo>" --state all
+```
+
+Se issue pré-existente cobre **o mesmo escopo** → comentar nela com link para a investigação atual, **não criar nova**.
+
+### Critérios para "mesmo escopo"
+- Mesmo arquivo + mesma função
+- Mesma reprodução E2E
+- Mesmo conjunto de DoD esperado
+
+Casos onde duplicata é aceitável: contextos diferentes (ex: mesmo arquivo mas funções distintas), evolução temporal (issue antiga já refletindo estado obsoleto), separação por sprint/escopo declarado pelo P.O.
+
+### Aplicação prospectiva
+
+Adicionar ao template de PR / issue criada por Claude Code:
+
+```markdown
+## Issues pré-existentes verificadas
+- Busca executada: `gh issue list --search "<termo>"`
+- Resultado: [N issues encontradas / nenhuma encontrada]
+- Decisão: [criar nova / comentar em #XXXX]
+```
+
+### Vinculadas
+- Sprint BUG-Q1 20/05/2026 (caso canônico — #1131 vs #1134)
+- Sprint BUG-G1 20/05/2026 (caso complementar — #1129 vs TECH-D1)
+- REGRA-ORQ-28 (Triade — Artefato 1 exige issue ultra-detalhada antes do código)
+- REGRA-ORQ-15 (PR body template) — adicionar campo "issues pré-existentes verificadas"
+
+## Lição #84 — Fix de consumidor sem fix de origem: marcar explicitamente
+
+**Origem:** Sprint BUG-Q1 (20/05/2026) — bug `cnaeAnswers` permanecer `{answers: [], nivel1Done: false}` reapareceu 3 vezes (projetos 120001, 120002, 150001) após o PR #1067 (Issue #1066, 11/05/2026) ter aplicado fix **apenas no consumidor** (`BriefingV3.tsx` — merge inteligente com tabela granular V3). A origem em `QuestionarioV3.tsx` (state `cnaeProgress[i]` ficar não-marcado em fluxo `hasGap=true`) ficou invisível por 9 dias.
+
+**Custo:** reabertura do mesmo bug 3 vezes em projetos diferentes; 9 dias de detecção tardia; advogado tributarista recebeu PDFs com confiança subestimada para projetos no fluxo `hasGap=true`.
+
+### Padrão de erro
+
+Fix aplicado **downstream** (consumidor) mascara sintoma mas preserva causa raiz **upstream** (origem). Sprints futuros não veem o problema original — bug "resolvido" no que diz respeito ao consumidor imediato, mas reaparece em qualquer outro consumidor que confie no mesmo dado corrompido.
+
+### Regra
+
+Quando um fix é aplicado em consumidor de dado corrompido (merge inteligente, fallback, defaults compensatórios, normalização defensiva), o PR DEVE incluir **comentário inline no arquivo do consumidor** com formato fixo:
+
+```typescript
+// FIX PARCIAL — origem não corrigida: <arquivo da origem> L<linha>
+// Issue #XXXX aberta para fix definitivo.
+// Sintoma compensado aqui: <descrição breve>.
+```
+
+Sem esse marcador, a origem fica invisível para sprints futuras — qualquer pessoa lendo o consumidor vê código "que funciona" sem detectar que há trabalho pendente upstream.
+
+### Critérios para marcar fix como "parcial"
+
+Aplica-se se **qualquer um**:
+- Fix usa fallback que mascara `null` / `undefined` / array vazio vindo de upstream
+- Fix usa merge com fonte secundária para suprir falta de fonte primária
+- Fix usa normalização defensiva sobre dado que upstream deveria já normalizar
+- Causa raiz é diagnosticada mas escopo do PR é declaradamente downstream
+
+Se nenhum dos 4 critérios aplica → fix é completo, não precisa marcador.
+
+### Aplicação prospectiva
+
+Adicionar ao template de PR template de PR (`.github/PULL_REQUEST_TEMPLATE.md`):
+
+```markdown
+## Cobertura do fix
+- [ ] Fix completo (origem + consumidor)
+- [ ] Fix parcial — apenas consumidor
+  - Origem: `<arquivo> L<linha>`
+  - Issue para fix definitivo: #XXXX
+  - Comentário inline adicionado: SIM/NÃO
+```
+
+Se PR marca "Fix parcial" sem issue de fix definitivo associada → `validate-pr` FALHA.
+
+### Caso canônico
+
+**PR #1067 (Issue #1066, 11/05/2026):**
+- Consumidor: `BriefingV3.tsx` — merge inteligente com `questionnaireAnswersV3` (tabela granular)
+- Origem real: `QuestionarioV3.tsx` L1437 — `onAvancar` do `CnaeGapBanner` não marcava `nivel1Done=true`
+- **Faltou marcador**: nenhum comentário em `BriefingV3.tsx` apontou para a origem
+- **Consequência**: bug reapareceu em 3 projetos novos (120001, 120002, 150001) entre 11/05 e 20/05
+- **Fix definitivo**: PR #1135 (BUG-Q1, 20/05/2026)
+
+### Vinculadas
+- Sprint BUG-Q1 20/05/2026 (caso canônico)
+- PR #1067 / Issue #1066 (fix parcial original)
+- PR #1135 / Issue #1134 (fix definitivo, 9 dias depois)
+- Lição #59 (assemble ≠ consumption) — esta lição é manifestação simétrica: ter consumidor que compensa não significa que origem está correta
+- Lição #65 (rastrear fluxo end-to-end) — complementa: além de mapear writers/readers, marcar fixes parciais explicitamente
