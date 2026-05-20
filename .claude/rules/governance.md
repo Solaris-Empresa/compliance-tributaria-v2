@@ -2346,3 +2346,25 @@ Scripts que violem esta regra são bloqueados pelo CI (`rag-quality-gate`) e
 rejeitados no code review.
 
 Ver contrato completo: `docs/governance/INGEST-CONTRACT.md`
+
+## REGRA-ORQ-40 — Threshold Chunk Size (19/05/2026)
+
+**Status:** ✅ Implementada (CI warning + build-time enforcement via ingest-validator)
+
+Todo chunk inserido em `ragDocuments` DEVE ter `conteudo` entre **10 e 5.000 chars**.
+
+- **Build-time:** `validateChunkBeforeInsert()` lança exceção se violado
+- **CI:** step `check-chunk-size` em `rag-quality-gate.yml` (warning para scripts legados)
+- **Scripts de referência:** `scripts/fix-lc214-art544-chunks.ts:52` + `scripts/normalize-rag-corpus-lcs-novas.ts:33`
+
+## REGRA-ORQ-SPEC-01 — Precisão em Specs de CI (19/05/2026)
+
+**Origem:** Auditoria Manus — PR #1114 (19/05/2026)
+
+Toda referência a "step X" em specs de CI DEVE:
+1. Incluir o `name:` exato do step conforme o YAML (verificável via `grep`)
+2. Se o step não existir, dizer explicitamente **"criar novo step"** em vez de "adicionar após step X"
+3. Se a regra referenciada não estiver implementada no CI, indicar **"proposta — não implementada"**
+
+**Violação detectada:** Spec do PR #1114 referenciou step "chunk-size" inexistente.
+**Resolução:** Claude Code adaptou corretamente (Lição #80).

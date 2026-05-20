@@ -42,6 +42,10 @@ Verifica a integridade física do corpus após a mudança.
 | Chunks muito curtos (< 50 tokens) | ≤ 1% | ⚠️ Aviso |
 | Chunks muito longos (> 1.500 tokens) | ≤ 2% | ⚠️ Aviso |
 
+> **REGRA-ORQ-40 (19/05/2026):** Threshold oficial = **5.000 chars** (não tokens).
+> Enforcement: `validateChunkBeforeInsert()` em `server/lib/ingest-validator.ts` (build-time).
+> CI: warning via step `check-chunk-size` em `rag-quality-gate.yml`.
+
 **Query SQL de referência:**
 
 ```sql
