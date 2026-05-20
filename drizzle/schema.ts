@@ -1340,9 +1340,9 @@ export type InsertStepComment = typeof stepComments.$inferInsert;
 export const ragDocuments = mysqlTable("ragDocuments", {
   id: int("id").autoincrement().primaryKey(),
   // DEC-002 (Sprint D): chave canônica de deduplicação — anchor_id determinístico
-  // Nullable para retrocompatibilidade com chunks existentes (ids 789–794)
-  // Reversível: DROP COLUMN anchor_id
-  anchor_id: varchar("anchor_id", { length: 255 }).unique(),
+  // REGRA-INGEST-01 (migration 0097): NOT NULL após Manus zerar nulos (#1114, 2026-05-19).
+  // Mantém UNIQUE; sem DEFAULT (UNIQUE+default '' colidiria em inserts duplos).
+  anchor_id: varchar("anchor_id", { length: 255 }).unique().notNull(),
   // lc123 adicionado em Sprint H (feat/rag-inventory-live) — resolve débito técnico migration 0055
   // resolucao_cgibs_1/2/3 adicionados em Sprint Z-12 (migration 0074 — Lote D)
   // decreto12955, resolucao_cgibs_6, portaria_mf_cgibs_7 adicionados em CORPUS-RFC-008 (Issue #1074, P0 fast-track ORQ-11)
@@ -1355,9 +1355,11 @@ export const ragDocuments = mysqlTable("ragDocuments", {
   topicos: text("topicos").notNull(),          // palavras-chave para FULLTEXT
   cnaeGroups: varchar("cnaeGroups", { length: 500 }).notNull().default(""),
   chunkIndex: int("chunkIndex").notNull().default(0),
-  // DEC-002 (Sprint D): rastreabilidade de autoria e revisão — todos nullable
+  // DEC-002 (Sprint D): rastreabilidade de autoria e revisão.
+  // REGRA-INGEST-01 (migration 0097): autor agora NOT NULL após Manus zerar nulos (#1114).
+  // Preserva tipo TEXT (não VARCHAR(100) — minimal NOT NULL, sem risco de truncamento).
   // Reversível: DROP COLUMN autor, DROP COLUMN revisado_por, DROP COLUMN data_revisao
-  autor: text("autor"),
+  autor: text("autor").notNull(),
   revisado_por: text("revisado_por"),
   data_revisao: varchar("data_revisao", { length: 30 }),  // ISO 8601
   createdAt: timestamp("createdAt").defaultNow().notNull(),
