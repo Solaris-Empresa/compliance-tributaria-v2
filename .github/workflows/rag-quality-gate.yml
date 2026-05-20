@@ -164,3 +164,21 @@ jobs:
             exit 1
           fi
           echo "✅ Todos os scripts de ingestão satisfazem REGRA-INGEST-01"
+
+      - name: Verificar threshold chunk-size (REGRA-ORQ-40)
+        id: check-chunk-size
+        run: |
+          echo "Verificando chunks oversized (> 5000 chars) nos scripts de ingestão..."
+          # Verificar se scripts de ingestão modificados no PR contêm strings > 5000 chars
+          # Estratégia: grep por conteúdo literal longo OU verificar se ingest-validator é importado
+          SCRIPTS=$(find scripts/ server/ -name "ingest-*.mjs" -o -name "ingest-*.ts" -o -name "rag-ingest-*.mjs" 2>/dev/null || true)
+          FAIL=0
+          for f in $SCRIPTS; do
+            # Verificar se usa o validator (que já faz o check de 5000 chars)
+            if ! grep -q "validateChunkBeforeInsert\|ingest-validator" "$f"; then
+              echo "::warning file=$f::REGRA-ORQ-40: script não usa ingest-validator (threshold 5000 chars não garantido)"
+            fi
+          done
+          echo "✅ Verificação REGRA-ORQ-40 concluída"
+          # Nota: warning, não bloqueante — scripts legados existem sem o validator
+          # Bloqueio real é feito pelo validateChunkBeforeInsert() em runtime (build-time)
