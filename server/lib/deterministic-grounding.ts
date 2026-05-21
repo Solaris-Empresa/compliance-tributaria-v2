@@ -64,10 +64,15 @@ export async function fetchDeterministicGrounding(
     const conteudos: string[] = [];
 
     for (const cat of cats) {
-      const bundle = cat.normativeBundle as
-        | NormativeBundleObject
-        | string[]
-        | null;
+      const raw = cat.normativeBundle;
+      // Drizzle/MySQL retorna JSON como string crua — parse necessário.
+      let bundle: NormativeBundleObject | string[] | null;
+      if (!raw) continue;
+      try {
+        bundle = typeof raw === "string" ? JSON.parse(raw) : raw;
+      } catch {
+        continue;
+      }
       // Robusto a shape misto: só objeto por-lei contribui (array legado/null → skip).
       if (!bundle || Array.isArray(bundle)) continue;
 
