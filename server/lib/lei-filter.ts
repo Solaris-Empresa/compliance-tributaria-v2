@@ -34,3 +34,38 @@ export function deriveLeiFilterForRegime(
     ? [...SIMPLES_NACIONAL_LEI_FILTER]
     : undefined;
 }
+
+/**
+ * Frente B (BUG-FONTES) — fallback regulatório quando nenhuma categoria ativa
+ * tem `source_basis` em formato array. Rede de segurança; o caminho normal
+ * deriva do banco.
+ */
+export const REGULATORY_LEI_FALLBACK = [
+  "lc214",
+  "decreto12955",
+  "resolucao_cgibs_6",
+] as const;
+
+/**
+ * Frente B — leiFilter data-driven: union deduplicada e ordenada das leis
+ * declaradas em `source_basis` das categorias ativas. NÃO hardcode — lê do
+ * banco (REGRA-ORQ-32). Fallback regulatório quando o union resulta vazio.
+ *
+ * Robusto a shape misto no banco: a Frente A2 gravou arrays de codigos de lei
+ * (`["lc214","decreto12955"]`); linhas legadas gravaram string livre
+ * (`"LC 214/2025 Arts..."`) — estas são ignoradas (não são codigos de lei).
+ *
+ * Pura e determinística — testável isoladamente (lei-filter.test.ts).
+ */
+export function buildLeiFilterFromSourceBasis(sourceBases: unknown[]): string[] {
+  const leis = [
+    ...new Set(
+      sourceBases
+        .filter((sb): sb is unknown[] => Array.isArray(sb))
+        .flat()
+        .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+        .map((x) => x.trim())
+    ),
+  ].sort();
+  return leis.length ? leis : [...REGULATORY_LEI_FALLBACK];
+}

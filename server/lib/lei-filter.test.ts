@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   deriveLeiFilterForRegime,
   SIMPLES_NACIONAL_LEI_FILTER,
+  buildLeiFilterFromSourceBasis,
+  REGULATORY_LEI_FALLBACK,
 } from "./lei-filter";
 
 describe("deriveLeiFilterForRegime (#1094)", () => {
@@ -31,5 +33,40 @@ describe("deriveLeiFilterForRegime (#1094)", () => {
     const a = deriveLeiFilterForRegime("simples_nacional")!;
     a.push("x");
     expect(deriveLeiFilterForRegime("simples_nacional")).not.toContain("x");
+  });
+});
+
+describe("buildLeiFilterFromSourceBasis (Frente B — union data-driven)", () => {
+  it("faz union + dedup + sort das arrays de source_basis", () => {
+    const f = buildLeiFilterFromSourceBasis([
+      ["lc214", "decreto12955"],
+      ["lc214", "resolucao_cgibs_6"],
+    ]);
+    expect(f).toEqual(["decreto12955", "lc214", "resolucao_cgibs_6"]);
+  });
+
+  it("ignora entradas com shape legado (string, não array)", () => {
+    const f = buildLeiFilterFromSourceBasis([
+      "LC 214/2025 Arts. 164-166 + Auditoria Manus 2026-05-20",
+      ["decreto12955"],
+    ]);
+    expect(f).toEqual(["decreto12955"]);
+  });
+
+  it("filtra strings vazias dentro das arrays", () => {
+    const f = buildLeiFilterFromSourceBasis([["lc214", "", "  "], ["decreto12955"]]);
+    expect(f).toEqual(["decreto12955", "lc214"]);
+  });
+
+  it("union vazio (tudo null/legado) → fallback regulatório", () => {
+    expect(buildLeiFilterFromSourceBasis([null, undefined, "string-legado", []])).toEqual([
+      ...REGULATORY_LEI_FALLBACK,
+    ]);
+  });
+
+  it("retorna cópia nova do fallback (não vaza a constante)", () => {
+    const a = buildLeiFilterFromSourceBasis([]);
+    a.push("x");
+    expect(buildLeiFilterFromSourceBasis([])).not.toContain("x");
   });
 });
