@@ -45,7 +45,6 @@ import {
 import type { ConfiancaBreakdown } from "./lib/calculate-briefing-confidence";
 // Issue #1048: detalhe de pilar Q3 (NCM/NBS) extraído para função pura testável
 import { formatQ3PilarDetalhe } from "./lib/format-confidence-breakdown";
-import mysql from "mysql2/promise";
 import {
   SOLARIS_GAPS_MAP,
   type SolarisGapDefinition,
@@ -1436,12 +1435,13 @@ Gere as perguntas no formato:
       );
       // LOG TEMPORÁRIO — remover após diagnóstico (Frente B)
       try {
-        const diagConn = await mysql.createConnection(process.env.DATABASE_URL!);
-        await diagConn.execute(
-          'INSERT INTO diag_frente_b (path, decreto_lei_filter, context_length, context_preview) VALUES (?, ?, ?, ?)',
-          ['V3', JSON.stringify(decretoLeiFilter), decretoCtxBriefing.contextText?.length ?? 0, decretoCtxBriefing.contextText?.slice(0, 500) ?? '(vazio)']
-        );
-        await diagConn.end();
+        const diagDb = await db.getDb();
+        if (diagDb) {
+          await (diagDb.$client as any).promise().execute(
+            'INSERT INTO diag_frente_b (path, decreto_lei_filter, context_length, context_preview) VALUES (?, ?, ?, ?)',
+            ['V3', JSON.stringify(decretoLeiFilter), decretoCtxBriefing.contextText?.length ?? 0, decretoCtxBriefing.contextText?.slice(0, 500) ?? '(vazio)']
+          );
+        }
       } catch (e) { /* diag only — ignore */ }
       // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
       // contexto regulatório. Degradação graciosa — "" se ausente/falha.
@@ -4115,12 +4115,13 @@ Gere o veredito final em JSON:
       );
       // LOG TEMPORÁRIO — remover após diagnóstico (Frente B)
       try {
-        const diagConn = await mysql.createConnection(process.env.DATABASE_URL!);
-        await diagConn.execute(
-          'INSERT INTO diag_frente_b (path, decreto_lei_filter, context_length, context_preview) VALUES (?, ?, ?, ?)',
-          ['FD', JSON.stringify(decretoLeiFilter), decretoCtxBriefing.contextText?.length ?? 0, decretoCtxBriefing.contextText?.slice(0, 500) ?? '(vazio)']
-        );
-        await diagConn.end();
+        const diagDb = await db.getDb();
+        if (diagDb) {
+          await (diagDb.$client as any).promise().execute(
+            'INSERT INTO diag_frente_b (path, decreto_lei_filter, context_length, context_preview) VALUES (?, ?, ?, ?)',
+            ['FD', JSON.stringify(decretoLeiFilter), decretoCtxBriefing.contextText?.length ?? 0, decretoCtxBriefing.contextText?.slice(0, 500) ?? '(vazio)']
+          );
+        }
       } catch (e) { /* diag only — ignore */ }
       // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
       // contexto regulatório. Degradação graciosa — "" se ausente/falha.
