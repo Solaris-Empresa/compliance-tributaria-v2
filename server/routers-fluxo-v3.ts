@@ -1425,12 +1425,22 @@ Gere as perguntas no formato:
       // Frente B (BUG-FONTES, Ramo 2 Opção 1): 2º passe restrito à regulamentação
       // operacional (Decreto 12.955 / CGIBS 6) — o reranker descarta essas leis
       // no 1º passe (spike 2026-05-21). topK=3 garante ≥1 chunk por lei.
+      const decretoLeiFilter = decretoLeiFilterForRegime(
+        (project as any).companyProfile?.taxRegime
+      );
       const decretoCtxBriefing = await retrieveArticles(
         cnaeCodesForRag,
         briefingQueryCtx,
         3,
-        decretoLeiFilterForRegime((project as any).companyProfile?.taxRegime)
+        decretoLeiFilter
       );
+      // LOG TEMPORÁRIO — remover após diagnóstico (Frente B)
+      console.log("[FRENTE-B-DIAG]", {
+        path: "V3",
+        decretoLeiFilter,
+        contextLength: decretoCtxBriefing.contextText?.length ?? 0,
+        contextPreview: decretoCtxBriefing.contextText?.slice(0, 200) ?? "(vazio)",
+      });
       // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
       // contexto regulatório. Degradação graciosa — "" se ausente/falha.
       const regulatoryContext =
@@ -4092,12 +4102,22 @@ Gere o veredito final em JSON:
       // Frente B (BUG-FONTES, Ramo 2 Opção 1): 2º passe restrito à regulamentação
       // operacional (Decreto 12.955 / CGIBS 6) — o reranker descarta essas leis
       // no 1º passe (spike 2026-05-21). topK=3 garante ≥1 chunk por lei.
+      const decretoLeiFilter = decretoLeiFilterForRegime(
+        (p as any).companyProfile?.taxRegime
+      );
       const decretoCtxBriefing = await retrieveArticles(
         cnaeCodesForRag,
         briefingQueryCtx,
         3,
-        decretoLeiFilterForRegime((p as any).companyProfile?.taxRegime)
+        decretoLeiFilter
       );
+      // LOG TEMPORÁRIO — remover após diagnóstico (Frente B)
+      console.log("[FRENTE-B-DIAG]", {
+        path: "FD",
+        decretoLeiFilter,
+        contextLength: decretoCtxBriefing.contextText?.length ?? 0,
+        contextPreview: decretoCtxBriefing.contextText?.slice(0, 200) ?? "(vazio)",
+      });
       // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
       // contexto regulatório. Degradação graciosa — "" se ausente/falha.
       const regulatoryContext =
