@@ -1,0 +1,17 @@
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Migration 0100 — DROP da tabela temporária `diag_frente_b`
+--
+-- Issue: Frente B (BUG-FONTES) — limpeza do diagnóstico [DIAG-2PASSE]
+-- Sprint BUG-FONTES 21/05/2026 · Ref: PRs #1153/#1154 (diag) + #1149 (Frente B)
+--
+-- CONTEXTO:
+--   `diag_frente_b` foi criada manualmente (fora do schema Drizzle) para o
+--   diagnóstico do 2º passe de retrieval do briefing. O diagnóstico foi
+--   encerrado (contextLength=3688 → Hipótese B: contexto chega, LLM ignorava o
+--   nudge condicional). O fix do nudge imperativo torna a tabela desnecessária.
+--
+-- REVERSÍVEL: a tabela é temporária e sem consumidores de produto. O código que
+--   escrevia nela (INSERT nos 2 callsites de generateBriefing) foi removido no
+--   mesmo PR #1155.
+-- ═══════════════════════════════════════════════════════════════════════════
+DROP TABLE IF EXISTS diag_frente_b;
