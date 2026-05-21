@@ -69,6 +69,9 @@ import {
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
 import { deriveLeiFilterForRegime } from "./lib/lei-filter";
+// Frente C (BUG-FONTES): grounding silencioso da Portaria MF/CGIBS 7 (2 chunks,
+// volume insuficiente p/ retrieval — injetado direto do banco no contexto).
+import { fetchPortariaGrounding } from "./lib/portaria-grounding";
 // BUG-G1 (Sprint BUG-FIX 20/05/2026): artigos do prompt do briefing vêm de
 // risk_categories.artigo_base (decisão P.O. 18:16 — zero hard code).
 import { getArticleByCategory } from "./lib/riskCategoriesCache";
@@ -1419,7 +1422,10 @@ Gere as perguntas no formato:
         7,
         leiFilter
       );
-      const regulatoryContext = ragCtxBriefing.contextText;
+      // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
+      // contexto regulatório. Degradação graciosa — "" se ausente/falha.
+      const regulatoryContext =
+        ragCtxBriefing.contextText + (await fetchPortariaGrounding());
 
       // G8: Montar bloco de perfil da empresa para personalização do briefing
       const projectAnyBriefing = project as any;
@@ -4071,7 +4077,10 @@ Gere o veredito final em JSON:
         7,
         leiFilter
       );
-      const regulatoryContext = ragCtxBriefing.contextText;
+      // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
+      // contexto regulatório. Degradação graciosa — "" se ausente/falha.
+      const regulatoryContext =
+        ragCtxBriefing.contextText + (await fetchPortariaGrounding());
 
       const { BriefingStructuredSchema } = await import("./ai-schemas");
       const { generateWithRetry: genRetry, OUTPUT_CONTRACT: OC } = await import(
