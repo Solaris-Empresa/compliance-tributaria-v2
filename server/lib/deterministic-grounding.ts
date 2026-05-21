@@ -79,18 +79,18 @@ export async function fetchDeterministicGrounding(
       const decreto = bundle.artigos_decreto;
       if (decreto?.length) {
         const rows = await db
-          .select({ conteudo: ragDocuments.conteudo })
+          .select({ conteudo: ragDocuments.conteudo, artigo: ragDocuments.artigo })
           .from(ragDocuments)
           .where(
             and(eq(ragDocuments.lei, "decreto12955"), inArray(ragDocuments.artigo, decreto))
           );
-        conteudos.push(...rows.map((r) => r.conteudo));
+        conteudos.push(...rows.map((r) => `[FONTE: Decreto 12.955/2026, ${r.artigo}]\n${r.conteudo}`));
       }
 
       const cgibs6 = bundle.artigos_cgibs6;
       if (cgibs6?.length && regime !== "simples_nacional") {
         const rows = await db
-          .select({ conteudo: ragDocuments.conteudo })
+          .select({ conteudo: ragDocuments.conteudo, artigo: ragDocuments.artigo })
           .from(ragDocuments)
           .where(
             and(
@@ -98,7 +98,7 @@ export async function fetchDeterministicGrounding(
               inArray(ragDocuments.artigo, cgibs6)
             )
           );
-        conteudos.push(...rows.map((r) => r.conteudo));
+        conteudos.push(...rows.map((r) => `[FONTE: Resolução CGIBS 6/2026, ${r.artigo}]\n${r.conteudo}`));
       }
     }
 
