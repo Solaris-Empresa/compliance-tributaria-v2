@@ -1435,12 +1435,14 @@ Gere as perguntas no formato:
         decretoLeiFilter
       );
       // LOG TEMPORÁRIO — remover após diagnóstico (Frente B)
-      console.log("[FRENTE-B-DIAG]", {
-        path: "V3",
-        decretoLeiFilter,
-        contextLength: decretoCtxBriefing.contextText?.length ?? 0,
-        contextPreview: decretoCtxBriefing.contextText?.slice(0, 200) ?? "(vazio)",
-      });
+      try {
+        const diagConn = await mysql.createConnection(process.env.DATABASE_URL!);
+        await diagConn.execute(
+          'INSERT INTO diag_frente_b (path, decreto_lei_filter, context_length, context_preview) VALUES (?, ?, ?, ?)',
+          ['V3', JSON.stringify(decretoLeiFilter), decretoCtxBriefing.contextText?.length ?? 0, decretoCtxBriefing.contextText?.slice(0, 500) ?? '(vazio)']
+        );
+        await diagConn.end();
+      } catch (e) { /* diag only — ignore */ }
       // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
       // contexto regulatório. Degradação graciosa — "" se ausente/falha.
       const regulatoryContext =
@@ -4112,12 +4114,14 @@ Gere o veredito final em JSON:
         decretoLeiFilter
       );
       // LOG TEMPORÁRIO — remover após diagnóstico (Frente B)
-      console.log("[FRENTE-B-DIAG]", {
-        path: "FD",
-        decretoLeiFilter,
-        contextLength: decretoCtxBriefing.contextText?.length ?? 0,
-        contextPreview: decretoCtxBriefing.contextText?.slice(0, 200) ?? "(vazio)",
-      });
+      try {
+        const diagConn = await mysql.createConnection(process.env.DATABASE_URL!);
+        await diagConn.execute(
+          'INSERT INTO diag_frente_b (path, decreto_lei_filter, context_length, context_preview) VALUES (?, ?, ?, ?)',
+          ['FD', JSON.stringify(decretoLeiFilter), decretoCtxBriefing.contextText?.length ?? 0, decretoCtxBriefing.contextText?.slice(0, 500) ?? '(vazio)']
+        );
+        await diagConn.end();
+      } catch (e) { /* diag only — ignore */ }
       // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
       // contexto regulatório. Degradação graciosa — "" se ausente/falha.
       const regulatoryContext =
