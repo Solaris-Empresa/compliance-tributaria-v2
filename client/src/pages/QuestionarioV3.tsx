@@ -886,26 +886,20 @@ export default function QuestionarioV3() {
       // /questionario-cnae. Briefing e outros consumers downstream dependem
       // dessa flag.
       //
-      // BUG-Q1-V2: cnaeAnswersAggregated também reconstrói answers a partir
-      // do banco. É o que vai para projects.cnaeAnswers (campo agregado JSON).
-      const cnaeAnswersAggregated = cnaeProgress.reduce((acc, c) => {
-        const answersFromDb = extractAnswersForCnae(savedRows, c.code, "nivel1");
-        const nivel2FromDb = extractAnswersForCnae(savedRows, c.code, "nivel2");
-        acc[c.code] = {
-          description: c.description,
-          nivel1Done: c.nivel1Done,
-          nivel2Done: c.nivel2Done,
-          skipped: c.skipped ?? false,
-          answers: answersFromDb.length > 0 ? answersFromDb : (c.answers ?? []),
-          nivel2Answers: nivel2FromDb.length > 0 ? nivel2FromDb : (c.nivel2Answers ?? []),
-        };
+      // BUG-Q1-V3 (Sprint BUG-FIX 20/05/2026): frontend NÃO monta mais o payload
+      // de answers. Envia apenas cnaeFlags (skipped por CNAE). O backend
+      // (completeDiagnosticLayer) reconstrói cnaeAnswers lendo questionnaireAnswersV3
+      // via SQL direto — fonte de verdade determinística, sem closure stale nem
+      // refetch frontend não-confiável (PRs #1135 + #1140 falharam por isso).
+      const cnaeFlags = cnaeProgress.reduce((acc, c) => {
+        acc[c.code] = { skipped: c.skipped ?? false };
         return acc;
-      }, {} as Record<string, any>);
+      }, {} as Record<string, { skipped: boolean }>);
       try {
         await completeDiagnosticLayer.mutateAsync({
           projectId,
           layer: "cnae",
-          answers: cnaeAnswersAggregated,
+          cnaeFlags,
         });
       } catch (err) {
         // Não bloquear avanço — saveQuestionnaireProgress já salvou as respostas;

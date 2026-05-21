@@ -88,46 +88,28 @@ describe("BUG-Q1-V2 — handleFinishQuestionnaire usa refetch + extractAnswersFo
   });
 });
 
-describe("BUG-Q1-V2 — cnaeAnswersAggregated reconstrói answers a partir de savedRows", () => {
+describe("BUG-Q1-V2 → V3: cnaeAnswers agora é responsabilidade do backend", () => {
   const qv3 = readFileSync(QV3_PATH, "utf8");
 
-  it("cnaeAnswersAggregated chama extractAnswersForCnae para nivel1", () => {
-    const match = qv3.match(
-      /cnaeAnswersAggregated\s*=\s*cnaeProgress\.reduce[\s\S]{0,1000}?\}\,\s*\{\}\s*as/
-    );
-    expect(match).not.toBeNull();
-    expect(match![0]).toMatch(
-      /extractAnswersForCnae\(savedRows,\s*c\.code,\s*["']nivel1["']\)/
-    );
+  // BUG-Q1-V3 (2026-05-21): a montagem de cnaeAnswersAggregated no frontend
+  // (refetch + extractAnswersForCnae) FALHOU em produção (refetch não-confiável,
+  // ver projeto 240001). Substituída pela reconstrução determinística no backend
+  // (completeDiagnosticLayer lê questionnaireAnswersV3 via SQL). O frontend só
+  // envia cnaeFlags. Estes testes validam o supersession (Lição #84).
+  it("frontend NÃO monta mais cnaeAnswersAggregated", () => {
+    expect(qv3).not.toMatch(/const\s+cnaeAnswersAggregated/);
   });
 
-  it("cnaeAnswersAggregated chama extractAnswersForCnae para nivel2", () => {
-    const match = qv3.match(
-      /cnaeAnswersAggregated\s*=\s*cnaeProgress\.reduce[\s\S]{0,1000}?\}\,\s*\{\}\s*as/
-    );
-    expect(match).not.toBeNull();
-    expect(match![0]).toMatch(
-      /extractAnswersForCnae\(savedRows,\s*c\.code,\s*["']nivel2["']\)/
-    );
+  it("frontend monta cnaeFlags { [code]: { skipped } } para o backend reconstruir", () => {
+    expect(qv3).toMatch(/const\s+cnaeFlags\s*=\s*cnaeProgress\.reduce/);
+    expect(qv3).toMatch(/skipped:\s*c\.skipped\s*\?\?\s*false/);
   });
 
-  it("cnaeAnswersAggregated.answers usa fallback ?? c.answers (defensive)", () => {
-    const match = qv3.match(
-      /cnaeAnswersAggregated\s*=\s*cnaeProgress\.reduce[\s\S]{0,1000}?\}\,\s*\{\}\s*as/
-    );
+  it("completeDiagnosticLayer.mutateAsync envia cnaeFlags (não answers)", () => {
+    const match = qv3.match(/completeDiagnosticLayer\.mutateAsync\(\{[\s\S]{0,200}?\}\)/);
     expect(match).not.toBeNull();
-    expect(match![0]).toMatch(
-      /answers:\s*answersFromDb\.length\s*>\s*0\s*\?\s*answersFromDb\s*:\s*\(c\.answers\s*\?\?\s*\[\]\)/
-    );
-  });
-
-  it("preserva flags nivel1Done/skipped (sem regressão BUG-Q1 v1)", () => {
-    const match = qv3.match(
-      /cnaeAnswersAggregated\s*=\s*cnaeProgress\.reduce[\s\S]{0,1000}?\}\,\s*\{\}\s*as/
-    );
-    expect(match).not.toBeNull();
-    expect(match![0]).toMatch(/nivel1Done:\s*c\.nivel1Done/);
-    expect(match![0]).toMatch(/skipped:\s*c\.skipped\s*\?\?\s*false/);
+    expect(match![0]).toMatch(/cnaeFlags/);
+    expect(match![0]).not.toMatch(/answers:\s*cnaeAnswersAggregated/);
   });
 });
 
@@ -147,16 +129,14 @@ describe("BUG-Q1-V2 — Regressão guard PR #1135 (cenário hasGap=true)", () =>
 describe("BUG-Q1-V2 — DoD: handler exige length > 0 (Lição #85)", () => {
   const qv3 = readFileSync(QV3_PATH, "utf8");
 
-  it("o pattern *FromDb.length > 0 é usado em allAnswers/withNivel2 + cnaeAnswersAggregated", () => {
-    // Lição #85: testes DEVEM validar que answers tem conteúdo, não apenas flag nivel1Done
-    // Pattern: (answersFromDb|nivel2FromDb).length > 0 — usado em 4 locais:
-    //   1. allAnswers (nivel1)
-    //   2. withNivel2 (nivel2)
-    //   3. cnaeAnswersAggregated.answers (nivel1)
-    //   4. cnaeAnswersAggregated.nivel2Answers (nivel2)
+  it("o pattern *FromDb.length > 0 é usado em allAnswers + withNivel2 (saveProgress)", () => {
+    // Lição #85: validar que answers tem conteúdo, não apenas flag.
+    // BUG-Q1-V3: cnaeAnswersAggregated removido (backend reconstrói cnaeAnswers).
+    // Sobram allAnswers (nivel1) + withNivel2 (nivel2) que alimentam saveProgress
+    // → projects.questionnaireAnswers (coluna legada, mantida).
     const occurrencesNivel1 = qv3.match(/answersFromDb\.length\s*>\s*0/g);
     const occurrencesNivel2 = qv3.match(/nivel2FromDb\.length\s*>\s*0/g);
-    expect(occurrencesNivel1?.length ?? 0).toBeGreaterThanOrEqual(2);
-    expect(occurrencesNivel2?.length ?? 0).toBeGreaterThanOrEqual(2);
+    expect(occurrencesNivel1?.length ?? 0).toBeGreaterThanOrEqual(1);
+    expect(occurrencesNivel2?.length ?? 0).toBeGreaterThanOrEqual(1);
   });
 });
