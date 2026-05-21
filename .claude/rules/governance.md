@@ -2574,3 +2574,27 @@ Scripts A1/A2 (`scripts/bug-fontes-a1-block-is.ts`, `bug-fontes-a2-enrich-credit
 ### Vinculadas
 
 - `tsconfig.json` (include sem `scripts/`) · Lição #71 (scripts DoD commitados) · Lição #72 (driver mysql2) · PRs #1147/#1148/#1154
+
+## Lição #90 — Nudge é necessário, não suficiente: citação de normativa infralegal exige injeção determinística
+
+Origem: BUG-FONTES Frente B (21/05/2026) — PRs #1155 (nudge) + #1156 (injeção) + #1157 (parse)
+
+### Texto
+
+Nudge imperativo é **condição necessária, não suficiente** para o LLM citar normativas infralegais. A causa raiz do BUG-FONTES era **estrutural**: 79% (659/831) dos chunks do Decreto têm `cnaeGroups=""` + o `briefingQueryCtx` é domain-specific → o 2º passe via retrieval retornava ~0 chunks em produção (o spike local "passou" por usar query genérica não-representativa).
+
+**Solução definitiva: injeção determinística por-lei** (padrão `fetchPortariaGrounding` / Frente C) — busca os artigos por categoria direto do corpus (`WHERE lei=? AND artigo IN (...)`), **zero dependência de reranker ou keyword match**.
+
+**Bug adicional (Lição #72):** Drizzle/MySQL retornou `normativeBundle` como **string crua** (não objeto parsed) → acesso a `.artigos_decreto` em string = `undefined` → injeção vazia. Sempre aplicar `typeof raw === "string" ? JSON.parse(raw) : raw`.
+
+**Fix completo = #1155 (nudge) + #1156 (injeção determinística) + #1157 (parse).** Nenhum sozinho bastava.
+
+**Ausência de citação em categorias sem `normative_bundle` curado é COBERTURA (Lição #66), não falha de nudge.** Ex.: SN 120001 (gaps de alíquota zero / cadastro) não citou Decreto porque essas categorias não foram curadas — não porque o nudge falhou. "Reforçar o nudge" não resolve cobertura; o caminho é curar mais categorias.
+
+### Validação
+
+Smoke [SMOKE-B-FINAL-V2] (local — dev server + DB prod): projeto 660001 (lucro_presumido) citou "Art. 28 a 31 do Decreto 12.955/2026" (split_payment) → **consumo provado** (≠ as 4 tentativas anteriores e ≠ análise estática). Critério 4a (SN não citou) = cobertura, não bug. Deploy em produção (Publish) pendente — re-validar em prod.
+
+### Vinculadas
+
+- PRs #1155 / #1156 / #1157 · Lição #87 (smoke estático ≠ consumo) · Lição #72 (driver mysql2 JSON) · Lição #66 (cobertura — spec sem dados é ilusão) · Lição #88 (acoplamento engine) · REGRA-ORQ-27 (assemble ≠ consumption) · REGRA-ORQ-36 (5 técnicas) · Frente C / #1143 (padrão da injeção)
