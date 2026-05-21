@@ -67,7 +67,10 @@ import {
 } from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
-import { deriveLeiFilterForRegime, decretoLeiFilterForRegime } from "./lib/lei-filter";
+import { deriveLeiFilterForRegime } from "./lib/lei-filter";
+// Frente B (BUG-FONTES): injeção determinística dos artigos infralegais
+// (Decreto/CGIBS) — retrieval não surface (79% chunks Decreto sem cnaeGroups).
+import { fetchDeterministicGrounding } from "./lib/deterministic-grounding";
 // Frente C (BUG-FONTES): grounding silencioso da Portaria MF/CGIBS 7 (2 chunks,
 // volume insuficiente p/ retrieval — injetado direto do banco no contexto).
 import { fetchPortariaGrounding } from "./lib/portaria-grounding";
@@ -1421,24 +1424,16 @@ Gere as perguntas no formato:
         7,
         leiFilter
       );
-      // Frente B (BUG-FONTES, Ramo 2 Opção 1): 2º passe restrito à regulamentação
-      // operacional (Decreto 12.955 / CGIBS 6) — o reranker descarta essas leis
-      // no 1º passe (spike 2026-05-21). topK=3 garante ≥1 chunk por lei.
-      const decretoLeiFilter = decretoLeiFilterForRegime(
-        (project as any).companyProfile?.taxRegime
-      );
-      const decretoCtxBriefing = await retrieveArticles(
-        cnaeCodesForRag,
-        briefingQueryCtx,
-        3,
-        decretoLeiFilter
-      );
-      // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
-      // contexto regulatório. Degradação graciosa — "" se ausente/falha.
+      // Frente C: grounding da Portaria + Frente B: injeção DETERMINÍSTICA dos
+      // artigos infralegais (Decreto/CGIBS) das categorias confirmed. Retrieval
+      // não surface (79% chunks Decreto têm cnaeGroups="" + query domain-specific),
+      // por isso injeção determinística (padrão Frente C). Graceful → "".
       const regulatoryContext =
         ragCtxBriefing.contextText +
         (await fetchPortariaGrounding()) +
-        decretoCtxBriefing.contextText;
+        (await fetchDeterministicGrounding(
+          (project as any).companyProfile?.taxRegime
+        ));
 
       // G8: Montar bloco de perfil da empresa para personalização do briefing
       const projectAnyBriefing = project as any;
@@ -4091,24 +4086,16 @@ Gere o veredito final em JSON:
         7,
         leiFilter
       );
-      // Frente B (BUG-FONTES, Ramo 2 Opção 1): 2º passe restrito à regulamentação
-      // operacional (Decreto 12.955 / CGIBS 6) — o reranker descarta essas leis
-      // no 1º passe (spike 2026-05-21). topK=3 garante ≥1 chunk por lei.
-      const decretoLeiFilter = decretoLeiFilterForRegime(
-        (p as any).companyProfile?.taxRegime
-      );
-      const decretoCtxBriefing = await retrieveArticles(
-        cnaeCodesForRag,
-        briefingQueryCtx,
-        3,
-        decretoLeiFilter
-      );
-      // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
-      // contexto regulatório. Degradação graciosa — "" se ausente/falha.
+      // Frente C: grounding da Portaria + Frente B: injeção DETERMINÍSTICA dos
+      // artigos infralegais (Decreto/CGIBS) das categorias confirmed. Retrieval
+      // não surface (79% chunks Decreto têm cnaeGroups="" + query domain-specific),
+      // por isso injeção determinística (padrão Frente C). Graceful → "".
       const regulatoryContext =
         ragCtxBriefing.contextText +
         (await fetchPortariaGrounding()) +
-        decretoCtxBriefing.contextText;
+        (await fetchDeterministicGrounding(
+          (p as any).companyProfile?.taxRegime
+        ));
 
       const { BriefingStructuredSchema } = await import("./ai-schemas");
       const { generateWithRetry: genRetry, OUTPUT_CONTRACT: OC } = await import(

@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   deriveLeiFilterForRegime,
   SIMPLES_NACIONAL_LEI_FILTER,
-  decretoLeiFilterForRegime,
 } from "./lei-filter";
 
 describe("deriveLeiFilterForRegime (#1094)", () => {
@@ -32,37 +31,5 @@ describe("deriveLeiFilterForRegime (#1094)", () => {
     const a = deriveLeiFilterForRegime("simples_nacional")!;
     a.push("x");
     expect(deriveLeiFilterForRegime("simples_nacional")).not.toContain("x");
-  });
-});
-
-describe("decretoLeiFilterForRegime (Frente B — Ramo 2 Opção 1: 2º passe)", () => {
-  it("simples_nacional → apenas ['decreto12955'] (SN não recolhe IBS → sem CGIBS 6)", () => {
-    expect(decretoLeiFilterForRegime("simples_nacional")).toEqual(["decreto12955"]);
-  });
-
-  it("lucro_real → ['decreto12955','resolucao_cgibs_6'] (CBS + IBS)", () => {
-    expect(decretoLeiFilterForRegime("lucro_real")).toEqual([
-      "decreto12955",
-      "resolucao_cgibs_6",
-    ]);
-  });
-
-  it("lucro_presumido → ['decreto12955','resolucao_cgibs_6']", () => {
-    expect(decretoLeiFilterForRegime("lucro_presumido")).toEqual([
-      "decreto12955",
-      "resolucao_cgibs_6",
-    ]);
-  });
-
-  it("undefined/null/desconhecido → default não-SN (decreto + cgibs6)", () => {
-    expect(decretoLeiFilterForRegime(undefined)).toEqual(["decreto12955", "resolucao_cgibs_6"]);
-    expect(decretoLeiFilterForRegime(null)).toEqual(["decreto12955", "resolucao_cgibs_6"]);
-    expect(decretoLeiFilterForRegime("mei")).toEqual(["decreto12955", "resolucao_cgibs_6"]);
-  });
-
-  it("retorna cópia nova (não vaza constante compartilhada)", () => {
-    const a = decretoLeiFilterForRegime("lucro_real");
-    a.push("x");
-    expect(decretoLeiFilterForRegime("lucro_real")).not.toContain("x");
   });
 });
