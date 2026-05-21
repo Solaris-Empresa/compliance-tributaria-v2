@@ -34,3 +34,27 @@ export function deriveLeiFilterForRegime(
     ? [...SIMPLES_NACIONAL_LEI_FILTER]
     : undefined;
 }
+
+/**
+ * Frente B (BUG-FONTES) — Ramo 2 Opção 1: leiFilter do **2º passe** de retrieval
+ * do briefing, dedicado a garantir presença de regulamentação operacional que o
+ * reranker GPT-4.1 descarta no 1º passe.
+ *
+ * Spike 2026-05-21 (`[SPIKE-B]`): com leiFilter union no 1º passe, o reranker
+ * ainda escolheu lc214 em 100% dos 7 slots — decreto/cgibs6 nunca surgem. Logo,
+ * o fix é um 2º passe restrito (topK pequeno) cujo resultado é anexado ao
+ * regulatoryContext (decisão P.O. 2026-05-21; quota global no rag-retriever
+ * rejeitada por blast radius).
+ *
+ * `simples_nacional` → apenas `decreto12955` (SN não recolhe IBS → sem CGIBS 6).
+ * Demais regimes → `decreto12955` + `resolucao_cgibs_6` (CBS + IBS).
+ *
+ * Pura e determinística — testável isoladamente (lei-filter.test.ts).
+ */
+export function decretoLeiFilterForRegime(
+  taxRegime: string | null | undefined
+): string[] {
+  return taxRegime === "simples_nacional"
+    ? ["decreto12955"]
+    : ["decreto12955", "resolucao_cgibs_6"];
+}

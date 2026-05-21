@@ -68,7 +68,7 @@ import {
 } from "./routers/onda1Injector";
 // V65: RAG híbrido (LIKE + re-ranking LLM) substitui o pré-RAG estático
 import { retrieveArticles, retrieveArticlesFast } from "./rag-retriever";
-import { deriveLeiFilterForRegime } from "./lib/lei-filter";
+import { deriveLeiFilterForRegime, decretoLeiFilterForRegime } from "./lib/lei-filter";
 // Frente C (BUG-FONTES): grounding silencioso da Portaria MF/CGIBS 7 (2 chunks,
 // volume insuficiente p/ retrieval — injetado direto do banco no contexto).
 import { fetchPortariaGrounding } from "./lib/portaria-grounding";
@@ -1422,10 +1422,21 @@ Gere as perguntas no formato:
         7,
         leiFilter
       );
+      // Frente B (BUG-FONTES, Ramo 2 Opção 1): 2º passe restrito à regulamentação
+      // operacional (Decreto 12.955 / CGIBS 6) — o reranker descarta essas leis
+      // no 1º passe (spike 2026-05-21). topK=3 garante ≥1 chunk por lei.
+      const decretoCtxBriefing = await retrieveArticles(
+        cnaeCodesForRag,
+        briefingQueryCtx,
+        3,
+        decretoLeiFilterForRegime((project as any).companyProfile?.taxRegime)
+      );
       // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
       // contexto regulatório. Degradação graciosa — "" se ausente/falha.
       const regulatoryContext =
-        ragCtxBriefing.contextText + (await fetchPortariaGrounding());
+        ragCtxBriefing.contextText +
+        (await fetchPortariaGrounding()) +
+        decretoCtxBriefing.contextText;
 
       // G8: Montar bloco de perfil da empresa para personalização do briefing
       const projectAnyBriefing = project as any;
@@ -1664,6 +1675,7 @@ Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORRE
    - AÇÃO: gerar GAP sobre atualização cadastral no novo regime.
 
 IMPORTANTE: Essas regras operam EM ADIÇÃO ao regulatoryContext. Se o RAG já trouxe o artigo, aprofunde com o texto. Se não trouxe, cite o artigo com a descrição curta acima e sinalize na limitação que a análise deve ser validada por advogado tributarista. NUNCA invente texto de artigo que não esteja no regulatoryContext — apenas cite o número e a regra curta.
+Quando o contexto regulatório incluir artigos do Decreto 12.955/2026 ou da Resolução CGIBS 6/2026 que operacionalizem a obrigação descrita, cite o artigo específico como fundamentação infralegal.
 
 REGRA ANTI-ALUCINAÇÃO — NCM/NBS DE PRODUTOS (issue #808, fix UAT 2026-04-21):
 - NUNCA atribua NCM específico (ex: "arroz NCM 1006") a um produto DA EMPRESA se esse código não estiver cadastrado em "PRINCIPAIS PRODUTOS" do perfil corporativo.
@@ -4077,10 +4089,21 @@ Gere o veredito final em JSON:
         7,
         leiFilter
       );
+      // Frente B (BUG-FONTES, Ramo 2 Opção 1): 2º passe restrito à regulamentação
+      // operacional (Decreto 12.955 / CGIBS 6) — o reranker descarta essas leis
+      // no 1º passe (spike 2026-05-21). topK=3 garante ≥1 chunk por lei.
+      const decretoCtxBriefing = await retrieveArticles(
+        cnaeCodesForRag,
+        briefingQueryCtx,
+        3,
+        decretoLeiFilterForRegime((p as any).companyProfile?.taxRegime)
+      );
       // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
       // contexto regulatório. Degradação graciosa — "" se ausente/falha.
       const regulatoryContext =
-        ragCtxBriefing.contextText + (await fetchPortariaGrounding());
+        ragCtxBriefing.contextText +
+        (await fetchPortariaGrounding()) +
+        decretoCtxBriefing.contextText;
 
       const { BriefingStructuredSchema } = await import("./ai-schemas");
       const { generateWithRetry: genRetry, OUTPUT_CONTRACT: OC } = await import(
@@ -4174,6 +4197,7 @@ Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORRE
    - AÇÃO: gerar GAP sobre atualização cadastral.
 
 IMPORTANTE: Essas regras operam EM ADIÇÃO ao regulatoryContext. Se RAG trouxe o artigo, aprofunde com o texto. Se não, cite número e regra curta e sinalize em limitações que validação por advogado é recomendada. NUNCA invente texto de artigo que não esteja no regulatoryContext.
+Quando o contexto regulatório incluir artigos do Decreto 12.955/2026 ou da Resolução CGIBS 6/2026 que operacionalizem a obrigação descrita, cite o artigo específico como fundamentação infralegal.
 
 REGRA ANTI-ALUCINAÇÃO — NCM/NBS DE PRODUTOS (issue #808, fix UAT 2026-04-21):
 - NUNCA atribua NCM específico (ex: "arroz NCM 1006") a um produto DA EMPRESA se esse código não estiver cadastrado em "PRINCIPAIS PRODUTOS" do perfil.
