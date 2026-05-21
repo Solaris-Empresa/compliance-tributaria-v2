@@ -362,7 +362,12 @@ export default function QuestionarioV3() {
   const MAX_DEEP_DIVE_ROUNDS = 5;
 
   // Buscar progresso salvo no banco (para retomada)
-  const { data: savedProgress } = trpc.fluxoV3.getProgress.useQuery(
+  // BUG-Q1-V2 (Sprint BUG-FIX 20/05/2026): refetch exposto para resolver
+  // closure stale em handleFinishQuestionnaire — saveAnswer.mutate (L641)
+  // persistiu cada resposta em questionnaireAnswersV3, mas cnaeProgress
+  // (React state) pode estar desatualizado devido a setState async.
+  // Antes de montar payload de save, refetch garante leitura do banco.
+  const { data: savedProgress, refetch: refetchSavedProgress } = trpc.fluxoV3.getProgress.useQuery(
     { projectId },
     { enabled: !!projectId }
   );
@@ -834,19 +839,41 @@ export default function QuestionarioV3() {
   const handleFinishQuestionnaire = async () => {
     setIsSaving(true);
     try {
-      const allAnswers = cnaeProgress.map(c => ({
-        cnaeCode: c.code,
-        cnaeDescription: c.description,
-        level: "nivel1",
-        questions: c.answers,
-      }));
-      // Adicionar respostas do Nível 2 se existirem
-      const withNivel2 = cnaeProgress.filter(c => c.nivel2Done).map(c => ({
-        cnaeCode: c.code,
-        cnaeDescription: c.description,
-        level: "nivel2",
-        questions: c.nivel2Answers,
-      }));
+      // BUG-Q1-V2 (Sprint BUG-FIX 20/05/2026): refetch das respostas salvas
+      // em questionnaireAnswersV3 ANTES de montar payload — saveAnswer.mutate
+      // (L641) persistiu cada resposta a cada onChange, mas cnaeProgress
+      // (React state) pode estar STALE por closure de setState async em
+      // handleFinishLevel1 → handleSkipDeepDive → advanceToNextCnae → AQUI.
+      //
+      // Caso canônico (projeto 180001): questionnaireAnswersV3 tinha 10 rows,
+      // mas cnaeProgress[0].answers = [] no closure. Payload ia com questions: []
+      // e projects.cnaeAnswers ficava {answers: [], nivel1Done: ?}.
+      //
+      // Fonte de verdade: tabela granular (sempre fresh pós-saveAnswer).
+      const fresh = await refetchSavedProgress();
+      const savedRows = fresh.data?.answers ?? [];
+
+      // Reconstruir cada CNAE.answers a partir do banco
+      // (preserva fallback para c.answers se algo der errado no refetch)
+      const allAnswers = cnaeProgress.map(c => {
+        const answersFromDb = extractAnswersForCnae(savedRows, c.code, "nivel1");
+        return {
+          cnaeCode: c.code,
+          cnaeDescription: c.description,
+          level: "nivel1",
+          questions: answersFromDb.length > 0 ? answersFromDb : (c.answers ?? []),
+        };
+      });
+      // Adicionar respostas do Nível 2 se existirem (idem strategy)
+      const withNivel2 = cnaeProgress.filter(c => c.nivel2Done).map(c => {
+        const nivel2FromDb = extractAnswersForCnae(savedRows, c.code, "nivel2");
+        return {
+          cnaeCode: c.code,
+          cnaeDescription: c.description,
+          level: "nivel2",
+          questions: nivel2FromDb.length > 0 ? nivel2FromDb : (c.nivel2Answers ?? []),
+        };
+      });
       await saveProgress.mutateAsync({
         projectId,
         allAnswers: [...allAnswers, ...withNivel2],
@@ -858,14 +885,19 @@ export default function QuestionarioV3() {
       // QuestionarioCNAE legado que está sendo substituído na rota
       // /questionario-cnae. Briefing e outros consumers downstream dependem
       // dessa flag.
+      //
+      // BUG-Q1-V2: cnaeAnswersAggregated também reconstrói answers a partir
+      // do banco. É o que vai para projects.cnaeAnswers (campo agregado JSON).
       const cnaeAnswersAggregated = cnaeProgress.reduce((acc, c) => {
+        const answersFromDb = extractAnswersForCnae(savedRows, c.code, "nivel1");
+        const nivel2FromDb = extractAnswersForCnae(savedRows, c.code, "nivel2");
         acc[c.code] = {
           description: c.description,
           nivel1Done: c.nivel1Done,
           nivel2Done: c.nivel2Done,
           skipped: c.skipped ?? false,
-          answers: c.answers ?? [],
-          nivel2Answers: c.nivel2Answers ?? [],
+          answers: answersFromDb.length > 0 ? answersFromDb : (c.answers ?? []),
+          nivel2Answers: nivel2FromDb.length > 0 ? nivel2FromDb : (c.nivel2Answers ?? []),
         };
         return acc;
       }, {} as Record<string, any>);
