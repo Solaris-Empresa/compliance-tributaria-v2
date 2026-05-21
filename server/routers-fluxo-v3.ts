@@ -1433,16 +1433,6 @@ Gere as perguntas no formato:
         3,
         decretoLeiFilter
       );
-      // LOG TEMPORÁRIO — remover após diagnóstico (Frente B)
-      try {
-        const diagDb = await db.getDb();
-        if (diagDb) {
-          await (diagDb.$client as any).promise().execute(
-            'INSERT INTO diag_frente_b (path, decreto_lei_filter, context_length, context_preview) VALUES (?, ?, ?, ?)',
-            ['V3', JSON.stringify(decretoLeiFilter), decretoCtxBriefing.contextText?.length ?? 0, decretoCtxBriefing.contextText?.slice(0, 500) ?? '(vazio)']
-          );
-        }
-      } catch (e) { /* diag only — ignore */ }
       // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
       // contexto regulatório. Degradação graciosa — "" se ausente/falha.
       const regulatoryContext =
@@ -1687,7 +1677,7 @@ Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORRE
    - AÇÃO: gerar GAP sobre atualização cadastral no novo regime.
 
 IMPORTANTE: Essas regras operam EM ADIÇÃO ao regulatoryContext. Se o RAG já trouxe o artigo, aprofunde com o texto. Se não trouxe, cite o artigo com a descrição curta acima e sinalize na limitação que a análise deve ser validada por advogado tributarista. NUNCA invente texto de artigo que não esteja no regulatoryContext — apenas cite o número e a regra curta.
-Quando o contexto regulatório incluir artigos do Decreto 12.955/2026 ou da Resolução CGIBS 6/2026 que operacionalizem a obrigação descrita, cite o artigo específico como fundamentação infralegal.
+O contexto regulatório abaixo inclui artigos do Decreto 12.955/2026 e/ou da Resolução CGIBS 6/2026. Para cada obrigação ou risco identificado, cite o artigo específico do Decreto 12.955/2026 ou da Resolução CGIBS 6/2026 presente no contexto como fundamentação infralegal, além do artigo da LC 214/2025.
 
 REGRA ANTI-ALUCINAÇÃO — NCM/NBS DE PRODUTOS (issue #808, fix UAT 2026-04-21):
 - NUNCA atribua NCM específico (ex: "arroz NCM 1006") a um produto DA EMPRESA se esse código não estiver cadastrado em "PRINCIPAIS PRODUTOS" do perfil corporativo.
@@ -4113,16 +4103,6 @@ Gere o veredito final em JSON:
         3,
         decretoLeiFilter
       );
-      // LOG TEMPORÁRIO — remover após diagnóstico (Frente B)
-      try {
-        const diagDb = await db.getDb();
-        if (diagDb) {
-          await (diagDb.$client as any).promise().execute(
-            'INSERT INTO diag_frente_b (path, decreto_lei_filter, context_length, context_preview) VALUES (?, ?, ?, ?)',
-            ['FD', JSON.stringify(decretoLeiFilter), decretoCtxBriefing.contextText?.length ?? 0, decretoCtxBriefing.contextText?.slice(0, 500) ?? '(vazio)']
-          );
-        }
-      } catch (e) { /* diag only — ignore */ }
       // Frente C (BUG-FONTES): anexa grounding da Portaria MF/CGIBS 7 ao
       // contexto regulatório. Degradação graciosa — "" se ausente/falha.
       const regulatoryContext =
@@ -4222,7 +4202,7 @@ Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORRE
    - AÇÃO: gerar GAP sobre atualização cadastral.
 
 IMPORTANTE: Essas regras operam EM ADIÇÃO ao regulatoryContext. Se RAG trouxe o artigo, aprofunde com o texto. Se não, cite número e regra curta e sinalize em limitações que validação por advogado é recomendada. NUNCA invente texto de artigo que não esteja no regulatoryContext.
-Quando o contexto regulatório incluir artigos do Decreto 12.955/2026 ou da Resolução CGIBS 6/2026 que operacionalizem a obrigação descrita, cite o artigo específico como fundamentação infralegal.
+O contexto regulatório abaixo inclui artigos do Decreto 12.955/2026 e/ou da Resolução CGIBS 6/2026. Para cada obrigação ou risco identificado, cite o artigo específico do Decreto 12.955/2026 ou da Resolução CGIBS 6/2026 presente no contexto como fundamentação infralegal, além do artigo da LC 214/2025.
 
 REGRA ANTI-ALUCINAÇÃO — NCM/NBS DE PRODUTOS (issue #808, fix UAT 2026-04-21):
 - NUNCA atribua NCM específico (ex: "arroz NCM 1006") a um produto DA EMPRESA se esse código não estiver cadastrado em "PRINCIPAIS PRODUTOS" do perfil.
