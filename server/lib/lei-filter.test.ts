@@ -2,8 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   deriveLeiFilterForRegime,
   SIMPLES_NACIONAL_LEI_FILTER,
-  buildLeiFilterFromSourceBasis,
-  REGULATORY_LEI_FALLBACK,
+  decretoLeiFilterForRegime,
 } from "./lei-filter";
 
 describe("deriveLeiFilterForRegime (#1094)", () => {
@@ -36,37 +35,34 @@ describe("deriveLeiFilterForRegime (#1094)", () => {
   });
 });
 
-describe("buildLeiFilterFromSourceBasis (Frente B — union data-driven)", () => {
-  it("faz union + dedup + sort das arrays de source_basis", () => {
-    const f = buildLeiFilterFromSourceBasis([
-      ["lc214", "decreto12955"],
-      ["lc214", "resolucao_cgibs_6"],
-    ]);
-    expect(f).toEqual(["decreto12955", "lc214", "resolucao_cgibs_6"]);
+describe("decretoLeiFilterForRegime (Frente B — Ramo 2 Opção 1: 2º passe)", () => {
+  it("simples_nacional → apenas ['decreto12955'] (SN não recolhe IBS → sem CGIBS 6)", () => {
+    expect(decretoLeiFilterForRegime("simples_nacional")).toEqual(["decreto12955"]);
   });
 
-  it("ignora entradas com shape legado (string, não array)", () => {
-    const f = buildLeiFilterFromSourceBasis([
-      "LC 214/2025 Arts. 164-166 + Auditoria Manus 2026-05-20",
-      ["decreto12955"],
-    ]);
-    expect(f).toEqual(["decreto12955"]);
-  });
-
-  it("filtra strings vazias dentro das arrays", () => {
-    const f = buildLeiFilterFromSourceBasis([["lc214", "", "  "], ["decreto12955"]]);
-    expect(f).toEqual(["decreto12955", "lc214"]);
-  });
-
-  it("union vazio (tudo null/legado) → fallback regulatório", () => {
-    expect(buildLeiFilterFromSourceBasis([null, undefined, "string-legado", []])).toEqual([
-      ...REGULATORY_LEI_FALLBACK,
+  it("lucro_real → ['decreto12955','resolucao_cgibs_6'] (CBS + IBS)", () => {
+    expect(decretoLeiFilterForRegime("lucro_real")).toEqual([
+      "decreto12955",
+      "resolucao_cgibs_6",
     ]);
   });
 
-  it("retorna cópia nova do fallback (não vaza a constante)", () => {
-    const a = buildLeiFilterFromSourceBasis([]);
+  it("lucro_presumido → ['decreto12955','resolucao_cgibs_6']", () => {
+    expect(decretoLeiFilterForRegime("lucro_presumido")).toEqual([
+      "decreto12955",
+      "resolucao_cgibs_6",
+    ]);
+  });
+
+  it("undefined/null/desconhecido → default não-SN (decreto + cgibs6)", () => {
+    expect(decretoLeiFilterForRegime(undefined)).toEqual(["decreto12955", "resolucao_cgibs_6"]);
+    expect(decretoLeiFilterForRegime(null)).toEqual(["decreto12955", "resolucao_cgibs_6"]);
+    expect(decretoLeiFilterForRegime("mei")).toEqual(["decreto12955", "resolucao_cgibs_6"]);
+  });
+
+  it("retorna cópia nova (não vaza constante compartilhada)", () => {
+    const a = decretoLeiFilterForRegime("lucro_real");
     a.push("x");
-    expect(buildLeiFilterFromSourceBasis([])).not.toContain("x");
+    expect(decretoLeiFilterForRegime("lucro_real")).not.toContain("x");
   });
 });

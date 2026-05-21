@@ -36,36 +36,25 @@ export function deriveLeiFilterForRegime(
 }
 
 /**
- * Frente B (BUG-FONTES) — fallback regulatório quando nenhuma categoria ativa
- * tem `source_basis` em formato array. Rede de segurança; o caminho normal
- * deriva do banco.
- */
-export const REGULATORY_LEI_FALLBACK = [
-  "lc214",
-  "decreto12955",
-  "resolucao_cgibs_6",
-] as const;
-
-/**
- * Frente B — leiFilter data-driven: union deduplicada e ordenada das leis
- * declaradas em `source_basis` das categorias ativas. NÃO hardcode — lê do
- * banco (REGRA-ORQ-32). Fallback regulatório quando o union resulta vazio.
+ * Frente B (BUG-FONTES) — Ramo 2 Opção 1: leiFilter do **2º passe** de retrieval
+ * do briefing, dedicado a garantir presença de regulamentação operacional que o
+ * reranker GPT-4.1 descarta no 1º passe.
  *
- * Robusto a shape misto no banco: a Frente A2 gravou arrays de codigos de lei
- * (`["lc214","decreto12955"]`); linhas legadas gravaram string livre
- * (`"LC 214/2025 Arts..."`) — estas são ignoradas (não são codigos de lei).
+ * Spike 2026-05-21 (`[SPIKE-B]`): com leiFilter union no 1º passe, o reranker
+ * ainda escolheu lc214 em 100% dos 7 slots — decreto/cgibs6 nunca surgem. Logo,
+ * o fix é um 2º passe restrito (topK pequeno) cujo resultado é anexado ao
+ * regulatoryContext (decisão P.O. 2026-05-21; quota global no rag-retriever
+ * rejeitada por blast radius).
+ *
+ * `simples_nacional` → apenas `decreto12955` (SN não recolhe IBS → sem CGIBS 6).
+ * Demais regimes → `decreto12955` + `resolucao_cgibs_6` (CBS + IBS).
  *
  * Pura e determinística — testável isoladamente (lei-filter.test.ts).
  */
-export function buildLeiFilterFromSourceBasis(sourceBases: unknown[]): string[] {
-  const leis = [
-    ...new Set(
-      sourceBases
-        .filter((sb): sb is unknown[] => Array.isArray(sb))
-        .flat()
-        .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
-        .map((x) => x.trim())
-    ),
-  ].sort();
-  return leis.length ? leis : [...REGULATORY_LEI_FALLBACK];
+export function decretoLeiFilterForRegime(
+  taxRegime: string | null | undefined
+): string[] {
+  return taxRegime === "simples_nacional"
+    ? ["decreto12955"]
+    : ["decreto12955", "resolucao_cgibs_6"];
 }
