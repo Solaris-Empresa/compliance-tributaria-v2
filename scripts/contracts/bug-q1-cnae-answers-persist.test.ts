@@ -164,14 +164,20 @@ describe("BUG-Q1 — shouldReconcile (unit test)", () => {
   });
 });
 
-describe("BUG-Q1 — handleFinishQuestionnaire continua agregando skipped no payload", () => {
+describe("BUG-Q1 — payload de skipped ao backend (atualizado por BUG-Q1-V3)", () => {
   const qv3 = readFileSync(QV3_PATH, "utf8");
 
-  it("cnaeAnswersAggregated inclui skipped: c.skipped ?? false", () => {
+  // BUG-Q1-V3 (2026-05-21): a montagem de cnaeAnswersAggregated no frontend foi
+  // SUBSTITUÍDA por cnaeFlags. O backend (completeDiagnosticLayer) reconstrói
+  // cnaeAnswers de questionnaireAnswersV3. O frontend só envia skipped por CNAE.
+  // O campo nivel1Done deixa de ser enviado — é DERIVADO no backend (Lição #84:
+  // fix de origem torna obsoleto o fix parcial do frontend).
+  it("frontend envia skipped por CNAE via cnaeFlags", () => {
     expect(qv3).toMatch(/skipped:\s*c\.skipped\s*\?\?\s*false/);
   });
 
-  it("cnaeAnswersAggregated inclui nivel1Done: c.nivel1Done", () => {
-    expect(qv3).toMatch(/nivel1Done:\s*c\.nivel1Done/);
+  it("frontend NÃO monta mais cnaeAnswersAggregated (substituído por cnaeFlags no V3)", () => {
+    expect(qv3).not.toMatch(/const\s+cnaeAnswersAggregated/);
+    expect(qv3).toMatch(/const\s+cnaeFlags\s*=\s*cnaeProgress\.reduce/);
   });
 });

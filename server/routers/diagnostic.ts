@@ -7,10 +7,13 @@
  * Extraído do fluxoV3Router para resolver inferência de tipos no LSP incremental.
  */
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import * as db from "../db";
+import { questionnaireAnswersV3 } from "../../drizzle/schema";
+import { reconstructCnaeAnswers } from "../lib/reconstruct-cnae-answers";
 import { getDiagnosticSource } from "../diagnostic-source";
 import {
   consolidateDiagnosticLayers,
@@ -158,7 +161,12 @@ export const diagnosticRouter = router({
     .input(z.object({
       projectId: z.number(),
       layer: z.enum(["corporate", "operational", "cnae"]),
-      answers: z.record(z.string(), z.any()),
+      // BUG-Q1-V3: answers opcional — corporate/operational continuam enviando.
+      // Para layer=cnae, o backend RECONSTRÓI de questionnaireAnswersV3 (ignora answers).
+      answers: z.record(z.string(), z.any()).optional(),
+      // BUG-Q1-V3: cnaeFlags — frontend envia apenas flags (skipped) por CNAE.
+      // O backend deriva nivel1Done de fato (rows existentes OR skipped).
+      cnaeFlags: z.record(z.string(), z.object({ skipped: z.boolean() })).optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
@@ -192,8 +200,40 @@ export const diagnosticRouter = router({
       const isToBeFlow = isToBeFlowState((project as any).status ?? "");
       const shouldAdvanceToDiagnosticCnae =
         allComplete || (input.layer === "cnae" && updatedStatus.cnae === "completed" && isToBeFlow);
+
+      // BUG-Q1-V3 (Sprint BUG-FIX 20/05/2026): para layer=cnae, RECONSTRUIR
+      // cnaeAnswers a partir de questionnaireAnswersV3 (source of truth no banco)
+      // em vez de confiar no payload do frontend. Decisão P.O.: 2 PRs frontend
+      // (#1135 + #1140) falharam por closure stale / refetch não-confiável.
+      // Backend tem acesso síncrono e determinístico à tabela granular.
+      let cnaeAnswersValue: Record<string, any>;
+      if (input.layer === "cnae") {
+        const database = await db.getDb();
+        if (!database) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+        }
+        const rows = await database
+          .select()
+          .from(questionnaireAnswersV3)
+          .where(eq(questionnaireAnswersV3.projectId, input.projectId));
+
+        const confirmedCnaes = Array.isArray((project as any).confirmedCnaes)
+          ? ((project as any).confirmedCnaes as Array<{ code?: string; description?: string }>)
+          : [];
+
+        // Reconstrução determinística (função pura, testável isoladamente)
+        cnaeAnswersValue = reconstructCnaeAnswers(
+          rows,
+          confirmedCnaes,
+          input.cnaeFlags ?? {},
+        );
+      } else {
+        // corporate/operational: comportamento original (payload do frontend)
+        cnaeAnswersValue = input.answers ?? {};
+      }
+
       const projectUpdates: Record<string, any> = {
-        [answerField]: input.answers,
+        [answerField]: cnaeAnswersValue,
         diagnosticStatus: updatedStatus,
       };
       if (shouldAdvanceToDiagnosticCnae) {
