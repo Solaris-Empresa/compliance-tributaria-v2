@@ -117,7 +117,11 @@ export const CnaeItemSchema = z.object({
 });
 
 export const CnaesResponseSchema = z.object({
-  cnaes: z.array(CnaeItemSchema).min(1).max(6),
+  cnaes: z.array(CnaeItemSchema).min(1).transform((arr) => {
+    // MASP sweep #1167: trunca em vez de falhar o parse (T=0 → retry não resolve).
+    if (arr.length > 6) console.warn(`[CnaesResponseSchema] cnaes truncado: ${arr.length} → 6`);
+    return arr.slice(0, 6);
+  }),
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -149,7 +153,12 @@ export const QuestionSchema = z.object({
 });
 
 export const QuestionsResponseSchema = z.object({
-  questions: z.array(QuestionSchema).min(1).max(QUESTIONS_SCHEMA_MAX),
+  questions: z.array(QuestionSchema).min(1).transform((arr) => {
+    if (arr.length > QUESTIONS_SCHEMA_MAX) {
+      console.warn(`[QuestionsResponseSchema] questions truncado: ${arr.length} → ${QUESTIONS_SCHEMA_MAX}`);
+    }
+    return arr.slice(0, QUESTIONS_SCHEMA_MAX);
+  }),
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -373,7 +382,11 @@ export const RiskItemSchema = z.object({
 });
 
 export const RisksResponseSchema = z.object({
-  risks: z.array(RiskItemSchema).min(1).max(12), // Reduzido min de 3 para 1
+  risks: z.array(RiskItemSchema).min(1).transform((arr) => {
+    // MASP sweep #1167: trunca em vez de falhar o parse (T=0 → retry não resolve).
+    if (arr.length > 12) console.warn(`[RisksResponseSchema] risks truncado: ${arr.length} → 12`);
+    return arr.slice(0, 12);
+  }), // min reduzido de 3 para 1
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -439,7 +452,11 @@ export const TaskItemSchema = z.object({
 });
 
 export const TasksResponseSchema = z.object({
-  tasks: z.array(TaskItemSchema).min(3).max(12),
+  tasks: z.array(TaskItemSchema).min(3).transform((arr) => {
+    // MASP sweep #1167: trunca em vez de falhar o parse (T=0 → retry não resolve).
+    if (arr.length > 12) console.warn(`[TasksResponseSchema] tasks truncado: ${arr.length} → 12`);
+    return arr.slice(0, 12);
+  }),
 });
 // ─────────────────────────────────────────────────────────────────────────────
 // SCORING GLOBAL (Sprint V61)
@@ -469,7 +486,11 @@ export const DecisaoRecomendadaSchema = z.object({
   prioridade: z.preprocess(normalizeRiskLevel,
     z.enum(["critica", "alta", "media", "baixa"]).catch("alta")
   ),
-  proximos_passos: z.array(z.string()).min(1).max(3), // Reduzido min de 2 para 1
+  proximos_passos: z.array(z.string()).min(1).transform((arr) => {
+    // MASP sweep #1167: trunca em vez de falhar o parse (T=0 → retry não resolve).
+    if (arr.length > 3) console.warn(`[DecisaoRecomendadaSchema] proximos_passos truncado: ${arr.length} → 3`);
+    return arr.slice(0, 3);
+  }), // min reduzido de 2 para 1
   momento_wow: z.string().optional(),
   fundamentacao_legal: z.string().optional().default("Reforma Tributária — EC 132/2023"),
 });
