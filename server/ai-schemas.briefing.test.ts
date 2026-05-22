@@ -114,4 +114,15 @@ describe("BriefingStructuredSchema — bundle D/A/B/C backward-compat", () => {
     };
     expect(() => BriefingStructuredSchema.parse(payload)).toThrow();
   });
+
+  it("DIAG-B: trunca recomendacoes_prioritarias para 5 quando LLM retorna 6+ (não falha o parse)", () => {
+    const payload = {
+      ...PAYLOAD_BASE,
+      principais_gaps: [GAP_LEGACY],
+      recomendacoes_prioritarias: ["r1", "r2", "r3", "r4", "r5", "r6", "r7"],
+    };
+    const parsed = BriefingStructuredSchema.parse(payload);
+    expect(parsed.recomendacoes_prioritarias).toHaveLength(5);
+    expect(parsed.recomendacoes_prioritarias).toEqual(["r1", "r2", "r3", "r4", "r5"]);
+  });
 });
