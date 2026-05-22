@@ -185,8 +185,19 @@ export const BriefingStructuredSchema = z.object({
       .optional()
       .catch(undefined as any),
     source_reference: z.string().optional().catch(undefined as any),
-  })).min(1).max(8),
-  oportunidades: z.array(z.string()).min(1).max(5),
+  })).min(1).transform((arr) => {
+    // MASP sweep: trunca em vez de falhar o parse (T=0 → retry não resolve).
+    if (arr.length > 8) {
+      console.warn(`[BriefingSchema] principais_gaps truncado: ${arr.length} → 8`);
+    }
+    return arr.slice(0, 8);
+  }),
+  oportunidades: z.array(z.string()).min(1).transform((arr) => {
+    if (arr.length > 5) {
+      console.warn(`[BriefingSchema] oportunidades truncado: ${arr.length} → 5`);
+    }
+    return arr.slice(0, 5);
+  }),
   // DIAG-B (BUG-FONTES): LLM às vezes retorna 6+ itens → .max(5) falhava o parse
   // → briefing inteiro não gerava (2/7 no smoke). Opção A (tolerante): trunca para
   // 5 via transform — nunca falha, mantém contrato downstream (≤5). min(1) preservado.
@@ -203,7 +214,13 @@ export const BriefingStructuredSchema = z.object({
     acao: z.string(),
     justificativa: z.string(),
     prazo: z.enum(["imediato", "curto_prazo", "medio_prazo"]).catch("curto_prazo"),
-  })).max(3).optional().default([]),
+  })).optional().default([]).transform((arr) => {
+    // MASP sweep: trunca para 3 em vez de rejeitar (>3 falhava o parse com T=0).
+    if (arr.length > 3) {
+      console.warn(`[BriefingSchema] top_3_acoes truncado: ${arr.length} → 3`);
+    }
+    return arr.slice(0, 3);
+  }),
   inconsistencias: z.array(InconsistenciaSchema).optional().default([]),
   confidence_score: z.object({
     nivel_confianca: z.number().min(0).max(100).catch(70),
