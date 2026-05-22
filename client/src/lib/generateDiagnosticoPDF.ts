@@ -23,6 +23,7 @@
 
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import type { LawInfo } from "./cited-laws";
 import {
   classifyExposicao,
   EXPOSICAO_CONFIG,
@@ -69,6 +70,8 @@ export interface DiagnosticoPDFData {
   versaoNumero?: number;
   versaoGeradaEm?: string | number | Date;
   versaoAprovadaEm?: string | number | Date;
+  // BUG-3/GAP-3: Base Legal dinâmica (leis citadas derivadas dos artigos enriquecidos).
+  citedLaws?: LawInfo[];
 }
 
 const DISCLAIMER = `AVISO LEGAL: Este diagnóstico é uma ferramenta de apoio à decisão tributária elaborada com base nas informações fornecidas pela empresa. Os resultados apresentados — incluindo a identificação de riscos, oportunidades e planos de ação — NÃO constituem parecer jurídico. Toda classificação e recomendação deve ser validada por advogado tributarista ou contador habilitado antes de qualquer ação fiscal, contábil ou de compliance. IA SOLARIS não se responsabiliza por decisões tomadas sem a devida validação profissional.`;
@@ -309,6 +312,28 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
       margin: { left: margin, right: margin },
     });
     y = (doc as any).lastAutoTable.finalY + 8;
+  }
+
+  // ─── Base Legal (BUG-3/GAP-3) ───────────────────────────────────────
+  if (data.citedLaws?.length) {
+    if (y > 245) { doc.addPage(); y = 20; }
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Base Legal", margin, y);
+    y += 5;
+    for (const law of data.citedLaws) {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      doc.text(law.nome, margin, y);
+      y += 4;
+      doc.setFont("helvetica", "normal");
+      const descLines = doc.splitTextToSize(law.descricao, pageW - margin * 2);
+      doc.text(descLines, margin, y);
+      y += descLines.length * 3.5 + 3;
+    }
+    y += 4;
   }
 
   // ─── Disclaimer (rodapé) ────────────────────────────────────────────
