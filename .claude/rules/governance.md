@@ -2494,3 +2494,107 @@ Se PR marca "Fix parcial" sem issue de fix definitivo associada → `validate-pr
 - PR #1135 / Issue #1134 (fix definitivo, 9 dias depois)
 - Lição #59 (assemble ≠ consumption) — esta lição é manifestação simétrica: ter consumidor que compensa não significa que origem está correta
 - Lição #65 (rastrear fluxo end-to-end) — complementa: além de mapear writers/readers, marcar fixes parciais explicitamente
+
+## Lição #85 — DoD de persistência exige verificação SQL, não estado de UI
+
+Origem: Sprint BUG-Q1 (20/05/2026) — PR #1135
+
+### Texto
+
+Um DoD que afirma "persistido" deve ser comprovado por query SQL no estado final, **não** por flag de progresso da UI. `cnaeAnswers` com `nivel1Done=true` e `answers=null` (ou `[]`) é um **DoD inválido**: o flag de conclusão diz "o usuário terminou", mas a ausência de `answers` prova que nada foi gravado. Flag de progresso ≠ evidência de dado persistido.
+
+### Caso canônico
+
+BUG-Q1: projetos com `cnaeAnswers = {answers: [], nivel1Done: false}` apesar do fluxo percorrido. O critério confiava no flag; só a query (`SELECT cnaeAnswers FROM projects WHERE id=?`) revelou `answers` vazio.
+
+### Vinculadas
+
+- PR #1135 / Issue #1134 · Lição #84 (fix de consumidor ≠ fix de origem) · Lição #59
+
+## Lição #86 — Persistência crítica não depende de estado efêmero do frontend
+
+Origem: Sprint BUG-Q1 (20/05/2026) — PR #1142
+
+### Texto
+
+Dado crítico (que alimenta diagnóstico/briefing) deve ser reconstruído pelo backend a partir da **fonte de verdade no banco**, não depender do estado efêmero do frontend (que se perde em reload, navegação, timeout). Se o backend consegue reconstruir de uma fonte canônica granular, deve fazê-lo — não confiar que o frontend enviou tudo.
+
+### Caso canônico
+
+PR #1142: `cnaeAnswers` ficava incompleto quando dependia do state do React no momento do finish. Fix: backend reconstrói `cnaeAnswers` de `questionnaireAnswersV3` (fonte de verdade granular no banco), independente do payload do frontend.
+
+### Vinculadas
+
+- PR #1142 / Issue #1141 · Lição #85 · Lição #62 (contexto vs evidência)
+
+## Lição #87 — Smoke estático ≠ prova de consumo (extensão REGRA-ORQ-27 / Lição #59)
+
+Origem: BUG-FONTES Frente C (21/05/2026) — crítica do smoke do PR #1143
+
+### Texto
+
+Um relatório de smoke que afirma "feature funciona" baseado em **análise estática de código** (grep, leitura) NÃO prova consumo em runtime. Para features de cadeia assemble→consumption (ex.: grounding injetado no contexto do LLM), o critério de smoke DEVE incluir **evidência de runtime**: query no estado real, log do payload, ou execução observável. Análise estática prova que o código EXISTE (assemble), não que é CONSUMIDO.
+
+### Caso canônico
+
+Smoke do PR #1143 (Portaria grounding) declarou "4/4 PASS" mas a afirmação central (grounding chega ao LLM) apoiava-se em "análise estática do código". A degradação graciosa de `fetchPortariaGrounding` (retorna `""` em falha) tornava "injetado" e "falhou silenciosamente" **indistinguíveis** no output. Só a query runtime (`SELECT conteudo FROM ragDocuments WHERE lei='portaria_mf_cgibs_7'` → 2 chunks não-vazios) fechou a lacuna.
+
+### Vinculadas
+
+- REGRA-ORQ-27 (assemble ≠ consumption) · Lição #59 · Lição #64 (audit-greps vs runtime tests) · PR #1143 · `docs/governance/audits/smoke-pr-1143-frente-c.md`
+
+## Lição #88 — Acoplamento de engine oculto deve ser declarado no PR (extensão Lição #63)
+
+Origem: BUG-FONTES Frente A2 (21/05/2026) — análise da Opção B
+
+### Texto
+
+Criar dados que parecem "seed puro" (novas linhas em tabela de configuração) pode ter **acoplamento oculto** com engine determinístico hardcoded. Antes de seedar novos códigos/categorias, verificar se o engine os reconhece via tipo/tabela hardcoded. Havendo acoplamento, o PR DEVE declarar a dependência explícita — não tratar como seed trivial.
+
+### Caso canônico
+
+A2 Opção B propunha 3 novas linhas `credito_presumido_*` em `risk_categories` (aparente seed puro). Verificação revelou: `risk-engine-v4.ts` tem `type Categoria` (union fechada de 11), `SEVERITY_TABLE` e `TITULO_TEMPLATES` keyed por codigo literal → novos codigos teriam severidade `undefined` / título genérico / risco `unmapped`. P.O. optou pela Opção A (enriquecer o genérico). Opção B → backlog #1146 com pré-requisitos de investigação do engine.
+
+### Vinculadas
+
+- Lição #63 (spec arquiteturalmente correta ≠ implementável) · Lição #62/#65 · `backend.md` ("NÃO tocar SEVERITY_TABLE") · Issue #1146 (A2-future)
+
+## Lição #89 — scripts/ fora do tsconfig: tsc não valida seeds
+
+Origem: BUG-FONTES Frentes A1/A2 (21/05/2026)
+
+### Texto
+
+O `tsconfig.json` tem `include: ["client/src/**", "shared/**", "server/**"]` — **`scripts/` está fora**. Logo, `pnpm tsc --noEmit` (gate de qualidade) NÃO valida arquivos em `scripts/`. Erros de tipo em scripts de seed/migration/diag passam pelo gate. Validar scripts por leitura cuidadosa + execução `tsx` (que o Manus roda em prod) antes de commitar — não confiar no tsc.
+
+### Caso canônico
+
+Scripts A1/A2 (`scripts/bug-fontes-a1-block-is.ts`, `bug-fontes-a2-enrich-credito-split.ts`) compilavam sem checagem do tsc. Caso reforçado pelo diag #1153: `mysql.createConnection(DATABASE_URL)` direto compilava (não checado) mas falhava em runtime (TLS TiDB Cloud) — fix via pool `getDb()` (#1154).
+
+### Vinculadas
+
+- `tsconfig.json` (include sem `scripts/`) · Lição #71 (scripts DoD commitados) · Lição #72 (driver mysql2) · PRs #1147/#1148/#1154
+
+## Lição #90 — Nudge é necessário, não suficiente: citação de normativa infralegal exige injeção determinística
+
+Origem: BUG-FONTES Frente B (21/05/2026) — PRs #1155 (nudge) + #1156 (injeção) + #1157 (parse)
+
+### Texto
+
+Nudge imperativo é **condição necessária, não suficiente** para o LLM citar normativas infralegais. A causa raiz do BUG-FONTES era **estrutural**: 79% (659/831) dos chunks do Decreto têm `cnaeGroups=""` + o `briefingQueryCtx` é domain-specific → o 2º passe via retrieval retornava ~0 chunks em produção (o spike local "passou" por usar query genérica não-representativa).
+
+**Solução definitiva: injeção determinística por-lei** (padrão `fetchPortariaGrounding` / Frente C) — busca os artigos por categoria direto do corpus (`WHERE lei=? AND artigo IN (...)`), **zero dependência de reranker ou keyword match**.
+
+**Bug adicional (Lição #72):** Drizzle/MySQL retornou `normativeBundle` como **string crua** (não objeto parsed) → acesso a `.artigos_decreto` em string = `undefined` → injeção vazia. Sempre aplicar `typeof raw === "string" ? JSON.parse(raw) : raw`.
+
+**Fix completo = #1155 (nudge) + #1156 (injeção determinística) + #1157 (parse).** Nenhum sozinho bastava.
+
+**Ausência de citação em categorias sem `normative_bundle` curado é COBERTURA (Lição #66), não falha de nudge.** Ex.: SN 120001 (gaps de alíquota zero / cadastro) não citou Decreto porque essas categorias não foram curadas — não porque o nudge falhou. "Reforçar o nudge" não resolve cobertura; o caminho é curar mais categorias.
+
+### Validação
+
+Smoke [SMOKE-B-FINAL-V2] (local — dev server + DB prod): projeto 660001 (lucro_presumido) citou "Art. 28 a 31 do Decreto 12.955/2026" (split_payment) → **consumo provado** (≠ as 4 tentativas anteriores e ≠ análise estática). Critério 4a (SN não citou) = cobertura, não bug. Deploy em produção (Publish) pendente — re-validar em prod.
+
+### Vinculadas
+
+- PRs #1155 / #1156 / #1157 · Lição #87 (smoke estático ≠ consumo) · Lição #72 (driver mysql2 JSON) · Lição #66 (cobertura — spec sem dados é ilusão) · Lição #88 (acoplamento engine) · REGRA-ORQ-27 (assemble ≠ consumption) · REGRA-ORQ-36 (5 técnicas) · Frente C / #1143 (padrão da injeção)
