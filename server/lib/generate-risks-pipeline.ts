@@ -99,6 +99,8 @@ export async function generateRisksV4Pipeline(
     context,
     actorId,
     archetypeContext || undefined,
+    // BUG-1 (Opção C): regime para o filtro CGIBS-SN no enrichArticle.
+    profile?.taxRegime ?? undefined,
   );
 
   // 4. Inferir riscos normativos independentes
