@@ -9,7 +9,7 @@
  *       global audit log tab.
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRoute, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -918,6 +918,24 @@ export default function ActionPlanPage() {
     [data]
   );
 
+  // BUG-2: dados reais para o PDF (antes hardcoded zerados). Mesmo padrão de ConsolidacaoV4.
+  const approvedRisks = useMemo(
+    () => (data?.risks ?? []).filter((r: any) => r.approved_at && r.type === "risk"),
+    [data]
+  );
+  const opportunities = useMemo(
+    () => (data?.risks ?? []).filter((r: any) => r.type === "opportunity"),
+    [data]
+  );
+  const scoreMutation = trpc.risksV4.calculateAndSaveScore.useMutation();
+  const score = scoreMutation.data;
+  useEffect(() => {
+    if (projectId && !scoreMutation.data && !scoreMutation.isPending) {
+      scoreMutation.mutate({ projectId });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
+
   // Find the parent risk for the traceability banner
   const parentRisk = useMemo(() => {
     if (!riskIdParam || !data?.risks) return null;
@@ -995,12 +1013,23 @@ export default function ActionPlanPage() {
                 onClick={() => {
                   generateDiagnosticoPDF({
                     cnpj: undefined,
-                    score: 0,
-                    nivel: "baixo",
-                    totalAlta: 0,
-                    totalMedia: 0,
-                    risks: [],
-                    opportunities: [],
+                    score: score?.score ?? 0,
+                    nivel: score?.nivel ?? "baixo",
+                    totalAlta: score?.total_alta ?? 0,
+                    totalMedia: score?.total_media ?? 0,
+                    risks: approvedRisks.map((r: any) => ({
+                      titulo: r.titulo,
+                      categoria: r.categoria,
+                      severidade: r.severidade,
+                      artigo: r.artigo || "",
+                      source_priority: r.source_priority,
+                      rag_validated: r.rag_validated,
+                    })),
+                    opportunities: opportunities.map((o: any) => ({
+                      titulo: o.titulo,
+                      categoria: o.categoria,
+                      artigo: o.artigo || "",
+                    })),
                     plans: allPlans.map((p: any) => ({
                       titulo: p.titulo,
                       responsavel: p.responsavel,
