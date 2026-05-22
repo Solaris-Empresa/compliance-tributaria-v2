@@ -366,6 +366,58 @@ function buildLegalTitle(categoria: string, ctx: OperationalContext): string {
   return template.replace("{op}", ctx.tipoOperacao ?? "geral");
 }
 
+/** Parse defensivo do normative_bundle (Lição #72: pode vir string ou objeto). */
+function parseNormativeBundle(
+  raw: unknown
+): { artigos_decreto?: string[] | null; artigos_cgibs6?: string[] | null } | null {
+  if (raw == null) return null;
+  let obj: unknown = raw;
+  if (typeof raw === "string") {
+    try {
+      obj = JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+  if (typeof obj !== "object" || obj === null || Array.isArray(obj)) return null;
+  return obj as { artigos_decreto?: string[] | null; artigos_cgibs6?: string[] | null };
+}
+
+/** Range compacto "Arts. min-max LEI" (ou "Art. N LEI" para 1 artigo); "" se vazio. */
+function formatArticleRange(artigos: string[] | null | undefined, lei: string): string {
+  if (!artigos?.length) return "";
+  const nums = artigos
+    .map((a) => parseInt(String(a).replace(/\D/g, ""), 10))
+    .filter((n) => !Number.isNaN(n))
+    .sort((a, b) => a - b);
+  if (nums.length === 0) return "";
+  if (nums.length === 1) return `Art. ${nums[0]} ${lei}`;
+  return `Arts. ${nums[0]}-${nums[nums.length - 1]} ${lei}`;
+}
+
+/**
+ * BUG-1/GAP-1 (Opção C): deriva o `artigo` do risco do `normative_bundle` em runtime —
+ * concatena o artigo_base (LC 214) com os artigos infralegais curados (Decreto 12.955 +
+ * Resolução CGIBS 6). Graceful: sem bundle / sem artigos_decreto → só artigo_base.
+ * CGIBS incluído apenas para regimes != simples_nacional (mesma lógica do PR #1099).
+ */
+export function enrichArticle(
+  artigoBase: string,
+  normativeBundle: unknown,
+  regime?: string | null
+): string {
+  const bundle = parseNormativeBundle(normativeBundle);
+  if (!bundle) return artigoBase;
+  const parts = [artigoBase];
+  const decreto = formatArticleRange(bundle.artigos_decreto, "Decreto 12.955/2026");
+  if (decreto) parts.push(decreto);
+  if (regime !== "simples_nacional") {
+    const cgibs = formatArticleRange(bundle.artigos_cgibs6, "Resolução CGIBS 6/2026");
+    if (cgibs) parts.push(cgibs);
+  }
+  return parts.join("; ");
+}
+
 /**
  * Consolida N gaps em riscos agrupados por categoria + contexto operacional.
  * Substitui a lógica 1:1 de computeRiskMatrix para a geração de riscos persistidos.
@@ -376,6 +428,8 @@ export async function consolidateRisks(
   context: OperationalContext,
   actorId: number,
   archetypeContext?: string,
+  // BUG-1 (Opção C): regime do projeto para o filtro CGIBS-SN do enrichArticle.
+  regime?: string | null,
 ): Promise<InsertRiskV4[]> {
   // 1. Agrupar por risk_key
   const grouped = new Map<string, GapRule[]>();
@@ -470,7 +524,12 @@ export async function consolidateRisks(
     if (dbCat) {
       catSeverity = dbCat.severidade as Severity;
       catUrgency = dbCat.urgencia as Urgency;
-      catArtigo = dbCat.artigo_base;
+      // BUG-1/GAP-1 (Opção C): enriquece com Decreto/CGIBS do normative_bundle (runtime).
+      catArtigo = enrichArticle(
+        dbCat.artigo_base,
+        (dbCat as { normative_bundle?: unknown }).normative_bundle,
+        regime
+      );
       catTipo = dbCat.tipo as "risk" | "opportunity";
     } else {
       const fallback = SEVERITY_TABLE[categoria as Categoria];
