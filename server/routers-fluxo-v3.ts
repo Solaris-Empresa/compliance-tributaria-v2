@@ -1783,6 +1783,20 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         ) as any;
       }
 
+      // DIAG-A (BUG-FONTES): gate anti-alucinação — flag (não-destrutivo) citações de
+      // artigo infralegal (Decreto/CGIBS) fora do normative_bundle curado. console.warn
+      // p/ auditoria; texto intacto (remoção = PR futuro após dados de frequência).
+      if (Array.isArray(structured.principais_gaps)) {
+        const { loadAllowedArticles, flagHallucinatedCitations } = await import(
+          "./lib/validate-article-citations"
+        );
+        const allowedArticles = await loadAllowedArticles();
+        structured.principais_gaps = flagHallucinatedCitations(
+          structured.principais_gaps,
+          allowedArticles
+        ) as any;
+      }
+
       // fix(BUG-1 UAT 2026-04-20): preservar inconsistências dismissed entre regenerações.
       // Se o usuário resolveu uma inconsistência na v1 e o LLM detecta a mesma na v2,
       // filtramos aqui para não reaparecer. Dismissed list persiste em briefingStructured.
@@ -4264,6 +4278,20 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         );
         structured.principais_gaps = consolidateGapsByArticle(
           structured.principais_gaps
+        ) as any;
+      }
+
+      // DIAG-A (BUG-FONTES): gate anti-alucinação — flag (não-destrutivo) citações de
+      // artigo infralegal (Decreto/CGIBS) fora do normative_bundle curado. console.warn
+      // p/ auditoria; texto intacto (remoção = PR futuro após dados de frequência).
+      if (Array.isArray(structured.principais_gaps)) {
+        const { loadAllowedArticles, flagHallucinatedCitations } = await import(
+          "./lib/validate-article-citations"
+        );
+        const allowedArticles = await loadAllowedArticles();
+        structured.principais_gaps = flagHallucinatedCitations(
+          structured.principais_gaps,
+          allowedArticles
         ) as any;
       }
 
