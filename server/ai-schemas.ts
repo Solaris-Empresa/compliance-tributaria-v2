@@ -190,7 +190,12 @@ export const BriefingStructuredSchema = z.object({
   // DIAG-B (BUG-FONTES): LLM às vezes retorna 6+ itens → .max(5) falhava o parse
   // → briefing inteiro não gerava (2/7 no smoke). Opção A (tolerante): trunca para
   // 5 via transform — nunca falha, mantém contrato downstream (≤5). min(1) preservado.
-  recomendacoes_prioritarias: z.array(z.string()).min(1).transform((arr) => arr.slice(0, 5)),
+  recomendacoes_prioritarias: z.array(z.string()).min(1).transform((arr) => {
+    if (arr.length > 5) {
+      console.warn(`[BriefingSchema] recomendacoes_prioritarias truncado: ${arr.length} → 5`);
+    }
+    return arr.slice(0, 5);
+  }),
   // issue #810: Top 3 ações destiladas pelo LLM para o bloco executivo do briefing.
   // Opcional com default [] — garante backward-compat com briefings legados e
   // tolera LLMs que falhem em preencher o campo.
