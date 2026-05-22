@@ -9,7 +9,7 @@
  * Garante backward-compat do schema após o bundle.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { BriefingStructuredSchema } from "./ai-schemas";
 
 const GAP_LEGACY = {
@@ -101,18 +101,34 @@ describe("BriefingStructuredSchema — bundle D/A/B/C backward-compat", () => {
     expect(parsed.top_3_acoes[0].prazo).toBe("curto_prazo");
   });
 
-  it("top_3_acoes com mais de 3 itens → rejeita", () => {
+  it("MASP: top_3_acoes > 3 → trunca para 3 (não rejeita) + console.warn", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const payload = {
       ...PAYLOAD_BASE,
-      principais_gaps: [GAP_LEGACY, GAP_LEGACY, GAP_LEGACY],
+      principais_gaps: [GAP_LEGACY],
+      top_3_acoes: Array.from({ length: 5 }, (_, i) => ({
+        acao: `A${i}`,
+        justificativa: "j",
+        prazo: "imediato",
+      })),
+    };
+    const parsed = BriefingStructuredSchema.parse(payload);
+    expect(parsed.top_3_acoes).toHaveLength(3);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("MASP: top_3_acoes no limite (3) → passa sem truncar", () => {
+    const payload = {
+      ...PAYLOAD_BASE,
+      principais_gaps: [GAP_LEGACY],
       top_3_acoes: [
         { acao: "A", justificativa: "j", prazo: "imediato" },
         { acao: "B", justificativa: "j", prazo: "imediato" },
         { acao: "C", justificativa: "j", prazo: "imediato" },
-        { acao: "D", justificativa: "j", prazo: "imediato" },
       ],
     };
-    expect(() => BriefingStructuredSchema.parse(payload)).toThrow();
+    expect(BriefingStructuredSchema.parse(payload).top_3_acoes).toHaveLength(3);
   });
 
   it("DIAG-B: trunca recomendacoes_prioritarias para 5 quando LLM retorna 6+ (não falha o parse)", () => {
@@ -124,5 +140,43 @@ describe("BriefingStructuredSchema — bundle D/A/B/C backward-compat", () => {
     const parsed = BriefingStructuredSchema.parse(payload);
     expect(parsed.recomendacoes_prioritarias).toHaveLength(5);
     expect(parsed.recomendacoes_prioritarias).toEqual(["r1", "r2", "r3", "r4", "r5"]);
+  });
+
+  it("MASP: principais_gaps > 8 → trunca para 8 + console.warn", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const payload = {
+      ...PAYLOAD_BASE,
+      principais_gaps: Array.from({ length: 10 }, () => GAP_LEGACY),
+    };
+    const parsed = BriefingStructuredSchema.parse(payload);
+    expect(parsed.principais_gaps).toHaveLength(8);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("MASP: principais_gaps no limite (8) → passa sem truncar", () => {
+    const payload = {
+      ...PAYLOAD_BASE,
+      principais_gaps: Array.from({ length: 8 }, () => GAP_LEGACY),
+    };
+    expect(BriefingStructuredSchema.parse(payload).principais_gaps).toHaveLength(8);
+  });
+
+  it("MASP: oportunidades > 5 → trunca para 5", () => {
+    const payload = {
+      ...PAYLOAD_BASE,
+      principais_gaps: [GAP_LEGACY],
+      oportunidades: Array.from({ length: 7 }, (_, i) => `op${i}`),
+    };
+    expect(BriefingStructuredSchema.parse(payload).oportunidades).toHaveLength(5);
+  });
+
+  it("MASP: oportunidades dentro do limite (3) → não trunca", () => {
+    const payload = {
+      ...PAYLOAD_BASE,
+      principais_gaps: [GAP_LEGACY],
+      oportunidades: ["a", "b", "c"],
+    };
+    expect(BriefingStructuredSchema.parse(payload).oportunidades).toHaveLength(3);
   });
 });
