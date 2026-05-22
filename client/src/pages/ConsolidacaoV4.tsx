@@ -9,6 +9,7 @@ import { useMemo, useEffect } from "react";
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { generateDiagnosticoPDF } from "@/lib/generateDiagnosticoPDF";
+import { deriveCitedLaws } from "@/lib/cited-laws";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -120,6 +121,12 @@ export default function ConsolidacaoV4() {
   const opportunities = useMemo(
     () => allRisks.filter((r: any) => r.type === "opportunity"),
     [allRisks]
+  );
+  // BUG-3/GAP-3: Base Legal dinâmica — leis citadas derivadas dos artigos
+  // enriquecidos (#1169) de riscos + oportunidades. LC 214 sempre presente.
+  const citedLaws = useMemo(
+    () => deriveCitedLaws(approvedRisks, opportunities),
+    [approvedRisks, opportunities]
   );
   const deletedRisks = useMemo(
     () => allRisks.filter((r: any) => r.status === "deleted"),
@@ -608,13 +615,12 @@ export default function ConsolidacaoV4() {
             <CardTitle className="text-base">Base Legal</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div data-testid="lei-card" className="rounded border p-3">
-              <p className="text-sm font-medium">Lei Complementar 214/2025</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Institui o Imposto sobre Bens e Serviços (IBS), a Contribuição Social sobre Bens e Serviços (CBS)
-                e o Imposto Seletivo (IS), e dá outras providências.
-              </p>
-            </div>
+            {citedLaws.map((law) => (
+              <div key={law.nome} data-testid="lei-card" className="rounded border p-3">
+                <p className="text-sm font-medium">{law.nome}</p>
+                <p className="text-xs text-muted-foreground mt-1">{law.descricao}</p>
+              </div>
+            ))}
           </CardContent>
         </Card>
 
@@ -664,6 +670,7 @@ export default function ConsolidacaoV4() {
             onClick={() => {
               generateDiagnosticoPDF({
                 cnpj: undefined,
+                citedLaws,
                 score: score?.score ?? 0,
                 nivel: score?.nivel ?? "baixo",
                 totalAlta: score?.total_alta ?? 0,
