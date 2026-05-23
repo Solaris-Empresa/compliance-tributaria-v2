@@ -453,36 +453,16 @@ export const VALID_TRANSITIONS: Record<string, string[]> = {
 };
 
 /**
- * BUG-FSM-01 (23/05): estados que aceitam re-submit idempotente (from === to).
- * Decisão P.O.: SOMENTE estados com caller real de re-submit mapeado
- * (routers-fluxo-v3.ts:4841 onda1_solaris · :5289 onda2_iagen). NÃO adicionar sem
- * caso concreto. Geração de riscos (risksV4) é fora da FSM de status.
- */
-const IDEMPOTENT_STATES = new Set<string>(['onda1_solaris', 'onda2_iagen']);
-
-/**
  * Valida se a transição de `from` para `to` é permitida.
  * Lança TRPCError com code FORBIDDEN se a transição for inválida.
- *
- * BUG-FSM-01: re-submit para estado já ativo (from === to) em IDEMPOTENT_STATES é
- * aceito como no-op idempotente → retorna { idempotent: true } sem lançar. Desativável
- * via env FSM_IDEMPOTENCY_ENABLED=false (lido em runtime — rollback L1 sem redeploy).
  *
  * Uso: chamar antes de qualquer UPDATE no campo `status` de um projeto.
  *
  * @param from - Status atual do projeto
  * @param to   - Status desejado após a transição
- * @returns { idempotent } — true se foi re-submit no-op; false se transição normal
  * @throws TRPCError({ code: 'FORBIDDEN' }) se a transição não for permitida
  */
-export function assertValidTransition(from: string, to: string): { idempotent: boolean } {
-  // Flag lida em runtime: permite toggle via env sem redeploy (rollback L1).
-  const idempotencyEnabled = process.env.FSM_IDEMPOTENCY_ENABLED !== 'false';
-  if (idempotencyEnabled && from === to && IDEMPOTENT_STATES.has(to)) {
-    console.info(`[flowStateMachine] Idempotent re-submit: "${from}" → "${to}" (no-op)`);
-    return { idempotent: true };
-  }
-
+export function assertValidTransition(from: string, to: string): void {
   const allowed = VALID_TRANSITIONS[from];
   if (!allowed) {
     throw new TRPCError({
@@ -499,7 +479,6 @@ export function assertValidTransition(from: string, to: string): { idempotent: b
                `[${VALID_TRANSITIONS[from]?.join(', ') ?? 'nenhuma'}]`
     });
   }
-  return { idempotent: false };
 }
 
 // ─── Z-02 TO-BE — ADR-0010 — Funções de roteamento Q.Produtos e Q.Serviços ──
