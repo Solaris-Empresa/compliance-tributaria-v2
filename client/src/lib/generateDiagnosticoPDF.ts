@@ -57,6 +57,9 @@ export interface DiagnosticoPDFData {
     responsavel: string;
     prazo: string;
     status: string;
+    // BUG-RASTREAB-01 (#1189): rastreabilidade Ação→Risco no PDF
+    risco_categoria?: string;
+    risco_artigo?: string;
     tasks?: Array<{
       titulo: string;
       status: string;
@@ -300,9 +303,11 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
 
     autoTable(doc, {
       startY: y,
-      head: [["Plano", "Responsável", "Prazo", "Status"]],
+      // BUG-RASTREAB-01 (#1189): coluna "Risco (Art.)" — referência normativa do risco vinculado
+      head: [["Plano", "Risco (Art.)", "Responsável", "Prazo", "Status"]],
       body: data.plans.map((p) => [
         p.titulo.length > 40 ? p.titulo.slice(0, 40) + "…" : p.titulo,
+        p.risco_artigo || "—",
         p.responsavel,
         p.prazo,
         p.status,
