@@ -2614,6 +2614,7 @@ Os gates de CI do projeto têm comportamentos não-óbvios que custam ciclos se 
 | 3 | **Arquivo critical-path exige label** | Tocar `flowStateMachine`/`getDiagnosticSource`/`flowRouter`/`FlowStepper` → label **`critical-path`** (Guard Regra 3, `changed-files-guard.js`); migration → **`db:migration`**; RAG → **`rag:review`**. Sem o label → Governance gate + Guard critical bloqueiam. |
 | 4 | **`autoaudit` re-dispara só em `synchronize`/`opened`, NÃO em `edited`** | Editar o body sozinho não re-roda o gate. **Empty commit** (`git commit --allow-empty`) gera `synchronize` e re-lê o body atual. |
 | 5 | **Número de migration — verificar colisão** | Não assumir "próximo número". `ls drizzle/0NNN*.sql` — PRs em voo podem ter reservado o número (ex.: 0101 #1156, 0102 #1181 → próximo 0103). |
+| 6 | **Menção INLINE de fence-json na PROSA conta como bloco** | Escrever a sequência crase-crase-crase+json no texto do body (ex.: descrevendo o gotcha #1) é detectado como fence de evidência → parse inválido. Caso canônico: o PR #1185 desta própria lição falhou por isso. **Solução:** na prosa, escrever "bloco JSON cercado" — nunca o fence literal. |
 
 ### Validação prática
 
