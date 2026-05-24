@@ -19,6 +19,12 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import mysql from "mysql2/promise";
 import { ENV } from "../_core/env";
+// P2-B (#1203): gate credito_presumido nos gaps determinísticos (BriefingEngineView lê
+// project_gaps_v3 direto, sem passar pelo consolidateRisks). Reusa helpers do #1200.
+import {
+  isCreditoPresumidoArt168Eligible,
+  filterCreditoPresumidoGaps,
+} from "../lib/credito-presumido-eligibility";
 
 // ===========================================================================
 // SCHEMAS PÚBLICOS (exportados para testes)
@@ -469,7 +475,7 @@ export async function generateBriefing(
   if (!project) throw new Error(`Projeto ${projectId} não encontrado`);
 
   // 2. Buscar gaps
-  const [gaps] = await pool.query<mysql.RowDataPacket[]>(
+  const [rawGaps] = await pool.query<mysql.RowDataPacket[]>(
     `SELECT * FROM project_gaps_v3
      WHERE project_id = ?
      ORDER BY score DESC,
@@ -477,6 +483,18 @@ export async function generateBriefing(
     // COALESCE(0.8): valor fixo — posiciona gaps sem confidence entre solaris(0.90) e iagen(0.70)
     // NÃO alterar sem revisão do P.O. (TO-BE v3 — 2026-04-06)
     [projectId]
+  );
+
+  // P2-B (#1203): BriefingEngineView lê project_gaps_v3 direto (não passa pelo gate do
+  // consolidateRisks). Filtra credito_presumido quando o perfil NÃO é elegível ao Art. 168
+  // (mesmo gate da matriz #1200 — consistência). Cobre principais_gaps + top_gaps + counts.
+  const _cpElig = await isCreditoPresumidoArt168Eligible(
+    projectId,
+    ((project as any).taxRegime as string | null) ?? null,
+  );
+  const gaps = filterCreditoPresumidoGaps(
+    rawGaps as Array<mysql.RowDataPacket & { risk_category_code?: string | null }>,
+    _cpElig.eligible,
   );
 
   // 3. Buscar riscos — migrado de project_risks_v3 para risks_v4
