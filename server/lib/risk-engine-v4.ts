@@ -16,6 +16,7 @@ import {
 import type { CategoriaCanonica } from "./risk-categorizer";
 // Issue #1046 — filtro de IS por elegibilidade NCM/CNAE (Art. 393 §1º LC 214/2025)
 import { isImpostoSeletivoEligible } from "./risk-eligibility-is-ncm-cnae";
+import { isAliquotaReduzidaEligible } from "./cnae-oportunidade-eligibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -506,6 +507,21 @@ export async function consolidateRisks(
       if (!isElig.eligible) {
         console.warn(
           `[risk-engine-v4] skip risco IS (Issue #1046 / Art. 393 §1º) — projeto=${projectId} ncms=[${(context.ncmCodes ?? []).join(",")}] cnaes=[${(context.confirmedCnaes ?? []).join(",")}] reason=${isElig.reason}`,
+        );
+        continue;
+      }
+    }
+
+    // FEAT-SCOPE-01 (#1177 / Art. 127 LC 214/2025): a oportunidade de alíquota
+    // reduzida (30%) é restrita a profissionais liberais sob conselho. Filtro
+    // data-driven por CNAE (tabela cnae_aplicavel_oportunidade) — construtoras
+    // (CNAE 4120) e demais CNAEs não-elegíveis NÃO recebem esta oportunidade.
+    // Default conservador: CNAE não encontrado / excluido / pending_legal → skip.
+    if (categoria === "aliquota_reduzida") {
+      const elig = await isAliquotaReduzidaEligible(context.confirmedCnaes ?? []);
+      if (!elig.eligible) {
+        console.warn(
+          `[risk-engine-v4] skip oportunidade aliquota_reduzida (FEAT-SCOPE-01 / Art. 127) — projeto=${projectId} cnaes=[${(context.confirmedCnaes ?? []).join(",")}] reason=${elig.reason}`,
         );
         continue;
       }

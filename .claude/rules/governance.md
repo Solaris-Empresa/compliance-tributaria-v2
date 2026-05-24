@@ -2627,3 +2627,45 @@ Esperar `✅ PR body validado com sucesso` antes de abrir o PR.
 ### Vinculadas
 
 - PRs #1181 / #1182 (FIX-NORM) — casos canônicos · PR #1173 (label critical-path) · REGRA-ORQ-15 (PR body template) · REGRA-ORQ-CI-01 (CI verde pré-merge) · `.github/scripts/validate-pr-body.js` · `.github/scripts/changed-files-guard.js`
+
+## Lição #92 — `touchesRag` casa `cnae`: falso-positivo em CNAE tributário (24/05/2026)
+
+Origem: PR #1186 (FEAT-SCOPE-01) — split forçado em 2 PRs por falso-positivo do Guard.
+
+### Texto
+
+`changed-files-guard.js:41` define `touchesRag` com `f.toLowerCase().includes('cnae')`. A intenção é proteger o **subsistema RAG de descoberta de CNAE** (embeddings/semantic search). Mas a heurística é larga demais: **qualquer arquivo com "cnae" no nome** (incluindo features de CNAE **tributário** determinístico, sem RAG) é classificado como domínio RAG.
+
+Consequência: PRs de CNAE tributário que **também** tocam migration (`schema.ts`/`.sql`/`drizzle/`) disparam:
+- **REGRA 2** (exige label `rag:review`), e
+- **REGRA 5** (`migration + RAG = PROIBIDO` — hard-block incondicional, **sem escape por label**, linha 116).
+
+→ O PR fica **impossível de mergear** sem split, mesmo não tocando `ragDocuments`/embeddings/recuperação.
+
+### Workaround aplicado (PR #1187 + PR #1188, FEAT-SCOPE-01)
+
+1. **Split em 2 PRs:** migration (schema.ts + `.sql`) primeiro; engine + reader + testes depois.
+2. **Filename da migration sem "cnae"** (REGRA-ORQ-FILENAME-01 / Lição #81) → migration PR tem `touchesRag=false` → sem REGRA 5.
+3. **PR de engine** tem `touchesRag=true` (arquivos `*cnae*.ts`) mas **sem migration** → só REGRA 2 → resolvido com label `rag:review` proativo.
+4. **Body sem keywords do auto-labeler** (`corpus`/`chunks`/`ingestão`/`anchor_id`) — senão `label-governance.yml` aplica `rag:corpus` → dispara o RAG Quality Gate (REGRA-ORQ-37) indevidamente.
+
+### 2º trigger estrutural — RAG Quality Gate (path `drizzle/schema.ts`)
+
+O mesmo tipo de falso-positivo existe em **OUTRO gate**: `rag-quality-gate.yml` tem `paths: - 'drizzle/schema.ts'` (linha 14). **Qualquer** migration que toque `schema.ts` — inclusive tabelas **não-RAG** (ex: `cnae_aplicavel_oportunidade`, tributária) — dispara o RAG Quality Gate, que exige a seção "Gate RAG — Evidências de Qualidade" com checkboxes de **ingestão** (`anchor_id 100%`, `gold set`, `chunks invisíveis`...). **Não há label de skip.** Marcar esses checkboxes em PR não-RAG seria **declaração falsa** → correto NÃO marcar.
+
+**Padrão estabelecido:** para migration não-RAG que toca `schema.ts`, o caminho correto é **admin-override documentado** do RAG Quality Gate (honestidade > compliance aparente). Precedente: **PR #1116** (migration anchor_id/autor — mesmo path-trigger, mesmo admin-override) e **PR #1187** (FEAT-SCOPE-01 — tabela tributária). Adicionar nota no body do PR explicando o falso-positivo antes do override.
+
+### Correção futura (não feita aqui — exige PR próprio + review)
+
+Duas heurísticas largas a estreitar (PR de governança separado):
+1. `changed-files-guard.js` `touchesRag` → restringir `includes('cnae')` ao **subsistema RAG real** (`rag-corpus-*`, `ragDocuments`, `*-embeddings*`, `*-vector*`), excluindo CNAE tributário; OU escape por label à REGRA 5 (ex: `migration-cnae-tributario-reviewed`).
+2. `rag-quality-gate.yml` `paths: drizzle/schema.ts` → disparar só quando o diff tocar tabelas RAG (`ragDocuments`/`rag_*`), não todo `schema.ts`; OU adicionar label de exceção.
+
+Enquanto não corrigido: **admin-override documentado** é o caminho correto para migrations não-RAG que tocam `schema.ts`. Mudança em gate de governança → PR separado + aprovação P.O. + review Manus.
+
+### Vinculadas
+
+- PR #1186 (fechado — falso-positivo) · PRs #1187/#1188 (split FEAT-SCOPE-01) · #1177
+- REGRA-ORQ-FILENAME-01 / Lição #81 (filename de migration sem substring que o guard casa)
+- Lição #91 (gotchas dos gates de CI) · REGRA-ORQ-32 (no hardcode) · REGRA-ORQ-33 (RACI — não altero gate unilateralmente)
+- `.github/scripts/changed-files-guard.js:38-44` (touchesRag) · `.github/workflows/label-governance.yml` (auto-labeler keywords)
