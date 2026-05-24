@@ -8,6 +8,11 @@ import type { ProjectProfile } from "./project-profile-extractor";
 import type { InsertRiskV4 } from "./db-queries-risks-v4";
 import type { ConsolidatedEvidence, OperationalContext } from "./risk-engine-v4";
 import { buildRiskKey } from "./risk-engine-v4";
+import {
+  isRegimeImoveisOportunidade,
+  isRegimeImoveisLocacao,
+  isRegimeImoveisRisco,
+} from "./regime-imoveis-eligibility";
 
 // ─── DB ──────────────────────────────────────────────────────────────────────
 
@@ -217,6 +222,39 @@ export async function inferNormativeRisks(
       `Oportunidade de aproveitamento de crédito presumido nas operações de ${op}`,
       0.85, ctx,
     ));
+  }
+
+  // ── Regime específico de bens imóveis (FEAT-COB-01 #1176) ──────────────────
+  // Gate por CNAE automático (D2 — Art. 360 V + §13 / Art. 263). Simples Nacional
+  // excluído: o regime é do contribuinte sujeito ao regime regular (Art. 251).
+  if (profile.taxRegime !== "simples_nacional") {
+    // Oportunidade 50% (Art. 261 caput) — construção/incorporação/alienação/intermediação.
+    if (isRegimeImoveisOportunidade(profile.cnaes)) {
+      results.push(makeInferredRisk(
+        projectId, "regime_especifico_imoveis", "opportunity", "oportunidade", "curto_prazo",
+        "Art. 261",
+        `Oportunidade de redução de 50% nas operações com bens imóveis (${op})`,
+        0.85, ctx,
+      ));
+    }
+    // Oportunidade 70% (Art. 261 parágrafo único) — locação/cessão/arrendamento.
+    if (isRegimeImoveisLocacao(profile.cnaes)) {
+      results.push(makeInferredRisk(
+        projectId, "regime_especifico_imoveis_locacao", "opportunity", "oportunidade", "curto_prazo",
+        "Art. 261 PU",
+        `Oportunidade de redução de 70% na locação, cessão onerosa e arrendamento de bens imóveis (${op})`,
+        0.85, ctx,
+      ));
+    }
+    // Risco/obrigação (Arts. 269-270) — cadastro de obra (CIB) + apuração por empreendimento.
+    if (isRegimeImoveisRisco(profile.cnaes)) {
+      results.push(makeInferredRisk(
+        projectId, "risco_art_269_270", "risk", "media", "curto_prazo",
+        "Art. 269 e 270",
+        `Obrigação de cadastro de obra (CIB) e apuração por empreendimento de construção civil (${op})`,
+        0.85, ctx,
+      ));
+    }
   }
 
   // ── Split payment ─────────────────────────────────────────────────────────

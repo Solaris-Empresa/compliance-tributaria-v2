@@ -163,6 +163,9 @@ const CATEGORIA_LABELS: Record<string, string> = {
   aliquota_zero: "Alíquota Zero",
   aliquota_reduzida: "Alíquota Reduzida",
   credito_presumido: "Crédito Presumido",
+  regime_especifico_imoveis: "Regime Específico de Imóveis",
+  regime_especifico_imoveis_locacao: "Regime Específico de Imóveis — Locação (70%)",
+  risco_art_269_270: "Obrigação — Cadastro e Apuração por Empreendimento",
 };
 
 // Issue #1069: CATEGORIA_ARTIGOS movido para client/src/lib/categoria-artigos.ts

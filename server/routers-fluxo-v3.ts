@@ -20,6 +20,8 @@ import {
   isAliquotaReduzidaEligible,
   buildArt127PromptRestriction,
 } from "./lib/cnae-oportunidade-eligibility";
+// FEAT-COB-01 (#1176): regime específico de bens imóveis (Arts. 251-270) no briefing LLM
+import { buildRegimeImoveisRestriction } from "./lib/regime-imoveis-eligibility";
 import * as db from "./db";
 import { createTrace } from "./tracer";
 import {
@@ -1634,6 +1636,13 @@ Gere as perguntas no formato:
         (confirmedCnaes as any[]).map((c: any) => c.code).filter(Boolean)
       );
       const restricaoArt127 = buildArt127PromptRestriction(_art127Elig.eligible);
+      // FEAT-COB-01 (#1176): regime específico de imóveis. Gate por CNAE (D2 automático,
+      // Art. 360 V + §13). Elegível (41xx/68xx) → diretriz p/ CITAR Art. 261 (50%/70%) +
+      // Arts. 269-270; não elegível → restrição imperativa. Simples Nacional excluído (Art. 251).
+      const restricaoRegimeImoveis = buildRegimeImoveisRestriction(
+        (confirmedCnaes as any[]).map((c: any) => c.code).filter(Boolean),
+        (project as any).taxRegime ?? null,
+      );
       const structured = await generateWithRetry(
         [
           {
@@ -1722,6 +1731,7 @@ REGRA DE LINGUAGEM CONDICIONAL — BAIXA CONFIANÇA (issue #809, fix UAT 2026-04
 ${regulatoryContext}
 ${restricaoCreditoPresumido}
 ${restricaoArt127}
+${restricaoRegimeImoveis}
 ${OUTPUT_CONTRACT}`,
           },
           {
