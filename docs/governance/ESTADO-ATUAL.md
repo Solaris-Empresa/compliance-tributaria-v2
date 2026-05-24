@@ -3,6 +3,29 @@
 > **v7.67 · 2026-05-12 (Sprint P2 ENCERRADA — HEAD `14d70a4` · 11 PRs mergeados · E2E #5490001 🟢 confirmado P.O. 2026-05-11 · QCNAE/IS/badges/payload todos validados · próxima: curadoria corpus setorial Capítulo 23)**
 > **Predecessor:** v7.65 · 2026-05-05 (Encerramento sessão M3.10 — HEAD `5725a89`)
 
+## Sessão 2026-05-24 — FEAT-COB-01 + encerramento FEAT-SCOPE-02 (proposta Claude Code · Manus finaliza versão + ORQ-19)
+
+> **Nota RACI:** entrada proposta pelo Claude Code no fechamento da sessão. **Versão final (vX.XX), número de audit e arquivamento ORQ-19 a cargo do Manus.** O header acima (v7.67) **não** foi bumpado por mim.
+
+**HEAD main:** `8ed0ed0b` (PR #1205 merged) — sincronizado via R-SYNC-01.
+
+### Entregue nesta sessão
+- **FEAT-COB-01 #1176 (PR #1205, merge `8ed0ed0b`):** regime específico de bens imóveis (Arts. 251-270). Migration 0107 (3 categorias: `regime_especifico_imoveis` 50% · `regime_especifico_imoveis_locacao` 70% · `risco_art_269_270`) + gate por CNAE em `inferNormativeRisks` + diretriz no briefing. 42 testes (30 elegibilidade + 12 contrato), tsc 0.
+- **FEAT-SCOPE-02-B/P2-B #1203 (PR #1204, `47bdcad`):** gate `credito_presumido` nos gaps determinísticos do BriefingEngineView.
+
+### Validação (Manus, runtime)
+- **T1 1290001 (CNAE 4120):** `regime_especifico_imoveis`=1 + `risco_art_269_270`=1 ✅
+- **T2 1620001 (CNAE 4120, venda=Não):** recebe oportunidade 50% + risco ✅ — confirma a resolução jurídica (Art. 360 V + §13 → construção é operação do regime, Art. 261 50% independe de venda).
+- **T4 510032 (comércio):** ausente ✅ · **T6** coexistência ✅
+- **T3/T5 SKIP** (sem projeto 6810-2/02 nem Simples Nacional na base — cobertos por unit test).
+
+### Pendências/tech debt
+- **70% locação (`6810-2/02`) runtime-unverified** — só unit test (nenhum projeto na base).
+- **T7 do smoke do Manus — narrativa a corrigir** (mecanismo de `aliquota_reduzida` descrito é factualmente incorreto; metodologia "0 na base = sem regressão" inválida). Ver **Lição #93** (proposta). Conclusão "sem regressão" correta por construção (PR aditivo, não toca o path gap/`consolidateRisks`).
+- **Tech debt P3:** `benefit_engine_v1` (coluna `reducao_percentual` genérica) · `artigos_cgibs6` do regime imóveis (quando CGIBS 6 Livro I for ingerido).
+- **CI `TypeScript + Vitest`** segue vermelho por falhas pré-existentes de integração (DB ausente + `diagnostic-source`) — issue #1043. Override admin no merge (REGRA-ORQ-CI-01).
+- **Audit ORQ-19 formal + bump de versão:** pendente Manus (≥3 PRs na sessão → gatilho atendido).
+
 ## Sessão v7.67 (2026-05-09 → 2026-05-12) — Sprint P2 encerrada · validação E2E #5490001 🟢
 
 **HEAD main:** `14d70a4` (PR #1067 merged)
