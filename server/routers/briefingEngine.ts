@@ -25,6 +25,8 @@ import {
   isCreditoPresumidoArt168Eligible,
   filterCreditoPresumidoGaps,
 } from "../lib/credito-presumido-eligibility";
+// FEAT-COB-01 (#1176): filtro defensivo do regime de imóveis no BriefingEngineView
+import { filterRegimeImoveisGaps } from "../lib/regime-imoveis-eligibility";
 
 // ===========================================================================
 // SCHEMAS PÚBLICOS (exportados para testes)
@@ -492,9 +494,24 @@ export async function generateBriefing(
     projectId,
     ((project as any).taxRegime as string | null) ?? null,
   );
-  const gaps = filterCreditoPresumidoGaps(
+  const _cpGaps = filterCreditoPresumidoGaps(
     rawGaps as Array<mysql.RowDataPacket & { risk_category_code?: string | null }>,
     _cpElig.eligible,
+  );
+  // FEAT-COB-01 (#1176): mesma cadeia — filtra o regime de imóveis quando o perfil não é
+  // elegível (gate por CNAE, D2). DEFENSIVO/no-op hoje (geração por-perfil via inferNormativeRisks,
+  // sem REQ-IMO em project_gaps_v3) — mantém consistência matriz↔BriefingEngineView se surgirem.
+  let _cnaesImoveis: string[] = [];
+  try {
+    const _arr = JSON.parse(((project as any).confirmedCnaes as string) || "[]");
+    _cnaesImoveis = Array.isArray(_arr) ? _arr.map((c: any) => c?.code).filter(Boolean) : [];
+  } catch {
+    _cnaesImoveis = [];
+  }
+  const gaps = filterRegimeImoveisGaps(
+    _cpGaps,
+    _cnaesImoveis,
+    ((project as any).taxRegime as string | null) ?? null,
   );
 
   // 3. Buscar riscos — migrado de project_risks_v3 para risks_v4
