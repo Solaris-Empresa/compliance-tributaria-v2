@@ -66,6 +66,20 @@ export async function isCreditoPresumidoArt168Eligible(
 }
 
 /**
+ * P2-B (#1203): filtra gaps de credito_presumido quando o perfil NÃO é elegível.
+ * Usado pelo briefingEngine (BriefingEngineView), que lê project_gaps_v3 direto —
+ * caminho determinístico que NÃO passa pelo gate do consolidateRisks. Função pura.
+ *   eligible=true  → mantém todos os gaps
+ *   eligible=false → remove os gaps com risk_category_code='credito_presumido'
+ */
+export function filterCreditoPresumidoGaps<
+  T extends { risk_category_code?: string | null },
+>(gaps: T[], eligible: boolean): T[] {
+  if (eligible) return gaps;
+  return gaps.filter((g) => g.risk_category_code !== "credito_presumido");
+}
+
+/**
  * BUG-BRIEFING (#1202): restrição IMPERATIVA injetada no prompt do briefing LLM
  * (fluxoV3.generateBriefing) quando o perfil NÃO é elegível ao credito presumido do
  * Art. 168. Mesmo padrão de buildArt127PromptRestriction (#1194). Determinístico.
