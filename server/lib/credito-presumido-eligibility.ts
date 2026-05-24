@@ -64,3 +64,20 @@ export async function isCreditoPresumidoArt168Eligible(
   }
   return evaluateCreditoPresumidoEligibility(gateCodigos, map, regime);
 }
+
+/**
+ * BUG-BRIEFING (#1202): restrição IMPERATIVA injetada no prompt do briefing LLM
+ * (fluxoV3.generateBriefing) quando o perfil NÃO é elegível ao credito presumido do
+ * Art. 168. Mesmo padrão de buildArt127PromptRestriction (#1194). Determinístico.
+ *   eligible=true  → "" · eligible=false → bloco imperativo
+ */
+export function buildCreditoPresumidoRestriction(eligible: boolean): string {
+  if (eligible) return "";
+  return (
+    "\nRESTRIÇÃO NORMATIVA OBRIGATÓRIA: O crédito presumido de produtor rural " +
+    "(Art. 168 da LC 214/2025 e Arts. 245-249 do Decreto 12.955/2026) NÃO se aplica " +
+    "ao perfil analisado (não confirmou aquisição de produtor rural não contribuinte, " +
+    "ou é optante pelo Simples Nacional). NÃO mencione, NÃO sugira e NÃO gere gap nem " +
+    "oportunidade relacionada a esse crédito presumido. Isto é determinístico.\n"
+  );
+}
