@@ -371,6 +371,8 @@ interface ActionPlanCardProps {
     prazo: string;
     status: string;
     approved_at?: string | null;
+    // BUG-RASTREAB-01 (#1189): risco-pai anexado em allPlans p/ rastreabilidade no card.
+    _risk?: RiskParent | null;
   };
   canApprove: boolean;
   onApprove: (planId: string) => void;
@@ -515,6 +517,30 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
           </div>
           <p className="mt-1.5 text-sm font-medium text-foreground">{plan.titulo}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">Responsável: {plan.responsavel}</p>
+          {/* BUG-RASTREAB-01 (#1189): rastreabilidade Ação→Risco visível por plano */}
+          {plan._risk && (
+            <div data-testid="plan-risk-trace" className="mt-1.5 flex items-center gap-1 flex-wrap">
+              <span className="text-[11px] text-muted-foreground shrink-0">Risco:</span>
+              <span
+                data-testid="plan-risk-categoria"
+                className="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] bg-purple-100 text-purple-700"
+              >
+                {CATEGORIA_LABELS[plan._risk.categoria] ?? plan._risk.categoria}
+              </span>
+              <span
+                data-testid="plan-risk-artigo"
+                className="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] bg-green-100 text-green-700"
+              >
+                {plan._risk.artigo}
+              </span>
+              <span
+                className="text-[11px] text-muted-foreground truncate max-w-[220px]"
+                title={plan._risk.titulo}
+              >
+                {plan._risk.titulo}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
@@ -913,8 +939,17 @@ export default function ActionPlanPage() {
     onError: (err) => toast.error("Erro ao excluir plano", { description: err.message }),
   });
 
+  // BUG-RASTREAB-01 (#1189): NÃO achatar descartando o risco-pai. Anexa `_risk`
+  // a cada plano para a rastreabilidade Ação→Risco ficar visível no card + PDF.
+  // O dado já vem em data.risks[] (categoria/artigo/breadcrumb/titulo via listRisks).
   const allPlans = useMemo(
-    () => (data?.risks ?? []).flatMap((r) => (r as any).actionPlans ?? []),
+    () =>
+      (data?.risks ?? []).flatMap((r) =>
+        ((r as any).actionPlans ?? []).map((p: any) => ({
+          ...p,
+          _risk: r as unknown as RiskParent,
+        }))
+      ),
     [data]
   );
 
@@ -1035,6 +1070,9 @@ export default function ActionPlanPage() {
                       responsavel: p.responsavel,
                       prazo: p.prazo,
                       status: p.status,
+                      // BUG-RASTREAB-01 (#1189): referência normativa do risco no PDF
+                      risco_categoria: p._risk?.categoria,
+                      risco_artigo: p._risk?.artigo,
                       tasks: p.tasks?.map((t: any) => ({
                         titulo: t.titulo,
                         status: t.status,
