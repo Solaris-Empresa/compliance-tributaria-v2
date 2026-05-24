@@ -1925,6 +1925,35 @@ export type RiskCategory = typeof riskCategories.$inferSelect;
 export type InsertRiskCategory = typeof riskCategories.$inferInsert;
 
 /**
+ * FEAT-SCOPE-01 (#1177) — filtro CNAE das oportunidades (Art. 127 LC 214/2025).
+ * Data-driven (sem hardcode de ranges — REGRA-ORQ-32). Lida pelo engine via
+ * db-queries-cnae-oportunidade.ts (cache TTL 1h). Migration 0104.
+ *   elegibilidade: potencial (exibe) · excluido / pending_legal (não exibe).
+ *   gate_especial: NULL = questionário §1º II ; '§3º' = ed. física (dispensa as 4 perguntas).
+ */
+export const cnaeAplicavelOportunidade = mysqlTable("cnae_aplicavel_oportunidade", {
+  id:                   int("id").autoincrement().primaryKey(),
+  oportunidadeCodigo:   varchar("oportunidade_codigo", { length: 64 }).notNull(),
+  cnae4dig:             varchar("cnae_4dig", { length: 4 }).notNull(),
+  elegibilidade:        mysqlEnum("elegibilidade", ["potencial", "excluido", "pending_legal"]).notNull(),
+  conselhoProfissional: varchar("conselho_profissional", { length: 64 }),
+  incisoArt127:         varchar("inciso_art127", { length: 128 }),
+  gateEspecial:         varchar("gate_especial", { length: 16 }),
+  requerQuestionario:   boolean("requer_questionario").default(true).notNull(),
+  fonteNormativa:       varchar("fonte_normativa", { length: 128 }).default("Art. 127 §1º II LC 214/2025").notNull(),
+  signOffAutor:         varchar("sign_off_autor", { length: 128 }),
+  signOffData:          varchar("sign_off_data", { length: 10 }), // 'YYYY-MM-DD' (GOV-001 #1179)
+  createdAt:            timestamp("created_at").defaultNow().notNull(),
+  updatedAt:            timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  uqOportCnae: uniqueIndex("uq_cnae_oport").on(table.oportunidadeCodigo, table.cnae4dig),
+  oportIdx:    index("idx_cnae_oport_codigo").on(table.oportunidadeCodigo),
+}));
+
+export type CnaeAplicavelOportunidade = typeof cnaeAplicavelOportunidade.$inferSelect;
+export type InsertCnaeAplicavelOportunidade = typeof cnaeAplicavelOportunidade.$inferInsert;
+
+/**
  * M1 — Logs do Runner v3 do Perfil da Entidade (deploy controlado)
  *
  * Rastreabilidade por project_id para monitoramento de:
