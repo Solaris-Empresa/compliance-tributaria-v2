@@ -2598,3 +2598,32 @@ Smoke [SMOKE-B-FINAL-V2] (local — dev server + DB prod): projeto 660001 (lucro
 ### Vinculadas
 
 - PRs #1155 / #1156 / #1157 · Lição #87 (smoke estático ≠ consumo) · Lição #72 (driver mysql2 JSON) · Lição #66 (cobertura — spec sem dados é ilusão) · Lição #88 (acoplamento engine) · REGRA-ORQ-27 (assemble ≠ consumption) · REGRA-ORQ-36 (5 técnicas) · Frente C / #1143 (padrão da injeção)
+
+## Lição #91 — Gotchas dos gates de CI (validate-pr-body / Guard / autoaudit)
+
+Origem: Sprint FIX-NORM (24/05/2026) — PRs #1181/#1182 falharam o gate `Validate PR body` 2× por detalhes de formato, custando re-triggers. Documentado a pedido do P.O.
+
+### Texto
+
+Os gates de CI do projeto têm comportamentos não-óbvios que custam ciclos se ignorados. Antes de abrir PR, conferir:
+
+| # | Gotcha | Regra |
+|---|---|---|
+| 1 | **`validate-pr-body` lê o PRIMEIRO bloco ` ```json `** como evidência | Se houver outro JSON antes (ex.: Gate Zero), o validador pega o errado → "chaves ausentes". **Solução:** blocos auxiliares usam ` ```text ` (ou ` ``` ` sem `json`); só a evidência é ` ```json `. |
+| 2 | **Checkbox de risco exige a FRASE EXATA do template** | `- [x] Baixo — sem impacto em dados ou fluxo principal` (não sufixo custom). Frase própria → "Nenhum nível de risco marcado". Idem `Médio — impacto controlado e reversível`. |
+| 3 | **Arquivo critical-path exige label** | Tocar `flowStateMachine`/`getDiagnosticSource`/`flowRouter`/`FlowStepper` → label **`critical-path`** (Guard Regra 3, `changed-files-guard.js`); migration → **`db:migration`**; RAG → **`rag:review`**. Sem o label → Governance gate + Guard critical bloqueiam. |
+| 4 | **`autoaudit` re-dispara só em `synchronize`/`opened`, NÃO em `edited`** | Editar o body sozinho não re-roda o gate. **Empty commit** (`git commit --allow-empty`) gera `synchronize` e re-lê o body atual. |
+| 5 | **Número de migration — verificar colisão** | Não assumir "próximo número". `ls drizzle/0NNN*.sql` — PRs em voo podem ter reservado o número (ex.: 0101 #1156, 0102 #1181 → próximo 0103). |
+| 6 | **Menção INLINE de fence-json na PROSA conta como bloco** | Escrever a sequência crase-crase-crase+json no texto do body (ex.: descrevendo o gotcha #1) é detectado como fence de evidência → parse inválido. Caso canônico: o PR #1185 desta própria lição falhou por isso. **Solução:** na prosa, escrever "bloco JSON cercado" — nunca o fence literal. |
+
+### Validação prática
+
+Rodar **localmente** antes do push (mesmo script do CI):
+```
+PR_BODY="$(cat body.md)" PR_TITLE="..." node .github/scripts/validate-pr-body.js
+```
+Esperar `✅ PR body validado com sucesso` antes de abrir o PR.
+
+### Vinculadas
+
+- PRs #1181 / #1182 (FIX-NORM) — casos canônicos · PR #1173 (label critical-path) · REGRA-ORQ-15 (PR body template) · REGRA-ORQ-CI-01 (CI verde pré-merge) · `.github/scripts/validate-pr-body.js` · `.github/scripts/changed-files-guard.js`
