@@ -17,6 +17,8 @@ import type { CategoriaCanonica } from "./risk-categorizer";
 // Issue #1046 — filtro de IS por elegibilidade NCM/CNAE (Art. 393 §1º LC 214/2025)
 import { isImpostoSeletivoEligible } from "./risk-eligibility-is-ncm-cnae";
 import { isAliquotaReduzidaEligible } from "./cnae-oportunidade-eligibility";
+// FEAT-SCOPE-02 (#1201) — gate credito_presumido (Art. 168) por questionário + guardrail SN
+import { isCreditoPresumidoArt168Eligible } from "./credito-presumido-eligibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -522,6 +524,23 @@ export async function consolidateRisks(
       if (!elig.eligible) {
         console.warn(
           `[risk-engine-v4] skip oportunidade aliquota_reduzida (FEAT-SCOPE-01 / Art. 127) — projeto=${projectId} cnaes=[${(context.confirmedCnaes ?? []).join(",")}] reason=${elig.reason}`,
+        );
+        continue;
+      }
+    }
+
+    // FEAT-SCOPE-02 (#1201 / Art. 168 LC 214/2025): credito presumido é restrito a quem
+    // adquire de produtor rural/integrado não contribuinte (Art. 168) + regime regular
+    // (não-Simples, Art. 41 §1º). Gate por questionário (perguntas risk_category_code=
+    // 'credito_presumido', data-driven) + projectId/regime. Conservador: resposta ausente
+    // /negativa → skip (benefício não presumido). NÃO usa CNAE (Art. 168 não restringe).
+    // cast: CategoriaCanonica não lista 'credito_presumido' (só o tipo Categoria), mas
+    // em runtime a categoria PODE ser credito_presumido (via GapToRuleMapper risk_category_code).
+    if ((categoria as string) === "credito_presumido") {
+      const elig = await isCreditoPresumidoArt168Eligible(projectId, regime);
+      if (!elig.eligible) {
+        console.warn(
+          `[risk-engine-v4] skip oportunidade credito_presumido (FEAT-SCOPE-02 / Art. 168) — projeto=${projectId} regime=${regime ?? "null"} reason=${elig.reason}`,
         );
         continue;
       }
