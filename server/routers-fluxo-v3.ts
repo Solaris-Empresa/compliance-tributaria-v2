@@ -10,6 +10,11 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
+// BUG-BRIEFING (#1202): suprimir credito presumido Art. 168 no briefing p/ perfil não elegível
+import {
+  isCreditoPresumidoArt168Eligible,
+  buildCreditoPresumidoRestriction,
+} from "./lib/credito-presumido-eligibility";
 import * as db from "./db";
 import { createTrace } from "./tracer";
 import {
@@ -1608,6 +1613,14 @@ Gere as perguntas no formato:
       // V60: Geração com retry + temperatura 0.2 + schema estruturado
       // fix(UX3 UAT 2026-04-20): contador de retries para propagar ao frontend
       let llmRetries = 0;
+      // BUG-BRIEFING (#1202): se o perfil não é elegível ao credito presumido do Art. 168
+      // (mesmo gate do consolidateRisks #1199 — questionário + regime ≠ SN), injeta restrição
+      // imperativa no prompt para o LLM NÃO sugerir essa oportunidade. regime de projects.taxRegime.
+      const _cpElig = await isCreditoPresumidoArt168Eligible(
+        input.projectId,
+        (project as any).taxRegime ?? null,
+      );
+      const restricaoCreditoPresumido = buildCreditoPresumidoRestriction(_cpElig.eligible);
       const structured = await generateWithRetry(
         [
           {
@@ -1694,7 +1707,7 @@ REGRA DE LINGUAGEM CONDICIONAL — BAIXA CONFIANÇA (issue #809, fix UAT 2026-04
 - Quando conf>=85%: linguagem afirmativa é permitida porque há respostas suficientes para validar os gaps.
 
 ${regulatoryContext}
-
+${restricaoCreditoPresumido}
 ${OUTPUT_CONTRACT}`,
           },
           {
