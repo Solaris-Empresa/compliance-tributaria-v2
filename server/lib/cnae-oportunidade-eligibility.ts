@@ -125,3 +125,23 @@ export async function isAliquotaReduzidaEligible(
   const rows = await getCnaeOportunidadeRows(OPORTUNIDADE_ALIQUOTA_REDUZIDA);
   return evaluateAliquotaReduzidaEligibility(cnaes, rows);
 }
+
+/**
+ * BUG-BRIEFING-CNAE (#1190 / Opção A'): bloco de restrição IMPERATIVA injetado no
+ * prompt do briefing LLM (fluxoV3.generateBriefing) quando o CNAE NÃO é elegível ao
+ * Art. 127. Determinístico (string fixa) — instrui o LLM a não sugerir a oportunidade.
+ *
+ * - eligible=true  → "" (sem restrição; o LLM pode sugerir o Art. 127)
+ * - eligible=false → bloco imperativo ("NÃO mencione...")
+ */
+export function buildArt127PromptRestriction(eligible: boolean): string {
+  if (eligible) return "";
+  return (
+    "\nRESTRIÇÃO NORMATIVA OBRIGATÓRIA: O Art. 127 da LC 214/2025 (e o Art. 202 do " +
+    "Decreto 12.955/2026) — alíquota reduzida de 30% para profissionais liberais sob " +
+    "fiscalização de conselho — NÃO se aplica ao(s) CNAE(s) deste projeto. NÃO mencione, " +
+    "NÃO sugira e NÃO gere gap nem oportunidade relacionada a essa alíquota reduzida. " +
+    "Isto é determinístico: ignore qualquer trecho do contexto regulatório que cite o " +
+    "Art. 127 / Art. 202 como oportunidade para esta empresa.\n"
+  );
+}
