@@ -2649,9 +2649,19 @@ Consequência: PRs de CNAE tributário que **também** tocam migration (`schema.
 3. **PR de engine** tem `touchesRag=true` (arquivos `*cnae*.ts`) mas **sem migration** → só REGRA 2 → resolvido com label `rag:review` proativo.
 4. **Body sem keywords do auto-labeler** (`corpus`/`chunks`/`ingestão`/`anchor_id`) — senão `label-governance.yml` aplica `rag:corpus` → dispara o RAG Quality Gate (REGRA-ORQ-37) indevidamente.
 
+### 2º trigger estrutural — RAG Quality Gate (path `drizzle/schema.ts`)
+
+O mesmo tipo de falso-positivo existe em **OUTRO gate**: `rag-quality-gate.yml` tem `paths: - 'drizzle/schema.ts'` (linha 14). **Qualquer** migration que toque `schema.ts` — inclusive tabelas **não-RAG** (ex: `cnae_aplicavel_oportunidade`, tributária) — dispara o RAG Quality Gate, que exige a seção "Gate RAG — Evidências de Qualidade" com checkboxes de **ingestão** (`anchor_id 100%`, `gold set`, `chunks invisíveis`...). **Não há label de skip.** Marcar esses checkboxes em PR não-RAG seria **declaração falsa** → correto NÃO marcar.
+
+**Padrão estabelecido:** para migration não-RAG que toca `schema.ts`, o caminho correto é **admin-override documentado** do RAG Quality Gate (honestidade > compliance aparente). Precedente: **PR #1116** (migration anchor_id/autor — mesmo path-trigger, mesmo admin-override) e **PR #1187** (FEAT-SCOPE-01 — tabela tributária). Adicionar nota no body do PR explicando o falso-positivo antes do override.
+
 ### Correção futura (não feita aqui — exige PR próprio + review)
 
-Estreitar a heurística `touchesRag` para arquivos do **subsistema RAG real** (ex: `rag-corpus-*`, `ragDocuments`, `*-embeddings*`, `*-vector*`), **excluindo** CNAE tributário; OU adicionar **escape por label documentado** à REGRA 5 (ex: `migration-cnae-tributario-reviewed`). Mudança em gate de governança → PR separado + aprovação P.O. + review Manus.
+Duas heurísticas largas a estreitar (PR de governança separado):
+1. `changed-files-guard.js` `touchesRag` → restringir `includes('cnae')` ao **subsistema RAG real** (`rag-corpus-*`, `ragDocuments`, `*-embeddings*`, `*-vector*`), excluindo CNAE tributário; OU escape por label à REGRA 5 (ex: `migration-cnae-tributario-reviewed`).
+2. `rag-quality-gate.yml` `paths: drizzle/schema.ts` → disparar só quando o diff tocar tabelas RAG (`ragDocuments`/`rag_*`), não todo `schema.ts`; OU adicionar label de exceção.
+
+Enquanto não corrigido: **admin-override documentado** é o caminho correto para migrations não-RAG que tocam `schema.ts`. Mudança em gate de governança → PR separado + aprovação P.O. + review Manus.
 
 ### Vinculadas
 
