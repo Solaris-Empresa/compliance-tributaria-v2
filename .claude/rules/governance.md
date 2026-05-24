@@ -2669,3 +2669,39 @@ Enquanto não corrigido: **admin-override documentado** é o caminho correto par
 - REGRA-ORQ-FILENAME-01 / Lição #81 (filename de migration sem substring que o guard casa)
 - Lição #91 (gotchas dos gates de CI) · REGRA-ORQ-32 (no hardcode) · REGRA-ORQ-33 (RACI — não altero gate unilateralmente)
 - `.github/scripts/changed-files-guard.js:38-44` (touchesRag) · `.github/workflows/label-governance.yml` (auto-labeler keywords)
+
+## Lição #93 — "Ausência na base" ≠ "não-regressão"; mudança aditiva prova-se pelo diff
+
+**Origem:** FEAT-COB-01 #1176 (PR #1205, 24/05/2026) — crítica do smoke DoD T7 (suposta regressão de `aliquota_reduzida`)
+**Status:** proposta por Claude Code — aguarda revisão Manus/Consultor + aprovação P.O. (REGRA-ORQ-33)
+
+### Texto
+
+Um teste de regressão que conclui "sem regressão" a partir de um **count global** ("categoria X = 0 em TODA a base") é **inválido**. Ausência de dado na base é **ausência de evidência**, não evidência de não-regressão. Regressão prova-se por:
+
+1. **before/after no MESMO artefato** que tinha o estado (um projeto que TINHA a categoria continua tendo); OU
+2. **argumento estrutural por construção** — para mudança puramente ADITIVA: "o diff não toca o code path que produz X" (verificável por `git diff --name-only`). O argumento por construção é **mais forte** que qualquer count.
+
+Adicionalmente: ao explicar **por que** algo não regrediu, VERIFICAR o mecanismo real no código antes de afirmá-lo. Afirmar um gate inexistente ("o gate de X em `<função>`") quando `grep` retorna 0 ocorrências é **mecanismo inventado** — contamina o registro arquivado (Lição #64/#71/#87).
+
+### Caso canônico
+
+Smoke do PR #1205, cenário T7: concluiu que `aliquota_reduzida` "não regrediu" porque "= 0 em toda a base", com a explicação *"o gate de aliquota_reduzida no `inferNormativeRisks` exige CNAE alimentar + regime específico"*. Verificação na fonte de verdade:
+
+- (a) `inferNormativeRisks` **NÃO tem** branch de `aliquota_reduzida` (`grep aliquota_reduzida normative-inference.ts` = **0**; as categorias inferidas são `aliquota_zero`, `credito_presumido`, `split_payment`, `regime_especifico_imoveis*`, `risco_art_269_270`);
+- (b) "CNAE alimentar" é o gate do `aliquota_ZERO` (NCM alimentar), **não** do reduzida;
+- (c) `aliquota_reduzida` é Art. 127, gerada por `cnae-oportunidade-eligibility.ts` (FEAT-SCOPE-01) no path **gap/`consolidateRisks`**.
+
+O PR #1205 é **aditivo** a `inferNormativeRisks` e **não toca** esse path (`git diff --name-only origin/main~1 origin/main` confirma) → `aliquota_reduzida` não pode regredir **por construção**. **Conclusão certa, mecanismo e metodologia errados.**
+
+### Aplicação prospectiva
+
+- DoD de regressão para mudança **aditiva** DEVE usar: *"o diff não toca `<path que gera a categoria/feature>`"* — não "count global = 0".
+- Toda afirmação *"X não regrediu porque `<mecanismo>`"* exige o mecanismo **verificado** (`grep` / `arquivo:linha`), nunca inferido.
+- Smoke que cita um gate/função DEVE confirmar a existência do gate antes de arquivá-lo.
+
+### Vinculadas
+
+- Lição #65 (rastrear fluxo / testar a coisa certa) · Lição #87 (smoke estático ≠ consumo) · Lição #64 (audit-greps vs runtime) · Lição #71 (scripts DoD / medição calibrada)
+- REGRA-ORQ-27 (assemble ≠ consumption) · REGRA-ORQ-34 Protocolo 3 (DoD com critério negativo) · REGRA-ORQ-33 (RACI)
+- FEAT-COB-01 #1176 / PR #1205 (caso canônico) · `server/lib/normative-inference.ts` · `server/lib/cnae-oportunidade-eligibility.ts`
