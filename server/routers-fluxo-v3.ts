@@ -10,6 +10,11 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
+// BUG-BRIEFING-CNAE (#1190 / Opção A'): filtro CNAE da oportunidade Art. 127 no briefing LLM
+import {
+  isAliquotaReduzidaEligible,
+  buildArt127PromptRestriction,
+} from "./lib/cnae-oportunidade-eligibility";
 import * as db from "./db";
 import { createTrace } from "./tracer";
 import {
@@ -1608,6 +1613,14 @@ Gere as perguntas no formato:
       // V60: Geração com retry + temperatura 0.2 + schema estruturado
       // fix(UX3 UAT 2026-04-20): contador de retries para propagar ao frontend
       let llmRetries = 0;
+      // BUG-BRIEFING-CNAE (#1190 / Opção A'): se o(s) CNAE(s) do projeto não são
+      // elegíveis ao Art. 127 (tabela cnae_aplicavel_oportunidade), injeta restrição
+      // imperativa no prompt para o LLM NÃO sugerir a alíquota reduzida (mesma fonte
+      // de verdade do consolidateRisks). CNAE elegível (ex: 7112) → restrição vazia.
+      const _art127Elig = await isAliquotaReduzidaEligible(
+        (confirmedCnaes as any[]).map((c: any) => c.code).filter(Boolean)
+      );
+      const restricaoArt127 = buildArt127PromptRestriction(_art127Elig.eligible);
       const structured = await generateWithRetry(
         [
           {
@@ -1694,7 +1707,7 @@ REGRA DE LINGUAGEM CONDICIONAL — BAIXA CONFIANÇA (issue #809, fix UAT 2026-04
 - Quando conf>=85%: linguagem afirmativa é permitida porque há respostas suficientes para validar os gaps.
 
 ${regulatoryContext}
-
+${restricaoArt127}
 ${OUTPUT_CONTRACT}`,
           },
           {
