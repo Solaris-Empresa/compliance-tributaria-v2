@@ -27,6 +27,7 @@ interface NormativeBundleObject {
   artigos_decreto?: string[];
   artigos_cgibs6?: string[];
   artigos_portaria7?: string[];
+  cnae_codes?: string[];
   tema?: string;
 }
 
@@ -51,6 +52,31 @@ export function formatDeterministicGrounding(conteudos: string[]): string {
 }
 
 /**
+ * FASE 4 — Gate de injeção por CNAE + vigência (PURO, testável).
+ *   - Vigência (hard block): vigencia_inicio > today → não injeta (ex: normas de 2027 hoje).
+ *   - CNAE: se a categoria tem cnae_codes, injeta só se o CNAE do projeto casa (prefixo, sem dígito).
+ *     cnae_codes ausente/vazio → universal (backward-compat: split_payment etc.).
+ */
+export function shouldInjectCategory(
+  cnaeCodes: string[] | undefined | null,
+  vigenciaInicio: Date | string | null | undefined,
+  context: { cnae?: string; today?: Date },
+): boolean {
+  // GATE VIGÊNCIA — hard block, independente de CNAE
+  if (vigenciaInicio) {
+    const vi = vigenciaInicio instanceof Date ? vigenciaInicio : new Date(vigenciaInicio);
+    if (!Number.isNaN(vi.getTime()) && vi > (context.today ?? new Date())) return false;
+  }
+  // GATE CNAE — só aplica se a categoria tem cnae_codes
+  const codes = cnaeCodes ?? [];
+  if (codes.length > 0 && context.cnae) {
+    const match = codes.some((c) => context.cnae!.startsWith(c.replace(/-\d$/, "")));
+    if (!match) return false;
+  }
+  return true;
+}
+
+/**
  * BUG-IBS-02: nota explicativa para Simples Nacional/MEI. Para SN, os artigos do regime
  * regular do IBS (CGIBS 6) NÃO são injetados (guard em fetchDeterministicGrounding) — em vez
  * do vazio, injeta a nota do tratamento PRÓPRIO do SN (CGIBS 6 Art. 41 §2º + Art. 49,
@@ -71,12 +97,14 @@ export function buildSimplesNacionalNote(regime?: string | null): string {
  * Busca determinística dos artigos infralegais das categorias `confirmed` e
  * devolve o bloco formatado. Nunca lança — em falha devolve "".
  *
- * @param regime taxRegime do projeto; `simples_nacional` → não injeta CGIBS 6
- *   (não recolhe IBS — preserva intenção do PR #1099).
+ * @param context.regime taxRegime; `simples_nacional` → não injeta CGIBS 6 (PR #1099).
+ * @param context.cnae   CNAE principal do projeto (gate por categoria — FASE 4).
+ * @param context.today  data de referência (injetável p/ teste; default new Date()) — gate de vigência.
  */
 export async function fetchDeterministicGrounding(
-  regime?: string | null
+  context: { regime?: string | null; cnae?: string; today?: Date } = {}
 ): Promise<string> {
+  const { regime, cnae, today } = context;
   try {
     const db = await getDb();
     if (!db) return "";
@@ -100,6 +128,9 @@ export async function fetchDeterministicGrounding(
       }
       // Robusto a shape misto: só objeto por-lei contribui (array legado/null → skip).
       if (!bundle || Array.isArray(bundle)) continue;
+
+      // FASE 4: gate CNAE + vigência (categorias novas grounding-only; sem cnae_codes = universal).
+      if (!shouldInjectCategory(bundle.cnae_codes, cat.vigenciaInicio, { cnae, today })) continue;
 
       const decreto = bundle.artigos_decreto;
       if (decreto?.length) {
