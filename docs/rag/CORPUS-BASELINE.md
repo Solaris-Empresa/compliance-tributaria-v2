@@ -7,13 +7,15 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | **v8.1** |
-| Data | 20/05/2026 |
-| HEAD main | `44576a7` |
-| Total chunks | **16.129** |
+| Versão | **v9.0** |
+| Data | 25/05/2026 |
+| HEAD main | _(pendente — merge da PR CORPUS-BASELINE v9.0; predecessor `eddcc84` = #1207)_ |
+| Total chunks | **16.769** _(TS-derived; confirmar DB via SQL Manus — REGRA-ORQ-37)_ |
 | Total leis | **25** |
 | normative_service_rules (NBS) | **27 regras** (PR #1108) |
 | normative_product_rules Cap. 23 | **5 definitivas + 1 conservador** (PRs #1108/#1110) |
+
+> **v9.0 (25/05/2026)** — re-ingestão completa da **Resolução CGIBS 6** (CORPUS-RFC-010 / BUG-IBS-00): Livro I (Arts 1-466) estava ausente (só Livro II 467-615 fora ingerido em v8.x sob premissa falsa "idêntico ao Decreto" — ver auditoria 24/05). Corpus regenerado para **Arts 1-617 = 827 chunks** (+640). Inclui o fix do chunker (`BUG-IBS-00-FIX-A`: partição em fronteira de palavra — eliminou o chunk "culo" de 4 chars). **Ingestão DB + contagem real = Manus** (REGRA-ORQ-37). **Bundles `artigos_cgibs6` das 9 categorias = Fase 3, pendente confirmação jurídica** (Lição #61 — RACI).
 
 ---
 
@@ -31,7 +33,7 @@
 | resolucao_cgsn_140 | 302 | `''` (universal) | section-chunker |
 | lc123 | 279 | `''` (universal) | section-chunker |
 | conv_icms | 278 | `''` (universal) | section-chunker |
-| resolucao_cgibs_6 | 187 | setorial | section-chunker |
+| resolucao_cgibs_6 | **827** | setorial | section-chunker (**v9.0**: 187→827 — Livro I+II+III completo, CORPUS-RFC-010) |
 | lc116 | 60 | `''` (universal) | section-chunker |
 | lc87 | 60 | `''` (universal) | section-chunker |
 | lc224 | 28 | `''` (universal) | section-chunker |
@@ -46,7 +48,7 @@
 | portaria_mf_cgibs_7 | 2 | `''` (universal) | section-chunker |
 | resolucao_cgibs_3 | 1 | setorial | section-chunker |
 | resolucao_cgibs_2 | 1 | setorial | section-chunker |
-| **TOTAL** | **16.129** | — | — |
+| **TOTAL** | **16.769** | — | — |
 
 ---
 
@@ -58,7 +60,8 @@
 | v6.0 | 19/05/2026 | 4.852 | 23 | +1.267 / +3 leis | Onda 2 completa |
 | v7.0 | 19/05/2026 | 16.119 | 25 | +11.267 / +2 leis | NCM/NBS row-chunker |
 | v8.0 | 19/05/2026 | 16.132 | 25 | +13 / 0 leis | lc214 Art. 544 surgery (#1109) + normative_*_rules seed (#1108/#1110) |
-| **v8.1** | **20/05/2026** | **16.129** | **25** | **−3 / 0 leis** | **Correção divergência moc_cte_v4 + 2 DELETEs (REGRA-ORQ-37)** |
+| v8.1 | 20/05/2026 | 16.129 | 25 | −3 / 0 leis | Correção divergência moc_cte_v4 + 2 DELETEs (REGRA-ORQ-37) |
+| **v9.0** | **25/05/2026** | **16.769** | **25** | **+640 / 0 leis** | **CGIBS 6 Livro I re-ingestão (CORPUS-RFC-010 / BUG-IBS-00) + chunker fix (FIX-A)** |
 
 > **v8.1 (20/05/2026)**: corrige divergência moc_cte_v4 (318→317 era o estado real no DB antes dos DELETEs; baseline v8.0 estava over por 1) + remove 2 chunks via REGRA-ORQ-37:
 > - **DELETE A** — `id=330243` (lei=`moc_cte_v4`, artigo=`Seção 7.2`, 23 chars) — chunk lixo de parsing CT-e §7.2
@@ -100,3 +103,5 @@ Cap. 23 detalhe:
 | lc214 auditoria completa (§4) | ⚠️ Aguarda query SQL Manus no TiDB prod |
 | normative_product_rules — 2301.* | ⏸️ Conservador definitivo (não está em Anexo IX) |
 | `rag-corpus-lcs-novas.ts` sync com surgery PR #1109 | 🟠 Tech debt — re-ingest restauraria bug (PR follow-up planejado) |
+| **CGIBS 6 (827) — contagem real no DB** | ⚠️ Confirmar via SQL Manus (REGRA-ORQ-37); v9.0 é TS-derived 16.129−187+827=16.769 |
+| **Bundles `artigos_cgibs6` (9 categorias) — Fase 3** | ⏸️ **Pendente confirmação jurídica** (Lição #61 — RACI). Crítica 24/05: imóveis ≈359-390 (NÃO 396=alimentação; 391-395=cooperativas); split_payment 28-37 reconciliar c/ 593-595 (penalidades); aliquota_reduzida/regime_diferenciado precisam artigos distintos |
