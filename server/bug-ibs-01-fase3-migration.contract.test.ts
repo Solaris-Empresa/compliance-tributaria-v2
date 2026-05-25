@@ -24,8 +24,8 @@ function artigosOf(codigo: string): string[] {
 }
 
 describe("BUG-IBS-01 Fase 3 — migration 0108 (contrato do SQL)", () => {
-  it("8 UPDATEs (categorias com cgibs6 curado)", () => {
-    expect((SQL.match(/UPDATE risk_categories/g) ?? []).length).toBe(8);
+  it("9 UPDATEs (8 bundles cgibs6 curados + 1 flip de normative_status — BUG-IBS-DRIFT-01)", () => {
+    expect((SQL.match(/UPDATE risk_categories/g) ?? []).length).toBe(9);
   });
 
   it("usa JSON_SET idempotente na chave flat artigos_cgibs6 (compatível enrichArticle)", () => {
