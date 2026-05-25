@@ -1443,9 +1443,11 @@ Gere as perguntas no formato:
       const regulatoryContext =
         ragCtxBriefing.contextText +
         (await fetchPortariaGrounding()) +
-        (await fetchDeterministicGrounding(
-          (project as any).companyProfile?.taxRegime
-        ));
+        (await fetchDeterministicGrounding({
+          regime: (project as any).companyProfile?.taxRegime,
+          cnae: confirmedCnaes[0]?.code,
+          today: new Date(),
+        }));
 
       // G8: Montar bloco de perfil da empresa para personalização do briefing
       const projectAnyBriefing = project as any;
@@ -4144,9 +4146,11 @@ Gere o veredito final em JSON:
       const regulatoryContext =
         ragCtxBriefing.contextText +
         (await fetchPortariaGrounding()) +
-        (await fetchDeterministicGrounding(
-          (p as any).companyProfile?.taxRegime
-        ));
+        (await fetchDeterministicGrounding({
+          regime: (p as any).companyProfile?.taxRegime,
+          cnae: confirmedCnaes[0]?.code,
+          today: new Date(),
+        }));
 
       const { BriefingStructuredSchema } = await import("./ai-schemas");
       const { generateWithRetry: genRetry, OUTPUT_CONTRACT: OC } = await import(
