@@ -306,7 +306,7 @@ export function extractTitulo(numero: number, conteudo: string): string {
  * artigo "Art. N (parte M)" quando há mais de 1 pedaço; primeiro pedaço usa
  * artigo "Art. N" e chunkIndex 0.
  */
-function splitChunks(numero: number, conteudo: string): Array<{ artigo: string; conteudo: string; chunkIndex: number }> {
+export function splitChunks(numero: number, conteudo: string): Array<{ artigo: string; conteudo: string; chunkIndex: number }> {
   if (conteudo.length <= MAX_CHUNK_CHARS) {
     return [{ artigo: `Art. ${numero}`, conteudo, chunkIndex: 0 }];
   }
@@ -314,7 +314,7 @@ function splitChunks(numero: number, conteudo: string): Array<{ artigo: string; 
   const parts: string[] = [];
   let remaining = conteudo;
   while (remaining.length > MAX_CHUNK_CHARS) {
-    // Procura quebra natural (parágrafo, ponto) entre 1500..2000 chars
+    // Quebra natural decrescente: parágrafo → ponto → quebra de linha → ESPAÇO.
     let cut = -1;
     const window = remaining.slice(0, MAX_CHUNK_CHARS);
     const lastParagraph = window.lastIndexOf("\n\n");
@@ -323,11 +323,28 @@ function splitChunks(numero: number, conteudo: string): Array<{ artigo: string; 
       const lastDot = window.lastIndexOf(". ");
       if (lastDot > 1500) cut = lastDot + 2;
     }
-    if (cut < 0) cut = MAX_CHUNK_CHARS;
+    if (cut < 0) {
+      const lastNewline = window.lastIndexOf("\n");
+      if (lastNewline > 1500) cut = lastNewline + 1;
+    }
+    if (cut < 0) {
+      // BUG-IBS-00: NUNCA cortar no meio de palavra — recua até o último espaço da janela.
+      const lastSpace = window.lastIndexOf(" ");
+      if (lastSpace > 0) cut = lastSpace + 1;
+    }
+    if (cut < 0) cut = MAX_CHUNK_CHARS; // fallback teórico: palavra única > 2000 chars
     parts.push(remaining.slice(0, cut).trim());
     remaining = remaining.slice(cut).trim();
   }
   if (remaining.length > 0) parts.push(remaining);
+
+  // BUG-IBS-00: funde fragmento final minúsculo no chunk anterior (evita conteudo < 10 chars
+  // rejeitado pelo validateChunkBeforeInsert — caso "culo" do Art. 259).
+  const MIN_TAIL_CHARS = 40;
+  while (parts.length >= 2 && parts[parts.length - 1].length < MIN_TAIL_CHARS) {
+    const tail = parts.pop()!;
+    parts[parts.length - 1] = `${parts[parts.length - 1]} ${tail}`.trim();
+  }
 
   return parts.map((conteudo, idx) => ({
     artigo: idx === 0 ? `Art. ${numero}` : `Art. ${numero} (parte ${idx + 1})`,
