@@ -58,3 +58,25 @@ describe("buildSimplesNacionalNote — BUG-IBS-02", () => {
     expect(buildSimplesNacionalNote(undefined)).toBe("");
   });
 });
+
+describe("formatDeterministicGrounding — header dinâmico (POLISH-01 / BUG-IBS-03)", () => {
+  it("só Decreto presente (ex: SN) → header NÃO menciona Resolução CGIBS 6", () => {
+    const block = formatDeterministicGrounding(["[FONTE: Decreto 12.955/2026, Art. 28]\ntexto"]);
+    expect(block).toContain("Decreto 12.955/2026");
+    expect(block).not.toContain("Resolução CGIBS 6/2026");
+  });
+
+  it("Decreto + CGIBS presentes → header menciona ambos", () => {
+    const block = formatDeterministicGrounding([
+      "[FONTE: Decreto 12.955/2026, Art. 28]\nx",
+      "[FONTE: Resolução CGIBS 6/2026, Art. 467]\ny",
+    ]);
+    expect(block).toContain("Decreto 12.955/2026");
+    expect(block).toContain("Resolução CGIBS 6/2026");
+  });
+
+  it("Portaria presente → header inclui Portaria MF/CGIBS 7/2026 (BUG-IBS-03)", () => {
+    const block = formatDeterministicGrounding(["[FONTE: Portaria MF/CGIBS 7/2026, Art. 1]\nz"]);
+    expect(block).toContain("Portaria MF/CGIBS 7/2026");
+  });
+});

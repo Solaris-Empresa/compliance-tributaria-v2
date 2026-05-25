@@ -372,7 +372,11 @@ function buildLegalTitle(categoria: string, ctx: OperationalContext): string {
 /** Parse defensivo do normative_bundle (Lição #72: pode vir string ou objeto). */
 function parseNormativeBundle(
   raw: unknown
-): { artigos_decreto?: string[] | null; artigos_cgibs6?: string[] | null } | null {
+): {
+  artigos_decreto?: string[] | null;
+  artigos_cgibs6?: string[] | null;
+  artigos_portaria7?: string[] | null;
+} | null {
   if (raw == null) return null;
   let obj: unknown = raw;
   if (typeof raw === "string") {
@@ -383,7 +387,11 @@ function parseNormativeBundle(
     }
   }
   if (typeof obj !== "object" || obj === null || Array.isArray(obj)) return null;
-  return obj as { artigos_decreto?: string[] | null; artigos_cgibs6?: string[] | null };
+  return obj as {
+    artigos_decreto?: string[] | null;
+    artigos_cgibs6?: string[] | null;
+    artigos_portaria7?: string[] | null;
+  };
 }
 
 /** Range compacto "Arts. min-max LEI" (ou "Art. N LEI" para 1 artigo); "" se vazio. */
@@ -418,6 +426,10 @@ export function enrichArticle(
     const cgibs = formatArticleRange(bundle.artigos_cgibs6, "Resolução CGIBS 6/2026");
     if (cgibs) parts.push(cgibs);
   }
+  // BUG-IBS-03: Portaria MF/CGIBS 7 (harmonização CBS↔IBS) — aplica aos dois mundos,
+  // injetada independentemente do regime (inclusive Simples Nacional).
+  const portaria = formatArticleRange(bundle.artigos_portaria7, "Portaria MF/CGIBS 7/2026");
+  if (portaria) parts.push(portaria);
   return parts.join("; ");
 }
 
