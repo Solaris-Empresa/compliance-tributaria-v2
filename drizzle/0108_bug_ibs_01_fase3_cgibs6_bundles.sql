@@ -62,8 +62,23 @@ SET normative_bundle = JSON_SET(normative_bundle, '$.artigos_cgibs6',
   JSON_ARRAY('Art. 389','Art. 390'))
 WHERE codigo = 'risco_art_269_270';
 
+-- normative_status: pending_document → confirmed (3 categorias de imóveis) — BUG-IBS-DRIFT-01
+-- Justificativa: 0107 inseriu com DEFAULT 'pending_document'; bundles CGIBS curados pelo
+-- Jurídico SOLARIS em 24/05/2026 (Fase 3). O deterministic-grounding.ts:62 só injeta
+-- categorias `confirmed` → sem este flip, o grounding de imóveis NÃO ocorre em DB limpo
+-- (as 5 categorias antigas já eram 'confirmed'; só as de 0107 nasceram pending_document).
+UPDATE risk_categories
+SET normative_status = 'confirmed'
+WHERE codigo IN (
+  'regime_especifico_imoveis',
+  'regime_especifico_imoveis_locacao',
+  'risco_art_269_270'
+);
+
 -- ════════════════════════════════════════════════════════════════════════════════
--- DOWN (rollback — restaura os valores artigos_cgibs6 de pré-Fase 3 / 0101-0107):
+-- DOWN (rollback):
+--   normative_status das 3 categorias de imóveis → 'pending_document' (estado 0107)
+--   artigos_cgibs6 → valores de pré-Fase 3 / 0101-0107:
 --   split_payment            → ['Art. 593','Art. 594','Art. 595']        (0101)
 --   confissao_automatica     → []                                        (0103)
 --   inscricao_cadastral      → ['Art. 104','Art. 105','Art. 106','Art. 109','Art. 110'] (0102)

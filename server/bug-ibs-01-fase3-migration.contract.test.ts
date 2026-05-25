@@ -82,3 +82,24 @@ describe("BUG-IBS-01 Fase 3 — migration 0108 (contrato do SQL)", () => {
     expect(SQL).toMatch(/pré-Fase 3/);
   });
 });
+
+describe("BUG-IBS-DRIFT-01 — normative_status='confirmed' (imóveis 0107 nasceram pending_document)", () => {
+  /** O UPDATE de status lista os 3 codigos de imóveis num único IN (...). */
+  function statusFlipHas(codigo: string): boolean {
+    const m = SQL.match(/SET normative_status = 'confirmed'\s*\nWHERE codigo IN \(([^)]*)\)/);
+    return m ? m[1].includes(`'${codigo}'`) : false;
+  }
+
+  it("UPDATE normative_status='confirmed' presente (sem o flip, grounding de imóveis falha em DB limpo)", () => {
+    expect(SQL).toMatch(/SET normative_status = 'confirmed'/);
+  });
+  it("regime_especifico_imoveis normative_status = confirmed", () => {
+    expect(statusFlipHas("regime_especifico_imoveis")).toBe(true);
+  });
+  it("regime_especifico_imoveis_locacao normative_status = confirmed", () => {
+    expect(statusFlipHas("regime_especifico_imoveis_locacao")).toBe(true);
+  });
+  it("risco_art_269_270 normative_status = confirmed", () => {
+    expect(statusFlipHas("risco_art_269_270")).toBe(true);
+  });
+});
