@@ -129,3 +129,6 @@ reports/battery-*/e2e-screenshots/
 
 # Sprint M3.10 Fase 3b — investigation cache (efêmero, por sessão)
 .claude/.investigate-cache/
+
+# Smoke de grounding (resultado de execução manual — não committar artefato)
+grounding-smoke-v3.results.json
