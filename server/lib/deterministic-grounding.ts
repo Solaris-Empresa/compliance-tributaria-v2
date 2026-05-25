@@ -26,6 +26,7 @@ interface NormativeBundleObject {
   artigos_lc214?: string[];
   artigos_decreto?: string[];
   artigos_cgibs6?: string[];
+  artigos_portaria7?: string[];
   tema?: string;
 }
 
@@ -39,7 +40,14 @@ export function formatDeterministicGrounding(conteudos: string[]): string {
     .filter((s): s is string => Boolean(s))
     .join("\n\n");
   if (!joined) return "";
-  return `\n\nREGULAMENTAÇÃO OPERACIONAL (Decreto 12.955/2026 e Resolução CGIBS 6/2026):\n${joined}`;
+  // POLISH-01: header DINÂMICO — lista só as fontes efetivamente presentes nos [FONTE:].
+  // Suprime "Resolução CGIBS 6/2026" quando nenhum artigo CGIBS foi injetado (ex: Simples Nacional).
+  const fontes: string[] = [];
+  if (joined.includes("[FONTE: Decreto")) fontes.push("Decreto 12.955/2026");
+  if (joined.includes("[FONTE: Resolução CGIBS 6")) fontes.push("Resolução CGIBS 6/2026");
+  if (joined.includes("[FONTE: Portaria")) fontes.push("Portaria MF/CGIBS 7/2026");
+  const escopo = fontes.length ? ` (${fontes.join(" e ")})` : "";
+  return `\n\nREGULAMENTAÇÃO OPERACIONAL${escopo}:\n${joined}`;
 }
 
 /**
@@ -99,6 +107,21 @@ export async function fetchDeterministicGrounding(
             )
           );
         conteudos.push(...rows.map((r) => `[FONTE: Resolução CGIBS 6/2026, ${r.artigo}]\n${r.conteudo}`));
+      }
+
+      // BUG-IBS-03: Portaria MF/CGIBS 7 (harmonização CBS↔IBS) — injetada p/ todos os regimes.
+      const portaria = bundle.artigos_portaria7;
+      if (portaria?.length) {
+        const rows = await db
+          .select({ conteudo: ragDocuments.conteudo, artigo: ragDocuments.artigo })
+          .from(ragDocuments)
+          .where(
+            and(
+              eq(ragDocuments.lei, "portaria_mf_cgibs_7"),
+              inArray(ragDocuments.artigo, portaria)
+            )
+          );
+        conteudos.push(...rows.map((r) => `[FONTE: Portaria MF/CGIBS 7/2026, ${r.artigo}]\n${r.conteudo}`));
       }
     }
 
