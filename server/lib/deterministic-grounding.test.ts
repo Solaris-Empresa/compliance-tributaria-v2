@@ -6,7 +6,10 @@
  * validado por smoke (Manus) — não unit-testado (evita anti-pattern de mock).
  */
 import { describe, it, expect } from "vitest";
-import { formatDeterministicGrounding } from "./deterministic-grounding";
+import {
+  formatDeterministicGrounding,
+  buildSimplesNacionalNote,
+} from "./deterministic-grounding";
 
 describe("formatDeterministicGrounding", () => {
   it("monta bloco com header + conteúdos concatenados", () => {
@@ -30,5 +33,28 @@ describe("formatDeterministicGrounding", () => {
   it("não emite instrução de citação (grounding — o nudge no prompt cuida disso)", () => {
     const block = formatDeterministicGrounding(["Art. 245º texto."]);
     expect(block.toLowerCase()).not.toContain("cite");
+  });
+});
+
+describe("buildSimplesNacionalNote — BUG-IBS-02", () => {
+  it("simples_nacional → nota com 'Art. 41, §2º' e 'Art. 49'", () => {
+    const nota = buildSimplesNacionalNote("simples_nacional");
+    expect(nota).toContain("Art. 41, §2º");
+    expect(nota).toContain("Art. 49");
+    expect(nota).toContain("Simples Nacional");
+  });
+
+  it("nota NÃO usa prefixo [FONTE: Resolução CGIBS 6 (preserva guard '0 tags CGIBS p/ SN')", () => {
+    expect(buildSimplesNacionalNote("simples_nacional")).not.toContain("[FONTE: Resolução CGIBS 6");
+  });
+
+  it("lucro_presumido → nota ausente (string vazia)", () => {
+    expect(buildSimplesNacionalNote("lucro_presumido")).toBe("");
+  });
+
+  it("lucro_real / null / undefined → nota ausente", () => {
+    expect(buildSimplesNacionalNote("lucro_real")).toBe("");
+    expect(buildSimplesNacionalNote(null)).toBe("");
+    expect(buildSimplesNacionalNote(undefined)).toBe("");
   });
 });
