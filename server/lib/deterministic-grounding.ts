@@ -51,6 +51,23 @@ export function formatDeterministicGrounding(conteudos: string[]): string {
 }
 
 /**
+ * BUG-IBS-02: nota explicativa para Simples Nacional/MEI. Para SN, os artigos do regime
+ * regular do IBS (CGIBS 6) NÃO são injetados (guard em fetchDeterministicGrounding) — em vez
+ * do vazio, injeta a nota do tratamento PRÓPRIO do SN (CGIBS 6 Art. 41 §2º + Art. 49,
+ * verificados no corpus). Em PROSA — sem prefixo `[FONTE: Resolução CGIBS 6...]`, para preservar
+ * o invariante "0 tags [FONTE: CGIBS] para SN" (guard do smoke). "" para regimes != SN.
+ */
+export function buildSimplesNacionalNote(regime?: string | null): string {
+  if (regime !== "simples_nacional") return "";
+  return (
+    "OBSERVAÇÃO — SIMPLES NACIONAL/MEI:\n" +
+    "Para empresas optantes pelo Simples Nacional/MEI, a Resolução CGIBS 6/2026 prevê " +
+    "tratamento próprio (Art. 41, §2º e Art. 49). Os dispositivos do regime regular do IBS " +
+    "não se aplicam a este enquadramento."
+  );
+}
+
+/**
  * Busca determinística dos artigos infralegais das categorias `confirmed` e
  * devolve o bloco formatado. Nunca lança — em falha devolve "".
  *
@@ -124,6 +141,10 @@ export async function fetchDeterministicGrounding(
         conteudos.push(...rows.map((r) => `[FONTE: Portaria MF/CGIBS 7/2026, ${r.artigo}]\n${r.conteudo}`));
       }
     }
+
+    // BUG-IBS-02: nota do tratamento próprio do SN (CGIBS não injetada acima p/ SN).
+    const snNote = buildSimplesNacionalNote(regime);
+    if (snNote) conteudos.push(snNote);
 
     return formatDeterministicGrounding(conteudos);
   } catch {
